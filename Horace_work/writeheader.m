@@ -25,6 +25,9 @@ function writeheader(data,fout)
 
 disp('Writing header information ');
 fid = fopen(fout,'w');
+n=length(data.grid);
+fwrite(fid,n,'int32');
+fwrite(fid,data.grid,'char');
 n=length(data.title_label);
 fwrite(fid,n,'int32');
 fwrite(fid,data.title_label,'char');

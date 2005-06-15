@@ -28,6 +28,8 @@ function data=getheader(fid)
 
 disp('Reading header information ...');
 [n,count]= fread(fid,1,'int32');
+[data.grid,count]= fread(fid,[1,n],'*char');
+[n,count]= fread(fid,1,'int32');
 [data.title,count]= fread(fid,n,'*char');
 data.title= data.title';
 [data.ei,count] = fread(fid,1,'float32');
