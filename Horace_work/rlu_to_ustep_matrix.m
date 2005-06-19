@@ -10,12 +10,12 @@ function [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, u,
 %           plane of u and v. The unit lengths of the axes are determined by the
 %           character codes in the variable 'type' described below
 %            - if 'a': unit length is one inverse Angstrom
-%            - if 'r': then if (h,k,l) in r.l.u., is normalised so max([h,k,l])=1
+%            - if 'r': then if (h,k,l) in r.l.u., is normalised so max(abs(h,k,l))=1
 %           Call the orthogonal set created from u and v: u1, u2, u3.
 %   ustep(1:3)  Row vector giving step size along u1, u2 and u3 axes
 %   type        Units of binning and thickness: a three-character string,
 %               each character indicating if u1, u2, u3 normalised to Angstrom^-1
-%               or r.l.u., max(h,k,l)=1.
+%               or r.l.u., max(abs(h,k,l))=1.
 %
 % output:
 % -----------
@@ -50,13 +50,13 @@ ulen = zeros(1,3);
 ustep_to_rlu = zeros(3,3);
 for i=1:3
     if lower(type(i))=='r'
-        u_to_rlu(:,i) = ubinv(:,i)/max(abs(ubinv(:,i)));     % normalise so ui has max(abs(h,k,l))=1
-        ulen(i) = 1/max(ubinv(:,i));                    % length of u1 in Ang^-1
-        ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i);     % get step vector in r.l.u.
+        u_to_rlu(:,i) = ubinv(:,i)/max(abs(ubinv(:,i)));    % normalise so ui has max(abs(h,k,l))=1
+        ulen(i) = 1/max(ubinv(:,i));                        % length of u1 in Ang^-1
+        ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i);         % get step vector in r.l.u.
     elseif lower(type(i))=='a'
-        u_to_rlu(:,i) = ubinv(:,i);                     % ui normalised to 1 Ang^-1 already, so just copy
-        ulen(i) = 1;                                    % length of u1 in Ang^-1
-        ustep_to_rlu(:,i) = ustep(i)*ubinv(:,i);        % get step vector in r.l.u.
+        u_to_rlu(:,i) = ubinv(:,i);                         % ui normalised to 1 Ang^-1 already, so just copy
+        ulen(i) = 1;                                        % length of u1 in Ang^-1
+        ustep_to_rlu(:,i) = ustep(i)*ubinv(:,i);            % get step vector in r.l.u.
     else
         error('ERROR: normalisation type for each axis must be ''r'' or ''a''')
     end
