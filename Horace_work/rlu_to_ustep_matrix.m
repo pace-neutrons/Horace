@@ -14,8 +14,8 @@ function [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, u,
 %           Call the orthogonal set created from u and v: u1, u2, u3.
 %   ustep(1:3)  Row vector giving step size along u1, u2 and u3 axes
 %   type        Units of binning and thickness: a three-character string,
-%               each character indicating if u1, u2, u3 normalised to Angstrom^-1
-%               or r.l.u., max(abs(h,k,l))=1.
+%              each character indicating if u1, u2, u3 normalised to Angstrom^-1
+%              or r.l.u., max(abs(h,k,l))=1 - 'a' and 'r' respectively. e.g. type='arr'
 %
 % output:
 % -----------

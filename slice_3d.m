@@ -1,45 +1,47 @@
 function d = slice_3d (data_source, u, v, p0, u1_bin, u2_bin, u3_bin, thick, type)
 % 
 % input:
-%   data_source File containing (h,k,l,e) data
-%   u(1:3)      Vector defining first plot axis (r.l.u.)
-%   v(1:3)      Vector defining plane of plot in Q-space (r.l.u.)
+% --------
+%   data_source     File containing (h,k,l,e) data
+%   u(1:3)          Vector defining first plot axis (r.l.u.)
+%   v(1:3)          Vector defining plane of plot in Q-space (r.l.u.)
 %           The plot plane is defined by u and the perpendicular to u in the
 %           plane of u and v. The unit lengths of the axes are determined by the
 %           character codes in the variable 'type' described below
 %            - if 'a': unit length is one inverse Angstrom
-%            - if 'r': then if (h,k,l) in r.l.u., is normalised so max([h,k,l])=1
+%            - if 'r': then if (h,k,l) in r.l.u., is normalised so max(abs([h,k,l]))=1
 %           Call the orthogonal set created from u and v: u1, u2, u3.
-%   p0(1:3)     Vector defining origin of the plane in Q-space (r.l.u.)
-%   u1_bin(1:3)   Binning along u axis: [u1_start, u1_step, u1_end]
-%   u2_bin(1:3)   Binning perpendicular to u axis within the plot plane:
+%   p0(1:3)         Vector defining origin of the plane in Q-space (r.l.u.)
+%   u1_bin(1:3)     Binning along u axis: [u1_start, u1_step, u1_end]
+%   u2_bin(1:3)     Binning perpendicular to u axis within the plot plane:
 %                                     [u2_start, u2_step, u2_end]
-%   u3_bin(1:3)   depending on thick this will either be binning along the
-%                 energy axis or the u3 axis which is perpendicular to the
-%                 plot plane.
-%   thick       In case of scalar it is the thickness of binning perpendicular to plot plane: +/-(thick/2)
-%               In the case of it being vector (length=2) is contains [E0,
-%               dE], where dE is the thickness in energy.
-%   type        Units of binning and thickness: a three-character string,
-%               each character indicating if u1, u2, u3 normalised to Angstrom^-1
-%               or r.l.u., max(h,k,l)=1.
+%   u3_bin(1:3)     Depending on thick this will either be binning along the
+%                  energy axis or the u3 axis which is perpendicular to the
+%                  plot plane.
+%   thick           If scalar: thickness of binning perpendicular to
+%                  plot plane: +/-(thick/2).
+%                   If vector: [E0, dE], where dE is the thickness in energy.
+%   type            Units of binning and thickness: a three-character string,
+%                  each character indicating if u1, u2, u3 normalised to Angstrom^-1
+%                  or r.l.u., max(abs(h,k,l))=1 - 'a' and 'r' respectively. e.g. type='arr'
 %
 % output:
-%   d.stype: type of 3D grid, 'QQE' or 'QQQ'
-%   d.file: binary file name
-%   d.title: title of the binary file
-%   d.u_to_rlu: Vectors u1, u2, u3 in reciprocal lattice vectors: 
-%   d.ulen: Row vector of lengths of ui in Ang^-1
-%   d.p0: Vector defining origin of the plane in Q-space (r.l.u.)
-%   d.u1: vector of u1 bin boundary values 
-%   d.u2: vector of u2 bin boundary values
-%   d.u3: vector of u3 bin boundary values
-%   d.int(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1): cummulative
-%   intensity array float32
-%   d.err(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1): cummulative error
-%   array float32
-%   d.nint(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1): Number of pixels
-%   that contributed to a bin is given by nint int16
+% ----------
+%   d.stype         Type of 3D grid, 'QQE' or 'QQQ'
+%   d.file          File from which (h,k,l,e) data was read
+%   d.title         Title of the binary file from which (h,k,l,e) data was read
+%   d.u_to_rlu      Vectors u1, u2, u3 (r.l.u.) 
+%   d.ulen          Row vector of lengths of ui in Ang^-1
+%   d.p0            Vector defining origin of the plane in Q-space (r.l.u.)
+%   d.u1            Vector of u1 bin boundary values 
+%   d.u2            Vector of u2 bin boundary values
+%   d.u3            Vector of u3 bin boundary values
+%   d.int(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1)
+%                   Cumulative intensity array
+%   d.err(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1)
+%                   Cumulative intensity array
+%   d.nint(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1)
+%                   Number of pixels that contributed to a bin [int16]
 
 % Author:
 %   J. van Duijn     10/06/2005

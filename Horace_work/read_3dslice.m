@@ -4,21 +4,22 @@ function d= read_3dslice(fin)
 % matlab workspace
 %
 % output:
-%   d.stype: type of 3D grid, 'QQE' or 'QQQ'
-%   d.file: binary file name
-%   d.title: title of the binary file
-%   d.u_to_rlu: Vectors u1, u2, u3 in reciprocal lattice vectors: 
-%   d.ulen: Row vector of lengths of ui in Ang^-1
-%   d.p0: Vector defining origin of the plane in Q-space (r.l.u.)
-%   d.u1: vector of u1 bin boundary values 
-%   d.u2: vector of u2 bin boundary values
-%   d.u3: vector of u3 bin boundary values
-%   d.int(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1): cummulative
-%   intensity array float32
-%   d.err(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1): cummulative error
-%   array float32
-%   d.nint(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1): Number of pixels
-%   that contributed to a bin is given by nint int16
+% --------
+%   d.stype         Type of 3D grid, 'QQE' or 'QQQ'
+%   d.file          File from which (h,k,l,e) data was read
+%   d.title         Title of the binary file from which (h,k,l,e) data was read
+%   d.u_to_rlu      Vectors u1, u2, u3 (r.l.u.) 
+%   d.ulen          Row vector of lengths of ui in Ang^-1
+%   d.p0            Vector defining origin of the plane in Q-space (r.l.u.)
+%   d.u1            Vector of u1 bin boundary values 
+%   d.u2            Vector of u2 bin boundary values
+%   d.u3            Vector of u3 bin boundary values
+%   d.int(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1)
+%                   Cumulative intensity array
+%   d.err(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1)
+%                   Cumulative intensity array
+%   d.nint(length(d.u1)-1,length(d.u2)-1, length(d.u3)-1)
+%                   Number of pixels that contributed to a bin [int16]
 
 % Author:
 %   J. van Duijn     10/06/2005
