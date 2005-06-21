@@ -40,6 +40,10 @@ function dout = cut_data (din, varargin)
 % -------
 % dout        Output data structure. Its elements are the same as those of din, appropriately updated.
 %
+%
+% Examples:
+%   >> dout = cut_data (din, 2, [1.9,2.1], 3 [-0.55,-0.45]) % sum along y and z axes
+%                                                           %(din must be a 3D or 4D data structure)
 
 % Author:
 %   T.G.Perring     20/06/2005
@@ -47,8 +51,10 @@ function dout = cut_data (din, varargin)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
+tic
 if nargin==1    % trivial case - no integration, so return
     dout = din;
+    return
 elseif ~(nargin==3|nargin==5|nargin==7|nargin==9)
     error ('ERROR - Check number of arguments')
 end
@@ -102,7 +108,7 @@ ilims = fliplr(ilims);          % corresponding integration limits
 for i=1:niax
     pvals_name = ['p', num2str(idim(i))];   % name of field containing bin boundaries for the plot axis to be integrated over
     pvals = din.(pvals_name);               % values of bin boundaries (use dynamic field names facility of Matlab)
-    lis=find(pvals>=ilims(1,i) & pvals<=ilims(2,i))
+    lis=find(pvals>=ilims(1,i) & pvals<=ilims(2,i));
     if ~isempty(lis)
         ilo = lis(1);
         ihi = lis(end);
@@ -110,8 +116,6 @@ for i=1:niax
         error ('ERROR: No data in the requested cut')
     end
     [signal,errors,nbins] = cut_data_arrays (idim(i), ilo, ihi, signal, errors, nbins);
-else
-    error ('ERROR: No data in the requested cut')
 end
 
 
@@ -135,3 +139,4 @@ dout.uint = [din.uint, uint];
 dout.s = signal;
 dout.e = errors;
 dout.n = nbins;
+toc

@@ -2,7 +2,7 @@ function [s_out, e_out, n_out] = cut_data_arrays (iax, ilo, ihi, s, e, n)
 % Sum signal, error and nbin arrays along the specified dimension between (and
 % including) the two indexes. The output arrays are reduced in dimension by unity.
 %
-% Input arrays must have four or fewer dimensions. Check are rudimentary - it is assumed
+% Input arrays must have four or fewer dimensions. Checks are rudimentary - it is assumed
 % that ilo and ihi are valid for the given summation axis, for example.
 
 % Author:
