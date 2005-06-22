@@ -108,3 +108,17 @@ din.n = 10*rand(narr(1),narr(2),narr(3));
 %   din.s     Cumulative signal.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   din.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   din.n     Number of contributing pixels [size(din.n)=(length(din.p1)-1, length(din.p2)-1, ...)]
+
+
+%---------------------------------------------------------------
+% test titling
+function titles = cut_titles (file, title_, u, ulen, p0, pax, iax, uint, label)
+din.file = 'c:\blobby.dat';
+din.title = 'This is a silly test';
+din.u = [1,1,0,0; 0,0,1,0; 1,-1,0,0; 0,0,0,1];
+din.ulen = [2.828427125, 2, 2.828427125, 1];
+din.p0 = [3,1,4,10];
+din.pax = [2,4,1];
+din.iax = [3];
+din.uint = [0.45;0.55];
+
