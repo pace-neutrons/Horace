@@ -8,6 +8,7 @@ function dout = cut_data (din, varargin)
 %   din.u     Matrix (4x4) of projection axes in original 4D representation
 %              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   din.ulen  Length of vectors in Ang^-1, energy
+%   din.label Labels of theprojection axes (1x4 cell array of charater strings)
 %   din.p0    Offset of origin of projection [ph; pk; pl; pen]
 %   din.pax   Index of plot axes in the matrix din.u
 %               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
@@ -17,7 +18,7 @@ function dout = cut_data (din, varargin)
 %     :       (for as many plot axes as given by length of din.pax)
 %   din.iax   Index of integration axes in the matrix din.u
 %               e.g. if data is 2D, din.iax=[3,1] means summation has been performed along u3 and u1 axes
-%   din.uint  Integration range along each of the integration axes
+%   din.uint  Integration range along each of the integration axes. Dimensions are uint(2,length(iax))
 %               e.g. in 2D case above, is the matrix vector [u3_lo, u1_lo; u3_hi, u1_hi]
 %   din.s     Cumulative signal.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   din.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
