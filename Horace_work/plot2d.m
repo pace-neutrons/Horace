@@ -51,7 +51,7 @@ for i=1:ny
     y(:,nlo:nhi) = repmat(ypatch,1,nx);
 end
 
-c = reshape(din.s,1,npatch);
+c = reshape(din.s,1,npatch)./double(reshape(din.n,1,npatch));
 
 % Create graphics output
 axis([din.p1(1) din.p1(end) din.p2(1) din.p2(end)]);

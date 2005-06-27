@@ -60,13 +60,6 @@ elseif ~(nargin==3|nargin==5|nargin==7|nargin==9)
     error ('ERROR - Check number of arguments')
 end
 
-dout.file = din.file;
-dout.title = din.title;
-dout.u = din.u;
-dout.ulen = din.ulen;
-dout.p0 = din.p0;
-
-
 % Get integration parameters:
 niax = floor((nargin-1)/2);
 pax_ind = linspace(1,length(din.pax),length(din.pax));
@@ -109,7 +102,8 @@ ilims = fliplr(ilims);          % corresponding integration limits
 for i=1:niax
     pvals_name = ['p', num2str(idim(i))];   % name of field containing bin boundaries for the plot axis to be integrated over
     pvals = din.(pvals_name);               % values of bin boundaries (use dynamic field names facility of Matlab)
-    lis=find(pvals>=ilims(1,i) & pvals<=ilims(2,i));
+    pcent = 0.5*(pvals(2:end)+pvals(1:end-1));          % values of bin centres
+    lis=find(pcent>=ilims(1,i) & pcent<=ilims(2,i));    % indices of bins whose centres lie within or at boundaries of integration range
     if ~isempty(lis)
         ilo = lis(1);
         ihi = lis(end);
@@ -126,6 +120,7 @@ dout.file = din.file;
 dout.title = din.title;
 dout.u = din.u;
 dout.ulen = din.ulen;
+dout.label = din.label;
 dout.p0 = din.p0;
 
 % Changed items:

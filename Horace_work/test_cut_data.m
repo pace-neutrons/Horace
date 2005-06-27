@@ -91,3 +91,29 @@ din.s = rand(narr(1),narr(2),narr(3));
 din.e = 2*rand(narr(1),narr(2),narr(3));
 din.n = 10*rand(narr(1),narr(2),narr(3));
 
+%--------------------------------------------------------
+narr=[50,60,50];
+din.file = 'c:\blobby.dat';
+din.title = 'This is a silly test';
+din.u = [1,1,0,0; -1,1,0,0; 0,0,1,0; 0,0,0,1]';
+din.ulen = [2.828427125, 2.828427125, 2, 1];
+din.label = {'Q_h','Q_k','Q_l','En'};
+din.p0 = [2,1,1,0];
+din.pax = [3,4,1];
+
+ndim = length(narr);
+if ndim>=1; din.p1 = linspace(1,5,narr(1)+1); end;
+if ndim>=2; din.p2 = linspace(-10,40,narr(2)+1); end;
+if ndim>=3; din.p3 = linspace(-2,2,narr(3)+1); end;
+if ndim>=4; din.p4 = linspace(31,35,narr(4)+1); end;
+
+din.iax = [2];
+din.uint = [0.45;0.55];
+
+vec = [5,3,3];
+[pp1,pp2,pp3]=meshgrid(din.p2(2:end)-vec(1),din.p1(2:end)-vec(2),din.p3(2:end)-vec(3));
+
+din.s = pp1.^2+pp2.^2+pp3.^2;
+din.e = 0.2*sqrt(din.s);
+din.n = floor(10*rand(narr(1),narr(2),narr(3)));
+
