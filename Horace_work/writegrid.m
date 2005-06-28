@@ -32,15 +32,44 @@ disp('Writing binary file ...')
 writeheader(data,fout);
 fid = fopen(fout,'r+');
 fseek(fid, 0, 'eof');
-fwrite(fid,data.nhv,'float32');
-fwrite(fid,data.nkv,'float32');
-fwrite(fid,data.nlv,'float32');
-fwrite(fid,data.nev,'float32');
-fwrite(fid,data.hv,'float32');
-fwrite(fid,data.kv,'float32');
-fwrite(fid,data.lv,'float32');
-fwrite(fid,data.ev,'float32');
-fwrite(fid,data.int,'float32');
-fwrite(fid,data.err,'float32');
-fwrite(fid,data.nint,'int16');
+if length(data.pax)==4, % 4D grid
+    np1=length(data.p1); % length of vector data.p1
+    fwrite(fid,np1,'int32');
+    np2=length(data.p2); % length of vector data.p2
+    fwrite(fid,np2,'int32');
+    np3=length(data.p3); % length of vector data.p3
+    fwrite(fid,np3,'int32');
+    np4=length(data.p4); % length of vector data.p4
+    fwrite(fid,n4,'int32');
+    fwrite(fid,data.p1,'float32');
+    fwrite(fid,data.p2,'float32');
+    fwrite(fid,data.p3,'float32');
+    fwrite(fid,data.p4,'float32');
+elseif length(data.pax)==3, %3D grid
+    np1=length(data.p1); % length of vector data.p1
+    fwrite(fid,np1,'int32');
+    np2=length(data.p2); % length of vector data.p2
+    fwrite(fid,np2,'int32');
+    np3=length(data.p3); % length of vector data.p3
+    fwrite(fid,np3,'int32');
+    fwrite(fid,data.p1,'float32');
+    fwrite(fid,data.p2,'float32');
+    fwrite(fid,data.p3,'float32');
+elseif length(data.pax)==2, %2D grid
+    np1=length(data.p1); % length of vector data.p1
+    fwrite(fid,np1,'int32');
+    np2=length(data.p2); % length of vector data.p2
+    fwrite(fid,np2,'int32');
+    fwrite(fid,data.p1,'float32');
+    fwrite(fid,data.p2,'float32');
+elseif length(data.pax)==2, %1D grid
+    np1=length(data.p1); % length of vector data.p1
+    fwrite(fid,np1,'int32');
+    fwrite(fid,data.p1,'float32');
+else
+    disp(['ERROR! Wrong type of data structure']);
+end
+fwrite(fid,data.s,'float32');
+fwrite(fid,data.e,'float32');
+fwrite(fid,data.n,'int16');
 fclose(fid);

@@ -27,10 +27,9 @@ function gen_hkle(msp,fin, fout, u1, u2,u3);
 %       data.alpha: alpha
 %       data.beta: beta
 %       data.gamma: gamma
-%       data.u1: viewing axis u1 (Q)
-%       data.u2: viewing axis u2 (Q)
-%       data.u3: viewing axis u3 (Q)
-%       data.u4: viewing axis u4 (this is energy)
+%       data.u     Matrix (4x4) of projection axes in original 4D representation
+%              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
+%       data.ulen  Length of vectors in Ang^-1, energy
 %       data.nfiles: number of spe files contained within the binary file
 %
 %       list of psi, u,v (crystal orientation) and file name of the spe
@@ -39,9 +38,9 @@ function gen_hkle(msp,fin, fout, u1, u2,u3);
 %       data.v: 2 D array containing collums of hkl corresponding to each
 %       pixel.
 %       en: vector containing energy bins
-%       S: intensity vector (size=sized(1)sized(2)=number of
+%       S: intensity vector (size=sized(1)*sized(2)=number of
 %       detectors*number of energy bins)
-%       ERR: Error vector
+%       ERR: Error vector (as the variance, ie err^2)
 
 % Author:
 %   J. van Duijn     01/06/2005
@@ -92,7 +91,8 @@ for i = 1:nfiles
     
     if i==1 & append~=1
        %the very first time around generate all the header information.
-       data=d;
+       data.title= d.title_label;
+       data.ei=d.efixed;       
        data.grid= 'spe';
        data.a=ms_getvalue('as');
        data.b=ms_getvalue('bs');
@@ -100,10 +100,8 @@ for i = 1:nfiles
        data.alpha=ms_getvalue('aa');
        data.beta=ms_getvalue('bb');
        data.gamma=ms_getvalue('cc');
-       data.u1= u1;
-       data.u2= u2;
-       data.u3= u3;
-       data.u4= [0,0,0,1]; % energy
+       data.u= [u1',u2',u3',[0 0 0 1]'];
+       data.ulen= [d.axis_unitlength; 1];
        data.nfiles= nfiles;
        writeheader(data,fout);
     end
@@ -131,6 +129,7 @@ for i = 1:nfiles
     fwrite(fid,d.S,'float32');
     d.ERR=reshape(d.ERR, nt, 1);
     d.ERR=d.ERR';
+    d.ERR=d.ERR.^2;
     fwrite(fid,d.ERR,'float32');    
 end
 fclose(fid);
