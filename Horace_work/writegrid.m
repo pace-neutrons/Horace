@@ -4,23 +4,39 @@ function writegrid(data,fout),
 % called fout.
 %
 % data:
-%       data.nhv = length(data.hv)  : number of grid boundaries along Q_h
-%       data.nkv = length(data.kv)  : number of grid boundaries along Q_k
-%       data.nlv = length(data.lv)  : number of grid boundaries along Q_l
-%       data.nev = length(data.ev)  : number of grid boundaries along E
-%       data.hv                : grid boundaries along Q_h
-%       data.kv                : grid boundaries along Q_k
-%       data.lv                : grid boundaries along Q_l
-%       data.ev                : grid boundaries along E
-%       data.rint(length(data.hv),length(data.kv),length(data.lv),length(data.ev)) float32
-%       data.eint(length(data.hv),length(data.kv),length(data.lv),length(data.ev)) float32
-%       data.nint(length(data.hv),length(data.kv),length(data.lv),length(data.ev)) int16
-%
-%       data.rint is the cumulative intensity in the grid defined by the bin boundaries 
-%       in data.hv,data.kv,data.lv,data.ev.
-%       data.eint is the cumulative variance in the grid defined by the bin boundaries 
-%       in data.hv,data.kv,data.lv,data.ev.
-%       Number of pixels that contributed to a grid point is given by data.nint
+%        Data from which a reduced dimensional manifold is to be taken. Its fields are:
+% header:
+%   data.grid: type of binary file (4D grid, blocks of spe file, etc)
+%   data.title: title label
+%   data.efixed: value of ei
+%   data.a: a axis
+%   data.b: b axis
+%   data.c c axis
+%   data.alpha: alpha
+%   data.beta: beta
+%   data.gamma: gamma
+%   data.file  File from which (h,k,l,e) data was read
+%   data.title Title contained in the file from which (h,k,l,e) data was read
+%   data.u     Matrix (4x4) of projection axes in original 4D representation
+%              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
+%   data.ulen  Length of vectors in Ang^-1, energy
+%   data.label Labels of theprojection axes (1x4 cell array of charater strings)
+%   data.p0    Offset of origin of projection [ph; pk; pl; pen]
+%   data.pax   Index of plot axes in the matrix din.u
+%               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
+%                               2D, din.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
+% if dimension<3D
+%   data.iax   Index of integration axes in the matrix din.u
+%               e.g. if data is 2D, din.iax=[3,1] means summation has been performed along u3 and u1 axes
+%   data.uint  Integration range along each of the integration axes. Dimensions are uint(2,length(iax))
+%               e.g. in 2D case above, is the matrix vector [u3_lo, u1_lo; u3_hi, u1_hi]
+% block data:
+%   data.p1    (Row) vector of bin boundaries along first plot axis
+%   data.p2    (Row) vector of bin boundaries along second plot axis
+%     :       (for as many plot axes as given by length of din.pax)
+%   data.s     Cumulative signal.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
+%   data.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
+%   data.n     Number of contributing pixels [size(din.n)=(length(din.p1)-1, length(din.p2)-1, ...)]
 
 % Author:
 %   J. van Duijn     12/06/2005

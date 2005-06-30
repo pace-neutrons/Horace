@@ -13,15 +13,20 @@ function writeheader(data,fout)
 %       data.gamma: gamma
 %       data.u     Matrix (4x4) of projection axes in original 4D representation
 %              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-%       din.ulen  Length of vectors in Ang^-1, energy
+%       data.ulen  Length of vectors in Ang^-1, energy
 %       data.nfiles: number of spe files contained within the binary file
 %   if data is in grid:
-%       din.p0    Offset of origin of projection [ph; pk; pl; pen]
-%       din.pax   Index of plot axes in the matrix din.u
+%       data.p0    Offset of origin of projection [ph; pk; pl; pen]
+%       data.pax   Index of plot axes in the matrix din.u
 %               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
 %                               2D, din.pax=[2,4]     "   u2, u4,    axes
 %                               are x,y   in any plotting
-
+% if dimension<3D
+%   data.iax   Index of integration axes in the matrix din.u
+%               e.g. if data is 2D, din.iax=[3,1] means summation has been performed along u3 and u1 axes
+%   data.uint  Integration range along each of the integration axes. Dimensions are uint(2,length(iax))
+%               e.g. in 2D case above, is the matrix vector [u3_lo, u1_lo;
+%               u3_hi, u1_hi]
 
 % Author:
 %   J. van Duijn    01/06/2005
