@@ -5,7 +5,6 @@ function data=getheader(fid)
 %
 %       data.grid: type of binary file, block spe or 4D grid
 %       data.title: title label
-%       data.ei: value of ei
 %       data.a: a axis
 %       data.b: b axis
 %       data.c: c axis
@@ -49,7 +48,6 @@ disp('Reading header information ...');
 [n,count]= fread(fid,1,'int32');
 [data.title,count]= fread(fid,n,'*char');
 data.title= data.title';
-[data.ei,count] = fread(fid,1,'float32');
 [data.a,count] = fread(fid,1,'float32');
 [data.b,count] = fread(fid,1,'float32');
 [data.c,count] = fread(fid,1,'float32');
@@ -62,15 +60,6 @@ if strcmp(data.grid,'spe'),
     [data.nfiles,count] = fread(fid,1,'int32');
     % we don't yet know what p0 and pax will be. Data needs to be sliced
     % first.
-elseif strcmp(data.grid,'4D');
-    [data.nfiles,count] = fread(fid,1,'int32');
-    [n,count]= fread(fid,2,'int32');
-    [data.label,count]=fread(fid,[n(1),n(2)],'*char');
-    data.label=cellstr(data.label);
-    data.label=data.label';
-    [data.p0,count]= fread(fid,[4,1],'int32');
-    [n,count]= fread(fid,1,'int32');
-    [data.pax,count]=fread(fid,[1,n],'int32');
 else
     [n,count]= fread(fid,2,'int32');
     [data.label,count]=fread(fid,[n(1),n(2)],'*char');
@@ -79,7 +68,12 @@ else
     [data.p0,count]= fread(fid,[4,1],'int32');
     [n,count]= fread(fid,1,'int32');
     [data.pax,count]=fread(fid,[1,n],'int32');
-    [n,count]= fread(fid,1,'int32');
-    [data.iax,count]=fread(fid,[1,n],'int32');
-    [data.uint,count]=fread(fid,[2,n],'float32');
+    if n==4,
+        data.iax=[]; % create empty index of integration array
+        data.uint=[];
+    else
+        [n,count]= fread(fid,1,'int32');
+        [data.iax,count]=fread(fid,[1,n],'int32');
+        [data.uint,count]=fread(fid,[2,n],'float32');
+    end
 end

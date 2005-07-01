@@ -7,6 +7,7 @@ function data=getblock(fid, data)
 %
 % output:
 %   if data is in spe blocks
+%   data.ei: incident energy used for spe file
 %   data.psi: psi angle
 %   data.cu: u crystal axis (see mslice)
 %   data.cv: v crystal axis (see mslice)
@@ -36,6 +37,7 @@ function data=getblock(fid, data)
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
 if ~isfield(data,'pax'),
+    [data.ei,count]= fread(fid, 1, 'float32');
     [data.psi,count]= fread(fid, 1, 'float32');
     [data.cu,count]= fread(fid, 3, 'float32');
     data.cu= data.cu';
@@ -53,69 +55,69 @@ if ~isfield(data,'pax'),
     [data.S,count]= fread(fid,[1,sizet],'float32');
     [data.ERR,count]= fread(fid,[1,sizet],'float32');
 elseif length(data.pax)==4,,
-    [data.np1,count] = fread(fid,1,'int32');
-    [data.np2,count] = fread(fid,1,'int32');
-    [data.np3,count] = fread(fid,1,'int32');
-    [data.np4,count] = fread(fid,1,'intt32');
-    [data.p1,count] = fread(fid,data.np1,'float32');
-    [data.p2,count] = fread(fid,data.np2,'float32');
-    [data.p3,count] = fread(fid,data.np3,'float32');
-    [data.p4,count] = fread(fid,data.np4,'float32');
-    ntot = (data.np1-1)*(data.np2-1)*(data.np3-1)*(data.np4-1);
-    data.s = zeros(data.np1-1,data.np2-1,data.np3-1,data.np4-1);
-    data.e = zeros(data.np1-1,data.np2-1,data.np3-1,data.np4-1);
+    [np1,count] = fread(fid,1,'int32');
+    [np2,count] = fread(fid,1,'int32');
+    [np3,count] = fread(fid,1,'int32');
+    [np4,count] = fread(fid,1,'intt32');
+    [data.p1,count] = fread(fid,np1,'float32');
+    [data.p2,count] = fread(fid,np2,'float32');
+    [data.p3,count] = fread(fid,np3,'float32');
+    [data.p4,count] = fread(fid,np4,'float32');
+    ntot = (np1-1)*(np2-1)*(np3-1)*(np4-1);
+    data.s = zeros(np1-1,np2-1,np3-1,np4-1);
+    data.e = zeros(np1-1,np2-1,np3-1,np4-1);
     data.n = int16(data.s);
     [data.s,count] = fread(fid,ntot,'float32');
-    data.s = reshape(data.s,data.np1-1,data.np2-1,data.np3-1,data.np4-1);
+    data.s = reshape(data.s,np1-1,np2-1,np3-1,np4-1);
     [data.e,count] = fread(fid,ntot,'float32');
-    data.e= reshape(data.e,data.np1-1,data.np2-1,data.np3-1,data.np4-1);
+    data.e= reshape(data.e,np1-1,np2-1,np3-1,np4-1);
     [data.n,count] = fread(fid,ntot,'int16');
-    data.nt = reshape(data.n,data.np1-1,data.np2-1,data.np3-1,data.np4-1);
+    data.nt = int16(reshape(data.n,np1-1,np2-1,np3-1,np4-1));
 elseif length(data.pax)==3,
-    [data.np1,count] = fread(fid,1,'int32');
-    [data.np2,count] = fread(fid,1,'int32');
-    [data.np3,count] = fread(fid,1,'int32');
-    [data.p1,count] = fread(fid,data.np1,'float32');
-    [data.p2,count] = fread(fid,data.np2,'float32');
-    [data.p3,count] = fread(fid,data.np3,'float32');
-    ntot = (data.np1-1)*(data.np2-1)*(data.np3-1);
-    data.s = zeros(data.np1-1,data.np2-1,data.np3-1);
-    data.e = zeros(data.np1-1,data.np2-1,data.np3-1);
+    [np1,count] = fread(fid,1,'int32');
+    [np2,count] = fread(fid,1,'int32');
+    [np3,count] = fread(fid,1,'int32');
+    [data.p1,count] = fread(fid,np1,'float32');
+    [data.p2,count] = fread(fid,np2,'float32');
+    [data.p3,count] = fread(fid,np3,'float32');
+    ntot = (np1-1)*(np2-1)*(np3-1);
+    data.s = zeros(np1-1,np2-1,np3-1);
+    data.e = zeros(np1-1,np2-1,np3-1);
     data.n = int16(data.s);
     [data.s,count] = fread(fid,ntot,'float32');
-    data.s = reshape(data.s,data.np1-1,data.np2-1,data.np3-1);
+    data.s = reshape(data.s,np1-1,np2-1,np3-1);
     [data.e,count] = fread(fid,ntot,'float32');
-    data.e = reshape(data.e,data.np1-1,data.np2-1,data.np3-1);
+    data.e = reshape(data.e,np1-1,np2-1,np3-1);
     [data.n,count] = fread(fid,ntot,'int16');
-    data.n= reshape(data.n,data.np1-1,data.np2-1,data.np3-1);
+    data.n= int16(reshape(data.n,np1-1,np2-1,np3-1));
 elseif length(data.pax)==2,
-    [data.np1,count] = fread(fid,1,'int32');
-    [data.np2,count] = fread(fid,1,'int32');
-    [data.p1,count] = fread(fid,data.np1,'float32');
-    [data.p2,count] = fread(fid,data.np2,'float32');
-    ntot = (data.np1-1)*(data.np2-1);
-    data.s = zeros(data.np1-1,data.np2-1);
-    data.e = zeros(data.np1-1,data.np2-1);
+    [np1,count] = fread(fid,1,'int32');
+    [np2,count] = fread(fid,1,'int32');
+    [data.p1,count] = fread(fid,np1,'float32');
+    [data.p2,count] = fread(fid,np2,'float32');
+    ntot = (np1-1)*(np2-1);
+    data.s = zeros(np1-1,np2-1);
+    data.e = zeros(np1-1,np2-1);
     data.n = int16(data.s);
     [data.s,count] = fread(fid,ntot,'float32');
-    data.s= reshape(data.s,data.np1-1,data.np2-1);
+    data.s= reshape(data.s,np1-1,np2-1);
     [data.e,count] = fread(fid,ntot,'float32');
-    data.e= reshape(data.e,data.np1-1,data.np2-1);
+    data.e= reshape(data.e,np1-1,np2-1);
     [data.n,count] = fread(fid,ntot,'int16');
-    data.n = reshape(data.n,data.np1-1,data.np2-1);
+    data.n = int16(reshape(data.n,np1-1,np2-1));
 elseif length(data.pax)==2,
-    [data.np1,count] = fread(fid,1,'int32');
-    [data.p1,count] = fread(fid,data.np1,'float32');
+    [np1,count] = fread(fid,1,'int32');
+    [data.p1,count] = fread(fid,np1,'float32');
     ntot = data.np1-1;
-    data.s = zeros(data.np1-1);
-    data.e = zeros(data.np1-1);
+    data.s = zeros(np1-1);
+    data.e = zeros(np1-1);
     data.n = int16(data.s);
     [data.s,count] = fread(fid,ntot,'float32');
-    data.s = reshape(data.s,data.np1-1);
+    data.s = reshape(data.s,np1-1);
     [data.e,count] = fread(fid,ntot,'float32');
-    data.e = reshape(data.e,data.np1-1);
+    data.e = reshape(data.e,np1-1);
     [data.n,count] = fread(fid,ntot,'int16');
-    data.n = reshape(data.n,data.np1-1);
+    data.n = int16(reshape(data.n,np1-1));
 else
     disp('Error: wrong type of binary file');
 end

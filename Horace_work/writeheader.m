@@ -4,7 +4,6 @@ function writeheader(data,fout)
 %
 %       data.grid: type of binary file (4D grid, blocks of spe file, etc)
 %       data.title: title label
-%       data.efixed: value of ei
 %       data.a: a axis
 %       data.b: b axis
 %       data.c c axis
@@ -43,7 +42,6 @@ fwrite(fid,data.grid,'char');
 n=length(data.title);
 fwrite(fid,n,'int32');
 fwrite(fid,data.title,'char');
-fwrite(fid,data.ei,'float32');
 fwrite(fid,data.a,'float32');
 fwrite(fid,data.b,'float32');
 fwrite(fid,data.c,'float32');
@@ -56,15 +54,6 @@ if strcmp(data.grid,'spe'),
     fwrite(fid,data.nfiles,'int32');
     % we don't yet know what p0 and pax will be. Data needs to be sliced
     % first
-elseif strcmp(data.grid,'4D');
-    fwrite(fid,data.nfiles,'int32');
-    label=char(data.label);
-    n=size(label);
-    fwrite(fid,n,'int32');
-    fwrite(fid,label, 'char');
-    fwrite(fid,data.p0,'float32');
-    fwrite(fid,length(data.pax),'int32');
-    fwrite(fid,data.pax,'int32');
 else
     label=char(data.label);
     n=size(label);
@@ -74,7 +63,9 @@ else
     fwrite(fid,length(data.pax),'int32');
     fwrite(fid,data.pax,'int32');
     fwrite(fid,length(data.iax),'int32');
-    fwrite(fid,data.iax,'int32');
-    fwrite(fid,data.uint,'float32');
+    if ~isempty(data.iax),
+        fwrite(fid,data.iax,'int32');
+        fwrite(fid,data.uint,'float32');
+    end
 end
 fclose(fid);

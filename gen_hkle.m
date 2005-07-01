@@ -20,7 +20,6 @@ function gen_hkle(msp,fin, fout, u1, u2,u3);
 %   header:
 %       data.grid: type of binary file (4D grid, blocks of spe file, etc)
 %       data.title_label: title label
-%       data.efixed: value of ei
 %       data.a: a axis
 %       data.b: b axis
 %       data.c c axis
@@ -92,7 +91,6 @@ for i = 1:nfiles
     if i==1 & append~=1
        %the very first time around generate all the header information.
        data.title= d.title_label;
-       data.ei=d.efixed;       
        data.grid= 'spe';
        data.a=ms_getvalue('as');
        data.b=ms_getvalue('bs');
@@ -109,6 +107,7 @@ for i = 1:nfiles
         fid=fopen(fout, 'r+');
         fseek(fid, 0, 'eof');
     end
+    fwrite(fid, d.efixed, 'float32'); 
     fwrite(fid, psi(i), 'float32');
     fwrite(fid, d.uv(1,:), 'float32');
     fwrite(fid, d.uv(2,:), 'float32');

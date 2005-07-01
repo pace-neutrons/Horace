@@ -5,7 +5,6 @@ function data=readgrid(binfil)
 %   contains data with the following content:
 %       data.grid: type of binary file, block spe or 4D grid
 %       data.title: title label
-%       data.ei: value of ei
 %       data.a: a axis
 %       data.b: b axis
 %       data.c: c axis
@@ -61,7 +60,12 @@ function data=readgrid(binfil)
 disp('Reading binary file ...');
 fid = fopen(binfil,'r');
 hdata= getheader(fid);
-data=getblock(fid,hdata);
+if strcmp(hdata.grid,'spe'),
+    disp('Error!! Reading wrong type of bin file');
+    disp(' Can only read orthogonal grid data using this routine');
+    return;
+end
 hdata.file= binfil;
+data=getblock(fid,hdata);
 fclose(fid);
 
