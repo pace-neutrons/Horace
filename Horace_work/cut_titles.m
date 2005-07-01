@@ -28,7 +28,7 @@ function [title_main, title_pax, energy_axis] = cut_titles (din)
 % Output:
 % -------
 % title_main  Main title (cell array of character strings)
-% title_pax   Cell array containing axes annotations for eaxh of the plot axes
+% title_pax   Cell array containing axes annotations for each of the plot axes
 % energy_axis The index of the column in the 4x4 matrix din.u that corresponds to the energy axis
 
 % Author:
@@ -163,14 +163,3 @@ if length(title_main_pax)>1
         title_main{4}=[title_main{4},' , ',title_main_pax{i}];
     end
 end
-
-
-% for i=1:size(title_main,2)
-%     disp(title_main{i})
-% end
-% disp(' ')
-% for i=1:length(title_pax)
-%     disp(title_pax{i})
-% end
-
-    

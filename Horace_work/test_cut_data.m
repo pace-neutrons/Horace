@@ -92,7 +92,7 @@ din.e = 2*rand(narr(1),narr(2),narr(3));
 din.n = 10*rand(narr(1),narr(2),narr(3));
 
 %--------------------------------------------------------
-narr=[50,60,50];
+narr=[250,60,200];
 din.file = 'c:\blobby.dat';
 din.title = 'This is a silly test';
 din.u = [1,1,0,0; -1,1,0,0; 0,0,1,0; 0,0,0,1]';
@@ -110,10 +110,11 @@ if ndim>=4; din.p4 = linspace(31,35,narr(4)+1); end;
 din.iax = [2];
 din.uint = [0.45;0.55];
 
-vec = [5,3,3];
-[pp1,pp2,pp3]=meshgrid(din.p2(2:end)-vec(1),din.p1(2:end)-vec(2),din.p3(2:end)-vec(3));
+[pp1,pp2,pp3]=ndgrid(din.p1(2:end),din.p2(2:end),din.p3(2:end));
+wdisp = 10*(2*(sin(pi*pp3)).^2 + (sin(pi*pp1)).^2);
 
-din.s = pp1.^2+pp2.^2+pp3.^2;
-din.e = 0.2*sqrt(din.s);
-din.n = floor(10*rand(narr(1),narr(2),narr(3)));
+din.s = 400*exp(-(wdisp-pp2).^2);
+din.e = din.s;
+din.s = din.s + sqrt(din.e).*(randn(size(din.s)));
+din.n = int16(floor(10*rand(narr(1),narr(2),narr(3))));
 

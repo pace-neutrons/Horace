@@ -51,7 +51,9 @@ for i=1:ny
     y(:,nlo:nhi) = repmat(ypatch,1,nx);
 end
 
-c = reshape(din.s,1,npatch)./double(reshape(din.n,1,npatch));
+ndouble = din.n;
+ndouble(find(ndouble==0)) = nan;    % replace infinities with NaN
+c = reshape(din.s,1,npatch)./reshape(ndouble,1,npatch);
 
 % Create graphics output
 axis([din.p1(1) din.p1(end) din.p2(1) din.p2(end)]);
@@ -63,8 +65,8 @@ ylabel(title_pax{2});
 title(title_main);
 
 if din.pax(1)~=energy_axis & din.pax(2)~=energy_axis    % both plot axes are Q axes
-    x_ulen = din.ulen(din.pax(1))
-    y_ulen = din.ulen(din.pax(2))
+    x_ulen = din.ulen(din.pax(1));
+    y_ulen = din.ulen(din.pax(2));
     set(gca,'DataAspectRatioMode','manual');
     a=get(gca,'DataAspectRatio');
     set(gca,'DataAspectRatio',[1/x_ulen 1/y_ulen (1/x_ulen+1/y_ulen)/(a(1)+a(2))*a(3)]);
