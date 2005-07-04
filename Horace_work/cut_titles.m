@@ -5,17 +5,24 @@ function [title_main, title_pax, energy_axis] = cut_titles (din)
 % ------
 % din         Data from which a reduced dimensional manifold is to be taken. Its fields are:
 %   din.file  File from which (h,k,l,e) data was read
+%   din.grid  Type of grid ('orthogonal-grid')
 %   din.title Title contained in the file from which (h,k,l,e) data was read
+%   din.a     Lattice parameters (Angstroms)
+%   din.b           "
+%   din.c           "
+%   din.alpha Lattice angles (degrees)
+%   din.beta        "
+%   din.gamma       "
 %   din.u     Matrix (4x4) of projection axes in original 4D representation
 %              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-%   din.ulen  Length of vectors in Ang^-1, energy
-%   din.label Labels of theprojection axes (1x4 cell array of charater strings)
+%   din.ulen  Length of vectors in Ang^-1 or meV [row vector]
+%   din.label Labels of theprojection axes [1x4 cell array of charater strings]
 %   din.p0    Offset of origin of projection [ph; pk; pl; pen]
-%   din.pax   Index of plot axes in the matrix din.u
+%   din.pax   Index of plot axes in the matrix din.u  [row vector]
 %               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
 %                               2D, din.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-%   din.p1    (Row) vector of bin boundaries along first plot axis
-%   din.p2    (Row) vector of bin boundaries along second plot axis
+%   din.p1    Column vector of bin boundaries along first plot axis
+%   din.p2    Column vector of bin boundaries along second plot axis
 %     :       (for as many plot axes as given by length of din.pax)
 %   din.iax   Index of integration axes in the matrix din.u
 %               e.g. if data is 2D, din.iax=[3,1] means summation has been performed along u3 and u1 axes
@@ -58,10 +65,19 @@ label = din.label;
 
 % Axes and integration titles
 % Character representations of input data
+small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
 for j=1:4
-    p0_ch{j} = num2str(p0(j),'%+11.4g');        
+    if abs(p0(j)) > small
+        p0_ch{j} = num2str(p0(j),'%+11.4g');        
+    else
+        p0_ch{j} = num2str(0,'%+11.4g');        
+    end
     for i=1:4
-        u_ch{i,j} = num2str(u(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+        if abs(u(i,j)) > small
+            u_ch{i,j} = num2str(u(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+        else
+            u_ch{i,j} = num2str(0,'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+        end
     end
 end
 
@@ -94,7 +110,7 @@ for j=1:4
         vector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
         if ~isempty(find(j==pax))   % j appears in the list of plot axes
             ipax = find(j==pax);
-            if ~strcmp(num2str(ulen(j)),'1')
+            if abs(ulen(j)-1) > small
                 title_pax{ipax} = [vector{j},' in ',num2str(ulen(j)),' Å^{-1}'];
             else
                 title_pax{ipax} = [vector{j},' (Å^{-1})'];
@@ -130,7 +146,7 @@ for j=1:4
         vector{j} = ['[',ch{4,j},']'];
         if ~isempty(find(j==pax))   % j appears in the list of plot axes
             ipax = find(j==pax);
-            if ~strcmp(num2str(ulen(j)),'1')
+            if abs(ulen(j)-1) > small
                 title_pax{ipax} = [vector{j},' in ',num2str(ulen(j)),' meV'];
             else
                 title_pax{ipax} = [vector{j},' (meV)'];

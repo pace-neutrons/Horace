@@ -5,17 +5,24 @@ function plot2d(din)
 % ------
 % din         Data from which a reduced dimensional manifold is to be taken. Its fields are:
 %   din.file  File from which (h,k,l,e) data was read
+%   din.grid  Type of grid ('orthogonal-grid')
 %   din.title Title contained in the file from which (h,k,l,e) data was read
+%   din.a     Lattice parameters (Angstroms)
+%   din.b           "
+%   din.c           "
+%   din.alpha Lattice angles (degrees)
+%   din.beta        "
+%   din.gamma       "
 %   din.u     Matrix (4x4) of projection axes in original 4D representation
 %              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-%   din.ulen  Length of vectors in Ang^-1, energy
-%   din.label Labels of theprojection axes (1x4 cell array of charater strings)
+%   din.ulen  Length of vectors in Ang^-1 or meV [row vector]
+%   din.label Labels of theprojection axes [1x4 cell array of charater strings]
 %   din.p0    Offset of origin of projection [ph; pk; pl; pen]
-%   din.pax   Index of plot axes in the matrix din.u
+%   din.pax   Index of plot axes in the matrix din.u  [row vector]
 %               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
 %                               2D, din.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-%   din.p1    (Row) vector of bin boundaries along first plot axis
-%   din.p2    (Row) vector of bin boundaries along second plot axis
+%   din.p1    Column vector of bin boundaries along first plot axis
+%   din.p2    Column vector of bin boundaries along second plot axis
 %     :       (for as many plot axes as given by length of din.pax)
 %   din.iax   Index of integration axes in the matrix din.u
 %               e.g. if data is 2D, din.iax=[3,1] means summation has been performed along u3 and u1 axes
@@ -39,7 +46,7 @@ nx = length(din.p1)-1;
 ny = length(din.p2)-1;
 npatch = nx*ny;
 
-x = [din.p1(1:end-1);din.p1(2:end);din.p1(2:end);din.p1(1:end-1)];
+x = [din.p1(1:end-1)';din.p1(2:end)';din.p1(2:end)';din.p1(1:end-1)'];
 x = repmat(x,1,ny);
 
 y = zeros(4,npatch);
