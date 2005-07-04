@@ -148,4 +148,9 @@ dout.uint = [din.uint, uint];
 dout.s = signal;
 dout.e = errors;
 dout.n = nbins;
+
+% temporary: should change all dnd structures to classes
+if length(dout.pax)==1
+    dout = d1d(dout);
+end
 toc
