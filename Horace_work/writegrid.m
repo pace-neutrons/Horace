@@ -44,8 +44,8 @@ function writegrid(data,fout),
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-disp('Writing binary file ...')
 writeheader(data,fout);
+disp('Writing binary file ...')
 fid = fopen(fout,'r+');
 fseek(fid, 0, 'eof');
 if length(data.pax)==4, % 4D grid
@@ -56,7 +56,7 @@ if length(data.pax)==4, % 4D grid
     np3=length(data.p3); % length of vector data.p3
     fwrite(fid,np3,'int32');
     np4=length(data.p4); % length of vector data.p4
-    fwrite(fid,n4,'int32');
+    fwrite(fid,np4,'int32');
     fwrite(fid,data.p1,'float32');
     fwrite(fid,data.p2,'float32');
     fwrite(fid,data.p3,'float32');

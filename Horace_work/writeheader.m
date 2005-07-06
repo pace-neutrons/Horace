@@ -62,8 +62,8 @@ else
     fwrite(fid,data.p0,'float32');
     fwrite(fid,length(data.pax),'int32');
     fwrite(fid,data.pax,'int32');
-    fwrite(fid,length(data.iax),'int32');
     if ~isempty(data.iax),
+        fwrite(fid,length(data.iax),'int32');
         fwrite(fid,data.iax,'int32');
         fwrite(fid,data.uint,'float32');
     end
