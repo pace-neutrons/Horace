@@ -111,6 +111,8 @@ for iblock = 1:h_main.nfiles,
         end
         d.p0=p0';
         d.pax=[1,2,3,4];
+        d.iax=[]; % create empty index of integration array
+        d.uint=[];
         d.p1= [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
         d.p2= [p2_bin(1):p2_bin(2):p2_bin(3)]'; % Contains the bin boundaries
         d.p3= [p3_bin(1):p3_bin(2):p3_bin(3)]';

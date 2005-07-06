@@ -58,7 +58,7 @@ elseif length(data.pax)==4,,
     [np1,count] = fread(fid,1,'int32');
     [np2,count] = fread(fid,1,'int32');
     [np3,count] = fread(fid,1,'int32');
-    [np4,count] = fread(fid,1,'intt32');
+    [np4,count] = fread(fid,1,'int32');
     [data.p1,count] = fread(fid,np1,'float32');
     [data.p2,count] = fread(fid,np2,'float32');
     [data.p3,count] = fread(fid,np3,'float32');
@@ -72,7 +72,7 @@ elseif length(data.pax)==4,,
     [data.e,count] = fread(fid,ntot,'float32');
     data.e= reshape(data.e,np1-1,np2-1,np3-1,np4-1);
     [data.n,count] = fread(fid,ntot,'int16');
-    data.nt = int16(reshape(data.n,np1-1,np2-1,np3-1,np4-1));
+    data.n = int16(reshape(data.n,np1-1,np2-1,np3-1,np4-1));
 elseif length(data.pax)==3,
     [np1,count] = fread(fid,1,'int32');
     [np2,count] = fread(fid,1,'int32');
