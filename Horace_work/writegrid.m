@@ -37,7 +37,7 @@ function writegrid(data,fout),
 %   data.s     Cumulative signal.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   data.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   data.n     Number of contributing pixels [size(din.n)=(length(din.p1)-1, length(din.p2)-1, ...)]
-
+%              int16 if 4D grid double for anything lower.
 % Author:
 %   J. van Duijn     12/06/2005
 % Modified:
@@ -87,5 +87,9 @@ else
 end
 fwrite(fid,data.s,'float32');
 fwrite(fid,data.e,'float32');
-fwrite(fid,data.n,'int16');
+if length(data.pax)==4,
+    fwrite(fid,data.n,'int16');
+else
+    fwrite(fid,data.n,'double');
+end
 fclose(fid);

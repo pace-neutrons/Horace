@@ -28,7 +28,8 @@ function data=getblock(fid, data)
 %        :
 %   data.s(length(data.p1)-1,length(data.p2)-1,length(data.p3)-1,length(data.p4)-1) float32
 %   data.e(length(data.p1)-1,length(data.p2)-1,length(data.p3)-1,length(data.p4)-1) float32
-%   data.n(length(data.p1)-1,length(data.p2)-1,length(data.p3)-1,length(data.p4)-1) int16
+%   data.n(length(data.p1)-1,length(data.p2)-1,length(data.p3)-1,length(dat
+%   a.p4)-1) int16 if 4D grid double for anything lower.
 
 % Author:
 %   J. van Duijn     01/06/2005
@@ -88,8 +89,8 @@ elseif length(data.pax)==3,
     data.s = reshape(data.s,np1-1,np2-1,np3-1);
     [data.e,count] = fread(fid,ntot,'float32');
     data.e = reshape(data.e,np1-1,np2-1,np3-1);
-    [data.n,count] = fread(fid,ntot,'int16');
-    data.n= int16(reshape(data.n,np1-1,np2-1,np3-1));
+    [data.n,count] = fread(fid,ntot,'double');
+    data.n= double(reshape(data.n,np1-1,np2-1,np3-1));
 elseif length(data.pax)==2,
     [np1,count] = fread(fid,1,'int32');
     [np2,count] = fread(fid,1,'int32');
@@ -103,8 +104,8 @@ elseif length(data.pax)==2,
     data.s= reshape(data.s,np1-1,np2-1);
     [data.e,count] = fread(fid,ntot,'float32');
     data.e= reshape(data.e,np1-1,np2-1);
-    [data.n,count] = fread(fid,ntot,'int16');
-    data.n = int16(reshape(data.n,np1-1,np2-1));
+    [data.n,count] = fread(fid,ntot,'double');
+    data.n = double(reshape(data.n,np1-1,np2-1));
 elseif length(data.pax)==2,
     [np1,count] = fread(fid,1,'int32');
     [data.p1,count] = fread(fid,np1,'float32');
@@ -116,8 +117,8 @@ elseif length(data.pax)==2,
     data.s = reshape(data.s,np1-1);
     [data.e,count] = fread(fid,ntot,'float32');
     data.e = reshape(data.e,np1-1);
-    [data.n,count] = fread(fid,ntot,'int16');
-    data.n = int16(reshape(data.n,np1-1));
+    [data.n,count] = fread(fid,ntot,'double');
+    data.n = double(reshape(data.n,np1-1));
 else
     disp('Error: wrong type of binary file');
 end
