@@ -1,5 +1,5 @@
 function tomfit (w, xrange, p, fixed)
-% This function is used to send data contained in an mgenie spectrum to Mfit
+% This function is used to send data contained in 1D dataset to Mfit
 % to be be fitted interactively.
 %
 % Syntax:

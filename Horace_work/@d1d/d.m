@@ -1,4 +1,4 @@
-function [] = d (w, col)
+function [wtemp] = d (w, col)
 % Creates a new plot of a 1D dataset, with the given colour
 %
 % Syntax:

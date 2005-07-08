@@ -1,8 +1,9 @@
 function w = d1d (din)
-% D1D   Create a class object from the structure of a 1D dataset
+% D1D   Create a class object from the structure of a 1D dataset.
 %
 % Syntax:
 %   >> w = d1d (din)    % din is the structure; w the corresponding output class
+%                       % If din is already a 1D dataset, then w = din
 %
 % Input:
 % ------
@@ -19,7 +20,7 @@ function w = d1d (din)
 %   din.u     Matrix (4x4) of projection axes in original 4D representation
 %              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   din.ulen  Length of vectors in Ang^-1 or meV [row vector]
-%   din.label Labels of theprojection axes [1x4 cell array of charater strings]
+%   din.label Labels of the projection axes [1x4 cell array of charater strings]
 %   din.p0    Offset of origin of projection [ph; pk; pl; pen]
 %   din.pax   Index of plot axes in the matrix din.u  [row vector]
 %               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
@@ -40,4 +41,14 @@ function w = d1d (din)
 % w is a class with precisely the same fields
 
 superiorto('spectrum');
-w = class (din, 'd1d'); % *** Must add a check that the fields are correct.
+
+if strcmp(class(din),'d1d')
+    w = din;
+else
+    [ndim, mess] = dnd_checkfields(din);
+    if ~isempty(ndim)
+        w = class (din, 'd1d');
+    else
+        error (mess)
+    end
+end
