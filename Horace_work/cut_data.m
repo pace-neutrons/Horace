@@ -4,8 +4,8 @@ function dout = cut_data (din, varargin)
 % ------
 % din         Data from which a reduced dimensional manifold is to be taken. Its fields are:
 %   din.file  File from which (h,k,l,e) data was read
-%   din.grid  Type of grid ('orthogonal-grid')
 %   din.title Title contained in the file from which (h,k,l,e) data was read
+%   din.grid  Type of grid ('orthogonal-grid')
 %   din.a     Lattice parameters (Angstroms)
 %   din.b           "
 %   din.c           "
@@ -125,6 +125,7 @@ end
 % Unchanged items:
 dout.file = din.file;
 dout.title = din.title;
+dout.grid = din.grid;
 dout.a = din.a;
 dout.b = din.b;
 dout.c = din.c;
