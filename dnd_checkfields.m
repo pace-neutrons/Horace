@@ -1,13 +1,22 @@
 function [ndim, mess] = dnd_checkfields (din)
 % Check if the fields in a structure are correct for an nD datastructure
-% and check that they are consistent with the contents they must have to be valid.
+% and check that the contents have the correct type and consistent sizes etc.
 %
 % Input:
+% -------
 %   din     Input structure
 %
 % Output:
+% -------
 %   ndim    Number of dimensions (0,1,2,3,4). If an error, then returned as empty.
 %   mess    Error message if isempty(ndim). If ~isempty(ndim), mess = ''
+
+% Author:
+%   T.G.Perring     10/06/2005
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
 
 first_names = {'file';'title';'grid';'a';'b';'c';'alpha';'beta';'gamma';'u';'ulen';'label';'p0';'pax'};
 last_names  = {'iax';'uint';'s';'e';'n'};
