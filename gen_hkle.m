@@ -1,22 +1,22 @@
-function gen_hkle(msp,fin, fout, u1, u2,u3);
+function gen_hkle (msp, fin, fout, u1, u2, u3);
+% Read in a number of spe files and use the projection facilities in 
+% mslice to convert spe files to(h,k,l,e,intensity) data, which will
+% then be written out to a binary file.
 %
-% This routine requires that mslice.m is running in the background.
-% 
-% Read in a number of spe files and  use the projection facilities in 
-% mslice are to convert spe files to(h,k,l,e,intensity) data. Which will
-% then be written out to a binary file. This binary file can now be
-% accessed using the appropriate software. 
+% NOTES:
+% (1) If the binary output file is found to already exist, then the
+%     routine will append the new data to the end of it. 
+% (2) This routine requires that mslice is running in the background.
 %
 % Input:
-%   msp: mslice parameter file
-%   fin: file with psi values and the names of the spe files to be included
-%   fout: file name for the binary output file. 
+% ------
+%   msp     Mslice parameter file
+%   fin     File with psi values and the names of the spe files to be included
+%   fout    File name for the binary output file. 
 %   u1,u2,u3: projection axes 
-
-%   NOTE: If the binary output file is found to already exist, then the
-%   routine will append the new data to the end of it. 
 %
 % Output:
+% -------
 %   header:
 %       data.grid: type of binary file (4D grid, blocks of spe file, etc)
 %       data.title_label: title label
@@ -41,28 +41,29 @@ function gen_hkle(msp,fin, fout, u1, u2,u3);
 %       detectors*number of energy bins)
 %       ERR: Error vector (as the variance, ie err^2)
 
-% Author:
-%   J. van Duijn     01/06/2005
-% Modified:
+
+% Original author: J. van Duijn
 %
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J. van Duijn, T.G.Perring
 
 
-% read input spe file information
+% Read input spe file information
 [psi,fnames] = textread(fin,'%f %s');  
-nfiles  =   length(psi);
+nfiles = length(psi);
 
 if exist(fout)
-    append  =   1;
+    append = 1;
     % append new spe files at the end of the file and correct the total
     % number of spe files in the header;
     data=readheader(fout);
     data.nfiles=data.nfiles+nfiles;
 else
-    append=0;
+    append = 0;
 end
 
-% set up Q-space viewing axes
+% Set up Q-space viewing axes
 ms_load_msp(msp);
 ms_setvalue('u11',u1(1));
 ms_setvalue('u12',u1(2));
@@ -80,16 +81,16 @@ ms_setvalue('u33',u3(3));
 ms_setvalue('u34',u3(4));
 ms_setvalue('u3label','Q_l');
 
-%read and convert each spe file then write data to binary file 
+% Read and convert each spe file then write data to binary file 
 for i = 1:nfiles
     ms_setvalue('DataFile',fnames(i));
     ms_setvalue('psi_samp',psi(i));
     ms_load_data;
     ms_calc_proj;
-    d   =   fromwindow;
+    d = fromwindow;
     
-    if i==1 & append~=1
-       %the very first time around generate all the header information.
+    if i==1 & ~append
+       % The very first time around generate all the header information.
        data.title= d.title_label;
        data.grid= 'spe';
        data.a=ms_getvalue('as');

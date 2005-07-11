@@ -1,6 +1,5 @@
-function writeheader(data,fout)
-% This routine writes the following header structure out to a binary file
-% called fout.
+function writeheader (data, fout)
+% Writes a header structure out to the binary file called fout.
 %
 %       data.grid: type of binary file (4D grid, blocks of spe file, etc)
 %       data.title: title label
@@ -27,11 +26,11 @@ function writeheader(data,fout)
 %               e.g. in 2D case above, is the matrix vector [u3_lo, u1_lo;
 %               u3_hi, u1_hi]
 
-% Author:
-%   J. van Duijn    01/06/2005
-% Modified:
+% Original author: J. van Duijn
 %
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J. van Duijn, T.G.Perring
 
 
 disp('Writing header information ');
@@ -52,8 +51,7 @@ fwrite(fid,data.u,'float32');
 fwrite(fid,data.ulen,'float32');
 if strcmp(data.grid,'spe'),
     fwrite(fid,data.nfiles,'int32');
-    % we don't yet know what p0 and pax will be. Data needs to be sliced
-    % first
+    % we don't yet know what p0 and pax will be. Data needs to be sliced first
 else
     label=char(data.label);
     n=size(label);
