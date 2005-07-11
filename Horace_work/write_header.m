@@ -1,8 +1,17 @@
-function data = read_header(fid)
-% Reads a header structure out from the (already open) binary file with identifier fid.
+function write_header (fid, data)
+% Writes a header structure to a binary file that will hold .spe data ot
+% orthogonal grid data.
+%
+% Input:
+% ------
+%   fid     File pointer to (already open) binary file
+%
+%   data    Data structure with header information:
+%
+% Fields written for both 'spe' or 'orthogonal-grid' data:
 %
 %   data.file  File from which (h,k,l,e) data was read [Character string]
-%   data.grid  Type of grid ('orthogonal-grid') [Character string]
+%   data.grid  Type of grid ('spe' or 'orthogonal-grid') [Character string]
 %   data.title Title contained in the file from which (h,k,l,e) data was read [Character string]
 %   data.a     Lattice parameters (Angstroms)
 %   data.b           "
@@ -14,6 +23,9 @@ function data = read_header(fid)
 %              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   data.ulen  Length of vectors in Ang^-1 or meV [row vector]
 %   data.label Labels of the projection axes [1x4 cell array of charater strings]
+%
+% If a 1D,2D,3D, or 4D data structure, then in addition write :
+%
 %   data.p0    Offset of origin of projection [ph; pk; pl; pen] [column vector]
 %   data.pax   Index of plot axes in the matrix data.u  [row vector]
 %               e.g. if data is 3D, data.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
@@ -23,6 +35,7 @@ function data = read_header(fid)
 %   data.uint  Integration range along each of the integration axes. Dimensions are uint(2,length(iax))
 %               e.g. in 2D case above, is the matrix vector [u3_lo, u1_lo; u3_hi, u1_hi]
 
+
 % Original author: J. van Duijn
 %
 % $Revision$ ($Date$)
@@ -30,42 +43,40 @@ function data = read_header(fid)
 % Horace v0.1   J. van Duijn, T.G.Perring
 
 
-disp('Reading header information ...');
+disp('Writing header information ');
 
-[n,count]= fread(fid,1,'int32');
-[data.grid,count]= fread(fid,[1,n],'*char');
+n=length(data.grid);
+fwrite(fid,n,'int32');
+fwrite(fid,data.grid,'char');
 
-[n,count]= fread(fid,1,'int32');
-[data.title,count]= fread(fid,n,'*char');
-data.title= data.title';
+n=length(data.title);
+fwrite(fid,n,'int32');
+fwrite(fid,data.title,'char');
 
-[data.a,count] = fread(fid,1,'float32');
-[data.b,count] = fread(fid,1,'float32');
-[data.c,count] = fread(fid,1,'float32');
-[data.alpha,count] = fread(fid,1,'float32');
-[data.beta,count] = fread(fid,1,'float32');
-[data.gamma,count] = fread(fid,1,'float32');
-[data.u,count] = fread(fid,[4,4],'float32');
-[data.ulen,count] = fread(fid,[1,4],'float32');
+fwrite(fid,data.a,'float32');
+fwrite(fid,data.b,'float32');
+fwrite(fid,data.c,'float32');
+fwrite(fid,data.alpha,'float32');
+fwrite(fid,data.beta,'float32');
+fwrite(fid,data.gamma,'float32');
+fwrite(fid,data.u,'float32');
+fwrite(fid,data.ulen,'float32');
 
 if strcmp(data.grid,'spe'),
-    [data.nfiles,count] = fread(fid,1,'int32');
+    fwrite(fid,data.nfiles,'int32');
     % p0, pax, iax and uint undefined (data needs to be sliced first)
 else
-    [n,count]= fread(fid,2,'int32');
-    [data.label,count]=fread(fid,[n(1),n(2)],'*char');
-    data.label=cellstr(data.label);
-    data.label=data.label';
+    label=char(data.label)
+    n=size(label);
+    fwrite(fid,n,'int32');
+    fwrite(fid,label,'char');
     
-    [data.p0,count]= fread(fid,[4,1],'int32');
-    [n,count]= fread(fid,1,'int32');
-    [data.pax,count]=fread(fid,[1,n],'int32');
-    if n==4,
-        data.iax=[]; % create empty index of integration array
-        data.uint=[];
-    else
-        [n,count]= fread(fid,1,'int32');
-        [data.iax,count]=fread(fid,[1,n],'int32');
-        [data.uint,count]=fread(fid,[2,n],'float32');
+    fwrite(fid,data.p0,'float32');
+    fwrite(fid,length(data.pax),'int32');
+    fwrite(fid,data.pax,'int32');
+    if ~isempty(data.iax),
+        fwrite(fid,length(data.iax),'int32');
+        fwrite(fid,data.iax,'int32');
+        fwrite(fid,data.uint,'float32');
     end
 end

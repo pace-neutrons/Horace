@@ -2,60 +2,32 @@ function dout = cut_data (din, varargin)
 
 % Input:
 % ------
-% din         Data from which a reduced dimensional manifold is to be taken. Its fields are:
-%   din.file  File from which (h,k,l,e) data was read
-%   din.title Title contained in the file from which (h,k,l,e) data was read
-%   din.grid  Type of grid ('orthogonal-grid')
-%   din.a     Lattice parameters (Angstroms)
-%   din.b           "
-%   din.c           "
-%   din.alpha Lattice angles (degrees)
-%   din.beta        "
-%   din.gamma       "
-%   din.u     Matrix (4x4) of projection axes in original 4D representation
-%              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-%   din.ulen  Length of vectors in Ang^-1 or meV [row vector]
-%   din.label Labels of theprojection axes [1x4 cell array of charater strings]
-%   din.p0    Offset of origin of projection [ph; pk; pl; pen]
-%   din.pax   Index of plot axes in the matrix din.u  [row vector]
-%               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
-%                               2D, din.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-%   din.p1    Column vector of bin boundaries along first plot axis
-%   din.p2    Column vector of bin boundaries along second plot axis
-%     :       (for as many plot axes as given by length of din.pax)
-%   din.iax   Index of integration axes in the matrix din.u
-%               e.g. if data is 2D, din.iax=[3,1] means summation has been performed along u3 and u1 axes
-%   din.uint  Integration range along each of the integration axes. Dimensions are uint(2,length(iax))
-%               e.g. in 2D case above, is the matrix vector [u3_lo, u1_lo; u3_hi, u1_hi]
-%   din.s     Cumulative signal.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
-%   din.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
-%   din.n     Number of contributing pixels [size(din.n)=(length(din.p1)-1, length(din.p2)-1, ...)]
+%   din             Data from which a reduced dimensional manifold is to be taken.
+%                  Type >> help dnd_checkfields for a full description of the fields
 %
-% iax_1       Further axes to integrate along. The labels of these axes is not those that appear in
-%             the matrix din.u, but are indexes into din.pax. 
-%               e.g. in the 2D case above if iax=2 then this refers to u4, as din.pax(2)=4
-%             This is so that the user can refer to the axes of his/her plot when determining the
-%             next integration axis.
+%   iax_1           Index of further axis to integrate along. The labels of the axis
+%                  is the plot axis index i.e. 1=plot x-axis, 2=plot y-axis etc.
 %
-% iax_1_range Integration range [iax_lo,iax_hi] for first additional integration axis
+%   iax_1_range     Integration range [iax_lo, iax_hi] for this integration axis
 %
-% iax_2       -| The same for second additional
-% iax_2_range -| integration axis
+%   iax_2       -|  The same for second additional integration axis
+%   iax_2_range -| 
 %
-%   :
+%       :
 %
 % Output:
 % -------
-% dout        Output data structure. Its elements are the same as those of din, appropriately updated.
+%   dout            Output dataset. Its elements are the same as those of din,
+%                  appropriately updated.
 %
 %
-% Examples:
+% Examples: if input dataset is 3D or 4D:
 %   >> dout = cut_data (din, 2, [1.9,2.1], 3 [-0.55,-0.45]) % sum along y and z axes
-%                                                           %(din must be a 3D or 4D data structure)
+%                                                           
 
-% Author:
-%   T.G.Perring     20/06/2005
-% Modified:
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
@@ -124,8 +96,8 @@ end
 % Fill up the output data structure
 % Unchanged items:
 dout.file = din.file;
-dout.title = din.title;
 dout.grid = din.grid;
+dout.title = din.title;
 dout.a = din.a;
 dout.b = din.b;
 dout.c = din.c;
@@ -136,16 +108,14 @@ dout.u = din.u;
 dout.ulen = din.ulen;
 dout.label = din.label;
 dout.p0 = din.p0;
-
-% Changed items:
 dout.pax = pax; 
+dout.iax = [din.iax, iax];
+dout.uint = [din.uint, uint];
 for i=1:length(pax_ind)
     pvals_name_in = ['p', num2str(pax_ind(i))];
     pvals_name_out= ['p', num2str(i)];
     dout.(pvals_name_out) = din.(pvals_name_in);
 end
-dout.iax = [din.iax, iax];
-dout.uint = [din.uint, uint];
 dout.s = signal;
 dout.e = errors;
 dout.n = nbins;

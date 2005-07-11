@@ -5,9 +5,9 @@ function [s_out, e_out, n_out] = cut_data_arrays (iax, ilo, ihi, s, e, n)
 % Input arrays must have four or fewer dimensions. Checks are rudimentary - it is assumed
 % that ilo and ihi are valid for the given summation axis, for example.
 
-% Author:
-%   T.G.Perring     21/06/2005
-% Modified:
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 

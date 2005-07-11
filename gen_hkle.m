@@ -10,10 +10,12 @@ function gen_hkle (msp, fin, fout, u1, u2, u3);
 %
 % Input:
 % ------
-%   msp     Mslice parameter file
-%   fin     File with psi values and the names of the spe files to be included
-%   fout    File name for the binary output file. 
-%   u1,u2,u3: projection axes 
+%   msp         Mslice parameter file
+%   fin         File with psi values and the names of the spe files to be included
+%   fout        File name for the binary output file (format described below). 
+%   u1    --|   Projection axes in which to label pixel centres
+%   u2      |--   e.g.    u1 = [1,0,0], u2=[0,1,0], u3=[0,0,1]
+%   u3    --|     e.g.    u1 = [1,1,0], u2=[-1,1,0], u3=[0,0,1]
 %
 % Output:
 % -------
@@ -68,17 +70,17 @@ ms_load_msp(msp);
 ms_setvalue('u11',u1(1));
 ms_setvalue('u12',u1(2));
 ms_setvalue('u13',u1(3));
-ms_setvalue('u14',u1(4));
+ms_setvalue('u14',0);
 ms_setvalue('u1label','Q_h');
 ms_setvalue('u21',u2(1));
 ms_setvalue('u22',u2(2));
 ms_setvalue('u23',u2(3));
-ms_setvalue('u24',u2(4));
+ms_setvalue('u24',0);
 ms_setvalue('u2label','Q_k');
 ms_setvalue('u31',u3(1));
 ms_setvalue('u32',u3(2));
 ms_setvalue('u33',u3(3));
-ms_setvalue('u34',u3(4));
+ms_setvalue('u34',0);
 ms_setvalue('u3label','Q_l');
 
 % Read and convert each spe file then write data to binary file 
@@ -118,7 +120,7 @@ for i = 1:nfiles
     sized= size(d.v);
     fwrite(fid,sized(1:2),'int32');
     % reorder the data.v array so that it is data.v(:,1:3) where each
-    % collum corresponds to hkl.
+    % column corresponds to hkl.
     nt= sized(1)*sized(2);
     d.v= reshape(d.v, nt, 3);
     d.v=d.v';

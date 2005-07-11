@@ -1,5 +1,5 @@
 function [ndim, mess] = dnd_checkfields (din)
-% Check if the fields in a structure are correct for an nD datastructure
+% Check if the fields in a structure are correct for an nD datastructure (n=0,1,2,3,4)
 % and check that the contents have the correct type and consistent sizes etc.
 %
 % Input:
@@ -31,13 +31,13 @@ function [ndim, mess] = dnd_checkfields (din)
 %   din.pax   Index of plot axes in the matrix din.u  [row vector]
 %               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
 %                               2D, din.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-%   din.p1    Column vector of bin boundaries along first plot axis
-%   din.p2    Column vector of bin boundaries along second plot axis
-%     :       (for as many plot axes as given by length of din.pax)
 %   din.iax   Index of integration axes in the matrix din.u
 %               e.g. if data is 2D, din.iax=[3,1] means summation has been performed along u3 and u1 axes
 %   din.uint  Integration range along each of the integration axes. Dimensions are uint(2,length(iax))
 %               e.g. in 2D case above, is the matrix vector [u3_lo, u1_lo; u3_hi, u1_hi]
+%   din.p1    Column vector of bin boundaries along first plot axis
+%   din.p2    Column vector of bin boundaries along second plot axis
+%     :       (for as many plot axes as given by length of din.pax)
 %   din.s     Cumulative signal.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   din.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   din.n     Number of contributing pixels [size(din.n)=(length(din.p1)-1, length(din.p2)-1, ...)]
@@ -50,8 +50,8 @@ function [ndim, mess] = dnd_checkfields (din)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-first_names = {'file';'title';'grid';'a';'b';'c';'alpha';'beta';'gamma';'u';'ulen';'label';'p0';'pax'};
-last_names  = {'iax';'uint';'s';'e';'n'};
+first_names = {'file';'grid';'title';'a';'b';'c';'alpha';'beta';'gamma';'u';'ulen';'label';'p0';'pax';'iax';'uint'};
+last_names  = {'s';'e';'n'};
 d0d_names = [first_names;last_names];
 d1d_names = [first_names;{'p1'};last_names];
 d2d_names = [first_names;{'p1';'p2';};last_names];
