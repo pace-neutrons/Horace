@@ -1,0 +1,118 @@
+function gen_hkle(msp,fin, fout, u1, u2,u3);
+%
+% This routine requires that mslice.m is running in the background.
+% 
+% Read in a number of spe files and  use the projection facilities in 
+% mslice are to convert spe files to(h,k,l,e,intensity) data. Which will
+% then be written out to a binary file. This binary file can now be
+% accessed using the appropriate software. 
+%
+% Input:
+%   msp: mslice parameter file
+%   fin: file with psi values and the names of the spe files to be included
+%   fout: file name for the binary output file. 
+%   u1,u2,u3: projection axes 
+
+%   NOTE: If the binary output file is found to already exist, then the
+%   routine will append the new data to the end of it. 
+%
+% Output:
+%   header:
+%       data.title_label: title label
+%       data.efixed: value of ei
+%       data.a: a axis
+%       data.a: b axis
+%       data.a: c axis
+%       data.alpha: alpha
+%       data.beta: beta
+%       data.gamma: gamma
+%       data.u1: viewing axis u1 (Q)
+%       data.u2: viewing axis u2 (Q)
+%       data.u3: viewing axis u3 (Q)
+%       data.u4: viewing axis u4 (this is energy)
+%       data.nfiles: number of spe files contained within the binary file
+%       list of psi, u,v (crystal orientation) and file name for each spe
+%       file contained in the bin file.
+
+% read input spe file information
+[psi,fnames] = textread(fin,'%f %s');  
+nfiles  =   length(psi);
+
+if exist(fout)
+    append  =   1;
+    % append new spe files at the end of the file and correct the total
+    % number of spe files in the header;
+    data=readheader(fout);
+    data.nfiles=data.nfiles+nfiles;
+else
+    append=0;
+end
+
+% set up Q-space viewing axes
+ms_load_msp(msp);
+ms_setvalue('u11',u1(1));
+ms_setvalue('u12',u1(2));
+ms_setvalue('u13',u1(3));
+ms_setvalue('u14',u1(4));
+ms_setvalue('u1label','Q_h');
+ms_setvalue('u21',u2(1));
+ms_setvalue('u22',u2(2));
+ms_setvalue('u23',u2(3));
+ms_setvalue('u24',u2(4));
+ms_setvalue('u2label','Q_k');
+ms_setvalue('u31',u3(1));
+ms_setvalue('u32',u3(2));
+ms_setvalue('u33',u3(3));
+ms_setvalue('u34',u3(4));
+ms_setvalue('u3label','Q_l');
+
+%read and convert each spe file then write data to binary file 
+for i = 1:nfiles
+    ms_setvalue('DataFile',fnames(i));
+    ms_setvalue('psi_samp',psi(i));
+    ms_load_data;
+    ms_calc_proj;
+    d   =   fromwindow;
+    
+    if i==1 & append~=1
+       %the very first time around generate all the header information.
+       data=d;
+       data.a=ms_getvalue('as');
+       data.b=ms_getvalue('bs');
+       data.c=ms_getvalue('cs');
+       data.alpha=ms_getvalue('aa');
+       data.beta=ms_getvalue('bb');
+       data.gamma=ms_getvalue('cc');
+       data.u1= u1;
+       data.u2= u2;
+       data.u3= u3;
+       data.u4= [0,0,0,1]; % energy
+       data.nfiles= nfiles;
+       writeheader(data,fout);
+    end
+    if i==1,
+        fid=fopen(fout, 'r+');
+        fseek(fid, 0, 'eof');
+    end
+    fwrite(fid, psi(i), 'float32');
+    fwrite(fid, d.uv(1,:), 'float32');
+    fwrite(fid, d.uv(2,:), 'float32');
+    n=length(d.filename);
+    fwrite(fid, n, 'int32');
+    fwrite(fid, d.filename, 'char');
+    sized= size(d.v);
+    fwrite(fid,sized(1:2),'int32');
+    fwrite(fid,d.v(:,:,1),'float32');
+    fwrite(fid,d.v(:,:,2),'float32');
+    fwrite(fid,d.v(:,:,3),'float32');
+    fwrite(fid,d.en,'float32');
+    fwrite(fid,d.S,'float32');
+    fwrite(fid,d.ERR,'float32');    
+end
+fclose(fid);
+
+% if all the files are correctly appended to the binary file update the
+% header with the total number of spe files. 
+if append==1,
+    appendheader(data.nfiles, fout);
+end
