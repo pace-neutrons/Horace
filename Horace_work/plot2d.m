@@ -1,9 +1,19 @@
 function plot2d(din)
 % Plot two-dimensional dataset
 %
+% Syntax:
+%   >> plot2d (din)
+%
 % Input:
 % ------
-% din         Data from which a reduced dimensional manifold is to be taken. Its fields are:
+%   din         Data from which a reduced dimensional manifold is to be taken.
+%               Type >> help dnd_checkfields for the fields required by this routine
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J. van Duijn, T.G.Perring
 
 if length(din.pax)~=2
     error ('ERROR: Must be two-dimensional dataset')

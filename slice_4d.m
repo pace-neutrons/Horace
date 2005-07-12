@@ -1,6 +1,12 @@
 function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
-%
 % Reads a binary spe file and creates a 4D data set from it.
+%
+% Syntax:
+%  To retain original energy binning from spe file:
+%   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, type)
+%
+%  To alter energy binning:
+%   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type)
 %
 % Input:
 % ------
@@ -77,7 +83,6 @@ for iblock = 1:h_main.nfiles,
         d.file= binfil;
         d.grid= 'orthogonal-grid';
         d.title=h_main.title;
-        d.pax= [1,2,3,4];
         d.a= h_main.a;
         d.b= h_main.b;
         d.c= h_main.c;

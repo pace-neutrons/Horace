@@ -4,6 +4,12 @@ function wout = mrdivide(w1,w2)
 %
 %   >> w = w1 / w2
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 if (isa(w1,'d1d') & isa(w2,'d1d'))
     w = d1d_to_spectrum(w1) / d1d_to_spectrum(w2);
     wout = combine_d1d_spectrum (w1, w);

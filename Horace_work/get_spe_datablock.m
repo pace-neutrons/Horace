@@ -2,10 +2,13 @@ function data = get_spe_datablock (fid, data_in)
 %  Read the a block of data corresponding to one .spe file from a binary file created
 % by gen_hkle.
 %
+% Syntax:
+%   >> data = get_spe_datablock (fid, data_in)
+%
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
-%   data_in     [optional] Header data structure to which the grid data
+%   data_in     [optional] Data structure to which the grid data
 %              fields below will be added.
 %
 % Output:

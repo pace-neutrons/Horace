@@ -5,6 +5,12 @@ function wout = integrate(w, xlo, xhi)
 %   >> ans = integrate (w)              % integrate over full range
 %   >> ans = integrate (w, xlo, xhi)    % integrate between selected range
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 if (nargin==1)
     wout = integrate(d1d_to_spectrum(w));
 elseif (nargin==3)

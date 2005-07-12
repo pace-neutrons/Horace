@@ -19,6 +19,12 @@ function wout = unspike (w, v1, v2, v3, v4)
 
 % The help section above should be identical to that for spectrum/unspike
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 if (nargin==1)
     wtemp = unspike (d1d_to_spectrum(w));
 elseif (nargin==2)

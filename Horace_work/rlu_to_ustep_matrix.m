@@ -1,5 +1,9 @@
 function [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, u, v, ustep, type)
-% 
+%  Perform various calculations with reciprocal lattice for producing plot axes
+%
+% Syntax:
+%   >> [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, u, v, ustep, type)
+%
 % input:
 % -----------
 %   alatt(1:3)  Row vector of lattice parameters (Angstroms)
@@ -31,11 +35,11 @@ function [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, u,
 %   ulen(1:3)               Row vector of lengths of ui in Ang^-1
 %                           
 
-% Author:
-%   T.G.Perring     01/06/2005
-% Modified:
+% Original author: T.G.Perring
 %
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J. van Duijn, T.G.Perring
 
 [b, arlu, angrlu] = bmat (alatt, angdeg);
 ub = ubmat(u,v,b);  % get UB matrix

@@ -7,5 +7,11 @@ function wout = shift(w, xval)
 % If DELTA is positive, then the spectrum starts and ends at more positive
 % values of x.
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 wtemp = shift(d1d_to_spectrum(w), xval);
 wout = combine_d1d_spectrum (w, wtemp);

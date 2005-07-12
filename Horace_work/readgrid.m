@@ -24,8 +24,9 @@ fid = fopen(binfil,'r');
 disp('Reading binary file ...');
 
 % Read header information
-data = get_header(fid);
-if strcmp(data.grid,'spe'),
+data.file = binfil;
+data = get_header(fid,data);
+if strcmp(data.grid,'spe')
     fclose(fid);
     error ('Error: Can only read orthogonal grid data ');
 end

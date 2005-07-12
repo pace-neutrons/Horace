@@ -2,6 +2,9 @@ function [ndim, mess] = dnd_checkfields (din)
 % Check if the fields in a structure are correct for an nD datastructure (n=0,1,2,3,4)
 % and check that the contents have the correct type and consistent sizes etc.
 %
+% Syntax:
+%   >> [ndim, mess] = dnd_checkfields (din)
+%
 % Input:
 % -------
 %   din     Input structure.
@@ -42,7 +45,6 @@ function [ndim, mess] = dnd_checkfields (din)
 %   din.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   din.n     Number of contributing pixels [size(din.n)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %             If 0D, 1D, 2D, 3D, din.n is a double; if 4D, din.n is int32
-
 
 % Original author: T.G.Perring
 %

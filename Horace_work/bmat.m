@@ -6,8 +6,17 @@ function [b, arlu, angrlu] = bmat (alatt, angdeg)
 %   >> b = bmat(alatt, ang)
 %   >> [b, arlu, angrlu] = bmat(alatt, ang)
 %
-%   alatt   vector containing lattice parameters (Ang)
-%   angdeg  vector containing lattice angles (degrees)
+% Input:
+% ------
+%   alatt   vector containing lattice parameters (Ang) [row or column vector]
+%   angdeg  vector containing lattice angles (degrees) [row or column vector]
+%
+% Output:
+% -------
+%   b       B matrix of Busing & Levy [3x3 matrix]
+%   arlu    Reciprocal lattice vectors (Ang^-1) [row vector]
+%   angrlu  Reciprocal lattice angles (deg) [row vector]
+%
 %
 % Matrix B is used to tranform components of a vector in r.l.u. to those
 % in crystal cartesian coordinates , that is, an orthonormal frame in which
@@ -16,11 +25,12 @@ function [b, arlu, angrlu] = bmat (alatt, angdeg)
 %   Vcryst(i) = B(i,j) Vrlu(j)
 %
 
-% Author:
-%   T.G.Perring     01/06/2005
-% Modified:
+% Original author: T.G.Perring
 %
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J. van Duijn, T.G.Perring
+
 
 if max(angdeg)>=180 | min(angdeg)<=0
     error('ERROR: Check lattice angles')

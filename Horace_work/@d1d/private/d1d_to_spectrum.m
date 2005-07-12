@@ -1,10 +1,13 @@
 function w = d1d_to_spectrum (d1d)
 % Use fields from a 1D dataset to construct an mgenie spectrum for mathematical
 % manipulation, plotting etc. Used as a utility in binary operations on 1D datasets.
+%
+% Syntax:
+%   >> w = d1d_to_spectrum (d1d)
 
-% Author:
-%   T.G.Perring     03/07/2005
-% Modified:
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 

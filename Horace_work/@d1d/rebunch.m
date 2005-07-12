@@ -10,6 +10,12 @@ function wout = rebunch(w, v1)
 
 % The help section above should be identical to that for spectrum/rebunch
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 if (nargin==1)
     wout = w;
 elseif (nargin == 2)

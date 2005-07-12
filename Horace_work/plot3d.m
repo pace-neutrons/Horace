@@ -1,6 +1,14 @@
 function plot3d (w)
 % plot3d    Plots 3D dataset using sliceomatic
 %
+% Syntax:
+%   >> plot3d (din)
+%
+% Input:
+% ------
+%   din         Data from which a reduced dimensional manifold is to be taken.
+%               Type >> help dnd_checkfields for the fields required by this routine
+%
 %           Ensure that the slice color plotting is in 'texture' mode -
 %               On the 'AllSlices' menu click 'Color Texture'. No indication will
 %               be made on this menu to show that it has been selected, but you can
@@ -9,6 +17,12 @@ function plot3d (w)
 %
 %           To set the default for future Sliceomatic sessions - 
 %               On the 'Object_Defaults' menu select 'Slice Color Texture'
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J. van Duijn, T.G.Perring
 
 % Prepare intensity array
 %   - remove zeros in w.n to avoid zero divides

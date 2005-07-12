@@ -2,10 +2,13 @@ function w = combine_d1d_spectrum (d1d, s)
 % Use fields from a 1D dataset and an mgenie spectrum to construct an
 % output 1D dataset. Used as a utility in binary operations and other
 % functions that manipulate 1D datasets.
+%
+% Syntax:
+%   >> w = combine_d1d_spectrum (d1d, s)
 
-% Author:
-%   T.G.Perring     04/07/2005
-% Modified:
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 

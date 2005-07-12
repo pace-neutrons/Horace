@@ -1,6 +1,9 @@
 function write_grid_data (fid, data)
 % Writes orthogonal grid data to a binary file
 %
+% Syntax:
+%   >> write_grid_data (fid, data)
+%
 % Input:
 % ------
 %   fid     File pointer to (already open) binary file
@@ -14,7 +17,6 @@ function write_grid_data (fid, data)
 %   data.e     Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.n     Number of contributing pixels [size(data.n)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %             If 1D, 2D, 3D, data.n is written as a double; if 4D, data.n is written as int16
-
 
 % Original author: J. van Duijn
 %
@@ -59,7 +61,7 @@ elseif ndim==1, %1D grid
     np1=length(data.p1); % length of vector data.p1
     fwrite(fid,np1,'int32');
     fwrite(fid,data.p1,'float32');
-else
+elseif ndim~=0
     error ('ERROR: Check dimension of dataset');
 end
 

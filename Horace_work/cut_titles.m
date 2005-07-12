@@ -1,5 +1,8 @@
 function [title_main, title_pax, energy_axis] = cut_titles (din)
 % Get titles from nD data structure (n=0,1,2,3,4)
+%
+% Syntax:
+%   >> [title_main, title_pax, energy_axis] = cut_titles (din)
 % 
 % Input:
 % ------

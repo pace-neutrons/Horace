@@ -2,8 +2,14 @@ function [] = p (w, col)
 % Plot of a 1D dataset, with the given colour, on an existing plot
 %
 % Syntax:
-%   >> d (w1)
-%   >> d (w1, col)
+%   >> p (w1)
+%   >> p (w1, col)
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
 
 if nargin==1
     p(d1d_to_spectrum(w));

@@ -1,5 +1,10 @@
 function dout = cut_data (din, varargin)
-
+% Take a cut from a multi-dimensional dataset and return the reduced dimensional
+% dataset.
+%
+% Syntax:
+%   >> dout = cut_data (din, iax_1, iax1_range, iax_2, iax2_range, ...)
+%
 % Input:
 % ------
 %   din             Data from which a reduced dimensional manifold is to be taken.
@@ -40,7 +45,7 @@ elseif ~(nargin==3|nargin==5|nargin==7|nargin==9)
 end
 
 % Get integration parameters:
-niax = floor((nargin-1)/2);
+niax = floor((nargin-1)/2); % niax = 1,2,3, or 4
 pax_ind = linspace(1,length(din.pax),length(din.pax));
 for i=1:niax
     iax_ind(i) = varargin{2*i-1};

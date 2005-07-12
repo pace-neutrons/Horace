@@ -30,6 +30,12 @@ function tomfit (w, xrange, p, fixed)
 % or
 %   >> tomfit (w, '', p, fixed)
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 if (nargin==1)
     tomfit (d1d_to_spectrum(w));
 elseif (nargin==2)

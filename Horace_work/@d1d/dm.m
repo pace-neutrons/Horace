@@ -1,9 +1,15 @@
 function dm(w,xlo,xhi,ylo,yhi)
 % DM Draws a marker plot of a 1D dataset
 %
-%   dm(w)
-%   dm(w,xlo,xhi)
-%   dm(w,xlo,xhi,ylo,yhi)
+%   >> dm(w)
+%   >> dm(w,xlo,xhi)
+%   >> dm(w,xlo,xhi,ylo,yhi)
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
 
 % Check spectrum is not an array
 if length(w)>1

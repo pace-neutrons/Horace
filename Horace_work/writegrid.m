@@ -2,7 +2,7 @@ function writegrid (data, binfil)
 % Writes 1D, 2D, 3D, or 4D dataset to a binary file.
 %
 % Syntax:
-%   >> readgrid (data, binfil)
+%   >> writegrid (data, binfil)
 %
 % Input:
 % ------
@@ -10,7 +10,6 @@ function writegrid (data, binfil)
 %          Type >> help dnd_checkfields for a full description of the fields of these data structures
 %
 %   binfil  Name of file to whicht he data will be written.
-
 
 % Original author: J. van Duijn
 %
@@ -25,6 +24,6 @@ disp('Writing binary file ...')
 write_header(fid,data);
 
 % Write grid information and the data itself:
-write_grid_data (fid, data);
+write_grid_data(fid,data);
 
 fclose(fid);

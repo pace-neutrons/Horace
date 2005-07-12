@@ -6,6 +6,9 @@ function write_spe_datablock (fid, data)
 %  also change gen_hkle which effectively incorporates a customised version of 
 %  write_spe_datablock.
 %
+% Syntax:
+%   >> write_spe_datablock (fid, data)
+%
 % Input:
 % ------
 %   fid     File pointer to (already open) binary file

@@ -1,7 +1,10 @@
 function gen_hkle (msp, fin, fout, u1, u2, u3);
 % Read in a number of spe files and use the projection facilities in 
-% mslice to convert spe files to(h,k,l,e,intensity) data, which will
-% then be written out to a binary file.
+% mslice to calculate the (Q,E) components for each pixel, and write these
+% and the intensity to a binary file suitable for use in the Horace routines.
+%
+% Syntax:
+%   >> gen_hkle (msp, fin, fout, u1, u2, u3)
 %
 % NOTES:
 % (1) If the binary output file already exists, the routine appends the new
@@ -10,8 +13,15 @@ function gen_hkle (msp, fin, fout, u1, u2, u3);
 %
 % Input:
 % ------
-%   msp         Mslice parameter file
-%   fin         File with psi values and the names of the spe files to be included
+%   msp         Mslice parameter file. Must have correct .phx file, scattering
+%               plane etc. The only information that will be over-written is
+%               the .spe file, psi, projection axes.
+%   fin         File with psi values (deg) and the spe file names to be included
+%               Format of this file: e.g.
+%                       90   MAP07491.SPE
+%                       89   MAP07492.SPE
+%                        :         :
+%                       
 %   fout        File name for the binary output file (format described below). 
 %   u1    --|   Projection axes in which to label pixel centres
 %   u2      |--   e.g.    u1 = [1,0,0], u2=[0,1,0], u3=[0,0,1]
@@ -19,30 +29,35 @@ function gen_hkle (msp, fin, fout, u1, u2, u3);
 %
 % Output:
 % -------
-%   header:
-%       data.grid: type of binary file (4D grid, blocks of spe file, etc)
-%       data.title_label: title label
-%       data.a: a axis
-%       data.b: b axis
-%       data.c c axis
-%       data.alpha: alpha
-%       data.beta: beta
-%       data.gamma: gamma
-%       data.u     Matrix (4x4) of projection axes in original 4D representation
-%              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-%       data.ulen  Length of vectors in Ang^-1, energy
-%       data.nfiles: number of spe files contained within the binary file
+% header block:
+%   data.grid   Type of grid ('spe') [Character string]
+%   data.title  Title [Character string]
+%   data.a      Lattice parameters (Angstroms)
+%   data.b           "
+%   data.c           "
+%   data.alpha  Lattice angles (degrees)
+%   data.beta        "
+%   data.gamma       "
+%   data.u      Matrix (4x4) of projection axes in original 4D representation
+%               u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
+%   data.ulen   Length of vectors in Ang^-1 or meV [row vector]
+%   data.label  Labels of the projection axes [1x4 cell array of charater strings]
+%   data.nfiles Number of spe file data blocks in the remainder of the file
 %
-%       list of psi, u,v (crystal orientation) and file name of the spe
-%       file, followed by:
-%       sized: size u1, u2, u3, I, Err arrays
-%       data.v: 2 D array containing collums of hkl corresponding to each
-%       pixel.
-%       en: vector containing energy bins
-%       S: intensity vector (size=sized(1)*sized(2)=number of
-%       detectors*number of energy bins)
-%       ERR: Error vector (as the variance, ie err^2)
-
+% For each spe file in succession:
+%   data.ei     Incident energy used for spe file (meV)
+%   data.psi    Psi angle (deg)
+%   data.cu     u crystal axis (r.l.u.) (see mslice) [row vector]
+%   data.cv     v crystal axis (r.l.u.) (see mslice) [row vector]
+%   data.file   File name of .spe file corresponding to the block being read
+%   data.size   size(1)=number of detectors; size(2)=number of energy bins [row vector]
+%   data.v      Array containing the components along the mslice projection
+%              axes u1, u2, u3 for each pixel in the .spe file.
+%              Note: size(data.v) = [3, no. dets * no. energy bins]
+%   data.en     Vector containing the energy bin centres [row vector]
+%   data.S      Intensity vector [row vector]
+%   data.ERR    Variance vector [row vector]
+%
 
 % Original author: J. van Duijn
 %
@@ -61,7 +76,7 @@ if exist(fout)
     % position writing at the end of the file
     append = 1;
     fid=fopen(fout, 'r+');
-    get_header(fid,data);
+    data=get_header(fid);
     data.nfiles=data.nfiles+nfiles;
     fseek(fid, 0, 'eof');
 else

@@ -1,15 +1,19 @@
 function [s_out, e_out, n_out] = cut_data_arrays (iax, ilo, ihi, s, e, n)
-% Sum signal, error and nbin arrays along the specified dimension between (and
-% including) the two indexes. The output arrays are reduced in dimension by unity.
+% Sum signal, error (i.e. variance) and nbin arrays along the specified
+% dimension between (and including) the two indexes. The output arrays are
+% reduced in dimension by unity.
 %
-% Input arrays must have four or fewer dimensions. Checks are rudimentary - it is assumed
+% Syntax:
+%   >> [s_out, e_out, n_out] = cut_data_arrays (iax, ilo, ihi, s, e, n)
+%
+% Input arrays must have 1,2,3 or 4 dimensions. Checks are rudimentary - it is assumed
 % that ilo and ihi are valid for the given summation axis, for example.
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 %
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% Horace v0.1   J. van Duijn, T.G.Perring
 
 ndims = length(size(s));
 

@@ -5,6 +5,12 @@ function [wtemp] = d (w, col)
 %   >> d (w1)
 %   >> d (w1, col)
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 if nargin==1
     d(d1d_to_spectrum(w));
 elseif nargin==2

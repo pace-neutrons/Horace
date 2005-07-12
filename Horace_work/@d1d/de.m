@@ -1,9 +1,15 @@
 function de(w,xlo,xhi,ylo,yhi)
 % DE Draws a plot of error bars for a 1D dataset
 %
-%   de(w)
-%   de(w,xlo,xhi)
-%   de(w,xlo,xhi,ylo,yhi)
+%   >> de(w)
+%   >> de(w,xlo,xhi)
+%   >> de(w,xlo,xhi,ylo,yhi)
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
 
 % Check spectrum is not an array
 if length(w)>1

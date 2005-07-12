@@ -21,6 +21,12 @@ function wout = regroup(w, v1, v2, v3)
 %          xhi =< wout.x(1) < wout.x(nout) =< xhi
 %
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 % The help section above should be identical to that for spectrum/regroup
 
 if (nargin==1)

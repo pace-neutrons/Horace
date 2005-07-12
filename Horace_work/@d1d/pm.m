@@ -1,8 +1,14 @@
 function pm(w)
 % PM Draws a marker plot of a 1D dataset on an existing plot
 %
-%   pm(w)
+%   >> pm(w)
 %
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
 
 % Check spectrum is not an array
 if length(w)>1

@@ -2,6 +2,9 @@ function data = get_grid_data (fid, data_in)
 %  Read the grid data from a binary file created by slice_4d, slice_3d
 % or writegrid.
 %
+% Syntax:
+%   >> data = get_grid_data (fid, data_in)
+%
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
@@ -17,7 +20,6 @@ function data = get_grid_data (fid, data_in)
 %   data.e     Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.n     Number of contributing pixels [size(data.n)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %             (if ndim=1,2 or 3, then data.n is double; if n=4 then data.n is int16)
-
 
 % Original author: J. van Duijn
 %
@@ -98,7 +100,10 @@ elseif ndim==1
     data.e = reshape(data.e,np1-1);
     [data.n,count] = fread(fid,ntot,'double');
     data.n = double(reshape(data.n,np1-1));
+elseif ndim=0
+    [data.s,count] = fread(fid,1,'float32');
+    [data.e,count] = fread(fid,1,'float32');
+    [data.n,count] = fread(fid,1,'double');
 else
-    fclose(fid);
     error('Error: Check dimension of dataset');
 end

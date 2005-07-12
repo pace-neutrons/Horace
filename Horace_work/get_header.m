@@ -1,15 +1,19 @@
-function data = get_header(fid)
+function data = get_header(fid, data_in)
 % Reads a header structure out from either a binary .spe file or a binary orthogonal grid file.
+%
+% Syntax:
+%   >> data = get_header(fid, data_in)
 %
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
+%   data_in     [optional] Data structure to which the grid data
+%              fields below will be added.
 %
 % Output:
 % -------
 % Fields read for both 'spe' or 'orthogonal-grid' data:
 %
-%   data.file   File from which (h,k,l,e) data was read [Character string]
 %   data.grid   Type of grid ('spe' or 'orthogonal-grid') [Character string]
 %   data.title  Title contained in the file from which (h,k,l,e) data was read [Character string]
 %   data.a      Lattice parameters (Angstroms)
@@ -23,7 +27,10 @@ function data = get_header(fid)
 %   data.ulen   Length of vectors in Ang^-1 or meV [row vector]
 %   data.label  Labels of the projection axes [1x4 cell array of charater strings]
 %
-% If a 1D,2D,3D, or 4D data structure, then in addition read :
+% If reading a binary spe file:
+%   data.nfiles Number of spe files in the binary file
+%
+% If a 0D,1D,2D,3D, or 4D data structure:
 %
 %   data.p0     Offset of origin of projection [ph; pk; pl; pen] [column vector]
 %   data.pax    Index of plot axes in the matrix data.u  [row vector]
@@ -34,14 +41,19 @@ function data = get_header(fid)
 %   data.uint   Integration range along each of the integration axes. Dimensions are uint(2,length(iax))
 %               e.g. in 2D case above, is the matrix vector [u3_lo, u1_lo; u3_hi, u1_hi]
 
-
 % Original author: J. van Duijn
 %
 % $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-disp('Reading header information ...');
+if nargin==2
+    if isstruct(data_in)
+        data = data_in;
+    else
+        error ('ERROR: Check the type of input argument data_in')
+    end
+end
 
 [n,count]= fread(fid,1,'int32');
 [data.grid,count]= fread(fid,[1,n],'*char');
@@ -68,7 +80,11 @@ else
     
     [data.p0,count]= fread(fid,[4,1],'int32');
     [n,count]= fread(fid,1,'int32');
-    [data.pax,count]=fread(fid,[1,n],'int32');
+    if n>0
+        [data.pax,count]=fread(fid,[1,n],'int32');
+    else
+        data.pax=[];    % create empty index of plot axes
+    end
     if n==4,
         data.iax=[]; % create empty index of integration array
         data.uint=[];

@@ -1,28 +1,34 @@
 function ub = ubmat (u, v, b)
 % Calculate UB matrix that transforms components of a vector given in r.l.u.
 % into the components in an orthonormal frame defined by the two vectors
-% u and v (each given in r.l.u):
-%
-%   e1  parallel to u
-%   e2  in the plane of u and v, with a +ve component along v
-%   e3  perpendicular to u and v
-% 
+% u and v (each given in r.l.u)
 %
 % Syntax:
 %   >> ub = ubmat(u, v, b)
 %
+% Input:
+% -------
 %   u, v    Two vectors expressed in r.l.u.
 %   b       B-matrix of Busing and Levy (as calulcated by function bmat)
+%
+% Output:
+% -------
+%   ub      UB matrix.
+%
+% The orthonormal frame defined by vectors u and v is:
+%   e1  parallel to u
+%   e2  in the plane of u and v, with a +ve component along v
+%   e3  perpendicular to u and v
 %
 % Use the matrix ub to convert components of a vector as follows:
 %
 %   Vuv(i) = UB(i,j) Vrlu(j)
 
-% Author:
-%   T.G.Perring     01/06/2005
-% Modified:
+% Original author: T.G.Perring
 %
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J. van Duijn, T.G.Perring
 
 
 if size(u,2)>1; u=u'; end    % convert to column vector

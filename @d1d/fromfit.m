@@ -7,6 +7,12 @@ function [wcalc, p, dp, fixed]= fromfit (win)
 %
 %   >> [wcalc, p, dp, fixed] = fromfit (w)    % to recover parameter values etc.
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
 if nargout==1
     [wtemp]= fromfit (d1d_to_spectrum(win));
 elseif nargout==2
