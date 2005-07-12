@@ -1,10 +1,10 @@
-function gen_hkle (msp, fin, fout, u1, u2, u3);
+function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3);
 % Read in a number of spe files and use the projection facilities in 
 % mslice to calculate the (Q,E) components for each pixel, and write these
 % and the intensity to a binary file suitable for use in the Horace routines.
 %
 % Syntax:
-%   >> gen_hkle (msp, fin, fout, u1, u2, u3)
+%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3)
 %
 % NOTES:
 % (1) If the binary output file already exists, the routine appends the new
@@ -16,13 +16,19 @@ function gen_hkle (msp, fin, fout, u1, u2, u3);
 %   msp         Mslice parameter file. Must have correct .phx file, scattering
 %               plane etc. The only information that will be over-written is
 %               the .spe file, psi, projection axes.
+%
+%   data_in_dir Path to the spe file names given in the file fin below.
+%               - This path overrides any path given as part of the file names in fin
+%               - Set to '' if the paths in the file fin are to be used
+%   
 %   fin         File with psi values (deg) and the spe file names to be included
 %               Format of this file: e.g.
 %                       90   MAP07491.SPE
 %                       89   MAP07492.SPE
 %                        :         :
 %                       
-%   fout        File name for the binary output file (format described below). 
+%   fout        File name for the binary output file (format described below).
+%               
 %   u1    --|   Projection axes in which to label pixel centres
 %   u2      |--   e.g.    u1 = [1,0,0], u2=[0,1,0], u3=[0,0,1]
 %   u3    --|     e.g.    u1 = [1,1,0], u2=[-1,1,0], u3=[0,0,1]
@@ -105,7 +111,22 @@ ms_setvalue('u3label','Q_l');
 
 % Read and convert each spe file then write data to binary file 
 for i = 1:nfiles
-    ms_setvalue('DataFile',fnames(i));
+    % must do a clever trick to set path for spe file - TGP
+    [spe_path,spe_file,spe_ext,spe_ver] = fileparts(fnames{i});
+    if ~isempty(data_in_dir)    %override paths to spe files
+        if strcmp(data_in_dir(end),filesep)
+            ms_setvalue('DataDir',data_in_dir);
+        else
+            ms_setvalue('DataDir',[data_in_dir,filesep]);
+        end
+    else
+        if isempty(spe_path)
+            ms_setvalue('DataDir',spe_path);
+        else
+            ms_setvalue('DataDir',[spe_path,filesep]);
+        end
+    end
+    ms_setvalue('DataFile',[spe_file,spe_ext]);
     ms_setvalue('psi_samp',psi(i));
     ms_load_data;
     ms_calc_proj;
@@ -120,7 +141,7 @@ for i = 1:nfiles
         data.alpha=ms_getvalue('aa');
         data.beta=ms_getvalue('bb');
         data.gamma=ms_getvalue('cc');
-        data.u= [u1',u2',u3',[0 0 0 1]'];
+        data.u= [[u1,0]',[u2,0]',[u3,0]',[0 0 0 1]'];
         data.ulen= [d.axis_unitlength', 1];
         data.nfiles= nfiles;
         write_header(fid,data);
