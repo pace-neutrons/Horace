@@ -4,8 +4,8 @@ function gen_hkle (msp, fin, fout, u1, u2, u3);
 % then be written out to a binary file.
 %
 % NOTES:
-% (1) If the binary output file is found to already exist, then the
-%     routine will append the new data to the end of it. 
+% (1) If the binary output file already exists, the routine appends the new
+%     data to the end of it. 
 % (2) This routine requires that mslice is running in the background.
 %
 % Input:
@@ -55,14 +55,19 @@ function gen_hkle (msp, fin, fout, u1, u2, u3);
 [psi,fnames] = textread(fin,'%f %s');  
 nfiles = length(psi);
 
+% Determine if binary file already exists
 if exist(fout)
+    % Open existing file, read the header, update number of files and
+    % position writing at the end of the file
     append = 1;
-    % append new spe files at the end of the file and correct the total
-    % number of spe files in the header;
-    data=readheader(fout);
+    fid=fopen(fout, 'r+');
+    get_header(fid,data);
     data.nfiles=data.nfiles+nfiles;
+    fseek(fid, 0, 'eof');
 else
+    % Open a new binary file
     append = 0;
+    fid=fopen(fout,'w');
 end
 
 % Set up Q-space viewing axes
@@ -90,25 +95,20 @@ for i = 1:nfiles
     ms_load_data;
     ms_calc_proj;
     d = fromwindow;
-    
     if i==1 & ~append
-       % The very first time around generate all the header information.
-       data.title= d.title_label;
-       data.grid= 'spe';
-       data.a=ms_getvalue('as');
-       data.b=ms_getvalue('bs');
-       data.c=ms_getvalue('cs');
-       data.alpha=ms_getvalue('aa');
-       data.beta=ms_getvalue('bb');
-       data.gamma=ms_getvalue('cc');
-       data.u= [u1',u2',u3',[0 0 0 1]'];
-       data.ulen= [d.axis_unitlength; 1];
-       data.nfiles= nfiles;
-       writeheader(data,fout);
-    end
-    if i==1,
-        fid=fopen(fout, 'r+');
-        fseek(fid, 0, 'eof');
+        % The very first time around generate all the header information.
+        data.grid= 'spe';
+        data.title= d.title_label;
+        data.a=ms_getvalue('as');
+        data.b=ms_getvalue('bs');
+        data.c=ms_getvalue('cs');
+        data.alpha=ms_getvalue('aa');
+        data.beta=ms_getvalue('bb');
+        data.gamma=ms_getvalue('cc');
+        data.u= [u1',u2',u3',[0 0 0 1]'];
+        data.ulen= [d.axis_unitlength', 1];
+        data.nfiles= nfiles;
+        write_header(fid,data);
     end
     fwrite(fid, d.efixed, 'float32'); 
     fwrite(fid, psi(i), 'float32');
@@ -118,26 +118,22 @@ for i = 1:nfiles
     fwrite(fid, n, 'int32');
     fwrite(fid, d.filename, 'char');
     sized= size(d.v);
-    fwrite(fid,sized(1:2),'int32');
-    % reorder the data.v array so that it is data.v(:,1:3) where each
-    % column corresponds to hkl.
+    fwrite(fid,sized(1:2), 'int32');
+    % Reshape and transpose the data.v array so that it becomes data.v(1:3,:) where each
+    % column corresponds to components along u1, u2, u3 for one pixel.
+    % Do the corresponding reshape and transpose for the signal and error arrays.
     nt= sized(1)*sized(2);
-    d.v= reshape(d.v, nt, 3);
-    d.v=d.v';
-    fwrite(fid,d.v,'float32');
-    fwrite(fid,d.en,'float32');
-    d.S=reshape(d.S, nt, 1);
-    d.S=d.S';
-    fwrite(fid,d.S,'float32');
-    d.ERR=reshape(d.ERR, nt, 1);
-    d.ERR=d.ERR';
-    d.ERR=d.ERR.^2;
-    fwrite(fid,d.ERR,'float32');    
+    fwrite(fid, reshape(d.v, nt, 3)','float32');
+    fwrite(fid, d.en, 'float32');
+    fwrite(fid, reshape(d.S, 1, nt), 'float32');
+    fwrite(fid, reshape(d.ERR, 1, nt).^2, 'float32');  % store error squared 
 end
-fclose(fid);
 
 % if all the files are correctly appended to the binary file update the
 % header with the total number of spe files. 
-if append==1,
-    appendheader(data.nfiles, fout);
+if append
+    fseek(fid, 0, 'bof');       % go to beginning of file
+    write_header(fid,data);     % overwrite header information with the updated header
 end
+
+fclose(fid);

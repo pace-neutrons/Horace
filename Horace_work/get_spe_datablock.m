@@ -21,7 +21,7 @@ function data = get_spe_datablock (fid, data_in)
 %              Note: size(data.v) = [3, no. dets * no. energy bins]
 %   data.en     Vector containing the energy bin centres [row vector]
 %   data.S      Intensity vector [row vector]
-%   data.ERR    Error vector [row vector]
+%   data.ERR    Variance vector [row vector]
 %
 
 % Original author: J. van Duijn

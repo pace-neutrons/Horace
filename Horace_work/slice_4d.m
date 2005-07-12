@@ -40,12 +40,12 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %           For a complete description of the fields of the dataset, type
 %               >> help dnd_checkfields
 
-
 % Original author: J. van Duijn
 %
 % $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
+
 
 % Check input parameters.
 if nargin==8,
@@ -57,8 +57,8 @@ else
     error ('ERROR - Check number of arguments')
 end
 
-fid= fopen(binfil, 'r'); % open spebin file
-h_main = getheader(fid); % get the main header information
+fid= fopen(binfil, 'r');    % open spebin file
+h_main = get_header(fid);   % get the main header information
 
 % obtain the conversion matrix that will convert the hkle vectors in the
 % spe file in to equivalents in the orthogonal set defined by u and v
@@ -71,7 +71,7 @@ p0n= rlu_to_ustep*p0(1:3)';
 
 for iblock = 1:h_main.nfiles,
     disp(['reading block no.: ' num2str(iblock)]);
-    h = getblock(fid, h_main); % read in spe block
+    h = get_spe_datablock(fid); % read in spe block
     
     if iblock==1, % Create the output data structure
         d.file= binfil;
