@@ -5,12 +5,12 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %  To retain original energy binning from spe file:
 %   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, type)
 %  
-%   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, type, ...
-%                                                     p1_lab, p2_lab, p3_lab)
-%
 %  To alter energy binning:
 %   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type)
-%  
+% 
+%  To use non-default axis labels for the momentum axes, add them as extra
+%  parameters to either of the two cases above:
+%   e.g.
 %   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
 %                                                     p1_lab, p2_lab, p3_lab)
 %
@@ -27,18 +27,18 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %        The unit lengths along the axes p1, p2 and p3 are determined by the 
 %       character codes in the variable 'type' described below.
 %           
-%   p0(1:4)         Vector defining origin of the 4D grid in QE-space (r.l.u.,E)
+%   p0(1:3)         Vector defining origin of the grid in momentum space (r.l.u.)
 %   p1_bin(1:3)     Binning along p1 axis: [p1_start, p1_step, p1_end]
 %   p2_bin(1:3)     Binning perpendicular to u axis within the plot plane:
-%                        [p2_start, p2_step, p2_end]
+%                           [p2_start, p2_step, p2_end]
 %   p3_bin(1:3)     Binning perpendicular to p1 and p2: 
-%                        [p3_start, p3_step, p3_end]
+%                           [p3_start, p3_step, p3_end]
 %   p4_bin(1:3)     Binning along the energy axis:
-%                        [p4_start, p4_step, p4_end]
-%                    or, to use bin size from original spe files but change range:
-%                        [p4_start, p4_end] 
-%                    or, to use range and bin size from original spe files
-%                        -- omit p4_bin --
+%                           [p4_start, p4_step, p4_end]
+%                    *OR* to use bin size from original spe files but change range:
+%                           [p4_start, p4_end] 
+%                    *OR* to use range and bin size from original spe files
+%                           -- omit p4_bin --
 %                   If p4_step is smaller than that in the spe files, it is set
 %                   equal to that in the spe files.
 %   type            Defines measure of units length for binning.
@@ -48,7 +48,7 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %        - if 'r': then if (h,k,l) in r.l.u., is normalised so max(abs([h,k,l]))=1
 %       e.g. type='rrr' or 'raa'
 %
-%   p1_lab          Short label for p1 axis (e.g. 'Q_h' or 'Q_{kk}'
+%   p1_lab          Short label for p1 axis (e.g. 'Q_h' or 'Q_{kk}')
 %   p2_lab          Short label for p2 axis
 %   p3_lab          Short label for p3 axis
 %
@@ -69,17 +69,17 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 small = 1.0e-13;
 
 % Check input parameters.
-if nargin==8,
+if nargin==8
     type= varargin{1};
 elseif nargin==9,
     p4_bin=varargin{1};
     type= varargin{2};
-elseif nargin==9,
+elseif nargin==11
     type= varargin{1};
     p1_lab = varargin{2};
     p2_lab = varargin{3};
     p3_lab = varargin{4};
-elseif nargin==12,
+elseif nargin==12
     p4_bin=varargin{1};
     type= varargin{2};
     p1_lab = varargin{3};
@@ -89,25 +89,21 @@ else
     error ('ERROR - Check number of arguments')
 end
 
-% check p0(4) is zero
-if abs(p0(4))>small
-    error ('ERROR: offset along energy axis not permitted')
-end
-
 fid= fopen(binfil, 'r');    % open spebin file
 h_main = get_header(fid);   % get the main header information
 
 % obtain the conversion matrix that will convert the hkle vectors in the
 % spe file in to equivalents in the orthogonal set defined by u and v
+ustep = [p1_bin(2),p2_bin(2),p3_bin(2)];
 [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix ([h_main.a,h_main.b, h_main.c],...
-    [h_main.alpha,h_main.beta,h_main.gamma], u, v, [p1_bin(2),p2_bin(2),p3_bin(2)], type);
+    [h_main.alpha,h_main.beta,h_main.gamma], u, v, ustep, type);
 
 % convert p0 to the equivalent vector in the new orthogonal set given by
 % u_to_rlu
 p0n= rlu_to_ustep*p0(1:3)';
 
 for iblock = 1:h_main.nfiles,
-    disp(['reading block no.: ' num2str(iblock)]);
+    disp(['reading spe block no.: ' num2str(iblock)]);
     h = get_spe_datablock(fid); % read in spe block
     
     if iblock==1, % Create the output data structure
@@ -135,24 +131,27 @@ for iblock = 1:h_main.nfiles,
                 d.label= {'Q_\zeta','Q_\xi','Q_\eta','E'};
             end
         end
-        d.p0=p0';
+        d.p0=[p0,0]';
         d.pax=[1,2,3,4];
         d.iax=[]; % create empty index of integration array
         d.uint=[];
         d.p1= [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
         d.p2= [p2_bin(1):p2_bin(2):p2_bin(3)]'; % Contains the bin boundaries
         d.p3= [p3_bin(1):p3_bin(2):p3_bin(3)]';
-        % Allow for energy range only to be given (TGP, 13 July 2005)
+        % Allow for energy range only to be given
         enbin = (h.en(end)-h.en(1))/(length(h.en)-1);  % energy grid is stored as bin centres
         if ~exist('p4_bin','var')   % use intrinsic energy bin and step
             p4_bin = [(h.en(1)-enbin/2),enbin,(h.en(end)+enbin/2)];
-            disp('Using energy range and binning from original spe files')
+            disp('Using energy range and binning from first spe file')
         else
             if length(p4_bin)==2 | ebin > p4_bin(2) % binning is smaller then the intrinsic binning, or is not given
                 % tweak limits so that where there is existing spe data, the bin boundaries will match
                 p4_bin = [(ceil((p4_bin(1)-h.en(1))/enbin)-0.5)*enbin, enbin, ...
                           (floor((p4_bin(1)-h.en(1))/enbin)+0.5)*enbin];
-                disp ('Using energy bin size from original spe files')
+                if enbin > p4_bin(2)
+                    disp ('Requested energy bin size is smaller than that of first spe file')
+                end
+                disp ('Using energy bin size from first spe file')
             end
         end
         d.p4= [p4_bin(1):p4_bin(2):p4_bin(3)]';
@@ -165,13 +164,12 @@ for iblock = 1:h_main.nfiles,
         d.n= int16(d.s);            
     end
     
-    vstep= rlu_to_ustep*h.v; % convert h.v into the equivalent step matrix along the new 
-                            % orthogonal set given by u_to_rlu
+    % convert h.v into the equivalent step matrix along the new orthogonal set given by u_to_rlu
+    vstep= rlu_to_ustep*h.v; 
                             
     %generate the energy vector corresponding to each hkl vector
     emat= repmat(h.en, h.size(1), 1);
-    emat= reshape(emat, h.size(1)*h.size(2),1);
-    emat= emat';
+    emat= reshape(emat, 1, h.size(1)*h.size(2));
     
     % convert vstep into index array where vstep(i,1)= 1 corresponds to data
     % between pi(1) and pi(2).
@@ -180,7 +178,7 @@ for iblock = 1:h_main.nfiles,
     vstep(3,:)= floor(vstep(3,:)-p0n(3)-p3_bin(1)/p3_bin(2))+1;
     
     % generate equivalent energy matrix
-    emat= floor((emat-p4_bin(1) )/p4_bin(2))+1;
+    emat= floor((emat-p4_bin(1))/p4_bin(2))+1;
     
     % find the index array 
     lis=find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
@@ -188,12 +186,11 @@ for iblock = 1:h_main.nfiles,
              1<=vstep(3,:) & vstep(3,:)<=floor((max(d.p3)-p3_bin(1))/p3_bin(2)) & ...
              1<=emat       &       emat<=floor((max(d.p4)-p4_bin(1))/p4_bin(2)));
     
-    % sum up the Intensity, errors and hits into the 4D array.
-    % add the stepsize of the last bin of d.int with 0 int to make sure
-    % that the accumulated array has the same size as d.int
-    %a=(accumarray(vstep(1:3,lis)',h.S(lis)))
-    d.s= d.s + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]',[h.S(lis) 0]); % summed 4D intensity array
-    d.e= d.e + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]',[h.ERR(lis) 0]); % summed 4D error array
+    % sum up the intensity, errors and hits into their corresponding 4D arrays.
+    % add a reference to the last bin of d.s with zero intensity to make sure
+    % that the accumulated array has the same size as d.s
+    d.s= d.s + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]',[h.S(lis) 0]);    % summed 4D intensity array
+    d.e= d.e + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]',[h.ERR(lis) 0]);  % summed 4D error array
     d.n= d.n + int16(accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]', [ones(1,length(lis)) 0])); 
 end
 
