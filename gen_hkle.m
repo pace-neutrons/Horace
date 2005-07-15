@@ -1,9 +1,11 @@
-function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3);
+function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3, u1_lab, u2_lab, u3_lab);
 % Read in a number of spe files and use the projection facilities in 
 % mslice to calculate the (Q,E) components for each pixel, and write these
 % and the intensity to a binary file suitable for use in the Horace routines.
 %
 % Syntax:
+%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3, u1_lab, u2_lab, u3_lab)
+%
 %   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3)
 %
 % NOTES:
@@ -29,9 +31,13 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3);
 %                       
 %   fout        File name for the binary output file (format described below).
 %               
-%   u1    --|   Projection axes in which to label pixel centres
+%   u1    --|   Projection axes in which to label pixel centres [row vectors]
 %   u2      |--   e.g.    u1 = [1,0,0], u2=[0,1,0], u3=[0,0,1]
 %   u3    --|     e.g.    u1 = [1,1,0], u2=[-1,1,0], u3=[0,0,1]
+%
+%   u1_lab--|   Optional labels for the projection axes (e.g. 'Q_h' or 'Q_{kk}')
+%   u2_lab  |-- If not provided, then default values will be written
+%   u3_lab--|   
 %
 % Output:
 % -------
@@ -71,10 +77,19 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3);
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
+% parameter used to check rounding
+small = 1.0e-13;
 
 % Read input spe file information
 [psi,fnames] = textread(fin,'%f %s');  
 nfiles = length(psi);
+
+% Determine if labels are present:
+if nargin==10
+    labels = 1;
+else
+    labels = 0;
+end
 
 % Determine if binary file already exists
 if exist(fout)
@@ -97,17 +112,31 @@ ms_setvalue('u11',u1(1));
 ms_setvalue('u12',u1(2));
 ms_setvalue('u13',u1(3));
 ms_setvalue('u14',0);
-ms_setvalue('u1label','Q_h');
 ms_setvalue('u21',u2(1));
 ms_setvalue('u22',u2(2));
 ms_setvalue('u23',u2(3));
 ms_setvalue('u24',0);
-ms_setvalue('u2label','Q_k');
 ms_setvalue('u31',u3(1));
 ms_setvalue('u32',u3(2));
 ms_setvalue('u33',u3(3));
 ms_setvalue('u34',0);
-ms_setvalue('u3label','Q_l');
+if labels
+    ms_setvalue('u1label',u1_lab);
+    ms_setvalue('u2label',u2_lab);
+    ms_setvalue('u3label',u3_lab);
+else
+    uarr = [[u1(1),u1(2),u1(3)]',[u2(1),u2(2),u2(3)]',[u3(1),u3(2),u3(3)]']; % write explicitly to avoid problem if u1 etc given as column vectors
+    if max(max(abs(sort([uarr])-[0,0,0;0,0,0;1,1,1]))) < small
+        lis= find(round(uarr));  % find the elements equal to unity
+        tl= {'Q_h','Q_k','Q_l'};
+        label= [tl(lis(1)),tl(lis(2)-3),tl(lis(3)-6)];
+    else
+        label= {'Q_\zeta','Q_\xi','Q_\eta','E'};
+    end
+    ms_setvalue('u1label',label{1});
+    ms_setvalue('u2label',label{2});
+    ms_setvalue('u3label',label{3});
+end
 
 % Read and convert each spe file then write data to binary file 
 for i = 1:nfiles

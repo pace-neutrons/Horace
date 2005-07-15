@@ -68,7 +68,7 @@ if strcmp(data.grid,'spe'),
     fwrite(fid,data.nfiles,'int32');
     % p0, pax, iax and uint undefined (data needs to be sliced first)
 else
-    label=char(data.label)
+    label=char(data.label);
     n=size(label);
     fwrite(fid,n,'int32');
     fwrite(fid,label,'char');   
