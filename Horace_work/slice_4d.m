@@ -89,6 +89,32 @@ else
     error ('ERROR - Check number of arguments')
 end
 
+% check u, v, p0, p1_bin, p2_bin, p3_bin:
+if ~isa_size(u,[1,3],'double') | ~isa_size(v,[1,3],'double') | ~isa_size(p0,[1,3],'double') |...
+        ~isa_size(p1_bin,[1,3],'double') | ~isa_size(p2_bin,[1,3],'double') | ~isa_size(p3_bin,[1,3],'double')
+    error ('ERROR: Check length and shape of u, v, p0, p1_bin, p2_bin, p3_bin - must be row vectors length 3')
+end
+
+% check p4_bin:
+if exist('p4_bin','var') && ~(isa_size(p4_bin,[1,2],'double') & isa_size(p4_bin,[1,3],'double'))
+    error ('ERROR: Must provide binning for energy axis plotting in form [en_lo, eh_hi] or [en_start, en_step, en_end]')
+end
+
+% Check normalisation of Q axes:
+if ~isa_size(type,[1,3],'char')
+    error ('ERROR: Check type of argument ''type''')
+end
+
+% Check form of labels:
+if exist('p1_lab','var') && ~(isa_size(p1_lab,'row','char') & ...
+        isa_size(p2_lab,'row','char') & isa_size(p3_lab,'row','char'))
+    error ('ERROR: If axis labels are given, they must be character strings')
+end
+
+
+% Now start calculation proper
+% -----------------------------
+
 fid= fopen(binfil, 'r');    % open spebin file
 h_main = get_header(fid);   % get the main header information
 
@@ -144,11 +170,11 @@ for iblock = 1:h_main.nfiles,
             p4_bin = [(h.en(1)-enbin/2),enbin,(h.en(end)+enbin/2)];
             disp('Using energy range and binning from first spe file')
         else
-            if length(p4_bin)==2 | ebin > p4_bin(2) % binning is smaller then the intrinsic binning, or is not given
+            if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
                 % tweak limits so that where there is existing spe data, the bin boundaries will match
-                p4_bin = [(ceil((p4_bin(1)-h.en(1))/enbin)-0.5)*enbin, enbin, ...
-                          (floor((p4_bin(1)-h.en(1))/enbin)+0.5)*enbin];
-                if enbin > p4_bin(2)
+                p4_bin = [enbin*(ceil((p4_bin(1)-h.en(1))/enbin)-0.5), enbin, ...
+                          enbin*(floor((p4_bin(end)-h.en(1))/enbin)+0.5)];
+                if enbin>p4_bin(2)
                     disp ('Requested energy bin size is smaller than that of first spe file')
                 end
                 disp ('Using energy bin size from first spe file')
@@ -161,7 +187,7 @@ for iblock = 1:h_main.nfiles,
         np4= length(d.p4)-1;
         d.s= zeros(np1,np2,np3,np4); % generate the 4D data structures
         d.e= zeros(np1,np2,np3,np4);
-        d.n= int16(d.s);            
+        d.n= int16(zeros(np1,np2,np3,np4));            
     end
     
     % convert h.v into the equivalent step matrix along the new orthogonal set given by u_to_rlu
@@ -195,3 +221,6 @@ for iblock = 1:h_main.nfiles,
 end
 
 fclose(fid);
+
+% Make class out of structure:
+d = d4d(d);

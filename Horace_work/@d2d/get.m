@@ -1,5 +1,5 @@
 function data = get(w)
-% GET   Return a structure with the fields of a 1D dataset.
+% GET   Return a structure with the fields of a 2D dataset
 %
 % Syntax:
 %   >> data = get (w)    % w the class; data is the corresponding structure

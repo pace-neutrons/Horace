@@ -130,11 +130,10 @@ if ~isa_size(type,[1,3],'char')
 end
 
 % Check form of labels:
-if exist('p1_lab','var') && ~( (isa_size(p1_lab,[1,prod(size(p1_lab))],'char') & ...
-        isa_size(p2_lab,[1,prod(size(p2_lab))],'char') & isa_size(p3_lab,[1,prod(size(p3_lab))],'char')) )
+if exist('p1_lab','var') && ~(isa_size(p1_lab,'row','char') & ...
+        isa_size(p2_lab,'row','char') & isa_size(p3_lab,'row','char'))
     error ('ERROR: If axis labels are given, they must be character strings')
 end
-
 
 
 % Now start calculation proper
@@ -207,7 +206,7 @@ if strcmp(h_main.grid,'spe')    % Binary file consists of block spe data
     disp('Reading spe files from binary file ...');
     for iblock = 1:h_main.nfiles,
         disp(['reading spe block no.: ' num2str(iblock)]);
-        h = getblock(fid); % read in spe block
+        h = get_spe_datablock(fid); % read in spe block
 
         if iblock==1    % initialise grid data block
             d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
@@ -221,11 +220,11 @@ if strcmp(h_main.grid,'spe')    % Binary file consists of block spe data
                     p4_bin = [(h.en(1)-enbin/2),enbin,(h.en(end)+enbin/2)];
                     disp('Using energy range and binning from first spe file')
                 else
-                    if length(p4_bin)==2 | enbin > p4_bin(2) % binning is smaller then the intrinsic binning, or is not given
+                    if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
                         % tweak limits so that where there is existing spe data, the bin boundaries will match
-                        p4_bin = [(ceil((p4_bin(1)-h.en(1))/enbin)-0.5)*enbin, enbin, ...
-                                  (floor((p4_bin(1)-h.en(1))/enbin)+0.5)*enbin];
-                        if enbin > p4_bin(2)
+                        p4_bin = [enbin*(ceil((p4_bin(1)-h.en(1))/enbin)-0.5), enbin, ...
+                                  enbin*(floor((p4_bin(end)-h.en(1))/enbin)+0.5)];
+                        if enbin>p4_bin(2)
                             disp ('Requested energy bin size is smaller than that of first spe file')
                         end
                         disp ('Using energy bin size from first spe file')
@@ -238,7 +237,7 @@ if strcmp(h_main.grid,'spe')    % Binary file consists of block spe data
             np3 = length(d.p3)-1;
             d.s = zeros(np1,np2,np3);
             d.e = zeros(np1,np2,np3);
-            d.n = double(d.s);
+            d.n = zeros(np1,np2,np3);
         end
 
         % convert h.v into the equivalent step matrix along the new orthogonal set given by u_to_rlu
@@ -286,7 +285,7 @@ if strcmp(h_main.grid,'spe')    % Binary file consists of block spe data
             lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
                        1<=vstep(2,:) & vstep(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
                        vstep(3,:)==0                                                      & ...
-                       1<=emat       &       emat<=floor((max(d.p3)-p4_bin(1))/p4_bin(2)) )
+                       1<=emat       &       emat<=floor((max(d.p3)-p4_bin(1))/p4_bin(2)) );
       
             % sum up the intensity, errors and hits into their corresponding 3D arrays.
             % add a reference to the last bin of d.s with zero intensity to make sure
@@ -299,12 +298,32 @@ if strcmp(h_main.grid,'spe')    % Binary file consists of block spe data
 
 %--------------------------------------------------------------------------------------------------------
 else    % Binary file consists of 4D grid
+    % Read in the 4D grid data
+    disp('Reading 4D grid ...');
+    h = get_grid_data(fid, 4); % read in 4D grid
+
     % Initialise the grid data block 
     d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
     d.p2 = [p2_bin(1):p2_bin(2):p2_bin(3)]'; % Contains the bin boundaries
     if qqq
         d.p3 = [p3_bin(1):p3_bin(2):p3_bin(3)]';
     else
+        % Allow for energy range only to be given
+        enbin = (h.p4(end)-h.p4(1))/(length(h.p4)-1);
+        if ~exist('p4_bin','var')   % use intrinsic energy bin and step
+            p4_bin = [h.p4(1),enbin,h.p4(end)];
+            disp('Using energy range and binning from 4D grid')
+        else
+            if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
+                % tweak limits so that where there is existing data, the bin boundaries will match
+                p4_bin = [enbin*ceil((p4_bin(1)-h.p4(1))/enbin), enbin, ...
+                                  enbin*floor((p4_bin(end)-h.p4(1))/enbin)];
+                if enbin>p4_bin(2)
+                    disp ('Requested energy bin size is smaller than that of 4D grid')
+                end
+                disp ('Using energy bin size from 4D grid')
+            end
+        end
         d.p3 = [p4_bin(1):p4_bin(2):p4_bin(3)]';
     end
     np1 = length(d.p1)-1; % number of bins
@@ -312,12 +331,8 @@ else    % Binary file consists of 4D grid
     np3 = length(d.p3)-1;
     d.s = zeros(np1,np2,np3);
     d.e = zeros(np1,np2,np3);
-    d.n = double(d.s);
+    d.n = zeros(np1,np2,np3);
     
-    % Read in the 4D grid data
-    disp('Reading 4D grid ...');
-    h = get_block(fid); % read in 4D grid
-
     % data will be broken down in to blocks along h.p4. Generate the large
     % vector arrays for h.p1,h.p2 and h.p3. The size of each vector is
     % length(h.p1)*length(h.p2)*length(h.p3)
@@ -351,7 +366,7 @@ else    % Binary file consists of 4D grid
             lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
                        1<=vstep(2,:) & vstep(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
                        1<=vstep(3,:) & vstep(3,:)<=floor((max(d.p3)-p3_bin(1))/p3_bin(2)) & ...
-                       emat(iblock)==0)
+                       emat(iblock)==0);
             
             if ~isempty(lis)
                 % generate the correct block intensity, error and n array
@@ -382,7 +397,7 @@ else    % Binary file consists of 4D grid
             lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
                        1<=vstep(2,:) & vstep(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
                        vstep(3,:)==0                                                      & ...
-                       1<=emat       &       emat<=floor((max(d.p3)-p4_bin(1))/p4_bin(2)) )
+                       1<=emat       &       emat<=floor((max(d.p3)-p4_bin(1))/p4_bin(2)) );
             
             if ~isempty(lis)
                 % generate the correct block intensity, error and n array
@@ -400,3 +415,6 @@ else    % Binary file consists of 4D grid
 end
    
 fclose(fid);
+
+% Make class out of structure:
+d = d3d(d);

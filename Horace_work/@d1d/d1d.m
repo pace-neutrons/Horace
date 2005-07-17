@@ -20,6 +20,7 @@ function w = d1d (din)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
+ndim_req = 1;
 superiorto('spectrum');
 
 if strcmp(class(din),'d1d')
@@ -27,7 +28,11 @@ if strcmp(class(din),'d1d')
 else
     [ndim, mess] = dnd_checkfields(din);
     if ~isempty(ndim)
-        w = class (din, 'd1d');
+        if ndim==ndim_req
+            w = class (din, 'd1d');
+        else
+            error (['ERROR: Fields correspond to ',num2str(ndim),'-dimensional dataset'])
+        end
     else
         error (mess)
     end

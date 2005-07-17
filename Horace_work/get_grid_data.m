@@ -8,8 +8,8 @@ function data = get_grid_data (fid, data_in)
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
-%   data_in     Header data structure to which the grid data fileds below will
-%              be added *OR* dimension of datagrid to be read into a fresh structure
+%   data_in     Header data structure to which the grid data fields below will be added
+%              *OR* dimension of data grid to be read into a fresh structure
 %
 % Output:
 % -------
@@ -27,8 +27,8 @@ function data = get_grid_data (fid, data_in)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-if nargin==2 && ~isstruct(data_in) 
-    ndim = length(data_in);
+if ~isstruct(data_in) 
+    ndim = data_in;
 elseif isstruct(data_in) && isfield(data_in,'pax');
     data = data_in;
     ndim = length(data_in.pax);
@@ -100,7 +100,7 @@ elseif ndim==1
     data.e = reshape(data.e,np1-1);
     [data.n,count] = fread(fid,ntot,'double');
     data.n = double(reshape(data.n,np1-1));
-elseif ndim=0
+elseif ndim==0
     [data.s,count] = fread(fid,1,'float32');
     [data.e,count] = fread(fid,1,'float32');
     [data.n,count] = fread(fid,1,'double');
