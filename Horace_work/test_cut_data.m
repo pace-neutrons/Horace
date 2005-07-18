@@ -25,6 +25,8 @@ din.s = sa+sb;
 din.e = 2*din.s;
 din.n = ones(size(din.s));
 
+w2 = d2d(din);
+
 %--------------------------------------------------------
 narr=[400,250];
 din.file = 'c:\blobby.dat';
@@ -47,6 +49,8 @@ if ndim>=2; din.p2 = linspace(11,15,narr(2)+1)'; end;
 din.s = rand(narr(1),narr(2));
 din.e = 2*rand(narr(1),narr(2));
 din.n = 10*rand(narr(1),narr(2));
+
+w2 = d2d(din);
 
 %--------------------------------------------------------
 % 3D :
@@ -83,6 +87,8 @@ end
 din.e = 2*din.s;
 din.n = ones(size(din.s));
 
+w3 = d3d(din);
+
 %--------------------------------------------------------
 narr=[250,50,200];
 din.file = 'c:\blobby.dat';
@@ -113,6 +119,8 @@ din.s = 400*exp(-(wdisp-pp2).^2);
 din.e = din.s;
 din.s = din.s + sqrt(din.e).*(randn(size(din.s)));
 din.n = (50+floor(10*rand(narr(1),narr(2),narr(3))));
+
+w3 = d3d(din);
 
 %--------------------------------------------------------
 % 4D :
@@ -149,6 +157,8 @@ din.s = 400*exp(-(wdisp-pp2).^2);
 din.e = din.s;
 din.s = din.s + sqrt(din.e).*(randn(size(din.s)));
 din.n = int16(50+floor(10*rand(narr(1),narr(2),narr(3),narr(4))));
+
+w4 = d4d(din);
 
 %---------------------------------------------------------------
 tic

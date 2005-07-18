@@ -1,6 +1,6 @@
 function dout = cut_data (din, varargin)
-% Take a cut from a multi-dimensional dataset and return the reduced dimensional
-% dataset.
+% Average over an interval along one or more axes of a dataset structure to
+% produce a dataset structure with reduced dimensionality.
 %
 % Syntax:
 %   >> dout = cut_data (din, iax_1, iax1_range, iax_2, iax2_range, ...)
@@ -37,23 +37,32 @@ function dout = cut_data (din, varargin)
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
 tic
+
 if nargin==1    % trivial case - no integration, so return
     dout = din;
     return
-elseif ~(nargin==3|nargin==5|nargin==7|nargin==9)
-    error ('ERROR - Check number of arguments')
+end
+if nargin==2 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to cut_data)
+    args = varargin{1};
+else
+    args = varargin;
+end
+
+nargs= length(args);
+if ~(nargs==2|nargs==4|nargs==6|nargs==8)
+    error ('ERROR - Check number of arguments to cut_data')
 end
 
 % Get integration parameters:
-niax = floor((nargin-1)/2); % niax = 1,2,3, or 4
+niax = floor((nargs)/2); % niax = 1,2,3, or 4
 pax_ind = linspace(1,length(din.pax),length(din.pax));
 for i=1:niax
-    iax_ind(i) = varargin{2*i-1};
+    iax_ind(i) = args{2*i-1};
     if iax_ind(i) < 1 | iax_ind(i) > length(din.pax)
         error(['ERROR: Integration axis index/indices must lie in range 1 to ',num2str(length(din.pax))])
     end
     pax_ind = pax_ind(find(pax_ind~=iax_ind(i)));
-    uint(1:2,i) = varargin{2*i}';
+    uint(1:2,i) = args{2*i}';
 end
 iax = din.pax(iax_ind);
 pax = din.pax(pax_ind);
@@ -125,8 +134,4 @@ dout.s = signal;
 dout.e = errors;
 dout.n = nbins;
 
-% temporary: should change all dnd structures to classes
-if length(dout.pax)==1
-    dout = d1d(dout);
-end
 toc

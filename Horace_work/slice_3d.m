@@ -199,8 +199,6 @@ else
 end
 d.uint = [centre-thick/2; centre+thick/2];
 
-%**** remember to off-set p0 by centre if qqe ****
-
 %--------------------------------------------------------------------------------------------------------
 if strcmp(h_main.grid,'spe')    % Binary file consists of block spe data
     disp('Reading spe files from binary file ...');

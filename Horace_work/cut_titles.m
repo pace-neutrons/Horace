@@ -144,17 +144,47 @@ end
 
 
 % Main title
-title_main{1}=avoidtex(file);
-title_main{2}=title;
-title_main{3}=title_main_iax{1};
-if length(title_main_iax)>1
-    for i=2:length(title_main_iax)
-        title_main{3}=[title_main{3},' , ',title_main_iax{i}];
+iline = 1;
+if length(file)~=0
+    title_main{iline}=avoidtex(file);
+    iline = iline + 1;
+end
+if length(title)~=0
+    title_main{iline}=title;
+    iline = iline + 1;
+end
+if length(din.iax)>0
+    title_main{iline}=title_main_iax{1};
+    if length(title_main_iax)>1
+        for i=2:length(title_main_iax)
+            title_main{iline}=[title_main{iline},' , ',title_main_iax{i}];
+        end
+    end
+    iline = iline + 1;
+end
+if length(din.pax)>0
+    title_main{iline}=title_main_pax{1};
+    if length(title_main_pax)>1
+        for i=2:length(title_main_pax)
+            title_main{iline}=[title_main{iline},' , ',title_main_pax{i}];
+        end
     end
 end
-title_main{4}=title_main_pax{1};
-if length(title_main_pax)>1
-    for i=2:length(title_main_pax)
-        title_main{4}=[title_main{4},' , ',title_main_pax{i}];
+
+disp('--------------------------------------')
+if length(din.iax)>0
+    for i=1:length(title_main_iax)
+        disp(title_main_iax{i})
     end
 end
+disp('')
+if length(din.pax)>0
+    for i=1:length(title_main_pax)
+        disp(title_main_pax{i})
+    end
+    disp('')
+    for i=1:length(title_pax)
+        disp(title_pax{i})
+    end
+end
+disp('--------------------------------------')

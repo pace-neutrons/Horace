@@ -32,6 +32,9 @@ if strcmp(data.grid,'spe')
 end
 
 % Read grid information and the data
-data = get_grid_data (fid, data)
+data = get_grid_data (fid, data);
 
 fclose(fid);
+
+% Create class from structure
+data = dnd_create(data);
