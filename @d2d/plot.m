@@ -45,7 +45,7 @@ c = reshape(din.s,1,npatch)./reshape(ndouble,1,npatch);
 axis([din.p1(1) din.p1(end) din.p2(1) din.p2(end)]);
 box;
 
-[title_main, title_pax, energy_axis] = cut_titles(get(din));
+[title_main, title_pax, display_pax, display_iax, energy_axis] = cut_titles (get(din));
 xlabel(title_pax{1});
 ylabel(title_pax{2});
 title(title_main);

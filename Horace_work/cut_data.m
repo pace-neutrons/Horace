@@ -36,8 +36,6 @@ function dout = cut_data (din, varargin)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-tic
-
 if nargin==1    % trivial case - no integration, so return
     dout = din;
     return
@@ -133,5 +131,3 @@ end
 dout.s = signal;
 dout.e = errors;
 dout.n = nbins;
-
-toc

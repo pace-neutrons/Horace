@@ -1,8 +1,8 @@
-function [title_main, title_pax, energy_axis] = cut_titles (din)
+function [title_main, title_pax, display_pax, display_iax, energy_axis] = cut_titles (din)
 % Get titles from nD data structure (n=0,1,2,3,4)
 %
 % Syntax:
-%   >> [title_main, title_pax, energy_axis] = cut_titles (din)
+%   >> [title_main, title_pax, display_pax, display_iax, energy_axis] = cut_titles (din)
 % 
 % Input:
 % ------
@@ -14,6 +14,10 @@ function [title_main, title_pax, energy_axis] = cut_titles (din)
 % -------
 %   title_main      Main title (cell array of character strings)
 %   title_pax       Cell array containing axes annotations for each of the plot axes
+%   display_pax     Cell array containing axes annotations for each of the plot axes suitable 
+%                  for printing tot he screen
+%   display_iax     Cell array containing axes annotations for each of the integration axes suitable 
+%                  for printing tot he screen
 %   energy_axis     The index of the column in the 4x4 matrix din.u that corresponds
 %                  to the energy axis
 
@@ -22,6 +26,11 @@ function [title_main, title_pax, energy_axis] = cut_titles (din)
 % $Revision$ ($Date$)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
+
+% initialise output arguments that may legitimately be returned as empty cell arrays
+title_pax = {};
+display_pax = {};
+display_iax = {};
 
 % Prepare input arguments
 file = din.file;
@@ -96,10 +105,12 @@ for j=1:4
             end
             m_npax = m_npax + 1;
             title_main_pax{m_npax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
+            display_pax{m_npax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
         elseif ~isempty(find(j==iax))   % j appears in the list of integration axes
             iiax = find(j==iax);
             m_niax = m_niax + 1;
             title_main_iax{m_niax} = [num2str(uint(1,iiax)),'\leq',label{j},'\leq',num2str(uint(2,iiax)),' in ',vector{j}];
+            display_iax{m_niax} = [num2str(uint(1,iiax)),' =< ',label{j},' =< ',num2str(uint(2,iiax)),' in ',vector{j}];
         else
             error ('ERROR: Axis is neither plot axis nor integration axis')
         end
@@ -132,10 +143,12 @@ for j=1:4
             end
             m_npax = m_npax + 1;
             title_main_pax{m_npax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
+            display_pax{m_npax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
         elseif ~isempty(find(j==iax))   % j appears in the list of integration axes
             iiax = find(j==iax);
             m_niax = m_niax + 1;
             title_main_iax{m_niax} = [num2str(uint(1,iiax)),'\leq',label{j},'\leq',num2str(uint(2,iiax)),' in ',vector{j}];
+            display_iax{m_niax} = [num2str(uint(1,iiax)),' =< ',label{j},' =< ',num2str(uint(2,iiax)),' in ',vector{j}];
         else
             error ('ERROR: Axis is neither plot axis nor integration axis')
         end
@@ -171,20 +184,20 @@ if length(din.pax)>0
     end
 end
 
-disp('--------------------------------------')
-if length(din.iax)>0
-    for i=1:length(title_main_iax)
-        disp(title_main_iax{i})
-    end
-end
-disp('')
-if length(din.pax)>0
-    for i=1:length(title_main_pax)
-        disp(title_main_pax{i})
-    end
-    disp('')
-    for i=1:length(title_pax)
-        disp(title_pax{i})
-    end
-end
-disp('--------------------------------------')
+% disp('--------------------------------------')
+% if length(din.iax)>0
+%     for i=1:length(title_main_iax)
+%         disp(title_main_iax{i})
+%     end
+% end
+% disp('')
+% if length(din.pax)>0
+%     for i=1:length(title_main_pax)
+%         disp(title_main_pax{i})
+%     end
+%     disp('')
+%     for i=1:length(title_pax)
+%         disp(title_pax{i})
+%     end
+% end
+% disp('--------------------------------------')

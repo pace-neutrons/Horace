@@ -40,7 +40,7 @@ signal(find(w.n==0)) = zmin;        % set undefined signal to lowest signal
 signal = permute(signal,[2,1,3]);   % permute dimensions for sliceomatic
 
 % Get titles and index of energy axis
-[title_main, title_pax, energy_axis] = cut_titles(get(w));
+[title_main, title_pax, display_pax, display_iax, energy_axis] = cut_titles (get(w));
 
 % Plot data
 colordef white; % white background

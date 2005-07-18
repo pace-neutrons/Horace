@@ -10,5 +10,4 @@ function display (w)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-data = get(w);  % get a structure with the same fields as w
-data            % print to screen in standard Matlab fashion
+dnd_display(get(w));  % get a structure with the same fields as w
