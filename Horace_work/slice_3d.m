@@ -98,6 +98,11 @@ else
     error ('ERROR - Check number of arguments')
 end
 
+% Check normalisation of Q axes: (do this first, as omitting this is a common error to make)
+if ~isa_size(type,[1,3],'char')
+    error ('ERROR: Check type of argument ''type''')
+end
+
 % check u, v, p0, p1_bin, p2_bin:
 if ~isa_size(u,[1,3],'double') | ~isa_size(v,[1,3],'double') | ~isa_size(p0,[1,3],'double') |...
         ~isa_size(p1_bin,[1,3],'double') | ~isa_size(p2_bin,[1,3],'double')
@@ -122,11 +127,6 @@ else
     if exist('p4_bin','var') && ~(isa_size(p4_bin,[1,2],'double') & isa_size(p4_bin,[1,3],'double'))
         error ('ERROR: Must provide binning for energy axis plotting in form [en_lo, eh_hi] or [en_start, en_step, en_end]')
     end
-end
-
-% Check normalisation of Q axes:
-if ~isa_size(type,[1,3],'char')
-    error ('ERROR: Check type of argument ''type''')
 end
 
 % Check form of labels:

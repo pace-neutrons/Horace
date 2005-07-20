@@ -69,7 +69,7 @@ if nargin==3
     if ischar(check_type) & length(size(check_type))==2 & size(check_type,1)==1
         if isa(var,check_type)
             type_ok = 1;
-        else strcmp(lower(check_type),'cellstr') & iscellstr(var)   % catch special case of a cell array of strings
+        elseif strcmp(lower(check_type),'cellstr') & iscellstr(var)   % catch special case of a cell array of strings
             type_ok = 1;
         end
     else
@@ -80,4 +80,5 @@ else
 end    
 
 ans = size_ok & type_ok;
+
     

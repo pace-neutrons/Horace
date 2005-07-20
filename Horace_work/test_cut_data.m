@@ -151,9 +151,11 @@ pp2 = 0.5*(din.p2(1:end-1)+din.p2(2:end));
 pp3 = 0.5*(din.p3(1:end-1)+din.p3(2:end));
 pp4 = 0.5*(din.p4(1:end-1)+din.p4(2:end));
 [pp1,pp2,pp3,pp4]=ndgrid(pp1,pp2,pp3,pp4);
-wdisp = 10*((sin(pi*pp3)).^2 + (sin(pi*pp1)).^2 + (sin(pi*pp4)).^2);
+wdisp = 10*((sin(pi*pp1)).^2 + (sin(pi*pp2)).^2 + (sin(pi*pp3)).^2);
+clear pp1 pp2 pp3
 
-din.s = 400*exp(-(wdisp-pp2).^2);
+din.s = 400*exp(-(wdisp-pp4).^2);
+clear pp4 wdisp
 din.e = din.s;
 din.s = din.s + sqrt(din.e).*(randn(size(din.s)));
 din.n = int16(50+floor(10*rand(narr(1),narr(2),narr(3),narr(4))));
