@@ -55,9 +55,7 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %
 % Output:
 % -------
-%   d       4D dataset defined on orthogonal axes above
-%           For a complete description of the fields of the dataset, type
-%               >> help dnd_checkfields
+%   d               4D dataset defined on orthogonal axes above
 
 % Original author: J. van Duijn
 %
@@ -68,23 +66,31 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 % parameter used to check rounding
 small = 1.0e-13;
 
-% Check input parameters.
-if nargin==8
-    type= varargin{1};
-elseif nargin==9,
-    p4_bin=varargin{1};
-    type= varargin{2};
-elseif nargin==11
-    type= varargin{1};
-    p1_lab = varargin{2};
-    p2_lab = varargin{3};
-    p3_lab = varargin{4};
-elseif nargin==12
-    p4_bin=varargin{1};
-    type= varargin{2};
-    p1_lab = varargin{3};
-    p2_lab = varargin{4};
-    p3_lab = varargin{5};
+% Check input parameters - not necessarily exhaustive, but should catch the obvious syntactical errors...
+% Check number of parameters
+if nargin==8 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to slice_4d)
+    args = varargin{1};
+else
+    args = varargin;
+end
+
+nargs= length(args);
+if nargs==1
+    type= args{1};
+elseif nargs==2,
+    p4_bin=args{1};
+    type= args{2};
+elseif nargs==4
+    type= args{1};
+    p1_lab = args{2};
+    p2_lab = args{3};
+    p3_lab = args{4};
+elseif nargs==5
+    p4_bin=args{1};
+    type= args{2};
+    p1_lab = args{3};
+    p2_lab = args{4};
+    p3_lab = args{5};
 else
     error ('ERROR - Check number of arguments')
 end

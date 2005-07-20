@@ -26,16 +26,17 @@ function plot (w)
 %   - remove zeros in w.n to avoid zero divides
 %   - reorder array to account for sliceomatic (as with many instrinsic matlab graphics functions) expects
 %    the content of the array to be signal(y,x).
-nwork = w.n;
-nwork(find(w.n==0)) = nan;          % replace infinities with NaN to avoid zero devide warnings
-signal = w.s ./ double(nwork);
 
+m=warning('off','MATLAB:divideByZero');     % turn off divide by zero messages, saving present state
+signal = w.s ./ w.n;
+warning(m.state,'MATLAB:divideByZero');     % return to previous divide by zero message state
+
+signal(find(w.n)==0) = nan;
 zmin = min(reshape(signal,1,prod(size(w.s))));
 zmax = max(reshape(signal,1,prod(size(w.s))));
 if zmin==zmax
     error ('ERROR: All intensity values are the same')
 end
-
 signal(find(w.n==0)) = zmin;        % set undefined signal to lowest signal
 signal = permute(signal,[2,1,3]);   % permute dimensions for sliceomatic
 

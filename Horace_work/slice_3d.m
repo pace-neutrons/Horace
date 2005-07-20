@@ -1,17 +1,19 @@
-function d = slice_3d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
-% Reads a binary spe file *OR* binary 4D dataset file and creates a 3D data set
-% by integrating over one of the momentum or energy axes.
+function d = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
+% Reads a binary spe file *OR* binary 4D dataset file *OR* 4D dataset structure
+% and creates a 3D data set by integrating over one of the momentum or energy axes.
 %
 % Syntax:
-%   >> d = slice_3d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type)
+%   >> d = slice_3d (data_source, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type)
 %
 %  To give custom labels to the momentum axis labels
-%   >> d = slice_3d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
+%   >> d = slice_3d (data_source, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
 %                                                     p1_lab, p2_lab, p3_lab)
 % 
 % Input:
 % ------
-%   binfil          Binary spe file created using function gen_hkle
+%   data_source     Data source: binary spe file 
+%                           *OR* binary 4D dataset file
+%                           *OR* 4D dataset structure
 %   u(1:3)          Vector defining first plot axis (r.l.u.)
 %   v(1:3)          Vector defining plane of plot in Q-space (r.l.u.)
 %        These two directions define a plane with the first axis parallel to u
@@ -57,16 +59,14 @@ function d = slice_3d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %
 % Output:
 % -------
-%   d       3D dataset defined on orthogonal axes above
-%           For a complete description of the fields of the dataset, type
-%               >> help dnd_checkfields
+%   d               3D dataset defined on orthogonal axes above
 %
 %
 % EXAMPLES
 %   >> d = slice_3d ('RbMnF3.bin', [1,1,0], [0,0,1], [0.5,0.5,0.5],...
 %                            [-1.5,0.05,1.5], [-2,0.05,2], 0.1, 'rrr')
 
-% Original author: J. van Duijn
+% Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 %
@@ -78,22 +78,29 @@ small = 1.0e-13;
 
 % Check input parameters - not necessarily exhaustive, but should catch the obvious syntactical errors...
 % Check number of parameters
-if nargin==8
-    type= varargin{1};
-elseif nargin==9,
-    p4_bin=varargin{1};
-    type= varargin{2};
-elseif nargin==11
-    type= varargin{1};
-    p1_lab = varargin{2};
-    p2_lab = varargin{3};
-    p3_lab = varargin{4};
-elseif nargin==12
-    p4_bin=varargin{1};
-    type= varargin{2};
-    p1_lab = varargin{3};
-    p2_lab = varargin{4};
-    p3_lab = varargin{5};
+if nargin==8 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to slice_3d)
+    args = varargin{1};
+else
+    args = varargin;
+end
+
+nargs= length(args);
+if nargs==1
+    type= args{1};
+elseif nargs==2,
+    p4_bin=args{1};
+    type= args{2};
+elseif nargs==4
+    type= args{1};
+    p1_lab = args{2};
+    p2_lab = args{3};
+    p3_lab = args{4};
+elseif nargs==5
+    p4_bin=args{1};
+    type= args{2};
+    p1_lab = args{3};
+    p2_lab = args{4};
+    p3_lab = args{5};
 else
     error ('ERROR - Check number of arguments')
 end
@@ -139,8 +146,14 @@ end
 % Now start calculation proper
 % -----------------------------
 
-fid= fopen(binfil, 'r');    % open bin file
-h_main = get_header(fid);   % get the main header information
+if isa_size(h,'row','char') && (exist(h,'file') &  ~exist(h,'dir'))  % data_source is a file
+    source_is_file = 1;     % flag to indicate nature of data source
+    binfil = h;             % make copy of file name before it is overwritten as a structure
+    fid = fopen(h, 'r');    % open binary file
+    h = get_header(fid);    % get the main header information
+else
+    source_is_file = 0;
+end
 
 % obtain the conversion matrix that will convert the hkle vectors in the
 % spe file in to equivalents in the orthogonal set defined by u and v
@@ -158,23 +171,27 @@ else
     end
     ustep = [p1_bin(2), p2_bin(2), thick];
 end
-[rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix ([h_main.a,h_main.b, h_main.c],...
-    [h_main.alpha,h_main.beta,h_main.gamma], u, v, ustep, type);
+[rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix ([h.a,h.b, h.c],...
+    [h.alpha,h.beta,h.gamma], u, v, ustep, type);
 
 % convert p0 to the equivalent vector in the new orthogonal set given by
 % u_to_rlu
 p0n= rlu_to_ustep*p0(1:3)';
 
 % Create header for output dataset 
-d.file= binfil;
+if source_is_file
+    d.file= binfil;
+else
+    d.file = h.file;
+end
 d.grid= 'orthogonal-grid';
-d.title=h_main.title;
-d.a= h_main.a;
-d.b= h_main.b;
-d.c= h_main.c;
-d.alpha= h_main.alpha;
-d.beta= h_main.beta;
-d.gamma= h_main.gamma;
+d.title=h.title;
+d.a= h.a;
+d.b= h.b;
+d.c= h.c;
+d.alpha= h.alpha;
+d.beta= h.beta;
+d.gamma= h.gamma;
 d.u= [[u_to_rlu; 0 0 0], [0 0 0 1]'];
 d.ulen= [ulen,1];
 if exist('p1_lab','var')    % labels were provided
@@ -200,9 +217,9 @@ end
 d.uint = [centre-thick/2; centre+thick/2];
 
 %--------------------------------------------------------------------------------------------------------
-if strcmp(h_main.grid,'spe')    % Binary file consists of block spe data
+if strcmp(h.grid,'spe')    % Binary file consists of block spe data
     disp('Reading spe files from binary file ...');
-    for iblock = 1:h_main.nfiles,
+    for iblock = 1:h.nfiles,
         disp(['reading spe block no.: ' num2str(iblock)]);
         h = get_spe_datablock(fid); % read in spe block
 
@@ -293,13 +310,17 @@ if strcmp(h_main.grid,'spe')    % Binary file consists of block spe data
             d.n = d.n + double(accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]));
         end
     end
+    fclose(fid);
 
 %--------------------------------------------------------------------------------------------------------
 else    % Binary file consists of 4D grid
-    % Read in the 4D grid data
-    disp('Reading 4D grid ...');
-    h = get_grid_data(fid, 4); % read in 4D grid
-
+    if source_is_file
+        % Read in the 4D grid data
+        disp('Reading 4D grid ...');
+        h = get_grid_data(fid, h); % read in 4D grid
+        fclose(fid);
+    end
+        
     % Initialise the grid data block 
     d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
     d.p2 = [p2_bin(1):p2_bin(2):p2_bin(3)]'; % Contains the bin boundaries
@@ -411,8 +432,6 @@ else    % Binary file consists of 4D grid
         end
     end
 end
-   
-fclose(fid);
 
 % Make class out of structure:
 d = d3d(d);
