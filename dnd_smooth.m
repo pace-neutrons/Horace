@@ -62,7 +62,7 @@ if nargs==0
     shape = shape_default;
 end
     
-if nargs>1
+if nargs>=1
     % Check size of width
     width = args{1};
     if ~(isa_size(width,[1,ndim],'double') | isa_size(width,[1,1],'double'))
