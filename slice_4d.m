@@ -193,7 +193,7 @@ for iblock = 1:h_main.nfiles,
         np4= length(d.p4)-1;
         d.s= zeros(np1,np2,np3,np4); % generate the 4D data structures
         d.e= zeros(np1,np2,np3,np4);
-        d.n= int16(zeros(np1,np2,np3,np4));            
+        d.n= zeros(np1,np2,np3,np4,'int16');            
     end
     
     % convert h.v into the equivalent step matrix along the new orthogonal set given by u_to_rlu

@@ -48,7 +48,7 @@ if ndim==4
     ntot = (np1-1)*(np2-1)*(np3-1)*(np4-1);
     data.s = zeros(np1-1,np2-1,np3-1,np4-1);
     data.e = zeros(np1-1,np2-1,np3-1,np4-1);
-    data.n = int16(data.s);
+    data.n = zeros(np1-1,np2-1,np3-1,np4-1,'int16');
     [data.s,count] = fread(fid,ntot,'float32');
     data.s = reshape(data.s,np1-1,np2-1,np3-1,np4-1);
     [data.e,count] = fread(fid,ntot,'float32');

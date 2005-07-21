@@ -101,8 +101,8 @@ c = shape_handle{ishape}(width);    % use function handles to create matrix - ca
 % Smooth data structure
 m=warning('off','MATLAB:divideByZero');     % turn off divide by zero messages, saving present state
 
-signal = din.s ./ din.n;
-err = din.e ./ (din.n.^2);
+signal = din.s ./ double(din.n);            % double precision for the case of 4 dimensions
+err = din.e ./ double((din.n.^2));
 
 index = din.n~=0;   % elements with non-zero counts
 signal(~index) = 0; % in principle not needed,as signal should be zero, but apply in case dataset constructed badly
@@ -118,7 +118,7 @@ signal(~index) = 0;     % restore zero signal to those bins with no data
 err(~index) = 0;
 clear weight            % save memory (may be critical for 4D datasets)
 if ndim==4
-    nout = int16(ones(size(signal)));
+    nout = ones(size(signal),'int16');
 else
     nout = ones(size(signal));
 end

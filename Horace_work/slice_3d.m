@@ -284,7 +284,7 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
             % that the accumulated array has the same size as d.s
             d.s = d.s + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [h.S(lis) 0]);   % summed 3D intensity array
             d.e = d.e + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [h.ERR(lis) 0]); % summed 3D variance array
-            d.n = d.n + double(accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]));
+            d.n = d.n + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]);
         
         else
             % convert vstep into index array where vstep(i,1)= 1 corresponds to data
@@ -307,7 +307,7 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
             % that the accumulated array has the same size as d.s
             d.s = d.s + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [h.S(lis) 0]);    % summed 3D intensity array
             d.e = d.e + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [h.ERR(lis) 0]);  % summed 3D error array
-            d.n = d.n + double(accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]));
+            d.n = d.n + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]);
         end
     end
     fclose(fid);
@@ -396,7 +396,7 @@ else    % Binary file consists of 4D grid
                 % see .spe branch of outer if statement for explanation of logic of the following
                 d.s = d.s + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [st(lis) 0]);  % summed 3D intensity array
                 d.e = d.e + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [et(lis) 0]);  % summed 3D variance array
-                d.n = d.n + double(accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [nt(lis) 0]));
+                d.n = d.n + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [nt(lis) 0]);
             end
         end
     else
@@ -427,7 +427,7 @@ else    % Binary file consists of 4D grid
                 % see .spe branch of outer if statement for explanation of logic of the following
                 d.s= d.s + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]',[st(lis) 0]); % summed 3D intensity array
                 d.e= d.e + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]',[et(lis) 0]); % summed 3D error array
-                d.n= d.n + double(accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [nt(lis) 0]));
+                d.n= d.n + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [nt(lis) 0]);
             end
         end
     end

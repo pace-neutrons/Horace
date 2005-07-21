@@ -57,19 +57,19 @@ elseif ndims==4
     if iax==1
         s_out = squeeze(sum(s(ilo:ihi,:,:,:),1));
         e_out = squeeze(sum(e(ilo:ihi,:,:,:),1));
-        n_out = squeeze(sum(n(ilo:ihi,:,:,:),1));
+        n_out = squeeze(sum(n(ilo:ihi,:,:,:),1,'native'));
     elseif iax==2
         s_out = squeeze(sum(s(:,ilo:ihi,:,:),2));
         e_out = squeeze(sum(e(:,ilo:ihi,:,:),2));
-        n_out = squeeze(sum(n(:,ilo:ihi,:,:),2));
+        n_out = squeeze(sum(n(:,ilo:ihi,:,:),2,'native'));
     elseif iax==3
         s_out = squeeze(sum(s(:,:,ilo:ihi,:),3));
         e_out = squeeze(sum(e(:,:,ilo:ihi,:),3));
-        n_out = squeeze(sum(n(:,:,ilo:ihi,:),3));
+        n_out = squeeze(sum(n(:,:,ilo:ihi,:),3,'native'));
     elseif iax==4
         s_out = squeeze(sum(s(:,:,:,ilo:ihi),4));
         e_out = squeeze(sum(e(:,:,:,ilo:ihi),4));
-        n_out = squeeze(sum(n(:,:,:,ilo:ihi),4));
+        n_out = squeeze(sum(n(:,:,:,ilo:ihi),4,'native'));
     else
         error ('ERROR: Invalid axis option')
     end
