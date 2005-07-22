@@ -16,7 +16,7 @@ ndouble = d1d.n;
 ndouble(find(ndouble==0)) = nan;    % replace infinities with NaN
 y = d1d.s./double(ndouble);
 e = sqrt(d1d.e)./double(ndouble);
-[title, xlab] = cut_titles (get(d1d));
+[title, xlab] = dnd_cut_titles (get(d1d));
 ylab = 'Intensity (arb. units)';
 xunit = '';
 distribution = 0;

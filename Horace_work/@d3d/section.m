@@ -32,7 +32,7 @@ function wout = section (win, varargin)
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
 if nargin==1
-    wout = dnd_create(dnd_section(get(win)));
+    wout = win; % trivial case of no sectioning being required
 else
     wout = dnd_create(dnd_section(get(win), varargin));
 end

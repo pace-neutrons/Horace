@@ -48,7 +48,7 @@ end
 
 nargs= length(args);
 if nargs~=ndim
-    error ('ERROR - Check number of arguments to cut_data')
+    error ('ERROR - Check number of arguments to dnd_section')
 end
 
 % Initialise output argument
@@ -63,7 +63,11 @@ for i=1:ndim
     elseif length(args{i})==1
         if args{i}==0
             ilo(i) = 1;
-            ihi(i) = size(din.s,i);
+            if ndim==1
+                ihi(i) = length(din.s); % Matlab a real pain - everything is a matrix, even vectors ! - so must do this to get length
+            else
+                ihi(i) = size(din.s,i);
+            end
         else
             error (['ERROR: Limits parameter for axis ',num2str(i),' must be zero or a pair of numbers'])
         end

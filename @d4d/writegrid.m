@@ -15,4 +15,4 @@ function writegrid (w, binfil)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-writegrid(get(w),binfil)
+dnd_writegrid(get(w),binfil)

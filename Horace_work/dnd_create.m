@@ -9,6 +9,7 @@ function wout = dnd_create(data)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
+
 if isfield(data,'pax')
     ndim=length(data.pax);
     if ndim==0

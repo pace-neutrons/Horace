@@ -151,8 +151,15 @@ if isa_size(h,'row','char') && (exist(h,'file') &  ~exist(h,'dir'))  % data_sour
     binfil = h;             % make copy of file name before it is overwritten as a structure
     fid = fopen(h, 'r');    % open binary file
     h = get_header(fid);    % get the main header information
+    if isfield(h,'pax') && length(h.pax)~=4 % data file is grid binary, but does not have 4 dimensions
+        fclose(fid);
+        error ('ERROR: Orthogonal grid binary file is not 4-dimensional')
+    end
 else
     source_is_file = 0;
+    if ~isa(h,'d4d')
+        error ('ERROR: Input data source must be a binary file name or a 4-dimensional dataset')
+    end
 end
 
 % obtain the conversion matrix that will convert the hkle vectors in the
@@ -317,7 +324,7 @@ else    % Binary file consists of 4D grid
     if source_is_file
         % Read in the 4D grid data
         disp('Reading 4D grid ...');
-        h = get_grid_data(fid, h); % read in 4D grid
+        h = get_grid_data(fid, 4, h); % read in 4D grid
         fclose(fid);
     end
         

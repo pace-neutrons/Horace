@@ -1,8 +1,8 @@
-function writegrid (data, binfil)
+function dnd_writegrid (data, binfil)
 % Writes 1D, 2D, 3D, or 4D dataset to a binary file.
 %
 % Syntax:
-%   >> writegrid (data, binfil)
+%   >> dnd_writegrid (data, binfil)
 %
 % Input:
 % ------
@@ -24,6 +24,7 @@ disp('Writing binary file ...')
 write_header(fid,data);
 
 % Write grid information and the data itself:
-write_grid_data(fid,data);
+ndim = length(data.pax);
+write_grid_data(fid,ndim,data);
 
 fclose(fid);

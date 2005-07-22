@@ -1,18 +1,18 @@
-function write_grid_data (fid, data)
+function write_grid_data (fid, ndim, data)
 % Writes orthogonal grid data to a binary file
 %
 % Syntax:
-%   >> write_grid_data (fid, data)
+%   >> write_grid_data (fid, ndim, data)
 %
 % Input:
 % ------
 %   fid     File pointer to (already open) binary file
-%
+%   ndim    Number of dimensions of the data
 %   data    Data structure with the following fields:
 %
 %   data.p1    Column vector of bin boundaries along first plot axis
 %   data.p2    Column vector of bin boundaries along second plot axis
-%     :       (for as many plot axes as given by length of data.pax)
+%     :       (for as many axes as given by ndim)
 %   data.s     Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.e     Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.n     Number of contributing pixels [size(data.n)=(length(data.p1)-1, length(data.p2)-1, ...)]
@@ -24,7 +24,6 @@ function write_grid_data (fid, data)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-ndim = length(size(data.s));
 
 % Write grid data
 if ndim==4, % 4D grid
@@ -68,7 +67,7 @@ end
 % Write data
 fwrite(fid,data.s,'float32');
 fwrite(fid,data.e,'float32');
-if length(data.pax)==4,
+if ndim==4,
     fwrite(fid,data.n,'int16');
 else
     fwrite(fid,data.n,'double');

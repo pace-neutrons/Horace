@@ -12,7 +12,7 @@ function dnd_display (d)
 
 % NOTE: use sprintf to get fixed formatting of numbers (num2str strips trailing blanks)
 
-[title_main, title_pax, display_pax, display_iax, energy_axis] = cut_titles (d);
+[title_main, title_pax, display_pax, display_iax, energy_axis] = dnd_cut_titles (d);
 
 disp(' ')
 disp([' ',num2str(length(d.pax)),'-dimensional dataset:'])

@@ -49,7 +49,7 @@ ndim = length(din.pax);   % no. dimensions of the data
 
 if nargin==1
     nargs = 0;
-elseif nargin==2 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to cut_data)
+elseif nargin==2 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to dnd_smooth)
     args = varargin{1};
     nargs= length(args);
 else

@@ -98,6 +98,10 @@ if exist(fout)
     append = 1;
     fid=fopen(fout, 'r+');
     data=get_header(fid);
+    if ~strcmp(data.grid,'spe')
+        fclose(fid);
+        error ('ERROR: Data file already exists, but is not a binary spe file - cannot append')
+    end
     data.nfiles=data.nfiles+nfiles;
     fseek(fid, 0, 'eof');
 else

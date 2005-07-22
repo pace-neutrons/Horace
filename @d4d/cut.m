@@ -1,14 +1,13 @@
 function wout = cut (win, varargin)
-% Average over an interval along one or more axes of a dataset object to
-% produce a dataset object with reduced dimensionality.
+% Average over an interval along one or more axes of a 4-dimensional dataset
+% to produce a dataset object with reduced dimensionality.
 %
 % Syntax:
-%   >> dout = cut_data (din, iax_1, iax1_range, iax_2, iax2_range, ...)
+%   >> wout = cut (win, iax_1, iax1_range, iax_2, iax2_range, ...)
 %
 % Input:
 % ------
-%   din             Data from which a reduced dimensional manifold is to be taken.
-%                  Type >> help dnd_checkfields for a full description of the fields
+%   win             Data from which a reduced dimensional manifold is to be taken.
 %
 %   iax_1           Index of further axis to integrate along. The labels of the axis
 %                  is the plot axis index i.e. 1=plot x-axis, 2=plot y-axis etc.
@@ -22,9 +21,10 @@ function wout = cut (win, varargin)
 %
 % Output:
 % -------
-%   dout            Output dataset. Its elements are the same as those of din,
-%                  appropriately updated.
+%   wout            Output dataset.
 %
+% Example: average over an intereval of the first and third axes:
+%   >> wout = cut (win, 1, [1.2, 1.4], 3, [10, 12])
 
 % Original author: T.G.Perring
 %
@@ -35,5 +35,5 @@ function wout = cut (win, varargin)
 if nargin==1
     wout = win; % trivial case of no integration axes being provided
 else
-    wout = dnd_create (cut_data (get(win), varargin));
+    wout = dnd_create(dnd_cut(get(win), varargin));
 end

@@ -1,9 +1,9 @@
-function dout = cut_data (din, varargin)
+function dout = dnd_cut (din, varargin)
 % Average over an interval along one or more axes of a dataset structure to
 % produce a dataset structure with reduced dimensionality.
 %
 % Syntax:
-%   >> dout = cut_data (din, iax_1, iax1_range, iax_2, iax2_range, ...)
+%   >> dout = dnd_cut (din, iax_1, iax1_range, iax_2, iax2_range, ...)
 %
 % Input:
 % ------
@@ -27,7 +27,7 @@ function dout = cut_data (din, varargin)
 %
 %
 % Examples: if input dataset is 3D or 4D:
-%   >> dout = cut_data (din, 2, [1.9,2.1], 3 [-0.55,-0.45]) % sum along y and z axes
+%   >> dout = dnd_cut (din, 2, [1.9,2.1], 3 [-0.55,-0.45]) % sum along y and z axes
 %                                                           
 
 % Original author: T.G.Perring
@@ -40,7 +40,7 @@ if nargin==1    % trivial case - no integration, so return
     dout = din;
     return
 end
-if nargin==2 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to cut_data)
+if nargin==2 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to dnd_cut)
     args = varargin{1};
 else
     args = varargin;
@@ -48,14 +48,20 @@ end
 
 nargs= length(args);
 if ~(nargs==2|nargs==4|nargs==6|nargs==8)
-    error ('ERROR - Check number of arguments to cut_data')
+    error ('ERROR: Check number of arguments to dnd_cut')
+else
+    for i=1:round(nargs/2)
+        if ~(isa_size(args{2*i-1},[1,1],'double') & isa_size(args{2*i},[1,2],'double'))
+            error (['ERROR: axis index and range must be scalar and vector length 2 respsectively - axis ',num2str(i)])
+        end
+    end
 end
 
 % Get integration parameters:
 niax = floor((nargs)/2); % niax = 1,2,3, or 4
 pax_ind = linspace(1,length(din.pax),length(din.pax));
 for i=1:niax
-    iax_ind(i) = args{2*i-1};
+    iax_ind(i) = round(args{2*i-1});
     if iax_ind(i) < 1 | iax_ind(i) > length(din.pax)
         error(['ERROR: Integration axis index/indices must lie in range 1 to ',num2str(length(din.pax))])
     end
@@ -101,7 +107,7 @@ for i=1:niax
     else
         error ('ERROR: No data in the requested cut')
     end
-    [signal,errors,nbins] = cut_data_arrays (idim(i), ilo, ihi, signal, errors, nbins);
+    [signal,errors,nbins] = cut_data_arrays (length(din.pax), idim(i), ilo, ihi, signal, errors, nbins);
 end
 
 

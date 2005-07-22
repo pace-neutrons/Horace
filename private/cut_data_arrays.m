@@ -1,4 +1,4 @@
-function [s_out, e_out, n_out] = cut_data_arrays (iax, ilo, ihi, s, e, n)
+function [s_out, e_out, n_out] = cut_data_arrays (ndims, iax, ilo, ihi, s, e, n)
 % Sum signal, error (i.e. variance) and nbin arrays along the specified
 % dimension between (and including) the two indexes. The output arrays are
 % reduced in dimension by unity.
@@ -14,8 +14,6 @@ function [s_out, e_out, n_out] = cut_data_arrays (iax, ilo, ihi, s, e, n)
 % $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
-
-ndims = length(size(s));
 
 if ndims==1
     if iax==1
@@ -57,19 +55,19 @@ elseif ndims==4
     if iax==1
         s_out = squeeze(sum(s(ilo:ihi,:,:,:),1));
         e_out = squeeze(sum(e(ilo:ihi,:,:,:),1));
-        n_out = squeeze(sum(n(ilo:ihi,:,:,:),1,'native'));
+        n_out = double(squeeze(sum(n(ilo:ihi,:,:,:),1,'native')));
     elseif iax==2
         s_out = squeeze(sum(s(:,ilo:ihi,:,:),2));
         e_out = squeeze(sum(e(:,ilo:ihi,:,:),2));
-        n_out = squeeze(sum(n(:,ilo:ihi,:,:),2,'native'));
+        n_out = double(squeeze(sum(n(:,ilo:ihi,:,:),2,'native')));
     elseif iax==3
         s_out = squeeze(sum(s(:,:,ilo:ihi,:),3));
         e_out = squeeze(sum(e(:,:,ilo:ihi,:),3));
-        n_out = squeeze(sum(n(:,:,ilo:ihi,:),3,'native'));
+        n_out = double(squeeze(sum(n(:,:,ilo:ihi,:),3,'native')));
     elseif iax==4
         s_out = squeeze(sum(s(:,:,:,ilo:ihi),4));
         e_out = squeeze(sum(e(:,:,:,ilo:ihi),4));
-        n_out = squeeze(sum(n(:,:,:,ilo:ihi),4,'native'));
+        n_out = double(squeeze(sum(n(:,:,:,ilo:ihi),4,'native')));
     else
         error ('ERROR: Invalid axis option')
     end

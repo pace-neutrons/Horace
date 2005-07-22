@@ -25,14 +25,15 @@ disp('Reading binary file ...');
 
 % Read header information
 data.file = binfil;
-data = get_header(fid,data);
-if strcmp(data.grid,'spe')
+data = get_header(fid, data);
+if ~strcmp(data.grid,'orthogonal-grid')
     fclose(fid);
     error ('Error: Can only read orthogonal grid data ');
 end
 
 % Read grid information and the data
-data = get_grid_data (fid, data);
+ndim = length(data.pax);
+data = get_grid_data(fid, ndim, data);
 
 fclose(fid);
 
