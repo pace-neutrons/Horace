@@ -69,8 +69,14 @@ for j=1:4
     end
 end
 
-m_npax = 0;
-m_niax = 0;
+% pre-allocate cell arrays for titling:
+title_pax = cell(length(pax),1);
+display_pax = cell(length(pax),1);
+title_iax = cell(length(iax),1);
+display_iax = cell(length(iax),1);
+title_main_pax = cell(length(iax),1);
+
+% Create titling
 for j=1:4
     % Determine if column vector in u corresponds to a Q-axis or energy
     if u(4,j)==0
@@ -103,14 +109,12 @@ for j=1:4
             else
                 title_pax{ipax} = [vector{j},' (Å^{-1})'];
             end
-            m_npax = m_npax + 1;
-            title_main_pax{m_npax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
-            display_pax{m_npax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
+            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
+            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
         elseif ~isempty(find(j==iax))   % j appears in the list of integration axes
             iiax = find(j==iax);
-            m_niax = m_niax + 1;
-            title_main_iax{m_niax} = [num2str(uint(1,iiax)),'\leq',label{j},'\leq',num2str(uint(2,iiax)),' in ',vector{j}];
-            display_iax{m_niax} = [num2str(uint(1,iiax)),' =< ',label{j},' =< ',num2str(uint(2,iiax)),' in ',vector{j}];
+            title_main_iax{iiax} = [num2str(uint(1,iiax)),'\leq',label{j},'\leq',num2str(uint(2,iiax)),' in ',vector{j}];
+            display_iax{iiax} = [num2str(uint(1,iiax)),' =< ',label{j},' =< ',num2str(uint(2,iiax)),' in ',vector{j}];
         else
             error ('ERROR: Axis is neither plot axis nor integration axis')
         end
@@ -141,14 +145,12 @@ for j=1:4
             else
                 title_pax{ipax} = [vector{j},' (meV)'];
             end
-            m_npax = m_npax + 1;
-            title_main_pax{m_npax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
-            display_pax{m_npax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
+            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
+            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),' in ',vector{j}];
         elseif ~isempty(find(j==iax))   % j appears in the list of integration axes
             iiax = find(j==iax);
-            m_niax = m_niax + 1;
-            title_main_iax{m_niax} = [num2str(uint(1,iiax)),'\leq',label{j},'\leq',num2str(uint(2,iiax)),' in ',vector{j}];
-            display_iax{m_niax} = [num2str(uint(1,iiax)),' =< ',label{j},' =< ',num2str(uint(2,iiax)),' in ',vector{j}];
+            title_main_iax{iiax} = [num2str(uint(1,iiax)),'\leq',label{j},'\leq',num2str(uint(2,iiax)),' in ',vector{j}];
+            display_iax{iiax} = [num2str(uint(1,iiax)),' =< ',label{j},' =< ',num2str(uint(2,iiax)),' in ',vector{j}];
         else
             error ('ERROR: Axis is neither plot axis nor integration axis')
         end
