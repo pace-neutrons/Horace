@@ -26,7 +26,7 @@ function dout = dnd_cut (din, varargin)
 %                  appropriately updated.
 %
 %
-% Examples: if input dataset is 3D or 4D:
+% Example: if input dataset is 3D or 4D:
 %   >> dout = dnd_cut (din, 2, [1.9,2.1], 3 [-0.55,-0.45]) % sum along y and z axes
 %                                                           
 
