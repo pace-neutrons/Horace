@@ -15,4 +15,8 @@ function writegrid (w, binfil)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-dnd_writegrid(get(w),binfil)
+if nargin==1
+    dnd_writegrid(get(w))
+else
+    dnd_writegrid(get(w),binfil)
+end

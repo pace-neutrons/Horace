@@ -17,21 +17,21 @@ function [s_out, e_out, n_out] = cut_data_arrays (ndims, iax, ilo, ihi, s, e, n)
 
 if ndims==1
     if iax==1
-        s_out = squeeze(sum(s(ilo:ihi),1));
-        e_out = squeeze(sum(e(ilo:ihi),1));
-        n_out = squeeze(sum(n(ilo:ihi),1));
+        s_out = sum(s(ilo:ihi),1);
+        e_out = sum(e(ilo:ihi),1);
+        n_out = sum(n(ilo:ihi),1);
     else
         error ('ERROR: Invalid axis option')
     end
 elseif ndims==2
     if iax==1
-        s_out = squeeze(sum(s(ilo:ihi,:),1));
-        e_out = squeeze(sum(e(ilo:ihi,:),1));
-        n_out = squeeze(sum(n(ilo:ihi,:),1));
+        s_out = sum(s(ilo:ihi,:),1);
+        e_out = sum(e(ilo:ihi,:),1);
+        n_out = sum(n(ilo:ihi,:),1);
     elseif iax==2
-        s_out = squeeze(sum(s(:,ilo:ihi),2));
-        e_out = squeeze(sum(e(:,ilo:ihi),2));
-        n_out = squeeze(sum(n(:,ilo:ihi),2));
+        s_out = sum(s(:,ilo:ihi),2)';
+        e_out = sum(e(:,ilo:ihi),2)';
+        n_out = sum(n(:,ilo:ihi),2)';
     else
         error ('ERROR: Invalid axis option')
     end
@@ -52,6 +52,7 @@ elseif ndims==3
         error ('ERROR: Invalid axis option')
     end
 elseif ndims==4
+    % for summing the array n, use 'native' mode to operate within the sum function using the intrinsic type i.e. int16
     if iax==1
         s_out = squeeze(sum(s(ilo:ihi,:,:,:),1));
         e_out = squeeze(sum(e(ilo:ihi,:,:,:),1));

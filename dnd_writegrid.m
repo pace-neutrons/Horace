@@ -17,7 +17,24 @@ function dnd_writegrid (data, binfil)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-fid = fopen(binfil,'w');
+
+% Get file name - prompting if necessary
+% --------------------------------------
+if (nargin==1)
+    file_internal = genie_putfile;
+    if (isempty(file_internal))
+        error ('No file given')
+    end
+elseif (nargin==2)
+    file_internal = binfil;
+end
+
+fid = fopen (file_internal, 'w');
+if (fid < 0)
+    error (['ERROR: cannot open file ' file_internal])
+end
+
+% Open file
 disp('Writing binary file ...')
 
 % Write header information

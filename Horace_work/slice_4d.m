@@ -107,7 +107,7 @@ if ~isa_size(u,[1,3],'double') | ~isa_size(v,[1,3],'double') | ~isa_size(p0,[1,3
 end
 
 % check p4_bin:
-if exist('p4_bin','var') && ~(isa_size(p4_bin,[1,2],'double') & isa_size(p4_bin,[1,3],'double'))
+if exist('p4_bin','var') && ~(isa_size(p4_bin,[1,2],'double') | isa_size(p4_bin,[1,3],'double'))
     error ('ERROR: Must provide binning for energy axis plotting in form [en_lo, eh_hi] or [en_start, en_step, en_end]')
 end
 
