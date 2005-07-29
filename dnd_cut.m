@@ -82,7 +82,7 @@ for i=1:niax
 end
 
 
-% Perform summation along the additional integration axes. Perform the summantion along the
+% Perform summation along the additional integration axes. Perform the summation along the
 % highest axis index - this allows succesive calls of routines that reduce dimension by one
 % without the need for sophisticated book-keeping.
 % [There may be cleverer ways to do this for the general n to m (n>=m>=0) reduction, but in 
@@ -105,14 +105,16 @@ for i=1:niax
         ilo = lis(1);
         ihi = lis(end);
     else
-        error ('ERROR: No data in the requested cut')
+        error ('ERROR: Requested cut lies outside range of input dataset')
     end
     [signal,errors,nbins] = cut_data_arrays (length(din.pax), idim(i), ilo, ihi, signal, errors, nbins);
 end
+signal = squeeze(signal);
+errors = squeeze(errors);
+nbins = squeeze(nbins);
 
 
 % Fill up the output data structure
-% Unchanged items:
 dout.file = din.file;
 dout.grid = din.grid;
 dout.title = din.title;
@@ -134,6 +136,12 @@ for i=1:length(pax_ind)
     pvals_name_out= ['p', num2str(i)];
     dout.(pvals_name_out) = din.(pvals_name_in);
 end
-dout.s = signal;
-dout.e = errors;
-dout.n = nbins;
+if length(dout.pax)==1 & size(signal,2)==1
+    dout.s = signal';
+    dout.e = errors';
+    dout.n = nbins';
+else
+    dout.s = signal;
+    dout.e = errors;
+    dout.n = nbins;
+end

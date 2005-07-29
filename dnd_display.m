@@ -12,7 +12,7 @@ function dnd_display (d)
 
 % NOTE: use sprintf to get fixed formatting of numbers (num2str strips trailing blanks)
 
-[title_main, title_pax, display_pax, display_iax, energy_axis] = dnd_cut_titles (d);
+[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = dnd_cut_titles (d);
 
 disp(' ')
 disp([' ',num2str(length(d.pax)),'-dimensional dataset:'])
@@ -59,6 +59,13 @@ if length(d.iax)~=0
     for i=1:length(d.iax)
         disp(['         ',display_iax{i}])
     end
+    disp(' ')
+end
+
+% Print warning if no data in the cut
+ntot = sum(reshape(d.n,1,prod(size(d.n))));
+if ntot < 0.5
+    disp(' WARNING: The dataset contains no counts')
     disp(' ')
 end
 

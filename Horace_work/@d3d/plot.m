@@ -37,11 +37,12 @@ zmax = max(reshape(signal,1,prod(size(w.s))));
 if zmin==zmax
     error ('ERROR: All intensity values are the same')
 end
-signal(find(w.n==0)) = zmin;        % set undefined signal to lowest signal
+%signal(find(w.n==0)) = zmin;        % set undefined signal to lowest signal
+signal(find(w.n==0)) = nan;        % *** TEST
 signal = permute(signal,[2,1,3]);   % permute dimensions for sliceomatic
 
 % Get titles and index of energy axis
-[title_main, title_pax, display_pax, display_iax, energy_axis] = dnd_cut_titles (get(w));
+[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = dnd_cut_titles (get(w));
 
 % Plot data
 colordef white; % white background
@@ -53,6 +54,7 @@ p2_cent_lims = [w.p2(1)+dp2/2, w.p2(end)-dp2/2];
 p3_cent_lims = [w.p3(1)+dp3/2, w.p3(end)-dp3/2];
 sliceomatic(p1_cent_lims, p2_cent_lims, p3_cent_lims, signal, w.label(w.pax(1)), w.label(w.pax(2)), w.label(w.pax(3)),...
     title_pax{1}, title_pax{2}, title_pax{3}, [zmin,zmax]);
+title(title_iax{1})
 set(gca,'Position',[0.225,0.225,0.55,0.55]);
 axis normal
 

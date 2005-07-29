@@ -157,8 +157,14 @@ if isa_size(h,'row','char') && (exist(h,'file') &  ~exist(h,'dir'))  % data_sour
     end
 else
     source_is_file = 0;
-    if ~isa(h,'d4d')
-        error ('ERROR: Input data source must be a binary file name or a 4-dimensional dataset')
+    % check that the structure is valid
+    if isstruct(h)
+        [nd, mess] = dnd_checkfields (h);
+        if isempty(nd) || nd~=4
+            error ('ERROR: Input structure is not a 4-dimensional dataset structure')
+        end
+    else
+        error ('ERROR: Input data source must be a binary file name or a 4-dimensional dataset structure')
     end
 end
 
