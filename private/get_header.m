@@ -1,8 +1,8 @@
-function data = get_header(fid, data_in)
+function [data, mess] = get_header(fid, data_in)
 % Reads a header structure out from either a binary .spe file or a binary orthogonal grid file.
 %
 % Syntax:
-%   >> data = get_header(fid, data_in)
+%   >> [data, mess] = get_header(fid, data_in)
 %
 % Input:
 % ------
@@ -12,6 +12,9 @@ function data = get_header(fid, data_in)
 %
 % Output:
 % -------
+%   data        Structure containing fields read from file (details below)
+%   mess        Error message; blank if no errors, non-blank otherwise
+%
 % Fields read for both 'spe' or 'orthogonal-grid' data:
 %
 %   data.grid   Type of grid ('spe' or 'orthogonal-grid') [Character string]
@@ -51,37 +54,40 @@ if nargin==2
     if isstruct(data_in)
         data = data_in;
     else
-        error ('ERROR: Check the type of input argument data_in')
+        mess = 'ERROR: Check the type of input argument data_in';
+        return
     end
+else
+    data = [];
 end
 
-[n,count]= fread(fid,1,'int32');
-[data.grid,count]= fread(fid,[1,n],'*char');
+[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+[data.grid, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
 
-[n,count]= fread(fid,1,'int32');
-[data.title,count]= fread(fid,[1,n],'*char');
+[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+[data.title, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
 
-[data.a,count] = fread(fid,1,'float32');
-[data.b,count] = fread(fid,1,'float32');
-[data.c,count] = fread(fid,1,'float32');
-[data.alpha,count] = fread(fid,1,'float32');
-[data.beta,count] = fread(fid,1,'float32');
-[data.gamma,count] = fread(fid,1,'float32');
-[data.u,count] = fread(fid,[4,4],'float32');
-[data.ulen,count] = fread(fid,[1,4],'float32');
+[data.a, count, ok, mess] = fread_catch(fid,1,'float32'); if ~all(ok); return; end;
+[data.b, count, ok, mess] = fread_catch(fid,1,'float32'); if ~all(ok); return; end;
+[data.c, count, ok, mess] = fread_catch(fid,1,'float32'); if ~all(ok); return; end;
+[data.alpha, count, ok, mess] = fread_catch(fid,1,'float32'); if ~all(ok); return; end;
+[data.beta, count, ok, mess] = fread_catch(fid,1,'float32'); if ~all(ok); return; end;
+[data.gamma, count, ok, mess] = fread_catch(fid,1,'float32'); if ~all(ok); return; end;
+[data.u, count, ok, mess] = fread_catch(fid,[4,4],'float32'); if ~all(ok); return; end;
+[data.ulen, count, ok, mess] = fread_catch(fid,[1,4],'float32'); if ~all(ok); return; end;
 
 if strcmp(data.grid,'spe'),
-    [data.nfiles,count] = fread(fid,1,'int32');
+    [data.nfiles, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     % p0, pax, iax and uint undefined (data needs to be sliced first)
 else
-    [n,count]= fread(fid,2,'int32');
-    [label,count]=fread(fid,[n(1),n(2)],'*char');
+    [n, count, ok, mess] = fread_catch(fid,2,'int32'); if ~all(ok); return; end;
+    [label, count, ok, mess] = fread_catch(fid,[n(1),n(2)],'*char'); if ~all(ok); return; end;
     data.label=cellstr(label)';
     
-    [data.p0,count]= fread(fid,[4,1],'int32');
-    [n,count]= fread(fid,1,'int32');
+    [data.p0, count, ok, mess] = fread_catch(fid,[4,1],'int32'); if ~all(ok); return; end;
+    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     if n>0
-        [data.pax,count]=fread(fid,[1,n],'int32');
+        [data.pax, count, ok, mess] = fread_catch(fid,[1,n],'int32'); if ~all(ok); return; end;
     else
         data.pax=[];    % create empty index of plot axes
     end
@@ -89,8 +95,8 @@ else
         data.iax=[]; % create empty index of integration array
         data.uint=[];
     else
-        [n,count]= fread(fid,1,'int32');
-        [data.iax,count]=fread(fid,[1,n],'int32');
-        [data.uint,count]=fread(fid,[2,n],'float32');
+        [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+        [data.iax, count, ok, mess] = fread_catch(fid,[1,n],'int32'); if ~all(ok); return; end;
+        [data.uint, count, ok, mess] = fread_catch(fid,[2,n],'float32'); if ~all(ok); return; end;
     end
 end

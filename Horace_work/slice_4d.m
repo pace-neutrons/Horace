@@ -122,7 +122,20 @@ end
 % -----------------------------
 
 fid= fopen(binfil, 'r');    % open spebin file
-h_main = get_header(fid);   % get the main header information
+if fid<0; error (['ERROR: Unable to open file ',binfil]); end
+disp('Reading binary file header ...');
+
+[h_main,mess] = get_header(fid);   % get the main header information
+if ~isempty(mess); fclose(fid); error(mess); end
+if isfield(h_main,'grid')
+    if ~strcmp(h_main.grid,'spe')
+        fclose(fid);
+        error ('ERROR: The function slice_4d only reads binary spe data ');
+    end
+else
+    fclose(fid);
+    error (['ERROR: Problems reading binary spe data from ',binfil])
+end
 
 % obtain the conversion matrix that will convert the hkle vectors in the
 % spe file in to equivalents in the orthogonal set defined by u and v
@@ -136,7 +149,8 @@ p0n= rlu_to_ustep*p0(1:3)';
 
 for iblock = 1:h_main.nfiles,
     disp(['reading spe block no.: ' num2str(iblock)]);
-    h = get_spe_datablock(fid); % read in spe block
+    [h,mess] = get_spe_datablock(fid); % read in spe block
+    if ~isempty(mess); fclose(fid); error(mess); end
     
     if iblock==1, % Create the output data structure
         d.file= binfil;

@@ -97,19 +97,39 @@ if exist(fout)
     % position writing at the end of the file
     append = 1;
     fid=fopen(fout, 'r+');
-    data=get_header(fid);
-    if ~strcmp(data.grid,'spe')
-        fclose(fid);
-        error ('ERROR: Data file already exists, but is not a binary spe file - cannot append')
+    if fid<0; error (['ERROR: Unable to open file ',fout]); end
+    % check that the file is not empty (common error); if it is empty, then treat like a new file
+    status = fseek(fid,1,'cof');
+    if status>=0
+        fseek(fid,0,'bof'); % go back to beginning of file
+        % read header
+        [data,mess]=get_header(fid);
+        if ~isempty(mess); fclose(fid); error(mess); end
+        if isfield(data,'grid')
+            if ~strcmp(data.grid,'spe')
+                fclose(fid);
+                error ('ERROR: The function gen_hkle only reads binary spe files');
+            end
+        else
+            fclose(fid);
+            error (['ERROR: Problems reading spe header data from ',fout])
+        end
+        data.nfiles=data.nfiles+nfiles;
+        fseek(fid, 0, 'eof');
+    else
+        fseek(fid,0,'bof'); % go back to beginning of file
+        append = 0;
     end
-    data.nfiles=data.nfiles+nfiles;
-    fseek(fid, 0, 'eof');
 else
     % Open a new binary file
     append = 0;
     fid=fopen(fout,'w');
+    if fid<0; error (['ERROR: Unable to open file ',fout]); end
 end
 
+%-----------------------------
+try     % have a catch to intercept the case of an error to allow us to close the file
+    
 % Set up Q-space viewing axes
 ms_load_msp(msp);
 ms_setvalue('u11',u1(1));
@@ -206,3 +226,9 @@ if append
 end
 
 fclose(fid);
+
+%-----------------------------
+catch
+    fclose(fid);
+    error(lasterr)
+end

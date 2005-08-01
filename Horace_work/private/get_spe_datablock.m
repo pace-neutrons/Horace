@@ -1,9 +1,10 @@
-function data = get_spe_datablock (fid, data_in)
+function [data, mess] = get_spe_datablock (fid, data_in)
 %  Read the a block of data corresponding to one .spe file from a binary file created
 % by gen_hkle.
 %
 % Syntax:
-%   >> data = get_spe_datablock (fid, data_in)
+%   >> [data,mess] = get_spe_datablock (fid)            % read to new data structure
+%   >> [data,mess] = get_spe_datablock (fid, data_in)   % append to existing data structure
 %
 % Input:
 % ------
@@ -26,6 +27,8 @@ function data = get_spe_datablock (fid, data_in)
 %   data.S      Intensity vector [row vector]
 %   data.ERR    Variance vector [row vector]
 %
+%   mess        Error message; blank if all is OK, non-blank otherwise
+%
 
 % Original author: J. van Duijn
 %
@@ -37,20 +40,21 @@ if nargin==2
     if isstruct(data_in)
         data = data_in;
     else
-        error ('ERROR: Check the type of input argument data_in')
+        mess = 'ERROR: Check the type of input argument data_in';
+        return
     end
 end
 
-[data.ei,count]= fread(fid, 1, 'float32');
-[data.psi,count]= fread(fid, 1, 'float32');
-[data.cu,count]= fread(fid, [1,3], 'float32');
-[data.cv,count]= fread(fid, [1,3], 'float32');
-[n,count]=fread(fid, 1, 'int32');
-[data.file,count]=fread(fid, [1,n], '*char');
-[data.size,count]= fread(fid, [1,2], 'int32');
+[data.ei,count,ok,mess] = fread_catch(fid, 1, 'float32'); if ~all(ok); return; end;
+[data.psi,count,ok,mess] = fread_catch(fid, 1, 'float32'); if ~all(ok); return; end;
+[data.cu,count,ok,mess] = fread_catch(fid, [1,3], 'float32'); if ~all(ok); return; end;
+[data.cv,count,ok,mess] = fread_catch(fid, [1,3], 'float32'); if ~all(ok); return; end;
+[n,count,ok,mess] = fread_catch(fid, 1, 'int32'); if ~all(ok); return; end;
+[data.file,count,ok,mess] = fread_catch(fid, [1,n], '*char'); if ~all(ok); return; end;
+[data.size,count,ok,mess] = fread_catch(fid, [1,2], 'int32'); if ~all(ok); return; end;
 nt= data.size(1)*data.size(2);
-[data.v,count]= fread(fid, [3,nt], 'float32');
-[data.en,count]= fread(fid, [1,data.size(2)], 'float32');
-[data.S,count]= fread(fid, [1,nt], 'float32');
-[data.ERR,count]= fread(fid, [1,nt], 'float32');
+[data.v,count,ok,mess] = fread_catch(fid, [3,nt], 'float32'); if ~all(ok); return; end;
+[data.en,count,ok,mess] = fread_catch(fid, [1,data.size(2)], 'float32'); if ~all(ok); return; end;
+[data.S,count,ok,mess] = fread_catch(fid, [1,nt], 'float32'); if ~all(ok); return; end;
+[data.ERR,count,ok,mess] = fread_catch(fid, [1,nt], 'float32'); if ~all(ok); return; end;
 

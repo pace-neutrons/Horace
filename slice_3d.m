@@ -149,8 +149,19 @@ end
 if isa_size(h,'row','char') && (exist(h,'file') &  ~exist(h,'dir'))  % data_source is a file
     source_is_file = 1;     % flag to indicate nature of data source
     binfil = h;             % make copy of file name before it is overwritten as a structure
-    fid = fopen(h, 'r');    % open binary file
-    h = get_header(fid);    % get the main header information
+    fid = fopen(binfil, 'r');    % open binary file
+    if fid<0; error (['ERROR: Unable to open file ',h]); end
+    [h,mess] = get_header(fid);    % get the main header information
+    if ~isempty(mess); fclose(fid); error(mess); end
+    if isfield(h,'grid')
+        if ~(strcmp(h.grid,'spe')|strcmp(h.grid,'orthogonal-grid'))
+            fclose(fid);
+            error ('ERROR: The function slice_3d only reads binary spe or binary orthogonal-grid data ');
+        end
+    else
+        fclose(fid);
+        error (['ERROR: Problems reading binary spe or binary orthogonal-grid data from ',binfil])
+    end
     if isfield(h,'pax') && length(h.pax)~=4 % data file is grid binary, but does not have 4 dimensions
         fclose(fid);
         error ('ERROR: Orthogonal grid binary file is not 4-dimensional')
@@ -234,7 +245,8 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
     disp('Reading spe files from binary file ...');
     for iblock = 1:h.nfiles,
         disp(['reading spe block no.: ' num2str(iblock)]);
-        h = get_spe_datablock(fid); % read in spe block
+        [h,mess] = get_spe_datablock(fid); % read in spe block
+        if ~isempty(mess); fclose(fid); error(mess); end
 
         if iblock==1    % initialise grid data block
             d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
@@ -330,7 +342,8 @@ else    % Binary file consists of 4D grid
     if source_is_file
         % Read in the 4D grid data
         disp('Reading 4D grid ...');
-        h = get_grid_data(fid, 4, h); % read in 4D grid
+        [h,mess] = get_grid_data(fid, 4, h); % read in 4D grid
+        if ~isempty(mess); fclose(fid); error(mess); end
         fclose(fid);
     end
         

@@ -36,20 +36,32 @@ if (isempty(file_internal))
     error ('No file given')
 end
 
+% Open binary file:
 fid = fopen(file_internal,'r');
+if fid<0
+    error (['ERROR: Unable to open file ',file_internal])
+end
 disp('Reading binary file ...');
 
 % Read header information
 data.file = file_internal;
-data = get_header(fid, data);
-if ~strcmp(data.grid,'orthogonal-grid')
+[data, mess] = get_header(fid, data);
+if ~isempty(mess); fclose(fid); error(mess); end
+
+if isfield(data,'grid')
+    if ~strcmp(data.grid,'orthogonal-grid')
+        fclose(fid);
+        error ('ERROR: The function readgrid only reads orthogonal grid data ');
+    end
+else
     fclose(fid);
-    error ('Error: Can only read orthogonal grid data ');
+    error (['ERROR: Problems reading orthogonal grid header data from ',file_internal])
 end
 
 % Read grid information and the data
 ndim = length(data.pax);
-data = get_grid_data(fid, ndim, data);
+[data, mess] = get_grid_data(fid, ndim, data);
+if ~isempty(mess); fclose(fid); error(mess); end
 
 fclose(fid);
 
