@@ -192,8 +192,8 @@ for iblock = 1:h_main.nfiles,
         else
             if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
                 % tweak limits so that where there is existing spe data, the bin boundaries will match
-                p4_bin = [enbin*(ceil((p4_bin(1)-h.en(1))/enbin)-0.5), enbin, ...
-                          enbin*(floor((p4_bin(end)-h.en(1))/enbin)+0.5)];
+                p4_bin = [enbin*(ceil((p4_bin(1)-h.en(1))/enbin)-0.5)+h.en(1), enbin, ...
+                          enbin*(floor((p4_bin(end)-h.en(1))/enbin)+0.5)+h.en(1)];
                 if enbin>p4_bin(2)
                     disp ('Requested energy bin size is smaller than that of first spe file')
                 end

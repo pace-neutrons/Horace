@@ -262,8 +262,8 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
                 else
                     if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
                         % tweak limits so that where there is existing spe data, the bin boundaries will match
-                        p4_bin = [enbin*(ceil((p4_bin(1)-h.en(1))/enbin)-0.5), enbin, ...
-                                  enbin*(floor((p4_bin(end)-h.en(1))/enbin)+0.5)];
+                        p4_bin = [enbin*(ceil((p4_bin(1)-h.en(1))/enbin)-0.5)+h.en(1), enbin, ...
+                                  enbin*(floor((p4_bin(end)-h.en(1))/enbin)+0.5)+h.en(1)];
                         if enbin>p4_bin(2)
                             disp ('Requested energy bin size is smaller than that of first spe file')
                         end
@@ -361,8 +361,8 @@ else    % Binary file consists of 4D grid
         else
             if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
                 % tweak limits so that where there is existing data, the bin boundaries will match
-                p4_bin = [enbin*ceil((p4_bin(1)-h.p4(1))/enbin), enbin, ...
-                                  enbin*floor((p4_bin(end)-h.p4(1))/enbin)];
+                p4_bin = [enbin*ceil((p4_bin(1)-h.p4(1))/enbin)+h.p4(1), enbin, ...
+                                  enbin*floor((p4_bin(end)-h.p4(1))/enbin)+h.p4(1)];
                 if enbin>p4_bin(2)
                     disp ('Requested energy bin size is smaller than that of 4D grid')
                 end
