@@ -1,4 +1,4 @@
-function d = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
+function [d,readtime,calctime] = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 % Reads a binary spe file *OR* binary 4D dataset file *OR* 4D dataset structure
 % and creates a 3D data set by integrating over one of the momentum or energy axes.
 %
@@ -83,26 +83,42 @@ if nargin==8 & iscell(varargin{1}) % interpret as having been passed a varargin 
 else
     args = varargin;
 end
-
 nargs= length(args);
-if nargs==1
-    type= args{1};
-elseif nargs==2,
-    p4_bin=args{1};
+if isa_size(args{1},'row','double'),
+    p4_bin= args{1};
     type= args{2};
-elseif nargs==4
+    nstart= 3;
+elseif isa_size(args{1},'row','char'),
     type= args{1};
-    p1_lab = args{2};
-    p2_lab = args{3};
-    p3_lab = args{4};
-elseif nargs==5
-    p4_bin=args{1};
-    type= args{2};
-    p1_lab = args{3};
-    p2_lab = args{4};
-    p3_lab = args{5};
+    nstart=2;
 else
-    error ('ERROR - Check number of arguments')
+    error ('ERROR - Check input arguments p4_bin or type')
+end
+if nargs>=nstart,
+    j= 1;
+    k= 1;
+    for i= nstart:nargs,
+        if isa_size(args{i},[1,3],'double'),
+            nsym(j,:)= args{i};
+            j= j+1;
+        elseif isa_size(args{i},'row','char'),
+            p_lab{k}= args{i};
+            k= k+1;
+        else
+            error('ERROR - Check symmetry and p_label input arguments')
+        end
+    end
+end
+
+% If axis labels have been given extract them from p_lab
+if exist('p_lab','var'),
+    if size(p_lab,2)==3
+        p1_lab = p_lab{1};
+        p2_lab = p_lab{2};
+        p3_lab = p_lab{3};
+    else
+        error('ERROR - need to give 3 p_labels when giving them')
+    end
 end
 
 % Check normalisation of Q axes: (do this first, as omitting this is a common error to make)
@@ -179,6 +195,10 @@ else
     end
 end
 
+% write h.ulen into spe_ulen as these vaklues will be needed if one wants to
+% do symmetrisation of the data.
+spe_ulen= h.ulen;
+
 % obtain the conversion matrix that will convert the hkle vectors in the
 % spe file in to equivalents in the orthogonal set defined by u and v
 if qqq
@@ -245,9 +265,11 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
     disp('Reading spe files from binary file ...');
     for iblock = 1:h.nfiles,
         disp(['reading spe block no.: ' num2str(iblock)]);
+        tic;
         [h,mess] = get_spe_datablock(fid); % read in spe block
+        readtime(iblock)=toc;
         if ~isempty(mess); fclose(fid); error(mess); end
-
+        tic;
         if iblock==1    % initialise grid data block
             d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
             d.p2 = [p2_bin(1):p2_bin(2):p2_bin(3)]'; % Contains the bin boundaries
@@ -280,6 +302,14 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
             d.n = zeros(np1,np2,np3);
         end
 
+        % If nsym array exists, symmetrise the data before it gets
+        % converted into the equivalent step matrix along the new new orthogonal set given by u_to_rlu
+        if exist('nsym','var'),
+            for isym=1:size(nsym,1),
+                h.v=symmetry(h.v,[spe_ulen(nsym(isym,1)),spe_ulen(nsym(isym,2))],nsym(isym,:));
+            end
+        end
+        
         % convert h.v into the equivalent step matrix along the new orthogonal set given by u_to_rlu
         vstep = rlu_to_ustep*h.v;
                             
@@ -334,6 +364,7 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
             d.e = d.e + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [h.ERR(lis) 0]);  % summed 3D error array
             d.n = d.n + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]);
         end
+        calctime(iblock)=toc;
     end
     fclose(fid);
 

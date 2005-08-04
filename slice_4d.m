@@ -73,26 +73,42 @@ if nargin==8 & iscell(varargin{1}) % interpret as having been passed a varargin 
 else
     args = varargin;
 end
-
 nargs= length(args);
-if nargs==1
-    type= args{1};
-elseif nargs==2,
-    p4_bin=args{1};
+if isa_size(args{1},'row','double'),
+    p4_bin= args{1};
     type= args{2};
-elseif nargs==4
+    nstart= 3;
+elseif isa_size(args{1},'row','char'),
     type= args{1};
-    p1_lab = args{2};
-    p2_lab = args{3};
-    p3_lab = args{4};
-elseif nargs==5
-    p4_bin=args{1};
-    type= args{2};
-    p1_lab = args{3};
-    p2_lab = args{4};
-    p3_lab = args{5};
+    nstart=2;
 else
-    error ('ERROR - Check number of arguments')
+    error ('ERROR - Check input arguments p4_bin or type')
+end
+if nargs>=nstart,
+    j= 1;
+    k= 1;
+    for i= nstart:nargs,
+        if isa_size(args{i},[1,3],'double'),
+            nsym(j,:)= args{i};
+            j= j+1;
+        elseif isa_size(args{i},'row','char'),
+            p_lab{k}= args{i};
+            k= k+1;
+        else
+            error('ERROR - Check symmetry and p_label input arguments')
+        end
+    end
+end
+
+% If axis labels have been given extract them from p_lab
+if exist('p_lab','var'),
+    if size(p_lab,2)==3
+        p1_lab = p_lab{1};
+        p2_lab = p_lab{2};
+        p3_lab = p_lab{3};
+    else
+        error('ERROR - need to give 3 p_labels when giving them')
+    end
 end
 
 % Check normalisation of Q axes: (do this first, as omitting this is a common error to make)
@@ -136,6 +152,10 @@ else
     fclose(fid);
     error (['ERROR: Problems reading binary spe data from ',binfil])
 end
+
+% write h.ulen into spe_ulen as these vaklues will be needed if one wants to
+% do symmetrisation of the data.
+spe_ulen= h.ulen;
 
 % obtain the conversion matrix that will convert the hkle vectors in the
 % spe file in to equivalents in the orthogonal set defined by u and v
@@ -210,6 +230,14 @@ for iblock = 1:h_main.nfiles,
         d.n= zeros(np1,np2,np3,np4,'int16');            
     end
     
+    % If nsym array exists, symmetrise the data before it gets
+    % converted into the equivalent step matrix along the new new orthogonal set given by u_to_rlu
+    if exist('nsym','var'),
+        for isym=1:length(nsym),
+            h.v=symmetry(h.v,[spe_ulen(nsym(isym,1)),spe_ulen(nsym(isym,2))],nsym(isym,:));
+        end
+    end
+        
     % convert h.v into the equivalent step matrix along the new orthogonal set given by u_to_rlu
     vstep= rlu_to_ustep*h.v; 
                             
