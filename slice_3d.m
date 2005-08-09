@@ -1,13 +1,20 @@
-function [d,readtime,calctime] = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
+function d = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 % Reads a binary spe file *OR* binary 4D dataset file *OR* 4D dataset structure
 % and creates a 3D data set by integrating over one of the momentum or energy axes.
 %
 % Syntax:
 %   >> d = slice_3d (data_source, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type)
-%
-%  To give custom labels to the momentum axis labels
+%   
+%  Apply symmetry operations as well (spe file data input only):
+%   >> d = slice_3d (data_source, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
+%                                                     sym_1, sym_2 ...)
+%  To give custom labels to the momentum axis labels:
 %   >> d = slice_3d (data_source, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
 %                                                     p1_lab, p2_lab, p3_lab)
+% 
+%  To give custom labels and apply symmtry operations:
+%   >> d = slice_3d (data_source, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
+%                                      p1_lab, p2_lab, p3_lab, sym_1, sym_2 ...)
 % 
 % Input:
 % ------
@@ -56,6 +63,14 @@ function [d,readtime,calctime] = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, 
 %   p2_lab          Short label for p2 axis
 %   p3_lab          Short label for p3 axis
 %
+%   sym_1           [n1,n2,theta] where n1, n2 define plane in which symmetrisation
+%                   takes place, theta is the angle (deg) from n1 of the line of symmetry.
+%                   The coordinates within the plane defined by n1 and n2 are reflected
+%                   through this line.
+%   sym_2           Succesive symmetry operations
+%   sym_3               :
+%     :                 :
+%
 %
 % Output:
 % -------
@@ -66,7 +81,7 @@ function [d,readtime,calctime] = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, 
 %   >> d = slice_3d ('RbMnF3.bin', [1,1,0], [0,0,1], [0.5,0.5,0.5],...
 %                            [-1.5,0.05,1.5], [-2,0.05,2], 0.1, 'rrr')
 
-% Original author: T.G.Perring
+% Original author: J. van Duijn
 %
 % $Revision$ ($Date$)
 %
@@ -84,6 +99,7 @@ else
     args = varargin;
 end
 nargs= length(args);
+
 if isa_size(args{1},'row','double'),
     p4_bin= args{1};
     type= args{2};
@@ -92,8 +108,9 @@ elseif isa_size(args{1},'row','char'),
     type= args{1};
     nstart=2;
 else
-    error ('ERROR - Check input arguments p4_bin or type')
+    error ('ERROR: Check input arguments p4_bin or type')
 end
+
 if nargs>=nstart,
     j= 1;
     k= 1;
@@ -105,7 +122,7 @@ if nargs>=nstart,
             p_lab{k}= args{i};
             k= k+1;
         else
-            error('ERROR - Check symmetry and p_label input arguments')
+            error('ERROR: Check symmetry operation and plot axis label arguments')
         end
     end
 end
@@ -117,7 +134,7 @@ if exist('p_lab','var'),
         p2_lab = p_lab{2};
         p3_lab = p_lab{3};
     else
-        error('ERROR - need to give 3 p_labels when giving them')
+        error('ERROR: If providing plot axis labels, then must give all three')
     end
 end
 
@@ -195,10 +212,6 @@ else
     end
 end
 
-% write h.ulen into spe_ulen as these vaklues will be needed if one wants to
-% do symmetrisation of the data.
-spe_ulen= h.ulen;
-
 % obtain the conversion matrix that will convert the hkle vectors in the
 % spe file in to equivalents in the orthogonal set defined by u and v
 if qqq
@@ -261,15 +274,19 @@ end
 d.uint = [centre-thick/2; centre+thick/2];
 
 %--------------------------------------------------------------------------------------------------------
+% Save h.ulen - will be needed if one wants to symmetrise the data.
+saved_ulen= h.ulen;
+
 if strcmp(h.grid,'spe')    % Binary file consists of block spe data
     disp('Reading spe files from binary file ...');
     for iblock = 1:h.nfiles,
         disp(['reading spe block no.: ' num2str(iblock)]);
-        tic;
+% tic;
         [h,mess] = get_spe_datablock(fid); % read in spe block
-        readtime(iblock)=toc;
+% readtime(iblock)=toc;
+% disp(['   reading spe file: ',num2str(readtime(iblock))])
         if ~isempty(mess); fclose(fid); error(mess); end
-        tic;
+% tic;
         if iblock==1    % initialise grid data block
             d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
             d.p2 = [p2_bin(1):p2_bin(2):p2_bin(3)]'; % Contains the bin boundaries
@@ -306,7 +323,7 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
         % converted into the equivalent step matrix along the new new orthogonal set given by u_to_rlu
         if exist('nsym','var'),
             for isym=1:size(nsym,1),
-                h.v=symmetry(h.v,[spe_ulen(nsym(isym,1)),spe_ulen(nsym(isym,2))],nsym(isym,:));
+                h.v=symmetry(h.v,[saved_ulen(nsym(isym,1)),saved_ulen(nsym(isym,2))],nsym(isym,:));
             end
         end
         
@@ -364,7 +381,8 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
             d.e = d.e + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [h.ERR(lis) 0]);  % summed 3D error array
             d.n = d.n + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]);
         end
-        calctime(iblock)=toc;
+% calctime(iblock)=toc;
+% disp([' doing calculations: ',num2str(calctime(iblock))])
     end
     fclose(fid);
 

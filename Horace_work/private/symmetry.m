@@ -1,25 +1,30 @@
 function hout=symmetry(h, ulen, nsym)
-% Symmetrise data by reflecting through a plane perpendicular to that
-% defined by axes n1 and n2 and at an angle theta (deg) from axis
-% n1 when rotating towards n2. 
+% Symmetrise multi-dimensional data by reflecting coordinates of a plane
+% across a mirror line. 
 %
 % Syntax:
-%
+%   >> hout = symmetry(h, ulen, nsym)
 %
 % Input:
-%
 % ------
-%   h:      array containing the components along the plotting axis. Has to be
-%           in rlu's
-%               e.g. size(h)=[3,n] in the case of binspe data, 4D or qqq 3D
-%   ulen:   length of the vectors contained along n1 and n2
+%   h       Array containing the components along the plotting axes in an
+%           orthogonal coordinate frame
+%               size(h) = [n_axes, n_points]
+%   ulen    Length of the basis vectors along n1 and n2
 %               size(ulen)=[1,2]
 %   nsym    3 column vector [n1,n1,theta]
+%               n1, n2: index of axes within the array h (max(n1,n2) <= n_axes)
+%               theta: angle of line of reflection from n1 rotating towards n2.
+%
 %
 % output:
-%
 % ------
-%   hout: symmetrised array
+%   hout    Symmetrised array
+%
+%
+% The plane in which symmetrisation takes place is defined by axes n1 and n2,
+% and the mirror line is at an angle theta (deg) from axis n1 when rotating
+% towards n2.
 
 % Original author: J. van Duijn
 %
@@ -27,13 +32,12 @@ function hout=symmetry(h, ulen, nsym)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-% Check to make sure that axes n1 and n2 are present within h and create
-% the necisary varaibles.
+% Check to make sure that axes n1 and n2 are valid and are present within h
 n1= nsym(1);
 n2= nsym(2);
 theta= nsym(3);
-ln= size(h);
-if ln(1)<=n1 | ln(1)<=n2,
+ndim = size(h,1);
+if ndim<=n1 | ndim<=n2 | n1<1 | n2<1 |n1==n2
     error('ERROR using symmetry routine: n1 or n2 not present within h');
 end
 

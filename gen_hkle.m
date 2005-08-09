@@ -165,6 +165,9 @@ end
 % Read and convert each spe file then write data to binary file 
 for i = 1:nfiles
     % must do a clever trick to set path for spe file - TGP
+    disp(' ')
+    disp('--------------------------------------------------------------------------------')
+    disp(['Processing file ',fnames{i}])
     [spe_path,spe_file,spe_ext,spe_ver] = fileparts(fnames{i});
     if ~isempty(data_in_dir)    %override paths to spe files
         if strcmp(data_in_dir(end),filesep)

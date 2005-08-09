@@ -8,11 +8,18 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %  To alter energy binning:
 %   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type)
 % 
-%  To use non-default axis labels for the momentum axes, add them as extra
-%  parameters to either of the two cases above:
-%   e.g.
+%  To apply symmetry operations in either of the above:
+%   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
+%                                           sym_1, sym_2, ...)
+%
+%  To use non-default axis labels for the momentum axes in the above:
 %   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
 %                                                     p1_lab, p2_lab, p3_lab)
+%
+%  Symmetry operations and non-default axis labels:
+%   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type, ...
+%                                    p1_lab, p2_lab, p3_lab, sym_1, sym_2, ...)
+%  
 %
 % Input:
 % ------
@@ -52,6 +59,14 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %   p2_lab          Short label for p2 axis
 %   p3_lab          Short label for p3 axis
 %
+%   sym_1           [n1,n2,theta] where n1, n2 define plane in which symmetrisation
+%                   takes place, theta is the angle (deg) from n1 of the line of symmetry.
+%                   The coordinates within the plane defined by n1 and n2 are reflected
+%                   through this line.
+%   sym_2           Succesive symmetry operations
+%   sym_3               :
+%     :                 :
+%
 %
 % Output:
 % -------
@@ -74,6 +89,7 @@ else
     args = varargin;
 end
 nargs= length(args);
+
 if isa_size(args{1},'row','double'),
     p4_bin= args{1};
     type= args{2};
@@ -82,8 +98,9 @@ elseif isa_size(args{1},'row','char'),
     type= args{1};
     nstart=2;
 else
-    error ('ERROR - Check input arguments p4_bin or type')
+    error ('ERROR: Check input arguments p4_bin or type')
 end
+
 if nargs>=nstart,
     j= 1;
     k= 1;
@@ -95,7 +112,7 @@ if nargs>=nstart,
             p_lab{k}= args{i};
             k= k+1;
         else
-            error('ERROR - Check symmetry and p_label input arguments')
+            error('ERROR: Check symmetry operation and plot axis label arguments')
         end
     end
 end
@@ -107,7 +124,7 @@ if exist('p_lab','var'),
         p2_lab = p_lab{2};
         p3_lab = p_lab{3};
     else
-        error('ERROR - need to give 3 p_labels when giving them')
+        error('ERROR: If providing plot axis labels, then must give all three')
     end
 end
 
@@ -153,10 +170,6 @@ else
     error (['ERROR: Problems reading binary spe data from ',binfil])
 end
 
-% write h.ulen into spe_ulen as these vaklues will be needed if one wants to
-% do symmetrisation of the data.
-spe_ulen= h.ulen;
-
 % obtain the conversion matrix that will convert the hkle vectors in the
 % spe file in to equivalents in the orthogonal set defined by u and v
 ustep = [p1_bin(2),p2_bin(2),p3_bin(2)];
@@ -169,9 +182,13 @@ p0n= rlu_to_ustep*p0(1:3)';
 
 for iblock = 1:h_main.nfiles,
     disp(['reading spe block no.: ' num2str(iblock)]);
+% tic
     [h,mess] = get_spe_datablock(fid); % read in spe block
+% readtime(iblock)=toc;
+% disp(['   reading spe file: ',num2str(readtime(iblock))])
     if ~isempty(mess); fclose(fid); error(mess); end
     
+% tic
     if iblock==1, % Create the output data structure
         d.file= binfil;
         d.grid= 'orthogonal-grid';
@@ -234,7 +251,7 @@ for iblock = 1:h_main.nfiles,
     % converted into the equivalent step matrix along the new new orthogonal set given by u_to_rlu
     if exist('nsym','var'),
         for isym=1:length(nsym),
-            h.v=symmetry(h.v,[spe_ulen(nsym(isym,1)),spe_ulen(nsym(isym,2))],nsym(isym,:));
+            h.v=symmetry(h.v,[h.ulen(nsym(isym,1)),h.ulen(nsym(isym,2))],nsym(isym,:));
         end
     end
         
@@ -266,6 +283,8 @@ for iblock = 1:h_main.nfiles,
     d.s= d.s + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]',[h.S(lis) 0]);    % summed 4D intensity array
     d.e= d.e + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]',[h.ERR(lis) 0]);  % summed 4D error array
     d.n= d.n + int16(accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]', [ones(1,length(lis)) 0])); 
+% calctime(iblock)=toc;
+% disp([' doing calculations: ',num2str(calctime(iblock))])
 end
 
 fclose(fid);

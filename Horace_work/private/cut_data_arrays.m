@@ -15,11 +15,7 @@ function [s_out, e_out, n_out] = cut_data_arrays (ndims, iax, ilo, ihi, s, e, n)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-disp(' ')
-disp('---------------------------------')
-disp('cut_data_arrays')
 ndims
-display(num2str(size(s)))
 
 if ndims==1
     if iax==1
@@ -83,4 +79,3 @@ else
     error('ERROR: Number of dimensions of input arrays must be =< 4')
 end
 
-display(num2str(size(s_out)))
