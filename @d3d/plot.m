@@ -52,7 +52,8 @@ dp3 = (w.p3(end)-w.p3(1))/(length(w.p3)-1);
 p1_cent_lims = [w.p1(1)+dp1/2, w.p1(end)-dp1/2];
 p2_cent_lims = [w.p2(1)+dp2/2, w.p2(end)-dp2/2];
 p3_cent_lims = [w.p3(1)+dp3/2, w.p3(end)-dp3/2];
-sliceomatic(p1_cent_lims, p2_cent_lims, p3_cent_lims, signal, w.label(w.pax(1)), w.label(w.pax(2)), w.label(w.pax(3)),...
+sliceomatic(p1_cent_lims, p2_cent_lims, p3_cent_lims, signal, ...
+    ['axis 1: ',w.label{w.pax(1)}], ['axis 2: ',w.label{w.pax(2)}], ['axis 3: ',w.label{w.pax(3)}],...
     title_pax{1}, title_pax{2}, title_pax{3}, [zmin,zmax]);
 title(title_iax{1})
 set(gca,'Position',[0.225,0.225,0.55,0.55]);

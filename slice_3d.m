@@ -288,9 +288,10 @@ d.uint = [centre-thick/2; centre+thick/2];
 if strcmp(h.grid,'spe')    % Binary file consists of block spe data
     % Save h.ulen - will be needed if one wants to symmetrise the data.
     saved_ulen = h.ulen;
+    saved_nfiles = h.nfiles;
     disp('Reading spe files from binary file ...');
     for iblock = 1:h.nfiles,
-        disp(['reading spe block no.: ' num2str(iblock)]);
+        disp(['reading spe block no.: ',num2str(iblock),' of ',num2str(saved_nfiles)]);
 % tic;
         [h,mess] = get_spe_datablock(fid); % read in spe block
 % readtime(iblock)=toc;
@@ -346,28 +347,32 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
         emat = reshape(emat, 1, h.size(1)*h.size(2));
     
         if qqq
-            % convert vstep into index array where vstep(i,1)= 1 corresponds to data
-            % between pi(1) and pi(2).
+            % convert vstep into index array where vstep(i,1)= 1 corresponds to data between pi(1) and pi(2).        
             vstep(1,:) = floor(vstep(1,:)-p0n(1)-p1_bin(1)/p1_bin(2))+1;
             vstep(2,:) = floor(vstep(2,:)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
             vstep(3,:) = floor(vstep(3,:)-p0n(3)-p3_bin(1)/p3_bin(2))+1;
-      
+            
             % generate equivalent energy matrix
             emat=round((emat-centre)/thick); % the pixels we are interested have are those where emat=0
-                                          
-            % find the index array 
+
+            % find the index array
+            % first filter on energy bins that satisfy criterion - we assume this is small, so short lists that are fast to create
+            lis_e = find(emat==0);  
+            st = h.S(lis_e);
+            et = h.ERR(lis_e);
+            vstep = vstep(:,lis_e);
+            % now filter on the (far fewer in general) remaining points
             lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
                        1<=vstep(2,:) & vstep(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
-                       1<=vstep(3,:) & vstep(3,:)<=floor((max(d.p3)-p3_bin(1))/p3_bin(2)) & ...
-                       emat==0);
+                       1<=vstep(3,:) & vstep(3,:)<=floor((max(d.p3)-p3_bin(1))/p3_bin(2)) );
       
             % sum up the intensity, errors and hits into their corresponding 3D arrays.
             % add a reference to the last bin of d.s with zero intensity to make sure
             % that the accumulated array has the same size as d.s
-            d.s = d.s + accumarray(vstep(1:3,lis)', h.S(lis), [np1, np2, np3]);   % summed 3D intensity array
-            d.e = d.e + accumarray(vstep(1:3,lis)', h.ERR(lis), [np1, np2, np3]); % summed 3D variance array
-            d.n = d.n + accumarray(vstep(1:3,lis)', ones(1,length(lis)), [np1, np2, np3]);
-        
+            d.s = d.s + accumarray(vstep(:,lis)', st(lis), [np1, np2, np3]);    % summed 3D intensity array
+            d.e = d.e + accumarray(vstep(:,lis)', et(lis), [np1, np2, np3]);    % summed 3D variance array
+            d.n = d.n + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2, np3]);
+            
         else
             % convert vstep into index array where vstep(i,1)= 1 corresponds to data
             % between pi(1) and pi(2). Do this only for vectors along p1 and p2.
@@ -377,24 +382,35 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
       
             % generate equivalent energy matrix
             emat= floor((emat-p4_bin(1))/p4_bin(2))+1;
-      
+
             % find the index array 
+            % first filter on third axis bins that satisfy criterion - we assume this is small, so short lists that are fast to create
+            lis_q = find(vstep(3,:)==0);
+            st = h.S(lis_q);
+            et = h.ERR(lis_q);
+            vstep = vstep(1:2,lis_q);
+            emat = emat(lis_q);
+            % now filter on the (far fewer in general) remaining points
             lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
                        1<=vstep(2,:) & vstep(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
-                       vstep(3,:)==0                                                      & ...
                        1<=emat       &       emat<=floor((max(d.p3)-p4_bin(1))/p4_bin(2)) );
       
             % sum up the intensity, errors and hits into their corresponding 3D arrays.
             % add a reference to the last bin of d.s with zero intensity to make sure
             % that the accumulated array has the same size as d.s
-            d.s = d.s + accumarray([vstep(1:2,lis);emat(lis)]', h.S(lis), [np1, np2, np3]);    % summed 3D intensity array
-            d.e = d.e + accumarray([vstep(1:2,lis);emat(lis)]', h.ERR(lis), [np1, np2, np3]);  % summed 3D error array
-            d.n = d.n + accumarray([vstep(1:2,lis);emat(lis)]', ones(1,length(lis)), [np1, np2, np3]);
+            d.s = d.s + accumarray([vstep(:,lis);emat(lis)]', st(lis), [np1, np2, np3]);    % summed 3D intensity array
+            d.e = d.e + accumarray([vstep(:,lis);emat(lis)]', et(lis), [np1, np2, np3]);  % summed 3D error array
+            d.n = d.n + accumarray([vstep(:,lis);emat(lis)]', ones(1,length(lis)), [np1, np2, np3]);
+        
         end
 % calctime(iblock)=toc;
 % disp([' doing calculations: ',num2str(calctime(iblock))])
     end
     fclose(fid);
+% disp('----------------------------------------------------------- ')
+% disp([' total time to read: ',num2str(sum(readtime))])
+% disp(['       to calculate: ',num2str(sum(calctime))])
+% disp('----------------------------------------------------------- ')
 
 %--------------------------------------------------------------------------------------------------------
 else    % Binary file consists of 4D grid
@@ -442,7 +458,7 @@ else    % Binary file consists of 4D grid
                 if enbin>p4_bin(2)
                     disp ('Requested energy bin size is smaller than that of 4D grid')
                 end
-                disp ('Using energy bin size from 4D grid')
+                disp ('Using energy bin size from input 4D grid data')
             end
         end
         d.p3 = [p4_bin(1):p4_bin(2):p4_bin(3)]';
@@ -472,33 +488,40 @@ else    % Binary file consists of 4D grid
     vstep = proj_to_ustep*[pt1;pt2;pt3]; 
 
     if qqq
-        % convert vstep into index array where vstep(i,1)= 1 corresponds to data
-        % between pi(1) and pi(2).
+        % convert vstep into index array where vstep(i,1)= 1 corresponds to data between pi(1) and pi(2).
         vstep(1,:) = floor(vstep(1,:)+p0old(1)-p0n(1)-p1_bin(1)/p1_bin(2))+1;
         vstep(2,:) = floor(vstep(2,:)+p0old(2)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
         vstep(3,:) = floor(vstep(3,:)+p0old(3)-p0n(3)-p3_bin(1)/p3_bin(2))+1;
-        
+
         % generate equivalent energy matrix
         emat=round((p4-centre)/thick);  % the pixels we are interested have are those where emat=0
-        
-        for iblock= 1:(length(p4))
-            disp(['processing energy slice no.: ' num2str(iblock)]);
-            % find the index array 
-            lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
-                       1<=vstep(2,:) & vstep(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
-                       1<=vstep(3,:) & vstep(3,:)<=floor((max(d.p3)-p3_bin(1))/p3_bin(2)) & ...
-                       emat(iblock)==0);
-            
-            if ~isempty(lis)
-                % generate the correct block intensity, error and n array
-                st = reshape(signal(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
-                et = reshape(errors(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
-                nt = double(reshape(npixel(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3))));
-            
-                % see .spe branch of outer if statement for explanation of logic of the following
-                d.s = d.s + accumarray(vstep(1:3,lis)', st(lis), [np1, np2, np3]);  % summed 3D intensity array
-                d.e = d.e + accumarray(vstep(1:3,lis)', et(lis), [np1, np2, np3]);  % summed 3D variance array
-                d.n = d.n + accumarray(vstep(1:3,lis)', nt(lis), [np1, np2, np3]);
+        lis_e = find(emat==0);
+        if ~isempty(lis_e)
+            tic
+            for iblock= lis_e(1):lis_e(end)
+                % find the index array
+                lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
+                           1<=vstep(2,:) & vstep(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
+                           1<=vstep(3,:) & vstep(3,:)<=floor((max(d.p3)-p3_bin(1))/p3_bin(2)) );
+    
+                if ~isempty(lis)
+                    % generate the correct block intensity, error and n array
+                    st = reshape(signal(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+                    et = reshape(errors(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+                    nt = double(reshape(npixel(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3))));
+    
+                    % see .spe branch of outer if statement for explanation of logic of the following
+                    d.s = d.s + accumarray(vstep(:,lis)', st(lis), [np1, np2, np3]);  % summed 3D intensity array
+                    d.e = d.e + accumarray(vstep(:,lis)', et(lis), [np1, np2, np3]);  % summed 3D variance array
+                    d.n = d.n + accumarray(vstep(:,lis)', nt(lis), [np1, np2, np3]);
+                end
+                % print message if more than two seconds since last update
+                delta_time = toc;
+                if delta_time > 2   % print message after two seconds
+                    percent_done = round(min(100,100*((iblock-lis_e(1)+1)/(lis_e(end)-lis_e(1)))));
+                    disp (['fraction completed: ',num2str(percent_done),'%'])
+                    tic
+                end
             end
         end
     else
@@ -508,28 +531,40 @@ else    % Binary file consists of 4D grid
         vstep(2,:) = floor(vstep(2,:)+p0old(2)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
         vstep(3,:) = round(vstep(3,:)+p0old(3)-p0n(3)-centre/thick);
 
+        tic
         for iblock= 1:(length(p4)),
-            disp(['processing energy slice no.: ' num2str(iblock)]);
             % generate equivalent energy matrix
             emat = p4(iblock)*ones(1,size(vstep,2));
             emat = floor((emat-p4_bin(1))/p4_bin(2))+1;
         
             % find the index array 
-            lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
-                       1<=vstep(2,:) & vstep(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
-                       vstep(3,:)==0                                                      & ...
-                       1<=emat       &       emat<=floor((max(d.p3)-p4_bin(1))/p4_bin(2)) );
+            % find first those points satisfying the integration axis range (as will cut data down most)
+            lis_q = find(vstep(3,:)==0);
+            st= reshape(signal(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+            et= reshape(errors(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+            nt= reshape(npixel(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+            st = st(lis_q);
+            et = et(lis_q);
+            nt = double(nt(lis_q));
+            vstep_temp = vstep(1:2,lis_q);
+            emat = emat(lis_q);
+            % Now find those element that satisfy the other three axes criteria
+            lis = find(1<=vstep_temp(1,:) & vstep_temp(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
+                       1<=vstep_temp(2,:) & vstep_temp(2,:)<=floor((max(d.p2)-p2_bin(1))/p2_bin(2)) & ...
+                       1<=emat            &       emat<=floor((max(d.p3)-p4_bin(1))/p4_bin(2)) );
             
             if ~isempty(lis)
-                % generate the correct block intensity, error and n array
-                st= reshape(signal(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
-                et= reshape(errors(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
-                nt= double(reshape(npixel(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3))));
-            
                 % see .spe branch of outer if statement for explanation of logic of the following
-                d.s= d.s + accumarray([vstep(1:2,lis);emat(lis)]', st(lis), [np1, np2, np3]); % summed 3D intensity array
-                d.e= d.e + accumarray([vstep(1:2,lis);emat(lis)]', et(lis), [np1, np2, np3]); % summed 3D error array
-                d.n= d.n + accumarray([vstep(1:2,lis);emat(lis)]', nt(lis), [np1, np2, np3]);
+                d.s= d.s + accumarray([vstep_temp(:,lis);emat(lis)]', st(lis), [np1, np2, np3]); % summed 3D intensity array
+                d.e= d.e + accumarray([vstep_temp(:,lis);emat(lis)]', et(lis), [np1, np2, np3]); % summed 3D error array
+                d.n= d.n + accumarray([vstep_temp(:,lis);emat(lis)]', nt(lis), [np1, np2, np3]);
+            end
+            % print message if more than two seconds since last update
+            delta_time = toc;
+            if delta_time > 2   % print message after two seconds
+                percent_done = round(min(100,100*(iblock/length(p4))));
+                disp (['fraction completed: ',num2str(percent_done),'%'])
+                tic
             end
         end
     end
