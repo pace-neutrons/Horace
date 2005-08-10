@@ -1,6 +1,10 @@
 function d = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 % Reads a binary spe file *OR* binary 4D dataset file *OR* 4D dataset structure
 % and creates a 3D data set by integrating over one of the momentum or energy axes.
+% 
+% If the input data is a binary spe file, symmetry operations can optionally
+% be performed. These operate in the coordinate frame in which the spe file
+% pixels are expressed, NOT the output coordinates.
 %
 % Syntax:
 %   >> d = slice_3d (data_source, u, v, p0, p1_bin, p2_bin, p3_bin, p4_bin, type)
@@ -212,8 +216,8 @@ else
     end
 end
 
-% obtain the conversion matrix that will convert the hkle vectors in the
-% spe file in to equivalents in the orthogonal set defined by u and v
+% obtain the conversion matrix that will convert the coordinates along the
+% projection axes in the input data source to those in the orthogonal set defined by u and v
 if qqq
     centre = (p4_bin(1)+p4_bin(2))/2;
     thick = (p4_bin(2)-p4_bin(1));
@@ -228,12 +232,18 @@ else
     end
     ustep = [p1_bin(2), p2_bin(2), thick];
 end
-[rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix ([h.a,h.b, h.c],...
-    [h.alpha,h.beta,h.gamma], u, v, ustep, type);
+[rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix ([h.a, h.b, h.c],...
+    [h.alpha, h.beta, h.gamma], u, v, ustep, type);
 
-% convert p0 to the equivalent vector in the new orthogonal set given by
-% u_to_rlu
+proj_to_ustep = rlu_to_ustep*h.u(1:3,1:3);  % coords of input data in different basis in general
+
+% convert p0 to the equivalent vector in the new orthogonal set given by u_to_rlu
 p0n= rlu_to_ustep*p0(1:3)';
+
+% if 4d dataset, convert current p0 to the equivalent vector in the new orthogonal set given by u_to_rlu
+if ~strcmp(h.grid,'spe')
+    p0old= rlu_to_ustep*h.p0(1:3);
+end
 
 % Create header for output dataset 
 if source_is_file
@@ -274,10 +284,10 @@ end
 d.uint = [centre-thick/2; centre+thick/2];
 
 %--------------------------------------------------------------------------------------------------------
-% Save h.ulen - will be needed if one wants to symmetrise the data.
-saved_ulen= h.ulen;
 
 if strcmp(h.grid,'spe')    % Binary file consists of block spe data
+    % Save h.ulen - will be needed if one wants to symmetrise the data.
+    saved_ulen = h.ulen;
     disp('Reading spe files from binary file ...');
     for iblock = 1:h.nfiles,
         disp(['reading spe block no.: ' num2str(iblock)]);
@@ -328,7 +338,7 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
         end
         
         % convert h.v into the equivalent step matrix along the new orthogonal set given by u_to_rlu
-        vstep = rlu_to_ustep*h.v;
+        vstep = proj_to_ustep*h.v;
                             
         % generate the energy vector corresponding to each hkl vector. Leave this in the loop over
         % iblock = 1:(no. spe files) in case the energy bins are different from one spe file to the next
@@ -354,9 +364,9 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
             % sum up the intensity, errors and hits into their corresponding 3D arrays.
             % add a reference to the last bin of d.s with zero intensity to make sure
             % that the accumulated array has the same size as d.s
-            d.s = d.s + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [h.S(lis) 0]);   % summed 3D intensity array
-            d.e = d.e + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [h.ERR(lis) 0]); % summed 3D variance array
-            d.n = d.n + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]);
+            d.s = d.s + accumarray(vstep(1:3,lis)', h.S(lis), [np1, np2, np3]);   % summed 3D intensity array
+            d.e = d.e + accumarray(vstep(1:3,lis)', h.ERR(lis), [np1, np2, np3]); % summed 3D variance array
+            d.n = d.n + accumarray(vstep(1:3,lis)', ones(1,length(lis)), [np1, np2, np3]);
         
         else
             % convert vstep into index array where vstep(i,1)= 1 corresponds to data
@@ -377,9 +387,9 @@ if strcmp(h.grid,'spe')    % Binary file consists of block spe data
             % sum up the intensity, errors and hits into their corresponding 3D arrays.
             % add a reference to the last bin of d.s with zero intensity to make sure
             % that the accumulated array has the same size as d.s
-            d.s = d.s + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [h.S(lis) 0]);    % summed 3D intensity array
-            d.e = d.e + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [h.ERR(lis) 0]);  % summed 3D error array
-            d.n = d.n + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [ones(1,length(lis)) 0]);
+            d.s = d.s + accumarray([vstep(1:2,lis);emat(lis)]', h.S(lis), [np1, np2, np3]);    % summed 3D intensity array
+            d.e = d.e + accumarray([vstep(1:2,lis);emat(lis)]', h.ERR(lis), [np1, np2, np3]);  % summed 3D error array
+            d.n = d.n + accumarray([vstep(1:2,lis);emat(lis)]', ones(1,length(lis)), [np1, np2, np3]);
         end
 % calctime(iblock)=toc;
 % disp([' doing calculations: ',num2str(calctime(iblock))])
@@ -395,23 +405,40 @@ else    % Binary file consists of 4D grid
         if ~isempty(mess); fclose(fid); error(mess); end
         fclose(fid);
     end
-        
+    % We must allow for the possibility that the axes have been permuted by the user; permute
+    % to the standard case that the first axis is u1 in h.u, the second is u2 etc. ie invert h.pax
+    order = zeros(1,4);
+    for i=1:4
+        order(h.pax(i)) = i;    % order(j) gives the plot axis corresponding to uj
+    end
+    for i=1:4
+        pname{i} = ['p',num2str(order(i))]; % field names of input data corresponding to u1, u2, u3, u4
+    end
+    % get the p arrays in the order of the uj, and permute the signal, error and n arrays accordingly
+    p1 = h.(pname{1});      
+    p2 = h.(pname{2});
+    p3 = h.(pname{3});
+    p4 = h.(pname{4});
+    signal = permute(h.s,order);
+    errors = permute(h.e,order);
+    npixel = permute(h.n,order);
+               
     % Initialise the grid data block 
-    d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.u1=floor((u1_bin(3)-u1_bin(1))/u1_bin(2))+1
+    d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.p1=floor((p1_bin(3)-p1_bin(1))/p1_bin(2))+1
     d.p2 = [p2_bin(1):p2_bin(2):p2_bin(3)]'; % Contains the bin boundaries
     if qqq
         d.p3 = [p3_bin(1):p3_bin(2):p3_bin(3)]';
     else
         % Allow for energy range only to be given
-        enbin = (h.p4(end)-h.p4(1))/(length(h.p4)-1);
+        enbin = (p4(end)-p4(1))/(length(p4)-1);
         if ~exist('p4_bin','var')   % use intrinsic energy bin and step
-            p4_bin = [h.p4(1),enbin,h.p4(end)];
+            p4_bin = [p4(1),enbin,p4(end)];
             disp('Using energy range and binning from 4D grid')
         else
             if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
                 % tweak limits so that where there is existing data, the bin boundaries will match
-                p4_bin = [enbin*ceil((p4_bin(1)-h.p4(1))/enbin)+h.p4(1), enbin, ...
-                                  enbin*floor((p4_bin(end)-h.p4(1))/enbin)+h.p4(1)];
+                p4_bin = [enbin*ceil((p4_bin(1)-p4(1))/enbin)+p4(1), enbin, ...
+                                  enbin*floor((p4_bin(end)-p4(1))/enbin)+p4(1)];
                 if enbin>p4_bin(2)
                     disp ('Requested energy bin size is smaller than that of 4D grid')
                 end
@@ -427,13 +454,13 @@ else    % Binary file consists of 4D grid
     d.e = zeros(np1,np2,np3);
     d.n = zeros(np1,np2,np3);
     
-    % data will be broken down in to blocks along h.p4. Generate the large
-    % vector arrays for h.p1,h.p2 and h.p3. The size of each vector is
-    % length(h.p1)*length(h.p2)*length(h.p3)
-    p1 = (h.p1(1:end-1)+h.p1(2:end))/2;
-    p2 = (h.p2(1:end-1)+h.p2(2:end))/2;
-    p3 = (h.p3(1:end-1)+h.p3(2:end))/2;
-    p4 = (h.p4(1:end-1)+h.p4(2:end))/2;
+    % data will be broken down in to blocks along p4. Generate the large
+    % vector arrays for p1, p2 and p3. The size of each vector is
+    % length(p1)*length(p2)*length(p3)
+    p1 = (p1(1:end-1)+p1(2:end))/2; % get bin centres
+    p2 = (p2(1:end-1)+p2(2:end))/2;
+    p3 = (p3(1:end-1)+p3(2:end))/2;
+    p4 = (p4(1:end-1)+p4(2:end))/2;
 
     pt1 = repmat(p1', 1, length(p2)*length(p3));
     pt2 = repmat(p2', length(p1), length(p3));
@@ -442,14 +469,14 @@ else    % Binary file consists of 4D grid
     pt3 = reshape(pt3, 1, length(p1)*length(p2)*length(p3));
     
     % convert [pt1;pt2;pt3] into the equivalent step matrix along the new orthogonal set given by u_to_rlu
-    vstep = rlu_to_ustep*[pt1;pt2;pt3]; 
+    vstep = proj_to_ustep*[pt1;pt2;pt3]; 
 
     if qqq
         % convert vstep into index array where vstep(i,1)= 1 corresponds to data
         % between pi(1) and pi(2).
-        vstep(1,:) = floor(vstep(1,:)-p0n(1)-p1_bin(1)/p1_bin(2))+1;
-        vstep(2,:) = floor(vstep(2,:)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
-        vstep(3,:) = floor(vstep(3,:)-p0n(3)-p3_bin(1)/p3_bin(2))+1;
+        vstep(1,:) = floor(vstep(1,:)+p0old(1)-p0n(1)-p1_bin(1)/p1_bin(2))+1;
+        vstep(2,:) = floor(vstep(2,:)+p0old(2)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
+        vstep(3,:) = floor(vstep(3,:)+p0old(3)-p0n(3)-p3_bin(1)/p3_bin(2))+1;
         
         % generate equivalent energy matrix
         emat=round((p4-centre)/thick);  % the pixels we are interested have are those where emat=0
@@ -464,22 +491,22 @@ else    % Binary file consists of 4D grid
             
             if ~isempty(lis)
                 % generate the correct block intensity, error and n array
-                st = reshape(h.s(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
-                et = reshape(h.e(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
-                nt = double(reshape(h.n(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3))));
+                st = reshape(signal(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+                et = reshape(errors(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+                nt = double(reshape(npixel(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3))));
             
                 % see .spe branch of outer if statement for explanation of logic of the following
-                d.s = d.s + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [st(lis) 0]);  % summed 3D intensity array
-                d.e = d.e + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [et(lis) 0]);  % summed 3D variance array
-                d.n = d.n + accumarray([[vstep(1:3,lis)], [np1; np2; np3]]', [nt(lis) 0]);
+                d.s = d.s + accumarray(vstep(1:3,lis)', st(lis), [np1, np2, np3]);  % summed 3D intensity array
+                d.e = d.e + accumarray(vstep(1:3,lis)', et(lis), [np1, np2, np3]);  % summed 3D variance array
+                d.n = d.n + accumarray(vstep(1:3,lis)', nt(lis), [np1, np2, np3]);
             end
         end
     else
         % convert vstep into index array where vstep(i,1)= 1 corresponds to data
         % between pi(1) and pi(2). Do this only for vectors along p1 and p2.
-        vstep(1,:) = floor(vstep(1,:)-p0n(1)-p1_bin(1)/p1_bin(2))+1;
-        vstep(2,:) = floor(vstep(2,:)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
-        vstep(3,:) = round(vstep(3,:)-p0n(3)-centre/thick);
+        vstep(1,:) = floor(vstep(1,:)+p0old(1)-p0n(1)-p1_bin(1)/p1_bin(2))+1;
+        vstep(2,:) = floor(vstep(2,:)+p0old(2)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
+        vstep(3,:) = round(vstep(3,:)+p0old(3)-p0n(3)-centre/thick);
 
         for iblock= 1:(length(p4)),
             disp(['processing energy slice no.: ' num2str(iblock)]);
@@ -495,14 +522,14 @@ else    % Binary file consists of 4D grid
             
             if ~isempty(lis)
                 % generate the correct block intensity, error and n array
-                st= reshape(h.s(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
-                et= reshape(h.e(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
-                nt= double(reshape(h.n(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3))));
+                st= reshape(signal(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+                et= reshape(errors(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
+                nt= double(reshape(npixel(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3))));
             
                 % see .spe branch of outer if statement for explanation of logic of the following
-                d.s= d.s + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]',[st(lis) 0]); % summed 3D intensity array
-                d.e= d.e + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]',[et(lis) 0]); % summed 3D error array
-                d.n= d.n + accumarray([[vstep(1:2,lis);emat(lis)], [np1; np2; np3]]', [nt(lis) 0]);
+                d.s= d.s + accumarray([vstep(1:2,lis);emat(lis)]', st(lis), [np1, np2, np3]); % summed 3D intensity array
+                d.e= d.e + accumarray([vstep(1:2,lis);emat(lis)]', et(lis), [np1, np2, np3]); % summed 3D error array
+                d.n= d.n + accumarray([vstep(1:2,lis);emat(lis)]', nt(lis), [np1, np2, np3]);
             end
         end
     end

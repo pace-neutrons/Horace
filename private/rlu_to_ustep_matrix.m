@@ -1,4 +1,4 @@
-function [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, u, v, ustep, type)
+function [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, u, v, ustep, type)
 %  Perform various calculations with reciprocal lattice for producing plot axes
 %
 % Syntax:
@@ -33,6 +33,10 @@ function [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, u,
 %                           the ith column is ui i.e. ui = u_to_rlu(:,i) 
 %
 %   ulen(1:3)               Row vector of lengths of ui in Ang^-1
+%
+%   mess                    Error message
+%                           - all OK:   empty
+%                           - if error: message, and rlu_to_ustep, u_to_rlu, ulen are empty
 %                           
 
 % Original author: T.G.Perring
@@ -41,8 +45,12 @@ function [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, u,
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-[b, arlu, angrlu] = bmat (alatt, angdeg);
-ub = ubmat(u,v,b);  % get UB matrix
+[b, arlu, angrlu, mess] = bmat (alatt, angdeg);
+if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end
+
+[ub, mess] = ubmat(u,v,b);  % get UB matrix
+if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end
+
 ubinv = inv(ub);    % inverse
 
 % Get orthogonal Q vectors in r.l.u., u1||u, u2 perp. u1 in plane of u and v, u3 forms rh set with u1,u2:
@@ -62,7 +70,8 @@ for i=1:3
         ulen(i) = 1;                                        % length of u1 in Ang^-1
         ustep_to_rlu(:,i) = ustep(i)*ubinv(:,i);            % get step vector in r.l.u.
     else
-        error('ERROR: normalisation type for each axis must be ''r'' or ''a''')
+        mess = 'ERROR: normalisation type for each axis must be ''r'' or ''a''';
+        rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return;
     end
 end
 rlu_to_ustep = inv(ustep_to_rlu);   % matrix to convert a vector in r.l.u. to no. steps along u1, u2, u3

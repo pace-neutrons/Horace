@@ -1,4 +1,4 @@
-function [b, arlu, angrlu] = bmat (alatt, angdeg)
+function [b, arlu, angrlu, mess] = bmat (alatt, angdeg)
 % Calculate B matrix of Busing and Levy, returning also the reciprocal
 % lattice vector in Angstrom^-1 and the reciprocal lattice angles in degrees
 %
@@ -16,6 +16,9 @@ function [b, arlu, angrlu] = bmat (alatt, angdeg)
 %   b       B matrix of Busing & Levy [3x3 matrix]
 %   arlu    Reciprocal lattice vectors (Ang^-1) [row vector]
 %   angrlu  Reciprocal lattice angles (deg) [row vector]
+%   mess    Error message
+%               - all OK:   empty
+%               - if error: message, and b, arlu, angrlu are empty
 %
 %
 % Matrix B is used to tranform components of a vector in r.l.u. to those
@@ -33,11 +36,22 @@ function [b, arlu, angrlu] = bmat (alatt, angdeg)
 
 
 if max(angdeg)>=180 | min(angdeg)<=0
-    error('ERROR: Check lattice angles')
+    b = [];
+    arlu = [];
+    angrlu = [];
+    mess = 'ERROR: Check lattice angles';
+    return
 elseif min(alatt)<= 0
-    error('ERROR: Check lattice parameters')
+    b = [];
+    arlu = [];
+    angrlu = [];
+    mess = 'ERROR: Check lattice parameters';
+    return
 end
 
+
+%-----------------------
+try
 ang = angdeg*(pi/180);
 a = [      1     , cos(ang(3)), cos(ang(2));...
      cos(ang(3)),      1      , cos(ang(1));...
@@ -56,10 +70,22 @@ cc = acos( (cos(ang(1))*cos(ang(2))-cos(ang(3)))/abs(sin(ang(1))*sin(ang(2))) );
 b = [as,      bs*cos(cc),                   cs*cos(bb);...
       0, bs*abs(sin(cc)), -cs*abs(sin(bb))*cos(ang(1));...
       0,               0,                 2*pi/alatt(3)];
-if nargout >= 1
+if nargout >= 2
     arlu = [as, bs, cs];
 end
 
-if nargout >= 2
+if nargout >= 3
     angrlu = [aa, bb, cc]*(180/pi);
+end
+
+if nargout >= 4
+    mess = '';
+end
+
+%-----------------------
+catch
+    b = [];
+    arlu = [];
+    angrlu = [];
+    mess = 'ERROR: Unable to calculate b-matrix - check lattice parameters';
 end

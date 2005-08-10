@@ -1,6 +1,10 @@
 function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 % Reads a binary spe file and creates a 4D data set from it.
 %
+% Symmetry operations can optionally be performed. These operate in the
+% coordinate frame in which the spe file pixels are expressed, NOT the
+% output coordinates.
+%
 % Syntax:
 %  To retain original energy binning from spe file:
 %   >> d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, type)
@@ -170,14 +174,15 @@ else
     error (['ERROR: Problems reading binary spe data from ',binfil])
 end
 
-% obtain the conversion matrix that will convert the hkle vectors in the
-% spe file in to equivalents in the orthogonal set defined by u and v
+% obtain the conversion matrix that will convert the coordinates along the
+% projection axes in the spe file to those in the orthogonal set defined by u and v
 ustep = [p1_bin(2),p2_bin(2),p3_bin(2)];
 [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix ([h_main.a,h_main.b, h_main.c],...
     [h_main.alpha,h_main.beta,h_main.gamma], u, v, ustep, type);
 
-% convert p0 to the equivalent vector in the new orthogonal set given by
-% u_to_rlu
+proj_to_ustep = rlu_to_ustep*h_main.u(1:3,1:3);  % coords of input data in different basis in general
+
+% convert p0 to the equivalent vector in the new orthogonal set given by u_to_rlu
 p0n= rlu_to_ustep*p0(1:3)';
 
 for iblock = 1:h_main.nfiles,
@@ -251,12 +256,12 @@ for iblock = 1:h_main.nfiles,
     % converted into the equivalent step matrix along the new new orthogonal set given by u_to_rlu
     if exist('nsym','var'),
         for isym=1:length(nsym),
-            h.v=symmetry(h.v,[h.ulen(nsym(isym,1)),h.ulen(nsym(isym,2))],nsym(isym,:));
+            h.v=symmetry(h.v,[h_main.ulen(nsym(isym,1)),h_main.ulen(nsym(isym,2))],nsym(isym,:));
         end
     end
         
     % convert h.v into the equivalent step matrix along the new orthogonal set given by u_to_rlu
-    vstep= rlu_to_ustep*h.v; 
+    vstep= proj_to_ustep*h.v; 
                             
     %generate the energy vector corresponding to each hkl vector
     emat= repmat(h.en, h.size(1), 1);

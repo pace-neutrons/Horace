@@ -15,8 +15,6 @@ function [s_out, e_out, n_out] = cut_data_arrays (ndims, iax, ilo, ihi, s, e, n)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-ndims
-
 if ndims==1
     if iax==1
         s_out = sum(s(ilo:ihi),1);

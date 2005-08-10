@@ -1,12 +1,20 @@
-function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3, u1_lab, u2_lab, u3_lab);
+function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
 % Read in a number of spe files and use the projection facilities in 
 % mslice to calculate the (Q,E) components for each pixel, and write these
 % and the intensity to a binary file suitable for use in the Horace routines.
 %
 % Syntax:
-%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3, u1_lab, u2_lab, u3_lab)
+%  Give two mslice projection axes, and construct the third:
+%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2)
 %
+%  adding labels to the three projection axes:
+%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u1_lab, u2_lab, u3_lab)
+%
+%  Give all three projection axes (must be orthogonal for mslice to work)
 %   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3)
+%
+%  adding labels:
+%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3, u1_lab, u2_lab, u3_lab)
 %
 % NOTES:
 % (1) If the binary output file already exists, the routine appends the new
@@ -80,19 +88,73 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3, u1_lab, u2_lab, u3_l
 % parameter used to check rounding
 small = 1.0e-13;
 
-% Read input spe file information
-[psi,fnames] = textread(fin,'%f %s');  
-nfiles = length(psi);
-
-% Determine if labels are present:
-if nargin==10
-    labels = 1;
-else
-    labels = 0;
+% Determine if mslice is running, and try to open if it is not
+fig=findobj('Tag','ms_ControlWindow');
+if isempty(fig),
+    disp('Mslice control window not active. Starting mslice...');
+    disp (' ')
+    mslice
+    disp (' ')
+    test=findobj('Tag','ms_ControlWindow');
+    if isempty(test),
+        error('ERROR: Unable to start mslice. Please check your mslice setup.');
+    end
 end
 
+% Determine if u3 and labels are present:
+if nargin==6|nargin==7
+    labels = 0;
+    if nargin==7; u3 = varargin{1}; end
+elseif nargin==9|nargin==10
+    labels = 1;
+    if nargin==10; u3 = varargin{1}; end
+else
+    error ('ERROR: Check the number and type of input arguments')
+end
+
+% Check type of input variables
+if ~(exist(msp,'file') && ~exist(msp,'dir'))
+    error ('ERROR: .msp file does not exist - check input arguments')
+end
+if ~(isempty(data_in_dir) || isa_size(data_in_dir,'row','char'))
+    error ('ERROR: Data_in_dir must be a character string')
+end
+if ~(exist(fin,'file') && ~exist(fin,'dir'))
+    error ('ERROR: Input file name does not exist - check input arguments')
+end
+if ~isa_size(fout,'row','char')
+    error ('ERROR: Check syntax of output file name')
+end
+if ~(isa_size(u1,[1,3],'double') && isa_size(u2,[1,3],'double'))
+    error ('ERROR: u1 and u2 must be row vectors with length=3')
+else
+    if max(abs(u1))==0 || max(abs(u2))==0
+        error ('ERROR: Length of vectors u1 and u2 must both be greater than zero')
+    end
+end
+if exist('u3','var')
+    if ~isa_size(u3,[1,3],'double')
+        error ('ERROR: u3 must be a row vector with length=3')
+    elseif max(abs(u3))==0
+        error ('ERROR: Length of vector u3 must be greater than zero')
+    end
+end
+if labels
+    if ~(isa_size(u1_lab,'row','char') && isa_size(u2_lab,'row','char') && isa_size(u3_lab,'row','char'))
+        error ('ERROR: Axis labels must be character strings')
+    end
+end
+
+% Read input spe file information (*** should check that all data files exist at this point)
+try
+    [psi,fnames] = textread(fin,'%f %s');  
+catch
+    error (['ERROR: Check contents and format of spe file information file',fin])
+end
+nfiles = length(psi);
+
 % Determine if binary file already exists
-if exist(fout)
+if exist(fout,'file')
     % Open existing file, read the header, update number of files and
     % position writing at the end of the file
     append = 1;
@@ -132,6 +194,45 @@ try     % have a catch to intercept the case of an error to allow us to close th
     
 % Set up Q-space viewing axes
 ms_load_msp(msp);
+
+% check u1, u2 and u3 are orthogonal
+alatt = zeros(1,3);
+angdeg = zeros(1,3);
+alatt(1)=ms_getvalue('as');
+alatt(2)=ms_getvalue('bs');
+alatt(3)=ms_getvalue('cs');
+angdeg(1)=ms_getvalue('aa');
+angdeg(2)=ms_getvalue('bb');
+angdeg(3)=ms_getvalue('cc');
+if ~exist('u3','var')
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, u1, u2, [1,1,1], 'rrr');
+    if ~isempty(mess)   % problem calculating ub matrix and related quantities
+        error('ERROR: Check lattice parameters in msp file, also that u1 and u2 are not parallel')
+    end
+    % check if u2 is parallel to the 2nd vector produced by rlu_to_ustep
+    if max(abs(u2/norm(u2) - u_to_rlu(:,2)'/norm(u_to_rlu(:,2)))) > small
+        u2 = u_to_rlu(:,2)';
+        u2(abs(u2)<small)=0;    % round to zero
+    end    
+    u3 = u_to_rlu(:,3)';
+    u3(abs(u3)<small)=0;    % round to zero
+else
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, u1, u2, [1,1,1], 'aaa');
+    if ~isempty(mess)   % problem calculating ub matrix and related quantities
+        error('ERROR: Check lattice parameters in msp file, also that u1 and u2 are not parallel')
+    end
+    test = rlu_to_ustep*[u1',u2',u3'];
+    if max(max(abs(test-diag(diag(test))))) > small
+        error ('ERROR: u1, u2, u3 must form a right-handed orthogonal set')
+    elseif min(diag(test))<0
+        error('ERROR: u1, u2, u3 must form a right-handed orthogonal set, not left-handed')
+    end
+end  
+disp ('Projection axes are:')
+disp ([' u1: (',num2str(u1(1)),', ',num2str(u1(2)),', ',num2str(u1(3)),')'])
+disp ([' u2: (',num2str(u2(1)),', ',num2str(u2(2)),', ',num2str(u2(3)),')'])
+disp ([' u3: (',num2str(u3(1)),', ',num2str(u3(2)),', ',num2str(u3(3)),')'])
+
 ms_setvalue('u11',u1(1));
 ms_setvalue('u12',u1(2));
 ms_setvalue('u13',u1(3));
