@@ -85,8 +85,9 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-% parameter used to check rounding
+% parameter used to check rounding, set look-up intervals
 small = 1.0e-13;
+nstep_min = 100;
 
 % Determine if mslice is running, and try to open if it is not
 fig=findobj('Tag','ms_ControlWindow');
@@ -312,14 +313,34 @@ for i = 1:nfiles
     fwrite(fid, d.filename, 'char');
     sized= size(d.v);
     fwrite(fid,sized(1:2), 'int32');
-    % Reshape and transpose the data.v array so that it becomes data.v(1:3,:) where each
-    % column corresponds to components along u1, u2, u3 for one pixel.
-    % Do the corresponding reshape and transpose for the signal and error arrays.
+    ndet = sized(1);
+    ne = sized(2);
     nt= sized(1)*sized(2);
-    fwrite(fid, reshape(d.v, nt, 3)','float32');
     fwrite(fid, d.en, 'float32');
-    fwrite(fid, reshape(d.S, 1, nt), 'float32');
-    fwrite(fid, reshape(d.ERR, 1, nt).^2, 'float32');  % store error squared 
+    % Append energy centre to each pixel coordinate; each row of d.v corresponds to one pixel
+    % and reshape signal, error arrays into rows ro future sorting
+    d.v = [reshape(d.v,nt,3),reshape(repmat(d.en,ndet,1),nt,1)];      
+    d.S = reshape(d.S, 1, nt);
+    d.ERR = reshape(d.ERR, 1, nt).^2;   % calculate variance
+    % Create index of elements to store in a look-up table to make for fast searches
+    nstep = ceil(sqrt(nt));
+    if nstep < nstep_min; nstep = nstep_min; end
+    ind_lookup = 1:nstep:nt;
+    if ind_lookup(end)~=nt; ind_lookup = [ind_lookup,nt]; end     % ensure last element is in look-up table
+    fwrite(fid, length(ind_lookup), 'int32');
+    fwrite(fid, round(ind_lookup), 'int32');                % write look-up table indices - so read routines do not need to know about precise algorithm
+    % Created sorted list and look-up table for each Q dimension
+    for idim=1:3
+        [vsort,ind] = sortrows(d.v,idim);
+        fwrite(fid, vsort(ind_lookup,idim)', 'float32');    % row vector of values of coordinate along axis idim in look-up table
+        fwrite(fid, vsort', 'float32');                     % write so each column of v gives coords of a pixel
+        fwrite(fid, d.S(ind), 'float32');
+        fwrite(fid, d.ERR(ind), 'float32');
+    end
+    % Now write in order of increasing energy. Data in spe file already in such an order.
+    fwrite(fid, d.v', 'float32');
+    fwrite(fid, d.S, 'float32');
+    fwrite(fid, d.ERR, 'float32');
 end
 
 % if all the files are correctly appended to the binary file update the
