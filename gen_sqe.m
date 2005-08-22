@@ -1,4 +1,4 @@
-function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
+function gen_sqe (msp, data_in_dir, fin, fout, u1, u2, varargin);
 % Read in a number of spe files and use the projection facilities in 
 % mslice to calculate the (Q,E) components for each pixel, and write these
 % and the intensity to a binary file suitable for use in the Horace routines.
@@ -50,7 +50,7 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
 % Output:
 % -------
 % header block:
-%   data.grid   Type of grid ('spe') [Character string]
+%   data.grid   Type of grid ('sqe') [Character string]
 %   data.title  Title [Character string]
 %   data.a      Lattice parameters (Angstroms)
 %   data.b           "
@@ -88,8 +88,9 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
 % Horace v0.1   J. van Duijn, T.G.Perring
 
 tic
-% parameter used to check rounding
+% parameter used to check rounding, set look-up intervals
 small = 1.0e-13;
+nstep_min = 100;
 
 % Determine if mslice is running, and try to open if it is not
 fig=findobj('Tag','ms_ControlWindow');
@@ -180,15 +181,15 @@ if exist(fout,'file')
         [data,mess]=get_header(fid);
         if ~isempty(mess); fclose(fid); error(mess); end
         if isfield(data,'grid')
-            if ~strcmp(data.grid,'spe')
+            if ~strcmp(data.grid,'sqe')
                 fclose(fid);
-                error ('ERROR: The function gen_hkle only reads binary spe files');
+                error ('ERROR: The function gen_sqe only reads binary sqe files');
             end
         else
             fclose(fid);
-            error (['ERROR: Problems reading spe header data from ',fout])
+            error (['ERROR: Problems reading sqe header data from ',fout])
         end
-        data.nfiles=data.nfiles+nfiles;
+        data.nfiles=data.nfiles+nfiles; % update the number of spe files
         fseek(fid, 0, 'eof');
     else
         fseek(fid,0,'bof'); % go back to beginning of file
@@ -276,7 +277,7 @@ else
     ms_setvalue('u3label',label{3});
 end
 
-% Read and convert each spe file then write data to binary file 
+% Read and convert each spe file then write data to binary file
 for i = 1:nfiles
     t_start = toc;
     % must do a clever trick to set path for spe file - TGP
@@ -305,7 +306,7 @@ for i = 1:nfiles
     disp('Writing data to output file')
     if i==1 & ~append
         % The very first time around generate all the header information.
-        data.grid= 'spe';
+        data.grid= 'sqe';
         data.title= d.title_label;
         data.a=ms_getvalue('as');
         data.b=ms_getvalue('bs');
@@ -331,14 +332,45 @@ for i = 1:nfiles
     fwrite(fid, d.filename, 'char');
     sized= size(d.v);
     fwrite(fid,sized(1:2), 'int32');
-    % Reshape and transpose the data.v array so that it becomes data.v(1:3,:) where each
-    % column corresponds to components along u1, u2, u3 for one pixel.
-    % Do the corresponding reshape and transpose for the signal and error arrays.
+    ndet = sized(1);
+    ne = sized(2);
     nt= sized(1)*sized(2);
-    fwrite(fid, reshape(d.v, nt, 3)','float32');
+
+    % Append energy centre to each pixel coordinate and reshape so each row of d.v corresponds to one pixel
+    % Reshape signal, error arrays into rows for future sorting
+    d.v = [reshape(d.v,nt,3),reshape(repmat(d.en,ndet,1),nt,1)];
+    d.vrow = d.v';
+    d.S = reshape(d.S, 1, nt);
+    d.ERR = reshape(d.ERR, 1, nt).^2;   % calculate variance
+
+    % Create index of elements to store in a look-up table to make for fast searches
+    nstep = ceil(sqrt(nt));
+    if nstep < nstep_min; nstep = nstep_min; end
+    ind_lookup = 1:nstep:nt;
+    if ind_lookup(end)~=nt; ind_lookup = [ind_lookup,nt]; end     % ensure last element is in look-up table
+    nlookup = length(ind_lookup);
+    fwrite(fid, nlookup, 'int32');
+    fwrite(fid, round(ind_lookup), 'int32');    % write look-up table indices - so read routines do not need to know about precise algorithm
+    fwrite(fid, zeros(1,nlookup), 'float32');   % make some space for the values that we'll discover later
+    fwrite(fid, zeros(1,nlookup), 'float32');
+    fwrite(fid, zeros(1,nlookup), 'float32');
     fwrite(fid, d.en, 'float32');
-    fwrite(fid, reshape(d.S, 1, nt), 'float32');
-    fwrite(fid, reshape(d.ERR, 1, nt).^2, 'float32');  % store error squared 
+    offset_back_to_lookup = 4*[3*nlookup+ne, 2*nlookup+ne+6*nt, nlookup+ne+12*nt];  % offset to go back to fill up lookup arrays
+    offset_to_end = offset_back_to_lookup - 4*[nlookup, nlookup, nlookup];          % offset to return to the end of the file
+    % Create sorted list and look-up table for each Q dimension
+    for idim=1:3
+        [vsort,ind] = sort(d.v(:,idim));
+        fseek(fid, -offset_back_to_lookup(idim), 'cof');
+        fwrite(fid, vsort(ind_lookup)', 'float32');     % row vector of values of coordinate along axis idim in look-up table
+        fseek(fid, offset_to_end(idim), 'cof');
+        fwrite(fid, d.vrow(:,ind), 'float32');          % write so each column of v gives coords of a pixel
+        fwrite(fid, d.S(ind), 'float32');
+        fwrite(fid, d.ERR(ind), 'float32');
+    end
+    % Now write in order of increasing energy. Data in spe file already in such an order.
+    fwrite(fid, d.vrow, 'float32');
+    fwrite(fid, d.S, 'float32');
+    fwrite(fid, d.ERR, 'float32');
     % Update minimum and maximum extent along the axes:
     vlo = min(d.vrow,[],2)';
     vhi = max(d.vrow,[],2)';

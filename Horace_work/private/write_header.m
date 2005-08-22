@@ -1,5 +1,5 @@
 function write_header (fid, data)
-% Writes a header structure to a binary file that will hold .spe data ot
+% Writes a header structure to a binary file that will hold .spe data or
 % orthogonal grid data.
 %
 % Syntax:
@@ -13,7 +13,7 @@ function write_header (fid, data)
 %
 % Fields written for both 'spe' or 'orthogonal-grid' data:
 %
-%   data.grid   Type of grid ('spe' or 'orthogonal-grid') [Character string]
+%   data.grid   Type of grid ('spe', 'sqe' or 'orthogonal-grid') [Character string]
 %   data.title  Title contained in the file from which (h,k,l,e) data was read [Character string]
 %   data.a      Lattice parameters (Angstroms)
 %   data.b           "
@@ -26,8 +26,10 @@ function write_header (fid, data)
 %   data.ulen   Length of vectors in Ang^-1 or meV [row vector]
 %   data.label  Labels of the projection axes [1x4 cell array of charater strings]
 %
-% If writing a binary spe file:
+% If writing a binary spe file or binary sqe file:
 %   data.nfiles Number of spe files in the binary file
+%   data.urange Range along each of the axes: [u1_lo, u2_lo, u3_lo, u4_lo; u1_hi, u2_hi, u3_hi, u4_hi]
+%   data.ebin   Energy bin width of first, minimum and last spe file: [ebin_first, ebin_min, ebin_max]
 %
 % If a 0D,1D,2D,3D, or 4D data structure:
 %
@@ -63,15 +65,16 @@ fwrite(fid,data.beta,'float32');
 fwrite(fid,data.gamma,'float32');
 fwrite(fid,data.u,'float32');
 fwrite(fid,data.ulen,'float32');
+label=char(data.label);
+n=size(label);
+fwrite(fid,n,'int32');
+fwrite(fid,label,'char'); 
 
-if strcmp(data.grid,'spe'),
+if strcmp(data.grid,'spe')|strcmp(data.grid,'sqe'),
     fwrite(fid,data.nfiles,'int32');
-    % p0, pax, iax and uint undefined (data needs to be sliced first)
-else
-    label=char(data.label);
-    n=size(label);
-    fwrite(fid,n,'int32');
-    fwrite(fid,label,'char');   
+    fwrite(fid,data.urange,'float32');
+    fwrite(fid,data.ebin,'float32');
+else  
     fwrite(fid,data.p0,'float32');
     fwrite(fid,length(data.pax),'int32');
     if ~isempty(data.pax)

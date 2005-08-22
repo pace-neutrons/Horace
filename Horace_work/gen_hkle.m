@@ -63,6 +63,8 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
 %   data.ulen   Length of vectors in Ang^-1 or meV [row vector]
 %   data.label  Labels of the projection axes [1x4 cell array of charater strings]
 %   data.nfiles Number of spe file data blocks in the remainder of the file
+%   data.urange Range along each of the axes: [u1_lo, u2_lo, u3_lo, u4_lo; u1_hi, u2_hi, u3_hi, u4_hi]
+%   data.ebin   Energy bin width of first, minimum and last spe file: [ebin_first, ebin_min, ebin_max]
 %
 % For each spe file in succession:
 %   data.ei     Incident energy used for spe file (meV)
@@ -85,9 +87,9 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-% parameter used to check rounding, set look-up intervals
+tic
+% parameter used to check rounding
 small = 1.0e-13;
-nstep_min = 100;
 
 % Determine if mslice is running, and try to open if it is not
 fig=findobj('Tag','ms_ControlWindow');
@@ -108,7 +110,16 @@ if nargin==6|nargin==7
     if nargin==7; u3 = varargin{1}; end
 elseif nargin==9|nargin==10
     labels = 1;
-    if nargin==10; u3 = varargin{1}; end
+    if nargin==9
+        u1_lab = varargin{1};
+        u2_lab = varargin{2};
+        u3_lab = varargin{3};
+    elseif nargin==10
+        u3 = varargin{1};
+        u1_lab = varargin{2};
+        u2_lab = varargin{3};
+        u3_lab = varargin{4};
+    end
 else
     error ('ERROR: Check the number and type of input arguments')
 end
@@ -250,12 +261,13 @@ if labels
     ms_setvalue('u1label',u1_lab);
     ms_setvalue('u2label',u2_lab);
     ms_setvalue('u3label',u3_lab);
+    label = {u1_lab, u2_lab, u3_lab, 'E'};
 else
     uarr = [[u1(1),u1(2),u1(3)]',[u2(1),u2(2),u2(3)]',[u3(1),u3(2),u3(3)]']; % write explicitly to avoid problem if u1 etc given as column vectors
     if max(max(abs(sort([uarr])-[0,0,0;0,0,0;1,1,1]))) < small
         lis= find(round(uarr));  % find the elements equal to unity
-        tl= {'Q_h','Q_k','Q_l'};
-        label= [tl(lis(1)),tl(lis(2)-3),tl(lis(3)-6)];
+        tl= {'Q_h','Q_k','Q_l','E'};
+        label= [tl(lis(1)),tl(lis(2)-3),tl(lis(3)-6),tl(4)];
     else
         label= {'Q_\zeta','Q_\xi','Q_\eta','E'};
     end
@@ -266,6 +278,7 @@ end
 
 % Read and convert each spe file then write data to binary file 
 for i = 1:nfiles
+    t_start = toc;
     % must do a clever trick to set path for spe file - TGP
     disp(' ')
     disp('--------------------------------------------------------------------------------')
@@ -289,6 +302,7 @@ for i = 1:nfiles
     ms_load_data;
     ms_calc_proj;
     d = fromwindow;
+    disp('Writing data to output file')
     if i==1 & ~append
         % The very first time around generate all the header information.
         data.grid= 'spe';
@@ -301,7 +315,11 @@ for i = 1:nfiles
         data.gamma=ms_getvalue('cc');
         data.u= [[u1,0]',[u2,0]',[u3,0]',[0 0 0 1]'];
         data.ulen= [d.axis_unitlength', 1];
+        data.label= label;
         data.nfiles= nfiles;
+        data.urange=[inf, inf, inf, inf; -inf, -inf, -inf, -inf];   % will update as files are read in
+        ebin = (d.en(end)-d.en(1))/(length(d.en)-1);
+        data.ebin=[ebin,inf,-inf];  % will also update
         write_header(fid,data);
     end
     fwrite(fid, d.efixed, 'float32'); 
@@ -313,44 +331,46 @@ for i = 1:nfiles
     fwrite(fid, d.filename, 'char');
     sized= size(d.v);
     fwrite(fid,sized(1:2), 'int32');
-    ndet = sized(1);
-    ne = sized(2);
+    % Reshape and transpose the data.v array so that it becomes data.v(1:3,:) where each
+    % column corresponds to components along u1, u2, u3 for one pixel.
+    % Do the corresponding reshape and transpose for the signal and error arrays.
     nt= sized(1)*sized(2);
+    fwrite(fid, reshape(d.v, nt, 3)','float32');
     fwrite(fid, d.en, 'float32');
-    % Append energy centre to each pixel coordinate; each row of d.v corresponds to one pixel
-    % and reshape signal, error arrays into rows ro future sorting
-    d.v = [reshape(d.v,nt,3),reshape(repmat(d.en,ndet,1),nt,1)];      
-    d.S = reshape(d.S, 1, nt);
-    d.ERR = reshape(d.ERR, 1, nt).^2;   % calculate variance
-    % Create index of elements to store in a look-up table to make for fast searches
-    nstep = ceil(sqrt(nt));
-    if nstep < nstep_min; nstep = nstep_min; end
-    ind_lookup = 1:nstep:nt;
-    if ind_lookup(end)~=nt; ind_lookup = [ind_lookup,nt]; end     % ensure last element is in look-up table
-    fwrite(fid, length(ind_lookup), 'int32');
-    fwrite(fid, round(ind_lookup), 'int32');                % write look-up table indices - so read routines do not need to know about precise algorithm
-    % Created sorted list and look-up table for each Q dimension
-    for idim=1:3
-        [vsort,ind] = sortrows(d.v,idim);
-        fwrite(fid, vsort(ind_lookup,idim)', 'float32');    % row vector of values of coordinate along axis idim in look-up table
-        fwrite(fid, vsort', 'float32');                     % write so each column of v gives coords of a pixel
-        fwrite(fid, d.S(ind), 'float32');
-        fwrite(fid, d.ERR(ind), 'float32');
+    fwrite(fid, reshape(d.S, 1, nt), 'float32');
+    fwrite(fid, reshape(d.ERR, 1, nt).^2, 'float32');  % store error squared 
+    % Update minimum and maximum extent along the axes:
+    vlo = min(d.vrow,[],2)';
+    vhi = max(d.vrow,[],2)';
+    data.urange(1,:) = min(data.urange(1,:),vlo);
+    data.urange(2,:) = max(data.urange(2,:),vhi);
+    % Update energy bin information
+    ebin = (d.en(end)-d.en(1))/(length(d.en)-1);
+    data.ebin(2) = min(ebin,data.ebin(2));
+    data.ebin(3) = max(ebin,data.ebin(3));
+    % Print some informational messages to the screen
+    t_calc = toc;
+    disp(' ')
+    if i==1
+        disp(['Processed ',num2str(i),' file of ',num2str(nfiles)])
+    else
+        disp(['Processed ',num2str(i),' files of ',num2str(nfiles)])
     end
-    % Now write in order of increasing energy. Data in spe file already in such an order.
-    fwrite(fid, d.v', 'float32');
-    fwrite(fid, d.S, 'float32');
-    fwrite(fid, d.ERR, 'float32');
+    disp(['Time to process this file: ',num2str(t_calc-t_start), ' s'])
 end
 
 % if all the files are correctly appended to the binary file update the
-% header with the total number of spe files. 
-if append
-    fseek(fid, 0, 'bof');       % go to beginning of file
-    write_header(fid,data);     % overwrite header information with the updated header
-end
+% header with the total number of spe files. We do this even if a new file, as
+% we only know the updated range of the data after reading in all the files
+fseek(fid, 0, 'bof');       % go to beginning of file
+write_header(fid,data);     % overwrite header information with the updated header
 
 fclose(fid);
+t_calc= toc;
+disp(' ')
+disp('--------------------------------------------------------------------------------')
+disp(['Total time to process files: ',num2str(t_calc)])
+disp('--------------------------------------------------------------------------------')
 
 %-----------------------------
 catch

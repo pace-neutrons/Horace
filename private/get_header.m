@@ -1,5 +1,6 @@
 function [data, mess] = get_header(fid, data_in)
-% Reads a header structure out from either a binary .spe file or a binary orthogonal grid file.
+% Reads a header structure out from either a binary .spe, file, binary .sqe file
+% or a binary orthogonal grid file.
 %
 % Syntax:
 %   >> [data, mess] = get_header(fid, data_in)
@@ -15,7 +16,7 @@ function [data, mess] = get_header(fid, data_in)
 %   data        Structure containing fields read from file (details below)
 %   mess        Error message; blank if no errors, non-blank otherwise
 %
-% Fields read for both 'spe' or 'orthogonal-grid' data:
+% Fields read for all of 'spe', sqe' or 'orthogonal-grid' data:
 %
 %   data.grid   Type of grid ('spe' or 'orthogonal-grid') [Character string]
 %   data.title  Title contained in the file from which (h,k,l,e) data was read [Character string]
@@ -30,8 +31,10 @@ function [data, mess] = get_header(fid, data_in)
 %   data.ulen   Length of vectors in Ang^-1 or meV [row vector]
 %   data.label  Labels of the projection axes [1x4 cell array of charater strings]
 %
-% If reading a binary spe file:
+% If reading a binary spe or sqe file:
 %   data.nfiles Number of spe files in the binary file
+%   data.urange Range along each of the axes: [u1_lo, u2_lo, u3_lo, u4_lo; u1_hi, u2_hi, u3_hi, u4_hi]
+%   data.ebin   Energy bin width of first, minimum and last spe file: [ebin_first, ebin_min, ebin_max]
 %
 % If a 0D,1D,2D,3D, or 4D data structure:
 %
@@ -76,14 +79,15 @@ end
 [data.u, count, ok, mess] = fread_catch(fid,[4,4],'float32'); if ~all(ok); return; end;
 [data.ulen, count, ok, mess] = fread_catch(fid,[1,4],'float32'); if ~all(ok); return; end;
 
-if strcmp(data.grid,'spe'),
+[n, count, ok, mess] = fread_catch(fid,2,'int32'); if ~all(ok); return; end;
+[label, count, ok, mess] = fread_catch(fid,[n(1),n(2)],'*char'); if ~all(ok); return; end;
+data.label=cellstr(label)';
+
+if strcmp(data.grid,'spe')|strcmp(data.grid,'sqe'),
     [data.nfiles, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-    % p0, pax, iax and uint undefined (data needs to be sliced first)
+    [data.urange, count, ok, mess] = fread_catch(fid,[2,4],'float32'); if ~all(ok); return; end;
+    [data.ebin, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
 else
-    [n, count, ok, mess] = fread_catch(fid,2,'int32'); if ~all(ok); return; end;
-    [label, count, ok, mess] = fread_catch(fid,[n(1),n(2)],'*char'); if ~all(ok); return; end;
-    data.label=cellstr(label)';
-    
     [data.p0, count, ok, mess] = fread_catch(fid,[4,1],'int32'); if ~all(ok); return; end;
     [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     if n>0
@@ -92,7 +96,7 @@ else
         data.pax=[];    % create empty index of plot axes
     end
     if n==4,
-        data.iax=[]; % create empty index of integration array
+        data.iax=[];    % create empty index of integration array
         data.uint=[];
     else
         [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
