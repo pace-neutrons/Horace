@@ -37,7 +37,7 @@ n1= nsym(1);
 n2= nsym(2);
 theta= nsym(3);
 ndim = size(h,1);
-if ndim<=n1 | ndim<=n2 | n1<1 | n2<1 |n1==n2
+if ndim<n1 | ndim<n2 | n1<1 | n2<1 |n1==n2
     error('ERROR using symmetry routine: n1 or n2 not present within h');
 end
 
