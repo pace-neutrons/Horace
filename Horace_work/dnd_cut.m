@@ -136,7 +136,7 @@ for i=1:length(pax_ind)
     pvals_name_out= ['p', num2str(i)];
     dout.(pvals_name_out) = din.(pvals_name_in);
 end
-if length(dout.pax)==1 & size(signal,2)==1
+if length(dout.pax)==1 & size(signal,1)==1  % ensure column vector
     dout.s = signal';
     dout.e = errors';
     dout.n = nbins';

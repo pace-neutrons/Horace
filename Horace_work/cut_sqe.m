@@ -187,7 +187,7 @@ if npax>0
         plims(pax(i),:) = [d.(nam)(1),d.(nam)(end)];
     end
     if length(psize)==1
-        psize = [psize,1];  % make 1xn for case of 1D dataset
+        psize = [psize,1];  % make nx1 for case of 1D dataset
     end
 else
     psize = [1,1];          % case of a scalar integral (zero dimensions)
@@ -236,11 +236,6 @@ end
 fclose(fid);
 if npax==4
     d.n = int16(d.n);
-end
-if npax==1
-    d.s = d.s';
-    d.e = d.e';
-    d.n = d.n';
 end
 d = dnd_create(d);
 

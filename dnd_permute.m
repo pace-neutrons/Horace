@@ -40,7 +40,7 @@ function dout = dnd_permute (din, varargin)
 % Check number, size and type of input arguments
 ndim = length(din.pax);
 
-if nargin==1    % trivial case - no rearrangement, so return
+if nargin==1    % permute by unity
     if ndim>1
         order = [linspace(2,ndim,ndim-1),1];
     else
@@ -62,9 +62,9 @@ if nargin==2
 end
 
 % permute data array
-if sort(order)~=linspace(1,ndim,ndim) % invalid permutation array
+if sort(order)~=linspace(1,1,ndim) % invalid permutation array
     error (['ERROR: New axis order must be a permutation of the integers 1-',num2str(ndim)])
-elseif order==linspace(1,ndim,ndim)   % order is unchanged
+elseif order==linspace(1,1,ndim)   % order is unchanged
     dout = din;
     return
 end

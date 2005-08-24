@@ -49,7 +49,6 @@ function write_header (fid, data)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-
 n=length(data.grid);
 fwrite(fid,n,'int32');
 fwrite(fid,data.grid,'char');

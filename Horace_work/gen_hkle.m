@@ -89,6 +89,10 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
 % Horace v0.1   J. van Duijn, T.G.Perring
 
 tic
+
+% Status of mslice - if this routine opens mslice, then opened_mslice will not be empty
+opened_mslice = [];
+
 % parameter used to check rounding
 small = 1.0e-13;
 
@@ -99,8 +103,8 @@ if isempty(fig),
     disp (' ')
     mslice
     disp (' ')
-    test=findobj('Tag','ms_ControlWindow');
-    if isempty(test),
+    opened_mslice = findobj('Tag','ms_ControlWindow');
+    if isempty(opened_mslice),
         error('ERROR: Unable to start mslice. Please check your mslice setup.');
     end
 end
@@ -241,6 +245,8 @@ else
         error('ERROR: u1, u2, u3 must form a right-handed orthogonal set, not left-handed')
     end
 end  
+disp(' ')
+disp('--------------------------------------------------------------------------------')
 disp ('Projection axes are:')
 disp ([' u1: (',num2str(u1(1)),', ',num2str(u1(2)),', ',num2str(u1(3)),')'])
 disp ([' u2: (',num2str(u2(1)),', ',num2str(u2(2)),', ',num2str(u2(3)),')'])
@@ -342,8 +348,8 @@ for i = 1:nfiles
     fwrite(fid, reshape(d.S, 1, nt), 'float32');
     fwrite(fid, reshape(d.ERR, 1, nt).^2, 'float32');  % store error squared 
     % Update minimum and maximum extent along the axes:
-    vlo = min(d.vrow,[],2)';
-    vhi = max(d.vrow,[],2)';
+    vlo = [min(reshape(d.v, nt, 3),[],1),d.en(1)];
+    vhi = [max(reshape(d.v, nt, 3),[],1),d.en(end)];
     data.urange(1,:) = min(data.urange(1,:),vlo);
     data.urange(2,:) = max(data.urange(2,:),vhi);
     % Update energy bin information
@@ -366,8 +372,15 @@ end
 % we only know the updated range of the data after reading in all the files
 fseek(fid, 0, 'bof');       % go to beginning of file
 write_header(fid,data);     % overwrite header information with the updated header
-
 fclose(fid);
+
+% Close mslice if opened in this function
+if ~isempty(opened_mslice),
+   disp(' ')
+   disp(['Closing MSlice Control Window opened by the function gen_hkle'])
+   delete(opened_mslice);
+end
+
 t_calc= toc;
 disp(' ')
 disp('--------------------------------------------------------------------------------')
@@ -376,6 +389,8 @@ disp('--------------------------------------------------------------------------
 
 %-----------------------------
 catch
-    fclose(fid);
+    if ~isempty(fopen(fid)) % if error occurs after closing the file, don't attempt to close it again!
+        fclose(fid);
+    end
     error(lasterr)
 end

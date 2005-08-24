@@ -1,10 +1,13 @@
 function wout = permute (win, varargin)
-% Permute the order of the plot axes. Syntax the same as the matlab array permute function
+% Permutation of the axes of a 1D dataset is a dummy operation with output
+% equal to input because there is only one axis to permute. This routine
+% provided only for completeness with 2D, 3D,4D dataset functionality.
 %
 % Syntax:
-%   >> wout = permute (win)         % cycle the axes by unity (i.e. equivalent
-%                                     to wout = permute (win, [2,3,1])
-%   >> wout = permute (win, order)  % general permutation
+%   >> wout = permute (win)         % swap the axes (i.e. equivalent
+%                                     to wout = permute (win, [2,1])
+%   >> wout = permute (win, order)  % general permutation. Only valid
+%                                     input is order = 1
 %
 %
 % Input:
@@ -24,11 +27,10 @@ function wout = permute (win, varargin)
 %
 %
 % Example: 
-%   >> wout = permute (win, [3,1,2]) % the current 3rd, 1st and 2nd plot axes 
-%                                    % become the 1st, 2nd and 3rd of the output dataset
-% 
-%   >> wout = permute (win)          % equivalent to wout = permute (win, [2,3,1])
+%   >> wout = permute (win, 1) 
 %                                                           
+%   >> wout = permute (win)
+
 
 % Original author: T.G.Perring
 %

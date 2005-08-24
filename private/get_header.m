@@ -18,7 +18,7 @@ function [data, mess] = get_header(fid, data_in)
 %
 % Fields read for all of 'spe', sqe' or 'orthogonal-grid' data:
 %
-%   data.grid   Type of grid ('spe' or 'orthogonal-grid') [Character string]
+%   data.grid   Type of grid ('spe', 'sqe' or 'orthogonal-grid') [Character string]
 %   data.title  Title contained in the file from which (h,k,l,e) data was read [Character string]
 %   data.a      Lattice parameters (Angstroms)
 %   data.b           "

@@ -2,9 +2,10 @@ function wout = permute (win, varargin)
 % Permute the order of the plot axes. Syntax the same as the matlab array permute function
 %
 % Syntax:
-%   >> wout = permute (win, order)
+%   >> wout = permute (win)         % cycle the axes by unity (i.e. equivalent
+%                                     to wout = permute (win, [2,3,1])
+%   >> wout = permute (win, order)  % general permutation
 %
-%   >> wout = permute (win)         % equivalent to wout = permute (win, [2,3,1])
 %
 % Input:
 % ------

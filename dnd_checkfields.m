@@ -121,7 +121,7 @@ if isstruct(din)
     if ndim>=1
         if ~isa_size(din.p1,'column','double'); mess='ERROR: field ''p1'' must be a column vector of at least 2 numbers'; return; end
         n1 = length(din.p1)-1;
-        data_size = [1,n1]; % size that data arrays must have if to be one-dimensional
+        data_size = [n1,1]; % size that data arrays must have if to be one-dimensional
     end
     if ndim>=2
         if ~isa_size(din.p2,'column','double'); mess='ERROR: field ''p2'' must be a column vector of at least 2 numbers'; return; end

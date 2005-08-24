@@ -1,8 +1,13 @@
 function wout = permute (win, varargin)
-% Syntax:
-%   >> wout = permute (win, order)
+% Permute the order of the plot axes. Syntax the same as the matlab array permute function
 %
-%   >> wout = permute (win)         % equivalent to wout = permute (win, [2,1])
+% Syntax:
+%   >> wout = permute (win)         % swap the axes (i.e. equivalent
+%                                     to wout = permute (win, [2,1])
+%   >> wout = permute (win, order)  % general permutation (present for
+%                                     completeness - only valid cases in 2D are
+%                                     [1,2] - i.e. unchanged - and [2,1])
+%
 %
 % Input:
 % ------

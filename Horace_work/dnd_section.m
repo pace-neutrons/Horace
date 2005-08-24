@@ -92,7 +92,7 @@ end
 
 % Get data arrays:
 % [Inelegant that each case of ndim is considered; would like to have a function independent of ndim.
-%  Could do this with eval, but are there any eficiency penatlies ?]
+%  Could do this with eval, but are there any efficiency penalties ?]
 if ndim==1
     dout.s = din.s(ilo(1):ihi(1));
     dout.e = din.e(ilo(1):ihi(1));

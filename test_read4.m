@@ -24,7 +24,12 @@ if fid<0
 end
 disp('Reading binary file ...');
 
-h=get_header(fid);
+[h,mess]=get_header(fid);
+if ~isempty(mess)
+    fclose(fid)
+    disp(mess)
+    return
+end
 
 % format is (binfil)
 if nargin<=1

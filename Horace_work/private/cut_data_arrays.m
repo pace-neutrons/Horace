@@ -17,9 +17,9 @@ function [s_out, e_out, n_out] = cut_data_arrays (ndims, iax, ilo, ihi, s, e, n)
 
 if ndims==1
     if iax==1
-        s_out = sum(s(ilo:ihi),1);
-        e_out = sum(e(ilo:ihi),1);
-        n_out = sum(n(ilo:ihi),1);
+        s_out = sum(s(ilo:ihi));
+        e_out = sum(e(ilo:ihi));
+        n_out = sum(n(ilo:ihi));
     else
         error ('ERROR: Invalid axis option')
     end
