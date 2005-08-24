@@ -30,6 +30,7 @@ function write_header (fid, data)
 %   data.nfiles Number of spe files in the binary file
 %   data.urange Range along each of the axes: [u1_lo, u2_lo, u3_lo, u4_lo; u1_hi, u2_hi, u3_hi, u4_hi]
 %   data.ebin   Energy bin width of first, minimum and last spe file: [ebin_first, ebin_min, ebin_max]
+%   data.en0    Energy bin centres for the first spe file
 %
 % If a 0D,1D,2D,3D, or 4D data structure:
 %
@@ -72,8 +73,11 @@ fwrite(fid,label,'char');
 
 if strcmp(data.grid,'spe')|strcmp(data.grid,'sqe'),
     fwrite(fid,data.nfiles,'int32');
-    fwrite(fid,data.urange,'float32');
-    fwrite(fid,data.ebin,'float32');
+    fwrite(fid, data.urange, 'float32');
+    fwrite(fid, data.ebin, 'float32');
+    ne = length(data.en0);
+    fwrite(fid, ne, 'int32');
+    fwrite(fid, data.en0, 'float32');
 else  
     fwrite(fid,data.p0,'float32');
     fwrite(fid,length(data.pax),'int32');

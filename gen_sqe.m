@@ -65,6 +65,7 @@ function gen_sqe (msp, data_in_dir, fin, fout, u1, u2, varargin);
 %   data.nfiles Number of spe file data blocks in the remainder of the file
 %   data.urange Range along each of the axes: [u1_lo, u2_lo, u3_lo, u4_lo; u1_hi, u2_hi, u3_hi, u4_hi]
 %   data.ebin   Energy bin width of first, minimum and last spe file: [ebin_first, ebin_min, ebin_max]
+%   data.en0    Energy bin centres for the first spe file
 %
 % For each spe file in succession:
 %   data.ei     Incident energy used for spe file (meV)
@@ -81,7 +82,7 @@ function gen_sqe (msp, data_in_dir, fin, fout, u1, u2, varargin);
 %   data.ERR    Variance vector [row vector]
 %
 
-% Original author: J. van Duijn
+% Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 %
@@ -320,7 +321,8 @@ for i = 1:nfiles
         data.nfiles= nfiles;
         data.urange=[inf, inf, inf, inf; -inf, -inf, -inf, -inf];   % will update as files are read in
         ebin = (d.en(end)-d.en(1))/(length(d.en)-1);
-        data.ebin=[ebin,inf,-inf];  % will also update
+        data.ebin = [ebin,inf,-inf];  % will also update
+        data.en0 = d.en;
         write_header(fid,data);
     end
     fwrite(fid, d.efixed, 'float32'); 

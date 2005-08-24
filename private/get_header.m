@@ -35,6 +35,7 @@ function [data, mess] = get_header(fid, data_in)
 %   data.nfiles Number of spe files in the binary file
 %   data.urange Range along each of the axes: [u1_lo, u2_lo, u3_lo, u4_lo; u1_hi, u2_hi, u3_hi, u4_hi]
 %   data.ebin   Energy bin width of first, minimum and last spe file: [ebin_first, ebin_min, ebin_max]
+%   data.en0    Energy bin centres for the first spe file
 %
 % If a 0D,1D,2D,3D, or 4D data structure:
 %
@@ -87,6 +88,8 @@ if strcmp(data.grid,'spe')|strcmp(data.grid,'sqe'),
     [data.nfiles, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     [data.urange, count, ok, mess] = fread_catch(fid,[2,4],'float32'); if ~all(ok); return; end;
     [data.ebin, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
+    [ne, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+    [data.en0,count,ok,mess] = fread_catch(fid, [1,ne], 'float32'); if ~all(ok); return; end;
 else
     [data.p0, count, ok, mess] = fread_catch(fid,[4,1],'int32'); if ~all(ok); return; end;
     [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;

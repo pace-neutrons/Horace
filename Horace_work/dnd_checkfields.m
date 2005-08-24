@@ -119,22 +119,22 @@ if isstruct(din)
         data_size = [1,1];  % size that data arrays must have if to be zero-dimensional
     end
     if ndim>=1
-        if ~isa_size(din.p1,'column','double'); mess='ERROR: field ''p1'' must be a column vector of at least 2 number'; return; end
+        if ~isa_size(din.p1,'column','double'); mess='ERROR: field ''p1'' must be a column vector of at least 2 numbers'; return; end
         n1 = length(din.p1)-1;
         data_size = [1,n1]; % size that data arrays must have if to be one-dimensional
     end
     if ndim>=2
-        if ~isa_size(din.p2,'column','double'); mess='ERROR: field ''p2'' must be a column vector of at least 2 number'; return; end
+        if ~isa_size(din.p2,'column','double'); mess='ERROR: field ''p2'' must be a column vector of at least 2 numbers'; return; end
         n2 = length(din.p2)-1;
         data_size = [n1,n2]; % size that data arrays must have if to be two-dimensional
     end
     if ndim>=3
-        if ~isa_size(din.p3,'column','double'); mess='ERROR: field ''p3'' must be a column vector of at least 2 number'; return; end
+        if ~isa_size(din.p3,'column','double'); mess='ERROR: field ''p3'' must be a column vector of at least 2 numbers'; return; end
         n3 = length(din.p3)-1;
         data_size = [n1,n2,n3]; % size that data arrays must have if to be three-dimensional
     end
     if ndim>=4
-        if ~isa_size(din.p4,'column','double'); mess='ERROR: field ''p4'' must be a column vector of at least 2 number'; return; end
+        if ~isa_size(din.p4,'column','double'); mess='ERROR: field ''p4'' must be a column vector of at least 2 numbers'; return; end
         n4 = length(din.p4)-1;
         data_size = [n1,n2,n3,n4]; % size that data arrays must have if to be four-dimensional
     end

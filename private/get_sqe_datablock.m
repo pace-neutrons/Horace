@@ -1,10 +1,12 @@
-function [data, mess, lis] = get_sqe_datablock (fid, arg1, arg2, arg3, arg4, arg5)
+function [data, mess, lis] = get_sqe_datablock (fid, arg1, arg2)
 %  Read the a block of data corresponding to one .spe file from a binary file created
 % by gen_hkle.
 %
 % Syntax:
-%   >> [data,mess] = get_spe_datablock (fid)            % read to new data structure
-%   >> [data,mess] = get_spe_datablock (fid, data_in)   % append to existing data structure
+%   >> [data,mess] = get_sqe_datablock (fid)                % read to new data structure
+%   >> [data,mess] = get_sqe_datablock (fid, axis)          % ...with control over read range
+%   >> [data,mess] = get_sqe_datablock (fid, data_in)       % append to existing data structure
+%   >> [data,mess] = get_sqe_datablock (fid, data_in, axis) % ...with control over read range
 %
 % Input:
 % ------
@@ -17,7 +19,8 @@ function [data, mess, lis] = get_sqe_datablock (fid, arg1, arg2, arg3, arg4, arg
 %              axis = [iax, v_lo, v_hi]  As above, where only a subset of the data
 %                          is returned which is guaranteed to contain all pixels
 %                          with component along axis iax in the range v_lo to v_hi
-%                          [Note: there may additional pixels as well]
+%                          [Note: there may additional pixels as well;
+%                                 either or both of v_lo, v_hi can be infinite]
 %              axis = 4x2 marix of values of limits along each of the four axes
 %                   [vlo(1), vhi(1); vlo(2), vhi(2); vhi(3), vhi(3), vhi(4), vhi(4)]
 %
@@ -53,7 +56,7 @@ if nargin==2 && isstruct(arg1)
     data = arg1;
 elseif nargin==2 && (isa_size(arg1,[1,1],'double') | isa_size(arg1,[1,3],'double') | isa_size(arg1,[4,2],'double'))
     axis = arg1;
-elseif nargin==3 && isstruct(arg1) && (isa_size(arg2,[1,1],'double') | isa_size(arg2,[1,3],'double') | isa_size(arg1,[4,2],'double'))
+elseif nargin==3 && isstruct(arg1) && (isa_size(arg2,[1,1],'double') | isa_size(arg2,[1,3],'double') | isa_size(arg2,[4,2],'double'))
     data = arg1;
     axis = arg2;
 elseif nargin~=1
@@ -126,7 +129,7 @@ if ~exist('iax','var')    % haven't yet worked out which axis to read - will dep
         ihi(4) = nan;
     end
     ndat = ihi-ilo+1;
-    if all(isfinite(ndat))
+    if all(isfinite(ndat))  % there is data in the ranges for all axes
         [ndat_min, iax] = min(ndat);
         % Goto start of block of data for axis iax:
         ok = fseek (fid, 4*((iax-1)*6*nt), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end

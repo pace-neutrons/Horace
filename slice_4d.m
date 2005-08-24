@@ -160,7 +160,6 @@ end
 
 fid= fopen(binfil, 'r');    % open spebin file
 if fid<0; error (['ERROR: Unable to open file ',binfil]); end
-disp('Reading binary file header ...');
 
 [h_main,mess] = get_header(fid);   % get the main header information
 if ~isempty(mess); fclose(fid); error(mess); end
