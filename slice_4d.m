@@ -1,5 +1,5 @@
 function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
-% Reads a binary spe file and creates a 4D data set from it.
+% Reads a binary spe *OR* binary sqe file and creates a 4D data set from it.
 %
 % Symmetry operations can optionally be performed. These operate in the
 % coordinate frame in which the spe file pixels are expressed, NOT the
@@ -164,7 +164,7 @@ if fid<0; error (['ERROR: Unable to open file ',binfil]); end
 [h_main,mess] = get_header(fid);   % get the main header information
 if ~isempty(mess); fclose(fid); error(mess); end
 if isfield(h_main,'grid')
-    if ~strcmp(h_main.grid,'spe')
+    if ~(strcmp(h_main.grid,'spe')|strcmp(h_main.grid,'sqe'))
         fclose(fid);
         error ('ERROR: The function slice_4d only reads binary spe data ');
     end
@@ -187,7 +187,12 @@ p0n= rlu_to_ustep*p0(1:3)';
 for iblock = 1:h_main.nfiles,
     disp(['reading spe block no.: ' num2str(iblock)]);
 % tic
-    [h,mess] = get_spe_datablock(fid); % read in spe block
+    if strcmp(h_main.grid,'spe')
+        [h,mess] = get_spe_datablock(fid); % read in spe block
+    elseif strcmp(h_main.grid,'sqe')
+        [h,mess] = get_sqe_datablock(fid); % read in sqe block
+        h.v = h.v(1:3,:);
+    end
 % readtime(iblock)=toc;
 % disp(['   reading spe file: ',num2str(readtime(iblock))])
     if ~isempty(mess); fclose(fid); error(mess); end

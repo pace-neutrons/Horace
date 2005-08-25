@@ -31,34 +31,17 @@ if ~isempty(mess)
     return
 end
 
-% format is (binfil)
-if nargin<=1
-    fclose(fid);
-    data = h;
-    return
-end
-
 % Do some processing
 nfiles = h.nfiles;
 
 tic;
 data = cell(nfiles,1);
 
-if nargin==4
-    % format is (binfil,iax,vlo,vhi):
-    for i=1:nfiles
-        [data{i},mess,lis]=get_sqe_datablock(fid,[iax,vlo,vhi]);
-        data{i}.lis = lis;
+
+    for i=1:4
+       [dd,m]=get_sqe_datablock(fid);
+       dd
     end
-elseif nargin==2
-    % format is (binfil,axis):
-    for i=1:nfiles
-        [data{i},mess,lis]=get_sqe_datablock(fid,iax);
-        data{i}.lis = lis;
-    end
-else
-    disp('problem')
-end
 
 fclose(fid);
 toc

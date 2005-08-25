@@ -1,6 +1,7 @@
 function d = slice_3d (h, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
-% Reads a binary spe file *OR* binary 4D dataset file *OR* 4D dataset structure
-% and creates a 3D data set by integrating over one of the momentum or energy axes.
+% Reads a binary spe file *OR* binary sqe file *OR* binary 4D dataset file
+% *OR* 4D dataset structure and creates a 3D data set by integrating over one
+% of the momentum or energy axes.
 % 
 % If the input data is a binary spe file, symmetry operations can optionally
 % be performed. These operate in the coordinate frame in which the spe file
@@ -191,7 +192,7 @@ if isa_size(h,'row','char') && (exist(h,'file') &  ~exist(h,'dir'))  % data_sour
     [h,mess] = get_header(fid);    % get the main header information
     if ~isempty(mess); fclose(fid); error(mess); end
     if isfield(h,'grid')
-        if ~(strcmp(h.grid,'spe')|strcmp(h.grid,'orthogonal-grid'))
+        if ~(strcmp(h.grid,'spe')|strcmp(h.grid,'sqe')|strcmp(h.grid,'orthogonal-grid'))
             fclose(fid);
             error ('ERROR: The function slice_3d only reads binary spe or binary orthogonal-grid data ');
         end
@@ -241,7 +242,7 @@ proj_to_ustep = rlu_to_ustep*h.u(1:3,1:3);  % coords of input data in different 
 p0n= rlu_to_ustep*p0(1:3)';
 
 % if 4d dataset, convert current p0 to the equivalent vector in the new orthogonal set given by u_to_rlu
-if ~strcmp(h.grid,'spe')
+if ~(strcmp(h.grid,'spe')|strcmp(h.grid,'sqe'))
     p0old= rlu_to_ustep*h.p0(1:3);
 end
 
@@ -285,15 +286,21 @@ d.uint = [centre-thick/2; centre+thick/2];
 
 %--------------------------------------------------------------------------------------------------------
 
-if strcmp(h.grid,'spe')    % Binary file consists of block spe data
-    % Save h.ulen - will be needed if one wants to symmetrise the data.
+if strcmp(h.grid,'spe')|strcmp(h.grid,'sqe')    % Binary file consists of block spe data
+    % Save h.ulen and other info from header before we overwrite variable
+    saved_grid = h.grid;
     saved_ulen = h.ulen;
     saved_nfiles = h.nfiles;
     disp('Reading spe files from binary file ...');
     for iblock = 1:h.nfiles,
         disp(['reading spe block no.: ',num2str(iblock),' of ',num2str(saved_nfiles)]);
 % tic;
-        [h,mess] = get_spe_datablock(fid); % read in spe block
+        if strcmp(saved_grid,'spe')
+            [h,mess] = get_spe_datablock(fid); % read in spe block
+        elseif strcmp(saved_grid,'sqe')
+            [h,mess] = get_sqe_datablock(fid); % read in sqe block
+            h.v = h.v(1:3,:);
+        end
 % readtime(iblock)=toc;
 % disp(['   reading spe file: ',num2str(readtime(iblock))])
         if ~isempty(mess); fclose(fid); error(mess); end

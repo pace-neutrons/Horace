@@ -53,22 +53,26 @@ if strcmp(d.grid,'spe')||strcmp(d.grid,'sqe')
     disp(['     Number of spe files: ',num2str(d.nfiles)])
     disp(' ')
     disp( '     Range of data (pixel centres):')
+    ch_lab = char(d.label);
     ch_lo = cell(1,4);
     ch_hi = cell(1,4);
     for i=1:4
         ch_lo{i} = num2str(d.urange(1,i));
         ch_hi{i} = num2str(d.urange(2,i));
     end
-    ch_lab = char(d.label);
     ch_lo = char(ch_lo);
     ch_hi = char(ch_hi);
     for i=1:4
         disp(['         ',ch_lab(i,:),':  ',ch_lo(i,:),'  to  ',ch_hi(i,:)])
     end
     disp(' ')
-    disp( '     Energy bins of first .spe file:')
+    disp( '     Energy bin centres of first .spe file:')
     nbin = round((d.en0(end)-d.en0(1))/d.ebin(1))+1;
     disp(['         ',num2str(d.en0(1)),' (',num2str(d.ebin(1)),') ',num2str(d.en0(end)),' meV   [',num2str(nbin),' bins]'])
+    disp(' ')
+    disp( '     Energy bin boundaries of first .spe file:')
+    nbin = round((d.en0(end)-d.en0(1))/d.ebin(1))+1;
+    disp(['         ',num2str(d.en0(1)-d.ebin(1)/2),' (',num2str(d.ebin(1)),') ',num2str(d.en0(end)+d.ebin(1)/2),' meV   [',num2str(nbin),' bins]'])
     disp(' ')
     if d.ebin(2)~=d.ebin(3)
         disp([' WARNING: Minimum energy bin size less than maximum:  min.= ',num2str(d.ebin(2)),';  max.= ',num2str(d.ebin(3))])
