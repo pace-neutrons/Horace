@@ -52,19 +52,35 @@ if strcmp(d.grid,'spe')||strcmp(d.grid,'sqe')
     disp( ' Extent of data: ')
     disp(['     Number of spe files: ',num2str(d.nfiles)])
     disp(' ')
-    disp( '     Range of data (pixel centres):')
+    disp( '     Projection axes and range of data (pixel centres):')
     ch_lab = char(d.label);
-    ch_lo = cell(1,4);
-    ch_hi = cell(1,4);
+    ch_ulo = cell(1,4);
+    ch_uhi = cell(1,4);
     for i=1:4
-        ch_lo{i} = num2str(d.urange(1,i));
-        ch_hi{i} = num2str(d.urange(2,i));
+        ch_ulo{i} = num2str(d.urange(1,i));
+        ch_uhi{i} = num2str(d.urange(2,i));
     end
-    ch_lo = char(ch_lo);
-    ch_hi = char(ch_hi);
-    for i=1:4
-        disp(['         ',ch_lab(i,:),':  ',ch_lo(i,:),'  to  ',ch_hi(i,:)])
+    ch_uh = cell(1,3);
+    ch_uk = cell(1,3);
+    ch_ul = cell(1,3);
+    for i=1:3
+        ch_uh{i} = num2str(d.u(i,1));
+        ch_uk{i} = num2str(d.u(i,2));
+        ch_ul{i} = num2str(d.u(i,3));
     end
+    ch_ulo = char(ch_ulo);
+    ch_uhi = char(ch_uhi);
+    ch_uh = char(ch_uh);
+    ch_uk = char(ch_uk);
+    ch_ul = char(ch_ul);
+%     for i=1:3
+%         disp(['         ',ch_lab(i,:),' :  ',ch_ulo(i,:),'  to  ',ch_uhi(i,:),'  along (',ch_uh(i,:),', ',ch_uk(i,:),', ',ch_ul(i,:),')'])
+%     end
+    disp(['         ',ch_lab(1,:),' :    ',ch_ulo(1,:),'  to  ',ch_uhi(1,:),'  along (',ch_uh(1,:),', ',ch_uk(1,:),', ',ch_ul(1,:),')'])
+    disp(['         ',ch_lab(2,:),' :    ',ch_ulo(2,:),'  "   ',ch_uhi(2,:),'    "   (',ch_uh(2,:),', ',ch_uk(2,:),', ',ch_ul(2,:),')'])
+    disp(['         ',ch_lab(3,:),' :    ',ch_ulo(3,:),'  "   ',ch_uhi(3,:),'    "   (',ch_uh(3,:),', ',ch_uk(3,:),', ',ch_ul(3,:),')'])
+    disp(['         ',ch_lab(4,:),' :    ',ch_ulo(4,:),'  "   ',ch_uhi(4,:),'  meV'])
+    
     disp(' ')
     disp( '     Energy bin centres of first .spe file:')
     nbin = round((d.en0(end)-d.en0(1))/d.ebin(1))+1;
