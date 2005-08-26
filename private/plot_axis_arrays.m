@@ -64,48 +64,44 @@ else
 end
 
 if npax>0
-    % if any of the limits is infinite, then use the value given by the extent of the data
-    plims = vlims;
-    plims(~isfinite(vlims)) = data_range(~isfinite(vlims));
-    plims = plims(:,pax(1:npax));
     d.pstep = vstep(pax(1:npax));
     for i=1:npax
         iax = pax(i);
         nam = ['p',num2str(i)];
-        if plims(2,i)<plims(1,i)
-            d = [];
-            mess = ['No data within data range on axis ',num2str(iax),' - check limits'];
-            return
-        end
-        if iax<4 | (iax==4 & d.pstep(i)>ebin0)  % treat energy axis like other axes if provided with energy bin greater than default
-            d.(nam) = plims(1,i):d.pstep(i):plims(2,i);
+        if iax<4 | (iax==4 & vstep(iax)>ebin0)  % treat energy axis like other axes if provided with energy bin greater than default
+            if isfinite(vlims(:,iax))==[0;0]
+                plo = vstep(iax)*floor(data_range(1,iax)/vstep(iax));
+                phi = vstep(iax)*ceil(data_range(2,iax)/vstep(iax));
+            elseif isfinite(vlims(:,iax))==[1;0]
+                plo = vlims(1,iax);
+                phi = plo + vstep(iax)*ceil((data_range(2,iax)-plo)/vstep(iax));
+            elseif isfinite(vlims(:,iax))==[0;1]
+                phi = vlims(2,iax);
+                plo = phi + vstep(iax)*floor((data_range(1,iax)-phi)/vstep(iax));
+            else
+                plo = vlims(1,iax);
+                phi = plo + vstep(iax)*ceil((vlims(2,iax)-plo)/vstep(iax));
+            end
+            d.(nam) = plo:vstep(iax):phi;
         else
-            if vlims(:,4)==[-inf;inf]
-                d.pstep(i) = ebin0;
+            d.pstep(i) = ebin0;
+            if isfinite(vlims(:,iax))==[0;0]
                 d.(nam) = en0;
             else
-                d.pstep(i) = ebin0;
-                d.(nam) = ebin0*ceil((plims(1,i)-en0(1))/ebin0)+en0(1):d.pstep(i):plims(2,i);   % tweak limits to ensure boundaries communsurate with en0
-                if length(d.(nam))==0; 
-                    d = []; 
-                    mess = ['No data within data range on energy axis - check limits']; 
-                    return; 
-                end
+                plo = ebin0*floor((max(vlims(1,iax),data_range(1,iax))-en0(1))/ebin0)+en0(1);
+                phi = ebin0*ceil((min(vlims(2,iax),data_range(2,iax))-en0(1))/ebin0)+en0(1);
+                d.(nam) = plo:ebin0:phi;    % tweak limits to ensure boundaries communsurate with en0
             end
         end
-        % error conditions have caught cases when had infinite or semi-infinite limits, or where
-        % on energy axis tweaking to commensurate bins, caused data to lie outside the data range.
-        % Now catch case of out-of-range finite limits:
-        if (d.(nam)(1)-0.5*d.pstep(i) > data_range(2,iax)) | (d.(nam)(end)+0.5*d.pstep(i) < data_range(1,iax))
-            d = [];
+        % Catch case of no data within limits:
+        if length(d.(nam))==0 || ((d.(nam)(1)-0.5*vstep(iax) > data_range(2,iax)) | (d.(nam)(end)+0.5*vstep(iax) < data_range(1,iax)))  
+            d = []; 
             mess = ['No data within data range on axis ',num2str(iax),' - check limits'];
-            return
-        end            
+            return; 
+        end
     end
 elseif npax==0
     d = [];
     mess = 'No plot axes given'; 
     return;
 end
-
-

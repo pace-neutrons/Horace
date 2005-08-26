@@ -130,7 +130,8 @@ if ~exist('iax','var')    % haven't yet worked out which axis to read - will dep
     end
     ndat = ihi-ilo+1;
     if all(isfinite(ndat))  % there is data in the ranges for all axes
-        [ndat_min, iax] = min(ndat);
+        [ndat_sort, iaxarr] = sort(ndat);
+        iax = iaxarr(1);   % axis which requires shortest read
         % Goto start of block of data for axis iax:
         ok = fseek (fid, 4*((iax-1)*6*nt), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
         ilo = ilo(iax);
@@ -143,8 +144,20 @@ if ~exist('iax','var')    % haven't yet worked out which axis to read - will dep
         [data.ERR,count,ok,mess] = fread_catch(fid, [1,(ihi-ilo+1)], 'float32'); if ~all(ok); return; end;
         ok = fseek (fid, 4*((nt-ihi)+(4-iax)*6*nt), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
         if nargout==3   % asked for list of pixels strictly in the requested range
+%-------------------------------------------------------------
+% Alternative code to this line follows:
             lis = find( data.v(1,:)>=vlo(1) & data.v(1,:)<=vhi(1) & data.v(2,:)>=vlo(2) & data.v(2,:)<=vhi(2) & ...
                         data.v(3,:)>=vlo(3) & data.v(3,:)<=vhi(3) & data.v(4,:)>=vlo(4) & data.v(4,:)<=vhi(4)  );
+%-------------------------------------------------------------
+% Entirely equivalent code - but is no faster or even slower in practice
+%             % Find exact index limits along read axis, and 
+%             imin = lower_index(data.v(iaxarr(1),:),vlo(iaxarr(1)));
+%             imax = upper_index(data.v(iaxarr(1),:),vhi(iaxarr(1)));
+%             lis = imin:1:imax;
+%             lis = lis(find(data.v(iaxarr(2),lis)>=vlo(iaxarr(2)) & data.v(iaxarr(2),lis)<=vhi(iaxarr(2))));
+%             lis = lis(find(data.v(iaxarr(3),lis)>=vlo(iaxarr(3)) & data.v(iaxarr(3),lis)<=vhi(iaxarr(3))));
+%             lis = lis(find(data.v(iaxarr(4),lis)>=vlo(iaxarr(4)) & data.v(iaxarr(4),lis)<=vhi(iaxarr(4))));
+%-------------------------------------------------------------
         end
     else    % one or more of the axes ranges contains no data
         % Goto the end of the data block for this dataset
