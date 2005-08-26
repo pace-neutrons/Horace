@@ -151,6 +151,8 @@ pax = pax(1:npax);
 iax = iax(1:niax);
 if npax>0
     d.pax = pax;
+else
+    d.pax = [];
 end
 if niax>0
     d.iax = iax;
@@ -162,6 +164,9 @@ if niax>0
         error(['ERROR: Integration range for axis ',num2str(out_of_range(1)),' lies outside range of data'])
         return
     end
+else
+    d.iax = [];
+    d.uint = [];
 end
 
 % Now create p1,p2... arrays for output dataset, and create arrays pstep, pbeg, plims for reading data and acuumulating
