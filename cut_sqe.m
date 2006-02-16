@@ -224,7 +224,7 @@ for ifile=1:h.nfiles
         d.n = d.n + accumarray(data.v(pax,:)', ones(1,length(data.S)), psize);
     else
         d.s = d.s + sum(data.S);
-        d.s = d.e + sum(data.ERR);
+        d.e = d.e + sum(data.ERR);
         d.n = d.n + length(data.S);
     end
     % print message if more than two seconds since last update
