@@ -19,5 +19,9 @@ function c = hat(width)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-c = ones(max(1,2*floor(width/2)+1));
+if length(width)==1
+    c = ones([max(1,2*floor(width/2)+1),1]);
+else
+    c = ones(max(1,2*floor(width/2)+1));
+end
 c = c/sum(reshape(c,1,prod(size(c))));

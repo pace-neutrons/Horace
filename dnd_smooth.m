@@ -73,7 +73,7 @@ if nargs>=1
     if nargs==1
         shape = shape_default;
     else
-        shape = args{2}
+        shape = args{2};
     end
 end
 
@@ -107,10 +107,13 @@ err = din.e ./ double((din.n.^2));
 index = din.n~=0;   % elements with non-zero counts
 signal(~index) = 0; % in principle not needed,as signal should be zero, but apply in case dataset constructed badly
 err(~index) = 0;    % likewise
+c
+signal
+
 
 weight = convn(double(index),c,'same');     % weight function including only points where there is data
 signal = convn(signal,c,'same')./weight;    % points with no data (i.e. signal = 0) do not contribute to convolution
-err = convn(err,c,'same')./weight;
+err = convn(err,c.^2,'same')./(weight.^2);
 
 warning(m.state,'MATLAB:divideByZero');     % return to previous divide by zero message state
 

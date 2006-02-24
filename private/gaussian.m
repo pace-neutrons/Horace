@@ -36,8 +36,6 @@ for i=1:length(width)
         c = c.*g;                        % perform the multiplication
     end
 end
-if length(width)>1
-    c = reshape(c,2*n+1);   % turn into matrix with the correct extent along each dimension, if necessary
-end
+c = reshape(c,2*[n,0]+1);   % turn into matrix with the correct extent along each dimension, if necessary
 c(find(c<f))=0;         % elements less than f set to zero - will not contribute to convolution
 c = c/sum(reshape(c,1,prod(size(c))));  % normalise so sum of elements is unity
