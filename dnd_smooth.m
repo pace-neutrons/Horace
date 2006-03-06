@@ -107,8 +107,6 @@ err = din.e ./ double((din.n.^2));
 index = din.n~=0;   % elements with non-zero counts
 signal(~index) = 0; % in principle not needed,as signal should be zero, but apply in case dataset constructed badly
 err(~index) = 0;    % likewise
-c
-signal
 
 
 weight = convn(double(index),c,'same');     % weight function including only points where there is data
