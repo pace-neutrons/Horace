@@ -1,4 +1,4 @@
-function [data, mess, lis] = get_sqe_datablock (fid, arg1, arg2)
+function [data, mess, lis, info] = get_sqe_datablock (fid, arg1, arg2)
 %  Read the a block of data corresponding to one .spe file from a binary file created
 % by gen_hkle.
 %
@@ -51,6 +51,9 @@ function [data, mess, lis] = get_sqe_datablock (fid, arg1, arg2)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
+                info.t_read = 0;
+                info.t_lis  = 0;
+                
 % Check type of input arguments
 if nargin==2 && isstruct(arg1)
     data = arg1;
@@ -136,6 +139,7 @@ if ~exist('iax','var')    % haven't yet worked out which axis to read - will dep
         ok = fseek (fid, 4*((iax-1)*6*nt), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
         ilo = ilo(iax);
         ihi = ihi(iax);
+                t_ref = toc;
         ok = fseek (fid, 4*(4*(ilo-1)), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
         [data.v,count,ok,mess] = fread_catch(fid, [4,(ihi-ilo+1)], 'float32'); if ~all(ok); return; end;
         ok = fseek (fid, 4*(4*(nt-ihi)+ilo-1), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
@@ -143,11 +147,14 @@ if ~exist('iax','var')    % haven't yet worked out which axis to read - will dep
         ok = fseek (fid, 4*((nt-ihi)+ilo-1), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
         [data.ERR,count,ok,mess] = fread_catch(fid, [1,(ihi-ilo+1)], 'float32'); if ~all(ok); return; end;
         ok = fseek (fid, 4*((nt-ihi)+(4-iax)*6*nt), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
-        if nargout==3   % asked for list of pixels strictly in the requested range
+                info.t_read = toc - t_ref;
+        if nargout>=3   % asked for list of pixels strictly in the requested range
 %-------------------------------------------------------------
 % Alternative code to this line follows:
+                t_ref = toc;
             lis = find( data.v(1,:)>=vlo(1) & data.v(1,:)<=vhi(1) & data.v(2,:)>=vlo(2) & data.v(2,:)<=vhi(2) & ...
                         data.v(3,:)>=vlo(3) & data.v(3,:)<=vhi(3) & data.v(4,:)>=vlo(4) & data.v(4,:)<=vhi(4)  );
+                info.t_lis = toc - t_ref;
 %-------------------------------------------------------------
 % Entirely equivalent code - but is no faster or even slower in practice
 %             % Find exact index limits along read axis, and 
@@ -165,7 +172,7 @@ if ~exist('iax','var')    % haven't yet worked out which axis to read - will dep
         data.v = [];
         data.S = [];
         data.ERR = [];
-        if nargout==3; lis = []; end
+        if nargout>=3; lis = []; end
     end
            
 elseif iax<4
@@ -190,14 +197,14 @@ elseif iax<4
         ok = fseek (fid, 4*((nt-ihi)+ilo-1), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
         [data.ERR,count,ok,mess] = fread_catch(fid, [1,(ihi-ilo+1)], 'float32'); if ~all(ok); return; end;
         ok = fseek (fid, 4*((nt-ihi)+(4-iax)*6*nt), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
-        if nargout==3   % asked for list of pixels strictly in the requested range
+        if nargout>=3   % asked for list of pixels strictly in the requested range
             lis = find( data.v(iax,:)>=vlo & data.v(iax,:)<=vhi);
         end
     else
         data.v = [];
         data.S = [];
         data.ERR = [];
-        if nargout==3; lis = []; end
+        if nargout>=3; lis = []; end
         ok = fseek (fid, 4*((5-iax)*6*nt), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
     end
     
@@ -224,7 +231,7 @@ elseif iax==4
         data.v = [];
         data.S = [];
         data.ERR = [];
-        if nargout==3; lis = []; end
+        if nargout>=3; lis = []; end
         ok = fseek (fid, 4*(6*nt), 'cof'); if ok~=0; mess = 'Unable to jump to required location in file'; return; end
     end
 end
