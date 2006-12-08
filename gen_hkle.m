@@ -23,9 +23,10 @@ function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
 %
 % Input:
 % ------
-%   msp         Mslice parameter file. Must have correct .phx file, scattering
-%               plane etc. The only information that will be over-written is
-%               the .spe file, psi, projection axes.
+%   msp         Mslice parameter file (including path if not in current
+%               directory). Must have correct .phx file, scattering
+%               plane etc. The only information that will be over-written 
+%               by this function is the .spe file, psi and projection axes.
 %
 %   data_in_dir Path to the spe file names given in the file fin below.
 %               - This path overrides any path given as part of the file names in fin
@@ -168,7 +169,23 @@ try
 catch
     error (['ERROR: Check contents and format of spe file information file',fin])
 end
+
 nfiles = length(psi);
+if nfiles<1
+    error(['ERROR: No spe file information found in information file ',fin])
+end
+% Check that the files exist
+for i=1:nfiles
+    if ~isempty(data_in_dir)    %override paths to spe files
+        [spe_path,spe_file,spe_ext,spe_ver] = fileparts(fnames{i});
+        fname_true=fullfile(data_in_dir,[spe_file,spe_ext,spe_ver])
+    else
+        fname_true=fnames{i}
+    end
+    if exist(fname_true,'file')~=2
+        error(['ERROR: File ',fname_true,' not found on path'])
+    end
+end
 
 % Determine if binary file already exists
 if exist(fout,'file')

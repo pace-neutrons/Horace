@@ -23,9 +23,10 @@ function gen_sqe (msp, data_in_dir, fin, fout, u1, u2, varargin);
 %
 % Input:
 % ------
-%   msp         Mslice parameter file. Must have correct .phx file, scattering
-%               plane etc. The only information that will be over-written is
-%               the .spe file, psi, projection axes.
+%   msp         Mslice parameter file (including path if not in current
+%               directory). Must have correct .phx file, scattering
+%               plane etc. The only information that will be over-written 
+%               by this function is the .spe file, psi and projection axes.
 %
 %   data_in_dir Path to the spe file names given in the file fin below.
 %               - This path overrides any path given as part of the file names in fin
@@ -97,19 +98,6 @@ opened_mslice = [];
 small = 1.0e-13;
 nstep_min = 100;
 
-% Determine if mslice is running, and try to open if it is not
-fig=findobj('Tag','ms_ControlWindow');
-if isempty(fig),
-    disp('Mslice control window not active. Starting mslice...');
-    disp (' ')
-    mslice
-    disp (' ')
-    opened_mslice = findobj('Tag','ms_ControlWindow');
-    if isempty(opened_mslice),
-        error('ERROR: Unable to start mslice. Please check your mslice setup.');
-    end
-end
-
 % Determine if u3 and labels are present:
 if nargin==6|nargin==7
     labels = 0;
@@ -163,13 +151,29 @@ if labels
     end
 end
 
-% Read input spe file information (*** should check that all data files exist at this point)
+% Read input spe file information
 try
-    [psi,fnames] = textread(fin,'%f %s');  
+    [psi,fnames] = textread(fin,'%f %s')    
 catch
-    error (['ERROR: Check contents and format of spe file information file',fin])
+    error (['ERROR: Check contents and format of spe file information file ',fin])
 end
+
 nfiles = length(psi);
+if nfiles<1
+    error(['ERROR: No spe file information found in information file ',fin])
+end
+% Check that the files exist
+for i=1:nfiles
+    if ~isempty(data_in_dir)    %override paths to spe files
+        [spe_path,spe_file,spe_ext,spe_ver] = fileparts(fnames{i});
+        fname_true=fullfile(data_in_dir,[spe_file,spe_ext,spe_ver])
+    else
+        fname_true=fnames{i}
+    end
+    if exist(fname_true,'file')~=2
+        error(['ERROR: File ',fname_true,' not found on path'])
+    end
+end
 
 % Determine if binary file already exists
 if exist(fout,'file')
@@ -209,6 +213,19 @@ end
 
 %-----------------------------
 try     % have a catch to intercept the case of an error to allow us to close the file
+
+% Determine if mslice is running, and try to open if it is not
+fig=findobj('Tag','ms_ControlWindow');
+if isempty(fig),
+    disp('Mslice control window not active. Starting mslice...');
+    disp (' ')
+    mslice
+    disp (' ')
+    opened_mslice = findobj('Tag','ms_ControlWindow');
+    if isempty(opened_mslice),
+        error('ERROR: Unable to start mslice. Please check your mslice setup.');
+    end
+end
     
 % Set up Q-space viewing axes
 ms_load_msp(msp);
