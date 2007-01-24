@@ -213,13 +213,13 @@ summary.n_read = 0;
 summary.n_kept = 0;
 for ifile=1:h.nfiles
     [data, mess, lis, info] = get_sqe_datablock (fid, plims);
+    if ~isempty(mess); fclose(fid); error(mess); end
     summary.t_get_sqe_datablock = summary.t_get_sqe_datablock + info.t_read;
     summary.t_get_sqe_lis = summary.t_get_sqe_lis + info.t_lis;
     summary.n_total = summary.n_total + prod(data.size);
     summary.n_read = summary.n_read + length(data.S);
     summary.n_kept = summary.n_kept + length(lis);
-    disp([num2str(prod(data.size)),'   ',num2str(length(data.S)),'   ',num2str(length(lis)),'   '])
-    if ~isempty(mess); fclose(fid); error(mess); end
+%    disp([num2str(prod(data.size)),'   ',num2str(length(data.S)),'   ',num2str(length(lis)),'   '])
     if isempty(lis)
         continue    % no data in requested range, so move to next iteration of the for loop
     end
@@ -258,6 +258,7 @@ d = dnd_create(d);
 % Print time to perform projection
 t_total = toc;
 disp(' ')
+disp('--------------------------------------------------------------------------------')
 disp(['Total time to compute dataset: ',num2str(t_total),' s'])
 disp(['      Total time reading data: ',num2str(summary.t_get_sqe_datablock),' s'])
 disp(['   Total time to find listing: ',num2str(summary.t_get_sqe_lis),' s'])
@@ -265,4 +266,5 @@ disp(' ')
 disp(['     Number of points in file: ',num2str(summary.n_total)])
 disp(['        Fraction of file read: ',num2str(100*summary.n_read/summary.n_total),' %'])
 disp(['    Fraction of file retained: ',num2str(100*summary.n_kept/summary.n_total),' %'])
+disp('--------------------------------------------------------------------------------')
 disp(' ')
