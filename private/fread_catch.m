@@ -1,31 +1,21 @@
-function [data, count_out, status_ok, message, fid] = fread_catch (fid, count_in, precision, skip, machineformat)
+function [data, count_out, status_ok, message] = fread_catch (fid, count_in, precision, skip, machineformat)
 % Version of fread that catches errors, trie to re-read the file if possible,
 % and allows for an error message to be passed back if fails to read.
 %
 % Input arguments same as built-in Matlab fread; there are optional additional output arguments
 %
-% To behave just as fread:
+% To behave just as fread, but having several attempts to read the data before giving up:
 %   >> [data, count] = fread_catch (fid,...)
+%   >> [data, count] = fread_catch (fid, count_in)
+%   >> [data, count] = fread_catch (fid, count_in, precision)
+%   >> [data, count] = fread_catch (fid, count_in, precision, skip)
+%   >> [data, count] = fread_catch (fid, count_in, precision, skip, machineformat)
 %
-% To catch errors:
-%   >> [data, count, status_ok] = fread_catch (fid)
-%   >> [data, count, status_ok, message] = fread_catch (fid)
+% Output error messages as well:
+%   >> [data, count, status_ok] = fread_catch (fid,...)
+%   >> [data, count, status_ok, message] = fread_catch (fid,...)
 %               status_ok = 1 if OK, =0 otherwise
 %               message = ''  if OK, =0 otherwise
-%
-% If a specified number of element
-%   >> [data, count, status_ok] = fread_catch (fid, count,...)
-%               status_ok(1) = 1 if OK, =0 otherwise
-%               status_ok(2) = 1 if read the requested number of elements, =0 otherwise
-%
-% To catch errors and return an error message:
-
-
-%
-%   >> [data, count, status_ok, message] = fread_catch (fid, count,...)
-%               message = '' if all(status_ok(1))=1  (i.e. status_ok(1)=status_ok(2)=1)
-%                       = failure message of fread if status_ok(1)=0
-%                       = message indicating count discrepancy if status_ok(2)=0
 %
 % The purpose of fread_catch is to have a graceful way of catching errors. The most
 % common use will be to return if unable to read the required number of elements or
@@ -57,9 +47,16 @@ while ntry<=ntry_max
             pause_time = max(2.5,0.1*ntry + 0.1*(ntry-ntry_retry)^2);
             pause(pause_time);     % pause to give time for a problem to settle down...   
             [flname,mode]=fopen(fid);
+            fid_old = fid;
             fclose(fid);
             pause(pause_time);
             fid=fopen(flname,mode);
+            if fid~=fid_old
+                if ~exist('data'), data=[]; end
+                if ~exist('count_out'), count_out=[]; end
+                status_ok = 0;
+                message = ['Unrecoverable read error - cannot reopen file (attempt ',num2str(ntry_max),')'];
+            end
             fseek(fid,pos_initial,'bof');
         end
         if nargin==1
@@ -81,11 +78,12 @@ while ntry<=ntry_max
             if nargin>=2 && (prod(count_in)~=inf && prod(count_out)~=prod(count_in))
                 % error occurs if doesn't read the number of requested items (had this happen, but no error reported by ferror!)
                 disp(['Failed to read requested number of items - trying to recover (attempt ',num2str(ntry),')...'])
+                pause(0.1);
                 pos_present = ftell(fid);
                 if pos_present>0    % able to determine where in file is at present
                     fseek(fid,(pos_initial-pos_present),'cof');
                 else
-                    if nargin>=2; status_ok = [0,0]; else; status_ok = 0; end
+                    status_ok = 0;
                     message = ['Cannot determine location in file during read error recovery '...
                         '(attempt ',num2str(ntry),') - unrecoverable read error'];
                     disp(message)
@@ -93,13 +91,14 @@ while ntry<=ntry_max
                 end
             else
                 % if got this far, then should have read data succesfully
-                if nargout>=3; if nargin>=2; status_ok = [1,1]; else; status_ok = 1; end; end
+                if nargout>=3; status_ok = 1; end
                 if nargout>=4; message=''; end
                 return
             end
         else
             disp(['Error reading from file, but no fatal error in fread (attempt ',num2str(ntry),...
                 ') - trying to recover [',f_message,'  ',num2str(f_errnum),']'])
+            pause(0.1);
             ferror(fid,'clear');
             % try to go to location
             fseek(fid,pos_initial,'bof');
@@ -107,7 +106,7 @@ while ntry<=ntry_max
             if f_errnum2~=0
                 if ~exist('data'), data=[]; end
                 if ~exist('count_out'), count_out=[]; end
-                if nargin>=2; status_ok = [0,0]; else; status_ok = 0; end
+                status_ok = 0;
                 message = ['Unrecoverable read error (attempt ',num2str(ntry),') [',f_message2,'  ',num2str(f_errnum2),']'];
                 disp(message)
                 return
@@ -124,7 +123,7 @@ while ntry<=ntry_max
         if f_errnum2~=0
             if ~exist('data'), data=[]; end
             if ~exist('count_out'), count_out=[]; end
-            if nargin>=2; status_ok = [0,0]; else; status_ok = 0; end
+            status_ok = 0;
             message = ['Unrecoverable read error (attempt ',num2str(ntry),') [',f_message2,'  ',num2str(f_errnum2),']'];
             disp(message)
             return
@@ -137,7 +136,7 @@ end
 
 if ~exist('data'), data=[]; end
 if ~exist('count_out'), count_out=[]; end
-if nargin>=2; status_ok = [0,0]; else; status_ok = 0; end
+status_ok = 0;
 message = ['Unrecoverable read error after maximum no. tries (attempt ',num2str(ntry_max),')'];
 disp(message)
 if isempty(fopen(fid))

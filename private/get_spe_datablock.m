@@ -36,6 +36,7 @@ function [data, mess] = get_spe_datablock (fid, data_in)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
+data = [];
 if nargin==2
     if isstruct(data_in)
         data = data_in;

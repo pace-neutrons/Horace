@@ -55,7 +55,9 @@ function [data, mess, lis, info] = get_sqe_datablock (fid, arg1, arg2)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-% Diagnostic information
+% initialise output
+data = [];
+lis = [];
 info.t_read = 0;
 info.t_lis  = 0;
                 
