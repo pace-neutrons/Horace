@@ -36,6 +36,10 @@ function tomfit (w, xrange, p, fixed)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
+if prod(size(w))>1
+    error('Mfit only able to fit a single D1D - array input not possible')
+end
+    
 if (nargin==1)
     tomfit (d1d_to_spectrum(w));
 elseif (nargin==2)
