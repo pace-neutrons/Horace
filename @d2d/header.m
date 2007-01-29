@@ -10,4 +10,4 @@ function header (w)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-dnd_display(get(w));  % get a structure with the same fields as w
+display(w)
