@@ -15,14 +15,17 @@ function w = combine_d1d_spectrum (d1d, s)
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
 w = d1d;        % output d1d will be mostly the input d1d
-temp = get(s);  % get fields of spectrum
+for i=1:prod(size(s))
+    temp = get(s(i));  % get fields of spectrum
 
-w.p1 = temp.x;                  % some functions alter the x axis e.g. rebin
-w.s  = temp.y;
-w.e  = (temp.e).^2;
-w.n  = ones(length(w.s),1);
+    w(i).p1 = temp.x;                  % some functions alter the x axis e.g. rebin
+    w(i).s  = temp.y;
+    w(i).e  = (temp.e).^2;
+    w(i).n  = ones(length(w(i).s),1);
 
-% If s was created from d1d_to_spectrum (as will normally be the case),
-% then reset the counts to zero for those pixels which were indicated as
-% containing zero by giving y value = NaN:
-w.n(find(isnan(temp.y))) = 0;   % Ensure that n=0 where y values are nan
+    % If s was created from d1d_to_spectrum (as will normally be the case),
+    % then reset the counts to zero for those pixels which were indicated as
+    % containing zero by giving y value = NaN:
+    w(i).n(find(isnan(temp.y))) = 0;   % Ensure that n=0 where y values are nan
+
+end
