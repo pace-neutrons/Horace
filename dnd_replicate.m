@@ -44,7 +44,11 @@ elseif nd_in==0
     dout=dref;
     dout.s=din.s*ones(size(dref.s));
     dout.e=din.s*ones(size(dref.s));
-    dout.n=din.s*ones(size(dref.s));
+    if nd_ref~=4
+        dout.n=din.s*ones(size(dref.s));
+    else
+        dout.n=int16(din.s)*ones(size(dref.s),'int16');
+    end
     return
 else
     pax_common=zeros(1,nd_in);      % list of indicies of plot axes of dref that are shared by din
@@ -75,7 +79,11 @@ else
             size_repmat(pax_common)=1;
             dout.s=repmat(din.s,size_repmat);
             dout.e=repmat(din.e,size_repmat);
-            dout.n=repmat(din.n,size_repmat);
+            if nd_ref~=4
+                dout.n=repmat(din.n,size_repmat);
+            else
+                dout.n=repmat(int16(din.n),size_repmat);
+            end
         end
     else
         error ('Input and reference datasets do not share the same plot axes')
