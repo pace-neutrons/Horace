@@ -29,9 +29,9 @@ elseif ndims==2
         e_out = sum(e(ilo:ihi,:),1);
         n_out = sum(n(ilo:ihi,:),1);
     elseif iax==2
-        s_out = sum(s(:,ilo:ihi),2)';
-        e_out = sum(e(:,ilo:ihi),2)';
-        n_out = sum(n(:,ilo:ihi),2)';
+        s_out = sum(s(:,ilo:ihi),2);
+        e_out = sum(e(:,ilo:ihi),2);
+        n_out = sum(n(:,ilo:ihi),2);
     else
         error ('ERROR: Invalid axis option')
     end
