@@ -1,7 +1,5 @@
 function wout = uplus(w1)
-% UPLUS  Implement +w for 1D dataset
-%
-%   >> wout = +w
+% Implement +w1
 
 % Original author: T.G.Perring
 %
@@ -9,4 +7,4 @@ function wout = uplus(w1)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-wout = w1;
+wout = w1

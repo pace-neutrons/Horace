@@ -1,7 +1,5 @@
 function wout = uminus(w1)
-% UMINUS  Implement -w for 1D dataset
-%
-%   >> wout = -w
+% Implement -w1
 
 % Original author: T.G.Perring
 %
@@ -9,5 +7,7 @@ function wout = uminus(w1)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-w = -d1d_to_spectrum(w1);
-wout = combine_d1d_spectrum (w1, w);
+wout=w1;
+for i=1:length(w1);
+    wout.s=-w1.s;
+end

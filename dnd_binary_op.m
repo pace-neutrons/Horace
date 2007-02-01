@@ -61,24 +61,24 @@ elseif isa(w2,'double')
 end
         
 if (len1==len2 & len1==1)
-    w = binary_op (w1, w2);
+    w = binary_op (w1, w2, class_type);
 elseif (len1==len2 & len1>1)
     if isa(w1,class_type); w=w1(1); else w=w2(1); end   % template for output
     w = repmat(w,dim1);
     for i=1:len1
-       w(i) = binary_op (w1(i),w2(i));
+       w(i) = binary_op (w1(i), w2(i), class_type);
     end
 elseif (len1==1 & len2>1)
     if isa(w1,class_type); w=w1(1); else w=w2(1); end   % template for output
     w = repmat(w,1,dim2);   % create empty output array
     for i=1:len2
-        w(i) = binary_op (w1,w2(i));
+        w(i) = binary_op (w1, w2(i), class_type);
     end
 elseif (len1>1 & len2==1)
     if isa(w1,class_type); w=w1(1); else w=w2(1); end   % template for output
     w = repmat(w,1,dim1);   % create empty output array
     for i=1:len1
-        w(i) = binary_op (w1(i),w2);
+        w(i) = binary_op (w1(i), w2, class_type);
     end
 else
     error ('Check lengths of array(s) of input arguments')
