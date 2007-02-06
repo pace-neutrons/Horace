@@ -158,12 +158,12 @@ if niax>0
     d.iax = iax;
     % Get actual limits determined by extent of data - otherwise annotations will give misleading impression of integration range
     d.uint = [max(h.urange(1,iax),vlims(iax,1)');min(h.urange(2,iax),vlims(iax,2)')];
-    out_of_range = find(d.uint(2,:)-d.uint(1,:)<0);
-    if length(out_of_range)>0
-        fclose(fid);
-        error(['ERROR: Integration range for axis ',num2str(out_of_range(1)),' lies outside range of data'])
-        return
-    end
+%     out_of_range = find(d.uint(2,:)-d.uint(1,:)<0);
+%     if length(out_of_range)>0
+%         fclose(fid);
+%         error(['ERROR: Integration range for axis ',num2str(out_of_range(1)),' lies outside range of data'])
+%         return
+%     end
 else
     d.iax = [];
     d.uint = [];
