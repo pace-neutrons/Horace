@@ -51,6 +51,10 @@ for i=1:length(pax)
 end
 iax = din.iax;
 uint = din.uint;
+ptot=p0;
+for i=1:length(iax)
+    ptot=ptot+(0.5*(uint(1,i)+uint(2,i)))*u(:,iax(i));  % overall displacement of plot volume in (rlu;en)
+end
 label = din.label;
 
 % Axes and integration titles
@@ -61,6 +65,11 @@ for j=1:4
         p0_ch{j} = num2str(p0(j),'%+11.4g');        
     else
         p0_ch{j} = num2str(0,'%+11.4g');        
+    end
+    if abs(ptot(j)) > small
+        ptot_ch{j} = num2str(ptot(j),'%+11.4g');        
+    else
+        ptot_ch{j} = num2str(0,'%+11.4g');        
     end
     for i=1:4
         if abs(u(i,j)) > small
@@ -84,6 +93,31 @@ for j=1:4
     % Determine if column vector in u corresponds to a Q-axis or energy
     if u(4,j)==0
         % Q axis
+        % Captions including off-sets from integration axes
+        for i=1:3
+            if ~strcmp(ptot_ch{i}(2:end),'0') & ~strcmp(u_ch{i,j}(2:end),'0')     % ptot(i) and u(i,j) both contain non-zero values
+                if ~strcmp(u_ch{i,j}(2:end),'1')
+                    ch{i,j} = [ptot_ch{i},u_ch{i,j},label{j}];
+                else
+                    ch{i,j} = [ptot_ch{i},u_ch{i,j}(1),label{j}];
+                end
+            elseif strcmp(ptot_ch{i}(2:end),'0') & ~strcmp(u_ch{i,j}(2:end),'0')  % ptot(i)=0 but u(i,j)~=0
+                if ~strcmp(u_ch{i,j}(2:end),'1')
+                    ch{i,j} = [u_ch{i,j},label{j}];
+                else
+                    ch{i,j} = [u_ch{i,j}(1),label{j}];
+                end
+            else
+                ch{i,j} = ptot_ch{i};
+            end
+            if ch{i,j}(1)=='+'        % strip off leading '+'
+                ch{i,j} = ch{i,j}(2:end);
+            end
+        end
+        totvector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
+        in_totvector{j} = [' in ',totvector{j}];
+        
+        % Captions excluding off-sets from integration axes
         for i=1:3
             if ~strcmp(p0_ch{i}(2:end),'0') & ~strcmp(u_ch{i,j}(2:end),'0')     % p0(i) and u(i,j) both contain non-zero values
                 if ~strcmp(u_ch{i,j}(2:end),'1')
@@ -107,15 +141,16 @@ for j=1:4
         vector{j} = ['[',ch{1,j},', ',ch{2,j},', ',ch{3,j},']'];
         in_vector{j} = [' in ',vector{j}];
         
+        % Create captioning
         if ~isempty(find(j==pax))   % j appears in the list of plot axes
             ipax = find(j==pax);
             if abs(ulen(j)-1) > small
-                title_pax{ipax} = [vector{j},' in ',num2str(ulen(j)),' Å^{-1}'];
+                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' Å^{-1}'];
             else
-                title_pax{ipax} = [vector{j},' (Å^{-1})'];
+                title_pax{ipax} = [totvector{j},' (Å^{-1})'];
             end
-            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_vector{j}];
-            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_vector{j}];
+            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
         elseif ~isempty(find(j==iax))   % j appears in the list of integration axes
             iiax = find(j==iax);
             title_iax{iiax} = [num2str(uint(1,iiax)),' \leq ',label{j},' \leq ',num2str(uint(2,iiax)),in_vector{j}];
@@ -126,7 +161,33 @@ for j=1:4
         end
     else
         % energy axis
+        % Captions including off-sets from integration axes
         energy_axis = j;
+        if ~strcmp(ptot_ch{4}(2:end),'0') & ~strcmp(u_ch{4,j}(2:end),'0')     % ptot(4) and u(4,j) both contain non-zero values
+            if ~strcmp(u_ch{4,j}(2:end),'1')
+                ch{4,j} = [ptot_ch{4},u_ch{4,j},label{j}];
+            else
+                ch{4,j} = [ptot_ch{4},u_ch{4,j}(1),label{j}];
+            end
+        elseif strcmp(ptot_ch{4}(2:end),'0') & ~strcmp(u_ch{4,j}(2:end),'0')  % ptot(4)=0 but u(4,j)~=0
+            if ~strcmp(u_ch{4,j}(2:end),'1')
+                ch{4,j} = [u_ch{4,j},label{j}];
+            else
+                ch{4,j} = [u_ch{4,j}(1),label{j}];
+            end
+        end
+        if ch{4,j}(1)=='+'        % strip off leading '+'
+            ch{4,j} = ch{4,j}(2:end);
+        end
+        if max(strcmp(lower(ch{4,j}),{'e','en','energy','hw','hbar w','hbar.w','eps'}))==1  % conventional energy labels
+            totvector{j} = '';
+            in_totvector{j} = '';
+        else
+            totvector{j} = ['[0, 0, 0, ',ch{4,j},']'];
+            in_totvector{j} = [' in ',totvector{j}];
+        end
+        
+        % Captions excluding off-sets from integration axes
         if ~strcmp(p0_ch{4}(2:end),'0') & ~strcmp(u_ch{4,j}(2:end),'0')     % p0(4) and u(4,j) both contain non-zero values
             if ~strcmp(u_ch{4,j}(2:end),'1')
                 ch{4,j} = [p0_ch{4},u_ch{4,j},label{j}];
@@ -149,16 +210,17 @@ for j=1:4
         else
             vector{j} = ['[0, 0, 0, ',ch{4,j},']'];
             in_vector{j} = [' in ',vector{j}];
-        end
+        end        
+        
         if ~isempty(find(j==pax))   % j appears in the list of plot axes
             ipax = find(j==pax);
             if abs(ulen(j)-1) > small
-                title_pax{ipax} = [vector{j},' in ',num2str(ulen(j)),' meV'];
+                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' meV'];
             else
-                title_pax{ipax} = [vector{j},' (meV)'];
+                title_pax{ipax} = [totvector{j},' (meV)'];
             end
-            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_vector{j}];
-            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_vector{j}];
+            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
         elseif ~isempty(find(j==iax))   % j appears in the list of integration axes
             iiax = find(j==iax);
             title_iax{iiax} = [num2str(uint(1,iiax)),' \leq ',label{j},' \leq ',num2str(uint(2,iiax)),in_vector{j}];
