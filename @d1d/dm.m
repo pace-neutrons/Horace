@@ -1,9 +1,12 @@
-function dm(w,xlo,xhi,ylo,yhi)
+function dm(w,varargin)
 % DM Draws a marker plot of a 1D dataset
 %
 %   >> dm(w)
 %   >> dm(w,xlo,xhi)
 %   >> dm(w,xlo,xhi,ylo,yhi)
+%
+% Advanced use:
+%   >> dm(w,...,fig_name)       % draw with name = fig_name
 
 % Original author: T.G.Perring
 %
@@ -11,12 +14,28 @@ function dm(w,xlo,xhi,ylo,yhi)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-if (nargin==1)
-    dm (d1d_to_spectrum(w));
-elseif (nargin==3)
-    dm (d1d_to_spectrum(w),xlo,xhi);
-elseif (nargin==5)
-    dm (d1d_to_spectrum(w),xlo,xhi,ylo,yhi);
+global genie_max_spectra_1d
+
+% Check spectrum is not too long an array
+if length(w)>genie_max_spectra_1d
+    error (['This function can only be used to plot ',num2str(genie_max_spectra_1d),' spectra - check length of spectrum array'])
+end
+
+newplot = 1;
+type = 'm';
+fig_name='Horace_1D';
+
+narg=nargin-1;
+if nargin>1 && ischar(varargin{end}) && ~isempty(varargin{end})
+    fig_name=varargin{end};
+    narg=narg-1;
+end
+if (narg==0)
+    plot_main (newplot,type,fig_name,d1d_to_spectrum(w));
+elseif (narg==2)
+    plot_main (newplot,type,fig_name,d1d_to_spectrum(w),varargin{1:2});
+elseif (narg==4)
+    plot_main (newplot,type,fig_name,d1d_to_spectrum(w),varargin{1:4});
 else
     error ('Wrong number of arguments to DM')
 end

@@ -16,7 +16,7 @@ if length(din.pax)~=2
 end
 
 % Create new genie graphics window if one is not currently active
-genie_figure_create ('Horace_2D')
+genie_figure_create ('Horace_2D');
 hold off;   % new plot
 delete(gca)
 
