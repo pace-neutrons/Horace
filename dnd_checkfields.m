@@ -1,9 +1,13 @@
-function [nd, mess] = dnd_checkfields (din)
+function [var, mess] = dnd_checkfields (din)
 % Check if the fields in a structure are correct for an nD datastructure (n=0,1,2,3,4)
 % and check that the contents have the correct type and consistent sizes etc.
 %
+% If the argument is 0,1,2,3 or 4, then create a default empty structure
+%
 % Syntax:
 %   >> [ndim, mess] = dnd_checkfields (din)
+% OR
+%   >> [dout, mess] = dnd_checkfields (ndim)
 %
 % Input:
 % -------
@@ -11,7 +15,10 @@ function [nd, mess] = dnd_checkfields (din)
 %
 % Output:
 % -------
-%   nd      Number of dimensions (0,1,2,3,4). If an error, then returned as empty.
+%   ndim    Number of dimensions (0,1,2,3,4). If an error, then returned as empty.
+% OR
+%   dout    Default empty dataset of requested dimension. If an error, then empty.
+%
 %   mess    Error message if isempty(ndim). If ~isempty(ndim), mess = ''
 %
 %
@@ -29,7 +36,7 @@ function [nd, mess] = dnd_checkfields (din)
 %   din.u     Matrix (4x4) of projection axes in original 4D representation
 %              u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   din.ulen  Length of vectors in Ang^-1 or meV [row vector]
-%   din.label Labels of the projection axes [1x4 cell array of charater strings]
+%   din.label Labels of the projection axes [1x4 cell array of character strings]
 %   din.p0    Offset of origin of projection [ph; pk; pl; pen] [column vector]
 %   din.pax   Index of plot axes in the matrix din.u  [row vector]
 %               e.g. if data is 3D, din.pax=[2,4,1] means u2, u4, u1 axes are x,y,z in any plotting
@@ -60,8 +67,9 @@ d2d_names = [first_names;{'p1';'p2';};last_names];
 d3d_names = [first_names;{'p1';'p2';'p3'};last_names];
 d4d_names = [first_names;{'p1';'p2';'p3';'p4'};last_names];
 
-nd=[];
+var=[];
 mess='';
+%--------------------------------------------------------------------------------------------------
 if isstruct(din)
     names = fieldnames(din);
     % Check that field names are valid and that they are in the right order to create a class
@@ -81,7 +89,7 @@ if isstruct(din)
     % check the contents of each of the fields is valid:
     % This should give an exhaustive check of the consistency of the fields, but at present does not
     % do all checks e.g. doesnt check that elements of ulen are all +ve, are consistent with lattice parameters
-    % and matrix u etc. The mutuual consistency will be assured by the functions that generate these
+    % and matrix u etc. The mutual consistency will be assured by the functions that generate these
     % but using the 'get' and 'set' routines may upset that consistency.
     if ~isa_size(din.file,'row','char'); mess='ERROR: field ''file'' must be a character string'; return; end
     if ~isa_size(din.grid,'row','char') || ~strcmp(din.grid,'orthogonal-grid') 
@@ -149,8 +157,43 @@ if isstruct(din)
         if ~isa(din.n,'double'); mess='ERROR: field ''n'' must have type double'; return; end
         if length(find(din.n<0))>0; mess='ERROR: field ''n'' must not have negative elements'; return; end
     end
+    var = ndim;
+%--------------------------------------------------------------------------------------------------    
+elseif isnumeric(din) && length(din)==1
+    ndim=din;
+    if ndim==0 || ndim==1 || ndim==2 || ndim==3 || ndim==4
+        var.file='';
+        var.grid='orthogonal-grid';
+        var.title='';
+        var.a=0;
+        var.b=0;
+        var.c=0;
+        var.alpha=0;
+        var.beta=0;
+        var.gamma=0;
+        var.u=zeros(4,4); var.u(4,4)=1; % must give an energy axis
+        var.ulen=[0,0,0,0];
+        var.label={'','','','E'};
+        var.p0=[0;0;0;0];
+        var.pax=1:ndim;
+        var.iax=ndim+1:4;
+        var.uint=zeros(2,size(var.iax,2));
+        if ndim>0
+            for i=1:ndim
+                var.(['p',int2str(i)])=[0;0];
+            end
+        end
+        var.s=0;
+        var.e=0;
+        if ndim<4
+            var.n=0;
+        else
+            var.n=int16(0);
+        end
+    else
+        mess='ERROR: Numeric input must be 0,1,2,3 or 4 to create empty dataset'; return
+    end
+%--------------------------------------------------------------------------------------------------
 else
-    mess = 'ERROR: Input is not a structure'; return
+    mess = 'ERROR: Input is not a structure or integer in range 0-4'; return
 end
-
-nd = ndim;

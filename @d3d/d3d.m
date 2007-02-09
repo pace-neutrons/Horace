@@ -21,19 +21,27 @@ function w = d3d (din)
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
 ndim_req = 3;
+class_type = 'd3d';
 superiorto('spectrum');
 
-if strcmp(class(din),'d3d')
-    w = din;
+if nargin==0    % make default dataset of requisite dimension
+    w = class(dnd_checkfields(ndim_req),class_type);
+    return
 else
-    [ndim, mess] = dnd_checkfields(din);
-    if ~isempty(ndim)
-        if ndim==ndim_req
-            w = class (din, 'd3d');
+    if strcmp(class(din),class_type)
+        w = din;
+    elseif isstruct(din)
+        [ndim, mess] = dnd_checkfields(din);
+        if ~isempty(ndim)
+            if ndim==ndim_req
+                w = class (din, class_type);
+            else
+                error (['ERROR: Fields correspond to ',num2str(ndim),'-dimensional dataset'])
+            end
         else
-            error (['ERROR: Fields correspond to ',num2str(ndim),'-dimensional dataset'])
+            error (mess)
         end
     else
-        error (mess)
+        error ('Invalid argument')
     end
 end
