@@ -21,6 +21,8 @@ function wout=sqw(win,sqwfunc,p)
 %   wout        Dataset containing calculated intensity
 
 wout=win;
-wout.s=dnd_sqw(get(win),sqwfunc,p);
-wout.e=zeros(size(wout.s));
-wout.n=ones(size(wout.s));
+for i=1:numel(win)
+    wout(i).s=dnd_sqw(get(win(i)),sqwfunc,p);
+    wout(i).e=zeros(size(wout(i).s));
+    wout(i).n=ones(size(wout(i).s));
+end
