@@ -1,6 +1,6 @@
 function [wout, fitdata] = fit(win, func, pin, varargin)
-% Fitting routine for a 1D dataset. If passed an array of 
-% 1D datasets, then each is fitted independently to the same function.
+% Fitting routine for a 2D dataset. If passed an array of 
+% 2D datasets, then each is fitted independently to the same function.
 %
 % Syntax:
 %   >> [yout, fitdata] = fit(win, func, pin)
@@ -12,16 +12,17 @@ function [wout, fitdata] = fit(win, func, pin, varargin)
 %
 % Input:
 % ======
-%   win     1D dataset object or array of 1D dataset objects to be fitted
+%   win     2D dataset object or array of 2D dataset objects to be fitted
 %
 %   func    Handle of the function to fit to the data. Function should be of form
-%               y = myfunc(x,p)
+%               y = myfunc(x1,x2,p)
 %           where
-%               x = array of x values at which to calculate the y values
-%               p=vector of parameter values needed 
+%               x1,x2 = Arrays with the coordinates (x1,x2) of the points
+%                      at which to calculate the y values
+%               p     = Vector of parameter values needed 
 %             e.g.
-%               function y = gauss(x,p)
-%               y = p(1)*exp(-0.5*((x-p(2))/p(3)).^2);
+%               function y = gauss(x1,x2,p)
+%               y = p(1)*exp(-0.5*((x1-p(2))/p(4)).^2  (x2-p(3))/p(5)).^2);
 %
 %   pin     Initial function parameter values [pin(1), pin(2)...]
 %
@@ -44,11 +45,11 @@ function [wout, fitdata] = fit(win, func, pin, varargin)
 %           fcp(3)  Stopping criterion: relative change in chi-squared
 %                   i.e. stops if chisqr_new-chisqr_old < fcp(3)*chisqr_old
 %
-%   'keep'  Ranges of x to retain for fitting. A range is specified by a pair
-%           of numbers which define the lower and upper bounds
-%               [xlo,xhi]
-%           Several ranges can be given by making an (m x 2) array:
-%               [x1_lo, x1_hi; x2_lo, x2_hi; ...]
+%   'keep'  Ranges of x and y to retain for fitting. A range is specified by two 
+%           pairs of numbers which define the corners of a rectangle.
+%               [xlo, ylo, xhi, yhi]
+%           Several ranges can be defined by making an (m x 4) array:
+%               [xlo(1), ylo(1), xhi(1), yhi(1); xlo(2), ylo(2), xhi(2), yhi(2); ...]
 %
 %  'remove' Ranges to remove from fitting. Follows the same format as 'keep'.
 %
@@ -59,7 +60,7 @@ function [wout, fitdata] = fit(win, func, pin, varargin)
 %
 % Output:
 % =======
-%   wout    1D dataset object containing the evaluation of the function for the
+%   wout    2D dataset object containing the evaluation of the function for the
 %          fitted parameter values.
 %
 %   fitdata Result of fit for each dataset
@@ -73,12 +74,30 @@ function [wout, fitdata] = fit(win, func, pin, varargin)
 %
 % EXAMPLES: 
 %
-% Fit a Gaussian, starting with height=100, centre=5, sigma=3, and allowing
-% height and centre to vary:
-%   >> [wfit, fdata] = fit(w, @gauss, [100, 5, 3], [1 1 0])
+% Fit a 2D Gaussian, allowing only height and position to vary:
+%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
+%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], [1,1,1,0,0,0])
 %
-% All parameters free to fit, but use only data in range x=20-100 and 150-300:
-%   >> [wfit, fdata] = fit(w, @gauss, [100, 5, 3], 'keep', [20, 100; 150, 300])
+% Allow all parameters to vary, but remove two rectangles from the data
+%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
+%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
+%                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
 
-[sout,fitdata]=fit(d1d_to_spectrum(win),func,pin,varargin{:});
-wout=combine_d1d_spectrum(win,sout);
+wout = win;
+for i = 1:length(win)
+    p1 = 0.5*(win(i).p1(1:end-1)+win(i).p1(2:end));
+    p2 = 0.5*(win(i).p2(1:end-1)+win(i).p2(2:end));
+    [p1, p2] = ndgrid(p1,p2);       % mesh x and y 
+    p1 = reshape(p1,numel(p1),1);   % get x into single column
+    p2 = reshape(p2,numel(p2),1);   % get y into single column
+    [s,e]=dnd_normalise_sigerr(win(i).s,win(i).e,win(i).n);   % normalise data by no. points
+    s = reshape(s,numel(s),1); 
+    e = sqrt(reshape(e,numel(e),1));% recall that datasets hold variance, no error bars
+
+    if i>1, fitdata(numel(win))=fitdata(1); end    % preallocate
+    [sout, fitdata(i)] = fit([p1, p2], s, e, func, pin, varargin{:});
+    
+    wout(i).s = reshape(sout,size(win(i).s));
+    wout(i).e = zeros(size(win(i).e));  
+    wout(i).n = double(~isnan(wout(i).s));
+end
