@@ -1,5 +1,5 @@
 function wout = single_minus(w1,w2,class_type)
-% Implement w1 - w2 for 2D datasets
+% Implement w1 - w2
 %
 %   >> w = w1 - w2
 %
@@ -16,7 +16,7 @@ if isa(w1,class_type) & isa(w2,class_type)
         [s2,e2]=dnd_normalise_sigerr(w2.s,w2.e,w2.n);
         wout.s = s1 - s2;
         wout.e = e1 + e2;
-        wout.n = double(~isnan(wout.s));
+        wout.n = int16(~isnan(wout.s));
     else
         error ('Sizes of signal arrays in the datasets are different')
     end
@@ -27,7 +27,7 @@ elseif isa(w1,class_type) && isa(w2,'double')
         [s1,e1]=dnd_normalise_sigerr(w1.s,w1.e,w1.n);
         wout.s = s1 - w2;
         wout.e = e1;
-        wout.n = double(~isnan(wout.s));
+        wout.n = int16(~isnan(wout.s));
     else
         error ('Check that the numeric variable is scalar or array with same size as dataset signal')
     end
@@ -38,7 +38,7 @@ elseif (isa(w2,class_type) & isa(w1,'double'))
         [s2,e2]=dnd_normalise_sigerr(w2.s,w2.e,w2.n);
         wout.s = w1 - s2;
         wout.e = e2;
-        wout.n = double(~isnan(wout.s));
+        wout.n = int16(~isnan(wout.s));
     else
         error ('Check that the numeric variable is scalar or array with same size as dataset signal')
     end

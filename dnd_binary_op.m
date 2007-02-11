@@ -1,7 +1,5 @@
 function w = dnd_binary_op (w1, w2, binary_op, class_type, class_ndim)
-% Implement w1 + w2 for 2D datasets
-%
-%   >> w = w1 + w2
+% Implement binary arithmetic operations for dataset_nd
 %
 %   If w1, w2 are datasets of the same size:
 %       the operation is performed element-by-element

@@ -1,5 +1,5 @@
 function wout = single_minus(w1,w2,class_type)
-% Implement w1 - w2 for 2D datasets
+% Implement w1 - w2
 %
 %   >> w = w1 - w2
 %

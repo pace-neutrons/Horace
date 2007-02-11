@@ -95,5 +95,5 @@ for i = 1:length(win)
     
     wout(i).s = reshape(sout,size(win(i).s));
     wout(i).e = zeros(size(win(i).e));  
-    wout(i).n = double(~isnan(wout(i).s));
+    wout(i).n = int16(~isnan(wout(i).s));
 end
