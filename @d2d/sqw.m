@@ -22,7 +22,8 @@ function wout=sqw(win,sqwfunc,p)
 
 wout=win;
 for i=1:numel(win)
-    wout(i).s=dnd_sqw(get(win(i)),sqwfunc,p);
-    wout(i).e=zeros(size(wout(i).s));
-    wout(i).n=ones(size(wout(i).s));
+    qw = dnd_calculate_qw(get(win));
+    wout(i).s = reshape(sqwfunc(qw{:},p),size(win(i).s));
+    wout(i).e=zeros(size(win(i).s));
+    wout(i).n=ones(size(win(i).s));
 end
