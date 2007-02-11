@@ -31,9 +31,10 @@ m=warning('off','MATLAB:divideByZero');     % turn off divide by zero messages, 
 signal = w.s ./ w.n;
 warning(m.state,'MATLAB:divideByZero');     % return to previous divide by zero message state
 
-signal(find(w.n)==0) = nan;
+signal(find(w.n==0)) = nan;
 zmin = min(reshape(signal,1,prod(size(w.s))));
 zmax = max(reshape(signal,1,prod(size(w.s))));
+
 if zmin==zmax
     error ('ERROR: All intensity values are the same')
 end
