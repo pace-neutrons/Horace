@@ -45,7 +45,7 @@ function [wout, fitdata] = fit(win, sqwfunc, pin, varargin)
 %           fcp(3)  Stopping criterion: relative change in chi-squared
 %                   i.e. stops if chisqr_new-chisqr_old < fcp(3)*chisqr_old
 %
-%   'keep'  Ranges of x and y to retain for fitting. A range is specified by two 
+%   'keep'  Ranges of data to retain for fitting. A range is specified by two 
 %           quartets of numbers which define the corners of a hypercuboid.
 %               [xlo, ylo, zlo, wlo, xhi, yhi, zhi, whi]
 %           Several ranges can be defined by making an (m x 6) array:

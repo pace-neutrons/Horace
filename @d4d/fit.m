@@ -3,12 +3,12 @@ function [wout, fitdata] = fit(win, func, pin, varargin)
 % 4D datasets, then each is fitted independently to the same function.
 %
 % Syntax:
-%   >> [yout, fitdata] = fit(win, func, pin)
-%   >> [yout, fitdata] = fit(win, func, pin, pfree)
-%   >> [yout, fitdata] = fit(win, func, pin, pfree, keyword, value)
+%   >> [wout, fitdata] = fit(win, func, pin)
+%   >> [wout, fitdata] = fit(win, func, pin, pfree)
+%   >> [wout, fitdata] = fit(win, func, pin, pfree, keyword, value)
 %
 %   keyword example:
-%   >> [yout, fitdata] = fit(..., 'fit', fcp)
+%   >> [wout, fitdata] = fit(..., 'fit', fcp)
 %
 % Input:
 % ======

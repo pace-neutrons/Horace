@@ -45,7 +45,7 @@ function [wout, fitdata] = fit(win, sqwfunc, pin, varargin)
 %           fcp(3)  Stopping criterion: relative change in chi-squared
 %                   i.e. stops if chisqr_new-chisqr_old < fcp(3)*chisqr_old
 %
-%   'keep'  Ranges of x to retain for fitting. A range is specified by a pair
+%   'keep'  Ranges of data to retain for fitting. A range is specified by a pair
 %           of numbers which define the lower and upper bounds
 %               [xlo,xhi]
 %           Several ranges can be given by making an (m x 2) array:

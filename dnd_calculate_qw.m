@@ -1,13 +1,15 @@
 function qw=dnd_calculate_qw(din)
 % Calculate qh,qk,ql,en for the centres of the bins of an n-dimensional dataset
 %
-%   >> [qh,qk,ql,en]=dnd_calculate_qe(din)
+%   >> qw=dnd_calculate_qe(din)
 %
 %   din     Dataset that provides the axes and points for the calculation
+%
 %   qw      Components of momentum (in rlu) and energy for each bin in the dataset
 %           Arrays are package as cell array of column vectors for convenience
 %           with fitting routines etc.
 %               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
+%
 
 p0=din.p0;
 u=din.u;
