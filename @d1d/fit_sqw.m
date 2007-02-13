@@ -1,4 +1,4 @@
-function [wout, fitdata] = fit(win, sqwfunc, pin, varargin)
+function [wout, fitdata] = fit_sqw(win, sqwfunc, pin, varargin)
 % Fitting routine for a 1D dataset. If passed an array of 
 % 1D datasets, then each is fitted independently to the same function.
 %
@@ -58,6 +58,11 @@ function [wout, fitdata] = fit(win, sqwfunc, pin, varargin)
 %           points are set to NaN. This is useful for plotting the output, as
 %           only those points that contributed to the fit will be plotted.
 %
+%   'all'   Requests that the calculated function be returned over
+%           the whole of the domain of the input dataset. If not given, then
+%           the function will be returned only at those points of the dataset
+%           that contain data.
+%
 % Output:
 % =======
 %   wout    1D dataset object containing the evaluation of the function for the
@@ -81,6 +86,19 @@ function [wout, fitdata] = fit(win, sqwfunc, pin, varargin)
 % All parameters free to fit, but use only data in range x=20-100 and 150-300:
 %   >> [wfit, fdata] = fit(w, @gauss, [100, 5, 3], 'keep', [20, 100; 150, 300])
 
+
+% Determine if 'all' is an option, and remove any occurences
+all_option=false;
+all_index=false(1,length(varargin));
+for i=1:length(varargin)
+    if ischar(varargin{i}) && ~isempty(strmatch(lower(varargin{i}),'all')) % option 'all' given
+        all_option=true;
+        all_index(i)=true;
+    end
+end
+varargin=varargin(~all_index);
+
+% Perform the fit
 wout = win;
 for i = 1:length(win)
     qw = dnd_calculate_qw(get(win));
@@ -93,5 +111,9 @@ for i = 1:length(win)
     
     wout(i).s = reshape(sout,size(win(i).s));
     wout(i).e = zeros(size(win(i).e));  
-    wout(i).n = double(~isnan(wout(i).s));
+    if ~all_option  % no option given
+        wout(i).n = double(~isnan(wout(i).s) & win(i).n~=0);  % return data only at the points where there is data
+    else
+        wout(i).n = ones(size(win(i).n));
+    end
 end

@@ -47,7 +47,7 @@ for i = 1:length(win)
     wout(i).e = zeros(size(win(i).e));  
     if ~exist('opt')  % no option given
         wout(i).n = double(wout(i).n~=0);   % return data only at the points where there is data
-    elseif ischar(opt) && strmatch(lower(opt),'all')==1    % option 'all' given
+    elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
         wout(i).n = ones(size(wout(i).n));
     else
         error('Unrecognised option')

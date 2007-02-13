@@ -1,4 +1,4 @@
-function wout=sqw(win,sqwfunc,p)
+function wout=sqw(win,sqwfunc,p,opt)
 % Calculate sqw along the momentum plot axis of a 3D dataset
 %
 %   >> wout=sqw(win,sqwfunc,p)
@@ -17,13 +17,28 @@ function wout=sqw(win,sqwfunc,p)
 %
 %   p           Parameters to be passed to dispersion relation calculation above
 %
-% Output
-%   wout        Dataset containing calculated intensity
+%   'all'       [option] Requests that the calculated function be returned over
+%              the whole of the domain of the input dataset. If not given, then
+%              the function will be returned only at those points of the dataset
+%              that contain data.
+%
+% Output:
+% =======
+%   wout        Output dataset or array of datasets 
+
+% *** A superior algorithm would be only evaluate the function at the points where
+% there is data - can avoid singularities. ***
 
 wout=win;
 for i=1:numel(win)
     qw = dnd_calculate_qw(get(win));
     wout(i).s = reshape(sqwfunc(qw{:},p),size(win(i).s));
-    wout(i).e=zeros(size(win(i).s));
-    wout(i).n=ones(size(win(i).s));
+    wout(i).e = zeros(size(win(i).s));
+    if ~exist('opt')  % no option given
+        wout(i).n = double(wout(i).n~=0);   % return data only at the points where there is data
+    elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
+        wout(i).n = ones(size(wout(i).n));
+    else
+        error('Unrecognised option')
+    end
 end
