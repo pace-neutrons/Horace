@@ -46,12 +46,16 @@ function [wout, fitdata] = fit(win, func, pin, varargin)
 %                   i.e. stops if chisqr_new-chisqr_old < fcp(3)*chisqr_old
 %
 %   'keep'  Ranges of x and y to retain for fitting. A range is specified by two 
-%           pairs of numbers which define the corners of a rectangle.
-%               [xlo, ylo, xhi, yhi]
+%           pairs of numbers which define a rectangle:
+%               [xlo, xhi, ylo, yhi]
 %           Several ranges can be defined by making an (m x 4) array:
-%               [xlo(1), ylo(1), xhi(1), yhi(1); xlo(2), ylo(2), xhi(2), yhi(2); ...]
+%               [xlo(1), xhi(1), ylo(1), yhi(1); xlo(2), xhi(2), ylo(2), yhi(2); ...]
 %
 %  'remove' Ranges to remove from fitting. Follows the same format as 'keep'.
+%
+%   'mask'  Array of ones and zeros, with the same number of elements as the data
+%           array, that indicates which of the data points are to be retained for
+%           fitting
 %
 %  'select' Calculates the returned function values, yout, only at the points
 %           that were selected for fitting by 'keep' and 'remove'; all other

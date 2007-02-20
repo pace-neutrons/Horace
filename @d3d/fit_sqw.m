@@ -45,14 +45,18 @@ function [wout, fitdata] = fit_sqw(win, sqwfunc, pin, varargin)
 %           fcp(3)  Stopping criterion: relative change in chi-squared
 %                   i.e. stops if chisqr_new-chisqr_old < fcp(3)*chisqr_old
 %
-%   'keep'  Ranges of data to retain for fitting. A range is specified by two 
-%           triplets of numbers which define the corners of a cuboid.
-%               [xlo, ylo, zlo, xhi, yhi, zhi]
+%   'keep'  Ranges of data to retain for fitting. A range is specified by three 
+%           pairs of numbers which define a cuboid:
+%               [xlo, xhi, ylo, yhi, zlo, zhi]
 %           Several ranges can be defined by making an (m x 6) array:
-%               [xlo(1), ylo(1), zlo(1), xhi(1), yhi(1), zhi(1);
-%                xlo(2), ylo(2), zlo(2), xhi(2), yhi(2), zhi(2); ...]
+%               [xlo(1), xhi(1), ylo(1), yhi(1), zlo(1), zhi(1);
+%                xlo(2), xhi(2), ylo(2), yhi(2), zlo(2), zhi(2); ...]
 %
 %  'remove' Ranges to remove from fitting. Follows the same format as 'keep'.
+%
+%   'mask'  Array of ones and zeros, with the same number of elements as the data
+%           array, that indicates which of the data points are to be retained for
+%           fitting
 %
 %  'select' Calculates the returned function values, yout, only at the points
 %           that were selected for fitting by 'keep' and 'remove'; all other
@@ -80,31 +84,38 @@ function [wout, fitdata] = fit_sqw(win, sqwfunc, pin, varargin)
 %
 
 
-% Determine if 'all' is an option, and remove any occurences
-all_option=false;
-all_index=false(1,length(varargin));
-for i=1:length(varargin)
-    if ischar(varargin{i}) && ~isempty(strmatch(lower(varargin{i}),'all')) % option 'all' given
-        all_option=true;
-        all_index(i)=true;
-    end
+% Set defaults:
+arglist = struct('fitcontrolparameters',[0.0001 30 0.0001],...
+                 'list',0,'keep',[],'remove',[],'mask',[],'selected',0,'all',0);
+flags = {'selected','all'};
+
+% Parse parameters:
+[args,options,present] = parse_arguments(varargin,arglist,flags);
+
+% Check input arguments:
+if options.selected & options.all
+    error ('Cannot have both ''selected'' and ''all'' options at the same time')
 end
-varargin=varargin(~all_index);
 
 % Perform the fit
 wout = win;
 for i = 1:length(win)
     qw = dnd_calculate_qw(get(win));
+    sel = dnd_retain_for_fit_sqw (get(win), options.keep, options.remove, options.mask);
     [s,e]=dnd_normalise_sigerr(win(i).s,win(i).e,win(i).n);   % normalise data by no. points
     s = reshape(s,numel(s),1); 
     e = sqrt(reshape(e,numel(e),1));% recall that datasets hold variance, no error bars
 
     if i>1, fitdata(numel(win))=fitdata(1); end    % preallocate
-    [sout, fitdata(i)] = fit(qw, s, e, sqwfunc, pin, varargin{:});
+    [sout, fitdata(i)] = fit(qw, s, e, sqwfunc, pin, args{:},...
+        'fit', options.fitcontrolparameters,...
+        'list',options.list,...
+        'mask',sel,...
+        'selected',options.selected);
     
     wout(i).s = reshape(sout,size(win(i).s));
     wout(i).e = zeros(size(win(i).e));  
-    if ~all_option  % no option given
+    if ~options.all  % no option given
         wout(i).n = double(~isnan(wout(i).s) & win(i).n~=0);  % return data only at the points where there is data
     else
         wout(i).n = ones(size(win(i).n));

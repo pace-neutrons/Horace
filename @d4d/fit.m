@@ -46,14 +46,18 @@ function [wout, fitdata] = fit(win, func, pin, varargin)
 %           fcp(3)  Stopping criterion: relative change in chi-squared
 %                   i.e. stops if chisqr_new-chisqr_old < fcp(3)*chisqr_old
 %
-%   'keep'  Ranges of x and y to retain for fitting. A range is specified by two 
-%           quartets of numbers which define the corners of a hypercuboid.
-%               [xlo, ylo, zlo, wlo, xhi, yhi, zhi, whi]
-%           Several ranges can be defined by making an (m x 6) array:
-%               [xlo(1), ylo(1), zlo(1), wlo(1), xhi(1), yhi(1), zhi(1), whi(1);
-%                xlo(2), ylo(2), zlo(2), wlo(2), xhi(2), yhi(2), zhi(2), whi(2); ...]
+%   'keep'  Ranges of x and y to retain for fitting. A range is specified by four 
+%           pairs of numbers which define a cuboid:
+%               [xlo, xhi, ylo, yhi, zlo, zhi, wlo, whi]
+%           Several ranges can be defined by making an (m x 8) array:
+%               [xlo(1), xhi(1), ylo(1), yhi(1), zlo(1), zhi(1), wlo(1), whi(1);
+%                xlo(2), xhi(2), ylo(2), yhi(2), zlo(2), zhi(2), wlo(2), whi(2); ...]
 %
 %  'remove' Ranges to remove from fitting. Follows the same format as 'keep'.
+%
+%   'mask'  Array of ones and zeros, with the same number of elements as the data
+%           array, that indicates which of the data points are to be retained for
+%           fitting
 %
 %  'select' Calculates the returned function values, yout, only at the points
 %           that were selected for fitting by 'keep' and 'remove'; all other

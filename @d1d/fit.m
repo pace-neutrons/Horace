@@ -52,6 +52,10 @@ function [wout, fitdata] = fit(win, func, pin, varargin)
 %
 %  'remove' Ranges to remove from fitting. Follows the same format as 'keep'.
 %
+%   'mask'  Array of ones and zeros, with the same number of elements as the data
+%           array, that indicates which of the data points are to be retained for
+%           fitting
+%
 %  'select' Calculates the returned function values, yout, only at the points
 %           that were selected for fitting by 'keep' and 'remove'; all other
 %           points are set to NaN. This is useful for plotting the output, as
