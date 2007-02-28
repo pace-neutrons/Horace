@@ -51,12 +51,12 @@ if nargin==0    % make default dataset of requisite dimension
     return
 else
     if nargin==1 && strcmp(class(varargin{1}),class_type)
-        w = din;
+        w = varargin{1};
     elseif nargin==1 && isstruct(varargin{1})
-        [ndim, mess] = dnd_checkfields(din);
+        [ndim, mess] = dnd_checkfields(varargin{1});
         if ~isempty(ndim)
             if ndim==ndim_req
-                w = class (din, class_type);
+                w = class (varargin{1}, class_type);
             else
                 error (['ERROR: Fields correspond to ',num2str(ndim),'-dimensional dataset'])
             end
