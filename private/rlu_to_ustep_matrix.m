@@ -63,7 +63,7 @@ ustep_to_rlu = zeros(3,3);
 for i=1:3
     if lower(type(i))=='r'
         u_to_rlu(:,i) = ubinv(:,i)/max(abs(ubinv(:,i)));    % normalise so ui has max(abs(h,k,l))=1
-        ulen(i) = 1/max(ubinv(:,i));                        % length of u1 in Ang^-1
+        ulen(i) = 1/max(abs(ubinv(:,i)));                   % length of u1 in Ang^-1
         ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i);         % get step vector in r.l.u.
     elseif lower(type(i))=='a'
         u_to_rlu(:,i) = ubinv(:,i);                         % ui normalised to 1 Ang^-1 already, so just copy

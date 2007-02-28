@@ -1,4 +1,4 @@
-function [var, mess] = dnd_checkfields (din)
+function [ndim_out, mess] = dnd_checkfields (din)
 % Check if the fields in a structure are correct for an nD datastructure (n=0,1,2,3,4)
 % and check that the contents have the correct type and consistent sizes etc.
 %
@@ -6,8 +6,6 @@ function [var, mess] = dnd_checkfields (din)
 %
 % Syntax:
 %   >> [ndim, mess] = dnd_checkfields (din)
-% OR
-%   >> [dout, mess] = dnd_checkfields (ndim)
 %
 % Input:
 % -------
@@ -16,8 +14,6 @@ function [var, mess] = dnd_checkfields (din)
 % Output:
 % -------
 %   ndim    Number of dimensions (0,1,2,3,4). If an error, then returned as empty.
-% OR
-%   dout    Default empty dataset of requested dimension. If an error, then empty.
 %
 %   mess    Error message if isempty(ndim). If ~isempty(ndim), mess = ''
 %
@@ -51,7 +47,7 @@ function [var, mess] = dnd_checkfields (din)
 %   din.s     Cumulative signal.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   din.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
 %   din.n     Number of contributing pixels [size(din.n)=(length(din.p1)-1, length(din.p2)-1, ...)]
-%             If 0D, 1D, 2D, 3D, din.n is a double; if 4D, din.n is int32
+%             If 0D, 1D, 2D, 3D, din.n is a double; if 4D, din.n is int16
 
 % Original author: T.G.Perring
 %
@@ -67,7 +63,7 @@ d2d_names = [first_names;{'p1';'p2';};last_names];
 d3d_names = [first_names;{'p1';'p2';'p3'};last_names];
 d4d_names = [first_names;{'p1';'p2';'p3';'p4'};last_names];
 
-var=[];
+ndim_out=[];
 mess='';
 %--------------------------------------------------------------------------------------------------
 if isstruct(din)
@@ -91,7 +87,9 @@ if isstruct(din)
     % do all checks e.g. doesnt check that elements of ulen are all +ve, are consistent with lattice parameters
     % and matrix u etc. The mutual consistency will be assured by the functions that generate these
     % but using the 'get' and 'set' routines may upset that consistency.
-    if ~isa_size(din.file,'row','char'); mess='ERROR: field ''file'' must be a character string'; return; end
+    if ~((ischar(din.file)&&isempty(din.file))||isa_size(din.file,'row','char'))
+        mess='ERROR: field ''file'' must be a character string'; return
+    end
     if ~isa_size(din.grid,'row','char') || ~strcmp(din.grid,'orthogonal-grid') 
         mess='ERROR: field ''grid'' must be a ''orthogonal-grid'''; return
     end
@@ -157,43 +155,7 @@ if isstruct(din)
         if ~isa(din.n,'double'); mess='ERROR: field ''n'' must have type double'; return; end
         if length(find(din.n<0))>0; mess='ERROR: field ''n'' must not have negative elements'; return; end
     end
-    var = ndim;
-%--------------------------------------------------------------------------------------------------    
-elseif isnumeric(din) && length(din)==1
-    ndim=din;
-    if ndim==0 || ndim==1 || ndim==2 || ndim==3 || ndim==4
-        var.file='';
-        var.grid='orthogonal-grid';
-        var.title='';
-        var.a=0;
-        var.b=0;
-        var.c=0;
-        var.alpha=0;
-        var.beta=0;
-        var.gamma=0;
-        var.u=zeros(4,4); var.u(4,4)=1; % must give an energy axis
-        var.ulen=[0,0,0,0];
-        var.label={'','','','E'};
-        var.p0=[0;0;0;0];
-        var.pax=1:ndim;
-        var.iax=ndim+1:4;
-        var.uint=zeros(2,size(var.iax,2));
-        if ndim>0
-            for i=1:ndim
-                var.(['p',int2str(i)])=[0;0];
-            end
-        end
-        var.s=0;
-        var.e=0;
-        if ndim<4
-            var.n=0;
-        else
-            var.n=int16(0);
-        end
-    else
-        mess='ERROR: Numeric input must be 0,1,2,3 or 4 to create empty dataset'; return
-    end
-%--------------------------------------------------------------------------------------------------
+    ndim_out = ndim;
 else
-    mess = 'ERROR: Input is not a structure or integer in range 0-4'; return
+    mess = 'ERROR: Input is not a structure'; return
 end
