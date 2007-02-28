@@ -270,7 +270,7 @@ if isfield(d,'psi_samp'), %Single crystal data set
         data.s = data.s + accumarray(vstep(:,lis)', st(lis), [np1, np2, np3]);    % summed 3D intensity array
         data.e = data.e + accumarray(vstep(:,lis)', et(lis), [np1, np2, np3]);    % summed 3D variance array
         data.n = data.n + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2, np3]);
-    elseif % conventional detectors
+    else % conventional detectors
         disp('Sorry the function to read in single crystal data from conventional detectors has not been implemented yet')
     end
 else % Powder data 
