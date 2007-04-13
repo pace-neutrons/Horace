@@ -5,16 +5,16 @@ function gen_sqe (msp, data_in_dir, fin, fout, u1, u2, varargin);
 %
 % Syntax:
 %  Give two mslice projection axes, and construct the third:
-%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2)
+%   >> gen_sqe (msp, data_in_dir, fin, fout, u1, u2)
 %
 %  adding labels to the three projection axes:
-%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u1_lab, u2_lab, u3_lab)
+%   >> gen_sqe (msp, data_in_dir, fin, fout, u1, u2, u1_lab, u2_lab, u3_lab)
 %
 %  Give all three projection axes (must be orthogonal for mslice to work)
-%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3)
+%   >> gen_sqe (msp, data_in_dir, fin, fout, u1, u2, u3)
 %
 %  adding labels:
-%   >> gen_hkle (msp, data_in_dir, fin, fout, u1, u2, u3, u1_lab, u2_lab, u3_lab)
+%   >> gen_sqe (msp, data_in_dir, fin, fout, u1, u2, u3, u1_lab, u2_lab, u3_lab)
 %
 % NOTES:
 % (1) If the binary output file already exists, the routine appends the new
