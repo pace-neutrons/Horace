@@ -30,7 +30,7 @@ function wout = cut (win, varargin)
 if nargin==1
     wout = win; % trivial case of no integration axes being provided
 else
-    if length(varargin)==2 && (isa_size(varargin{1},[1,1],'double') & isa_size(varargin{2},[1,1],'double'))  % syntax must be cut(w1,xlo,xhi)
+    if length(varargin)==2 && (isa_size(varargin{1},[1,1],'double') && isa_size(varargin{2},[1,1],'double'))  % syntax must be cut(w1,xlo,xhi)
         args = {1, [varargin{1}, varargin{2}]};
     elseif length(varargin)==1 && isa_size(varargin{1},[1,2],'double')  % syntax must be cut(w1,[xlo,xhi])
         args = {1, varargin{1}};

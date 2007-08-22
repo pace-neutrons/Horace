@@ -1,4 +1,4 @@
-function wout = unspike (w, v1, v2, v3, v4)
+function wout = unspike (win, varargin)
 % UNSPIKE  Removes spikes from a 1D dataset
 %
 % There are four optional parameters: 
@@ -17,25 +17,13 @@ function wout = unspike (w, v1, v2, v3, v4)
 %   >> wout = unspike (w)
 %   >> wout = unspike (w, NaN, NaN, 1.5)   % to alter FAC to 1.5
 
-% The help section above should be identical to that for spectrum/unspike
+% The help section above should be identical to that for IXTdataset_1d/unspike
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
+ 
+wout = dnd_data_op(win, @unspike, 'd1d' , 1 , varargin{:});
 
-if (nargin==1)
-    wtemp = unspike (d1d_to_spectrum(w));
-elseif (nargin==2)
-    wtemp = unspike (d1d_to_spectrum(w), v1);
-elseif (nargin==3)
-    wtemp = unspike (d1d_to_spectrum(w), v1, v2);
-elseif (nargin==4)
-    wtemp = unspike (d1d_to_spectrum(w), v1, v2, v3);
-elseif (nargin==5)
-    wtemp = unspike (d1d_to_spectrum(w), v1, v2, v3, v4);            
-else
-    error ('Check number of arguments')
-end
-wout = combine_d1d_spectrum (w, wtemp);

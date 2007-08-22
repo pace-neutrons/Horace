@@ -45,7 +45,6 @@ function w = d4d (varargin)
 
 ndim_req = 4;
 class_type = 'd4d';
-superiorto('spectrum');
 
 if nargin==0    % make default dataset of requisite dimension
     w = class(dnd_makefields(ndim_req),class_type);

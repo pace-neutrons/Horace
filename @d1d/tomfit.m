@@ -36,7 +36,7 @@ function tomfit (w, xrange, p, fixed)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-if prod(size(w))>1
+if numel(w)>1
     error('Mfit only able to fit a single D1D - array input not possible')
 end
     

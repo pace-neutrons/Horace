@@ -1,42 +1,52 @@
-function dl(w,varargin)
-% DL Draws a plot of a 1D dataset
+function [fig_out, axes_out, plot_out] = dl(win,varargin)
+%--------help for gtk line plot command dl --------------------------------
+% Function Syntax: 
+% [figureHandle_,axesHandle_,plotHandle_] = 
+% DL(w,[property_name,property_value]) or
+% DL(w,xlo,xhi) or
+% DL(w,xlo,xhi,ylo,yhi)
 %
-%   >> dl(w)
-%   >> dl(w,xlo,xhi)
-%   >> dl(w,xlo,xhi,ylo,yhi)
+% Output: figure,axes and plot handle
+% Input: 1d dataset object and other control parameters (name value pairs)
 %
-% Advanced use:
-%   >> dl(w,...,fig_name)       % draw with name = fig_name
+% list of control propertie names
+% >> ixf_default_properties('get','IXG_ST_DEFAULT.figure')
+% >> ixf_default_properties('get','IXG_ST_DEFAULT.plot')
+% >> ixf_default_properties('get','IXG_ST_DEFAULT.axes')
+%
+% you can also give axis limit for x and y 
+% Purpose: plot the data according to values and control properties (for
+% figure, axes and plot)
+%
+% Example: 
+% DL(w) --> default structure plot
+% DL(w,'Color','red') --> override default structure values 
+% DL(w,'default','my_struct','Color','red') --> override values 
+% DL(w,'default','my_struct') --> from structure
+% DL(w,10,20)
+% DL(w,10,20,0,200)
+%
+% See libisis graphics documentation for advanced syntax.
+%--------------------------------------------------------------------------
 
-% Original author: T.G.Perring
-%
-% $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+%total
 
-global genie_max_spectra_1d
 
-% Check spectrum is not too long an array
-if length(w)>genie_max_spectra_1d
-    error (['This function can only be used to plot ',num2str(genie_max_spectra_1d),' spectra - check length of spectrum array'])
+IXG_ST_HORACE = ixf_default_properties('get','IXG_ST_HORACE');
+win_lib = convert_to_libisis(win);
+
+for i = 1:numel(win)
+    [title, xlab] = dnd_cut_titles (get(win(i)));
+    win_lib(i).title = char(title);
+    win_lib(i).x_units.units = char(xlab);
 end
 
-newplot = 1;
-type = 'l';
-fig_name='Horace_1D';
+[figureHandle_, axesHandle_, plotHandle_] = dl(win_lib, 'name',IXG_ST_HORACE.oned_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
 
-narg=nargin-1;
-if nargin>1 && ischar(varargin{end}) && ~isempty(varargin{end})
-    fig_name=varargin{end};
-    narg=narg-1;
+if nargout > 0
+    fig_out = figureHandle_;
+    axes_out = axesHandle_;
+    plot_out = plotHandle_;
 end
-if (narg==0)
-    plot_main (newplot,type,fig_name,d1d_to_spectrum(w));
-elseif (narg==2)
-    plot_main (newplot,type,fig_name,d1d_to_spectrum(w),varargin{1:2});
-elseif (narg==4)
-    plot_main (newplot,type,fig_name,d1d_to_spectrum(w),varargin{1:4});
-else
-    error ('Wrong number of arguments to DL')
-end
+
 

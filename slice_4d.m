@@ -74,7 +74,9 @@ function d = slice_4d (binfil, u, v, p0, p1_bin, p2_bin, p3_bin, varargin)
 %
 % Output:
 % -------
-%   d               4D dataset defined on orthogonal axes above
+%   d               4D dataset defined on orthogonal axes above (see
+%                   dnd_checkfields)
+
 
 % Original author: J. van Duijn
 %
@@ -87,32 +89,32 @@ small = 1.0e-13;
 
 % Check input parameters - not necessarily exhaustive, but should catch the obvious syntactical errors...
 % Check number of parameters
-if nargin==8 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to slice_4d)
+if nargin==8 && iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to slice_4d)
     args = varargin{1};
 else
     args = varargin;
 end
 nargs= length(args);
 
-if isa_size(args{1},'row','double'),
+if isa_size(args{1},'row','double')
     p4_bin= args{1};
     type= args{2};
     nstart= 3;
-elseif isa_size(args{1},'row','char'),
+elseif isa_size(args{1},'row','char')
     type= args{1};
     nstart=2;
 else
     error ('ERROR: Check input arguments p4_bin or type')
 end
 
-if nargs>=nstart,
+if nargs>=nstart
     j= 1;
     k= 1;
-    for i= nstart:nargs,
-        if isa_size(args{i},[1,3],'double'),
+    for i= nstart:nargs
+        if isa_size(args{i},[1,3],'double')
             nsym(j,:)= args{i};
             j= j+1;
-        elseif isa_size(args{i},'row','char'),
+        elseif isa_size(args{i},'row','char')
             p_lab{k}= args{i};
             k= k+1;
         else
@@ -253,7 +255,7 @@ for iblock = 1:h_main.nfiles,
         np4= length(d.p4)-1;
         d.s= zeros(np1,np2,np3,np4); % generate the 4D data structures
         d.e= zeros(np1,np2,np3,np4);
-        d.n= zeros(np1,np2,np3,np4,'int16');            
+        n= zeros(np1,np2,np3,np4);            
     end
     
     % If nsym array exists, symmetrise the data before it gets
@@ -291,10 +293,15 @@ for iblock = 1:h_main.nfiles,
     % that the accumulated array has the same size as d.s
     d.s= d.s + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]',[h.S(lis) 0]);    % summed 4D intensity array
     d.e= d.e + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]',[h.ERR(lis) 0]);  % summed 4D error array
-    d.n= d.n + int16(accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]', [ones(1,length(lis)) 0])); 
+    n= n + accumarray([[vstep(1:3,lis);emat(lis)], [np1; np2; np3; np4]]', [ones(1,length(lis)) 0]); 
 % calctime(iblock)=toc;
 % disp([' doing calculations: ',num2str(calctime(iblock))])
 end
+
+% normalise the data with n.
+n(~n)=NaN;
+d.s=d.s ./ n;
+d.e = d.e ./ (n.^2);
 
 fclose(fid);
 

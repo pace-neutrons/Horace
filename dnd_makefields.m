@@ -6,6 +6,8 @@ function [w, mess] = dnd_makefields (ndim,varargin)
 %   >> [w,message] = dnd_makefields (n,u0,u1,p1,u2,p2,...,un-1,pn-1,pn)
 %   >> [w,message] = dnd_makefields (lattice,u0,...)
 %
+% Inputs
+%---------
 %   n       Number of dimensions
 %   lattice Defines crystal lattice: [a,b,c,alpha,beta,gamma]
 %   u0      Vector of form [h0,k0,l0] or [h0,k0,l0,en0]
@@ -18,7 +20,15 @@ function [w, mess] = dnd_makefields (ndim,varargin)
 %          in multiples of u1.
 %   u2,p2   For next plot axis
 %
-%   If un is omitted, then it is assumed to be [0,0,0,1] i.e. the energy axis.
+%   If un is omitted, then it is assumed to be [0,0,0,1] i.e. the energy
+%   axis.
+%
+% Outputs:
+%----------
+%   w - dataset of class dnd where n is the number of dimensions (0, 1, 2, 3,
+%   4) 
+%
+%   mess - error message if operation fails. 
 %
 % Note: the dimension argument is currently redundant. However, since the
 %       only route to call this routine is via the constructor for specific
@@ -49,11 +59,6 @@ if narg==0
         end
         w.s=0;
         w.e=0;
-        if ndim<4
-            w.n=1;
-        else
-            w.n=int16(1);
-        end
     else
         mess='ERROR: Numeric input must be 0,1,2,3 or 4 to create empty dataset';
         return
@@ -122,13 +127,13 @@ elseif narg>=1
             u(4,4)=u(4,ndim);
             u(4,ndim)=0;
         end
-    elseif length(ind_en)==0 && ndim<4
+    elseif isempty(ind_en) && ndim<4
         if any(max(abs(u(:,1:ndim)),[],1)==0)
             mess='ERROR: Projection axes must be purely momentum or energy';
             return
         end
         u(4,4)=1;
-    elseif length(ind_en)==0 && ndim==4
+    elseif isempty(ind_en) && ndim==4
         mess='ERROR: One of the projection axes must be energy for a 4-dimensional dataset';
         return
     end
@@ -138,7 +143,7 @@ elseif narg>=1
     if nq==0    % either 0D dataset, or 1D dataset with energy axis as projection axis
         u(1:3,1:2)=[1,0,0;0,1,0]';
     elseif nq==1
-        if u(2,1)==0 & u(3,1)==0    % u1 parallel to a*
+        if u(2,1)==0 && u(3,1)==0    % u1 parallel to a*
             u(1:3,2)=[0,1,0];   % make u2 parallel to b*
         else
             u(1:3,2)=[1,0,0];   % make u2 parallel to a*
@@ -194,7 +199,6 @@ elseif narg>=1
     if ndim==0
         w.s=0;
         w.e=0;
-        w.n=0;
     else
         data_size=[];
         for i=1:ndim
@@ -203,10 +207,5 @@ elseif narg>=1
         end
         w.s=zeros(data_size);
         w.e=zeros(data_size);
-        if ndim<4
-            w.n=ones(data_size);
-        else
-            w.n=ones(data_size,'int16');
-        end
     end
 end

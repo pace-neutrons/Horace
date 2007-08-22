@@ -330,7 +330,7 @@ if isfield(d,'psi_samp'), %Single crystal data set
         np3 = length(data.p3)-1;
         data.s = zeros(np1,np2,np3);
         data.e = zeros(np1,np2,np3);
-        data.n = zeros(np1,np2,np3);
+        npixel = zeros(np1,np2,np3);
         vstep= reshape(d.v, sized(1)*sized(2), 3)';
         % convert vstep into index array where vstep(i,1)= 1 corresponds to data between pi(1) and pi(2).        
         vstep(1,:) = floor((vstep(1,:)-p1_bin(1))/p1_bin(2))+1;
@@ -346,7 +346,7 @@ if isfield(d,'psi_samp'), %Single crystal data set
         % that the accumulated array has the same size as data.s
         data.s = data.s + accumarray(vstep(:,lis)', st(lis), [np1, np2, np3]);    % summed 3D intensity array
         data.e = data.e + accumarray(vstep(:,lis)', et(lis), [np1, np2, np3]);    % summed 3D variance array
-        data.n = data.n + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2, np3]);
+        npixel = npixel + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2, np3]);
     else % conventional detectors
         if max(d.u(:,4))==0, % Energy axis not selected as a viewing axis
             data.u= [d.u', [0 0 0 0]',[0 0 0 1]']; % energy axis needs to be present for dnd_cut_titles to work
@@ -371,7 +371,7 @@ if isfield(d,'psi_samp'), %Single crystal data set
         np2 = length(data.p2)-1;
         data.s = zeros(np1,np2);
         data.e = zeros(np1,np2);
-        data.n = zeros(np1,np2);
+        npixel = zeros(np1,np2);
         vstep= reshape(d.v, sized(1)*sized(2), 2)';
         % convert vstep into index array where vstep(i,1)= 1 corresponds to data between pi(1) and pi(2).        
         vstep(1,:) = floor((vstep(1,:)-p1_bin(1))/p1_bin(2))+1;
@@ -385,7 +385,7 @@ if isfield(d,'psi_samp'), %Single crystal data set
         % that the accumulated array has the same size as data.s
         data.s = data.s + accumarray(vstep(:,lis)', st(lis), [np1, np2]);    % summed 2D intensity array
         data.e = data.e + accumarray(vstep(:,lis)', et(lis), [np1, np2]);    % summed 2D variance array
-        data.n = data.n + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2]);
+        npixel = npixel + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2]);
     end
 else % Powder data 
     data.a= 0;
@@ -416,7 +416,7 @@ else % Powder data
     np2 = length(data.p2)-1;
     data.s = zeros(np1,np2);
     data.e = zeros(np1,np2);
-    data.n = zeros(np1,np2);
+    npixel = zeros(np1,np2);
     vstep= reshape(d.v, sized(1)*sized(2), 2)';
     % convert vstep into index array where vstep(i,1)= 1 corresponds to data between pi(1) and pi(2).        
     vstep(1,:) = floor((vstep(1,:)-p1_bin(1))/p1_bin(2))+1;
@@ -430,8 +430,12 @@ else % Powder data
     % that the accumulated array has the same size as data.s
     data.s = data.s + accumarray(vstep(:,lis)', st(lis), [np1, np2]);    % summed 2D intensity array
     data.e = data.e + accumarray(vstep(:,lis)', et(lis), [np1, np2]);    % summed 2D variance array
-    data.n = data.n + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2]);
+    npixel = npixel + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2]);
 end
+
+npixel(~npixel)=NaN;
+d.s=d.s ./ npixel;
+d.e = d.e ./ (npixel.^2);
 
 % Create class from structure
 data = dnd_create(data);

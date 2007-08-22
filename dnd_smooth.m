@@ -49,7 +49,7 @@ ndim = length(din.pax);   % no. dimensions of the data
 
 if nargin==1
     nargs = 0;
-elseif nargin==2 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to dnd_smooth)
+elseif nargin==2 && iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to dnd_smooth)
     args = varargin{1};
     nargs= length(args);
 else
@@ -65,7 +65,7 @@ end
 if nargs>=1
     % Check size of width
     width = args{1};
-    if ~(isa_size(width,[1,ndim],'double') | isa_size(width,[1,1],'double'))
+    if ~(isa_size(width,[1,ndim],'double') || isa_size(width,[1,1],'double'))
         error ('ERROR: argument ''width'' must be a scalar or vector with length equal to the dimensions of the dataset')
     elseif isa_size(width,[1,1],'double')
         width = width*ones(1,ndim); % if input is scalar, expand to dimension of dataset
@@ -101,10 +101,10 @@ c = shape_handle{ishape}(width);    % use function handles to create matrix - ca
 % Smooth data structure
 m=warning('off','MATLAB:divideByZero');     % turn off divide by zero messages, saving present state
 
-signal = din.s ./ double(din.n);            % double precision for the case of 4 dimensions
-err = din.e ./ double((din.n.^2));
+signal = din.s;            % double precision for the case of 4 dimensions
+err = din.e;
 
-index = din.n~=0;   % elements with non-zero counts
+index = ~isnan(din.s);   % elements with non-zero counts
 signal(~index) = 0; % in principle not needed,as signal should be zero, but apply in case dataset constructed badly
 err(~index) = 0;    % likewise
 
@@ -115,18 +115,11 @@ err = convn(err,c.^2,'same')./(weight.^2);
 
 warning(m.state,'MATLAB:divideByZero');     % return to previous divide by zero message state
 
-signal(~index) = 0;     % restore zero signal to those bins with no data
-err(~index) = 0;
+signal(~index) = NaN;     % restore zero signal to those bins with no data
+err(~index) = NaN;
 clear weight            % save memory (may be critical for 4D datasets)
-if ndim==4
-    nout = ones(size(signal),'int16');
-else
-    nout = ones(size(signal));
-end
-nout(~index) = 0;
 
 % Create output structure
 d = din;
 d.s = signal;
 d.e = err;
-d.n = nout;

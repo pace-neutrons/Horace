@@ -13,7 +13,7 @@ function [wcalc, p, dp, fixed]= fromfit (win)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-if prod(size(w))>1
+if numel(w)>1
     error('Mfit only able to compute for a single D1D - array input not possible')
 end
 

@@ -41,7 +41,7 @@ function d = cut_sqe (binfil, p1_bin, p2_bin, p3_bin, p4_bin)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-
+pack
 tic
 
 % Check input arguments
@@ -51,9 +51,9 @@ if ~isa_size(binfil,'row','char')
 end
 
 lims = cell(1,4);
-if ~(isa_size(p1_bin,'row','double') & length(p1_bin)>=1 & length(p1_bin)<=3) | ...
-   ~(isa_size(p2_bin,'row','double') & length(p2_bin)>=1 & length(p2_bin)<=3) | ...
-   ~(isa_size(p3_bin,'row','double') & length(p3_bin)>=1 & length(p3_bin)<=3)
+if ~(isa_size(p1_bin,'row','double') && length(p1_bin)>=1 && length(p1_bin)<=3) || ...
+   ~(isa_size(p2_bin,'row','double') && length(p2_bin)>=1 && length(p2_bin)<=3) || ...
+   ~(isa_size(p3_bin,'row','double') && length(p3_bin)>=1 && length(p3_bin)<=3)
     error ('ERROR: Check format of integration range / plotting description for momentum axes')
 else
     lims{1} = p1_bin;
@@ -62,7 +62,7 @@ else
 end
 
 if exist('p4_bin','var')
-    if isa_size(p4_bin,'row','double') & length(p4_bin)>=1 & length(p4_bin)<=3
+    if isa_size(p4_bin,'row','double') && length(p4_bin)>=1 && length(p4_bin)<=3
         lims{4} = p4_bin;
     else
         error ('ERROR: Check format of integration range / plotting description for energy axis')
@@ -203,7 +203,7 @@ end
 
 d.s = zeros(psize);
 d.e = zeros(psize);
-d.n = zeros(psize);         % make this int16 at the very end if 4D
+n = zeros(psize);
 
 t_start = toc;
 summary.t_get_sqe_datablock = 0;
@@ -211,7 +211,12 @@ summary.t_get_sqe_lis = 0;
 summary.n_total = 0;
 summary.n_read = 0;
 summary.n_kept = 0;
+
+pack
+
 for ifile=1:h.nfiles
+ 
+
     [data, mess, lis, info] = get_sqe_datablock (fid, plims);
     if ~isempty(mess); fclose(fid); error(mess); end
     summary.t_get_sqe_datablock = summary.t_get_sqe_datablock + info.t_read;
@@ -226,20 +231,27 @@ for ifile=1:h.nfiles
     data.v = data.v(:,lis);
     data.S = data.S(lis);
     data.ERR = data.ERR(lis);
+   
     if npax>0
         for i=1:npax
             data.v(pax(i),:) = round((data.v(pax(i),:)-pbeg(i))/pstep(i)) + 1;
+            data.v(pax(i),:) = min(psize(i), max(1, data.v(pax(i),:)));
         end
+             
+
         d.s = d.s + accumarray(data.v(pax,:)', data.S, psize);
         d.e = d.e + accumarray(data.v(pax,:)', data.ERR, psize);
-        d.n = d.n + accumarray(data.v(pax,:)', ones(1,length(data.S)), psize);
+        n = n + accumarray(data.v(pax,:)', ones(1,length(data.S)), psize);
     else
         d.s = d.s + sum(data.S);
         d.e = d.e + sum(data.ERR);
-        d.n = d.n + length(data.S);
+        n = n + length(data.S);
     end
     % print message if more than two seconds since last update
+
+   
     t_calc = toc;
+    
     delta_time = t_calc - t_start;
     if delta_time > 2   % print message after two seconds
         percent_done = round(min(100,100*(ifile/h.nfiles)));
@@ -250,10 +262,15 @@ end
 
 % Close input file and make class out of structure:
 fclose(fid);
-if npax==4
-    d.n = int16(d.n);
-end
+
+% normalise signal and error by contributing pixels.
+n(~n)=NaN;
+d.s=d.s ./ n;
+d.e = d.e ./ (n.^2);
+
 d = dnd_create(d);
+
+pack
 
 % Print time to perform projection
 t_total = toc;

@@ -93,7 +93,7 @@ flags = {'selected','all'};
 [args,options,present] = parse_arguments(varargin,arglist,flags);
 
 % Check input arguments:
-if options.selected & options.all
+if options.selected && options.all
     error ('Cannot have both ''selected'' and ''all'' options at the same time')
 end
 
@@ -102,11 +102,11 @@ wout = win;
 for i = 1:length(win)
     qw = dnd_calculate_qw(get(win));
     sel = dnd_retain_for_fit_sqw (get(win), options.keep, options.remove, options.mask);
-    [s,e]=dnd_normalise_sigerr(win(i).s,win(i).e,win(i).n);   % normalise data by no. points
-    s = reshape(s,numel(s),1); 
-    e = sqrt(reshape(e,numel(e),1));% recall that datasets hold variance, no error bars
 
-    if i>1, fitdata(numel(win))=fitdata(1); end    % preallocate
+    s = reshape(win(i).s,numel(win(i).s),1); 
+    e = sqrt(reshape(win(i).e,numel(win(i).e),1));% recall that datasets hold variance, no error bars
+
+    if i==2, fitdata(1:numel(win))=fitdata(1); end    % preallocate
     [sout, fitdata(i)] = fit(qw, s, e, sqwfunc, pin, args{:},...
         'fit', options.fitcontrolparameters,...
         'list',options.list,...
@@ -115,9 +115,9 @@ for i = 1:length(win)
     
     wout(i).s = reshape(sout,size(win(i).s));
     wout(i).e = zeros(size(win(i).e));  
-    if ~options.all  % no option given
-        wout(i).n = int16(~isnan(wout(i).s) & win(i).n~=0);  % return data only at the points where there is data
-    else
-        wout(i).n = ones(size(win(i).n),'int16');
+    
+    if options.all  % if all data, then turn nans into 0's 
+        wout(i).s(isnan(wout(i).s)) = 0;
     end
+    
 end

@@ -44,10 +44,8 @@ function [ndim_out, mess] = dnd_checkfields (din)
 %   din.p1    Column vector of bin boundaries along first plot axis
 %   din.p2    Column vector of bin boundaries along second plot axis
 %     :       (for as many plot axes as given by length of din.pax)
-%   din.s     Cumulative signal.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
-%   din.e     Cumulative variance [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
-%   din.n     Number of contributing pixels [size(din.n)=(length(din.p1)-1, length(din.p2)-1, ...)]
-%             If 0D, 1D, 2D, 3D, din.n is a double; if 4D, din.n is int16
+%   din.s     Signal normalised by contributing pixels.  [size(din.s)=(length(din.p1)-1, length(din.p2)-1, ...)]
+%   din.e     Variance normalised by contributing pixels. [size(din.e)=(length(din.p1)-1, length(din.p2)-1, ...)]
 
 % Original author: T.G.Perring
 %
@@ -56,7 +54,7 @@ function [ndim_out, mess] = dnd_checkfields (din)
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
 first_names = {'file';'grid';'title';'a';'b';'c';'alpha';'beta';'gamma';'u';'ulen';'label';'p0';'pax';'iax';'uint'};
-last_names  = {'s';'e';'n'};
+last_names  = {'s';'e'};
 d0d_names = [first_names;last_names];
 d1d_names = [first_names;{'p1'};last_names];
 d2d_names = [first_names;{'p1';'p2';};last_names];
@@ -147,14 +145,6 @@ if isstruct(din)
     if ~isa_size(din.s,data_size,'double'); mess='ERROR: field ''s'' must have size that matches axis coordinates'; return; end
     if ~isa_size(din.e,data_size,'double'); mess='ERROR: field ''e'' must have size that matches axis coordinates'; return; end
     if length(find(din.e<0))>0; mess='ERROR: field ''e'' must not have negative elements (holds variances)'; return; end
-    if ~isa_size(din.n,data_size,'numeric'); mess='ERROR: field ''n'' must have size that matches axis coordinates'; return; end
-    if ndim==4
-        if ~isa(din.n,'int16'); mess='ERROR: field ''n'' must have type int16 (data is 4-dimensional)'; return; end
-        if length(find(din.n<int16(0)))>0; mess='ERROR: field ''n'' must not have negative elements'; return; end
-    else
-        if ~isa(din.n,'double'); mess='ERROR: field ''n'' must have type double'; return; end
-        if length(find(din.n<0))>0; mess='ERROR: field ''n'' must not have negative elements'; return; end
-    end
     ndim_out = ndim;
 else
     mess = 'ERROR: Input is not a structure'; return

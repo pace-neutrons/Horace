@@ -1,4 +1,4 @@
-function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin);
+function gen_hkle (msp, data_in_dir, fin, fout, u1, u2, varargin)
 % Read in a number of spe files and use the projection facilities in 
 % mslice to calculate the (Q,E) components for each pixel, and write these
 % and the intensity to a binary file suitable for use in the Horace routines.
@@ -111,10 +111,10 @@ if isempty(fig),
 end
 
 % Determine if u3 and labels are present:
-if nargin==6|nargin==7
+if nargin==6||nargin==7
     labels = 0;
     if nargin==7; u3 = varargin{1}; end
-elseif nargin==9|nargin==10
+elseif nargin==9||nargin==10
     labels = 1;
     if nargin==9
         u1_lab = varargin{1};
@@ -165,12 +165,27 @@ end
 
 % Read input spe file information (*** should check that all data files exist at this point)
 try
-    [psi,fnames] = textread(fin,'%f %s');  
+    [psi,fnames, e_i] = textread(fin,'%f %s %f','emptyvalue',NaN);  
 catch
     error (['ERROR: Check contents and format of spe file information file',fin])
 end
 
-nfiles = length(psi);
+% replace NaNs in e_i with the value above them. 
+if all(isnan(e_i))
+    e_i = [];
+else
+    if isnan(e_i(1))
+        error(['ERROR: First value of incident energy must be given in file', fin])
+    end
+    for i = 1:length(e_i)
+        if isnan(e_i(i))
+            e_i(i) = e_i(i-1);
+        end
+    end
+end
+
+
+nfiles = numel(psi);
 if nfiles<1
     error(['ERROR: No spe file information found in information file ',fin])
 end
@@ -178,9 +193,9 @@ end
 for i=1:nfiles
     if ~isempty(data_in_dir)    %override paths to spe files
         [spe_path,spe_file,spe_ext,spe_ver] = fileparts(fnames{i});
-        fname_true=fullfile(data_in_dir,[spe_file,spe_ext,spe_ver])
+        fname_true=fullfile(data_in_dir,[spe_file,spe_ext,spe_ver]);
     else
-        fname_true=fnames{i}
+        fname_true=fnames{i};
     end
     if exist(fname_true,'file')~=2
         error(['ERROR: File ',fname_true,' not found on path'])
@@ -191,7 +206,15 @@ end
 if exist(fout,'file')
     % Open existing file, read the header, update number of files and
     % position writing at the end of the file
-    append = 1;
+    button = questdlg(['The file ' fout ' already exists, do you wish to append the file with new data ("No" will stop operation)?'], ...
+                  'Exit Matlab','Yes','No','Yes');
+    switch button
+      case 'Yes',
+        append = 1;
+      case 'No',
+        return
+    end
+
     fid=fopen(fout, 'r+');
     if fid<0; error (['ERROR: Unable to open file ',fout]); end
     % check that the file is not empty (common error); if it is empty, then treat like a new file
@@ -281,6 +304,7 @@ ms_setvalue('u31',u3(1));
 ms_setvalue('u32',u3(2));
 ms_setvalue('u33',u3(3));
 ms_setvalue('u34',0);
+
 if labels
     ms_setvalue('u1label',u1_lab);
     ms_setvalue('u2label',u2_lab);
@@ -301,6 +325,7 @@ else
 end
 
 % Read and convert each spe file then write data to binary file 
+pack
 for i = 1:nfiles
     t_start = toc;
     % must do a clever trick to set path for spe file - TGP
@@ -323,11 +348,14 @@ for i = 1:nfiles
     end
     ms_setvalue('DataFile',[spe_file,spe_ext]);
     ms_setvalue('psi_samp',psi(i));
+    if ~ isempty(e_i)
+        ms_setvalue('efixed',e_i(i));
+    end
     ms_load_data;
     ms_calc_proj;
     d = fromwindow;
     disp('Writing data to output file')
-    if i==1 & ~append
+    if i==1 && ~append
         % The very first time around generate all the header information.
         data.grid= 'spe';
         data.title= d.title_label;

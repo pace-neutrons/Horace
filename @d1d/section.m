@@ -30,7 +30,7 @@ function wout = section (win, varargin)
 if nargin==1
     wout = win; % trivial case of no sectioning being required
 else
-    if length(varargin)==2 && (isa_size(varargin{1},[1,1],'double') & isa_size(varargin{2},[1,1],'double'))  % syntax must be cut(w1,xlo,xhi)
+    if length(varargin)==2 && (isa_size(varargin{1},[1,1],'double') && isa_size(varargin{2},[1,1],'double'))  % syntax must be cut(w1,xlo,xhi)
         args = {[varargin{1}, varargin{2}]};
     else
         args = varargin;

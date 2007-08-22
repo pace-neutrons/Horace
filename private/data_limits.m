@@ -26,8 +26,9 @@ function [val, n] = data_limits (din)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
+nin = ~isnan(din.s);
 
-s = sum_dimensions(din.n);
+s = sum_dimensions(nin);
 
 ndim = length(din.pax);
 val=zeros(2,ndim);

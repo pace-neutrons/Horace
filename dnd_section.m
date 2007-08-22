@@ -40,7 +40,7 @@ if nargin==1    % trivial case - no sectioning, so return
     dout = din;
     return
 end
-if nargin==2 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to section)
+if nargin==2 && iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to section)
     args = varargin{1};
 else
     args = varargin;
@@ -96,19 +96,15 @@ end
 if ndim==1
     dout.s = din.s(ilo(1):ihi(1));
     dout.e = din.e(ilo(1):ihi(1));
-    dout.n = din.n(ilo(1):ihi(1));
 elseif ndim==2
     dout.s = din.s(ilo(1):ihi(1),ilo(2):ihi(2));
     dout.e = din.e(ilo(1):ihi(1),ilo(2):ihi(2));
-    dout.n = din.n(ilo(1):ihi(1),ilo(2):ihi(2));
 elseif ndim==3
     dout.s = din.s(ilo(1):ihi(1),ilo(2):ihi(2),ilo(3):ihi(3));
     dout.e = din.e(ilo(1):ihi(1),ilo(2):ihi(2),ilo(3):ihi(3));
-    dout.n = din.n(ilo(1):ihi(1),ilo(2):ihi(2),ilo(3):ihi(3));
 elseif ndim==4
     dout.s = din.s(ilo(1):ihi(1),ilo(2):ihi(2),ilo(3):ihi(3),ilo(4):ihi(4));
     dout.e = din.e(ilo(1):ihi(1),ilo(2):ihi(2),ilo(3):ihi(3),ilo(4):ihi(4));
-    dout.n = din.n(ilo(1):ihi(1),ilo(2):ihi(2),ilo(3):ihi(3),ilo(4):ihi(4));
 else
     error('ERROR: Logic flaw in function ''section''')
 end

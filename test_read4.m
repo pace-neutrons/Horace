@@ -5,13 +5,13 @@ if nargin>0
         if (exist(binfil,'file')==2)
             file_internal = binfil;
         else
-            file_internal = genie_getfile(binfil);
+            file_internal = getfile(binfil);
         end
     else
-        file_internal = genie_getfile;
+        file_internal = getfile;
     end
 else
-    file_internal = genie_getfile;
+    file_internal = getfile;
 end
 if (isempty(file_internal))
     error ('No file given')

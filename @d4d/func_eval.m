@@ -49,10 +49,12 @@ for i = 1:length(win)
     p4 = reshape(p4,numel(p4),1);   % get y into single column
     wout(i).s = reshape(func_handle(p1,p2,p3,p4,p),size(win(i).s));
     wout(i).e = zeros(size(win(i).e));  
-    if ~exist('opt')  % no option given
-        wout(i).n = int16(wout(i).n~=0);   % return data only at the points where there is data
+    if ~exist('opt','var')  % no option given
+        % Do nothing
     elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
-        wout(i).n = ones(size(wout(i).n),'int16');
+        index = isnan(wout(i).s);
+        wout(i).s(index) = 0;
+        wout(i).e(index) = 0;
     else
         error('Unrecognised option')
     end

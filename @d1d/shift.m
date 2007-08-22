@@ -1,4 +1,4 @@
-function wout = shift(w, xval)
+function wout = shift(win, varargin)
 % SHIFT - Moves a 1D dataset along the x-axis
 %
 % Syntax:
@@ -13,5 +13,8 @@ function wout = shift(w, xval)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-wtemp = shift(d1d_to_spectrum(w), xval);
-wout = combine_d1d_spectrum (w, wtemp);
+if (nargin==1)
+    wout = win;
+else
+    wout = dnd_data_op(win, @shift, 'd1d' , 1 , varargin{:});
+end

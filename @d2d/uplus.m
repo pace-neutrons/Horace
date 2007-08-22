@@ -7,5 +7,5 @@ function wout = uplus(w1)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-wout = w1
+wout = w1;
         

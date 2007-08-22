@@ -64,9 +64,9 @@ info.t_lis  = 0;
 % Check type of input arguments
 if nargin==2 && isstruct(arg1)
     data = arg1;
-elseif nargin==2 && (isa_size(arg1,[1,1],'double') | isa_size(arg1,[1,3],'double') | isa_size(arg1,[4,2],'double'))
+elseif nargin==2 && (isa_size(arg1,[1,1],'double') || isa_size(arg1,[1,3],'double') || isa_size(arg1,[4,2],'double'))
     axis = arg1;
-elseif nargin==3 && isstruct(arg1) && (isa_size(arg2,[1,1],'double') | isa_size(arg2,[1,3],'double') | isa_size(arg2,[4,2],'double'))
+elseif nargin==3 && isstruct(arg1) && (isa_size(arg2,[1,1],'double') || isa_size(arg2,[1,3],'double') || isa_size(arg2,[4,2],'double'))
     data = arg1;
     axis = arg2;
 elseif nargin~=1
@@ -78,7 +78,7 @@ end
 if exist('axis','var')
     if ~(length(axis)==4)  % axis explicitly provided in call to function
         iax = axis(1);
-        if iax<1 | iax>4
+        if iax<1 || iax>4
             mess = 'ERROR: Axis label must be in range 1 - 4';
             return
         end

@@ -78,4 +78,3 @@ for i=1:ndim
 end
 dout.s = permute(din.s,order);
 dout.e = permute(din.e,order);
-dout.n = permute(din.n,order);

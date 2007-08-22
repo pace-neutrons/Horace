@@ -15,4 +15,4 @@ function w = mrdivide (w1, w2)
 %         combined element by element with the 2D dataset, and the outer (n-0) must
 %         match the array size of the 0D dataset array
 
-w = dnd_binary_op(w1,w2,@single_mrdivide,'d0d',0);
+w = dnd_binary_op(w1,w2,@mrdivide,'d0d',0);

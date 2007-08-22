@@ -37,19 +37,15 @@ end
 if ndim==1
     dout.s = din.s(n(1,1):n(2,1));
     dout.e = din.e(n(1,1):n(2,1));
-    dout.n = din.n(n(1,1):n(2,1));
 elseif ndim==2
     dout.s = din.s(n(1,1):n(2,1),n(1,2):n(2,2));
     dout.e = din.e(n(1,1):n(2,1),n(1,2):n(2,2));
-    dout.n = din.n(n(1,1):n(2,1),n(1,2):n(2,2));
 elseif ndim==3
     dout.s = din.s(n(1,1):n(2,1),n(1,2):n(2,2),n(1,3):n(2,3));
     dout.e = din.e(n(1,1):n(2,1),n(1,2):n(2,2),n(1,3):n(2,3));
-    dout.n = din.n(n(1,1):n(2,1),n(1,2):n(2,2),n(1,3):n(2,3));
 elseif ndim==4
     dout.s = din.s(n(1,1):n(2,1),n(1,2):n(2,2),n(1,3):n(2,3),n(1,4):n(2,4));
     dout.e = din.e(n(1,1):n(2,1),n(1,2):n(2,2),n(1,3):n(2,3),n(1,4):n(2,4));
-    dout.n = din.n(n(1,1):n(2,1),n(1,2):n(2,2),n(1,3):n(2,3),n(1,4):n(2,4));
 else
     error('ERROR: Logic flaw in function ''compact''')
 end

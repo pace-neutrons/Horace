@@ -13,10 +13,9 @@ function write_grid_data (fid, ndim, data)
 %   data.p1    Column vector of bin boundaries along first plot axis
 %   data.p2    Column vector of bin boundaries along second plot axis
 %     :       (for as many axes as given by ndim)
-%   data.s     Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.e     Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.n     Number of contributing pixels [size(data.n)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%             If 1D, 2D, 3D, data.n is written as a double; if 4D, data.n is written as int16
+%   data.s     Normalised signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%   data.e     Normalised variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
+
 
 % Original author: J. van Duijn
 %
@@ -67,8 +66,3 @@ end
 % Write data
 fwrite(fid,data.s,'float32');
 fwrite(fid,data.e,'float32');
-if ndim==4,
-    fwrite(fid,data.n,'int16');
-else
-    fwrite(fid,data.n,'double');
-end

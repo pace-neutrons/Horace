@@ -1,4 +1,4 @@
-function wout = rebunch(w, v1)
+function wout = rebunch(win, varargin)
 % REBUNCH - rebunch data points into groups of nbin points.
 %
 % Syntax:
@@ -7,6 +7,8 @@ function wout = rebunch(w, v1)
 %
 %   >> w_out = rebunch(w_in)         same as NBIN=1 i.e. W_OUT is just a copy of W_IN
 %
+%  Syntax is the same as the IXTdataset_1d operation. See this help for
+%  details on syntax.
 
 % The help section above should be identical to that for spectrum/rebunch
 
@@ -17,10 +19,7 @@ function wout = rebunch(w, v1)
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
 if (nargin==1)
-    wout = w;
-elseif (nargin == 2)
-    wtemp = rebunch (d1d_to_spectrum(w), v1);
-    wout = combine_d1d_spectrum (w, wtemp);
+    wout = win;
 else
-    error ('Check number of arguments')
+    wout = dnd_data_op(win, @rebunch, 'd1d' , 1 , varargin{:});
 end

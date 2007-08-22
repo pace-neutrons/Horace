@@ -14,5 +14,8 @@ function w = mrdivide (w1, w2)
 %       - an n-dimensional array of size, of which the inner 2 dimensions will be
 %         combined element by element with the 2D dataset, and the outer (n-2) must
 %         match the array size of the 2D dataset array
+%
+%   See dnd_binary_op or libisis documentation for more details and
+%   advanced use.
 
-w = dnd_binary_op(w1,w2,@single_mrdivide,'d2d',2);
+w = dnd_binary_op(w1,w2,@mrdivide,'d2d',2);

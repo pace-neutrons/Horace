@@ -35,7 +35,7 @@ function [b, arlu, angrlu, mess] = bmat (alatt, angdeg)
 % Horace v0.1   J. van Duijn, T.G.Perring
 
 
-if max(angdeg)>=180 | min(angdeg)<=0
+if max(angdeg)>=180 || min(angdeg)<=0
     b = [];
     arlu = [];
     angrlu = [];

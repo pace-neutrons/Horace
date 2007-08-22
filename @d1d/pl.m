@@ -1,29 +1,38 @@
-function pl(w,name)
-% PL Draws a marker plot of a 1D dataset on an existing plot
+function [fig_out, axes_out, plot_out] = pl(w,varargin)
+%-----help for gtk line overplot command pl--------------------------------
+%function syntax: PL(1ddataset_object,[property_name,property_value])
+% purpose:overplot
+% input: 1d dataset object, property name and value
+% output: none
+% example: PL(w)
+% PL(w,'color','red')
 %
-%   >> pl(w)
-%
-% Advanced use:
-%   >> pl(w,fig_name)       % plot on the fgure with name = fig_name
+% See libisis graphics documentation for advanced syntax.
+%--------------------------------------------------------------------------
 
-% Original author: T.G.Perring
-%
-% $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+%global structures
+[IXG_ST_ERROR, IXG_ST_STDVALUES] =ixf_default_properties('get','IXG_ST_ERROR','IXG_ST_STDVALUES');
 
-global genie_max_spectra_1d
-
-% Check spectrum is not too long an array
-if length(w)>genie_max_spectra_1d
-    error (['This function can only be used to plot ',num2str(genie_max_spectra_1d),' spectra - check length of spectrum array'])
+%check args
+if ( nargin < 1 )
+    ixf_display_error(IXG_ST_ERROR.wrong_arg);
+end
+%check my figure
+currflag = ixf_checkinit(IXG_ST_STDVALUES.currentfigure);
+if (currflag == IXG_ST_STDVALUES.false)
+    ixf_display_error(IXG_ST_ERROR.no_figure);
 end
 
-newplot = 0;
-type = 'l';
-fig_name='Horace_1D';
-if nargin==2
-    tmp = genie_figure_name(name);
-    if ~isempty(tmp), fig_name=tmp; end
+%hold 
+hold on;
+
+
+%call already prepared dl utility
+[figureHandle_, axesHandle_, plotHandle_] = dl(w,'counter',IXG_ST_STDVALUES.counter_increment,varargin{:});
+hold off;
+
+if nargout > 0
+    fig_out = figureHandle_;
+    axes_out = axesHandle_;
+    plot_out = plotHandle_;
 end
-plot_main (newplot,type,fig_name,d1d_to_spectrum(w));
