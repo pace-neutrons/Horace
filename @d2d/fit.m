@@ -106,9 +106,19 @@ varargin=varargin(~all_index);
 
 % Perform the fit
 wout = win;
-for i = 1:length(win)
-    p1 = 0.5*(win(i).p1(1:end-1)+win(i).p1(2:end));
-    p2 = 0.5*(win(i).p2(1:end-1)+win(i).p2(2:end));
+for i = 1:length(win)    
+    
+    if (length(win(i).p1)~=size(win(i).s,1)) % check for point / histrogram and turn into point. 
+       p1 = 0.5*(win(i).p1(1:end-1)+win(i).p1(2:end));
+    else
+        p1 = win(i).p1;
+    end
+    if (length(win(i).p2)~=size(win(i).s,2))
+        p2 = 0.5*(win(i).p2(1:end-1)+win(i).p2(2:end));
+    else
+       p2 = win(i).p2;
+    end
+
     [p1, p2] = ndgrid(p1,p2);       % mesh x and y 
     p1 = reshape(p1,numel(p1),1);   % get x into single column
     p2 = reshape(p2,numel(p2),1);   % get y into single column

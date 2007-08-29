@@ -104,7 +104,12 @@ varargin=varargin(~all_index);
 % Perform the fit
 wout = win;
 for i = 1:length(win)
-    p1 = 0.5*(win(i).p1(1:end-1)+win(i).p1(2:end));
+    if (length(win(i).p1)~=size(win(i).s,1)) % check for point / histrogram and turn into point. 
+       p1 = 0.5*(win(i).p1(1:end-1)+win(i).p1(2:end));
+    else
+        p1 = win(i).p1;
+    end
+    
     s = reshape(win(i).s,numel(win(i).s),1); 
     e = sqrt(reshape(win(i).e,numel(win(i).e),1));  % recall that datasets hold variance, not error bars
 
