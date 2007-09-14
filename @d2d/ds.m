@@ -30,9 +30,9 @@ function [fig_out, axes_out, plot_out] = ds(win,varargin)
 % Input: 2d dataset object and other control parameters (name value pairs)
 % list of control property names:
 %
-% >> ixf_default_properties('get','IXG_ST_DEFAULT.figure')
-% >> ixf_default_properties('get','IXG_ST_DEFAULT.plot')
-% >> ixf_default_properties('get','IXG_ST_DEFAULT.axes')
+% >> ixf_ixf_global_var('get','IXG_ST_DEFAULT.figure')
+% >> ixf_ixf_global_var('get','IXG_ST_DEFAULT.plot')
+% >> ixf_ixf_global_var('get','IXG_ST_DEFAULT.axes')
 % you can also give axis limit for x, y and z
 %
 % Purpose: plot the data on a surface according to values and control properties (for
@@ -51,7 +51,7 @@ function [fig_out, axes_out, plot_out] = ds(win,varargin)
 %-------------------updated 24/08/2006, Dean Whittaker---------------------
 
 %total
-IXG_ST_HORACE = ixf_default_properties('get','IXG_ST_HORACE');
+IXG_ST_HORACE =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 win_lib = convert_to_libisis(win);
 win = get(win);
 

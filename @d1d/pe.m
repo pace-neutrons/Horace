@@ -14,7 +14,7 @@ function [fig_out, axes_out, plot_out] = pe(w,varargin)
 %--------------------------------------------------------------------------
 
 %global structures
-[IXG_ST_ERROR, IXG_ST_STDVALUES] =ixf_default_properties('get','IXG_ST_ERROR','IXG_ST_STDVALUES');
+[IXG_ST_ERROR, IXG_ST_STDVALUES] =  ixf_global_var('libisis_graphics','get','IXG_ST_ERROR','IXG_ST_STDVALUES');
 
 %chk args
 if ( nargin < 1 )

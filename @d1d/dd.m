@@ -14,10 +14,6 @@ function [fig_out, axes_out, plot_out] = dd(win,varargin)
 % the markers, figure/axes/plotHandle_(:,3) are handles to the lines
 %
 % Input: 1d dataset object and other control parameters (name value pairs)
-% list of control propertie names
-% >> ixf_default_properties('get','IXG_ST_DEFAULT.figure')
-% >> ixf_default_properties('get','IXG_ST_DEFAULT.plot')
-% >> ixf_default_properties('get','IXG_ST_DEFAULT.axes')
 % you can also give axis limit for x and y 
 %
 % Purpose: plot the data according to values and control properties (for
@@ -34,7 +30,7 @@ function [fig_out, axes_out, plot_out] = dd(win,varargin)
 % See libisis graphics documentation for advanced syntax.
 %--------------------------------------------------------------------------
 
-IXG_ST_HORACE = ixf_default_properties('get','IXG_ST_HORACE');
+IXG_ST_HORACE =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 win_lib = convert_to_libisis(win);
 
 for i = 1:numel(win)

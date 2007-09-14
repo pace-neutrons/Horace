@@ -33,7 +33,7 @@ function [fig_out, axes_out, plot_out] = da(win,varargin)
 %-------------------updated 17/05/2007, Dean Whittaker---------------------
 %total
 
-IXG_ST_HORACE = ixf_default_properties('get','IXG_ST_HORACE');
+IXG_ST_HORACE =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 win_lib = convert_to_libisis(win);
 win = get(win);
 

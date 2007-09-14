@@ -13,7 +13,7 @@ function [fig_out, axes_out, plot_out] = pp(w,varargin)
 %-----------------------------------
 
 %global structures
-[IXG_ST_ERROR IXG_ST_STDVALUES]=ixf_default_properties('get','IXG_ST_ERROR','IXG_ST_STDVALUES');
+[IXG_ST_ERROR IXG_ST_STDVALUES]=  ixf_global_var('libisis_graphics','IXG_ST_ERROR','IXG_ST_STDVALUES');
 
 %check args
 if ( nargin < 1 )

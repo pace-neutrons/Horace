@@ -14,10 +14,6 @@ function [fig_out, axes_out, plot_out] = dp(win,varargin)
 % the markers
 %
 % Input: 1d dataset object and other control parameters (name value pairs)
-% list of control propertie names
-% >>IXG_ST_DEFAULT.figure
-% >>IXG_ST_DEFAULT.plot
-% >>IXG_ST_DEFAULT.axes
 % you can also give axis limit for x and y 
 % Purpose: plot the data according to values and control properties (for
 % figure, axes and plot)
@@ -35,7 +31,7 @@ function [fig_out, axes_out, plot_out] = dp(win,varargin)
 
 
 
-IXG_ST_HORACE = ixf_default_properties('get','IXG_ST_HORACE');
+IXG_ST_HORACE =   ixf_global_var('Horace','get','IXG_ST_HORACE');
 win_lib = convert_to_libisis(win);
 
 for i = 1:numel(win)
