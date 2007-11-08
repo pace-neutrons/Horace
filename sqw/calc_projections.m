@@ -31,7 +31,7 @@ function [u_to_rlu, ucoords] = ...
 %              coordinates and energy transfer
 
 % T.G.Perring   28 June 2007
-
+% I. Bustinduy  27/8/07
 
 % Check input parameters
 % -------------------------

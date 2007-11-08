@@ -35,28 +35,12 @@ try %using fortran routine
     par=load_par_fortran(filename);
     disp(['Fortran loading of .par file : ' filename]);
 catch%using matlab routine
-% par=rows of [l2(m) theta(deg) psi(deg) width(m) height(m)]
-    fid=fopen(filename,'rt');
-    if fid==-1,
-        disp(['Error opening file ' filename]);
-        par=[];
-        return
-    end
-    % === load detector information in .par format
-    fid=fopen(filename,'rt');
-    n=fscanf(fid,'%5d \n',1);
-    %disp(['Loading .par file with ' num2str(n) ' detectors: ' filename]);
-    temp=fgetl(fid);
-    par=sscanf(temp,'%f');
-    cols=length(par); % number of columns 5 or 6
-    par=[par;fscanf(fid,'%f')];
-    fclose(fid);
-    par=reshape(par,cols,n);
-    disp(['Matlab loading of .par file : ' filename]);
+    par=load_par_matlab(filename);
+    disp(['Matlab loading of .phx file : ' filename]);
 end
+
 ndet=size(par,2);
 disp([num2str(ndet) ' detector(s)']);
-
 det.group=1:ndet;
 det.x2=par(1,:);
 det.phi=par(2,:);

@@ -13,7 +13,7 @@ function det=load_phx(filename)
 %   det.danght      Row vector of angular heights (deg)
 
 % T.G.Perring   13/6/07
-
+% I. Bustinduy  27/8/07
 % If no input parameter given, return
 if ~exist('filename','var')
     help load_phx;
@@ -28,10 +28,17 @@ filename=strtrim(filename);
 det.filename=[name,ext,ver];
 det.filepath=[path,filesep];
 
-% Read spe file using fortran routine
-disp(['Fortran loading of .phx file : ' filename]);
-phx=load_phx_fortran(filename);
-ndet=size(phx,2);
+
+try %using fortran routine
+  % Read spe file using fortran routine
+  disp(['Fortran loading of .phx file : ' filename]);
+  phx=load_phx_fortran(filename);
+  ndet=size(phx,2);
+catch%using matlab routine
+  % Read spe file using Matlab routine
+  disp(['Matlab loading of .phx file : ' filename]);
+  phx=load_phx_matlab(filename);
+end
 disp([num2str(ndet) ' detector(s)']);
 
 det.group=1:ndet;
