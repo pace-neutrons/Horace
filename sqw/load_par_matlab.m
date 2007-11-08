@@ -1,18 +1,19 @@
-function det=load_par_matlab(filename)
+function par=load_par_matlab(filename)
 % Load data from ASCII Tobyfit .par file
-%   >> det = load_par(filename)
+%   >> par = load_par(filename)
 %
-% data has following fields:
-%   det.filename    Name of file excluding path
-%   det.filepath    Path to file including terminating file separator
-%   det.x2          Secondary flightpath (m)
-%   det.group       Row vector of detector group number - assumed to be 1:ndet
-%   det.phi         Row vector of scattering angles (deg)
-%   det.azim        Row vector of azimuthal angles (deg)
-%                  (West bank=0 deg, North bank=90 deg etc.)
-%   det.width       Row vector of detector widths (m)
-%   det.height      Row vector of detector heights (m)
-
+%     filename            name of par file
+%
+%     par(5,ndet)         contents of array
+%
+%     1st column     sample-detector distance
+%     2nd  "          scattering angle (deg)
+%     3rd  "        azimuthal angle (deg)
+%                  (west bank = 0 deg, north bank = -90 deg etc.)
+%              (Note the reversed sign convention cf .phx files)
+%     4th  "        width (m)
+%     5th  "        height (m)
+%
 % T.G.Perring   13/6/07
 % I. Bustinduy  17/08/08
 

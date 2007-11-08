@@ -33,7 +33,6 @@ try %using fortran routine
   % Read spe file using fortran routine
   disp(['Fortran loading of .phx file : ' filename]);
   phx=load_phx_fortran(filename);
-  ndet=size(phx,2);
 catch%using matlab routine
   % Read spe file using Matlab routine
   disp(['Matlab loading of .phx file : ' filename]);
@@ -41,6 +40,7 @@ catch%using matlab routine
 end
 disp([num2str(ndet) ' detector(s)']);
 
+ndet=size(phx,2);
 det.group=1:ndet;
 det.phi =phx(3,:);
 det.azim=phx(4,:);
