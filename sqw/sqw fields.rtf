@@ -1,0 +1,102 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Courier New;}{\f1\fnil Courier New;}{\f2\fswiss\fcharset0 Arial;}}
+{\colortbl ;\red34\green139\blue34;}
+{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\cf1\lang2057\f0\fs20 %========================================================================================================================\par
+\f1 % Notes\f0  about sqw data structures\cf0\f1\par
+\cf1\f0 %========================================================================================================================\par
+\f1 % Recall that the header field is a cell array of headers if there is more than one\cf0\fs24\par
+\cf1\fs20 % contributing spe file; otherwise it is a structure. A cell array of length unity is NOT valid\cf0\fs24\par
+\cf1\fs20 %\cf0\fs24\par
+\cf1\fs20 % There are three flavours of sqw data structure, with closing fields\cf0\fs24\par
+\cf1\fs20 %  \f0 type 'b'\tab\tab\f1 s,e  [normalised by number of contributing pixels]\cf0\fs24\par
+\cf1\fs20 %  \f0 type 'b+'\tab\f1 s,e,n [s,e are unnormliased accumulated sums]\cf0\fs24\par
+\cf1\fs20 %  \f0 type 'a'\tab\tab\f1 s,e,npix,urange,pix [s,e are unnormliased accumulated sums]\par
+\f0 %\par
+% In case (1), where there was no contributing signal, s=NaN and e=0\par
+% In cases (2)&(3), no contributing signal has s=0,e=0 and npix=0\cf0\f1\fs24\par
+\cf1\f0\fs20\par
+\par
+%========================================================================================================================\par
+              main header\lang1033\f1\par
+\lang2057\f0 %========================================================================================================================\par
+\f1 %   data.filename   Name of file that was the source of sqw data structure, excluding path\cf0\par
+\cf1 %   data.filepath   Path to file including terminating file separator\cf0\fs24\par
+\cf1\fs20 %   data.title      Title of sqw data structure\cf0\fs24\par
+\cf1\fs20 %   data.nfiles     Number of spe files that contribute\cf0\fs24\par
+\cf1\f0\fs20\par
+\par
+%========================================================================================================================\par
+              header\lang1033\f1\par
+\lang2057\f0 %========================================================================================================================\par
+%\lang1033\f1\par
+%   data.filename   Name of sqw file excluding path\cf0\par
+\cf1 %   data.filepath   Path to sqw file including terminating file separator\cf0\fs24\par
+\cf1\fs20 %   data.efix       Fixed energy (ei or ef depending on emode)\cf0\fs24\par
+\cf1\fs20 %   data.emode      Emode=1 direct geometry, =2 indirect geometry\cf0\fs24\par
+\cf1\fs20 %   data.alatt      Lattice parameters (Angstroms)\cf0\fs24\par
+\cf1\fs20 %   data.angdeg     Lattice angles (deg)\cf0\fs24\par
+\cf1\fs20 %   data.cu         First vector defining scattering plane (r.l.u.)\cf0\fs24\par
+\cf1\fs20 %   data.cv         Second vector defining scattering plane (r.l.u.)\cf0\fs24\par
+\cf1\fs20 %   data.psi        Orientation angle (deg)\cf0\fs24\par
+\cf1\fs20 %   data.omega      --|\cf0\fs24\par
+\cf1\fs20 %   data.dpsi         |  Crystal misorientation description (deg)\cf0\fs24\par
+\cf1\fs20 %   data.gl           |  (See notes elsewhere e.g. Tobyfit manual\cf0\fs24\par
+\cf1\fs20 %   data.gs         --|\cf0\fs24\par
+\cf1\fs20 %   data.en         Energy bin boundaries (meV) (column vector)\cf0\fs24\par
+\cf1\fs20 %   data.uoffset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]\cf0\fs24\par
+\cf1\fs20 %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation\cf0\fs24\par
+\cf1\fs20 %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.\cf0\fs24\par
+\cf1\fs20 %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]\cf0\fs24\par
+\cf1\fs20 %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]\cf0\fs24\par
+\cf1\fs20\par
+\par
+\lang2057\f0 %========================================================================================================================\par
+              detpar\lang1033\f1\par
+\lang2057\f0 %========================================================================================================================\par
+%\lang1033\f1\par
+\lang2057\f0 %   det.filename    Name of file excluding path\cf0\par
+\cf1 %   det.filepath    Path to file including terminating file separator\cf0\fs24\par
+\cf1\fs20 %   det.group       Row vector of detector group number\cf0\fs24\par
+\cf1\fs20 %   det.x2          Secondary flightpath (m)\cf0\fs24\par
+\cf1\fs20 %   det.phi         Row vector of scattering angles (deg)\cf0\fs24\par
+\cf1\fs20 %   det.azim        Row vector of azimuthal angles (deg)\cf0\fs24\par
+\cf1\fs20 %                  (West bank=0 deg, North bank=90 deg etc.)\cf0\fs24\par
+\cf1\fs20 %   det.width       Row vector of detector widths (m)\cf0\fs24\par
+\cf1\fs20 %   det.height      Row vector of detector heights (m)\cf0\fs24\par
+\cf1\fs20\par
+\par
+%========================================================================================================================\par
+              data\lang1033\f1\par
+\lang2057\f0 %========================================================================================================================\par
+%\lang1033\f1\par
+%   data.uoffset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]\cf0\par
+\cf1 %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation\cf0\fs24\par
+\cf1\fs20 %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.\cf0\fs24\par
+\cf1\fs20 %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]\cf0\fs24\par
+\cf1\fs20 %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]\cf0\fs24\par
+\cf1\fs20 %   data.iax        Index of integration axes into the projection axes  [row vector]\cf0\fs24\par
+\cf1\fs20 %                  Always in increasing numerical order\cf0\fs24\par
+\cf1\fs20 %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes\cf0\fs24\par
+\cf1\fs20 %   data.iint       Integration range along each of the integration axes. [iint(2,length(iax))]\cf0\fs24\par
+\cf1\fs20 %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]\cf0\fs24\par
+\cf1\fs20 %   data.pax        Index of plot axes into the projection axes  [row vector]\cf0\fs24\par
+\cf1\fs20 %                  Always in increasing numerical order\cf0\fs24\par
+\cf1\fs20 %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting\cf0\fs24\par
+\cf1\fs20 %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting\cf0\fs24\par
+\cf1\fs20 %   data.p          Call array containing bin boundaries along the plot axes [column vectors]\cf0\fs24\par
+\cf1\fs20 %                       i.e. data.p\{1\}, data.p\{2\} ... (for as many plot axes as given by length of data.pax)\cf0\fs24\par
+\cf1\fs20 %   data.dax        Index into data.pax of the axes for display purposes. For example we may have \cf0\fs24\par
+\cf1\fs20 %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,\cf0\fs24\par
+\cf1\fs20 %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow\cf0\fs24\par
+\cf1\fs20 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to\cf0\fs24\par
+\cf1\fs20 %                  be reordered [row vector]\cf0\fs24\par
+\cf1\fs20 %   data.s          Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]\cf0\fs24\par
+\cf1\fs20 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]\cf0\fs24\par
+\cf1\fs20 %   data.npix       No. contributing pixels to each bin of the plot axes.\cf0\fs24\par
+\cf1\fs20 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]\cf0\fs24\par
+\cf1\fs20 %   data.urange     True range of the data along each axis [urange(2,4)]. This is in the coordinates of the\cf0\fs24\par
+\cf1\fs20 %                  plot/integration projection axes, NOT the projection axes of the individual pixel info.\cf0\fs24\par
+\cf1\fs20 %   data.pix        Array containing data for each pixel:\cf0\fs24\par
+\par
+\f2\fs20\par
+}
+ 
