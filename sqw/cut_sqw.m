@@ -75,6 +75,7 @@ function cut = cut_sqw (data_source, proj_in, varargin)
 %   >> d = slice_3d ('RbMnF3.sqw', proj, [0.4,0.5], [-1,0.025,2], [-2,0.025,2])
 
 % T.G.Perring   04/07/2007
+% I.Bustinduy   01/10/2007
 
 % *** currently does not work for zero dimensional output: small issue to sort out
 bigtic
@@ -268,7 +269,7 @@ border = small*[-1,-1,-1,-1;1,1,1,1];   % put a small border around the range to
                                         
 % Construct arrays of bin boundaries that include integration axes as bins of zero length
 % (Need to go through the following for the case when have data structure with less than four plot axes)
-pin=cell(1,4);
+pin=cell(1,4); %'pin' will contain borders of the GRID
 pin(data.pax)=data.p;
 pin(data.iax)=mat2cell(data.urange(:,data.iax),2,ones(1,length(data.iax)));
 for i=1:4
@@ -382,9 +383,14 @@ if keep_pix
     data_out.urange = urange_pix;
     if ~pix_tmpfile; data_out.pix = pix; end
 else
-    data_out.s = s./npix;
-    data_out.e = e./(npix.^2);
+
+    % I.Bustinduy: Matlab may change the way it express 0/0 as NaN in the near future.
+    % data_out.s = s./npix;
+    %data_out.e = e./(npix.^2);   
     no_pix = (npix==0);     % true where there are no pixels contributing to the bin
+    data_out.s=zeros(size(s)); data_out.e=zeros(size(s));%I.Bustinduy: Initialize.
+    data_out.s(~no_pix) = s(~no_pix)./npix(~no_pix); %I.Bustinduy: Warning: Divide by zero.
+    data_out.e(~no_pix) = e(~no_pix)./(npix(~no_pix).^2);%I.Bustinduy: Warning: Divide by zero.
     data_out.s(no_pix)=NaN; % want signal to be NaN where there are no contributing pixels, not +/- Inf
     data_out.e(no_pix)=0;
 end
