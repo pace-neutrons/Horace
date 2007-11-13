@@ -1,5 +1,5 @@
-function [S,ERR,en] = load_spe_matlab(spe_filename)
-% function [S,ERR,en] = load_spe_matlab(spe_filename)
+function [S,ERR,en] = get_spe_matlab(spe_filename)
+% function [S,ERR,en] = get_spe_matlab(spe_filename)
 % loads data from an ASCII .spe file   
 % returns 
 %             S (ndet,ne)[intensity in units as given by data.axislabel(4,:)] 
@@ -12,7 +12,7 @@ function [S,ERR,en] = load_spe_matlab(spe_filename)
 
 % === if no input parameter given, return
 if ~exist('spe_filename','var'),
-   help load_spe;
+   help get_spe;
    return
 end
 

@@ -91,40 +91,99 @@ end
 %  memory even for that if larger than e.g. ~20^4 grid. We need to read these in, a section at a time, into a buffer. 
 
 
-mess_completion(npix_cumsum(end),5,1);      % initialise completion message reporting - only if exceeds time threshold
+pmax = 2000000;                             % size of buffer to hold pixel information
 nbin = numel(npix_cumsum);                  % total number of bins
 ibin_end=0;                                 % initialise the value of the largest element number of npix that is stored
-for ibin=1:nbin
-    % If necessary, refill buffer with next section of npix arrays from the input files
-    if ibin>ibin_end    % will always be called on the first loop
-        ibin_start = ibin_end+1;
-        [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_start,nbin);
-        if ~isempty(mess)
-            if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
-            mess = ['Error reading section of npix array in file %s \n %s',infiles{i},mess];
-            return
-        end
+ibin_lastflush=0;                           % last bin index for which data has been written to output file
+npix_lastflush=0;                           % last pixel index for which data has been written to output file
+
+nsinglebin_write = 0;
+nbuff_write = 0;
+mess_completion(npix_cumsum(end),5,1);      % initialise completion message reporting - only if exceeds time threshold
+while ibin_end<nbin
+    % Refill buffer with next section of npix arrays from the input files
+    ibin_start = ibin_end+1;
+    [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_start,nbin);
+    if ~isempty(mess)
+        if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
+        mess = ['Error reading section of npix array in file %s \n %s',infiles{i},mess];
+        return
     end
-    % Read pixel information from each input file, and write to output file
-    for i=1:nfiles
-        npix_in_bin = npix_section{i}(ibin-ibin_start+1);
-        if npix_in_bin>0
-            [pix,count,ok,mess] = fread_catch(fid(i),[9,npix_in_bin],'float32');
-            if ~all(ok);
-                if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
-                mess = ['Error reading pixel data for bin ',num2str(ibin),' in file ',infiles{i},' : ',mess];
-                return
+    % Get the largest bin index such that the pixel information can be put in buffer
+    % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
+    % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
+    while ibin_lastflush < ibin_end
+        ibin = min(ibin_end,upper_index(npix_cumsum, npix_lastflush+pmax));
+        if ibin==ibin_lastflush     % catch case when buffer cannot hold data for just the one bin
+            ibin = ibin+1;
+            for i=1:nfiles
+                npix_in_bin = npix_section{i}(ibin-ibin_start+1);
+                if npix_in_bin>0
+                    [pix,count,ok,mess] = fread_catch(fid(i),[9,npix_in_bin],'float32');
+                    if ~all(ok);
+                        if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
+                        mess = ['Error reading pixel data for bin ',num2str(ibin),' in file ',infiles{i},' : ',mess];
+                        return
+                    end
+                    if fileno
+                        pix(5,:)=i;   % set the run index to the file index
+                    end
+                    fwrite(fout,pix,'float32');
+                end
             end
-            if fileno
-                pix(5,:)=i;   % set the run index to the file index
+            nsinglebin_write = nsinglebin_write + 1;
+        else    % can hold data for at least one bin in buffer
+            % Get information about number of pixels to be read from all the files
+            nbin_flush = ibin-ibin_lastflush;           % number of bins read into buffer
+            npix_flush = zeros(nbin_flush,nfiles);      % to hold the no. pixels in each bin of the section we will write
+            for i=1:nfiles
+                npix_flush(:,i) = npix_section{i}(ibin_lastflush-ibin_start+2:ibin-ibin_start+1);
             end
-            fwrite(fout,pix,'float32');
+            npix_in_files= sum(npix_flush,1);           % number of pixels to be read from each file
+            % start and end pixel numbers for those bins with more than one pixel (for the others nend(i)=nbeg(i)-1)
+            nend = reshape(cumsum(npix_flush(:)),size(npix_flush)); % end pixel number for each bin for each file
+            nbeg = nend-npix_flush+1;                               % start pixel number for each bin for each file
+            % Read pixels from input files
+            pix_buff = zeros(9,nend(end));                          % buffer for pixel information
+            for i=1:nfiles
+                if npix_in_files(i)>0
+                    [pix_buff(:,nbeg(1,i):nend(end,i)),count,ok,mess] = fread_catch(fid(i),[9,npix_in_files(i)],'float32');
+                    if ~all(ok);
+                        if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
+                        mess = ['Error reading pixel data from ',infiles{i},' : ',mess];
+                        return
+                    end
+                    if fileno
+                        pix_buff(5,nbeg(1,i):nend(end,i))=i;   % set the run index to the file index
+                    end
+                end
+            end
+            % Write to the output file
+            npix_flush=npix_flush'; % transpose so order of elements is succesive files for 1st bin, succesive files for second etc.
+            ok=npix_flush>0;        % ranges with at least one pixel
+            if sum(ok(:))>0
+                nbeg=nbeg'; nbeg=nbeg(ok);  % transpose and use OK to get start of ranges in order of files for a given bin
+                nend=nend'; nend=nend(ok);  % similarly for end of range
+                nranges=cell(1,length(nbeg));
+                for i=1:length(nbeg)
+                    nranges{i}=nbeg(i):nend(i);
+                end
+                ind=[nranges{:}];           % index into pix_buff of the order in which to write pixels
+                pix_buff=pix_buff(:,ind);   % rearrange pix_buff
+                fwrite(fout,pix_buff,'float32');    % write to output file
+%                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
+            end
+            clear npix_flush npix_in_files nend nbeg ok ind pix_buff  % clear the memory ofbig arrays (esp. pix_buff)
+            nbuff_write = nbuff_write + 1;
         end
+        ibin_lastflush = ibin;
+        npix_lastflush = npix_cumsum(ibin_lastflush);
+        mess_completion(npix_lastflush)
     end
-    mess_completion(npix_cumsum(ibin))
 end
 mess_completion
-
+% disp([' single bin write operations: ',num2str(nsinglebin_write)])
+% disp(['     buffer write operations: ',num2str(nbuff_write)])
 
 % Close down
 if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;

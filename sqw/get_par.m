@@ -1,6 +1,6 @@
-function det=load_par(filename)
+function det=get_par(filename)
 % Load data from ASCII Tobyfit .par file
-%   >> det = load_par(filename)
+%   >> det = get_par(filename)
 %
 % data has following fields:
 %   det.filename    Name of file excluding path
@@ -14,10 +14,11 @@ function det=load_par(filename)
 %   det.height      Row vector of detector heights (m)
 
 % T.G.Perring   13/6/07
+% I. Bustinduy  17/08/08
 
 % If no input parameter given, return
 if ~exist('filename','var')
-    help load_par;
+    help get_par;
     return
 end
 
@@ -29,16 +30,22 @@ filename=strtrim(filename);
 det.filename=[name,ext,ver];
 det.filepath=[path,filesep];
 
-% Read spe file using fortran routine
-disp(['Fortran loading of .par file : ' filename]);
-par=load_par_fortran(filename);
+% Read par file
+try %using fortran routine
+    par=get_par_fortran(filename);
+    disp(['Fortran loading of .par file : ' filename]);
+catch%using matlab routine
+    par=get_par_matlab(filename);
+    disp(['Matlab loading of .phx file : ' filename]);
+end
+
 ndet=size(par,2);
 disp([num2str(ndet) ' detector(s)']);
-
 det.group=1:ndet;
 det.x2=par(1,:);
 det.phi=par(2,:);
 det.azim=-par(3,:); % Note sign change to get correct convention
 det.width=par(4,:);
 det.height=par(5,:);
+
 

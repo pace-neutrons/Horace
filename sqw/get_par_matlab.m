@@ -1,16 +1,16 @@
-function par=load_par_matlab(filename)
+function par=get_par_matlab(filename)
 % Load data from ASCII Tobyfit .par file
-%   >> par = load_par(filename)
+%   >> par = get_par(filename)
 %
-%     filename            name of par file
+%     filename      name of par file
 %
-%     par(5,ndet)         contents of array
+%     par(5,ndet)   contents of array
 %
-%     1st column     sample-detector distance
-%     2nd  "          scattering angle (deg)
+%     1st column    sample-detector distance
+%     2nd  "        scattering angle (deg)
 %     3rd  "        azimuthal angle (deg)
-%                  (west bank = 0 deg, north bank = -90 deg etc.)
-%              (Note the reversed sign convention cf .phx files)
+%                   (west bank = 0 deg, north bank = -90 deg etc.)
+%                   (Note the reversed sign convention cf .phx files)
 %     4th  "        width (m)
 %     5th  "        height (m)
 %
@@ -19,7 +19,7 @@ function par=load_par_matlab(filename)
 
 % If no input parameter given, return
 if ~exist('filename','var')
-    help load_par;
+    help get_par;
     return
 end
         

@@ -3,9 +3,10 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 % The file pointer is left at the end of the data block.
 %
 % Syntax:
+%   >> [data, mess] = get_sqw_data(fid)
 %   >> [data, mess] = get_sqw_data(fid, data_in)
-%   >> [data, mess] = get_sqw_data(fid, opt)
-%   >> [data, mess] = get_sqw_data(fid, data_in, opt)
+%   >> [data, mess] = get_sqw_data(..., opt)
+%   >> [data, mess] = get_sqw_data(..., npix_lo, npix_hi)
 %
 % Input:
 % ------
@@ -19,6 +20,9 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %                   '-nopix' Pixel information not read (only meaningful for sqw data type 'a')
 %
 %                    Default: read all fields of the corresponding sqw data type ('b','b+','a','a-')
+%
+%   npix_lo     -|- [optional] pixel number range to be read from the file 
+%   npix_hi     -|
 %
 % Output:
 % -------
@@ -91,20 +95,25 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 
 % T.G.Perring 20/06/07
 
-
+data=[];
 position=[];
 npixtot=[];
 type='';
 if nargin==2 && isstruct(varargin{1})
     data = varargin{1};
 elseif nargin==2 && ischar(varargin{1})
-    data = [];
     opt = varargin{1};
 elseif nargin==3 && isstruct(varargin{1}) && ischar(varargin{1})
     data = varargin{1};
     opt = varargin{2};
+elseif nargin==3 && isnumeric(varargin{1}) && isnumeric(varargin{2}) && isscalar(varargin{1}) && isscalar(varargin{2})
+    npix_lo=varargin{1};
+    npix_hi=varargin{2};
+elseif nargin==4 && isstruct(varargin{1}) && isnumeric(varargin{2}) && isnumeric(varargin{3}) && isscalar(varargin{2}) && isscalar(varargin{3})
+    data = varargin{1};
+    npix_lo=varargin{2};
+    npix_hi=varargin{3};
 elseif nargin>1
-    data = [];
     mess = 'Check the type of input argument(s)';
     return
 end
@@ -119,6 +128,11 @@ if exist('opt','var')
         nopix=true;
     else
         mess = 'invalid option';
+        return
+    end
+elseif exist('npix_lo','var')
+    if npix_lo<1 || npix_hi<npix_lo
+        mess = 'pixel range must have 1 <= npix_lo <= npix_hi';
         return
     end
 end
@@ -212,7 +226,17 @@ else
     [npixtot,count,ok,mess] = fread_catch(fid,1,'int64'); if ~all(ok); return; end;
     position.pix=ftell(fid);
     if ~header_only && ~nopix
-        [data.pix,count,ok,mess] = fread_catch(fid,[9,npixtot],'float32'); if ~all(ok); return; end;
+        if ~exist('npix_lo','var')
+            [data.pix,count,ok,mess] = fread_catch(fid,[9,npixtot],'float32'); if ~all(ok); return; end;
+        else
+            if npix_hi<=npixtot
+                status=fseek(fid,4*(9*(npix_lo-1)),'cof');
+                [data.pix,count,ok,mess] = fread_catch(fid,[9,npix_hi-npix_lo+1],'float32'); if ~all(ok); return; end;
+            else
+                mess=['Selected pixel range must lie inside 1 - ',num2str(npixtot)];
+                return
+            end
+        end
     else
         status=fseek(fid,4*(9*npixtot),'cof');  % skip field pix
     end

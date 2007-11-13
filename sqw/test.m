@@ -1,20 +1,20 @@
-tic;test_psd_data=load_spe('c:\temp\map06014.spe');toc
-%tic;test_psd_det=load_phx('c:\temp\9cards_4_4to1.phx');toc
-tic;test_psd_det=load_par('c:\temp\9cards_4_4to1.par');toc
+tic;test_psd_data=get_spe('c:\temp\map06014.spe');toc
+%tic;test_psd_det=get_phx('c:\temp\9cards_4_4to1.phx');toc
+tic;test_psd_det=get_par('c:\temp\9cards_4_4to1.par');toc
 
-tic;test_data=load_spe('c:\temp\test.spe');toc
-%tic;test_det=load_phx('c:\temp\test.phx');toc
-tic;test_det=load_par('c:\temp\test.par');toc
+tic;test_data=get_spe('c:\temp\test.spe');toc
+%tic;test_det=get_phx('c:\temp\test.phx');toc
+tic;test_det=get_par('c:\temp\test.par');toc
 
 tmp_data=section_spe(test_data,[12:15],[5,6]);
 tmp_det=section_par(test_det,[12:15]);
 
 
-tic;[test_psd_data,test_psd_det,keep]=load_data('c:\temp\map06014.spe','c:\temp\9cards_4_4to1.par');toc
-tic;test_psd_det0=load_par('c:\temp\9cards_4_4to1.par');toc
+tic;[test_psd_data,test_psd_det,keep]=get_data('c:\temp\map06014.spe','c:\temp\9cards_4_4to1.par');toc
+tic;test_psd_det0=get_par('c:\temp\9cards_4_4to1.par');toc
 
-tic;[test_data,test_det,keep]=load_data('c:\temp\test.spe','c:\temp\test.par');toc
-tic;test_det0=load_par('c:\temp\test.par');toc
+tic;[test_data,test_det,keep]=get_data('c:\temp\test.spe','c:\temp\test.par');toc
+tic;test_det0=get_par('c:\temp\test.par');toc
 
 
 efix=35;
@@ -54,8 +54,8 @@ gl=0 *deg2rad;
 gs=0 *deg2rad;
 
 % Old method - will write on a grid (see line in write_sqw_old.m for size)
-[test_psd_data,test_psd_det,keep]=load_data('c:\temp\map06014.spe','c:\temp\9cards_4_4to1.par');
-test_psd_det0=load_par('c:\temp\9cards_4_4to1.par');
+[test_psd_data,test_psd_det,keep]=get_data('c:\temp\map06014.spe','c:\temp\9cards_4_4to1.par');
+test_psd_det0=get_par('c:\temp\9cards_4_4to1.par');
 fid=fopen('c:\temp\crap_ref.sqw','w');
 write_sqw_old (fid, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, test_psd_data, test_psd_det, test_psd_det0)
 fclose(fid);

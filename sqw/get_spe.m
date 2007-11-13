@@ -1,6 +1,6 @@
-function data=load_spe(filename)
+function data=get_spe(filename)
 % Load VMS format ASCII .spe file
-%   >> data = load_spe(filename)
+%   >> data = get_spe(filename)
 %
 % data has following fields:
 %   data.filename   Name of file excluding path
@@ -14,7 +14,7 @@ function data=load_spe(filename)
 
 % If no input parameter given, return
 if ~exist('filename','var')
-    help load_spe;
+    help get_spe;
     return
 end
 
@@ -28,13 +28,12 @@ data.filepath=[path,filesep];
 
 % Read spe file using fortran routine
 try
-    [data.S,data.ERR,data.en]=load_spe_fortran(filename);
+    [data.S,data.ERR,data.en]=get_spe_fortran(filename);
     disp(['Fortran loading of .spe file : ' filename]);
 catch
-    [data.S,data.ERR,data.en]=load_spe_matlab(filename);
+    [data.S,data.ERR,data.en]=get_spe_matlab(filename);
     disp(['Matlab loading of .spe file : ' filename]);
 end
-
 [ne,ndet]=size(data.S);
 disp([num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)']);
 

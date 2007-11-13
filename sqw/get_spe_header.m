@@ -1,6 +1,6 @@
-function data=load_spe_header(filename)
+function data=get_spe_header(filename)
 % Load header information of VMS format ASCII .spe file
-%   >> data = load_spe(filename)
+%   >> data = get_spe(filename)
 %
 % data has following fields:
 %   data.filename   Name of file excluding path
@@ -12,7 +12,7 @@ function data=load_spe_header(filename)
 
 % If no input parameter given, return
 if ~exist('filename','var')
-    help load_spe_header;
+    help get_spe_header;
     return
 end
 
