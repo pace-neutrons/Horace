@@ -49,8 +49,8 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
 
 % Buffer sizes
-vmax = 5000000;     % maximum length of buffer array in which to accumulate points from the input file
-pmax = 5000000;     % maximum length of array in which to buffer retained pixels (pmax>=vmax)
+vmax = 3000000;     % maximum length of buffer array in which to accumulate points from the input file
+pmax = 3000000;     % maximum length of array in which to buffer retained pixels (pmax>=vmax)
 ndatpix = 9;        % number of pieces of information the pixel info array (see write_sqw_data for more details)
 
 
@@ -90,7 +90,6 @@ end
 v = zeros(ndatpix,min(vmax,npix_read));  % coordinates, signal and error as read from file - make it no longer than necessary
 
 vpos = 1;               % start of new work array (vpos gives position of next point to be filled in the work array v)
-npix_left = npix_read;  % number of pixels left to be read
 t_read  = [0,0];
 t_accum = [0,0];
 t_sort  = [0,0];
@@ -119,7 +118,6 @@ for i=1:length(range)
         else            % work array filled up; process the data read up to now, and reset position in work array to beginning
             bigtic(2)
             disp(['Have read data for ',num2str(vpos-1),' pixels - now processing data...'])
-            npix_left = npix_left - (vpos-1);
             [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                              v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
             disp(['         retained  ',num2str(del_npix_retain),' pixels'])
@@ -137,7 +135,6 @@ end
 if vpos>1   % flush out work array - the array contains some unprocessed data
     bigtic(2)
     disp(['Have read data for ',num2str(vpos-1),' pixels - now processing data...'])
-    npix_left = npix_left - (vpos-1);
     [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                      v(:,1:vpos-1), urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
     disp(['         retained  ',num2str(del_npix_retain),' pixels'])
@@ -225,12 +222,10 @@ disp(' ')
             clear pix ix npix_buffer    % tidy memory
             pix_files(1).pos_npixstart(nfile)=position.npix;
             pix_files(1).pos_pixstart(nfile)=position.pix;
-            % Re-prepare buffer arrays if still work to do
-            if ~finish
-                ppos=1;
-                pix = zeros(ndatpix,min(pmax,npix_left));
-                ix = zeros(min(pmax,npix_left),1);
-            end
+            % Re-prepare buffer arrays
+            ppos=1;
+            pix = zeros(ndatpix,min(pmax,npix_read));
+            ix = zeros(min(pmax,npix_read),1);
         end
     end
 

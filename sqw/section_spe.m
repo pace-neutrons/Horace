@@ -49,6 +49,6 @@ data_new.filename=data.filename;
 data_new.filepath=data.filepath;
 data_new.S=data.S(en_ind(1:end-1),det_array);
 data_new.ERR=data.ERR(en_ind(1:end-1),det_array);
-%data_new.en=data.en(en_ind); T.G.P 
+%data_new.en=data.en(en_ind); T.G.P   % I.Bustinduy: <-- Is this OK??? 
 data_new.en=data.en(en_ind(1:end-1)); % I.Bustinduy Mon Aug 27 12:39:40 CEST 2007
 
