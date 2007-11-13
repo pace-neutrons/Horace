@@ -1,9 +1,10 @@
-function [main_header,header,detpar,data,mess,position,npixtot,type] = get_sqw (infile,opt)
+function [main_header,header,detpar,data,mess,position,npixtot,type] = get_sqw (infile,varargin)
 % Load an sqw file from disk
 %
 % Syntax:
 %   >> [main_header, header, detpar, data, position, npixtot] = get_sqw (infile)
 %   >> [main_header, header, detpar, data, position, npixtot] = get_sqw (infile, opt)
+%   >> [main_header, header, detpar, data, position, npixtot] = get_sqw (infile, npix_lo, npix_hi)
 %
 % Input:
 % --------
@@ -16,6 +17,9 @@ function [main_header,header,detpar,data,mess,position,npixtot,type] = get_sqw (
 %                   '-nopix' Pixel information not read (only meaningful for sqw data type 'a')
 %
 %                    Default: read all fields of the corresponding sqw data type ('b','b+','a','a-')
+%
+%   npix_lo     -|- [optional] pixel number range to be read from the file
+%   npix_hi     -|
 %
 % Output:
 % --------
@@ -107,10 +111,10 @@ if ~isempty(mess); if close_file; fclose(fid); end; mess=['Error reading detecto
 
 % Get data
 position.data=ftell(fid);
-if ~exist('opt','var')
+if isempty(varargin)
     [data,mess,position_data,npixtot,type]=get_sqw_data(fid);
 else
-    [data,mess,position_data,npixtot,type]=get_sqw_data(fid,opt);
+    [data,mess,position_data,npixtot,type]=get_sqw_data(fid,varargin{:});
 end
 if ~isempty(mess); if close_file; fclose(fid); end; mess=['Error reading data block - ',mess]; return; end
 position.s=position_data.s;

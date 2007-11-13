@@ -37,7 +37,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %   urange          Actual range of grid
 
 % T.G.Perring  14 August 2007
-
+% I.Bustinduy  01/10/07
 
 % Check input arguments
 % ------------------------
@@ -82,37 +82,37 @@ end
 if isscalar(efix) && nfiles>1 && isnumeric(efix)
     efix=repmat(efix,[nfiles,1]);
 elseif ~(isvector(efix) && length(efix)==nfiles && isnumeric(efix))
-    error ('Efix must be a single number vector woth length equal to the number of spe files')
+    error ('Efix must be a single number vector with length equal to the number of spe files')
 end
 
 if isscalar(psi) && nfiles>1 && isnumeric(psi)
     psi=repmat(psi,[nfiles,1]);
 elseif ~(isvector(psi) && length(psi)==nfiles && isnumeric(psi))
-    error ('psi must be a single number vector woth length equal to the number of spe files')
+    error ('psi must be a single number vector with length equal to the number of spe files')
 end
 
 if isscalar(omega) && nfiles>1 && isnumeric(omega)
     omega=repmat(omega,[nfiles,1]);
 elseif ~(isvector(omega) && length(omega)==nfiles && isnumeric(omega))
-    error ('omega must be a single number vector woth length equal to the number of spe files')
+    error ('omega must be a single number vector with length equal to the number of spe files')
 end
 
 if isscalar(dpsi) && nfiles>1 && isnumeric(dpsi)
     dpsi=repmat(dpsi,[nfiles,1]);
 elseif ~(isvector(dpsi) && length(dpsi)==nfiles && isnumeric(dpsi))
-    error ('dpsi must be a single number vector woth length equal to the number of spe files')
+    error ('dpsi must be a single number vector with length equal to the number of spe files')
 end
 
 if isscalar(gl) && nfiles>1 && isnumeric(gl)
     gl=repmat(gl,[nfiles,1]);
 elseif ~(isvector(gl) && length(gl)==nfiles && isnumeric(gl))
-    error ('gl must be a single number vector woth length equal to the number of spe files')
+    error ('gl must be a single number vector with length equal to the number of spe files')
 end
 
 if isscalar(gs) && nfiles>1 && isnumeric(gs)
     gs=repmat(gs,[nfiles,1]);
 elseif ~(isvector(gs) && length(gs)==nfiles && isnumeric(gs))
-    error ('gs must be a single number vector woth length equal to the number of spe files')
+    error ('gs must be a single number vector with length equal to the number of spe files')
 end
 
 % Convert input angles to radians (except lattice parameters)
@@ -166,16 +166,16 @@ else
     disp('--------------------------------------------------------------------------------')
     disp(['Calculating limits of data from ',num2str(nfiles),' spe files...'])
     % Read in the detector parameters
-    det=load_par(par_file);
+    det=get_par(par_file);
     % Get the maximum limits along the projection axes across all spe files
-    data.filename='';
+    data.filename=''; 
     data.filepath='';
     ndet=length(det.group);
     data.S=zeros(2,ndet);
     data.E=zeros(2,ndet);
     urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:nfiles
-        data_header=load_spe_header(spe_file{i});
+        data_header=get_spe_header(spe_file{i});
         data.filename=data_header.filename;
         data.filepath=data_header.filepath;
         eps=(data_header.en(2:end)+data_header.en(1:end-1))/2;
@@ -188,19 +188,22 @@ else
             omega(i), dpsi(i), gl(i), gs(i), data, det);
         urange = [min(urange(1,:),min(ucoords,[],2)'); max(urange(2,:),max(ucoords,[],2)')];
     end
-    clear data det  % Tidy memory
+    clear data det ucoords % Tidy memory
 end
 
+disp('Global Urange'); disp(urange);
 % Write temporary sqw output file(s) (these can be deleted if all has gone well once gen_sqw has been run)
 % --------------------------------------------------------------------------------------------------------
 % *** should check that the temporary file names do not coincide with spe file names
-
+clear CREATE
+global CREATE
+CREATE=[];
 for i=1:nfiles
     disp('--------------------------------------------------------------------------------')
     disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
     grid_size_tmp = write_spe_to_sqw (spe_file{i}, par_file, tmp_file{i}, efix(i), emode, alatt, angdeg,...
                       u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i), grid_size_in, urange);
-    if i==1
+    if i==1 
         grid_size = grid_size_tmp;
     else
         if ~all(grid_size==grid_size_tmp)
@@ -208,6 +211,8 @@ for i=1:nfiles
         end
     end
 end
+clear CREATE
+
 % Create single sqw file combining all intermediate sqw files
 % ------------------------------------------------------------
 disp('--------------------------------------------------------------------------------')

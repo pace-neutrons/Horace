@@ -16,8 +16,18 @@ function mess_completion (varargin)
 %   n               Current position in completion of task (could be interation number)
 
 % T.G.Perring   29/06/2007
+% I. Bustinduy  06/09/2007
 
 persistent  initialised ntot t_thresh n_ratio_thresh t_start t_prev_msg n_ratio_prev_msg
+
+% persistent X Y Z defines X, Y, and Z as variables that are local to 
+% the function in which they are declared; yet their values are retained
+% in memory between calls to the function. Persistent variables are 
+% similar to global variables because MATLAB creates permanent storage 
+% for both. They differ from global variables in that persistent 
+% variables are known only to the function in which they are declared. 
+% This prevents persistent variables from being changed by other 
+% functions or from the MATLAB command line.
 
 % Initialise
 if nargin==3
