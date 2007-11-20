@@ -6,7 +6,7 @@ function data_new=section_spe(data,det_array,en_range)
 %   >> data_new=section_spe(data,det_array,en_range)
 %
 % Input:
-%   data        spe data structure (see load_spe)
+%   data        spe data structure (see get_spe)
 %   det_array   [det1,det2,...detn] are detector numbers to keep
 %              (Note: the order is retained regardless if monotonic or not)
 %   en_range    (Optional): [en_lo, en_hi] is energy transfer range to keep
@@ -49,6 +49,6 @@ data_new.filename=data.filename;
 data_new.filepath=data.filepath;
 data_new.S=data.S(en_ind(1:end-1),det_array);
 data_new.ERR=data.ERR(en_ind(1:end-1),det_array);
-%data_new.en=data.en(en_ind); T.G.P   % I.Bustinduy: <-- Is this OK??? 
-data_new.en=data.en(en_ind(1:end-1)); % I.Bustinduy Mon Aug 27 12:39:40 CEST 2007
+data_new.en=data.en(en_ind); T.G.P
+
 

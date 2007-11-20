@@ -42,7 +42,8 @@ det_theta=det_theta(1:ndet)*pi/180;  % leave out last value and transform degree
 temp=fgetl(fid);	% read eol character of the Phi grid table
 temp=fgetl(fid);	% read string '### Energy Grid'
 en=fscanf(fid,'%10f',ne+1); % read energy grid
-en=(en(2:ne+1)+en(1:ne))/2; % take median values, centres of bins
+%en=(en(2:ne+1)+en(1:ne))/2; % take median values, centres of bins 
+% Horace Suite wants to keep energy boundaries
 
 S=zeros(ndet,ne);
 ERR=S;
