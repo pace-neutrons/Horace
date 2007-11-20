@@ -4,7 +4,7 @@ function [keep,pixmask]=mask_spe(data)
 %
 %   >> [keep,pixmask]=mask_spe(data)
 %   
-%   data        spe data structure as read by load_spe
+%   data        spe data structure as read by get_spe
 %   
 %   keep        Row vector of the detector groups that are unmasked
 %              These are the groups where all pixels are masked

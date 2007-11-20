@@ -19,8 +19,8 @@ function [u_to_rlu, ucoords] = ...
 %   dpsi        Correction to psi (rad)
 %   gl          Large goniometer arc angle (rad)
 %   gs          Small goniometer arc angle (rad)
-%   data        Data structure of spe file (see load_spe)
-%   det         Data structure of par file (see load_par)
+%   data        Data structure of spe file (see get_spe)
+%   det         Data structure of par file (see get_par)
 %
 % Output:
 %   u_to_rlu    Matrix (3x3) of projection axes in reciprocal lattice units

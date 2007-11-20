@@ -135,7 +135,7 @@ main_header.title='';
 main_header.nfiles=1;
 
 % Read spe file and detector parameters
-[data,det,keep,det0]=load_data(spe_file, par_file);
+[data,det,keep,det0]=get_data(spe_file, par_file);
 
 % Calculate projections and fill data blocks to be written to file
 disp('Calculating projections...') 

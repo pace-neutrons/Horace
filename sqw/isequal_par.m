@@ -4,7 +4,7 @@ function ok = isequal_par(det1,det2)
 %
 %   >> ans = isequal_par(det1,det2)
 %
-%   det1, det2      Detector parameter structures of Tobyfit format (see (load_par)
+%   det1, det2      Detector parameter structures of Tobyfit format (see (get_par)
 %   ok              Logical, set to true if the structures are equal (apart from the
 %                  name and path to the files)
 

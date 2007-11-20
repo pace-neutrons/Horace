@@ -15,8 +15,8 @@ function [header,sqw_data]=calc_sqw (efix, emode, alatt, angdeg, u, v, psi, omeg
 %   dpsi        Correction to psi (rad)
 %   gl          Large goniometer arc angle (rad)
 %   gs          Small goniometer arc angle (rad)
-%   data        Data structure of spe file (see load_spe)
-%   det         Data structure of par file (see load_par)
+%   data        Data structure of spe file (see get_spe)
+%   det         Data structure of par file (see get_par)
 %
 % Ouput:
 %   header      Header information in data structure suitable for write_sqw_header

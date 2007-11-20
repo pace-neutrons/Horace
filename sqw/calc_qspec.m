@@ -5,8 +5,8 @@ function qspec=calc_qspec (efix, emode, data, det)
 %
 %   efix    Fixed energy (meV)
 %   emode   Direct geometry=1, indirect geometry=2
-%   data    Data structure of spe file (see load_spe)
-%   det     Data structure of par file (see load_par)
+%   data    Data structure of spe file (see get_spe)
+%   det     Data structure of par file (see get_par)
 %
 %   qspec(4,ne*ndet)    Momentum and energy transfer in spectrometer coordinates
 %
