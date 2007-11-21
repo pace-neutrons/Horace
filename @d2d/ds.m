@@ -49,6 +49,7 @@ function [fig_out, axes_out, plot_out] = ds(win,varargin)
 %
 % See libisis graphics documentation for more information.
 %-------------------updated 24/08/2006, Dean Whittaker---------------------
+% I.Bustinduy 16/11/07
 
 %total
 IXG_ST_HORACE =  ixf_global_var('Horace','get','IXG_ST_HORACE');
@@ -62,7 +63,11 @@ for i = 1:numel(win)
     win_lib(i).y_units.units = char(title_pax{2});
 end
 
-[figureHandle_, axesHandle_, plotHandle_] = ds(win_lib, 'name',IXG_ST_HORACE.surface_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
+if(~isempty(IXG_ST_HORACE))
+    [figureHandle_, axesHandle_, plotHandle_] = ds(win_lib, 'name',IXG_ST_HORACE.surface_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
+else
+    [figureHandle_, axesHandle_, plotHandle_] = ds(win_lib, varargin{:});
+end
 
 if win.pax(1)~=energy_axis && win.pax(2)~=energy_axis    % both plot axes are Q axes
     x_ulen = din.ulen(win.pax(1));

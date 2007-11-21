@@ -3,8 +3,8 @@ function [fig_out, axes_out, plot_out] = da(win,varargin)
 %
 % Area plot of dataset_2d (or array of d1d)
 %
-% Function Syntax: 
-% [figureHandle_,axesHandle_,plotHandle_] = 
+% Function Syntax:
+% [figureHandle_,axesHandle_,plotHandle_] =
 % DA(w,[property_name,property_value]) or
 % DA(w,xlo,xhi) or
 % DA(w,xlo,xhi,ylo,yhi)
@@ -21,21 +21,23 @@ function [fig_out, axes_out, plot_out] = da(win,varargin)
 % Purpose: plot the data according to values and control properties (for
 % figure, axes and plot)
 %
-% Example: 
+% Example:
 % DA(w) --> default structure plot
-% DA(w,'Color','red') --> override default structure values 
-% DA(w,'default','my_struct','Color','red') --> override values 
+% DA(w,'Color','red') --> override default structure values
+% DA(w,'default','my_struct','Color','red') --> override values
 % DA(w,'default','my_struct') --> from structure
 % DA(w,10,20)
 % DA(w,10,20,0,200)
 %
 % See the libisis graphics documentaiton for more information.
 %-------------------updated 17/05/2007, Dean Whittaker---------------------
-%total
+% I.Bustinduy 16/11/07
 
+%total
+disp('inside /@d2d/da')
 IXG_ST_HORACE =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 win_lib = convert_to_libisis(win);
-win = get(win);
+win = get(win); %obtain a structure from our d2d object.
 
 for i = 1:numel(win)
     [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = dnd_cut_titles (win(i));
@@ -44,7 +46,11 @@ for i = 1:numel(win)
     win_lib(i).y_units.units = char(title_pax{2});
 end
 
-[figureHandle_, axesHandle_, plotHandle_] = da(win_lib, 'name',IXG_ST_HORACE.area_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
+if(~isempty(IXG_ST_HORACE))
+    [figureHandle_, axesHandle_, plotHandle_] = da(win_lib, 'name',IXG_ST_HORACE.area_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
+else
+    [figureHandle_, axesHandle_, plotHandle_] = da(win_lib, varargin{:});
+end
 
 if win.pax(1)~=energy_axis && win.pax(2)~=energy_axis    % both plot axes are Q axes
     x_ulen = win.ulen(win.pax(1));

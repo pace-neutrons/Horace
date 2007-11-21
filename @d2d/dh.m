@@ -23,6 +23,7 @@ function [fig_out, axes_out, plot_out] = dh(win,varargin)
 %
 % See libisis graphics documentation for advanced syntax.
 %--------------------------------------------------------------------------
+% I.Bustinduy 16/11/07
 
 IXG_ST_HORACE =   ixf_global_var('Horace','get','IXG_ST_HORACE');
 win_lib = convert_to_libisis(win);
@@ -34,8 +35,12 @@ for i = 1:numel(win)
     win_lib(i).y_units.units = char(title_pax{2});
 end
 
+if(~isempty(IXG_ST_HORACE))
+    [figureHandle_, axesHandle_, plotHandle_] = dh(win_lib, 'name',IXG_ST_HORACE.oned_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
+else
+    [figureHandle_, axesHandle_, plotHandle_] = dh(win_lib, varargin{:});
+end
 
-[figureHandle_, axesHandle_, plotHandle_] = dh(win_lib, 'name',IXG_ST_HORACE.oned_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
 
 if nargout > 0
     fig_out = figureHandle_;

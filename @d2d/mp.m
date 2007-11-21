@@ -22,6 +22,7 @@ function [fig_out, axes_out, plot_out] = mp(win,varargin)
 % Thiw will set the name and tag of the plot.
 %
 %--------------------------------------------------------------------------
+% I.Bustinduy 16/11/07
 
 IXG_ST_HORACE =   ixf_global_var('Horace','get','IXG_ST_HORACE');
 win_lib = convert_to_libisis(win);
@@ -34,7 +35,11 @@ for i = 1:numel(win)
     win_lib(i).y_units.units = char(title_pax{2});
 end
 
-[figureHandle_, axesHandle_, plotHandle_] = mp(win_lib, 'name',IXG_ST_HORACE.multiplot_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
+if(~isempty(IXG_ST_HORACE))
+    [figureHandle_, axesHandle_, plotHandle_] = mp(win_lib, 'name',IXG_ST_HORACE.multiplot_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
+else
+    [figureHandle_, axesHandle_, plotHandle_] = mp(win_lib, varargin{:});
+end
 
 if win.pax(1)~=energy_axis && win.pax(2)~=energy_axis    % both plot axes are Q axes
     x_ulen = din.ulen(win.pax(1));

@@ -11,6 +11,7 @@ function display (w)
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
 % If array of d2d
+disp('inside /@d2d/display.m')
 if (max(size(w))>1)
     if (length(size(w))<=2)
         disp(['           [',num2str(size(w,1)),'x',num2str(size(w,2)),' dataset_2D]'])
