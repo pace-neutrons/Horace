@@ -202,13 +202,17 @@ position.npix=[];
 position.pix=[];
 npixtot=[];
 
-if feof(fid)    % reached end of file - can oinly be because has type 'b'
+if feof(fid)    % reached end of file - can only be because has type 'b'
     type='b';
     return
 else
     position.npix=ftell(fid);
-    [data.npix,count,ok,mess] = fread_catch(fid,prod(psize),'int64'); if ~all(ok); return; end;
-    data.npix = reshape(data.npix,psize);
+    if ~header_only
+        [data.npix,count,ok,mess] = fread_catch(fid,prod(psize),'int64'); if ~all(ok); return; end;
+        data.npix = reshape(data.npix,psize);
+    else
+        status=fseek(fid,8*(prod(psize)),'cof');  % skip field npix
+    end
 end
 
 if feof(fid)    % reached end of file - can only be because has type 'b+'
