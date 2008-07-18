@@ -179,7 +179,7 @@ elseif nargin== 12,
     p3= varargin{4};
     p1_bin= varargin{5};
     p2_bin= varargin{6};
-    u3_bin= varargin{7};
+    p3_bin= varargin{7};
     p1_lab= varargin{8};
     p2_lab= varargin{9};
     p3_lab= varargin{10};
