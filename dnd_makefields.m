@@ -163,10 +163,17 @@ elseif narg>=1
         ncmp=length(varargin{j});
         if ncmp==3
             urange(:,i)=varargin{j};
-            pvals{i}=[(urange(1,i)-urange(2,i)/2):urange(2,i):(urange(3,i)+urange(2,i)/2)]';
-            if urange(2,i)<=0 || length(pvals{i})<2
+            % Replace the following line to avoid rounding errors when e.g. urange(:,1)=[0,0.1,1]
+            % pvals{i}=[(urange(1,i)-urange(2,i)/2):urange(2,i):(urange(3,i)+urange(2,i)/2)]';
+            if urange(2,i)<=0 || urange(3,i)<=urange(1,i)
                 mess='ERROR: Check that ranges have form [plo,delta_p,phi], plo<phi and delta_p>0';
                 return
+            end
+            pvals{i}=(urange(1,i)-urange(2,i)/2:urange(2,i):urange(3,i)+urange(2,i)/2)';
+            if pvals{i}(end)<urange(3,i)
+                pvals{i}=[pvals{i};pvals{i}(end)+urange(2,i)];
+            elseif pvals{i}(end-1)>=urange(3,i)
+                pvals{i}=pvals{i}(1:end-1);
             end
         else
             mess='ERROR: Check ranges have form [plo,delta_p,phi]';
@@ -201,6 +208,7 @@ elseif narg>=1
             w.(['p',int2str(i)])=pvals{ind_range(i)};
             data_size=[data_size,length(pvals{ind_range(i)})-1];
         end
+        if length(data_size)==1, data_size=[data_size,1]; end
         w.s=zeros(data_size);
         w.e=zeros(data_size);
         if ndim<4

@@ -147,7 +147,12 @@ while ibin_end<nbin
             pix_buff = zeros(9,nend(end));                          % buffer for pixel information
             for i=1:nfiles
                 if npix_in_files(i)>0
-                    [pix_buff(:,nbeg(1,i):nend(end,i)),count,ok,mess] = fread_catch(fid(i),[9,npix_in_files(i)],'float32');
+                    try
+                        [pix_buff(:,nbeg(1,i):nend(end,i)),count,ok,mess] = fread_catch(fid(i),[9,npix_in_files(i)],'float32');
+                    catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+                        ok = false;
+                        mess = 'Unrecoverable read error after maximum no. tries';
+                    end
                     if ~all(ok);
                         if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
                         mess = ['Error reading pixel data from ',infiles{i},' : ',mess];
