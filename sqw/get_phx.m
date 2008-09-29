@@ -12,7 +12,11 @@ function det=get_phx(filename)
 %   det.dphi        Row vector of angular widths (deg)
 %   det.danght      Row vector of angular heights (deg)
 
-% T.G.Perring   13/6/07
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+%
+% Ibon Bustinduy: catch with Matlab routine if fortran fails
 
 % If no input parameter given, return
 if ~exist('filename','var')
@@ -28,12 +32,16 @@ filename=strtrim(filename);
 det.filename=[name,ext,ver];
 det.filepath=[path,filesep];
 
-% Read spe file using fortran routine
-disp(['Fortran loading of .phx file : ' filename]);
-phx=get_phx_fortran(filename);
+
+try     %using fortran routine
+  phx=get_phx_fortran(filename);
+catch   %using matlab routine
+  disp(['Matlab loading of .phx file : ' filename]);
+  phx=get_phx_matlab(filename);
+end
+
 ndet=size(phx,2);
 disp([num2str(ndet) ' detector(s)']);
-
 det.group=1:ndet;
 det.phi =phx(3,:);
 det.azim=phx(4,:);

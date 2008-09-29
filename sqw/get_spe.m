@@ -9,7 +9,11 @@ function data=get_spe(filename)
 %   data.ERR        [ne x ndet] array of error values (st. dev.)
 %   data.en         Column vector of energy bin boundaries
 
-% T.G.Perring   13/6/07
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+%
+% Ibon Bustinduy: catch with Matlab routine if fortran fails
 
 % If no input parameter given, return
 if ~exist('filename','var')
@@ -26,8 +30,14 @@ data.filename=[name,ext,ver];
 data.filepath=[path,filesep];
 
 % Read spe file using fortran routine
-disp(['Fortran loading of .spe file : ' filename]);
-[data.S,data.ERR,data.en]=get_spe_fortran(filename);
+try     %using fortran routine
+    [data.S,data.ERR,data.en]=get_spe_fortran(filename);
+catch   %using matlab routine
+    error('Problem with Fortran read routine.')
+%     disp(['Matlab loading of .spe file : ' filename]);
+%     [data.S,data.ERR,data.en]=get_spe_matlab(filename);
+end
+
 [ne,ndet]=size(data.S);
 disp([num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)']);
 
