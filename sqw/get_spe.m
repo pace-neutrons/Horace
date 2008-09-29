@@ -33,11 +33,9 @@ data.filepath=[path,filesep];
 try     %using fortran routine
     [data.S,data.ERR,data.en]=get_spe_fortran(filename);
 catch   %using matlab routine
-    error('Problem with Fortran read routine.')
-%     disp(['Matlab loading of .spe file : ' filename]);
-%     [data.S,data.ERR,data.en]=get_spe_matlab(filename);
+    disp(['Matlab loading of .spe file : ' filename]);
+    [data.S,data.ERR,data.en]=get_spe_matlab(filename);
 end
 
 [ne,ndet]=size(data.S);
 disp([num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)']);
-
