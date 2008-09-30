@@ -1,71 +1,46 @@
-function [S,ERR,en] = get_spe_matlab(spe_filename)
-% function [S,ERR,en] = get_spe_matlab(spe_filename)
-% loads data from an ASCII .spe file   
-% returns 
-%             S (ndet,ne)[intensity in units as given by data.axislabel(4,:)] 
-%             ERR (ndet,ne) [errors of .S, same units]
-%             en (1,ne)[meV]    
+function [S,ERR,en] = get_spe_matlab(filename)
+% Get signal, error and energy bin boundaries for spe file
 %
-% R.C. 24-July-1998
-% 6-August-1998 incorporate field .det_group and .title
-% I.Bustinduy Mon Aug 27 12:39:40 CEST 2007
+%   >> [S,ERR,en] = get_spe_matlab(filename)
+%
+%   S          [ne x ndet] array of signal values
+%   ERR        [ne x ndet] array of error values (st. dev.)
+%   en         Column vector of energy bin boundaries
 
-% === if no input parameter given, return
-if ~exist('spe_filename','var'),
-   help get_spe;
-   return
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+%
+% Based on Radu coldea routine load_spe in mslice
+
+filename=strtrim(filename); % Remove blanks from beginning and end of filename
+if isempty(filename),
+   error('Filename is empty')
 end
-
-filename=deblank(spe_filename); % remove blancs from beginning and end of spe_filename
-filename=fliplr(deblank(fliplr(filename)));
-% === if error opening file, return
 fid=fopen(filename,'rt');
 if fid==-1,
-   disp(['Error opening file ' filename ' . Data not read.']);
-   data=[];
-   return
+   error(['Error opening file ',filename]);
 end
-fclose(fid);
 
-fid=fopen(filename,'rt');
-% === read number of detectors and energy bins
-ndet=fscanf(fid,'%d',1);   % number of detector groups 
-ne=fscanf(fid,'%d',1);  % number of points along the energy axis
-temp=fgetl(fid);	% read eol
-%disp([num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)']);
-drawnow;
-
-% === read 2Theta scattering angles for all detectors
-temp=fgetl(fid);	% read string '### Phi Grid'
-det_theta=fscanf(fid,'%10f',ndet+1); % read phi grid, last value superfluous
-det_theta=det_theta(1:ndet)*pi/180;  % leave out last value and transform degrees --> radians
-temp=fgetl(fid);	% read eol character of the Phi grid table
-temp=fgetl(fid);	% read string '### Energy Grid'
+% Read number of detectors and energy bins
+ndet=fscanf(fid,'%d',1);
+ne=fscanf(fid,'%d',1);
+temp=fgetl(fid);    % read eol
+temp=fgetl(fid);    % read string '### Phi Grid'
+temp=fscanf(fid,'%10f',ndet+1); % read phi grid, last value superfluous
+temp=fgetl(fid);    % read eol character of the Phi grid table
+temp=fgetl(fid);    % read string '### Energy Grid'
 en=fscanf(fid,'%10f',ne+1); % read energy grid
-%en=(en(2:ne+1)+en(1:ne))/2; % take median values, centres of bins 
-% Horace Suite wants to keep energy boundaries
 
-S=zeros(ndet,ne);
-ERR=S;
-
+% Read data
+S=zeros(ne,ndet);
+ERR=zeros(ne,ndet);
 for i=1:ndet,
-   temp=fgetl(fid);
-   %while isempty(temp)|isempty(findstr(temp,'### S(Phi,w)')),
-   temp=fgetl(fid);			% get rid of line ### S(Phi,w)
-   %end
-   temp=fscanf(fid,'%10f',ne);
-   S(i,:)=transpose(temp);
-   temp=fgetl(fid);
-   %while isempty(temp),
-   %   temp=fgetl(fid),			
-   %end
-   temp=fgetl(fid);
-   temp=fscanf(fid,'%10f',ne);
-   ERR(i,:)=transpose(temp);   
+    temp=fgetl(fid);        % read eol character
+    temp=fgetl(fid);        % get rid of line ### S(Phi,w)
+    S(:,i)=fscanf(fid,'%10f',ne);
+    temp=fgetl(fid);        % read eol character
+    temp=fgetl(fid);        % get rid of line ### Errors
+    ERR(:,i)=fscanf(fid,'%10f',ne);
 end
 fclose(fid);
-
-% BUILD UP DATA STRUCTURE 
-en=en;
-S=S';
-ERR=ERR';

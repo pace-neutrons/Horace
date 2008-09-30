@@ -44,7 +44,11 @@ elseif nd_in==0
     dout=dref;
     dout.s=din.s*ones(size(dref.s));
     dout.e=din.s*ones(size(dref.s));
-    
+    if nd_ref~=4
+        dout.n=din.s*ones(size(dref.s));
+    else
+        dout.n=int16(din.s)*ones(size(dref.s),'int16');
+    end
     return
 else
     pax_common=zeros(1,nd_in);      % list of indicies of plot axes of dref that are shared by din
@@ -65,14 +69,21 @@ else
         if nd_in==nd_ref    % case of matching dimensionality - just transfer signal
             dout.s = din.s;
             dout.e = din.e;
+            dout.n = din.n;
         else
             permute_axes=[pax_common,pax_expand];
             din.s=ipermute(din.s,permute_axes); % match the projection axes with dref
             din.e=ipermute(din.e,permute_axes);
+            din.n=ipermute(din.n,permute_axes);
             size_repmat=size_ref;
             size_repmat(pax_common)=1;
             dout.s=repmat(din.s,size_repmat);
             dout.e=repmat(din.e,size_repmat);
+            if nd_ref~=4
+                dout.n=repmat(din.n,size_repmat);
+            else
+                dout.n=repmat(int16(din.n),size_repmat);
+            end
         end
     else
         error ('Input and reference datasets do not share the same plot axes')

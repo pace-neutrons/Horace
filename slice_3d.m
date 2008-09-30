@@ -98,7 +98,7 @@ small = 1.0e-13;
 
 % Check input parameters - not necessarily exhaustive, but should catch the obvious syntactical errors...
 % Check number of parameters
-if nargin==8 && iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to slice_3d)
+if nargin==8 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to slice_3d)
     args = varargin{1};
 else
     args = varargin;
@@ -149,15 +149,15 @@ if ~isa_size(type,[1,3],'char')
 end
 
 % check u, v, p0, p1_bin, p2_bin:
-if ~isa_size(u,[1,3],'double') || ~isa_size(v,[1,3],'double') || ~isa_size(p0,[1,3],'double') ||...
-        ~isa_size(p1_bin,[1,3],'double') || ~isa_size(p2_bin,[1,3],'double')
+if ~isa_size(u,[1,3],'double') | ~isa_size(v,[1,3],'double') | ~isa_size(p0,[1,3],'double') |...
+        ~isa_size(p1_bin,[1,3],'double') | ~isa_size(p2_bin,[1,3],'double')
     error ('ERROR: Check length and shape of u, v, p0, p1_bin, p2_bin - must be row vectors length 3')
 end
 
 % check p3_bin:
 if isa_size(p3_bin,[1,3],'double')       % p3 will be a plot axis
     qqq = 1;
-elseif isa_size(p3_bin,[1,2],'double') || isa_size(p3_bin,[1,1],'double')   % p3 will be integration axis
+elseif isa_size(p3_bin,[1,2],'double')|isa_size(p3_bin,[1,1],'double')   % p3 will be integration axis
     qqq = 0;
 else
     error ('ERROR: Check length and shape of p3_bin')
@@ -169,14 +169,14 @@ if qqq  % energy integration
         error ('ERROR: Must provide energy integration range in form [en_start, en_end]')
     end
 else
-    if exist('p4_bin','var') && ~(isa_size(p4_bin,[1,2],'double') || isa_size(p4_bin,[1,3],'double'))
+    if exist('p4_bin','var') && ~(isa_size(p4_bin,[1,2],'double') | isa_size(p4_bin,[1,3],'double'))
         error ('ERROR: Must provide binning for energy axis plotting in form [en_lo, eh_hi] or [en_start, en_step, en_end]')
     end
 end
 
 % Check form of labels:
-if exist('p1_lab','var') && ~(isa_size(p1_lab,'row','char') && ...
-        isa_size(p2_lab,'row','char') && isa_size(p3_lab,'row','char'))
+if exist('p1_lab','var') && ~(isa_size(p1_lab,'row','char') & ...
+        isa_size(p2_lab,'row','char') & isa_size(p3_lab,'row','char'))
     error ('ERROR: If axis labels are given, they must be character strings')
 end
 
@@ -184,7 +184,7 @@ end
 % Now start calculation proper
 % -----------------------------
 
-if isa_size(h,'row','char') && (exist(h,'file') &&  ~exist(h,'dir'))  % data_source is a file
+if isa_size(h,'row','char') && (exist(h,'file') &  ~exist(h,'dir'))  % data_source is a file
     source_is_file = 1;     % flag to indicate nature of data source
     binfil = h;             % make copy of file name before it is overwritten as a structure
     fid = fopen(binfil, 'r');    % open binary file
@@ -192,7 +192,7 @@ if isa_size(h,'row','char') && (exist(h,'file') &&  ~exist(h,'dir'))  % data_sou
     [h,mess] = get_header(fid);    % get the main header information
     if ~isempty(mess); fclose(fid); error(mess); end
     if isfield(h,'grid')
-        if ~(strcmp(h.grid,'spe')||strcmp(h.grid,'sqe')||strcmp(h.grid,'orthogonal-grid'))
+        if ~(strcmp(h.grid,'spe')|strcmp(h.grid,'sqe')|strcmp(h.grid,'orthogonal-grid'))
             fclose(fid);
             error ('ERROR: The function slice_3d only reads binary spe or binary orthogonal-grid data ');
         end
@@ -242,7 +242,7 @@ proj_to_ustep = rlu_to_ustep*h.u(1:3,1:3);  % coords of input data in different 
 p0n= rlu_to_ustep*p0(1:3)';
 
 % if 4d dataset, convert current p0 to the equivalent vector in the new orthogonal set given by u_to_rlu
-if ~(strcmp(h.grid,'spe')||strcmp(h.grid,'sqe'))
+if ~(strcmp(h.grid,'spe')|strcmp(h.grid,'sqe'))
     p0old= rlu_to_ustep*h.p0(1:3);
 end
 
@@ -286,7 +286,7 @@ d.uint = [centre-thick/2; centre+thick/2];
 
 %--------------------------------------------------------------------------------------------------------
 
-if strcmp(h.grid,'spe') || strcmp(h.grid,'sqe')    % Binary file consists of block spe data
+if strcmp(h.grid,'spe')|strcmp(h.grid,'sqe')    % Binary file consists of block spe data
     % Save h.ulen and other info from header before we overwrite variable
     saved_grid = h.grid;
     saved_ulen = h.ulen;
@@ -317,7 +317,7 @@ if strcmp(h.grid,'spe') || strcmp(h.grid,'sqe')    % Binary file consists of blo
                     p4_bin = [(h.en(1)-enbin/2),enbin,(h.en(end)+enbin/2)];
                     disp('Using energy range and binning from first spe file')
                 else
-                    if length(p4_bin)==2 || (length(p4_bin)==3 && enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
+                    if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
                         % tweak limits so that where there is existing spe data, the bin boundaries will match
                         p4_bin = [enbin*(ceil((p4_bin(1)-h.en(1))/enbin)-0.5)+h.en(1), enbin, ...
                                   enbin*(floor((p4_bin(end)-h.en(1))/enbin)+0.5)+h.en(1)];
@@ -334,7 +334,7 @@ if strcmp(h.grid,'spe') || strcmp(h.grid,'sqe')    % Binary file consists of blo
             np3 = length(d.p3)-1;
             d.s = zeros(np1,np2,np3);
             d.e = zeros(np1,np2,np3);
-            n = zeros(np1,np2,np3);
+            d.n = zeros(np1,np2,np3);
         end
 
         % If nsym array exists, symmetrise the data before it gets
@@ -378,12 +378,11 @@ if strcmp(h.grid,'spe') || strcmp(h.grid,'sqe')    % Binary file consists of blo
             % that the accumulated array has the same size as d.s
             d.s = d.s + accumarray(vstep(:,lis)', st(lis), [np1, np2, np3]);    % summed 3D intensity array
             d.e = d.e + accumarray(vstep(:,lis)', et(lis), [np1, np2, np3]);    % summed 3D variance array
-            n = n + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2, np3]);
+            d.n = d.n + accumarray(vstep(:,lis)', ones(1,length(lis)), [np1, np2, np3]);
             
         else
             % convert vstep into index array where vstep(i,1)= 1 corresponds to data
             % between pi(1) and pi(2). Do this only for vectors along p1 and p2.
-            
             vstep(1,:) = floor(vstep(1,:)-p0n(1)-p1_bin(1)/p1_bin(2))+1;
             vstep(2,:) = floor(vstep(2,:)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
             vstep(3,:) = round(vstep(3,:)-p0n(3)-centre/thick);
@@ -408,14 +407,12 @@ if strcmp(h.grid,'spe') || strcmp(h.grid,'sqe')    % Binary file consists of blo
             % that the accumulated array has the same size as d.s
             d.s = d.s + accumarray([vstep(:,lis);emat(lis)]', st(lis), [np1, np2, np3]);    % summed 3D intensity array
             d.e = d.e + accumarray([vstep(:,lis);emat(lis)]', et(lis), [np1, np2, np3]);  % summed 3D error array
-            n = n + accumarray([vstep(:,lis);emat(lis)]', ones(1,length(lis)), [np1, np2, np3]);
+            d.n = d.n + accumarray([vstep(:,lis);emat(lis)]', ones(1,length(lis)), [np1, np2, np3]);
         
         end
 % calctime(iblock)=toc;
 % disp([' doing calculations: ',num2str(calctime(iblock))])
-        
     end
-
     fclose(fid);
 % disp('----------------------------------------------------------- ')
 % disp([' total time to read: ',num2str(sum(readtime))])
@@ -427,21 +424,16 @@ else    % Binary file consists of 4D grid
     if source_is_file
         % Read in the 4D grid data
         disp('Reading 4D grid ...');
-        [h, mess] = get_grid_data(fid, 4, h); % read in 4D grid
+        [h,mess] = get_grid_data(fid, 4, h); % read in 4D grid
         if ~isempty(mess); fclose(fid); error(mess); end
         fclose(fid);
     end
-    
-    npixel = ones(size(h.s)); 
-    
     % We must allow for the possibility that the axes have been permuted by the user; permute
     % to the standard case that the first axis is u1 in h.u, the second is u2 etc. ie invert h.pax
     order = zeros(1,4);
-    
     for i=1:4
         order(h.pax(i)) = i;    % order(j) gives the plot axis corresponding to uj
     end
-    
     for i=1:4
         pname{i} = ['p',num2str(order(i))]; % field names of input data corresponding to u1, u2, u3, u4
     end
@@ -452,7 +444,7 @@ else    % Binary file consists of 4D grid
     p4 = h.(pname{4});
     signal = permute(h.s,order);
     errors = permute(h.e,order);
-    npixel = permute(npixel,order);
+    npixel = permute(h.n,order);
                
     % Initialise the grid data block 
     d.p1 = [p1_bin(1):p1_bin(2):p1_bin(3)]'; % length of d.p1=floor((p1_bin(3)-p1_bin(1))/p1_bin(2))+1
@@ -466,7 +458,7 @@ else    % Binary file consists of 4D grid
             p4_bin = [p4(1),enbin,p4(end)];
             disp('Using energy range and binning from 4D grid')
         else
-            if length(p4_bin)==2 || (length(p4_bin)==3 && enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
+            if length(p4_bin)==2 | (length(p4_bin)==3 & enbin>p4_bin(2)) % binning is smaller then the intrinsic binning, or is not given
                 % tweak limits so that where there is existing data, the bin boundaries will match
                 p4_bin = [enbin*ceil((p4_bin(1)-p4(1))/enbin)+p4(1), enbin, ...
                                   enbin*floor((p4_bin(end)-p4(1))/enbin)+p4(1)];
@@ -478,14 +470,12 @@ else    % Binary file consists of 4D grid
         end
         d.p3 = [p4_bin(1):p4_bin(2):p4_bin(3)]';
     end
-
-% initiate arrays to accumulate
     np1 = length(d.p1)-1; % number of bins
     np2 = length(d.p2)-1;
     np3 = length(d.p3)-1;
     d.s = zeros(np1,np2,np3);
     d.e = zeros(np1,np2,np3);
-    n = zeros(np1,np2,np3);
+    d.n = zeros(np1,np2,np3);
     
     % data will be broken down in to blocks along p4. Generate the large
     % vector arrays for p1, p2 and p3. The size of each vector is
@@ -501,13 +491,6 @@ else    % Binary file consists of 4D grid
     pt3 = repmat(p3', length(p1)*length(p2), 1);
     pt3 = reshape(pt3, 1, length(p1)*length(p2)*length(p3));
     
-    % make sure any nan values integrate the same as 0.
-    nanindex = isnan(signal);
-    signal(nanindex) = 0;
-    errors(nanindex) = 0;
-    % put npixel = 0 at nan points
-    npixel(nanindex) = 0;
-    total_int = 0;
     % convert [pt1;pt2;pt3] into the equivalent step matrix along the new orthogonal set given by u_to_rlu
     vstep = proj_to_ustep*[pt1;pt2;pt3]; 
 
@@ -522,7 +505,6 @@ else    % Binary file consists of 4D grid
         lis_e = find(emat==0);
         if ~isempty(lis_e)
             tic
-
             for iblock= lis_e(1):lis_e(end)
                 % find the index array
                 lis = find(1<=vstep(1,:) & vstep(1,:)<=floor((max(d.p1)-p1_bin(1))/p1_bin(2)) & ...
@@ -534,27 +516,20 @@ else    % Binary file consists of 4D grid
                     st = reshape(signal(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
                     et = reshape(errors(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3)));
                     nt = double(reshape(npixel(:,:,:,iblock),1,(length(p1))*(length(p2))*(length(p3))));
+    
                     % see .spe branch of outer if statement for explanation of logic of the following
-                    % keep track of nan values as well so they can be put
-                    % back in at the end.
                     d.s = d.s + accumarray(vstep(:,lis)', st(lis), [np1, np2, np3]);  % summed 3D intensity array
                     d.e = d.e + accumarray(vstep(:,lis)', et(lis), [np1, np2, np3]);  % summed 3D variance array
-                    n = n + accumarray(vstep(:,lis)', nt(lis), [np1, np2, np3]);
-                    total_int = total_int + numel(lis);
+                    d.n = d.n + accumarray(vstep(:,lis)', nt(lis), [np1, np2, np3]);
                 end
-                
-               
                 % print message if more than two seconds since last update
                 delta_time = toc;
                 if delta_time > 2   % print message after two seconds
-                   
                     percent_done = round(min(100,100*((iblock-lis_e(1)+1)/(lis_e(end)-lis_e(1)))));
                     disp (['fraction completed: ',num2str(percent_done),'%'])
                     tic
-                    
                 end
             end
-            
         end
     else
         % convert vstep into index array where vstep(i,1)= 1 corresponds to data
@@ -562,6 +537,7 @@ else    % Binary file consists of 4D grid
         vstep(1,:) = floor(vstep(1,:)+p0old(1)-p0n(1)-p1_bin(1)/p1_bin(2))+1;
         vstep(2,:) = floor(vstep(2,:)+p0old(2)-p0n(2)-p2_bin(1)/p2_bin(2))+1;
         vstep(3,:) = round(vstep(3,:)+p0old(3)-p0n(3)-centre/thick);
+
         tic
         for iblock= 1:(length(p4)),
             % generate equivalent energy matrix
@@ -588,9 +564,8 @@ else    % Binary file consists of 4D grid
                 % see .spe branch of outer if statement for explanation of logic of the following
                 d.s= d.s + accumarray([vstep_temp(:,lis);emat(lis)]', st(lis), [np1, np2, np3]); % summed 3D intensity array
                 d.e= d.e + accumarray([vstep_temp(:,lis);emat(lis)]', et(lis), [np1, np2, np3]); % summed 3D error array
-                n = n + accumarray([vstep_temp(:,lis);emat(lis)]', nt(lis), [np1, np2, np3]);
+                d.n= d.n + accumarray([vstep_temp(:,lis);emat(lis)]', nt(lis), [np1, np2, np3]);
             end
-                total_int = total_int + numel(lis);
             % print message if more than two seconds since last update
             delta_time = toc;
             if delta_time > 2   % print message after two seconds
@@ -601,11 +576,6 @@ else    % Binary file consists of 4D grid
         end
     end
 end
-
-% normalise the data with n.
-n(~n)=NaN;
-d.s=d.s ./ n;
-d.e=d.e ./ (n.^2);
 
 % Make class out of structure:
 d = d3d(d);

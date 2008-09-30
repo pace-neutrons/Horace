@@ -41,7 +41,7 @@ function w = d2d (varargin)
 
 ndim_req = 2;
 class_type = 'd2d';
-superiorto('IXTdataset_2d');
+superiorto('spectrum');
 
 if nargin==0    % make default dataset of requisite dimension
     w = class(dnd_makefields(ndim_req),class_type);

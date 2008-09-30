@@ -33,7 +33,7 @@ function wout= user_func(win,func_handle,varargin)
 % Horace v0.1   J. van Duijn, T.G.Perring
 
 if nargin==1
-    wout = win; % trivial case of no user function being provided
+    wout = win; % trivial case of no user dunction being provided
 else
     wout = dnd_create(dnd_user_func(get(win),func_handle, varargin{:}));
 end

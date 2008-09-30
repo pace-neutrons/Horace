@@ -67,6 +67,7 @@ data.p1=pbound_plot;
 data=rmfield(data,'p2');
 data.s=wdisp{1};
 data.e=zeros(size(data.s));
+data.n=ones(size(data.s)); 
 
 w1d=d1d(data);
 w1d(ndisp)=w1d;

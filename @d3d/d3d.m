@@ -44,7 +44,7 @@ function w = d3d (varargin)
 
 ndim_req = 3;
 class_type = 'd3d';
-superiorto('IXTdataset_3d');
+superiorto('spectrum');
 
 if nargin==0    % make default dataset of requisite dimension
     w = class(dnd_makefields(ndim_req),class_type);

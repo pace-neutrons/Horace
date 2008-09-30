@@ -13,8 +13,11 @@ function det=get_par(filename)
 %   det.width       Row vector of detector widths (m)
 %   det.height      Row vector of detector heights (m)
 
-% T.G.Perring   13/6/07
-% I. Bustinduy  17/08/08
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+%
+% Ibon Bustinduy: catch with Matlab routine if fortran fails
 
 % If no input parameter given, return
 if ~exist('filename','var')
@@ -31,12 +34,11 @@ det.filename=[name,ext,ver];
 det.filepath=[path,filesep];
 
 % Read par file
-try %using fortran routine
+try     %using fortran routine
     par=get_par_fortran(filename);
-    disp(['Fortran loading of .par file : ' filename]);
-catch%using matlab routine
+catch   %using matlab routine
+    disp(['Matlab loading of .par file : ' filename]);
     par=get_par_matlab(filename);
-    disp(['Matlab loading of .phx file : ' filename]);
 end
 
 ndet=size(par,2);
@@ -47,5 +49,3 @@ det.phi=par(2,:);
 det.azim=-par(3,:); % Note sign change to get correct convention
 det.width=par(4,:);
 det.height=par(5,:);
-
-

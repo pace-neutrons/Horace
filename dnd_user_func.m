@@ -67,7 +67,7 @@ end
 dfunc=eval(command); % the only valid return fields are dtemp.s, dtemp.e and/or dtemp.title
 
 % Check the out put and update the relevant fields in dout.
-if ~isstruct(dfunc) || length(dfunc)>1
+if ~isstruct(dfunc) | length(dfunc)>1
     error('ERROR: you are only allowed to return a single structure array');
 end
 

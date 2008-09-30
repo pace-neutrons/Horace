@@ -34,12 +34,10 @@ for i=1:numel(win)
     qw = dnd_calculate_qw(get(win));
     wout(i).s = reshape(sqwfunc(qw{:},p),size(win(i).s));
     wout(i).e = zeros(size(win(i).s));
-    if ~exist('opt','var')  % no option given
-        % Do nothing
+    if ~exist('opt')  % no option given
+        wout(i).n = double(wout(i).n~=0);   % return data only at the points where there is data
     elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
-        index = isnan(wout(i).s);
-        wout(i).s(index) = 0;
-        wout(i).e(index) = 0;
+        wout(i).n = ones(size(wout(i).n));
     else
         error('Unrecognised option')
     end

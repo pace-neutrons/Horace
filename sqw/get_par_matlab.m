@@ -1,6 +1,6 @@
 function par=get_par_matlab(filename)
 % Load data from ASCII Tobyfit .par file
-%   >> par = get_par(filename)
+%   >> par = get_par_matlab(filename)
 %
 %     filename      name of par file
 %
@@ -13,27 +13,27 @@ function par=get_par_matlab(filename)
 %                   (Note the reversed sign convention cf .phx files)
 %     4th  "        width (m)
 %     5th  "        height (m)
-%
-% T.G.Perring   13/6/07
-% I. Bustinduy  17/08/08
 
-% If no input parameter given, return
-if ~exist('filename','var')
-    help get_par;
-    return
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+%
+% Ibon Bustinduy
+
+filename=strtrim(filename); % Remove blanks from beginning and end of filename
+if isempty(filename),
+   error('Filename is empty')
 end
-        
-% Remove blanks from beginning and end of filename
-filename=strtrim(filename); 
-% === load detector information in .par format
 fid=fopen(filename,'rt');
-n=fscanf(fid,'%5d \n',1);
-%disp(['Loading .par file with ' num2str(n) ' detectors: ' filename]);
+if fid==-1,
+   error(['Error opening file ',filename]);
+end
+
+n=fscanf(fid,'%d \n',1);
+disp(['Loading .par file with ' num2str(n) ' detectors : ' filename]);
 temp=fgetl(fid);
 par=sscanf(temp,'%f');
 cols=length(par); % number of columns 5 or 6
 par=[par;fscanf(fid,'%f')];
 fclose(fid);
 par=reshape(par,cols,n);
-%disp(['Matlab loading of .par file : ' filename]);
-                                            

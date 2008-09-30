@@ -10,14 +10,7 @@ function data = get(w)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-
-
-for j = 1:numel(w)
-    names = fieldnames(w(j));
-    for i=1:length(names)
-        data(j).(names{i}) = w(j).(names{i});
-        if j == 1
-            data(1:numel(w)) = data(1);
-        end
-    end
+names = fieldnames(w);
+for i=1:length(names)
+    data.(names{i}) = w.(names{i});
 end

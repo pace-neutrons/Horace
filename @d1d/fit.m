@@ -104,24 +104,19 @@ varargin=varargin(~all_index);
 % Perform the fit
 wout = win;
 for i = 1:length(win)
-    if (length(win(i).p1)~=size(win(i).s,1)) % check for point / histrogram and turn into point. 
-       p1 = 0.5*(win(i).p1(1:end-1)+win(i).p1(2:end));
-    else
-        p1 = win(i).p1;
-    end
-    
-    s = reshape(win(i).s,numel(win(i).s),1); 
-    e = sqrt(reshape(win(i).e,numel(win(i).e),1));  % recall that datasets hold variance, not error bars
+    p1 = 0.5*(win(i).p1(1:end-1)+win(i).p1(2:end));
+    [s,e]=dnd_normalise_sigerr(win(i).s,win(i).e,win(i).n);   % normalise data by no. points
+    s = reshape(s,numel(s),1); 
+    e = sqrt(reshape(e,numel(e),1));% recall that datasets hold variance, no error bars
 
-    if i==2, fitdata(1:numel(win))=fitdata(1); end    % preallocate
-    
+    if i>1, fitdata(numel(win))=fitdata(1); end    % preallocate
     [sout, fitdata(i)] = fit(p1, s, e, func, pin, varargin{:});
     
     wout(i).s = reshape(sout,size(win(i).s));
     wout(i).e = zeros(size(win(i).e));  
-    
-    if options.all  % if all data, then turn nans into 0's 
-        wout(i).s(isnan(wout(i).s)) = 0;
+    if ~all_option  % no option given
+        wout(i).n = double(~isnan(wout(i).s) & win(i).n~=0);  % return data only at the points where there is data
+    else
+        wout(i).n = ones(size(win(i).n));
     end
-
 end

@@ -37,7 +37,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %   urange          Actual range of grid
 
 % T.G.Perring  14 August 2007
-% I.Bustinduy  01/10/07
+
 
 % Check input arguments
 % ------------------------
@@ -168,7 +168,7 @@ else
     % Read in the detector parameters
     det=get_par(par_file);
     % Get the maximum limits along the projection axes across all spe files
-    data.filename=''; 
+    data.filename='';
     data.filepath='';
     ndet=length(det.group);
     data.S=zeros(2,ndet);
@@ -191,19 +191,16 @@ else
     clear data det ucoords % Tidy memory
 end
 
-disp('Global Urange'); disp(urange);
 % Write temporary sqw output file(s) (these can be deleted if all has gone well once gen_sqw has been run)
 % --------------------------------------------------------------------------------------------------------
 % *** should check that the temporary file names do not coincide with spe file names
-clear CREATE
-global CREATE
-CREATE=[];
+
 for i=1:nfiles
     disp('--------------------------------------------------------------------------------')
     disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
     grid_size_tmp = write_spe_to_sqw (spe_file{i}, par_file, tmp_file{i}, efix(i), emode, alatt, angdeg,...
                       u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i), grid_size_in, urange);
-    if i==1 
+    if i==1
         grid_size = grid_size_tmp;
     else
         if ~all(grid_size==grid_size_tmp)
@@ -211,8 +208,6 @@ for i=1:nfiles
         end
     end
 end
-clear CREATE
-
 % Create single sqw file combining all intermediate sqw files
 % ------------------------------------------------------------
 disp('--------------------------------------------------------------------------------')

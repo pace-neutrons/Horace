@@ -23,9 +23,6 @@ function wout = smooth (win, varargin)
 % Output:
 % -------
 %   wout    Smoothed data structure
-%
-% The input dataset is converted to a libisis IXTdataset_1d and then
-% operated upon. It is then converted back. 
 
 % Original author: T.G.Perring
 %
@@ -33,4 +30,8 @@ function wout = smooth (win, varargin)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-wout = dnd_data_op(win, @smooth, 'd1d' , 1 , varargin{:});
+if nargin==1
+    wout = dnd_create(dnd_smooth (get(win)));
+else
+    wout = dnd_create(dnd_smooth (get(win), varargin));
+end

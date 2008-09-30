@@ -62,9 +62,9 @@ if nargin==2
 end
 
 % permute data array
-if sort(order)~=linspace(1,1,ndim) % invalid permutation array
+if sort(order)~=linspace(1,ndim,ndim) % invalid permutation array
     error (['ERROR: New axis order must be a permutation of the integers 1-',num2str(ndim)])
-elseif order==linspace(1,1,ndim)   % order is unchanged
+elseif order==linspace(1,ndim,ndim)   % order is unchanged
     dout = din;
     return
 end
@@ -78,3 +78,4 @@ for i=1:ndim
 end
 dout.s = permute(din.s,order);
 dout.e = permute(din.e,order);
+dout.n = permute(din.n,order);

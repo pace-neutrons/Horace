@@ -1,4 +1,4 @@
-function wout = integrate(w, varargin)
+function wout = integrate(w, xlo, xhi)
 % INTEGRATE  Integrate a 1D dataset between two limits
 %
 % Syntax:
@@ -11,4 +11,13 @@ function wout = integrate(w, varargin)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-wout = dnd_data_op(win, @integrate, 'd1d' , 1, varargin{:});
+if (nargin==1)
+    wout = integrate(d1d_to_spectrum(w));
+elseif (nargin==3)
+    if (~isa(xlo,'double') | ~isa(xhi,'double'))
+        error ('integration limits must be real')
+    end
+    wout = integrate(d1d_to_spectrum(w), xlo, xhi);
+else
+    error ('wrong number of arguments')
+end

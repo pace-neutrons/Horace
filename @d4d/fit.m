@@ -108,19 +108,18 @@ for i = 1:length(win)
     p2 = reshape(p2,numel(p2),1);   % get y into single column
     p3 = reshape(p3,numel(p3),1);   % get z into single column
     p4 = reshape(p4,numel(p4),1);   % get z into single column
+    [s,e]=dnd_normalise_sigerr(win(i).s,win(i).e,win(i).n);   % normalise data by no. points
+    s = reshape(s,numel(s),1); 
+    e = sqrt(reshape(e,numel(e),1));% recall that datasets hold variance, no error bars
 
-    s = reshape(win(i).s,numel(win(i).s),1); 
-    e = sqrt(reshape(win(i).e,numel(win(i).e),1));% recall that datasets hold variance, no error bars
-
-    if i==2, fitdata(1:numel(win))=fitdata(1); end    % preallocate
+    if i>1, fitdata(numel(win))=fitdata(1); end    % preallocate
     [sout, fitdata(i)] = fit([p1, p2, p3, p4], s, e, func, pin, varargin{:});
     
     wout(i).s = reshape(sout,size(win(i).s));
     wout(i).e = zeros(size(win(i).e));  
-
-    
-    if options.all  % if all data, then turn nans into 0's 
-        wout(i).s(isnan(wout(i).s)) = 0;
+    if ~all_option  % no option given
+        wout(i).n = int16(~isnan(wout(i).s) & win(i).n~=0);  % return data only at the points where there is data
+    else
+        wout(i).n = ones(size(win(i).n),'int16');
     end
-
 end

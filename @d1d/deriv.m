@@ -9,4 +9,5 @@ function wout = deriv(w)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-wout = deriv1(w);
+wtemp = deriv(d1d_to_spectrum(w));
+wout = combine_d1d_spectrum (w, wtemp);

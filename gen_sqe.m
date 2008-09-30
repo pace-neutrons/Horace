@@ -99,10 +99,10 @@ small = 1.0e-13;
 nstep_min = 100;
 
 % Determine if u3 and labels are present:
-if nargin==6||nargin==7
+if nargin==6|nargin==7
     labels = 0;
     if nargin==7; u3 = varargin{1}; end
-elseif nargin==9||nargin==10
+elseif nargin==9|nargin==10
     labels = 1;
     if nargin==9
         u1_lab = varargin{1};
@@ -153,24 +153,9 @@ end
 
 % Read input spe file information
 try
-    [psi,fnames, e_i] = textread(fin,'%f %s %f','emptyvalue',NaN);  
+    [psi,fnames] = textread(fin,'%f %s')    
 catch
-    error (['ERROR: Check contents and format of spe file information file',fin])
-end
-
-% replace NaNs in e_i with the value above them. So referencing to e_i
-% always gives the value intended for that filename. 
-if all(isnan(e_i))
-    e_i = []; % If they're all NaN, then e_i should be empty
-else
-    if isnan(e_i(1)) % if you're going to give any e_i you MUST give a first e_i
-        error(['ERROR: First value of incident energy must be given in file', fin])
-    end
-    for i = 1:length(e_i)
-        if isnan(e_i(i)) 
-            e_i(i) = e_i(i-1);
-        end
-    end
+    error (['ERROR: Check contents and format of spe file information file ',fin])
 end
 
 nfiles = length(psi);
@@ -181,9 +166,9 @@ end
 for i=1:nfiles
     if ~isempty(data_in_dir)    %override paths to spe files
         [spe_path,spe_file,spe_ext,spe_ver] = fileparts(fnames{i});
-        fname_true=fullfile(data_in_dir,[spe_file,spe_ext,spe_ver]);
+        fname_true=fullfile(data_in_dir,[spe_file,spe_ext,spe_ver])
     else
-        fname_true=fnames{i};
+        fname_true=fnames{i}
     end
     if exist(fname_true,'file')~=2
         error(['ERROR: File ',fname_true,' not found on path'])
@@ -194,15 +179,7 @@ end
 if exist(fout,'file')
     % Open existing file, read the header, update number of files and
     % position writing at the end of the file
-    button = questdlg(['The file ' fout ' already exists, do you wish to append the file with new data ("No" will stop operation)?'], ...
-                  'Exit Matlab','Yes','No','Yes');
-    switch button
-      case 'Yes',
-        append = 1;
-      case 'No',
-        return
-    end
-
+    append = 1;
     fid=fopen(fout, 'r+');
     if fid<0; error (['ERROR: Unable to open file ',fout]); end
     % check that the file is not empty (common error); if it is empty, then treat like a new file
@@ -325,8 +302,6 @@ else
 end
 
 % Read and convert each spe file then write data to binary file
-pack 
-
 for i = 1:nfiles
     t_start = toc;
     % must do a clever trick to set path for spe file - TGP
@@ -349,17 +324,11 @@ for i = 1:nfiles
     end
     ms_setvalue('DataFile',[spe_file,spe_ext]);
     ms_setvalue('psi_samp',psi(i));
-    
-    if ~isempty(e_i)
-        ms_setvalue('efixed',e_i(i));
-    end
-    
     ms_load_data;
     ms_calc_proj;
     d = fromwindow;
-    
     disp('Writing data to output file')
-    if i==1 && ~append
+    if i==1 & ~append
         % The very first time around generate all the header information.
         data.grid= 'sqe';
         data.title= d.title_label;
@@ -395,6 +364,7 @@ for i = 1:nfiles
     % Append energy centre to each pixel coordinate and reshape so each row of d.v corresponds to one pixel
     % Reshape signal, error arrays into rows for future sorting
     d.v = [reshape(d.v,nt,3),reshape(repmat(d.en,ndet,1),nt,1)];
+    d.vrow = d.v';
     d.S = reshape(d.S, 1, nt);
     d.ERR = reshape(d.ERR, 1, nt).^2;   % calculate variance
 
@@ -413,24 +383,22 @@ for i = 1:nfiles
     offset_back_to_lookup = 4*[3*nlookup+ne, 2*nlookup+ne+6*nt, nlookup+ne+12*nt];  % offset to go back to fill up lookup arrays
     offset_to_end = offset_back_to_lookup - 4*[nlookup, nlookup, nlookup];          % offset to return to the end of the file
     % Create sorted list and look-up table for each Q dimension
-  
-   
     for idim=1:3
         [vsort,ind] = sort(d.v(:,idim));
         fseek(fid, -offset_back_to_lookup(idim), 'cof');
         fwrite(fid, vsort(ind_lookup)', 'float32');     % row vector of values of coordinate along axis idim in look-up table
         fseek(fid, offset_to_end(idim), 'cof');
-        fwrite(fid, (d.v(ind,:))', 'float32');          % write so each column of v gives coords of a pixel
+        fwrite(fid, d.vrow(:,ind), 'float32');          % write so each column of v gives coords of a pixel
         fwrite(fid, d.S(ind), 'float32');
         fwrite(fid, d.ERR(ind), 'float32');
     end
     % Now write in order of increasing energy. Data in spe file already in such an order.
-    fwrite(fid, d.v', 'float32');
+    fwrite(fid, d.vrow, 'float32');
     fwrite(fid, d.S, 'float32');
     fwrite(fid, d.ERR, 'float32');
     % Update minimum and maximum extent along the axes:
-    vlo = min(d.v,[],1);
-    vhi = max(d.v,[],1);
+    vlo = min(d.vrow,[],2)';
+    vhi = max(d.vrow,[],2)';
     data.urange(1,:) = min(data.urange(1,:),vlo);
     data.urange(2,:) = max(data.urange(2,:),vhi);
     % Update energy bin information
@@ -446,17 +414,11 @@ for i = 1:nfiles
         disp(['Processed ',num2str(i),' files of ',num2str(nfiles)])
     end
     disp(['Time to process this file: ',num2str(t_calc-t_start), ' s'])
-    
-    clear d;    clear ind;  clear vsort;    clear vlo;  clear vhi;  clear ebin;
-    clear t_calc; 
 end
-
-pack % pack up everything. 
 
 % if all the files are correctly appended to the binary file update the
 % header with the total number of spe files. We do this even if a new file, as
 % we only know the updated range of the data after reading in all the files
-
 fseek(fid, 0, 'bof');       % go to beginning of file
 write_header(fid,data);     % overwrite header information with the updated header
 fclose(fid);

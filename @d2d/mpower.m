@@ -13,9 +13,6 @@ function w = mpower (w1, w2)
 %       - an array of 2D datasets
 %       - an n-dimensional array of size, of which the inner 2 dimensions will be
 %         combined element by element with the 2D dataset, and the outer (n-2) must
-%         match the array size of the 2D dataset array.
-%
-%   See dnd_binary_op or libisis documentation for more details and
-%   advanced use.
+%         match the array size of the 2D dataset array
 
-w = dnd_binary_op(w1,w2,@mpower,'d2d',2);
+w = dnd_binary_op(w1,w2,@single_mpower,'d2d',2);

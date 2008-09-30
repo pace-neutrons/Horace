@@ -1,40 +1,29 @@
-function [fig_out, axes_out, plot_out] = pe(w,varargin)
-%----help for gtk errorbar overplot command -------------------------------
-% function syntax: PE(1ddataset_object,[property_name,value])
-% purpose:overplot
+function pe(w,name)
+% PE Draws a plot of error bars for a 1D dataset on an existing plot
 %
-% input: 1d dataset object, property name and value
-% output: none
+%   >> pe(w)
 %
-% example: PE(w)
-% PE(w,'color','red')
-%
-%
-% See libisis graphics documentation for advanced syntax.
-%--------------------------------------------------------------------------
+% Advanced use:
+%   >> pe(w,fig_name)       % plot on the fgure with name = fig_name
 
-%global structures
-[IXG_ST_ERROR, IXG_ST_STDVALUES] =  ixf_global_var('libisis_graphics','get','IXG_ST_ERROR','IXG_ST_STDVALUES');
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
 
-%chk args
-if ( nargin < 1 )
-    ixf_display_error(IXG_ST_ERROR.wrong_arg);
-end
-%check my figure
-currflag = ixf_checkinit(IXG_ST_STDVALUES.currentfigure);
-if (currflag == IXG_ST_STDVALUES.false)
-    ixf_display_error(IXG_ST_ERROR.no_figure);
+global genie_max_spectra_1d
+
+% Check spectrum is not too long an array
+if length(w)>genie_max_spectra_1d
+    error (['This function can only be used to plot ',num2str(genie_max_spectra_1d),' spectra - check length of spectrum array'])
 end
 
-%hold
-hold on;
-
-%call already prepared de utility
-[figureHandle_, axesHandle_, plotHandle_] = de(w,'counter',IXG_ST_STDVALUES.counter_increment,varargin{:});
-hold off;
-
-if nargout > 0
-    fig_out = figureHandle_;
-    axes_out = axesHandle_;
-    plot_out = plotHandle_;
+newplot = 0;
+type = 'e';
+fig_name='Horace_1D';
+if nargin==2
+    tmp = genie_figure_name(name);
+    if ~isempty(tmp), fig_name=tmp; end
 end
+plot_main (newplot,type,fig_name,d1d_to_spectrum(w));

@@ -128,9 +128,12 @@ elseif strcmp(d.grid,'orthogonal-grid')
     end
 
     % Print warning if no data in the cut, if full cut has been passed
-    if isfield(d,'s') && isnan(all(d.s(:)))
+    if isfield(d,'n')
+        ntot = sum(reshape(d.n,1,prod(size(d.n))));
+        if ntot < 0.5
             disp(' WARNING: The dataset contains no counts')
             disp(' ')
+        end
     end
 end
 

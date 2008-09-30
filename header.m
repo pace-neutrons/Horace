@@ -40,13 +40,13 @@ if nargin>0
         if (exist(binfil,'file')==2)
             file_internal = binfil;
         else
-            file_internal = getfile(binfil);
+            file_internal = genie_getfile(binfil);
         end
     else
-        file_internal = getfile;
+        file_internal = genie_getfile;
     end
 else
-    file_internal =  getfile;
+    file_internal = genie_getfile;
 end
 if (isempty(file_internal))
     error ('No file given')
@@ -60,7 +60,7 @@ end
 
 % Read header information
 data.file = file_internal;
-[data, n, mess] = get_header(fid, data);
+[data, mess] = get_header(fid, data);
 if ~isempty(mess); fclose(fid); error(mess); end
 
 if isfield(data,'grid')

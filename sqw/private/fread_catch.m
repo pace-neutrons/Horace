@@ -30,7 +30,7 @@ function [data, count_out, status_ok, message] = fread_catch (fid, count_in, pre
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
 ntry_retry=6;   % maximum number of attempts to read before trying to reopen
 ntry_reopen=6;  % further attempts with reopening

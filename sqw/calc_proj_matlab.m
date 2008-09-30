@@ -1,5 +1,4 @@
 function [u] = calc_proj_matlab (c, q)
-%-----------------------------------------------------------------------
 %      MATLAB-file to convert Q from spectrometer coordinates
 %      to components along momentum projection axes
 % 
@@ -13,14 +12,13 @@ function [u] = calc_proj_matlab (c, q)
 % 
 %      u(4,npix)       Coordinates along projection axes
 % 
-%-----------------------------------------------------------------------
-% Calculate projections
-npix=size(q,2);
-u=zeros(4,npix);
 
-for i=1:npix,
-          u(1,i)=c(1,1)*q(1,i)+c(1,2)*q(2,i)+c(1,3)*q(3,i);
-          u(2,i)=c(2,1)*q(1,i)+c(2,2)*q(2,i)+c(2,3)*q(3,i);
-          u(3,i)=c(3,1)*q(1,i)+c(3,2)*q(2,i)+c(3,3)*q(3,i);
-          u(4,i)=q(4,i);
-end
+% Original author: Ibon Bustinduy
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+%
+% Revised TGP 4 Sep 2008 to use Matlab matrix multiplication
+
+% Calculate projections
+u = c*q(1:3,:);
+u = [u;q(4,:)];

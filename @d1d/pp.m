@@ -1,39 +1,23 @@
-function [fig_out, axes_out, plot_out] = pp(w,varargin)
-%--------------help for overplot command pp----------------------------
+function pp(w,varargin)
+% PP Draws a plot of markers and error bars for a 1D dataset on an existing plot
 %
-% function syntax: PP(1ddataset_object,[property_name,property_value])
+%   >> pp(w)
 %
-% purpose:overplot with a marker and errorbar (i.e. "point")
-%
-% input: 1d dataset object,property name and value
-% output: none
-%
-% example: PP(w)
-% PP(w,'color','red')
-%-----------------------------------
+% Advanced use:
+%   >> pp(w,fig_name)       % draw with name = fig_name
 
-%global structures
-[IXG_ST_ERROR IXG_ST_STDVALUES]=  ixf_global_var('libisis_graphics','get','IXG_ST_ERROR','IXG_ST_STDVALUES');
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
 
-%check args
-if ( nargin < 1 )
-    ixf_display_error(IXG_ST_ERROR.wrong_arg);
+global genie_max_spectra_1d
+
+% Check spectrum is not too long an array
+if length(w)>genie_max_spectra_1d
+    error (['This function can only be used to plot ',num2str(genie_max_spectra_1d),' spectra - check length of spectrum array'])
 end
 
-%check my figure
-currflag = ixf_checkinit(IXG_ST_STDVALUES.currentfigure);
-if (currflag == IXG_ST_STDVALUES.false)
-    ixf_display_error(IXG_ST_ERROR.no_figure);
-end
-%hold
-hold on;
-
-%call already prepared dp utility
-[figureHandle_, axesHandle_, plotHandle_] = dp(w,'counter',IXG_ST_STDVALUES.counter_increment,varargin{:});
-hold off;
-
-if nargout > 0
-    fig_out = figureHandle_;
-    axes_out = axesHandle_;
-    plot_out = plotHandle_;
-end
+pe(w,varargin{:})
+pm(w,varargin{:})

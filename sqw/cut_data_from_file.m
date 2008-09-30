@@ -102,14 +102,24 @@ for i=1:length(range)
             if range(i)-rpos+1 <= vmax-vpos+1   % enough space to hold remainder of range
                 vend = vpos+range(i)-rpos;  % last column that will be filled in this loop of the while statement
                 bigtic(1)
-                [v(:,vpos:vend),count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], 'float32');
+                try
+                    [v(:,vpos:vend),count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], 'float32');
+                catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+                    ok = false;
+                    mess = 'Unrecoverable read error';
+                end
                 t_read = t_read + bigtoc(1);
                 if ~all(ok); fclose(fid); error(mess); end;
                 vpos = vend+1;
                 break   % jump out of while loop
             else    % read in as much of the range as can
                 bigtic(1)
-                [v(:,vpos:vmax),count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], 'float32');
+                try
+                    [v(:,vpos:vmax),count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], 'float32');
+                catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+                    ok = false;
+                    mess = 'Unrecoverable read error';
+                end
                 t_read = t_read + bigtoc(1);
                 if ~all(ok); fclose(fid); error(mess); end;
                 rpos = rpos+vmax-vpos+1;

@@ -161,16 +161,16 @@ ok_range = true(4,1);
 for i=1:npax
     ipax = pax(i);
     if ipax<4 || (ipax==4 && vstep(ipax)>0)   % treat energy axis like other axes if provided with energy bin greater than zero
-        if isfinite(vlims(ipax,:))==[0,0]
+        if all(isfinite(vlims(ipax,:))==[0,0])
             nlo = floor(urange_out(1,ipax)/vstep(ipax));
             nhi = ceil(urange_out(2,ipax)/vstep(ipax));
             p{i} = (vstep(ipax)*(nlo:nhi))';
-        elseif isfinite(vlims(ipax,:))==[1,0]
+        elseif all(isfinite(vlims(ipax,:))==[1,0])
             p0  = vlims(ipax,1)-vstep(ipax)/2;
             nlo = 0;
             nhi = ceil((urange_out(2,ipax)-p0)/vstep(ipax));
             p{i} = (p0 + vstep(ipax)*(nlo:nhi))';
-        elseif isfinite(vlims(ipax,:))==[0,1]
+        elseif all(isfinite(vlims(ipax,:))==[0,1])
             p0  = vlims(ipax,2)+vstep(ipax)/2;
             nlo = floor((urange_out(1,ipax)-p0)/vstep(ipax));
             nhi = 0;
@@ -205,9 +205,7 @@ for i=1:npax
 end
 
 % Compute integration ranges
-if niax>0
-    iint=zeros(2,niax);
-end
+iint=zeros(2,niax);
 for i=1:niax
     iiax = iax(i);
     iint(1,i)=max(vlims(iiax,1),urange_out(1,iiax));

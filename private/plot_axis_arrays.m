@@ -68,7 +68,7 @@ if npax>0
     for i=1:npax
         iax = pax(i);
         nam = ['p',num2str(i)];
-        if iax<4 || (iax==4 && vstep(iax)>ebin0)  % treat energy axis like other axes if provided with energy bin greater than default
+        if iax<4 | (iax==4 & vstep(iax)>ebin0)  % treat energy axis like other axes if provided with energy bin greater than default
             if isfinite(vlims(:,iax))==[0;0]
                 plo = vstep(iax)*floor(data_range(1,iax)/vstep(iax));
                 phi = vstep(iax)*ceil(data_range(2,iax)/vstep(iax));
@@ -85,7 +85,7 @@ if npax>0
             d.(nam) = plo:vstep(iax):phi;
         else
             d.pstep(i) = ebin0;
-            if ~any(isfinite(vlims(:,iax)))
+            if isfinite(vlims(:,iax))==[0;0]
                 d.(nam) = en0;
             else
                 plo = ebin0*floor((max(vlims(1,iax),data_range(1,iax))-en0(1))/ebin0)+en0(1);
@@ -94,7 +94,7 @@ if npax>0
             end
         end
         % Catch case of no data within limits:
-        if length(d.(nam))==0 || ((d.(nam)(1)-0.5*vstep(iax) > data_range(2,iax)) || (d.(nam)(end)+0.5*vstep(iax) < data_range(1,iax)))  
+        if length(d.(nam))==0 || ((d.(nam)(1)-0.5*vstep(iax) > data_range(2,iax)) | (d.(nam)(end)+0.5*vstep(iax) < data_range(1,iax)))  
             d = []; 
             mess = ['No data within data range on axis ',num2str(iax),' - check limits'];
             return; 

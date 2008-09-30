@@ -30,8 +30,11 @@ function [u_to_rlu, ucoords] = ...
 %   ucoords     [4 x npix] array of coordinates of pixels in crystal Cartesian
 %              coordinates and energy transfer
 
-% T.G.Perring   28 June 2007
-% I. Bustinduy  27/8/07
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+%
+% Ibon Bustinduy: catch with Matlab routine if fortran fails
 
 % Check input parameters
 % -------------------------
@@ -59,11 +62,11 @@ end
 qspec = calc_qspec (efix, emode, data, det);
 
 % Convert to projection axes
-try
-    % (Fortran advantage: combine calc_qspec and calc_proj_fortran to
+try     %using fortran routine
+    % (Fortran advantage for future: combine calc_qspec and calc_proj_fortran to
     %  avoid extra intermediate variable qspec)
     ucoords = calc_proj_fortran (spec_to_proj, qspec);
-catch
+catch   %using matlab routine
     ucoords = calc_proj_matlab (spec_to_proj, qspec);
-    %warning('problem with fortran code compilation');
+    warning('Problem with fortran code compilation: using calc_proj_matlab.m');
 end

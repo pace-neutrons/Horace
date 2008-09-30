@@ -1,48 +1,41 @@
-function [fig_out, axes_out, plot_out] = de(win,varargin)
-% ----help for gtk errorbar plot function de-------------------------------
-% Function Syntax: 
-% [figureHandle_,axesHandle_,plotHandle_] = 
-% DE(w,[property_name,property_value]) or
-% DE(w,xlo,xhi) or
-% DE(w,xlo,xhi,ylo,yhi)
+function de(w,varargin)
+% DE Draws a plot of error bars for a 1D dataset
 %
-% Output: figure,axes and plot handle
-% Input: 1d dataset object and other control parameters (name value pairs)
+%   >> de(w)
+%   >> de(w,xlo,xhi)
+%   >> de(w,xlo,xhi,ylo,yhi)
 %
-% list of control propertie names
-% >> ixf_ixf_global_var('get','IXG_ST_DEFAULT.figure')
-% >> ixf_ixf_global_var('get','IXG_ST_DEFAULT.plot')
-% >> ixf_ixf_global_var('get','IXG_ST_DEFAULT.axes')
-% you can also give axis limit for x and y 
-%
-% Purpose: plot the data according to values and control properties (for
-% figure, axes and plot)
-%
-% Example: 
-% DE(w) --> default structure plot
-% DE(w,'Color','red') --> override default structure values 
-% DE(w,'default','my_struct','Color','red') --> override values 
-% DE(w,'default','my_struct') --> from structure
-% DE(w,10,20)
-% DE(w,10,20,0,200)
-%
-% See libisis graphics documentation for advanced syntax.
-%--------------------------------------------------------------------------
+% Advanced use:
+%   >> de(w,...,fig_name)       % draw with name = fig_name
 
-%total
-IXG_ST_HORACE =   ixf_global_var('Horace','get','IXG_ST_HORACE');
-win_lib = convert_to_libisis(win);
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+%
+% Horace v0.1   J.Van Duijn, T.G.Perring
 
-for i = 1:numel(win)
-    [title, xlab] = dnd_cut_titles (get(win(i)));
-    win_lib(i).title = char(title);
-    win_lib(i).x_units.units = char(xlab);
+global genie_max_spectra_1d
+
+% Check spectrum is not too long an array
+if length(w)>genie_max_spectra_1d
+    error (['This function can only be used to plot ',num2str(genie_max_spectra_1d),' spectra - check length of spectrum array'])
 end
 
-[figureHandle_, axesHandle_, plotHandle_] = de(win_lib, 'name',IXG_ST_HORACE.oned_name, 'tag', IXG_ST_HORACE.tag, varargin{:});
+newplot = 1;
+type = 'e';
+fig_name='Horace_1D';
 
-if nargout > 0
-    fig_out = figureHandle_;
-    axes_out = axesHandle_;
-    plot_out = plotHandle_;
+narg=nargin-1;
+if nargin>1 && ischar(varargin{end}) && ~isempty(varargin{end})
+    fig_name=varargin{end};
+    narg=narg-1;
+end
+if (narg==0)
+    plot_main (newplot,type,fig_name,d1d_to_spectrum(w));
+elseif (narg==2)
+    plot_main (newplot,type,fig_name,d1d_to_spectrum(w),varargin{1:2});
+elseif (narg==4)
+    plot_main (newplot,type,fig_name,d1d_to_spectrum(w),varargin{1:4});
+else
+    error ('Wrong number of arguments to DL')
 end

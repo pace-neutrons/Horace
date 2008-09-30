@@ -22,7 +22,7 @@ function dout = dnd_cut (din, varargin)
 %
 % Output:
 % -------
-%   dout           Output dataset. Its elements are the same as those of din,
+%   dout            Output dataset. Its elements are the same as those of din,
 %                  appropriately updated.
 %
 %
@@ -40,16 +40,14 @@ if nargin==1    % trivial case - no integration, so return
     dout = din;
     return
 end
-
-if nargin==2 && iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to dnd_cut)
+if nargin==2 & iscell(varargin{1}) % interpret as having been passed a varargin (as cell array is not a valid type to be passed to dnd_cut)
     args = varargin{1};
 else
     args = varargin;
 end
 
 nargs= length(args);
-
-if ~(nargs==2 || nargs==4 || nargs==6 || nargs==8)
+if ~(nargs==2|nargs==4|nargs==6|nargs==8)
     error ('ERROR: Check number of arguments to dnd_cut')
 else
     for i=1:round(nargs/2)
@@ -62,16 +60,14 @@ end
 % Get integration parameters:
 niax = floor((nargs)/2); % niax = 1,2,3, or 4
 pax_ind = linspace(1,length(din.pax),length(din.pax));
-
 for i=1:niax
     iax_ind(i) = round(args{2*i-1});
-    if iax_ind(i) < 1 || iax_ind(i) > length(din.pax)
+    if iax_ind(i) < 1 | iax_ind(i) > length(din.pax)
         error(['ERROR: Integration axis index/indices must lie in range 1 to ',num2str(length(din.pax))])
     end
     pax_ind = pax_ind(find(pax_ind~=iax_ind(i)));
     uint(1:2,i) = args{2*i}';
 end
-
 iax = din.pax(iax_ind);
 pax = din.pax(pax_ind);
 
@@ -94,12 +90,12 @@ end
 
 signal = din.s;
 errors = din.e;
+nbins = din.n;
 
 [idim,ind] = sort(iax_ind);     % get plot axes over which to integrate in increasing order
 ilims = uint(:,ind);            % corresponding integration limits
 idim = fliplr(idim);            % now get plot axes over which to integrate in decreasing order
 ilims = fliplr(ilims);          % corresponding integration limits
-
 for i=1:niax
     pvals_name = ['p', num2str(idim(i))];   % name of field containing bin boundaries for the plot axis to be integrated over
     pvals = din.(pvals_name);               % values of bin boundaries (use dynamic field names facility of Matlab)
@@ -111,11 +107,12 @@ for i=1:niax
     else
         error ('ERROR: Requested cut lies outside range of input dataset')
     end
-    [signal,errors] = cut_data_arrays (length(din.pax), idim(i), ilo, ihi, signal, errors);
+    [signal,errors,nbins] = cut_data_arrays (length(din.pax), idim(i), ilo, ihi, signal, errors, nbins);
 end
-
 signal = squeeze(signal);
 errors = squeeze(errors);
+nbins = squeeze(nbins);
+
 
 % Fill up the output data structure
 dout.file = din.file;
@@ -134,17 +131,17 @@ dout.p0 = din.p0;
 dout.pax = pax; 
 dout.iax = [din.iax, iax];
 dout.uint = [din.uint, uint];
-
 for i=1:length(pax_ind)
     pvals_name_in = ['p', num2str(pax_ind(i))];
     pvals_name_out= ['p', num2str(i)];
     dout.(pvals_name_out) = din.(pvals_name_in);
 end
-
-if length(dout.pax)==1 && size(signal,1)==1  % ensure column vector
+if length(dout.pax)==1 & size(signal,1)==1  % ensure column vector
     dout.s = signal';
     dout.e = errors';
+    dout.n = nbins';
 else
     dout.s = signal;
     dout.e = errors;
+    dout.n = nbins;
 end

@@ -7,11 +7,9 @@ function dnd_writegrid (data, binfil)
 % Input:
 % ------
 %   data    1D, 2D, 3D or 4D Dataset. 
-%          Type 
-%               >> help dnd_checkfields 
-%           for a full description of the fields of these data structures
+%          Type >> help dnd_checkfields for a full description of the fields of these data structures
 %
-%   binfil  Name of file to which the data will be written.
+%   binfil  Name of file to whicht he data will be written.
 
 % Original author: J. van Duijn
 %
@@ -23,7 +21,7 @@ function dnd_writegrid (data, binfil)
 % Get file name - prompting if necessary
 % --------------------------------------
 if (nargin==1)
-    file_internal = putfile;
+    file_internal = genie_putfile;
     if (isempty(file_internal))
         error ('No file given')
     end

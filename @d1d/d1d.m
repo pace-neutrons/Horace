@@ -41,7 +41,7 @@ function w = d1d (varargin)
 
 ndim_req = 1;
 class_type = 'd1d';
-superiorto('IXTdataset_1d');
+superiorto('spectrum');
 
 if nargin==0    % make default dataset of requisite dimension
     w = class(dnd_makefields(ndim_req),class_type);
@@ -60,9 +60,7 @@ else
         else
             error (mess)
         end
-         
     else
-        
         [d,mess] = dnd_makefields(ndim_req,varargin{:});
         if ~isempty(d)
             w = class(d,class_type);

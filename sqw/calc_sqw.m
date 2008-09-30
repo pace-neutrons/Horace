@@ -77,10 +77,8 @@ sqw_data.s=sum(data.S(:));
 sqw_data.e=sum(data.ERR(:).^2);
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;
-sqw_data.pix=[ucoords; ones(1,ne*ndet); reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); reshape(repmat([1:ne]',[1,ndet]),[1,ne*ndet]); data.S(:)';((data.ERR(:)).^2)'];
-
-% sqw_data.pix=[ucoords;...
-%     ones(1,ne*ndet);...                                 % run index - all unity
-%     reshape(repmat(det.group,[ne,1]),[1,ne*ndet]);...   % detector index
-%     reshape(repmat([1:ne]',[1,ndet]),[1,ne*ndet]);...   % energy bin index
-%     data.S(:)';((data.ERR(:)).^2)'];
+sqw_data.pix=[ucoords;...
+    ones(1,ne*ndet);...                                 % run index - all unity
+    reshape(repmat(det.group,[ne,1]),[1,ne*ndet]);...   % detector index
+    reshape(repmat([1:ne]',[1,ndet]),[1,ne*ndet]);...   % energy bin index
+    data.S(:)';((data.ERR(:)).^2)'];

@@ -1,15 +1,13 @@
-function wout = deriv2(win)
-%--- deriv2 - second derivative of d1d object ---
-% call syntax: dataset_1d = deriv2(a)
+function wout = deriv2(w)
+% DERIV2  Numerical second derivative of a 1D dataset
 %
-% Takes the numerical second derivative of a d1d object
+%   >> wout = deriv2(w)
+
+% Original author: T.G.Perring
 %
-% inputs: a = d1d  object 
+% $Revision$ ($Date$)
 %
-% output: d1d object
-%
-% if a is an array, dataset_1d will be an array such that dataset_1d(i) =
-% deriv2(a(i))
-%
-% See libisis documentation for advanced syntaxes
-wout = dnd_data_op(win, @deriv2, 'd1d' , 1);
+% Horace v0.1   J.Van Duijn, T.G.Perring
+
+wtemp = deriv2(d1d_to_spectrum(w));
+wout = combine_d1d_spectrum (w, wtemp);

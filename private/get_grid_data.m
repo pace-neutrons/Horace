@@ -18,10 +18,10 @@ function [data, mess] = get_grid_data (fid, ndim, arg1, arg2)
 %   data.p1     Column vector of bin boundaries along first plot axis
 %   data.p2     Column vector of bin boundaries along second plot axis
 %     :        (for as many plot axes as given by ndim)
-%   data.s      Cumulative normalised signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%   data.s      Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.e      Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%
-%   n           Corresponding number of pixels for each s. 
+%   data.n      Number of contributing pixels [size(data.n)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%              (if ndim=1,2 or 3, then data.n is double; if n=4 then data.n is int16)
 %
 %   mess        Error message; blank if no problems, non-blank otherwise
 
@@ -33,7 +33,6 @@ function [data, mess] = get_grid_data (fid, ndim, arg1, arg2)
 
 data = [];
 axes_only = 0;
-n = [];
 
 % Check input arguments:
 if nargin<2; mess = 'ERROR: Check number of arguments to get_grid_data'; return; end
@@ -71,10 +70,13 @@ if ndim==4
     ntot = (np1-1)*(np2-1)*(np3-1)*(np4-1);
     data.s = zeros(np1-1,np2-1,np3-1,np4-1);
     data.e = zeros(np1-1,np2-1,np3-1,np4-1);
+    data.n = zeros(np1-1,np2-1,np3-1,np4-1,'int16');
     [data.s,count,ok,mess] = fread_catch(fid,ntot,'float32'); if ~all(ok); return; end;
     data.s = reshape(data.s,np1-1,np2-1,np3-1,np4-1);
     [data.e,count,ok,mess] = fread_catch(fid,ntot,'float32'); if ~all(ok); return; end;
     data.e= reshape(data.e,np1-1,np2-1,np3-1,np4-1);
+    [data.n,count,ok,mess] = fread_catch(fid,ntot,'int16'); if ~all(ok); return; end;
+    data.n = int16(reshape(data.n,np1-1,np2-1,np3-1,np4-1));
 elseif ndim==3
     [np1,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     [np2,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
@@ -86,10 +88,13 @@ elseif ndim==3
     ntot = (np1-1)*(np2-1)*(np3-1);
     data.s = zeros(np1-1,np2-1,np3-1);
     data.e = zeros(np1-1,np2-1,np3-1);
+    data.n = zeros(np1-1,np2-1,np3-1);
     [data.s,count,ok,mess] = fread_catch(fid,ntot,'float32'); if ~all(ok); return; end;
     data.s = reshape(data.s,np1-1,np2-1,np3-1);
     [data.e,count,ok,mess] = fread_catch(fid,ntot,'float32'); if ~all(ok); return; end;
     data.e = reshape(data.e,np1-1,np2-1,np3-1);
+    [data.n,count,ok,mess] = fread_catch(fid,ntot,'double'); if ~all(ok); return; end;
+    data.n= double(reshape(data.n,np1-1,np2-1,np3-1));
 elseif ndim==2
     [np1,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     [np2,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
@@ -99,10 +104,13 @@ elseif ndim==2
     ntot = (np1-1)*(np2-1);
     data.s = zeros(np1-1,np2-1);
     data.e = zeros(np1-1,np2-1);
+    data.n = zeros(np1-1,np2-1);
     [data.s,count,ok,mess] = fread_catch(fid,ntot,'float32'); if ~all(ok); return; end;
     data.s= reshape(data.s,np1-1,np2-1);
     [data.e,count,ok,mess] = fread_catch(fid,ntot,'float32'); if ~all(ok); return; end;
     data.e= reshape(data.e,np1-1,np2-1);
+    [data.n,count,ok,mess] = fread_catch(fid,ntot,'double'); if ~all(ok); return; end;
+    data.n = double(reshape(data.n,np1-1,np2-1));
 elseif ndim==1
     [np1,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     [data.p1,count,ok,mess] = fread_catch(fid,np1,'float32'); if ~all(ok); return; end;
@@ -110,14 +118,18 @@ elseif ndim==1
     ntot = np1-1;
     data.s = zeros(np1-1);
     data.e = zeros(np1-1);
+    data.n = zeros(np1-1);
     [data.s,count,ok,mess] = fread_catch(fid,ntot,'float32'); if ~all(ok); return; end;
     data.s = reshape(data.s,np1-1,1);
     [data.e,count,ok,mess] = fread_catch(fid,ntot,'float32'); if ~all(ok); return; end;
     data.e = reshape(data.e,np1-1,1);
+    [data.n,count,ok,mess] = fread_catch(fid,ntot,'double'); if ~all(ok); return; end;
+    data.n = double(reshape(data.n,np1-1,1));
 elseif ndim==0
     if axes_only; return; end;
     [data.s,count,ok,mess] = fread_catch(fid,1,'float32'); if ~all(ok); return; end;
     [data.e,count,ok,mess] = fread_catch(fid,1,'float32'); if ~all(ok); return; end;
+    [data.n,count,ok,mess] = fread_catch(fid,1,'double'); if ~all(ok); return; end;
 else
     mess = 'Error: Check dimension of dataset';
     return
