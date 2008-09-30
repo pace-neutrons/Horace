@@ -1,0 +1,25 @@
+function data = sqw_make_main_header
+% Make a valid default main header block.
+%
+% Syntax:
+%   >> data = sqw_make_main_header
+%
+% Output:
+% -------
+% The default is to create an empty structure, so that the sqw structure neatly
+% resembles the old d0d, d1d,...
+%
+% In the general case, the fields would be:
+%
+%   data        Structure containing following fields:
+%
+%   data.filename   Name of sqw file that is being read, excluding path
+%   data.filepath   Path to sqw file that is being read, including terminating file separator
+%   data.title      Title of sqw data structure
+%   data.nfiles     Number of spe files that contribute
+
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+
+data = struct([]);  % empty structure    
