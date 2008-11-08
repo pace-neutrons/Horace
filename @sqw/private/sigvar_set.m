@@ -7,4 +7,5 @@ function w = sigvar_set(w,sigvarobj)
 %
 % $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
-w=sigvarobj;
+w.data.s=sigvarobj.s;
+w.data.e=sigvarobj.e;

@@ -13,7 +13,7 @@ if nd~=1
     error('sqw object is not one dimensional')
 end
 
-[title_main, title_pax] = sqw_data_plot_titles (w.data);
+[title_main, title_pax] = data_plot_titles (w.data);
 
 s_axis = IXTaxis ('Intensity');
 x_axis = IXTaxis (title_pax{1});

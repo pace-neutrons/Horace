@@ -13,7 +13,7 @@ if nd~=2
     error('sqw object is not two dimensional')
 end
 
-[title_main, title_pax] = sqw_data_plot_titles (w.data);    % note: axes annotations correctly account for permutation in w.data.dax
+[title_main, title_pax] = data_plot_titles (w.data);    % note: axes annotations correctly account for permutation in w.data.dax
 
 s_axis = IXTaxis (title_main);
 axis_1 = IXTaxis (title_pax{1});

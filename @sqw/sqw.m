@@ -3,15 +3,20 @@ function w = sqw (varargin)
 %
 % Syntax:
 %   >> w = sqw (filename)       % Create an sqw object from a file
-%
 %   >> w = sqw (din)            % Create from a structure with valid fields
 %                               % Structure array will output an array of sqw objects
 %
-% Or:
-%   >> w = sqw (u0,u1,p1,u2,p2,...,un,pn)
-%   >> w = sqw (u0,u1,p1,u2,p2,...,un-1,pn-1,pn)
-%   >> w = sqw (lattice,u0,...)
-%   >> w = sqw (ndim)
+
+% For private use by d0d/d0d d0d/sqw,...d4d/d4d d4d/sqw
+%   >> w = sqw ('$dnd',filename)% Create an sqw object from a file
+%   >> w = sqw ('$dnd',din)     % Create from a structure with valid fields
+%                               % Structure array will output an array of sqw objects
+%   >> w = sqw ('$dnd',u0,u1,p1,u2,p2,...,un,pn)
+%   >> w = sqw ('$dnd',u0,u1,p1,u2,p2,...,un-1,pn-1,pn)
+%   >> w = sqw ('$dnd',lattice,u0,...)
+%   >> w = sqw ('$dnd',ndim)
+%
+% Will enforce dnd-type sqw object.
 %
 % Input:
 % ------
@@ -36,14 +41,18 @@ function w = sqw (varargin)
 
 class_type = 'sqw';
 superiorto('d0d','d1d','d2d','d3d','d4d');  % other Horace classes
-% superiorto('spectrum','tofspectrum');      % mgenie classes
-% superiorto('IXTdataset_1d','IXTdataset_2d') % Libisis classes
 
+
+% Will normally insist that we definitely require sqw-type object unless we explicitly demand
+% an dnd-type object. There are two special cases however
+% - default constructor with no input arguments (for repmat to work, for example)
+%      return default dnd-type object as do not want overhead of making a valid sqw-type object
+% - if already sqw object of either sqw or dnd type, just act as a dummy method
 
 %  Must have default constructor with no input arguments (for repmat to work, for example)
 if nargin==0
-    w = sqw_makefields(0);
-    [ok,mess,type,w]=sqw_checkfields(w);   % Make sqw_checkfields the ultimate arbiter of the validity of a structure
+    w = make_sqw (true, 0);         % basic dnd-type sqw data structure
+    [ok,mess,type,w]=check_sqw(w);  % Make check_sqw the ultimate arbiter of the validity of a structure
     if ok
         w = class(w,class_type);
         return
@@ -52,63 +61,105 @@ if nargin==0
     end
 end
 
+% If already sqw object, then return
+if nargin==1 && isa(varargin{1},class_type)     % already sqw object
+    w=varargin{1};
+    return
+end
+    
 
-% Case of filename or structure
-if nargin==1
-    if isa(varargin{1},class_type)    % already sqw object
-        w=varargin{1};
-        return
-        
-    elseif ischar(varargin{1}) && length(size(varargin{1}))==2 && size(varargin{1},1)==1    % is a single row of characters
-        [main_header,header,detpar,data,mess,position,npixtot,type] = sqw_get (varargin{1});
-        if ~isempty(mess)   % there is an error
-            error(mess)
-        elseif ~(strcmpi(type,'a')||strcmpi(type,'b+'))   % not a valid sqw structure
-            error('Data file does not contain valid sqw object')
-        end
-        w.main_header=main_header;
-        w.header=header;
-        w.detpar=detpar;
-        w.data=data;
-        w = class(w,class_type);
-        return
+% Determine whether enforce sqw-type object or enforce dnd-type sqw object
+if nargin>=1 && ischar(varargin{1}) && strcmpi(varargin{1},'$dnd')
+    dnd_type=true;
+    args=varargin(2:end);
+elseif nargin>=1 && ischar(varargin{1}) && strcmpi(varargin{1},'$sqw')
+    dnd_type=false;
+    args=varargin(2:end);
+else
+    dnd_type=false;
+    args=varargin;
+end
+narg=numel(args);
 
-    elseif isstruct(varargin{1})
-        sz=size(varargin{1});
-        for i=1:numel(varargin{1})
-            d = sqw_makefields(varargin{1}(i));
-            [ok,mess,type,d] = sqw_checkfields(d);
-            if ok
-                if i==1
-                    w=class(d,class_type);
-                    if numel(varargin{1})>1
-                        w=repmat(w,sz);
-                    end
-                else
-                    w(ind2sub(sz,i))=class(varargin{1}(i),class_type);
-                end
+
+% Branch on input
+if narg==1 && isstruct(args{1})
+    % structure input:
+    % ----------------
+    sz=size(args{1});
+    for i=1:numel(args{1})
+        [d,mess] = make_sqw (dnd_type, args{1}(i));
+        if ~isempty(mess)
+            if ~isscalar(args{1})
+                error([mess,'\n structure array element %s'],str_compress(num2str(ind2sub(sz,i))))
             else
-                if ~isscalar(varargin{1})
-                    error([mess,'\n structure array element %s'],str_compress(num2str(ind2sub(sz,i))))
-                else
-                    error(mess)
-                end
+                error(mess)
             end
         end
-        return
+        [ok,mess,type,d] = check_sqw(d);
+        if ok
+            if i==1
+                w=class(d,class_type);
+                if numel(args{1})>1
+                    w=repmat(w,sz);
+                end
+            else
+                w(ind2sub(sz,i))=class(args{1}(i),class_type);
+            end
+        else
+            if ~isscalar(args{1})
+                error([mess,'\n structure array element %s'],str_compress(num2str(ind2sub(sz,i))))
+            else
+                error(mess)
+            end
+        end
     end
-end
+    return
 
-% All other cases
-[w, mess] = sqw_makefields (varargin{:});
-if isempty(mess)
-    [ok,mess,type,w]=sqw_checkfields(w);   % Make sqw_checkfields the ultimate arbiter of the validity of a structure
+elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)==1
+    % filename: is a single row of characters
+    % ----------------------------------------
+    if ~dnd_type    % insist on sqw type
+        [w.main_header,w.header,w.detpar,w.data,mess,position,npixtot,type] = get_sqw (args{1});
+        if ~isempty(mess), error(mess), end
+        if ~strcmpi(type,'a')   % not a valid sqw-type structure
+            error('Data file does not contain valid sqw-type object')
+        end
+    else            % insist on dnd type
+        w.main_header=make_sqw_main_header;
+        w.header=make_sqw_header;
+        w.detpar=make_sqw_detpar;
+        [main_header,header,detpar,w.data,mess,position,npixtot,type] = get_sqw (args{1},'-nopix');
+        if ~isempty(mess), error(mess), end
+        if ~(strcmpi(type,'a')||strcmpi(type,'b+'))   % not a valid sqw or dnd structure
+            error('Data file does not contain valid dnd-type object')
+        end
+        if isfield(w.data,'urange')
+            w.data=rmfield(w.data,'urange');    % remove urange field, if present (file may have only contained dnd type data anyway)
+        end
+    end
+    [ok,mess,type,w]=check_sqw(w);   % Make check_sqw the ultimate arbiter of the validity of a structure
     if ok
         w = class(w,class_type);
         return
     else
         error(mess)
     end
+
 else
-    error(mess)
+    % All other cases - use as input to a bare constructor
+    % ----------------------------------------------------
+    [w, mess] = make_sqw (dnd_type, args{:});
+    if isempty(mess)
+        [ok,mess,type,w]=check_sqw(w);   % Make check_sqw the ultimate arbiter of the validity of a structure
+        if ok
+            w = class(w,class_type);
+            return
+        else
+            error(mess)
+        end
+    else
+        error(mess)
+    end
+
 end

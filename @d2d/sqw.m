@@ -10,4 +10,4 @@ function wout = sqw (win)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=sqw(struct(win));
+wout=sqw('$dnd',struct(win));

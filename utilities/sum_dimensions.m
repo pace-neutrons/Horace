@@ -25,12 +25,23 @@ function s = sum_dimensions(a)
 n = size(a);
 ndim = length(n);
 
-% treat 2,3,4 dimensional arrays as special cases to speed up evaluation
+
+% Treat 2,3,4 dimensional arrays as special cases to speed up evaluation
 if ndim==2
-    s=cell(1,2);
-    s{1} = sum(a,2,'native');
-    s{2} = sum(a,1,'native')';
-    return
+    if size(a,1)==1 || size(a,2)==1     % Row or column vector
+        %Must ensure the output is a column vector (benign effect on scalar)
+        if size(a,2)>1
+            s{1}=a';
+        else
+            s{1}=a;
+        end
+        return
+    else
+        s=cell(1,2);
+        s{1} = sum(a,2,'native');
+        s{2} = sum(a,1,'native')';
+        return
+    end
 end
 
 if ndim==3

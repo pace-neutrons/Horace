@@ -4,7 +4,7 @@
 
 %% Initialise Horace
 
-% This is how TGP turns off old Horace and sets up paths for new:
+% This is how TGP turns off new Horace and sets up paths for new:
 % Make sure you have start_app.m on your path
 horace_off; start_app('horace','T:\SVN_area\Horace')
 
@@ -27,7 +27,7 @@ data_source = 'E:\fe\fe787\fe.sqw';
 proj_110.u=[1,1,0];
 proj_110.v=[-1,1,0];
 proj_110.type='rrr';
-proj_110.uoffset=[0,0,0,0]';
+proj_110.uoffset=[0,0,0,0];
 
 cut_sqw (data_source, proj_110, [0.9,1.1], [1.0,1.2], [-0.05,0.05], [50,70], 'c:\temp\w0a.sqw');
 
@@ -83,6 +83,7 @@ save('T:\SVN_area\test_horace.mat','w0a_s','w0a_d',...
 %% Read in some new format sqw files to test conversion of Horace
 
 load('T:\SVN_area\test_horace.mat')
+load('C:\temp\test_horace.mat')
 
 % Make objects
 s1a=sqw(w1a_s);
@@ -105,13 +106,53 @@ dd2b=d2d(w2b_d);
 
 dd4a=d4d(w4a_d);
 
+% Save objects to file
+save(s1a,'c:\temp\s1a.sqw')
+save(s1b,'c:\temp\s1b.sqw')
+save(s1c,'c:\temp\s1c.sqw')
+save(s1d,'c:\temp\s1d.sqw')
 
-% Plot a couple of structures: go via libisis
+save(s2a,'c:\temp\s2a.sqw')
+save(s2b,'c:\temp\s2b.sqw')
 
-dp(IXTdataset_1d(dd1a))
+save(s4a,'c:\temp\s4a.sqw')
 
-da(IXTdataset_2d(s2a))
+save(dd1a,'c:\temp\dd1a.sqw')
+save(dd1b,'c:\temp\dd1b.sqw')
+save(dd1c,'c:\temp\dd1c.sqw')
+save(dd1d,'c:\temp\dd1d.sqw')
 
+save(dd2a,'c:\temp\dd2a.sqw')
+save(dd2b,'c:\temp\dd2b.sqw')
+
+save(dd4a,'c:\temp\dd4a.sqw')
+
+% Read files
+s1a=read_horace('c:\temp\s1a.sqw');
+s1b=read_horace('c:\temp\s1b.sqw');
+s1c=read_horace('c:\temp\s1c.sqw');
+s1d=read_horace('c:\temp\s1d.sqw');
+
+s2a=read_horace('c:\temp\s2a.sqw');
+s2b=read_horace('c:\temp\s2b.sqw');
+
+s4a=read_horace('c:\temp\s4a.sqw');
+
+dd1a=read_horace('c:\temp\dd1a.sqw');
+dd1b=read_horace('c:\temp\dd1b.sqw');
+dd1c=read_horace('c:\temp\dd1c.sqw');
+dd1d=read_horace('c:\temp\dd1d.sqw');
+
+dd2a=read_horace('c:\temp\dd2a.sqw');
+dd2b=read_horace('c:\temp\dd2b.sqw');
+
+dd4a=read_horace('c:\temp\dd4a.sqw');
+
+%% Problems
+
+vv=cut_dnd('c:\temp\dd2a.sqw',[],[160,180]);    % fails
+
+xxx=head_dnd;   % returns cell array
 
 
 %% Create big sqw file
