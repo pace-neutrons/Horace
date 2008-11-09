@@ -21,8 +21,8 @@ libisis_start(libisis_root)
 % Create using existing Horace                                            
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% data_source = 'c:\tgp_data\fe.sqw';
-data_source = 'E:\fe\fe787\fe.sqw';
+data_source = 'c:\data\Fe\sqw\Fe_ei787.sqw';
+% data_source = 'E:\fe\fe787\fe.sqw';
 
 proj_110.u=[1,1,0];
 proj_110.v=[-1,1,0];
@@ -86,6 +86,8 @@ load('T:\SVN_area\test_horace.mat')
 load('C:\temp\test_horace.mat')
 
 % Make objects
+s0a=sqw(w0a_s);
+
 s1a=sqw(w1a_s);
 s1b=sqw(w1b_s);
 s1c=sqw(w1c_s);
@@ -95,6 +97,8 @@ s2a=sqw(w2a_s);
 s2b=sqw(w2b_s);
 
 s4a=sqw(w4a_s);
+
+dd0a=d0d(w0a_d);
 
 dd1a=d1d(w1a_d);
 dd1b=d1d(w1b_d);
@@ -107,6 +111,8 @@ dd2b=d2d(w2b_d);
 dd4a=d4d(w4a_d);
 
 % Save objects to file
+save(s0a,'c:\temp\s0a.sqw')
+
 save(s1a,'c:\temp\s1a.sqw')
 save(s1b,'c:\temp\s1b.sqw')
 save(s1c,'c:\temp\s1c.sqw')
@@ -117,15 +123,17 @@ save(s2b,'c:\temp\s2b.sqw')
 
 save(s4a,'c:\temp\s4a.sqw')
 
-save(dd1a,'c:\temp\dd1a.sqw')
-save(dd1b,'c:\temp\dd1b.sqw')
-save(dd1c,'c:\temp\dd1c.sqw')
-save(dd1d,'c:\temp\dd1d.sqw')
+save(dd0a,'c:\temp\dd0a.d0d')
 
-save(dd2a,'c:\temp\dd2a.sqw')
-save(dd2b,'c:\temp\dd2b.sqw')
+save(dd1a,'c:\temp\dd1a.d1d')
+save(dd1b,'c:\temp\dd1b.d1d')
+save(dd1c,'c:\temp\dd1c.d1d')
+save(dd1d,'c:\temp\dd1d.d1d')
 
-save(dd4a,'c:\temp\dd4a.sqw')
+save(dd2a,'c:\temp\dd2a.d2d')
+save(dd2b,'c:\temp\dd2b.d2d')
+
+save(dd4a,'c:\temp\dd4a.d4d')
 
 % Read files
 s1a=read_horace('c:\temp\s1a.sqw');
@@ -138,21 +146,21 @@ s2b=read_horace('c:\temp\s2b.sqw');
 
 s4a=read_horace('c:\temp\s4a.sqw');
 
-dd1a=read_horace('c:\temp\dd1a.sqw');
-dd1b=read_horace('c:\temp\dd1b.sqw');
-dd1c=read_horace('c:\temp\dd1c.sqw');
-dd1d=read_horace('c:\temp\dd1d.sqw');
+dd0a=read_horace('c:\temp\dd0a.d0d');
 
-dd2a=read_horace('c:\temp\dd2a.sqw');
-dd2b=read_horace('c:\temp\dd2b.sqw');
+dd1a=read_horace('c:\temp\dd1a.d1d');
+dd1b=read_horace('c:\temp\dd1b.d1d');
+dd1c=read_horace('c:\temp\dd1c.d1d');
+dd1d=read_horace('c:\temp\dd1d.d1d');
 
-dd4a=read_horace('c:\temp\dd4a.sqw');
+dd2a=read_horace('c:\temp\dd2a.d2d');
+dd2b=read_horace('c:\temp\dd2b.d2d');
+
+dd4a=read_horace('c:\temp\dd4a.d4d');
 
 %% Problems
 
-vv=cut_dnd('c:\temp\dd2a.sqw',[],[160,180]);    % fails
-
-xxx=head_dnd;   % returns cell array
+xxx=head_dnd('c:\temp\dd2a.d2d');   % *** currently have a fixup for display. See sqw/head
 
 
 %% Create big sqw file

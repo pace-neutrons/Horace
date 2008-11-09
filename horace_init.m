@@ -13,6 +13,7 @@ rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 
 % Other directories
+addpath_message (rootpath,'libisis');
 addpath_message (rootpath,'utilities');
 
 %--------------------------------------------------------------------------

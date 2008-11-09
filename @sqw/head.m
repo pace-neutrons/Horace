@@ -29,6 +29,7 @@ if source_is_file
     if sqw_type
         sqw_display_single (h,npixtot,'a')
     else
+        npixtot=1;      % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
         sqw_display_single (h,npixtot,'b+')
         h=h.data;
         if isfield(h,'urange'), h=rmfield(h,'urange'); end      % if file was dnd-type then this field will not be present anyway

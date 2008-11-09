@@ -273,8 +273,12 @@ trans = inv(uin_to_rlu)*(proj.uoffset(1:3)-uin_offset(1:3));  % offset between t
 % ------------------------------------------------------------------------------------------------
 % Construct bin boundaries cellarray for input data set, including integration axes as a single bin
 pin=cell(1,4);
-pin(data.pax)=data.p;
-pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
+if numel(data.pax)~=0
+    pin(data.pax)=data.p;
+end
+if numel(data.iax)~=0
+    pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
+end
 
 % Get new plot bin boundaries, integration ranges etc.
 [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, rot, trans, pbin, pin, en);
