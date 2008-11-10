@@ -103,7 +103,7 @@ else
     if nargout>0
         wout = cut_dnd (varargin{:});
     else
-        cut_sqw (varargin{:});
+        cut_dnd (varargin{:});
     end
 end
 
