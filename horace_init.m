@@ -16,6 +16,8 @@ addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 addpath_message (rootpath,'libisis');
 addpath_message (rootpath,'utilities');
 
+addpath_message (rootpath,'functions');
+
 %--------------------------------------------------------------------------
 function addpath_message (varargin)
 % Add a path from the component directory names, printing a message if the

@@ -17,12 +17,8 @@ libisis_start(libisis_root)
 
 %% Create some full sqw files
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Create using existing Horace                                            
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+% This was fone from original Horace, ~sept 2008
 data_source = 'c:\data\Fe\sqw\Fe_ei787.sqw';
-% data_source = 'E:\fe\fe787\fe.sqw';
 
 proj_110.u=[1,1,0];
 proj_110.v=[-1,1,0];
@@ -30,49 +26,36 @@ proj_110.type='rrr';
 proj_110.uoffset=[0,0,0,0];
 
 cut_sqw (data_source, proj_110, [0.9,1.1], [1.0,1.2], [-0.05,0.05], [50,70], 'c:\temp\w0a.sqw');
-
 cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [150,175], 'c:\temp\w1a.sqw');
 cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [175,200], 'c:\temp\w1b.sqw');
 cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [200,250], 'c:\temp\w1c.sqw');
 cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [225,250], 'c:\temp\w1d.sqw');
-
 cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [-0.05,0.05], [50,0,350], 'c:\temp\w2a.sqw');
 cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [ 0.45,0.55], [50,0,350], 'c:\temp\w2b.sqw');
-
 cut_sqw (data_source, proj_110, [0.9,0.05,1.1], [1.0,0.05,1.2], [-0.05,0.05,0.05], [50,0,70], 'c:\temp\w4a.sqw');
 
 
-%% Read in as dnd:
-% Read using existing Horace as sqw structures:
+% Read in as dnd:
 w0a_p=read_sqw('c:\temp\w0a.sqw','-pix');
-
 w1a_p=read_sqw('c:\temp\w1a.sqw','-pix');
 w1b_p=read_sqw('c:\temp\w1b.sqw','-pix');
 w1c_p=read_sqw('c:\temp\w1c.sqw','-pix');
 w1d_p=read_sqw('c:\temp\w1d.sqw','-pix');
-
 w2a_p=read_sqw('c:\temp\w2a.sqw','-pix');
 w2b_p=read_sqw('c:\temp\w2b.sqw','-pix');
-
 w4a_p=read_sqw('c:\temp\w4a.sqw','-pix');
 
-%% Apply fixup to make the sqw structures match the new format
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Change setup to new Horace, and set working directory to ...\Horace_sqw\test
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Apply fixup to make the sqw structures match the new format
+% (Change setup to new Horace, and set working directory to ...\Horace_sqw\test)
 
 % New structures
 [w0a_s,w0a_d]=fudge_data(w0a_p);
-
 [w1a_s,w1a_d]=fudge_data(w1a_p);
 [w1b_s,w1b_d]=fudge_data(w1b_p);
 [w1c_s,w1c_d]=fudge_data(w1c_p);
 [w1d_s,w1d_d]=fudge_data(w1d_p);
-
 [w2a_s,w2a_d]=fudge_data(w2a_p);
 [w2b_s,w2b_d]=fudge_data(w2b_p);
-
 [w4a_s,w4a_d]=fudge_data(w4a_p);
 
 save('T:\SVN_area\test_horace.mat','w0a_s','w0a_d',...
@@ -80,87 +63,90 @@ save('T:\SVN_area\test_horace.mat','w0a_s','w0a_d',...
     'w2a_s','w2a_d','w2b_s','w2b_d','w4a_s','w4a_d')
 
 
-%% Read in some new format sqw files to test conversion of Horace
-
+% Read in some new format sqw files to test conversion of Horace
 load('T:\SVN_area\test_horace.mat')
-load('C:\temp\test_horace.mat')
 
 % Make objects
 s0a=sqw(w0a_s);
-
 s1a=sqw(w1a_s);
 s1b=sqw(w1b_s);
 s1c=sqw(w1c_s);
 s1d=sqw(w1d_s);
-
 s2a=sqw(w2a_s);
 s2b=sqw(w2b_s);
-
 s4a=sqw(w4a_s);
 
 dd0a=d0d(w0a_d);
-
 dd1a=d1d(w1a_d);
 dd1b=d1d(w1b_d);
 dd1c=d1d(w1c_d);
 dd1d=d1d(w1d_d);
-
 dd2a=d2d(w2a_d);
 dd2b=d2d(w2b_d);
-
 dd4a=d4d(w4a_d);
 
 % Save objects to file
 save(s0a,'c:\temp\s0a.sqw')
-
 save(s1a,'c:\temp\s1a.sqw')
 save(s1b,'c:\temp\s1b.sqw')
 save(s1c,'c:\temp\s1c.sqw')
 save(s1d,'c:\temp\s1d.sqw')
-
 save(s2a,'c:\temp\s2a.sqw')
 save(s2b,'c:\temp\s2b.sqw')
-
 save(s4a,'c:\temp\s4a.sqw')
-
 save(dd0a,'c:\temp\dd0a.d0d')
 
 save(dd1a,'c:\temp\dd1a.d1d')
 save(dd1b,'c:\temp\dd1b.d1d')
 save(dd1c,'c:\temp\dd1c.d1d')
 save(dd1d,'c:\temp\dd1d.d1d')
-
 save(dd2a,'c:\temp\dd2a.d2d')
 save(dd2b,'c:\temp\dd2b.d2d')
-
 save(dd4a,'c:\temp\dd4a.d4d')
 
-% Read files
+%% Test new Horace
+% Read old files for comparison
 s1a=read_horace('c:\temp\s1a.sqw');
 s1b=read_horace('c:\temp\s1b.sqw');
 s1c=read_horace('c:\temp\s1c.sqw');
 s1d=read_horace('c:\temp\s1d.sqw');
-
 s2a=read_horace('c:\temp\s2a.sqw');
 s2b=read_horace('c:\temp\s2b.sqw');
-
 s4a=read_horace('c:\temp\s4a.sqw');
 
 dd0a=read_horace('c:\temp\dd0a.d0d');
-
 dd1a=read_horace('c:\temp\dd1a.d1d');
 dd1b=read_horace('c:\temp\dd1b.d1d');
 dd1c=read_horace('c:\temp\dd1c.d1d');
 dd1d=read_horace('c:\temp\dd1d.d1d');
-
 dd2a=read_horace('c:\temp\dd2a.d2d');
 dd2b=read_horace('c:\temp\dd2b.d2d');
-
 dd4a=read_horace('c:\temp\dd4a.d4d');
+
+
+%% Make cuts with new Horace
+data_source = 'c:\data\Fe\sqw\Fe_ei787.sqw';
+
+proj_110.u=[1,1,0];
+proj_110.v=[-1,1,0];
+proj_110.type='rrr';
+proj_110.uoffset=[0,0,0,0];
+
+w0a=cut_sqw (data_source, proj_110, [0.9,1.1], [1.0,1.2], [-0.05,0.05], [50,70]);
+w1a=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [150,175]);
+w1b=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [175,200]);
+w1c=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [200,250]);
+w1d=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [225,250]);
+w2a=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [-0.05,0.05], [50,0,350]);
+w2b=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [ 0.45,0.55], [50,0,350]);
+w4a=cut_sqw (data_source, proj_110, [0.9,0.05,1.1], [1.0,0.05,1.2], [-0.05,0.05,0.05], [50,0,70]);
 
 %% Problems
 
 xxx=head_dnd('c:\temp\dd2a.d2d');   % *** currently have a fixup for display. See sqw/head
+
+%% Tests
+vv=func_eval(dd2a,@gauss2d_bkgd,[0.3,0.5,150,0.1,0,20,0,0,0]);
 
 
 %% Create big sqw file
