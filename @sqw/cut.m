@@ -6,8 +6,6 @@ function varargout = cut (varargin)
 %   >> w = cut (data_source, p1_bin, p2_bin...)     % cut plot axes, keeping existing integration ranges
 %                                                   % (as many binning arguments as there are plot axes)
 %
-%   >> w = cut (data_source, p1_bin, p2_bin, p3_bin, p4_bin)            % cut using existing projection axes
-%
 %   >> w = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)      % cut with new projection axes
 %
 %   >> w = cut (..., '-nopix')      % output cut is dnd structure

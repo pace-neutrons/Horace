@@ -6,8 +6,6 @@ function wout = cut_sqw (data_source, varargin)
 %   >> w = cut (data_source, p1_bin, p2_bin...)     % cut plot axes, keeping existing integration ranges
 %                                                   % (as many binning arguments as there are plot axes)
 %
-%   >> w = cut (data_source, p1_bin, p2_bin, p3_bin, p4_bin)            % cut using existing projection axes
-%
 %   >> w = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)      % cut with new projection axes
 %
 %   >> w = cut (..., '-nopix')      % output cut is dnd structure
@@ -84,9 +82,6 @@ function wout = cut_sqw (data_source, varargin)
 
 % T.G.Perring   04/07/2007
 
-% *** currently does not work for zero dimensional output: small issue to sort out. 3/11/2008: seems to be OK, but check carefully.
-% *** only works for sqw-type input object or file
-% *** need to generalise for proj being absent
 
 if horace_info_level>=1
     bigtic
@@ -226,10 +221,10 @@ else
 end
 
 
-% Check the proj data structure is valid
-% --------------------------------------------
-if isempty(proj_in)     % make proj from input data
-    error('Cutting without proj not currently implemented')
+% Check the proj data structure is valid, if given
+% -------------------------------------------------
+if isempty(proj_in)
+    proj = struct([]);
 else
     [proj,mess] = proj_fill_fields(proj_in);
     if ~isempty(mess)
@@ -261,12 +256,15 @@ upix_offset = header_ave.uoffset;
 % are expressed. Recall that this is not necessarily the same as that in which the individual pixel information is
 % expressed.
 
-uin_to_rlu = data.u_to_rlu(1:3,1:3);
-uin_offset = data.uoffset;
-
-[rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, [1,1,1], proj.type, proj.w);
-rot = inv(u_to_rlu)*uin_to_rlu;         % convert components from data input proj. axes to output proj. axes
-trans = inv(uin_to_rlu)*(proj.uoffset(1:3)-uin_offset(1:3));  % offset between the origins of input and output proj. axes, in input proj. coords
+if ~isempty(proj)
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, [1,1,1], proj.type, proj.w);
+    uin_to_rlu = data.u_to_rlu(1:3,1:3);
+    rot = inv(u_to_rlu)*uin_to_rlu;         % convert components from data input proj. axes to output proj. axes
+    trans = inv(uin_to_rlu)*(proj.uoffset(1:3)-data.uoffset(1:3));  % offset between the origins of input and output proj. axes, in input proj. coords
+else
+    rot = eye(3);
+    trans = [0;0;0];
+end
 
 
 % Get plot and integration axis information, and which blocks of data to read from file/structure
@@ -281,6 +279,17 @@ if numel(data.iax)~=0
 end
 
 % Get new plot bin boundaries, integration ranges etc.
+if isempty(proj)
+    % Order of pbin is display axes. Get the index array that reorders pbin into the order of plot axes
+    invdax=zeros(size(data.dax));
+    for i=1:numel(invdax)
+        invdax(data.dax(i))=i;
+    end
+    ptmp=pbin;  % copy input binning information
+    pbin={[-Inf,Inf],[-Inf,Inf],[-Inf,Inf],[-Inf,Inf]};     % default for existing integration axes
+    pbin(data.pax)=ptmp(invdax);    % new binning mapped onto the projection axes
+end
+
 [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, rot, trans, pbin, pin, en);
 if ~isempty(mess)   % problem getting limits from the input
     if save_to_file; fclose(fout); end    % close the output file opened earlier
@@ -339,13 +348,26 @@ if ~isempty(pax_gt1)
 end
 
 % Get matrix and translation vector to express plot axes with two or more bins as multiples of step size from lower limits
-[rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, ustep(1:3), proj.type, proj.w);
-rot_ustep = rlu_to_ustep*upix_to_rlu; % convert from pixel proj. axes to steps of output projection axes
-trans_bott_left = inv(upix_to_rlu)*(proj.uoffset(1:3)-upix_offset(1:3)+u_to_rlu*urange_offset(1,1:3)'); % offset between origin
-                        % of pixel proj. axes and the lower limit of hyper rectangle defined by range of data , expressed in pixel proj. coords
+if ~isempty(proj)
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, ustep(1:3), proj.type, proj.w);
+    rot_ustep = rlu_to_ustep*upix_to_rlu; % convert from pixel proj. axes to steps of output projection axes
+    trans_bott_left = inv(upix_to_rlu)*(proj.uoffset(1:3)-upix_offset(1:3)+u_to_rlu*urange_offset(1,1:3)'); % offset between origin
+    % of pixel proj. axes and the lower limit of hyper rectangle defined by range of data , expressed in pixel proj. coords
+else
+    u_to_rlu = data.u_to_rlu(1:3,1:3);
+    ulen = data.ulen(1:3);
+    ustep_to_rlu = zeros(3,3);
+    for i=1:3
+        ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i); % get step vector in r.l.u.
+    end
+    rlu_to_ustep = inv(ustep_to_rlu);
+    rot_ustep = rlu_to_ustep*upix_to_rlu; % convert from pixel proj. axes to steps of output projection axes
+    trans_bott_left = inv(upix_to_rlu)*(data.uoffset(1:3)-upix_offset(1:3)+u_to_rlu*urange_offset(1,1:3)'); % offset between origin
+    % of pixel proj. axes and the lower limit of hyper rectangle defined by range of data , expressed in pixel proj. coords
+end
 ebin=ustep(4);                  % plays role of rot_ustep for energy
 trans_elo = urange_offset(1,4); % plays role of trans_bott_left for energy
-                  
+
 
 % Get accumulated signal
 % -----------------------
@@ -403,15 +425,36 @@ data_out.filepath = data.filepath;
 data_out.title = data.title;
 data_out.alatt = alatt;
 data_out.angdeg = angdeg;
-data_out.uoffset = proj.uoffset;
+if ~isempty(proj)
+    data_out.uoffset = proj.uoffset;
+else
+    data_out.uoffset = data.uoffset;
+end
 data_out.u_to_rlu = [[u_to_rlu,[0;0;0]];[0,0,0,1]];
 data_out.ulen = [ulen,1];
-data_out.ulabel = proj.lab;
+if ~isempty(proj)
+    data_out.ulabel = proj.lab;
+else
+    data_out.ulabel = data.ulabel;
+end
 data_out.iax = iax;
 data_out.iint = iint;
 data_out.pax = pax;
 data_out.p = p;
-data_out.dax = 1:length(pax);   % until we have option to select display axes in place
+if ~isempty(proj)
+    data_out.dax = 1:length(pax);   % until we have option to select display axes in place
+else
+    data_out.dax = zeros(1,length(pax));
+    plotaxis = data.pax(data.dax);   % plot axes in the input data set in order x-axis, y-axis, ...
+    j=1;
+    for i=1:length(plotaxis)
+        idax = find(plotaxis(i)==pax);
+        if ~isempty(idax)   % must be in the list if a plot axis
+            data_out.dax(j)=idax;
+            j=j+1;
+        end
+    end
+end
 data_out.s = s./npix;
 data_out.e = e./(npix.^2);
 data_out.npix = npix;
