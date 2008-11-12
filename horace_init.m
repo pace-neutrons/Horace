@@ -1,5 +1,5 @@
 function horace_init
-% Adds the paths needed by Horace.
+% Adds the paths needed by Horace - sqw version
 %
 % In your startup.m, add the Horace root path and call horace_init, e.g.
 %       addpath('c:\mprogs\horace')
