@@ -94,8 +94,8 @@ save(s1d,'c:\temp\s1d.sqw')
 save(s2a,'c:\temp\s2a.sqw')
 save(s2b,'c:\temp\s2b.sqw')
 save(s4a,'c:\temp\s4a.sqw')
-save(dd0a,'c:\temp\dd0a.d0d')
 
+save(dd0a,'c:\temp\dd0a.d0d')
 save(dd1a,'c:\temp\dd1a.d1d')
 save(dd1b,'c:\temp\dd1b.d1d')
 save(dd1c,'c:\temp\dd1c.d1d')
@@ -139,16 +139,72 @@ w1c=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [200,250
 w1d=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [225,250]);
 w2a=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [-0.05,0.05], [50,0,350]);
 w2b=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [ 0.45,0.55], [50,0,350]);
+w3a=cut_sqw (data_source, proj_110, [-1.5,0.05,1.5], [-2,0.05,2], [-0.05,0.05], [0,0,350],'c:\temp\s2b.sqw');
 w4a=cut_sqw (data_source, proj_110, [0.9,0.05,1.1], [1.0,0.05,1.2], [-0.05,0.05,0.05], [50,0,70]);
+save(w0a,'c:\temp\w0a.sqw')
+save(w1a,'c:\temp\w1a.sqw')
+save(w1b,'c:\temp\w1b.sqw')
+save(w1c,'c:\temp\w1c.sqw')
+save(w1d,'c:\temp\w1d.sqw')
+save(w2a,'c:\temp\w2a.sqw')
+save(w2b,'c:\temp\w2b.sqw')
+save(w4a,'c:\temp\w4a.sqw')
+
+w1a=read_horace('c:\temp\w1a.sqw');
+w1b=read_horace('c:\temp\w1b.sqw');
+w1c=read_horace('c:\temp\w1c.sqw');
+w1d=read_horace('c:\temp\w1d.sqw');
+w2a=read_horace('c:\temp\w2a.sqw');
+w2b=read_horace('c:\temp\w2b.sqw');
+w3a=read_horace('c:\temp\w3a.sqw');
+w4a=read_horace('c:\temp\w4a.sqw');
+
+p1a=read_dnd('c:\temp\w1a.sqw');
+p1b=read_dnd('c:\temp\w1b.sqw');
+p1c=read_dnd('c:\temp\w1c.sqw');
+p1d=read_dnd('c:\temp\w1d.sqw');
+p2a=read_dnd('c:\temp\w2a.sqw');
+p2b=read_dnd('c:\temp\w2b.sqw');
+p3a=read_dnd('c:\temp\w3a.sqw');
+p4a=read_dnd('c:\temp\w4a.sqw');
 
 %% Problems
 
 xxx=head_dnd('c:\temp\dd2a.d2d');   % *** currently have a fixup for display. See sqw/head
 
+% aspect ratio
+data_source = 'c:\data\Fe\sqw\Fe_ei787.sqw';
+proj_110.u=[1,1,0];
+proj_110.v=[-1,1,0];
+proj_110.type='rrr';
+proj_110.uoffset=[0,0,0,0];
+wq=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [0,0.05,1], [50,80]);
+
 %% Tests
-vv=func_eval(dd2a,@gauss2d_bkgd,[0.3,0.5,150,0.1,0,20,0,0,0]);
+% make test IXTdataset_3D
+n1=2; n2=3; n3=4;
+p1=1:n1; p1=[p1-0.5,p1(end)+0.5];
+p2=2*(1:n2); p2=[p2-1,p2(end)+1];
+p3=3*(1:n3); p3=[p3-1.5,p3(end)+1.5];
+signal=rand(n1,n2,n3);
+err=rand(n1,n2,n3);
+wout = IXTdataset_3d (IXTbase, 'title_main', signal, err, 's_axis',...
+    p1, 'axis_1', false, p2, 'axis_2', false, p3, 'axis_3', false);
+clim = [min(wout.signal(:)) max(wout.signal(:))];
 
+sm(wout, 'clim', clim, 'title', 'The top', 'xlabel', 'The x-axis', 'ylabel', 'The y-axis', ...
+     'zlabel', 'The z-axis', 'x_sliderlabel', 'axis 1: ', ...
+     'y_sliderlabel', 'axis 2: ',  'z_sliderlabel', 'axis 3: ',  ...
+     'aposition', [0.225,0.225,0.55,0.55]);
 
+sm(IXTdataset_3d(dd3a),  ...
+     'zlabel', 'The z-axis', 'x_sliderlabel', 'axis 1: ', ...
+     'y_sliderlabel', 'axis 2: ',  'z_sliderlabel', 'axis 3: ',  ...
+     'aposition', [0.225,0.225,0.55,0.55]);
+
+sm(IXTdataset_3d(dd3a), 'clim', clim,  ...
+     'aposition', [0.225,0.225,0.55,0.55]);
+ 
 %% Create big sqw file
 indir='C:\temp\mnsi\';     % source directory of spe files
 par_file='C:\temp\mnsi\mnsi_apr08.par';  % detector parameter file

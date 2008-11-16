@@ -101,59 +101,59 @@ for i=1:length(range)
         if vpos<=vmax   % work array not yet filled up
             if range(i)-rpos+1 <= vmax-vpos+1   % enough space to hold remainder of range
                 vend = vpos+range(i)-rpos;  % last column that will be filled in this loop of the while statement
-                bigtic(1)
+                if horace_info_level>=1, bigtic(1), end
                 try
                     [v(:,vpos:vend),count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], 'float32');
                 catch   % fixup to account for not reading required number of items (should really go in fread_catch)
                     ok = false;
                     mess = 'Unrecoverable read error';
                 end
-                t_read = t_read + bigtoc(1);
+                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
                 if ~all(ok); fclose(fid); error(mess); end;
                 vpos = vend+1;
                 break   % jump out of while loop
             else    % read in as much of the range as can
-                bigtic(1)
+                if horace_info_level>=1, bigtic(1), end
                 try
                     [v(:,vpos:vmax),count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], 'float32');
                 catch   % fixup to account for not reading required number of items (should really go in fread_catch)
                     ok = false;
                     mess = 'Unrecoverable read error';
                 end
-                t_read = t_read + bigtoc(1);
+                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
                 if ~all(ok); fclose(fid); error(mess); end;
                 rpos = rpos+vmax-vpos+1;
                 vpos = vmax+1;
             end
         else            % work array filled up; process the data read up to now, and reset position in work array to beginning
-            bigtic(2)
+            if horace_info_level>=1, bigtic(2), end
             if horace_info_level>=0, disp(['Have read data for ',num2str(vpos-1),' pixels - now processing data...']), end
             [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                              v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
             if horace_info_level>=0, disp(['         retained  ',num2str(del_npix_retain),' pixels']), end
             npix_retain = npix_retain + del_npix_retain;
-            t_accum = t_accum + bigtoc(2);
+            if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
             vpos = 1;
             if keep_pix
-                bigtic(3)
+                if horace_info_level>=1, bigtic(3), end
                 accumulate_pix(false)
-                t_sort = t_sort + bigtoc(3);
+                if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
             end
         end
     end
 end
 if vpos>1   % flush out work array - the array contains some unprocessed data
-    bigtic(2)
+    if horace_info_level>=1, bigtic(2), end
     if horace_info_level>=0, disp(['Have read data for ',num2str(vpos-1),' pixels - now processing data...']), end
     [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                      v(:,1:vpos-1), urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
     if horace_info_level>=0, disp(['         retained  ',num2str(del_npix_retain),' pixels']), end
     npix_retain = npix_retain + del_npix_retain;
-    t_accum = t_accum + bigtoc(2);
+    if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
     if keep_pix
-        bigtic(3)
+        if horace_info_level>=1, bigtic(3), end
         accumulate_pix(true)
-        t_sort = t_sort + bigtoc(3);
+        if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
     end
 end
 

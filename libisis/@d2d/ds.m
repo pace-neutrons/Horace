@@ -1,22 +1,14 @@
 function ds(win,varargin)
+% Surface plot for 2D dataset
 %
-% ds(win,varargin)
-% Libisis ds command - surface plot for 2d dataset.
+%   >> da(win)
+%   >> da(win,xlo,xhi);
+%   >> da(win,xlo,xhi,ylo,yhi);
+% Or:
+%   >> da(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'colormap','jet');
 %
-% Optional inputs:
-% ds(win,xlo,xhi);
-% ds(win,xlo,xhi,ylo,yhi);
-% or:
-% ds(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Colormap','jet');
-%
-% see help for libisis\ds for more details of options
-%
+% See help for libisis/ds for more details of other options
+
 % R.A. Ewings 14/10/2008
 
-nd=dimensions(win);
-
-if nd~=2
-    error('Error - ds only works for 2d datasets');
-end
-
-ds(IXTdataset_2d(win),varargin{:});
+da(sqw(win),varargin{:});

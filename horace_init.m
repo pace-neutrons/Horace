@@ -8,6 +8,15 @@ function horace_init
 
 % T.G.Perring
 
+
+disp('----------------------------------------------------------------')
+disp('       Horace')
+disp(' ====================')
+disp('  Visualisation of multi-dimensional neutron spectroscopy data')
+disp('')
+disp('  T.G.Perring, J van Duijn, R.A.Ewings         November 2008')
+disp('----------------------------------------------------------------')
+
 % root directory is assumed to be that in which this function resides
 rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
@@ -17,6 +26,11 @@ addpath_message (rootpath,'libisis');
 addpath_message (rootpath,'utilities');
 
 addpath_message (rootpath,'functions');
+
+% Set up graphical defaults for Libisis plotting
+IXG_ST_HORACE= struct('surface_name','Horace surface plot','area_name','Horace area plot','stem_name','Horace stem plot','oned_name','Horace one dimensional plot',...
+    'multiplot_name','Horace multiplot','points_name','Horace 2d marker plot','contour_name','Horace contour plot','tag','Horace');
+ixf_global_var('Horace','set','IXG_ST_HORACE',IXG_ST_HORACE);
 
 %--------------------------------------------------------------------------
 function addpath_message (varargin)

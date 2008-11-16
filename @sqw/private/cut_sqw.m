@@ -506,7 +506,11 @@ end
 % Create output argument if requested
 % -----------------------------------
 if nargout~=0
-    wout=sqw(w);
+    if keep_pix
+        wout=sqw(w);
+    else
+        wout=dnd(sqw(w));
+    end
 end
 
 % ------------------------

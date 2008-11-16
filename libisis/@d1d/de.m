@@ -1,22 +1,14 @@
 function de(win,varargin)
+% Plot errorbars for 1d dataset.
 %
-% de(win,varargin)
-% Libisis de command - plot errorbars for 1d dataset.
+%   >> de(win)
+%   >> de(win,xlo,xhi);
+%   >> de(win,xlo,xhi,ylo,yhi);
+% Or:
+%   >> de(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red');
 %
-% Optional inputs:
-% de(win,xlo,xhi);
-% de(win,xlo,xhi,ylo,yhi);
-% or:
-% de(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red');
-%
-% see help for libisis\de for more details of options
-%
+% See help for libisis/de for more details of more options
+
 % R.A. Ewings 14/10/2008
 
-nd=dimensions(win);
-
-if nd~=1
-    error('Error - de only works for 1d datasets');
-end
-
-de(IXTdataset_1d(win),varargin{:});
+de(sqw(win),varargin{:});

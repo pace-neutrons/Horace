@@ -2,7 +2,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
-%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (w)
+%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data)
 % 
 % Input:
 % ------

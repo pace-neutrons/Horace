@@ -1,22 +1,25 @@
 function dm(win,varargin)
+% Plot markers for 1d dataset.
 %
-% dm(win,varargin)
-% Libisis dl command - marker plot for 1d dataset.
+%   >> dm(win)
+%   >> dm(win,xlo,xhi);
+%   >> dm(win,xlo,xhi,ylo,yhi);
+% Or:
+%   >> dm(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red');
 %
-% Optional inputs:
-% dm(win,xlo,xhi);
-% dm(win,xlo,xhi,ylo,yhi);
-% or:
-% dm(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red');
-%
-% see help for libisis\dm for more details of options
-%
+% See help for libisis/dm for more details of more options
+
 % R.A. Ewings 14/10/2008
 
-nd=dimensions(win);
-
-if nd~=1
-    error('Error - dm only works for 1d datasets');
+for i=1:numel(win)
+    if dimensions(win(i))~=1
+        if numel(win)==1
+            error('sqw object is not one dimensional')
+        else
+            error('Not all elements in the array of sqw objects are one dimensional')
+        end
+    end
 end
 
-dm(IXTdataset_1d(win),varargin{:});
+ixg_st_horace =  ixf_global_var('Horace','get','IXG_ST_HORACE');
+[figureHandle_, axesHandle_, plotHandle_] = dm(IXTdataset_1d(win), 'name', ixg_st_horace.oned_name, 'tag', ixg_st_horace.tag, varargin{:});

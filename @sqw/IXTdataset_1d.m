@@ -7,21 +7,39 @@ function wout = IXTdataset_1d (w)
 %
 % $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
-nd=dimensions(w);
 
-if nd~=1
-    error('sqw object is not one dimensional')
+% Check input
+if isempty(w)
+    error('sqw object is an empty array')
+end
+for i=1:numel(w)
+    if dimensions(w(i))~=1
+        if numel(w)==1
+            error('sqw object is not one dimensional')
+        else
+            error('Not all elements in the array of sqw objects are one dimensional')
+        end
+    end
 end
 
-[title_main, title_pax] = data_plot_titles (w.data);
+% Fill output
+wout=IXTdataset_1d;
+if numel(w)>1, wout(numel(w))=wout; end  % allocate array
 
-s_axis = IXTaxis ('Intensity');
-x_axis = IXTaxis (title_pax{1});
+for i=1:numel(w)
+    [title_main, title_pax] = data_plot_titles (w(i).data);    % note: axes annotations correctly account for permutation in w.data.dax
 
-nopix=(w.data.npix==0);
-signal=w.data.s';
-signal(nopix)=NaN;
-err=sqrt(w.data.e)';
-err(nopix)=0;
+    s_axis = IXTaxis ('Intensity');
+    x_axis = IXTaxis (title_pax{1});
 
-wout = IXTdataset_1d (IXTbase, title_main, signal, err, s_axis, w.data.p{1}', x_axis, false);
+    nopix=(w(i).data.npix==0);
+    signal=w(i).data.s;
+    signal(nopix)=NaN;
+    err=sqrt(w(i).data.e);
+    err(nopix)=0;
+
+    wout(i) = IXTdataset_1d (IXTbase, title_main, signal', err', s_axis, w(i).data.p{1}', x_axis, false);
+
+end
+
+wout=reshape(wout,size(w));
