@@ -79,7 +79,7 @@ if keep_pix
         pix = zeros(ndatpix,min(pmax,npix_read));
         ix = zeros(min(pmax,npix_read),1);
     else
-        pix = [];
+        pix = zeros(9,0);   % changed 17/11/08 from pix = [];
         ix = [];
     end
 else

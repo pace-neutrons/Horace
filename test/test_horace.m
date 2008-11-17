@@ -172,38 +172,15 @@ p4a=read_dnd('c:\temp\w4a.sqw');
 
 xxx=head_dnd('c:\temp\dd2a.d2d');   % *** currently have a fixup for display. See sqw/head
 
-% aspect ratio
-data_source = 'c:\data\Fe\sqw\Fe_ei787.sqw';
-proj_110.u=[1,1,0];
-proj_110.v=[-1,1,0];
-proj_110.type='rrr';
-proj_110.uoffset=[0,0,0,0];
-wq=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [0,0.05,1], [50,80]);
+dd([w1a,w1b,w1c,w1d]+[0,0.05,0.1,0.15]')    % causes error
+dd([w1a,w1b,w1c,w1d]'+[0,0.05,0.1,0.15])    % doesn't cause error
+
 
 %% Tests
-% make test IXTdataset_3D
-n1=2; n2=3; n3=4;
-p1=1:n1; p1=[p1-0.5,p1(end)+0.5];
-p2=2*(1:n2); p2=[p2-1,p2(end)+1];
-p3=3*(1:n3); p3=[p3-1.5,p3(end)+1.5];
-signal=rand(n1,n2,n3);
-err=rand(n1,n2,n3);
-wout = IXTdataset_3d (IXTbase, 'title_main', signal, err, 's_axis',...
-    p1, 'axis_1', false, p2, 'axis_2', false, p3, 'axis_3', false);
-clim = [min(wout.signal(:)) max(wout.signal(:))];
 
-sm(wout, 'clim', clim, 'title', 'The top', 'xlabel', 'The x-axis', 'ylabel', 'The y-axis', ...
-     'zlabel', 'The z-axis', 'x_sliderlabel', 'axis 1: ', ...
-     'y_sliderlabel', 'axis 2: ',  'z_sliderlabel', 'axis 3: ',  ...
-     'aposition', [0.225,0.225,0.55,0.55]);
-
-sm(IXTdataset_3d(dd3a),  ...
-     'zlabel', 'The z-axis', 'x_sliderlabel', 'axis 1: ', ...
-     'y_sliderlabel', 'axis 2: ',  'z_sliderlabel', 'axis 3: ',  ...
-     'aposition', [0.225,0.225,0.55,0.55]);
-
-sm(IXTdataset_3d(dd3a), 'clim', clim,  ...
-     'aposition', [0.225,0.225,0.55,0.55]);
+% Function evaluation
+vv=cut_sqw (data_source, proj_110, [1,1.02], [0,0.02], [-0.02,0.02], [150,160]);
+ 
  
 %% Create big sqw file
 indir='C:\temp\mnsi\';     % source directory of spe files
