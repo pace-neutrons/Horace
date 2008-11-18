@@ -141,6 +141,7 @@ w2a=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [-0.05,0.05], [50,0
 w2b=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [ 0.45,0.55], [50,0,350]);
 w3a=cut_sqw (data_source, proj_110, [-1.5,0.05,1.5], [-2,0.05,2], [-0.05,0.05], [0,0,350],'c:\temp\s2b.sqw');
 w4a=cut_sqw (data_source, proj_110, [0.9,0.05,1.1], [1.0,0.05,1.2], [-0.05,0.05,0.05], [50,0,70]);
+
 save(w0a,'c:\temp\w0a.sqw')
 save(w1a,'c:\temp\w1a.sqw')
 save(w1b,'c:\temp\w1b.sqw')
@@ -156,7 +157,7 @@ w1c=read_horace('c:\temp\w1c.sqw');
 w1d=read_horace('c:\temp\w1d.sqw');
 w2a=read_horace('c:\temp\w2a.sqw');
 w2b=read_horace('c:\temp\w2b.sqw');
-w3a=read_horace('c:\temp\w3a.sqw');
+% w3a=read_horace('c:\temp\w3a.sqw');
 w4a=read_horace('c:\temp\w4a.sqw');
 
 p1a=read_dnd('c:\temp\w1a.sqw');
@@ -179,9 +180,40 @@ dd([w1a,w1b,w1c,w1d]'+[0,0.05,0.1,0.15])    % doesn't cause error
 %% Tests
 
 % Function evaluation
-vv=cut_sqw (data_source, proj_110, [1,1.02], [0,0.02], [-0.02,0.02], [150,160]);
- 
- 
+w0=cut_sqw (data_source, proj_110, [1,1.02], [0,0.02], [-0.02,0.02], [150,160]);    % tiny sqw object for explicit examination of pixels
+p0=dnd(w0);
+
+% Test function evaluation
+% --------------------------
+% Make three Gaussian peaks:
+sqw1a=cut(w1a,[0.4,0.05,1]);
+sqw1b=cut(w1b,[0.4,0.05,1]);
+sqw1c=cut(w1c,[0.4,0.05,1]);
+
+d1da=dnd(sqw1a);
+d1db=dnd(sqw1b);
+d1dc=dnd(sqw1c);
+
+% Function evaluation:
+% 1D:
+ww=func_eval(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);    % test function evaluation
+ww=func_eval(sqw1a,@test_gauss_bkgd_cell,{[100,0.7,0.05,0.1,0],0.001});  % test function evaluation of cell input; scale factor of 1/1000
+
+sqw_all=[sqw1a,sqw1b,sqw1c];
+ww=func_eval(sqw_all,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
+
+% 2D:
+% Shift w2b to separate the plots
+w2test=w2b; w2test.data.p{1}=w2b.data.p{1}+1.2;
+w_all=[w2a,w2test];
+da(w_all)
+ww=func_eval(w_all,@gauss2d,[50,1,150,0.04,0,1000]);
+ww=func_eval(w_all,@gauss2d,[50,1,150,0.04,0,1000],'all'); % as sqw, option is ignored
+ww=func_eval(dnd(w_all),@gauss2d,[50,1,150,0.04,0,1000],'all'); % as dnd, option is valid
+
+ww=sqw_eval(w2a,@test_sqw_model,[5,30,10,10]);
+
+
 %% Create big sqw file
 indir='C:\temp\mnsi\';     % source directory of spe files
 par_file='C:\temp\mnsi\mnsi_apr08.par';  % detector parameter file

@@ -10,9 +10,17 @@ function wout = d1d (win)
 % $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
 
-nd=dimensions(win);
-if nd~=1
-    error('Dimensionality of sqw object not equal to 1')
-else
-    wout=dnd(win);
+ndim_req=1;     % required dimensionality
+
+% The code below is identical for all dnd type converter routines
+for i=1:numel(win)
+    if dimensions(win(i))~=ndim_req
+        if numel(win)==1
+            error('sqw object is not two dimensional')
+        else
+            error('Not all elements in the array of sqw objects are two dimensional')
+        end
+    end
 end
+
+wout=dnd(win);  % calls sqw method for generic dnd conversion

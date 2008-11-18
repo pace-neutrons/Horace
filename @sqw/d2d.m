@@ -1,5 +1,5 @@
 function wout = d2d (win)
-% Convert input 2-dimensional sqw object into corresponding d2d object
+% Convert input 2-dimensional sqw object or array of 2D sqw objects into d2d object or d2d object array
 %
 %   >> wout = d2d (win)
 
@@ -10,9 +10,17 @@ function wout = d2d (win)
 % $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
 
-nd=dimensions(win);
-if nd~=2
-    error('Dimensionality of sqw object not equal to 2')
-else
-    wout=dnd(win);
+ndim_req=2;     % required dimensionality
+
+% The code below is identical for all dnd type converter routines
+for i=1:numel(win)
+    if dimensions(win(i))~=ndim_req
+        if numel(win)==1
+            error('sqw object is not two dimensional')
+        else
+            error('Not all elements in the array of sqw objects are two dimensional')
+        end
+    end
 end
+
+wout=dnd(win);  % calls sqw method for generic dnd conversion
