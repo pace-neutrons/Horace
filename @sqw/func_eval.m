@@ -9,7 +9,7 @@ function wout = func_eval (win, func_handle, pars, opt)
 %   win         Dataset or array of datasets; the function will be evaluated
 %              at the bin centres along the plot axes
 %
-%   func        Handle to the function to be evaluated
+%   func_handle Handle to the function to be evaluated
 %              Function must be of form y = my_func(x,pars)
 %               e.g. y=gauss2d(x,[ht,x0,sig])
 %                    y=gauss4d(x1,x2,x3,x4,[ht,x1_0,x2_0,x3_0,x4_0,sig1,sig2,sig3,sig4])
@@ -25,8 +25,8 @@ function wout = func_eval (win, func_handle, pars, opt)
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
 %              that contain data.
-%               Applies only to input with no pixel information - it is ignored if
-%              full sqw object.
+%               Applies only to input with no pixel information - this option is ignored if
+%              the input is a full sqw object.
 %
 % Output:
 % =======

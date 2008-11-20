@@ -174,7 +174,22 @@ p4a=read_dnd('c:\temp\w4a.sqw');
 xxx=head_dnd('c:\temp\dd2a.d2d');   % *** currently have a fixup for display. See sqw/head
 
 dd([w1a,w1b,w1c,w1d]+[0,0.05,0.1,0.15]')    % causes error
-dd([w1a,w1b,w1c,w1d]'+[0,0.05,0.1,0.15])    % doesn't cause error
+dd([w1a,w1b,w1c,w1d]'+[0,0.05,0.1,0.15])    % doesn't cause error - check that this is OK
+
+% titling issue: rounding errors in cut?
+% ------------------------------------------
+% Both the following give strange captions for the secondary cut, rounding erros and bin centre/boundary issue on energy caption
+w1a=read_horace('c:\temp\w1a.sqw');
+wtest=cut(w1a,[0.4,0.05,1]);
+dl(w1a)
+kf
+dl(wtest)
+
+w1a=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [150,175]);
+wtest=cut(w1a,[0.4,0.05,1]);
+dl(w1a)
+kf
+dl(wtest)
 
 
 %% Tests
@@ -195,12 +210,20 @@ d1db=dnd(sqw1b);
 d1dc=dnd(sqw1c);
 
 % Function evaluation:
+% ---------------------
 % 1D:
 ww=func_eval(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);    % test function evaluation
 ww=func_eval(sqw1a,@test_gauss_bkgd_cell,{[100,0.7,0.05,0.1,0],0.001});  % test function evaluation of cell input; scale factor of 1/1000
 
 sqw_all=[sqw1a,sqw1b,sqw1c];
 ww=func_eval(sqw_all,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
+
+% Fit:
+[ww,ff]=fit(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
+
+[ww,ff]=fit(sqw_all,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
+
+[ww,ff]=fit(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0],'remove',[0.78,0.92],'sel'); % test the sel option with sqw object
 
 % 2D:
 % Shift w2b to separate the plots
@@ -212,6 +235,9 @@ ww=func_eval(w_all,@gauss2d,[50,1,150,0.04,0,1000],'all'); % as sqw, option is i
 ww=func_eval(dnd(w_all),@gauss2d,[50,1,150,0.04,0,1000],'all'); % as dnd, option is valid
 
 ww=sqw_eval(w2a,@test_sqw_model,[5,30,10,10]);
+
+% Function fitting
+% ------------------
 
 
 %% Create big sqw file

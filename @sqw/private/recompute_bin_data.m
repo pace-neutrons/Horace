@@ -1,5 +1,5 @@
 function wout=recompute_bin_data(w)
-% Given sqw_type object, recompute w.data.s and w.data.e
+% Given sqw_type object, recompute w.data.s and w.data.e from the contents of pix array
 %
 %   >> wout=recompute_bin_data(w)
 
@@ -9,8 +9,6 @@ function wout=recompute_bin_data(w)
 
 wout=w;
 
-% Accumulate into data arrays
-% ---------------------------
 % Get the bin index for each pixel
 nend=cumsum(w.data.npix(:));
 nbeg=nend-w.data.npix(:)+1;
