@@ -29,8 +29,9 @@ if ~isa(w1,'double') && ~isa(w2,'double')
             wout = w1;
             wtmp = sigvar(w2);
             if ~isequal([1,1],sz)
-                wtmp.s = replicate_array(wtmp.s, w1.data.npix)';
-                wtmp.e = replicate_array(wtmp.e, w1.data.npix)';
+                stmp = replicate_array(wtmp.s, w1.data.npix)';
+                etmp = replicate_array(wtmp.e, w1.data.npix)';
+                wtmp = sigvar(stmp,etmp);
             end
             result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), wtmp);
             wout.data.pix(8:9,:) = [result.s;result.e];
@@ -44,8 +45,9 @@ if ~isa(w1,'double') && ~isa(w2,'double')
             wout = w2;
             wtmp = sigvar(w1);
             if ~isequal([1,1],sz)
-                wtmp.s = replicate_array(wtmp.s, w2.data.npix)';
-                wtmp.e = replicate_array(wtmp.e, w2.data.npix)';
+                stmp = replicate_array(wtmp.s, w2.data.npix)';
+                etmp = replicate_array(wtmp.e, w2.data.npix)';
+                wtmp = sigvar(stmp,etmp);
             end
             result = binary_op(wtmp, sigvar(w2.data.pix(8,:),w2.data.pix(9,:)));
             wout.data.pix(8:9,:) = [result.s;result.e];

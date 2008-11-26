@@ -32,9 +32,12 @@ In class directory, place the methods:
 
    w = sigvar(obj)               (Create a sigvar object for particular class)
 
+   sz = sigvar_size(obj)         (get conventional Matlab array size for signal)
+
+   obj = sigvar_set(w,obj)       (Set signal and variance fields for class)
 
    These will be used by the private methods binary_op_manager amd
-   binary_op_manager_single (see below)
+   binary_op_manager_single (see below).
 
 
 
@@ -49,11 +52,6 @@ In the private methods directory:
 
    unary_op_manager            (may need to edit for particular class)
 
-   sz = sigvar_size(obj)         (conventional Matlab array size for signal)
-
-   obj = sigvar_set(w,obj)       (Set signal and variance fields for class)
-
-   The last two will be used by binary_op_manager and binary_op_manager_single
 
 
  *Function:
