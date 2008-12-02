@@ -27,6 +27,8 @@ addpath_message (rootpath,'utilities');
 
 addpath_message (rootpath,'functions');
 
+addpath_message(rootpath,'GUI');
+
 % Set up graphical defaults for Libisis plotting
 IXG_ST_HORACE= struct('surface_name','Horace surface plot','area_name','Horace area plot','stem_name','Horace stem plot','oned_name','Horace one dimensional plot',...
     'multiplot_name','Horace multiplot','points_name','Horace 2d marker plot','contour_name','Horace contour plot','tag','Horace');
