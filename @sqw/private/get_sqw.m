@@ -1,13 +1,11 @@
-function [main_header,header,detpar,data,mess,position,npixtot,type] = get_sqw (infile,varargin)
+function [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile,varargin)
 % Load an sqw file from disk
 %
 % Syntax:
-%   >> [main_header, header, detpar, data, position, npixtot] = get_sqw (infile)
-%   >> [main_header, header, detpar, data, position, npixtot] = get_sqw (infile, '-h')
-%   >> [main_header, header, detpar, data, position, npixtot] = get_sqw (infile, '-nopix')
-%   >> [main_header, header, detpar, data, position, npixtot] = get_sqw (infile, npix_lo, npix_hi)
-%
-%   >> [sqw_type, ndim] = get_sqw(infile, '-sqw_type') % To determine if sqw_type or not, and dimensionality of object
+%   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile)
+%   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile, '-h')
+%   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile, '-nopix')
+%   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile, npix_lo, npix_hi)
 %
 % Input:
 % --------
@@ -88,29 +86,25 @@ else
 end
 
 % Read application and version number
+pos_tmp=ftell(fid);
 [app_wrote_file,mess]=get_application(fid);
-if ~isempty(mess); if close_file; fclose(fid); end; mess=['Error reading file type - ',mess]; return; end
-if ~strcmpi(application.name,app_wrote_file.name) || application.version~=app_wrote_file.version
-    if close_file
-        fclose(fid);
-    end
-    mess='Unrecognised format for sqw file';
-    return
+if isempty(mess) && strcmpi(application.name,app_wrote_file.name) && application.version==app_wrote_file.version
+    % Current version of Horace wrote file
+    current_format=true;
+else
+    % Assume sqw file old format
+    disp('File does not have current Horace data file format. Attempting to read as old format Horace .sqw file...')
+    current_format=false;
+    fseek(fid,pos_tmp,'bof');
 end
 
 
-% Get sqw type and dimensions
-[sqw_type,ndims,mess]=get_sqw_object_type(fid);
-if ~isempty(mess); if close_file; fclose(fid); end; mess=['Error reading sqw file type - ',mess]; return; end
-
-% return if only wished to inquire of sqw_type
-if numel(varargin)==1 && ischar(varargin{1}) && isequal(lower(varargin{1}),'-sqw_type')
-    main_header=sqw_type;   % the first output argument must be sqw_type
-    header=ndims;            % second output argument is dimensionality
-    if close_file   % opened file in this routine, so close again
-        fclose(fid);
-    end
-    return
+% Get sqw type
+if current_format
+    [sqw_type,ndims,mess]=get_sqw_object_type(fid);
+    if ~isempty(mess); if close_file; fclose(fid); end; mess=['Error reading sqw file type - ',mess]; return; end
+else    % Assume old sqw file format
+    sqw_type=true;
 end
 
 
@@ -156,11 +150,29 @@ end
 
 % Get data
 position.data=ftell(fid);
-if isempty(varargin)
-    [data,mess,position_data,npixtot,type]=get_sqw_data(fid);
+if current_format
+    if isempty(varargin)
+        [data,mess,position_data,npixtot,type]=get_sqw_data(fid);
+    else
+        [data,mess,position_data,npixtot,type]=get_sqw_data(fid,varargin{:});
+    end
 else
-    [data,mess,position_data,npixtot,type]=get_sqw_data(fid,varargin{:});
+    if isempty(varargin)
+        [data,mess,position_data,npixtot,type]=get_sqw_data(fid,'-prototype');
+    else
+        [data,mess,position_data,npixtot,type]=get_sqw_data(fid,varargin{:},'-prototype');
+    end
+    % Fill fields not held in data section from the header
+    data.title=main_header.title;
+    if iscell(header)
+        header_ave = header{1};
+    else
+        header_ave = header;
+    end
+    data.alatt=header_ave.alatt;
+    data.angdeg=header_ave.angdeg;
 end
+
 if ~isempty(mess); if close_file; fclose(fid); end; mess=['Error reading data block - ',mess]; return; end
 position.s=position_data.s;
 position.e=position_data.e;

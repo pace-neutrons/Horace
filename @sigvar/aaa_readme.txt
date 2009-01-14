@@ -2,12 +2,18 @@ Unary and binary arithmetic operations
 =======================================
 Binary operations:
 
-   +   -   ./   .*   .^
+   +    plus
+   -    minus
+   /    mrdivide
+   \    mldivide
+   *    mtimes  
+   ^    mpower
 
 
 Unary operations:
 
-   +w   -w
+   -w   uminus
+   +w   uplus
 
 
 Standard unary functions:
@@ -15,12 +21,20 @@ Standard unary functions:
    tan, cos, asech, sqrt  etc.
 
 
+Note: the reason why mldivide is included is because in a binary operation
+involving two objects of the same type, the attributes other than the signal
+and error arrays will be progragated from the lefthand object. If we want to
+divide A by B as A\B, then the attributes of A will be propagated. if we
+perform B\A, then if the manipulation of the signal and error arrays is
+inverted in the code of mldivide.m as compared to mrdivide.m, then the
+output signal and errors will be the same as A/B but the attributes of 
+B will be propagated.
 
 
 In class directory, place the methods:
 ---------------------------------------
 
-   plus, minus, mrdivide, mtimes, mpower
+   plus, minus, mrdivide, mldivide, mtimes, mpower
    uplus,  uminus
 
    acos, acosh, acot, ... sin, sqrt, tan, tanh
@@ -31,6 +45,10 @@ In class directory, place the methods:
    [nd, sz] = dimensions (obj)   (will need to edit for particular class)
 
    w = sigvar(obj)               (Create a sigvar object for particular class)
+
+   sz = sigvar_size(obj)         (conventional Matlab array size for signal)
+
+   w = sigvar_set(w,obj)         (Set signal and variance fields for class)
 
 
    These will be used by the private methods binary_op_manager amd
@@ -49,11 +67,6 @@ In the private methods directory:
 
    unary_op_manager            (may need to edit for particular class)
 
-   sz = sigvar_size(obj)         (conventional Matlab array size for signal)
-
-   obj = sigvar_set(w,obj)       (Set signal and variance fields for class)
-
-   The last two will be used by binary_op_manager and binary_op_manager_single
 
 
  *Function:

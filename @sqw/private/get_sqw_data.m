@@ -8,6 +8,16 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %   >> [data, mess] = get_sqw_data(..., opt)
 %   >> [data, mess] = get_sqw_data(..., npix_lo, npix_hi)
 %
+% To any of the above: to read original prototype format file
+%   >> [data, mess] = get_sqw_data(..., '-prototype')
+%
+%   * The fields filename, filepath, title, alatt, and angdeg are not stored in this prototype format,
+%     Fields filename and filepath are constructed in this routine, but title, alatt and angdeg are
+%     just given dummy values which must be filled from the main_header and header information.
+%
+%   * This option is not compatible with files of type 'b', because the npix information is needed to convert
+%     the signal and error in each bin into the new format by normalising by number of pixels in each bin.
+%
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
@@ -53,7 +63,7 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %   data.filename   Name of sqw file that is being read, excluding path
 %   data.filepath   Path to sqw file that is being read, including terminating file separator
 %          [Note that the filename and filepath that are written to file are ignored; we fill with the 
-%           values corresponding to the file that is being read.
+%           values corresponding to the file that is being read.]
 %
 %   data.title      Title of sqw data structure
 %   data.alatt      Lattice parameters for data field (Ang^-1)
@@ -110,21 +120,34 @@ data=[];
 position=[];
 npixtot=[];
 type='';
-if nargin==2 && isstruct(varargin{1})
-    data = varargin{1};
-elseif nargin==2 && ischar(varargin{1})
-    opt = varargin{1};
-elseif nargin==3 && isstruct(varargin{1}) && ischar(varargin{1})
-    data = varargin{1};
-    opt = varargin{2};
-elseif nargin==3 && isnumeric(varargin{1}) && isnumeric(varargin{2}) && isscalar(varargin{1}) && isscalar(varargin{2})
-    npix_lo=varargin{1};
-    npix_hi=varargin{2};
-elseif nargin==4 && isstruct(varargin{1}) && isnumeric(varargin{2}) && isnumeric(varargin{3}) && isscalar(varargin{2}) && isscalar(varargin{3})
-    data = varargin{1};
-    npix_lo=varargin{2};
-    npix_hi=varargin{3};
-elseif nargin>1
+
+% Determine if asked to read prototype format
+if nargin>2 && ischar(varargin{end}) && strcmpi(varargin{end},'-prototype')
+    prototype=true;
+    nargs=numel(varargin)-1;
+    args=varargin(1:end-1);
+else
+    prototype=false;
+    nargs=numel(varargin);
+    args=varargin;
+end
+
+% Parse input
+if nargs==1 && isstruct(args{1})
+    data = args{1};
+elseif nargs==1 && ischar(args{1})
+    opt = args{1};
+elseif nargs==2 && isstruct(args{1}) && ischar(args{2})
+    data = args{1};
+    opt = args{2};
+elseif nargs==2 && isnumeric(args{1}) && isnumeric(args{2}) && isscalar(args{1}) && isscalar(args{2})
+    npix_lo=args{1};
+    npix_hi=args{2};
+elseif nargs==3 && isstruct(args{1}) && isnumeric(args{2}) && isnumeric(args{3}) && isscalar(args{2}) && isscalar(args{3})
+    data = args{1};
+    npix_lo=args{2};
+    npix_hi=args{3};
+elseif nargs>0
     mess = 'Check the type of input argument(s)';
     return
 end
@@ -156,18 +179,25 @@ end
 data.filename=[name,ext,ver];
 data.filepath=[path,filesep];
 
-% Read data from file:
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[dummy_filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+if ~prototype
+    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+    [dummy_filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
 
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[dummy_filepath, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+    [dummy_filepath, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
 
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[data.title, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+    [data.title, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
 
-[data.alatt, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
-[data.angdeg, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
+    [data.alatt, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
+    [data.angdeg, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
+
+else
+    data.title = '';
+    data.alatt = zeros(1,3);
+    data.angdeg = zeros(1,3);
+end
+
 [data.uoffset, count, ok, mess] = fread_catch(fid,[4,1],'float32'); if ~all(ok); return; end;
 [data.u_to_rlu, count, ok, mess] = fread_catch(fid,[4,4],'float32'); if ~all(ok); return; end;
 [data.ulen, count, ok, mess] = fread_catch(fid,[1,4],'float32'); if ~all(ok); return; end;
@@ -234,6 +264,10 @@ npixtot=[];
 
 if fnothingleft(fid)    % reached end of file - can only be because has type 'b'
     type='b';
+    if prototype && ~header_only
+        mess = 'File does not contain number of pixels for each bin - uable to convert old format data';
+        return
+    end
     return
 else
     position.npix=ftell(fid);
@@ -247,6 +281,9 @@ end
 
 if fnothingleft(fid)    % reached end of file - can only be because has type 'b+'
     type='b+';
+    if prototype && ~header_only
+        [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+    end
     return
 else
     [data.urange,count,ok,mess] = fread_catch(fid,[2,4],'float32'); if ~all(ok); return; end;
@@ -254,6 +291,9 @@ end
 
 if fnothingleft(fid)    % reached end of file - can only be because has type 'a-'
     type='a-';
+    if prototype && ~header_only
+        [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+    end
     return
 else
     [dummy,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;   % redundant field
@@ -279,7 +319,12 @@ else
         status=fseek(fid,4*(9*npixtot),'cof');  % skip field pix
     end
     type='a';
+    if prototype && ~header_only
+        [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+    end
+    return
 end
+
 
 %==================================================================================================
 function answer=fnothingleft(fid)
@@ -293,4 +338,10 @@ else
     fseek(fid,-1,'cof');    % go back one byte
 end
 
-
+%==================================================================================================
+function [s,e]=convert_signal_error(s,e,npix)
+% Convert prototype (July 2007) format into standard format signal and error arrays
+% Prototype format files have zeros for singal and variance arrays with no pixels
+pixels = npix~=0;
+s(pixels) = s(pixels)./npix(pixels);
+e(pixels) = e(pixels)./(npix(pixels).^2);

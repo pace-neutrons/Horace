@@ -26,6 +26,9 @@ Optional specific, private function:
 ------------------------------------
 classname  (just returns name of class)
 
+(This function is needed for operator arithmetic)
+
+
 
 Note:
 -------

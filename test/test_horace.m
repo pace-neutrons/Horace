@@ -169,14 +169,21 @@ p2b=read_dnd('c:\temp\w2b.sqw');
 p3a=read_dnd('c:\temp\w3a.sqw');
 p4a=read_dnd('c:\temp\w4a.sqw');
 
+%% Get some small data sets for tests
+w2_tiny_a=section(w2a,[0.1999,0.40001],[100,130]);  % to avoid a rounding error problem
+w2_tiny_b=section(w2a,[0.3999,0.60001],[100,130]);
+d2_tiny_a=dnd(w2_tiny_a);
+d2_tiny_b=dnd(w2_tiny_b);
+
+
 %% Problems
 
+% Currently have a fixup for display. See sqw/head
+% --------------------------------------------------
 xxx=head_dnd('c:\temp\dd2a.d2d');   % *** currently have a fixup for display. See sqw/head
 
-dd([w1a,w1b,w1c,w1d]+[0,0.05,0.1,0.15]')    % causes error
-dd([w1a,w1b,w1c,w1d]'+[0,0.05,0.1,0.15])    % doesn't cause error - check that this is OK
 
-% titling issue: rounding errors in cut?
+% Titling issue: rounding errors in cut?
 % ------------------------------------------
 % Both the following give strange captions for the secondary cut, rounding erros and bin centre/boundary issue on energy caption
 w1a=read_horace('c:\temp\w1a.sqw');
@@ -190,6 +197,12 @@ wtest=cut(w1a,[0.4,0.05,1]);
 dl(w1a)
 kf
 dl(wtest)
+
+% Bins along x-axis are different. Why?
+% I think the problem is that rounding errors when reading w2a in from file (where stored as float32) result in boundaries not
+% being quite what we think. 
+w2_tiny_a=section(w2a,[0.2,0.4],[100,130]);
+w2_tiny_b=section(w2a,[0.4,0.6],[100,130]);
 
 
 %% Tests
@@ -262,3 +275,12 @@ end
 
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
+proj.u=[1,1,0];
+proj.v=[-1,1,0];
+proj.type='rrr';
+proj.uoffset=[0,0,0,0];
+w2test=cut_sqw(sqw_file,proj,[-1,0.1,2],[-5,0.1,1],[-1,1],[30,35]);
+w1test=cut_sqw(sqw_file,proj,[-1,0.1,2],[-4.1,-3.9],[-1,1],[30,35]);
+
+w2tiny=cut_sqw(sqw_file,proj,[0.6,0.1,0.9],[-3.8,0.1,-3.4],[-1,1],[30,35]);
+w1tiny=cut_sqw(sqw_file,proj,[0.5,0.1,1],[-4.1,-3.9],[-1,1],[30,35]);

@@ -32,15 +32,18 @@ end
 
 % Read application and version number
 [app_wrote_file,mess]=get_application(fid);
-if ~isempty(mess); fclose(fid); mess=['Error reading file type - ',mess]; return; end
-if ~strcmpi(application.name,app_wrote_file.name) || application.version~=app_wrote_file.version
+
+if isempty(mess) && strcmpi(application.name,app_wrote_file.name) && application.version==app_wrote_file.version
+    % Current version of Horace wrote file
+    [sqw_type,ndims,mess]=get_sqw_object_type(fid);
+    if ~isempty(mess); fclose(fid); mess=['Error reading sqw file type and dimensions - ',mess]; return; end
     fclose(fid);
-    mess='Unrecognised format for sqw file';
-    return
+else
+    % Assume sqw file old format until fails
+    fclose(fid);    % close file again to restart read process in get_sqw
+    [main_header,header,detpar,data,mess,position,npixtot,type] = get_sqw (infile, '-h');
+    if ~isempty(mess); mess=['Error trying to read file as old format Horace .sqw file - ',mess]; return; end
+    if ~strcmpi(type,'a'); mess='Error trying to read file as old format Horace .sqw file'; return; end
+    sqw_type=true;
+    ndims=numel(data.pax);
 end
-
-% Get sqw type and dimensions
-[sqw_type,ndims,mess]=get_sqw_object_type(fid);
-if ~isempty(mess); fclose(fid); mess=['Error reading sqw file type - ',mess]; return; end
-
-fclose(fid);

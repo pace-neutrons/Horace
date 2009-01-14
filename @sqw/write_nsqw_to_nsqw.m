@@ -86,7 +86,8 @@ datahdr=cell(nfiles,1);
 pos_datastart=zeros(nfiles,1);
 
 for i=1:nfiles
-    [main_header{i},header{i},det_tmp,datahdr{i},mess,position,npixtot,type] = get_sqw (infiles{i},'-h');
+    [main_header{i},header{i},det_tmp,datahdr{i},mess,position,npixtot,type,current_format] = get_sqw (infiles{i},'-h');
+    if ~current_format; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
     if ~strcmpi(type,'a'); error(['No pixel information in ',infiles{i}]); end
     if main_header{i}.nfiles~=1; error(['Data from more than one spe file in ',infiles{i}]); end
