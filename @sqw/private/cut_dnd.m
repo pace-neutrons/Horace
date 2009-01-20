@@ -169,6 +169,13 @@ nopix = (npix==0);
 s(nopix) = 0;   % must ensure zero so that can sum over integration range(s)
 e(nopix) = 0;   % must ensure zero so that can sum over integration range(s)
 
+% also need to check for the (rare, and pathological) case when either
+% data.s or data.e contain NaNs, but data.npix is not zero.
+s_nans = isnan(s);
+e_nans = isnan(e);
+s(s_nans)=0; e(s_nans)=0; npix(s_nans)=0;
+s(e_nans)=0; e(e_nans)=0; npix(e_nans)=0;
+
 % sum over the integration axes. Perform the summation along the
 % highest axis index - this allows succesive calls of routines that reduce dimension by one
 % without the need for sophisticated book-keeping.
@@ -190,6 +197,10 @@ e = e./(npix.^2);
 nopix = (npix==0);  % true where there are no pixels contributing to the bin
 s(nopix)=0;         % want signal to be NaN where there are no contributing pixels, not +/- Inf
 e(nopix)=0;
+s_nans = isnan(s);
+e_nans = isnan(e);
+s(s_nans)=0; e(s_nans)=0; npix(s_nans)=0;
+s(e_nans)=0; e(e_nans)=0; npix(e_nans)=0;
 
 % insert results into output signal, error, npix arrays
 matched_size=true(size(sub_pax));
