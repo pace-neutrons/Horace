@@ -207,6 +207,8 @@ w2_tiny_b=section(w2a,[0.4,0.6],[100,130]);
 
 %% Tests
 
+addpath('T:\SVN_area\Horace_sqw\test');     % to put various test functions on the path
+
 % Function evaluation
 w0=cut_sqw (data_source, proj_110, [1,1.02], [0,0.02], [-0.02,0.02], [150,160]);    % tiny sqw object for explicit examination of pixels
 p0=dnd(w0);
@@ -226,17 +228,25 @@ d1dc=dnd(sqw1c);
 % ---------------------
 % 1D:
 ww=func_eval(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);    % test function evaluation
-ww=func_eval(sqw1a,@test_gauss_bkgd_cell,{[100,0.7,0.05,0.1,0],0.001});  % test function evaluation of cell input; scale factor of 1/1000
 
 sqw_all=[sqw1a,sqw1b,sqw1c];
+
 ww=func_eval(sqw_all,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
 
-% Fit:
+ww=sqw_eval(sqw_all,@test_sqw_model_1D_bkgd,[10,40,0.05,50,0.1,0]);
+
+
+
+% Fit function:
 [ww,ff]=fit(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
 
 [ww,ff]=fit(sqw_all,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
 
 [ww,ff]=fit(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0],'remove',[0.78,0.92],'sel'); % test the sel option with sqw object
+
+% Fit sqw:
+[ww,ff]=fit_sqw(sqw_all,@test_sqw_model_1D_bkgd,[10,40,0.05,50,0.1,0]);
+
 
 % 2D:
 % Shift w2b to separate the plots
@@ -251,7 +261,7 @@ ww=sqw_eval(w2a,@test_sqw_model,[5,30,10,10]);
 
 % Function fitting
 % ------------------
-
+ww3=cut_sqw (data_source, proj_110, [0.5,0.05,0.7], [0,0.05,0.1], [-0.05,0.05], [100,0,120]);
 
 %% Create big sqw file
 indir='C:\temp\mnsi\';     % source directory of spe files

@@ -5,14 +5,15 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 % Syntax:
 %   >> [wout, fitdata] = fit(win, func_handle, pin)
 %   >> [wout, fitdata] = fit(win, func_handle, pin, pfree)
-%   >> [wout, fitdata] = fit(win, func_handle, pin, pfree, keyword, value)
+%   >> [wout, fitdata] = fit(win, func_handle, pin, pfree, pbind)
+%   >> [wout, fitdata] = fit(..., keyword, value)
 %
 %   keyword example:
 %   >> [wout, fitdata] = fit(..., 'fit', fcp)
 %
 % Input:
 % ======
-%   win     2D dataset object or array of 2D dataset objects to be fitted
+%   win     sqw object or array of sqw objects to be fitted
 %
 %   func_handle    
 %           Function handle to function to be fitted e.g. @gauss
@@ -37,10 +38,18 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %            - If further parameters are needed by my_function, then wrap as a cell array
 %               {[pin(1), pin(2)...], c1, c2, ...}  
 %
-%   pfree   Indicates which are the free parameters in the fit
+%   pfree   [Optional] Indicates which are the free parameters in the fit
 %           e.g. [1,0,1,0,0] indicates first and third are free
 %           Default: all are free
 %
+%   pbind   [Optional] Cell array that indicates which of the free parameters are bound to other parameters
+%           in a fixed ratio determined by the initial parameter values contained in pin:
+%             pbind={1,3}               parameter 1 is bound to parameter 3.
+%             pbind={{1,3},{4,3},{5,6}} parameter 1 bound to 3, 4 bound to 3, and 5 bound to 6
+%                                       In this case, parmaeters 1,3,4,5,6 must all be free in pfree.
+%           To explicity give the ratio, ignoring that determined from pin:
+%             pbind=(1,3,0,7.4)         parameter 1 is bound to parameter 3, ratio 7.4 (the extra '0' is required)
+%             pbind={{1,3,0,7.4},{4,3,0,0.023},{5,6}}
 %
 %   Optional keywords:
 %   ------------------
@@ -73,16 +82,9 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %           This is useful for plotting the output, as only those points that
 %           contributed to the fit will be plotted.
 %
-%   'all'   Requests that the calculated function be returned over
-%           the whole of the domain of the input dataset. If not given, then
-%           the function will be returned only at those points of the dataset
-%           that contain data.
-%           Applies only to input with no pixel information - this option is 
-%           ignored if the input is a full sqw object.
-%
 % Output:
 % =======
-%   wout    2D dataset object containing the evaluation of the function for the
+%   wout    sqw object containing the evaluation of the function for the
 %          fitted parameter values.
 %
 %   fitdata Result of fit for each dataset
@@ -105,38 +107,10 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
 %                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
 
-% NOTE:
-%   If 'all' then npix=ones(size(win.data.s)) to ensure that the plotting is performed
-%   Thus lose the npix information.
-
 
 % Original author: T.G.Perring
 %
 % $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
-
-
-% Set defaults:
-arglist = struct('fitcontrolparameters',[0.0001 30 0.0001],...
-                 'list',0,'keep',[],'remove',[],'mask',[],'selected',0,'all',0);
-flags = {'selected','all'};
-
-% Parse parameters:
-[args,options] = parse_arguments(varargin,arglist,flags);
-
-% Check input arguments:
-if options.selected && options.all
-    error ('Cannot have both ''selected'' and ''all'' options at the same time')
-end
-
-% Determine if 'all' is an option, and remove any occurences, so can pass options list to generic fit algorithm
-% (*** would be nicer if there was a better way to strip options)
-all_index=false(1,length(varargin));
-for i=1:length(varargin)
-    if ischar(varargin{i}) && ~isempty(strmatch(lower(varargin{i}),'all')) % option 'all' given
-        all_index(i)=true;
-    end
-end
-varargin=varargin(~all_index);
 
 
 % Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations
@@ -147,64 +121,16 @@ for i = 1:numel(win)
     end
 end
 
-wout = win;
-if ~iscell(pin), pin={pin}; end     % package parameters as a cell for convenience
-
 % Evaluate function for each element of the array of sqw objects
+wout=win;
+if ~iscell(pin), pin={pin}; end  % make a cell for convenience
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
-    ndim=length(win(i).data.pax);
-    ok=(win(i).data.npix~=0);
-
-    % Get bin centres
-    pcent=cell(1,ndim);
-    for n=1:ndim
-        pcent{n}=0.5*(win(i).data.p{n}(1:end-1)+win(i).data.p{n}(2:end));
-    end
-    if ndim>1
-        pcent=ndgridcell(pcent);%  make a mesh; cell array input and output
-    end
-    for n=1:ndim
-        pcent{n}=pcent{n}(:);   % convert into column vectors
-        pcent{n}=pcent{n}(ok);  % pick out only those bins at which there is data
-    end
-    
-    s=win(i).data.s(ok);        % produces column vector of data to be retained
-    e=sqrt(win(i).data.e(ok));  % column vector
-    
-    % Fit function to the data
     if i==1
-        [sout, fitdata] = fit(pcent, s, e, func_handle, pin, varargin{:});
+        [wout(i),fitdata] = multifit (win(i), @func_eval, {func_handle, pin{:}}, varargin{:});
         if numel(win)>1
             fitdata=repmat(fitdata,size(win));  % preallocate
         end
     else
-        [sout, fitdata(i)] = fit(pcent, s, e, func_handle, pin, varargin{:});
-    end
-    
-    % Fill output structures
-    sqw_type = is_sqw_type(win(i));
-    if sqw_type || ~option.all
-        removed=isnan(sout);        % data points removed by 'keep', 'remove', and 'mask' options
-        if any(removed)
-            sout(removed)=0;            % conventional contents of empty bins
-            ind=find(ok);               % index of the bins that were sent to the fitting routine
-            ind=ind(removed);           % index of bins that were removed by 'keep' etc .
-            wout(i).data.npix(ind)=0;   % to ensure that these points are removed
-            if sqw_type
-                mask=false(size(win(i).data.npix));
-                mask(ind)=true;
-                wout(i).data.pix=compress_array (win(i).data.pix, win(i).data.npix, mask);
-            end
-        end
-        wout(i).data.s(ok)=sout;    % replace data with calculated values using fitted parameters
-        wout(i).data.e = zeros(size(win(i).data.e));
-        if sqw_type
-            s = replicate_array(wout(i).data.s, wout(i).data.npix)'; % If sqw object, fill every pixel with the value of its corresponding bin
-            wout(i).data.pix(8:9,:) = [s;zeros(size(s))];
-        end
-    elseif all_bins
-        wout(i).data.s = func_handle(pcent{:},fitdata.p,pin{2:end});% need to evaluate at fitted parmaeter values at all bins
-        wout(i).data.e = zeros(size(win(i).data.e));
-        wout(i).data.npix=ones(size(win(i).data.npix));    % in this case, must set npix>0 to be plotted.
+        [wout(i),fitdata(i)] = multifit (win(i), @func_eval, {func_handle, pin{:}}, varargin{:});
     end
 end
