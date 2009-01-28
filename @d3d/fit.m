@@ -12,7 +12,7 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %
 % Input:
 % ======
-%   win     2D dataset object or array of 2D dataset objects to be fitted
+%   win     3D dataset object or array of 3D dataset objects to be fitted
 %
 %   func_handle    
 %           Function handle to function to be fitted e.g. @gauss
@@ -38,10 +38,19 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %            - If further parameters are needed by my_function, then wrap as a cell array
 %               {[pin(1), pin(2)...], c1, c2, ...}  
 %
-%   pfree   Indicates which are the free parameters in the fit
+%   pfree   [Optional] Indicates which are the free parameters in the fit
 %           e.g. [1,0,1,0,0] indicates first and third are free
 %           Default: all are free
 %
+%
+%   pbind   [Optional] Cell array that indicates which of the free parameters are bound to other parameters
+%           in a fixed ratio determined by the initial parameter values contained in pin:
+%             pbind={1,3}               parameter 1 is bound to parameter 3.
+%             pbind={{1,3},{4,3},{5,6}} parameter 1 bound to 3, 4 bound to 3, and 5 bound to 6
+%                                       In this case, parmaeters 1,3,4,5,6 must all be free in pfree.
+%           To explicity give the ratio, ignoring that determined from pin:
+%             pbind=(1,3,0,7.4)         parameter 1 is bound to parameter 3, ratio 7.4 (the extra '0' is required)
+%             pbind={{1,3,0,7.4},{4,3,0,0.023},{5,6}}
 %
 %   Optional keywords:
 %   ------------------
@@ -74,14 +83,9 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %           This is useful for plotting the output, as only those points that
 %           contributed to the fit will be plotted.
 %
-%   'all'   Requests that the calculated function be returned over
-%           the whole of the domain of the input dataset. If not given, then
-%           the function will be returned only at those points of the dataset
-%           that contain data.
-%
 % Output:
 % =======
-%   wout    2D dataset object containing the evaluation of the function for the
+%   wout    3D dataset object containing the evaluation of the function for the
 %          fitted parameter values.
 %
 %   fitdata Result of fit for each dataset
@@ -93,11 +97,6 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %               fitdata.pnames - parameter names
 %                                   [if func is mfit function; else named 'p1','p2',...]
 %
-
-
-% NOTE:
-%   If 'all' then npix=ones(size(win.data.s)) to ensure that the plotting is performed
-%   Thus lose the npix information.
 
 
 % Original author: T.G.Perring

@@ -1,41 +1,43 @@
-function [wout, fitdata] = fit(win, func_handle, pin, varargin)
-% Fits a function to 2D dataset object. If passed an array of 
-% objects, then each is fitted independently to the same function.
+function [wout, fitdata] = fit_sqw(win, sqwfunc, pin, varargin)
+% Fit model for S(Q,w) to sqw object or array of sqw objects. If passed an array of 
+% sqw objects, then each is fitted independently to the same function.
 %
 % Syntax:
-%   >> [wout, fitdata] = fit(win, func_handle, pin)
-%   >> [wout, fitdata] = fit(win, func_handle, pin, pfree)
-%   >> [wout, fitdata] = fit(win, func_handle, pin, pfree, keyword, value)
+%   >> [wout, fitdata] = fit_sqw(win, sqwfunc, pin)
+%   >> [wout, fitdata] = fit_sqw(win, sqwfunc, pin, pfree)
+%   >> [wout, fitdata] = fit_sqw(win, sqwfunc, pin, pfree, pbind)
+%   >> [wout, fitdata] = fit_sqw(..., keyword, value)
 %
 %   keyword example:
-%   >> [wout, fitdata] = fit(..., 'fit', fcp)
+%   >> [yout, fitdata] = fit(..., 'fit', fcp)
 %
 % Input:
 % ======
-%   win     2D dataset object or array of 2D dataset objects to be fitted
+%   win     sqw object or array of sqw objects to be fitted
 %
-%   func_handle    
-%           Function handle to function to be fitted e.g. @gauss
-%           Must have form:
-%               y = my_function (x1,x2,... ,xn,p)
+%   sqwfunc Handle to function that calculates S(Q,w)
+%           Most commonly used form is:
+%               weight = sqwfunc (qh,qk,ql,en,p)
+%           where
+%               qh,qk,ql,en Arrays containing the coordinates of a set of points
+%               p           Vector of parameters needed by dispersion function 
+%                          e.g. [A,js,gam] as intensity, exchange, lifetime
+%               weight      Array containing calculated energies; if more than
+%                          one dispersion relation, then a cell array of arrays
 %
-%            or, more generally:
-%               y = my_function (x1,x2,... ,xn,p,c1,c2,...)
+%           More general form is:
+%               weight = sqwfunc (qh,qk,ql,en,p,c1,c2,..)
+%             where
+%               p           Typically a vector of parameters that we might want 
+%                          to fit in a least-squares algorithm
+%               c1,c2,...   Other constant parameters e.g. file name for look-up
+%                          table
 %
-%               - p         a vector of numeric parameters that can be fitted
-%               - c1,c2,... any further arguments needed by the function e.g.
-%                          they could be the filenames of lookup tables for
-%                          resolution effects)
-%           
-%           e.g. Two dimensional Gaussian:
-%               function y = gauss2d(x1,x2,p)
-%               y = p(1).*exp(-0.5*(((x1 - p(2))/p(4)).^2+((x2 - p(3))/p(5)).^2);
-%
-%   pin     Initial function parameter values [pin(1), pin(2)...]
-%            - If the function my_function takes just a numeric array of parameters, p, then this
-%             contains the initial values [pin(1), pin(2)...]
-%            - If further parameters are needed by my_function, then wrap as a cell array
-%               {[pin(1), pin(2)...], c1, c2, ...}  
+%   pin     Arguments needed by the function. Most commonly, a vector of parameter
+%           values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
+%           set of parameters is required by the function, then
+%           package these into a cell array and pass that as pars. In the example
+%           above then pars = {p, c1, c2, ...}
 %
 %   pfree   [Optional] Indicates which are the free parameters in the fit
 %           e.g. [1,0,1,0,0] indicates first and third are free
@@ -65,7 +67,7 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %           fcp(3)  Stopping criterion: relative change in chi-squared
 %                   i.e. stops if chisqr_new-chisqr_old < fcp(3)*chisqr_old
 %
-%   'keep'  Ranges of x and y to retain for fitting. A range is specified by two 
+%   'keep'  Ranges of data to retain for fitting. A range is specified by two 
 %           pairs of numbers which define a rectangle:
 %               [xlo, xhi, ylo, yhi]
 %           Several ranges can be defined by making an (m x 4) array:
@@ -78,9 +80,10 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %           fitting
 %
 %  'select' Calculates the returned function values, yout, only at the points
-%           that were selected for fitting by 'keep', 'remove' and 'mask'.
-%           This is useful for plotting the output, as only those points that
-%           contributed to the fit will be plotted.
+%           that were selected for fitting by 'keep' and 'remove'; all other
+%           points are set to NaN. This is useful for plotting the output, as
+%           only those points that contributed to the fit will be plotted.
+%
 %
 % Output:
 % =======
@@ -108,14 +111,16 @@ function [wout, fitdata] = fit(win, func_handle, pin, varargin)
 %                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
 
 
-% Original author: T.G.Perring
-%
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
-
-
-% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
-% Work via sqw class type
-
-[wout, fitdata] = fit(sqw(win), func_handle, pin, varargin{:});
-wout=dnd(wout);
-
+% Evaluate function for each element of the array of sqw objects
+wout=win;
+if ~iscell(pin), pin={pin}; end  % make a cell for convenience
+for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
+    if i==1
+        [wout(i),fitdata] = multifit (win(i), @sqw_eval, {sqwfunc, pin{:}}, varargin{:});
+        if numel(win)>1
+            fitdata=repmat(fitdata,size(win));  % preallocate
+        end
+    else
+        [wout(i),fitdata(i)] = multifit (win(i), @sqw_eval, {sqwfunc, pin{:}}, varargin{:});
+    end
+end

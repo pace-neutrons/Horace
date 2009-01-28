@@ -41,7 +41,7 @@ end
 % Dimension of input data structure
 [ndim,sz]=dimensions(win);
 if ndim==0  % no sectioning possible
-    return
+    error ('Cannot section a zero dimensional object')
 end
 
 
