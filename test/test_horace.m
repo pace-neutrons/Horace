@@ -206,15 +206,20 @@ w2_tiny_b=section(w2a,[0.4,0.6],[100,130]);
 
 
 %% Tests
+% Read data
+w1a=read_horace('c:\temp\w1a.sqw');
+w1b=read_horace('c:\temp\w1b.sqw');
+w1c=read_horace('c:\temp\w1c.sqw');
+w1d=read_horace('c:\temp\w1d.sqw');
+w2a=read_horace('c:\temp\w2a.sqw');
+w2b=read_horace('c:\temp\w2b.sqw');
 
-addpath('T:\SVN_area\Horace_sqw\test');     % to put various test functions on the path
 
-% Function evaluation
-w0=cut_sqw (data_source, proj_110, [1,1.02], [0,0.02], [-0.02,0.02], [150,160]);    % tiny sqw object for explicit examination of pixels
-p0=dnd(w0);
+% % Tiny sqw object for explicit examination of pixels
+% w0=cut_sqw (data_source, proj_110, [1,1.02], [0,0.02], [-0.02,0.02], [150,160]);    
+% p0=dnd(w0);
 
-% Test function evaluation
-% --------------------------
+
 % Make three Gaussian peaks:
 sqw1a=cut(w1a,[0.4,0.05,1]);
 sqw1b=cut(w1b,[0.4,0.05,1]);
@@ -224,12 +229,20 @@ d1da=dnd(sqw1a);
 d1db=dnd(sqw1b);
 d1dc=dnd(sqw1c);
 
+sqw_all=[sqw1a,sqw1b,sqw1c];
+d1d_all=dnd(sqw_all);
+
+
+% To put various test functions on the path
+% --------------------------------------------
+addpath('T:\SVN_area\Horace_sqw\test');     
+
+
+
 % Function evaluation:
 % ---------------------
 % 1D:
 ww=func_eval(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);    % test function evaluation
-
-sqw_all=[sqw1a,sqw1b,sqw1c];
 
 ww=func_eval(sqw_all,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
 
@@ -238,14 +251,27 @@ ww=sqw_eval(sqw_all,@test_sqw_model_1D_bkgd,[10,40,0.05,50,0.1,0]);
 
 
 % Fit function:
-[ww,ff]=fit(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
+[ww,ff]=fit_func(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
 
-[ww,ff]=fit(sqw_all,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
+[ww,ff]=fit_func(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0],'remove',[0.78,0.92],'sel'); % test the sel option with sqw object
 
-[ww,ff]=fit(sqw1a,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0],'remove',[0.78,0.92],'sel'); % test the sel option with sqw object
+[ww,ff]=fit_func(sqw_all,@test_gauss_bkgd,[0.15,0.7,0.05,0.1,0]);
+
+[ww,ff]=fit_func(sqw_all,@test_gauss,[0.15,0.7,0.05],@test_bkgd,[0.1,0]);   % equivalent with background a separate function
+
+[ww,ff]=multifit_func(sqw_all,@test_gauss,[0.15,0.7,0.05],@test_bkgd,[0.1,0],'list',2);
+
 
 % Fit sqw:
-[ww,ff]=fit_sqw(sqw_all,@test_sqw_model_1D_bkgd,[10,40,0.05,50,0.1,0]);
+[ww,ff]=fit_sqw(sqw_all,@test_sqw_model_1D_bkgd,[10,40,0.05,50,0.1,0],[1,1,0,1,1,1]);   % fit each independently
+
+% The following is not quite equivalent, because the background is calculated as func_eval, not sqw_eval
+[ww,ff]=fit_sqw(sqw_all,@test_sqw_model,[10,40,0.05,50],[1,1,0,1],@test_bkgd,[0.1,0],'list',2);
+
+% Now have global sqw model:
+[ww2,ff2]=multifit_sqw(sqw_all,@test_sqw_model,[10,40,0.05,50],[1,1,0,1],@test_bkgd,[0.1,0],'list',2);
+
+
 
 
 % 2D:

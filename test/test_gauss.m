@@ -1,13 +1,13 @@
-function y = test_gauss_bkgd(x, p)
-% Gaussian on linear background
+function y = test_gauss(x, p)
+% Gaussian
 % 
-%   >> y = test_gauss_bkgd(x,p)
+%   >> y = test_gauss(x,p)
 %
 % Input:
 % =======
 %   x   vector of x-axis values at which to evaluate function
 %   p   vector or parameters needed by the function:
-%           p = [height, centre, st_deviation, bkgd_const, bkgd_slope]
+%           p = [height, centre, st_deviation]
 %
 % Output:
 % ========
@@ -17,4 +17,4 @@ function y = test_gauss_bkgd(x, p)
 % T.G.Perring
 
 
-y=p(1)*exp(-0.5*((x-p(2))/p(3)).^2) + (p(4)+x*p(5));
+y=p(1)*exp(-0.5*((x-p(2))/p(3)).^2);

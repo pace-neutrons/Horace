@@ -1,25 +1,25 @@
-function [wout, fitdata] = fit(win, varargin)
+function [wout, fitdata] = fit_func(win, varargin)
 % Fits a function to an object. If passed an array of 
 % objects, then each is fitted independently to the same function.
 %
-% Synonumous with fit_func. For full help, read documentation for sqw object  fit_func:
+% For full help, read documentation for sqw object  fit_func:
 %   >> help sqw/fit_func
 %
 % Differs from multifit_func, which fits all objects in the array simultaneously
 % but with independent backgrounds.
 %
 % Fit several objects in succession to a given function:
-%   >> [wout, fitdata] = fit (w, func, pin)                 % all parameters free
-%   >> [wout, fitdata] = fit (w, func, pin, pfree)          % selected parameters free to fit
-%   >> [wout, fitdata] = fit (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
+%   >> [wout, fitdata] = fit_func (w, func, pin)                 % all parameters free
+%   >> [wout, fitdata] = fit_func (w, func, pin, pfree)          % selected parameters free to fit
+%   >> [wout, fitdata] = fit_func (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
 %
 % With optional 'background' function added to the function
-%   >> [wout, fitdata] = fit (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = fit (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = fit (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree, bpbind)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
-%   >> [wout, fitdata] = fit (..., keyword, value, ...)
+%   >> [wout, fitdata] = fit_func (..., keyword, value, ...)
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -29,7 +29,7 @@ function [wout, fitdata] = fit(win, varargin)
 %       'fit'       alter convergence critera for the fit etc.
 %
 %   Example:
-%   >> [wout, fitdata] = fit (..., 'keep', xkeep, 'list', 0)
+%   >> [wout, fitdata] = fit_func (..., 'keep', xkeep, 'list', 0)
 
 
 % Original author: T.G.Perring

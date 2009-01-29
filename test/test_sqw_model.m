@@ -1,4 +1,4 @@
-function weight = test_sqw (qh,qk,ql,en,p)
+function weight = test_sqw_model (qh,qk,ql,en,p)
 % Spin waves for a Heisenberg ferromagnet with nearest
 % neighbour exchange only - two modes, rigidly displaced
 % Lorentzian broadening
