@@ -1,22 +1,22 @@
-function [wout, fitdata] = fit_sqw(win, varargin)
-% Fit model for S(Q,w) to sqw object or array of sqw objects. If passed an array of 
+function [wout, fitdata] = fit_func(win, varargin)
+% Fits a function to an sqw object. If passed an array of 
 % sqw objects, then each is fitted independently to the same function.
 %
-% Differs from multifit_sqw, which fits all objects in the array simultaneously
+% Differs from multifit_func, which fits all objects in the array simultaneously
 % but with independent backgrounds.
 %
 % Fit several objects in succession to a given function:
-%   >> [wout, fitdata] = fit_sqw (w, func, pin)                 % all parameters free
-%   >> [wout, fitdata] = fit_sqw (w, func, pin, pfree)          % selected parameters free to fit
-%   >> [wout, fitdata] = fit_sqw (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
+%   >> [wout, fitdata] = fit_func (w, func, pin)                 % all parameters free
+%   >> [wout, fitdata] = fit_func (w, func, pin, pfree)          % selected parameters free to fit
+%   >> [wout, fitdata] = fit_func (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
 %
 % With optional 'background' function added to the function
-%   >> [wout, fitdata] = fit_sqw (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = fit_sqw (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = fit_sqw (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree, bpbind)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
-%   >> [wout, fitdata] = fit_sqw (..., keyword, value, ...)
+%   >> [wout, fitdata] = fit_func (..., keyword, value, ...)
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -26,30 +26,30 @@ function [wout, fitdata] = fit_sqw(win, varargin)
 %       'fit'       alter convergence critera for the fit etc.
 %
 %   Example:
-%   >> [wout, fitdata] = fit_sqw (..., 'keep', xkeep, 'list', 0)
+%   >> [wout, fitdata] = fit_func (..., 'keep', xkeep, 'list', 0)
+%
 %
 %
 % Input:
 % ======
 %   win     sqw object or array of sqw objects to be fitted
 %
-%   sqwfunc Handle to function that calculates S(Q,w)
-%           Most commonly used form is:
-%               weight = sqwfunc (qh,qk,ql,en,p)
-%           where
-%               qh,qk,ql,en Arrays containing the coordinates of a set of points
-%               p           Vector of parameters needed by dispersion function 
-%                          e.g. [A,js,gam] as intensity, exchange, lifetime
-%               weight      Array containing calculated energies; if more than
-%                          one dispersion relation, then a cell array of arrays
+%   func_handle    
+%           Function handle to function to be fitted e.g. @gauss
+%           Must have form:
+%               y = my_function (x1,x2,... ,xn,p)
 %
-%           More general form is:
-%               weight = sqwfunc (qh,qk,ql,en,p,c1,c2,..)
-%             where
-%               p           Typically a vector of parameters that we might want 
-%                          to fit in a least-squares algorithm
-%               c1,c2,...   Other constant parameters e.g. file name for look-up
-%                          table
+%            or, more generally:
+%               y = my_function (x1,x2,... ,xn,p,c1,c2,...)
+%
+%               - p         a vector of numeric parameters that can be fitted
+%               - c1,c2,... any further arguments needed by the function e.g.
+%                          they could be the filenames of lookup tables for
+%                          resolution effects)
+%           
+%           e.g. Two dimensional Gaussian:
+%               function y = gauss2d(x1,x2,p)
+%               y = p(1).*exp(-0.5*(((x1 - p(2))/p(4)).^2+((x2 - p(3))/p(5)).^2);
 %
 %   pin     Initial function parameter values [pin(1), pin(2)...]
 %            - If the function my_function takes just a numeric array of parameters, p, then this
@@ -60,7 +60,6 @@ function [wout, fitdata] = fit_sqw(win, varargin)
 %   pfree   [Optional] Indicates which are the free parameters in the fit
 %           e.g. [1,0,1,0,0] indicates first and third are free
 %           Default: all are free
-%
 %
 %   pbind   [Optional] Cell array that indicates which of the free parameters are bound to other parameters
 %           in a fixed ratio determined by the initial parameter values contained in pin:
@@ -114,23 +113,34 @@ function [wout, fitdata] = fit_sqw(win, varargin)
 %           fcp(3)  Stopping criterion: relative change in chi-squared
 %                   i.e. stops if chisqr_new-chisqr_old < fcp(3)*chisqr_old
 %
-%   'keep'  Ranges of data to retain for fitting. A range is specified by two 
-%           pairs of numbers which define a rectangle:
+%   'keep'  Array or cell array of arrays giving ranges of x to retain for fitting.
+%            - single array: applies to all elements of w
+%            - a cell array of arrays must have length the same as w, and describes the
+%             keep ranges for those elements one-by-one.
+%
+%           A range is specified by an arrayv of numbers which define a hypercube.
+%           For example in case of two dimensions:
 %               [xlo, xhi, ylo, yhi]
-%           Several ranges can be defined by making an (m x 4) array:
-%               [xlo(1), xhi(1), ylo(1), yhi(1); xlo(2), xhi(2), ylo(2), yhi(2); ...]
+%           or in the case of n-dimensions:
+%               [x1_lo, x1_hi, x2_lo, x2_hi,..., xn_lo, xn_hi]
+%
+%           More than one range can be defined in rows,
+%               [Range_1; Range_2; Range_3;...; Range_m]
+%             where each of the ranges are given in the format above.
 %
 %  'remove' Ranges to remove from fitting. Follows the same format as 'keep'.
 %
-%   'mask'  Array of ones and zeros, with the same number of elements as the data
-%           array, that indicates which of the data points are to be retained for
-%           fitting
+%           If a point appears within both xkeep and xremove, then it will
+%           be removed from the fit i.e. xremove takes precendence over xkeep.
 %
-%  'select' Calculates the returned function values, yout, only at the points
-%           that were selected for fitting by 'keep' and 'remove'; all other
-%           points are set to NaN. This is useful for plotting the output, as
+%   'mask'  Array, or cell array of arrays, of ones and zeros, with the same number
+%           of elements as the data arrays in the input object(s) in w. Indicates which
+%           of the data points are to be retained for fitting.
+%
+%  'select' Calculates the returned function values, wout, only at the points
+%           that were selected for fitting by 'keep', 'remove', 'mask' and were
+%           not eliminated for having zero error bar etc; this is useful for plotting the output, as
 %           only those points that contributed to the fit will be plotted.
-%
 %
 % Output:
 % =======
@@ -149,19 +159,37 @@ function [wout, fitdata] = fit_sqw(win, varargin)
 %
 % EXAMPLES: 
 %
-% Fit a spin waves to a collection of sqw objects, allowing only intensity and coupling constant to vary:
-%   >> weight=100; SJ; gamma=3;
-%   >> [wfit, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0])
+% Fit a 2D Gaussian, allowing only height and position to vary:
+%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
+%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], [1,1,1,0,0,0])
 %
-% If an array of 1D cuts: allow all parameters to vary, only keep data in restricted range, and allow
-% independent linear background for each cut in the units of the x axis:
-%   >> weight=100; SJ; gamma=3;
-%   >> const=0; slope=0;
-%   >> [wfit, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], @linear, [const,slope]...
-%                               'keep',[-1.5,0.5])
+% Allow all parameters to vary, but remove two rectangles from the data
+%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
+%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
+%                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
+%
+% The same, with a planar background:
+%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
+%   >> const=0; dfdx=0; dfdy=0;
+%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
+%                             @plane, [const,dfdx,dfdy],...
+%                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
 
 
-% Parse the input arguments, and repackage for fit sqw
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+
+
+% Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations
+% before a 0D object is found in the array
+for i = 1:numel(win)
+    if isempty(win(i).data.pax)
+        error('multifit_func not supported for zero dimensional objects');
+    end
+end
+
+% Parse the input arguments, and repackage for fit func
 [pos,func,plist,bpos,bfunc,bplist] = multifit (win(1), varargin{:},'parsefunc_');
 plist={func,plist};
 if ~isempty(bpos)
@@ -170,7 +198,7 @@ if ~isempty(bpos)
     end
 end
 pos=pos-1; bpos=bpos-1;     % Recall that first argument in the call to multifit was win
-varargin{pos}=@sqw_eval;   % The fit function needs to be func_eval
+varargin{pos}=@func_eval;   % The fit function needs to be func_eval
 varargin{pos+1}=plist;
 if ~isempty(bpos)
     varargin{bpos}=@func_eval;
