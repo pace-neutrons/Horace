@@ -151,6 +151,8 @@ save(w2a,'c:\temp\w2a.sqw')
 save(w2b,'c:\temp\w2b.sqw')
 save(w4a,'c:\temp\w4a.sqw')
 
+%% Read data from file
+
 w1a=read_horace('c:\temp\w1a.sqw');
 w1b=read_horace('c:\temp\w1b.sqw');
 w1c=read_horace('c:\temp\w1c.sqw');
@@ -203,6 +205,14 @@ dl(wtest)
 % being quite what we think. 
 w2_tiny_a=section(w2a,[0.2,0.4],[100,130]);
 w2_tiny_b=section(w2a,[0.4,0.6],[100,130]);
+
+%% Test libisis
+x1a=IXTdataset_1d(w1a);
+x1b=IXTdataset_1d(w1b);
+x1c=IXTdataset_1d(w1c);
+x1d=IXTdataset_1d(w1d);
+x2a=IXTdataset_2d(w2a);
+x2b=IXTdataset_2d(w2b);
 
 
 %% Tests
