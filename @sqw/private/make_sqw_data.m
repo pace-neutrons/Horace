@@ -224,6 +224,7 @@ elseif narg>=1
     
     % Extract the ranges
     urange=zeros(3,ndim);
+    pvals=cell(1,3);
     for i=1:ndim
         j=2*i+n0;
         ncmp=length(varargin{j});
@@ -234,6 +235,11 @@ elseif narg>=1
             if urange(2,i)<=0 || urange(3,i)<=urange(1,i)
                 mess='ERROR: Check that ranges have form [plo,delta_p,phi], plo<phi and delta_p>0';
                 return
+            end
+            % If energy is a plot axis, then absorb any offset into the range
+            if nq~=ndim && i==ind_en
+                urange(1,i)=urange(1,i)+u0(4);
+                urange(3,i)=urange(3,i)+u0(4);
             end
             pvals{i}=(urange(1,i)-urange(2,i)/2:urange(2,i):urange(3,i)+urange(2,i)/2)';
             if pvals{i}(end)<urange(3,i)
@@ -256,15 +262,15 @@ elseif narg>=1
     data.title = '';
     data.alatt=latt(1:3);
     data.angdeg=latt(4:6);
-    data.uoffset=u0;
+    data.uoffset=[u0(1:3);0];   % will absorb the energy offset into integration or plot axis
     data.u_to_rlu=zeros(4); data.u_to_rlu(1:3,1:3)=u_to_rlu; data.u_to_rlu(4,4)=1;
     data.ulen=[ulen,1];
     data.ulabel={'\zeta','\xi','\eta','E'};
-    if nq==ndim 
+    if nq==ndim     % energy is an integration axis
         data.iax=ndim+1:4;
-        data.iint=zeros(2,size(data.iax,2));
+        data.iint=[zeros(2,size(data.iax,2)-1),[u0(4);u0(4)]];
         data.pax=1:ndim;
-    else
+    else            % energy is a plot axis
         data.iax=nq+1:3;
         data.iint=zeros(2,size(data.iax,2));
         data.pax=[1:nq,4];

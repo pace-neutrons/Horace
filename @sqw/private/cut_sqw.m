@@ -82,6 +82,7 @@ function wout = cut_sqw (data_source, varargin)
 
 % T.G.Perring   04/07/2007
 
+% *** Currently only works if uoffset(4)=0 for input, output datasets
 
 if horace_info_level>=1
     bigtic
@@ -176,6 +177,21 @@ else                    % must refer to new projection axes
 end
         
 
+% Check the proj data structure is valid, if given
+if isempty(proj_in)
+    proj = struct([]);
+else
+    [proj,mess] = proj_fill_fields(proj_in);
+    if ~isempty(mess)
+        error(mess)
+    end
+    % *** Currently the cut algorithm only works for energy offset=0
+    if proj.uoffset(4)~=0
+        error('Energy offset must be zero')
+    end
+end
+
+
 % Open output file if required
 if save_to_file
     if isempty(outfile)
@@ -221,19 +237,6 @@ else
 end
 
 
-% Check the proj data structure is valid, if given
-% -------------------------------------------------
-if isempty(proj_in)
-    proj = struct([]);
-else
-    [proj,mess] = proj_fill_fields(proj_in);
-    if ~isempty(mess)
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
-        error(mess)
-    end
-end
-
-
 % Get some 'average' quantities for use in calculating transformations and bin boundaries
 % -----------------------------------------------------------------------------------------
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
@@ -257,7 +260,7 @@ upix_offset = header_ave.uoffset;
 % expressed.
 
 if ~isempty(proj)
-    [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, [1,1,1], proj.type, proj.w);
+    [rlu_to_ustep, u_to_rlu] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, [1,1,1], proj.type, proj.w);
     uin_to_rlu = data.u_to_rlu(1:3,1:3);
     rot = inv(u_to_rlu)*uin_to_rlu;         % convert components from data input proj. axes to output proj. axes
     trans = inv(uin_to_rlu)*(proj.uoffset(1:3)-data.uoffset(1:3));  % offset between the origins of input and output proj. axes, in input proj. coords
@@ -279,6 +282,7 @@ if numel(data.iax)~=0
 end
 
 % Get new plot bin boundaries, integration ranges etc.
+% If proj is not empty, then the input pbin are already correctly ordered
 if isempty(proj)
     % Order of pbin is display axes. Get the index array that reorders pbin into the order of plot axes
     invdax=zeros(size(data.dax));
@@ -309,7 +313,7 @@ pin(data.iax)=mat2cell(data.urange(:,data.iax),2,ones(1,length(data.iax)));
 for i=1:4
     nbin_in(i)=length(pin{i})-1;
 end
-% Reshape of data.npix is following line is necessary to insert singleton dimensions for integration axes
+% Reshape of data.npix in following line is necessary to insert singleton dimensions for integration axes
 [nstart,nend] = get_nrange_rot_section (urange+border, rot, trans, reshape(data.npix,nbin_in), pin{:});
 
 
@@ -349,7 +353,7 @@ end
 
 % Get matrix and translation vector to express plot axes with two or more bins as multiples of step size from lower limits
 if ~isempty(proj)
-    [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, ustep(1:3), proj.type, proj.w);
+    [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, ustep(1:3), proj.type, proj.w);
     rot_ustep = rlu_to_ustep*upix_to_rlu; % convert from pixel proj. axes to steps of output projection axes
     trans_bott_left = inv(upix_to_rlu)*(proj.uoffset(1:3)-upix_offset(1:3)+u_to_rlu*urange_offset(1,1:3)'); % offset between origin
     % of pixel proj. axes and the lower limit of hyper rectangle defined by range of data , expressed in pixel proj. coords

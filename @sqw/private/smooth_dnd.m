@@ -94,8 +94,12 @@ m=warning('off','MATLAB:divideByZero');     % turn off divide by zero messages, 
 
 index = din.npix~=0;                        % elements with non-zero counts
 weight = convn(double(index),c,'same');     % weight function including only points where there is data
-signal = convn(din.s,c,'same')./weight;     % points with no data (i.e. signal = 0) do not contribute to convolution
-err = convn(din.e,c.^2,'same')./(weight.^2);
+% Not all algorithms correctly ensure s=e=0 for bins where npix=0, so because here it matters
+% so much, explicitly ensure
+signal=din.s; signal(~index)=0;
+signal = convn(signal,c,'same')./weight;     % points with no data (i.e. signal = 0) do not contribute to convolution
+err=din.e; err(~index)=0;
+err = convn(err,c.^2,'same')./(weight.^2);
 
 warning(m.state,'MATLAB:divideByZero');     % return to previous divide by zero message state
 

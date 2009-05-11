@@ -206,6 +206,45 @@ dl(wtest)
 w2_tiny_a=section(w2a,[0.2,0.4],[100,130]);
 w2_tiny_b=section(w2a,[0.4,0.6],[100,130]);
 
+
+% How does uoffset really work?
+% ------------------------------
+% The following two cuts are identical, but the titling in the second one is in error.
+% Why isn't the second cut between 250 and 275 meV?
+proj_110.u=[1,1,0];
+proj_110.v=[-1,1,0];
+
+proj_110.uoffset=[0,0,0,0];
+w1a=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_110, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+
+proj_110.uoffset=[0,0,0,100];
+w1b=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_110, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+
+
+% Make simpler to look at how Q axes are handled:
+proj_100.u=[1,0,0];
+proj_100.v=[0,1,0];
+
+proj_100.uoffset=[0,0,0,0];
+w1ref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+w1aref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [1.95,2.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+w1bref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-1,0.05,3], [-0.1,0.1], [150,175]);
+
+w1eref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [250,275]);
+w1ecutref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-0.1,0.1], [-0.1,0.1], [50,0,250]);
+
+
+proj_100.uoffset=[1,0,0,0];
+w1a=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+
+proj_100.uoffset=[0,1,0,0];
+w1b=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+
+proj_100.uoffset=[0,0,0,100];
+w1e=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+w1ecut=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-0.1,0.1], [-0.1,0.1], [50,0,150]);
+
+
 %% Test libisis
 x1a=IXTdataset_1d(w1a);
 x1b=IXTdataset_1d(w1b);
@@ -246,6 +285,13 @@ d1d_all=dnd(sqw_all);
 % To put various test functions on the path
 % --------------------------------------------
 addpath('T:\SVN_area\Horace_sqw\test');     
+
+
+
+% Test dispersion
+% -----------------
+wd = dispersion(w2a,@bcc_hfm,40);
+
 
 
 
