@@ -27,11 +27,6 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
-% initialise output arguments that may legitimately be returned as empty cell arrays
-title_pax = {};
-title_iax = {};
-display_pax = {};
-display_iax = {};
 
 % Prepare input arguments
 file = fullfile(data.filepath,data.filename);
@@ -61,6 +56,10 @@ end
 % Axes and integration titles
 % Character representations of input data
 small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
+
+uoff_ch=cell(1,4);
+uofftot_ch=cell(1,4);
+u_to_rlu_ch=cell(4,4);
 for j=1:4
     if abs(uoff(j)) > small
         uoff_ch{j} = num2str(uoff(j),'%+11.4g');        
@@ -88,6 +87,12 @@ title_iax = cell(length(iax),1);
 display_iax = cell(length(iax),1);
 title_main_pax = cell(length(pax),1);
 title_main_iax = cell(length(iax),1);
+
+ch=cell(4,4);
+totvector=cell(1,4);
+in_totvector=cell(1,4);
+vector=cell(1,4);
+in_vector=cell(1,4);
 
 % Create titling
 for j=1:4

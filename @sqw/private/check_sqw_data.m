@@ -75,6 +75,7 @@ if ~field_names_only
         mess='ERROR: Field ''alatt'' must be a numeric vector length 3'; return; end
     if ~isa_size(data.angdeg,'vector','double'), mess='ERROR: Field ''angdeg'' must be a numeric vector length 3'; return; end
     if ~isa_size(data.uoffset,[4,1],'double'); mess='ERROR: field ''uoffset'' must be a column vector of 4 numbers'; return; end
+    if data.uoffset(4)~=0; mess='ERROR: Energy offset ''uoffset(4)'' must be zero'; return; end
     if ~isa_size(data.u_to_rlu,[4,4],'double'); mess='ERROR: field ''u_to_rlu'' must be a 4x4 matrix of numbers'; return; end
     if ~isa_size(data.ulen,[1,4],'double'); mess='ERROR: field ''ulen'' must be a row vector of 4 numbers'; return; end
     if ~isa_size(data.ulabel,[1,4],'cellstr'); mess='ERROR: field ''ulabel'' must be a (row) cell array of 4 strings'; return; end

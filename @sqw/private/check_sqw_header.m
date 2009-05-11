@@ -101,6 +101,7 @@ if ~isa_size(header.dpsi,'scalar','double'), mess='ERROR: Field ''dpsi'' must be
 if ~isa_size(header.gl,'scalar','double'), mess='ERROR: Field ''gl'' must be a numeric scalar'; return; end
 if ~isa_size(header.gs,'scalar','double'), mess='ERROR: Field ''gs'' must be a numeric scalar'; return; end
 if ~isa_size(header.uoffset,[4,1],'double'); mess='ERROR: field ''uoffset'' must be a column vector of 4 numbers'; return; end
+if header.uoffset(4)~=0; mess='ERROR: Energy offset ''uoffset(4)'' must be zero'; return; end
 if ~isa_size(header.u_to_rlu,[4,4],'double'); mess='ERROR: field ''u_to_rlu'' must be a 4x4 matrix of numbers'; return; end
 if ~isa_size(header.ulen,[1,4],'double'); mess='ERROR: field ''ulen'' must be a row vector of 4 numbers'; return; end
 if ~isa_size(header.ulabel,[1,4],'cellstr'); mess='ERROR: field ''ulabel'' must be a (row) cell array of 4 strings'; return; end
