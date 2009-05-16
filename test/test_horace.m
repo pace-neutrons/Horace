@@ -153,6 +153,7 @@ save(w4a,'c:\temp\w4a.sqw')
 
 %% Read data from file
 
+w0a=read_horace('c:\temp\w0a.sqw');
 w1a=read_horace('c:\temp\w1a.sqw');
 w1b=read_horace('c:\temp\w1b.sqw');
 w1c=read_horace('c:\temp\w1c.sqw');
@@ -162,6 +163,7 @@ w2b=read_horace('c:\temp\w2b.sqw');
 % w3a=read_horace('c:\temp\w3a.sqw');
 w4a=read_horace('c:\temp\w4a.sqw');
 
+p0a=read_dnd('c:\temp\w0a.sqw');
 p1a=read_dnd('c:\temp\w1a.sqw');
 p1b=read_dnd('c:\temp\w1b.sqw');
 p1c=read_dnd('c:\temp\w1c.sqw');
@@ -194,6 +196,7 @@ dl(w1a)
 kf
 dl(wtest)
 
+data_source = 'c:\data\Fe\sqw\Fe_ei787.sqw';
 w1a=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [150,175]);
 wtest=cut(w1a,[0.4,0.05,1]);
 dl(w1a)
@@ -207,43 +210,46 @@ w2_tiny_a=section(w2a,[0.2,0.4],[100,130]);
 w2_tiny_b=section(w2a,[0.4,0.6],[100,130]);
 
 
-% How does uoffset really work?
+% Cutting issues
 % ------------------------------
-% The following two cuts are identical, but the titling in the second one is in error.
-% Why isn't the second cut between 250 and 275 meV?
-proj_110.u=[1,1,0];
-proj_110.v=[-1,1,0];
-
-proj_110.uoffset=[0,0,0,0];
-w1a=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_110, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
-
-proj_110.uoffset=[0,0,0,100];
-w1b=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_110, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
-
-
+% Default bins even when axes rotated: odd - but what else to do?
 % Make simpler to look at how Q axes are handled:
 proj_100.u=[1,0,0];
 proj_100.v=[0,1,0];
-
 proj_100.uoffset=[0,0,0,0];
-w1ref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
-w1aref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [1.95,2.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
-w1bref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-1,0.05,3], [-0.1,0.1], [150,175]);
+w2ref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0,0.1,2], [-1,0.05,2], [-0.1,0.1], [150,175]);
+d2ref=dnd(w2ref);
 
-w1eref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [250,275]);
-w1ecutref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-0.1,0.1], [-0.1,0.1], [50,0,250]);
+% now use axes rotated w.r.t the above, but use 'default bins'
+proj_110.u=[1,1,0];
+proj_110.v=[-1,1,0];
+proj_110.uoffset=[0,0,0,0];
+w2=cut (w2ref, proj_110, [], [], [-0.1,0.1], [150,175]);
+d2=dnd(w2);
 
+d2again=cut(d2,[],[]);
+d2again=cut(d2,0.1,0.05);
 
-proj_100.uoffset=[1,0,0,0];
-w1a=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+% Going to change so that iint(:,i)=[-Inf;Inf] is OK. Get some reference cuts
 
-proj_100.uoffset=[0,1,0,0];
-w1b=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
+w1ref=cut(w2ref,[],[-Inf,Inf]);     % captions seem to go to pot!
 
-proj_100.uoffset=[0,0,0,100];
-w1e=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-2,0.05,2], [-0.1,0.1], [150,175]);
-w1ecut=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.95,1.05], [-0.1,0.1], [-0.1,0.1], [50,0,150]);
+d1ref=cut(d2ref,[],[-Inf,Inf]);
 
+% Get a dnd from a sqw
+d1=cut(w2ref, proj_110, [1.45,1.6], [], [-0.1,0.1], [150,175]);
+d1=cut(w2ref, proj_110, [1.45,1.6], [], [-0.1,0.1], [150,175],'-nopix');
+
+% Binning - yet again
+crap=cut(w2a,[0.5,0.1,1],[-Inf,2,51]);  % must catch case of length(p{i})=1
+
+crap=cut(w2a,[0.5,0.1,1],[150,2,151]);
+
+crap=cut(w2a,[0.5,0.1,1],[150,0,150]);  % energy bin centre is =150, so in principle, data in the plot range
+
+crap=cut(w2a,[0.5,0.1,1],[51,0,51]);
+
+% *** do some tests with dax permuting the plot axes when proj missing.
 
 %% Test libisis
 x1a=IXTdataset_1d(w1a);

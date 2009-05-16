@@ -164,11 +164,7 @@ else
     end
     % Fill fields not held in data section from the header
     data.title=main_header.title;
-    if iscell(header)
-        header_ave = header{1};
-    else
-        header_ave = header;
-    end
+    header_ave=header_average(header);
     data.alatt=header_ave.alatt;
     data.angdeg=header_ave.angdeg;
 end

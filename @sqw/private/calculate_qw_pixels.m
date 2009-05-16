@@ -20,11 +20,8 @@ function qw=calculate_qw_pixels(win)
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
 
-if iscell(win.header)
-    header_ave = win.header{1};
-else
-    header_ave = win.header;
-end
+header_ave=header_average(win.header);
+
 u0 = header_ave.uoffset;
 u = header_ave.u_to_rlu(1:3,1:3);
 

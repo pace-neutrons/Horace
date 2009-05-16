@@ -23,7 +23,13 @@ pax=win.data.pax;
 
 ptot=u0;
 for i=1:length(iax)
-    ptot=ptot+(0.5*(iint(1,i)+iint(2,i)))*u(:,iax(i));  % overall displacement of plot volume in (rlu;en)
+    % get offset from integration axis, accounting for non-finite limit(s)
+    if isfinite(iint(1,i)) && isfinite(iint(2,i))
+        iint_ave=0.5*(iint(1,i)+iint(2,i));
+    else
+        iint_ave=0;
+    end
+    ptot=ptot+iint_ave*u(:,iax(i));  % overall displacement of plot volume in (rlu;en)
 end
 
 % Create list of Q and energy points

@@ -197,6 +197,8 @@ e = e./(npix.^2);
 nopix = (npix==0);  % true where there are no pixels contributing to the bin
 s(nopix)=0;         % want signal to be NaN where there are no contributing pixels, not +/- Inf
 e(nopix)=0;
+
+% Catch pathological case of s or e being NaN
 s_nans = isnan(s);
 e_nans = isnan(e);
 s(s_nans)=0; e(s_nans)=0; npix(s_nans)=0;
