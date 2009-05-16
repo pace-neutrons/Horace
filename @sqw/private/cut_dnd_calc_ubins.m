@@ -102,7 +102,7 @@ for i=1:npax_in
             end
             npax=npax+1;
             pax(npax)=i;
-            p{npax}=pin{i}(nbin(1,i):nbin(2,i)+1);
+            p{npax}=pin{i}(nbin(1,i):nbin(2,i)+1);  % the axis is compressed
             noffset(npax)=0;
             nkeep(:,i)=nbin(:,i);
         else
@@ -145,7 +145,7 @@ for i=1:npax_in
                 % If the requested bin limits or extent of the data are the same as the limits of the default bin
                 % boundaries, then we are guaranteed to have nlo=nhi=0
                 if nlo==nhi && nlo==0
-                    p{npax} = en;
+                    p{npax} = pin{i};
                 else
                     p{npax} = (pin{i}(1)+pstep*(nlo:nhi+length(pin{i})-1))';
                 end
@@ -162,7 +162,7 @@ for i=1:npax_in
                     nend=length(pin{i})-1;
                 end
                 nkeep(:,i)=[nbeg;nend];
-            else    % only one bin, so treat as integration axis
+            else    % only one bin
                 str=str_compress(num2str(pbin{i}));
                 iax=[]; pax=[]; p=[]; noffset=[]; nkeep=[];
                 mess=['Only one bin needed to cover the plot range in [',str,'] - cannot make this a plot axis'];

@@ -241,11 +241,7 @@ end
 % -----------------------------------------------------------------------------------------
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
-if iscell(header)
-    header_ave = header{1};
-else
-    header_ave = header;
-end
+[header_ave, ebins_all_same]=header_average(header);
 alatt = header_ave.alatt;
 angdeg = header_ave.angdeg;
 en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
@@ -273,43 +269,45 @@ end
 % Get plot and integration axis information, and which blocks of data to read from file/structure
 % ------------------------------------------------------------------------------------------------
 % Construct bin boundaries cellarray for input data set, including integration axes as a single bin
+% These will be the default bin inputs when computing the output bin boundary and integration ranges
 pin=cell(1,4);
-if numel(data.pax)~=0
-    pin(data.pax)=data.p;
-end
-if numel(data.iax)~=0
-    pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
-end
+pin(data.pax)=data.p;   % works even if zero elements
+pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
 
-% Get new plot bin boundaries, integration ranges etc.
-% If proj is not empty, then the input pbin are already correctly ordered
+% If proj is not empty, then the input pbin are already correctly ordered as the projection axes, but if proj
+% is empty, then the order is as the axes displayed in a plot
 if isempty(proj)
-    % Order of pbin is display axes. Get the index array that reorders pbin into the order of plot axes
-    invdax=zeros(size(data.dax));
-    for i=1:numel(invdax)
-        invdax(data.dax(i))=i;
+    ptmp=pbin;          % input refers to display axes
+    pbin=cell(1,4);     % Will reorder and insert integration ranges as required from input data
+    % Get binning array from input display axes rebinning
+    for i=1:numel(data.pax)
+        j=data.dax(i);   % plot axis corresponding to ith binning argument
+        pbin(data.pax(j))=ptmp(i);
     end
-    ptmp=pbin;  % copy input binning information
-    pbin={[-Inf,Inf],[-Inf,Inf],[-Inf,Inf],[-Inf,Inf]};     % default for existing integration axes
-    pbin(data.pax)=ptmp(invdax);    % new binning mapped onto the projection axes
+    % Can leave integration axis entries in pbin as empty, because in cut_sqw_calc_ubins this
+    % will result in the default bins being used
 end
 
-[iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, rot, trans, pbin, pin, en);
+% Get new plot bin boundaries, integration ranges etc., and the hypercuboid in the
+% output data coordinate frame that encloses the output data volume
+[iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, rot, trans, pbin, pin, en, ebins_all_same);
 if ~isempty(mess)   % problem getting limits from the input
     if save_to_file; fclose(fout); end    % close the output file opened earlier
     error(mess)
 end
 
 % Get the start and end index of contiguous blocks of pixel information in the data
-% *** should use optimisation for cases when rot is diagonal ?
+% *** should use optimised algorithm for cases when rot is diagonal ?
+% *** should the border be bigger, to account for single <-> double rounding errors? (see value of small)
 border = small*[-1,-1,-1,-1;1,1,1,1];   % put a small border around the range to ensure we don't miss any
                                         % pixels on the boundary because of rounding errors in get_nrange_rot_section
                                         
-% Construct arrays of bin boundaries that include integration axes as bins of zero length
+% Construct arrays of bin boundaries that include integration axes as axes with just one bin
 % (Need to go through the following for the case when have data structure with less than four plot axes)
 pin=cell(1,4);
 pin(data.pax)=data.p;
 pin(data.iax)=mat2cell(data.urange(:,data.iax),2,ones(1,length(data.iax)));
+nbin_in=zeros(1,4);
 for i=1:4
     nbin_in(i)=length(pin{i})-1;
 end

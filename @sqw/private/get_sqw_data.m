@@ -212,8 +212,8 @@ if niax~=0
     [data.iax, count, ok, mess] = fread_catch(fid,[1,niax],'int32'); if ~all(ok); return; end;
     [data.iint, count, ok, mess] = fread_catch(fid,[2,niax],'float32'); if ~all(ok); return; end;
 else
-    data.iax=[];    % create empty index of integration array
-    data.iint=[];
+    data.iax=zeros(1,0);    % create empty index of integration array in standard form
+    data.iint=zeros(2,0);
 end
 
 if npax~=0
@@ -229,9 +229,9 @@ if npax~=0
         psize=[psize,1];    % make size of a column vector
     end
 else
-    data.pax=[];    % create empty index of plot axes
-    data.p=cell(0,1);
-    data.dax=[];    % create empty index of plot axes
+    data.pax=zeros(1,0);    % create empty index of plot axes
+    data.p=cell(1,0);
+    data.dax=zeros(1,0);    % create empty index of plot axes
     psize=[1,1];    % to hold a scalar
 end
 

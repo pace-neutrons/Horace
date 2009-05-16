@@ -1,6 +1,8 @@
 function [nstart,nend] = get_nrange_rot_section (urange,rot,trans,nelmts,varargin)
-% Get contiguous ranges of elements from a subsection of an n-dimensional array
-% where rotation is allowed for within the manifold of the first three axes.
+% Get indicies that define ranges of contiguous elements from an n-dimensional
+% array of bins of elements, where the bins partially or wholly lie
+% inside a hypercuboid volume that on the first three axes can be rotated and
+% translated w.r.t. to the hypercuboid that is split into bins.
 %
 % Output will not necessarily be strictly contiguous blocks, as the routine handles the first
 % three dimensions separately from the following ones. The blocks are contiguous within
@@ -13,6 +15,9 @@ function [nstart,nend] = get_nrange_rot_section (urange,rot,trans,nelmts,varargi
 %   rot             Matrix [3x3]     --|  that relate a vector expressed in the
 %   trans           Translation [3x1]--|  frame of the bin boundaries to those of urange:
 %                                             r'(i) = A(i,j)(r(j) - trans(j))
+%                                  (trans is the vector from the origin of the frame
+%                                   in which the bins are expressed to that in which
+%                                   urange is expressed)
 %   nelmts          Array of number of points in n-dimensional array of bins
 %                       e.g. 3x5x7 array such that nelmts(i,j,k) gives no. points in (i,j,k)th bin
 %   p1(:)           Bin boundaries along first axis
@@ -64,7 +69,7 @@ if ndim>3
         irangecell{i-2} = irange(1,i-3):irange(2,i-3);
     end
     % Get index ranges for column representation for first three axes
-    [istart,iend,inside] = get_irange_rot(urange,rot,trans,varargin{1:3});
+    [istart,iend] = get_irange_rot(urange,rot,trans,varargin{1:3});
     if isempty(istart); return; end
     ncum=cumsum(nelmts(:));
     ncum = reshape (ncum,[prod(dims(1:3)),dims(4:end)]);
@@ -77,7 +82,7 @@ if ndim>3
     nend   = nend(:);
 else
     % Get index ranges for column representation for first three axes
-    [istart,iend,inside] = get_irange_rot(urange,rot,trans,varargin{1:3});
+    [istart,iend] = get_irange_rot(urange,rot,trans,varargin{1:3});
     if isempty(istart); return; end
     ncum=cumsum(nelmts(:));
     nstart = ncum(istart)-nelmts(istart)+1;
