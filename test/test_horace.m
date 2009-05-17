@@ -344,3 +344,53 @@ w1test=cut_sqw(sqw_file,proj,[-1,0.1,2],[-4.1,-3.9],[-1,1],[30,35]);
 
 w2tiny=cut_sqw(sqw_file,proj,[0.6,0.1,0.9],[-3.8,0.1,-3.4],[-1,1],[30,35]);
 w1tiny=cut_sqw(sqw_file,proj,[0.5,0.1,1],[-4.1,-3.9],[-1,1],[30,35]);
+
+%% Test against mslice
+
+spe_file='C:\data\Ni\data\EI_400-PSI_0-BASE.spe';
+par_file='T:\experiments\nickel\data_analysis\map_4to1.par';
+phx_file='T:\experiments\nickel\data_analysis\map_4to1.phx';
+
+efix400=402.61;
+emode=1;
+alatt=[3.5128,3.5128,3.5128];   % low temperature value from literature
+angdeg=[90,90,90];
+u=[0.9775,1.022,0.015];         % determined from fitting
+v=[0.0588,-0.0610,1.002];       % determined from fitting
+
+
+% Read in data to Mslice, and make a slice and a cut
+% ---------------------------------------------------
+mslice_start
+mslice_load_data (spe_file, phx_file, efix400, 1, 'S(Q,w)', '')
+mslice_sample(alatt,angdeg,u,v,0)
+
+% Tobyplot:
+mslice_sample(alatt,angdeg,u,v,0)
+
+mslice_calc_proj([0,0,1],[1,-1,0],[1,1,0],'L','K','H')
+mslice_2d([0,0.025,1.5],[-0.1,0.1],[0.5,0.025,1.5],'file','c:\temp\ni_slice.slc')
+mslice_1d([0,0.025,1.5],[-0.1,0.1],[0.95,1.05],'file','c:\temp\ni_cut.cut')
+
+
+% Horace equivalent
+% ------------------
+sqw_file='c:\temp\ni400.sqw';          % output sqw file
+omega=0;dpsi=0;gl=0;gs=0;
+gen_sqw (spe_file, par_file, sqw_file, efix400, emode, alatt, angdeg, u, v, 0, omega, dpsi, gl, gs, [1,1,1,1]);
+
+proj.u=[1,1,0];
+proj.v=[0,0,1];
+proj.lab={'H','L','K','E'};
+
+w2=cut_sqw(sqw_file,proj,[0.5,0.025,1.5],[0,0.025,1.5],[-0.1,0.1],[-Inf,Inf]);
+w1=cut_sqw(sqw_file,proj,[0.95,1.05],[0,0.025,1.5],[-0.1,0.1],[-Inf,Inf]);
+
+% Another example from the same data
+% -------------------------------------
+% mslice:
+mslice_calc_proj([0,0,0,1],[1,-1,0],[1,1,0],'E','K','H')
+mslice_2d([50,0,130],[-0.1,0.1],[0.5,0.025,1.5])
+
+w2b=cut_sqw(sqw_file,proj,[0.5,0.025,1.5],[-Inf,Inf],[-0.1,0.1],[50,0,130]);
+
