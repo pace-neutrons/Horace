@@ -241,7 +241,7 @@ end
 % -----------------------------------------------------------------------------------------
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
-[header_ave, ebins_all_same]=header_average(header);
+header_ave=header_average(header);
 alatt = header_ave.alatt;
 angdeg = header_ave.angdeg;
 en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
@@ -285,12 +285,12 @@ if isempty(proj)
         pbin(data.pax(j))=ptmp(i);
     end
     % Can leave integration axis entries in pbin as empty, because in cut_sqw_calc_ubins this
-    % will result in the default bins being used
+    % will result in the default bins being used - which are currently set to the input integration ranges
 end
 
 % Get new plot bin boundaries, integration ranges etc., and the hypercuboid in the
 % output data coordinate frame that encloses the output data volume
-[iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, rot, trans, pbin, pin, en, ebins_all_same);
+[iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, rot, trans, pbin, pin, en);
 if ~isempty(mess)   % problem getting limits from the input
     if save_to_file; fclose(fout); end    % close the output file opened earlier
     error(mess)

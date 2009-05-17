@@ -1,4 +1,4 @@
-function [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (urange_in, rot, trans, pbin, pin, en, ebins_all_same)
+function [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (urange_in, rot, trans, pbin, pin, en)
 % Create bin boundaries for integration and plot axes from requested limits and step sizes
 % Uses knowledge of the range of the data and energy bins of the data to set values for those
 % not provided.
@@ -41,7 +41,6 @@ function [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (urange_in, rot,
 %
 %   en          Energy bin information used if energy step is zero (see above)
 %
-%   ebins_all_same  =true if energy bins are the same for all contributing dataset; =false otherwise
 %
 % Output:
 % -------
@@ -170,8 +169,6 @@ urange_out=[[min(vertex_out,[],2)';max(vertex_out,[],2)'],urange_in(:,4)];  % 2x
 iint=zeros(2,niax);
 p=cell(1,npax);
 urange=zeros(2,4);
-
-ok_range = true(4,1);
 
 % Compute plot bin boundaries and range that fully encloses the requested output plot axes
 for i=1:npax
