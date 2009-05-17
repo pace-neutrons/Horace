@@ -187,23 +187,8 @@ d2_tiny_b=dnd(w2_tiny_b);
 xxx=head_dnd('c:\temp\dd2a.d2d');   % *** currently have a fixup for display. See sqw/head
 
 
-% Titling issue: rounding errors in cut?
-% ------------------------------------------
-% Both the following give strange captions for the secondary cut, rounding erros and bin centre/boundary issue on energy caption
-w1a=read_horace('c:\temp\w1a.sqw');
-wtest=cut(w1a,[0.4,0.05,1]);
-dl(w1a)
-kf
-dl(wtest)
-
-data_source = 'c:\data\Fe\sqw\Fe_ei787.sqw';
-w1a=cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [150,175]);
-wtest=cut(w1a,[0.4,0.05,1]);
-dl(w1a)
-kf
-dl(wtest)
-
 % Bins along x-axis are different. Why?
+% --------------------------------------
 % I think the problem is that rounding errors when reading w2a in from file (where stored as float32) result in boundaries not
 % being quite what we think. 
 w2_tiny_a=section(w2a,[0.2,0.4],[100,130]);
@@ -227,29 +212,6 @@ proj_110.uoffset=[0,0,0,0];
 w2=cut (w2ref, proj_110, [], [], [-0.1,0.1], [150,175]);
 d2=dnd(w2);
 
-d2again=cut(d2,[],[]);
-d2again=cut(d2,0.1,0.05);
-
-% Going to change so that iint(:,i)=[-Inf;Inf] is OK. Get some reference cuts
-
-w1ref=cut(w2ref,[],[-Inf,Inf]);     % captions seem to go to pot!
-
-d1ref=cut(d2ref,[],[-Inf,Inf]);
-
-% Get a dnd from a sqw
-d1=cut(w2ref, proj_110, [1.45,1.6], [], [-0.1,0.1], [150,175]);
-d1=cut(w2ref, proj_110, [1.45,1.6], [], [-0.1,0.1], [150,175],'-nopix');
-
-% Binning - yet again
-crap=cut(w2a,[0.5,0.1,1],[-Inf,2,51]);  % must catch case of length(p{i})=1
-
-crap=cut(w2a,[0.5,0.1,1],[150,2,151]);
-
-crap=cut(w2a,[0.5,0.1,1],[150,0,150]);  % energy bin centre is =150, so in principle, data in the plot range
-
-crap=cut(w2a,[0.5,0.1,1],[51,0,51]);
-
-% *** do some tests with dax permuting the plot axes when proj missing.
 
 %% Test libisis
 x1a=IXTdataset_1d(w1a);

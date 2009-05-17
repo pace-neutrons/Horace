@@ -106,11 +106,11 @@ if pstep>0
         p0=plo-pstep/2;
         xmin=p0;
         xmax=phi;
-    elseif ~isfinite(phi) && range_exist
+    elseif isfinite(plo) && ~isfinite(phi) && range_exist
         p0=plo-pstep/2;
         xmin=p0;
         xmax=range_hi;
-    elseif ~isfinite(plo) && range_exist
+    elseif ~isfinite(plo) && isfinite(phi) && range_exist
         p0=phi+pstep/2;
         xmin=range_lo;
         xmax=p0;
