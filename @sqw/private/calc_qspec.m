@@ -37,6 +37,20 @@ if emode==1
     qspec(1:3,:) = repmat([ki;0;0],[1,ne*ndet]) - ...
         repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
     qspec(4,:)=repmat(eps',1,ndet);
+    
+elseif emode==2
+    kf=sqrt(efix/k_to_e);
+    if length(data.en)==ne+1
+        eps=(data.en(2:end)+data.en(1:end-1))/2;    % get bin centres
+    else
+        eps=data.en;        % just pass the energy values as bin centres
+    end
+    ki=sqrt((efix+eps)/k_to_e); % [ne x 1]
+    detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
+    qspec(1:3,:) = repmat([ki';zeros(1,ne);zeros(1,ne)],[1,ndet]) - ...
+        repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+    qspec(4,:)=repmat(eps',1,ndet);
 else
-    error('EMODE=2 not yet implemented')
+    error('EMODE must =1 (direct geometry) or =2 (indirect geometry)')
+    
 end

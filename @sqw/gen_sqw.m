@@ -208,25 +208,33 @@ end
 % --------------------------------------------------------------------------------------------------------
 % *** should check that the temporary file names do not coincide with spe file names
 
-for i=1:nfiles
+if nfiles==1
+    tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
     disp('--------------------------------------------------------------------------------')
-    disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
-    grid_size_tmp = write_spe_to_sqw (spe_file{i}, par_file, tmp_file{i}, efix(i), emode, alatt, angdeg,...
-                      u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i), grid_size_in, urange);
-    if i==1
-        grid_size = grid_size_tmp;
-    else
-        if ~all(grid_size==grid_size_tmp)
-            error('Logic error in code calling write_spe_to_sqw')
+    disp('Creating output sqw file:')
+    grid_size = write_spe_to_sqw (spe_file{i}, par_file, sqw_file, efix(i), emode, alatt, angdeg,...
+            u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i), grid_size_in, urange);
+else
+    for i=1:nfiles
+        disp('--------------------------------------------------------------------------------')
+        disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
+        grid_size_tmp = write_spe_to_sqw (spe_file{i}, par_file, tmp_file{i}, efix(i), emode, alatt, angdeg,...
+            u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i), grid_size_in, urange);
+        if i==1
+            grid_size = grid_size_tmp;
+        else
+            if ~all(grid_size==grid_size_tmp)
+                error('Logic error in code calling write_spe_to_sqw')
+            end
         end
     end
+    % Create single sqw file combining all intermediate sqw files
+    % ------------------------------------------------------------
+    disp('--------------------------------------------------------------------------------')
+    disp('Creating output sqw file:')
+    write_nsqw_to_sqw (tmp_file, sqw_file);
+    disp('--------------------------------------------------------------------------------')
 end
-% Create single sqw file combining all intermediate sqw files
-% ------------------------------------------------------------
-disp('--------------------------------------------------------------------------------')
-disp('Creating output sqw file:')
-write_nsqw_to_sqw (tmp_file, sqw_file);
-disp('--------------------------------------------------------------------------------')
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
