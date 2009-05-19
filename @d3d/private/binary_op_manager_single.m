@@ -19,6 +19,10 @@ function wout = binary_op_manager_single(w1,w2,binary_op)
 if ~isa(w1,'double') && ~isa(w2,'double')
     if isequal(sigvar_size(w1),sigvar_size(w2))
         if isa(w1,classname), wout = w1; else wout = w2; end
+        %extra lines to ensure commutation:
+        npixout=(w1.npix+w2.npix); npix_times=(w1.npix.*w2.npix)~=0;
+        npixout=npixout.*npix_times; wout.npix=npixout;
+        %==
         result = binary_op(sigvar(w1), sigvar(w2));
         wout = sigvar_set(wout,result);
     else
