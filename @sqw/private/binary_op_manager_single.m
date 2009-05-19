@@ -29,13 +29,18 @@ if ~isa(w1,'double') && ~isa(w2,'double')
             wout = w1;
             wtmp = sigvar(w2);
             if ~isequal([1,1],sz)
-                stmp = replicate_array(wtmp.s, w1.data.npix)';
-                etmp = replicate_array(wtmp.e, w1.data.npix)';
-                wtmp = sigvar(stmp,etmp);
+                 stmp = replicate_array(wtmp.s, w1.data.npix)';
+                 etmp = replicate_array(wtmp.e, w1.data.npix)';
+                 wtmp = sigvar(stmp,etmp);
             end
             result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), wtmp);
             wout.data.pix(8:9,:) = [result.s;result.e];
-            wout = recompute_bin_data (wout);
+            %Here we ensure commutation on binary operations:
+            if isa(w2,classname)
+                wout = recompute_bin_data(wout,w2.data.npix);%recompute_bin_data modified
+            else
+                wout = recompute_bin_data (wout);
+            end
         else
             error ('Check that the numeric variable is scalar or array with same size as object signal')
         end
@@ -51,15 +56,25 @@ if ~isa(w1,'double') && ~isa(w2,'double')
             end
             result = binary_op(wtmp, sigvar(w2.data.pix(8,:),w2.data.pix(9,:)));
             wout.data.pix(8:9,:) = [result.s;result.e];
-            wout = recompute_bin_data (wout);
+            %Here we ensure commutation on binary operations:
+            if isa(w1,classname)
+                wout = recompute_bin_data(wout,w1.data.npix);
+            else
+                wout = recompute_bin_data (wout);
+            end
         else
             error ('Check that the numeric variable is scalar or array with same size as object signal')
         end
     else    % one or both are dnd-type
+        %This block of code can be changed in the same manner as the dnds.
         sz1 = sigvar_size(w1);
         sz2 = sigvar_size(w2);
         if isequal(sz1,sz2)
             if isa(w1,classname), wout = w1; else wout = w2; end
+            %extra lines to ensure commutation:
+            npixout=(w1.npix+w2.npix); npix_times=(w1.npix.*w2.npix)~=0;
+            npixout=npixout.*npix_times; wout.npix=npixout;
+            %==
             result = binary_op(sigvar(w1), sigvar(w2));
             wout = sigvar_set(wout, result);
         else
