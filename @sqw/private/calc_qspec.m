@@ -1,7 +1,7 @@
 function qspec=calc_qspec (efix, emode, data, det)
-% Calculate the components of Q in spectroemter fixed w.r.t. spectrometer
+% Calculate the components of Q in reference frame fixed w.r.t. spectrometer
 %
-%   >> [qspec,eps]=calc_qspec (efix, emode, data, det)
+%   >> qspec = calc_qspec (efix, emode, data, det)
 %
 %   efix    Fixed energy (meV)
 %   emode   Direct geometry=1, indirect geometry=2
@@ -50,6 +50,7 @@ elseif emode==2
     qspec(1:3,:) = repmat([ki';zeros(1,ne);zeros(1,ne)],[1,ndet]) - ...
         repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
     qspec(4,:)=repmat(eps',1,ndet);
+    
 else
     error('EMODE must =1 (direct geometry) or =2 (indirect geometry)')
     
