@@ -41,18 +41,16 @@ function [u_to_rlu, ucoords] = ...
 ndet=size(data.S,2);
 % Check length of detectors in spe file and par file are same
 if ndet~=length(det.phi)
-   disp(['.spe file ' data.filename ' and .phx file ' det.filename ' not compatible']);
-   disp(['Number of detectors is different: ' num2str(ndet) ' and ' num2str(length(det.phi))]);
-   return
+    mess1=['.spe file ' data.filename ' and .phx file ' det.filename ' not compatible'];
+    mess2=['Number of detectors is different: ' num2str(ndet) ' and ' num2str(length(det.phi))];
+    error('%s\n%s',mess1,mess2)
 end
 
 % Check incident energy consistent with energy bins
 if emode==1 && data.en(end)>=efix
-    disp(['Incident energy ' num2str(efix) ' and energy bins incompatible'])
-    return
+    error(['Incident energy ' num2str(efix) ' and energy bins incompatible'])
 elseif emode==2 && data.en(1)<=-efix
-    disp(['Final energy ' num2str(efix) ' and energy bins incompatible'])
-    return
+    error(['Final energy ' num2str(efix) ' and energy bins incompatible'])
 end
 
 % Create matrix to convert from spectrometer axes to coords along projection axes
