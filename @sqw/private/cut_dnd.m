@@ -165,16 +165,26 @@ end
 s = data.s(array_section{:}).*data.npix(array_section{:});
 e = data.e(array_section{:}).*(data.npix(array_section{:}).^2);
 npix = data.npix(array_section{:});
+
+% in principle, these three lines are unnecessary, as we should have s, e =0 where npix=0 already
 nopix = (npix==0);
 s(nopix) = 0;   % must ensure zero so that can sum over integration range(s)
 e(nopix) = 0;   % must ensure zero so that can sum over integration range(s)
 
-% also need to check for the (rare, and pathological) case when either
-% data.s or data.e contain NaNs, but data.npix is not zero.
-s_nans = isnan(s);
-e_nans = isnan(e);
-s(s_nans)=0; e(s_nans)=0; npix(s_nans)=0;
-s(e_nans)=0; e(e_nans)=0; npix(e_nans)=0;
+
+% Check for the case when either data.s or data.e contain NaNs or Infs, but data.npix is not zero.
+% and handle according to options settings.
+ignore=horace_cut_nan_inf;
+if ignore.nan || ignore.inf
+    if ignore.nan && ignore.inf
+        omit=~isfinite(s)|~isfinite(e);
+    elseif ignore.nan
+        omit=isnan(s)|isnan(e);
+    elseif ignore.inf
+        omit=isinf(s)|isinf(e);
+    end
+    s(omit)=0; e(omit)=0; npix(omit)=0;
+end
 
 % sum over the integration axes. Perform the summation along the
 % highest axis index - this allows succesive calls of routines that reduce dimension by one
@@ -198,11 +208,13 @@ nopix = (npix==0);  % true where there are no pixels contributing to the bin
 s(nopix)=0;         % want signal to be NaN where there are no contributing pixels, not +/- Inf
 e(nopix)=0;
 
-% Catch pathological case of s or e being NaN
-s_nans = isnan(s);
-e_nans = isnan(e);
-s(s_nans)=0; e(s_nans)=0; npix(s_nans)=0;
-s(e_nans)=0; e(e_nans)=0; npix(e_nans)=0;
+% Catch pathological case of s or e being Inf and we request to ignore Inf
+%(this can happen if sum several finite numbers that overflow to an infinite number).
+%(There can be no case of a pathological NaN if requested NaNs to be ignored)
+if ignore.inf
+    omit=isinf(s)|isinf(e);
+    s(omit)=0; e(omit)=0; npix(omit)=0;
+end
 
 % insert results into output signal, error, npix arrays
 matched_size=true(size(sub_pax));

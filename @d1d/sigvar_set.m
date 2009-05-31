@@ -9,3 +9,8 @@ function w = sigvar_set(w,sigvarobj)
 
 w.s=sigvarobj.s;
 w.e=sigvarobj.e;
+
+% If no pixels, then our convention is that signal and error set to zero
+nopix=(w.npix==0);
+w.s(nopix)=0;
+w.e(nopix)=0;

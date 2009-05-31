@@ -195,6 +195,22 @@ w2_tiny_a=section(w2a,[0.2,0.4],[100,130]);
 w2_tiny_b=section(w2a,[0.4,0.6],[100,130]);
 
 
+% colorsliders overlap titles, and move about
+% -----------------------------------------------------
+% dnd
+proj_100.u=[1,0,0];
+proj_100.v=[0,1,0];
+proj_100.uoffset=[0,0,0,0];
+w2ref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0,0.1,2], [-1,0.05,2], [-0.1,0.1], [150,175]);
+
+% sliders over the title:
+da(w2ref)
+
+% Now they get into the caption
+lx 0.6 1.2
+ly 0 1
+
+
 % Cutting issues
 % ------------------------------
 % Default bins even when axes rotated: odd - but what else to do?
@@ -212,6 +228,22 @@ proj_110.uoffset=[0,0,0,0];
 w2=cut (w2ref, proj_110, [], [], [-0.1,0.1], [150,175]);
 d2=dnd(w2);
 
+
+% Ignore NaN & Inf, or not, in signal and error arrays
+% -----------------------------------------------------
+proj_100.u=[1,0,0];
+proj_100.v=[0,1,0];
+proj_100.uoffset=[0,0,0,0];
+w2ref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.8,0.1,1], [0.4,0.05,0.6], [-0.1,0.1], [150,175]);
+d2ref=dnd(w2ref);
+
+% dnd
+d2=d2ref;
+d2.s(2:3,1)=NaN;
+d2.s(2:3,2)=Inf;
+d2.e(2:3,3)=Inf;
+
+d1=cut(d2,[-10,10],[]);
 
 %% Test libisis
 x1a=IXTdataset_1d(w1a);
@@ -393,4 +425,17 @@ mslice_calc_proj([0,0,0,1],[1,-1,0],[1,1,0],'E','K','H')
 mslice_2d([50,0,130],[-0.1,0.1],[0.5,0.025,1.5])
 
 w2b=cut_sqw(sqw_file,proj,[0.5,0.025,1.5],[-Inf,Inf],[-0.1,0.1],[50,0,130]);
+
+
+% Mslice and Horace produced identical cuts
+% Now use a finer grid - as cutting the spe file as a single file was too much in cut_data_from_array
+
+sqw_file='c:\temp\ni400_grid10.sqw';          % output sqw file
+omega=0;dpsi=0;gl=0;gs=0;
+gen_sqw (spe_file, par_file, sqw_file, efix400, emode, alatt, angdeg, u, v, 0, omega, dpsi, gl, gs, [10,10,10,10]);
+
+proj.u=[1,1,0];
+proj.v=[0,0,1];
+proj.lab={'H','L','K','E'};
+
 
