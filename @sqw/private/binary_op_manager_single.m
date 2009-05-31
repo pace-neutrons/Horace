@@ -13,6 +13,7 @@ function wout = binary_op_manager_single(w1,w2,binary_op)
 
 if ~isa(w1,'double') && ~isa(w2,'double')
     if (isa(w1,classname) && is_sqw_type(w1)) && (isa(w2,classname) && is_sqw_type(w2))
+        % w1 and w2 are both sqw-type sqw objects
         [n1,sz1]=dimensions(w1);
         [n2,sz2]=dimensions(w2);
         if n1==n2 && all(sz1==sz2) && all(w1.data.npix(:)==w2.data.npix(:))
@@ -24,44 +25,54 @@ if ~isa(w1,'double') && ~isa(w2,'double')
             error('sqw type objects do not have commensurate arrays for binary operations')
         end
     elseif (isa(w1,classname) && is_sqw_type(w1))
+        % w1 is sqw-type, but w2 could be anything that is not a double e.g. dnd-type sqw object, or a d2d object, or sigvar object etc.
         sz = sigvar_size(w2);
         if isequal([1,1],sz) || isequal(size(w1.data.npix),sz)
             wout = w1;
+            % Need to remove bins with npix=0 in the non-sqw object in the binary operation
+            if isa(w2,classname)||isa(w2,'d0d')||isa(w2,'d1d')||isa(w2,'d2d')||isa(w2,'d3d')||isa(w2,'d4d')
+                if isa(w2,classname)    % must be a dnd-type sqw object
+                    omit=logical(w2.data.npix);
+                else    % must be a d0d,d1d...
+                    omit=logical(w2.npix);
+                end
+                wout=mask(wout,omit);
+            end
             wtmp = sigvar(w2);
             if ~isequal([1,1],sz)
-                 stmp = replicate_array(wtmp.s, w1.data.npix)';
-                 etmp = replicate_array(wtmp.e, w1.data.npix)';
-                 wtmp = sigvar(stmp,etmp);
+                stmp = replicate_array(wtmp.s, wout.data.npix)';
+                etmp = replicate_array(wtmp.e, wout.data.npix)';
+                wtmp = sigvar(stmp,etmp);
             end
-            result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), wtmp);
+            result = binary_op(sigvar(wout.data.pix(8,:),wout.data.pix(9,:)), wtmp);
             wout.data.pix(8:9,:) = [result.s;result.e];
-            %Here we ensure commutation on binary operations:
-            if isa(w2,classname)
-                wout = recompute_bin_data(wout,w2.data.npix);%recompute_bin_data modified
-            else
-                wout = recompute_bin_data (wout);
-            end
+            wout = recompute_bin_data (wout);
         else
             error ('Check that the numeric variable is scalar or array with same size as object signal')
         end
     elseif (isa(w2,classname) && is_sqw_type(w2))
+        % w2 is sqw-type, but w1 could be anything that is not a double e.g. dnd-type sqw object, or a d2d object, or sigvar object etc.
         sz = sigvar_size(w1);
         if isequal([1,1],sz) || isequal(size(w2.data.npix),sz)
             wout = w2;
+            % Need to remove bins with npix=0 in the non-sqw object in the binary operation
+            if isa(w1,classname)||isa(w1,'d0d')||isa(w1,'d1d')||isa(w1,'d2d')||isa(w1,'d3d')||isa(w1,'d4d')
+                if isa(w1,classname)    % must be a dnd-type sqw object
+                    omit=logical(w1.data.npix);
+                else    % must be a d0d,d1d...
+                    omit=logical(w1.npix);
+                end
+                wout=mask(wout,omit);
+            end
             wtmp = sigvar(w1);
             if ~isequal([1,1],sz)
-                stmp = replicate_array(wtmp.s, w2.data.npix)';
-                etmp = replicate_array(wtmp.e, w2.data.npix)';
+                stmp = replicate_array(wtmp.s, wout.data.npix)';
+                etmp = replicate_array(wtmp.e, wout.data.npix)';
                 wtmp = sigvar(stmp,etmp);
             end
-            result = binary_op(wtmp, sigvar(w2.data.pix(8,:),w2.data.pix(9,:)));
+            result = binary_op(wtmp, sigvar(wout.data.pix(8,:),wout.data.pix(9,:)));
             wout.data.pix(8:9,:) = [result.s;result.e];
-            %Here we ensure commutation on binary operations:
-            if isa(w1,classname)
-                wout = recompute_bin_data(wout,w1.data.npix);
-            else
-                wout = recompute_bin_data (wout);
-            end
+            wout = recompute_bin_data (wout);
         else
             error ('Check that the numeric variable is scalar or array with same size as object signal')
         end
@@ -71,10 +82,9 @@ if ~isa(w1,'double') && ~isa(w2,'double')
         sz2 = sigvar_size(w2);
         if isequal(sz1,sz2)
             if isa(w1,classname), wout = w1; else wout = w2; end
-            %extra lines to ensure commutation:
-            npixout=(w1.npix+w2.npix); npix_times=(w1.npix.*w2.npix)~=0;
-            npixout=npixout.*npix_times; wout.npix=npixout;
-            %==
+            if isa(w1,classname) && isa(w2,classname)
+                wout.data.npix(w2.npix==0)=0;    % ensures that empty bins in either w1 or w2 result in an empty bin
+            end
             result = binary_op(sigvar(w1), sigvar(w2));
             wout = sigvar_set(wout, result);
         else
