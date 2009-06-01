@@ -370,24 +370,6 @@ end
 ebin=ustep(4);                  % plays role of rot_ustep for energy
 trans_elo = urange_offset(1,4); % plays role of trans_bott_left for energy
 
-%===
-%We must check for the (rare, and pathological case) where the 8th and 9th
-%rows of the pix array (i.e. individual pixel intensity and error) contain
-%NaN, as opposed to being zero if no intensity contributed. This could
-%occur if data have been corrupted, or have been operated incorrectly on by the user
-%somehow.
-if ~source_is_file
-    pixel_info=data.pix;
-    s=pixel_info(8,:); e=pixel_info(9,:);
-    s_nans=isnan(s);
-    e_nans=isnan(e);
-    s(s_nans)=0; e(s_nans)=0;
-    s(e_nans)=0; e(e_nans)=0;
-    pixel_info(8,:)=s;
-    pixel_info(9,:)=e;
-    data.pix=pixel_info;
-    clear pixel_info s e s_nans e_nans
-end
 
 % Get accumulated signal
 % -----------------------
@@ -481,12 +463,6 @@ data_out.npix = npix;
 no_pix = (npix==0);     % true where there are no pixels contributing to the bin
 data_out.s(no_pix)=0;   % want signal to be NaN where there are no contributing pixels, not +/- Inf
 data_out.e(no_pix)=0;
-
-%as before, we should also eliminate the unlikely case that we got NaNs in
-%s or e without npix being zero:
-s_nans=isnan(data_out.s); e_nans=isnan(data_out.e);
-data_out.s(s_nans)=0; data_out.e(s_nans)=0; data_out.npix(s_nans)=0;
-data_out.s(e_nans)=0; data_out.e(e_nans)=0; data_out.npix(e_nans)=0;
 
 if keep_pix
     data_out.urange = urange_pix;
