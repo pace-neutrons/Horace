@@ -48,6 +48,21 @@ end
 ok = indx(:,1)>=urange_step(1,1) & indx(:,1)<=urange_step(2,1) & indx(:,2)>=urange_step(1,2) & indx(:,2)<=urange_step(2,2) & ...
      indx(:,3)>=urange_step(1,3) & indx(:,3)<=urange_step(2,3) & indx(:,4)>=urange_step(1,4) & indx(:,4)<=urange_step(2,4);
 
+% Check for the case when either data.s or data.e contain NaNs or Infs, but data.npix is not zero.
+% and handle according to options settings.
+ignore=horace_cut_nan_inf;
+if ignore.nan || ignore.inf
+    if ignore.nan && ignore.inf
+        omit=~isfinite(v(8,:))|~isfinite(v(9,:));
+    elseif ignore.nan
+        omit=isnan(v(8,:))|isnan(v(9,:));
+    elseif ignore.inf
+        omit=isinf(v(8,:))|isinf(v(9,:));
+    end
+    ok = ok & ~omit';
+end
+
+% Continue
 indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
 if isempty(indx)    % if no pixels in range, return
     npix_retain=0;
