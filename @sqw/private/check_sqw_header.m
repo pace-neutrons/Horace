@@ -89,7 +89,7 @@ mess='';
 if ~is_string_or_empty_string(header.filename), mess='ERROR: Field ''filename'' must be a character string'; return; end
 if ~is_string_or_empty_string(header.filepath), mess='ERROR: Field ''filepath'' must be a character string'; return; end
 if ~isa_size(header.efix,'scalar','double'), mess='ERROR: Field ''efix'' must be a numeric scalar'; return; end
-if ~isa_size(header.emode,'scalar','double') || ~(header.emode==1 || header.emode==2)
+if ~isa_size(header.emode,'scalar','double') || ~(header.emode==1 || header.emode==2 || header.emode==0)
     mess='ERROR: Field ''emode'' must be a number equal to either 1 or 2'; return; end
 if ~isa_size(header.alatt,'vector','double'), mess='ERROR: Field ''alatt'' must be a numeric vector length 3'; return; end
 if ~isa_size(header.angdeg,'vector','double'), mess='ERROR: Field ''andeg'' must be a numeric vector length 3'; return; end

@@ -24,7 +24,7 @@ det0=get_par(par_file);
 % Check length of detectors in spe file and par file are same
 ndet=size(data.S,2);
 if ndet~=length(det0.phi)
-   disp(['.spe file ' data.filename ' and .phx file ' det0.filename ' not compatible']);
+   disp(['.spe file ' data.filename ' and .par file ' det0.filename ' not compatible']);
    disp(['Number of detectors is different: ' num2str(ndet) ' and ' num2str(length(det0.phi))]);
    return
 end
