@@ -228,22 +228,33 @@ proj_110.uoffset=[0,0,0,0];
 w2=cut (w2ref, proj_110, [], [], [-0.1,0.1], [150,175]);
 d2=dnd(w2);
 
+% Remove range problem
+% ------------------------------
+% Make some test data
+w1a=read_horace('c:\temp\w1a.sqw');
+w1b=read_horace('c:\temp\w1b.sqw');
+w1c=read_horace('c:\temp\w1c.sqw');
+w1d=read_horace('c:\temp\w1d.sqw');
+w2a=read_horace('c:\temp\w2a.sqw');
+w2b=read_horace('c:\temp\w2b.sqw');
 
-% Ignore NaN & Inf, or not, in signal and error arrays
-% -----------------------------------------------------
-proj_100.u=[1,0,0];
-proj_100.v=[0,1,0];
-proj_100.uoffset=[0,0,0,0];
-w2ref=cut_sqw ('c:\data\Fe\sqw\Fe_ei787.sqw', proj_100, [0.8,0.1,1], [0.4,0.05,0.6], [-0.1,0.1], [150,175]);
-d2ref=dnd(w2ref);
+% Make three Gaussian peaks:
+sqw1a=cut(w1a,[0.4,0.05,1]);
+sqw1b=cut(w1b,[0.4,0.05,1]);
+sqw1c=cut(w1c,[0.4,0.05,1]);
 
-% dnd
-d2=d2ref;
-d2.s(2:3,1)=NaN;
-d2.s(2:3,2)=Inf;
-d2.e(2:3,3)=Inf;
+d1da=dnd(sqw1a);
+d1db=dnd(sqw1b);
+d1dc=dnd(sqw1c);
 
-d1=cut(d2,[-10,10],[]);
+sqw_all=[sqw1a,sqw1b,sqw1c];
+
+% Now the test
+[wwref,ffref]=multifit_func(sqw_all,@test_gauss,[0.15,0.7,0.05],@test_bkgd,[0.1,0],'list',2);
+
+% There are error bars on the background for the object which is entirely removed.
+[ww,ff]=multifit_func(sqw_all,@test_gauss,[0.15,0.7,0.05],@test_bkgd,[0.1,0],'list',2,'remove',{[],[-1,3],[]});
+
 
 %% Test libisis
 x1a=IXTdataset_1d(w1a);
@@ -316,6 +327,7 @@ ww=sqw_eval(sqw_all,@test_sqw_model_1D_bkgd,[10,40,0.05,50,0.1,0]);
 [ww,ff]=fit_func(sqw_all,@test_gauss,[0.15,0.7,0.05],@test_bkgd,[0.1,0]);   % equivalent with background a separate function
 
 [ww,ff]=multifit_func(sqw_all,@test_gauss,[0.15,0.7,0.05],@test_bkgd,[0.1,0],'list',2);
+
 
 
 % Fit sqw:
