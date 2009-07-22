@@ -21,6 +21,7 @@ function [wout, fitdata] = multifit_sqw(win, varargin)
 %       'select'    if present, calculate output function only at the points retained for fitting
 %       'list'      indicates verbosity of output during fitting
 %       'fit'       alter convergence critera for the fit etc.
+%       'evaluate'  evaluate function at initial parameter values only, with argument check as well
 %
 %   Example:
 %   >> [wout, fitdata] = multifit_sqw (..., 'keep', xkeep, 'list', 0)
@@ -172,6 +173,12 @@ function [wout, fitdata] = multifit_sqw(win, varargin)
 %           not eliminated for having zero error bar etc; this is useful for plotting the output, as
 %           only those points that contributed to the fit will be plotted.
 %
+%  A final useful keyword is:
+%
+%  'evaluate'   Evaluate the fitting function at the initial parameter values only. Useful for
+%           checking the validity of starting parameters
+%
+%
 % Output:
 % =======
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
@@ -211,12 +218,12 @@ if ~isempty(bpos)
     end
 end
 pos=pos-1; bpos=bpos-1;     % Recall that first argument in the call to multifit was win
-varargin{pos}=@sqw_eval;   % The fit function needs to be func_eval
+varargin{pos}=@sqw_eval;    % The fit function needs to be sqw_eval
 varargin{pos+1}=plist;
 if ~isempty(bpos)
     varargin{bpos}=@func_eval;
     varargin{bpos+1}=bplist;
 end
 
-% Evaluate function for each element of the array of sqw objects
+% Perform the fit
 [wout,fitdata] = multifit (win, varargin{:});

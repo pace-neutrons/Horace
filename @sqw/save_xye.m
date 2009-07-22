@@ -1,5 +1,5 @@
 function save_xye(w,varargin)
-% Save 1D,2D,.. Horace data set to ascii file.
+% Save 1D,2D,.. sqw object to ascii file.
 %
 % Syntax:
 %   >> save_xye (w)                 %  Prompts for file to write to
@@ -44,18 +44,11 @@ function save_xye(w,varargin)
 %       x1(1)   x2(2)    x3(1)      y(1,2)    e(1,2)
 %       x1(2)   x2(2)    x3(1)      y(2,2)    e(2,2)
 %        :       :          :          :        :
-%
-%
+
 % T.G.Perring  25/6/09
-% Quick fix: should really be methods of the different types. Done like this for 
-% Ray & team to get them going as quickly as possible
 
 % Check input
 % -----------
-if ~(isa(w,'d1d')||isa(w,'d2d')||isa(w,'d3d')||isa(w,'d4d')||isa(w,'sqw'))
-    error ('Data must be a Horace 1D,2D,3D or 4D object')
-end
-
 null_value=NaN;
 file_given=false;
 nargs=length(varargin);
@@ -72,6 +65,10 @@ elseif nargs~=0
     error('Check input parameters')
 end
         
+% Check only a single sqw object (cannot write arrayof objects)
+if numel(w)~=1
+    error('Can only write a single data object to file, not an array of objects')
+end
 
 % Get file name - prompting if necessary
 if ~file_given
@@ -127,17 +124,10 @@ function [x,y,e]=get_xye(w,null_value)
 %   e       m x 1 array of error bars
 %
 
-if isa(w,'sqw')
-    x=w.data.p;
-    y=w.data.s;
-    e=sqrt(w.data.e);
-    empty=~logical(w.data.npix);
-else
-    x=w.p;
-    y=w.s;
-    e=sqrt(w.e);
-    empty=~logical(w.npix);
-end
+x=w.data.p;
+y=w.data.s;
+e=sqrt(w.data.e);
+empty=~logical(w.data.npix);
 
 for i=1:numel(x)
     x{i}=0.5*(x{i}(2:end)+x{i}(1:end-1));
