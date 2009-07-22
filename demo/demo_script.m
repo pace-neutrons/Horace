@@ -86,16 +86,16 @@ lz 0 1
 %make a template d2d:
 w_template=cut_sqw(data_source,proj_100,[-0.4,0.2],[0,0.05,3],[-0.5,0.05,3],[30,40]);
 plot(w_template); lz 0 4;
-keep;
+keep_figure;
 
 %simulate the 4 peaks.
 w_sim=func_eval(w_template,@demo_4gauss_2dQ,[6 1 1 0.1 2 1 1]);
 plot(w_sim); lz 0 4;
-keep;
+keep_figure;
 
 %do FM spinwave simulation:
 w_sqw=sqw_eval(w_template,@demo_FM_spinwaves_2dSlice_sqw,[300 0 2 10 2]);
-plot(w_sqw); keep;
+plot(w_sqw); keep_figure;
 
 
 %==========================================================================
@@ -104,11 +104,11 @@ plot(w_sqw); keep;
 
 [w_fit1,fitdata1]=fit(w_template,@demo_4gauss_2dQ,[6 1 1 0.1 2 1 1],[1 1 1 1 0 0 1],'list',2);
 plot(w_fit1); lz 0 4;
-keep;
+keep_figure;
 
 %==
 %do a dodgy fixup to use the sqw FM spinwaves model to do a fit:
-getit=get(w_sqw);
+getit=get(d2d(w_sqw));
 getit.s = getit.s + (rand(size(getit.s))).*getit.s;%add some noise to the simulation.
 getit.e = (rand(size(getit.e))).*getit.s;%make dummy errorbars.
 w_fixup=d2d(getit);
@@ -118,7 +118,7 @@ plot(w_fixup);
 %Now fit this fake data:
 [w_fit2,fitdata2]=fit_sqw(w_fixup,@demo_FM_spinwaves_2dSlice_sqw,...
     [200 0 2 10 2],[1 1 1 0 1],'list',1);
-plot(w_fit2); keep;
+plot(w_fit2); keep_figure;
 
 
 
