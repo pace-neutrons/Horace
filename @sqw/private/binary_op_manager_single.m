@@ -83,7 +83,7 @@ if ~isa(w1,'double') && ~isa(w2,'double')
         if isequal(sz1,sz2)
             if isa(w1,classname), wout = w1; else wout = w2; end
             if isa(w1,classname) && isa(w2,classname)
-                wout.data.npix(w2.npix==0)=0;    % ensures that empty bins in either w1 or w2 result in an empty bin
+                wout.data.npix(w2.data.npix==0)=0;    % ensures that empty bins in either w1 or w2 result in an empty bin
             end
             result = binary_op(sigvar(w1), sigvar(w2));
             wout = sigvar_set(wout, result);
