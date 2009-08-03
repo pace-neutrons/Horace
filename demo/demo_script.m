@@ -34,11 +34,14 @@ psi1=linspace(0,-1*(nfiles1-1),nfiles1);
 spe_file1=cell(1,nfiles1);
 for i=1:length(psi1)
     spe_file1{i}=[indir,'MAP',num2str(11012+(2*i)),'.SPE'];
+    tmp_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.tmp'];
 end
 
 
-gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
-    u, v, psi1, omega, dpsi, gl, gs);
+% gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%     u, v, psi1, omega, dpsi, gl, gs);
+
+write_nsqw_to_sqw(tmp_file,sqw_file);
 
 %==========================================================================
 %==========================================================================
