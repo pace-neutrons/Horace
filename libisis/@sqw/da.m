@@ -32,4 +32,4 @@ if pax(dax(1))~=energy_axis && pax(dax(2))~=energy_axis    % both plot axes are 
     aspect(ulen(1), ulen(2));
 end
 
-colorslider;
+color_slider;
