@@ -2,7 +2,7 @@ function [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
 % Load an sqw file from disk
 %
 % Syntax:
-%   >> [sqw_type, ndims] = get_sqw_type_from_file(infile)
+%   >> [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
 %
 % Input:
 % --------
@@ -12,6 +12,7 @@ function [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
 % --------
 %   sqw_type    =true  if sqw-type contents; =false if dnd-type contents
 %   ndims       Number of dimensions
+%   mess        Error message; blank if no errors, non-blank otherwise
 
 % Original author: T.G.Perring
 %

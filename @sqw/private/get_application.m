@@ -32,6 +32,7 @@ if nargin==2
     if isstruct(application_in)
         application = application_in;
     else
+        application = [];
         mess = 'Check the type of input argument application_in';
         return
     end
@@ -39,8 +40,13 @@ else
     application = [];
 end
 
-% Read data from file:
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[application.name, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+mess='';
 
-[application.version, count, ok, mess] = fread_catch(fid,1,'float64'); if ~all(ok); return; end;
+% Read data from file:
+try
+    n = fread (fid,1,'int32');
+    application.name = fread (fid,[1,n],'*char');
+    application.version = fread (fid,1,'float64');
+catch
+    mess='problems reading data file';
+end

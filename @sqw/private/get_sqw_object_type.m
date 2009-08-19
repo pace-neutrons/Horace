@@ -21,8 +21,13 @@ function [sqw_type, ndims, mess] = get_sqw_object_type (fid)
 
 sqw_type=[];
 ndims=[];
+mess='';
 
 % Read data from file:
-[tmp, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-sqw_type = logical(tmp);
-[ndims, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+try
+    tmp = fread (fid,1,'int32');
+    sqw_type = logical(tmp);
+    ndims = fread (fid,1,'int32');
+catch
+    mess='problems reading data file';
+end
