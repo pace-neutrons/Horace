@@ -50,7 +50,13 @@ dax = data.dax;
 
 uofftot=uoff;
 for i=1:length(iax)
-    uofftot=uofftot+(0.5*(iint(1,i)+iint(2,i)))*u_to_rlu(:,iax(i));  % overall displacement of plot volume in (rlu;en)
+    % get offset from integration axis, accounting for non-finite limit(s)
+    if isfinite(iint(1,i)) && isfinite(iint(2,i))
+        iint_ave=0.5*(iint(1,i)+iint(2,i));
+    else
+        iint_ave=0;
+    end
+    uofftot=uofftot+iint_ave*u_to_rlu(:,iax(i));  % overall displacement of plot volume in (rlu;en)
 end
 
 % Axes and integration titles
@@ -244,6 +250,9 @@ end
 iline = 1;
 if ~isempty(file)
     title_main{iline}=avoidtex(file);
+    iline = iline + 1;
+else
+    title_main{iline}='';
     iline = iline + 1;
 end
 if ~isempty(title)

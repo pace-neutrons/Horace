@@ -37,17 +37,11 @@ function varargout=function_sqw(infile,func,varargin)
 % $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
 
-[sqw_type, nd, mess] = is_sqw_type_file(sqw,infile);
+[sqw_type, nd,data_source,  mess] = is_sqw_type_file(sqw,infile);
 if ~isempty(mess), error(mess), end
 if ~sqw_type
     error('Data file does not contain pixel information - does not not contain a full sqw object')
 end
-
-% Wrap file name in a structure with a key to identify the file as being the input sqw data
-data_source.keyword='$file_data';
-data_source.file=infile;
-data_source.sqw_type=true;
-data_source.ndims=nd;
 
 % Branch on type of data in the file, and if there are output arguments or not
 % Recall that if the input data source was a file, we demand that all output

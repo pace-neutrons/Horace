@@ -15,5 +15,6 @@ function varargout = read(varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
+% Now call sqw read routine
 argout=read(sqw(varargin{1}),varargin{2:end});     % output is a cell array
 varargout{1}={dnd(argout{1})};      % must ensure output is still a cell array after conversion to dnd

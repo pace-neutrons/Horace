@@ -14,6 +14,9 @@ set
 
 isvalid
   * checkfields (specific, private function)
+    Must have first input and first two output arguments with format:
+          [ok,message,...]=checkfields(struct_in,...)
+    Can have further arguments as desired for a particular class
 
 struct
 

@@ -39,19 +39,25 @@ else
     data = [];
 end
 
+mess='';
+
 % Get file name and path (incl. final separator)
 [path,name,ext,ver]=fileparts(fopen(fid));
 data.filename=[name,ext,ver];
 data.filepath=[path,filesep];
 
 % Read data from file:
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[dummy_filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+try
+    n = fread_catch(fid,1,'int32');
+    dummy_filename = fread(fid,[1,n],'*char');
 
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[dummy_filepath, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    n = fread_catch(fid,1,'int32');
+    dummy_filepath = fread(fid,[1,n],'*char');
 
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[data.title, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    n = fread_catch(fid,1,'int32');
+    data.title = fread(fid,[1,n],'*char');
 
-[data.nfiles, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+    data.nfiles = fread(fid,1,'int32');
+catch
+    mess='problems reading file';
+end
