@@ -19,8 +19,8 @@ function qspec=calc_qspec (efix, emode, data, det)
 % internal storage; could improve things in Matlab by unpacking the line that
 % files qspec(1:3,:)
 
-%k_to_e = 2.07214;
-k_to_e = 2.07;  % value currently used in mslice
+c=get_neutron_constants;
+k_to_e = c.k_to_e;
 
 % Get components of Q in spectrometer frame (x || ki, z vertical)
 [ne,ndet]=size(data.S);
