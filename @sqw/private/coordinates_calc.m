@@ -53,7 +53,7 @@ for i=1:numel(xlist)
     if ~isempty(tmp)
         ind(tmp)=i;
     else
-        xvals=[]; xpix=[]; ok=false; mess=['Unrecognised coordinate name: ''',xlist{i},'''']; return
+        xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false; mess=['Unrecognised coordinate name: ''',xlist{i},'''']; return
     end
 end
 
@@ -61,12 +61,12 @@ end
 nd=dimensions(w);
 noff=1;     % start of a bunch of names associated with plot axes
 if any(logical(ind(noff+nd:noff+3)))
-    xvals=[]; xpix=[]; ok=false; mess=['Coordinate name incompatible with dimensionality of sqw object (=',num2str(nd),')']; return
+    xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false; mess=['Coordinate name incompatible with dimensionality of sqw object (=',num2str(nd),')']; return
 end
 
 % Can inly perform operation for sqw-type object
 if ~is_sqw_type(w)
-    xvals=[]; xpix=[]; ok=false; mess='Function only has meaning for an sqw-type object, not a dnd-type sqw object'; return
+    xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false; mess='Function only has meaning for an sqw-type object, not a dnd-type sqw object'; return
 end
 
 
