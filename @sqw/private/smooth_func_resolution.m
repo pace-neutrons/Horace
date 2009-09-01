@@ -12,7 +12,7 @@ function c = smooth_func_resolution(width)
 
 % Original author: T.G.Perring
 %
-% $Revision: 93 $ ($Date: 2006-02-24 10:07:30 +0000 (Fri, 24 Feb 2006) $)
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

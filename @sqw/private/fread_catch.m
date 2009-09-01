@@ -30,7 +30,7 @@ function [data, count_out, status_ok, message] = fread_catch (fid, count_in, pre
 
 % Original author: T.G.Perring
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
 
 ntry_retry=6;   % maximum number of attempts to read before trying to reopen
 ntry_reopen=6;  % further attempts with reopening
@@ -117,6 +117,7 @@ while ntry<=ntry_max
         tmp=lasterror;
         disp(['Error reading from file: Fatal error in fread (attempt ',num2str(ntry),') - trying to recover [',tmp.message,']'])
         ferror(fid,'clear');
+        check_ifVersion_supportsSize(prod(count_in));
         % try to go to location
         fseek(fid,pos_initial,'bof');
         [f_message2,f_errnum2] = ferror(fid);
@@ -141,4 +142,19 @@ message = ['Unrecoverable read error after maximum no. tries (attempt ',num2str(
 disp(message)
 if isempty(fopen(fid))
     disp ('     File not open')
+end
+    function  check_ifVersion_supportsSize(size)
+        if(size<2^32-1)
+            return;
+        end
+            
+        version_field=regexp(version,'\.','split');
+        if(str2double(version_field{1})>=7)
+            if(str2double(version_field{2})<5)
+                error(' The array you are trying to read is bigger then 2^32-2 but Matlab version lower then 7.5 does not support such arrays')
+            end
+        else
+            error(' The array you are trying to read is bigger then 2^32-2 but Matlab version lower then 7.5 does not support such arrays')
+        end
+    end
 end

@@ -32,7 +32,7 @@ function [u_to_rlu, ucoords] = ...
 
 % Original author: T.G.Perring
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
 %
 % Ibon Bustinduy: catch with Matlab routine if fortran fails
 
@@ -58,15 +58,31 @@ end
 % Create matrix to convert from spectrometer axes to coords along projection axes
 [spec_to_proj, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
-% Calculate Q in spectrometer coordinates for each pixel
-qspec = calc_qspec (efix, emode, data, det);
 
-% Convert to projection axes
+mem = horace_memory();
+nThreads=mem.threads; % picked up by calc_proj_c;
+c=get_neutron_constants;
+k_to_e = c.k_to_e; % picked up by calc_proj_c;
+
+% Convert to projection axes 
+
+% Calculate Q in spectrometer coordinates for each pixel
 try     %using fortran routine
-    % (Fortran advantage for future: combine calc_qspec and calc_proj_fortran to
-    %  avoid extra intermediate variable qspec)
-    ucoords = calc_proj_fortran (spec_to_proj, qspec);
+% calc calc_projections_c also uses variables efix, k_to_e, emode and
+% nTreads picked up directrly from the workspace directly
+    ucoords =calc_projections_c(spec_to_proj,data, det);
 catch   %using matlab routine
-    ucoords = calc_proj_matlab (spec_to_proj, qspec);
-    warning('Problem with fortran code compilation: using calc_proj_matlab.m');
+    warning('Problem with C-code compilation: using calc_proj_matlab.m');   
+    qspec = calc_qspec (efix, k_to_e,emode, data, det);      
+%    ucoords = calc_proj_matlab (spec_to_proj, qspec);
+    ucoords = spec_to_proj*qspec(1:3,:);
+    ucoords = [ucoords;qspec(4,:)];   
+end    
+%      for i=1:size(ucoords,2)
+%          if(sum(abs(ucoords(:,i)-ucoords1(:,i)))>1.e-6)
+%              msg=sprintf(' difference for el N %d ,e1: %e %e %e %e; e2:%e %e %e %e',i,ucoords(:,i),ucoords1(:,i));
+%              disp(msg);
+%          end
+%      end
+%      disp(' comparison completed');
 end

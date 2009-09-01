@@ -22,7 +22,7 @@ function [val, n] = data_bin_limits (din)
 
 % Original author: T.G.Perring
 %
-% $Revision: 57 $ ($Date: 2005-07-28 14:18:40 +0100 (Thu, 28 Jul 2005) $)
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

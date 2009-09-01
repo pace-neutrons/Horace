@@ -154,8 +154,14 @@ end
 
 % Make names of intermediate files
 tmp_file = cell(size(spe_file));
+spe_data=cell(size(spe_file));
+
 sqw_path=fileparts(sqw_file);
 for i=1:nfiles
+ % build spe data structure on the basis of spe or hdf files 
+    spe_data{i}=speData(spe_file{i});% The files can be found by its name. 
+                                     % If the files can not be found,the sub
+                                     % fails
     [spe_path,spe_name,spe_ext]=fileparts(spe_file{i});
     if strcmpi(spe_ext,'.tmp')
         error('Extension type ''.tmp'' not permitted for spe input files. Rename file(s)')
@@ -188,10 +194,12 @@ else
     data.E=zeros(2,ndet);
     urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:nfiles
-        data_header=get_spe_header(spe_file{i});
-        data.filename=data_header.filename;
-        data.filepath=data_header.filepath;
-        eps=(data_header.en(2:end)+data_header.en(1:end-1))/2;
+%        data_header=get_spe_header(spe_file{i});
+%        data.filename=data_header.filename;
+%        data.filepath=data_header.filepath;
+%        eps=(data_header.en(2:end)+data_header.en(1:end-1))/2;
+%        en = spe_data{i}.en;
+        eps=(spe_data{i}.en(2:end)+spe_data{i}.en(1:end-1))/2;
         if length(eps)>1
             data.en=[eps(1);eps(end)];
         else
@@ -212,13 +220,16 @@ if nfiles==1
     tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
     disp('--------------------------------------------------------------------------------')
     disp('Creating output sqw file:')
-    grid_size = write_spe_to_sqw (spe_file{i}, par_file, sqw_file, efix(i), emode, alatt, angdeg,...
+    grid_size = write_spe_to_sqw (spe_data{i}, par_file, sqw_file, efix(i), emode, alatt, angdeg,...
             u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i), grid_size_in, urange);
 else
+%    gridsizes=
+    %ic=0;
+    nt=bigtic();
     for i=1:nfiles
         disp('--------------------------------------------------------------------------------')
         disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
-        grid_size_tmp = write_spe_to_sqw (spe_file{i}, par_file, tmp_file{i}, efix(i), emode, alatt, angdeg,...
+        grid_size_tmp = write_spe_to_sqw (spe_data{i}, par_file, tmp_file{i}, efix(i), emode, alatt, angdeg,...
             u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i), grid_size_in, urange);
         if i==1
             grid_size = grid_size_tmp;
@@ -227,7 +238,9 @@ else
                 error('Logic error in code calling write_spe_to_sqw')
             end
         end
+     %    ic=i;
     end
+    bigtoc(nt);
     % Create single sqw file combining all intermediate sqw files
     % ------------------------------------------------------------
     disp('--------------------------------------------------------------------------------')

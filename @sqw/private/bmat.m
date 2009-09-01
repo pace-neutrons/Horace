@@ -30,7 +30,7 @@ function [b, arlu, angrlu, mess] = bmat (alatt, angdeg)
 
 % Original author: T.G.Perring
 %
-% $Revision: 67 $ ($Date: 2005-08-10 12:00:26 +0100 (Wed, 10 Aug 2005) $)
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

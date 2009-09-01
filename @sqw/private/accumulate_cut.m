@@ -1,4 +1,4 @@
-function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix,...
+function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix,...
                                                       v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
 % Accumulate signal into output arrays
 %
@@ -37,73 +37,57 @@ function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut (s,
 
 % T.G.Perring   19 July 2007
 
-% Transform the coordinates u1-u4 into the new projection axes, if necessary
-if ebin==1 && trans_elo==0   % Catch special (and common) case of energy being an integration axis to save calculations
-    indx=[(v(1:3,:)'-repmat(trans_bott_left',[size(v,2),1]))*rot_ustep',v(4,:)'];  % nx4 matrix
-else
-    indx=[(v(1:3,:)'-repmat(trans_bott_left',[size(v,2),1]))*rot_ustep',(v(4,:)'-trans_elo)*(1/ebin)];  % nx4 matrix
-end
+% $Revision: $ ($Date: $)
 
-% Find the points that lie inside or on the boundary of the range of the cut
-ok = indx(:,1)>=urange_step(1,1) & indx(:,1)<=urange_step(2,1) & indx(:,2)>=urange_step(1,2) & indx(:,2)<=urange_step(2,2) & ...
-     indx(:,3)>=urange_step(1,3) & indx(:,3)<=urange_step(2,3) & indx(:,4)>=urange_step(1,4) & indx(:,4)<=urange_step(2,4);
-
-% Check for the case when either data.s or data.e contain NaNs or Infs, but data.npix is not zero.
-% and handle according to options settings.
 ignore=horace_cut_nan_inf;
-if ignore.nan || ignore.inf
-    if ignore.nan && ignore.inf
-        omit=~isfinite(v(8,:))|~isfinite(v(9,:));
-    elseif ignore.nan
-        omit=isnan(v(8,:))|isnan(v(9,:));
-    elseif ignore.inf
-        omit=isinf(v(8,:))|isinf(v(9,:));
-    end
-    ok = ok & ~omit';
+mem   =horace_memory;
+% parameters has to be doubles in current version of the c-prorgam
+parameters = zeros(4,1);
+parameters(1)=ignore.nan;
+parameters(2)=ignore.inf;
+parameters(3)=keep_pix;
+parameters(4)=mem.threads;
+%parameters(4)=1;
+                                                
+try
+%   throw(' use matlab');
+%[urange_step_pix_recent, ok, ix,s1,e1,npix1]=accumulate_cut_c(v,s,e,npix,...
+%                                         rot_ustep,trans_bott_left,ebin,trans_elo,...
+%                                          urange_step,pax,parameters);
+ % if s, e and npix are not present as the output arguments, ([urange_step_pix_recent, ok, ix, {s, e, npix}]) 
+% they will be modified on-place to avoid copying !!!! it is dangerous !!! 
+[urange_step_pix_recent, ok, ix]=accumulate_cut_c(v,s,e,npix,...
+                                         rot_ustep,trans_bott_left,ebin,trans_elo,...
+                                         urange_step,pax,parameters);
+                                     
+urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
+npix_retain     = size(ix,1);
+catch
+ if horace_info_level>=1   
+      warning(' Can not accumulate_cut using C routines; using Matlab');
+ end
+  [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, urange_step_pix, keep_pix,...
+                                                         v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
 end
 
-% Continue
-indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
-if isempty(indx)    % if no pixels in range, return
-    npix_retain=0;
-    if keep_pix
-        ix=ones(0,1);   % for consistency with case when indx is not empty
-    else
-        ok=[];  % set to empty array
-        ix=[];
-    end
-    return
-end
-urange_step_pix = [min(urange_step_pix(1,:),min(indx,[],1));max(urange_step_pix(2,:),max(indx,[],1))];  % true range of data
+% for i=1:size(ix)
+%     if(ix(i)~=ix1(i))
+%         msg=sprintf(' different indexes at %d are %d %d',i,ix(i),ix1(i));
+%         disp(msg)
+%     end
+% end
+%disp(' pixels compared, press any key to continue')
+%pause
+%  for k=1:size(s,3)
+%      for j=1:size(s,2)
+%          for i=1:size(s,1)
+%              if(abs(npix1(i,j,k)-npix2(i,j,k))>1.e-6)
+%    msg=sprintf('not OK: i,j,k %5d %5d %5d s: %10.3e %10.3e %10.3e %d %d',i,j,k,...
+%                  s1(i,j,k),s2(i,j,k),s1(i,j,k)-s2(i,j,k),npix2(i,j,k),npix1(i,j,k));
+%                  disp(msg)
+%              end
+%          end
+%      end
+%  end
 
-indx = indx(:,pax); % Now keep only the plot axes with at least two bins
-if ~isempty(pax)        % there is at least one plot axis with two or more bins
-    indx=ceil(indx);    % indx contains the bin index for the plot axes (one row per pixel)
-    indx(indx==0)=1;    % make sure index is between 1 and n
-    s    = s    + accumarray(indx, v(8,ok), size(s));
-    e    = e    + accumarray(indx, v(9,ok), size(s));
-    npix = npix + accumarray(indx, ones(1,size(indx,1)), size(s));
-    npix_retain = length(indx);
-    % If keeping the information about individual pixels, get that information and single index into the column representation
-    if keep_pix
-        ixcell=cell(1,length(pax)); % cell array that will contain the indices for each plot axis (as required by matlab function sub2ind)
-        for i=1:length(pax)
-            ixcell{i}=indx(:,i);
-        end
-        ix=sub2ind(size(s),ixcell{:});  % column vector of single index of the retained pixels
-    else
-        ok=[];  % set to empty array
-        ix=[];
-    end
-else
-    s    = s    + sum(v(8,ok));
-    e    = e    + sum(v(9,ok));
-    npix = npix + size(indx,1);
-    npix_retain = sum(ok(:));
-    if keep_pix
-        ix=ones(npix_retain,1);         % all retained pixels go into the one and only bin, by definition
-    else
-        ok=[];  % set to empty array
-        ix=[];
-    end
 end

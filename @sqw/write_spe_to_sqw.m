@@ -1,4 +1,4 @@
-function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_file, efix, emode, alatt, angdeg,...
                                                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 % to file.
@@ -9,6 +9,7 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_
 % Input:
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   spe_file        Full file name of spe file
+%   spe_data        class related to  spe data
 %   par_file        Full file name of detector parameter file (Tobyfit format)
 %   sqw_file        Full file name of output sqw file
 %
@@ -34,12 +35,12 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_
 
 % Original author: T.G.Perring
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
 
 
 % Check that the first argument is sqw object
 % -------------------------------------------
-if ~isa(dummy,classname)    % classname is a private method 
+if ~isa(dummy,classname)    % classname is a private method
     error('Check type of input arguments')
 end
 
@@ -74,7 +75,7 @@ main_header.title='';
 main_header.nfiles=1;
 
 % Read spe file and detector parameters
-[data,det,keep,det0]=get_data(spe_file, par_file);
+[data,det,keep,det0]=get_data(spe_data, par_file);
 
 % Calculate projections and fill data blocks to be written to file
 disp('Calculating projections...')
@@ -111,6 +112,32 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
     grid_size = grid_size_in;
 else
     disp('Sorting pixels ...')
+try
+%    error(' use matlab');
+   % verify the grid consistency and build axis along the grid dimensions, c-program does not check the grid consistency;
+    [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);
+    mem = horace_memory();
+%    nThreads=mem.threads; % picked up by bin_pixels_c directly;  
+    nThreads=mem.threads; % picked up by bin_pixels_c directly;
+%    nThreads=1; % picked up by bin_pixels_c directly;
+%   sets this fields in-place: [sqw_data.pix,sqw_data.s,sqw_data.e,sqw_data.npix]=bin_pixels_c(sqw_data,urange,grid_size);
+%  ************** !!! DANGEROUS !!! ***********************************
+%   bin_pixels_c modifies data in-place saving memory but
+%   if one saved sqw_data or any of its fields in an array before or after
+%   this, both arrays will be modified (untill disjoined)
+% %     [scratch, sort_in_place]=bin_pixels_c(sqw_data,urange,grid_size); % not implemented yet
+% %     if(~sort_in_place)
+% %         sqw_data=scratch;
+% %     end
+%    error(' use matlab')
+%   sqw_data1=sqw_data;
+   bin_pixels_c(sqw_data,urange,grid_size);
+%  ************** !!! DANGEROUS !!! ***********************************
+%
+% write_results_to_aFile('c_data.dat');
+
+ catch
+    warning(' problem with C-routine to rebin data, using matlab fucntions');
     [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
     sqw_data.pix=sqw_data.pix(:,ix);
     sqw_data.p=p;
@@ -118,13 +145,18 @@ else
     sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
     sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
     sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
+
     sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
     clear ix ibin   % biggish arrays no longer needed
     nopix=(sqw_data.npix==0);
     sqw_data.s(nopix)=0;
     sqw_data.e(nopix)=0;
+%    write_results_to_aFile('data_difr.dat');
+%    wff('diffMat.dat');
+
     clear nopix     % biggish array no longer needed
 end
+ end
 
 
 % Write header, detector parameters and processed data
@@ -149,4 +181,44 @@ bigtoc('Time to convert from spe to sqw file:')
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
     clear grid_size urange
+end
+%     function wff(fileName)
+%           fid = fopen(fileName,'w+');
+%       for ie=30:31
+%           for iz=24:47
+%               for iy=20:40
+%                   for iix=20:50
+%                         fprintf(fid, ' %f',sqw_data.npix(iix,iy,iz,ie)-sqw_data1.npix(iix,iy,iz,ie));
+%                   end
+%                   fprintf(fid, '\n');
+%                end
+%            end
+%       end
+%      fclose(fid);
+%
+%
+%     end
+%     function write_results_to_aFile(fileName)
+%       fid = fopen(fileName,'w+');
+%       Sum=0;
+%       for ie=1:size(sqw_data.s,4)
+%           for iz=1:size(sqw_data.s,3)
+%               for iy=1:size(sqw_data.s,2)
+%                   for iix=1:size(sqw_data.s,1)
+%                       if(abs(sqw_data.npix(iix,iy,iz,ie)-sqw_data1.npix(iix,iy,iz,ie))>1e-6)
+%                         fprintf(fid, 'ind: | %d %d %d %d | n1= %f | n2= %f !! s1= %f | s2= %f\n',...
+%                                   iix,iy,iz,ie,...
+%                                   sqw_data.npix(iix,iy,iz,ie),sqw_data1.npix(iix,iy,iz,ie),...
+%                                   sqw_data.s(iix,iy,iz,ie),sqw_data1.s(iix,iy,iz,ie)...                                  
+%                               );
+% 
+%                       end
+%                    end
+%                end
+%            end           
+%       end
+%        fprintf(fid,'N-pixels: %f',Sum);
+%        fclose(fid);        
+%         
+%     end
 end
