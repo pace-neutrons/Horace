@@ -21,6 +21,7 @@ function [grid_size, urange] = write_nsqw_to_nsqw (dummy, infiles, outfiles, gri
 %
 
 % T.G.Perring   27 June 2007
+% $Revision: $ ($Date: $)
 
 
 % Check that the first argument is sqw object
@@ -165,9 +166,38 @@ for i=1:nfiles
     
     % sort pixels and create output data structure
     disp('  Sorting pixels ...')
-    [ix,npix,p,grid_size,ibin]=sort_pixels(data.pix(1:4,:),urange,grid_size_in);
-    pix=data.pix(:,ix);
-
+try
+    [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);    
+%   sets this fields in-place: [sqw_data.pix,sqw_data.s,sqw_data.e,sqw_data.npix]=bin_pixels_c(sqw_data,urange,grid_size);
+%  ************** !!! DANGEROUS !!! ***********************************
+%   bin_pixels_c modifies data in-place saving memory but
+%   if one saved sqw_data or any of its fields in an array before
+%   this, both arrays will be modified (untill disjoined)
+% %     [scratch, sort_in_place]=bin_pixels_c(sqw_data,urange,grid_size); 
+% %     if(~sort_in_place)
+% %         sqw_data=scratch;        
+% %     end
+   mem = horace_memory();
+   nThreads=mem.threads; % picked up by bin_pixels_c directly;  
+% %
+   bin_pixels_c(sqw_data,urange,grid_size); 
+%  ************** !!! DANGEROUS !!! ***********************************        
+catch
+    [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
+    sqw_data.pix=sqw_data.pix(:,ix);
+    sqw_data.p=p;
+    sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
+    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
+    sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
+    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
+    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
+    clear ix ibin   % biggish arrays no longer needed
+    nopix=(sqw_data.npix==0);
+    sqw_data.s(nopix)=0;
+    sqw_data.e(nopix)=0;
+    clear nopix     % biggish array no longer needed
+end    
+   
     sqw_data.filename=data.filename;
     sqw_data.filepath=data.filepath;
     sqw_data.title=data.title;
@@ -180,23 +210,12 @@ for i=1:nfiles
     sqw_data.iax=data.iax;
     sqw_data.iint=data.iint;
     sqw_data.pax=data.pax;
-    sqw_data.p=p;
     sqw_data.dax=data.dax;
-    sqw_data.s=reshape(accumarray(ibin,pix(8,:),[prod(grid_size),1]),grid_size);
-    sqw_data.e=reshape(accumarray(ibin,pix(9,:),[prod(grid_size),1]),grid_size);
-    sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
-    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
-    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
-    nopix=(sqw_data.npix==0);
-    sqw_data.s(nopix)=0;
-    sqw_data.e(nopix)=0;
-    clear nopix
     sqw_data.urange=data.urange;    % Retain the urange for the particular file
-    sqw_data.pix=pix;   % recall that Matlab simply passes the pointer, so no memory penalty
+
 
     clear data      % to reduce memory consumption
-    clear pix       % should just transfer pointer to sqw_data.pix
-    clear ix ibin   % biggish arrays no longer needed
+
     
     % Write to output file
     disp(['  Writing output data file: ',outfiles{i},' ...'])

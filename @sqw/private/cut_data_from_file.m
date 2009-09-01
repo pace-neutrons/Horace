@@ -47,10 +47,12 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % - Aim to take advantage of in-place working within accumulate_cut
 
 % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
+% $Revision: $ ($Date: $)
 
 % Buffer sizes
-vmax = 3000000;     % maximum length of buffer array in which to accumulate points from the input file
-pmax = 3000000;     % maximum length of array in which to buffer retained pixels (pmax>=vmax)
+mem  = horace_memory;
+vmax = mem.chunk_size;     % maximum length of buffer array in which to accumulate points from the input file
+pmax = mem.chunk_size;     % maximum length of array in which to buffer retained pixels (pmax>=vmax)
 ndatpix = 9;        % number of pieces of information the pixel info array (see write_sqw_data for more details)
 
 
@@ -205,10 +207,19 @@ end
                 pix = [pix,v(:,ok)];
                 ix  = [ix;ix_add];
             end
-            if finish && ~isempty(pix)  % prepare the output pix array
-                [ix,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-                clear ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
-                pix=pix(:,ind);         % reorders pix
+            if finish && ~isempty(pix)  % prepare the output pix array              
+                try
+                 clear v ok ix_add    % clear big arrays
+                 pix = sort_pixels_by_bins(pix,ix,npix);
+                 clear ix    % clear big arrays 
+                catch
+                    if horace_info_level>=1
+                        warning(' can not sort_pixels_by_bins using c-routines, using Matlab')
+                    end
+                    [ix,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
+                    clear ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
+                    pix=pix(:,ind);         % reorders pix
+                end
             end
         end
         

@@ -34,7 +34,7 @@ function d = smooth_dnd (din, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 94 $ ($Date: 2006-03-06 14:29:44 +0000 (Mon, 06 Mar 2006) $)
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

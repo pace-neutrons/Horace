@@ -25,7 +25,7 @@ function dout = replicate_dnd (din, dref)
 
 % Original author: T.G.Perring
 %
-% $Revision: 73 $ ($Date: 2005-08-24 17:48:25 +0100 (Wed, 24 Aug 2005) $)
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 

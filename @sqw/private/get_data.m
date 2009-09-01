@@ -1,4 +1,4 @@
-function [data,det,keep,det0]=get_data(spe_file,par_file)
+function [data,det,keep,det0]=get_data(spe_data,par_file)
 % Load spe file and detector parameter file to create data structure, removing
 % masked detector groups and masking any other pixels that contain null data
 %
@@ -16,9 +16,10 @@ function [data,det,keep,det0]=get_data(spe_file,par_file)
 
 % Original author: T.G.Perring
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
-
-data=get_spe(spe_file);
+% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+%
+data=exportData(spe_data);   % export spe into the format requested;
+deflate(spe_data); % delete spe data from memory to save space in the memory;
 det0=get_par(par_file);
 
 % Check length of detectors in spe file and par file are same

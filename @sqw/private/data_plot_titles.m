@@ -250,11 +250,11 @@ end
 iline = 1;
 if ~isempty(file)
     title_main{iline}=avoidtex(file);
-    iline = iline + 1;
 else
     title_main{iline}='';
-    iline = iline + 1;
 end
+iline = iline + 1;
+
 if ~isempty(title)
     title_main{iline}=title;
     iline = iline + 1;
