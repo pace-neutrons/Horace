@@ -1,24 +1,25 @@
 function wout = compact (win)
-% Squeezes the data range in a 3-dimensional dataset to eliminate empty bins
+% Squeezes the data range in a d2d object to eliminate empty bins
 %
 % Syntax:
 %   >> wout = compact(win)
 %
 % Input:
 % ------
-%   win         Input dataset 
+%   win         Input object 
 %
 % Output:
 % -------
-%   wout        Output dataset, with length of axes reduced to yield the
+%   wout        Output object, with length of axes reduced to yield the
 %               smallest cuboid that contains the non-empty bins.
 %
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
 
-wout = dnd_create(dnd_compact(get(win)));
+% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
+% Work via sqw class type
+
+wout=dnd(compact(sqw(win)));

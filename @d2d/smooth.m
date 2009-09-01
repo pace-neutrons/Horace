@@ -1,4 +1,4 @@
-function wout = smooth (win, varargin)
+function wout = smooth (win,varargin)
 % Smooths a two dimensional dataset
 %
 % Syntax:
@@ -12,27 +12,28 @@ function wout = smooth (win, varargin)
 %          below.
 %           If width is scalar, then the value is applied to all dimensions
 %
-%   shape   Shape of smoothing function
+%   shape   [Optional] Shape of smoothing function [Default: 'hat']
 %               'hat'           hat function
-%                                   - width gives FWHH along each dimension
+%                                   - width gives FWHH along each dimension in pixels
 %                                   - width = 1,3,5,...;  n=0 or 1 => no smoothing
 %               'gaussian'      Gaussian
-%                                   - width gives FWHH along each dimension
+%                                   - width gives FWHH along each dimension in pixels
 %                                   - elements where more than 2% of peak intensity
 %                                     are retained
+%
+%               'resolution'    Correlated Gaussian (suitable for e.g. powder data)
 %
 % Output:
 % -------
 %   wout    Smoothed data structure
 
+
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-%
-% Horace v0.1   J. van Duijn, T.G.Perring
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
-if nargin==1
-    wout = dnd_create(dnd_smooth (get(win)));
-else
-    wout = dnd_create(dnd_smooth (get(win), varargin));
-end
+
+% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
+% Work via sqw class type
+
+wout=dnd(smooth(sqw(win),varargin{:}));

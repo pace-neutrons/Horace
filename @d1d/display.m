@@ -1,24 +1,30 @@
-function display (w)
-% DISPLAY Command window display of a 1D dataset
-%
-% Syntax:
-%   >> display (w)
+function display(w)
+% Display sqw object to screen
+%   >> display(w)
+
+% Generic method to display array of objects. Needs specific private method display_single
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
-% If array of d1d
-if (max(size(w))>1)
-    if (length(size(w))<=2)
-        disp(['           [',num2str(size(w,1)),'x',num2str(size(w,2)),' dataset_1D]'])
-    else
-        disp(['           [',num2str(length(size(w))),'-dimensional array of dataset_1D]'])
-    end
+class_name = class(w);
+if isempty(w)
     disp(' ')
-    return
+    disp([' Empty object of class ',class_name])
+    disp(' ')
+else
+    if numel(w)==1
+        display_single(w)
+    else
+        sz = size(w);
+        str = '[';
+        for i=1:length(sz),
+            str = [str,num2str(sz(i)),'x'];   % size along each of the display axes
+        end
+        str(end)=']';
+        disp(' ')
+        disp([' ',str,' array of objects of class ',class_name])
+        disp(' ')
+    end
 end
-
-dnd_display(get(w));  % get a structure with the same fields as w

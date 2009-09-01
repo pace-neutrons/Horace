@@ -1,45 +1,12 @@
-function wout = permute (win, varargin)
-% Permutation of the axes of a 1D dataset is a dummy operation with output
-% equal to input because there is only one axis to permute. This routine
-% provided only for completeness with 2D, 3D,4D dataset functionality.
+function wout = permute (win,varargin)
+% Permute the order of the display axes. For 1D datasets has no effect - dummy routine
 %
 % Syntax:
-%   >> wout = permute (win)         % swap the axes (i.e. equivalent
-%                                     to wout = permute (win, [2,1])
-%   >> wout = permute (win, order)  % general permutation. Only valid
-%                                     input is order = 1
-%
-%
-% Input:
-% ------
-%   win             Data from which a reduced dimensional manifold is to be taken.
-%
-%   order           Order of axes: a row vector with length equal to the dimension of
-%                  the dataset. The plot axes are rearranged into the order specified
-%                  by the the elements this argument.
-%                   If the argument is omitted, then the axes are cycled by one i.e.
-%                  i.e. is equivalent to order = [2,3..ndim,1]
-%
-% Output:
-% -------
-%   wout            Output dataset. Its elements are the same as those of din,
-%                  appropriately updated.
-%
-%
-% Example: 
-%   >> wout = permute (win, 1) 
-%                                                           
-%   >> wout = permute (win)
+%   >> wout = permute (win)         % swap display axes
 
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
-if nargin==1
-    wout = dnd_create(dnd_permute(get(win)));
-else
-    wout = dnd_create(dnd_permute(get(win),varargin));
-end
+wout=win;

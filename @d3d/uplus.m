@@ -1,11 +1,8 @@
-function wout = uplus(w1)
-% Implement +w1
-
-% Original author: T.G.Perring
+function w = uplus (w1)
+% Implement +w1 for objects
 %
-% $Revision: 35 $ ($Date: 2005-07-12 14:01:06 +0100 (Tue, 12 Jul 2005) $)
+%   >> w = +w1
 %
-% Horace v0.1   J.Van Duijn, T.G.Perring
 
-wout = w1
-        
+% Simply returns without change:
+w = w1;

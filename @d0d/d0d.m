@@ -1,60 +1,48 @@
 function w = d0d (varargin)
-% Create a 0D dataset
+% Create a 0D Horace dataset ('d0d')
 %
 % Syntax:
-%   >> w = d0d (u0)         % u0 is offset of origin of dataset,
+%   >> w = d0d (filename)       % Create object from a file
 %
-%   >> w = d0d (lattice, u0)% Give lattice parameters (a,b,c,alf,bet,gam)
+%   >> w = d0d (din)            % Create from a structure with valid fields
+%                               % Structure array will output an array of objects
 %
-%   >> w = d0d (din)        % din is a structure with valid fields for the dataset
+% Or:
+%   >> w = d0d (u0)             % u0 is offset of origin of dataset,
+%   >> w = d0d (lattice, u0)    % Give lattice parameters (a,b,c,alf,bet,gam)
 %
 % Input parameters in more detail:
 % ----------------------------------
+%   lattice Defines crystal lattice: [a,b,c,alpha,beta,gamma]
 %   u0      Vector of form [h0,k0,l0] or [h0,k0,l0,en0]
 %          that defines an origin point on the manifold of the dataset.
 %          If en0 omitted, then assumed to be zero.
-%
-% *OR*
-%   din     Input structure with necessary fields to create a 0D dataset.
-%          Type >> help dnd_checkfields for a full description of the fields
-%
-% Output:
-% -------
-%   w       A 0D dataset class with precisely the same fields
+
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision: 126 $ ($Date: 2007-02-28 13:37:17 +0000 (Wed, 28 Feb 2007) $)
 
-ndim_req = 0;
+
+ndim_request = 0;
 class_type = 'd0d';
-superiorto('spectrum');
+inferiorto('sqw');
 
-if nargin==0    % make default dataset of requisite dimension
-    w = class(dnd_makefields(ndim_req),class_type);
+% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
+% Work via sqw class type
+
+if nargin==1 && isa(varargin{1},class_type)     % already object of class
+    w = varargin{1};
     return
+end
+
+if nargin==0
+    w = sqw('$dnd',ndim_request); % default constructor
 else
-    if nargin==1 && strcmp(class(varargin{1}),class_type)
-        w = varargin{1};
-    elseif nargin==1 && isstruct(varargin{1})
-        [ndim, mess] = dnd_checkfields(varargin{1});
-        if ~isempty(ndim)
-            if ndim==ndim_req
-                w = class (varargin{1}, class_type);
-            else
-                error (['ERROR: Fields correspond to ',num2str(ndim),'-dimensional dataset'])
-            end
-        else
-            error (mess)
-        end
-    else
-        [d,mess] = dnd_makefields(ndim_req,varargin{:});
-        if ~isempty(d)
-            w = class(d,class_type);
-        else
-            error(mess)
-        end
+    w = sqw('$dnd',varargin{:});
+    if dimensions(w)~=ndim_request
+        error(['Input arguments inconsistent with requested dimensionality ',num2str(ndim_request)])
     end
 end
+
+w=class(w.data,class_type);

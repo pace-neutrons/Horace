@@ -1,6 +1,6 @@
 function wout = replicate (win, wref)
 % Make a higher dimensional dataset from a one dimensional dataset by
-% replicating the data along the extra dimensions.
+% replicating the data along the extra dimensions of a reference dataset.
 %
 % Syntax:
 %   >> wout = replicate (win, wref)
@@ -11,7 +11,7 @@ function wout = replicate (win, wref)
 %
 %   wref    Reference dataset structure to use as template for expanding the 
 %           input straucture.
-%           - The plot axes of win must also be plot axes of wref, and the number
+%           - The plot axis of win must also be plot axis of wref, and the number
 %           of points along these common axes must be the same, although the
 %           numerical values of the coordinates need not be the same.
 %           - The data is expanded along the plot axes of wref that are 
@@ -20,14 +20,18 @@ function wout = replicate (win, wref)
 %
 % Output:
 % -------
-%   dout    Output dataset structure.
-%
+%   wout    Output dataset structure.
+
 
 % Original author: T.G.Perring
 %
-% $Revision: 73 $ ($Date: 2005-08-24 17:48:25 +0100 (Wed, 24 Aug 2005) $)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
-% Check that plot axes are common, and that the dref is greater or equal dimensionality
-wout = dnd_create(dnd_replicate(get(win),get(wref)));
+% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
+% Work via sqw class type
+
+if isa(win,classname)
+    wout=dnd(replicate(sqw(win),wref));
+else
+    error('Check input argument types')
+end
