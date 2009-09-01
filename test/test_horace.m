@@ -15,6 +15,7 @@ horace_off; start_app('horace','T:\SVN_area\Horace_sqw')
 libisis_root = 'C:\mprogs\libisis_2008_08_22_1110';
 libisis_start(libisis_root)
 
+data_folder = 'c:\temp\';
 %% Create some full sqw files
 
 % This was fone from original Horace, ~sept 2008
@@ -25,25 +26,25 @@ proj_110.v=[-1,1,0];
 proj_110.type='rrr';
 proj_110.uoffset=[0,0,0,0];
 
-cut_sqw (data_source, proj_110, [0.9,1.1], [1.0,1.2], [-0.05,0.05], [50,70], 'c:\temp\w0a.sqw');
-cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [150,175], 'c:\temp\w1a.sqw');
-cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [175,200], 'c:\temp\w1b.sqw');
-cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [200,250], 'c:\temp\w1c.sqw');
-cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [225,250], 'c:\temp\w1d.sqw');
-cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [-0.05,0.05], [50,0,350], 'c:\temp\w2a.sqw');
-cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [ 0.45,0.55], [50,0,350], 'c:\temp\w2b.sqw');
-cut_sqw (data_source, proj_110, [0.9,0.05,1.1], [1.0,0.05,1.2], [-0.05,0.05,0.05], [50,0,70], 'c:\temp\w4a.sqw');
+cut_sqw (data_source, proj_110, [0.9,1.1], [1.0,1.2], [-0.05,0.05], [50,70],[data_folder 'w0a.sqw']);
+cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [150,175],[data_folder 'w1a.sqw']);
+cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [175,200],[data_folder 'w1b.sqw']);
+cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [200,250],[data_folder 'w1c.sqw']);
+cut_sqw (data_source, proj_110, [0.9,1.1], [-2,0.05,2], [-0.1,0.1], [225,250],[data_folder 'w1d.sqw']);
+cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [-0.05,0.05], [50,0,350],[data_folder 'w2a.sqw']);
+cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [ 0.45,0.55], [50,0,350],[data_folder 'w2b.sqw']);
+cut_sqw (data_source, proj_110, [0.9,0.05,1.1], [1.0,0.05,1.2], [-0.05,0.05,0.05], [50,0,70],[data_folder 'w4a.sqw']);
 
 
 % Read in as dnd:
-w0a_p=read_sqw('c:\temp\w0a.sqw','-pix');
-w1a_p=read_sqw('c:\temp\w1a.sqw','-pix');
-w1b_p=read_sqw('c:\temp\w1b.sqw','-pix');
-w1c_p=read_sqw('c:\temp\w1c.sqw','-pix');
-w1d_p=read_sqw('c:\temp\w1d.sqw','-pix');
-w2a_p=read_sqw('c:\temp\w2a.sqw','-pix');
-w2b_p=read_sqw('c:\temp\w2b.sqw','-pix');
-w4a_p=read_sqw('c:\temp\w4a.sqw','-pix');
+w0a_p=read_sqw([data_folder 'w0a.sqw'],'-pix');
+w1a_p=read_sqw([data_folder 'w1a.sqw'],'-pix');
+w1b_p=read_sqw([data_folder 'w1b.sqw'],'-pix');
+w1c_p=read_sqw([data_folder 'w1c.sqw'],'-pix');
+w1d_p=read_sqw([data_folder 'w1d.sqw'],'-pix');
+w2a_p=read_sqw([data_folder 'w2a.sqw'],'-pix');
+w2b_p=read_sqw([data_folder 'w2b.sqw'],'-pix');
+w4a_p=read_sqw([data_folder 'w4a.sqw'],'-pix');
 
 % Apply fixup to make the sqw structures match the new format
 % (Change setup to new Horace, and set working directory to ...\Horace_sqw\test)
@@ -86,42 +87,42 @@ dd2b=d2d(w2b_d);
 dd4a=d4d(w4a_d);
 
 % Save objects to file
-save(s0a,'c:\temp\s0a.sqw')
-save(s1a,'c:\temp\s1a.sqw')
-save(s1b,'c:\temp\s1b.sqw')
-save(s1c,'c:\temp\s1c.sqw')
-save(s1d,'c:\temp\s1d.sqw')
-save(s2a,'c:\temp\s2a.sqw')
-save(s2b,'c:\temp\s2b.sqw')
-save(s4a,'c:\temp\s4a.sqw')
+save(s0a,[data_folder 's0a.sqw'])
+save(s1a,[data_folder 's1a.sqw'])
+save(s1b,[data_folder 's1b.sqw'])
+save(s1c,[data_folder 's1c.sqw'])
+save(s1d,[data_folder 's1d.sqw'])
+save(s2a,[data_folder 's2a.sqw'])
+save(s2b,[data_folder 's2b.sqw'])
+save(s4a,[data_folder 's4a.sqw'])
 
-save(dd0a,'c:\temp\dd0a.d0d')
-save(dd1a,'c:\temp\dd1a.d1d')
-save(dd1b,'c:\temp\dd1b.d1d')
-save(dd1c,'c:\temp\dd1c.d1d')
-save(dd1d,'c:\temp\dd1d.d1d')
-save(dd2a,'c:\temp\dd2a.d2d')
-save(dd2b,'c:\temp\dd2b.d2d')
-save(dd4a,'c:\temp\dd4a.d4d')
+save(dd0a,[data_folder 'dd0a.d0d'])
+save(dd1a,[data_folder 'dd1a.d1d'])
+save(dd1b,[data_folder 'dd1b.d1d'])
+save(dd1c,[data_folder 'dd1c.d1d'])
+save(dd1d,[data_folder 'dd1d.d1d'])
+save(dd2a,[data_folder 'dd2a.d2d'])
+save(dd2b,[data_folder 'dd2b.d2d'])
+save(dd4a,[data_folder 'dd4a.d4d'])
 
 %% Test new Horace
 % Read old files for comparison
-s1a=read_horace('c:\temp\s1a.sqw');
-s1b=read_horace('c:\temp\s1b.sqw');
-s1c=read_horace('c:\temp\s1c.sqw');
-s1d=read_horace('c:\temp\s1d.sqw');
-s2a=read_horace('c:\temp\s2a.sqw');
-s2b=read_horace('c:\temp\s2b.sqw');
-s4a=read_horace('c:\temp\s4a.sqw');
+s1a=read_horace([data_folder 's1a.sqw']);
+s1b=read_horace([data_folder 's1b.sqw']);
+s1c=read_horace([data_folder 's1c.sqw']);
+s1d=read_horace([data_folder 's1d.sqw']);
+s2a=read_horace([data_folder 's2a.sqw']);
+s2b=read_horace([data_folder 's2b.sqw']);
+s4a=read_horace([data_folder 's4a.sqw']);
 
-dd0a=read_horace('c:\temp\dd0a.d0d');
-dd1a=read_horace('c:\temp\dd1a.d1d');
-dd1b=read_horace('c:\temp\dd1b.d1d');
-dd1c=read_horace('c:\temp\dd1c.d1d');
-dd1d=read_horace('c:\temp\dd1d.d1d');
-dd2a=read_horace('c:\temp\dd2a.d2d');
-dd2b=read_horace('c:\temp\dd2b.d2d');
-dd4a=read_horace('c:\temp\dd4a.d4d');
+dd0a=read_horace([data_folder 'dd0a.d0d']);
+dd1a=read_horace([data_folder 'dd1a.d1d']);
+dd1b=read_horace([data_folder 'dd1b.d1d']);
+dd1c=read_horace([data_folder 'dd1c.d1d']);
+dd1d=read_horace([data_folder 'dd1d.d1d']);
+dd2a=read_horace([data_folder 'dd2a.d2d']);
+dd2b=read_horace([data_folder 'dd2b.d2d']);
+dd4a=read_horace([data_folder 'dd4a.d4d']);
 
 
 %% Make cuts with new Horace
@@ -142,36 +143,36 @@ w2b=cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [ 0.45,0.55], [50,0
 w3a=cut_sqw (data_source, proj_110, [-1.5,0.05,1.5], [-2,0.05,2], [-0.05,0.05], [0,0,350],'c:\temp\s2b.sqw');
 w4a=cut_sqw (data_source, proj_110, [0.9,0.05,1.1], [1.0,0.05,1.2], [-0.05,0.05,0.05], [50,0,70]);
 
-save(w0a,'c:\temp\w0a.sqw')
-save(w1a,'c:\temp\w1a.sqw')
-save(w1b,'c:\temp\w1b.sqw')
-save(w1c,'c:\temp\w1c.sqw')
-save(w1d,'c:\temp\w1d.sqw')
-save(w2a,'c:\temp\w2a.sqw')
-save(w2b,'c:\temp\w2b.sqw')
-save(w4a,'c:\temp\w4a.sqw')
+save(w0a,[data_folder 'w0a.sqw'])
+save(w1a,[data_folder 'w1a.sqw'])
+save(w1b,[data_folder 'w1b.sqw'])
+save(w1c,[data_folder 'w1c.sqw'])
+save(w1d,[data_folder 'w1d.sqw'])
+save(w2a,[data_folder 'w2a.sqw'])
+save(w2b,[data_folder 'w2b.sqw'])
+save(w4a,[data_folder 'w4a.sqw'])
 
 %% Read data from file
 
-w0a=read_horace('c:\temp\w0a.sqw');
-w1a=read_horace('c:\temp\w1a.sqw');
-w1b=read_horace('c:\temp\w1b.sqw');
-w1c=read_horace('c:\temp\w1c.sqw');
-w1d=read_horace('c:\temp\w1d.sqw');
-w2a=read_horace('c:\temp\w2a.sqw');
-w2b=read_horace('c:\temp\w2b.sqw');
-% w3a=read_horace('c:\temp\w3a.sqw');
-w4a=read_horace('c:\temp\w4a.sqw');
+w0a=read_horace([data_folder 'w0a.sqw']);
+w1a=read_horace([data_folder 'w1a.sqw']);
+w1b=read_horace([data_folder 'w1b.sqw']);
+w1c=read_horace([data_folder 'w1c.sqw']);
+w1d=read_horace([data_folder 'w1d.sqw']);
+w2a=read_horace([data_folder 'w2a.sqw']);
+w2b=read_horace([data_folder 'w2b.sqw']);
+%w3a=read_horace[data_folder 'w3a.sqw']);
+w4a=read_horace([data_folder 'w4a.sqw']);
 
-p0a=read_dnd('c:\temp\w0a.sqw');
-p1a=read_dnd('c:\temp\w1a.sqw');
-p1b=read_dnd('c:\temp\w1b.sqw');
-p1c=read_dnd('c:\temp\w1c.sqw');
-p1d=read_dnd('c:\temp\w1d.sqw');
-p2a=read_dnd('c:\temp\w2a.sqw');
-p2b=read_dnd('c:\temp\w2b.sqw');
-p3a=read_dnd('c:\temp\w3a.sqw');
-p4a=read_dnd('c:\temp\w4a.sqw');
+p0a=read_dnd([data_folder 'w0a.sqw']);
+p1a=read_dnd([data_folder 'w1a.sqw']);
+p1b=read_dnd([data_folder 'w1b.sqw']);
+p1c=read_dnd([data_folder 'w1c.sqw']);
+p1d=read_dnd([data_folder 'w1d.sqw']);
+p2a=read_dnd([data_folder 'w2a.sqw']);
+p2b=read_dnd([data_folder 'w2b.sqw']);
+p3a=read_dnd([data_folder 'w3a.sqw']);
+p4a=read_dnd([data_folder 'w4a.sqw']);
 
 %% Get some small data sets for tests
 w2_tiny_a=section(w2a,[0.1999,0.40001],[100,130]);  % to avoid a rounding error problem
@@ -184,13 +185,13 @@ d2_tiny_b=dnd(w2_tiny_b);
 
 % Currently have a fixup for display. See sqw/head
 % --------------------------------------------------
-xxx=head_dnd('c:\temp\dd2a.d2d');   % *** currently have a fixup for display. See sqw/head
+xxx=head_dnd([data_folder 'dd2a.d2d']);   % *** currently have a fixup for display. See sqw/head
 
 
 % Bins along x-axis are different. Why?
 % --------------------------------------
 % I think the problem is that rounding errors when reading w2a in from file (where stored as float32) result in boundaries not
-% being quite what we think. 
+% being quite what we think.
 w2_tiny_a=section(w2a,[0.2,0.4],[100,130]);
 w2_tiny_b=section(w2a,[0.4,0.6],[100,130]);
 
@@ -231,12 +232,12 @@ d2=dnd(w2);
 % Remove range problem
 % ------------------------------
 % Make some test data
-w1a=read_horace('c:\temp\w1a.sqw');
-w1b=read_horace('c:\temp\w1b.sqw');
-w1c=read_horace('c:\temp\w1c.sqw');
-w1d=read_horace('c:\temp\w1d.sqw');
-w2a=read_horace('c:\temp\w2a.sqw');
-w2b=read_horace('c:\temp\w2b.sqw');
+w1a=read_horace([data_folder 'w1a.sqw']);
+w1b=read_horace([data_folder 'w1b.sqw']);
+w1c=read_horace([data_folder 'w1c.sqw']);
+w1d=read_horace([data_folder 'w1d.sqw']);
+w2a=read_horace([data_folder 'w2a.sqw']);
+w2b=read_horace([data_folder 'w2b.sqw']);
 
 % Make three Gaussian peaks:
 sqw1a=cut(w1a,[0.4,0.05,1]);
@@ -267,12 +268,12 @@ x2b=IXTdataset_2d(w2b);
 
 %% Tests
 % Read data
-w1a=read_horace('c:\temp\w1a.sqw');
-w1b=read_horace('c:\temp\w1b.sqw');
-w1c=read_horace('c:\temp\w1c.sqw');
-w1d=read_horace('c:\temp\w1d.sqw');
-w2a=read_horace('c:\temp\w2a.sqw');
-w2b=read_horace('c:\temp\w2b.sqw');
+w1a=read_horace([data_folder 'w1a.sqw']);
+w1b=read_horace([data_folder 'w1b.sqw']);
+w1c=read_horace([data_folder 'w1c.sqw']);
+w1d=read_horace([data_folder 'w1d.sqw']);
+w2a=read_horace([data_folder 'w2a.sqw']);
+w2b=read_horace([data_folder 'w2b.sqw']);
 
 
 % % Tiny sqw object for explicit examination of pixels
@@ -358,9 +359,9 @@ ww=sqw_eval(w2a,@test_sqw_model,[5,30,10,10]);
 ww3=cut_sqw (data_source, proj_110, [0.5,0.05,0.7], [0,0.05,0.1], [-0.05,0.05], [100,0,120]);
 
 %% Create big sqw file
-indir='C:\temp\mnsi\';     % source directory of spe files
-par_file='C:\temp\mnsi\mnsi_apr08.par';  % detector parameter file
-sqw_file='C:\temp\mnsi\mnsi.sqw';        % output sqw file
+indir=[data_folder 'mnsi\'] ;     % source directory of spe files
+par_file=[data_folder 'mnsi\mnsi_apr08.par'];  % detector parameter file
+sqw_file=[data_folder 'mnsi\mnsi.sqw'];        % output sqw file
 
 efix=80;
 emode=1;
@@ -413,13 +414,13 @@ mslice_sample(alatt,angdeg,u,v,0)
 mslice_sample(alatt,angdeg,u,v,0)
 
 mslice_calc_proj([0,0,1],[1,-1,0],[1,1,0],'L','K','H')
-mslice_2d([0,0.025,1.5],[-0.1,0.1],[0.5,0.025,1.5],'file','c:\temp\ni_slice.slc')
-mslice_1d([0,0.025,1.5],[-0.1,0.1],[0.95,1.05],'file','c:\temp\ni_cut.cut')
+mslice_2d([0,0.025,1.5],[-0.1,0.1],[0.5,0.025,1.5],'file',[data_folder 'ni_slice.slc'])
+mslice_1d([0,0.025,1.5],[-0.1,0.1],[0.95,1.05],'file',[data_folder 'ni_cut.cut'])
 
 
 % Horace equivalent
 % ------------------
-sqw_file='c:\temp\ni400.sqw';          % output sqw file
+sqw_file=[data_folder 'ni400.sqw'];          % output sqw file
 omega=0;dpsi=0;gl=0;gs=0;
 gen_sqw (spe_file, par_file, sqw_file, efix400, emode, alatt, angdeg, u, v, 0, omega, dpsi, gl, gs, [1,1,1,1]);
 
@@ -442,7 +443,7 @@ w2b=cut_sqw(sqw_file,proj,[0.5,0.025,1.5],[-Inf,Inf],[-0.1,0.1],[50,0,130]);
 % Mslice and Horace produced identical cuts
 % Now use a finer grid - as cutting the spe file as a single file was too much in cut_data_from_array
 
-sqw_file='c:\temp\ni400_grid10.sqw';          % output sqw file
+sqw_file=[data_folder 'ni400_grid10.sqw'];          % output sqw file
 omega=0;dpsi=0;gl=0;gs=0;
 gen_sqw (spe_file, par_file, sqw_file, efix400, emode, alatt, angdeg, u, v, 0, omega, dpsi, gl, gs, [10,10,10,10]);
 
