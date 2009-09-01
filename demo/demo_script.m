@@ -11,14 +11,15 @@
 %==========================================================================
 %Unzip the data contained in the demo folder
 %==========================================================================
-unzip('C:\mprogs\Horace\demo\Horace_demo.zip','C:\mprogs\Horace\demo\');
+demo_root_dir = 'C:\mprogs\Horace\demo\';
+unzip([demo_root_dir 'Horace_demo.zip'],demo_root_dir);
 
 % =========================================================================
 % Script to create sqw file
 % =========================================================================
-indir='C:\mprogs\Horace\demo\';     % source directory of spe files
-par_file='C:\mprogs\Horace\demo\demo_par.PAR';     % detector parameter file
-sqw_file='C:\mprogs\Horace\demo\fe_demo.sqw';        % output sqw file
+indir=demo_root_dir;     % source directory of spe files
+par_file=[demo_root_dir 'demo_par.PAR'];     % detector parameter file
+sqw_file=[demo_root_dir 'fe_demo.sqw'];        % output sqw file
 
 efix=787;
 emode=1;
@@ -37,17 +38,20 @@ for i=1:length(psi1)
     tmp_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.tmp'];
 end
 
-
-% gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%     u, v, psi1, omega, dpsi, gl, gs);
-
+%profile clear;
+%profile on
+%gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%    u, v, psi1, omega, dpsi, gl, gs);
+%profile off
+%profview;
+%return;
 write_nsqw_to_sqw(tmp_file,sqw_file);
 
 %==========================================================================
 %==========================================================================
 % Now we wish to plot some of our data:
-
-data_source = 'C:\mprogs\Horace\demo\fe_demo.sqw';
+%%
+data_source =[demo_root_dir 'fe_demo.sqw'];
 proj_100.u = [1,0,0];
 proj_100.v = [0,1,0];
 proj_100.type = 'rrr';
