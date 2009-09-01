@@ -1,59 +1,49 @@
-function wout = func_eval (win, func_handle, p, opt)
-% Evaluate a function at the x and y values of 4D datset or array of 4D datasets
+function wout = func_eval (win, varargin)
+% Evaluate a function at the plotting bin centres of d4d object or array of d4d objects
 % Syntax:
-%   >> wout = func_eval (win, func, p)
-%   >> wout = func_eval (win, func, p, 'all')
+%   >> wout = func_eval (win, func_handle, pars)
+%   >> wout = func_eval (win, func_handle, pars, 'all')
 %
 % Input:
 % ======
 %   win         Dataset or array of datasets; the function will be evaluated
-%              at the p1, p2, p3 and p4 values of the dataset(s)
+%              at the bin centres along the plot axes
 %
 %   func        Handle to the function to be evaluated
-%              Function must be of form y = my_func(x1,x2,x3,x4,p)
+%              Function must be of form y = my_func(x1,x2,x3,x4,pars)
 %               e.g. y=gauss4d(x1,x2,x3,x4,[ht,x1_0,x2_0,x3_0,x4_0,sig1,sig2,sig3,sig4])
-%              and must accept two equal sized arrays that contain the
-%              x1,x2,x3 and x4 values. It return an array of the function values.
+%              and must accept arrays of the coordinate values of the points
+%              along each dimension i.e. one array for each dimension.
+%               It returns an array of the function values.
 %
-%   p           Row vector containing arguments needed by the function.
+%   pars        Arguments needed by the function. Most commonly, a vector of parameter
+%              values. If a more general set of parameters,
+%              package these into a cell array and pass that as pars.
 %
 %   'all'       [option] Requests that the calculated function be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
 %              that contain data.
+%               Applies only to input with no pixel information - it is ignored if
+%              full sqw object.
 %
 % Output:
 % =======
-%   wout        Output dataset or array of datasets 
+%   wout        Output object or array of objects 
 %
 % e.g.
 %   >> wout = func_eval (w, @gauss4d, [ht,x1_0,x2_0,x3_0,x4_0,sig1,sig2,sig3,sig4])
 %
-%   where the function gauss appears on the matlab path
-%           function y = gauss2d (x1, x2, x3, x4, p)
-%           y = (p(1)/(sig*sqrt(2*pi))) * ...
+%   where the function appears on the matlab path
+%           function y = gauss4d (x1, x2, x3, x4, pars)
+%           y = (pars(1)/(sig*sqrt(2*pi))) * ...
 
-% *** A superior algorithm would be only evaluate the function at the points where
-% there is data - can avoid singularities. ***
+% Original author: T.G.Perring
+%
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
-wout = win;
-for i = 1:length(win)
-    p1 = 0.5*(win(i).p1(1:end-1)+win(i).p1(2:end));
-    p2 = 0.5*(win(i).p2(1:end-1)+win(i).p2(2:end));
-    p3 = 0.5*(win(i).p3(1:end-1)+win(i).p3(2:end));
-    p4 = 0.5*(win(i).p4(1:end-1)+win(i).p4(2:end));
-    [p1, p2, p3, p4] = ndgrid(p1,p2,p3,p4); % mesh x and y 
-    p1 = reshape(p1,numel(p1),1);   % get x into single column
-    p2 = reshape(p2,numel(p2),1);   % get y into single column
-    p3 = reshape(p3,numel(p3),1);   % get y into single column
-    p4 = reshape(p4,numel(p4),1);   % get y into single column
-    wout(i).s = reshape(func_handle(p1,p2,p3,p4,p),size(win(i).s));
-    wout(i).e = zeros(size(win(i).e));  
-    if ~exist('opt')  % no option given
-        wout(i).n = int16(wout(i).n~=0);   % return data only at the points where there is data
-    elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
-        wout(i).n = ones(size(wout(i).n),'int16');
-    else
-        error('Unrecognised option')
-    end
-end
+
+% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
+% Work via sqw class type
+
+wout=dnd(func_eval(sqw(win),varargin{:}));

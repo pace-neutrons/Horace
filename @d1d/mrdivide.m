@@ -1,27 +1,21 @@
-function wout = mrdivide(w1,w2)
-% MRDIVIDE  Implement w1 / w2 for a 1D dataset.
-%        Handles the case where one or both objects are a D1D
+function w = mrdivide (w1, w2)
+% Implement w1 / w2 for objects
 %
 %   >> w = w1 / w2
-
-% Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+%   if w1, w2 are objects of the same size:
+%       - the operation is performed element-by-element
 %
-% Horace v0.1   J.Van Duijn, T.G.Perring
+%   if one of w1 or w2 is numeric:
+%       - if a scalar, apply to each element of the object numeric array
+%       - if an array of the same size as the object numeric array, apply
+%        element by element
+%
+%   w1, w2 can be arrays:
+%       - if objects have same array sizes, then add element-by-element
+%       - if an (n+m)-dimensional array, the inner n dimensions will be
+%        combined element by element with the object numeric array (where
+%        n is the dimensionality of the object numeric array), and the
+%        outer m dimensions must match the array size of the array of objects
 
-if (isa(w1,'d1d') & isa(w2,'d1d'))
-    w = d1d_to_spectrum(w1) / d1d_to_spectrum(w2);
-    wout = combine_d1d_spectrum (w1, w);
-    
-elseif (isa(w1,'d1d') & (isa(w2,'spectrum')|isa(w2,'double')))
-    w = d1d_to_spectrum(w1) / w2;
-    wout = combine_d1d_spectrum (w1, w);
-    
-elseif ((isa(w1,'spectrum')|isa(w1,'double')) & isa(w2,'d1d'))
-    w = w1 / d1d_to_spectrum(w2);
-    wout = combine_d1d_spectrum (w2, w);
-    
-else
-    error ('only division of D1D and spectra or reals defined')
-end
+w = binary_op_manager(w1,w2,@mrdivide_single);

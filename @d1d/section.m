@@ -2,38 +2,36 @@ function wout = section (win, varargin)
 % Takes a section out of a 1-dimensional dataset.
 %
 % Syntax:
-%   >> wout = section (win, xlo, xhi)
-%   >> wout = section (win, [xlo, xhi])     % for syntactical consistency with 2,3,4 dimensional section     
+%   >> wout = section (win, [ax_1_lo, ax_1_hi])
 %
 % Input:
 % ------
-%   win                 1-dimensional dataset.
-%   xlo                 Lower integration limit
-%   xhi                 Upper integration limit
+%   win                 3-dimensional dataset.
+%
+%   [ax_1_lo, ax_1_hi]  Lower and upper limits. Bins are retained whose
+%                      centres lie in this range.
+%                       To retain the limits of the input structure, type '', [], or the scalar '0'
+%
 %
 % Output:
 % -------
 %   wout                Output dataset.
 %
 %
-% Example: 
-%   >> wout = section (win, 1.9, 2.1)
+% Example:
+%   >> wout = section (win, [1.9, 2.1])
 %                                                           
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 
+
+% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
+% Work via sqw class type
 
 if nargin==1
     wout = win; % trivial case of no sectioning being required
 else
-    if length(varargin)==2 && (isa_size(varargin{1},[1,1],'double') & isa_size(varargin{2},[1,1],'double'))  % syntax must be cut(w1,xlo,xhi)
-        args = {[varargin{1}, varargin{2}]};
-    else
-        args = varargin;
-    end
-    wout = dnd_create(dnd_section(get(win), args));
+    wout = dnd(section(sqw(win),varargin{:}));
 end
