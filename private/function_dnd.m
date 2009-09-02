@@ -40,12 +40,7 @@ function varargout=function_dnd(infile,func,varargin)
 
 [sqw_type, nd, data_source, mess] = is_sqw_type_file(sqw,infile);
 if ~isempty(mess), error(mess), end
-
-% Wrap file name in a structure with a key to identify the file as being the input sqw data
-data_source.keyword='$file_data';
-data_source.file=infile;
-data_source.sqw_type=false;
-data_source.ndims=nd;
+data_source.sqw_type=false;     % enforce reading as dnd object
 
 % Branch on type of data in the file, and if there are output arguments or not
 % Recall that if the input data source was a file, we demand that all output

@@ -38,13 +38,10 @@ for i=1:length(psi1)
     tmp_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.tmp'];
 end
 
-%profile clear;
-%profile on
+
 %gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %    u, v, psi1, omega, dpsi, gl, gs);
-%profile off
-%profview;
-%return;
+
 write_nsqw_to_sqw(tmp_file,sqw_file);
 
 %==========================================================================
