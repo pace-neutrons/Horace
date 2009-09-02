@@ -143,18 +143,19 @@ disp(message)
 if isempty(fopen(fid))
     disp ('     File not open')
 end
-    function  check_ifVersion_supportsSize(size)
-        if(size<2^32-1)
-            return;
-        end
-            
-        version_field=regexp(version,'\.','split');
-        if(str2double(version_field{1})>=7)
-            if(str2double(version_field{2})<5)
-                error(' The array you are trying to read is bigger then 2^32-2 but Matlab version lower then 7.5 does not support such arrays')
-            end
-        else
-            error(' The array you are trying to read is bigger then 2^32-2 but Matlab version lower then 7.5 does not support such arrays')
-        end
+
+
+%-----------------------------------------------------------------------------------------------
+function  check_ifVersion_supportsSize(size)
+if(size<2^32-1)
+    return;
+end
+
+version_field=regexp(version,'\.','split');
+if(str2double(version_field{1})>=7)
+    if(str2double(version_field{2})<5)
+        error(' The array you are trying to read is bigger then 2^32-2 but Matlab version lower then 7.5 does not support such arrays')
     end
+else
+    error(' The array you are trying to read is bigger then 2^32-2 but Matlab version lower then 7.5 does not support such arrays')
 end
