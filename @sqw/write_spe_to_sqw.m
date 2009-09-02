@@ -35,7 +35,7 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 
 % Check that the first argument is sqw object

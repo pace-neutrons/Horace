@@ -1,5 +1,5 @@
 #include "fintrf.h"
-C $Revision: 261 $ $Date: 2009-08-19 19:52:16 +0100 (Wed, 19 Aug 2009) $
+C $Revision$ $Date$
 C-----------------------------------------------------------------------
 C     MEX-file for MATLAB to convert Q from spectrometer coordinates
 C     to components along momentum projection axes

@@ -27,7 +27,7 @@ function [ub, mess] = ubmat (u, v, b)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

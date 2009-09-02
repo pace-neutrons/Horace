@@ -31,7 +31,7 @@ function wout = permute (win, order)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 % This method applies equally to sqw-type and dnd-type objects
 

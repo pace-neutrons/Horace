@@ -8,7 +8,7 @@ function [ok, mess] = checkfields (d)
 
 % Original author: T.G.Perring
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+% $Revision$ ($Date$)
 
 fields = {'s';'e'};  % column
 

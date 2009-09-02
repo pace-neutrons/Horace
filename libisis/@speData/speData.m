@@ -10,7 +10,7 @@ function this=speData(varargin)
 % speData(fileName,data)  -- build the class on the basis  of spe data to
 %                            export it into format of the current choice.
 %
-%% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+%% $Revision$ ($Date$)
 this=struct(...
 'data_loaded',false,... % boolean to check if the spe data are loaded to memory
 'nDetectors', 0,...

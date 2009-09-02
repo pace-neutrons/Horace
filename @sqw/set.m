@@ -8,7 +8,7 @@ function varargout = set(this, index, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 % Based on:
 % A Comprehensive Guide to Object Oriented Programming in MATLAB

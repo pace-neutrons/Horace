@@ -10,7 +10,7 @@ function list=list_tmp(varargin)
 % the folder to place output tmp files; if not present, files will be
 % placed in spe files folder
 %
-% $Revision: $ ($Date: $)
+% $Revision$ ($Date$)
 %
 
 new_file_extention='tmp';

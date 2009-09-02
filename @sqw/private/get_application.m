@@ -22,7 +22,7 @@ function [application, mess] = get_application (fid, application_in)
 
 % Original author: T.G.Perring
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+% $Revision$ ($Date$)
 
 % Generalise (with put_application) to read field names, together with
 % precisions and sizes, then branch on this info. For now, just write name

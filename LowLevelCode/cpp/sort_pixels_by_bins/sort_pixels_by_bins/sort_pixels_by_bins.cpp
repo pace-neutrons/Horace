@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "sort_pixels_by_bins.h"
-// $Revision: 261 $ $Date: 2009-08-19 19:52:16 +0100 (Wed, 19 Aug 2009) $
+// $Revision$ $Date$
 const int PIXEL_DATA_WIDTH=9;
 enum Input_Arguments{
 	Pixel_data,

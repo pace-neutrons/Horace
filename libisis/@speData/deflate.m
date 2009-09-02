@@ -3,7 +3,7 @@ function this=deflate(this)
 % if the data are initially in ASCI fomat, it also writes the data file in hdf5
 % format for faster access in a future
 %
-%% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+%% $Revision$ ($Date$)
 if(strcmp(this.fileExt,this.speFileExt)) % then the data are written in a very
                                          %inefficient spe format, let's fix it
      writeSPEas_hdf5(this);              % and rewrite it as an hdf5, it will not take essential time

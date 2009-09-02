@@ -26,7 +26,7 @@ function sqw_display_single (din,npixtot,type)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 
 % NOTE: use sprintf to get fixed formatting of numbers (num2str strips trailing blanks)

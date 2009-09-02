@@ -5,7 +5,7 @@ function report=count_lines(dirname)
 %   >> report = count_lines(dirname)
 
 % T.G.Perring   10 August 2007
-% $Revision: $ ($Date: $)
+% $Revision$ ($Date$)
 
 if nargin==1
     files=dir(fullfile(dirname,'*.m'));

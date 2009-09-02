@@ -30,7 +30,7 @@ function w = d2d (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 126 $ ($Date: 2007-02-28 13:37:17 +0000 (Wed, 28 Feb 2007) $)
+% $Revision$ ($Date$)
 
 
 ndim_request = 2;

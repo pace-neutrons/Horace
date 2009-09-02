@@ -61,7 +61,7 @@ function [mess,position,npixtot,type] = put_sqw_gui (outfile,main_header,header,
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 application=horace_version;
 
