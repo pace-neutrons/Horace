@@ -1,5 +1,5 @@
 #include "fintrf.h"
-C $Revision: 261 $ $Date: 2009-08-19 19:52:16 +0100 (Wed, 19 Aug 2009) $
+C $Revision$ $Date$
 C-----------------------------------------------------------------------
 C Read header of spe file, get number of detectors(ndet)
 C and number of energy bins (ne)

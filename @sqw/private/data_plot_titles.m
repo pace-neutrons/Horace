@@ -23,7 +23,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 
 % Original author: T.G.Perring
 %
-% $Revision: 113 $ ($Date: 2007-02-06 12:22:54 +0000 (Tue, 06 Feb 2007) $)
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 

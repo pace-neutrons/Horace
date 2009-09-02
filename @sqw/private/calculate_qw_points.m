@@ -51,7 +51,7 @@ function [qw1,qw2]=calculate_qw_points(win,x)
 
 % Original author: T.G.Perring
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+% $Revision$ ($Date$)
 
 
 nd=size(x,2);   % number of dimensions - assume already checked for consistency between win and x

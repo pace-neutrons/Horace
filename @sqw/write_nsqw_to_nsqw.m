@@ -21,7 +21,7 @@ function [grid_size, urange] = write_nsqw_to_nsqw (dummy, infiles, outfiles, gri
 %
 
 % T.G.Perring   27 June 2007
-% $Revision: $ ($Date: $)
+% $Revision$ ($Date$)
 
 
 % Check that the first argument is sqw object

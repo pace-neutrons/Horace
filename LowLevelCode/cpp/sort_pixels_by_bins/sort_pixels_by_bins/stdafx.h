@@ -1,7 +1,7 @@
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently, but
 // are changed infrequently
-// $Revision: 261 $ $Date: 2009-08-19 19:52:16 +0100 (Wed, 19 Aug 2009) $
+// $Revision$ $Date$
 
 #ifndef H_ACCUMULATE_CUT
 #define H_ACCUMULATE_CUT

@@ -13,7 +13,7 @@ function qw=calculate_qw_bins(win)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 u0=win.data.uoffset;
 u=win.data.u_to_rlu;

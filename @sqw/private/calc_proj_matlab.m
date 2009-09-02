@@ -15,7 +15,7 @@ function [u] = calc_proj_matlab (c, q)
 
 % Original author: Ibon Bustinduy
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 %
 % Revised TGP 4 Sep 2008 to use Matlab matrix multiplication
 

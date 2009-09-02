@@ -9,7 +9,7 @@ function [sqw_type, nd, data_source, mess] = is_sqw_type_file(sqw, infile)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 
 % Simply an interface to private function that we wish to keep hidden

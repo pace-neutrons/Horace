@@ -17,7 +17,7 @@ function phx=get_phx_matlab(filename)
 
 % Original author: Ibon Bustinduy
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+% $Revision$ ($Date$)
 %
 % Toby Perring
 

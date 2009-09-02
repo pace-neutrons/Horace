@@ -18,7 +18,7 @@ function mess_completion (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 persistent  initialised itimer ntot t_thresh n_ratio_thresh t_start t_prev_msg n_ratio_prev_msg
 

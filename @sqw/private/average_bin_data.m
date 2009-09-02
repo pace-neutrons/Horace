@@ -27,7 +27,7 @@ function [vals_av,vals_var,vals_devsqr]=average_bin_data(w,vals)
 
 % Original author: T.G.Perring
 %
-% $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
+% $Revision$ ($Date$)
 
 if nargout>=2
     var_request=true;

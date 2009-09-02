@@ -37,7 +37,7 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, 
 
 % T.G.Perring   19 July 2007
 
-% $Revision: $ ($Date: $)
+% $Revision$ ($Date$)
 
 ignore=horace_cut_nan_inf;
 mem   =horace_memory;

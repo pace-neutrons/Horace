@@ -16,7 +16,7 @@ function [data,det,keep,det0]=get_data(spe_data,par_file)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 %
 data=exportData(spe_data);   % export spe into the format requested;
 deflate(spe_data); % delete spe data from memory to save space in the memory;

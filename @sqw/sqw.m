@@ -37,7 +37,7 @@ function w = sqw (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 class_type = 'sqw';
 superiorto('d0d','d1d','d2d','d3d','d4d');  % other Horace classes

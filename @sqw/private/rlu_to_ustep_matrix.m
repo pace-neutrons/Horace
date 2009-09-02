@@ -45,7 +45,7 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angd
 
 % Original author: T.G.Perring
 %
-% $Revision: 125 $ ($Date: 2007-02-28 12:11:12 +0000 (Wed, 28 Feb 2007) $)
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

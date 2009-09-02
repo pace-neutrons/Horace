@@ -1,7 +1,7 @@
 function list=file_list(indir,ext)
 % the function return the list of files with given extention in the
 % directory indir;
-% $Revision: $ ($Date: $)
+% $Revision$ ($Date$)
 %
 if(~isdir(indir))
     error(' can not find the directory: %s \n',indir);

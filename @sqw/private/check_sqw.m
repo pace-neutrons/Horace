@@ -23,7 +23,7 @@ function [ok, mess, type, dout] = check_sqw (d, type_in)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 % Not all checks are performed in some of the fields - see the individual
 % check_sqw_* functions for more details.

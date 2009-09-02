@@ -17,7 +17,7 @@ function mess = put_application (fid, application)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 % Generalise (with put_application) to write field names, together with
 % precisions and sizes, then branch on this info. For now, just write name

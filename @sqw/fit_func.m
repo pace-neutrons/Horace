@@ -178,7 +178,7 @@ function [wout, fitdata] = fit_func(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 259 $ ($Date: 2009-08-18 13:03:04 +0100 (Tue, 18 Aug 2009) $)
+% $Revision$ ($Date$)
 
 
 % Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations

@@ -13,7 +13,7 @@ function c = smooth_func_gaussian(width)
 
 % Original author: T.G.Perring
 %
-% $Revision: 93 $ ($Date: 2006-02-24 10:07:30 +0000 (Fri, 24 Feb 2006) $)
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

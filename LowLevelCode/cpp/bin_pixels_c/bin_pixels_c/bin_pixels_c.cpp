@@ -1,5 +1,5 @@
 #include "stdafx.h"
-// $Revision: 261 $ ($Date: 2009-08-19 19:52:16 +0100 (Wed, 19 Aug 2009) $)
+// $Revision$ ($Date$)
 //
 enum input_arguments{
 	sqw_DataStructure,
@@ -104,7 +104,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //    sqw_data.e(nopix)=0;
 // based on original % Original matlab code of : T.G.Perring
 //
-// $Revision: 261 $ ($Date: 2009-08-19 19:52:16 +0100 (Wed, 19 Aug 2009) $)
+// $Revision$ ($Date$)
 {
   mwSize  iGridSizes[4],     // array of grid sizes
           totalGridSize(1),  // number of cells in the whole grid;
