@@ -26,6 +26,8 @@ addpath_message (rootpath,'libisis');
 addpath_message (rootpath,'utilities');
 
 addpath_message (rootpath,'functions');
+addpath_message (rootpath,'work_in_progress');
+addpath_message (rootpath,'work_in_progress','Alex');
 
 %Add GUI path - will be added in a later version of Horace
 %addpath_message(rootpath,'GUI');
