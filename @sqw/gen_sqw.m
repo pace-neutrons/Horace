@@ -154,7 +154,7 @@ end
 
 % Make names of intermediate files
 tmp_file = cell(size(spe_file));
-spe_data=cell(size(spe_file));
+spe_data = cell(size(spe_file));
 
 sqw_path=fileparts(sqw_file);
 for i=1:nfiles
@@ -223,8 +223,6 @@ if nfiles==1
     grid_size = write_spe_to_sqw (spe_data{i}, par_file, sqw_file, efix(i), emode, alatt, angdeg,...
             u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i), grid_size_in, urange);
 else
-%    gridsizes=
-    %ic=0;
     nt=bigtic();
     for i=1:nfiles
         disp('--------------------------------------------------------------------------------')
@@ -238,7 +236,6 @@ else
                 error('Logic error in code calling write_spe_to_sqw')
             end
         end
-     %    ic=i;
     end
     bigtoc(nt);
     % Create single sqw file combining all intermediate sqw files

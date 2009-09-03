@@ -59,18 +59,18 @@ end
 [spec_to_proj, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
 
-mem = horace_memory();
-nThreads=mem.threads; % picked up by calc_proj_c;
 c=get_neutron_constants;
 k_to_e = c.k_to_e; % picked up by calc_proj_c;
 
 % Convert to projection axes 
 
-% Calculate Q in spectrometer coordinates for each pixel
-try     %using fortran routine
-% calc calc_projections_c also uses variables efix, k_to_e, emode and
-% nTreads picked up directrly from the workspace directly
-    ucoords =calc_projections_c(spec_to_proj,data, det);
+% Calculate Q in spectrometer coordinates for each pixel 
+try     % using ? routine
+%    error(' use matlab')
+    mem = horace_memory();
+    nThreads=mem.threads; % picked up by calc_proj_c;
+
+    ucoords =calc_projections_c(spec_to_proj,data, det,efix, k_to_e,emode,nThreads);
 catch   %using matlab routine
     warning('Problem with C-code compilation: using calc_proj_matlab.m');   
     qspec = calc_qspec (efix, k_to_e,emode, data, det);      
@@ -85,4 +85,4 @@ end
 %          end
 %      end
 %      disp(' comparison completed');
-end
+

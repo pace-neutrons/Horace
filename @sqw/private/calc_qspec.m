@@ -1,9 +1,11 @@
-function qspec=calc_qspec (efix, emode, data, det)
+function qspec=calc_qspec (efix,k_to_e, emode, data, det)
 % Calculate the components of Q in reference frame fixed w.r.t. spectrometer
 %
 %   >> qspec = calc_qspec (efix, emode, data, det)
 %
 %   efix    Fixed energy (meV)
+%   k_to_e  constant of the neutron energy transformation into the the
+%           neutron wave vector
 %   emode   Direct geometry=1, indirect geometry=2, elastic=0
 %   data    Data structure of spe file (see get_spe)
 %   det     Data structure of par file (see get_par)
@@ -18,9 +20,6 @@ function qspec=calc_qspec (efix, emode, data, det)
 % *** May benefit from translation to fortran, partly for speed but mostly to reduced
 % internal storage; could improve things in Matlab by unpacking the line that
 % files qspec(1:3,:)
-
-c=get_neutron_constants;
-k_to_e = c.k_to_e;
 
 % Get components of Q in spectrometer frame (x || ki, z vertical)
 [ne,ndet]=size(data.S);

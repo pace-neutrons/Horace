@@ -6,7 +6,7 @@ function list=build_tmp_from_spe(varargin)
 % the second argument (optional)
 % the folder to place output tmp files; if not present, files will be
 % placed in spe files folder
-% $Revision$ ($Date$)
+% $Revision: 271 $ ($Date: 2009-09-02 16:23:16 +0100 (Wed, 02 Sep 2009) $)
 if(nargin==1)
     if(iscell(varargin{1}))
         filename=varargin{1}{1};
