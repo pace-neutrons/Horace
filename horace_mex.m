@@ -10,7 +10,8 @@ function horace_mex
 % $Revision$ ($Date$)
 
 start_dir=pwd;
-try
+try % mex C++
+    disp('**********> Creating mex files from C++ code')        
     % root directory is assumed to be that in which this function resides
     rootpath = fileparts(which('horace_mex'));
     cd(rootpath);
@@ -23,16 +24,24 @@ try
     mex_single([cpp_in_rel_dir 'bin_pixels_c/bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');    
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
-    mex_single([fortran_in_rel_dir 'get_spe_fortran/get_spe_fortran'], out_rel_dir,'get_spe_fortran.F','IIget_spe_fortran.F');
-    mex_single([fortran_in_rel_dir], out_rel_dir,'get_par_fortran.F','IIget_par_fortran.f');
-    mex_single(fortran_in_rel_dir, out_rel_dir,'get_phx_fortran.f','IIget_phx_fortran.f');
-
-    cd(start_dir);
-    disp('Succesfully created all required mex files from fortran and C++')
-catch
-    disp('Problems creating mex files. Please try again manually.')
-    cd(start_dir);
+    
+    disp('**********> Succesfully created all required mex files from C++')    
+catch    
+   warning('**********> Can not create C++ mex files. Please try to do it manually.')
 end
+%
+try  % mex FORTRAN
+    disp('**********> Creating mex files from FORTRAN code')            
+    mex_single(fortran_in_rel_dir, out_rel_dir,'get_par_fortran.F','IIget_par_fortran.f');
+    mex_single(fortran_in_rel_dir, out_rel_dir,'get_phx_fortran.f','IIget_phx_fortran.f');   
+    mex_single([fortran_in_rel_dir 'get_spe_fortran\get_spe_fortran'], out_rel_dir,'get_spe_fortran.F','IIget_spe_fortran.F');
+    
+    disp('**********> Succesfully created all required mex files from FORTRAN')
+catch
+    warning('**********> Can not create FORTRAN mex files. Please try to do it manually.')
+end
+cd(start_dir);
+
 
 %%----------------------------------------------------------------
 function mex_single (in_rel_dir, out_rel_dir, varargin)
@@ -47,7 +56,8 @@ curr_dir = pwd;
 if(nargin<1)
     error(' mex_single request at leas one file name to process');
 end
-nCells   = 2*(nargin-2)-1;
+nFiles   = (nargin-2);  % files go in varargin
+nCells   = 2*nFiles-1;
 add_files=cell(nCells,1);
 add_fNames=cell(nCells,1);
 outdir = fullfile(curr_dir,out_rel_dir);
@@ -60,11 +70,20 @@ for i=1:nCells
         add_fNames{i} = ' ';
     end
 end
-flname =  cell2str(add_files);
-short_fname = cell2str(add_fNames);
-
+short_fname = cell2str(add_fNames);   
 disp(['Mex file creation from ',short_fname,' ...'])
-mex(flname, '-outdir', outdir);
+
+if(nFiles==1)
+    fname      = add_files{1};
+    mex(fname, '-outdir', outdir);  
+else
+    flname1 = add_files{1};
+    flname2 =  cell2str(add_files{3:nCells});
+
+    mex(flname1,flname2, '-outdir', outdir);
+end
+
+
 %%
 function str = cell2str(c)
 %CELL2STR Convert cell array into evaluable string.
