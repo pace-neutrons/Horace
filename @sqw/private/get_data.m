@@ -23,7 +23,8 @@ function [data,det,keep,det0]=get_data(spe_data,par_file)
                                         % they are loaded from the linked
                                         % file now
 deflate(spe_data); % delete spe data from memory to save space in the memory, 
-                   % if data were in spe format only, this operation generates h5 from spe too;
+                   % if data were in spe format only, this operation
+                   % generates h5 from the spe too;
 det0=get_par(par_file);
 
 % Check length of detectors in spe file and par file are same

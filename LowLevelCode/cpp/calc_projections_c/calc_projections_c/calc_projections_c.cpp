@@ -13,7 +13,7 @@ int  omp_get_num_threads(void){};
 #	endif
 #endif
 
-
+// ebumerate input patameters for easy references. 
 enum inPar{
 	Spec_to_proj,
 	Data,
@@ -44,7 +44,7 @@ enum inPar{
 // efix          -- Fixed energy (meV)
 // k_to_e        -- constant to transform the neutron wave-vector into the incident neutron energy
 // emode         -- Direct geometry=1, indirect geometry=2, elastic=0
-//***               only mode 1 is currently supported thourn others can be enabled in a future. 
+//% ***               only mode 1 is currently supported thourn others can be enabled in a future. 
 // nThreads      -- number of threads to use to run the program.
 //
 // Outputs:

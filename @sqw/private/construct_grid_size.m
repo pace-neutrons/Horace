@@ -13,6 +13,9 @@ function [grid_size,p]=construct_grid_size(grid_size_in,urange,nd)
 % p             -- bin coordinates;
 %
 % Construct grid_size array if necessary
+%
+% $Revision$ ($Date$)
+%
 if isscalar(grid_size_in)||size(grid_size_in,2)~=nd
     grid_size=grid_size_in*ones(1,nd);
 else

@@ -1,6 +1,9 @@
 function varargout = subsref(this,index)
 % accessor to the internal data of the speData class
-%% $Revision$ ($Date$)
+%
+% $Revision$ ($Date$)
+%
+%
 switch index(1).type
     case '.'
         switch index(1).subs
