@@ -28,6 +28,9 @@ function [spec_to_proj, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, 
 %              (Same as inv(B) in Busing and Levy convention)
 
 % T.G.Perring 15/6/07
+%
+% $Revision$ ($Date$)
+%
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and 
 b_matrix = bmat (alatt, angdeg);        % bmat takes Vrlu to Vxtal_cart

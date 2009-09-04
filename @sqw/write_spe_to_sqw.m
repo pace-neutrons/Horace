@@ -114,10 +114,10 @@ else
     disp('Sorting pixels ...')
 try
 %    error(' use matlab');
-   % verify the grid consistency and build axis along the grid dimensions, c-program does not check the grid consistency;
+% verify the grid consistency and build axis along the grid dimensions, 
+% c-program does not check the grid consistency;
     [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);
     mem = horace_memory();
-%    nThreads=mem.threads; % picked up by bin_pixels_c directly;  
     nThreads=mem.threads; % picked up by bin_pixels_c directly;
 %    nThreads=1; % picked up by bin_pixels_c directly;
 %   sets this fields in-place: [sqw_data.pix,sqw_data.s,sqw_data.e,sqw_data.npix]=bin_pixels_c(sqw_data,urange,grid_size);
@@ -129,12 +129,8 @@ try
 % %     if(~sort_in_place)
 % %         sqw_data=scratch;
 % %     end
-%    error(' use matlab')
-%   sqw_data1=sqw_data;
    bin_pixels_c(sqw_data,urange,grid_size);
 %  ************** !!! DANGEROUS !!! ***********************************
-%
-% write_results_to_aFile('c_data.dat');
 
  catch
     warning(' problem with C-routine to rebin data, using matlab fucntions');
@@ -182,43 +178,4 @@ bigtoc('Time to convert from spe to sqw file:')
 if nargout==0
     clear grid_size urange
 end
-%     function wff(fileName)
-%           fid = fopen(fileName,'w+');
-%       for ie=30:31
-%           for iz=24:47
-%               for iy=20:40
-%                   for iix=20:50
-%                         fprintf(fid, ' %f',sqw_data.npix(iix,iy,iz,ie)-sqw_data1.npix(iix,iy,iz,ie));
-%                   end
-%                   fprintf(fid, '\n');
-%                end
-%            end
-%       end
-%      fclose(fid);
-%
-%
-%     end
-%     function write_results_to_aFile(fileName)
-%       fid = fopen(fileName,'w+');
-%       Sum=0;
-%       for ie=1:size(sqw_data.s,4)
-%           for iz=1:size(sqw_data.s,3)
-%               for iy=1:size(sqw_data.s,2)
-%                   for iix=1:size(sqw_data.s,1)
-%                       if(abs(sqw_data.npix(iix,iy,iz,ie)-sqw_data1.npix(iix,iy,iz,ie))>1e-6)
-%                         fprintf(fid, 'ind: | %d %d %d %d | n1= %f | n2= %f !! s1= %f | s2= %f\n',...
-%                                   iix,iy,iz,ie,...
-%                                   sqw_data.npix(iix,iy,iz,ie),sqw_data1.npix(iix,iy,iz,ie),...
-%                                   sqw_data.s(iix,iy,iz,ie),sqw_data1.s(iix,iy,iz,ie)...                                  
-%                               );
-% 
-%                       end
-%                    end
-%                end
-%            end           
-%       end
-%        fprintf(fid,'N-pixels: %f',Sum);
-%        fclose(fid);        
-%         
-%     end
-end
+

@@ -194,11 +194,7 @@ else
     data.E=zeros(2,ndet);
     urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:nfiles
-%        data_header=get_spe_header(spe_file{i});
-%        data.filename=data_header.filename;
-%        data.filepath=data_header.filepath;
-%        eps=(data_header.en(2:end)+data_header.en(1:end-1))/2;
-%        en = spe_data{i}.en;
+
         eps=(spe_data{i}.en(2:end)+spe_data{i}.en(1:end-1))/2;
         if length(eps)>1
             data.en=[eps(1);eps(end)];

@@ -70,24 +70,5 @@ catch
                                                          v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
 end
 
-% for i=1:size(ix)
-%     if(ix(i)~=ix1(i))
-%         msg=sprintf(' different indexes at %d are %d %d',i,ix(i),ix1(i));
-%         disp(msg)
-%     end
-% end
-%disp(' pixels compared, press any key to continue')
-%pause
-%  for k=1:size(s,3)
-%      for j=1:size(s,2)
-%          for i=1:size(s,1)
-%              if(abs(npix1(i,j,k)-npix2(i,j,k))>1.e-6)
-%    msg=sprintf('not OK: i,j,k %5d %5d %5d s: %10.3e %10.3e %10.3e %d %d',i,j,k,...
-%                  s1(i,j,k),s2(i,j,k),s1(i,j,k)-s2(i,j,k),npix2(i,j,k),npix1(i,j,k));
-%                  disp(msg)
-%              end
-%          end
-%      end
-%  end
 
 end

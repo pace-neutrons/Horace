@@ -20,6 +20,11 @@ function qspec=calc_qspec (efix,k_to_e, emode, data, det)
 % *** May benefit from translation to fortran, partly for speed but mostly to reduced
 % internal storage; could improve things in Matlab by unpacking the line that
 % files qspec(1:3,:)
+% *** the emode=1 has been translated to frotran at the version after 259;
+%     ofher modes not yet (04/09/2009)
+%
+% $Revision$ ($Date$)
+%
 
 % Get components of Q in spectrometer frame (x || ki, z vertical)
 [ne,ndet]=size(data.S);

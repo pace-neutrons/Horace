@@ -78,11 +78,4 @@ catch   %using matlab routine
     ucoords = spec_to_proj*qspec(1:3,:);
     ucoords = [ucoords;qspec(4,:)];   
 end    
-%      for i=1:size(ucoords,2)
-%          if(sum(abs(ucoords(:,i)-ucoords1(:,i)))>1.e-6)
-%              msg=sprintf(' difference for el N %d ,e1: %e %e %e %e; e2:%e %e %e %e',i,ucoords(:,i),ucoords1(:,i));
-%              disp(msg);
-%          end
-%      end
-%      disp(' comparison completed');
 
