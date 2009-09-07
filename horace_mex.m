@@ -34,9 +34,9 @@ try  % mex FORTRAN
     disp('**********> Creating mex files from FORTRAN code')            
     mex_single(fortran_in_rel_dir, out_rel_dir,'get_par_fortran.F','IIget_par_fortran.f');
     mex_single(fortran_in_rel_dir, out_rel_dir,'get_phx_fortran.f','IIget_phx_fortran.f');   
-    mex_single([fortran_in_rel_dir 'get_spe_fortran\get_spe_fortran'], out_rel_dir,'get_spe_fortran.F','IIget_spe_fortran.F');
+    mex_single([fortran_in_rel_dir 'get_spe_fortran' filesep 'get_spe_fortran'], out_rel_dir,'get_spe_fortran.F','IIget_spe_fortran.F');
     
-    disp('**********> Succesfully created all required mex files from FORTRAN')
+    disp('**********> Succesfully created all requsted mex files from FORTRAN')
 catch
     warning('**********> Can not create FORTRAN mex files. Please try to do it manually.')
 end
