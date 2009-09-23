@@ -14,7 +14,7 @@ fullFileName=fullfile(this.fileDir,[this.fileName this.fileExt]);
 if(~exist(fullFileName,'file'))
     error('speData:loadData','file %s can not be found',fullFileName);
 end
-switch(this.fileExt)
+switch(lower(this.fileExt))
     case (this.hdfFileExt)
 
         this.S   = hdf5read(fullFileName,this.SName);
