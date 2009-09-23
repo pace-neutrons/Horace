@@ -22,7 +22,7 @@ this=struct(...
 'S',         [],...   % [nEnergyBins x nDetectors] array of signal values
 'ERR',       [],...   % [nEnergyBins x nDetectors] array of error values (st. dev.)
 'hdfFileExt','.h5',... % two file extebsions currently supported; hdf5
-'speFileExt','.spe',... % and ascii (spe)
+'speFileExt','.spe',... % and ascii (spe) HAVE TO BE DEFINED LOWER CASE HERE !!!!
 'enName','Energy_Bin_Boundaries',... % three names of the data fields,
 'SName','S(Phi,w)',...               % which are present in the hdf5 file
 'ErrName','Err');
@@ -63,7 +63,7 @@ end
 this.fileDir =fileDir;
 this.fileName=fileName;
 this.fileExt =fileExt;
-switch(this.fileExt)
+switch(lower(this.fileExt))
     case this.speFileExt;
         % despite the program asks to work with an spe file, a correspondent
         % hdf file may exist and we would better work with it
