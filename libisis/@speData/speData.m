@@ -63,7 +63,8 @@ end
 this.fileDir =fileDir;
 this.fileName=fileName;
 this.fileExt =fileExt;
-switch(lower(this.fileExt))
+file_tag     =lower(this.fileExt);
+switch(file_tag)
     case this.speFileExt;
         % despite the program asks to work with an spe file, a correspondent
         % hdf file may exist and we would better work with it
