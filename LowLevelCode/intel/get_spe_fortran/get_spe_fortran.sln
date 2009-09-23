@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "get_spe_fortran", "get_spe_fortran\get_spe_fortran.vfproj", "{79353A56-E870-404F-8976-C64A2B7D3EA2}"
 EndProject
 Global
