@@ -31,7 +31,7 @@ data.filepath=[path,filesep];
 
 % Read spe file using fortran routine
 try     %using fortran routine
-    [data.S,data.ERR,data.en]=get_spe_fortran(filename);
+    [data.S,data.ERR,data.en]=get_ascii_file(filename,'spe');
 catch   %using matlab routine
     disp(['Matlab loading of .spe file : ' filename]);
     [data.S,data.ERR,data.en]=get_spe_matlab(filename);

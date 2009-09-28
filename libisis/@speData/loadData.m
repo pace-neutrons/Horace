@@ -22,7 +22,7 @@ switch(lower(this.fileExt))
         this.data_loaded=true;
     case (this.speFileExt)
         try
-            [this.S,this.ERR,this.en] = get_spe_fortran(fullFileName);
+            [this.S,this.ERR,this.en] = get_ascii_file(fullFileName,'spe');
             this.data_loaded=true;
         catch
             warning(' can not read data using fortran routines -- reverted to Matlab')
