@@ -12,16 +12,18 @@
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/></Configuration>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32" ConfigurationType="typeDynamicLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" RuntimeLibrary="rtMultiThreadedDLL"/>
-				<Tool Name="VFLinkerTool" SuppressStartupBanner="true" SubSystem="subSystemWindows" LinkDLL="true"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(MATLABDIR)\extern\include" Interfaces="true" WarnInterfaces="true" StructMemberAlignment="alignEightBytes" CommonElementAlignment="alignCommonEightBytes" CallingConvention="callConventionCVF"/>
+				<Tool Name="VFLinkerTool" AdditionalOptions="/EXPORT:_MEXFUNCTION@16" OutputFile="$(OutDir)\$(ProjectName).mexw32" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(MATLABDIR)\extern\lib\win32\microsoft\" GenerateDebugInformation="true" SubSystem="subSystemWindows" LinkDLL="true" AdditionalDependencies="libmex.lib libmat.lib libmx.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/></Configuration>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Debug|x64" ConfigurationType="typeDynamicLibrary">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(MATLABDIR)\extern\include" Interfaces="true" WarnInterfaces="true" StructMemberAlignment="alignEightBytes" CommonElementAlignment="alignCommonEightBytes" CallingConvention="callConventionCVF" StringLengthArgPassing="strLenArgsAfterAll" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebugDLL"/>
 				<Tool Name="VFLinkerTool" AdditionalOptions="/EXPORT:MEXFUNCTION" OutputFile="$(OutDir)\$(ProjectName).mexw64" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(MATLABDIR)\extern\lib\win64\microsoft\" GenerateDebugInformation="true" SubSystem="subSystemWindows" LinkDLL="true" AdditionalDependencies="libmex.lib libmat.lib libmx.lib"/>

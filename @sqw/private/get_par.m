@@ -35,7 +35,7 @@ det.filepath=[path,filesep];
 
 % Read par file
 try     %using fortran routine
-    par=get_par_fortran(filename);
+    par=get_ascii_file(filename,'par');
 catch   %using matlab routine
     warning(['Can not invoke fortran .par loading, using Matlab; file: ' filename]);
     par=get_par_matlab(filename);

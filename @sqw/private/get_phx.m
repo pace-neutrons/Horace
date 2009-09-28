@@ -34,7 +34,7 @@ det.filepath=[path,filesep];
 
 
 try     %using fortran routine
-  phx=get_phx_fortran(filename);
+  phx=get_ascii_file(filename,'phx');
 catch   %using matlab routine
   disp(['Matlab loading of .phx file : ' filename]);
   phx=get_phx_matlab(filename);
