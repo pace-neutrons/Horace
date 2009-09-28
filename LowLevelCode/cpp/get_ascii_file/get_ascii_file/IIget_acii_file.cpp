@@ -136,7 +136,8 @@ void load_plain(std::ifstream &stream,double *pData,FileTypeDescriptor const &FI
 		if(nRead_Data!=BlockSize){
 			std::stringstream err_buf;
 			err_buf<<" Error reading data at file, row "<<i+1<<" column "<<nRead_Data<<" from total "<<FILE_TYPE.nData_records<<" rows, "<<BlockSize<<" columns\n";
-			strncpy(BUF,err_buf.str().c_str(),BUF_SIZE);
+
+            strcpy(BUF,err_buf.str().c_str());
 			throw(const_cast<const char *>(BUF));
 
 		}
@@ -228,7 +229,7 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
 	}
 	return;
 Error:
-	strncpy(BUF,err_message.str().c_str(),BUF_SIZE);
+    strcpy(BUF,err_message.str().c_str());
 	throw(const_cast<const char *>(BUF));
 }
 

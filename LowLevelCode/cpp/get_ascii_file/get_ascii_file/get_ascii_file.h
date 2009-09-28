@@ -4,13 +4,13 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
+#include <string.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include "mex.h" // llget_ascii_file uses only the definition of mwSize from mex.h
 				// if the function has to be used independently on Matlab, it should just typedef mwSize
 #include "matrix.h"
-                 
+
 //
 /*!  file types currently supported
 */
@@ -21,12 +21,12 @@ enum fileTypes{
 	iNumFileTypes
 };
 /*!
-*   Description of the data header, common for all files 
+*   Description of the data header, common for all files
 */
 struct FileTypeDescriptor{
 	fileTypes Type;
 	std::streampos data_start_position; //> the position in the file where the data structure starts
-	mwSize 	  nData_records,       //> number of data records -- actually nDetectors 
+	mwSize 	  nData_records,       //> number of data records -- actually nDetectors
 		      nData_blocks;        //> nEnergy bins for SPE file and 0 for other two types
 };
 

@@ -13,7 +13,7 @@
 %==========================================================================
 %demo_root_dir = 'C:\mprogs\Horace\demo\';
 demo_root_dir = [pwd filesep];
-%unzip([demo_root_dir 'Horace_demo.zip'],demo_root_dir);
+unzip([demo_root_dir 'Horace_demo.zip'],demo_root_dir);
 
 % =========================================================================
 % Script to create sqw file

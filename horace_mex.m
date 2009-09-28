@@ -21,11 +21,11 @@ try % mex C++
     out_rel_dir = ['@sqw',filesep,'private'];
     generic_out_rel_dir = 'libisis';
 
+    mex_single([cpp_in_rel_dir 'get_ascii_file/get_ascii_file'], generic_out_rel_dir,'get_ascii_file.cpp','IIget_acii_file.cpp');
     mex_single([cpp_in_rel_dir 'accumulate_cut_c/accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c/bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
-    mex_single([cpp_in_rel_dir 'get_ascii_file/get_ascii_file'], generic_out_rel_dir,'get_ascii_file.cpp','IIget_acii_file.cpp');
 
     disp('**********> Succesfully created all required mex files from C++')
 catch
