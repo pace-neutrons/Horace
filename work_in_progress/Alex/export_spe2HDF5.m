@@ -26,7 +26,7 @@ function [S,ERR,en] = get_spe_matlab(filename)
 
 % Original author: T.G.Perring
 %
-% $Revision: 271 $ ($Date: 2009-09-02 16:23:16 +0100 (Wed, 02 Sep 2009) $)
+% $Revision$ ($Date$)
 %
 % Based on Radu coldea routine load_spe in mslice
 
