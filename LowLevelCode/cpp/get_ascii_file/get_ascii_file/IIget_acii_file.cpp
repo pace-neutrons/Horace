@@ -51,7 +51,7 @@ FileTypeDescriptor get_ASCII_header(std::string const &fileName, std::ifstream &
 	FileTypeDescriptor file_descriptor;
 	file_descriptor.Type = iNumFileTypes; // set the autotype to invalid
 
-	data_stream.open(fileName.c_str(),std::ios_base::in|std::ios_base::out);
+	data_stream.open(fileName.c_str(),std::ios_base::in);
 	if(!data_stream.is_open()){		throw(" Can not open existing input data file\n");
 	}
 	data_stream.getline(BUF,BUF_SIZE);
