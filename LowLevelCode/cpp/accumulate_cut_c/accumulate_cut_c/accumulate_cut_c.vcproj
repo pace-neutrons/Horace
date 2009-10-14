@@ -206,8 +206,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="$(MATLABDIR)\extern\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ACCUMULATE_CUT_EXPORTS"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				OpenMP="true"
 				UsePrecompiledHeader="2"
@@ -225,7 +226,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libmex.lib libmat.lib "
+				AdditionalDependencies="libmex.lib libmat.lib libmx.lib"
 				OutputFile="$(OutDir)\$(ProjectName).mexw32"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(MATLABDIR)\extern\lib\win32\microsoft"
@@ -288,7 +289,7 @@
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="$(MATLABDIR)\extern\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ACCUMULATE_CUT_EXPORTS"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				OpenMP="true"
 				UsePrecompiledHeader="2"

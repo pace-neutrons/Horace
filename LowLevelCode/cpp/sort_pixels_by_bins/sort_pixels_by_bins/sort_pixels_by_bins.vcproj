@@ -95,7 +95,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="&#x0D;&#x0A;copy $(TargetPath) $(Horace)\@sqw\private\$(TargetFileName)"
+				CommandLine="&#x0D;&#x0A;copy $(TargetPath) $(Horace)\@sqw\private\$(TargetFileName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -207,7 +207,7 @@
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="$(MATLABDIR)\extern\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SORT_PIXELS_BY_BINS_EXPORTS"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -287,7 +287,7 @@
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="$(MATLABDIR)\extern\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SORT_PIXELS_BY_BINS_EXPORTS"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
