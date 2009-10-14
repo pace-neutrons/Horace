@@ -224,6 +224,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/EXPORT:mexFunction"
 				AdditionalDependencies="libmex.lib libmat.lib libmx.lib"
 				OutputFile="$(OutDir)\$(ProjectName).mexw32"
 				LinkIncremental="1"

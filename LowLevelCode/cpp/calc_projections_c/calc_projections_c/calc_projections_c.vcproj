@@ -203,6 +203,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CALC_PROJECTIONS_C_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				OpenMP="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -218,6 +219,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/EXPORT:mexFunction"
 				AdditionalDependencies="libmex.lib libmat.lib libmx.lib"
 				OutputFile="$(OutDir)\$(ProjectName).mexw32"
 				LinkIncremental="1"
