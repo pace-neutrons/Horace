@@ -40,8 +40,8 @@ int count_changes(const char *const Buf, int buf_size){
 	return space_to_symbol_change;
 }
 /*!
- *  The function loads ASCII file header and tries to identify, the type of a header
- * possible types are
+ *  The function loads ASCII file header and tries to identify, the type of a header.
+ * Possible types are
  * SPE, PAR or PHS
  *
  * if none three above identified, returns "undefined" type

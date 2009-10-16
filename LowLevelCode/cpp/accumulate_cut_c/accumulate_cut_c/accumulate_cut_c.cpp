@@ -24,6 +24,7 @@ enum OutputArguments{ // unique ouptput arguments,
 	Signal_modified,
 	Error_Modified,
     Npixels_out,
+	Npix_Retained,
 	N_OUTPUT_Arguments
 };
 enum program_settings{
@@ -95,9 +96,9 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 	buf<<"ERROR::Accomulate_cut needs "<<(short)N_INPUT_Arguments<<" or one less, but got "<<(short)nrhs<<" input arguments\n";
 	mexErrMsgTxt(buf.str().c_str());
   }
-  if(nlhs>N_OUTPUT_Arguments) {
+  if(nlhs!=N_OUTPUT_Arguments) {
     std::stringstream buf;
-	buf<<"ERROR::Accomulate_cut may accept up to "<<(short)N_OUTPUT_Arguments<<" but requested to return"<<(short)nlhs<<" arguments\n";
+	buf<<"ERROR::Accomulate_cut needs "<<(short)N_OUTPUT_Arguments<<" outputs but requested to return"<<(short)nlhs<<" arguments\n";
     mexErrMsgTxt(buf.str().c_str());
   }
 
@@ -151,6 +152,57 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 	// supply defaults
 	pProg_settings[Ignore_Nan]=1;	pProg_settings[Ignore_Inf]=1;	pProg_settings[Keep_pixels]=0;	pProg_settings[N_Parallel_Processes]=1;
   }
+//****************************************************************************************************************
+//* Create matrixes for the return arguments */
+//****************************************************************************************************************
+  mwSize dims[2]; // the dims will be used later too.
+  dims[0]=nPixDataCols;
+  dims[1]=1;
+
+  plhs[Pixels_Ok] =mxCreateLogicalArray(2,dims);
+  mxLogical *ok = (mxLogical *)mxGetPr(plhs[Pixels_Ok]);
+  if(!plhs[Pixels_Ok]){
+	  mexErrMsgTxt(" Can not allocate memory for pixel validity array\n");
+  }
+
+  plhs[Actual_Pix_Range]= mxCreateDoubleMatrix(2,4, mxREAL);
+  if(!plhs[Actual_Pix_Range]){
+	  mexErrMsgTxt(" Can not allocate memory for actual pixel range matrix\n");
+  }
+  // signals are returned in a new array
+  plhs[Signal_modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS,mxREAL);
+  if(!plhs[Signal_modified]){
+   		  mexErrMsgTxt(" Can not allocate memory for modified signal, remove the signal array from output arrguments list to modify it in-place\n");
+  }
+  double *pSignalNew=(double *)mxGetPr(plhs[Signal_modified]);
+  for(long i=0;i<signalSize;i++){
+		  *(pSignalNew+i)=*(pSignal+i);
+  }
+  pSignal=pSignalNew; // and now we can do in-place modification of a new array <-- obsolette
+
+  //if(nlhs>Error_Modified){  // errors are returned in a new array
+  plhs[Error_Modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
+  if(!plhs[Error_Modified]){
+   		  mexErrMsgTxt(" Can not allocate memory for modified error, remove the error array from output arrguments list to modify it in-place\n");
+  }
+  double *pErrNew=(double *)mxGetPr(plhs[Error_Modified]);
+  for(long i=0;i<signalSize;i++){
+		  *(pErrNew+i)=*(pError+i);
+  }
+  pError=pErrNew;
+  // n-pixels are returned in a new array
+  plhs[Npixels_out]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
+  if(!plhs[Npixels_out]){
+   		  mexErrMsgTxt(" Can not allocate memory for modified n-pixels, remove the n-pixels array from output arrguments list to modify it in-place\n");
+  }
+  double *pNpNew=(double *)mxGetPr(plhs[Npixels_out]);
+  for(long i=0;i<signalSize;i++){
+		  *(pNpNew+i)=*(pNpix+i);
+  }
+  pNpix=pNpNew;
+
+  double *pPixRange = (double *)mxGetPr(plhs[Actual_Pix_Range]);
+  plhs[Npix_Retained] = mxCreateNumericMatrix(1,1,mxUINT64_CLASS,mxREAL);
 
 
 {// check the consistency of the input data
@@ -225,61 +277,10 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   for(int i=0;i<nDimensions;i++){ iAxis[i]=iRound(pPAX[i]);
 				                  grid_size[iAxis[i]-1]=iRound(pmDims[i]); // here iAxis[i]-1 to agree numbering of the arrays in Matlab with
   }                                                 // c-arrays.
-//****************************************************************************************************************
-//* Create matrixes for the return arguments */
-//****************************************************************************************************************
-  mwSize dims[2]; // the dims will be used later too.
-  dims[0]=nPixDataCols;
-  dims[1]=1;
 
-  plhs[Pixels_Ok] =mxCreateLogicalArray(2,dims);
-  mxLogical *ok = (mxLogical *)mxGetPr(plhs[Pixels_Ok]);
-  if(!plhs[Pixels_Ok]){
-	  mexErrMsgTxt(" Can not allocate memory for pixel validity array\n");
-  }
-
-  plhs[Actual_Pix_Range]= mxCreateDoubleMatrix(2,4, mxREAL);
-  if(!plhs[Actual_Pix_Range]){
-	  mexErrMsgTxt(" Can not allocate memory for actual pixel range matrix\n");
-  }
-  if(nlhs>Signal_modified){  // signals are returned in a new array
-	  plhs[Signal_modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS,mxREAL);
-	  if(!plhs[Signal_modified]){
-   		  mexErrMsgTxt(" Can not allocate memory for modified signal, remove the signal array from output arrguments list to modify it in-place\n");
-      }
-	  double *pSignalNew=(double *)mxGetPr(plhs[Signal_modified]);
-	  for(long i=0;i<signalSize;i++){
-		  *(pSignalNew+i)=*(pSignal+i);
-	  }
-	  pSignal=pSignalNew; // and now we can do in-place modification of a new array
-  }
-  if(nlhs>Error_Modified){  // errors are returned in a new array
-	  plhs[Error_Modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
-	  if(!plhs[Error_Modified]){
-   		  mexErrMsgTxt(" Can not allocate memory for modified error, remove the error array from output arrguments list to modify it in-place\n");
-      }
-	  double *pErrNew=(double *)mxGetPr(plhs[Error_Modified]);
-	  for(long i=0;i<signalSize;i++){
-		  *(pErrNew+i)=*(pError+i);
-	  }
-	  pError=pErrNew;
-  }
-  if(nlhs>Npixels_out){  // n-pixels are returned in a new array
-	  plhs[Npixels_out]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
-	  if(!plhs[Npixels_out]){
-   		  mexErrMsgTxt(" Can not allocate memory for modified n-pixels, remove the n-pixels array from output arrguments list to modify it in-place\n");
-      }
-	  double *pNpNew=(double *)mxGetPr(plhs[Npixels_out]);
-	  for(long i=0;i<signalSize;i++){
-		  *(pNpNew+i)=*(pNpix+i);
-	  }
-	  pNpix=pNpNew;
-  }
-  double *pPixRange = (double *)mxGetPr(plhs[Actual_Pix_Range]);
-
-
+  mwSize nPixels_retained(0);
   try{
-  accumulate_cut(pSignal,pError,pNpix,
+  nPixels_retained=accumulate_cut(pSignal,pError,pNpix,
 	             pPixelData,nPixDataCols,
 	             ok, plhs[Pixels_Ind], pPixRange,
                  rot_matrix ,shift_matrix,ebin,e_shift, data_limits,
@@ -298,9 +299,10 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   if(ppS){
 	  mxDestroyArray(ppS);
   }
+  *mxGetPr(plhs[Npix_Retained])=nPixels_retained;
 }
 
-void accumulate_cut(double *s, double *e, double *npix,
+mwSize accumulate_cut(double *s, double *e, double *npix,
 					double const* pixel_data,mwSize data_size,
                     mxLogical *ok,mxArray *&ix_final_pixIndex,double *actual_pix_range,
 					double const* rot_ustep,double const* trans_bott_left,double ebin,double trans_elo, // transformation matrix
@@ -500,7 +502,7 @@ if(nPixel_retained==0||!keep_pixels){
 }
 if(!ix_final_pixIndex){ // can not allocate memory for reduction;
     throw(" Can not allocate memory for the indexes of the transformed pixels\n");
-	return;
+	return nPixel_retained;
 }
 double *pFin_pix=(double *)mxGetPr(ix_final_pixIndex);
 
@@ -544,4 +546,5 @@ if(keep_pixels){
 	}
 }
 mxFree(ind);
+return nPixel_retained;
 }
