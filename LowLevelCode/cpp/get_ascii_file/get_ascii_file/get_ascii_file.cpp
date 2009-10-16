@@ -69,7 +69,7 @@
 *
 *-----------------------------------------------------------------------
 *
-* $Revision$)
+* $Revision$ ($Date$)
 */
 
 /*!
@@ -80,7 +80,8 @@ enum inputs{
 	iFileType,
 	iNumInputs
 };
-
+/*! \brief interface function between the code and Matlab
+*/
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   std::stringstream buf;  // buffer to report errors;
   char *Buf;              // buffer to get string data from Matlab
