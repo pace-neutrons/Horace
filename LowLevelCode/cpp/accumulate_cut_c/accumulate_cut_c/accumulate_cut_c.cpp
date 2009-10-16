@@ -202,7 +202,11 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   pNpix=pNpNew;
 
   double *pPixRange = (double *)mxGetPr(plhs[Actual_Pix_Range]);
-  plhs[Npix_Retained] = mxCreateNumericMatrix(1,1,mxUINT64_CLASS,mxREAL);
+  plhs[Npix_Retained] = mxCreateDoubleMatrix(1,1,mxREAL);
+  if(!plhs[Npix_Retained]){
+   		  mexErrMsgTxt(" Can not allocate memory to hold number of retained pixesl -- bizzare\n");
+  }
+
 
 
 {// check the consistency of the input data
@@ -299,7 +303,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   if(ppS){
 	  mxDestroyArray(ppS);
   }
-  *mxGetPr(plhs[Npix_Retained])=nPixels_retained;
+  *mxGetPr(plhs[Npix_Retained])=(double)nPixels_retained;
 }
 
 mwSize accumulate_cut(double *s, double *e, double *npix,
@@ -495,8 +499,7 @@ int PIXEL_data_width=PIXEL_DATA_WIDTH;
 
 //
 if(nPixel_retained==0||!keep_pixels){
-	 ix_final_pixIndex= mxCreateDoubleMatrix(0,0,mxREAL); // allocate empty matrix and
-	 data_size=0;                                     // set data size to skip the following loops
+	 ix_final_pixIndex= mxCreateDoubleMatrix(0,0,mxREAL); // allocate empty matrix 
 }else{
 	 ix_final_pixIndex= mxCreateDoubleMatrix(nPixel_retained,1,mxREAL);
 }

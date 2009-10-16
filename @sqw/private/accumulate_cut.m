@@ -57,18 +57,17 @@ try
                                          urange_step,pax,parameters);
 
 urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
-npix_retain     = size(ix,1);
 %%<*** version specific >= 7.5
-catch exception
+% % catch exception
+% %  if horace_info_level>=1
+% %       disp([' C- code generated error: ',exception.message]);
+% %       warning(' Can not accumulate_cut using C routines; using Matlab');
+% %  end
+%%< *** version specific <7.5
+catch
  if horace_info_level>=1
-      disp([' C- code generated error: ',exception.message]);
       warning(' Can not accumulate_cut using C routines; using Matlab');
  end
-%%< *** version specific <7.5
-% catch
-%  if horace_info_level>=1
-%       warning(' Can not accumulate_cut using C routines; using Matlab');
-%  end
 %%>*** End version specific
   [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, urange_step_pix, keep_pix,...
                                                          v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
