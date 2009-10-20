@@ -126,6 +126,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   mwSize signalSize(1);
   for(int i=0;i<nDimensions;i++){	  signalSize*=pmDims[i];
   }
+
 // * e                           Array of accumulated variance
   double *pError              = (double *)mxGetPr(prhs[Error]);
   double *pNpix               = (double *)mxGetPr(prhs[Npixels]);
@@ -169,6 +170,14 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   if(!plhs[Actual_Pix_Range]){
 	  mexErrMsgTxt(" Can not allocate memory for actual pixel range matrix\n");
   }
+/*
+  // signals 
+	plhs[Signal_modified]=const_cast<mxArray *>(prhs[Signal]);
+	// errors 
+	plhs[Error_Modified] =const_cast<mxArray *>(prhs[Error]);
+	// nPixels
+	plhs[Npixels_out]    =const_cast<mxArray *>(prhs[Npixels]); 
+*/
   // signals are returned in a new array
   plhs[Signal_modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS,mxREAL);
   if(!plhs[Signal_modified]){
@@ -264,9 +273,15 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 		  }
 	  }
 	  if(nAxis!=nDimensions){
-	       std::stringstream buf;
-		   buf<<" number of output axis "<<nAxis<<" and number of data dimensions"<<nDimensions<<" are not equal";
-		   mexErrMsgTxt(buf.str().c_str());
+		    if(nDimensions==2&&nAxis==1){ // this may be actually one dimensional plot
+			  if(pmDims[1]==1){ // have to work with a definde shape (column) arrays 
+				  nDimensions=1;
+				}
+			}else{
+				std::stringstream buf;
+	    		buf<<" number of output axis "<<nAxis<<" and number of data dimensions"<<nDimensions<<" are not equal";
+		        mexErrMsgTxt(buf.str().c_str());
+			}
 	  }
 }//
 //
@@ -279,7 +294,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   for(int i=0;i<OUT_PIXEL_DATA_WIDTH;i++){	  grid_size[i]=0;
   }
   for(int i=0;i<nDimensions;i++){ iAxis[i]=iRound(pPAX[i]);
-				                  grid_size[iAxis[i]-1]=iRound(pmDims[i]); // here iAxis[i]-1 to agree numbering of the arrays in Matlab with
+				                  grid_size[iAxis[i]-1]=iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab 
   }                                                 // c-arrays.
 
   mwSize nPixels_retained(0);
