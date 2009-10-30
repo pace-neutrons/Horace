@@ -1,4 +1,4 @@
-function de(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = de(win,varargin)
 % Plot errorbars for 1d dataset.
 %
 %   >> de(win)

@@ -1,4 +1,4 @@
-function dm(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = dm(win,varargin)
 % Plot markers for 1d dataset.
 %
 %   >> dm(win)

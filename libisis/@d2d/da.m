@@ -1,4 +1,4 @@
-function da(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = da(win,varargin)
 % Area plot for 2D dataset
 %
 %   >> da(win)
@@ -11,4 +11,4 @@ function da(win,varargin)
 
 % R.A. Ewings 14/10/2008
 
-da(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = da(sqw(win),varargin{:});
