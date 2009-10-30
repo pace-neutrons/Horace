@@ -1,4 +1,4 @@
-function dd(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = dd(win,varargin)
 % Plot errorbars, markers, and line through data for 1d dataset.
 %
 %   >> dd(win)
@@ -11,4 +11,4 @@ function dd(win,varargin)
 
 % R.A. Ewings 14/10/2008
 
-dd(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = dd(sqw(win),varargin{:});

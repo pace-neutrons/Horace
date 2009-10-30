@@ -1,4 +1,4 @@
-function dl(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = dl(win,varargin)
 % Plot line through data for 1d dataset.
 %
 %   >> dl(win)

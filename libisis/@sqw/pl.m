@@ -1,4 +1,4 @@
-function pl(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = pl(win,varargin)
 % Overplot line through data of a 1d dataset on an existing figure.
 %
 % Optional inputs:

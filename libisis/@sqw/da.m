@@ -1,4 +1,4 @@
-function da(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = da(win,varargin)
 % Area plot for 2D dataset
 %
 %   >> da(win)
@@ -32,4 +32,4 @@ if pax(dax(1))~=energy_axis && pax(dax(2))~=energy_axis    % both plot axes are 
     aspect(ulen(1), ulen(2));
 end
 
-colorslider;
+color_slider;

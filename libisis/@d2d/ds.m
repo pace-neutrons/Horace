@@ -1,4 +1,4 @@
-function ds(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = ds(win,varargin)
 % Surface plot for 2D dataset
 %
 %   >> ds(win)
@@ -11,4 +11,4 @@ function ds(win,varargin)
 
 % R.A. Ewings 14/10/2008
 
-ds(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = ds(sqw(win),varargin{:});

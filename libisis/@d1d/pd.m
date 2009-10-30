@@ -1,4 +1,4 @@
-function pd(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = pd(win,varargin)
 % Overplot errorbars, markers and lines for a 1d dataset on an existing figure.
 %
 % Optional inputs:
@@ -9,4 +9,4 @@ function pd(win,varargin)
 
 % R.A. Ewings 14/10/2008
 
-pd(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = pd(sqw(win),varargin{:});

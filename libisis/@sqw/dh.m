@@ -1,4 +1,4 @@
-function dh(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = dh(win,varargin)
 % Plot histogram of a 1d dataset.
 %
 %   >> dh(win)

@@ -1,4 +1,4 @@
-function pm(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = pm(win,varargin)
 % Overplot markers for a 1d dataset on an existing figure.
 %
 % Optional inputs:

@@ -1,4 +1,4 @@
-function de(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = de(win,varargin)
 % Plot errorbars for 1d dataset.
 %
 %   >> de(win)
@@ -11,4 +11,4 @@ function de(win,varargin)
 
 % R.A. Ewings 14/10/2008
 
-de(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = de(sqw(win),varargin{:});

@@ -1,4 +1,4 @@
-function plot(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = plot(win,varargin)
 % Plot 1D, 2D or 3D sqw object
 %
 %   >> plot(win)
@@ -20,9 +20,9 @@ if nd==0 || nd>=4
 end
 
 if nd==1
-    dp(win,varargin{:});
+    [figureHandle_, axesHandle_, plotHandle_] = dp(win,varargin{:});
 elseif nd==2
-    da(win,varargin{:});
+    [figureHandle_, axesHandle_, plotHandle_] = da(win,varargin{:});
 else
     sliceomatic(win,varargin{:});
 end

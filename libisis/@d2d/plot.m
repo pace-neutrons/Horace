@@ -1,4 +1,4 @@
-function plot(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = plot(win,varargin)
 % Plot d2d object using sqw gateway
 %
 %   >> plot(win)
@@ -9,4 +9,4 @@ function plot(win,varargin)
 
 % R.A. Ewings 9/1/2009
 
-plot(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = plot(sqw(win),varargin{:});
