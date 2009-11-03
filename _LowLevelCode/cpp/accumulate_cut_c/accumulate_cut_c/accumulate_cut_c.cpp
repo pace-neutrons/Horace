@@ -279,7 +279,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 				}
 			}else{
 				std::stringstream buf;
-	    		buf<<" number of output axis "<<nAxis<<" and number of data dimensions"<<nDimensions<<" are not equal";
+	    		buf<<" number of output axis "<<nAxis<<" and number of data dimensions "<<nDimensions<<" are not equal";
 		        mexErrMsgTxt(buf.str().c_str());
 			}
 	  }
