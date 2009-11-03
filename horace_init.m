@@ -7,8 +7,8 @@ function horace_init
 % Is PC and Unix compatible.
 
 % T.G.Perring
-
-
+% $Revision$ ($Date$)
+%
 disp('----------------------------------------------------------------')
 disp('       Horace')
 disp(' ====================')
@@ -21,14 +21,16 @@ disp('----------------------------------------------------------------')
 rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 
+addpath_message (2,rootpath);
+
 % Other directories
-addpath_message (rootpath,'libisis');
-addpath_message (rootpath,'utilities');
-
-addpath_message (rootpath,'functions');
-addpath_message (rootpath,'work_in_progress');
-addpath_message (rootpath,'work_in_progress','Alex');
-
+%addpath_message (rootpath,'libisis');
+%addpath_message (rootpath,'utilities');
+%
+%addpath_message (rootpath,'functions');
+%addpath_message (rootpath,'work_in_progress');
+%addpath_message (rootpath,'work_in_progress','Alex');
+%
 %Add GUI path - will be added in a later version of Horace
 %addpath_message(rootpath,'GUI');
 
@@ -38,7 +40,7 @@ IXG_ST_HORACE= struct('surface_name','Horace surface plot','area_name','Horace a
 ixf_global_var('Horace','set','IXG_ST_HORACE',IXG_ST_HORACE);
 
 %--------------------------------------------------------------------------
-function addpath_message (varargin)
+function addpath_message (type,varargin)
 % Add a path from the component directory names, printing a message if the
 % directory does not exist.
 % e.g.
@@ -46,9 +48,15 @@ function addpath_message (varargin)
 
 % T.G.Perring
 
-string=fullfile(varargin{:});
+string=fullfile(varargin{:},''); % '' is introduced for compartibility with
+                                 % Matlab 7.7 and probably below which has
+                                 % error in fullfile funtion
 if exist(string,'dir')==7
-    addpath (string);
+    if(type==1)
+      path=genpath(string);
+    else
+      path=gen_Libisis_path(string);
+    end
 else
     warning('"%s" is not a directory - not added to path',string)
 end

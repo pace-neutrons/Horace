@@ -24,8 +24,8 @@ switch(lower(this.fileExt))
         try
             [this.S,this.ERR,this.en] = get_ascii_file(fullFileName,'spe');
             this.data_loaded=true;
-        catch
-            warning(' can not read data using fortran routines -- reverted to Matlab')
+        catch ERR           
+            warning(' Can not read data using fortran routines -- reverted to Matlab\n Reason: %s',ERR.message);
             [this.S,this.ERR,this.en] = get_spe_matlab(fullFileName);
             this.data_loaded=true;
         end

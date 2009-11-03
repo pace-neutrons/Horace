@@ -64,7 +64,7 @@ catch exception
       warning(' Can not accumulate_cut using C routines; using Matlab');
  end
 %%< *** version specific <7.5
-%catch
+% catch
 %  if horace_info_level>=1
 %       warning(' Can not accumulate_cut using C routines; using Matlab');
 %  end
