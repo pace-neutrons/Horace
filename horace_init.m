@@ -21,15 +21,14 @@ disp('----------------------------------------------------------------')
 rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 
-addpath_message (2,rootpath);
+addpath_message (2,rootpath,'DLL');
 
 % Other directories
-%addpath_message (rootpath,'libisis');
-%addpath_message (rootpath,'utilities');
+addpath_message (1,rootpath,'libisis');
+addpath_message (1,rootpath,'utilities');
 %
-%addpath_message (rootpath,'functions');
-%addpath_message (rootpath,'work_in_progress');
-%addpath_message (rootpath,'work_in_progress','Alex');
+addpath_message (1,rootpath,'functions');
+addpath_message (1,rootpath,'work_in_progress');
 %
 %Add GUI path - will be added in a later version of Horace
 %addpath_message(rootpath,'GUI');
@@ -50,7 +49,8 @@ function addpath_message (type,varargin)
 
 string=fullfile(varargin{:},''); % '' is introduced for compartibility with
                                  % Matlab 7.7 and probably below which has
-                                 % error in fullfile funtion
+                                 % error in fullfile funtion called with
+                                 % one argument
 if exist(string,'dir')==7
     if(type==1)
       path=genpath(string);
