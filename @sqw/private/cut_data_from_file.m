@@ -212,9 +212,9 @@ end
                  clear v ok ix_add    % clear big arrays
                  pix = sort_pixels_by_bins(pix,ix,npix);
                  clear ix    % clear big arrays 
-                catch
+                catch Err
                     if horace_info_level>=1
-                        warning(' can not sort_pixels_by_bins using c-routines, using Matlab')
+                        warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',Err.message)
                     end
                     [ix,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
                     clear ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
