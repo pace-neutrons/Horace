@@ -16,20 +16,26 @@ try % mex C++
     rootpath = fileparts(which('horace_mex'));
     cd(rootpath);
 
-    fortran_in_rel_dir = ['LowLevelCode',filesep,'intel',filesep];
-    cpp_in_rel_dir = ['LowLevelCode',filesep,'cpp',filesep];
-    out_rel_dir = ['@sqw',filesep,'private'];
-    generic_out_rel_dir = 'libisis';
+    fortran_in_rel_dir = ['_LowLevelCode',filesep,'intel',filesep];
+    cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
+    % get folder names corresponding to the current Matlab version and OS
+    [VerFolderName,versionDLLextention,OSdirname]=MatlabVersionFolder();
+     out_rel_dir = ['DLL',filesep,OSdirname,filesep,VerFolderName];
+     if(~exist(out_rel_dir,'dir'))
+         mkdir(out_rel_dir);
+     end
+         
 
-    mex_single([cpp_in_rel_dir 'get_ascii_file/get_ascii_file'], generic_out_rel_dir,'get_ascii_file.cpp','IIget_acii_file.cpp');
+    mex_single([cpp_in_rel_dir 'get_ascii_file/get_ascii_file'], out_rel_dir,'get_ascii_file.cpp','IIget_acii_file.cpp');
     mex_single([cpp_in_rel_dir 'accumulate_cut_c/accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c/bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
 
     disp('**********> Succesfully created all required mex files from C++')
-catch
-   warning('**********> Can not create C++ mex files. Please try to do it manually.')
+catch ERR
+   warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',ERR.message);
+  
 end
 %
 try  % mex FORTRAN
@@ -40,8 +46,8 @@ try  % mex FORTRAN
 %
 %    disp('**********> Succesfully created all requsted mex files from FORTRAN')
      disp('**********> No FORTRAN functions used at the moment')
-catch
-    warning('**********> Can not create FORTRAN mex files. Please try to do it manually.')
+catch ERR
+    warning('**********> Can not create FORTRAN mex files, reason: %s Please try to do it manually.',ERR.message);
 end
 cd(start_dir);
 
