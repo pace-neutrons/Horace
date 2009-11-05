@@ -53,9 +53,11 @@ string=fullfile(varargin{:},''); % '' is introduced for compartibility with
                                  % one argument
 if exist(string,'dir')==7
     if(type==1)
-      path=genpath(string);
+      path=genpath_(string);
+      addpath(path);
     else
-      path=gen_Libisis_path(string);
+      path=gen_System_path(string);
+      addpath(path);
     end
 else
     warning('"%s" is not a directory - not added to path',string)
