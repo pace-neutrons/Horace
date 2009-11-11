@@ -1,22 +1,26 @@
-function make_win32_kit
+function pCode_Horace_kit(horace_folder)
 % This is a script to create a Windows 32 installation of Horace
 %
 % Run from the root area of Horace as checked out from the SVN server
 % It will convert the code as checked out into an installation with p-code
 % files and m-file help
-
+if(nargin==1)
+fileroot=horace_folder;
+else
 fileroot=pwd;
+end
 
 % Delete unwanted directories (with all their sub-directories)
 % ------------------------------------------------------------
-deldir{1}='developer_only';
-deldir{2}='documentation';  % as for private consumption only at the moment
-deldir{3}='GUI';            % as prototype only at the moment
-deldir{4}='test';
-deldir{5}='work_in_progress';
+deldir{1}='_developer_only';
+deldir{2}='_LowLevelCode'; 
+deldir{3}='documentation';  % as for private consumption only at the moment
+deldir{4}='GUI';            % as prototype only at the moment
+deldir{5}='test';
+deldir{6}='work_in_progress';
 
 for i=1:numel(deldir)
-    directoryRecurse(fullfile(fileroot,deldir{i}),@rmdir,'s')
+    rmdir(fullfile(fileroot,deldir{i}),'s');
 end
 
 
@@ -42,11 +46,9 @@ for i=1:numel(filepath)
     generate_pcode(fullfile(fileroot,filepath{i}))
 end
 
-% Remove all the .svn folders
-directoryRecurse(fileroot,@remove_svn)
 
 % Finally, delete this file
-delete 'make_win32_kit.m'
+delete([fileroot filesep 'pCode_Horace_kit.m'])
 
 %===============================================================================
 function generate_pcode(directory)
@@ -105,16 +107,6 @@ copyfile('*.p',directory,'f')
 warning(warn_state);    % return warnings to initial state
 cd(curr_dir);
 rmdir(tmpdir,'s')   % delete temporary area
-
-
-%===============================================================================
-function remove_svn (directory)
-% If present, removes directory .svn from absolute directory name passed as argument
-contents=dir(directory);
-ind_svn=find(strcmpi('.svn',{contents([contents.isdir]).name}),1);
-if ~isempty(ind_svn)
-    rmdir(fullfile(directory,contents(ind_svn).name),'s')
-end
 
 
 
