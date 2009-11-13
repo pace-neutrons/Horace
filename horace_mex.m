@@ -33,8 +33,9 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
 
     disp('**********> Succesfully created all required mex files from C++')
-catch ERR
-   warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',ERR.message);
+catch
+    message=lasterr();
+    warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',message);
   
 end
 %
@@ -46,8 +47,9 @@ try  % mex FORTRAN
 %
 %    disp('**********> Succesfully created all requsted mex files from FORTRAN')
      disp('**********> No FORTRAN functions used at the moment')
-catch ERR
-    warning('**********> Can not create FORTRAN mex files, reason: %s Please try to do it manually.',ERR.message);
+catch 
+    message=lasterr();    
+    warning('**********> Can not create FORTRAN mex files, reason: %s Please try to do it manually.',message);
 end
 cd(start_dir);
 
