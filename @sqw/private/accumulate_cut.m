@@ -58,9 +58,10 @@ try
 
 urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
 %%<*** version specific >= 7.5
-catch exception
+catch 
  if horace_info_level>=1
-      disp([' C- code generated error: ',exception.message]);
+      message=lasterr();
+      disp([' C- code generated error: ',message]);
       warning(' Can not accumulate_cut using C routines; using Matlab');
  end
 %%< *** version specific <7.5
