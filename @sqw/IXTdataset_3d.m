@@ -44,7 +44,7 @@ for i=1:numel(w)
     signal=permute(signal,dax);
     err=permute(err,dax);
 
-    wout(i) = IXTdataset_3d (IXTbase, title_main, signal, err, s_axis,...
+    wout(i) = IXTdataset_3d (IXTbase, title_squeeze(title_main), signal, err, s_axis,...
         p{1}', axis_1, false, p{2}', axis_2, false, p{3}', axis_3, false);
 
 end

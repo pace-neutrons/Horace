@@ -1,4 +1,4 @@
-function ph(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = ph(win,varargin)
 % Overplot histogram of a 1d dataset on an existing figure.
 %
 % Optional inputs:
@@ -9,4 +9,4 @@ function ph(win,varargin)
 
 % R.A. Ewings 14/10/2008
 
-ph(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = ph(sqw(win),varargin{:});

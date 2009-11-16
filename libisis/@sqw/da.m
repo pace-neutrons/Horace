@@ -1,4 +1,4 @@
-function da(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = da(win,varargin)
 % Area plot for 2D dataset
 %
 %   >> da(win)

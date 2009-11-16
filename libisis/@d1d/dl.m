@@ -1,4 +1,4 @@
-function dl(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = dl(win,varargin)
 % Plot line through data for 1d dataset.
 %
 %   >> dl(win)
@@ -11,4 +11,4 @@ function dl(win,varargin)
 
 % R.A. Ewings 14/10/2008
 
-dl(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = dl(sqw(win),varargin{:});
