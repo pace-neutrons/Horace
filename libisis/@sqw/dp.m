@@ -1,4 +1,4 @@
-function dp(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_]=dp(win,varargin)
 % Plot errorbars and markers for 1d dataset.
 %
 %   >> dp(win)

@@ -1,4 +1,4 @@
-function ds(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = ds(win,varargin)
 % Surface plot for 2D dataset
 %
 %   >> da(win)

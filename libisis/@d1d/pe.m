@@ -1,4 +1,4 @@
-function pe(win,varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = pe(win,varargin)
 % Overplot errorbars for a 1d dataset on an existing figure.
 %
 % Optional inputs:
@@ -9,4 +9,4 @@ function pe(win,varargin)
 
 % R.A. Ewings 14/10/2008
 
-pe(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = pe(sqw(win),varargin{:});
