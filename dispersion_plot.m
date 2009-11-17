@@ -1,5 +1,5 @@
 function varargout=dispersion_plot(varargin)
-% Plot dispersion relation
+% Plot dispersion relation or array of dispersion relations
 %
 %   >> dispersion_plot(rlp,dispreln,pars)
 %   >> dispersion_plot(lattice,rlp,dispreln,pars)
