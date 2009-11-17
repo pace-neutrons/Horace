@@ -26,10 +26,9 @@ addpath_message (2,rootpath,'DLL');
 % Other directories
 addpath_message (1,rootpath,'libisis');
 addpath_message (1,rootpath,'utilities');
-%
 addpath_message (1,rootpath,'functions');
-addpath_message (1,rootpath,'work_in_progress');
-%
+%addpath_message (1,rootpath,'work_in_progress');   % not included in the distribution
+
 %Add GUI path - will be added in a later version of Horace
 %addpath_message(rootpath,'GUI');
 
