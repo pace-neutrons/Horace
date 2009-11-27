@@ -288,6 +288,7 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
 	char BUF_RUB[BUF_SIZE];
 	std::stringstream err_message;
 	mwSize i,j;
+    bool buf_empty;
 
 	stream.seekg(FILE_TYPE.data_start_position,std::ios_base::beg);
 	if(!stream.good()){		throw(" can not rewind the file to the initial position where the data begin\n");
@@ -333,7 +334,7 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
 
 
 // read intensities + errors
-	bool buf_empty(false);  // to use the data already in the buffer
+	buf_empty=false;  // to use the data already in the buffer
 	for(j=0;j<NDET;j++){
 		if(buf_empty){
 			get_my_line(stream,BUF_RUB,BUF_SIZE,EOL);  // discard ###
