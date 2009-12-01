@@ -3,6 +3,8 @@ function this=deflate(this,varargin)
 % if the data are initially in ASCI fomat, it also writes the data file in hdf5
 % format for faster access in a future
 %
+% defaults have changed temporary -- if no varargin is present, the subroutine does not write hdf
+% 
 % if varargin is present, and set to 'hdf' (default) it works as no
 % varargin is present
 % if varargin has any other value, the sub does not write hdf at all
@@ -14,7 +16,7 @@ if(isempty(this.S)&& isempty(this.ERR))
 end
 
 if(isempty(varargin))
-    write_hdf =true;
+    write_hdf =false;
 else
     if(strcmp(varargin{1},'hdf'))
             write_hdf =true;

@@ -49,7 +49,9 @@ end
 if ~(nargin>=15 && nargin<=17)
     error('Check number of input arguments')
 end
-
+if ~isa(spe_data,'speData') % if input parameter is the filename, we transform it into speData 
+    spe_data = speData(spe_data);
+end
 
 bigtic
 
