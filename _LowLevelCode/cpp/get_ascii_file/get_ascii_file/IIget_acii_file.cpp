@@ -127,10 +127,12 @@ get_ASCII_header(std::string const &fileName, std::ifstream &data_stream)
 		data_stream.getline(BUF,BUF_SIZE,EOL);
 
 		int space_to_symbol_change=count_changes(BUF,BUF_SIZE);
-		if(space_to_symbol_change==6){       // PAR file
-				file_descriptor.Type=iPAR_type;
+		if(space_to_symbol_change==6||space_to_symbol_change==5){       // PAR file
+				file_descriptor.Type         = iPAR_type;
+				file_descriptor.nData_blocks = space_to_symbol_change;
 		}else if(space_to_symbol_change==7){ // PHX file
 				file_descriptor.Type=iPHX_type;
+				file_descriptor.nData_blocks = space_to_symbol_change;
 		}else{   // something unclear or damaged
 			throw(" can not identify format of the input data file\n");
 		}
