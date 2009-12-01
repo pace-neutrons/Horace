@@ -27,7 +27,7 @@ struct FileTypeDescriptor{
 	fileTypes Type;
 	std::streampos data_start_position; //> the position in the file where the data structure starts
 	mwSize 	  nData_records,       //> number of data records -- actually nDetectors
-		      nData_blocks;        //> nEnergy bins for SPE file and 0 for other two types
+		      nData_blocks;        //> nEnergy bins for SPE file, 5 or 6 for PAR file and 7 for PHX file
 	char      line_end ;              //> the character which ends line in current ASCII file 0x0A (LF)
 	    //Unix, 0x0D (CR) Mac and 0x0D 0x0A (CR LF) Win, but the last is interpreted as 0x0A here 
 };
