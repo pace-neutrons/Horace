@@ -50,7 +50,7 @@ parameters(4)=mem.threads;
 %parameters(4)=1;
 
 try
- %throw(' use matlab');
+throw(' use matlab');
 [urange_step_pix_recent, ok, ix,s,e,npix,npix_retain]=...
                                          accumulate_cut_c(v,s,e,npix,...
                                          rot_ustep,trans_bott_left,ebin,trans_elo,...
@@ -60,9 +60,8 @@ urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(uran
 %%<*** version specific >= 7.5
 catch 
  if horace_info_level>=1
-      message=lasterr();
-      disp([' C- code generated error: ',message]);
-      warning(' Can not accumulate_cut using C routines; using Matlab');
+%      disp([' C- code generated error: ',lasterr()]);
+%      warning(' Can not accumulate_cut using C routines; using Matlab');
  end
 %%< *** version specific <7.5
 % catch
