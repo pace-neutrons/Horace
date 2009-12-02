@@ -329,7 +329,7 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
 					mwSize grid_size[4], int const *iAxis,int nAxis,
 					double const* pProg_settings)
 {
-double xt,yt,zt,Et,Inf(0),NaN(0),
+double xt,yt,zt,xt1,yt1,zt1,Et,Inf(0),NaN(0),
        pix_Xmin,pix_Ymin,pix_Zmin,pix_Emin,pix_Xmax,pix_Ymax,pix_Zmax,pix_Emax;
 double ebin_inv=(1/ebin);
 bool  ignore_something,ignote_all;
@@ -400,7 +400,7 @@ for(i=0;i<nAxis;i++){
 omp_set_num_threads(num_OMP_Threads);
 int PIXEL_data_width=PIXEL_DATA_WIDTH;
 
-#pragma omp parallel default(none), private(i,j0,xt,yt,zt,Et,indX,indY,indZ,indE), \
+#pragma omp parallel default(none), private(i,j0,xt,yt,zt,xt1,yt1,zt1,Et,indX,indY,indZ,indE), \
 	 shared(actual_pix_range,pixel_data,rot_ustep,trans_bott_left,cut_range,ok,ind, \
 	 data_size,ignote_all,ignore_nan,ignore_inf,ignore_something,transform_energy), \
 	 firstprivate(pix_Xmin,pix_Ymin,pix_Zmin,pix_Emin, pix_Xmax,pix_Ymax,pix_Zmax,pix_Emax,\
@@ -442,9 +442,9 @@ int PIXEL_data_width=PIXEL_DATA_WIDTH;
 
       // Transform the coordinates u1-u4 into the new projection axes, if necessary
 	  //    indx=[(v(1:3,:)'-repmat(trans_bott_left',[size(v,2),1]))*rot_ustep',v(4,:)'];  % nx4 matrix
-			xt=pixel_data[j0  ]-trans_bott_left[0];
-			yt=pixel_data[j0+1]-trans_bott_left[1];
-			zt=pixel_data[j0+2]-trans_bott_left[2];
+			xt1=pixel_data[j0  ]-trans_bott_left[0];
+			yt1=pixel_data[j0+1]-trans_bott_left[1];
+			zt1=pixel_data[j0+2]-trans_bott_left[2];
 
 			if(transform_energy){
 			//    indx(4)=[(v(4,:)'-trans_elo)*(1/ebin)];  % nx4 matrix
@@ -460,13 +460,13 @@ int PIXEL_data_width=PIXEL_DATA_WIDTH;
 			ok[i]=false;
 			if(Et<cut_range[6]||Et>=cut_range[7]) 	continue;
 
-    		xt=xt*rot_ustep[0]+yt*rot_ustep[1]+zt*rot_ustep[2];
+    		xt=xt1*rot_ustep[0]+yt1*rot_ustep[3]+zt1*rot_ustep[6];
 			if(xt<cut_range[0]||xt>=cut_range[1])   continue;
 
-			yt=xt*rot_ustep[3]+yt*rot_ustep[4]+zt*rot_ustep[5];
+			yt=xt1*rot_ustep[1]+yt1*rot_ustep[4]+zt1*rot_ustep[7];
 			if(yt<cut_range[2]||yt>=cut_range[3]) 	continue;
 
-			zt=xt*rot_ustep[6]+yt*rot_ustep[7]+zt*rot_ustep[8];
+			zt=xt1*rot_ustep[2]+yt1*rot_ustep[5]+zt1*rot_ustep[8];
 			if(zt<cut_range[4]||zt>=cut_range[5])	continue;
 
 			ok[i]=true;
@@ -475,10 +475,10 @@ int PIXEL_data_width=PIXEL_DATA_WIDTH;
 
 
 //     indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
-			indX=(mwSize)floor(xt);
-			indY=(mwSize)floor(yt);
-			indZ=(mwSize)floor(zt);
-			indE=(mwSize)floor(Et);
+			indX=(mwSize)floor(xt-cut_range[0]);
+			indY=(mwSize)floor(yt-cut_range[2]);
+			indZ=(mwSize)floor(zt-cut_range[4]);
+			indE=(mwSize)floor(Et-cut_range[6]);
 //
 			ind[i]  = indX*nDimX+indY*nDimY+indZ*nDimZ+indE*nDimE;
 	//	i0=nPixel_retained*OUT_PIXEL_DATA_WIDTH;    // transformed pixels;
