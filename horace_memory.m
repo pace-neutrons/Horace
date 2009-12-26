@@ -1,7 +1,7 @@
 function mem=horace_memory(chunk_size,n_comp_threads)
 % Defines: 
 % 1) the size of the data chunk to load in the memory and 
-% 2) how many computational threads to use in mex files and my Matlab
+% 2) how many computational threads to use in mex files and by Matlab
 %    itself (if Matlab and correspondent mex file supports it)
 % Default are: mem.chunk_size=10000000, mem.threads=num_processors.
 %
