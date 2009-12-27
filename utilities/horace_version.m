@@ -10,7 +10,7 @@ function current=horace_version()
 % the best and most portable I can think in a five minutes time). 
 %
 %
-% $COMMIT_COUNTER:: 1 $
+% $COMMIT_COUNTER:: 13 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will 
 % be modified and probably corrupted at commit
