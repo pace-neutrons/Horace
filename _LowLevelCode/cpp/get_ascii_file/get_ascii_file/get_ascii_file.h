@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <limits>
 #include "mex.h" // llget_ascii_file uses only the definition of mwSize from mex.h
 				// if the function has to be used independently on Matlab, it should just typedef mwSize
 #include "matrix.h"

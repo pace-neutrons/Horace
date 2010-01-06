@@ -245,15 +245,24 @@ read_SPEdata_block(std::ifstream &stream,double *pBlock,int DataSize,int block_s
 			nBlock_Data= sscanf(DataStart+j*spe_field_width,format,&data_buf);
 
 			if(nBlock_Data!=1){
-				if(nRead_Data!=DataSize){
-					err_message<<" Error interpreting data block, row "<<i+1<<" column "<<j+1<<" from total "<<nRows<<" rows, "<<block_size<<" columns\n";
-					return false;
+				if(nRead_Data==DataSize){
+					return true;
+				}else{
+					std::string field_val(DataStart+j*spe_field_width,spe_field_width);
+					size_t pos=field_val.find("-NaN");
+					if(pos == std::string::npos){
+						err_message<<" Error interpreting data block, row "<<i+1<<" column "<<j+1<<" from total "<<nRows<<" rows, "<<block_size<<" columns\n";
+						return false;
+					}else{
+						pBlock[nRead_Data]=std::numeric_limits<double>::quiet_NaN();
+					}
 				}
 			}else{
 				pBlock[nRead_Data]=(double)data_buf;
-				nRead_Data++;
-				if(nRead_Data==DataSize)return true;
 			}
+			nRead_Data++;
+			if(nRead_Data==DataSize)return true;
+
 		}
 		buf_empty=true;
 	}
