@@ -63,10 +63,10 @@ ndet=ncol;
 %Calculate ndet (no. of detectors) from par file:
 
 %Make fake spe files
-% for i=1:20
-%     filestring=['dummy',num2str(i),'.spe'];
-%     fake_spe(ndet,-1*(ei/10),ei/10,(9*ei/10),filestring,indir);
-% end
+for i=1:20
+    filestring=['dummy',num2str(i),'.spe'];
+    fake_spe(ndet,-1*(ei/10),ei/10,(9*ei/10),filestring,indir);
+end
 
 %Now generate the fake sqw file:
 nfiles=20;
