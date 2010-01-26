@@ -1,35 +1,35 @@
-function varargout = horace_unary_operation(varargin)
-% HORACE_UNARY_OPERATION M-file for horace_unary_operation.fig
-%      HORACE_UNARY_OPERATION, by itself, creates a new HORACE_UNARY_OPERATION or raises the existing
+function varargout = horace_bosegui(varargin)
+% HORACE_BOSEGUI M-file for horace_bosegui.fig
+%      HORACE_BOSEGUI, by itself, creates a new HORACE_BOSEGUI or raises the existing
 %      singleton*.
 %
-%      H = HORACE_UNARY_OPERATION returns the handle to a new HORACE_UNARY_OPERATION or the handle to
+%      H = HORACE_BOSEGUI returns the handle to a new HORACE_BOSEGUI or the handle to
 %      the existing singleton*.
 %
-%      HORACE_UNARY_OPERATION('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in HORACE_UNARY_OPERATION.M with the given input arguments.
+%      HORACE_BOSEGUI('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in HORACE_BOSEGUI.M with the given input arguments.
 %
-%      HORACE_UNARY_OPERATION('Property','Value',...) creates a new HORACE_UNARY_OPERATION or raises the
+%      HORACE_BOSEGUI('Property','Value',...) creates a new HORACE_BOSEGUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before horace_unary_operation_OpeningFunction gets called.  An
+%      applied to the GUI before horace_bosegui_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to horace_unary_operation_OpeningFcn via varargin.
+%      stop.  All inputs are passed to horace_bosegui_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help horace_unary_operation
+% Edit the above text to modify the response to help horace_bosegui
 
-% Last Modified by GUIDE v2.5 13-Nov-2009 13:13:33
+% Last Modified by GUIDE v2.5 07-Dec-2009 14:25:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_unary_operation_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_unary_operation_OutputFcn, ...
+                   'gui_OpeningFcn', @horace_bosegui_OpeningFcn, ...
+                   'gui_OutputFcn',  @horace_bosegui_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,21 +44,21 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before horace_unary_operation is made visible.
-function horace_unary_operation_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before horace_bosegui is made visible.
+function horace_bosegui_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to horace_unary_operation (see VARARGIN)
+% varargin   command line arguments to horace_bosegui (see VARARGIN)
 
-% Choose default command line output for horace_unary_operation
+% Choose default command line output for horace_bosegui
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes horace_unary_operation wait for user response (see UIRESUME)
+% UIWAIT makes horace_bosegui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 noobj=false;
@@ -96,7 +96,7 @@ if ~noobj
         mess3='Load objects into Matlab workspace to proceed';
         set(handles.message_info_text,'String',[mess1; mess2; mess3]);
         guidata(gcbo,handles);
-        set(handles.select_obj_popupmenu,'String','No objects to select');
+        set(handles.obj_popupmenu,'String','No objects to select');
         guidata(gcbo, handles);
         return%if no objects that can be plotted or cut are in the workspace
         %we must exit this function
@@ -112,11 +112,11 @@ if ~noobj
     newcell{1}=cellofvars{nsteps};
     
     drawnow;
-    set(handles.select_obj_popupmenu,'String',newcell);
+    set(handles.obj_popupmenu,'String',newcell);
     guidata(gcbo, handles);
 
-    str = get(handles.select_obj_popupmenu, 'String');
-    %val = get(handles.select_obj_popupmenu,'Value');
+    str = get(handles.obj_popupmenu, 'String');
+%    val = get(handles.obj_popupmenu,'Value');
     val=nsteps;
     %
     drawnow;
@@ -127,18 +127,15 @@ if ~noobj
     workobj=evalin('base',request);%returns a structure array with info about the object
     %
     object_name=workobj.name;
-    handles.object_name=object_name;
-    w_in=evalin('base',object_name);%get the data from the base workspace.
-    handles.w_in=w_in;%store the object in the handles structure
-    
-    %Also ensure the default function (1st in list) acos is selected:
-    handles.funcstr='acos';
-    
-    guidata(hObject,handles);
+    handles.object_name1=object_name;
+    w_in1=evalin('base',object_name);%get the data from the base workspace.
+    handles.w_in1=w_in1;%store the object in the handles structure
     %
     
     evalin('base','clear horace_gui_nstep_switch');%gets rid of the evidence!
+    guidata(hObject,handles);
 else
+    %
     %Clear error message
     set(handles.message_info_text,'String','');
     guidata(hObject,handles);
@@ -162,18 +159,18 @@ else
         mess3='Load objects into Matlab workspace to proceed';
         set(handles.message_info_text,'String',[mess1; mess2; mess3]);
         guidata(hObject,handles);
-        set(handles.select_obj_popupmenu,'String','No objects to select');
-        guidata(gcbo, handles);
+        set(handles.obj_popupmenu,'String','No objects to select');
+        guidata(hObject, handles);
         return%if no objects that can be plotted or cut are in the workspace
         %we must exit this function
     end
     
     drawnow;
-    set(handles.select_obj_popupmenu,'String',cellofvars);
+    set(handles.obj_popupmenu,'String',cellofvars);
     guidata(hObject, handles);
 
-    str = get(handles.select_obj_popupmenu, 'String');
-    val = get(handles.select_obj_popupmenu,'Value');
+    str = get(handles.obj_popupmenu, 'String');
+    val = get(handles.obj_popupmenu,'Value');
     %
     drawnow;
     reqstring=str{val};
@@ -183,21 +180,19 @@ else
     workobj=evalin('base',request);%returns a structure array with info about the object
     %
     object_name=workobj.name;
-    handles.object_name=object_name;
-    w_in=evalin('base',object_name);%get the data from the base workspace.
-    handles.w_in=w_in;%store the object in the handles structure
-    
-    %Also ensure the default function (1st in list) acos is selected:
-    handles.funcstr='acos';
-    
+    handles.object_name1=object_name;
+    w_in1=evalin('base',object_name);%get the data from the base workspace.
+    handles.w_in1=w_in1;%store the object in the handles structure
+    %
     guidata(hObject,handles);
     %
+    
 end
 
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_unary_operation_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_bosegui_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -207,14 +202,14 @@ function varargout = horace_unary_operation_OutputFcn(hObject, eventdata, handle
 varargout{1} = handles.output;
 
 
-% --- Executes on selection change in select_obj_popupmenu.
-function select_obj_popupmenu_Callback(hObject, eventdata, handles)
-% hObject    handle to select_obj_popupmenu (see GCBO)
+% --- Executes on selection change in obj_popupmenu.
+function obj_popupmenu_Callback(hObject, eventdata, handles)
+% hObject    handle to obj_popupmenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = get(hObject,'String') returns select_obj_popupmenu contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from select_obj_popupmenu
+% Hints: contents = get(hObject,'String') returns obj_popupmenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from obj_popupmenu
 
 %
 %Clear error message
@@ -240,14 +235,14 @@ if ~exist('cellofvars','var')
     mess3='Load objects into Matlab workspace to proceed';
     set(handles.message_info_text,'String',[mess1; mess2; mess3]);
     guidata(gcbo,handles);
-    set(handles.select_obj_popupmenu,'String','No objects to select');
+    set(handles.obj_popupmenu,'String','No objects to select');
     guidata(gcbo, handles);
     return%if no objects that can be plotted or cut are in the workspace
     %we must exit this function
 end
 
 drawnow;
-set(handles.select_obj_popupmenu,'String',cellofvars);
+set(handles.obj_popupmenu,'String',cellofvars);
 guidata(gcbo, handles);
 
 str = get(hObject, 'String');
@@ -258,49 +253,21 @@ reqstring=str{val};
 reqstring(end-11:end)=[];
 request=['whos(''',reqstring,''')'];
 %determine what kind of object we are dealing with:
-workobj=evalin('base',request);%returns a structure array with info about the object
+workobj1=evalin('base',request);%returns a structure array with info about the object
 %
-object_name=workobj.name;
-handles.object_name=object_name;
-w_in=evalin('base',object_name);%get the data from the base workspace.
-handles.w_in=w_in;%store the object in the handles structure
+object_name1=workobj1.name;
+handles.object_name1=object_name1;
+w_in1=evalin('base',object_name1);%get the data from the base workspace.
+handles.w_in1=w_in1;%store the object in the handles structure
 
 guidata(gcbo,handles);
 
 
-% --- Executes during object creation, after setting all properties.
-function select_obj_popupmenu_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to select_obj_popupmenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in func_popupmenu.
-function func_popupmenu_Callback(hObject, eventdata, handles)
-% hObject    handle to func_popupmenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns func_popupmenu contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from func_popupmenu
-
-str = get(hObject, 'String');
-val = get(hObject,'Value');
-funcstr=str{val};
-
-handles.funcstr=funcstr;
-
-guidata(gcbo,handles);
 
 % --- Executes during object creation, after setting all properties.
-function func_popupmenu_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to func_popupmenu (see GCBO)
+function obj_popupmenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to obj_popupmenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -332,6 +299,125 @@ function outobj_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in bose_pushbutton.
+function bose_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to bose_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+outobjname=get(handles.outobj_edit,'String');
+outfilename=get(handles.outfile_edit,'String');
+temperature=get(handles.temp_edit,'String');
+out_to_file=get(handles.outfile_radiobutton,'Value');
+obj_to_cut='win1';
+
+if isfield(handles,'w_in1')
+    win1=handles.w_in1;
+    ndims1=dimensions(win1);
+else
+    mess='No valid object#1 selected -- no replication performed';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return;
+end
+
+%====
+if isempty(outobjname)
+    mess='Provide a name for the output object that will be created by replication';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return;
+end
+%====
+if isempty(temperature)
+    mess='Provide a temperature to allow correction';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return;
+end
+%====
+if isnan(str2double(temperature))
+    mess='Provide a valid temperature';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return;
+elseif temperature<=0
+    mess='Provide a valid temperature';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return;
+end
+%====
+if out_to_file==get(handles.outfile_radiobutton,'Max')
+    saveafile=true;
+else
+    saveafile=false;
+end
+%===
+if saveafile && isempty(outfilename)
+    outfilename='-save';
+end
+%===
+
+%Now we execute the bose factor correction:
+try
+    if ~saveafile
+            out=eval(['bose(',obj_to_cut,',',temperature,');']);
+    elseif saveafile && strcmp(outfilename,'-save')
+        out=eval(['bose(',obj_to_cut,',',temperature,');']);
+        save(out);
+    else
+        out=eval(['bose(',obj_to_cut,',',temperature,');']);
+        save(out,outfilename);
+    end
+catch
+    the_err=lasterror;
+    emess=the_err.message;
+    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
+    mess1='No bose correction performed';
+    mess2=emess(nchar+9:end);
+    set(handles.message_info_text,'String',{mess1,mess2});
+    guidata(gcbo,handles);
+    return;
+end
+    
+assignin('base',outobjname,out);
+set(handles.message_info_text,'String','Success!');
+guidata(gcbo,handles);
+
+
+
+
+
+function temp_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to temp_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of temp_edit as text
+%        str2double(get(hObject,'String')) returns contents of temp_edit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function temp_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to temp_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
 
 
 % --- Executes on button press in outfile_radiobutton.
@@ -372,93 +458,4 @@ function outfile_browse_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[save_filename,save_pathname,FilterIndex] = uiputfile({'*.sqw';'*.d0d';'*.d1d';'*.d2d';...
-    '*.d3d';'*.d4d';'*.*'},'Save As');
 
-if ischar(save_pathname) && ischar(save_filename)
-    %i.e. the cancel button was not pressed
-    set(handles.outfile_edit,'String',[save_pathname,save_filename]);
-    guidata(gcbo,handles);
-end
-
-
-% --- Executes on button press in operate_pushbutton.
-function operate_pushbutton_Callback(hObject, eventdata, handles)
-% hObject    handle to operate_pushbutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-%Clear error message
-set(handles.message_info_text,'String','');
-guidata(gcbo,handles);
-drawnow;
-
-if isfield(handles,'w_in')
-    win=handles.w_in;
-    ndims=dimensions(win);
-else
-    mess='No valid object selected -- no operation performed';
-    set(handles.message_info_text,'String',mess);
-    guidata(gcbo,handles);
-    return;
-end
-
-if ~isfield(handles,'funcstr')
-    mess='No function selected -- operation not performed';
-    set(handles.message_info_text,'String',mess);
-    guidata(gcbo,handles);
-    return;
-end
-funcstr=handles.funcstr;
-
-outobjname=get(handles.outobj_edit,'String');
-outfilename=get(handles.outfile_edit,'String');
-out_to_file=get(handles.outfile_radiobutton,'Value');
-obj_to_cut='win';
-
-%====
-if isempty(outobjname)
-    mess='Provide a name for the output object that will be created by unary operation';
-    set(handles.message_info_text,'String',mess);
-    guidata(gcbo,handles);
-    return;
-end
-%====
-if out_to_file==get(handles.outfile_radiobutton,'Max')
-    saveafile=true;
-else
-    saveafile=false;
-end
-%===
-if saveafile && isempty(outfilename)
-    outfilename='-save';
-end
-%NB - there is not actually a save option as part of unary operation, but
-%we can do it anyway using the save command
-
-
-%Now do the operation:
-try
-    if ~saveafile
-        out=eval([funcstr,'(',obj_to_cut,');']);
-    elseif saveafile && strcmp(outfilename,'-save')
-        out=eval([funcstr,'(',obj_to_cut,');']);
-        save(out);
-    else
-        out=eval([funcstr,'(',obj_to_cut,');']);
-        save(out,outfilename);
-    end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',{mess1,mess2});
-    guidata(gcbo,handles);
-    return;
-end
-    
-assignin('base',outobjname,out);
-set(handles.message_info_text,'String','Success!');
-guidata(gcbo,handles);

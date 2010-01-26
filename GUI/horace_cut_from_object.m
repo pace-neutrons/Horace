@@ -104,15 +104,20 @@ if ~noobj
     
     %It is at this point we circshift the cell array of variables so that
     %the object we want is on top:
-    cellofvars=circshift(cellofvars',(1-nsteps));
-    cellofvars=cellofvars';
+%     cellofvars=circshift(cellofvars',(1-nsteps));
+%     cellofvars=cellofvars';
+    sz=size(cellofvars);
+    newcell=cell(sz(1),sz(2)+1);
+    newcell(2:end)=cellofvars;
+    newcell{1}=cellofvars{nsteps};
     
     drawnow;
-    set(handles.select_object_popupmenu,'String',cellofvars);
+    set(handles.select_object_popupmenu,'String',newcell);
     guidata(gcbo, handles);
 
     str = get(handles.select_object_popupmenu, 'String');
-    val = get(handles.select_object_popupmenu,'Value');
+%    val = get(handles.select_object_popupmenu,'Value');
+    val=nsteps;
     %
     drawnow;
     reqstring=str{val};
