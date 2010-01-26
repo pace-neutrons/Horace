@@ -21,8 +21,12 @@ if ndims~=1
 end
 
 if nargin==2
-    if (isa(win,'d1d') && isa(varargin{1},'d1d'))
-            route=1;%WE MAY WANT TO MAKE THIS TAKE SQW OBJECTS AS W2
+    if isa(win,'d1d') && (isa(varargin{1},'d1d') || isa(varargin{1},'sqw'))
+        [ndims2,sz]=dimensions(varargin{1});
+        if ndims2~=1
+            error('Horace error: can only rebin a d1d object with another d1d or a 1-dimensional sqw');
+        end
+        route=1;
     elseif isvector(varargin{1})
         if numel(varargin{1})==1
             route=2;%rebin x with only bin width specified
@@ -48,7 +52,8 @@ inmax_x=max(xin_vec);
 switch route
     case 1
         %
-        w2=varargin{1};
+        w2=d1d(varargin{1});%if varargin{1} is already d1d then this does nothing.
+        %If it is an sqw then we convert to the equivalent d1d;
         [ok,same_axes,mess]=check_rebinning_axes_1d(win,w2);
         if ~ok
             error(mess);
@@ -63,7 +68,7 @@ switch route
                 outmax_x=max(xout);
                 outbin_x=xout(2)-xout(1);
                 lo_x=min([inmin_x outmin_x]); hi_x=max([inmax_x outmax_x]);
-                xout=[lo_x:outbin_x:hi_x]';
+                xout=[(lo_x-outbin_x+eps):outbin_x:(hi_x+outbin_x-eps)]';
                 [sout,eout,nout]=rebin_1d_general(xin_vec,xout,win.s,win.e,win.npix);
                 %Now need to construct the output d1d:
                 wout=win;
@@ -81,7 +86,7 @@ switch route
             
         end
     case 2
-        xout=[inmin_x:varargin{1}:inmax_x]';
+        xout=[(inmin_x-varargin{1}+eps):varargin{1}:(inmax_x+varargin{1}-eps)]';
         %Need to check that this does cover full range, i.e. no rounding
         %erro
         if max(xout)<inmax_x
@@ -95,7 +100,7 @@ switch route
         getout.title=[wout.title,' REBINNED '];
         wout=d1d(getout);
     case 3
-        xout=[varargin{1}(1):varargin{1}(2):varargin{1}(3)]';
+        xout=[(varargin{1}(1)-varargin{1}(2)-eps):varargin{1}(2):(varargin{1}(3)+varargin{1}(2)-eps)]';
         [sout,eout,nout]=rebin_1d_general(xin_vec,xout,win.s,win.e,win.npix);
         wout=win;
         getout=get(wout);
