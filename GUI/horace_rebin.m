@@ -1,35 +1,35 @@
-function varargout = horace_binary_operation(varargin)
-% HORACE_BINARY_OPERATION M-file for horace_binary_operation.fig
-%      HORACE_BINARY_OPERATION, by itself, creates a new HORACE_BINARY_OPERATION or raises the existing
+function varargout = horace_rebin(varargin)
+% HORACE_REBIN M-file for horace_rebin.fig
+%      HORACE_REBIN, by itself, creates a new HORACE_REBIN or raises the existing
 %      singleton*.
 %
-%      H = HORACE_BINARY_OPERATION returns the handle to a new HORACE_BINARY_OPERATION or the handle to
+%      H = HORACE_REBIN returns the handle to a new HORACE_REBIN or the handle to
 %      the existing singleton*.
 %
-%      HORACE_BINARY_OPERATION('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in HORACE_BINARY_OPERATION.M with the given input arguments.
+%      HORACE_REBIN('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in HORACE_REBIN.M with the given input arguments.
 %
-%      HORACE_BINARY_OPERATION('Property','Value',...) creates a new HORACE_BINARY_OPERATION or raises the
+%      HORACE_REBIN('Property','Value',...) creates a new HORACE_REBIN or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before horace_binary_operation_OpeningFunction gets called.  An
+%      applied to the GUI before horace_rebin_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to horace_binary_operation_OpeningFcn via varargin.
+%      stop.  All inputs are passed to horace_rebin_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help horace_binary_operation
+% Edit the above text to modify the response to help horace_rebin
 
-% Last Modified by GUIDE v2.5 13-Nov-2009 16:13:45
+% Last Modified by GUIDE v2.5 25-Jan-2010 12:04:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_binary_operation_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_binary_operation_OutputFcn, ...
+                   'gui_OpeningFcn', @horace_rebin_OpeningFcn, ...
+                   'gui_OutputFcn',  @horace_rebin_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,23 +44,24 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before horace_binary_operation is made visible.
-function horace_binary_operation_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before horace_rebin is made visible.
+function horace_rebin_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to horace_binary_operation (see VARARGIN)
+% varargin   command line arguments to horace_rebin (see VARARGIN)
 
-% Choose default command line output for horace_binary_operation
+% Choose default command line output for horace_rebin
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes horace_binary_operation wait for user response (see UIRESUME)
+% UIWAIT makes horace_rebin wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+%The following code is copied from horace_binary_ops
 noobj=false;
 try
     nsteps=evalin('base','horace_gui_nstep_switch');
@@ -70,7 +71,7 @@ end
 
 if ~noobj
     nsteps=str2double(nsteps); %convert from string to number
-    %We must populate the list box now.
+    %We must populate the list boxes now.
     %==================================
     %
     %Clear error message
@@ -134,10 +135,10 @@ if ~noobj
     %
     % Set the default 2nd object to be the first in the list:
     drawnow;
-    set(handles.obj2_popupmenu,'String',cellofvars);
+    set(handles.template_popupmenu,'String',cellofvars);
     guidata(gcbo, handles);
-    str = get(handles.obj2_popupmenu, 'String');
-    val = get(handles.obj2_popupmenu,'Value');
+    str = get(handles.template_popupmenu, 'String');
+    val = get(handles.template_popupmenu,'Value');
     %
     drawnow;
     reqstring=str{val};
@@ -211,10 +212,10 @@ else
     %
     % Set the default 2nd object to be the first in the list:
     drawnow;
-    set(handles.obj2_popupmenu,'String',cellofvars);
+    set(handles.template_popupmenu,'String',cellofvars);
     guidata(hObject, handles);
-    str = get(handles.obj2_popupmenu, 'String');
-    val = get(handles.obj2_popupmenu,'Value');
+    str = get(handles.template_popupmenu, 'String');
+    val = get(handles.template_popupmenu,'Value');
     %
     drawnow;
     reqstring=str{val};
@@ -228,10 +229,6 @@ else
     w_in2=evalin('base',object_name);%get the data from the base workspace.
     handles.w_in2=w_in2;
     
-   
-    %Also ensure the default function (1st in list) minus is selected:
-    handles.funcstr='minus';
-    
     guidata(hObject,handles);
     %
     
@@ -241,7 +238,7 @@ end
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_binary_operation_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_rebin_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -260,7 +257,6 @@ function obj1_popupmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns obj1_popupmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from obj1_popupmenu
 
-%
 %Clear error message
 set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
@@ -312,39 +308,10 @@ handles.w_in1=w_in1;%store the object in the handles structure
 guidata(gcbo,handles);
 
 
+
 % --- Executes during object creation, after setting all properties.
 function obj1_popupmenu_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to obj1_popupmenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in function_popupmenu.
-function function_popupmenu_Callback(hObject, eventdata, handles)
-% hObject    handle to function_popupmenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns function_popupmenu contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from function_popupmenu
-
-str = get(hObject, 'String');
-val = get(hObject,'Value');
-funcstr=str{val};
-
-handles.funcstr=funcstr;
-
-guidata(gcbo,handles);
-
-% --- Executes during object creation, after setting all properties.
-function function_popupmenu_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to function_popupmenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -426,12 +393,13 @@ if ischar(save_pathname) && ischar(save_filename)
 end
 
 
-% --- Executes on button press in operate_pushbutton.
-function operate_pushbutton_Callback(hObject, eventdata, handles)
-% hObject    handle to operate_pushbutton (see GCBO)
+% --- Executes on button press in rebin_pushbutton.
+function rebin_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to rebin_pushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%This is the main function:
 %Clear error message
 set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
@@ -452,51 +420,72 @@ else
     return;
 end
 
-if ~isfield(handles,'funcstr')
-    mess='No function selected -- operation not performed';
+if isfield(handles,'w_in2')
+    win2=handles.w_in2;
+    ndims2=dimensions(win2);
+    obj_to_cut2='win2';
+else
+    mess='No valid object#2 selected -- no operation performed';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
     return;
 end
-funcstr=handles.funcstr;
 
-oponobj=get(handles.obj_radiobutton,'Value');
-objmax=get(handles.obj_radiobutton,'Max');
-oponnum=get(handles.number_radiobutton,'Value');
-nummax=get(handles.number_radiobutton,'Max');
-numval=get(handles.number_edit,'String');
+manspec=get(handles.lostephi_radiobutton,'Value');
+nummax=get(handles.lostephi_radiobutton,'Max');
 
-workonobj=false;
-if oponobj~=objmax && oponnum~=nummax
-    mess='Select either a 2nd object (#2), or a number to operate with which to operate';
-    set(handles.message_info_text,'String',mess);
-    guidata(gcbo,handles);
-    return;
-elseif oponobj==objmax && oponnum~=nummax
-    workonobj=true;
-    if isfield(handles,'w_in2')
-        win2=handles.w_in2;
-        ndims2=dimensions(win2);
-        obj_to_cut2='win2';
+%The following unfinished code is to get the manually specified rebin. It
+%will have to be a lot cleverer than that used in e.g. horace_combine,
+%because we have to be able to sense multiple rebins, such as
+%[lo1,step1,hi1],[],[lo3,step3hi3] etc.
+ismanual=false;
+if manspec==nummax
+    lostephi=get(handles.lostephi_edit,'String');
+    %must strip out square brackets, if user has inserted them:
+    s1=strfind(lostephi,'['); s2=strfind(lostephi,']');
+    if isempty(s1) && isempty(s2)
+        lostephinew{1}=strread(lostephi,'%f','delimiter',',');
+    elseif ~isempty(s1) && ~isempty(s2)
+        if length(s1)~=length(s2)
+            mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
+            mess2=' and that the number of inputs is the same as the object dimensionality';
+            set(handles.message_info_text,'String',[mess1,mess2]);
+            guidata(gcbo,handles);
+            return;
+        elseif length(s1)~=ndims1
+            mess1='Number of binning arguments must match the dimensionality of object to be rebinned';
+            set(handles.message_info_text,'String',mess1);
+            guidata(gcbo,handles);
+            return;
+        end
+        for i=1:numel(s1)
+            lostephi_tmp=lostephi(s1(i)+1:s2(i)-1);
+            lostephinew{i}=strread(lostephi_tmp,'%f','delimiter',',');
+        end
     else
-        mess='No valid object#2 selected -- no operation performed';
-        set(handles.message_info_text,'String',mess);
+        mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
+        mess2=' and that the number of inputs is the same as the object dimensionality';
+        set(handles.message_info_text,'String',[mess1,mess2]);
         guidata(gcbo,handles);
         return;
     end
-elseif oponobj~=objmax && oponnum==nummax
-    workonobj=false;
-    if isempty(oponnum)
-        mess='Choose a number with which to operate -- no operation performed yet';
-        set(handles.message_info_text,'String',mess);
-        guidata(gcbo,handles);
-        return;
-    end    
+    
+    for i=1:numel(lostephinew)
+        if ~all(isnan(lostephinew{i})) && ...
+                (numel(lostephinew{i})==3 || numel(lostephinew{i})==1 || numel(lostephinew{i})==0)
+            ismanual=true;
+        else
+            mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
+            mess2=' and that the number of inputs is the same as the object dimensionality';
+            set(handles.message_info_text,'String',{mess1,mess2});
+            guidata(gcbo,handles);
+        end
+    end
 end
-
+ 
 %====
 if isempty(outobjname)
-    mess='Provide a name for the output object that will be created by binary operation';
+    mess='Provide a name for the output object that will be created by combine operation';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
     return;
@@ -512,43 +501,67 @@ if saveafile && isempty(outfilename)
     outfilename='-save';
 end
 
-%Need to check that the two objects being added have the same
+%Need to check that the two objects being combined have the same
 %dimensionality!
-if oponobj && (ndims1 ~= ndims2)
-    mess='Objects selected have different dimensionality -- cannot do binary operation';
+if ~ismanual && isfield(handles,'w_in2') && (ndims1 ~= ndims2)
+    mess='Objects selected have different dimensionality -- cannot do rebinning';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
     return;
 end
 
-%Now we execute the binary operation:
+%Work out which of the rebin functions is required:
+if is_sqw_type(sqw(win1))
+    funcstr='rebin_sqw';
+elseif ndims1==1
+    funcstr='rebin_horace_1d';
+elseif ndims1==2
+    funcstr='rebin_horace_2d';
+else
+    mess='Object to rebin must either be sqw-type, or be dnd of dimensionality less than 3';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return;
+end
+
+%Make a string in the correct form to do manual rebin:
+if ismanual
+    argstr='';
+    for i=1:numel(lostephinew)
+        argstr=[argstr,',[',num2str(lostephinew{i}'),']'];
+    end
+end
+
+
+%Now we execute the rebin operation:
 try
     if ~saveafile
-        if workonobj
+        if ~ismanual
             out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
         else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
+            out=eval([funcstr,'(',obj_to_cut,argstr,');']);
         end
     elseif saveafile && strcmp(outfilename,'-save')
-        if workonobj
+        if ~ismanual
             out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
         else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
+            out=eval([funcstr,'(',obj_to_cut,argstr,');']);
         end
         save(out);
     else
-        if workonobj
+        if ~ismanual
             out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
         else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
+            out=eval([funcstr,'(',obj_to_cut,argstr,');']);
         end
         save(out,outfilename);
     end
+    
 catch
     the_err=lasterror;
     emess=the_err.message;
     nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
+    mess1='No rebin performed';
     mess2=emess(nchar+9:end);
     set(handles.message_info_text,'String',{mess1,mess2});
     guidata(gcbo,handles);
@@ -562,14 +575,17 @@ guidata(gcbo,handles);
 
 
 
-% --- Executes on selection change in obj2_popupmenu.
-function obj2_popupmenu_Callback(hObject, eventdata, handles)
-% hObject    handle to obj2_popupmenu (see GCBO)
+
+
+
+% --- Executes on selection change in template_popupmenu.
+function template_popupmenu_Callback(hObject, eventdata, handles)
+% hObject    handle to template_popupmenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = get(hObject,'String') returns obj2_popupmenu contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from obj2_popupmenu
+% Hints: contents = get(hObject,'String') returns template_popupmenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from template_popupmenu
 
 %
 %Clear error message
@@ -595,14 +611,14 @@ if ~exist('cellofvars','var')
     mess3='Load objects into Matlab workspace to proceed';
     set(handles.message_info_text,'String',[mess1; mess2; mess3]);
     guidata(gcbo,handles);
-    set(handles.obj2_popupmenu,'String','No objects to select');
+    set(handles.template_popupmenu,'String','No objects to select');
     guidata(gcbo, handles);
     return%if no objects that can be plotted or cut are in the workspace
     %we must exit this function
 end
 
 drawnow;
-set(handles.obj2_popupmenu,'String',cellofvars);
+set(handles.template_popupmenu,'String',cellofvars);
 guidata(gcbo, handles);
 
 str = get(hObject, 'String');
@@ -623,9 +639,10 @@ handles.w_in2=w_in2;%store the object in the handles structure
 guidata(gcbo,handles);
 
 
+
 % --- Executes during object creation, after setting all properties.
-function obj2_popupmenu_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to obj2_popupmenu (see GCBO)
+function template_popupmenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to template_popupmenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -637,18 +654,18 @@ end
 
 
 
-function number_edit_Callback(hObject, eventdata, handles)
-% hObject    handle to number_edit (see GCBO)
+function lostephi_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to lostephi_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of number_edit as text
-%        str2double(get(hObject,'String')) returns contents of number_edit as a double
+% Hints: get(hObject,'String') returns contents of lostephi_edit as text
+%        str2double(get(hObject,'String')) returns contents of lostephi_edit as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function number_edit_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to number_edit (see GCBO)
+function lostephi_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to lostephi_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -659,31 +676,32 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in obj_radiobutton.
-function obj_radiobutton_Callback(hObject, eventdata, handles)
-% hObject    handle to obj_radiobutton (see GCBO)
+% --- Executes on button press in lostephi_radiobutton.
+function lostephi_radiobutton_Callback(hObject, eventdata, handles)
+% hObject    handle to lostephi_radiobutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of obj_radiobutton
+% Hint: get(hObject,'Value') returns toggle state of lostephi_radiobutton
 
 button_state=get(hObject,'Value');
 if button_state==get(hObject,'Max');%button is pressed
-    set(handles.number_radiobutton,'Value',0);
+    set(handles.template_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
 
-% --- Executes on button press in number_radiobutton.
-function number_radiobutton_Callback(hObject, eventdata, handles)
-% hObject    handle to number_radiobutton (see GCBO)
+
+% --- Executes on button press in template_radiobutton.
+function template_radiobutton_Callback(hObject, eventdata, handles)
+% hObject    handle to template_radiobutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of number_radiobutton
+% Hint: get(hObject,'Value') returns toggle state of template_radiobutton
 
 button_state=get(hObject,'Value');
 if button_state==get(hObject,'Max');%button is pressed
-    set(handles.obj_radiobutton,'Value',0);
+    set(handles.lostephi_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
 

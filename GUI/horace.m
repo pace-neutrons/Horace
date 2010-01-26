@@ -22,7 +22,7 @@ function varargout = horace(varargin)
 
 % Edit the above text to modify the response to help horace
 
-% Last Modified by GUIDE v2.5 11-Nov-2009 11:06:20
+% Last Modified by GUIDE v2.5 22-Jan-2010 17:08:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -409,12 +409,20 @@ if isfield(handles,'w_in');
             acolor(handles.plotovercolour);
         end
         if isfield(handles,'horacefig')
-            set(0,'CurrentFigure',handles.horacefig);
-            pp(win);
-            drawnow;
-            set(handles.message_info_text,'String','Success!');
-            drawnow;
-            guidata(gcbo,handles);
+            try
+                set(0,'CurrentFigure',handles.horacefig);
+                pp(win);
+                drawnow;
+                set(handles.message_info_text,'String','Success!');
+                drawnow;
+                guidata(gcbo,handles);
+            catch
+                pp(win);
+                drawnow;
+                set(handles.message_info_text,'String','Success!');
+                drawnow;
+                guidata(gcbo,handles);
+            end
         else
             dp(win);
             drawnow;
@@ -632,3 +640,162 @@ else
 end
 
     
+
+
+% --- Executes on button press in bose_pushbutton.
+function bose_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to bose_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+if isfield(handles,'w_in');
+    test=get(handles.obj_list_popupmenu,'String');
+    nstep=strmatch(handles.object_name,test);
+    assignin('base','horace_gui_nstep_switch',num2str(nstep));
+    horace_bosegui;
+else
+    mess='No bose correction initialised -- select an object on which to operate';
+    set(handles.message_info_text,'String',mess);
+    drawnow;
+    guidata(gcbo,handles);
+end
+
+guidata(gcbo,handles);
+
+
+% --- Executes on button press in replicate_pushbutton.
+function replicate_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to replicate_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+if isfield(handles,'w_in');
+%     if is_sqw_type(sqw(handles.w_in))
+%         mess='No replication initialised -- object selected is sqw type, which cannot be replicated';
+%         set(handles.message_info_text,'String',mess);
+%         drawnow;
+%         guidata(gcbo,handles);
+%         return;
+%     end
+    test=get(handles.obj_list_popupmenu,'String');
+    nstep=strmatch(handles.object_name,test);
+    assignin('base','horace_gui_nstep_switch',num2str(nstep));
+    horace_replicate;
+else
+    mess='No replication initialised -- select an object on which to operate';
+    set(handles.message_info_text,'String',mess);
+    drawnow;
+    guidata(gcbo,handles);
+end
+
+guidata(gcbo,handles);
+
+
+% --- Executes on button press in combine_pushbutton.
+function combine_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to combine_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+if isfield(handles,'w_in');
+%     if is_sqw_type(sqw(handles.w_in))
+%         mess='No replication initialised -- object selected is sqw type, which cannot be replicated';
+%         set(handles.message_info_text,'String',mess);
+%         drawnow;
+%         guidata(gcbo,handles);
+%         return;
+%     end
+    test=get(handles.obj_list_popupmenu,'String');
+    nstep=strmatch(handles.object_name,test);
+    assignin('base','horace_gui_nstep_switch',num2str(nstep));
+    horace_combine;
+else
+    mess='No combine initialised -- select an object on which to operate';
+    set(handles.message_info_text,'String',mess);
+    drawnow;
+    guidata(gcbo,handles);
+end
+
+guidata(gcbo,handles);
+
+
+% --- Executes on button press in symmetrise_pushbutton.
+function symmetrise_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to symmetrise_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+if isfield(handles,'w_in');
+%     if is_sqw_type(sqw(handles.w_in))
+%         mess='No replication initialised -- object selected is sqw type, which cannot be replicated';
+%         set(handles.message_info_text,'String',mess);
+%         drawnow;
+%         guidata(gcbo,handles);
+%         return;
+%     end
+    test=get(handles.obj_list_popupmenu,'String');
+    nstep=strmatch(handles.object_name,test);
+    assignin('base','horace_gui_nstep_switch',num2str(nstep));
+    horace_symmetrise;
+else
+    mess='No symmetrise initialised -- select an object on which to operate';
+    set(handles.message_info_text,'String',mess);
+    drawnow;
+    guidata(gcbo,handles);
+end
+
+guidata(gcbo,handles);
+
+
+% --- Executes on button press in rebin_pushbutton.
+function rebin_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to rebin_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+if isfield(handles,'w_in');
+%     if is_sqw_type(sqw(handles.w_in))
+%         mess='No replication initialised -- object selected is sqw type, which cannot be replicated';
+%         set(handles.message_info_text,'String',mess);
+%         drawnow;
+%         guidata(gcbo,handles);
+%         return;
+%     end
+    test=get(handles.obj_list_popupmenu,'String');
+    nstep=strmatch(handles.object_name,test);
+    assignin('base','horace_gui_nstep_switch',num2str(nstep));
+    horace_rebin;
+else
+    mess='No rebin initialised -- select an object on which to operate';
+    set(handles.message_info_text,'String',mess);
+    drawnow;
+    guidata(gcbo,handles);
+end
+
+guidata(gcbo,handles);
+

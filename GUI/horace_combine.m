@@ -1,35 +1,35 @@
-function varargout = horace_binary_operation(varargin)
-% HORACE_BINARY_OPERATION M-file for horace_binary_operation.fig
-%      HORACE_BINARY_OPERATION, by itself, creates a new HORACE_BINARY_OPERATION or raises the existing
+function varargout = horace_combine(varargin)
+% HORACE_COMBINE M-file for horace_combine.fig
+%      HORACE_COMBINE, by itself, creates a new HORACE_COMBINE or raises the existing
 %      singleton*.
 %
-%      H = HORACE_BINARY_OPERATION returns the handle to a new HORACE_BINARY_OPERATION or the handle to
+%      H = HORACE_COMBINE returns the handle to a new HORACE_COMBINE or the handle to
 %      the existing singleton*.
 %
-%      HORACE_BINARY_OPERATION('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in HORACE_BINARY_OPERATION.M with the given input arguments.
+%      HORACE_COMBINE('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in HORACE_COMBINE.M with the given input arguments.
 %
-%      HORACE_BINARY_OPERATION('Property','Value',...) creates a new HORACE_BINARY_OPERATION or raises the
+%      HORACE_COMBINE('Property','Value',...) creates a new HORACE_COMBINE or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before horace_binary_operation_OpeningFunction gets called.  An
+%      applied to the GUI before horace_combine_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to horace_binary_operation_OpeningFcn via varargin.
+%      stop.  All inputs are passed to horace_combine_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help horace_binary_operation
+% Edit the above text to modify the response to help horace_combine
 
-% Last Modified by GUIDE v2.5 13-Nov-2009 16:13:45
+% Last Modified by GUIDE v2.5 22-Jan-2010 15:03:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_binary_operation_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_binary_operation_OutputFcn, ...
+                   'gui_OpeningFcn', @horace_combine_OpeningFcn, ...
+                   'gui_OutputFcn',  @horace_combine_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,23 +44,24 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before horace_binary_operation is made visible.
-function horace_binary_operation_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before horace_combine is made visible.
+function horace_combine_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to horace_binary_operation (see VARARGIN)
+% varargin   command line arguments to horace_combine (see VARARGIN)
 
-% Choose default command line output for horace_binary_operation
+% Choose default command line output for horace_combine
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes horace_binary_operation wait for user response (see UIRESUME)
+% UIWAIT makes horace_combine wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+%The following code is copied from horace_binary_ops
 noobj=false;
 try
     nsteps=evalin('base','horace_gui_nstep_switch');
@@ -70,7 +71,7 @@ end
 
 if ~noobj
     nsteps=str2double(nsteps); %convert from string to number
-    %We must populate the list box now.
+    %We must populate the list boxes now.
     %==================================
     %
     %Clear error message
@@ -228,10 +229,6 @@ else
     w_in2=evalin('base',object_name);%get the data from the base workspace.
     handles.w_in2=w_in2;
     
-   
-    %Also ensure the default function (1st in list) minus is selected:
-    handles.funcstr='minus';
-    
     guidata(hObject,handles);
     %
     
@@ -241,7 +238,7 @@ end
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_binary_operation_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_combine_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -325,36 +322,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on selection change in function_popupmenu.
-function function_popupmenu_Callback(hObject, eventdata, handles)
-% hObject    handle to function_popupmenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns function_popupmenu contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from function_popupmenu
-
-str = get(hObject, 'String');
-val = get(hObject,'Value');
-funcstr=str{val};
-
-handles.funcstr=funcstr;
-
-guidata(gcbo,handles);
-
-% --- Executes during object creation, after setting all properties.
-function function_popupmenu_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to function_popupmenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
 
 function outobj_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to outobj_edit (see GCBO)
@@ -426,9 +393,10 @@ if ischar(save_pathname) && ischar(save_filename)
 end
 
 
-% --- Executes on button press in operate_pushbutton.
-function operate_pushbutton_Callback(hObject, eventdata, handles)
-% hObject    handle to operate_pushbutton (see GCBO)
+
+% --- Executes on button press in combine_pushbutton.
+function combine_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to combine_pushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -452,51 +420,50 @@ else
     return;
 end
 
-if ~isfield(handles,'funcstr')
-    mess='No function selected -- operation not performed';
+if isfield(handles,'w_in2')
+    win2=handles.w_in2;
+    ndims2=dimensions(win2);
+    obj_to_cut2='win2';
+else
+    mess='No valid object#2 selected -- no operation performed';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
     return;
 end
-funcstr=handles.funcstr;
 
-oponobj=get(handles.obj_radiobutton,'Value');
-objmax=get(handles.obj_radiobutton,'Max');
-oponnum=get(handles.number_radiobutton,'Value');
-nummax=get(handles.number_radiobutton,'Max');
-numval=get(handles.number_edit,'String');
+tolspec=get(handles.tolerance_radiobutton,'Value');
+nummax=get(handles.tolerance_radiobutton,'Max');
 
-workonobj=false;
-if oponobj~=objmax && oponnum~=nummax
-    mess='Select either a 2nd object (#2), or a number to operate with which to operate';
-    set(handles.message_info_text,'String',mess);
-    guidata(gcbo,handles);
-    return;
-elseif oponobj==objmax && oponnum~=nummax
-    workonobj=true;
-    if isfield(handles,'w_in2')
-        win2=handles.w_in2;
-        ndims2=dimensions(win2);
-        obj_to_cut2='win2';
+istol=false;
+if tolspec==nummax
+    tol=get(handles.tolerance_edit,'String');
+    %tol=str2mat(tol);
+    %must strip out square brackets, if user has inserted them:
+    s1=strfind(tol,'['); s2=strfind(tol,']');
+    if isempty(s1) && isempty(s2)
+        tolnew=strread(tol,'%f','delimiter',',');
+    elseif ~isempty(s1) && ~isempty(s2)
+        tol=tol(s1+1:s2-1);
+        tolnew=strread(tol,'%f','delimiter',',');
     else
-        mess='No valid object#2 selected -- no operation performed';
-        set(handles.message_info_text,'String',mess);
+        mess1='Ensure tolerance is of form [tol1,tol2,...], depending on the dimensionality';
+        set(handles.message_info_text,'String',mess1);
         guidata(gcbo,handles);
         return;
     end
-elseif oponobj~=objmax && oponnum==nummax
-    workonobj=false;
-    if isempty(oponnum)
-        mess='Choose a number with which to operate -- no operation performed yet';
-        set(handles.message_info_text,'String',mess);
+    
+    if ~all(isnan(tolnew)) && numel(tolnew)==ndims1
+        istol=true;
+    elseif numel(tolnew)~=ndims1
+        mess1='Ensure tolerance is of form [tol1,tol2,...], depending on the dimensionality';
+        set(handles.message_info_text,'String',mess1);
         guidata(gcbo,handles);
-        return;
-    end    
+    end
 end
-
+ 
 %====
 if isempty(outobjname)
-    mess='Provide a name for the output object that will be created by binary operation';
+    mess='Provide a name for the output object that will be created by combine operation';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
     return;
@@ -512,43 +479,63 @@ if saveafile && isempty(outfilename)
     outfilename='-save';
 end
 
-%Need to check that the two objects being added have the same
+%Need to check that the two objects being combined have the same
 %dimensionality!
-if oponobj && (ndims1 ~= ndims2)
-    mess='Objects selected have different dimensionality -- cannot do binary operation';
+if (ndims1 ~= ndims2)
+    mess='Objects selected have different dimensionality -- cannot do combine operation';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
     return;
 end
 
-%Now we execute the binary operation:
+%Work out which of the combine functions is required:
+if is_sqw_type(sqw(win1)) && is_sqw_type(sqw(win2))
+    funcstr='combine_sqw';
+elseif is_sqw_type(sqw(win1)) && ~is_sqw_type(sqw(win2))
+    mess='1st object is sqw type, but second is not -- cannot do combine operation';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return;
+elseif ndims1==1
+    funcstr='combine_horace_1d';
+elseif ndims1==2
+    funcstr='combine_horace_2d';
+else
+    mess='Both selected objects must either be sqw-type, or be dnd of dimensionality less than 3';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return;
+end
+
+%Now we execute the combine operation:
 try
     if ~saveafile
-        if workonobj
+        if ~istol
             out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
         else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
+            out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,',[',num2str(tol),']);']);
         end
     elseif saveafile && strcmp(outfilename,'-save')
-        if workonobj
+        if ~istol
             out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
         else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
+            out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,',[',num2str(tol),']);']);
         end
         save(out);
     else
-        if workonobj
+        if ~istol
             out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
         else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
+            out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,',[',num2str(tol),']);']);
         end
         save(out,outfilename);
     end
+    
 catch
     the_err=lasterror;
     emess=the_err.message;
     nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
+    mess1='No combine performed';
     mess2=emess(nchar+9:end);
     set(handles.message_info_text,'String',{mess1,mess2});
     guidata(gcbo,handles);
@@ -559,6 +546,7 @@ end
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String','Success!');
 guidata(gcbo,handles);
+
 
 
 
@@ -637,18 +625,18 @@ end
 
 
 
-function number_edit_Callback(hObject, eventdata, handles)
-% hObject    handle to number_edit (see GCBO)
+function tolerance_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to tolerance_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of number_edit as text
-%        str2double(get(hObject,'String')) returns contents of number_edit as a double
+% Hints: get(hObject,'String') returns contents of tolerance_edit as text
+%        str2double(get(hObject,'String')) returns contents of tolerance_edit as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function number_edit_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to number_edit (see GCBO)
+function tolerance_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to tolerance_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -659,31 +647,12 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in obj_radiobutton.
-function obj_radiobutton_Callback(hObject, eventdata, handles)
-% hObject    handle to obj_radiobutton (see GCBO)
+% --- Executes on button press in tolerance_radiobutton.
+function tolerance_radiobutton_Callback(hObject, eventdata, handles)
+% hObject    handle to tolerance_radiobutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of obj_radiobutton
+% Hint: get(hObject,'Value') returns toggle state of tolerance_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
-    set(handles.number_radiobutton,'Value',0);
-end
-guidata(gcbo, handles);
-
-% --- Executes on button press in number_radiobutton.
-function number_radiobutton_Callback(hObject, eventdata, handles)
-% hObject    handle to number_radiobutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of number_radiobutton
-
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
-    set(handles.obj_radiobutton,'Value',0);
-end
-guidata(gcbo, handles);
 
