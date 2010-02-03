@@ -21,6 +21,12 @@ enum Out_Arguments{
 //**********************************************************************************************
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
+  const char REVISION[]="$Revision::      $ ($Date::                                              $)";
+  if(nrhs==0&&nlhs==1){
+		plhs[0]=mxCreateString(REVISION); 
+		return;
+  }
+
   if(nrhs!=N_INPUT_Arguments&&nrhs!=N_INPUT_Arguments-1) {
     std::stringstream buf;
 	buf<<"ERROR::sort_pixels_by_bins needs"<<(short)N_INPUT_Arguments<<"  but got "<<(short)nrhs<<" input arguments\n";

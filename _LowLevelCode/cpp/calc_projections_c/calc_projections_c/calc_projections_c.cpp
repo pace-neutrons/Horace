@@ -70,6 +70,12 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 unsigned int eMode(1),nThreads(1),i;
 	  mwSize nDataPoints,nDetectors,nEnergies,nEnShed;
 	  double efix,k_to_e;
+	const char REVISION[]="$Revision::      $ ($Date::                                              $)";
+	if(nrhs==0&&nlhs==1){
+			plhs[0]=mxCreateString(REVISION); 
+			return;
+	}
+	  
 
 	  if(nrhs<NUM_IN_args-1){
     	  std::stringstream buf;
