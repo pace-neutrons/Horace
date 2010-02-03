@@ -40,8 +40,8 @@ for i=1:length(psi1)
 end
 
 
-gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
-         u, v, psi1, omega, dpsi, gl, gs);
+% gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%          u, v, psi1, omega, dpsi, gl, gs);
 
 write_nsqw_to_sqw(tmp_file,sqw_file);
 

@@ -102,6 +102,12 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   fileTypesAccepted[iNumFileTypes]="undefined";
 
 //--------->  ANALYSE INPUT PARAMETERS;
+  const char REVISION[]="$Revision::      $ ($Date::                                              $)";
+  if(nrhs==0&&nlhs==1){
+		plhs[0]=mxCreateString(REVISION); 
+		return;
+  }
+
   if(nrhs!=iNumInputs&&nrhs!=iNumInputs-1) {
 		buf<<"function needs one or two arguments but got "<<(short)nrhs<<" input arguments\n";	goto error;
   }
