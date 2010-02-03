@@ -104,12 +104,17 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //    sqw_data.e(nopix)=0;
 // based on original % Original matlab code of : T.G.Perring
 //
-// $Revision$ ($Date$)
 {
   mwSize  iGridSizes[4],     // array of grid sizes
           totalGridSize(1),  // number of cells in the whole grid;
 		  nGridDimensions;    // number of dimension in the whole grid (usually 4 according to the pixel data but can be modified in a future
   double *pS,*pErr,*pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
+  const char REVISION[]="$Revision::      $ ($Date::                                              $)";
+  if(nrhs==0&&nlhs==1){
+		plhs[0]=mxCreateString(REVISION); 
+		return;
+  }
+
 
   if(nrhs!=N_INPUT_Arguments) {
     std::stringstream buf;

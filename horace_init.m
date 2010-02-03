@@ -9,13 +9,18 @@ function horace_init
 % T.G.Perring
 % $Revision$ ($Date$)
 %
-disp('----------------------------------------------------------------')
-disp('       Horace')
-disp(' ====================')
-disp('  Visualisation of multi-dimensional neutron spectroscopy data')
-disp('')
-disp('  T.G.Perring, J van Duijn, R.A.Ewings         November 2008')
-disp('----------------------------------------------------------------')
+[application,Matlab_code,Fortran_code] = horace_version();
+mc = [Matlab_code(1:48),'$)'];
+fc = [Fortran_code(1:48),'$)'];
+disp('!------------------------------------------------------------------!')
+disp('!                    HORACE                                        !')
+disp('! =================================================================!')
+disp('!  Visualisation of multi-dimensional neutron spectroscopy data    !')
+disp('!                                                                  !')
+disp('!  T.G.Perring, J van Duijn, R.A.Ewings         November 2008      !')
+disp('!------------------------------------------------------------------!')
+disp(['! Matlab  code: ',mc,' !']);
+disp('!------------------------------------------------------------------!')
 
 % root directory is assumed to be that in which this function resides
 rootpath = fileparts(which('horace_init'));
