@@ -15,12 +15,14 @@ end
 deldir{1}='_developer_only';
 deldir{2}='_LowLevelCode'; 
 deldir{3}='documentation';  % as for private consumption only at the moment
-deldir{4}='GUI';            % as prototype only at the moment
-deldir{5}='test';
-deldir{6}='work_in_progress';
+deldir{4}='test';
+deldir{5}='work_in_progress';
 
 for i=1:numel(deldir)
-    rmdir(fullfile(fileroot,deldir{i}),'s');
+    dir = fullfile(fileroot,deldir{i});
+    if exist(dir,'dir')
+        rmdir(dir,'s');
+    end
 end
 
 
