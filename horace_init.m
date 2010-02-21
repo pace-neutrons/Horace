@@ -28,7 +28,7 @@ addpath_message (rootpath,'utilities');
 addpath_message (rootpath,'functions');
 
 %Add GUI path - will be added in a later version of Horace
-%addpath_message(rootpath,'GUI');
+addpath_message(rootpath,'GUI');
 
 % Set up graphical defaults for Libisis plotting
 IXG_ST_HORACE= struct('surface_name','Horace surface plot','area_name','Horace area plot','stem_name','Horace stem plot','oned_name','Horace one dimensional plot',...
