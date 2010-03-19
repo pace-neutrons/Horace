@@ -30,7 +30,15 @@ if xor(all(cross(normvec,datavec1)<1e-5),all(cross(normvec,datavec2)<1e-5))
     %tells us that normvec is parallel / antiparallel to ONE of the data
     %axes. Implicitly catches the case where normvec=[0,0,0]
     speedup=true;
+elseif (all(cross(normvec,datavec1)<1e-5)) && all(datavec2<1e-5)
+    %There is another case that we must deal with, where one of the axes is
+    %energy, since the cross product above will be zero for both parts of the
+    %xor statement.
+    speedup=true;
+elseif (all(cross(normvec,datavec2)<1e-5)) && all(datavec1<1e-5)
+    speedup=true;
 end
+
 
 %==============
 %OLD CODE (not sufficiently general)
@@ -52,12 +60,21 @@ end
 
 if speedup
     %must now work out what the midpoint is.
-    if all(cross(normvec,datavec1)<1e-5)
-       xval=(v3(datavec1>1e-5))./(datavec1(datavec1>1e-5));
-       midpoint=[xval(1),NaN];
-    elseif all(cross(normvec,datavec2)<1e-5)
-       yval=(v3(datavec2>1e-5))./(datavec2(datavec2>1e-5));
-       midpoint=[NaN,yval(1)];
+    if all(cross(normvec,datavec1)<1e-5) && any(datavec1>1e-5)
+       %xval=(v3(datavec1>1e-5))./(datavec1(datavec1>1e-5));
+       %firstx=xval(1); firstx=firstx-win.data.uoffset(win.data.pax(1));
+       %
+       %Replaced the above 2 commented lines with the next two, as more
+       %general.
+       v3new=inv(win.data.u_to_rlu([1:3],[1:3]))*v3;
+       firstx=v3new(win.data.pax(1));
+       midpoint=[firstx,NaN];
+    elseif all(cross(normvec,datavec2)<1e-5) && any(datavec2>1e-5)
+       %yval=(v3(datavec2>1e-5))./(datavec2(datavec2>1e-5));
+       %firsty=yval(1); firsty=firsty-win.data.uoffset(win.data.pax(2));
+       v3new=inv(win.data.u_to_rlu([1:3],[1:3]))*v3;
+       firsty=v3new(win.data.pax(2));
+       midpoint=[NaN,firsty];
     else
         error('Horace error: symmetrisation logic flaw. Contact R. Ewings');
     end
