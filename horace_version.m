@@ -13,7 +13,7 @@ function [application,Matlab_SVN,Fortran_version]=horace_version(varargin)
 % returns revision data as numbers rather then strings (convenient for version analysis)
 %
 %
-% $COMMIT_COUNTER:: 3 $
+% $COMMIT_COUNTER:: 16 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will 
 % be modified and probably corrupted at commit
