@@ -412,6 +412,12 @@ obj_to_cut='win1';
 
 if isfield(handles,'w_in1')
     win1=handles.w_in1;
+    if numel(win1)~=1
+        mess='Object#1 is an array of objects. Rebin not yet implemented for arrays -- operation not performed';
+        set(handles.message_info_text,'String',mess);
+        guidata(gcbo,handles);
+        return;
+    end    
     ndims1=dimensions(win1);
 else
     mess='No valid object#1 selected -- operation not performed';
@@ -422,6 +428,12 @@ end
 
 if isfield(handles,'w_in2')
     win2=handles.w_in2;
+    if numel(win2)~=1
+        mess='Object#2 is an array of objects. Rebin not yet implemented for arrays -- operation not performed';
+        set(handles.message_info_text,'String',mess);
+        guidata(gcbo,handles);
+        return;
+    end    
     ndims2=dimensions(win2);
     obj_to_cut2='win2';
 else
@@ -437,7 +449,7 @@ nummax=get(handles.lostephi_radiobutton,'Max');
 %The following unfinished code is to get the manually specified rebin. It
 %will have to be a lot cleverer than that used in e.g. horace_combine,
 %because we have to be able to sense multiple rebins, such as
-%[lo1,step1,hi1],[],[lo3,step3hi3] etc.
+%[lo1,step1,hi1],[],[lo3,step3,hi3] etc.
 ismanual=false;
 if manspec==nummax
     lostephi=get(handles.lostephi_edit,'String');

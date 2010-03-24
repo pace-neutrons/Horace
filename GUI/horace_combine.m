@@ -412,6 +412,12 @@ obj_to_cut='win1';
 
 if isfield(handles,'w_in1')
     win1=handles.w_in1;
+    if numel(win1)~=1
+        mess='Object #1 is an array of objects. Combine not yet implemented for this -- operation not performed';
+        set(handles.message_info_text,'String',mess);
+        guidata(gcbo,handles);
+        return;
+    end    
     ndims1=dimensions(win1);
 else
     mess='No valid object#1 selected -- operation not performed';
@@ -422,6 +428,12 @@ end
 
 if isfield(handles,'w_in2')
     win2=handles.w_in2;
+    if numel(win2)~=1
+        mess='Object #2 is an array of objects. Combine not yet implemented for this -- operation not performed';
+        set(handles.message_info_text,'String',mess);
+        guidata(gcbo,handles);
+        return;
+    end 
     ndims2=dimensions(win2);
     obj_to_cut2='win2';
 else

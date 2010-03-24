@@ -270,6 +270,13 @@ guidata(gcbo,handles);
 drawnow;
 if isfield(handles,'w_in');
     win=handles.w_in;
+    if numel(win)~=1
+        mess='No plot performed - object selected is an array of Horace objects';
+        set(handles.message_info_text,'String',mess);
+        drawnow;
+        guidata(gcbo,handles);
+        return;
+    end
     ndims=dimensions(win);
     if ndims==1
         if isfield(handles,'plotmarker') && ~isempty(handles.plotmarker)
@@ -400,6 +407,13 @@ drawnow;
 
 if isfield(handles,'w_in');
     win=handles.w_in;
+    if numel(win)~=1
+        mess='No plot-over performed - object selected is an array of Horace objects';
+        set(handles.message_info_text,'String',mess);
+        drawnow;
+        guidata(gcbo,handles);
+        return;
+    end
     ndims=dimensions(win);
     if ndims==1
         if isfield(handles,'plotovermarker') && ~isempty(handles.plotovermarker)
@@ -623,6 +637,13 @@ drawnow;
 
 if isfield(handles,'w_in')
     win=handles.w_in;
+    if numel(win)~=1
+        mess='No save performed - object selected is an array of Horace objects';
+        set(handles.message_info_text,'String',mess);
+        drawnow;
+        guidata(gcbo,handles);
+        return;
+    end
     str=get(handles.savefile_edit,'String');
     if ~isempty(str)
         save(win,str);

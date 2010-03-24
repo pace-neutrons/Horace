@@ -22,7 +22,7 @@ function varargout = horace_bosegui(varargin)
 
 % Edit the above text to modify the response to help horace_bosegui
 
-% Last Modified by GUIDE v2.5 07-Dec-2009 14:25:45
+% Last Modified by GUIDE v2.5 24-Mar-2010 12:48:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -320,7 +320,7 @@ obj_to_cut='win1';
 
 if isfield(handles,'w_in1')
     win1=handles.w_in1;
-    ndims1=dimensions(win1);
+    %ndims1=dimensions(win1);
 else
     mess='No valid object#1 selected -- no replication performed';
     set(handles.message_info_text,'String',mess);
