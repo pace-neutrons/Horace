@@ -442,9 +442,25 @@ outfilename=get(handles.outfile_edit,'String');
 out_to_file=get(handles.outfile_radiobutton,'Value');
 obj_to_cut='win1';
 
+%Realise that we have to deal with some greater complexity if the first
+%object is actually an array of objects
 if isfield(handles,'w_in1')
     win1=handles.w_in1;
-    ndims1=dimensions(win1);
+    if numel(win1)~=1
+        for i=1:numel(win1)
+            ndims1(i)=dimensions(win1(i));
+        end
+        if ~all(ndims1==ndims1(1))
+            mess='Object#1 is an array of objects with different dimensionality -- operation not performed';
+            set(handles.message_info_text,'String',mess);
+            guidata(gcbo,handles);
+            return;
+        else
+            ndims1=ndims1(1);
+        end
+    else
+        ndims1=dimensions(win1);
+    end
 else
     mess='No valid object#1 selected -- operation not performed';
     set(handles.message_info_text,'String',mess);
@@ -476,6 +492,34 @@ elseif oponobj==objmax && oponnum~=nummax
     workonobj=true;
     if isfield(handles,'w_in2')
         win2=handles.w_in2;
+        if numel(win2)~=1 && numel(win2)~=numel(win1)
+            mess='Objects #1 and #2 are different sized arrays of objects -- operation not performed';
+            set(handles.message_info_text,'String',mess);
+            guidata(gcbo,handles);
+            return;
+        elseif numel(win2)~=1 && numel(win2)==numel(win1)
+            %must now check that dimensions are all the same
+            for i=1:numel(win2)
+                if dimensions(win2(i))~=dimensions(win1(i))
+                    mess='Objects #1 and #2 do not have matching dimensionality -- operation not performed';
+                    set(handles.message_info_text,'String',mess);
+                    guidata(gcbo,handles);
+                    return;
+                end
+            end
+            ndims2=dimensions(win2(1));
+        elseif numel(win2)==1
+            %compare aginast dimensionality of win1
+            ndims2=dimensions(win2);
+            if ndims2~=ndims1
+                mess='Objects #1 and #2 do not have matching dimensionality -- operation not performed';
+                set(handles.message_info_text,'String',mess);
+                guidata(gcbo,handles);
+                return;
+            end
+        else
+            %throw an error
+        end
         ndims2=dimensions(win2);
         obj_to_cut2='win2';
     else

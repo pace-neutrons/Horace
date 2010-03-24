@@ -371,6 +371,12 @@ obj_to_cut='win';
 
 if isfield(handles,'w_in')
     win=handles.w_in;
+    if numel(win)~=1
+        mess='Object selected is an array of objects. Symmetrisation not yet implemented for arrays -- symmetrisation not performed';
+        set(handles.message_info_text,'String',mess);
+        guidata(gcbo,handles);
+        return;
+    end
     ndims=dimensions(win);
 else
     mess='No valid object selected -- symmetrisation not performed';

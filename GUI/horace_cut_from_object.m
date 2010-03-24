@@ -337,6 +337,13 @@ drawnow;
 %dimensionality of object.
 if isfield(handles,'w_in')
     win=handles.w_in;
+    if numel(win)~=1
+        mess='No cut performed - object selected is an array of Horace objects';
+        set(handles.message_info_text,'String',mess);
+        drawnow;
+        guidata(gcbo,handles);
+        return;
+    end
     ndims=dimensions(win);
 else
     mess='No valid object selected -- no cut taken';
