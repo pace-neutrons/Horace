@@ -395,7 +395,13 @@ drawnow;
 
 if isfield(handles,'w_in')
     win=handles.w_in;
-    ndims=dimensions(win);
+    if numel(win)~=1
+        for i=1:numel(win)
+            ndims(i)=dimensions(win(i));%we have this for debug purposes only
+        end
+    else
+        ndims=dimensions(win);
+    end
 else
     mess='No valid object selected -- no operation performed';
     set(handles.message_info_text,'String',mess);

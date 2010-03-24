@@ -17,5 +17,5 @@ wout=mtimes(win,sqw_bose);
 
 function y = bose_factor(h,k,l,en,T)
 %
-y = (1 - exp(-11.0644.*en/T));
+y = (1 - exp(-11.6044.*en/T));
 
