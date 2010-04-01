@@ -138,7 +138,6 @@ end
 tmp=IXTdataset_2d ('Spectral weight', weight, zeros(size(weight)),...
             IXTaxis('Spectral weight'), x', IXTaxis('momentum'), false, en, IXTaxis('Energy'), false);
         
-ddd=15;
 if opt.plot
     da(tmp)
     if ~present.labels
