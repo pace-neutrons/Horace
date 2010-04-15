@@ -88,7 +88,12 @@ end
 % Read application and version number
 pos_tmp=ftell(fid);
 [app_wrote_file,mess]=get_application(fid);
-if isempty(mess) && strcmpi(application.name,app_wrote_file.name) && application.version==app_wrote_file.version
+%RAE modification - comment out 3rd part of if statement. This is because
+%we got failure when trying to use v2 to read v1 data, and vice versa. In
+%fact we only need to check that there is some app_wrote_file.name info.
+%For pre-sqw data this info is missing, which is all we really need to
+%check for.
+if isempty(mess) && strcmpi(application.name,app_wrote_file.name) %&& application.version==app_wrote_file.version
     % Current version of Horace wrote file
     current_format=true;
 else
