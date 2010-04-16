@@ -45,21 +45,21 @@ if nopix
         xmax=max(win.p{win.dax(1)});
         %
         %Camera pos vector:
-        camposvec=[100.*xmax,ycen,zcen];
+        camposvec=[2.*xmax,ycen,zcen];
     elseif axis==2
         xcen=median(win.p{win.dax(1)});
         zcen=median(win.p{win.dax(3)});
         ymax=max(win.p{win.dax(2)});
         %
         %Camera pos vector:
-        camposvec=[xcen,100.*ymax,zcen];
+        camposvec=[xcen,2.*ymax,zcen];
     elseif axis==3
         xcen=median(win.p{win.dax(1)});
         ycen=median(win.p{win.dax(2)});
         zmax=max(win.p{win.dax(3)});
         %
         %Camera pos vector:
-        camposvec=[xcen,ycen,zmax];
+        camposvec=[xcen,ycen,2.*zmax];
     else
         error('Axis argument must be an integer in the range 1 to 3');
     end
@@ -72,21 +72,21 @@ else
             xmax=max(win.data.p{win.data.dax(1)});
             %
             %Camera pos vector:
-            camposvec=[100.*xmax,ycen,zcen];
+            camposvec=[2.*xmax,ycen,zcen];
     elseif axis==2
             xcen=median(win.data.p{win.data.dax(1)});
             zcen=median(win.data.p{win.data.dax(3)});
             ymax=max(win.data.p{win.data.dax(2)});
             %
             %Camera pos vector:
-            camposvec=[xcen,100.*ymax,zcen];
+            camposvec=[xcen,2.*ymax,zcen];
     elseif axis==3
             xcen=median(win.data.p{win.data.dax(1)});
             ycen=median(win.data.p{win.data.dax(2)});
             zmax=max(win.data.p{win.data.dax(3)});
             %
             %Camera pos vector:
-            camposvec=[xcen,ycen,zmax];
+            camposvec=[xcen,ycen,2.*zmax];
     else
             error('Axis argument must be an integer in the range 1 to 3');
     end
