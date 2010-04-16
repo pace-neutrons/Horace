@@ -52,6 +52,8 @@ function horace_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to horace (see VARARGIN)
 
+splash('splashscreen','jpg',4000);
+
 % Choose default command line output for horace
 handles.output = hObject;
 
