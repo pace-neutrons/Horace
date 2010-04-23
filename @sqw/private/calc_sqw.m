@@ -85,8 +85,18 @@ sqw_data.s=sum(data.S(:));
 sqw_data.e=sum(data.ERR(:).^2);
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;
-sqw_data.pix=[ucoords;...
-    ones(1,ne*ndet);...                                 % run index - all unity
-    reshape(repmat(det.group,[ne,1]),[1,ne*ndet]);...   % detector index
-    reshape(repmat([1:ne]',[1,ndet]),[1,ne*ndet]);...   % energy bin index
-    data.S(:)';((data.ERR(:)).^2)'];
+%sqw_data.pix=[ucoords;...
+%    ones(1,ne*ndet);...                                 % run index - all unity
+%    reshape(repmat(det.group,[ne,1]),[1,ne*ndet]);...   % detector index
+%    reshape(repmat([1:ne]',[1,ndet]),[1,ne*ndet]);...   % energy bin index
+%    data.S(:)';((data.ERR(:)).^2)'];
+
+% this modification allows to save memory and working with larger arrays
+sqw_data.pix=ones(9,ne*ndet);
+sqw_data.pix(1:4,:)=ucoords;
+clear ucoord;
+sqw_data.pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+clear det;
+sqw_data.pix(7,:)=reshape(repmat([1:ne]',[1,ndet]),[1,ne*ndet]); % energy bin index
+sqw_data.pix(8,:)=data.S(:)';
+sqw_data.pix(9,:)=((data.ERR(:)).^2)';
