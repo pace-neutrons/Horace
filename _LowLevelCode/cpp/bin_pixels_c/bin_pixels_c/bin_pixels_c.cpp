@@ -2,10 +2,22 @@
 // $Revision$ ($Date$)
 //
 enum input_arguments{
-	sqw_DataStructure,
-	Uranges,
-	Grid_sizes,
+	Sqw_parameters,
 	N_INPUT_Arguments
+};
+enum arguments_meaning{
+   Threads,
+   Urange,  
+   Grid_size,      
+   Pix,
+   N_ARGUMENT_CELLS
+};
+enum out_arguments{
+   Signal,
+   Error,  
+   N_pix,      
+   Pix_out,
+   N_ARGUMENTS_OUT
 };
 enum output_arguments{  // not used at the moment
 	Sqw_data,
@@ -28,54 +40,6 @@ bool accumulate_cut(double *s, double *e, double *npix,
 
 const int PIXEL_DATA_WIDTH=9;
 //
-double * check_or_add_field_to_struct(mxArray *str,const char *const fieldName,mwSize totalGridSize,mwSize nGridDims,mwSize const *iGridSizes ){
-//**********************************************************************************************
-//> adding or modifying the array field to the spe structure                                   *
-//
-//mxArray *str      -- structure to modify                                                     *
-//        *fieldName-- name of the field                                                       *
-// description of the field to add or modify                                                   *
-//  totalGridSize   -- number of cells in the grid                                             *
-//  nGridDims       -- number of grid dimensions (expected 4)                                  *
-// *iGridSizes      -- array of the grid sizes in each direction                               *
-//<*********************************************************************************************
-  double *pData;
-  mxArray *pField=mxGetField(str,0,fieldName);
-  if(!pField){   // field is not present -- add it and nullify its values
-      int n_field(-1);
-	  if(n_field=mxAddField(str, fieldName)<0){		  throw(" Can not add field to the structure");
-	  }
-	  mxArray *value = mxCreateNumericArray(nGridDims,iGridSizes,mxDOUBLE_CLASS,mxREAL);
-	  if(!value){    throw(" Can not allocate memory for the structure values");
-	  }
-      mxSetFieldByNumber(str,0,n_field,value);
-	  pField = mxGetFieldByNumber(str,0,n_field);
-	  pData  = mxGetPr(value);
-	  for(mwSize i=0;i<totalGridSize;i++){			pData[i]=0;
-	  }
-  }else{          // field is present; is it of the correct shape and size?
-      mwSize nDims  = mxGetN(pField);
-	  mwSize const *pDims = mxGetDimensions(pField);
-	  mwSize iSize(1);
-	  for(mwSize i=0;i<nDims;i++){			iSize*=pDims[i];
-	  }
-	  if(nDims!=nGridDims||iSize!=totalGridSize){  // it is wrong size or shape -- we have to delete it and create the correct one
-		  mxDestroyArray(pField);
-		  mxArray *value = mxCreateNumericArray(nGridDims,iGridSizes,mxDOUBLE_CLASS,mxREAL);
-		  if(!value){    throw(" Can not allocate memory for the structure values");
-		  }
-		  mxSetField(str,0,fieldName,value);
-		  pData = mxGetPr(value);
-		  for(mwSize i=0;i<totalGridSize;i++){		pData[i]=0;
-		  }
-	  }else{                                         // yes, it is fine, let-s just return pointer to the data
-		  pData = mxGetPr(pField);
-	  }
-  }
-  return pData;
-
-}
-
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //*************************************************************************************************
 // the function (bin_pixels_c) distributes pixels according to the 4D-grid specified and
@@ -91,7 +55,6 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //    [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
 //    % transform pixels;
 //    sqw_data.pix=sqw_data.pix(:,ix);
-//    sqw_data.p=p;
 //    sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
 //    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
 //    sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
@@ -107,8 +70,11 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
   mwSize  iGridSizes[4],     // array of grid sizes
           totalGridSize(1),  // number of cells in the whole grid;
-		  nGridDimensions;    // number of dimension in the whole grid (usually 4 according to the pixel data but can be modified in a future
+		  nGridDimensions,    // number of dimension in the whole grid (usually 4 according to the pixel data but can be modified in a future
+          i;
   double *pS,*pErr,*pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
+  mxArray *PixelSorted;
+
   const char REVISION[]="$Revision::      $ ($Date::                                              $)";
   if(nrhs==0&&nlhs==1){
 		plhs[0]=mxCreateString(REVISION); 
@@ -126,74 +92,75 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //	buf<<"ERROR::bin_pixels accepts only "<<(short)N_OUTPUT_Arguments<<" but requested to return"<<(short)nlhs<<" arguments\n";
 //    mexErrMsgTxt(buf.str().c_str());
 //  }
-    int num_threads(1);
-    mxArray *pThreads = mexGetVariable("caller","nThreads");
-    if(pThreads){
-		num_threads=(int)*mxGetPr(pThreads);
-	}else{
-		num_threads = 1;
-		mexPrintf(" can not find the number of threads in calling workspace, 1 assumed");
-	}
-
-   for(int i=0;i<nrhs;i++){
-	  if(prhs[i]==NULL){
-		      std::stringstream buf;
-			  buf<<"ERROR::bin_pixels=> input argument N"<<i+1<<" is undefined\n";
-			  mexErrMsgTxt(buf.str().c_str());
-	  }
+  if(!mxIsCell(prhs[Sqw_parameters])){
+		mexErrMsgTxt("ERROR::bin_pixels function needs to receive its parameters as a cell array\n");
   }
-  double const *const pGrid_sizes    = (double *)mxGetPr(prhs[Grid_sizes]);
-  double const *const pUranges       = (double *)mxGetPr(prhs[Uranges]);
-  nGridDimensions                    = mxGetN(prhs[Grid_sizes]);
-  if(nGridDimensions>4)mexErrMsgTxt(" we do not currently work with the grids which have more than 4 dimensions");
+  size_t nPars        =  mxGetN(prhs[Sqw_parameters]);
 
-  for(mwSize i=0;i<nGridDimensions;i++){
+  if (nPars!=N_ARGUMENT_CELLS){
+    std::stringstream buf;
+	buf<<"ERROR::bin_pixels expexts array of "<<(short)N_ARGUMENT_CELLS; 
+	buf<<"cells \n but got "<<(short)nPars<<" cells\n";
+	mexErrMsgTxt(buf.str().c_str());
+  }
+
+
+  int num_threads(1);
+  mxArray *pThreads = mxGetCell(prhs[Sqw_parameters], Threads);
+  if(pThreads){
+		num_threads=(int)*mxGetPr(pThreads);
+  }else{
+		num_threads = 1;
+		mexPrintf("ERROR::bin_pixels->can not retrieve the number of computational threads from calling workspace, 1 assumed");
+ }
+
+  double const *const pGrid_sizes    = (double *)mxGetPr(mxGetCell(prhs[Sqw_parameters], Grid_size));
+  double const *const pUranges       = (double *)mxGetPr(mxGetCell(prhs[Sqw_parameters], Urange));
+  nGridDimensions                    = mxGetN(mxGetCell(prhs[Sqw_parameters], Grid_size));
+  if(nGridDimensions>4)mexErrMsgTxt(" we do not currently work with the grids which have more then 4 dimensions");
+
+  for(i=0;i<nGridDimensions;i++){
 	  iGridSizes[i]=(mwSize)(pGrid_sizes[i]);
 	  totalGridSize*=iGridSizes[i];
   }
-
-  if(!mxIsStruct(prhs[sqw_DataStructure])){
-		mexErrMsgTxt(" third parameter has to be a sqw structure");
-  }
-// les's obtain the existing field names of the input structure
-//  int nFields   = mxGetNumberOfFields(prhs[sqw_DataStructure]);
-//  char **fieldNames = (char **)mxCalloc(nFields,sizeof(char *));
-//  for(int i=0;i<nFields;i++){
-//	  fieldNames[i] = const_cast<char *>(mxGetFieldNameByNumber(prhs[sqw_DataStructure],i));
-//  }
-// the field named "pix" has to be present and defined in the structure;
-  mxArray      * const pPixData        = mxGetField(prhs[sqw_DataStructure],0,"pix");
-  if(!pPixData)mexErrMsgTxt(" sqw data structure (third parameter) has to be a single structure with pixel data defined");
-// this field has to had the format specified;
+//**************************************************************
+  // get pixels information
+  mxArray* const pPixData    = mxGetCell(prhs[Sqw_parameters], Pix);
+  if(!pPixData)mexErrMsgTxt("ERROR::bin_pixels-> pixels information (last field of input data) can not be void");
+  // this field has to had the format specified;
   mwSize  nPixels             = mxGetN(pPixData);
   mwSize  nDataRange          = mxGetM(pPixData);
-  if(nDataRange!=9)mexErrMsgTxt(" the pixel data have to be a 9*num_of_pixels array");
+  if(nDataRange!=9)mexErrMsgTxt("ERROR::bin_pixels-> the pixel data have to be a 9*num_of_pixels array");
 
- // allocate field "s"
-  try{
-	// we adding to const structure -- the consequences may be not good
-	pS=check_or_add_field_to_struct(const_cast<mxArray *>(prhs[sqw_DataStructure]),"s",totalGridSize,nGridDimensions,iGridSizes);
-  }catch(const char *Err){	  mexErrMsgTxt(Err);
-  };
+  // 
+  plhs[0] = mxCreateCellMatrix(1,N_ARGUMENTS_OUT);
+  if(!plhs[0]){mexErrMsgTxt("ERROR::bin_pixels-> can not allocate cell array for output parameters");
+  }
 
- // allocate field "e"
-  try{
-	pErr=check_or_add_field_to_struct(const_cast<mxArray *>(prhs[sqw_DataStructure]),"e",totalGridSize,nGridDimensions,iGridSizes);
-  }catch(const char *Err){	  mexErrMsgTxt(Err);
-  };
+  mxArray* tt;
+  for(i=0;i<N_ARGUMENTS_OUT-1;i++){
+			tt=mxCreateNumericArray(nGridDimensions,iGridSizes,mxDOUBLE_CLASS,mxREAL);
+			if (!tt)mexErrMsgTxt("ERROR::bin_pixels->can not allocate memory for output signals errors and npixels");
+			mxSetCell(plhs[0],i,tt);
+  }
 
-  // allocate field "npix"
-  try{
-	pNpix=check_or_add_field_to_struct(const_cast<mxArray *>(prhs[sqw_DataStructure]),"npix",totalGridSize,nGridDimensions,iGridSizes);
-  }catch(const char *Err){	  mexErrMsgTxt(Err);
-  };
+  pS   = (double *)mxGetPr(mxGetCell(plhs[0],Signal));
+  pErr = (double *)mxGetPr(mxGetCell(plhs[0],Error));
+  pNpix= (double *)mxGetPr(mxGetCell(plhs[0],N_pix));
 
-  mxArray *PixelSorted;
+  for (i=0;i<totalGridSize;i++){
+    *(pS+i)   =0;
+    *(pErr+i) =0;
+    *(pNpix+i)=0;
+  }
+
+
   bool place_pixels_in_old_array = accumulate_cut(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
   if(!place_pixels_in_old_array){
 		mxDestroyArray(pPixData);
-		mxSetField(const_cast<mxArray *>(prhs[sqw_DataStructure]),0,"pix",PixelSorted);
   }
+  mxSetCell(plhs[0],3,PixelSorted);
+
 
 }
 
@@ -229,7 +196,7 @@ try{         	nGridCell	= new mwSize[data_size]; // grid indexes of the retainde
 omp_set_num_threads(num_threads);
 int numRealThreads=omp_get_max_threads();
 
-int PIXEL_data_width=nPixelDatas;
+int PIXEL_data_width=(int)nPixelDatas;
 double  xBinR,yBinR,zBinR,eBinR;                 // new bin sizes in four dimensins 
 mwSize  nDimX(0),nDimY(0),nDimZ(0),nDimE(0); // reduction dimensions; if 0, the dimension is reduced;
 
@@ -326,6 +293,7 @@ try{
 	}
 	bool place_pixels_in_old_array(false);
 	if(!PixelSorted){              // replace pixels in-place 
+		//PixelSorted=mxCreateSharedDataCopy(pPixel_data);
 		PixelSorted              =pPixel_data;
 		place_pixels_in_old_array=true;
 	}

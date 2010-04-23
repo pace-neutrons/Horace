@@ -114,31 +114,33 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
     grid_size = grid_size_in;
 else
     disp('Sorting pixels ...')
+    
+
 try
 %    error(' use matlab');
 % verify the grid consistency and build axis along the grid dimensions, 
 % c-program does not check the grid consistency;
     [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);
     mem = horace_memory();
-    nThreads=mem.threads; % picked up by bin_pixels_c directly;
-%    nThreads=1; % picked up by bin_pixels_c directly;
-%   sets this fields in-place: [sqw_data.pix,sqw_data.s,sqw_data.e,sqw_data.npix]=bin_pixels_c(sqw_data,urange,grid_size);
-%  ************** !!! DANGEROUS !!! ***********************************
-%   bin_pixels_c modifies data in-place saving memory but
-%   if one saved sqw_data or any of its fields in an array before or after
-%   this, both arrays will be modified (untill disjoined)
-% %     [scratch, sort_in_place]=bin_pixels_c(sqw_data,urange,grid_size); % not implemented yet
-% %     if(~sort_in_place)
-% %         sqw_data=scratch;
-% %     end
-   bin_pixels_c(sqw_data,urange,grid_size);
-%  ************** !!! DANGEROUS !!! ***********************************
+
+   sqw_fields   =cell(1,4);
+   sqw_fields{1}=mem.threads; 
+   sqw_fields{2}=urange;   
+   sqw_fields{3}=grid_size;      
+   sqw_fields{4}=sqw_data.pix;   
+   clear sqw_data.s sqw_data.e sqw_data.npix;
+   
+   out_fields=bin_pixels_c(sqw_fields);
+   sqw_data.s   = out_fields{1};
+   sqw_data.e   = out_fields{2};   
+   sqw_data.npix= out_fields{3};      
+   sqw_data.pix = out_fields{4};         
+
 
  catch
     warning(' problem with C-routine to rebin data, using matlab fucntions');
     [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
     sqw_data.pix=sqw_data.pix(:,ix);
-    sqw_data.p=p;
     sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
     sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
     sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
