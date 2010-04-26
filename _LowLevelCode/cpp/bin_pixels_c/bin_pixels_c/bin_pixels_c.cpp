@@ -111,7 +111,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 		num_threads=(int)*mxGetPr(pThreads);
   }else{
 		num_threads = 1;
-		mexPrintf("ERROR::bin_pixels->can not retrieve the number of computational threads from calling workspace, 1 assumed");
+		mexPrintf("WARNING::bin_pixels->can not retrieve the number of computational threads from calling workspace, 1 assumed");
  }
 
   double const *const pGrid_sizes    = (double *)mxGetPr(mxGetCell(prhs[Sqw_parameters], Grid_size));
@@ -156,9 +156,13 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
 
   bool place_pixels_in_old_array = accumulate_cut(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
-  if(!place_pixels_in_old_array){
-		mxDestroyArray(pPixData);
+  //if(!place_pixels_in_old_array){
+  //		mxDestroyArray(pPixData);
+  //}
+  if(place_pixels_in_old_array){
+     mexPrintf("WARNING::bin_pixels->not enough memory for working arrays; Pixels sorted in-place");
   }
+
   mxSetCell(plhs[0],3,PixelSorted);
 
 
