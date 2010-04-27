@@ -1,5 +1,4 @@
 #include "stdafx.h"
-// $Revision$ ($Date$)
 //
 enum input_arguments{
 	Sqw_parameters,

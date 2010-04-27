@@ -65,12 +65,13 @@ nfiles = length(spe_file);
 if ~(size(unique(spe_file),2)==size(spe_file,2))
     error('One or more spe file name is repeated. All spe files must be unique')
 end
-% Check that all the files exist
-for i=1:nfiles
-    if exist(spe_file{i},'file')~=2
-        error(['File ',spe_file{i},' not found'])
-    end
-end
+% Check that all the files exist 
+% not necessary as this check fails if hdf files used as source. Moreover, this check is automatically performed in speData class constructor
+%for i=1:nfiles
+%    if exist(spe_file{i},'file')~=2
+%        error(['File ',spe_file{i},' not found'])
+%    end
+%end
 
 
 % Check par file and output sqw file are character rows (easy mistake to think that cellstr are allowed input to gen_sqw)

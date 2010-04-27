@@ -91,6 +91,7 @@ function varargout = cut (varargin)
 % Determine if data source is sqw object or file
 [data_source, args, source_is_file, sqw_type] = parse_data_source (varargin{:});
 
+
 if sqw_type
     if nargout>0
         wout = cut_sqw (varargin{:});
