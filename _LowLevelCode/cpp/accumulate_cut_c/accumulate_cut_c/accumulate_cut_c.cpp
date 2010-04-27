@@ -1,5 +1,4 @@
 // accumulate_cut.cpp : Defines the exported functions for the DLL application.
-// $Revision$ ($Date$)
 
 #include "stdafx.h"
 #include "accumulate_cut_c.h"

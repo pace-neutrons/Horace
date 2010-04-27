@@ -67,8 +67,8 @@ k_to_e = c.k_to_e; % picked up by calc_proj_c;
 % Calculate Q in spectrometer coordinates for each pixel 
 try     % using ? routine
 %    error(' use matlab')
-    mem = horace_memory();
-    nThreads=mem.threads; % picked up by calc_proj_c;
+
+    nThreads=get(hor_config,'threads'); % picked up by calc_proj_c;
 
     ucoords =calc_projections_c(spec_to_proj,data, det,efix, k_to_e,emode,nThreads);
 catch   %using matlab routine

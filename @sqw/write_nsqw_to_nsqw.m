@@ -177,8 +177,8 @@ try
 % %     if(~sort_in_place)
 % %         sqw_data=scratch;        
 % %     end
-   mem = horace_memory();
-   nThreads=mem.threads; % picked up by bin_pixels_c directly;  
+
+   nThreads=get(config,'threads'); % picked up by bin_pixels_c directly;  
 % %
    bin_pixels_c(sqw_data,urange,grid_size); 
 %  ************** !!! DANGEROUS !!! ***********************************        

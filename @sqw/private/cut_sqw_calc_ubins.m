@@ -167,7 +167,7 @@ vertex_out = rot*vertex_in;
 urange_out=[[min(vertex_out,[],2)';max(vertex_out,[],2)'],urange_in(:,4)];  % 2x4 array of limits in output proj. axes
 
 iint=zeros(2,niax);
-p=cell(1,npax);
+p   =cell(1,npax);
 urange=zeros(2,4);
 
 % Compute plot bin boundaries and range that fully encloses the requested output plot axes

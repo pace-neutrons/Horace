@@ -121,10 +121,10 @@ try
 % verify the grid consistency and build axis along the grid dimensions, 
 % c-program does not check the grid consistency;
     [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);
-    mem = horace_memory();
-
+%
+%
    sqw_fields   =cell(1,4);
-   sqw_fields{1}=mem.threads; 
+   sqw_fields{1}=get(hor_config,'threads'); 
    sqw_fields{2}=urange;   
    sqw_fields{3}=grid_size;      
    sqw_fields{4}=sqw_data.pix;   
@@ -138,7 +138,7 @@ try
 
 
  catch
-    warning(' problem with C-routine to rebin data, using matlab fucntions');
+    warning('HORACE:sqw','sqw:write_spe_to_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab fucntions',lasterr());
     [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
     sqw_data.pix=sqw_data.pix(:,ix);
     sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
@@ -157,26 +157,46 @@ try
     clear nopix     % biggish array no longer needed
 end
  end
-
+bigtoc('Time to convert from spe to sqw data:')
 
 % Write header, detector parameters and processed data
 % -------------------------------------------------------
-disp(['Writing sqw data to ',sqw_file,' ...'])
+[path,file]=fileparts(sqw_file);
+disp(['Writing sqw data to ',file,' ...'])
 
-% Open output file
-fid=fopen(sqw_file,'W');    % upper case 'W' means no automatic flushing of buffer - can be faster
-if fid<0
-    error(['Unable to open file output file ',sqw_file])
-end
+%profile on
 
-mess=put_sqw (fid,main_header,header,det0,sqw_data);
-fclose(fid);
-if ~isempty(mess)
-    error('Error writing data to file %s \n %s',sqw_file,mess)
+bigtic;
+
+% *** > binary to hdf modification place
+if get(hdf_config,'use_hdf')
+    sqw_data   = combine_structures(header,sqw_data);
+    sqw_single = one_sqw(sqw_data,det0);
+    sqw_single = sqw_single.write_detectors(det0);
+    sqw_single = sqw_single.write(sqw_data);
+    delete(sqw_single);% no destructor so you have to release hdf resources youself
+else
+
+%Open output file
+    fid=fopen(sqw_file,'W');    % upper case 'W' means no automatic flushing of buffer - can be faster
+    if fid<0
+        error(['Unable to open file output file ',sqw_file])
+    end
+
+    mess=put_sqw (fid,main_header,header,det0,sqw_data);
+    fclose(fid);
+    if ~isempty(mess)
+        error('Error writing data to file %s \n %s',sqw_file,mess)
+    end
+
 end
 
 % Display timings
-bigtoc('Time to convert from spe to sqw file:')
+bigtoc('Time to save data to file:')
+
+%profile viewer
+%error('enough')
+
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0

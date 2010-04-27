@@ -50,10 +50,13 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % $Revision$ ($Date$)
 
 % Buffer sizes
-mem  = horace_memory;
-vmax = mem.chunk_size;     % maximum length of buffer array in which to accumulate points from the input file
-pmax = mem.chunk_size;     % maximum length of array in which to buffer retained pixels (pmax>=vmax)
-ndatpix = 9;        % number of pieces of information the pixel info array (see write_sqw_data for more details)
+
+%ndatpix -- number of pieces of information the pixel info array (see write_sqw_data for more details)
+%vmax    -- maximum length of buffer array in which to accumulate points from the
+% input file
+[vmax,ndatpix] = get(hor_config,'mem_chunk_size','pixel_length');
+pmax = vmax;                        % maximum length of array in which to buffer retained pixels (pmax>=vmax)
+ 
 
 
 % Output arrays for accumulated data

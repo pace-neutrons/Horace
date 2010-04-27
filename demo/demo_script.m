@@ -21,6 +21,10 @@ demo_root_dir = [pwd filesep];
 indir=demo_root_dir;     % source directory of spe files
 par_file=[demo_root_dir 'demo_par.PAR'];     % detector parameter file
 sqw_file=[demo_root_dir 'fe_demo.sqw'];        % output sqw file
+data_source =sqw_file;
+%data_source =[demo_root_dir '_fe_demo.sqw'];
+%set(hdf_config,'use_hdf',true);
+
 
 efix=787;
 emode=1;
@@ -36,12 +40,13 @@ psi1=linspace(0,-1*(nfiles1-1),nfiles1);
 spe_file1=cell(1,nfiles1);
 for i=1:length(psi1)
     spe_file1{i}=[indir,'MAP',num2str(11012+(2*i)),'.SPE'];
+%    tmp_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.nxs'];
     tmp_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.tmp'];
 end
 
 
- gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
-          u, v, psi1, omega, dpsi, gl, gs);
+gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
+         u, v, psi1, omega, dpsi, gl, gs);
 
 %write_nsqw_to_sqw(tmp_file,sqw_file);
 
@@ -49,11 +54,10 @@ end
 %==========================================================================
 % Now we wish to plot some of our data:
 %%
-data_source =[demo_root_dir 'fe_demo.sqw'];
-proj_100.u = [1,0,0];
-proj_100.v = [0,1,0];
-proj_100.type = 'rrr';
-proj_100.uoffset = [0,0,0,0];
+ proj_100.u = [1,0,0];
+ proj_100.v = [0,1,0];
+ proj_100.type = 'rrr';
+ proj_100.uoffset = [0,0,0,0];
 
 w100_2 = cut_sqw(data_source,proj_100,[-0.2,0.2],0.05,[-0.2,0.2],[0,0,500]);
 
@@ -78,20 +82,29 @@ wback = replicate(wbackcut,w110_2a);%NB the replicate method has not yet been
 %implemented for SQW
 plot(wback);
 
+
 wdiff = w110_2a - wback;
 plot(wdiff);
 lz 0 1
 
 
+
 %==========================================================================
 %==========================================================================
 
-%Test some simulation and fitting functions:
-%
+% %Test some simulation and fitting functions:
+% %
 %make a template d2d:
+
 w_template=cut_sqw(data_source,proj_100,[-0.4,0.2],[0,0.05,3],[-0.5,0.05,3],[30,40]);
 plot(w_template); lz 0 4;
 keep_figure;
+
+% % % set(hdf_config,'use_hdf',true);
+% % % w_template2=cut_sqw('fe_demo.sqw',proj_100,[-0.4,0.2],[0,0.05,3],[-0.5,0.05,3],[30,40]);
+% % % plot(w_template); lz 0 4;
+% % % keep_figure;
+
 
 %simulate the 4 peaks.
 w_sim=func_eval(w_template,@demo_4gauss_2dQ,[6 1 1 0.1 2 1 1]);
@@ -102,7 +115,11 @@ keep_figure;
 w_sqw=sqw_eval(w_template,@demo_FM_spinwaves_2dSlice_sqw,[300 0 2 10 2]);
 plot(w_sqw); keep_figure;
 
+% % % w_sqw=sqw_eval(w_template2,@demo_FM_spinwaves_2dSlice_sqw,[300 0 2 10 2]);
+% % % plot(w_sqw); keep_figure;
 
+% 
+% 
 %==========================================================================
 %==========================================================================
 %Try doing some fitting now:

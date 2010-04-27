@@ -36,6 +36,12 @@ psize=[length(p1),length(p2),length(p3)];
 ucoords=rot*[x1(:)';x2(:)';x3(:)'];       
 
 inside = ~(outside(1)|outside(2)|outside(3));   % =0 if bin outside, =1 if at least partially intersects volume
+if get(hdf_config,'use_hdf') % we need cell indexes rather than boundaries; 
+    istart=find(inside); 
+    iend  = [];
+    return
+end
+
 change = diff([false;inside(:);false]);
 istart = find(change==1);
 iend   = find(change==-1)-1;

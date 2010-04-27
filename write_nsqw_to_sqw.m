@@ -15,4 +15,11 @@ function write_nsqw_to_sqw (varargin)
 
 
 % Gateway routine that calls sqw method
-write_nsqw_to_sqw (sqw, varargin{:});
+if get(hdf_config,'use_hdf')
+    outfile = varargin{end};
+    infiles = varargin{1:end-1};
+    rez=sqw_hdf(outfile,infiles);
+    rez.delete()
+else
+    write_nsqw_to_sqw (sqw, varargin{:});
+end

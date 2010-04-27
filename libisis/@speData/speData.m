@@ -12,7 +12,7 @@ function this=speData(varargin)
 %
 %% $Revision$ ($Date$)
 this=struct(...
-'data_loaded',false,... % boolean to check if the spe data are loaded to memory
+'data_loaded',false,... % boolean to check if the spe data are loaded to memory (initial state)
 'nDetectors', 0,...
 'nEnergyBins',0,...
 'fileDir',   [],...
@@ -24,8 +24,16 @@ this=struct(...
 'hdfFileExt','.h5',... % two file extebsions currently supported; hdf5
 'speFileExt','.spe',... % and ascii (spe) HAVE TO BE DEFINED LOWER CASE HERE !!!!
 'enName','Energy_Bin_Boundaries',... % three names of the data fields,
-'SName','S(Phi,w)',...               % which are present in the hdf5 file
-'ErrName','Err');
+'SName','S(Phi,w)',...               % which are present in a spe hdf5 file
+'ErrName','Err',...
+'ifTransfer2hdf',true); % this field specify default way to deal with the data
+                        % if "deflate" function is called without
+                        % parameters to clear the memory. When it is true, and inital data are
+                        % in ASCII format, hdf5 file will be written for future use. 
+                        % if false, nothing will be done with ASCII
+                        
+this.ifTransfer2hdf=get(hor_config,'transformSPE2HDF');
+
 this=class(this,'speData');
 if(nargin==1)
     this=bind_to_file(this,varargin{1});
@@ -53,13 +61,11 @@ function this=bind_to_file(this,fullfileName)
 % the function checks if the file exists, and reads its header;
 % as the file esists now, it can be accessed later without unnecessary
 % checks
+%
+% 
 fullfileName=strtrim(fullfileName);
-
-if(~exist(fullfileName,'file'))
-    error('speData:bind_to_file',' file %s does not exist',fullfileName);
-end
-
 [fileDir,fileName,fileExt]=fileparts(fullfileName);
+
 this.fileDir =fileDir;
 this.fileName=fileName;
 this.fileExt =fileExt;
@@ -73,9 +79,15 @@ switch(file_tag)
             [this.nDetectors,this.en]=get_hdf5_header(hdf_file);
             this.fileExt=this.hdfFileExt;
         else
+            if(~exist(fullfileName,'file')) % spe file does not exist either
+                error('HORACE:speData','trying to open non-existing spe file %s',fullfileName);
+            end
         [this.nDetectors,this.en]=get_spe_header(fullfileName);
         end
     case this.hdfFileExt;
+        if(~exist(fullfileName,'file')) % hdf file requested but does not exist
+            error('HORACE:speData','trying to open non-existing spe-hdf file %s',fullfileName);
+        end       
         [this.nDetectors,this.en]=get_hdf5_header(fullfileName);
     otherwise
         error('speData:bind_to_file',' unrecognized extension %s in the file %s',...
