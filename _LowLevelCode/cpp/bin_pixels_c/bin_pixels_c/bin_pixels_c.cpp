@@ -72,6 +72,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 		  nGridDimensions,    // number of dimension in the whole grid (usually 4 according to the pixel data but can be modified in a future
           i;
   double *pS,*pErr,*pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
+  const char REVISION[]="$Revision::      $ ($Date::                                              $)";
   mxArray *PixelSorted;
 
   const char REVISION[]="$Revision::      $ ($Date::                                              $)";

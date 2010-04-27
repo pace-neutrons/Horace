@@ -70,7 +70,19 @@ if ndim>3
     end
     % Get index ranges for column representation for first three axes
     [istart,iend] = get_irange_rot(urange,rot,trans,varargin{1:3});
-    if isempty(istart); return; end
+    if isempty(iend)    % iend is empty when hdf used too. 
+        if isempty(istart), return, end; 
+        % *** works in 4D only!!! 
+        length3d = prod(dims(1:3));
+        ind4     = (irange(1):irange(2))-1;              
+        selection= numel(ind4)*numel(istart);
+        ind = zeros(selection,2);
+        ind(:,1) = reshape(repmat(istart,[1,numel(ind4)]),1,selection);
+        ind(:,2) = reshape(ind4(ones(1,numel(istart)),:),1,selection);
+        nstart   = ind(:,2)*length3d+ind(:,1);
+        clear ind;
+        return;                      % but then istart would have pixel information
+    end 
     ncum=cumsum(nelmts(:));
     ncum = reshape (ncum,[prod(dims(1:3)),dims(4:end)]);
     nelmts = reshape (nelmts,[prod(dims(1:3)),dims(4:end)]);
@@ -83,7 +95,9 @@ if ndim>3
 else
     % Get index ranges for column representation for first three axes
     [istart,iend] = get_irange_rot(urange,rot,trans,varargin{1:3});
-    if isempty(istart); return; end
+    if isempty(iend); nstart=istart; 
+        return; 
+    end % iend is empty when hdf used too.
     ncum=cumsum(nelmts(:));
     nstart = ncum(istart)-nelmts(istart)+1;
     nend   = ncum(iend);

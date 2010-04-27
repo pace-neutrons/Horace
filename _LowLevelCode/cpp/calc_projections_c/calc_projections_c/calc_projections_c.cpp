@@ -1,6 +1,5 @@
 // calc_projections_c.cpp : Defines the exported functions for the DLL application.
 //
-// $Revision$ ($Date$)
 #include "stdafx.h"
 #include "calc_projections_c.h"
 
@@ -67,9 +66,9 @@ double getMatlabScalar(const mxArray *pPar,const char * const fieldName){
 
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
-unsigned int eMode(1),nThreads(1),i;
-	  mwSize nDataPoints,nDetectors,nEnergies,nEnShed;
-	  double efix,k_to_e;
+   unsigned int eMode(1),nThreads(1),i;
+	mwSize nDataPoints,nDetectors,nEnergies,nEnShed;
+	double efix,k_to_e;
 	const char REVISION[]="$Revision::      $ ($Date::                                              $)";
 	if(nrhs==0&&nlhs==1){
 			plhs[0]=mxCreateString(REVISION); 

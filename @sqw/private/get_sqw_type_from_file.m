@@ -23,6 +23,12 @@ application=horace_version;
 % Initialise output
 sqw_type = [];
 ndims = [];
+if get(hdf_config,'use_hdf')
+    if H5F.is_hdf5(infile)
+        [path,name,ext]=fileparts(infile);
+        error('HORACE:get_sqw_type_from_file',' attempt to treat hdf5 file %s as a plain binary file',[name,ext])
+    end
+end
 
 % Open file
 fid=fopen(infile,'r');

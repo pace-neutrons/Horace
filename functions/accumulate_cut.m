@@ -40,13 +40,13 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, 
 % $Revision$ ($Date$)
 
 ignore=horace_cut_nan_inf;
-mem   =horace_memory;
+%
 % parameters has to be doubles in current version of the c-prorgam
 parameters = zeros(4,1);
 parameters(1)=ignore.nan;
 parameters(2)=ignore.inf;
 parameters(3)=keep_pix;
-parameters(4)=mem.threads;
+parameters(4)=get(hor_config,'threads');
 %parameters(4)=1;
 
 try

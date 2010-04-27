@@ -26,6 +26,7 @@ else
     file_internal = getfile('*.sqw');
 end
 
+
 % Make object
 if nargout==0
     function_sqw(file_internal,@cut,varargin{1+noffset:end});

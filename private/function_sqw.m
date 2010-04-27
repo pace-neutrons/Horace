@@ -36,12 +36,13 @@ function varargout=function_sqw(infile,func,varargin)
 %
 % $Revision$ ($Date$)
 
-
 [sqw_type, nd,data_source,  mess] = is_sqw_type_file(sqw,infile);
 if ~isempty(mess), error(mess), end
 if ~sqw_type
-    error('Data file does not contain pixel information - does not not contain a full sqw object')
+        error('Data file does not contain pixel information - does not not contain a full sqw object')
 end
+
+
 
 % Branch on type of data in the file, and if there are output arguments or not
 % Recall that if the input data source was a file, we demand that all output

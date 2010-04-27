@@ -194,21 +194,26 @@ end
 
 % Open output file if required
 if save_to_file
-    if isempty(outfile)
-        if keep_pix
-            outfile = putfile('*.sqw');
-        else
-            outfile = putfile('*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
+%    if get(hdf_config,'use_hdf')
+%        new_hdf_sqw=hdf_sqw(outfile);
+%    else    
+        if isempty(outfile)
+            if keep_pix
+                outfile = putfile('*.sqw');
+            else
+                outfile = putfile('*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
+            end
+            if (isempty(outfile))
+                error ('No output file name given')
+            end
         end
-        if (isempty(outfile))
-            error ('No output file name given')
+        % Open output file now - don't want to discover there are problems after 30 seconds of calculation
+        fout = fopen (outfile, 'W');
+        if (fout < 0)
+            error (['Cannot open output file ' outfile])
         end
-    end
-    % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    fout = fopen (outfile, 'W');
-    if (fout < 0)
-        error (['Cannot open output file ' outfile])
-    end
+%    end
+
 end
 
 
@@ -217,7 +222,22 @@ end
 if horace_info_level>=1, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [main_header,header,detpar,data,mess,position,npixtot,type]=get_sqw (data_source,'-nopix');
+    if get(hdf_config,'use_hdf')
+        if ~H5F.is_hdf5(data_source)
+            error('HORACE:cut_sqw','Trying to cut sqw data from hdf file %s but it is notcorrect hdf5 file',data_source)
+        end
+        source_hdf_sqw = sqw_hdf(data_source);
+        sqwn_data      = source_hdf_sqw.read('-nopix');
+        main_header    = sqwn_data.main_header;
+        header         = sqwn_data.header;
+        detpar         = sqwn_data.detpar;
+        data           = sqwn_data.data;
+        type           = source_hdf_sqw.sqw_type();
+        source_hdf_sqw = source_hdf_sqw.build_pixel_dataspace_layout(data.npix);        
+        npixtot        = source_hdf_sqw.npixels_in_file();       
+    else
+        [main_header,header,detpar,data,mess,position,npixtot,type]=get_sqw (data_source,'-nopix');
+    end
     if ~isempty(mess)
         error('Error reading data from file %s \n %s',data_source,mess)
     end
@@ -232,8 +252,8 @@ else
     main_header = data_source.main_header;
     header = data_source.header;
     detpar = data_source.detpar;
-    data = data_source.data;
-    npixtot = size(data.pix,2);
+    data   = data_source.data;
+    npixtot= size(data.pix,2);
 end
 
 
@@ -241,12 +261,12 @@ end
 % -----------------------------------------------------------------------------------------
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
-header_ave=header_average(header);
-alatt = header_ave.alatt;
-angdeg = header_ave.angdeg;
-en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
-upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
-upix_offset = header_ave.uoffset;
+  header_ave=header_average(header);
+  alatt = header_ave.alatt;
+  angdeg = header_ave.angdeg;
+  en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
+  upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
+  upix_offset = header_ave.uoffset;
 
 
 % Get matrix to convert from projection axes of input data to required output projection axes
@@ -369,32 +389,40 @@ else
 end
 ebin=ustep(4);                  % plays role of rot_ustep for energy
 trans_elo = urange_offset(1,4); % plays role of trans_bott_left for energy
+% set flag to indicate if buffering to temporary files is permitted
+if nargout==0   % can buffer only if no output cut object
+   pix_tmpfile_ok = true;
+else
+   pix_tmpfile_ok = false;
+end
 
 
 % Get accumulated signal
 % -----------------------
 % read data and accumulate signal and error
 if source_is_file
-    fid=fopen(data_source,'r');
-    if fid<0
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
-        error(['Unable to open file ',data_source])
-    end
-    status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
-    if status<0;
-        fclose(fid);
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
-        error(['Error finding location of pixel data in file ',data_source]);
-    end
-    % set flag to indicate if buffering to temporary files is permitted
-    if nargout==0   % can buffer only if no output cut object
-        pix_tmpfile_ok = true;
+    if get(hdf_config,'use_hdf')
+        [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] =...
+         source_hdf_sqw.cut_data_from_file(nstart,data.npix,keep_pix,pix_tmpfile_ok,...
+                  urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
     else
-        pix_tmpfile_ok = false;
+    
+        fid=fopen(data_source,'r');
+        if fid<0
+            if save_to_file; fclose(fout); end    % close the output file opened earlier
+            error(['Unable to open file ',data_source])
+        end
+        status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
+        if status<0;
+            fclose(fid);
+            if save_to_file; fclose(fout); end    % close the output file opened earlier
+            error(['Error finding location of pixel data in file ',data_source]);
+        end
+        [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+                                                    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
+        fclose(fid);
     end
-    [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-                                                urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
-    fclose(fid);
+ 
 else
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (data.pix, nstart, nend, keep_pix, ...
                                                 urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
@@ -485,6 +513,10 @@ end
 % ---------------------------
 if save_to_file
     if horace_info_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
+    if get(config,'use_hdf')
+        new_hdf_sqw=new_hdf_sqw.write(w);
+        new_hdf_sqw.delete();
+    else
     try
         if ~pix_tmpfile
             mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
@@ -501,6 +533,7 @@ if save_to_file
     catch   % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
         if ~isempty(fopen(fout)); fclose(fout); end
         warning('Error writing to file: unknown cause')
+    end
     end
     if horace_info_level>=0, disp(' '), end
 end

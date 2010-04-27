@@ -65,7 +65,7 @@ nfiles = length(spe_file);
 if ~(size(unique(spe_file),2)==size(spe_file,2))
     error('One or more spe file name is repeated. All spe files must be unique')
 end
-% Check that all the files exist 
+% Check that all the files exist
 % not necessary as this check fails if hdf files used as source. Moreover, this check is automatically performed in speData class constructor
 %for i=1:nfiles
 %    if exist(spe_file{i},'file')~=2
@@ -161,8 +161,8 @@ sqw_path=fileparts(sqw_file);
 for i=1:nfiles
  % build spe data structure on the basis of spe or hdf files 
     spe_data{i}=speData(spe_file{i});% The files can be found by its name. 
-                                     % If the files can not be found,the sub
-                                     % fails (throw an error)
+                                     % If the files can not be found,the
+                                     % constructor fails (throw an error)
     [spe_path,spe_name,spe_ext]=fileparts(spe_file{i});
     if strcmpi(spe_ext,'.tmp')
         error('Extension type ''.tmp'' not permitted for spe input files. Rename file(s)')
@@ -239,7 +239,12 @@ else
     % ------------------------------------------------------------
     disp('--------------------------------------------------------------------------------')
     disp('Creating output sqw file:')
-    write_nsqw_to_sqw (tmp_file, sqw_file);
+    if get(hdf_config,'use_hdf')
+        sqwh = sqw_hdf(sqw_file,tmp_file);
+        delete(sqwh);
+    else    
+        write_nsqw_to_sqw (tmp_file, sqw_file);
+    end
     disp('--------------------------------------------------------------------------------')
 end
 

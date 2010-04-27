@@ -126,6 +126,7 @@
 				RuntimeLibrary="3"
 				StructMemberAlignment="4"
 				UsePrecompiledHeader="0"
+				BrowseInformation="1"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
