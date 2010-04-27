@@ -117,6 +117,14 @@ classdef one_sqw < dnd_hdf
        %
        this=this@dnd_hdf(varargin{:});
        
+       this.pixel_DS_compression=get(hdf_config,'hdf_compression');
+       if this.pixel_DS_compression<0||this.pixel_DS_compression>9
+           this.pixel_DS_compression=0;
+           set(hdf_config,'hdf_compression',0);
+           warning('HORACE:hdf_tools','wrond compression level requested for hdf files (has to be a number from 0 to 9), it has been reset to 0');
+       end
+       
+       
        this.n_fields =numel(this.type_fields_needed);
        
        data = varargin{1};       

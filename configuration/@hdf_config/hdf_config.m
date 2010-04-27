@@ -31,7 +31,8 @@ function hdf_defaults=init_hdf_default_value()
         'hdf_allowed',true, ...      % Matlab can use hdf
         'use_hdf',false,...           % Horace has to use hdf 
         'hdf_fail_on_new',false,...  % what to do if hdf-tools constructor starts with empty file. Create a new hdf file or fail on creation?
-        'hdf_restricted',true ...    % hdf at matlab 2009a and below? has restricted set of hdf commands
+        'hdf_restricted',true, ...    % hdf at matlab 2009a and below? has restricted set of hdf commands
+        'hdf_compression',3 ...       % number from 0 to 9 describing the compression level for hdf files
     );
 
 
