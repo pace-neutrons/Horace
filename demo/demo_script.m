@@ -24,6 +24,7 @@ sqw_file=[demo_root_dir 'fe_demo.sqw'];        % output sqw file
 data_source =sqw_file;
 %data_source =[demo_root_dir '_fe_demo.sqw'];
 %set(hdf_config,'use_hdf',true);
+%set(hdf_config,'hdf_compression',3);
 
 
 efix=787;

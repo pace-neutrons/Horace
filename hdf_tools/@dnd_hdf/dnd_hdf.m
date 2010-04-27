@@ -74,6 +74,12 @@ classdef dnd_hdf < detectors
        end
        %
        this=this@detectors(varargin{:});
+       this.signal_DS_compression=get(hdf_config,'hdf_compression');
+       if this.signal_DS_compression<0||this.signal_DS_compression>9
+           this.signal_DS_compression=0;
+           set(hdf_config,'hdf_compression',0);
+           warning('HORACE:hdf_tools','wrond compression level requested for hdf files, it has been reset to 0 compression');
+       end
              
        data = varargin{1};   
        % after here the target file becomes open permamently
