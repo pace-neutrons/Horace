@@ -34,4 +34,6 @@ temp.ERR=ERR;
 temp.en=energy;
 
 newloc=[filepath,filename];
-put_spe(temp,newloc);
+%put_spe(temp,newloc);
+w=spe(temp);%make independent of mgenie, and use libisis instead.
+save(w,newloc);
