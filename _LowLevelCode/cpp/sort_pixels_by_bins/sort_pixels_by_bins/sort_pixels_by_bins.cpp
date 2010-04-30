@@ -59,21 +59,29 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 	  mexErrMsgTxt(" can not allocate memory for output array");
   }
   double * const pPixelSorted = (double *)mxGetPr(plhs[Pixels_Sorted]);
-
+/*
   mwSize  *const ppInd   = new mwSize[distribution_size]; //working array of indexes for transformed pixels
   if(!ppInd){
 		mexErrMsgTxt(" can not allocate memory for working array");
   }
+*/
   try{
-  sort_pixels_by_bins(pPixelData,nPixDataRows,nPixDataCols,pCellInd,pCellDens,distribution_size,
-	                  ppInd,pPixelSorted);
-  }catch(const char *err){
-	    delete [] ppInd;
+		mwSize  *const ppInd   = (mwSize  *)mxMalloc(distribution_size*sizeof(mwSize )); //working array of indexes for transformed pixels
+	  
+	  try{
+	     sort_pixels_by_bins(pPixelData,nPixDataRows,nPixDataCols,pCellInd,pCellDens,distribution_size,
+	                     ppInd,pPixelSorted);
+       }catch(const char *err){
+//	    delete [] ppInd;
+	    mxFree(ppInd);
 		mexErrMsgTxt(err);
+       }
+       mxFree(ppInd);
+  }catch(...){
+		mexErrMsgTxt(" can not allocate memory for working array to sort pixels");
   }
 
-
-  delete [] ppInd;
+//  delete [] ppInd;
 }
 
 void sort_pixels_by_bins(double const *const pPixelData,mwSize nDataRows,mwSize nDataCols,double const *const pCellInd,
@@ -86,7 +94,7 @@ void sort_pixels_by_bins(double const *const pPixelData,mwSize nDataRows,mwSize 
 		ppInd[i]=ppInd[i-1]+(mwSize)pCellDens[i-1]; // the next cell starts from the the previous one
 	};                                              // plus the number of pixels in the cell previous cell
 	if(ppInd[distribution_size-1]+pCellDens[distribution_size-1]!=nDataCols){
-		throw(" pixels data and their cell distributions are inclsnistent ");
+		throw(" pixels data and their cell distributions are inconsistent ");
 	}
 //#pragma omp parallel
 {
