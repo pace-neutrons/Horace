@@ -49,23 +49,21 @@ else
         mess='incomplete set of (field,value) pairs given';
         error('HORACE:config',mess);        
    end
-   field_nams = varargin{1:2:narg};
-   field_vals  =varargin{2:2:narg};
+   nf = narg/2;
+   field_nams = cell(1,nf);
+   field_vals = cell(1,nf);   
+   for i=0:nf-1
+       field_nams{i+1}=varargin{2*i+1};
+       field_vals{i+1}=varargin{2*i+2};       
+   end
+   
    if ~iscell(field_vals)
        field_vals={field_vals};
    end
    if ~iscell(field_nams)
         field_nams={field_nams};
    end   
-   
-   nf = narg/2;
-%   field_nams = cell(1,nf);
-%   field_vals = zeros(1,nf);   
-%   for i=0:nf-1
-%       field_nams{i+1}=varargin{2*i+1};
-%       field_vals(i+1)=varargin{2*i+2};       
-%   end
-        
+          
 end
 
 % check argumemts
@@ -78,7 +76,8 @@ end
 
 config_data      = struct(this);
 config_fields    = fieldnames(config_data);
-
+class_name                = class(this);
+class_place               = ismember(class_names,class_name);
 
 sealed_fields=ismember(config_data.fields_sealed,field_nams);
 if any(sealed_fields);    
@@ -90,12 +89,14 @@ end
 % constructor as both fucntions has to save the same data in the same place
 member_fields    = ismember(config_fields,field_nams);
 if sum(member_fields)~=nf
-    mess='some parameters specified but do not exist in this configuration class';
-    error('HORACE:config',mess);
+    non_member = ~ismember(field_nams,config_fields);
+    non_m_fields=field_nams(non_member);
+    
+    error('CONFIG:set','configuration class: %s does not have fields you are trying to set, namely: %s %s %s %s %s %s %s %s ',...
+    class_name,non_m_fields{:});   
+   
 end
 
-class_name                = class(this);
-class_place               = ismember(class_names,class_name);
 %
 % if we mofifying the parent class, all childrens hav to be modified too as
 % we inherit from the parent by value;
