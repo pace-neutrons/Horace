@@ -13,7 +13,7 @@
 %==========================================================================
 %demo_root_dir = 'C:\mprogs\Horace\demo\';
 demo_root_dir = [pwd filesep];
-%unzip([demo_root_dir 'Horace_demo.zip'],demo_root_dir);
+unzip([demo_root_dir 'Horace_demo.zip'],demo_root_dir);
 
 % =========================================================================
 % Script to create sqw file
@@ -46,8 +46,8 @@ for i=1:length(psi1)
 end
 
 
-%gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%         u, v, psi1, omega, dpsi, gl, gs);
+gen_sqw (spe_file1, par_file, sqw_file, efix, emode, alatt, angdeg,...
+         u, v, psi1, omega, dpsi, gl, gs);
 
 %write_nsqw_to_sqw(tmp_file,sqw_file);
 
