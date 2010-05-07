@@ -58,6 +58,7 @@ try
     data.title = fread(fid,[1,n],'*char');
 
     data.nfiles = fread(fid,1,'int32');
+
 catch
     mess='problems reading file';
 end
