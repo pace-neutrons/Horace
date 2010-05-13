@@ -1,5 +1,5 @@
-function make_win32_kit
-% This is a script to create a Windows 32 installation of Horace
+function make_linux64_kit
+% This is a script to create a Linux 64 installation of Horace
 %
 % Run from the root area of Horace as checked out from the SVN server
 % It will convert the code as checked out into an installation with p-code
@@ -22,20 +22,20 @@ end
 
 % Convert mfiles to p-files and help-only m-files in the following
 % -----------------------------------------------------------------
-filepath{1}='@d0d\private';
-filepath{2}='@d1d\private';
-filepath{3}='@d2d\private';
-filepath{4}='@d3d\private';
-filepath{5}='@d4d\private';
+filepath{1}='@d0d/private';
+filepath{2}='@d1d/private';
+filepath{3}='@d2d/private';
+filepath{4}='@d3d/private';
+filepath{5}='@d4d/private';
 filepath{6}='@sqw';
-filepath{7}='@sqw\private';
+filepath{7}='@sqw/private';
 filepath{8}='@sigvar';
-filepath{9}='@sigvar\private';
+filepath{9}='@sigvar/private';
 
-filepath{10}='libisis\@d1d';
-filepath{11}='libisis\@d2d';
-filepath{12}='libisis\@d3d';
-filepath{13}='libisis\@sqw';
+filepath{10}='libisis/@d1d';
+filepath{11}='libisis/@d2d';
+filepath{12}='libisis/@d3d';
+filepath{13}='libisis/@sqw';
 filepath{14}='private';
 
 for i=1:numel(filepath)
@@ -45,7 +45,7 @@ end
 % Remove all the .svn folders
 directoryRecurse(fileroot,@remove_svn)
 
-% Finally, delete this file (and similar linux kit)
+% Finally, delete this file (and similar windows kit)
 delete 'make_win32_kit.m'
 delete 'make_linux64_kit.m'
 
