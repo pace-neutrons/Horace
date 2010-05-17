@@ -45,7 +45,7 @@ end
 % Remove all the .svn folders
 directoryRecurse(fileroot,@remove_svn)
 
-% Finally, delete this file (and similar windows kit)
+% Finally, delete this file (and similar windows ki
 delete 'make_win32_kit.m'
 delete 'make_linux64_kit.m'
 

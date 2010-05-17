@@ -52,7 +52,11 @@ function horace_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to horace (see VARARGIN)
 
-splash('splashscreen','jpg',4000);
+%Splash only works for R2007a/b
+mver=version;
+if strcmp(mver(end-6:end-2),'R2007')
+    splash('splashscreen','jpg',4000);
+end
 
 % Choose default command line output for horace
 handles.output = hObject;
