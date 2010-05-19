@@ -65,17 +65,24 @@ k_to_e = c.k_to_e; % picked up by calc_proj_c;
 % Convert to projection axes 
 
 % Calculate Q in spectrometer coordinates for each pixel 
-try     % using ? routine
-%    error(' use matlab')
+use_mex=get(hor_config,'use_mex');
+if use_mex
+    try     % using ? routine
+        %    error(' use matlab')
 
-    nThreads=get(hor_config,'threads'); % picked up by calc_proj_c;
+        nThreads=get(hor_config,'threads'); % picked up by calc_proj_c;
 
-    ucoords =calc_projections_c(spec_to_proj,data, det,efix, k_to_e,emode,nThreads);
-catch   %using matlab routine
-    warning('Problem with C-code compilation: using calc_proj_matlab.m');   
+        ucoords =calc_projections_c(spec_to_proj,data, det,efix, k_to_e,emode,nThreads);
+    catch   %using matlab routine
+        warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',lasterr());   
+        use_mex=false;
+    end    
+end
+if ~use_mex
     qspec = calc_qspec (efix, k_to_e,emode, data, det);      
 %    ucoords = calc_proj_matlab (spec_to_proj, qspec);
     ucoords = spec_to_proj*qspec(1:3,:);
     ucoords = [ucoords;qspec(4,:)];   
-end    
+
+end
 

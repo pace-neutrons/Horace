@@ -211,15 +211,21 @@ end
                 ix  = [ix;ix_add];
             end
             if finish && ~isempty(pix)  % prepare the output pix array              
-                try
-                 clear v ok ix_add    % clear big arrays
-                 pix = sort_pixels_by_bins(pix,ix,npix);
-                 clear ix    % clear big arrays 
-                catch 
-                    if horace_info_level>=1
-                        message=lasterr();
-                        warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',message)
+                use_mex=get(hor_config,'use_mex');
+                if use_mex
+                    try
+                    clear v ok ix_add    % clear big arrays
+                    pix = sort_pixels_by_bins(pix,ix,npix);
+                    clear ix    % clear big arrays 
+                    catch 
+                        use_mex=false;
+                        if horace_info_level>=1
+                            message=lasterr();
+                            warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',message)
+                        end
                     end
+                end
+                if ~use_mex
                     [ix,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
                     clear ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
                     pix=pix(:,ind);         % reorders pix

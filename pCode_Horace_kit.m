@@ -13,10 +13,9 @@ end
 % Delete unwanted directories (with all their sub-directories)
 % ------------------------------------------------------------
 deldir{1}='_developer_only';
-deldir{2}='_LowLevelCode'; 
-deldir{3}='documentation';  % as for private consumption only at the moment
-deldir{4}='test';
-deldir{5}='work_in_progress';
+deldir{2}='documentation';  % as for private consumption only at the moment
+deldir{3}='test';
+deldir{4}='work_in_progress';
 
 for i=1:numel(deldir)
     dir = fullfile(fileroot,deldir{i});

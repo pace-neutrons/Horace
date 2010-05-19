@@ -42,30 +42,37 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, 
 ignore=horace_cut_nan_inf;
 %
 % parameters has to be doubles in current version of the c-prorgam
-parameters = zeros(4,1);
-parameters(1)=ignore.nan;
-parameters(2)=ignore.inf;
-parameters(3)=keep_pix;
-parameters(4)=get(hor_config,'threads');
-%parameters(4)=1;
 
-try
-%throw(' use matlab');
-[urange_step_pix_recent, ok, ix,s,e,npix,npix_retain]=...
-                                         accumulate_cut_c(v,s,e,npix,...
-                                         rot_ustep,trans_bott_left,ebin,trans_elo,...
-                                         urange_step,pax,parameters);
+[use_mex,n_theads]=get(hor_config,'use_mex','threads');
+%% USE MEX
+if use_mex
+    try
+    %throw(' use matlab');
+    parameters = zeros(4,1);
+    parameters(1)=ignore.nan;
+    parameters(2)=ignore.inf;
+    parameters(3)=keep_pix;    
+    parameters(4)=n_theads;
+    %parameters(4)=1;
+    
+    [urange_step_pix_recent, ok, ix,s,e,npix,npix_retain]=...
+                                             accumulate_cut_c(v,s,e,npix,...
+                                             rot_ustep,trans_bott_left,ebin,trans_elo,...
+                                             urange_step,pax,parameters);
 
-urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
-%%<*** version specific >= 7.5
-catch 
- if horace_info_level>=1
-      disp([' C- code generated error: ',lasterr()]);
-      warning(' Can not accumulate_cut using C routines; using Matlab');
- end
+    urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
+    %%<*** version specific >= 7.5
+    catch 
+        use_mex=false;        
+        if horace_info_level>=1
+            disp([' C- code generated error: ',lasterr()]);
+            warning('HORACE:use_mex',' Can not accumulate_cut using C routines; using Matlab');
+        end
+    end
+end    
+%% NOT USE MEX
+if ~use_mex    
   [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, urange_step_pix, keep_pix,...
                                                          v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
 end
-
-
 
