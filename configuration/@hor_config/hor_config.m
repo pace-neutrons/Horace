@@ -39,8 +39,9 @@ horace_defaults = ...
             'ignore_nan',1,...      % by default, ignore NaN values found in 
             'ignore_inf',0,...      % do not ignore inf values;
             'transformSPE2HDF',1,... % if this parameter is enabled, and spe file is processed using class speData, SPE will be rewritten as hdf file for future usage.
-            'horace_info_level',1) ;   % see horace_info_level method   
-    
+            'horace_info_level',1,... ;   % see horace_info_level method   
+            'use_mex',true ...  user will use mex-code for time-consuming operations 
+            );
 
 % configure memory and processors 
     n_processors = getenv('NUMBER_OF_PROCESSORS');
@@ -52,6 +53,11 @@ horace_defaults = ...
     end
     if(Matlab_Version>7.07) % Matlab supports settings of the threads from command line
         n_processors = maxNumCompThreads();
+    end
+    [mex_versions,n_errors]=check_horace_mex();
+    if n_errors>0
+        horace_defaults.use_mex=false;
+    else
     end
     horace_defaults.threads = n_processors;
     horace_defaults.fields_sealed={'fields_sealed','pixel_length'}; % specify the fields which values

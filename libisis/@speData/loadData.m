@@ -1,5 +1,5 @@
 function this=loadData(this)
-% the function loads the data from a file, initially bind to the class
+% the function loads the data from a file, initially binded to the class
 % in the class constructor
 %
 %% $Revision$ ($Date$)
@@ -21,13 +21,19 @@ switch(lower(this.fileExt))
         this.ERR = hdf5read(fullFileName,this.ErrName);
         this.data_loaded=true;
     case (this.speFileExt)
-        try
-            [this.S,this.ERR,this.en] = get_ascii_file(fullFileName,'spe');
-            this.data_loaded=true;
-        catch 
-            warning(' Can not read data using C++ routines -- reverted to Matlab\n Reason: %s',lasterr());
+        use_mex=get(hor_config,'use_mex');
+        if use_mex
+            try
+                [this.S,this.ERR,this.en] = get_ascii_file(fullFileName,'spe');
+                this.data_loaded=true;
+            catch 
+                warning('HORACE:using_mex',' Can not read data using C++ routines -- reverted to Matlab\n Reason: %s',lasterr());
+                use_mex=false;
+            end
+        end
+        if ~use_mex
             [this.S,this.ERR,this.en] = get_spe_matlab(fullFileName);
-            this.data_loaded=true;
+            this.data_loaded=true;            
         end
     otherwise
         error('speData:loadData',' unsupported file extension %s',this.fileExt);

@@ -115,30 +115,35 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
 else
     disp('Sorting pixels ...')
     
-
-try
-%    error(' use matlab');
-% verify the grid consistency and build axis along the grid dimensions, 
-% c-program does not check the grid consistency;
-    [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);
-%
-%
-   sqw_fields   =cell(1,4);
-   sqw_fields{1}=get(hor_config,'threads'); 
-   sqw_fields{2}=urange;   
-   sqw_fields{3}=grid_size;      
-   sqw_fields{4}=sqw_data.pix;   
-   clear sqw_data.s sqw_data.e sqw_data.npix;
+use_mex=get(hor_config,'use_mex');
+if use_mex
+    try
+    %    error(' use matlab');
+    % verify the grid consistency and build axis along the grid dimensions, 
+    % c-program does not check the grid consistency;
+        [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);
+    %
+    %
+        sqw_fields   =cell(1,4);
+        sqw_fields{1}=get(hor_config,'threads'); 
+        sqw_fields{2}=urange;   
+        sqw_fields{3}=grid_size;      
+        sqw_fields{4}=sqw_data.pix;   
+        clear sqw_data.s sqw_data.e sqw_data.npix;
    
-   out_fields=bin_pixels_c(sqw_fields);
-   sqw_data.s   = out_fields{1};
-   sqw_data.e   = out_fields{2};   
-   sqw_data.npix= out_fields{3};      
-   sqw_data.pix = out_fields{4};         
+        out_fields=bin_pixels_c(sqw_fields);
+        sqw_data.s   = out_fields{1};
+        sqw_data.e   = out_fields{2};   
+        sqw_data.npix= out_fields{3};      
+        sqw_data.pix = out_fields{4};         
 
 
- catch
-    warning('HORACE:sqw','sqw:write_spe_to_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab fucntions',lasterr());
+    catch
+        warning('HORACE:using_mex','sqw:write_spe_to_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab fucntions',lasterr());
+        use_mex=false;
+    end
+end    
+if ~use_mex    
     [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
     sqw_data.pix=sqw_data.pix(:,ix);
     sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
@@ -156,7 +161,8 @@ try
 
     clear nopix     % biggish array no longer needed
 end
- end
+end % sorting pixels;
+
 bigtoc('Time to convert from spe to sqw data:')
 
 % Write header, detector parameters and processed data
