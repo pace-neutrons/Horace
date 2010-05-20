@@ -45,8 +45,8 @@ else
 end
 
 % Find the points that lie inside or on the boundary of the range of the cut
-ok = indx(:,1)>=urange_step(1,1) & indx(:,1)<urange_step(2,1) & indx(:,2)>=urange_step(1,2) & indx(:,2)<urange_step(2,2) & ...
-     indx(:,3)>=urange_step(1,3) & indx(:,3)<urange_step(2,3) & indx(:,4)>=urange_step(1,4) & indx(:,4)<urange_step(2,4);
+ok = indx(:,1)>=urange_step(1,1) & indx(:,1)<=urange_step(2,1) & indx(:,2)>=urange_step(1,2) & indx(:,2)<=urange_step(2,2) & ...
+     indx(:,3)>=urange_step(1,3) & indx(:,3)<=urange_step(2,3) & indx(:,4)>=urange_step(1,4) & indx(:,4)<=urange_step(2,4);
 
 indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
 if isempty(indx)    % if no pixels in range, return

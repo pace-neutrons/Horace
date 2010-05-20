@@ -12,7 +12,8 @@
 % Give folder where you want to want to install the demo
 % *** This folder MUST already exist
 %==================================================================================================
-demo_dir='c:\temp\horace_demo';
+%demo_dir='c:\temp\horace_demo';
+demo_dir=fileparts(which('demo_script'));
 
 %==================================================================================================
 % Unzip the data contained in the demo folder, and copy demo
@@ -20,11 +21,14 @@ demo_dir='c:\temp\horace_demo';
 demo_root_dir = [fileparts(which('horace_init')),filesep,'demo',filesep];
 demo_dir = fullfile(demo_dir,filesep);   % add file separator if not there
 unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
+try
 copyfile(fullfile(demo_root_dir,'demo_par.PAR'),fullfile(demo_dir,'demo_par.PAR'))
 copyfile(fullfile(demo_root_dir,'demo_par.PHX'),fullfile(demo_dir,'demo_par.PAR'))
 copyfile(fullfile(demo_root_dir,'demo_4gauss_2dQ.m'),fullfile(demo_dir,'demo_4gauss_2dQ.m'))
 copyfile(fullfile(demo_root_dir,'demo_FM_spinwaves_2dSlice_sqw.m'),...
     fullfile(demo_dir,'demo_FM_spinwaves_2dSlice_sqw.m'))
+catch Err
+end
 
 %==================================================================================================
 % Script to create sqw file
@@ -53,8 +57,8 @@ for i=1:length(psi)
 end
 
 % Create sqw file
-gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-         u, v, psi, omega, dpsi, gl, gs);
+%gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%         u, v, psi, omega, dpsi, gl, gs);
 
 % ---------------------------------------     
 % If the intermediate files (extensions .tmp) are all created, but the sqw
