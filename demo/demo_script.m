@@ -13,6 +13,7 @@
 % *** This folder MUST already exist
 %==================================================================================================
 %demo_dir='c:\temp\horace_demo';
+%demo_dir=pwd;
 demo_dir=fileparts(which('demo_script'));
 
 %==================================================================================================
@@ -20,16 +21,15 @@ demo_dir=fileparts(which('demo_script'));
 %==================================================================================================
 demo_root_dir = [fileparts(which('horace_init')),filesep,'demo',filesep];
 demo_dir = fullfile(demo_dir,filesep);   % add file separator if not there
-unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
+%unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
 try
 copyfile(fullfile(demo_root_dir,'demo_par.PAR'),fullfile(demo_dir,'demo_par.PAR'))
 copyfile(fullfile(demo_root_dir,'demo_par.PHX'),fullfile(demo_dir,'demo_par.PAR'))
 copyfile(fullfile(demo_root_dir,'demo_4gauss_2dQ.m'),fullfile(demo_dir,'demo_4gauss_2dQ.m'))
 copyfile(fullfile(demo_root_dir,'demo_FM_spinwaves_2dSlice_sqw.m'),...
     fullfile(demo_dir,'demo_FM_spinwaves_2dSlice_sqw.m'))
-catch Err
+catch
 end
-
 %==================================================================================================
 % Script to create sqw file
 %==================================================================================================
@@ -99,7 +99,7 @@ plot(w100_2)
 
 % 3D sliceomatic figure:
 w100_3 = cut_sqw(data_source,proj_100,[-0.2,0.2],0.05,0.05,[0,0,500]);
-plot(w100_3)
+%plot(w100_3)
 
 
 %==================================================================================================

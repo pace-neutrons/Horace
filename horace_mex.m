@@ -10,6 +10,7 @@ function horace_mex
 % $Revision$ ($Date$)
 
 start_dir=pwd;
+C_compiled=false;
 try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
@@ -33,12 +34,14 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
 
     disp('**********> Succesfully created all required mex files from C++')
+    C_compiled=true;
 catch
     message=lasterr();
     warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',message);
   
 end
 %
+F_compiled=false;
 try  % mex FORTRAN
     disp('**********> Creating mex files from FORTRAN code')
 %    mex_single(fortran_in_rel_dir, out_rel_dir,'get_par_fortran.F','IIget_par_fortran.f');
@@ -47,11 +50,15 @@ try  % mex FORTRAN
 %
 %    disp('**********> Succesfully created all requsted mex files from FORTRAN')
      disp('**********> No FORTRAN functions used at the moment')
+     F_compiled=true;
 catch 
     message=lasterr();    
     warning('**********> Can not create FORTRAN mex files, reason: %s Please try to do it manually.',message);
 end
 cd(start_dir);
+if C_compiled && F_compiled
+    set(hor_config,'use_mex',true);
+end
 
 
 %%----------------------------------------------------------------
