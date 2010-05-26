@@ -57,8 +57,8 @@ for i=1:length(psi)
 end
 
 % Create sqw file
-%gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%         u, v, psi, omega, dpsi, gl, gs);
+gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+         u, v, psi, omega, dpsi, gl, gs);
 
 % ---------------------------------------     
 % If the intermediate files (extensions .tmp) are all created, but the sqw

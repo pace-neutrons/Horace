@@ -1,40 +1,48 @@
 function this=speData(varargin)
-% the class supports memory representation of an spe data
-% it created to incorporate the spe-files access operations to allow
-% simple changes in the format of the spe files
+% The class is the wrapper around LIBISIS spe class
+% It kept for compartibility and should not be used for future development
+% 
+% The class provides early binding between spe files and the data in memory
+% regardless of the format of the spe files (ASCII or hdf) and allows to
+% load data and remove it from the memory as they needed or not needed any
+% more. 
+% if received ASCII file name as input argument, it checks if 
+% hdf file with the same name exists and if it is, works with this file
+% instead.
+%
 % usages:
-% speData(fileName) -- bind spe-data to a file name
+% speData(fileName)        -- bind spe-data to a file name; file has to
+%                             exist, consructor checks for it and throws 
+%                             if can not find the file
 % speData(fileName,'bind') -- explicitly bind spe data to a file name
+%                             similar to the call without parameters
 % speData(fileName,'load') -- bind data to a file name and load data from
 %                             the file into the memory
-% speData(fileName,data)  -- build the class on the basis  of spe data to
-%                            export it into format of the current choice.
+% speData(fileName,data)   -- build the class on the basis  of spe data to
+%                             export it into file-format of the current choice.
 %
 %% $Revision$ ($Date$)
 this=struct(...
+'fileDir','',...
+'fileName','',...
+'fileExt','',...
+'nDetectors',0, ...
+'en',[],        ...
 'data_loaded',false,... % boolean to check if the spe data are loaded to memory (initial state)
-'nDetectors', 0,...
-'nEnergyBins',0,...
-'fileDir',   [],...
-'fileName',  [],...
-'fileExt',   [],...
-'en',        [],...   % Column vector of energy bin boundaries
-'S',         [],...   % [nEnergyBins x nDetectors] array of signal values
-'ERR',       [],...   % [nEnergyBins x nDetectors] array of error values (st. dev.)
-'hdfFileExt','.h5',... % two file extebsions currently supported; hdf5
+'hdfFileExt','.spe_h5',... % two file extebsions currently supported; hdf5
 'speFileExt','.spe',... % and ascii (spe) HAVE TO BE DEFINED LOWER CASE HERE !!!!
-'enName','Energy_Bin_Boundaries',... % three names of the data fields,
-'SName','S(Phi,w)',...               % which are present in a spe hdf5 file
-'ErrName','Err',...
 'ifTransfer2hdf',true); % this field specify default way to deal with the data
-                        % if "deflate" function is called without
-                        % parameters to clear the memory. When it is true, and inital data are
+                        % if any kind of default write operation is
+                        % executed e.g. deflate called without parameters to clean the memory
+                        % or the class is build from a datastructure;
+                        % When field is true, and inital data are
                         % in ASCII format, hdf5 file will be written for future use. 
-                        % if false, nothing will be done with ASCII
+                        % if false, revese would occur, e.g. existing hdf5
+                        % file will be written as ascii file
                         
 this.ifTransfer2hdf=get(hor_config,'transformSPE2HDF');
 
-this=class(this,'speData');
+this=class(this,'speData',spe);
 if(nargin==1)
     this=bind_to_file(this,varargin{1});
 elseif(nargin==2)
@@ -49,6 +57,7 @@ elseif(nargin==2)
         end
     elseif(isstruct(varargin{2}))
         this=build_spe_from_data(this,varargin{1},varargin{2});
+        this=save_SPE_data(this);
     else
       error('speData:wrong_Constructor_arg','second argument has to be either sting or structure with spe data');
     end
@@ -101,7 +110,7 @@ function  this=load_data_from_file(this,fileName)
 end
 %%
 function this=build_spe_from_data(this,file,data)
-% Writes ASCII .spe file
+% checks input data and builds valid spe structure 
 %
 % data has following fields:
 %   data.S          [ne x ndet] array of signal values
@@ -112,50 +121,53 @@ function this=build_spe_from_data(this,file,data)
 %   filepath        Path to file including terminating file separator; empty if problem
 %
 
+
 % T.G.Perring   13/6/07
 
-null_data = -1.0e30;    % conventional NaN in spe files
-
-% If no input parameter given, return
-if ~exist('file','var')||~exist('data','var')
-    error('Check arguments to put_spe')
-end
-
-% Check input arguments
-if ~isstruct(data) ||...
-        ~isfield(data,'S')   || isempty(data.S) ||...
-        ~isfield(data,'ERR') || isempty(data.ERR) ||...
-        ~isfield(data,'en')  || isempty(data.en)
-    error('Check arguments (data format) to write into spe file')
-end
-
-size_S=size(data.S); size_ERR=size(data.ERR); size_en=size(data.en);
-if length(size_S)~=2 || length(size_ERR)~=2|| length(size_en)~=2 ...
-        || ~all(size_S==size_ERR) || min(size_en)~=1 || max(size_en)~=size_S(1)+1
-    error('Check arguments (data sizes) to write into spe file')
-end
-
-% Remove blanks from beginning and end of filename
-file_tmp=strtrim(file);
-
-% Get file name and path (incl. final separator)
-[path,name,ext]=fileparts(file_tmp);
-if(~strcmp(ext,this.hdfFileExt)&&~strcmp(ext,this.speFileExt))
-    ext=this.speFileExt;      % default writing is to ascii spe file but we can change it later
-end
-
-% Prepare data for Fortran routine
-index=~isfinite(data.S)|~isfinite(data.ERR);
-if sum(index(:)>0)
-    data.S(index)=null_data;
-    data.ERR(index)=0;
-end
-
-this.data_loaded=true; % boolean to check if the spe data are loaded to memory
-this.nDetectors =size(data.S);
-this.nEnergyBins=size(data.en);
-this.fileDir    = path;
-this.fileName   = name;
-this.fileExt    = ext;
-
+this=spe(data,file);
+% 
+% null_data = -1.0e30;    % conventional NaN in spe files
+% 
+% % If no input parameter given, return
+% if ~exist('file','var')||~exist('data','var')
+%     error('Check arguments to put_spe')
+% end
+% 
+% % Check input arguments
+% if ~isstruct(data) ||...
+%         ~isfield(data,'S')   || isempty(data.S) ||...
+%         ~isfield(data,'ERR') || isempty(data.ERR) ||...
+%         ~isfield(data,'en')  || isempty(data.en)
+%     error('Check arguments (data format) to write into spe file')
+% end
+% 
+% size_S=size(data.S); size_ERR=size(data.ERR); size_en=size(data.en);
+% if length(size_S)~=2 || length(size_ERR)~=2|| length(size_en)~=2 ...
+%         || ~all(size_S==size_ERR) || min(size_en)~=1 || max(size_en)~=size_S(1)+1
+%     error('Check arguments (data sizes) to write into spe file')
+% end
+% 
+% % Remove blanks from beginning and end of filename
+% file_tmp=strtrim(file);
+% 
+% % Get file name and path (incl. final separator)
+% [path,name,ext]=fileparts(file_tmp);
+% if(~strcmp(ext,this.hdfFileExt)&&~strcmp(ext,this.speFileExt))
+%     ext=this.speFileExt;      % default writing is to ascii spe file but we can change it later
+% end
+% 
+% % Prepare data for Fortran routine
+% index=~isfinite(data.S)|~isfinite(data.ERR);
+% if sum(index(:)>0)
+%     data.S(index)=null_data;
+%     data.ERR(index)=0;
+% end
+% 
+% this.data_loaded=true; % boolean to check if the spe data are loaded to memory
+% this.nDetectors =size(data.S);
+% this.nEnergyBins=size(data.en);
+% this.fileDir    = path;
+% this.fileName   = name;
+% this.fileExt    = ext;
+% 
 end

@@ -4,5 +4,6 @@ function [ndet,en]=get_hdf5_header(filename)
 fileinfo=hdf5info(filename);
 hr=[fileinfo.GroupHierarchy.Datasets.Dims];
 ndet=hr(3);
-en=hdf5read(filename,'Energy_Bin_Boundaries');
+file_strcut=spe_hdf_filestructure();
+en=hdf5read(filename,file_strcut.data_field_names{1});
 end
