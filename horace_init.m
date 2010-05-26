@@ -44,7 +44,7 @@ disp('!  T.G.Perring, J van Duijn, R.A.Ewings         November 2008      !')
 disp('!------------------------------------------------------------------!')
 disp(['! Matlab  code: ',mc,' !']);
 if isempty(mexMaxVer)
-disp('! Mex code:    Not implemented or not supported on this platform   !')
+disp('! Mex code:    Disabled  or not supported on this platform         !')
 else
    if mexMinVer==mexMaxVer
      mess=sprintf(...

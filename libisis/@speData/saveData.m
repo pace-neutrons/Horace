@@ -6,13 +6,13 @@ function this=saveData(this,varargin)
 % saveData(this,'hdf') or saveData(this,'.h5') writes the data in hdf5 form
 % all other values indicate that you write it as an ASCI file
 %
+
 if(~this.data_loaded)
     disp('speData:saveData','data are not loaded into the memory, nothing to do');
     return;
 end
 if(nargin==0)
-    this=save_data(this);
-    writeSPEas_hdf5(this);
+    this=save_SPE_data(this);    
 else
     this=save_data_requested(this,varargin{1});
 end
