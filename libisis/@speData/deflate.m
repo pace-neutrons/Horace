@@ -12,29 +12,24 @@ function this=deflate(this,varargin)
 % 
 
 %% $Revision$ ($Date$)
+% 
+% 
+if(isempty(varargin))
+     write_hdf =this.ifTransfer2hdf;
+else
+     if(strcmp(varargin{1},'hdf'))
+             write_hdf =true;
+     else
+             write_hdf =false;        
+     end
+end
+ 
+if(write_hdf)
+   if(strcmpi(this.fileExt,this.speFileExt)) % then the data are written in a very
+                                             %inefficient spe format, let's fix it
+          this=use_hdf(this,1);              % and rewrite it as an hdf5, it will be quick
+          this=save(this);       
+          this.fileExt=this.hdfFileExt;
+   end
+ end
 this=delete(this);
-% 
-% if(isempty(this.S)&& isempty(this.ERR))
-%     return;
-% end
-% 
-% if(isempty(varargin))
-%     write_hdf =this.ifTransfer2hdf;
-% else
-%     if(strcmp(varargin{1},'hdf'))
-%             write_hdf =true;
-%     else
-%             write_hdf =false;        
-%     end
-% end
-% 
-% if(write_hdf)
-%     if(strcmp(this.fileExt,this.speFileExt)) % then the data are written in a very
-%                                              %inefficient spe format, let's fix it
-%          writeSPEas_hdf5(this);              % and rewrite it as an hdf5, it will be quick
-%          this.fileExt=this.hdfFileExt;
-%     end
-% end
-% this.S=[];
-% this.ERR=[];
-% end

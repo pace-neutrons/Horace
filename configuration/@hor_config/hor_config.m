@@ -38,7 +38,7 @@ horace_defaults = ...
             'threads',1, ...               % how many computational threads to use in mex files and by Matlab
             'ignore_nan',1,...      % by default, ignore NaN values found in 
             'ignore_inf',0,...      % do not ignore inf values;
-            'transformSPE2HDF',1,... % if this parameter is enabled, and spe file is processed using class speData, SPE will be rewritten as hdf file for future usage.
+            'transformSPE2HDF',0,... % if this parameter is enabled, and spe file is processed using class speData, SPE will be rewritten as hdf file for future usage.
             'horace_info_level',1,... ;   % see horace_info_level method   
             'use_mex',true ...  user will use mex-code for time-consuming operations 
             );
