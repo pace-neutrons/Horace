@@ -64,7 +64,7 @@ elseif(nargin==2)
 else
     error('speData:wrong_Constructor_arg','spe data have the form: speData(file_name,[''load'';''bind''])');
 end
-end
+
 %%
 function this=bind_to_file(this,fullfileName)
 % the function checks if the file exists, and reads its header;
@@ -102,12 +102,12 @@ switch(file_tag)
         error('speData:bind_to_file',' unrecognized extension %s in the file %s',...
            this.fileExt,this.fileName);
 end
-end
+
 %%
 function  this=load_data_from_file(this,fileName)
   this = bind_to_file(this,fileName);
   this = loadData(this);
-end
+
 %%
 function this=build_spe_from_data(this,file,data)
 % checks input data and builds valid spe structure 
@@ -121,53 +121,6 @@ function this=build_spe_from_data(this,file,data)
 %   filepath        Path to file including terminating file separator; empty if problem
 %
 
+this.spe=spe(data,file);
 
-% T.G.Perring   13/6/07
 
-this=spe(data,file);
-% 
-% null_data = -1.0e30;    % conventional NaN in spe files
-% 
-% % If no input parameter given, return
-% if ~exist('file','var')||~exist('data','var')
-%     error('Check arguments to put_spe')
-% end
-% 
-% % Check input arguments
-% if ~isstruct(data) ||...
-%         ~isfield(data,'S')   || isempty(data.S) ||...
-%         ~isfield(data,'ERR') || isempty(data.ERR) ||...
-%         ~isfield(data,'en')  || isempty(data.en)
-%     error('Check arguments (data format) to write into spe file')
-% end
-% 
-% size_S=size(data.S); size_ERR=size(data.ERR); size_en=size(data.en);
-% if length(size_S)~=2 || length(size_ERR)~=2|| length(size_en)~=2 ...
-%         || ~all(size_S==size_ERR) || min(size_en)~=1 || max(size_en)~=size_S(1)+1
-%     error('Check arguments (data sizes) to write into spe file')
-% end
-% 
-% % Remove blanks from beginning and end of filename
-% file_tmp=strtrim(file);
-% 
-% % Get file name and path (incl. final separator)
-% [path,name,ext]=fileparts(file_tmp);
-% if(~strcmp(ext,this.hdfFileExt)&&~strcmp(ext,this.speFileExt))
-%     ext=this.speFileExt;      % default writing is to ascii spe file but we can change it later
-% end
-% 
-% % Prepare data for Fortran routine
-% index=~isfinite(data.S)|~isfinite(data.ERR);
-% if sum(index(:)>0)
-%     data.S(index)=null_data;
-%     data.ERR(index)=0;
-% end
-% 
-% this.data_loaded=true; % boolean to check if the spe data are loaded to memory
-% this.nDetectors =size(data.S);
-% this.nEnergyBins=size(data.en);
-% this.fileDir    = path;
-% this.fileName   = name;
-% this.fileExt    = ext;
-% 
-end
