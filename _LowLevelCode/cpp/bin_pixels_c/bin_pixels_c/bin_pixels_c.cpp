@@ -4,6 +4,7 @@ enum input_arguments{
 	Sqw_parameters,
 	N_INPUT_Arguments
 };
+
 enum arguments_meaning{
    Threads,
    Urange,  

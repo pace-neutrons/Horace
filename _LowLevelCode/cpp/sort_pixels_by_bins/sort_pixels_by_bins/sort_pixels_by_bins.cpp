@@ -12,6 +12,7 @@ enum Out_Arguments{
 	Pixels_Sorted,
 	N_OUTPUT_Arguments
 };
+
 //**********************************************************************************************
 // the function moves the pixels information into the places which correspond to the cells,
 // to which the pixels belong to.
