@@ -57,8 +57,8 @@ for i=1:length(psi)
 end
 
 % Create sqw file
-gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-         u, v, psi, omega, dpsi, gl, gs);
+%gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%         u, v, psi, omega, dpsi, gl, gs);
 
 % ---------------------------------------     
 % If the intermediate files (extensions .tmp) are all created, but the sqw
@@ -99,7 +99,8 @@ plot(w100_2)
 
 % 3D sliceomatic figure:
 w100_3 = cut_sqw(data_source,proj_100,[-0.2,0.2],0.05,0.05,[0,0,500]);
-%plot(w100_3)
+pause(0.1)
+plot(w100_3)
 
 
 %==================================================================================================
