@@ -9,7 +9,7 @@ function wout = mask (win, mask_array)
 %   win                 Input sqw object
 %
 %   mask_array          Array of 1 or 0 (or true or false) that indicate
-%                      which points to retain. 
+%                      which points to retain (true to retain, false to ignore)
 %                       Numeric or logical array of same number of elements
 %                      as the data.
 %                       Note: mask will be applied to the stored data array
