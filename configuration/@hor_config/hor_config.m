@@ -43,22 +43,40 @@ horace_defaults = ...
             'use_mex',true ...  user will use mex-code for time-consuming operations 
             );
 
-% configure memory and processors 
-    n_processors = getenv('NUMBER_OF_PROCESSORS');
     Matlab_Version=matlab_version_num();
+
+% configure memory and processors    
+% let's try to identify the number of processors to use in OMP
+    n_processors = getenv('OMP_NUM_THREADS');    
     if(isempty(n_processors))
-        n_processors=1;  % not good for linux
+% *** > this have to be modified in a future to work on UNIX with Matlab
+% higher then 7.10
+        n_processors=1;  % not good for linux 
     else
         n_processors=str2double(n_processors);
     end
-    if(Matlab_Version>7.07) % Matlab supports settings of the threads from command line
+    % matlabs below should know better how many threads to use in
+    % calculations
+    if(Matlab_Version>7.07&&Matlab_Version<7.11) % Matlab supports settings of the threads from command line
+        s=warning('off','MATLAB:maxNumCompThreads:Deprecated');
         n_processors = maxNumCompThreads();
+        warning(s.state,'MATLAB:maxNumCompThreads:Deprecated');               
     end
+    % OMP in C++ does not scales well with higher number of CPU
+    % or at least have not been tested against it. Lets set it to 4 
+    % *** > but have to modify if changed to extreamly large datasets in memory or
+    %  much bigger amount of calculations in comparison with IO operations,
+    % *** > optimisation is possuble.
+    if n_processors>4
+        n_processors=4;
+    end    
+    
     [mex_versions,n_errors]=check_horace_mex();
     if n_errors>0
         horace_defaults.use_mex=false;
     else
     end
+   
     horace_defaults.threads = n_processors;
     horace_defaults.fields_sealed={'fields_sealed','pixel_length'}; % specify the fields which values
     %can not be changed by user;
