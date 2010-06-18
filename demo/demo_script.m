@@ -21,7 +21,7 @@ demo_dir=fileparts(which('demo_script'));
 %==================================================================================================
 demo_root_dir = [fileparts(which('horace_init')),filesep,'demo',filesep];
 demo_dir = fullfile(demo_dir,filesep);   % add file separator if not there
-%unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
+unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
 try
 copyfile(fullfile(demo_root_dir,'demo_par.PAR'),fullfile(demo_dir,'demo_par.PAR'))
 copyfile(fullfile(demo_root_dir,'demo_par.PHX'),fullfile(demo_dir,'demo_par.PAR'))
@@ -57,8 +57,8 @@ for i=1:length(psi)
 end
 
 % Create sqw file
-%gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%         u, v, psi, omega, dpsi, gl, gs);
+gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+         u, v, psi, omega, dpsi, gl, gs);
 
 % ---------------------------------------     
 % If the intermediate files (extensions .tmp) are all created, but the sqw
