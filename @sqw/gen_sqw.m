@@ -249,7 +249,7 @@ else
 end
 % delete temporary files as user will presumably use hdf and tmp files
 % production will be cheap;
-if ~ispc()
+if get(hor_config,'delete_tmp')
     tmp_path=fileparts(tmp_file{1});
     delete([tmp_path,filesep,'*.tmp']);
 end
