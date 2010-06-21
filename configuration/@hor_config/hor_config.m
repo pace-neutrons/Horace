@@ -40,7 +40,8 @@ horace_defaults = ...
             'ignore_inf',0,...      % do not ignore inf values;
             'transformSPE2HDF',0,... % if this parameter is enabled, and spe file is processed using class speData, SPE will be rewritten as hdf file for future usage.
             'horace_info_level',1,... ;   % see horace_info_level method   
-            'use_mex',true ...  user will use mex-code for time-consuming operations 
+            'use_mex',true, ...  user will use mex-code for time-consuming operations 
+            'delete_tmp',true ... % delete temporary files which were generated while building sqw file after sqw has been build successfully 
             );
 
     Matlab_Version=matlab_version_num();
