@@ -165,11 +165,13 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   dims[0]=nPixDataCols;
   dims[1]=1;
 
-  plhs[Pixels_Ok] =mxCreateLogicalArray(2,dims);
-  mxLogical *ok = (mxLogical *)mxGetPr(plhs[Pixels_Ok]);
-  if(!plhs[Pixels_Ok]){
+  mxArray *pixOK  =mxCreateLogicalArray(2,dims); 
+  if(!pixOK){
 	  mexErrMsgTxt(" Can not allocate memory for pixel validity array\n");
   }
+
+  //plhs[Pixels_Ok] =
+  mxLogical *ok = (mxLogical *)mxGetPr(pixOK);
 
   plhs[Actual_Pix_Range]= mxCreateDoubleMatrix(2,4, mxREAL);
   if(!plhs[Actual_Pix_Range]){
@@ -192,7 +194,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   for(long i=0;i<signalSize;i++){
 		  *(pSignalNew+i)=*(pSignal+i);
   }
-  pSignal=pSignalNew; // and now we can do in-place modification of a new array <-- obsolette
+  //pSignal=pSignalNew; // and now we can do in-place modification of a new array <-- obsolette
 
   //if(nlhs>Error_Modified){  // errors are returned in a new array
   plhs[Error_Modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
@@ -203,7 +205,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   for(long i=0;i<signalSize;i++){
 		  *(pErrNew+i)=*(pError+i);
   }
-  pError=pErrNew;
+  //pError=pErrNew;
   // n-pixels are returned in a new array
   plhs[Npixels_out]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
   if(!plhs[Npixels_out]){
@@ -213,7 +215,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   for(long i=0;i<signalSize;i++){
 		  *(pNpNew+i)=*(pNpix+i);
   }
-  pNpix=pNpNew;
+  //pNpix=pNpNew;
 
   double *pPixRange = (double *)mxGetPr(plhs[Actual_Pix_Range]);
   plhs[Npix_Retained] = mxCreateDoubleMatrix(1,1,mxREAL);
@@ -314,16 +316,18 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   }
 
   if(!iRound(pProg_settings[Keep_pixels])){ // if we do not keep pixels, let's free the array of the pixels in range
-	    mxDestroyArray(plhs[Pixels_Ok]);
+	    mxDestroyArray(pixOK);
 		dims[0]=0;
 		dims[1]=0;
 		plhs[Pixels_Ok]=mxCreateLogicalArray(2,dims);
+  }else{
+	  plhs[Pixels_Ok]=pixOK;
   }
 
   if(ppS){
 	  mxDestroyArray(ppS);
   }
-  *mxGetPr(plhs[Npix_Retained])=(double)nPixels_retained;
+  *(mxGetPr(plhs[Npix_Retained]))=(double)nPixels_retained;
 }
 
 mwSize accumulate_cut(double *s, double *e, double *npix,
@@ -463,16 +467,16 @@ int PIXEL_data_width=PIXEL_DATA_WIDTH;
 //  ok = indx(:,1)>=cut_range(1,1) & indx(:,1)<=cut_range(2,1) & indx(:,2)>=cut_range(1,2) & indx(:,2)<=urange_step(2,2) & ...
 //       indx(:,3)>=cut_range(1,3) & indx(:,3)<=cut_range(2,3) & indx(:,4)>=cut_range(1,4) & indx(:,4)<=cut_range(2,4);
 			ok[i]=false;
-			if(Et<cut_range[6]||Et>cut_range[7]) 	continue;
+			if(Et<cut_range[6]||Et>=cut_range[7]) 	continue;
 
     		xt=xt1*rot_ustep[0]+yt1*rot_ustep[3]+zt1*rot_ustep[6];
-			if(xt<cut_range[0]||xt>cut_range[1])   continue;
+			if(xt<cut_range[0]||xt>=cut_range[1])   continue;
 
 			yt=xt1*rot_ustep[1]+yt1*rot_ustep[4]+zt1*rot_ustep[7];
-			if(yt<cut_range[2]||yt>cut_range[3]) 	continue;
+			if(yt<cut_range[2]||yt>=cut_range[3]) 	continue;
 
 			zt=xt1*rot_ustep[2]+yt1*rot_ustep[5]+zt1*rot_ustep[8];
-			if(zt<cut_range[4]||zt>cut_range[5])	continue;
+			if(zt<cut_range[4]||zt>=cut_range[5])	continue;
 
 			ok[i]=true;
 			nPixel_retained++;
@@ -547,7 +551,7 @@ for (i=0;i<data_size;i++){
 //			indl       = ind[i0]*nDimX+ind[i0+1]*nDimY+ind[i0+2]*nDimZ+ind[i0+3]*nDimE;
 			indl      = ind[i];
 #pragma omp atomic
-			s[indl]   +=pixel_data[j0+7];  // C indexing goes from 0, co it is one less then Matlab
+			s[indl]   +=pixel_data[j0+7];  // C indexing goes from 0, so it is one less then Matlab
 #pragma omp atomic
 			e[indl]   +=pixel_data[j0+8];
 #pragma omp atomic
