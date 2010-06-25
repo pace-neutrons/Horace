@@ -194,7 +194,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   for(long i=0;i<signalSize;i++){
 		  *(pSignalNew+i)=*(pSignal+i);
   }
-  //pSignal=pSignalNew; // and now we can do in-place modification of a new array <-- obsolette
+  pSignal=pSignalNew; // and now we can do in-place modification of a new array <-- obsolette
 
   //if(nlhs>Error_Modified){  // errors are returned in a new array
   plhs[Error_Modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
@@ -205,7 +205,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   for(long i=0;i<signalSize;i++){
 		  *(pErrNew+i)=*(pError+i);
   }
-  //pError=pErrNew;
+  pError=pErrNew;
   // n-pixels are returned in a new array
   plhs[Npixels_out]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
   if(!plhs[Npixels_out]){
@@ -215,7 +215,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   for(long i=0;i<signalSize;i++){
 		  *(pNpNew+i)=*(pNpix+i);
   }
-  //pNpix=pNpNew;
+  pNpix=pNpNew;
 
   double *pPixRange = (double *)mxGetPr(plhs[Actual_Pix_Range]);
   plhs[Npix_Retained] = mxCreateDoubleMatrix(1,1,mxREAL);
@@ -304,7 +304,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 				                  grid_size[iAxis[i]-1]=iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab 
   }                                                 // c-arrays.
 
-  mwSize nPixels_retained(0);
+  mwSize nPixels_retained=0;
   try{
   nPixels_retained=accumulate_cut(pSignal,pError,pNpix,
 	             pPixelData,nPixDataCols,
@@ -381,7 +381,7 @@ if(fabs(ebin-1)<DBL_EPSILON && fabs(trans_elo)<DBL_EPSILON){   	transform_energy
 }else{ 															transform_energy=true;
 }
 
-mwSize nPixel_retained(0);
+mwSize nPixel_retained=0;
 
 mwSize  *ind     = (mwSize *)mxCalloc(data_size, sizeof(mwSize)); //working array of indexes of transformed pixels
 if(!ind){  throw(" Can not allocate memory for array of indexes\n");

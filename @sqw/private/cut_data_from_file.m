@@ -214,9 +214,8 @@ end
                 use_mex=get(hor_config,'use_mex');
                 if use_mex
                     try
-                    clear v ok ix_add    % clear big arrays
                     pix = sort_pixels_by_bins(pix,ix,npix);
-                    clear ix    % clear big arrays 
+                    clear v ok ix_add  ix  % clear big arrays                   
                     catch 
                         use_mex=false;
                         if horace_info_level>=1
