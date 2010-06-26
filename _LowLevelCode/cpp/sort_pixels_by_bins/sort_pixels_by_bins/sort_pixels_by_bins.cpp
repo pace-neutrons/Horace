@@ -47,12 +47,12 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 	  }
   }
 
-  double  *pPixelData         = (double *)mxGetPr(prhs[Pixel_data]);
+  double const *pPixelData         = (double *)mxGetPr(prhs[Pixel_data]);
   mwSize  nPixDataRows        = mxGetM(prhs[Pixel_data]);
   mwSize  nPixDataCols        = mxGetN(prhs[Pixel_data]);
-  mwSize  *pPixDims           =	mxGetDimensions(prhs[Pixel_data]);
-  double  *pCellInd      = (double *)mxGetPr(prhs[Pixel_Indexes]);
-  double  *pCellDens     = (double *)mxGetPr(prhs[Pixel_Distributions]);
+  mwSize const *pPixDims           =	mxGetDimensions(prhs[Pixel_data]);
+  double const *pCellInd      = (double *)mxGetPr(prhs[Pixel_Indexes]);
+  double const *pCellDens     = (double *)mxGetPr(prhs[Pixel_Distributions]);
   mwSize distribution_size    = mxGetNumberOfElements(prhs[Pixel_Distributions]);
 
   plhs[Pixels_Sorted] = mxCreateNumericArray(2,pPixDims, mxDOUBLE_CLASS,mxREAL);
