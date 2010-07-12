@@ -34,8 +34,7 @@ function [u_to_rlu, ucoords] = ...
 %
 % $Revision$ ($Date$)
 %
-% Ibon Bustinduy: catch with Matlab routine if fortran fails
-
+%
 % Check input parameters
 % -------------------------
 ndet=size(data.S,2);
@@ -67,9 +66,7 @@ k_to_e = c.k_to_e; % picked up by calc_proj_c;
 % Calculate Q in spectrometer coordinates for each pixel 
 use_mex=get(hor_config,'use_mex');
 if use_mex
-    try     % using ? routine
-        %    error(' use matlab')
-
+    try     %
         nThreads=get(hor_config,'threads'); % picked up by calc_proj_c;
 
         ucoords =calc_projections_c(spec_to_proj,data, det,efix, k_to_e,emode,nThreads);
