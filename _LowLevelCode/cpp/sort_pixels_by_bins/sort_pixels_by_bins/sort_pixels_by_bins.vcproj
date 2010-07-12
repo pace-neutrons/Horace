@@ -95,7 +95,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="&#x0D;&#x0A;copy $(TargetPath) $(Horace)\@sqw\private\$(TargetFileName)&#x0D;&#x0A;"
+				CommandLine="&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -175,7 +175,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(TargetPath) $(Horace)\@sqw\private\$(TargetFileName)"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -256,7 +256,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(TargetPath) $(Horace)\@sqw\private\$(TargetFileName)"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -337,7 +337,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(TargetPath) $(Horace)\@sqw\private\$(TargetFileName)"
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>

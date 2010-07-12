@@ -77,9 +77,9 @@
 */
 
 enum inputs{
-	iFileName,
-	iFileType,
-	iNumInputs
+    iFileName,
+    iFileType,
+    iNumInputs
 };
 /*! \brief interface function between the code and Matlab
 */
@@ -105,122 +105,122 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
 //--------->  ANALYSE INPUT PARAMETERS;
   const char REVISION[]="$Revision::      $ ($Date::                                              $)";
   if(nrhs==0&&nlhs==1){
-		plhs[0]=mxCreateString(REVISION); 
-		return;
+        plhs[0]=mxCreateString(REVISION); 
+        return;
   }
 
   if(nrhs!=iNumInputs&&nrhs!=iNumInputs-1) {
-		buf<<"function needs one or two arguments but got "<<(short)nrhs<<" input arguments\n";	goto error;
+        buf<<"function needs one or two arguments but got "<<(short)nrhs<<" input arguments\n";	goto error;
   }
   if(!mxIsChar(prhs[iFileName])||(mxGetM(prhs[iFileName]))!=1){  // not a file name
-	  buf<<"first parameter has to be a scalar string, which specify a filename\n";	            goto error;
+      buf<<"first parameter has to be a scalar string, which specify a filename\n";	            goto error;
   }else{                                                         // get file name
-	  fileName_Length = mxGetN(prhs[iFileName])+1;
-	  Buf = new char[fileName_Length];
-	  if(!Buf){
-		  buf<<"auxilary memory allocation error (wrong file name?)\n";	                       goto error;
-	  }
-	  if(mxGetString(prhs[iFileName], Buf, fileName_Length)){
-		  buf<<"can not obtain input file_name correctly\n";			 					   goto error;
-	  }
+      fileName_Length = mxGetN(prhs[iFileName])+1;
+      Buf = new char[fileName_Length];
+      if(!Buf){
+          buf<<"auxilary memory allocation error (wrong file name?)\n";	                       goto error;
+      }
+      if(mxGetString(prhs[iFileName], Buf, fileName_Length)){
+          buf<<"can not obtain input file_name correctly\n";			 					   goto error;
+      }
       inputFileName.reserve(fileName_Length);
-	  inputFileName.assign(Buf);
-	  delete [] Buf; Buf=NULL;
+      inputFileName.assign(Buf);
+      delete [] Buf; Buf=NULL;
 //----------> INPUT PARAMETERS: does the file exist
-	    struct stat stFileInfo;
-		if(stat(inputFileName.c_str(),&stFileInfo)!=0){ // we are not able to obtain the file info; the file probably not exist
-			buf<<"file: "<<inputFileName<<" can not be found\n";							     goto error;
-		}
+        struct stat stFileInfo;
+        if(stat(inputFileName.c_str(),&stFileInfo)!=0){ // we are not able to obtain the file info; the file probably not exist
+            buf<<"file: "<<inputFileName<<" can not be found\n";							     goto error;
+        }
   }
 
 //----------> INPUT PARAMETERS: Analyse, which file type is requested
   currentFileType=iNumFileTypes; // set the current file type to the value, which it can never have for a valid file type;
   if(nrhs==iNumInputs){          // second parameter is present and we should analyse it
-	  if(!mxIsChar(prhs[iFileType])||(mxGetM(prhs[iFileType]))!=1){  // not a file type
-			buf<<"second parameter, if present has to be a scalar string, which specify a file type\n";      goto error;
-	  }else{                                                         // get file type
-			int fileType_Length = mxGetN(prhs[iFileType])+1;
-			if(fileType_Length!=4){	buf<<"second parameter has to be a string of 3 ASCII symbols\n";	   	goto error;
-			}
-			if(mxGetString(prhs[iFileType], fileType, fileType_Length)){
-				buf<<" can not obtain file_type properly\n";	   						goto error;
-			}
-			inputFileType.assign(fileType);
+      if(!mxIsChar(prhs[iFileType])||(mxGetM(prhs[iFileType]))!=1){  // not a file type
+            buf<<"second parameter, if present has to be a scalar string, which specify a file type\n";      goto error;
+      }else{                                                         // get file type
+            int fileType_Length = mxGetN(prhs[iFileType])+1;
+            if(fileType_Length!=4){	buf<<"second parameter has to be a string of 3 ASCII symbols\n";	   	goto error;
+            }
+            if(mxGetString(prhs[iFileType], fileType, fileType_Length)){
+                buf<<" can not obtain file_type properly\n";	   						goto error;
+            }
+            inputFileType.assign(fileType);
 
-			// and now we should see if the parameter is among accepted
-			for(int i=0;i<iNumFileTypes;i++){
-				if(inputFileType.compare(fileTypesAccepted[i])==0){
-					currentFileType=(fileTypes)i;
-					break;
-				}
-			}
-			if(currentFileType==iNumFileTypes){
-				buf<<"the file type parameter, specified in the program call is: " <<inputFileType<<std::endl;
-				buf<<"---------  it is not among filetypes accepted\n";                       goto error;
-			}
-	  }
+            // and now we should see if the parameter is among accepted
+            for(int i=0;i<iNumFileTypes;i++){
+                if(inputFileType.compare(fileTypesAccepted[i])==0){
+                    currentFileType=(fileTypes)i;
+                    break;
+                }
+            }
+            if(currentFileType==iNumFileTypes){
+                buf<<"the file type parameter, specified in the program call is: " <<inputFileType<<std::endl;
+                buf<<"---------  it is not among filetypes accepted\n";                       goto error;
+            }
+      }
   }  // second parameter is present and have been identified;
 
 //----------> INPUT PARAMETERS: open file and analyse,  it its type is the same as the type requested plus get other service information;
-	try{
-		FILE_TYPE=get_ASCII_header(inputFileName,data_stream);
-	}catch(const char *Error){
-		buf<<Error<<std::endl;  goto error;
-	}
-	if(currentFileType!=iNumFileTypes){  // then a file type reqiested is specified and we have to check if the real file type corresponds to the requested
-		if(FILE_TYPE.Type!=currentFileType){
-			buf<<" it is requested to open a <"<<inputFileType<<"> file, but the internal file format identified as <"<<fileTypesAccepted[FILE_TYPE.Type]<<"> file\n";
-			goto error;
-		}
-	}
-	currentFileType= FILE_TYPE.Type;
+    try{
+        FILE_TYPE=get_ASCII_header(inputFileName,data_stream);
+    }catch(const char *Error){
+        buf<<Error<<std::endl;  goto error;
+    }
+    if(currentFileType!=iNumFileTypes){  // then a file type reqiested is specified and we have to check if the real file type corresponds to the requested
+        if(FILE_TYPE.Type!=currentFileType){
+            buf<<" it is requested to open a <"<<inputFileType<<"> file, but the internal file format identified as <"<<fileTypesAccepted[FILE_TYPE.Type]<<"> file\n";
+            goto error;
+        }
+    }
+    currentFileType= FILE_TYPE.Type;
 
 
-	try{
-		switch(currentFileType){
-			case(iPAR_type):{
-				if(nlhs!=1){
-					buf<<" this program request one output parameter when loading PAR files\n";
-					goto error;
-				}
-				plhs[0]=mxCreateDoubleMatrix(5,FILE_TYPE.nData_records,mxREAL);
-				double *pData=mxGetPr(plhs[0]);
-				load_plain(data_stream,pData,FILE_TYPE);
-				break;
-							}
-			case(iPHX_type):{
-				if(nlhs!=1){
-					buf<<" this program request one output parameter when loading PHX files\n";
-					goto error;
-				}
-				plhs[0]=mxCreateDoubleMatrix(7,FILE_TYPE.nData_records,mxREAL);
-				double *pData=mxGetPr(plhs[0]);
-				load_plain(data_stream,pData,FILE_TYPE);
-				break;
-							}
-			case(iSPE_type):{
-				if(nlhs!=3){
-					buf<<" this program request three output parameters when loading SPE files\n";
-					buf<<" ------- [data_S, data_E, en] = get_ascii_file(filename,['spe'])\n";
-					goto error;
-				}
+    try{
+        switch(currentFileType){
+            case(iPAR_type):{
+                if(nlhs!=1){
+                    buf<<" this program request one output parameter when loading PAR files\n";
+                    goto error;
+                }
+                plhs[0]=mxCreateDoubleMatrix(5,FILE_TYPE.nData_records,mxREAL);
+                double *pData=mxGetPr(plhs[0]);
+                load_plain(data_stream,pData,FILE_TYPE);
+                break;
+                            }
+            case(iPHX_type):{
+                if(nlhs!=1){
+                    buf<<" this program request one output parameter when loading PHX files\n";
+                    goto error;
+                }
+                plhs[0]=mxCreateDoubleMatrix(7,FILE_TYPE.nData_records,mxREAL);
+                double *pData=mxGetPr(plhs[0]);
+                load_plain(data_stream,pData,FILE_TYPE);
+                break;
+                            }
+            case(iSPE_type):{
+                if(nlhs!=3){
+                    buf<<" this program request three output parameters when loading SPE files\n";
+                    buf<<" ------- [data_S, data_E, en] = get_ascii_file(filename,['spe'])\n";
+                    goto error;
+                }
 
-				plhs[0]=mxCreateDoubleMatrix(FILE_TYPE.nData_blocks,FILE_TYPE.nData_records,mxREAL);
-				plhs[1]=mxCreateDoubleMatrix(FILE_TYPE.nData_blocks,FILE_TYPE.nData_records,mxREAL);
-				plhs[2]=mxCreateDoubleMatrix(FILE_TYPE.nData_blocks+1,1,mxREAL);
-				double *data_S   = mxGetPr(plhs[0]);
-				double *data_ERR = mxGetPr(plhs[1]);
-				double *data_en  = mxGetPr(plhs[2]);
+                plhs[0]=mxCreateDoubleMatrix(FILE_TYPE.nData_blocks,FILE_TYPE.nData_records,mxREAL);
+                plhs[1]=mxCreateDoubleMatrix(FILE_TYPE.nData_blocks,FILE_TYPE.nData_records,mxREAL);
+                plhs[2]=mxCreateDoubleMatrix(FILE_TYPE.nData_blocks+1,1,mxREAL);
+                double *data_S   = mxGetPr(plhs[0]);
+                double *data_ERR = mxGetPr(plhs[1]);
+                double *data_en  = mxGetPr(plhs[2]);
 
-				load_spe(data_stream,data_S,data_ERR,data_en,FILE_TYPE);
-				break;
-							}
+                load_spe(data_stream,data_S,data_ERR,data_en,FILE_TYPE);
+                break;
+                            }
 
-		}
-		data_stream.close();
-	}catch(const char *Error){
-		 buf<<Error<<std::endl;  goto error;
-	}
+        }
+        data_stream.close();
+    }catch(const char *Error){
+         buf<<Error<<std::endl;  goto error;
+    }
 
   return;
 error:
