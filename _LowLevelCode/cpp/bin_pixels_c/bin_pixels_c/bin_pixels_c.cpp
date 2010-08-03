@@ -1,8 +1,8 @@
 #include "stdafx.h"
 //
 enum input_arguments{
-	Sqw_parameters,
-	N_INPUT_Arguments
+    Sqw_parameters,
+    N_INPUT_Arguments
 };
 
 enum arguments_meaning{
@@ -20,8 +20,8 @@ enum out_arguments{
    N_ARGUMENTS_OUT
 };
 enum output_arguments{  // not used at the moment
-	Sqw_data,
-	N_OUTPUT_Arguments
+    Sqw_data,
+    N_OUTPUT_Arguments
 };
 #ifdef __GNUC__
 #   if __GNUC__ < 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ < 2)
@@ -34,9 +34,9 @@ void omp_set_num_threads(int nThreads){};
 #endif
 
 bool accumulate_cut(double *s, double *e, double *npix,
-					mxArray*  pPixel_data, mxArray* &PixelSorted,
-					double const* const cut_range,
-					mwSize grid_size[4], int num_threads);
+                    mxArray*  pPixel_data, mxArray* &PixelSorted,
+                    double const* const cut_range,
+                    mwSize grid_size[4], int num_threads);
 
 const int PIXEL_DATA_WIDTH=9;
 //
@@ -70,22 +70,22 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
   mwSize  iGridSizes[4],     // array of grid sizes
           totalGridSize(1),  // number of cells in the whole grid;
-		  nGridDimensions,    // number of dimension in the whole grid (usually 4 according to the pixel data but can be modified in a future
+          nGridDimensions,    // number of dimension in the whole grid (usually 4 according to the pixel data but can be modified in a future
           i;
   double *pS,*pErr,*pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
   mxArray *PixelSorted;
-
+//
   const char REVISION[]="$Revision::      $ ($Date::                                              $)";
   if(nrhs==0&&nlhs==1){
-		plhs[0]=mxCreateString(REVISION); 
-		return;
+        plhs[0]=mxCreateString(REVISION); 
+        return;
   }
 
 
   if(nrhs!=N_INPUT_Arguments) {
     std::stringstream buf;
-	buf<<"ERROR::bin_pixels needs"<<(short)N_INPUT_Arguments<<"  but got "<<(short)nrhs<<" input arguments\n";
-	mexErrMsgTxt(buf.str().c_str());
+    buf<<"ERROR::bin_pixels needs"<<(short)N_INPUT_Arguments<<"  but got "<<(short)nrhs<<" input arguments\n";
+    mexErrMsgTxt(buf.str().c_str());
   }
 //  if(nlhs>N_OUTPUT_Arguments) {
 //    std::stringstream buf;
@@ -93,25 +93,25 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //    mexErrMsgTxt(buf.str().c_str());
 //  }
   if(!mxIsCell(prhs[Sqw_parameters])){
-		mexErrMsgTxt("ERROR::bin_pixels function needs to receive its parameters as a cell array\n");
+        mexErrMsgTxt("ERROR::bin_pixels function needs to receive its parameters as a cell array\n");
   }
   size_t nPars        =  mxGetN(prhs[Sqw_parameters]);
 
   if (nPars!=N_ARGUMENT_CELLS){
     std::stringstream buf;
-	buf<<"ERROR::bin_pixels expexts array of "<<(short)N_ARGUMENT_CELLS; 
-	buf<<"cells \n but got "<<(short)nPars<<" cells\n";
-	mexErrMsgTxt(buf.str().c_str());
+    buf<<"ERROR::bin_pixels expexts array of "<<(short)N_ARGUMENT_CELLS; 
+    buf<<"cells \n but got "<<(short)nPars<<" cells\n";
+    mexErrMsgTxt(buf.str().c_str());
   }
 
 
   int num_threads(1);
   mxArray *pThreads = mxGetCell(prhs[Sqw_parameters], Threads);
   if(pThreads){
-		num_threads=(int)*mxGetPr(pThreads);
+        num_threads=(int)*mxGetPr(pThreads);
   }else{
-		num_threads = 1;
-		mexPrintf("WARNING::bin_pixels->can not retrieve the number of computational threads from calling workspace, 1 assumed");
+        num_threads = 1;
+        mexPrintf("WARNING::bin_pixels->can not retrieve the number of computational threads from calling workspace, 1 assumed");
  }
 
   double const *const pGrid_sizes    = (double *)mxGetPr(mxGetCell(prhs[Sqw_parameters], Grid_size));
@@ -120,8 +120,8 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   if(nGridDimensions>4)mexErrMsgTxt(" we do not currently work with the grids which have more then 4 dimensions");
 
   for(i=0;i<nGridDimensions;i++){
-	  iGridSizes[i]=(mwSize)(pGrid_sizes[i]);
-	  totalGridSize*=iGridSizes[i];
+      iGridSizes[i]=(mwSize)(pGrid_sizes[i]);
+      totalGridSize*=iGridSizes[i];
   }
 //**************************************************************
   // get pixels information
@@ -139,9 +139,9 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
   mxArray* tt;
   for(i=0;i<N_ARGUMENTS_OUT-1;i++){
-			tt=mxCreateNumericArray(nGridDimensions,iGridSizes,mxDOUBLE_CLASS,mxREAL);
-			if (!tt)mexErrMsgTxt("ERROR::bin_pixels->can not allocate memory for output signals errors and npixels");
-			mxSetCell(plhs[0],i,tt);
+            tt=mxCreateNumericArray(nGridDimensions,iGridSizes,mxDOUBLE_CLASS,mxREAL);
+            if (!tt)mexErrMsgTxt("ERROR::bin_pixels->can not allocate memory for output signals errors and npixels");
+            mxSetCell(plhs[0],i,tt);
   }
 
   pS   = (double *)mxGetPr(mxGetCell(plhs[0],Signal));
@@ -169,9 +169,9 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 }
 
 bool accumulate_cut(double *s, double *e, double *npix,
-					mxArray*  pPixel_data, mxArray* &PixelSorted,
-					double const* const cut_range,
-					mwSize grid_size[4], int num_threads)
+                    mxArray*  pPixel_data, mxArray* &PixelSorted,
+                    double const* const cut_range,
+                    mwSize grid_size[4], int num_threads)
 {
 double xt,yt,zt,Et,nPixSq;
 long i,j;
@@ -193,7 +193,7 @@ try{         	ok = new char[data_size];
 }
 try{         	nGridCell	= new mwSize[data_size]; // grid indexes of the retainde pixels
 }catch(...){	delete [] ok;
-	            throw(" Can not allocate auxiliary memory for the grid indexes of the retainde pixels");
+                throw(" Can not allocate auxiliary memory for the grid indexes of the retainde pixels");
 }
 
 
@@ -218,9 +218,9 @@ eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
 
 
 #pragma omp parallel default(none), private(i,i0,xt,yt,zt,Et,ix,iy,iz,ie,il,nPixSq), \
-	 shared(pixel_data,ok,nGridCell,s,e,npix), \
-	 firstprivate(nPixelDatas,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR), \
-	 reduction(+:nPixel_retained)
+     shared(pixel_data,ok,nGridCell,s,e,npix), \
+     firstprivate(nPixelDatas,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR), \
+     reduction(+:nPixel_retained)
 {
 //	#pragma omp master
 //{
@@ -228,58 +228,58 @@ eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
 //	 mexPrintf(" n real threads %d :\n",nRealThread);}
 
 #pragma omp for schedule(static,10)
-	for(i=0;i<data_size;i++){
-			i0=i*nPixelDatas;
+    for(i=0;i<data_size;i++){
+            i0=i*nPixelDatas;
 
-			xt = pixel_data[i0];
-			yt = pixel_data[i0+1];
-			zt = pixel_data[i0+2];
-			Et = pixel_data[i0+3];
+            xt = pixel_data[i0];
+            yt = pixel_data[i0+1];
+            zt = pixel_data[i0+2];
+            Et = pixel_data[i0+3];
 
 //  ok = indx(:,1)>=cut_range(1,1) & indx(:,1)<=cut_range(2,1) & indx(:,2)>=cut_range(1,2) & indx(:,2)<=urange_step(2,2) & ...
 //       indx(:,3)>=cut_range(1,3) & indx(:,3)<=cut_range(2,3) & indx(:,4)>=cut_range(1,4) & indx(:,4)<=cut_range(2,4);
-			ok[i]=false;
-			if(xt<cut_range[0]||xt>cut_range[1])continue;
-			if(yt<cut_range[2]||yt>cut_range[3])continue;
-			if(zt<cut_range[4]||zt>cut_range[5])continue; 			
-			if(Et<cut_range[6]||Et>cut_range[7])continue; 			
+            ok[i]=false;
+            if(xt<cut_range[0]||xt>cut_range[1])continue;
+            if(yt<cut_range[2]||yt>cut_range[3])continue;
+            if(zt<cut_range[4]||zt>cut_range[5])continue; 			
+            if(Et<cut_range[6]||Et>cut_range[7])continue; 			
 
-			nPixel_retained++;
+            nPixel_retained++;
 
          //ibin(ok) = ibin(ok) + nel(id)*max(0,min((grid_size(id)-1),floor(grid_size(id)*((u(id,ok)-urange(1,id))/(urange(2,id)-urange(1,id))))));
 
-			ix=(mwSize)floor((xt-cut_range[0])*xBinR);
-			iy=(mwSize)floor((yt-cut_range[2])*yBinR);
-			iz=(mwSize)floor((zt-cut_range[4])*zBinR);
-			ie=(mwSize)floor((Et-cut_range[6])*eBinR);
+            ix=(mwSize)floor((xt-cut_range[0])*xBinR);
+            iy=(mwSize)floor((yt-cut_range[2])*yBinR);
+            iz=(mwSize)floor((zt-cut_range[4])*zBinR);
+            ie=(mwSize)floor((Et-cut_range[6])*eBinR);
 
-			il=ix*nDimX+iy*nDimY+iz*nDimZ+ie*nDimE;
+            il=ix*nDimX+iy*nDimY+iz*nDimZ+ie*nDimE;
 
-			ok[i]       = true;
-			nGridCell[i]= il;
+            ok[i]       = true;
+            nGridCell[i]= il;
 
 
 //    sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);			
 #pragma omp atomic   // beware C index one less then Matlab; should use enum instead
-			s[il]   +=pixel_data[i0+7]; 
+            s[il]   +=pixel_data[i0+7]; 
 //    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
 #pragma omp atomic
-			e[il]   +=pixel_data[i0+8];
+            e[il]   +=pixel_data[i0+8];
 #pragma omp atomic
-			npix[il]++;
+            npix[il]++;
 
-	} // end for -- imlicit barrier;
+    } // end for -- imlicit barrier;
 
 //    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
 //    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
 #pragma omp for
-	for(i=0;i<distribution_size;i++){
-		nPixSq  =npix[i];
-		if(nPixSq ==0)nPixSq = 1;
-		s[i]   /=nPixSq;
-		nPixSq *=nPixSq;
-		e[i]   /=nPixSq;
-	}
+    for(i=0;i<distribution_size;i++){
+        nPixSq  =npix[i];
+        if(nPixSq ==0)nPixSq = 1;
+        s[i]   /=nPixSq;
+        nPixSq *=nPixSq;
+        e[i]   /=nPixSq;
+    }
 } // end parallel region
 
 // sort pixels according to the grid bins
@@ -287,21 +287,21 @@ mwSize *ppInd;
 try{
     ppInd = new mwSize[distribution_size];
 }catch(...){
-	delete [] nGridCell;
-	delete [] ok;
-	throw("  Can not allocate auxiliary memory for grid indexes boundaries");
+    delete [] nGridCell;
+    delete [] ok;
+    throw("  Can not allocate auxiliary memory for grid indexes boundaries");
 }
 // where to place new pixels
-	try{      		PixelSorted   = mxCreateDoubleMatrix(nPixelDatas,nPixel_retained,mxREAL);
-	}catch(...){	PixelSorted=NULL;
-	}
-	bool place_pixels_in_old_array(false);
-	if(!PixelSorted){              // replace pixels in-place 
-		//PixelSorted=mxCreateSharedDataCopy(pPixel_data);
-		PixelSorted              =pPixel_data;
-		place_pixels_in_old_array=true;
-	}
-	double *pPixelSorted=mxGetPr(PixelSorted);
+    try{      		PixelSorted   = mxCreateDoubleMatrix(nPixelDatas,nPixel_retained,mxREAL);
+    }catch(...){	PixelSorted=NULL;
+    }
+    bool place_pixels_in_old_array(false);
+    if(!PixelSorted){              // replace pixels in-place 
+        //PixelSorted=mxCreateSharedDataCopy(pPixel_data);
+        PixelSorted              =pPixel_data;
+        place_pixels_in_old_array=true;
+    }
+    double *pPixelSorted=mxGetPr(PixelSorted);
 
 
 // sort pixels according to grid cells
@@ -312,94 +312,94 @@ try{
 //    % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
 //    sqw_data.pix=sqw_data.pix(:,ix);
 
-	ppInd[0]=0;
-	for(i=1;i<distribution_size;i++){   // initiate the boudaries of the cells to keep pixels
-			ppInd[i]=ppInd[i-1]+(mwSize)npix[i-1];
-	}; 
-	//double *buf =(double *)mxMalloc(nPixelDatas*numRealThreads*sizeof(double));
-	double buf[PIXEL_DATA_WIDTH];
+    ppInd[0]=0;
+    for(i=1;i<distribution_size;i++){   // initiate the boudaries of the cells to keep pixels
+            ppInd[i]=ppInd[i-1]+(mwSize)npix[i-1];
+    }; 
+    //double *buf =(double *)mxMalloc(nPixelDatas*numRealThreads*sizeof(double));
+    double buf[PIXEL_DATA_WIDTH];
 
-	mwSize nCell,pCellFree,tnCell,ic;
-	int lastFreeCell(numRealThreads);
+    mwSize nCell,pCellFree,tnCell,ic;
+    int lastFreeCell(numRealThreads);
 
     bool swap;
-	if(place_pixels_in_old_array){	
+    if(place_pixels_in_old_array){	
 {
 
 // 		ic          = omp_get_thread_num();
-	 	ic          = 0;
-		swap        = false;
-		while(ic<data_size){
-			if(!ok[ic]){
+        ic          = 0;
+        swap        = false;
+        while(ic<data_size){
+            if(!ok[ic]){
 //#pragma omp critical
-				{	ic=lastFreeCell;
-				    lastFreeCell++;
-				}
-				continue;
-			}
+                {	ic=lastFreeCell;
+                    lastFreeCell++;
+                }
+                continue;
+            }
 //#pragma omp critical
-			{	
-				ok[ic]   = 2 ;              // mark this cell as occupied by a thread
-				nCell    = nGridCell[ic];  // number of the cell where the pixel is 
-			    pCellFree= ppInd[nCell];   // pointer to the free memory in this cell
-			    ppInd[nCell]++;           // adjust the counter of the "free" memory in this cell as old will be occupied		
-			}
-			if(ic == pCellFree){     // pixel already in the right cell, rigth place, move on
-				ok[ic]=false;
-				continue;
-			}
-			//if(ok[pCellFree]==2){  // the cell is already dealt with by abither thread
-			//}
-			// swap(pixel at ic with pixel at pCellFree=ppInd[GridCell[ic]])************************
-			//(1)
-			if(ok[pCellFree]){  // the destination cell already has a valid pixel which should be saved
-				for(i=0;i<nPixelDatas;i++){	buf[i]= pixel_data[pCellFree*nPixelDatas+i];}
-				// tOk  = ok[pCellFree]; always true;
-				tnCell = nGridCell[pCellFree];
-				swap = true;
-			}
-			//(2)      // copy current pixel into the new location
-			for(i=0;i<nPixelDatas;i++){	pixel_data[pCellFree*nPixelDatas+i]=pixel_data[ic*nPixelDatas+i];}
-			  ok[pCellFree]       = false; // make it false to not touch it any more
-			 //nGridCell[pCellFree]= nGridCell[ic]; // this is for checks only
+            {	
+                ok[ic]   = 2 ;              // mark this cell as occupied by a thread
+                nCell    = nGridCell[ic];  // number of the cell where the pixel is 
+                pCellFree= ppInd[nCell];   // pointer to the free memory in this cell
+                ppInd[nCell]++;           // adjust the counter of the "free" memory in this cell as old will be occupied		
+            }
+            if(ic == pCellFree){     // pixel already in the right cell, rigth place, move on
+                ok[ic]=false;
+                continue;
+            }
+            //if(ok[pCellFree]==2){  // the cell is already dealt with by abither thread
+            //}
+            // swap(pixel at ic with pixel at pCellFree=ppInd[GridCell[ic]])************************
+            //(1)
+            if(ok[pCellFree]){  // the destination cell already has a valid pixel which should be saved
+                for(i=0;i<nPixelDatas;i++){	buf[i]= pixel_data[pCellFree*nPixelDatas+i];}
+                // tOk  = ok[pCellFree]; always true;
+                tnCell = nGridCell[pCellFree];
+                swap = true;
+            }
+            //(2)      // copy current pixel into the new location
+            for(i=0;i<nPixelDatas;i++){	pixel_data[pCellFree*nPixelDatas+i]=pixel_data[ic*nPixelDatas+i];}
+              ok[pCellFree]       = false; // make it false to not touch it any more
+             //nGridCell[pCellFree]= nGridCell[ic]; // this is for checks only
             // (3)
-			if(swap){   // return the pixel just saved into the array of unprocessed pixels on the place of the pixel just processed 
-				//memcpy((char *)(pixel_data+ic*nPixelDatas),buf,pixel_Byte_size);			 
-				for(i=0;i<nPixelDatas;i++){pixel_data[ic*nPixelDatas+i]=buf[i];}
-				// ok[ic]        = tOk; always true
-				nGridCell[ic] = tnCell;
-				swap=false;
-			}
-			//*end swap*********************************************************
-		}
+            if(swap){   // return the pixel just saved into the array of unprocessed pixels on the place of the pixel just processed 
+                //memcpy((char *)(pixel_data+ic*nPixelDatas),buf,pixel_Byte_size);			 
+                for(i=0;i<nPixelDatas;i++){pixel_data[ic*nPixelDatas+i]=buf[i];}
+                // ok[ic]        = tOk; always true
+                nGridCell[ic] = tnCell;
+                swap=false;
+            }
+            //*end swap*********************************************************
+        }
 } // end parallel region;
 
-	}else{
+    }else{
 #pragma omp parallel  default(none),private(i,j,i0,j0,nCell) \
-		shared(ppInd,pPixelSorted,ok,nGridCell,pixel_data), \
-		firstprivate(data_size,nPixelDatas)
+        shared(ppInd,pPixelSorted,ok,nGridCell,pixel_data), \
+        firstprivate(data_size,nPixelDatas)
 {
 #pragma omp for
-		for(j=0;j<data_size;j++){    
-			if(!ok[j])continue;
+        for(j=0;j<data_size;j++){    
+            if(!ok[j])continue;
 
-			nCell = nGridCell[j];            // this is the index of a pixel in the grid cell
-			j0    = ppInd[nCell]*nPixelDatas; // each one position in a grid cell corresponds to a pixel of the size nPixelDatas
-			i0    = j*nPixelDatas;
+            nCell = nGridCell[j];            // this is the index of a pixel in the grid cell
+            j0    = ppInd[nCell]*nPixelDatas; // each one position in a grid cell corresponds to a pixel of the size nPixelDatas
+            i0    = j*nPixelDatas;
 #pragma omp atomic
-			ppInd[nCell]++;
+            ppInd[nCell]++;
 
-			//memcpy((char *)(pPixelSorted+jBase),(char *)(pixel_data+j*nPixelDatas),pixel_Byte_size);
-			 for(i=0;i<nPixelDatas;i++){
-				 pPixelSorted[j0+i]=pixel_data[i0+i];}
-		}
+            //memcpy((char *)(pPixelSorted+jBase),(char *)(pixel_data+j*nPixelDatas),pixel_Byte_size);
+             for(i=0;i<nPixelDatas;i++){
+                 pPixelSorted[j0+i]=pixel_data[i0+i];}
+        }
 } // end parallel region
-	} // else if
+    } // else if
 
-	delete [] ppInd;
+    delete [] ppInd;
     delete [] ok;
     delete [] nGridCell;
-	//mxFree(buf);
+    //mxFree(buf);
 
-	return place_pixels_in_old_array;
+    return place_pixels_in_old_array;
 }

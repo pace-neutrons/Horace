@@ -101,6 +101,7 @@ classdef sqw_hdf < one_sqw
      end
 %% ========================================================================     
      function this=write(this,varargin)
+         this=write@one_sqw(this);
          if nargin>1
              if nargin>2
              end

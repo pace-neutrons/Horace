@@ -3,35 +3,35 @@
 #include "stdafx.h"
 #include "accumulate_cut_c.h"
 enum InputArguments {
-	Pixel_data,
-	Signal,
-	Error,
-	Npixels,
-	CoordRotation_matrix,
-	CoordShif_matrix,
-	Scale_energy,
-	Shift_energy,
-	DataCut_range,
-	Plot_axis,
-	Program_settings,
-	N_INPUT_Arguments
+    Pixel_data,
+    Signal,
+    Error,
+    Npixels,
+    CoordRotation_matrix,
+    CoordShif_matrix,
+    Scale_energy,
+    Shift_energy,
+    DataCut_range,
+    Plot_axis,
+    Program_settings,
+    N_INPUT_Arguments
 };
 enum OutputArguments{ // unique ouptput arguments,
-	Actual_Pix_Range,
-	Pixels_Ok,
-	Pixels_Ind,
-	Signal_modified,
-	Error_Modified,
+    Actual_Pix_Range,
+    Pixels_Ok,
+    Pixels_Ind,
+    Signal_modified,
+    Error_Modified,
     Npixels_out,
-	Npix_Retained,
-	N_OUTPUT_Arguments
+    Npix_Retained,
+    N_OUTPUT_Arguments
 };
 enum program_settings{
-	Ignore_Nan,
-	Ignore_Inf,
-	Keep_pixels,
-	N_Parallel_Processes,
-	N_PROG_SETTINGS
+    Ignore_Nan,
+    Ignore_Inf,
+    Keep_pixels,
+    N_Parallel_Processes,
+    N_PROG_SETTINGS
 };
 
 #ifdef __GNUC__
@@ -43,13 +43,19 @@ void omp_set_num_threads(int nThreads){};
 #	endif
 #endif
 
+template <class T>
+bool isNaN(T val){
+    volatile T buf=val;
+    return (val!=buf);
+}
+
 const int PIXEL_DATA_WIDTH=9;
 const int OUT_PIXEL_DATA_WIDTH=4;
 /*
 % Syntax:
 [cut_range_pix, ok, ix, {s,e,npix -- modified on place} ] = accumulate_cut (s,e,npix,pixel_data,cut_range_pix,...
                                                                          cut_range, rot_ustep, trans_bott_left, ebin, trans_elo, pax,...
-										                          		parameters)
+                                                                        parameters)
 % Accumulate signal into output arrays
 %
 %
@@ -67,10 +73,10 @@ const int OUT_PIXEL_DATA_WIDTH=4;
 %   ebin            Energy bin width (plays role of rot_ustep for energy axis)
 %   trans_elo       Bottom of energy scale (plays role of trans_bott_left for energy axis)
 and parameters is the array of program parameters namely:
-	parameters[0]->Ignore_Nan -- ignore pixels with NaN data
-	parameters[1]->Ignore_Inf -- ignore pixels with Inf data
-	parameters[2]->Keep_pixels -- Set to 1 if wish to retain the information about individual pixels; set to 0 if not
-	parameters[3]->N_Parallel_Processes Number of threads to execute OMP code
+    parameters[0]->Ignore_Nan -- ignore pixels with NaN data
+    parameters[1]->Ignore_Inf -- ignore pixels with Inf data
+    parameters[2]->Keep_pixels -- Set to 1 if wish to retain the information about individual pixels; set to 0 if not
+    parameters[3]->N_Parallel_Processes Number of threads to execute OMP code
 if there are no parameters specified, then defaults are parameters[]={1,1,0,1}
 %
 % Output:
@@ -90,29 +96,29 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
   const char REVISION[]="$Revision::      $ ($Date::                                              $)";
   if(nrhs==0&&nlhs==1){
-		plhs[0]=mxCreateString(REVISION); 
-		return;
+        plhs[0]=mxCreateString(REVISION); 
+        return;
   }
 
 //* Check for proper number of arguments. */
 {
   if(nrhs!=N_INPUT_Arguments&&nrhs!=N_INPUT_Arguments-1) {
     std::stringstream buf;
-	buf<<"ERROR::Accomulate_cut needs "<<(short)N_INPUT_Arguments<<" or one less, but got "<<(short)nrhs<<" input arguments\n";
-	mexErrMsgTxt(buf.str().c_str());
+    buf<<"ERROR::Accomulate_cut needs "<<(short)N_INPUT_Arguments<<" or one less, but got "<<(short)nrhs<<" input arguments\n";
+    mexErrMsgTxt(buf.str().c_str());
   }
   if(nlhs!=N_OUTPUT_Arguments) {
     std::stringstream buf;
-	buf<<"ERROR::Accomulate_cut needs "<<(short)N_OUTPUT_Arguments<<" outputs but requested to return"<<(short)nlhs<<" arguments\n";
+    buf<<"ERROR::Accomulate_cut needs "<<(short)N_OUTPUT_Arguments<<" outputs but requested to return"<<(short)nlhs<<" arguments\n";
     mexErrMsgTxt(buf.str().c_str());
   }
 
   for(int i=0;i<nrhs-1;i++){
-	  if(prhs[i]==NULL){
-		      std::stringstream buf;
-			  buf<<"ERROR::Accomulate_cut=> argument N"<<i<<" undefined\n";
-			  mexErrMsgTxt(buf.str().c_str());
-	  }
+      if(prhs[i]==NULL){
+              std::stringstream buf;
+              buf<<"ERROR::Accomulate_cut=> argument N"<<i<<" undefined\n";
+              mexErrMsgTxt(buf.str().c_str());
+      }
   }
 }
 
@@ -151,12 +157,12 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   mxArray *ppS(NULL);
   double  *pProg_settings;
   if(nrhs==N_INPUT_Arguments){
-	pProg_settings       =(double *)mxGetPr(prhs[Program_settings]);
+    pProg_settings       =(double *)mxGetPr(prhs[Program_settings]);
   }else{
     ppS = mxCreateDoubleMatrix(N_PROG_SETTINGS,1,mxREAL);
-	pProg_settings    = (double *)mxGetPr(ppS);
-	// supply defaults
-	pProg_settings[Ignore_Nan]=1;	pProg_settings[Ignore_Inf]=1;	pProg_settings[Keep_pixels]=0;	pProg_settings[N_Parallel_Processes]=1;
+    pProg_settings    = (double *)mxGetPr(ppS);
+    // supply defaults
+    pProg_settings[Ignore_Nan]=1;	pProg_settings[Ignore_Inf]=1;	pProg_settings[Keep_pixels]=0;	pProg_settings[N_Parallel_Processes]=1;
   }
 //****************************************************************************************************************
 //* Create matrixes for the return arguments */
@@ -167,7 +173,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
   mxArray *pixOK  =mxCreateLogicalArray(2,dims); 
   if(!pixOK){
-	  mexErrMsgTxt(" Can not allocate memory for pixel validity array\n");
+      mexErrMsgTxt(" Can not allocate memory for pixel validity array\n");
   }
 
   //plhs[Pixels_Ok] =
@@ -175,170 +181,170 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
   plhs[Actual_Pix_Range]= mxCreateDoubleMatrix(2,4, mxREAL);
   if(!plhs[Actual_Pix_Range]){
-	  mexErrMsgTxt(" Can not allocate memory for actual pixel range matrix\n");
+      mexErrMsgTxt(" Can not allocate memory for actual pixel range matrix\n");
   }
 /*
   // signals 
-	plhs[Signal_modified]=const_cast<mxArray *>(prhs[Signal]);
-	// errors 
-	plhs[Error_Modified] =const_cast<mxArray *>(prhs[Error]);
-	// nPixels
-	plhs[Npixels_out]    =const_cast<mxArray *>(prhs[Npixels]); 
+    plhs[Signal_modified]=const_cast<mxArray *>(prhs[Signal]);
+    // errors 
+    plhs[Error_Modified] =const_cast<mxArray *>(prhs[Error]);
+    // nPixels
+    plhs[Npixels_out]    =const_cast<mxArray *>(prhs[Npixels]); 
 */
   // signals are returned in a new array
   plhs[Signal_modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS,mxREAL);
   if(!plhs[Signal_modified]){
-   		  mexErrMsgTxt(" Can not allocate memory for modified signal, remove the signal array from output arrguments list to modify it in-place\n");
+          mexErrMsgTxt(" Can not allocate memory for modified signal, remove the signal array from output arrguments list to modify it in-place\n");
   }
   double *pSignalNew=(double *)mxGetPr(plhs[Signal_modified]);
-  for(long i=0;i<signalSize;i++){
-		  *(pSignalNew+i)=*(pSignal+i);
+  for(unsigned long i=0;i<signalSize;i++){
+          *(pSignalNew+i)=*(pSignal+i);
   }
   pSignal=pSignalNew; // and now we can do in-place modification of a new array <-- obsolette
 
   //if(nlhs>Error_Modified){  // errors are returned in a new array
   plhs[Error_Modified]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
   if(!plhs[Error_Modified]){
-   		  mexErrMsgTxt(" Can not allocate memory for modified error, remove the error array from output arrguments list to modify it in-place\n");
+          mexErrMsgTxt(" Can not allocate memory for modified error, remove the error array from output arrguments list to modify it in-place\n");
   }
   double *pErrNew=(double *)mxGetPr(plhs[Error_Modified]);
-  for(long i=0;i<signalSize;i++){
-		  *(pErrNew+i)=*(pError+i);
+  for(unsigned long i=0;i<signalSize;i++){
+          *(pErrNew+i)=*(pError+i);
   }
   pError=pErrNew;
   // n-pixels are returned in a new array
   plhs[Npixels_out]= mxCreateNumericArray(nDimensions,pmDims, mxDOUBLE_CLASS, mxREAL);
   if(!plhs[Npixels_out]){
-   		  mexErrMsgTxt(" Can not allocate memory for modified n-pixels, remove the n-pixels array from output arrguments list to modify it in-place\n");
+          mexErrMsgTxt(" Can not allocate memory for modified n-pixels, remove the n-pixels array from output arrguments list to modify it in-place\n");
   }
   double *pNpNew=(double *)mxGetPr(plhs[Npixels_out]);
-  for(long i=0;i<signalSize;i++){
-		  *(pNpNew+i)=*(pNpix+i);
+  for(unsigned long i=0;i<signalSize;i++){
+          *(pNpNew+i)=*(pNpix+i);
   }
   pNpix=pNpNew;
 
   double *pPixRange = (double *)mxGetPr(plhs[Actual_Pix_Range]);
   plhs[Npix_Retained] = mxCreateDoubleMatrix(1,1,mxREAL);
   if(!plhs[Npix_Retained]){
-   		  mexErrMsgTxt(" Can not allocate memory to hold number of retained pixesl -- bizzare\n");
+          mexErrMsgTxt(" Can not allocate memory to hold number of retained pixesl -- bizzare\n");
   }
 
 
 
 {// check the consistency of the input data
       if(nPixDataRows!=PIXEL_DATA_WIDTH){
-    	  mexErrMsgTxt("Pixel data has to be a 9xN matrix where 9 is the number of pixels' data and N -- number of pixels");
+          mexErrMsgTxt("Pixel data has to be a 9xN matrix where 9 is the number of pixels' data and N -- number of pixels");
       }
-	  if(nDimensions<1 || nDimensions>4){
-	       std::stringstream buf;
-		   buf<<" Dimensions of the accumulated data can vary from 1 to 4 but currently it set to "<<nDimensions<<std::endl;
-		   mexErrMsgTxt(buf.str().c_str());
-	  }
-	  if(nDimensions!=(int)mxGetNumberOfDimensions(prhs[Error])){
-			mexErrMsgTxt(" Dimensions of the signal and error arrays has to be the same");
-	  }
-	  if(nDimensions!=(int)mxGetNumberOfDimensions(prhs[Npixels])){
-			mexErrMsgTxt(" Dimensions of the n-pixel array has to be equal to the dimensions of the signal array");
-	  }
-	  mwSize const* pmErr =mxGetDimensions(prhs[Error]);
-	  mwSize const* pmNpix=mxGetDimensions(prhs[Npixels]);
-	  for(int i=0;i<nDimensions;i++){
-		  if(pmDims[i]!=pmErr[i]||pmDims[i]!=pmNpix[i]){
-		       std::stringstream buf;
-			   buf<<" Shapes of signal, error and npix arrays has to coinside\n";
-			   buf<<" but the direction and shapes are:"<<(short)i<<" "<<(short)pmDims[i]<<" "<<pmErr[i]<<" "<<pmNpix[i]<<std::endl;
-		       mexErrMsgTxt(buf.str().c_str());
-		  }
-	  }
+      if(nDimensions<1 || nDimensions>4){
+           std::stringstream buf;
+           buf<<" Dimensions of the accumulated data can vary from 1 to 4 but currently it set to "<<nDimensions<<std::endl;
+           mexErrMsgTxt(buf.str().c_str());
+      }
+      if(nDimensions!=(int)mxGetNumberOfDimensions(prhs[Error])){
+            mexErrMsgTxt(" Dimensions of the signal and error arrays has to be the same");
+      }
+      if(nDimensions!=(int)mxGetNumberOfDimensions(prhs[Npixels])){
+            mexErrMsgTxt(" Dimensions of the n-pixel array has to be equal to the dimensions of the signal array");
+      }
+      mwSize const* pmErr =mxGetDimensions(prhs[Error]);
+      mwSize const* pmNpix=mxGetDimensions(prhs[Npixels]);
+      for(int i=0;i<nDimensions;i++){
+          if(pmDims[i]!=pmErr[i]||pmDims[i]!=pmNpix[i]){
+               std::stringstream buf;
+               buf<<" Shapes of signal, error and npix arrays has to coinside\n";
+               buf<<" but the direction and shapes are:"<<(short)i<<" "<<(short)pmDims[i]<<" "<<pmErr[i]<<" "<<pmNpix[i]<<std::endl;
+               mexErrMsgTxt(buf.str().c_str());
+          }
+      }
 
 //*****
-	  if(mxGetM(prhs[CoordRotation_matrix])!=3||mxGetN(prhs[CoordRotation_matrix])!=3){
-	     mexErrMsgTxt(" Coordinates Rotation has to be a 3x3 matrix");
+      if(mxGetM(prhs[CoordRotation_matrix])!=3||mxGetN(prhs[CoordRotation_matrix])!=3){
+         mexErrMsgTxt(" Coordinates Rotation has to be a 3x3 matrix");
       }
       if(mxGetM(prhs[CoordShif_matrix])!=3||mxGetN(prhs[CoordShif_matrix])!=1){
-	     mexErrMsgTxt(" Coordinates shift has to be a 1x3 matrix");
+         mexErrMsgTxt(" Coordinates shift has to be a 1x3 matrix");
       }
       if(mxGetM(prhs[Scale_energy])!=1||mxGetN(prhs[Scale_energy])!=1){
-	     mexErrMsgTxt(" Energy scale has to be a scalar");
+         mexErrMsgTxt(" Energy scale has to be a scalar");
       }
       if(mxGetM(prhs[Shift_energy])!=1||mxGetN(prhs[Shift_energy])!=1){
-	       mexErrMsgTxt(" Energy shift has to be a scalar");
-	  }
+           mexErrMsgTxt(" Energy shift has to be a scalar");
+      }
 //*****
       if(mxGetM(prhs[DataCut_range])!=2||mxGetN(prhs[DataCut_range])!=OUT_PIXEL_DATA_WIDTH){
-	        mexErrMsgTxt(" Data range has to be a 2x4 matrix");
+            mexErrMsgTxt(" Data range has to be a 2x4 matrix");
       }
 //
       if(mxGetM(prhs[Plot_axis])!=1||nAxis>4){
-	  	 mexErrMsgTxt(" Plot axis has to be a vector of 0 to 4 numbers");
+         mexErrMsgTxt(" Plot axis has to be a vector of 0 to 4 numbers");
       }
       for(unsigned int i=0;i<mxGetN(prhs[Plot_axis]);i++){
-	      if(pPAX[i]<1||pPAX[i]>4){
-	       std::stringstream buf;
-		   buf<<" Plot axis can vary from 1 to 4, while we get the number"<<(short)pPAX[i]<<" for the dimension"<<(short)i<<std::endl;
-		   mexErrMsgTxt(buf.str().c_str());
-		  }
-	  }
-	  if(nAxis!=nDimensions){
-		    if(nDimensions==2&&nAxis==1){ // this may be actually one dimensional plot
-			  if(pmDims[1]==1){ // have to work with a definde shape (column) arrays 
-				  nDimensions=1;
-				}
-			}else{
-				std::stringstream buf;
-	    		buf<<" number of output axis "<<nAxis<<" and number of data dimensions "<<nDimensions<<" are not equal";
-		        mexErrMsgTxt(buf.str().c_str());
-			}
-	  }
+          if(pPAX[i]<1||pPAX[i]>4){
+           std::stringstream buf;
+           buf<<" Plot axis can vary from 1 to 4, while we get the number"<<(short)pPAX[i]<<" for the dimension"<<(short)i<<std::endl;
+           mexErrMsgTxt(buf.str().c_str());
+          }
+      }
+      if(nAxis!=nDimensions){
+            if(nDimensions==2&&nAxis==1){ // this may be actually one dimensional plot
+              if(pmDims[1]==1){ // have to work with a definde shape (column) arrays 
+                  nDimensions=1;
+                }
+            }else{
+                std::stringstream buf;
+                buf<<" number of output axis "<<nAxis<<" and number of data dimensions "<<nDimensions<<" are not equal";
+                mexErrMsgTxt(buf.str().c_str());
+            }
+      }
 }//
 //
 
 // preprocess input arguments and identify the grid sizes
   mwSize grid_size[OUT_PIXEL_DATA_WIDTH];
-	// integer axis indexes (taken from pPax)
+    // integer axis indexes (taken from pPax)
   int iAxis[OUT_PIXEL_DATA_WIDTH]; // maximum value not to bother with alloc/delete
 
   for(int i=0;i<OUT_PIXEL_DATA_WIDTH;i++){	  grid_size[i]=0;
   }
   for(int i=0;i<nDimensions;i++){ iAxis[i]=iRound(pPAX[i]);
-				                  grid_size[iAxis[i]-1]=iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab 
+                                  grid_size[iAxis[i]-1]=iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab 
   }                                                 // c-arrays.
 
   mwSize nPixels_retained=0;
   try{
   nPixels_retained=accumulate_cut(pSignal,pError,pNpix,
-	             pPixelData,nPixDataCols,
-	             ok, plhs[Pixels_Ind], pPixRange,
+                 pPixelData,nPixDataCols,
+                 ok, plhs[Pixels_Ind], pPixRange,
                  rot_matrix ,shift_matrix,ebin,e_shift, data_limits,
-				 grid_size,iAxis,nAxis, pProg_settings);
+                 grid_size,iAxis,nAxis, pProg_settings);
   }catch(const char *err){
-		mexErrMsgTxt(err);
+        mexErrMsgTxt(err);
   }
 
   if(!iRound(pProg_settings[Keep_pixels])){ // if we do not keep pixels, let's free the array of the pixels in range
-	    mxDestroyArray(pixOK);
-		dims[0]=0;
-		dims[1]=0;
-		plhs[Pixels_Ok]=mxCreateLogicalArray(2,dims);
+        mxDestroyArray(pixOK);
+        dims[0]=0;
+        dims[1]=0;
+        plhs[Pixels_Ok]=mxCreateLogicalArray(2,dims);
   }else{
-	  plhs[Pixels_Ok]=pixOK;
+      plhs[Pixels_Ok]=pixOK;
   }
 
   if(ppS){
-	  mxDestroyArray(ppS);
+      mxDestroyArray(ppS);
   }
   *(mxGetPr(plhs[Npix_Retained]))=(double)nPixels_retained;
 }
 
 mwSize accumulate_cut(double *s, double *e, double *npix,
-					double const* pixel_data,mwSize data_size,
+                    double const* pixel_data,mwSize data_size,
                     mxLogical *ok,mxArray *&ix_final_pixIndex,double *actual_pix_range,
-					double const* rot_ustep,double const* trans_bott_left,double ebin,double trans_elo, // transformation matrix
-					double const* cut_range,
-					mwSize grid_size[4], int const *iAxis,int nAxis,
-					double const* pProg_settings)
+                    double const* rot_ustep,double const* trans_bott_left,double ebin,double trans_elo, // transformation matrix
+                    double const* cut_range,
+                    mwSize grid_size[4], int const *iAxis,int nAxis,
+                    double const* pProg_settings)
 {
-double xt,yt,zt,xt1,yt1,zt1,Et,Inf(0),NaN(0),
+double xt,yt,zt,xt1,yt1,zt1,Et,Inf(0),
        pix_Xmin,pix_Ymin,pix_Zmin,pix_Emin,pix_Xmax,pix_Ymax,pix_Zmax,pix_Emax;
 double ebin_inv=(1/ebin);
 bool  ignore_something,ignote_all;
@@ -352,9 +358,6 @@ if(pProg_settings[Ignore_Inf]>FLT_EPSILON){   ignore_inf=true;
 }
 ignore_something=ignore_nan|ignore_inf;
 ignote_all      =ignore_nan&ignore_inf;
-if(ignore_nan){
-    NaN=mxGetNaN();
-}
 if(ignore_inf){
     Inf=mxGetInf();
 }
@@ -363,7 +366,7 @@ if(ignore_inf){
 
 int num_OMP_Threads(1);
 if(pProg_settings[N_Parallel_Processes]>1){
-		num_OMP_Threads=(int)pProg_settings[N_Parallel_Processes];
+        num_OMP_Threads=(int)pProg_settings[N_Parallel_Processes];
 }
 bool keep_pixels(false);
 if(pProg_settings[Keep_pixels]>FLT_EPSILON){   keep_pixels=true;
@@ -398,11 +401,11 @@ pix_Xmax=pix_Ymax=pix_Zmax=pix_Emax=-actual_pix_range[0];
 mwSize  nDimX(0),nDimY(0),nDimZ(0),nDimE(0); // reduction dimensions; if 0, the dimension is reduced;
 mwSize  nDimLength(1);
 for(i=0;i<nAxis;i++){
-	if      (iAxis[i]==1){	nDimX      =nDimLength;    nDimLength*=grid_size[0];
-	}else if(iAxis[i]==2){	nDimY      =nDimLength;    nDimLength*=grid_size[1];
-	}else if(iAxis[i]==3){	nDimZ      =nDimLength;    nDimLength*=grid_size[2];
-	}else if(iAxis[i]==4){  nDimE      =nDimLength;    nDimLength*=grid_size[3];
-	}
+    if      (iAxis[i]==1){	nDimX      =nDimLength;    nDimLength*=grid_size[0];
+    }else if(iAxis[i]==2){	nDimY      =nDimLength;    nDimLength*=grid_size[1];
+    }else if(iAxis[i]==3){	nDimZ      =nDimLength;    nDimLength*=grid_size[2];
+    }else if(iAxis[i]==4){  nDimE      =nDimLength;    nDimLength*=grid_size[3];
+    }
 }
 //<<<==== end of set-up reduction axesses
 
@@ -410,12 +413,13 @@ omp_set_num_threads(num_OMP_Threads);
 int PIXEL_data_width=PIXEL_DATA_WIDTH;
 
 #pragma omp parallel default(none), private(i,j0,xt,yt,zt,xt1,yt1,zt1,Et,indX,indY,indZ,indE), \
-	 shared(actual_pix_range,pixel_data,rot_ustep,trans_bott_left,cut_range,ok,ind, \
-	 data_size,ignote_all,ignore_nan,ignore_inf,ignore_something,transform_energy), \
-	 firstprivate(pix_Xmin,pix_Ymin,pix_Zmin,pix_Emin, pix_Xmax,pix_Ymax,pix_Zmax,pix_Emax,\
-				  trans_elo,ebin_inv,NaN,Inf,PIXEL_data_width, \
-				   nDimX,nDimY,nDimZ,nDimE), \
-	 reduction(+:nPixel_retained)
+     shared(actual_pix_range,pixel_data,rot_ustep,trans_bott_left,cut_range,ok,ind, \
+     data_size), \
+     firstprivate(pix_Xmin,pix_Ymin,pix_Zmin,pix_Emin, pix_Xmax,pix_Ymax,pix_Zmax,pix_Emax,\
+                  trans_elo,ebin_inv,Inf,PIXEL_data_width, \
+                  ignote_all,ignore_nan,ignore_inf,ignore_something,transform_energy, \
+                  nDimX,nDimY,nDimZ,nDimE), \
+     reduction(+:nPixel_retained)
 {
 //	#pragma omp master
 //{
@@ -423,113 +427,113 @@ int PIXEL_data_width=PIXEL_DATA_WIDTH;
 //	 mexPrintf(" n real threads %d :\n",nRealThread);}
 
 #pragma omp for schedule(static,1)
-	for(i=0;i<data_size;i++){
+    for(i=0;i<data_size;i++){
             j0=i*PIXEL_data_width;
 
       // Check for the case when either data.s or data.e contain NaNs or Infs, but data.npix is not zero.
       // and handle according to options settings.
-			ok[i]=true;
-			if(ignore_something){
-				if(ignote_all){
-					if(pixel_data[j0+7]==Inf||pixel_data[j0+7]==NaN||
-					pixel_data[j0+8]==Inf||pixel_data[j0+8]==NaN){
-							ok[i]=false;
-							continue;
-					}
-				}else if(ignore_nan){
-					if(pixel_data[j0+7]==NaN||pixel_data[j0+8]==NaN){
-						ok[i]=false;
-						continue;
-					}
-				}else if(ignore_inf){
-					if(pixel_data[j0+7]==Inf||pixel_data[j0+8]==Inf){
-						ok[i]=false;
-						continue;
-					}
-				}
-			}
+            ok[i]=true;
+            if(ignore_something){
+                if(ignote_all){
+                    if(pixel_data[j0+7]==Inf||isNaN(pixel_data[j0+7])||
+                    pixel_data[j0+8]==Inf||isNaN(pixel_data[j0+8])){
+                            ok[i]=false;
+                            continue;
+                    }
+                }else if(ignore_nan){
+                    if(isNaN(pixel_data[j0+7])||isNaN(pixel_data[j0+8])){
+                        ok[i]=false;
+                        continue;
+                    }
+                }else if(ignore_inf){
+                    if(pixel_data[j0+7]==Inf||pixel_data[j0+8]==Inf){
+                        ok[i]=false;
+                        continue;
+                    }
+                }
+            }
 
       // Transform the coordinates u1-u4 into the new projection axes, if necessary
-	  //    indx=[(v(1:3,:)'-repmat(trans_bott_left',[size(v,2),1]))*rot_ustep',v(4,:)'];  % nx4 matrix
-			xt1=pixel_data[j0  ]-trans_bott_left[0];
-			yt1=pixel_data[j0+1]-trans_bott_left[1];
-			zt1=pixel_data[j0+2]-trans_bott_left[2];
+      //    indx=[(v(1:3,:)'-repmat(trans_bott_left',[size(v,2),1]))*rot_ustep',v(4,:)'];  % nx4 matrix
+            xt1=pixel_data[j0  ]-trans_bott_left[0];
+            yt1=pixel_data[j0+1]-trans_bott_left[1];
+            zt1=pixel_data[j0+2]-trans_bott_left[2];
 
-			if(transform_energy){
-			//    indx(4)=[(v(4,:)'-trans_elo)*(1/ebin)];  % nx4 matrix
-				Et=(pixel_data[j0+3]-trans_elo)*ebin_inv;
-			}else{
+            if(transform_energy){
+            //    indx(4)=[(v(4,:)'-trans_elo)*(1/ebin)];  % nx4 matrix
+                Et=(pixel_data[j0+3]-trans_elo)*ebin_inv;
+            }else{
 //% Catch special (and common) case of energy being an integration axis to save calculations
-			//  indx(4)=[(v(4,:)'];  % nx4 matrix
-				Et=pixel_data[j0+3];
-			}
+            //  indx(4)=[(v(4,:)'];  % nx4 matrix
+                Et=pixel_data[j0+3];
+            }
 
 //  ok = indx(:,1)>=cut_range(1,1) & indx(:,1)<=cut_range(2,1) & indx(:,2)>=cut_range(1,2) & indx(:,2)<=urange_step(2,2) & ...
 //       indx(:,3)>=cut_range(1,3) & indx(:,3)<=cut_range(2,3) & indx(:,4)>=cut_range(1,4) & indx(:,4)<=cut_range(2,4);
-			ok[i]=false;
-			if(Et<cut_range[6]||Et>=cut_range[7]) 	continue;
+            ok[i]=false;
+            if(Et<cut_range[6]||Et>=cut_range[7]) 	continue;
 
-    		xt=xt1*rot_ustep[0]+yt1*rot_ustep[3]+zt1*rot_ustep[6];
-			if(xt<cut_range[0]||xt>=cut_range[1])   continue;
+            xt=xt1*rot_ustep[0]+yt1*rot_ustep[3]+zt1*rot_ustep[6];
+            if(xt<cut_range[0]||xt>=cut_range[1])   continue;
 
-			yt=xt1*rot_ustep[1]+yt1*rot_ustep[4]+zt1*rot_ustep[7];
-			if(yt<cut_range[2]||yt>=cut_range[3]) 	continue;
+            yt=xt1*rot_ustep[1]+yt1*rot_ustep[4]+zt1*rot_ustep[7];
+            if(yt<cut_range[2]||yt>=cut_range[3]) 	continue;
 
-			zt=xt1*rot_ustep[2]+yt1*rot_ustep[5]+zt1*rot_ustep[8];
-			if(zt<cut_range[4]||zt>=cut_range[5])	continue;
+            zt=xt1*rot_ustep[2]+yt1*rot_ustep[5]+zt1*rot_ustep[8];
+            if(zt<cut_range[4]||zt>=cut_range[5])	continue;
 
-			ok[i]=true;
-			nPixel_retained++;
+            ok[i]=true;
+            nPixel_retained++;
 
 
 
 //     indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
-			indX=(mwSize)floor(xt-cut_range[0]);
-			indY=(mwSize)floor(yt-cut_range[2]);
-			indZ=(mwSize)floor(zt-cut_range[4]);
-			indE=(mwSize)floor(Et-cut_range[6]);
+            indX=(mwSize)floor(xt-cut_range[0]);
+            indY=(mwSize)floor(yt-cut_range[2]);
+            indZ=(mwSize)floor(zt-cut_range[4]);
+            indE=(mwSize)floor(Et-cut_range[6]);
 //
-			ind[i]  = indX*nDimX+indY*nDimY+indZ*nDimZ+indE*nDimE;
-	//	i0=nPixel_retained*OUT_PIXEL_DATA_WIDTH;    // transformed pixels;
+            ind[i]  = indX*nDimX+indY*nDimY+indZ*nDimZ+indE*nDimE;
+    //	i0=nPixel_retained*OUT_PIXEL_DATA_WIDTH;    // transformed pixels;
 //
 //
 //    actual_pix_range = [min(actual_pix_range(1,:),min(indx,[],1));max(actual_pix_range(2,:),max(indx,[],1))];  % true range of data
-			if(xt<pix_Xmin)pix_Xmin=xt;
-			if(xt>pix_Xmax)pix_Xmax=xt;
+            if(xt<pix_Xmin)pix_Xmin=xt;
+            if(xt>pix_Xmax)pix_Xmax=xt;
 
-			if(yt<pix_Ymin)pix_Ymin=yt;
-			if(yt>pix_Ymax)pix_Ymax=yt;
+            if(yt<pix_Ymin)pix_Ymin=yt;
+            if(yt>pix_Ymax)pix_Ymax=yt;
 
-			if(zt<pix_Zmin)pix_Zmin=zt;
-			if(zt>pix_Zmax)pix_Zmax=zt;
+            if(zt<pix_Zmin)pix_Zmin=zt;
+            if(zt>pix_Zmax)pix_Zmax=zt;
 
-			if(Et<pix_Emin)pix_Emin=Et;
-			if(Et>pix_Emax)pix_Emax=Et;
+            if(Et<pix_Emin)pix_Emin=Et;
+            if(Et>pix_Emax)pix_Emax=Et;
 
-	} // end for -- imlicit barrier;
+    } // end for -- imlicit barrier;
 #pragma omp critical
-	{
-		if(actual_pix_range[0]>pix_Xmin)actual_pix_range[0]=pix_Xmin;
-		if(actual_pix_range[2]>pix_Ymin)actual_pix_range[2]=pix_Ymin;
-		if(actual_pix_range[4]>pix_Zmin)actual_pix_range[4]=pix_Zmin;
-		if(actual_pix_range[6]>pix_Emin)actual_pix_range[6]=pix_Emin;
+    {
+        if(actual_pix_range[0]>pix_Xmin)actual_pix_range[0]=pix_Xmin;
+        if(actual_pix_range[2]>pix_Ymin)actual_pix_range[2]=pix_Ymin;
+        if(actual_pix_range[4]>pix_Zmin)actual_pix_range[4]=pix_Zmin;
+        if(actual_pix_range[6]>pix_Emin)actual_pix_range[6]=pix_Emin;
 
-		if(actual_pix_range[1]<pix_Xmax)actual_pix_range[1]=pix_Xmax;
-		if(actual_pix_range[3]<pix_Ymax)actual_pix_range[3]=pix_Ymax;
-		if(actual_pix_range[5]<pix_Zmax)actual_pix_range[5]=pix_Zmax;
-		if(actual_pix_range[7]<pix_Emax)actual_pix_range[7]=pix_Emax;
-	}
+        if(actual_pix_range[1]<pix_Xmax)actual_pix_range[1]=pix_Xmax;
+        if(actual_pix_range[3]<pix_Ymax)actual_pix_range[3]=pix_Ymax;
+        if(actual_pix_range[5]<pix_Zmax)actual_pix_range[5]=pix_Zmax;
+        if(actual_pix_range[7]<pix_Emax)actual_pix_range[7]=pix_Emax;
+    }
 } // end parallel region
 
 //
 if(nPixel_retained==0||!keep_pixels){
-	 ix_final_pixIndex= mxCreateDoubleMatrix(0,0,mxREAL); // allocate empty matrix 
+     ix_final_pixIndex= mxCreateDoubleMatrix(0,0,mxREAL); // allocate empty matrix 
 }else{
-	 ix_final_pixIndex= mxCreateDoubleMatrix(nPixel_retained,1,mxREAL);
+     ix_final_pixIndex= mxCreateDoubleMatrix(nPixel_retained,1,mxREAL);
 }
 if(!ix_final_pixIndex){ // can not allocate memory for reduction;
     throw(" Can not allocate memory for the indexes of the transformed pixels\n");
-	return nPixel_retained;
+    return nPixel_retained;
 }
 double *pFin_pix=(double *)mxGetPr(ix_final_pixIndex);
 
@@ -537,26 +541,26 @@ double *pFin_pix=(double *)mxGetPr(ix_final_pixIndex);
 
 mwSize indl;
 #pragma omp parallel default(none), private(i,j0,indl), \
-	       shared(ok,ind,e,s,npix,pixel_data,data_size), \
+           shared(ok,ind,e,s,npix,pixel_data,data_size), \
            firstprivate(PIXEL_data_width)
 {
 #pragma omp for schedule(static,1)
 for (i=0;i<data_size;i++){
 
-		if(ok[i]){ // indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
+        if(ok[i]){ // indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
             j0=i*PIXEL_data_width;
 //  0.62   2   83     s    = s    + accumarray(indx, v(8,ok), size(s));
 //  0.61   2   84     e    = e    + accumarray(indx, v(9,ok), size(s));
 //  0.39   2   85     npix = npix + accumarray(indx, ones(1,size(indx,1)), size(s));
 //			indl       = ind[i0]*nDimX+ind[i0+1]*nDimY+ind[i0+2]*nDimZ+ind[i0+3]*nDimE;
-			indl      = ind[i];
+            indl      = ind[i];
 #pragma omp atomic
-			s[indl]   +=pixel_data[j0+7];  // C indexing goes from 0, so it is one less then Matlab
+            s[indl]   +=pixel_data[j0+7];  // C indexing goes from 0, so it is one less then Matlab
 #pragma omp atomic
-			e[indl]   +=pixel_data[j0+8];
+            e[indl]   +=pixel_data[j0+8];
 #pragma omp atomic
-			npix[indl]++;
-		}
+            npix[indl]++;
+        }
 } // end for
 } // end parallel;
 //
@@ -564,13 +568,13 @@ for (i=0;i<data_size;i++){
 // but separately in another place
 // because of that, we have to compress indexes here using single thread
 if(keep_pixels){
-	mwSize ic(0);
-	for (i=0;i<data_size;i++){
-		if(ok[i]){
-		   pFin_pix[ic]=(double)ind[i]+1; // +1 to be consistent with Matlab&Fortran indexing
-		   ic++;
-		}
-	}
+    mwSize ic(0);
+    for (i=0;i<data_size;i++){
+        if(ok[i]){
+           pFin_pix[ic]=(double)ind[i]+1; // +1 to be consistent with Matlab&Fortran indexing
+           ic++;
+        }
+    }
 }
 mxFree(ind);
 return nPixel_retained;
