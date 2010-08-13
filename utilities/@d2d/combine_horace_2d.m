@@ -2,6 +2,10 @@ function wout=combine_horace_2d(w1,w2,varargin)
 %
 % Combine two d2d (or sqw of d2d-type) datasets.
 %
+% NOTE THAT THIS ROUTINE IS SLOOOOOOOOOOOOOOOOOW, BECAUSE IT USES A RATHER
+% COMPLICATED "SHOELACE" ALGORITHM TO ENSURE THAT REBINNING OF THE
+% COMBINED DATA IS DONE CORRECTLY.
+%
 % wout = combine(w1,w2)
 % Combine the datasets w1 and w2. The bins and projection axes of the
 % output object will be the same as those of w1.
