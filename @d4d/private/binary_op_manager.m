@@ -140,7 +140,15 @@ if class_nd <= length(sz)    % excess dimensions
     else
         outer_dims=sz;
     end
-    mess='';        
+    mess='';
+elseif isequal(sz,[1,1])
+    %case where we wish to add a scalar
+    inner_section=cell(1,class_nd);
+    for i=1:class_nd
+        inner_section{i}=':';
+    end
+    outer_dims=[1,1];
+    mess='';
 else % not enough dimensions
     inner_section={};
     outer_dims=[];
