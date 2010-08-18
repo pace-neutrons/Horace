@@ -143,7 +143,7 @@ for i=1:length(range)
             end
             [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                              v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
-            if horace_info_level>=0, disp(['                  -------> retained  ',num2str(del_npix_retain),' pixels']), end
+            if horace_info_level>=0, disp(['                  -------> retained   ',num2str(del_npix_retain),' pixels']), end
             npix_retain = npix_retain + del_npix_retain;
             if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
             vpos = 1;
@@ -164,7 +164,7 @@ if vpos>1   % flush out work array - the array contains some unprocessed data
      end
     [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                      v(:,1:vpos-1), urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
-    if horace_info_level>=0, disp(['                  -------> retained  ',num2str(del_npix_retain),' pixels']), end                                                 
+    if horace_info_level>=0, disp(['                  -------> retained   ',num2str(del_npix_retain),' pixels']), end                                                 
 
     npix_retain = npix_retain + del_npix_retain;
     if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
