@@ -40,7 +40,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 ndatpix = 9;        % number of pieces of information the pixel info array (see write_sqw_data for more details)
 
 % Output arrays for accumulated data
-% Note: matlab sillyness when one dimensional: MUST add an outer dimension of unity. For 2D and higher, 
+% Note: matlab sillyness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
 % outer dimensions can always be assumed. The problem with 1D is that e.g. zeros([5]) is not the same as zeros([5,1])
 % whereas zeros([5,3]) is the same as zeros([5,3,1]).
 if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness

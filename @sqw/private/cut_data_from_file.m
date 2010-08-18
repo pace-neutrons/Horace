@@ -56,11 +56,11 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % input file
 [vmax,ndatpix] = get(hor_config,'mem_chunk_size','pixel_length');
 pmax = vmax;                        % maximum length of array in which to buffer retained pixels (pmax>=vmax)
- 
+
 
 
 % Output arrays for accumulated data
-% Note: matlab sillyness when one dimensional: MUST add an outer dimension of unity. For 2D and higher, 
+% Note: matlab sillyness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
 % outer dimensions can always be assumed. The problem with 1D is that e.g. zeros([5]) is not the same as zeros([5,1])
 % whereas zeros([5,3]) is the same as zeros([5,3,1]).
 if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness
@@ -93,6 +93,10 @@ end
 
 % Work array into which to read data
 v = zeros(ndatpix,min(vmax,npix_read));  % coordinates, signal and error as read from file - make it no longer than necessary
+
+% number of blocks to be read from hdd -- used in the progress indicator. 
+nsteps=floor(npix_read/vmax)+1;
+i_step=0;
 
 vpos = 1;               % start of new work array (vpos gives position of next point to be filled in the work array v)
 t_read  = [0,0];
@@ -132,10 +136,14 @@ for i=1:length(range)
             end
         else            % work array filled up; process the data read up to now, and reset position in work array to beginning
             if horace_info_level>=1, bigtic(2), end
-            if horace_info_level>=0, disp(['Have read data for ',num2str(vpos-1),' pixels - now processing data...']), end
+            if horace_info_level>=0
+                  i_step=i_step+1;
+                  mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
+                  disp(mess)
+            end
             [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                              v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
-            if horace_info_level>=0, disp(['         retained  ',num2str(del_npix_retain),' pixels']), end
+            if horace_info_level>=0, disp(['                  -------> retained  ',num2str(del_npix_retain),' pixels']), end
             npix_retain = npix_retain + del_npix_retain;
             if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
             vpos = 1;
@@ -149,10 +157,15 @@ for i=1:length(range)
 end
 if vpos>1   % flush out work array - the array contains some unprocessed data
     if horace_info_level>=1, bigtic(2), end
-    if horace_info_level>=0, disp(['Have read data for ',num2str(vpos-1),' pixels - now processing data...']), end
+    if horace_info_level>=0
+           i_step=i_step+1;
+           mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
+           disp(mess)
+     end
     [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                      v(:,1:vpos-1), urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
-    if horace_info_level>=0, disp(['         retained  ',num2str(del_npix_retain),' pixels']), end
+    if horace_info_level>=0, disp(['                  -------> retained  ',num2str(del_npix_retain),' pixels']), end                                                 
+
     npix_retain = npix_retain + del_npix_retain;
     if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
     if keep_pix
@@ -198,7 +211,7 @@ end
             if finish && pend>0
                 if nfile==0     % no buffer files written - the buffer arrays are large enough to hold all retained pixels
                     [ix,ind]=sort(ix(1:pend));  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-                    pix=pix(:,ind); % reorders pix 
+                    pix=pix(:,ind); % reorders pix
                 else    % at least one buffer file; flush the buffers to file
                     accumulate_pix_to_file
                     clear pix ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
@@ -210,13 +223,13 @@ end
                 pix = [pix,v(:,ok)];
                 ix  = [ix;ix_add];
             end
-            if finish && ~isempty(pix)  % prepare the output pix array              
+            if finish && ~isempty(pix)  % prepare the output pix array
                 use_mex=get(hor_config,'use_mex');
                 if use_mex
                     try
                     pix = sort_pixels_by_bins(pix,ix,npix);
-                    clear v ok ix_add  ix  % clear big arrays                   
-                    catch 
+                    clear v ok ix_add  ix  % clear big arrays
+                    catch
                         use_mex=false;
                         if horace_info_level>=1
                             message=lasterr();
@@ -231,13 +244,13 @@ end
                 end
             end
         end
-        
+
         function accumulate_pix_to_memory
             pix(:,ppos:pend) = v(:,ok);    % accumulate pixels into buffer array
             ix(ppos:pend) = ix_add;
             ppos = pend+1;
         end
-        
+
         function accumulate_pix_to_file
             % Increment buffer file number and create temporary file name
             nfile = nfile + 1;
