@@ -13,7 +13,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version(vararg
 % returns revision data as numbers rather then strings (convenient for version analysis)
 %
 %
-% $COMMIT_COUNTER:: 38 $
+% $COMMIT_COUNTER:: 40 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will 
 % be modified and probably corrupted at commit

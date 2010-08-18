@@ -13,8 +13,8 @@
 % *** This folder MUST already exist
 %==================================================================================================
 %demo_dir='c:\temp\horace_demo';
-%demo_dir=pwd;
-demo_dir=fileparts(which('demo_script'));
+demo_dir=pwd;
+%demo_dir=fileparts(which('demo_script'));
 
 %==================================================================================================
 % Unzip the data contained in the demo folder, and copy demo
