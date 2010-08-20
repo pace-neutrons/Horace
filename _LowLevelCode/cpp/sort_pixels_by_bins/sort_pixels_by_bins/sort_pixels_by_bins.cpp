@@ -17,8 +17,9 @@ enum Out_Arguments{
 // the function moves the pixels information into the places which correspond to the cells,
 // to which the pixels belong to.
 // takes 3 arguments:
-// 1 -- array of pixels themself
-// 2 --
+// 1 -- array of pixels for sorting
+// 2 -- indexes of pixels within cells (a cell has more then one pixel and all pixels within this cell have the same index)
+// 3 -- number of pixels in each cell  (densities) 
 //**********************************************************************************************
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
@@ -77,10 +78,8 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
         }
       
       try{
-         mexWarnMsgTxt("memory allocated, sorting starts");          
          sort_pixels_by_bins(pPixelData,nPixDataRows,nPixDataCols,pCellInd,pCellDens,distribution_size,
                          ppInd,pPixelSorted);
-        mexWarnMsgTxt("sorting completed successfully");                              
        }catch(const char *err){
 
 //	    delete [] ppInd;
@@ -122,7 +121,6 @@ void sort_pixels_by_bins(double const *const pPixelData,size_t nDataRows,size_t 
             pPixelSorted[jBase+i]=pPixelData[i0+i];
         }
     }
-    mexWarnMsgTxt("sorting loop ends");            
 }
 }
 
