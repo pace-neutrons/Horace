@@ -68,6 +68,9 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 */
   try{
         mwSize  *const ppInd   = (mwSize  *)mxMalloc(distribution_size*sizeof(mwSize )); //working array of indexes for transformed pixels
+        if(!ppInd){
+            throw(" memoery allocation error for array of indexes");
+        }
       
       try{
          sort_pixels_by_bins(pPixelData,nPixDataRows,nPixDataCols,pCellInd,pCellDens,distribution_size,
