@@ -127,8 +127,8 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //  pixel_data(9,:)              u1,u2,u3,u4,irun,idet,ien,s,e for each pixel,
 //                               where ui are coords in projection axes of the pixel data in the file
   double const *pPixelData    = (double *)mxGetPr(prhs[Pixel_data]);
-  mwSize  nPixDataRows        = mxGetM(prhs[Pixel_data]);
-  mwSize  nPixDataCols        = mxGetN(prhs[Pixel_data]);
+  size_t  nPixDataRows        = mxGetM(prhs[Pixel_data]);
+  size_t  nPixDataCols        = mxGetN(prhs[Pixel_data]);
 
 // * s                           Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
   double *pSignal             = (double *)mxGetPr(prhs[Signal]);
@@ -167,7 +167,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //****************************************************************************************************************
 //* Create matrixes for the return arguments */
 //****************************************************************************************************************
-  mwSize dims[2]; // the dims will be used later too.
+  size_t dims[2]; // the dims will be used later too.
   dims[0]=nPixDataCols;
   dims[1]=1;
 
@@ -337,7 +337,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 }
 
 mwSize accumulate_cut(double *s, double *e, double *npix,
-                    double const* pixel_data,mwSize data_size,
+                    double const* pixel_data,size_t data_size,
                     mxLogical *ok,mxArray *&ix_final_pixIndex,double *actual_pix_range,
                     double const* rot_ustep,double const* trans_bott_left,double ebin,double trans_elo, // transformation matrix
                     double const* cut_range,

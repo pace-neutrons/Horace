@@ -22,7 +22,8 @@ static char BUF[BUF_SIZE];
 int 
 count_changes(const char *const Buf, int buf_size)
 {
-	bool is_symbol(false),is_space(true);
+
+    bool is_symbol(false),is_space(true);
 	int  space_to_symbol_change(0),symbol_to_space_change(0);
 	for(int i=0;i<buf_size;i++){
 		if(Buf[i]==0)break;
@@ -210,10 +211,10 @@ load_plain(std::ifstream &stream,double *pData,FileTypeDescriptor const &FILE_TY
 */
 
 bool 
-read_SPEdata_block(std::ifstream &stream,double *pBlock,int DataSize,int block_size,int spe_field_width,int tr_spaces,
+read_SPEdata_block(std::ifstream &stream,double *pBlock,size_t DataSize,size_t block_size,int spe_field_width,int tr_spaces,
 				   std::stringstream &err_message,char EOL,bool buf_empty=true)
 {
-	int i,j,nBlock_Data;
+	size_t i,j,nBlock_Data;
 	float data_buf;
     char *DataStart = BUF+tr_spaces;
 	
