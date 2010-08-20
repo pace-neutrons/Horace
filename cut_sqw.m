@@ -21,6 +21,8 @@ if nargin>=1 && ischar(varargin{1}) && length(size(varargin{1}))==2 && size(vara
     else
         file_internal = getfile(varargin{1});
     end
+elseif isa(varargin{1},'sqw')
+    w=cut (varargin);
 else
     noffset=0;
     file_internal = getfile('*.sqw');

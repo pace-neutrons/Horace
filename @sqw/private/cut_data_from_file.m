@@ -143,7 +143,7 @@ for i=1:length(range)
             end
             [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                              v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
-            if horace_info_level>=0, disp(['                  -------> retained   ',num2str(del_npix_retain),' pixels']), end
+            if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
             npix_retain = npix_retain + del_npix_retain;
             if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
             vpos = 1;
@@ -164,7 +164,7 @@ if vpos>1   % flush out work array - the array contains some unprocessed data
      end
     [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
                                                      v(:,1:vpos-1), urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
-    if horace_info_level>=0, disp(['                  -------> retained   ',num2str(del_npix_retain),' pixels']), end                                                 
+    if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end                                                 
 
     npix_retain = npix_retain + del_npix_retain;
     if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
@@ -225,10 +225,12 @@ end
             end
             if finish && ~isempty(pix)  % prepare the output pix array
                 use_mex=get(hor_config,'use_mex');
+                clear v ok ix_add; % clear big arrays
+                
                 if use_mex
                     try
                     pix = sort_pixels_by_bins(pix,ix,npix);
-                    clear v ok ix_add  ix  % clear big arrays
+                    clear ix ;  % clear big arrays
                     catch
                         use_mex=false;
                         if horace_info_level>=1
@@ -239,8 +241,8 @@ end
                 end
                 if ~use_mex
                     [ix,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-                    clear ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
-                    pix=pix(:,ind);         % reorders pix
+                    clear ix ;           % clear big arrays so that final output variable pix is not way up the stack
+                    pix=pix(:,ind);      % reorders pix
                 end
             end
         end
