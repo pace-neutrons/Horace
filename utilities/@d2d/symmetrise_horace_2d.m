@@ -2,6 +2,10 @@ function wout=symmetrise_horace_2d(win,varargin)
 %
 % Symmetrise d2d (or sqw of d2d-type) data.
 %
+% NOTE THAT THIS ROUTINE IS SLOOOOOOOOOOOOOOOOOW, BECAUSE IT USES A RATHER
+% COMPLICATED "SHOELACE" ALGORITHM TO ENSURE THAT REBINNING OF THE
+% SYMMETRISED DATA IS DONE CORRECTLY.
+%
 % Syntax:
 %    1) wout = symmetrise_horace_2d(win,[xval,yval]) - reflect data about
 %       xval and yval. e.g. if xval=1 then x=-1 --> x=3 etc. If no

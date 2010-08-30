@@ -129,20 +129,19 @@ else
     else
         error('Bin size = 0 but no default bin boundary data provided from which to take a default')
     end
-    if isfinite(plo) && isfinite(phi)
-        xmin=plo;
-        xmax=phi;
-    elseif ~isfinite(phi) && range_exist
-        xmin=plo;
-        xmax=range_hi;
-    elseif ~isfinite(plo) && range_exist
-        xmin=range_lo;
-        xmax=phi;
-    elseif range_exist
-        xmin=range_lo;
-        xmax=range_hi;
+    xmin=plo;
+    xmax=phi;
+    if range_exist
+        if ~isfinite(phi) 
+            xmax=range_hi;      
+        end
+        if ~isfinite(plo)
+            xmin=range_lo;            
+        end
     else
-        error('One or more of data limits in ''pbin'' are infinite, but no default range given')
+        if ~isfinite(plo)||~isfinite(phi)
+            error('One or more of data limits in ''pbin'' are infinite, but no default range given')            
+        end
     end
 end
 

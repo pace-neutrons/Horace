@@ -2,6 +2,11 @@ function wout=rebin_horace_2d(win,varargin)
 %
 % Rebin a d2d (or sqw of d2d-type) object.
 %
+%
+% NOTE THAT THIS ROUTINE IS SLOOOOOOOOOOOOOOOOOW, BECAUSE IT USES A RATHER
+% COMPLICATED "SHOELACE" ALGORITHM TO ENSURE THAT REBINNING OF THE
+% DATA IS DONE CORRECTLY.
+%
 % wout = rebin_horace_2d(win,xbin,ybin) - rebin win with binning specified
 % by xbin and ybin.
 %

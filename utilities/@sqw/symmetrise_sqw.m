@@ -2,6 +2,9 @@ function wout=symmetrise_sqw(win,v1,v2,v3)
 %
 % wout=symmetrise_sqw(win,v1,v2,v3)
 %
+% WORKS ONLY FOR DATA OBJECTS OF SQW-TYPE (I.E. WITH PIXEL INFO RETAINED).
+%
+%
 % Symmetriese sqw dataset in the plane specified by the vectors v1, v2, and
 % v3.
 % v1 and v2 are two vectors which lie in the plane of the reflection plane.
