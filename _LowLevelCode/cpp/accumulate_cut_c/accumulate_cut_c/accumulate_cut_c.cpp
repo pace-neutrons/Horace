@@ -167,7 +167,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //****************************************************************************************************************
 //* Create matrixes for the return arguments */
 //****************************************************************************************************************
-  size_t dims[2]; // the dims will be used later too.
+  mwSize dims[2]; // the dims will be used later too.
   dims[0]=nPixDataCols;
   dims[1]=1;
 
