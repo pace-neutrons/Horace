@@ -247,13 +247,14 @@ else
     end
     disp('--------------------------------------------------------------------------------')
 end
-% delete temporary files as user will presumably use hdf and tmp files
-% production will be cheap;
+
+% Delete temporary files as user will presumably use hdf and tmp files
 if get(hor_config,'delete_tmp')
-    tmp_path=fileparts(tmp_file{1});
-    delete([tmp_path,filesep,'*.tmp']);
+    if ~isempty(tmp_file)   % will be empty if only one spe file
+        tmp_path=fileparts(tmp_file{1});
+        delete([tmp_path,filesep,'*.tmp']);
+    end
 end
-%
 
 
 % Clear output arguments if nargout==0 to have a silent return
