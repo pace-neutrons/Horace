@@ -36,17 +36,28 @@ function wout=sqw_eval(win,sqwfunc,pars,opt)
 %               Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
+%   'ave'       [option] Requests that the calculated sqw be computed for the
+%              average values of h,k,l of the pixels in a bin, not for each
+%              pixel individually. Reduces cost of expensive calculations.
+%               Applies only to the case of sqw object with pixel information - it is
+%              ignored if dnd type object.
+%
 % Output:
 % =======
 %   wout        Output dataset or array of datasets 
 
+
 % Check optional argument
-if ~exist('opt','var')  % no option given
-    all_bins=false;
-elseif ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
-    all_bins=true;
-else
-    error('Unrecognised option')
+all_bins=false;
+ave_pix=false;
+if exist('opt','var')  % no option given
+    if ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
+        all_bins=true;
+    elseif ischar(opt) && ~isempty(strmatch(lower(opt),'ave'))    % option 'ave' given
+        ave_pix=true;
+    else
+        error('Unrecognised option')
+    end
 end
     
 wout = win;
@@ -54,10 +65,20 @@ if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenien
 
 for i=1:numel(win)
     if is_sqw_type(win(i));   % determine if sqw or dnd type
-        qw = calculate_qw_pixels(win(i));
-        stmp=sqwfunc(qw{:},pars{:});
-        wout(i).data.pix(8:9,:)=[stmp(:)';zeros(1,numel(stmp))];
-        wout(i)=recompute_bin_data(wout(i));
+        if ~ave_pix
+            qw = calculate_qw_pixels(win(i));
+            stmp=sqwfunc(qw{:},pars{:});
+            wout(i).data.pix(8:9,:)=[stmp(:)';zeros(1,numel(stmp))];
+            wout(i)=recompute_bin_data(wout(i));
+        else
+            % Get average h,k,l,e for the bin, compute sqw for that average, and fill pixels with the average signal for the bin that contains them
+            qw = calculate_qw_pixels(win(i));
+            qw_ave=average_bin_data(win(i),qw);
+            stmp=sqwfunc(qw_ave{:},pars{:});
+            stmp=replicate_array(stmp,win(i).data.npix);
+            wout(i).data.pix(8:9,:)=[stmp(:)';zeros(1,numel(stmp))];
+            wout(i)=recompute_bin_data(wout(i));
+        end
     else
         qw = calculate_qw_bins(win(i));
         if ~all_bins                    % only evaluate at the bins actually containing data

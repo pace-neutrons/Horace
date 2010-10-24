@@ -2,7 +2,7 @@ function pixout = permute_pix_array (pix, npix, order)
 % Permute the pixel information array elements according to list of permutations of the plot axes
 % Arrays pix and npix are assumed to be compatible, and order too - not all checks are done !
 %
-%   >> pixout = replicate_array (pix, npix, perm)
+%   >> pixout = permute_pix_array (pix, npix, order)
 %
 %   pix     Array of pixel information values (9 x npixtot)
 %   npix    List of number of pixels contributing to each bin.

@@ -40,6 +40,12 @@ function wout=disp2sqw_eval(win,varargin)
 %               Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
+%   'ave'       [option] Requests that the calculated sqw be computed for the
+%              average values of h,k,l of the pixels in a bin, not for each
+%              pixel individually. Reduces cost of expensive calculations.
+%               Applies only to the case of sqw object with pixel information - it is
+%              ignored if dnd type object.
+%
 % Output:
 % =======
 %   wout        Output dataset or array of datasets 
