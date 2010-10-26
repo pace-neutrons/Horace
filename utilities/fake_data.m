@@ -62,10 +62,13 @@ par_info=get_par_matlab_fake(parfile);
 ndet=ncol;
 %Calculate ndet (no. of detectors) from par file:
 
+nfiles=20;
+psi=linspace(psi_min,psi_max,nfiles);
+
 %Make fake spe files
 for i=1:20
     filestring=['dummy',num2str(i),'.spe'];
-    fake_spe(ndet,-1*(ei/10),ei/10,(9*ei/10),filestring,indir);
+    fake_spe(ndet,-1*(ei/10),ei/20,(9*ei/10),filestring,indir,psi(i));
 end
 
 %Now generate the fake sqw file:
