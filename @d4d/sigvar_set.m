@@ -7,6 +7,10 @@ function w = sigvar_set(w,sigvarobj)
 %
 % $Revision$ ($Date$)
 
+if ~isequal(size(w.s),size(sigvarobj.s))
+    error('d4d object and sigvar object have inconsistent sizes')
+end
+
 w.s=sigvarobj.s;
 w.e=sigvarobj.e;
 

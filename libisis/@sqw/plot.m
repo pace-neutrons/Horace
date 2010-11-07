@@ -1,4 +1,4 @@
-function [figureHandle_, axesHandle_, plotHandle_] = plot(win,varargin)
+function [figureHandle, axesHandle, plotHandle] = plot(win,varargin)
 % Plot 1D, 2D or 3D sqw object
 %
 %   >> plot(win)
@@ -26,3 +26,8 @@ elseif nd==2
 else
     sliceomatic(win,varargin{:});
 end
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end
