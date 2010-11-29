@@ -12,6 +12,9 @@ function save_xye(w,varargin)
 % having NaN (i.e. not-a-number) for the signal and zero for the standard deviation.
 % You can always substitue a different value e.g. -10^30 or 0 by 
 % assigning a value to the optional parameter null_value.
+%
+% Note that if w is an array of objects, then "file" must be a cell array
+% of filenames.
 % 
 %
 % The data is saved in the format:
@@ -47,6 +50,8 @@ function save_xye(w,varargin)
 
 % T.G.Perring  25/6/09
 
+% Modified RAE 29/11/10 to work with arrays of sqw objects
+
 % Check input
 % -----------
 null_value=NaN;
@@ -54,10 +59,10 @@ file_given=false;
 nargs=length(varargin);
 if nargs==1 && isnumeric(varargin{1})
     null_value=varargin{1};
-elseif nargs==1 && ischar(varargin{1})
+elseif nargs==1 && (ischar(varargin{1}) || iscell(varargin{1}))
     file_given=true;
     file=varargin{1};
-elseif nargs==2 && isnumeric(varargin{1}) && ischar(varargin{2})
+elseif nargs==2 && isnumeric(varargin{1}) && (ischar(varargin{2}) || iscell(varargin{2}))
     null_value=varargin{1};
     file_given=true;
     file=varargin{2};
@@ -66,38 +71,61 @@ elseif nargs~=0
 end
         
 % Check only a single sqw object (cannot write arrayof objects)
-if numel(w)~=1
-    error('Can only write a single data object to file, not an array of objects')
+% if numel(w)~=1
+%     error('Can only write a single data object to file, not an array of objects')
+% end
+
+if file_given && numel(w)>1
+    if ~iscell(file) || numel(file)~=numel(w)
+        error('If an array of objects is to be saved then you must specify the filenames with a cell array of the same size');
+    end
+elseif file_given && numel(w)==1
+    if iscell(file) && numel(file)~=1
+        error('Only a single object to be saved, but a cell array of filenames has been specified. Choose one filename');
+    elseif iscell(file)
+        file=char(file);%convert to a character array
+    end
 end
 
+
 % Get file name - prompting if necessary
+file_internal=cell(1,numel(w));
 if ~file_given
-    file_internal = putfile('*.txt');
-    if (isempty(file_internal))
-        error ('No file given')
+    for i=1:numel(w)
+        file_internal{i} = putfile('*.txt');
+        if (isempty(file_internal{i}))
+            error ('No file given')
+        end
     end
+elseif numel(w)==1
+    file_internal = {file};
 else
     file_internal = file;
 end
 
-% Get x-y-e data
-[x,y,e]=get_xye(w,null_value);
+for i=1:numel(w)
+    % Get x-y-e data
+    [x,y,e]=get_xye(w(i),null_value);
 
-% write data to file
-fid = fopen (file_internal, 'wt');
-if (fid < 0)
-    error (['ERROR: cannot open file ' file_internal])
+    % write data to file
+    fid = fopen (file_internal{i}, 'wt');
+    if (fid < 0)
+        error (['ERROR: cannot open file ' file_internal{i}])
+    end
+
+    fmt_token='%-20g';
+    fmt=[fmt_token,' ',fmt_token,' \n'];
+    for i=1:size(x,2);
+        fmt=[fmt_token,' ',fmt];     % make format string
+    end
+
+    fprintf (fid, fmt, [x, y, e]');
+
+    fclose(fid);
 end
 
-fmt_token='%-20g';
-fmt=[fmt_token,' ',fmt_token,' \n'];
-for i=1:size(x,2);
-    fmt=[fmt_token,' ',fmt];     % make format string
-end
 
-fprintf (fid, fmt, [x, y, e]');
-
-fclose(fid);
+%==============================================
 
 function [x,y,e]=get_xye(w,null_value)
 % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
