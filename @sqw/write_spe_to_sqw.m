@@ -70,8 +70,8 @@ if exist('urange_in','var')
 end
 
 % Fill output main header block
-[path,name,ext,ver]=fileparts(strtrim(sqw_file));
-main_header.filename=[name,ext,ver];
+[path,name,ext]=fileparts(strtrim(sqw_file));
+main_header.filename=[name,ext];
 main_header.filepath=[path,filesep];
 main_header.title='';
 main_header.nfiles=1;
