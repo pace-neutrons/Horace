@@ -5,9 +5,12 @@ function wout = smooth (win,varargin)
 %
 % $Revision$ ($Date$)
 
-if is_sqw_type(win)
-    error('No smoothing of sqw data implemented. Convert to corresponding dnd object and smooth that.')
-else
-    wout = win;
-    wout.data = smooth_dnd(win.data,varargin{:});
+wout=win;%initalise the output
+for i=1:numel(win)
+    if is_sqw_type(win(i))
+        error('No smoothing of sqw data implemented. Convert to corresponding dnd object and smooth that.')
+    else
+        wout(i) = win(i);
+        wout(i).data = smooth_dnd(win(i).data,varargin{:});
+    end
 end

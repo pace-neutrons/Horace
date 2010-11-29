@@ -15,8 +15,24 @@ function [nd,sz] = dimensions(w)
 %
 % $Revision$ ($Date$)
 
-nd=numel(w.data.pax);
-sz=zeros(1,nd);
-for i=1:nd
-    sz(i)=length(w.data.p{i})-1;
+% nd=numel(w.data.pax);
+% sz=zeros(1,nd);
+% for i=1:nd
+%     sz(i)=length(w.data.p{i})-1;
+% end
+
+for j=1:numel(w)
+    nd=numel(w(j).data.pax);
+    sz{j}=zeros(1,nd);
+    for i=1:nd
+        sz{j}(i)=length(w(j).data.p{i})-1;
+    end
 end
+
+if numel(w)==1
+    sz=cell2mat(sz);
+end
+
+%note that nd is returned as the dimensionality of the last object in the
+%array. This is because if we changed this we'd screw up loads of funtions
+%which depend on this "dimensions" subroutine

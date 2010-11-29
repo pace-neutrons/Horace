@@ -35,30 +35,37 @@ function wout = permute (win, order)
 
 % This method applies equally to sqw-type and dnd-type objects
 
-% Check number, size and type of input arguments
-ndim = length(win.data.p);
+% Adapt for use with arrays of inputs.
 
-if ~exist('order','var')
-    if ndim<=1
-        wout = win;     % nothing to permute
-        return
+wout=win;
+
+for i=1:numel(win)
+    
+    % Check number, size and type of input arguments
+    ndim = length(win(i).data.p);
+
+    if ~exist('order','var')
+        if ndim<=1
+            wout(i) = win(i);     % nothing to permute
+            return
+        else
+            order = [linspace(2,ndim,ndim-1),1];
+        end
+
     else
-        order = [linspace(2,ndim,ndim-1),1];
+        if ~isa_size(order,[1,ndim],'double')
+            error (['Permutation argument must be a row vector with length equal to dimension of input dataset: ndim = ',num2str(ndim)])
+        end
+        if ~isequal(sort(order),(1:ndim))   % invalid permutation array
+            error (['ERROR: New axis order must be a permutation of the integers 1-',num2str(ndim)])
+        end
     end
 
-else
-    if ~isa_size(order,[1,ndim],'double')
-        error (['Permutation argument must be a row vector with length equal to dimension of input dataset: ndim = ',num2str(ndim)])
+    % Permute data array
+    if isequal(order,(1:ndim))      % order is unchanged
+        wout(i) = win(i);
+    else
+        wout(i) = win(i);
+        wout(i).data.dax = win(i).data.dax(order);
     end
-    if ~isequal(sort(order),(1:ndim))   % invalid permutation array
-        error (['ERROR: New axis order must be a permutation of the integers 1-',num2str(ndim)])
-    end
-end
-
-% Permute data array
-if isequal(order,(1:ndim))      % order is unchanged
-    wout = win;
-else
-    wout = win;
-    wout.data.dax = win.data.dax(order);
 end

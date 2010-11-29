@@ -15,8 +15,20 @@ function [nd,sz] = dimensions(w)
 %
 % $Revision$ ($Date$)
 
-nd=numel(w.pax);
-sz=zeros(1,nd);
-for i=1:nd
-    sz(i)=length(w.p{i})-1;
+% nd=numel(w.pax);
+% sz=zeros(1,nd);
+% for i=1:nd
+%     sz(i)=length(w.p{i})-1;
+% end
+
+for j=1:numel(w)
+    nd=numel(w(j).pax);
+    sz{j}=zeros(1,nd);
+    for i=1:nd
+        sz{j}(i)=length(w(j).p{i})-1;
+    end
+end
+
+if numel(w)==1
+    sz=cell2mat(sz);
 end
