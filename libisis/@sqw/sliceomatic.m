@@ -1,9 +1,11 @@
-function sliceomatic(win, varargin)
+function [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win, varargin)
 % Plots 3D sqw object using sliceomatic
 %
 % Syntax:
 %   >> sliceomatic (win)
 %   >> sliceomatic (win, 'isonormals', true)     % to enable isonormals
+%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win) to get
+%   handles to the graphics figure
 %
 %
 % NOTES:
@@ -53,7 +55,7 @@ ulen = win.data.ulen(pax(dax));     % unit length in order of the display axes
 
 clim = [min(w.signal(:)) max(w.signal(:))];
 [title_main, title_pax] = plot_titles (win);    % note: axes annotations correctly account for permutation in w.data.dax
-sm(w, 'clim', clim, ...
+[figureHandle_, axesHandle_, plotHandle_]=sm(w, 'clim', clim, ...
     'title', title_main, 'xlabel', title_pax{1}, 'ylabel', title_pax{2}, 'zlabel', title_pax{3},...
     'x_sliderlabel', ['axis 1: ',ulabel{1}], 'y_sliderlabel', ['axis 2: ',ulabel{2}],  'z_sliderlabel', ['axis 3: ',ulabel{3}],...
     varargin{:});
