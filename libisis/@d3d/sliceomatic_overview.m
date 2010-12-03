@@ -1,4 +1,4 @@
-function sliceomatic_overview(win,varargin)
+function [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(win,varargin)
 %
 % sliceomatic_overview(win)
 % OR
@@ -38,7 +38,7 @@ end
     
    
 if nopix
-    plot(win);
+    [figureHandle, axesHandle, plotHandle] = plot(win);
     if axis==1
         ycen=median(win.p{win.dax(2)});
         zcen=median(win.p{win.dax(3)});
@@ -90,7 +90,7 @@ else
     else
             error('Axis argument must be an integer in the range 1 to 3');
     end
-    plot(win);
+    [figureHandle, axesHandle, plotHandle] = plot(win);
     %
     %Set the camera position
     set(gca,'CameraPosition',camposvec);

@@ -27,7 +27,7 @@ for i=1:numel(win)
     elseif nd==2
         [figureHandle_, axesHandle_, plotHandle_] = da(win(i),varargin{:});
     else
-        sliceomatic(win(i),varargin{:});
+        [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win(i),varargin{:});
     end
 
     % Output only if requested. 
