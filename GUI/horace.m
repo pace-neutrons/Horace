@@ -22,7 +22,7 @@ function varargout = horace(varargin)
 
 % Edit the above text to modify the response to help horace
 
-% Last Modified by GUIDE v2.5 18-Nov-2010 11:45:16
+% Last Modified by GUIDE v2.5 06-Dec-2010 16:34:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -239,6 +239,53 @@ w_in=evalin('base',object_name);%get the data from the base workspace.
 handles.w_in=w_in;%store the object in the handles structure
 
 guidata(gcbo,handles);
+
+%We also now need to adjust the names of the axes in "cut", and grey out
+%appropriate fields:
+ndim=dimensions(w_in);
+
+%Get the plot title info:
+[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = plot_titles (sqw(w_in));
+
+%Get the info about the object:
+if is_sqw_type(sqw(w_in))
+    getit=get(w_in);
+    gg=getit.data;
+else
+    gg=get(w_in);
+end
+
+
+%Alter the names of the labels:
+for i=1:ndim
+    plab=display_pax{i};
+    axno=gg.pax(i);
+    nn1=strfind(plab,'['); nn2=strfind(plab,']');
+    if ~isempty(nn1) && ~isempty(nn2)
+        textlab=plab(nn1+1:nn2-1);%label is a q axis
+    else
+        textlab='Energy';
+    end
+    eval(['set(handles.Cut_text',num2str(axno),',''String'',textlab)']);
+    eval(['set(handles.Cut_ax',num2str(axno),'_edit,''String'','''');']);
+    eval(['set(handles.Cut_ax',num2str(axno),'_edit,''Enable'',''on'');']);
+end
+
+for i=1:(4-ndim)
+    plab=display_iax{i};
+    axno=gg.iax(i);
+    nn1=strfind(plab,'['); nn2=strfind(plab,']');
+    if ~isempty(nn1) && ~isempty(nn2)
+        textlab=plab(nn1+1:nn2-1);%label is a q axis
+    else
+        textlab='Energy';
+    end
+    eval(['set(handles.Cut_text',num2str(axno),',''String'',textlab);']);
+    irange=gg.iint(:,i);
+    eval(['set(handles.Cut_ax',num2str(axno),'_edit,''String'',''[',num2str(irange(1)),',',num2str(irange(2)),']'');']);
+    eval(['set(handles.Cut_ax',num2str(axno),'_edit,''Enable'',''off'');']);
+end
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1314,6 +1361,12 @@ timenow=datetime(4:end);
 timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))];
 mess_initialise=['Cut started at ',timestring,'...'];
 
+set(handles.message_info_text,'String',char({mess_initialise,'Working'}));
+pause(0.1);
+drawnow;
+guidata(gcbo,handles);
+
+
 %This is the main business of this part of the GUI. Note that we have a lot more
 %cases to deal with than when cutting from file, because the cut command
 %has to be called with the appropriate number of inputs for the
@@ -1481,12 +1534,22 @@ else
     keeppix=false;
 end
 %====
+
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by cut';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
+
 %====
 if out_to_file==get(handles.Cut_Outfile_radiobutton,'Max')
     saveafile=true;
@@ -1513,6 +1576,33 @@ elseif ~is_sqw_type(sqw(win))
 end
 
 %=============
+
+%After defining all of these axes, we now actually have to re-order them
+%based on what is/isn't greyed out.
+a1old=a1; a2old=a2; a3old=a3; a4old=a4;
+getit=get(win);
+if is_sqw_type(sqw(win))
+    gg=getit.data;
+else
+    gg=getit;
+end
+
+ndim=dimensions(win);
+
+for i=1:ndim
+    axno=gg.pax(i);
+    if axno==1
+        eval(['a',num2str(i),'=a1old;']);
+    elseif axno==2
+        eval(['a',num2str(i),'=a2old;']);
+    elseif axno==3
+        eval(['a',num2str(i),'=a3old;']);
+    elseif axno==4
+        eval(['a',num2str(i),'=a4old;']);
+    end
+end
+
+
 
 %Now make the cut:
 try
@@ -1677,7 +1767,7 @@ template=evalin('base',request);%returns a structure array with info about the o
 template_name=template.name;
 %handles.object_name=object_name;
 w_in2=evalin('base',template_name);%get the data from the base workspace.
-handles.w_in2=w_in2;%store the object in the handles structure
+handles.w_in2_rebin=w_in2;%store the object in the handles structure
 
 guidata(gcbo,handles);
 
@@ -1848,8 +1938,8 @@ end
 manspec=get(handles.Rebin_lostephi_radiobutton,'Value');
 nummax=get(handles.Rebin_lostephi_radiobutton,'Max');
 
-if isfield(handles,'w_in2') && ~(manspec==nummax)
-    win2=handles.w_in2;
+if isfield(handles,'w_in2_rebin') && ~(manspec==nummax)
+    win2=handles.w_in2_rebin;
     if numel(win2)~=1
         mess='Template object is an array of objects. Rebin not yet implemented for arrays -- operation not performed';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -1932,6 +2022,15 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
+
 %====
 if out_to_file==get(handles.Rebin_outfile_radiobutton,'Max')
     saveafile=true;
@@ -2410,6 +2509,14 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
 %====
 if out_to_file==get(handles.Sym_outfile_radiobutton,'Max')
     saveafile=true;
@@ -2526,7 +2633,7 @@ workobj2=evalin('base',request);%returns a structure array with info about the o
 object_name2=workobj2.name;
 handles.object_name2=object_name2;
 w_in2=evalin('base',object_name2);%get the data from the base workspace.
-handles.w_in2=w_in2;%store the object in the handles structure
+handles.w_in2_comb=w_in2;%store the object in the handles structure
 
 guidata(gcbo,handles);
 
@@ -2687,8 +2794,8 @@ else
     return;
 end
 
-if isfield(handles,'w_in2')
-    win2=handles.w_in2;
+if isfield(handles,'w_in2_comb')
+    win2=handles.w_in2_comb;
     if numel(win2)~=1
         mess='Object #2 is an array of objects. Combine not yet implemented for this -- operation not performed';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -2745,6 +2852,14 @@ end
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by combine operation';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
@@ -2912,7 +3027,7 @@ workobj2=evalin('base',request);%returns a structure array with info about the o
 object_name2=workobj2.name;
 handles.object_name2=object_name2;
 w_in2=evalin('base',object_name2);%get the data from the base workspace.
-handles.w_in2=w_in2;%store the object in the handles structure
+handles.w_in2_rep=w_in2;%store the object in the handles structure
 
 guidata(gcbo,handles);
 
@@ -3025,8 +3140,8 @@ if ndims1>3.1
     return;
 end
 
-if isfield(handles,'w_in2')
-    win2=handles.w_in2;
+if isfield(handles,'w_in2_rep')
+    win2=handles.w_in2_rep;
     if numel(win2)~=1
         mess='Object selected for template is an array of objects. Replication not yet implemented for arrays -- no replication performed';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -3052,6 +3167,14 @@ end
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by replication';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
@@ -3268,6 +3391,14 @@ end
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by Bose correction';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
@@ -3491,7 +3622,7 @@ workobj2=evalin('base',request);%returns a structure array with info about the o
 object_name2=workobj2.name;
 handles.object_name2=object_name2;
 w_in2=evalin('base',object_name2);%get the data from the base workspace.
-handles.w_in2=w_in2;%store the object in the handles structure
+handles.w_in2_bin=w_in2;%store the object in the handles structure
 
 guidata(gcbo,handles);
 
@@ -3634,8 +3765,8 @@ if oponobj~=objmax && oponnum~=nummax
     return;
 elseif oponobj==objmax && oponnum~=nummax
     workonobj=true;
-    if isfield(handles,'w_in2')
-        win2=handles.w_in2;
+    if isfield(handles,'w_in2_bin')
+        win2=handles.w_in2_bin;
         if numel(win2)~=1 && numel(win2)~=numel(win1)
             mess='Objects #1 and #2 are different sized arrays of objects -- operation not performed';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -3685,6 +3816,14 @@ end
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by binary operation';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
@@ -3905,6 +4044,14 @@ obj_to_cut='win';
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by unary operation';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
@@ -4297,6 +4444,10 @@ timenow=datetime(4:end);
 timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))];
 mess_initialise=['Cut from file started at ',timestring,'...'];
 
+set(handles.message_info_text,'String',char({mess_initialise,'Working'}));
+guidata(gcbo,handles);
+pause(0.1);
+drawnow;
 
 %Clear any old variable from a previous call:
 clear proj
@@ -4470,6 +4621,14 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
+%
+testexp=regexpi(outobjname,'[A-Z]');
+if testexp(1)~=1
+    mess='The first character of the output name must be a letter, not a number or symbol';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return;
+end
 %====
 if out_to_file==get(handles.Cutfile_out_file_radio,'Max')
     saveafile=true;
@@ -4508,17 +4667,9 @@ catch
 end
     
 assignin('base',outobjname,out);
-set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
+cc=char({mess_initialise,'Success!',['Click ''DATA IN MEMORY'' then ''Refresh List'' to make plots etc of ',outobjname]});
+set(handles.message_info_text,'String',cc);
 guidata(gcbo,handles);
-
-
-
-
-
-
-
-
-
 
 
 
@@ -5426,3 +5577,183 @@ else
 end
     
     
+
+
+% --- Executes on button press in saveguiconfig_pushbutton.
+function saveguiconfig_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to saveguiconfig_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+datetime=fix(clock);
+timenow=datetime(4:end);
+timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))];
+mess_initialise=['Saving GUI configuration at ',timestring,'...'];
+
+[save_filename,save_pathname,FilterIndex] = uiputfile({'*.hor';'*.*'},'Save As');
+
+if ischar(save_pathname) && ischar(save_filename)
+    %i.e. the cancel button was not pressed
+    placetosave=[save_pathname,save_filename];
+    %Need to tediously obtain the strings from all of the "edit" fields,
+    %and radiobuttons (yawn)
+    fieldstore=get_horace_fields(handles);%gives us a cell array containing all settable fields
+    data_to_save=char(fieldstore);%convert to char array to save to file
+    fid=fopen(placetosave,'w');
+    for i=1:size(data_to_save,1)
+        fprintf(fid,'%s\n',data_to_save(i,:));
+    end
+    fclose(fid);
+    %
+    mess='GUI configuration successfully saved';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+else
+    mess='No file selected for GUI configuration - not saved';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles);
+    return; 
+end
+
+guidata(gcbo,handles);
+
+% --- Executes on button press in loadguiconfig_pushbutton.
+function loadguiconfig_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to loadguiconfig_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+datetime=fix(clock);
+timenow=datetime(4:end);
+timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))];
+mess_initialise=['Loading GUI configuration at ',timestring,'...'];
+
+[gui_filename,gui_pathname,FilterIndex] = uigetfile({'*.hor'},'Select horace configuration (.hor) file');
+
+%Initialise cell array where all of the editable fields will be stored:
+
+if ischar(gui_pathname) && ischar(gui_filename)
+    filetoload=[gui_pathname,gui_filename];
+    %Here we need to go through all of the various edit fields and 
+    %radiobuttons, and fill them in.
+    %separate subfunction to do this, as rather long-winded
+    fid=fopen(filetoload,'r');
+    %there are 101 fields that can be saved
+    for i=1:101
+        data_loaded(i,:)=fgetl(fid);
+    end
+    fclose(fid);
+    %Use subroutine to deal with this lot, and set all the handles
+    %appropriately:
+    handles=set_horace_fields(handles,data_loaded);
+    mess='GUI configuration successfully loaded';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    guidata(gcbo,handles); 
+else
+    mess='No file selected for GUI configuration - not loaded';
+    set(handles.message_info_text,'String',mess);
+    guidata(gcbo,handles);
+    return; 
+end
+
+
+
+
+% --- Executes on button press in savexye_pushbutton.
+function savexye_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to savexye_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+drawnow;
+
+datetime=fix(clock);
+timenow=datetime(4:end);
+timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))];
+mess_initialise=['Saving xye data to file started at ',timestring,'...'];
+
+if isfield(handles,'w_in')
+    win=handles.w_in;
+    if numel(win)~=1
+        mess='No save performed - object selected is an array of Horace objects';
+        set(handles.message_info_text,'String',char({mess_initialise,mess}));
+        drawnow;
+        guidata(gcbo,handles);
+        return;
+    end
+    str=get(handles.savexye_edit,'String');
+    if ~isempty(str)
+        try
+            save_xye(win,str);
+            mess=['File saved to ',str];
+            set(handles.message_info_text,'String',char({mess_initialise,mess}));
+        catch
+            mess='Saving of file failed -- check object and/or filename';
+            set(handles.message_info_text,'String',char({mess_initialise,mess}));
+            return;
+        end         
+    else
+        mess='No file written -- select a filename';
+        set(handles.message_info_text,'String',char({mess_initialise,mess}));
+        drawnow;
+        guidata(gcbo,handles);
+    end
+else
+    mess='No file written -- select an object to save';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    drawnow;
+    guidata(gcbo,handles);
+end
+
+
+
+
+
+
+function savexye_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to savexye_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of savexye_edit as text
+%        str2double(get(hObject,'String')) returns contents of savexye_edit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function savexye_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to savexye_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in savexye_browse_pushbutton.
+function savexye_browse_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to savexye_browse_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[save_filename,save_pathname,FilterIndex] = uiputfile({'*.txt';'*.dat';'*.*'},'Save As');
+
+if ischar(save_pathname) && ischar(save_filename)
+    %i.e. the cancel button was not pressed
+    set(handles.savexye_edit,'String',[save_pathname,save_filename]);
+    guidata(gcbo,handles);
+end
