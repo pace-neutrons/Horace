@@ -27,8 +27,8 @@ function save_xye (w,varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-if numel(w)~=1
-    error('Can only write a single data object to file, not an array of objects')
-end
+% if numel(w)~=1
+%     error('Can only write a single data object to file, not an array of objects')
+% end
 
 save_xye(sqw(w),varargin{:});
