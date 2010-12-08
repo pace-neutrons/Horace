@@ -22,7 +22,7 @@ function varargout = horace(varargin)
 
 % Edit the above text to modify the response to help horace
 
-% Last Modified by GUIDE v2.5 06-Dec-2010 16:34:30
+% Last Modified by GUIDE v2.5 07-Dec-2010 11:54:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -4709,6 +4709,24 @@ set(handles.Rebin_template_popupmenu,'String',cellofvars);
 set(handles.Comb_obj2_popupmenu,'String',cellofvars);
 set(handles.Rep_obj2_popupmenu,'String',cellofvars);
 set(handles.Bin_obj2_popupmenu,'String',cellofvars);
+
+%We must also update handles so that the object displayed in the list is
+%the current work object:
+str = get(handles.obj_list_popupmenu, 'String');
+val = get(handles.obj_list_popupmenu,'Value');
+%
+drawnow;
+reqstring=str{val};
+reqstring(end-11:end)=[];
+request=['whos(''',reqstring,''')'];
+%determine what kind of object we are dealing with:
+workobj=evalin('base',request);%returns a structure array with info about the object
+%
+object_name=workobj.name;
+handles.object_name=object_name;
+w_in=evalin('base',object_name);%get the data from the base workspace.
+handles.w_in=w_in;%store the object in the handles structure
+
 guidata(gcbo, handles);
 
 
@@ -5757,3 +5775,34 @@ if ischar(save_pathname) && ischar(save_filename)
     set(handles.savexye_edit,'String',[save_pathname,save_filename]);
     guidata(gcbo,handles);
 end
+
+
+% --- Executes on button press in peakfitting_pushbutton.
+function peakfitting_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to peakfitting_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Clear error message
+set(handles.message_info_text,'String','');
+guidata(gcbo,handles);
+
+datetime=fix(clock);
+timenow=datetime(4:end);
+timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))];
+mess_initialise=['Opening 1d peak fitting tool at ',timestring,'...'];
+drawnow;
+try
+    horace_fitting;
+    mess='Success!';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    drawnow;
+    guidata(gcbo,handles);
+catch
+    mess='Unable to open 1d peak fitting tool - check Horace setup';
+    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    drawnow;
+    guidata(gcbo,handles);
+end
+
+
