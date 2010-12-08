@@ -58,7 +58,11 @@ else
             h.data=rmfield(h.data,{'s','e','npix','pix'});
         else
             h=data_source.data;
-            h=rmfield(h,{'s','e','npix','pix'});
+            %h=rmfield(h,{'s','e','npix','pix'});
+            h=rmfield(h,{'s','e','npix'});
+            if isfield(h,'pix')
+                h=rmfield(h,'pix');%if, for some reason, there is a pix field, remove it.
+            end
         end
     end
 end
