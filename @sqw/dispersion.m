@@ -6,17 +6,19 @@ function wout=dispersion(win,dispreln,pars)
 %
 % The dispersion relation is calculated at the bin centres. 
 %
-% If the function that calculates dispersion relations produces for than one
+% If the function that calculates dispersion relations produces more than one
 % branch, then in the case of a single input dataset the output will be an array
 % of datasets, one for each branch. If the input is an array of datasets, then only
-% the first dispersion branch will be used, so there is one output dataset per
+% the first dispersion branch will be returned, so there is one output dataset per
 % input dataset.
 %
 %   >> wout=dispersion(win,dispreln,p)
 %
+% Input:
+% ======
 %   win          Dataset that provides the axes and points for the calculation
 %                If one of the plot axes is energy transfer, then the output dataset
-%               will have dimensionality oe less than the input dataset
+%               will have dimensionality one less than the input dataset
 %
 %   dispreln     Handle to function that calculates the dispersion relation w(Q)
 %               Must have form:

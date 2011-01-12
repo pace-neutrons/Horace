@@ -3,7 +3,9 @@ function weight = disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
 %
 %   >> weight = disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
 %
-%   qh,qk,ql,en Arrays containng points at which to evaulate sqw
+% Input:
+% ------
+%   qh,qk,ql,en Arrays containing points at which to evaulate sqw
 %
 %   dispreln    Handle to function that calculates the dispersion relation w(Q) and spectrl weight, s(Q)
 %              Must have form:
@@ -14,6 +16,8 @@ function weight = disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
 %                   p           Vector of parameters needed by dispersion function 
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   w           Array of corresponding energies, or, if more than
+%                              one dispersion relation, a cell array of arrays.
+%                   s           Array of spectral weights, or, if more than
 %                              one dispersion relation, a cell array of arrays.
 %
 %              More general form is:
@@ -31,6 +35,10 @@ function weight = disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
 %              above then pars = {p, c1, c2, ...}
 %
 %   fwhh        Full-width half-height of Gaussian broadening to dispersion relation(s)
+%
+% Output:
+% -------
+%   weight      Array with spectral weight at the q points
 
 % Evaluate dispersion relation(s)
 if iscell(pars)

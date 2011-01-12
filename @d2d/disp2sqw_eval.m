@@ -3,7 +3,10 @@ function wout=disp2sqw_eval(win,varargin)
 %
 %   >> wout = disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %
-%   win         Dataset that provides the axes and points for the calculation
+% Input:
+% ------
+%   win         Dataset, or array of datasets, that provides the axes and points
+%              for the calculation
 %
 %   dispreln    Handle to function that calculates the dispersion relation w(Q) and
 %              spectral weight, s(Q)
@@ -15,6 +18,8 @@ function wout=disp2sqw_eval(win,varargin)
 %                   p           Vector of parameters needed by dispersion function 
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   w           Array of corresponding energies, or, if more than
+%                              one dispersion relation, a cell array of arrays.
+%                   s           Array of spectral weights, or, if more than
 %                              one dispersion relation, a cell array of arrays.
 %
 %              More general form is:
@@ -47,7 +52,7 @@ function wout=disp2sqw_eval(win,varargin)
 %              ignored if dnd type object.
 %
 % Output:
-% =======
+% -------
 %   wout        Output dataset or array of datasets 
 
 wout=dnd(disp2sqw_eval(sqw(win),varargin{:}));
