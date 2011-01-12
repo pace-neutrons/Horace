@@ -1,4 +1,4 @@
-function wout = cut_dnd (data_source, varargin)
+function wout = cut_dnd (data_source_in, varargin)
 % Take a cut from an dnd-type sqw object by integrating over one or more of the plot axes.
 % 
 % Syntax:
@@ -12,7 +12,7 @@ function wout = cut_dnd (data_source, varargin)
 % 
 % Input:
 % ------
-%   data_source     Data source: sqw file name or dnd-type data structure
+%   data_source_in  Data source: sqw file name or dnd-type data structure
 %
 %   p1_bin          Binning along first plot axis
 %   p2_bin          Binning along second plot axis
@@ -45,7 +45,10 @@ function wout = cut_dnd (data_source, varargin)
 % Parse input arguments
 % ---------------------
 % Determine if data source is sqw object or file
-[data_source, args, source_is_file, sqw_type, ndims] = parse_data_source (data_source, varargin{:});
+[data_source, args, source_is_file, sqw_type, ndims] = parse_data_source (data_source_in, varargin{:});
+if source_is_file
+    data_source=data_source.filename;
+end
 if sqw_type
     error('Logic problem in chain of cut methods. See T.G.Perring')
 end

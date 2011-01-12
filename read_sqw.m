@@ -1,27 +1,30 @@
 function w = read_sqw(varargin)
-% Read sqw object from a file
+% Read sqw object from named file or an array of sqw objects from a cell array of file names
 % 
 %   >> w=read_sqw           % prompts for file
-%   >> w=read_sqw(file)
+%   >> w=read_sqw(file)     % read named file or cell array of file names into array
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
-% Get filename
-if nargin==1 && ischar(varargin{1}) && length(size(varargin{1}))==2 && size(varargin{1},1)==1    % is a single row of characters
-    noffset=1;
-    if (exist(varargin{1},'file')==2)
-        file_internal = varargin{1};
-    else
-        file_internal = getfile(varargin{1});
-    end
-elseif nargin==0
-    noffset=0;
-    file_internal = getfile('*.sqw');
+% Catch trivial case of sqw object
+if nargin==1 && isa(varargin{1},'sqw')
+    w=varargin{1};
+    return
+elseif nargin>=2
+    error('Check number of arguments')
+end
+
+% Check file name(s), prompting if necessary
+if nargin==0
+    [file_internal,mess]=function_getfile('*.sqw');
 else
-    error ('Input must be a file name')
+    [file_internal,mess]=function_getfile(varargin{:});
+end
+if ~isempty(mess)
+    error(mess)
 end
 
 % Make object
-w=function_sqw(file_internal,@read,varargin{1+noffset:end});
+w=function_sqw(file_internal,@read);

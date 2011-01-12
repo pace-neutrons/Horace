@@ -1,27 +1,31 @@
 function w = read_horace(varargin)
-% Read sqw or d0d/d1d/...d4d object from a file as appropriate to file contents
+% Read sqw or d0d/d1d/...d4d object from a file or array of objects from a set of files as appropriate to file contents
 % 
-%   >> w=read_horace           % prompts for file
-%   >> w=read_horace(file)
+%   >> w=read_horace            % prompts for file
+%   >> w=read_horace(file)      % read named file or cell array of file names into array
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
-% Get filename
-if nargin==1 && ischar(varargin{1}) && length(size(varargin{1}))==2 && size(varargin{1},1)==1    % is a single row of characters
-    noffset=1;
-    if (exist(varargin{1},'file')==2)
-        file_internal = varargin{1};
-    else
-        file_internal = getfile(varargin{1});
-    end
-elseif nargin==0
-    noffset=0;
-    file_internal = getfile('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
+% Catch trivial case of sqw or dnd object
+if nargin==1 && (isa(varargin{1},'sqw')||isa(varargin{1},'d0d')||isa(varargin{1},'d1d')||...
+        isa(varargin{1},'d2d')||isa(varargin{1},'d3d')||isa(varargin{1},'d4d'))
+    w=varargin{1};
+    return
+elseif nargin>=2
+    error('Check number of arguments')
+end
+
+% Check file name(s), prompting if necessary
+if nargin==0
+    [file_internal,mess]=function_getfile('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
 else
-    error ('Input must be a file name')
+    [file_internal,mess]=function_getfile(varargin{:});
+end
+if ~isempty(mess)
+    error(mess)
 end
 
 % Make object
-w=function_horace(file_internal,@read,varargin{1+noffset:end});
+w=function_horace(file_internal,@read);
