@@ -3,7 +3,8 @@ function w = cut_horace(varargin)
 %
 % Syntax:
 %   >> w=cut_horace (file, arg1, arg2, ...)
-%   >> w=cut_horace (arg1, arg2,...)          % prompts for file
+%   >> w=cut_horace (file, arg1, arg2, ...) % data in named file, or cell array of filenames
+%                                           % Output is an array if given cell array of files
 %
 % For full details of arguments for cut method, type:
 %
@@ -16,22 +17,30 @@ function w = cut_horace(varargin)
 %
 % $Revision$ ($Date$)
 
-% Get filename
-if nargin>=1 && ischar(varargin{1}) && length(size(varargin{1}))==2 && size(varargin{1},1)==1    % is a single row of characters
-    noffset=1;
-    if (exist(varargin{1},'file')==2)
-        file_internal = varargin{1};
+% Catch case of sqw object or dnd object
+if nargin==1 && (isa(varargin{1},'sqw')||isa(varargin{1},'d0d')||isa(varargin{1},'d1d')||...
+        isa(varargin{1},'d2d')||isa(varargin{1},'d3d')||isa(varargin{1},'d4d'))
+    if nargout==0
+        cut(varargin{:});
     else
-        file_internal = getfile(varargin{1});
+        w=cut(varargin{:});
     end
+    return
+end
+
+% Check file name(s), prompting if necessary
+if nargin==0
+    error('Must give file name or cell array of filenames of sqw or d0d, d1d,...d4d object(s)')
 else
-    noffset=0;
-    file_internal = getfile('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
+    [file_internal,mess]=function_getfile(varargin{1});
+end
+if ~isempty(mess)
+    error(mess)
 end
 
 % Make object
 if nargout==0
-    function_horace(file_internal,@cut,varargin{1+noffset:end});
+    function_horace(file_internal,@cut,varargin{2:end});
 else
-    w = function_horace(file_internal,@cut,varargin{1+noffset:end});
+    w=function_horace(file_internal,@cut,varargin{2:end});
 end

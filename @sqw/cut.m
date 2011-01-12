@@ -86,33 +86,66 @@ function varargout = cut (varargin)
 % $Revision$ ($Date$)
 
 
-% Parse input arguments
-% ---------------------
-% Determine if data source is sqw object or file
-[data_source, args, source_is_file, sqw_type] = parse_data_source (varargin{:});
-
-
-if sqw_type
-    if nargout>0
-        wout = cut_sqw (varargin{:});
-    else
-        cut_sqw (varargin{:});
-    end
-else
-    if nargout>0
-        wout = cut_dnd (varargin{:});
-    else
-        cut_dnd (varargin{:});
+% If data source is a filename, then must ensure that matches sqw type
+% Recall this function is used by d0d, d1d,... as a gateway routine, so if data_source is structure
+% it may require non sqw type data to be processed. 
+[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (varargin{:});
+if ~isempty(mess)
+    error(mess)
+end
+if source_arg_is_filename
+    if ~all(sqw_type)
+        error('Data file(s) not (all) sqw type i.e. does(do) not contain pixel information')
     end
 end
 
-% Package output: if file data source then package all output arguments as a single cell array, as the output
-% will be unpacked by control routine that called this method. If object data source, then package as conventional
+% Perform cuts
+% ------------
+if all(sqw_type)
+    for i=1:numel(data_source)
+        if nargout>0
+            if i==2, wout = repmat(wout,size(data_source)); end
+            if source_is_file
+                wout(i) = cut_sqw (sqw,data_source(i).filename,args{:});   % private method - cuts just scalar data_source
+            else
+                wout(i) = cut_sqw (data_source(i),args{:});   % private method - cuts just scalar data_source
+            end
+        else
+            if source_is_file
+                cut_sqw (sqw,data_source(i).filename,args{:});
+            else
+                cut_sqw (data_source(i),args{:});
+            end
+        end
+    end
+elseif all(~sqw_type) && all(ndims==ndims(1))
+    for i=1:numel(data_source)
+        if nargout>0
+            if i==2, wout = repmat(wout,size(data_source)); end
+            if source_is_file
+                wout(i) = cut_dnd (sqw,data_source(i).filename,args{:});   % private method - cuts just scalar data_source
+            else
+                wout(i) = cut_dnd (data_source(i),args{:});   % private method - cuts just scalar data_source
+            end
+        else
+            if source_is_file
+                cut_dnd (sqw,data_source(i).filename,args{:});
+            else
+                cut_dnd (data_source(i),args{:});
+            end
+        end
+    end
+else
+    error('Data files must all be sqw type, or all dnd type with same dimensionality')
+end
+
+% Package output: if file data source structure then package all output arguments as a single cell array, as the output
+% will be unpacked by control routine that called this method. If object data source or file name, then package as conventional
 % varargout
 
 if nargout~=0
     % In this case, there is at most only one output argument
-    if source_is_file
+    if source_is_file && ~source_arg_is_filename
         varargout{1}={wout};    % output from cut must be cell array
     else
         varargout{1}=wout;

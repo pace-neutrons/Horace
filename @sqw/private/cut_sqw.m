@@ -1,4 +1,4 @@
-function wout = cut_sqw (data_source, varargin)
+function wout = cut_sqw (data_source_in, varargin)
 % Take a cut from an sqw object by integrating over one or more of the momentum and energy axes.
 % 
 % Syntax:
@@ -20,7 +20,7 @@ function wout = cut_sqw (data_source, varargin)
 % 
 % Input:
 % ------
-%   data_source     Data source: sqw file name or data structure
+%   data_source_in  Data source: sqw file name or data structure
 %
 %   proj            Data structure containing details of projection axes:
 %                  Defines two vectors u and v that give the direction of u1
@@ -94,7 +94,10 @@ small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing 
 % Parse input arguments
 % ---------------------
 % Determine if data source is sqw object or file
-[data_source, args, source_is_file, sqw_type, ndims] = parse_data_source (data_source, varargin{:});
+[data_source, args, source_is_file, sqw_type, ndims] = parse_data_source (data_source_in, varargin{:});
+if source_is_file
+    data_source=data_source.filename;
+end
 if ~sqw_type
     error('Logic problem in chain of cut methods. See T.G.Perring')
 end
@@ -261,12 +264,12 @@ end
 % -----------------------------------------------------------------------------------------
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
-  header_ave=header_average(header);
-  alatt = header_ave.alatt;
-  angdeg = header_ave.angdeg;
-  en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
-  upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
-  upix_offset = header_ave.uoffset;
+header_ave=header_average(header);
+alatt = header_ave.alatt;
+angdeg = header_ave.angdeg;
+en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
+upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
+upix_offset = header_ave.uoffset;
 
 
 % Get matrix to convert from projection axes of input data to required output projection axes

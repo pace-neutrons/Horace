@@ -45,17 +45,44 @@ function varargout = cut (varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
+% If data source is a filename or data_source structure, then must ensure that matches dnd type
+[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (sqw(varargin{1}), varargin{2:end});
+if ~isempty(mess)
+    error(mess)
+end
+if source_is_file   % either file names or data_source structure as input
+    if any(sqw_type) || any(ndims~=dimensions(varargin{1}(1)))     % must all be the required dnd type
+        error(['Data file(s) not (all) ',classname,' type i.e. no pixel information'])
+    end
+end
+
+
+% Perform cuts
+% ------------
+% Now call sqw cut routine
 if nargout==0
-    cut(sqw(varargin{1}),varargin{2:end});  % will have at least one argument in varargin, or matlab would never have selected this method
-else
-    wout=cut(sqw(varargin{1}),varargin{2:end});
-    % Package output: if file data source then package all output arguments as a single cell array, as the output
-    % will be unpacked by control routine that called this method. If object data source, then package as conventional varargout
-    % In this case, there is at most only one output argument
-    [data_source, args, source_is_file] = parse_data_source (sqw(varargin{1}), varargin{2:end});
     if source_is_file
-        varargout{1}={dnd(wout{1})};    % must ensure output is still a cell array after conversion to dnd
+        cut(sqw,data_source,args{:});
     else
-        varargout{1}=dnd(wout);
+        cut(sqw(data_source),args{:});
+    end
+else
+    if source_is_file
+        argout=cut(sqw,data_source,args{:});   % output is a cell array
+    else
+        argout=cut(sqw(data_source),args{:});
+    end
+end
+
+% Package output: if file data source structure then package all output arguments as a single cell array, as the output
+% will be unpacked by control routine that called this method. If object data source or file name, then package as conventional
+% varargout
+
+% In this case, there is only one output argument
+if nargout>0
+    if source_is_file && ~source_arg_is_filename
+        varargout{1}={dnd(argout{1})};    % must ensure output is still a cell array after conversion to dnd
+    else
+        varargout{1}=dnd(argout);
     end
 end

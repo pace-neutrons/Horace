@@ -1,5 +1,5 @@
 function [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
-% Load an sqw file from disk
+% Get sqw_type and dimensionality of an sqw file on disk
 %
 % Syntax:
 %   >> [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
@@ -23,10 +23,13 @@ application=horace_version;
 % Initialise output
 sqw_type = [];
 ndims = [];
+
+% Check file matches HDF status
 if get(hdf_config,'use_hdf')
     if H5F.is_hdf5(infile)
         [path,name,ext]=fileparts(infile);
-        error('HORACE:get_sqw_type_from_file',' attempt to treat hdf5 file %s as a plain binary file',[name,ext])
+        mess('HORACE:get_sqw_type_from_file',' attempt to treat hdf5 file %s as a plain binary file',[name,ext])
+        return
     end
 end
 
