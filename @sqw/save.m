@@ -1,5 +1,5 @@
 function save (w, file)
-% Save a sqw object to file
+% Save a sqw object or array of sqw objects to file
 %
 %   >> save (w)              % prompt for file
 %   >> save (w, file)        % give file
@@ -19,25 +19,21 @@ function save (w, file)
 
 
 % Get file name - prompting if necessary
-if (nargin==1)
-    file_internal = putfile('*.sqw');
+if nargin==1 
+    file_internal = {putfile('*.sqw')};
     if (isempty(file_internal))
         error ('No file given')
     end
-elseif (nargin==2)
-    file_internal = file;
-end
-
-
-%Must ensure that if w is an array that filename is a cell array:
-if numel(w)>1
-    if ~iscell(file_internal) || numel(file_internal)~=numel(w)
-        error('If sqw input is an array of objects, then filename must be a cell array of filenames of the same size');
-    end
 else
-    file_internal={file_internal};
+    [file_internal,mess]=putfile_horace(file);
+    if ~isempty(mess)
+        error(mess)
+    end
 end
-    
+if numel(file_internal)~=numel(w)
+    error('Number of data objects in array does not match number of file names')
+end
+
 for i=1:numel(w)
     % Write data to file
     disp(['Writing to ',file_internal{i},'...'])

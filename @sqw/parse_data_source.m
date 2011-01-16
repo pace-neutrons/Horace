@@ -45,8 +45,9 @@ function [data_source, args, source_is_file, sqw_type, ndims, source_arg_is_file
 
 % Parse input arguments
 % ---------------------
-if nargin>=2 && (ischar(varargin{2})||iscellstr(varargin{2}))
-    % If the second argument is a character array or cellstr, then use this as the file name of the data source
+if nargin>=2 && (ischar(varargin{2})||iscellstr(varargin{2})) && ~isempty(varargin{2})
+    % If the second argument is a non-empty character array or cellstr, then use this as the file name of the data source
+    % [frequently we use empty character string '' to indicate a placeholder missing argument e.g. in sqw/cut
     try
         [sqw_type, ndims, data_source, mess] = is_sqw_type_file(sqw, varargin{2});
     catch

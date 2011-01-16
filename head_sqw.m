@@ -40,9 +40,9 @@ end
 
 % Check file name(s), prompting if necessary
 if nargin==0
-    [file_internal,mess]=function_getfile('*.sqw');
+    [file_internal,mess]=getfile_horace('*.sqw');
 else
-    [file_internal,mess]=function_getfile(varargin{:});
+    [file_internal,mess]=getfile_horace(varargin{:});
 end
 if ~isempty(mess)
     error(mess)

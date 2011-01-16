@@ -3,7 +3,10 @@ function wout=sqw_eval(win,sqwfunc,pars,opt)
 %
 %   >> wout=sqw(win,sqwfunc,p)
 %
-%   win         Dataset that provides the axes and points for the calculation
+% Input:
+% ------
+%   win         Dataset (or array of datasets) that provides the axes and points
+%              for the calculation
 %
 %   sqwfunc     Handle to function that calculates S(Q,w)
 %               Most commonly used form is:
@@ -43,7 +46,7 @@ function wout=sqw_eval(win,sqwfunc,pars,opt)
 %              ignored if dnd type object.
 %
 % Output:
-% =======
+% -------
 %   wout        Output dataset or array of datasets 
 
 

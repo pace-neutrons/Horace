@@ -27,7 +27,7 @@ end
 if nargin==0
     error('Must give file name or cell array of filenames of sqw object(s)')
 else
-    [file_internal,mess]=function_getfile(varargin{1});
+    [file_internal,mess]=getfile_horace(varargin{1});
 end
 if ~isempty(mess)
     error(mess)

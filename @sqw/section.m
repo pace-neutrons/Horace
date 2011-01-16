@@ -38,26 +38,28 @@ if nargin==1
     return
 end
 
-%initialise output:
-wout=win;
+% Dimension of input data structures
+ndim=dimensions(win(1));
+for i=2:numel(win)
+    if dimensions(win(i))~=ndim
+        error('All objects must have same dimensionality for sectioning to work')
+    end
+end
+if ndim==0  % no sectioning possible
+    error ('Cannot section a zero dimensional object')
+end
+
+
+nargs= length(varargin);
+if nargs~=ndim
+    error ('Check number of arguments')
+end
+
+% Initialise output argument
+wout = win;
 
 for n=1:numel(win)
-
-    % Dimension of input data structure
-    [ndim,sz]=dimensions(win(n));
-    if ndim==0  % no sectioning possible
-        error ('Cannot section a zero dimensional object')
-    end
-
-
-    nargs= length(varargin);
-    if nargs~=ndim
-        error ('Check number of arguments')
-    end
-
-    % Initialise output argument
-    wout(n) = win(n);
-
+    [ndim,sz]=dimensions(win(n));   % need to get sz array specific for each element in array win
     % Get section parameters and axis arrays:
     % The input sectioning arguments refer to the *display* axes; these must be converted to the relevant plot axes in the algorithm
     irange = zeros(2,ndim);

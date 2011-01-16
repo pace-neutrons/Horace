@@ -102,6 +102,11 @@ end
 % Perform cuts
 % ------------
 if all(sqw_type)
+    if numel(args)>=1 && ~isstruct(args{1}) % proj structure not given, so all sqw objects must have same dimensionality
+        if ~all(ndims==ndims(1))
+            error('All sqw objects must have same dimensionality if not using new projection axes')
+        end
+    end
     for i=1:numel(data_source)
         if nargout>0
             if i==2, wout = repmat(wout,size(data_source)); end

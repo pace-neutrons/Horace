@@ -21,13 +21,19 @@ extension='d4d';
 % Work via sqw class type
 
 % Get file name - prompting if necessary
-if (nargin==1)
-    file_internal = putfile(['*.',extension]);
+if nargin==1 
+    file_internal = {putfile(['*.',extension])};
     if (isempty(file_internal))
         error ('No file given')
     end
-elseif (nargin==2)
-    file_internal = file;
+else
+    [file_internal,mess]=putfile_horace(file);
+    if ~isempty(mess)
+        error(mess)
+    end
+end
+if numel(file_internal)~=numel(w)
+    error('Number of data objects in array does not match number of file names')
 end
 
 % Write data to file

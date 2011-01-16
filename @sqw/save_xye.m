@@ -69,11 +69,7 @@ elseif nargs==2 && isnumeric(varargin{1}) && (ischar(varargin{2}) || iscell(vara
 elseif nargs~=0
     error('Check input parameters')
 end
-        
-% Check only a single sqw object (cannot write arrayof objects)
-% if numel(w)~=1
-%     error('Can only write a single data object to file, not an array of objects')
-% end
+
 
 if file_given && numel(w)>1
     if ~iscell(file) || numel(file)~=numel(w)
