@@ -17,7 +17,9 @@ if(~this.data_loaded)
     this=read(this,fullfile(this.fileDir,this.fileName));   
     delete_data=true;    
 end
-if isfield(this,'spe') % when it works? 
+
+% TGP 16Jan 2011: replace line:  if isfield(this,'spe') % when it works?  with:
+if any(strcmp(fields(this),'spe')) % isfield will return false if this is not explicitly a structure, which is impossible...
     data.S        = this.spe.S;
     data.ERR      = this.spe.ERR;
     data.en       = this.spe.en;
