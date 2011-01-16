@@ -22,7 +22,7 @@ extension='d2d';
 
 % Get file name - prompting if necessary
 if nargin==1 
-    file_internal = {putfile(['*.',extension])};
+    file_internal = putfile(['*.',extension]);
     if (isempty(file_internal))
         error ('No file given')
     end
@@ -31,6 +31,9 @@ else
     if ~isempty(mess)
         error(mess)
     end
+end
+if ~iscellstr(file_internal)
+    file_internal=cellstr(file_internal);
 end
 if numel(file_internal)~=numel(w)
     error('Number of data objects in array does not match number of file names')
