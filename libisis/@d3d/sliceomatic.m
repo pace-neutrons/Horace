@@ -17,4 +17,9 @@ function [figureHandle, axesHandle, plotHandle] = sliceomatic(win, varargin)
 % - To set the default for future Sliceomatic sessions - 
 %      On the 'Object_Defaults' menu select 'Slice Color Texture'
 
-[figureHandle, axesHandle, plotHandle] = sliceomatic(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = sliceomatic(sqw(win),varargin{:});
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

@@ -1,11 +1,12 @@
-function [figureHandle_, axesHandle_, plotHandle_] = ds(win,varargin)
+function [figureHandle, axesHandle, plotHandle] = ds(win,varargin)
 % Surface plot for 2D dataset
 %
-%   >> da(win)
-%   >> da(win,xlo,xhi);
-%   >> da(win,xlo,xhi,ylo,yhi);
+%   >> ds(win)
+%   >> ds(win,xlo,xhi)
+%   >> ds(win,xlo,xhi,ylo,yhi)
 % Or:
-%   >> da(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'colormap','jet');
+%   >> ds(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'colormap','jet')
+% etc.
 %
 % See help for libisis/ds for more details of other options
 
@@ -31,3 +32,8 @@ energy_axis = 4;    % by convention in Horace
 if pax(dax(1))~=energy_axis && pax(dax(2))~=energy_axis    % both plot axes are Q axes
     aspect(ulen(1), ulen(2));
 end
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

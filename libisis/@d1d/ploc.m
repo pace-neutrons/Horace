@@ -1,21 +1,17 @@
-function ploc(win,varargin)
-%
-% ploc(win,varargin)
-% Libisis ploc command - overplot line of a 1d dataset on an existing
-% figure, irrespective of its type. If no figure window open nothing happens.
+function [figureHandle, axesHandle, plotHandle] = ploc(win,varargin)
+% Overplot line through data of a 1d dataset on an existing figure, irrespective of its type.
 %
 % Optional inputs:
-% ploc(win);
-% ploc(win,'color','red');
+%   >> ploc(win)
+%   >> ploc(win,'color','red')
 %
-% see help for libisis\ploc for more details of options
-%
+% See help for libisis\pl for more details of further options
+
 % R.A. Ewings 14/10/2008
 
-nd=dimensions(win);
+[figureHandle_, axesHandle_, plotHandle_] = ploc(sqw(win),varargin{:});
 
-if nd~=1
-    error('Error - ploc only works for 1d datasets');
-end
-
-ploc(IXTdataset_1d(win),varargin{:});
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end
