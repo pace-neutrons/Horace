@@ -1,4 +1,4 @@
-function [file_internal,mess] = function_getfile(varargin)
+function [file_internal,mess] = putfile_horace(varargin)
 % Check input file name(s) for Horace functions that expect file data source, prompting if necessary
 %
 %   >> file_internal = function_get_file (infile)
@@ -13,9 +13,9 @@ function [file_internal,mess] = function_getfile(varargin)
 % Check input file name(s)
 mess='';
 if nargin==0
-    file_internal=getfile;    % prompt for a single file name - no filter applied
+    file_internal=putfile;    % prompt for a single file name - no filter applied
     if isempty(file_internal)
-        mess='No file name given';
+        mess='No output file name given';
     end
 elseif nargin==1
     if ischar(varargin{1}) && length(size(varargin{1}))==2
@@ -24,35 +24,29 @@ elseif nargin==1
         infile=varargin{1};
     else
         file_internal='';
-        mess='Input data files must be character string, 2D character array or cell array of character strings';
+        mess='Output data file name(s) must be character string, 2D character array or cell array of character strings';
         return
     end
     if numel(infile)==1
         infile=strtrim(infile{1});  % cellstr only trims trailing whitespace, so use strtrim
-        if ~exist(infile,'file')
-            if isempty(infile)
-                file_internal=getfile;
-            else
-                file_internal=getfile(infile);
-            end
-            if isempty(file_internal)
-                mess='No file name given';
-            end
+        if isempty(infile)
+            file_internal=putfile;
         else
-            file_internal=infile;
+            file_internal=infile;   % *** better to check if file is a valid name, if not use as file filter
+        end
+        if isempty(file_internal)
+            mess='No output file name given';
         end
     else
-        file_internal=cell(size(infile));
         for i=1:numel(infile)
             infile{i}=strtrim(infile{i});
-            if exist(infile{i},'file')==2
-                file_internal{i}=infile{i};
-            else
+            if isempty(infile{i})
                 file_internal='';
-                mess=['File does not exist: ',infile{i}];
+                mess='At least one output data file name is blank';
                 return
             end
         end
+        file_internal=infile;
     end
 else
     file_internal='';

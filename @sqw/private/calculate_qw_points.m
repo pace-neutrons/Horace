@@ -4,20 +4,22 @@ function [qw1,qw2]=calculate_qw_points(win,x)
 %   >> qw=calculate_qw_points(win)          % (Q,w) when energy is the implicit variable for a direct geometry cut
 %   >> [qw1,qw2]=calculate_qw_points(win)   % in general two roots for other cases
 %
+% Input:
+% ------
 %   win     Input sqw object
 %
 %   x       Vector of coordinates in the display axes of an sqw object
 %           The number of coordinates must match the dimensionality of the object.
-%          e.g. for a 2D sqw object, x=[x1,x2]
+%          e.g. for a 2D sqw object, x=[x1,x2], where x1, x2 are column vectors.
 %           More than one point can be provided by giving more rows
 %          e.g.  [1.2,4.3; 1.1,5.4; 1.32, 6.7] for 3 points from a 2D object.
 %           Generally, an (n x nd) array, where n is the number of points, nd
 %          the dimensionality of the object.
 %
+% Output:
+% -------
 %   qw1     Components of momentum (in rlu) and energy for each bin in the dataset
-%           Arrays are packaged as cell array of column vectors for convenience
-%           with fitting routines etc.
-%               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
+%           Generally, will be (n x 4) array, where n is the number of points
 %
 %   qw2     For the second root
 %

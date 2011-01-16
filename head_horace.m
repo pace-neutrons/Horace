@@ -42,9 +42,9 @@ end
 
 % Check file name(s), prompting if necessary
 if nargin==0
-    [file_internal,mess]=function_getfile('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
+    [file_internal,mess]=getfile_horace('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
 else
-    [file_internal,mess]=function_getfile(varargin{:});
+    [file_internal,mess]=getfile_horace(varargin{:});
 end
 if ~isempty(mess)
     error(mess)
