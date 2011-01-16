@@ -1,11 +1,12 @@
-function [figureHandle_, axesHandle_, plotHandle_] = dd(win,varargin)
+function [figureHandle, axesHandle, plotHandle] = dd(win,varargin)
 % Plot errorbars, markers, and line through data for 1d dataset.
 %
 %   >> dd(win)
-%   >> dd(win,xlo,xhi);
-%   >> dd(win,xlo,xhi,ylo,yhi);
+%   >> dd(win,xlo,xhi)
+%   >> dd(win,xlo,xhi,ylo,yhi)
 % Or:
-%   >> dd(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red');
+%   >> dd(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red')
+% etc.
 %
 % See help for libisis/dd for more details of more options
 
@@ -23,3 +24,8 @@ end
 
 ixg_st_horace =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 [figureHandle_, axesHandle_, plotHandle_] = dd(IXTdataset_1d(win), 'name', ixg_st_horace.oned_name, 'tag', ixg_st_horace.tag, varargin{:});
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

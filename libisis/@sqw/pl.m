@@ -1,9 +1,9 @@
-function [figureHandle_, axesHandle_, plotHandle_] = pl(win,varargin)
+function [figureHandle, axesHandle, plotHandle] = pl(win,varargin)
 % Overplot line through data of a 1d dataset on an existing figure.
 %
 % Optional inputs:
-%   >> pl(win);
-%   >> pl(win,'color','red');
+%   >> pl(win)
+%   >> pl(win,'color','red')
 %
 % See help for libisis\pl for more details of further options
 
@@ -21,3 +21,8 @@ end
 
 ixg_st_horace =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 [figureHandle_, axesHandle_, plotHandle_] = pl(IXTdataset_1d(win), 'name', ixg_st_horace.oned_name, 'tag', ixg_st_horace.tag, varargin{:});
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

@@ -1,21 +1,17 @@
-function phoc(win,varargin)
-%
-% phoc(win,varargin)
-% Libisis phoc command - overplot histogram of a 1d dataset on an existing
-% figure, irrespective of its type. If no figure window open nothing happens.
+function [figureHandle, axesHandle, plotHandle] = phoc(win,varargin)
+% Overplot histogram of a 1d dataset on an existing figure, irrespective of its type.
 %
 % Optional inputs:
-% phoc(win);
-% phoc(win,'color','red');
+%   >> phoc(win)
+%   >> phoc(win,'color','red')
 %
-% see help for libisis\phoc for more details of options
-%
+% See help for libisis\ph for more details of further options
+
 % R.A. Ewings 14/10/2008
 
-nd=dimensions(win);
+[figureHandle_, axesHandle_, plotHandle_] = phoc(sqw(win),varargin{:});
 
-if nd~=1
-    error('Error - phoc only works for 1d datasets');
-end
-
-phoc(IXTdataset_1d(win),varargin{:});
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

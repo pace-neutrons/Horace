@@ -1,11 +1,11 @@
-function [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win, varargin)
+function [figureHandle, axesHandle, plotHandle] = sliceomatic(win, varargin)
 % Plots 3D sqw object using sliceomatic
 %
-% Syntax:
 %   >> sliceomatic (win)
 %   >> sliceomatic (win, 'isonormals', true)     % to enable isonormals
-%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win) to get
-%   handles to the graphics figure
+%
+% To get handles to the graphics figure:
+%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win)
 %
 %
 % NOTES:
@@ -40,10 +40,10 @@ function [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win, varargin)
 
 
 if numel(win)~=1
-    error('sliceomatic only wowrks for a single 3d dataset')
+    error('sliceomatic only orks for a single 3D dataset')
 end
 if dimensions(win)~=3
-    error('sliceomatic only works for 3d datasets');
+    error('sliceomatic only works for 3D datasets');
 end
 
 w = IXTdataset_3d(win);
@@ -77,3 +77,8 @@ else
     aspect(epax) = a(epax)/max([ulen(qpax(1))*a(qpax(1)), ulen(qpax(2))*a(qpax(2))]);
 end
 set(gca,'DataAspectRatio',aspect);
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end
