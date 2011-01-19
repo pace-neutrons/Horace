@@ -1,7 +1,7 @@
 function [f_names,psi]=build_fnames(indir,run_nums,psi0,psi_step,psi_end,fnames1,psi1)
+% [f_names,psi]=build_fnames(indir,run_nums,psi0,psi_step,psi_end,fnames1,psi1)
 % Create the list of file names and corresponing orientation angles,
 % from records expressed in human readable form
-
 %
 % input parameters:
 % indir   % the folder where the datafiles are located; check if the final
