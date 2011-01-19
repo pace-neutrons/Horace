@@ -40,6 +40,7 @@ bool accumulate_cut(double *s, double *e, double *npix,
 
 const int PIXEL_DATA_WIDTH=9;
 //
+
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //*************************************************************************************************
 // the function (bin_pixels_c) distributes pixels according to the 4D-grid specified and
@@ -174,7 +175,7 @@ bool accumulate_cut(double *s, double *e, double *npix,
                     mwSize grid_size[4], int num_threads)
 {
 double xt,yt,zt,Et,nPixSq;
-long i,j;
+unsigned long i,j;
 mwSize ix,iy,iz,ie,il;
 mwSize i0,j0,distribution_size;
 // numbers of the pixels in grid

@@ -171,8 +171,8 @@ mess_completion
 disp(' ')
 disp(['Writing to output file ',outfile,' ...'])
 
-[path,name,ext,ver]=fileparts(outfile);
-main_header_combined.filename=[name,ext,ver];
+[path,name,ext]=fileparts(outfile);
+main_header_combined.filename=[name,ext];
 main_header_combined.filepath=[path,filesep];
 main_header_combined.title='';
 main_header_combined.nfiles=nfiles;

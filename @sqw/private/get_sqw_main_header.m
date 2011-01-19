@@ -42,8 +42,8 @@ end
 mess='';
 
 % Get file name and path (incl. final separator)
-[path,name,ext,ver]=fileparts(fopen(fid));
-data.filename=[name,ext,ver];
+[path,name,ext]=fileparts(fopen(fid));
+data.filename=[name,ext];
 data.filepath=[path,filesep];
 
 % Read data from file:
