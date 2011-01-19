@@ -175,7 +175,7 @@ bool accumulate_cut(double *s, double *e, double *npix,
                     mwSize grid_size[4], int num_threads)
 {
 double xt,yt,zt,Et,nPixSq;
-unsigned long i,j;
+long i,j;
 mwSize ix,iy,iz,ie,il;
 mwSize i0,j0,distribution_size;
 // numbers of the pixels in grid
