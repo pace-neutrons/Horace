@@ -20,6 +20,7 @@ enum Out_Arguments{
 // 1 -- array of pixels for sorting
 // 2 -- indexes of pixels within cells (a cell has more then one pixel and all pixels within this cell have the same index)
 // 3 -- number of pixels in each cell  (densities) 
+//
 //**********************************************************************************************
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
@@ -55,7 +56,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   double  *pCellInd      = (double *)mxGetPr(prhs[Pixel_Indexes]);
   double  *pCellDens     = (double *)mxGetPr(prhs[Pixel_Distributions]);
   size_t distribution_size    = mxGetNumberOfElements(prhs[Pixel_Distributions]);
-  mexWarnMsgTxt("entering allocation routines");
+  //mexWarnMsgTxt("entering allocation routines");
   try{
     plhs[Pixels_Sorted] = mxCreateNumericArray(2,mxGetDimensions(prhs[Pixel_data]), mxDOUBLE_CLASS,mxREAL);
     if(!plhs[Pixels_Sorted]){
@@ -72,9 +73,11 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   }
 */
   try{
-        size_t  *const ppInd   = (size_t  *)mxMalloc(distribution_size*sizeof(size_t)); //working array of indexes for transformed pixels
+	    size_t array_size = distribution_size;
+		if(array_size==0)array_size=1;
+        size_t  *const ppInd   = (size_t  *)mxMalloc(array_size*sizeof(size_t)); //working array of indexes for transformed pixels
         if(!ppInd){
-            throw(" memory allocation error for array of indexes");
+            throw("Sort_pixels_by_bins: memory allocation error for array of indexes");
         }
       
       try{
@@ -88,7 +91,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
        }
        mxFree(ppInd);
   }catch(...){
-        mexErrMsgTxt(" can not allocate memory for working array to sort pixels 3");
+        mexErrMsgTxt("Sort_pixels_by_bins: can not allocate memory for working array to sort pixels 3");
   }
 
 //  delete [] ppInd;
@@ -106,7 +109,7 @@ void sort_pixels_by_bins(double const *const pPixelData,size_t nDataRows,size_t 
         ppInd[i]=ppInd[i-1]+pCellDens[i-1]; // the next cell starts from the the previous one
     };                                      // plus the number of pixels in the cell previous cell
     if(ppInd[distribution_size-1]+pCellDens[distribution_size-1]!=nDataCols){
-        throw(" pixels data and their cell distributions are inconsistent ");
+        throw("Sort_pixels_by_bins: pixels data and their cell distributions are inconsistent ");
     }
     
 //#pragma omp parallel
