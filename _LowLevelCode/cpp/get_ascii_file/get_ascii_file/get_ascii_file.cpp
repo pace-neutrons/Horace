@@ -94,7 +94,6 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   FileTypeDescriptor FILE_TYPE;   // file descriptor will tell which file we have opened and some additional information about it
 
 
-
   std::string fileTypesAccepted[iNumFileTypes+1]; 
   fileTypesAccepted[iPAR_type]    ="par";
   fileTypesAccepted[iPHX_type]    ="phx";

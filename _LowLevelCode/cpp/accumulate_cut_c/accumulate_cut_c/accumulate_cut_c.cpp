@@ -94,6 +94,7 @@ if there are no parameters specified, then defaults are parameters[]={1,1,0,1}
 
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
+
   const char REVISION[]="$Revision::      $ ($Date::                                              $)";
   if(nrhs==0&&nlhs==1){
         plhs[0]=mxCreateString(REVISION); 
@@ -386,8 +387,10 @@ if(fabs(ebin-1)<DBL_EPSILON && fabs(trans_elo)<DBL_EPSILON){   	transform_energy
 
 mwSize nPixel_retained=0;
 
-mwSize  *ind     = (mwSize *)mxCalloc(data_size, sizeof(mwSize)); //working array of indexes of transformed pixels
-if(!ind){  throw(" Can not allocate memory for array of indexes\n");
+size_t ds = data_size;
+if(ds==0)ds = 1;
+mwSize  *ind     = (mwSize *)mxCalloc(ds, sizeof(mwSize)); //working array of indexes of transformed pixels
+if(!ind){  throw("accumulate_cut_c: Can not allocate memory for array of indexes\n");
 }
 
 // min-max value initialization
@@ -532,7 +535,7 @@ if(nPixel_retained==0||!keep_pixels){
      ix_final_pixIndex= mxCreateDoubleMatrix(nPixel_retained,1,mxREAL);
 }
 if(!ix_final_pixIndex){ // can not allocate memory for reduction;
-    throw(" Can not allocate memory for the indexes of the transformed pixels\n");
+    throw("accumulate_cut_c: Can not allocate memory for the indexes of the transformed pixels\n");
     return nPixel_retained;
 }
 double *pFin_pix=(double *)mxGetPr(ix_final_pixIndex);
