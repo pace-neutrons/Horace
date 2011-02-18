@@ -26,12 +26,31 @@ switch index(1).type
                 if(~this.data_loaded)
                     this=loadSPEdata(this);                                      
                 end
-                varargout={this.ERR};                
+                varargout={this.ERR};      
+			case 'Ei'
+				if isfield(this,'Ei')
+    				varargout = this.Ei;
+                else
+        			varargout = NaN;
+                end
             otherwise
                 error('speData:Indexing_Error',...
                 ['index refers to nonexisitng field or a privat variable'
                  index(1).subs] );
         end
+    case '()'
+        this_subset = this(index(1).subs{:});
+        if length(index) == 1
+            varargout = {this_subset};
+        else
+            % trick subsref into returning more than 1 ans
+            varargout = cell(size(this_subset));
+            [varargout{:}] = subsref(this_subset, index(2:end));
+        end
+
+    case '{}'
+        error(['??? ' class(this) ' object, is not a cell array']);
+        
     otherwise
         error('speData:Indexing_Error',['unsupported index type'
                  index(1).type ' for this class'] );

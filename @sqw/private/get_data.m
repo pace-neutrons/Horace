@@ -22,7 +22,12 @@ data=exportData(spe_data);   % export spe into the format requested,
                              % if data have not been loaded before, 
                              % they are loaded from the linked
                               % file now
-det0=get_par(par_file);
+if isfield(data,'par')                              
+    det0=data.par;
+    data=rmfield(data, 'par');
+else
+    det0=get_par(par_file);
+end
 
 % Check length of detectors in spe file and par file are same
 ndet=size(data.S,2);

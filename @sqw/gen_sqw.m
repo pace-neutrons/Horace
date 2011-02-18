@@ -185,8 +185,11 @@ if exist('urange_in','var')
 else
     disp('--------------------------------------------------------------------------------')
     disp(['Calculating limits of data from ',num2str(nfiles),' spe files...'])
-    % Read in the detector parameters
-    det=get_par(par_file);
+    % Read in the detector parameters if they are present in spe_data
+    det=getPar(spe_data{1});
+    if isempty(det)
+        det=get_par(par_file);
+    end
     % Get the maximum limits along the projection axes across all spe files
     data.filename='';
     data.filepath='';

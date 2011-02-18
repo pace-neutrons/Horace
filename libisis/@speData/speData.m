@@ -28,8 +28,9 @@ this=struct(...
 'fileExt','',...
 'nDetectors',0, ...
 'en',[],        ...
+'par',[],       ...
 'data_loaded',false,... % boolean to check if the spe data are loaded to memory (initial state)
-'hdfFileExt','.spe_h5',... % two file extebsions currently supported; hdf5
+'hdfFileExt','.spe_h5',... % three file extebsions currently supported; hdf5
 'speFileExt','.spe',... % and ascii (spe) HAVE TO BE DEFINED LOWER CASE HERE !!!!
 'ifTransfer2hdf',true); % this field specify default way to deal with the data
                         % if any kind of default write operation is
@@ -39,10 +40,14 @@ this=struct(...
                         % in ASCII format, hdf5 file will be written for future use. 
                         % if false, revese would occur, e.g. existing hdf5
                         % file will be written as ascii file
-                        
+
+this.hdfFileExt = {'.spe_h5','.nxspe'}; % there are other extentions possible to load                        
 this.ifTransfer2hdf=get(hor_config,'transformSPE2HDF');
 
+% establish normal inheritence overloading over inherited functions
+superiorto('spe');
 this=class(this,'speData',spe);
+
 if(nargin==1)
     this=bind_to_file(this,varargin{1});
 elseif(nargin==2)
@@ -79,11 +84,20 @@ this.fileDir =fileDir;
 this.fileName=fileName;
 this.fileExt =fileExt;
 file_tag     =lower(this.fileExt);
-switch(file_tag)
-    case this.speFileExt;
-        % despite the program asks to work with an spe file, a correspondent
-        % hdf file may exist and we would better work with it
-        hdf_file=fullfile(fileDir,[fileName this.hdfFileExt]);
+
+AllFileExt = {this.speFileExt,this.hdfFileExt{:}};
+existing_fext = ismember(AllFileExt,file_tag);
+if ~any(existing_fext)
+        error('speData:bind_to_file',' unrecognized file extension %s for the file %s',...
+               this.fileExt,this.fileName);
+end
+
+n_ext = find(existing_fext);
+switch(n_ext)
+    case (1) % spe file extension
+        % despite the program asks to work with an spe file, a correspondent        
+        % hdf file may exist and we would better work with it        
+        hdf_file=fullfile(fileDir,[fileName this.hdfFileExt{1}]);
         if(exist(hdf_file,'file')) % bind to hdf5 file instead;
             [this.nDetectors,this.en]=get_hdf5_header(hdf_file);
             this.fileExt=this.hdfFileExt;
@@ -93,15 +107,19 @@ switch(file_tag)
             end
         [this.nDetectors,this.en]=get_spe_header(fullfileName);
         end
-    case this.hdfFileExt;
-        if(~exist(fullfileName,'file')) % hdf file requested but does not exist
+    case(2) % spe_hdf5 file extension;
+      if(~exist(fullfileName,'file')) % hdf file requested but does not exist
             error('HORACE:speData','trying to open non-existing spe-hdf file %s',fullfileName);
-        end       
-        [this.nDetectors,this.en]=get_hdf5_header(fullfileName);
+      end       
+      [this.nDetectors,this.en]=get_hdf5_header(fullfileName);
+    case(3) % nxspe file
+      if(~exist(fullfileName,'file')) % hdf file requested but does not exist
+            error('HORACE:speData','trying to open non-existing spe-hdf file %s',fullfileName);
+      end       
+      [this.nDetectors,this.en]=get_nxspe_header(fullfileName);
     otherwise
-        error('speData:bind_to_file',' unrecognized extension %s in the file %s',...
-           this.fileExt,this.fileName);
 end
+
 
 %%
 function  this=load_data_from_file(this,fileName)
