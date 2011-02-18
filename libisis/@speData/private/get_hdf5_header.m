@@ -6,7 +6,7 @@ function [ndet,en]=get_hdf5_header(filename)
 fileinfo=hdf5info(filename);
 hr=[fileinfo.GroupHierarchy.Datasets.Dims];
 ndet=hr(3);
-file_strcut=spe_hdf_filestructure();
+file_strcut=spe_hdf_filestructure(1);
 ver = hdf5read(filename,'spe_hdf_version');
 if(ver == 1|| ver == 2)
     en=hdf5read(filename,file_strcut.data_field_names{2});

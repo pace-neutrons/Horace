@@ -11,7 +11,7 @@ function this=deflate(this,varargin)
 % constructor 
 % 
 
-%% $Revision$ ($Date$)
+% $Revision$ ($Date$)
 % 
 % 
 if(isempty(varargin))
