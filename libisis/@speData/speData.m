@@ -103,7 +103,13 @@ switch(n_ext)
             this.fileExt=this.hdfFileExt;
         else
             if(~exist(fullfileName,'file')) % spe file does not exist either
-                error('HORACE:speData','trying to open non-existing spe file %s',fullfileName);
+                % may be there is '.SPE' instead of '.spe' file?
+                fullfileName = fullfile(this.fileDir,[this.fileName,upper(this.fileExt)]);
+                if(~exist(fullfileName,'file')) % spe file does not exist either
+                    error('HORACE:speData','trying to open non-existing spe or SPE file %s',fullfileName);
+                else
+                    this.fileExt = upper(this.fileExt);
+                end
             end
         [this.nDetectors,this.en]=get_spe_header(fullfileName);
         end
