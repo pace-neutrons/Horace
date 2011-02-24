@@ -1,11 +1,12 @@
-function [figureHandle_, axesHandle_, plotHandle_] = dh(win,varargin)
+function [figureHandle, axesHandle, plotHandle] = dh(win,varargin)
 % Plot histogram of a 1d dataset.
 %
 %   >> dh(win)
-%   >> dh(win,xlo,xhi);
-%   >> dh(win,xlo,xhi,ylo,yhi);
+%   >> dh(win,xlo,xhi)
+%   >> dh(win,xlo,xhi,ylo,yhi)
 % Or:
-%   >> dh(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red');
+%   >> dh(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red')
+% etc.
 %
 % See help for libisis/dh for more details of more options
 
@@ -23,3 +24,8 @@ end
 
 ixg_st_horace =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 [figureHandle_, axesHandle_, plotHandle_] = dh(IXTdataset_1d(win), 'name', ixg_st_horace.oned_name, 'tag', ixg_st_horace.tag, varargin{:});
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

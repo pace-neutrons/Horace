@@ -2,8 +2,8 @@ function w = cut_sqw(varargin)
 % Take a cut from a file containing sqw object
 %
 % Syntax:
-%   >> w=cut_sqw (file, arg1, arg2, ...)
-%   >> w=cut_sqw (arg1, arg2,...)          % prompts for file
+%   >> w=cut_sqw (file, arg1, arg2, ...)    % sqw data in named file, or cell array of filenames
+%                                           % Output is an array if given cell array of files
 %
 % For full details of arguments for cut method, type:
 %
@@ -13,25 +13,29 @@ function w = cut_sqw(varargin)
 %
 % $Revision$ ($Date$)
 
-% Get filename
-if nargin>=1 && ischar(varargin{1}) && length(size(varargin{1}))==2 && size(varargin{1},1)==1    % is a single row of characters
-    noffset=1;
-    if (exist(varargin{1},'file')==2)
-        file_internal = varargin{1};
+% Catch case of sqw object
+if nargin>=1 && isa(varargin{1},'sqw')
+    if nargout==0
+        cut(varargin{:});
     else
-        file_internal = getfile(varargin{1});
+        w=cut(varargin{:});
     end
-elseif isa(varargin{1},'sqw')
-    w=cut (varargin);
-else
-    noffset=0;
-    file_internal = getfile('*.sqw');
+    return
 end
 
+% Check file name(s), prompting if necessary
+if nargin==0
+    error('Must give file name or cell array of filenames of sqw object(s)')
+else
+    [file_internal,mess]=getfile_horace(varargin{1});
+end
+if ~isempty(mess)
+    error(mess)
+end
 
 % Make object
 if nargout==0
-    function_sqw(file_internal,@cut,varargin{1+noffset:end});
+    function_sqw(file_internal,@cut,varargin{2:end});
 else
-    w = function_sqw(file_internal,@cut,varargin{1+noffset:end});
+    w=function_sqw(file_internal,@cut,varargin{2:end});
 end

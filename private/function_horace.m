@@ -1,12 +1,13 @@
 function varargout=function_horace(infile,func,varargin)
 % Generic function to take file input sqw or d0d,d1d,...d4d data source to Horace functions.
-% Function called is that appropriate to the type (sqw-type or dnd-type) contained in the file.
 %
 %   >> varargout=function_horace(infile,@some_function,args)
 %
+% Function called is that appropriate to the type (sqw-type or dnd-type) contained in the file.
+%
 % Input:
 % ------
-%   infile  Name of input data file
+%   infile  Name of input data file, or cell array of file names
 %   func    Handle to function to be executed. The input and output arguments must have particular form
 %           In detail:
 %               [out1,out2,...]  = some_function(data_source_obj,data_source_struct,arg1,arg2,...)
@@ -37,8 +38,7 @@ function varargout=function_horace(infile,func,varargin)
 %
 % $Revision$ ($Date$)
 
-
-[sqw_type, nd, data_source, mess] = is_sqw_type_file(sqw,infile);
+[sqw_type, ndims, data_source, mess] = is_sqw_type_file(sqw,infile);
 if ~isempty(mess), error(mess), end
 
 % Branch on type of data in the file, and if there are output arguments or not
@@ -49,13 +49,18 @@ if ~isempty(mess), error(mess), end
 % in the cut method for sqw object, no output means that the output is written to file
 % and so cuts that are far too large to be held in the matlab workspace can be performed.
 
-if sqw_type
+if all(sqw_type)
     if nargout==0
         func(sqw,data_source,varargin{:});
     else
         varargout = func(sqw,data_source,varargin{:});
     end
-else
+    
+elseif all(ndims==ndims(1))
+    for i=1:numel(ndims)
+        data_source(i).sqw_type=false;     % enforce reading as dnd object
+    end
+    nd=ndims(1);    % for convenience
     if nd==0
         if nargout==0
             func(d0d,data_source,varargin{:});
@@ -89,4 +94,7 @@ else
     else
         error('Dimensionality of dnd object must be 0,1,2..4')
     end
+    
+else
+    error('All data files must be sqw type (i.e. contain pixel information) or have same dimensionality')
 end

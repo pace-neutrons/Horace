@@ -29,17 +29,25 @@ end
 filename=strtrim(filename);
 
 % Get file name and path (incl. final separator)
-[path,name,ext,ver]=fileparts(filename);
-det.filename=[name,ext,ver];
+[path,name,ext]=fileparts(filename);
+det.filename=[name,ext];
 det.filepath=[path,filesep];
 
+use_mex = get(hor_config,'use_mex');
+if use_mex
 % Read par file
-try     %using fortran routine
-    par=get_ascii_file(filename,'par');
-catch   %using matlab routine
-    warning('HORACE:get_par','Can not invoke C procedure get_ascii_file.mexXXX loading from file: %s;\n Reason: %s',filename,lasterr());    
+    try     %using C routine
+        par=get_ascii_file(filename,'par');
+    catch   %using matlab routine
+        warning('HORACE:get_par','Can not invoke C procedure get_ascii_file.mexXXX loading from file: %s;\n Reason: %s',filename,lasterr());    
+        use_mex = false;
+    end
+end
+
+if ~use_mex
     par=get_par_matlab(filename);
 end
+
 
 ndet=size(par,2);
 disp([num2str(ndet) ' detector(s)']);

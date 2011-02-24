@@ -1,9 +1,9 @@
-function [figureHandle_, axesHandle_, plotHandle_] = pd(win,varargin)
+function [figureHandle, axesHandle, plotHandle] = pd(win,varargin)
 % Overplot errorbars, markers and lines for a 1d dataset on an existing figure.
 %
 % Optional inputs:
-%   >> pd(win);
-%   >> pd(win,'color','red');
+%   >> pd(win)
+%   >> pd(win,'color','red')
 %
 % See help for libisis\pd for more details of further options
 
@@ -21,3 +21,8 @@ end
 
 ixg_st_horace =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 [figureHandle_, axesHandle_, plotHandle_] = pd(IXTdataset_1d(win), 'name', ixg_st_horace.oned_name, 'tag', ixg_st_horace.tag, varargin{:});
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

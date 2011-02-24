@@ -29,6 +29,8 @@ function varargout=dispersion_plot(varargin)
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   w           Array of corresponding energies, or, if more than
 %                              one dispersion relation, a cell array of arrays.
+%                   s           Array of spectral weights, or, if more than
+%                              one dispersion relation, a cell array of arrays.
 %
 %              More general form is:
 %                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)

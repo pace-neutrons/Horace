@@ -81,8 +81,7 @@ enum inputs{
     iFileType,
     iNumInputs
 };
-/*! \brief interface function between the code and Matlab
-*/
+/*! \brief interface function between the code and Matlab */
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   std::stringstream buf;  // buffer to report errors;
   char *Buf;              // buffer to get string data from Matlab
@@ -93,7 +92,6 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   char fileType[4];
   std::ifstream data_stream;
   FileTypeDescriptor FILE_TYPE;   // file descriptor will tell which file we have opened and some additional information about it
-
 
 
   std::string fileTypesAccepted[iNumFileTypes+1]; 

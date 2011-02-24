@@ -5,7 +5,7 @@ function varargout=function_sqw(infile,func,varargin)
 %
 % Input:
 % ------
-%   infile  Name of input data file
+%   infile  Name of input data file, or cell array of file names
 %   func    Handle to function to be executed. The input and output arguments must have particular form
 %           In detail:
 %               [out1,out2,...]  = some_function(sqw_obj,data_source_struct,arg1,arg2,...)
@@ -36,13 +36,8 @@ function varargout=function_sqw(infile,func,varargin)
 %
 % $Revision$ ($Date$)
 
-[sqw_type, nd,data_source,  mess] = is_sqw_type_file(sqw,infile);
+[sqw_type, ndims, data_source, mess] = is_sqw_type_file(sqw,infile);
 if ~isempty(mess), error(mess), end
-if ~sqw_type
-        error('Data file does not contain pixel information - does not not contain a full sqw object')
-end
-
-
 
 % Branch on type of data in the file, and if there are output arguments or not
 % Recall that if the input data source was a file, we demand that all output
@@ -51,6 +46,10 @@ end
 % We check the case of no output arguments as this can be significant - for example,
 % in the cut method for sqw object, no output means that the output is written to file
 % and so cuts that are far too large to be held in the matlab workspace can be performed.
+
+if ~all(sqw_type)
+    error('Data file(s) do not all contain pixel information - i.e. do not not contain a full sqw object')
+end
 
 if nargout==0
     func(sqw,data_source,varargin{:});

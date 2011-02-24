@@ -21,10 +21,10 @@ demo_dir=pwd;
 %==================================================================================================
 demo_root_dir = [fileparts(which('horace_init')),filesep,'demo',filesep];
 demo_dir = fullfile(demo_dir,filesep);   % add file separator if not there
-unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
+%unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
 try
 copyfile(fullfile(demo_root_dir,'demo_par.PAR'),fullfile(demo_dir,'demo_par.PAR'))
-copyfile(fullfile(demo_root_dir,'demo_par.PHX'),fullfile(demo_dir,'demo_par.PAR'))
+copyfile(fullfile(demo_root_dir,'demo_par.PHX'),fullfile(demo_dir,'demo_par.PHX'))
 copyfile(fullfile(demo_root_dir,'demo_4gauss_2dQ.m'),fullfile(demo_dir,'demo_4gauss_2dQ.m'))
 copyfile(fullfile(demo_root_dir,'demo_FM_spinwaves_2dSlice_sqw.m'),...
     fullfile(demo_dir,'demo_FM_spinwaves_2dSlice_sqw.m'))
@@ -53,16 +53,19 @@ nfiles=24;
 psi=linspace(0,-1*(nfiles-1),nfiles);
 spe_file=cell(1,nfiles);
 for i=1:length(psi)
-    spe_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.SPE'];
+    spe_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.spe'];
 end
-
+for i=1:3
+    spe_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.nxspe'];
+end
 % Create sqw file
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
          u, v, psi, omega, dpsi, gl, gs);
 
 % ---------------------------------------     
 % If the intermediate files (extensions .tmp) are all created, but the sqw
-% file is not created (will sometimes happen if you have many spe files):
+% file is not created (will sometimes happen if you have many spe files),
+% then can construct he data file as follows:
 
 % tmp_file=cell(1,nfiles);    % create list of tmp file names
 % for i=1:length(psi)

@@ -43,6 +43,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 % Gateway routine that calls sqw method
 [tmp_file,grid_size,urange] = gen_sqw (sqw, varargin{:});
 
+
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
     clear tmp_file grid_size urange

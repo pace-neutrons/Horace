@@ -1,39 +1,56 @@
-function h=head_sqw(varargin)
-% Display a summary of a file containing sqw information
+function varargout=head_sqw(varargin)
+% Display a summary of a file or set of files containing sqw information
 % 
-%   >> head_sqw           % prompts for file
-%   >> head_sqw (file)
+%   >> head_sqw             % prompts for file
+%   >> head_sqw (file)      % summary for named file or for cell array of file names
 %
 % To return header information in a structure
-%   >> h = head_sqw
+%   >> h = head_sqw        
 %   >> h = head_sqw (file)
 %
 %
 % Gives the same information as display for an sqw object
+%
+% Input:
+% -----
+%   file        File name, or cell array of file names. In latter case, displays
+%               summary for each sqw object
+%
+% Output (optional):
+% ------------------
+%   h           Structure with header information, or cell array of structures if
+%               given a cell array of file names.
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
-
-% Get filename
-if nargin==1 && ischar(varargin{1}) && length(size(varargin{1}))==2 && size(varargin{1},1)==1    % is a single row of characters
-    noffset=1;
-    if (exist(varargin{1},'file')==2)
-        file_internal = varargin{1};
+% Catch case of sqw object
+if nargin==1 && isa(varargin{1},'sqw')
+    if nargout==0
+        head(varargin{1});
     else
-        file_internal = getfile(varargin{1});
+        varargout{1}=head(varargin{1});
     end
-elseif nargin==0
-    noffset=0;
-    file_internal = getfile('*.sqw');
+    return
+    
+elseif nargin>=2
+    error('Check number of arguments')
+end
+
+% Check file name(s), prompting if necessary
+if nargin==0
+    [file_internal,mess]=getfile_horace('*.sqw');
 else
-    error ('Input must be a file name')
+    [file_internal,mess]=getfile_horace(varargin{:});
+end
+if ~isempty(mess)
+    error(mess)
 end
 
 % Make object
 if nargout==0
-    function_sqw(file_internal,@head,varargin{1+noffset:end});
+    function_sqw(file_internal,@head);
 else
-    h = function_sqw(file_internal,@head,varargin{1+noffset:end});
+    varargout{1} = function_sqw(file_internal,@head);
 end

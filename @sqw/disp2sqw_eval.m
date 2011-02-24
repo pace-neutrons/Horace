@@ -3,7 +3,10 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %
 %   >> wout = disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %
-%   win         Dataset that provides the axes and points for the calculation
+% Input:
+% ------
+%   win         Dataset, or array of datasets, that provides the axes and points
+%              for the calculation
 %
 %   dispreln    Handle to function that calculates the dispersion relation w(Q) and
 %              spectral weight, s(Q)
@@ -15,6 +18,8 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %                   p           Vector of parameters needed by dispersion function 
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   w           Array of corresponding energies, or, if more than
+%                              one dispersion relation, a cell array of arrays.
+%                   s           Array of spectral weights, or, if more than
 %                              one dispersion relation, a cell array of arrays.
 %
 %              More general form is:
@@ -40,8 +45,14 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %               Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
+%   'ave'       [option] Requests that the calculated sqw be computed for the
+%              average values of h,k,l of the pixels in a bin, not for each
+%              pixel individually. Reduces cost of expensive calculations.
+%               Applies only to the case of sqw object with pixel information - it is
+%              ignored if dnd type object.
+%
 % Output:
-% =======
+% -------
 %   wout        Output dataset or array of datasets 
 
 % Essentially an interface to sqw_eval that looks after broadening the dispersion

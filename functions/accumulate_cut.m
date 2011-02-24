@@ -60,7 +60,9 @@ if use_mex
                                              rot_ustep,trans_bott_left,ebin,trans_elo,...
                                              urange_step,pax,parameters);
 
-    urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
+    if npix_retain>0
+        urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
+    end
     %%<*** version specific >= 7.5
     catch 
         use_mex=false;        

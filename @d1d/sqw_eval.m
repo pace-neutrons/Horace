@@ -3,7 +3,10 @@ function wout=sqw_eval(win,varargin)
 %
 %   >> wout=sqw(win,sqwfunc,p)
 %
-%   win         Dataset that provides the axes and points for the calculation
+% Input:
+% ------
+%   win         Dataset (or array of datasets) that provides the axes and points
+%              for the calculation
 %
 %   sqwfunc     Handle to function that calculates S(Q,w)
 %               Most commonly used form is:
@@ -36,8 +39,14 @@ function wout=sqw_eval(win,varargin)
 %               Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
+%   'ave'       [option] Requests that the calculated sqw be computed for the
+%              average values of h,k,l of the pixels in a bin, not for each
+%              pixel individually. Reduces cost of expensive calculations.
+%               Applies only to the case of sqw object with pixel information - it is
+%              ignored if dnd type object.
+%
 % Output:
-% =======
+% -------
 %   wout        Output dataset or array of datasets 
 
 wout=dnd(sqw_eval(sqw(win),varargin{:}));

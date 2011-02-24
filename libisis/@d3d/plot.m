@@ -1,4 +1,4 @@
-function plot(win, varargin)
+function [figureHandle, axesHandle, plotHandle] = plot(win, varargin)
 % Plots d3d object using sliceomatic
 %
 % Syntax:
@@ -20,4 +20,9 @@ function plot(win, varargin)
 % - To set the default for future Sliceomatic sessions - 
 %      On the 'Object_Defaults' menu select 'Slice Color Texture'
 
-sliceomatic(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = sliceomatic(sqw(win),varargin{:});
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

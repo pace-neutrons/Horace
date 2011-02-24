@@ -1,4 +1,4 @@
-function fake_spe(ndet,emin,de,emax,filename,filepath)
+function fake_spe(ndet,emin,de,emax,filename,filepath,psi)
 
 %This file generates a fake .spe file that can then be passed to Tobyfit so
 %that simulations can be performed.
@@ -22,13 +22,13 @@ energy_cen=[emin+(de/2):de:emax-(de/2)];
 energy_cen=energy_cen';
 
 length_en=length(energy);
-S=ones(length_en-1,ndet);
-ERR=S;%make S and ERR matrix of ones, so that when combined in an SQW file
+S=psi.*(ones(length_en-1,ndet));
+ERR=ones(size(S));%make S and ERR matrix of ones, so that when combined in an SQW file
 %we should be able to work out how good the errorbars on our measurement
 %will be.
 
-temp.filename=filename;
-temp.filepath=filepath;
+% temp.filename=filename;
+% temp.filepath=filepath;
 temp.S=S;
 temp.ERR=ERR;
 temp.en=energy;

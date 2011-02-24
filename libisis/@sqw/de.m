@@ -1,11 +1,12 @@
-function [figureHandle_, axesHandle_, plotHandle_] = de(win,varargin)
+function [figureHandle, axesHandle, plotHandle] = de(win,varargin)
 % Plot errorbars for 1d dataset.
 %
 %   >> de(win)
-%   >> de(win,xlo,xhi);
-%   >> de(win,xlo,xhi,ylo,yhi);
+%   >> de(win,xlo,xhi)
+%   >> de(win,xlo,xhi,ylo,yhi)
 % Or:
-%   >> de(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red');
+%   >> de(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red')
+% etc.
 %
 % See help for libisis/de for more details of more options
 
@@ -23,3 +24,8 @@ end
 
 ixg_st_horace =  ixf_global_var('Horace','get','IXG_ST_HORACE');
 [figureHandle_, axesHandle_, plotHandle_] = de(IXTdataset_1d(win), 'name', ixg_st_horace.oned_name, 'tag', ixg_st_horace.tag, varargin{:});
+
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

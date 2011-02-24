@@ -2,15 +2,19 @@ function [vals_av,vals_var,vals_devsqr]=average_bin_data(w,vals)
 % Given sqw_type object, average one or more arrays of npixtot values to give one value per bin.
 % npixtot is the number of pixels in the sqw object.
 %
-%   >> [x1_av, x2_av,...] = average_bin_data (w, x1, x2, ...)
+%   >> [vals_av,vals_var,vals_devsqr]=average_bin_data(w,vals)
 %
+% Input:
+% ------
 %   w       sqw object of sqw-type
 %
-%   val     array, or cell array of arrays, each with npixtot elements, to be
+%   vals    array, or cell array of arrays, each with npixtot elements, to be
 %          averaged over the bins of w. That is, the first w.data.npix(1) values
 %          are averaged to give one element, the next w.data.npix(2) averaged for
 %          the second element etc.
 %
+% Output:
+% -------
 %   val_av  array, or cell array of arrays, containing the averaged values.
 %           - the size is equal to size(w.data.signal)
 %           - if there were no pixels for a bin, the average is returned as 0.

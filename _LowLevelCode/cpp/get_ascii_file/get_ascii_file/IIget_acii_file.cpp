@@ -17,8 +17,7 @@
 static char BUF[BUF_SIZE];
 /*!
 *  function calculates number of changes from space to a symbol and vise versa. It used to identify the number of
-*  data fields in an space-separated ascii file.
-*/
+*  data fields in an space-separated ascii file. */
 int 
 count_changes(const char *const Buf, int buf_size)
 {

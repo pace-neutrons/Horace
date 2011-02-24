@@ -1,5 +1,5 @@
 function [f_names,psi]=build_fnames(indir,run_nums,psi0,psi_step,psi_end,fnames1,psi1)
-% convenience function:
+% [f_names,psi]=build_fnames(indir,run_nums,psi0,psi_step,psi_end,fnames1,psi1)
 % Create the list of file names and corresponing orientation angles,
 % from records expressed in human readable form
 %
@@ -36,11 +36,12 @@ function [f_names,psi]=build_fnames(indir,run_nums,psi0,psi_step,psi_end,fnames1
 %
 
 nElements=numel(run_nums);
-if(round(nElements/2)*2==nElements)
-  nfgroup=round(psi_end-psi0)/psi_step;
-else
-  nfgroup=round(psi_end-psi0)/psi_step+1;
-end
+nfgroup=round((psi_end-psi0)/psi_step)+1;
+% if(round(nElements/2)*2==nElements)
+%   nfgroup=round(psi_end-psi0)/psi_step+1;
+% else
+%   nfgroup=round(psi_end-psi0)/psi_step+1;
+% end
 if nElements~=nfgroup
     error('build_fnames:wrong_par','number of psi angles and the number of runs which correspond to these runs has to be equal')
 end

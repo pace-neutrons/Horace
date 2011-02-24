@@ -1,21 +1,17 @@
-function pmoc(win,varargin)
-%
-% pmoc(win,varargin)
-% Libisis pmoc command - overplot markers of a 1d dataset on an existing
-% figure, irrespective of its type. If no figure window open nothing happens.
+function [figureHandle, axesHandle, plotHandle] = pmoc(win,varargin)
+% Overplot markers for a 1d dataset on an existing figure, irrespective of its type.
 %
 % Optional inputs:
-% pmoc(win);
-% pmoc(win,'color','red');
+%   >> pmoc(win)
+%   >> pmoc(win,'color','red')
 %
-% see help for libisis\pmoc for more details of options
-%
+% See help for libisis\pm for more details of further options
+
 % R.A. Ewings 14/10/2008
 
-nd=dimensions(win);
+[figureHandle_, axesHandle_, plotHandle_] = pmoc(sqw(win),varargin{:});
 
-if nd~=1
-    error('Error - pmoc only works for 1d datasets');
-end
-
-pmoc(IXTdataset_1d(win),varargin{:});
+% Output only if requested
+if nargout>=1, figureHandle=figureHandle_; end
+if nargout>=2, axesHandle=axesHandle_; end
+if nargout>=3, plotHandle=plotHandle_; end

@@ -1,4 +1,4 @@
-function wout = cut_sqw (data_source, varargin)
+function wout = cut_sqw (data_source_in, varargin)
 % Take a cut from an sqw object by integrating over one or more of the momentum and energy axes.
 % 
 % Syntax:
@@ -20,7 +20,7 @@ function wout = cut_sqw (data_source, varargin)
 % 
 % Input:
 % ------
-%   data_source     Data source: sqw file name or data structure
+%   data_source_in  Data source: sqw file name or data structure
 %
 %   proj            Data structure containing details of projection axes:
 %                  Defines two vectors u and v that give the direction of u1
@@ -94,7 +94,10 @@ small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing 
 % Parse input arguments
 % ---------------------
 % Determine if data source is sqw object or file
-[data_source, args, source_is_file, sqw_type, ndims] = parse_data_source (data_source, varargin{:});
+[data_source, args, source_is_file, sqw_type, ndims] = parse_data_source (data_source_in, varargin{:});
+if source_is_file
+    data_source=data_source.filename;
+end
 if ~sqw_type
     error('Logic problem in chain of cut methods. See T.G.Perring')
 end
@@ -194,26 +197,22 @@ end
 
 % Open output file if required
 if save_to_file
-%    if get(hdf_config,'use_hdf')
-%        new_hdf_sqw=hdf_sqw(outfile);
-%    else    
-        if isempty(outfile)
-            if keep_pix
-                outfile = putfile('*.sqw');
-            else
-                outfile = putfile('*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
-            end
-            if (isempty(outfile))
-                error ('No output file name given')
-            end
+    if isempty(outfile)
+        if keep_pix
+            outfile = putfile('*.sqw');
+        else
+            outfile = putfile('*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
         end
-        % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-        fout = fopen (outfile, 'W');
-        if (fout < 0)
-            error (['Cannot open output file ' outfile])
+        if (isempty(outfile))
+            error ('No output file name given')
         end
-%    end
-
+    end
+    % Open output file now - don't want to discover there are problems after 30 seconds of calculation
+    fout = fopen (outfile, 'W');
+    if (fout < 0)
+        error (['Cannot open output file ' outfile])
+    end
+    
 end
 
 
@@ -261,12 +260,12 @@ end
 % -----------------------------------------------------------------------------------------
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
-  header_ave=header_average(header);
-  alatt = header_ave.alatt;
-  angdeg = header_ave.angdeg;
-  en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
-  upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
-  upix_offset = header_ave.uoffset;
+header_ave=header_average(header);
+alatt = header_ave.alatt;
+angdeg = header_ave.angdeg;
+en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
+upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
+upix_offset = header_ave.uoffset;
 
 
 % Get matrix to convert from projection axes of input data to required output projection axes
@@ -513,10 +512,6 @@ end
 % ---------------------------
 if save_to_file
     if horace_info_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
-    if get(config,'use_hdf')
-        new_hdf_sqw=new_hdf_sqw.write(w);
-        new_hdf_sqw.delete();
-    else
     try
         if ~pix_tmpfile
             mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
@@ -533,7 +528,6 @@ if save_to_file
     catch   % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
         if ~isempty(fopen(fout)); fclose(fout); end
         warning('Error writing to file: unknown cause')
-    end
     end
     if horace_info_level>=0, disp(' '), end
 end
