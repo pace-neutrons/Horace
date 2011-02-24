@@ -55,9 +55,9 @@ spe_file=cell(1,nfiles);
 for i=1:length(psi)
     spe_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.spe'];
 end
-for i=1:3
-    spe_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.nxspe'];
-end
+% for i=1:3
+%     spe_file{i}=[indir,'MAP',num2str(11012+(2*i)),'.nxspe'];
+% end
 % Create sqw file
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
          u, v, psi, omega, dpsi, gl, gs);
