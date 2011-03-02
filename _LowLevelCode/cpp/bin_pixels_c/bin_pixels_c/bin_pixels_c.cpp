@@ -155,8 +155,12 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
     *(pNpix+i)=0;
   }
 
-
-  bool place_pixels_in_old_array = accumulate_cut(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
+  bool place_pixels_in_old_array;
+  try{
+	  place_pixels_in_old_array = accumulate_cut(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
+  }catch(const char *err){
+	  mexErrMsgTxt(err);
+  }
   //if(!place_pixels_in_old_array){
   //		mxDestroyArray(pPixData);
   //}
@@ -219,6 +223,7 @@ eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
 
 
 #pragma omp parallel default(none), private(i,i0,xt,yt,zt,Et,ix,iy,iz,ie,il,nPixSq), \
+	 num_threads(numRealThreads) \
      shared(pixel_data,ok,nGridCell,s,e,npix), \
      firstprivate(nPixelDatas,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR), \
      reduction(+:nPixel_retained)
