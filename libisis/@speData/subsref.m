@@ -1,43 +1,33 @@
-function varargout = subsref(this,index)
-% accessor to the internal data of the speData class
-%
-% $Revision$ ($Date$)
-%
-%
+function varargout = subsref(this, index)
+% A Comprehensive Guide to Object Oriented Programming in MATLAB
+%   Chapter 9 example subsref
+%   (c) 2004 Andy Register
+
+% Generic method
+
 switch index(1).type
+
     case '.'
-        switch index(1).subs
-            case 'nDetectors'
-                varargout={this.nDetectors};
-            case 'nEnergyBins'
-                varargout={this.nEnergyBins};
-            case 'fileDir'
-                varargout={this.fileDir};
-            case 'fileName'
-                varargout={[this.fileName this.fileExt]};
-            case 'en'
-                varargout={this.en};
-            case 'S'
-                if(~this.data_loaded)                
-                    this=loadSPEdata(this);                   
-                end
-                varargout={this.S};                
-            case 'ERR'
-                if(~this.data_loaded)
-                    this=loadSPEdata(this);                                      
-                end
-                varargout={this.ERR};      
-			case 'Ei'
-				if isfield(this,'Ei')
-    				varargout = this.Ei;
-                else
-        			varargout = NaN;
-                end
-            otherwise
-                error('speData:Indexing_Error',...
-                ['index refers to nonexisitng field or a privat variable'
-                 index(1).subs] );
+        if isempty(this)
+            varargout = cell(0);
+        else
+            varargout = cell(1, max(length(this(:)), nargout));
         end
+        try
+            [varargout{:}] = get(this, index);
+        catch
+            rethrow(lasterror);
+        end
+
+        if length(index) > 1
+            if length(this(:)) == 1
+                varargout = {subsref([varargout{:}], index(2:end))};
+            else
+                [err_id, err_msg] = array_reference_error(index(2).type);
+                error(err_id, err_msg);
+            end
+        end
+
     case '()'
         this_subset = this(index(1).subs{:});
         if length(index) == 1
@@ -50,21 +40,19 @@ switch index(1).type
 
     case '{}'
         error(['??? ' class(this) ' object, is not a cell array']);
-        
+
     otherwise
-        error('speData:Indexing_Error',['unsupported index type'
-                 index(1).type ' for this class'] );
+        error(['??? Unexpected index.type of ' index(1).type]);
 end
-    
-  if length(varargout)>1 && nargout <=1
-      if (iscellstr(vavargout) || any([cellfun('isempty',varargout)]))
-          varargout={varargout};
-      else
-          try
-              varargout={[varargout{:}]};
-          catch
-              varargout={varargout};
-          end
-      end
-  end
+
+if length(varargout) > 1 & nargout <= 1
+    if iscellstr(varargout) || any([cellfun('isempty', varargout)])
+        varargout = {varargout};
+    else
+        try
+            varargout = {[varargout{:}]};
+        catch
+            varargout = {varargout};
+        end
+    end
 end
