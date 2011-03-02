@@ -485,9 +485,8 @@ int PIXEL_data_width=PIXEL_DATA_WIDTH;
             zt=xt1*rot_ustep[2]+yt1*rot_ustep[5]+zt1*rot_ustep[8];
             if(zt<cut_range[4]||zt>=cut_range[5])	continue;
 
-            ok[i]=true;
+			ok[i]=true;
             nPixel_retained++;
-
 
 
 //     indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)

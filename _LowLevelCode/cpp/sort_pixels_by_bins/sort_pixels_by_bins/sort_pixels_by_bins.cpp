@@ -126,5 +126,6 @@ void sort_pixels_by_bins(double const *const pPixelData,size_t nDataRows,size_t 
         }
     }
 }
+
 }
 

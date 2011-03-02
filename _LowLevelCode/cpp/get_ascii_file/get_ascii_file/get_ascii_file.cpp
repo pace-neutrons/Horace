@@ -228,4 +228,5 @@ error:
   data_stream.close();
 
   mexErrMsgTxt(err_msg.c_str());
+
 }
