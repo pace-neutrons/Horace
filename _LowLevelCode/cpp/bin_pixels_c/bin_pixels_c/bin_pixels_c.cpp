@@ -245,10 +245,10 @@ eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
 //  ok = indx(:,1)>=cut_range(1,1) & indx(:,1)<=cut_range(2,1) & indx(:,2)>=cut_range(1,2) & indx(:,2)<=urange_step(2,2) & ...
 //       indx(:,3)>=cut_range(1,3) & indx(:,3)<=cut_range(2,3) & indx(:,4)>=cut_range(1,4) & indx(:,4)<=cut_range(2,4);
             ok[i]=false;
-            if(xt<cut_range[0]||xt>cut_range[1])continue;
-            if(yt<cut_range[2]||yt>cut_range[3])continue;
-            if(zt<cut_range[4]||zt>cut_range[5])continue; 			
-            if(Et<cut_range[6]||Et>cut_range[7])continue; 			
+            if(xt<cut_range[0]||xt>=cut_range[1])continue;
+            if(yt<cut_range[2]||yt>=cut_range[3])continue;
+            if(zt<cut_range[4]||zt>=cut_range[5])continue; 			
+            if(Et<cut_range[6]||Et>=cut_range[7])continue; 			
 
             nPixel_retained++;
 

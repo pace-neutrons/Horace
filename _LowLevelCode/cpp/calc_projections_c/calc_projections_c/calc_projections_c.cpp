@@ -250,6 +250,7 @@ void calc_projections_emode1(double * const pTransfDetectors,
             pTransfDetectors[j0+1] = pMatrix[1]*q1+pMatrix[4]*q2+pMatrix[7]*q3;
             pTransfDetectors[j0+2] = pMatrix[2]*q1+pMatrix[5]*q2+pMatrix[8]*q3;
 
+
 //			q(4,:)=repmat(eps',1,ndet);
             pTransfDetectors[j0+3] = pEnergies[j];
         }
