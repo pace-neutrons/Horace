@@ -163,8 +163,8 @@ for i=1:nfiles
     spe_data{i}=speData(spe_file{i});% The files can be found by its name. 
                                      % If the files can not be found,the
                                      % constructor fails (throw an error)
-    if ~isempty(get_Ei(spe_data{i}))
-        efix(i) = get_Ei(spe_data{i});
+    if ~isempty(getEi(spe_data{i}))
+        efix(i) = getEi(spe_data{i});
     end
     [spe_path,spe_name,spe_ext]=fileparts(spe_file{i});
     if strcmpi(spe_ext,'.tmp')

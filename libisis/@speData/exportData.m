@@ -39,8 +39,8 @@ else
     
 end
 
-if ~isempty(get_Ei(this))
-     data.Ei = get_Ei(this);
+if ~isempty(getEi(this))
+     data.Ei = getEi(this);
 end
 if ~isempty(getPar(this))
     data.par = getPar(this);
