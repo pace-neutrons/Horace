@@ -117,12 +117,12 @@ switch(n_ext)
       if(~exist(fullfileName,'file')) % hdf file requested but does not exist
             error('HORACE:speData','trying to open non-existing spe-hdf file %s',fullfileName);
       end       
-      [this.nDetectors,this.en]=get_hdf5_header(fullfileName);
+      [this.nDetectors,this.en,this.spe.Ei]=get_hdf5_header(fullfileName);
     case(3) % nxspe file
       if(~exist(fullfileName,'file')) % hdf file requested but does not exist
             error('HORACE:speData','trying to open non-existing spe-hdf file %s',fullfileName);
       end       
-      [this.nDetectors,this.en]=get_nxspe_header(fullfileName);
+      [this.nDetectors,this.en,this.spe.Ei]=get_nxspe_header(fullfileName);
     otherwise
 end
 
