@@ -23,24 +23,22 @@ addpath_message (rootpath,'classes','methods');
 addpath_message (rootpath,'classes','ops');
 
 % Utilities definitions
-addpath_message (rootpath,'utilities','classes','classdefs');
-addpath_message (rootpath,'utilities','classes','ops');
-addpath_message (rootpath,'utilities','classes','methods');
-addpath_message (rootpath,'utilities','files');
-addpath_message (rootpath,'utilities','general');
-addpath_message (rootpath,'utilities','global_var');
-addpath_message (rootpath,'utilities','global_path');
-addpath_message (rootpath,'utilities','maths');
-addpath_message (rootpath,'utilities','misc');
-addpath_message (rootpath,'utilities','read_write');
-addpath_message (rootpath,'utilities','strings');
+addgenpath_message (rootpath, 'utilities')
+% addpath_message (rootpath,'utilities','classes','classdefs');
+% addpath_message (rootpath,'utilities','classes','ops');
+% addpath_message (rootpath,'utilities','classes','methods');
+% addpath_message (rootpath,'utilities','files');
+% addpath_message (rootpath,'utilities','general');
+% addpath_message (rootpath,'utilities','global_var');
+% addpath_message (rootpath,'utilities','global_path');
+% addpath_message (rootpath,'utilities','maths');
+% addpath_message (rootpath,'utilities','misc');
+% addpath_message (rootpath,'utilities','read_write');
+% addpath_message (rootpath,'utilities','strings');
 
 % Graphics
 addpath_message (rootpath,'graphics')
-% libisis_root='T:\SVN_area\Libisis_trunk';
-% addgenpath_message (libisis_root,'Libisis','graphics')
-% addpath_message (rootpath,'utilities','aaa_libisis_required');
-% gtk_init
+addpath_message (rootpath,'graphics','test')
 
 %--------------------------------------------------------------------------
 function addpath_message (varargin)
