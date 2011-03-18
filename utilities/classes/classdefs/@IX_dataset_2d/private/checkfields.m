@@ -1,4 +1,4 @@
-function [ok, message, wout] = checkfields (d)
+function [ok, message, wout] = checkfields (w)
 % Check validity of all fields for an object
 %
 %   >> [ok, message,wout] = checkfields (w)
