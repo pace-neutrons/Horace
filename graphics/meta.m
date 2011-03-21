@@ -19,11 +19,9 @@ else
     if ~ok, error(mess), end
     if isempty(fig)
         error('No figure with given name or figure number - cannot create meta file.')
+    elseif numel(fig)>1
+        error('Can only create meta file from a single figure')
     end
 end
 
-if numel(fig)==1
-    print('-dmeta','-noui',['-f',num2str(fig)]);
-else
-    error('Can only create meta file from a single figure')
-end
+print('-dmeta','-noui',['-f',num2str(fig)]);
