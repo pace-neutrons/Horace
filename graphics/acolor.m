@@ -9,7 +9,7 @@ function acolor(varargin)
 %   >> acolor('r')
 %   >> acolor('k')      % black
 %   >> acolor('re')
-%   >> acolor('bla'))
+%   >> acolor('bla')
 %
 % Argument can set a sequence of colors for cascade plots e.g.
 %   >> acolor('r','b','bla','g')

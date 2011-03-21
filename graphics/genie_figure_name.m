@@ -3,17 +3,18 @@ function [fig_name, ok, mess] = genie_figure_name(handle)
 %
 %   >> fig_name=genie_figure_handle (fig_handle)
 %
-%   fig_handle  figure handle or cellstr of figure handles
+%   fig_handle  Figure handle or cellstr of figure handles
 %
 %   fig_name    Cell array of names of any figures with names that match one of the input names
-%   ok          true id all OK, false otherwise
+%   ok          True if all OK, false otherwise
 %   mess        '' if OK, error message if not OK
 %
 %  If given figure name(s) rather than handle(s), then these are passed through
-%  transparently unless one or more of the names is not a figure name
+%  transparently (apart from conversion to column vector) unless one or more
+%  of the names is not a figure name.
 
 if isnumeric(handle)   % could be array of figure handles
-    id=handle;
+    id=handle(:);
     id=id(ishandle(id));
     id=findobj(id,'type','figure');     % keep only those handles that are to figures
     fig_name=cell(size(id));
@@ -24,18 +25,18 @@ if isnumeric(handle)   % could be array of figure handles
     
 elseif ischar(handle) || iscellstr(handle)
     if ischar(handle) && numel(size(handle))==2
-        fig_name=cellstr(handle);
-    else
-        ok=false; mess='Check validity of figure name(s)'; return
+        handle=cellstr(handle);
+    elseif ~iscellstr(handle)
+        fig_name={}; ok=false; mess='Check validity of figure name(s)'; return
     end
-    fig_name=strtrim(fig_name); % trim leading and training blanks
+    fig_name=strtrim(handle(:)); % trim leading and training blanks
     for i=1:numel(fig_name)
         if isempty(findobj('name',fig_name{i},'type','figure'))
-            ok=false; mess='Check validity of figure name(s)'; return
+            fig_name={}; ok=false; mess='Check validity of figure name(s)'; return
         end
     end
     ok=true; mess=''; return
     
 else
-    ok=false; mess='Check validity of figure handle(s)'; return
+    fig_name={}; ok=false; mess='Check validity of figure handle(s)'; return
 end
