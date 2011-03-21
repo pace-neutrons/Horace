@@ -1,3 +1,9 @@
-function yes=isstring(v)
-% true id variable is a character string i.e. 1xn character array or empty character array
-yes=ischar(v) && (isrow(v) || isempty(v));
+function ok=isstring(var)
+% true if variable is a character string i.e. 1xn character array (n>=0), or empty character
+%
+%   >> ok=isstring(var)
+%
+% Note: if var is empty but has size 1x0 then will return true
+%       Also, if empty, will return true
+
+ok=ischar(var) && (isrow(var) || isempty(var));

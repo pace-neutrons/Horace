@@ -20,19 +20,19 @@ ss3=5*(0.5+rand(20,15));
 ee3=0.5+rand(20,15);
 
 % Herbert objects
-p1=IX_dataset_1d(x,y1,e1);
-p2=IX_dataset_1d(x,y2,e2);
-p3=IX_dataset_1d(x,y3,e3);
+p1=IX_dataset_1d(x,y1,e1,'Point data, not distribution',IX_axis('Energy transfer','meV','$w'),'Counts',false);
+p2=IX_dataset_1d(x,y2,e2,'Point data, not distribution',IX_axis('Energy transfer','meV','$w'),'Counts',false);
+p3=IX_dataset_1d(x,y3,e3,'Point data, not distribution',IX_axis('Energy transfer','meV','$w'),'Counts',false);
 
-h1=IX_dataset_1d(xb,y1,e1);
-h2=IX_dataset_1d(xb,y2,e2);
-h3=IX_dataset_1d(xb,y3,e3);
+h1=IX_dataset_1d(xb,y1,e1,'Histogram data, distribution',IX_axis('Energy transfer','meV','$w'),'Counts',true);
+h2=IX_dataset_1d(xb,y2,e2,'Histogram data, distribution',IX_axis('Energy transfer','meV','$w'),'Counts',true);
+h3=IX_dataset_1d(xb,y3,e3,'Histogram datt, distribution',IX_axis('Energy transfer','meV','$w'),'Counts',true);
 
 pp1=IX_dataset_2d(x,y,ss1,ee1,'pnt-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
 pp2=IX_dataset_2d(xb,y,ss1,ee1,'hist-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
 pp3=IX_dataset_2d(xb,yb,ss1,ee1,'hist-hist',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
 
-% mgenie objects
+%% mgenie objects
 sp1=spectrum(x,y1,e1);
 sp2=spectrum(x,y2,e2);
 sp3=spectrum(x,y3,e3);
@@ -40,6 +40,4 @@ sp3=spectrum(x,y3,e3);
 sh1=spectrum(xb,y1,e1);
 sh2=spectrum(xb,y2,e2);
 sh3=spectrum(xb,y3,e3);
-
-
 

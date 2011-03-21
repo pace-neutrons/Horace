@@ -14,12 +14,12 @@ function w = IX_dataset_2d(varargin)
 % 	signal              double  		Signal (vector)
 % 	error				        		Standard error (vector)
 % 	s_axis				IX_axis			Signal axis object containing caption and units codes
-%                                     (Can also just give caption; multiline input in the form of a
+%                   (or char/cellstr    Can also just give caption; multiline input in the form of a
 %                                      cell array or a character array)
 % 	x					double      	Values of bin boundaries (if histogram data)
 % 						                Values of data point positions (if point data)
 % 	x_axis				IX_axis			x-axis object containing caption and units codes
-%                                     (Can also just give caption; multiline input in the form of a
+%                   (or char/cellstr    Can also just give caption; multiline input in the form of a
 %                                      cell array or a character array)
 % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
 %

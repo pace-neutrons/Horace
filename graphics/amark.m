@@ -24,6 +24,7 @@ function amark(varargin)
 % Create two row vectors, of marker sizes and marker types:
 narg = length(varargin);
 
+% Display current marker size and type if no arguments given
 if narg < 1
     marker_size=get_global_var('genieplot','marker_size');
     marker_type=get_global_var('genieplot','marker_type');

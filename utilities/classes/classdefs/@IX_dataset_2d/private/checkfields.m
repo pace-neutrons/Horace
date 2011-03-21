@@ -55,7 +55,11 @@ message='';
 wout=w;
 
 if isequal(fieldnames(w),fields)
-    if ~(ischar(w.title)||iscellstr(w.title))
+    if ischar(w.title)||iscellstr(w.title)
+        if ischar(w.title)
+            wout.title=cellstr(w.title);
+        end
+    else
         message='Title must be character array or cell array of strings'; return
     end
     if ~isa(w.signal,'double')||numel(size(w.signal))~=2||~isa(w.error,'double')||numel(size(w.error))~=2

@@ -38,6 +38,7 @@ addgenpath_message (rootpath, 'utilities')
 
 % Graphics
 addpath_message (rootpath,'graphics')
+genieplot_init
 addpath_message (rootpath,'graphics','test')
 
 %--------------------------------------------------------------------------

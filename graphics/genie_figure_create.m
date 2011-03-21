@@ -1,13 +1,14 @@
 function new_figure = genie_figure_create (fig_name)
-% Create a figure frame with a given name
+% Create a figure frame with a given name and make the current graphics window
 %
 %   >> new_figure = genie_figure_create (fig_name)
 %
 %   fig_name    Name of figure to be created  e.g. 'Genie 1D'
 %               Default is 'Herbert'
 %
-%   new_figure  =true,false if a new figure with the desired name was
-%               created/already existed
+%   new_figure  =true  : a figure frame with the desired name was created
+%               =false : a figure with the desired name was available for plotting
+%                        (i.e. was not in the 'keep' state)
 
 % Based on routines taken from mslice
 
@@ -40,5 +41,5 @@ if isempty(fig)
 else
     % Figure already exists; by construction there can only be one
     new_figure = false;
-    figure(fig);
+    figure(fig);    % make the current figure
 end
