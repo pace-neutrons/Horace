@@ -32,6 +32,22 @@ pp1=IX_dataset_2d(x,y,ss1,ee1,'pnt-pnt',IX_axis('Energy transfer','meV','$w'),'s
 pp2=IX_dataset_2d(xb,y,ss1,ee1,'hist-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
 pp3=IX_dataset_2d(xb,yb,ss1,ee1,'hist-hist',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
 
+%% Massive arrays of objects
+
+tic
+nw=500;
+nx0=500;
+nx=nx0+round(nx0*rand(nw,1));
+p1big=repmat(IX_dataset_1d,nw,1);
+for i=1:nw
+    x=nx(i)*sort(rand(1,nx(i)));
+    y=3*(i+rand(1,nx(i)));
+    e=0.5+rand(1,nx(i));
+    p1big(i)=IX_dataset_1d(x,y,e,'Point data, not distribution',IX_axis('Energy transfer','meV','$w'),'Counts',false);
+end
+toc
+
+
 %% mgenie objects
 sp1=spectrum(x,y1,e1);
 sp2=spectrum(x,y2,e2);
