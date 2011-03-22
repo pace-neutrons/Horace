@@ -1,7 +1,10 @@
-function [xb,output]=bin_boundaries(xc)
+function [xb,output]=bin_boundaries_opt(xc)
 % Get best estimate of bin boundaries as a row vector
 %
 %   >> xb=bin_boundaries(xc)
+%
+%       xc  Vector of point positions
+%       xb  Vector of bin boundaries; same orientation (i.e row or column) as input
 %
 % Does some elementary checks on the input bin centres (more than one, strictly monotonic increasing)
 % and checks if all equally spaced.
@@ -11,13 +14,16 @@ function [xb,output]=bin_boundaries(xc)
 if numel(xc)<=1
     error('Must have at least two bin centres')
 end
+if ~isvector(xc)
+    error('Input array must be a vector')
+end
 del=diff(xc);
 if any(del<=0);
     error('Bin centres must be strictly monotonic increasing')
 end
 
 if all(del==del(1))
-    xb=[xc(:)-del(1)/2;xc(end)+del(1)/2]';
+    xb=[xc(:)-del(1)/2;xc(end)+del(1)/2];
     output=[];
 else
     del_max=xc(2)-xc(1);    % Maximum possible value for half width of first bin
@@ -30,8 +36,8 @@ else
     elseif any(diff(xb)<=0)
         error('Solution for bin boundaries not strictly monotonic')
     end
-    xb=xb';
 end
+if size(xc,1)==1, xb=xb'; end
 
 %========================================================================================
 function [dev,xb]=bin_boundaries_special(xc,del)

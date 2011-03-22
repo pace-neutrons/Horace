@@ -19,12 +19,17 @@ for i=1:nw
     yb=zeros(1,2*ny);    % y array for plotting histograms
 
     if (nx==ny)         % point data
-        del0=0.5*(w(i).x(2)-w(i).x(1));
-        xb(1)=w(i).x(1)-del0;
-        xb(2:2:2*ny-2)=0.5*(w(i).x(2:ny)+w(i).x(1:ny-1));
-        xb(3:2:2*ny-1)=0.5*(w(i).x(2:ny)+w(i).x(1:ny-1));
-        del1=0.5*(w(i).x(ny)-w(i).x(ny-1));
-        xb(2*ny)=w(i).x(ny)+del1;
+        if nx>1
+            del0=0.5*(w(i).x(2)-w(i).x(1));
+            xb(1)=w(i).x(1)-del0;
+            xb(2:2:2*ny-2)=0.5*(w(i).x(2:ny)+w(i).x(1:ny-1));
+            xb(3:2:2*ny-1)=0.5*(w(i).x(2:ny)+w(i).x(1:ny-1));
+            del1=0.5*(w(i).x(ny)-w(i).x(ny-1));
+            xb(2*ny)=w(i).x(ny)+del1;
+        else
+            xb=w(i).x+[-0.5,0.5];   % give it a false bin width of unity
+            yb=[w(i).signal,w(i).signal];
+        end
     else
         xb(1)=w(i).x(1);
         xb(2:2:2*ny-2)=w(i).x(2:ny);

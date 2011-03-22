@@ -1,4 +1,4 @@
-function [fig_, axes_, plot_, ok, mess] = plot_oned (w_in, varargin)
+function [fig_, axes_, plot_, ok, mess] = plot_twod (w_in, varargin)
 % Draw a oneD plot
 %
 %   >> plot_oned (w_in, xlo, xhi)
@@ -8,20 +8,14 @@ function [fig_, axes_, plot_, ok, mess] = plot_oned (w_in, varargin)
 %   Valid keywords and values
 %       'name'      Name of figure window
 %       'newplot'   True if new window to be created, false if use existing window if possible
-%       'type'      'e'     errors =  error bars
-%                   'h'     histogram =  histogram plot
-%                   'l'     line   =  line
-%                   'm'     markers = marker symbols
-%                   'd'     data   =  markers, error bars, lines
-%                   'p'     points =  markers and error bars
+%       'type'      'area'      area plot
+%                   'surface'   surface plot
 
-plot_types={'errors','histogram','line','markers','data','points'};
-default_fig_name=get_global_var('genieplot','name_oned');
-default_plot_type='data';
+plot_types={'area','surface','contour'};
 
-arglist = struct('name',default_fig_name,...
+arglist = struct('name','',...
     'newplot',true,...
-    'type',default_plot_type);
+    'type','');
 
 [par,keyword] = parse_arguments(varargin,arglist);
 
@@ -31,21 +25,9 @@ ok=true; mess='';
 % Check input arguments
 % ---------------------
 % Check spectrum is not too long an array
-maxspec=get_global_var('genieplot','oned_maxspec');
+maxspec=get_global_var('genieplot','twod_maxspec');
 if numel(w_in)>maxspec
-    ok=false; mess=['This function can only be used to plot ',num2str(maxspec),' spectra - check input object'];
-    if nargout<=3, error(mess), else return, end
-end
-
-% Get figure name: if not given, use default one-dimensional plot name
-if isstring(keyword.name)
-    if ~isempty(keyword.name)
-        fig_name=keyword.name;
-    else
-        fig_name=default_fig_name;
-    end
-else
-    ok=false; mess='Figure name must be a character string';
+    ok=false; mess=['This function can only be used to plot ',num2str(maxspec),' 2D datasets - check input object'];
     if nargout<=3, error(mess), else return, end
 end
 
@@ -68,10 +50,29 @@ if isstring(keyword.type)
             if nargout<=3, error(mess), else return, end
         end
     else
-        plot_type=default_plot_type;
+        ok=false; mess='Plot type not given';
+        if nargout<=3, error(mess), else return, end
     end
 else
     ok=false; mess='Plot type must be a character string';
+    if nargout<=3, error(mess), else return, end
+end
+
+% Get figure name: if not given, use appropriate default two-dimensional plot name
+if isstring(keyword.name)
+    if ~isempty(keyword.name)
+        fig_name=keyword.name;
+    else
+        if plot_type(1)=='a'        % area plot
+            fig_name=get_global_var('genieplot','name_area');
+        elseif plot_type(1)=='s'    % surface plot
+            fig_name=get_global_var('genieplot','name_surface');
+        elseif plot_type(1)=='c'    % surface plot
+            fig_name=get_global_var('genieplot','name_contour');
+        end
+    end
+else
+    ok=false; mess='Figure name must be a character string';
     if nargout<=3, error(mess), else return, end
 end
 
@@ -79,7 +80,7 @@ end
 if isempty(par)
     xlims=false;
     ylims=false;
-elseif numel(par)==2||numel(par)==4
+elseif numel(par)==2||numel(par)==4||numel(par)==6
     bad=false;
     xlims=true;
     if isnumeric(par{1}) && isscalar(par{1}), xlo=par{1}; else bad=true; end
@@ -91,6 +92,13 @@ elseif numel(par)==2||numel(par)==4
     else
         ylims=false;
     end
+    if numel(par)==6
+        zlims=true;
+        if isnumeric(par{5}) && isscalar(par{5}), zlo=par{5}; else bad=true; end
+        if isnumeric(par{6}) && isscalar(par{6}), zhi=par{6}; else bad=true; end
+    else
+        zlims=false;
+    end
     if bad
         ok=false; mess='Plot limits must be numeric scalars';
         if nargout<=3, error(mess), else return, end
@@ -98,11 +106,14 @@ elseif numel(par)==2||numel(par)==4
         ok=false; mess='Plot limits along x axis must have xlo < xhi';
         if nargout<=3, error(mess), else return, end
     elseif ylims && ylo>=yhi
-        ok=false; mess='Plot limits along signal axis must have ylo < yhi';
+        ok=false; mess='Plot limits along y-axis must have ylo < yhi';
+        if nargout<=3, error(mess), else return, end
+    elseif zlims && zlo>=zhi
+        ok=false; mess='Plot limits along signal axis must have zlo < zhi';
         if nargout<=3, error(mess), else return, end
     end
 else
-    ok=false; mess='Check numer of plot limits (must be none, xlo & xhi, or xlo,xhi,ylo & yhi)';
+    ok=false; mess='Check numer of plot limits';
     if nargout<=3, error(mess), else return, end
 end
 
@@ -124,58 +135,50 @@ else
 end
 
 % Make a copy of w_in for manipulations inside plot routines
-binning=get_global_var('genieplot','oned_binning');
-if binning <= 1   % accepts value of zero
+nsmooth=get_global_var('genieplot','twod_nsmooth');
+if nsmooth == 0
     w = w_in;
 else
-    w = w_in; % *** UNTIL SORT OUT REBUNCH
-    %    w = rebunch(w_in,genie_binning);
+    w = w_in; % *** UNTIL SORT OUT SMOOTHING
 end
 
 % Plot data (already checked that it is valid)
-if plot_type(1)=='e'
-    plot_errors (w)
-elseif plot_type(1)=='h'
-    plot_histogram (w);
-elseif plot_type(1)=='l'
-    plot_line (w)
-elseif plot_type(1)=='m'
-    plot_markers (w)
-elseif plot_type(1)=='d'
-    plot_markers (w)
-    hold on
-    plot_errors (w)
-    plot_line (w)
-elseif plot_type(1)=='p'
-    plot_markers (w)
-    hold on
-    plot_errors (w)
+if plot_type(1)=='a'        % area plot
+    plot_area (w)
+elseif plot_type(1)=='s'    % surface plot
+    plot_surface (w);
+elseif plot_type(1)=='c'    % contour plot
+    plot_contour (w);
 end
-hold off    % release plot (could have been held for overplotting, or by 'dd' for example
+hold off    % release plot
 
 % Create/change title if a new plot
 if (newplot)
-    [tx,ty]=make_label(w(1));  % Create axis annotations
-    tt=[w(1).title(:);['Plot binning = ',num2str(binning)]];
+    [tx,ty,tz]=make_label(w(1));  % Create axis annotations
+    tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
     % change titles:
     title(tt);
     xlabel(tx);
     ylabel(ty);
-    % calculate space for titles:
-    nt = numel(tt);
-    nx = numel(tx);
-    ny = numel(ty);
-    % units per single height of line (quick fix assuming default aspect ratio and font size)
-    h = 0.03833;
-    % allow for up to 4 lines in tx and ty, and 5 lines in tt:
-    xplo=min(0.13+(ny-1)*h,0.245);  yplo=min(0.11+(nx-1)*h,0.225);  xphi=0.905;   yphi=max(0.925-(nt-1)*h,0.772);
-    pos = [xplo,yplo,xphi-xplo,yphi-yplo];
-    set(gca,'position',pos)
+    if ~plot_type(1)=='a'   % don't try to plot along z axis if just an area plot
+        zlabel(tz)
+    end
+%     % calculate space for titles:
+%     nt = numel(tt);
+%     nx = numel(tx);
+%     ny = numel(ty);
+%     % units per single height of line (quick fix assuming default aspect ratio and font size)
+%     h = 0.03833;
+%     % allow for up to 4 lines in tx and ty, and 5 lines in tt:
+%     xplo=min(0.13+(ny-1)*h,0.245);  yplo=min(0.11+(nx-1)*h,0.225);  xphi=0.905;   yphi=max(0.925-(nt-1)*h,0.772);
+%     pos = [xplo,yplo,xphi-xplo,yphi-yplo];
+%     set(gca,'position',pos)
 end
 
 % Change limits if they are provided
 if xlims, lx(xlo,xhi), end
 if ylims, ly(ylo,yhi), end
+if zlims, lz(zlo,zhi), end
 
 % Get fig, axes and plot handles
 [fig_, axes_, plot_] = genie_figure_all_handles;

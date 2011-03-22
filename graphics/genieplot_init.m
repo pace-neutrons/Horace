@@ -14,6 +14,9 @@ genieplot.zscale = 'linear';
 genieplot.oned_maxspec = 1000;
 genieplot.oned_binning = 1;
 
+genieplot.twod_maxspec = 1000;
+genieplot.twod_nsmooth = 0;
+
 % Initialise default figure names
 genieplot.name_oned = 'Herbert 1D plot';
 genieplot.name_multiplot = 'Herbert multiplot';
