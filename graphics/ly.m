@@ -1,5 +1,5 @@
 function ly (ylo, yhi)
-% Change limits current figure
+% Change y limits current figure
 %
 %   >> ly (ylo, yhi)
 % or

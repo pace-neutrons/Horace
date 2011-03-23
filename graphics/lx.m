@@ -1,5 +1,5 @@
 function lx (xlo, xhi)
-% Change limits current figure
+% Change x limits current figure
 %
 %   >> lx (xlo, xhi)
 % or

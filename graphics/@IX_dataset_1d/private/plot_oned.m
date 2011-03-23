@@ -59,7 +59,7 @@ end
 
 % Get plot type
 if isstring(keyword.type)
-    if ~isempty(keyword.name)
+    if ~isempty(keyword.type)
         ind=string_find(keyword.type,plot_types);
         if ind>0
             plot_type=plot_types{ind};
