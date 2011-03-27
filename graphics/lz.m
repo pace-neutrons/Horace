@@ -17,7 +17,11 @@ end
 % Get z range
 if nargin ==0
     % Get z axis limits for entire data range
-    [xrange,yrange,ysubrange,zrange_dummy,zrange] = graph_range(gcf);
+    [xrange,yrange,ysubrange,zrange_dummy,zrange,crange] = graph_range(gcf);
+    if isempty(zrange)
+        set (gca, 'CLim', crange);  % assume that crange is axis to be changed (area plot)
+        return
+    end
 
 elseif nargin ==2
     % Read parameters from either function syntax or command syntax

@@ -26,8 +26,6 @@ end
 
 xlim=get(axes_h,'XLim');
 ylim=get(axes_h,'YLim');
-zlim=get(axes_h,'ZLim');
-clim=get(axes_h,'CLim');
 xlo = Inf; xhi = -Inf;
 ylo = Inf; yhi = -Inf;
 zlo = Inf; zhi = -Inf;
@@ -49,14 +47,16 @@ for i=1:numel(plot_h)
     ymin = min(min(ydata(ok_x)),ymin);
     ymax = max(max(ydata(ok_x)),ymax);
     if ~strcmp(plot_type{i},'line')
-        zpresent=true;
         zdata = get(plot_h(i),'ZData');
-        zlo = min(min(zdata(:)),zlo);
-        zhi = max(max(zdata(:)),zhi);
-        % Get z limits in the present x-range and y-range
-        ok_y = ydata>=ylim(1) & ydata<=ylim(2);
-        zmin = min(min(zdata(ok_x&ok_y)),zmin);
-        zmax = max(min(zdata(ok_x&ok_y)),zmax);
+        if ~isempty(zdata)
+            zpresent=true;
+            zlo = min(min(zdata(:)),zlo);
+            zhi = max(max(zdata(:)),zhi);
+            % Get z limits in the present x-range and y-range
+            ok_y = ydata>=ylim(1) & ydata<=ylim(2);
+            zmin = min(min(zdata(ok_x&ok_y)),zmin);
+            zmax = max(min(zdata(ok_x&ok_y)),zmax);
+        end
     end
     if isprop(plot_h(i),'CData')
         cpresent=true;
