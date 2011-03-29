@@ -1,5 +1,5 @@
 function [xlabel,ylabel,zlabel,slabel]=make_label(w)
-% Create axis annotations from IX_dataset_2d object. All outputs are cellstr.
+% Create axis annotations from IX_dataset_3d object. All outputs are cellstr.
 %
 %   >> [xlabel,ylabel,slabel]=make_label(w)
 
