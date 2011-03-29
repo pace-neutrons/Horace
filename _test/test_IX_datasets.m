@@ -4,6 +4,8 @@ x=20*sort(rand(1,20));
 xb=20*sort(rand(1,21));
 y=15*sort(rand(1,15));
 yb=15*sort(rand(1,16));
+z=10*sort(rand(1,10));
+zb=10*sort(rand(1,11));
 
 y1=5*(0.5+rand(1,20));
 e1=0.5+rand(1,20);
@@ -18,6 +20,8 @@ ss2=5*(0.5+rand(20,15));
 ee2=0.5+rand(20,15);
 ss3=5*(0.5+rand(20,15));
 ee3=0.5+rand(20,15);
+sss1=5*(0.5+rand(20,15,10));
+eee1=0.5+rand(20,15,10);
 
 % Herbert objects
 p1=IX_dataset_1d(x,y1,e1,'Point data, not distribution',IX_axis('Energy transfer','meV','$w'),'Counts',false);
@@ -32,6 +36,9 @@ h3=IX_dataset_1d(xb,y3,e3,'Histogram data, distribution',IX_axis('Energy transfe
 pp1=IX_dataset_2d(x,y,ss1,ee1,'pnt-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
 hp1=IX_dataset_2d(xb,y,ss1,ee1,'hist-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
 hh1=IX_dataset_2d(xb,yb,ss1,ee1,'hist-hist',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
+
+ppp1=IX_dataset_3d(x,y,z,sss1,eee1,'pnt-pnt-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','temperature','Counts',...
+    true,false,false);
 
 %% Massive arrays of objects
 

@@ -1,6 +1,6 @@
 NOT COMPLETE
-- plot_area first draft; no colorbar, polishing of limits, axes box seems to be half missing
+- plot_area first draft; no polishing of limits, axes box seems to be half missing
 
 - smoothing not implemented
 
-- plot_area, plot_surface, plot_contour not written
+- plot_surface, plot_contour not written

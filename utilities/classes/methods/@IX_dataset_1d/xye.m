@@ -4,9 +4,7 @@ function d=xye(w)
 %   >> d=xye(w)
 %
 % Fields are:
-%   d.x     x values
-%           - array same size as y and e (if x one dimensional)
-%           - cell array of arrays, one per x dimension (if x is multi-dimensional)
+%   d.x     x values (array same size as y and e arrays)
 %   d.y     y values
 %   d.e     st, deviations
 %

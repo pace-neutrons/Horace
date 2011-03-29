@@ -40,15 +40,20 @@ function [ok, message, wout] = checkfields (w)
 %   y                   double          -|
 %   y_axis              IX_axis          |- same as above but for y-axis
 %   y_distribution      logical         -|
+%
+%   z                   double          -|
+%   z_axis              IX_axis          |- same as above but for z-axis
+%   z_distribution      logical         -|
 
 % Original author: T.G.Perring
 
 % We will allow the following changes:
-%   - x, y, signal, error arrays can be columns; will be converted to rows
-%   - s_axis, x_axis, y_axis can be character arrays or cell arrays, in which case replaced by IX_axis(s_axis), IX_axis(x_axis)
-%   - x_distribution, y_distribution can be numeric 0 or 1
+%   - x, y, z, signal, error arrays can be columns; will be converted to rows
+%   - s_axis, x_axis, y_axis z_axis can be character arrays or cell arrays, in which case replaced by
+%     IX_axis(s_axis), IX_axis(x_axis), IX_axis(z_axis)
+%   - x_distribution, y_distribution, z_distribution can be numeric 0 or 1
 
-fields = {'title';'signal';'error';'s_axis';'x';'x_axis';'x_distribution';'y';'y_axis';'y_distribution'};  % column
+fields = {'title';'signal';'error';'s_axis';'x';'x_axis';'x_distribution';'y';'y_axis';'y_distribution';'z';'z_axis';'z_distribution'};  % column
 
 ok=false;
 message='';
@@ -62,11 +67,11 @@ if isequal(fieldnames(w),fields)
     else
         message='Title must be character array or cell array of strings'; return
     end
-    if ~isa(w.signal,'double')||numel(size(w.signal))~=2||~isa(w.error,'double')||numel(size(w.error))~=2
-        message='Signal and error arrays must be two-dimensional double precision arrays'; return
+    if ~isa(w.signal,'double')||numel(size(w.signal))~=3||~isa(w.error,'double')||numel(size(w.error))~=3
+        message='Signal and error arrays must be three-dimensional double precision arrays'; return
     end
-    if ~isa(w.x,'double')||~isvector(w.x)||~isa(w.y,'double')||~isvector(w.y)
-        message='x-axis values and y-axis values must be double precision vectors'; return
+    if ~isa(w.x,'double')||~isvector(w.x)||~isa(w.y,'double')||~isvector(w.y)||~isa(w.z,'double')||~isvector(w.z)
+        message='x-axis, y-axis and z-axis values must be double precision vectors'; return
     end
     if numel(w.signal)~=numel(w.error)
         message='Number of elements in signal and error arrays must be the same'; return
@@ -76,6 +81,9 @@ if isequal(fieldnames(w),fields)
     end
     if ~(numel(w.y)==size(w.signal,2)||numel(w.y)==size(w.signal,2)+1)
         message='Check lengths of y-axis and second dimension of signal array are compatible'; return
+    end
+    if ~(numel(w.z)==size(w.signal,3)||numel(w.z)==size(w.signal,3)+1)
+        message='Check lengths of z-axis and third dimension of signal array are compatible'; return
     end
     if ischar(w.s_axis)||iscellstr(w.s_axis)
         wout.s_axis=IX_axis(w.s_axis);
@@ -92,6 +100,11 @@ if isequal(fieldnames(w),fields)
     elseif ~isa(w.y_axis,'IX_axis')
         message='y-axis annotation must be character array or IX_axis object (type help IX_axis)'; return
     end
+    if ischar(w.z_axis)||iscellstr(w.z_axis)
+        wout.z_axis=IX_axis(w.z_axis);
+    elseif ~isa(w.z_axis,'IX_axis')
+        message='z-axis annotation must be character array or IX_axis object (type help IX_axis)'; return
+    end
     if (islogical(w.x_distribution)||isnumeric(w.x_distribution))&&isscalar(w.x_distribution)
         if isnumeric(w.x_distribution)
             wout.x_distribution=logical(w.x_distribution);
@@ -106,8 +119,16 @@ if isequal(fieldnames(w),fields)
     else
         message='Distribution type along y-axis must be true or false'; return
     end
+    if (islogical(w.z_distribution)||isnumeric(w.z_distribution))&&isscalar(w.z_distribution)
+        if isnumeric(w.z_distribution)
+            wout.z_distribution=logical(w.z_distribution);
+        end
+    else
+        message='Distribution type along y-axis must be true or false'; return
+    end
     if size(w.x,2)==1, wout.x=w.x'; end
     if size(w.y,2)==1, wout.y=w.y'; end
+    if size(w.z,2)==1, wout.z=w.z'; end
 else
     message='Fields inconsistent with class type';
     return

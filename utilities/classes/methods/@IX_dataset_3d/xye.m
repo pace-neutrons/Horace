@@ -1,5 +1,5 @@
 function d=xye(w)
-% Return a structure containing unmasked x,y,e arrays for an array of IX_dataset_2d objects
+% Return a structure containing unmasked x,y,e arrays for an array of IX_dataset_3d objects
 %
 %   >> d=xye(w)
 %

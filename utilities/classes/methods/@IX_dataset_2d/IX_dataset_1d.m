@@ -1,7 +1,7 @@
 function w1 = IX_dataset_1d(w2)
-% Create an array of IX_dataset_1d object from an array of IX_dataset_1d objects
+% Create an array of IX_dataset_1d object from an array of IX_dataset_2d objects
 %
-%   >> w2 = IX_dataset_2d (w1)
+%   >> w1 = IX_dataset_1d (w2)
 
 nw2=numel(w2);
 nw1=zeros(nw2,1);
