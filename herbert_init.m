@@ -26,7 +26,7 @@ addpath_message (rootpath,'classes','ops');
 addgenpath_message (rootpath, 'utilities')
 
 % Graphics
-addpath_message (rootpath,'graphics')
+addgenpath_message (rootpath,'graphics')
 genieplot_init
 
 

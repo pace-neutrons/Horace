@@ -24,6 +24,7 @@ genieplot.name_stem = 'Herbert stem plot';
 genieplot.name_area = 'Herbert area plot';
 genieplot.name_surface = 'Herbert surface plot';
 genieplot.name_contour = 'Herbert contour plot';
+genieplot.name_sliceomatic = 'Sliceomatic';
 
 % Set global variable
 set_global_var('genieplot',genieplot)
