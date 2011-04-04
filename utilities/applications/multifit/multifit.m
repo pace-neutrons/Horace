@@ -2,6 +2,8 @@ function varargout = multifit(varargin)
 % Find best fit of a parametrised function to data. Works for arbitrary 
 % number of dimensions. Various keywords control output.
 %
+% The data can be x,y,e arrays or objects of a class.
+%
 % Simultaneously fit several objects to a given function:
 %   >> [wout, fitdata] = multifit (w, func, pin)                 % all parameters free
 %   >> [wout, fitdata] = multifit (w, func, pin, pfree)          % selected parameters free to fit
@@ -50,7 +52,7 @@ function varargout = multifit(varargin)
 %       e       Array of the corresponding error bars. Must have same size as y.
 %   
 %   Alternatively:
-%   w       - Structure with fields w.x, w.y, w.e  with form described above  (this is a single dataset)
+%       w   - Structure with fields w.x, w.y, w.e  with form described above  (this is a single dataset)
 %           - Array of structures w(i).x, w(i).y, w(i).e  with form above (this defines several datasets)
 %           - Cell array of structures, each element a single dataset
 %           - Array of objects to be fitted.
@@ -66,25 +68,43 @@ function varargout = multifit(varargin)
 %           (2) A method that returns the intensity and variance arrays from the objects, along with
 %               a mask array that indicates which elements are to be ignored:
 %                   >> [y,var,msk] = sigvar_get(w)
-% 
-%           (3) Create a mask array given ranges of x-coordinates to keep &/or remove &/or &/or mask array
+%
+%           (3) A method that masks data points from further calculation:
+%                   >> wout = mask (win, mask_array)
+%               (elements of mask_array: 1 to keep a point, 0 to remove from fitting)
+%
+%           ($) *EITHER*
+%               A method that returns and array of the x values (one dimensional data) or
+%               a cell array of arrays of the the x1, x2, x3... values for every point
+%               in the object
+%                   >> x = sigvar_getx (w)
+%               (The size and shape of each of the x arrays must match those of the
+%                y and e arrays returned by sigvar_get, in point (2).)
+%
+%               *OR*
+%               Create a mask array given ranges of x-coordinates to keep &/or remove &/or &/or mask array
 %               Must output a logical flag ok, with message string if ~ok rather than terminate. (Can
 %               have it terminate if ok and mess are not given as return arguments; it is the advanced
 %               syntax that is required within multifit)
 %                   >> [sel, ok, mess] = mask_points (win, 'keep', xkeep, 'xremove', xremove, 'mask', mask)
-%
-%           (4) A method that masks data points from further calculation:
-%                   >> wout = mask (win, mask_array)
+%               (Normally this method would not be supplied sigvat_getx is easy to
+%                code, but special knowledge of the class could make mask_points more efficient.)
 %
 %           (5) If a background function is provided, addition of objects must be defined as
 %                   >> wsum = w1 + w2
 %               (requires overloading of the addition operator with a method named plus.m)
 %
 %   func    Function handle to function to be fitted to each of the objects.
-%           Must have form:
+%           If x,y,e or structure(s) with fields w.x,w.y,w.e, must have form:
+%               ycalc = my_function (x,p)
+%
+%             or, more generally:
+%               ycalc = my_function (x,p,c1,c2,...)
+%
+%           If objects, then:
 %               wcalc = my_function (w,p)
 %
-%            or, more generally:
+%             or, more generally:
 %               wcalc = my_function (w,p,c1,c2,...)
 %
 %               - p         a vector of numeric parameters that can be fitted
@@ -243,7 +263,7 @@ function varargout = multifit(varargin)
 %
 %   'mask'  Array, or cell array of arrays, of ones and zeros, with the same number
 %           of elements as the data arrays in the input object(s) in w. Indicates which
-%           of the data points are to be retained for fitting.
+%           of the data points are to be retained for fitting (1=keep, 0=remove).
 %
 %  'select' Calculates the returned function values, wout, only at the points
 %           that were selected for fitting by 'keep', 'remove', 'mask' and were
