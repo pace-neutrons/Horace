@@ -13,14 +13,8 @@ function herbert_init
 rootpath = fileparts(which('herbert_init'));
 addpath(rootpath)  % MUST have rootpath so that herbert_init, herbert_off included
 
-% class definitions
-addpath_message (rootpath,'classes','classdefs');
-
-% Methods definitions
-addpath_message (rootpath,'classes','methods');
-
-% Operator definitions
-addpath_message (rootpath,'classes','ops');
+% Class definitions, with methods and operator definitions
+addgenpath_message (rootpath,'classes');
 
 % Utilities definitions
 addgenpath_message (rootpath, 'utilities')
@@ -28,6 +22,9 @@ addgenpath_message (rootpath, 'utilities')
 % Graphics
 addgenpath_message (rootpath,'graphics')
 genieplot_init
+
+% Applications definitions
+addgenpath_message (rootpath, 'applications')
 
 
 %--------------------------------------------------------------------------

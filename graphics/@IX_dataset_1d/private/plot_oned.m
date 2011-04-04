@@ -37,23 +37,37 @@ if numel(w_in)>maxspec
     if nargout<=3, error(mess), else return, end
 end
 
-% Get figure name: if not given, use default one-dimensional plot name
+% Get newplot argument
+if islognumscalar(keyword.newplot)
+    newplot=logical(keyword.newplot);   % in case numeric 0 or 1
+else
+    ok=false; mess='Keyword ''newplot'' must be logical true or false';
+    if nargout<=3, error(mess), else return, end
+end
+
+% Get figure name or figure number: if not given, use default one-dimensional plot name
+% Only one of fig_name or fig_handle will be created - used to branch later on
 if isstring(keyword.name)
     if ~isempty(keyword.name)
         fig_name=keyword.name;
     else
         fig_name=default_fig_name;
     end
+elseif isnumeric(keyword.name) && isscalar(keyword.name) && ~newplot
+    tmp_fig_name = genie_figure_name(keyword.name);
+    if ~isempty(tmp_fig_name)
+        fig_handle=keyword.name;
+    else    % figure doesnt exist
+        disp('The numbered figure does not exist; following default overplotting action')
+        fig_name=default_fig_name;
+    end
 else
-    ok=false; mess='Figure name must be a character string';
-    if nargout<=3, error(mess), else return, end
-end
-
-% Get newplot argument
-if islognumscalar(keyword.newplot)
-    newplot=logical(keyword.newplot);   % in case numeric 0 or 1
-else
-    ok=false; mess='Keyword ''newplot'' must be logical true or false';
+    ok=false; 
+    if newplot
+        mess='Figure name must be a character string for a new plot';
+    else
+        mess='Figure name must be a character string or figure number for overplotting';
+    end
     if nargout<=3, error(mess), else return, end
 end
 
@@ -111,9 +125,13 @@ end
 % ------------
 % Create new graphics window if one is not currently active, and make the current graphics window
 % Determine if newplot required (overrides any value given as keyword argument)
-new_figure = genie_figure_create (fig_name);
-if new_figure
-    newplot=true;  % if had to create a new figure window, then create axes etc.
+if exist('fig_name','var')
+    new_figure = genie_figure_create (fig_name);
+    if new_figure
+        newplot=true;   % if had to create a new figure window, then create axes etc.
+    end
+else
+    figure(fig_handle); % overplotting on existing plot; make the current figure
 end
 
 % If newplot, delete any axes
