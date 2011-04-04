@@ -51,5 +51,7 @@ else
 end
 
 % Change limits
+if xrange(1)>=xrange(2)
+    error('Check xlo < xhi')
+end
 set (gca, 'XLim', xrange);
-

@@ -51,4 +51,7 @@ else
 end
 
 % Change limits
+if crange(1)>=crange(2)
+    error('Check clo < chi')
+end
 set (gca, 'CLim', crange);

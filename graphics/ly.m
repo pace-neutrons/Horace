@@ -51,4 +51,7 @@ else
 end
 
 % Change limits
+if yrange(1)>=yrange(2)
+    error('Check ylo < yhi')
+end
 set (gca, 'YLim', yrange);

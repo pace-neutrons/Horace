@@ -55,4 +55,7 @@ else
 end
 
 % Change limits
+if zrange(1)>=zrange(2)
+    error('Check zlo < zhi')
+end
 set (gca, 'ZLim', zrange);

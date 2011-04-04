@@ -40,6 +40,36 @@ hh1=IX_dataset_2d(xb,yb,ss1,ee1,'hist-hist',IX_axis('Energy transfer','meV','$w'
 ppp1=IX_dataset_3d(x,y,z,sss1,eee1,'pnt-pnt-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','temperature','Counts',...
     true,false,false);
 
+%% Another set of Herbert objects
+nx1=16;   ny1=12;
+x_1=nx1*sort(rand(1,nx1));
+y_1=ny1*sort(rand(1,ny1));
+
+nx2=20;   ny2=9;
+x_2=nx2*sort(rand(1,nx2));
+y_2=ny2*sort(rand(1,ny2))+ny1+2;
+
+nx3=12;   ny3=16;
+x_3=nx3*sort(rand(1,nx3));
+y_3=ny3*sort(rand(1,ny3))+ny1+ny2+5;
+
+ss1_1=5*(0.5+rand(nx1,ny1));
+ee1_1=0.5+rand(nx1,ny1);
+
+ss1_2=5*(0.5+rand(nx2,ny2));
+ee1_2=0.5+rand(nx2,ny2);
+
+ss1_3=5*(0.5+rand(nx3,ny3));
+ee1_3=0.5+rand(nx3,ny3);
+
+pp1_1=IX_dataset_2d(x_1,y_1,ss1_1,ee1_1,'pnt-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
+
+pp1_2=IX_dataset_2d(x_2,y_2,ss1_2,ee1_2,'pnt-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
+
+pp1_3=IX_dataset_2d(x_3,y_3,ss1_3,ee1_3,'pnt-pnt',IX_axis('Energy transfer','meV','$w'),'spectrum','Counts',true,false);
+
+
+
 %% Massive arrays of objects
 
 tic
