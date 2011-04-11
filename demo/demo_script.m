@@ -64,7 +64,7 @@ end
 spe_file{4}=fullfile(indir,['MAP',num2str(11012+(2*4)),'.spe_h5']);
 % Create sqw file
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-         u, v, psi, omega, dpsi, gl, gs);
+              u, v, psi, omega, dpsi, gl, gs);
 
 % ---------------------------------------     
 % If the intermediate files (extensions .tmp) are all created, but the sqw

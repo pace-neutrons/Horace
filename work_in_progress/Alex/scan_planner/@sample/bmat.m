@@ -1,11 +1,13 @@
-function [b, arlu, angrlu, mess] = bmat (alatt, angdeg)
+function [b, arlu, angrlu] = bmat (this)
 % Calculate B matrix of Busing and Levy, returning also the reciprocal
-% lattice vector in Angstrom^-1 and the reciprocal lattice angles in degrees
+% lattice vector in Angstrom^-1 and the reciprocal lattice angles are in
+% radians
 %
 % Syntax:
-%   >> b = bmat(alatt, ang)
-%   >> [b, arlu, angrlu] = bmat(alatt, ang)
+%   >> b = bmat(crystal)
+%   >> [b, arlu, angrlu] = bmat(this)
 %
+% uses 
 % Input:
 % ------
 %   alatt   vector containing lattice parameters (Ang) [row or column vector]
@@ -30,29 +32,15 @@ function [b, arlu, angrlu, mess] = bmat (alatt, angdeg)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 301 $ ($Date: 2009-11-03 20:52:59 +0000 (Tue, 03 Nov 2009) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
-
-if max(angdeg)>=180 || min(angdeg)<=0
-    b = [];
-    arlu = [];
-    angrlu = [];
-    mess = 'ERROR: Check lattice angles';
-    return
-elseif min(alatt)<= 0
-    b = [];
-    arlu = [];
-    angrlu = [];
-    mess = 'ERROR: Check lattice parameters';
-    return
-end
-
-
 %-----------------------
+
+alatt = this.lattice_param;
+ang = this.lattice_angles*(pi/180);
 try
-ang = angdeg*(pi/180);
 %  auxiliary matrix describing the volume of a bravice cell and some its
 %  symmetries
 a = [      1     , cos(ang(3)), cos(ang(2));...
@@ -81,14 +69,12 @@ if nargout >= 3
     angrlu = [aa, bb, cc]*(180/pi);
 end
 
-if nargout >= 4
-    mess = '';
-end
+
 
 %-----------------------
-catch
+catch err
     b = [];
     arlu = [];
     angrlu = [];
-    mess = 'ERROR: Unable to calculate b-matrix - check lattice parameters';
+    error('Crystal-Bmatrix: Unable to calculate b-matrix - check lattice parameters: error %s',err.message);
 end

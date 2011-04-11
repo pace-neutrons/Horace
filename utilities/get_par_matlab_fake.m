@@ -18,22 +18,26 @@ function par=get_par_matlab_fake(filename)
 %
 % $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 %
-% Ibon Bustinduy
 
-filename=strtrim(filename); % Remove blanks from beginning and end of filename
-if isempty(filename),
-   error('Filename is empty')
-end
-fid=fopen(filename,'rt');
-if fid==-1,
-   error(['Error opening file ',filename]);
-end
+% create dummy sqw object as par is currently an sqw method
+dummy=sqw();
 
-n=fscanf(fid,'%d \n',1);
-disp(['Loading .par file with ' num2str(n) ' detectors : ' filename]);
-temp=fgetl(fid);
-par=sscanf(temp,'%f');
-cols=length(par); % number of columns 5 or 6
-par=[par;fscanf(fid,'%f')];
-fclose(fid);
-par=reshape(par,cols,n);
+par=get_par(dummy,filename);
+
+% filename=strtrim(filename); % Remove blanks from beginning and end of filename
+% if isempty(filename),
+%    error('Filename is empty')
+% end
+% fid=fopen(filename,'rt');
+% if fid==-1,
+%    error(['Error opening file ',filename]);
+% end
+% 
+% n=fscanf(fid,'%d \n',1);
+% disp(['Loading .par file with ' num2str(n) ' detectors : ' filename]);
+% temp=fgetl(fid);
+% par=sscanf(temp,'%f');
+% cols=length(par); % number of columns 5 or 6
+% par=[par;fscanf(fid,'%f')];
+% fclose(fid);
+% par=reshape(par,cols,n);

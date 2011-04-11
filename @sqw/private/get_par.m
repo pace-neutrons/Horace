@@ -1,4 +1,4 @@
-function det=get_par(filename)
+function det=get_par(filename,varargin)
 % Load data from ASCII Tobyfit .par file
 %   >> det = get_par(filename)
 %
@@ -12,13 +12,14 @@ function det=get_par(filename)
 %                  (West bank=0 deg, North bank=90 deg etc.)
 %   det.width       Row vector of detector widths (m)
 %   det.height      Row vector of detector heights (m)
+%
+%  if varargin present, do not convert into detector structure but return
+%  initial array 
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 %
-% Ibon Bustinduy: catch with Matlab routine if fortran fails
-
 % If no input parameter given, return
 if ~exist('filename','var')
     help get_par;
@@ -48,12 +49,15 @@ if ~use_mex
     par=get_par_matlab(filename);
 end
 
-
-ndet=size(par,2);
-disp([num2str(ndet) ' detector(s)']);
-det.group=1:ndet;
-det.x2=par(1,:);
-det.phi=par(2,:);
-det.azim=-par(3,:); % Note sign change to get correct convention
-det.width=par(4,:);
-det.height=par(5,:);
+if nargin==1
+    ndet=size(par,2);
+    disp([num2str(ndet) ' detector(s)']);
+    det.group=1:ndet;
+    det.x2=par(1,:);
+    det.phi=par(2,:);
+    det.azim=-par(3,:); % Note sign change to get correct convention
+    det.width=par(4,:);
+    det.height=par(5,:);
+else
+    det=par;
+end
