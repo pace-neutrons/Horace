@@ -6,6 +6,25 @@ function varargout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,ou
 %
 % or as above with no output argument, so that final 4-dimensional object
 % is not retained in memory
+% 
+% Necessary input Arguments:
+% data_source  -- input sqw file
+% proj             --  the projection plane [proj.u, proj.v ] in the horace
+%                       meaning (see cut_sqw or gen_sqw) describing the
+%                       target sqw object
+% pos            --  three integer numbers, (e.g [0,0,0])  specifying the initial point
+%                       in reciprocal space (h,k,l)  which is a reference
+%                       point for the transformaton
+% qstep         --   3-vector or float describing delta Q in all 3 q-directions of the reciprocal
+%                       space. If one number is specified, the steps are
+%                       eqial in all 3 directions
+% egange      --   3-vector describing energy range and energy step of the
+%                       cut [e_min,e_step,e_max]
+% 
+% Output argument:
+% outfile        -- the file with target output data
+%
+% Additional input arguments describe the symmetrization operation. 
 %
 % Create a new sqw file which corresponds to just one Brillouin zone, but
 % with data from equivalent positions. Default choice is all equivalent
