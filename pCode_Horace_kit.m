@@ -18,9 +18,9 @@ deldir{3}='test';
 deldir{4}='work_in_progress';
 
 for i=1:numel(deldir)
-    dir = fullfile(fileroot,deldir{i});
-    if exist(dir,'dir')
-        rmdir(dir,'s');
+    diry = fullfile(fileroot,deldir{i});
+    if exist(diry,'dir')
+        rmdir(diry,'s');
     end
 end
 
@@ -47,6 +47,9 @@ for i=1:numel(filepath)
     generate_pcode(fullfile(fileroot,filepath{i}))
 end
 
+%RAE extra - need to get rid of .svn gubbins:
+cd(fileroot);
+delete *.bat
 
 % Finally, delete this file
 delete([fileroot filesep 'pCode_Horace_kit.m'])
