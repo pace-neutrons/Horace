@@ -19,7 +19,7 @@ for i=1:numel(psi_range)
 %extract 2D coordinates of these detectors belonging to the range;
 %    [lines{i,1},lines{i,2},lines{i,3}] = split_det(ucoords,block_nums,k_range);
 %    [x,y,z] = split_det(ucoords,block_nums,k_range);
-      ucoords(1:3,:)=u_to_
+      %ucoords(1:3,:)=u_to_
        x= ucoords(1,:)*u_to_rlu(1,1);
        y= ucoords(2,:)*u_to_rlu(2,2);       
         plot(x,y,'-g') ; 
