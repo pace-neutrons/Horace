@@ -25,8 +25,8 @@ addpath_message (1,rootpath,'functions');
 addpath_message(1,rootpath,'GUI');
 
 addpath_message (1,rootpath,'configuration');
-addpath_message (1,rootpath,'test');
-addpath_message (1,rootpath,'scan_planner');
+%addpath_message (1,rootpath,'test');
+%addpath_message (1,rootpath,'classes');
 %addpath_message (1,rootpath,'work_in_progress');   % not included in the distribution
 
 
