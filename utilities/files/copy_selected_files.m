@@ -4,6 +4,7 @@ function copy_selected_files (source, root_source, root_target, varargin)
 %   >> list = copy_selected_files (source, root_source, root_target)
 %   >> list = copy_selected_files (source, root_source, root_target, include)
 %   >> list = copy_selected_files (source, root_source, root_target, include, exclude)
+%   >> list = copy_selected_files (...,str_pattern, str_replace)
 %
 % Input:
 % --------
