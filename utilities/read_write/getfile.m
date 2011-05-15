@@ -47,7 +47,7 @@ elseif (nargin>0)
         elseif (length(findstr('*.',filterspec))>=1 & min(findstr('*.',filterspec))) % filterspec begins '*.', so assume extensions list
             filterspec_in = fullfile(path_save,filterspec);
         else                                             
-            [pathstr,name,ext,versn] = fileparts(filterspec);
+            [pathstr,name,ext] = fileparts(filterspec);
             if (isempty(pathstr))
                 filterspec_in = fullfile(path_save,filterspec);  % no path at front, so use the default path
             else

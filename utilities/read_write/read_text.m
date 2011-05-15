@@ -10,18 +10,9 @@ nlines = 10000;  % max. number of lines that can be read from file
 
 % Get file name - prompt if file does not exist (using file to set default seach location and extension)
 % ------------------------------------------------------------------------------------------------------
-% Get file name - prompt if file does not exist 
-if ~exist('file','var')
-    file_internal=getfile;
-    if isempty(file_internal), error('No file given'), end
-else
-    [file_internal,ok,mess]=translate_read(file);   % try to intepret as a file
-    if ~ok
-        file_internal=getfile(file);
-        if isempty(file_internal), error('No file given'), end
-    end
-end
-
+if ~exist('file','var'), file=''; end
+[file_internal,ok,mess]=getfilecheck(file);
+if ~ok, error(mess), end
 
 % Read data
 % -----------

@@ -1,0 +1,37 @@
+==============================================================
+Methods that are required for IX_dataset_1d
+==============================================================
+[Essentially created from mgenie_libisisver.
+Some of the methods are also in libisis; 
+check classes folder
+but also utilities\IXTdataset_1d]
+
+combine
+interp
+peak_cwhh
+unspike
+
+dist2cnt
+cnt2dist
+flip		* m + l
+hist2point	* m + l
+point2hist 	* not in mgenie, but is in libisis utilities
+
+fit 		* libisis only
+func_eval	* m + l
+
+read
+write
+read_ascii 	* I think there is a superior libisis method
+write_ascii
+
+deriv1		DONE	(called deriv)
+deriv2
+integrate
+rebin
+rebunch
+regroup
+scale 		* rescale the x-axis
+section 	* seems to be just like Horace section function
+shift		* shift along the x-axis
+smooth

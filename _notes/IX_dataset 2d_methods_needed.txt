@@ -1,0 +1,33 @@
+==============================================================
+Methods that are required for IX_dataset_2d
+==============================================================
+
+combine
+interp
+nois
+peak_cwhh
+unspike
+
+dist2cnt
+cnt2dist
+flip
+hist2point
+point2hist 	* not in mgenie, but is in libisis
+
+func_eval
+
+read
+write
+read_ascii 	* I think there is a superior libisis method
+write_ascii
+
+deriv1
+deriv2
+integrate
+rebin
+rebunch
+regroup
+scale 		* rescale the x-axis
+secxtion 	* seems to be just like Horace section function
+shift		* shift along the x-axis
+smooth

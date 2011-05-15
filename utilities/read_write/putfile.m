@@ -1,33 +1,33 @@
 function file_out = putfile (filterspec,dialogtitle)
-% Utility to get file name for input:  file_out = genie_putfile (filterspec,dialogtitle)
+% Utility to get file name for input:  file_out = putfile (filterspec,dialogtitle)
 %
 % It is identical to the Matlab built-in function uiputfile, except that
 %  - Returns filename including path; ='' if no file selected
 %
 %  - If a dialog box is opened, the default operation of uiputfile is altered:
-%    (1) the default directory is that of the file most recently selected by genie_putfile (if filespec is a simple string)
+%    (1) the default directory is that of the file most recently selected by putfile (if filespec is a simple string)
 %    (2) the default extension is *.* rather than Matlab files
 %    (3) it does not fail if dialogtitle is not a string
 %
 % Syntax:
-%   >> filename = genie_putfile (filterspec)
-%   e.g.    >> file = genie_putfile                          'Select File' box opened, default path is path
+%   >> filename = putfile (filterspec)
+%   e.g.    >> file = putfile                          'Select File' box opened, default path is path
 %                                                          of most recent file selected
 %
-%           >> file = genie_putfile ('c:\temp')              'Select File' box opened, default path is c:\temp\
+%           >> file = putfile ('c:\temp')              'Select File' box opened, default path is c:\temp\
 %
-%           >> file = genie_putfile ('*.spe')                 'Select File' box opened, default path is path
+%           >> file = putfile ('*.spe')                 'Select File' box opened, default path is path
 %                                                          of most recent file selected; default extension .spe
 %
-%           >> file = genie_putfile ('d:\data\*.spe')         'Select File' box opened, default path is d:\data\
+%           >> file = putfile ('d:\data\*.spe')         'Select File' box opened, default path is d:\data\
 %                                                          and default extension is .spe
 %
-%           >> file = genie_putfile ('c:\mprogs\add_spe.m')   Default file name
+%           >> file = putfile ('c:\mprogs\add_spe.m')   Default file name
 %
-%   >> filename = genie_putfile (filterspec, dialogtitle)     Title of 'Select File' box changed to dialogtitle
+%   >> filename = putfile (filterspec, dialogtitle)     Title of 'Select File' box changed to dialogtitle
 %
 %
-% See also genie_getfile (essentially the same as uigetfile)
+% See also getfile (essentially the same as uigetfile)
 
 % Code would be much neater if I knew how to pass an unknown length list of variables to a function
 
@@ -45,7 +45,7 @@ end
 
 % get file
 if (nargin==0)
-    [file,path] = uiputfile (fullfile(path_save,'*.*')); % default path is that when genie_putfile last used (cf current directory)
+    [file,path] = uiputfile (fullfile(path_save,'*.*')); % default path is that when putfile last used (cf current directory)
                                                          % no default extension (cf Matlab files)
 elseif (nargin>0)
     if (isa(filterspec,'char') & size(filterspec,1)==1)  % filterspec is a one-dimensional string array
@@ -54,7 +54,7 @@ elseif (nargin>0)
         elseif (length(findstr('*.',filterspec))>=1 & min(findstr('*.',filterspec))) % filterspec begins '*.', so assume extensions list
             filterspec_in = fullfile(path_save,filterspec);
         else                                             
-            [pathstr,name,ext,versn] = fileparts(filterspec);
+            [pathstr,name,ext] = fileparts(filterspec);
             if (isempty(pathstr))
                 filterspec_in = fullfile(path_save,filterspec); % no path at front, so use the default path
             else
@@ -78,7 +78,7 @@ elseif (nargin>0)
     end
 end
 
-% store path for future calls to genie_putfile if user did not select cancel
+% store path for future calls to putfile if user did not select cancel
 if (isequal(file,0) | isequal(path,0))
     file_out = '';
 else

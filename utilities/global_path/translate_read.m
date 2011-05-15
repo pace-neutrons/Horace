@@ -7,7 +7,6 @@ function [file_out,ok,mess] = translate_read (file)
 %   >> [file_out,ok,mess] = translate_read (file)   % return ok flag and non-empty message if ~ok
 
 if ~isempty(file) && ischar(file) && size(file,1)==1 && numel(size(file))==2
-    file_out='';
     ok=true;
     mess='';
     ind=strfind(file,':::');
@@ -23,19 +22,23 @@ if ~isempty(file) && ischar(file) && size(file,1)==1 && numel(size(file))==2
                         return
                     end
                 end
+                file_out='';
                 ok=false;
                 mess=['Cannot find file: ',file];
             else
+                file_out='';
                 ok=false;
                 mess=['Global path ''',pathname,''' is empty. Cannot resolve file name: ',file];
             end
         else
+            file_out='';
             ok=false;
             mess=['Global path ''',pathname,''' does not exist. Cannot resolve file name: ',file];
         end
     else
         file_out=file;  % assume file
         if ~(exist(file_out,'file')==2)
+            file_out='';
             ok=false;
             mess=['Cannot find file: ',file];
         end

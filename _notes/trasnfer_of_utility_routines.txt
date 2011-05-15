@@ -1,10 +1,13 @@
+Some notes on which routines have not been picked out of the utility routines in mgenie
+and Libisis, and the reasons why.
+
 ==============
 mgenie
 ==============
 
 boundaries   		==> bin_boundaries_simple
 
-getfilecheck 			Not clear if needed
+getfilecheck 			Extend the functionality
 putfilecheck			    "
 
 sum_dimensions 			Only used in Horace; can omit as included in Horace anyway
