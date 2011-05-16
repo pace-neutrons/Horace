@@ -40,7 +40,8 @@ if nargin==0
     w.y=[];
     w.y_axis=IX_axis;
     w.y_distribution=false;
-    w=class(w,'IX_dataset_2d');
+    [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
+    if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
     return
 end
 

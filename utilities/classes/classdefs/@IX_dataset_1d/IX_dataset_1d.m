@@ -24,7 +24,6 @@ function w = IX_dataset_1d(varargin)
 % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
 
 % Default class
-% (should make this call checkfields, but is so simple...)
 if nargin==0
     w.title={};
     w.signal=[];
@@ -33,7 +32,8 @@ if nargin==0
     w.x=[];
     w.x_axis=IX_axis;
     w.x_distribution=false;
-    w=class(w,'IX_dataset_1d');
+    [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
+    if ok, w=class(w,'IX_dataset_1d'); return, else error(mess); end
     return
 end
 

@@ -307,21 +307,26 @@ end
 
 % Return data
 if ~return_array
-    if ~
+    wref=read_header(header);
+    if isempty(wref.title),
+        wref.title = char(avoidtex(file_internal));
+    end
     if (xye)
-        w = IX_dataset_1d(a{col_x(1)}(1:nx)',a{col_y(1)}(1:ny)',a{col_e(1)}(1:ny)');
-        w.title = char(avoidtex(file_internal));
+        w = IX_dataset_1d(a{col_x(1)}(1:nx)',a{col_y(1)}(1:ny)',a{col_e(1)}(1:ny)',...
+                                    wref.title,wref.x_axis,wref.s_axis,wref.x_distribution);
         if nw>1
             for i=2:nw
-                w(i) = IX_dataset_1d(a{col_x(i)}(1:nx)',a{col_y(i)}(1:ny)',a{col_e(i)}(1:ny)');
+                w(i) = IX_dataset_1d(a{col_x(i)}(1:nx)',a{col_y(i)}(1:ny)',a{col_e(i)}(1:ny)',...
+                                    wref.title,wref.x_axis,wref.s_axis,wref.x_distribution);
             end
         end
     else
-        w = IX_dataset_1d(a{col_x(1)}(1:nx)',a{col_y(1)}(1:ny)',zeros(ny,1)');
-        w.title = char(avoidtex(file_internal));
+        w = IX_dataset_1d(a{col_x(1)}(1:nx)',a{col_y(1)}(1:ny)',zeros(ny,1)',...
+                                    wref.title,wref.x_axis,wref.s_axis,wref.x_distribution);
         if nw>1
             for i=2:nw
-                w(i) = IX_dataset_1d(a{col_x(i)}(1:nx)',a{col_y(i)}(1:ny)',zeros(ny,1)');
+                w(i) = IX_dataset_1d(a{col_x(i)}(1:nx)',a{col_y(i)}(1:ny)',zeros(ny,1)',...
+                                    wref.title,wref.x_axis,wref.s_axis,wref.x_distribution);
             end
         end
     end
@@ -333,12 +338,49 @@ if ~return_array
     if nx~=ny; type = 'histogram'; else type = 'point'; end;
     if xye; cols='x-y-e'; else cols='x-y'; end;
     if nw>1
-        disp(['Read ', num2str(nw),' datasets of ', cols, ' ', type,' data [', num2str(ny), ' signal-values]'])
+        disp(['Read ', num2str(nw),' datasets of ', cols, ' ', type,' data [', num2str(ny), ' signal values]'])
     else
-        disp(['Read one dataset of ', cols, ' ', type, ' data [', num2str(ny), ' signal-values]'])
+        disp(['Read one dataset of ', cols, ' ', type, ' data [', num2str(ny), ' signal values]'])
     end
 else
     disp (['Read array of data: ',num2str(size(w,2)),' columns, ',num2str(size(w,1)),' rows'])
+end
+
+end
+
+%==================================================================================================
+function w=read_header(header)
+% Read titling information from header, if possible
+w=IX_dataset_1d;
+if ~isempty(header)
+    tmp=get_labels_to_struct(header);
+    if isfield(tmp,'title'), w.title=tmp.title; end
+    try
+        s_axis=IX_axis;
+        if isfield(tmp,'signal_caption'), s_axis.caption=tmp.signal_caption; end
+        if isfield(tmp,'signal_units'), s_axis.units=tmp.signal_units; end
+        if isfield(tmp,'signal_code'), s_axis.code=tmp.signal_code; end
+        w.s_axis=s_axis;
+    catch
+        disp('Header information has wrong format to create signal axis labels')
+    end
+    try
+        x_axis=IX_axis;
+        if isfield(tmp,'x_caption'), x_axis.caption=tmp.x_caption; end
+        if isfield(tmp,'x_units'), x_axis.units=tmp.x_units; end
+        if isfield(tmp,'x_code'), x_axis.code=tmp.x_code; end
+        w.x_axis=x_axis;
+    catch
+        disp('Header information has wrong format to create x-axis labels')
+    end
+    if isfield(tmp,'x_distribution')
+        var=tmp.x_distribution;
+        if isstring(var) && numel(str2num(var))==1
+            w.x_distribution=str2num(var);
+        else
+            disp('Header information has wrong format to create x-axis distribution flag')
+        end
+    end
 end
 
 end

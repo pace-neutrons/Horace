@@ -1,11 +1,11 @@
 function [ok,mess] = save_ascii (w, file)
 % Writes IX_dataset_1d or array of IX_dataset_1d to an ascii file. 
 %
-%   >> write_ascii (w)           % prompts for file to write to
-%   >> write_ascii (w, file)     % write to named file
-%   >> write_ascii (w, fid)      % write to currently open text file
+%   >> save_ascii (w)           % prompts for file to write to
+%   >> save_ascii (w, file)     % write to named file
+%   >> save_ascii (w, fid)      % write to currently open text file
 %
-%   >> [ok,mess] = write_ascii (...)    % Return status and error message
+%   >> [ok,mess] = save_ascii (...)    % Return status and error message
 %                                       % (ok=true all fine, ok=false otherwise)
 %
 % If a histogram data set, the output file format is, for example:
@@ -58,14 +58,14 @@ if ~ok && nargout==0, error(mess), end
 % Write data to file
 % ------------------
 for i=1:length(w)
-    labels = struct_to_labels (struct('title',w(i).title));
-    x_axis= struct_to_labels (struct(w(i).x_axis));
+    labels = put_struct_to_labels (struct('title',w(i).title));
+    x_axis= put_struct_to_labels (struct(w(i).x_axis));
     for j=1:numel(x_axis)
-        x_axis{j}=['signal_',x_axis{j}];
+        x_axis{j}=['x_',x_axis{j}];
     end
     labels=[labels,x_axis];
-    labels = struct_to_labels (struct('x_distribution',w(i).x_distribution), labels);
-    s_axis= struct_to_labels (struct(w(i).s_axis));
+    labels = put_struct_to_labels (struct('x_distribution',w(i).x_distribution), labels);
+    s_axis= put_struct_to_labels (struct(w(i).s_axis));
     for j=1:numel(s_axis)
         s_axis{j}=['signal_',s_axis{j}];
     end
@@ -74,9 +74,9 @@ for i=1:length(w)
         fprintf(fid,'%-s\n',labels{j});
     end
     if length(w(i).x)==length(w(i).signal) % point data
-        fprintf (fid, '%30.16g %30.16g %30.16g \n', [w(i).x',w(i).signal',w(i).error']);
+        fprintf (fid, '%30.16g %30.16g %30.16g \n', [w(i).x; w(i).signal; w(i).error]);
     else
-        fprintf (fid, '%30.16g %30.16g %30.16g \n', [w(i).x(1:end-1)',w(i).signal',w(i).error']);
+        fprintf (fid, '%30.16g %30.16g %30.16g \n', [w(i).x(1:end-1); w(i).signal; w(i).error]);
         fprintf (fid, '%30.16g \n', w(i).x(end));
     end
 end

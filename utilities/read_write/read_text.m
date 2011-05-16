@@ -30,6 +30,7 @@ while (~finish)
         end
     else
         n = i - 1;  % no. lines read from file
+        tline=tline(1:end-1);
         finish = 1;
     end
 end

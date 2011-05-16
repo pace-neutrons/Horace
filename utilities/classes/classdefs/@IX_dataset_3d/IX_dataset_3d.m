@@ -33,7 +33,6 @@ function w = IX_dataset_3d(varargin)
 %   z_distribution      logical         -|
 
 % Default class
-% (should make this call checkfields, but is so simple...)
 if nargin==0
     w.title={};
     w.signal=[];
@@ -48,7 +47,8 @@ if nargin==0
     w.z=[];
     w.z_axis=IX_axis;
     w.z_distribution=false;
-    w=class(w,'IX_dataset_3d');
+    [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
+    if ok, w=class(w,'IX_dataset_3d'); return, else error(mess); end
     return
 end
 

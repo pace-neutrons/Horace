@@ -30,6 +30,16 @@ function [f,added] = get_labels_to_struct (fid, f_in)
 % T.G.Perring 5 Jan 2005: Created, based on label-reading code in mslice function LOAD_CUT (au. R.Coldea)
 %               May 2011: Renamed for consistency with other functions
 
+if ischar(fid) && numel(size(fid))~=2
+    error('Character array must be two-dimensional only')
+else
+    if iscellstr(fid)
+        nline=numel(fid);
+    else
+        nline=size(fid,1);
+    end
+end
+
 if nargin==1
     f = [];
     added=false;
@@ -38,7 +48,9 @@ elseif nargin==2 && isstruct(f_in)
     added=false;
 else
     error('Can only add fields to a structure')
+    
 end
+
 t = '';
 icount = 0;
 while (ischar(t))
@@ -73,14 +85,13 @@ while (ischar(t))
     if isnumeric(fid)
         t=fgetl(fid);
     elseif iscellstr(fid)||ischar(fid)
-        if iscellstr(fid)
-            str_array = fid;
-        else
-            str_array = cellstr(fid);
-        end
-        if icount < length(str_array)
+        if icount<nline
             icount = icount + 1;
-            t = char(str_array(icount));
+            if iscellstr(fid)
+                t = fid{icount};
+            else
+                t = fid(icount,:);
+            end
         else
             t = -1;
         end

@@ -58,14 +58,23 @@ if isequal(fieldnames(w),fields)
     else
         message='Title must be character array or cell array of strings'; return
     end
-    if ~isa(w.signal,'double')||~isvector(w.signal)||~isa(w.error,'double')||~isvector(w.error)||~isa(w.x,'double')||~isvector(w.x)
-        message='x-axis values, signal and error arrays must all be double precision vectors'; return
-    end
-    if numel(w.signal)~=numel(w.error)
-        message='Length of signal and error arrays must be the same'; return
-    end
-    if ~(numel(w.x)==numel(w.signal)||numel(w.x)==numel(w.signal)+1)
-        message='Check lengths of x-axis and signal arrays'; return
+    sum_empty=isempty(w.signal)+isempty(w.error)+isempty(w.x);
+    if sum_empty==0         % none are empty
+        if ~isa(w.signal,'double')||~isvector(w.signal)||~isa(w.error,'double')||~isvector(w.error)||~isa(w.x,'double')||~isvector(w.x)
+            message='x-axis values, signal and error arrays must all be double precision vectors'; return
+        end
+        if numel(w.signal)~=numel(w.error)
+            message='Length of signal and error arrays must be the same'; return
+        end
+        if ~(numel(w.x)==numel(w.signal)||numel(w.x)==numel(w.signal)+1)
+            message='Check lengths of x-axis and signal arrays'; return
+        end
+    elseif sum_empty==3     % all empty
+        wout.signal=[];
+        wout.error=[];
+        wout.x=[];
+    else
+        message='Check contents of signal, error and x arrays';
     end
     if ischar(w.s_axis)||iscellstr(w.s_axis)
         wout.s_axis=IX_axis(w.s_axis);
