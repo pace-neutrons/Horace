@@ -1,5 +1,5 @@
 function wout = read_ascii (wdummy,varargin)
-% Read x,y or x,y,e column arrays into a IX_dataset_1d or array of IX_dataset_1d
+% Read x,y or x,y,e column arrays into a IX_dataset_1d or array of IX_dataset_1d. Inverse of save_ascii.
 %   - Automatically detects if data is point or histogram data.
 %   - Skips over non-numeric blocks of data
 %   - Reads succesive block of numeric data, filling succesive datasets
@@ -48,7 +48,7 @@ else
     file=varargin{1};
     offset=1;
 end
-[file_internal,ok,mess]=getfilecheck(file);
+[file_full,ok,mess]=getfilecheck(file);
 if ~ok, error(mess), end
 
 
@@ -61,8 +61,8 @@ end
 
 % Read data from file
 % ---------------------
-fid = fopen(file_internal);
-disp (['Reading data from ' file_internal])
+fid = fopen(file_full);
+disp (['Reading data from ' file_full])
 
 while 1>0
     [w,ok,mess]=read_ascii_data_textscan (fid, col_x, col_y, col_e, xye, return_array);
@@ -191,7 +191,7 @@ w=[];
 ok=true;
 mess='';
 
-file_internal=fopen(fid);
+file_full=fopen(fid);
 if ~return_array
     ncol_min = max([max(col_x),max(col_y),max(col_e)]);
 else
@@ -204,7 +204,7 @@ data_found = 0;
 while ~data_found
     istart=ftell(fid);
     if (istart<0)
-        ok=false; mess=['No x-y-e data encountered in ' file_internal]; return
+        ok=false; mess=['No x-y-e data encountered in ' file_full]; return
     end
     tline = fgets(fid);
     if isequal(tline,-1), break, end    % reached end of file withoug encountering data
@@ -233,7 +233,7 @@ end
 % Step back one line now that number of columns found and any format ambiguities resolved:
 fstatus=fseek(fid,istart,'bof'); % step back one line
 if (fstatus~=0)
-    ok=false; mess=['Problem reading from file ' file_internal]; return
+    ok=false; mess=['Problem reading from file ' file_full]; return
 end
 
 % Read array to the end, or until unable to read from file with specified format
@@ -241,7 +241,7 @@ fmt=repmat('%f',1,ncol);
 tab = char(9);
 a = textscan(fid, fmt, 'delimiter', [tab,',']);
 if (isempty(a))
-    ok=true; mess=['No data encountered in ' file_internal]; return
+    ok=true; mess=['No data encountered in ' file_full]; return
 end
 
 % Perform some checks on the data that has been read:
@@ -309,7 +309,7 @@ end
 if ~return_array
     wref=read_header(header);
     if isempty(wref.title),
-        wref.title = char(avoidtex(file_internal));
+        wref.title = char(avoidtex(file_full));
     end
     if (xye)
         w = IX_dataset_1d(a{col_x(1)}(1:nx)',a{col_y(1)}(1:ny)',a{col_e(1)}(1:ny)',...

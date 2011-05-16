@@ -11,12 +11,12 @@ nlines = 10000;  % max. number of lines that can be read from file
 % Get file name - prompt if file does not exist (using file to set default seach location and extension)
 % ------------------------------------------------------------------------------------------------------
 if ~exist('file','var'), file=''; end
-[file_internal,ok,mess]=getfilecheck(file);
+[file_full,ok,mess]=getfilecheck(file);
 if ~ok, error(mess), end
 
 % Read data
 % -----------
-fid = fopen(file_internal);
+fid = fopen(file_full);
 i = 1;
 finish = 0;
 while (~finish)
@@ -36,4 +36,4 @@ while (~finish)
 end
 fclose(fid);
 
-disp ([num2str(n) ' lines read from ' file_internal])
+disp ([num2str(n) ' lines read from ' file_full])

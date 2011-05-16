@@ -37,11 +37,21 @@ if ~isempty(file) && ischar(file) && size(file,1)==1 && numel(size(file))==2
         end
     else
         file_out=file;  % assume file
-        pathname=fileparts(file_out);
+        [pathname,filename,ext]=fileparts(file_out);
         if ~(isempty(pathname) || exist(pathname,'dir')==7)
             file_out='';
             ok=false;
             mess=['Cannot find a location to write file: ',file];
+        end
+        if ~isvarname(filename)
+            file_out='';
+            ok=false;
+            mess=['Invalid file name or extension: ',file];
+        end
+        if ~(isempty(ext)||(numel(ext)>1 && isvarname(ext(2:end))))     % allow extension to be empty
+            file_out='';
+            ok=false;
+            mess=['Invalid file name or extension: ',file];
         end
     end
 else

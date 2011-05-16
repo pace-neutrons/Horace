@@ -1,5 +1,5 @@
 function [ok,mess] = save_ascii (w, file)
-% Writes IX_dataset_1d or array of IX_dataset_1d to an ascii file. 
+% Writes IX_dataset_1d or array of IX_dataset_1d to an ascii file. Inverse of read_ascii.
 %
 %   >> save_ascii (w)           % prompts for file to write to
 %   >> save_ascii (w, file)     % write to named file
