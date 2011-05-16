@@ -20,18 +20,18 @@ point2hist 	* not in mgenie, but is in libisis utilities
 fit 		* libisis only
 func_eval	* m + l
 
-read
-write
-read_ascii 	* I think there is a superior libisis method
-write_ascii
+read		[[DONE]]
+write		[[DONE]]
+read_ascii 	[[DONE]]
+write_ascii	[[DONE]]	(called save_ascii)
 
-deriv1		DONE	(called deriv)
+deriv1		[[DONE]]	(called deriv)
 deriv2
 integrate
 rebin
 rebunch
 regroup
-scale 		* rescale the x-axis
+scale 		[[DONE]] * rescale the x-axis
 section 	* seems to be just like Horace section function
-shift		* shift along the x-axis
+shift		[[DONE]] * shift along the x-axis
 smooth
