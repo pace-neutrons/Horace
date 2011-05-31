@@ -6,7 +6,7 @@ Some of the methods are also in libisis;
 check classes folder
 but also utilities\IXTdataset_1d]
 
-combine
+combine		[[DONE]]
 interp
 peak_cwhh
 unspike

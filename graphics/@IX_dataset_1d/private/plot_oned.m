@@ -146,8 +146,8 @@ binning=get_global_var('genieplot','oned_binning');
 if binning <= 1   % accepts value of zero
     w = w_in;
 else
-    w = w_in; % *** UNTIL SORT OUT REBUNCH
-    %    w = rebunch(w_in,genie_binning);
+    % w = w_in; % *** UNTIL SORT OUT REBUNCH
+    w = rebunch(w_in,binning);
 end
 
 % Plot data (already checked that it is valid)

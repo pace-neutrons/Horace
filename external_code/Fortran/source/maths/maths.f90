@@ -1,0 +1,139 @@
+!-----------------------------------------------------------------------------------------------------------------------------------
+! Interface module for maths library.
+!
+!-----------------------------------------------------------------------------------------------------------------------------------
+	module maths
+
+	interface deriv_1_1d
+		subroutine deriv_1_1d (ierr, x, y, e, y1, e1)
+		use type_definitions
+		real(dp), intent(in) :: x(:), y(:), e(:)
+		real(dp), intent(out) :: y1(:), e1(:)
+		integer(i4b), intent(out) :: ierr
+		end subroutine deriv_1_1d
+	end interface
+
+	interface deriv_2_1d
+		subroutine deriv_2_1d (ierr, x, y, e, y2, e2)
+		use type_definitions
+		real(dp), intent(in) :: x(:), y(:), e(:)
+		real(dp), intent(out) :: y2(:), e2(:)
+		integer(i4b), intent(out) :: ierr
+		end subroutine deriv_2_1d
+	end interface
+
+	interface integrate_1d_hist
+		function integrate_1d_hist (ierr, x, s, e, xdist, xmin_in, xmax_in)
+		use type_definitions
+		use dataset_definitions
+		real(dp), intent(in) :: x(:), s(:), e(:)
+		logical,  intent(in) :: xdist
+		real(dp), intent(in), optional :: xmin_in, xmax_in
+		integer(i4b), intent(out) :: ierr
+		type (datum) :: integrate_1d_hist
+		end function integrate_1d_hist
+	end interface
+
+	interface integrate_1d_points
+		function integrate_1d_points (ierr, x, s, e, xmin_in, xmax_in)
+		use type_definitions
+		use dataset_definitions
+		real(dp), intent(in) :: x(:), s(:), e(:)
+		real(dp), intent(in), optional :: xmin_in, xmax_in
+		integer(i4b), intent(out) :: ierr
+		type (datum) :: integrate_1d_points
+		end function integrate_1d_points
+	end interface
+	
+	interface lower_index
+		function lower_index_dp (arr, val)
+		use type_definitions
+		real(DP), intent(in) :: arr(:), val
+		integer(I4B) :: lower_index_dp
+		end function lower_index_dp
+
+		function lower_index_sp (arr, val)
+		use type_definitions
+		real(SP), intent(in) :: arr(:), val
+		integer(I4B) :: lower_index_sp
+		end function lower_index_sp
+
+		function lower_index_i4b (arr, val)
+		use type_definitions
+		integer(I4B), intent(in) :: arr(:), val
+		integer(I4B) :: lower_index_i4b
+		end function lower_index_i4b
+	end interface
+
+	interface peak_search_1d
+		subroutine peak_search_1d (ierr, x, s, e, peak, width, xmin_in, xmax_in, peak_factor)
+		use type_definitions
+		real(dp), intent(in) :: x(:), s(:), e(:)
+		real(dp), intent(in), optional :: xmin_in, xmax_in, peak_factor
+		real(dp), intent(out) :: peak, width
+		integer(i4b), intent(out) :: ierr
+		end subroutine peak_search_1d
+	end interface
+
+	interface rebin_1d_hist
+		subroutine rebin_1d_hist (ierr, xin, yin, ein, xout, yout, eout)
+		use type_definitions
+		real(dp), intent(in) :: xin(:), yin(:), ein(:)
+		real(dp), intent(out) :: xout(:), yout(:), eout(:)
+		integer(i4b), intent(out) :: ierr
+		end subroutine rebin_1d_hist
+	end interface
+
+	interface rebin_1d_hist_get_xarr
+		subroutine rebin_1d_hist_get_xarr (ierr, xbounds, x_in, n_out, x_out)
+		use type_definitions
+		real(dp), intent(in) :: xbounds(:)
+		real(dp), intent(in), optional :: x_in(:)
+		integer(i4b), intent(out) :: ierr
+		integer(i4b), intent(out), optional :: n_out
+		real(dp), intent(out), optional :: x_out(:)
+		end subroutine rebin_1d_hist_get_xarr
+	end interface
+
+	interface regroup_1d_hist
+		subroutine regroup_1d_hist (ierr, xmin, delta, xmax, xin, yin, ein, xout, yout, eout, nout)
+		use type_definitions
+		real(dp), intent(in) :: xmin, delta, xmax, xin(:)
+		real(dp), intent(in), optional :: yin(:), ein(:)
+		real(dp), intent(out), optional :: xout(:), yout(:), eout(:)
+		integer(i4b), intent(out) :: ierr
+		integer(i4b), intent(out), optional :: nout
+		end subroutine regroup_1d_hist
+	end interface
+
+	interface unspike_1d
+		subroutine unspike_1d (ierr, x_in, y_in, e_in, y_out, e_out, ymin, ymax, fac, sfac)
+		use type_definitions
+		integer(i4b), intent(out) :: ierr
+		real(dp), intent(in) :: x_in(:), y_in(:), e_in(:)
+		real(dp), intent(in), optional :: ymin, ymax, fac, sfac
+		real(dp), intent(out) :: y_out(:), e_out(:)
+		end subroutine unspike_1d
+	end interface
+
+	interface upper_index
+		function upper_index_dp (arr, val)
+		use type_definitions
+		real(DP), intent(in) :: arr(:), val
+		integer(I4B) :: upper_index_dp
+		end function upper_index_dp
+
+		function upper_index_sp (arr, val)
+		use type_definitions
+		real(SP), intent(in) :: arr(:), val
+		integer(I4B) :: upper_index_sp
+		end function upper_index_sp
+
+		function upper_index_i4b (arr, val)
+		use type_definitions
+		integer(I4B), intent(in) :: arr(:), val
+		integer(I4B) :: upper_index_i4b
+		end function upper_index_i4b
+	end interface
+
+	end module

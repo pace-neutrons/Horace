@@ -26,6 +26,11 @@ genieplot_init
 % Applications definitions
 addgenpath_message (rootpath, 'applications')
 
+% Put mex files on path
+fortran_root = fullfile(rootpath,'external_code','Fortran');
+addpath_message (fortran_root);
+[mex_dir,mex_dir_full] = mex_dir_name(fortran_root);
+addpath_message (mex_dir_full);
 
 %--------------------------------------------------------------------------
 function addpath_message (varargin)
@@ -57,4 +62,17 @@ if exist(string,'dir')==7
     addpath (genpath_special(string));
 else
     warning('"%s" is not a directory - not added to path',string)
+end
+
+%--------------------------------------------------------------------------
+function [mex_dir,mex_dir_full] = mex_dir_name(fortran_root)
+% Get directory for mex files, and the absolute path (NOT simply relative to rootpath)
+if strcmpi(computer,'PCWIN64')
+    mex_dir='x64';
+    mex_dir_full=fullfile(fortran_root,'mex','x64');
+elseif strcmpi(computer,'PCWIN')
+    mex_dir='Win32';
+    mex_dir_full=fullfile(fortran_root,'mex','Win32');
+else
+    error('Architecture type not supported yet')
 end

@@ -6,4 +6,4 @@ function ok=isstring(var)
 % Note: if var is empty but has size 1x0 then will return true
 %       Also, if empty, will return true
 
-ok=ischar(var) && (isrow(var) || isempty(var));
+ok=ischar(var) && (isrowvector(var) || isempty(var));
