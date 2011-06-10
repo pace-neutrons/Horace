@@ -145,6 +145,9 @@ if use_mex
 end    
 if ~use_mex    
     [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
+    %
+    sqw_data.p=p;%added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
+    %
     sqw_data.pix=sqw_data.pix(:,ix);
     sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
     sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
