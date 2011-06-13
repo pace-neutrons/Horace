@@ -121,15 +121,20 @@ get_ASCII_header(std::string const &fileName, std::ifstream &data_stream)
 	//let's find if there is one or more groups of symbols inside of the buffer;
 	int space_to_symbol_change=count_changes(BUF,BUF_SIZE);
 	if(space_to_symbol_change>1){  // more then one group of symbols in the string, spe file
-		int nDatas = sscanf(BUF," %d %d ",&file_descriptor.nData_records,&file_descriptor.nData_blocks);
-		if(nDatas!=2){    			throw(" File iterpreted as SPE but does not have two numbers in the first row\n");
-		}
+        int nDataRecords,nDataBlocks;
+		int nDatas = sscanf(BUF," %d %d ",&nDataRecords,&nDataBlocks);
+		if(nDatas!=2){
+            throw(" File iterpreted as SPE but does not have two numbers in the first row\n");
+		}else{
+            file_descriptor.nData_records= nDataRecords;
+            file_descriptor.nData_blocks = nDataBlocks;
+        }
 		file_descriptor.Type=iSPE_type;
 		get_my_line(data_stream,BUF,BUF_SIZE,EOL);
 		if(BUF[0]!='#'){ 			throw(" File iterpreted as SPE does not have symbol # in the second row\n");
 		}
 		file_descriptor.data_start_position = data_stream.tellg(); // if it is SPE file then the data begin after the second line;
-	}else{
+        }else{
 		file_descriptor.data_start_position = data_stream.tellg(); // if it is PHX or PAR file then the data begin after the first line;
 		file_descriptor.nData_records       = atoi(BUF);
 		file_descriptor.nData_blocks        = 0;
