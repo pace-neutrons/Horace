@@ -19,12 +19,23 @@ static char BUF[BUF_SIZE];
 *  function calculates number of changes from space to a symbol and vise versa. It used to identify the number of
 *  data fields in an space-separated ascii file. */
 int 
-count_changes(const char *const Buf, int buf_size)
+count_changes(const char *const Buf,int buf_size)
 {
-
-    bool is_symbol(false),is_space(true);
+	bool is_symbol(false),is_space(true);
 	int  space_to_symbol_change(0),symbol_to_space_change(0);
-	for(int i=0;i<buf_size;i++){
+	size_t symbols_start(0);
+	// supress leading spaces;
+	for(size_t i=0;i<buf_size;i++){
+	   if(Buf[i]==0)break;
+	   if(Buf[i]==' '){
+			continue;
+	   }else{
+		  symbols_start=i;
+		  break;
+	   }
+	}
+	// calculate number of changes from space to symbol assuming start from symbol;
+	for(size_t i=symbols_start;i<buf_size;i++){
 		if(Buf[i]==0)break;
 		if(Buf[i]>='+'&&Buf[i]<='z'){  // this is a symbol
 			if(is_space){
@@ -46,7 +57,6 @@ count_changes(const char *const Buf, int buf_size)
 /*! The function reads line from inout stream and puts it into buffer. 
 *   It behaves like std::ifstream getline but the later reads additional symbol from a row in a Unix file under windows;
 */
-
 int 
 get_my_line(std::ifstream &in, char buf[], int buf_size,char DELIM)
 {
@@ -92,6 +102,7 @@ get_ASCII_header(std::string const &fileName, std::ifstream &data_stream)
 				EOL=0x0A;
 			}else{            // Mac
 				EOL=0x0D;
+				data_stream.putback(symbol);	
 			}
 	}else if(symbol==0x0A){   // unix file. 
 		EOL=0x0A;
@@ -117,7 +128,7 @@ get_ASCII_header(std::string const &fileName, std::ifstream &data_stream)
 		get_my_line(data_stream,BUF,BUF_SIZE,EOL);
 		if(BUF[0]!='#'){ 			throw(" File iterpreted as SPE does not have symbol # in the second row\n");
 		}
-	    file_descriptor.data_start_position = data_stream.tellg(); // if it is SPE file then the data begin after the second line;
+		file_descriptor.data_start_position = data_stream.tellg(); // if it is SPE file then the data begin after the second line;
 	}else{
 		file_descriptor.data_start_position = data_stream.tellg(); // if it is PHX or PAR file then the data begin after the first line;
 		file_descriptor.nData_records       = atoi(BUF);
@@ -148,8 +159,9 @@ get_ASCII_header(std::string const &fileName, std::ifstream &data_stream)
 void 
 load_plain(std::ifstream &stream,double *pData,FileTypeDescriptor const &FILE_TYPE)
 {
+
 	char par_format[]=" %g %g %g %g %g";
-	char phx_format[]=" %g %g %g %g %g %g %g";
+	char phx_format[]=" %g %g %g %g %g %g";
 	float data_buf[7];
 	char *format;
 	int BlockSize;
@@ -163,19 +175,25 @@ load_plain(std::ifstream &stream,double *pData,FileTypeDescriptor const &FILE_TY
 						}
 		case(iPHX_type):{
 			format = phx_format;
-			BlockSize=7;
+			BlockSize=6;
 			break;
 						}
-		default:			throw(" trying to load data but the data type is not recognized\n");
+		default:{
+			throw(" trying to load par or phx data but the data type is not recognized\n");
+		}
 	}
+	//Data.resize(BlockSize*FILE_TYPE.nData_records);
+
 	stream.seekg(FILE_TYPE.data_start_position,std::ios_base::beg);
-	if(!stream.good()){		throw(" can not rewind the file to the initial position where the data begin\n");
+	if(!stream.good()){		
+		throw(" trying to load data but the data type is not recognized\n");
 	}
 
-	int nRead_Data;
+	int nRead_Data(0);
 	for(unsigned int i=0;i<FILE_TYPE.nData_records;i++){
-		get_my_line(stream,BUF,BUF_SIZE,EOL);
-		if(!stream.good()){	throw(" error reading input file\n");
+		stream.getline(BUF,BUF_SIZE,EOL);
+		if(!stream.good()){	
+			throw(" error reading input file");
 		}
 
 		switch(FILE_TYPE.Type){
@@ -184,9 +202,12 @@ load_plain(std::ifstream &stream,double *pData,FileTypeDescriptor const &FILE_TY
 				break;
 							}
 			case(iPHX_type):{
-				nRead_Data= sscanf(BUF,format,data_buf,data_buf+1,data_buf+2,data_buf+3,data_buf+4,data_buf+5,data_buf+6);
+				nRead_Data= sscanf(BUF,format,data_buf,data_buf+1,data_buf+2,data_buf+3,data_buf+4,data_buf+5);
 				break;
 							}
+			default:{
+				  throw("data type has not been identified");
+			}
 		}
 		if(nRead_Data!=BlockSize){
 			std::stringstream err_buf;
@@ -194,7 +215,6 @@ load_plain(std::ifstream &stream,double *pData,FileTypeDescriptor const &FILE_TY
 
             strcpy(BUF,err_buf.str().c_str());
 			throw(const_cast<const char *>(BUF));
-
 		}
 		for(int j=0;j<nRead_Data;j++){
 			pData[i*BlockSize+j]=(double)data_buf[j];
@@ -215,7 +235,7 @@ read_SPEdata_block(std::ifstream &stream,double *pBlock,size_t DataSize,size_t b
 {
 	size_t i,j,nBlock_Data;
 	float data_buf;
-    char *DataStart = BUF+tr_spaces;
+	char *DataStart = BUF+tr_spaces;
 	
 
 	char format[]="%10g";    // format string to read each data in a block
@@ -227,7 +247,7 @@ read_SPEdata_block(std::ifstream &stream,double *pBlock,size_t DataSize,size_t b
 	format[3]='g';
 
 
-	int nRows = DataSize/block_size;
+	size_t nRows = DataSize/block_size;
 	if(nRows*block_size!=DataSize)nRows++;
 
 	int nRead_Data(0);
@@ -299,7 +319,7 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
 	char BUF_RUB[BUF_SIZE];
 	std::stringstream err_message;
 	mwSize i,j;
-    bool buf_empty;
+	bool buf_empty;
 
 	stream.seekg(FILE_TYPE.data_start_position,std::ios_base::beg);
 	if(!stream.good()){		throw(" can not rewind the file to the initial position where the data begin\n");
@@ -314,7 +334,7 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
 	// any spe data block supposetly occupy 8 columns in a block, which is specified by SPE_DATA_BLOCK_SIZE
 	int trailing_spaces(0);
 	int spe_field_width(10); // format of the data, written in SPE files -- one symbol occupies 10 positions, if it changes here,
-                             // the format specified in the read_SPEdata_block (%g10) also has to change.
+							 // the format specified in the read_SPEdata_block (%g10) also has to change.
 	// analyse spe row to identify true field size
 	parse_spe_row(BUF,BUF_SIZE,SPE_DATA_BLOCK_SIZE,spe_field_width,trailing_spaces);
 
@@ -364,7 +384,7 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
 	}
 	return;
 Error:
-    strcpy(BUF,err_message.str().c_str());
+	strcpy(BUF,err_message.str().c_str());
 	throw(const_cast<const char *>(BUF));
 }
 
