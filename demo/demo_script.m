@@ -56,12 +56,12 @@ for i=1:length(psi)
     spe_file{i}=fullfile(indir,['MAP',num2str(11012+(2*i)),'.spe']);
 end
 % it is unlikely to find all these file types in an input data, but the Horace
-% have to understand any; beware, that input energy will be replaced by the
-% values found in the binary file if such energy is defined there. 
-for i=1:3
-     spe_file{i}=fullfile(indir,['MAP',num2str(11012+(2*i)),'.nxspe']);
-end
-spe_file{4}=fullfile(indir,['MAP',num2str(11012+(2*4)),'.spe_h5']);
+% % have to understand any; beware, that input energy will be replaced by the
+% % values found in the binary file if such energy is defined there. 
+% for i=1:3
+%      spe_file{i}=fullfile(indir,['MAP',num2str(11012+(2*i)),'.nxspe']);
+% end
+% spe_file{4}=fullfile(indir,['MAP',num2str(11012+(2*4)),'.spe_h5']);
 % Create sqw file
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
               u, v, psi, omega, dpsi, gl, gs);
