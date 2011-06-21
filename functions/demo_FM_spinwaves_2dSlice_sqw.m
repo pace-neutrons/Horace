@@ -20,8 +20,8 @@ function y=demo_FM_spinwaves_2dSlice_sqw(qh,qk,ql,en,pars)
 % RAE 10/7/08
 
 % trick to avoid divide by zero warning
-warning_status = warning('query');
-warning off
+% warning_status = warning('query');
+% warning off
 %=============================================
 
 js=pars(1); delta=pars(2);
@@ -38,4 +38,4 @@ y = amp.* (Bose .* (4.*gam.*omega0)./(pi.*((en-omega0).^2 + 4.*(gam.*en).^2)));
 
 %=============================================
 % return to original warning status
-warning(warning_status);
+% warning(warning_status);
