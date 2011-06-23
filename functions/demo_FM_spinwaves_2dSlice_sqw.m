@@ -33,7 +33,7 @@ omega0 = delta + ...
 Bose= en./ (1-exp(-11.602.*en./temp));%Bose factor from Tobyfit. 
 
 %Use damped SHO model to give intensity:
-y = amp.* (Bose .* (4.*gam.*omega0)./(pi.*((en-omega0).^2 + 4.*(gam.*en).^2)));
+y = amp.* (Bose .* (4.*gam.*omega0)./(pi.*((en.^2-omega0.^2).^2 + 4.*(gam.*en).^2)));
 
 
 %=============================================
