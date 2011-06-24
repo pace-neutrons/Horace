@@ -20,7 +20,7 @@ function this=speData(varargin)
 %                             the file into the memory
 % speData(fileName,data)   -- build the class on the basis  of spe data to
 %                             export it into file-format of the current choice.
-%
+%                             (can not write nxspe at the moment)
 %% $Revision$ ($Date$)
 this=struct(...
 'fileDir','',...
@@ -80,10 +80,10 @@ function this=bind_to_file(this,fullfileName)
 fullfileName=strtrim(fullfileName);
 [fileDir,fileName,fileExt]=fileparts(fullfileName);
 
-this.fileDir =fileDir;
-this.fileName=fileName;
-this.fileExt =fileExt;
-file_tag     =lower(this.fileExt);
+this.fileDir    =  fileDir;
+this.fileName= fileName;
+this.fileExt   =  fileExt;
+file_tag        =  lower(this.fileExt);
 
 AllFileExt = {this.speFileExt,this.hdfFileExt{:}};
 existing_fext = ismember(AllFileExt,file_tag);

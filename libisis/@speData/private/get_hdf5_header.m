@@ -5,7 +5,7 @@ function [ndet,en,Ei]=get_hdf5_header(filename)
 % TODO this file should check the hdf5 file version
 fileinfo=hdf5info(filename);
 hr=[fileinfo.GroupHierarchy.Datasets.Dims];
-ndet=hr(3);
+ndet=hr(4);
 file_strcut=spe_hdf_filestructure(1);
 ver = hdf5read(filename,'spe_hdf_version');
 if(ver == 1|| ver == 2)
