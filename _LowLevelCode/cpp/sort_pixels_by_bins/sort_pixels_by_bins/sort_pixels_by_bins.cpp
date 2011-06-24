@@ -73,8 +73,8 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
   }
 */
   try{
-	    size_t array_size = distribution_size;
-		if(array_size==0)array_size=1;
+        size_t array_size = distribution_size;
+        if(array_size==0)array_size=1;
         size_t  *const ppInd   = (size_t  *)mxMalloc(array_size*sizeof(size_t)); //working array of indexes for transformed pixels
         if(!ppInd){
             throw("Sort_pixels_by_bins: memory allocation error for array of indexes");
@@ -117,7 +117,7 @@ void sort_pixels_by_bins(double const *const pPixelData,size_t nDataRows,size_t 
 {
     for(j=0;j<nDataCols;j++){    // sort pixels according to cells
         i0 = j*nDataRows;
-        ind = pCellInd[j]-1; // -1 as Matlab arrays start from one;
+        ind = (size_t)(pCellInd[j]-1); // -1 as Matlab arrays start from one;
         jBase=ppInd[ind ]*nDataRows;
         ppInd[ind]++;     
                 

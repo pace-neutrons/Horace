@@ -12,23 +12,24 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 % Input: (in the following, nfile = no. spe files)
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   spe_file        Full file name of spe file - character string or cell array of
-%                  character strings for more than one file
-%   par_file        Full file name of detector parameter file (Tobyfit format)
-%   sqw_file        Full file name of output sqw file
-%   efix            Fixed energy (meV)                 [scalar or vector length nfile]
+%                       character strings for more than one file
+%   par_file          Full file name of detector parameter file (Tobyfit format)
+%   sqw_file         Full file name of output sqw file
+%   efix                Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]
-%   alatt           Lattice parameters (Ang^-1)        [row or column vector]
+%   alatt              Lattice parameters (Ang^-1)        [row or column vector]
 %   angdeg          Lattice angles (deg)               [row or column vector]
-%   u               First vector (1x3) defining scattering plane (r.l.u.)
-%   v               Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
+%   u                  First vector (1x3) defining scattering plane (r.l.u.)
+%   v                  Second vector (1x3) defining scattering plane (r.l.u.)
+%   psi                Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
 %   omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
-%   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
-%   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
-%   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+%   dpsi              Correction to psi (deg)            [scalar or vector length nfile]
+%   gl                  Large goniometer arc angle (deg)   [scalar or vector length nfile]
+%   gs                Small goniometer arc angle (deg)   [scalar or vector length nfile]
 %   grid_size_in    [Optional] Scalar or row vector of grid dimensions. Default is [50,50,50,50]
 %   urange_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
-%                  that encloses the whole data range.
+%                                       that encloses the whole data range.
+
 %
 % Output:
 % --------
@@ -189,9 +190,13 @@ else
     disp('--------------------------------------------------------------------------------')
     disp(['Calculating limits of data from ',num2str(nfiles),' spe files...'])
     % Read in the detector parameters if they are present in spe_data
-    det=getPar(spe_data{1});
-    if isempty(det)
-        det=get_par(par_file);
+    if ~get(hor_config,'use_par_from_nxspe') % have to use par file;
+                det =get_par(par_file);                 % should throw if par file is not found
+    else                                                    % get detectors from par file
+        det =getPar(spe_data{1});                 
+        if isempty(det)  % try to find and analyse par file
+                det =get_par(par_file);                 % should throw if par file is not found            
+        end
     end
     % Get the maximum limits along the projection axes across all spe files
     data.filename='';
@@ -201,7 +206,15 @@ else
     data.E=zeros(2,ndet);
     urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:nfiles
-
+        % if trying to use par from nxspe, each nxspe may have its own
+        % detectors par, so -- reading in a loop; This would allow
+        % combinining different instruments?
+        if get(hor_config,'use_par_from_nxspe')
+            det = getPar(spe_data{i});
+            if isempty(det)  % try to use ascii par file as back-up option
+                det =get_par(par_file);               
+            end
+        end
         eps=(spe_data{i}.en(2:end)+spe_data{i}.en(1:end-1))/2;
         if length(eps)>1
             data.en=[eps(1);eps(end)];
