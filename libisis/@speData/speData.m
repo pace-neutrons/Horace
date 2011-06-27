@@ -30,7 +30,8 @@ this=struct(...
 'en',[],        ...
 'par',[],       ...
 'data_loaded',false,... % boolean to check if the spe data are loaded to memory (initial state)
-'hdfFileExt','.spe_h5',... % three file extebsions currently supported; hdf5
+'hdfFileExt','',... % three file extebsions currently supported; they defined below
+'nxspe_root_folder','', ... % if the extension is nxspe, the data are hiden behind arbitrary named root folder; when we parce nxspe, we have to identify this folder
 'speFileExt','.spe',... % and ascii (spe) HAVE TO BE DEFINED LOWER CASE HERE !!!!
 'ifTransfer2hdf',true); % this field specify default way to deal with the data
                         % if any kind of default write operation is
@@ -122,7 +123,7 @@ switch(n_ext)
       if(~exist(fullfileName,'file')) % hdf file requested but does not exist
             error('HORACE:speData','trying to open non-existing spe-hdf file %s',fullfileName);
       end       
-      [this.nDetectors,this.en,this.spe.Ei]=get_nxspe_header(fullfileName);
+      this=get_nxspe_header(this,fullfileName);
     otherwise
 end
 

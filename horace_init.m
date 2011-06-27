@@ -81,5 +81,5 @@ if exist(string,'dir')==7
       addpath(path);
     end
 else
-    warning('"%s" is not a directory - not added to path',string)
+    warning('HORACE:init','"%s" is not a directory - not added to path',string)
 end
