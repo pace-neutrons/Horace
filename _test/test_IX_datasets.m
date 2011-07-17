@@ -72,16 +72,55 @@ pp1_3=IX_dataset_2d(x_3,y_3,ss1_3,ee1_3,'pnt-pnt',IX_axis('Energy transfer','meV
 
 %% Massive arrays of objects
 
+% A big point array
+% ------------------------------
 tic
-nw=500;
+nw=50000;
 nx0=500;
-nx=nx0+round(nx0*rand(nw,1));
+nx=nx0+round(0.2*nx0*rand(nw,1));
 p1big=repmat(IX_dataset_1d,nw,1);
 for i=1:nw
-    x=nx(i)*sort(rand(1,nx(i)));
+    x=nx(i)*(sort(rand(1,nx(i)))-0.2*rand(1));
     y=3*(i+rand(1,nx(i)));
     e=0.5+rand(1,nx(i));
     p1big(i)=IX_dataset_1d(x,y,e,'Point data, not distribution',IX_axis('Energy transfer','meV','$w'),'Counts',false);
+end
+toc
+
+% % Rebin test, nw=500, nx0=50000
+% tic; w=rebin(p1big,[10000,5,40000]); toc
+% Elapsed time is 2.540335 seconds.
+
+% A big histogram array
+% ------------------------------
+tic
+nw=500;
+nx0=500;
+nx=nx0+round(0.2*nx0*rand(nw,1));
+h1big=repmat(IX_dataset_1d,nw,1);
+for i=1:nw
+    x=nx(i)*(sort(rand(1,nx(i)))-0.2*rand(1));
+    y=3*(i+rand(1,nx(i)-1));
+    e=0.5+rand(1,nx(i)-1);
+    h1big(i)=IX_dataset_1d(x,y,e,'Point data, not distribution',IX_axis('Energy transfer','meV','$w'),'Counts',false);
+end
+toc
+
+
+% A big mixed point and histogram array
+% --------------------------------------
+tic
+nw=500;
+nx0=500;
+nx=nx0+round(0.2*nx0*rand(nw,1));
+hp1big=repmat(IX_dataset_1d,nw,1);
+for i=1:nw
+    x=nx(i)*sort(rand(1,nx(i)));
+    y=10*exp(-0.5*(((x-nx0/2)/(nx0/4)).^2 + ((i-nw/2)/(nw/4)).^2));
+%    y=3*(i+rand(1,nx(i)));
+    e=0.5+rand(1,nx(i));
+    dn=round(rand(1));
+    hp1big(i)=IX_dataset_1d(x,y(1:end-dn),e(1:end-dn),'Point data, distribution',IX_axis('Energy transfer','meV','$w'),'Counts',true);
 end
 toc
 

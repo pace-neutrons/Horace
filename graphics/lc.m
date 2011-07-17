@@ -55,3 +55,6 @@ if crange(1)>=crange(2)
     error('Check clo < chi')
 end
 set (gca, 'CLim', crange);
+
+% Update colorslider, if present
+colorslider('update')

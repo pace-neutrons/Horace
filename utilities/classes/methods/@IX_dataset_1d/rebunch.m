@@ -1,12 +1,14 @@
 function wout = rebunch(win,varargin)
-% Rebunch data points into groups of n
+% Rebunch data points in IX_dataset_1d or array of IX_dataset_1d into groups of n
 %
 % Histogram data:
 %   >> wout = rebunch(win, nbin)        % rebunches the data in groups of nbin
 %
 % Point data:
-%   >> wout = rebunch(win, nbin)        % rebunching: point integration (default)
+%   >> wout = rebunch(win, nbin)        % rebunching: point averaging (default)
 %   >> wout = rebunch(win, nbin, 'int') % rebunching: trapezoidal integration
+%
+%   The argument 'int' is ignored by any histogram datasets.
 %
 % Note:
 %   >> wout = rebunch(win)              % same as nbin=1 i.e. wout is just a copy of win
@@ -14,7 +16,7 @@ function wout = rebunch(win,varargin)
 % Note that this function correctly accounts for x_distribution if histogram data.
 % Point data is averaged, as it is assumed point data is sampling a function.
 
-% T.G.Perring 21 May 2011 Based on the orioginal mgenie rebunch routine, but with
+% T.G.Perring 21 May 2011 Based on the original mgenie rebunch routine, but with
 %                         extension to non-distribution histogram datasets, added
 %                         trapezoidal integration for point data, and catch case of one data point
 
@@ -39,7 +41,6 @@ end
 if nargin==3
     if ischar(varargin{2}) && strcmpi(varargin{2},'int')
         point_ave=false;
-        error('Trapezoidal integration not yet implemented')
     else
         error('Check arguments')
     end
@@ -57,17 +58,16 @@ end
 if numel(win)==1
     wout=single_rebunch(win,nbin,point_ave);
 else
-    wout=IX_dataset_1d(size(win));
+    wout=repmat(IX_dataset_1d,size(win));
     for i=1:numel(win)
         wout(i)=single_rebunch(win(i),nbin,point_ave);
     end
 end
 
+
 %==================================================================================================
 function wout = single_rebunch(win,nbin,point_ave)
-% Rebunch data. Assumes already checked that
-%   - nbin >=2
-% 
+% Rebunch data. Assumes already checked that nbin>=2. Point_ave only used for point data
 
 % Catch case of only one data point - nothing to do
 if length(win.x)==1
@@ -134,6 +134,7 @@ else
         end
     else
         % Trapezoidal integration averaging
+        error('Trapezoidal integration not yet implemented')
 %         xout=zeros(1,my_total);
 %         yout=zeros(1,my_total);
 %         eout=zeros(1,my_total);
