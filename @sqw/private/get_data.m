@@ -18,6 +18,10 @@ function [data,det,keep,det0]=get_data(spe_data,par_file)
 %
 % $Revision$ ($Date$)
 %
+
+%TODO: ***> when invoked from write_spe_to_sqw, speData are misteireously
+%reduced to spe; why? can it be that different matlab search path are set
+%on different machines?
 data=exportData(spe_data);   % export spe into the format requested, 
                              % if data have not been loaded before, 
                              % they are loaded from the linked
