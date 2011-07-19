@@ -12,6 +12,8 @@ if(ver == 1|| ver == 2)
     en=hdf5read(filename,file_strcut.data_field_names{2});
     if ver==2
         Ei = hdf5read(filename,file_strcut.data_field_names{1});
+    else
+        Ei =NaN;
     end
 else
     error('speData:get_hdf5_header','unsupported spe_hdf file format');

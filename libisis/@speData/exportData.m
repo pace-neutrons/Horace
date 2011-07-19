@@ -14,7 +14,7 @@ function [data,this]=exportData(this)
 %
 deflate_data=false;
 if(~this.data_loaded)
-    this=read(this,fullfile(this.fileDir,this.fileName));   
+    this=read(this,fullfile(this.fileDir,[this.fileName,this.fileExt]));   
     deflate_data=true;    
 end
 
@@ -30,20 +30,29 @@ if any(strcmp(fields(this),'spe')) % isfield will return false if this is not ex
     if(deflate_data)
         this=deflate(this);
     end    
+    % HACK -- if the structure is real speData, then this works, if not --
+    % we are in spe despite calling this function on SPE data; How to deal
+    % with that? unclear;
+    if ~isempty(getEi(this))
+     data.Ei = getEi(this);
+    end
+    if ~isempty(getPar(this))
+        data.par = getPar(this);
+    end    
 else
     data.S        = this.S;
     data.ERR      = this.ERR;
     data.en       = this.en;   
     data.filename = this.filename;
     data.filepath = this.filepath;    
+    if isfield(this,'Ei')
+        if ~isnan(this.Ei)
+            data.Ei=this.Ei;
+        end
+    end
     
 end
 
-if ~isempty(getEi(this))
-     data.Ei = getEi(this);
-end
-if ~isempty(getPar(this))
-    data.par = getPar(this);
-end
+
 
 
