@@ -48,6 +48,7 @@ try
         mgenie_mex_single(root_dir, mex_dir, lib_dir, file, debug);
         
     else
+        mgenie_mex_single(root_dir, mex_dir, lib_dir, 'integrate_1d_points.for',debug');
         mgenie_mex_single(root_dir, mex_dir, lib_dir, 'rebin_1d_hist.for',debug');
         mgenie_mex_single(root_dir, mex_dir, lib_dir, 'rebin_1d_hist_by_descriptor.for',debug');
         mgenie_mex_single(root_dir, mex_dir, lib_dir, 'rebin_1d_hist_get_xarr.for',debug');

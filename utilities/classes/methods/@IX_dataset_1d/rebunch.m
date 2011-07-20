@@ -134,30 +134,13 @@ else
         end
     else
         % Trapezoidal integration averaging
-        error('Trapezoidal integration not yet implemented')
-%         xout=zeros(1,my_total);
-%         yout=zeros(1,my_total);
-%         eout=zeros(1,my_total);
-%         if (my_total-my_whole ~=0) % 1 or more leftover values at end of array
-%             xout(my_total)=sum(win.x(my_whole*nbin+1:ny))/(ny-my_whole*nbin);
-%         end
-%         if (my_whole ~= 0)         % 1 or more completely filled new bins
-%             xout(1:my_whole)=sum(reshape(win.x(1:my_whole*nbin),nbin,my_whole))/nbin;
-%         end
-%         
-%         dx=diff(win.x);
-%         yav=0.5*(win.signal(2:end)+win.signal(1:end-1));
-%         yint=dx.*yav;
-%         dx2=win.x(3:end)-win.x(1:end-2);
-%         dx2beg=
-%         if my_total==1  % only one bin - so all points go into it
-%             yout(1)=sum(yint);
-%             eout(1)=
-%         else            % at least two new bins
-%             yint_tmp=reshape(yint(1:nbin*(my_total-1)),nbin,my_total-1);
-%             yout(1:my_total-1)=sum([0,yint_tmp(nbin,1:end-1)/2; yint_tmp(1:end-1,:); yint_tmp(nbin,:)/2], 1);
-%             yout(my_total)=0.5*yint(nbin*(my_total-1)) + yint(nbin*(my_total-1)+1:end);     % last bin; second term may have zero length
-%         end
+        ind=nbin*(1:floor((nx-1)/nbin));
+        xbounds=[win.x(1),0.5*(win.x(ind)+win.x(ind+1)),win.x(nx)];     % integration ranges
+        xout=0.5*(xbounds(2:end)+xbounds(1:end-1));     % centres of integration ranges
+        xout_bins=diff(xbounds);
+        [yout,eout] = integrate_1d_points (win.x, win.signal, win.error, xbounds);
+        yout=yout./xout_bins;
+        eout=eout./xout_bins;
 
     end
 %---------------------------------------------------------------------------------------------    

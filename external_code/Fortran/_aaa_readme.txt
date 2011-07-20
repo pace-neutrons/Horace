@@ -31,15 +31,3 @@ The organisation of the source code is into several folders as follows:
   
 - source_mex:
 	Folder with mex routines
-
-Canonical methods (specific methods indicated by *):
---------------------------------------------------------------
-
-<class constructor>		[Required] (specific, method)
-	Call checkfields as the ultimate arbiter of the validity of the 
-	contents of an object.
-
-display
-  * display_single      [Required] (specific, private method)
-
-get

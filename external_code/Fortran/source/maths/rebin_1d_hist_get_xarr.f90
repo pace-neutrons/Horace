@@ -2,7 +2,7 @@
 	use tools_parameters
 	use maths
 !-----------------------------------------------------------------------------------------------------------------------------------
-! Obtains the new bin boundaries for rebinning histogram data using the onformation in the array XBOUNDS.
+! Obtains the new bin boundaries for rebinning histogram data using the information in the array XBOUNDS.
 ! XBOUNDS is an array of boundaries and intervals. Linear or logarithmic rebinning can be accommodated
 ! by conventionally specifying the rebin interval as positive or negative respectively:
 !

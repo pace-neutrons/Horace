@@ -22,8 +22,8 @@ function [wout] = rebin(win, varargin)
 % For any datasets of the array win that contain point data the averaging of the points
 % can be controlled:
 %
-%   >> wout = rebin (...)           % default method: point averaging
-%   >> wout = rebin (..., 'int')    % trapezoindal integration
+%   >> wout = rebin (...)               % default method: point averaging
+%   >> wout = rebin (..., 'int')        % trapezoidal integration
 %
 %
 % Note that this function correctly accounts for x_distribution if histogram data.
@@ -48,7 +48,7 @@ if nargin>1 && ischar(varargin{end})
     if strcmpi(varargin{end},'int')
         point_ave=false;
         if nargin>2
-            args=varargin{1:end-1};
+            args=varargin(1:end-1);
         else
             error('Check arguments')
         end
@@ -61,11 +61,11 @@ else
 end
 
 % Check rebinning parameters
-if nargin==2 && isa(args{1},'IX_dataset_1d')
+if nargin>=2 && isa(args{1},'IX_dataset_1d')
     % If two arguments, both spectra, check that the number of elements are consistent
     wref=args{1};
     if ~(numel(wref)==1 || numel(wref)==numel(w))
-        error('If second argument is an IX_dataset_1d, it must be a single dataset or have same arraya length as first argument')
+        error('If second argument is an IX_dataset_1d, it must be a single dataset or have same array length as first argument')
     end
     % Check the reference dataset(s) can provide bin boundaries
     % *** Could catch case of single data point in reference workspaces - allowed if x values
@@ -134,6 +134,11 @@ end
 %==================================================================================================
 function wout = single_rebin(win,xbounds,true_values,point_ave)
 % Rebin dataset. Assumes that have already checked validity of input data.
+%
+%   >> wout = single_rebin(win,xbounds,true_values,point_ave)
+%
+%   win         Input IX_dataset_1d
+%   xbounds     New 
 
 ny=length(win.signal);
 nx=length(win.x);
@@ -187,19 +192,30 @@ else
         end
         ok=(indx>0&indx<nb);
         indx=indx(ok)';     % keep only the elements in the new boundaries; column
-        xsum=accumarray(indx,win.x(ok)',[nb,1]);
-        ysum=accumarray(indx,win.signal(ok)',[nb,1]);
-        esum=accumarray(indx,(win.error(ok).^2)',[nb,1]);
-        nout=accumarray(indx,ones(size(win.x(ok)')),[nb,1]);
+        xsum=accumarray(indx,win.x(ok)',[nb-1,1]);
+        ysum=accumarray(indx,win.signal(ok)',[nb-1,1]);
+        esum=accumarray(indx,(win.error(ok).^2)',[nb-1,1]);
+        nout=accumarray(indx,ones(size(win.x(ok)')),[nb-1,1]);
         ok=(nout~=0);
         nout=nout(ok);
         wout_x=xsum(ok)./nout;
         wout_y=ysum(ok)./nout;
-        wout_e=esum(ok)./nout;
+        wout_e=sqrt(esum(ok))./nout;
         wout = IX_dataset_1d (wout_x, wout_y, wout_e, win.title, win.x_axis, win.s_axis, win.x_distribution);
     else
         % Trapezoidal integration averaging
-        error('Trapezoidal integration not yet implemented')
+        if true_values
+            xbounds_actual=xbounds;
+        else
+            if numel(win.x)>1
+                xbounds_actual=rebin_1d_hist_get_xarr(win.x,xbounds);
+            else    % effectively make ranges where dx=0 just one bin
+                xbounds_actual=rebin_1d_hist_get_xarr([xbounds(1),xbounds(end)],xbounds);
+            end
+        end
+        xout_bins=diff(xbounds_actual);
+        [wout_y,wout_e] = integrate_1d_points (win.x, win.signal, win.error, xbounds_actual);
+        wout = IX_dataset_1d (xbounds_actual, wout_y./xout_bins, wout_e./xout_bins, win.title, win.x_axis, win.s_axis, win.x_distribution);
     end  
     
 %---------------------------------------------------------------------------------------------    
