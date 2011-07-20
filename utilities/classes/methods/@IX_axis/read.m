@@ -1,8 +1,8 @@
 function wout = read (wdummy,file)
 % Read object or array of objects of class type from binary file. Inverse of save.
 %
-%   >> w = read           % prompts for file
-%   >> w = read (file)    % read from named file
+%   >> w = read (IX_axis)          % prompts for file
+%   >> w = read (IX_axis, file)    % read from named file
 
 % Method independent of class type
 

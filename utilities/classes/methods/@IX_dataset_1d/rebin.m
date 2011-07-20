@@ -28,6 +28,8 @@ function [wout] = rebin(win, varargin)
 %
 % Note that this function correctly accounts for x_distribution if histogram data.
 % Point data is averaged, as it is assumed point data is sampling a function.
+% The individual members of the array of output datasets, wout, have the same type as the 
+% corresponding input datasets.
 
 % T.G.Perring 3 June 2011 Based on the original mgenie rebin routine, but with
 %                         extension to non-distribution histogram datasets, added

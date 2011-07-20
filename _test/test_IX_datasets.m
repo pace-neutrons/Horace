@@ -75,7 +75,7 @@ pp1_3=IX_dataset_2d(x_3,y_3,ss1_3,ee1_3,'pnt-pnt',IX_axis('Energy transfer','meV
 % A big point array
 % ------------------------------
 tic
-nw=50000;
+nw=5000;
 nx0=500;
 nx=nx0+round(0.2*nx0*rand(nw,1));
 p1big=repmat(IX_dataset_1d,nw,1);

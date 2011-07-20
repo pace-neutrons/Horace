@@ -69,6 +69,10 @@ if isequal(fieldnames(w),fields)
         if ~(numel(w.x)==numel(w.signal)||numel(w.x)==numel(w.signal)+1)
             message='Check lengths of x-axis and signal arrays'; return
         end
+        dx=diff(w.x);
+        if any(dx<0)
+            message='Check x-axis values are monotonic increasing'; return
+        end
     elseif sum_empty==3     % all empty
         wout.signal=[];
         wout.error=[];

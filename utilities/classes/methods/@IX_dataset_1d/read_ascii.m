@@ -11,8 +11,8 @@ function wout = read_ascii (wdummy,varargin)
 %
 % Auto-detect a single dataset:
 % -----------------------------
-%   >> w = read_ascii           % prompts for file
-%   >> w = read_ascii (file)    % read from named file
+%   >> w = read_ascii (IX_dataset_1d)          % prompts for file
+%   >> w = read_ascii (IX_dataset_1d, file)    % read from named file
 %
 % If just two columns of numeric data are found, then these are used as the x and y values; if
 % three or more columns are found then the first three columns are used as the x,y,e values:
@@ -21,19 +21,19 @@ function wout = read_ascii (wdummy,varargin)
 % Give columns to read into one or more workspaces:
 % -------------------------------------------------
 % (Note that if the file is not given, then prompts for the file)
-%   >> w = read_ascii (file, 4,6)       % columns 4,6 are x,y; no error bars
-%   >> w = read_ascii (file, 3,5,2)     % columns 3,5, and 2 are x,y,e respectively
-%   >> w = read_ascii (file, 4, [6,8,10], [7,9,11])
+%   >> w = read_ascii (..., 4,6)       % columns 4,6 are x,y; no error bars
+%   >> w = read_ascii (..., 3,5,2)     % columns 3,5, and 2 are x,y,e respectively
+%   >> w = read_ascii (..., 4, [6,8,10], [7,9,11])
 %        % three spectra, x data is col 4, then y-e are cols 6,7, cols 8,9, cols 10,11 respectively
-%   >> w = read_ascii (file, [4,7,10], [5,8,11], [6,9,12])
+%   >> w = read_ascii (..., [4,7,10], [5,8,11], [6,9,12])
 %        % three spectra, x-y-e are cols 4,5,6, cols 7,8,9, cols 10,11,12 respectively
 %
 %
 %
 % To return the data as an array:
 %
-%   >> w = read_ascii (file,0)  % read from named file
-%   >> w = read_ascii (0)       % prompts for file
+%   >> arr = read_ascii (IX_dataset_1d,file,0)  % read from named file
+%   >> arr = read_ascii (IX_dataset_1d,0)       % prompts for file
 %
 
 wout=[];
@@ -41,7 +41,7 @@ narg=numel(varargin);
 
 % Get file name - prompt if file does not exist (using file to set default seach location and extension
 % -----------------------------------------------------------------------------------------------------
-if narg==0 || ~isnumeric(varargin{1})
+if narg==0 || isnumeric(varargin{1})
     file='';
     offset=0;
 else
@@ -183,7 +183,7 @@ end
 
 %==================================================================================================
 function [w,ok,mess]=read_ascii_data_textscan (fid, col_x, col_y, col_e, xye, return_array)
-% Read data from open ascii file; return as row vector of IX_dataset_1d objecst or array, as requested
+% Read data from open ascii file; return as row vector of IX_dataset_1d objects or array, as requested
 %
 % OK can be true, but no data read - in which case the message is non-empty.
 
@@ -307,6 +307,9 @@ end
 
 % Return data
 if ~return_array
+    % *** Should check monotonicity of x values. If histogram data, then require all x are monotonic increasing
+    % For point data, reorder x to be monotonic to make valid IX_dataset_1d objects
+    
     wref=read_header(header);
     if isempty(wref.title),
         wref.title = char(avoidtex(file_full));

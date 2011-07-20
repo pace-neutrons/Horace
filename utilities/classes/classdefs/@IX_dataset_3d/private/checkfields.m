@@ -87,6 +87,15 @@ if isequal(fieldnames(w),fields)
         if ~(numel(w.z)==size(w.signal,3)||numel(w.z)==size(w.signal,3)+1)
             message='Check lengths of z-axis and third dimension of signal array are compatible'; return
         end
+        dx=diff(w.x);
+        if any(dx<0)
+            message='Check x-axis values are monotonic increasing'; return
+        end
+        dy=diff(w.y);
+        if any(dy<0)
+            message='Check y-axis values are monotonic increasing'; return
+        end
+        
     elseif sum_empty==4
         wout.signal=[];
         wout.error=[];
