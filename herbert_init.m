@@ -10,8 +10,10 @@ function herbert_init (opt)
 % T.G.Perring
 
 % Get options
-if ~(ischar(opt) && size(opt,1)==1 && ~isempty(opt))
+if exist('opt','var') && ~(ischar(opt) && size(opt,1)==1 && ~isempty(opt))
     error('Check option is character string')
+elseif ~exist('opt','var')
+    opt='fortran';
 end
 
 % root directory is assumed to be that in which this function resides

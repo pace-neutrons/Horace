@@ -8,7 +8,8 @@ but also utilities\IXTdataset_1d]
 
 combine		[[DONE]]
 interp
-peak_cwhh
+noisify
+peak_cwhh	[[DONE]]
 unspike
 
 dist2cnt	[[DONE]]

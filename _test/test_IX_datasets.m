@@ -110,8 +110,8 @@ toc
 % A big mixed point and histogram array
 % --------------------------------------
 tic
-nw=100;
-nx0=50000;
+nw=1000;
+nx0=500;
 nx=nx0+round(0.2*nx0*rand(nw,1));
 hp1big=repmat(IX_dataset_1d,nw,1);
 for i=1:nw
