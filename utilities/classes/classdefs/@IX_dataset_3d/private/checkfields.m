@@ -95,7 +95,10 @@ if isequal(fieldnames(w),fields)
         if any(dy<0)
             message='Check y-axis values are monotonic increasing'; return
         end
-        
+        dz=diff(w.z);
+        if any(dz<0)
+            message='Check y-axis values are monotonic increasing'; return
+        end        
     elseif sum_empty==4
         wout.signal=[];
         wout.error=[];

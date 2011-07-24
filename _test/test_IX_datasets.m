@@ -110,8 +110,8 @@ toc
 % A big mixed point and histogram array
 % --------------------------------------
 tic
-nw=500;
-nx0=500;
+nw=100;
+nx0=50000;
 nx=nx0+round(0.2*nx0*rand(nw,1));
 hp1big=repmat(IX_dataset_1d,nw,1);
 for i=1:nw
@@ -123,6 +123,8 @@ for i=1:nw
     hp1big(i)=IX_dataset_1d(x,y(1:end-dn),e(1:end-dn),'Point data, distribution',IX_axis('Energy transfer','meV','$w'),'Counts',true);
 end
 toc
+
+ppbig=hist2point(hp1big);
 
 
 %% mgenie objects

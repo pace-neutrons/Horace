@@ -1,4 +1,4 @@
-function herbert_init
+function herbert_init (opt)
 % Adds the paths needed by Herbert.
 %
 % In your startup.m, add the Herbert root path and call herbert_init, e.g.
@@ -8,6 +8,11 @@ function herbert_init
 % Is PC and Unix compatible.
 
 % T.G.Perring
+
+% Get options
+if ~(ischar(opt) && size(opt,1)==1 && ~isempty(opt))
+    error('Check option is character string')
+end
 
 % root directory is assumed to be that in which this function resides
 rootpath = fileparts(which('herbert_init'));
@@ -27,10 +32,14 @@ genieplot_init
 addgenpath_message (rootpath, 'applications')
 
 % Put mex files on path
-fortran_root = fullfile(rootpath,'external_code','Fortran');
-addpath_message (fortran_root);
-[mex_dir,mex_dir_full] = mex_dir_name(fortran_root);
-addpath_message (mex_dir_full);
+if strcmpi(opt,'matlab')
+    addgenpath_message (rootpath, 'matlab')
+else
+    fortran_root = fullfile(rootpath,'external_code','Fortran');
+    addpath_message (fortran_root);
+    [mex_dir,mex_dir_full] = mex_dir_name(fortran_root);
+    addpath_message (mex_dir_full);
+end
 
 %--------------------------------------------------------------------------
 function addpath_message (varargin)

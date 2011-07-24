@@ -43,7 +43,7 @@ else
 end
 
 dx=xmax-xmin;
-if any(dx)<=0
+if any(dx<=0)
     error('Lower integration limit(s) must be less than corresponding upper integration limit(s)')
 end
 
