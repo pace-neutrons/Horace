@@ -8,7 +8,7 @@ but also utilities\IXTdataset_1d]
 
 combine		[[DONE]]
 interp
-noisify
+noisify		[[DONE]]
 peak_cwhh	[[DONE]]
 unspike
 
@@ -27,12 +27,11 @@ read_ascii 	[[DONE]]
 write_ascii	[[DONE]]	(called save_ascii)
 
 deriv1		[[DONE]]	(called deriv)
-deriv2		- wont do: use double application of deriv1
+deriv2		- wont do this: use double application of deriv1
 integrate	[[DONE]]
 rebin		[[DONE]]
 rebunch		[[DONE]]
 regroup
 scale 		[[DONE]] * rescale the x-axis
-section 	* seems to be just like Horace section function
 shift		[[DONE]] * shift along the x-axis
 smooth

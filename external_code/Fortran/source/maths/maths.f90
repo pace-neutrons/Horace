@@ -13,6 +13,26 @@
 	    integer(i4b), intent(out) :: ierr
 		end subroutine integrate_1d_points
 	end interface
+
+	interface integrate_2d_x_points
+	    subroutine integrate_2d_x_points (ierr, x, s, e, xout, sout, eout)
+	    use type_definitions
+	    use tools_parameters
+	    real(dp), intent(in) :: x(:), s(:,:), e(:,:)
+	    real(dp), intent(out) :: xout(:), sout(:,:), eout(:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine integrate_2d_x_points
+	end interface
+	
+	interface integrate_2d_y_points
+	    subroutine integrate_2d_y_points (ierr, y, s, e, yout, sout, eout)
+	    use type_definitions
+	    use tools_parameters
+	    real(dp), intent(in) :: y(:), s(:,:), e(:,:)
+	    real(dp), intent(out) :: yout(:), sout(:,:), eout(:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine integrate_2d_y_points
+	end interface
 	
 	interface single_integrate_1d_points
 	    subroutine single_integrate_1d_points (x, s, e, xmin, xmax, ml, mu, val, errbar)
@@ -21,6 +41,24 @@
 	    real(dp), intent(in) :: x(:), s(:), e(:), xmin, xmax
 	    real(dp), intent(out) :: val, errbar
 		end subroutine single_integrate_1d_points
+	end interface
+		
+	interface single_integrate_2d_x_points
+	    subroutine single_integrate_2d_x_points (x, s, e, xmin, xmax, ml, mu, val, errbar)
+	    use type_definitions
+        integer(i4b), intent(in) :: ml, mu
+	    real(dp), intent(in) :: x(:), s(:,:), e(:,:), xmin, xmax
+	    real(dp), intent(out) :: val(:), errbar(:)
+		end subroutine single_integrate_2d_x_points
+	end interface
+		
+	interface single_integrate_2d_y_points
+	    subroutine single_integrate_2d_y_points (y, s, e, ymin, ymax, ml, mu, val, errbar)
+	    use type_definitions
+        integer(i4b), intent(in) :: ml, mu
+	    real(dp), intent(in) :: y(:), s(:,:), e(:,:), ymin, ymax
+	    real(dp), intent(out) :: val(:), errbar(:)
+		end subroutine single_integrate_2d_y_points
 	end interface
 		
 	interface lower_index

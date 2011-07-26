@@ -2,32 +2,32 @@
 Methods that are required for IX_dataset_2d
 ==============================================================
 
-combine
+combine		
 interp
-nois
-peak_cwhh
+noisify		
+peak_cwhh	
 unspike
 
-dist2cnt
-cnt2dist
-flip
-hist2point
-point2hist 	* not in mgenie, but is in libisis
+dist2cnt	
+cnt2dist	
+flip		* should not be necessary: valid objects must have monotonic increasing x-axis
+hist2point	
+point2hist 	
 
-func_eval
+fit 		
+func_eval	
 
-read
-write
-read_ascii 	* I think there is a superior libisis method
-write_ascii
+read		[[DONE]]
+write		[[DONE]]
+read_ascii 	
+write_ascii	
 
-deriv1
-deriv2
-integrate
-rebin
-rebunch
+deriv1		
+deriv2		- wont do this: use double application of deriv1
+integrate	
+rebin		
+rebunch		
 regroup
-scale 		* rescale the x-axis
-secxtion 	* seems to be just like Horace section function
-shift		* shift along the x-axis
+scale 		
+shift		
 smooth
