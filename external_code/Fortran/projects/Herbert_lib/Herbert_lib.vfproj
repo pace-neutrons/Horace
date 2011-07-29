@@ -55,6 +55,8 @@
 		<File RelativePath="..\..\source_mex_interface\IFL_rebin_1d_hist.f90"/>
 		<File RelativePath="..\..\source_mex_interface\IFL_rebin_1d_hist_get_marr.f90"/>
 		<File RelativePath="..\..\source_mex_interface\IFL_rebin_1d_hist_get_xarr.f90"/>
+		<File RelativePath="..\..\source_mex_interface\IFL_rebin_2d_x_hist.f90"/>
+		<File RelativePath="..\..\source_mex_interface\IFL_rebin_2d_y_hist.f90"/>
 		<File RelativePath="..\..\source\maths\integrate_1d_points.f90"/>
 		<File RelativePath="..\..\source\maths\integrate_2d_x_points.f90"/>
 		<File RelativePath="..\..\source\maths\integrate_2d_y_points.f90"/>
@@ -62,6 +64,8 @@
 		<File RelativePath="..\..\source\maths\maths.f90"/>
 		<File RelativePath="..\..\source\maths\rebin_1d_hist.f90"/>
 		<File RelativePath="..\..\source\maths\rebin_1d_hist_get_xarr.f90"/>
+		<File RelativePath="..\..\source\maths\rebin_2d_x_hist.f90"/>
+		<File RelativePath="..\..\source\maths\rebin_2d_y_hist.f90"/>
 		<File RelativePath="..\..\source\tools\remark.f90"/>
 		<File RelativePath="..\..\source\maths\single_integrate_1d_points.f90"/>
 		<File RelativePath="..\..\source\maths\single_integrate_2d_x_points.f90"/>

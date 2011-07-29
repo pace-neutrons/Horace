@@ -90,6 +90,24 @@
 		end subroutine rebin_1d_hist
 	end interface
 
+	interface rebin_2d_x_hist
+		subroutine rebin_2d_x_hist (ierr, x, s, e, xout, sout, eout)
+		use type_definitions
+	    real(dp), intent(in) :: x(:), s(:,:), e(:,:)
+	    real(dp), intent(out) :: xout(:), sout(:,:), eout(:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine rebin_2d_x_hist
+	end interface
+
+	interface rebin_2d_y_hist
+		subroutine rebin_2d_y_hist (ierr, y, s, e, yout, sout, eout)
+		use type_definitions
+	    real(dp), intent(in) :: y(:), s(:,:), e(:,:)
+	    real(dp), intent(out) :: yout(:), sout(:,:), eout(:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine rebin_2d_y_hist
+	end interface
+
 	interface rebin_1d_hist_get_xarr
 		subroutine rebin_1d_hist_get_xarr (ierr, xbounds, x_in, n_out, x_out)
 		use type_definitions

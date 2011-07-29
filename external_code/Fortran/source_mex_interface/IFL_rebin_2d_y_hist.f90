@@ -1,6 +1,6 @@
-	subroutine IFL_rebin_1d_hist (ierr, nx, x, s, e, mx, xout, sout, eout)
+	subroutine IFL_rebin_2d_y_hist (ierr, nx, ny, y, s, e, my, yout, sout, eout)
 	use type_definitions
-	use maths, only: rebin_1d_hist
+	use maths, only: rebin_2d_y_hist
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Interface to Fortran 90 library routines
 !
@@ -11,10 +11,10 @@
 !-----------------------------------------------------------------------------------------------------------------------------------
 	implicit none
 
-	integer(i4b) ierr, nx, mx
-	real(dp) x(nx), s(nx-1), e(nx-1), xout(mx), sout(mx-1), eout(mx-1)
+	integer(i4b) ierr, nx, ny, my
+	real(dp) y(nx), s(nx,ny-1), e(nx,ny-1), yout(my), sout(nx,my-1), eout(nx,my-1)
 
-	call rebin_1d_hist (ierr, x, s, e, xout, sout, eout)
+	call rebin_2d_y_hist (ierr, y, s, e, yout, sout, eout)
 
 	return
 	end

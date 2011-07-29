@@ -7,21 +7,20 @@
 ! Integration along the x-axis over a 2D data set with point character along the x-axis
 !
 ! The method is a simple trapezoidal rule, with the ordinates at the points being linearly interpolated between
-! the values in the array s.
+! the values in the arrays.
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
-! [Optional arguments are marked with * below]
 !
 ! INPUT:
-!	x(:)	    real		Point x coordinates
-!	s(:,:)	    real		Signal
-!	e(:,:)	    real		Error bars on signal
-!	xout(:)	    real		Output integration range bin boundaries
+!	x(ny)	    real		Point x coordinates
+!	s(nx,ny)	real		Signal
+!	e(nx,ny)	real		Error bars on signal
+!	xout(nb+1)	real		Output integration range bin boundaries along x-axis
 !
 ! OUTPUT:
 !	ierr	    integer		Error flag: = OK all fine; =WARN if informational messages =ERR if a problem
-!	sout(:,:)	real		Output signal
-!	eout(:,:)	real		Output error bars on signal
+!	sout(nb,ny)	real		Output signal
+!	eout(nb,ny)	real		Output error bars on signal
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
 !	T.G. Perring		2011-07-26		First release. Almost identical to integrate_1d_points

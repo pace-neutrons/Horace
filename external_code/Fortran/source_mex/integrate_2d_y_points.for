@@ -7,15 +7,15 @@
 !
 ! Input:
 ! ---------
-!   y(ny)       input y values
-!   s(nx,ny)    input signal values
-!   e(nx,ny)    input error bars
-!   yout(my+1)  output bin boundaries
+!   y(ny)         input y values
+!   s(nx,ny)      input signal values
+!   e(nx,ny)      input error bars
+!   yout(my)      output bin boundaries
 !
 ! Output:
 ! -------
-!   yout(nx,my) output y values
-!   eout(nx,my) output error bars
+!   sout(nx,my-1) output signal values
+!   eout(nx,my-1) output error bars
 !
 !===========================================================================================================
 !	T.G. Perring		2011-07-26		First release

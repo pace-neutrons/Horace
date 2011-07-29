@@ -1,24 +1,23 @@
 #include "fintrf.h"
 !===========================================================================================================
-! Rebin 1D dataset according to a new set of bin boundaries. Assumes data form a distribution.
+! Rebin 2D dataset along x-axis with histogram data along the y-axis. Assumes data form a distribution.
 !
-!   >> [sout, eout] = rebin_1d_hist (x, s, e, xout)
+!   >> [sout, eout] = rebin_2d_y_hist (y, s, e, xout)
 !
 ! Input:
 ! ---------
-!   x(nx)       input bin boundaries
-!   y(nx-1)     input signal values
-!   e(nx-1)     input error bars
-!   xout(mx)    output bin boundaries
+!   y(ny)           input bin boundaries
+!   s(nx,ny-1)      input signal values
+!   e(nx,ny-1)      input error bars
+!   yout(my)        output bin boundaries
 !
 ! Output:
 ! -------
-!   yout(mx-1)  output signal values
-!   eout(mx-1)  output error bars
+!   sout(nx,my-1)   output signal values
+!   eout(nx,my-1)   output error bars
 !
 !===========================================================================================================
-!	T.G. Perring		2011-05-30		Rename from mgenie function spectrum_rebin
-!                                       Renamed the calls to routines that performs rebin
+!	T.G. Perring		2011-07-29		Generalisation of rebin_1d_hist
 !
 !===========================================================================================================
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)
@@ -33,19 +32,19 @@
       mwSize mxGetM, mxGetN
 
 ! Internal declations
-      mwPointer x_pr, s_pr, e_pr, xout_pr
+      mwPointer y_pr, s_pr, e_pr, yout_pr
       mwPointer sout_pr, eout_pr
-      mwSize nx, mx
+      mwSize nx, ny, my
       
 ! Arguments for computational routine, or purely internal
-      integer ierr, nx_pass, mx_pass
+      integer ierr, nx_pass, ny_pass, my_pass
       character*10 ch_num
       character*80 mess
 
 ! Check for proper number of MATLAB input and output arguments 
       if (nrhs .ne. 4) then
           call mexErrMsgTxt 
-     +    ('Four inputs (x, s, e, xout) required.')
+     +    ('Four inputs (y, s, e, yout) required.')
       endif
       if (nlhs .ne. 2) then
           call mexErrMsgTxt ('Two outputs (sout, eout) required.')
@@ -63,27 +62,29 @@
       endif
 
 ! Get sizes of input arguments
-      nx = mxGetN(prhs(1))
-      mx = mxGetN(prhs(4))
+      nx = mxGetM(prhs(2))
+      ny = mxGetN(prhs(2))
+      my = mxGetN(prhs(4))
 
 ! Get pointers to input data
-      x_pr = mxGetPr (prhs(1))
+      y_pr = mxGetPr (prhs(1))
       s_pr = mxGetPr (prhs(2))
       e_pr = mxGetPr (prhs(3))
-      xout_pr = mxGetPr (prhs(4))
+      yout_pr = mxGetPr (prhs(4))
 
 ! Create pointers for the return arguments
-      plhs(1) = mxCreateDoubleMatrix (1, mx-1, 0)
-      plhs(2) = mxCreateDoubleMatrix (1, mx-1, 0)
+      plhs(1) = mxCreateDoubleMatrix (nx, my-1, 0)
+      plhs(2) = mxCreateDoubleMatrix (nx, my-1, 0)
       sout_pr = mxGetPr (plhs(1))
       eout_pr = mxGetPr (plhs(2))
 
 ! Perform rebinning:
       nx_pass=nx
-      mx_pass=mx
-      call IFL_rebin_1d_hist (ierr, nx_pass,
-     +     %val(x_pr), %val(s_pr), %val(e_pr),
-     +     mx_pass, %val(xout_pr), %val(sout_pr), %val(eout_pr))
+      ny_pass=ny
+      my_pass=my
+      call IFL_rebin_2d_y_hist (ierr, nx_pass, ny_pass,
+     +     %val(y_pr), %val(s_pr), %val(e_pr),
+     +     my_pass, %val(yout_pr), %val(sout_pr), %val(eout_pr))
 
       if (ierr .gt. 0) then
           write (ch_num, '(i6)') ierr

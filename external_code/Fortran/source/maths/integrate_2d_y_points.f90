@@ -13,15 +13,15 @@
 ! [Optional arguments are marked with * below]
 !
 ! INPUT:
-!	y(:)	    real		Point y coordinates
-!	s(:,:)	    real		Signal
-!	e(:,:)	    real		Error bars on signal
-!	yout(:)	    real		Output integration range bin boundaries along y-axis
+!	y(ny)	    real		Point y coordinates
+!	s(nx,ny)	real		Signal
+!	e(nx,ny)	real		Error bars on signal
+!	yout(nb+1)	real		Output integration range bin boundaries along y-axis
 !
 ! OUTPUT:
 !	ierr	    integer		Error flag: = OK all fine; =WARN if informational messages =ERR if a problem
-!	sout(:,:)	real		Output signal
-!	eout(:,:)	real		Output error bars on signal
+!	sout(nx,nb)	real		Output signal
+!	eout(nx,nb)	real		Output error bars on signal
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
 !	T.G. Perring		2011-07-26		First release. Almost identical to integrate_1d_points
