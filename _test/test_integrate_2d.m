@@ -30,5 +30,15 @@ wi=integrate(pp1_1d,xlo,xhi);   % integration via 1D case
 
 
 
+%% test rebinning
 
+wrk=hh1;
+wrk=hp1;
+wrk=pp1;
+
+wxy=simple_rebin_y(simple_rebin_x(wrk,6,3,12),2,3,8);
+[wxy.signal(:)';wxy.error(:)']
+
+wyx=simple_rebin_x(simple_rebin_y(wrk,2,3,8),6,3,12);
+[wyx.signal(:)';wyx.error(:)']
 

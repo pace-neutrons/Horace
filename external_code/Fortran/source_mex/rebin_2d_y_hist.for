@@ -63,7 +63,7 @@
 
 ! Get sizes of input arguments
       nx = mxGetM(prhs(2))
-      ny = mxGetN(prhs(2))
+      ny = mxGetN(prhs(2))+1
       my = mxGetN(prhs(4))
 
 ! Get pointers to input data

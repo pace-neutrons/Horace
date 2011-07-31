@@ -1,4 +1,4 @@
-function [wout] = rebin(win, varargin)
+function wout = rebin(win, varargin)
 % Rebin an IX_dataset_1d object or array of IX_dataset_1d objects along the x-axis
 %
 %   >> wout = rebin(win, xlo, xhi)      % keep data between xlo and xhi, retaining existing bins
@@ -139,8 +139,19 @@ function wout = single_rebin(win,xbounds,true_values,point_ave)
 %
 %   >> wout = single_rebin(win,xbounds,true_values,point_ave)
 %
-%   win         Input IX_dataset_1d
-%   xbounds     New 
+%   win             Input IX_dataset_1d
+%   xbounds         New x boundaries or x boundaries descriptor
+%   true_values     Nature of x boundaries:
+%                       true:  xbounds are the true values
+%                       false: xbounds is rebin rescriptor
+%   point_ave       Averging method (point data only; ignored if histogram data)
+%                       true:  Point everaging 
+%                       false: Trapezoidal integration
+%
+%   wout            Output IX_dataset_1d
+%
+% Note:
+%   *** this should always have synchronised functionality with 2D single_rebin
 
 ny=length(win.signal);
 nx=length(win.x);

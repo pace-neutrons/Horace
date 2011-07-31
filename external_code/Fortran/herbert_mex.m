@@ -72,15 +72,19 @@ outdir = fullfile(root_dir,out_rel_dir);
 if ~isempty(flname)
     fort.name = fullfile(root_dir,source_rel_dir,[flname,'.for']);
 else
-    fort = dir('*.for');
+    fort = dir(fullfile(root_dir,source_rel_dir,'*.for'));
+    for i=1:numel(fort)
+        fort(i).name=fullfile(root_dir,source_rel_dir,fort(i).name);   % add full path to name
+    end
 end
 
 for i=1:numel(fort)
-    disp(['Mex file creation from ',fort(i).name,' ...'])
     if ~debug
+        disp(['Mex file creation from ',fort(i).name,' ...'])
         lib = fullfile(root_dir,'projects','Herbert_lib',lib_dir,'release','Herbert_lib.lib');
         mex(fort(i).name, '-outdir', outdir, lib);
     else
+        disp(['Mex file (debug version) creation from ',fort(i).name,' ...'])
         lib = fullfile(root_dir,'projects','Herbert_lib',lib_dir,'debug','Herbert_lib.lib');
         mex(fort(i).name, '-g', '-outdir', outdir, lib);
     end

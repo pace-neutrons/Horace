@@ -62,7 +62,7 @@
       endif
 
 ! Get sizes of input arguments
-      nx = mxGetM(prhs(1))
+      nx = mxGetM(prhs(2))+1
       ny = mxGetN(prhs(2))
       mx = mxGetN(prhs(4))
 
