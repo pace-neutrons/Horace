@@ -4,7 +4,7 @@ function indx=bin_index(x,b,inclusive)
 %   >> ib=bin_index(x,b)
 %
 % Input:
-%   x           Points (must be monotonic increasing, but need not be strictly monotonic)
+%   x           Array of points (must be monotonic increasing, but need not be strictly monotonic)
 %   b           Bin boundaries (must be monotonic increasing, numel(b)>=2)
 %   inclusive   Logical flag to indicate how to treat points on final bin boundary:
 %                  =true:  points where x(i)==b(end) included in final bin
@@ -17,6 +17,7 @@ function indx=bin_index(x,b,inclusive)
 %               - If x(i) > b(end): indx(i)=numel(b)
 %               - Points where x(i)==b(end) are included in final bin (i.e. indx(i)=numel(b)-1)
 %                or not according to the value of the logical flag inclusive above
+%               The size and shape of indx is the same as the input array x
 
 % T.G.Perring   2 June 2011     First version
 %

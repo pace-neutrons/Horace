@@ -10,10 +10,10 @@ xb=[0,5,floor(nx/4),-0.01,floor(nx/2),0,floor(3*nx/4),10,nx];
 
 
 rmpath('T:\SVN_area\Herbert\external_code\fortran'); addpath('T:\SVN_area\Herbert\external_code\matlab')
-tic;xoutm=rebin_1d_hist_get_xarr (xin, xb);toc;
+tic;xoutm=bin_boundaries_from_descriptor (xb, x_in);toc;
 
 rmpath('T:\SVN_area\Herbert\external_code\matlab'); addpath('T:\SVN_area\Herbert\external_code\fortran')
-tic;xoutf=rebin_1d_hist_get_xarr (xin, xb);toc;
+tic;xoutf=bin_boundaries_from_descriptor (xb, xin);toc;
 
 max(abs(xoutm-xoutf))
 

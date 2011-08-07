@@ -163,7 +163,9 @@ if nx~=ny
             [wout_y,wout_e] = rebin_1d_hist (win.x, win.signal, win.error, xbounds);
             wout = IX_dataset_1d (xbounds, wout_y, wout_e, win.title, win.x_axis, win.s_axis, win.x_distribution);
         else
-            [wout_x, wout_y,wout_e] = rebin_1d_hist_by_descriptor (win.x, win.signal, win.error, xbounds);
+            wout_x=rebin_1d_hist_get_xarr(win.x,xbounds);
+            [wout_y,wout_e] = rebin_1d_hist(win.x, win.signal, win.error, wout_x);
+%            [wout_x, wout_y,wout_e] = rebin_1d_hist_by_descriptor (win.x, win.signal, win.error, xbounds);
             wout = IX_dataset_1d (wout_x, wout_y, wout_e, win.title, win.x_axis, win.s_axis, win.x_distribution);
         end
     else

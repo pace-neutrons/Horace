@@ -15,6 +15,7 @@
 !
 !===========================================================================================================
 !	T.G. Perring		2011-05-30		First version
+!                       2011-08-05      Deprecated -replaced by bin_boundaries_from_descriptor
 !
 !===========================================================================================================
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)
@@ -66,7 +67,7 @@
 ! Get number of bin boundaries for output:
       nb_pass=nb
       nx_pass=nx
-      call IFL_rebin_1d_hist_get_marr (ierr, nb_pass, %val(xbounds_pr),
+      call IFL_bin_boundaries_get_marr (ierr, nb_pass, %val(xbounds_pr),
      +    nx_pass, %val(x_pr), mx_pass)
       mx=mx_pass
       if (ierr .gt. 0) then
@@ -80,7 +81,7 @@
       xout_pr = mxGetPr (plhs(1))
 
 ! Create output bin boundaries:
-      call IFL_rebin_1d_hist_get_xarr (ierr, nb_pass, %val(xbounds_pr),
+      call IFL_bin_boundaries_get_xarr (ierr, nb_pass, %val(xbounds_pr),
      +    nx_pass, %val(x_pr), mx_pass, %val(xout_pr))
       if (ierr .gt. 0) then
           write (ch_num, '(i6)') ierr

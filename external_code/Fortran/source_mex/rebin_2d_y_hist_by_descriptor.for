@@ -78,7 +78,7 @@
 ! Get number of bin boundaries for output:
       nb_pass=nb
       ny_pass=ny
-      call IFL_rebin_1d_hist_get_marr (ierr, nb_pass, %val(ybounds_pr),
+      call IFL_bin_boundaries_get_marr (ierr, nb_pass, %val(ybounds_pr),
      +    ny_pass, %val(y_pr), my_pass)
       my=my_pass
       if (ierr .gt. 0) then
@@ -96,7 +96,7 @@
       eout_pr = mxGetPr (plhs(3))
 
 ! Create output bin boundaries:
-      call IFL_rebin_1d_hist_get_xarr (ierr, nb_pass, %val(ybounds_pr),
+      call IFL_bin_boundaries_get_xarr (ierr, nb_pass, %val(ybounds_pr),
      +    ny_pass, %val(y_pr), my_pass, %val(yout_pr))
       if (ierr .gt. 0) then
           write (ch_num, '(i6)') ierr

@@ -44,15 +44,8 @@ end
 try
     if ~isempty(file)
         create_mex_files(root_dir, mex_dir, lib_dir, file, debug);
-        
     else
         create_mex_files(root_dir, mex_dir, lib_dir, [], debug);
-        
-%         mgenie_mex_single(root_dir, mex_dir, lib_dir, 'integrate_1d_points.for',debug');
-%         mgenie_mex_single(root_dir, mex_dir, lib_dir, 'rebin_1d_hist.for',debug');
-%         mgenie_mex_single(root_dir, mex_dir, lib_dir, 'rebin_1d_hist_by_descriptor.for',debug');
-%         mgenie_mex_single(root_dir, mex_dir, lib_dir, 'rebin_1d_hist_get_xarr.for',debug');
-
     end
     
     cd(start_dir);

@@ -4,6 +4,17 @@
 !-----------------------------------------------------------------------------------------------------------------------------------
 	module maths
 
+	interface bin_boundaries_get_xarr
+		subroutine bin_boundaries_get_xarr (ierr, xbounds, x_in, n_out, x_out)
+		use type_definitions
+		real(dp), intent(in) :: xbounds(:)
+		real(dp), intent(in), optional :: x_in(:)
+		integer(i4b), intent(out) :: ierr
+		integer(i4b), intent(out), optional :: n_out
+		real(dp), intent(out), optional :: x_out(:)
+		end subroutine bin_boundaries_get_xarr
+	end interface
+
 	interface integrate_1d_points
 	    subroutine integrate_1d_points (ierr, x, s, e, xout, sout, eout)
 	    use type_definitions
@@ -106,17 +117,6 @@
 	    real(dp), intent(out) :: yout(:), sout(:,:), eout(:,:)
 	    integer(i4b), intent(out) :: ierr
 		end subroutine rebin_2d_y_hist
-	end interface
-
-	interface rebin_1d_hist_get_xarr
-		subroutine rebin_1d_hist_get_xarr (ierr, xbounds, x_in, n_out, x_out)
-		use type_definitions
-		real(dp), intent(in) :: xbounds(:)
-		real(dp), intent(in), optional :: x_in(:)
-		integer(i4b), intent(out) :: ierr
-		integer(i4b), intent(out), optional :: n_out
-		real(dp), intent(out), optional :: x_out(:)
-		end subroutine rebin_1d_hist_get_xarr
 	end interface
 
 	interface upper_index

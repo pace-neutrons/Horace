@@ -1,4 +1,4 @@
-	subroutine rebin_1d_hist_get_xarr (ierr, xbounds, x_in, n_out, x_out)
+	subroutine bin_boundaries_get_xarr (ierr, xbounds, x_in, n_out, x_out)
 	use tools_parameters
 	use maths
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@
 ! ---------------------------------------
 	mx = size(xbounds)
 	if ((mx < 2) .or. (mx > 2 .and. mod(mx,2) /= 1)) then
-		mess = 'ERROR: Check size of xbounds array (rebin_1d_hist_get_xarr)'
+		mess = 'ERROR: Check size of xbounds array (bin_boundaries_get_xarr)'
 		goto 99
 	endif
 	if (present(x_in)) m_in = size(x_in)
@@ -96,7 +96,7 @@
 		endif
 
 		if (xhi <= xlo) then
-			mess = 'ERROR: Check boundaries monotonically increasing (rebin_1d_hist_get_xarr)'
+			mess = 'ERROR: Check boundaries monotonically increasing (bin_boundaries_get_xarr)'
 			goto 99
 		endif
 
@@ -105,7 +105,7 @@
 			if (xlo+real(n,dp)*del < xhi) n=n+1	! n = no. bin boundaries in addition to XLO (i.e. includes XHI)
 			if (present(x_out)) then
 				if (ntot+n > m_out) then
-					mess = 'ERROR: Output bin boundary array too small (rebin_1d_hist_get_xarr)'
+					mess = 'ERROR: Output bin boundary array too small (bin_boundaries_get_xarr)'
 					goto 99
 				endif
 				x_out(ntot) = xlo
@@ -118,7 +118,7 @@
 			ntot = ntot + n
 		else if (del < 0.0_dp) then
 			if (xlo <= 0.0_dp) then
-				mess = 'ERROR: Logarithmic bins starting with XLO <= 0 forbidden (rebin_1d_hist_get_xarr)'
+				mess = 'ERROR: Logarithmic bins starting with XLO <= 0 forbidden (bin_boundaries_get_xarr)'
 				goto 99
 			endif
 			logdel = log(1.0_dp-del)
@@ -126,7 +126,7 @@
 			if (xlo*exp(real(n,dp)*logdel) < xhi) n=n+1
 			if (present(x_out)) then
 				if (ntot+n > m_out) then
-					mess = 'ERROR: Output bin boundary array too small (rebin_1d_hist_get_xarr)'
+					mess = 'ERROR: Output bin boundary array too small (bin_boundaries_get_xarr)'
 					goto 99
 				endif
 				x_out(ntot) = xlo
@@ -141,7 +141,7 @@
 !  Check that input array is present and monotonically increasing:
 			if (first_time) then
 				if (.not. present(x_in)) then
-					mess = 'ERROR: No input x array provided to supply bin boundaries (rebin_1d_hist_get_xarr)'
+					mess = 'ERROR: No input x array provided to supply bin boundaries (bin_boundaries_get_xarr)'
 					goto 99
 				endif
 				first_time = .FALSE.
@@ -164,7 +164,7 @@
 			endif
 			if (present(x_out)) then
 				if (ntot+n > m_out) then
-					mess = 'ERROR: Output bin boundary array too small (rebin_1d_hist_get_xarr)'
+					mess = 'ERROR: Output bin boundary array too small (bin_boundaries_get_xarr)'
 					goto 99
 				endif
 				x_out(ntot) = xlo
