@@ -2,12 +2,12 @@
 !===========================================================================================================
 ! Get new bin boundaries from a rebin descriptor.
 !
-!   >> xout = bin_boundaries_from_descriptor (x, xbounds)
+!   >> xout = bin_boundaries_from_descriptor (xbounds, x)
 !
 ! Input:
 ! ---------
-!   x(nx)       input bin boundaries
 !   xbounds(nb) Descriptor of array of bin boundaries onto which the data is to be rebinned
+!   x(nx)       input bin boundaries
 !
 ! Output:
 ! -------
@@ -52,16 +52,16 @@
       if (mxIsNumeric(prhs(1)) .ne. 1) then
           call mexErrMsgTxt('Input #1 is not a numeric array.')
       elseif (mxIsNumeric(prhs(2)) .ne. 1) then
-          call mexErrMsgTxt('Input #1 is not a numeric array.')
+          call mexErrMsgTxt('Input #2 is not a numeric array.')
       endif
 
 ! Get sizes of input arguments
-      nx = mxGetN(prhs(1))
-      nb = mxGetN(prhs(2))
+      nb = mxGetN(prhs(1))
+      nx = mxGetN(prhs(2))
 
 ! Get pointers to input data
-      x_pr = mxGetPr (prhs(1))
-      xbounds_pr = mxGetPr (prhs(2))
+      xbounds_pr = mxGetPr (prhs(1))
+      x_pr = mxGetPr (prhs(2))
 
 ! Get number of bin boundaries for output:
       nb_pass=nb

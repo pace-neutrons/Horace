@@ -18,7 +18,7 @@ end
 
 if numel(varargin)>=1
     wtmp=IX_dataset_1d(win);
-    wouttmp=rebin(wtmp,varargin{:});
+    wouttmp=rebin_ref(wtmp,varargin{:});
     wout=IX_dataset_2d(wouttmp);
     wout.y=win.y;
     wout.y_axis=win.y_axis;

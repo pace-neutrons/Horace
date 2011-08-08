@@ -92,7 +92,7 @@ if nargin>=2 && isa(args{1},'IX_dataset_1d')
 else
     % If rebin arguments are numeric, check format
     % (the fortran does a bunch or checks, but better to catch in matlab first)
-    [ok,rebin_descriptor,any_dx_zero,mess]=rebin_descriptor_check(args{:});
+    [ok,rebin_descriptor,any_dx_zero,mess]=rebin_descriptor_check_ref(args{:});
     if ok
         if numel(rebin_descriptor)>=3 && ~any_dx_zero     % get new bin boundaries
             xbounds_all_same=true;
@@ -125,9 +125,9 @@ else
             else
                 xbounds=bin_boundaries_simple(wref(i).x);
             end
-            wout(i)=single_rebin(win,xbounds,true,point_ave);
+            wout(i)=single_rebin(win(i),xbounds,true,point_ave);
         else
-            wout(i)=single_rebin(win,rebin_descriptor,false,point_ave);
+            wout(i)=single_rebin(win(i),rebin_descriptor,false,point_ave);
         end
     end
 end

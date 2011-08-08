@@ -93,7 +93,7 @@ if isequal(fieldnames(w),fields)
         wout.x=[];
         wout.y=[];
     else
-        message='Check contents of signal, error and x arrays';
+        message='Check contents of signal, error and x arrays'; return
     end
     if ischar(w.s_axis)||iscellstr(w.s_axis)
         wout.s_axis=IX_axis(w.s_axis);
