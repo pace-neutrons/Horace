@@ -1,14 +1,13 @@
-function wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebin_hist_func,integrate_points_func,point_integration)
+function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebin_hist_func,integrate_points_func,point_integration)
 % Rebin dataset. Assumes that have already checked validity of input data.
 %
-%   >> [wout_x,wout_s,wout_e] = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
+%   >> wout = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
 %                                               rebin_hist_func,integrate_points_func,point_integration)
 %
-%   iax             Array of axis indices (1,2,3...) of rebin axes
-%   win_x           Input rebin axes values (cell array of row vectors of bin boundaries or point values)
-%   win_s           Signal values
-%   win_e           Standard errors on signal
-%   win_xdist       Array of distribution flags i.e. counts per unit axis interval (true), or just counts (false)
+% Input:
+% -------
+%   win_x           Input IX_dataset_nd object
+%   iax             Array of axis indices (chosen from 1,2,3...) of rebin axes
 %   xbounds         Output rebin boundaries or descriptor of boundaries for each axis (cell array of row vectors) 
 %                  (Note: these describe boundaries for the rebinning even if point data)
 %   true_values     Array of logical flags that give nature of data contained in xbounds:
@@ -19,6 +18,15 @@ function wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebin_his
 %   point_integration       Array of averging method (point data only; ignored if histogram data)
 %                             true:  Trapezoidal integration
 %                             false: Point averaging
+% Output:
+% -------
+% EITHER:
+%   wout            Output IX_dataset_nd object
+%   
+% OR:
+%   wout_x          Rebinned axis values
+%   wout_s          Rebinned signal
+%   wout_e          Rebinned errors
 
 nrebin=numel(iax);
 wout_x=cell(1,nrebin);
@@ -31,7 +39,13 @@ for i=2:nrebin
     [wout_x{i},wout_s,wout_e] = rebin_one_axis(iax(i),win_x,wout_s,wout_e,xdistr,xbounds{i},true_values(i),...
                                                 rebin_hist_func{i},integrate_points_func{i},point_integration(i));
 end
-wout=xsigerr_set(win,iax,wout_x,wout_s,wout_e);
+if nargout==1
+    varargout{1}=xsigerr_set(win,iax,wout_x,wout_s,wout_e);
+else
+    varargout{1}=wout_x;
+    varargout{2}=wout_s;
+    varargout{3}=wout_e;
+end
 
 %============================================================================================================
 function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
@@ -41,11 +55,10 @@ function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist
 %   >> [wout_x,wout_s,wout_e] = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
 %                                               rebin_hist_func,integrate_points_func,point_integration)
 %
-%   iax             Axis index (1,2,3...) of rebin axis
-%   win_x           Input rebin axis values (row vectore of bin boundaries or point values)
-%   win_s           Signal values
-%   win_e           Standard errors on signal
-%   win_xdist       Distribution i.e. counts per unit axis interval (true), or just counts (false)
+% Input:
+% -------
+%   win_x           Input IX_dataset_nd object
+%   iax             Array of axis indices (chosen from 1,2,3...) of rebin axes
 %   xbounds         Output rebin boundaries or descriptor of boundaries 
 %                  (Note: these describe boundaries for the rebinning even if point data)
 %   true_values     Nature of data contained in xbounds:
@@ -56,6 +69,12 @@ function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist
 %   point_integration       Averging method (point data only; ignored if histogram data)
 %                             true:  Trapezoidal integration
 %                             false: Point averaging
+%
+% Output:
+% -------
+%   wout_x          Rebinned axis values
+%   wout_s          Rebinned signal
+%   wout_e          Rebinned errors
 
 nx=numel(win_x);
 sz=size(win_s);

@@ -41,4 +41,5 @@ integrate_points_func={@integrate_1d_points};
 iax=1;                      % axes to integrate over
 isdescriptor=true;          % accept only rebin descriptor
 
-wout = rebin_IX_dataset_nd (win, class_ref, rebin_hist_func, integrate_points_func, iax, isdescriptor, varargin{:});
+[wout,ok,mess] = rebin_IX_dataset_nd (win, class_ref, rebin_hist_func, integrate_points_func, iax, isdescriptor, varargin{:});
+if ~ok, error(mess), end
