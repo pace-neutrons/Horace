@@ -7,7 +7,7 @@
 !
 ! Input:
 ! ---------
-!   x(nx)         input x values
+!   x(nx)         input x values (row)
 !   s(nx,ny)      input signal values
 !   e(nx,ny)      input error bars
 !   xout(mx)      output bin boundaries

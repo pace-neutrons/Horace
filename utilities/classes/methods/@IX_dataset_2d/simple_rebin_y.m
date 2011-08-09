@@ -1,10 +1,10 @@
 function wout = simple_rebin_y(win, varargin)
 % Integrate IX_dataset_2d along y axis using same algorithm as 
 %
-%   >> wout = simplerebin_y(win, ylo, yhi)       % keep data between ylo and yhi, retaining existing bins
-%	>> wout = simplerebin_y(win, ylo, dy, yhi)   % rebin from ylo to yhi in intervals of dy
-%   >> wout = simplerebin_y(win,wref)            % rebin win with the bin boundaries of wref (a 1D dataset)
-%   >> wout = simplerebin_y(..., 'int')          % trapezoidal integration if point data
+%   >> wout = simple_rebin_y(win, ylo, yhi)       % keep data between ylo and yhi, retaining existing bins
+%	>> wout = simple_rebin_y(win, ylo, dy, yhi)   % rebin from ylo to yhi in intervals of dy
+%   >> wout = simple_rebin_y(win,wref)            % rebin win with the bin boundaries of wref (a 1D dataset)
+%   >> wout = simple_rebin_y(..., 'int')          % trapezoidal integration if point data
 %
 % See IX_dataset_1d/rebin for full help
 %

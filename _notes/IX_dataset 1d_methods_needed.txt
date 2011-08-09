@@ -1,6 +1,10 @@
 ==============================================================
 Methods that are required for IX_dataset_1d
 ==============================================================
+*** Conversion to column signal and error arrays: still to be done
+      - integrate, rebunch
+
+
 [Essentially created from mgenie_libisisver.
 Some of the methods are also in libisis; 
 check classes folder

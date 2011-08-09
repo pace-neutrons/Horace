@@ -6,12 +6,12 @@
 !
 ! Input:
 ! ---------
-!   xbounds(nb) Descriptor of array of bin boundaries onto which the data is to be rebinned
-!   x(nx)       input bin boundaries
+!   xbounds(nb) Descriptor of array of bin boundaries onto which the data is to be rebinned (row)
+!   x(nx)       input bin boundaries (row)
 !
 ! Output:
 ! -------
-!   xout(m+1)   output bin boundaries
+!   xout(m+1)   output bin boundaries (row)
 !
 !===========================================================================================================
 !	T.G. Perring		2011-05-30		First version

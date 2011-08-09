@@ -7,14 +7,14 @@
 !
 ! Input:
 ! ---------
-!   y(ny)           input bin boundaries
+!   y(ny)           input bin boundaries (row)
 !   s(nx,ny-1)      input signal values
 !   e(nx,ny-1)      input error bars
-!   ybounds(nb)     Descriptor of array of bin boundaries onto which the data is to be rebinned
+!   ybounds(nb)     Descriptor of array of bin boundaries onto which the data is to be rebinned (row)
 !
 ! Output:
 ! -------
-!   yout(my)        output bin boundaries
+!   yout(my)        output bin boundaries (row)
 !   sout(nx,my-1)   output signal values
 !   eout(nx,my-1)   output error bars
 !

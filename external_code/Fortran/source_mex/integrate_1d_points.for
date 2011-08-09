@@ -6,15 +6,15 @@
 !
 ! Input:
 ! ---------
-!   x(n)        input x values
-!   s(n)        input intensity values
-!   e(n)        input error bars
-!   xout(m)     output bin boundaries
+!   x(n)        input x values (row)
+!   s(n)        input intensity values (column)
+!   e(n)        input error bars (column)
+!   xout(m)     output bin boundaries (row)
 !
 ! Output:
 ! -------
-!   sout(m-1)   output intensity values
-!   eout(m-1)   output error bars
+!   sout(m-1)   output intensity values (column)
+!   eout(m-1)   output error bars (column)
 !
 !===========================================================================================================
 !	T.G. Perring		2011-07-19		First release
@@ -72,8 +72,8 @@
       xout_pr = mxGetPr (prhs(4))
 
 ! Create pointers for the return arguments
-      plhs(1) = mxCreateDoubleMatrix (1, mx-1, 0)
-      plhs(2) = mxCreateDoubleMatrix (1, mx-1, 0)
+      plhs(1) = mxCreateDoubleMatrix (mx-1, 1, 0)
+      plhs(2) = mxCreateDoubleMatrix (mx-1, 1, 0)
       sout_pr = mxGetPr (plhs(1))
       eout_pr = mxGetPr (plhs(2))
 

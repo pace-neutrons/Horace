@@ -7,7 +7,7 @@
 !
 ! Input:
 ! ---------
-!   y(ny)         input y values
+!   y(ny)         input y values (row)
 !   s(nx,ny)      input signal values
 !   e(nx,ny)      input error bars
 !   yout(my)      output bin boundaries

@@ -9,9 +9,9 @@ nax=numel(iax); % number of axes in object
 if ~(numel(varargin)==1 && isa(varargin{1},class(win))) && (numel(varargin)>=1 && ~isnumeric(varargin{end}))  % last argument is point integration option
     [point_integration, ok, mess] = rebin_point_integration_check (nax, varargin{end});
     if ~ok, error(mess), end
-    args=varargin{1:end-1};
+    args=varargin(1:end-1);
 else
-    point_integration=true(1,nax);
+    point_integration=false(1,nax);
     args=varargin;
 end
 

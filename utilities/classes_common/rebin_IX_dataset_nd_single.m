@@ -22,6 +22,7 @@ function wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebin_his
 
 nrebin=numel(iax);
 wout_x=cell(1,nrebin);
+% Need to treat IX_dataset_1d in special way: because data is stored as row vectors
 [win_x,xhist,xdistr]=axis(win,iax(1));
 [wout_x{1},wout_s,wout_e] = rebin_one_axis(iax(1),win_x,win.signal,win.error,xdistr,xbounds{1},true_values(1),...
                                             rebin_hist_func{1},integrate_points_func{1},point_integration(1));
@@ -76,8 +77,8 @@ if nx~=sz(iax)
             dx_in=diff(win_x)';
             dx_out=diff(wout_x)';
         else
-            dx_in=repmat(reshape(diff(win_x),[ones(1,iax-1),numel(win_x)-1]),x_sz_repmat);
-            dx_out=repmat(reshape(diff(wout_x),[ones(1,iax-1),numel(wout_x)-1]),x_sz_repmat);
+            dx_in=repmat(reshape(diff(win_x),[ones(1,iax-1),numel(win_x)-1,1]),x_sz_repmat);
+            dx_out=repmat(reshape(diff(wout_x),[ones(1,iax-1),numel(wout_x)-1,1]),x_sz_repmat);
         end
         [wout_s, wout_e] = rebin_hist_func (win_x, win_s./dx_in, win_e./dx_in, wout_x);
         wout_s=wout_s.*dx_out;
@@ -100,9 +101,9 @@ else
         % Point averaging
         % Get bin index for each point along the rebin axis
         nb=numel(xbounds_true);
-        ind=bin_index(win_x,xbounds_true,true);
-        ok=(ind>0&ind<nb)';   % those elements in the new bins; column vector
-        ind=ind(ok);          % keep only the elements in the new boundaries; column vector
+        ind=bin_index(win_x,xbounds_true,true)'; % column vector
+        ok=(ind>0&ind<nb);      % those elements in the new bins; column vector
+        ind=ind(ok);            % keep only the elements in the new boundaries; column vector
         xsum=accumarray(ind,win_x(ok),[nb-1,1]);
         nout=accumarray(ind,ones(size(win_x(ok))),[nb-1,1]);
         keep=(nout~=0);
@@ -113,17 +114,17 @@ else
             ysum=accumarray(ind,win_s(ok),[nb-1,1]);
             esum=accumarray(ind,(win_e(ok).^2),[nb-1,1]);
         else
-            ok=repmat(reshape(ok,[ones(1,iax-1),numel(win_x)-1]),x_sz_repmat);
+            ok=repmat(reshape(ok,[ones(1,iax-1),numel(win_x),1]),x_sz_repmat);
             ok=ok(:);         % make column vector
             indcell=cell(1,numel(sz));
             for id=1:numel(sz)
                 if id~=iax
                     indcell{id}=1:sz(id);
                 else
-                    indcell(id)=ind;
+                    indcell{id}=ind;
                 end
             end
-            ind_grid=ndgridcell(indcell{:});
+            ind_grid=ndgridcell(indcell);
             ind=cat(numel(sz)+1,ind_grid{:});
             ind=reshape(ind,[numel(ind)/numel(sz),numel(sz)]);
             szout=sz; szout(iax)=nb-1;
@@ -131,17 +132,17 @@ else
             esum=accumarray(ind,(win_e(ok).^2),szout);
             % Normalise data in bins by number of contributing points
             clear('ok','ind_grid','ind');     % get rid of potentially large work arrays
-            keep=repmat(reshape(keep,[ones(1,iax-1),numel(keep)]),x_sz_repmat);
-            nout=repmat(reshape(nout,[ones(1,iax-1),numel(nout)]),x_sz_repmat);
+            keep=repmat(reshape(keep,[ones(1,iax-1),numel(keep),1]),x_sz_repmat);
+            nout=repmat(reshape(nout,[ones(1,iax-1),numel(nout),1]),x_sz_repmat);
         end
-        wout_s=ysum(keep)./nout;
-        wout_e=sqrt(esum(keep))./nout;
+        wout_s=reshape(ysum(keep),size(nout))./nout;    % subscripting with keep turns output into a column vector
+        wout_e=sqrt(reshape(esum(keep),size(nout)))./nout;
     else
         % Trapezoidal integration averaging
         if oneD
             dx_out=diff(xbounds_true)';
         else
-            dx_out=repmat(reshape(diff(xbounds_true),[ones(1,iax-1),numel(xbounds_true)-1]),x_sz_repmat);
+            dx_out=repmat(reshape(diff(xbounds_true),[ones(1,iax-1),numel(xbounds_true)-1,1]),x_sz_repmat);
         end
         [wout_s,wout_e] = integrate_points_func (win_x, win_s, win_e, xbounds_true);
         wout_x=0.5*(xbounds_true(2:end)+xbounds_true(1:end-1));

@@ -80,7 +80,7 @@ if nargin>=2 && isa(args{1},'IX_dataset_1d')
     % If just one reference dataset, get the x-values
     if numel(wref)==1
         xbounds_all_same=true;
-        if numel(wref.x)==numel(wref.signal)
+        if numel(wref.x)~=numel(wref.signal)
             xbounds=wref.x;
         else
             xbounds=bin_boundaries_simple(wref.x);
@@ -171,19 +171,19 @@ if nx~=ny
     else
         % Get arrays of distribution of counts and errors
         xin_bins=diff(win.x);
-        ytemp=win.signal./xin_bins;
-        etemp=win.error./xin_bins;
+        ytemp=win.signal./xin_bins';
+        etemp=win.error./xin_bins';
         if true_values
             [ytemp, etemp] = rebin_1d_hist (win.x, ytemp, etemp, xbounds);
             xout_bins=diff(xbounds);
-            ytemp=ytemp.*xout_bins;
-            etemp=etemp.*xout_bins;
+            ytemp=ytemp.*xout_bins';
+            etemp=etemp.*xout_bins';
             wout = IX_dataset_1d (xbounds, ytemp, etemp, win.title, win.x_axis, win.s_axis, win.x_distribution);
         else
             [wout_x, ytemp, etemp] = rebin_1d_hist_by_descriptor (win.x, ytemp, etemp, xbounds);
             xout_bins=diff(wout_x);
-            ytemp=ytemp.*xout_bins;
-            etemp=etemp.*xout_bins;
+            ytemp=ytemp.*xout_bins';
+            etemp=etemp.*xout_bins';
             wout = IX_dataset_1d (wout_x, ytemp, etemp, win.title, win.x_axis, win.s_axis, win.x_distribution);
         end
     end
@@ -230,7 +230,8 @@ else
         end
         xout_bins=diff(xbounds_actual);
         [wout_y,wout_e] = integrate_1d_points (win.x, win.signal, win.error, xbounds_actual);
-        wout = IX_dataset_1d (xbounds_actual, wout_y./xout_bins, wout_e./xout_bins, win.title, win.x_axis, win.s_axis, win.x_distribution);
+        xbounds_centres=0.5*(xbounds_actual(2:end)+xbounds_actual(1:end-1));
+        wout = IX_dataset_1d (xbounds_centres, wout_y./xout_bins', wout_e./xout_bins', win.title, win.x_axis, win.s_axis, win.x_distribution);
     end  
     
 %---------------------------------------------------------------------------------------------    

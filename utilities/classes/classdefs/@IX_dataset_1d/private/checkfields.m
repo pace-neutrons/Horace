@@ -97,9 +97,9 @@ if isequal(fieldnames(w),fields)
     else
         message='Distribution type must be true or false'; return
     end
-    if size(w.signal,2)==1, wout.signal=w.signal'; end  % make row vector
-    if size(w.error,2)==1, wout.error=w.error'; end
-    if size(w.x,2)==1, wout.x=w.x'; end
+    if size(w.signal,1)==1, wout.signal=w.signal'; end  % make column vector
+    if size(w.error,1)==1, wout.error=w.error'; end
+    if size(w.x,2)==1, wout.x=w.x'; end     % make row vector
 else
     message='Fields inconsistent with class type';
     return

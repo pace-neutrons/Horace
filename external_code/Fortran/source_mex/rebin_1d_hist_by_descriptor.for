@@ -6,16 +6,16 @@
 !
 ! Input:
 ! ---------
-!   x(nx)       input bin boundaries
-!   s(nx-1)     input y values
-!   e(nx-1)     input error bars
-!   xbounds(nb) Descriptor of array of bin boundaries onto which the data is to be rebinned
+!   x(nx)       input bin boundaries (row)
+!   s(nx-1)     input y values (column)
+!   e(nx-1)     input error bars (column)
+!   xbounds(nb) Descriptor of array of bin boundaries onto which the data is to be rebinned (row)
 !
 ! Output:
 ! -------
-!   xout(mx)    output bin boundaries
-!   sout(mx-1)  output y values
-!   eout(mx-1)  output error bars
+!   xout(mx)    output bin boundaries (row)
+!   sout(mx-1)  output y values (column)
+!   eout(mx-1)  output error bars (column)
 !
 !===========================================================================================================
 !	T.G. Perring		2011-05-30		Rename from mgenie function spectrum_rebin_by_descriptor
@@ -89,8 +89,8 @@
 
 ! Create pointers for the return arguments
       plhs(1) = mxCreateDoubleMatrix (1, mx, 0)
-      plhs(2) = mxCreateDoubleMatrix (1, mx-1, 0)
-      plhs(3) = mxCreateDoubleMatrix (1, mx-1, 0)
+      plhs(2) = mxCreateDoubleMatrix (mx-1, 1, 0)
+      plhs(3) = mxCreateDoubleMatrix (mx-1, 1, 0)
       xout_pr = mxGetPr (plhs(1))
       sout_pr = mxGetPr (plhs(2))
       eout_pr = mxGetPr (plhs(3))

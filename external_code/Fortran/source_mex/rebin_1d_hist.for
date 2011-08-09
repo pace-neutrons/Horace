@@ -6,15 +6,15 @@
 !
 ! Input:
 ! ---------
-!   x(nx)       input bin boundaries
-!   y(nx-1)     input signal values
-!   e(nx-1)     input error bars
-!   xout(mx)    output bin boundaries
+!   x(nx)       input bin boundaries (row)
+!   s(nx-1)     input signal values (column)
+!   e(nx-1)     input error bars (column)
+!   xout(mx)    output bin boundaries (row)
 !
 ! Output:
 ! -------
-!   yout(mx-1)  output signal values
-!   eout(mx-1)  output error bars
+!   sout(mx-1)  output signal values (column)
+!   eout(mx-1)  output error bars (column)
 !
 !===========================================================================================================
 !	T.G. Perring		2011-05-30		Rename from mgenie function spectrum_rebin
@@ -73,8 +73,8 @@
       xout_pr = mxGetPr (prhs(4))
 
 ! Create pointers for the return arguments
-      plhs(1) = mxCreateDoubleMatrix (1, mx-1, 0)
-      plhs(2) = mxCreateDoubleMatrix (1, mx-1, 0)
+      plhs(1) = mxCreateDoubleMatrix (mx-1, 1, 0)
+      plhs(2) = mxCreateDoubleMatrix (mx-1, 1, 0)
       sout_pr = mxGetPr (plhs(1))
       eout_pr = mxGetPr (plhs(2))
 

@@ -4,9 +4,36 @@ function w2 = IX_dataset_2d(w1,varargin)
 %   >> w2 = IX_dataset_1d (w1)
 %   >> w2 = IX_dataset_1d (w1, y)
 %   >> w2 = IX_dataset_1d (w1, y, y_axis)
-%   >> w2 = IX_dataset_1d (w1, y, y_axis, y_distribution)
-%   >> w2 = IX_dataset_1d (w1, y, y_axis, y_distribution, bindata)
+%   >> w2 = IX_dataset_1d (w1, y, y_axis, y_distr)
+%   >> w2 = IX_dataset_1d (w1, y, y_axis, y_distr, bindata)
 %
+% Input:
+% ------
+%   w1      IX_dataset_1d or array of IX_dataset_1d
+%
+%   y       y-axis values (point or histogram)
+%             - single array if one output IX_dataset_2d
+%             - cell array of arrays if two or more output IX_dataset_2d
+%
+%   y_axis  Annotation and units for y-axis. See help IX_axis for full 
+%           range of possible syntax, but include
+%               - caption e.g. 'Scattering angle'
+%               - caption and units e.g. IX_axis('Energy','meV')
+%           If more than one output IX_dataset_2d, then y_axis
+%           can be cell array of strings or array of IX_axis objects.
+%           (assumed to all be the same if not array)
+%
+%   y_distr Logical flag to indicate if data forms a distribution
+%             - true if a distribution i.e. counts per unit y
+%             - false if otherwise
+%           If more than one output IX_dataset_1d, then can be a logical array
+%           (assumed to all be the same if not array)
+%
+%   bindata Logical array indicating which IX_datset_2d is histogram (true) or
+%           point data (false). Only necessary if there is ambiguity.
+%           Unambiguous cases are:
+%             - just one output IX_dataset_2d
+%             - all output are point data or all are histogram data
 
 % *** Actually, can work out if all point or all histogram (see code for details)
 

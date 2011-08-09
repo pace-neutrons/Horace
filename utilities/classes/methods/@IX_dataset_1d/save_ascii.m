@@ -74,9 +74,9 @@ for i=1:length(w)
         fprintf(fid,'%-s\n',labels{j});
     end
     if length(w(i).x)==length(w(i).signal) % point data
-        fprintf (fid, '%30.16g %30.16g %30.16g \n', [w(i).x; w(i).signal; w(i).error]);
+        fprintf (fid, '%30.16g %30.16g %30.16g \n', [w(i).x; w(i).signal'; w(i).error']);
     else
-        fprintf (fid, '%30.16g %30.16g %30.16g \n', [w(i).x(1:end-1); w(i).signal; w(i).error]);
+        fprintf (fid, '%30.16g %30.16g %30.16g \n', [w(i).x(1:end-1); w(i).signal'; w(i).error']);
         fprintf (fid, '%30.16g \n', w(i).x(end));
     end
 end
