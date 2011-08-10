@@ -17,7 +17,7 @@ xbounds=[];
 any_dx_zero=false;
 mess='';
 % -------------------------------------------------------------------------------------------------
-% xlo,xhi  - only valid if a single rebin axis and a rebin descriptor is requested
+% xlo,xhi  - only valid if a single rebin axis
 if numel(varargin)==2 && isnumeric(varargin{1}) && isnumeric(varargin{2}) &&...
         isscalar(varargin{1})  && isscalar(varargin{2})
     if varargin{2}>varargin{1}
@@ -28,7 +28,7 @@ if numel(varargin)==2 && isnumeric(varargin{1}) && isnumeric(varargin{2}) &&...
     end
     
 % -------------------------------------------------------------------------------------------------
-% xlo,dx,xhi  - only valid if a single rebin axis and a rebin descriptor is requested
+% xlo,dx,xhi  - only valid if a single rebin axis
 elseif numel(varargin)==3 && isnumeric(varargin{1}) && isnumeric(varargin{2}) && isnumeric(varargin{3}) &&...
     isscalar(varargin{1})  && isscalar(varargin{2})  && isscalar(varargin{3})
     if varargin{3}>varargin{1}

@@ -3,7 +3,9 @@ function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebi
 %
 %   >> wout = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
 %                                               rebin_hist_func,integrate_points_func,point_integration)
-%
+% OR
+%   >> [wout_x,wout_s,wout_e] = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
+%                                               rebin_hist_func,integrate_points_func,point_integration)
 % Input:
 % -------
 %   win_x           Input IX_dataset_nd object

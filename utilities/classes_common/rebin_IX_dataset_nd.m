@@ -1,7 +1,7 @@
 function [wout,ok,mess] = rebin_IX_dataset_nd (win, class_ref, rebin_hist_func, integrate_points_func, iax, isdescriptor, varargin)
 % Rebin an IX_dataset_nd object or array of IX_dataset_nd objects along one or more axes
 %
-%   >> wout = rebin_IX_dataset_nd (win, class_ref, rebin_hist_func, integrate_points_func, iax, isdescriptor, varargin)
+%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, class_ref, rebin_hist_func, integrate_points_func, iax, isdescriptor, varargin)
 
 nax=numel(iax); % number of axes in object
 
@@ -54,7 +54,7 @@ elseif numel(args)>0
         end
     end
 else
-    error('Check rebinning parameters')
+    ok=false; wout=[];  mess='Check rebinning parameters'; return
 end
 
 
