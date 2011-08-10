@@ -1,9 +1,9 @@
-function wout = integrate (win, varargin)
-% Integrate one or more IX_dataset_1d objects between two limits
+function wout = integrate_x (win, varargin)
+% Integrate one or more IX_dataset_2d objects along the x-axis between two limits
 %
-%   >> wout = integrate (win)	% integrate over full range of data
-%   >> wout = integrate (win, xmin, xmax)
-%   >> wout = integrate (win, [xmin, xmax])
+%   >> wout = integrate (win)   % integrate over full range of data
+%   >> wout = integrate_x (win, xmin, xmax)
+%   >> wout = integrate_x (win, [xmin, xmax])
 %
 % Input:
 % -------
@@ -25,9 +25,9 @@ function wout = integrate (win, varargin)
 
 if numel(win)==0, error('Empty object to integrate'), end
 
-ndim=1;
-rebin_hist_func={@rebin_1d_hist};
-integrate_points_func={@integrate_1d_points};
+ndim=2;
+rebin_hist_func={@rebin_2d_x_hist};
+integrate_points_func={@integrate_2d_x_points};
 
 [wout,ok,mess] = integrate_IX_dataset_nd (win, ndim, rebin_hist_func, integrate_points_func, varargin{:},'int');
 if ~ok, error(mess), end

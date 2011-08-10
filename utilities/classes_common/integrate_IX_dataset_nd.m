@@ -51,7 +51,7 @@ else
     for i=1:numel(win)
         if default_full_range
             for id=1:ndim
-                x=axis(win,id);
+                x=axis(win(i),id);
                 xbounds{id}=[x(1),x(end)];
             end
         end

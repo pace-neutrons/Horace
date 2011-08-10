@@ -1,7 +1,8 @@
-function wout = integrate (win, xmin, xmax)
+function wout = integrate (win, varargin)
 % Integrate one or more IX_dataset_1d objects between two limits
 %
 %   >> wout = integrate (win, xmin, xmax)
+%   >> wout = integrate (win, [xmin, xmax])
 %
 %   win         Single or array of IX_dataset_1d datasets to be integrated
 %   xmin        Lower integration limit (scalar, or array with number of elements matching win)
@@ -20,6 +21,16 @@ function wout = integrate (win, xmin, xmax)
 nw=numel(win);
 if nw==0
     wout.val=[]; wout.err=[]; return
+end
+
+if nargin==2 && isnumeric(varargin{1}) && numel(varargin{1})==2
+    xmin=varargin{1}(1);
+    xmax=varargin{1}(2);
+elseif nargin==3
+    xmin=varargin{1};
+    xmax=varargin{2};
+else
+    error('Check number of input arguments')
 end
 
 if isnumeric(xmin)

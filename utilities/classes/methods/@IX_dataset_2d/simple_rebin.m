@@ -1,11 +1,11 @@
 function wout = simple_rebin(win, xdescr, ydescr, opt)
-% Integrate IX_dataset_2d along x and y axes using same algorithm as 
+% Integrate IX_dataset_2d along x and y axes using reference 1D algorithm
 %
 %   >> wout = simple_rebin_x(win, xdescr, ydescr)
 %   >> wout = simple_rebin_x(win, xdescr, ydescr, 'int')    % trapezoidal integration of point data
 %
 % xdescr, ydescr are the rebin descriptors along the x and y axes
-% See IX_dataset_1d/rebin for full help
+% See IX_dataset_1d/rebin_ref for full help
 %
 % Simple implementation converting to array of IX_dataset_1d, and then converting back.
 % Only works for a single input IX_dataset_2d.
@@ -24,7 +24,7 @@ if nargin==4
     end
 end
 
-% The operations of simple_rebin_x and simple-rebin_y are commutative:
+% The operations of simple_rebin_x and simple_rebin_y are commutative:
 
 % if integrate
 %     wout = simple_rebin_x(win,  xdescr, 'int');

@@ -1,12 +1,8 @@
-function wout = simple_rebin_y(win, varargin)
+function wout = simple_integrate_y(win, varargin)
 % Integrate IX_dataset_2d along y axis using reference 1D algorithm
 %
-%   >> wout = simple_rebin_y(win, ylo, yhi)       % keep data between ylo and yhi, retaining existing bins
-%	>> wout = simple_rebin_y(win, ylo, dy, yhi)   % rebin from ylo to yhi in intervals of dy
-%   >> wout = simple_rebin_y(win,wref)            % rebin win with the bin boundaries of wref (a 1D dataset)
-%   >> wout = simple_rebin_y(..., 'int')          % trapezoidal integration if point data
-%
-% See IX_dataset_1d/rebin_ref for full help
+%   >> wout = simple_integrate_y (win, ymin, ymax)
+%   >> wout = simple_integrate_y (win, [ymin, ymax])
 %
 % Simple implementation converting to array of IX_dataset_1d, and then converting back.
 % Only works for a single input IX_dataset_2d.
@@ -18,7 +14,7 @@ end
 
 if numel(varargin)>=1
     wtmp=IX_dataset_1d(transpose(win));
-    wouttmp=rebin_ref(wtmp,varargin{:});
+    wouttmp=integrate_ref(wtmp,varargin{:});
     wout=transpose(IX_dataset_2d(wouttmp));
     wout.x=win.x;
     wout.x_axis=win.x_axis;

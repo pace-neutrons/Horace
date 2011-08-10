@@ -5,7 +5,11 @@ function del_out=delta_IX_dataset_nd(w1,w2,tol)
 %   >> delta_IX_dataset_nd(w1,w2,tol)
 %
 %   >> del = delta_IX_dataset_nd(...)
+%
+% if tol>0, then absolute tolerance
+% if tol<0, then relative tolerance
 
+if ~exist('tol','var')||isempty(tol), tol=0; end
 
 h1=ishistogram(w1);
 h2=ishistogram(w2);
@@ -22,6 +26,7 @@ if ~all(h1==h2)
 end
 
 del=zeros(1,nd1+2);
+delrel=zeros(1,nd1+2);
 for i=1:nd1
     [x1,hist1,distr1]=axis(w1,i);
     [x2,hist2,distr2]=axis(w2,i);
@@ -31,21 +36,40 @@ for i=1:nd1
         return
     end
     if numel(x1)==numel(x2)
-        del(i)=max(abs(x1-x2));
+        [del(i),delrel(i)]=del_calc(x1,x2);
     else
         disp(['Axis ',num2str(i),': different number of data points along this axis'])
         if nargout>0, del_out=[]; end
         return
     end
 end
-del(nd1+1)=max(abs(w1.signal(:)-w2.signal(:)));
-del(nd1+2)=max(abs(w1.error(:)-w2.error(:)));
+[del(nd1+1),delrel(nd1+1)]=del_calc(w1.signal(:),w2.signal(:));
+[del(nd1+2),delrel(nd1+2)]=del_calc(w1.error(:),w2.error(:));
 delmax=max(del);
+delrelmax=max(delrel);
 
-if delmax<=tol
-%    disp('Numerically equal objects')
+if tol<0
+    if nargout>0, del_out=delrel; end
+    if delrelmax<=abs(tol)
+        %    disp('Numerically equal objects')
+    else
+        disp(['WARNING: Numerically unequal objects:    ',num2str(delrel)])
+    end
 else
-    disp(['WARNING: Numerically unequal objects:    ',num2str(del)])
+    if nargout>0, del_out=del; end
+    if delmax<=tol
+        %    disp('Numerically equal objects')
+    else
+        disp(['WARNING: Numerically unequal objects:    ',num2str(del)])
+    end
 end
 
-if nargout>0, del_out=del; end
+
+
+%============================================================================================
+function [del,delrel]=del_calc(v1,v2)
+% Get absolute and absolute relative differences between two arrays
+num=v1-v2;
+den=max(max(abs(v1),abs(v2)),1);
+del=max(abs(num));
+delrel=max(abs(num)./den);
