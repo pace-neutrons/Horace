@@ -2,54 +2,94 @@
 
 % Test single objects
 % --------------------
-xdescr_1=[5,2,11];
-xdescr_1=IX_dataset_1d(6:2:10);     % should give same results
-xdescr_1=IX_dataset_1d(5:2:11);     % should give *different* results
+batch=true;     % set to false to get plots
 
-% - reference
-p1_reb_ref=rebin_ref(p1,xdescr_1);
-p1_reb_int_ref=rebin_ref(p1,xdescr_1,'int');
-acolor k; dd(p1); acolor r; pd(p1_reb_ref); acolor g; pd(p1_reb_int_ref); keep_figure
+xdescr_1=cell(1,3);
+xdescr_1{1}=[5,2,11];
+xdescr_1{2}=IX_dataset_1d(6:2:10);     % should give same results
+xdescr_1{3}=IX_dataset_1d(5:2:11);     % should give *different* results
 
-h1_reb_ref=rebin_ref(h1,xdescr_1);
-h1_reb_nodist_ref=rebin_ref(dist2cnt(h1),xdescr_1,'int');
-acolor k; dd(h1); acolor r; pd(h1_reb_ref); acolor g; pd(h1_reb_nodist_ref); keep_figure
+tol=1e-14;
+disp('===========================')
+disp('    1D: Test rebin')
+disp('===========================')
+for i=1:numel(xdescr_1)
+    disp(['=== ',num2str(i),' ==='])
+    % - reference
+    p1_reb_ref=rebin_ref(p1,xdescr_1{i});
+    p1_reb_int_ref=rebin_ref(p1,xdescr_1{i},'int');
+    if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb_ref); acolor g; pd(p1_reb_int_ref); keep_figure; end
 
-% - new rebin algorithm
-p1_reb=rebin(p1,xdescr_1);
-p1_reb_int=rebin(p1,xdescr_1,'int');
-acolor k; dd(p1); acolor r; pd(p1_reb); acolor g; pd(p1_reb_int); keep_figure
+    h1_reb_ref=rebin_ref(h1,xdescr_1{i});
+    h1_reb_nodist_ref=rebin_ref(dist2cnt(h1),xdescr_1{i},'int');
+    if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb_ref); acolor g; pd(h1_reb_nodist_ref); keep_figure; end
 
-h1_reb=rebin(h1,xdescr_1);
-h1_reb_nodist=rebin(dist2cnt(h1),xdescr_1,'int');
-acolor k; dd(h1); acolor r; pd(h1_reb); acolor g; pd(h1_reb_nodist); keep_figure
+    % - new rebin algorithm
+    p1_reb=rebin(p1,xdescr_1{i});
+    p1_reb_int=rebin(p1,xdescr_1{i},'int');
+    if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb); acolor g; pd(p1_reb_int); keep_figure; end
+
+    h1_reb=rebin(h1,xdescr_1{i});
+    h1_reb_nodist=rebin(dist2cnt(h1),xdescr_1{i},'int');
+    if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb); acolor g; pd(h1_reb_nodist); keep_figure; end
+    if batch
+        disp(['= 1'])
+        delta_IX_dataset_nd(p1_reb_ref,p1_reb,tol)
+        disp(['= 2'])
+        delta_IX_dataset_nd(p1_reb_int_ref,p1_reb_int,tol)
+        disp(['= 3'])
+        delta_IX_dataset_nd(h1_reb_ref,h1_reb,tol)
+        disp(['= 4'])
+        delta_IX_dataset_nd(h1_reb_nodist_ref,h1_reb_nodist,tol)
+    end
+end
+disp(' ')
+disp(' ')
 
 
 % Quick test of alternative syntax
-xdescr_1=[5,2,11];
-xdescr_2={5,11};
-xdescr_3={5,2,11};
+% ------------------------------------
+xdescr_21=[5,2,11];
+xdescr_22={5,11};
+xdescr_23={5,2,11};
 
-p1_reb_ref=rebin_ref(p1,xdescr_1);
-p1_reb2_ref=rebin_ref(p1,xdescr_2{:});
-p1_reb3_ref=rebin_ref(p1,xdescr_3{:});
-acolor k; dd(p1_reb_ref); acolor r; pd(p1_reb2_ref); acolor g; pd(p1_reb3_ref+0.02); keep_figure
+disp('===========================')
+disp('    1D: Test rebin')
+disp('===========================')
 
-p1_reb=rebin(p1,xdescr_1);
-p1_reb2=rebin(p1,xdescr_2{:});
-p1_reb3=rebin(p1,xdescr_3{:});
-acolor k; dd(p1_reb); acolor r; pd(p1_reb2); acolor g; pd(p1_reb3+0.02); keep_figure
+p1_reb1_ref=rebin_ref(p1,xdescr_21);
+p1_reb2_ref=rebin_ref(p1,xdescr_22{:});
+p1_reb3_ref=rebin_ref(p1,xdescr_23{:});
+if ~batch, acolor k; dd(p1_reb1_ref); acolor r; pd(p1_reb2_ref); acolor g; pd(p1_reb3_ref+0.02); keep_figure; end
+
+p1_reb1=rebin(p1,xdescr_21);
+p1_reb2=rebin(p1,xdescr_22{:});
+p1_reb3=rebin(p1,xdescr_23{:});
+if ~batch, acolor k; dd(p1_reb1); acolor r; pd(p1_reb2); acolor g; pd(p1_reb3+0.02); keep_figure; end
+
+if batch
+    disp(['= 1'])
+    delta_IX_dataset_nd(p1_reb1_ref,p1_reb1,tol)
+    disp(['= 2'])
+    delta_IX_dataset_nd(p1_reb2_ref,p1_reb2,tol)
+    disp(['= 3'])
+    delta_IX_dataset_nd(p1_reb3_ref,p1_reb3,tol)
+end
+disp(' ')
+disp(' ')
 
 
-% Test on an array of objects
-% ----------------------------
-xnew=50:10:450;
-hp_1d_rebin_ref=rebin_ref(hp_1d_big,xnew);
-da(IX_dataset_2d(hp_1d_rebin_ref))
 
 
-hp_1d_rebin=rebin(hp_1d_big,xnew);
-da(IX_dataset_2d(hp_1d_rebin))
+% % Test on an array of objects
+% % ----------------------------
+% xnew=50:10:450;
+% hp_1d_rebin_ref=rebin_ref(hp_1d_big,xnew);
+% da(IX_dataset_2d(hp_1d_rebin_ref))
+% 
+% 
+% hp_1d_rebin=rebin(hp_1d_big,xnew);
+% da(IX_dataset_2d(hp_1d_rebin))
 
 %% Test 2D rebin
 
@@ -73,7 +113,7 @@ ydescr=[4,3,10];
 % Test rebin_x
 % ------------
 disp('===========================')
-disp('    Test rebin_x')
+disp('    2D: Test rebin_x')
 disp('===========================')
 xint_arg={{xdescr},{xdescr,'int'}};
 for j=1:numel(xint_arg)
@@ -90,7 +130,7 @@ end
 % Test rebin_y
 % ------------
 disp('===========================')
-disp('    Test rebin_y')
+disp('    2D: Test rebin_y')
 disp('===========================')
 yint_arg={{ydescr},{ydescr,'int'}};
 for j=1:numel(yint_arg)
@@ -107,7 +147,7 @@ end
 % Test rebin
 % ------------
 disp('===========================')
-disp('    Test rebin')
+disp('    2D: Test rebin')
 disp('===========================')
 xyint_arg={{xdescr,ydescr},{xdescr,ydescr,'int'}};
 for j=1:numel(xyint_arg)

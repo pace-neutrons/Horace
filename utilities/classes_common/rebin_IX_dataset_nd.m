@@ -68,3 +68,5 @@ else
         wout(i) = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,rebin_hist_func,integrate_points_func,point_integration);
     end
 end
+ok=true;
+mess='';
