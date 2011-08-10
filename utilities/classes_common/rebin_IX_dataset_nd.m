@@ -60,12 +60,15 @@ end
 
 % Perform rebin
 % -------------
+integrate_data=false;
 if numel(win)==1
-    wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebin_hist_func,integrate_points_func,point_integration);
+    wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
+        rebin_hist_func,integrate_points_func,integrate_data,point_integration);
 else
     wout=repmat(class_ref,size(win));
     for i=1:numel(win)
-        wout(i) = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,rebin_hist_func,integrate_points_func,point_integration);
+        wout(i) = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,...
+            rebin_hist_func,integrate_points_func,integrate_data,point_integration);
     end
 end
 ok=true;

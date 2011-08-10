@@ -1,11 +1,12 @@
-function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebin_hist_func,integrate_points_func,point_integration)
+function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
+    rebin_hist_func,integrate_points_func,integrate_data,point_integration)
 % Rebin dataset. Assumes that have already checked validity of input data.
 %
 %   >> wout = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
-%                                               rebin_hist_func,integrate_points_func,point_integration)
+%                                               rebin_hist_func,integrate_points_func,integrate_data,point_integration)
 % OR
 %   >> [wout_x,wout_s,wout_e] = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
-%                                               rebin_hist_func,integrate_points_func,point_integration)
+%                                               rebin_hist_func,integrate_points_func,integrate_data,point_integration)
 % Input:
 % -------
 %   win_x           Input IX_dataset_nd object
@@ -17,6 +18,7 @@ function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebi
 %                     false: boundaries is rebin rescriptor
 %   rebin_hist_func         Handles to rebin functions e.g. rebin_2d_x_hist for each axis (cell array)
 %   integrate_points_func   Handles to point data integration functions e.g. integrate_2d_y_points for each axis (cell array)
+%   integrate_data          Integrate(true) or rebin (false)
 %   point_integration       Array of averging method (point data only; ignored if histogram data)
 %                             true:  Trapezoidal integration
 %                             false: Point averaging
@@ -29,20 +31,29 @@ function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,rebi
 %   wout_x          Rebinned axis values
 %   wout_s          Rebinned signal
 %   wout_e          Rebinned errors
+%
+% Note that integration is the same as rebinning for non-distribution histogram data.
+% For point data, integration requires multiplication by the bin widths (point integration) or
+% number of contributing points (point averagin) regardless of the data being distribution
+% or not. This is because it is assumed that point data is sampling a function.
 
 nrebin=numel(iax);
 wout_x=cell(1,nrebin);
 % Need to treat IX_dataset_1d in special way: because data is stored as row vectors
 [win_x,xhist,xdistr]=axis(win,iax(1));
 [wout_x{1},wout_s,wout_e] = rebin_one_axis(iax(1),win_x,win.signal,win.error,xdistr,xbounds{1},true_values(1),...
-                                            rebin_hist_func{1},integrate_points_func{1},point_integration(1));
+                                            rebin_hist_func{1},integrate_points_func{1},integrate_data,point_integration(1));
 for i=2:nrebin
     [win_x,xhist,xdistr]=axis(win,iax(i));
     [wout_x{i},wout_s,wout_e] = rebin_one_axis(iax(i),win_x,wout_s,wout_e,xdistr,xbounds{i},true_values(i),...
-                                                rebin_hist_func{i},integrate_points_func{i},point_integration(i));
+                                                rebin_hist_func{i},integrate_points_func{i},integrate_data,point_integration(i));
 end
 if nargout==1
-    varargout{1}=xsigerr_set(win,iax,wout_x,wout_s,wout_e);
+    if ~integrate_data
+        varargout{1}=xsigerr_set(win,iax,wout_x,wout_s,wout_e);
+    else
+        varargout{1}=xsigerr_set(win,iax,wout_x,wout_s,wout_e,false);   % reset distribution to false along integration axes
+    end
 else
     varargout{1}=wout_x;
     varargout{2}=wout_s;
@@ -51,7 +62,7 @@ end
 
 %============================================================================================================
 function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
-                                                rebin_hist_func,integrate_points_func,point_integration)
+                                                rebin_hist_func,integrate_points_func,integrate_data,point_integration)
 % Rebin dataset. Assumes that have already checked validity of input data.
 %
 %   >> [wout_x,wout_s,wout_e] = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
@@ -68,6 +79,7 @@ function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist
 %                     false: boundaries is rebin rescriptor
 %   rebin_hist_func         Rebin function e.g. rebin_2d_x_hist
 %   integrate_points_func   Point data integration function e.g. integrate_2d_y_points
+%   integrate_data          Integrate(true) or rebin (false)
 %   point_integration       Averging method (point data only; ignored if histogram data)
 %                             true:  Trapezoidal integration
 %                             false: Point averaging
@@ -77,6 +89,11 @@ function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist
 %   wout_x          Rebinned axis values
 %   wout_s          Rebinned signal
 %   wout_e          Rebinned errors
+%
+% Note that integration is the same as rebinning for non-distribution histogram data.
+% For point data, integration requires multiplication by the bin widths (point integration) or
+% number of contributing points (point averagin) regardless of the data being distribution
+% or not. This is because it is assumed that point data is sampling a function.
 
 nx=numel(win_x);
 sz=size(win_s);
@@ -92,6 +109,15 @@ if nx~=sz(iax)
     if true_values, wout_x=xbounds; else wout_x = bin_boundaries_from_descriptor (xbounds, win_x); end
     if win_xdist
         [wout_s, wout_e] = rebin_hist_func (win_x, win_s, win_e, wout_x);
+        if integrate_data
+            if oneD
+                dx_out=diff(wout_x)';
+            else
+                dx_out=repmat(reshape(diff(wout_x),[ones(1,iax-1),numel(wout_x)-1,1]),x_sz_repmat);
+            end
+            wout_s=wout_s.*dx_out;
+            wout_e=wout_e.*dx_out;
+        end
     else
         % Get arrays of distribution of counts and errors
         if oneD
@@ -156,8 +182,13 @@ else
             keep=repmat(reshape(keep,[ones(1,iax-1),numel(keep),1]),x_sz_repmat);
             nout=repmat(reshape(nout,[ones(1,iax-1),numel(nout),1]),x_sz_repmat);
         end
-        wout_s=reshape(ysum(keep),size(nout))./nout;    % subscripting with keep turns output into a column vector
-        wout_e=sqrt(reshape(esum(keep),size(nout)))./nout;
+        if ~integrate_data
+            wout_s=reshape(ysum(keep),size(nout))./nout;    % subscripting with keep turns output into a column vector
+            wout_e=sqrt(reshape(esum(keep),size(nout)))./nout;
+        else
+            wout_s=reshape(ysum(keep),size(nout));    % subscripting with keep turns output into a column vector
+            wout_e=sqrt(reshape(esum(keep),size(nout)));
+        end
     else
         % Trapezoidal integration averaging
         if oneD
@@ -167,8 +198,10 @@ else
         end
         [wout_s,wout_e] = integrate_points_func (win_x, win_s, win_e, xbounds_true);
         wout_x=0.5*(xbounds_true(2:end)+xbounds_true(1:end-1));
-        wout_s=wout_s./dx_out;
-        wout_e=wout_e./dx_out;
+        if ~integrate_data
+            wout_s=wout_s./dx_out;
+            wout_e=wout_e./dx_out;
+        end
     end
     
 %---------------------------------------------------------------------------------------------

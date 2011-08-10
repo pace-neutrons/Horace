@@ -34,6 +34,8 @@ function wout = rebin(win, varargin)
 %                         extension to non-distribution histogram datasets, added
 %                         trapezoidal integration for point data.
 
+if numel(win)==0, error('Empty object to rebin'), end
+if nargin==1, wout=win; return, end     % benign return if no arguments
 
 class_ref=IX_dataset_1d;    % reference class
 rebin_hist_func={@rebin_1d_hist};
