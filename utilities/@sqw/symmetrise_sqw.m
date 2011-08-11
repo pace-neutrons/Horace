@@ -49,14 +49,16 @@ end
 conversion=2*pi./win.data.alatt;%note this is equivalent to win.data.ulen for
 %the special case of axes (h,0,0)/(0,k,0)/(0,0,l)
 
-% vec1=diag(win.data.ulen(1:3),0) * v1';
-% vec2=diag(win.data.ulen(1:3),0) * v2';
+avec=[win.data.alatt(1) 0 0];%define a to be parallel to (1,0,0)
+bvec=win.data.alatt(2).*[cosd(win.data.angdeg(3)) sind(win.data.angdeg(3)) 0];
+cvec=win.data.alatt(3).*[cosd(win.data.angdeg(2)) 0 sind(win.data.angdeg(2))];
+
+astar=(2*pi).*(cross(bvec,cvec))./(dot(avec,cross(bvec,cvec)));
+bstar=(2*pi).*(cross(cvec,avec))./(dot(avec,cross(bvec,cvec)));
+cstar=(2*pi).*(cross(avec,bvec))./(dot(avec,cross(bvec,cvec)));
 
 vec1=diag(conversion,0) * v1';
 vec2=diag(conversion,0) * v2';
-
-%vec1=v1'; vec2=v2';
-
 
 if size(vec1)==[3,1]
     vec1=vec1';
@@ -64,9 +66,6 @@ end
 if size(vec2)==[3,1]
     vec2=vec2';
 end
-
-% vec1p=(win.data.u_to_rlu([1:3],[1:3]))'*vec1';
-% vec2p=(win.data.u_to_rlu([1:3],[1:3]))'*vec2';
 
 vec1p=inv(win.data.u_to_rlu([1:3],[1:3]))*vec1';
 vec2p=inv(win.data.u_to_rlu([1:3],[1:3]))*vec2';
@@ -88,19 +87,6 @@ for i=1:3
     end
 end
 
-normvec2=cross(vec1p,vec2p);
-Reflec2=zeros(3,3);%initialise reflection matrix
-for i=1:3
-    for j=1:3
-        if i==j
-            delt=1;
-        else
-            delt=0;
-        end
-        Reflec2(i,j)=delt - (2 * normvec2(i) .* normvec2(j))./(sum(normvec2.^2));
-    end
-end
-
 coords=win.data.pix([1:3],:);
 
 %First must translate the coordinates, in case the reflection plane does
@@ -110,11 +96,7 @@ coords=win.data.pix([1:3],:);
 %Must ensure we convert v3 to rlu, since otherwise it will be in inverse
 %angstroms.
 
-%vec3=diag(win.data.ulen(1:3),0) * v3';
-
 vec3=diag(conversion,0) * v3';
-
-% vec3=v3';
 
 %Ensure v3 is a column vector:
 if size(vec3)==[1,3]
@@ -123,7 +105,6 @@ end
 v3new=repmat(vec3,1,(numel(coords))/3);
 
 coords_transl=coords-v3new;
-
 
 coords_refl=Reflec*coords_transl;
 
@@ -156,25 +137,24 @@ ndims=dimensions(win);
 %It is made a bit simpler by the fact that the co-ordinate system before
 %and after is the same.
 
-%First work out minima and maxima of original co-ordinates:
-coords_rlu=inv(win.data.u_to_rlu) * win.data.pix([1:4],:);
-rlutrans=[(2*pi./win.data.alatt)'; 1];
-coords_rlu=coords_rlu./repmat(rlutrans,1,numel(coords_rlu) /4);
-%
+%Figure out the data range in rlu co-ordinate system
+mm=[[astar 0]; [bstar 0]; [cstar 0]; [0 0 0 1]];
+coords_rlu2=mm\win.data.pix([1:4],:);
+coords_rlu2=(win.data.u_to_rlu)\coords_rlu2;
+
 for i=1:ndims
-    min_unref{i}=min(coords_rlu(win.data.pax(i),:));
-    max_unref{i}=max(coords_rlu(win.data.pax(i),:));
+    min_unref{i}=min(coords_rlu2(win.data.pax(i),:));
+    max_unref{i}=max(coords_rlu2(win.data.pax(i),:));
 end
 
 %Next do the same for the reflected co-ordinates:
 coords_new=[coords_new; win.data.pix(4,:)];%energy axis should never be altered
-coords_rlu_new=inv(win.data.u_to_rlu) * coords_new([1:4],:);
-%rlutrans=[(2*pi./win.data.alatt)'; 1];
-coords_rlu_new=coords_rlu_new./repmat(rlutrans,1,numel(coords_rlu_new) /4);
+coords_rlu_new2=(mm)\coords_new;
+coords_rlu_new2=(win.data.u_to_rlu)\coords_rlu_new2;
 %
 for i=1:ndims
-    min_ref{i}=min(coords_rlu_new(win.data.pax(i),:));
-    max_ref{i}=max(coords_rlu_new(win.data.pax(i),:));
+    min_ref{i}=min(coords_rlu_new2(win.data.pax(i),:));
+    max_ref{i}=max(coords_rlu_new2(win.data.pax(i),:));
 end
 
 %Now work out the full extent of the symmetrised data:
