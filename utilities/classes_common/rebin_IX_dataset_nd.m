@@ -1,7 +1,7 @@
-function [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, iax, isdescriptor, varargin)
+function [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, integrate_data, iax, isdescriptor, varargin)
 % Rebin an IX_dataset_nd object or array of IX_dataset_nd objects along one or more axes
 %
-%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, iax, isdescriptor, varargin)
+%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, integrate_data, iax, isdescriptor, varargin)
 
 nax=numel(iax); % number of axes to be rebinned
 
@@ -63,7 +63,6 @@ end
 
 % Perform rebin
 % -------------
-integrate_data=false;
 if numel(win)==1
     wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
         rebin_hist_func,integrate_points_func,integrate_data,point_integration);

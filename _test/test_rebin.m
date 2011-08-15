@@ -184,3 +184,6 @@ end
 %1
 hh=IX_dataset_2d(h1);
 kk=rebin(hh,[5,15],[0.5,0.9]);
+
+kk=rebin(hh,[5,15],[0.5,0.9],'int');
+

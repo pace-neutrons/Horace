@@ -1,4 +1,4 @@
-function wout = integrate (win, varargin)
+function wout = integrated (win, varargin)
 % Integrate an IX_dataset_1d object or array of IX_dataset_1d objects along the x-axis
 
 if numel(win)==0, error('Empty object to integrate'), end
@@ -8,7 +8,7 @@ rebin_hist_func={@rebin_1d_hist};
 integrate_points_func={@integrate_1d_points};
 integrate_data=true;
 iax=1;                      % axes to integrate over
-isdescriptor=false;         % accept only new bin boundaries
+isdescriptor=true;          % accept only new bin boundaries
 
 [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, integrate_data, iax, isdescriptor, varargin{:});
 if ~ok, error(mess), end

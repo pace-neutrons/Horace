@@ -7,10 +7,10 @@ disp_valerr(ih1)
 
 ih1_ref=integrate_ref(h1,0,20);
 ih1    =integrate(h1,0,20);
-ih1b   =integrate(h1);
+%ih1b   =integrate(h1)
 disp_valerr(ih1_ref)
 disp_valerr(ih1)
-disp_valerr(ih1b)
+%disp_valerr(ih1b)
 
 
 ip1_ref=integrate_ref(p1,5,10);
@@ -23,7 +23,11 @@ ip1    =integrate(p1,0,20);
 ip1b   =integrate(p1);
 disp_valerr(ip1_ref)
 disp_valerr(ip1)
-disp_valerr(ip1b)
+%disp_valerr(ip1b)
+
+
+
+
 
 % Big array
 % ----------

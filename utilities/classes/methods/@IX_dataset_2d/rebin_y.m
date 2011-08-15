@@ -6,8 +6,9 @@ if nargin==1, wout=win; return, end     % benign return if no arguments
 
 rebin_hist_func={@rebin_2d_y_hist};
 integrate_points_func={@integrate_2d_y_points};
+integrate_data=false;
 iax=2;                      % axes to integrate over
 isdescriptor=false;         % accept only new bin boundaries
 
-[wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, iax, isdescriptor, varargin{:});
+[wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, integrate_data, iax, isdescriptor, varargin{:});
 if ~ok, error(mess), end
