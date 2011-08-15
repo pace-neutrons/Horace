@@ -1,10 +1,10 @@
-function wout = simple_rebin_x(win, varargin)
+function wout = simple_rebind_x(win, varargin)
 % Integrate IX_dataset_2d along x axis using reference 1D algorithm
 %
-%   >> wout = simple_rebin_x(win, xlo, xhi)       % keep data between xlo and xhi, retaining existing bins
-%	>> wout = simple_rebin_x(win, xlo, dx, xhi)   % rebin from xlo to xhi in intervals of dx
-%   >> wout = simple_rebin_x(win,wref)            % rebin win with the bin boundaries of wref (a 1D dataset)
-%   >> wout = simple_rebin_x(..., 'int')          % trapezoidal integration if point data
+%   >> wout = simple_rebind_x(win, xlo, xhi)       % keep data between xlo and xhi, retaining existing bins
+%	>> wout = simple_rebind_x(win, xlo, dx, xhi)   % rebin from xlo to xhi in intervals of dx
+%   >> wout = simple_rebind_x(win,wref)            % rebin win with the bin boundaries of wref (a 1D dataset)
+%   >> wout = simple_rebind_x(..., 'int')          % trapezoidal integration if point data
 %
 % See IX_dataset_1d/rebin_ref for full help
 %

@@ -1,8 +1,8 @@
-function wout = simple_rebin(win, xdescr, ydescr, opt)
+function wout = simple_rebindd(win, xdescr, ydescr, opt)
 % Integrate IX_dataset_2d along x and y axes using reference 1D algorithm
 %
-%   >> wout = simple_rebin_x(win, xdescr, ydescr)
-%   >> wout = simple_rebin_x(win, xdescr, ydescr, 'int')    % trapezoidal integration of point data
+%   >> wout = simple_rebind_x(win, xdescr, ydescr)
+%   >> wout = simple_rebind_x(win, xdescr, ydescr, 'int')    % trapezoidal integration of point data
 %
 % xdescr, ydescr are the rebin descriptors along the x and y axes
 % See IX_dataset_1d/rebin_ref for full help
@@ -24,20 +24,20 @@ if nargin==4
     end
 end
 
-% The operations of simple_rebin_x and simple_rebin_y are commutative:
+% The operations of simple_rebind_x and simple_rebind_y are commutative:
 
 % if integrate
-%     wout = simple_rebin_x(win,  xdescr, 'int');
-%     wout = simple_rebin_y(wout, ydescr, 'int');
+%     wout = simple_rebind_x(win,  xdescr, 'int');
+%     wout = simple_rebind_y(wout, ydescr, 'int');
 % else
-%     wout = simple_rebin_x(win,  xdescr);
-%     wout = simple_rebin_y(wout, ydescr);
+%     wout = simple_rebind_x(win,  xdescr);
+%     wout = simple_rebind_y(wout, ydescr);
 % end
 
 if integrate
-    wout = simple_rebin_y(win,  ydescr, 'int');
-    wout = simple_rebin_x(wout, xdescr, 'int');
+    wout = simple_rebind_y(win,  ydescr, 'int');
+    wout = simple_rebind_x(wout, xdescr, 'int');
 else
-    wout = simple_rebin_y(win,  ydescr);
-    wout = simple_rebin_x(wout, xdescr);
+    wout = simple_rebind_y(win,  ydescr);
+    wout = simple_rebind_x(wout, xdescr);
 end

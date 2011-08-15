@@ -28,15 +28,15 @@ end
 del=zeros(1,nd1+2);
 delrel=zeros(1,nd1+2);
 for i=1:nd1
-    [x1,hist1,distr1]=axis(w1,i);
-    [x2,hist2,distr2]=axis(w2,i);
-    if distr1~=distr2
+    x1=axis(w1,i);
+    x2=axis(w2,i);
+    if x1.distribution~=x2.distribution
         disp(['Axis ',num2str(i),': one object is a distribution, the other not'])
         if nargout>0, del_out=[]; end
         return
     end
-    if numel(x1)==numel(x2)
-        [del(i),delrel(i)]=del_calc(x1,x2);
+    if numel(x1.values)==numel(x2.values)
+        [del(i),delrel(i)]=del_calc(x1.values,x2.values);
     else
         disp(['Axis ',num2str(i),': different number of data points along this axis'])
         if nargout>0, del_out=[]; end

@@ -1,9 +1,10 @@
-function [wout,ok,mess] = integrate_IX_dataset_nd (win, ndim, rebin_hist_func, integrate_points_func, varargin)
+function [wout,ok,mess] = integrate_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, varargin)
 % Integrate an IX_dataset_nd object or array of IX_dataset_nd objects along all axes
 %
-%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, ndim, rebin_hist_func, integrate_points_func, varargin)
+%   >> [wout,ok,mess] = integrate_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, varargin)
 
 % Check point integration option
+ndim=dimensions(win);
 if ~(numel(varargin)==1 && isa(varargin{1},class(win))) && (numel(varargin)>=1 && ~isnumeric(varargin{end}))  % last argument is point integration option
     [point_integration, ok, mess] = rebin_point_integration_check (ndim, varargin{end});
     if ~ok, wout=[]; return, end

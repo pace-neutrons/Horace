@@ -58,6 +58,7 @@ fields = {'title';'signal';'error';'s_axis';'x';'x_axis';'x_distribution';'y';'y
 ok=false;
 message='';
 wout=w;
+ndim=3;
 
 if isequal(fieldnames(w),fields)
     if ischar(w.title)||iscellstr(w.title)
@@ -69,22 +70,25 @@ if isequal(fieldnames(w),fields)
     end
     sum_empty=isempty(w.signal)+isempty(w.error)+isempty(w.x)+isempty(w.y)+isempty(w.z);
     if sum_empty==0
-        if ~isa(w.signal,'double')||numel(size(w.signal))~=3||~isa(w.error,'double')||numel(size(w.error))~=3
-            message='Signal and error arrays must be three-dimensional double precision arrays'; return
+        sz=size(w.signal);
+        if numel(sz)>ndim
+            message=['Dimensionality of signal array exceeds ',num2str(ndim)];
+        elseif numel(sz)<ndim
+            sz=[sz,ones(1,ndim-numel(sz))];
+        end
+        if ~isa(w.signal,'double')||~isa(w.error,'double')||~isequal(size(w.signal),size(w.error))
+            message='Signal and error arrays must be double precision arrays with the same size'; return
         end
         if ~isa(w.x,'double')||~isvector(w.x)||~isa(w.y,'double')||~isvector(w.y)||~isa(w.z,'double')||~isvector(w.z)
             message='x-axis, y-axis and z-axis values must be double precision vectors'; return
         end
-        if numel(w.signal)~=numel(w.error)
-            message='Number of elements in signal and error arrays must be the same'; return
-        end
-        if ~(numel(w.x)==size(w.signal,1)||numel(w.x)==size(w.signal,1)+1)
+        if ~(numel(w.x)==sz(1)||numel(w.x)==sz(1)+1)
             message='Check lengths of x-axis and first dimension of signal array are compatible'; return
         end
-        if ~(numel(w.y)==size(w.signal,2)||numel(w.y)==size(w.signal,2)+1)
+        if ~(numel(w.y)==sz(2)||numel(w.y)==sz(2)+1)
             message='Check lengths of y-axis and second dimension of signal array are compatible'; return
         end
-        if ~(numel(w.z)==size(w.signal,3)||numel(w.z)==size(w.signal,3)+1)
+        if ~(numel(w.z)==sz(3)||numel(w.z)==sz(3)+1)
             message='Check lengths of z-axis and third dimension of signal array are compatible'; return
         end
         dx=diff(w.x);
@@ -99,7 +103,7 @@ if isequal(fieldnames(w),fields)
         if any(dz<0)
             message='Check y-axis values are monotonic increasing'; return
         end        
-    elseif sum_empty==4
+    elseif sum_empty==5
         wout.signal=[];
         wout.error=[];
         wout.x=[];
@@ -147,7 +151,7 @@ if isequal(fieldnames(w),fields)
             wout.z_distribution=logical(w.z_distribution);
         end
     else
-        message='Distribution type along y-axis must be true or false'; return
+        message='Distribution type along z-axis must be true or false'; return
     end
     if size(w.x,2)==1, wout.x=w.x'; end
     if size(w.y,2)==1, wout.y=w.y'; end

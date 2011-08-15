@@ -9,7 +9,7 @@ function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
 %                                               rebin_hist_func,integrate_points_func,integrate_data,point_integration)
 % Input:
 % -------
-%   win_x           Input IX_dataset_nd object
+%   win             Input IX_dataset_nd object
 %   iax             Array of axis indices (chosen from 1,2,3...) of rebin axes
 %   xbounds         Output rebin boundaries or descriptor of boundaries for each axis (cell array of row vectors) 
 %                  (Note: these describe boundaries for the rebinning even if point data)
@@ -37,15 +37,16 @@ function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
 % number of contributing points (point averagin) regardless of the data being distribution
 % or not. This is because it is assumed that point data is sampling a function.
 
+ndim=ndimensions(win);
 nrebin=numel(iax);
 wout_x=cell(1,nrebin);
 % Need to treat IX_dataset_1d in special way: because data is stored as row vectors
-[win_x,xhist,xdistr]=axis(win,iax(1));
-[wout_x{1},wout_s,wout_e] = rebin_one_axis(iax(1),win_x,win.signal,win.error,xdistr,xbounds{1},true_values(1),...
+ax=axis(win,iax(1));
+[wout_x{1},wout_s,wout_e] = rebin_one_axis(ndim,iax(1),ax.values,win.signal,win.error,ax.distribution,xbounds{1},true_values(1),...
                                             rebin_hist_func{1},integrate_points_func{1},integrate_data,point_integration(1));
 for i=2:nrebin
-    [win_x,xhist,xdistr]=axis(win,iax(i));
-    [wout_x{i},wout_s,wout_e] = rebin_one_axis(iax(i),win_x,wout_s,wout_e,xdistr,xbounds{i},true_values(i),...
+    ax=axis(win,iax(i));
+    [wout_x{i},wout_s,wout_e] = rebin_one_axis(ndim,iax(i),ax.values,wout_s,wout_e,ax.distribution,xbounds{i},true_values(i),...
                                                 rebin_hist_func{i},integrate_points_func{i},integrate_data,point_integration(i));
 end
 if nargout==1
@@ -61,7 +62,7 @@ else
 end
 
 %============================================================================================================
-function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
+function [wout_x,wout_s,wout_e] = rebin_one_axis(ndim,iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
                                                 rebin_hist_func,integrate_points_func,integrate_data,point_integration)
 % Rebin dataset. Assumes that have already checked validity of input data.
 %
@@ -70,13 +71,16 @@ function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist
 %
 % Input:
 % -------
-%   win_x           Input IX_dataset_nd object
+%   ndim            Dimensionality of IX_dataset_nd object
 %   iax             Array of axis indices (chosen from 1,2,3...) of rebin axes
+%   win_x           Input x-values
+%   win_s           Input signal
+%   win_e           Input error
 %   xbounds         Output rebin boundaries or descriptor of boundaries 
 %                  (Note: these describe boundaries for the rebinning even if point data)
 %   true_values     Nature of data contained in xbounds:
-%                     true:  boundaries are the true values
-%                     false: boundaries is rebin rescriptor
+%                     true:  xbounds contains the true x-axis rebin values
+%                     false: xbounds contains a rebin rescriptor
 %   rebin_hist_func         Rebin function e.g. rebin_2d_x_hist
 %   integrate_points_func   Point data integration function e.g. integrate_2d_y_points
 %   integrate_data          Integrate(true) or rebin (false)
@@ -95,9 +99,18 @@ function [wout_x,wout_s,wout_e] = rebin_one_axis(iax,win_x,win_s,win_e,win_xdist
 % number of contributing points (point averagin) regardless of the data being distribution
 % or not. This is because it is assumed that point data is sampling a function.
 
+% Catch case when no rebin required
+if isempty(xbounds) || (true_values && numel(xbounds)==numel(win_x) && all(xbounds==win_x))
+    wout_x=win_x;
+    wout_s=win_s;
+    wout_e=win_e;
+    return
+end
+
+% Now treat case when new bins
 nx=numel(win_x);
 sz=size(win_s);
-if numel(sz)==2 && sz(2)==1
+if ndim==1
     oneD=true;
 else
     oneD=false;
