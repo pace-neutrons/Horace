@@ -1,4 +1,5 @@
-function [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, integrate_data, iax, isdescriptor, varargin)
+function [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func,...
+                              integrate_data, point_integration_default, iax, isdescriptor, varargin)
 % Rebin an IX_dataset_nd object or array of IX_dataset_nd objects along one or more axes
 %
 %   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, integrate_data, iax, isdescriptor, varargin)
@@ -11,7 +12,7 @@ if ~(numel(varargin)==1 && isa(varargin{1},class(win))) && (numel(varargin)>=1 &
     if ~ok, wout=[]; return, end
     args=varargin(1:end-1);
 else
-    point_integration=false(1,nax);
+    point_integration=repmat(point_integration_default,[1,nax]);
     args=varargin;
 end
 

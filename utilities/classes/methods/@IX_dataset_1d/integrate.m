@@ -7,10 +7,12 @@ if nargin==1, wout=win; return, end     % benign return if no arguments
 rebin_hist_func={@rebin_1d_hist};
 integrate_points_func={@integrate_1d_points};
 integrate_data=true;
+point_integration_default=true;
 iax=1;                      % axes to integrate over
 isdescriptor=false;         % accept only new bin boundaries
 
-[wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, integrate_data, iax, isdescriptor, varargin{:});
+[wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func,...
+                     integrate_data, point_integration_default, iax, isdescriptor, varargin{:});
 if ~ok, error(mess), end
 
 % Squeeze object
