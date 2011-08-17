@@ -24,8 +24,8 @@ write_ascii
 
 deriv1		
 deriv2		- wont do this: use double application of deriv1
-integrate	
-rebin		
+integrate	[[DONE]]
+rebin		[[DONE]]
 rebunch		
 regroup
 scale 		

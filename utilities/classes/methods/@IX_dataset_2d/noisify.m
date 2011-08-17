@@ -1,5 +1,5 @@
 function wout = noisify (w,varargin)
-% Adds random noise to an IX_dataset_1d or array of IX_dataset_1d
+% Adds random noise to an IX_dataset_2d or array of IX_dataset_2d
 %
 % Syntax:
 %   >> wout = noisify (w)
