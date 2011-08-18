@@ -1,3 +1,7 @@
+%% Setup location of reference functions (fortran or matlab)
+ref_loc=true;
+test_loc=true;
+
 %% Test 1D rebin
 
 % Test single objects
@@ -16,6 +20,8 @@ disp('===========================')
 for i=1:numel(xdescr_1)
     disp(['=== ',num2str(i),' ==='])
     % - reference
+    use_mex(ref_loc)
+
     p1_reb_ref=rebin_ref(p1,xdescr_1{i});
     p1_reb_int_ref=rebin_ref(p1,xdescr_1{i},'int');
     if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb_ref); acolor g; pd(p1_reb_int_ref); keep_figure; end
@@ -25,6 +31,8 @@ for i=1:numel(xdescr_1)
     if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb_ref); acolor g; pd(h1_reb_nodist_ref); keep_figure; end
 
     % - new rebind algorithm
+    use_mex(test_loc)
+
     p1_reb=rebind(p1,xdescr_1{i});
     p1_reb_int=rebind(p1,xdescr_1{i},'int');
     if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb); acolor g; pd(p1_reb_int); keep_figure; end
@@ -57,11 +65,13 @@ disp('===========================')
 disp('    1D: Test rebind')
 disp('===========================')
 
+use_mex(ref_loc)
 p1_reb1_ref=rebin_ref(p1,xdescr_21);
 p1_reb2_ref=rebin_ref(p1,xdescr_22{:});
 p1_reb3_ref=rebin_ref(p1,xdescr_23{:});
 if ~batch, acolor k; dd(p1_reb1_ref); acolor r; pd(p1_reb2_ref); acolor g; pd(p1_reb3_ref+0.02); keep_figure; end
 
+use_mex(test_loc)
 p1_reb1=rebind(p1,xdescr_21);
 p1_reb2=rebind(p1,xdescr_22{:});
 p1_reb3=rebind(p1,xdescr_23{:});
@@ -132,8 +142,10 @@ disp('===========================')
 for j=1:numel(xint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
+        use_mex(ref_loc)
         disp(['= ',num2str(i)])
         w2x_ref(i)=simple_rebind_x(w2ref(i),xint_arg{j}{:});
+        use_mex(test_loc)
         w2x(i)=rebind_x(w2ref(i),xint_arg{j}{:});
         delta_IX_dataset_nd(w2x_ref(i),w2x(i),tol)
         w2binx(i)=rebin_x(w2ref(i),xintbin_arg{j}{:});
@@ -150,8 +162,10 @@ disp('===========================')
 for j=1:numel(yint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
+        use_mex(ref_loc)
         disp(['= ',num2str(i)])
         w2y_ref(i)=simple_rebind_y(w2ref(i),yint_arg{j}{:});
+        use_mex(test_loc)
         w2y(i)=rebind_y(w2ref(i),yint_arg{j}{:});
         delta_IX_dataset_nd(w2y_ref(i),w2y(i),tol)
         w2biny(i)=rebin_y(w2ref(i),yintbin_arg{j}{:});
@@ -168,8 +182,10 @@ disp('===========================')
 for j=1:numel(xyint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
+        use_mex(ref_loc)
         disp(['= ',num2str(i)])
         w2xy_ref(i)=simple_rebind(w2ref(i),xyint_arg{j}{:});
+        use_mex(test_loc)
         w2xy(i)=rebind(w2ref(i),xyint_arg{j}{:});
         delta_IX_dataset_nd(w2xy_ref(i),w2xy(i),tol)
         w2binxy(i)=rebin(w2ref(i),xyintbin_arg{j}{:});
@@ -177,24 +193,6 @@ for j=1:numel(xyint_arg)
     end
 end
 
-
-
-%% Problems
-
-%1
-hh=IX_dataset_2d(h1);
-kk=rebin(hh,[5,15],[0.5,0.9]);
-
-kk=rebin(hh,[5,15],[0.5,0.9],'int');
-
-%2 Why different?
-da(hp1)
-lx 2 14; ly 4 7; lc 0 8
-keep_figure
-c2=cut(hp1,[2,0,14],[4,0,7]);
-da(c2)
-lc 0 8
-keep_figure
 
 
 

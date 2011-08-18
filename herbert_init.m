@@ -35,7 +35,7 @@ addgenpath_message (rootpath, 'applications')
 
 % Put mex files on path
 if strcmpi(opt,'matlab')
-    addgenpath_message (rootpath, 'matlab')
+    addgenpath_message (rootpath,'external_code','matlab')
 else
     fortran_root = fullfile(rootpath,'external_code','Fortran');
     addpath_message (fortran_root);

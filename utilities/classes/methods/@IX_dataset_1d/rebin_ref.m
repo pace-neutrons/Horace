@@ -66,7 +66,7 @@ end
 if nargin>=2 && isa(args{1},'IX_dataset_1d')
     % If two arguments, both spectra, check that the number of elements are consistent
     wref=args{1};
-    if ~(numel(wref)==1 || numel(wref)==numel(w))
+    if ~(numel(wref)==1 || numel(wref)==numel(win))
         error('If second argument is an IX_dataset_1d, it must be a single dataset or have same array length as first argument')
     end
     % Check the reference dataset(s) can provide bin boundaries

@@ -17,6 +17,7 @@ nd1=numel(h1);
 nd2=numel(h2);
 if nd1~=nd2
     disp('Different dimensionality')
+    del_out=[];
     return
 end
 if ~all(h1==h2)
