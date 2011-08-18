@@ -1,9 +1,9 @@
 function [sout, eout] = rebin_nd_iax_hist_template (x, s, e, xout)
 % Rebins histogram data along axis iax=1 of an IX_dataset_nd with dimensionality ndim=2.
 % 
-% Assumes that the intensity and error are for a distribution (i.e. signal per unit x axis)
+% Assumes that the intensity and error are for a distribution (i.e. signal per unit along the axis)
 % Assumes that input x and xout are strictly monotonic increasing
- 
+%!
 %! Based on fortran routine rebin_2d_x_hist. Use as a template for arbitrary dimensionality
 %! by making the following character string substitutions: for the case of 3D integration along y axis
 %!

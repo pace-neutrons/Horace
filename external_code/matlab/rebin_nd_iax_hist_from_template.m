@@ -3,11 +3,11 @@ function rebin_nd_iax_hist_from_template
 substr_in={'rebin_nd_iax_hist_template','iax=1','ndim=2','(iin,:)','(iout,:)'};
 
 substr_out{1}={'rebin_1d_hist',  'iax=1','ndim=1','(iin)',    '(iout)'};
-% substr_out{2}={'rebin_2d_x_hist','iax=1','ndim=2','(iin,:)',  '(iout,:)'};
-% substr_out{3}={'rebin_2d_y_hist','iax=2','ndim=2','(:,iin)',  '(:,iout)'};
-% substr_out{4}={'rebin_3d_x_hist','iax=1','ndim=3','(iin,:,:)','(iout,:,:)'};
-% substr_out{5}={'rebin_3d_y_hist','iax=2','ndim=3','(:,iin,:)','(:,iout,:)'};
-% substr_out{6}={'rebin_3d_z_hist','iax=3','ndim=3','(:,:,iin)','(:,:,iout)'};
+substr_out{2}={'rebin_2d_x_hist','iax=1','ndim=2','(iin,:)',  '(iout,:)'};
+substr_out{3}={'rebin_2d_y_hist','iax=2','ndim=2','(:,iin)',  '(:,iout)'};
+substr_out{4}={'rebin_3d_x_hist','iax=1','ndim=3','(iin,:,:)','(iout,:,:)'};
+substr_out{5}={'rebin_3d_y_hist','iax=2','ndim=3','(:,iin,:)','(:,iout,:)'};
+substr_out{6}={'rebin_3d_z_hist','iax=3','ndim=3','(:,:,iin)','(:,:,iout)'};
 
 % Read in template file, removing special comment lines
 template_file='rebin_nd_iax_hist_template.m';
@@ -38,7 +38,7 @@ end
 if ~isempty(output_file)
     if ~isempty(dir(output_file))
         opstr=read_text(output_file);
-        if numel(opstr)==numel(opstrnew) && opstr==opstrnew
+        if numel(opstr)==numel(opstrnew) && isequal(opstr,opstrnew)
             return
         end
     end

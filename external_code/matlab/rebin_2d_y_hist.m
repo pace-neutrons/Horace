@@ -1,12 +1,12 @@
-function [sout, eout] = rebin_1d_hist (x, s, e, xout)
-% Rebins histogram data along axis iax=1 of an IX_dataset_nd with dimensionality ndim=1.
+function [sout, eout] = rebin_2d_y_hist (x, s, e, xout)
+% Rebins histogram data along axis iax=2 of an IX_dataset_nd with dimensionality ndim=2.
 % 
 % Assumes that the intensity and error are for a distribution (i.e. signal per unit along the axis)
 % Assumes that input x and xout are strictly monotonic increasing
  
 
-iax=1;
-ndim=1;
+iax=2;
+ndim=2;
 
 % Perform checks on input parameters and initialise output arrays
 % ---------------------------------------------------------------
@@ -34,19 +34,19 @@ iout= max(1, upper_index(xout, x(1)));
 if iin==mx+1 || iout==nx+1,  return, end    % guarantees that there is an overlap between x and xout
 
 while 1>0
-    sout(iout) = sout(iout) + (min(xout(iout+1),x(iin+1)) - max(xout(iout),x(iin))) * s(iin);
-    eout(iout) = eout(iout) + ((min(xout(iout+1),x(iin+1)) - max(xout(iout),x(iin))) * e(iin)).^2;
+    sout(:,iout) = sout(:,iout) + (min(xout(iout+1),x(iin+1)) - max(xout(iout),x(iin))) * s(:,iin);
+    eout(:,iout) = eout(:,iout) + ((min(xout(iout+1),x(iin+1)) - max(xout(iout),x(iin))) * e(:,iin)).^2;
     if xout(iout+1) >= x(iin+1)
         if iin<mx
             iin = iin + 1;
         else
-            sout(iout) = sout(iout) / (xout(iout+1)-xout(iout));		% end of input array reached
-            eout(iout) = sqrt(eout(iout)) / (xout(iout+1)-xout(iout));
+            sout(:,iout) = sout(:,iout) / (xout(iout+1)-xout(iout));		% end of input array reached
+            eout(:,iout) = sqrt(eout(:,iout)) / (xout(iout+1)-xout(iout));
             break
         end
     else
-        sout(iout) = sout(iout) / (xout(iout+1)-xout(iout));
-        eout(iout) = sqrt(eout(iout)) / (xout(iout+1)-xout(iout));
+        sout(:,iout) = sout(:,iout) / (xout(iout+1)-xout(iout));
+        eout(:,iout) = sqrt(eout(:,iout)) / (xout(iout+1)-xout(iout));
         if iout<nx
             iout = iout + 1;
         else
