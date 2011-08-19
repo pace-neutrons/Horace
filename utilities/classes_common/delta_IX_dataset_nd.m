@@ -1,8 +1,9 @@
-function del_out=delta_IX_dataset_nd(w1,w2,tol)
+function del_out=delta_IX_dataset_nd(w1,w2,tol,verbose)
 % Report the different between two IX_dataset_nd objects
 %
 %   >> delta_IX_dataset_nd(w1,w2)
-%   >> delta_IX_dataset_nd(w1,w2,tol)
+%   >> delta_IX_dataset_nd(w1,w2,tol)           % -ve tol then |tol| is relative tolerance
+%   >> delta_IX_dataset_nd(w1,w2,tol,verbose)   % verbose=true then print message even if equal
 %
 %   >> del = delta_IX_dataset_nd(...)
 %
@@ -10,6 +11,7 @@ function del_out=delta_IX_dataset_nd(w1,w2,tol)
 % if tol<0, then relative tolerance
 
 if ~exist('tol','var')||isempty(tol), tol=0; end
+if ~exist('verbose','var')||isempty(tol), verbose=false; end
 
 if isstruct(w1) && isstruct(w2)     % assume structure with fields val and err, as produced by integration
     del=zeros(1,2);
@@ -59,14 +61,14 @@ delrelmax=max(delrel);
 if tol<0
     if nargout>0, del_out=delrel; end
     if delrelmax<=abs(tol)
-        %    disp('Numerically equal objects')
+        if verbose, disp('Numerically equal objects'), end
     else
         disp(['WARNING: Numerically unequal objects:    ',num2str(delrel)])
     end
 else
     if nargout>0, del_out=del; end
     if delmax<=tol
-        %    disp('Numerically equal objects')
+        if verbose, disp('Numerically equal objects'), end
     else
         disp(['WARNING: Numerically unequal objects:    ',num2str(del)])
     end
