@@ -71,15 +71,16 @@ hp1b=hp1; hp1.x_distribution=false; hp1.y_distribution=true;
 ph1b=ph1; ph1.x_distribution=true;  ph1.y_distribution=false;
 hh1b=hh1; hh1.x_distribution=false; hh1.y_distribution=false;
 
+clear tmp; tmp.val=0; tmp.err=0;
 w2ref=[pp1,hp1,ph1,hh1,pp1b,hp1b,ph1b,hh1b];
-w2x_ref =repmat(IX_dataset_2d,size(w2ref));
-w2y_ref =repmat(IX_dataset_2d,size(w2ref));
-w2xy_ref=repmat(IX_dataset_2d,size(w2ref));
-w2x =repmat(IX_dataset_2d,size(w2ref));
-w2y =repmat(IX_dataset_2d,size(w2ref));
-w2xy=repmat(IX_dataset_2d,size(w2ref));
+w2x_ref =repmat(IX_dataset_1d,size(w2ref));
+w2y_ref =repmat(IX_dataset_1d,size(w2ref));
+w2xy_ref=repmat(tmp,size(w2ref));
+w2x =repmat(IX_dataset_1d,size(w2ref));
+w2y =repmat(IX_dataset_1d,size(w2ref));
+w2xy=repmat(tmp,size(w2ref));
 
-tol=1e-14;
+tol=-1e-14;
 xdescr=[6,14];
 ydescr=[4,10];
 

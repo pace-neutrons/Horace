@@ -139,7 +139,7 @@ else
         val = val + sum((s(ml+1:mu,:)+s(ml:mu-1,:)).*xwrk, iax);
         xwrk=repmat(reshape((x(ml+2:mu)-x(ml:mu-2)),[ones(1,iax-1),mu-ml-1,1]),sz_wrk);
         errbar = errbar + (e(ml,:)*(x(ml+1)-x1eff)).^2 + (e(mu,:)*(xneff-x(mu-1))).^2 ...
-            + sum((e(ml+1:mu-1,:).*xwrk).^2);
+            + sum((e(ml+1:mu-1,:).*xwrk).^2, iax);
     end
 
     %	x(mu) to xmax:

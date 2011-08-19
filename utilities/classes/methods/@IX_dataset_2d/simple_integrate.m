@@ -13,13 +13,13 @@ function wout = simple_integrate(win, varargin)
 if numel(win)~=1
     error('Method only works for a single input dataset, not an array')
 end
-if nargin==1
+if numel(varargin)==1
     xdescr=varargin{1}(1:2);
     ydescr=varargin{1}(3:4);
-elseif nargin==2
+elseif numel(varargin)==2
     xdescr=varargin{1};
     ydescr=varargin{2};
-elseif nargin==4
+elseif numel(varargin)==4
     xdescr=[varargin{1},varargin{2}];
     ydescr=[varargin{3},varargin{4}];
 else
@@ -37,10 +37,11 @@ end
 %     wout = simple_integrate_y(wout, ydescr);
 % end
 
-if integrate
-    wout = simple_integrate_y(win,  ydescr);
-    wout = simple_integrate_x(wout, xdescr);
+integrate_x_first=false;
+if integrate_x_first
+    wout = simple_integrate_x(win,  xdescr);
+    wout = integrate_ref(wout, ydescr);
 else
     wout = simple_integrate_y(win,  ydescr);
-    wout = simple_integrate_x(wout, xdescr);
+    wout = integrate_ref(wout, xdescr);
 end

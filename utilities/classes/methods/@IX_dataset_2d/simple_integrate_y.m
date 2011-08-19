@@ -14,8 +14,7 @@ end
 
 if numel(varargin)>=1
     wtmp=IX_dataset_1d(transpose(win));
-    wouttmp=integrate_ref(wtmp,varargin{:});
-    wout=transpose(IX_dataset_2d(wouttmp));
+    wout=integrate_ref(wtmp,varargin{:});
     wout.x=win.x;
     wout.x_axis=win.x_axis;
     wout.x_distribution=win.x_distribution;

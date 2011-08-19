@@ -5,6 +5,20 @@ function use_mex(ok)
 
 persistent save_ok
 
+% If no argument, then print out if mex or matlab routines currently in use
+if nargin==0
+    if isempty(save_ok)
+        disp('Unknown if mex or matlab')
+    else
+        if save_ok
+            disp('Mex files will be used')
+        else
+            disp('Matlab files will be used')
+        end
+    end
+    return
+end
+
 rootpath = fileparts(which('herbert_init'));
 start_dir=pwd;
 
@@ -23,9 +37,9 @@ try
     end
     cd(start_dir)
     if ok
-        disp('Mex files will be used')
+%        disp('Mex files will be used')
     else
-        disp('Matlab files will be used')
+%        disp('Matlab files will be used')
     end
     save_ok=ok;
 catch

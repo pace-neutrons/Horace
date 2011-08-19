@@ -68,7 +68,7 @@ for iw=1:nw
         if win(iw).x_distribution
             [val_temp,err_temp] = rebin_1d_hist (win(iw).x, win(iw).signal, win(iw).error, [xmin(iw),xmax(iw)]);
         else
-            xbins=diff(win(iw).x);
+            xbins=diff(win(iw).x');
             ytemp=win(iw).signal./xbins;
             etemp=win(iw).error./xbins;
             [val_temp,err_temp] = rebin_1d_hist (win(iw).x, ytemp, etemp, [xmin(iw),xmax(iw)]);

@@ -50,7 +50,7 @@ while ib<=nb
         mu=mu+1;
     end
     % Gets here if 1) x(mu+1)>xout(ib+1), or (2) mu=nx in which case the last x point is in output bin index ib
-    [sout(ib,:),eout(ib,:)] = single_integrate_3d_x_points(x,s,e,iax,xout(ib),xout(ib+1),ml,mu,sz_wrk);
+    [sout(ib,:,:),eout(ib,:,:)] = single_integrate_3d_x_points(x,s,e,iax,xout(ib),xout(ib+1),ml,mu,sz_wrk);
     % Update ml for next output bin
     if mu==nx || ib==nb
         return  % no more output bins in the range [x(1),x(end)], or completed last output bin
@@ -139,7 +139,7 @@ else
         val = val + sum((s(ml+1:mu,:,:)+s(ml:mu-1,:,:)).*xwrk, iax);
         xwrk=repmat(reshape((x(ml+2:mu)-x(ml:mu-2)),[ones(1,iax-1),mu-ml-1,1]),sz_wrk);
         errbar = errbar + (e(ml,:,:)*(x(ml+1)-x1eff)).^2 + (e(mu,:,:)*(xneff-x(mu-1))).^2 ...
-            + sum((e(ml+1:mu-1,:,:).*xwrk).^2);
+            + sum((e(ml+1:mu-1,:,:).*xwrk).^2, iax);
     end
 
     %	x(mu) to xmax:

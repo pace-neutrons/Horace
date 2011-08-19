@@ -5,10 +5,10 @@ function [sout,eout] = integrate_nd_iax_points_template (x, s, e, xout)
 %! Use as a template for arbitrary dimensionality by making the following character string
 %! substitutions: for the case of 3D integration along y axis
 %!
-%!      'integrate_nd_iax_points_template','iax=1','ndim=2','(ilo,:)','(ihi,:)',...
+%!      'integrate_nd_iax_points_template','iax=1','ndim=2','(ib,:)','(ilo,:)','(ihi,:)',...
 %!      '(ml-1,:)','(ml,:)','(mu,:)','(mu+1,:)','(ml:mu-1,:)','(ml+1:mu-1,:)','(ml+1:mu,:)'
 %! with
-%!      'integrate_3d_y_points',           'iax=2','ndim=3','(:,ilo,:)','(:,ihi,:)',...
+%!      'integrate_3d_y_points',           'iax=2','ndim=3','(:,ib,:)','(:,ilo,:)','(:,ihi,:)',...
 %!      '(:,ml-1,:)','(:,ml,:)','(:,mu,:)','(:,mu+1,:)','(:,ml:mu-1,:)','(:,ml+1:mu-1,:)','(:,ml+1:mu,:)'
 %!
 %! and remove all lines beginning with '%!'
@@ -151,7 +151,7 @@ else
         val = val + sum((s(ml+1:mu,:)+s(ml:mu-1,:)).*xwrk, iax);
         xwrk=repmat(reshape((x(ml+2:mu)-x(ml:mu-2)),[ones(1,iax-1),mu-ml-1,1]),sz_wrk);
         errbar = errbar + (e(ml,:)*(x(ml+1)-x1eff)).^2 + (e(mu,:)*(xneff-x(mu-1))).^2 ...
-            + sum((e(ml+1:mu-1,:).*xwrk).^2);
+            + sum((e(ml+1:mu-1,:).*xwrk).^2, iax);
     end
 
     %	x(mu) to xmax:

@@ -239,6 +239,13 @@ end
 
 
 %==================================================================================================
+function x_out=rebin_1d_hist_get_xarr (x_in, xbounds)
+% Deprecated function, replaced by bin_boundaries_from_descriptor
+
+x_out=bin_boundaries_from_descriptor (xbounds, x_in);
+
+
+%==================================================================================================
 function [ok,rebin_descriptor,any_dx_zero,mess]=rebin_descriptor_check_ref(varargin)
 % Check rebin descriptor has valid format, and returns in standard form [x1,dx1,x2,dx2,x3,...]
 %

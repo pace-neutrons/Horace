@@ -14,11 +14,10 @@ end
 
 if numel(varargin)>=1
     wtmp=IX_dataset_1d(win);
-    wouttmp=integrate_ref(wtmp,varargin{:});
-    wout=IX_dataset_2d(wouttmp);
-    wout.y=win.y;
-    wout.y_axis=win.y_axis;
-    wout.y_distribution=win.y_distribution;
+    wout=integrate_ref(wtmp,varargin{:});
+    wout.x=win.y;
+    wout.x_axis=win.y_axis;
+    wout.x_distribution=win.y_distribution;
 else
     wout=win;
 end
