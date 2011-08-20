@@ -8,7 +8,7 @@ function wout=squeeze_IX_dataset_nd(win,iax)
 % dimensionality. This is so output can also be an array on the same dimensionality IX_dataset_nd objects.
 
 % Check validity of input
-ndim=ndimensions(win);
+ndim=dimensions(win);
 if nargin==1
     iax=1:ndim;
 else
@@ -17,7 +17,7 @@ else
     end
 end
 
-% Chack all datasets have the same axes to be squeezed
+% Check all datasets have the same axes to be squeezed
 remove=false(1,ndim);
 remove(iax)=true;
 for i=1:numel(win)

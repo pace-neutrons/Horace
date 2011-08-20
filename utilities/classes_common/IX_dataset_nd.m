@@ -2,11 +2,11 @@ function w = IX_dataset_nd (varargin)
 % Constructor for generic n-dimensional dataset. Not a class method, but gateway to constructors
 %
 %   >> w = IX_dataset_nd (ndim)         Create empty of object of the requested dimensionality
-%   >> w = IX_dataset_nd (title, signal, error, s_axis, ax)
+%   >> w = IX_dataset_nd (title, signal, err, s_axis, ax)
 %
 % 	title				char/cellstr	Title of dataset for plotting purposes (character array or cellstr)
 % 	signal              double  		Signal (vector)
-% 	error				        		Standard error (vector)
+% 	err                                 Standard error (vector)
 % 	s_axis				IX_axis			Signal axis object containing caption and units codes
 %                   (or char/cellstr    Can also just give caption; multiline input in the form of a
 %                                      cell array or a character array)
@@ -40,7 +40,7 @@ elseif numel(varargin)==5
     err=varargin{3};
     s_axis=varargin{4};
     ax=varargin{5};
-    % Format is: w = IX_dataset_nd (title, signal, error, s_axis, ax)
+    % Format is: w = IX_dataset_nd (title, signal, err, s_axis, ax)
     fields = {'values';'axis';'distribution'};
     
     ndim=numel(ax);

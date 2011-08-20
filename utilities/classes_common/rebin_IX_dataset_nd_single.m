@@ -37,7 +37,7 @@ function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
 % number of contributing points (point averagin) regardless of the data being distribution
 % or not. This is because it is assumed that point data is sampling a function.
 
-ndim=ndimensions(win);
+ndim=dimensions(win);
 nrebin=numel(iax);
 wout_x=cell(1,nrebin);
 % Need to treat IX_dataset_1d in special way: because data is stored as row vectors

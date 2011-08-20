@@ -47,7 +47,7 @@ In class directory, place the methods:
    Return the number of dimensions and size. Not necessarily the size of
    a matlab array: this gives the 'public' number of dimensions and size,
    but the private arrays may be different. The rules are:
-    - If empty object, nd=[], sz=[]          (nb: []==zeros(0,0))
+    - If empty object, nd=[], sz=[]          (nb: []==zeros(0,0)) 	*** OR SHOULD IT RETURN nd IF E.G. IX_DATASET_1D?
     - If 0D    object, nd=0,  sz=zeros(1,0) 
 	- if 1D    object, nd=1,  sz=n1
 	- If 2D    object, nd=2,  sz=[n1,n2]

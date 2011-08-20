@@ -68,7 +68,7 @@ if numel(win)==1
     wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
         rebin_hist_func,integrate_points_func,integrate_data,point_integration);
 else
-    ndim=ndimensions(win);
+    ndim=dimensions(win);
     wout=repmat(IX_dataset_nd(ndim),size(win));
     for i=1:numel(win)
         wout(i) = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,...

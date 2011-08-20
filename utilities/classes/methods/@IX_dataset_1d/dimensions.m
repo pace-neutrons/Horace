@@ -1,13 +1,10 @@
 function [nd,sz] = dimensions(w)
-% Find number of dimensions and extent along each dimension of
-% the signal arrays. 
-% - if w.s empty,         nd=[], sz=[] (nb: [] == zeros(0,0))
-% - If w.s scalar,        nd=0,  sz=zeros(1,0)
-% - if w.s column vector, nd=1,  sz=length(w.s)
-% - if w.s row vector,    nd=2,  sz=size(w.s)
-%
-% - All other cases:      nd=length(size(w.s)),  sz=size(w.s)
-%  (this is the case if row vector too)
+% Find number of dimensions and extent along each dimension of the signal arrays. 
+% - If 0D IX_dataset_nd object, nd=0,  sz=zeros(1,0) (nb: []==zeros(0,0))
+% - if 1D IX_dataset_nd object, nd=1,  sz=n1
+% - If 2D IX_dataset_nd object, nd=2,  sz=[n1,n2]
+% - If 3D IX_dataset_nd object, nd=3,  sz=[n1,n2,n3]   even if n3=1
+% - If 4D IX_dataset_nd object, nd=4,  sz=[n1,n2,n3,n4]  even if n4=1
 %
 % The convention is that size(sz)=1 x ndim
 %
@@ -15,21 +12,5 @@ function [nd,sz] = dimensions(w)
 
 % Original author: T.G.Perring
 
-
-if ~isempty(w.signal)
-    if ~isscalar(w.signal)
-        if size(w.signal,2)>1
-            sz=size(w.signal);
-            nd=length(sz);
-        else
-            sz=numel(w.signal);
-            nd=1;
-        end
-    else
-        nd=0;
-        sz=zeros(1,0);
-    end
-else
-    nd=[];
-    sz=[];
-end
+nd=1;
+sz=numel(w.signal);
