@@ -3,11 +3,20 @@ function [xv,yv,z]=prepare_for_patch(x,y,signal)
 %
 %   >> [xv,yv,z]=prepare_for_patch(x,y,signal)
 %
-%   x   x-axis values (vector length m)
-%   y   y axis values (vector length n)
+% Input:
+% ------
+%   x       x-axis values (vector length m)
+%   y       y axis values (vector length n)
 %   signal  Intensity array size=[M,N] where M=m or m-1, and N=n or n-1
 %           depending on whether or not the corresponding axis values
 %           are bin boundaries or bin centres.
+%
+% Output:
+% -------
+%   xv      x-coords of verticies for patch plot
+%   yv      y-coords of verticies for patch plot
+%   z       Intensity array correctly ordered for use in patch plot
+
 
 nx = size(signal,1);
 ny = size(signal,2);

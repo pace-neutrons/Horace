@@ -100,14 +100,14 @@ elseif numel(par)==2||numel(par)==4||numel(par)==6
     xlims=true;
     if isnumeric(par{1}) && isscalar(par{1}), xlo=par{1}; else bad=true; end
     if isnumeric(par{2}) && isscalar(par{2}), xhi=par{2}; else bad=true; end
-    if numel(par)==4
+    if numel(par)>=4
         ylims=true;
         if isnumeric(par{3}) && isscalar(par{3}), ylo=par{3}; else bad=true; end
         if isnumeric(par{4}) && isscalar(par{4}), yhi=par{4}; else bad=true; end
     else
         ylims=false;
     end
-    if numel(par)==6
+    if numel(par)>=6
         zlims=true;
         if isnumeric(par{5}) && isscalar(par{5}), zlo=par{5}; else bad=true; end
         if isnumeric(par{6}) && isscalar(par{6}), zhi=par{6}; else bad=true; end
@@ -164,6 +164,8 @@ end
 % Plot data (already checked that it is valid)
 if plot_type(1)=='a'        % area plot
     plot_area (w)
+    box on                      % put boundary box on plot
+    set(gca,'layer','top')      % puts axes layer on the top
 elseif plot_type(1)=='s'    % surface plot
     plot_surface (w);
 elseif plot_type(1)=='c'    % contour plot
@@ -200,7 +202,7 @@ if newplot
 end
 if xlims, lx(xlo,xhi), end
 if ylims, ly(ylo,yhi), end
-if zlims, lz(zlo,zhi), end
+if zlims, lc(zlo,zhi), end
 
 % Add colorslider
 colorslider

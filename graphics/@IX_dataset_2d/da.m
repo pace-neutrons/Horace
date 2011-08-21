@@ -1,5 +1,5 @@
 function [fig_handle, axes_handle, plot_handle] = da(w,varargin)
-% Draws a histogram plot of a spectrum or array of spectra
+% Draw an area plot of an IX_dataset_2d or array of IX_dataset_2d
 %
 %   >> da(w)
 %   >> da(w,xlo,xhi)

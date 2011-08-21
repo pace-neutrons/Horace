@@ -1,5 +1,4 @@
 NOT COMPLETE
-- plot_area first draft; no polishing of limits, axes box seems to be half missing
 
 - smoothing not implemented
 

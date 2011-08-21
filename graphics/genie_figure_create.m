@@ -23,7 +23,7 @@ if isempty(fig)
     % No figure exists with tag matching the requested figure name
     new_figure=true;
     colordef white;
-    fig=figure('Tag',fig_name,'PaperPositionMode','auto','Name',fig_name,'Color','white');
+    fig=figure('Tag',fig_name,'PaperPositionMode','auto','Name',fig_name,'Color','white','toolbar','figure');
     % Find any kept figures and set current figure size to match the dimensions of the
     % most recent old figure of the same type
     keepfig=findobj('Tag',['$keep$',fig_name],'Type','figure');
