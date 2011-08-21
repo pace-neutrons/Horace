@@ -4,18 +4,18 @@ Methods that are required for IX_dataset_2d
 
 combine		
 interp
-noisify		
+noisify		[[DONE]]
 peak_cwhh	
 unspike
 
 dist2cnt	
 cnt2dist	
 flip		* should not be necessary: valid objects must have monotonic increasing x-axis
-hist2point	
-point2hist 	
+hist2point	[[DONE]]
+point2hist 	[[DONE]]
 
-fit 		
-func_eval	
+multifit 	[[DONE]]
+func_eval	[[DONE]]
 
 read		[[DONE]]
 write		[[DONE]]
@@ -28,6 +28,6 @@ integrate	[[DONE]]
 rebin		[[DONE]]
 rebunch		
 regroup
-scale 		
-shift		
+scale 		[[DONE]]
+shift		[[DONE]]
 smooth

@@ -10,7 +10,7 @@ wout=w;
 if numel(w)>1 && numel(x)==1
     x=repmat(x,size(w));
 elseif numel(w)~=numel(x)
-    error('Check number of elements in IX_dataset_1d and shift arrays')
+    error('Check number of IX_dataset_1d objects and elements in the shift array')
 end
 
 for i=1:numel(w)

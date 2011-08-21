@@ -1,5 +1,5 @@
 function wout=hist2point(win)
-% Convert histogram dataset(s) to point datasets.
+% Convert histogram IX_dataset_1d (or an array of them) to point dataset(s).
 %
 %   >> wout=hist2point(win)
 %
