@@ -1,4 +1,4 @@
-function [xv,yv,z]=prepare_for_surf(x,y,signal)
+function [xv,yv,z]=prepare_for_surface(x,y,signal)
 % Prepare arrays suitable for surface plot
 %
 %   >> [xv,yv,z]=prepare_for_surf(x,y,signal)
@@ -28,6 +28,5 @@ if numel(y)~=ny
     y=0.5*(y(1:end-1)+y(2:end));
 end
 
-[xv,yv]=meshgrid(x,y);
-z=signal(:)';
-***
+[xv,yv]=ndgrid(x,y);
+z=signal;

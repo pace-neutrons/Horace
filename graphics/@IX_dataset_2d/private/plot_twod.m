@@ -167,7 +167,9 @@ if plot_type(1)=='a'        % area plot
     box on                      % put boundary box on plot
     set(gca,'layer','top')      % puts axes layer on the top
 elseif plot_type(1)=='s'    % surface plot
+    if newplot, view(3); end    % set viewpoint if newplot
     plot_surface (w);
+    set(gca,'layer','top')      % puts axes layer on the top
 elseif plot_type(1)=='c'    % contour plot
     plot_contour (w);
 end
