@@ -12,7 +12,7 @@ function [h,ok,mess]=genie_figure_handle (fig_name)
 %
 %  If given figure handle(s) rather than name(s), then these are passed through
 %  transparently (apart from conversion to column vector) unless one or more
-%  of the handles is not a figure handle.
+%  of the handles is not a figure handle, in which case an error is thrown.
 
 if isnumeric(fig_name)   % could be array of figure handles
     id=fig_name;

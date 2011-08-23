@@ -24,7 +24,7 @@ else
 end
 
 for i=1:numel(fig)
-    % Read figure tag, skip if empty of if figure already kept
+    % Read figure tag, skip if empty or if figure already kept
     tag=get(fig(i),'Tag');
     tag=strtrim(tag);
     if isempty(tag),

@@ -1,8 +1,8 @@
 function [xrange,yrange,ysubrange,zrange,zsubrange,crange]=graph_range (fig)
 % Get the limits on x,y for current figure or named figure
 %
-%   >> [fig_h, axes_h, plot_h] = genie_range
-%   >> [fig_h, axes_h, plot_h] = genie_range (fig)
+%   >> [fig_h, axes_h, plot_h] = graph_range
+%   >> [fig_h, axes_h, plot_h] = graph_range (fig)
 
 % Determine which figure to get handles
 if ~exist('fig','var')||(isempty(fig)),

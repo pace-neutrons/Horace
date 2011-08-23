@@ -11,7 +11,7 @@ function [fig_name, ok, mess] = genie_figure_name(handle)
 %
 %  If given figure name(s) rather than handle(s), then these are passed through
 %  transparently (apart from conversion to column vector) unless one or more
-%  of the names is not a figure name.
+%  of the names is not a figure name, in which case an error is thrown.
 
 if isnumeric(handle)   % could be array of figure handles
     id=handle(:);
