@@ -4,7 +4,7 @@ function [wout,ok,mess] = integrate_IX_dataset_nd (win, rebin_hist_func, integra
 %   >> [wout,ok,mess] = integrate_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, varargin)
 
 % Check point integration option
-ndim=dimensions(win);
+ndim=dimensions(win(1));
 if ~(numel(varargin)==1 && isa(varargin{1},class(win))) && (numel(varargin)>=1 && ~isnumeric(varargin{end}))  % last argument is point integration option
     [point_integration, ok, mess] = rebin_point_integration_check (ndim, varargin{end});
     if ~ok, wout=[]; return, end

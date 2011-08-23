@@ -179,7 +179,7 @@ err=0.5+rand(nx0,ny0);
     
 hp_huge=IX_dataset_2d(x,y,signal(1:end-1,:),err(1:end-1,:),'hist-pnt',IX_axis('Energy transfer','meV','$w'),'Temperature','Counts',false,false);
 
-clear signal err
+clear xx yy signal err
 
 % -----------------------------------------------
 % Some timing tests with huge 1D arrays

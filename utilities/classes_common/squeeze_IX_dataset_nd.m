@@ -8,7 +8,7 @@ function wout=squeeze_IX_dataset_nd(win,iax)
 % dimensionality. This is so output can also be an array on the same dimensionality IX_dataset_nd objects.
 
 % Check validity of input
-ndim=dimensions(win);
+ndim=dimensions(win(1));
 if nargin==1
     iax=1:ndim;
 else
