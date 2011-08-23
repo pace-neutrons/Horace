@@ -1,9 +1,9 @@
 function [fig_, axes_, plot_, ok, mess] = plot_twod (w_in, varargin)
-% Draw a oneD plot
+% Draw a two-dimensional plot
 %
-%   >> plot_oned (w_in, xlo, xhi)
-%   >> plot_oned (w_in, xlo, xhi, ylo, yhi)
-%   >> plot_oned (...,key1, val1, key2, val2,...)
+%   >> plot_twod (w_in, xlo, xhi)
+%   >> plot_twod (w_in, xlo, xhi, ylo, yhi)
+%   >> plot_twod (...,key1, val1, key2, val2,...)
 %
 %   Valid keywords and values
 %       'name'      Name of figure window

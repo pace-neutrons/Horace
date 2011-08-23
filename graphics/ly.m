@@ -45,13 +45,14 @@ elseif nargin ==2
     else
         error('Check input arguments');
     end
-    
+
+    if yrange(1)>=yrange(2)
+        error('Check ylo < yhi')
+    end
+
 else
     error 'Check number of input parameters'
 end
 
 % Change limits
-if yrange(1)>=yrange(2)
-    error('Check ylo < yhi')
-end
 set (gca, 'YLim', yrange);

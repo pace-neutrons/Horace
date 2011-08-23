@@ -46,12 +46,13 @@ elseif nargin ==2
         error('Check input arguments');
     end
     
+    if xrange(1)>=xrange(2)
+        error('Check xlo < xhi')
+    end
+
 else
     error 'Check number of input parameters'
 end
 
 % Change limits
-if xrange(1)>=xrange(2)
-    error('Check xlo < xhi')
-end
 set (gca, 'XLim', xrange);

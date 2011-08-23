@@ -14,11 +14,17 @@ if isempty(findall(0,'Type','figure'))
     return
 end
 
+% Find out if there is z data
+[zpresent, cpresent] = graph_range_zc_present (gcf);
+if ~zpresent && ~cpresent
+    error('No z range to change')
+end
+
 % Get z range
 if nargin ==0
     % Get z axis limits for entire data range
     [xrange,yrange,ysubrange,zrange_dummy,zrange,crange] = graph_range(gcf);
-    if isempty(zrange)
+    if ~zpresent
         set (gca, 'CLim', crange);  % assume that crange is axis to be changed (area plot)
         return
     end
@@ -50,12 +56,19 @@ elseif nargin ==2
         error('Check input arguments');
     end
     
+    if zrange(1)>=zrange(2)
+        error('Check zlo < zhi')
+    end
+    
 else
     error 'Check number of input parameters'
 end
 
 % Change limits
-if zrange(1)>=zrange(2)
-    error('Check zlo < zhi')
+if ~zpresent
+    set (gca, 'CLim', zrange);  % assume that crange is axis to be changed
+    % Update colorslider, if present
+    colorslider('update')
+else
+    set (gca, 'ZLim', zrange);
 end
-set (gca, 'ZLim', zrange);

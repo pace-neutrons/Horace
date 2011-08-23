@@ -1,5 +1,5 @@
 function [fig_, axes_, plot_, ok, mess] = plot_oned (w_in, varargin)
-% Draw a oneD plot
+% Draw a one-dimensional plot
 %
 %   >> plot_oned (w_in, xlo, xhi)
 %   >> plot_oned (w_in, xlo, xhi, ylo, yhi)
