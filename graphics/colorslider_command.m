@@ -7,8 +7,6 @@ function colorslider_command(figureHandle_,cmd)
 % T.G.Perring queries (28/3/11):
 % *** Reasons to question some of the robustness e.g. trapping NaN in case of
 %     options 'min' and 'max' - compare original mslice code.
-%
-% *** Not sure of need for 'create', 'update' or 'delete'
 
 slider_min=findobj(figureHandle_,'Tag','color_slider_min');
 slider_min_value=findobj(figureHandle_,'Tag','color_slider_min_value');
@@ -47,23 +45,6 @@ switch cmd
         else
             i_max=str2double(temp);
         end
-    
-%     case 'create'
-%     
-%     case 'update'
-%         [figureHandle_, axesHandle_, plotHandle_, otherHandle_] = ixf_get_related_handles(figureHandle_);
-%         other_tags = get(otherHandle_,'tag');
-%         if any(strcmp(other_tags,'color_slider_min')) && any(strcmp(other_tags,'color_slider_max')) && ...
-%                 any(strcmp(other_tags,'color_slider_min_value')) && any(strcmp(other_tags,'color_slider_max_value'))
-%             colorslider(figureHandle_,'create')
-%             return
-%         else
-%             return
-%         end
-%         
-%     case 'delete'
-%         colorslider(figureHandle_,'delete');
-%         return
         
     otherwise
         disp('Unknown slider command. Return.');

@@ -1,8 +1,8 @@
 function colorslider(varargin)
 % Add a color slider to a plot
 %
-%   >> colorslider          % add to current figure
-%   >> colorslider (fig)    % add to named or numbered figure
+%   >> colorslider                  % add to current figure
+%   >> colorslider (fig)            % add to named or numbered figure
 %   >> colorslider ('delete')       % delete colorslider from current figure
 %   >> colorslider (fig,'delete')   % delete colorslider from current figure
 
@@ -53,11 +53,7 @@ curr_slider_min = findobj(fig_handle,'tag','color_slider_min');
 curr_slider_max = findobj(fig_handle,'tag','color_slider_max');
 curr_slider_min_val = findobj(fig_handle,'tag','color_slider_min_value');
 curr_slider_max_val = findobj(fig_handle,'tag','color_slider_max_value');
-if ~isempty(curr_colorbar)
-    colorbar_exist=true;
-else
-    colorbar_exist=false;
-end
+
 if ~isempty(curr_slider_min)||~isempty(curr_slider_max)||~isempty(curr_slider_min_val)||~isempty(curr_slider_max_val)
     colorslider_exist=true;
 else

@@ -165,8 +165,8 @@ toc
 % Big array in 2D
 % ---------------
 
-nx0=5000;
-ny0=3000;
+nx0=500;
+ny0=300;
 
 xrange=10;
 yrange=6;
@@ -180,6 +180,8 @@ err=0.5+rand(nx0,ny0);
 hp_huge=IX_dataset_2d(x,y,signal(1:end-1,:),err(1:end-1,:),'hist-pnt',IX_axis('Energy transfer','meV','$w'),'Temperature','Counts',false,false);
 
 clear xx yy signal err
+
+
 
 % -----------------------------------------------
 % Some timing tests with huge 1D arrays
