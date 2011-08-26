@@ -17,7 +17,8 @@
 !   eout(mx-1)  output error bars (column)
 !
 !===========================================================================================================
-!	T.G. Perring		2011-05-30		Rename from mgenie function spectrum_rebin
+!	T.G. Perring		August 2011     First release
+!	                                  Rename from mgenie function spectrum_rebin
 !                                       Renamed the calls to routines that performs rebin
 !
 !===========================================================================================================

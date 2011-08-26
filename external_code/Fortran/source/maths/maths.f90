@@ -45,6 +45,36 @@
 		end subroutine integrate_2d_y_points
 	end interface
 	
+	interface integrate_3d_x_points
+	    subroutine integrate_3d_x_points (ierr, x, s, e, xout, sout, eout)
+	    use type_definitions
+	    use tools_parameters
+	    real(dp), intent(in) :: x(:), s(:,:,:), e(:,:,:)
+	    real(dp), intent(out) :: xout(:), sout(:,:,:), eout(:,:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine integrate_3d_x_points
+	end interface
+	
+	interface integrate_3d_y_points
+	    subroutine integrate_3d_y_points (ierr, y, s, e, yout, sout, eout)
+	    use type_definitions
+	    use tools_parameters
+	    real(dp), intent(in) :: y(:), s(:,:,:), e(:,:,:)
+	    real(dp), intent(out) :: yout(:), sout(:,:,:), eout(:,:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine integrate_3d_y_points
+	end interface
+	
+	interface integrate_3d_z_points
+	    subroutine integrate_3d_z_points (ierr, z, s, e, zout, sout, eout)
+	    use type_definitions
+	    use tools_parameters
+	    real(dp), intent(in) :: z(:), s(:,:,:), e(:,:,:)
+	    real(dp), intent(out) :: zout(:), sout(:,:,:), eout(:,:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine integrate_3d_z_points
+	end interface
+	
 	interface single_integrate_1d_points
 	    subroutine single_integrate_1d_points (x, s, e, xmin, xmax, ml, mu, val, errbar)
 	    use type_definitions
@@ -72,24 +102,31 @@
 		end subroutine single_integrate_2d_y_points
 	end interface
 		
-	interface lower_index
-		function lower_index_dp (arr, val)
-		use type_definitions
-		real(DP), intent(in) :: arr(:), val
-		integer(I4B) :: lower_index_dp
-		end function lower_index_dp
+	interface single_integrate_3d_x_points
+	    subroutine single_integrate_3d_x_points (x, s, e, xmin, xmax, ml, mu, val, errbar)
+	    use type_definitions
+        integer(i4b), intent(in) :: ml, mu
+	    real(dp), intent(in) :: x(:), s(:,:,:), e(:,:,:), xmin, xmax
+	    real(dp), intent(out) :: val(:,:), errbar(:,:)
+		end subroutine single_integrate_3d_x_points
+	end interface
+		
+	interface single_integrate_3d_y_points
+	    subroutine single_integrate_3d_y_points (y, s, e, ymin, ymax, ml, mu, val, errbar)
+	    use type_definitions
+        integer(i4b), intent(in) :: ml, mu
+	    real(dp), intent(in) :: y(:), s(:,:,:), e(:,:,:), ymin, ymax
+	    real(dp), intent(out) :: val(:,:), errbar(:,:)
+		end subroutine single_integrate_3d_y_points
+	end interface
 
-		function lower_index_sp (arr, val)
-		use type_definitions
-		real(SP), intent(in) :: arr(:), val
-		integer(I4B) :: lower_index_sp
-		end function lower_index_sp
-
-		function lower_index_i4b (arr, val)
-		use type_definitions
-		integer(I4B), intent(in) :: arr(:), val
-		integer(I4B) :: lower_index_i4b
-		end function lower_index_i4b
+	interface single_integrate_3d_z_points
+	    subroutine single_integrate_3d_z_points (z, s, e, zmin, zmax, ml, mu, val, errbar)
+	    use type_definitions
+        integer(i4b), intent(in) :: ml, mu
+	    real(dp), intent(in) :: z(:), s(:,:,:), e(:,:,:), zmin, zmax
+	    real(dp), intent(out) :: val(:,:), errbar(:,:)
+		end subroutine single_integrate_3d_z_points
 	end interface
 
 	interface rebin_1d_hist
@@ -117,6 +154,53 @@
 	    real(dp), intent(out) :: yout(:), sout(:,:), eout(:,:)
 	    integer(i4b), intent(out) :: ierr
 		end subroutine rebin_2d_y_hist
+	end interface
+
+	interface rebin_3d_x_hist
+		subroutine rebin_3d_x_hist (ierr, x, s, e, xout, sout, eout)
+		use type_definitions
+	    real(dp), intent(in) :: x(:), s(:,:,:), e(:,:,:)
+	    real(dp), intent(out) :: xout(:), sout(:,:,:), eout(:,:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine rebin_3d_x_hist
+	end interface
+
+	interface rebin_3d_y_hist
+		subroutine rebin_3d_y_hist (ierr, y, s, e, yout, sout, eout)
+		use type_definitions
+	    real(dp), intent(in) :: y(:), s(:,:,:), e(:,:,:)
+	    real(dp), intent(out) :: yout(:), sout(:,:,:), eout(:,:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine rebin_3d_y_hist
+	end interface
+
+	interface rebin_3d_z_hist
+		subroutine rebin_3d_z_hist (ierr, z, s, e, zout, sout, eout)
+		use type_definitions
+	    real(dp), intent(in) :: z(:), s(:,:,:), e(:,:,:)
+	    real(dp), intent(out) :: zout(:), sout(:,:,:), eout(:,:,:)
+	    integer(i4b), intent(out) :: ierr
+		end subroutine rebin_3d_z_hist
+	end interface
+
+	interface lower_index
+		function lower_index_dp (arr, val)
+		use type_definitions
+		real(DP), intent(in) :: arr(:), val
+		integer(I4B) :: lower_index_dp
+		end function lower_index_dp
+
+		function lower_index_sp (arr, val)
+		use type_definitions
+		real(SP), intent(in) :: arr(:), val
+		integer(I4B) :: lower_index_sp
+		end function lower_index_sp
+
+		function lower_index_i4b (arr, val)
+		use type_definitions
+		integer(I4B), intent(in) :: arr(:), val
+		integer(I4B) :: lower_index_i4b
+		end function lower_index_i4b
 	end interface
 
 	interface upper_index

@@ -5,8 +5,7 @@
 ! Interface to Fortran 90 library routines
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
-!	T.G. Perring		2011-05-30		Essentially a copy of mgenie subroutine spectrum_rebin_get_marr
-!
+!	T.G. Perring		August 2011     First release
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
 	implicit none

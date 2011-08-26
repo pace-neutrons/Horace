@@ -24,8 +24,7 @@
 !	eout(:)	real		Output error bars on signal (runs from 1 to NX)
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
-!	T.G. Perring		2011-07-19		First release. Based very closely on INTEGRATE_1D_POINT in mgenie.
-!
+!	T.G. Perring		August 2011     First release
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
 	implicit none

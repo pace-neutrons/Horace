@@ -25,8 +25,7 @@
 !   errbar(:)  real     Standard deviation on val
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
-!	T.G. Perring		2011-07-26		First release. Based very closely on single_integrate_1d_points.
-!                                       Virtually same as single_integrate_2d_x_points
+!	T.G. Perring		August 2011     First release
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
 	implicit none

@@ -1,6 +1,6 @@
 #include "fintrf.h"
 !===========================================================================================================
-! Rebin 2D dataset along x-axis with histogram data along the y-axis. Assumes data form a distribution.
+! Rebin 2D dataset along y-axis with histogram data along the y-axis. Assumes data form a distribution.
 !
 !   >> [sout, eout] = rebin_2d_y_hist (y, s, e, xout)
 !
@@ -17,7 +17,7 @@
 !   eout(nx,my-1)   output error bars
 !
 !===========================================================================================================
-!	T.G. Perring		2011-07-29		Generalisation of rebin_1d_hist
+!	T.G. Perring		August 2011     First release
 !
 !===========================================================================================================
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)

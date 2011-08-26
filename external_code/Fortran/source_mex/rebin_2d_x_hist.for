@@ -17,7 +17,7 @@
 !   eout(mx-1,ny)   output error bars
 !
 !===========================================================================================================
-!	T.G. Perring		2011-07-29		Generalisation of rebin_1d_hist
+!	T.G. Perring		August 2011     First release
 !
 !===========================================================================================================
       subroutine mexFunction(nlhs, plhs, nrhs, prhs)
