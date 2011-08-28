@@ -1,5 +1,9 @@
 function use_mex(ok)
 % Set use of mex files or matlab equivalents for testing purposes.
+%
+%   >> use_mex          % Prints whether mex or matlab functions are currently being used
+%   >> use_mex(flag)    % flag=true: use mex files; flag=false use matlab functions
+%
 % Assumes herbert_init has been run
 % Should be robust to changes in organisation of files in Herbert
 

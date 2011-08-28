@@ -9,7 +9,7 @@ integrate_points_func={@integrate_3d_x_points};
 integrate_data=true;
 point_integration_default=true;
 iax=1;                      % axes to integrate over
-isdescriptor=true;          % accept only new bin boundaries
+isdescriptor=true;          % accept only new rebin descriptor
 
 [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func,...
                      integrate_data, point_integration_default, iax, isdescriptor, varargin{:});

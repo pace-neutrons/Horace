@@ -99,15 +99,6 @@ function [wout_x,wout_s,wout_e] = rebin_one_axis(ndim,iax,win_x,win_s,win_e,win_
 % number of contributing points (point averagin) regardless of the data being distribution
 % or not. This is because it is assumed that point data is sampling a function.
 
-% Catch case when no rebin required
-if isempty(xbounds) || (true_values && numel(xbounds)==numel(win_x) && all(xbounds==win_x))
-    wout_x=win_x;
-    wout_s=win_s;
-    wout_e=win_e;
-    return
-end
-
-% Now treat case when new bins
 nx=numel(win_x);
 sz=size(win_s);
 if ndim==1
@@ -119,9 +110,23 @@ x_sz_repmat=sz; x_sz_repmat(iax)=1; % size to repmat a vector across the input o
 %---------------------------------------------------------------------------------------------
 % Histogram data
 if nx~=sz(iax)
-    if true_values, wout_x=xbounds; else wout_x = bin_boundaries_from_descriptor (xbounds, win_x); end
+    if true_values
+        wout_x=xbounds;
+    else
+        if ~isempty(xbounds)
+            wout_x=bin_boundaries_from_descriptor (xbounds, win_x);
+        else
+            wout_x=win_x;
+        end
+    end
+    bounds_unchanged=(numel(wout_x)==numel(win_x) && all(wout_x==win_x));
     if win_xdist
-        [wout_s, wout_e] = rebin_hist_func (win_x, win_s, win_e, wout_x);
+        if bounds_unchanged
+            wout_s=win_s;
+            wout_e=win_e;
+        else
+            [wout_s, wout_e] = rebin_hist_func (win_x, win_s, win_e, wout_x);
+        end
         if integrate_data
             if oneD
                 dx_out=diff(wout_x)';
@@ -132,17 +137,21 @@ if nx~=sz(iax)
             wout_e=wout_e.*dx_out;
         end
     else
-        % Get arrays of distribution of counts and errors
-        if oneD
-            dx_in=diff(win_x)';
-            dx_out=diff(wout_x)';
+        if bounds_unchanged
+            wout_s=win_s;
+            wout_e=win_e;
         else
-            dx_in=repmat(reshape(diff(win_x),[ones(1,iax-1),numel(win_x)-1,1]),x_sz_repmat);
-            dx_out=repmat(reshape(diff(wout_x),[ones(1,iax-1),numel(wout_x)-1,1]),x_sz_repmat);
+            if oneD
+                dx_in=diff(win_x)';
+                dx_out=diff(wout_x)';
+            else
+                dx_in=repmat(reshape(diff(win_x),[ones(1,iax-1),numel(win_x)-1,1]),x_sz_repmat);
+                dx_out=repmat(reshape(diff(wout_x),[ones(1,iax-1),numel(wout_x)-1,1]),x_sz_repmat);
+            end
+            [wout_s, wout_e] = rebin_hist_func (win_x, win_s./dx_in, win_e./dx_in, wout_x);
+            wout_s=wout_s.*dx_out;
+            wout_e=wout_e.*dx_out;
         end
-        [wout_s, wout_e] = rebin_hist_func (win_x, win_s./dx_in, win_e./dx_in, wout_x);
-        wout_s=wout_s.*dx_out;
-        wout_e=wout_e.*dx_out;
     end
     
 %---------------------------------------------------------------------------------------------
@@ -151,10 +160,15 @@ else
     if true_values
         xbounds_true=xbounds;
     else
-        if numel(win_x)>1
-            xbounds_true=bin_boundaries_from_descriptor(xbounds, win_x);
-        else    % effectively make ranges where dx=0 just one bin 
-            xbounds_true=bin_boundaries_from_descriptor(xbounds, [xbounds(1),xbounds(end)]);
+        if ~isempty(xbounds)
+            if numel(win_x)>1
+                % *** It might be better to use tmp=bin_boundaries_simple(win_x), tmp(2:end-1) as 2nd argument
+                xbounds_true=bin_boundaries_from_descriptor(xbounds, bin_boundaries_simple(win_x));
+            else    % effectively make ranges where dx=0 just one bin 
+                xbounds_true=bin_boundaries_from_descriptor(xbounds, [xbounds(1),xbounds(end)]);
+            end
+        else
+            xbounds_true=bin_boundaries_simple(win_x);
         end
     end
     if ~point_integration

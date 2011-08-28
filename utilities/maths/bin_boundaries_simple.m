@@ -6,7 +6,7 @@ function xb=bin_boundaries_simple(xc)
 %   xc  Vector of point positions, assumed monotonic increasing
 %   xb  Vector of bin boundaries; same orientation (i.e row or column) as input
 %
-% If one point only, then bin boundaries are set to column vector [x-0.5;x+0.5]
+% If one point only, then bin boundaries are set to row vector [x-0.5,x+0.5]
 
 if numel(xc)>1
     if any(diff(xc)<=0);
@@ -28,7 +28,7 @@ if numel(xc)>1
         error('Input array must be a vector')
     end
 elseif numel(xc)==1
-    xb=[xc-0.5;xc+0.5];
+    xb=[xc-0.5,xc+0.5];
 else
     error('No points in input array')
 end

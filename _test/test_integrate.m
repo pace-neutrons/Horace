@@ -1,8 +1,13 @@
-%% Setup location of reference functions (fortran or matlab)
+%% =====================================================================================================================
+% Setup location of reference functions (fortran or matlab)
+% ======================================================================================================================
+
 ref_loc=true;
 test_loc=true;
 
-%% Test 1D integration
+%% =====================================================================================================================
+% Test 1D integration
+% ======================================================================================================================
 
 use_mex(ref_loc)
 ih1_ref=integrate_ref(h1,5,10);
@@ -64,7 +69,9 @@ ans=delta_IX_dataset_nd(ihp_ref,ihp,tol);
 
 
 
-%% Test 2D integrate
+%% =====================================================================================================================
+% Test 2D integrate
+% ======================================================================================================================
 
 pp1b=pp1; pp1.x_distribution=true;  pp1.y_distribution=true;
 hp1b=hp1; hp1.x_distribution=false; hp1.y_distribution=true;
@@ -141,6 +148,23 @@ for j=1:numel(xyint_arg)
 end
 
 
+
+%% =====================================================================================================================
+% Test 3D rebind
+% ====================================================================================================================== 
+
+xx=simple_integrate_x(ppp1,[5,10]);
+yy=simple_integrate_y(ppp1,[5,10]);
+zz=simple_integrate_z(ppp1,[5,10]);
+ii=simple_integrate(ppp1,[9,15],[6,11],[3,5]);
+xxref=integrate_x(ppp1,[5,10]);
+yyref=integrate_y(ppp1,[5,10]);
+zzref=integrate_z(ppp1,[5,10]);
+iiref=integrate(ppp1,[9,15],[6,11],[3,5]);
+delta_IX_dataset_nd(xx,xxref,-1e-14,'ver')
+delta_IX_dataset_nd(yy,yyref,-1e-14,'ver')
+delta_IX_dataset_nd(zz,zzref,-1e-14,'ver')
+delta_IX_dataset_nd(ii,iiref,-1e-14,'ver')
 
 
 

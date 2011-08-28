@@ -6,7 +6,6 @@ function [x_out, ok, mess]=bin_boundaries_from_descriptor (xbounds, x_in)
 %
 % Input:
 % ------
-%   x_in        Input x-array bin boundaries - only used where DEL=0 for one of the rebin ranges
 %   xbounds     Histogram bin boundaries descriptor:
 %                   (x_1, del_1, x_2,del_2 ... x_n-1, del_n-1, x_n)
 %                   Bin from x_1 to x_2 in units of del_1 etc.
@@ -15,11 +14,15 @@ function [x_out, ok, mess]=bin_boundaries_from_descriptor (xbounds, x_in)
 %                       del = 0: Use bins from input array
 %                   [If only two elements, then interpreted as lower and upper bounds, with DEL=0]
 %
+%   x_in        Input x-array bin boundaries - only used where DEL=0 for one of the rebin ranges
+%
 % Output:
 % --------
 %   x_out       Bin boundaries for rebin array.
+%
 %   ok          =true  if no problems
 %               =false if a problem (and x_out is set to [])
+%
 %   mess        Error message
 %
 %   if ok is omitted, then the error message is printed to the screen.

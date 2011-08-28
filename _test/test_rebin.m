@@ -1,8 +1,12 @@
-%% Setup location of reference functions (fortran or matlab)
+%% =====================================================================================================================
+%  Setup location of reference functions (fortran or matlab)
+% ======================================================================================================================
 ref_loc=true;
 test_loc=true;
 
-%% Test 1D rebin
+%% =====================================================================================================================
+%  Test 1D rebin
+% ======================================================================================================================
 
 % Test single objects
 % --------------------
@@ -101,7 +105,9 @@ disp(' ')
 % hp_1d_rebin=rebin(hp_1d_big,xnew);
 % da(IX_dataset_2d(hp_1d_rebin))
 
-%% Test 2D rebind
+%% =====================================================================================================================
+%  Test 2D rebin
+% ======================================================================================================================
 
 pp1b=pp1; pp1.x_distribution=true;  pp1.y_distribution=true;
 hp1b=hp1; hp1.x_distribution=false; hp1.y_distribution=true;
@@ -192,6 +198,27 @@ for j=1:numel(xyint_arg)
         delta_IX_dataset_nd(w2xy_ref(i),w2binxy(i),tol)
     end
 end
+
+
+
+%% =====================================================================================================================
+%  Test 3D rebin
+% ======================================================================================================================
+
+xx=simple_rebind_x(ppp1,[5,0.5,10]);
+yy=simple_rebind_y(ppp1,[5,0.5,10]);
+zz=simple_rebind_z(ppp1,[5,0.5,10]);
+ii=simple_rebind(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
+xxref=rebind_x(ppp1,[5,0.5,10]);
+yyref=rebind_y(ppp1,[5,0.5,10]);
+zzref=rebind_z(ppp1,[5,0.5,10]);
+iiref=rebind(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
+delta_IX_dataset_nd(xx,xxref,-1e-14,'ver')
+delta_IX_dataset_nd(yy,yyref,-1e-14,'ver')
+delta_IX_dataset_nd(zz,zzref,-1e-14,'ver')
+delta_IX_dataset_nd(ii,iiref,-1e-14,'ver')
+
+
 
 
 

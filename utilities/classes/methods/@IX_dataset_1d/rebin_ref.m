@@ -150,9 +150,6 @@ function wout = single_rebin(win,xbounds,true_values,point_ave)
 %                       false: Trapezoidal integration
 %
 %   wout            Output IX_dataset_1d
-%
-% Note:
-%   *** this should always have synchronised functionality with 2D single_rebin
 
 ny=length(win.signal);
 nx=length(win.x);

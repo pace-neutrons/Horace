@@ -1,23 +1,26 @@
 function [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax,varargin)
 % Check rebin descriptor has valid format, and returns in standard form [x1,dx1,x2,dx2,x3,...]
 %
+%   >> [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax)        % sets output descriptors to [] for all nax axes
+%   >> [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax,...)    % general case (see below)
+%
 % Input:
 % ------
 %   nax                     % Number of rebin descriptors that is expected
 %
-%   One rebin axis:
+%   One rebin axis (i.e. nax=1 only):
 %     [] or 0               % Leave bins as they are
-%     xlo,xhi               % Defines single bin, equivalent to [xlo,xhi] (single axis only)
+%     xlo,xhi               % Keep original bins in the range xlo to xhi: equivalent to [xlo,0,xhi]
 %     xlo,dx,xhi            % Rebin descriptor: equivalent to [xlo,dx,xhi]
 %     x1,dx1,x2,dx2,x3,...  % Rebin descriptor: equivalent to [x1,dx1,x2,dx2,x3,...]
 %
-%   Any number of rebin axes:
+%   Any number of rebin axes (i.e. any value of nax):
 %     xdescr1, xdescr2,...  % Set of rebin descriptors i.e. vectors that define bin boundaries
 %                           %(one vector of bin boundaries per dimension).
 %                           % General form:
 %                           %   xbins=[x1,dx1,x2,dx2,x3,...] where x1<x2<x3... and that 
 %                           %   dx +ve: equal bin sizes between corresponding limits
-%                           %   dx -v2: logarithmic bins between corresponding limits
+%                           %   dx -ve: logarithmic bins between corresponding limits
 %                                    (note: if dx1<0 then dx1>0, dx2<0 then dx2>0 ...)
 %                           %   dx=0  : retain existing bins between corresponding limits
 %                           % Special cases:
@@ -25,10 +28,12 @@ function [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax,varargin)
 %
 % Output:
 % -------
-%   ok          true if no problems, false if error found in input e.g. not strictly monotonic boundaries
-%   xbounds     cell array of rebin descriptor vectors {xbins1, xbins2,...}; [] if ok==false
-%   any_dx_zero Logical array; en element is true if one or more dx in the corresponding
-%               descriptor is zero.
+%   ok          True if no problems, false if error found in input e.g. not strictly monotonic boundaries
+%   xbounds     Cell array of rebin descriptor vectors {xbins1, xbins2,...}; [] if ok==false
+%              (Note: input of [] or 0 for a dimension is returned as [])
+%                     input of ...xlo,xhi (1D only) or [xlo,xhi] is returned as [xlo,0,xhi])
+%   any_dx_zero Logical array; an element is true if one or more dx in the corresponding
+%              descriptor is zero.
 %   mess        Error message of ok==false (empty otherwise)
 
 

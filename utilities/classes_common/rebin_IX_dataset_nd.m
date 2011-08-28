@@ -22,29 +22,28 @@ if numel(args)==1 && isa(args{1},class(win))
     wref=args{1};
     if numel(wref)~=1
         ok=false; wout=[];  mess='Reference dataset for rebinning must be a single instance, not an array'; return
+    elseif numel(wref.x)==1  % single point dataset, or histogram dataset with empty signal array
+        error('Reference dataset must have at least one bin (histogram data) or two points (point data)')
     end
     xbounds=cell(1,nax);
     true_values=true(1,nax);
     for i=1:nax
         tmp=axis(wref,iax(i));
         if ishistogram(wref,iax(i))
-            xbounds{i}=tmp.x;
+            xbounds{i}=tmp.values;
         else
             xbounds{i}=bin_boundaries_simple(tmp.values);
         end
     end
 
-elseif numel(args)>0
+else
     if isdescriptor
         [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax,args{:});
         if ~ok, wout=[]; return, end
         true_values=false(1,nax);
-        if numel(xbounds)~=nax
-            ok=false; wout=[];  mess='Check number of input rebin descriptors matches number of rebin axes'; return
-        end
         for i=1:nax
-            if numel(xbounds{i})>=3 && ~any_dx_zero(i)              % get new bin boundaries
-                xbounds{i}=bin_boundaries_from_descriptor(xbounds{i},0);  % need to give dummy x bins
+            if numel(xbounds{i})>=3 && ~any_dx_zero(i)                      % get new bin boundaries
+                xbounds{i}=bin_boundaries_from_descriptor(xbounds{i},0);    % need to give dummy x bins for mex file
                 true_values(i)=true;
             end
         end
@@ -52,13 +51,8 @@ elseif numel(args)>0
         [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_check(nax,args{:});
         if ~ok, wout=[]; return, end
         true_values=~any_dx_zero;
-        if numel(xbounds)~=nax
-            ok=false; wout=[];  mess='Check number of input rebin descriptors matches number of rebin axes'; return
-        end
     end
-    
-else
-    ok=false; wout=[];  mess='Check rebinning parameters'; return
+
 end
 
 

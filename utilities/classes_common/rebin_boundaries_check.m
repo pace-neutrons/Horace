@@ -1,5 +1,8 @@
 function [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_check(nax,varargin)
-% Check that the rebin boundaries are valid. Valid forms are:
+% Check that the rebin boundaries are valid.
+%
+%   >> [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_check(nax)        % sets output boundaries to [] for all nax axes 
+%   >> [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_check(nax,...)    % general case (see below)
 %
 % Input:
 % -------
@@ -9,12 +12,12 @@ function [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_check(nax,varargin)
 %     [] or 0               % Leave bins as they are
 %     xlo,xhi               % Defines single bin, equivalent to [xlo,xhi] (single axis only)
 %     xlo,0,xhi             % Retain existing bin boundaries between xlo and xhi
-%     x1,x2,x3,...          % Set of bin boundaries: equivalent to [x1,dx1,x2,dx2,x3,...]
+%     x1,x2,x3,...          % Set of bin boundaries: equivalent to [x1,x2,x3,...]
 %
 %   Any number of rebin axes:
 %     xbins1, xbins2, ...   % Set of bin boundaries (one vector of bin boundaries per dimension)
 %                           % General form:
-%                           %   xbins=[x1,x2,x3,...] where x1<x2<x3... and that 
+%                           %   xbins=[x1,x2,x3,...] where x1<x2<x3... (numel(xbins)>=2)
 %                           % Special case:
 %                           %   xbins=[] or 0     - leave binning as it currently is
 %
@@ -23,6 +26,8 @@ function [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_check(nax,varargin)
 %   ok          true if no problems, false if error found in input e.g. not strictly monotonic boundaries
 %   xbounds     cell array of rebin descriptor vectors {xbins1, xbins2,...}; [] if ok==false
 %              (Note: input of [] or 0 for a dimension is returned as [])
+%   any_dx_zero Logical array; an element is true if one or more dx in the corresponding
+%              descriptor is zero.
 %   mess        Error message of ok==false (empty otherwise)
 
 % If no bins given, return [] for each rebin axis
@@ -93,7 +98,7 @@ elseif isnumeric(xbounds)
         ok=true; mess=''; any_dx_zero=false;
     else
         ok=false; xbounds=[]; any_dx_zero=false;
-        mess='Rebin boundaries must be strictly monotonic increasing vector i.e. bin widths all > 0';
+        mess='Rebin boundaries must be strictly monotonic increasing vector i.e. bin widths all > 0, special cases of ''0'' or empty';
     end
 else
     ok=false; xbounds=[]; any_dx_zero=false;
