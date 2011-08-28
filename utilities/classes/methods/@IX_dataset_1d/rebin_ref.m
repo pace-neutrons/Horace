@@ -1,5 +1,6 @@
 function wout = rebin(win, varargin)
 % Rebin an IX_dataset_1d object or array of IX_dataset_1d objects along the x-axis
+% *** TO BE RETAINED FOR TESTING PURPOSES ***
 %
 %   >> wout = rebin(win, xlo, xhi)      % keep data between xlo and xhi, retaining existing bins
 %

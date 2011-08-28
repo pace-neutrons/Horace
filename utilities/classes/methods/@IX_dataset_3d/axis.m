@@ -6,9 +6,9 @@ function [ax,hist]=axis(w,n)
 %
 % Input:
 % -------
-%   w       Single IX_datset_2d object
+%   w       Single IX_datset_3d object
 %   n       Axis index or array of indicies. Can only have elements equal
-%          to 1,2 or 3 for IX_datset_3d object.
+%          to 1,2 or 3 for IX_datset_3d object. (Default: [1,2,3])
 %
 % Output:
 % -------

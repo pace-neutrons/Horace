@@ -7,7 +7,7 @@ function [ax,hist]=axis(w,n)
 % Input:
 % -------
 %   w       Single IX_datset_2d object
-%   n       Axis index, must be 1 for IX_dataset_1d.
+%   n       Axis index, must be 1 for IX_dataset_1d. (Default: [1])
 %          (This syntax is uncluded only for compatibility with axis method for 2D, 3D, ... objects.
 %           Accordingly, n can be an array too, but only with all elements equal to 1)
 %

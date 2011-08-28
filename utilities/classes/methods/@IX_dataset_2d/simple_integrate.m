@@ -1,7 +1,6 @@
 function wout = simple_integrate(win, varargin)
 % Integrate IX_dataset_2d along x and y axes using reference 1D algorithm
 %
-%   >> wout = simple_integrate (win)   % integrate over full range of data
 %   >> wout = simple_integrate (win, xmin, xmax, ymin, ymax)
 %   >> wout = simple_integrate (win, [xmin, xmax, ymin, ymax])
 %   >> wout = simple_integrate (win, [xmin, xmax], [ymin, ymax])
@@ -28,15 +27,6 @@ end
     
     
 % The operations of simple_integrate_x and simple_integrate_y should be commutative:
-
-% if integrate
-%     wout = simple_integrate_x(win,  xdescr);
-%     wout = simple_integrate_y(wout, ydescr);
-% else
-%     wout = simple_integrate_x(win,  xdescr);
-%     wout = simple_integrate_y(wout, ydescr);
-% end
-
 integrate_x_first=false;
 if integrate_x_first
     wout = simple_integrate_x(win,  xdescr);

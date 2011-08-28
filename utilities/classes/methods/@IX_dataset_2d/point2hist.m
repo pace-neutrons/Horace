@@ -13,8 +13,8 @@ if nargin==1
     convert_y=true;
 else
     if isnumeric(iax) && isvector(iax)    % is non-empty vector (including non-empty scalar)
-        if any(mod(iax,1)~=0)||numel(unique(iax))~=numel(iax)||...
-                any(iax<1)||any(iax>nd)||any(mod(iax,1)~=0)||numel(iax)>nd
+        if any(mod(iax,1)~=0)||numel(iax)>nd||numel(unique(iax))~=numel(iax)||...
+                any(iax<1)||any(iax>nd)
             error('Check indicies of axes to be converted')
         end
         if any(iax==1), convert_x=true; else convert_x=false; end

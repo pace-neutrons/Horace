@@ -1,5 +1,6 @@
 function wout = integrate (win, varargin)
 % Integrate one or more IX_dataset_1d objects between two limits
+% *** TO BE RETAINED FOR TESTING PURPOSES ***
 %
 %   >> wout = integrate (win, xmin, xmax)
 %   >> wout = integrate (win, [xmin, xmax])

@@ -1,5 +1,5 @@
 function wout = simple_rebind_y(win, varargin)
-% Integrate IX_dataset_2d along y axis using reference 1D algorithm
+% Rebin IX_dataset_2d along y axis using reference 1D algorithm
 %
 %   >> wout = simple_rebind_y(win, ylo, yhi)       % keep data between ylo and yhi, retaining existing bins
 %	>> wout = simple_rebind_y(win, ylo, dy, yhi)   % rebin from ylo to yhi in intervals of dy

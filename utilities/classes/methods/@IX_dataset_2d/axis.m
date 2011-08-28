@@ -8,7 +8,7 @@ function [ax,hist]=axis(w,n)
 % -------
 %   w       Single IX_datset_2d object
 %   n       Axis index or array of indicies. Can only have elements equal
-%          to 1 or 2 for IX_datset_2d object.
+%          to 1 or 2 for IX_datset_2d object. (Default: [1,2])
 %
 % Output:
 % -------

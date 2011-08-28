@@ -51,6 +51,11 @@ else
             if nargout>0, del_out=[]; end
             return
         end
+        if ~isequal(x1.axis,x2.axis)
+            disp(['Axis ',num2str(i),': IX_axis descriptions differ'])
+            if nargout>0, del_out=[]; end
+            return
+        end
     end
     [del(nd1+1),delrel(nd1+1)]=del_calc(w1.signal(:),w2.signal(:));
     [del(nd1+2),delrel(nd1+2)]=del_calc(w1.error(:),w2.error(:));
