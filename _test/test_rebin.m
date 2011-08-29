@@ -1,8 +1,9 @@
 %% =====================================================================================================================
 %  Setup location of reference functions (fortran or matlab)
 % ======================================================================================================================
-ref_loc=true;
-test_loc=true;
+ref_loc='fortran';
+test_loc='matlab';
+
 
 %% =====================================================================================================================
 %  Test 1D rebin
@@ -12,10 +13,11 @@ test_loc=true;
 % --------------------
 batch=true;     % set to false to get plots
 
-xdescr_1=cell(1,3);
+xdescr_1=cell(1,4);
 xdescr_1{1}=[5,2,11];
 xdescr_1{2}=IX_dataset_1d(6:2:10);     % should give same results
 xdescr_1{3}=IX_dataset_1d(5:2:11);     % should give *different* results
+xdescr_1{4}=[5,11];
 
 tol=1e-14;
 disp('===========================')
@@ -89,21 +91,14 @@ if batch
     disp(['= 3'])
     delta_IX_dataset_nd(p1_reb3_ref,p1_reb3,tol)
 end
+
+
 disp(' ')
+disp('Done')
 disp(' ')
 
 
 
-
-% % Test on an array of objects
-% % ----------------------------
-% xnew=50:10:450;
-% hp_1d_rebin_ref=rebin_ref(hp_1d_big,xnew);
-% da(IX_dataset_2d(hp_1d_rebin_ref))
-% 
-% 
-% hp_1d_rebin=rebin(hp_1d_big,xnew);
-% da(IX_dataset_2d(hp_1d_rebin))
 
 %% =====================================================================================================================
 %  Test 2D rebin
@@ -199,11 +194,18 @@ for j=1:numel(xyint_arg)
     end
 end
 
+disp(' ')
+disp('Done')
+disp(' ')
+
 
 
 %% =====================================================================================================================
 %  Test 3D rebin
 % ======================================================================================================================
+disp('===========================')
+disp('    3D: Test rebind_y')
+disp('===========================')
 
 xx=simple_rebind_x(ppp1,[5,0.5,10]);
 yy=simple_rebind_y(ppp1,[5,0.5,10]);
@@ -213,10 +215,14 @@ xxref=rebind_x(ppp1,[5,0.5,10]);
 yyref=rebind_y(ppp1,[5,0.5,10]);
 zzref=rebind_z(ppp1,[5,0.5,10]);
 iiref=rebind(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
-delta_IX_dataset_nd(xx,xxref,-1e-14,'ver')
-delta_IX_dataset_nd(yy,yyref,-1e-14,'ver')
-delta_IX_dataset_nd(zz,zzref,-1e-14,'ver')
-delta_IX_dataset_nd(ii,iiref,-1e-14,'ver')
+delta_IX_dataset_nd(xx,xxref,-1e-14)
+delta_IX_dataset_nd(yy,yyref,-1e-14)
+delta_IX_dataset_nd(zz,zzref,-1e-14)
+delta_IX_dataset_nd(ii,iiref,-1e-14)
+
+disp(' ')
+disp('Done')
+disp(' ')
 
 
 

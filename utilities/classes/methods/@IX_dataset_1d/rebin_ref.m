@@ -1,4 +1,4 @@
-function wout = rebin(win, varargin)
+function wout = rebin_ref(win, varargin)
 % Rebin an IX_dataset_1d object or array of IX_dataset_1d objects along the x-axis
 % *** TO BE RETAINED FOR TESTING PURPOSES ***
 %
@@ -221,7 +221,10 @@ else
             xbounds_actual=xbounds;
         else
             if numel(win.x)>1
-                xbounds_actual=rebin_1d_hist_get_xarr(win.x,xbounds);
+                % - 29 Aug 2011: Replace
+                % xbounds_actual=rebin_1d_hist_get_xarr(win.x,xbounds);
+                % - with
+                xbounds_actual=rebin_1d_hist_get_xarr(bin_boundaries_simple(win.x),xbounds);
             else    % effectively make ranges where dx=0 just one bin
                 xbounds_actual=rebin_1d_hist_get_xarr([xbounds(1),xbounds(end)],xbounds);
             end
@@ -241,6 +244,13 @@ function x_out=rebin_1d_hist_get_xarr (x_in, xbounds)
 % Deprecated function, replaced by bin_boundaries_from_descriptor
 
 x_out=bin_boundaries_from_descriptor (xbounds, x_in);
+
+
+%==================================================================================================
+function [xout, sout, eout] = rebin_1d_hist_by_descriptor (x, s, e, xbounds)
+% Simple wr
+xout=rebin_1d_hist_get_xarr (x, xbounds);
+[sout, eout] = rebin_1d_hist (x, s, e, xout);
 
 
 %==================================================================================================

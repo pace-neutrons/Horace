@@ -1,51 +1,59 @@
-function use_mex(ok)
+function use_mex(opt_in)
 % Set use of mex files or matlab equivalents for testing purposes.
 %
 %   >> use_mex          % Prints whether mex or matlab functions are currently being used
-%   >> use_mex(flag)    % flag=true: use mex files; flag=false use matlab functions
+%   >> use_mex(opt)     % opt='fortran' use mex files
+%                       %    ='matlab'  use matlab functions
+%                       %    ='ref'     use matlab reference code
 %
 % Assumes herbert_init has been run
 % Should be robust to changes in organisation of files in Herbert
 
-persistent save_ok
+persistent opt
 
 % If no argument, then print out if mex or matlab routines currently in use
 if nargin==0
-    if isempty(save_ok)
-        disp('Unknown if mex or matlab')
+    if isempty(opt)
+        disp('Unknown external code option')
     else
-        if save_ok
-            disp('Mex files will be used')
-        else
-            disp('Matlab files will be used')
-        end
+        display(['External code option: ',opt])
     end
     return
+else
+    if ~isempty(opt_in) && ~ischar(opt_in)
+        error('Option must be character string')
+    else
+        if isempty(opt_in)
+            opt_in='fortran';
+        elseif strncmpi(opt_in,'fortran',length(opt_in))
+            opt_in='fortran';
+        elseif strncmpi(opt_in,'matlab',length(opt_in))
+            opt_in='matlab';
+        elseif strncmpi(opt_in,'ref',length(opt_in))
+            opt_in='ref';
+        else
+            error('Unrecognised option')
+        end
+    end
 end
 
-rootpath = fileparts(which('herbert_init'));
-start_dir=pwd;
-
 % Make no changes if already pointing to correct location of function
-if ok==save_ok
+if strcmp(opt,opt_in)
+%    display(['Unchanged external code option: ',opt])
     return
 end
 
+% Change external code option
+rootpath = fileparts(which('herbert_init'));
+start_dir=pwd;
 try
     cd(rootpath)
     herbert_off
-    if ok
-        herbert_init
-    else
-        herbert_init('matlab')
-    end
+    herbert_init(opt_in)
+    opt=opt_in;
     cd(start_dir)
-    if ok
-%        disp('Mex files will be used')
-    else
-%        disp('Matlab files will be used')
-    end
-    save_ok=ok;
+%    display(['External code option changed to: ',opt])
 catch
     cd(start_dir)
+    error('Problem initialising Herbert')
 end

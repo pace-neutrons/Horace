@@ -1,4 +1,4 @@
-function herbert_init (opt)
+function varargout = herbert_init (opt)
 % Adds the paths needed by Herbert.
 %
 % In your startup.m, add the Herbert root path and call herbert_init, e.g.
@@ -34,13 +34,29 @@ genieplot_init
 addgenpath_message (rootpath, 'applications')
 
 % Put mex files on path
-if strcmpi(opt,'matlab')
-    addgenpath_message (rootpath,'external_code','matlab')
-else
+if strncmpi(opt,'fortran',numel(opt))
     fortran_root = fullfile(rootpath,'external_code','Fortran');
     addpath_message (fortran_root);
     [mex_dir,mex_dir_full] = mex_dir_name(fortran_root);
+    output.external_code_option='fortran';
     addpath_message (mex_dir_full);
+    
+elseif strncmpi(opt,'matlab',numel(opt))
+    output.external_code_option='matlab';
+    addgenpath_message (rootpath,'external_code','matlab')
+    
+elseif strncmpi(opt,'ref',numel(opt))
+    output.external_code_option='ref';
+    addgenpath_message (rootpath,'_test','external_code_ref')
+    
+else
+    output.external_code_option='';
+    warning('Unrecognised external code option')
+end
+
+% Return output argument
+if nargout>0
+    varargout{1}=output;
 end
 
 %--------------------------------------------------------------------------

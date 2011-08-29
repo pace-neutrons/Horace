@@ -1,4 +1,4 @@
-function wout = integrate (win, varargin)
+function wout = integrate_ref (win, varargin)
 % Integrate one or more IX_dataset_1d objects between two limits
 % *** TO BE RETAINED FOR TESTING PURPOSES ***
 %

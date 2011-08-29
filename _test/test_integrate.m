@@ -1,46 +1,51 @@
 %% =====================================================================================================================
 % Setup location of reference functions (fortran or matlab)
 % ======================================================================================================================
+ref_loc='fortran';
+test_loc='matlab';
 
-ref_loc=true;
-test_loc=true;
 
 %% =====================================================================================================================
 % Test 1D integration
 % ======================================================================================================================
+tol=0;
+
+disp('===========================')
+disp('    1D: Test integrate')
+disp('===========================')
 
 use_mex(ref_loc)
 ih1_ref=integrate_ref(h1,5,10);
 use_mex(test_loc)
 ih1    =integrate(h1,5,10);
-disp_valerr(ih1_ref)
-disp_valerr(ih1)
+delta_IX_dataset_nd(ih1_ref,ih1,tol)
+% disp_valerr(ih1_ref)
+% disp_valerr(ih1)
 
 use_mex(ref_loc)
-ih1_ref=integrate_ref(h1,0,20);
+ih1b_ref=integrate_ref(h1,0,20);
 use_mex(test_loc)
-ih1    =integrate(h1,0,20);
-%ih1b   =integrate(h1)
-disp_valerr(ih1_ref)
-disp_valerr(ih1)
-%disp_valerr(ih1b)
+ih1b    =integrate(h1,0,20);
+delta_IX_dataset_nd(ih1b_ref,ih1b,tol)
+% disp_valerr(ih1b_ref)
+% disp_valerr(ih1b)
 
 
 use_mex(ref_loc)
 ip1_ref=integrate_ref(p1,5,10);
 use_mex(test_loc)
 ip1    =integrate(p1,5,10);
-disp_valerr(ip1_ref)
-disp_valerr(ip1)
+delta_IX_dataset_nd(ip1_ref,ip1,tol)
+% disp_valerr(ip1_ref)
+% disp_valerr(ip1)
 
 use_mex(ref_loc)
-ip1_ref=integrate_ref(p1,0,20);
+ip1b_ref=integrate_ref(p1,0,20);
 use_mex(test_loc)
-ip1    =integrate(p1,0,20);
-ip1b   =integrate(p1);
-disp_valerr(ip1_ref)
-disp_valerr(ip1)
-%disp_valerr(ip1b)
+ip1b    =integrate(p1,0,20);
+delta_IX_dataset_nd(ip1b_ref,ip1b,tol)
+% disp_valerr(ip1b_ref)
+% disp_valerr(ip1b)
 
 
 % Big array
@@ -63,9 +68,12 @@ use_mex(ref_loc)
 ihp_ref=integrate_ref(hp_1d_big,-20,620);
 use_mex(test_loc)
 ihp    =integrate(hp_1d_big,-20,620);
-%ihpb   =integrate(hp_1d_big);
 ans=delta_IX_dataset_nd(ihp_ref,ihp,tol);
-%ans=delta_IX_dataset_nd(ihp_ref,ihpb,tol);
+
+
+disp(' ')
+disp('Done')
+disp(' ')
 
 
 
@@ -147,11 +155,19 @@ for j=1:numel(xyint_arg)
     end
 end
 
+disp(' ')
+disp('Done')
+disp(' ')
+
+
 
 
 %% =====================================================================================================================
 % Test 3D rebind
 % ====================================================================================================================== 
+disp('===========================')
+disp('    3D: Test integrate')
+disp('===========================')
 
 xx=simple_integrate_x(ppp1,[5,10]);
 yy=simple_integrate_y(ppp1,[5,10]);
@@ -161,10 +177,13 @@ xxref=integrate_x(ppp1,[5,10]);
 yyref=integrate_y(ppp1,[5,10]);
 zzref=integrate_z(ppp1,[5,10]);
 iiref=integrate(ppp1,[9,15],[6,11],[3,5]);
-delta_IX_dataset_nd(xx,xxref,-1e-14,'ver')
-delta_IX_dataset_nd(yy,yyref,-1e-14,'ver')
-delta_IX_dataset_nd(zz,zzref,-1e-14,'ver')
-delta_IX_dataset_nd(ii,iiref,-1e-14,'ver')
+delta_IX_dataset_nd(xx,xxref,-1e-14)
+delta_IX_dataset_nd(yy,yyref,-1e-14)
+delta_IX_dataset_nd(zz,zzref,-1e-14)
+delta_IX_dataset_nd(ii,iiref,-1e-14)
 
+disp(' ')
+disp('Done')
+disp(' ')
 
 
