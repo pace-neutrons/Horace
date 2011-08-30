@@ -6,7 +6,7 @@ function wout = simple_rebind_x(win, varargin)
 %   >> wout = simple_rebind_x(win,wref)            % rebin win with the bin boundaries of wref (a 1D dataset)
 %   >> wout = simple_rebind_x(..., 'int')          % trapezoidal integration if point data
 %
-% See IX_dataset_1d/rebin_ref for full help
+% See IX_dataset_1d/rebind for full help
 %
 % Simple implementation converting to array of IX_dataset_1d, and then converting back.
 % Only works for a single input IX_dataset_2d.
@@ -18,7 +18,7 @@ end
 
 if numel(varargin)>=1
     wtmp=IX_dataset_1d(win);
-    wouttmp=rebin_ref(wtmp,varargin{:});
+    wouttmp=rebind_ref(wtmp,varargin{:});
     wout=IX_dataset_2d(wouttmp);
     wout.y=win.y;
     wout.y_axis=win.y_axis;

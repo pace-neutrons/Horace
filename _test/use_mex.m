@@ -20,20 +20,14 @@ if nargin==0
     end
     return
 else
-    if ~isempty(opt_in) && ~ischar(opt_in)
-        error('Option must be character string')
-    else
-        if isempty(opt_in)
-            opt_in='fortran';
-        elseif strncmpi(opt_in,'fortran',length(opt_in))
+    if isempty(opt_in) || (ischar(opt_in) && size(opt_in,1)==1)
+        if isempty(opt_in) || strncmpi(opt_in,'fortran',length(opt_in))
             opt_in='fortran';
         elseif strncmpi(opt_in,'matlab',length(opt_in))
             opt_in='matlab';
-        elseif strncmpi(opt_in,'ref',length(opt_in))
-            opt_in='ref';
-        else
-            error('Unrecognised option')
         end
+    else
+        error('Option must be character string')
     end
 end
 
@@ -48,7 +42,6 @@ rootpath = fileparts(which('herbert_init'));
 start_dir=pwd;
 try
     cd(rootpath)
-    herbert_off
     herbert_init(opt_in)
     opt=opt_in;
     cd(start_dir)

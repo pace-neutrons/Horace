@@ -1,4 +1,4 @@
-function wout = rebin_ref(win, varargin)
+function wout = rebind_ref(win, varargin)
 % Rebin an IX_dataset_1d object or array of IX_dataset_1d objects along the x-axis
 % *** TO BE RETAINED FOR TESTING PURPOSES ***
 %

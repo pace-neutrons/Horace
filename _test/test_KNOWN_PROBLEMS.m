@@ -23,9 +23,6 @@ rave=rebin(p1,'ave');       % this is the same as p1, as it should be because by
 acolor k; dd(p1); acolor r; pd(rint); acolor b; pd(rave)
 keep_figure
 
-kk=integrate(p1,'int');
-acolor y
-pd(kk)
 
 %% ----------------------
 %  Why different?

@@ -5,7 +5,7 @@ function wout = simple_rebind(win, xdescr, ydescr, zdescr, opt)
 %   >> wout = simple_rebind(win, xdescr, ydescr, zdescr, 'int')    % trapezoidal integration of point data
 %
 % xdescr, ydescr are the rebin descriptors along the x and y axes
-% See IX_dataset_1d/rebin_ref for full help
+% See IX_dataset_1d/rebind for full help
 %
 % Simple implementation converting to array of IX_dataset_1d, and then converting back.
 % Only works for a single input IX_dataset_3d.
