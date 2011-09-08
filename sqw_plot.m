@@ -1,13 +1,13 @@
-function varargout=disp2sqw_plot(varargin)
+function varargout=sqw_plot(varargin)
 % Plot dispersion relation as colour map
 %
-%   >> disp2sqw_plot(rlp,dispreln,pars,ecent,fwhh)
-%   >> disp2sqw_plot(lattice,rlp,dispreln,pars,ecent,fwhh)
+%   >> sqw_plot(rlp,sqwfunc,pars,ecent)
+%   >> sqw_plot(lattice,rlp,sqwfunc,pars,ecent)
 %
-%   >> disp2sqw_plot(...,'ndiv',n)          % plot with number of points per interval other than the default
+%   >> sqw_plot(...,'ndiv',n)          % plot with number of points per interval other than the default
 %
-%   >> weight=disp2sqw_plot(...)            % output IXTdataset_2d with spectral weight
-%   >> weight=disp2sqw_plot(...,'noplot')   % output IXTdataset_2d with spectral weight, no plot
+%   >> weight=sqw_plot(...)            % output IXTdataset_2d with spectral weight
+%   >> weight=sqw_plot(...,'noplot')   % output IXTdataset_2d with spectral weight, no plot
 %
 % Input:
 % --------
@@ -16,24 +16,23 @@ function varargout=disp2sqw_plot(varargin)
 %
 %   rlp         Array of r.l.p. e.g. [0,0,0; 0,0,1; 0,-1,1; 1,-1,1; 1,0,1; 1,0,0];
 %
-%   dispreln    Handle to function that calculates the dispersion relation w(Q) and spectrl weight, s(Q)
-%              Must have form:
-%                   [w,s] = dispreln (qh,qk,ql,p)
-%               where
-%                   qh,qk,ql    Arrays containing the coordinates of a set of points
-%                              in reciprocal lattice units
+%   sqwfunc     Handle to function that calculates S(Q,w)
+%               Most commonly used form is:
+%                   weight = sqwfunc (qh,qk,ql,en,p)
+%                where
+%                   qh,qk,ql,en Arrays containing the coordinates of a set of points
 %                   p           Vector of parameters needed by dispersion function 
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
-%                   w           Array of corresponding energies, or, if more than
-%                              one dispersion relation, a cell array of arrays.
+%                   weight      Array containing calculated energies; if more than
+%                              one dispersion relation, then a cell array of arrays
 %
-%              More general form is:
-%                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
+%               More general form is:
+%                   weight = sqwfunc (qh,qk,ql,en,p,c1,c2,..)
 %                 where
 %                   p           Typically a vector of parameters that we might want 
 %                              to fit in a least-squares algorithm
 %                   c1,c2,...   Other constant parameters e.g. file name for look-up
-%                              table.
+%                              table
 %   
 %   pars        Arguments needed by the function. Most commonly, a vector of parameter
 %              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
@@ -42,8 +41,6 @@ function varargout=disp2sqw_plot(varargin)
 %              above then pars = {p, c1, c2, ...}
 %
 %   ecent       Energy bin centres: [ecent_lo, step, ecent_hi]
-%
-%   fwhh        Full-width half-height of Gaussian broadening to dispersion relation(s)
 %
 % Keyword options (can be abbreviated to single letter):
 %
@@ -73,12 +70,12 @@ flags = {'plot'};
 % --------------------
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
-if numel(args)<5 || numel(args)>6
+if numel(args)<4 || numel(args)>5
     error('Check number of arguments')
 end
 
 % Find out if first argument is lattice parameters
-if numel(args)==6 && isnumeric(args{1}) && numel(args{1}==6)
+if numel(args)==5 && isnumeric(args{1}) && numel(args{1}==6)
     lattice=args{1};
     noff=1;
 else
@@ -93,9 +90,9 @@ else
 end
 
 if isa(args{noff+2},'function_handle') && isscalar(args{noff+2})
-    dispreln=args{noff+2};
+    sqwfunc=args{noff+2};
 else
-    error('Check dispersion relation is a function handle')
+    error('Check that a function handle to evaluate S(Q,w) has been given')
 end
 
 pars=args{noff+3};
@@ -111,37 +108,19 @@ else
     error('Check energy bin centres')
 end
 
-fwhh=args{noff+5};
 
-
-% Determine if need to calculate dispersion, weight, or both, and consistency with dispreln
-% ------------------------------------------------------------------------------------------
-if nargout(dispreln)<2
-    error('The provided dispersion function does not appear to return spectral weight')
-end
-
-% Evaluate the dispersion relation
-% --------------------------------
+% Evaluate S(Q,w)
+% ---------------
 [qh,qk,ql,xrlp,x]=make_qarray(lattice,rlp,opt.ndiv);
-
-if iscell(pars)
-    [e,sf]=dispreln(qh,qk,ql,pars{:});
-else
-    [e,sf]=dispreln(qh,qk,ql,pars);
-end
-if ~iscell(e)
-    e={e}; sf={sf};     % make cell arrays for convenience
-end
-
 en=ecent(1):abs(ecent(2)):ecent(3);
-en_arr=repmat(en,numel(x),1);   % make 2D array, one row per x value
-
-sig=fwhh/sqrt(log(256));
-weight=zeros(numel(x),numel(en));
-for i=1:numel(e)
-    edisp=repmat(e{i},1,numel(en));
-    sfact=repmat(sf{i},1,numel(en));
-    weight=weight + sfact.*exp(-(edisp-en_arr).^2/(2*sig^2))/(sig*sqrt(2*pi));
+qqh=repmat(qh,[1,numel(en)]);
+qqk=repmat(qk,[1,numel(en)]);
+qql=repmat(ql,[1,numel(en)]);
+een=repmat(en,[numel(x),1]);
+if iscell(pars)
+    weight=sqwfunc(qqh,qqk,qql,een,pars{:});
+else
+    weight=sqwfunc(qqh,qqk,qql,een,pars);
 end
 
 tmp=IXTdataset_2d ('Spectral weight', weight, zeros(size(weight)),...
