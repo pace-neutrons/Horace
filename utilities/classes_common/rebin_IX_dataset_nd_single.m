@@ -51,7 +51,7 @@ for i=2:nrebin
 end
 if nargout==1
     if ~integrate_data
-        varargout{1}=xsigerr_set(win,iax,wout_x,wout_s,wout_e);
+        varargout{1}=xsigerr_set(win,iax,wout_x,wout_s,wout_e);         % distribution is same as input data
     else
         varargout{1}=xsigerr_set(win,iax,wout_x,wout_s,wout_e,false);   % reset distribution to false along integration axes
     end
@@ -121,7 +121,7 @@ if nx~=sz(iax)
     end
     bounds_unchanged=(numel(wout_x)==numel(win_x) && all(wout_x==win_x));
     if win_xdist
-        if bounds_unchanged
+        if bounds_unchanged     % save expensive and unnecessary calculation
             wout_s=win_s;
             wout_e=win_e;
         else
@@ -137,7 +137,7 @@ if nx~=sz(iax)
             wout_e=wout_e.*dx_out;
         end
     else
-        if bounds_unchanged
+        if bounds_unchanged     % save expensive and unnecessary calculation
             wout_s=win_s;
             wout_e=win_e;
         else
@@ -187,6 +187,13 @@ else
         if oneD % Handle 1D data differently
             ysum=accumarray(ind,win_s(ok),[nb-1,1]);
             esum=accumarray(ind,(win_e(ok).^2),[nb-1,1]);
+            wout_s=ysum(keep)./nout;    % subscripting with keep turns output into a column vector
+            wout_e=sqrt(esum(keep))./nout;
+            if integrate_data
+                dx_out=diff(xbounds_true)';
+                wout_s=wout_s.*dx_out(keep);
+                wout_e=wout_e.*dx_out(keep);
+            end
         else
             ok=repmat(reshape(ok,[ones(1,iax-1),numel(win_x),1]),x_sz_repmat);
             ok=ok(:);         % make column vector
@@ -204,17 +211,18 @@ else
             szout=sz; szout(iax)=nb-1;
             ysum=accumarray(ind,win_s(ok),szout);
             esum=accumarray(ind,(win_e(ok).^2),szout);
-            % Normalise data in bins by number of contributing points
+            % Replicate and reshape keep and nout arrays
             clear('ok','ind_grid','ind');     % get rid of potentially large work arrays
             keep=repmat(reshape(keep,[ones(1,iax-1),numel(keep),1]),x_sz_repmat);
             nout=repmat(reshape(nout,[ones(1,iax-1),numel(nout),1]),x_sz_repmat);
-        end
-        if ~integrate_data
+            % Normalise data in bins by number of contributing points
             wout_s=reshape(ysum(keep),size(nout))./nout;    % subscripting with keep turns output into a column vector
             wout_e=sqrt(reshape(esum(keep),size(nout)))./nout;
-        else
-            wout_s=reshape(ysum(keep),size(nout));    % subscripting with keep turns output into a column vector
-            wout_e=sqrt(reshape(esum(keep),size(nout)));
+            if integrate_data
+                dx_out=repmat(reshape(diff(xbounds_true),[ones(1,iax-1),numel(xbounds_true)-1,1]),x_sz_repmat);
+                wout_s=wout_s.*reshape(dx_out(keep),size(nout));
+                wout_e=wout_e.*reshape(dx_out(keep),size(nout));
+            end
         end
     else
         % Trapezoidal integration averaging

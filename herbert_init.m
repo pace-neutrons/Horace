@@ -17,16 +17,19 @@ elseif ~exist('opt','var')
     opt='fortran';
 end
 
+% Root directory is assumed to be that in which this function resides
+% (keep this path, as may be removed by call to application_off)
+rootpath = fileparts(which('herbert_init'));
+
+
 % Remove all instances of Herbert
 % -------------------------------
+% (This might include this version of Herbert)
 application_off('herbert')
 
 
 % Add paths
 % ---------
-
-% root directory is assumed to be that in which this function resides
-rootpath = fileparts(which('herbert_init'));
 addpath(rootpath)  % MUST have rootpath so that herbert_init, herbert_off included
 
 % Class definitions, with methods and operator definitions

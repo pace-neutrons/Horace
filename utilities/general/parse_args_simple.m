@@ -1,10 +1,10 @@
 function [par,argout,present,filled,ok,mess]=parse_args_simple(parargin,arglist)
 % Utility to parse varargin to find values of named parameters passed to a function
 % Simplified version of parse_arguments that assumes that the keywords must always take values
-% (i.e. the concept of logical flags is not implemented - see paarse_arguments for details)
+% (i.e. the concept of logical flags is not implemented - see parse_arguments for details)
 %
 % Syntax:
-%   >> [par,argout,present,filled]=parse_arguments(parargin,arglist)
+%   >> [par,argout,present,filled,ok,mess]=parse_arguments(parargin,arglist)
 %
 % The use of parse_args_simple is most clearly illustrated by an example:
 % Consider the function:
@@ -16,7 +16,7 @@ function [par,argout,present,filled,ok,mess]=parse_args_simple(parargin,arglist)
 %                    'modulation', 0, ...
 %                    'output', 'data.txt');
 %   
-%   [par,argout,present] = parse_arguments(varargin,arglist,flags);
+%   [par,argout,present,filled] = parse_args_simple(varargin,arglist);
 %   par
 %   argout
 %   present

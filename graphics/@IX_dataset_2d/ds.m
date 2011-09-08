@@ -10,7 +10,7 @@ function [fig_handle, axes_handle, plot_handle] = ds(w,varargin)
 %   >> ds(w,...,'name',fig_name)        % draw with name = fig_name
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = da(a,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = ds(w,...) 
 
 % Check input arguments
 [ok,mess]=parse_args_simple_ok_syntax({'name'},varargin{:});

@@ -7,7 +7,7 @@ function [fig_handle, axes_handle, plot_handle] = pa(w,varargin)
 %   >> pa(w,...,'name',fig_name)        % draw with name = fig_name
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = pa(a,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = pa(w,...) 
 
 % Check input arguments
 [ok,mess]=parse_args_simple_ok_syntax({'name'},varargin{:});

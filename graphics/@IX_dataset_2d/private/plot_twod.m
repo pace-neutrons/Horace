@@ -11,7 +11,7 @@ function [fig_, axes_, plot_, ok, mess] = plot_twod (w_in, varargin)
 %       'type'      'area'      area plot
 %                   'surface'   surface plot
 
-plot_types={'area','surface','contour'};
+plot_types={'area','surface','surface2','contour'};
 
 arglist = struct('name','',...
     'newplot',true,...
@@ -64,11 +64,13 @@ if isstring(keyword.name)
     if ~isempty(keyword.name)
         fig_name=keyword.name;
     else
-        if plot_type(1)=='a'        % area plot
+        if strcmpi(plot_type,'area')        % area plot
             fig_name=get_global_var('genieplot','name_area');
-        elseif plot_type(1)=='s'    % surface plot
+        elseif strcmpi(plot_type,'surface') % surface plot
             fig_name=get_global_var('genieplot','name_surface');
-        elseif plot_type(1)=='c'    % surface plot
+        elseif strcmpi(plot_type,'surface2')% surface2 plot
+            fig_name=get_global_var('genieplot','name_surface');
+        elseif strcmpi(plot_type,'contour') % contour plot
             fig_name=get_global_var('genieplot','name_contour');
         end
     end
@@ -162,15 +164,22 @@ else
 end
 
 % Plot data (already checked that it is valid)
-if plot_type(1)=='a'        % area plot
+if strcmpi(plot_type,'area')        % area plot
     plot_area (w)
-    box on                      % put boundary box on plot
-    set(gca,'layer','top')      % puts axes layer on the top
-elseif plot_type(1)=='s'    % surface plot
-    if newplot, view(3); end    % set viewpoint if newplot
+    box on                          % put boundary box on plot
+    set(gca,'layer','top')          % puts axes layer on the top
+
+elseif strcmpi(plot_type,'surface') % surface plot
+    if newplot, view(3); end        % set viewpoint if newplot
     plot_surface (w);
-    set(gca,'layer','top')      % puts axes layer on the top
-elseif plot_type(1)=='c'    % contour plot
+    set(gca,'layer','top')          % puts axes layer on the top
+
+elseif strcmpi(plot_type,'surface2')% surface2 plot
+    if newplot, view(3); end        % set viewpoint if newplot
+    plot_surface2 (w);
+    set(gca,'layer','top')          % puts axes layer on the top
+
+elseif strcmpi(plot_type,'contour') % contour plot
     plot_contour (w);
 end
 hold off    % release plot

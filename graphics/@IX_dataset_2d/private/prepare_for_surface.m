@@ -1,4 +1,4 @@
-function [xv,yv,z]=prepare_for_surface(x,y,signal)
+function [xv,yv,z,c]=prepare_for_surface(x,y,signal,error)
 % Prepare arrays suitable for surface plot
 %
 %   >> [xv,yv,z]=prepare_for_surf(x,y,signal)
@@ -10,12 +10,14 @@ function [xv,yv,z]=prepare_for_surface(x,y,signal)
 %   signal  Intensity array size=[M,N] where M=m or m-1, and N=n or n-1
 %           depending on whether or not the corresponding axis values
 %           are bin boundaries or bin centres.
+%   error   [Optional] Matching error array
 %
 % Output:
 % -------
 %   xv      x-coords of verticies for surface plot
 %   yv      y-coords of verticies for surface plot
 %   z       Intensity array correctly ordered for use in surface plot
+%   c       Error array equivalently ordered, if error array provided as input
 
 
 nx = size(signal,1);
@@ -30,3 +32,6 @@ end
 
 [xv,yv]=ndgrid(x,y);
 z=signal;
+if nargin==4
+    c=error;
+end

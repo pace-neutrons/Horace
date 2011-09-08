@@ -104,6 +104,29 @@ opfile='T:\SVN_area\Herbert\_test\test_data_1.mat';
 load(opfile)
 
 
+%% =====================================================================================================================
+%  Some test objects with more interesting content
+% ======================================================================================================================
+
+% 2D Gaussian
+% ---------------
+
+nx0=50;
+ny0=30;
+
+xrange=10;
+yrange=10;
+
+x=linspace(-xrange,xrange,nx0);
+y=linspace(-yrange,yrange,ny0);
+[xx,yy]=ndgrid(x,y);
+signal=10*exp(-0.5*((xx/(xrange/4)).^2 + (yy/(yrange/4)).^2));
+err=cos(atan2(yy,xx)).^2;
+    
+hp_gau_osc=IX_dataset_2d(x,y,signal(1:end-1,:),err(1:end-1,:),'hist-pnt',IX_axis('Energy transfer','meV','$w'),'Temperature','Counts',false,false);
+
+hp_gau_osc(2)=20+hp_gau_osc;
+clear xx yy signal err
 
 
 

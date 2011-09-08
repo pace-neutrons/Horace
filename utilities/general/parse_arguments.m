@@ -104,7 +104,7 @@ function [par,argout,present,filled]=parse_arguments(parargin,arglist,varargin)
 %           i.e. present.foo = 1
 %
 % filled    Structure with the same field names as argin, and argout with values
-%           logical 0 or 1 indicating if the arguiment is non-empty (whether that be because
+%           logical 0 or 1 indicating if the argument is non-empty (whether that be because
 %           it was supplied with a non-empty default, or because it was given a non-empty value
 %           on the command line). Provided for convenience.
 %           
