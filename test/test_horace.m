@@ -36,28 +36,25 @@ cut_sqw (data_source, proj_110, [0.95,1.05], [0,0.05,1], [ 0.45,0.55], [50,0,350
 cut_sqw (data_source, proj_110, [0.9,0.05,1.1], [1.0,0.05,1.2], [-0.05,0.05,0.05], [50,0,70],[data_folder 'w4a.sqw']);
 
 
+% Read in as sqw:
+w0a_s=read_sqw([data_folder 'w0a.sqw']);
+w1a_s=read_sqw([data_folder 'w1a.sqw']);
+w1b_s=read_sqw([data_folder 'w1b.sqw']);
+w1c_s=read_sqw([data_folder 'w1c.sqw']);
+w1d_s=read_sqw([data_folder 'w1d.sqw']);
+w2a_s=read_sqw([data_folder 'w2a.sqw']);
+w2b_s=read_sqw([data_folder 'w2b.sqw']);
+w4a_s=read_sqw([data_folder 'w4a.sqw']);
+
 % Read in as dnd:
-w0a_p=read_sqw([data_folder 'w0a.sqw'],'-pix');
-w1a_p=read_sqw([data_folder 'w1a.sqw'],'-pix');
-w1b_p=read_sqw([data_folder 'w1b.sqw'],'-pix');
-w1c_p=read_sqw([data_folder 'w1c.sqw'],'-pix');
-w1d_p=read_sqw([data_folder 'w1d.sqw'],'-pix');
-w2a_p=read_sqw([data_folder 'w2a.sqw'],'-pix');
-w2b_p=read_sqw([data_folder 'w2b.sqw'],'-pix');
-w4a_p=read_sqw([data_folder 'w4a.sqw'],'-pix');
-
-% Apply fixup to make the sqw structures match the new format
-% (Change setup to new Horace, and set working directory to ...\Horace_sqw\test)
-
-% New structures
-[w0a_s,w0a_d]=fudge_data(w0a_p);
-[w1a_s,w1a_d]=fudge_data(w1a_p);
-[w1b_s,w1b_d]=fudge_data(w1b_p);
-[w1c_s,w1c_d]=fudge_data(w1c_p);
-[w1d_s,w1d_d]=fudge_data(w1d_p);
-[w2a_s,w2a_d]=fudge_data(w2a_p);
-[w2b_s,w2b_d]=fudge_data(w2b_p);
-[w4a_s,w4a_d]=fudge_data(w4a_p);
+w0a_d=read_dnd([data_folder 'w0a.sqw']);
+w1a_d=read_dnd([data_folder 'w1a.sqw']);
+w1b_d=read_dnd([data_folder 'w1b.sqw']);
+w1c_d=read_dnd([data_folder 'w1c.sqw']);
+w1d_d=read_dnd([data_folder 'w1d.sqw']);
+w2a_d=read_dnd([data_folder 'w2a.sqw']);
+w2b_d=read_dnd([data_folder 'w2b.sqw']);
+w4a_d=read_dnd([data_folder 'w4a.sqw']);
 
 save('T:\SVN_area\test_horace.mat','w0a_s','w0a_d',...
     'w1a_s','w1a_d','w1b_s','w1b_d','w1c_s','w1c_d','w1d_s','w1d_d',...
