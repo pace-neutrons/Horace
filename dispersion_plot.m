@@ -140,8 +140,27 @@ else
         e=dispreln(qh,qk,ql,pars);
     end
 end
+if ~iscell(e)
+    if calc_weight
+        e={e}; sf={sf};     % make cell arrays for convenience
+    else
+        e={e};              % make cell arrays for convenience
+    end
+end
 
-if iscell(e)
+% Create output objects
+try
+    wdisp=repmat(IX_dataset_1d,1,numel(e));
+    for i=1:numel(e)
+        wdisp(i)=IX_dataset_1d('Dispersion relation',e{i},zeros(size(e{i})),IX_axis('Energy'),x,IX_axis('momentum'),false);
+    end
+    if calc_weight
+        weight=repmat(IX_dataset_1d,1,numel(e));
+        for i=1:numel(e)
+            weight(i)=IX_dataset_1d('Spectral weight',sf{i},zeros(size(sf{i})),IX_axis('Intensity'),x,IX_axis('momentum'),false);
+        end
+    end
+catch
     wdisp=IXTdataset_1d('Dispersion relation',e{1},zeros(size(e{1})),IXTaxis('Energy'),x,IXTaxis('momentum'),false);
     if numel(e)>1, wdisp(1,numel(e))=wdisp; end
     for i=2:numel(e)
@@ -154,13 +173,9 @@ if iscell(e)
             weight(i)=IXTdataset_1d('Spectral weight',sf{i},zeros(size(sf{i})),IXTaxis('Intensity'),x,IXTaxis('momentum'),false);
         end
     end
-else
-    wdisp=IXTdataset_1d('Dispersion relation',e,zeros(size(e)),IXTaxis('Energy'),x,IXTaxis('momentum'),false);
-    if calc_weight
-        weight=IXTdataset_1d('Spectral weight',sf,zeros(size(sf)),IXTaxis('Intensity'),x,IXTaxis('momentum'),false);
-    end
 end
 
+% Create labels for plot(s)
 if plot_dispersion || plot_weight
     if ~present.labels
         labels=make_labels(rlp);
@@ -178,7 +193,6 @@ if plot_dispersion
     lx(0,x(end));     % have to enforce the maximum limit, otherwise autoscales for some reason
     plot_labels(labels,xrlp);
 end
-
 if plot_weight
     if plot_dispersion, keep_figure; end     % plotted dispersion, so keep that plot
     dl(weight)

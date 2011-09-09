@@ -144,8 +144,13 @@ for i=1:numel(e)
     weight=weight + sfact.*exp(-(edisp-en_arr).^2/(2*sig^2))/(sig*sqrt(2*pi));
 end
 
-tmp=IXTdataset_2d ('Spectral weight', weight, zeros(size(weight)),...
-            IXTaxis('Spectral weight'), x', IXTaxis('momentum'), false, en, IXTaxis('Energy'), false);
+try
+    tmp=IX_dataset_2d ('Spectral weight', weight, zeros(size(weight)),...
+        IX_axis('Spectral weight'), x', IX_axis('momentum'), false, en, IX_axis('Energy'), false);
+catch
+    tmp=IXTdataset_2d ('Spectral weight', weight, zeros(size(weight)),...
+        IXTaxis('Spectral weight'), x', IXTaxis('momentum'), false, en, IXTaxis('Energy'), false);
+end
 
 if opt.plot
     da(tmp)
