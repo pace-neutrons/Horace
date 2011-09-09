@@ -85,7 +85,7 @@ sliceomatic(ux, uy, uz, w.signal, keyword.x_axis, keyword.y_axis, keyword.z_axis
 title(w.title);
 [fig_, axes_, plot_, plot_type] = genie_figure_all_handles (gcf);
 
-% Because we are not going through the usual genie_figure_vreate route, set some of
+% Because we are not going through the usual genie_figure_create route, set some of
 % the options that function sets
 set(fig_,'Name',fig_name,'Tag','','PaperPositionMode','auto','Color','white');
 

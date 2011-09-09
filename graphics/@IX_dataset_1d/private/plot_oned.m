@@ -174,7 +174,7 @@ hold off    % release plot (could have been held for overplotting, or by 'dd' fo
 % Create/change title if a new plot
 if (newplot)
     [tx,ty]=make_label(w(1));  % Create axis annotations
-    tt=[w(1).title(:);['Plot binning = ',num2str(binning)]];
+    tt=w(1).title(:);   % tt=[w(1).title(:);['Plot binning = ',num2str(binning)]];
     % change titles:
     title(tt);
     xlabel(tx);

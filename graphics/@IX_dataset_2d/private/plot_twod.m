@@ -187,7 +187,7 @@ hold off    % release plot
 % Create/change title if a new plot
 if (newplot)
     [tx,ty,tz]=make_label(w(1));  % Create axis annotations
-    tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
+    tt=w(1).title(:);  % tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
     % change titles:
     title(tt);
     xlabel(tx);
