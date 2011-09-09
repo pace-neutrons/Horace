@@ -112,15 +112,21 @@ for i=1:numel(win)
     
     % Compute dispersion relation at bin centres
     qw = calculate_qw_bins(wout(i));
-    wdisp = dispreln(qw{1:3},pars{:});
+    if nargout(dispreln)<2
+        wdisp = dispreln(qw{1:3},pars{:});  % only dispersion seems to be provided
+    else
+        [wdisp,sfact] = dispreln(qw{1:3},pars{:});
+    end
     if iscell(wdisp)
         if numel(win)==1    % single input sqw object
             wout=repmat(wout,size(wdisp));  % make one output array per dispersion relation
             for j=1:numel(wdisp)
                 wout(j).data.s=reshape(wdisp{j},sz);
+                if exist('sfact','var'), wout(j).data.e=reshape(sfact{j},sz).^2; end
             end
         else
             wout(i).data.s=reshape(wdisp{1},sz);
+            if exist('sfact','var'), wout(i).data.e=reshape(sfact{1},sz).^2; end
         end
     else
         wout(i).data.s=reshape(wdisp,sz);
