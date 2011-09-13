@@ -2,10 +2,9 @@
 % Must have run herbert_init
 % Need to run the cells below from the developer only area where aaa_copy is found
 
-root_dir='T:\matlab\apps_devel\Herbert';
+root_dir='T:\svn_area\Herbert';
 
 utilities_classes_dir=fullfile(root_dir,'utilities','classes');
-classes_dir=fullfile(root_dir,'classes');
 
 temp_classdefs=fullfile('templates','classdefs');
 temp_methods=fullfile('templates','methods');
@@ -34,12 +33,15 @@ aaa_copy (temp_ops,       utilities_classes_dir, class_name, 'test', 'methods')
 
 
 %% Update a class with the generic definitions
+classes_dir=fullfile(root_dir,'classes');
+classes_dir=fullfile(root_dir,'classes','mslice_classes');
 class_name='crap';
 
 aaa_copy (temp_classdefs, classes_dir, class_name)
 aaa_copy (temp_ops,       classes_dir, class_name)
 
 %% Create a class with the generic definitions and examples
+classes_dir=fullfile(root_dir,'classes','mslice_classes');
 class_name='crap2';
 
 aaa_copy (temp_classdefs, classes_dir, class_name, 'examples')

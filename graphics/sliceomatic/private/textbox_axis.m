@@ -8,7 +8,7 @@ function textbox_axis(handle, type, textb)
 % *** Replace:
 % [fig, axes, plot, other] = ixf_get_related_handles(handle);
 % *** with:
-fig=handle;
+fig=ancestor(handle,'figure');
 
 d=getappdata(fig,'sliceomatic');
 switch textb

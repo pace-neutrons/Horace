@@ -29,7 +29,7 @@ function sliceomaticmotion(fig,action)
   % we want to make sure that the axes we are using belongs to
   % the figure that called back
   % *** Replace:
-  % [fig, axes, plot, other] = ixf_get_related_handles(handle);
+  % [figH, axesH, plotH, otherH] = ixf_get_related_handles(fig);
   % *** with:
   axesH=get(fig,'CurrentAxes');
   
