@@ -28,7 +28,7 @@ function [f,added] = get_labels_to_struct (fid, f_in)
 
 
 % T.G.Perring 5 Jan 2005: Created, based on label-reading code in mslice function LOAD_CUT (au. R.Coldea)
-%               May 2011: Renamed for consistency with other functions
+%               May 2011: Renamed from read_labels for consistency with other functions
 
 if ischar(fid) && numel(size(fid))~=2
     error('Character array must be two-dimensional only')

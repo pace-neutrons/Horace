@@ -1,10 +1,26 @@
 function [ok, mess, dout] = checkfields (d)
 % Check fields for mslice/Tobyfit cut objects
 %
-%   >> [ok, mess] = checkfields (d)
+%   >> [ok, mess, dout] = checkfields (d)
+%
+%   d       structure or object of the class
 %
 %   ok      ok=true if valid, =false if not
-%   mess    Message if not a valid object, empty string if is valid.
+%   message Message if not a valid sqw object, empty string if is valiw.
+%   dout    Output structure or object of the class 
+%           wout can be an altered version of the input structure or object that must
+%           have the same fields. For example, if a column array is provided for a field
+%           value, but one wants the array to be a row, then checkfields could take the
+%           transpose. If the facility is not wanted, simply include the line wout=win.
+%
+%     Because checkfields must be in the folder defining the class, it
+%     can change fields of an object without calling set.m, which means
+%     that we do not get recursion from the call that set.m makes to 
+%     isvaliw.m and the consequent call to checkfields.m ...
+%       
+%     Can have further arguments as desired for a particular class
+%
+%   >> [ok, message,dout,...] = checkfields (d,...)
 
 % Original author: T.G.Perring
     

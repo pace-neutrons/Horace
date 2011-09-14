@@ -10,7 +10,7 @@ function [labels, added] = put_struct_to_labels (struc, labels_in, opt, optfield
 % ------
 %   struc       Structure
 %   labels_in   Input cellstr of labels to which labels will be added
-%   opt         Option: 'except' or 'only'  to indicate which fields shoudl be written
+%   opt         Option: 'except' or 'only'  to indicate which fields should be written
 %   optfields   If opt='except': cell array of strings of field names not to be written
 %                  opt='only'  : only write these fields
 %
@@ -31,7 +31,7 @@ function [labels, added] = put_struct_to_labels (struc, labels_in, opt, optfield
 %   title = Mister
 
 % T.G.Perring   March 2008: Created.
-%               May 2011:   Renamed to put_struct_to_labels and functionality increased.
+%               May 2011:   Renamed from write_labels to put_struct_to_labels and functionality increased.
 
 if nargin==1
     labels=cell(0);
