@@ -1,4 +1,4 @@
-function [labels, added] = put_struct_to_labels (struc, labels_in, opt, optfields)
+function [labels, added] = put_struct_to_labels (varargin)
 % Create cell array of label strings strom a structure.
 %
 %   >> labels = put_struct_to_labels (struc)
@@ -34,17 +34,25 @@ function [labels, added] = put_struct_to_labels (struc, labels_in, opt, optfield
 %               May 2011:   Renamed from write_labels to put_struct_to_labels and functionality increased.
 
 if nargin==1
+    struc=varargin{1};
     labels=cell(0);
     option=false;
 elseif nargin==2
-    labels=labels_in;
+    struc=varargin{1};
+    labels=varargin{2};
     option=false;
 elseif nargin==3
+    struc=varargin{1};
     labels=cell(0);
     option=true;
+    opt=varargin{2};
+    optfields=varargin{3};
 elseif nargin==4
-    labels=labels_in;
+    struc=varargin{1};
+    labels=varargin{2};
     option=true;
+    opt=varargin{3};
+    optfields=varargin{4};
 end
    
 if ~option
@@ -53,19 +61,23 @@ if ~option
         labels=[labels,make_label(fields{i},struc.(fields{i}))];
     end
 else
-    if strcmp(opt,'only')
-        for i=1:length(optfields)
-            if isfield(struc,optfields{i})
-                labels=[labels,make_label(optfields{i},struc.(optfields{i}))];
+    if ischar(opt)
+        if strcmp(opt,'only')
+            for i=1:length(optfields)
+                if isfield(struc,optfields{i})
+                    labels=[labels,make_label(optfields{i},struc.(optfields{i}))];
+                end
+            end
+        elseif strcmp(opt,'except')
+            fields=fieldnames(struc);
+            for i=1:length(fields)
+                if ~any(strcmp(fields{i},optfields))
+                    labels=[labels,make_label(fields{i},struc.(fields{i}))];
+                end
             end
         end
-    elseif strcmp(opt,'except')
-        fields=fieldnames(struc);
-        for i=1:length(fields)
-            if ~any(strcmp(fields{i},optfields))
-                labels=[labels,make_label(fields{i},struc.(fields{i}))];
-            end
-        end
+    else
+        error('Check option')
     end
 end
 added=~isempty(struct);

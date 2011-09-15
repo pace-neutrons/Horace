@@ -13,6 +13,8 @@ function wout = spe (varargin)
 
 % Original author: T.G.Perring
 
+classname='spe';
+
 if nargin==1
     if isstruct(varargin{1})    % structure
         [ok,mess,wout]=checkfields(varargin{1});   % Make checkfields the ultimate arbiter of the validity of a structure
