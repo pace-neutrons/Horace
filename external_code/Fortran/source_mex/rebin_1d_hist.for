@@ -26,11 +26,11 @@
 
       implicit none
       mwPointer plhs(*), prhs(*)
-      integer nrhs, nlhs
+      integer*4 nrhs, nlhs
 
 ! mx routine declarations
       mwPointer mxCreateDoubleMatrix, mxGetPr
-      integer mxIsNumeric
+      integer*4 mxIsNumeric
       mwSize mxGetM, mxGetN
 
 ! Internal declations
@@ -39,7 +39,7 @@
       mwSize nx, mx
       
 ! Arguments for computational routine, or purely internal
-      integer ierr, nx_pass, mx_pass
+      integer*4 ierr, nx_pass, mx_pass
       character*10 ch_num
       character*80 mess
 

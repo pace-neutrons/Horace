@@ -25,7 +25,7 @@
 
       implicit none
       mwPointer plhs(*), prhs(*)
-      integer nrhs, nlhs
+      integer*4 nrhs, nlhs
 
 ! mx routine declarations
       mwPointer mxCreateNumericArray, mxGetPr, mxGetDimensions
