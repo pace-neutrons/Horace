@@ -106,9 +106,9 @@ switch route
                 outbin_x=xout(2)-xout(1); outbin_y=yout(2)-yout(1);
                 lo_x=min([inmin_x outmin_x]); hi_x=max([inmax_x outmax_x]);
                 lo_y=min([inmin_y outmin_y]); hi_y=max([inmax_y outmax_y]);
-                xout=[(lo_x-outbin_x+eps):outbin_x:(hi_x+outbin_x-eps)]';%increase the size of range
+                xout=[(lo_x-eps):outbin_x:(hi_x+eps)]';%increase the size of range very slightly
                 %to allow for rounding errors.
-                yout=[(lo_y-outbin_y+eps):outbin_y:(hi_y+outbin_y-eps)]';
+                yout=[(lo_y-eps):outbin_y:(hi_y+eps)]';
                 [xnew,ynew,sout,eout,nout]=rebin_2d(xin,yin,win.s,win.e,win.npix,xout,yout);
                 %Now need to construct the output d2d:
                 wout=win;
@@ -125,9 +125,9 @@ switch route
                 outbin_x=xout(2)-xout(1); outbin_y=yout(2)-yout(1);
                 lo_x=min([inmin_x outmin_x]); hi_x=max([inmax_x outmax_x]);
                 lo_y=min([inmin_y outmin_y]); hi_y=max([inmax_y outmax_y]);
-                xout=[(lo_x-outbin_x+eps):outbin_x:(hi_x+outbin_x-eps)]';%increase the size of range
+                xout=[(lo_x-eps):outbin_x:(hi_x+eps)]';%increase the size of range
                 %to allow for rounding errors.
-                yout=[(lo_y-outbin_y+eps):outbin_y:(hi_y+outbin_y-eps)]';
+                yout=[(lo_y-eps):outbin_y:(hi_y+eps)]';
                 [xnew,ynew,sout,eout,nout]=rebin_2d(yin',xin',win.s',win.e',win.npix',xout,yout);
                 %Now must construct the output d2d...
                 wout=w2;
@@ -222,7 +222,7 @@ switch route
             
         end
     case 2
-        xout=[(inmin_x-varargin{1}+eps):varargin{1}:(inmax_x+varargin{1}-eps)]';
+        xout=[(inmin_x-eps):varargin{1}:(inmax_x+eps)]';
         %Need to check that this does cover full range, i.e. no rounding
         %errors.
         if max(xout)<inmax_x
@@ -237,7 +237,7 @@ switch route
         getout.title=[wout.title,' REBINNED '];
         wout=d2d(getout);
     case 3
-        xout=[(varargin{1}(1) - varargin{1}(2)+eps):varargin{1}(2):(varargin{1}(3)+varargin{1}(2)-eps)];
+        xout=[(varargin{1}(1) - eps):varargin{1}(2):(varargin{1}(3)+eps)];
         [xnew,ynew,sout,eout,nout]=rebin_2d(xin,yin,win.s,win.e,win.npix,xout,[]);
         wout=win;
         getout=get(wout);
@@ -246,8 +246,8 @@ switch route
         getout.title=[wout.title,' REBINNED '];
         wout=d2d(getout);
     case 4
-        xout=[(inmin_x-varargin{1}+eps):varargin{1}:(inmax_x+varargin{1}-eps)]';
-        yout=[(inmin_y-varargin{2}+eps):varargin{2}:(inmax_y+varargin{2}-eps)]';
+        xout=[(inmin_x-eps):varargin{1}:(inmax_x+eps)]';
+        yout=[(inmin_y-eps):varargin{2}:(inmax_y+eps)]';
         %Need to check that this does cover full range, i.e. no rounding
         %errors.
         if max(xout)<inmax_x
@@ -264,8 +264,8 @@ switch route
         getout.title=[wout.title,' REBINNED '];
         wout=d2d(getout);
     case 5
-        xout=[(varargin{1}(1) -varargin{1}(2)+eps):varargin{1}(2):(varargin{1}(3)+varargin{1}(2)-eps)];
-        yout=[(varargin{2}(1)-varargin{2}(2)+eps):varargin{2}(2):(varargin{2}(3)+varargin{2}(2)-eps)];
+        xout=[(varargin{1}(1) -eps):varargin{1}(2):(varargin{1}(3)+eps)];
+        yout=[(varargin{2}(1)-eps):varargin{2}(2):(varargin{2}(3)+eps)];
         [xnew,ynew,sout,eout,nout]=rebin_2d(xin,yin,win.s,win.e,win.npix,xout,yout);
         wout=win;
         getout=get(wout);
@@ -274,8 +274,8 @@ switch route
         getout.title=[wout.title,' REBINNED '];
         wout=d2d(getout);
     case 6
-        yout=[(varargin{2}(1)-varargin{2}(2)+eps):varargin{2}(2):(varargin{2}(3)+varargin{2}(2)-eps)];
-        xout=[(inmin_x-varargin{1}+eps):varargin{1}:(inmax_x+varargin{1}-eps)]';
+        yout=[(varargin{2}(1)-eps):varargin{2}(2):(varargin{2}(3)+eps)];
+        xout=[(inmin_x-eps):varargin{1}:(inmax_x+eps)]';
         if max(xout)<inmax_x
             xout=[xout; xout(end)+varargin{1}];
         end
@@ -287,8 +287,8 @@ switch route
         getout.title=[wout.title,' REBINNED '];
         wout=d2d(getout);
     case 7
-        xout=[(varargin{1}(1) -varargin{1}(2)+eps):varargin{1}(2):(varargin{1}(3)+varargin{1}(2)-eps)];
-        yout=[(inmin_y-varargin{2}+eps):varargin{2}:(inmax_y+varargin{2}-eps)]';
+        xout=[(varargin{1}(1) -eps):varargin{1}(2):(varargin{1}(3)+eps)];
+        yout=[(inmin_y-eps):varargin{2}:(inmax_y+eps)]';
         if max(yout)<inmax_y
             yout=[yout; yout(end)+varargin{2}];
         end
@@ -300,7 +300,7 @@ switch route
         getout.title=[wout.title,' REBINNED '];
         wout=d2d(getout);
     case 8
-        yout=[(varargin{2}(1)-varargin{2}(2)+eps):varargin{2}(2):(varargin{2}(3)+varargin{2}(2)-eps)];
+        yout=[(varargin{2}(1)-eps):varargin{2}(2):(varargin{2}(3)+eps)];
         [xnew,ynew,sout,eout,nout]=rebin_2d(xin,yin,win.s,win.e,win.npix,[],yout);
         wout=win;
         getout=get(wout);
@@ -309,7 +309,7 @@ switch route
         getout.title=[wout.title,' REBINNED '];
         wout=d2d(getout);
     case 9
-        yout=[(inmin_y-varargin{2}+eps):varargin{2}:(inmax_y+varargin{2}-eps)]';
+        yout=[(inmin_y-eps):varargin{2}:(inmax_y+eps)]';
         %Need to check that this does cover full range, i.e. no rounding
         %errors.
         if max(yout)<inmax_y
