@@ -1,0 +1,34 @@
+function varargout = config_store (config_name, varargin)
+% Store or retrive current configuration structure. Do not edit this function.
+% 
+% Store the configuration:
+%   >> config_store (config_name, current_structure, default_structure)
+%
+% Retrieve the configuration:
+%   >> config_data = config_store(config_name,default)
+%       default=false   fetch previously stored current configuration
+%       default=true    fetch previously stored default configuration
+%
+
+persistent current_configuration default_configuration
+
+if numel(varargin)==2        % store current and default configurations
+    current_configuration.(config_name)=varargin{1};
+    default_configuration.(config_name)=varargin{2};
+    
+elseif numel(varargin)==1 && isstruct(varargin{1})    % store current configuration only
+    current_configuration.(config_name)=varargin{1};    
+
+elseif numel(varargin)==1    % retrieve configuration
+    fetch_default=varargin{1};
+    if ~fetch_default && ~isempty(current_configuration) && isfield(current_configuration,config_name)
+        varargout{1}=current_configuration.(config_name);
+    elseif fetch_default && ~isempty(default_configuration) && isfield(default_configuration,config_name)
+        varargout{1}=default_configuration.(config_name);
+    else
+        error(['Stored configuration in memory is incomplete or non-existent for configuration class %s.\n',...
+               'This circumstance should only occur if you are a developer'],config_name)
+    end
+else
+    error('Logic error in code')
+end
