@@ -35,7 +35,7 @@ function [b, arlu, angrlu, mess] = bmat (alatt, angdeg)
 % Horace v0.1   J. van Duijn, T.G.Perring
 
 
-if max(angdeg)>=180 | min(angdeg)<=0
+if max(angdeg)>=180 || min(angdeg)<=0
     b = [];
     arlu = [];
     angrlu = [];
@@ -53,20 +53,23 @@ end
 %-----------------------
 try
 ang = angdeg*(pi/180);
+%  auxiliary matrix describing the volume of a bravice cell and some its
+%  symmetries
 a = [      1     , cos(ang(3)), cos(ang(2));...
      cos(ang(3)),      1      , cos(ang(1));...
      cos(ang(2)), cos(ang(1)),      1       ];
 
 q = sqrt(abs(det(a)));
-
+% reciprocal lattice -- formula derived from a and q above after long
+% calculations
 as = (2*pi/q)*(abs(sin(ang(1)))/alatt(1));
 bs = (2*pi/q)*(abs(sin(ang(2)))/alatt(2));
 cs = (2*pi/q)*(abs(sin(ang(3)))/alatt(3));
-
+% angles between the reciprocal axis 
 aa = acos( (cos(ang(2))*cos(ang(3))-cos(ang(1)))/abs(sin(ang(2))*sin(ang(3))) );
 bb = acos( (cos(ang(3))*cos(ang(1))-cos(ang(2)))/abs(sin(ang(3))*sin(ang(1))) );
 cc = acos( (cos(ang(1))*cos(ang(2))-cos(ang(3)))/abs(sin(ang(1))*sin(ang(2))) );
-
+% b-matix as in Acta Cryst. (1967). 22, 457
 b = [as,      bs*cos(cc),                   cs*cos(bb);...
       0, bs*abs(sin(cc)), -cs*abs(sin(bb))*cos(ang(1));...
       0,               0,                 2*pi/alatt(3)];

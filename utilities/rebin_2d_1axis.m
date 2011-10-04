@@ -24,6 +24,9 @@ function [xnew,ynew,sout,eout,nout]=rebin_2d_1axis(xin,yin,xout,sin,ein,nin)
 %========
 %Check that arrays are matrices of the correct size:
 
+small=1e-5.*max(abs(xout));
+
+
 if ~isequal(size(sin),size(ein)) || ~isequal(size(sin),size(nin))
     error('Rebinning error: input arrays of signals, errors and npix must all be the same size');
 end
@@ -44,10 +47,10 @@ end
 
 %Check that the ranges of xout and xin are consistent. xout should extend
 %further than xin.
-if max(max(xin))>max(max(xout))
+if max(max(xin))>(max(max(xout)+small))
     error('Rebinning error: maximum of output bin boundaries must be >= max of input bin boundaries');
 end
-if min(min(xin))<min(min(xout))
+if (min(min(xin)))<min(min(xout)-small)
     error('Rebinning error: minimum of output bin boundaries must be <= min of input bin boundaries');
 end
 
