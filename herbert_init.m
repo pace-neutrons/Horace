@@ -33,6 +33,9 @@ application_off('herbert')
 addpath(rootpath)  % MUST have rootpath so that herbert_init, herbert_off included
 
 % Class definitions, with methods and operator definitions
+addgenpath_message (rootpath,'configuration');
+
+% Class definitions, with methods and operator definitions
 addgenpath_message (rootpath,'classes');
 
 % Utilities definitions

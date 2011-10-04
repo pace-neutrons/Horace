@@ -9,6 +9,12 @@ function varargout = config_store (config_name, varargin)
 %       default=false   fetch previously stored current configuration
 %       default=true    fetch previously stored default configuration
 %
+%   >> all_config_data = config_store(default)
+%       default=false   fetch all previously stored current configurations
+%       default=true    fetch all previously stored default configurations
+%
+% No error checking on the consistency or type of the input arguments is performed,
+% as it is assumed that this is has been done by the calling method.
 
 persistent current_configuration default_configuration
 
@@ -29,6 +35,14 @@ elseif numel(varargin)==1    % retrieve configuration
         error(['Stored configuration in memory is incomplete or non-existent for configuration class %s.\n',...
                'This circumstance should only occur if you are a developer'],config_name)
     end
+elseif numel(varargin)==0
+    default=config_name;
+    if ~default
+        varargout{1}=current_configuration;
+    else
+        varargout{1}=default_configuration;
+    end
+    
 else
     error('Logic error in code')
 end
