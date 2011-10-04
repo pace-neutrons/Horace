@@ -21,7 +21,7 @@ demo_dir=pwd;
 %==================================================================================================
 demo_root_dir = [fileparts(which('horace_init')),filesep,'demo',filesep];
 demo_dir = fullfile(demo_dir,filesep);   % add file separator if not there
-unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
+%unzip([demo_root_dir 'Horace_demo.zip'],demo_dir);
 try
 copyfile(fullfile(demo_root_dir,'demo_par.PAR'),fullfile(demo_dir,'demo_par.PAR'))
 copyfile(fullfile(demo_root_dir,'demo_par.PHX'),fullfile(demo_dir,'demo_par.PHX'))

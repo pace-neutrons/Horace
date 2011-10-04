@@ -101,7 +101,7 @@ switch(n_ext)
         hdf_file=fullfile(fileDir,[fileName this.hdfFileExt{1}]);
         if(exist(hdf_file,'file')) % bind to hdf5 file instead;
             [this.nDetectors,this.en]=get_hdf5_header(hdf_file);
-            this.fileExt=this.hdfFileExt;
+            this.fileExt=this.hdfFileExt{1};
         else
             if(~exist(fullfileName,'file')) % spe file does not exist either
                 % may be there is '.SPE' instead of '.spe' file?
