@@ -1,11 +1,11 @@
 function wout=linspace(win,n)
 % Make a datset with the same x range but with a uniform grid of x values
 %
-%   >> wout = xgrid(win,n)
+%   >> wout = linspace(win,n)
 %
 %   win     IX_dataset_1d or array of IX_dataset_1d
 %   n       Number of points in which to divide the x-axis e.g.
-%               >> wout=xgrid(win,1000);
+%               >> wout=linspace(win,1000);
 %
 %   wout    Output IX_datset_1d or array of IX_datset_1d. The signal and
 %           error arrays are set to zeros.
@@ -15,14 +15,14 @@ function wout=linspace(win,n)
 % plot of the calculated function:
 %
 %   >> [wfit,fitdata]=multifit(wdata,@gauss_bkgd,[10,7,1,0,0]);
-%   >> wtmp = xgrid(wdata);
+%   >> wtmp = linspace(wdata,1000);
 %   >> wcalc = func_eval(wtmp,@gauss_bkgd,fitdata.p);
 %   >> acolor blue
 %   >> dp(wdata)
 %   >> acolor r
 %   >> pl(wcalc)
 
-if isempty(n)
+if nargin==1 || isempty(n)
     wout=win;   % do nothing if not given n
     return
 elseif ~(isscalar(n) && isnumeric(n) && rem(n,1)==0 && n>0)
@@ -30,12 +30,12 @@ elseif ~(isscalar(n) && isnumeric(n) && rem(n,1)==0 && n>0)
 end
 
 wout=win;
+status=ishistogram(win);
 for i=1:numel(wout)
     if numel(win(i).x)>1
         xtmp=linspace(win.x(1),win.x(end),n);
-        status=ishistogram(win(i));
-        stmp=zeros(n-status,1);
-        etmp=zeros(n-status,1);
+        stmp=zeros(n-status(i),1);
+        etmp=zeros(n-status(i),1);
         wout(i).x=xtmp; wout(i).signal=stmp; wout(i).error=etmp;
     end
 end
