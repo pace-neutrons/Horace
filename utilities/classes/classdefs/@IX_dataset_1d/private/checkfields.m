@@ -25,8 +25,8 @@ function [ok, message, wout] = checkfields (w)
 % Ensures the following is returned
 %
 % 	title				cellstr         Title of dataset for plotting purposes (character array or cellstr)
-% 	signal              double  		Signal (row vector)
-% 	error				        		Standard error (row vector)
+% 	signal              double  		Signal (column vector)
+% 	error				        		Standard error (column vector)
 % 	s_axis				IX_axis			Signal axis object containing caption and units codes
 %                                     (Can also just give caption; multiline input in the form of a
 %                                      cell array or a character array)

@@ -1,19 +1,19 @@
-function [wout, fitdata] = multifit_func(win, varargin)
+function [wout, fitdata] = multifit(win, varargin)
 % Simultaneously fits a function to an one or more IX_dataset_1d objects
 % Optionally allow with background functions varying independently for each dataset. 
 %
 % Simultaneously fit oen or more datasets to a given function:
-%   >> [wout, fitdata] = multifit_func (w, func, pin)                 % all parameters free
-%   >> [wout, fitdata] = multifit_func (w, func, pin, pfree)          % selected parameters free to fit
-%   >> [wout, fitdata] = multifit_func (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
+%   >> [wout, fitdata] = multifit (w, func, pin)                 % all parameters free
+%   >> [wout, fitdata] = multifit (w, func, pin, pfree)          % selected parameters free to fit
+%   >> [wout, fitdata] = multifit (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
 %
 % With optional 'background' functions added to the global function, one per object
-%   >> [wout, fitdata] = multifit_func (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = multifit_func (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = multifit_func (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree, bpbind)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
-%   >> [wout, fitdata] = multifit_func (..., keyword, value, ...)
+%   >> [wout, fitdata] = multifit (..., keyword, value, ...)
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -24,7 +24,7 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %       'evaluate'  evaluate function at initial parameter values only, with argument check as well
 %
 %   Example:
-%   >> [wout, fitdata] = multifit_func (..., 'keep', xkeep, 'list', 0)
+%   >> [wout, fitdata] = multifit (..., 'keep', xkeep, 'list', 0)
 %
 %
 % Input:
@@ -123,7 +123,7 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %               {5,11,0,0.013}      Explicit ratio for binding bp 5 to parameter 11 of the global fitting function
 %               {1,4,[7,2],14.15}   Explicit ratio for binding bp 1 to bp 4 of background function [7,2]
 %
-%           In a call to multifit_func: as an example of the need to take care:
+%           In a call to multifit: as an example of the need to take care:
 %               bpbind = {{1,4}, {2,3,[7,2]}, {5,11,0}}     binding description for three separate backgrounds
 %
 %               bpbind = { {{1,4}, {2,3,[7,2]}, {5,11,0}} } Binding description for all background functions

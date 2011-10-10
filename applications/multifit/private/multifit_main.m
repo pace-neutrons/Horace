@@ -89,7 +89,7 @@ function [ok,mess,output] = multifit_main(varargin)
 %               (elements of mask_array: 1 to keep a point, 0 to remove from fitting)
 %
 %           ($) *EITHER*
-%               A method that returns and array of the x values (one dimensional data) or
+%               A method that returns an array of the x values (one dimensional data) or
 %               a cell array of arrays of the the x1, x2, x3... values for every point
 %               in the object
 %                   >> x = sigvar_getx (w)
@@ -102,7 +102,7 @@ function [ok,mess,output] = multifit_main(varargin)
 %               have it terminate if ok and mess are not given as return arguments; it is the advanced
 %               syntax that is required within multifit)
 %                   >> [sel, ok, mess] = mask_points (win, 'keep', xkeep, 'xremove', xremove, 'mask', mask)
-%               (Normally this method would not be supplied sigvat_getx is easy to
+%               (Normally this method would not be supplied because sigvar_getx is easy to
 %                code, but special knowledge of the class could make mask_points more efficient.)
 %
 %           (5) If a background function is provided, addition of objects must be defined as
@@ -331,8 +331,6 @@ function [ok,mess,output] = multifit_main(varargin)
 %
 % 'parsefunc_'  if true, then return the following
 
-% Find number of return arguments
-narg=nargout-3;
 
 % Set defaults:
 arglist = struct('fitcontrolparameters',[0.0001 30 0.0001],...
@@ -345,8 +343,7 @@ flags = {'selected','evaluate','parsefunc_'};
 if numel(args)<1
     ok=false;
     mess='Check number of input arguments';
-    parsefunc=[];
-    varargout=cell(1,narg);
+    output=cell(1,0);
     return
 end
 
@@ -369,7 +366,7 @@ for i=1:numel(args)
         else
             ok=false;
             mess='Fitting function handle must be a scalar';
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
         break
@@ -378,7 +375,7 @@ end
 if isempty(iarg_global_func)
     ok=false;
     mess='Must provide handle to fitting function';
-    varargout=cell(1,narg);
+    output=cell(1,0);
     return
 end
 
@@ -414,13 +411,13 @@ if iarg_global_func==2
                     if ~ok
                         ok=false;
                         mess=['Data cell array element ',arraystr(size(w),i),' is a structure : ',mess];
-                        varargout=cell(1,narg);
+                        output=cell(1,0);
                         return
                     end
                 else
                     ok=false;
                     mess=['Data cell array element ',arraystr(size(w),i),' invalid: is an array of structures'];
-                    varargout=cell(1,narg);
+                    output=cell(1,0);
                     return
                 end
             else
@@ -429,7 +426,7 @@ if iarg_global_func==2
                     if ~ismethod(w{i},tmp.function)
                         ok=false;
                         mess=['Data cell array element ',arraystr(size(w),i),': fit function is not a method of this object'];
-                        varargout=cell(1,narg);
+                        output=cell(1,0);
                         return
                     end
                 end
@@ -439,7 +436,7 @@ if iarg_global_func==2
         % Array of structures permitted, if each element is an x-y-e triple
         [ok,mess,ndim_xye]=is_struct_xye(w);
         if ~ok
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
     else
@@ -450,7 +447,7 @@ if iarg_global_func==2
             if ~ismethod(w,tmp.function)
                 ok=false;
                 mess='Data object: fit function is not a method of this object';
-                varargout=cell(1,narg);
+                output=cell(1,0);
                 return
             end
         end
@@ -463,13 +460,13 @@ elseif iarg_global_func==4
     w.e=args{3};
     [ok,mess,ndim_xye]=is_struct_xye(w);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
 else
     ok=false;
     mess='Syntax of data argument(s) is invalid';
-    varargout=cell(1,narg);
+    output=cell(1,0);
     return
 end
 
@@ -530,7 +527,7 @@ if length(args)>iarg_global_func
                 else
                     ok=false;
                     mess='Background function handle parameter must be scalar or have same size as data array';
-                    varargout=cell(1,narg);
+                    output=cell(1,0);
                     return
                 end
             end
@@ -555,13 +552,13 @@ if nglobal_args>=1
     [ok,np]=parameter_valid(pin);
     if ~ok
         mess='Check that the fitting parameter list is valid';
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
 else
     ok=false;
     mess='Must give fitting function parameters';
-    varargout=cell(1,narg);
+    output=cell(1,0);
     return
 end
 
@@ -571,13 +568,13 @@ if bkd
         % Check form of argument
         [ok,mess,nbp,bpin]=bkd_parameter_valid(args{iarg_bkd_func+1},bkdfunc);
         if ~ok
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
     else
         ok=false;
         mess='Must give background function(s) parameters';
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
 else
@@ -609,43 +606,43 @@ end
 if nglobal_args==1  % no optional arguments
     [ok,mess,pfree]=pfree_valid_syntax([],np);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax({},np,nbp,0);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     
 elseif nglobal_args==2  % must be pfree
     [ok,mess,pfree]=pfree_valid_syntax(args{iarg_global_func+2},np);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax({},np,nbp,0);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     
 elseif nglobal_args==3  % must be pfree followed by pbind
     [ok,mess,pfree]=pfree_valid_syntax(args{iarg_global_func+2},np);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax(args{iarg_global_func+3},np,nbp,0);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     
 else
     ok=false;
     mess='Too many optional arguments for fitting function';
-    varargout=cell(1,narg);
+    output=cell(1,0);
     return
 end
 
@@ -654,53 +651,53 @@ if bkd
     if nbkd_args==1  % no optional arguments
         [ok,mess,bpfree]=bkd_pfree_valid_syntax({},nbp);
         if ~ok
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
         [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
         if ~ok
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
     elseif nbkd_args==2  % must be bpfree
         [ok,mess,bpfree]=bkd_pfree_valid_syntax(args{iarg_bkd_func+2},nbp);
         if ~ok
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
         [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
         if ~ok
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
         
     elseif nbkd_args==3  % must be bpfree followed by bpbind
         [ok,mess,bpfree]=bkd_pfree_valid_syntax(args{iarg_bkd_func+2},nbp);
         if ~ok
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
         [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax(args{iarg_bkd_func+3},np,nbp);
         if ~ok
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
         
     else
         ok=false;
         mess='Too many optional arguments for fitting function';
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
 else % get values for absent background that will work in ptrans_create
     [ok,mess,bpfree]=bkd_pfree_valid_syntax({},nbp);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
     if ~ok
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
 end
@@ -712,12 +709,12 @@ end
 [ok,mess,pf,p_info]=ptrans_create(pin,pfree,ipbind,ipfree,ifuncbind,rpbind,...
                                   bpin,bpfree,ibpbind,ibpfree,ibfuncbind,rbpbind);
 if ~ok
-    varargout=cell(1,narg);
+    output=cell(1,0);
     return
 elseif isempty(pf) && ~options.evaluate
     ok=false;
     mess='No free parameters to fit';
-    varargout=cell(1,narg);
+    output=cell(1,0);
     return
 end
 
@@ -733,7 +730,7 @@ if ~isempty(options.keep)
     if ~(isscalar(xkeep) || isequal(size(w),size(xkeep)))
         ok=false;
         mess='''keep'' option must provide a single entity defining keep ranges, or a cell array of entities with same size as data source';
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     if isscalar(xkeep), xkeep=repmat(xkeep,size(w)); end
@@ -748,7 +745,7 @@ if ~isempty(options.remove)
     if ~(isscalar(xremove) || isequal(size(w),size(xremove)))
         ok=false;
         mess='''remove'' option must provide a single entity defining remove ranges, or a cell array of entities with same size as data source';
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     if isscalar(xremove), xremove=repmat(xremove,size(w)); end
@@ -763,7 +760,7 @@ if ~isempty(options.mask)
     if ~(isscalar(msk) || isequal(size(w),size(msk)))
         ok=false;
         mess='''mask'' option must provide a single mask, or a cell array of masks with same size as data source';
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     end
     if isscalar(msk), msk=repmat(msk,size(w)); end
@@ -787,7 +784,7 @@ for i=1:numel(w)
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
         [msk{i},ok,mess]=mask_for_fit_xye(w{i}.x,w{i}.y,w{i}.e,msk{i}); % accumulate bad points (y=NaN, zero error bars etc.) to the mask array
@@ -795,7 +792,7 @@ for i=1:numel(w)
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end
         for idim=1:numel(w{i}.x)
@@ -815,7 +812,7 @@ for i=1:numel(w)
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end   % display warning messages
         [ytmp,vtmp,msk_null]=sigvar_get(w{i});
@@ -824,7 +821,7 @@ for i=1:numel(w)
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
-            varargout=cell(1,narg);
+            output=cell(1,0);
             return
         end   % display warning messages
         wmask{i}=mask(w{i},msk{i}); % 24 Jan 2009: don't think we'll need to keep msk{i}, but do so for moment, for sake of symmetry
@@ -839,13 +836,13 @@ end
 [ok,mess,pf,p_info]=ptrans_create(pin,pfree,ipbind,ipfree,ifuncbind,rpbind,...
                                   bpin,bpfree,ibpbind,ibpfree,ibfuncbind,rbpbind,nodata);
 if ~ok
-    varargout=cell(1,narg);
+    output=cell(1,0);
     return
 elseif isempty(pf)
     if ~options.evaluate
         ok=false;
         mess='No free parameters to fit';
-        varargout=cell(1,narg);
+        output=cell(1,0);
         return
     else
         disp('WARNING: No free parameters to fit')

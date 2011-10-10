@@ -10,6 +10,8 @@ function [sel,ok,mess] = mask_points_xye (x, xkeep, xremove, mask)
 %   x       A cell array of length n, where x{i} gives the coordinates in the
 %           ith dimension for all the data points. The arrays can have any
 %           size, but they must all have the same size.
+%           In the case where a single array, this will be interpreted as the
+%           x values for a one-dimensional fitting problem.
 %
 %   xkeep   Ranges of x to retain for fitting. A range is specified by an array
 %           of numbers which define a hypercube.
@@ -60,6 +62,7 @@ else
     return_with_errors=false;
 end
 
+if isnumeric(x), x={x}; end     % assume a single numeric array is a 1D problem.
 ndim = length(x);
 
 % Remove data from outside selected ranges
