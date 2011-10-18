@@ -13,7 +13,7 @@ global configurations;
 %this_class_name=mfilename('class');
 this_class_name='hor_config';
 
-% this is generig code which has to be copied to any consrucor, inheriting
+% this is generic code which has to be copied to any consrucor, inheriting
 % from the class "config"
 [is_in_memory,n_this_class,child_structure] = build_child(config,@horace_defaults,this_class_name);
 if is_in_memory
@@ -42,7 +42,8 @@ horace_defaults = ...
             'horace_info_level',1,... ;   % see horace_info_level method   
             'use_mex',true, ...  user will use mex-code for time-consuming operations 
             'delete_tmp',true, ... % delete temporary files which were generated while building sqw file after sqw has been build successfully 
-            'use_par_from_nxspe',true ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
+            'use_par_from_nxspe',true, ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
+            'init_tests',false ...  % include test folders in search path (usually useful on developers machine but waste of space on production)
             );
 
     Matlab_Version=matlab_version_num();
