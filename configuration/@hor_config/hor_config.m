@@ -43,7 +43,7 @@ horace_defaults = ...
             'use_mex',true, ...  user will use mex-code for time-consuming operations 
             'delete_tmp',true, ... % delete temporary files which were generated while building sqw file after sqw has been build successfully 
             'use_par_from_nxspe',true, ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
-            'init_tests',false ...  % include test folders in search path (usually useful on developers machine but waste of space on production)
+              'use_herbert',false ...  % use Herbert as IO tools
             );
 
     Matlab_Version=matlab_version_num();
