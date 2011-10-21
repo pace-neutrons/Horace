@@ -33,8 +33,8 @@ end
 % Get values
 varargout=cell(1,min(max(1,nargout),numel(varargin)));  % return at least one value
 for i=1:numel(varargout)
-    data_field=get_field_in_hierachy(config_data,varargin{i});
-    if ~isempty(data_field)
+    [data_field,found]=get_field_in_hierachy(config_data,varargin{i});
+    if found
         varargout{i}=data_field;
     else
         error('The field %s does not exist in configuration %s and its parents',varargin{i},config_name);    
@@ -50,16 +50,17 @@ for i=1:numel(c)
 end
 
 %--------------------------------------------------------------------------------------------------
-function val=get_field_in_hierachy(structure,field_name)
+function [val,found]=get_field_in_hierachy(structure,field_name)
 % Recursively searches through the hierarchy of structures and classes looking
 % for the field name specified.
 % Returns after finding the first field that is not a class or structure with the name
 % requested, or empty field after unsuccessful search through the whole structure;
 
+found = false;
 if isfield(structure,field_name)
     % If field name, get data and return
-    val=structure.(field_name);
-
+    val   =structure.(field_name);
+    found = true;
 else
     % Search for the field in classes or structures (if n array of structures or objects, use first element)
     names = fields(structure);

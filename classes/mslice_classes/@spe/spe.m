@@ -15,6 +15,7 @@ function wout = spe (varargin)
 
 classname='spe';
 
+
 if nargin==1
     if isstruct(varargin{1})    % structure
         [ok,mess,wout]=checkfields(varargin{1});   % Make checkfields the ultimate arbiter of the validity of a structure
@@ -31,20 +32,19 @@ if nargin==1
     else
         error('Check arguments')
     end
-elseif nargin==0
-    wout=default_spe;
+elseif nargin==0   
+% defauld spe structure;
+    wout = struct(...
+         'filename', '',...
+         'filepath',  '',...
+         'S',         [],...
+         'ERR',    [],...
+         'en',      [-1;1]...
+    );    
     [ok,mess,wout]=checkfields(wout);   % Make checkfields the ultimate arbiter of the validity of a structure
     if ok, wout = class(wout,classname); return, else error(mess); end
 else
     error('Check number of arguments')
 end
 
-%--------------------------------------------------------------------------------
-function d=default_spe
-% Make default spe structure
 
-d.filename='';
-d.filepath='';
-d.S=0;
-d.ERR=0;
-d.en=[-1,1]';

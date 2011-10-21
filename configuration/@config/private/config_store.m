@@ -25,7 +25,7 @@ if numel(varargin)==2        % store current and default configurations
 elseif numel(varargin)==1 
     if isstruct(varargin{1})    % store current configuration only
         current_configuration.(config_name)=varargin{1};   
-    elseif isstring(varargin{1}) && strcmp(varargin{1},'getall')  % return all current configurations
+    elseif isa(varargin{1},'char') && strcmp(varargin{1},'getall')  % return all current configurations
         varargout{1} = current_configuration;
     else     % retrieve configuration
 

@@ -62,14 +62,23 @@ elseif strncmpi(opt,'matlab',numel(opt))
     
 else
     output.external_code_option=opt;
-    addgenpath_message (rootpath,'_test','external_code_ref',opt)
-    
+    addgenpath_message (rootpath,'_test','external_code_ref',opt)   
 end
+%if get(hor_config,'init_tests')
+    addpath_message (rootpath,'_test/matlab_xunit/xunit');
+%end
 
 % Return output argument
 if nargout>0
     varargout{1}=output;
 end
+disp('!------------------------------------------------------------------!')
+disp('!                      HERBERT                                     !')
+disp('! =================================================================!')
+disp('!         Utilites for visualisation and analysis                  !')
+disp('!              of neutrom spectroscopy data                        !')
+disp('!------------------------------------------------------------------!')
+
 
 %=========================================================================================================
 function addpath_message (varargin)

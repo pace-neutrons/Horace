@@ -25,13 +25,6 @@ if ~isfield(class_configurations_holder,config_name)
 end
 this = class_configurations_holder.(config_name);
 
-%global this_local
-%if isempty(this_local)
-%    config_name=mfilename('class');
-%    build_configuration(config,@default_config,config_name);
-%    this_local=class(struct([]),config_name,config);
-%end
-%this=this_local;
 
 %--------------------------------------------------------------------------------------------------
 %  Alter only the contents of the following subfunction, and the help section of the main function
