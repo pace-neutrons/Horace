@@ -8,13 +8,14 @@ function this = load_par(this)
 % non-nxspe file does not have par-data in it;
 if  strcmpi(this.fileExt,'.nxspe') 
     filename        = fullfile(this.fileDir,[this.fileName this.fileExt]);   
-    fields             = spe_hdf_filestructure(2);
-    fields             = fields.data_field_names;
-    n_par_fields     = numel(this.nxspe_root_folder);
-    if n_par_fields > 1
-        error('SPEDATA:load_par','multiple par fields are currently not supported');
+    fields          = spe_hdf_filestructure(2);
+    fields          = fields.data_field_names;
+    if iscell(this.nxspe_root_folder)
+        warning('SPEDATA:load_par','multiple par fields are currently not supported');
+        hdf5_root_folder = this.nxspe_root_folder{1};
+    else
+        hdf5_root_folder  = this.nxspe_root_folder;
     end
-    hdf5_root_folder  = this.nxspe_root_folder{1};
     
     this.par.group = 1:this.nDetectors;
     this.par.phi     = (hdf5read(filename,[hdf5_root_folder,'/',fields{7}]))';

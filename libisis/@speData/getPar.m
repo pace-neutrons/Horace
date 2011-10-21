@@ -12,11 +12,11 @@ function [par,this] =getPar(this)
 if strcmpi(this.hdfFileExt{2},this.fileExt) % hdf_spe can have par field
     if(~this.data_loaded||isempty(this.par))
         if isempty(this.nxspe_root_folder)
-            this.nxspe_root_folder = find_root_nxspeDir(fullfile(this.fileDir,this.fileName,this.fileExt));
+            this.nxspe_root_folder = find_root_nexus_dir(fullfile(this.fileDir,this.fileName,this.fileExt),'NXSPE');
         end
         this = load_par(this);       
     end
-    par              = this.par;
+    par          = this.par;
     par.filename = [this.fileName,this.fileExt];
     if isempty(this.fileDir)
         par.filepath  =  ['.',filesep];   

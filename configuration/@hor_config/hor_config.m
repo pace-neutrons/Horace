@@ -1,4 +1,4 @@
-function conf=hor_config()
+function this=hor_config()
 % the constructor describing horace-memory and some other defaults configuration and providing singleton
 % behaviour.
 %
@@ -8,20 +8,36 @@ function conf=hor_config()
 %
 % $Revision$ ($Date$)
 %
-global configurations;
+% This block contains generic code. Do not alter. Alter only the sub-function default_config below
+global class_configurations_holder;
 
-%this_class_name=mfilename('class');
-this_class_name='hor_config';
-
-% this is generic code which has to be copied to any consrucor, inheriting
-% from the class "config"
-[is_in_memory,n_this_class,child_structure] = build_child(config,@horace_defaults,this_class_name);
-if is_in_memory
-    conf=configurations{n_this_class};
-else
-    conf = class(child_structure,this_class_name,configurations{1});
-    configurations{n_this_class}=conf;
+if ~isstruct(class_configurations_holder)
+    class_configurations_holder = struct([]);
 end
+config_name=mfilename('class');
+if ~isfield(class_configurations_holder,config_name)
+    build_configuration(config,@horace_defaults,config_name);    
+    class_configurations_holder.(config_name)=class(struct([]),config_name,config);
+end
+this = class_configurations_holder.(config_name);
+
+
+%--------------------------------------------------------------------------------------------------
+%  Alter only the contents of the following subfunction, and the help section of the main function
+%
+%  This subfunction sets the field names, their defaults, and which ones are sealed against change
+%  by the 'set' method.
+%
+%  The sealed fields must be a cell array of field names, or can be empty. The matlab function
+%  struct that can be used has confusing syntax for this purpose: suppose we have fields
+%  called 'v1', 'v2', 'v3',...  then we might have:
+%   - if no sealed fields:  ...,sealed_fields,{{''}},...
+%   - if one sealed field   ...,sealed_fields,{{'v1'}},...
+%   - if two sealed fields  ...,sealed_fields,{{'v1','v2'}},...
+%
+%--------------------------------------------------------------------------------------------------
+
+
 
 function horace_defaults=horace_defaults()
 % functuion builds the structure, which describes default parameters used
@@ -42,8 +58,8 @@ horace_defaults = ...
             'horace_info_level',1,... ;   % see horace_info_level method   
             'use_mex',true, ...  user will use mex-code for time-consuming operations 
             'delete_tmp',true, ... % delete temporary files which were generated while building sqw file after sqw has been build successfully 
-            'use_par_from_nxspe',true, ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
-              'use_herbert',false ...  % use Herbert as IO tools
+            'use_par_from_nxspe',false, ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
+            'use_herbert',false ...  % use Herbert as IO tools
             );
 
     Matlab_Version=matlab_version_num();
@@ -81,7 +97,7 @@ horace_defaults = ...
     end
    
     horace_defaults.threads = n_processors;
-    horace_defaults.fields_sealed={'fields_sealed','pixel_length'}; % specify the fields which values
+    horace_defaults.sealed_fields={'sealed_fields','pixel_length'}; % specify the fields which values
     %can not be changed by user;
 
 
