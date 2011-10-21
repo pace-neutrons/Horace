@@ -20,6 +20,10 @@ if nargin == 1
     varargout{1}=config_data;
     return
 end
+if nargin == 2 && strcmpi(varargin{1},'all')
+    varargout{1} = config_store(config_name,'getall');
+    return;
+end
 
 % Check arguments are character strings
 if ~all_strings(varargin)

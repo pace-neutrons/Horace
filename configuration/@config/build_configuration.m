@@ -52,10 +52,10 @@ if ~isempty(saved_config_data)   % configuration data read from file
                 '\nIt will be updated with default values.'],config_name,mess)
         end
     else
-        warning('Out of date configuration format for %s.\nIt will be updated with default values.',config_name)
+        warning('CONFIG:build_configuration','Out of date configuration format for %s.\nIt will be updated with default values.',config_name)
     end
 elseif ~ok
-    warning('%s \n Building configuration for %s with default values',mess,config_name)
+    warning('CONFIG:build_configuration','%s \n Building configuration for %s with default values',mess,config_name)
 end
 
 % Save configuration from defaults.

@@ -1,10 +1,10 @@
-function this=set(this,varargin)
+function set(this,varargin)
 % Set one or more fields in a configuration
 %
-%   >> var = set(config, field1, val1, field2, val2, ... )
-%   >> var = set(config, struct )
-%   >> var = set(config, cellarray)     % cell array has the form {field1,val1,field2,val2,...}
-%   >> var = set(config,'defaults')
+%   >> set(config, field1, val1, field2, val2, ... )
+%   >> set(config, struct )
+%   >> set(config, cellarray)     % cell array has the form {field1,val1,field2,val2,...}
+%   >> set(config,'defaults')
 
 
 config_name = class(this);               % class name of incoming object
@@ -17,41 +17,18 @@ if strcmp(config_name,root_config_name)
 end
 
 % Parse arguments;
-narg = length(varargin);
-if narg==1
-    svar = varargin{1};
-    if ischar(svar) && strncmpi(svar,'defaults',length(svar))
-        % Set fields to default values, store in memory and on file, and return
+if nargin==2 && ischar(varargin{1}) && strncmpi(varargin{1},'defaults',3)
+       % Set fields to default values, store in memory and on file, and return
         fetch_default = true;
         default_config_data = config_store(config_name,fetch_default);
         [ok,mess]=save_config(file_name,default_config_data);
         if ~ok, error(mess), end
         config_store(config_name,default_config_data);
         return;
-    elseif isstruct(svar)
-        field_nams = fieldnames(svar);
-        field_vals = cell(1,numel(field_nams));
-        for i=1:numel(field_nams)
-            field_vals{i}=svar.(field_nams{i});
-        end
-    elseif iscell(svar)
-        if isempty(svar) || rem(numel(svar),2)~=0
-            error('Incomplete set of (field,value) pairs given')
-        end
-        field_nams  = svar{1:2:end};
-        field_vals  = svar{2:2:end};
-    else
-        error('Second parameter has to be a structure, a cell array, or the option ''defaults''')
-    end
-    
+   
 else
-    if rem(narg,2)==0
-        field_nams = varargin(1:2:narg);
-        field_vals = varargin(2:2:narg);
-    else
-        error('Incomplete set of (field,value) pairs given')
-    end
-end
+    [field_nams,field_vals]=parse_config_arg(varargin{:});
+end    
 
 % Check arguments
 if ~all_strings(field_nams)
@@ -60,7 +37,7 @@ end
 
 % Get access to the internal structure
 fetch_default = false;
-config_data = config_store(config_name,fetch_default);
+config_data   = config_store(config_name,fetch_default);
 config_fields = fieldnames(config_data);
 
 % Check if any fields being altered are sealed fields or the root config class
@@ -75,11 +52,10 @@ end
 % Check fields to be altered are in the valid name list
 member_fields = ismember(config_fields,field_nams);
 if sum(member_fields)~=numel(field_vals)
-    error('Configuration ''%s'' does not have one or more of the fields you are trying to set',config_name);
+    error('CONFIG:set','Configuration ''%s'' does not have one or more of the fields you are trying to set',config_name);
 end
 
-% *** Check that none of the new values contains the root config class anwhere -
-% we do not allow a configuration to depend on any other configuration
+
 
 
 % Set the fields
@@ -90,7 +66,7 @@ end
 % Save data into the corresponding configuration file and into memory;
 [ok,mess]=save_config(file_name,config_data);
 if ~ok, error(mess), end
-config_store(config_name,config_data)
+config_store(config_name,config_data);
 
 
 %--------------------------------------------------------------------------------------------------
