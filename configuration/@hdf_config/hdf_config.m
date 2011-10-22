@@ -9,17 +9,15 @@ function this=hdf_config()
 %
 
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
-global class_configurations_holder;
+persistent this_local;
 
-if ~isstruct(class_configurations_holder)
-    class_configurations_holder = struct([]);
+if isempty(this_local)
+    config_name=mfilename('class');
+
+    build_configuration(config,@hdf_defaults,config_name);    
+    this_local=class(struct([]),config_name,config);
 end
-config_name=mfilename('class');
-if ~isfield(class_configurations_holder,config_name)
-    build_configuration(config,@init_hdf_default_value,config_name);    
-    class_configurations_holder.(config_name)=class(struct([]),config_name,config);
-end
-this = class_configurations_holder.(config_name);
+this = this_local;
 
 
 %--------------------------------------------------------------------------------------------------
@@ -38,7 +36,7 @@ this = class_configurations_holder.(config_name);
 %--------------------------------------------------------------------------------------------------
 
 
-function hdf_defaults=init_hdf_default_value()
+function hdf_defaults=hdf_defaults()
 % this function returns default values and behaviour of the 
 % deals with the class specific structure;
 
