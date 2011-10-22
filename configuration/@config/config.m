@@ -3,14 +3,14 @@ function this=config(varargin)
 %
 %   >> this = config
 
-global class_configurations_holder;
+persistent this_local;
 
-config_name=mfilename('class');
-if ~isstruct(class_configurations_holder)||isempty(class_configurations_holder)
+if isempty(this_local)
+    config_name=mfilename('class');
     config_store(config_name,default_config,default_config);
-    class_configurations_holder = struct(config_name,class(struct('ok',{true}),config_name));    
+    this_local = struct(config_name,class(struct('ok',{true}),config_name));    
 end
-this = class_configurations_holder.(config_name);
+this = this_local;
 
 
 %--------------------------------------------------------------------------------------------------

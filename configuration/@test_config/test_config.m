@@ -13,17 +13,15 @@ function this=test_config
 %  ***  configuration structure.                                                         ***
 %--------------------------------------------------------------------------------------------------
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
-global class_configurations_holder;
+persistent this_local;
 
-if ~isstruct(class_configurations_holder)
-    class_configurations_holder = struct([]);
-end
-config_name=mfilename('class');
-if ~isfield(class_configurations_holder,config_name)
+if isempty(this_local)
+    config_name=mfilename('class');
+
     build_configuration(config,@default_config,config_name);    
-    class_configurations_holder.(config_name)=class(struct([]),config_name,config);
+    this_local=class(struct([]),config_name,config);
 end
-this = class_configurations_holder.(config_name);
+this = this_local;
 
 
 %--------------------------------------------------------------------------------------------------
