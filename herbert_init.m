@@ -32,8 +32,6 @@ application_off('herbert')
 % ---------
 addpath(rootpath)  % MUST have rootpath so that herbert_init, herbert_off included
 
-% Class definitions, with methods and operator definitions
-addgenpath_message (rootpath,'configuration');
 
 % Class definitions, with methods and operator definitions
 addgenpath_message (rootpath,'classes');
@@ -47,6 +45,8 @@ genieplot_init
 
 % Applications definitions
 addgenpath_message (rootpath, 'applications')
+% Class definitions, with methods and operator definitions
+addgenpath_message (rootpath,'configuration');
 
 % Put mex files on path
 if strncmpi(opt,'fortran',numel(opt))
@@ -64,9 +64,11 @@ else
     output.external_code_option=opt;
     addgenpath_message (rootpath,'_test','external_code_ref',opt)   
 end
-%if get(hor_config,'init_tests')
+% developer options disabled by defaults but shoud be enabled when checking
+% or on a developer machine;
+if get(herb_config,'init_tests')
     addpath_message (rootpath,'_test/matlab_xunit/xunit');
-%end
+end
 
 % Return output argument
 if nargout>0
