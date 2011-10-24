@@ -1,7 +1,11 @@
 function set_internal(this,config_name,varargin)
 % this is protected function which should be only invoked by config
 % childrents;
-
+%
+%TODO: description
+%
+file_name = config_file_name (config_name);
+%
 root_config_name = mfilename('class');   % the class for which this a method
 % Parse arguments;
 if nargin==3 && ischar(varargin{1}) && strncmpi(varargin{1},'defaults',3)
@@ -52,8 +56,7 @@ end
 for i=1:numel(field_nams)
     config_data.(field_nams{i})=field_vals{i};
 end
-%
-file_name = config_file_name (config_name);
+
 % Save data into the corresponding configuration file and into memory;
 [ok,mess]=save_config(file_name,config_data);
 if ~ok, error(mess), end

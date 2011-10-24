@@ -8,7 +8,7 @@ persistent this_local;
 if isempty(this_local)
     config_name=mfilename('class');
     config_store(config_name,default_config,default_config);
-    this_local = struct(config_name,class(struct('ok',{true}),config_name));    
+    this_local=class(struct('ok',{true}),config_name);
 end
 this = this_local;
 
