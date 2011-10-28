@@ -21,8 +21,12 @@ for i=1:numel(win)
         end
     end
 end
+if get(hor_config,'use_her_graph')
+    name_oned = get(graph_config,'name_oned');
+else
+	name_oned =  get_global_var('horace_plot','name_oned');
+end
 
-name_oned =  get_global_var('horace_plot','name_oned');
 [figureHandle_, axesHandle_, plotHandle_] = dh(IX_dataset_1d(win), 'name', name_oned, varargin{:});
 
 % Output only if requested

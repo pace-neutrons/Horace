@@ -248,11 +248,12 @@ read_SPEdata_block(std::ifstream &stream,double *pBlock,size_t DataSize,size_t b
         sprintf(BUF," Unexpected spe field width of %d symbols has been identified; can not interpret SPE data\n",spe_field_width);
         throw(BUF);
     }
+	// redefine format to read data (in case it takes, say, 11 or 12 symbols)
     sprintf(format+1,"%2d",spe_field_width);
     format[3]='g';
 
-
-    size_t nRows = DataSize/block_size;
+    // spe block consists of number of rows, last row can be incomplete
+    size_t nRows = DataSize/block_size; // block size -- number of data in a row;
     if(nRows*block_size!=DataSize)nRows++;
 
     int nRead_Data(0);
@@ -274,7 +275,7 @@ read_SPEdata_block(std::ifstream &stream,double *pBlock,size_t DataSize,size_t b
                     return true;
                 }else{
                     std::string field_val(DataStart+j*spe_field_width,spe_field_width);
-                    size_t pos=field_val.find("-NaN");
+                    size_t pos=field_val.find("NaN");
                     if(pos == std::string::npos){
                         err_message<<" Error interpreting data block, row "<<i+1<<" column "<<j+1<<" from total "<<nRows<<" rows, "<<block_size<<" columns\n";
                         return false;
