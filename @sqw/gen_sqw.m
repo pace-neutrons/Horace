@@ -52,6 +52,59 @@ end
 if ~(nargin>=15 && nargin<=17)
     error('Check number of input arguments')
 end
+if get(hor_config,'use_herbert')
+    % this is function -- adapter as everything below runs from runfiles;
+    run_files = gen_runfiles(spe_file, par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs);
+    % Set default grid size if none given
+    if ~exist('grid_size_in','var')
+        disp('--------------------------------------------------------------------------------')
+        disp('Using default grid size of 50x50x50x50 for output sqw file')
+        grid_size_in=[50,50,50,50];
+    elseif ~(isnumeric(grid_size_in)&&(isscalar(grid_size_in)||(isvector(grid_size_in)&&all(size(grid_size_in)==[1,4]))))
+        error ('Grid size must be scalar or row vector length 4')
+    end     
+    % Check urange_in is valid, if provided
+    if exist('urange_in','var')
+        if ~(isnumeric(urange_in) && length(size(urange_in))==2 && all(size(urange_in)==[2,4]) && all(urange_in(2,:)-urange_in(1,:)>=0))
+            error('urange must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper')
+        end
+        urange = urange_in;
+    else
+        urange = rundata_find_urange(dummy,run_files,emode,u,v);        
+    end    
+    nfiles         = numel(run_files);
+    tmp_file = cell(1,nfiles);
+    if nfiles ==1
+        tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
+        disp('--------------------------------------------------------------------------------')
+        disp('Creating output sqw file:')
+        [grid_size,urange,tmp_file{1}] = rundata_write_to_sqw (dummy,run_files{1},emode,u,v, grid_size_in, urange);
+    else
+        nt=bigtic();
+        for i=1:nfiles
+            disp('--------------------------------------------------------------------------------')
+            disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
+            [grid_size_tmp,urange,tmp_file{i}] = rundata_write_to_sqw(dummy,run_files{i},emode,u,v,grid_size_in, urange);
+            if i==1
+                grid_size = grid_size_tmp;
+            else
+                if ~all(grid_size==grid_size_tmp)
+                    error('Logic error in code calling write_spe_to_sqw')
+                end
+            end
+        end        
+        bigtoc(nt);
+    end
+    % Create single sqw file combining all intermediate sqw files
+    % ------------------------------------------------------------
+    disp('--------------------------------------------------------------------------------')
+    disp('Creating output sqw file:')
+    write_nsqw_to_sqw (tmp_file, sqw_file);
+
+    disp('--------------------------------------------------------------------------------')
+
+    return;
+end
 
 % Check input arguments
 % ------------------------
@@ -66,13 +119,7 @@ nfiles = length(spe_file);
 if ~(size(unique(spe_file),2)==size(spe_file,2))
     error('One or more spe file name is repeated. All spe files must be unique')
 end
-% Check that all the files exist
-% not necessary as this check fails if hdf files used as source. Moreover, this check is automatically performed in speData class constructor
-%for i=1:nfiles
-%    if exist(spe_file{i},'file')~=2
-%        error(['File ',spe_file{i},' not found'])
-%    end
-%end
+
 
 
 % Check par file and output sqw file are character rows (easy mistake to think that cellstr are allowed input to gen_sqw)
@@ -173,6 +220,7 @@ for i=1:nfiles
     end
     tmp_file{i}=fullfile(sqw_path,[spe_name,'.tmp']);
 end
+
 
 
 % Get limits of data for grid on which to store sqw data

@@ -37,7 +37,13 @@ ulabel = win.data.ulabel(pax(dax)); % labels in order of the display axes
 ulen = win.data.ulen(pax(dax));     % unit length in order of the display axes
 
 % Create sliceomatic window
-name_sliceomatic =  get_global_var('horace_plot','name_sliceomatic');
+
+if get(hor_config,'use_her_graph')
+    name_sliceomatic= get(graph_config,'name_sliceomatic');
+else
+    name_sliceomatic =  get_global_var('horace_plot','name_sliceomatic');	
+end
+
 [figureHandle_, axesHandle_, plotHandle_] = sliceomatic (w,'x_axis',ulabel{1},'y_axis',ulabel{1},'z_axis',ulabel{1},...
                                                             'name',name_sliceomatic,varargin{:});
 

@@ -21,8 +21,11 @@ for i=1:numel(win)
         end
     end
 end
-
-name_area =  get_global_var('horace_plot','name_area');
+if get(hor_config,'use_her_graph')
+    name_area = get(graph_config,'name_area');
+else
+	name_area =  get_global_var('horace_plot','name_area');
+end
 [figureHandle_, axesHandle_, plotHandle_] = da(IX_dataset_2d(win), 'name', name_area, varargin{:});
 
 pax = win(1).data.pax;

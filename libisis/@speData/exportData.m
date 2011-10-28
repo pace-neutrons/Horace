@@ -19,6 +19,9 @@ if(~this.data_loaded)
 end
 
 % TGP 16Jan 2011: replace line:  if isfield(this,'spe') % when it works?  with:
+% AB -- it works when called with speData which inherits from spe so it
+% 'is' an spe with additions.
+%
 if any(strcmp(fields(this),'spe')) % isfield will return false if this is not explicitly a structure, which is impossible...
     data.S        = this.spe.S;
     data.ERR      = this.spe.ERR;

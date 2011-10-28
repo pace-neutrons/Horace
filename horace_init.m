@@ -14,22 +14,26 @@ rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 
 addpath_message (2,rootpath,'DLL');
+addpath_message (1,rootpath,'configuration');
+%
+% Other directories -> used by hor_config!
+addpath_message (1,rootpath,'utilities');
 
-addpath_message (1,rootpath,'libisis');
-% If Herbert is present, choose Herbert graphics functions and methods ahead of libisis functions
-if ~isempty(which('herbert_init'))
+% If Herbert requested choose Herbert graphics functions and methods instead of libisis functions
+if get(hor_config,'use_herbert')
     addpath_message (1,rootpath,'herbert');
+else
+    addpath_message (1,rootpath,'libisis');
 end
 
-% Other directories
-addpath_message (1,rootpath,'utilities');
+
 addpath_message (1,rootpath,'functions');
 %addpath_message (1,rootpath,'hdf_tools');
 
 %Add GUI path
 addpath_message(1,rootpath,'GUI');
 
-addpath_message (1,rootpath,'configuration');
+
 
 %addpath_message (1,rootpath,'work_in_progress');   % not included in the distribution
 

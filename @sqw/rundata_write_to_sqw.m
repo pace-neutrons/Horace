@@ -1,5 +1,4 @@
-function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_file, efix, emode, alatt, angdeg,...
-                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+function [grid_size, urange,sqw_file_name] = rundata_write_to_sqw (dummy,run_file,emode,u,v,grid_size_in, urange_in)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 % to file.
 %
@@ -8,22 +7,12 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_
 %
 % Input:
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
-%   spe_file        Full file name of spe file
-%   spe_data        class related to  spe data
-%   par_file        Full file name of detector parameter file (Tobyfit format)
+%   run_file        Fully initiated by rundata information instance of @rundata class
 %   sqw_file        Full file name of output sqw file
 %
-%   efix            Fixed energy (meV)
 %   emode           Direct geometry=1, indirect geometry=2
-%   alatt           Lattice parameters (Ang^-1)
-%   angdeg          Lattice angles (deg)
 %   u               First vector (1x3) defining scattering plane (r.l.u.)
 %   v               Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi             Angle of u w.r.t. ki (rad)
-%   omega           Angle of axis of small goniometer arc w.r.t. notional u
-%   dpsi            Correction to psi (rad)
-%   gl              Large goniometer arc angle (rad)
-%   gs              Small goniometer arc angle (rad)
 %   grid_size_in    Scalar or row vector of grid dimensions. Default is [1x1x1x1]
 %   urange_in       Range of data grid for output. If not given, then uses smallest hypercuboid
 %                  that encloses the whole data range
@@ -35,23 +24,9 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 552 $ ($Date: 2011-06-13 12:42:02 +0100 (Mon, 13 Jun 2011) $)
 
 
-% Check that the first argument is sqw object
-% -------------------------------------------
-if ~isa(dummy,classname)    % classname is a private method
-    error('Check type of input arguments')
-end
-
-% Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
-% --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=15 && nargin<=17)
-    error('Check number of input arguments')
-end
-if ~isa(spe_data,'speData') % if input parameter is the filename, we transform it into speData 
-    spe_data = speData(spe_data);
-end
 
 bigtic
 
@@ -69,10 +44,21 @@ if exist('urange_in','var')
     end
 end
 
+data = struct();
+% Read spe file and detector parameters if it has not been done before;
+[data.S,data.ERR,data.en,det,efix,alatt,angdeg,...
+ psi,omega,dpsi,gl,gs]=get_rundata(run_file,'S','ERR','en',...
+                                    'det_par','efix','alatt', 'angldeg',...
+                                    'psi','omega', 'dpsi', 'gl', 'gs',...
+                                     '-hor','-rad');
 
-% Read spe file and detector parameters
-[data,det,keep,det0]=get_data(spe_data, par_file);
+[data.filepath,data.filename]=fileparts(run_file.loader.file_name);
 
-[grid_size, urange]=calc_and_write_sqw(sqw_file,grid_size_in,urange_in, ...
+[sqw_path,sqw_name]=get_sqw_fname(run_file);
+sqw_file_name =fullfile(sqw_path,sqw_name); 
+
+det0 = det;
+
+[grid_size, urange]=calc_and_write_sqw(sqw_file_name,grid_size_in,urange_in, ...
                                        efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,det0);
 

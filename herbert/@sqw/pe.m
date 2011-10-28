@@ -18,8 +18,17 @@ for i=1:numel(win)
         end
     end
 end
+if get(hor_config,'use_her_graph')
+    name_area = get(graph_config,'name_area');
+else
+	name_area =  get_global_var('horace_plot','name_area');
+end
+if get(graph_config,'use_graphconfig')
+    name_oned = get(graph_config,'name_oned');
+else
+	name_oned =  get_global_var('horace_plot','name_oned');
+end
 
-name_oned =  get_global_var('horace_plot','name_oned');
 [figureHandle_, axesHandle_, plotHandle_] = pe(IX_dataset_1d(win), 'name', name_oned, varargin{:});
 
 % Output only if requested
