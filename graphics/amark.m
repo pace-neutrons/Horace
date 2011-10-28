@@ -26,8 +26,9 @@ narg = length(varargin);
 
 % Display current marker size and type if no arguments given
 if narg < 1
-    marker_size=get_global_var('genieplot','marker_size');
-    marker_type=get_global_var('genieplot','marker_type');
+    %marker_size=get_global_var('genieplot','marker_size');
+    %marker_type=get_global_var('genieplot','marker_type');
+    [marker_size,marker_type]=get(graph_config,'marker_size','marker_type');	
     disp('Current marker size(s) and type(s):')
     disp(marker_size)
     disp(marker_type)
@@ -58,7 +59,8 @@ end
 % Check validity of input arguments
 if ~isempty(marker_size)
     if min(marker_size) >= 0.1 && max(marker_size) <= 50
-        set_global_var('genieplot','marker_size',marker_size);
+        %set_global_var('genieplot','marker_size',marker_size);
+		set(graph_config,'marker_size',marker_size);
     else
         error ('Marker size is too small or too large - left unchanged (amark)')
     end
@@ -74,5 +76,6 @@ if ~isempty(marker_type)
             error ('Ambiguous abbreviation of marker type - left unchanged (amark)')
         end
     end
-    set_global_var('genieplot','marker_type',marker_type);
+    %set_global_var('genieplot','marker_type',marker_type);
+    set(graph_config,'marker_type',marker_type);	
 end

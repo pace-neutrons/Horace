@@ -1,10 +1,12 @@
 function plot_markers (w)
 % Plot markers
 
-marker_size=get_global_var('genieplot','marker_size');
-marker_type=get_global_var('genieplot','marker_type');
-color=get_global_var('genieplot','color');
-
+%marker_size=get_global_var('genieplot','marker_size');
+%marker_type=get_global_var('genieplot','marker_type');
+%color=get_global_var('genieplot','color');
+%
+[marker_size,marker_type,color]=get(graph_config,'marker_size','marker_type','color');
+%
 nw = numel(w);
 icol = mod(0:nw-1,length(color))+1;
 isiz = mod(0:nw-1,length(marker_size))+1;
@@ -25,8 +27,11 @@ for i=1:nw
 end
 
 % Make linear or log axes as required
-xscale=get_global_var('genieplot','xscale');
-yscale=get_global_var('genieplot','yscale');
+%xscale=get_global_var('genieplot','xscale');
+%yscale=get_global_var('genieplot','yscale');
+%
+[xscale,yscale]=get(graph_config,'xscale','yscale');
+%
 set (gca, 'XScale', xscale);
 set (gca, 'YScale', yscale);
  

@@ -65,8 +65,8 @@ else
     addgenpath_message (rootpath,'_test','external_code_ref',opt)   
 end
 % developer options disabled by defaults but shoud be enabled when checking
-% or on a developer machine;
-if get(herb_config,'init_tests')
+% or on a developer's machine;
+if get(her_config,'init_tests')
     addpath_message (rootpath,'_test/matlab_xunit/xunit');
 end
 

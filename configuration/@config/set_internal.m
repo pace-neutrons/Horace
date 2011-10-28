@@ -1,8 +1,22 @@
 function set_internal(this,config_name,varargin)
-% this is protected function which should be only invoked by config
-% childrents;
+% this is protected function which should be only invoked by the 
+% set functions deployed by @config-class childrents;
 %
-%TODO: description
+%   >> set_internal(config,basis_class_name,field1, val1, field2, val2, ... )
+%   >> set_internal(config,basis_class_name,struct )
+%   >> set_internal(config,basis_class_name,cellarray)     % cell array has the form {field1,val1,field2,val2,...}
+%   >> set_internal(config,basis_class_name,'defaults')
+%
+% where 
+% config           -- the name of the @config class, identifying this function
+% basis_class_name -- sting - name of the class-child for the @config class
+% other parameters    specify the values, which have to be stored in 
+%                     configuration. 
+% 
+% 
+% $Revision:  $ ($Date:  $)
+%
+
 %
 file_name = config_file_name (config_name);
 %

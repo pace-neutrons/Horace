@@ -5,6 +5,9 @@ function set(this,varargin)
 %   >> set(config, struct )
 %   >> set(config, cellarray)     % cell array has the form {field1,val1,field2,val2,...}
 %   >> set(config,'defaults')
+% 
+% $Revision:  $ ($Date:  $)
+%
 
 
 config_name = class(this);               % class name of incoming object

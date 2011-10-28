@@ -24,8 +24,9 @@ narg = length(varargin);
 
 % No argument => display current colour(s)
 if narg < 1
-    line_width=get_global_var('genieplot','line_width');
-    line_style=get_global_var('genieplot','line_style');
+    %line_width=get_global_var('genieplot','line_width');
+    %line_style=get_global_var('genieplot','line_style');
+    [line_width,yscale]=get(graph_config,'line_width','line_style');	
     disp('Current line width(s) and style(s):')
     disp(line_width)
     disp(line_style)
@@ -56,7 +57,8 @@ end
 % Check validity of input arguments
 if ~isempty(line_width)
     if min(line_width) >= 0.1 && max(line_width) <= 50
-        set_global_var('genieplot','line_width',line_width);
+        %set_global_var('genieplot','line_width',line_width);
+		set(graph_config,'line_width',line_width);	
     else
         error ('Line width(s) too small or too large - current value(s) left unchanged')
     end
@@ -78,5 +80,6 @@ if ~isempty(line_type)
             error ('Ambiguous abbreviation of line style - left unchanged (aline)')
         end
     end
-    set_global_var('genieplot','line_type',line_type);
+    %set_global_var('genieplot','line_type',line_type);
+	set(graph_config,'line_type',line_type);		
 end

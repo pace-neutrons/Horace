@@ -25,7 +25,8 @@ narg = length(varargin);
 
 % No argument => display current colour(s)
 if narg < 1
-    col_type=get_global_var('genieplot','color');
+    %col_type=get_global_var('genieplot','color');
+    col_type=get(graph_config,'color');	
     disp('Current line & marker colours:')
     disp(col_type)
     return
@@ -66,5 +67,6 @@ if ~isempty(col_type)
             error ('Ambiguous abbreviation of color name - current value(s) left unchanged')
         end
     end
-    set_global_var('genieplot','color',col_type);
+    %set_global_var('genieplot','color',col_type);
+	set(graph_config,'color',col_type);
 end
