@@ -8,7 +8,8 @@ function set(this,varargin)
 % 
 % $Revision:  $ ($Date:  $)
 %
+if strcmp(varargin{1},'-change_sealed')
+    error('CONFIG:set','Change of sealed fields is prohibited in set function')
+end
 
-
-config_name = class(this);               % class name of incoming object
-set_internal(this,config_name,varargin{:});
+set_internal(this,varargin{:});

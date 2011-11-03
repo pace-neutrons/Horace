@@ -1,15 +1,17 @@
-function set_internal(this,config_name,varargin)
+function set_internal(this,varargin)
 % this is protected function which should be only invoked by the 
 % set functions deployed by @config-class childrents;
 %
-%   >> set_internal(config,basis_class_name,field1, val1, field2, val2, ... )
-%   >> set_internal(config,basis_class_name,struct )
-%   >> set_internal(config,basis_class_name,cellarray)     % cell array has the form {field1,val1,field2,val2,...}
-%   >> set_internal(config,basis_class_name,'defaults')
+%   >> set_internal(config,field1, val1, field2, val2, ... )
+%   >> set_internal(config,'-change_sealed',field1, val1, field2, val2, ... )
+%   >> set_internal(config,'-change_sealed',struct )
+%   >> set_internal(config,struct )
+%   >> set_internal(config,'-change_sealed',cellarray)     % cell array has the form {field1,val1,field2,val2,...}
+%   >> set_internal(config,'defaults')
 %
 % where 
 % config           -- the name of the @config class, identifying this function
-% basis_class_name -- sting - name of the class-child for the @config class
+% '-change_sealed' -- optional string, which modifies  - name of the class-child for the @config class
 % other parameters    specify the values, which have to be stored in 
 %                     configuration. 
 % 
@@ -17,12 +19,21 @@ function set_internal(this,config_name,varargin)
 % $Revision:  $ ($Date:  $)
 %
 
+% verify if the first argument allows changes to sealed fields
+% this option is needed for overloading set
+if ischar(varargin{1}) && strcmp(varargin{1},'-change_sealed')
+    argi ={varargin{2:end}};
+    forbid_sealed = false;    
+else
+    argi         = {varargin{:}};    
+    forbid_sealed = true;
+end
 %
-file_name = config_file_name (config_name);
 %
-root_config_name = mfilename('class');   % the class for which this a method
+config_name      = class(this);          % class name of incoming object
+file_name        = config_file_name (config_name);
 % Parse arguments;
-if nargin==3 && ischar(varargin{1}) && strncmpi(varargin{1},'defaults',3)
+if nargin==2 && ischar(argi{1}) && strncmpi(argi{1},'defaults',3)
        % Set fields to default values, store in memory and on file, and return
         fetch_default = true;
         default_config_data = config_store(config_name,fetch_default);
@@ -32,7 +43,7 @@ if nargin==3 && ischar(varargin{1}) && strncmpi(varargin{1},'defaults',3)
         return;
    
 else
-    [field_nams,field_vals]=parse_config_arg(varargin{:});
+    [field_nams,field_vals]=parse_config_arg(argi{:});
 end    
 
 % Check arguments
@@ -46,15 +57,13 @@ config_data   = config_store(config_name,fetch_default);
 config_fields = fieldnames(config_data);
 
 
-% Check if any fields being altered are sealed fields or the root config class
-if ~strcmp(class(this),'config')
+% Check if any fields being altered are sealed fields and throw error if
+% they are
+if forbid_sealed
     sealed_fields=ismember(config_data.sealed_fields,field_nams);
     if any(sealed_fields);    
         error('The values of some fields are sealed and can not be altered');
     end
-end
-if ismember(root_config_name,field_nams);
-    error(['Cannot alter hidden field ''',root_config_name,''''])
 end
 
 % Check fields to be altered are in the valid name list

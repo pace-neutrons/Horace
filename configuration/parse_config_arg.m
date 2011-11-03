@@ -39,7 +39,7 @@ else
          error('PARSE_ARG:wrong_arguments','incomplete set of (field,value) pairs given');        
     end
     field_nams = {varargin{1:2:narg}};
-    field_vals ={varargin{2:2:narg}};
+    field_vals = {varargin{2:2:narg}};
         
 end
 
