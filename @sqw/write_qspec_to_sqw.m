@@ -1,18 +1,16 @@
-function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [grid_size, urange] = write_qspec_to_sqw (dummy, qspec_file, sqw_file, efix, emode, alatt, angdeg,...
                                                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
-% Read a single spe file and a detector parameter file, and create a single sqw file.
-% to file.
+% Read ascii column data and create a single sqw file.
 %
-%   >> write_spe_to_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%   >> write_qspec_to_sqw (dummy, qspec_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
 % Input:
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
-%   spe_data        Source of spe data e.g. full file name of spe file or nxspe file
-%   par_file        Full file name of detector parameter file (Tobyfit format)
+%   qspec_file      Full file name of ascii file containing qx-qy-qz-eps-signal-error column data.
 %   sqw_file        Full file name of output sqw file
 %
-%   efix            Fixed energy (meV) (if elastic data ie. emode=0, the value will be ignored and set to zero internally)
+%   efix            Fixed energy (meV) (if elastic data ie. emode=0, the value will be ignored)
 %   emode           Direct geometry=1, indirect geometry=2, elastic=0
 %   alatt           Lattice parameters (Ang^-1)
 %   angdeg          Lattice angles (deg)
@@ -34,7 +32,7 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 577 $ ($Date: 2011-10-28 17:52:41 +0100 (Fri, 28 Oct 2011) $)
 
 
 % Check that the first argument is sqw object
@@ -45,11 +43,8 @@ end
 
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=15 && nargin<=17)
+if ~(nargin>=15 && nargin<=16)
     error('Check number of input arguments')
-end
-if ~isa(spe_data,'speData') % if input parameter is the filename, we transform it into speData 
-    spe_data = speData(spe_data);
 end
 
 bigtic
@@ -70,10 +65,10 @@ else
     urange_in =[];
 end
 
+% Read qx-qy-qz-signal-error ascii file
+[data,det]=get_ascii_column_data(qspec_file);
 
-% Read spe file and detector parameters
-[data,det,keep,det0]=get_data(spe_data, par_file);
-
+efix=0;
+emode=0;
 [grid_size, urange]=calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
-                                                 omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);
-
+                                                 omega, dpsi, gl, gs, data, det, det, grid_size_in, urange_in);

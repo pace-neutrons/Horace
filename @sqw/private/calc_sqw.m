@@ -16,7 +16,9 @@ function [header,sqw_data]=calc_sqw (efix, emode, alatt, angdeg, u, v, psi, omeg
 %   gl          Large goniometer arc angle (rad)
 %   gs          Small goniometer arc angle (rad)
 %   data        Data structure of spe file (see get_spe)
+%            or The same, but with in addition a field qspec, a 4xn array of qx,qy,qz,eps
 %   det         Data structure of par file (see get_par)
+%            or If data has field qspec, this is ignored
 %
 % Ouput:
 %   header      Header information in data structure suitable for write_sqw_header
@@ -29,7 +31,6 @@ function [header,sqw_data]=calc_sqw (efix, emode, alatt, angdeg, u, v, psi, omeg
 
 % Perform calculations
 % -----------------------
-
 % Get number of data elements
 [ne,ndet]=size(data.S);
 
@@ -45,7 +46,6 @@ end
 
 % Create header block and write:
 % -------------------------------
-
 header.filename = data.filename;
 header.filepath = data.filepath;
 header.efix = efix;
@@ -85,18 +85,16 @@ sqw_data.s=sum(data.S(:));
 sqw_data.e=sum(data.ERR(:).^2);
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;
-%sqw_data.pix=[ucoords;...
-%    ones(1,ne*ndet);...                                 % run index - all unity
-%    reshape(repmat(det.group,[ne,1]),[1,ne*ndet]);...   % detector index
-%    reshape(repmat([1:ne]',[1,ndet]),[1,ne*ndet]);...   % energy bin index
-%    data.S(:)';((data.ERR(:)).^2)'];
 
-% this modification allows to save memory and working with larger arrays
 sqw_data.pix=ones(9,ne*ndet);
 sqw_data.pix(1:4,:)=ucoords;
 clear ucoord;
-sqw_data.pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
-clear det;
-sqw_data.pix(7,:)=reshape(repmat([1:ne]',[1,ndet]),[1,ne*ndet]); % energy bin index
+if ~isfield(data,'qspec')
+    sqw_data.pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+    clear det;
+    sqw_data.pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
+else
+    sqw_data.pix(6:7,:)=1;
+end
 sqw_data.pix(8,:)=data.S(:)';
 sqw_data.pix(9,:)=((data.ERR(:)).^2)';
