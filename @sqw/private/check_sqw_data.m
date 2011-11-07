@@ -113,7 +113,9 @@ if ~field_names_only
             mess='ERROR: field ''p'' must be a [1 x ndim)] cell array of bin boundary arrays'; return; end
         sz=zeros(1,ndim);
         for i=1:ndim
-            if ~isa_size(data.p{i},'column','double') || size(data.p{i},1)<2 || min(diff(data.p{i}))<=0
+            if ~isa_size(data.p{i},'column','double') || size(data.p{i},1)<2 || ...
+                    ((numel(data.p{i})>2 && min(diff(data.p{i}))<=0)||(numel(data.p{i})==2 && min(diff(data.p{i}))<0))
+                    % allow case of two bin boundaries that are equal
                 mess='ERROR: Bin boundaries for plot axes must be strictly monotonic increasing';
                 return
             end

@@ -1,16 +1,15 @@
-function [grid_size, urange] = write_spe_to_sqw (varargin)
+function [grid_size, urange] = write_qspec_to_sqw (varargin)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 % to file.
 %
-%   >> write_spe_to_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%   >> write_qspec_to_sqw (spe_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
 % Input:
-%   spe_data        Source of spe data e.g. full file name of spe file or nxspe file
-%   par_file        Full file name of detector parameter file (Tobyfit format)
+%   qspec_file      Full file name of ascii file containing qx-qy-qz-eps-signal-error column data.
 %   sqw_file        Full file name of output sqw file
 %
-%   efix            Fixed energy (meV) (if elastic data ie. emode=0, the value will be ignored and set to zero internally)
+%   efix            Fixed energy (meV) (if elastic data ie. emode=0, the value will be ignored)
 %   emode           Direct geometry=1, indirect geometry=2, elastic=0
 %   alatt           Lattice parameters (Ang^-1)
 %   angdeg          Lattice angles (deg)
@@ -32,11 +31,11 @@ function [grid_size, urange] = write_spe_to_sqw (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 301 $ ($Date: 2009-11-03 20:52:59 +0000 (Tue, 03 Nov 2009) $)
 
 
 % Gateway routine that calls sqw method
-[grid_size,urange] = write_spe_to_sqw (sqw, varargin{:});
+[grid_size,urange] = write_qspec_to_sqw (sqw, varargin{:});
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0

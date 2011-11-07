@@ -42,6 +42,8 @@ if exist('urange_in','var')
     if ~(isnumeric(urange_in) && length(size(urange_in))==2 && all(size(urange_in)==[2,4]) && all(urange_in(2,:)-urange_in(1,:)>=0))
         error('urange must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper')
     end
+else
+    urange_in =[];
 end
 
 data = struct();
@@ -59,6 +61,6 @@ sqw_file_name =fullfile(sqw_path,sqw_name);
 
 det0 = det;
 
-[grid_size, urange]=calc_and_write_sqw(sqw_file_name,grid_size_in,urange_in, ...
-                                       efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,det0);
+[grid_size, urange]=calc_and_write_sqw(sqw_file_name, efix, emode, alatt, angdeg, u, v, psi,...
+                                                      omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);
 
