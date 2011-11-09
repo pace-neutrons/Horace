@@ -89,6 +89,12 @@ else
         
         clear nopix     % biggish array no longer needed
     end
+    
+    % If changed urange to something less than the range of the data, then must update true range
+    if ~data_in_range
+        sqw_data.urange(1,:)=min(sqw_data.pix(1:4,:),[],2)';
+        sqw_data.urange(2,:)=max(sqw_data.pix(1:4,:),[],2)';
+    end
 end
 
 bigtoc('Time to convert from spe to sqw data:')

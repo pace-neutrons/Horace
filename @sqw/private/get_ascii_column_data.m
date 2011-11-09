@@ -3,38 +3,33 @@ function [data,det] = get_ascii_column_data (datafile)
 %
 %   >> data = get_diffraction_ascii_column_data (datafile)
 %
+% Input:
+% ------
 %   datafile    Full file name of ascii data file
 %               Format is one of the following column arrangements:
-%                   qx  qy  qz  S
-%                   qx  qy  qz  eps  S
-%                   qx  qy  qz  eps  S  ERR
+%                   qx'  qy'  qz'  S
+%                   qx'  qy'  qz'  eps  S
+%                   qx'  qy'  qz'  eps  S  ERR
 %
-%               where qx,qy,qz are the components of momentum in
-%              spectrometer coordinates (qx||ki, qz up; x,y,z orthonormal
-%              with units Ang^-1), and error is standard deviation.
+%               Here qz' is the component of momentum along ki (Ang^-1)
+%                    qy' is component vertically upwards (Ang^-1)
+%                    qx' defines a hight-hand coordinate frame with qy' and qz'
+%                    S   signal
+%                    ERR standard deviation
 %
+% Output:
+% -------
 %   data        Data structure with following fields:
 %                   data.filename   Name of file excluding path
 %                   data.filepath   Path to file including terminating file separator
 %                   data.qspec      [4 x n] array of qx,qy,qz,eps of all the data points
+%                                  where now the component are in spectrometer coordinates
+%                                 (qx||ki, qz up; qx,qy,qz orthonormal and units Ang^-1)
 %                   data.S          [1 x n] array of signal values
 %                   data.ERR        [1 x n] array of error values (st. dev.)
 %                   data.en         Column vector length 2 of min and max eps in the ascii file
 %   det         Data structure containing fake detector parameters for unmasked
 %              detectors (see get_par for fields)
-%
-%   keep        
-%
-%   det0        Data structure containing fake detector parameters for a single
-%              detector (see get_par for fields).
-%
-
-%   data            Data structure containing data for unmasked detectors
-%                  (see get_spe for list of fields)
-%   det             Data structure containing detector parameters for unmasked
-%                  detectors (see get_par for fields)
-%   keep            List of the detector groups that were unmasked
-%   det0            Data structure of detector parameters before masking
 
 % Read data from file
 % ---------------------
@@ -55,33 +50,45 @@ while ~ data_found
     end
     tline = fgets(fid);
     temp = str2num(tline);
+    % Determine number of columns
     if (length(temp)==6)        % x-y-z-e-sig-err data
+        ncol=6;
         data_found = 1;
         eps = 1;
         xye = 1;
     elseif (length(temp)==5)    % x-y-z-e-sig data only (no error bars)
+        ncol=5;
         data_found = 1;
         eps = 1;
         xye = 0;
     elseif (length(temp)==4)    % x-y-z-sig data only (no energy or error bars)
+        ncol=4;
         data_found = 1;
         eps = 0;
         xye = 0;
     end
 end
+% Determine if comma separated or not
+fmt=[repmat('%g , ',[1,ncol-1]),'%g'];   % needs the spaces around the commas!
+temp2=sscanf(tline,fmt,[ncol,inf]);
+if ~(numel(temp2)==ncol)
+    fmt=[repmat('%g ',[1,ncol-1]),'%g'];   % needs the spaces around the commas!
+    temp2=sscanf(tline,fmt,[ncol,inf]);
+    if ~(numel(temp2)==ncol)
+        fclose(fid);
+        error('Unrecognised format for data')
+    end
+end
+
+% Read data
 fstatus=fseek(fid,istart,'bof'); % step back one line
 if (fstatus~=0)
     fclose(fid);
     error (['Error reading from file ' file_internal])
 end
 % read array to the end, or until unable to read from file with specified format
-if xye && eps
-    a = fscanf(fid,'%g %g %g %g %g %g',[6,inf]);
-elseif eps
-    a = fscanf(fid,'%g %g %g %g %g',[5,inf]);
-else
-    a = fscanf(fid,'%g %g %g %g',[4,inf]);
-end
+a = fscanf(fid,fmt,[ncol,inf]);
+
 if (isempty(a))
     fclose(fid);
     error (['No qx-qy-qz-eps-S-ERR data encountered in ' file_internal])
@@ -103,7 +110,18 @@ else
     data.S=a(4,:);
     data.ERR=zeros(1,size(a,2));
 end
+data.qspec=data.qspec([3,1,2,4],:);     % transform from spherical polar to spectrometer coordinates
 data.en=[min(data.qspec(4,:));max(data.qspec(4,:))];
+
+% Filter out NaN and Inf data
+ok=isfinite(data.S)&isfinite(data.ERR);
+n_ok=sum(ok);
+data.qspec=data.qspec(repmat(ok,4,1));
+data.qspec=reshape(data.qspec,4,n_ok);
+data.S=data.S(ok);
+data.ERR=data.ERR(ok);
+
+
 
 % Write succesful data read message
 disp (['Data read from ' datafile])

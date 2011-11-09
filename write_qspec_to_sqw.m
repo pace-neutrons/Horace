@@ -6,7 +6,13 @@ function [grid_size, urange] = write_qspec_to_sqw (varargin)
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
 % Input:
-%   qspec_file      Full file name of ascii file containing qx-qy-qz-eps-signal-error column data.
+%   qspec_file      Full file name of ascii file containing qx'-qy'-qz'-eps-signal-error column data.
+%                   Here qz' is the component of momentum along ki (Ang^-1)
+%                        qy' is component vertically upwards (Ang^-1)
+%                        qx' defines a hight-hand coordinate frame with qy' and qz'
+%                        S   signal
+%                        ERR standard deviation
+%
 %   sqw_file        Full file name of output sqw file
 %
 %   efix            Fixed energy (meV) (if elastic data ie. emode=0, the value will be ignored)

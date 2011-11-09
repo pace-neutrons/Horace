@@ -59,6 +59,16 @@ fprintf (fid, '%30.16g %30.16g %30.16g %30.16g %30.16g \n', [qx3(:),qy3(:),qz3(:
 fclose(fid);
 
 % Create sqw file
+file_name='c:\temp\aaa_data_el.dat';
+sqw_file='c:\temp\aaa_data_el.sqw';
+efix=0;
+emode=0;
+alatt=2*pi*[1,1,1];
+angdeg=[90,90,90];
+uvec=[1,0,0];
+vvec=[0,1,0];
+psi=0;
+omega=0; dpsi=0; gl=0; gs=0;
 grid_size_in=1;
 write_qspec_to_sqw (file_name, sqw_file, efix, emode, alatt, angdeg, uvec, vvec, psi, omega, dpsi, gl, gs, grid_size_in);
 

@@ -6,11 +6,7 @@ function qspec=calc_qspec (efix, k_to_e, emode, data, det)
 %   efix    Fixed energy (meV)
 %   k_to_e  Constant in the relation energy (meV) = k_to_e *(wavevector^2)
 %   emode   Direct geometry=1, indirect geometry=2, elastic=0
-%           If elastic, then two data input structures permitted
-%               - spe file, in which case interpret energy bins as logarithm of
-%                 wavelength (Ang)
-%               - fields qx,qy,qz,S,ERR, with components of Q in spectrometer coords
-%                 (qx||ki, qz vertically up)
+%           If elastic, then interprets energy bins as logarithm of wavelength (Ang)
 %   data    Data structure of spe file (see get_spe)
 %   det     Data structure of par file (see get_par)
 %
