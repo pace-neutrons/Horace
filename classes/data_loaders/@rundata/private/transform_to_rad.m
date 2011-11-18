@@ -1,7 +1,15 @@
 function varargout = transform_to_rad(varargin)
 % function thransforms input values which are known to have units of degree
 % into radians
-% 
+% varargin can be either a structure with different fields
+% or the cell array of "key"-"value" pairs
+%
+% Only the know fields of the structure or values for the known keys are
+% modified
+% known names are:
+% 'psi','omega','dpsi','gl','gs' 
+%
+%
 
 known_angles={'psi','omega','dpsi','gl','gs'};
 deg2rad=pi/180;

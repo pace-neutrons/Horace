@@ -6,7 +6,7 @@ function [this,is_redefined]= check_loader_redefined(this)
 %
 % $Revision: 1 $ ($Date:  $)
 %
- 
+
  is_redefined=false;
  if ~isempty(this.data_file_name) % new file name is defined among the parameters; data_loader has to be redefined;
         dat_file_name=this.data_file_name;

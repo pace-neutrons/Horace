@@ -1,6 +1,23 @@
 function  [undefined,fields_to_load,fields_from_defaults,fields_undef]  = check_run_defined(run,fields_needed)
 % method verifies if all necessary run parameters are defined by the class
 %
+% Input: 
+% run             -- initated instance of the rundata class
+% fields_needed   -- list of the fields to verify (optional) -- if absent,
+%                    derived from the class method
+% returns:
+% undefined -- the number, which informs the user on how the file is
+%               defined. It can be:
+% 0         -- all data defined and loaded to memory
+% 1         -- all data defined but some fields have to be read from hdd
+% 2         -- some fields are needed, but no definition for them can be
+%              found in memory, hdd or from defaults
+%
+% fields_to_load -- cellarray of field names which have to be load from hdd
+% fields_from_defaults -- cellarray of field naems, which values have
+%                         default and the default for them were used
+% fields_undef   -- cellarray of the fields, which are missed'
+%
 % $Author: Alex Buts; 20/10/2011
 %
 % $Revision: 1 $ ($Date:  $)

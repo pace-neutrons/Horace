@@ -1,7 +1,7 @@
 function [data_struct,field_nams,field_vals] = parse_arg(data_struct,varargin)
 % function processes arguments, which are present in varargin as
 % couple of 'key','value' parameters or as a structure 
-% and sets correspondent fiels in the input data_structure
+% and sets correspondent fields in the input data_structure
 % 
 % usage:
 %>> result = parse_arg(source,'a',10,'b','something')

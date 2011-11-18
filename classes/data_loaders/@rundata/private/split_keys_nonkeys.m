@@ -3,7 +3,7 @@ function [keys,fields] = split_keys_nonkeys(keys_recognized,fields_recognized,va
 % {'-key1','parameter1','parameter2','-key2','parameter3'} into cellarray
 % of keys and parameters and verifies that all keys belong to
 % keys_recognized and fields -- to fields_recongized
-
+%
 %
 % $Author: Alex Buts 20/10/2011
 % 
