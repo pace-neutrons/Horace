@@ -21,7 +21,7 @@ classdef rundata
    ERR       = [];  % Array of errors         -- obtained from speFile or equivalent
    efix      = [];  % input beam energy meV         -- has to be in file or supplied  as  parameters list     
                     % (has to be larger then maximal scattered energy max(en) 
-   en       = [];   % list of transferred energies  -- obtained from speFile or equivalent
+   en        = [];  % list of transferred energies  -- obtained from speFile or equivalent
      
 % Detectors parameters:
    n_detectors = []; % number of detectors, used when dealing with masked detectors   -- will be derived    
@@ -64,18 +64,44 @@ methods
     % usages:
     %>>run=run_data(nxspe_file_name);    
     %               nxspe_file_name -- the name of nxspe file with data
-    %>>run=run_data(speFileName,parFileName,efix,alatt,andgdeg,varargin) ;
-    %
+    % 
     %>>run=run_data(run_data,speFileName,key,value,key,value,....)
-    %               where the 'key', 'value' are pairs keys from the list proviede below
-    %               with correspondent values.
+    %               where the 'key', 'value' are the pairs of keys and valudes from the list
+    %               of the class field names and with correspondent values,
+    %               described below
     %>>run=run_data(run_data,speFileName,data_structure)
     %               where the data structure has fields with values, equivalend to the 
     %               keys and values described above    
     %where:                            
     % speFileName  -- Full file name of ASCII spe file 
     % parFileName  -- Full file name of detector parameter file (Tobyfit format)
-    %
+%   The keys (names of the fields), whcih can be present in the list of the
+%   class parameters are:
+% %  Experiment parameters;
+%   S          % Array of signals        -- obtained from speFile or equivalent
+%   ERR        % Array of errors         -- obtained from speFile or equivalent
+%   efix       % input beam energy meV         -- has to be in file or supplied  as  parameters list     
+%                    % (has to be larger then maximal scattered energy max(en) 
+%   en         % list of transferred energies  -- obtained from speFile or equivalent
+%     
+% % Detectors parameters:
+%   n_detectors % number of detectors, used when dealing with masked detectors   -- will be derived    
+%   det_par      % array of par-values, describing detectors angular positions    -- usually obtained from parFile or equivalent ;   
+%
+%   % by default, the data are obtained for crystal, but powder can be
+%   % different and request different fields to be defined;
+%   is_crystal  
+% % Crystal parameters             
+%    alatt     % Lattice parameters (Ang^-1)   -- has to be in file or supplied  as  parameters list
+%    angldeg   % Lattice angles (deg)          -- has to be in file or supplied  as  parameters list
+% % goniometer parameters
+%   psi       %  Angle of u w.r.t. ki (deg)                          --- default value 0      
+%   omega     %  Angle of axis of small goniometer arc w.r.t. notional u (deg) 
+%   dpsi      %  Correction to psi (deg)            
+%   gl        %  Large goniometer arc angle (deg) 
+%   gs        %  Small goniometer arc angle (deg)  
+%   %
+
     if nargin>0
         if isstruct(varargin{1}) 
             if nargin>1
@@ -104,6 +130,15 @@ methods
         this.is_crystal=get(rundata_config,'is_crystal');
     end    
     end
+% NOT YET IMPLEMENTED:     
+   %>>run=run_data(speFileName,parFileName,efix,alatt,andgdeg,varargin) ;
+    %               The option with two filenames and list of parameters,
+    %               describing the run and provided in the specific order,
+    %               where the position specifies the parameter value
+    %               The order is:
+    %  efix   -- input beam energy meV 
+    %  alatt  -- 3-vector of lattice parameters (A^-1)
+    %  angdeg -- 3-vector of angles between the lattice cell edges (in degrees)
 
 %-----------------------------------------------------------------------------------------------------------
 function this=build_from_struct(this,a_struct,varargin)

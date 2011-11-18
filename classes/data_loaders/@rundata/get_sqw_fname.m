@@ -21,7 +21,7 @@ if isempty(this.loader)
     error('RUNDATA:get_sqw_fname',' rundata class is not fully defined\n')
 end
 %
-[fpath,fname,fext]=fileparts(this.loader.file_name);
+[fpath,fname]=fileparts(this.loader.file_name);
 new_ext = get(rundata_config,'sqw_ext');
 
 filename = [fname,new_ext];
