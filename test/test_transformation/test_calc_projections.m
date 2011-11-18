@@ -23,10 +23,18 @@ classdef test_calc_projections<TestCase
       gs   =0;    
       efix = 10;
       emode= 1;
-      data.S=ones(10,3);
-      data.ERR=zeros(10,3);
-      data.en=-1:9;
-      det.phi=ones(3,1);
+      data.S=ones(3,3);
+      data.ERR=zeros(3,3);
+      data.en=-1:2;
+      data.en=data.en';
+      det.filename='some_file';
+      det.filepath='';
+      det.x2  =ones(3,1);       
+      det.phi  =[0,1,2];
+      det.azim= [-1,0,1];
+      det.width =ones(3,1)*0.1;
+      det.height=ones(3,1)*0.1; 
+  
       [u_to_rlu, ucoords]= get_test_calc_projections(sqw,...
                               efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
                           
