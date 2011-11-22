@@ -30,13 +30,18 @@ classdef test_calc_projections<TestCase
       det.filename='some_file';
       det.filepath='';
       det.x2  =ones(3,1);       
-      det.phi  =[0,1,2];
-      det.azim= [-1,0,1];
-      det.width =ones(3,1)*0.1;
-      det.height=ones(3,1)*0.1; 
+      det.phi  =[0,1,2];    % radians
+      det.azim= [-1,0,1];   % radians
+      det.width =ones(3,1)*0.1; % not used
+      det.height=ones(3,1)*0.1; % not used
   
       [u_to_rlu, ucoords]= get_test_calc_projections(sqw,...
                               efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+       uc_sample =[-0.0543 0.0557 0.1715 -0.0539  0.0560  0.1718 -0.0529  0.0570  0.1728; ...
+                    0      0      0      -0.0393 -0.0374 -0.0354 -0.0786 -0.0748  -0.0707; ...
+                    0      0      0       0       0       0      -0.0014 -0.0013  -0.0012; ...
+                   -0.5000 0.5000 1.5000 -0.5000  0.5000  1.5000 -0.5000  0.5000   1.5000];
+       assertElementsAlmostEqual(uc_sample,ucoords,'absolute',2E-4);
                           
     end
     end

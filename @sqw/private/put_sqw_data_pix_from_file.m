@@ -94,7 +94,7 @@ end
 %  memory even for that if larger than e.g. ~20^4 grid. We need to read these in, a section at a time, into a buffer. 
 
 
-pmax = 2000000;                             % size of buffer to hold pixel information
+pmax = get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
 nbin = numel(npix_cumsum);                  % total number of bins
 ibin_end=0;                                 % initialise the value of the largest element number of npix that is stored
 ibin_lastflush=0;                           % last bin index for which data has been written to output file
