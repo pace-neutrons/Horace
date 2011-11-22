@@ -95,7 +95,7 @@ string=fullfile(varargin{:},''); % '' is introduced for compartibility with
 % one argument
 if exist(string,'dir')==7
     if(type==1)
-        path=genpath_(string);
+        path=genpath_special(string);
         addpath(path);
     else
         path=gen_System_path(string);
