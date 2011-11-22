@@ -37,7 +37,7 @@ b_matrix  = bmat (alatt, angdeg);       % bmat takes Vrlu to Vxtal_cart
 ub_matrix = ubmat (u, v, b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 u_matrix  = ub_matrix * inv(b_matrix);  % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
 
-
+ 
 % Matrix to convert coords in orthormal frame defined by notional directions of u, v, to
 % coords in orthonormal frame defined by true directions of u, v:
 rot_dpsi= [cos(dpsi),-sin(dpsi),0; sin(dpsi),cos(dpsi),0; 0,0,1];
