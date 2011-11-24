@@ -4,7 +4,7 @@ classdef test_rundata_get< TestCase
 %
     
     properties 
-        the_run;
+        the_run; % some defined rundata class instance
     end
     methods       
         % 
@@ -29,12 +29,6 @@ classdef test_rundata_get< TestCase
             f = @()get_rundata(this.the_run,'S','-hor','bla_bla','beee','S','-nonan','ERR');
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
        end               
-       function test_not_all_requested_data_present(this)               
-            % this form asks for all run data to be obtained;
-            f = @()get_rundata(this.the_run,'-nonan');
-            % but not all data describing the crystall are present in nxspe
-            assertExceptionThrown(f,'RUNDATA:invalid_arguments');
-       end     
        function this=test_load_nxspe_fields(this)               
             % this form asks for all run data to be obtained;
             [S,Err,en,efix,psi,detectors]=get_rundata(this.the_run,'S','ERR','en','efix','psi','det_par');
@@ -55,17 +49,19 @@ classdef test_rundata_get< TestCase
        function this=test_load_nxspe_par(this)               
             % this form asks for all run data to be obtained;
              this.the_run.is_crystal=false;
-             data =get_rundata(this.the_run,'det_par','-hor');
-             dp   = data.det_par;
+             dp =get_rundata(this.the_run,'det_par','-hor');
              assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(dp))));
              assertTrue(all(ismember(fields(dp),{'filename','filepath','x2','phi','azim','width','height','group'})));              
-       end                    
-       function test_suppress_nan(this)               
+       end  
+    
+     function test_not_all_requested_data_present(this)               
             % this form asks for all run data to be obtained;
-             this.the_run.is_crystal=false;
-             f = @()get_rundata(this.the_run,'-nonan');             
-             assertExceptionThrown(f,'RUNDATA:not_implemented');
-       end                    
+            f = @()get_rundata(this.the_run,'-nonan');
+            % but not all data describing the crystall are present in nxspe
+            assertExceptionThrown(f,'RUNDATA:invalid_arguments');
+     end     
+              
+        
   
     function test_transform2rad_struct(this)
            ds.alatt  =[1;1;1];
@@ -105,10 +101,81 @@ classdef test_rundata_get< TestCase
            assertEqual(psi,ds.psi*pi/180);           
            assertEqual(gl, ds.gl*pi/180);           
            assertEqual(gs, ds.gs*pi/180);                      
- 
-      end       
-   
-        
+    end       
+    function test_get_struct(this)
+           ds.alatt=[1;1;1];
+           ds.angldeg=[90;90;90];
+           ds.omega=20;
+           ds.psi  =30;           
+           ds.gl   =40;                      
+           ds.gs   =50;                                 
+  
+           run=rundata('MAP11014.nxspe',ds);     
+           
+           alatt=get_rundata(run,'alatt');
+           
+           assertTrue(~isstruct(alatt));
+           assertEqual(ds.alatt,alatt);           
+    end       
+    function test_get_this(this)
+           ds.alatt=[1;1;1];
+           ds.angldeg=[90;90;90];
+           ds.omega=20;
+           ds.psi  =30;           
+           ds.gl   =40;                      
+           ds.gs   =50;                                 
+  
+           run=rundata('MAP11014.nxspe',ds);     
+           
+           run=get_rundata(run,'-this');
+           
+           assertTrue(isa(run,'rundata'));
+           assertEqual(ds.alatt,run.alatt);           
+    end           
+    function test_get_data_struct(this)
+           ds.alatt=[1;1;1];
+           ds.angldeg=[90;90;90];
+           ds.omega=20;
+           ds.psi  =30;           
+           ds.gl   =40;                      
+           ds.gs   =50;                                 
+  
+           run=rundata('MAP11014.nxspe',ds);     
+           
+           run=get_rundata(run);
+           
+           assertTrue(isstruct(run));
+           assertEqual(ds.alatt,run.alatt);           
+    end  
+    function test_this_nonc_with_rad(this)
+         f = @()get_rundata(this.the_run,'-this','-rad','gl','gs');
+         assertExceptionThrown(f,'RUNDATA:invalid_arguments');                  
+    end
+    function test_this_nonc_with_nonan(this)
+         f = @()get_rundata(this.the_run,'-this','-nonan','gl','gs','S','det_par');
+         assertExceptionThrown(f,'RUNDATA:invalid_arguments');                  
+    end
+    function test_this_nonc_with_hor(this)
+        % -hor modifies det_par only so this is incompartible with -hor and
+        % det_par
+         f = @()get_rundata(this.the_run,'-this','-hor','gl','gs','det_par');
+         assertExceptionThrown(f,'RUNDATA:invalid_arguments');                  
+    end
+    function test_this_nonan_without_sighal(this)
+         f = @()get_rundata(this.the_run,'-nonan','gl','gs','det_par');
+         assertExceptionThrown(f,'RUNDATA:invalid_arguments');                  
+    end          
+
+    function test_suppress_nan(this)               
+            % this form asks for all run data to be obtained;
+            this.the_run.is_crystal=false;            
+            run=get_rundata(this.the_run,'-this');
+            [S,ERR,det]=get_rundata(run,'-nonan','S','ERR','det_par','en');
+            assertEqual(size(S),[30,26495]);
+            assertEqual(size(S),size(ERR));
+            assertEqual(size(S,2),size(det,2));            
+
+      end                        
 
     end
 end

@@ -34,7 +34,10 @@ if isempty(this.en)
 else
     data{3} = this.en;
 end
-
+% eliminate symbolic NaN-s (build according to ASCII agreement)
+nans          = ismember(data{1},-1.E+30);
+data{1}(nans) = NaN;
+data{2}(nans) = 0;
 
 this.S   = data{1};
 this.ERR = data{2};

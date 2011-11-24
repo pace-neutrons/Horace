@@ -39,11 +39,15 @@ data{1}  = hdf5read(file_name,[root_folder,'/data/data']);
 data{2}  = hdf5read(file_name,[root_folder,'/data/error']);
 data{3}  = hdf5read(file_name,[root_folder,'/data/energy']);
 
+% eliminate symbolic NaN-s (build according to ASCII agreement)
+nans          = ismember(data{1},-1.E+30);
+data{1}(nans) = NaN;
+data{2}(nans) = 0;
+
+
 this.S   = data{1};
 this.ERR = data{2};
 this.en  = data{3};
-
-
 if nargout==1
     varargout{1}=this;
 else    

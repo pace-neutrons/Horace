@@ -150,6 +150,17 @@ classdef test_loader_ascii< TestCase
             assertEqual(ndet,loader.n_detectors)
             assertEqual(en,loader.en);        
         end
+% DEAL WITH NAN        
+        function test_loader_ASCII_readsNAN(this)
+            loader=loader_ascii('spe_with_NANs.spe');
+            [S,ERR,en]=load_data(loader);
+            assertEqual(size(S),[30,5]);
+            assertEqual(size(S),size(ERR));            
+            assertEqual(size(en),[31,1]);       
+            mask=isnan(S);
+            assertEqual(mask(1:2,1),logical(ones(2,1)))
+            assertEqual(mask(:,5),logical(ones(30,1)));
+        end
         
     end
 end

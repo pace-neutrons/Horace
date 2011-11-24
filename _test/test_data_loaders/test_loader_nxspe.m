@@ -110,6 +110,17 @@ classdef test_loader_nxspe< TestCase
              assertEqual(en,loader.en);                         
              assertEqual(ndet,loader.n_detectors)
        end       
+% DEAL WITH NAN        
+        function test_loader_NXSPE_readsNAN(this)
+            loader=loader_nxspe('test_nxspe_withNANS.nxspe');
+            [S,ERR,en]=load_data(loader);
+            assertEqual(size(S),[30,5]);
+            assertEqual(size(S),size(ERR));            
+            assertEqual(size(en),[31,1]);       
+            mask=isnan(S);
+            assertEqual(mask(:,1:2),logical(ones(30,2)))
+            assertEqual(mask(1:2,5),logical([1;1]));
+        end       
     end
 end
 
