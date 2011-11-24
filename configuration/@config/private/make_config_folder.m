@@ -23,7 +23,7 @@ function folder_path=make_config_folder(folder_name)
 % usually the same for the given machine, so the path to the configurations 
 % will be the same next next time the function is called. 
 % 
-% $Revision:  $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 
 

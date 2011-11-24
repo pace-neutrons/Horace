@@ -1,7 +1,7 @@
 function [ok,mess] = save_config (file_name, config_data)
 % Save configuration structure, stripping off the field with name of root config class
 % 
-% $Revision:  $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 
 % Delete existing configuration file, if there is one

@@ -16,7 +16,7 @@ function set_internal(this,varargin)
 %                     configuration. 
 % 
 % 
-% $Revision:  $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 
 % verify if the first argument allows changes to sealed fields
