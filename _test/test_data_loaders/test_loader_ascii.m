@@ -152,12 +152,17 @@ classdef test_loader_ascii< TestCase
         end
 % DEAL WITH NAN        
         function test_loader_ASCII_readsNAN(this)
+        % reads symbolic NaN-s and agreed -1e+30 NaNs 
+        % from ascii file and transforms them into ISO NaN in memory            
             loader=loader_ascii('spe_with_NANs.spe');
             [S,ERR,en]=load_data(loader);
+            % load all correctly
             assertEqual(size(S),[30,5]);
             assertEqual(size(S),size(ERR));            
             assertEqual(size(en),[31,1]);       
+            % find ISO NaN-s
             mask=isnan(S);
+            % checm if they are all in right place 
             assertEqual(mask(1:2,1),logical(ones(2,1)))
             assertEqual(mask(:,5),logical(ones(30,1)));
         end

@@ -51,6 +51,7 @@ classdef test_rundata< TestCase
             f = @()rundata('not_existing_file.spe');            
             assertExceptionThrown(f,'CHECK_FILE_EXIST:wrong_argument');
       end       
+      
       function test_spe_file_loader_in_use(this)               
          % define necessary parameters
           ds.efix=200;
@@ -61,7 +62,7 @@ classdef test_rundata< TestCase
            run=rundata('MAP10001.spe','demo_par.PAR',ds);            
            fl=get(run,'loader');
            assertTrue(isa(fl,'loader_ascii'));
-           % the data above fully define the  run
+           % the data above fully define the  run -- check it
            [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(run);
            assertEqual(1,is_undef);
            assertTrue(isempty(undef_fields));  
@@ -111,7 +112,7 @@ classdef test_rundata< TestCase
            assertEqual(1,is_undef);    
            % missing fields
            assertTrue(isempty(undef_fields));           
-           % and these fields can be retrieved
+           % and these fields can be retrieved from file
            assertEqual(2,numel(fields_to_load));           
            assertTrue(all(ismember({'S','ERR'},fields_to_load)));
            assertTrue(isempty(fields_from_defaults));            
@@ -171,9 +172,13 @@ classdef test_rundata< TestCase
           assertEqual(2,run.psi);
        end
        function test_modify_data_file_load_makes_par_wrong(this)
+           % a rundata class instanciated from nxspe which makes det_par
+           % defined
           run=rundata('MAP11014.nxspe');
           assertTrue(isempty(run.det_par));
 
+          % we change the initial file name to spe, which does not have
+          % information about par data
           sp.data_file_name='MAP10001.spe';
           f = @()rundata(run,sp);
           assertExceptionThrown(f,'RUNDATA:invalid_argument');          

@@ -101,7 +101,7 @@ classdef test_loader_nxspe< TestCase
 %GET_RUNINFO        
        function test_get_runinfo(this)
              loader=loader_nxspe('MAP11014.nxspe'); 
-             % loads only spe data
+             % loads only partial spe data
              [ndet,en,loader]=get_run_info(loader);
              
              assertEqual(31,numel(en));                         
@@ -112,6 +112,8 @@ classdef test_loader_nxspe< TestCase
        end       
 % DEAL WITH NAN        
         function test_loader_NXSPE_readsNAN(this)
+            % reads binary NaN in memory and transforms -1e+30 into ISO NaN
+            % in memory
             loader=loader_nxspe('test_nxspe_withNANS.nxspe');
             [S,ERR,en]=load_data(loader);
             assertEqual(size(S),[30,5]);
