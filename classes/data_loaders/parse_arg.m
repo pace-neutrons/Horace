@@ -20,7 +20,7 @@ function [data_struct,field_nams,field_vals] = parse_arg(data_struct,varargin)
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 
 % Parse arguments;

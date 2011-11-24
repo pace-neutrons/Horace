@@ -10,7 +10,7 @@ function [ndet,en,this]=get_run_info(this)
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 %
 

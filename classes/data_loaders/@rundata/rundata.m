@@ -13,7 +13,7 @@ classdef rundata
 % verify if data are loaded. 
 % 
 %  
-% $Revision: -1 $ ($Date: $)
+% $Revision$ ($Date$)
 %
  properties
 % Experiment parameters;

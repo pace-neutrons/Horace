@@ -16,7 +16,7 @@ function [file_name,lext] = check_file_exist(file_name,supported_file_extensions
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 [filepath,filename,ext]=fileparts(strtrim(file_name));  
 lext = lower(ext);

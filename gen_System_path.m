@@ -34,7 +34,7 @@ function p = gen_System_path(d)
 %   Modified in ISIS
 %
 %   Libisis:
-%   $Revision: 1818 $ $Date: 2011-09-15 19:28:37 +0100 (Thu, 15 Sep 2011) $
+%   $Revision$ $Date$
 %------------------------------------------------------------------------------
 if nargin==0,
   p = genpath(fullfile(matlabroot,'toolbox'));

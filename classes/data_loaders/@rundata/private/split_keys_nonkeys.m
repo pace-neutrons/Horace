@@ -8,7 +8,7 @@ function [keys,fields] = split_keys_nonkeys(keys_recognized,fields_recognized,va
 % $Author: Alex Buts 20/10/2011
 % 
 % 
-% $Revision:  $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 % possible modifiers of the data format
 % are there any modyfiers (keys) among the input parameters?

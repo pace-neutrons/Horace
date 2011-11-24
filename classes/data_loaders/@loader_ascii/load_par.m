@@ -21,7 +21,7 @@ function [det,this]=load_par(this,varargin)
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 
 

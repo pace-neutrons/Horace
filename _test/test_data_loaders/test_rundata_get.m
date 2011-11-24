@@ -1,6 +1,6 @@
 classdef test_rundata_get< TestCase
 % 
-% $Revision:  $ ($Date:  $)
+% $Revision$ ($Date$)
 %
     
     properties 

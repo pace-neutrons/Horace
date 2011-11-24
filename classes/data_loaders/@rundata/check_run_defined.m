@@ -20,7 +20,7 @@ function  [undefined,fields_to_load,fields_from_defaults,fields_undef]  = check_
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 %
 undefined           = 0; % false; all defined;

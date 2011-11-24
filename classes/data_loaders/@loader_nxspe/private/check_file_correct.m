@@ -5,7 +5,7 @@ function this= check_file_correct(this,full_file_name)
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 
 

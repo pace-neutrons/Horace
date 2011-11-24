@@ -4,7 +4,7 @@ classdef loader_nxspe
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
     properties
 	    % number of detectors, defined by the par data

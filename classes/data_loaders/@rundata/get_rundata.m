@@ -77,7 +77,7 @@ function [varargout] =get_rundata(this,varargin)
 % $Author: Alex Buts 20/10/2011
 % 
 % 
-% $Revision:  $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 % possible modifiers of the data format
 keys_recognized={'-hor','-horace','-nonan','-rad','-this'};

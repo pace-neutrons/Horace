@@ -9,7 +9,7 @@ function fields = defined_fields(loader_ascii)
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 
 fields='';

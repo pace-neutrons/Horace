@@ -4,7 +4,7 @@ function [ndet,en,this]=get_data_info(this)
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
 
 error('LOADER_NXSPE:get_data_info','not yet implemented')

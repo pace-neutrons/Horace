@@ -13,7 +13,7 @@ function [varargout]=load_data(this,new_file_name)
 %
 % $Author: Alex Buts; 20/10/2011
 %
-% $Revision: 1 $ ($Date:  $)
+% $Revision$ ($Date$)
 %
  
 if exist('new_file_name','var')

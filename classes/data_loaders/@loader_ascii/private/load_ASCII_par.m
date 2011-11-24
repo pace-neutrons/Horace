@@ -20,7 +20,7 @@ function par=load_ASCII_par(filename)
 
 % Original author: T.G.Perring
 %
-% $Revision: 546 $ ($Date: 2011-04-11 09:32:41 +0100 (Mon, 11 Apr 2011) $)
+% $Revision$ ($Date$)
 %
 % Remove blanks from beginning and end of filename
 filename=strtrim(filename);

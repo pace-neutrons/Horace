@@ -1,6 +1,6 @@
 classdef test_rundata_rm_masked< TestCase
 % 
-% $Revision:  $ ($Date:  $)
+% $Revision$ ($Date$)
 %
     
     properties 
