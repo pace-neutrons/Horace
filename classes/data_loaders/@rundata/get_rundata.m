@@ -1,5 +1,5 @@
 function [varargout] =get_rundata(this,varargin)
-% function returns whole or partial results of an inelastic experiment 
+% method returns whole or partial results of an inelastic experiment 
 % defined by the run_data class. 
 %
 % usage: 
@@ -12,13 +12,19 @@ function [varargout] =get_rundata(this,varargin)
 %>> data               = get_run_data(this,'-hor','-nonan')
 %>> data               = get_run_data(this,'par','-horace')
 %>> this               = get_run_data(this,'par','-this')
+%
+%   where 
+% this   -- is the instance of the rundata class and other input arguments
+%           are the data fields requested (text strings) or data format modifyers
+%           (text strings starting with -)
 %  
 %   The form with more then one output argument returns the run data as list of
 %   variables. The order of the variables can be obtained from the order of the 
 %   function's input fields;
 %   e.g.  [S,psi]=get_run_data(this,'S','psi') or [psi,S]=get_run_data(this,'psi','S')
 %
-%   The list of the allowed input fields names is defined by and can be found from
+%   The list of the allowed input fields names (strings in the right hand
+%   side of the equation )is defined by and can be found from 
 %   the rundata class constructor.  
 % 
 %   the form with one output argunent returns run data as the
@@ -50,7 +56,6 @@ function [varargout] =get_rundata(this,varargin)
 %                        output argument is supplied to the function, this
 %                        key is ignored;
 %                        
-%                        
 %                        Error is thrown if more then one output argument
 %                        is requested in this case                         
 %
@@ -66,7 +71,7 @@ function [varargout] =get_rundata(this,varargin)
 %
 % 4) Error is thrown if some data fields are not present in file, have not
 %    been set before and do not have defaults, but are mentioned in the
-%    parameters list
+%    input parameters list
 %
 %
 % $Author: Alex Buts 20/10/2011
@@ -95,7 +100,7 @@ all_fields              = fieldnames(this);
 % --> CHECK THE CONSISTENCY OF OUTPUT FIELDS
 % identify desired form of output:
 % when more then one output argument, we probably want the list of
-% variables
+% variables; if only one -- it is structure or class
 if nargout==1
     return_structure=true;
 else
@@ -115,7 +120,7 @@ if ismember('-this',keys)
       error('RUNDATA:invalid_arguments',' modifying the class structure is not consistent with  more then one output argument\n');
    end
 end
-% can and if we should suppress NaN-s in output data
+% can and if we should delete NaN-s from output data
 suppress_nan=false;
 if ismember('-nonan',keys)&&any(ismember({'S','ERR','det_par'},fields_requested))
     suppress_nan = true;
@@ -157,9 +162,6 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
     end
 end
 
-
-
-
 % Deal with input parameters (keys) ----------------
 % if parameters have to be represented as horace structure;
 return_horace_format=false;
@@ -186,7 +188,7 @@ if suppress_nan
 end
 
 
-% what and how to return as the result
+% what and how to return the result
 if return_structure
     if return_this
         varargout{1}=this;
@@ -206,7 +208,8 @@ if return_structure
     
     varargout{1}=out;
     
-else % return set of variables, defined by the list of variables
+else % return cell array of output variables, defined by the list of 
+    %  input variables names
     min_num = nargout;
     if numel(fields_requested)<min_num; min_num =numel(fields_requested);end
     

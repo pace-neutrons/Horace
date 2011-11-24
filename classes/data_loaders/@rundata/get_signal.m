@@ -1,6 +1,13 @@
 function [S,Err,en,this] =get_signal(this,varargin)
+% Method returns signal (S,Err and en) from previously defined data loader
+% 
 % usage: 
 %>> [S,Err,en,this] ==get_signal(this,[file_name])
+%
+%Inputs:
+% this     -- initiated instance of the run data class;
+% filename -- optional parameter allowing to redefine the input file for 
+%
 %
 %
 % $Revision: 508 $ ($Date: 2010-11-29 15:50:24 +0000 (Mon, 29 Nov 2010) $)

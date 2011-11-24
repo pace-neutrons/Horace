@@ -1,9 +1,10 @@
 function [file_name,file_format]= parse_par_arg(old_file_name,varargin)
 % function verifies if input parameters present in varargin redefine the filename correctly 
 %
-% It is a private function used by load_par methods of data loaders, which
-% helps these methods to identify if the method should return resul in
-% horace structure;
+% It is a private function used by load_par methods of all data loaders, which
+% helps these methods to identify if the method should return result as the
+% horace structure and if the input filename have been redefined in input
+% parameters;
 %
 file_name=old_file_name;
 file_format='';
