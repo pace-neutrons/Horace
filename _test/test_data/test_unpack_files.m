@@ -12,3 +12,4 @@ tmp=dir('*.zip');
 for i=1:numel(tmp)
     unzip(tmp(i).name,work_area);
 end
+%rez =ls([work_area,filesep,'*.']);
