@@ -11,7 +11,10 @@ function use_herbert(on_off)
 %
 hor_root=fileparts(which('horace_init.m'));
 if nargin == 0 || (nargin == 1 && strncmpi(on_off,'on',2))
-    libisis_off();
+    try
+        libisis_off;
+    catch
+    end
     herbert_on();    
     rmpath(fullfile(hor_root,'libisis'));
     addpath(fullfile(hor_root,'herbert'));
@@ -20,7 +23,10 @@ if nargin == 0 || (nargin == 1 && strncmpi(on_off,'on',2))
     set(hor_config,'use_herbert',1);
     set(hor_config,'use_her_graph',1)    
 elseif (nargin == 1 && strncmpi(on_off,'off',2))
-    herbert_off();    
+    try
+        herbert_off;    
+    catch
+    end
     libisis_on();
 
     rmpath(fullfile(hor_root,'herbert'));
