@@ -49,6 +49,7 @@ try
     horace_plot.name_contour = 'Horace contour plot';
     horace_plot.name_sliceomatic = 'Sliceomatic';
     set_global_var('horace_plot',horace_plot);
+    set(graph_config,horace_plot);
 catch
     % For libisis:
     IXG_ST_HORACE= struct('surface_name','Horace surface plot','area_name','Horace area plot','stem_name','Horace stem plot','oned_name','Horace one dimensional plot',...

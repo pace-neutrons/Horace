@@ -19,7 +19,7 @@ for i=1:numel(win)
     end
 end
 if get(hor_config,'use_her_graph')
-    name_surface = get(graph_config,'name_surface');
+    name_surface = get(horgrph_config,'name_surface');
 else
 	name_surface =  get_global_var('horace_plot','name_surface');
 end

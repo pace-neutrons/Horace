@@ -47,19 +47,21 @@ else
 end
 
 data = struct();
-% Read spe file and detector parameters if it has not been done before;
+% Read spe file and detector parameters if it has not been done before and
+% return the results, without NaN-s ('-nonan')
 [data.S,data.ERR,data.en,det,efix,alatt,angdeg,...
  psi,omega,dpsi,gl,gs]=get_rundata(run_file,'S','ERR','en',...
                                     'det_par','efix','alatt', 'angldeg',...
                                     'psi','omega', 'dpsi', 'gl', 'gs',...
-                                     '-hor','-rad');
+                                     '-hor','-rad','-nonan');
 
 [data.filepath,data.filename]=fileparts(run_file.loader.file_name);
 
 [sqw_path,sqw_name]=get_sqw_fname(run_file);
 sqw_file_name =fullfile(sqw_path,sqw_name); 
-
-det0 = det;
+% get the list of all detectors, including the detectors, which produce
+% incorrect results (NaN-s) for this run
+det0 = get_rundata(run_file,'det_par','-hor');
 
 [grid_size, urange]=calc_and_write_sqw(sqw_file_name, efix, emode, alatt, angdeg, u, v, psi,...
                                                       omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);
