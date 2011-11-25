@@ -24,7 +24,7 @@ function [grid_size, urange,sqw_file_name] = rundata_write_to_sqw (dummy,run_fil
 
 % Original author: T.G.Perring
 %
-% $Revision: 552 $ ($Date: 2011-06-13 12:42:02 +0100 (Mon, 13 Jun 2011) $)
+% $Revision$ ($Date$)
 
 
 

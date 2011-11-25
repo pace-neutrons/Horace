@@ -5,7 +5,7 @@ function wout = IX_dataset_2d (w)
 
 % Original author: T.G.Perring
 %
-% $Revision: 314 $ ($Date: 2009-11-16 09:06:04 +0000 (Mon, 16 Nov 2009) $)
+% $Revision$ ($Date$)
 
 
 % Check input

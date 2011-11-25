@@ -38,7 +38,7 @@ function [grid_size, urange] = write_qspec_to_sqw (dummy, qspec_file, sqw_file, 
 
 % Original author: T.G.Perring
 %
-% $Revision: 577 $ ($Date: 2011-10-28 17:52:41 +0100 (Fri, 28 Oct 2011) $)
+% $Revision$ ($Date$)
 
 
 % Check that the first argument is sqw object
