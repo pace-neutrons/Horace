@@ -1,6 +1,11 @@
 function this=test_config
 % Retrieve or create the current test configuration
 %
+%   >> this=test_config
+%
+% This is an example illustrating a simple configuration class, with two freely
+% alterable fields, and two sealed fields.
+%
 % Fields are:
 %   v1      A user alterable field
 %   v2      Another user alterable field
@@ -13,16 +18,13 @@ function this=test_config
 %  ***  configuration structure.                                                         ***
 %--------------------------------------------------------------------------------------------------
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
-persistent this_local;
-
+persistent this_local
 if isempty(this_local)
     config_name=mfilename('class');
-
-    build_configuration(config,@default_config,config_name);    
+    build_configuration(config,@default_config,config_name);
     this_local=class(struct([]),config_name,config);
 end
-this = this_local;
-
+this=this_local;
 
 %--------------------------------------------------------------------------------------------------
 %  Alter only the contents of the following subfunction, and the help section of the main function
@@ -36,6 +38,7 @@ this = this_local;
 %   - if no sealed fields:  ...,sealed_fields,{{''}},...
 %   - if one sealed field   ...,sealed_fields,{{'v1'}},...
 %   - if two sealed fields  ...,sealed_fields,{{'v1','v2'}},...
+%  Note that 'sealed_fields' will be treated as a sealed field, whether or not it is in the list.
 %
 %--------------------------------------------------------------------------------------------------
 function config_data=default_config
@@ -45,4 +48,4 @@ config_data=struct(...
     'v2',9,...
     'v3','hello',...
     'v4',[13,14],...
-    'sealed_fields',{{'sealed_fields','v3','v4'}});
+    'sealed_fields',{{'v3','v4'}});

@@ -1,8 +1,13 @@
 function [ok,mess] = save_config (file_name, config_data)
-% Save configuration structure, stripping off the field with name of root config class
-% 
-% $Revision$ ($Date$)
+% Save configuration structure
 %
+%   >> [ok,mess] = save_config (file_name, config_data)
+%
+%   file_name       Full name of file to hold configuration stucture
+%   config_data     Structure holding the configuration
+%
+%   ok              true if saved ok; false otherwise
+%   mess            message if not ok (empty otherwise)
 
 % Delete existing configuration file, if there is one
 if exist(file_name,'file')
