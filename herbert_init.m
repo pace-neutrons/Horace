@@ -45,7 +45,8 @@ genieplot_init
 
 % Applications definitions
 addgenpath_message (rootpath, 'applications')
-% Class definitions, with methods and operator definitions
+
+% Configurations
 addgenpath_message (rootpath,'configuration');
 
 % Put mex files on path
@@ -64,7 +65,8 @@ else
     output.external_code_option=opt;
     addgenpath_message (rootpath,'_test','external_code_ref',opt)   
 end
-% developer options disabled by defaults but shoud be enabled when checking
+
+% Developer options disabled by default but should be enabled when checking
 % or on a developer's machine;
 if get(her_config,'init_tests')
     addpath_message (rootpath,'_test/matlab_xunit/xunit');
@@ -78,7 +80,7 @@ disp('!------------------------------------------------------------------!')
 disp('!                      HERBERT                                     !')
 disp('! =================================================================!')
 disp('!         Utilites for visualisation and analysis                  !')
-disp('!              of neutrom spectroscopy data                        !')
+disp('!              of neutron spectroscopy data                        !')
 disp('!------------------------------------------------------------------!')
 
 

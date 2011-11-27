@@ -5,7 +5,7 @@
 work_dir='C:\temp\';
 
 % Unzip test_data_files.zip to C:\temp
-unzip('test_spe_files.zip',work_dir)
+unzip('spe_files.zip',work_dir)
 
 % Create some cuts, slices, spe
 spe_file=[work_dir,'EI_400-PSI_0-BASE.spe'];
@@ -72,5 +72,5 @@ files={fullfile(work_dir,'mc_1.cut'),fullfile(work_dir,'mc_2.cut'),...
        fullfile(work_dir,'ms_1.slc'),fullfile(work_dir,'ms_2.slc'),...
        fullfile(work_dir,'ms_3a.slc'),fullfile(work_dir,'ms_3b.slc'),fullfile(work_dir,'ms_3c.slc'),fullfile(work_dir,'ms_4.slc')};
 
-zip(fullfile(work_dir,'test_cut_slice_files.zip'),files);
+zip(fullfile(work_dir,'cut_slice_files.zip'),files);
 
