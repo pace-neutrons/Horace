@@ -28,12 +28,12 @@ for i=1:numel(xdescr_1)
     % - reference
     use_mex(ref_loc)
 
-    p1_reb_ref=rebind_ref(p1,xdescr_1{i});
-    p1_reb_int_ref=rebind_ref(p1,xdescr_1{i},'int');
+    p1_reb_ref=rebind(p1,xdescr_1{i});
+    p1_reb_int_ref=rebind(p1,xdescr_1{i},'int');
     if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb_ref); acolor g; pd(p1_reb_int_ref); keep_figure; end
 
-    h1_reb_ref=rebind_ref(h1,xdescr_1{i});
-    h1_reb_nodist_ref=rebind_ref(dist2cnt(h1),xdescr_1{i},'int');
+    h1_reb_ref=rebind(h1,xdescr_1{i});
+    h1_reb_nodist_ref=rebind(dist2cnt(h1),xdescr_1{i},'int');
     if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb_ref); acolor g; pd(h1_reb_nodist_ref); keep_figure; end
 
     % - new rebind algorithm
@@ -72,9 +72,9 @@ disp('    1D: Test rebind')
 disp('===========================')
 
 use_mex(ref_loc)
-p1_reb1_ref=rebind_ref(p1,xdescr_21);
-p1_reb2_ref=rebind_ref(p1,xdescr_22{:});
-p1_reb3_ref=rebind_ref(p1,xdescr_23{:});
+p1_reb1_ref=rebind(p1,xdescr_21);
+p1_reb2_ref=rebind(p1,xdescr_22{:});
+p1_reb3_ref=rebind(p1,xdescr_23{:});
 if ~batch, acolor k; dd(p1_reb1_ref); acolor r; pd(p1_reb2_ref); acolor g; pd(p1_reb3_ref+0.02); keep_figure; end
 
 use_mex(test_loc)

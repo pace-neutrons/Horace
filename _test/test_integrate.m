@@ -8,6 +8,7 @@ test_loc='matlab';
 %% =====================================================================================================================
 % Test 1D integration
 % ======================================================================================================================
+
 tol=0;
 
 disp('===========================')
@@ -15,7 +16,7 @@ disp('    1D: Test integrate')
 disp('===========================')
 
 use_mex(ref_loc)
-ih1_ref=integrate_ref(h1,5,10);
+ih1_ref=integrate(h1,5,10);
 use_mex(test_loc)
 ih1    =integrate(h1,5,10);
 delta_IX_dataset_nd(ih1_ref,ih1,tol)
@@ -23,7 +24,7 @@ delta_IX_dataset_nd(ih1_ref,ih1,tol)
 % disp_valerr(ih1)
 
 use_mex(ref_loc)
-ih1b_ref=integrate_ref(h1,0,20);
+ih1b_ref=integrate(h1,0,20);
 use_mex(test_loc)
 ih1b    =integrate(h1,0,20);
 delta_IX_dataset_nd(ih1b_ref,ih1b,tol)
@@ -32,7 +33,7 @@ delta_IX_dataset_nd(ih1b_ref,ih1b,tol)
 
 
 use_mex(ref_loc)
-ip1_ref=integrate_ref(p1,5,10);
+ip1_ref=integrate(p1,5,10);
 use_mex(test_loc)
 ip1    =integrate(p1,5,10);
 delta_IX_dataset_nd(ip1_ref,ip1,tol)
@@ -40,7 +41,7 @@ delta_IX_dataset_nd(ip1_ref,ip1,tol)
 % disp_valerr(ip1)
 
 use_mex(ref_loc)
-ip1b_ref=integrate_ref(p1,0,20);
+ip1b_ref=integrate(p1,0,20);
 use_mex(test_loc)
 ip1b    =integrate(p1,0,20);
 delta_IX_dataset_nd(ip1b_ref,ip1b,tol)
@@ -53,28 +54,27 @@ delta_IX_dataset_nd(ip1b_ref,ip1b,tol)
 tol=-1e-14;
 
 use_mex(ref_loc)
-ihp_ref=integrate_ref(hp_1d_big,105,110);
+ihpa_ref=integrate(hp_1d_big,105,110);
 use_mex(test_loc)
-ihp    =integrate(hp_1d_big,105,110);
-ans=delta_IX_dataset_nd(ihp_ref,ihp,tol);
+ihpa    =integrate(hp_1d_big,105,110);
+ans=delta_IX_dataset_nd(ihpa_ref,ihpa,tol);
 
 use_mex(ref_loc)
-ihp_ref=integrate_ref(hp_1d_big,-10,550);
+ihpb_ref=integrate(hp_1d_big,-10,550);
 use_mex(test_loc)
-ihp    =integrate(hp_1d_big,-10,550);
-ans=delta_IX_dataset_nd(ihp_ref,ihp,tol);
+ihpb    =integrate(hp_1d_big,-10,550);
+ans=delta_IX_dataset_nd(ihpb_ref,ihpb,tol);
 
 use_mex(ref_loc)
-ihp_ref=integrate_ref(hp_1d_big,-20,620);
+ihpc_ref=integrate(hp_1d_big,-20,620);
 use_mex(test_loc)
-ihp    =integrate(hp_1d_big,-20,620);
-ans=delta_IX_dataset_nd(ihp_ref,ihp,tol);
+ihpc    =integrate(hp_1d_big,-20,620);
+ans=delta_IX_dataset_nd(ihpc_ref,ihpc,tol);
 
 
 disp(' ')
 disp('Done')
 disp(' ')
-
 
 
 %% =====================================================================================================================
@@ -187,3 +187,13 @@ disp('Done')
 disp(' ')
 
 
+
+%% =====================================================================================================================
+% Save data
+% ====================================================================================================================== 
+% Save objects
+output_file='c:\temp\test_integrate_output.mat';
+save(output_file,'ih1_ref','ih1b_ref','ip1_ref','ip1b_ref','ihpa_ref','ihpb_ref','ihpc_ref',...
+                 'w2x_ref','w2y_ref','w2xy_ref','xxref','yyref','zzref','iiref',...
+                 'ih1','ih1b','ip1','ip1b','ihpa','ihpb','ihpc','w2x','w2y','w2xy','xx','yy','zz','ii')
+             

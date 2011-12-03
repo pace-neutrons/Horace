@@ -30,8 +30,8 @@ end
 integrate_x_first=false;
 if integrate_x_first
     wout = simple_integrate_x(win,  xdescr);
-    wout = integrate_ref(wout, ydescr);
+    wout = integrate(wout, ydescr);
 else
     wout = simple_integrate_y(win,  ydescr);
-    wout = integrate_ref(wout, xdescr);
+    wout = integrate(wout, xdescr);
 end
