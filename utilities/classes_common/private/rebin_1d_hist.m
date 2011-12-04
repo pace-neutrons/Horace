@@ -1,16 +1,12 @@
-function [sout,eout] = integrate_nd_iax_points_template (x, s, e, xout, use_mex, force_mex)
-% Integrates point data along axis iax=1 of an IX_dataset_nd with dimensionality ndim=2.
+function [sout,eout] = rebin_1d_hist (x, s, e, xout, use_mex, force_mex)
+% Rebins histogram data along axis iax=1 of an IX_dataset_nd with dimensionality ndim=1.
 %
-%   >> [sout,eout] = integrate_nd_iax_points_template (x, s, e, xout, use_mex, force_mex)
+%   >> [sout,eout] = rebin_1d_hist (x, s, e, xout, use_mex, force_mex)
 %
-% Input:
-% ------
-%   x           Integration axis coordinates of points
+%   x           Rebin axis bin boundaries
 %   s           Signal array
 %   e           Standard deviations on signal array
-%   xout        Array of integration axis coordinates between which to integrate
-%              e.g. [x1,x2,x3,x4] outputs integrals in the range x1 to x2, x2 to x3, and x3 to x4
-%               resulting in an array of integrals in output array sout (below) of length 3
+%   xout        Output rebin axis bin boundaries
 %   use_mex     Determine if should try mex file implementation first
 %              if use_mex==true:  use mex file implementation
 %              if use_mex==false: use matlab implementation
@@ -20,12 +16,12 @@ function [sout,eout] = integrate_nd_iax_points_template (x, s, e, xout, use_mex,
 %
 % Output:
 % -------
-%   sout    Integrated signal
-%   eout    Standard deviations on integrated signal
+%   sout        Integrated signal
+%   eout        Standard deviations on integrated signal
 
 if use_mex
     try
-        [sout,eout] = integrate_nd_iax_points_template_mex (x, s, e, xout);
+        [sout,eout] = rebin_1d_hist_mex (x, s, e, xout);
     catch
         if ~force_mex
             display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
@@ -37,5 +33,5 @@ if use_mex
 end
 
 if ~use_mex
-    [sout,eout] = integrate_nd_iax_points_template_matlab (x, s, e, xout);
+    [sout,eout] = rebin_1d_hist_matlab (x, s, e, xout);
 end

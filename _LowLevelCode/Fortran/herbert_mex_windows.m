@@ -1,9 +1,13 @@
 function herbert_mex_windows (varargin)
 % Create mex files for all the Herbert fortran routines for Windows operating system
+%   - Source code assumed to have extension '.for'
+%   - Any trailing '_fortran' is removed (all code is assumed to be fortran in this folder; for backwards compatibility)
+%   - Appends '_mex' to the name in the output mex folder.
+%   - Distinguishes between Windows 32 and Windows 64.
 %
 % Will place mex files in the folder \mex below this file. it is assumed that all the required libraries have
-% previously been built. Installation requires a manual copy of the mex files to the relevant folder; this i smeant only
-% as a useful utility function to create the mex files.
+% previously been built. Installation requires a manual copy of the mex files to the relevant folder; this is 
+% meant only to be a useful utility function to create the mex files.
 %
 % During development:
 % --------------------
@@ -20,8 +24,6 @@ function herbert_mex_windows (varargin)
 % error of copying the wriong file(s).
 %   >> herbert_mex_windows('install')               % Install release versions of all mex files in correct DLL folder
 %   >> herbert_mex_windows(source_file,'install')   % Install a specific release version of a mex file in correct DLL folder
-%
-% Distinguishes between Windows 32 and Windows 64.
 
 start_dir=pwd;
 root_dir = fileparts(which(mfilename)); % root directory is assumed to be that in which this function resides
@@ -78,6 +80,7 @@ out_rel_dir = fullfile('mex',mex_dir);  % relative directory of compiled mex fil
 
 outdir = fullfile(root_dir,out_rel_dir);
 
+% Determine whether or not to delete the contents of the output folder for mex files
 if install
     startdir=pwd;
     try
@@ -92,25 +95,37 @@ if install
         error('Unable to clean out the mex folder')
     end
 end
-disp('DONE')
 
+% Get all the fortran files to mex
 if ~isempty(flname)
-    fort.name = fullfile(root_dir,source_rel_dir,[flname,'.for']);
+    for_name{1} = fullfile(root_dir,source_rel_dir,[flname,'.for']);
 else
-    fort = dir(fullfile(root_dir,source_rel_dir,'*.for'));
-    for i=1:numel(fort)
-        fort(i).name=fullfile(root_dir,source_rel_dir,fort(i).name);   % add full path to name
+    directory = dir(fullfile(root_dir,source_rel_dir,'*.for'));
+    for_name=cell(1,numel(directory));
+    for i=1:numel(directory)
+        for_name{i}=fullfile(root_dir,source_rel_dir,directory(i).name);   % add full path to name
     end
 end
 
-for i=1:numel(fort)
-    if ~debug
-        disp(['Mex file creation from ',fort(i).name,' ...'])
-        lib = fullfile(root_dir,'projects','Herbert_lib',lib_dir,'release','Herbert_lib.lib');
-        mex(fort(i).name, '-outdir', outdir, lib);
+% Get output names: strip off '_fortran' if present, and append '_mex' (we don't care about the source code language)
+out_name=cell(size(for_name));
+for i=1:numel(for_name)
+    [dummy,name]=fileparts(for_name{i});
+    if length(name)>8 && strcmpi(name(end-7:end),'_fortran')
+        out_name{i}=[name(1:end-8),'_mex'];
     else
-        disp(['Mex file (debug version) creation from ',fort(i).name,' ...'])
+        out_name{i}=[name,'_mex'];
+    end
+end
+
+for i=1:numel(for_name)
+    if ~debug
+        disp(['Mex file (release version) creation from ',for_name{i},' ...'])
+        lib = fullfile(root_dir,'projects','Herbert_lib',lib_dir,'release','Herbert_lib.lib');
+        mex(for_name{i}, '-outdir', outdir, '-output', out_name{i}, lib);
+    else
+        disp(['Mex file (debug version) creation from ',for_name{i},' ...'])
         lib = fullfile(root_dir,'projects','Herbert_lib',lib_dir,'debug','Herbert_lib.lib');
-        mex(fort(i).name, '-g', '-outdir', outdir, lib);
+        mex(for_name{i}, '-g', '-outdir', outdir, '-output', out_name{i}, lib);
     end
 end

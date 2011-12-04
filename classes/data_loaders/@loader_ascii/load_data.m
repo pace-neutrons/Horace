@@ -30,7 +30,7 @@ else
 end
 
 
-use_mex=get(her_config,'use_mex');
+use_mex=get(herbert_config,'use_mex');
 if use_mex
   try
    [S,ERR,en] = get_ascii_file(file_name ,'spe');   

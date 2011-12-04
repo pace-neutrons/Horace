@@ -59,10 +59,10 @@ classdef test_loader_ascii< TestCase
         function test_load_ASCII_par_binary(this)             
             loader=loader_ascii();
             
-            old_state=get(her_config,'use_mex');
-            set(her_config,'use_mex',1);
+            old_state=get(herbert_config,'use_mex');
+            set(herbert_config,'use_mex',1);
             [par,loader] = load_par(loader,'demo_par.par','-horace');
-            set(her_config,'use_mex',old_state);
+            set(herbert_config,'use_mex',old_state);
             assertEqual(loader.par_file_name,'demo_par.par');            
             
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(par))));
@@ -73,10 +73,10 @@ classdef test_loader_ascii< TestCase
         function test_load_ASCII_par_matlab(this)             
             loader=loader_ascii();
             
-            old_state=get(her_config,'use_mex');
-            set(her_config,'use_mex',0);
+            old_state=get(herbert_config,'use_mex');
+            set(herbert_config,'use_mex',0);
             [par,loader] = load_par(loader,'demo_par.par','-hor');
-            set(her_config,'use_mex',old_state);
+            set(herbert_config,'use_mex',old_state);
             assertEqual(loader.par_file_name,'demo_par.par');            
             
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(par))));

@@ -23,11 +23,11 @@ end
 
 % Enable or disable unit test utilites
 if switch_on
-    set(her_config,'init_tests',1);
+    set(herbert_config,'init_tests',1);
     addpath(fullfile(rootpath,'_test/matlab_xunit/xunit'));
     cd(fullfile(rootpath,'_test'));
 else
-    set(her_config,'init_tests',0);
+    set(herbert_config,'init_tests',0);
     the_path=genpath_special(fullfile(rootpath,'_test/matlab_xunit/xunit'));
     rmpath(the_path);
 end

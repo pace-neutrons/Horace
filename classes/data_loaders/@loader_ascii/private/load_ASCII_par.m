@@ -36,7 +36,7 @@ if H5F.is_hdf5(filename)
 end
 
 
-use_mex = get(her_config,'use_mex');
+use_mex = get(herbert_config,'use_mex');
 if use_mex
 % Read par file
     try     %using C routine

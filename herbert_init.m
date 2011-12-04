@@ -67,7 +67,7 @@ addgenpath_message (rootpath,'configuration');
 
 % Developer options disabled by default but should be enabled when checking
 % or on a developer's machine;
-if get(her_config,'init_tests')
+if get(herbert_config,'init_tests')
     addpath_message (rootpath,'_test/matlab_xunit/xunit');
 end
 

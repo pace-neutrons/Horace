@@ -1,19 +1,23 @@
-function [sout,eout] = integrate_nd_iax_points_matlab_template (x, s, e, xout)
-% Integrate point data along axis iax=1 of an IX_dataset_nd with dimensionality ndim=2.
-%!
-%! Based on fortran routine integrate_2d_x_points.f90 and single_integrate_2d_x_points.f90.
-%! Use as a template for arbitrary dimensionality by making the following character string
-%! substitutions: for the case of 3D integration along y axis
-%!
-%!      'integrate_nd_iax_points_matlab_template','iax=1','ndim=2','(ib,:)','(ilo,:)','(ihi,:)',...
-%!      '(ml-1,:)','(ml,:)','(mu,:)','(mu+1,:)','(ml:mu-1,:)','(ml+1:mu-1,:)','(ml+1:mu,:)'
-%! with
-%!      'integrate_3d_y_points',           'iax=2','ndim=3','(:,ib,:)','(:,ilo,:)','(:,ihi,:)',...
-%!      '(:,ml-1,:)','(:,ml,:)','(:,mu,:)','(:,mu+1,:)','(:,ml:mu-1,:)','(:,ml+1:mu-1,:)','(:,ml+1:mu,:)'
-%!
-%! and remove all lines beginning with '%!'
+function [sout,eout] = integrate_2d_y_points_matlab (x, s, e, xout)
+% Integrates point data along axis iax=2 of an IX_dataset_nd with dimensionality ndim=2.
+%
+%   >> [sout,eout] = integrate_2d_y_points_matlab (x, s, e, xout)
+%
+% Input:
+% ------
+%   x       Integration axis coordinates of points
+%   s       Signal array
+%   e       Standard deviations on signal array
+%   xout    Array of integration axis coordinates between which to integrate
+%          e.g. [x1,x2,x3,x4] outputs integrals in the range x1 to x2, x2 to x3, and x3 to x4
+%           resulting in an array of integrals in output array sout (below) of length 3
+%
+% Output:
+% -------
+%   sout    Integrated signal
+%   eout    Standard deviations on integrated signal
 
-iax=1;
+iax=2;
 ndim=2;
 
 % Perform checks on input parameters and initialise output arrays
@@ -62,7 +66,7 @@ while ib<=nb
         mu=mu+1;
     end
     % Gets here if 1) x(mu+1)>xout(ib+1), or (2) mu=nx in which case the last x point is in output bin index ib
-    [sout(ib,:),eout(ib,:)] = single_integrate_nd_iax_points_matlab_template(x,s,e,iax,xout(ib),xout(ib+1),ml,mu,sz_wrk);
+    [sout(:,ib),eout(:,ib)] = single_integrate_nd_iax_points_matlab_template(x,s,e,iax,xout(ib),xout(ib+1),ml,mu,sz_wrk);
     % Update ml for next output bin
     if mu==nx || ib==nb
         return  % no more output bins in the range [x(1),x(end)], or completed last output bin
@@ -111,16 +115,16 @@ if mu<ml
     ilo = max(ml-1,1);	% x(1) is end point if ml=1
     ihi = min(mu+1,nx);	% x(nx) is end point if mu=nx
     val = 0.5 * ((xmax-xmin)/(x(ihi)-x(ilo))) * ...
-        ( s(ihi,:)*((xmax-x(ilo))+(xmin-x(ilo))) + s(ilo,:)*((x(ihi)-xmax)+(x(ihi)-xmin)) );
+        ( s(:,ihi)*((xmax-x(ilo))+(xmin-x(ilo))) + s(:,ilo)*((x(ihi)-xmax)+(x(ihi)-xmin)) );
     errbar = 0.5 * ((xmax-xmin)/(x(ihi)-x(ilo))) * ...
-        sqrt( (e(ihi,:)*((xmax-x(ilo))+(xmin-x(ilo)))).^2 + (e(ilo,:)*((x(ihi)-xmax)+(x(ihi)-xmin))).^2 );
+        sqrt( (e(:,ihi)*((xmax-x(ilo))+(xmin-x(ilo)))).^2 + (e(:,ilo)*((x(ihi)-xmax)+(x(ihi)-xmin))).^2 );
 else
     %	xmin and xmax are separated by at least one data point in x(:)
     %	Set up effective end points:
     if ml>1	% x(1) is end point if ml=1
         x1eff = (xmin*(xmin-x(ml-1)) + x(ml-1)*(x(ml)-xmin))/(x(ml)-x(ml-1));
-        s1eff = s(ml-1,:)*(x(ml)-xmin)/((x(ml)-x(ml-1)) + (xmin-x(ml-1)));
-        e1eff = e(ml-1,:)*(x(ml)-xmin)/((x(ml)-x(ml-1)) + (xmin-x(ml-1)));
+        s1eff = s(:,ml-1)*(x(ml)-xmin)/((x(ml)-x(ml-1)) + (xmin-x(ml-1)));
+        e1eff = e(:,ml-1)*(x(ml)-xmin)/((x(ml)-x(ml-1)) + (xmin-x(ml-1)));
     else
         x1eff = x(ml);
         s1eff = zeros(sz_wrk);
@@ -128,8 +132,8 @@ else
     end
     if mu<nx	% x(mu) is end point if mu=nx
         xneff = (xmax*(x(mu+1)-xmax) + x(mu+1)*(xmax-x(mu)))/(x(mu+1)-x(mu));
-        sneff = s(mu+1,:)*(xmax-x(mu))/((x(mu+1)-x(mu)) + (x(mu+1)-xmax));
-        eneff = e(mu+1,:)*(xmax-x(mu))/((x(mu+1)-x(mu)) + (x(mu+1)-xmax));
+        sneff = s(:,mu+1)*(xmax-x(mu))/((x(mu+1)-x(mu)) + (x(mu+1)-xmax));
+        eneff = e(:,mu+1)*(xmax-x(mu))/((x(mu+1)-x(mu)) + (x(mu+1)-xmax));
     else
         xneff = x(nx);
         sneff = zeros(sz_wrk);
@@ -137,25 +141,25 @@ else
     end
 
     %	xmin to x(ml):
-    val = (x(ml)-x1eff)*(s(ml,:)+s1eff);
+    val = (x(ml)-x1eff)*(s(:,ml)+s1eff);
     errbar = (e1eff*(x(ml)-x1eff)).^2;
 
     %	x(ml) to x(mu):
     if mu==ml		% one data point, no complete intervals
-        errbar = errbar + (e(ml,:)*(xneff-x1eff)).^2;
+        errbar = errbar + (e(:,ml)*(xneff-x1eff)).^2;
     elseif mu==ml+1	% one complete interval
-        val = val + (s(mu,:)+s(ml,:))*(x(mu)-x(ml));
-        errbar = errbar + (e(ml,:)*(x(ml+1)-x1eff)).^2 + (e(mu,:)*(xneff-x(mu-1))).^2;
+        val = val + (s(:,mu)+s(:,ml))*(x(mu)-x(ml));
+        errbar = errbar + (e(:,ml)*(x(ml+1)-x1eff)).^2 + (e(:,mu)*(xneff-x(mu-1))).^2;
     else
         xwrk=repmat(reshape((x(ml+1:mu)-x(ml:mu-1)),[ones(1,iax-1),mu-ml,1]),sz_wrk);
-        val = val + sum((s(ml+1:mu,:)+s(ml:mu-1,:)).*xwrk, iax);
+        val = val + sum((s(:,ml+1:mu)+s(:,ml:mu-1)).*xwrk, iax);
         xwrk=repmat(reshape((x(ml+2:mu)-x(ml:mu-2)),[ones(1,iax-1),mu-ml-1,1]),sz_wrk);
-        errbar = errbar + (e(ml,:)*(x(ml+1)-x1eff)).^2 + (e(mu,:)*(xneff-x(mu-1))).^2 ...
-            + sum((e(ml+1:mu-1,:).*xwrk).^2, iax);
+        errbar = errbar + (e(:,ml)*(x(ml+1)-x1eff)).^2 + (e(:,mu)*(xneff-x(mu-1))).^2 ...
+            + sum((e(:,ml+1:mu-1).*xwrk).^2, iax);
     end
 
     %	x(mu) to xmax:
-    val = val + (xneff-x(mu))*(s(mu,:)+sneff);
+    val = val + (xneff-x(mu))*(s(:,mu)+sneff);
     errbar = errbar + (eneff*(xneff-x(mu))).^2;
 
     val = 0.5*val;

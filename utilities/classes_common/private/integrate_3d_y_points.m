@@ -1,7 +1,7 @@
-function [sout,eout] = integrate_nd_iax_points_template (x, s, e, xout, use_mex, force_mex)
-% Integrates point data along axis iax=1 of an IX_dataset_nd with dimensionality ndim=2.
+function [sout,eout] = integrate_3d_y_points (x, s, e, xout, use_mex, force_mex)
+% Integrates point data along axis iax=2 of an IX_dataset_nd with dimensionality ndim=3.
 %
-%   >> [sout,eout] = integrate_nd_iax_points_template (x, s, e, xout, use_mex, force_mex)
+%   >> [sout,eout] = integrate_3d_y_points (x, s, e, xout, use_mex, force_mex)
 %
 % Input:
 % ------
@@ -25,7 +25,7 @@ function [sout,eout] = integrate_nd_iax_points_template (x, s, e, xout, use_mex,
 
 if use_mex
     try
-        [sout,eout] = integrate_nd_iax_points_template_mex (x, s, e, xout);
+        [sout,eout] = integrate_3d_y_points_mex (x, s, e, xout);
     catch
         if ~force_mex
             display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
@@ -37,5 +37,5 @@ if use_mex
 end
 
 if ~use_mex
-    [sout,eout] = integrate_nd_iax_points_template_matlab (x, s, e, xout);
+    [sout,eout] = integrate_3d_y_points_matlab (x, s, e, xout);
 end

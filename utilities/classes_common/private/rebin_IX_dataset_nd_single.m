@@ -99,6 +99,9 @@ function [wout_x,wout_s,wout_e] = rebin_one_axis(ndim,iax,win_x,win_s,win_e,win_
 % number of contributing points (point averagin) regardless of the data being distribution
 % or not. This is because it is assumed that point data is sampling a function.
 
+use_mex=get(herbert_config,'use_mex');
+force_mex=get(herbert_config,'force_mex_if_use_mex');
+
 nx=numel(win_x);
 sz=size(win_s);
 if ndim==1
@@ -125,7 +128,7 @@ if nx~=sz(iax)
             wout_s=win_s;
             wout_e=win_e;
         else
-            [wout_s, wout_e] = rebin_hist_func (win_x, win_s, win_e, wout_x);
+            [wout_s, wout_e] = rebin_hist_func (win_x, win_s, win_e, wout_x, use_mex, force_mex);
         end
         if integrate_data
             if oneD
@@ -148,7 +151,7 @@ if nx~=sz(iax)
                 dx_in=repmat(reshape(diff(win_x),[ones(1,iax-1),numel(win_x)-1,1]),x_sz_repmat);
                 dx_out=repmat(reshape(diff(wout_x),[ones(1,iax-1),numel(wout_x)-1,1]),x_sz_repmat);
             end
-            [wout_s, wout_e] = rebin_hist_func (win_x, win_s./dx_in, win_e./dx_in, wout_x);
+            [wout_s, wout_e] = rebin_hist_func (win_x, win_s./dx_in, win_e./dx_in, wout_x, use_mex, force_mex);
             wout_s=wout_s.*dx_out;
             wout_e=wout_e.*dx_out;
         end
@@ -231,7 +234,7 @@ else
         else
             dx_out=repmat(reshape(diff(xbounds_true),[ones(1,iax-1),numel(xbounds_true)-1,1]),x_sz_repmat);
         end
-        [wout_s,wout_e] = integrate_points_func (win_x, win_s, win_e, xbounds_true);
+        [wout_s,wout_e] = integrate_points_func (win_x, win_s, win_e, xbounds_true, use_mex, force_mex);
         wout_x=0.5*(xbounds_true(2:end)+xbounds_true(1:end-1));
         if ~integrate_data
             wout_s=wout_s./dx_out;
