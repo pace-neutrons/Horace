@@ -32,7 +32,6 @@ application_off('herbert')
 % ---------
 addpath(rootpath)  % MUST have rootpath so that herbert_init, herbert_off included
 
-
 % Class definitions, with methods and operator definitions
 addgenpath_message (rootpath,'classes');
 
@@ -49,22 +48,22 @@ addgenpath_message (rootpath, 'applications')
 % Configurations
 addgenpath_message (rootpath,'configuration');
 
-% Put mex files on path
-if strncmpi(opt,'fortran',numel(opt))
-    fortran_root = fullfile(rootpath,'external_code','Fortran');
-    addpath_message (fortran_root);
-    [mex_dir,mex_dir_full] = mex_dir_name(fortran_root);
-    output.external_code_option='fortran';
-    addpath_message (mex_dir_full);
-    
-elseif strncmpi(opt,'matlab',numel(opt))
-    output.external_code_option='matlab';
-    addgenpath_message (rootpath,'external_code','matlab')
-    
-else
-    output.external_code_option=opt;
-    addgenpath_message (rootpath,'_test','external_code_ref',opt)   
-end
+% % Put mex files on path
+% if strncmpi(opt,'fortran',numel(opt))
+%     fortran_root = fullfile(rootpath,'external_code','Fortran');
+%     addpath_message (fortran_root);
+%     [mex_dir,mex_dir_full] = mex_dir_name(fortran_root);
+%     output.external_code_option='fortran';
+%     addpath_message (mex_dir_full);
+%     
+% elseif strncmpi(opt,'matlab',numel(opt))
+%     output.external_code_option='matlab';
+%     addgenpath_message (rootpath,'external_code','matlab')
+%     
+% else
+%     output.external_code_option=opt;
+%     addgenpath_message (rootpath,'_test','external_code_ref',opt)   
+% end
 
 % Developer options disabled by default but should be enabled when checking
 % or on a developer's machine;
