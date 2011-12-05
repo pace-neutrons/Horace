@@ -74,7 +74,7 @@ file_tmp=strtrim(filename);
 
 % Read file
 try
-    [x,y,e,npixels,pixels,footer]=get_cut_fortran(file_tmp);
+    [x,y,e,npixels,pixels,footer]=get_cut_mex(file_tmp);
     cut.x=x'; cut.y=y'; cut.e=e'; cut.npixels=npixels'; cut.pixels=pixels';
     % Read footer information
     appendix=get_labels_to_struct(footer);

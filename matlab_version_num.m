@@ -3,10 +3,18 @@ function version=matlab_version_num
 %
 %   >> version = matlab_version_num
 %
-% e.g.
+% The version number returned is not the true Matlab version, but one which
+% numerical places Matlab versions in chronological order
+%
+% e.g. if R2011b i.e. version 7.13:
 %   >> matlab_version_num
 %   ans =
 %       7.1300
+%
+% e.g. if R2007a i.e. version 7.4:
+%   >> matlab_version_num
+%   ans =
+%       7.0400  (i.e. not 7.4)
 
 vr = ver('MATLAB');
 vers = vr.Version;

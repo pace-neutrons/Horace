@@ -51,7 +51,7 @@ try
     footer=char(labels)';
     line_len=size(footer,1);    % maximum string length
     footer=footer(:)';          % make a string
-    ierr = put_slice_fortran (file_tmp,header,data.x',data.y',data.c',data.e',data.npixels',data.pixels',footer,line_len);
+    ierr = put_slice_mex (file_tmp,header,data.x',data.y',data.c',data.e',data.npixels',data.pixels',footer,line_len);
     if round(ierr)~=0
         error(['Error writing slice data to ',file_tmp])
         filename='';

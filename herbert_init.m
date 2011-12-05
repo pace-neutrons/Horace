@@ -1,4 +1,4 @@
-function varargout = herbert_init (opt)
+function herbert_init
 % Adds the paths needed by Herbert.
 %
 % In your startup.m, add the Herbert root path and call herbert_init, e.g.
@@ -9,13 +9,6 @@ function varargout = herbert_init (opt)
 
 % T.G.Perring
 
-% Get options
-% -----------
-if exist('opt','var') && ~(ischar(opt) && size(opt,1)==1 && ~isempty(opt))
-    error('Check option is character string')
-elseif ~exist('opt','var')
-    opt='fortran';
-end
 
 % Root directory is assumed to be that in which this function resides
 % (keep this path, as may be removed by call to application_off)
@@ -32,6 +25,9 @@ application_off('herbert')
 % ---------
 addpath(rootpath)  % MUST have rootpath so that herbert_init, herbert_off included
 
+% Configurations
+addgenpath_message (rootpath,'configuration');
+
 % Class definitions, with methods and operator definitions
 addgenpath_message (rootpath,'classes');
 
@@ -45,25 +41,8 @@ genieplot_init
 % Applications definitions
 addgenpath_message (rootpath, 'applications')
 
-% Configurations
-addgenpath_message (rootpath,'configuration');
-
-% % Put mex files on path
-% if strncmpi(opt,'fortran',numel(opt))
-%     fortran_root = fullfile(rootpath,'external_code','Fortran');
-%     addpath_message (fortran_root);
-%     [mex_dir,mex_dir_full] = mex_dir_name(fortran_root);
-%     output.external_code_option='fortran';
-%     addpath_message (mex_dir_full);
-%     
-% elseif strncmpi(opt,'matlab',numel(opt))
-%     output.external_code_option='matlab';
-%     addgenpath_message (rootpath,'external_code','matlab')
-%     
-% else
-%     output.external_code_option=opt;
-%     addgenpath_message (rootpath,'_test','external_code_ref',opt)   
-% end
+% Put mex files on path
+addgenpath_message (rootpath, 'DLL')
 
 % Developer options disabled by default but should be enabled when checking
 % or on a developer's machine;
@@ -71,10 +50,7 @@ if get(herbert_config,'init_tests')
     addpath_message (rootpath,'_test/matlab_xunit/xunit');
 end
 
-% Return output argument
-if nargout>0
-    varargout{1}=output;
-end
+
 disp('!------------------------------------------------------------------!')
 disp('!                      HERBERT                                     !')
 disp('! =================================================================!')
@@ -125,19 +101,6 @@ if exist(string,'dir')==7
 else
     herbert_off
     error([string, ' is not a directory - not added to path']);
-end
-
-%=========================================================================================================
-function [mex_dir,mex_dir_full] = mex_dir_name(fortran_root)
-% Get directory for mex files, and the absolute path (NOT simply relative to rootpath)
-if strcmpi(computer,'PCWIN64')
-    mex_dir='x64';
-    mex_dir_full=fullfile(fortran_root,'mex','x64');
-elseif strcmpi(computer,'PCWIN')
-    mex_dir='Win32';
-    mex_dir_full=fullfile(fortran_root,'mex','Win32');
-else
-    error('Architecture type not supported yet')
 end
 
 %=========================================================================================================

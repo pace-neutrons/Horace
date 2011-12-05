@@ -27,7 +27,7 @@ data.filepath=[path,filesep];
 
 % Read spe file
 try
-    [data.S,data.ERR,data.en]=get_spe_fortran(file_tmp);
+    [data.S,data.ERR,data.en]=get_spe_mex(file_tmp);
 catch       % try matlab algorithm
     try
         disp(['Matlab loading of .spe file : ' file_tmp]);

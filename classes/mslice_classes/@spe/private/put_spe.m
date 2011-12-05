@@ -35,7 +35,7 @@ end
 
 % Write to file
 try
-    ierr=put_spe_fortran(file_tmp,data.S,data.ERR,data.en);
+    ierr=put_spe_mex(file_tmp,data.S,data.ERR,data.en);
     if round(ierr)~=0
         error(['Error writing spe data to ',file_tmp])
         filename='';

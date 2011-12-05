@@ -58,7 +58,7 @@ file_tmp=strtrim(filename);
 
 % Read file
 try
-    [header,x,y,c,e,npixels,pixels,footer]=get_slice_fortran(file_tmp);
+    [header,x,y,c,e,npixels,pixels,footer]=get_slice_mex(file_tmp);
     nx=header(1); ny=header(2); xorig=header(3); yorig=header(4); dx=header(5); dy=header(6);
     slice.xbounds=xorig+dx.*(linspace(0,nx,nx+1)-0.5);
     slice.ybounds=yorig+dy.*(linspace(0,ny,ny+1)-0.5);

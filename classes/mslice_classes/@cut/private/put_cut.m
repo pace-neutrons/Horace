@@ -38,7 +38,7 @@ try
     footer=char(labels)';
     line_len=size(footer,1);    % maximum string length
     footer=footer(:)';          % make a single string
-    ierr = put_cut_fortran (file_tmp,data.x',data.y',data.e',data.npixels',data.pixels',footer,line_len);
+    ierr = put_cut_mex (file_tmp,data.x',data.y',data.e',data.npixels',data.pixels',footer,line_len);
     if round(ierr)~=0
         error(['Error writing cut data to ',file_tmp])
         filename='';
