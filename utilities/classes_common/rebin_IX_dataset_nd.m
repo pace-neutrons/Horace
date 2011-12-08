@@ -1,8 +1,10 @@
-function [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func,...
-                              integrate_data, point_integration_default, iax, isdescriptor, varargin)
+function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, isdescriptor, varargin)
 % Rebin an IX_dataset_nd object or array of IX_dataset_nd objects along one or more axes
 %
-%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, rebin_hist_func, integrate_points_func, integrate_data, iax, isdescriptor, varargin)
+%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, isdescriptor, varargin)
+
+use_mex=get(herbert_config,'use_mex');
+force_mex=get(herbert_config,'force_mex_if_use_mex');
 
 nax=numel(iax); % number of axes to be rebinned
 
@@ -42,8 +44,8 @@ else
         if ~ok, wout=[]; return, end
         true_values=false(1,nax);
         for i=1:nax
-            if numel(xbounds{i})>=3 && ~any_dx_zero(i)                      % get new bin boundaries
-                xbounds{i}=bin_boundaries_from_descriptor(xbounds{i},0);    % need to give dummy x bins for mex file
+            if numel(xbounds{i})>=3 && ~any_dx_zero(i)  % get new bin boundaries
+                xbounds{i}=bin_boundaries_from_descriptor(xbounds{i},0,use_mex,force_mex);  % need to give dummy x bins for mex file
                 true_values(i)=true;
             end
         end
@@ -59,14 +61,12 @@ end
 % Perform rebin
 % -------------
 if numel(win)==1
-    wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
-        rebin_hist_func,integrate_points_func,integrate_data,point_integration);
+    wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,integrate_data,point_integration,use_mex,force_mex);
 else
     ndim=dimensions(win(1));
     wout=repmat(IX_dataset_nd(ndim),size(win));
     for i=1:numel(win)
-        wout(i) = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,...
-            rebin_hist_func,integrate_points_func,integrate_data,point_integration);
+        wout(i) = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,integrate_data,point_integration,use_mex,force_mex);
     end
 end
 ok=true;

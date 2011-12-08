@@ -1,36 +1,40 @@
-function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,...
-    rebin_hist_func,integrate_points_func,integrate_data,point_integration)
+function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,integrate_data,point_integration,use_mex,force_mex)
 % Rebin dataset. Assumes that have already checked validity of input data.
 %
-%   >> wout = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
-%                                               rebin_hist_func,integrate_points_func,integrate_data,point_integration)
+%   >> wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,integrate_data,point_integration)
 % OR
-%   >> [wout_x,wout_s,wout_e] = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
-%                                               rebin_hist_func,integrate_points_func,integrate_data,point_integration)
+%   >> [wout_x,wout_s,wout_e] = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,integrate_data,point_integration,...
+%                                                           use_mex,force_mex)
+%
 % Input:
 % -------
-%   win             Input IX_dataset_nd object
-%   iax             Array of axis indices (chosen from 1,2,3...) of rebin axes
-%   xbounds         Output rebin boundaries or descriptor of boundaries for each axis (cell array of row vectors) 
-%                  (Note: these describe boundaries for the rebinning even if point data)
-%   true_values     Array of logical flags that give nature of data contained in xbounds:
-%                     true:  boundaries are the true values
-%                     false: boundaries is rebin rescriptor
-%   rebin_hist_func         Handles to rebin functions e.g. rebin_2d_x_hist for each axis (cell array)
-%   integrate_points_func   Handles to point data integration functions e.g. integrate_2d_y_points for each axis (cell array)
-%   integrate_data          Integrate(true) or rebin (false)
-%   point_integration       Array of averging method (point data only; ignored if histogram data)
-%                             true:  Trapezoidal integration
-%                             false: Point averaging
+%   win                 Input IX_dataset_nd object
+%   iax                 Array of axis indices (chosen from 1,2,3...) of rebin axes
+%   xbounds             Output rebin boundaries or descriptor of boundaries for each axis (cell array of row vectors) 
+%                      (Note: these describe boundaries for the rebinning even if point data)
+%   true_values         Array of logical flags that give nature of data contained in xbounds:
+%                         true:  boundaries are the true values
+%                         false: boundaries is rebin rescriptor
+%   integrate_data      Integrate(true) or rebin (false)
+%   point_integration   Array of averging method (point data only; ignored if histogram data)
+%                         true:  Trapezoidal integration
+%                         false: Point averaging
+%   use_mex             Use mex files
+%                         true:  Try to mex functions first
+%                         false: Use matlab functions
+%   force_mex           Force mex files (only relevant if use_mex==true)
+%                         true:  Throw error if mex function fails
+%                         false: Use matlab function if mex function fails
+%           
 % Output:
 % -------
 % EITHER:
-%   wout            Output IX_dataset_nd object
+%   wout                Output IX_dataset_nd object
 %   
 % OR:
-%   wout_x          Rebinned axis values
-%   wout_s          Rebinned signal
-%   wout_e          Rebinned errors
+%   wout_x              Rebinned axis values
+%   wout_s              Rebinned signal
+%   wout_e              Rebinned errors
 %
 % Note that integration is the same as rebinning for non-distribution histogram data.
 % For point data, integration requires multiplication by the bin widths (point integration) or
@@ -43,11 +47,11 @@ wout_x=cell(1,nrebin);
 % Need to treat IX_dataset_1d in special way: because data is stored as row vectors
 ax=axis(win,iax(1));
 [wout_x{1},wout_s,wout_e] = rebin_one_axis(ndim,iax(1),ax.values,win.signal,win.error,ax.distribution,xbounds{1},true_values(1),...
-                                            rebin_hist_func{1},integrate_points_func{1},integrate_data,point_integration(1));
+                                            integrate_data,point_integration(1),use_mex,force_mex);
 for i=2:nrebin
     ax=axis(win,iax(i));
     [wout_x{i},wout_s,wout_e] = rebin_one_axis(ndim,iax(i),ax.values,wout_s,wout_e,ax.distribution,xbounds{i},true_values(i),...
-                                                rebin_hist_func{i},integrate_points_func{i},integrate_data,point_integration(i));
+                                                integrate_data,point_integration(i),use_mex,force_mex);
 end
 if nargout==1
     if ~integrate_data
@@ -63,44 +67,45 @@ end
 
 %============================================================================================================
 function [wout_x,wout_s,wout_e] = rebin_one_axis(ndim,iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
-                                                rebin_hist_func,integrate_points_func,integrate_data,point_integration)
+                                                integrate_data,point_integration,use_mex,force_mex)
 % Rebin dataset. Assumes that have already checked validity of input data.
 %
-%   >> [wout_x,wout_s,wout_e] = single_rebin_one_axis(iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
-%                                               rebin_hist_func,integrate_points_func,point_integration)
+%   >> [wout_x,wout_s,wout_e] = rebin_one_axis(ndim,iax,win_x,win_s,win_e,win_xdist,xbounds,true_values,...
+%                                               integrate_data,point_integration,use_mex,force_mex)
 %
 % Input:
 % -------
-%   ndim            Dimensionality of IX_dataset_nd object
-%   iax             Array of axis indices (chosen from 1,2,3...) of rebin axes
-%   win_x           Input x-values
-%   win_s           Input signal
-%   win_e           Input error
-%   xbounds         Output rebin boundaries or descriptor of boundaries 
-%                  (Note: these describe boundaries for the rebinning even if point data)
-%   true_values     Nature of data contained in xbounds:
-%                     true:  xbounds contains the true x-axis rebin values
-%                     false: xbounds contains a rebin rescriptor
-%   rebin_hist_func         Rebin function e.g. rebin_2d_x_hist
-%   integrate_points_func   Point data integration function e.g. integrate_2d_y_points
-%   integrate_data          Integrate(true) or rebin (false)
-%   point_integration       Averging method (point data only; ignored if histogram data)
-%                             true:  Trapezoidal integration
-%                             false: Point averaging
+%   ndim                Dimensionality of IX_dataset_nd object
+%   iax                 Axis indices (chosen from 1,2,3...) of rebin axes
+%   win_x               Input x-values
+%   win_s               Input signal
+%   win_e               Input error
+%   xbounds             Output rebin boundaries or descriptor of boundaries 
+%                      (Note: these describe boundaries for the rebinning even if point data)
+%   true_values         Nature of data contained in xbounds:
+%                         true:  xbounds contains the true x-axis rebin values
+%                         false: xbounds contains a rebin rescriptor
+%   integrate_data      Integrate(true) or rebin (false)
+%   point_integration   Averging method (point data only; ignored if histogram data)
+%                         true:  Trapezoidal integration
+%                         false: Point averaging
+%   use_mex             Use mex files
+%                         true:  Try to mex functions first
+%                         false: Use matlab functions
+%   force_mex           Force mex files (only relevant if use_mex==true)
+%                         true:  Throw error if mex function fails
+%                         false: Use matlab function if mex function fails
 %
 % Output:
 % -------
-%   wout_x          Rebinned axis values
-%   wout_s          Rebinned signal
-%   wout_e          Rebinned errors
+%   wout_x              Rebinned axis values
+%   wout_s              Rebinned signal
+%   wout_e              Rebinned errors
 %
 % Note that integration is the same as rebinning for non-distribution histogram data.
 % For point data, integration requires multiplication by the bin widths (point integration) or
 % number of contributing points (point averagin) regardless of the data being distribution
 % or not. This is because it is assumed that point data is sampling a function.
-
-use_mex=get(herbert_config,'use_mex');
-force_mex=get(herbert_config,'force_mex_if_use_mex');
 
 nx=numel(win_x);
 sz=size(win_s);
@@ -113,11 +118,12 @@ x_sz_repmat=sz; x_sz_repmat(iax)=1; % size to repmat a vector across the input o
 %---------------------------------------------------------------------------------------------
 % Histogram data
 if nx~=sz(iax)
+    rebin_hist_func = rebin_hist_func_handle(ndim,iax);
     if true_values
         wout_x=xbounds;
     else
         if ~isempty(xbounds)
-            wout_x=bin_boundaries_from_descriptor (xbounds, win_x);
+            wout_x=bin_boundaries_from_descriptor (xbounds, win_x, use_mex, force_mex);
         else
             wout_x=win_x;
         end
@@ -166,9 +172,9 @@ else
         if ~isempty(xbounds)
             if numel(win_x)>1
                 % *** It might be better to use tmp=bin_boundaries_simple(win_x), tmp(2:end-1) as 2nd argument
-                xbounds_true=bin_boundaries_from_descriptor(xbounds, bin_boundaries_simple(win_x));
+                xbounds_true=bin_boundaries_from_descriptor(xbounds, bin_boundaries_simple(win_x), use_mex, force_mex);
             else    % effectively make ranges where dx=0 just one bin 
-                xbounds_true=bin_boundaries_from_descriptor(xbounds, [xbounds(1),xbounds(end)]);
+                xbounds_true=bin_boundaries_from_descriptor(xbounds, [xbounds(1),xbounds(end)], use_mex, force_mex);
             end
         else
             xbounds_true=bin_boundaries_simple(win_x);
@@ -229,6 +235,7 @@ else
         end
     else
         % Trapezoidal integration averaging
+        integrate_points_func = integrate_points_func_handle(ndim,iax);
         if oneD
             dx_out=diff(xbounds_true)';
         else

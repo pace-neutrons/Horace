@@ -21,8 +21,7 @@ function make_IX_datasets_ref
 %   hh_1d_big           The above converted to all histogram datasets using point2hist
 
 
-output_file='c:\temp\test_data.mat';
-%output_file='T:\SVN_area\Herbert\_test\test_data.mat';
+output_file='c:\temp\test_IX_datasets_ref.mat';
 
 % Generate data
 % ---------------

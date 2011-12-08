@@ -1,8 +1,9 @@
 %% =====================================================================================================================
 % Setup location of reference functions (fortran or matlab)
 % ======================================================================================================================
-ref_loc='fortran';
-test_loc='matlab';
+load('T:\SVN_area\Herbert_trunk\_test\test_IX_classes\test_IX_datasets_ref.mat');
+
+set(herbert_config,'force_mex_if_use_mex',true);
 
 
 %% =====================================================================================================================
@@ -15,34 +16,34 @@ disp('===========================')
 disp('    1D: Test integrate')
 disp('===========================')
 
-use_mex(ref_loc)
+set(herbert_config,'use_mex',true);
 ih1_ref=integrate(h1,5,10);
-use_mex(test_loc)
+set(herbert_config,'use_mex',false);
 ih1    =integrate(h1,5,10);
 delta_IX_dataset_nd(ih1_ref,ih1,tol)
 % disp_valerr(ih1_ref)
 % disp_valerr(ih1)
 
-use_mex(ref_loc)
+set(herbert_config,'use_mex',true); 
 ih1b_ref=integrate(h1,0,20);
-use_mex(test_loc)
+set(herbert_config,'use_mex',false);
 ih1b    =integrate(h1,0,20);
 delta_IX_dataset_nd(ih1b_ref,ih1b,tol)
 % disp_valerr(ih1b_ref)
 % disp_valerr(ih1b)
 
 
-use_mex(ref_loc)
+set(herbert_config,'use_mex',true); 
 ip1_ref=integrate(p1,5,10);
-use_mex(test_loc)
+set(herbert_config,'use_mex',false);
 ip1    =integrate(p1,5,10);
 delta_IX_dataset_nd(ip1_ref,ip1,tol)
 % disp_valerr(ip1_ref)
 % disp_valerr(ip1)
 
-use_mex(ref_loc)
+set(herbert_config,'use_mex',true); 
 ip1b_ref=integrate(p1,0,20);
-use_mex(test_loc)
+set(herbert_config,'use_mex',false);
 ip1b    =integrate(p1,0,20);
 delta_IX_dataset_nd(ip1b_ref,ip1b,tol)
 % disp_valerr(ip1b_ref)
@@ -53,21 +54,21 @@ delta_IX_dataset_nd(ip1b_ref,ip1b,tol)
 % ----------
 tol=-1e-14;
 
-use_mex(ref_loc)
+set(herbert_config,'use_mex',true); 
 ihpa_ref=integrate(hp_1d_big,105,110);
-use_mex(test_loc)
+set(herbert_config,'use_mex',false);
 ihpa    =integrate(hp_1d_big,105,110);
 ans=delta_IX_dataset_nd(ihpa_ref,ihpa,tol);
 
-use_mex(ref_loc)
+set(herbert_config,'use_mex',true); 
 ihpb_ref=integrate(hp_1d_big,-10,550);
-use_mex(test_loc)
+set(herbert_config,'use_mex',false);
 ihpb    =integrate(hp_1d_big,-10,550);
 ans=delta_IX_dataset_nd(ihpb_ref,ihpb,tol);
 
-use_mex(ref_loc)
+set(herbert_config,'use_mex',true); 
 ihpc_ref=integrate(hp_1d_big,-20,620);
-use_mex(test_loc)
+set(herbert_config,'use_mex',false);
 ihpc    =integrate(hp_1d_big,-20,620);
 ans=delta_IX_dataset_nd(ihpc_ref,ihpc,tol);
 
@@ -78,7 +79,7 @@ disp(' ')
 
 
 %% =====================================================================================================================
-% Test 2D integrate
+% Test 2D integration
 % ======================================================================================================================
 
 pp1b=pp1; pp1.x_distribution=true;  pp1.y_distribution=true;
@@ -108,10 +109,10 @@ xint_arg={{xdescr}};
 for j=1:numel(xint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
-        use_mex(ref_loc)
+        set(herbert_config,'use_mex',true); 
         disp(['= ',num2str(i)])
         w2x_ref(i)=simple_integrate_x(w2ref(i),xint_arg{j}{:});
-        use_mex(test_loc)
+        set(herbert_config,'use_mex',false);
         w2x(i)=integrate_x(w2ref(i),xint_arg{j}{:});
         delta_IX_dataset_nd(w2x_ref(i),w2x(i),tol)
     end
@@ -127,10 +128,10 @@ yint_arg={{ydescr}};
 for j=1:numel(yint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
-        use_mex(ref_loc)
+        set(herbert_config,'use_mex',true); 
         disp(['= ',num2str(i)])
         w2y_ref(i)=simple_integrate_y(w2ref(i),yint_arg{j}{:});
-        use_mex(test_loc)
+        set(herbert_config,'use_mex',false);
         w2y(i)=integrate_y(w2ref(i),yint_arg{j}{:});
         delta_IX_dataset_nd(w2y_ref(i),w2y(i),tol)
     end
@@ -146,10 +147,10 @@ xyint_arg={{xdescr,ydescr}};
 for j=1:numel(xyint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
-        use_mex(ref_loc)
+        set(herbert_config,'use_mex',true); 
         disp(['= ',num2str(i)])
         w2xy_ref(i)=simple_integrate(w2ref(i),xyint_arg{j}{:});
-        use_mex(test_loc)
+        set(herbert_config,'use_mex',false);
         w2xy(i)=integrate(w2ref(i),xyint_arg{j}{:});
         delta_IX_dataset_nd(w2xy_ref(i),w2xy(i),tol)
     end
@@ -163,7 +164,7 @@ disp(' ')
 
 
 %% =====================================================================================================================
-% Test 3D rebind
+% Test 3D integration
 % ====================================================================================================================== 
 disp('===========================')
 disp('    3D: Test integrate')
@@ -192,7 +193,7 @@ disp(' ')
 % Save data
 % ====================================================================================================================== 
 % Save objects
-output_file='c:\temp\test_integrate_output.mat';
+output_file='c:\temp\test_integrate_output_new.mat';
 save(output_file,'ih1_ref','ih1b_ref','ip1_ref','ip1b_ref','ihpa_ref','ihpb_ref','ihpc_ref',...
                  'w2x_ref','w2y_ref','w2xy_ref','xxref','yyref','zzref','iiref',...
                  'ih1','ih1b','ip1','ip1b','ihpa','ihpb','ihpc','w2x','w2y','w2xy','xx','yy','zz','ii')
