@@ -162,7 +162,7 @@ classdef test_loader_ascii< TestCase
             assertEqual(size(en),[31,1]);       
             % find ISO NaN-s
             mask=isnan(S);
-            % checm if they are all in right place 
+            % check if they are all in right place 
             assertEqual(mask(1:2,1),logical(ones(2,1)))
             assertEqual(mask(:,5),logical(ones(30,1)));
         end

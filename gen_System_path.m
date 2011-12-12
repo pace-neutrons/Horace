@@ -56,27 +56,25 @@ if isempty(files)
   return
 end
 % modify last system version files
-    isfile = ~logical(cat(1,files.isdir));
-    my_files  = files(isfile);
-    file_names={my_files(:).name};
-    
-    % replace functions prohibited for current version with their
-    % equivalents;
-    if verLessThan('matlab', '7.11.0') 
-        fun_to_replace={'isrow_.m','iscolumn_.m'};  
-        fun_replacements={'isrow.m','iscolumn.m'};
-        if any(ismember(file_names,fun_to_replace))
-            run_replacement(fun_to_replace,fun_replacements,d);
-        end
-    else % matlab high version has such functions;
-        fun_to_replace={'isrow.m','iscolumn.m'};        
-        fun_replacements={'isrow_.m','iscolumn_.m'};        
-        if any(ismember(file_names,fun_to_replace))
-            run_replacement(fun_to_replace,fun_replacements,d);
-        end
-        
-           
-    end
+%--->   THERE ARE NO SUCH FUNCTIONS AT THE MOMENT    
+%    % replace or susbstitute version specific functios here
+%    % with their version specific equivalents;
+%     isfile = ~logical(cat(1,files.isdir));
+%     my_files  = files(isfile);
+%     file_names={my_files(:).name};   
+%     if verLessThan('matlab', '7.11.0') 
+%         fun_to_replace={'isrow_.m','iscolumn_.m'};  
+%         fun_replacements={'isrow.m','iscolumn.m'};
+%         if any(ismember(file_names,fun_to_replace))
+%             run_replacement(fun_to_replace,fun_replacements,d);
+%         end
+%     else % matlab high version has such functions;
+%         fun_to_replace={'isrow.m','iscolumn.m'};        
+%         fun_replacements={'isrow_.m','iscolumn_.m'};        
+%         if any(ismember(file_names,fun_to_replace))
+%             run_replacement(fun_to_replace,fun_replacements,d);
+%         end                  
+%     end
 
 
 % Add d to the path even if it is empty.

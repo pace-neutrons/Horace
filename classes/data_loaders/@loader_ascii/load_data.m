@@ -43,7 +43,7 @@ if ~use_mex
    [S,ERR,en] = get_spe_matlab(file_name);
 end
 % eliminate symbolic NaN-s
-nans      = ismember(S,-1.E+30);
+nans      = (-(S(:,:)/1.e+30+1)>1.e-8);
 S(nans)   = NaN;
 ERR(nans) = 0;
 %
