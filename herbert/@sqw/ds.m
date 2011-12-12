@@ -21,11 +21,7 @@ for i=1:numel(win)
         end
     end
 end
-if get(hor_config,'use_her_graph')
-    name_surface = get(horgrph_config,'name_surface');
-else
-	name_surface =  get_global_var('horace_plot','name_surface');
-end
+name_surface =  get_global_var('horace_plot','name_surface');
 
 [figureHandle_, axesHandle_, plotHandle_] = ds(IX_dataset_2d(win), 'name', name_surface, varargin{:});
 
