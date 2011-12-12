@@ -25,9 +25,7 @@ ok=true; mess='';
 % Check input arguments
 % ---------------------
 % Check spectrum is not too long an array
-%maxspec=get_global_var('genieplot','twod_maxspec');
-
-maxspec=get(graph_config,'twod_maxspec');
+maxspec=get_global_var('genieplot','twod_maxspec');
 if numel(w_in)>maxspec
     ok=false; mess=['This function can only be used to plot ',num2str(maxspec),' 2D datasets - check input object'];
     if nargout<=3, error(mess), else return, end
@@ -67,17 +65,13 @@ if isstring(keyword.name)
         fig_name=keyword.name;
     else
         if strcmpi(plot_type,'area')        % area plot
-            %fig_name=get_global_var('genieplot','name_area');
-			 fig_name=get(graph_config,'name_area');
+            fig_name=get_global_var('genieplot','name_area');
         elseif strcmpi(plot_type,'surface') % surface plot
-            %fig_name=get_global_var('genieplot','name_surface');
-			fig_name=get(graph_config,'name_surface');
+            fig_name=get_global_var('genieplot','name_surface');
         elseif strcmpi(plot_type,'surface2')% surface2 plot
-            %fig_name=get_global_var('genieplot','name_surface');
-             fig_name=get(graph_config,'name_surface');			
+            fig_name=get_global_var('genieplot','name_surface');
         elseif strcmpi(plot_type,'contour') % contour plot
-            %fig_name=get_global_var('genieplot','name_contour');
-			fig_name=get(graph_config,'name_contour');			
+            fig_name=get_global_var('genieplot','name_contour');
         end
     end
 elseif isnumeric(keyword.name) && isscalar(keyword.name) && ~newplot
@@ -162,9 +156,7 @@ else
 end
 
 % Make a copy of w_in for manipulations inside plot routines
-%nsmooth=get_global_var('genieplot','twod_nsmooth');
-nsmooth=get(graph_config,'twod_nsmooth');
-%
+nsmooth=get_global_var('genieplot','twod_nsmooth');
 if nsmooth == 0
     w = w_in;
 else

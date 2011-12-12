@@ -7,17 +7,28 @@ function del_out=delta_IX_dataset_nd(w1,w2,tol,verbose)
 %
 %   >> del = delta_IX_dataset_nd(...)
 %
-% if tol>0, then absolute tolerance
-% if tol<0, then relative tolerance
+% Input:
+% ------
+%   w1, w2  IX_datset_nd objects to be compared (must both be scalar)
+%   tol     Tolerance criterion for equality
+%               if tol>=0, then absolute tolerance
+%               if tol<0, then relative tolerance
+%   verbose If verbose=true then print message even if equal
+%
+% Output:
+% -------
+%   del     Array containing differences [x_1, x_2, ...,x_nd, signal, error]
+%           Absolute or relative according to sign of tol
 
 if ~exist('tol','var')||isempty(tol), tol=0; end
 if ~exist('verbose','var')||isempty(tol), verbose=false; end
 
-if isstruct(w1) && isstruct(w2)     % assume structure with fields val and err, as produced by integration
+fname={'val';'err'};
+if isstruct(w1) && isstruct(w2) && isequal(fname,fields(w1)) && isequal(fname,fields(w2))     % assume structure with fields val and err, as produced by integration
     del=zeros(1,2);
     delrel=zeros(1,2);
     [del(1),delrel(1)]=del_calc(w1.val,w2.val);
-    [del(2),delrel(2)]=del_calc(w1.val,w2.val);
+    [del(2),delrel(2)]=del_calc(w1.err,w2.err);
 else
     h1=ishistogram(w1);
     h2=ishistogram(w2);

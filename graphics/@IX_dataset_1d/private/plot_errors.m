@@ -1,10 +1,8 @@
 function plot_errors (w)
 % Plot error bars
 
-%line_width=get_global_var('genieplot','line_width');
-%color=get_global_var('genieplot','color');
-[line_width,color]=get(graph_config,'line_width','color');
-%
+line_width=get_global_var('genieplot','line_width');
+color=get_global_var('genieplot','color');
 
 nw = numel(w);
 icol = mod(0:nw-1,length(color))+1;
@@ -34,10 +32,7 @@ for i=1:nw
 end
 
 % Make linear or log axes as required
-%xscale=get_global_var('genieplot','xscale');
-%yscale=get_global_var('genieplot','yscale');
-%
-[xscale,yscale]=get(graph_config,'xscale','yscale');
-%
+xscale=get_global_var('genieplot','xscale');
+yscale=get_global_var('genieplot','yscale');
 set (gca, 'XScale', xscale);
 set (gca, 'YScale', yscale);

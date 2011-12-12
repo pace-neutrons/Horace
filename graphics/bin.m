@@ -5,8 +5,7 @@ function bin (n)
 
 % Display current value if no input argument
 if nargin==0
-    %binning=get_global_var('genieplot','oned_binning');
-    binning=get(graph_config,'oned_binning');	
+    binning=get_global_var('genieplot','oned_binning');
     disp(['Present 1D graphics binning = ' num2str(binning)])
     return
 end
@@ -17,6 +16,5 @@ if isnumeric(n) && isscalar(n)
     if abs(binning-double(n))>small || binning<0
         error('Graphics binning must be an integer >= 0')
     end
-    %set_global_var('genieplot','oned_binning',binning);
-	set(graph_config,'oned_binning',binning);	
+    set_global_var('genieplot','oned_binning',binning);
 end

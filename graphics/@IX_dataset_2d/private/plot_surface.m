@@ -10,10 +10,7 @@ for i=1:nw
 end
 
 % Make linear or log axes as required
-%xscale=get_global_var('genieplot','xscale');
-%yscale=get_global_var('genieplot','yscale');
-%
-[xscale,yscale]=get(graph_config,'xscale','yscale');
-%
+xscale=get_global_var('genieplot','xscale');
+yscale=get_global_var('genieplot','yscale');
 set (gca, 'XScale', xscale);
 set (gca, 'YScale', yscale);

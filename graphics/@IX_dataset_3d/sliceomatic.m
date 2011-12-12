@@ -50,8 +50,7 @@ if isstring(keyword.name)
     if ~isempty(keyword.name)
         fig_name=keyword.name;
     else
-        %fig_name=get_global_var('genieplot','name_sliceomatic');
-        fig_name=get(graph_config,'name_sliceomatic');		
+        fig_name=get_global_var('genieplot','name_sliceomatic');
     end
 else
     error('Figure name must be a character string')

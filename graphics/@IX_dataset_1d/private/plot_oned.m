@@ -16,9 +16,7 @@ function [fig_, axes_, plot_, ok, mess] = plot_oned (w_in, varargin)
 %                   'p'     points =  markers and error bars
 
 plot_types={'errors','histogram','line','markers','data','points'};
-%default_fig_name=get_global_var('genieplot','name_oned');
-default_fig_name=get(graph_config,'name_oned');
-%
+default_fig_name=get_global_var('genieplot','name_oned');
 default_plot_type='data';
 
 arglist = struct('name',default_fig_name,...
@@ -33,9 +31,7 @@ ok=true; mess='';
 % Check input arguments
 % ---------------------
 % Check spectrum is not too long an array
-%maxspec=get_global_var('genieplot','oned_maxspec')
-maxspec=get(graph_config,'oned_maxspec');
-%
+maxspec=get_global_var('genieplot','oned_maxspec');
 if numel(w_in)>maxspec
     ok=false; mess=['This function can only be used to plot ',num2str(maxspec),' spectra - check input object'];
     if nargout<=3, error(mess), else return, end
@@ -146,8 +142,7 @@ else
 end
 
 % Make a copy of w_in for manipulations inside plot routines
-%binning=get_global_var('genieplot','oned_binning');
-binning=get(graph_config,'oned_binning');
+binning=get_global_var('genieplot','oned_binning');
 if binning <= 1   % accepts value of zero
     w = w_in;
 else
