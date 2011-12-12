@@ -15,8 +15,8 @@ addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 
 addpath_message (2,rootpath,'DLL');
 addpath_message (1,rootpath,'configuration');
-%
-% Other directories -> used by hor_config!
+
+% Other directories
 addpath_message (1,rootpath,'utilities');
 
 % If Herbert requested choose Herbert graphics functions and methods instead of libisis functions
@@ -26,15 +26,14 @@ else
     addpath_message (1,rootpath,'libisis');
 end
 
-
+% Functions for fitting etc.
 addpath_message (1,rootpath,'functions');
-%addpath_message (1,rootpath,'hdf_tools');
 
 %Add GUI path
 addpath_message(1,rootpath,'GUI');
 
 
-
+%addpath_message (1,rootpath,'hdf_tools');          % no longer used
 %addpath_message (1,rootpath,'work_in_progress');   % not included in the distribution
 
 
@@ -49,7 +48,6 @@ try
     horace_plot.name_contour = 'Horace contour plot';
     horace_plot.name_sliceomatic = 'Sliceomatic';
     set_global_var('horace_plot',horace_plot);
-    set(graph_config,horace_plot);
 catch
     % For libisis:
     IXG_ST_HORACE= struct('surface_name','Horace surface plot','area_name','Horace area plot','stem_name','Horace stem plot','oned_name','Horace one dimensional plot',...

@@ -33,74 +33,59 @@ this = this_local;
 %   - if two sealed fields  ...,sealed_fields,{{'v1','v2'}},...
 %
 %--------------------------------------------------------------------------------------------------
-
-
-
 function horace_defaults=horace_defaults()
 % functuion builds the structure, which describes default parameters used
 % in HORACE;
 % This structure is used if no previous configuration has been defined on
-% this machine,e.g. configuration file does not exist. 
+% this machine,e.g. configuration file does not exist.
 % Ths function also can define the fields which will always have default
 % values specifying their names in the field:
 % fields_sealed
 
 horace_defaults = ...
-     struct('mem_chunk_size',10000000,...  % maximum length of buffer array in which to accumulate points from the input file
-            'pixel_length',9,...           % number of words in a pixel
-            'threads',1, ...               % how many computational threads to use in mex files and by Matlab
-            'ignore_nan',1,...      % by default, ignore NaN values found in 
-            'ignore_inf',0,...      % do not ignore inf values;
-            'transformSPE2HDF',0,... % if this parameter is enabled, and spe file is processed using class speData, SPE will be rewritten as hdf file for future usage.
-            'horace_info_level',1,... ;   % see horace_info_level method   
-            'use_mex',true, ...  user will use mex-code for time-consuming operations 
-            'delete_tmp',true, ... % delete temporary files which were generated while building sqw file after sqw has been build successfully 
-            'use_par_from_nxspe',false, ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
-            'use_herbert',false, ...  % use Herbert as IO tools
-            'use_her_graph',false ... % use Herbert Graph configuration -> shoudl be connected with use herbert
-            );
+    struct('mem_chunk_size',10000000,...  % maximum length of buffer array in which to accumulate points from the input file
+    'pixel_length',9,...            % number of words in a pixel
+    'threads',1, ...                % how many computational threads to use in mex files and by Matlab
+    'ignore_nan',1,...              % by default, ignore NaN values found in
+    'ignore_inf',0,...              % do not ignore inf values;
+    'transformSPE2HDF',0,...        % if this parameter is enabled, and spe file is processed using class speData, SPE will be rewritten as hdf file for future usage.
+    'horace_info_level',1,... ;     % see horace_info_level method
+    'use_mex',true, ...             % user will use mex-code for time-consuming operations
+    'delete_tmp',true, ...          % delete temporary files which were generated while building sqw file after sqw has been build successfully
+    'use_par_from_nxspe',false, ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
+    'use_herbert',false ...         % use Herbert as IO tools
+    );
 
-    Matlab_Version=matlab_version_num();
+Matlab_Version=matlab_version_num();
 
-% configure memory and processors    
+% Configure memory and processors
 % let's try to identify the number of processors to use in OMP
-    n_processors = getenv('OMP_NUM_THREADS');    
-    if(isempty(n_processors))
-% *** > this have to be modified in a future to work on UNIX with Matlab
-% higher then 7.10
-        n_processors=1;  % not good for linux 
-    else
-        n_processors=str2double(n_processors);
-    end
-    % matlabs below should know better how many threads to use in
-    % calculations
-    if(Matlab_Version>7.07&&Matlab_Version<7.11) % Matlab supports settings of the threads from command line
-        s=warning('off','MATLAB:maxNumCompThreads:Deprecated');
-        n_processors = maxNumCompThreads();
-        warning(s.state,'MATLAB:maxNumCompThreads:Deprecated');               
-    end
-    % OMP in C++ does not scales well with higher number of CPU
-    % or at least have not been tested against it. Lets set it to 4 
-    % *** > but have to modify if changed to extreamly large datasets in memory or
-    %  much bigger amount of calculations in comparison with IO operations,
-    % *** > optimisation is possuble.
-    if n_processors>4
-        n_processors=4;
-    end    
-    
-    [mex_versions,n_errors]=check_horace_mex();
-    if n_errors>0
-        horace_defaults.use_mex=false;
-    else
-    end
-   
-    horace_defaults.threads = n_processors;
-    horace_defaults.sealed_fields={'sealed_fields','pixel_length'}; % specify the fields which values
-    %can not be changed by user;
+n_processors = getenv('OMP_NUM_THREADS');
+if(isempty(n_processors))
+    % *** > this have to be modified in a future to work on UNIX with Matlab higher then 7.10
+    n_processors=1;  % not good for linux
+else
+    n_processors=str2double(n_processors);
+end
+% Matlab below should know better how many threads to use in calculations
+if(Matlab_Version>7.07&&Matlab_Version<7.11) % Matlab supports settings of the threads from command line
+    s=warning('off','MATLAB:maxNumCompThreads:Deprecated');
+    n_processors = maxNumCompThreads();
+    warning(s.state,'MATLAB:maxNumCompThreads:Deprecated');
+end
+% OMP in C++ does not scale well with higher number of CPU
+% or at least has not been tested against it. Lets set it to 4
+% *** > but have to modify if changed to extremly large datasets in memory or
+%  much bigger amount of calculations in comparison with IO operations,
+% *** > optimisation is possible.
+if n_processors>4
+    n_processors=4;
+end
 
+[dummy,n_errors]=check_horace_mex();
+if n_errors>0
+    horace_defaults.use_mex=false;
+end
 
-
-
-
-
-
+horace_defaults.threads = n_processors;
+horace_defaults.sealed_fields={'sealed_fields','pixel_length'}; % fields whose values cannot be changed by user
