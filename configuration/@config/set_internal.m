@@ -27,6 +27,9 @@ function this=set_internal(this,change_sealed,varargin)
 %
 % NOTE: This method has to be public because it is used by customised set methods
 %       configuration objects. It should not be used in any other context.
+% 
+% $Revision$ ($Date$)
+%
 
 
 % Get the value of change_sealed

@@ -1,6 +1,9 @@
 function [valid,mess]=check_fields_valid (structure, root_config_name)
 % Check that the fields of a structure are valid as a configuration object
 %
+% $Revision$ ($Date$)
+%
+%
 %   >> [valid,mess]=check_fields_valid (structure, root_config_name)
 %
 %   structure           Structure

@@ -25,6 +25,9 @@ function build_configuration(this, default_config_fun, config_name)
 % memory.
 %
 %
+% $Revision$ ($Date$)
+%
+%
 % NOTE: This method has to be public because it is used by the constructor of all
 %       configuration objects. It should not be used in any other context.
 

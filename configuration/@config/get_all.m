@@ -1,16 +1,20 @@
-function S=get_all(this,opt)
-% Retrieve all configurations currently in memory as a structure
+function config=get_all(this,opt)
+% Retrieve all configurations currently in memory
 %
-%   >> S = get_all (config)             % retrive all current configurations
-%   >> S = get_all (config,'default')   % retrive all default configurations
+%   >> config = get_all (config)             % retrive current configurations
+%   >> config = get_all (config,'default')   % retrive default configurations
 %
-% Each field in the structure S corresponds to a configuration thatis currently
+% Each field in the structure corresponds to a configuration thatis currently
 % in memory.
+%
+% $Revision$ ($Date$)
+%
+
 
 if nargin==1
-    S=config_store(false);
+    config=config_store(false);
 elseif nargin==2 && ischar(opt) && ~isempty(opt) && size(opt,1)==1 && strncmpi(opt,'default',length(opt))
-    S=config_store(true);
+    config=config_store(true);
 else
     error('Check input arguments')
 end
