@@ -3,7 +3,7 @@ function report=count_lines_mfiles(varargin)
 %
 %   >> report = count_lines_mfiles              % current directory
 %   >> report = count_lines_mfiles(directory)   % named directory
-%   >> report = count_lines_mfiles(...,'-all')   % recursively through sub-directories too
+%   >> report = count_lines_mfiles(...,'-all')  % recursively through sub-directories too
 %
 % Skips folders with name '.svn'
 
@@ -21,6 +21,9 @@ else
 end
 if narg>=1
     directory=varargin{1};
+    if ~exist(directory,'dir')
+        error(['Directory ',directory,' does not exist.'])
+    end
 else
     directory=pwd;
 end
@@ -39,7 +42,7 @@ end
 % Loop over all directories
 % --------------------------
 if recurse
-    directories=dir_name_list(directory,'','*.svn');    % skip svn work folders
+    directories=dir_name_list(directory,'','.svn');    % skip svn work folders
     for i=1:numel(directories)
         sub_directory=directories{i};
         % ignore '.' and '..'

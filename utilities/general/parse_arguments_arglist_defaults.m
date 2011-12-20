@@ -15,6 +15,26 @@ function arglist_out = parse_arguments_arglist_defaults(arglist,flags,arglist_de
 %
 %   arglist_out   Output arglist
 % 
+%   This function is a utility for use in setting default values before a call to
+%   parse_arguments.
+%
+% EXAMPLE (from Homer):
+%
+%        :
+%   arglist = struct(... % argument names and default values
+%     'period',1,...
+%     'ei',[],...
+%        :
+%     'corr',0,...
+%     'abs',[],...
+%     'mass',[],...
+%     'RMM',[]);
+%   flags = {'corr'};
+% 
+%   % Pick up defaults for Homer from global defaults setting to update arglist
+%   [dummy,arglist_def]=ixf_global_var('homer','get');
+%   arglist = parse_arguments_arglist_defaults(arglist,flags,arglist_def);
+%        :
 %
 % Notes:
 %  - if a field of arglist is empty and the field also appears in arglist_def, then

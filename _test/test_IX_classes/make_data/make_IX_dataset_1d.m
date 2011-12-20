@@ -3,6 +3,15 @@ function [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_IX_dataset_1d (nx0, nw)
 %
 %   >> [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_IX_dataset_1d (nx0, nw)
 %
+% Input:
+% -------
+%   nx0                 Used to generate values of points along the x axis. Each
+%                      IX_dataset_1d will have approximately nx0 points, with
+%                      values approximately between 0 and 10.
+%   nw                  Number of workspaces in the output IX_dataset_1d arrays
+%
+% Output:
+% -------
 %   hh_1d_gau           Array of nw IX_dataset_1d objects, all with different x, signal error
 %                      arrays, mixed histogram and point datasets. The x arrays have
 %                      different lengths, but are approximately on the range 0-10.

@@ -4,7 +4,7 @@ function [field_nams,field_vals] = parse_config_arg(varargin)
 % 
 %   >> [field_nams,field_vals] = parse_config_arg('a',10,'b','something')
 %
-%   >> [field_nams,field_vals] = parse_arg(source)
+%   >> [field_nams,field_vals] = parse_config_arg(source)
 %                             Similar to above but fields a and b with corresponding
 %                             values are set in structure source e.g.
 %                             source.a==10 and source.b=='something'
@@ -23,7 +23,7 @@ if narg==1
     is_struct = isa(svar,'struct');
     is_cell   = iscell(svar);
     if ~(is_struct || is_cell)
-        error('PARSE_ARG:wrong_arguments','second parameter has to be a structure or a cell array');       
+        error('PARSE_CONFIG_ARG:wrong_arguments','second parameter has to be a structure or a cell array');       
     end
     if is_struct
         field_nams = fieldnames(svar)';
@@ -38,7 +38,7 @@ if narg==1
     end
 else
     if (rem(narg,2) ~= 0)
-         error('PARSE_ARG:wrong_arguments','incomplete set of (field,value) pairs given');        
+         error('PARSE_CONFIG_ARG:wrong_arguments','incomplete set of (field,value) pairs given');        
     end
     field_nams = varargin(1:2:narg);
     field_vals = varargin(2:2:narg);

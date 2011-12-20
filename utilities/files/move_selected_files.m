@@ -9,7 +9,11 @@ function move_selected_files (source, root_source, root_target, varargin)
 % --------
 %   source          Source folder (full path)
 %   root_source     Root folder from which to get relative path of source
+%                  e.g. if source is 'c:\temp\mydir\stuff' and root_source is 'c:\temp'
+%                       then the relative path is 'mydir\stuff'
 %   root_target     Root folder for relative path to which to move
+%                  e.g. if root_target is 'd:\mprogs' then with the above example
+%                       the output directory is 'd:\mprogs\mydir\stuff
 %
 % Optional:
 % ---------
@@ -22,6 +26,11 @@ function move_selected_files (source, root_source, root_target, varargin)
 %   str_pattern     The first occurence of this string pattern in each filename
 %                  will be replaced with the following:
 %   str_replace     Replacement string
+%
+%
+% EXAMPLE
+%   >> move_slected_files('c:\temp\mydir\stuff','c:\temp','d:\mprogs','*.m','','read','get')
+
 
 % *** make sure is synchronised with copy_selected _files
 

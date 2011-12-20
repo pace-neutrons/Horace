@@ -1,12 +1,8 @@
 function [ok,mess,par,ind,val]=parse_args_simple_ok_syntax (keywords,varargin)
-% Simple verification that argument list has form:
-%
-%    par1, par2, par3, ..., key1, val1, key2, val2, ...
-%
-%  where valid keywords must be in the provided list
+% Simple verification that argument list has form: par1, par2, par3, ..., key1, val1, key2, val2, ...
 %
 %   >> [ok,mess,ind,val]= ...
-%         parse_args_ok_syntax (keywords, par1, par2, ..., key1, val1, key2, val2, ...)
+%         parse_args_simple_ok_syntax (keywords, par1, par2, ..., key1, val1, key2, val2, ...)
 %
 % Input:
 %   keywords        Cell array of strings containing the keywords

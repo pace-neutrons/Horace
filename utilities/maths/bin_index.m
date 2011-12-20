@@ -1,7 +1,7 @@
 function indx=bin_index(x,b,inclusive)
 % Find bin index for a set of points
 %
-%   >> ib=bin_index(x,b)
+%   >> indx=bin_index(x,b)
 %
 % Input:
 %   x           Array of points (must be monotonic increasing, but need not be strictly monotonic)

@@ -1,5 +1,6 @@
 function list=dir_name_list(directory,varargin)
-% Return list of files in a directory that satisfy a selection of filters
+% Return list of directories in a directory that satisfy a selection of filters. Works on PC or Unix
+%
 %   >> list = dir_name_list (directory)
 %   >> list = dir_name_list (directory, include)
 %   >> list = dir_name_list (directory, include, exclude)
@@ -7,15 +8,17 @@ function list=dir_name_list(directory,varargin)
 % Input:
 % --------
 %   directory           Directory (full path)
-%   include             List of file names to include (default: all)
-%                       Format: e.g. 'temp.txt', 'te*.*; *mat*.m'
+%   include             List of directory names to include (default: all)
+%                      (If empty, then uses default)
+%                       Format: e.g. 'temp', 'te*; *mat*'
 %                       If empty, then uses default
 %   exclude             List of directory names to exclude (default: none)
-%                       Format: e.g. 'temp.txt', 'te*.*; *mat*.m'
+%                      (If empty, then uses default)
+%                       Format: e.g. 'temp', 'te*; *mat*'
 %
 % Output:
 % --------
-%   list                Cell array of file names
+%   list                Cell array of directory names
 
 % *** Ways to improve: can count the number of outputs rather than have arrays grow in loop
 % *** Synchronise with equivalent routine for list of file names
@@ -39,11 +42,24 @@ if include_all && exclude_none
     contents=dir(directory);
     list=contents_to_namecellstr(contents,find([contents.isdir]));
 else
+    contents=dir(directory);
+    list_all=contents_to_namecellstr(contents,find([contents.isdir]));
     if ~include_all
         list={};
         for i=1:numel(include)
-            contents=dir(fullfile(directory,include{i}));
-            list=[list,contents_to_namecellstr(contents,find([contents.isdir]))];
+            if ~isempty(strfind(include{i},'*'))
+                contents=dir(fullfile(directory,include{i}));   % appropriately ignores case for PC systems
+                list=[list,contents_to_namecellstr(contents,find([contents.isdir]))];
+            else
+                if ispc
+                    ind=find(strcmpi(include{i},list_all));
+                else
+                    ind=find(strcmp(include{i},list_all));
+                end
+                if ~isempty(ind)
+                    list=[list,list_all{ind}];
+                end
+            end
         end
     else
         contents=dir(directory);
@@ -52,9 +68,19 @@ else
     if ~exclude_none
         excllist={};
         for i=1:numel(exclude)
-            contents = dir(fullfile(directory,exclude{i}));
-            ind = find([contents.isdir]);
-            excllist=[excllist,contents_to_namecellstr(contents,ind)];
+            if ~isempty(strfind(exclude{i},'*'))
+                contents = dir(fullfile(directory,exclude{i})); % appropriately ignores case for PC systems
+                excllist=[excllist,contents_to_namecellstr(contents,find([contents.isdir]))];
+            else
+                if ispc
+                    ind=find(strcmpi(exclude{i},list_all));
+                else
+                    ind=find(strcmp(exclude{i},list_all));
+                end
+                if ~isempty(ind)
+                    excllist=[excllist,list_all{ind}];
+                end
+            end
         end
         ind=array_keep(list,excllist);
         list=list(ind);

@@ -60,7 +60,7 @@ for i=1:numel(directories)
     end
     % Recurse down
     full_directory=fullfile(directory,sub_directory);
-    directory_recurse(full_directory, function_pointer, varargin{iargbeg:end});
+    directory_recurse(full_directory, include, exclude, function_pointer, varargin{iargbeg:end});
 end
 
 % execute the callback with any supplied parameters.

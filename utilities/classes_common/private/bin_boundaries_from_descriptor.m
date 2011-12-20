@@ -15,6 +15,16 @@ function [x_out, ok, mess] = bin_boundaries_from_descriptor (xbounds, x_in, use_
 %                   [If only two elements, then interpreted as lower and upper bounds, with DEL=0]
 %
 %   x_in        Input x-array bin boundaries - only used where DEL=0 for one of the rebin ranges
+%              Provide a dummy *numerical* value e.g. 0 if it is known that it is not needed; the
+%              mex implementation needs a numerical value.
+%
+%   use_mex     Determine if should try mex file implementation first
+%              if use_mex==true:  use mex file implementation
+%              if use_mex==false: use matlab implementation
+%
+%   force_mex   If use_mex==true, determine if forces mex only, only allows matlab implementation to catch error
+%              if force_mex==true: do not allow matlab implementation to catch error
+%              if force_mex==false: allow matlab to catch on error condition in call to mex file
 %
 % Output:
 % --------

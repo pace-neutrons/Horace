@@ -17,7 +17,7 @@ function del_out=delta_IX_dataset_nd(w1,w2,tol,verbose)
 %
 % Output:
 % -------
-%   del     Array containing differences [x_1, x_2, ...,x_nd, signal, error]
+%   del     Array containing maximum differences [x_1, x_2, ...,x_nd, signal, error]
 %           Absolute or relative according to sign of tol
 
 if ~exist('tol','var')||isempty(tol), tol=0; end
@@ -94,7 +94,17 @@ end
 
 %============================================================================================
 function [del,delrel]=del_calc(v1,v2)
-% Get absolute and absolute relative differences between two arrays
+% Get absolute and relative differences between two column vectors.
+%
+%   >> [del,delrel]=del_calc(v1,v2)
+%
+% Where the maximum absolute magnitude of a pair of elements is less than unity, it is treated as unity
+% i.e. the relative difference becomes the absolute difference, or equivalently, the
+% returned relative difference is alway less than or equal to the absolute difference.
+% This is to avoid problems with large relative differences from rounding errors, which
+% is against the spirit of the check that this function is designed for.
+%
+% Note that if divide by zero, then the NaNs are ignored in the max function, so no problem!
 num=v1-v2;
 den=max(max(abs(v1),abs(v2)),1);
 del=max(abs(num));
