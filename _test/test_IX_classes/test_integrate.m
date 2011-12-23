@@ -2,7 +2,9 @@ function test_integrate (varargin)
 % Test integrate functions, optionally writing results to output file
 %
 %   >> test_integrate
-%   >> test_integrate ('save')
+%   >> test_integrate ('save')  % save to  c:\temp\test_integrate_output.mat
+%
+% Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
 
 if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')

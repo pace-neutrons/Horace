@@ -20,8 +20,6 @@ function this=set(this,varargin)
 %   >> var = set(configobj)                    % Leaves configobj unchanged
 %   >> var = set(configobj,'defaults')         % Sets to default values configuration
 
-if strcmp(varargin{1},'-change_sealed')
-    error('CONFIG:set','Change of sealed fields is prohibited in set function')
-end
+% $Revision$ ($Date$)
 
 this=set_internal(this,false,varargin{:});

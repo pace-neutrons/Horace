@@ -1,5 +1,10 @@
 function make_IX_datasets_ref
-% Create some workspaces for testing IX objects and save to 
+% Create some workspaces for testing IX objects, and save to  c:\temp\test_IX_datasets_ref.mat
+%
+%   >> make_IX_datasets_ref
+%
+% The objects are different everytime this is run, as a random number generator is used.
+% Objects created are:
 %
 %   p1 p2 p3            IX_dataset_1d point objects;
 %                      All have same x axes, but different signals and errors

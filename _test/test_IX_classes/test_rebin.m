@@ -2,7 +2,9 @@ function test_rebin (varargin)
 % Test rebin functions, optionally writing results to output file
 %
 %   >> test_rebin
-%   >> test_rebin ('save')
+%   >> test_rebin ('save')  % save to  c:\temp\test_rebin_output.mat
+%
+% Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
 
 if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')

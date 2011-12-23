@@ -1,9 +1,6 @@
 function [valid,mess]=check_fields_valid (structure, root_config_name)
 % Check that the fields of a structure are valid as a configuration object
 %
-% $Revision$ ($Date$)
-%
-%
 %   >> [valid,mess]=check_fields_valid (structure, root_config_name)
 %
 %   structure           Structure
@@ -15,6 +12,8 @@ function [valid,mess]=check_fields_valid (structure, root_config_name)
 % A structure is valid so long as it satisfies teh following:
 %   - Cannot contain the root config class at any depth of nesting
 %   - Must contain a top-level field called 'sealed_fields' that is a cellstr of valid field names
+
+% $Revision$ ($Date$)
 
 if isfield(structure,'sealed_fields')
     [valid,mess]=valid_sealed_fields(structure.sealed_fields,fieldnames(structure));

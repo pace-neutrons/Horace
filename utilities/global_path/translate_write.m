@@ -43,12 +43,12 @@ if ~isempty(file) && ischar(file) && size(file,1)==1 && numel(size(file))==2
             ok=false;
             mess=['Cannot find a location to write file: ',file];
         end
-        if ~isvarname(filename)
+        if ~isvalidfilename(filename)
             file_out='';
             ok=false;
             mess=['Invalid file name or extension: ',file];
         end
-        if ~(isempty(ext)||(numel(ext)>1 && isvarname(ext(2:end))))     % allow extension to be empty
+        if ~(isempty(ext)||(numel(ext)>1 && isvalidfileext(ext(2:end))))     % allow extension to be empty
             file_out='';
             ok=false;
             mess=['Invalid file name or extension: ',file];
@@ -64,3 +64,29 @@ end
 if nargout==1 && ~ok
     error(mess);
 end
+
+%-------------------------------------------------------------------------------------------
+function ok=isvalidfilename(str)
+% Check if valid file name
+%
+%   >> ok=isvalidfilename(str)
+%
+% Depending on operating system, certain non-alphanumeric characters may be
+% permitted in file names
+%
+% *** CURRENTLY A DUMMY FUNCTION
+
+ok=true;
+
+%-------------------------------------------------------------------------------------------
+function ok=isvalidfileext(str)
+% Check if valid file extension
+%
+%   >> ok=isvalidfileext(str)
+%
+% Depending on operating system, certain non-alphanumeric characters may be
+% permitted in file names
+%
+% *** CURRENTLY A DUMMY FUNCTION
+
+ok=true;

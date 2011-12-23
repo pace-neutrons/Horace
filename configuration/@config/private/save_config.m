@@ -8,9 +8,9 @@ function [ok,mess] = save_config (file_name, config_data)
 %
 %   ok              true if saved ok; false otherwise
 %   mess            message if not ok (empty otherwise)
-%
+
 % $Revision$ ($Date$)
-%
+
 
 % Delete existing configuration file, if there is one
 if exist(file_name,'file')

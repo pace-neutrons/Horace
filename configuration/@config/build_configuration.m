@@ -23,13 +23,12 @@ function build_configuration(this, default_config_fun, config_name)
 %
 % In either case, the current configuration and default configuration are saved in
 % memory.
-%
-%
-% $Revision$ ($Date$)
-%
-%
+
 % NOTE: This method has to be public because it is used by the constructor of all
 %       configuration objects. It should not be used in any other context.
+%
+% $Revision$ ($Date$)
+
 
 root_config_name=mfilename('class');
 

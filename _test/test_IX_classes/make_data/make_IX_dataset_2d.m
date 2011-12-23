@@ -3,9 +3,15 @@ function [hh_gau,hp_gau,pp_gau] = make_IX_dataset_2d (nx, ny)
 %
 %   >> [hh_gau,hp_gau,pp_gau] = make_IX_dataset_2d (nx, ny)
 %
+% The objects are different everytime this is run, as a random number generator is used.
+%
+% Input:
+% ------
 %   nx          Number of x bin boundaries
 %   ny          Number of y values
 %
+% Output:
+% -------
 %   hh_gau      hist-hist 2D Gaussian with range x=c. 0-10 and y=c. 0-6
 %   hp_gau      hist-point (different x,y,signal and errors)
 %   pp_gau      point-point (different x,y,signal and errors)

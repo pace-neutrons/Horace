@@ -3,6 +3,8 @@ function [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_IX_dataset_1d (nx0, nw)
 %
 %   >> [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_IX_dataset_1d (nx0, nw)
 %
+% The objects are different everytime this is run, as a random number generator is used.
+%
 % Input:
 % -------
 %   nx0                 Used to generate values of points along the x axis. Each

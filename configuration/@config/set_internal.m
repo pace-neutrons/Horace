@@ -23,13 +23,11 @@ function this=set_internal(this,change_sealed,varargin)
 %
 %   >> var = set_internal(configobj, change_sealed)                    % Leaves configobj unchanged
 %   >> var = set_internal(configobj, change_sealed,'defaults')         % Sets to default values configuration
-%
-%
+
 % NOTE: This method has to be public because it is used by customised set methods
 %       configuration objects. It should not be used in any other context.
-% 
-% $Revision$ ($Date$)
 %
+% $Revision$ ($Date$)
 
 
 % Get the value of change_sealed

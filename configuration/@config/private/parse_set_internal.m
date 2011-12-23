@@ -28,6 +28,8 @@ function S = parse_set_internal (this, change_sealed, varargin)
 %
 % NOTE: For internal use only.
 
+% $Revision: 120 $ ($Date: 2011-12-20 18:18:12 +0000 (Tue, 20 Dec 2011) $)
+
 
 config_name = class(this);               % class name of incoming object
 narg = length(varargin);
