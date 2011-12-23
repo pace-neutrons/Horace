@@ -50,7 +50,8 @@ end
 jj=jet(30);
 counter=1;
 for i=linspace(omega_min,omega_max,30)
-    rotmat=[cosd(i) sind(i); -sind(i) cosd(i)];
+    %rotmat=[cosd(i) sind(i); -sind(i) cosd(i)];
+    rotmat=[cosd(180+i) sind(180+i); -sind(180+i) cosd(180+i)];
     
     X=rho.*cosd(tth);
     Y=(rho.*sind(tth)).*cosd(azi);
