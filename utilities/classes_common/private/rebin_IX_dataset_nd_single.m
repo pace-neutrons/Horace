@@ -10,13 +10,13 @@ function varargout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,inte
 % -------
 %   win                 Input IX_dataset_nd object
 %   iax                 Array of axis indices (chosen from 1,2,3...) of rebin axes
-%   xbounds             Output rebin boundaries or descriptor of boundaries for each axis (cell array of row vectors) 
+%   xbounds             Rebin boundaries or descriptor of boundaries for each axis (cell array of row vectors) 
 %                      (Note: these describe boundaries for the rebinning even if point data)
 %   true_values         Array of logical flags that give nature of data contained in xbounds:
 %                         true:  boundaries are the true values
 %                         false: boundaries is rebin rescriptor
 %   integrate_data      Integrate(true) or rebin (false)
-%   point_integration   Array of averging method (point data only; ignored if histogram data)
+%   point_integration   Array of averging method for each axis (point data only; ignored if histogram data)
 %                         true:  Trapezoidal integration
 %                         false: Point averaging
 %   use_mex             Use mex files

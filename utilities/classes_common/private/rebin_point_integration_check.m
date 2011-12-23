@@ -1,9 +1,18 @@
 function [point_integration, ok, mess] = rebin_point_integration_check (nax, option)
 % Check point rebinning option: trapezoidal integration or point averaging
 %
+%   >> [point_integration, ok, mess] = rebin_point_integration_check (nax, option)
+%
+% Input:
 %   nax     Number of axes for which to return the option
 %   option  Character string: 'integrate' or 'average' 
 %           Cell array of character strings, length=nax
+%
+% Output:
+%   point_integration   Logical array length nax of true (integrate) or
+%                      false (average) for each axis
+%   ok      true if no error, false if there is an error or inconsistency in the input
+%   mess    error message (empty if ok)
 
 ok=true; mess='';
 if ischar(option) || (iscellstr(option) && numel(option)==1)

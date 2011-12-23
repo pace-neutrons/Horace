@@ -15,11 +15,13 @@ function [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_check(nax,varargin)
 %     x1,x2,x3,...          % Set of bin boundaries: equivalent to [x1,x2,x3,...]
 %
 %   Any number of rebin axes:
-%     xbins1, xbins2, ...   % Set of bin boundaries (one vector of bin boundaries per dimension)
+%     xbins1, xbins2, ...   % Set of bin boundaries, one vector of bin boundaries per dimension,
+%                           % each with one of the forms above i.e.
 %                           % General form:
 %                           %   xbins=[x1,x2,x3,...] where x1<x2<x3... (numel(xbins)>=2)
 %                           % Special case:
 %                           %   xbins=[] or 0     - leave binning as it currently is
+%                           %   xbins=[xlo,0,xhi]
 %
 % Output:
 % -------
@@ -44,7 +46,7 @@ end
 % Parse input
 if nax==1
     if ~(numel(varargin)==1 && (isempty(varargin{1}) || (isnumeric(varargin{1})&&isvector(varargin{1}))))
-        % input is not a single empty argumnent or a numeric vector, so must be non empty numeric scalars
+        % input is not a single empty argument or a numeric vector, so only valid input is non empty numeric scalars
         xvals=zeros(1,numel(varargin));
         for i=1:numel(varargin)
             if ~isempty(varargin{i}) && isnumeric(varargin{i}) && isscalar(varargin{i})

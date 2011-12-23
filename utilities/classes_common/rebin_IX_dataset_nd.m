@@ -1,7 +1,35 @@
 function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, isdescriptor, varargin)
 % Rebin an IX_dataset_nd object or array of IX_dataset_nd objects along one or more axes
 %
-%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, isdescriptor, varargin)
+%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, isdescriptor,...
+%                                            range_1, range_2, ..., point_integration)
+%
+% Input:
+% ------
+%   win                 IX_dataset_nd object or array of objects (n=1,2,3...ndim, ndim=dimensoionality of object)
+%                      that is to be integrated
+%   integrate_data      Integrate(true) or rebin (false)
+%   point_integration_default   Default averging method for axes with point data (ignored by any axes with histogram data)
+%                         true:  Trapezoidal integration
+%                         false: Point averaging
+%   iax                 Array of axis indices (chosen from 1,2,3... to a maximum of ) to be rebinned or integrated
+%   isdescriptor        Rebin/integration intervals are given by a descriptor of the values (true) or
+%                      an array of actual values (false)
+%   range_1, range_2    Arrays of rebin/integration intervals, one per rebin/integration axis. Depending on isdescriptor,
+%                      there are a number of different formats and defaults that are valid.
+%                       If win is one dimensional, then if all the arguments can be scalar they are treated as the
+%                      elements of range_1
+%   point_integration   Averaging method if point data
+%                        - character string 'integration' or 'average'
+%                        - cell array with number of entries equalling number of rebin/integration axes (i.e. numel(iax))
+%                          each entry the character string 'integration' or 'average'
+%                       If an axis is a histogram data axis, then its corresponding entry is ignored
+%
+% Output:
+% -------
+%   wout                IX_dataset_nd object or array of objects following the rebinning/integration
+%   ok                  True if no problems, false otherwise
+%   mess                Error message; empty if ok
 
 use_mex=get(herbert_config,'use_mex');
 force_mex=get(herbert_config,'force_mex_if_use_mex');
@@ -40,7 +68,7 @@ if numel(args)==1 && isa(args{1},class(win))
 
 else
     if isdescriptor
-        [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax,args{:});
+        [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_descriptor_check(nax,args{:});
         if ~ok, wout=[]; return, end
         true_values=false(1,nax);
         for i=1:nax

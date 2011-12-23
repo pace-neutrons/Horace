@@ -1,8 +1,8 @@
-function [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax,varargin)
+function [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_descriptor_check(nax,varargin)
 % Check rebin descriptor has valid format, and returns in standard form [x1,dx1,x2,dx2,x3,...]
 %
-%   >> [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax)        % sets output descriptors to [] for all nax axes
-%   >> [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax,...)    % general case (see below)
+%   >> [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_descriptor_check(nax)        % sets output descriptors to [] for all nax axes
+%   >> [ok,xbounds,any_dx_zero,mess]=rebin_boundaries_descriptor_check(nax,...)    % general case (see below)
 %
 % Input:
 % ------
@@ -15,14 +15,14 @@ function [ok,xbounds,any_dx_zero,mess]=rebin_descriptor_check(nax,varargin)
 %     x1,dx1,x2,dx2,x3,...  % Rebin descriptor: equivalent to [x1,dx1,x2,dx2,x3,...]
 %
 %   Any number of rebin axes (i.e. any value of nax):
-%     xdescr1, xdescr2,...  % Set of rebin descriptors i.e. vectors that define bin boundaries
-%                           %(one vector of bin boundaries per dimension).
+%     xdescr1, xdescr2,...  % Set of rebin descriptors i.e. vectors that define bin boundaries,
+%                           % one vector of bin boundaries per dimension, each with one ofthe above forms i.e.
 %                           % General form:
 %                           %   xbins=[x1,dx1,x2,dx2,x3,...] where x1<x2<x3... and that 
-%                           %   dx +ve: equal bin sizes between corresponding limits
-%                           %   dx -ve: logarithmic bins between corresponding limits
-%                                    (note: if dx1<0 then dx1>0, dx2<0 then dx2>0 ...)
-%                           %   dx=0  : retain existing bins between corresponding limits
+%                           %     dx +ve: equal bin sizes between corresponding limits
+%                           %     dx -ve: logarithmic bins between corresponding limits
+%                                      (note: if dx1<0 then dx1>0, dx2<0 then dx2>0 ...)
+%                           %     dx=0  : retain existing bins between corresponding limits
 %                           % Special cases:
 %                           %   xbins=[] or 0     - leave binning as it currently is
 %
@@ -51,7 +51,7 @@ end
 % Parse input
 if nax==1
     if ~(numel(varargin)==1 && (isempty(varargin{1}) || (isnumeric(varargin{1})&&isvector(varargin{1}))))
-        % input is not a single empty argumnent or a numeric vector, so must be non empty numeric scalars
+        % input is not a single empty argument or a numeric vector, so only valid input is non empty numeric scalars
         xvals=zeros(1,numel(varargin));
         for i=1:numel(varargin)
             if ~isempty(varargin{i}) && isnumeric(varargin{i}) && isscalar(varargin{i})
