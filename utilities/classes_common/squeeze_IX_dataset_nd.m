@@ -23,9 +23,9 @@ remove(iax)=true;
 for i=1:numel(win)
     sz=[size(win(i).signal),ones(1,ndim-numel(size(win(i).signal)))];   % this works even if ndim=1, i.e. ones(1,-1)==[]
     if i==1
-        keep=(sz>1|~remove);
+        keep=(sz~=1|~remove);
     else
-        if any((sz>1|~remove)~=keep)
+        if any((sz~=1|~remove)~=keep)
             error('Dimensions to be squeezed in the datasets are not all the same')
         end
     end

@@ -6,7 +6,7 @@ function [ok, message, wout] = checkfields (w)
 %   w       structure or object of the class
 %
 %   ok      ok=true if valid, =false if not
-%   message Message if not a valid sqw object, empty string if is valiw.
+%   message Message if not a valid sqw object, empty string if is valid.
 %   wout    Output structure or object of the class 
 %           wout can be an altered version of the input structure or object that must
 %           have the same fields. For example, if a column array is provided for a field
@@ -25,8 +25,8 @@ function [ok, message, wout] = checkfields (w)
 % Ensures the following is returned
 %
 % 	title				cellstr         Title of dataset for plotting purposes (character array or cellstr)
-% 	signal              double  		Signal (column vector)
-% 	error				        		Standard error (column vector)
+% 	signal              double  		Signal (column vector, size(signal)==[n1,1) where n1=no. points along x axis)
+% 	error				        		Standard error (column vector, size matches that of signal)
 % 	s_axis				IX_axis			Signal axis object containing caption and units codes
 %                                     (Can also just give caption; multiline input in the form of a
 %                                      cell array or a character array)
@@ -51,55 +51,49 @@ message='';
 wout=w;
 
 if isequal(fieldnames(w),fields)
-    if ischar(w.title)||iscellstr(w.title)
-        if ischar(w.title)
-            wout.title=cellstr(w.title);
+    if ischar(wout.title)||iscellstr(wout.title)
+        if ischar(wout.title)
+            wout.title=cellstr(wout.title);
         end
     else
         message='Title must be character array or cell array of strings'; return
     end
-    sum_empty=isempty(w.signal)+isempty(w.error)+isempty(w.x);
-    if sum_empty==0         % none are empty
-        if ~isa(w.signal,'double')||~isvector(w.signal)||~isa(w.error,'double')||~isvector(w.error)||~isa(w.x,'double')||~isvector(w.x)
-            message='x-axis values, signal and error arrays must all be double precision vectors'; return
-        end
-        if numel(w.signal)~=numel(w.error)
-            message='Length of signal and error arrays must be the same'; return
-        end
-        if ~(numel(w.x)==numel(w.signal)||numel(w.x)==numel(w.signal)+1)
-            message='Check lengths of x-axis and signal arrays'; return
-        end
-        dx=diff(w.x);
-        if any(dx<0)
-            message='Check x-axis values are monotonic increasing'; return
-        end
-    elseif sum_empty==3     % all empty
-        wout.signal=[];
-        wout.error=[];
-        wout.x=[];
-    else
-        message='Check contents of signal, error and x arrays'; return
+    if numel(size(wout.x))==2 && all(size(wout.x)==[0,0]), wout.x=zeros(1,0); end        % input was e.g. '' or [], so assume to mean default
+    if numel(size(wout.signal))==2 && all(size(wout.signal)==[0,0]), wout.signal=zeros(0,1); end     % input was e.g. '' or [], so assume to mean default
+    if numel(size(wout.error))==2 && all(size(wout.error)==[0,0]), wout.error=zeros(0,1); end        % input was e.g. '' or [], so assume to mean default
+    if ~isa(wout.signal,'double')||~isvector(wout.signal)||~isa(wout.error,'double')||~isvector(wout.error)||~isa(wout.x,'double')||~isvector(wout.x)
+        message='x-axis values, signal and error arrays must all be double precision vectors'; return
     end
-    if ischar(w.s_axis)||iscellstr(w.s_axis)
-        wout.s_axis=IX_axis(w.s_axis);
-    elseif ~isa(w.s_axis,'IX_axis')
+    if numel(wout.signal)~=numel(wout.error)
+        message='Length of signal and error arrays must be the same'; return
+    end
+    if ~(numel(wout.x)==numel(wout.signal)||numel(wout.x)==numel(wout.signal)+1)
+        message='Check lengths of x-axis and signal arrays'; return
+    end
+    dx=diff(wout.x);
+    if any(dx<0)
+        message='Check x-axis values are monotonic increasing'; return
+    end
+    if ischar(wout.s_axis)||iscellstr(wout.s_axis)
+        wout.s_axis=IX_axis(wout.s_axis);
+    elseif ~isa(wout.s_axis,'IX_axis')
         message='signal axis annotation must be character array or IX_axis object (type help IX_axis)'; return
     end
-    if ischar(w.x_axis)||iscellstr(w.x_axis)
-        wout.x_axis=IX_axis(w.x_axis);
-    elseif ~isa(w.x_axis,'IX_axis')
+    if ischar(wout.x_axis)||iscellstr(wout.x_axis)
+        wout.x_axis=IX_axis(wout.x_axis);
+    elseif ~isa(wout.x_axis,'IX_axis')
         message='x-axis annotation must be character array or IX_axis object (type help IX_axis)'; return
     end
-    if (islogical(w.x_distribution)||isnumeric(w.x_distribution))&&isscalar(w.x_distribution)
-        if isnumeric(w.x_distribution)
-            wout.x_distribution=logical(w.x_distribution);
+    if (islogical(wout.x_distribution)||isnumeric(wout.x_distribution))&&isscalar(wout.x_distribution)
+        if isnumeric(wout.x_distribution)
+            wout.x_distribution=logical(wout.x_distribution);
         end
     else
         message='Distribution type must be true or false'; return
     end
-    if size(w.signal,1)==1, wout.signal=w.signal'; end  % make column vector
-    if size(w.error,1)==1, wout.error=w.error'; end
-    if size(w.x,2)==1, wout.x=w.x'; end     % make row vector
+    if size(wout.signal,1)==1, wout.signal=wout.signal'; end  % make column vector
+    if size(wout.error,1)==1, wout.error=wout.error'; end
+    if size(wout.x,2)==1, wout.x=wout.x'; end     % make row vector
 else
     message='Fields inconsistent with class type';
     return

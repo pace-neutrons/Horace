@@ -11,8 +11,8 @@ function w = IX_dataset_2d(varargin)
 %  Creates an IX_dataset_2d object with the following elements:
 %
 % 	title				char/cellstr	Title of dataset for plotting purposes (character array or cellstr)
-% 	signal              double  		Signal (vector)
-% 	error				        		Standard error (vector)
+% 	signal              double  		Signal (2D array)
+% 	error				        		Standard error (2D array)
 % 	s_axis				IX_axis			Signal axis object containing caption and units codes
 %                   (or char/cellstr    Can also just give caption; multiline input in the form of a
 %                                      cell array or a character array)
@@ -31,13 +31,13 @@ function w = IX_dataset_2d(varargin)
 % (should make this call checkfields, but is so simple...)
 if nargin==0
     w.title={};
-    w.signal=[];
-    w.error=[];
+    w.signal=zeros(0,0);
+    w.error=zeros(0,0);
     w.s_axis=IX_axis;
-    w.x=[];
+    w.x=zeros(1,0);
     w.x_axis=IX_axis;
     w.x_distribution=false;
-    w.y=[];
+    w.y=zeros(1,0);
     w.y_axis=IX_axis;
     w.y_distribution=false;
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
@@ -55,8 +55,8 @@ elseif nargin==1 && isstruct(varargin{1})   % structure input
 
 elseif nargin>=2 && nargin<=4
     w.title={};
-    w.signal=[];
-    w.error=[];
+    w.signal=zeros(0,0);
+    w.error=zeros(0,0);
     w.s_axis=IX_axis;
     w.x=varargin{1};
     w.x_axis=IX_axis;

@@ -23,13 +23,13 @@ function w = IX_dataset_1d(varargin)
 %                                      cell array or a character array)
 % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
 
-% Default class
+% Default class - empty point dataset
 if nargin==0
     w.title={};
-    w.signal=[];
-    w.error=[];
+    w.signal=zeros(0,1);
+    w.error=zeros(0,1);
     w.s_axis=IX_axis;
-    w.x=[];
+    w.x=zeros(1,0);
     w.x_axis=IX_axis;
     w.x_distribution=false;
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
@@ -47,13 +47,13 @@ elseif nargin==1 && isstruct(varargin{1})   % structure input
 
 elseif nargin<=3
     w.title={};
-    w.signal=[];
-    w.error=[];
+    w.signal=zeros(0,1);
+    w.error=zeros(0,1);
     w.s_axis=IX_axis;
-    w.x=[];
+    w.x=zeros(1,0);
     w.x_axis=IX_axis;
     w.x_distribution=false;
-    if nargin>=1, w.x=varargin{1}; else w.x=[]; end
+    if nargin>=1, w.x=varargin{1}; end
     if nargin>=2, w.signal=varargin{2}; else w.signal=zeros(numel(w.x),1); end
     if nargin>=3, w.error=varargin{3}; else w.error=zeros(size(w.signal)); end
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure

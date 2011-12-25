@@ -4,13 +4,11 @@
 rootpath=pwd;
 load(fullfile(rootpath,'make_data','test_IX_datasets_ref.mat'));
 
-%% ----------------------
-%  Rebin error
-% -----------------------
-hh=IX_dataset_2d(h1);
-kk=rebin(hh,[5,15],[0.5,0.9]);
-
-kk=rebin(hh,[5,15],[0.5,0.9],'int');
+%% ----------------------------------------------------
+%  Output of integration of array of 1D datasets
+% -----------------------------------------------------
+p1arr=repmat(p1,1,5);
+i1arr_a=integrate(p1arr,[2,6],'ave')   % *** Shouldn't this give an IX_dataset_1d?
 
 
 %% -------------------------------------
@@ -143,3 +141,70 @@ keep_figure
 w2b=IX_dataset_2d([p1,p2,p3h,1.2*p3,p2,p3h],[10,12,14,16,18,20,26],IX_axis('yon','bushel'),true);
 da(w2b)
 keep_figure
+
+%% ----------------------
+%  Rebin error
+% -----------------------
+% Had a problem about datasets with zero data points in the integration range
+hhp=IX_dataset_2d(h1);
+hhh=point2hist(hhp);
+
+kk=rebin(hhp,[5,15],[0.5,0.9])
+
+kk=rebin(hhp,[5,15],[0.5,0.9],'int')    % Not actually an error - is correct if just one point
+
+kk=rebin(hhp,(5:15),[0.5,0.9]);
+ll=rebin_x(kk,(3:6))
+ll=rebin_x(kk,3)
+
+kk=rebin_y(hhh,[5,6,7])
+
+
+% Investigated systematically
+% ---------------------------
+% some points are missing => IX_dataset_1d
+i_a=integrated(p1,[2,0.5,6],'ave')
+
+% All points are missing => valerr structure
+i_b=integrated(p1,[5,0.5,6],'ave')
+
+
+% Empty point data along one axis
+tmp=IX_dataset_2d(1:3,[])
+tmp_out=integrate_y(tmp,14,16)
+tmp_out=integrate_y(tmp,14,16,'ave')
+
+% Make an array 1D workspaces
+p1arr=repmat(p1,1,5);
+
+i1arr_a=integrated(p1arr,[2,0.5,6],'ave')
+
+i1arr_b=integrated(p1arr,[5,0.5,6],'ave')
+
+i1arr_a=integrated(p1arr,[2,6],'ave')
+
+i1arr_b=integrated(p1arr,[5,0.5,6],'ave')
+
+% Make a 2D workspace from a stack of p1
+p2=IX_dataset_2d(repmat(p1,1,5));
+
+i2_a=integrated_x(p2,[2,0.5,6],'ave')
+
+i2_b=integrated_x(p2,[5,0.5,6],'ave')
+
+
+%% =============================================================================================
+%                              *** TO DO ***
+% ==============================================================================================
+
+%% ----------------------
+% Systematic check for sizes of 1d,2d,3d objects
+% -----------------------
+
+e1=IX_dataset_1d(zeros(1,0),zeros(1,0),zeros(1,0))
+
+ee1=IX_dataset_1d([],[],[])
+
+objdiff(e1,ee1) % not the same
+
+e2=IX_dataset_2d(zeros(1,0),zeros(1,0),zeros(0,0),zeros(0,0))

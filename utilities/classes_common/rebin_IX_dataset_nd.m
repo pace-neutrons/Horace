@@ -89,13 +89,12 @@ end
 % Perform rebin
 % -------------
 if numel(win)==1
-    wout = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,integrate_data,point_integration,use_mex,force_mex);
+    [wout,ok,mess] = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,integrate_data,point_integration,use_mex,force_mex);
 else
     ndim=dimensions(win(1));
     wout=repmat(IX_dataset_nd(ndim),size(win));
     for i=1:numel(win)
-        wout(i) = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,integrate_data,point_integration,use_mex,force_mex);
+        [wout(i),ok,mess] = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,integrate_data,point_integration,use_mex,force_mex);
+        if ~ok, return, end
     end
 end
-ok=true;
-mess='';

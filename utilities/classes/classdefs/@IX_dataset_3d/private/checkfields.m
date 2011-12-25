@@ -6,7 +6,7 @@ function [ok, message, wout] = checkfields (w)
 %   w       structure or object of the class
 %
 %   ok      ok=true if valid, =false if not
-%   message Message if not a valid sqw object, empty string if is valiw.
+%   message Message if not a valid sqw object, empty string if is valiwout.
 %   wout    Output structure or object of the class 
 %           wout can be an altered version of the input structure or object that must
 %           have the same fields. For example, if a column array is provided for a field
@@ -16,7 +16,7 @@ function [ok, message, wout] = checkfields (w)
 %     Because checkfields must be in the folder defining the class, it
 %     can change fields of an object without calling set.m, which means
 %     that we do not get recursion from the call that set.m makes to 
-%     isvaliw.m and the consequent call to checkfields.m ...
+%     isvaliwout.m and the consequent call to checkfields.m ...
 %       
 %     Can have further arguments as desired for a particular class
 %
@@ -61,101 +61,95 @@ wout=w;
 ndim=3;
 
 if isequal(fieldnames(w),fields)
-    if ischar(w.title)||iscellstr(w.title)
-        if ischar(w.title)
-            wout.title=cellstr(w.title);
+    if ischar(wout.title)||iscellstr(wout.title)
+        if ischar(wout.title)
+            wout.title=cellstr(wout.title);
         end
     else
         message='Title must be character array or cell array of strings'; return
     end
-    sum_empty=isempty(w.signal)+isempty(w.error)+isempty(w.x)+isempty(w.y)+isempty(w.z);
-    if sum_empty==0
-        sz=size(w.signal);
-        if numel(sz)>ndim
-            message=['Dimensionality of signal array exceeds ',num2str(ndim)];
-        elseif numel(sz)<ndim
-            sz=[sz,ones(1,ndim-numel(sz))];
-        end
-        if ~isa(w.signal,'double')||~isa(w.error,'double')||~isequal(size(w.signal),size(w.error))
-            message='Signal and error arrays must be double precision arrays with the same size'; return
-        end
-        if ~isa(w.x,'double')||~isvector(w.x)||~isa(w.y,'double')||~isvector(w.y)||~isa(w.z,'double')||~isvector(w.z)
-            message='x-axis, y-axis and z-axis values must be double precision vectors'; return
-        end
-        if ~(numel(w.x)==sz(1)||numel(w.x)==sz(1)+1)
-            message='Check lengths of x-axis and first dimension of signal array are compatible'; return
-        end
-        if ~(numel(w.y)==sz(2)||numel(w.y)==sz(2)+1)
-            message='Check lengths of y-axis and second dimension of signal array are compatible'; return
-        end
-        if ~(numel(w.z)==sz(3)||numel(w.z)==sz(3)+1)
-            message='Check lengths of z-axis and third dimension of signal array are compatible'; return
-        end
-        dx=diff(w.x);
-        if any(dx<0)
-            message='Check x-axis values are monotonic increasing'; return
-        end
-        dy=diff(w.y);
-        if any(dy<0)
-            message='Check y-axis values are monotonic increasing'; return
-        end
-        dz=diff(w.z);
-        if any(dz<0)
-            message='Check y-axis values are monotonic increasing'; return
-        end        
-    elseif sum_empty==5
-        wout.signal=[];
-        wout.error=[];
-        wout.x=[];
-        wout.y=[];
-        wout.z=[];
-    else
-        message='Check contents of signal, error and x arrays'; return
+    if numel(size(wout.x))==2 && all(size(wout.x)==[0,0]), wout.x=zeros(1,0); end        % input was e.g. '' or [], so assume to mean default
+    if numel(size(wout.y))==2 && all(size(wout.y)==[0,0]), wout.y=zeros(1,0); end        % input was e.g. '' or [], so assume to mean default
+    if numel(size(wout.z))==2 && all(size(wout.z)==[0,0]), wout.y=zeros(1,0); end        % input was e.g. '' or [], so assume to mean default
+    if numel(size(wout.signal))==2 && all(size(wout.signal)==[0,0]), wout.signal=zeros(0,0,0); end     % input was e.g. '' or [], so assume to mean default
+    if numel(size(wout.error))==2 && all(size(wout.error)==[0,0]), wout.error=zeros(0,0,0); end        % input was e.g. '' or [], so assume to mean default
+    sz=size(wout.signal);
+    if numel(sz)>ndim
+        message=['Dimensionality of signal array exceeds ',num2str(ndim)];
+    elseif numel(sz)<ndim
+        sz=[sz,ones(1,ndim-numel(sz))];
     end
-    if ischar(w.s_axis)||iscellstr(w.s_axis)
-        wout.s_axis=IX_axis(w.s_axis);
-    elseif ~isa(w.s_axis,'IX_axis')
+    if ~isa(wout.signal,'double')||~isa(wout.error,'double')||~isequal(size(wout.signal),size(wout.error))
+        message='Signal and error arrays must be double precision arrays with the same size'; return
+    end
+    if ~isa(wout.x,'double')||~isvector(wout.x)||~isa(wout.y,'double')||~isvector(wout.y)||~isa(wout.z,'double')||~isvector(wout.z)
+        message='x-axis, y-axis and z-axis values must be double precision vectors'; return
+    end
+    if ~(numel(wout.x)==sz(1)||numel(wout.x)==sz(1)+1)
+        message='Check lengths of x-axis and first dimension of signal array are compatible'; return
+    end
+    if ~(numel(wout.y)==sz(2)||numel(wout.y)==sz(2)+1)
+        message='Check lengths of y-axis and second dimension of signal array are compatible'; return
+    end
+    if ~(numel(wout.z)==sz(3)||numel(wout.z)==sz(3)+1)
+        message='Check lengths of z-axis and third dimension of signal array are compatible'; return
+    end
+    dx=diff(wout.x);
+    if any(dx<0)
+        message='Check x-axis values are monotonic increasing'; return
+    end
+    dy=diff(wout.y);
+    if any(dy<0)
+        message='Check y-axis values are monotonic increasing'; return
+    end
+    dz=diff(wout.z);
+    if any(dz<0)
+        message='Check y-axis values are monotonic increasing'; return
+    end        
+    if ischar(wout.s_axis)||iscellstr(wout.s_axis)
+        wout.s_axis=IX_axis(wout.s_axis);
+    elseif ~isa(wout.s_axis,'IX_axis')
         message='Signal axis annotation must be character array or IX_axis object (type help IX_axis)'; return
     end
-    if ischar(w.x_axis)||iscellstr(w.x_axis)
-        wout.x_axis=IX_axis(w.x_axis);
-    elseif ~isa(w.x_axis,'IX_axis')
+    if ischar(wout.x_axis)||iscellstr(wout.x_axis)
+        wout.x_axis=IX_axis(wout.x_axis);
+    elseif ~isa(wout.x_axis,'IX_axis')
         message='x-axis annotation must be character array or IX_axis object (type help IX_axis)'; return
     end
-    if ischar(w.y_axis)||iscellstr(w.y_axis)
-        wout.y_axis=IX_axis(w.y_axis);
-    elseif ~isa(w.y_axis,'IX_axis')
+    if ischar(wout.y_axis)||iscellstr(wout.y_axis)
+        wout.y_axis=IX_axis(wout.y_axis);
+    elseif ~isa(wout.y_axis,'IX_axis')
         message='y-axis annotation must be character array or IX_axis object (type help IX_axis)'; return
     end
-    if ischar(w.z_axis)||iscellstr(w.z_axis)
-        wout.z_axis=IX_axis(w.z_axis);
-    elseif ~isa(w.z_axis,'IX_axis')
+    if ischar(wout.z_axis)||iscellstr(wout.z_axis)
+        wout.z_axis=IX_axis(wout.z_axis);
+    elseif ~isa(wout.z_axis,'IX_axis')
         message='z-axis annotation must be character array or IX_axis object (type help IX_axis)'; return
     end
-    if (islogical(w.x_distribution)||isnumeric(w.x_distribution))&&isscalar(w.x_distribution)
-        if isnumeric(w.x_distribution)
-            wout.x_distribution=logical(w.x_distribution);
+    if (islogical(wout.x_distribution)||isnumeric(wout.x_distribution))&&isscalar(wout.x_distribution)
+        if isnumeric(wout.x_distribution)
+            wout.x_distribution=logical(wout.x_distribution);
         end
     else
         message='Distribution type along x-axis must be true or false'; return
     end
-    if (islogical(w.y_distribution)||isnumeric(w.y_distribution))&&isscalar(w.y_distribution)
-        if isnumeric(w.y_distribution)
-            wout.y_distribution=logical(w.y_distribution);
+    if (islogical(wout.y_distribution)||isnumeric(wout.y_distribution))&&isscalar(wout.y_distribution)
+        if isnumeric(wout.y_distribution)
+            wout.y_distribution=logical(wout.y_distribution);
         end
     else
         message='Distribution type along y-axis must be true or false'; return
     end
-    if (islogical(w.z_distribution)||isnumeric(w.z_distribution))&&isscalar(w.z_distribution)
-        if isnumeric(w.z_distribution)
-            wout.z_distribution=logical(w.z_distribution);
+    if (islogical(wout.z_distribution)||isnumeric(wout.z_distribution))&&isscalar(wout.z_distribution)
+        if isnumeric(wout.z_distribution)
+            wout.z_distribution=logical(wout.z_distribution);
         end
     else
         message='Distribution type along z-axis must be true or false'; return
     end
-    if size(w.x,2)==1, wout.x=w.x'; end
-    if size(w.y,2)==1, wout.y=w.y'; end
-    if size(w.z,2)==1, wout.z=w.z'; end
+    if size(wout.x,2)==1, wout.x=wout.x'; end
+    if size(wout.y,2)==1, wout.y=wout.y'; end
+    if size(wout.z,2)==1, wout.z=wout.z'; end
 else
     message='Fields inconsistent with class type';
     return

@@ -5,8 +5,8 @@ function w = IX_dataset_nd (varargin)
 %   >> w = IX_dataset_nd (title, signal, err, s_axis, ax)
 %
 % 	title				char/cellstr	Title of dataset for plotting purposes (character array or cellstr)
-% 	signal              double  		Signal (vector)
-% 	err                                 Standard error (vector)
+% 	signal              double  		Signal
+% 	err                                 Standard error
 % 	s_axis				IX_axis			Signal axis object containing caption and units codes
 %                   (or char/cellstr    Can also just give caption; multiline input in the form of a
 %                                      cell array or a character array)

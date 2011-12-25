@@ -25,7 +25,7 @@ ndim=2;
 nx=numel(x);
 sz=[size(s),ones(1,ndim-numel(size(s)))];   % this works even if ndim=1, i.e. ones(1,-1)==[]
 if nx<2 
-    error('Must have at least two data points to perform integration')
+    error('Must have at least two data points to perform integration of point data')
 end
 if sz(iax)~=nx || numel(size(s))~=numel(size(e)) || any(size(s)~=size(e))
     error('Check sizes of input arrays')
@@ -33,7 +33,7 @@ end
 
 nb = numel(xout)-1;
 if nb<1
-    error('Sizes of output integration limits array too small (integrate_1d_points)')
+    error('Sizes of output integration limits array too small')
 end
 sz_out=sz;
 sz_out(iax)=nb;
