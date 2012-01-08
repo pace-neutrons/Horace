@@ -5,7 +5,7 @@ function wout=squeeze_IX_dataset_nd(win,iax)
 %   >> wout=squeeze(win,iax)    % squeeze only the indicated dimensions, if singletons
 %
 % If an array of IX_dataset_nd objects, then squeeze only if all output datasets will have the same
-% dimensionality. This is so output can also be an array on the same dimensionality IX_dataset_nd objects.
+% dimensionality. This is so output can also be an array of the same dimensionality IX_dataset_nd objects.
 
 % Check validity of input
 ndim=dimensions(win(1));

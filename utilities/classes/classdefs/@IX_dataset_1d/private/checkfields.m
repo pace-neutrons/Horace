@@ -70,6 +70,9 @@ if isequal(fieldnames(w),fields)
     if ~(numel(wout.x)==numel(wout.signal)||numel(wout.x)==numel(wout.signal)+1)
         message='Check lengths of x-axis and signal arrays'; return
     end
+    if ~all(isfinite(wout.x))
+        message='Check x-axis values are all finite (i.e. no Inf or NaN)'; return
+    end
     dx=diff(wout.x);
     if any(dx<0)
         message='Check x-axis values are monotonic increasing'; return

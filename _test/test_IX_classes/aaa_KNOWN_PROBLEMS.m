@@ -4,11 +4,30 @@
 rootpath=pwd;
 load(fullfile(rootpath,'make_data','test_IX_datasets_ref.mat'));
 
-%% ----------------------------------------------------
-%  Output of integration of array of 1D datasets
-% -----------------------------------------------------
-p1arr=repmat(p1,1,5);
-i1arr_a=integrate(p1arr,[2,6],'ave')   % *** Shouldn't this give an IX_dataset_1d?
+%% ----------------------
+%  Why different?
+% -----------------------
+da(hp1)
+lx 2 14; ly 4 7; lc 0 8
+keep_figure
+c2=cut(hp1,[2,0,14],[4,0,7]);
+da(c2)
+lc 0 8
+keep_figure
+
+
+%% -------------------------------------
+%  Plotting data with zero length axes
+% --------------------------------------
+w1h=IX_dataset_1d(3,zeros(1,0))
+dp(w1h)  % ok
+w1p=IX_dataset_1d([],zeros(1,0))
+dp(w1p)  % ok
+
+w2hist=IX_dataset_2d(1:5,11,zeros(5,0))
+da(w2hist)  % ok
+w2pnt=IX_dataset_2d(1:5,[],zeros(5,0))
+da(w2pnt)   % fails
 
 
 %% -------------------------------------
@@ -99,16 +118,6 @@ pcompare(wpd,wpd_ii_ref,wpd_iib_ref)
 keep_figure
 
 
-%% ----------------------
-%  Why different?
-% -----------------------
-da(hp1)
-lx 2 14; ly 4 7; lc 0 8
-keep_figure
-c2=cut(hp1,[2,0,14],[4,0,7]);
-da(c2)
-lc 0 8
-keep_figure
 
 
 %% =============================================================================================

@@ -19,7 +19,7 @@ disp(' ')
 % With nx0=500; nw=500:
 %    if point 'ave', then matlab and Fortran are comparable;
 %    if point 'int', then matlab can be grossly more time-consuming
-%                   for rebind(pp_1d_gau, [1,0.002,6],'int') is 30 times slower.
+%                   for rebin(pp_1d_gau, [1,0.002,6],'int') is 30 times slower.
 %                   (this is when the number of bins is comparable in the input and output dataset)
 
 set(herbert_config,'force_mex_if_use_mex',true);
@@ -29,15 +29,15 @@ for i=1:numel(del)
     disp('-----------------------------------------------------------------------------------')
     disp('- mex:')
     set(herbert_config,'use_mex',true);
-    tic; wpa_ref=rebind(pp_1d_gau, [1,del(i),6],'ave'); toc
-    tic; wpi_ref=rebind(pp_1d_gau, [1,del(i),6],'int'); toc
-    tic; wh_ref =rebind(hh_1d_gau, [1,del(i),6]); toc
-    tic; whp_ref=rebind(hp_1d_gau, [1,del(i),6]); toc
+    tic; wpa_ref=rebin(pp_1d_gau, [1,del(i),6],'ave'); toc
+    tic; wpi_ref=rebin(pp_1d_gau, [1,del(i),6],'int'); toc
+    tic; wh_ref =rebin(hh_1d_gau, [1,del(i),6]); toc
+    tic; whp_ref=rebin(hp_1d_gau, [1,del(i),6]); toc
     disp('- matlab:')
     set(herbert_config,'use_mex',false);
-    tic; wpa_mat=rebind(pp_1d_gau, [1,del(i),6],'ave'); toc
-    tic; wpi_mat=rebind(pp_1d_gau, [1,del(i),6],'int'); toc
-    tic; wh_mat =rebind(hh_1d_gau, [1,del(i),6]); toc
-    tic; whp_mat=rebind(hp_1d_gau, [1,del(i),6]); toc
+    tic; wpa_mat=rebin(pp_1d_gau, [1,del(i),6],'ave'); toc
+    tic; wpi_mat=rebin(pp_1d_gau, [1,del(i),6],'int'); toc
+    tic; wh_mat =rebin(hh_1d_gau, [1,del(i),6]); toc
+    tic; whp_mat=rebin(hp_1d_gau, [1,del(i),6]); toc
     disp(' ')
 end

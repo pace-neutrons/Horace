@@ -25,10 +25,10 @@ for i=1:numel(del)
     disp('-----------------------------------------------------------------------------------')
     disp('- mex:')
     set(herbert_config,'use_mex',true);
-    tic; wmex=rebind(hp_gau,[1,del(i),6],[2,del(i),4],'int'); toc
+    tic; wmex=rebin(hp_gau,[1,del(i),6],[2,del(i),4],'int'); toc
     disp('- matlab:')
     set(herbert_config,'use_mex',false);
-    tic; wmat=rebind(hp_gau,[1,del(i),6],[2,del(i),4],'int'); toc
+    tic; wmat=rebin(hp_gau,[1,del(i),6],[2,del(i),4],'int'); toc
     delta_IX_dataset_nd(wmex,wmat,-1e-14)
     disp(' ')
     disp(' ')
@@ -39,10 +39,10 @@ for i=1:numel(del)
     disp('-----------------------------------------------------------------------------------')
     disp('- mex:')
     set(herbert_config,'use_mex',true);
-    tic; wmex=rebind(hp_gau,[1,del(i),6],[2,del(i),4],'ave'); toc
+    tic; wmex=rebin(hp_gau,[1,del(i),6],[2,del(i),4],'ave'); toc
     disp('- matlab:')
     set(herbert_config,'use_mex',false);
-    tic; wmat=rebind(hp_gau,[1,del(i),6],[2,del(i),4],'ave'); toc
+    tic; wmat=rebin(hp_gau,[1,del(i),6],[2,del(i),4],'ave'); toc
     delta_IX_dataset_nd(wmex,wmat,-1e-14)
     disp(' ')
     disp(' ')

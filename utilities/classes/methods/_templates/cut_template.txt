@@ -1,0 +1,53 @@
+function wout = $FUNC_NAME(win, varargin)
+% Make a cut from an $IX_DATASET_ND object or array of $IX_DATASET_ND objects along the $AXIS
+%
+%   >> wout = $FUNC_NAME (win, $DESCR)
+%   >> wout = $FUNC_NAME (win, $DESCR, 'int')
+%   
+% Input:
+% ------
+%   win     Input object or array of objects to be cut
+%   descr   Description of new bin boundaries $ONE_PER_AXIS
+%           - [], '' or zero:       Leave bins unchanged
+%           - dx (numeric scalar)   New bins centred on zero with constant width dx
+%           - [xlo,xhi]             Single bin
+%           - [xlo,dx,xhi]          Set of equal width bins centred at xlo, xlo+dx, xlo+2*dx,...
+%
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           corresponding limit is set by the full extent of the data.
+%
+%   Point data: for an axis with point data (as opposed to histogram data)
+%   'ave'   average the values of the points within each new bin (DEFAULT)
+%   'int'   integate the function defined by linear interpolation between the data points
+%
+% Output:
+% -------
+%   wout    Output object or array of objects
+%           If just one bin was specified along an axis, i.e. gave just upper and
+%          lower limits, then the output object has dimension reduced by one.
+%
+% EXAMPLES
+%   >> wout = $FUNC_NAME (win, []$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [-Inf,Inf]$CONTINUATION)    % equivalent to above
+%   >> wout = $FUNC_NAME (win, 10$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,3000]$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,Inf]$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,3000,4000,5000,6000]$CONTINUATION)
+%
+% Cut is similar to rebin, except that any axes that have just one bin reduce the
+% dimensionality of the output object by one, and the rebin descriptor defines
+% bin centres, not bin boundaries.
+
+if numel(win)==0, error('Empty object to cut'), end
+if nargin==1, wout=win; return, end     % benign return if no arguments
+
+integrate_data=false;
+point_integration_default=false;
+iax=$IAX_VAL;
+opt=struct('empty_is_full_range',$EMPTY_FLAG,'range_is_one_bin',$RANGE_FLAG,'array_is_descriptor',$ARRAY_FLAG,'bin_boundaries',$BIN_FLAG);
+
+[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
+if ~ok, error(mess), end
+
+% Squeeze object(s)
+wout=squeeze_IX_dataset_nd(wout,iax);

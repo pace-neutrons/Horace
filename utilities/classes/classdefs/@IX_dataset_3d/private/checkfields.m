@@ -94,6 +94,15 @@ if isequal(fieldnames(w),fields)
     if ~(numel(wout.z)==sz(3)||numel(wout.z)==sz(3)+1)
         message='Check lengths of z-axis and third dimension of signal array are compatible'; return
     end
+    if ~all(isfinite(wout.x))
+        message='Check x-axis values are all finite (i.e. no Inf or NaN)'; return
+    end
+    if ~all(isfinite(wout.y))
+        message='Check x-axis values are all finite (i.e. no Inf or NaN)'; return
+    end
+    if ~all(isfinite(wout.z))
+        message='Check x-axis values are all finite (i.e. no Inf or NaN)'; return
+    end
     dx=diff(wout.x);
     if any(dx<0)
         message='Check x-axis values are monotonic increasing'; return
