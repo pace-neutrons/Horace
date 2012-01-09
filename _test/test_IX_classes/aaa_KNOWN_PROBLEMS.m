@@ -4,17 +4,6 @@
 rootpath=pwd;
 load(fullfile(rootpath,'make_data','test_IX_datasets_ref.mat'));
 
-%% ----------------------
-%  Why different?
-% -----------------------
-da(hp1)
-lx 2 14; ly 4 7; lc 0 8
-keep_figure
-c2=cut(hp1,[2,0,14],[4,0,7]);
-da(c2)
-lc 0 8
-keep_figure
-
 
 %% -------------------------------------
 %  Plotting data with zero length axes
@@ -124,14 +113,6 @@ keep_figure
 %                              *** SOLVED PROBLEMS ***
 % ==============================================================================================
 
-%% ----------------------
-%  Shouldn't integrate result in integrals in output ?
-% -----------------------
-kk=integrate(h1);
-acolor b
-dh(h1)
-acolor r
-ph(kk)
 
 %% ---------------------
 %  IX_dataset_2d from array of IX_dataset_1d: looks wrong, but isn't
@@ -158,24 +139,24 @@ keep_figure
 hhp=IX_dataset_2d(h1);
 hhh=point2hist(hhp);
 
-kk=rebin(hhp,[5,15],[0.5,0.9])
+kk=rebin2(hhp,[5,15],[0.5,0.9])
 
-kk=rebin(hhp,[5,15],[0.5,0.9],'int')    % Not actually an error - is correct if just one point
+kk=rebin2(hhp,[5,15],[0.5,0.9],'int')    % Not actually an error - is correct if just one point
 
-kk=rebin(hhp,(5:15),[0.5,0.9]);
-ll=rebin_x(kk,(3:6))
-ll=rebin_x(kk,3)
+kk=rebin2(hhp,(5:15),[0.5,0.9]);
+ll=rebin2_x(kk,(3:6))
+ll=rebin2_x(kk,3)
 
-kk=rebin_y(hhh,[5,6,7])
+kk=rebin2_y(hhh,[5,6,7])
 
 
 % Investigated systematically
 % ---------------------------
 % some points are missing => IX_dataset_1d
-i_a=integrated(p1,[2,0.5,6],'ave')
+i_a=integrate(p1,[2,0.5,6],'ave')
 
 % All points are missing => valerr structure
-i_b=integrated(p1,[5,0.5,6],'ave')
+i_b=integrate(p1,[5,0.5,6],'ave')
 
 
 % Empty point data along one axis
@@ -186,34 +167,23 @@ tmp_out=integrate_y(tmp,14,16,'ave')
 % Make an array 1D workspaces
 p1arr=repmat(p1,1,5);
 
-i1arr_a=integrated(p1arr,[2,0.5,6],'ave')
+i1arr_a=integrate(p1arr,[2,0.5,6],'ave')
 
-i1arr_b=integrated(p1arr,[5,0.5,6],'ave')
+i1arr_b=integrate(p1arr,[5,0.5,6],'ave')
 
-i1arr_a=integrated(p1arr,[2,6],'ave')
+i1arr_a=integrate(p1arr,[2,6],'ave')
 
-i1arr_b=integrated(p1arr,[5,0.5,6],'ave')
+i1arr_b=integrate(p1arr,[5,0.5,6],'ave')
 
 % Make a 2D workspace from a stack of p1
 p2=IX_dataset_2d(repmat(p1,1,5));
 
-i2_a=integrated_x(p2,[2,0.5,6],'ave')
+i2_a=integrate_x(p2,[2,0.5,6],'ave')
 
-i2_b=integrated_x(p2,[5,0.5,6],'ave')
+i2_b=integrate_x(p2,[5,0.5,6],'ave')
 
 
 %% =============================================================================================
 %                              *** TO DO ***
 % ==============================================================================================
 
-%% ----------------------
-% Systematic check for sizes of 1d,2d,3d objects
-% -----------------------
-
-e1=IX_dataset_1d(zeros(1,0),zeros(1,0),zeros(1,0))
-
-ee1=IX_dataset_1d([],[],[])
-
-objdiff(e1,ee1) % not the same
-
-e2=IX_dataset_2d(zeros(1,0),zeros(1,0),zeros(0,0),zeros(0,0))

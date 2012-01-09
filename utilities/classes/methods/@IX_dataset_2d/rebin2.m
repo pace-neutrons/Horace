@@ -1,8 +1,8 @@
 function wout = rebin2(win, varargin)
-% Rebin an IX_dataset_3d object or array of IX_dataset_3d objects along the x-,y- and z-axes
+% Rebin an IX_dataset_2d object or array of IX_dataset_2d objects along the x- and y-axes
 %
-%   >> wout = rebin2 (win, descr_x, descr_y, descr_z)
-%   >> wout = rebin2 (win, descr_x, descr_y, descr_z, 'int')
+%   >> wout = rebin2 (win, descr_x, descr_y)
+%   >> wout = rebin2 (win, descr_x, descr_y, 'int')
 %   
 % Input:
 % ------
@@ -40,7 +40,7 @@ if nargin==1, wout=win; return, end     % benign return if no arguments
 
 integrate_data=false;
 point_integration_default=false;
-iax=[1,2,3];
+iax=[1,2];
 opt=struct('empty_is_full_range',false,'range_is_one_bin',true,'array_is_descriptor',false,'bin_boundaries',true);
 
 [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});

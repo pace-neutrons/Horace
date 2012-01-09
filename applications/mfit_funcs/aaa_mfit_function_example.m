@@ -1,11 +1,11 @@
-function [y, name, pnames, pin] = aaa_example(x, p, flag)
+function [y, name, pnames, pin] = aaa_mfit_function_example(x, p, flag)
 % Example of function for mfit and other fitting programs. Use as template
 % for construction of other functions.
 %
 % Gaussian on linear background
 % 
-%   >> y = aaa_example(x,p)
-%   >> [y, name, pnames, pin] = aaa_example(x,p,flag)
+%   >> y = aaa_mfit_function_example(x,p)
+%   >> [y, name, pnames, pin] = aaa_mfit_function_example(x,p,flag)
 %
 % Input:
 % =======

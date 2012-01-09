@@ -86,6 +86,7 @@ if numel(args)==1 && isa(args{1},class(win))
             xbounds{i}=bin_boundaries_simple(tmp.values);
         end
     end
+    is_descriptor=false(1,nax);
 
 else
     % Use rebin description to define new bin boundaries

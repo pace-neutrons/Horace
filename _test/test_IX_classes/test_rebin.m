@@ -54,40 +54,40 @@ h1_reb_nodist    =repmat(IX_dataset_1d,1,numel(xdescr_1));
 
 tol=1e-14;
 disp('===========================')
-disp('    1D: Test rebin')
+disp('    1D: Test rebin - part 1')
 disp('===========================')
 for i=1:numel(xdescr_1)
     disp(['=== ',num2str(i),' ==='])
     % - mex
     set(herbert_config,'use_mex',true);
 
-    p1_reb_mex=rebin(p1,xdescr_1{i});
-    p1_reb_int_mex=rebin(p1,xdescr_1{i},'int');
-    if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb_mex); acolor g; pd(p1_reb_int_mex); keep_figure; end
+    p1_reb_mex(i)=rebin(p1,xdescr_1{i});
+    p1_reb_int_mex(i)=rebin(p1,xdescr_1{i},'int');
+    if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb_mex(i)); acolor g; pd(p1_reb_int_mex(i)); keep_figure; end
 
-    h1_reb_mex=rebin(h1,xdescr_1{i});
-    h1_reb_nodist_mex=rebin(dist2cnt(h1),xdescr_1{i},'int');
-    if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb_mex); acolor g; pd(h1_reb_nodist_mex); keep_figure; end
+    h1_reb_mex(i)=rebin(h1,xdescr_1{i});
+    h1_reb_nodist_mex(i)=rebin(dist2cnt(h1),xdescr_1{i},'int');
+    if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb_mex(i)); acolor g; pd(h1_reb_nodist_mex(i)); keep_figure; end
 
     % - matlab
     set(herbert_config,'use_mex',false);
 
-    p1_reb=rebin(p1,xdescr_1{i});
-    p1_reb_int=rebin(p1,xdescr_1{i},'int');
-    if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb); acolor g; pd(p1_reb_int); keep_figure; end
+    p1_reb(i)=rebin(p1,xdescr_1{i});
+    p1_reb_int(i)=rebin(p1,xdescr_1{i},'int');
+    if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb(i)); acolor g; pd(p1_reb_int(i)); keep_figure; end
 
-    h1_reb=rebin(h1,xdescr_1{i});
-    h1_reb_nodist=rebin(dist2cnt(h1),xdescr_1{i},'int');
-    if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb); acolor g; pd(h1_reb_nodist); keep_figure; end
+    h1_reb(i)=rebin(h1,xdescr_1{i});
+    h1_reb_nodist(i)=rebin(dist2cnt(h1),xdescr_1{i},'int');
+    if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb(i)); acolor g; pd(h1_reb_nodist(i)); keep_figure; end
     if batch
         disp('= 1')
-        delta_IX_dataset_nd(p1_reb_mex,p1_reb,tol)
+        delta_IX_dataset_nd(p1_reb_mex(i),p1_reb(i),tol)
         disp('= 2')
-        delta_IX_dataset_nd(p1_reb_int_mex,p1_reb_int,tol)
+        delta_IX_dataset_nd(p1_reb_int_mex(i),p1_reb_int(i),tol)
         disp('= 3')
-        delta_IX_dataset_nd(h1_reb_mex,h1_reb,tol)
+        delta_IX_dataset_nd(h1_reb_mex(i),h1_reb(i),tol)
         disp('= 4')
-        delta_IX_dataset_nd(h1_reb_nodist_mex,h1_reb_nodist,tol)
+        delta_IX_dataset_nd(h1_reb_nodist_mex(i),h1_reb_nodist(i),tol)
     end
 end
 disp(' ')
@@ -101,7 +101,7 @@ xdescr_22={5,11};
 xdescr_23={5,2,11};
 
 disp('===========================')
-disp('    1D: Test rebin')
+disp('    1D: Test rebin - part 2')
 disp('===========================')
 
 set(herbert_config,'use_mex',true);
@@ -190,10 +190,10 @@ for j=1:numel(xint_arg)
         w2x_mex(i,j)=rebin_x(w2ref(i),xint_arg{j}{:});
         set(herbert_config,'use_mex',false);
         w2x(i,j)=rebin_x(w2ref(i),xint_arg{j}{:});
-        w2binx(i,j)=rebin_x(w2ref(i),xintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2x_sim(i),w2x_mex(i),tol)
-        delta_IX_dataset_nd(w2x_sim(i),w2x(i),tol)
-        delta_IX_dataset_nd(w2x_sim(i),w2binx(i),tol)
+        w2binx(i,j)=rebin2_x(w2ref(i),xintbin_arg{j}{:});
+        delta_IX_dataset_nd(w2x_sim(i,j),w2x_mex(i,j),tol)
+        delta_IX_dataset_nd(w2x_sim(i,j),w2x(i,j),tol)
+        delta_IX_dataset_nd(w2x_sim(i,j),w2binx(i,j),tol)
     end
 end
 
@@ -213,10 +213,10 @@ for j=1:numel(yint_arg)
         w2y_mex(i,j)=rebin_y(w2ref(i),yint_arg{j}{:});
         set(herbert_config,'use_mex',false);
         w2y(i,j)=rebin_y(w2ref(i),yint_arg{j}{:});
-        w2biny(i,j)=rebin_y(w2ref(i),yintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2y_sim(i),w2y_mex(i),tol)
-        delta_IX_dataset_nd(w2y_sim(i),w2y(i),tol)
-        delta_IX_dataset_nd(w2y_sim(i),w2biny(i),tol)
+        w2biny(i,j)=rebin2_y(w2ref(i),yintbin_arg{j}{:});
+        delta_IX_dataset_nd(w2y_sim(i,j),w2y_mex(i,j),tol)
+        delta_IX_dataset_nd(w2y_sim(i,j),w2y(i,j),tol)
+        delta_IX_dataset_nd(w2y_sim(i,j),w2biny(i,j),tol)
     end
 end
 
@@ -237,9 +237,9 @@ for j=1:numel(xyint_arg)
         set(herbert_config,'use_mex',false);
         w2xy(i,j)=rebin(w2ref(i),xyint_arg{j}{:});
         w2binxy(i,j)=rebin2(w2ref(i),xyintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2xy_sim(i),w2xy_mex(i),tol)
-        delta_IX_dataset_nd(w2xy_sim(i),w2xy(i),tol)
-        delta_IX_dataset_nd(w2xy_sim(i),w2binxy(i),tol)
+        delta_IX_dataset_nd(w2xy_sim(i,j),w2xy_mex(i,j),tol)
+        delta_IX_dataset_nd(w2xy_sim(i,j),w2xy(i,j),tol)
+        delta_IX_dataset_nd(w2xy_sim(i,j),w2binxy(i,j),tol)
     end
 end
 
@@ -258,6 +258,8 @@ disp('===========================')
 disp('    3D: Test rebin')
 disp('===========================')
 
+tol=-1e-14;
+
 set(herbert_config,'use_mex',false); 
 w3x_sim=simple_rebin_x(ppp1,[5,0.5,10]);
 w3y_sim=simple_rebin_y(ppp1,[5,0.5,10]);
@@ -269,20 +271,20 @@ w3x_mex=rebin_x(ppp1,[5,0.5,10]);
 w3y_mex=rebin_y(ppp1,[5,0.5,10]);
 w3z_mex=rebin_z(ppp1,[5,0.5,10]);
 w3xyz_mex=rebin(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
-delta_IX_dataset_nd(w3x_sim,w3x_mex,-1e-14)
-delta_IX_dataset_nd(w3y_sim,w3y_mex,-1e-14)
-delta_IX_dataset_nd(w3z_sim,w3z_mex,-1e-14)
-delta_IX_dataset_nd(w3xyz_sim,w3xyz_mex,-1e-14)
+delta_IX_dataset_nd(w3x_sim,w3x_mex,tol)
+delta_IX_dataset_nd(w3y_sim,w3y_mex,tol)
+delta_IX_dataset_nd(w3z_sim,w3z_mex,tol)
+delta_IX_dataset_nd(w3xyz_sim,w3xyz_mex,tol)
 
 set(herbert_config,'use_mex',false); 
 w3x=rebin_x(ppp1,[5,0.5,10]);
 w3y=rebin_y(ppp1,[5,0.5,10]);
 w3z=rebin_z(ppp1,[5,0.5,10]);
 w3xyz=rebin(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
-delta_IX_dataset_nd(w3x_sim,w3x,-1e-14)
-delta_IX_dataset_nd(w3y_sim,w3y,-1e-14)
-delta_IX_dataset_nd(w3z_sim,w3z,-1e-14)
-delta_IX_dataset_nd(w3xyz_sim,w3xyz,-1e-14)
+delta_IX_dataset_nd(w3x_sim,w3x,tol)
+delta_IX_dataset_nd(w3y_sim,w3y,tol)
+delta_IX_dataset_nd(w3z_sim,w3z,tol)
+delta_IX_dataset_nd(w3xyz_sim,w3xyz,tol)
 
 
 disp(' ')

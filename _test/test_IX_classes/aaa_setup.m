@@ -3,6 +3,9 @@ function aaa_setup (varargin)
 %
 %   >> test_setup           % setup tests
 %   >> test_setup('off')    % turn off tests
+%
+% Adds some folders to the path, or if the tests are turned off, removes them
+% and sets force_mex_if_use_mex==false.
 
 if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'off')

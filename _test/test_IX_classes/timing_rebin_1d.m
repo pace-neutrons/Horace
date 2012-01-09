@@ -1,14 +1,23 @@
 function timing_rebin_1d (nx0, nw)
 % Tests of timing of rebin in one dimension
 %
+%   >> timing_rebin_1d              % use default nx0 and nw
 %   >> timing_rebin_1d (nx0, nw)
 %
 %   nx0     Number of bins along x axis (approximately; used as input to generate data)
 %   nw      Number of 1D workspaces in array odf IX_dataset_1d
 %          (Type >> help make_IX_dataset_1d  for more details about nx0 and nw)
 %
-%   For timing tests, nx0=500, nw=500 are good values.
+%   For timing tests, nx0=500, nw=500 are good values. These are the defaults.
 
+% Set default values for nx0 and nw
+if nargin==0
+    nx0=500; nw=500;
+elseif nargin==1
+    nw=500;
+end
+
+% Create test data sets
 disp('Creating data for timing...')
 [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_IX_dataset_1d (nx0, nw);
 disp(' ')

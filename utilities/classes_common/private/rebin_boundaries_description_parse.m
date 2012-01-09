@@ -104,7 +104,7 @@ if nax==1
                 return
             end
         end
-        [ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundaries_description_parse_single(opt,xvals);
+        [ok,xbounds{1},any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundaries_description_parse_single(opt,xvals);
         if ~ok, xbounds={}; any_lim_inf=false(1,0); is_descriptor=false(1,0); any_dx_zero=false(1,0); end
         return
     end

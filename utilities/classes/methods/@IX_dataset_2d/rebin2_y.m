@@ -40,7 +40,7 @@ if nargin==1, wout=win; return, end     % benign return if no arguments
 
 integrate_data=false;
 point_integration_default=false;
-iax=1;
+iax=2;
 opt=struct('empty_is_full_range',false,'range_is_one_bin',true,'array_is_descriptor',false,'bin_boundaries',true);
 
 [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});

@@ -215,6 +215,8 @@ disp('===========================')
 disp('    3D: Test integrate')
 disp('===========================')
 
+tol=-1e-14;
+
 set(herbert_config,'use_mex',false); 
 w3x_sim=simple_integrate_x(ppp1,[5,10]);
 w3y_sim=simple_integrate_y(ppp1,[5,10]);
@@ -226,20 +228,20 @@ w3x_mex=integrate_x(ppp1,[5,10]);
 w3y_mex=integrate_y(ppp1,[5,10]);
 w3z_mex=integrate_z(ppp1,[5,10]);
 w3xyz_mex=integrate(ppp1,[9,15],[6,11],[3,5]);
-delta_IX_dataset_nd(w3x_sim,w3x_mex,-1e-14)
-delta_IX_dataset_nd(w3y_sim,w3y_mex,-1e-14)
-delta_IX_dataset_nd(w3z_sim,w3z_mex,-1e-14)
-delta_IX_dataset_nd(w3xyz_sim,w3xyz_mex,-1e-14)
+delta_IX_dataset_nd(w3x_sim,w3x_mex,tol)
+delta_IX_dataset_nd(w3y_sim,w3y_mex,tol)
+delta_IX_dataset_nd(w3z_sim,w3z_mex,tol)
+delta_IX_dataset_nd(w3xyz_sim,w3xyz_mex,tol)
 
 set(herbert_config,'use_mex',false); 
 w3x=integrate_x(ppp1,[5,10]);
 w3y=integrate_y(ppp1,[5,10]);
 w3z=integrate_z(ppp1,[5,10]);
 w3xyz=integrate(ppp1,[9,15],[6,11],[3,5]);
-delta_IX_dataset_nd(w3x_sim,w3x,-1e-14)
-delta_IX_dataset_nd(w3y_sim,w3y,-1e-14)
-delta_IX_dataset_nd(w3z_sim,w3z,-1e-14)
-delta_IX_dataset_nd(w3xyz_sim,w3xyz,-1e-14)
+delta_IX_dataset_nd(w3x_sim,w3x,tol)
+delta_IX_dataset_nd(w3y_sim,w3y,tol)
+delta_IX_dataset_nd(w3z_sim,w3z,tol)
+delta_IX_dataset_nd(w3xyz_sim,w3xyz,tol)
 
 
 disp(' ')
@@ -263,6 +265,6 @@ if save_output
         'w3x_sim','w3y_sim','w3z_sim','w3xyz_sim','w3x_mex','w3y_mex','w3z_mex','w3xyz_mex','w3x','w3y','w3z','w3xyz')
     
     disp(' ')
-    disp('Done')
+    disp(['Output saved to ',output_file])
     disp(' ')
 end

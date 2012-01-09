@@ -139,10 +139,14 @@ if nx~=sz_full(iax)
         wout_x=xbounds;
     else
         xb=rebin_boundaries_description_resolve_infinities(xbounds,is_descriptor,win_x(1),win_x(end));
-        if ~isempty(xb)
-            wout_x=bin_boundaries_from_descriptor (xb, win_x, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
+        if is_descriptor
+            if ~isempty(xb)
+                wout_x=bin_boundaries_from_descriptor (xb, win_x, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
+            else
+                wout_x=win_x;
+            end
         else
-            wout_x=win_x;
+            wout_x=xb;
         end
     end
     % Catch case of one of the other axes having no data points, or scalar wout_x. We have the new x values, but cannot evaluate data values
@@ -198,10 +202,14 @@ else
         if numel(win_x)>0   % No point data will not need xbounds_true in either point integration option
             win_xb=bin_boundaries_simple(win_x);    % use these as extent of data (for consistency and to avoid rounding errors)
             xb=rebin_boundaries_description_resolve_infinities(xbounds,is_descriptor,win_xb(1),win_xb(end));
-            if ~isempty(xb)
-                xbounds_true=bin_boundaries_from_descriptor (xb, win_xb, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
+            if is_descriptor
+                if ~isempty(xb)
+                    xbounds_true=bin_boundaries_from_descriptor (xb, win_xb, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
+                else
+                    xbounds_true=win_xb;
+                end
             else
-                xbounds_true=win_xb;
+                xbounds_true=xb;
             end
         end
     end

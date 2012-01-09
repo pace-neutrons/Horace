@@ -1,14 +1,23 @@
 function timing_rebin_2d (nx, ny)
 % Tests of timing of rebin in one dimension
 %
-%   >> timing_rebin_1d (nx0, nw)
+%   >> timing_rebin_2d              % use default values for nx and ny
+%   >> timing_rebin_2d (nx, ny)
 %
 %   nx          Number of x bin boundaries
 %   ny          Number of y values
 %          (Type >> help make_IX_dataset_2d  for more details)
 %
-%   For timing tests, nx0=5000, ny=3000 are good values.
+%   For timing tests, nx0=5000, ny=3000 are good values. These are the defaults.
 
+% Set default values for nx0 and nw
+if nargin==0
+    nx=5000; ny=3000;
+elseif nargin==1
+    ny=3000;
+end
+
+% Create test data sets
 disp('Creating data for timing...')
 [hh_gau,hp_gau,pp_gau] = make_IX_dataset_2d (nx, ny);
 disp(' ')
