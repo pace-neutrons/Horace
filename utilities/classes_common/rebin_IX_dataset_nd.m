@@ -83,7 +83,10 @@ if numel(args)==1 && isa(args{1},class(win))
         if ishistogram(wref,iax(i))
             xbounds{i}=tmp.values;
         else
-            xbounds{i}=bin_boundaries_simple(tmp.values);
+            [xbounds{i},ok,mess]=bin_boundaries_simple(tmp.values);
+            if ~ok
+                wout=[]; mess=['Unable to construct bin boundaries for point data axis number ',num2str(iax(i)),': ',mess]; return
+            end
         end
     end
     is_descriptor=false(1,nax);

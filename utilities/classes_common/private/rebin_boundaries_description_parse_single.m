@@ -15,11 +15,8 @@ elseif isnumeric(xvals) && isvector(xvals)
         if isscalar(xvals)
             if xvals==0
                 ok=true; xbounds=[-Inf,0,Inf]; any_lim_inf=true; is_descriptor=true; any_dx_zero=true; mess='';
-            elseif xvals>0
-                ok=true; xbounds=[-Inf,xvals,Inf]; any_lim_inf=true; is_descriptor=true; any_dx_zero=false; mess='';
             else
-                ok=false; xbounds=[]; any_lim_inf=false; is_descriptor=false; any_dx_zero=false;
-                mess='A single scalar rebin argument must be greater or equal to zero';
+                ok=true; xbounds=[-Inf,xvals,Inf]; any_lim_inf=true; is_descriptor=true; any_dx_zero=false; mess='';
             end
 
         elseif numel(xvals)==2
@@ -39,7 +36,9 @@ elseif isnumeric(xvals) && isvector(xvals)
                 if opt.bin_boundaries
                     if rem(numel(xvals),2)==1
                         if all(diff(xvals(1:2:end)))>0    % strictly monotonic increasing
-                            if all(xvals(1:2:end-1)>0 | xvals(2:2:end-1)>=0)
+                            xvals_lo=xvals(1:2:end-1);
+                            if isinf(xvals_lo(1)), xvals_lo=xvals(3); end    % permit -Inf as first element in descriptor
+                            if all(xvals_lo>0 | xvals(2:2:end-1)>=0)
                                 ok=true;
                                 if size(xvals,1)>1, xbounds=xvals'; else xbounds=xvals; end     % make row vector
                                 any_lim_inf=isinf(xbounds(1))|isinf(xbounds(end));

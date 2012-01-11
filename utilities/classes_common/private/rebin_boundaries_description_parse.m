@@ -33,7 +33,7 @@ function [ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundarie
 %     x1,dx1,x2           -|where -Inf<=x1<x2<x3...<xn<=Inf and 
 %     x1,dx1,x2,dx2,x3,...-|     dx +ve: equal bin sizes between corresponding limits
 %                                dx -ve: logarithmic bins between corresponding limits
-%                                      (note: if dx1<0 then dx1>0, dx2<0 then dx2>0 ...)
+%                                      (note: if dx1<0 then x1>0, dx2<0 then x2>0 ...)
 %                                dx=0  : retain existing bins between corresponding limits
 %  - If bin_boundaries==false:
 %     x1,dx1,x2             where x1<x2 x1 and x2 both finite and dx>0: bin centres at x1, x1+dx1, x1+2*dx1, ...
@@ -55,7 +55,7 @@ function [ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundarie
 %                               where -Inf<=x1<x2<x3...<xn<=Inf; n>=2
 %                                dx +ve: equal bin sizes between corresponding limits
 %                                dx -ve: logarithmic bins between corresponding limits
-%                                      (note: if dx1<0 then dx1>0, dx2<0 then dx2>0 ...)
+%                                      (note: if dx1<0 then x1>0, dx2<0 then x2>0 ...)
 %                                dx=0  : retain existing bins between corresponding limits
 %
 %               Bin boundaries: [x1,x2,...xn]

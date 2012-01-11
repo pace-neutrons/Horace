@@ -23,10 +23,18 @@ ny = size(signal,2);
 npatch = nx*ny;
 
 if numel(x)==nx
-    x=bin_boundaries_simple(x);
+    if numel(x)>0
+        x=bin_boundaries_simple(x);
+    else
+        x=0;    % to ensure case of empy point dataset does not cause a crash
+    end
 end
 if numel(y)==ny
-    y=bin_boundaries_simple(y);
+    if numel(y)>0
+        y=bin_boundaries_simple(y);
+    else
+        y=0;    % to ensure case of empy point dataset does not cause a crash
+    end
 end
 if size(x,1)>1, x=x'; end   % make row
 if size(y,1)>1, y=y'; end   % make row

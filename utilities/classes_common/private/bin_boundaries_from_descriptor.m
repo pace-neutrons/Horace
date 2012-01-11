@@ -61,3 +61,7 @@ end
 if ~use_mex
     [x_out,ok,mess]=bin_boundaries_from_descriptor_matlab(xbounds,x_in);
 end
+
+if nargout<2
+    error(mess)
+end

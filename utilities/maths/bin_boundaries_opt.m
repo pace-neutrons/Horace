@@ -1,47 +1,65 @@
-function [xb,output]=bin_boundaries_opt(xc)
+function [xb,ok,mess]=bin_boundaries_opt(xc)
 % Get best estimate of bin boundaries as a row vector
 %
-%   >> xb=bin_boundaries(xc)
+%   >> [xb,ok,mess]=bin_boundaries_opt(xc)
 %
-%       xc  Vector of point positions
-%       xb  Vector of bin boundaries; same orientation (i.e row or column) as input
+% Input:
+% ------
+%   xc      Vector of point positions, must be strictly monotonic increasing
 %
-% Does some elementary checks on the input bin centres (more than one, strictly monotonic increasing)
-% and checks if all equally spaced.
+%
+% Output:
+% -------
+%   xb      Vector of bin boundaries; same orientation (i.e row or column) as input
+%          Set to [] if there is a problem.
+%   ok      =true if all OK, =false otherwise. If called with only one return argument
+%          then an error is thrown.
+%   mess    Message; ='' if OK
+%
+% If one point only, then bin boundaries are set to row vector [x-0.5,x+0.5]
 
 % T.G.Perring, 7 September 2009
 
-if numel(xc)<=1
-    error('Must have at least two bin centres')
-end
-if ~isvector(xc)
-    error('Input array must be a vector')
-end
-del=diff(xc);
-if any(del<=0);
-    error('Bin centres must be strictly monotonic increasing')
-end
-
-if all(del==del(1))
-    xb=[xc(:)-del(1)/2;xc(end)+del(1)/2];
-    output=[];
-else
-    del_max=xc(2)-xc(1);    % Maximum possible value for half width of first bin
-    [del,fval,exitflag,output]=fminbnd(@(x) bin_boundaries_special(xc,x),0,del_max,optimset('TolX',1e-12));
-
-    % Get boundaries at the optimum value of del
-    [tmp,xb]=bin_boundaries_special(xc,del);
-    if ~isreal(xb)
-        error('Complex solution for bin boundaries')    % e.g. xc=[2,4,5]
-    elseif any(diff(xb)<=0)
-        error('Solution for bin boundaries not strictly monotonic')
+if numel(xc)>1
+    if isvector(xc)
+        del=diff(xc);
+        if any(del<=0);
+            xb=[]; ok=false; mess='Points must be strictly monotonic increasing';
+            if nargout>1, return, else error(mess), end
+        end
+        if all(del==del(1))
+            xb=[xc(:)-del(1)/2;xc(end)+del(1)/2];
+        else
+            del_max=xc(2)-xc(1);    % Maximum possible value for half width of first bin
+            [del,fval,exitflag,output]=fminbnd(@(x) bin_boundaries_special(xc,x),0,del_max,optimset('TolX',1e-12));
+            
+            % Get boundaries at the optimum value of del
+            [tmp,xb]=bin_boundaries_special(xc,del);
+            if ~isreal(xb)
+                xb=[]; ok=false; mess='Complex solution for bin boundaries';    % e.g. xc=[2,4,5]
+                if nargout<2, error(mess), end
+            elseif any(diff(xb)<=0)
+                xb=[]; ok=false; mess='Solution for bin boundaries not strictly monotonic';
+                if nargout<2, error(mess), end
+            end
+        end
+        if size(xc,1)==1, xb=xb'; end
+    else
+        xb=[]; ok=false; mess='Input array must be a vector';
+        if nargout>1, return, else error(mess), end
     end
+elseif numel(xc)==1
+    xb=[xc-0.5,xc+0.5];
+else
+    xb=[]; ok=false; mess='No points in input array';
+    if nargout>1, return, else error(mess), end
 end
-if size(xc,1)==1, xb=xb'; end
+if nargout>=2, ok=true; end
+if nargout>=3, mess=''; end
 
 %========================================================================================
 function [dev,xb]=bin_boundaries_special(xc,del)
-% Get the bin boundaries for a given value for half-bin-width for first bin, 
+% Get the bin boundaries for a given value for half-bin-width for first bin,
 % and also return a measure of the deviation to minimise
 
 % Get solution for bin boundaries

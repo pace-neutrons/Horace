@@ -132,13 +132,14 @@ if nx~=sz_full(iax)
     % error all the same.
     if sz_full(iax)==0
         wout_x=[]; wout_s=[]; wout_e=[];
-        ok_rebin=false; mess=['No data points along axis ',num2str(iax),': cannot perform integration of histogram data along this axis']; return
+        ok_rebin=false; mess=['No data points along axis ',num2str(iax),': cannot perform rebin or integration of histogram data along this axis']; return
     end
     % Get new bin boundaries
     if true_values
         wout_x=xbounds;
     else
-        xb=rebin_boundaries_description_resolve_infinities(xbounds,is_descriptor,win_x(1),win_x(end));
+        [xb,ok_rebin,mess]=rebin_boundaries_description_resolve_inf(xbounds,is_descriptor,win_x(1),win_x(end));
+        if ~ok_rebin, wout_x=[]; wout_s=[]; wout_e=[]; return, end
         if is_descriptor
             if ~isempty(xb)
                 wout_x=bin_boundaries_from_descriptor (xb, win_x, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
@@ -200,20 +201,28 @@ else
         xbounds_true=xbounds;
     else
         if numel(win_x)>0   % No point data will not need xbounds_true in either point integration option
-            win_xb=bin_boundaries_simple(win_x);    % use these as extent of data (for consistency and to avoid rounding errors)
-            xb=rebin_boundaries_description_resolve_infinities(xbounds,is_descriptor,win_xb(1),win_xb(end));
+            [xb,ok_rebin,mess]=rebin_boundaries_description_resolve_inf(xbounds,is_descriptor,win_x(1),win_x(end));
+            if ~ok_rebin, wout_x=[]; wout_s=[]; wout_e=[]; return, end
             if is_descriptor
+                win_xb=bin_boundaries_simple(win_x);
                 if ~isempty(xb)
                     xbounds_true=bin_boundaries_from_descriptor (xb, win_xb, use_mex, force_mex);  % also scalar wout_x a possibility here i.e. no data points left
                 else
                     xbounds_true=win_xb;
                 end
             else
-                xbounds_true=xb;
+                xbounds_true=rebin_boundaries_description_resolve_infinities(xbounds,is_descriptor,win_x(1),win_x(end));
+                if numel(xbounds_true)==2 && xbounds_true(2)==xbounds_true(1) && numel(win_x)==1
+                    xbounds_true=bin_boundaries_simple(xbounds_true(1));    % catch case of just one point (if more than one point at same axis value, that is an error)
+                end
+            end
+            if any(diff(win_x)<=0)
+                wout_x=[]; wout_s=[]; wout_e=[];
+                ok_rebin=false; mess=['One or more output bins has zero width along axis ',num2str(iax),': cannot perform rebin or integration of point data along this axis']; return
             end
         end
     end
-    
+
     if ~point_integration
         % Point averaging
         % ---------------
@@ -308,10 +317,10 @@ else
         % if all other axes were not empty.
         if numel(win_x)==0
             wout_x=[]; wout_s=[]; wout_e=[];
-            ok_rebin=false; mess=['No data points along axis ',num2str(iax),': cannot perform integration of point data along this axis']; return
+            ok_rebin=false; mess=['No data points along axis ',num2str(iax),': cannot perform rebin or integration of point data along this axis']; return
         elseif numel(win_x)==1
             wout_x=[]; wout_s=[]; wout_e=[];
-            ok_rebin=false; mess=['Only one data point along axis ',num2str(iax),': cannot perform integration of point data along this axis']; return
+            ok_rebin=false; mess=['Only one data point along axis ',num2str(iax),': cannot perform rebin or integration of point data along this axis']; return
         end
         
         % Catch case of no output bin (will have arisen if an infinity was resolved into the new bins lying outside the data range)

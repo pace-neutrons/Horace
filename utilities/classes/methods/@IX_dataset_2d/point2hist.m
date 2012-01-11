@@ -30,14 +30,16 @@ for iw=1:numel(win)
     [dummy,sz]=dimensions(win(iw));
     if convert_x && numel(win(iw).x)==sz(1)
         if numel(win(iw).x)>0
-            wout(iw).x=bin_boundaries_simple(win(iw).x);
+            [wout(iw).x,ok,mess]=bin_boundaries_simple(win(iw).x);
+            if ~ok, error(['Cannot convert to histograms along x-axis: ',mess]), end
         else
             wout(iw).x=0;   % need to give a single value
         end
     end
     if convert_y && numel(win(iw).y)==sz(2)
         if numel(win(iw).y)>0
-            wout(iw).y=bin_boundaries_simple(win(iw).y);
+            [wout(iw).y,ok,mess]=bin_boundaries_simple(win(iw).y);
+            if ~ok, error(['Cannot convert to histograms along y-axis: ',mess]), end
         else
             wout(iw).y=0;   % need to give a single value
         end

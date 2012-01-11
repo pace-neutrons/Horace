@@ -83,17 +83,21 @@ if isequal(fieldnames(w),fields)
     end
     if ~all(isfinite(wout.x))
         message='Check x-axis values are all finite (i.e. no Inf or NaN)'; return
+    else
+        if numel(wout.x)==size(wout.signal,1) && any(diff(wout.x)<0)
+            message='Check x-axis values are monotonic increasing'; return
+        elseif numel(wout.x)==size(wout.signal,1)+1 && ~all(diff(wout.x)>0)
+            message='Histogram bin boundaries along x-axis must be strictly monotonic increasing'; return
+        end
     end
     if ~all(isfinite(wout.y))
-        message='Check y-axis values are all finite (i.e. no Inf or NaN)'; return
-    end
-    dx=diff(wout.x);
-    if any(dx<0)
-        message='Check x-axis values are monotonic increasing'; return
-    end
-    dy=diff(wout.y);
-    if any(dy<0)
-        message='Check y-axis values are monotonic increasing'; return
+        message='Check x-axis values are all finite (i.e. no Inf or NaN)'; return
+    else
+        if numel(wout.y)==size(wout.signal,2) && any(diff(wout.y)<0)
+            message='Check y-axis values are monotonic increasing'; return
+        elseif numel(wout.y)==size(wout.signal,2)+1 && ~all(diff(wout.y)>0)
+            message='Histogram bin boundaries along y-axis must be strictly monotonic increasing'; return
+        end
     end
     if ischar(wout.s_axis)||iscellstr(wout.s_axis)
         wout.s_axis=IX_axis(wout.s_axis);

@@ -5,19 +5,6 @@ rootpath=pwd;
 load(fullfile(rootpath,'make_data','test_IX_datasets_ref.mat'));
 
 
-%% -------------------------------------
-%  Plotting data with zero length axes
-% --------------------------------------
-w1h=IX_dataset_1d(3,zeros(1,0))
-dp(w1h)  % ok
-w1p=IX_dataset_1d([],zeros(1,0))
-dp(w1p)  % ok
-
-w2hist=IX_dataset_2d(1:5,11,zeros(5,0))
-da(w2hist)  % ok
-w2pnt=IX_dataset_2d(1:5,[],zeros(5,0))
-da(w2pnt)   % fails
-
 
 %% -------------------------------------
 %  Rebin, integrate non-intuitive
