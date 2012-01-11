@@ -17,11 +17,11 @@ plot(test2d_1); lz 0 2; keep_figure;
 plot(test2d_2); lz 0 2; keep_figure;
 
 %=========================================
-
-qw_1d_1=calculate_qw_bins_test(sqw(test1d_1));
-qw_1d_2=calculate_qw_bins_test(sqw(test1d_2));
-qw_2d_1=calculate_qw_bins_test(sqw(test2d_1));
-qw_2d_2=calculate_qw_bins_test(sqw(test2d_2));
+% TGP 12/1/12: replace calculate_qw_bins_test with calculate_qw_bins; identical function
+qw_1d_1=calculate_qw_bins(sqw(test1d_1));
+qw_1d_2=calculate_qw_bins(sqw(test1d_2));
+qw_2d_1=calculate_qw_bins(sqw(test2d_1));
+qw_2d_2=calculate_qw_bins(sqw(test2d_2));
 
 %=========================================
 

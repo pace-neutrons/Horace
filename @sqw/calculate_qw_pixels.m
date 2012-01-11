@@ -1,7 +1,7 @@
 function qw=calculate_qw_pixels(win)
 % Calculate qh,qk,ql,en for the pixels in an sqw dataset
 %
-%   >> qw=calculate_qw_bins(win)
+%   >> qw=calculate_qw_pixels(win)
 %
 %   win     Input sqw object
 %
@@ -13,7 +13,7 @@ function qw=calculate_qw_pixels(win)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 587 $ ($Date: 2011-11-25 16:42:24 +0000 (Fri, 25 Nov 2011) $)
 
 
 % Get some 'average' quantities for use in calculating transformations and bin boundaries
