@@ -1,4 +1,4 @@
-function wout=dispersion(win,varargin)
+function [wdisp,weight]=dispersion(win,varargin)
 % Calculate dispersion relation for dataset or array of datasets. 
 %
 % The output dataset (or array of data sets) will retain only the Q axes, and
@@ -64,4 +64,10 @@ function wout=dispersion(win,varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=dnd(dispersion(sqw(win),varargin{:}));
+if nargout==1
+    wdisp=dnd(dispersion(sqw(win),varargin{:}));
+else
+    [wdisp,weight]=dispersion(sqw(win),varargin{:});
+    wdisp=dnd(wdisp);
+    weight=dnd(weight);
+end

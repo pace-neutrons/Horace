@@ -1,4 +1,4 @@
-function wout=dispersion(win,varargin)
+function [wdisp,weight]=dispersion(win,varargin)
 % Calculate dispersion relation for dataset or array of datasets. 
 %
 % The output dataset (or array of data sets) will retain only the Q axes, and
@@ -48,11 +48,15 @@ function wout=dispersion(win,varargin)
 %
 % Output:
 % =======
-%   wout        Output dataset or array of datasets. Output is always dnd-type.
-%               The output dataset (or array of data sets) will retain only the Q axes, and
-%              the signal array(s) will contain the values of energy along the Q axes.
+%   wdisp       Output dataset or array of datasets. Output is always dnd-type.
+%               The output dataset (or array of data sets) will retain only the Q axes, the
+%              the signal array(s) will contain the values of energy along the Q axes, and
+%              the error array will contain the square of the spectral weight.
 %
-%   e.g.        If win is a 2D dataset with Q and E axes, then wout is a 1D dataset
+%   weight      Mirror output: the signal is the spectral weight, and the error array
+%               contains the square of the frequency.
+%
+%   e.g.        If win is a 2D dataset with Q and E axes, then wdisp is a 1D dataset
 %              with just the Q axis
 
 
@@ -64,4 +68,10 @@ function wout=dispersion(win,varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-wout=dnd(dispersion(sqw(win),varargin{:}));
+if nargout==1
+    wdisp=dnd(dispersion(sqw(win),varargin{:}));
+else
+    [wdisp,weight]=dispersion(sqw(win),varargin{:});
+    wdisp=dnd(wdisp);
+    weight=dnd(weight);
+end
