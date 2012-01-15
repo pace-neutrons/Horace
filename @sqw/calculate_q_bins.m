@@ -1,7 +1,7 @@
-function qw=calculate_qw_bins(win)
+function [q,en]=calculate_q_bins(win)
 % Calculate qh,qk,ql,en for the centres of the bins of an n-dimensional sqw dataset
 %
-%   >> qw=calculate_qw_bins(win)
+%   >> [q,en]=calculate_q_bins(win)
 %
 % Input:
 % ------
@@ -9,14 +9,16 @@ function qw=calculate_qw_bins(win)
 %
 % Output:
 % -------
-%   qw      Components of momentum (in rlu) and energy for each bin in the dataset
+%   q       Components of momentum (in rlu) for each bin in the dataset for a single energy bin
 %           Arrays are packaged as cell array of column vectors for convenience
 %           with fitting routines etc.
-%               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
+%               i.e. q{1}=qh, q{2}=qk, q{3}=ql
+%   en      Column vector of energy bin centres. If energy was an integration axis, then returns the
+%           centre of the energy integration range
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 587 $ ($Date: 2011-11-25 16:42:24 +0000 (Fri, 25 Nov 2011) $)
 
 u0=win.data.uoffset;
 u=win.data.u_to_rlu;
@@ -35,35 +37,40 @@ for i=1:length(iax)
     ptot=ptot+iint_ave*u(:,iax(i));  % overall displacement of plot volume in (rlu;en)
 end
 
-% Create list of Q and energy points
-if length(pax)>1
-    ptemp=cell(1,length(pax));
-    for i=1:length(pax)
+% Create list of Q points
+en_is_axis=(numel(pax)>0)&(pax(end)==4);
+nqpax=numel(pax)-en_is_axis;
+if nqpax>1
+    ptemp=cell(1,nqpax);
+    for i=1:nqpax
         ptemp{i}=0.5.*(win.data.p{i}(1:end-1) + win.data.p{i}(2:end));
     end
     pp=ndgridcell(ptemp);
     qh=ptot(1)*ones(size(pp{1}));
     qk=ptot(2)*ones(size(pp{1}));
     ql=ptot(3)*ones(size(pp{1}));
-    en=ptot(4)*ones(size(pp{1}));
-    for i=1:length(pax)
+    for i=1:nqpax
         qh = qh + pp{i}*u(1,pax(i));
         qk = qk + pp{i}*u(2,pax(i));
         ql = ql + pp{i}*u(3,pax(i));
-        en = en + pp{i}*u(4,pax(i));
     end
-elseif length(pax)==1
+elseif nqpax==1
     pp=0.5.*(win.data.p{1}(2:end)+win.data.p{1}(1:end-1));
     qh=ptot(1) + pp*u(1,pax(1));
     qk=ptot(2) + pp*u(2,pax(1));
     ql=ptot(3) + pp*u(3,pax(1));
-    en=ptot(4) + pp*u(4,pax(1));
 else
     qh=ptot(1);
     qk=ptot(2);
     ql=ptot(3);
-    en=ptot(4);
 end
 
-% package as cell array of column vectors for convenience with fitting routines etc.
-qw = {qh(:), qk(:), ql(:), en(:)};
+% Package as cell array of column vectors for convenience with fitting routines etc.
+q = {qh(:), qk(:), ql(:)};
+
+% Create list of energy points
+if en_is_axis
+    en=ptot(4)+0.5.*(win.data.p{end}(2:end)+win.data.p{end}(1:end-1));
+else
+    en=ptot(4);
+end

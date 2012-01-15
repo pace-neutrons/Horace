@@ -1,11 +1,15 @@
-function weight = disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
+function weight = disp2sqw(varargin)
 % Calculate spectral weight at a set of points given dispersion relation and spectral weight
 %
 %   >> weight = disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
+%   >> weight = disp2sqw(q,en,dispreln,pars,fwhh)
 %
 % Input:
 % ------
-%   qh,qk,ql,en Arrays containing points at which to evaulate sqw
+%   qh,qk,ql,en Arrays containing points at which to evaluate sqw from the broadened dispersion
+%     *OR*
+%   q           Cell array of three arrays {qh,qk,ql} at which to evaluate the dispersion
+%   en          Array of energy transfers at which the broadened dispersion is evaluate for every q
 %
 %   dispreln    Handle to function that calculates the dispersion relation w(Q) and spectrl weight, s(Q)
 %              Must have form:
@@ -38,24 +42,67 @@ function weight = disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
 %
 % Output:
 % -------
-%   weight      Array with spectral weight at the q points
+%   weight      Array with spectral weight at the q,e points
+%               If q and en given:  weight is an nq x ne array, where nq is the number
+%                                   of q points, and ne the number of energy points
+%               If qw given together: weight has the same size and dimensions as q{1} i.e. qh
 
-% Evaluate dispersion relation(s)
-if iscell(pars)
-    [e,sf]=dispreln(qh,qk,ql,pars{:});
+% Parse input arguments
+%disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
+if nargin==7
+    expand_qe=false;    % set of distinct q points
+    q=varargin(1:3);
+    en=varargin{4};
+    dispreln=varargin{5};
+    pars=varargin{6};
+    fwhh=varargin{7};
+elseif nargin==5
+    expand_qe=true;     % same q array for each energy in the energy array
+    q=varargin{1};
+    en=varargin{2};
+    dispreln=varargin{3};
+    pars=varargin{4};
+    fwhh=varargin{5};
 else
-    [e,sf]=dispreln(qh,qk,ql,pars);
+    error('Check number of input arguments')
 end
 
-if ~iscell(e)   % convert to cell array for convenience
-    e={e};
-    sf={sf};
+% Evaluate dispersion relation(s)
+if ~iscell(pars), pars={pars}; end      % package parameters as a cell for convenience
+
+if nargout(dispreln)<2
+    e=dispreln(q{:},pars{:});   % only dispersion seems to be provided
+    if ~iscell(e)   % convert to cell array for convenience
+        e={e};
+    end
+    sf=cell(size(e));
+    for i=1:numel(e)
+        sf{i}=ones(size(e{i}));
+    end
+else
+    [e,sf]=dispreln(q{:},pars{:});
+    if ~iscell(e)   % convert to cell array for convenience
+        e={e};
+        sf={sf};
+    end
 end
 
 % Accumulate weight
 sig=fwhh/sqrt(log(256));
-weight=zeros(numel(qh),1);
-for i=1:numel(e)
-    weight=weight + sf{i}(:).*exp(-(e{i}(:)-en(:)).^2/(2*sig^2))/(sig*sqrt(2*pi));
+if ~expand_qe
+    weight=zeros(numel(q{1}),1);
+    for i=1:numel(e)
+        weight=weight + sf{i}(:).*exp(-(e{i}(:)-en(:)).^2/(2*sig^2))/(sig*sqrt(2*pi));
+    end
+    weight=reshape(weight,size(q{1}));
+else
+    nq=numel(q{1});
+    ne=numel(en);
+    weight=zeros(nq,ne);
+    en_arr=repmat(en(:)',[nq,1]);
+    for i=1:numel(e)
+        edisp=repmat(e{i}(:),[1,ne]);
+        sfact=repmat(sf{i}(:),[1,ne]);
+        weight=weight + sfact.*exp(-(edisp-en_arr).^2/(2*sig^2))/(sig*sqrt(2*pi));
+    end
 end
-weight=reshape(weight,size(qh));
