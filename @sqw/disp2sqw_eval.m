@@ -55,11 +55,40 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 % -------
 %   wout        Output dataset or array of datasets 
 
-% Essentially an interface to sqw_eval that looks after broadening the dispersion
-if nargin==4
-    wout=sqw_eval(win,@disp2sqw,{dispreln,pars,fwhh});
-elseif nargin==5
-    wout=sqw_eval(win,@disp2sqw,{dispreln,pars,fwhh},opt);
-else
-    error('Check number of arguments')
+
+% Check optional argument
+all_bins=false;
+ave_pix=false;
+if exist('opt','var')  % no option given
+    if ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
+        all_bins=true;
+    elseif ischar(opt) && ~isempty(strmatch(lower(opt),'ave'))    % option 'ave' given
+        ave_pix=true;
+    else
+        error('Unrecognised option')
+    end
+end
+    
+wout = win;
+if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
+
+for i=1:numel(win)
+    if is_sqw_type(win(i));   % determine if sqw or dnd type
+        % If sqw type, then must evaluate at every pixel, as qh,qk,ql in general will be different for every pixel
+        if ~ave_pix
+            wout(i)=sqw_eval(win(i),@disp2sqw,{dispreln,pars,fwhh});
+        else
+            wout(i)=sqw_eval(win(i),@disp2sqw,{dispreln,pars,fwhh},'ave');
+        end
+    else
+        % If dnd type, then can take advantage of Cartesian grid to calculate dispersion for the Q grid only
+        [q,en]=calculate_q_bins(win(i));
+        weight=reshape(disp2sqw(q,en,dispreln,pars,fwhh),size(win(i).data.s));
+        if ~all_bins
+            omit=(win(i).data.npix==0);
+            if any(omit), weight(omit)=0; end
+        end
+        wout(i).data.s=weight;
+        wout(i).data.e=zeros(size(win(i).data.e));
+    end
 end

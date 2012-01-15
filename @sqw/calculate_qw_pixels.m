@@ -20,6 +20,10 @@ function qw=calculate_qw_pixels(win)
 % *** assumes that all the contributing spe files had the same lattice parameters and projection axes
 % This could be generalised later - but with repercussions in many routines
 
+if numel(win)~=1
+    error('Only a single sqw object is valid - cannot take an array of sqw objects')
+end
+
 header_ave=header_average(win.header);
 
 u0 = header_ave.uoffset;
