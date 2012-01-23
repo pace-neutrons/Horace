@@ -1,23 +1,22 @@
 function this=hdf_config()
-% the constructor describing horace-hdf configuration and providing singleton
-% behaviour.
-% Do not inherit your configuration classes from this class; 
-% Inherit from the basic class config instead
+% Create the configuration giving options for hdf file reading within Horace
 %
+%   >> this=hdf_config
 %
+% Type >> hdf_config  to see the list of current configuration option values.
+
 % $Revision$ ($Date$)
 %
-
+%--------------------------------------------------------------------------------------------------
+%  ***  Alter only the contents of the subfunction at the bottom of this file called     ***
+%  ***  default_config, and the help section above, which describes the contents of the  ***
+%  ***  configuration structure.                                                         ***
+%--------------------------------------------------------------------------------------------------
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
-persistent this_local;
 
-if isempty(this_local)
-    config_name=mfilename('class');
-
-    build_configuration(config,@hdf_defaults,config_name);    
-    this_local=class(struct([]),config_name,config);
-end
-this = this_local;
+config_name=mfilename('class');
+build_configuration(config,@hdf_defaults,config_name);
+this=class(struct([]),config_name,config);
 
 
 %--------------------------------------------------------------------------------------------------
@@ -34,37 +33,30 @@ this = this_local;
 %   - if two sealed fields  ...,sealed_fields,{{'v1','v2'}},...
 %
 %--------------------------------------------------------------------------------------------------
-
-
 function hdf_defaults=hdf_defaults()
-% this function returns default values and behaviour of the 
-% deals with the class specific structure;
 
-    hdf_defaults=struct(...
-        'hdf_allowed',true, ...      % Matlab can use hdf
-        'use_hdf',false,...           % Horace has to use hdf 
-        'hdf_fail_on_new',false,...  % what to do if hdf-tools constructor starts with empty file. Create a new hdf file or fail on creation?
-        'hdf_restricted',true, ...    % hdf at matlab 2009a and below? has restricted set of hdf commands
-        'hdf_compression',3 ...       % number from 0 to 9 describing the compression level for hdf files
+hdf_defaults=struct(...
+    'hdf_allowed',true, ...      % Matlab can use hdf
+    'use_hdf',false,...           % Horace has to use hdf
+    'hdf_fail_on_new',false,...  % what to do if hdf-tools constructor starts with empty file. Create a new hdf file or fail on creation?
+    'hdf_restricted',true, ...    % hdf at matlab 2009a and below? has restricted set of hdf commands
+    'hdf_compression',3 ...       % number from 0 to 9 describing the compression level for hdf files
     );
 
 
-   hdf_defaults.sealed_fields={'sealed_fields','hdf_allowed',...
-                               'hdf_restricted'};
-                          
+hdf_defaults.sealed_fields={'sealed_fields','hdf_allowed',...
+    'hdf_restricted'};
+
 % configure hdf
-    Matlab_Version=matlab_version_num();
-    if(Matlab_Version>=7.08) % Matlab supports hdf5 1.8
-        hdf_defaults.hdf_allowed = true;
-    else
-        hdf_defaults.hdf_allowed = false;
-        hdf_defaults.use_hdf     = false;       
-    end
-    if Matlab_Version>=7.09 % Matlab supports full hdf5 1.8 set of commands
-        hdf_defaults.hdf_restricted=false;
-    else
-        hdf_defaults.hdf_restricted=true;        
-    end
-    
-
-
+Matlab_Version=matlab_version_num();
+if(Matlab_Version>=7.08) % Matlab supports hdf5 1.8
+    hdf_defaults.hdf_allowed = true;
+else
+    hdf_defaults.hdf_allowed = false;
+    hdf_defaults.use_hdf     = false;
+end
+if Matlab_Version>=7.09 % Matlab supports full hdf5 1.8 set of commands
+    hdf_defaults.hdf_restricted=false;
+else
+    hdf_defaults.hdf_restricted=true;
+end

@@ -1,23 +1,23 @@
 function this=hor_config()
-% the constructor describing horace-memory and some other defaults configuration and providing singleton
-% behaviour.
+% Create the Horace configuration that sets memory options and some other defaults.
 %
-% Do not inherit your configuration classes from this class; 
-% Inherit from the basic class 'config' instead
+%   >> this = hor_config
 %
-%
+% Type >> hor_config  to see the list of current configuration option values.
+
 % $Revision$ ($Date$)
 %
+%--------------------------------------------------------------------------------------------------
+%  ***  Alter only the contents of the subfunction at the bottom of this file called     ***
+%  ***  default_config, and the help section above, which describes the contents of the  ***
+%  ***  configuration structure.                                                         ***
+%--------------------------------------------------------------------------------------------------
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
-persistent this_local;
 
-if isempty(this_local)
-    config_name=mfilename('class');
+config_name=mfilename('class');
+build_configuration(config,@horace_defaults,config_name);
+this=class(struct([]),config_name,config);
 
-    build_configuration(config,@horace_defaults,config_name);    
-    this_local=class(struct([]),config_name,config);
-end
-this = this_local;
 
 %--------------------------------------------------------------------------------------------------
 %  Alter only the contents of the following subfunction, and the help section of the main function
@@ -34,13 +34,6 @@ this = this_local;
 %
 %--------------------------------------------------------------------------------------------------
 function horace_defaults=horace_defaults()
-% functuion builds the structure, which describes default parameters used
-% in HORACE;
-% This structure is used if no previous configuration has been defined on
-% this machine,e.g. configuration file does not exist.
-% Ths function also can define the fields which will always have default
-% values specifying their names in the field:
-% fields_sealed
 
 horace_defaults = ...
     struct('mem_chunk_size',10000000,...  % maximum length of buffer array in which to accumulate points from the input file
