@@ -1,8 +1,10 @@
 function this=test2_config
-% Retrieve or create the current test configuration
+% Create the test2 configuration.
 %
 %   >> this=test2_config
 %
+% Type >> test_config  to see the list of current configuration option values.
+
 % This is an example illustrating a simple configuration class, with two freely
 % alterable fields, and two sealed fields. It has a customised set method that
 % sets one of the sealed fields according to the values in the 
@@ -19,13 +21,11 @@ function this=test2_config
 %  ***  configuration structure.                                                         ***
 %--------------------------------------------------------------------------------------------------
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
-persistent this_local
-if isempty(this_local)
-    config_name=mfilename('class');
-    build_configuration(config,@default_config,config_name);
-    this_local=class(struct([]),config_name,config);
-end
-this=this_local;
+
+config_name=mfilename('class');
+build_configuration(config,@default_config,config_name);
+this=class(struct([]),config_name,config);
+
 
 %--------------------------------------------------------------------------------------------------
 %  Alter only the contents of the following subfunction, and the help section of the main function
@@ -49,4 +49,5 @@ config_data=struct(...
     'v2',9,...
     'v3','hello',...
     'v4','undefined',...
-    'sealed_fields',{{'v3','v4'}});
+    'sealed_fields',{{'v3','v4'}}...
+    );

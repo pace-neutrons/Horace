@@ -5,15 +5,9 @@ function this=config(varargin)
 
 % $Revision$ ($Date$)
 
-persistent this_local;
-
-if isempty(this_local)
-    config_name=mfilename('class');
-    config_store(config_name,default_config,default_config);
-    this_local=class(struct('ok',{true}),config_name);
-end
-this = this_local;
-
+config_name=mfilename('class');
+config_store(config_name,default_config,default_config);
+this=class(struct('ok',{true}),config_name);
 
 %--------------------------------------------------------------------------------------------------
 function config_data=default_config

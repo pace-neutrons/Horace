@@ -1,20 +1,20 @@
 function this=herbert_config
-% Retrieve or create the current herbert configuration
+% Create the Herbert configuration.
+%
+%   >> this=herbert_config
+%
+% Type >> herbert_config  to see the list of current configuration option values.
+
 %--------------------------------------------------------------------------------------------------
 %  ***  Alter only the contents of the subfunction at the bottom of this file called     ***
 %  ***  default_config, and the help section above, which describes the contents of the  ***
 %  ***  configuration structure.                                                         ***
 %--------------------------------------------------------------------------------------------------
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
-persistent this_local;
 
-if isempty(this_local)
-    config_name=mfilename('class');
-
-    build_configuration(config,@default_config,config_name);    
-    this_local=class(struct([]),config_name,config);
-end
-this = this_local;
+config_name=mfilename('class');
+build_configuration(config,@default_config,config_name);    
+this=class(struct([]),config_name,config);
 
 
 %--------------------------------------------------------------------------------------------------
@@ -34,7 +34,8 @@ this = this_local;
 function config_data=default_config
 
 config_data=struct(...
-	'use_mex',true,...
-    'force_mex_if_use_mex',false,...
-    'init_tests',false,...
-    'sealed_fields',{{}});
+    'use_mex',true,                 ...
+    'force_mex_if_use_mex',false,   ...
+    'init_tests',false,             ...
+    'sealed_fields',{{}}            ...
+    );

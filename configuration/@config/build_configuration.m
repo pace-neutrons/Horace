@@ -1,25 +1,22 @@
 function build_configuration(this, default_config_fun, config_name)
-% Construct a configuration structure, save in memory and to file, and return the structure.
+% Construct a configuration structure, save in memory and to file.
 %
-%   >> config_data = build_configuration(this, default_config_fun, config_name)
+%   >> build_configuration(this, default_config_fun, config_name)
 %
 % Input:
 %   this                Instance of the root configuration class
 %   default_config_fun  Function that returns default structure for the configuration class
 %   config_name         Name of configuration class
 %
-% Output:
-%   config_data         Structure with current values for the configuration class
-%
 %
 % In detail:
 % ----------
-% Return a configuration structure from previously saved configuration structure stored
-% in a .mat file associated with the particulary configuration class name. 
+% Set a configuration in memory from previously saved configuration structure stored
+% in a .mat file associated with the particular configuration class name. 
 %
 % If the file does not exist (e.g. not been created before or has been deleted), or the
 % contents of the file are out of date (as determined from the default structure
-% constructor), then the default structure is saved to file and returned.
+% constructor), then the default structure is saved to file.
 %
 % In either case, the current configuration and default configuration are saved in
 % memory.
@@ -30,6 +27,12 @@ function build_configuration(this, default_config_fun, config_name)
 % $Revision$ ($Date$)
 
 
+% Determine if the class has already been constructed - if so, then nothing to do
+if config_store(config_name)
+    return
+end
+
+% Build configuration
 root_config_name=mfilename('class');
 
 % Get default configuration
@@ -67,4 +70,4 @@ end
 % Save configuration from defaults.
 [ok,mess]=save_config(file_name,default_config_data);
 if ~ok, error(mess), end
-config_store(config_name,default_config_data,default_config_data)
+config_store(config_name,default_config_data,default_config_data);
