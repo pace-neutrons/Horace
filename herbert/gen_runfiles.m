@@ -140,7 +140,10 @@ elseif numel(par_files)==1
     % once
     [par,runfiles_list{1}] = get_par(runfiles_list{1});
     for i=2:n_files
-        runfiles_list{i}=rundata(runfiles_list{1},def_params{i});
+        runfiles_list{i}=runfiles_list{1};
+        runfiles_list{i}.data_file_name=spe_files{i};
+        runfiles_list{i}.par_file_name =par_files{1};        
+        runfiles_list{i}=rundata(runfiles_list{i},def_params{i});
     end
 else   % multiple par and spe files;
     for i=1:n_files
