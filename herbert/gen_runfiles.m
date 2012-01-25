@@ -67,9 +67,9 @@ for i=1:numel(par_files)
 end
 % check other parameters and transform all arrays with one dimension of
 % n_files into the cell array
-n_def_params = nargin-variables_start;
-args=cell(1,n_def_params);
-for i=1:n_def_params
+n_dfnd_params = nargin-variables_start;
+args=cell(1,n_dfnd_params);
+for i=1:n_dfnd_params
     args{i} = varargin{variables_start+i-1};
     if ismember(parameter_nams{i},{'alatt','angldeg'})
         if iscell(varargin{i})
@@ -106,12 +106,12 @@ for i=1:n_def_params
 end
 % Process other variables:
 
-def_params   =  cell(1,n_files);
+dfnd_params   =  cell(1,n_files);
 for i=1:n_files;
-    def_params{i}=struct();
+    dfnd_params{i}=struct();
 end
 % set arrays of run parameters:
-for i=1:n_def_params
+for i=1:n_dfnd_params
     arg_i = args{i};
     if iscell(arg_i)
        if numel(arg_i)~=n_files
@@ -120,11 +120,11 @@ for i=1:n_def_params
             parameter_nams{i},numel(arg_i),n_files);
        end
         for j=1:n_files
-            def_params{j}.(parameter_nams{i})=arg_i{j};
+            dfnd_params{j}.(parameter_nams{i})=arg_i{j};
         end   
     else        
       for j=1:n_files
-            def_params{j}.(parameter_nams{i})=arg_i;
+            dfnd_params{j}.(parameter_nams{i})=arg_i;
       end              
     end
 end
@@ -132,10 +132,10 @@ end
 % do we build runfiles from 1, no or multiple par files?
 if isempty(par_files)
     for i=1:n_files
-        runfiles_list{i}=rundata(spe_files{i},def_params{i});
+        runfiles_list{i}=rundata(spe_files{i},dfnd_params{i});
     end
 elseif numel(par_files)==1
-    runfiles_list{1}=rundata(spe_files{1},par_files{1},def_params{1});
+    runfiles_list{1}=rundata(spe_files{1},par_files{1},dfnd_params{1});
     % save time on multiple load the same par into memory by reading it
     % once
     [par,runfiles_list{1}] = get_par(runfiles_list{1});
@@ -143,11 +143,11 @@ elseif numel(par_files)==1
         runfiles_list{i}=runfiles_list{1};
         runfiles_list{i}.data_file_name=spe_files{i};
         runfiles_list{i}.par_file_name =par_files{1};        
-        runfiles_list{i}=rundata(runfiles_list{i},def_params{i});
+        runfiles_list{i}=rundata(runfiles_list{i},dfnd_params{i});
     end
 else   % multiple par and spe files;
     for i=1:n_files
-        runfiles_list{i}=rundata(spe_files{i},par_files{i},def_params{i});
+        runfiles_list{i}=rundata(spe_files{i},par_files{i},dfnd_params{i});
     end       
 end
 %
