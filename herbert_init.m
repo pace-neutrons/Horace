@@ -23,7 +23,8 @@ application_off('herbert')
 
 % Add paths
 % ---------
-addpath(rootpath)  % MUST have rootpath so that herbert_init, herbert_off included
+addpath(rootpath);  % MUST have rootpath so that herbert_init, herbert_off included
+addpath(fullfile(rootpath,'admin'));
 
 % Configurations
 addgenpath_message (rootpath,'configuration');
