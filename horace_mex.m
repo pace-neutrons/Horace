@@ -20,7 +20,7 @@ try % mex C++
     fortran_in_rel_dir = ['_LowLevelCode',filesep,'intel',filesep];
     cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
     % get folder names corresponding to the current Matlab version and OS
-    [VerFolderName,versionDLLextention,OSdirname]=MatlabVersionFolder();
+    [VerFolderName,versionDLLextention,OSdirname]=matlab_version_folder();
      out_rel_dir = ['DLL',filesep,OSdirname,filesep,VerFolderName];
      if(~exist(out_rel_dir,'dir'))
          mkdir(out_rel_dir);
