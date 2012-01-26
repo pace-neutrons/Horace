@@ -8,7 +8,7 @@ function [data,det] = get_ascii_column_data (datafile)
 %   datafile    Full file name of ascii data file
 %               Format is one of the following column arrangements:
 %                   qx'  qy'  qz'  S
-%                   qx'  qy'  qz'  eps  S
+%                   qx'  qy'  qz'  S  ERR
 %                   qx'  qy'  qz'  eps  S  ERR
 %
 %               Here qz' is the component of momentum along ki (Ang^-1)
@@ -56,11 +56,11 @@ while ~ data_found
         data_found = 1;
         eps = 1;
         xye = 1;
-    elseif (length(temp)==5)    % x-y-z-e-sig data only (no error bars)
+    elseif (length(temp)==5)    % x-y-z-sig-err data 
         ncol=5;
         data_found = 1;
-        eps = 1;
-        xye = 0;
+        eps = 0;
+        xye = 1;
     elseif (length(temp)==4)    % x-y-z-sig data only (no energy or error bars)
         ncol=4;
         data_found = 1;
@@ -72,7 +72,7 @@ end
 fmt=[repmat('%g , ',[1,ncol-1]),'%g'];   % needs the spaces around the commas!
 temp2=sscanf(tline,fmt,[ncol,inf]);
 if ~(numel(temp2)==ncol)
-    fmt=[repmat('%g ',[1,ncol-1]),'%g'];   % needs the spaces around the commas!
+    fmt=[repmat('%g ',[1,ncol-1]),'%g'];
     temp2=sscanf(tline,fmt,[ncol,inf]);
     if ~(numel(temp2)==ncol)
         fclose(fid);
@@ -86,29 +86,34 @@ if (fstatus~=0)
     fclose(fid);
     error (['Error reading from file ' file_internal])
 end
-% read array to the end, or until unable to read from file with specified format
+% Read array to the end, or until unable to read from file with specified format
 a = fscanf(fid,fmt,[ncol,inf]);
 
 if (isempty(a))
     fclose(fid);
-    error (['No qx-qy-qz-eps-S-ERR data encountered in ' file_internal])
+    error (['Check format of data in ' file_internal])
 end
 fclose(fid);
 
-if xye && eps
+% Interpret cases of different numbers of columns
+if eps
     data.qspec=a(1:4,:);
     data.S=a(5,:);
-    data.ERR=a(6,:);
-elseif eps
-    data.qspec=a(1:4,:);
-    data.S=a(5,:);
-    data.ERR=zeros(1,size(a,2));
-else
+    if xye
+        data.ERR=a(6,:);
+    else
+        data.ERR=zeros(1,size(a,2));
+    end
+elseif ~eps
     % Horace doesn't seem like all values the same: data.qspec=[a(1:3,:);zeros(1,size(a,2))];
     eps=1e-4*(2*(rand([1,size(a,2)])-0.5));
     data.qspec=[a(1:3,:);eps];
     data.S=a(4,:);
-    data.ERR=zeros(1,size(a,2));
+    if xye
+        data.ERR=a(5,:);
+    else
+        data.ERR=zeros(1,size(a,2));
+    end
 end
 data.qspec=data.qspec([3,1,2,4],:);     % transform from spherical polar to spectrometer coordinates
 data.en=[min(data.qspec(4,:));max(data.qspec(4,:))];
@@ -120,8 +125,6 @@ data.qspec=data.qspec(repmat(ok,4,1));
 data.qspec=reshape(data.qspec,4,n_ok);
 data.S=data.S(ok);
 data.ERR=data.ERR(ok);
-
-
 
 % Write succesful data read message
 disp (['Data read from ' datafile])
