@@ -22,7 +22,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version(vararg
 application.name='horace';
 application.version=2.0;  % not used at the moment -- when would, should be modified sensibly
 
-Matlab_SVN='$Revision::      $ ($Date::                                              $)';
+Matlab_SVN='$Revision:: 558  $ ($Date:: 2011-07-19 11:06:05 +0100 (Tue, 19 Jul 2011) $)';
 %
 % Information about name and version of application
 mexMinVer     ='Not implemented                                         ';

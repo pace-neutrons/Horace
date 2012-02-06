@@ -12,6 +12,7 @@ function horace_init
 % Root directory is assumed to be that in which this function resides
 rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
+addpath(fullfile(rootpath,'admin'));
 
 addpath_message (2,rootpath,'DLL');
 addpath_message (1,rootpath,'configuration');
@@ -19,12 +20,8 @@ addpath_message (1,rootpath,'configuration');
 % Other directories
 addpath_message (1,rootpath,'utilities');
 
-% If Herbert requested choose Herbert graphics functions and methods instead of libisis functions
-if get(hor_config,'use_herbert')
-    addpath_message (1,rootpath,'herbert');
-else
-    addpath_message (1,rootpath,'libisis');
-end
+% Select what to use as function of what was cuttently initiated/requested
+select_supporting_package(rootpath);
 
 % Functions for fitting etc.
 addpath_message (1,rootpath,'functions');
@@ -79,6 +76,44 @@ else
 end
 disp('!------------------------------------------------------------------!')
 
+function select_supporting_package(rootpath)
+% function chooses between herbert and Libisis as function of what was initiated     
+
+herb_path=which('herbert_init');
+libs_path=which('libisis_init');
+
+herb_defined=true;
+if isempty(herb_path)
+    herb_defined=false;
+end
+libs_defined=true;
+if isempty(libs_path)
+    libs_defined=false;    
+end
+
+
+if herb_defined&&libs_defined % identify who is higher on search path and use this
+    use_herbert=get(hor_config,'use_herbert');
+    if use_herbert
+        try
+            libisis_off();
+        catch
+        end        
+    else
+        try
+            herbert_off();
+        catch
+        end
+    end
+elseif herb_defined
+    addpath_message (1,rootpath,'herbert');
+elseif libs_defined
+    addpath_message (1,rootpath,'libisis');    
+else
+    horace_off();
+    error('Libisis or Herbert have to be initated before intiating Horace');    
+end
+
 %--------------------------------------------------------------------------
 function addpath_message (type,varargin)
 % Add a path from the component directory names, printing a message if the
@@ -97,7 +132,7 @@ if exist(string,'dir')==7
         path=genpath_special(string);
         addpath(path);
     else
-        path=gen_System_path(string);
+        path=genpath_special(string);
         addpath(path);
     end
 else
