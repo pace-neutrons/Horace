@@ -25,15 +25,15 @@ if exist('non_default_path','var') && strcmpi(non_default_path,'where')
     path = find_default_path(her_default_path);   
     return;
 end
-if nargin==1 
-    start_app(non_default_path);    
+if nargin==0
+    start_this_app(non_default_path);    
 else
-    start_app(her_default_path);    
+    start_this_app(her_default_path);    
 end
 path = fileparts(which('herbert_init.m'));
 
 
-function start_app(path)
+function start_this_app(path)
 
 try
     herbert_off;
