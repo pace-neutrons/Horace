@@ -1,3 +1,4 @@
+function test_1
 %% Test ascii column data reader
 
 qx=0.1:0.1:0.5;

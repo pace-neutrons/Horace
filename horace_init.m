@@ -77,7 +77,8 @@ end
 disp('!------------------------------------------------------------------!')
 
 function select_supporting_package(rootpath)
-% function chooses between herbert and Libisis as function of what was initiated     
+% function chooses between herbert and Libisis as function 
+% of what was initiated or initiated last (first on the search path)
 
 herb_path=which('herbert_init');
 libs_path=which('libisis_init');
@@ -91,27 +92,53 @@ if isempty(libs_path)
     libs_defined=false;    
 end
 
-
-if herb_defined&&libs_defined % identify who is higher on search path and use this
-    use_herbert=get(hor_config,'use_herbert');
-    if use_herbert
-        try
-            libisis_off();
-        catch
-        end        
-    else
-        try
-            herbert_off();
-        catch
-        end
+% if found both identify who is higher on search path to use it.
+if herb_defined&&libs_defined 
+    herb_pattern = fileparts(herb_path);
+    libs_pattern = fileparts(libs_path);
+    iherb = strfind(path,herb_pattern);
+    ilibs = strfind(path,libs_pattern);
+    
+    if isempty(iherb)&&isempty(ilibs)
+        error('horace_init:Logic_error','Herber and libisis are identified as initiated but can not be found on search path'); 
     end
-elseif herb_defined
+    % we may be in herbert or libisis folder but the package is not on the path
+    if isempty(iherb)||isempty(ilibs)
+        % herbert is not present, but let's pretent that it is present 
+        % and is behind libisis
+        if isempty(iherb)&&(~isempty(ilibs))
+            iherb=ilibs(1)+10; 
+        end
+        % libisis is not present, but let's pretent that it is present 
+        % and is behind herbert for next statement to work       
+        if isempty(ilibs)&&(~isempty(iherb))
+            ilibs=iherb(1)+10; 
+        end
+        
+    end
+    if iherb(1)<ilibs(1)
+        herb_defined=true;
+        libs_defined=false;
+        warning('horace_init:package_selection','Herbert and Libisis found on the search path; Will use Herbert');
+        disp(' use use_herbert ''off'' to switch to use Libisis');
+    else
+        herb_defined=false;
+        libs_defined=true;       
+        warning('horace_init:package_selection','Herbert and Libisis found on the search path; Will use Libisis');
+        disp(' use use_herbert ''on'' to switch to use Herebrt');
+        
+    end
+end
+
+% select herbert/libisis supporting packages as function of what is
+% availible/first on the path.
+if herb_defined
     addpath_message (1,rootpath,'herbert');
 elseif libs_defined
     addpath_message (1,rootpath,'libisis');    
 else
     horace_off();
-    error('Libisis or Herbert have to be initated before intiating Horace');    
+    error('horace_init:package_selection','either Libisis or Herbert have to be initated before intiating Horace');    
 end
 
 %--------------------------------------------------------------------------

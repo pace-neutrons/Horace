@@ -12,19 +12,17 @@ function use_herbert(on_off)
 hor_root=fileparts(which('horace_init.m'));
 if nargin == 0 || (nargin == 1 && strncmpi(on_off,'on',2))
     try
-        libisis_off;
+        libisis_off();
     catch
     end
 	try
 		herbert_on();    
 	catch
-		error('use_herbert:','this function relies on herbert_on function to be permanently on path and apparently it is not');
+		error('use_herbert:wrong_arguments','this function relies on herbert_on function to be permanently availible on path and apparently it is not');
 	end
     rmpath(fullfile(hor_root,'libisis'));
     addpath(fullfile(hor_root,'herbert'));
     
-    clear classes
-    set(hor_config,'use_herbert',1);
 elseif (nargin == 1 && strncmpi(on_off,'off',2))
 
     try
@@ -34,14 +32,12 @@ elseif (nargin == 1 && strncmpi(on_off,'off',2))
 	try
 		libisis_on();
 	catch
-		error('use_herbert:','this function relies on libisis_on function to be permanently on path and apparently it is not');
+		error('use_herbert:wrong_arguments','this function relies on libisis_on function to be permanently availible on path and apparently it is not');
 	end	
 
     rmpath(fullfile(hor_root,'herbert'));
     addpath(fullfile(hor_root,'libisis'));
-    clear classes
     
-    set(hor_config,'use_herbert',0);   
 else
     error('USE_HERBERT:invalid_arguments',['call use_herbert() to switch it on ',....
        'or user_herbert(''off'') to disable it' ])
