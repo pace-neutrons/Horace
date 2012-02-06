@@ -10,7 +10,7 @@ function herbert_off
 %   - not any at the moment -
 
 % root directory is assumed to be that in which this function resides
-rootpath = fileparts(which('herbert_off'));
+rootpath = fileparts(which('herbert_init'));
 
 warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
 try
