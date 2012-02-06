@@ -1,0 +1,48 @@
+function path=horace_on(non_default_path)
+%  safely switches horace on
+%  horace_on()                         -- calls horace with default settings
+%  horace_on(non_default_horace_path)  -- calls horace with non-default horace folder;
+%
+%
+% $Revision: 1733 $ ($Date: 2010-06-23 17:57:14 +0100 (Wed, 23 Jun 2010) $) 
+%
+%
+default_horace_path ='C:/Users/wkc26243/Documents/work/svn/Horace';
+%
+if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
+    path = find_default_path(default_horace_path);   
+    return;
+end
+
+warn_state=warning('off','all');    % turn of warnings (so dont get errors if remove non-existent paths)
+try
+   horace_off();
+catch
+end
+warning(warn_state);    % return warnings to initial state
+ 
+if nargin==1 
+	start_app(non_default_path);	
+else
+	start_app(default_horace_path);
+end
+path = fileparts(which('horace_init.m'));
+
+
+function start_app(path)
+addpath(path);
+horace_init;
+
+function path =find_default_path(her_default_path)
+path = which('horace_init.m');
+if isempty(path)
+    path = her_default_path;
+    if ~exist(fullfile(path,'horace_init.m'),'file')
+        path='';
+    end
+else
+    path=fileparts(path);
+end
+
+
+ 
