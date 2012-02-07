@@ -15,7 +15,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 %   sqw_file        Full file name of output sqw file
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]
-%   alatt           Lattice parameters (Ang^-1)        [row or column vector]
+%   alatt           Lattice parameters (Ang)           [row or column vector]
 %   angdeg          Lattice angles (deg)               [row or column vector]
 %   u               First vector (1x3) defining scattering plane (r.l.u.)
 %   v               Second vector (1x3) defining scattering plane (r.l.u.)

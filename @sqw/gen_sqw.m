@@ -74,7 +74,7 @@ end
 
 
 %-------------------------------------------->
-if get(hor_config,'use_herbert')
+if is_herbert_used()
     % this is function -- adapter as everything below runs from runfiles;
     run_files = gen_runfiles(spe_file, par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs);
     % If no input data range provided, calculate it from the files
