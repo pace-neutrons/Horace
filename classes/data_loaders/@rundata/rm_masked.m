@@ -12,6 +12,7 @@ end
 index_masked = (isnan(this.S)|(isinf(this.S))); % masked pixels
 line_notmasked= ~any(index_masked,1);             % masked detectors (for any energy)
 
+
 S_m  = this.S(:,line_notmasked);
 Err_m= this.ERR(:,line_notmasked);
 det_m= this.det_par(:,line_notmasked);

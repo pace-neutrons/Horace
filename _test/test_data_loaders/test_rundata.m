@@ -17,8 +17,8 @@ classdef test_rundata< TestCase
         end               
         function test_defaultsOK_andFixed(this)                           
             nn=numel(fields(rundata));           
-            % 19 fields by default;
-            assertEqual(19,nn);
+            % 23 fields by default;
+            assertEqual(23,nn);
         end                       
        function test_build_from_spe(this)               
             f = @()rundata(spe());            
@@ -68,8 +68,8 @@ classdef test_rundata< TestCase
            assertTrue(isempty(undef_fields));  
            assertEqual(3,numel(fields_to_load));           
            assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
-           assertEqual(4,numel(fields_from_defaults));                      
-           assertTrue(all(ismember({'omega','dpsi','gl','gs'},fields_from_defaults)));  
+           assertEqual(6,numel(fields_from_defaults));                      
+           assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));  
       end                  
       function test_hdfh5_file_loader_in_use(this)                         
            run=rundata('MAP11020.spe_h5','demo_par.PAR','psi',2,'alatt',[1;1;1],'angldeg',[90;90;90]);            
@@ -83,8 +83,8 @@ classdef test_rundata< TestCase
            
            assertEqual(3,numel(fields_to_load));
            assertTrue(all(ismember({'S','ERR','efix'},fields_to_load)));
-           assertEqual(4,numel(fields_from_defaults));
-           assertTrue(all(ismember({'omega','dpsi','gl','gs'},fields_from_defaults)));  
+           assertEqual(6,numel(fields_from_defaults));
+           assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));  
            
       end              
       function test_not_all_fields_defined(this)               
@@ -98,8 +98,8 @@ classdef test_rundata< TestCase
            % and these fields can be retrieved
            assertEqual(2,numel(fields_to_load));                      
            assertTrue(all(ismember({'S','ERR'},fields_to_load)));
-           assertEqual(4,numel(fields_from_defaults));                                 
-           assertTrue(all(ismember({'omega','dpsi','gl','gs'},fields_from_defaults)));            
+           assertEqual(6,numel(fields_from_defaults));                                 
+           assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));            
       end                    
       function test_all_fields_defined_powder(this)             
           % checks different option of private function

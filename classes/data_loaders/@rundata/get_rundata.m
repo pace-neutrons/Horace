@@ -157,8 +157,14 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
     for i=1:numel(fields_to_load)
         this.(fields_to_load{i})= data.(fields_to_load{i});
     end
-    for i=1:numel(fields_from_defaults)
-        this.(fields_from_defaults{i})= get(rundata_config,fields_from_defaults{i});        
+    default_values = get_defaults(this,fields_from_defaults);
+    ndef =numel(default_values);
+    if ndef==1
+        this.(fields_from_defaults{1})= default_values;                
+    else
+        for i=1:ndef 
+            this.(fields_from_defaults{i})= default_values{i};        
+        end
     end
 end
 

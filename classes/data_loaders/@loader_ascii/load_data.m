@@ -30,20 +30,24 @@ else
 end
 
 
-use_mex=get(herbert_config,'use_mex');
+use_mex=get(herbert_config,'use_mex_C');
 if use_mex
   try
    [S,ERR,en] = get_ascii_file(file_name ,'spe');   
   catch 
     warning('LOAD_ASCII:load_data',' Can not read data using C++ routines -- reverted to Matlab\n Reason: %s',lasterr());
     use_mex=false;
+    if get(herbert_config,'force_mex_if_use_mex')
+        error('LOAD_ASCII:load_data',' Can not use mex when its usage requested');
+    end
+    set(herbert_config,'use_mex_C',false);
   end
 end
 if ~use_mex
    [S,ERR,en] = get_spe_matlab(file_name);
 end
 % eliminate symbolic NaN-s
-nans      = (-(S(:,:)/1.e+30+1)>1.e-8);
+nans      = (S(:,:)<-1.e+29);
 S(nans)   = NaN;
 ERR(nans) = 0;
 %

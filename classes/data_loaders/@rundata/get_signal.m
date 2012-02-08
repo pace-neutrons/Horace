@@ -6,7 +6,8 @@ function [S,Err,en,this] =get_signal(this,varargin)
 %
 %Inputs:
 % this     -- initiated instance of the run data class;
-% filename -- optional parameter allowing to redefine the input file for 
+% filename -- optional parameter allowing to redefine the input file for
+% the data loader
 %
 %
 %
