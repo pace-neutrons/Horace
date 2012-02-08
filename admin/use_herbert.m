@@ -42,6 +42,11 @@ else
     error('USE_HERBERT:invalid_arguments',['call use_herbert() to switch it on ',....
        'or user_herbert(''off'') to disable it' ])
 end
+try
+    horace_on();
+catch
+  error('use_herbert:wrong_arguments','this function relies on horace_on function to be availible and apparently it is not');    
+end
 
 
 

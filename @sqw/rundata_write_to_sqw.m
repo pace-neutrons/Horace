@@ -57,8 +57,14 @@ data = struct();
 
 [data.filepath,data.filename]=fileparts(run_file.loader.file_name);
 
-[sqw_path,sqw_name]=get_sqw_fname(run_file);
-sqw_file_name =fullfile(sqw_path,sqw_name); 
+[source_path,source_name]=get_source_fname(run_file);
+targ_path  = get(hor_config,'sqw_path');
+if isempty(targ_path)
+    targ_path = source_path;
+end
+sqw_ext = get(hor_config,'sqw_ext');
+
+sqw_file_name =fullfile(targ_path,[source_name,sqw_ext]); 
 % get the list of all detectors, including the detectors, which produce
 % incorrect results (NaN-s) for this run
 det0 = get_rundata(run_file,'det_par','-hor');
