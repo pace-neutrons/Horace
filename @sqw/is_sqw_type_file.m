@@ -48,22 +48,14 @@ end
 sqw_type=true(size(infile));
 ndims=zeros(size(infile));
 for i=1:numel(infile)
-    if get(hdf_config,'use_hdf')
-        data_file=sqw_hdf(infile{i},'-no_new');
-        sqw_type(i)=data_file.pixels_present;
-        ndims(i)=numel(data_file.signal_dims);
-        % closes the hdf 5 and its handles from memory rather then deleting the file
-        data_file.delete();
-    else
-        [sqw_type_tmp, ndims_tmp, mess] = get_sqw_type_from_file (infile{i});   % must use temporary output arguments as may be unfilled if error
-        if ~isempty(mess)
-            sqw_type=[]; ndims=[]; data_source=[];
-            return
-        end
-        sqw_type(i)=sqw_type_tmp;
-        ndims(i)=ndims_tmp;
+    [sqw_type_tmp, ndims_tmp, mess] = get_sqw_type_from_file (infile{i});   % must use temporary output arguments as may be unfilled if error
+    if ~isempty(mess)
+        sqw_type=[]; ndims=[]; data_source=[];
+        return
     end
-    
+    sqw_type(i)=sqw_type_tmp;
+    ndims(i)=ndims_tmp;
+   
     % Wrap file name in a structure with a key to identify the file as being the input sqw data
     if i==1
         data_source.keyword='$file_data';

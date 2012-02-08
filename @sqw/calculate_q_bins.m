@@ -18,7 +18,7 @@ function [q,en]=calculate_q_bins(win)
 
 % Original author: T.G.Perring
 %
-% $Revision: 587 $ ($Date: 2011-11-25 16:42:24 +0000 (Fri, 25 Nov 2011) $)
+% $Revision$ ($Date$)
 
 u0=win.data.uoffset;
 u=win.data.u_to_rlu;

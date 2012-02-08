@@ -84,6 +84,8 @@ if is_herbert_used()
     
     nfiles         = numel(run_files);
     tmp_file = cell(1,nfiles);
+    targ_path = fileparts(sqw_file);
+    set(hor_config,'sqw_path',targ_path);
     if nfiles ==1
         tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
         disp('--------------------------------------------------------------------------------')
@@ -112,7 +114,6 @@ if is_herbert_used()
     write_nsqw_to_sqw (tmp_file, sqw_file);
 
     disp('--------------------------------------------------------------------------------')
-
     return;
 end
 
@@ -149,12 +150,7 @@ else
     % ------------------------------------------------------------
     disp('--------------------------------------------------------------------------------')
     disp('Creating output sqw file:')
-    if get(hdf_config,'use_hdf')
-        sqwh = sqw_hdf(sqw_file,tmp_file);
-        delete(sqwh);
-    else    
-        write_nsqw_to_sqw (tmp_file, sqw_file);
-    end
+    write_nsqw_to_sqw (tmp_file, sqw_file);
     disp('--------------------------------------------------------------------------------')
 end
 

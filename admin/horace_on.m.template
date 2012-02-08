@@ -8,6 +8,7 @@ function path=horace_on(non_default_path)
 %
 %
 default_horace_path ='C:/Users/wkc26243/Documents/work/svn/Horace';
+prefer_herbert=true;
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
     path = find_default_path(default_horace_path);   
@@ -20,7 +21,35 @@ try
 catch
 end
 warning(warn_state);    % return warnings to initial state
- 
+
+libisis_initated=~isempty(which('libisis_init.m'));
+herbert_initated=~isempty(which('herbert_init.m'));
+
+% if neither libisis not herbert are initated, try to init something. 
+if ~(libisis_initated||herbert_initated)
+    if prefer_herbert
+        try
+            herbert_on();               
+        catch
+            try
+                libisis_on();
+            catch
+            end
+            
+        end
+    else
+        try
+            libisis_on();
+        catch
+            try
+                herbert_on();               
+            catch
+            end
+        end
+    end
+end
+
+% init horace 
 if nargin==1 
 	start_app(non_default_path);	
 else

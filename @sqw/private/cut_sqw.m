@@ -221,22 +221,8 @@ end
 if horace_info_level>=1, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    if get(hdf_config,'use_hdf')
-        if ~H5F.is_hdf5(data_source)
-            error('HORACE:cut_sqw','Trying to cut sqw data from hdf file %s but it is notcorrect hdf5 file',data_source)
-        end
-        source_hdf_sqw = sqw_hdf(data_source);
-        sqwn_data      = source_hdf_sqw.read('-nopix');
-        main_header    = sqwn_data.main_header;
-        header         = sqwn_data.header;
-        detpar         = sqwn_data.detpar;
-        data           = sqwn_data.data;
-        type           = source_hdf_sqw.sqw_type();
-        source_hdf_sqw = source_hdf_sqw.build_pixel_dataspace_layout(data.npix);        
-        npixtot        = source_hdf_sqw.npixels_in_file();       
-    else
-        [main_header,header,detpar,data,mess,position,npixtot,type]=get_sqw (data_source,'-nopix');
-    end
+    [main_header,header,detpar,data,mess,position,npixtot,type]=get_sqw (data_source,'-nopix');
+
     if ~isempty(mess)
         error('Error reading data from file %s \n %s',data_source,mess)
     end
@@ -400,27 +386,22 @@ end
 % -----------------------
 % read data and accumulate signal and error
 if source_is_file
-    if get(hdf_config,'use_hdf')
-        [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] =...
-         source_hdf_sqw.cut_data_from_file(nstart,data.npix,keep_pix,pix_tmpfile_ok,...
-                  urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
-    else
     
-        fid=fopen(data_source,'r');
-        if fid<0
-            if save_to_file; fclose(fout); end    % close the output file opened earlier
-            error(['Unable to open file ',data_source])
-        end
-        status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
-        if status<0;
-            fclose(fid);
-            if save_to_file; fclose(fout); end    % close the output file opened earlier
-            error(['Error finding location of pixel data in file ',data_source]);
-        end
-        [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-                                                    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
-        fclose(fid);
+    fid=fopen(data_source,'r');
+    if fid<0
+        if save_to_file; fclose(fout); end    % close the output file opened earlier
+        error(['Unable to open file ',data_source])
     end
+    status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
+    if status<0;
+        fclose(fid);
+        if save_to_file; fclose(fout); end    % close the output file opened earlier
+        error(['Error finding location of pixel data in file ',data_source]);
+    end
+    [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+                                                urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
+    fclose(fid);
+
  
 else
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (data.pix, nstart, nend, keep_pix, ...

@@ -14,14 +14,17 @@ rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 addpath(fullfile(rootpath,'admin'));
 
+% Select what to use as function of what was cuttently initiated/requested
+% and check if supporting package is availible
+select_supporting_package(rootpath);
+
+
 addpath_message (2,rootpath,'DLL');
 addpath_message (1,rootpath,'configuration');
 
 % Other directories
 addpath_message (1,rootpath,'utilities');
 
-% Select what to use as function of what was cuttently initiated/requested
-select_supporting_package(rootpath);
 
 % Functions for fitting etc.
 addpath_message (1,rootpath,'functions');
@@ -29,13 +32,11 @@ addpath_message (1,rootpath,'functions');
 %Add GUI path
 addpath_message(1,rootpath,'GUI');
 
-
-%addpath_message (1,rootpath,'hdf_tools');          % no longer used
 %addpath_message (1,rootpath,'work_in_progress');   % not included in the distribution
 
 
 % Set up graphical defaults for plotting
-try
+if  is_herbert_used()
     % For Herbert:
     horace_plot.name_oned = 'Horace 1D plot';
     horace_plot.name_multiplot = 'Horace multiplot';
@@ -45,7 +46,7 @@ try
     horace_plot.name_contour = 'Horace contour plot';
     horace_plot.name_sliceomatic = 'Sliceomatic';
     set_global_var('horace_plot',horace_plot);
-catch
+else
     % For libisis:
     IXG_ST_HORACE= struct('surface_name','Horace surface plot','area_name','Horace area plot','stem_name','Horace stem plot','oned_name','Horace one dimensional plot',...
         'multiplot_name','Horace multiplot','points_name','Horace 2d marker plot','contour_name','Horace contour plot','tag','Horace');
@@ -92,7 +93,7 @@ if isempty(libs_path)
     libs_defined=false;    
 end
 
-% if found both identify who is higher on search path to use it.
+% if found both identify who is higher on the search path to use it.
 if herb_defined&&libs_defined 
     herb_pattern = fileparts(herb_path);
     libs_pattern = fileparts(libs_path);

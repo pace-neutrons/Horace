@@ -24,15 +24,6 @@ application=horace_version;
 sqw_type = [];
 ndims = [];
 
-% Check file matches HDF status
-if get(hdf_config,'use_hdf')
-    if H5F.is_hdf5(infile)
-        [path,name,ext]=fileparts(infile);
-        mess('HORACE:get_sqw_type_from_file',' attempt to treat hdf5 file %s as a plain binary file',[name,ext])
-        return
-    end
-end
-
 % Open file
 fid=fopen(infile,'r');
 if fid<0

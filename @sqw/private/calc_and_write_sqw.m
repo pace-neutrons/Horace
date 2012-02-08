@@ -104,20 +104,17 @@ bigtoc('Time to convert from spe to sqw data:')
 [path,file]=fileparts(sqw_file);
 disp(['Writing sqw data to ',file,' ...'])
 bigtic;
-if get(hdf_config,'use_hdf')
-    error('SQW:invalid_defaults','sqw_hdf disabled');
-else
-    %Open output file
-    fid=fopen(sqw_file,'W');    % upper case 'W' means no automatic flushing of buffer - can be faster
-    if fid<0
-        error(['Unable to open file output file ',sqw_file])
-    end
-    mess=put_sqw (fid,main_header,header,det0,sqw_data);
-    fclose(fid);
-    if ~isempty(mess)
-        error('Error writing data to file %s \n %s',sqw_file,mess)
-    end
+%Open output file
+fid=fopen(sqw_file,'W');    % upper case 'W' means no automatic flushing of buffer - can be faster
+if fid<0
+    error(['Unable to open file output file ',sqw_file])
 end
+mess=put_sqw (fid,main_header,header,det0,sqw_data);
+fclose(fid);
+if ~isempty(mess)
+    error('Error writing data to file %s \n %s',sqw_file,mess)
+end
+
 bigtoc('Time to save data to file:')    % display timings
 
 % Clear output arguments if nargout==0 to have a silent return
