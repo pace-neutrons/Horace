@@ -174,9 +174,19 @@ try
 
                     
        set(herbert_config,'use_mex',true);	               
+       display (' ')
+       disp('!==================================================================!')
+       disp('!  Succesfully created required FORTRAN mex files  ================!')
+       disp('!==================================================================!')    
+       display(' ')
+       
     end            
+catch ex
+    rethrow(ex)
+end
 
-
+    
+try
     if user_choise=='y'
         % Prompt for C compiler, and compile all C code    
         disp('!==================================================================!')
@@ -190,18 +200,19 @@ try
                     'get_ascii_file.cpp','IIget_ascii_file.cpp')
                 
         set(herbert_config,'use_mex_C',true);
+        display (' ')
+        disp('!==================================================================!')
+        disp('!  Succesfully created required C mex files   =====================!')
+        disp('!==================================================================!')    
+        display(' ')
+        
     end
     
  
-    display (' ')
-    disp('!==================================================================!')
-    disp('!  Succesfully created all required mex files =====================!')
-    disp('!==================================================================!')    
-    display(' ')
-    
 catch ex
     rethrow(ex)
 end
+    
 
 
 function   mex_single_f(in_dir,out_dir,lib_dir,varargin)
