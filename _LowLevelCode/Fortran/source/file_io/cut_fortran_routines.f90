@@ -3,21 +3,6 @@
 !
 ! T.G.Perring March 2008
 !-----------------------------------------------------------------------
-module cut_pixel_info
-	use type_definitions
-	real(dp), allocatable :: pix(:,:)
-	save :: pix
-end module cut_pixel_info
-
-
-!-----------------------------------------------------------------------
-module cut_footer_info
-	use type_definitions
-	integer, parameter :: linlen = 255_i4b
-	character(linlen), allocatable :: footer(:)
-end module cut_footer_info
-
-
 !-----------------------------------------------------------------------
 ! Read number of points in the cut
 subroutine load_cut_header(filename,np)

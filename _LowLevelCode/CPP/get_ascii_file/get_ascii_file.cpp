@@ -69,7 +69,7 @@
 *
 *-----------------------------------------------------------------------
 *
-* $Revision: 537 $ ($Date: 2011-03-02 20:10:51 +0000 (Wed, 02 Mar 2011) $)
+* $Revision$ ($Date$)
 */
 
 /*!
@@ -101,7 +101,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
   fileTypesAccepted[iNumFileTypes]="undefined";
 
 //--------->  ANALYSE INPUT PARAMETERS;
-  const char REVISION[]="$Revision:: 537  $ ($Date:: 2011-03-02 20:10:51 +0000 (Wed, 02 Mar 2011) $)";
+  const char REVISION[]="$Revision::      $ ($Date::                                              $)";
   if(nrhs==0&&nlhs==1){
         plhs[0]=mxCreateString(REVISION); 
         return;

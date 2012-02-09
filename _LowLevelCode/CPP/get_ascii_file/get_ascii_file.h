@@ -1,6 +1,6 @@
 #ifndef H_GET_ASCII_FILE
 #define H_GET_ASCII_FILE
-// TODO: reference additional headers your program requires here
+
 #include <iostream>
 #include <fstream>
 #include <sstream>

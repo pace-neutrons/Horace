@@ -3,21 +3,6 @@
 !
 ! T.G.Perring March 2008
 !-----------------------------------------------------------------------
-module slice_pixel_info
-	use type_definitions
-	real(dp), allocatable :: pix(:,:)
-	save :: pix
-end module slice_pixel_info
-
-
-!-----------------------------------------------------------------------
-module slice_footer_info
-	use type_definitions
-	integer, parameter :: linlen = 255_i4b
-	character(linlen), allocatable :: footer(:)
-end module slice_footer_info
-
-
 !-----------------------------------------------------------------------
 ! Read number of points in the slice
 subroutine load_slice_header(filename, header)

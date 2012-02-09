@@ -49,7 +49,9 @@
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\source\maths\bin_boundaries_get_xarr.f90"/>
+		<File RelativePath="..\..\source\file_io\cut_footer_info.f90"/>
 		<File RelativePath="..\..\source\file_io\cut_fortran_routines.f90"/>
+		<File RelativePath="..\..\source\file_io\cut_pixel_info.f90"/>
 		<File RelativePath="..\..\source_mex_interface\IFL_bin_boundaries_get_marr.f90"/>
 		<File RelativePath="..\..\source_mex_interface\IFL_bin_boundaries_get_xarr.f90"/>
 		<File RelativePath="..\..\source_mex_interface\IFL_integrate_1d_points.f90"/>
@@ -85,7 +87,9 @@
 		<File RelativePath="..\..\source\maths\single_integrate_3d_x_points.f90"/>
 		<File RelativePath="..\..\source\maths\single_integrate_3d_y_points.f90"/>
 		<File RelativePath="..\..\source\maths\single_integrate_3d_z_points.f90"/>
+		<File RelativePath="..\..\source\file_io\slice_footer_info.f90"/>
 		<File RelativePath="..\..\source\file_io\slice_fortran_routines.f90"/>
+		<File RelativePath="..\..\source\file_io\slice_pixel_info.f90"/>
 		<File RelativePath="..\..\source\tools\tools.f90"/>
 		<File RelativePath="..\..\source\tools\tools_parameters.f90"/>
 		<File RelativePath="..\..\source\type_definitions.f90"/>

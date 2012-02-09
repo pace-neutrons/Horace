@@ -9,7 +9,7 @@
 //
 // low level functions to read the PAR, PHX and SPE files; Should be called from mexFunction
 //
-// $Revision: 553 $ ($Date: 2011-06-13 12:46:01 +0100 (Mon, 13 Jun 2011) $)
+// $Revision$ ($Date$)
 //
 // the buffer specified here in static mainly for throwing meaningfull error messages;
 // It would be better to specify static stringstream for that but some compuilers crash on its initialisation
