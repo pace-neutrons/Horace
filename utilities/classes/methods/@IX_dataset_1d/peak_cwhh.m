@@ -4,17 +4,19 @@ function [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh(w,fac)
 %   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh(w,fac)
 %
 % Input:
+% ------
 %   w       mgenie spectrum
 %   fac     Factor of peak height at which to determine the centre-height position
 %           (default=0.5 i.e. centre-fwhh)
 %   
 % Output:
+% -------
 %   xcent   Centre of factor-of-height
 %   xpeak   Peak position
-%   ypeak   Peak height
 %   fwhh    Full width at factor-of-height
 %   xneg    Position of factor-of-height on lower x side
 %   xpos    Position of factor-of-height on higher x side
+%   ypeak   Peak height
 
 if nargin==1
     fac=0.5;
