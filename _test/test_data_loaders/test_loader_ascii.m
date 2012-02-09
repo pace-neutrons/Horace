@@ -63,7 +63,7 @@ classdef test_loader_ascii< TestCase
             set(herbert_config,'use_mex',1);
             [par,loader] = load_par(loader,'demo_par.par','-horace');
             set(herbert_config,'use_mex',old_state);
-            assertEqual(loader.par_file_name,'demo_par.par');            
+            assertEqual(loader.par_file_name,'demo_par.PAR');            
             
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(par))));
             assertTrue(all(ismember(fields(par),{'filename','filepath','x2','phi','azim','width','height','group'})));            
@@ -77,7 +77,7 @@ classdef test_loader_ascii< TestCase
             set(herbert_config,'use_mex',0);
             [par,loader] = load_par(loader,'demo_par.par','-hor');
             set(herbert_config,'use_mex',old_state);
-            assertEqual(loader.par_file_name,'demo_par.par');            
+            assertEqual(loader.par_file_name,'demo_par.PAR');            
             
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(par))));
             assertTrue(all(ismember(fields(par),{'filename','filepath','x2','phi','azim','width','height','group'})));            
@@ -94,7 +94,7 @@ classdef test_loader_ascii< TestCase
         function test_mslice_par(this)                       
             [par,loader]=load_par(loader_ascii,'demo_par.par');          
             assertEqual([6,28160],size(par));
-            assertEqual(loader.par_file_name,'demo_par.par');            
+            assertEqual(loader.par_file_name,'demo_par.PAR');            
         end 
 % DEFINED FIELDS        
         function test_spe_fields_defined(this)
@@ -107,7 +107,7 @@ classdef test_loader_ascii< TestCase
             [par,loader]=load_par(loader,'demo_par.par');
             fields = defined_fields(loader);
             assertEqual({'det_par'},fields);
-            assertEqual(loader.par_file_name,'demo_par.par');
+            assertEqual(loader.par_file_name,'demo_par.PAR');
        end
         function test_all_fields_defined(this)
             loader=loader_ascii('spe_wrong.spe','demo_par.par');
