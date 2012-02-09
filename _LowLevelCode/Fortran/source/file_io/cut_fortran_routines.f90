@@ -11,7 +11,7 @@ subroutine load_cut_header(filename,np)
 	integer(i4b) :: np
 	character(*) :: filename
 
-	open(unit=1,file=filename,READONLY,err=999)
+	open(unit=1,file=filename,access='READ',err=999)
 	read(1,*,err=999) np 
 	close(unit=1)  
 	return  
@@ -41,7 +41,7 @@ subroutine load_cut(filename,np,x,y,e,npix,npixtot,nfooter)
 	npixbuff=10000	! initial size of pixel buff
 	nfooterbuff=100	! initial size of footer buffer (>0)
 
-	open(unit=iunit,file=filename,READONLY,err=999)
+	open(unit=iunit,file=filename,access='READ',err=999)
 	read(iunit,*,err=999) dummy
 
 	if (allocated(pix)) deallocate(pix)			! will be saved between calls from Matlab

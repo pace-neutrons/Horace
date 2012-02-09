@@ -182,7 +182,13 @@ try
        
     end            
 catch ex
-    rethrow(ex)
+     set(herbert_config,'use_mex',false);
+     display (' ')
+     disp('!==================================================================!')
+     disp('!  FORTRAN mex-ing filed                           ================!')
+     disp('!==================================================================!')    
+      display(' ')
+
 end
 
     
