@@ -53,7 +53,8 @@ if nargin >0
     end
     if ismember('-use_lib',theKeys)
         use_lib     = true;
-    end       
+        keep_lib    =true;        
+    end 
 end
 
 rootpath = fileparts(which('herbert_init'));
@@ -224,6 +225,8 @@ catch ex
      keep_lib = true;
      if user_choice=='f'
          rethrow(ex);
+     else
+        disp(ex);
      end
 end
 
