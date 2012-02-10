@@ -3,12 +3,12 @@ function test_bin_boundaries_from_descriptor
 %
 %   >> test_bin_boundaries_from_descriptor
 
-cwd=pwd;    % Get current working directory
+%cwd=pwd;    % Get current working directory
 
 try
     % The function is in a private folder, so go to that location
-    cstr=which('bin_boundaries_from_descriptor','-all');
-    cd(fileparts(cstr{1}));
+    %cstr=which('bin_boundaries_from_descriptor','-all');
+    %cd(fileparts(cstr{1}));
     
     % Simple equivalence tests
     disp(' ')
@@ -18,9 +18,9 @@ try
     xb{1}=[4,0.1,5];
     xb{2}=[4,-0.1,5,0,8,0.25,12];
     for i=1:numel(xb)
-        xoutf=bin_boundaries_from_descriptor(xb{i},xin,true,true);
-        xoutm=bin_boundaries_from_descriptor(xb{i},xin,false,true);
-        delta_array(xoutf,xoutm,-1e-14)
+        xoutf=testBin_boundaries_from_descriptor(xb{i},xin,true,true);
+        xoutm=testBin_boundaries_from_descriptor(xb{i},xin,false,true);
+        assertElementsAlmostEqual(xoutf,xoutm);
     end
     disp('finished')
     disp(' ')
@@ -32,14 +32,14 @@ try
     xin=sort(nx*rand(1,nx)+0.1*(1:nx));
     xb=[0,5,floor(nx/4),-0.01,floor(nx/2),0,floor(3*nx/4),10,nx];
     disp('- Mex implementation:')
-    tic; xoutf=bin_boundaries_from_descriptor(xb,xin,true,true); toc;
+    tic; xoutf=testBin_boundaries_from_descriptor(xb,xin,true,true); toc;
     disp(' ')
     disp('- Matlab implementation:')
-    tic; xoutm=bin_boundaries_from_descriptor(xb,xin,false,true); toc;
+    tic; xoutm=testBin_boundaries_from_descriptor(xb,xin,false,true); toc;
     disp(' ')
-    delta_array(xoutf,xoutm,-1e-14)
-    cd(cwd)
+    assertElementsAlmostEqual(xoutf,xoutm);
+    %cd(cwd)
 catch
-    cd(cwd);
+    %cd(cwd);
     error(lasterr)
 end
