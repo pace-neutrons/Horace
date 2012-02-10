@@ -22,29 +22,27 @@ rootpath = fileparts(which('herbert_init')); % MUST have rootpath so that herber
 %
 disp('!===================================================================!')
 disp('!==> Preparing HERBERT distributon kit  =============================!')
-disp('!    Start collecting the Herbert program files =====================!')
+disp('!    Start collecting the Horace program files =====================!')
 %
 current_dir  = pwd;
-root_dir     = current_dir;
+build_dir   =current_dir; 
 % if inside herbert package dir, go avay from there:
-if strncmpi(root_dir,current_dir,numel(current_dir))
+if strncmpi(build_dir,rootpath,numel(rootpath))
 	cd(rootpath);
 	cd('../');
+    build_dir = pwd;
 end
 
-target_Dir=[root_dir,'/ISIS'];
+target_Dir=[build_dir,'/ISIS'];
 her_dir = [target_Dir,'/Herbert'];
-%
 copy_files_list(rootpath,her_dir); 
-% copy source code and auxiliary files from system directory
+
+% copy source code files from system directory
 copy_files_list(fullfile(rootpath,'_LowLevelCode'),fullfile(her_dir,'_LowLevelCode'),'+_',...
                        'h','cpp','c','f','f90','for','sln','vcproj','vfproj','txt','m'); 
 copy_files_list(fullfile(rootpath,'_notes'),fullfile(her_dir,'_notes'),'+_'); 
 copy_files_list(fullfile(rootpath,'_test'),fullfile(her_dir,'_test'),'+_'); 
 
-% copy the file which should initiate Horace (after minor modifications)
-% copyfile('horace_on.mt',[target_Dir '/horace_on.mt'],'f');
-% copyfile('start_app.m',[target_Dir '/start_app.m'],'f');
 install_script=which('herbert_on.m.template');
 copyfile(install_script,fullfile(target_Dir,'herbert_on.m.template'),'f');
 %
@@ -59,14 +57,14 @@ if(exist(her_file_name,'file'))
 end
 
 zip(her_file_name,target_Dir);
-if ~stcmpi(pwd,current_dir)
+if ~strcmp(pwd,current_dir)
     movefile(her_file_name,current_dir);
 end
 cd(current_dir);
 %
 disp('!    Files compressed. Deleting the auxiliary files and directories=!')
-source_len = numel(root_dir);
-if ~strncmp(target_Dir,root_dir,source_len)
+
+if ~strncmp(current_dir,target_Dir,numel(target_Dir))
     rmdir(target_Dir,'s');
 end
 disp('!    All done folks ================================================!')
