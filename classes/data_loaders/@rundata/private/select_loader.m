@@ -1,4 +1,4 @@
-function this=select_loader(this,varargin)
+hfunction this=select_loader(this,varargin)
 % method selects the data loader for the rundata class as function of
 % supplied file names and defines other data fields, if they are specified 
 % by command line arguments
