@@ -69,16 +69,21 @@ if isa(varargin{1},'char')    % build from a file;
                    if ischar(varargin{2})
                        try  % if second parameter an existing par-filename, it owerrides par-data within nxspe file;
                            second_file       = check_file_exist(varargin{2},'.par');
-                           [this.det_par,la] = load_par(loader_ascii(),second_file);
+                           par_is_file       = true;
+                       catch % no, it is probably an parameter                       
+                           second_file        = '';
+                           par_is_file        = false;
+                       end
+                       if par_is_file
+                        [this.det_par,la] = load_par(loader_ascii(),second_file);
                            spe_detectors     = get_run_info(la);
                            if spe_detectors ~=this.n_detectors
                                error('RUNDATA:invalid_argument', ...
-                               'ascii par %s and nxspe %s files inconsistent; ascii detectors %d, nxspe %d',...
+                               'Can not use this par detector file with this nxspe file\n ascii par %s and nxspe %s files inconsistent; \n ascii detectors %d, nxspe %d',...
                                second_file,first_file,spe_detectors,this.n_detectors);
                            end
                            this.loader.par_file_name=second_file;
                            modyfieres=3;
-                       catch % no, it is probably an parameter                       
                        end
                    end
                    % all other parameters are present in command line;
