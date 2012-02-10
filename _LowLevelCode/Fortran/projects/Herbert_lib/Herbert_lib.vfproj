@@ -66,6 +66,7 @@
 		<File RelativePath="..\..\source_mex_interface\IFL_rebin_3d_x_hist.f90"/>
 		<File RelativePath="..\..\source_mex_interface\IFL_rebin_3d_y_hist.f90"/>
 		<File RelativePath="..\..\source_mex_interface\IFL_rebin_3d_z_hist.f90"/>
+		<File RelativePath="..\..\source\maths\IIndex.f90"/>
 		<File RelativePath="..\..\source\maths\integrate_1d_points.f90"/>
 		<File RelativePath="..\..\source\maths\integrate_2d_x_points.f90"/>
 		<File RelativePath="..\..\source\maths\integrate_2d_y_points.f90"/>

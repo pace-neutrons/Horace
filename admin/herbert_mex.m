@@ -1,43 +1,73 @@
-function herbert_mex()
+function herbert_mex(varargin)
 % Create mex files for all the herbert fortran and C++ routines
 %
-%   >> herbert_mex       -- this should automatically produce the mex 
+%>> herbert_mex       -- this should automatically produce the mex files
+%                        for herbert
+%>> herbert_mex options -- modify build options for herbert (convenience)
 %
+% Availible options:
+% -noprompt  -- do not ask to configure FORTRAN and C compiler, default ask
+%               if provided, assume that compiler is configured and we are
+%               building both fortran and C parts of code
+% -CPP    -- assume compiler configured to build C -part of code, build C;
+% -FOR    -- assume compiler configured to build FORTRAN -part of code, build FORTRAN;
+% -keep_lib  -- keep the intermediate fortran library 
+% -use_lib   -- use the previously build library when building number of times usage (missing
+%               library components will be added
 %
+%   $Rev$ ($Date$)
 %
-%   $Rev: 200 $ ($Date: 2011-11-24 14:05:19 +0000 (Thu, 24 Nov 2011) $)
-%
-start_dir=pwd;
 % root directory is assumed to be that in which mslice_init resides
+% list of keys the sctip accepts
+keys={'-noprompt','-CPP','-FOR','-use_lib','-keep_lib'};
+%defaults:
+prompt4compiler=true;
+keep_lib       =false;
+use_lib        =false;
+
+
+
+if nargin >0
+    ikeys  = ismember(varargin,keys);    
+    if ~all(ikeys)
+        noKeys = varargin(~ikeys);
+        for i=1:numel(noKeys)
+            disp(['HERBERT_MEX: unrecognized key: ',noKeys{i},' ignored']);
+        end
+    end
+    theKeys = varargin(ikeys);
+    if ismember('-noprompt',theKeys)
+        prompt4compiler=false;
+        user_choice='n';            
+    end
+    if ismember('-CPP',theKeys)
+        prompt4compiler=false;
+        user_choice    = 'c';
+    end
+    if ismember('-FOR',theKeys)
+        prompt4compiler=false;
+        user_choice    = 'f';
+    end
+    if ismember('-keep_lib',theKeys)
+       keep_lib    = true;
+    end
+    if ismember('-use_lib',theKeys)
+        use_lib     = true;
+    end       
+end
+
 rootpath = fileparts(which('herbert_init'));
-cd(rootpath)
 
 
 % -----------------------------------------------------
-disp('!==================================================================!')
-disp('! Would you like to select your compilers (win) or have configured !')
-disp('! your compiler yourself?:  y/n/c/f/e                              !')
-disp('! y-select and configure;  n - already configured                  !')
-disp('! c or f allow you to build C or FORTRAN part of the program       !')
-disp('!        having configured proper compiler yourself                !')
-disp('!------------------------------------------------------------------!')
-disp('!------------------------------------------------------------------!')
-disp('! e -- cancel (end)                                                !')
-user_entry=input('! y/n/c/f/e :','s');
-user_entry=strtrim(lower(user_entry));
-user_choise = user_entry(1);
-disp(['!===> ' user_choise,' choosen                                                    !']);
-disp('!==================================================================!')
-if ~(user_choise=='y'||user_choise=='n'||user_choise=='c'||user_choise=='f')
-    user_choise='e';
-end
-if user_choise=='e'
-    disp('!  canceled                                                        !')        
-    disp('!==================================================================!')    
-    return;
+if prompt4compiler
+    user_choice = ask4Compiler();
+    if user_choice=='e'
+        return;
+    end
 end
 
-if user_choise=='y'
+if user_choice=='y'
     % Prompt for fortran compiler
     disp('!==================================================================!')
     disp('! please, select your FORTRAN compiler  ===========================!')
@@ -45,39 +75,39 @@ if user_choise=='y'
 end
 % Source code directories, and output directories:
 %  - herbert target directrory:
-herbert_mex_target_dir=fullfile(rootpath,'DLL',['_',computer]);
+herbert_mex_target_dir=fullfile(rootpath,'DLL',['_',computer],matlab_version_folder());
 %  - mslice extras directory:
 herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','CPP');
 herbert_F_code_dir  =fullfile(rootpath,'_LowLevelCode','Fortran');
-
+lib_dir             =fullfile(herbert_F_code_dir,'mex');
 try
-    if user_choise ~= 'c'	
+    if user_choice ~= 'c'	
         set(herbert_config,'use_mex',false);      
         
-        lib_dir = fullfile(herbert_F_code_dir,'mex');
+        
         if ~exist(lib_dir,'dir')
             mkdir(lib_dir);
         end
         source_dir = fullfile(herbert_F_code_dir,'source');
-        modules=cell(32,1);
-        modules{1}=build_fortran_module(source_dir,lib_dir,'type_definitions.f90',lib_dir);     
-        modules{2}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'tools_parameters.f90',lib_dir);
-        modules{3}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'tools.f90',lib_dir);
+        modules=cell(33,1);
+        modules{1}=build_fortran_module(source_dir,lib_dir,'type_definitions.f90',lib_dir,use_lib);     
+        modules{2}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'tools_parameters.f90',lib_dir,use_lib);
+        modules{3}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'tools.f90',lib_dir,use_lib);
         
-        modules{4}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'cut_footer_info.f90',lib_dir);        
-        modules{5}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'cut_pixel_info.f90',lib_dir);        
-        modules{6}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_footer_info.f90',lib_dir);        
-        modules{7}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_pixel_info.f90',lib_dir);      
+        modules{4}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'cut_footer_info.f90',lib_dir,use_lib);        
+        modules{5}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'cut_pixel_info.f90',lib_dir,use_lib);        
+        modules{6}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_footer_info.f90',lib_dir,use_lib);        
+        modules{7}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_pixel_info.f90',lib_dir,use_lib);      
         
-        modules{8}=build_fortran_module(fullfile(source_dir,'maths'),lib_dir,'maths.f90',lib_dir);                        
+        modules{8}=build_fortran_module(fullfile(source_dir,'maths'),lib_dir,'maths.f90',lib_dir,use_lib);                        
 
-        modules{9}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'cut_fortran_routines.f90',lib_dir);        
-        modules{10}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_fortran_routines.f90',lib_dir); 
-        modules{11}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'remark.f90',lib_dir);         
+        modules{9}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'cut_fortran_routines.f90',lib_dir,use_lib);        
+        modules{10}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_fortran_routines.f90',lib_dir,use_lib); 
+        modules{11}=build_fortran_module(fullfile(source_dir,'tools'),lib_dir,'remark.f90',lib_dir,use_lib);         
          
         
         % build objects:
-        math_list={ 'bin_boundaries_get_xarr.f90',...
+        math_list={ 'IIndex.f90','bin_boundaries_get_xarr.f90',...
                     'upper_index.f90',                 'lower_index.f90',                 'integrate_1d_points.f90',...
                     'integrate_2d_x_points.f90',       'integrate_2d_y_points.f90',       'integrate_3d_x_points.f90',...
                     'integrate_3d_y_points.f90',       'integrate_3d_z_points.f90',...
@@ -89,7 +119,7 @@ try
         ic = 11;
         for i=1:numel(math_list)
             ic=ic+1;            
-            modules{ic}=build_fortran_module(fullfile(source_dir,'maths'),lib_dir,math_list{i},lib_dir);
+            modules{ic}=build_fortran_module(fullfile(source_dir,'maths'),lib_dir,math_list{i},lib_dir,use_lib);
         end
         
         
@@ -185,21 +215,24 @@ catch ex
      set(herbert_config,'use_mex',false);
      display (' ')
      disp('!==================================================================!')
-     disp('!  FORTRAN mex-ing filed                           ================!')
-     disp('!==================================================================!')    
-      display(' ')
-
+     disp('!  FORTRAN mex-ing failed                          ================!')
+     disp('!==================================================================!') 
+     display(' ')
+     keep_lib = true;
+     if user_choice=='f'
+         rethrow(ex);
+     end
 end
 
     
 try
-    if user_choise=='y'
+    if user_choice=='y'
         % Prompt for C compiler, and compile all C code    
         disp('!==================================================================!')
         disp('! please, select your C compiler ==================================!')
         mex -setup
     end
-    if user_choise ~= 'f'
+    if user_choice ~= 'f'
         set(herbert_config,'use_mex_C',false);
         % build C++ files
         mex_single_c(fullfile(herbert_C_code_dir,'get_ascii_file'), herbert_mex_target_dir,...
@@ -216,7 +249,17 @@ try
     
  
 catch ex
-    rethrow(ex)
+     display (' ')
+     disp('!==================================================================!')
+     disp('!  C mex-ing failed                                ================!')
+     disp('!==================================================================!')    
+     display(' ')
+     set(herbert_config,'use_mex_C',false);    
+     rethrow(ex)
+end
+
+if ~keep_lib 
+    rmdir(lib_dir,'s');
 end
     
 
@@ -252,9 +295,10 @@ if(exist(targ_file,'file'))
     end
 end
 
-disp(['==>Mex file creation from: ',f_name,' ...'])
+fprintf('%s',['===>Mex file creation from: ',f_name,' ...'])
 %mex('-v','-outdir',outdir,files{:});
 mex(['-I',lib_dir],'-outdir',outdir,files{:});
+disp(' <=== completed');
 
 
 
@@ -287,9 +331,10 @@ if(exist(targ_file,'file'))
     end
 end
 
-disp(['==>Mex file creation from: ',f_name,' ...'])
+fprintf('%s',['===>Mex file creation from: ',f_name,' ...'])
 %mex('-v','-outdir',outdir,files{:});
 mex('-outdir',outdir,files{:});
+disp(' <=== completed');
 
 
 function fname=make_filename(in_dir,str)
@@ -304,9 +349,23 @@ if ~exist(fname,'file')
 end
 
 
-function obj_name=build_fortran_module(source_dir,target_dir,file_name,lib_dir)
+function obj_name=build_fortran_module(source_dir,target_dir,file_name,lib_dir,use_lib)
+%
 [ps,base_name]=fileparts(file_name);
-disp(['---> compiling module: ',base_name, ' started']);
+% identify platform specific file extension
+obj_ext = '.o';
+if ispc
+    obj_ext ='.obj';
+end
+
+obj_name=fullfile(target_dir,[base_name,obj_ext]);
+if use_lib
+    if exist(obj_name,'file')
+        return;
+    end
+end
+
+fprintf('%s',['---> compiling module: ',base_name, '  ...']);
 file_name = make_filename(source_dir,file_name);
 mex('-c',['-I',lib_dir],'-outdir',target_dir,file_name);
 wkdir = pwd;
@@ -314,10 +373,29 @@ mod_name =[base_name,'.mod'];
 if exist(mod_name,'file')
     movefile(fullfile(wkdir,mod_name),fullfile(target_dir,mod_name),'f');
 end
-if ispc
-    obj_name=fullfile(target_dir,[base_name,'.obj']);
-else
-   obj_name=fullfile(target_dir,[base_name,'.o']);    
-end
-disp('---< finished ');
+disp('---< completed');
 
+function user_choice = ask4Compiler()
+disp('!==================================================================!')
+disp('! Would you like to select your compilers (win) or have configured !')
+disp('! your compiler yourself?:  y/n/c/f/e                              !')
+disp('! y-select and configure;  n - already configured                  !')
+disp('! c or f allow you to build C or FORTRAN part of the program       !')
+disp('!        having configured proper compiler yourself                !')
+disp('! e (end)-- cancel script execution                                !')
+disp('!------------------------------------------------------------------!')
+disp('!------------------------------------------------------------------!')
+disp('! e -- cancel (end)                                                !')
+user_entry=input('! y/n/c/f/e :','s');
+user_entry=strtrim(lower(user_entry));
+user_choise = user_entry(1);
+disp(['!===> ' user_choise,' choosen                                                    !']);
+disp('!==================================================================!')
+if ~(user_choice=='y'||user_choice=='n'||user_choice=='c'||user_choice=='f')
+    user_choice='e';
+end
+if user_choise=='e'
+    disp('!  canceled                                                        !')        
+    disp('!==================================================================!')    
+    return;
+end

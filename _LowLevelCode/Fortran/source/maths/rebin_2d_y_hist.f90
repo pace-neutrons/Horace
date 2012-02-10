@@ -1,7 +1,7 @@
 	subroutine rebin_2d_y_hist (ierr, y, s, e, yout, sout, eout)
 	use type_definitions
 	use tools_parameters
-	use maths, only : upper_index
+	use IIndex
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Rebins histogram data along the x-axis of a 2D dataset.

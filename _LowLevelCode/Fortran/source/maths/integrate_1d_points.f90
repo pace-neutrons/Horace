@@ -1,7 +1,8 @@
 	subroutine integrate_1d_points (ierr, x, s, e, xout, sout, eout)
 	use type_definitions
 	use tools_parameters
-	use maths, only : upper_index, lower_index, single_integrate_1d_points
+    use IIndex	
+	use maths, only : single_integrate_1d_points
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Integration over a 1D point data set.

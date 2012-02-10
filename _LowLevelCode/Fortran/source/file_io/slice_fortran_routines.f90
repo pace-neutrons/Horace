@@ -12,7 +12,7 @@ subroutine load_slice_header(filename, header)
 	real(dp) :: header(6)
 	character(*) :: filename
 
-	open(unit=1,file=filename,access='READ',err=999)
+	open(unit=1,file=filename,action='READ',err=999)
 	read(1,*,err=999) (header(i),i=1,6)
 	close(unit=1)  
 	return  
@@ -43,7 +43,7 @@ subroutine load_slice(filename,np,x,y,c,e,npix,npixtot,nfooter)
 	npixbuff=10000	! initial size of pixel buff
 	nfooterbuff=100	! initial size of footer buffer (>0)
 
-	open(unit=iunit,file=filename,access='READ',err=999)
+	open(unit=iunit,file=filename,action='READ',err=999)
 	read(iunit,*,err=999) (dummy(i),i=1,6)
 
 	if (allocated(pix)) deallocate(pix)			! will be saved between calls from Matlab

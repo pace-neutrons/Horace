@@ -1,7 +1,8 @@
 	subroutine integrate_3d_x_points (ierr, x, s, e, xout, sout, eout)
 	use type_definitions
 	use tools_parameters
-	use maths, only : upper_index, lower_index, single_integrate_3d_x_points
+    use IIndex	
+	use maths, only : single_integrate_3d_x_points
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Integration along the x-axis over a 2D data set with point character along the x-axis

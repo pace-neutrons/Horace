@@ -1,6 +1,6 @@
 	subroutine bin_boundaries_get_xarr (ierr, xbounds, x_in, n_out, x_out)
 	use tools_parameters
-!	use math, only: lower_index,upper_index
+	use IIndex
 	
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Obtains the new bin boundaries for rebinning histogram data using the information in the array XBOUNDS.
@@ -67,8 +67,6 @@
 	real(dp), parameter :: small=1.0e-10_dp
 
 	integer(i4b) mx, m_in, m_out, i, j, n, ntot, imin, imax
-	integer(i4b) upper_index,lower_index
-	external upper_index,lower_index
 	real(dp) xlo, del, xhi, logdel
 	logical first_time
 	character mess*132
