@@ -77,11 +77,14 @@
 ! Create matrices for the return arguments, double precision real*8
       ne_mwSize=ne
       ndet_mwSize=ndet
-      plhs(1)=mxCreateDoubleMatrix(ne_mwSize,ndet_mwSize,complex_flag)
+      plhs(1)=mxCreateDoubleMatrix(ne_mwSize,ndet_mwSize,
+     *                            complex_flag)
       data_S_pr=mxGetPr(plhs(1))
-      plhs(2)=mxCreateDoubleMatrix(ne_mwSize,ndet_mwSize,complex_flag)
+      plhs(2)=mxCreateDoubleMatrix(ne_mwSize,ndet_mwSize,
+     *                            complex_flag)
       data_ERR_pr=mxGetPr(plhs(2))
-      plhs(3)=mxCreateDoubleMatrix(ne_mwSize+1,one_mwSize,complex_flag)
+      plhs(3)=mxCreateDoubleMatrix(ne_mwSize+1,one_mwSize,
+     *                             complex_flag)
       data_en_pr=mxGetPr(plhs(3))
 
 ! Call load_spe routine, pass pointers
@@ -103,7 +106,7 @@
       integer*4 ndet,ne
       character*(*) filename
 
-      open(unit=1,file=filename,READONLY,ERR=999)
+      open(unit=1,file=filename,action='READ',ERR=999)
       read(1,*,ERR=999) ndet,ne 
       close(unit=1)  
       return  
@@ -126,7 +129,7 @@
       real*8 dum(ndet+1)
 
 ! Skip over the first two lines with ndet, ne and some text ###        
-      open(unit=1,file=filename,READONLY,ERR=999)
+      open(unit=1,file=filename,action='READ',ERR=999)
       read(1,*,ERR=999) idum(1),idum(2)
       read(1,*,ERR=999)
 ! angles (not used)
@@ -137,9 +140,11 @@
 ! read intensities + errors
       do idet=1,ndet
           read(1,*,ERR=999)
-          read(1,'(8F10.0)',ERR=999) (data_S(ien,idet),ien=1,ne)
+          read(1,'(8F10.0)',ERR=999)
+     *         (data_S(ien,idet),ien=1,ne)
           read(1,*,ERR=999)
-          read(1,'(8F10.0)',ERR=999)(data_ERR(ien,idet),ien=1,ne)
+          read(1,'(8F10.0)',ERR=999)
+     *         (data_ERR(ien,idet),ien=1,ne)
       enddo
       close(unit=1)
       return

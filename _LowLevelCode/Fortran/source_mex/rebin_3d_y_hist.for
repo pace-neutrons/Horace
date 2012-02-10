@@ -64,7 +64,8 @@
 
 ! Get sizes of input arguments
       ndim=mxGetNumberOfDimensions(prhs(2))
-      call mxCopyPtrToInteger4(mxGetDimensions(prhs(2)),dims_i4b,ndim)
+      call mxCopyPtrToInteger4(mxGetDimensions(prhs(2)),
+     *                         dims_i4b,ndim)
       dims=dims_i4b
       my = mxGetN(prhs(4))
       my_i4b=my

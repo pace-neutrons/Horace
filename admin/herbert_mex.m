@@ -76,6 +76,9 @@ end
 % Source code directories, and output directories:
 %  - herbert target directrory:
 herbert_mex_target_dir=fullfile(rootpath,'DLL',['_',computer],matlab_version_folder());
+if ~exist(herbert_mex_target_dir,'dir')
+    mkdir(herbert_mex_target_dir);
+end
 %  - mslice extras directory:
 herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','CPP');
 herbert_F_code_dir  =fullfile(rootpath,'_LowLevelCode','Fortran');
@@ -388,13 +391,13 @@ disp('!------------------------------------------------------------------!')
 disp('! e -- cancel (end)                                                !')
 user_entry=input('! y/n/c/f/e :','s');
 user_entry=strtrim(lower(user_entry));
-user_choise = user_entry(1);
-disp(['!===> ' user_choise,' choosen                                                    !']);
+user_choice = user_entry(1);
+disp(['!===> ' user_choice,' choosen                                                    !']);
 disp('!==================================================================!')
 if ~(user_choice=='y'||user_choice=='n'||user_choice=='c'||user_choice=='f')
     user_choice='e';
 end
-if user_choise=='e'
+if user_choice=='e'
     disp('!  canceled                                                        !')        
     disp('!==================================================================!')    
     return;
