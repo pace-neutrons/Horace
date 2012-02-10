@@ -14,7 +14,7 @@ C_compiled=false;
 try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
-    rootpath = fileparts(which('horace_mex'));
+    rootpath = fileparts(which('horace_init'));
     cd(rootpath);
 
     fortran_in_rel_dir = ['_LowLevelCode',filesep,'intel',filesep];
