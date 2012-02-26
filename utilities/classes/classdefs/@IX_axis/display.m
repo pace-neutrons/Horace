@@ -1,5 +1,5 @@
 function display(w)
-% Display sqw object to screen
+% Display object to screen
 %   >> display(w)
 
 % Generic method to display array of objects. Needs specific private method display_single

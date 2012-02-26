@@ -18,5 +18,9 @@ if w(1).y_distribution && ~isempty(w(1).y_axis.units)
     str=[str,' / ',w(1).y_axis.units];
 end
 if ~isempty(str)
-    slabel{end}=[slabel{end},str];
+    if ~isempty(slabel)
+        slabel{end}=[slabel{end},str];
+    else
+        slabel={str};
+    end
 end

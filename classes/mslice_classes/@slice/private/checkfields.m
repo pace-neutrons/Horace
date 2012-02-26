@@ -6,7 +6,7 @@ function [ok, mess, dout] = checkfields (d)
 %   d       structure or object of the class
 %
 %   ok      ok=true if valid, =false if not
-%   message Message if not a valid sqw object, empty string if is valiw.
+%   message Message if not a valid object, empty string if is valiw.
 %   dout    Output structure or object of the class 
 %           wout can be an altered version of the input structure or object that must
 %           have the same fields. For example, if a column array is provided for a field
