@@ -64,7 +64,7 @@ cd(current_dir);
 %
 disp('!    Files compressed. Deleting the auxiliary files and directories=!')
 
-if ~strncmp(current_dir,target_Dir,numel(target_Dir))
+if ~strncmp(target_Dir,rootpath,numel(rootpath))
     rmdir(target_Dir,'s');
 end
 disp('!    All done folks ================================================!')
