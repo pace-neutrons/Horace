@@ -1,4 +1,4 @@
-function test
+function test_read_save
 % Test reading and saving of mslice classes
 %
 %% ================================================================================================
