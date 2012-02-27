@@ -22,7 +22,8 @@ n_nxspe_entries=0;
 nxspe_folders=cell(1,1);
 nxspe_version=cell(1,1);
 for i=1:numel(groups)
-    if strcmp(groups(i).Attributes.Shortname,'NX_class')&&strcmp(groups(i).Attributes.Value.Data,'NXentry')
+    [fp,shortName] = fileparts(groups(i).Attributes.Name);
+    if strcmp(shortName,'NX_class')&&strcmp(groups(i).Attributes.Value.Data,'NXentry')
         nexus_folder = data_structure.GroupHierarchy.Groups(i);
         for j=1:numel(nexus_folder.Datasets)
             if strcmp([nexus_folder.Name,'/definition'],nexus_folder.Datasets(j).Name)
@@ -30,8 +31,7 @@ for i=1:numel(groups)
                 if strcmp(definition.Data,nexus_application_name)
                     n_nxspe_entries=n_nxspe_entries+1;
                     nxspe_folders{n_nxspe_entries}=nexus_folder.Name;
-                    ver = hdf5read(hdf_fileName,nexus_folder.Datasets(j).Name, nexus_folder.Datasets(j).Attributes.Shortname);
-                    nxspe_version{n_nxspe_entries}= ver.Data;
+                    nxspe_version{n_nxspe_entries}= read_nxspe_version(hdf_fileName,nexus_folder.Datasets(j));
                 end
             end
         end
@@ -49,5 +49,17 @@ root_nxspe_path = nxspe_folders{1};
 data_version       = nxspe_version{1};
 
 
+function ver=read_nxspe_version(hdf_fileName,DS)
+mat_ver_array=datevec(version('-date'));
+
+if mat_ver_array(1)<=2008
+    [fp,shortName] = fileparts(DS.Attributes.Name);                    
+    ver = hdf5read(hdf_fileName,[DS.Name,'/',shortName]);
+
+else
+   ver = hdf5read(hdf_fileName,DS.Name, DS.Attributes.Shortname);
+
+end
+ver= ver.Data;
 
 
