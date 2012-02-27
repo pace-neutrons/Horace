@@ -1,7 +1,11 @@
-function rebin_nd_iax_hist_generator
+function rebin_nd_iax_hist_generator(target_dir)
 % Create rebin functions for histogram data from template
 %
 %   >> rebin_nd_iax_hist_generator
+% Inputs:
+% target_dif -- if present, specifies the folder for target files to place
+%               into. if the folder does not exist, it will be created
+%
 %
 % Run from the folder that contains this utility function
 
@@ -15,6 +19,15 @@ output_file={'rebin_1d_hist.m',...
              'rebin_3d_y_hist.m',...
              'rebin_3d_z_hist.m'};
 
+if nargin>0
+    if ~exist(target_dir,'dir')
+        mkdir(target_dir);
+    end
+    for i=1:numel(output_file)
+        output_file{i}=fullfile(target_dir,output_file{i});
+    end
+end         
+         
 substr_in={'rebin_nd_iax_hist_template','iax=1','ndim=2'};
 
 substr_out{1}={'rebin_1d_hist',  'iax=1','ndim=1'};

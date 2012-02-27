@@ -1,7 +1,11 @@
-function integrate_nd_iax_points_generator
+function integrate_nd_iax_points_generator(target_dir)
 % Create integration functions for point data from template
 %
-%   >> integrate_nd_iax_points_generator
+%>> integrate_nd_iax_points_generator
+%
+% Inputs:
+% target_dif -- if present, specifies the folder for target files to place
+%               into. if the folder does not exist, it will be created
 %
 % Run from the folder that contains this utility function
 
@@ -14,6 +18,14 @@ output_file={'integrate_1d_points.m',...
              'integrate_3d_x_points.m',...
              'integrate_3d_y_points.m',...
              'integrate_3d_z_points.m'};
+if nargin>0
+    if ~exist(target_dir,'dir')
+        mkdir(target_dir);
+    end
+    for i=1:numel(output_file)
+        output_file{i}=fullfile(target_dir,output_file{i});
+    end
+end
 
 substr_in={'integrate_nd_iax_points_template','iax=1','ndim=2'};
 

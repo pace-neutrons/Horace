@@ -27,7 +27,7 @@ nx=numel(x);
 nb=numel(b);
 
 if nb<2
-    error('Must have at least two bin boundaries')
+    error('BIN_INDEX:invalid_argument','Must have at least two bin boundaries')
 end
 
 % Initialise index counters, catching special cases

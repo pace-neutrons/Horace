@@ -1,3 +1,4 @@
+function test_shift_scale
 % Some tests of shifting and scaling of IX_dataset objects
 
 arr2d=[hp1,shift_x(hp1,20),shift_y(hp1,30)];

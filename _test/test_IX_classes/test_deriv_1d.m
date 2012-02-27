@@ -1,4 +1,4 @@
-function [w,wd]=test_deriv_1d
+function test_deriv_1d
 % Test of numerical differentiation for 1D workspace
 
 % Create slightly noisy Gaussian
@@ -17,6 +17,11 @@ wd=deriv(w);
 
 % Plot
 acolor k
-dd(w)
+h1=dd(w);
 acolor r
-pd(wd)
+h2=pd(wd);
+
+assertEqual(h1,h2);
+pause(2);
+close(h1)
+

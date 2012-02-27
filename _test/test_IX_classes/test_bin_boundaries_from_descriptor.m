@@ -5,6 +5,8 @@ function test_bin_boundaries_from_descriptor
 
 %cwd=pwd;    % Get current working directory
 
+set(herbert_config,'force_mex_if_use_mex',true);
+old_mex = get(herbert_config,'use_mex');
 try
     % The function is in a private folder, so go to that location
     %cstr=which('bin_boundaries_from_descriptor','-all');
@@ -18,8 +20,8 @@ try
     xb{1}=[4,0.1,5];
     xb{2}=[4,-0.1,5,0,8,0.25,12];
     for i=1:numel(xb)
-        xoutf=testBin_boundaries_from_descriptor(xb{i},xin,true,true);
-        xoutm=testBin_boundaries_from_descriptor(xb{i},xin,false,true);
+        xoutf=bin_boundaries_from_descriptor(xb{i},xin,true,true);
+        xoutm=bin_boundaries_from_descriptor(xb{i},xin,false,true);
         assertElementsAlmostEqual(xoutf,xoutm);
     end
     disp('finished')
@@ -32,10 +34,10 @@ try
     xin=sort(nx*rand(1,nx)+0.1*(1:nx));
     xb=[0,5,floor(nx/4),-0.01,floor(nx/2),0,floor(3*nx/4),10,nx];
     disp('- Mex implementation:')
-    tic; xoutf=testBin_boundaries_from_descriptor(xb,xin,true,true); toc;
+    tic; xoutf=bin_boundaries_from_descriptor(xb,xin,true,true); toc;
     disp(' ')
     disp('- Matlab implementation:')
-    tic; xoutm=testBin_boundaries_from_descriptor(xb,xin,false,true); toc;
+    tic; xoutm=bin_boundaries_from_descriptor(xb,xin,false,true); toc;
     disp(' ')
     assertElementsAlmostEqual(xoutf,xoutm);
     %cd(cwd)
@@ -43,3 +45,5 @@ catch
     %cd(cwd);
     error(lasterr)
 end
+set(herbert_config,'force_mex_if_use_mex',false);    
+set(herbert_config,'use_mex',old_mex);

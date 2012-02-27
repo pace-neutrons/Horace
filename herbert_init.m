@@ -55,7 +55,7 @@ end
 disp('!------------------------------------------------------------------!')
 disp('!                      HERBERT                                     !')
 disp('! =================================================================!')
-disp('!         Utilites for visualisation and analysis                  !')
+disp('!         Utilities for visualisation and analysis                 !')
 disp('!              of neutron spectroscopy data                        !')
 disp('!------------------------------------------------------------------!')
 
