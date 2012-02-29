@@ -67,7 +67,7 @@ data_version       = nxspe_version{1};
 function ver=read_nxspe_version(hdf_fileName,DS)
 mat_ver_array=datevec(version('-date'));
 
-if mat_ver_array(1)<=2008
+if mat_ver_array(1)<=2009
     [fp,shortName] = fileparts(DS.Attributes.Name);                    
     ver = hdf5read(hdf_fileName,[DS.Name,'/',shortName]);
 
