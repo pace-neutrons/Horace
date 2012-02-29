@@ -22,11 +22,12 @@ classdef rundata
 %
  properties
 % Experiment parameters;
-   S         = [];  % Array of signals        -- obtained from speFile or equivalent
-   ERR       = [];  % Array of errors         -- obtained from speFile or equivalent
+
+   S         = [];  % Array of signals [ne x ndet]   -- obtained from speFile or equivalent
+   ERR       = [];  % Array of errors  [ne x ndet]    -- obtained from speFile or equivalent
    efix      = [];  % input beam energy meV   -- has to be in file or supplied  as  parameters list     
                     % (has to be larger then maximal scattered energy max(en) 
-   en        = [];  % list of transferred energies  -- obtained from speFile or equivalent
+   en        = [];  % Column vector of energy bin boundaries   -- obtained from speFile or equivalent
    emode     = [];  % measurement mode, has default 1 (direct mode)
      
  % Detectors parameters:

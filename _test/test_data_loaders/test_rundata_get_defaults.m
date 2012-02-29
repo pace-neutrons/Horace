@@ -50,6 +50,16 @@ classdef test_rundata_get_defaults< TestCase
             assertEqual(0,def{1})            
             assertEqual(0,def{2})                  
         end                 
+        function this=test_correct_deforder(this)
+            rd=rundata();
+
+            def=get_defaults(rd,'v','u','omega');           
+
+            assertEqual([0,1,0],def{1})            
+            assertEqual([1,0,0],def{2})                  
+            assertEqual(0,def{3})   
+        end                 
+        
         
     end
 end

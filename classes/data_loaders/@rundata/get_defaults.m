@@ -30,10 +30,24 @@ if ~all(have_defaults)
     error('RUNDATA:invalid_arguments','get_defaults: requested defaults for fields which do not have any defaults');
 end
 
-% return default values for the fields requested
-selection = ismember(this.fields_have_defaults,fields_needed);
-default_values = this.the_fields_defaults(selection);
+% return default values for the fields requested, sorted according to
+% fields needed
+default_values = get_def(this,fields_needed);
 
 if numel(default_values)==1
     default_values=default_values{1};
 end
+
+function def=get_def(this,fields_needed)
+% return default values for the fields requested
+selection      = ismember(this.fields_have_defaults,fields_needed);
+default_values = this.the_fields_defaults(selection);
+default_keys   = this.fields_have_defaults(selection);
+nf = numel(default_keys);
+def   = cell(1,nf);
+for i=1:nf    
+    def{i}=default_values{ismember(default_keys,fields_needed{i})};
+end
+
+
+

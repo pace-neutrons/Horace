@@ -12,8 +12,10 @@ end
 % path to unit tests:
 test_path=fullfile(rootpath,'_test');
 
+warning off all;
 runtests(fullfile(test_path,'test_data_loaders'));
-%runtests(fullfile(test_path,'test_IX_classes'));
+runtests(fullfile(test_path,'test_IX_classes'));
+warning on all;
 
 if ~isempty(test_pack_path)
     rmpath(test_pack_path);

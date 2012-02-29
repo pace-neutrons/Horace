@@ -345,7 +345,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\IIget_acii_file.cpp"
+				RelativePath=".\IIget_ascii_file.cpp"
 				>
 			</File>
 		</Filter>
