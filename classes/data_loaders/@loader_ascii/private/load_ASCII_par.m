@@ -31,7 +31,7 @@ if ~exist('filename','var')
     return
 end
 
-if H5F.is_hdf5(filename)
+if H5F.is_hdf5(filename)>0
    error('LOAD_ASCII:load_ASCII_par',' file %s has to be an ascii file but it is hdf5 file\n',filename);
 end
 

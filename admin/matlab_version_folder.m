@@ -51,11 +51,11 @@ end
 % Return the matlab directory name from which to use mex file dlls
 if strcmp(os_dirname,'_PCWIN') || strcmp(os_dirname,'_PCWIN64')
     % 32 and 64 bit windows; the following changes and dependencies have been identified;
-    if(strcmp('_R2007b',matlab_dirname)||strcmp('_R2007a',matlab_dirname))
-        matlab_dirname='_R2007a';
-    else
+%    if(strcmp('_R2007b',matlab_dirname)||strcmp('_R2007a',matlab_dirname))
+%        matlab_dirname='_R2007a';
+%    else
         matlab_dirname='_R2009a';
-    end
+%    end
     
 elseif strcmp(os_dirname,'_GLNX86')
     % linux 32 bit
