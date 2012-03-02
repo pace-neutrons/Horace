@@ -129,10 +129,11 @@ function ok=nesting_ok(celldir,depth)
 % Recursive function
 % Also calls ixf_global_path recursively
 
+depth_max=20;
 if ~exist('depth','var')
     ok=true;
     depth=1;
-elseif depth<20
+elseif depth<depth_max
     ok=true;
 else
     ok=false;
@@ -140,9 +141,13 @@ else
 end
 
 for i=1:numel(celldir)
-    if isvarname(celldir{i})  % assume to be a global path
-        if ixf_global_path('exist',celldir{i})
-            ok=nesting_ok(ixf_global_path('get',celldir{i}),depth+1);
+    if isvarname(celldir{i}) && ixf_global_path('exist',celldir{i})     % is a global path
+        ok=nesting_ok(ixf_global_path('get',celldir{i}),depth+1);
+        if ~ok, return, end
+    else
+        env_var=getenv(celldir{i});
+        if ~isempty(env_var)    % was an environment variable
+            ok=nesting_ok({env_var},depth+1);
             if ~ok, return, end
         end
     end
@@ -150,15 +155,22 @@ end
 
 %------------------------------------------------------------------------------
 function fullcelldir = resolve_path (celldir)
-% Reolve path into underlying directories
+% Recursively resolve path into underlying directories, translating global paths and environment variables
+% Recall that a global path is stored as cellstr
+
+% Recursive function
+% Also calls ixf_global_path recursively
 
 fullcelldir={};
 for i=1:numel(celldir)
-    if isvarname(celldir{i})  % assume to be a global path
-        if ixf_global_path('exist',celldir{i})  % if doesn't exist, just skip
-            fullcelldir = [fullcelldir; resolve_path(ixf_global_path('get',celldir{i}))];
-        end
+    if isvarname(celldir{i}) && ixf_global_path('exist',celldir{i}) % is a global path
+        fullcelldir = [fullcelldir; resolve_path(ixf_global_path('get',celldir{i}))];
     else
-        fullcelldir = [fullcelldir;celldir{i}];
+        env_var=getenv(celldir{i});
+        if ~isempty(env_var)    % was an environment variable
+            fullcelldir = [fullcelldir; resolve_path({env_var})];
+        else
+            fullcelldir = [fullcelldir;celldir{i}];
+        end
     end
 end

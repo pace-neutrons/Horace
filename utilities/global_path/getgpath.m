@@ -10,7 +10,7 @@ function outcell = getgpath(varargin)
 % Check global path name
 if nargin==1 || nargin==2
     if ~isvarname(varargin{1})
-        error('Check global path is a character string')
+        error('Check global path is a character string that is permitted as a variable name')
     end
     if nargin==2
         if ~ischar(varargin{2}) || ~size(varargin{2},1)==1 || ~strcmpi(varargin{2},'full')

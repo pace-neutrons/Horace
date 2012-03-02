@@ -7,7 +7,7 @@ function delgpath(pathname)
 
 % Check global path name
 if ~isvarname(pathname)
-    error('Check global path is a character string')
+    error('Check global path is a character string that is permitted as a variable name')
 end
 
 if ~existgpath(pathname)

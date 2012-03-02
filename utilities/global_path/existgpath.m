@@ -9,7 +9,8 @@ function status=existgpath(varargin)
 
 % Check global path name
 if nargin==1 && ~isvarname(varargin{1})
-    error('Check global path is a character string')
+    status=false;   % return false if not character string, variable name etc.
+    return
 end
 
 status = ixf_global_path ('exist',varargin{:});

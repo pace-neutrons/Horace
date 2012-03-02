@@ -10,7 +10,7 @@ function rmgpath(name,varargin)
 
 % Check global path name
 if ~isvarname(name)
-    error('Check global path is a character string')
+    error('Check global path is a character string that is permitted as a variable name')
 end
 
 if ~existgpath(name)

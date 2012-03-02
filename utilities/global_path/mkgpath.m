@@ -18,7 +18,7 @@ function mkgpath(name,varargin)
 
 % Check global path name
 if ~isvarname(name)
-    error('Check global path is a character string')
+    error('Check global path is a character string that is permitted as a variable name')
 end
     
 % Check directory names are character strings, not empty etc.
