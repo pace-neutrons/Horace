@@ -1,4 +1,4 @@
-function this=rundata(varargin)
+classdef rundata
 % The class describes single processed run used in Horace and Mslice
 % It used as an interface to load processed run data from any file format
 % supported and to verify that all data necessary for the run 
@@ -20,7 +20,61 @@ function this=rundata(varargin)
 %  
 % $Revision$ ($Date$)
 %
+ properties
+% Experiment parameters;
 
+   S         = [];  % Array of signals [ne x ndet]   -- obtained from speFile or equivalent
+   ERR       = [];  % Array of errors  [ne x ndet]    -- obtained from speFile or equivalent
+   efix      = [];  % input beam energy meV   -- has to be in file or supplied  as  parameters list     
+                    % (has to be larger then maximal scattered energy max(en) 
+   en        = [];  % Column vector of energy bin boundaries   -- obtained from speFile or equivalent
+   emode     = [];  % measurement mode, has default 1 (direct mode)
+     
+ % Detectors parameters:
+   n_detectors = []; % number of detectors, used when dealing with masked detectors   -- will be derived    
+   det_par     = []; % array of par-values, describing detectors angular positions    -- usually obtained from parFile or equivalent ;   
+   % by default, the data are obtained for crystal, but powder can be
+   % different and request different fields to be defined;
+   is_crystal   = [];
+ % Crystal parameters             
+   alatt     =[];  % Lattice parameters (Ang^-1)   -- has to be in file or supplied  as  parameters list
+   angldeg   =[];  % Lattice angles (deg)          -- has to be in file or supplied  as  parameters list
+ % Crystal position wrt to input beam
+   u         = [];
+   v         = [];
+ % goniometer parameters
+   psi   = [];     %  Angle of u w.r.t. ki (deg)                          --- default value 0      
+   omega = [];     %  Angle of axis of small goniometer arc w.r.t. notional u (deg) 
+   dpsi  = [];     %  Correction to psi (deg)            
+   gl    = [];     %  Large goniometer arc angle (deg) 
+   gs    = [];     %  Small goniometer arc angle (deg)     
+   %
+   %%---  INTERNAL SERVICE PARAMETERS: (private read, private write in new
+   %       Matlab versions)
+   % this is the class which provides actual data loading from correspondent data format;
+   loader = ''; 
+   % the name of the file, where data have to be loaded from;   
+   data_file_name='';  % service variable, needed by the program, as if it is not empty, the loader will be redefined
+   % the name of the file, where detector parameters have to be loaded from;      
+   par_file_name='';   % service variable, needed by the program, as if it is not empty, the parameters have to be redefined;
+   % The file extentions possible to load at the moment 
+   supported_extensions = {'.spe','.spe_h5','.nxspe'}; 
+   % list of fields which have default values and do not have to be always
+   % defined by either file or command arguments;
+   fields_have_defaults  = {'omega','dpsi','gl','gs','emode','is_crystal','u','v'};
+   % The default values for these fields are as follows:
+   the_fields_defaults   = {0,0,0,0,1,true,[1,0,0],[0,1,0]};
+   %
+ end    
+%   
+methods
+    function this=rundata(varargin)
+    % run_data class constructor
+    %
+    % usages:
+    %>>run=run_data(nxspe_file_name);    
+    %               nxspe_file_name -- the name of nxspe file with data
+    % 
     %>>run=run_data(run_data,speFileName,key,value,key,value,....)
     %               where the 'key', 'value' are the pairs of keys and values from the list
     %               of the class field names and with corresponding values,
@@ -58,53 +112,6 @@ function this=rundata(varargin)
    %   dpsi      %  Correction to psi (deg)            
    %   gl        %  Large goniometer arc angle (deg) 
    %   gs        %  Small goniometer arc angle (deg)  
-	%classdef rundata
-	run=struct;
-	% Experiment parameters;
-	run.S         = [];  % Array of signals        -- obtained from speFile or equivalent
-	run.ERR       = [];  % Array of errors         -- obtained from speFile or equivalent
-	run.efix      = [];  % input beam energy meV   -- has to be in file or supplied  as  parameters list     
-                    % (has to be larger then maximal scattered energy max(en) 
-	run.en        = [];  % list of transferred energies  -- obtained from speFile or equivalent
-	run.emode     = [];  % measurement mode, has default 1 (direct mode)
-     
- % Detectors parameters:
-	run.n_detectors = []; % number of detectors, used when dealing with masked detectors   -- will be derived    
-	run.det_par     = []; % array of par-values, describing detectors angular positions    -- usually obtained from parFile or equivalent ;   
-   % by default, the data are obtained for crystal, but powder can be
-   % different and request different fields to be defined;
-	run.is_crystal   = [];
- % Crystal parameters             
-	run.alatt     =[];  % Lattice parameters (Ang^-1)   -- has to be in file or supplied  as  parameters list
-	run.angldeg   =[];  % Lattice angles (deg)          -- has to be in file or supplied  as  parameters list
-	% Crystal position wrt to input beam
-	run.u         = [];
-	run.v         = [];
-	% goniometer parameters
-	run.psi   = [];     %  Angle of u w.r.t. ki (deg)                          --- default value 0      
-	run.omega = [];     %  Angle of axis of small goniometer arc w.r.t. notional u (deg) 
-	run.dpsi  = [];     %  Correction to psi (deg)            
-	run.gl    = [];     %  Large goniometer arc angle (deg) 
-	run.gs    = [];     %  Small goniometer arc angle (deg)     
-   %
-   %%---  INTERNAL SERVICE PARAMETERS: (private read, private write in new
-   %       Matlab versions)
-   % this is the class which provides actual data loading from correspondent data format;
-	run.loader = ''; 
-   % the name of the file, where data have to be loaded from;   
-	run.data_file_name='';  % service variable, needed by the program, as if it is not empty, the loader will be redefined
-   % the name of the file, where detector parameters have to be loaded from;      
-	run.par_file_name='';   % service variable, needed by the program, as if it is not empty, the parameters have to be redefined;
-   % The file extentions possible to load at the moment 
-	run.supported_extensions = {'.spe','.spe_h5','.nxspe'}; 
-   % list of fields which have default values and do not have to be always
-   % defined by either file or command arguments;
-	run.fields_have_defaults  = {'omega','dpsi','gl','gs','emode','is_crystal','u','v'};
-   % The default values for these fields are as follows:
-	run.the_fields_defaults   = {0,0,0,0,1,true,[1,0,0],[0,1,0]};
-   %
-    this=class(run,'rundata');
-   
     if nargin>0
         if isstruct(varargin{1}) 
             if nargin>1
@@ -132,7 +139,7 @@ function this=rundata(varargin)
     if isempty(this.is_crystal)
         this.is_crystal=get_defaults(this,'is_crystal');
     end    
-end
+    end
 % NOT YET IMPLEMENTED:     
    %>>run=run_data(speFileName,parFileName,efix,alatt,andgdeg,varargin) ;
     %               The option with two filenames and list of parameters,
@@ -143,5 +150,5 @@ end
     %  alatt  -- 3-vector of lattice parameters (A^-1)
     %  angdeg -- 3-vector of angles between the lattice cell edges (in degrees)
 
-%-----------------------------------------------------------------------------------------------------------
-%end % classdet
+end
+end % classdet
