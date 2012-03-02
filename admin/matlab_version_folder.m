@@ -38,13 +38,13 @@ if version_number<7.04      % i.e. matlab version 7.4 i.e. R2007a
     % Alex has a query on 7.3 (R2006b)
     warning(['This version of mex-files has not been tested with Matlab version %s \n',...
         'Trying to use the files tested with Matlab 7.4 (2007a) but they may not work'],...
-        version_string);
+        version());
     matlab_dirname='_R2007a';
     
-elseif(version_number>7.13) % tested up to R2011b
+elseif(version_number>7.14) % tested up to R2012a
     warning(['This subversion of mex-files has not been tested with Matlab version %s \n',...
         'Trying to use the files tested with Matlab 7.12 (2011a) but they may not work'],...
-        version_string);
+        version());
     matlab_dirname='_R2009a';
 end
 
