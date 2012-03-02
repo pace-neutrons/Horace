@@ -1,3 +1,4 @@
+function  test_rebin_boundaries_description_parse_single
 %   empty_is_full_range     true: [] or '' ==> [-Inf,Inf];
 %                           false ==> 0
 %   range_is_one_bin        true: [x1,x2]  ==> one bin
@@ -26,7 +27,23 @@ xvals_bad{3}=[-3,0.2,14,4,10];
 
 
 
+for i=1:5
+    [ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=testRebinBoundariesDescriptionParseSingle(opt,xvals{i});
+    assertTrue(ok);
+    if ok,
+        disp(xbounds);
+        disp([any_lim_inf,is_descriptor,any_dx_zero]); 
+    else
+        disp(mess)
+    end
+end
 
-[ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundaries_description_parse_single(opt,xvals{i}); if ok, disp(xbounds); disp([any_lim_inf,is_descriptor,any_dx_zero]); else disp(mess), end
-
-[ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundaries_description_parse_single(opt,xvals_bad{i}); if ok, disp(xbounds); disp([any_lim_inf,is_descriptor,any_dx_zero]); else disp(mess), end
+for i=1:3
+    [ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=testRebinBoundariesDescriptionParseSingle(opt,xvals_bad{i});
+    if i==2
+        assertTrue(~ok);
+    else
+        assertTrue(ok);        
+    end
+    if ok, disp(xbounds); disp([any_lim_inf,is_descriptor,any_dx_zero]); else disp(mess), end
+end

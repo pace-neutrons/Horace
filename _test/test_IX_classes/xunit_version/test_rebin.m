@@ -81,13 +81,20 @@ for i=1:numel(xdescr_1)
     if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb(i)); acolor g; pd(h1_reb_nodist(i)); keep_figure; end
     if batch
         disp('= 1')
-        delta_IX_dataset_nd(p1_reb_mex(i),p1_reb(i),tol)
+        del_out=delta_IX_dataset_nd(p1_reb_mex(i),p1_reb(i),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
         disp('= 2')
-        delta_IX_dataset_nd(p1_reb_int_mex(i),p1_reb_int(i),tol)
+        del_out=delta_IX_dataset_nd(p1_reb_int_mex(i),p1_reb_int(i),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+
         disp('= 3')
-        delta_IX_dataset_nd(h1_reb_mex(i),h1_reb(i),tol)
+        del_out=delta_IX_dataset_nd(h1_reb_mex(i),h1_reb(i),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+
         disp('= 4')
-        delta_IX_dataset_nd(h1_reb_nodist_mex(i),h1_reb_nodist(i),tol)
+        del_out=delta_IX_dataset_nd(h1_reb_nodist_mex(i),h1_reb_nodist(i),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+        
     end
 end
 disp(' ')
@@ -118,11 +125,14 @@ if ~batch, acolor k; dd(p1_reb1); acolor r; pd(p1_reb2); acolor g; pd(p1_reb3+0.
 
 if batch
     disp('= 1')
-    delta_IX_dataset_nd(p1_reb1_mex,p1_reb1,tol)
+    del_out=delta_IX_dataset_nd(p1_reb1_mex,p1_reb1,tol);
+    assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
     disp('= 2')
-    delta_IX_dataset_nd(p1_reb2_mex,p1_reb2,tol)
+    del_out=delta_IX_dataset_nd(p1_reb2_mex,p1_reb2,tol);
+    assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
     disp('= 3')
-    delta_IX_dataset_nd(p1_reb3_mex,p1_reb3,tol)
+    del_out=delta_IX_dataset_nd(p1_reb3_mex,p1_reb3,tol);
+    assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
 end
 
 
@@ -191,9 +201,12 @@ for j=1:numel(xint_arg)
         set(herbert_config,'use_mex',false);
         w2x(i,j)=rebin_x(w2ref(i),xint_arg{j}{:});
         w2binx(i,j)=rebin2_x(w2ref(i),xintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2x_sim(i,j),w2x_mex(i,j),tol)
-        delta_IX_dataset_nd(w2x_sim(i,j),w2x(i,j),tol)
-        delta_IX_dataset_nd(w2x_sim(i,j),w2binx(i,j),tol)
+        del_out=delta_IX_dataset_nd(w2x_sim(i,j),w2x_mex(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+        del_out=delta_IX_dataset_nd(w2x_sim(i,j),w2x(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+        del_out=delta_IX_dataset_nd(w2x_sim(i,j),w2binx(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
     end
 end
 
@@ -214,9 +227,12 @@ for j=1:numel(yint_arg)
         set(herbert_config,'use_mex',false);
         w2y(i,j)=rebin_y(w2ref(i),yint_arg{j}{:});
         w2biny(i,j)=rebin2_y(w2ref(i),yintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2y_sim(i,j),w2y_mex(i,j),tol)
-        delta_IX_dataset_nd(w2y_sim(i,j),w2y(i,j),tol)
-        delta_IX_dataset_nd(w2y_sim(i,j),w2biny(i,j),tol)
+        del_out=delta_IX_dataset_nd(w2y_sim(i,j),w2y_mex(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+        del_out=delta_IX_dataset_nd(w2y_sim(i,j),w2y(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+        del_out=delta_IX_dataset_nd(w2y_sim(i,j),w2biny(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
     end
 end
 
@@ -237,9 +253,12 @@ for j=1:numel(xyint_arg)
         set(herbert_config,'use_mex',false);
         w2xy(i,j)=rebin(w2ref(i),xyint_arg{j}{:});
         w2binxy(i,j)=rebin2(w2ref(i),xyintbin_arg{j}{:});
-        delta_IX_dataset_nd(w2xy_sim(i,j),w2xy_mex(i,j),tol)
-        delta_IX_dataset_nd(w2xy_sim(i,j),w2xy(i,j),tol)
-        delta_IX_dataset_nd(w2xy_sim(i,j),w2binxy(i,j),tol)
+        del_out=delta_IX_dataset_nd(w2xy_sim(i,j),w2xy_mex(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+        del_out=delta_IX_dataset_nd(w2xy_sim(i,j),w2xy(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+        del_out=delta_IX_dataset_nd(w2xy_sim(i,j),w2binxy(i,j),tol);
+        assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
     end
 end
 
@@ -281,10 +300,14 @@ w3x=rebin_x(ppp1,[5,0.5,10]);
 w3y=rebin_y(ppp1,[5,0.5,10]);
 w3z=rebin_z(ppp1,[5,0.5,10]);
 w3xyz=rebin(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
-delta_IX_dataset_nd(w3x_sim,w3x,tol)
-delta_IX_dataset_nd(w3y_sim,w3y,tol)
-delta_IX_dataset_nd(w3z_sim,w3z,tol)
-delta_IX_dataset_nd(w3xyz_sim,w3xyz,tol)
+del_out=delta_IX_dataset_nd(w3x_sim,w3x,tol);
+assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+del_out=delta_IX_dataset_nd(w3y_sim,w3y,tol);
+assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+del_out=delta_IX_dataset_nd(w3z_sim,w3z,tol);
+assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
+del_out=delta_IX_dataset_nd(w3xyz_sim,w3xyz,tol);
+assertVectorsAlmostEqual(ones(size(del_out))*tol,del_out);
 
 
 disp(' ')

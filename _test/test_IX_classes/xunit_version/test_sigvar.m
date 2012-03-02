@@ -1,3 +1,4 @@
+function test_sigvar
 % A couple of tests of sigvar objects that once were not handled correctly
 % ------------------------------------------------------------------------
 % Data
@@ -11,9 +12,10 @@ k3=sigvar([20,15,10]);
 % -------
 % Add correctly
 tmp=k2+l2;
-if ~isequal(klsum,tmp)
-    error('Addition fails')
-end
+assertEqual(klsum,tmp);
+% if ~isequal(klsum,tmp)
+%     error('Addition fails')
+% end
 
 % Should fail to add if different sizes:
 try

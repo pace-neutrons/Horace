@@ -3,12 +3,14 @@ function test_bin_boundaries_from_descriptor
 %
 %   >> test_bin_boundaries_from_descriptor
 
-cwd=pwd;    % Get current working directory
+%cwd=pwd;    % Get current working directory
 
+set(herbert_config,'force_mex_if_use_mex',true);
+old_mex = get(herbert_config,'use_mex');
 try
     % The function is in a private folder, so go to that location
-    cstr=which('bin_boundaries_from_descriptor','-all');
-    cd(fileparts(cstr{1}));
+    %cstr=which('bin_boundaries_from_descriptor','-all');
+    %cd(fileparts(cstr{1}));
     
     % Simple equivalence tests
     disp(' ')
@@ -20,7 +22,7 @@ try
     for i=1:numel(xb)
         xoutf=bin_boundaries_from_descriptor(xb{i},xin,true,true);
         xoutm=bin_boundaries_from_descriptor(xb{i},xin,false,true);
-        delta_array(xoutf,xoutm,-1e-14)
+        assertElementsAlmostEqual(xoutf,xoutm);
     end
     disp('finished')
     disp(' ')
@@ -37,9 +39,11 @@ try
     disp('- Matlab implementation:')
     tic; xoutm=bin_boundaries_from_descriptor(xb,xin,false,true); toc;
     disp(' ')
-    delta_array(xoutf,xoutm,-1e-14)
-    cd(cwd)
+    assertElementsAlmostEqual(xoutf,xoutm);
+    %cd(cwd)
 catch
-    cd(cwd);
+    %cd(cwd);
     error(lasterr)
 end
+set(herbert_config,'force_mex_if_use_mex',false);    
+set(herbert_config,'use_mex',old_mex);
