@@ -19,10 +19,10 @@ function par=get_par_matlab_fake(filename)
 % $Revision: 101 $ ($Date: 2007-01-25 09:10:34 +0000 (Thu, 25 Jan 2007) $)
 %
 
-% create dummy sqw object as par is currently an sqw method
-dummy=sqw();
 
-par=get_par(dummy,filename);
+par = get_par(filename);
+
+end
 
 % filename=strtrim(filename); % Remove blanks from beginning and end of filename
 % if isempty(filename),

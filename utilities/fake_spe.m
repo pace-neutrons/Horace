@@ -27,13 +27,13 @@ ERR=ones(size(S));%make S and ERR matrix of ones, so that when combined in an SQ
 %we should be able to work out how good the errorbars on our measurement
 %will be.
 
-% temp.filename=filename;
-% temp.filepath=filepath;
+temp.filename=filename; % needed here as constructor will not work otherwise
+temp.filepath=filepath;
 temp.S=S;
 temp.ERR=ERR;
 temp.en=energy;
 
-newloc=[filepath,filename];
+newloc=fullfile(filepath,filename);
 %put_spe(temp,newloc);
 w=spe(temp);%make independent of mgenie, and use libisis instead.
 save(w,newloc);
