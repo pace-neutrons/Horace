@@ -10,20 +10,7 @@ else
 fileroot=pwd;
 end
 
-% Delete unwanted directories (with all their sub-directories)
-% ------------------------------------------------------------
-deldir{1}='_developer_only';
-deldir{2}='documentation';  % as for private consumption only at the moment
-deldir{3}='test';
-deldir{4}='work_in_progress';
-
-for i=1:numel(deldir)
-    diry = fullfile(fileroot,deldir{i});
-    if exist(diry,'dir')
-        rmdir(diry,'s');
-    end
-end
-
+warning off all;
 
 % Convert mfiles to p-files and help-only m-files in the following
 % -----------------------------------------------------------------
@@ -52,7 +39,9 @@ cd(fileroot);
 delete *.bat
 
 % Finally, delete this file
-delete([fileroot filesep 'pCode_Horace_kit.m'])
+delete(fullfile(fileroot,'admin','pCode_Horace_kit.m'));
+
+warning on all;
 
 %===============================================================================
 function generate_pcode(directory)
