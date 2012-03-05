@@ -496,17 +496,25 @@ axes(handles.axes1);
 cla;%clear pre-existing plots on these axes
 jj=jet(30);
 counter=1;
+xmin=zeros(1,30); xmax=xmin;
+ymin=xmin; ymax=ymin;
 for i=linspace(psimin,psimax,30)
     plot(handles.axes1,xcoords{counter},ycoords{counter},'Color',jj(counter,:));
     hold on;
+    xmin(counter)=min(xcoords{counter}); xmax(counter)=max(xcoords{counter});
+    ymin(counter)=min(ycoords{counter}); ymax(counter)=max(ycoords{counter});
     counter=counter+1;
 end
+xmax=max(xmax); xmin=min(xmin);
+ymax=max(ymax); ymin=min(ymin);
+myind=find(pts(:,1)<=xmax & pts(:,1)>=xmin & pts(:,2)<=ymax & pts(:,2)>=ymin);
+
 set(gca,'DataAspectRatio',[1,1,1]);
 grid on;
 set(gca,'Layer','top');
 hold on;
 try
-    plot(pts(:,1),pts(:,2),'ok','LineWidth',1,'MarkerSize',4);
+    plot(pts(myind,1),pts(myind,2),'ok','LineWidth',1,'MarkerSize',4);
 catch
     %something went wrong - e.g. invalid lattice pars or angles
     disp_error('non-trivial error on execution of calculations. (suspected invalid lattice pars or angles) Check lattice inputs carefully...');                  
@@ -515,7 +523,7 @@ end
 colormap jet
 cbarlab=colorbar;
 caxis([psimin,psimax]);
-axis tight
+%axis tight
 xlabel('Q // u [Ang^-^1]');
 ylabel('Q // v [Ang^-^1]');
 tt=title(['Ei=',num2str(ei),'meV, E=',num2str(eps),'meV, ',...
@@ -529,16 +537,24 @@ axes(handles.axes2);
 cla;%clear pre-existing plots on these axes
 jj=jet(30);
 counter=1;
+zmin=zeros(1,30); zmax=zmin;
+ymin=zmin; ymax=ymin;
 for i=linspace(psimin,psimax,30)
     plot(handles.axes2,ycoords{counter},zcoords{counter},'Color',jj(counter,:));
     hold on;
+    zmin(counter)=min(zcoords{counter}); zmax(counter)=max(zcoords{counter});
+    ymin(counter)=min(ycoords{counter}); ymax(counter)=max(ycoords{counter});
     counter=counter+1;
 end
+zmax=max(zmax); zmin=min(zmin);
+ymax=max(ymax); ymin=min(ymin);
+myind=find(pts(:,3)<=zmax & pts(:,3)>=zmin & pts(:,2)<=ymax & pts(:,2)>=ymin);
+
 set(gca,'DataAspectRatio',[1,1,1]);
 grid on;
 set(gca,'Layer','top');
 hold on;
-plot(pts(:,2),pts(:,3),'ok','LineWidth',1,'MarkerSize',4);
+plot(pts(myind,2),pts(myind,3),'ok','LineWidth',1,'MarkerSize',4);
 colormap jet
 colorbar
 caxis([psimin,psimax]);
@@ -551,16 +567,24 @@ axes(handles.axes3);
 cla;%clear pre-existing plots on these axes
 jj=jet(30);
 counter=1;
+zmin=zeros(1,30); zmax=zmin;
+xmin=zmin; xmax=xmin;
 for i=linspace(psimin,psimax,30)
     plot(handles.axes3,xcoords{counter},zcoords{counter},'Color',jj(counter,:));
     hold on;
+    zmin(counter)=min(zcoords{counter}); zmax(counter)=max(zcoords{counter});
+    xmin(counter)=min(xcoords{counter}); xmax(counter)=max(xcoords{counter});
     counter=counter+1;
 end
+zmax=max(zmax); zmin=min(zmin);
+xmax=max(xmax); xmin=min(xmin);
+myind=find(pts(:,3)<=zmax & pts(:,3)>=zmin & pts(:,1)<=xmax & pts(:,1)>=xmin);
+
 set(gca,'DataAspectRatio',[1,1,1]);
 grid on;
 set(gca,'Layer','top');
 hold on;
-plot(pts(:,1),pts(:,3),'ok','LineWidth',1,'MarkerSize',4);
+plot(pts(myind,1),pts(myind,3),'ok','LineWidth',1,'MarkerSize',4);
 colormap jet
 colorbar
 caxis([psimin,psimax]);
