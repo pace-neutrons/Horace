@@ -415,13 +415,27 @@ try
         u=str2num(unew);
     else
         u=unew;
+    end   
+    if numel(u) ~=3
+        disp_error('Ensure u have 3 elements');
+        return;        
     end
     if ischar(vnew)
         v=str2num(vnew);
     else
         v=vnew;
     end
+    if numel(v) ~=3
+        disp_error('Ensure v have 3 elements');        
+        return;        
+    end
+     
     ei=str2num(ei);
+    if numel(ei) ~=1
+        disp_error('Ensure Ei has 1 element');                
+        return;        
+    end
+    
     eps=str2num(eps);
     psimin=str2num(psimin);
     psimax=str2num(psimax);
@@ -431,42 +445,39 @@ try
     else
         alatt=alattnew;
     end
+    if numel(alatt) ~=3
+        disp_error('Ensure lattice have 3 elements');                        
+        return;        
+    end
+    
     if ischar(angdegnew)
         angdeg=str2num(angdegnew);
     else
         angdeg=angdegnew;
     end
-    if numel(u)~=3 || numel(v)~=3 || numel(ei)~=1 || numel(eps)~=1 || ...
-            numel(psimin)~=1 || numel(psimax)~=1 || numel(alatt)~=3 || numel(angdeg)~=3
-        set(handles.message_text,'String','Error - see Matlab command window for details');
-        disp('ERROR - Ensure u, v and lattice have 3 elements, and Ei, eps, psi min and psi max have 1 element');
-        guidata(gcbo,handles);
-        drawnow;
+    if numel(angdeg) ~=3
+        disp_error('Ensure angdeg have 3 elements');                                
+        return;        
+    end
+    
+    if  numel(eps)~=1 || numel(psimin)~=1 || numel(psimax)~=1 
+        disp_error('eps, psi min and psi max have 1 element');                                        
         return;
     end    
 catch
-    set(handles.message_text,'String','Error - see Matlab command window for details');
-    disp('ERROR - Ensure u, v, lattice, Ei, eps, psi min and psi max are all numeric');
-    guidata(gcbo,handles);
-    drawnow;
+    disp_error('Ensure u, v, lattice, Ei, eps, psi min and psi max are all numeric');                                            
     return;
 end
 
 if eps>ei
-    set(handles.message_text,'String','Error - see Matlab command window for details');
-    disp('ERROR - Ensure eps is smaller than Ei');
-    guidata(gcbo,handles);
-    drawnow;
+    disp_error('Ensure eps is smaller than Ei');      
     return;
 end
 
 if isfield(handles,'detpar')
     detpar=handles.detpar;
 else
-    set(handles.message_text,'String','Error - see Matlab command window for details');
-    disp('ERROR - Ensure a valid par file is selected and loaded');
-    guidata(gcbo,handles);
-    drawnow;
+    disp_error('Ensure a valid par file is selected and loaded');          
     return;
 end
 
@@ -476,10 +487,7 @@ try
     [xcoords,ycoords,zcoords,pts]=...
         calc_coverage_from_detpars(ei,eps,psimin,psimax,detpar,u,v,alatt,angdeg);
 catch
-    set(handles.message_text,'String','Error - see Matlab command window for details');
-    disp('ERROR - non-trivial error on execution of calculations. Check inputs carefully...');
-    guidata(gcbo,handles);
-    drawnow;
+    disp_error('non-trivial error on execution of calculations. Check inputs carefully...');              
     return;
 end
 
@@ -501,10 +509,7 @@ try
     plot(pts(:,1),pts(:,2),'ok','LineWidth',1,'MarkerSize',4);
 catch
     %something went wrong - e.g. invalid lattice pars or angles
-    set(handles.message_text,'String','Error - see Matlab command window for details');
-    disp('ERROR - non-trivial error on execution of calculations. Check lattice inputs carefully...');
-    guidata(gcbo,handles);
-    drawnow;
+    disp_error('non-trivial error on execution of calculations. (suspected invalid lattice pars or angles) Check lattice inputs carefully...');                  
     return;
 end
 colormap jet
@@ -567,7 +572,11 @@ set(handles.message_text,'String','Calculation performed successfully');
 guidata(gcbo,handles);
 drawnow;
 
-
+function disp_error(err_code)
+disp(['ERROR: ',err_code]);
+set(handles.message_text,'String','Error - see Matlab command window for details');
+guidata(gcbo,handles);
+drawnow;
 
 
 
