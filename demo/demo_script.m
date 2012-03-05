@@ -63,9 +63,9 @@ for i=1:2
 end
 spe_file{3}=fullfile(indir,['MAP',num2str(11012+(2*4)),'.spe_h5']);
 %Create sqw file
-gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-             u, v, psi, omega, dpsi, gl, gs);
-
+% gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%              u, v, psi, omega, dpsi, gl, gs);
+% 
 % ---------------------------------------     
 % If the intermediate files (extensions .tmp) are all created, but the sqw
 % file is not created (will sometimes happen if you have many spe files),
@@ -162,13 +162,13 @@ keep_figure
 
 %==========================================================================
 % Try doing some fitting now:
-
+%%
 % Fit the function of the plotting axes:
 [w_fit1,fitdata1]=fit(w_template,@demo_4gauss_2dQ,[6 1 1 0.1 2 1 1],[1 1 1 1 0 0 1],'list',2);
 plot(w_fit1)
 lz 0 4
 keep_figure
-
+%%
 % Fit the function of S(Q,w):
 % First create an appropriate fake dataset from the simulation done above: add some noise:
 w_fixup = d2d(w_sqw);

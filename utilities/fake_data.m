@@ -76,9 +76,9 @@ nfiles=20;
 psi=linspace(psi_min,psi_max,nfiles);
 spe_file=cell(1,nfiles);
 for i=1:length(psi)
-    spe_file{i}=[indir,'dummy',num2str(i),'.spe'];
-    tmp_file{i}=[indir,'dummy',num2str(i),'.tmp'];
+    spe_file{i}=fullfile(indir,['dummy',num2str(i),'.spe']);
+    tmp_file{i}=fullfile(indir,['dummy',num2str(i),'.tmp']);
 end
-sqw_file=[indir,sqw_file];
+sqw_file=fullfile(indir,sqw_file);
 gen_sqw(spe_file, parfile, sqw_file, ei, emode, alatt, angdeg, ...
     u, v, psi, omega, dpsi, gl, gs);

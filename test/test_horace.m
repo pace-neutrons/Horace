@@ -1,3 +1,4 @@
+function test_horace
 % Test sqw conversion of Horace
 % -----------------------------
 
