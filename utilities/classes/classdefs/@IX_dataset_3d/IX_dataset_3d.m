@@ -32,6 +32,8 @@ function w = IX_dataset_3d(varargin)
 %   z_axis              IX_axis          |- same as above but for z-axis
 %   z_distribution      logical         -|
 
+superiorto('IX_dataset_1d','IX_dataset_2d')
+
 % Default class
 if nargin==0
     w.title={};

@@ -2,7 +2,7 @@ function [x,y]=xyselect
 % Puts cross-hairs on the current figure and print position when the left mouse button is pressed.
 %
 %   >> xyselect           % prints x,y value(s) to command screen
-%   >> [x,y] = xyselect   % prints to screen and fills x, y as row vectors
+%   >> [x,y] = xyselect   % prints to screen and fills x, y as column vectors
 %
 % Essentially, this is the matlab intrinsic function ginput but writing values
 % to the command window as well.

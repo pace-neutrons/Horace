@@ -27,6 +27,8 @@ function w = IX_dataset_2d(varargin)
 %   y_axis              IX_axis          |- same as above but for y-axis
 %   y_distribution      logical         -|
 
+superiorto('IX_dataset_1d')
+
 % Default class
 % (should make this call checkfields, but is so simple...)
 if nargin==0
