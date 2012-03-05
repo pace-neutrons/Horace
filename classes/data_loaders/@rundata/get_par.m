@@ -10,15 +10,20 @@ function [par,this]=get_par(this,format)
 %                       rather then 6 column array with column:
 
 %
-if isempty(this.loader)
-    error('RUNDATA:invalid_argument','get_par function used on class which has not been initated properly');
+if isempty(this.det_par)
+    if isempty(this.loader)
+        error('RUNDATA:invalid_argument','get_par function used on class which has not been initated properly');
+    end
+    this.det_par            = load_par(this.loader);        
 end
 
-if isempty(this.det_par)
-   this.det_par            = load_par(this.loader);        
-end
-if exist('format','var') && strcnmpi(format,'-hor',4)
-   par = get_hor_format(this.par,get(this.loader,'par_file_name'));
+if exist('format','var') && ~isempty(format) && strncmpi(format,'-hor',4)
+   if ~isempty(this.loader)
+       filename = get(this.loader,'par_file_name');
+   else
+       filename = this.par_file_name;
+   end
+   par = get_hor_format(this.det_par,filename);
 else
    par = this.det_par;
 end
