@@ -1,6 +1,6 @@
 	subroutine IFL_integrate_1d_points (ierr, nx, x, s, e, mx, xout, sout, eout)
 	use type_definitions
-	use maths, only: integrate_1d_points
+	use I_maths, only: integrate_1d_points
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Interface to Fortran 90 library routines
 !

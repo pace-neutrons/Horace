@@ -1,8 +1,8 @@
 	subroutine integrate_3d_y_points (ierr, y, s, e, yout, sout, eout)
 	use type_definitions
 	use tools_parameters
-    use IIndex	
-	use maths, only :  single_integrate_3d_y_points
+    use I_Index	
+	use I_maths, only :  single_integrate_3d_y_points
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Integration along the y-axis over a 2D data set with point character along the y-axis

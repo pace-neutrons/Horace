@@ -1,6 +1,6 @@
 	subroutine IFL_integrate_3d_z_points (ierr, nx, ny, nz, z, s, e, mz, zout, sout, eout)
 	use type_definitions
-	use maths, only: integrate_3d_z_points
+	use I_maths, only: integrate_3d_z_points
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Interface to Fortran 90 library routines
 !

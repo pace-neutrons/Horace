@@ -108,7 +108,7 @@ try
         modules{6}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_footer_info.f90',lib_dir,use_lib);        
         modules{7}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_pixel_info.f90',lib_dir,use_lib);      
         
-        modules{8}=build_fortran_module(fullfile(source_dir,'maths'),lib_dir,'maths.f90',lib_dir,use_lib);                        
+        modules{8}=build_fortran_module(fullfile(source_dir,'maths'),lib_dir,'I_maths.f90',lib_dir,use_lib);                        
 
         modules{9}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'cut_fortran_routines.f90',lib_dir,use_lib);        
         modules{10}=build_fortran_module(fullfile(source_dir,'file_io'),lib_dir,'slice_fortran_routines.f90',lib_dir,use_lib); 
@@ -116,7 +116,7 @@ try
          
         
         % build objects:
-        math_list={ 'IIndex.f90','bin_boundaries_get_xarr.f90',...
+        math_list={ 'I_Index.f90','bin_boundaries_get_xarr.f90',...
                     'upper_index.f90',                 'lower_index.f90',                 'integrate_1d_points.f90',...
                     'integrate_2d_x_points.f90',       'integrate_2d_y_points.f90',       'integrate_3d_x_points.f90',...
                     'integrate_3d_y_points.f90',       'integrate_3d_z_points.f90',...

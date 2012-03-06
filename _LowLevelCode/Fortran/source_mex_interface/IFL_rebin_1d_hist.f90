@@ -1,6 +1,6 @@
 	subroutine IFL_rebin_1d_hist (ierr, nx, x, s, e, mx, xout, sout, eout)
 	use type_definitions
-	use maths, only: rebin_1d_hist
+	use I_maths, only: rebin_1d_hist
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Interface to Fortran 90 library routines
 !

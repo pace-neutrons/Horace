@@ -1,6 +1,6 @@
 	subroutine bin_boundaries_get_xarr (ierr, xbounds, x_in, n_out, x_out)
 	use tools_parameters
-	use IIndex
+	use I_Index
 	
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Obtains the new bin boundaries for rebinning histogram data using the information in the array XBOUNDS.

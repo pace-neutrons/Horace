@@ -2,7 +2,7 @@
 ! Interface module for maths library.
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
-	module maths
+	module I_maths
 
 	interface bin_boundaries_get_xarr
 		subroutine bin_boundaries_get_xarr (ierr, xbounds, x_in, n_out, x_out)

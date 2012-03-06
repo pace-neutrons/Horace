@@ -1,6 +1,6 @@
 	subroutine IFL_integrate_2d_x_points (ierr, nx, ny, x, s, e, mx, xout, sout, eout)
 	use type_definitions
-	use maths, only: integrate_2d_x_points
+	use I_maths, only: integrate_2d_x_points
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Interface to Fortran 90 library routines
 !

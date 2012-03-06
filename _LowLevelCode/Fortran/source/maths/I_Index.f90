@@ -1,8 +1,8 @@
 !-----------------------------------------------------------------------------------------------------------------------------------
-! Interface module for maths library.
+! Interface module to the modules, which calculate indexes.
 !
 !-----------------------------------------------------------------------------------------------------------------------------------
-	module IIndex
+	module I_Index
 	interface lower_index
 		function lower_index_dp (arr, val)
 		use type_definitions

@@ -1,6 +1,6 @@
 	subroutine IFL_rebin_3d_x_hist (ierr, nx, ny, nz, x, s, e, mx, xout, sout, eout)
 	use type_definitions
-	use maths, only: rebin_3d_x_hist
+	use I_maths, only: rebin_3d_x_hist
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Interface to Fortran 90 library routines
 !

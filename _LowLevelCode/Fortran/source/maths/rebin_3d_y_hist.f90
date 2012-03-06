@@ -1,7 +1,7 @@
 	subroutine rebin_3d_y_hist (ierr, y, s, e, yout, sout, eout)
 	use type_definitions
 	use tools_parameters
-    use IIndex	
+    use I_Index	
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Rebins histogram data along the y-axis of a 3D dataset.

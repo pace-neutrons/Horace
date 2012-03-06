@@ -1,6 +1,6 @@
 	subroutine IFL_bin_boundaries_get_marr (ierr, nb, xbounds, nx, x_in, mx)
 	use type_definitions
-	use maths, only: bin_boundaries_get_xarr
+	use I_maths, only: bin_boundaries_get_xarr
 !-----------------------------------------------------------------------------------------------------------------------------------
 ! Interface to Fortran 90 library routines
 !
