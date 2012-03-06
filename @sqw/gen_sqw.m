@@ -29,7 +29,6 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %   grid_size_in    [Optional] Scalar or row vector of grid dimensions. Default is [50,50,50,50]
 %   urange_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
 %                                       that encloses the whole data range.
-
 %
 % Output:
 % --------
