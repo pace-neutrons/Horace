@@ -125,7 +125,7 @@ drawnow;
 
 try
     filename=get(handles.parfile_edit,'string');
-    par=get_par_matlab_coverage(filename);
+    par=get_par(filename);
     handles.detpar=par;
     set(handles.message_text,'String','Par file loaded successfully');
     guidata(gcbo,handles);

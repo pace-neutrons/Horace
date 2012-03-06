@@ -36,16 +36,19 @@ hor_path = fileparts(which('horace_init'));
 test_path=fullfile(hor_path,'test');
 
 warning off all;
+info_level = get(hor_config,'horace_info_level');
+set(hor_config,'horace_info_level',0);
 % test package specific folders
 if herbert_enabled
-	runtests(fullfile(test_path,'test_herbert_utilites'));
 else
 	runtests(fullfile(test_path,'test_data_loaders'));
 end
+runtests(fullfile(test_path,'test_herbert_utilites'));
 % test generic horace part
 %runtests(fullfile(test_path,'test_horace'));
 
 warning on all;
+set(hor_config,'horace_info_level',info_level);
 
 if ~isempty(test_pack_path)
     rmpath(test_pack_path);

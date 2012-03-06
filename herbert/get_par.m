@@ -8,6 +8,20 @@ function par = get_par(file_name,varargin)
 %file_name   -- the name of the file, which contains par data nxspe or par
 %-hor        -- optional key, which request returned par data as horace
 %               structure rather then 6-column array
+%
+% the Horace structure has a form:
+%   det.filename    Name of file excluding path
+%   det.filepath    Path to file including terminating file separator
+%   det.x2          Secondary flightpath (m)
+%   det.group       Row vector of detector group number - assumed to be 1:ndet
+%   det.phi         Row vector of scattering angles (deg)
+%   det.azim        Row vector of azimuthal angles (deg)
+%                  (West bank=0 deg, North bank=90 deg etc.)
+%   det.width       Row vector of detector widths (m)
+%   det.height      Row vector of detector heights (m)
+%
+% $Revision: 531 $ ($Date: 2011-02-18 22:10:44 +0000 (Fri, 18 Feb 2011) $)
+%
 
 % redefine the file name of the par file
 if ~exist(file_name,'file')
