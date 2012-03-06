@@ -89,7 +89,13 @@ if is_herbert_used() % =============================> rundata files processing
         tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
+        sqw_tmp_ext=get(hor_config,'sqw_ext');
+        set(hor_config,'sqw_ext','.sqw');
+        try 
         [grid_size,urange,tmp_file{1}] = rundata_write_to_sqw (dummy,run_files{1},emode,u,v, grid_size_in, urange);
+        catch
+        end
+        set(hor_config,'sqw_ext',sqw_tmp_ext);
     else
         nt=bigtic();
         for i=1:nfiles
@@ -105,14 +111,14 @@ if is_herbert_used() % =============================> rundata files processing
             end
         end        
         bigtoc(nt);
-    end
-    % Create single sqw file combining all intermediate sqw files
-    % ------------------------------------------------------------
-    disp('--------------------------------------------------------------------------------')
-    disp('Creating output sqw file:')
-    write_nsqw_to_sqw (tmp_file, sqw_file);
+        % Create single sqw file combining all intermediate sqw files
+        % ------------------------------------------------------------
+        disp('--------------------------------------------------------------------------------')
+        disp('Creating output sqw file:')
+        write_nsqw_to_sqw (tmp_file, sqw_file);
 
-    disp('--------------------------------------------------------------------------------')
+        disp('--------------------------------------------------------------------------------')        
+    end
 else   % =============================> spe/par file processing
 
     % Check input arguments
