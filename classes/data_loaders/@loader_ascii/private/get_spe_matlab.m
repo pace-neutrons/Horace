@@ -50,6 +50,7 @@ en=fscanf(fid,'%10f',ne+1); % read energy grid
 if nargin > 1
     S   = ne;
     ERR = ndet;
+    fclose(fid);
     return;
 end
 
