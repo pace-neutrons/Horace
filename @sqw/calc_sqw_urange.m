@@ -104,7 +104,8 @@ if any(eps_lo>eps_hi)
 end
 
 if ischar(det) && size(det,1)==1
-    det=get_par(det);
+% invoke public get_par routine
+    det=get_par(det,'-hor');
 end
     
     

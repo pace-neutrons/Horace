@@ -26,7 +26,7 @@ kfhw=(0.6947*sqrt(Ei - hw));
 
 centre=[-2*pi/lam,0];
 
-%detpar=get_par_matlab_testing(parfile);
+%detpar=get_par(parfile);
 
 %the angles given in the detpar file give a rotation in the equatorial
 %plane (2theta), and then an azimuthal angle which is a rotation around the

@@ -30,7 +30,7 @@ if isfield(data,'par')
     det0=data.par;
     data=rmfield(data, 'par');
 else
-    det0=get_par(par_file);
+    det0=get_par(sqw(),par_file);
 end
 
 % Check length of detectors in spe file and par file are same

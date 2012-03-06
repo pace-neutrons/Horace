@@ -34,7 +34,7 @@ function [u_to_rlu,ucoords] = get_det_projections(this,efix,en_transfer,crystal_
 %
 % $Revision: 480 $ ($Date: 2010-07-12 12:56:46 +0100 (Mon, 12 Jul 2010) $)
 %
-det = get_par(det_file_name);
+det = get_par(det_file_name,'-hor');
 
 
 nEn = numel(en_transfer);

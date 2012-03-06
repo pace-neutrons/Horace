@@ -57,7 +57,7 @@ end
 
 %=====================
 %Now make the fake data:
-par_info=get_par_matlab_fake(parfile);
+par_info= get_par(parfile);
 [nrow,ncol]=size(par_info);
 ndet=ncol;
 %Calculate ndet (no. of detectors) from par file:

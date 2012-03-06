@@ -1,4 +1,4 @@
-function det=get_par(filename,varargin)
+function det=load_par(this,filename,varargin)
 % Load data from ASCII Tobyfit .par file
 %   >> det = get_par(filename)
 %
@@ -20,11 +20,6 @@ function det=get_par(filename,varargin)
 %
 % $Revision$ ($Date$)
 %
-% If no input parameter given, return
-if ~exist('filename','var')
-    help get_par;
-    return
-end
 
 % Remove blanks from beginning and end of filename
 filename=strtrim(filename);
@@ -49,9 +44,11 @@ if ~use_mex
     par=get_par_matlab(filename);
 end
 
-if nargin==1
-    ndet=size(par,2);
-    disp([num2str(ndet) ' detector(s)']);
+ndet=size(par,2);  
+if nargin==2
+    if get(hor_config,'horace_info_level')>0
+        disp([num2str(ndet) ' detector(s)']);
+    end
     det.group=1:ndet;
     det.x2=par(1,:);
     det.phi=par(2,:);
@@ -59,5 +56,11 @@ if nargin==1
     det.width=par(4,:);
     det.height=par(5,:);
 else
-    det=par;
+    if size(par,1)==5              
+        det = ones(6,ndet);        
+        det(1:5,:)=par(1:5,:);
+        det(6,:)=1:ndet;
+    else
+        det=par;  
+    end
 end
