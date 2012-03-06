@@ -40,7 +40,7 @@ function runfiles_list = gen_runfiles(spe_files,varargin)
 % optional parameters names list
 parameter_nams={'alatt','angldeg','efix','psi','omega','dpsi','gl','gs'};
 % Input files
-if ischar(spe_files) && numel(spe_files)==1
+if ischar(spe_files) && ~isempty(spe_files) && size(spe_files,1)==1
     spe_files=cellstr(spe_files);
 elseif ~iscellstr(spe_files)
     error('spe file input must be a single file name or cell array of file names')
@@ -82,7 +82,7 @@ for i=1:n_dfnd_params
                     lat_par = lat_par';
                 end
                 for j=1:n_files
-                    lat_par_c{i} = lat_par(:,i);
+                    lat_par_c{j} = lat_par(:,j);
                 end
             elseif numel(args{i})~=3
                error('GEN_RUNFILES:invalid_argument','lattice parameters have 3-element vectors or 3*n_files array of doubles');    
