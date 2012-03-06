@@ -73,7 +73,7 @@ end
 
 
 %-------------------------------------------->
-if is_herbert_used()
+if is_herbert_used() % =============================> rundata files processing
     % this is function -- adapter as everything below runs from runfiles;
     run_files = gen_runfiles(spe_file, par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs);
     % If no input data range provided, calculate it from the files
@@ -113,50 +113,53 @@ if is_herbert_used()
     write_nsqw_to_sqw (tmp_file, sqw_file);
 
     disp('--------------------------------------------------------------------------------')
-    return;
-end
+else   % =============================> spe/par file processing
 
-% Check input arguments
-% ------------------------
-[efix,psi,omega,dpsi,gl,gs]=gensqw_check_input_arg( dummy,spe_file, par_file, sqw_file, efix,...
+    % Check input arguments
+    % ------------------------
+    [efix,psi,omega,dpsi,gl,gs]=gensqw_check_input_arg( dummy,spe_file, par_file, sqw_file, efix,...
                                                             psi, omega, dpsi, gl, gs);
 
-% generate the list of input data classess  
-[spe_data,tmp_file] = gensqw_build_input_datafiles(dummy,spe_file,sqw_file);
+    % generate the list of input data classess  
+    [spe_data,tmp_file] = gensqw_build_input_datafiles(dummy,spe_file,sqw_file);
 
 
 % If no input data range provided, calculate it from the files
-if ~urange_given
-    urange = gensqw_find_urange(dummy,spe_data,par_file,...
-             efix,emode,alatt, angdeg,u,v, omega, dpsi, gl, gs);    
-end    
+    if ~urange_given
+        urange = gensqw_find_urange(dummy,spe_data,par_file,...
+                 efix,emode,alatt, angdeg,u,v, omega, dpsi, gl, gs);    
+    end    
 
-nfiles = numel(spe_data);
-if nfiles==1
-    tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
-    disp('--------------------------------------------------------------------------------')
-    disp('Creating output sqw file:')
-    grid_size = write_spe_to_sqw (spe_data{1}, par_file, sqw_file, efix(1), emode, alatt, angdeg,...
+    nfiles = numel(spe_data);
+    if nfiles==1
+        tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
+        disp('--------------------------------------------------------------------------------')
+        disp('Creating output sqw file:')
+        grid_size = write_spe_to_sqw (spe_data{1}, par_file, sqw_file, efix(1), emode, alatt, angdeg,...
                                   u, v, psi(1), omega(1), dpsi(1), gl(1), gs(1), grid_size_in, urange);
-else
- % write tmp file and combine them into single sqw file;
-   grid_size = gensqw_write_all_tmp(spe_data,par_file,tmp_file,efix,emode,alatt,angdeg,...
+    else
+    % write tmp file and combine them into single sqw file;
+    grid_size = gensqw_write_all_tmp(spe_data,par_file,tmp_file,efix,emode,alatt,angdeg,...
                                  u, v, psi, omega, dpsi, gl, gs,...
                                  grid_size_in, urange);
     
 
-    % Create single sqw file combining all intermediate sqw files
-    % ------------------------------------------------------------
-    disp('--------------------------------------------------------------------------------')
-    disp('Creating output sqw file:')
-    write_nsqw_to_sqw (tmp_file, sqw_file);
-    disp('--------------------------------------------------------------------------------')
-end
+        % Create single sqw file combining all intermediate sqw files
+        % ------------------------------------------------------------
+        disp('--------------------------------------------------------------------------------')
+        disp('Creating output sqw file:')
+        write_nsqw_to_sqw (tmp_file, sqw_file);
+        disp('--------------------------------------------------------------------------------')
+    end
+end  % =============================> spe/par file processing
 
 % Delete temporary files as user will presumably use hdf and tmp files
 if get(hor_config,'delete_tmp')
     if ~isempty(tmp_file)   % will be empty if only one spe file
         tmp_path=fileparts(tmp_file{1});
+        if isempty(tmp_path)
+            tmp_path='.';
+        end
         delete([tmp_path,filesep,'*.tmp']);
     end
 end
