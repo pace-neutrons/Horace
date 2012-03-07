@@ -23,6 +23,9 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate function at initial parameter values only, with argument check as well
 %
+%       'average'   if sqw object, then compute the function at the average h,k,l,e of the pixels in a bin
+%
+%
 %   Example:
 %   >> [wout, fitdata] = multifit_func (..., 'keep', xkeep, 'list', 0)
 %

@@ -88,7 +88,7 @@ end
 
 % Do some checks that will be able to write sqw file
 pathsqw=fileparts(sqw_file);
-if ~exist(pathsqw,'dir')
+if ~isempty(pathsqw) && ~exist(pathsqw,'dir')
     error('Cannot find folder into which to output the sqw file')
 end
 
