@@ -23,6 +23,9 @@ function [wout, fitdata] = multifit_sqw(win, varargin)
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate function at initial parameter values only, with argument check as well
 %
+%       'average'   if sqw object, then compute the function at the average h,k,l,e of the pixels in a bin
+%
+%
 %   Example:
 %   >> [wout, fitdata] = multifit_sqw (..., 'keep', xkeep, 'list', 0)
 %
@@ -173,11 +176,14 @@ function [wout, fitdata] = multifit_sqw(win, varargin)
 %           not eliminated for having zero error bar etc; this is useful for plotting the output, as
 %           only those points that contributed to the fit will be plotted.
 %
-%  A final useful keyword is:
+%  A final useful pair of keywords is:
 %
 %  'evaluate'   Evaluate the fitting function at the initial parameter values only. Useful for
 %           checking the validity of starting parameters
 %
+%  'average'    if sqw object, then compute the function at the average h,k,l,e of the
+%               pixels contributing to each bin, rather than for each pixel. This cn
+%               save a lot of computation
 %
 % Output:
 % =======
@@ -208,10 +214,23 @@ function [wout, fitdata] = multifit_sqw(win, varargin)
 %   >> [wfit, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], @linear, [const,slope]...
 %                               'keep',[-1.5,0.5])
 
+% First, strip out the appearance of the keyword 'average'
+keep_arg=true(size(varargin));
+ave_pix=false;
+for i=1:numel(varargin)
+    if ischar(varargin{i}) && ~isempty(varargin{i})
+        sz=size(varargin{i});
+        if numel(sz)==2 && sz(1)==1 && strncmpi('average',varargin{i},numel(varargin{i}))
+            keep_arg(i)=false;
+            ave_pix=true;
+        end
+    end
+end
+varargin=varargin(keep_arg);
 
 % Parse the input arguments, and repackage for fit sqw
 [pos,func,plist,bpos,bfunc,bplist] = multifit (win, varargin{:},'parsefunc_');
-plist={func,plist};
+if ~ave_pix, plist={func,plist}; else plist={func,plist,'ave'}; end
 if ~isempty(bpos)
     for i=1:numel(bfunc)
         bplist{i}={bfunc{i},bplist{i}};

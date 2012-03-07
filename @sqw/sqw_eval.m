@@ -1,7 +1,7 @@
 function wout=sqw_eval(win,sqwfunc,pars,opt)
 % Calculate sqw for a model scattering function
 %
-%   >> wout=sqw(win,sqwfunc,p)
+%   >> wout=sqw_eval(win,sqwfunc,p)
 %
 % Input:
 % ------
