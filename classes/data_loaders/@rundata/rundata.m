@@ -59,9 +59,11 @@ classdef rundata
    par_file_name='';   % service variable, needed by the program, as if it is not empty, the parameters have to be redefined;
    % The file extentions possible to load at the moment 
    supported_extensions = {'.spe','.spe_h5','.nxspe'}; 
+   % desctiption for different extensions (used by mslice GUI):
+   ext_descr = {'ASCII spe files: (*.spe)','HDF spe files: (.spe_h5)','nexus spe files (MANTID): (*.nxspe)'};
    % list of fields which have default values and do not have to be always
    % defined by either file or command arguments;
-   fields_have_defaults  = {'omega','dpsi','gl','gs','emode','is_crystal','u','v'};
+   fields_have_defaults  = {'omega','dpsi','gl','gs','emode','is_crystal','u','v'};   
    % The default values for these fields are as follows:
    the_fields_defaults   = {0,0,0,0,1,true,[1,0,0],[0,1,0]};
    %

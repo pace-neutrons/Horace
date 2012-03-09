@@ -17,7 +17,9 @@ keys     = cell(1,sum(keys_list));
 keys(:)  = varargin(keys_list);
 if ~all(ismember(keys,keys_recognized))
     unknown_keys= ~ismember(keys,keys_recognized);
-    fprintf('ERROR: ->found unknown key: %s\n',keys{unknown_keys});
+    if get(herbert_config,'log_level')>-1    
+        fprintf('ERROR: ->found unknown key: %s\n',keys{unknown_keys});
+    end
     error('RUNDATA:invalid_arguments','unknown keys provided as input parameters');
 end
 
@@ -33,7 +35,9 @@ fields   = varargin(non_keys);
 % does it requested to obtain thins which are not exist?
 if ~all(ismember(fields,fields_recognized)) 
     unknown_fields= ~ismember(fields,fields_recognized);
-    fprintf('ERROR: ->class requested to return unknown field:  %s\n',fields{unknown_fields});    
+    if get(herbert_config,'log_level')>-1        
+        fprintf('ERROR: ->class requested to return unknown field:  %s\n',fields{unknown_fields});    
+    end
     error('RUNDATA:invalid_arguments','unknown fields requested in input parameters');    
 end
 

@@ -38,7 +38,7 @@ if (~isempty(this.S)) && (~isempty(this.ERR))
     end
 end
 
-% check en dimensions wrt the signal dimensikns
+% check en dimensions wrt the signal dimensions
 if ~isempty(this.en)
     if ~iscolvector(this.en)
         if isrowvector(this.en)
@@ -119,7 +119,7 @@ for i=1:numel(three_vectors_names)
 
     end
 end
-% check one-vectorsl
+% check one-vectors
 one_vectors_names={'psi','omega','dpsi','gl','gs'};
 for i=1:numel(one_vectors_names)
     if ~isempty(this.(one_vectors_names{i}))

@@ -62,7 +62,9 @@ if fid==-1,
 end
 
 n=fscanf(fid,'%d \n',1);
-disp(['Loading .par file with ' num2str(n) ' detectors : ' filename]);
+if get(herbert_config,'log_level')>0
+    disp(['Loading .par file with ' num2str(n) ' detectors : ' filename]);
+end
 temp=fgetl(fid);
 par=sscanf(temp,'%f');
 cols=length(par); % number of columns 5 or 6

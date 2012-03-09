@@ -80,8 +80,12 @@ fields_undef = fields_undef(~have_defaults);
 % necessary fields are still undefined by the run
 if ~isempty(fields_undef) 
     undefined = 2;       
-    disp([' Necessary fields: ',fields_undef{:} ]);
-    disp([' are not defined by either the data reader ',class(run.loader),' or by the command line arguments\n']); 
+    if get(herbert_config,'log_level')>-1
+        for i=1:numel(fields_undef)
+            fprintf('Necessary field undefined: %s \n',fields_undef{i});
+        end
+        disp(['The field(s) above are neither defined by the data reader ',class(run.loader),' nor by the command line arguments\n']); 
+    end
     
 end
 

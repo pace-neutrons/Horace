@@ -1,11 +1,20 @@
 classdef test_loader_nxspe< TestCase
     properties 
+        log_level;
     end
     methods       
         % 
         function this=test_loader_nxspe(name)
             this = this@TestCase(name);
         end
+        function this=setUp(this)
+            this.log_level = get(herbert_config,'log_level');
+            set(herbert_config,'log_level',-1);
+        end
+        function this=tearDown(this)
+            set(herbert_config,'log_level',this.log_level);            
+        end
+        
         % tests themself
 %CONSTRUCTOR:        
         function test_wrong_first_argument(this)               

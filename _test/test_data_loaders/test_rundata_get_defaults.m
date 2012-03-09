@@ -4,12 +4,22 @@ classdef test_rundata_get_defaults< TestCase
 %
     
     properties 
+        log_level;
     end
     methods       
         % 
         function this=test_rundata_get_defaults(name)
             this = this@TestCase(name);
-        end        
+        end  
+        function this=setUp(this)
+            this.log_level = get(herbert_config,'log_level');
+            set(herbert_config,'log_level',-1);
+        end
+        function this=tearDown(this)
+            set(herbert_config,'log_level',this.log_level);            
+        end
+         
+ % TESTS:       
         function this=test_get_all_defaults(this)
             rd=rundata();
             

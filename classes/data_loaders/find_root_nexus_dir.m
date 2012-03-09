@@ -1,9 +1,10 @@
 function [root_nxspe_path,data_version,data_structure] = find_root_nexus_dir(hdf_fileName,nexus_application_name)
 % function identifies the path to the root folder in the input NeXus data file
-% This folder can be later used in path for data, read by hdf5read/hdf5write functions
+% This folder can be later used as hdf path to the data, accessed using hdf5read/hdf5write functions
 %
 %Usage:
 %>>root_folder=find_root_nexus_dir(nexus_file_name,'NXSPE')
+%>>root_folder=find_root_nexus_dir(nexus_file_name,NeXus_application_name)
 %             -- returns the path to a nxspe data if they are present in current NeXus file
 %             -- if the data are absent, function returns empty  string
 %Inputs:
@@ -23,7 +24,7 @@ function [root_nxspe_path,data_version,data_structure] = find_root_nexus_dir(hdf
 %                    data folders and attribures within the file hdf5 file. 
 %                    This structure can be (and was) obtained by hdf5info
 %                    function and returned by this procedure for
-%                    efficiency reasons. 
+%                    efficiency (if needed, not to read it again). 
 %
 % $Author: Alex Buts; 20/10/2011
 %
@@ -37,7 +38,9 @@ n_nxspe_entries=0;
 nxspe_folders=cell(1,1);
 nxspe_version=cell(1,1);
 for i=1:numel(groups)
+    % obtain the short name (the name of the last folder in a hdf hirackhy) of the attribute
     [fp,shortName] = fileparts(groups(i).Attributes.Name);
+	% if this attribute is NX_class, look further:
     if strcmp(shortName,'NX_class')&&strcmp(groups(i).Attributes.Value.Data,'NXentry')
         nexus_folder = data_structure.GroupHierarchy.Groups(i);
         for j=1:numel(nexus_folder.Datasets)
@@ -65,6 +68,7 @@ data_version       = nxspe_version{1};
 
 
 function ver=read_nxspe_version(hdf_fileName,DS)
+% Matlab version specific function to obtain correct NeXus version
 mat_ver_array=datevec(version('-date'));
 
 if mat_ver_array(1)<=2009

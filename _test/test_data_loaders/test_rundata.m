@@ -4,12 +4,21 @@ classdef test_rundata< TestCase
 %
     
     properties 
+        log_level;
     end
     methods       
         % 
         function this=test_rundata(name)
             this = this@TestCase(name);
         end
+       function this=setUp(this)
+            this.log_level = get(herbert_config,'log_level');
+            set(herbert_config,'log_level',-1);
+        end
+        function this=tearDown(this)
+            set(herbert_config,'log_level',this.log_level);            
+        end
+         
         % tests themself
         function test_wrong_first_argument_has_to_be_fileName(this)               
             f = @()rundata(10);            
@@ -17,8 +26,8 @@ classdef test_rundata< TestCase
         end               
         function test_defaultsOK_andFixed(this)                           
             nn=numel(fields(rundata));           
-            % 23 fields by default;
-            assertEqual(23,nn);
+            % 24 fields by default;
+            assertEqual(24,nn);
         end                       
        function test_build_from_spe(this)               
             f = @()rundata(spe());            
@@ -177,11 +186,12 @@ classdef test_rundata< TestCase
           run=rundata('MAP11014.nxspe');
           assertTrue(isempty(run.det_par));
 
+          run = get_rundata(run,'det_par','-this');
           % we change the initial file name to spe, which does not have
           % information about par data
-          sp.data_file_name='MAP10001.spe';
-          f = @()rundata(run,sp);
-          assertExceptionThrown(f,'RUNDATA:invalid_argument');          
+          run.data_file_name='MAP10001.spe';
+          run=rundata(run);
+          assertTrue(isempty(run.det_par));          
        end
        function default_rundata_type(this)
           run=rundata();

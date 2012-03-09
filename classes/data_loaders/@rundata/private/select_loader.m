@@ -31,16 +31,19 @@ if isa(varargin{1},'char')    % build from a file;
                % set up spe and par files and check if all necessary
                % arguments are present; second argument in this case
                % has to be a par file name;
-               if nargin>2
-                  this.loader= loader_ascii(first_file,varargin{2});       
-                  [this.n_detectors,this.en,this.loader]     =get_run_info(this.loader);                  
-                  if nargin>3
-                       % set up values which are defined by arguments 
-                        this=parse_arg(this,varargin{3:end});
-                       % get number of detectors defined in par file                                                             
-                   end
+               if nargin==2
+                    this.loader= loader_ascii(first_file); 
+                    [this.n_detectors,this.en,this.loader]     =get_run_info(this.loader);
                else
-                   error('RUNDATA:invalid_argument','providing spe file %s as the source of data needs par file to be defined too\n',first_file);
+                  if nargin>2
+                    this.loader= loader_ascii(first_file,varargin{2});       
+                    [this.n_detectors,this.en,this.loader]     =get_run_info(this.loader);                  
+                    if nargin>3
+                           % set up values which are defined by arguments 
+                            this=parse_arg(this,varargin{3:end});
+                        % get number of detectors defined in par file                                                             
+                    end
+                    end
                end
            case('.spe_h5')
                this.loader= loader_speh5(first_file);  

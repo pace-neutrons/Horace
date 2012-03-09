@@ -65,7 +65,9 @@ par      = load_nxspe_par(this);
 size_par = size(par);
 ndet     = size_par(2);
 
-disp(['loaded ' num2str(ndet) ' detector(s)']);
+if get(herbert_config,'log_level')>0
+    disp(['loaded ' num2str(ndet) ' detector(s)']);
+end
 this.n_detectors = ndet;
 
 

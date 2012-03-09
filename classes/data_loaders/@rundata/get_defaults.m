@@ -24,8 +24,10 @@ end
 have_defaults=ismember(fields_needed,this.fields_have_defaults);
 if ~all(have_defaults)
     undef_fields=fields_needed(~have_defaults);
-    for i=1:numel(undef_fields)
-        disp(['RUNDATA:get_defaults:field: ',undef_fields{i},' is not among fields which have defaults']);
+    if get(herbert_config,'log_level')>-1     
+        for i=1:numel(undef_fields)
+            disp(['RUNDATA:get_defaults:field: ',undef_fields{i},' is not among fields which have defaults']);
+        end
     end
     error('RUNDATA:invalid_arguments','get_defaults: requested defaults for fields which do not have any defaults');
 end

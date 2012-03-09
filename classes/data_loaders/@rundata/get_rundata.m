@@ -143,7 +143,9 @@ else       % needed the fields requested by varargin, they have been selected ab
 end
 % 
 if is_undef==2 % run can not be defined by the arguments
-    fprintf('ERROR: ->field:  %s requested but is not defined by the run\n',undef_fields{:});    
+    if get(herbert_config,'log_level')>-1
+        fprintf('ERROR: ->field:  %s requested but is not defined by the run\n',undef_fields{:});    
+    end
     error('RUNDATA:invalid_arguments',' data field is not defined by the current instance of the run class ');
 end
 

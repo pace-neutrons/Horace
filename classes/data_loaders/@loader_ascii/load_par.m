@@ -45,7 +45,9 @@ par             = load_ASCII_par(this.par_file_name);
 
 size_par = size(par);
 ndet=size_par(2);
-disp(['loaded ' num2str(ndet) ' detector(s)']);
+if get(herbert_config,'log_level')>0
+    disp(['loaded ' num2str(ndet) ' detector(s)']);
+end
 
 this.n_detectors = ndet;
 this.det_par     = par;

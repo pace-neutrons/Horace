@@ -1,17 +1,17 @@
 function [file_name,lext] = check_file_exist(file_name,supported_file_extensions)
 % function checks if file belongs to the group of files with specified extensions 
-% and exist regardless of the case of the file extension
+% and exist regardless of the case of the file extension (on Unix)
 %
 %usage:
 %>>[file_name,ext]=check_file_exist(file_name,{'.spe','.nxspe','.spe_h5'})
 %>>[file_name,ext]=check_file_exist('MAR10001.spe','.spe')
 %Input:
 % file_name:    the name of the file with full path, you want to check; 
-% {'.a','.b','.c'}   list of the extensions the file with name above should have
+% {'.a','.b','.c'}   list of the extensions the file with name above can have
 %
 % Output:
-%file_name: the name of existing file; If the file is not found in case, specified as input argument, 
-%           but found in other case, the output name have the case of the existing file. 
+%file_name: the name of existing file; If the file is not found in the case, specified as input argument, 
+%           but found in other case, the output name has the case of the found file. 
 %ext        low case extension of the existing file.  
 %
 % $Author: Alex Buts; 20/10/2011

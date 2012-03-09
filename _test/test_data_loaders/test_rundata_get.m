@@ -5,6 +5,7 @@ classdef test_rundata_get< TestCase
     
     properties 
         the_run; % some defined rundata class instance
+        log_level;
     end
     methods       
         % 
@@ -13,7 +14,16 @@ classdef test_rundata_get< TestCase
             % define default rundata class instance
             this.the_run = rundata('MAP11014.nxspe');
         end
-        % tests themself
+        function this=setUp(this)
+            this.log_level = get(herbert_config,'log_level');
+            set(herbert_config,'log_level',-1);
+        end
+        function this=tearDown(this)
+            set(herbert_config,'log_level',this.log_level);            
+        end
+        
+                
+% tests themself
         function test_undefined_loader(this)               
             % empty rundata class instance can not provide data
             f = @()get_rundata(rundata);

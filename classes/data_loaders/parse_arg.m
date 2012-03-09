@@ -28,7 +28,9 @@ narg = length(varargin);
 if narg==0; return; end;
 
 [field_nams,field_vals] = parse_config_arg(varargin{:});
-        
+valid = ~cellfun('isempty',field_vals);
+field_nams=field_nams(valid);
+field_vals=field_vals(valid);
 
 target_fields = fieldnames(data_struct);
 if ~all(ismember(field_nams,target_fields))

@@ -1,11 +1,20 @@
 classdef test_loader_ascii< TestCase
     properties 
+        log_level;
     end
     methods       
         % 
         function this=test_loader_ascii(name)
             this = this@TestCase(name);
         end
+        function this=setUp(this)
+            this.log_level = get(herbert_config,'log_level');
+            set(herbert_config,'log_level',-1);
+        end
+        function this=tearDown(this)
+            set(herbert_config,'log_level',this.log_level);            
+        end
+        
 % CONSTRUCTOR:        
         % tests themself
         function test_wrong_first_argument(this)               
@@ -136,8 +145,13 @@ classdef test_loader_ascii< TestCase
 %GET_RUN INFO:        
         function test_get_run_info_no_par_file(this)
             loader=loader_ascii('spe_info_correspondent2demo_par.spe');
-            f = @()get_run_info(loader);
-            assertExceptionThrown(f,'LOADER_ASCII:problems_with_file');               
+            % run info obtained from spe file
+            [ndet,en,this]=get_run_info(loader);
+            assertEqual(28160,ndet);
+            assertEqual(31,numel(en));            
+            assertEqual(this.n_detectors,ndet);
+            assertTrue(isempty(this.det_par));
+            assertTrue(isempty(this.par_file_name));            
         end             
         function test_get_run_info_wrong_par(this)
             loader=loader_ascii('spe_wrong.spe','wrong_par.PAR');

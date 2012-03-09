@@ -11,7 +11,6 @@ function [this,is_redefined]= check_loader_redefined(this)
  if ~isempty(this.data_file_name) % new file name is defined among the parameters; data_loader has to be redefined;
         dat_file_name=this.data_file_name;
         this.data_file_name='';
-        this.en = [];
         is_redefined=true;
  else
         dat_file_name='';
@@ -26,8 +25,16 @@ function [this,is_redefined]= check_loader_redefined(this)
  % files are defined
  if ~isempty(dat_file_name) % file reader has to be redefined;
      if ~isempty(par_fname)
-            this=select_loader(this,dat_file_name,par_fname);
+            this.loader='';
+            warning('off','MATLAB:structOnObject');
+            this=rundata(dat_file_name,par_fname,struct(this));
+            warning('on','MATLAB:structOnObject');            
      else
+            this.S =[];
+            this.ERR=[];
+            this.en =[];
+            this.n_detectors=[];
+            this.det_par=[];
             this=select_loader(this,dat_file_name);            
      end
  else % only par data have to be redefened, and this meand ascii file reader

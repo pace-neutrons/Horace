@@ -1,4 +1,4 @@
-function [S,ERR,en] = get_spe_matlab(filename,varargin)
+function varargout = get_spe_matlab(filename,varargin)
 % Get signal, error and energy bin boundaries for spe file
 %
 %>> [S,ERR,en] = get_spe_matlab(filename,[info])
@@ -48,9 +48,14 @@ temp=fgetl(fid);    % read string '### Energy Grid'
 en=fscanf(fid,'%10f',ne+1); % read energy grid
 %
 if nargin > 1
-    S   = ne;
-    ERR = ndet;
-    fclose(fid);
+    fclose(fid);    
+    varargout{1}   = ne;
+    if nargout>1
+        varargout{2} = ndet;
+    end
+    if nargout>2
+        varargout{3} = en;
+    end
     return;
 end
 
@@ -67,4 +72,13 @@ for i=1:ndet,
     ERR(:,i)=fscanf(fid,'%10f',ne);
 end
 fclose(fid);
+if nargout>0
+    varargout{1}=S;
+end
+if nargout>1
+    varargout{2}=ERR;    
+end
+if nargout>2
+    varargout{3}=en;        
+end
 
