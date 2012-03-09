@@ -26,6 +26,9 @@ application_off('herbert')
 addpath(rootpath);  % MUST have rootpath so that herbert_init, herbert_off included
 addpath(fullfile(rootpath,'admin'));
 
+% Compatibility functions with Libisis, mgenie
+addgenpath_message (rootpath,'compatibility');
+
 % Configurations
 addgenpath_message (rootpath,'configuration');
 
