@@ -24,6 +24,15 @@ if ~is_sqw_type(w1) || ~is_sqw_type(w2)
     error('Horace error: input objects must be sqw type with detector pixel information');
 end
 
+%Catch case of one or other dataset being empty
+if numel(w1.data.pix)==0 && numel(w2.data.pix)~=0
+	wout=w2; return;
+elseif numel(w1.data.pix)~=0 && numel(w2.data.pix)==0
+	wout=w1; return;
+elseif numel(w1.data.pix)==0 && numel(w2.data.pix)==0
+	wout=w1; return;%case where both empty returns first dataset
+end
+
 [ndims1,sz1]=dimensions(w1);
 [ndims2,sz2]=dimensions(w2);
 if ndims1~=ndims2
