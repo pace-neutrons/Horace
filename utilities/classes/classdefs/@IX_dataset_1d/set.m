@@ -15,6 +15,44 @@ function varargout = set(this, index, varargin)
 %   Chapter 9 example set
 %   (c) 2004 Andy Register
 
+% ====== SPECIAL TO IX_DATASET_1D ======
+% Allow multiple setting of fields, and synonymns allowed for y,e,xlab,ylab: signal,error,x_axis,y_axis
+if numel(varargin)>1
+    % Set multiple fields; check for synonyms too
+    narg=numel(varargin);
+    if rem(narg,2)==1
+        nams=[{index},varargin(2:2:end)];
+        vals=varargin(1:2:end);
+        w=struct(this);
+        fnams=fieldnames(w);
+        for i=1:numel(nams)
+            ind=find(strcmp(nams{i},fnams), 1);
+            if isempty(ind)
+                ind=find(strcmp(nams{i},{'y','e','xlab','ylab'}));
+                if isempty(ind)
+                    warning(['??? Reference to non-existent field ' nams{i} '.']);
+                    return;
+                end
+                indlist=[2,3,6,4];
+                ind=indlist(ind);
+            end
+            w.(fnams{ind})=vals{i};
+        end
+        w=IX_dataset_1d(w);
+        if nargout>0, varargout{1}=w; end
+        return
+    else
+        warning(['??? Reference to non-existent field ' index '.']);
+    end
+elseif numel(varargin)==1
+    % Single field to be set; check for synonyms
+    ind=find(strcmp(index,{'y','e','xlab','ylab'}));
+    if ~isempty(ind)
+        fieldlist={'signal','error','x_axis','s_axis'};
+        index=fieldlist{ind};
+    end
+end
+% =====================================
 
 % one argument, display info and return
 

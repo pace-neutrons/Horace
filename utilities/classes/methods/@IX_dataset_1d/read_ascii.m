@@ -34,7 +34,6 @@ function wout = read_ascii (wdummy,varargin)
 %
 %   >> arr = read_ascii (IX_dataset_1d,file,0)  % read from named file
 %   >> arr = read_ascii (IX_dataset_1d,0)       % prompts for file
-%
 
 wout=[];
 narg=numel(varargin);

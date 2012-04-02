@@ -208,7 +208,9 @@ function [wout, fitdata] = multifit(win, varargin)
 % *** This function is identical for IX_dataset_1d, _2d, _3d, ...
 
 % Parse the input arguments, and repackage for fit func
-[pos,func,plist,bpos,bfunc,bplist] = multifit_gateway (win, varargin{:},'parsefunc_');
+[pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win, varargin{:},'parsefunc_');
+if ~ok, error(mess), end
+
 plist={func,plist};
 if ~isempty(bpos)
     for i=1:numel(bfunc)
@@ -224,4 +226,5 @@ if ~isempty(bpos)
 end
 
 % Perform the fit
-[wout,fitdata] = multifit_gateway (win, varargin{:});
+[wout,fitdata,ok,mess] = multifit_gateway (win, varargin{:});
+if ~ok, error(mess), end

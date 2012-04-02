@@ -1,6 +1,7 @@
 function [ok,mess,output] = multifit_main(varargin)
-% This is a private function that is called by the multifit gateway functions
-%   >> [ok,mess,wfit,fitdata] = multifit_main (...)
+% This is a private function that is called by the multifit gateway functions multifit and multifit_gateway
+%
+%   >> [ok,mess,output] = multifit_main (...)
 %   
 %   ok      True if no problems, false otherwise
 %   mess    If ok, then empty; if ~ok, then contains informative error message
@@ -10,8 +11,7 @@ function [ok,mess,output] = multifit_main(varargin)
 %           - if input arguments have requested parsing of functions, then
 %               output = {pos,func,plist,bpos,bfunc,bplist}
 %
-% The following documentation should be synchronised with that for the multifit
-% gateway function multifit.m
+% Ensure that the documentation below is consistent with that in multifit.m
 %
 % -------------------------------------------------------------------------------------------------
 % Find best fit of a parametrised function to data. Works for arbitrary 
@@ -20,17 +20,17 @@ function [ok,mess,output] = multifit_main(varargin)
 % The data can be x,y,e arrays or objects of a class.
 %
 % Simultaneously fit several objects to a given function:
-%   >> [wout, fitdata] = multifit (w, func, pin)                 % all parameters free
-%   >> [wout, fitdata] = multifit (w, func, pin, pfree)          % selected parameters free to fit
-%   >> [wout, fitdata] = multifit (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
+%   >> [ok, mess, output] = multifit (w, func, pin)                 % all parameters free
+%   >> [ok, mess, output] = multifit (w, func, pin, pfree)          % selected parameters free to fit
+%   >> [ok, mess, output] = multifit (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
 %
 % With optional 'background' functions added to the global function, one per object
-%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [ok, mess, output] = multifit (..., bkdfunc, bpin)
+%   >> [ok, mess, output] = multifit (..., bkdfunc, bpin, bpfree)
+%   >> [ok, mess, output] = multifit (..., bkdfunc, bpin, bpfree, bpbind)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
-%   >> [wout, fitdata] = multifit (..., keyword, value, ...)
+%   >> [ok, mess, output] = multifit (..., keyword, value, ...)
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -39,9 +39,10 @@ function [ok,mess,output] = multifit_main(varargin)
 %       'list'      indicates verbosity of output during fitting
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate at the initial parameter values (convenient to test starting values)
+%       'parsefunc_'return function parsing information. For use by developers only.
 %
 %   Example:
-%   >> [wout, fitdata] = multifit (..., 'keep', xkeep, 'list', 0)
+%   >> [ok, mess, output] = multifit (..., 'keep', xkeep, 'list', 0)
 %
 %
 % Input:
@@ -288,11 +289,33 @@ function [ok,mess,output] = multifit_main(varargin)
 %  A final useful keyword is:
 %
 %  'evaluate'   Evaluate the fitting function at the initial parameter values only. Useful for
-%           checking the validity of starting parameters
+%               checking the validity of starting parameters
+%
+%  For use by developers, there is one more keyword:
+%
+%  'parsefunc_' If present, locate the presence of the global fitting function and any background
+%               functions, withut actually fitting. This has a use, for example, when
+%               repackaging the input for a custom call to multifit.
 %
 %
 % Output:
 % =======
+%   ok      True if no problems; false otherwise
+%
+%   mess    Error message if ~ok; empty string if ok
+%
+%   output  Cell array of output; one of the two instances below if ok; empty cell array (1x0) if not ok.
+%           EITHER
+%               Contains two elements giving results of a fit or simulation
+%                 {wout, fitdata}
+%           OR
+%               Contains details of parsing of input data and functions if 'parsefunc_' keyword was provided
+%                 {pos,func,plist,bpos,bfunc,bplist}
+%
+% Case of {wout, fitdata}:
+% ------------------------
+%   >> [wfit,fitdata,ok,mess] = multifit_gateway (...)
+%
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
 %           Has the same form as the input data. The only exception is if x,y,e were given as
 %          three separate arrays, only ycalc is returned.
@@ -318,24 +341,29 @@ function [ok,mess,output] = multifit_main(varargin)
 %       quadratic background, but all have the same initial parameter values.
 %       Two of them are constrained to a linear background.
 %
-%           >> [wfit,fitdata] = multifit (w,...
+%           >> [ok,mess,output] = multifit (w,...
 %                          @resconv, {@my_sqwfunc,{p,c1,c2},r1,r2}, [1,0,0,1,1], {4,5},...
 %                          @func_eval, {{@quad,[1.1,0.1,0.02]}}, {[],[1,1,0],[],[],[1,1,0]} )
 %
 %
-% Parsing input parameters
-% ========================
-% A feature no documented above is one to locate the presence of the global fitting function
-% and any background functions, withut actually fitting. This has a use, for example, when
-% repackaging the input for a custom call to multifit.
 %
-% 'parsefunc_'  if true, then return the following
+% Case of parsing input parameters:
+% ---------------------------------
+%   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (...,'parsefunc_')
+%
+%   pos     position of global fit function handle in input argument list
+%   func    function handle to global fit function
+%   plist   parameter list to global function
+%   bpos    position of argument giving background function handle(s) in input argument list
+%   bfunc   cell array of background function handle(s)
+%   bplist  cell array of background parameter lists, one per background function
 
 
 % Set defaults:
 arglist = struct('fitcontrolparameters',[0.0001 30 0.0001],...
                  'list',0,'keep',[],'remove',[],'mask',[],'selected',0,'evaluate',0,'parsefunc_',0);
 flags = {'selected','evaluate','parsefunc_'};
+nop=2;
 
 % Parse parameters:
 [args,options] = parse_arguments(varargin,arglist,flags);
@@ -343,15 +371,17 @@ flags = {'selected','evaluate','parsefunc_'};
 if numel(args)<1
     ok=false;
     mess='Check number of input arguments';
-    output=cell(1,0);
+    output=cell(1,nop);
     return
 end
 
 % Determine if just parsing the function handles and parameters
 if options.parsefunc_
     parsefunc=true;
+    nop=6;
 else
     parsefunc=false;
+    nop=2;
 end
 
 % Find fitting functions
@@ -366,7 +396,7 @@ for i=1:numel(args)
         else
             ok=false;
             mess='Fitting function handle must be a scalar';
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
         break
@@ -375,7 +405,7 @@ end
 if isempty(iarg_global_func)
     ok=false;
     mess='Must provide handle to fitting function';
-    output=cell(1,0);
+    output=cell(1,nop);
     return
 end
 
@@ -411,13 +441,13 @@ if iarg_global_func==2
                     if ~ok
                         ok=false;
                         mess=['Data cell array element ',arraystr(size(w),i),' is a structure : ',mess];
-                        output=cell(1,0);
+                        output=cell(1,nop);
                         return
                     end
                 else
                     ok=false;
                     mess=['Data cell array element ',arraystr(size(w),i),' invalid: is an array of structures'];
-                    output=cell(1,0);
+                    output=cell(1,nop);
                     return
                 end
             else
@@ -426,7 +456,7 @@ if iarg_global_func==2
                     if ~ismethod(w{i},tmp.function)
                         ok=false;
                         mess=['Data cell array element ',arraystr(size(w),i),': fit function is not a method of this object'];
-                        output=cell(1,0);
+                        output=cell(1,nop);
                         return
                     end
                 end
@@ -436,7 +466,7 @@ if iarg_global_func==2
         % Array of structures permitted, if each element is an x-y-e triple
         [ok,mess,ndim_xye]=is_struct_xye(w);
         if ~ok
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
     else
@@ -447,7 +477,7 @@ if iarg_global_func==2
             if ~ismethod(w,tmp.function)
                 ok=false;
                 mess='Data object: fit function is not a method of this object';
-                output=cell(1,0);
+                output=cell(1,nop);
                 return
             end
         end
@@ -460,13 +490,13 @@ elseif iarg_global_func==4
     w.e=args{3};
     [ok,mess,ndim_xye]=is_struct_xye(w);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
 else
     ok=false;
     mess='Syntax of data argument(s) is invalid';
-    output=cell(1,0);
+    output=cell(1,nop);
     return
 end
 
@@ -527,7 +557,7 @@ if length(args)>iarg_global_func
                 else
                     ok=false;
                     mess='Background function handle parameter must be scalar or have same size as data array';
-                    output=cell(1,0);
+                    output=cell(1,nop);
                     return
                 end
             end
@@ -552,13 +582,13 @@ if nglobal_args>=1
     [ok,np]=parameter_valid(pin);
     if ~ok
         mess='Check that the fitting parameter list is valid';
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
 else
     ok=false;
     mess='Must give fitting function parameters';
-    output=cell(1,0);
+    output=cell(1,nop);
     return
 end
 
@@ -568,13 +598,13 @@ if bkd
         % Check form of argument
         [ok,mess,nbp,bpin]=bkd_parameter_valid(args{iarg_bkd_func+1},bkdfunc);
         if ~ok
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
     else
         ok=false;
         mess='Must give background function(s) parameters';
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
 else
@@ -606,43 +636,43 @@ end
 if nglobal_args==1  % no optional arguments
     [ok,mess,pfree]=pfree_valid_syntax([],np);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax({},np,nbp,0);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     
 elseif nglobal_args==2  % must be pfree
     [ok,mess,pfree]=pfree_valid_syntax(args{iarg_global_func+2},np);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax({},np,nbp,0);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     
 elseif nglobal_args==3  % must be pfree followed by pbind
     [ok,mess,pfree]=pfree_valid_syntax(args{iarg_global_func+2},np);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax(args{iarg_global_func+3},np,nbp,0);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     
 else
     ok=false;
     mess='Too many optional arguments for fitting function';
-    output=cell(1,0);
+    output=cell(1,nop);
     return
 end
 
@@ -651,53 +681,53 @@ if bkd
     if nbkd_args==1  % no optional arguments
         [ok,mess,bpfree]=bkd_pfree_valid_syntax({},nbp);
         if ~ok
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
         [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
         if ~ok
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
     elseif nbkd_args==2  % must be bpfree
         [ok,mess,bpfree]=bkd_pfree_valid_syntax(args{iarg_bkd_func+2},nbp);
         if ~ok
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
         [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
         if ~ok
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
         
     elseif nbkd_args==3  % must be bpfree followed by bpbind
         [ok,mess,bpfree]=bkd_pfree_valid_syntax(args{iarg_bkd_func+2},nbp);
         if ~ok
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
         [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax(args{iarg_bkd_func+3},np,nbp);
         if ~ok
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
         
     else
         ok=false;
         mess='Too many optional arguments for fitting function';
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
 else % get values for absent background that will work in ptrans_create
     [ok,mess,bpfree]=bkd_pfree_valid_syntax({},nbp);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
     if ~ok
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
 end
@@ -709,12 +739,12 @@ end
 [ok,mess,pf,p_info]=ptrans_create(pin,pfree,ipbind,ipfree,ifuncbind,rpbind,...
                                   bpin,bpfree,ibpbind,ibpfree,ibfuncbind,rbpbind);
 if ~ok
-    output=cell(1,0);
+    output=cell(1,nop);
     return
 elseif isempty(pf) && ~options.evaluate
     ok=false;
     mess='No free parameters to fit';
-    output=cell(1,0);
+    output=cell(1,nop);
     return
 end
 
@@ -730,7 +760,7 @@ if ~isempty(options.keep)
     if ~(isscalar(xkeep) || isequal(size(w),size(xkeep)))
         ok=false;
         mess='''keep'' option must provide a single entity defining keep ranges, or a cell array of entities with same size as data source';
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     if isscalar(xkeep), xkeep=repmat(xkeep,size(w)); end
@@ -745,7 +775,7 @@ if ~isempty(options.remove)
     if ~(isscalar(xremove) || isequal(size(w),size(xremove)))
         ok=false;
         mess='''remove'' option must provide a single entity defining remove ranges, or a cell array of entities with same size as data source';
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     if isscalar(xremove), xremove=repmat(xremove,size(w)); end
@@ -760,7 +790,7 @@ if ~isempty(options.mask)
     if ~(isscalar(msk) || isequal(size(w),size(msk)))
         ok=false;
         mess='''mask'' option must provide a single mask, or a cell array of masks with same size as data source';
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     end
     if isscalar(msk), msk=repmat(msk,size(w)); end
@@ -784,7 +814,7 @@ for i=1:numel(w)
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
         [msk{i},ok,mess]=mask_for_fit_xye(w{i}.x,w{i}.y,w{i}.e,msk{i}); % accumulate bad points (y=NaN, zero error bars etc.) to the mask array
@@ -792,7 +822,7 @@ for i=1:numel(w)
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end
         for idim=1:numel(w{i}.x)
@@ -812,7 +842,7 @@ for i=1:numel(w)
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end   % display warning messages
         [ytmp,vtmp,msk_null]=sigvar_get(w{i});
@@ -821,7 +851,7 @@ for i=1:numel(w)
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
-            output=cell(1,0);
+            output=cell(1,nop);
             return
         end   % display warning messages
         wmask{i}=mask(w{i},msk{i}); % 24 Jan 2009: don't think we'll need to keep msk{i}, but do so for moment, for sake of symmetry
@@ -836,13 +866,13 @@ end
 [ok,mess,pf,p_info]=ptrans_create(pin,pfree,ipbind,ipfree,ifuncbind,rpbind,...
                                   bpin,bpfree,ibpbind,ibpfree,ibfuncbind,rbpbind,nodata);
 if ~ok
-    output=cell(1,0);
+    output=cell(1,nop);
     return
 elseif isempty(pf)
     if ~options.evaluate
         ok=false;
         mess='No free parameters to fit';
-        output=cell(1,0);
+        output=cell(1,nop);
         return
     else
         disp('WARNING: No free parameters to fit')

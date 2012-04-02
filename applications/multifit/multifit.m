@@ -1,6 +1,5 @@
 function varargout = multifit(varargin)
-% Find best fit of a parametrised function to data. Works for arbitrary 
-% number of dimensions. Various keywords control output.
+% Find best fit of a parametrised function to data with an arbitrary number of dimensions.
 %
 % The data can be x,y,e arrays or objects of a class.
 %
@@ -13,6 +12,11 @@ function varargout = multifit(varargin)
 %   >> [wout, fitdata] = multifit (..., bkdfunc, bpin)
 %   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree)
 %   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree, bpbind)
+%
+% If unable to fit, then the program will halt and display an error message. 
+% To return if unable to fit, call with additional arguments that return status and error message:
+%
+%   >> [wout, fitdata, ok, mess] = multifit (...)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [wout, fitdata] = multifit (..., keyword, value, ...)
@@ -307,16 +311,27 @@ function varargout = multifit(varargin)
 %                          @resconv, {@my_sqwfunc,{p,c1,c2},r1,r2}, [1,0,0,1,1], {4,5},...
 %                          @func_eval, {{@quad,[1.1,0.1,0.02]}}, {[],[1,1,0],[],[],[1,1,0]} )
 
-
-% Gateway function to multifit
+% Parsing input parameters
+% ========================
+% A feature not documented above is one to locate the presence of the global fitting function
+% and any background functions, withut actually fitting. This has a use, for example, when
+% repackaging the input for a custom call to multifit.
 %
-%   >> [ok,mess,wfit,fitdata] = multifit_main (...)
-%   >> [ok,mess,pos,func,plist,bpos,bfunc,bplist] = multifit_main (...)
+%   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit (...,'parsefunc_')
+%
+% This is only included for backwards compatibility. Please use the official gateway
+% function multifit_gateway
+%
+%   >> [wout,fitdata,ok,mess] = multifit_gateway (...)
+%   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (...,'parsefunc_')
 
 [ok,mess,output]=multifit_main(varargin{:});
-if ok
-    n=min(numel(output),nargout);
+nout=numel(output);
+if ok || nout<nargout   % if not ok, then ok is a return argument
+    n=min(nout,nargout);
     varargout(1:n)=output(1:n);
+    if nargout>=nout+1, varargout{nout+1}=ok; end
+    if nargout>=nout+2, varargout{nout+2}=mess; end
 else
     error(mess)
 end

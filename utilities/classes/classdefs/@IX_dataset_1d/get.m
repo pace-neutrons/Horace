@@ -31,6 +31,17 @@ end
 % if index is a string, we will allow special access
 called_by_name = ischar(index);
 
+% ====== SPECIAL TO IX_DATASET_1D ======
+% Synonymns allowed for y,e,xlab,ylab: signal,error,x_axis,y_axis
+if isvarname(index) 
+    ind=find(strcmp(index,{'y','e','xlab','ylab'}));
+    if ~isempty(ind)
+        fieldlist={'signal','error','x_axis','s_axis'};
+        index=fieldlist{ind};
+    end
+end
+% =====================================
+
 % the set switch below needs a substruct
 if called_by_name
     index = substruct('.', index);
