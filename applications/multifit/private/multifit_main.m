@@ -31,6 +31,7 @@ function [ok,mess,output] = multifit_main(varargin)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [ok, mess, output] = multifit (..., keyword, value, ...)
+%
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -290,7 +291,7 @@ function [ok,mess,output] = multifit_main(varargin)
 %  A final useful pair of keyword is:
 %
 %  'evaluate'   Evaluate the fitting function at the initial parameter values only. Useful for
-%               checking the validity of starting parameters
+%               checking the validity of starting parameters.
 %
 %  'chisqr'     If 'evaulate' is set, then if this option keyword is present the reduced
 %               chi-squared is evaluated. Otherewise, chi-squared is set to zero.

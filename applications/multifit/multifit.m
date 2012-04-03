@@ -20,6 +20,7 @@ function varargout = multifit(varargin)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [wout, fitdata] = multifit (..., keyword, value, ...)
+%
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -28,6 +29,7 @@ function varargout = multifit(varargin)
 %       'list'      indicates verbosity of output during fitting
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate at the initial parameter values (convenient to test starting values)
+%       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
 %
 %   Example:
 %   >> [wout, fitdata] = multifit (..., 'keep', xkeep, 'list', 0)
@@ -274,10 +276,13 @@ function varargout = multifit(varargin)
 %           not eliminated for having zero error bar etc; this is useful for plotting the output, as
 %           only those points that contributed to the fit will be plotted.
 %
-%  A final useful keyword is:
+%  A final useful pair of keyword is:
 %
 %  'evaluate'   Evaluate the fitting function at the initial parameter values only. Useful for
-%           checking the validity of starting parameters
+%               checking the validity of starting parameters.
+%
+%  'chisqr'     If 'evaulate' is set, then if this option keyword is present the reduced
+%               chi-squared is evaluated. Otherewise, chi-squared is set to zero.
 %
 %
 % Output:
