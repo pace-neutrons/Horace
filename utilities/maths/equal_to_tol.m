@@ -97,8 +97,10 @@ if isequal(size(a),size(b))
         ok=all((abs(a-b)./den<=abs(tol))|den==0);   % if both are zero, then accept
     end
     if ok
+        ok=true;    % stupid matlab feature: all(A) if A is a matrix results in a row vector! behaves as all(A(:)) in an if statement however.
         mess='';
     else
+        ok=false;
         mess='Numeric arrays not equal within requested tolerance';
     end
 else

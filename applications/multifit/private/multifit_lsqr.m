@@ -1,4 +1,4 @@
-function [p_best,sig,cor,chisqr_red]=multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,listing,fcp)
+function [p_best,sig,cor,chisqr_red]=multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,listing,fcp,perform_fit)
 
 % T.G.Perring Jan 2009:
 % ------------------------
@@ -52,127 +52,141 @@ if ~(npfree< nval)
     error ('Number of data points must be greater than number of free parameters')
 end
 
-% Listing to screen
-if ~exist('listing','var'), listing=0; end
-if isempty(listing), listing=0; end
+% Catch case of simple evaluation of chi-squared
+if ~perform_fit
+    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo);
+    resid=wt.*(yval-f);
     
-% Set fit control parameters
-if ~exist('fcp','var')
-    fcp=[0.0001 20 0.001];
-end
-dp=fcp(1);      % derivative step length
-niter=fcp(2);   % maximum number of iterations
-tol=fcp(3);     % convergence criterion
-if niter<0
-    error ('Number of iterations must be >=0')
-end
-if tol<0
-    error ('Tolerance (fraction of chi-squared) must be >=0')
-end
-
-% Output to command window
-if listing~=0, fit_listing_header(listing,niter); end
-
-% Starting values of parameters and function values
-f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo);
-resid=wt.*(yval-f);
-
-p_best=pfin; % Best values for parameters at start
-f_best=f;    % Function values at start
-c_best=resid'*resid; % Un-normalised chi-squared
-
-lambda=1;
-lambda_table=[1e1 1e1 1e2 1e2 1e2 1e2];
-
-% Iterate to find best solution
-converged=0;
-max_rescale_lambda=0;
-for iter=1:niter
-    if listing~=0, fit_listing_iteration_header(listing,iter); end
-    % Single value decomposition of 
-    resid=wt.*(yval-f_best);
-    jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp);
-    nrm=zeros(npfree,1);
-    for j=1:npfree
-        jac(:,j)=wt.*jac(:,j);
-        nrm(j)=jac(:,j)'*jac(:,j);
-        if nrm(j)>0,
-            nrm(j)=1/sqrt(nrm(j));
-        end;
-        jac(:,j)=nrm(j)*jac(:,j);
-    end;
-    [jac,s,v]=svd(jac,0);
-    s=diag(s);
-    g=jac'*resid;
-    % Compute change in parameter values.
-    % If does not improve chisqr to less than the goal value, then alter
-    % the Levenberg-Marquardt parameter until it does (up to a maximum
-    % number of times).
-    c_goal=(1-tol)*c_best;  % Goal for improvement in chisqr
-    lambda=lambda/10;
-    for itable=1:numel(lambda_table)
-        se=sqrt((s.*s)+lambda);
-        gse=g./se;
-        p_chg=((v*gse).*nrm);   % compute change in parameter values
-        if (any(abs(p_chg)>0))  % if any change in the parameters
-            p=p_best+p_chg;
-            f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p,pinfo);
-            resid=wt.*(yval-f);
-            c=resid'*resid;
-            if c<c_best
-                p_best=p;
-                f_best=f;
-                c_best=c;
-                break;
-            end
-        end;
-        if itable==numel(lambda_table) % Gone to end of table without improving chisqr
-            max_rescale_lambda=1;
-            break;
-        end
-        if listing~=0, fit_listing_iteration(listing, iter, c/(nval-npfree), lambda, p); end
-        % Chisqr didn't improve - increase lambda and recompute step in parameters
-        lambda = lambda*lambda_table(itable);
-    end
-
-    % Output to command window
-    if listing~=0, fit_listing_iteration(listing, iter, c_best/(nval-npfree), lambda, p_best); end
-    
-    % if chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
-    if (c_best>c_goal) || (c_best==0)
-        converged=1;
-        break;
-    end
-    
-    % If multipled lambda to limit of the table, give up
-    if  max_rescale_lambda==1
-        converged=0;
-        break
-    end
-    
-end
-
-% Wrap up for exit from fitting routine
-if converged
-    chisqr_red = c_best/(nval-npfree);
-    % Calculate covariance matrix
-    jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp);
-    for j=1:npfree
-        jac(:,j)=wt.*jac(:,j);
-    end;
-    [jac,s,v]=svd(jac,0);
-    s=repmat((1./diag(s))',[npfree,1]);
-    v=v.*s;
-    cov=chisqr_red*(v*v');  % true covariance matrix;
-    sig=sqrt(diag(cov));
-    tmp=repmat(1./sqrt(diag(cov)),[1,npfree]);
-    cor=tmp.*cov.*tmp';
-    if listing~=0, fit_listing_final(listing, p_best, sig, cor, pinfo); end
-else
-    disp ('WARNING: Convergence not achieved')
+    p_best=pfin; % Best values for parameters at start
     sig=[];
+    c_best=resid'*resid; % Un-normalised chi-squared
     chisqr_red = c_best/(nval-npfree);
     cor=[];
+        
+else
+    % Listing to screen
+    if ~exist('listing','var'), listing=0; end
+    if isempty(listing), listing=0; end
+    
+    % Set fit control parameters
+    if ~exist('fcp','var')
+        fcp=[0.0001 20 0.001];
+    end
+    dp=fcp(1);      % derivative step length
+    niter=fcp(2);   % maximum number of iterations
+    tol=fcp(3);     % convergence criterion
+    if niter<0
+        error ('Number of iterations must be >=0')
+    end
+    if tol<0
+        error ('Tolerance (fraction of chi-squared) must be >=0')
+    end
+    
+    % Output to command window
+    if listing~=0, fit_listing_header(listing,niter); end
+    
+    % Starting values of parameters and function values
+    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo);
+    resid=wt.*(yval-f);
+    
+    p_best=pfin; % Best values for parameters at start
+    f_best=f;    % Function values at start
+    c_best=resid'*resid; % Un-normalised chi-squared
+    
+    lambda=1;
+    lambda_table=[1e1 1e1 1e2 1e2 1e2 1e2];
+    
+    % Iterate to find best solution
+    converged=0;
+    max_rescale_lambda=0;
+    for iter=1:niter
+        if listing~=0, fit_listing_iteration_header(listing,iter); end
+        % Single value decomposition of
+        resid=wt.*(yval-f_best);
+        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp);
+        nrm=zeros(npfree,1);
+        for j=1:npfree
+            jac(:,j)=wt.*jac(:,j);
+            nrm(j)=jac(:,j)'*jac(:,j);
+            if nrm(j)>0,
+                nrm(j)=1/sqrt(nrm(j));
+            end;
+            jac(:,j)=nrm(j)*jac(:,j);
+        end;
+        [jac,s,v]=svd(jac,0);
+        s=diag(s);
+        g=jac'*resid;
+        % Compute change in parameter values.
+        % If does not improve chisqr to less than the goal value, then alter
+        % the Levenberg-Marquardt parameter until it does (up to a maximum
+        % number of times).
+        c_goal=(1-tol)*c_best;  % Goal for improvement in chisqr
+        lambda=lambda/10;
+        for itable=1:numel(lambda_table)
+            se=sqrt((s.*s)+lambda);
+            gse=g./se;
+            p_chg=((v*gse).*nrm);   % compute change in parameter values
+            if (any(abs(p_chg)>0))  % if any change in the parameters
+                p=p_best+p_chg;
+                f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p,pinfo);
+                resid=wt.*(yval-f);
+                c=resid'*resid;
+                if c<c_best
+                    p_best=p;
+                    f_best=f;
+                    c_best=c;
+                    break;
+                end
+            end;
+            if itable==numel(lambda_table) % Gone to end of table without improving chisqr
+                max_rescale_lambda=1;
+                break;
+            end
+            if listing~=0, fit_listing_iteration(listing, iter, c/(nval-npfree), lambda, p); end
+            % Chisqr didn't improve - increase lambda and recompute step in parameters
+            lambda = lambda*lambda_table(itable);
+        end
+        
+        % Output to command window
+        if listing~=0, fit_listing_iteration(listing, iter, c_best/(nval-npfree), lambda, p_best); end
+        
+        % if chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
+        if (c_best>c_goal) || (c_best==0)
+            converged=1;
+            break;
+        end
+        
+        % If multipled lambda to limit of the table, give up
+        if  max_rescale_lambda==1
+            converged=0;
+            break
+        end
+        
+    end
+    
+    % Wrap up for exit from fitting routine
+    if converged
+        chisqr_red = c_best/(nval-npfree);
+        % Calculate covariance matrix
+        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp);
+        for j=1:npfree
+            jac(:,j)=wt.*jac(:,j);
+        end;
+        [jac,s,v]=svd(jac,0);
+        s=repmat((1./diag(s))',[npfree,1]);
+        v=v.*s;
+        cov=chisqr_red*(v*v');  % true covariance matrix;
+        sig=sqrt(diag(cov));
+        tmp=repmat(1./sqrt(diag(cov)),[1,npfree]);
+        cor=tmp.*cov.*tmp';
+        if listing~=0, fit_listing_final(listing, p_best, sig, cor, pinfo); end
+    else
+        disp ('WARNING: Convergence not achieved')
+        sig=[];
+        chisqr_red = c_best/(nval-npfree);
+        cor=[];
+    end
+    
 end
 
 % Clean the function evaluation routine of buffered results to save memory
@@ -207,7 +221,7 @@ jac=zeros(length(f),length(p));     % initialise Jacobian to zero
 
 for j=1:length(p)
     del=dp*p(j);            % dp is fractional change in parameter
-    if del==0, del=dp; end  % Ensure del non-zero 
+    if del==0, del=dp; end  % Ensure del non-zero
     if dp>=0
         ppos=p; ppos(j)=p(j)+del;
         jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo)-f)/del;
@@ -215,7 +229,7 @@ for j=1:length(p)
         ppos=p; ppos(j)=p(j)+del;
         pneg=p; pneg(j)=p(j)-del;
         jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo) -...
-                  multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,pinfo))/(2*del);
+            multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,pinfo))/(2*del);
     end
 end
 
@@ -248,7 +262,7 @@ if listing==1
     disp(sprintf('   %3d      %8.3f   %9.4f', iter, toc, chisqr_red));
 else
     disp([' Total time = ',num2str(toc),'s    Reduced Chi^2 = ',num2str(chisqr_red),...
-          '      Levenberg-Marquardt = ', num2str(lambda)])
+        '      Levenberg-Marquardt = ', num2str(lambda)])
     disp(' Free parameter values:')
     np=numel(pvary);
     for irow=1:ceil(np/5)
@@ -295,7 +309,7 @@ else
         end
     end
     
-
+    
     if sum(pinfo.nbp(:))>0     % there is at least one background function with one or more parameters
         disp(' ')
         disp('Background parameter values:')
@@ -328,7 +342,7 @@ else
                         else
                             disp(sprintf('%5d %14.4g %s %-14.4g %s',ip,bp{i}(ip),'  +/-  ',bsig{i}(ip),...
                                 ['    bound to parameter ',num2str(pinfo.ibpb{i}(ip)),' of background ',arraystr(size(pinfo.nbp),pinfo.ibpfunc{i}(ip))]))
-
+                            
                         end
                     end
                 else

@@ -39,6 +39,7 @@ function [ok,mess,output] = multifit_main(varargin)
 %       'list'      indicates verbosity of output during fitting
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate at the initial parameter values (convenient to test starting values)
+%       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
 %       'parsefunc_'return function parsing information. For use by developers only.
 %
 %   Example:
@@ -286,10 +287,13 @@ function [ok,mess,output] = multifit_main(varargin)
 %           not eliminated for having zero error bar etc; this is useful for plotting the output, as
 %           only those points that contributed to the fit will be plotted.
 %
-%  A final useful keyword is:
+%  A final useful pair of keyword is:
 %
 %  'evaluate'   Evaluate the fitting function at the initial parameter values only. Useful for
 %               checking the validity of starting parameters
+%
+%  'chisqr'     If 'evaulate' is set, then if this option keyword is present the reduced
+%               chi-squared is evaluated. Otherewise, chi-squared is set to zero.
 %
 %  For use by developers, there is one more keyword:
 %
@@ -361,8 +365,8 @@ function [ok,mess,output] = multifit_main(varargin)
 
 % Set defaults:
 arglist = struct('fitcontrolparameters',[0.0001 30 0.0001],...
-                 'list',0,'keep',[],'remove',[],'mask',[],'selected',0,'evaluate',0,'parsefunc_',0);
-flags = {'selected','evaluate','parsefunc_'};
+                 'list',0,'keep',[],'remove',[],'mask',[],'selected',0,'evaluate',0,'chisqr',0,'parsefunc_',0);
+flags = {'selected','evaluate','chisqr','parsefunc_'};
 nop=2;
 
 % Parse parameters:
@@ -886,13 +890,19 @@ np=p_info.np;
 nbp=p_info.nbp;
 
 % Perform fit, if requested
-if ~options.evaluate   
-    [p_best,sig,cor,chisqr_red]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters);
+if ~options.evaluate
+    perform_fit=true;
+    [p_best,sig,cor,chisqr_red]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
 else
     p_best=pf;              % Need to have the size of number of free parameters to be useable with p_info
     sig=zeros(size(pf));    % Likewise
     cor=eye(numel(pf));     % But this we can set to empty, as no fitting done
-    chisqr_red=0;           % Ideally should calculate, but do not want to use multifit_lsqr because of unwanted checks and overheads
+    if options.chisqr
+        perform_fit=false;
+        [dum1,dum2,dum3,chisqr_red]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
+    else
+        chisqr_red=0;       % If do not want to use multifit_lsqr because of unwanted checks and overheads
+    end
 end
     
 % Evaluate the functions at the fitted parameter values / input parameter requests with ratios properly resolved)
