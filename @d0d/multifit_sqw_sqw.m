@@ -17,6 +17,7 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [wout, fitdata] = multifit_sqw_sqw (..., keyword, value, ...)
+%
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -25,6 +26,7 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 %       'list'      indicates verbosity of output during fitting
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate function at initial parameter values only, with argument check as well
+%       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
 %
 %       'average'   if sqw object, then compute the function at the average h,k,l,e of the pixels in a bin
 %
