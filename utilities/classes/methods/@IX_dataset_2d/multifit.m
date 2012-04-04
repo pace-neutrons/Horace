@@ -1,4 +1,4 @@
-function [wout, fitdata] = multifit(win, varargin)
+function [wout, fitdata, ok, mess] = multifit(win, varargin)
 % Simultaneously fits a function to an one or more IX_dataset_2d objects
 % Optionally allow with background functions varying independently for each dataset. 
 %
@@ -11,6 +11,11 @@ function [wout, fitdata] = multifit(win, varargin)
 %   >> [wout, fitdata] = multifit (..., bkdfunc, bpin)
 %   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree)
 %   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree, bpbind)
+%
+% If unable to fit, then the program will halt and display an error message. 
+% To return if unable to fit, call with additional arguments that return status and error message:
+%
+%   >> [wout, fitdata, ok, mess] = multifit (...)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [wout, fitdata] = multifit (..., keyword, value, ...)
@@ -186,6 +191,7 @@ function [wout, fitdata] = multifit(win, varargin)
 % Output:
 % =======
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
+%           If there was a problem i.e. ok==false, wout=[]
 %
 %   fitdata Result of fit for each dataset
 %               fitdata.p      - parameter values
@@ -197,6 +203,12 @@ function [wout, fitdata] = multifit(win, varargin)
 %                                   (no. of data points) - (no. free parameters))
 %               fitdata.pnames - parameter names
 %               fitdata.bpnames- background parameter names
+%           If there was a problem i.e. ok==false, fitdata=[]
+%
+%   ok      True if all ok, false if problem fitting. 
+%
+%   mess    Character string contaoning error message if ~ok; '' if ok
+%
 %
 % EXAMPLES: 
 %
@@ -214,7 +226,10 @@ function [wout, fitdata] = multifit(win, varargin)
 
 % Parse the input arguments, and repackage for fit func
 [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win, varargin{:},'parsefunc_');
-if ~ok, error(mess), end
+if ~ok
+    wout=[]; fitdata=[];
+    if nargout<3, error(mess), else return, end
+end
 
 plist={func,plist};
 if ~isempty(bpos)
@@ -232,4 +247,6 @@ end
 
 % Perform the fit
 [wout,fitdata,ok,mess] = multifit_gateway (win, varargin{:});
-if ~ok, error(mess), end
+if ~ok && nargout<3
+    error(mess)
+end

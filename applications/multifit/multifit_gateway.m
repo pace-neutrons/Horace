@@ -25,6 +25,7 @@ function varargout=multifit_gateway(varargin)
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
 %           Has the same form as the input data. The only exception is if x,y,e were given as
 %          three separate arrays, only ycalc is returned.
+%           If there was a problem i.e. ok==false, wout=[]
 %
 %   fitdata Result of fit for each dataset
 %               fitdata.p      - parameter values
@@ -36,6 +37,12 @@ function varargout=multifit_gateway(varargin)
 %                                   (no. of data points) - (no. free parameters))
 %               fitdata.pnames - parameter names
 %               fitdata.bpnames- background parameter names
+%           If there was a problem i.e. ok==false, fitdata=[]
+%
+%   ok      True if all ok, false if problem fitting. 
+%
+%   mess    Character string contaoning error message if ~ok; '' if ok
+%
 % *OR*
 %   pos     position of global fit function handle in input argument list
 %   func    function handle to global fit function
@@ -43,6 +50,8 @@ function varargout=multifit_gateway(varargin)
 %   bpos    position of argument giving background function handle(s) in input argument list
 %   bfunc   cell array of background function handle(s)
 %   bplist  cell array of background parameter lists, one per background function
+%   ok      True if all ok, false if problem fitting. 
+%   mess    Character string contaoning error message if ~ok; '' if ok
 
 [ok,mess,output]=multifit_main(varargin{:});
 nout=numel(output);

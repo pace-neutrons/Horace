@@ -1,4 +1,4 @@
-function [p_best,sig,cor,chisqr_red]=multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,listing,fcp,perform_fit)
+function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,listing,fcp,perform_fit)
 
 % T.G.Perring Jan 2009:
 % ------------------------
@@ -23,6 +23,14 @@ function [p_best,sig,cor,chisqr_red]=multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,p
 % Richard I. Shrager (301)-496-1122
 % Modified by A.Jutan (519)-679-2111
 % Modified by Ray Muzic 14-Jul-1992
+
+p_best=pfin;
+sig=zeros(1,numel(pfin));
+cor=zeros(numel(pfin));
+chisqr_red=0;
+converged=false;
+ok=true;
+mess='';
 
 % Clean the function evaluation routine of buffered results to avoid any conflicts
 multifit_lsqr_func_eval
@@ -49,7 +57,7 @@ wt=cell2mat(wt(:));
 nval=numel(yval);
 npfree=numel(pfin);
 if ~(npfree< nval)
-    error ('Number of data points must be greater than number of free parameters')
+    ok=false; mess='Number of data points must be greater than number of free parameters'; return
 end
 
 % Catch case of simple evaluation of chi-squared
@@ -57,11 +65,8 @@ if ~perform_fit
     f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo);
     resid=wt.*(yval-f);
     
-    p_best=pfin; % Best values for parameters at start
-    sig=[];
     c_best=resid'*resid; % Un-normalised chi-squared
     chisqr_red = c_best/(nval-npfree);
-    cor=[];
         
 else
     % Listing to screen
@@ -76,10 +81,10 @@ else
     niter=fcp(2);   % maximum number of iterations
     tol=fcp(3);     % convergence criterion
     if niter<0
-        error ('Number of iterations must be >=0')
+        ok=false; mess='Number of iterations must be >=0'; return
     end
     if tol<0
-        error ('Tolerance (fraction of chi-squared) must be >=0')
+        ok=false; mess='Tolerance (fraction of chi-squared) must be >=0'; return
     end
     
     % Output to command window
@@ -97,7 +102,7 @@ else
     lambda_table=[1e1 1e1 1e2 1e2 1e2 1e2];
     
     % Iterate to find best solution
-    converged=0;
+    converged=false;
     max_rescale_lambda=0;
     for iter=1:niter
         if listing~=0, fit_listing_iteration_header(listing,iter); end
@@ -152,13 +157,13 @@ else
         
         % if chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
         if (c_best>c_goal) || (c_best==0)
-            converged=1;
+            converged=true;
             break;
         end
         
         % If multipled lambda to limit of the table, give up
         if  max_rescale_lambda==1
-            converged=0;
+            converged=false;
             break
         end
         
@@ -181,10 +186,10 @@ else
         cor=tmp.*cov.*tmp';
         if listing~=0, fit_listing_final(listing, p_best, sig, cor, pinfo); end
     else
-        disp ('WARNING: Convergence not achieved')
-        sig=[];
         chisqr_red = c_best/(nval-npfree);
-        cor=[];
+        ok=true;
+        mess='WARNING: Convergence not achieved';
+        disp (mess)
     end
     
 end

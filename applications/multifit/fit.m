@@ -286,6 +286,9 @@ function [wout,fitdata,ok,mess] = fit(varargin)
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
 %           Has the same form as the input data. The only exception is if x,y,e were given as
 %          three separate arrays, only ycalc is returned.
+%           If there was a problem for ith data set i.e. ok(i)==false, then wout(i)==w(i) (or wout{i}
+%          =[] if cell array input). If there was a fundamental problem e.g. incorrect input argument
+%          syntax, then fitdata=[].
 %
 %   fitdata Result of fit for each dataset
 %               fitdata.p      - parameter values
@@ -297,6 +300,21 @@ function [wout,fitdata,ok,mess] = fit(varargin)
 %                                   (no. of data points) - (no. free parameters))
 %               fitdata.pnames - parameter names
 %               fitdata.bpnames- background parameter names
+%           If there was a problem for ith data set i.e. ok(i)==false, then fitdata(i)
+%          will be dummy. If there was a fundamental problem e.g. incorrect input argumnet syntax, then
+%          fitdata=[].
+%
+%   ok      True if all ok, false if problem fitting. 
+%           If an array of input datasets was given, then ok is an array with the size of the
+%          input data array. If the error was fundamental e.g. wrong argument syntax, then
+%          ok will be a scalar, as the dataset argument may have been an unrecognised type and
+%          so its size is not meaningful.
+%
+%   mess    Character string contaoning error message if ~ok; '' if ok
+%           If an array of datasets was given, tehn mess is a cell array of strings with the
+%          same size as the input data array. If the error was fundamental e.g. wrong argument syntax, then
+%          mess will be a simple character string, as the dataset argument may have been an unrecognised type and
+%          so its size is not meaningful.
 %
 %
 %   Examples:
@@ -321,31 +339,34 @@ function [wout,fitdata,ok,mess] = fit(varargin)
 %           - Array of objects to be fitted.
 %           - Cell array of objects to be fitted.
 
+% NOTES:
+% - In the following it is necessary to call multifit, not multifit_)gateway, as the overloaded version
+%  corresponding to an object may be needed (see e.g. IX_dataset_1d, which wrpas the user function with a call to func_eval)
+% - It is necessary to ensure that any overloaded version of multifit has the full return arguments
+%  [wfit,fitdata,ok,mess]
+
 if numel(varargin)>1
     for i=1:numel(varargin)
         if isa(varargin{i},'function_handle')
             if i==4 
-                % x-y-e data is the only possibility; checking internal to multifit_main will test this
-                [ok,mess,output]=multifit_main(varargin{:});
-                if ok
-                    wout=output{1}; fitdata=output{2}; return
-                else
-                    if nargout<3, error(mess), else return, end
-                end
-            elseif i==1
+                % x-y-e data is the only possibility; checking internal to multifit will test this
+                [wout,fitdata,ok,mess]=multifit(varargin{:});
+                if ~ok && nargout<3, error(mess), end
+                
+            elseif i==2
                 % array or cellarray of datasets (structures or object)
                 if iscell(varargin{1})
                     % If cellarray, the elements of the cell array must all be scalar structures or all objects of the same type
                     for id=1:numel(varargin{1})
                         if id==1
-                            struct_data=isstruct(varargin{1}(id));
-                            obj_data=isobject(varargin{1}(id));
-                            if ~((struct_data||obj_data) && numel(varargin{1}(id)==1))
+                            struct_data=isstruct(varargin{1}{id});
+                            obj_data=isobject(varargin{1}{id});
+                            if ~((struct_data||obj_data) && numel(varargin{1}{id})==1)
                                 wout=[]; fitdata=[]; ok=false; mess='Check form of data to be fitted';
                                 if nargout<3, error(mess), else return, end
                             end
                         else
-                            if ~(isstruct(varargin{1}(id))==struct_data && isobject(varargin{1}(id))==obj_data && numel(varargin{1}(id)==1))
+                            if ~(isstruct(varargin{1}{id})==struct_data && isobject(varargin{1}{id})==obj_data && numel(varargin{1}{id})==1)
                                 wout=[]; fitdata=[]; ok=false; mess='Check form of data to be fitted';
                                 if nargout<3, error(mess), else return, end
                             end
@@ -353,12 +374,8 @@ if numel(varargin)>1
                     end
                     % Now do fitting, handling simpler case of one dataset only separately
                     if numel(varargin{1})==1
-                        [ok,mess,output]=multifit_main(varargin{1},varargin{2:end});
-                        if ok
-                            wout=output{1}; fitdata=output{2}; return
-                        else
-                            if nargout<3, error(mess), else return, end
-                        end
+                        [wout,fitdata,ok,mess]=multifit(varargin{1},varargin{2:end});
+                        if ~ok && nargout<3, error(mess), end
                     else
                         wout=cell(size(varargin{1}));
                         fitdata=repmat(struct,size(wout));  % array of empty structures
@@ -366,15 +383,13 @@ if numel(varargin)>1
                         mess=cell(size(varargin{1}));
                         ok_fit_performed=false;
                         for id=1:numel(varargin{1})
-                            [ok_fit,mess{i},output]=multifit_main(varargin{1}(id),varargin{2:end});
-                            wout{id}=output{1};
-                            if ok_fit
-                                ok(id)=true;
+                            [wout{id},fitdata_tmp,ok(id),mess{i}]=multifit(varargin{1}{id},varargin{2:end});
+                            if ok(id)
                                 if ~ok_fit_performed
                                     ok_fit_performed=true;
-                                    fitdata=expand_as_empty_structure(output{2},size(varargin{1}),id);
+                                    fitdata=expand_as_empty_structure(fitdata_tmp,size(varargin{1}),id);
                                 else
-                                    fitdata(id)=output{2};
+                                    fitdata(id)=fitdata_tmp;
                                 end
                             else
                                 disp(['ERROR (dataset ',num2str(id),'): ',mess{i}])
@@ -384,12 +399,8 @@ if numel(varargin)>1
                 elseif isstruct(varargin{1}) || isobject(varargin{1})
                     % Now do fitting, handling simpler case of one dataset only separately
                     if numel(varargin{1})==1
-                        [ok,mess,output]=multifit_main(varargin{1},varargin{2:end});
-                        if ok
-                            wout=output{1}; fitdata=output{2}; return
-                        else
-                            if nargout<3, error(mess), else return, end
-                        end
+                        [wout,fitdata,ok,mess]=multifit(varargin{1},varargin{2:end});
+                        if ~ok && nargout<3, error(mess), end
                     else
                         wout=varargin{1};
                         fitdata=repmat(struct,size(wout));  % array of empty structures
@@ -397,15 +408,14 @@ if numel(varargin)>1
                         mess=cell(size(varargin{1}));
                         ok_fit_performed=false;
                         for id=1:numel(varargin{1})
-                            [ok_fit,mess{i},output]=multifit_main(varargin{1}(id),varargin{2:end});
-                            if ok_fit
-                                ok(id)=true;
-                                wout(id)=output{1};
+                            [wout_tmp,fitdata_tmp,ok(id),mess{i}]=multifit(varargin{1}(id),varargin{2:end});
+                            if ok(id)
+                                wout(id)=wout_tmp;
                                 if ~ok_fit_performed
                                     ok_fit_performed=true;
-                                    fitdata=expand_as_empty_structure(output{2},size(varargin{1}),id);
+                                    fitdata=expand_as_empty_structure(fitdata_tmp,size(varargin{1}),id);
                                 else
-                                    fitdata(id)=output{2};
+                                    fitdata(id)=fitdata_tmp;
                                 end
                             else
                                 disp(['ERROR (dataset ',num2str(id),'): ',mess{i}])
@@ -414,19 +424,20 @@ if numel(varargin)>1
                     end
                 else
                     wout=[]; fitdata=[]; ok=false; mess='Check form of data to be fitted';
-                    if nargout<3, error(mess), else return, end
+                    if nargout<3, error(mess), end
                 end
             else
                 wout=[]; fitdata=[]; ok=false; mess='Check input arguments - unexpected fit function location in argument list';
-                if nargout<3, error(mess), else return, end
+                if nargout<3, error(mess), end
             end
+            return
         end
     end
     wout=[]; fitdata=[]; ok=false; mess='Check input arguments - no fit function found';
-    if nargout<3, error(mess), else return, end
+    if nargout<3, error(mess), end
 else
     wout=[]; fitdata=[]; ok=false; mess='Check number of input arguments';
-    if nargout<3, error(mess), else return, end
+    if nargout<3, error(mess), end
 end
 
 %----------------------------------------------------------------------------------------------------------------------

@@ -324,6 +324,7 @@ function [ok,mess,output] = multifit_main(varargin)
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
 %           Has the same form as the input data. The only exception is if x,y,e were given as
 %          three separate arrays, only ycalc is returned.
+%           If there was a problem i.e. ok==false, wout=[]
 %
 %   fitdata Result of fit for each dataset
 %               fitdata.p      - parameter values
@@ -335,6 +336,11 @@ function [ok,mess,output] = multifit_main(varargin)
 %                                   (no. of data points) - (no. free parameters))
 %               fitdata.pnames - parameter names
 %               fitdata.bpnames- background parameter names
+%           If there was a problem i.e. ok==false, fitdata=[]
+%
+%   ok      True if all ok, false if problem fitting. 
+%
+%   mess    Character string contaoning error message if ~ok; '' if ok
 %
 %
 %   Examples:
@@ -356,13 +362,14 @@ function [ok,mess,output] = multifit_main(varargin)
 % ---------------------------------
 %   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (...,'parsefunc_')
 %
-%   pos     position of global fit function handle in input argument list
-%   func    function handle to global fit function
-%   plist   parameter list to global function
-%   bpos    position of argument giving background function handle(s) in input argument list
-%   bfunc   cell array of background function handle(s)
-%   bplist  cell array of background parameter lists, one per background function
-
+%   pos     position of global fit function handle in input argument list ([] if ~ok))
+%   func    function handle to global fit function ([] if ~ok))
+%   plist   parameter list to global function ([] if ~ok))
+%   bpos    position of argument giving background function handle(s) in input argument list ([] if ~ok))
+%   bfunc   cell array of background function handle(s) ([] if ~ok))
+%   bplist  cell array of background parameter lists, one per background function ([] if ~ok))
+%   ok      True if all ok, false if problem fitting.
+%   mess    Character string contaoning error message if ~ok; '' if ok
 
 % Set defaults:
 arglist = struct('fitcontrolparameters',[0.0001 30 0.0001],...
@@ -893,20 +900,25 @@ nbp=p_info.nbp;
 % Perform fit, if requested
 if ~options.evaluate
     perform_fit=true;
-    [p_best,sig,cor,chisqr_red]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
+    [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
+    if ~ok, output=cell(1,nop); return, end
 else
-    p_best=pf;              % Need to have the size of number of free parameters to be useable with p_info
-    sig=zeros(size(pf));    % Likewise
-    cor=eye(numel(pf));     % But this we can set to empty, as no fitting done
     if options.chisqr
         perform_fit=false;
-        [dum1,dum2,dum3,chisqr_red]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
+        [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
+        if ~ok, output=cell(1,nop); return, end
     else
-        chisqr_red=0;       % If do not want to use multifit_lsqr because of unwanted checks and overheads
+        p_best=pf;              % Need to have the size of number of free parameters to be useable with p_info
+        sig=zeros(1,numel(pf)); % Likewise
+        cor=zeros(numel(pf));   % Set to zero, as no fitting done
+        chisqr_red=0;           % If do not want to use multifit_lsqr because of unwanted checks and overheads
     end
 end
     
 % Evaluate the functions at the fitted parameter values / input parameter requests with ratios properly resolved)
+% On the face of it, it should not be necessary to re-evaluate the funcion, as this will have been done in multifit_lsqr.
+% However, we may want to evaluate the output object for the whole function, not just the fitted points. If one is cunning,
+% the options.selected==true loop could be eliminated.
 if options.selected
     wout=multifit_func_eval(wmask,xye,func,bkdfunc,pin,bpin,p_best,p_info);
     for i=1:numel(wout) % must expand the calculated values into the unmasked x-y-e triple - may be neater way to do this

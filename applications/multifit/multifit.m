@@ -290,6 +290,7 @@ function varargout = multifit(varargin)
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
 %           Has the same form as the input data. The only exception is if x,y,e were given as
 %          three separate arrays, only ycalc is returned.
+%           If there was a problem i.e. ok==false, wout=[]
 %
 %   fitdata Result of fit for each dataset
 %               fitdata.p      - parameter values
@@ -301,6 +302,11 @@ function varargout = multifit(varargin)
 %                                   (no. of data points) - (no. free parameters))
 %               fitdata.pnames - parameter names
 %               fitdata.bpnames- background parameter names
+%           If there was a problem i.e. ok==false, fitdata=[]
+%
+%   ok      True if all ok, false if problem fitting. 
+%
+%   mess    Character string contaoning error message if ~ok; '' if ok
 %
 %
 %   Examples:
@@ -329,6 +335,8 @@ function varargout = multifit(varargin)
 %
 %   >> [wout,fitdata,ok,mess] = multifit_gateway (...)
 %   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (...,'parsefunc_')
+%
+% See code for multifit_gateway for more details
 
 [ok,mess,output]=multifit_main(varargin{:});
 nout=numel(output);
