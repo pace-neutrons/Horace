@@ -16,12 +16,12 @@ function [u_true, v_true, rlu_corr] = rlu_correct (u, v, alatt, angdeg, omega, d
 
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v;
-b_matrix = bmat (alatt, angdeg);        % bmat takes Vrlu to Vxtal_cart
-ub_matrix = ubmat (u, v, b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
+b_matrix = bmatrix(alatt, angdeg);        % bmat takes Vrlu to Vxtal_cart
+ub_matrix = ubmatrix(u, v, b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 
 % Get matrix to convert from rlu defined by true lattice parameters to orthonormal frame defined by u,v;
-b_matrix_true = bmat (alatt_true, angdeg_true);     % bmat takes Vrlu to Vxtal_cart
-ub_matrix_true = ubmat (u, v, b_matrix_true);       % ubmat takes Vrlu to V in orthonormal frame defined by u, v
+b_matrix_true = bmatrix(alatt_true, angdeg_true);     % bmat takes Vrlu to Vxtal_cart
+ub_matrix_true = ubmatrix(u, v, b_matrix_true);       % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 
 % Matrix to convert coords in orthormal frame defined by *true* directions of u, v, to
 % coords in orthonormal frame defined by *notional* directions of u, v:

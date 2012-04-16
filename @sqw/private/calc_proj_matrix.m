@@ -33,8 +33,8 @@ function [spec_to_proj, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, 
 %
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and 
-b_matrix  = bmat (alatt, angdeg);       % bmat takes Vrlu to Vxtal_cart
-ub_matrix = ubmat (u, v, b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
+b_matrix  = bmatrix(alatt, angdeg);       % bmat takes Vrlu to Vxtal_cart
+ub_matrix = ubmatrix(u, v, b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 u_matrix  = ub_matrix * inv(b_matrix);  % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
 
  

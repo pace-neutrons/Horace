@@ -51,10 +51,10 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = rlu_to_ustep_matrix (alatt, angd
 
 small=1e-12;
 
-[b, arlu, angrlu, mess] = bmat (alatt, angdeg);
+[b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
 if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end
 
-[ub, mess] = ubmat(u,v,b);  % get UB matrix
+[ub, mess] = ubmatrix(u,v,b);  % get UB matrix
 if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end
 
 ubinv = inv(ub);    % inverse

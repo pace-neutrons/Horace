@@ -1,4 +1,4 @@
-function [b, arlu, angrlu, mess] = bmat (alatt, angdeg)
+function [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg)
 % Calculate B matrix of Busing and Levy, returning also the reciprocal
 % lattice vector in Angstrom^-1 and the reciprocal lattice angles in degrees
 %

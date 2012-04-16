@@ -26,7 +26,7 @@ function [spec_to_proj, u_to_rlu] = calc_proj_matrix (this,sample,u,v)
 %
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and 
-[ub_matrix,b_matrix] = ubmat (sample,u,v);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
+[ub_matrix,b_matrix] = ubmatrix(sample,u,v);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 u_matrix = ub_matrix/(b_matrix);   % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
 
 
