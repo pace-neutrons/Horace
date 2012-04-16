@@ -86,7 +86,7 @@ if present.h||present.k||present.l||present.Q
     uhkl=header_ave.u_to_rlu(1:3,1:3)*w.data.pix(1:3,:)+repmat(header_ave.uoffset(1:3),[1,npixtot]);
     if present.Q
         % Get |Q|
-        B=bmat (header_ave.alatt, header_ave.angdeg);     % B matrix of Busing and Levy
+        B=bmatrix(header_ave.alatt, header_ave.angdeg);     % B matrix of Busing and Levy
         qcryst=B*uhkl;
         Q=sqrt(sum(qcryst.^2,1));
     end

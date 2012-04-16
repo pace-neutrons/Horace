@@ -1,4 +1,4 @@
-function [ub, mess] = ubmat (u, v, b)
+function [ub, mess] = ubmatrix (u, v, b)
 % Calculate UB matrix that transforms components of a vector given in r.l.u.
 % into the components in an orthonormal frame defined by the two vectors
 % u and v (each given in r.l.u)

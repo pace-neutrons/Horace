@@ -6,7 +6,7 @@ function  lattice=get_reciprocal_lattice(this,num_cells,k_range)
 %                      cells selected in every dimensions
 % k_range     -- limints to put lattice vectors in
 
- b = bmat (this);
+ b = bmatrix(this);
 
  
  bv{1}=[1;0;0];
