@@ -1,30 +1,30 @@
-function [wout, fitdata, ok, mess] = fit_func(win, varargin)
+function [wout, fitdata, ok, mess] = fit(win, varargin)
 % Fits a function to an object, with an optional background function.
 % If passed an array of objects, then each object is fitted independently.
 %
-% For full help, read documentation for sqw object fit_func:
+% Synonumous with fit_func. For full help, read documentation for sqw object fit_func:
 %   >> help sqw/fit_func
 %
 % Differs from multifit_func, which fits all objects in the array simultaneously
 % but with independent backgrounds.
 %
 % Fit several objects in succession to a given function:
-%   >> [wout, fitdata] = fit_func (w, func, pin)                 % all parameters free
-%   >> [wout, fitdata] = fit_func (w, func, pin, pfree)          % selected parameters free to fit
-%   >> [wout, fitdata] = fit_func (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
+%   >> [wout, fitdata] = fit (w, func, pin)                 % all parameters free
+%   >> [wout, fitdata] = fit (w, func, pin, pfree)          % selected parameters free to fit
+%   >> [wout, fitdata] = fit (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
 %
 % With optional 'background' function added to the function
-%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = fit (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = fit (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = fit (..., bkdfunc, bpin, bpfree, bpbind)
 %
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit, call with additional arguments that return status and error message:
 %
-%   >> [wout, fitdata, ok, mess] = fit_func (...)
+%   >> [wout, fitdata, ok, mess] = fit (...)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
-%   >> [wout, fitdata] = fit_func (..., keyword, value, ...)
+%   >> [wout, fitdata] = fit (..., keyword, value, ...)
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -36,12 +36,12 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 %       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
 %
 %   Example:
-%   >> [wout, fitdata] = fit_func (..., 'keep', xkeep, 'list', 0)
+%   >> [wout, fitdata] = fit (..., 'keep', xkeep, 'list', 0)
 
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 301 $ ($Date: 2009-11-03 20:52:59 +0000 (Tue, 03 Nov 2009) $)
 
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------

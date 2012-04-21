@@ -1,6 +1,6 @@
-function [wout, fitdata] = fit_func(win, varargin)
-% Fits a function to an sqw object. If passed an array of 
-% sqw objects, then each is fitted independently to the same function.
+function [wout, fitdata, ok, mess] = fit_func(win, varargin)
+% Fits a function to an sqw object, with an optional background function.
+% If passed an array of sqw objects, then each object is fitted independently.
 %
 % Differs from multifit_func, which fits all objects in the array simultaneously
 % but with independent backgrounds.
@@ -15,6 +15,11 @@ function [wout, fitdata] = fit_func(win, varargin)
 %   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree)
 %   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree, bpbind)
 %
+% If unable to fit, then the program will halt and display an error message. 
+% To return if unable to fit, call with additional arguments that return status and error message:
+%
+%   >> [wout, fitdata, ok, mess] = fit_func (...)
+%
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [wout, fitdata] = fit_func (..., keyword, value, ...)
 %   Keywords are:
@@ -24,10 +29,11 @@ function [wout, fitdata] = fit_func(win, varargin)
 %       'select'    if present, calculate output function only at the points retained for fitting
 %       'list'      indicates verbosity of output during fitting
 %       'fit'       alter convergence critera for the fit etc.
+%       'evaluate'  evaluate function at initial parameter values only, with argument check as well
+%       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
 %
 %   Example:
 %   >> [wout, fitdata] = fit_func (..., 'keep', xkeep, 'list', 0)
-%
 %
 %
 % Input:
@@ -42,6 +48,7 @@ function [wout, fitdata] = fit_func(win, varargin)
 %            or, more generally:
 %               y = my_function (x1,x2,... ,xn,p,c1,c2,...)
 %
+%               - x1,x2,.xn Arrays of x coordinates along each of the n dimensions
 %               - p         a vector of numeric parameters that can be fitted
 %               - c1,c2,... any further arguments needed by the function e.g.
 %                          they could be the filenames of lookup tables for
@@ -51,7 +58,7 @@ function [wout, fitdata] = fit_func(win, varargin)
 %               function y = gauss2d(x1,x2,p)
 %               y = p(1).*exp(-0.5*(((x1 - p(2))/p(4)).^2+((x2 - p(3))/p(5)).^2);
 %
-%   pin     Initial function parameter values [pin(1), pin(2)...]
+%   pin     Initial function parameter values
 %            - If the function my_function takes just a numeric array of parameters, p, then this
 %             contains the initial values [pin(1), pin(2)...]
 %            - If further parameters are needed by the function, then wrap as a cell array
@@ -80,8 +87,8 @@ function [wout, fitdata] = fit_func(win, varargin)
 %   Optional background function:
 %   --------------------------------
 %
-%   bkdfunc     -|  Arguments for the background function, defined as for the 'foreground'
-%   bpin         |  parameters.
+%   bkdfunc     -|  Arguments for the background function, defined as for the foreground
+%   bpin         |  function.
 %   bpfree       |
 %   bpbind      -|
 %       
@@ -89,10 +96,10 @@ function [wout, fitdata] = fit_func(win, varargin)
 %               {1,4}         Background parameter (bp) 1 is bound to bp 3, with the fixed
 %                                  ratio determined by the initial values
 %               
-%               {5,11,0}      Bp 5 bound to parameter 11 of the global fitting function, func
+%               {5,11,0}      Bp 5 bound to parameter 11 of the foreground fitting function, func
 %               {5,11,1}      Bp 5 bound to parameter 11 of the background function
 %
-%               {5,11,0,0.013}      Explicit ratio for binding bp 5 to parameter 11 of the global fitting function
+%               {5,11,0,0.013}      Explicit ratio for binding bp 5 to parameter 11 of the foreground fitting function
 %               {1,4,1,14.15}       Explicit ratio for binding bp 1 to bp 4 of background function
 %
 %           Several binding descriptions:
@@ -142,13 +149,25 @@ function [wout, fitdata] = fit_func(win, varargin)
 %           not eliminated for having zero error bar etc; this is useful for plotting the output, as
 %           only those points that contributed to the fit will be plotted.
 %
+%  A final useful pair of keyword is:
+%
+%  'evaluate'   Evaluate the fitting function at the initial parameter values only. Useful for
+%               checking the validity of starting parameters.
+%
+%  'chisqr'     If 'evaulate' is set, then if this option keyword is present the reduced
+%               chi-squared is evaluated. Otherewise, chi-squared is set to zero.
+%
 % Output:
 % =======
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
+%           If there was a problem for ith data set i.e. ok(i)==false, then wout(i)==w(i) (or wout{i}
+%          =[] if cell array input). 
+%           If there was a fundamental problem e.g. incorrect input argument
+%          syntax, then fitdata=[].
 %
 %   fitdata Result of fit for each dataset
 %               fitdata.p      - parameter values
-%               fitdata.sig    - estimated errors of global parameters (=0 for fixed parameters)
+%               fitdata.sig    - estimated errors of foreground parameters (=0 for fixed parameters)
 %               fitdata.bp     - background parameter values
 %               fitdata.bsig   - estimated errors of background (=0 for fixed parameters)
 %               fitdata.corr   - correlation matrix for free parameters
@@ -156,6 +175,22 @@ function [wout, fitdata] = fit_func(win, varargin)
 %                                   (no. of data points) - (no. free parameters))
 %               fitdata.pnames - parameter names
 %               fitdata.bpnames- background parameter names
+%           If there was a problem for ith data set i.e. ok(i)==false, then fitdata(i)
+%          will be dummy. 
+%           If there was a fundamental problem e.g. incorrect input argumnet syntax, then
+%          fitdata=[].
+%
+%   ok      True if all ok, false if problem fitting. 
+%           If an array of input datasets was given, then ok is an array with the size of the
+%          input data array. 
+%           If the error was fundamental e.g. wrong argument syntax, then ok will be a scalar.
+%
+%   mess    Character string contaoning error message if ~ok; '' if ok
+%           If an array of datasets was given, then mess is a cell array of strings with the
+%          same size as the input data array. 
+%           If the error was fundamental e.g. wrong argument syntax, then
+%          mess will be a simple character string.
+%
 %
 % EXAMPLES: 
 %
@@ -181,16 +216,23 @@ function [wout, fitdata] = fit_func(win, varargin)
 % $Revision$ ($Date$)
 
 
-% Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations
-% before a 0D object is found in the array
-for i = 1:numel(win)
-    if isempty(win(i).data.pax)
-        error('multifit_func not supported for zero dimensional objects');
-    end
+% Catch case of a single dataset input
+% ------------------------------------
+if numel(win)==1
+    [wout,fitdata,ok,mess]=multifit_func(win,varargin{:});
+    if ~ok && nargout<3, error(mess), end
+    return
 end
 
+% Case of more than one dataset input
+% -----------------------------------
 % Parse the input arguments, and repackage for fit func
-[pos,func,plist,bpos,bfunc,bplist] = multifit (win(1), varargin{:},'parsefunc_');
+[pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win(1), varargin{:},'parsefunc_');
+if ~ok
+    wout=[]; fitdata=[];
+    if nargout<3, error(mess), else return, end
+end
+
 plist={func,plist};
 if ~isempty(bpos)
     for i=1:numel(bfunc)
@@ -207,14 +249,23 @@ end
 
 % Evaluate function for each element of the array of sqw objects
 wout=win;
+fitdata=repmat(struct,size(wout));  % array of empty structures
+ok=false(size(wout));
+mess=cell(size(wout));
 
+ok_fit_performed=false;
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
-    if i==1
-        [wout(i),fitdata] = multifit (win(i), varargin{:});
-        if numel(win)>1
-            fitdata=repmat(fitdata,size(win));  % preallocate
+    [wout_tmp,fitdata_tmp,ok(i),mess{i}] = multifit_gateway (win(i), varargin{:});
+    if ok(i)
+        wout(i)=wout_tmp;
+        if ~ok_fit_performed
+            ok_fit_performed=true;
+            fitdata=expand_as_empty_structure(fitdata_tmp,size(wout),i);
+        else
+            fitdata(i)=fitdata_tmp;
         end
     else
-        [wout(i),fitdata(i)] = multifit (win(i), varargin{:});
+        if nargour<3, error([mess{i}, ' (dataset ',num2str(i),')']), end
+        disp(['ERROR (dataset ',num2str(i),'): ',mess{i}])
     end
 end

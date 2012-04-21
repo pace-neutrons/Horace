@@ -41,7 +41,7 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 301 $ ($Date: 2009-11-03 20:52:59 +0000 (Tue, 03 Nov 2009) $)
 
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------

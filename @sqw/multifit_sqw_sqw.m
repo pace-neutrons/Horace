@@ -1,6 +1,6 @@
-function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
-% Simultaneously fits a model for S(Q,w) to an array of sqw objects, with background
-% functions (which are also S(Q,w) models, varying independently for each sqw object. 
+function [wout, fitdata, ok, mess] = multifit_sqw_sqw(win, varargin)
+% Simultaneously fit a model for S(Q,w) to an array of sqw objects.
+% Optionally allows background functions,which are also S(Q,w) models, that vary independently for each sqw object. 
 %
 % Simultaneously fit several objects to a given function:
 %   >> [wout, fitdata] = multifit_sqw_sqw (w, func, pin)                 % all parameters free
@@ -11,6 +11,11 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 %   >> [wout, fitdata] = multifit_sqw_sqw (..., bkdfunc, bpin)
 %   >> [wout, fitdata] = multifit_sqw_sqw (..., bkdfunc, bpin, bpfree)
 %   >> [wout, fitdata] = multifit_sqw_sqw (..., bkdfunc, bpin, bpfree, bpbind)
+%
+% If unable to fit, then the program will halt and display an error message. 
+% To return if unable to fit, call with additional arguments that return status and error message:
+%
+%   >> [wout, fitdata, ok, mess] = multifit_sqw_sqw (...)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [wout, fitdata] = multifit_sqw_sqw (..., keyword, value, ...)
@@ -24,9 +29,7 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate function at initial parameter values only, with argument check as well
 %       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
-%
-%       'average'   if sqw object, then compute the function at the average h,k,l,e of the pixels in a bin
-%
+%       'average'   compute the function at the average h,k,l,e of the pixels in a bin
 %
 %   Example:
 %   >> [wout, fitdata] = multifit_sqw_sqw (..., 'keep', xkeep, 'list', 0)
@@ -54,7 +57,7 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 %               c1,c2,...   Other constant parameters e.g. file name for look-up
 %                          table
 %
-%   pin     Initial function parameter values [pin(1), pin(2)...]
+%   pin     Initial function parameter values
 %            - If the function my_function takes just a numeric array of parameters, p, then this
 %             contains the initial values [pin(1), pin(2)...]
 %            - If further parameters are needed by the function, then wrap as a cell array
@@ -178,7 +181,7 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 %           not eliminated for having zero error bar etc; this is useful for plotting the output, as
 %           only those points that contributed to the fit will be plotted.
 %
-%  A final useful pair of keyword is:
+%  A final useful set of keyword is:
 %
 %  'evaluate'   Evaluate the fitting function at the initial parameter values only. Useful for
 %               checking the validity of starting parameters.
@@ -193,6 +196,7 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 % Output:
 % =======
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
+%           If there was a problem i.e. ok==false, wout=[]
 %
 %   fitdata Result of fit for each dataset
 %               fitdata.p      - parameter values
@@ -204,6 +208,11 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 %                                   (no. of data points) - (no. free parameters))
 %               fitdata.pnames - parameter names
 %               fitdata.bpnames- background parameter names
+%           If there was a problem i.e. ok==false, fitdata=[]
+%
+%   ok      True if all ok, false if problem fitting. 
+%
+%   mess    Character string contaoning error message if ~ok; '' if ok
 %
 %
 % EXAMPLES: 
@@ -212,12 +221,13 @@ function [wout, fitdata] = multifit_sqw_sqw(win, varargin)
 %   >> weight=100; SJ; gamma=3;
 %   >> [wfit, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0])
 %
-% If an array of 1D cuts: allow all parameters to vary, only keep data in restricted range, and allow
-% independent linear background for each cut in the units of the x axis:
-%   >> weight=100; SJ; gamma=3;
-%   >> const=0; slope=0;
-%   >> [wfit, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], @linear, [const,slope]...
-%                               'keep',[-1.5,0.5])
+% The background S(Q,w) can be used to have some parameters of a global cross-section model float independently
+% for e.g. If an array of 1D sqw objects: fit from -1.5 to 0.5 allowing width and intensity to be independent,
+% but have global exchange:
+%   >> ht=100; SJ=10; gamma=3;
+%   >> ht_dummy=0; gamma_dummy=1;   % ht=0 forces foreground to have zero constribution to calculated signal
+%   >> [wfit, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht_dummy,SJ,gamma_dummy], [0,1,0],...
+%                             @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,1], {{{2,2,0}}}, 'keep',[-1.5,0.5])
 
 % First, strip out the appearance of the keyword 'average'
 keep_arg=true(size(varargin));
@@ -234,7 +244,12 @@ end
 varargin=varargin(keep_arg);
 
 % Parse the input arguments, and repackage for fit sqw
-[pos,func,plist,bpos,bfunc,bplist] = multifit (win, varargin{:},'parsefunc_');
+[pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win, varargin{:},'parsefunc_');
+if ~ok
+    wout=[]; fitdata=[];
+    if nargout<3, error(mess), else return, end
+end
+
 if ~ave_pix, plist={func,plist}; else plist={func,plist,'ave'}; end
 if ~isempty(bpos)
     for i=1:numel(bfunc)
@@ -250,4 +265,7 @@ if ~isempty(bpos)
 end
 
 % Perform the fit
-[wout,fitdata] = multifit (win, varargin{:});
+[wout,fitdata,ok,mess] = multifit_gateway (win, varargin{:});
+if ~ok && nargout<3
+    error(mess)
+end

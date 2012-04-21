@@ -1,27 +1,27 @@
-function [wout, fitdata, ok, mess] = fit_sqw(win, varargin)
-% Fit a model for S(Q,w) to an sqw object, with an optional background function.
+function [wout, fitdata, ok, mess] = fit_sqw_sqw(win, varargin)
+% Fit a model for S(Q,w) to an sqw object, with an optional background function that is also a model for S(Q,w).
 % If passed an array of sqw objects, then each object is fitted independently.
 %
-% Differs from multifit_sqw, which fits all objects in the array simultaneously
+% Differs from multifit_sqw_sqw, which fits all objects in the array simultaneously
 % but with independent backgrounds.
 %
 % Fit several objects in succession to a given function:
-%   >> [wout, fitdata] = fit_sqw (w, func, pin)                 % all parameters free
-%   >> [wout, fitdata] = fit_sqw (w, func, pin, pfree)          % selected parameters free to fit
-%   >> [wout, fitdata] = fit_sqw (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
+%   >> [wout, fitdata] = fit_sqw_sqw (w, func, pin)                 % all parameters free
+%   >> [wout, fitdata] = fit_sqw_sqw (w, func, pin, pfree)          % selected parameters free to fit
+%   >> [wout, fitdata] = fit_sqw_sqw (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios
 %
 % With optional 'background' function added to the function
-%   >> [wout, fitdata] = fit_sqw (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = fit_sqw (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = fit_sqw (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = fit_sqw_sqw (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = fit_sqw_sqw (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = fit_sqw_sqw (..., bkdfunc, bpin, bpfree, bpbind)
 %
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit, call with additional arguments that return status and error message:
 %
-%   >> [wout, fitdata, ok, mess] = fit_sqw (...)
+%   >> [wout, fitdata, ok, mess] = fit_sqw_sqw (...)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
-%   >> [wout, fitdata] = fit_sqw (..., keyword, value, ...)
+%   >> [wout, fitdata] = fit_sqw_sqw (..., keyword, value, ...)
 %   Keywords are:
 %       'keep'      range of x values to keep
 %       'remove'    range of x values to remove
@@ -34,7 +34,7 @@ function [wout, fitdata, ok, mess] = fit_sqw(win, varargin)
 %       'average'   compute the function at the average h,k,l,e of the pixels in a bin
 %
 %   Example:
-%   >> [wout, fitdata] = fit_sqw (..., 'keep', xkeep, 'list', 0)
+%   >> [wout, fitdata] = fit_sqw_sqw (..., 'keep', xkeep, 'list', 0)
 %
 %
 % Input:
@@ -89,35 +89,10 @@ function [wout, fitdata, ok, mess] = fit_sqw(win, varargin)
 %   Optional background function:
 %   --------------------------------
 %
-%   bkdfunc Handle to background function
-%           The background function is assumed to be defined by the axes x1,x2,...xn (n=number of dimensions).
-%           Must have form:
-%               y = my_function (x1,x2,... ,xn,p)
-%
-%            or, more generally:
-%               y = my_function (x1,x2,... ,xn,p,c1,c2,...)
-%
-%               - x1,x2,.xn Arrays of x coordinates along each of the n dimensions
-%               - p         a vector of numeric parameters that can be fitted
-%               - c1,c2,... any further arguments needed by the function e.g.
-%                          they could be the filenames of lookup tables for
-%                          resolution effects)
-%           
-%           e.g. Two dimensional Gaussian:
-%               function y = gauss2d(x1,x2,p)
-%               y = p(1).*exp(-0.5*(((x1 - p(2))/p(4)).^2+((x2 - p(3))/p(5)).^2);
-%
-%   bpin    Initial function parameter values
-%            - If the function my_function takes just a numeric array of parameters, bp, then this
-%             contains the initial values [bpin(1), bpin(2)...]
-%            - If further parameters are needed by the function, then wrap as a cell array
-%               {[bpin(1), bpin(2)...], c1, c2, ...} 
-%
-%   bpfree  [Optional] Indicates which are the free parameters in the fit
-%           e.g. [1,0,1,0,0] indicates first and third are free
-%           Default: all are free
-%
-%   bpbind  [Optional] Cell array that indicates which of the free parameters are bound to other parameters
+%   bkdfunc     -|  Arguments for the background function, defined as for the foreground
+%   bpin         |  function.
+%   bpfree       |
+%   bpbind      -|
 %       
 %           Examples of a single binding description:
 %               {1,4}         Background parameter (bp) 1 is bound to bp 3, with the fixed
@@ -214,21 +189,20 @@ function [wout, fitdata, ok, mess] = fit_sqw(win, varargin)
 % EXAMPLES: 
 %
 % Fit a spin waves to a collection of sqw objects, allowing only intensity and coupling constant to vary:
-%   >> weight=100; SJ; gamma=3;
-%   >> [wfit, fdata] = fit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0])
+%   >> ht=100; SJ; gamma=3;
+%   >> [wfit, fdata] = fit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0])
 %
-% If an array of 1D cuts: allow all parameters to vary, only keep data in restricted range, and allow
-% independent linear background for each cut in the units of the x axis:
-%   >> weight=100; SJ; gamma=3;
-%   >> const=0; slope=0;
-%   >> [wfit, fdata] = fit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], @linear, [const,slope]...
+% Fit aan array of cuts independently, with spin waves on to ov a broad paramagnon response
+%   >> ht=100; SJ; gamma=3;
+%   >> ht_pm-5; gamma0_pm=4;
+%   >> [wfit, fdata] = fit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], @paramagnon, [ht_pm,gamma0_pm]...
 %                               'keep',[-1.5,0.5])
 
 
 % Catch case of a single dataset input
 % ------------------------------------
 if numel(win)==1
-    [wout,fitdata,ok,mess]=multifit_sqw(win,varargin{:});
+    [wout,fitdata,ok,mess]=multifit_sqw_sqw(win,varargin{:});
     if ~ok && nargout<3, error(mess), end
     return
 end
@@ -259,14 +233,14 @@ end
 if ~ave_pix, plist={func,plist}; else plist={func,plist,'ave'}; end
 if ~isempty(bpos)
     for i=1:numel(bfunc)
-        bplist{i}={bfunc{i},bplist{i}};
+        if ~ave_pix, bplist{i}={bfunc{i},bplist{i}}; else  bplist{i}={bfunc{i},bplist{i},'ave'}; end
     end
 end
 pos=pos-1; bpos=bpos-1;     % Recall that first argument in the call to multifit was win
 varargin{pos}=@sqw_eval;    % The fit function needs to be sqw_eval
 varargin{pos+1}=plist;
 if ~isempty(bpos)
-    varargin{bpos}=@func_eval;
+    varargin{bpos}=@sqw_eval;
     varargin{bpos+1}=bplist;
 end
 

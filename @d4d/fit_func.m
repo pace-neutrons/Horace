@@ -1,8 +1,8 @@
-function [wout, fitdata] = fit_func(win, varargin)
-% Fits a function to an object. If passed an array of 
-% objects, then each is fitted independently to the same function.
+function [wout, fitdata, ok, mess] = fit_func(win, varargin)
+% Fits a function to an object, with an optional background function.
+% If passed an array of objects, then each object is fitted independently.
 %
-% For full help, read documentation for sqw object  fit_func:
+% For full help, read documentation for sqw object fit_func:
 %   >> help sqw/fit_func
 %
 % Differs from multifit_func, which fits all objects in the array simultaneously
@@ -18,6 +18,11 @@ function [wout, fitdata] = fit_func(win, varargin)
 %   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree)
 %   >> [wout, fitdata] = fit_func (..., bkdfunc, bpin, bpfree, bpbind)
 %
+% If unable to fit, then the program will halt and display an error message. 
+% To return if unable to fit, call with additional arguments that return status and error message:
+%
+%   >> [wout, fitdata, ok, mess] = fit_func (...)
+%
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [wout, fitdata] = fit_func (..., keyword, value, ...)
 %   Keywords are:
@@ -27,6 +32,8 @@ function [wout, fitdata] = fit_func(win, varargin)
 %       'select'    if present, calculate output function only at the points retained for fitting
 %       'list'      indicates verbosity of output during fitting
 %       'fit'       alter convergence critera for the fit etc.
+%       'evaluate'  evaluate function at initial parameter values only, with argument check as well
+%       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
 %
 %   Example:
 %   >> [wout, fitdata] = fit_func (..., 'keep', xkeep, 'list', 0)
@@ -40,5 +47,9 @@ function [wout, fitdata] = fit_func(win, varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-[wout, fitdata] = fit_func(sqw(win), varargin{:});
+if nargout<3
+    [wout,fitdata]=fit_func(sqw(win), varargin{:});  % forces failure if there is an error, as is the convention for fit when no ok argument
+else
+    [wout,fitdata,ok,mess]=fit_func(sqw(win), varargin{:});
+end
 wout=dnd(wout);

@@ -37,8 +37,10 @@ end
 
 % Make S and ERR matrix of ones, so that when combined in an SQW file we
 % should be able to work out how good the errorbars on our measurement will be.
-S=psi.*(ones(numel(energy)-1,ndet));
-ERR=ones(size(S));
+% S=psi.*(ones(numel(energy)-1,ndet));
+% ERR=ones(size(S));
+S=randn(numel(energy)-1,ndet);
+ERR=rand(size(S));
 
 temp.filename=filename; % needed here as constructor will not work otherwise
 temp.filepath=filepath;
