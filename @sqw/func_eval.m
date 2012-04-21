@@ -9,17 +9,26 @@ function wout = func_eval (win, func_handle, pars, opt)
 %   win         Dataset or array of datasets; the function will be evaluated
 %              at the bin centres along the plot axes
 %
-%   func_handle Handle to the function to be evaluated
-%              Function must be of form y = my_func(x,pars)
-%               e.g. y=gauss2d(x,[ht,x0,sig])
-%                    y=gauss4d(x1,x2,x3,x4,[ht,x1_0,x2_0,x3_0,x4_0,sig1,sig2,sig3,sig4])
-%              and must accept arrays of the coordinate values of the points
-%              along each dimension i.e. one array for each dimension.
-%               It returns an array of the function values.
+%   func_handle Handle to the function to be evaluated at the bin centres
+%               Must have form:
+%                   y = my_function (x1,x2,... ,xn,pars)
 %
-%   pars        Arguments needed by the function. Most commonly, a vector of parameter
-%              values e.g. [height, centre, width]. If a more general set of parameters,
-%              package these into a cell array and pass that as pars.
+%               or, more generally:
+%                   y = my_function (x1,x2,... ,xn,pars,c1,c2,...)
+%
+%               - x1,x2,.xn Arrays of x coordinates along each of the n dimensions
+%               - pars      Parameters needed by the function
+%               - c1,c2,... Any further arguments needed by the function e.g.
+%                          they could be the filenames of lookup tables for
+%                          resolution effects)
+%
+%               e.g. y=gauss2d(x1,x2,[ht,x0,sig])
+%                    y=gauss4d(x1,x2,x3,x4,[ht,x1_0,x2_0,x3_0,x4_0,sig1,sig2,sig3,sig4])
+%
+%   pars        Arguments needed by the function. 
+%                - Most commonly just a numeric array of parameters
+%                - If a more general set of parameters is needed by the function, then
+%                  wrap as a cell array {pars, c1, c2, ...}
 %
 %   'all'       [option] Requests that the calculated function be returned over
 %              the whole of the domain of the input dataset. If not given, then

@@ -1,6 +1,6 @@
-function [wout, fitdata] = multifit_func(win, varargin)
-% Simultaneously fits a function to an array of sqw objects, with background
-% functions varying independently for each sqw object. 
+function [wout, fitdata, ok, mess] = multifit_func(win, varargin)
+% Simultaneously fit a function to an array of sqw objects.
+% Optionally allows background functions that vary independently for each sqw object. 
 %
 % Simultaneously fit several objects to a given function:
 %   >> [wout, fitdata] = multifit_func (w, func, pin)                 % all parameters free
@@ -11,6 +11,11 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %   >> [wout, fitdata] = multifit_func (..., bkdfunc, bpin)
 %   >> [wout, fitdata] = multifit_func (..., bkdfunc, bpin, bpfree)
 %   >> [wout, fitdata] = multifit_func (..., bkdfunc, bpin, bpfree, bpbind)
+%
+% If unable to fit, then the program will halt and display an error message. 
+% To return if unable to fit, call with additional arguments that return status and error message:
+%
+%   >> [wout, fitdata, ok, mess] = multifit_func (...)
 %
 % Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
 %   >> [wout, fitdata] = multifit_func (..., keyword, value, ...)
@@ -24,9 +29,6 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate function at initial parameter values only, with argument check as well
 %       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
-%
-%       'average'   if sqw object, then compute the function at the average h,k,l,e of the pixels in a bin
-%
 %
 %   Example:
 %   >> [wout, fitdata] = multifit_func (..., 'keep', xkeep, 'list', 0)
@@ -44,6 +46,7 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %            or, more generally:
 %               y = my_function (x1,x2,... ,xn,p,c1,c2,...)
 %
+%               - x1,x2,.xn Arrays of x coordinates along each of the n dimensions
 %               - p         a vector of numeric parameters that can be fitted
 %               - c1,c2,... any further arguments needed by the function e.g.
 %                          they could be the filenames of lookup tables for
@@ -53,7 +56,7 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %               function y = gauss2d(x1,x2,p)
 %               y = p(1).*exp(-0.5*(((x1 - p(2))/p(4)).^2+((x2 - p(3))/p(5)).^2);
 %
-%   pin     Initial function parameter values [pin(1), pin(2)...]
+%   pin     Initial function parameter values
 %            - If the function my_function takes just a numeric array of parameters, p, then this
 %             contains the initial values [pin(1), pin(2)...]
 %            - If further parameters are needed by the function, then wrap as a cell array
@@ -96,7 +99,22 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %              corresponding index of that expanded array).
 %            - Otherwise, the size of the cell array must match the size of w, and there
 %              will be a one-to-one correspondence of the background function handles to the elements of w.
-%              The form required for the functions is identical to that for func above.
+%
+%           The form required for the functions is identical to that for func above, i.e.
+%               y = my_function (x1,x2,... ,xn,p)
+%
+%            or, more generally:
+%               y = my_function (x1,x2,... ,xn,p,c1,c2,...)
+%
+%               - x1,x2,.xn Arrays of x coordinates along each of the n dimensions
+%               - p         a vector of numeric parameters that can be fitted
+%               - c1,c2,... any further arguments needed by the function e.g.
+%                          they could be the filenames of lookup tables for
+%                          resolution effects)
+%           
+%           e.g. Two dimensional Gaussian:
+%               function y = gauss2d(x1,x2,p)
+%               y = p(1).*exp(-0.5*(((x1 - p(2))/p(4)).^2+((x2 - p(3))/p(5)).^2);
 %   
 %   bpin    Cell array of initial parameter values for the background function(s), following the 
 %           same definitions and conventions as pin
@@ -189,6 +207,7 @@ function [wout, fitdata] = multifit_func(win, varargin)
 % Output:
 % =======
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
+%           If there was a problem i.e. ok==false, wout=[]
 %
 %   fitdata Result of fit for each dataset
 %               fitdata.p      - parameter values
@@ -200,6 +219,12 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %                                   (no. of data points) - (no. free parameters))
 %               fitdata.pnames - parameter names
 %               fitdata.bpnames- background parameter names
+%           If there was a problem i.e. ok==false, fitdata=[]
+%
+%   ok      True if all ok, false if problem fitting. 
+%
+%   mess    Character string contaoning error message if ~ok; '' if ok
+%
 %
 % EXAMPLES: 
 %
@@ -207,9 +232,11 @@ function [wout, fitdata] = multifit_func(win, varargin)
 %   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
 %   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], [1,1,1,0,0,0])
 %
-% Allow all parameters to vary, but remove two rectangles from the data
+% Allow all parameters to vary, but remove two rectangles from the data and allow
+% independent planar background for each plane in the units of the x and y axes:
 %   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
-%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
+%   >> const=0; slope_x=0; slope_y=0;
+%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], @planar, [const,slope_x,slope_y], ...
 %                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
 
 
@@ -218,16 +245,13 @@ function [wout, fitdata] = multifit_func(win, varargin)
 % $Revision$ ($Date$)
 
 
-% Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations
-% before a 0D object is found in the array
-for i = 1:numel(win)
-    if isempty(win(i).data.pax)
-        error('multifit_func not supported for zero dimensional objects');
-    end
+% Parse the input arguments, and repackage for fit func
+[pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win, varargin{:},'parsefunc_');
+if ~ok
+    wout=[]; fitdata=[];
+    if nargout<3, error(mess), else return, end
 end
 
-% Parse the input arguments, and repackage for fit func
-[pos,func,plist,bpos,bfunc,bplist] = multifit (win, varargin{:},'parsefunc_');
 plist={func,plist};
 if ~isempty(bpos)
     for i=1:numel(bfunc)
@@ -243,4 +267,7 @@ if ~isempty(bpos)
 end
 
 % Perform the fit
-[wout,fitdata] = multifit (win, varargin{:});
+[wout,fitdata,ok,mess] = multifit_gateway (win, varargin{:});
+if ~ok && nargout<3
+    error(mess)
+end
