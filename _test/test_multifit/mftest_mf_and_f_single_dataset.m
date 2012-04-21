@@ -1,7 +1,17 @@
 function [y1_fit, wstruct1_fit, w1_fit, p1_fit] = mftest_mf_and_f_single_dataset (x1,y1,e1,wstruct1,w1,varargin)
-% Test the equivalence of multifit and fit for xye, structure and IX_dataset_1d input
+% Test, for single dataset 
+% - equivalence of fitting xye, structure and IX_dataset_1d input in multifit, and
+% - equivalence of multifit and fit
 %
-%   >> [y1_fit, wstruct1_fit, w1_fit] = multifit_test_gauss1d (x1,y1,e1,wstruct1,w1,varargin)
+%   >> [y1_fit, wstruct1_fit, w1_fit] = mftest_mf_and_f_single_dataset (x1,y1,e1,wstruct1,w1,varargin)
+%
+%   x1,y1,e1    x,y,e data in standard form for multifit
+%   wstruct1    equivalent structure with fields x,y,e
+%   w1          object with equivalent x-y-e data
+%
+% Note that the input can be for an arbitrary dimensional object; varargin needs to be
+% the set of arguments to be passed to fit and multifit following the input data set.
+
 tol=0;
 
 % Perform multifit

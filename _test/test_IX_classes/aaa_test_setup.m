@@ -1,8 +1,8 @@
-function aaa_setup (varargin)
+function aaa_test_setup (varargin)
 % Setup tests for IX_dataset_nd objects
 %
-%   >> test_setup           % setup tests
-%   >> test_setup('off')    % turn off tests
+%   >> aaa_test_setup           % setup tests
+%   >> aaa_test_setup('off')    % turn off tests
 %
 % Adds some folders to the path, or if the tests are turned off, removes them
 % and sets force_mex_if_use_mex==false.

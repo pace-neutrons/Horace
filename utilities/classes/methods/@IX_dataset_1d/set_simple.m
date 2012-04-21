@@ -29,6 +29,6 @@ for i = 1:m
         case 'x_distribution'
             w.x_distribution = varargin{2*i};
         otherwise
-            error ([prop_name ' is not a valid property of a tofpar'])
+            error ([prop_name ' is not a valid property of an IX_dataset_1d'])
     end
 end

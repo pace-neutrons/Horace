@@ -1,7 +1,7 @@
 function [ok,mess,par,ind,val]=parse_args_simple_ok_syntax (keywords,varargin)
 % Simple verification that argument list has form: par1, par2, par3, ..., key1, val1, key2, val2, ...
 %
-%   >> [ok,mess,ind,val]= ...
+%   >> [ok,mess,par,ind,val]= ...
 %         parse_args_simple_ok_syntax (keywords, par1, par2, ..., key1, val1, key2, val2, ...)
 %
 % Input:
@@ -35,7 +35,7 @@ end
 % Check validity
 if ikeystart<=numel(varargin)   % at least one keyword
     [ok,mess,ind,val]=parse_keywords(keywords,varargin{ikeystart:end});
-    if ~ok, error(mess), end
+    if ~ok, par={}; return, end
 else
     ok=true;
     mess='';

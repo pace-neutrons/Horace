@@ -143,8 +143,11 @@ function [wout,fitdata,ok,mess] = fit(varargin)
 %                   multifit (w, @resconv, {@my_sqwfunc, {p, c1, c2,...}, res_p1, res_p2,...})
 %
 %
-%   pin     Initial function parameter values [pin(1), pin(2)...] of the numeric values that
-%           can be fitted. That is, the array p in the documentation for func above.
+%   pin     Initial function parameter values
+%            - If the function my_function takes just a numeric array of parameters, p, then this
+%             contains the initial values [pin(1), pin(2)...]
+%            - If further parameters are needed by the function, then wrap as a cell array
+%               {[pin(1), pin(2)...], c1, c2, ...}  
 %
 %   pfree   [Optional] Indicates which are the free parameters in the fit.
 %           e.g. if length(p)=5, then pfree=[1,0,1,0,0] indicates first and third are free
@@ -311,7 +314,7 @@ function [wout,fitdata,ok,mess] = fit(varargin)
 %          so its size is not meaningful.
 %
 %   mess    Character string contaoning error message if ~ok; '' if ok
-%           If an array of datasets was given, tehn mess is a cell array of strings with the
+%           If an array of datasets was given, then mess is a cell array of strings with the
 %          same size as the input data array. If the error was fundamental e.g. wrong argument syntax, then
 %          mess will be a simple character string, as the dataset argument may have been an unrecognised type and
 %          so its size is not meaningful.
@@ -383,7 +386,7 @@ if numel(varargin)>1
                         mess=cell(size(varargin{1}));
                         ok_fit_performed=false;
                         for id=1:numel(varargin{1})
-                            [wout{id},fitdata_tmp,ok(id),mess{i}]=multifit(varargin{1}{id},varargin{2:end});
+                            [wout{id},fitdata_tmp,ok(id),mess{id}]=multifit(varargin{1}{id},varargin{2:end});
                             if ok(id)
                                 if ~ok_fit_performed
                                     ok_fit_performed=true;
@@ -392,7 +395,7 @@ if numel(varargin)>1
                                     fitdata(id)=fitdata_tmp;
                                 end
                             else
-                                disp(['ERROR (dataset ',num2str(id),'): ',mess{i}])
+                                disp(['ERROR (dataset ',num2str(id),'): ',mess{id}])
                             end
                         end
                     end
@@ -408,7 +411,7 @@ if numel(varargin)>1
                         mess=cell(size(varargin{1}));
                         ok_fit_performed=false;
                         for id=1:numel(varargin{1})
-                            [wout_tmp,fitdata_tmp,ok(id),mess{i}]=multifit(varargin{1}(id),varargin{2:end});
+                            [wout_tmp,fitdata_tmp,ok(id),mess{id}]=multifit(varargin{1}(id),varargin{2:end});
                             if ok(id)
                                 wout(id)=wout_tmp;
                                 if ~ok_fit_performed
@@ -418,7 +421,8 @@ if numel(varargin)>1
                                     fitdata(id)=fitdata_tmp;
                                 end
                             else
-                                disp(['ERROR (dataset ',num2str(id),'): ',mess{i}])
+                                if nargout<3, error([mess{id}, ' (dataset ',num2str(id),')']), end
+                                disp(['ERROR (dataset ',num2str(id),'): ',mess{id}])
                             end
                         end
                     end

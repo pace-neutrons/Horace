@@ -1,5 +1,18 @@
 function [ww_f,pp_f,ok,mess] = mftest_mf_and_f_multiple_datasets (ww,varargin)
-% Test of equivalence of fit and loop of multifit for array datasets
+% Test equivalence of fit and loop of multifit for array datasets
+%
+%   [ww_f,pp_f,ok,mess] = mftest_mf_and_f_multiple_datasets (ww,varargin)
+%
+%   ww          array of datasets, or cell array of datasets with one fo the acceptable forms for fit
+%   varargin    all the other argumnets that can be passed to fit or multifit
+%
+%   ww_f        output fits
+%   pp_f        output fit parameters
+%   ok          true if no problems, false otherwise
+%   mess        error message if not ok ('' if ok)
+%
+% Routine compares output of fit with that from running multifit in a loop over all the
+% datasets.
 
 % Call to fit
 [ww_f,pp_f,ok,mess]=fit(ww, varargin{:});

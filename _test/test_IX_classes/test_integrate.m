@@ -1,7 +1,8 @@
 function test_integrate (varargin)
-% Test integrate functions, optionally writing results to output file
+% Test integrate functions, optionally writing results to output file or testing against stored output
 %
-%   >> test_integrate
+%   >> test_integrate           % Compare with previously saved results in test_integrate_output.mat
+%                               % in the same folder as this function
 %   >> test_integrate ('save')  % save to  c:\temp\test_integrate_output.mat
 %
 % Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
@@ -248,6 +249,22 @@ disp(' ')
 disp('Done')
 disp(' ')
 
+
+%% =====================================================================================================================
+% Compare with saved output
+% ====================================================================================================================== 
+if ~save_output
+    disp('====================================')
+    disp('    Comparing with saved output')
+    disp('====================================')
+    output_file=fullfile(rootpath,'test_integrate_output.mat');
+    old=load(output_file);
+    nam=fieldnames(old);
+    tol=-1.0e-13;
+    for i=1:numel(nam)
+        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol); if ~ok, error(['[',nam{i},']',mess]), end
+    end
+end
 
 
 %% =====================================================================================================================

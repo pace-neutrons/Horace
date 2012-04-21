@@ -1,13 +1,17 @@
-function make_test_data
-% Create some test data for testing multifit with
+function make_mftest_datasets_1
+% Create some test data for testing multifit. Data written to c:\temp\test_multifit_datasets_1.mat
 %
 % Creates the following:
 %   x1, y1, e1      x,y,e arrays for a single Gaussian, with noise added
 %   p1              Parameters for Gaussian on linear background used to generate
 %   wstruct1        Structure with same arrays: fields are x, y, e
-%   w1              IX_dataset_1d wioth the same data
+%   w1              IX_dataset_1d with the same data
+%
+% and same again, with names
+%   x2,y2,e2,p2,wstruct2,w2
+%   x3,y3,e3,p3,wstruct3,w3
 
-output_file='c:\temp\test_mftest_datasets.mat';
+output_file='c:\temp\test_multifit_datasets_1.mat';
 
 p1=[110,45,  10,30,0.1];     % Gaussian 1
 p2=[120,47.5,12,20,0.2];     % Gaussian 2

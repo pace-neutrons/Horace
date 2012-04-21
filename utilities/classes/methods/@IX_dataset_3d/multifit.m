@@ -55,7 +55,7 @@ function [wout, fitdata, ok, mess] = multifit(win, varargin)
 %               function y = gauss2d(x1,x2,p)
 %               y = p(1).*exp(-0.5*(((x1 - p(2))/p(4)).^2+((x2 - p(3))/p(5)).^2);
 %
-%   pin     Initial function parameter values [pin(1), pin(2)...]
+%   pin     Initial function parameter values
 %            - If the function my_function takes just a numeric array of parameters, p, then this
 %             contains the initial values [pin(1), pin(2)...]
 %            - If further parameters are needed by the function, then wrap as a cell array
@@ -98,7 +98,7 @@ function [wout, fitdata, ok, mess] = multifit(win, varargin)
 %              corresponding index of that expanded array).
 %            - Otherwise, the size of the cell array must match the size of w, and there
 %              will be a one-to-one correspondence of the background function handles to the elements of w.
-%              The form required for the functions is identical to that for func above.
+%           The form required for the functions is identical to that for func above.
 %   
 %   bpin    Cell array of initial parameter values for the background function(s), following the 
 %           same definitions and conventions as pin

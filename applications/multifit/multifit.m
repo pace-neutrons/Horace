@@ -144,8 +144,11 @@ function varargout = multifit(varargin)
 %                   multifit (w, @resconv, {@my_sqwfunc, {p, c1, c2,...}, res_p1, res_p2,...})
 %
 %
-%   pin     Initial function parameter values [pin(1), pin(2)...] of the numeric values that
-%           can be fitted. That is, the array p in the documentation for func above.
+%   pin     Initial function parameter values
+%            - If the function my_function takes just a numeric array of parameters, p, then this
+%             contains the initial values [pin(1), pin(2)...]
+%            - If further parameters are needed by the function, then wrap as a cell array
+%               {[pin(1), pin(2)...], c1, c2, ...}  
 %
 %   pfree   [Optional] Indicates which are the free parameters in the fit.
 %           e.g. if length(p)=5, then pfree=[1,0,1,0,0] indicates first and third are free
@@ -184,7 +187,7 @@ function varargout = multifit(varargin)
 %              corresponding index of that expanded array).
 %            - Otherwise, the size of the cell array must match the size of w, and there
 %              will be a one-to-one correspondence of the background function handles to the elements of w.
-%              The form required for the functions is identical to that for func above.
+%           The form required for the functions is identical to that for func above.
 %   
 %   bpin    Cell array of initial parameter values for the background function(s), following the 
 %           same definitions and conventions as pin
