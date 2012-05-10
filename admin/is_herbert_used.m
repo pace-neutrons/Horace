@@ -3,11 +3,10 @@ function is_it = is_herbert_used()
 %
 % $Revision: 587 $ ($Date: 2011-11-25 16:42:24 +0000 (Fri, 25 Nov 2011) $)
 % 
-try
-    get(herbert_config);
-    is_it = true;
-catch
+if isempty(strfind(fileparts(which('get_par')),'herbert'))
     is_it = false;
+else
+    is_it = true;
 end
 
 

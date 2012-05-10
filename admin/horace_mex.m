@@ -72,7 +72,7 @@ function mex_single (in_rel_dir, out_rel_dir, varargin)
 
 curr_dir = pwd;
 if(nargin<1)
-    error(' mex_single request at leas one file name to process');
+    error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');
 end
 nFiles   = (nargin-2);  % files go in varargin
 nCells   = 2*nFiles-1;
@@ -91,6 +91,9 @@ end
 short_fname = cell2str(add_fNames);
 disp(['Mex file creation from ',short_fname,' ...'])
 
+if ~check_access(outdir,add_files{1})
+    error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
+end
 if(nFiles==1)
     fname      = add_files{1};
     mex(fname, '-outdir', outdir);
@@ -99,6 +102,31 @@ else
     flname2 =  cell2str(add_files{3:nCells});
 
     mex(flname1,flname2, '-outdir', outdir);
+end
+
+function access =check_access(outdir,filename)
+
+[spath,sfname] = fileparts(filename);
+fname = fullfile(outdir,[sfname,'.',mexext()]);
+
+if exist(fname,'file')
+    try
+        delete(fname);
+        access = true;               
+    catch
+        access = false;       
+    end    
+else
+    h=fopen(fname,'w+');
+    if h<3
+        access = false;
+    else
+        if fclose(h)~=0
+            error('MEX_SINGLE:invalid_arg',' can not close opened test file: %s',fname);
+        end
+        delete(fname);
+        access = true;
+    end
 end
 
 
