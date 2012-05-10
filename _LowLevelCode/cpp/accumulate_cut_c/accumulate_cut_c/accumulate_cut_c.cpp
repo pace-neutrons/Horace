@@ -105,7 +105,8 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
   if(nrhs!=N_INPUT_Arguments&&nrhs!=N_INPUT_Arguments-1) {
     std::stringstream buf;
-    buf<<"ERROR::Accomulate_cut needs "<<(short)N_INPUT_Arguments<<" or one less, but got "<<(short)nrhs<<" input arguments\n";
+    buf<<"ERROR::Accomulate_cut needs "<<(short)N_INPUT_Arguments<<" or one less, but got "<<(short)nrhs
+	   <<" input arguments and "<<(short)nlhs<<" output argument(s)\n";
     mexErrMsgTxt(buf.str().c_str());
   }
   if(nlhs!=N_OUTPUT_Arguments) {
