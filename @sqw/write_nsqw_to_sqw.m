@@ -118,7 +118,7 @@ for i=2:nfiles  % only need to check if more than one file
             ok = ok & all(datahdr{i}.p{ipax}==datahdr{1}.p{ipax});
         end
         if ~ok
-            error('Not all projection axes and bin boundaries are identical')
+           error('Not all projection axes and bin boundaries are identical')
         end
     end
 end
