@@ -463,15 +463,16 @@ if iarg_global_func==2
                     return
                 end
             else
-                if ~parsefunc   % don't check validity of method if just testing the parsing
-                    tmp=functions(func);    % see Matlab documentation about using this function with caution
-                    if ~ismethod(w{i},tmp.function)
-                        ok=false;
-                        mess=['Data cell array element ',arraystr(size(w),i),': fit function is not a method of this object'];
-                        output=cell(1,nop);
-                        return
-                    end
-                end
+                % TGP 22 April 2012: remove the following test for the function being a method as unneccesarily restrictive; not checked for background in any case
+%                 if ~parsefunc   % don't check validity of method if just testing the parsing
+%                     tmp=functions(func);    % see Matlab documentation about using this function with caution
+%                     if ~ismethod(w{i},tmp.function)
+%                         ok=false;
+%                         mess=['Data cell array element ',arraystr(size(w),i),': fit function is not a method of this object'];
+%                         output=cell(1,nop);
+%                         return
+%                     end
+%                 end
             end
         end
     elseif isstruct(w)
@@ -484,15 +485,16 @@ if iarg_global_func==2
     else
         % Could be an array of objects
         ndim_xye=NaN(size(w));  % NaN to indicate was not an x-y-e triple
-        if ~parsefunc   % don't check validity of method if just testing the parsing
-            tmp=functions(func);    % see Matlab documentation about using this function with caution
-            if ~ismethod(w,tmp.function)
-                ok=false;
-                mess='Data object: fit function is not a method of this object';
-                output=cell(1,nop);
-                return
-            end
-        end
+        % TGP 22 April 2012: remove the following test for the function being a method as unneccesarily restrictive; not checked for background in any case
+%         if ~parsefunc   % don't check validity of method if just testing the parsing
+%             tmp=functions(func);    % see Matlab documentation about using this function with caution
+%             if ~ismethod(w,tmp.function)
+%                 ok=false;
+%                 mess='Data object: fit function is not a method of this object';
+%                 output=cell(1,nop);
+%                 return
+%             end
+%         end
     end
 elseif iarg_global_func==4
     % Could be x-y-e triple, so package as structure and check validity

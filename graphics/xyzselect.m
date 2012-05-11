@@ -1,8 +1,8 @@
 function [x,y,z]=xyzselect
-% Puts cross-hairs on the current figure and print position when the left mouse button is pressed.
+% Puts cross-hairs on the current figure (area or surface plot) and print position when the left mouse button is pressed.
 %
-%   >> xyzselect              % prints x,y value(s) to command screen
-%   >> [x,y,z] = xyzselect    % prints to screen and fills x, y as row vectors
+%   >> xyzselect              % prints x,y,z value(s) to command screen
+%   >> [x,y,z] = xyzselect    % prints to screen and fills x,y,z as row vectors
 %
 % Essentially, this is the matlab intrinsic function ginput but writing values
 % to the command window as well.
