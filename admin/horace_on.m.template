@@ -8,6 +8,7 @@ function path=horace_on(non_default_path)
 %
 %
 default_horace_path ='C:/Users/wkc26243/Documents/work/svn/Horace';
+default_herbert_path='';
 prefer_herbert=true;
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
@@ -21,6 +22,9 @@ try
 catch
 end
 warning(warn_state);    % return warnings to initial state
+if ~isempty(default_herbert_path)
+	herbert_on(default_herbert_path);
+end
 
 libisis_initated=~isempty(which('libisis_init.m'));
 herbert_initated=~isempty(which('herbert_init.m'));

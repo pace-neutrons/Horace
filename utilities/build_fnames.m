@@ -50,7 +50,7 @@ f_names=cell(1,nfgroup);
 psi    = zeros(1,nfgroup);
 for i=1:nfgroup
 %***> MODIFY THE STRING BELOW TO MATCH FILE NAME REQUESTED
-    f_names{i}=fullfile(indir,['MAP',num2str(run_nums(i)),'_4to1.spe_h5']);
+    f_names{i}=fullfile(indir,['MAP',num2str(run_nums(i)),'.nxspe']);
     if ~exist(f_names{i},'file')
         error('build_fnames:wrong_par','file %s does not exist',f_names{i});
     end
