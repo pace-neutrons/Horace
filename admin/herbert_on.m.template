@@ -22,18 +22,18 @@ function path=herbert_on(non_default_path)
 her_default_path='c:/Users/wkc26243/Documents/work/svn/Herbert';
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
-    path = find_default_path(her_default_path);   
+    path = find_her_default_path(her_default_path);   
     return;
 end
 if nargin==1 
-    start_app(non_default_path);    
+    start_herbert(non_default_path);    
 else
-    start_app(her_default_path);    
+    start_herbert(her_default_path);    
 end
 path = fileparts(which('herbert_init.m'));
 
 
-function start_app(path)
+function start_herbert(path)
 
 try
     herbert_off;
@@ -42,7 +42,7 @@ end
 addpath(path);
 herbert_init;
 
-function path =find_default_path(her_default_path)
+function path =find_her_default_path(her_default_path)
 path = which('herbert_init.m');
 if isempty(path)
     path = her_default_path;
