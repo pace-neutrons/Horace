@@ -38,12 +38,12 @@ no_herbert  = false;
 if nargin>0
     if ~all(ismember(varargin,keys))
         non_member=~ismember(varargin,keys);
-        for i=1:sum(non_member)
+        for i=1:nargin
             if non_member(i)
                 disp(['Unrecognized key: ',varargin{i}]);
             end
         end
-        error('MAKE_HORACE_DISTRIBUTION_KIT:invalid_argument',' unknown or unsupported key %s',varargin{i});
+        error('MAKE_HORACE_DISTRIBUTION_KIT:invalid_argument',' unknown or unsupported key %s %s %s',varargin{non_member});
     end
    % interpret existing keys    
     if ismember('-reveal_code',varargin)
