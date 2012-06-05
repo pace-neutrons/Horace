@@ -1,16 +1,16 @@
 function varargout=dispersion_plot(varargin)
-% Plot dispersion relation or array of dispersion relations
+% Plot dispersion relation or array of dispersion relations along a path in reciprocal space
 %
 %   >> dispersion_plot(rlp,dispreln,pars)
 %   >> dispersion_plot(lattice,rlp,dispreln,pars)
 %
 %   >> dispersion_plot(...,'dispersion')            % plot dispersion only
 %   >> dispersion_plot(...,'weight')                % plot spectral weight only
-%   >> dispersion_plot(...,'labels',{'G','X',...})  % Customised labels at the positions of the rlp
+%   >> dispersion_plot(...,'labels',{'G','X',...})  % customised labels at the positions of the rlp
 %   >> dispersion_plot(...,'ndiv',n)        % plot with number of points per interval other than the default
 %
-%   >> [wdisp,weight]=dispersion_plot(...)  % output arrays of IXTdataset_1d with dispersion and spectral weight
-%   >> [wdisp,weight]=dispersion_plot(...,'noplot')     % output arrays without plotting
+%   >> [wdisp,weight]=dispersion_plot(...)  % output arrays of IX_dataset_1d with dispersion and spectral weight
+%   >> [wdisp,weight]=dispersion_plot(...,'noplot') % output arrays without plotting
 %
 % Input:
 % --------
@@ -20,7 +20,7 @@ function varargout=dispersion_plot(varargin)
 %   rlp         Array of r.l.p. e.g. [0,0,0; 0,0,1; 0,-1,1; 1,-1,1; 1,0,1; 1,0,0];
 %
 %   dispreln    Handle to function that calculates the dispersion relation w(Q) and spectrl weight, s(Q)
-%              Must have form:
+%              Most commonly used form is:
 %                   [w,s] = dispreln (qh,qk,ql,p)
 %               where
 %                   qh,qk,ql    Arrays containing the coordinates of a set of points
@@ -46,6 +46,7 @@ function varargout=dispersion_plot(varargin)
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
+%
 % Keyword options (can be abbreviated to single letter):
 %
 %   'dispersion'Only plot the dispersion relation(s)
@@ -54,17 +55,24 @@ function varargout=dispersion_plot(varargin)
 %   'weight'    Only plot the spectral weight(s)
 %               The default is to plot and/or return dispersion, and weight if available
 %
-%   'noplot'    Do not plot, just return the output IXTdataset_1d (see below)
+%   'labels'    Tick labels to place at the positions of the Q points in argument rlp.
+%                 e.g. {'G','X','M','R'}
+%               By default the labels are character representations of rlp
+%                 e.g. {0,0,0; 0.5,0,0; 0.5,0.5,0; 0.5,0.5,0.5}
+%               becomes
+%                     {'0,0,0', '0.5,0,0', '0.5,0.5,0', '0.5,0.5,0.5'}
 %
 %   'ndiv'   	Number of points into which to divide the interval between two r.l.p. (default=100)
+%
+%   'noplot'    Do not plot, just return the output IX_dataset_1d (see below)
 %
 %
 % Ouptut:
 % --------
-%   wdisp       Array of IXTdataset_1d containing dispersion, one per dispersion relation.
-%               The x-aaxis is the distance in Ang^-1 along the path described 
+%   wdisp       Array of IX_dataset_1d containing dispersion, one per dispersion relation.
+%               The x-axis is the distance in Ang^-1 along the path described 
 %
-%   weight      Array of IXTdataset_1d with corresponding spectral weight, one per dispersion relation
+%   weight      Array of IX_dataset_1d with corresponding spectral weight, one per dispersion relation
 
 % T.G.Perring, 1 October 2009
 
@@ -103,6 +111,7 @@ end
 
 pars=args{noff+3};
 
+
 % Determine if need to calculate dispersion, weight, or both, and consistency with dispreln
 % ------------------------------------------------------------------------------------------
 return_dispersion = nargout>=1;
@@ -122,6 +131,20 @@ end
 if nargout(dispreln)<2 && calc_weight
     error('Requested spectral weight to be calculated, but the provided dispersion function does not return it')
 end
+
+
+% Make labels
+% ------------
+if ~present.labels
+    labels=make_labels(rlp);
+else
+    if ~isempty(opt.labels) && iscellstr(opt.labels) && numel(opt.labels)==size(rlp,1)
+        labels=opt.labels;
+    else
+        error('Check number of user-supplied labels and that they form a cell array of strings')
+    end
+end
+
 
 % Evaluate the dispersion relation
 % --------------------------------
@@ -148,19 +171,32 @@ if ~iscell(e)
     end
 end
 
+
 % Create output objects
+% ----------------------
 try
+    % Herbert case
+    x_axis=IX_axis('Momentum');
+    try % try to put ticks in the IX_axis object
+        ticks.positions=xrlp;
+        ticks.labels=labels;
+        x_axis.ticks=ticks;
+    catch
+    end
+    s_axis_disp=IX_axis('Energy');
+    s_axis_intensity=IX_axis('Intensity');
     wdisp=repmat(IX_dataset_1d,1,numel(e));
     for i=1:numel(e)
-        wdisp(i)=IX_dataset_1d('Dispersion relation',e{i},zeros(size(e{i})),IX_axis('Energy'),x,IX_axis('momentum'),false);
+        wdisp(i)=IX_dataset_1d('Dispersion relation',e{i},zeros(size(e{i})),s_axis_disp,x,x_axis,false);
     end
     if calc_weight
         weight=repmat(IX_dataset_1d,1,numel(e));
         for i=1:numel(e)
-            weight(i)=IX_dataset_1d('Spectral weight',sf{i},zeros(size(sf{i})),IX_axis('Intensity'),x,IX_axis('momentum'),false);
+            weight(i)=IX_dataset_1d('Spectral weight',sf{i},zeros(size(sf{i})),s_axis_intensity,x,x_axis,false);
         end
     end
 catch
+    % Libisis case
     wdisp=IXTdataset_1d('Dispersion relation',e{1},zeros(size(e{1})),IXTaxis('Energy'),x,IXTaxis('momentum'),false);
     if numel(e)>1, wdisp(1,numel(e))=wdisp; end
     for i=2:numel(e)
@@ -175,19 +211,9 @@ catch
     end
 end
 
-% Create labels for plot(s)
-if plot_dispersion || plot_weight
-    if ~present.labels
-        labels=make_labels(rlp);
-    else
-        if ~isempty(opt.labels) && iscellstr(opt.labels) && numel(opt.labels)==size(rlp,1)
-            labels=opt.labels;
-        else
-            error('Check number of user-supplied labels and that they form a cell array of strings')
-        end
-    end
-end
 
+% Plot dispersion and/or intensity if requested
+% ---------------------------------------------
 if plot_dispersion
     dl(wdisp)
     lx(0,x(end));     % have to enforce the maximum limit, otherwise autoscales for some reason
@@ -207,6 +233,7 @@ end
 if return_weight
     varargout{2}=weight;
 end
+
 
 %========================================================================================================
 function [qh,qk,ql,xrlp,x,ind]=make_qarray(lattice,rlp,ndiv)

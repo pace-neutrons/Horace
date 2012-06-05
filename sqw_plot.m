@@ -1,13 +1,14 @@
 function varargout=sqw_plot(varargin)
-% Plot dispersion relation as colour map
+% Plot dispersion relation as colour map along a path in reciprocal space
 %
 %   >> sqw_plot(rlp,sqwfunc,pars,ecent)
 %   >> sqw_plot(lattice,rlp,sqwfunc,pars,ecent)
 %
+%   >> sqw_plot(...,'labels',{'G','X',...})  % customised labels at the positions of the rlp
 %   >> sqw_plot(...,'ndiv',n)          % plot with number of points per interval other than the default
 %
-%   >> weight=sqw_plot(...)            % output IXTdataset_2d with spectral weight
-%   >> weight=sqw_plot(...,'noplot')   % output IXTdataset_2d with spectral weight, no plot
+%   >> weight=sqw_plot(...)            % output IX_dataset_2d with spectral weight
+%   >> weight=sqw_plot(...,'noplot')   % output IX_dataset_2d with spectral weight, no plot
 %
 % Input:
 % --------
@@ -17,7 +18,7 @@ function varargout=sqw_plot(varargin)
 %   rlp         Array of r.l.p. e.g. [0,0,0; 0,0,1; 0,-1,1; 1,-1,1; 1,0,1; 1,0,0];
 %
 %   sqwfunc     Handle to function that calculates S(Q,w)
-%               Most commonly used form is:
+%              Most commonly used form is:
 %                   weight = sqwfunc (qh,qk,ql,en,p)
 %                where
 %                   qh,qk,ql,en Arrays containing the coordinates of a set of points
@@ -26,7 +27,7 @@ function varargout=sqw_plot(varargin)
 %                   weight      Array containing calculated energies; if more than
 %                              one dispersion relation, then a cell array of arrays
 %
-%               More general form is:
+%              More general form is:
 %                   weight = sqwfunc (qh,qk,ql,en,p,c1,c2,..)
 %                 where
 %                   p           Typically a vector of parameters that we might want 
@@ -42,11 +43,8 @@ function varargout=sqw_plot(varargin)
 %
 %   ecent       Energy bin centres: [ecent_lo, step, ecent_hi]
 %
+%
 % Keyword options (can be abbreviated to single letter):
-%
-%   'noplot'    Do not plot, just return the output IXTdataset_2d (see below)
-%
-%   'ndiv'   	Number of points into which to divide the interval between two r.l.p. (default=100)
 %
 %   'labels'    Tick labels to place at the positions of the Q points in argument rlp.
 %                 e.g. {'G','X','M','R'}
@@ -55,10 +53,14 @@ function varargout=sqw_plot(varargin)
 %               becomes
 %                     {'0,0,0', '0.5,0,0', '0.5,0.5,0', '0.5,0.5,0.5'}
 %
+%   'ndiv'   	Number of points into which to divide the interval between two r.l.p. (default=100)
+%
+%   'noplot'    Do not plot, just return the output IX_dataset_2d (see below)
+%
 %
 % Ouptut:
 % --------
-%   weight      IXTdataset_2d with spectral weight
+%   weight      IX_dataset_2d with spectral weight
 
 % T.G.Perring, 1 October 2009
 
@@ -109,6 +111,19 @@ else
 end
 
 
+% Make labels
+% ------------
+if ~present.labels
+    labels=make_labels(rlp);
+else
+    if ~isempty(opt.labels) && iscellstr(opt.labels) && numel(opt.labels)==size(rlp,1)
+        labels=opt.labels;
+    else
+        error('Check number of user-supplied labels and that they form a cell array of strings')
+    end
+end
+
+
 % Evaluate S(Q,w)
 % ---------------
 [qh,qk,ql,xrlp,x]=make_qarray(lattice,rlp,opt.ndiv);
@@ -123,26 +138,29 @@ else
     weight=sqwfunc(qqh,qqk,qql,een,pars);
 end
 
+
+% Create output objects
+% ----------------------
 try
+    % Herbert case
+    x_axis=IX_axis('Momentum');
+    try % try to put ticks in the IX_axis object
+        ticks.positions=xrlp;
+        ticks.labels=labels;
+        x_axis.ticks=ticks;
+    catch
+    end
     tmp=IX_dataset_2d ('Spectral weight', weight, zeros(size(weight)),...
-        IX_axis('Spectral weight'), x', IX_axis('momentum'), false, en, IX_axis('Energy'), false);
+        IX_axis('Spectral weight'), x', x_axis, false, en, IX_axis('Energy'), false);
 catch
+    % Libisis case
     tmp=IXTdataset_2d ('Spectral weight', weight, zeros(size(weight)),...
         IXTaxis('Spectral weight'), x', IXTaxis('momentum'), false, en, IXTaxis('Energy'), false);
 end
 
 if opt.plot
     da(tmp)
-    if ~present.labels
-        labels=make_labels(rlp);
-    else
-        if ~isempty(opt.labels) && iscellstr(opt.labels) && numel(opt.labels)==size(rlp,1)
-            labels=opt.labels;
-        else
-            error('Check number of user-supplied labels and that they form a cell array of strings')
-        end
-    end
-    plot_labels(labels,xrlp);
+    plot_labels(labels,xrlp);   % do this in case of older Herbert or Libisis
 end
 
 if nargout>=1
