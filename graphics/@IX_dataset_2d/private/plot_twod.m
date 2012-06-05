@@ -205,6 +205,16 @@ if (newplot)
 %     xplo=min(0.13+(ny-1)*h,0.245);  yplo=min(0.11+(nx-1)*h,0.225);  xphi=0.905;   yphi=max(0.925-(nt-1)*h,0.772);
 %     pos = [xplo,yplo,xphi-xplo,yphi-yplo];
 %     set(gca,'position',pos)
+    % change ticks
+    xticks=w(1).x_axis.ticks;
+    if ~isempty(xticks.positions), set(gca,'XTick',xticks.positions); end
+    if ~isempty(xticks.labels), set(gca,'XTickLabel',xticks.labels); end
+    yticks=w(1).y_axis.ticks;
+    if ~isempty(yticks.positions), set(gca,'YTick',yticks.positions); end
+    if ~isempty(yticks.labels), set(gca,'YTickLabel',yticks.labels); end
+    zticks=w(1).s_axis.ticks;
+    if ~isempty(zticks.positions), set(gca,'ZTick',zticks.positions); end
+    if ~isempty(zticks.labels), set(gca,'ZTickLabel',zticks.labels); end
 end
 
 % Change limits if they are provided

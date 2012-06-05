@@ -5,4 +5,8 @@ function display_single (w)
 
 % Original author: T.G.Perring
 
-disp(struct(w))
+if isempty(w.ticks.positions) && isempty(w.ticks.labels)
+    disp(rmfield(struct(w),'ticks'))
+else
+    disp(struct(w))
+end
