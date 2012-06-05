@@ -1,13 +1,14 @@
 function varargout=disp2sqw_plot(varargin)
-% Plot dispersion relation as colour map
+% Plot dispersion relation as colour map along a path in reciprocal space
 %
 %   >> disp2sqw_plot(rlp,dispreln,pars,ecent,fwhh)
 %   >> disp2sqw_plot(lattice,rlp,dispreln,pars,ecent,fwhh)
 %
+%   >> disp2sqw_plot(...,'labels',{'G','X',...})  % customised labels at the positions of the rlp
 %   >> disp2sqw_plot(...,'ndiv',n)          % plot with number of points per interval other than the default
 %
-%   >> weight=disp2sqw_plot(...)            % output IXTdataset_2d with spectral weight
-%   >> weight=disp2sqw_plot(...,'noplot')   % output IXTdataset_2d with spectral weight, no plot
+%   >> weight=disp2sqw_plot(...)            % output IX_dataset_2d with spectral weight
+%   >> weight=disp2sqw_plot(...,'noplot')   % output IX_dataset_2d with spectral weight, no plot
 %
 % Input:
 % --------
@@ -17,7 +18,7 @@ function varargout=disp2sqw_plot(varargin)
 %   rlp         Array of r.l.p. e.g. [0,0,0; 0,0,1; 0,-1,1; 1,-1,1; 1,0,1; 1,0,0];
 %
 %   dispreln    Handle to function that calculates the dispersion relation w(Q) and spectrl weight, s(Q)
-%              Must have form:
+%              Most commonly used form is:
 %                   [w,s] = dispreln (qh,qk,ql,p)
 %               where
 %                   qh,qk,ql    Arrays containing the coordinates of a set of points
@@ -45,11 +46,8 @@ function varargout=disp2sqw_plot(varargin)
 %
 %   fwhh        Full-width half-height of Gaussian broadening to dispersion relation(s)
 %
+%
 % Keyword options (can be abbreviated to single letter):
-%
-%   'noplot'    Do not plot, just return the output IXTdataset_2d (see below)
-%
-%   'ndiv'   	Number of points into which to divide the interval between two r.l.p. (default=100)
 %
 %   'labels'    Tick labels to place at the positions of the Q points in argument rlp.
 %                 e.g. {'G','X','M','R'}
@@ -58,10 +56,14 @@ function varargout=disp2sqw_plot(varargin)
 %               becomes
 %                     {'0,0,0', '0.5,0,0', '0.5,0.5,0', '0.5,0.5,0.5'}
 %
+%   'ndiv'   	Number of points into which to divide the interval between two r.l.p. (default=100)
+%
+%   'noplot'    Do not plot, just return the output IX_dataset_2d (see below)
+%
 %
 % Ouptut:
 % --------
-%   weight      IXTdataset_2d with spectral weight
+%   weight      IX_dataset_2d with spectral weight
 
 % T.G.Perring, 1 October 2009
 
@@ -100,7 +102,7 @@ end
 
 pars=args{noff+3};
 
-if isnumeric(args{noff+4}) && isnumeric(args{noff+4}) && numel(args{noff+4})==3
+if isnumeric(args{noff+4}) && numel(args{noff+4})==3
     ecent=args{noff+4};
     if ecent(1)>=ecent(3)
         error('Must have ecent_lo < ecent_hi')
@@ -120,50 +122,48 @@ if nargout(dispreln)<2
     error('The provided dispersion function does not appear to return spectral weight')
 end
 
+% Make labels
+% ------------
+if ~present.labels
+    labels=make_labels(rlp);
+else
+    if ~isempty(opt.labels) && iscellstr(opt.labels) && numel(opt.labels)==size(rlp,1)
+        labels=opt.labels;
+    else
+        error('Check number of user-supplied labels and that they form a cell array of strings')
+    end
+end
+
+
 % Evaluate the dispersion relation
 % --------------------------------
 [qh,qk,ql,xrlp,x]=make_qarray(lattice,rlp,opt.ndiv);
-
-if iscell(pars)
-    [e,sf]=dispreln(qh,qk,ql,pars{:});
-else
-    [e,sf]=dispreln(qh,qk,ql,pars);
-end
-if ~iscell(e)
-    e={e}; sf={sf};     % make cell arrays for convenience
-end
-
 en=ecent(1):abs(ecent(2)):ecent(3);
-en_arr=repmat(en,numel(x),1);   % make 2D array, one row per x value
+weight = disp2sqw({qh,qk,ql},en,dispreln,pars,fwhh);
 
-sig=fwhh/sqrt(log(256));
-weight=zeros(numel(x),numel(en));
-for i=1:numel(e)
-    edisp=repmat(e{i},1,numel(en));
-    sfact=repmat(sf{i},1,numel(en));
-    weight=weight + sfact.*exp(-(edisp-en_arr).^2/(2*sig^2))/(sig*sqrt(2*pi));
-end
 
+% Create output objects
+% ----------------------
 try
+    % Herbert case
+    x_axis=IX_axis('Momentum');
+    try % try to put ticks in the IX_axis object
+        ticks.positions=xrlp;
+        ticks.labels=labels;
+        x_axis.ticks=ticks;
+    catch
+    end
     tmp=IX_dataset_2d ('Spectral weight', weight, zeros(size(weight)),...
-        IX_axis('Spectral weight'), x', IX_axis('momentum'), false, en, IX_axis('Energy'), false);
+        IX_axis('Spectral weight'), x', x_axis, false, en, IX_axis('Energy'), false);
 catch
+    % Libisis case
     tmp=IXTdataset_2d ('Spectral weight', weight, zeros(size(weight)),...
         IXTaxis('Spectral weight'), x', IXTaxis('momentum'), false, en, IXTaxis('Energy'), false);
 end
 
 if opt.plot
     da(tmp)
-    if ~present.labels
-        labels=make_labels(rlp);
-    else
-        if ~isempty(opt.labels) && iscellstr(opt.labels) && numel(opt.labels)==size(rlp,1)
-            labels=opt.labels;
-        else
-            error('Check number of user-supplied labels and that they form a cell array of strings')
-        end
-    end
-    plot_labels(labels,xrlp);
+    plot_labels(labels,xrlp);   % do this in case of older Herbert or Libisis
 end
 
 if nargout>=1
