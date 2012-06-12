@@ -26,10 +26,12 @@ end
 
 if ~strncmp(nxspe_version,'1.1',3)
     if strncmp(nxspe_version,'1.0',3)
-        warning('LOADER_NXSPE:old_nxspe',' loader nxspe found 1.0 Mantid nxspe version. The detector position for this version may be incorrect so you should always use par file with it');
+        this.nxspe_version='1.0';
     else
         error('LOADER_NXSPE:invalid_argument',' loader nxpse currently supports 1.1/1.0 version only but got version: %s\n',nxspe_version);
     end
+else    
+   this.nxspe_version='1.1';
 end
 %
 %

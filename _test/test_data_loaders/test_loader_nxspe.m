@@ -32,13 +32,14 @@ classdef test_loader_nxspe< TestCase
             % should throw; first argument has to be a file name with single
             % nxspe data structure in it
             assertExceptionThrown(f,'ISIS_UTILITES:invalid_argument');
-        end               
+        end    
+       
         function test_loader_nxspe_initated(this)               
             loader=loader_nxspe('MAP11014.nxspe');          
             % should be OK and return correct file name and file location; 
             assertEqual(loader.root_nexus_dir,'/11014.spe');
             assertEqual(loader.file_name,'MAP11014.nxspe');            
-        end               
+        end  
 % DEFINED FIELDS        
          function test_emptyloader_nxspe_defines_nothing(this)
              loader=loader_nxspe();
@@ -76,16 +77,6 @@ classdef test_loader_nxspe< TestCase
              assertEqual(Ei,loader.efix);             
              assertEqual(en,loader.en);                          
          end
-        function test_loader_par_works(this)
-             loader=loader_nxspe(); 
-             % loads only spe data
-             [par,loader]=load_par(loader,'MAP11014.nxspe');
-             assertEqual([6,28160],size(par))
-             assertEqual(28160,loader.n_detectors)      
-             assertEqual(loader.root_nexus_dir,'/11014.spe');
-             assertEqual(loader.file_name,'MAP11014.nxspe');
-             assertEqual(loader.det_par,par);
-        end         
         function test_loader_nxspe_constr(this)
              loader=loader_nxspe('MAP11014.nxspe'); 
              % loads only spe data
@@ -107,6 +98,35 @@ classdef test_loader_nxspe< TestCase
             assertTrue(all(ismember(fields(par),{'filename','filepath','x2','phi','azim','width','height','group'})));            
             assertEqual(28160,numel(par.x2))
         end
+%Load PAR from nxspe        
+        function test_loader_par_works(this)
+             loader=loader_nxspe(); 
+             % loads only spe data
+             [par,loader]=load_par(loader,'MAP11014.nxspe');
+             assertEqual([6,28160],size(par))
+             assertEqual(28160,loader.n_detectors)      
+             assertEqual(loader.root_nexus_dir,'/11014.spe');
+             assertEqual(loader.file_name,'MAP11014.nxspe');
+             assertEqual(loader.det_par,par);
+        end         
+        
+        function test_warn_on_nxspe1_0(this)
+            loader = loader_nxspe('nxspe_version1_0.nxspe');
+            % should be OK and return correct file name and file location; 
+            assertEqual(loader.root_nexus_dir,'/11014.spe');
+            assertEqual(loader.file_name,'nxspe_version1_0.nxspe');
+            % warnings are disabled when tests are run in some enviroments
+            [par,loader]=load_par(loader);           
+            % warning about old nxspe should still be generated
+            warnStruct = warning('query', 'last');
+            msgid_integerCat = warnStruct.identifier;
+            assertEqual('LOAD_NXSPE:old_version',msgid_integerCat);
+        % correct detectors and par array are still loaded from old par file
+             assertEqual([6,5],size(par))
+             assertEqual(5,loader.n_detectors)
+             
+        end
+        
 %GET_RUNINFO        
        function test_get_runinfo(this)
              loader=loader_nxspe('MAP11014.nxspe'); 

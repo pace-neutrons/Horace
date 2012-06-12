@@ -3,6 +3,10 @@ function par = load_nxspe_par(this)
 %
 root_folder=this.root_nexus_dir;
 file_name  =this.file_name; 
+if strncmpi(this.nxspe_version,'1.0',3)   
+    warning('LOAD_NXSPE:old_version',...
+    ' you are loading detector data from partially supported nxspe data file version 1.0. For this version you should use par file instead');
+end
 
 dist    = hdf5read(file_name,[root_folder,'/data/distance']);
 n_det   = numel(dist);

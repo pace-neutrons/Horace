@@ -14,7 +14,7 @@ if isempty(this.n_detectors)
 %
     dataset_info =find_dataset_info(nexus_file_structure,'data','data');
     this.n_detectors    = dataset_info.Dims(2);
-
+	this.nxspe_version  = nxspe_version;
 
 else
 	ndet=this.n_detectors;
