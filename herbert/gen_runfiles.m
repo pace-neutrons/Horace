@@ -51,11 +51,13 @@ runfiles_list = cell(1,n_files);
 % check if second parameter is par file or list of par files;
 par_files='';
 variables_start = 1;
-if nargin>1 && ischar(varargin{1}) && size(varargin{1},1)==1
+if nargin>1 && ischar(varargin{1}) && size(varargin{1},1)==1 % single par file provided as unput
     par_files = {varargin{1}};
     variables_start = 2;
-elseif iscellstr(varargin{1})
+elseif iscellstr(varargin{1}) % list of par files profided 
     par_files = varargin{1};
+    variables_start = 2;    
+elseif isempty(varargin{1}) % empty par file definition provided
     variables_start = 2;
 end
 % chek if all requested par files exist:
