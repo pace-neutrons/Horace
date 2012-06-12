@@ -11,6 +11,7 @@ function make_horace_distribution_kit(varargin)
 %'-compact'      -- if present, request dropping the demo and test files
 %                   with test folders, default -- comress demo and tests
 %                   together with main code. 
+%'-noherbert'    -- do not pack herbert tohether with horace
 %
 % To use Horace  one has to unpack the resulting zip file and add the folder
 % where the function Horace_init.m resides to the matlab search path. 
