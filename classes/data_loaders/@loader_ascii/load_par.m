@@ -40,6 +40,9 @@ if nargin>1
     end
 
 end
+if isempty(this.par_file_name)
+    error('LOAD_ASCII:load_par',' undefined input par file name');
+end
 
 par             = load_ASCII_par(this.par_file_name);
 

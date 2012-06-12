@@ -1,6 +1,22 @@
 function [err,message] = merge_files(file1,file2,varargin)
-%merge_files: combine two (text) files together
+%merge_files: combine two (text) files together and place them one after
+%another
 %
+%Usage:
+% this option modifies the first file and places second file after the first
+%>>[err,reason]=merge_files(file1,file2)
+% 
+% this option takes first and second file and copies them to target file, 
+% second file after the first one.
+%>>[err,reason]=merge_files(file1,file2,file_to_merge_to)
+%
+%err     -- boolean value indicating the error, 0 if no or 1 if there is an
+%           error
+%reason  -- text value, explaining the reason for the error
+%
+% in case of error, if function called without right hand arguments, 
+% the function will throw the error with ID 'MERGE_FILES:invalid_argument' 
+% with error message explaning the reason for error.
 %
 % $Revision$ ($Date$)
 %

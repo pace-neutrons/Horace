@@ -64,7 +64,7 @@ if(n_nxspe_entries>1)
     error('ISIS_UTILITES:invalid_argument',' found multiple nxspe folders in file %s but this function does not currently support multiple nxspe folders',hdf_fileName)
 end
 root_nxspe_path = nxspe_folders{1};
-data_version       = nxspe_version{1};
+data_version    = nxspe_version{1};
 
 
 function ver=read_nxspe_version(hdf_fileName,DS)

@@ -30,7 +30,9 @@ function [det,this]=load_par(this,varargin)
 %                     class, if loader_nxpse was the variable of
 %                     loader_nxspe class
 %
-
+%
+% $Revision$ ($Date$)
+%
 
 return_horace_format= false;
 file_name           = this.file_name;
