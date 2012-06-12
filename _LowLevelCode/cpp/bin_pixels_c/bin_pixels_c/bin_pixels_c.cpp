@@ -222,10 +222,10 @@ zBinR       = grid_size[2]/(cut_range[5]-cut_range[4]);
 eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
 
 
-#pragma omp parallel default(none), private(i,i0,xt,yt,zt,Et,ix,iy,iz,ie,il,nPixSq), \
+#pragma omp parallel default(none) private(i,i0,xt,yt,zt,Et,ix,iy,iz,ie,il,nPixSq) \
      num_threads(numRealThreads) \
-     shared(pixel_data,ok,nGridCell,s,e,npix), \
-     firstprivate(nPixelDatas,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR), \
+     shared(pixel_data,ok,nGridCell,s,e,npix) \
+     firstprivate(nPixelDatas,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
      reduction(+:nPixel_retained)
 {
 //	#pragma omp master
@@ -381,8 +381,8 @@ try{
 } // end parallel region;
 
     }else{
-#pragma omp parallel  default(none),private(i,j,i0,j0,nCell) \
-        shared(ppInd,pPixelSorted,ok,nGridCell,pixel_data), \
+#pragma omp parallel  default(none) private(i,j,i0,j0,nCell) \
+        shared(ppInd,pPixelSorted,ok,nGridCell,pixel_data) \
         firstprivate(data_size,nPixelDatas)
 {
 #pragma omp for

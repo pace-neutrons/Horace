@@ -416,13 +416,13 @@ for(i=0;i<nAxis;i++){
 omp_set_num_threads(num_OMP_Threads);
 int PIXEL_data_width=PIXEL_DATA_WIDTH;
 
-#pragma omp parallel default(none), private(i,j0,xt,yt,zt,xt1,yt1,zt1,Et,indX,indY,indZ,indE), \
+#pragma omp parallel default(none) private(i,j0,xt,yt,zt,xt1,yt1,zt1,Et,indX,indY,indZ,indE) \
      shared(actual_pix_range,pixel_data,rot_ustep,trans_bott_left,cut_range,ok,ind, \
-     data_size), \
+     data_size) \
      firstprivate(pix_Xmin,pix_Ymin,pix_Zmin,pix_Emin, pix_Xmax,pix_Ymax,pix_Zmax,pix_Emax,\
                   trans_elo,ebin_inv,Inf,PIXEL_data_width, \
                   ignote_all,ignore_nan,ignore_inf,ignore_something,transform_energy, \
-                  nDimX,nDimY,nDimZ,nDimE), \
+                  nDimX,nDimY,nDimZ,nDimE) \
      reduction(+:nPixel_retained)
 {
 //	#pragma omp master
@@ -543,8 +543,8 @@ double *pFin_pix=(double *)mxGetPr(ix_final_pixIndex);
 
 
 mwSize indl;
-#pragma omp parallel default(none), private(i,j0,indl), \
-           shared(ok,ind,e,s,npix,pixel_data,data_size), \
+#pragma omp parallel default(none) private(i,j0,indl) \
+           shared(ok,ind,e,s,npix,pixel_data,data_size) \
            firstprivate(PIXEL_data_width)
 {
 #pragma omp for schedule(static,1)

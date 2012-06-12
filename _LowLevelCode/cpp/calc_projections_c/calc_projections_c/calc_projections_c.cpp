@@ -220,8 +220,8 @@ void calc_projections_emode1(double * const pTransfDetectors,
     int ii;
 
     omp_set_num_threads(nThreads);
-#pragma omp parallel default(none), private(ii,j,i0,j0,ex,ey,ez,phi,psi,sPhi,q1,q2,q3), \
-     shared(nEnergies,nDetectors,pKf),\
+#pragma omp parallel default(none) private(ii,j,i0,j0,ex,ey,ez,phi,psi,sPhi,q1,q2,q3) \
+     shared(nEnergies,nDetectors,pKf)\
      firstprivate(ki)
     {
 #pragma omp for
