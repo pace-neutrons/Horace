@@ -67,7 +67,9 @@ for i=1:length(dirs)
                 p = [p fullfile(d,dirname) pathsep];
 %addpath([dirname])
                 matlab_dir_name=matlab_version_folder(dirname);
-                p = [p fullfile(d,dirname,matlab_dir_name) pathsep];
+                if ~isempty(matlab_dir_name)
+                    p = [p fullfile(d,dirname,matlab_dir_name) pathsep];
+                end
 %addpath(fullfile(d,dirname,matlab_dir_name))
             end
         end
