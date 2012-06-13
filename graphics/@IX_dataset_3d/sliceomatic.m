@@ -75,12 +75,16 @@ if numel(w.z)~=sz(3)
 else
     uz=[w.z(1),w.z(end)];
 end
+%*** HACK:  !!!!
+% This is very strange operation needed to plot sliceomatic axis in proper
+% orded
+signal = permute(w.signal,[2,1,3]);
 
 [xlabel,ylabel,zlabel,slabel]=make_label(w);
 clim = [min(w.signal(:)) max(w.signal(:))];
 
 % Plot data
-sliceomatic(ux, uy, uz, w.signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
+sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
                         xlabel, ylabel, zlabel, clim, keyword.isonormals);
 title(w.title);
 [fig_, axes_, plot_, plot_type] = genie_figure_all_handles (gcf);
