@@ -298,81 +298,6 @@ end
     
 
 
-function   mex_single_f(in_dir,out_dir,lib_dir,varargin)
-% build a single mex fortran routine from the list of files and objects
-% provided in varargin 
-%
-%  -o      if switch is selected, the string, which follows to the
-%          switch defines the name of the target mex file.
-% -missing if switch is present, routine will build only missing mex files
-%          it will rebuild exisign mex files otherwise
-%
-
-
-if nargin<4
-    error('MEX_SINGLE:invalid_argument','needs at least three arguments, but got %d',nargin)
-end
-outdir = fullfile(out_dir,'');
-% remove empty fields
-argi = varargin(~ismember(varargin,''));
-% PROCESSING INPUT KEYS
-% do we want build all mex files or just the missing one.
-rebuild_mex=true;
-if ismember('-missing',argi)
-    rebuild_mex=false;
-    argi = argi(~ismember(argi,'-missing'));
-end
-
-% if target file name is different from the mex file name, choose the file name requested;
-if ismember('-o',argi )
-    nofile = ismember(argi,'-o');
-    ind    = find(nofile);
-    if numel(ind) > 1
-        error('MEX_SINGLE:invalid_argument',' more then 1 -o option find in input arguments');
-    end
-    [f_path,f_name]=fileparts(argi{ind+1});   
-    % this is not a source file but the target file name
-    nofile(ind+1) = true;
-    target_fname = [f_name,'.',mexext];    
-    files  = argi (~nofile);        
-else
-    files  = argi;
-    [f_path,f_name]=fileparts(files{1});
-    % identify target file name
-    target_fname = [f_name,'.',mexext];
-end
-
-% strip possible empty cells
-ic=0;
-for i=1:numel(files)
-    if ~isempty(files{i})
-        ic=ic+1;        
-        files{ic} = make_filename(in_dir,files{i});
-    end
-end
-files=files(1:ic);
-
-
-targ_file=fullfile(outdir,target_fname);    
-if exist(targ_file,'file')
-    if rebuild_mex
-        try
-            delete(targ_file)
-        catch
-            cd(old_path);
-            error([' file: ',f_name,mexext,' locked. deleteon error: ',lasterr()]);
-        end
-    else
-        return;
-    end
-end
-
-fprintf('%s',['===>Mex file creation from: ',f_name,' ...'])
-%mex('-v','-outdir',outdir,files{:});
-mex(['-I',lib_dir],'-outdir',outdir,'-output',target_fname,files{:});
-disp(' <=== completed');
-
-
 
 %----------------------------------------------------------------
 function mex_single_c(in_dir, out_dir, varargin)
@@ -409,43 +334,7 @@ mex('-outdir',outdir,files{:});
 disp(' <=== completed');
 
 
-function fname=make_filename(in_dir,str)
-if exist(str,'file')
-    fname=str;
-    return;
-end
-[fp,filename,fext] = fileparts(str);
-fname=fullfile(in_dir,fp,[filename,fext]);       
-if ~exist(fname,'file')
-    error('HERBERT_MEX:invalid_argument','file: %s expected to be compiled but does not exist',fname);
-end
 
-
-function obj_name=build_fortran_module(source_dir,target_dir,file_name,lib_dir,use_lib)
-%
-[ps,base_name]=fileparts(file_name);
-% identify platform specific file extension
-obj_ext = '.o';
-if ispc
-    obj_ext ='.obj';
-end
-
-obj_name=fullfile(target_dir,[base_name,obj_ext]);
-if use_lib
-    if exist(obj_name,'file')
-        return;
-    end
-end
-
-fprintf('%s',['---> compiling module: ',base_name, '  ...']);
-file_name = make_filename(source_dir,file_name);
-mex('-c',['-I',lib_dir],'-outdir',target_dir,file_name);
-wkdir = pwd;
-mod_name =[base_name,'.mod'];
-if exist(mod_name,'file')
-    movefile(fullfile(wkdir,mod_name),fullfile(target_dir,mod_name),'f');
-end
-disp('---< completed');
 
 function user_choice = ask4Compiler()
 disp('!==================================================================!')
