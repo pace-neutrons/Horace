@@ -7,7 +7,7 @@ function path=horace_on(non_default_path)
 % $Revision: 1733 $ ($Date: 2010-06-23 17:57:14 +0100 (Wed, 23 Jun 2010) $) 
 %
 %
-default_horace_path ='C:/Users/wkc26243/Documents/work/svn/Horace';
+default_horace_path ='/home/wkc26243/winsvn/Horace';
 default_herbert_path='';
 prefer_herbert=true;
 %
