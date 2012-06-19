@@ -56,8 +56,9 @@ wt=cell2mat(wt(:));
 % Check that there are more data points than free parameters
 nval=numel(yval);
 npfree=numel(pfin);
-if ~(npfree< nval)
-    ok=false; mess='Number of data points must be greater than number of free parameters'; return
+nnorm=max(nval-npfree,1);   % we allow for the case nval=npfree
+if nval<npfree
+    ok=false; mess='Number of data points must be greater than or equal to the number of free parameters'; return
 end
 
 % Catch case of simple evaluation of chi-squared
@@ -66,7 +67,7 @@ if ~perform_fit
     resid=wt.*(yval-f);
     
     c_best=resid'*resid; % Un-normalised chi-squared
-    chisqr_red = c_best/(nval-npfree);
+    chisqr_red = c_best/nnorm;
         
 else
     % Listing to screen
@@ -80,12 +81,15 @@ else
     dp=fcp(1);      % derivative step length
     niter=fcp(2);   % maximum number of iterations
     tol=fcp(3);     % convergence criterion
+    if abs(dp)<1e-12
+        ok=false; mess='Derivative step length must be greater or equal to 10^-12'; return
+    end
     if niter<0
         ok=false; mess='Number of iterations must be >=0'; return
     end
-    if tol<0
-        ok=false; mess='Tolerance (fraction of chi-squared) must be >=0'; return
-    end
+%     if tol<0
+%         ok=false; mess='Tolerance (fraction of chi-squared) must be >=0'; return
+%     end
     
     % Output to command window
     if listing~=0, fit_listing_header(listing,niter); end
@@ -125,7 +129,11 @@ else
         % If does not improve chisqr to less than the goal value, then alter
         % the Levenberg-Marquardt parameter until it does (up to a maximum
         % number of times).
-        c_goal=(1-tol)*c_best;  % Goal for improvement in chisqr
+        if tol>0
+            c_goal=(1-tol)*c_best;  % Goal for improvement in chisqr
+        else
+            c_goal=c_best-abs(tol);
+        end
         lambda=lambda/10;
         for itable=1:numel(lambda_table)
             se=sqrt((s.*s)+lambda);
@@ -142,18 +150,18 @@ else
                     c_best=c;
                     break;
                 end
+                if listing~=0, fit_listing_iteration(listing, iter, c/nnorm, lambda, p); end
             end;
             if itable==numel(lambda_table) % Gone to end of table without improving chisqr
                 max_rescale_lambda=1;
                 break;
             end
-            if listing~=0, fit_listing_iteration(listing, iter, c/(nval-npfree), lambda, p); end
             % Chisqr didn't improve - increase lambda and recompute step in parameters
             lambda = lambda*lambda_table(itable);
         end
         
         % Output to command window
-        if listing~=0, fit_listing_iteration(listing, iter, c_best/(nval-npfree), lambda, p_best); end
+        if listing~=0, fit_listing_iteration(listing, iter, c_best/nnorm, lambda, p_best); end
         
         % if chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
         if (c_best>c_goal) || (c_best==0)
@@ -171,7 +179,7 @@ else
     
     % Wrap up for exit from fitting routine
     if converged
-        chisqr_red = c_best/(nval-npfree);
+        chisqr_red = c_best/nnorm;
         % Calculate covariance matrix
         jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp);
         for j=1:npfree
@@ -186,7 +194,7 @@ else
         cor=tmp.*cov.*tmp';
         if listing~=0, fit_listing_final(listing, p_best, sig, cor, pinfo); end
     else
-        chisqr_red = c_best/(nval-npfree);
+        chisqr_red = c_best/nnorm;
         ok=true;
         mess='WARNING: Convergence not achieved';
         disp (mess)
@@ -223,10 +231,16 @@ function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,pinfo,f,dp)
 %
 
 jac=zeros(length(f),length(p));     % initialise Jacobian to zero
-
+min_abs_del=1e-12;
 for j=1:length(p)
     del=dp*p(j);            % dp is fractional change in parameter
-    if del==0, del=dp; end  % Ensure del non-zero
+    if abs(del)<=min_abs_del      % Ensure del non-zero
+        if p(j)>=0
+            del=min_abs_del;
+        else
+            del=-min_abs_del;
+        end
+    end
     if dp>=0
         ppos=p; ppos(j)=p(j)+del;
         jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo)-f)/del;
@@ -234,7 +248,7 @@ for j=1:length(p)
         ppos=p; ppos(j)=p(j)+del;
         pneg=p; pneg(j)=p(j)-del;
         jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo) -...
-            multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,pinfo))/(2*del);
+                  multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,pinfo))/(2*del);
     end
 end
 

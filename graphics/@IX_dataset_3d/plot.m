@@ -47,7 +47,7 @@ if numel(w)~=1
     error('Sliceomatic only works for a single 3D dataset')
 end
 
-% Get figure name: if not given, use appropriate default two-dimensional plot name
+% Get figure name: if not given, use appropriate default sliceomatic plot name
 if isstring(keyword.name)
     if ~isempty(keyword.name)
         fig_name=keyword.name;
@@ -78,16 +78,19 @@ else
     uz=[w.z(1),w.z(end)];
 end
 
+% Permute axes 1 and 2 - usual wierd Matlab thing
+signal = permute(w.signal,[2,1,3]);
+
 [xlabel,ylabel,zlabel,slabel]=make_label(w);
 clim = [min(w.signal(:)) max(w.signal(:))];
 
 % Plot data
-sliceomatic(ux, uy, uz, w.signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
+sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
                         xlabel, ylabel, zlabel, clim, keyword.isonormals);
 title(w.title);
 [fig_, axes_, plot_, plot_type] = genie_figure_all_handles (gcf);
 
-% Because we are not going through the usual genie_figure_vreate route, set some of
+% Because we are not going through the usual genie_figure_create route, set some of
 % the options that function sets
 set(fig_,'Name',fig_name,'Tag','','PaperPositionMode','auto','Color','white');
 

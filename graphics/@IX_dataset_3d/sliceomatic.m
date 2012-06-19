@@ -45,7 +45,7 @@ if numel(w)~=1
     error('Sliceomatic only works for a single 3D dataset')
 end
 
-% Get figure name: if not given, use appropriate default two-dimensional plot name
+% Get figure name: if not given, use appropriate default sliceomatic plot name
 if isstring(keyword.name)
     if ~isempty(keyword.name)
         fig_name=keyword.name;
@@ -75,9 +75,8 @@ if numel(w.z)~=sz(3)
 else
     uz=[w.z(1),w.z(end)];
 end
-%*** HACK:  !!!!
-% This is very strange operation needed to plot sliceomatic axis in proper
-% orded
+
+% Permute axes 1 and 2 - usual wierd Matlab thing
 signal = permute(w.signal,[2,1,3]);
 
 [xlabel,ylabel,zlabel,slabel]=make_label(w);
