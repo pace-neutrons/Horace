@@ -1,18 +1,18 @@
 function [rotmat,alatt,angdeg,rlu_corr] = refine_crystal_orientation(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
-%   >> [rotmat,lattice] = refine_crystal_orientation(rlu0,lattice0,rlu)
-%   >> [rotmat,lattice] = refine_crystal_orientation(rlu0,lattice0,rlu,lattice_init)
+%   >> [rotmat, lattice] = refine_crystal_orientation(rlu0, alatt0, angdeg0, rlu)
+%   >> [rotmat, lattice] = refine_crystal_orientation(rlu0, alatt0, angdeg0, rlu, lattice_init)
 %
 % In addition, there are keyword arguments to control the refinement e.g.
-%   >> [rotmat,lattice] = refine_crystal_orientation(...,'fix_angdeg')
-%   >> [rotmat,lattice] = refine_crystal_orientation(...,'free_alatt',[1,0,1])
+%   >> [rotmat, lattice] = refine_crystal_orientation(..., 'fix_angdeg')
+%   >> [rotmat, lattice] = refine_crystal_orientation(..., 'free_alatt', [1,0,1])
 %
 % Input:
 % ------
 %   rlu0            Positions of Bragg peaks as h,k,l in reference lattice  (n x 3 matrix, n=no. reflections)
-%   alatt           Reference lattice parameters [a,b,c] (Angstroms)
-%   angdeg          Reference lattice angles [alf,bet,gam] (deg)
+%   alatt0          Reference lattice parameters [a,b,c] (Angstroms)
+%   angdeg0         Reference lattice angles [alf,bet,gam] (deg)
 %   rlu             True indexes of Bragg peaks (n x 3 matrix)
 %
 % Optional input parameter:

@@ -8,7 +8,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 % If want output diagnostics:
 %   >> [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                               u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
-%
+
 % Input: (in the following, nfile = no. spe files)
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   spe_file        Full file name of spe file - character string or cell array of
@@ -81,27 +81,22 @@ if is_herbert_used() % =============================> rundata files processing
         urange = rundata_find_urange(dummy,run_files,emode,u,v);        
     end    
     
-    nfiles         = numel(run_files);
+    nfiles = numel(run_files);
     tmp_file = cell(1,nfiles);
-    targ_path = fileparts(sqw_file);
-    set(hor_config,'sqw_path',targ_path);
     if nfiles ==1
-        tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
-        sqw_tmp_ext=get(hor_config,'sqw_ext');
-        set(hor_config,'sqw_ext','.sqw');
-        try 
-        [grid_size,urange,tmp_file{1}] = rundata_write_to_sqw (dummy,run_files{1},emode,u,v, grid_size_in, urange);
-        catch
-        end
-        set(hor_config,'sqw_ext',sqw_tmp_ext);
+        [grid_size,urange] = rundata_write_to_sqw (dummy,run_files{1},sqw_file,emode,u,v, grid_size_in, urange);
     else
         nt=bigtic();
+        tmp_sqw_path = fileparts(sqw_file);
+        tmp_sqw_ext = get(hor_config,'sqw_ext');
         for i=1:nfiles
             disp('--------------------------------------------------------------------------------')
             disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
-            [grid_size_tmp,urange,tmp_file{i}] = rundata_write_to_sqw(dummy,run_files{i},emode,u,v,grid_size_in, urange);
+            [source_path,source_name]=get_source_fname(run_file);
+            tmp_file{i}=fullfile(tmp_sqw_path,source_name,tmp_sqw_ext);
+            [grid_size_tmp,urange] = rundata_write_to_sqw (dummy,run_files{i},tmp_file{i},emode,u,v,grid_size_in, urange);
             if i==1
                 grid_size = grid_size_tmp;
             else
@@ -159,14 +154,20 @@ else   % =============================> spe/par file processing
     end
 end  % =============================> spe/par file processing
 
-% Delete temporary files as user will presumably use hdf and tmp files
+% Delete temporary files if requested
 if get(hor_config,'delete_tmp')
     if ~isempty(tmp_file)   % will be empty if only one spe file
-        tmp_path=fileparts(tmp_file{1});
-        if isempty(tmp_path)
-            tmp_path='.';
+        delete_error=false;
+        for i=1:numel(tmp_file)
+            try
+                delete(tmp_file{i})
+            catch
+                if delete_error==false
+                    delete_error=true;
+                    disp('One or more temporary sqw files not deleted')
+                end
+            end
         end
-        delete([tmp_path,filesep,'*.tmp']);
     end
 end
 
