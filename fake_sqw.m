@@ -1,6 +1,6 @@
 function [tmp_file, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
                     u, v, psi, omega, dpsi, gl, gs, varargin)
-% Create an output sqw file using just energy bins for one or more spe files.
+% Create an output sqw file with dummy data using array(s) of energy bins instead spe file(s).
 %
 %   >> fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
@@ -183,4 +183,16 @@ if numel(varargin)<2
 else
     [tmp_file,grid_size,urange] = gen_sqw (sqw, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
                                                 u, v, psi, omega, dpsi, gl, gs, grid_size, varargin{2});
+end
+
+% Delete temporary spe files
+for i=1:numel(spe_file)
+    try
+        delete(spe_file{i})
+    catch
+        if delete_error==false
+            delete_error=true;
+            disp('One or more temporary spe files not deleted')
+        end
+    end
 end

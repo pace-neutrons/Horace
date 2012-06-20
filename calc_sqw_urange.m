@@ -2,7 +2,7 @@ function urange = calc_sqw_urange (varargin)
 % Compute range of data for a collection of data files given the projection axes and crystal orientation
 %
 % Normal use:
-%   >> urange = calc_grid (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+%   >> urange = calc_sqw_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 %
 % Input: (in the following, nfile = no. spe files)
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]

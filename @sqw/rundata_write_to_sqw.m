@@ -1,4 +1,4 @@
-function [grid_size, urange,sqw_file_name] = rundata_write_to_sqw (dummy,run_file,emode,u,v,grid_size_in, urange_in)
+function [grid_size, urange] = rundata_write_to_sqw (dummy,run_file,sqw_file,emode,u,v,grid_size_in, urange_in)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 % to file.
 %
@@ -50,25 +50,17 @@ data = struct();
 % Read spe file and detector parameters if it has not been done before and
 % return the results, without NaN-s ('-nonan')
 [data.S,data.ERR,data.en,det,efix,alatt,angdeg,...
- psi,omega,dpsi,gl,gs]=get_rundata(run_file,'S','ERR','en',...
+psi,omega,dpsi,gl,gs]=get_rundata(run_file,'S','ERR','en',...
                                     'det_par','efix','alatt', 'angldeg',...
                                     'psi','omega', 'dpsi', 'gl', 'gs',...
                                      '-hor','-rad','-nonan');
 
 [data.filepath,data.filename]=fileparts(run_file.loader.file_name);
 
-[source_path,source_name]=get_source_fname(run_file);
-targ_path  = get(hor_config,'sqw_path');
-if isempty(targ_path)
-    targ_path = source_path;
-end
-sqw_ext = get(hor_config,'sqw_ext');
-
-sqw_file_name =fullfile(targ_path,[source_name,sqw_ext]); 
 % get the list of all detectors, including the detectors, which produce
 % incorrect results (NaN-s) for this run
 det0 = get_rundata(run_file,'det_par','-hor');
 
-[grid_size, urange]=calc_and_write_sqw(sqw_file_name, efix, emode, alatt, angdeg, u, v, psi,...
+[grid_size, urange]=calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
                                                       omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);
 
