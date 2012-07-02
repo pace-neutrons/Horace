@@ -4,6 +4,7 @@ function [main_header,header,detpar,data,mess,position,npixtot,type,current_form
 % Syntax:
 %   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile)
 %   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile, '-h')
+%   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile, '-hverbatim')
 %   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile, '-nopix')
 %   >> [main_header,header,detpar,data,mess,position,npixtot,type,current_format] = get_sqw (infile, npix_lo, npix_hi)
 %
@@ -11,11 +12,15 @@ function [main_header,header,detpar,data,mess,position,npixtot,type,current_form
 % --------
 %   infile      File name, or file identifier of open file, from which to read data
 %   opt         [optional] Determines which fields to read
-%                   '-h'     header-type information only: fields read: 
-%                               uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
-%                              (If file was written from a structure of type 'b' or 'b+', then
-%                               urange does not exist, and the output field will not be created)
-%                   '-nopix' Pixel information not read (only meaningful for sqw data type 'a')
+%                   '-h'            Header-type information only: fields read: 
+%                                       uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
+%                                  (If file was written from a structure of type 'b' or 'b+', then
+%                                  urange does not exist, and the output field will not be created)
+%                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
+%                                  data sections are returned as stored, not constructed from the
+%                                  value of fopen(fid). This is needed in some applications where
+%                                  data is written back to the file with a few altered fields.
+%                   '-nopix'        Pixel information not read (only meaningful for sqw data type 'a')
 %
 %                    Default: read all fields of the corresponding sqw data type ('b','b+','a','a-')
 %
@@ -116,7 +121,11 @@ end
 % Get main header
 if sqw_type
     pos_tmp = ftell(fid);
-    [main_header,mess]=get_sqw_main_header(fid);
+    if numel(varargin)==1 && ischar(varargin{1}) && strcmpi(varargin{1},'-hverbatim')
+        [main_header,mess]=get_sqw_main_header(fid,'-hverbatim');
+    else
+        [main_header,mess]=get_sqw_main_header(fid);
+    end
     if ~isempty(mess); if close_file; fclose(fid); end; mess=['Error reading main header block - ',mess]; return; end
     nfiles = main_header.nfiles;    % expected number of headers
 else

@@ -4,9 +4,8 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %
 % Syntax:
 %   >> [data, mess] = get_sqw_data(fid)
-%   >> [data, mess] = get_sqw_data(fid, data_in)
-%   >> [data, mess] = get_sqw_data(..., opt)
-%   >> [data, mess] = get_sqw_data(..., npix_lo, npix_hi)
+%   >> [data, mess] = get_sqw_data(fid, opt)
+%   >> [data, mess] = get_sqw_data(fid, npix_lo, npix_hi)
 %
 % To any of the above: to read original prototype format file
 %   >> [data, mess] = get_sqw_data(..., '-prototype')
@@ -27,6 +26,10 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %                               uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
 %                              (If file was written from a structure of type 'b' or 'b+', then
 %                               urange does not exist, and the output field will not be created)
+%                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
+%                                  data sections are returned as stored, not constructed from the
+%                                  value of fopen(fid). This is needed in some applications where
+%                                  data is written back to the file with a few altered fields.
 %                   '-nopix' Pixel information not read (only meaningful for sqw data type 'a')
 %
 %                    Default: read all fields of the corresponding sqw data type ('b','b+','a','a-')
@@ -133,20 +136,11 @@ else
 end
 
 % Parse input
-if nargs==1 && isstruct(args{1})
-    data = args{1};
-elseif nargs==1 && ischar(args{1})
+if nargs==1 && ischar(args{1})
     opt = args{1};
-elseif nargs==2 && isstruct(args{1}) && ischar(args{2})
-    data = args{1};
-    opt = args{2};
 elseif nargs==2 && isnumeric(args{1}) && isnumeric(args{2}) && isscalar(args{1}) && isscalar(args{2})
     npix_lo=args{1};
     npix_hi=args{2};
-elseif nargs==3 && isstruct(args{1}) && isnumeric(args{2}) && isnumeric(args{3}) && isscalar(args{2}) && isscalar(args{3})
-    data = args{1};
-    npix_lo=args{2};
-    npix_hi=args{3};
 elseif nargs>0
     mess = 'Check the type of input argument(s)';
     return
@@ -154,10 +148,14 @@ end
 
 % check opt argument
 header_only=false;
+hverbatim=false;
 nopix=false;
 if exist('opt','var')
     if strcmpi(opt,'-h')
         header_only=true;
+    elseif strcmpi(opt,'-hverbatim')
+        header_only=true;
+        hverbatim=true;
     elseif strcmpi(opt,'-nopix')
         nopix=true;
     else
@@ -174,25 +172,36 @@ end
 
 % Read data
 % --------------
-% Get file name and path (incl. final separator)
-[path,name,ext]=fileparts(fopen(fid));
-data.filename=[name,ext];
-data.filepath=[path,filesep];
-
 if ~prototype
     [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     [dummy_filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
-
+    
     [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     [dummy_filepath, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
-
+    
+    if hverbatim
+        % Read filename and path from file
+        data.filename=dummy_filename;
+        data.filepath=dummy_filepath;
+    else
+        % Get file name and path (incl. final separator)
+        [path,name,ext]=fileparts(fopen(fid));
+        data.filename=[name,ext];
+        data.filepath=[path,filesep];
+    end
+    
     [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     [data.title, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
-
+    
     [data.alatt, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
     [data.angdeg, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
-
+    
 else
+    % Get file name and path (incl. final separator)
+    [path,name,ext]=fileparts(fopen(fid));
+    data.filename=[name,ext];
+    data.filepath=[path,filesep];
+    
     data.title = '';
     data.alatt = zeros(1,3);
     data.angdeg = zeros(1,3);

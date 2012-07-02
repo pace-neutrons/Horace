@@ -1,23 +1,24 @@
-function [rotmat,alatt,angdeg,rlu_corr] = refine_crystal_orientation(rlu0,alatt0,angdeg0,rlu,varargin)
+function [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
-%   >> [rotmat, lattice] = refine_crystal_orientation(rlu0, alatt0, angdeg0, rlu)
-%   >> [rotmat, lattice] = refine_crystal_orientation(rlu0, alatt0, angdeg0, rlu, lattice_init)
+%   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0, alatt0, angdeg0, rlu)
+%   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0, alatt0, angdeg0, rlu, lattice_init)
 %
 % In addition, there are keyword arguments to control the refinement e.g.
-%   >> [rotmat, lattice] = refine_crystal_orientation(..., 'fix_angdeg')
-%   >> [rotmat, lattice] = refine_crystal_orientation(..., 'free_alatt', [1,0,1])
+%   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(..., 'fix_angdeg')
+%   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(..., 'free_alatt', [1,0,1])
 %
 % Input:
 % ------
-%   rlu0            Positions of Bragg peaks as h,k,l in reference lattice  (n x 3 matrix, n=no. reflections)
+%   rlu0            Positions of reciprocal lattice vectors as h,k,l in reference lattice
+%                  (n x 3 matrix, n=no. reflections)
 %   alatt0          Reference lattice parameters [a,b,c] (Angstroms)
 %   angdeg0         Reference lattice angles [alf,bet,gam] (deg)
-%   rlu             True indexes of Bragg peaks (n x 3 matrix)
+%   rlu             True indexes of reciprocal lattice vectors (n x 3 matrix)
 %
 % Optional input parameter:
-%   alatt_init      Initial lattice parameters for refinement [a,b,c] (Angstroms)
-%   angdeg_init     Initial lattice angles for refinement [alf,bet,gam] (deg)
+%   alatt_init      Initial lattice parameters for start of refinement [a,b,c] (Angstroms)
+%   angdeg_init     Initial lattice angles for start of refinement [alf,bet,gam] (deg)
 %                  If one or both of alatt_init and angdeg_init are not given, then the corresponding
 %                  reference lattice parmaeters are taken as the initial values for refinement.
 %
@@ -33,7 +34,7 @@ function [rotmat,alatt,angdeg,rlu_corr] = refine_crystal_orientation(rlu0,alatt0
 %                  together with crystal orientation
 %   fix_orient      Fix the crystal orientation i.e. only refine lattice parameters
 %
-% Finer control of lattice parameters: instead of fix_lattice, fix_angdeg,... use
+% Finer control of refoinement of lattice parameters: instead of fix_lattice, fix_angdeg,... use
 %   free_alatt      Array length 3 of zeros or ones, 1=free, 0=fixed
 %                  e.g. ...,'free_lattice',[1,1,1,0,0,0],... is equivalent to ...,'fix_angdeg',...
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
@@ -42,27 +43,29 @@ function [rotmat,alatt,angdeg,rlu_corr] = refine_crystal_orientation(rlu0,alatt0
 %
 % Output:
 % -------
-%   rotmat          Rotation matrix that relates crystal Cartesian coordinate frame of the refined
-%                  lattice and orientation as a rotation of the initial crystal frame. Coordinates
-%                  in the two frames are related by 
-%                       v(i)= rotmat(i,j)*v0(j)
+%   rlu_corr        Conversion matrix to relate notional rlu to true rlu, accounting for the the
+%                  refined crystal lattice parameters and orientation
+%                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
 %
 %   alatt           Refined lattice parameters [a,b,c] (Angstroms)
 %
 %   angdeg          Refined lattice angles [alf,bet,gam] (degrees)
 %
-% The following can be derived from lattice0, romat and lattice, but is returned for completeness:
+%   rotmat          Rotation matrix that relates crystal Cartesian coordinate frame of the refined
+%                  lattice and orientation as a rotation of the initial crystal frame. Coordinates
+%                  in the two frames are related by 
+%                       v(i)= rotmat(i,j)*v0(j)
 %
-%   rlu_corr        Conversion matrix to relate notional rlu to true rlu, accounting for the the
-%                  refined crystal lattice parameters and orientation
-%                       qhkl(i) = rlumat(i,j) * qhkl_0(j)
+% The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
+% the other output arguments. That is why Horace functions that use the output of this function will
+% generally only require rlu_corr.
 %
 % EXAMPLES
 %   Want to refine crystal orientation only:
-%   >> rotmat=refine_crystal_orientation (rlu0, lattice0, rlu, 'fix_lattice')
+%   >> rlu_corr=refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_lattice')
 %
 %   Want to refine lattice parameters a,b,c as well as crystal orientation:
-%   >> rotmat=refine_crystal_orientation (rlu0, lattice0, rlu, 'fix_angdeg')
+%   >> [rlu_corr,alatt]=refine_crystal (rlu0, alatt0, angdeg0, rlu, 'fix_angdeg')
 
 small=1e-10;
 
@@ -189,7 +192,10 @@ rotvec=fitpar.p(7:9);
 rotmat=rotvec_to_rotmat2(rotvec);
 alatt=fitpar.p(1:3);
 angdeg=fitpar.p(4:6);
-rlu_corr=binit\rotmat*b0;
+
+[b,arlu,angrlu,mess] = bmatrix(alatt,angdeg);
+if ~isempty(mess), error(mess), end
+rlu_corr=b\rotmat*b0;
 
 
 %============================================================================================================

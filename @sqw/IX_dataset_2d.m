@@ -42,10 +42,10 @@ for i=1:numel(w)
     % Check if display axes are reversed
     if all(w(i).data.dax==[2,1])    % axes are permuted for plotting purposes
         wout(i) = IX_dataset_2d (title_squeeze(title_main), signal, err,...
-            s_axis, w(i).data.p{2}, axis_1, false, w(i).data.p{1}, axis_2, false);
+            s_axis, w(i).data.p{2}, axis_1, true, w(i).data.p{1}, axis_2, true);
     else
         wout(i) = IX_dataset_2d (title_squeeze(title_main), signal, err,...
-            s_axis, w(i).data.p{1}, axis_1, false, w(i).data.p{2}, axis_2, false);
+            s_axis, w(i).data.p{1}, axis_1, true, w(i).data.p{2}, axis_2, true);
     end
 
 end

@@ -32,7 +32,7 @@ function [data_source, args, source_is_file, sqw_type, ndims, source_arg_is_file
 %                                for the file name(s) provided, or simply input data source structure
 %                                if this was given.
 %   args                Input argument list stripped of sqw_object or dummy_sqw_object, data_source_in
-%   source_is_file      true: if sqw object input; false: file name(s) or data source structure
+%   source_is_file      false: if sqw object input; true: file name(s) or data source structure
 %   sqw_type            Array of logical true or false according to each data object being sqw type or not
 %   ndims               Array of the dimensions of the sqw objects
 %   source-arg_is_filename  true: data_source_in is a file name or cell array of file names
