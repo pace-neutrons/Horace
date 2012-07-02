@@ -10,11 +10,13 @@ function [mess,position,npixtot,type] = put_sqw_data (fid, data, opt, infiles, n
 % -------
 %   fid         File identifier of output file (opened for binary writing)
 %   data        Valid sqw data structure which must contain the fields listed below 
-%                       type 'b'    fields: uoffset,...,s,e
-%                       type 'b+'   fields: uoffset,...,s,e,npix
-%                       type 'a'    uoffset,...,s,e,npix,urange,pix
+%                       type 'b'    fields: uoffset,...,dax,s,e
+%                       type 'b+'   fields: uoffset,...,dax,s,e,npix
+%                       type 'a'    fields: uoffset,...,dax,s,e,npix,urange,pix
 %               In addition, will take the data structure of type 'a' without the individual pixel information ('a-')
-%                       type 'a-'   uoffset,...,s,e,npix,urange
+%                       type 'a-'   fields: uoffset,...,dax,s,e,npix,urange
+%               Lastly, the information as read with '-h' option in get_sqw is valid
+%                       type 'h'    fields: uoffset,...,dax
 %
 %   opt         [optional argument for type 'a' or type 'a-'] Determines whether or not to write pixel info, and
 %               from which source:
@@ -184,7 +186,7 @@ elseif strcmpi(type_in,'a-')
         mess = 'Unrecognised option';
         return
     end
-else
+elseif ~strcmpi(type_in,'h')
     error('logic error in put_sqw_data')
 end
 
@@ -232,17 +234,25 @@ if npax>0
     fwrite(fid,data.dax,'int32');
 end
 
+position.s=[];
+position.e=[];
+position.npix=[];
+position.pix=[];
+npixtot=[];
+
+% If header to be written only, return
+if strcmpi(type_in,'h')
+    return
+end
+
+% Now write other cases
 position.s=ftell(fid);
 fwrite(fid,data.s,'float32');
 
 position.e=ftell(fid);
 fwrite(fid,data.e,'float32');
 
-
 % Optional fields depending on input data structure and options
-position.npix=[];
-position.pix=[];
-npixtot=[];
 
 if strcmpi(type_in,'a')||strcmpi(type_in,'a-')||strcmpi(type_in,'b+')
     position.npix=ftell(fid);

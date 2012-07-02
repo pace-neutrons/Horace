@@ -1,4 +1,4 @@
-function [det, mess] = get_sqw_detpar (fid, det_in)
+function [det, mess] = get_sqw_detpar (fid)
 % Read the detector parameter from a binary file.
 %
 % Syntax:
@@ -6,9 +6,7 @@ function [det, mess] = get_sqw_detpar (fid, det_in)
 %
 % Input:
 % ------
-%   fid         File pointer to (already open) binary file
-%   det_in      [optional] Data structure to which the data
-%              fields below will be added or overwrite.
+%   fid         File pointer to (already open) binary fil
 %
 % Output:
 % -------
@@ -31,16 +29,7 @@ function [det, mess] = get_sqw_detpar (fid, det_in)
 %
 % $Revision$ ($Date$)
 
-if nargin==2
-    if isstruct(det_in)
-        det = det_in;
-    else
-        mess = 'Check the type of input argument det_in';
-        return
-    end
-else
-    det = [];
-end
+det = [];
 
 [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
 [det.filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;

@@ -61,6 +61,11 @@ function [wout_disp,wout_weight]=dispersion(win,dispreln,pars)
 %               The output dataset (or array of data sets) will retain only the Q axes, the
 %              the signal array(s) will contain the values of energy along the Q axes, and
 %              the error array will contain the square of the spectral weight.
+%               If the function that calculates dispersion relations produces more than one
+%              branch, then in the case of a single input dataset the output will be an array
+%              of datasets, one for each branch. If the input is an array of datasets, then only
+%              the first dispersion branch will be returned, so there is one output dataset per
+%              input dataset.
 %
 %   weight      Mirror output: the signal is the spectral weight, and the error array
 %               contains the square of the frequency.

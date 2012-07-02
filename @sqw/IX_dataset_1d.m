@@ -38,7 +38,7 @@ for i=1:numel(w)
     err=sqrt(w(i).data.e);
     err(nopix)=0;
 
-    wout(i) = IX_dataset_1d (title_squeeze(title_main), signal, err, s_axis, w(i).data.p{1}, x_axis, false);
+    wout(i) = IX_dataset_1d (title_squeeze(title_main), signal, err, s_axis, w(i).data.p{1}, x_axis, true);
 
 end
 

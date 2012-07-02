@@ -26,7 +26,11 @@ function [mess,position,npixtot,type] = put_sqw (outfile,main_header,header,detp
 %                 -'-pix'    write pixel information
 %               The default source of pixel information is the data structure, but if the optional arguments below
 %               are given, then use the corresponding source of pixel information
-%                 - structure with fields:
+%
+%               Can also choose to write just the headaer information in data:
+%                 -'-h'      the information as read with '-h' option in get_sqw is written
+%                           namely the fields: uoffset,...,dax
+%                           (Note: urange will not be written, even if present - types 'a' or 'a-')
 %
 %   infiles     Cell array of file names, or array of file identifiers of open file, from
 %                                   which to accumulate the pixel information

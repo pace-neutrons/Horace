@@ -1,4 +1,4 @@
-function [data, mess] = get_sqw_header (fid, data_in)
+function [data, mess] = get_sqw_header (fid)
 % Read the header block for the results of performing calculate projections on spe file(s).
 %
 % Syntax:
@@ -7,8 +7,6 @@ function [data, mess] = get_sqw_header (fid, data_in)
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
-%   data_in     [optional] Data structure to which the data
-%              fields below will be added or overwrite.
 %
 % Output:
 % -------
@@ -40,16 +38,8 @@ function [data, mess] = get_sqw_header (fid, data_in)
 %
 % $Revision$ ($Date$)
 
-if nargin==2
-    if isstruct(data_in)
-        data = data_in;
-    else
-        mess = 'Check the type of input argument data_in';
-        return
-    end
-else
-    data = [];
-end
+
+data = [];
 
 [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
 [data.filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;

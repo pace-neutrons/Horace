@@ -45,7 +45,7 @@ for i=1:numel(w)
     err=permute(err,dax);
 
     wout(i) = IX_dataset_3d (title_squeeze(title_main), signal, err, s_axis,...
-        p{1}, axis_1, false, p{2}, axis_2, false, p{3}, axis_3, false);
+        p{1}, axis_1, true, p{2}, axis_2, true, p{3}, axis_3, true);
 
 end
 
