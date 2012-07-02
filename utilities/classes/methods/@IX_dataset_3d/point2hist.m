@@ -5,6 +5,19 @@ function wout=point2hist(win,iax)
 %   >> wout=point2hist(win,iax)     % iax=1, 2 or [1,2] for x, y, and both x and y axes
 %
 % Leaves histogram datasets unchanged.
+%
+% Point datasets are converted to distributions as follows:
+%       Point distribution => Histogram distribution;
+%                             Signal numerically unchanged
+%
+%         non-distribution => Histogram distribution;
+%                             Signal numerically unchanged
+%                     *** Signal caption will be plotted incorrectly if units
+%                         are given in the axis description of the point data
+%
+% Point data is always converted to a distribution: it is assumed that point
+% data represents the sampling of a function at a series of points, and only
+% a histogram as a distribution is consistent with that.
 
 % Check input
 nd=3;
@@ -37,6 +50,7 @@ for iw=1:numel(win)
         else
             wout(iw).x=0;   % need to give a single value
         end
+        if ~win(iw).x_distribution, wout(iw).x_distribution=true; end   % always convert into distribution
     end
     if convert_y && numel(win(iw).y)==sz(2)
         if numel(win(iw).y)>0
@@ -45,6 +59,7 @@ for iw=1:numel(win)
         else
             wout(iw).y=0;   % need to give a single value
         end
+        if ~win(iw).y_distribution, wout(iw).y_distribution=true; end   % always convert into distribution
     end
     if convert_z && numel(win(iw).z)==sz(3)
         if numel(win(iw).z)>0
@@ -53,5 +68,6 @@ for iw=1:numel(win)
         else
             wout(iw).z=0;   % need to give a single value
         end
+        if ~win(iw).z_distribution, wout(iw).z_distribution=true; end   % always convert into distribution
     end
 end

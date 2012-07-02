@@ -1,7 +1,7 @@
 function [xlabel,ylabel,zlabel,slabel]=make_label(w)
 % Create axis annotations from IX_dataset_3d object. All outputs are cellstr.
 %
-%   >> [xlabel,ylabel,slabel]=make_label(w)
+%   >> [xlabel,ylabel,zlabel,slabel]=make_label(w)
 
 % If given array of objects, get labels for the first element
 
@@ -23,8 +23,12 @@ if w(1).z_distribution && ~isempty(w(1).z_axis.units)
 end
 if ~isempty(str)
     if ~isempty(slabel)
-        slabel{end}=[slabel{end},str];
+        if units_appended
+            slabel{end}=[slabel{end}(1:end-1),str,')'];
+        else
+            slabel{end}=[slabel{end},' (1',str,')'];
+        end
     else
-        slabel={str};
+        slabel={['(1',str,')']};
     end
 end

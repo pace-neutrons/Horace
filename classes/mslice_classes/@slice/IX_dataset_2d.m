@@ -5,7 +5,7 @@ function wout = IX_dataset_2d (slice)
 %
 %   slice   slice object
 %
-%   wout    IX_dataset_2d object. Will be histogram object
+%   wout    IX_dataset_2d object. Will be histogram object along both axes.
 
 nx = size(slice.xbounds,2) - 1;
 ny = size(slice.ybounds,2) - 1;
@@ -28,4 +28,4 @@ x_axis = IX_axis (slice.x_label);
 y_axis = IX_axis (slice.y_label);
 
 wout = IX_dataset_2d (title, signal, err,...
-    s_axis, slice.xbounds, x_axis, false, slice.ybounds, y_axis, false);
+    s_axis, slice.xbounds, x_axis, true, slice.ybounds, y_axis, true);

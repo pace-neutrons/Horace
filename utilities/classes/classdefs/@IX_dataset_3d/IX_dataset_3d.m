@@ -42,13 +42,13 @@ if nargin==0
     w.s_axis=IX_axis;
     w.x=zeros(1,0);
     w.x_axis=IX_axis;
-    w.x_distribution=false;
+    w.x_distribution=true;
     w.y=zeros(1,0);
     w.y_axis=IX_axis;
-    w.y_distribution=false;
+    w.y_distribution=true;
     w.z=zeros(1,0);
     w.z_axis=IX_axis;
-    w.z_distribution=false;
+    w.z_distribution=true;
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
     if ok, w=class(w,'IX_dataset_3d'); return, else error(mess); end
     return
@@ -69,13 +69,13 @@ elseif nargin>=3 && nargin<=5
     w.s_axis=IX_axis;
     w.x=varargin{1};
     w.x_axis=IX_axis;
-    w.x_distribution=false;
+    w.x_distribution=true;
     w.y=varargin{2};
     w.y_axis=IX_axis;
-    w.y_distribution=false;
+    w.y_distribution=true;
     w.z=varargin{3};
     w.z_axis=IX_axis;
-    w.z_distribution=false;
+    w.z_distribution=true;
     if nargin>=4, w.signal=varargin{4}; else w.signal=zeros(numel(w.x),numel(w.y),numel(w.z)); end
     if nargin>=5, w.error=varargin{5}; else w.error=zeros(size(w.signal)); end
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
@@ -91,21 +91,21 @@ elseif nargin==10 || (nargin==13 && isnumeric(varargin{1}))
     if nargin==13
         w.x_distribution=varargin{11};
     else
-        w.x_distribution=false;
+        w.x_distribution=true;
     end
     w.y=varargin{2};
     w.y_axis=varargin{8};
     if nargin==13
         w.y_distribution=varargin{12};
     else
-        w.y_distribution=false;
+        w.y_distribution=true;
     end
     w.z=varargin{3};
     w.z_axis=varargin{9};
     if nargin==13
         w.z_distribution=varargin{13};
     else
-        w.z_distribution=false;
+        w.z_distribution=true;
     end
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
     if ok, w=class(w,'IX_dataset_3d'); return, else error(mess); end

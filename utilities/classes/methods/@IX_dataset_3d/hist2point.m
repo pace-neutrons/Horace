@@ -5,6 +5,17 @@ function wout=hist2point(win,iax)
 %   >> wout=hist2point(win,iax)     % iax=1, 2 or [1,2] for x, y, and both x and y axes
 %
 % Leaves point axes unchanged.
+%
+% Histogram datasets are converted to distribution as follows:
+%       Histogram distribution => Point data distribution;
+%                                 Signal numerically unchanged
+%
+%             non-distribution => Point data distribution;
+%                                 Signal converted to signal per unit axis length
+%
+% Histogram data is always converted to a distribution: it is assumed that point
+% data represents the sampling of a function at a series of points, and histogram
+% non-distribution data is not consistent with that.
 
 % Check input
 nd=3;
@@ -36,6 +47,13 @@ for iw=1:numel(win)
         else
             wout(iw).x=[];  % can have a histogram dataset with only one bin boundary and empty signal array
         end
+        if ~win(iw).x_distribution
+            if numel(win(iw).x)>1           % don't need tconsider case of one bin, as signal is [] anyway.
+                dx=diff(win(iw).x);
+                wout(iw).signal=win(iw).signal./dx';
+            end
+            wout(iw).x_distribution=true;   % always convert into distribution
+        end
     end
     if convert_y && numel(win(iw).y)>sz(2)
         if numel(win(iw).y)>1
@@ -43,12 +61,26 @@ for iw=1:numel(win)
         else
             wout(iw).y=[];  % can have a histogram dataset with only one bin boundary and empty signal array
         end
+        if ~win(iw).y_distribution
+            if numel(win(iw).y)>1           % don't need tconsider case of one bin, as signal is [] anyway.
+                dy=diff(win(iw).y);
+                wout(iw).signal=win(iw).signal./dy';
+            end
+            wout(iw).y_distribution=true;   % always convert into distribution
+        end
     end
     if convert_z && numel(win(iw).z)>sz(3)
         if numel(win(iw).z)>1
             wout(iw).z=0.5*(win(iw).z(2:end)+win(iw).z(1:end-1));
         else
             wout(iw).z=[];  % can have a histogram dataset with only one bin boundary and empty signal array
+        end
+        if ~win(iw).z_distribution
+            if numel(win(iw).z)>1           % don't need tconsider case of one bin, as signal is [] anyway.
+                dz=diff(win(iw).z);
+                wout(iw).signal=win(iw).signal./dz';
+            end
+            wout(iw).z_distribution=true;   % always convert into distribution
         end
     end
 end

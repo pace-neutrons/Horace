@@ -38,10 +38,10 @@ if nargin==0
     w.s_axis=IX_axis;
     w.x=zeros(1,0);
     w.x_axis=IX_axis;
-    w.x_distribution=false;
+    w.x_distribution=true;
     w.y=zeros(1,0);
     w.y_axis=IX_axis;
-    w.y_distribution=false;
+    w.y_distribution=true;
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
     if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
     return
@@ -62,10 +62,10 @@ elseif nargin>=2 && nargin<=4
     w.s_axis=IX_axis;
     w.x=varargin{1};
     w.x_axis=IX_axis;
-    w.x_distribution=false;
+    w.x_distribution=true;
     w.y=varargin{2};
     w.y_axis=IX_axis;
-    w.y_distribution=false;
+    w.y_distribution=true;
     if nargin>=3, w.signal=varargin{3}; else w.signal=zeros(numel(w.x),numel(w.y)); end
     if nargin>=4, w.error=varargin{4}; else w.error=zeros(size(w.signal)); end
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
@@ -81,14 +81,14 @@ elseif nargin==8 || (nargin==10 && isnumeric(varargin{1}))
     if nargin==10
         w.x_distribution=varargin{9};
     else
-        w.x_distribution=false;
+        w.x_distribution=true;
     end
     w.y=varargin{2};
     w.y_axis=varargin{7};
     if nargin==10
         w.y_distribution=varargin{10};
     else
-        w.y_distribution=false;
+        w.y_distribution=true;
     end
     [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
     if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end

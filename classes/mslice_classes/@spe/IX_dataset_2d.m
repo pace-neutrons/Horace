@@ -5,7 +5,7 @@ function wout = IX_dataset_2d (spe)
 %
 %   spe   	spe object
 %
-%   wout    IX_dataset_2d object. Will be histogram object
+%   wout    IX_dataset_2d object. Will be histogram object along energy axis.
 
 title=avoidtex(fullfile(spe.filepath,spe.filename));
 s_axis = IX_axis ('Intensity');
