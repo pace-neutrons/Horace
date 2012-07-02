@@ -94,8 +94,8 @@ if is_herbert_used() % =============================> rundata files processing
         for i=1:nfiles
             disp('--------------------------------------------------------------------------------')
             disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
-            [source_path,source_name]=get_source_fname(run_file);
-            tmp_file{i}=fullfile(tmp_sqw_path,source_name,tmp_sqw_ext);
+            [source_path,source_name]=get_source_fname(run_files{i});
+            tmp_file{i}=fullfile(tmp_sqw_path,[source_name,tmp_sqw_ext]);
             [grid_size_tmp,urange] = rundata_write_to_sqw (dummy,run_files{i},tmp_file{i},emode,u,v,grid_size_in, urange);
             if i==1
                 grid_size = grid_size_tmp;
