@@ -1,4 +1,4 @@
-function test_refinement (varargin)
+function test_main (varargin)
 % Test crystal refinement functions change_crytstal and refine_crystal
 %
 %   >> test_refinement           % Use previously saved sqw input data file
@@ -59,9 +59,7 @@ if save_output
     
     % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
     efwhh=1;
-    sqw_file=cell(size(psi));
     for i=1:numel(psi)
-        sqw_file{i}=fullfile(dir_out,['sim_',num2str(i),'.sqw']);
         wtmp=read_horace(sqw_file{i});
         wtmp=sqw_eval(wtmp,@make_bragg_blobs,{[qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
         save(wtmp,sqw_file{i});
@@ -69,6 +67,11 @@ if save_output
     
     % Combine the sqw files
     write_nsqw_to_sqw(sqw_file,sim_sqw_file);
+    
+    % Delete temporary sqw files
+    for i=1:numel(psi)
+        delete(sqw_file{i})
+    end
     
 else
     if ~exist(sim_sqw_file,'file')
