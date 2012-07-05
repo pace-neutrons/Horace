@@ -17,9 +17,10 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 % Valid keywords are:
 %   nan_equal       Treat NaNs as equal (true or false; default=true)
 %   min_denominator Minimum denominator for relative tolerance calculation (>=0; default=0)
+%                  When the denominator in a relative tolerance is less than this value, the
+%                  denominator is replaced by this value. Use this when the numbers being
+%                  compared could be close to zero.
 %   ignore_str      Ignore the length and content of strings or cell arrays of strings
-%
-%           The relative error is defined this way to ensure that
 %
 % Output:
 % -------
