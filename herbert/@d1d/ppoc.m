@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = ppoc(win,varargin)
-% Overplot errorbars and markers for a 1d dataset on an existing figure.
+% Overplot markers and error bars for a d1d object or array of objects on the current plot
 %
-% Optional inputs:
-%   >> ppoc(win)
-%   >> ppoc(win,'color','red')
+%   >> ppoc(w)
 %
-% See help for libisis\ppoc for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = ppoc(w) 
 
 [figureHandle_, axesHandle_, plotHandle_] = ppoc(sqw(win),varargin{:});
 

@@ -1,16 +1,12 @@
 function [figureHandle, axesHandle, plotHandle] = dl(win,varargin)
-% Plot line through data for 1d dataset.
+% Draws a line plot of a d1d object or array of objects
 %
-%   >> dl(win)
-%   >> dl(win,xlo,xhi)
-%   >> dl(win,xlo,xhi,ylo,yhi)
-% Or:
-%   >> dl(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red')
-% etc.
+%   >> dl(w)
+%   >> dl(w,xlo,xhi)
+%   >> dl(w,xlo,xhi,ylo,yhi)
 %
-% See help for libisis/dl for more details of more options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = dl(w,...) 
 
 [figureHandle_, axesHandle_, plotHandle_] = dl(sqw(win),varargin{:});
 

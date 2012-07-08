@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = pp(win,varargin)
-% Overplot errorbars and markers for a 1d dataset on an existing figure.
+% Overplot markers and error bars for a d1d object or array of objects on an existing plot
 %
-% Optional inputs:
-%   >> pp(win)
-%   >> pp(win,'color','red')
+%   >> pp(w)
 %
-% See help for libisis\pp for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pp(w,...) 
 
 [figureHandle_, axesHandle_, plotHandle_] = pp(sqw(win),varargin{:});
 

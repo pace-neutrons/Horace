@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = phoc(win,varargin)
-% Overplot histogram of a 1d dataset on an existing figure, irrespective of its type.
+% Overplot histogram for a d1d object or array of objects on the current plot
 %
-% Optional inputs:
-%   >> phoc(win)
-%   >> phoc(win,'color','red')
+%   >> phoc(w)
 %
-% See help for libisis\ph for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = phoc(w) 
 
 [figureHandle_, axesHandle_, plotHandle_] = phoc(sqw(win),varargin{:});
 

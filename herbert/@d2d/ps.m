@@ -1,15 +1,12 @@
-function [figureHandle, axesHandle, plotHandle] = ps(win,varargin)
-% Surface plot for 2D dataset
+function [figureHandle, axesHandle, plotHandle] = ps(w,varargin)
+% Overplot a surface plot of a d2d dataset or array of datasets
 %
-%   >> ps(win)
-%   >> ps(win,xlo,xhi)
-%   >> ps(win,xlo,xhi,ylo,yhi)
+%   >> ps(w)
 %
-% See help for libisis/ps for more details of other options
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = ps(w,...)
 
-% R.A. Ewings 14/10/2008
-
-[figureHandle_, axesHandle_, plotHandle_] = ps(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = ps(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

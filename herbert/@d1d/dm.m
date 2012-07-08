@@ -1,16 +1,12 @@
 function [figureHandle, axesHandle, plotHandle] = dm(win,varargin)
-% Plot markers for 1d dataset.
+% Draws a marker plot of a d1d object or array of objects
 %
-%   >> dm(win)
-%   >> dm(win,xlo,xhi)
-%   >> dm(win,xlo,xhi,ylo,yhi)
-% Or:
-%   >> dm(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red')
-% etc.
+%   >> dm(w)
+%   >> dm(w,xlo,xhi)
+%   >> dm(w,xlo,xhi,ylo,yhi)
 %
-% See help for libisis/dm for more details of more options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = dm(w,...) 
 
 [figureHandle_, axesHandle_, plotHandle_] = dm(sqw(win),varargin{:});
 

@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = pdoc(win,varargin)
-% Overplot errorbars, markers and lines for a 1d dataset on an existing figure.
+% Overplot markers, error bars and lines for a d1d object or array of objects on the current plot
 %
-% Optional inputs:
-%   >> pdoc(win)
-%   >> pdoc(win,'color','red')
+%   >> pdoc(w)
 %
-% See help for libisis\pdoc for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pdoc(w) 
 
 [figureHandle_, axesHandle_, plotHandle_] = pdoc(sqw(win),varargin{:});
 

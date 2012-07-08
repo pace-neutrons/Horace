@@ -1,16 +1,12 @@
 function [figureHandle, axesHandle, plotHandle] = dm(win,varargin)
-% Plot markers for 1d dataset.
+% Draws a marker plot of a 1D sqw object or array of objects
 %
-%   >> dm(win)
-%   >> dm(win,xlo,xhi)
-%   >> dm(win,xlo,xhi,ylo,yhi)
-% Or:
-%   >> dm(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red')
-% etc.
+%   >> dm(w)
+%   >> dm(w,xlo,xhi)
+%   >> dm(w,xlo,xhi,ylo,yhi)
 %
-% See help for libisis/dm for more details of more options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = dm(w,...) 
 
 for i=1:numel(win)
     if dimensions(win(i))~=1
@@ -23,7 +19,7 @@ for i=1:numel(win)
 end
 name_oned =  get_global_var('horace_plot','name_oned');
 
-[figureHandle_, axesHandle_, plotHandle_] = dm(IX_dataset_1d(win), 'name', name_oned, varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = dm(IX_dataset_1d(win), varargin{:}, 'name', name_oned);
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

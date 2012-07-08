@@ -1,18 +1,14 @@
-function [figureHandle, axesHandle, plotHandle] = ds(win,varargin)
-% Surface plot for 2D dataset
+function [figureHandle, axesHandle, plotHandle] = ds(w,varargin)
+% Draw a surface plot of a d2d dataset or array of datasets
 %
-%   >> ds(win)
-%   >> ds(win,xlo,xhi)
-%   >> ds(win,xlo,xhi,ylo,yhi)
-% Or:
-%   >> ds(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'colormap','jet')
-% etc.
+%   >> ds(w)
+%   >> ds(w,xlo,xhi)
+%   >> ds(w,xlo,xhi,ylo,yhi)
 %
-% See help for libisis/ds for more details of other options
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = ps(w,...) 
 
-% R.A. Ewings 14/10/2008
-
-[figureHandle_, axesHandle_, plotHandle_] = ds(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = ds(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

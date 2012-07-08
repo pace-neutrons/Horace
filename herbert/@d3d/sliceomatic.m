@@ -1,9 +1,9 @@
-function [figureHandle, axesHandle, plotHandle] = sliceomatic(win, varargin)
+function [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin)
 % Plots d3d object using sliceomatic
 %
 % Syntax:
-%   >> sliceomatic (win)
-%   >> sliceomatic (win, 'isonormals', true)     % to enable isonormals
+%   >> sliceomatic (w)
+%   >> sliceomatic (w, 'isonormals', true)     % to enable isonormals
 %
 %
 % NOTES:
@@ -12,12 +12,12 @@ function [figureHandle, axesHandle, plotHandle] = sliceomatic(win, varargin)
 %      On the 'AllSlices' menu click 'Color Texture'. No indication will
 %      be made on this menu to show that it has been selected, but you can
 %      see the result if you right-click on an arrow indicating a slice on
-%      the graphics window.
+%      the graphics wdow.
 %
 % - To set the default for future Sliceomatic sessions - 
 %      On the 'Object_Defaults' menu select 'Slice Color Texture'
 
-[figureHandle_, axesHandle_, plotHandle_] = sliceomatic(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = sliceomatic(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

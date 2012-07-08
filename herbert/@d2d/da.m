@@ -1,18 +1,15 @@
-function [figureHandle, axesHandle, plotHandle] = da(win,varargin)
-% Area plot for 2D dataset
+function [figureHandle, axesHandle, plotHandle] = da(w,varargin)
+% Draw an area plot fof a d2d dataset or array of datasets
 %
-%   >> da(win)
-%   >> da(win,xlo,xhi)
-%   >> da(win,xlo,xhi,ylo,yhi)
-% Or:
-%   >> da(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'colormap','bone')
-% etc.
+%   >> da(w)
+%   >> da(w,xlo,xhi)
+%   >> da(w,xlo,xhi,ylo,yhi)
+%   >> da(w,xlo,xhi,ylo,yhi,zlo,zhi)
 %
-% See help for libisis\da for more details of other options
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = da(w,...) 
 
-% R.A. Ewings 14/10/2008
-
-[figureHandle_, axesHandle_, plotHandle_] = da(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = da(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

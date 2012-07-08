@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = pe(win,varargin)
-% Overplot errorbars for a 1d dataset on an existing figure.
+% Overplot error bars for a d1d object or array of objects on an existing plot
 %
-% Optional inputs:
-%   >> pe(win)
-%   >> pe(win,'color','red')
+%   >> pe(w)
 %
-% See help for libisis\pe for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pe(w,...) 
 
 [figureHandle_, axesHandle_, plotHandle_] = pe(sqw(win),varargin{:});
 

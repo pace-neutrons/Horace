@@ -1,20 +1,16 @@
-function [figureHandle, axesHandle, plotHandle] = ds(win,varargin)
-% Surface plot for 2D dataset
+function [figureHandle, axesHandle, plotHandle] = ds(w,varargin)
+% Draw a surface plot of a 2D sqw dataset or array of datasets
 %
-%   >> ds(win)
-%   >> ds(win,xlo,xhi)
-%   >> ds(win,xlo,xhi,ylo,yhi)
-% Or:
-%   >> ds(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'colormap','jet')
-% etc.
+%   >> ds(w)
+%   >> ds(w,xlo,xhi)
+%   >> ds(w,xlo,xhi,ylo,yhi)
 %
-% See help for libisis/ds for more details of other options
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = ps(w,...) 
 
-% R.A. Ewings 14/10/2008
-
-for i=1:numel(win)
-    if dimensions(win(i))~=2
-        if numel(win)==1
+for i=1:numel(w)
+    if dimensions(w(i))~=2
+        if numel(w)==1
             error('sqw object is not two dimensional')
         else
             error('Not all elements in the array of sqw objects are two dimensional')
@@ -23,11 +19,11 @@ for i=1:numel(win)
 end
 name_surface =  get_global_var('horace_plot','name_surface');
 
-[figureHandle_, axesHandle_, plotHandle_] = ds(IX_dataset_2d(win), 'name', name_surface, varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = ds(IX_dataset_2d(w), varargin{:}, 'name', name_surface);
 
-pax = win(1).data.pax;
-dax = win(1).data.dax;                 % permutation of projection axes to give display axes
-ulen = win(1).data.ulen(pax(dax));     % unit length in order of the display axes
+pax = w(1).data.pax;
+dax = w(1).data.dax;                 % permutation of projection axes to give display axes
+ulen = w(1).data.ulen(pax(dax));     % unit length in order of the display axes
 energy_axis = 4;    % by convention in Horace
 if pax(dax(1))~=energy_axis && pax(dax(2))~=energy_axis    % both plot axes are Q axes
     aspect(ulen(1), ulen(2));

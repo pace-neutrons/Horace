@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = peoc(win,varargin)
-% Overplot errorbars for a 1d dataset on an existing figure, irrespective of its type.
+% Overplot error bars for a 1D sqw object or array of objects on the current plot
 %
-% Optional inputs:
-%   >> peoc(win)
-%   >> peoc(win,'color','red')
+%   >> peoc(w)
 %
-% See help for libisis\pe for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = peoc(w) 
 
 for i=1:numel(win)
     if dimensions(win(i))~=1

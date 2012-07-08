@@ -1,15 +1,12 @@
-function [figureHandle, axesHandle, plotHandle] = plot(win,varargin)
-% Plot errorbars and markers for 1d dataset.
+function [figureHandle, axesHandle, plotHandle] = plot(w,varargin)
+% Draws a plot of markers and error bars for a d1d object or array of objects
 %
-%   >> plot(win)
+%   >> plot(w)
 %
 % Equivalent to;
-%   >> dp(win)
-%
+%   >> dp(w)
 
-% R.A. Ewings 9/1/2009
-
-[figureHandle_, axesHandle_, plotHandle_] = plot(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = plot(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end
