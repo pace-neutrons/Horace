@@ -1,5 +1,5 @@
 function [fig_handle, axes_handle, plot_handle] = de(w,varargin)
-% Draws a plot of error bars for a spectrum or array of spectra
+% Draws a plot of error bars of a spectrum or array of spectra
 %
 %   >> de(w)
 %   >> de(w,xlo,xhi)

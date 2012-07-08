@@ -5,6 +5,9 @@ function [fig_, axes_, plot_, ok, mess] = plot_twod (w_in, varargin)
 %   >> plot_twod (w_in, xlo, xhi, ylo, yhi)
 %   >> plot_twod (...,key1, val1, key2, val2,...)
 %
+%   w_in is an array of IX_dataset_2d, or in the case of plot type 'surface2' it could be
+%   a cell array of two IX_dataset_2d arrays or an IX_dataset_2d scalar and a numeric array.
+%
 %   Valid keywords and values
 %       'name'      Name of figure window
 %       'newplot'   True if new window to be created, false if use existing window if possible
@@ -26,7 +29,8 @@ ok=true; mess='';
 % ---------------------
 % Check spectrum is not too long an array
 maxspec=get_global_var('genieplot','twod_maxspec');
-if numel(w_in)>maxspec
+if ~iscell(w_in), nspec=numel(w_in); else nspec=numel(w_in{1}); end
+if nspec>maxspec
     ok=false; mess=['This function can only be used to plot ',num2str(maxspec),' 2D datasets - check input object'];
     if nargout<=3, error(mess), else return, end
 end
@@ -186,8 +190,19 @@ hold off    % release plot
 
 % Create/change title if a new plot
 if (newplot)
-    [tx,ty,tz]=make_label(w(1));  % Create axis annotations
-    tt=w(1).title(:);  % tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
+    if ~iscell(w)
+        [tx,ty,tz]=make_label(w(1));  % Create axis annotations
+        tt=w(1).title(:);  % tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
+        xticks=w(1).x_axis.ticks;
+        yticks=w(1).y_axis.ticks;
+        zticks=w(1).s_axis.ticks;
+    else
+        [tx,ty,tz]=make_label(w{1}(1));  % Create axis annotations
+        tt=w{1}(1).title(:);  % tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
+        xticks=w{1}(1).x_axis.ticks;
+        yticks=w{1}(1).y_axis.ticks;
+        zticks=w{1}(1).s_axis.ticks;
+    end
     % change titles:
     title(tt);
     xlabel(tx);
@@ -206,13 +221,10 @@ if (newplot)
 %     pos = [xplo,yplo,xphi-xplo,yphi-yplo];
 %     set(gca,'position',pos)
     % change ticks
-    xticks=w(1).x_axis.ticks;
     if ~isempty(xticks.positions), set(gca,'XTick',xticks.positions); end
     if ~isempty(xticks.labels), set(gca,'XTickLabel',xticks.labels); end
-    yticks=w(1).y_axis.ticks;
     if ~isempty(yticks.positions), set(gca,'YTick',yticks.positions); end
     if ~isempty(yticks.labels), set(gca,'YTickLabel',yticks.labels); end
-    zticks=w(1).s_axis.ticks;
     if ~isempty(zticks.positions), set(gca,'ZTick',zticks.positions); end
     if ~isempty(zticks.labels), set(gca,'ZTickLabel',zticks.labels); end
 end

@@ -1,5 +1,5 @@
 function [fig_handle, axes_handle, plot_handle] = dd(w,varargin)
-% Draws a plot of markers, error bars and lines for a spectrum or array of spectra
+% Draws a plot of markers, error bars and lines of a spectrum or array of spectra
 %
 %   >> dd(w)
 %   >> dd(w,xlo,xhi)
