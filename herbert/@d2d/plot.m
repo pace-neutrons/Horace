@@ -1,15 +1,12 @@
-function [figureHandle, axesHandle, plotHandle] = plot(win,varargin)
-% Plot d2d object
+function [figureHandle, axesHandle, plotHandle] = plot(w,varargin)
+% Draw an area plot fof a d2d dataset or array of datasets
 %
-%   >> plot(win)
+%   >> plot(w)
 %
 % Equivalent to:
-%   >> da(win)
-%
+%   >> da(w)
 
-% R.A. Ewings 9/1/2009
-
-[figureHandle_, axesHandle_, plotHandle_] = plot(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = plot(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

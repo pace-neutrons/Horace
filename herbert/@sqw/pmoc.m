@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = pmoc(win,varargin)
-% Overplot markers for a 1d dataset on an existing figure, irrespective of its type.
+% Overplot markers for a 1D sqw object or array of objects on the current plot
 %
-% Optional inputs:
-%   >> pmoc(win)
-%   >> pmoc(win,'color','red')
+%   >> pmoc(w)
 %
-% See help for libisis\pm for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pmoc(w) 
 
 for i=1:numel(win)
     if dimensions(win(i))~=1

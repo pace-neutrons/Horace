@@ -1,21 +1,18 @@
-function [figureHandle, axesHandle, plotHandle] = plot(win,varargin)
-% Plot 1D, 2D or 3D sqw object
+function [figureHandle, axesHandle, plotHandle] = plot(w,varargin)
+% Plot 1D, 2D or 3D sqw object or array of objects
 %
-%   >> plot(win)
+%   >> plot(w)
 %
 % Equivalent to:
-%   >> dp(win)              % 1D dataset
+%   >> dp(w)              % 1D dataset
 %
-%   >> da(win)              % 2D dataset
+%   >> da(w)              % 2D dataset
 %
-%   >> sliceomatic(win)     % 3D dataset
+%   >> sliceomatic(w)     % 3D dataset
 
-
-% R.A. Ewings 14/10/2008
-
-nd=zeros(size(win));
-for i=1:numel(win)
-    nd(i)=dimensions(win(i)); % find out what dimensionality dataset we have.
+nd=zeros(size(w));
+for i=1:numel(w)
+    nd(i)=dimensions(w(i)); % find out what dimensionality dataset we have.
 end
 
 if ~all(nd==nd(i))
@@ -28,11 +25,11 @@ else
 end
 
 if nd==1
-    [figureHandle_, axesHandle_, plotHandle_] = dp(win,varargin{:});
+    [figureHandle_, axesHandle_, plotHandle_] = dp(w,varargin{:});
 elseif nd==2
-    [figureHandle_, axesHandle_, plotHandle_] = da(win,varargin{:});
+    [figureHandle_, axesHandle_, plotHandle_] = da(w,varargin{:});
 else
-    [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win,varargin{:});
+    [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(w,varargin{:});
 end
 
 % Output only if requested

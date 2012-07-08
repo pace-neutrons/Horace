@@ -1,15 +1,12 @@
-function [figureHandle, axesHandle, plotHandle] = pa(win,varargin)
-% Area plot for 2D dataset
+function [figureHandle, axesHandle, plotHandle] = pa(w,varargin)
+% Overplot an area plot of a d2d dataset or array of datasets
 %
-%   >> pa(win)
-%   >> pa(win,xlo,xhi)
-%   >> pa(win,xlo,xhi,ylo,yhi)
+%   >> pa(w)
 %
-% See help for libisis\pa for more details of other options
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pa(w,...) 
 
-% R.A. Ewings 14/10/2008
-
-[figureHandle_, axesHandle_, plotHandle_] = pa(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = pa(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

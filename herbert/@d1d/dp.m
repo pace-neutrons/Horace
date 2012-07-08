@@ -1,16 +1,12 @@
 function [figureHandle, axesHandle, plotHandle] = dp(win,varargin)
-% Plot errorbars and markers for 1d dataset.
+% Draws a plot of markers and error bars for a d1d object or array of objects
 %
-%   >> dp(win)
-%   >> dp(win,xlo,xhi)
-%   >> dp(win,xlo,xhi,ylo,yhi)
-% Or:
-%   >> dp(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red')
-% etc.
+%   >> dp(w)
+%   >> dp(w,xlo,xhi)
+%   >> dp(w,xlo,xhi,ylo,yhi)
 %
-% See help for libisis/dp for more details of more options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = dp(w,...) 
 
 [figureHandle_, axesHandle_, plotHandle_] = dp(sqw(win),varargin{:});
 

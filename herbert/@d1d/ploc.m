@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = ploc(win,varargin)
-% Overplot line through data of a 1d dataset on an existing figure, irrespective of its type.
+% Overplot line for a d1d object or array of objects on the current plot
 %
-% Optional inputs:
-%   >> ploc(win)
-%   >> ploc(win,'color','red')
+%   >> ploc(w)
 %
-% See help for libisis\pl for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = ploc(w) 
 
 [figureHandle_, axesHandle_, plotHandle_] = ploc(sqw(win),varargin{:});
 

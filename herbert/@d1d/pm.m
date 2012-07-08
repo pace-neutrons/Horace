@@ -1,14 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = pm(win,varargin)
-% Overplot markers for a 1d dataset on an existing figure.
+% Overplot markers for a d1d object or array of objects on an existing plot
 %
-% Optional inputs:
-%   >> pm(win)
-%   >> pm(win,'color','red')
+%   >> pm(w)
 %
-% See help for libisis\pm for more details of further options
-
-% R.A. Ewings 14/10/2008
-
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pm(w,...) 
 [figureHandle_, axesHandle_, plotHandle_] = pm(sqw(win),varargin{:});
 
 % Output only if requested

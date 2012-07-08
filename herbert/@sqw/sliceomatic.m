@@ -1,11 +1,11 @@
-function [figureHandle, axesHandle, plotHandle] = sliceomatic(win, varargin)
+function [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin)
 % Plots 3D sqw object using sliceomatic
 %
-%   >> sliceomatic (win)
-%   >> sliceomatic (win, 'isonormals', true)     % to enable isonormals
+%   >> sliceomatic (w)
+%   >> sliceomatic (w, 'isonormals', true)     % to enable isonormals
 %
 % To get handles to the graphics figure:
-%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win)
+%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(w)
 %
 %
 % NOTES:
@@ -22,25 +22,23 @@ function [figureHandle, axesHandle, plotHandle] = sliceomatic(win, varargin)
 % Dean Whittaker 2008
 % T.G.Perring 13 Nov 2008
 
-if numel(win)~=1
+if numel(w)~=1
     error('sliceomatic only works for a single 3D dataset')
 end
-if dimensions(win)~=3
+if dimensions(w)~=3
     error('sliceomatic only works for 3D datasets');
 end
 
-w = IX_dataset_3d(win);
-
-pax = win.data.pax;
-dax = win.data.dax;                 % permutation of projection axes to give display axes
-ulabel = win.data.ulabel(pax(dax)); % labels in order of the display axes
-ulen = win.data.ulen(pax(dax));     % unit length in order of the display axes
+pax = w.data.pax;
+dax = w.data.dax;                 % permutation of projection axes to give display axes
+ulabel = w.data.ulabel(pax(dax)); % labels in order of the display axes
+ulen = w.data.ulen(pax(dax));     % unit length in order of the display axes
 
 % Create sliceomatic window
 
 name_sliceomatic =  get_global_var('horace_plot','name_sliceomatic');	
 
-[figureHandle_, axesHandle_, plotHandle_] = sliceomatic (w,'x_axis',ulabel{1},'y_axis',ulabel{1},'z_axis',ulabel{1},...
+[figureHandle_, axesHandle_, plotHandle_] = sliceomatic (IX_dataset_3d(w),'x_axis',ulabel{1},'y_axis',ulabel{1},'z_axis',ulabel{1},...
                                                             'name',name_sliceomatic,varargin{:});
 
 % Rescale plot so that aspect ratios reflect relative lengths of Q axes

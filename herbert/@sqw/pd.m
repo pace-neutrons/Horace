@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = pd(win,varargin)
-% Overplot errorbars, markers and lines for a 1d dataset on an existing figure.
+% Overplot markers, error bars and lines for a 1D sqw object or array of objects on an existing plot
 %
-% Optional inputs:
-%   >> pd(win)
-%   >> pd(win,'color','red')
+%   >> pd(w)
 %
-% See help for libisis\pd for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pd(w,...) 
 
 for i=1:numel(win)
     if dimensions(win(i))~=1
@@ -20,7 +17,7 @@ for i=1:numel(win)
 end
 name_oned =  get_global_var('horace_plot','name_oned');
 
-[figureHandle_, axesHandle_, plotHandle_] = pd(IX_dataset_1d(win), 'name', name_oned, varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = pd(IX_dataset_1d(win), varargin{:}, 'name', name_oned);
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

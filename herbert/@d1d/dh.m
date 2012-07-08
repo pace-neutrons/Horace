@@ -1,16 +1,12 @@
 function [figureHandle, axesHandle, plotHandle] = dh(win,varargin)
-% Plot histogram of a 1d dataset.
+% Draws a histogram plot of a d1d object or array of objects
 %
-%   >> dh(win)
-%   >> dh(win,xlo,xhi)
-%   >> dh(win,xlo,xhi,ylo,yhi)
-% Or:
-%   >> dh(win,'xlim',[xlo,xhi],'ylim',[ylo,yhi],'Color','red')
-% etc.
+%   >> dh(w)
+%   >> dh(w,xlo,xhi)
+%   >> dh(w,xlo,xhi,ylo,yhi)
 %
-% See help for libisis/dh for more details of more options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = dh(w,...) 
 
 [figureHandle_, axesHandle_, plotHandle_] = dh(sqw(win),varargin{:});
 

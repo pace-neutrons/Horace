@@ -1,10 +1,10 @@
-function [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(win,varargin)
-% Sliceomatic plot with view straight down one of the axes
+function [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin)
+% Plots d3d object using sliceomatic with view straight down one of the axes
 %
-%   >> sliceomatic_overview(win)        % down third (vertical) axis
-%   >> sliceomatic_overview(win,axis)   % down axis of choice (axis=1,2 or 3)
+%   >> sliceomatic_overview(w)        % down third (vertical) axis
+%   >> sliceomatic_overview(w,axis)   % down axis of choice (axis=1,2 or 3)
 % 
-%   win     d3d object
+%   w       d3d object
 %   axis    integer in the range 1 to 3, to specify which axis to view along
 %
 % Do a sliceomatic plot, but set the axes so that we look straight down the
@@ -12,11 +12,11 @@ function [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(win,varar
 % what appear to be 2d slices.
 %
 % To get handles to the graphics figure:
-%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win)
+%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(w)
 
 % RAE 25/3/2010
 
-[figureHandle_, axesHandle_, plotHandle_] = sliceomatic_overview(sqw(win),varargin{:});
+[figureHandle_, axesHandle_, plotHandle_] = sliceomatic_overview(sqw(w),varargin{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

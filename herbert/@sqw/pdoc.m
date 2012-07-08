@@ -1,13 +1,10 @@
 function [figureHandle, axesHandle, plotHandle] = pdoc(win,varargin)
-% Overplot histogram of a 1d dataset on an existing figure, irrespective of its type.
+% Overplot markers, error bars and lines for a 1D sqw object or array of objects on the current plot
 %
-% Optional inputs:
-%   >> pdoc(win)
-%   >> pdoc(win,'color','red')
+%   >> pdoc(w)
 %
-% See help for libisis\pd for more details of further options
-
-% R.A. Ewings 14/10/2008
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pdoc(w) 
 
 for i=1:numel(win)
     if dimensions(win(i))~=1
