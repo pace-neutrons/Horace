@@ -147,6 +147,8 @@ if ~isempty(xkeep) || ~isempty(xremove) || ~isempty(mask) % one or more of keep 
         if ~return_with_errors, disp(mess), end
         return
     end
+    
+    ok=true;
 
 else
     sel = true(size(x{1}));

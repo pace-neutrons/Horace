@@ -146,8 +146,17 @@ if ~save_output
     old=load(output_file);
     nam=fieldnames(old);
     tol=-1.0e-13;
+    % Some code that is useful for tracking difference when in debugging mode - creates an array of the actual tolerance required
+    tol_tmp=tol*ones(size(nam));
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol); if ~ok, error(['[',nam{i},']',mess]), end
+        while ~equal_to_tol(eval(nam{i}), old.(nam{i}), tol_tmp(i), 'min_denominator', 0.01)
+            tol_tmp(i)=tol_tmp(i)*10;
+        end
+    end
+    tol_log10=round(log10(-tol_tmp));
+    % The test proper
+    for i=1:numel(nam)
+        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'min_denominator', 0.01); if ~ok, error(['[',nam{i},']',mess]), end
     end
 end
 
