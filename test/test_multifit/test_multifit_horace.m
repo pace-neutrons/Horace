@@ -93,7 +93,7 @@ if ~equal_to_tol([wfit_single1,wfit_single2],wfit_single12)||~equal_to_tol([fitp
 [wfit_sqw_sqw,fitpar_sqw_sqw]=fit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,0], @sqw_bcc_hfm, [5,5,0,1,0], [0,0,0,0,1]);
 [tmp1,ftmp1]=multifit_sqw_sqw(w1data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1]);
 [tmp2,ftmp2]=multifit_sqw_sqw(w2data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1]);
-if ~equal_to_tol([tmp1,tmp2],wfit_sqw_sqw,-5e-12), error('fit_sqw_sqw not working'), end
+if ~equal_to_tol([tmp1,tmp2],wfit_sqw_sqw,-1e-8), error('fit_sqw_sqw not working'), end
 
 
 
@@ -109,8 +109,17 @@ if ~save_output
     old=load(output_file);
     nam=fieldnames(old);
     tol=-1.0e-13;
+    % Some code that is useful for tracking difference when in debugging mode - creates an array of the actual tolerance required
+    tol_tmp=tol*ones(size(nam));
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol); if ~ok, error(['[',nam{i},']',mess]), end
+        while ~equal_to_tol(eval(nam{i}), old.(nam{i}), tol_tmp(i), 'min_denominator', 0.01)
+            tol_tmp(i)=tol_tmp(i)*10;
+        end
+    end
+    tol_log10=round(log10(-tol_tmp));
+    % The test proper
+    for i=1:numel(nam)
+        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'min_denominator', 0.01); if ~ok, error(['[',nam{i},']',mess]), end
     end    
 end
 
