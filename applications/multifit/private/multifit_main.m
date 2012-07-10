@@ -824,7 +824,7 @@ for i=1:numel(w)
     if numel(w)==1, data_id='Dataset:'; else data_id=['Dataset ',arraystr(size(w),i),':']; end
     if xye(i)    % xye triple
         [msk{i},ok,mess]=mask_points_xye(w{i}.x,xkeep{i},xremove{i},msk{i});
-        if ok && ~isempty(mess)
+        if ok && ~isempty(mess) && options.list~=0
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
@@ -832,7 +832,7 @@ for i=1:numel(w)
             return
         end
         [msk{i},ok,mess]=mask_for_fit_xye(w{i}.x,w{i}.y,w{i}.e,msk{i}); % accumulate bad points (y=NaN, zero error bars etc.) to the mask array
-        if ok && ~isempty(mess)
+        if ok && ~isempty(mess) && options.list~=0
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
@@ -852,7 +852,7 @@ for i=1:numel(w)
         else
             [msk{i},ok,mess]=mask_points_xye(sigvar_getx(w{i}),xkeep{i},xremove{i},msk{i});
         end
-        if ok && ~isempty(mess)
+        if ok && ~isempty(mess) && options.list~=0
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
@@ -861,7 +861,7 @@ for i=1:numel(w)
         end   % display warning messages
         [ytmp,vtmp,msk_null]=sigvar_get(w{i});
         [msk{i},ok,mess]=mask_for_fit_xye({},ytmp,vtmp,(msk{i}&msk_null)); % accumulate bad points (y=NaN, zero error bars etc.) to the mask array
-        if ok && ~isempty(mess)
+        if ok && ~isempty(mess) && options.list~=0
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
             mess=[data_id,mess];
