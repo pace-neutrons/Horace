@@ -28,6 +28,9 @@ try % mex C++
          
 
     mex_single([cpp_in_rel_dir 'get_ascii_file/get_ascii_file'], out_rel_dir,'get_ascii_file.cpp','IIget_acii_file.cpp');
+    if is_herbert_used()
+        copy_get_ascii_to_herbert();
+    end
     mex_single([cpp_in_rel_dir 'accumulate_cut_c/accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c/bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
@@ -167,4 +170,18 @@ else
    end
 
 end
+
+function copy_get_ascii_to_herbert()
+% function copies get_ascii_file to herbert executable as it is currently
+% the same exec. 
+
+her_path = fileparts(which('herbert_init.m'));
+hor_path = fileparts(which('horace_init.m'));
+[matlab_dirname,dll_extention,os_dirname] = matlab_version_folder();
+
+ascii_reader = ['get_ascii_file','.',dll_extention];
+her_dll_targ = fullfile(her_path,'DLL',os_dirname,matlab_dirname);
+hor_dll_sourc= fullfile(hor_path,'DLL',os_dirname,matlab_dirname);
+
+copyfile(fullfile(hor_dll_sourc,ascii_reader),fullfile(her_dll_targ,ascii_reader),'f');
 
