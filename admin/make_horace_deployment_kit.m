@@ -15,3 +15,7 @@ movefile('Horace_only_nodemo.zip','Horace_NoHerbert_NoDemo.zip','f')
 % create Horace without herbert
 make_horace_distribution_kit -noherbert
 movefile('horace_only_distribution_kit.zip','Horace_NoHerbert_distribution_kit.zip','f')
+
+disp('--------------------------------------------------------------------')
+disp('------- COPY HORACE KITS TO TARGET DESTINATIONS MANUALY ------------')
+disp('--------------------------------------------------------------------')
