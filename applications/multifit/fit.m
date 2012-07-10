@@ -343,8 +343,8 @@ function [wout,fitdata,ok,mess] = fit(varargin)
 %           - Cell array of objects to be fitted.
 
 % NOTES:
-% - In the following it is necessary to call multifit, not multifit_)gateway, as the overloaded version
-%  corresponding to an object may be needed (see e.g. IX_dataset_1d, which wrpas the user function with a call to func_eval)
+% - In the following it is necessary to call multifit, not multifit_gateway, as the overloaded version
+%  corresponding to an object may be needed (see e.g. IX_dataset_1d, which wraps the user function with a call to func_eval)
 % - It is necessary to ensure that any overloaded version of multifit has the full return arguments
 %  [wfit,fitdata,ok,mess]
 

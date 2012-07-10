@@ -7,4 +7,4 @@ function [s,var,msk] = sigvar_get (w)
 
 s = w.signal;
 var = (w.error).^2;
-msk = true(size(s));
+msk = ~isnan(s);    % TGP mod: prior to 10/7/12 was:  msk = true(size(s));
