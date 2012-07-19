@@ -101,6 +101,8 @@ rlu_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj, rlu, half_len, h
 
 if max(abs(rlu_corr(:)-rlu(:)))>qfwhh
     error('Problem in refinement of crystal orientation and lattice parameters')
+else
+    disp('Test succesfully completed')
 end
 
 %% Problems

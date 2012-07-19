@@ -4,7 +4,7 @@ function [sel,ok,mess] = mask_points (win, varargin)
 % a job to be performed inside the generic fit routine.
 %
 % Syntax:
-%   >> sel = mask_points (win, 'keep', xkeep, 'xremove', xremove, 'mask', mask)
+%   >> sel = mask_points (win, 'keep', xkeep, 'remove', xremove, 'mask', mask)
 %
 % or any selection (in any order) of the keyword-argument pairs e.g.
 %   >> sel = mask_points (win, 'mask', mask, 'xremove', xremove)
