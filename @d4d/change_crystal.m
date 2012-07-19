@@ -1,5 +1,5 @@
 function varargout = change_crystal(varargin)
-% Change the crystal lattice and orientation of a d2d object or array of objects
+% Change the crystal lattice and orientation of a d4d object or array of objects
 % 
 %   >> wout = change_crystal (w, alatt)                 % change just length of lattice vectors
 %   >> wout = change_crystal (w, alatt, angdeg)         % change all lattice parameters
@@ -10,7 +10,7 @@ function varargout = change_crystal(varargin)
 %
 % Input:
 % -----
-%   w           Input d2d object or array of objects
+%   w           Input d4d object or array of objects
 %
 %   alatt       New lattice parameters [a,b,c] (Angstroms)
 %   angdeg      New lattice angles [alf,bet,gam] (degrees)
@@ -29,7 +29,7 @@ function varargout = change_crystal(varargin)
 %
 % Output:
 % -------
-%   wout        Output d2d object or array of objects with changed crystal lattice parameters and orientation
+%   wout        Output d4d object or array of objects with changed crystal lattice parameters and orientation
 
 
 % Original author: T.G.Perring
