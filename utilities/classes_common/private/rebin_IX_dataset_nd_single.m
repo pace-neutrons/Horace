@@ -258,7 +258,7 @@ else
         nout=accumarray(ind,ones(size(win_x(ok))),[nb-1,1]);
         keep=(nout~=0);
         nout=nout(keep);
-        wout_x=xsum(keep)./nout;
+        wout_x=(xsum(keep)./nout)';     % must return as a row vector
         % Catch case that there are already no points along one of the other axes, now that we have the new x-values along this axis
         if any(sz==0)
             sz_full(iax)=numel(wout_x);

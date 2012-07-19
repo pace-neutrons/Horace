@@ -264,6 +264,9 @@ if ~save_output
     for i=1:numel(nam)
         [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol); if ~ok, error(['[',nam{i},']',mess]), end
     end
+    disp(' ')
+    disp('Matches within requested tolerances')
+    disp(' ')
 end
 
 
