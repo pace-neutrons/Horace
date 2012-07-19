@@ -1,7 +1,7 @@
 function wout = shift(w,x)
 % Shift an IX_dataset_2d object or array of IX_dataset_2d objects along the x and y axes
 %
-%   >> wout = shift_x(w,x)
+%   >> wout = shift(w,x)
 %
 %   w   IX_dataset_2d object or array of IX_dataset_2d objects
 %   x   Vector length two giving shift along x and y axes

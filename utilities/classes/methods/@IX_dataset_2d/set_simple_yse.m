@@ -1,10 +1,10 @@
 function w = set_simple_yse(w, y, s, e)
 % Set y, signal and error fields in an IX_dataset_2d object with minimal checking of consistency - for fast setting. Use carefully!
 %
-%   >> w = set_simple_se(w, y, s, e)
+%   >> w = set_simple_yse(w, y, s, e)
 %
+%   y       y-axis array
 %   s, e    Signal and error arrays - must be arrays with correct lengths along the x and y axes
-%
 
 if ~(isnumeric(y) && isvector(y))
     error('Replacement y-axis must be a vector')

@@ -58,9 +58,9 @@ for i=2:nrebin
 end
 
 if ~integrate_data
-    wout=xsigerr_set(win,iax,wout_x,wout_s,wout_e);         % distribution is same as input data
+    wout=set_simple_xsigerr(win,iax,wout_x,wout_s,wout_e);         % distribution is same as input data
 else
-    wout=xsigerr_set(win,iax,wout_x,wout_s,wout_e,false);   % reset distribution to false along integration axes
+    wout=set_simple_xsigerr(win,iax,wout_x,wout_s,wout_e,false);   % reset distribution to false along integration axes
 end
 
 

@@ -42,8 +42,9 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %   ok                  True if no problems, false otherwise
 %   mess                Error message; empty if ok
 
-use_mex=get(herbert_config,'use_mex');
-force_mex=get(herbert_config,'force_mex_if_use_mex');
+[use_mex,force_mex]=get(herbert_config,'use_mex','force_mex_if_use_mex');
+%use_mex=get(herbert_config,'use_mex');
+%force_mex=get(herbert_config,'force_mex_if_use_mex');
 
 nax=numel(iax); % number of axes to be rebinned
 

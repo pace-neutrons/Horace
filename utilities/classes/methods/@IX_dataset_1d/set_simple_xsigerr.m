@@ -1,8 +1,8 @@
-function wout=xsigerr_set(win,iax,x,signal,err,xdistr)
+function wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
 % Set signal, error and selected axes in a single instance of an IX_dataset_1d object
 %
-%   >> wout=xsigerr_set(win,iax,x,signal,err)
-%   >> wout=xsigerr_set(win,iax,x,signal,err,xdistr)
+%   >> wout=set_simple_xsigerr(win,iax,x,signal,err)
+%   >> wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
 %
 %   win     Input IX_dataset_1d
 %   iax     Array of axes indicies (can only be iax=1)
@@ -15,6 +15,8 @@ function wout=xsigerr_set(win,iax,x,signal,err,xdistr)
 %
 % This method exists with this syntax for compatibility with IX_dataset_2d, _3d objects
 % so generic methods can apply to all types.
+%
+% Simple substitution - lots of room for errors in use of this method - so only for experts
 
 % Set fields
 wout=win;
@@ -37,10 +39,4 @@ for i=1:numel(iax)
     else
         error('Check axis index or indicies')
     end
-end
-
-% Check validity - lots of room for errors in use of this method
-[ok,mess,wout]=isvalid(wout);   
-if ~ok
-    error(mess)
 end

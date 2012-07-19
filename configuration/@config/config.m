@@ -6,7 +6,9 @@ function this=config(varargin)
 % $Revision$ ($Date$)
 
 config_name=mfilename('class');
-config_store(config_name,default_config,default_config);
+if ~config_store(config_name)
+    config_store(config_name,default_config,default_config);
+end
 this=class(struct('ok',{true}),config_name);
 
 %--------------------------------------------------------------------------------------------------

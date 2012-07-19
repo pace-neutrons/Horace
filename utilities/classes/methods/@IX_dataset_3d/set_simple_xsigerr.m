@@ -1,8 +1,8 @@
-function wout=xsigerr_set(win,iax,x,signal,err,xdistr)
-% Set signal, error and selected axes in a single instance of an IX_dataset_2d object
+function wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
+% Set signal, error and selected axes in a single instance of an IX_dataset_3d object
 %
-%   >> wout=xsigerr_set(win,iax,x,signal,err)
-%   >> wout=xsigerr_set(win,iax,x,signal,err,xdistr)
+%   >> wout=set_simple_xsigerr(win,iax,x,signal,err)
+%   >> wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
 %
 %   win     Input IX_dataset_2d
 %   iax     Array of axes indicies
@@ -11,7 +11,9 @@ function wout=xsigerr_set(win,iax,x,signal,err,xdistr)
 %   err     Associated error bars
 %   xdistr  (Optional) replacement distribution flag (scalar or array)
 %
-%   wout    Output IX_dataset_2d
+%   wout    Output IX_dataset_3d
+%
+% Simple substitution - lots of room for errors in use of this method - so only for experts
 
 % Set fields
 wout=win;
@@ -34,13 +36,10 @@ for i=1:numel(iax)
     elseif iax(i)==2
         wout.y=x{i};
         if ~isempty(xdistr), wout.y_distribution=xdistr(i); end
+    elseif iax(i)==3
+        wout.z=x{i};
+        if ~isempty(xdistr), wout.z_distribution=xdistr(i); end
     else
         error('Check axis index or indicies')
     end
-end
-
-% Check validity - lots of room for errors in use of this method
-[ok,mess,wout]=isvalid(wout);   
-if ~ok
-    error(mess)
 end

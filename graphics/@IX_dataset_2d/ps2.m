@@ -50,6 +50,11 @@ if numel(varargin)>0 && (isa(varargin{1},class(w))||(isnumeric(varargin{1})&&rem
             error('Can only have one dataset if second argument is a numeric array')
         end
     end
+    % Perform plot
+    [fig_,axes_,plot_,ok,mess]=plot_twod ({w,wc},varargin{2:end},'newplot',false,'type','surface2');
+    if ~ok
+        error(mess)
+    end
 else
     [fig_,axes_,plot_,ok,mess]=plot_twod (w,varargin{:},'newplot',false,'type','surface2');
     if ~ok

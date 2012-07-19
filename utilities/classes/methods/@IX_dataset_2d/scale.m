@@ -1,7 +1,7 @@
 function wout = scale(w,x)
 % Rescale the x and y axes of an IX_dataset_2d object or array of IX_dataset_2d objects
 %
-%   >> wout = shift_x(w,x)
+%   >> wout = scale(w,x)
 %
 %   w   IX_dataset_2d object or array of IX_dataset_2d objects
 %   x   Vector length two giving scale factors along x and y axes
@@ -32,7 +32,7 @@ else
     error('Check number of components of scale vectors')
 end
 
-% Perform shift
+% Perform scale
 for i=1:numel(w)
     wout(i).x = w(i).x * x(i,1);
     wout(i).y = w(i).y * x(i,2);
