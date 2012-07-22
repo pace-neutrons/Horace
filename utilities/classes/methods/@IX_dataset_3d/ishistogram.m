@@ -1,8 +1,8 @@
 function status=ishistogram(w,n)
 % Return array containing true or false depending on dataset being histogram or point
 %
-%   >> status=ishistogram(w)    % array [3,size(w)] with true for each of the two axes
-%   >> status=ishistogram(w,n)  % array size of w for the nth axis, n=1,2 or 3
+%   >> status=ishistogram(w)    % array [3,size(w)] with true/false for each of the three axes
+%   >> status=ishistogram(w,n)  % array with size of w for the nth axis, n=1,2 or 3
 
 % Check axis index
 if nargin>1

@@ -1,8 +1,8 @@
 function status=ishistogram(w,n)
 % Return array containing true or false depending on dataset being histogram or point
 %
-%   >> status=ishistogram(w)
-%   >> status=ishistogram(w,1)  % for compatibility with IX_dataset_2d, IX_dataset_3d,...
+%   >> status=ishistogram(w)    % array size(w) with true/false for the axis
+%   >> status=ishistogram(w,1)  % same as above; syntax for compatibility with IX_dataset_2d, IX_dataset_3d,...
 
 % For compatibility with general dimensionality
 if nargin>1

@@ -4,13 +4,17 @@ function wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
 %   >> wout=set_simple_xsigerr(win,iax,x,signal,err)
 %   >> wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
 %
+% Input:
+% ------
 %   win     Input IX_dataset_1d
-%   iax     Array of axes indicies (can only be iax=1)
-%   x       Cell array of coordinate values
-%   signal  Signal
+%   iax     Array of axes indicies that are to be replaced by elements of x (can only have iax=1)
+%   x       Cell array of coordinate values (numel(x)==numel(iax))
+%   signal  Signal array
 %   err     Associated error bars
-%   xdistr  (Optional) replacement distribution flag
+%   xdistr  (Optional) replacement distribution flag (scalar or array with length matching length of iax)
 %
+% Output:
+% -------
 %   wout    Output IX_dataset_1d
 %
 % This method exists with this syntax for compatibility with IX_dataset_2d, _3d objects

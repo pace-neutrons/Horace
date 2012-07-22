@@ -6,8 +6,14 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %
 % Input:
 % ------
-%   win                 IX_dataset_nd object or array of objects (n=1,2,3...ndim, ndim=dimensoionality of object)
-%                      that is to be integrated
+%   win                 IX_dataset_nd, or array or IX_dataset_nd (n=1,2,3)
+%                   *OR*
+%                       Structure array, where the fields of each element are
+%                           win(i).x              Cell array of arrays containing the x axis baoundaries or points
+%                           win(i).signal         Signal array
+%                           win(i).err            Array of standard deviations
+%                           win(i).distribution   Array of elements, one per axis that is true if a distribution, false if not
+%
 %   integrate_data      Integrate(true) or rebin (false)
 %   point_integration_default   Default averging method for axes with point data (ignored by any axes with histogram data)
 %                         true:  Trapezoidal integration
@@ -39,14 +45,39 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 % Output:
 % -------
 %   wout                IX_dataset_nd object or array of objects following the rebinning/integration
+%                   *OR*
+%                       Structure array, where the fields of each element are
+%                           wout(i).x             Cell array of arrays containing the x axis baoundaries or points
+%                           wout(i).signal        Signal array
+%                           wout(i).err           Array of standard deviations
+%                           wout(i).distribution  Array of elements, one per axis that is true if a distribution, false if not
+%       
 %   ok                  True if no problems, false otherwise
 %   mess                Error message; empty if ok
 
+% Temporarily replace:
 [use_mex,force_mex]=get(herbert_config,'use_mex','force_mex_if_use_mex');
-%use_mex=get(herbert_config,'use_mex');
-%force_mex=get(herbert_config,'force_mex_if_use_mex');
+%use_mex=false; force_mex=false;
 
 nax=numel(iax); % number of axes to be rebinned
+
+% % *** TEMPORARY STUFF FOR TESTING INPUT AS STRUCTURE *****************************
+% test_struct=true;
+% if test_struct
+%     win_store=win;
+%     win=get_xsigerr(win);
+%     if numel(varargin)>0 && (isa(varargin{1},'IX_dataset_1d')||isa(varargin{1},'IX_dataset_2d')||isa(varargin{1},'IX_dataset_3d'))
+%         varargin{1}=get_xsigerr(varargin{1});
+%     end
+% end
+% % ********************************************************************************
+% Determine data input class
+% --------------------------
+if isstruct(win)
+    is_IX_dataset_nd=false;
+else
+    is_IX_dataset_nd=true;
+end
 
 % Check point integration option
 % ------------------------------
@@ -58,6 +89,7 @@ else
     point_integration=repmat(point_integration_default,[1,nax]);
     args=varargin;
 end
+
 
 % Check rebin parameters
 % ----------------------
@@ -71,20 +103,27 @@ if numel(args)==1 && isa(args{1},class(win))
     if numel(wref)~=1
         ok=false; wout=[];  mess='Reference dataset for rebinning must be a single instance, not an array'; return
     end
+    % --> Code that depends on data input class
+    if is_IX_dataset_nd
+        x=get_x(wref);
+        ishist=ishistogram(wref);
+    else
+        x=wref.x;
+        ishist=false(1,numel(x)); for i=1:numel(x), ishist(i)=(numel(x{i})~=size(wref.signal,i)); end
+    end
+    % <--
     for i=1:nax
-        ax=axis(wref,iax(i));
-        if numel(ax.values)<=1  % single point dataset, or histogram dataset with empty signal array
+        if numel(x{iax(i)})<=1  % single point dataset, or histogram dataset with empty signal array
             error('Reference dataset must have at least one bin (histogram data) or two points (point data)')
         end
     end
     xbounds=cell(1,nax);
     true_values=true(1,nax);
     for i=1:nax
-        tmp=axis(wref,iax(i));
-        if ishistogram(wref,iax(i))
-            xbounds{i}=tmp.values;
+        if ishist(iax(i))
+            xbounds{i}=x{iax(i)};
         else
-            [xbounds{i},ok,mess]=bin_boundaries_simple(tmp.values);
+            [xbounds{i},ok,mess]=bin_boundaries_simple(x{iax(i)});
             if ~ok
                 wout=[]; mess=['Unable to construct bin boundaries for point data axis number ',num2str(iax(i)),': ',mess]; return
             end
@@ -108,11 +147,30 @@ end
 % -------------
 if numel(win)==1
     [wout,ok,mess] = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,is_descriptor,integrate_data,point_integration,use_mex,force_mex);
+    if ~ok, wout=[]; return, end
 else
-    ndim=dimensions(win(1));
-    wout=repmat(IX_dataset_nd(ndim),size(win));
+    % --> Code that depends on data input class
+    if is_IX_dataset_nd
+        ndim=dimensions(win(1));
+        wout=repmat(IX_dataset_nd(ndim),size(win));
+    else
+        wout=struct('x',{{}},'signal',[],'err',[],'distribution',false);
+        wout=repmat(wout,size(win));
+    end
+    % <--
     for i=1:numel(win)
         [wout(i),ok,mess] = rebin_IX_dataset_nd_single(win(i),iax,xbounds,true_values,is_descriptor,integrate_data,point_integration,use_mex,force_mex);
-        if ~ok, return, end
+        if ~ok, wout=[]; return, end
     end
 end
+
+% % *** TEMPORARY STUFF FOR TESTING INPUT AS STRUCTURE *****************************
+% if test_struct
+%     wtmp=wout;
+%     ndim=dimensions(win_store(1));
+%     wout=repmat(IX_dataset_nd(ndim),size(win));
+%     for i=1:numel(win)
+%         wout(i)=set_simple_xsigerr(win_store(i),iax,wtmp(i).x(iax),wtmp(i).signal,wtmp(i).err,wtmp(i).distribution(iax));
+%     end
+% end
+% % ********************************************************************************

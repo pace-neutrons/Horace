@@ -1,4 +1,4 @@
-function [wout,ok_rebin,mess] = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,is_descriptor,...
+function [wout,ok_rebin,mess] = rebin_xsigerr_nd_single(win,iax,xbounds,true_values,is_descriptor,...
                                                             integrate_data,point_integration,use_mex,force_mex)
 % Rebin dataset. Assumes that have already checked validity of input data.
 %
@@ -7,7 +7,14 @@ function [wout,ok_rebin,mess] = rebin_IX_dataset_nd_single(win,iax,xbounds,true_
 %
 % Input:
 % -------
-%   win                 Input IX_dataset_nd object
+%   win                 Single IX_datsset_1d, or IX_dataset_2d ...
+%                   *OR*
+%                       Structure with fields:
+%                           win.x               Cell array of arrays containing the x axis baoundaries or points
+%                           win.signal      	Signal array
+%                           win.err             Array of standard deviations
+%                           win.distribution  	Array of elements, one per axis, that is true if a distribution, false if not
+%
 %   iax                 Array of axis indices (chosen from 1,2,3...) of rebin axes
 %   xbounds             Rebin boundaries or descriptor of boundaries for each axis (cell array of row vectors)
 %                      (Note: these describe boundaries for the rebinning even if point data)
@@ -30,7 +37,13 @@ function [wout,ok_rebin,mess] = rebin_IX_dataset_nd_single(win,iax,xbounds,true_
 %
 % Output:
 % -------
-%   wout                Output IX_dataset_nd object
+%   win                 Output IX_datsset_1d, or IX_dataset_2d ... 
+%                   *OR*
+%                       Structure with fields x, signal, err, dist
+%                           win.x               Cell array of arrays containing the x axis baoundaries or points
+%                           win.signal      	Signal array
+%                           win.err             Array of standard deviations
+%                           win.distribution  	Array of elements, one per axis, that is true if a distribution, false if not
 %   ok_rebin            True if operation successful; false if not
 %   mess                Error message if not ok; empty otherwise
 %
@@ -39,29 +52,69 @@ function [wout,ok_rebin,mess] = rebin_IX_dataset_nd_single(win,iax,xbounds,true_
 % number of contributing points (point averagin) regardless of the data being distribution
 % or not. This is because it is assumed that point data is sampling a function.
 
-ndim=dimensions(win);
-nrebin=numel(iax);
-wout_x=cell(1,nrebin);
-
-ax=axis(win,iax(1));
-[wout_x{1},wout_s,wout_e,ok_rebin,mess] = rebin_one_axis(ndim,iax(1),ax.values,win.signal,win.error,ax.distribution,...
-                                                xbounds{1},true_values(1),is_descriptor(1),...
-                                                integrate_data,point_integration(1),use_mex,force_mex);
-if ~ok_rebin, wout=IX_dataset_nd(ndim); return, end
-
-for i=2:nrebin
-    ax=axis(win,iax(i));
-    [wout_x{i},wout_s,wout_e,ok_rebin,mess] = rebin_one_axis(ndim,iax(i),ax.values,wout_s,wout_e,ax.distribution,...
-                                                xbounds{i},true_values(i),is_descriptor(i),...
-                                                integrate_data,point_integration(i),use_mex,force_mex);
-    if ~ok_rebin, wout=IX_dataset_nd(ndim); return, end
-end
-
-if ~integrate_data
-    wout=set_simple_xsigerr(win,iax,wout_x,wout_s,wout_e);         % distribution is same as input data
+if isstruct(win)
+    % ---------------------------------------------------------------------
+    % Case of structure
+    ndim=numel(win.x);
+    nrebin=numel(iax);
+    wout_x=cell(1,ndim);
+    
+    [wout_x{iax(1)},wout_s,wout_e,ok_rebin,mess] = rebin_one_axis(ndim,iax(1),win.x{iax(1)},win.signal,win.err,win.distribution(iax(1)),...
+        xbounds{1},true_values(1),is_descriptor(1),...
+        integrate_data,point_integration(1),use_mex,force_mex);
+    if ~ok_rebin
+        wout=get_xsigerr(IX_dataset_nd(ndim));  % to guarantee consistency with IX_dataset_nd
+        return
+    end
+    
+    for i=2:nrebin
+        [wout_x{iax(i)},wout_s,wout_e,ok_rebin,mess] = rebin_one_axis(ndim,iax(i),win.x{iax(i)},wout_s,wout_e,win.distribution(iax(i)),...
+            xbounds{i},true_values(i),is_descriptor(i),...
+            integrate_data,point_integration(i),use_mex,force_mex);
+        if ~ok_rebin
+            wout=get_xsigerr(IX_dataset_nd(ndim));  % to guarantee consistency with IX_dataset_nd
+            return
+        end
+    end
+    
+    if ~integrate_data
+        wout_dist=win.distribution; % distribution is same as input data
+    else
+        wout_dist=win.distribution;
+        wout_dist(iax)=false;       % set distribution to false along integration axes
+    end
+    
+    wout=struct('x',{wout_x},'signal',wout_s,'err',wout_e,'distribution',wout_dist);
+    
 else
-    wout=set_simple_xsigerr(win,iax,wout_x,wout_s,wout_e,false);   % reset distribution to false along integration axes
+    % ---------------------------------------------------------------------
+    % Case of IX_dataset_nd
+    ndim=dimensions(win);
+    nrebin=numel(iax);
+    wout_x=cell(1,nrebin);
+    
+    ax=axis(win,iax(1));
+    [wout_x{1},wout_s,wout_e,ok_rebin,mess] = rebin_one_axis(ndim,iax(1),ax.values,win.signal,win.error,ax.distribution,...
+        xbounds{1},true_values(1),is_descriptor(1),...
+        integrate_data,point_integration(1),use_mex,force_mex);
+    if ~ok_rebin, wout=IX_dataset_nd(ndim); return, end
+    
+    for i=2:nrebin
+        ax=axis(win,iax(i));
+        [wout_x{i},wout_s,wout_e,ok_rebin,mess] = rebin_one_axis(ndim,iax(i),ax.values,wout_s,wout_e,ax.distribution,...
+            xbounds{i},true_values(i),is_descriptor(i),...
+            integrate_data,point_integration(i),use_mex,force_mex);
+        if ~ok_rebin, wout=IX_dataset_nd(ndim); return, end
+    end
+    
+    if ~integrate_data
+        wout=set_simple_xsigerr(win,iax,wout_x,wout_s,wout_e);         % distribution is same as input data
+    else
+        wout=set_simple_xsigerr(win,iax,wout_x,wout_s,wout_e,false);   % reset distribution to false along integration axes
+    end
+    
 end
+
 
 
 %============================================================================================================

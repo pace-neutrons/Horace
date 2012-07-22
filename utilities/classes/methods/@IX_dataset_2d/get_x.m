@@ -1,18 +1,20 @@
-function x=getx(w,iax)
-% Get the x-axis for a IX_dataset_1d
+function x=get_x(w,iax)
+% Get the x-axis for a IX_dataset_2d
 %
-%   >> x=getx(w)        % x is a cell array, one element equal to x axis
-%   >> x=getx(w,iax)    % iax=1 only; result is row vector of x axis values
-%
-% The syntax is to be consistent with getx for IX_dataset_2d, IX_dataset_3d
+%   >> x=getx(w)        % cell array of row vectors, one per axis
+%   >> x=getx(w,iax)    % iax=1 or 2; row vector for indicated axis
 
 if numel(w)==1
     if nargin==1
-        x={w.x};  
+        x=cell(1,2);
+        x{1}=w.x;  
+        x{2}=w.y;
     elseif nargin==2
         if isscalar(iax)
             if iax==1
                 x=w.x;
+            elseif iax==2
+                x=w.y;
             else
                 error('Check axis index')
             end
