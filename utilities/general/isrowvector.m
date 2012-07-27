@@ -6,4 +6,4 @@ function ok = isrowvector(var)
 % Note: If var is empty but has size 1x0 then will return true
 %       Has same behaviour as isrow introduced in Matlab 2010b
 
-ok = numel(size(var))==2 & size(var,1)==1;
+ok = numel(size(var))==2 && size(var,1)==1;

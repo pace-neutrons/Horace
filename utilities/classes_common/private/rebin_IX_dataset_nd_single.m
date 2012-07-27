@@ -1,4 +1,4 @@
-function [wout,ok_rebin,mess] = rebin_xsigerr_nd_single(win,iax,xbounds,true_values,is_descriptor,...
+function [wout,ok_rebin,mess] = rebin_IX_dataset_nd_single(win,iax,xbounds,true_values,is_descriptor,...
                                                             integrate_data,point_integration,use_mex,force_mex)
 % Rebin dataset. Assumes that have already checked validity of input data.
 %
@@ -10,7 +10,7 @@ function [wout,ok_rebin,mess] = rebin_xsigerr_nd_single(win,iax,xbounds,true_val
 %   win                 Single IX_datsset_1d, or IX_dataset_2d ...
 %                   *OR*
 %                       Structure with fields:
-%                           win.x               Cell array of arrays containing the x axis baoundaries or points
+%                           win.x               Cell array of arrays containing the x axis baoundaries or points (each a row vector)
 %                           win.signal      	Signal array
 %                           win.err             Array of standard deviations
 %                           win.distribution  	Array of elements, one per axis, that is true if a distribution, false if not
@@ -129,7 +129,7 @@ function [wout_x,wout_s,wout_e,ok_rebin,mess] = rebin_one_axis(ndim,iax,win_x,wi
 % -------
 %   ndim                Dimensionality of IX_dataset_nd object
 %   iax                 Axis indices (chosen from 1,2,3...) of rebin axes
-%   win_x               Input x-values
+%   win_x               Input x-values (row vector)
 %   win_s               Input signal
 %   win_e               Input error
 %   xbounds             Output rebin boundaries or descriptor of boundaries

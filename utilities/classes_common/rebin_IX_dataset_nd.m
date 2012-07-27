@@ -9,7 +9,7 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %   win                 IX_dataset_nd, or array or IX_dataset_nd (n=1,2,3)
 %                   *OR*
 %                       Structure array, where the fields of each element are
-%                           win(i).x              Cell array of arrays containing the x axis baoundaries or points
+%                           win(i).x              Cell array of arrays containing the x axis baoundaries or points (each a row vector)
 %                           win(i).signal         Signal array
 %                           win(i).err            Array of standard deviations
 %                           win(i).distribution   Array of elements, one per axis that is true if a distribution, false if not
