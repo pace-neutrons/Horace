@@ -34,7 +34,7 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %                       If win is one dimensional, then if all the arguments can be scalar they are treated as the
 %                      elements of range_1
 %         *OR*    
-%   wref                Reference dataset from which to take bins. Must be a scalar, and same dimensionality as the elements of win
+%   wref                Reference dataset from which to take bins. Must be a scalar, and the same class as win
 %
 %   point_integration   Averaging method if point data (if not given, then uses default determined by point_integration_default above)
 %                        - character string 'integration' or 'average'
@@ -55,9 +55,8 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %   ok                  True if no problems, false otherwise
 %   mess                Error message; empty if ok
 
-% Temporarily replace:
+
 [use_mex,force_mex]=get(herbert_config,'use_mex','force_mex_if_use_mex');
-%use_mex=false; force_mex=false;
 
 nax=numel(iax); % number of axes to be rebinned
 
@@ -75,8 +74,11 @@ nax=numel(iax); % number of axes to be rebinned
 % --------------------------
 if isstruct(win)
     is_IX_dataset_nd=false;
-else
+    % *** Should really check that all win(i) have the same dimensionality i.e. numel(win(i).x) are all the same
+elseif isa_IX_dataset_nd(win)
     is_IX_dataset_nd=true;
+else
+    ok=false; wout=[];  mess='Dataset to be rebinned has unrecognised type'; return
 end
 
 % Check point integration option
@@ -109,6 +111,9 @@ if numel(args)==1 && isa(args{1},class(win))
         ishist=ishistogram(wref);
     else
         x=wref.x;
+        if numel(x)~=numel(win(1).x)
+            ok=false; wout=[];  mess='Reference dataset for rebinning does not have the same dimensionality as the input dataset(s)'; return
+        end
         ishist=false(1,numel(x)); for i=1:numel(x), ishist(i)=(numel(x{i})~=size(wref.signal,i)); end
     end
     % <--
