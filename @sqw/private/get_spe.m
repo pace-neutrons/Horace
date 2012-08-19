@@ -25,8 +25,8 @@ end
 filename=strtrim(filename);
 
 % Get file name and path (incl. final separator)
-[path,name,ext,ver]=fileparts(filename);
-data.filename=[name,ext,ver];
+[path,name,ext]=fileparts(filename);
+data.filename=[name,ext];
 data.filepath=[path,filesep];
 
 % Read spe file using fortran routine

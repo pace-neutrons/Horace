@@ -28,8 +28,8 @@ end
 filename=strtrim(filename);
 
 % Get file name and path (incl. final separator)
-[path,name,ext,ver]=fileparts(filename);
-det.filename=[name,ext,ver];
+[path,name,ext]=fileparts(filename);
+det.filename=[name,ext];
 det.filepath=[path,filesep];
 
 
