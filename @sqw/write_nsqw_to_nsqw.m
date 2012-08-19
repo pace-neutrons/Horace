@@ -219,8 +219,8 @@ end
     
     % Write to output file
     disp(['  Writing output data file: ',outfiles{i},' ...'])
-    [path,name,ext,ver]=fileparts(outfiles{i});
-    main_header{i}.filename=[name,ext,ver];
+    [path,name,ext]=fileparts(outfiles{i});
+    main_header{i}.filename=[name,ext];
     main_header{i}.filepath=[path,filesep];
     mess=put_sqw (outfiles{i},main_header{i},header{i},det,sqw_data);
     if ~isempty(mess); error('Problems writing to output file %s \n %s',outfiles{i},mess); end  
