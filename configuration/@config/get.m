@@ -1,10 +1,10 @@
 function varargout= get(this,varargin)
 % Get values of one or more fields from a configuration class
 %
-%   >> val= get(configobj)       % returns a structure with the current values
-%                                  of the fields in the requested configuration object
+%   >> S = get(config_obj)      % returns a structure with the current values
+%                                 of the fields in the requested configuration object
 %
-%   >> [val1,val2,...] = get(configobj,'field1','field2',...); % returns named fields
+%   >> [val1,val2,...] = get(config_obj,'field1','field2',...); % returns named fields
 %
 % Recursively searches the sub-structures and classes of the configuration class
 % until a field with the given name is found.

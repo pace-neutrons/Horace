@@ -1,21 +1,23 @@
 function S = parse_set (this,varargin)
-% Check arguments are valid for set methods. Throws an error if a field is sealed.
+% Check arguments are valid for set methods. Throws an error if a field is not valid or is sealed.
 %
-%   >> S = parse_set (configobj, field1, val1, field2, val2, ...)
-%   >> S = parse_set (configobj, struct)
-%   >> S = parse_set (configobj, cellnam, cellval) % cell arrays of field names and values
-%   >> S = parse_set (configobj, cellarray)        % cell array has the form {field1,val1,field2,val2,...}
+%   >> S = parse_set (config_obj, field1, val1, field2, val2, ...)
+%   >> S = parse_set (config_obj, struct)
+%   >> S = parse_set (config_obj, cellnam, cellval) % cell arrays of field names and values
+%   >> S = parse_set (config_obj, cellarray)        % cell array has the form {field1,val1,field2,val2,...}
 %
-%   >> S = parse_set (configobj)                   % returns current values
-%   >> S = parse_set (configobj, 'defaults')       % returns default values
+%   >> S = parse_set (config_obj)                   % returns current values
+%   >> S = parse_set (config_obj, 'defaults')       % returns default values
 %
 % For any of the above:
-%   >> S = parse_set (configobj,...)
+%   >> S = parse_set (config_obj,...)
 %
 % Input:
-%   configobj   Configuration object
+% ------
+%   config_obj  Configuration object 
 %
 % Output:
+% -------
 %   S           Structure whose fields and values are those to be changed
 %               in the configuration object
 % 

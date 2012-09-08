@@ -54,11 +54,8 @@ if get(herbert_config,'init_tests')
     addpath_message (rootpath,'_test/matlab_xunit/xunit');
 end
 
-
-disp('!------------------------------------------------------------------!')
-disp('!                      HERBERT                                     !')
 disp('! =================================================================!')
-disp('!         Utilities for visualisation and analysis                 !')
+disp('!         ISIS utilities for visualisation and analysis            !')
 disp('!              of neutron spectroscopy data                        !')
 disp('!------------------------------------------------------------------!')
 

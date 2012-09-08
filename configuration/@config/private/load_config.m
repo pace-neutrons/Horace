@@ -3,10 +3,14 @@ function [config_data,ok,mess] = load_config (file_name)
 %
 %   >> [config_data,ok,mess] = load_config (file_name)
 %
+% Input:
+% ------
 %   file_name       Name of file that contains configuration. Assumed to be a
 %                  .mat file with the configuration saved as a variable
 %                  called config_data.
 %   
+% Output:
+% -------
 %   config_data     Structure containing configuration data. Empty if problem or file does not exist
 %   ok              File succesfully read, or file does not exist
 %   mess            Message. Empty if ok==true

@@ -1,11 +1,24 @@
 function S=get_all(this,opt)
-% Retrieve all configurations currently in memory as a structure
+% Retrieve all configurations that share the same root configuration
 %
-%   >> S = get_all (config)             % retrive all current configurations
-%   >> S = get_all (config,'default')   % retrive all default configurations
+%   >> S = get_all (config_obj)             % retrive all current configurations
+%   >> S = get_all (config_obj,'default')   % retrive all default configurations
 %
-% Each field in the structure S corresponds to a configuration thatis currently
-% in memory.
+% Input
+% -----
+%   config_obj  Configuration object for which all configuration objects
+%               that share the same root configuration object will be found, or 
+%               the root configuration object itself.
+%   
+% Keyword:
+%   'default'   If present, then retrieve the default configuration values
+%               If not present, then retrieve the current values
+%
+% Output:
+% -------
+%   S           Structure with fields matching names of all configurations that share the
+%               same root configuration object as the input object, and each
+%               field contains a structure whose fields are those of the configuration.
 
 % $Revision$ ($Date$)
 

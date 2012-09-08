@@ -22,9 +22,15 @@ function this=test2_config
 %--------------------------------------------------------------------------------------------------
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
 
+% This block contains generic code. Do not alter. Alter only the sub-function default_config below
+root_config=config;
+
 config_name=mfilename('class');
-build_configuration(config,@default_config,config_name);
-this=class(struct([]),config_name,config);
+[ok,this]=is_config_stored(root_config,config_name);
+if ~ok
+    this=class(struct([]),config_name,root_config);
+    build_configuration(this,@default_config,config_name);
+end
 
 
 %--------------------------------------------------------------------------------------------------

@@ -11,10 +11,14 @@ function this=herbert_config
 %  ***  configuration structure.                                                         ***
 %--------------------------------------------------------------------------------------------------
 % This block contains generic code. Do not alter. Alter only the sub-function default_config below
+root_config=config;
 
 config_name=mfilename('class');
-build_configuration(config,@default_config,config_name);    
-this=class(struct([]),config_name,config);
+[ok,this]=is_config_stored(root_config,config_name);
+if ~ok
+    this=class(struct([]),config_name,root_config);
+    build_configuration(this,@default_config,config_name);
+end
 
 
 %--------------------------------------------------------------------------------------------------
@@ -26,7 +30,7 @@ this=class(struct([]),config_name,config);
 %  The sealed fields must be a cell array of field names, or can be empty. The matlab function
 %  struct that can be used has confusing syntax for this purpose: suppose we have fields
 %  called 'v1', 'v2', 'v3',...  then we might have:
-%   - if no sealed fields:  ...,sealed_fields,{{''}},...
+%   - if no sealed fields:  ...,sealed_fields,{{''}},...  (or simply not set field 'sealed_fields')
 %   - if one sealed field   ...,sealed_fields,{{'v1'}},...
 %   - if two sealed fields  ...,sealed_fields,{{'v1','v2'}},...
 %

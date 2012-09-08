@@ -1,25 +1,28 @@
 function S = parse_set_internal (this, change_sealed, varargin)
-% Check arguments are valid for set methods.
+% Check arguments are valid for set methods. Throws an error if not.
 %
-%   >> S = parse_set_internal (configobj, change_sealed, field1, val1, field2, val2, ...)
-%   >> S = parse_set_internal (configobj, change_sealed, struct)
-%   >> S = parse_set_internal (configobj, change_sealed, cellnam, cellval) % cell arrays of field names and values
-%   >> S = parse_set_internal (configobj, change_sealed, cellarray)        % cell array has the form {field1,val1,field2,val2,...}
+%   >> S = parse_set_internal (config_obj, change_sealed, field1, val1, field2, val2, ...)
+%   >> S = parse_set_internal (config_obj, change_sealed, struct)
+%   >> S = parse_set_internal (config_obj, change_sealed, cellnam, cellval) % cell arrays of field names and values
+%   >> S = parse_set_internal (config_obj, change_sealed, cellarray)        % cell array has the form {field1,val1,field2,val2,...}
 %
-%   >> S = parse_set_internal (configobj, change_sealed)                   % returns current values
-%   >> S = parse_set_internal (configobj, change_sealed, 'defaults')       % returns default values
+%   >> S = parse_set_internal (config_obj, change_sealed)                   % returns current values
+%   >> S = parse_set_internal (config_obj, change_sealed, 'defaults')       % returns default values
 %
 % Input:
-%   configobj       Configuration object
+% ------
+%   config_obj      Configuration object
 %   change_sealed   Indicates if sealed fields can be altered.
 %                   '-change_sealed' or '-nochange_sealed'
 %                         true       or        false
 %                           1        or          0
 %
 % Output:
+% -------
 %   S           Structure whose fields and values are those to be changed
 %               in the configuration object
 % 
+%
 % EXAMPLES:
 %   >> S = parse_set (my_config,'a',10,'b','something')
 %

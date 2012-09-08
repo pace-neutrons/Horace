@@ -1,4 +1,4 @@
-function this=config(varargin)
+function this=herbert_root_config(varargin)
 % Base configuration class inherited by user-modifiable application configurations
 %
 %   >> this = config

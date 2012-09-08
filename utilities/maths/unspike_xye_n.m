@@ -1,7 +1,7 @@
 function [yout, eout] = unspike_xye_n (iax,xin,yin,ein,varargin)
 % Remove points deemed spikes from x-y-e data, and replace with values interpolated between good points
 %
-%   >> [yout, eout] = unspike_xye (xin,yin,ein,ymin,ymax,fac,sfac)
+%   >> [yout, eout] = unspike_xye_n (iax,xin,yin,ein,ymin,ymax,fac,sfac)
 %
 % Input:
 % ------

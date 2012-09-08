@@ -1,5 +1,5 @@
 function [labels, added] = put_struct_to_labels (varargin)
-% Create cell array of label strings strom a structure.
+% Create cell array of label strings from a structure.
 %
 %   >> labels = put_struct_to_labels (struc)
 %   >> [labels, added] = put_struct_to_labels (struc, labels_in)
@@ -17,7 +17,7 @@ function [labels, added] = put_struct_to_labels (varargin)
 % Output:
 % -------
 %   labels      Output cellstr of labels to which labels will be added
-%   added       Logical flag: indicates if information was added to the input structure f_in
+%   added       Logical flag: indicates if information was added to the input structure labels_in
 %
 %
 % Label information will be written in the form:

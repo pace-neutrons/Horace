@@ -3,9 +3,13 @@ function [ok,mess] = save_config (file_name, config_data)
 %
 %   >> [ok,mess] = save_config (file_name, config_data)
 %
+% Input:
+% ------
 %   file_name       Full name of file to hold configuration stucture
 %   config_data     Structure holding the configuration
 %
+% Output:
+% -------
 %   ok              true if saved ok; false otherwise
 %   mess            message if not ok (empty otherwise)
 

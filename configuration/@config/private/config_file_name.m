@@ -1,5 +1,16 @@
 function file_name = config_file_name (config_name)
 % Name of file containing configuration data
+%
+%   >> file_name = config_file_name (config_name)
+%
+% Input:
+% -----
+%   config_name     Name of configuration object
+%
+% Output:
+% -------
+%   file_name       Name of file containing the stored value of the
+%                   named configuration
 
 % $Revision$ ($Date$)
 

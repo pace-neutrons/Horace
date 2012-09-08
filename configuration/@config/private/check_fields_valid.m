@@ -3,9 +3,13 @@ function [valid,mess]=check_fields_valid (structure, root_config_name)
 %
 %   >> [valid,mess]=check_fields_valid (structure, root_config_name)
 %
+% Input:
+% ------
 %   structure           Structure
 %   root_config_name    Name of root configuration object
 %
+% Output:
+% -------
 %   valid               true or false
 %   mess                empty if valid; error message if not valid
 %

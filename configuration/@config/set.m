@@ -1,13 +1,16 @@
 function this=set(this,varargin)
 % Set one or more fields in a configuration
 %
-%   >> var = set (configobj, arg1, arg2, ...)
+%   >> set (config_obj, arg1, arg2, ...)
+%   >> var = set (config_obj, arg1, arg2, ...)
 %
 % Input:
-%   configobj           Configuration object
+% ------
+%   config_obj          Configuration object
 %   arg1, arg2,...      Arguments according to one of the useage options below
 %
 % Output:
+% -------
 %   var                 Copy of configuration object
 %
 % Syntax for different input arguments:

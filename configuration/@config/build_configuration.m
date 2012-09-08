@@ -1,12 +1,13 @@
 function build_configuration(this, default_config_fun, config_name)
 % Construct a configuration structure, save in memory and to file.
 %
-%   >> build_configuration(this, default_config_fun, config_name)
+%   >> build_configuration (config, default_config_fun, config_name)
 %
 % Input:
-%   this                Instance of the root configuration class
+% ------
+%   config              Instance of the root configuration class
 %   default_config_fun  Function that returns default structure for the configuration class
-%   config_name         Name of configuration class
+%   config_name         Name of the configuration class
 %
 %
 % In detail:
@@ -54,7 +55,7 @@ if ~isempty(saved_config_data)   % configuration data read from file
     if isequal(fieldnames(saved_config_data),fieldnames(default_config_data))
         [valid,mess]=check_fields_valid(saved_config_data,root_config_name);
         if valid
-            config_store(config_name,saved_config_data,default_config_data)
+            config_store(config_name,saved_config_data,default_config_data,this)
             return
         else
             warning(['Fields not all valid in saved configuration for %s: %s.',...
@@ -70,4 +71,4 @@ end
 % Save configuration from defaults.
 [ok,mess]=save_config(file_name,default_config_data);
 if ~ok, error(mess), end
-config_store(config_name,default_config_data,default_config_data);
+config_store(config_name,default_config_data,default_config_data,this);

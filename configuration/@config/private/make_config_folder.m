@@ -3,8 +3,12 @@ function folder_path=make_config_folder(folder_name)
 %
 %   >> folder_path=make_config_folder(folder_name)
 %
+% Input:
+% ------
 %   folder_name         Name of default folder to hold all configurations
 %                       e.g. 'ISIS_config'
+% Output:
+% -------
 %   folder_path         Full path to default folder
 %
 % The attempt to create the default folder for user configurations takes place

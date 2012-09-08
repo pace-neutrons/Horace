@@ -23,7 +23,7 @@ if nargin>1
     if ischar(varargin{1}) && strcmpi(varargin{1},'m')
         matlab_fmt=true;
     else
-        error('Check optional argumnet(s)')
+        error('Check optional argument(s)')
     end
 end
 

@@ -1,4 +1,4 @@
-function this=h_config
+function this=herbert_config
 % Create the Herbert configuration.
 %
 %   >> this=herbert_config
@@ -30,7 +30,7 @@ end
 %  The sealed fields must be a cell array of field names, or can be empty. The matlab function
 %  struct that can be used has confusing syntax for this purpose: suppose we have fields
 %  called 'v1', 'v2', 'v3',...  then we might have:
-%   - if no sealed fields:  ...,sealed_fields,{{''}},...
+%   - if no sealed fields:  ...,sealed_fields,{{''}},...  (or simply not set field 'sealed_fields')
 %   - if one sealed field   ...,sealed_fields,{{'v1'}},...
 %   - if two sealed fields  ...,sealed_fields,{{'v1','v2'}},...
 %
