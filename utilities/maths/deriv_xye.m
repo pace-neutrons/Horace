@@ -16,6 +16,9 @@ function [yd,ed] = deriv_xye(x,y,e)
 %
 % 
 % If there is only one point in the input arrays, the derivative is returned as zero.
+%
+% Input arrays will be converted to vectors internally, and then reshaped to original 
+% shape on exit.
 
 % Check lengths of input arrays
 np=numel(x);
@@ -47,7 +50,7 @@ if size(e,1)~=np
     e=e(:);
 end
 
-% Calculate derivate
+% Calculate derivative
 dx=x(3:end)-x(1:end-2);
 dy=y(3:end)-y(1:end-2);
 ybeg=(y(2)-y(1))/(x(2)-x(1));

@@ -64,6 +64,8 @@ if isequal(fieldnames(w),fields)
     if ischar(wout.title)||iscellstr(wout.title)
         if ischar(wout.title)
             wout.title=cellstr(wout.title);
+        else
+            wout.title=wout.title(:);
         end
     else
         message='Title must be character array or cell array of strings'; return

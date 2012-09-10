@@ -1,8 +1,8 @@
 function [wout, fitdata, ok, mess] = multifit(win, varargin)
-% Simultaneously fits a function to an one or more IX_dataset_3d objects
+% Simultaneously fits a function to one or more IX_dataset_3d objects
 % Optionally allow with background functions varying independently for each dataset. 
 %
-% Simultaneously fit oen or more datasets to a given function:
+% Simultaneously fit one or more datasets to a given function:
 %   >> [wout, fitdata] = multifit (w, func, pin)                 % all parameters free
 %   >> [wout, fitdata] = multifit (w, func, pin, pfree)          % selected parameters free to fit
 %   >> [wout, fitdata] = multifit (w, func, pin, pfree, pbind)   % binding of various parameters in fixed ratios

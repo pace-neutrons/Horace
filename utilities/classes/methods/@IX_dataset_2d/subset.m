@@ -13,6 +13,10 @@ function wout=subset(w,ind)
 %   wout    IX_dataset_2d object, with the extracted signal, and retaining the 
 %           y values corresponding to the first numel(ind) y values
 
+if numel(w)~=1
+    error('Function only takes a single IX_dataset_2d object, not an array of IX_dataset_2d objects')
+end
+
 wout=w;
 [dummy,sz]=dimensions(w);
 if isempty(ind) || min(ind)<1 || max(ind)>sz(2) || any(diff(ind(:))<1)

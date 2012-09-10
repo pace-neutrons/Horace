@@ -39,7 +39,9 @@ if isequal(fieldnames(w),fields)
         else
             wout.caption=cellstr(w.caption);
         end
-    elseif ~iscellstr(w.caption)
+    elseif iscellstr(w.caption)
+        wout.caption=wout.caption(:);
+    else
         message='Caption must be character or cell array of strings'; return
     end
     

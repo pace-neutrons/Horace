@@ -12,7 +12,7 @@ function wout = mask (win, mask_array)
 %                      as the data.
 % Output:
 % -------
-%   wout                Output dataset.
+%   wout                Output dataset. Masked points have signal and error set to NaN.
 
 % This function is independent of the dimensionality of the IX_dataset_nd object
 
@@ -32,6 +32,6 @@ if ~islogical(mask_array)
     mask_array=logical(mask_array);
 end
 
-% Mask signal, variance and npix arrays
+% Mask signal and error arrays
 wout.signal(~mask_array) = NaN;
 wout.error(~mask_array) = NaN;

@@ -25,6 +25,10 @@ function [yout, eout] = unspike_xye (xin,yin,ein,varargin)
 %   eout    Unspiked standard deviations (error estimated on interpolated values)
 % 
 %
+% Input arrays will be converted to vectors internally, and then reshaped to original 
+% shape on exit.
+%
+%
 % Definition of a spike
 % ----------------------
 % A spike is a single point that is markedly higher or lower than its immediate neighbours.
