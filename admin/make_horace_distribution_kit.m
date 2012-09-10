@@ -22,10 +22,6 @@ function make_horace_distribution_kit(varargin)
 % and add to the search path the file Horace_on.m, 
 % after renaming the file Horace_on.m.template to horace_on.m.
 % 
-% if called withoug parameters, this function p-codes Horace private
-% folders, and removes C source code folders and if with parameter 
-% -- compress everything as it is which makes code suitable for further 
-% development. 
 %
 % $Revision: 1851 $ ($Date: 2012-02-02 14:56:47 +0000 (Thu, 02 Feb 2012) $)
 %
@@ -59,19 +55,22 @@ if nargin>0
  
 end
 
-rootpath = fileparts(which('horace_init')); % MUST have rootpath so that libisis_init, libisis_off included
+rootpath = fileparts(which('horace_init')); % MUST have rootpath so that horace_init, horace_off are included
 %
 disp('!===================================================================!')
 disp('!==> Preparing HORACE distributon kit  =============================!')
 disp('!    Start collecting the Horace program files =====================!')
 %
-
+dir_to_return_to='';
 current_dir  = pwd;
 root_dir     = current_dir;
 % if inside horace package dir, go avay from there:
 if strncmpi(rootpath,current_dir,numel(rootpath))
+    dir_to_return_to = current_dir;
 	cd(rootpath);
 	cd('../');
+    current_dir  = pwd;
+    root_dir     = current_dir;
 end
 
 target_Dir=[root_dir,'/ISIS'];
@@ -150,14 +149,19 @@ end
 
 cd(current_dir);
 zip(horace_file_name,target_Dir);
+if ~isempty(dir_to_return_to)
+    [dir,hor_shortname,ext]=fileparts(horace_file_name);
+    [err,mess]=movefile(horace_file_name,fullfile(dir_to_return_to,[hor_shortname,ext]),'f');
+    if err
+        disp(['Error copying file to destination: ',mess]);
+        warning('MAKE_HORACE_DISTRIBUTION_KIT:copy_file',...
+                ' can not move distributive into target folder %s\n left it in the folder %s\n',...
+                 dir_to_return_to,dir);
+    end   
+    cd(dir_to_return_to);
+end
 
 %[err,mess]=movefile(horace_file_name,current_dir);
-%if err
-%    disp(['Error copying file to destination: ',mess]);
-%    warning('MAKE_HORACE_DISTRIBUTION_KIT:copy_file',...
-%            ' can not move distributive into target folder %s\n left it in the folder %s\n',...
-%            current_dir,target_Dir)
-%end
 %cd(current_dir);
 %
 disp('!    Files compressed. Deleting the auxiliary files and directories=!')
