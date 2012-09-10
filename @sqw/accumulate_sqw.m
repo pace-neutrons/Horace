@@ -81,7 +81,7 @@ end
 psi_planned = psi_planned*pi/180;
 
 % generate the list of input data classess and 
-[spe_data,tmp_file] = gensqw_build_input_datafiles(dummy,spe_file);
+[spe_data,tmp_file] = gensqw_build_input_datafiles(dummy,spe_file,sqw_file);
 
 nfiles = numel(spe_data);
 

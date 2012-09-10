@@ -163,6 +163,14 @@ for i=1:ndims
     max_full{i}=max([max_unref{i} max_ref{i}]);
 end
 
+%We have to ensure that we also adjust the urange field appropriately:
+for i=1:ndims
+    step=wout.data.p{i}(2)-wout.data.p{i}(1);
+    %add a little bit either side, to be sure of getting everything
+    wout.data.urange(1,wout.data.pax(i))=min_full{i}-step;
+    wout.data.urange(2,wout.data.pax(i))=max_full{i}+step;
+end
+
 %cannot use recompute_bin_data to get the new object...
 horace_info_level(-Inf);
 if ndims==1
