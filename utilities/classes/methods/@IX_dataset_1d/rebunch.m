@@ -87,11 +87,11 @@ if nx~=ny
     % Get arrays of total counts and errors
     if win.x_distribution
         xin_bins=diff(win.x);
-        ytemp=win.signal.*xin_bins;
-        etemp=win.error.*xin_bins;
+        ytemp=win.signal'.*xin_bins;
+        etemp=win.error'.*xin_bins;
     else
-        ytemp=win.signal;
-        etemp=win.error;
+        ytemp=win.signal';
+        etemp=win.error';
     end
 
     % Sum for each new bunch
