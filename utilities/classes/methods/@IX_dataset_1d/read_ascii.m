@@ -61,8 +61,10 @@ end
 % Read data from file
 % ---------------------
 fid = fopen(file_full);
-disp (['Reading data from ' file_full])
+disp (['Reading data from ',file_full,' ...'])
 
+nw=0;
+nblock=0;
 while 1>0
     [w,ok,mess]=read_ascii_data_textscan (fid, col_x, col_y, col_e, xye, return_array);
     if ok
@@ -78,13 +80,22 @@ while 1>0
         else
             break
         end
+        nw=nw+numel(w);
+        nblock=nblock+1;
+        if nblock==1, mess_1=mess; end
     else
         error(mess)
     end
 end
 fclose(fid);
     
-if isempty(wout)
+if ~isempty(wout)
+    if nblock==1
+        disp(mess_1)
+    else
+        disp(['Read ', num2str(nw),' datasets from ', num2str(nblock),' blocks of data'])
+    end
+else
     error('No data read from file')
 end
 
@@ -340,12 +351,12 @@ if ~return_array
     if nx~=ny; type = 'histogram'; else type = 'point'; end;
     if xye; cols='x-y-e'; else cols='x-y'; end;
     if nw>1
-        disp(['Read ', num2str(nw),' datasets of ', cols, ' ', type,' data [', num2str(ny), ' signal values]'])
+        mess=['Read ', num2str(nw),' datasets of ', cols, ' ', type,' data [', num2str(ny), ' signal values]'];
     else
-        disp(['Read one dataset of ', cols, ' ', type, ' data [', num2str(ny), ' signal values]'])
+        mess=['Read one dataset of ', cols, ' ', type, ' data [', num2str(ny), ' signal values]'];
     end
 else
-    disp (['Read array of data: ',num2str(size(w,2)),' columns, ',num2str(size(w,1)),' rows'])
+    mess=['Read array of data: ',num2str(size(w,2)),' columns, ',num2str(size(w,1)),' rows'];
 end
 
 end

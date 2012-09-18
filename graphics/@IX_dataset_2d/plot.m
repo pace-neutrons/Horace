@@ -12,7 +12,9 @@ function [fig_handle, axes_handle, plot_handle] = plot(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = plot(w,...) 
 %
-% Synonym for >> da(...)
+%
+% Synonym for:
+%   >> da(...)
 
 % Check input arguments
 [ok,mess]=parse_args_simple_ok_syntax({'name'},varargin{:});
@@ -21,10 +23,7 @@ if ~ok
 end
 
 % Perform plot
-[fig_,axes_,plot_,ok,mess]=plot_twod (w,varargin{:},'newplot',true,'type','area');
-if ~ok
-    error(mess)
-end
+[fig_,axes_,plot_] = da(w, varargin{:});
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

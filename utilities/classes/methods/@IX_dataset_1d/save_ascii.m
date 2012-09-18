@@ -58,7 +58,7 @@ if ~ok && nargout==0, error(mess), end
 % Write data to file
 % ------------------
 for i=1:length(w)
-    labels = put_struct_to_labels (struct('title',w(i).title));
+    labels = put_struct_to_labels (struct('title',{w(i).title}));
     x_axis= put_struct_to_labels (struct(w(i).x_axis),'except','ticks');
     for j=1:numel(x_axis)
         x_axis{j}=['x_',x_axis{j}];
