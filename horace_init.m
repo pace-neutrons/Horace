@@ -56,7 +56,7 @@ end
 [application,Matlab_code,mexMinVer,mexMaxVer,date] = horace_version();
 mc = [Matlab_code(1:48),'$)'];
 
-disp('! =================================================================!')
+disp('!==================================================================!')
 disp('!                      HORACE                                      !')
 disp('!------------------------------------------------------------------!')
 disp('!  Visualisation of multi-dimensional neutron spectroscopy data    !')
