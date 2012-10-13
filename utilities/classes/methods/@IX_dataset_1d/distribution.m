@@ -121,4 +121,4 @@ n=histc(w.signal',bounds);
 n(end-1)=n(end-1)+n(end);    % add the number of points that lie on the edge of the last boundary to the penultimate bin
 n = n(1:end-1)./diff(bounds);
 e=zeros(size(n));
-wdist = spectrum (bounds,n,e,'Distribution','y-value','Number of elements','unit y',1);
+wdist = IX_dataset_1d(bounds,n,e,'Distribution',IX_axis('signal','unit signal'),'Number of elements',true);

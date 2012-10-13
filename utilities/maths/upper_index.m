@@ -4,6 +4,7 @@ function m_ans = upper_index (arr, val)
 %   >> m = upper_index (arr,val)
 %
 % If val<arr(1) then m=0
+% val can be a scalar or an array
 
 % Actually, the use of histc appears to give the correct result even if not *strictly* monotonic
 

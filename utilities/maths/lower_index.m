@@ -4,6 +4,9 @@ function m_ans = lower_index (arr,val)
 %   >> m = lower_index (arr,val)
 %
 % If arr(end)<val then m=numel(arr)+1
+% val can be a scalar or an array
+
+% Actually, the use of histc appears to give the correct result even if not *strictly* monotonic
 
 n=numel(arr);
 
