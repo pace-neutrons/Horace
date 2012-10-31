@@ -163,5 +163,6 @@ for i=1:n_files
 end
 
 
-
-
+if numel(runfiles_list)==1
+    runfiles_list = runfiles_list{1};
+end
