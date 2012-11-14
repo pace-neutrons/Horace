@@ -1,4 +1,4 @@
-function [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
+function [rlu_corr,alatt,angdeg,rotmat,dist] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
 %   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0, alatt0, angdeg0, rlu)
@@ -56,6 +56,9 @@ function [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0,alatt0,angdeg0,rlu
 %                  in the two frames are related by 
 %                       v(i)= rotmat(i,j)*v0(j)
 %
+%   dist            Distances between peak positions and points given by true indexes, rlu, in the
+%                  refined crystal lattice.
+%
 % The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
 % the other output arguments. That is why Horace functions that use the output of this function will
 % generally only require rlu_corr.
@@ -100,7 +103,7 @@ if numel(args)==2
     if numel(args{2})==3 && isnumeric(args{2}) && all(args{2}>0)
         lattice_init(4:6)=args{2}(:)';
     else
-        error('Check initial lattice parameters ([a,b,c]) for refinement')
+        error('Check initial lattice angles ([alf,bet,gam]) for refinement')
     end
 end
 if numel(args)>2
@@ -192,6 +195,7 @@ rotvec=fitpar.p(7:9);
 rotmat=rotvec_to_rotmat2(rotvec);
 alatt=fitpar.p(1:3);
 angdeg=fitpar.p(4:6);
+dist=sqrt(sum(reshape(dist,3,nv).^2,1))';
 
 [b,arlu,angrlu,mess] = bmatrix(alatt,angdeg);
 if ~isempty(mess), error(mess), end
@@ -306,7 +310,7 @@ end
 x=u/norm(u);
 y=v/norm(v);
 z=cross(x,y);
-if norm(y)>small
+if norm(z)>small
     z=z/norm(z);
 else
     xyz=[]; ok=false; mess='two input vectors are collinear'; return
