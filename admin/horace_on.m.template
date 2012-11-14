@@ -7,8 +7,8 @@ function path=horace_on(non_default_path)
 % $Revision: 1733 $ ($Date: 2010-06-23 17:57:14 +0100 (Wed, 23 Jun 2010) $) 
 %
 %
-default_horace_path ='/home/wkc26243/winsvn/Horace';
-default_herbert_path='';
+default_horace_path ='/usr/local/mprogs/Horace';
+default_herbert_path='/usr/local/mprogs/Herbert';
 prefer_herbert=true;
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
@@ -22,9 +22,6 @@ try
 catch
 end
 warning(warn_state);    % return warnings to initial state
-if ~isempty(default_herbert_path)
-	herbert_on(default_herbert_path);
-end
 
 libisis_initated=~isempty(which('libisis_init.m'));
 herbert_initated=~isempty(which('herbert_init.m'));
@@ -33,7 +30,7 @@ herbert_initated=~isempty(which('herbert_init.m'));
 if ~(libisis_initated||herbert_initated)
     if prefer_herbert
         try
-            herbert_on();               
+            try_herbert_on(default_herbert_path);
         catch
             try
                 libisis_on();
@@ -46,7 +43,7 @@ if ~(libisis_initated||herbert_initated)
             libisis_on();
         catch
             try
-                herbert_on();               
+                try_herbert_on(default_herbert_path);
             catch
             end
         end
@@ -76,6 +73,18 @@ if isempty(path)
 else
     path=fileparts(path);
 end
+
+function try_herbert_on(default_herbert_path)
+
+if exist(default_herbert_path,'var')
+    if ~isempty(default_herbert_path)
+        herbert_on(default_herbert_path);
+    else
+        herbert_on();        
+    end
+else
+    herbert_on();            
+end            
 
 
  
