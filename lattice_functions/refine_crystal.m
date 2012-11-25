@@ -1,4 +1,4 @@
-function [rlu_corr,alatt,angdeg,rotmat,dist] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
+function [rlu_corr,alatt,angdeg,rotmat,distance] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
 %   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0, alatt0, angdeg0, rlu)
@@ -7,6 +7,15 @@ function [rlu_corr,alatt,angdeg,rotmat,dist] = refine_crystal(rlu0,alatt0,angdeg
 % In addition, there are keyword arguments to control the refinement e.g.
 %   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(..., 'fix_angdeg')
 %   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(..., 'free_alatt', [1,0,1])
+%
+% This function is used to get a matrix that relates the coordinates of a vector (h0,k0,l0)
+% as expressed in an initial or reference lattice to the coordinates (h,k,l) in the true lattice.
+% It does this by taking a set of points (h0,k0,l0) and the corresponding set of true indicies
+% (h,k,l), and refining the lattice parameters and orientation. The refined lattice parameters
+% are also returned.
+%
+% The output from this function can be used to correct the crystal orientation and lattice parameters
+% in Horace. Type >> help change_crystal_horace for more details.
 %
 % Input:
 % ------
@@ -56,7 +65,7 @@ function [rlu_corr,alatt,angdeg,rotmat,dist] = refine_crystal(rlu0,alatt0,angdeg
 %                  in the two frames are related by 
 %                       v(i)= rotmat(i,j)*v0(j)
 %
-%   dist            Distances between peak positions and points given by true indexes, rlu, in the
+%   distance        Distances between peak positions and points given by true indexes, rlu, in the
 %                  refined crystal lattice.
 %
 % The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
@@ -188,14 +197,14 @@ if opt.fix_orientation
     pfree(7:9)=[0,0,0];
 end
 
-[dist,fitpar] = multifit(vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1),...
+[distance,fitpar] = multifit(vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1),...
     @reciprocal_space_deviation, {pars,rlu}, pfree, pbind,'list',0,'fit',[1e-4,50,-1e-6]);
 
 rotvec=fitpar.p(7:9);
 rotmat=rotvec_to_rotmat2(rotvec);
 alatt=fitpar.p(1:3);
 angdeg=fitpar.p(4:6);
-dist=sqrt(sum(reshape(dist,3,nv).^2,1))';
+distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
 
 [b,arlu,angrlu,mess] = bmatrix(alatt,angdeg);
 if ~isempty(mess), error(mess), end

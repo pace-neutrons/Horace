@@ -10,7 +10,6 @@ function [alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angde
 %                       qhkl(i) = rlu_corr(i,j) * qhkl_0(j)
 %   alatt0          Reference lattice parameters [a,b,c] (Angstroms)
 %   angdeg0         Reference lattice angles [alf,bet,gam] (deg)
-%   rlu             True indexes of Bragg peaks (n x 3 matrix)
 %
 % Output:
 % -------

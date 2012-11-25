@@ -23,6 +23,8 @@ function c=to_cut(w,varargin)
 % However, because we have already used 'cut' as the name of another method of sqw objects,
 % we can't do that. An unfortunate problem, but one that is unavoidable.
 
+rad2deg=180/pi;
+
 % Conversion only possible if 1D sqw-type object
 if ~is_sqw_type(w)
     error('Conversion of only sqw-type object to cut object is possible')
@@ -122,15 +124,16 @@ appendix.cs=w.header.alatt(3);
 appendix.aa=w.header.angdeg(1);
 appendix.bb=w.header.angdeg(2);
 appendix.cc=w.header.angdeg(3);
-[u_true,v_true]=rlu_correct (w.header.cu, w.header.cv, w.header.alatt, w.header.angdeg,...
-    w.header.omega, w.header.dpsi, w.header.gl, w.header.gs, w.header.alatt, w.header.angdeg);
+% Note that some of the angles are required in degrees for the following function, so convert
+[u_true,v_true]=uv_correct (w.header.cu, w.header.cv, w.header.alatt, w.header.angdeg,...
+    w.header.omega*rad2deg, w.header.dpsi*rad2deg, w.header.gl*rad2deg, w.header.gs*rad2deg, w.header.alatt, w.header.angdeg);
 appendix.ux=u_true(1);
 appendix.uy=u_true(2);
 appendix.uz=u_true(3);
 appendix.vx=v_true(1);
 appendix.vy=v_true(2);
 appendix.vz=v_true(3);
-appendix.psi_samp=w.header.psi*(180/pi);     % format requires degrees
+appendix.psi_samp=w.header.psi*rad2deg;     % format requires degrees
 
 c.appendix=appendix;
 
