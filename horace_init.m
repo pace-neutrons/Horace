@@ -12,19 +12,21 @@ function horace_init
 % Root directory is assumed to be that in which this function resides
 rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
+
+% Add admin functions to the path first
 addpath(fullfile(rootpath,'admin'));
 
-% Select what to use as function of what was cuttently initiated/requested
-% and check if supporting package is availible
+% Select supporting package on basis of what is currently initiated/requested
+% and check if supporting package is available
 select_supporting_package(rootpath);
 
-
+% DLL and configuration setup
 addpath_message (2,rootpath,'DLL');
 addpath_message (1,rootpath,'configuration');
 
 % Other directories
+addpath_message (1,rootpath,'lattice_functions');
 addpath_message (1,rootpath,'utilities');
-
 
 % Functions for fitting etc.
 addpath_message (1,rootpath,'functions');
@@ -102,7 +104,7 @@ if herb_defined&&libs_defined
     ilibs = strfind(path,libs_pattern);
     
     if isempty(iherb)&&isempty(ilibs)
-        error('horace_init:Logic_error','Herber and libisis are identified as initiated but can not be found on search path'); 
+        error('horace_init:Logic_error','Herbert and Libisis are identified as initiated but can not be found on search path'); 
     end
     % we may be in herbert or libisis folder but the package is not on the path
     if isempty(iherb)||isempty(ilibs)
@@ -121,13 +123,13 @@ if herb_defined&&libs_defined
     if iherb(1)<ilibs(1)
         herb_defined=true;
         libs_defined=false;
-        warning('horace_init:package_selection','Herbert and Libisis found on the search path; Will use Herbert');
+        warning('horace_init:package_selection','Herbert and Libisis found on the search path; will use Herbert');
         disp(' use use_herbert ''off'' to switch to use Libisis');
     else
         herb_defined=false;
         libs_defined=true;       
         warning('horace_init:package_selection','Herbert and Libisis found on the search path; Will use Libisis');
-        disp(' use use_herbert ''on'' to switch to use Herebrt');
+        disp(' use use_herbert ''on'' to switch to use Herbert');
         
     end
 end

@@ -25,11 +25,11 @@ function [u_true, v_true, rlu_corr] = uv_correct (u, v, alatt, angdeg, omega_deg
 % rlu_corr                  Matrix to convert from coords in notional rlu to true rlu, accounting for 
 %                          the misorientation of the lattice and the true lattice parameters.
 
-rad2deg=180/pi;
-omega=omega_deg*rad2deg;
-dpsi=dpsi_deg*rad2deg;
-gl=gl_deg*rad2deg;
-gs=gs_deg*rad2deg;
+deg2rad2=pi/180;
+omega=omega_deg*deg2rad2;
+dpsi=dpsi_deg*deg2rad2;
+gl=gl_deg*deg2rad2;
+gs=gs_deg*deg2rad2;
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v;
 b_matrix = bmatrix(alatt, angdeg);        % bmat takes Vrlu to Vxtal_cart
