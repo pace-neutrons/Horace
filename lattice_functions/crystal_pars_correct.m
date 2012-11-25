@@ -1,7 +1,7 @@
-function [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_parameters (u, v, alatt0, angdeg0, omega0_deg, dpsi0_deg, gl0_deg, gs0_deg, rlu_corr, varargin)
+function [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct (u, v, alatt0, angdeg0, omega0_deg, dpsi0_deg, gl0_deg, gs0_deg, rlu_corr, varargin)
 % Return correct lattice parameters and crystal orientation for gen_sqw from a matrix that corrects the r.l.u.
 %
-%   >> [alatt, angdeg, dpsi, gl, gs] = crystal_parameters (u, v, alatt0, angdeg0, omega0, dpsi0, gl0, gs0, rlu_corr)
+%   >> [alatt, angdeg, dpsi, gl, gs] = crystal_pars_correct (u, v, alatt0, angdeg0, omega0, dpsi0, gl0, gs0, rlu_corr)
 %
 % This functions returns the true lattice parameters and crystal misorientation angles for the generation
 % of an sqw file. The input is the lattice parameters and crystal misorientation used to generate an
@@ -38,32 +38,32 @@ function [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_parameters (u, v, a
 %   alatt_true, angdeg_true True lattice parameters: [a_true,b_true,c_true], [alf_true,bet_true,gam_true] (in Ang and deg)
 %   dpsi, gl, gs            Misorientation angles of the vectors u_new and v_new (deg)
 
-rad2deg=180/pi;
-omega0=omega0_deg*rad2deg;
-dpsi0=dpsi0_deg*rad2deg;
-gl0=gl0_deg*rad2deg;
-gs0=gs0_deg*rad2deg;
+deg2rad=pi/180;
+omega0=omega0_deg*deg2rad;
+dpsi0=dpsi0_deg*deg2rad;
+gl0=gl0_deg*deg2rad;
+gs0=gs0_deg*deg2rad;
 
 % Check input arguments
 if numel(varargin)==0
-    u_new=u; v_new=v; omega_new=omega;
+    u_new=u; v_new=v; omega_new=omega0;
 elseif numel(varargin)==2
-    u_new=varargin{1}; v_new=varargin{2}; omega_new=omega;
+    u_new=varargin{1}; v_new=varargin{2}; omega_new=omega0;
 elseif numel(varargin)==3
-    u_new=varargin{1}; v_new=varargin{2}; omega_new=varargin{3}*rad2deg;
+    u_new=varargin{1}; v_new=varargin{2}; omega_new=varargin{3}*deg2rad;
 else
     error('Check number of input arguments')
 end
 
 % Get matrix to convert from rlu to orthonormal frame defined by u0,v0;
-b_matrix = bmatrix(alatt0, angdeg0);        % bmat takes Vrlu to Vxtal_cart
-ub_matrix = ubmatrix(u0, v0, b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
+b_matrix0 = bmatrix(alatt0, angdeg0);        % bmat takes Vrlu to Vxtal_cart
+ub_matrix0 = ubmatrix(u, v, b_matrix0);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 
 % Get matrix to convert from rlu defined by true lattice parameters to orthonormal frame defined by u,v;
 [alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
 if ~ok, error(mess), end
-b_matrix_true = bmatrix(alatt_true, angdeg_true);     % bmat takes Vrlu to Vxtal_cart
-ub_matrix_true = ubmatrix(u_new, v_new, b_matrix_true);       % ubmat takes Vrlu to V in orthonormal frame defined by u, v
+b_matrix = bmatrix(alatt, angdeg);     % bmat takes Vrlu to Vxtal_cart
+ub_matrix = ubmatrix(u_new, v_new, b_matrix);       % ubmat takes Vrlu to V in orthonormal frame defined by u, v
 
 % Matrix to convert coords in orthormal frame defined by directions of u, v after accounting for misorientation
 % to coords in orthonormal frame defined by *notional* directions of u, v:
@@ -75,29 +75,29 @@ rot_om0  = [cos(omega0),-sin(omega0),0; sin(omega0),cos(omega0),0; 0,0,1];
 corr0 = (rot_om0 * (rot_dpsi0*rot_gl0*rot_gs0) * rot_om0');
 % Matrix to convert from rlu to orthonormal frame S
 % (Vs = (Corr*UB)*Vrlu, where Corr=Om0 * M(dpsi0,gl0,gs0) * Om0')
-rlu0_to_S = corr0*ub_matrix; 
+rlu0_to_S = corr0*ub_matrix0; 
 
 % Use the fact that Vs is also given by Vs=(Corr_true*UBtrue)*Vrlu_true, and Vrlu_true= rlu_corr*Vrlu, to determine M(dpsi,gl,gs):
 % for true lattice:
 rot_om_new  = [cos(omega_new),-sin(omega_new),0; sin(omega_new),cos(omega_new),0; 0,0,1];
-M = rot_om_new' * rlu0_to_S / (rot_om_new' * ub_matrix_true * rlu_corr);
+M = rot_om_new' * rlu0_to_S / (rot_om_new' * ub_matrix * rlu_corr);
 
 % Now extract dpsi, gl, gs from M
 % This only works so long as gl is not 90 degrees (in this case dpsi and gl are rotatins about the same axis)
 sin_gl = -M(3,1);
 small=1e-10;
 if abs(sin_gl)<1-small
-    gl_deg=asin(sin_gl)/rad2deg;    % in range -90 deg to +90 deg
-    gs_deg=atan2(M(3,2),M(3,3))/rad2deg;
-    dpsi_deg=atan2(M(2,1),M(1,1))/rad2deg;
+    gl_deg=asin(sin_gl)/deg2rad;    % in range -90 deg to +90 deg
+    gs_deg=atan2(M(3,2),M(3,3))/deg2rad;
+    dpsi_deg=atan2(M(2,1),M(1,1))/deg2rad;
 else
     if sin_gl>0
         gl_deg=90;
         gs_deg=0;   % can only determine (dpsi-gs), so take gs=0
-        dpsi_deg=atan2(M(2,3),M(1,3))/rad2deg;
+        dpsi_deg=atan2(M(2,3),M(1,3))/deg2rad;
     else
         gl_deg=-90;
         gs_deg=0;   % can only determine (dpsi-gs), so take gs=0
-        dpsi_deg=atan2(-M(2,3),-M(1,3))/rad2deg;
+        dpsi_deg=atan2(-M(2,3),-M(1,3))/deg2rad;
     end
 end
