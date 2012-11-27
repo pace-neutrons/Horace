@@ -65,8 +65,8 @@ function [rlu_corr,alatt,angdeg,rotmat,distance] = refine_crystal(rlu0,alatt0,an
 %                  in the two frames are related by 
 %                       v(i)= rotmat(i,j)*v0(j)
 %
-%   distance        Distances between peak positions and points given by true indexes, rlu, in the
-%                  refined crystal lattice.
+%   distance        Distances between peak positions and points given by true indexes, in input
+%                  argument rlu, in the refined crystal lattice. (Ang^-1)
 %
 % The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
 % the other output arguments. That is why Horace functions that use the output of this function will

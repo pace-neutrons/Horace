@@ -38,7 +38,7 @@ ulen = w.data.ulen(pax(dax));     % unit length in order of the display axes
 
 name_sliceomatic =  get_global_var('horace_plot','name_sliceomatic');	
 
-[figureHandle_, axesHandle_, plotHandle_] = sliceomatic (IX_dataset_3d(w),'x_axis',ulabel{1},'y_axis',ulabel{1},'z_axis',ulabel{1},...
+[figureHandle_, axesHandle_, plotHandle_] = sliceomatic (IX_dataset_3d(w),'x_axis',ulabel{1},'y_axis',ulabel{2},'z_axis',ulabel{3},...
                                                             'name',name_sliceomatic,varargin{:});
 
 % Rescale plot so that aspect ratios reflect relative lengths of Q axes

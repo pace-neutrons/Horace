@@ -1,11 +1,12 @@
-function weight = bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
+function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
 % Blobs at Bragg positions, but on a lattice that is rotated and scaled w.r.t. input lattice
 %
-%   >> weight = bragg_blobs (qh,qk,ql,en,p,c1,c2,)
+%   >> weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
 %
-%   p   Array of parameters [q_fwhh,e_fwhh]:
-%           q_fwhh  FWHH of 3D Gaussian in reciprocal space (Ang)
-%           e_fwhh  FWHH in energy (meV)
+%   qh,qk,ql,en Arrays of h,k,l,e in the reference lattice
+%   p           Array of parameters [q_fwhh,e_fwhh]:
+%                   q_fwhh  FWHH of 3D Gaussian in reciprocal space (Ang)
+%                   e_fwhh  FWHH in energy (meV)
 %
 %   lattice0    [a,b,c,alf,bet,gam] lattice parameters (Ang and deg) of reference lattice
 %   lattice     [a,b,c,alf,bet,gam] lattice parameters (Ang and deg) of true lattice
