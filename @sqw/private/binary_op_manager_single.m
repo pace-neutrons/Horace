@@ -17,18 +17,23 @@ if ~isa(w1,'double') && ~isa(w2,'double')
         [n1,sz1]=dimensions(w1);
         [n2,sz2]=dimensions(w2);
         if n1==n2 && all(sz1==sz2) && all(size(w2.data.npix)==size(w1.data.npix))
-            if  ~all(w1.data.npix(:)==w2.data.npix(:))                
+            % npix for both sqw objects have to be equal as one would not
+            % be able to extraxt pix data otherwise. 
+            npix1 = sum(reshape(w1.data.npix,numel(w1.data.npix),1));
+            npix2 = sum(reshape(w2.data.npix,numel(w2.data.npix),1));            
+            if npix1~=npix2
                 nDifrToPrint = 3; % number of elements to be printed if the data are different
                 difr=find(w1.data.npix(:)~=w2.data.npix(:));
                 nDifr=numel(difr);
                 numEl=numel(w2.data.npix);
+                fprintf('ERROR in binary operations: left operand has %d npix and right operand has %d npix contributed into it\n',npix1,npix2)
                 if nDifr>nDifrToPrint
-                    error('sqw type objects has %d npix elements and %d of them are different',numEl,nDifr)
+                    error('SQW type objects has %d npix elements and %d of them are different',numEl,nDifr)
                 else
                     for i=1:nDifr
-                       fprintf(' element N %d in npix for left operand equal to: %d and for right operand to: %d\n',difr(i),w1.data.npix(difr(i)),w2.data.npix(difr(i)));
+                       fprintf('Element N %d in npix for left operand equal to: %d and for right operand to: %d\n',difr(i),w1.data.npix(difr(i)),w2.data.npix(difr(i)));
                     end
-                    error(' Two sqw objects have different npix values')
+                    error('Two sqw objects have different npix numbers ')
                 end
             end
             wout = w1;
