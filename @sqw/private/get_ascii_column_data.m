@@ -1,7 +1,7 @@
 function [data,det] = get_ascii_column_data (datafile)
 % Get data from ascii file with column data qx-qy-qz-eps-signal-error
 %
-%   >> data = get_diffraction_ascii_column_data (datafile)
+%   >> data = get_ascii_column_data (datafile)
 %
 % Input:
 % ------
@@ -127,12 +127,12 @@ data.S=data.S(ok);
 data.ERR=data.ERR(ok);
 
 % Write succesful data read message
-disp (['Data read from ' datafile])
+disp (['qx-qy-qz-eps data read from: ' datafile])
 
 
 % Create fake detector information
 % ---------------------------------
-% Needs to be a single detector to the rest of the code to work
+% Needs to be a single detector for the rest of the code to work
 det.filename='';
 det.filepath='';
 det.x2=0;
