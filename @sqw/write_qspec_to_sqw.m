@@ -71,8 +71,15 @@ else
     urange_in =[];
 end
 
-% Read qx-qy-qz-signal-error ascii file
-[data,det]=get_ascii_column_data(qspec_file);
+% Read qx-qy-qz-signal-error file
+if exist(qspec_file,'file')
+    [data,det,is_mat_file]=get_mat_column_data(qspec_file);
+    if ~is_mat_file
+        [data,det]=get_ascii_column_data(qspec_file);
+    end
+else
+    error(['File does not exist: ',qspec_file])
+end
 
 efix=0;
 emode=0;
