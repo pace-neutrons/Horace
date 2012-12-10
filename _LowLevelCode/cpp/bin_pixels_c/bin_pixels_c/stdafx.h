@@ -18,6 +18,6 @@
 
 #include <mex.h>
 #include <matrix.h>
-
+#include <cfloat>
 
 #endif

@@ -16,7 +16,21 @@ if ~isa(w1,'double') && ~isa(w2,'double')
         % w1 and w2 are both sqw-type sqw objects
         [n1,sz1]=dimensions(w1);
         [n2,sz2]=dimensions(w2);
-        if n1==n2 && all(sz1==sz2) && all(w1.data.npix(:)==w2.data.npix(:))
+        if n1==n2 && all(sz1==sz2) && all(size(w2.data.npix)==size(w1.data.npix))
+            if  ~all(w1.data.npix(:)==w2.data.npix(:))                
+                nDifrToPrint = 3; % number of elements to be printed if the data are different
+                difr=find(w1.data.npix(:)~=w2.data.npix(:));
+                nDifr=numel(difr);
+                numEl=numel(w2.data.npix);
+                if nDifr>nDifrToPrint
+                    error('sqw type objects has %d npix elements and %d of them are different',numEl,nDifr)
+                else
+                    for i=1:nDifr
+                       fprintf(' element N %d in npix for left operand equal to: %d and for right operand to: %d\n',difr(i),w1.data.npix(difr(i)),w2.data.npix(difr(i)));
+                    end
+                    error(' Two sqw objects have different npix values')
+                end
+            end
             wout = w1;
             result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), sigvar(w2.data.pix(8,:),w2.data.pix(9,:)));
             wout.data.pix(8:9,:) = [result.s;result.e];

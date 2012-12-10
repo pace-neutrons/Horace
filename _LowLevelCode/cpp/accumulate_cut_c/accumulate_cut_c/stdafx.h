@@ -21,6 +21,7 @@
 //
 #include <mex.h>
 #include <matrix.h>
+#include <cfloat>
 
 #define iRound(x)  (int)floor((x)+0.5)
 
