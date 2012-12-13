@@ -152,17 +152,12 @@ else   % multiple par and spe files;
         runfiles_list{i}=rundata(spe_files{i},par_files{i},dfnd_params{i});
     end       
 end
-%
+
 % check if all information necessary to define the run is present
-%
+
 for i=1:n_files
     undefined  = check_run_defined(runfiles_list{i});
     if undefined==2
         error('GEN_RUNFILES:invalid_argument',' the run data for data file %s are not fully defined',runfiles_list{i}.file_name);
     end
-end
-
-
-if numel(runfiles_list)==1
-    runfiles_list = runfiles_list{1};
 end

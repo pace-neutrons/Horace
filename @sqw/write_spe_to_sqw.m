@@ -54,7 +54,11 @@ if is_herbert_used()
     else
         error('WriteSpe2Sqw:InvalidArgument','Herbert IO do not understands speData yet');
     end
-    run_file = gen_runfiles(spe_file,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs);    
+    run_file = gen_runfiles(spe_file,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs); 
+    if numel(run_file)~=1
+        error('Must only have one input data file');
+    end
+        
 else
     if ~isa(spe_data,'speData') % if input parameter is the filename, we transform it into speData 
         spe_data = speData(spe_data);
@@ -84,11 +88,11 @@ if is_herbert_used() % =============================> rundata files processing
     data = struct();
     % Read spe file and detector parameters if it has not been done before and
     % return the results, without NaN-s ('-nonan')
-    [data.S,data.ERR,data.en,det]=get_rundata(run_file,'S','ERR','en',...
+    [data.S,data.ERR,data.en,det]=get_rundata(run_file{1},'S','ERR','en',...
                                     'det_par', ...
                                      '-hor','-rad','-nonan');
 
-    [data.filepath,data.filename]=fileparts(run_file.loader.file_name);
+    [data.filepath,data.filename]=fileparts(run_file{1}.loader.file_name);
 
     % get the list of all detectors, including the detectors, which produce
     % incorrect results (NaN-s) for this run
@@ -102,4 +106,3 @@ end
 %
 [grid_size, urange]=calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
                                                       omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);
-
