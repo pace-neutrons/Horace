@@ -27,7 +27,6 @@ rend = get(0, 'DefaultFigureRenderer');
 set(0, 'DefaultFigureRendererMode', 'manual');
 set(0,'DefaultFigureRenderer','zbuffer');
 
-
 [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(sqw(win),varargin{:});
 set(0, 'DefaultFigureRendererMode', mode);
 set(0,'DefaultFigureRenderer',rend );
