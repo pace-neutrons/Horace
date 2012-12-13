@@ -84,9 +84,20 @@ signal = permute(w.signal,[2,1,3]);
 [xlabel,ylabel,zlabel,slabel]=make_label(w);
 clim = [min(w.signal(:)) max(w.signal(:))];
 
+% fixes problem on dual monitor systems. Need checks about negative side
+ % effects on other systems.
+ mode = get(0, 'DefaultFigureRendererMode');
+ rend = get(0, 'DefaultFigureRenderer');
+ set(0, 'DefaultFigureRendererMode', 'manual');
+ set(0,'DefaultFigureRenderer','zbuffer');
 % Plot data
 sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
                         xlabel, ylabel, zlabel, clim, keyword.isonormals);
+                    
+set(0, 'DefaultFigureRendererMode', mode);
+set(0,'DefaultFigureRenderer',rend );
+
+                    
 title(w.title);
 [fig_, axes_, plot_, plot_type] = genie_figure_all_handles (gcf);
 
