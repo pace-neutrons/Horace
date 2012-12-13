@@ -1,5 +1,12 @@
 function [spe_data,tmp_file] = gensqw_build_input_datafiles(dummy,spe_file,sqw_file)
 
+% Input files
+if ischar(spe_file) && ~isempty(spe_file) && size(spe_file,1)==1
+    spe_file=cellstr(spe_file);
+elseif ~iscellstr(spe_file)
+    error('spe_file input must be a single file name or cell array of file names')
+end
+
 % Make names of intermediate files
 tmp_file = cell(size(spe_file));
 spe_data = cell(size(spe_file));
