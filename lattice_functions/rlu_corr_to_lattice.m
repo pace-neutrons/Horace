@@ -1,5 +1,5 @@
 function [alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0)
-% Extract lattice parameters and orientation matrix from rlu correction matrix and reference lattice parmaeters
+% Extract lattice parameters and orientation matrix from rlu correction matrix and reference lattice parameters
 %
 %   >> [alatt,angdeg,rotmat,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0)
 %

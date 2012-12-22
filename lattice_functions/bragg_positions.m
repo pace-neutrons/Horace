@@ -91,6 +91,23 @@ u2rlu=h.u_to_rlu(1:3,1:3);
 ulen=h.ulen;
 
 % Get cut binning and integration for each projection axes
+if ~isscalar(bin_width) || ~isnumeric(bin_width) || bin_width<=0
+    error('Check bin width is a positive number greater than zero')
+end
+if ~isscalar(cut_length) || ~isnumeric(cut_length) || cut_length<=0
+    error('Check cut length is a positive number greater than zero')
+end
+if ~isscalar(cut_thickness) || ~isnumeric(cut_thickness) || cut_thickness<=0
+    error('Check cut thickness is a positive number greater than zero')
+end
+if exist('energy_window','var')
+    if ~isscalar(energy_window) || ~isnumeric(energy_window) || energy_window<=0
+        error('Check energy window is a positive number greater than zero')
+    end
+else
+    energy_window=Inf;
+    disp('Using default energy window as -Inf to Inf')
+end
 bin1=bin_width; len1=cut_length; wid1=cut_thickness;
 bin2=bin_width; len2=cut_length; wid2=cut_thickness;
 bin3=bin_width; len3=cut_length; wid3=cut_thickness;

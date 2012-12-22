@@ -101,8 +101,8 @@ bigtoc('Time to convert from spe to sqw data:')
 
 % Write header, detector parameters and processed data
 % -------------------------------------------------------
-[path,file]=fileparts(sqw_file);
-disp(['Writing sqw data to ',file,' ...'])
+[path,file,ext]=fileparts(sqw_file);
+disp(['Writing sqw data to ',[file,ext],' ...'])
 bigtic;
 %Open output file
 fid=fopen(sqw_file,'W');    % upper case 'W' means no automatic flushing of buffer - can be faster

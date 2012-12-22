@@ -8,9 +8,9 @@ function [grid_size, urange] = write_qspec_to_sqw (dummy, qspec_file, sqw_file, 
 % Input:
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   qspec_file      Full file name of ascii file containing qx-qy-qz-eps-signal-error column data.
-%                   Here qz' is the component of momentum along ki (Ang^-1)
-%                        qy' is component vertically upwards (Ang^-1)
-%                        qx' defines a hight-hand coordinate frame with qy' and qz'
+%                   Here qz  is the component of momentum along ki (Ang^-1)
+%                        qy  is component vertically upwards (Ang^-1)
+%                        qx  defines a hight-hand coordinate frame with qy' and qz'
 %                        S   signal
 %                        ERR standard deviation
 %                       
@@ -49,16 +49,14 @@ end
 
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=15 && nargin<=16)
+if ~(nargin>=14 && nargin<=16)
     error('Check number of input arguments')
 end
 
 bigtic
 
-% Set default grid size if none given
-if ~exist('grid_size_in','var')
-    grid_size_in=[1,1,1,1];
-elseif ~(isnumeric(grid_size_in)&&(isscalar(grid_size_in)||(isvector(grid_size_in)&&all(size(grid_size_in)==[1,4]))))
+% Check input grid size, if given (will set default grid size if none given later)
+if exist('grid_size_in','var') && ~(isnumeric(grid_size_in)&&(isscalar(grid_size_in)||(isvector(grid_size_in)&&all(size(grid_size_in)==[1,4]))))
     error ('Grid size must be scalar or row vector length 4')
 end
 
@@ -77,6 +75,11 @@ if exist(qspec_file,'file')
     if ~is_mat_file
         [data,det]=get_ascii_column_data(qspec_file);
     end
+    if ~exist('grid_size_in','var')
+        npnt=size(data.qspec,2);
+        is_elastic=(all(data.qspec(4,:)==0));
+        grid_size_in=make_grid_size(npnt,is_elastic);
+    end
 else
     error(['File does not exist: ',qspec_file])
 end
@@ -85,3 +88,15 @@ efix=0;
 emode=0;
 [grid_size, urange]=calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
                                                  omega, dpsi, gl, gs, data, det, det, grid_size_in, urange_in);
+
+%-------------------------------------------------------------------------------------
+function grid_size=make_grid_size(npnt,is_elastic)
+% Make a first estimate of grid size to use in sqw file
+npnt_per_bin=1000;
+if ~is_elastic
+    nbin=ceil(sqrt(sqrt(ceil(npnt/npnt_per_bin))));
+    grid_size=[nbin,nbin,nbin,nbin];
+else
+    nbin=ceil((ceil(npnt/npnt_per_bin))^(1/3));
+    grid_size=[nbin,nbin,nbin,1];
+end

@@ -40,7 +40,14 @@ data.filepath=[path,filesep];
 
 % Try to read file as mat file
 try
-    data_in=load(datafile,'-mat','qx','qy','qz','eps','S','ERR');
+    warn_state=warning('off','all');    % turn off warnings (so don't get message if cannot find some fields)
+    try
+        data_in=load(datafile,'-mat','qx','qy','qz','eps','S','ERR');
+        warning(warn_state);    % return warnings to initial state
+    catch
+        warning(warn_state);    % return warnings to initial state
+        rethrow(lasterror)
+    end
     is_mat_file=true;
 catch
     is_mat_file=false;
@@ -52,28 +59,32 @@ if ~(isfield(data_in,'qx') && isfield(data_in,'qy') && isfield(data_in,'qz') && 
     error('File does not contain one or more variables ''qx'', ''qy'', ''qz'', ''S''');
 else
     nd=numel(data_in.qx);
-    if nd<1 || numel(data_in.qy)~=nd || numel(data_in.qz) || numel(data_in.S)~=nd
+    if nd<1 || numel(data_in.qy)~=nd || numel(data_in.qz)~=nd || numel(data_in.S)~=nd
         error('Check that the arrays ''qx'', ''qy'', ''qz'', ''S'' all contain the same number of elements');
     end
 end
 
 if isfield(data_in,'eps')
     if numel(data_in.eps)==nd
-        data.qspec=[data_in.qz(:)',data_in.qx(:)',data_in.qy(:)',data_in.eps(:)'];
+        data.qspec=[data_in.qz(:)';data_in.qx(:)';data_in.qy(:)';data_in.eps(:)'];
+        mess='qx-qy-qz-eps';
     else
         error('Check that the array ''eps'' has the same number of elements as the signal array');
     end
 else
     % Horace doesn't seem like all energy values the same
     eps=1e-4*(2*(rand([1,nd])-0.5));
-    data.qspec=[data_in.qz(:)',data_in.qx(:)',data_in.qy(:)',eps];
+    data.qspec=[data_in.qz(:)';data_in.qx(:)';data_in.qy(:)';eps];
+    mess='qx-qy-qz';
 end
 
 data.S=data_in.S(:)';
-if isfield(data_in.ERR)
+if isfield(data_in,'ERR')
     data.ERR=data_in.ERR(:)';
+    mess=[mess,'-S-ERR data read from: ' datafile];
 else
     data.ERR=zeros(size(data.S));
+    mess=[mess,'-S data read from: ' datafile];
 end
 
 data.en=[min(data.qspec(4,:));max(data.qspec(4,:))];
@@ -87,7 +98,7 @@ data.S=data.S(ok);
 data.ERR=data.ERR(ok);
 
 % Write succesful data read message
-disp (['qx-qy-qz-eps data read from: ' datafile])
+disp(mess)
 
 
 % Create fake detector information
