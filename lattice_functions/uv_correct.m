@@ -16,7 +16,7 @@ function [u_true, v_true, rlu_corr] = uv_correct (u, v, alatt, angdeg, omega_deg
 % --------
 % u,v                       Vectors (in rlu) used to define the scattering plane, as expressed in the notional lattice
 % alatt, angdeg             Lattice parameters of notional lattice: [a,b,c], [alf,bet,gam] (in Ang and deg)
-% omega, dpsi, gl, gs       Misorientation angles of the vectors u and v, as determined by Tobyfit (deg)
+% omega, dpsi, gl, gs       Misorientation angles of the vectors u and v, as determined by, for example, Tobyfit (deg)
 % alatt_true, angdeg_true   True lattice parameters: [a_true,b_true,c_true], [alf_true,bet_true,gam_true] (in Ang and deg)
 %
 % Output:
@@ -56,3 +56,7 @@ corr = (rot_om * (rot_dpsi*rot_gl*rot_gs) * rot_om');
 rlu_corr = inv(ub_matrix_true)*corr'*ub_matrix;
 u_true=rlu_corr*u(:);   % make u a column vector
 v_true=rlu_corr*v(:);   % make v a column vector
+
+% Reshape output
+u_true=reshape(u_true,size(u));
+v_true=reshape(v_true,size(v));
