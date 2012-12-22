@@ -20,18 +20,7 @@ function [figureHandle, axesHandle, plotHandle] = plot(w, varargin)
 % - To set the default for future Sliceomatic sessions - 
 %      On the 'Object_Defaults' menu select 'Slice Color Texture'
 
-% fixes problem on dual monitor systems. Need checks about negative side
- % effects on other systems.
- mode = get(0, 'DefaultFigureRendererMode');
- rend = get(0, 'DefaultFigureRenderer');
- set(0, 'DefaultFigureRendererMode', 'manual');
- set(0,'DefaultFigureRenderer','zbuffer');
-
 [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(sqw(w),varargin{:});
-
-set(0, 'DefaultFigureRendererMode', mode);
-set(0,'DefaultFigureRenderer',rend );
-
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end
