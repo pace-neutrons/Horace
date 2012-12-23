@@ -32,15 +32,7 @@ if nd==1
 elseif nd==2
     [figureHandle_, axesHandle_, plotHandle_] = da(win,varargin{:});
 else
-    % fixes problem on dual monitor systems. Need checks about negative side
-    % effects on other systems.
-    mode = get(0, 'DefaultFigureRendererMode');
-    rend = get(0, 'DefaultFigureRenderer');
-    set(0, 'DefaultFigureRendererMode', 'manual');
-    set(0,'DefaultFigureRenderer','zbuffer');
     [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(win,varargin{:});
-    set(0, 'DefaultFigureRendererMode', mode);
-    set(0,'DefaultFigureRenderer',rend );
 end
 
 % Output only if requested
