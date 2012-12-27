@@ -2,14 +2,16 @@ function wout = integrate2(win, varargin)
 % Integrate an IX_dataset_3d object or array of IX_dataset_3d objects along the x-,y- and z-axes
 %
 %   >> wout = integrate2 (win, descr_x, descr_y, descr_z)
-%   >> wout = integrate2 (win, descr_x, descr_y, descr_z, 'ave')
+%   >> wout = integrate2 (win, wref)             % reference object to provide output bins
+%   
+%   >> wout = integrate2 (..., 'ave')            % change integration method for axes with point data
 %   
 % Input:
 % ------
 %   win     Input object or array of objects to be integrated
 %   descr   Description of integration bin boundaries (one per axis)
 %
-%           Integration is performed fo each bin defined in the description:
+%           Integration is performed for each bin defined in the description:
 %           * If just one bin is specified, i.e. give just upper an lower limits,
 %            then the dataset is integrated over the specified range.
 %             The integrate axis disappears i.e. the output object has one less dimension.
@@ -25,6 +27,8 @@ function wout = integrate2(win, varargin)
 %
 %           The lower limit can be -Inf and/or the upper limit +Inf, when the 
 %           corresponding limit is set by the full extent of the data.
+%  OR
+%   wref    Reference IX_dataset_3d to provide new bins along all three axes
 %
 %   Point data: for an axis with point data (as opposed to histogram data)
 %   'ave'   average the values of the points within each new bin and multiply by bin width

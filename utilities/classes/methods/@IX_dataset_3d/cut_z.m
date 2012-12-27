@@ -2,7 +2,9 @@ function wout = cut_z(win, varargin)
 % Make a cut from an IX_dataset_3d object or array of IX_dataset_3d objects along the z-axis
 %
 %   >> wout = cut_z (win, descr)
-%   >> wout = cut_z (win, descr, 'int')
+%   >> wout = cut_z (win, wref)           % reference object to provide output bins
+%
+%   >> wout = cut_z (..., 'int')          % change averaging method for point data
 %   
 % Input:
 % ------
@@ -15,6 +17,8 @@ function wout = cut_z(win, varargin)
 %
 %           The lower limit can be -Inf and/or the upper limit +Inf, when the 
 %           corresponding limit is set by the full extent of the data.
+%  OR
+%   wref    Reference IX_dataset_3d to provide new bins along z axis
 %
 %   Point data: for an axis with point data (as opposed to histogram data)
 %   'ave'   average the values of the points within each new bin (DEFAULT)

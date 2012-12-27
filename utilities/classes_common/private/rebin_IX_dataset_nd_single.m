@@ -264,7 +264,7 @@ else
                     xbounds_true=win_xb;
                 end
             else
-                xbounds_true=rebin_boundaries_description_resolve_infinities(xbounds,is_descriptor,win_x(1),win_x(end));
+                xbounds_true=rebin_boundaries_description_resolve_inf(xbounds,is_descriptor,win_x(1),win_x(end));
                 if numel(xbounds_true)==2 && xbounds_true(2)==xbounds_true(1) && numel(win_x)==1
                     xbounds_true=bin_boundaries_simple(xbounds_true(1));    % catch case of just one point (if more than one point at same axis value, that is an error)
                 end

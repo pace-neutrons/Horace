@@ -2,7 +2,9 @@ function wout = cut(win, varargin)
 % Make a cut from an IX_dataset_2d object or array of IX_dataset_2d objects along the x- and y-axes
 %
 %   >> wout = cut (win, descr_x, descr_y)
-%   >> wout = cut (win, descr_x, descr_y, 'int')
+%   >> wout = cut (win, wref)             % reference object to provide output bins
+%   
+%   >> wout = cut (..., 'int')            % change averaging method for axes with point data
 %   
 % Input:
 % ------
@@ -15,6 +17,8 @@ function wout = cut(win, varargin)
 %
 %           The lower limit can be -Inf and/or the upper limit +Inf, when the 
 %           corresponding limit is set by the full extent of the data.
+%  OR
+%   wref    Reference IX_dataset_2d to provide new bins along both axes
 %
 %   Point data: for an axis with point data (as opposed to histogram data)
 %   'ave'   average the values of the points within each new bin (DEFAULT)

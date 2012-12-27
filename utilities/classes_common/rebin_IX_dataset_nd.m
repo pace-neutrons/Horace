@@ -3,6 +3,9 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %
 %   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, isdescriptor,...
 %                                            range_1, range_2, ..., point_integration)
+% OR
+%   >> [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, isdescriptor,...
+%                                            wref, point_integration)
 %
 % Input:
 % ------
@@ -35,6 +38,7 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %                      elements of range_1
 %         *OR*    
 %   wref                Reference dataset from which to take bins. Must be a scalar, and the same class as win
+%                      Only those axes indicated by input argument iax are taken from the reference object.
 %
 %   point_integration   Averaging method if point data (if not given, then uses default determined by point_integration_default above)
 %                        - character string 'integration' or 'average'

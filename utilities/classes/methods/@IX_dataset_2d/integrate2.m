@@ -2,14 +2,16 @@ function wout = integrate2(win, varargin)
 % Integrate an IX_dataset_2d object or array of IX_dataset_2d objects along the x- and y-axes
 %
 %   >> wout = integrate2 (win, descr_x, descr_y)
-%   >> wout = integrate2 (win, descr_x, descr_y, 'ave')
+%   >> wout = integrate2 (win, wref)             % reference object to provide output bins
+%   
+%   >> wout = integrate2 (..., 'ave')            % change integration method for axes with point data
 %   
 % Input:
 % ------
 %   win     Input object or array of objects to be integrated
 %   descr   Description of integration bin boundaries (one per axis)
 %
-%           Integration is performed fo each bin defined in the description:
+%           Integration is performed for each bin defined in the description:
 %           * If just one bin is specified, i.e. give just upper an lower limits,
 %            then the dataset is integrated over the specified range.
 %             The integrate axis disappears i.e. the output object has one less dimension.
@@ -25,6 +27,8 @@ function wout = integrate2(win, varargin)
 %
 %           The lower limit can be -Inf and/or the upper limit +Inf, when the 
 %           corresponding limit is set by the full extent of the data.
+%  OR
+%   wref    Reference IX_dataset_2d to provide new bins along both axes
 %
 %   Point data: for an axis with point data (as opposed to histogram data)
 %   'ave'   average the values of the points within each new bin and multiply by bin width
@@ -52,7 +56,7 @@ if numel(win)==0, error('Empty object to integrate'), end
 integrate_data=true;
 point_integration_default=true;
 iax=[1,2];
-opt=struct('empty_is_full_range',true,'range_is_one_bin',true,'array_is_descriptor',false,'bin_boundaries',true);
+opt=struct('empty_is_full_range',true,'range_is_one_bin',true,'array_is_descriptor',true,'bin_boundaries',true);
 
 [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
 if ~ok, error(mess), end

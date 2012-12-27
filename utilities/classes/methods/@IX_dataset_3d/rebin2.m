@@ -2,7 +2,9 @@ function wout = rebin2(win, varargin)
 % Rebin an IX_dataset_3d object or array of IX_dataset_3d objects along the x-,y- and z-axes
 %
 %   >> wout = rebin2 (win, descr_x, descr_y, descr_z)
-%   >> wout = rebin2 (win, descr_x, descr_y, descr_z, 'int')
+%   >> wout = rebin (win, wref)             % reference object to provide output bins
+%   
+%   >> wout = rebin (..., 'int')            % change averaging method for axes with point data
 %   
 % Input:
 % ------
@@ -15,6 +17,8 @@ function wout = rebin2(win, varargin)
 %
 %           The lower limit can be -Inf and/or the upper limit +Inf, when the 
 %           corresponding limit is set by the full extent of the data.
+%  OR
+%   wref    Reference IX_dataset_3d to provide new bins along all three axes
 %
 %   Point data: for an axis with point data (as opposed to histogram data)
 %   'ave'   average the values of the points within each new bin (DEFAULT)
