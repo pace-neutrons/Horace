@@ -128,7 +128,7 @@ else   % =============================> spe/par file processing
 % If no input data range provided, calculate it from the files
     if ~urange_given
         urange = gensqw_find_urange(dummy,spe_data,par_file,...
-                 efix,emode,alatt, angdeg,u,v, omega, dpsi, gl, gs);    
+                 efix,emode,alatt, angdeg,u,v, psi,omega, dpsi, gl, gs);    
     end    
 
     nfiles = numel(spe_data);
