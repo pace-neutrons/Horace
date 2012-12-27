@@ -1,5 +1,5 @@
 function [urange,u_to_rlu] = gensqw_find_urange(dummy,spe_data,par_file,...
-                             efix,emode,alatt, angdeg,u,v, omega, dpsi, gl, gs)
+                             efix,emode,alatt, angdeg,u,v,psi, omega, dpsi, gl, gs)
 
 % Get limits of data for grid on which to store sqw data
 % ---------------------------------------------------------
