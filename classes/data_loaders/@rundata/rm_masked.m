@@ -10,8 +10,17 @@ if any(size(this.S)~=size(this.ERR))||(size(this.S,2)~=size(this.det_par,2))
 end
 
 index_masked = (isnan(this.S)|(isinf(this.S))); % masked pixels
-line_notmasked= ~any(index_masked,1);             % masked detectors (for any energy)
+line_notmasked= ~any(index_masked,1);           % masked detectors (for any energy)
 
+if get(herbert_config,'log_level')> 1
+    [ne,ndet]=size(this.S);
+    nnotmasked = sum(line_notmasked);
+    if nnotmasked<ndet
+        ndet_mask = ndet-nnotmasked;      
+        disp(['Masked additional ',num2str(ndet_mask),' detectors out of toal ',num2str(ndet), ' detectors'])
+        disp(['This removes      ',num2str(ndet_mask*ne),' pixels out of total ',num2str(ne*ndet), ' pixels'])       
+    end
+end
 
 S_m  = this.S(:,line_notmasked);
 Err_m= this.ERR(:,line_notmasked);
