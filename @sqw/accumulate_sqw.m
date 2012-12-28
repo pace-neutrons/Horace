@@ -88,7 +88,7 @@ nfiles = numel(spe_data);
 % If no input data range provided, calculate it from the files
 if ~urange_given
     urange = gensqw_find_urange(dummy,spe_data,...
-               efix,emode,alatt, angdeg,u,v, omega, dpsi, gl, gs);    
+               efix,emode,alatt, angdeg,u,v, psi, omega, dpsi, gl, gs);    
     %==========
     % Check that psi_planned encompasses a greater or equal range than psi
     disp('Calculating data limits for planned psi');
