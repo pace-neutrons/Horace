@@ -1,8 +1,8 @@
 function [u_true, v_true, rlu_corr] = uv_correct (u, v, alatt, angdeg, omega_deg, dpsi_deg, gl_deg, gs_deg, alatt_true, angdeg_true)
 % Return true values of h,k,l for the vectors that define the scattering plane, and matrix to convert notional r.l.u. into true r.l.u
 %
-%   >> [u_true, v_true] = rlu_correct (u, v, alatt, angdeg, omega, dpsi, gl, gs, alatt_true, angdeg_true)
-%   >> [u_true, v_true, rlu_corr] = rlu_correct (...)
+%   >> [u_true, v_true] = uv_correct (u, v, alatt, angdeg, omega, dpsi, gl, gs, alatt_true, angdeg_true)
+%   >> [u_true, v_true, rlu_corr] = uv_correct (...)
 %
 % This function can be used to correct the scattering plane vectors to the true wectors once the 
 % misorientation angles and true lattice parameters have been determined.
@@ -16,12 +16,15 @@ function [u_true, v_true, rlu_corr] = uv_correct (u, v, alatt, angdeg, omega_deg
 % --------
 % u,v                       Vectors (in rlu) used to define the scattering plane, as expressed in the notional lattice
 % alatt, angdeg             Lattice parameters of notional lattice: [a,b,c], [alf,bet,gam] (in Ang and deg)
-% omega, dpsi, gl, gs       Misorientation angles of the vectors u and v, as determined by, for example, Tobyfit (deg)
+% omega, dpsi, gl, gs       Actual misorientation angles of the vectors u and v, as determined by, for example, Tobyfit (deg)
 % alatt_true, angdeg_true   True lattice parameters: [a_true,b_true,c_true], [alf_true,bet_true,gam_true] (in Ang and deg)
 %
 % Output:
 % --------
 % u_true, v_true            True directions of input u, v, as expressed using the true lattice parameters
+%                          These can be used in programs like mslice with the same value of psi but will now
+%                          label data with the correct reciprocal lattice units if used with the same value of
+%                          psi (and in Horace, dpsi=gl=gs=0).
 % rlu_corr                  Matrix to convert from coords in notional rlu to true rlu, accounting for 
 %                          the misorientation of the lattice and the true lattice parameters.
 
@@ -53,7 +56,7 @@ corr = (rot_om * (rot_dpsi*rot_gl*rot_gs) * rot_om');
 % inv(ub_matrix)*corr*ub_matrix_true. We want the inverse: to get true rlu in frame defined by true directions of u,v
 % given the rlu in the notional frame defined by the notional directions of u,v
 
-rlu_corr = inv(ub_matrix_true)*corr'*ub_matrix;
+rlu_corr = ub_matrix_true\corr'*ub_matrix;
 u_true=rlu_corr*u(:);   % make u a column vector
 v_true=rlu_corr*v(:);   % make v a column vector
 

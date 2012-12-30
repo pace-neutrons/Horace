@@ -29,7 +29,7 @@ function [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct (u, v,
 %                          refine_crystal (type >> help refine_crystal  for more details).
 % OPTIONAL:
 %   u_new, v_new            Replacement vectors u, v that define the scattering plane. Normally these would not
-%                          be given, and the input u and v are assumed. The extent to which u_new and v_new do not
+%                          be given, and the input u and v will be used. The extent to which u_new and v_new do not
 %                          correctly give the true scattering plane will be accommodated in the output
 %                          misorientation angles dpsi, gl and gs below. (Default: input arguments u and v)
 %   omega_new               Replacement value for the orientation of the virtual goniometer arcs with reference
@@ -37,7 +37,7 @@ function [alatt, angdeg, dpsi_deg, gl_deg, gs_deg] = crystal_pars_correct (u, v,
 %
 % Output:
 % --------
-%   alatt_true, angdeg_true True lattice parameters: [a_true,b_true,c_true], [alf_true,bet_true,gam_true] (in Ang and deg)
+%   alatt, angdeg           True lattice parameters: [a_true,b_true,c_true], [alf_true,bet_true,gam_true] (in Ang and deg)
 %   dpsi, gl, gs            Misorientation angles of the vectors u_new and v_new (deg)
 
 deg2rad=pi/180;
@@ -85,7 +85,7 @@ rot_om_new  = [cos(omega_new),-sin(omega_new),0; sin(omega_new),cos(omega_new),0
 M = rot_om_new' * rlu0_to_S / (rot_om_new' * ub_matrix * rlu_corr);
 
 % Now extract dpsi, gl, gs from M
-% This only works so long as gl is not 90 degrees (in this case dpsi and gl are rotatins about the same axis)
+% This only works so long as gl is not 90 degrees (in this case dpsi and gl are rotations about the same axis)
 sin_gl = -M(3,1);
 small=1e-10;
 if abs(sin_gl)<1-small

@@ -35,7 +35,7 @@ function [spec_to_proj, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and 
 b_matrix  = bmatrix(alatt, angdeg);       % bmat takes Vrlu to Vxtal_cart
 ub_matrix = ubmatrix(u, v, b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
-u_matrix  = ub_matrix * inv(b_matrix);  % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
+u_matrix  = ub_matrix / b_matrix;         % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
 
  
 % Matrix to convert coords in orthormal frame defined by notional directions of u, v, to
@@ -50,7 +50,7 @@ corr = (rot_om * (rot_dpsi*rot_gl*rot_gs) * rot_om')';
 cryst = [cos(psi),sin(psi),0; -sin(psi),cos(psi),0; 0,0,1];
 
 % Combine to get matrix to convert from spectrometer coordinates to crystal Cartesian coordinates
-spec_to_proj = inv(u_matrix)*corr*cryst;
+spec_to_proj = u_matrix\corr*cryst;
 
 % Matrix to convert from crystal Cartesian coords to r.l.u.
 u_to_rlu = inv(b_matrix); 
