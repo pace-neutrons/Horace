@@ -6,7 +6,7 @@ function [qw1,qw2]=calculate_qw_points(win,x)
 %
 % Input:
 % ------
-%   win     Input sqw object
+%   win     Input sqw object created from a single spe file
 %
 %   x       Vector of coordinates in the display axes of an sqw object
 %           The number of coordinates must match the dimensionality of the object.

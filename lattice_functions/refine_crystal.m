@@ -92,6 +92,9 @@ end
 if numel(size(rlu))~=2 || ~all(size(rlu0)==size(rlu))
     error('Must be the same number of reciprocal lattice vectors in reference and new coordinate frames, each given as a triple (h,k,l)')
 end
+if ~all(isfinite(rlu0(:)))  % catch case of rlu not being found - a common input is from bragg_positions
+    error('One or more positions of the true Bragg peak positions (input argument ''rlu'') is not finite.')
+end
 
 if isnumeric(alatt0) && numel(alatt0)==3 && all(alatt0>0) && isnumeric(angdeg0) && numel(angdeg0)==3  && all(angdeg0>0)
     lattice0=[alatt0(:)',angdeg0(:)'];

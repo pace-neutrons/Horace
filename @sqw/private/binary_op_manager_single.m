@@ -16,32 +16,33 @@ if ~isa(w1,'double') && ~isa(w2,'double')
         % w1 and w2 are both sqw-type sqw objects
         [n1,sz1]=dimensions(w1);
         [n2,sz2]=dimensions(w2);
-        if n1==n2 && all(sz1==sz2) && all(size(w2.data.npix)==size(w1.data.npix))
-            % npix for both sqw objects have to be equal as one would not
-            % be able to extraxt pix data otherwise. 
-            npix1 = sum(reshape(w1.data.npix,numel(w1.data.npix),1));
-            npix2 = sum(reshape(w2.data.npix,numel(w2.data.npix),1));            
-            if npix1~=npix2
-                nDifrToPrint = 3; % number of elements to be printed if the data are different
-                difr=find(w1.data.npix(:)~=w2.data.npix(:));
-                nDifr=numel(difr);
-                numEl=numel(w2.data.npix);
-                fprintf('ERROR in binary operations: left operand has %d npix and right operand has %d npix contributed into it\n',npix1,npix2)
-                if nDifr>nDifrToPrint
-                    error('SQW type objects has %d npix elements and %d of them are different',numEl,nDifr)
-                else
-                    for i=1:nDifr
-                       fprintf('Element N %d in npix for left operand equal to: %d and for right operand to: %d\n',difr(i),w1.data.npix(difr(i)),w2.data.npix(difr(i)));
-                    end
-                    error('Two sqw objects have different npix numbers ')
+        if n1==n2 && all(sz1==sz2)
+            if any(w1.data.npix(:)~=w2.data.npix(:))    % npix for both sqw objects have to be equal
+                npix1=sum(w1.data.npix(:));
+                npix2=sum(w2.data.npix(:));
+                nelmts=numel(w2.data.npix);
+                idiff=find(w1.data.npix(:)~=w2.data.npix(:));
+                ndiff=numel(idiff);
+
+                ndiff_to_print=3;   % number of elements to be printed if the data are different
+                disp('ERROR in binary operations:')
+                disp(['  sqw type objects have ',num2str(nelmts),' bins and ',num2str(ndiff),' of them have a different number of pixels'])
+                for i=1:min(ndiff,ndiff_to_print)
+                    disp(['  Element of npix with index ',num2str(idiff(i)),' for left operand equals: ',...
+                        num2str(w1.data.npix(idiff(i))),' and for right operand: ',num2str(w2.data.npix(idiff(i)))]);
                 end
+                if ndiff>ndiff_to_print
+                    disp(['  ...and ',num2str(ndiff-ndiff_to_print),' others']);
+                end
+                disp(['  Total number of pixels in left operand is ',num2str(npix1),' and in right operand is ',num2str(npix2)])
+                error('Two sqw objects have different npix numbers ')
             end
             wout = w1;
             result = binary_op(sigvar(w1.data.pix(8,:),w1.data.pix(9,:)), sigvar(w2.data.pix(8,:),w2.data.pix(9,:)));
             wout.data.pix(8:9,:) = [result.s;result.e];
             wout = recompute_bin_data (wout);
         else
-            error('sqw type objects do not have commensurate arrays for binary operations')
+            error('sqw type objects must have commensurate array dimensions for binary operations')
         end
     elseif (isa(w1,classname) && is_sqw_type(w1))
         % w1 is sqw-type, but w2 could be anything that is not a double e.g. dnd-type sqw object, or a d2d object, or sigvar object etc.
