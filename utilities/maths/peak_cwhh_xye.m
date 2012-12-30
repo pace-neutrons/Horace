@@ -1,7 +1,10 @@
-function [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(x,y,e,fac)
-% Find centre of half-width half height in a IX_dataset_1d or array of IX_dataset_1d objects
+function [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(x,y,e,fac,outer)
+% Find centre of half height of the main peak in x-y-e data
 %
-%   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh(w,fac)
+%   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(x,y,e,fac)
+%   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(x,y,e,fac,outer)
+%
+% Input data where the y or e are infinite or NaN are eliminated before the peak search
 %
 % Input:
 % ------
@@ -10,6 +13,13 @@ function [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(x,y,e,fac)
 %   e       standard deviations on signal
 %   fac     Factor of peak height at which to determine the centre-height position
 %           (default=0.5 i.e. centre-fwhh)
+% Peak width option:
+%   outer   If false, use positions of nearest points to the peak position that lie
+%                    below the factor fac of the peak height to determine the peak width
+%                    [Default]
+%           if true,  use the most distant points from the peak position
+%                    This latter option is only useful if there known to be a single
+%                    peak in the data.
 %   
 % Output:
 % -------
@@ -25,39 +35,59 @@ function [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(x,y,e,fac)
 %  - The input arrays are empty or have only one point
 %  - The peak value is at the first or last point
 
+% Check option
+if nargin==4
+    outer=false;
+elseif nargin~=5
+    error('Check number of input arguments')
+end
+if fac<=0 || fac>=1
+    error('Peak width search factor must lie in the range 0 < fac < 1')
+end
 
 % Check lengths of input arrays
 np=numel(x);
 if numel(y)~=np || numel(e)~=np
     error('x,y,e arrays must have equal lengths')
 end
-% Catch trivial case of empty arrays or one point
-if np==0
-    xcent=nan; xpeak=nan; fwhh=nan; xneg=nan; xpos=nan;
-    return
-elseif np==1
-    xcent=nan; xpeak=nan; fwhh=nan; xneg=nan; xpos=nan;
-    return
-end
+
 % Convert to column vectors
-if size(x,1)~=np
-    x=x(:);
+x=x(:); y=y(:); e=e(:);
+
+% Remove points with infinite or NaN values
+ok=isfinite(y(:))&isfinite(e(:));
+if ~all(ok)
+    x=x(ok); y=y(ok); e=e(ok);
+    np=numel(x);
 end
 
-if size(y,1)~=np
-    y=y(:);
-end
-
-if size(e,1)~=np
-    e=e(:);
+% Catch trivial case of empty arrays or one or two points (need at least three points to define a peak)
+if np<3
+    xcent=nan; xpeak=nan; fwhh=nan; xneg=nan; xpos=nan; ypeak=nan;
+    return
 end
 
 % Find the points that straddle the half-height
 [ymax,imax]=max(y);
 xpeak=x(imax);
 ypeak=y(imax);
-im=find((y(1:imax)-fac*ymax)<0, 1, 'last' );
-ip=find((y(imax:end)-fac*ymax)<0, 1 )+imax-1;
+if ~outer
+    im=find((y(1:imax)-fac*ymax)<0, 1, 'last');
+    ip=find((y(imax:end)-fac*ymax)<0, 1) + imax - 1;
+else
+    gt=(y(1:imax)-fac*ymax)>0;
+    if numel(gt)>1
+        im=find(diff(gt)==1, 1);
+    else
+        im=[];
+    end
+    gt=(y(imax:end)-fac*ymax)>0;
+    if numel(gt)>1
+        ip=find(diff(gt)==-1, 1, 'last') + imax;
+    else
+        ip=[];
+    end
+end
 
 % ensure peak is defined
 if isempty(im)||isempty(ip)

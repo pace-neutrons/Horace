@@ -1,14 +1,21 @@
-function [xcent,xpeak,fwhh,xneg,xpos,ypeak,wout]=peak_cwhh(w,fac)
-% Find centre of half-width half height in a IX_dataset_1d or array of IX_dataset_1d objects
+function [xcent,xpeak,fwhh,xneg,xpos,ypeak,wout]=peak_cwhh(w,varargin)
+% Find centre of half height of main peak in a IX_dataset_1d or array of IX_dataset_1d objects
 % Simple function that assumes that all data points are positive.
 %
-%   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh(w,fac)
+%   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh(w)      % centre half-height
+%   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh(w,fac)  % centre of fac*height (fac<1)
+%
+%   >> [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh(...,'outer')
 %
 % Input:
 % ------
 %   w       IX_dataset_1d or array of IX_dataset_1d in which to find the peak
 %   fac     Factor of peak height at which to determine the centre-height position
 %           (default=0.5 i.e. centre-fwhh)
+% Peak width option:
+%   'inner' Find peak width moving outwards from peak position (Default)
+%   'outer' Find peak width moving inwards from limits of data - useful only
+%           if there known to be a single peak in the data.
 %   
 % Output:
 % -------
@@ -24,6 +31,20 @@ function [xcent,xpeak,fwhh,xneg,xpos,ypeak,wout]=peak_cwhh(w,fac)
 
 if nargin==1
     fac=0.5;
+    inner=true;
+elseif nargin==2
+    if isnumeric(varargin{1})
+        fac=varargin{1};
+        inner=true;
+    else
+        fac=0.5;
+        [inner,ok,mess]=use_inner(varargin{1});
+        if ~ok, error(mess), end
+    end
+elseif nargin==3
+    fac=varargin{1};
+    [inner,ok,mess]=use_inner(varargin{2});
+    if ~ok, error(mess), end
 end
 
 nw = length(w);
@@ -33,7 +54,7 @@ if nw==1
     else
         xc=w.x;
     end
-    [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(xc,w.signal,w.error,fac);
+    [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(xc,w.signal,w.error,fac,~inner);
     wout=peak_summary(w,fac,xcent,xpeak,xneg,xpos,ypeak);
     if isnan(xcent)
         warning('No peak defined by half-height points')
@@ -53,7 +74,7 @@ else
         else
             xc=w.x;
         end
-        [xcent(i),xpeak(i),fwhh(i),xneg(i),xpos(i),ypeak(i)]=peak_cwhh_xye(xc,w(i).signal,w(i).error,fac);
+        [xcent(i),xpeak(i),fwhh(i),xneg(i),xpos(i),ypeak(i)]=peak_cwhh_xye(xc,w(i).signal,w(i).error,fac,~inner);
         wout(i)=peak_summary(w(i),fac,xcent(i),xpeak(i),xneg(i),xpos(i),ypeak(i));
         if isnan(xcent(i)) && peak
             peak=false;
@@ -91,4 +112,19 @@ else
         [ok,newtitle]=str_make_cellstr(win.title,newtitle);
     end
     wout=IX_dataset_1d(x,y,e,newtitle,win.x_axis,win.s_axis);
+end
+
+%---------------------------------------------------------------------------------------------------------
+function [inner,ok,mess]=use_inner(opt)
+ok=true;
+mess='';
+if ischar(opt)
+    if strncmpi(opt,'inner',numel(opt))
+        inner=true;
+    elseif strncmpi(opt,'outer',numel(opt))
+        inner=false;
+    else
+        ok=false;
+        mess='Unrecognised peak width option';
+    end
 end
