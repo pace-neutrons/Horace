@@ -200,6 +200,9 @@ if (newplot)
 end
 
 % Change limits if they are provided
+if newplot
+    axis tight
+end
 if xlims, lx(xlo,xhi), end
 if ylims, ly(ylo,yhi), end
 
