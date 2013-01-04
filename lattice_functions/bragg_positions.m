@@ -72,10 +72,10 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu, radial_cut_length, radi
 %                  The peak summaries are IX_dataset_1d objects and can be plotted using the plot
 %                  functions for these methods.
 % Peak fit option:
-%   'inner'         Centre half height; find peak width moving outwards from peak position (Default)
 %   'outer'         Centre half-height; find peak width moving inwards from limits of data - useful
 %                  if there is known to be a single peak in the data as it is more robust to
-%                  too finely binned data.
+%                  too finely binned data.  [Default]
+%   'inner'         Centre half height; find peak width moving outwards from peak position
 %   'gaussian'      Fit Gaussian on a linear background.
 %   
 
@@ -140,12 +140,6 @@ flags = {'inner','outer','gaussian'};
 if numel(args)>1
     error('Check number and type of optional parameters')
 end
-optsum=(opt.inner+opt.outer+opt.gaussian);
-if optsum==0
-    opt.inner=true;
-elseif optsum~=1
-    error('Check peak options')
-end
 
 % Get energy window
 if numel(args)==1
@@ -160,6 +154,13 @@ end
 eint=[-energy_window/2,energy_window/2];
 
 % Get peak option
+optsum=(opt.inner+opt.outer+opt.gaussian);
+if optsum==0
+    opt.outer=true;
+elseif optsum~=1
+    error('Check peak options')
+end
+
 if opt.inner
     opt='inner';
     gau=false;
@@ -186,6 +187,7 @@ u2rlu=h.u_to_rlu(1:3,1:3);
 u1=u2rlu(:,1);
 u2=u2rlu(:,2);
 
+peak_problem=false(size(rlu));
 for i=1:size(rlu,1)
     uq=u2rlu\rlu(i,:)';     % Q vector expressed in projection axes
     modQ=norm(uq);
@@ -194,7 +196,7 @@ for i=1:size(rlu,1)
     % x axis is along Q, to get maximum resolution in d-spacing
     proj.u=rlu(i,:);
     % y axis is defined by whichever of u1, u2 projection axes is closer to perpendicular to Q (to avoid collinearity)
-    if abs(dot(uq,u1))>=abs(dot(uq,u2))
+    if abs(dot(uq,u1))<=abs(dot(uq,u2))
         proj.v=u1';
     else
         proj.v=u2';
@@ -211,8 +213,19 @@ for i=1:size(rlu,1)
     thick_t=(pi/180)*trans_thickness*modQ;
     
     % Make three orthogonal cuts through nominal Bragg peak positions
+    disp('================================================================================')
+    disp('================================================================================')
+    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 1'])
     w1a_1=cut_sqw(w, proj, [-len_r/2,bin_r,+len_r/2] ,[-thick_t/2,+thick_t/2]   ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
+    
+    disp('================================================================================')
+    disp('================================================================================')
+    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 2'])
     w1a_2=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-len_t/2,bin_t,+len_t/2] ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
+
+    disp('================================================================================')
+    disp('================================================================================')
+    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 3'])
     w1a_3=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-thick_t/2,+thick_t/2]   ,[-len_t/2,bin_t,+len_t/2], eint, '-nopix');
     
     % Get peak positions
@@ -242,8 +255,22 @@ for i=1:size(rlu,1)
     if all(isfinite(upos0))
         rlu0(i,:)=(upos2rlu*upos0)' + rlu(i,:);
     else
+        peak_problem(i,:)=~isfinite(upos0);
         rlu0(i,:)=NaN;
     end
+end
+
+disp(' ')
+disp('--------------------------------------------------------------------------------')
+if any(peak_problem(:))
+    disp('Problems determining peak position for:')
+    for i=1:size(rlu,1)
+        if any(peak_problem(i,:))
+            disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan(s): ',num2str(find(peak_problem(i,:)))])
+        end
+    end
+    disp(' ')
+    disp(['Total number of peaks = ',num2str(size(rlu,1))])
 end
 
 %-----------------------------------------------------------------------------------------------------------
@@ -252,6 +279,12 @@ function [xcent,width,wfit]=peak_gaussian(w)
 
 % Common case is too many bins if azimuthal scan from a single Laue diffraction shot. Assume only a single peak in the cut
 [xcent,dum1,width,dum2,dum3,ypeak]=peak_cwhh(w,'outer');
+if ~isfinite(xcent) % unable to find a peak
+    xcent=NaN;
+    width=NaN;
+    wfit=w; wfit.signal=NaN(size(wfit.signal)); wfit.error=zeros(size(wfit.error));
+    return
+end
 
 % Now fit Gaussian
 [wfit_tmp,fitdata]=fit(w,@gauss_bkgd,[ypeak,xcent,width/2.3548,0,0]);
