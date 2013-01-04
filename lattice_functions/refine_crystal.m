@@ -1,4 +1,4 @@
-function [rlu_corr,alatt,angdeg,rotmat,distance] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
+function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
 %   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0, alatt0, angdeg0, rlu)
@@ -67,6 +67,9 @@ function [rlu_corr,alatt,angdeg,rotmat,distance] = refine_crystal(rlu0,alatt0,an
 %
 %   distance        Distances between peak positions and points given by true indexes, in input
 %                  argument rlu, in the refined crystal lattice. (Ang^-1)
+%
+%   rotangle        Angle of rotation corresponding to rotmat (to give a measure
+%                  of the misorientation) (degrees)
 %
 % The output argument rlu_corr, together with the input alatt0 and angdeg0, are sufficient to compute
 % the other output arguments. That is why Horace functions that use the output of this function will
@@ -203,7 +206,20 @@ end
 [distance,fitpar] = multifit(vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1),...
     @reciprocal_space_deviation, {pars,rlu}, pfree, pbind,'list',0,'fit',[1e-4,50,-1e-6]);
 
+% Had a problem when refining RbMnF3 that the fit parameters ended up have complex
+% component that was less than the intrinsic eps. Catch this case and ignore
+if ~isreal(fitpar.p)
+    cmplx=imag(fitpar.p);
+    if all(cmplx<10*eps)
+        fitpar.p=real(fitpar.p);
+        distance=real(distance);
+    else
+        error('Problem refining crystal orientation: imaginary fit parameters')
+    end
+end
+
 rotvec=fitpar.p(7:9);
+rotangle=norm(rotvec)*(180/pi);
 rotmat=rotvec_to_rotmat2(rotvec);
 alatt=fitpar.p(1:3);
 angdeg=fitpar.p(4:6);
