@@ -1,5 +1,5 @@
 function y = gauss2d(x1, x2, p)
-% Two-dimensional Gaussian on linear background
+% Two-dimensional Gaussian
 % 
 %   >> y = gauss2d(x1,x2,p)
 %
@@ -12,13 +12,13 @@ function y = gauss2d(x1, x2, p)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function:
+%   x   Vector of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function:
 %           p = [height, x1_0, x2_0, sig_11, sig_12, sig_22]
 %
 % Output:
 % ========
-%   y       Vector of calculated y-axis values
+%   y   Vector of calculated y-axis values
 
 % T.G.Perring
 

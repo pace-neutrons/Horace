@@ -9,8 +9,8 @@ function [y, name, pnames, pin] = aaa_mfit_function_example(x, p, flag)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function e.g. centre, half-width etc.
+%   x   Vector of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function e.g. centre, half-width etc.
 %       In this case:
 %           p = [height, centre, st_deviation, bkgd_const, bkgd_slope]
 %

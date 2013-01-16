@@ -1,14 +1,13 @@
 function [y, name, pnames, pin] = hat(x, p, flag)
-% Hat function broadened by Gaussians (different at each end)
-% and overall slope.
+% Hat function broadened by Gaussians (different at each end) and with an overall slope.
 % 
 %   >> y = hat(x,p)
 %   >> [y, name, pnames, pin] = hat(x,p,flag)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function
+%   x   Vector of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function
 %           p(1)    Height of hat function at half way point
 %           p(2)    Gradient of hat function
 %           p(3)    Start of Hat function

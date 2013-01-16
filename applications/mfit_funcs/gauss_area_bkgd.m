@@ -1,13 +1,13 @@
 function [y, name, pnames, pin] = gauss_area_bkgd(x, p, flag)
-% Gaussian on linear background. Fits area and width (cf. gauss_bkd: height and width)
+% Gaussian on linear background. Fits area and width (cf. gauss_bkgd which fits height and width)
 % 
-%   >> y = gauss_bkgd(x,p)
-%   >> [y, name, pnames, pin] = gauss_bkgd(x,p,flag)
+%   >> y = gauss_area_bkgd(x,p)
+%   >> [y, name, pnames, pin] = gauss_area_bkgd(x,p,flag)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function:
+%   x   Vector of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function:
 %           p = [area, centre, st_deviation, bkgd_const, bkgd_slope]
 %
 % Optional:
@@ -24,7 +24,7 @@ function [y, name, pnames, pin] = gauss_area_bkgd(x, p, flag)
 %   name    Name of function (used in mfit and possibly other fitting routines)
 %   pnames  Parameter names
 %   pin     iflag=1: = [];
-%           iflag=1: = values of the parameters returned from interactive prompting
+%           iflag=2: = values of the parameters returned from interactive prompting
 
 
 if nargin==2

@@ -5,13 +5,13 @@ function y = mlorentzian_bkgd(x, p)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function:
+%   x   Vector of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function:
 %           p = [h1, c1, gam1, h2, c2, gam2, ..., bkgd_const, bkgd_slope]
 %
 % Output:
 % ========
-%   y       Vector of calculated y-axis values
+%   y   Vector of calculated y-axis values
 
 % T.G.Perring
 

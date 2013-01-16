@@ -5,18 +5,17 @@ function y = mexpon_bkgd(x, p)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
+%   x   Vector of x-axis values at which to evaluate function
 %   p   Vector length 2n: [h1,d1,h2,d2,..., bkgd_const, bkgd_slope]
 %
 % Output:
 % ========
-%   y       Vector of calculated y-axis values
+%   y   Vector of calculated y-axis values
 
 % T.G.Perring
 
-% Simply calculate function at input values
-if rem(length(p),3)==0
-    nexp=(length(p)-2)/3;
+if rem(length(p),2)==0
+    nexp=(length(p)-2)/2;
     ht=p(1:2:end-2);
     d=p(2:2:end-2);
     y=p(end-1)+x*p(end);

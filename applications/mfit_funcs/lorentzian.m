@@ -6,8 +6,8 @@ function [y, name, pnames, pin] = lorentzian(x, p, flag)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function:
+%   x   Vector of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function:
 %           p = [height, centre, gamma]   (gamma=half-width_half-height)
 %
 % Optional:
@@ -24,7 +24,7 @@ function [y, name, pnames, pin] = lorentzian(x, p, flag)
 %   name    Name of function (used in mfit and possibly other fitting routines)
 %   pnames  Parameter names
 %   pin     iflag=1: = [];
-%           iflag=1: = values of the parameters returned from interactive prompting
+%           iflag=2: = values of the parameters returned from interactive prompting
 
 % T.G.Perring
 

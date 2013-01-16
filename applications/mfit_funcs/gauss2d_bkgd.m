@@ -12,13 +12,13 @@ function y = gauss2d_bkgd(x1, x2, p)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function:
+%   x   Vector of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function:
 %           p = [height, x1_0, x2_0, sig_11, sig_12, sig_22, b0, b1, b2]
 %
 % Output:
 % ========
-%   y       Vector of calculated y-axis values
+%   y   Vector of calculated y-axis values
 
 % T.G.Perring
 

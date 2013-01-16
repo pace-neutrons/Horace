@@ -6,8 +6,9 @@ function [y, name, pnames, pin] = expon(x, p, flag)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
+%   x   Vector of x-axis values at which to evaluate function
 %   p   Vector length 2: defines y = p(1)*exp(-x/p(2))
+%           p = [height_at_x=0, decay]
 %
 % Optional:
 %   flag    Alternative behaviour to follow other than function evaluation [optional]:

@@ -6,8 +6,9 @@ function [y, name, pnames, pin] = straight_line(x, p, flag)
 %
 % Input:
 % =======
-%   x   vector of x-axis values at which to evaluate function
-%   p   vector or parameters needed by the function: p=[intercept,gradient]
+%   x   Vector of x-axis values at which to evaluate function
+%   p   Vector of parameters needed by the function
+%           p=[intercept,gradient]
 %
 % Optional:
 %   flag    Alternative behaviour to follow other than function evaluation [optional]:
@@ -23,7 +24,7 @@ function [y, name, pnames, pin] = straight_line(x, p, flag)
 %   name    Name of function (used in mfit and possibly other fitting routines)
 %   pnames  Parameter names
 %   pin     iflag=1: = [];
-%           iflag=1: = values of the parameters returned from interactive prompting
+%           iflag=2: = values of the parameters returned from interactive prompting
 %
 
 if nargin==2
