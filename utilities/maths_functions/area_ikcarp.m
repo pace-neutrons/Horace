@@ -38,11 +38,11 @@ if tauf ~= 0
     ax = x/tauf;
     fun_ax=zeros(size(x));
     small_ax=(abs(ax)<0.1);
-    if any(small_ax)
+    if any(small_ax(:))
         axs=ax(small_ax);
         fun_ax(small_ax) = c3+axs.*(c4+axs.*(c5+axs.*(c6+axs.*(c7+axs.*(c8+axs.*(c9+axs.*(c10+axs.*(c11+axs.*(c12+axs.*c13)))))))));
     end
-    if any(~small_ax)
+    if any(~small_ax(:))
         axb=ax(~small_ax);
         fun_ax(~small_ax) = (1 - exp(-(axb)).*(1+(axb)+0.5*(axb).^2)) ./ (axb.^3);
     end
@@ -50,11 +50,11 @@ if tauf ~= 0
         gx=x*(1/tauf - 1/taus);
         fun_gx=zeros(size(gx));
         small_gx=(abs(gx)<0.1);
-        if any(small_gx)
+        if any(small_gx(:))
             gxs=gx(small_gx);
             fun_gx(small_gx) = c3+gxs.*(c4+gxs.*(c5+gxs.*(c6+gxs.*(c7+gxs.*(c8+gxs.*(c9+gxs.*(c10+gxs.*(c11+gxs.*(c12+gxs.*c13)))))))));
         end
-        if any(~small_gx)
+        if any(~small_gx(:))
             gxb=gx(~small_gx);
             fun_gx(~small_gx) = (1 - exp(-(gxb)).*(1+(gxb)+0.5*(gxb).^2)) ./ (gxb.^3);
         end

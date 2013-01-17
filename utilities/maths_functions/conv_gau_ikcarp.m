@@ -43,7 +43,7 @@ if sig~=0 && tauf~=0 && taus~=0							% none of sig, tauf, taus are zero
     pb=(zb>=0);
     
     papb=pa&pb;
-    if any(papb)
+    if any(papb(:))
         f0b = f0erfc(zb(papb));
         f0a = f0erfc(za(papb));
         f1a = f1erfc(za(papb));
@@ -53,7 +53,7 @@ if sig~=0 && tauf~=0 && taus~=0							% none of sig, tauf, taus are zero
     end
         
     panb=pa&~pb;
-    if any(panb)
+    if any(panb(:))
         g0b = 2 - exp(-zb(panb).^2).*f0erfc(abs(zb(panb)));
         vb	= (sig/taus)*((0.5*sig/taus)-x(panb)/sig);
         f0a = f0erfc(za(panb));
@@ -66,7 +66,7 @@ if sig~=0 && tauf~=0 && taus~=0							% none of sig, tauf, taus are zero
     end
     
     napb=~pa&pb; % this cannot actually arise if taus>tauf, as we require
-    if any(napb)
+    if any(napb(:))
         f0b = f0erfc(zb(napb));
         g0a = 2 - (exp(-za(napb)^2))*f0erfc(abs(za(napb)));
         g1a = (exp(-za(napb).^2))/sqrt(pi) - za(napb).*g0a;
@@ -79,7 +79,7 @@ if sig~=0 && tauf~=0 && taus~=0							% none of sig, tauf, taus are zero
     end
     
     nanb=~pa&~pb;
-    if any(nanb)
+    if any(nanb(:))
         g0b = 2 - exp(-zb(nanb).^2).*f0erfc(abs(zb(nanb)));
         vb	= (sig/taus)*((0.5*(sig/taus))-x(nanb)/sig);
         g0a = 2 - (exp(-za(nanb).^2)).*f0erfc(abs(za(nanb)));

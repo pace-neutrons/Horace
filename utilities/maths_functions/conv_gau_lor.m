@@ -1,4 +1,4 @@
-function y=conv_gau_lor(x,sig_in,gam_in)
+function y=conv_gau_lor(x,sig,gam,opt)
 % Calculates the convolution of normalised Lorentzian and Gaussian functions
 %
 %   >> y = conv_gau_exp(x, sig, tau)
@@ -11,11 +11,36 @@ function y=conv_gau_lor(x,sig_in,gam_in)
 %                                         0    x/tau  -ve
 %          (i.e. if tau is -ve, then the exponential is non-zero for -ve x)
 % Original fortran code: T.G.Perring 23/3/95 - updated to Matlab Jan 2013
-
-sig=abs(sig_in); gam=abs(gam_in);
+%
+% ---------------------------------------------------------------------------------------
+% For testing purposes only, can use with an additional argument to select the algorithm
+% algorithm that computes the scaled complementary error function with a complex argument
+% (The algorithm is tricky, and it has been known for an odd result to pop up
+% in limiting cases)
+%
+%   >> y = conv_gau_exp(x, sig, tau, opt)
+%   
+%   opt='g' (Gautschi)
+%       'w' (Weideman)
+%       'p' (Poppe)
+%       'd' (default) - whichever of the above has been copied to the default
 
 if sig~=0 && gam~=0         % convolution
-    w=werf(complex(x(:)/(sig*sqrt(2)),gam/(sig*sqrt(2))*ones(numel(x),1)));
+    if nargin==3
+        w=werf(complex(x/(abs(sig)*sqrt(2)),abs(gam)/(abs(sig)*sqrt(2))*ones(size(x))));
+    else
+        if lower(opt)=='g'
+            w=werf_Gautschi(complex(x/(abs(sig)*sqrt(2)),abs(gam)/(abs(sig)*sqrt(2))*ones(size(x))));
+        elseif lower(opt)=='w'
+            w=werf_Weideman(complex(x/(abs(sig)*sqrt(2)),abs(gam)/(abs(sig)*sqrt(2))*ones(size(x))));
+        elseif lower(opt)=='p'
+            w=werf_Poppe(complex(x/(abs(sig)*sqrt(2)),abs(gam)/(abs(sig)*sqrt(2))*ones(size(x))));
+        elseif lower(opt)=='d'
+            w=werf(complex(x/(abs(sig)*sqrt(2)),abs(gam)/(abs(sig)*sqrt(2))*ones(size(x))));
+        else
+            error('unrecognised option')
+        end
+    end
     y=real(w)/(sig*sqrt(2*pi));
     
 elseif sig~=0 && gam==0     % Gaussian
@@ -36,7 +61,7 @@ end
 %         y=werf_Gautschi(x(:)/(sig*sqrt(2)),gam/(sig*sqrt(2))*ones(numel(x),1))/(sig*sqrt(2*pi));
 %         y=reshape(y,size(x));
 %     elseif isequal(lower(opt),'w')
-%         w=werf_Wiedeman(complex(x(:)/(sig*sqrt(2)),gam/(sig*sqrt(2))*ones(numel(x),1)));
+%         w=werf_Weideman(complex(x(:)/(sig*sqrt(2)),gam/(sig*sqrt(2))*ones(numel(x),1)));
 %         y=real(w)/(sig*sqrt(2*pi));
 %     elseif isequal(lower(opt),'s')
 %         w=werf_Winiecki(complex(x(:)/(sig*sqrt(2)),gam/(sig*sqrt(2))*ones(numel(x),1)));

@@ -44,11 +44,11 @@ if tauf~=0
         xg = xpos*(1/tauf - 1/taus);
         f_of_xg=zeros(size(xg));
         small_xg=(abs(xg)<0.1);
-        if any(small_xg)
+        if any(small_xg(:))
             xgs=xg(small_xg);
             f_of_xg(small_xg) = (c3+xgs.*(c4+xgs.*(c5+xgs.*(c6+xgs.*(c7+xgs.*(c8+xgs.*(c9+xgs.*(c10+xgs.*(c11+xgs.*(c12+xgs.*c13))))))))));
         end
-        if any(~small_xg)
+        if any(~small_xg(:))
             xgb=xg(~small_xg);
             f_of_xg(~small_xg) = (1 - exp(-(xgb)).*(1+(xgb)+0.5*(xgb).^2))./(xgb).^3;
         end

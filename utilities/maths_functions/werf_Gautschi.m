@@ -1,22 +1,16 @@
-function [wr,wi]=werf(zr,zi)
-% Calculate scaled complementary error function woth complex argument
+function w=werf_Gautschi(z)
+% Calculate scaled complementary error function with complex argument
 %
-%   >> [wr,wi]=werf(zr,zi)
+%   >> w=werf(z)
 %
-%   z1,z2   Real and imaginary parts of complex argument z=zr+i*zi, zi>=0
-%           Must be column vectors.
+%      w(z) = exp(-z^2) erfc(-iz)
+% with:
+%      erfc(z) = 2.0/sqrt(pi) * integral(exp(-t^2); t=z->infinity)
 %
-%   wr,wi   Real and imaginary parts of complex output w=wr+i*wi
-%          where:
-%               w(z) = exp(-z^2) erfc(-iz)
-%          with:
-%               erfc(z) = 2.0/sqrt(pi) * integral(exp(-t^2); t=z->infinity)
-%
-%             z = z1 + i*z2
-%
-%           Results are column vectors.
-%
-%  Note: Only for zi>=0. For lower complex plane use symmetry relations
+% Uses algorithm due to Gautschi (reference below).
+% Translation of T.G.Perring's Fortran version from c. 1993 (obtained
+% from elsewhere or written from the references below I cannot recall).
+% Translation by T.G.Perring Jan 2013.
 %
 % -----------------------------------------------------------------------
 %  Calculates the complex error function as described by Gautschi
@@ -48,54 +42,54 @@ function [wr,wi]=werf(zr,zi)
 %       double precision z1, z2, w1, w2, const, rtbexp, x, y, r1, r2,
 %      +                 t1, t2, den, ss, h, fac, fmult, s1, s2
 const=1.128379167095513;
-np=numel(zr);
+np=numel(z);
 wr=zeros(np,1);
 wi=zeros(np,1);
 
-x=abs(zr);
-y=abs(zi);
-big=(x>=5.33)|(y>=4.29);
-if any(big)
-    nok=sum(big);
-    r1=zeros(nok,1);
-    r2=zeros(nok,1);
+x=abs(real(z)); x=x(:);     % make column vector
+y=abs(imag(z)); y=y(:);     % make column vector
+ind=(x>=5.33)|(y>=4.29);
+if any(ind(:))
+    nind=sum(ind);
+    r1=zeros(nind,1);
+    r2=zeros(nind,1);
     for j=8:-1:0
-        t1=(y(big)+(j+1)*r1);
-        t2=(x(big)-(j+1)*r2);
+        t1=(y(ind)+(j+1)*r1);
+        t2=(x(ind)-(j+1)*r2);
         t1_ge_t2=(abs(t1)>=abs(t2));
-        if any(t1_ge_t2)
+        if any(t1_ge_t2(:))
             r1(t1_ge_t2) = (0.5./t1(t1_ge_t2))./(1+(t2(t1_ge_t2)./t1(t1_ge_t2)).^2);
             r2(t1_ge_t2) = r1(t1_ge_t2).*(t2(t1_ge_t2)./t1(t1_ge_t2));
         end
-        t2_gt_t1=~(t1_ge_t2);
+        t2_gt_t1=~(t1_ge_t2(:));
         if any(t2_gt_t1)
             r2(t2_gt_t1) = (0.5./t2(t2_gt_t1))./(1+(t1(t2_gt_t1)./t2(t2_gt_t1)).^2);
             r1(t2_gt_t1) = r2(t2_gt_t1).*(t1(t2_gt_t1)./t2(t2_gt_t1));
         end
     end
-    wr(big)=const*r1;
-    wi(big)=const*r2;
+    wr(ind)=const*r1;
+    wi(ind)=const*r2;
 end
 
-small=~big;
-if any(small)
-    ss=(1-y(small)/4.29).*sqrt(1-(x(small)/5.33).^2);
+ind=~ind;
+if any(ind(:))
+    ss=(1-y(ind)/4.29).*sqrt(1-(x(ind)/5.33).^2);
     h =1.6*ss;
     nc=6+round(23*ss);
     nu=9+round(21*ss);
     nu_max=max(nu);
     fac=(2*h).^nc;
     fmult=1./(2*h);
-    nok=sum(small);
-    r1=zeros(nok,1);
-    r2=zeros(nok,1);
-    s1=zeros(nok,1);
-    s2=zeros(nok,1);
-    t1=zeros(nok,1);
-    t2=zeros(nok,1);
-    den=zeros(nok,1);
-    xsmall=x(small);
-    ysmall=y(small);
+    nind=sum(ind);
+    r1=zeros(nind,1);
+    r2=zeros(nind,1);
+    s1=zeros(nind,1);
+    s2=zeros(nind,1);
+    t1=zeros(nind,1);
+    t2=zeros(nind,1);
+    den=zeros(nind,1);
+    xsmall=x(ind);
+    ysmall=y(ind);
     jj=nu;
     for j=nu_max:-1:0
         active=(jj>=0);
@@ -111,16 +105,32 @@ if any(small)
         fac(iter)=fac(iter).*fmult(iter);
         jj=jj-1;
     end
-    wr(small)=const*s1;
-    wi(small)=const*s2;
+    wr(ind)=const*s1;
+    wi(ind)=const*s2;
 end
 
-yzero=(y==0);
-if any(yzero)
-    wr(yzero)=exp(-x(yzero).^2);
+% Special case of real axis: set real component
+% *** Is this a good idea? when computing e.g. derivatives, the discontinuity will be apparent
+ind=(y==0);
+if any(ind(:))
+    wr(ind)=exp(-x(ind).^2);
 end
 
-xneg=(x<0);
-if any(xneg)
-    wi(xneg)=-wi(xneg);
+% Conjugate for negative x:
+ind=(real(z)<0);
+if any(ind(:))
+    wi(ind)=-wi(ind);
+end
+
+% Package as complex number output
+w=complex(wr,wi);
+sz=size(z);
+if numel(sz)~=2 || sz(2)~=1
+    w=reshape(w,sz);    % reshape to original input shape
+end
+
+% Calculate for z in lower plane
+ind=(imag(z)<0);
+if any(ind(:))
+    w(ind)=2*exp(-z(ind).^2)-conj(w(ind));
 end

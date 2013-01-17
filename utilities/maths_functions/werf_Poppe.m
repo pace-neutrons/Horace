@@ -14,7 +14,8 @@ function [W,failure] = werf(Z)
 % Work published in TRANSACTIONS ON MATHEMATICAL SOFTWARE, VOL. 16, NO. 1, PP. 47.
 %
 % Translated from F77 to MatLab by Thomas Winiecki 10/05/2006.
-
+%
+% TGPerring adds: the authors of the cited reference are G.P.M. Poppe and C.M.J. Wijers
 
 % some constants to prevent numerical overflows
 RMAX     = 1e308;
