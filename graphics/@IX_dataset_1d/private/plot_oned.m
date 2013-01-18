@@ -179,16 +179,16 @@ if (newplot)
     title(tt);
     xlabel(tx);
     ylabel(ty);
-    % calculate space for titles:
-    nt = numel(tt);
-    nx = numel(tx);
-    ny = numel(ty);
-    % units per single height of line (quick fix assuming default aspect ratio and font size)
-    h = 0.03833;
-    % allow for up to 4 lines in tx and ty, and 5 lines in tt:
-    xplo=min(0.13+(ny-1)*h,0.245);  yplo=min(0.11+(nx-1)*h,0.225);  xphi=0.905;   yphi=max(0.925-(nt-1)*h,0.772);
-    pos = [xplo,yplo,xphi-xplo,yphi-yplo];
-    set(gca,'position',pos)
+%     % calculate space for titles:
+%     nt = numel(tt);
+%     nx = numel(tx);
+%     ny = numel(ty);
+%     % units per single height of line (quick fix assuming default aspect ratio and font size)
+%     h = 0.03833;
+%     % allow for up to 4 lines in tx and ty, and 5 lines in tt:
+%     xplo=min(0.13+(ny-1)*h,0.245);  yplo=min(0.11+(nx-1)*h,0.225);  xphi=0.905;   yphi=max(0.925-(nt-1)*h,0.772);
+%     pos = [xplo,yplo,xphi-xplo,yphi-yplo];
+%     set(gca,'position',pos)
     % change ticks
     xticks=w(1).x_axis.ticks;
     if ~isempty(xticks.positions), set(gca,'XTick',xticks.positions); end

@@ -26,12 +26,15 @@ function w = faddeeva(z,N)
 %
 %
 % Modified T.G.Perring 17 Jan 2013:
-%   Evaluate purely imaginary-valued inputs using Matlab built-in function
+% ---------------------------------
+% - Evaluate purely imaginary-valued inputs using Matlab built-in function
 %   erfcx, which properly accounts for the large x behaviour of O(1/x) but
 %   which is lost with exp(x^2)*erfc(x) which tends to Inf * 0.
+%
+% - Change default N from 16 to 50.
 
 if nargin<2, N = []; end
-if isempty(N), N = 16; end
+if isempty(N), N = 50; end  % As downloaded: if isempty(N), N = 16; end
 
 w = zeros(size(z)); % initialize output
 
