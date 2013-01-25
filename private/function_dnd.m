@@ -10,9 +10,8 @@ function varargout=function_dnd(infile,func,varargin)
 % ------
 %   infile  Name of input data file, or cell array of file names
 %   func    Handle to function to be executed. The input and output arguments must have particular form
-%               [out1,out2,...]  = some_function(data_source_obj,data_source_struct,arg1,arg2,...)
+%               [out1,out2,...]  = some_function(dnd_object,data_source_struct,arg1,arg2,...)
 %           where
-%               data_source_obj     sqw or d0d, d1d,...d4d object
 %               dnd_obj             d0d, d1d,...d4d object
 %               data_source_struct  structure of form:
 %                   data_source_struct.keyword     '$file_data'

@@ -8,30 +8,56 @@ function varargout=function_horace(infile,func,varargin)
 % Input:
 % ------
 %   infile  Name of input data file, or cell array of file names
-%   func    Handle to function to be executed. The input and output arguments must have particular form
-%           In detail:
-%               [out1,out2,...]  = some_function(data_source_obj,data_source_struct,arg1,arg2,...)
-%           where
-%               data_source_obj     sqw or d0d, d1d,...d4d object
-%               data_source_struct  structure of form:
-%                   data_source_struct.keyword     '$file_data'
-%                   data_source_struct.file        Input file name
-%                   data_source_struct.sqw_type    How to read data file: =true if sqw_type, =false if dnd_type
-%                   data_source_struct.ndims       Dimensions of the sqw object
-%               arg1,arg2,...       Input arguments
-%               out1,out2,...       Output arguments
-%                                  If file input, then out1,out2,... must be packaged into a single
-%                                  cell array as the sole output argument. See @sqw/read for an example.
+%   func    Handle to function to be executed. The input and output arguments must be able to handle
+%          three alternative forms of input:
+%           - if data source is an object (or object array):
+%               [out1,out2,...] = some_function(data_source_obj,arg1,arg2,...)
+%
+%           - if data source is a file name (or array of file names):
+%               [out1,out2,...] = some_function(dummy_source_obj,filename,arg1,arg2,...)
+%
+%           - if data source is a data_source structure:
+%               out_cellarray  = some_function(dummy_source_obj,data_source_struct,arg1,arg2,...)
+%           
+%           Input:
+%           ------
+%           data_source_obj     sqw or d0d, d1d,...d4d object
+%         *OR*
+%           dummy_source_obj    sqw or d0d, d1d,...d4d object that directs to correct function for the files
+%           filename            Filename or cell array of filenames
+%         *OR*
+%           dummy_source_obj    sqw or d0d, d1d,...d4d object that directs to correct function for the files
+%           data_source_struct  Structure or array of structures of form:
+%                                 data_source_struct.keyword     '$file_data'
+%                                 data_source_struct.file        Input file name
+%                                 data_source_struct.sqw_type    How to read data file:
+%                                                                  =true if read as sqw_type
+%                                                                  =false if read dnd_type
+%                                 data_source_struct.ndims       Dimensions of the sqw object
+%                               Note that data_source.sqw_type is not necessarily the same as the
+%                               type of data in the file e.g. if the file contains sqw_type data,
+%                               we may still set the flag so that it is read as dnd-type data.
+%
+%           arg1,arg2,...       Input arguments
+%
+%           Output:
+%           -------
+%           out1,out2,...       Output arguments (data object or filename input)
+%         *OR*
+%           out_cellarray       If data_source structure input (but NOT if just filename(s)), then
+%                              out1,out2,... must be packaged into a single cell array
+%                              out_cellarray={out1,out2,...} as the sole output argument.
+%                               See @sqw/read for an example.
 %               
-%   args        Cell array of arguments to be passed to the Horace function
+%   args    Cell array of arguments to be passed to the Horace function, as required in the above
+%          description of the function to be executed.
 %
 % Output:
 % -------
-%   varargout   Cell array of output arguments rom the Horace function
-%
-% NOTE:
-%   data_source_struct.sqw_type is not necessarily the same as the type of data in the file.
-%  if sqw_type data in the file, we may still set the flag so that it is read as dnd-type data.
+%   varargout   Output argument from the Horace function. By construction, the
+%               functionality of the input argument func will ensure that varargout
+%               will be either empty or contain a single argument that is a cell array of
+%               all the output arguments of func.
 
 
 % Original author: T.G.Perring

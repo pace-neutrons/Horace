@@ -1,6 +1,6 @@
 function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu, radial_cut_length, radial_bin_width, radial_thickness,...
                                                             trans_cut_length, trans_bin_width, trans_thickness, varargin)
-% Get actual Bragg peak positions given initial estimates of their positions.
+% Get actual Bragg peak positions, given initial estimates of their positions, from an sqw object or file
 % The fits to the Bragg peaks can be checked with function bragg_positions_view.
 %
 %   >> rlu0=bragg_positions(w, proj, rlu, cut_length, cut_thickness, bin_width, energy_window)

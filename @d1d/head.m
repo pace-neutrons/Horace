@@ -51,21 +51,28 @@ if nargout==0
     end
 else
     if source_is_file
-        argout=head(sqw,data_source,args{:});   % output is a cell array
+        argout=head(sqw,data_source,args{:});
     else
-        argout=head(sqw(data_source),args{:});
+        hout=head(sqw(data_source),args{:});
     end
 end
 
-% Package output: if file data source structure then package all output arguments as a single cell array, as the output
-% will be unpacked by control routine that called this method. If object data source or file name, then package as conventional
-% varargout
+% Package output: if file data source structure then package all output
+% arguments as a single cell array, as the output will be unpacked by the
+% control routine that called this method. If object data source or file
+% name, then package as conventional varargout.
 
-% In this case, there is only one output argument
 if nargout>0
-    if source_is_file && ~source_arg_is_filename
-        varargout{1}={argout};
+    if source_arg_is_filename
+        % Input data source to this function is filename(s), but sqw method
+        % was passed a data_source structure. Therefeore must unpack arguments
+        varargout=argout;   % generic, regardless of number of arguments packed in argout
     else
-        varargout{1}=argout;
+        if ~source_is_file
+            
+        else
+            % source is 
+            varargout{1}=argout;
+        end
     end
 end
