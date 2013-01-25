@@ -11,9 +11,10 @@ function [main_header,header,detpar,data,mess,position,npixtot,type,current_form
 % Input:
 % --------
 %   infile      File name, or file identifier of open file, from which to read data
-%   opt         [optional] Determines which fields to read
+%   opt         [optional] Determines which fields to read from the data block:
 %                   '-h'            Header-type information only: fields read: 
-%                                       uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
+%                                       filename, filepath, title, alatt, angdeg,...
+%                                           uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
 %                                  (If file was written from a structure of type 'b' or 'b+', then
 %                                  urange does not exist, and the output field will not be created)
 %                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
@@ -34,10 +35,10 @@ function [main_header,header,detpar,data,mess,position,npixtot,type,current_form
 %              Cell array if more than one contributing spe file.
 %   detpar      Detector parameters (for details of data structure, type >> help get_sqw_detpar)
 %   data        Output data structure which will contain the fields listed below (for details, type >> help get_sqw_data) 
-%                       type 'b'    fields: uoffset,...,s,e
-%                       type 'b+'   fields: uoffset,...,s,e,npix
-%                       type 'a'    uoffset,...,s,e,npix,urange,pix
-%                       type 'a-'   uoffset,...,s,e,npix,urange
+%                       type 'b'    fields: filename,...,dax,s,e
+%                       type 'b+'   fields: filename,...,dax,s,e,npix
+%                       type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
+%                       type 'a-'   fields: filename,...,dax,s,e,npix,urange
 %               or header information
 %   mess        Error message; blank if no errors, non-blank otherwise
 %   position    Position (in bytes from start of file) of blocks of fields and large fields:
@@ -52,11 +53,11 @@ function [main_header,header,detpar,data,mess,position,npixtot,type,current_form
 %   npixtot     Total number of pixels written to file (=[] if pix not present)
 %   type        Type of sqw data written to file: 
 %               Valid sqw data structure, which must contain the fields listed below 
-%                       type 'b'    fields: uoffset,...,s,e
-%                       type 'b+'   fields: uoffset,...,s,e,npix
-%                       type 'a'    uoffset,...,s,e,npix,urange,pix
+%                       type 'b'    fields: filename,...,dax,s,e
+%                       type 'b+'   fields: filename,...,dax,s,e,npix
+%                       type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
 %               or if the pix field is not read from type 'a', in which case 
-%                       type 'a-'   uoffset,...,s,e,npix,urange
+%                       type 'a-'   fields: filename,...,dax,s,e,npix,urange
 
 % Original author: T.G.Perring
 %

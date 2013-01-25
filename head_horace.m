@@ -36,7 +36,7 @@ if nargin==1 && (isa(varargin{1},'sqw')||isa(varargin{1},'d0d')||isa(varargin{1}
     end
     return
     
-elseif nargin>=2
+elseif nargin>2
     error('Check number of arguments')
 end
 
@@ -44,7 +44,7 @@ end
 if nargin==0
     [file_internal,mess]=getfile_horace('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
 else
-    [file_internal,mess]=getfile_horace(varargin{:});
+    [file_internal,mess]=getfile_horace(varargin{1});
 end
 if ~isempty(mess)
     error(mess)
@@ -52,7 +52,7 @@ end
 
 % Make object
 if nargout==0
-    function_horace(file_internal,@head);
+    function_horace(file_internal,@head,varargin{2:end});
 else
-    varargout{1} = function_horace(file_internal,@head);
+    varargout{1} = function_horace(file_internal,@head,varargin{2:end});
 end

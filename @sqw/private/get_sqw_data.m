@@ -23,7 +23,8 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %   data_in     [optional] Data structure to which the data fields below will be added or overwrite.
 %   opt         [optional] Determines which fields to read
 %                   '-h'     header-type information only: fields read: 
-%                               uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
+%                               filename, filepath, title, alatt, angdeg,...
+%                                   uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
 %                              (If file was written from a structure of type 'b' or 'b+', then
 %                               urange does not exist, and the output field will not be created)
 %                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
@@ -40,10 +41,10 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 % Output:
 % -------
 %   data        Output data structure which must contain the fields listed below 
-%                       type 'b'    fields: uoffset,...,s,e
-%                       type 'b+'   fields: uoffset,...,s,e,npix
-%                       type 'a'    uoffset,...,s,e,npix,urange,pix
-%                       type 'a-'   uoffset,...,s,e,npix,urange
+%                       type 'b'    fields: filename,...,dax,s,e
+%                       type 'b+'   fields: filename,...,dax,s,e,npix
+%                       type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
+%                       type 'a-'   fields: filename,...,dax,s,e,npix,urange
 %               or header information   
 %   mess        Error message; blank if no errors, non-blank otherwise
 %   position    Position (in bytes from start of file) of large fields:
@@ -54,11 +55,11 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %   npixtot     Total number of pixels written to file (=[] if pix not present)
 %   type        Type of sqw data written to file: 
 %               Valid sqw data structure, which will contain the fields listed below 
-%                       type 'b'    fields: uoffset,...,s,e
-%                       type 'b+'   fields: uoffset,...,s,e,npix
-%                       type 'a'    uoffset,...,s,e,npix,urange,pix
+%                       type 'b'    fields: filename,...,dax,s,e
+%                       type 'b+'   fields: filename,...,dax,s,e,npix
+%                       type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
 %               or if the pix field is not read from type 'a', in which case 
-%                       type 'a-'   uoffset,...,s,e,npix,urange
+%                       type 'a-'   fields: filename,...,dax,s,e,npix,urange
 %
 %
 % Fields read from the file are:
