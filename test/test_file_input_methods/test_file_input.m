@@ -148,3 +148,12 @@ if ~equal_to_tol(d2d_arr,tmp,'ignore_str',1), error('Error in functionality'), e
 tmp=read_sqw(sqw2d_name);
 if ~equal_to_tol(sqw2d_arr,tmp,'ignore_str',1), error('Error in functionality'), end
 
+
+
+% =================================================================================================
+% Conclusion banner
+% =================================================================================================
+disp(' ')
+disp('====================================')
+disp('   Tests completed without errors')
+disp('====================================')
