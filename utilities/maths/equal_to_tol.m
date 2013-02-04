@@ -15,12 +15,13 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %               +ve number: absolute tolerance  abserr = abs(a-b)
 %               -ve number: relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))
 % Valid keywords are:
-%   nan_equal       Treat NaNs as equal (true or false; default=true)
-%   min_denominator Minimum denominator for relative tolerance calculation (>=0; default=0)
-%                  When the denominator in a relative tolerance is less than this value, the
-%                  denominator is replaced by this value. Use this when the numbers being
-%                  compared could be close to zero.
-%   ignore_str      Ignore the length and content of strings or cell arrays of strings
+%   'nan_equal'       Treat NaNs as equal (true or false; default=true)
+%   'min_denominator' Minimum denominator for relative tolerance calculation (>=0; default=0)
+%                    When the denominator in a relative tolerance is less than this value, the
+%                    denominator is replaced by this value. Use this when the numbers being
+%                    compared could be close to zero.
+%   'ignore_str'      Ignore the length and content of strings or cell arrays of strings
+%                    (true or false; default=false)
 %
 % Output:
 % -------
@@ -133,25 +134,30 @@ if isequal(size(a),size(b))
             b=b(keep);
         end
     end
-    % Compare elements
-    if tol==0
-        ok=all(a==b);
-    elseif tol>0
-        ok=all(abs(a-b)<=tol);
-    else
-        if min_denominator>0
-            den=max(max(abs(a),abs(b)),min_denominator*ones(size(a)));
+    % Compare elements. Remove case of empty arrays - these are considered equal
+    if ~isempty(a)
+        if tol==0
+            ok=all(a==b);
+        elseif tol>0
+            ok=all(abs(a-b)<=tol);
         else
-            den=max(abs(a),abs(b));
+            if min_denominator>0
+                den=max(max(abs(a),abs(b)),min_denominator*ones(size(a)));
+            else
+                den=max(abs(a),abs(b));
+            end
+            ok=all((abs(a-b)./den<=abs(tol))|den==0|isinf(den));   % if both are zero, then accept, or if either a or b in infinite
         end
-        ok=all((abs(a-b)./den<=abs(tol))|den==0|isinf(den));   % if both are zero, then accept, or if either a or b in infinite
-    end
-    if ok
-        ok=true;    % stupid matlab feature: all(A) if A is a matrix results in a row vector! behaves as all(A(:)) in an if statement however.
-        mess='';
+        if ok
+            ok=true;    % stupid matlab feature: all(A) if A is a matrix results in a row vector! behaves as all(A(:)) in an if statement however.
+            mess='';
+        else
+            ok=false;
+            mess='Numeric arrays not equal within requested tolerance';
+        end
     else
-        ok=false;
-        mess='Numeric arrays not equal within requested tolerance';
+        ok=true;
+        mess='';
     end
 else
     ok=false;
