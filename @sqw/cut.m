@@ -1,8 +1,6 @@
 function varargout = cut (varargin)
 % Take a cut from an sqw object by integrating over one or more of the momentum and energy axes.
-% 
-% Syntax:
-%  make cut:
+%
 %   >> w = cut (data_source, p1_bin, p2_bin...)     % cut plot axes, keeping existing integration ranges
 %                                                   % (as many binning arguments as there are plot axes)
 %
@@ -20,7 +18,7 @@ function varargout = cut (varargin)
 % 
 % Input:
 % ------
-%   data_source     Data source: sqw file name or data structure
+%   data_source     Data source: sqw file name or sqw-type object
 %
 %   proj            Data structure containing details of projection axes:
 %                  Defines two vectors u and v that give the direction of u1
@@ -86,73 +84,50 @@ function varargout = cut (varargin)
 % $Revision$ ($Date$)
 
 
-% If data source is a filename, then must ensure that matches sqw type
-% Recall this function is used by d0d, d1d,... as a gateway routine, so if data_source is structure
-% it may require non sqw type data to be processed. 
-[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (varargin{:});
-if ~isempty(mess)
-    error(mess)
-end
-if source_arg_is_filename
-    if ~all(sqw_type)
-        error('Data file(s) not (all) sqw type i.e. does(do) not contain pixel information')
-    end
-end
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
 
-% Perform cuts
-% ------------
-if all(sqw_type)
+% Perform operations
+% ------------------
+nout=w.nargout_req;
+nw=numel(w.data);
+
+if all(w.sqw_type(:))
     if numel(args)>=1 && ~isstruct(args{1}) % proj structure not given, so all sqw objects must have same dimensionality
-        if ~all(ndims==ndims(1))
+        if ~all(w.ndims==w.ndims(1))
             error('All sqw objects must have same dimensionality if not using new projection axes')
         end
     end
-    for i=1:numel(data_source)
-        if nargout>0
-            if i==2, wout = repmat(wout,size(data_source)); end
-            if source_is_file
-                wout(i) = cut_sqw (sqw,data_source(i).filename,args{:});   % private method - cuts just scalar data_source
-            else
-                wout(i) = cut_sqw (data_source(i),args{:});   % private method - cuts just scalar data_source
-            end
+    for i=1:nw
+        if nout>0
+            if i==2, wout=repmat(wout,size(w.data)); end
+            wout(i)=cut_sqw_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
         else
-            if source_is_file
-                cut_sqw (sqw,data_source(i).filename,args{:});
-            else
-                cut_sqw (data_source(i),args{:});
-            end
+            cut_sqw_main(w.data(i),w.ndims(i),args{:});
         end
     end
-elseif all(~sqw_type) && all(ndims==ndims(1))
-    for i=1:numel(data_source)
-        if nargout>0
-            if i==2, wout = repmat(wout,size(data_source)); end
-            if source_is_file
-                wout(i) = cut_dnd (sqw,data_source(i).filename,args{:});   % private method - cuts just scalar data_source
-            else
-                wout(i) = cut_dnd (data_source(i),args{:});   % private method - cuts just scalar data_source
-            end
+elseif ~any(w.sqw_type(:)) && all(w.ndims==w.ndims(1))
+    for i=1:nw
+        if nout>0
+            if i==2, wout=repmat(wout,size(w.data)); end
+            wout(i)=cut_dnd_main(w.data(i),w.ndims(i),args{:});   % private method - cuts just scalar data_source
         else
-            if source_is_file
-                cut_dnd (sqw,data_source(i).filename,args{:});
-            else
-                cut_dnd (data_source(i),args{:});
-            end
+            cut_dnd_main(w.data(i),w.ndims(i),args{:});
         end
     end
 else
     error('Data files must all be sqw type, or all dnd type with same dimensionality')
 end
 
-% Package output: if file data source structure then package all output arguments as a single cell array, as the output
-% will be unpacked by control routine that called this method. If object data source or file name, then package as conventional
-% varargout
-
-if nargout~=0
-    % In this case, there is at most only one output argument
-    if source_is_file && ~source_arg_is_filename
-        varargout{1}={wout};    % output from cut must be cell array
-    else
-        varargout{1}=wout;
-    end
+if nout>0
+    argout{1}=wout;
+else
+    argout={};
 end
+
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end

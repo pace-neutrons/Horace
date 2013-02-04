@@ -5,7 +5,6 @@ function w = sqw (varargin)
 %   >> w = sqw (filename)       % Create an sqw object from a file
 %   >> w = sqw (din)            % Create from a structure with valid fields
 %                               % Structure array will output an array of sqw objects
-%
 
 % For private use by d0d/d0d d0d/sqw,...d4d/d4d d4d/sqw
 %   >> w = sqw ('$dnd',filename)% Create an sqw object from a file

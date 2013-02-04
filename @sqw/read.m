@@ -1,4 +1,4 @@
-function varargout = read(varargin)
+function varargout = read (varargin)
 % Read sqw object from a file or array of sqw objects from a set of files
 % 
 %   >> w=read(sqw,file)
@@ -25,56 +25,41 @@ function varargout = read(varargin)
 %
 % $Revision$ ($Date$)
 
-% If data source is a filename, then must ensure that matches sqw type
-% Recall this function is used by d0d, d1d,... as a gateway routine, so if data_source is structure
-% it may require non sqw type data to be read. 
-[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (varargin{:});
-if ~isempty(mess)
-    error(mess)
-end
-if source_arg_is_filename
-    if ~all(sqw_type)
-        error('Data file(s) not (all) sqw type i.e. does(do) not contain pixel information')
-    end
-end
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
+
+% Perform operations
+% ------------------
+nw=numel(w.data);
 
 % Check number of arguments
 if ~isempty(args)
-    error('Check number of arguments')
+    error('Check number of input arguments')
 end
 
 % Now read data
-if source_is_file
-    if all(sqw_type)
-        w = sqw(data_source(1).filename);
-        if numel(data_source)>1
-            for i=1:numel(data_source)
-                w(i)=sqw(data_source(i).filename);
-            end
-            w=reshape(w,size(data_source));
+if w.source_is_file
+    if all(w.sqw_type(:))
+        wout = repmat(sqw,size(w.data));
+        for i=1:nw
+            wout(i)=sqw(w.data{i});
         end
-    elseif all(~sqw_type) && all(ndims==ndims(1))
-        w = sqw('$dnd',data_source(1).filename);
-        if numel(data_source)>1
-            for i=1:numel(data_source)
-                w(i)=sqw('$dnd',data_source(i).filename);
-            end
-            w=reshape(w,size(data_source));
+    elseif all(~w.sqw_type) && all(w.ndims==w.ndims(1))
+        wout = repmat(sqw('$dnd',w.ndims(1)),size(w.data));
+        for i=1:nw
+            wout(i)=sqw('$dnd',w.data{i});
         end
     else
         error('Data files must all be sqw type, or all dnd type with same dimensionality')
     end
+    argout{1}=wout;
 else
-    w=data_source;  % trivial case that data_source is already valid object
+    argout{1}=w.data;  % trivial case that data source is already valid object
 end
 
-% Package output: if file data source structure then package all output arguments as a single cell array, as the output
-% will be unpacked by control routine that called this method. If object data source or file name, then package as conventional
-% varargout
-
-% In this case, there is only one output argument
-if source_is_file && ~source_arg_is_filename
-    varargout{1}={w};
-else
-    varargout{1}=w;
-end
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end

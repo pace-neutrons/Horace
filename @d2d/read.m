@@ -1,4 +1,4 @@
-function varargout = read(varargin)
+function varargout = read (varargin)
 % Read d2d object from a file or array of d2d objects from a set of files
 % 
 %   >> w=read(d2d,file)
@@ -29,31 +29,18 @@ function varargout = read(varargin)
 % Work via sqw class type
 
 
-% If data source is a filename or data_source structure, then must ensure that matches dnd type
-[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (sqw(varargin{1}), varargin{2:end});
-if ~isempty(mess)
-    error(mess)
-end
-if source_is_file   % either file names or data_source structure as input
-    if any(sqw_type) || any(ndims~=dimensions(varargin{1}(1)))     % must all be the required dnd type
-        error(['Data file(s) not (all) ',classname,' type i.e. no pixel information'])
-    end
-end
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
 
-% Now call sqw read routine
-if source_is_file
-    argout=read(sqw,data_source,args{:});     % output is a cell array
-else
-    argout=data_source;  % trivial case that data_source is already valid object
-end
+% Perform operations
+% ------------------
+% Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
+argout=read(sqw,w,args{:});
+argout{1}=dnd(argout{1});   % as return argument is sqw object of dnd-type
 
-% Package output: if file data source structure then package all output arguments as a single cell array, as the output
-% will be unpacked by control routine that called this method. If object data source or file name, then package as conventional
-% varargout
-
-% In this case, there is only one output argument
-if source_is_file && ~source_arg_is_filename
-    varargout{1}={dnd(argout{1})};
-else
-    varargout{1}=dnd(argout{1});
-end
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end

@@ -1,18 +1,20 @@
-function wout = cut_dnd (data_source_in, varargin)
+function wout = cut_dnd_main (data_source, ndims, varargin)
 % Take a cut from an dnd-type sqw object by integrating over one or more of the plot axes.
 % 
-% Syntax:
-%  make cut:
-%   >> w = cut (data_source, p1_bin, p2_bin...)     % cut plot axes, keeping existing integration ranges
-%                                                   % (as many binning arguments as there are plot axes)
-%   >> w = cut (..., '-save')       % Save cut to file (prompt for output file)
-%   >> w = cut (...,  filename)     % save cut to named file
+%   >> w = cut_dnd_main (data_source, ndims, p1_bin, p2_bin...)     
+%                                           % cut plot axes, keeping existing integration ranges
+%                                           % (as many binning arguments as there are plot axes)
+%   >> w = cut_dnd_main (..., '-save')      % Save cut to file (prompt for output file)
+%   >> w = cut_dnd_main (...,  filename)    % save cut to named file
 %
 %   >> cut(...)                     % save cut to file without making output to workspace 
 % 
 % Input:
 % ------
-%   data_source_in  Data source: sqw file name or dnd-type data structure
+%   data_source_in  Data source: dnd object or filename of a file with sqw-type or dnd-type data
+%                  (character string or cellarray with one character string)
+%
+%   ndims           Number of dimensions of the sqw data
 %
 %   p1_bin          Binning along first plot axis
 %   p2_bin          Binning along second plot axis
@@ -39,29 +41,32 @@ function wout = cut_dnd (data_source_in, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 601 $ ($Date: 2012-02-08 14:46:10 +0000 (Wed, 08 Feb 2012) $)
 
 
 % Parse input arguments
 % ---------------------
 % Determine if data source is sqw object or file
-[data_source, args, source_is_file, sqw_type, ndims] = parse_data_source (data_source_in, varargin{:});
-if source_is_file
-    data_source=data_source.filename;
-end
-if sqw_type
+if iscellstr(data_source)
+    data_source=data_source{1};
+    source_is_file=true;
+elseif ischar(data_source)
+    source_is_file=true;
+elseif isa(data_source,'sqw')
+    source_is_file=false;
+else
     error('Logic problem in chain of cut methods. See T.G.Perring')
 end
 
 % Strip off final arguments that are character strings, and parcel the rest as binning arguments
 % (the functions that use binning arguments are clever enough to handle incorrect number of arguments and types)
 opt=cell(1,0);
-if length(args)>=1 && ischar(args{end}) && size(args{end},1)==1
-    opt{1}=args{end};
+if length(varargin)>=1 && ischar(varargin{end}) && size(varargin{end},1)==1
+    opt{1}=varargin{end};
 end
 
 % Get binning information
-pbin=args(1:end-length(opt));
+pbin=varargin(1:end-length(opt));
 
 
 % Do checks on input arguments

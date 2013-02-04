@@ -3,7 +3,7 @@ function [d, mess] = make_sqw (varargin)
 %
 %   >> [d,message] = make_sqw (dnd_type,u0,u1,p1,u2,p2,...,un,pn)
 %   >> [d,message] = make_sqw (dnd_type,u0,u1,p1,u2,p2,...,un-1,pn-1,pn)
-%   >> [d,message] = make_sqw (dnd_type,lattice,u0,...)
+%   >> [d,message] = make_sqw (dnd_type,lattice,...)
 %   >> [d,message] = make_sqw (dnd_type,ndim)
 %   >> [d,message] = make_sqw (dnd_type,din)
 %

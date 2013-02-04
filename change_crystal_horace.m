@@ -2,13 +2,15 @@ function varargout=change_crystal_horace(varargin)
 % Change the crystal lattice and orientation in a file or set of files containing a Horace data object (sqw or dnd)
 % 
 % Most commonly:
-%   >> wout = change_crystal (file, rlu_corr)              % change lattice parameters and orientation
+%   >> change_crystal (file, rlu_corr)              % change lattice parameters and orientation
 %
 % OR
-%   >> wout = change_crystal (file, alatt)                 % change just length of lattice vectors
-%   >> wout = change_crystal (file, alatt, angdeg)         % change all lattice parameters
-%   >> wout = change_crystal (file, alatt, angdeg, rotmat) % change lattice parameters and orientation
-%   >> wout = change_crystal (file, alatt, angdeg, u, v)   % change lattice parameters and redefine u, v
+%   >> change_crystal (file, alatt)                 % change just length of lattice vectors
+%   >> change_crystal (file, alatt, angdeg)         % change all lattice parameters
+%   >> change_crystal (file, alatt, angdeg, rotmat) % change lattice parameters and orientation
+%
+%   If sqw data, additionally:
+%   >> change_crystal (file, alatt, angdeg, u, v)   % change lattice parameters and redefine u, v
 %
 % The altered object is written to the same file.
 %
@@ -39,34 +41,18 @@ function varargout=change_crystal_horace(varargin)
 %  The input data file(s) can be reset to their original orientation by inverting the
 %  input data e.g.
 %    - call with inv(rlu_corr)
-%    - call with the original alatt, angdeg, u and v
+%    - call with the original alatt, angdeg, u and v (if sqw-type data)
 
 % Original author: T.G.Perring
 %
 % $Revision: 521 $ ($Date: 2011-01-16 09:45:59 +0000 (Sun, 16 Jan 2011) $)
 
-% Catch case of sqw object
-if nargin>=1 && nargin<=5 && (isa(varargin{1},'sqw')||isa(varargin{1},'d0d')||isa(varargin{1},'d1d')||...
-        isa(varargin{1},'d2d')||isa(varargin{1},'d3d')||isa(varargin{1},'d4d'))
-    if nargout==0
-        change_crystal(varargin{:})
-    else
-        varargout{1}=change_crystal(varargin{:});
-    end
-    return
-    
-elseif nargin<1 || nargin>5
+
+if nargin<1 ||nargin>5
     error('Check number of input arguments')
-    
 elseif nargout>0
     error('No output arguments returned by this function')
 end
 
-% Check file name(s), prompting if necessary
-[file_internal,mess]=getfile_horace(varargin{1});
-if ~isempty(mess)
-    error(mess)
-end
-
-% Perform action
-function_horace(file_internal,@change_crystal,varargin{2:end});
+[varargout,mess] = horace_function_call_method (nargout, @change_crystal, '$hor', varargin{:});
+if ~isempty(mess), error(mess), end

@@ -24,7 +24,7 @@ function [qe1,qe2] = hkle(w,x)
 % Check input
 % ----------------
 % Conversion only possible if 1D sqw-type object
-if ~is_sqw_type(w)
+if ~is_sqw_type(w(1))
     error('Function defined only for sqw-type')
 end
     

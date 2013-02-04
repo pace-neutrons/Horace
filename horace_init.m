@@ -25,6 +25,7 @@ addpath_message (2,rootpath,'DLL');
 addpath_message (1,rootpath,'configuration');
 
 % Other directories
+addpath_message (1,rootpath,'horace_function_utils');
 addpath_message (1,rootpath,'lattice_functions');
 addpath_message (1,rootpath,'utilities');
 

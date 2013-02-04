@@ -1,17 +1,17 @@
-function wout = cut_sqw (data_source_in, varargin)
+function wout = cut_sqw_main (data_source, ndims, varargin)
 % Take a cut from an sqw object by integrating over one or more of the momentum and energy axes.
 % 
-% Syntax:
-%  make cut:
-%   >> w = cut (data_source, p1_bin, p2_bin...)     % cut plot axes, keeping existing integration ranges
-%                                                   % (as many binning arguments as there are plot axes)
+%   >> w = cut_sqw_main (data_source, ndims, p1_bin, p2_bin...)     
+%                                           % cut plot axes, keeping existing integration ranges
+%                                           %(as many binning arguments as there are plot axes)
 %
-%   >> w = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)      % cut with new projection axes
+%   >> w = cut_sqw_main (data_source, ndims, proj, p1_bin, p2_bin, p3_bin, p4_bin)
+%                                           % cut with new projection axes
 %
-%   >> w = cut (..., '-nopix')      % output cut is dnd structure
+%   >> w = cut_sqw_main (..., '-nopix')     % output cut is dnd structure
 %
-%   >> w = cut (..., '-save')       % Save cut to file (prompt for output file)
-%   >> w = cut (...,  filename)     % save cut to named file
+%   >> w = cut_sqw_main (..., '-save')      % Save cut to file (prompt for output file)
+%   >> w = cut_sqw_main (...,  filename)    % save cut to named file
 %
 % For very large output, can avoid out-of-memory errors by writing file without
 % making output to workspace:
@@ -20,7 +20,10 @@ function wout = cut_sqw (data_source_in, varargin)
 % 
 % Input:
 % ------
-%   data_source_in  Data source: sqw file name or data structure
+%   data_source_in  Data source: sqw object or filename of a file with sqw-type data
+%                  (character string or cellarray with one character string)
+%
+%   ndims           Number of dimensions of the sqw data
 %
 %   proj            Data structure containing details of projection axes:
 %                  Defines two vectors u and v that give the direction of u1
@@ -94,31 +97,34 @@ small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing 
 % Parse input arguments
 % ---------------------
 % Determine if data source is sqw object or file
-[data_source, args, source_is_file, sqw_type, ndims] = parse_data_source (data_source_in, varargin{:});
-if source_is_file
-    data_source=data_source.filename;
-end
-if ~sqw_type
+if iscellstr(data_source)
+    data_source=data_source{1};
+    source_is_file=true;
+elseif ischar(data_source)
+    source_is_file=true;
+elseif isa(data_source,'sqw')
+    source_is_file=false;
+else
     error('Logic problem in chain of cut methods. See T.G.Perring')
 end
 
 % Strip off final arguments that are character strings, and parcel the rest as binning arguments
 % (the functions that use binning arguments are clever enough to handle incorrect number of arguments and types)
 opt=cell(1,0);
-if length(args)>=1 && ischar(args{end}) && size(args{end},1)==1
-    opt{1}=args{end};
+if length(varargin)>=1 && ischar(varargin{end}) && size(varargin{end},1)==1
+    opt{1}=varargin{end};
 end
-if length(args)>=2 && ischar(args{end-1}) && size(args{end-1},1)==1
-    opt{2}=args{end-1};
+if length(varargin)>=2 && ischar(varargin{end-1}) && size(varargin{end-1},1)==1
+    opt{2}=varargin{end-1};
 end
 
 % Get proj structure, if present, and binning information
-if numel(args)>=1 && isstruct(args{1}) % only proj is consistent with this case
-    proj_in=args{1};
-    pbin=args(2:end-length(opt));
+if numel(varargin)>=1 && isstruct(varargin{1}) % only proj is consistent with this case
+    proj_in=varargin{1};
+    pbin=varargin(2:end-length(opt));
 else
     proj_in=struct([]);
-    pbin=args(1:end-length(opt));
+    pbin=varargin(1:end-length(opt));
 end
 
 

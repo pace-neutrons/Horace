@@ -2,13 +2,12 @@ function varargout=change_crystal_dnd(varargin)
 % Change the crystal lattice and orientation in a file or set of files containing dnd information
 % 
 % Most commonly:
-%   >> wout = change_crystal (file, rlu_corr)              % change lattice parameters and orientation
+%   >> change_crystal (file, rlu_corr)              % change lattice parameters and orientation
 %
 % OR
-%   >> wout = change_crystal (file, alatt)                 % change just length of lattice vectors
-%   >> wout = change_crystal (file, alatt, angdeg)         % change all lattice parameters
-%   >> wout = change_crystal (file, alatt, angdeg, rotmat) % change lattice parameters and orientation
-%   >> wout = change_crystal (file, alatt, angdeg, u, v)   % change lattice parameters and redefine u, v
+%   >> change_crystal (file, alatt)                 % change just length of lattice vectors
+%   >> change_crystal (file, alatt, angdeg)         % change all lattice parameters
+%   >> change_crystal (file, alatt, angdeg, rotmat) % change lattice parameters and orientation
 %
 % The altered object is written to the same file.
 %
@@ -31,45 +30,22 @@ function varargout=change_crystal_dnd(varargin)
 %              lattice as a rotation of the current crystal frame. Orthonormal coordinates
 %              in the two frames are related by 
 %                   v_new(i)= rotmat(i,j)*v_current(j)
-%   u, v        Redefine the two vectors that were used to determine the scattering plane
-%              These are the vectors at whatever misorientation angles dpsi, gl, gs (which
-%              cannot be changed).
 %
 % NOTE
 %  The input data file(s) can be reset to their original orientation by inverting the
 %  input data e.g.
 %    - call with inv(rlu_corr)
-%    - call with the original alatt, angdeg, u and v
 
 % Original author: T.G.Perring
 %
 % $Revision: 521 $ ($Date: 2011-01-16 09:45:59 +0000 (Sun, 16 Jan 2011) $)
 
-% Catch case of dnd object
-if nargin>=1 && nargin<=5 && (isa(varargin{1},'d0d')||isa(varargin{1},'d1d')||...
-        isa(varargin{1},'d2d')||isa(varargin{1},'d3d')||isa(varargin{1},'d4d'))
-    if nargout==0
-        change_crystal(varargin{:})
-    else
-        varargout{1}=change_crystal(varargin{:});
-    end
-    return
     
-elseif nargin>=1 && nargin<=5 && isa(varargin{1},'sqw')
-    error('Input cannot be an sqw object')
-    
-elseif nargin<1 ||nargin>5
+if nargin<1 ||nargin>4
     error('Check number of input arguments')
-    
 elseif nargout>0
     error('No output arguments returned by this function')
 end
 
-% Check file name(s), prompting if necessary
-[file_internal,mess]=getfile_horace(varargin{1});
-if ~isempty(mess)
-    error(mess)
-end
-
-% Perform action
-function_dnd(file_internal,@change_crystal,varargin{2:end});
+[varargout,mess] = horace_function_call_method (nargout, @change_crystal, '$dnd', varargin{:});
+if ~isempty(mess), error(mess), end

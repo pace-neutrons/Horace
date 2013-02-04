@@ -1,4 +1,4 @@
-function w = read_sqw(varargin)
+function varargout = read_sqw(varargin)
 % Read sqw object from named file or an array of sqw objects from a cell array of file names
 % 
 %   >> w=read_sqw           % prompts for file
@@ -8,23 +8,5 @@ function w = read_sqw(varargin)
 %
 % $Revision$ ($Date$)
 
-% Catch trivial case of sqw object
-if nargin==1 && isa(varargin{1},'sqw')
-    w=varargin{1};
-    return
-elseif nargin>=2
-    error('Check number of arguments')
-end
-
-% Check file name(s), prompting if necessary
-if nargin==0
-    [file_internal,mess]=getfile_horace('*.sqw');
-else
-    [file_internal,mess]=getfile_horace(varargin{:});
-end
-if ~isempty(mess)
-    error(mess)
-end
-
-% Make object
-w=function_sqw(file_internal,@read);
+[varargout,mess] = horace_function_call_method (nargout, @read, '$sqw', varargin{:});
+if ~isempty(mess), error(mess), end

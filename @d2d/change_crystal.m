@@ -1,4 +1,4 @@
-function varargout = change_crystal(varargin)
+function varargout = change_crystal (varargin)
 % Change the crystal lattice and orientation of a d2d object or array of objects
 %
 % Most commonly:
@@ -8,7 +8,6 @@ function varargout = change_crystal(varargin)
 %   >> wout = change_crystal (w, alatt)                 % change just length of lattice vectors
 %   >> wout = change_crystal (w, alatt, angdeg)         % change all lattice parameters
 %   >> wout = change_crystal (w, alatt, angdeg, rotmat) % change lattice parameters and orientation
-%   >> wout = change_crystal (w, alatt, angdeg, u, v)   % change lattice parameters and redefine u, v
 %
 %
 % Input:
@@ -29,9 +28,6 @@ function varargout = change_crystal(varargin)
 %              lattice as a rotation of the current crystal frame. Orthonormal coordinates
 %              in the two frames are related by 
 %                   v_new(i)= rotmat(i,j)*v_current(j)
-%   u, v        Redefine the two vectors that were used to determine the scattering plane
-%              These are the vectors at whatever misorientation angles dpsi, gl, gs (which
-%              cannot be changed).
 %
 % Output:
 % -------
@@ -41,7 +37,7 @@ function varargout = change_crystal(varargin)
 %  The input data set(s) can be reset to their original orientation by inverting the
 %  input data e.g.
 %    - call with inv(rlu_corr)
-%    - call with the original alatt, angdeg, u and v
+
 
 % Original author: T.G.Perring
 %
@@ -51,23 +47,21 @@ function varargout = change_crystal(varargin)
 % Work via sqw class type
 
 
-% If data source is a filename or data_source structure, then must ensure that matches dnd type
-[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (sqw(varargin{1}), varargin{2:end});
-if ~isempty(mess)
-    error(mess)
-end
-if source_is_file   % either file names or data_source structure as input
-    if any(sqw_type) || any(ndims~=dimensions(varargin{1}(1)))     % must all be the required dnd type
-        error(['Data file(s) not (all) ',classname,' type i.e. no pixel information'])
-    end
-    if nargout>0
-        error('Cannot have output for data source being file(s)')
-    end
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
+
+% Perform operations
+% ------------------
+% Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
+if numel(args)>3, error('Check number of input arguments'), end     % catch case of u,v passed from *_horace 
+argout=change_crystal(sqw,w,args{:});
+if ~isempty(argout)
+    argout{1}=dnd(argout{1});   % as return argument is sqw object of dnd-type
 end
 
-% Now call sqw head routine
-if source_is_file
-    change_crystal(sqw,data_source,args{:});
-else
-    varargout{1}=dnd(change_crystal(sqw(data_source),args{:}));
-end
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end

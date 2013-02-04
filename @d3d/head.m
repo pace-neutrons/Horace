@@ -1,22 +1,30 @@
-function varargout = head(varargin)
-% Read header of a d3d object stored in a file, or objects in a set of files
+function varargout = head (varargin)
+% Display a summary of a d3d object or file containing d3d information.
 % 
-%   >> h=head(d3d,file)
+%   >> head(w)              % Summary for object (or array of objects)
+%   >> head(d3d,filename)   % Summary for named file (or array of names)
 %
-% Gives the same information as display for a d3d object.
+% To return header information in a structure, without displaying to screen:
 %
-% Need to give first argument as an d3d object to enforce a call to this function.
-% Can simply create a dummy object with a call to d3d:
-%    e.g. >> head(d3d,'c:\temp\my_file.d3d')
+%   >> h=head(...)          % Fetch principal header information
+%
+%
+% The facility to get head information from file(s) is included for completeness, but
+% more usually you would use the function:
+%   >> head_horace(filename)
+%   >> h=head_horace(filename)
+%
 %
 % Input:
 % -----
+%   w           d3d object or array of d3d objects
+%       *OR*
 %   d3d         Dummy d3d object to enforce the execution of this method.
 %               Can simply create a dummy object with a call to d3d:
-%                   e.g. >> w = read(d3d,'c:\temp\my_file.d3d')
+%                   e.g. >> w = head(d3d,'c:\temp\my_file.d3d')
 %
 %   file        File name, or cell array of file names. In latter case, displays
-%               summary for each d3d object
+%               summary for each sqw object
 %
 % Output (optional):
 % ------------------
@@ -31,41 +39,17 @@ function varargout = head(varargin)
 % Work via sqw class type
 
 
-% If data source is a filename or data_source structure, then must ensure that matches dnd type
-[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (sqw(varargin{1}), varargin{2:end});
-if ~isempty(mess)
-    error(mess)
-end
-if source_is_file   % either file names or data_source structure as input
-    if any(sqw_type) || any(ndims~=dimensions(varargin{1}(1)))     % must all be the required dnd type
-        error(['Data file(s) not (all) ',classname,' type i.e. no pixel information'])
-    end
-end
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
 
-% Now call sqw head routine
-if nargout==0
-    if source_is_file
-        head(sqw,data_source,args{:});
-    else
-        head(sqw(data_source),args{:});
-    end
-else
-    if source_is_file
-        argout=head(sqw,data_source,args{:});   % output is a cell array
-    else
-        argout=head(sqw(data_source),args{:});
-    end
-end
+% Perform operations
+% ------------------
+% Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
+argout=head(sqw,w,args{:});
 
-% Package output: if file data source structure then package all output arguments as a single cell array, as the output
-% will be unpacked by control routine that called this method. If object data source or file name, then package as conventional
-% varargout
-
-% In this case, there is only one output argument
-if nargout>0
-    if source_is_file && ~source_arg_is_filename
-        varargout{1}={argout};
-    else
-        varargout{1}=argout;
-    end
-end
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end

@@ -1,4 +1,4 @@
-function varargout = change_crystal(varargin)
+function varargout = change_crystal (varargin)
 % Change the crystal lattice and orientation of an sqw object or array of objects
 %
 % Most commonly:
@@ -52,41 +52,36 @@ function varargout = change_crystal(varargin)
 %   >> change_crystal(filename,...)
 % and the output overwrites the input file.
 
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
 
-% If data source is a filename, then must ensure that matches sqw type
-% Recall this function is used by d0d, d1d,... as a gateway routine, so if data_source is structure
-% it may require non sqw type data to be read. 
-[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (varargin{:});
-if ~isempty(mess)
-    error(mess)
-end
-if source_arg_is_filename
-    if ~all(sqw_type)
-        error('Data file(s) not (all) sqw type i.e. does(do) not contain pixel information')
-    end
-    if nargout>0
-        error('Cannot have output for data source being file(s)')
-    end
-end
-
-if source_is_file
-    for i=1:numel(data_source)
-        [h.main_header,h.header,h.detpar,h.data,mess,position,npixtot,type]=get_sqw (data_source(i).filename,'-hverbatim');
+% Perform operations
+% ------------------
+if w.source_is_file
+    for i=1:numel(w.data)
+        [h.main_header,h.header,h.detpar,h.data,mess]=get_sqw (w.data{i},'-hverbatim');
+        if ~isempty(mess), error(mess), end
         [h.header,h.data]=change_crystal_alter_fields(h.header,h.data,args{:});
 
-        fout=fopen(data_source(i).filename,'r+');    % open for reading and writing
-        if fout<0, error(['Unable to open file ',outfile,' to change crystal information.']), end
-        frewind(fout)   % get to beginning of file (may not be necessary
-        [mess,position,npixtot,type] = put_sqw (fout,h.main_header,h.header,h.detpar,h.data,'-h');
+        fout=fopen(w.data{i},'r+');    % open for reading and writing
+        if fout<0, error(['Unable to open file ',w.data{i},' to change crystal information.']), end
+        frewind(fout)   % get to beginning of file (may not be necessary)
+        mess = put_sqw (fout,h.main_header,h.header,h.detpar,h.data,'-h');
         if fopen(fout), fclose(fout); end
-        if ~isempty(mess), error(['Error writing to file ',data_source(i).filename,' - check not corrupted: ',mess]), end
+        if ~isempty(mess), error(['Error writing to file ',w.data{i},' - check the file is not corrupted: ',mess]), end
     end
-    
+    argout={};
 else
-    varargout{1}=data_source;
-    for i=1:numel(data_source)
-        [varargout{1}(i).header,varargout{1}(i).data,ok,mess]=change_crystal_alter_fields(data_source(i).header,data_source(i).data,args{:});
+    argout{1}=w.data;
+    for i=1:numel(w.data)
+        [argout{1}(i).header,argout{1}(i).data,ok,mess]=change_crystal_alter_fields(w.data(i).header,w.data(i).data,args{:});
         if ~ok, error(mess), end
     end
-    
 end
+
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end

@@ -1,24 +1,21 @@
-function varargout = head(varargin)
+function varargout = head (varargin)
 % Display a summary of an sqw object or file containing sqw information.
 % 
-%   >> head(w)              % display header information for sqw object (or array of objects)
-%   >> head(sqw,filename)   % display header information for name sqw file (or array of names)
+%   >> head(w)              % Summary for object (or array of objects)
+%   >> head(sqw,filename)   % Summary for named file (or array of names)
 %
-%   >> h=head(...)          % Put header information into a structure; do not display
-%   >> h=head(...,'-full')  % Put full header information into a structure
+% To return header information in a structure, without displaying to screen:
 %
-% Lists to the screen the same information as display method for an sqw object.
+%   >> h=head(...)          % Fetch principal header information
+%   >> h=head(...,'-full')  % Fetch full header information
 %
-% The facility to get head information from file(s) is included for completenes, but
+%
+% The facility to get head information from file(s) is included for completeness, but
 % more usually you would use the function:
 %   >> head_horace(filename)
 %   >> h=head_horace(filename)
 %   >> h=head_horace(filename,'-full')
 %
-% If you use this function to get head information from file data source(s), then
-% you need to give first argument as an sqw object to enforce a call to this
-% function. You can simply create a dummy object with a call to sqw:
-%    e.g. >> head(sqw,'c:\temp\my_file.sqw')
 %
 % Input:
 % -----
@@ -26,42 +23,37 @@ function varargout = head(varargin)
 %       *OR*
 %   sqw         Dummy sqw object to enforce the execution of this method.
 %               Can simply create a dummy object with a call to sqw:
-%                   e.g. >> w = read(sqw,'c:\temp\my_file.sqw')
+%                   e.g. >> w = head(sqw,'c:\temp\my_file.sqw')
 %
 %   file        File name, or cell array of file names. In latter case, displays
 %               summary for each sqw object
 %
 % Optional keyword:
-%   '-full'     Puts full header information into a structure. This includes the
-%               information for each contributing data file and detector information.
+%   '-full'     Keyword option; if present, then returns all header and the
+%              detecetor information. In fact, it returns the full data structure
+%              except for the signal, error and pixel arrays.
 %
 % Output (optional):
 % ------------------
 %   h           Structure with header information, or cell array of structures if
 %               given a cell array of file names.
 
-% NOTE: In addition to the functionality documented above, the function also takes
-%       a data_source structure created from an earlier call to parse_data_source
-
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
 
-% If data source is a filename, then must ensure that matches sqw type
-% Recall this function is used by d0d, d1d,... as a gateway routine, so if
-% data_source is structure it may require non sqw type data to be read. 
-[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (varargin{:});
-if ~isempty(mess)
-    error(mess)
-end
-if source_arg_is_filename
-    if ~all(sqw_type)
-        error('Data file(s) not (all) sqw type i.e. does(do) not contain pixel information')
-    end
-end
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
 
-% Check number of arguments
+% Perform operations
+% ------------------
+nout=w.nargout_req;
+nw=numel(w.data);
+
+% Check input arguments
 hfull=false;
 if ~isempty(args)
     sz=size(args{1});
@@ -78,27 +70,27 @@ end
 % sqw file as dnd (if data source is file), or performed dnd(data_source)
 % if data_source is a sqw object.
 
-if source_is_file
-    for i=1:numel(data_source)
-        [h.main_header,h.header,h.detpar,h.data,mess,position,npixtot,type]=get_sqw (data_source(i).filename,'-h');
+if w.source_is_file
+    for i=1:nw
+        [h.main_header,h.header,h.detpar,h.data,mess,position,npixtot]=get_sqw (w.data{i},'-h');
         if ~isempty(mess); error(mess); end
-        if nargout==0
-            if sqw_type(i)
+        if nout==0
+            if w.sqw_type(i)
                 sqw_display_single (h,npixtot,'a')
             else
                 npixtot=1;      % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
                 sqw_display_single (h,npixtot,'b+')
             end
         else
-            if numel(data_source)==1
-                if hfull
+            if nw==1
+                if w.sqw_type(i) && hfull
                     hout=h;
                 else
                     hout=h.data;
                 end
             else
-                if i==1, hout=cell(size(data_source)); end
-                if hfull
+                if i==1, hout=cell(size(w.data)); end
+                if w.sqw_type(i) && hfull
                     hout{i}=h;
                 else
                     hout{i}=h.data;
@@ -107,45 +99,39 @@ if source_is_file
         end
     end
 else
-    % display(data_source)    % will say every object is sqw object if an array - cannot tell if e.g. d2d that came via d2d/display
-    if nargout==0
-        for i=1:numel(data_source)
-            display(data_source(i))
+    if nout==0
+        for i=1:nw
+            display(w.data(i))
         end
-    elseif nargout>0
-        for i=1:numel(data_source)
-            if is_sqw_type(data_source(i)) && hfull
-                h=struct(data_source(i));
+    else
+        for i=1:nw
+            if is_sqw_type(w.data(i)) && hfull
+                h=struct(w.data(i));
                 h.data=rmfield(h.data,{'s','e','npix','pix'});
             else
-                h=rmfield(data_source(i).data,{'s','e','npix'});
+                h=rmfield(w.data(i).data,{'s','e','npix'});
                 if isfield(h,'pix'), h=rmfield(h,'pix'); end    % if sqw type, then remove pix array
-                if ~is_sqw_type(data_source(i))
+                if ~is_sqw_type(w.data(i))
                     if isfield(h,'urange'), h=rmfield(h,'urange'); end  % if, for some reason, there is a urange field, remove it.
                 end
             end
-            if numel(data_source)==1
+            if nw==1
                 hout=h;
             else
-                if i==1, hout=cell(size(data_source)); end
+                if i==1, hout=cell(size(w.data)); end
                 hout{i}=h;
             end
         end
     end
 end
 
-% Package output: if file data source structure then package all output
-% arguments as a single cell array, as the output will be unpacked by the
-% control routine that called this method. If object data source or file
-% name, then package as conventional varargout.
-
-if nargout>0
-    if source_is_file && ~source_arg_is_filename
-        % Input was a data_source structure, so package
-        varargout{1}={hout};
-    else
-        % Input was was sqw object or filename, so copy each output argument to varargout.
-        varargout{1}=hout;          % only one output argument in this case
-        % varargout{2}= out_2 ...   % example if more than one output argument
-    end
+if nout>0
+    argout{1}=hout;
+else
+    argout={};
 end
+
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end

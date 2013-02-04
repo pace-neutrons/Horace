@@ -45,44 +45,21 @@ function varargout = cut (varargin)
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
-% If data source is a filename or data_source structure, then must ensure that matches dnd type
-[data_source, args, source_is_file, sqw_type, ndims, source_arg_is_filename, mess] = parse_data_source (sqw(varargin{1}), varargin{2:end});
-if ~isempty(mess)
-    error(mess)
-end
-if source_is_file   % either file names or data_source structure as input
-    if any(sqw_type) || any(ndims~=dimensions(varargin{1}(1)))     % must all be the required dnd type
-        error(['Data file(s) not (all) ',classname,' type i.e. no pixel information'])
-    end
-end
 
+% Parse input
+% -----------
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+if ~isempty(mess), error(mess); end
 
-% Perform cuts
-% ------------
-% Now call sqw cut routine
-if nargout==0
-    if source_is_file
-        cut(sqw,data_source,args{:});
-    else
-        cut(sqw(data_source),args{:});
-    end
-else
-    if source_is_file
-        argout=cut(sqw,data_source,args{:});   % output is a cell array
-    else
-        argout=cut(sqw(data_source),args{:});
-    end
+% Perform operations
+% ------------------
+% Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
+argout=cut(sqw,w,args{:});
+if ~isempty(argout)
+    argout{1}=dnd(argout{1});   % as return argument is sqw object of dnd-type
 end
 
-% Package output: if file data source structure then package all output arguments as a single cell array, as the output
-% will be unpacked by control routine that called this method. If object data source or file name, then package as conventional
-% varargout
-
-% In this case, there is only one output argument
-if nargout>0
-    if source_is_file && ~source_arg_is_filename
-        varargout{1}={dnd(argout{1})};    % must ensure output is still a cell array after conversion to dnd
-    else
-        varargout{1}=dnd(argout);
-    end
-end
+% Package output arguments
+% ------------------------
+[varargout,mess]=horace_function_pack_output(w,argout{:});
+if ~isempty(mess), error(mess), end

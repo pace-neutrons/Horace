@@ -1,20 +1,25 @@
 function varargout=head_horace(varargin)
 % Display a summary of a file or set of files containing sqw information
 % 
-%   >> head_horace          % prompts for file
-%   >> head_horace (file)   % summary for named file or for cell array of file names
+%   >> head_horace          % Prompts for file
+%   >> head_horace (file)   % Summary for named file or for cell array of file names
 %
-% To return header information in a structure
+% To return header information in a structure, without displaying to screen:
+%
 %   >> h = head_horace
-%   >> h = head_horace (file)
+%   >> h = head_horace (file)           % Fetch principal header information
+%   >> h = head_horace (file,'-full')   % Fetch full header information
 %
-%
-% Gives the same information as display for an sqw object
 %
 % Input:
 % -----
 %   file        File name, or cell array of file names. In latter case, displays
 %               summary for each sqw object
+%
+% Optional keyword:
+%   '-full'     Keyword option; if sqw type data in file, then returns all header and the
+%              detecetor information. In fact, it returns the full data structure
+%              except for the signal, error and pixel arrays.
 %
 % Output (optional):
 % ------------------
@@ -25,34 +30,5 @@ function varargout=head_horace(varargin)
 %
 % $Revision$ ($Date$)
 
-
-% Catch case of sqw object
-if nargin==1 && (isa(varargin{1},'sqw')||isa(varargin{1},'d0d')||isa(varargin{1},'d1d')||...
-        isa(varargin{1},'d2d')||isa(varargin{1},'d3d')||isa(varargin{1},'d4d'))
-    if nargout==0
-        head(varargin{1});
-    else
-        varargout{1}=head(varargin{1});
-    end
-    return
-    
-elseif nargin>2
-    error('Check number of arguments')
-end
-
-% Check file name(s), prompting if necessary
-if nargin==0
-    [file_internal,mess]=getfile_horace('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
-else
-    [file_internal,mess]=getfile_horace(varargin{1});
-end
-if ~isempty(mess)
-    error(mess)
-end
-
-% Make object
-if nargout==0
-    function_horace(file_internal,@head,varargin{2:end});
-else
-    varargout{1} = function_horace(file_internal,@head,varargin{2:end});
-end
+[varargout,mess] = horace_function_call_method (nargout, @head, '$hor', varargin{:});
+if ~isempty(mess), error(mess), end
