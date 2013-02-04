@@ -4,7 +4,7 @@ function [header,data,ok,mess]=change_crystal_alter_fields(header_in,data_in,var
 %   >> [header,data]=change_crystal_alter_fields(header_in,data_in,alatt)
 %   >> [header,data]=change_crystal_alter_fields(header_in,data_in,alatt,angdeg)
 %   >> [header,data]=change_crystal_alter_fields(header_in,data_in,alatt,angdeg,rotmat)
-%   >> [header,data]=change_crystal_alter_fields(header_in,data_in,alatt,angdeg,u,v)
+%   >> [header,data]=change_crystal_alter_fields(header_in,data_in,alatt,angdeg,u,v)    % only if sqw-type data
 %   >> [header,data]=change_crystal_alter_fields(header_in,data_in,rlu_corr)
 
 header=header_in;
@@ -16,8 +16,6 @@ mess='';
 header_ave=header_average(header);  % this gets the header for the first spe file that contributed.
 alatt0=data_in.alatt;
 angdeg0=data_in.angdeg;
-u0=header_ave.cu;
-v0=header_ave.cv;
 
 narg=numel(varargin);
 if narg==0
@@ -60,6 +58,8 @@ elseif narg<=4
         if (~isnumeric(u)||numel(u)~=3||all(abs(u)<=1e-12)) || (~isnumeric(v)||numel(v)~=3||all(abs(v)<=1e-12))
             ok=false; mess='Check new orientation vectors u and v'; return
         end
+        u0=header_ave.cu;
+        v0=header_ave.cv;
         [ub0,mess] = ubmatrix(u0,v0,b0);
         if ~isempty(mess), ok=false; return, end
         [ub,mess] = ubmatrix(u,v,b);

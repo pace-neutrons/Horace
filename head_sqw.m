@@ -1,20 +1,25 @@
 function varargout=head_sqw(varargin)
 % Display a summary of a file or set of files containing sqw information
 % 
-%   >> head_sqw             % prompts for file
-%   >> head_sqw (file)      % summary for named file or for cell array of file names
+%   >> head_sqw          % Prompts for file
+%   >> head_sqw (file)   % Summary for named file or for cell array of file names
 %
-% To return header information in a structure
-%   >> h = head_sqw        
-%   >> h = head_sqw (file)
+% To return header information in a structure, without displaying to screen:
 %
+%   >> h = head_sqw
+%   >> h = head_sqw (file)           % Fetch principal header information
+%   >> h = head_sqw (file,'-full')   % Fetch full header information
 %
-% Gives the same information as display for an sqw object
 %
 % Input:
 % -----
 %   file        File name, or cell array of file names. In latter case, displays
 %               summary for each sqw object
+%
+% Optional keyword:
+%   '-full'     Keyword option; if present, then returns all header and the
+%              detecetor information. In fact, it returns the full data structure
+%              except for the signal, error and pixel arrays.
 %
 % Output (optional):
 % ------------------
@@ -25,32 +30,5 @@ function varargout=head_sqw(varargin)
 %
 % $Revision$ ($Date$)
 
-% Catch case of sqw object
-if nargin==1 && isa(varargin{1},'sqw')
-    if nargout==0
-        head(varargin{1});
-    else
-        varargout{1}=head(varargin{1});
-    end
-    return
-    
-elseif nargin>=2
-    error('Check number of arguments')
-end
-
-% Check file name(s), prompting if necessary
-if nargin==0
-    [file_internal,mess]=getfile_horace('*.sqw');
-else
-    [file_internal,mess]=getfile_horace(varargin{:});
-end
-if ~isempty(mess)
-    error(mess)
-end
-
-% Make object
-if nargout==0
-    function_sqw(file_internal,@head);
-else
-    varargout{1} = function_sqw(file_internal,@head);
-end
+[varargout,mess] = horace_function_call_method (nargout, @head, '$sqw', varargin{:});
+if ~isempty(mess), error(mess), end

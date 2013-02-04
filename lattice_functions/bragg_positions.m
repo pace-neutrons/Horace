@@ -94,11 +94,15 @@ end
 
 % Check input arguments
 if ischar(w)    % assume a file name
-    if ~is_sqw_type_file(sqw,w)
+    file_type_ok=is_sqw_type_file(sqw,w);
+    if ~isscalar(file_type_ok) || ~file_type_ok
         error('File must be sqw type')
     end
     h=head_sqw(w);  % get header information
-elseif isa(w,'sqw') && is_sqw_type(w)
+elseif isa(w,'sqw') && is_sqw_type(w(1))
+    if numel(w)~=1
+        error('Data must be a single sqw object, not an array (or empty)')
+    end
     if iscell(w.header)     % *** Really ought to have header_ave as a method. Use same algorithm here.
         h=w.header{1};
     else

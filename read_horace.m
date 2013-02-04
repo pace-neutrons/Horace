@@ -1,4 +1,4 @@
-function w = read_horace(varargin)
+function varargout = read_horace(varargin)
 % Read sqw or d0d/d1d/...d4d object from a file or array of objects from a set of files as appropriate to file contents
 % 
 %   >> w=read_horace            % prompts for file
@@ -8,24 +8,5 @@ function w = read_horace(varargin)
 %
 % $Revision$ ($Date$)
 
-% Catch trivial case of sqw or dnd object
-if nargin==1 && (isa(varargin{1},'sqw')||isa(varargin{1},'d0d')||isa(varargin{1},'d1d')||...
-        isa(varargin{1},'d2d')||isa(varargin{1},'d3d')||isa(varargin{1},'d4d'))
-    w=varargin{1};
-    return
-elseif nargin>=2
-    error('Check number of arguments')
-end
-
-% Check file name(s), prompting if necessary
-if nargin==0
-    [file_internal,mess]=getfile_horace('*.sqw;*.d0d;*.d1d;*.d2d;*.d3d;*.d4d');
-else
-    [file_internal,mess]=getfile_horace(varargin{:});
-end
-if ~isempty(mess)
-    error(mess)
-end
-
-% Make object
-w=function_horace(file_internal,@read);
+[varargout,mess] = horace_function_call_method (nargout, @read, '$hor', varargin{:});
+if ~isempty(mess), error(mess), end
