@@ -1,12 +1,15 @@
 function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,alatt0,angdeg0,rlu,varargin)
 % Refine crystal orientation and lattice parameters
 %
-%   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0, alatt0, angdeg0, rlu)
-%   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(rlu0, alatt0, angdeg0, rlu, lattice_init)
+%   >> [rlu_corr,alatt,angdeg] = refine_crystal(rlu0, alatt0, angdeg0, rlu)
+%   >> [rlu_corr,alatt,angdeg] = refine_crystal(rlu0, alatt0, angdeg0, rlu, alatt_init, angdeg_init)
 %
 % In addition, there are keyword arguments to control the refinement e.g.
-%   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(..., 'fix_angdeg')
-%   >> [rlu_corr,alatt,angdeg,rotmat] = refine_crystal(..., 'free_alatt', [1,0,1])
+%   >> [rlu_corr,alatt,angdeg] = refine_crystal(..., 'fix_angdeg')
+%   >> [rlu_corr,alatt,angdeg] = refine_crystal(..., 'free_alatt', [1,0,1])
+%
+% In all cases, further output arguments can be returned:
+%   >> [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(...)
 %
 % This function is used to get a matrix that relates the coordinates of a vector (h0,k0,l0)
 % as expressed in an initial or reference lattice to the coordinates (h,k,l) in the true lattice.
@@ -45,9 +48,9 @@ function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = refine_crystal(rlu0,
 %
 % Finer control of refoinement of lattice parameters: instead of fix_lattice, fix_angdeg,... use
 %   free_alatt      Array length 3 of zeros or ones, 1=free, 0=fixed
-%                  e.g. ...,'free_lattice',[1,1,1,0,0,0],... is equivalent to ...,'fix_angdeg',...
+%                  e.g. ...,'free_alatt',[1,0,1],... allows only lattice parameter b to vary
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
-%                  e.g. ...,'free_lattice',[1,1,1,0,0,0],... is equivalent to ...,'fix_angdeg',...
+%                  e.g. ...,'free_lattice',[1,1,0],... fixes lattice angle gam buts allows alf and bet to vary
 %
 %
 % Output:
