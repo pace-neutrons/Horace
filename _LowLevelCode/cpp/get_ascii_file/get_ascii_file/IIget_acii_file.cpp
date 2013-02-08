@@ -363,7 +363,10 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
     get_my_line(stream,BUF_RUB,BUF_SIZE,EOL);  // discard ###
     get_my_line(stream,BUF,BUF_SIZE,EOL);  // get data row;
     // analyse data row to identify true field size
-    parse_spe_row(BUF,BUF_SIZE,SPE_DATA_BLOCK_SIZE,spe_field_width,trailing_spaces);
+	int nDataPointsInRow = SPE_DATA_BLOCK_SIZE;
+	// if there are too few energy points, then there is only one row with such many energy points and this row is short
+	if(nDataPointsInRow>NE)nDataPointsInRow=NE;
+    parse_spe_row(BUF,BUF_SIZE,nDataPointsInRow,spe_field_width,trailing_spaces);
     if(spe_field_width<10||spe_field_width>99){
         err_message<<" wrong spe data field width="<<spe_field_width<<" identified when parsing first row of signal in spe file\n";
         goto Error;
