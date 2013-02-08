@@ -1,6 +1,5 @@
 function fake_data(indir,parfile,sqw_file,ei,emode,alatt,angdeg,u,v,psi_min,psi_max,...
     omega,dpsi,gl,gs)
-%
 % Function to make a fake sqw data file so that you can see what range of
 % reciprocal space will be covered for a particular indicent energy and
 % range of angles.
@@ -31,7 +30,7 @@ function fake_data(indir,parfile,sqw_file,ei,emode,alatt,angdeg,u,v,psi_min,psi_
 % psi_max. The energy binning will be such that there are 10 steps from
 % -ei/10 to +9ei/10. This is done to ensure faster execution of the
 % function, and not to fill up your hard disk with fake data.
-%     
+
 
 %=====================
 %Do some checks of the input formats before starting:
