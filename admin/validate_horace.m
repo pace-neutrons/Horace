@@ -43,7 +43,10 @@ if herbert_enabled
 else
 	runtests(fullfile(test_path,'test_data_loaders'));
 end
+%runtests(fullfile(test_path,'test_admin'));
 runtests(fullfile(test_path,'test_herbert_utilites'));
+runtests(fullfile(test_path,'test_transformation'));
+%runtests(fullfile(test_path,'test_ascii_column_data'));
 % test generic horace part
 %runtests(fullfile(test_path,'test_horace'));
 
