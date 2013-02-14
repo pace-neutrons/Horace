@@ -3,6 +3,21 @@ function [xrange,yrange,ysubrange,zrange,zsubrange,crange]=graph_range (fig)
 %
 %   >> [xrange,yrange,ysubrange,zrange,zsubrange,crange] = graph_range
 %   >> [xrange,yrange,ysubrange,zrange,zsubrange,crange] = graph_range (fig)
+%
+% Input:
+% ------
+%   fig         Figure handle for which limits are required. If not given,
+%              uses currently active figure
+%
+% Output:
+% -------
+%   xrange      Full range along x axis of all the data
+%   yrange      Full range along y axis
+%   ysubrange   Range along y axis within the current x-axis plot limits
+%   zrange      Full range along z axis
+%   zsubrange   Range along z axis within the current x- and y-axis plot limits
+%   crange      Full range along colour axis
+
 
 % Determine which figure to get handles
 if ~exist('fig','var')||(isempty(fig)),
@@ -55,7 +70,7 @@ for i=1:numel(plot_h)
             % Get z limits in the present x-range and y-range
             ok_y = ydata>=ylim(1) & ydata<=ylim(2);
             zmin = min(min(zdata(ok_x&ok_y)),zmin);
-            zmax = max(min(zdata(ok_x&ok_y)),zmax);
+            zmax = max(max(zdata(ok_x&ok_y)),zmax);
         end
     end
     if isprop(plot_h(i),'CData')

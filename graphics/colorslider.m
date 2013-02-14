@@ -4,7 +4,10 @@ function colorslider(varargin)
 %   >> colorslider                  % add to current figure
 %   >> colorslider (fig)            % add to named or numbered figure
 %   >> colorslider ('delete')       % delete colorslider from current figure
-%   >> colorslider (fig,'delete')   % delete colorslider from current figure
+%   >> colorslider ('update')       % update colorslider on current figure
+%                                    (use if resize the figure, to reshape slider boxes)
+%   >> colorslider (fig,'delete')   % delete colorslider from named or numbered figure
+%   >> colorslider (fig,'update')   % update colorslider on named or numbered figure
 
 % Adapted from script by Radu Coldea 02-Oct-1999, by Dean Whittaker 2-2-2007, and then Toby Perring
 
