@@ -1,13 +1,14 @@
-function [spec_to_proj, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Calculate matrix that convert momentum from coordinates in spectrometer frame to
 % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see
 % Tobyfit for conventions
 %
-%   >> [spec_to_proj, u_to_rlu] = ...
+%   >> [spec_to_u, u_to_rlu, spec_to_rlu] = ...
 %    calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 %
 % Input:
+% ------
 %   alatt       Lattice parameters (Ang^-1)
 %   angdeg      Lattice angles (deg)
 %   u           First vector (1x3) defining scattering plane (r.l.u.)
@@ -19,17 +20,22 @@ function [spec_to_proj, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, 
 %   gs          Small goniometer arc angle (rad)
 %
 % Output:
-%  spec_to_proj Matrix (3x3)to convert momentum from coordinates in spectrometer
+% -------
+%   spec_to_u   Matrix (3x3)to convert momentum from coordinates in spectrometer
 %              frame to crystal Cartesian axes. 
 %   u_to_rlu    Matrix (3x3) of crystal Cartesian axes in reciprocal lattice units
 %              i.e. u_to_rlu(:,1) first vector - u(1:3,1) r.l.u. etc.
 %              This matrix can be used to convert components of a vector in the
 %              crystal Cartesian axes to r.l.u.: v_rlu = u_to_rlu * v_crystal_Cart
 %              (Same as inv(B) in Busing and Levy convention)
+%   spec_to_rlu Matrix (3x3) to convert from spectrometer coordinates to
+%              r.l.u.:
+%                   v_rlu = u_to_rlu * v_crystal_Cart
+%              (This matrix is entirely equivalent to spec_to_u*u_to_rlu)
 
 % T.G.Perring 15/6/07
 %
-% $Revision$ ($Date$)
+% $Revision: 671 $ ($Date: 2012-12-30 09:35:40 +0000 (Sun, 30 Dec 2012) $)
 %
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and 
@@ -50,7 +56,10 @@ corr = (rot_om * (rot_dpsi*rot_gl*rot_gs) * rot_om')';
 cryst = [cos(psi),sin(psi),0; -sin(psi),cos(psi),0; 0,0,1];
 
 % Combine to get matrix to convert from spectrometer coordinates to crystal Cartesian coordinates
-spec_to_proj = u_matrix\corr*cryst;
+spec_to_u = u_matrix\corr*cryst;
 
 % Matrix to convert from crystal Cartesian coords to r.l.u.
 u_to_rlu = inv(b_matrix); 
+
+% Matrix to convert from spectrometer coordinates to r.l.u.
+spec_to_rlu = spec_to_u/b_matrix;
