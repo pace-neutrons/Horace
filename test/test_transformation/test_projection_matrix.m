@@ -21,7 +21,7 @@ classdef test_projection_matrix<TestCase
              dpsi =0;
              gl   =0;
              gs   =0;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             assertElementsAlmostEqual(diag(alatt),u_to_rlu*2*pi);
             assertElementsAlmostEqual(eye(3),spec_to_proj);            
          end           
@@ -35,7 +35,7 @@ classdef test_projection_matrix<TestCase
              dpsi =0;
              gl   =0;
              gs   =0;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             assertElementsAlmostEqual(eye(3),spec_to_proj);                     
          end                   
          function test_rec2(this)               
@@ -48,7 +48,7 @@ classdef test_projection_matrix<TestCase
              dpsi =0;
              gl   =0;
              gs   =0;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             aa=eye(3);
             aa(2,2)=-1;
             aa(3,3)=-1;            
@@ -64,7 +64,7 @@ classdef test_projection_matrix<TestCase
              dpsi =0;
              gl   =0;
              gs   =0;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             aa=[0.9521 0.3058  0.0000;  0.3058   -0.9521    0.0000;   0         0   -1.000];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);           
            
@@ -79,7 +79,7 @@ classdef test_projection_matrix<TestCase
              dpsi =0;
              gl   =0;
              gs   =0;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             aa=[sqrt(2)/2 sqrt(2)/2  0.0000;  sqrt(2)/2  -sqrt(2)/2    0.0000;   0         0   -1.000];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);                      
         end                             
@@ -93,7 +93,7 @@ classdef test_projection_matrix<TestCase
              dpsi =0;
              gl   =0;
              gs   =0;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);                                     
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);                                     
             aa=[0.9397  0.3420  0;   -0.3420  0.9397  0;   0   0  1.0000];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);                      
         end                             
@@ -107,7 +107,7 @@ classdef test_projection_matrix<TestCase
              dpsi =20;
              gl   =0;
              gs   =0;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);                                     
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);                                     
             aa=[0.9397  0.3420  0;   -0.3420  0.9397  0;   0   0  1.0000];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);                      
     end                          
@@ -121,7 +121,7 @@ classdef test_projection_matrix<TestCase
              dpsi =0;
              gl   =20;
              gs   =0;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);                                                     
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);                                                     
             aa=[0.9397 0 -0.3420; 0 1.0000 0;   0.3420 0  0.9397];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);                      
     end                      
@@ -135,7 +135,7 @@ classdef test_projection_matrix<TestCase
              dpsi =0;
              gl   =0;
              gs   =20;
-            [spec_to_proj, u_to_rlu] = get_test_projection_matrix(sqw,alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);               
+            [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);               
             aa=[1.0000 0 0; 0 0.9397 0.3420; 0   -0.3420    0.9397];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);                      
    end                      

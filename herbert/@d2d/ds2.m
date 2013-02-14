@@ -26,6 +26,8 @@ if numel(varargin)>0 && (isa(varargin{1},class(w))||(isnumeric(varargin{1})&&rem
     else
         [figureHandle_, axesHandle_, plotHandle_] = ds2(sqw(w),varargin{:});
     end
+else
+    [figureHandle_, axesHandle_, plotHandle_] = ds2(sqw(w));
 end
 
 % Output only if requested

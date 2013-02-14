@@ -63,6 +63,13 @@ elseif nargin==5
     dispreln=varargin{3};
     pars=varargin{4};
     fwhh=varargin{5};
+elseif nargin==4
+    expand_qe=false;
+    q=varargin{1}(1:3);
+    en=varargin{1}{4};
+    dispreln=varargin{2};
+    pars=varargin{3};
+    fwhh=varargin{4};
 else
     error('Check number of input arguments')
 end
