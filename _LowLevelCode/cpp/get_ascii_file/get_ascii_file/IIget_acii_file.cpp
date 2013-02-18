@@ -341,6 +341,7 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
     int trailing_spaces(0);
     int spe_field_width(10); // format of the data, written in SPE files -- one symbol occupies 10 positions, if it changes here,
                              // the format specified in the read_SPEdata_block (%g10) also has to change.
+    int nDataPointsInRow(0);
     // analyse spe row to identify true field size
     parse_spe_row(BUF,BUF_SIZE,SPE_DATA_BLOCK_SIZE,spe_field_width,trailing_spaces);
 
@@ -363,7 +364,7 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
     get_my_line(stream,BUF_RUB,BUF_SIZE,EOL);  // discard ###
     get_my_line(stream,BUF,BUF_SIZE,EOL);  // get data row;
     // analyse data row to identify true field size
-	int nDataPointsInRow = SPE_DATA_BLOCK_SIZE;
+	nDataPointsInRow = SPE_DATA_BLOCK_SIZE;
 	// if there are too few energy points, then there is only one row with such many energy points and this row is short
 	if(nDataPointsInRow>NE)nDataPointsInRow=NE;
     parse_spe_row(BUF,BUF_SIZE,nDataPointsInRow,spe_field_width,trailing_spaces);
