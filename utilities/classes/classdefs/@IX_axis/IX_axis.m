@@ -18,6 +18,7 @@ function axis = IX_axis(varargin)
 %   units       char        Units for axis e.g. 'meV'
 %   code        char        Code for units (see documentation for built-in units;
 %                          can also be user-defined unit code)
+%
 %   vals        numeric     Array of tick positions
 %   labels      char        Character array or cellstr of tick labels
 %            or cellstr     

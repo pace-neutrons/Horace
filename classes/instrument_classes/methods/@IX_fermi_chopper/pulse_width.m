@@ -1,10 +1,10 @@
 function [dt,pk_fwhh]=pulse_width(fermi,varargin)
 % Calculate st. dev. of chopper pulse width distribution (microseconds)
 %
-%   >> [dt,dt_fwhh]=pulse_width(fermi)        % pulse width for ei in Fermi chopper object
-%   >> [dt,dt_fwhh]=pulse_width(fermi,phase)  % pulse width for for in-phase (default) or 180 degree rotated phase
-%   >> [dt,dt_fwhh]=pulse_width(fermi,ei)     % for an array of other ei
-%   >> [dt,dt_fwhh]=pulse_width(fermi,ei,phase)
+%   >> [dt,dt_fwhh]=pulse_width(fermi)        % pulse width for ei and phase in Fermi chopper object
+%   >> [dt,dt_fwhh]=pulse_width(fermi,phase)  % for specified phase: in-phase (true) or pi-rotated (false)
+%   >> [dt,dt_fwhh]=pulse_width(fermi,ei)     % for an array of specified ei with the phase in fermi
+%   >> [dt,dt_fwhh]=pulse_width(fermi,ei,phase) % for specified ei and phase
 %
 % Input:
 % -------
@@ -12,6 +12,7 @@ function [dt,pk_fwhh]=pulse_width(fermi,varargin)
 %   ei      Incident energy (meV) (array or scalar)
 %           If omitted or empty, use the ei value in the IX_fermi_chopper object
 %   phase   if true, correctly phased; if false, 180 degrees out of phase
+%           If omitted, uses phase in the IX_fermi_chopper object
 %
 % Output:
 % -------

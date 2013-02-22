@@ -25,7 +25,7 @@ function [ok, message, wout] = checkfields (w)
 % Original author: T.G.Perring
     
 fields = {'name';'distance';'frequency';'radius';'curvature';'slit_width';...
-          'slit_spacing';'width';'height';'energy';'phase';'ntable';'table'};  % column vector of expected fields in class structure
+          'slit_spacing';'width';'height';'energy';'phase';'jitter'};  % column vector of expected fields in class structure
 
 ok=false;
 message='';
@@ -36,7 +36,7 @@ if isequal(fieldnames(w),fields)
         message='Fermi chopper name must be a character string';
         return
     end
-    for i=2:10
+    for i=[2:10,12]
         if ~isnumeric(w.(fields{i})) || ~isscalar(w.(fields{i})) || w.(fields{i})<0
             message=['Parameter ''',fields{i},''' must be greater of equal to zero'];
             return
@@ -47,26 +47,10 @@ if isequal(fieldnames(w),fields)
         return
     end
     wout.phase=logical(w.phase);
-    % Always recompute the lookup table
-    if ~isnumeric(w.ntable) || ~isscalar(w.ntable) || floor(w.ntable)<2
-        message='parameter ''ntable'' must be greater or equal to 2';
-        return
-    else
-        wout.ntable=floor(w.ntable);
-        wout.table=[];  % reset to empty - will fill properly later
-    end
 else
     message='fields inconsistent with class type';
     return
 end
 
 % OK if got to here
-
-% Update lookup table. Must account for wout being a structure (from constructor)
-% and previously existing class that has one or more fields reset (from set)
-if isa(wout,'IX_fermi_chopper')
-    wout.table=set_sampling_table(wout);
-else
-    wout.table=set_sampling_table(class(wout,'IX_fermi_chopper'));
-end
 ok=true;

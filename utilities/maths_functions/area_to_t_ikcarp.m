@@ -1,5 +1,5 @@
-function t_red = area_to_t_ikcarp (area, tauf, taus, R)
-% Inverse function to cumulative integral of a normalised Ikdea-Carpenter function
+function [t_red,t_av] = area_to_t_ikcarp (area, tauf, taus, R)
+% Inverse function to cumulative integral of a normalised Ikeda-Carpenter function
 %
 %   >> x = area_to_t_ikcarp (area, tauf, taus, r)
 %
@@ -12,9 +12,10 @@ function t_red = area_to_t_ikcarp (area, tauf, taus, R)
 %
 % Output:
 % -------
-%   t_red   Array of reduced times t_red = T/(T+T_av) such that area is the integral from 0 to T
-%           of the Ikeda-Carpenter function. T_av is the first momnet of the Ikeda-Carpenter
-%           function: T_av = 3*tauf + R*taus
+%   t_red   Array of reduced times t_red = t/(t+t_av) such that area is the integral from 0 to t
+%           of the Ikeda-Carpenter function. t_av is the first moment of the Ikeda-Carpenter
+%           function
+%   t_av    First moment of the Ikeda-Carpenter function: t_av = 3*tauf + R*taus
 
 % T.G.Perring 2011-07-22
 
@@ -28,12 +29,18 @@ for i=1:numel(area)
     elseif aroot==1
         t_red(i) = 1;
     else
-        t_red(i) = fzero(@func, 0, options);
+        t_red(i) = fzero(@func, 0.5, options);
     end
 end
 
     function y = func(x) % Compute the polynomial.
-		t = t_av*x/(1-x);
-        y = area_ikcarp(t,tauf,taus,R) - aroot;
+        if x<0
+            y = -aroot;
+        elseif x>=1
+            y = 1 - aroot;
+        else
+    		t = t_av*x/(1-x);
+            y = area_ikcarp(t,tauf,taus,R) - aroot;
+        end
     end
 end

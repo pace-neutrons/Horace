@@ -4,17 +4,14 @@ function w=IX_fermi_chopper(varargin)
 %   >> fermi_chopper = IX_fermi_chopper (distance,frequency,radius,curvature,slit_width)
 %
 %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing)
-%
 %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy);
-%
 %   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase);
-%
-%   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase,ntable);
+%   >> fermi_chopper = IX_fermi_chopper (...,slit_spacing,width,height,energy,phase,jitter);
 %
 %   >> fermi_chopper = IX_fermi_chopper (name,...)
 %
 %   name            Name of the slit package (e.g. 'sloppy')
-%   distance        Distance from sample (m) (+ve if upstream of sample)
+%   distance        Distance from sample (m) (+ve if upstream of sample, against the usual convention)
 %   frequency       Frequency of rotation (Hz)
 %   radius          Radius of chopper body (m)
 %   curvature       Radius of curvature of slits (m)
@@ -24,11 +21,10 @@ function w=IX_fermi_chopper(varargin)
 %   height          Height of aperture (m)
 %   energy          Energy of neutrons transmitted by chopper (mev) 
 %   phase           Phase = true if correctly phased, =false if 180 degree rotated
-%   ntable          Number of points in sampling table for Monte Carlo (ntable>=2)
+%   jitter          Timing uncertainty on chopper (FWHH) (microseconds)
 
 % Original author: T.G.Perring
 
-npnt_default=50;
 if nargin==0    % default constructor
     w.name = '';
     w.distance = 0;
@@ -39,10 +35,9 @@ if nargin==0    % default constructor
     w.slit_spacing = 0;
     w.width = 0;
     w.height = 0;
-    w.energy= 0;
+    w.energy = 0;
     w.phase = true;
-    w.ntable = npnt_default;
-    w.table=[];
+    w.jitter = 0;
     
 elseif nargin==1 && isa(varargin{1},'IX_fermi_chopper')   % is a fermi chopper object already
     w = varargin{1};
@@ -90,11 +85,9 @@ else
             w.phase = true;
         end
         if nargin-noff>=11
-            w.ntable = varargin{noff+11};
-            w.table = [];
+            w.jitter = varargin{noff+11};
         else
-            w.ntable = npnt_default;
-            w.table = [];
+            w.jitter = 0;
         end
     else
         error('Check number of input arguments')

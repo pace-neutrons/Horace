@@ -2,7 +2,7 @@ function [C,ok,mess] = textcell (file, max_size_MB)
 % Reads lines of text from an ASCII file into a cell array of strings
 %
 %   >> C = textcell (file)                          % read from named file
-%   >> [C,ok,mess] = textcell (file, max_size_MB)   % full format
+%   >> [C,ok,mess] = textcell (file, max_size_MB)   % specify maximum allowed size (default: 50MB)
 %
 % If only C is returned, then informational or error messages are printed to the screen.
 %
@@ -74,4 +74,3 @@ end
 % Message to screen
 ok=true; mess=[num2str(nline) ' lines read from: ' file];
 if nargout<=1, disp(mess), else return, end
-    

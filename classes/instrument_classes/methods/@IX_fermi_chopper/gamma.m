@@ -1,18 +1,18 @@
 function gam=gamma(fermi,varargin)
 % Calculate the reduced quantity gamma for a Fermi chopper (abs(gamma)<4 for transmission)
 %
-%   >> gam=gamma(fermi)           % gamma for ei in Fermi chopper object
-%   >> gam=gamma(fermi,phase)     % for in-phase (default) or 180 degree rotated phase
-%   >> gam=gamma(fermi,ei)        % for an array of other ei
-%   >> gam=gamma(fermi,ei,phase)
+%   >> gam=gamma(fermi)           % gamma for ei and phase in Fermi chopper object
+%   >> gam=gamma(fermi,phase)     % for specified phase: in-phase (true) or pi-rotated (false)
+%   >> gam=gamma(fermi,ei)        % for an array of specified ei with the phase in fermi
+%   >> gam=gamma(fermi,ei,phase)  % for specified ei and phase
 %
 % Input:
 % -------
 %   fermi   IX_fermi_chopper object
 %   ei      Incident energy (meV) (array or scalar)
 %           If omitted or empty, use the ei value in the IX_fermi_chopper object
-%   phase   if true, correctly phased; if false, 180 degrees out of phase
-%           If omitted, then assume true
+%   phase   If true, correctly phased; if false, 180 degrees out of phase
+%           If omitted, uses phase in the IX_fermi_chopper object
 %
 % Output:
 % -------

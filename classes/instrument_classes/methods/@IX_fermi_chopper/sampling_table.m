@@ -1,22 +1,36 @@
-function table=set_sampling_table(fermi,varargin)
+function table=sampling_table(fermi,varargin)
 % Create lookup table from which to create random sampling of chopper transmission function
 %
-%   >> a=set_sampling_table(fermi)            % sampling_table, default no. points, in-phase 
-%   >> a=set_sampling_table(fermi,phase)      % sampling_table, default no. points, in-phase (true) or 180 degree rotated (false)
-%   >> a=set_sampling_table(fermi,npnt)       % sampling table, given number of points (n>=2)
-%   >> a=set_sampling_table(fermi,npnt,phase)
+%   >> a=sampling_table(fermi)            % sampling_table for ei and phase in Fermi chopper object
+%   >> a=sampling_table(fermi,phase)      % for specified phase: in-phase (true) or pi-rotated (false)
+%   >> a=sampling_table(fermi,npnt)       % table has specified number of points (npnt>=2)
+%   >> a=sampling_table(fermi,npnt,phase)
 %
+% Input:
+% -------
+%   fermi   IX_fermi_chopper object
+%   npnt    Number of points in lookup table.
+%           If omitted, set to 50
+%   phase   If true, correctly phased; if false, 180 degrees out of phase
+%           If omitted, uses phase in the IX_fermi_chopper object
+%
+% Output:
+% -------
+%   a       Look-up table to convert a random number from uniform distribution
+%          in the range 0 to 1 into a time deviation in microseconds.
+
+npnt_default=50;
 
 c_e_to_t=2286.271456507406;         % t(us)=c_e_to_t *distance(m)/sqrt(E(meV))
 if nargin==1
-    npnt=fermi.ntable;
+    npnt=npnt_default;
     phase=fermi.phase;
 elseif nargin==2
     if isnumeric(varargin{1})
         npnt=varargin{1};
         phase=fermi.phase;
     else
-        npnt=fermi.ntable;
+        npnt=npnt_default;
         phase=logical(varargin{1});
     end
 elseif nargin==3

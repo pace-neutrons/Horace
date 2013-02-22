@@ -20,12 +20,12 @@ function det = get_hor_format(par_array,file_name)
 %  par(6,:)   -- detector ID (number) 
 % 
 % The array is projected to Horace structure with fields:
+% det.group <- par(6,:) 
 % det.x2   <-  par(1,:) 
 % det.phi  <-  par(2,:)  
 % det.azim <- -par(3,:)   % Note sign change to get correct convention
 % det.width<-  par(4,:)  
 % det.height<- par(5,:)  
-% det.group <- par(6,:) 
 % [filepath,filename]=fileparts(file_name);
 % det.filename<- filename;
 % det.filepath<- filepath;

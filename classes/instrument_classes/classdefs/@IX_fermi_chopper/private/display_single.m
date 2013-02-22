@@ -10,5 +10,3 @@ disp(' Object of class: IX_fermi_chopper')
 disp(' ')
 
 disp(struct(w))
-
-disp(' ')

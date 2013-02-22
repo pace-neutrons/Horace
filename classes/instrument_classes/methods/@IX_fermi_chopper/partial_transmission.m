@@ -1,11 +1,12 @@
 function f=partial_transmission(fermi,varargin)
 % Calculate partial transmission integrated over [-Inf,t] using ei in Fermi cjopper object
-% If t=Inf, then returns same result as transmission(fermi)
 %
-%   >> a=area(fermi)            % full transmission -Inf to +Inf
-%   >> a=area(fermi,phase)      % full transmission for in-phase (true) or 180 degree rotated (false)
-%   >> a=area(fermi,t)          % partial transmission for an array of times
-%   >> a=area(fermi,t,phase)
+%   >> a=area(fermi)            % full transmission (integral over -Inf to +Inf) with phase in fermi
+%   >> a=area(fermi,phase)      % for specified phase: in-phase (true) or pi-rotated (false)
+%   >> a=area(fermi,t)          % partial transmission for an array of times with phase in fermi
+%   >> a=area(fermi,t,phase)    % partial transmission for an array of times with the specified phase
+%
+% If t=Inf, then returns same result as: transmission(fermi)
 %
 % Input:
 % -------
@@ -13,6 +14,7 @@ function f=partial_transmission(fermi,varargin)
 %   t       time (microseconds) (array or scalar)
 %           If omitted or empty, use t=Inf
 %   phase   if true, correctly phased; if false, 180 degrees out of phase
+%           If omitted, uses phase in the IX_fermi_chopper object
 %
 % Output:
 % -------

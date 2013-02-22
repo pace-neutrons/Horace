@@ -1,17 +1,18 @@
 function f=transmission(fermi,varargin)
 % Calculate transmission of chopper (unit transmission at optimum)
 %
-%   >> dt=transmission(fermi)           % transmission for ei in Fermi chopper object
-%   >> dt=transmission(fermi,phase)     % transmission for in-phase (default) or 180 degree rotated phase
-%   >> dt=transmission(fermi,ei)        % for an array of other ei
-%   >> dt=transmission(fermi,ei,phase)
+%   >> dt=transmission(fermi)           % transmission for ei and phase in Fermi chopper object
+%   >> dt=transmission(fermi,phase)     % for specified phase: in-phase (true) or pi-rotated (false)
+%   >> dt=transmission(fermi,ei)        % for an array of specified ei
+%   >> dt=transmission(fermi,ei,phase)  % for specified ei and phase
 %
 % Input:
 % -------
 %   fermi   IX_fermi_chopper object
 %   ei      Incident energy (meV) (array or scalar)
 %           If omitted or empty, use the ei value in the IX_fermi_chopper object
-%   phase   if true, correctly phased; if false, 180 degrees out of phase
+%   phase   If true, correctly phased; if false, 180 degrees out of phase
+%           If omitted, uses phase in the IX_fermi_chopper object
 %
 % Output:
 % -------
