@@ -192,8 +192,9 @@ disp('--------------------------------------------------------------------------
 disp('Creating intermediate .tmp file(s):')
 for i=1:nfile
     data=fake_spe(ndet,en{i},psi(i));
-    calc_and_write_sqw(tmp_file{i}, efix(i), emode, alatt, angdeg, u, v, psi(i)*(pi/180),...
+    w=calc_sqw(efix(i), emode, alatt, angdeg, u, v, psi(i)*(pi/180),...
         omega(i)*(pi/180), dpsi(i)*(pi/180), gl(i)*(pi/180), gs(i)*(pi/180), data, det, det, grid_size, urange);
+    save(w,tmp_file{i})
 end
 
 

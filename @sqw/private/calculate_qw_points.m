@@ -76,9 +76,9 @@ dax=win.data.dax;
 
 
 % Get matrix to convert projection axes to spectrometer axes:
-[spec_to_proj, u_to_rlu] = calc_proj_matrix (win.header.alatt, win.header.angdeg, win.header.cu, win.header.cv,...
+[spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (win.header.alatt, win.header.angdeg, win.header.cu, win.header.cv,...
     win.header.psi, win.header.omega, win.header.dpsi, win.header.gl, win.header.gs);
-rlu_to_spec=inv(u_to_rlu*spec_to_proj);
+rlu_to_spec=inv(u_to_rlu*spec_to_u);
 M=rlu_to_spec*u(1:3,1:3);   % convert projection axes to spectrometer axes
 
 

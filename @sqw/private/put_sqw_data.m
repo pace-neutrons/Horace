@@ -15,19 +15,22 @@ function [mess,position,npixtot,type] = put_sqw_data (fid, data, opt, infiles, n
 %                       type 'a'    fields: uoffset,...,dax,s,e,npix,urange,pix
 %               In addition, will take the data structure of type 'a' without the individual pixel information ('a-')
 %                       type 'a-'   fields: uoffset,...,dax,s,e,npix,urange
-%               Lastly, the information as read with '-h' option in get_sqw is valid
+%               Lastly, the information as read with '-h' or '-hverbatim' option in get_sqw is valid input,
 %                       type 'h'    fields: uoffset,...,dax
 %
 %   opt         [optional argument for type 'a' or type 'a-'] Determines whether or not to write pixel info, and
 %               from which source:
-%                 -'-nopix'  do not write the info for individual pixels
-%                 -'-pix'    write pixel information
-%               The default source of pixel information is the data structure, but if the optional arguments below
-%               are given, then use the corresponding source of pixel information
-%                 - structure with fields:
+%                  '-nopix'  Do not write the information for individual pixels
+%                  '-pix'    Write pixel information
+%               The default source of pixel information is the data structure, but if the 
+%              optional arguments below are given, then use them to give the corresponding source
+%              of pixel information if option '-pix' has been specified.
+%               In particular, note that '-pix' with data type 'a-' is permitted if the following
+%              arguments are provided.
 %
+% [All or none of the optional arguments below must be present]
 %   infiles     Cell array of file names, or array of file identifiers of open file, from
-%                                   which to accumulate the pixel information
+%              which to accumulate the pixel information
 %   npixstart   Position (in bytes) from start of file of the start of the field npix
 %   pixstart    Position (in bytes) from start of file of the start of the field pix
 %   run_label   Indicates how to re-label the run index (pix(5,...) 
@@ -47,6 +50,7 @@ function [mess,position,npixtot,type] = put_sqw_data (fid, data, opt, infiles, n
 %                   position.s      position of array s
 %                   position.e      position of array e
 %                   position.npix   position of array npix (=[] if npix not written)
+%                   position.urange position of array urange (=[] if urange not written)
 %                   position.pix    position of array pix (=[] if pix not written)
 %   npixtot     Total number of pixels written to file (=[] if pix not written)
 %   type        Type of sqw data written to file: 'a', 'a-', 'b+' or 'b'
@@ -106,21 +110,15 @@ function [mess,position,npixtot,type] = put_sqw_data (fid, data, opt, infiles, n
 % contributing sqw files, as is recorded in the corresponding header block (see put_sqw_header).
 % The arguments u_to_rlu, ulen, ulabel refer to the projection axes used for the plot and integration
 % axes, and give the units in which the bin boundaries p are expressed.
+%
 %   The reason why we keep the coordinate frames separate is that in succesive cuts from sqw data
 % structures we are constantly recomputing the coordinates of pixels in the plot/integration projection
 % axes. We therefore do not want to allow rouding errors to accumulate, and so retain the original
 % data points in their original coordinate frame.
 %
 %   It is assumed that the data corresponds to a valid type (i.e. that any use with implementation of sqw as
-%   a proper object has already checked the consistency of the fields)
-%
-%
-%
-% Comparison with Horace v1
-% -------------------------
-% - uoffset is identical to p0 in Horace v.1; renamed to avoid confusion
-% - iint is identical to uint in Horace v.1; renamed to avoid confusion
-% - plot axes bin boundaries now a cell array
+% a proper object has already checked the consistency of the fields)
+
 
 % Original author: T.G.Perring
 %
@@ -141,7 +139,11 @@ end
 % Determine type of structure and write options
 type_in = data_type(data);
 type = type_in;
-if strcmpi(type_in,'b')||strcmpi(type_in,'b+')
+if strcmpi(type_in,'h')
+    if exist('opt','var')
+        disp('WARNING: options specified in put_sqw_data ignored for this sqw type')
+    end
+elseif strcmpi(type_in,'b')||strcmpi(type_in,'b+')
     if exist('opt','var')
         disp('WARNING: options specified in put_sqw_data ignored for this sqw type')
     end
@@ -186,7 +188,7 @@ elseif strcmpi(type_in,'a-')
         mess = 'Unrecognised option';
         return
     end
-elseif ~strcmpi(type_in,'h')
+else
     error('logic error in put_sqw_data')
 end
 
@@ -237,6 +239,7 @@ end
 position.s=[];
 position.e=[];
 position.npix=[];
+position.urange=[];
 position.pix=[];
 npixtot=[];
 
@@ -261,6 +264,7 @@ end
 
 if strcmpi(type_in,'a')||strcmpi(type_in,'a-')
     % Write urange
+    position.urange=ftell(fid);
     fwrite(fid,data.urange,'float32');
     % Write pix if requested
     if pix_from_struct
@@ -269,14 +273,16 @@ if strcmpi(type_in,'a')||strcmpi(type_in,'a-')
         fwrite(fid,npixtot,'int64');    % make int64 so that can deal with huge numbers of pixels
         position.pix=ftell(fid);
         type='a';
-        % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
-        % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
-        % could have no pixels because none contributed to the given data range.
-        block_size=1000000;
-        for ipix=1:block_size:npixtot
-            istart = ipix;
-            iend   = min(ipix+block_size-1,npixtot);
-            fwrite(fid,data.pix(:,istart:iend),'float32');
+        if npixtot>0
+            % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
+            % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
+            % could have no pixels because none contributed to the given data range.
+            block_size=1000000;
+            for ipix=1:block_size:npixtot
+                istart = ipix;
+                iend   = min(ipix+block_size-1,npixtot);
+                fwrite(fid,data.pix(:,istart:iend),'float32');
+            end
         end
     elseif pix_from_file
         fwrite(fid,1,'int32');              % redundant field - only present for backwards compatibility
@@ -285,7 +291,9 @@ if strcmpi(type_in,'a')||strcmpi(type_in,'a-')
         fwrite(fid,npixtot,'int64');        % make int64 so that can deal with huge numbers of pixels
         position.pix=ftell(fid);
         type='a';
-        mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
+        if npixtot>0
+            mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
+        end
     else
         type='a-';
     end

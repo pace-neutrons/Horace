@@ -5,9 +5,10 @@ function write_nsqw_to_sqw (varargin)
 %   >> write_nsqw_to_sqw (infiles, outfile)
 %
 % Input:
+% ------
 %   infiles         Cell array or character array of file name(s) of input file(s)
 %   outfile         Full name of output file
-%
+
 
 % Original author: T.G.Perring
 %

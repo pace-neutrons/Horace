@@ -1,34 +1,48 @@
 function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-                                                u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+    u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
 % Normal use:
-%   >> gen_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%                                               u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+%   >> gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%                                               u, v, psi, omega, dpsi, gl, gs)
+%  optionally, in addition:
+%   >> gen_sqw (..., grid_size_in, urange_in)   % grid size and range of data to retain
+%   >> gen_sqw (..., instrument, sample)        % instrument and sample information
+%   >> gen_sqw (..., grid_size_in, urange_in, instrument, sample)
+%
+%
 % If want output diagnostics:
-%   >> [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%   >> [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                               u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
-
+%
 % Input: (in the following, nfile = no. spe files)
+% ------
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   spe_file        Full file name of spe file - character string or cell array of
 %                   character strings for more than one file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
 %   sqw_file        Full file name of output sqw file
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
-%   emode           Direct geometry=1, indirect geometry=2    [scalar]
+%   emode           Direct geometry=1, indirect geometry=2, elastic=0    [scalar]
 %   alatt           Lattice parameters (Ang^-1)        [row or column vector]
 %   angdeg          Lattice angles (deg)               [row or column vector]
-%   u                  First vector (1x3) defining scattering plane (r.l.u.)
-%   v                  Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi                Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
+%   u               First vector (1x3) defining scattering plane (r.l.u.)
+%   v               Second vector (1x3) defining scattering plane (r.l.u.)
+%   psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
 %   omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
-%   dpsi              Correction to psi (deg)            [scalar or vector length nfile]
-%   gl                  Large goniometer arc angle (deg)   [scalar or vector length nfile]
-%   gs                Small goniometer arc angle (deg)   [scalar or vector length nfile]
-%   grid_size_in    [Optional] Scalar or row vector of grid dimensions. Default is [50,50,50,50]
-%   urange_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
-%                                       that encloses the whole data range.
+%   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
+%   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
+%   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+%
+% Optional arguments:
+%   grid_size_in    [Optional] Scalar or row vector of grid dimensions
+%                   Default if not given or [] is is [50,50,50,50]
+%   urange_in       [Optional] Range of data grid for output as a 2x4 matrix:
+%                              [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
+%                   Default if not given or [] is the smallest hypercuboid that encloses the whole data range.
+%   instrument      Structure or object containing instrument information [scalar or array length nfile]
+%   sample          Structure or object containing sample geometry information [scalar or array length nfile]
+%
 %
 % Output:
 % --------
@@ -40,111 +54,120 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 % T.G.Perring  14 August 2007
 
 
+% *** Possilbe improvements
+% - Cleverer choice of grid size on the basis of number of data points in the file
+
+
+% Check input arguments
+% ---------------------
 % Check that the first argument is sqw object
-% -------------------------------------------
-if ~isa(dummy,classname)    % classname is a private method 
+if ~isa(dummy,classname)    % classname is a private method
     error('Check type of input arguments')
 end
 
-% Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
-% --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=15 && nargin<=17)
-    error('Check number of input arguments')
+% Check file names
+check_spe_exist=true;
+check_spe_unique=true;
+check_sqw_exist=false;
+[spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] =...
+    gen_sqw_check_files (spe_file, par_file, sqw_file, check_spe_exist, check_spe_unique, check_sqw_exist);
+nfiles=numel(spe_file);
+
+% Check numeric parameters
+[efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params (nfiles,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+
+% Check optional arguments
+if nfiles==1
+    grid_default=[1,1,1,1];     % for a single spe file, don't sort
+else 
+    grid_default=[50,50,50,50]; % multiple spe files, 50^4 grid
 end
-
-% check if urange is given
-urange_given=false;
-if exist('urange_in','var')
-   if ~(isnumeric(urange_in) && length(size(urange_in))==2 && all(size(urange_in)==[2,4]) && all(urange_in(2,:)-urange_in(1,:)>=0))
-            error('urange must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper')
-   end
-   urange = urange_in;
-   urange_given=true;
-end
-
-% Set default grid size if none given
-if ~exist('grid_size_in','var')
-    disp('--------------------------------------------------------------------------------')
-    disp('Using default grid size of 50x50x50x50 for output sqw file')
-    grid_size_in=[50,50,50,50];
-elseif ~(isnumeric(grid_size_in)&&(isscalar(grid_size_in)||(isvector(grid_size_in)&&all(size(grid_size_in)==[1,4]))))
-   error ('Grid size must be scalar or row vector length 4')
-end     
+instrument_default=struct;  % default 1x1 struct
+sample_default=struct;      % default 1x1 struct
+[grid_size_in,urange_in,instrument,sample]=gen_sqw_check_optional_args(nfiles,grid_default,instrument_default,sample_default,varargin{:});
 
 
-%-------------------------------------------->
-if is_herbert_used() % =============================> rundata files processing
-    % this is function -- adapter as everything below runs from runfiles;
-    run_files = gen_runfiles(spe_file, par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs);
+% Create temporary sqw files, and combine into one (if more than one input file)
+% -------------------------------------------------------------------------------
+% Branch depending if use Herbert rundata class, or original libisis processing
+
+if is_herbert_used()    % =============================> rundata class processing
+    % Create fully fledged single crystal rundata objects
+    run_files = gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+
     % If no input data range provided, calculate it from the files
-    if ~urange_given
-        urange = rundata_find_urange(dummy,run_files,emode,u,v);        
-    end    
+    if isempty(urange_in)
+        urange_in = rundata_find_urange(run_files);
+    end
     
-    nfiles = numel(run_files);
     tmp_file = cell(1,nfiles);
     if nfiles ==1
+        % Create sqw file in one step: no need to create an intermediate file as just one input spe file
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
-        [grid_size,urange] = rundata_write_to_sqw (dummy,run_files{1},sqw_file,emode,u,v, grid_size_in, urange);
+        [grid_size,urange] = rundata_write_to_sqw (run_files{1},sqw_file,grid_size_in,urange_in,instrument(1),sample(1));
+        
     else
+        % Create temporary sqw files, one for each of the spe files
         nt=bigtic();
         tmp_sqw_path = fileparts(sqw_file);
-        tmp_sqw_ext = get(hor_config,'sqw_ext');
+        tmp_sqw_ext = '.tmp';
         for i=1:nfiles
             disp('--------------------------------------------------------------------------------')
             disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
             [source_path,source_name]=get_source_fname(run_files{i});
             tmp_file{i}=fullfile(tmp_sqw_path,[source_name,tmp_sqw_ext]);
-            [grid_size_tmp,urange] = rundata_write_to_sqw (dummy,run_files{i},tmp_file{i},emode,u,v,grid_size_in, urange);
+            [grid_size_tmp,urange_tmp] = rundata_write_to_sqw (run_files{i},tmp_file{i},grid_size_in,urange_in,instrument(i),sample(i));
             if i==1
                 grid_size = grid_size_tmp;
+                urange = urange_tmp;
             else
-                if ~all(grid_size==grid_size_tmp)
-                    error('Logic error in code calling write_spe_to_sqw')
+                if ~all(grid_size==grid_size_tmp) || ~all(urange==urange_tmp)
+                    error('Logic error in code calling rundata_write_to_sqw')
                 end
             end
-        end        
-        bigtoc(nt);
+        end
+        bigtoc(nt,'Time to create all temporary sqw files:');
+        
         % Create single sqw file combining all intermediate sqw files
-        % ------------------------------------------------------------
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
         write_nsqw_to_sqw (tmp_file, sqw_file);
-
-        disp('--------------------------------------------------------------------------------')        
+        
+        disp('--------------------------------------------------------------------------------')
     end
-else   % =============================> spe/par file processing
-
+    
+else   % =============================> Libisis spe/par file processing
+    
     % Check input arguments
     % ------------------------
     [efix,psi,omega,dpsi,gl,gs]=gensqw_check_input_arg( dummy,spe_file, par_file, sqw_file, efix,...
-                                                            psi, omega, dpsi, gl, gs);
-
-    % generate the list of input data classess  
+        psi, omega, dpsi, gl, gs);
+    
+    % generate the list of input data classess
     [spe_data,tmp_file] = gensqw_build_input_datafiles(dummy,spe_file,sqw_file);
-
-
-% If no input data range provided, calculate it from the files
-    if ~urange_given
+    
+    
+    % If no input data range provided, calculate it from the files
+    if isempty(urange)
         urange = gensqw_find_urange(dummy,spe_data,par_file,...
-                 efix,emode,alatt, angdeg,u,v, psi,omega, dpsi, gl, gs);    
-    end    
-
+            efix,emode,alatt, angdeg,u,v, psi,omega, dpsi, gl, gs);
+    end
+    
     nfiles = numel(spe_data);
     if nfiles==1
         tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
         grid_size = write_spe_to_sqw (spe_data{1}, par_file, sqw_file, efix(1), emode, alatt, angdeg,...
-                                  u, v, psi(1), omega(1), dpsi(1), gl(1), gs(1), grid_size_in, urange);
+            u, v, psi(1), omega(1), dpsi(1), gl(1), gs(1), grid_size_in, urange);
     else
-    % write tmp file and combine them into single sqw file;
-    grid_size = gensqw_write_all_tmp(spe_data,par_file,tmp_file,efix,emode,alatt,angdeg,...
-                                 u, v, psi, omega, dpsi, gl, gs,...
-                                 grid_size_in, urange);
-    
-
+        % write tmp file and combine them into single sqw file;
+        grid_size = gensqw_write_all_tmp(spe_data,par_file,tmp_file,efix,emode,alatt,angdeg,...
+            u, v, psi, omega, dpsi, gl, gs,...
+            grid_size_in, urange);
+        
+        
         % Create single sqw file combining all intermediate sqw files
         % ------------------------------------------------------------
         disp('--------------------------------------------------------------------------------')
@@ -152,9 +175,11 @@ else   % =============================> spe/par file processing
         write_nsqw_to_sqw (tmp_file, sqw_file);
         disp('--------------------------------------------------------------------------------')
     end
-end  % =============================> spe/par file processing
+end
+
 
 % Delete temporary files if requested
+% -----------------------------------
 if get(hor_config,'delete_tmp')
     if ~isempty(tmp_file)   % will be empty if only one spe file
         delete_error=false;
@@ -173,6 +198,7 @@ end
 
 
 % Clear output arguments if nargout==0 to have a silent return
+% ------------------------------------------------------------
 if nargout==0
     clear tmp_file grid_size urange
 end
