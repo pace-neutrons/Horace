@@ -54,7 +54,7 @@ if is_herbert_used()
     else
         error('WriteSpe2Sqw:InvalidArgument','Herbert IO do not understands speData yet');
     end
-    run_file = gen_runfiles(spe_file,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs); 
+    run_file = gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs); 
     if numel(run_file)~=1
         error('Must only have one input data file');
     end
@@ -103,6 +103,6 @@ else
     [data,det,keep,det0]=get_data(spe_data, par_file);
 
 end
-%
-[grid_size, urange]=calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
-                                                      omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);
+
+w=calc_sqw(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);
+save(w,sqw_file);

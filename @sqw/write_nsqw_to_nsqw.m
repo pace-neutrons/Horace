@@ -6,6 +6,7 @@ function [grid_size, urange] = write_nsqw_to_nsqw (dummy, infiles, outfiles, gri
 %   >> [grid_size, urange] = write_nsqw_to_nsqw (dummy, infiles, outfiles, grid_size_in)
 %
 % Input:
+% ------
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   infiles         Cell array or character array of file name(s) of input file(s)
 %   outfiles        Cell array or character array of full name(s) of output file(s)
@@ -15,6 +16,7 @@ function [grid_size, urange] = write_nsqw_to_nsqw (dummy, infiles, outfiles, gri
 %                  that encloses the whole data range.
 %
 % Ouput:
+% ------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
@@ -87,7 +89,7 @@ datahdr=cell(nfiles,1);
 pos_datastart=zeros(nfiles,1);
 
 for i=1:nfiles
-    [main_header{i},header{i},det_tmp,datahdr{i},mess,position,npixtot,type,current_format] = get_sqw (infiles{i},'-h');
+    [main_header{i},header{i},det_tmp,datahdr{i},mess,position,npixtot,type,current_format,format_flag] = get_sqw (infiles{i},'-h');
     if ~current_format; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
     if ~strcmpi(type,'a'); error(['No pixel information in ',infiles{i}]); end
@@ -145,8 +147,10 @@ if isempty(urange_in)   % urange not given, so set from data
     for i=2:nfiles
         urange=[min(urange(1,:),datahdr{i}.urange(1,:));max(urange(2,:),datahdr{i}.urange(2,:))];
     end
-else
+elseif size(urange_in,2)==4
     urange=urange_in;
+else
+    error('Check size of optional argument urange')
 end
 
 % Read in the data, sort, and write the newly ordered sqw file to disk
@@ -160,14 +164,14 @@ for i=1:nfiles
     if fid<0; error(['Unable to open input file: ',mess]); end
     status=fseek(fid,pos_datastart(i),'bof');   % Move directly to location of start of data block
     if status<0; fclose(fid); error(['Error getting to data block in file ',infiles{i}]); end
-    [data,mess] = get_sqw_data(fid);
+    [data,mess] = get_sqw_data(fid,format_flag,type);
     if ~isempty(mess); fclose(fid); error(['Error reading data block in file ',infiles{i}]); end
     fclose(fid);
     
     % sort pixels and create output data structure
     disp('  Sorting pixels ...')
 try
-    [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);    
+    [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange);    
 %   sets this fields in-place: [sqw_data.pix,sqw_data.s,sqw_data.e,sqw_data.npix]=bin_pixels_c(sqw_data,urange,grid_size);
 %  ************** !!! DANGEROUS !!! ***********************************
 %   bin_pixels_c modifies data in-place saving memory but

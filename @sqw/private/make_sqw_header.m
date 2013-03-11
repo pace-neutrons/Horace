@@ -32,6 +32,8 @@ function data = make_sqw_header
 %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
 %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+%   data.instrument Instrument information - free format
+%   data.sample     Sample information - free format
 
 % Original author: T.G.Perring
 %

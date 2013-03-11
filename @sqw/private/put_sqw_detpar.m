@@ -4,10 +4,12 @@ function mess = put_sqw_detpar (fid, det)
 %   >> mess = put_sqw_detpar (fid, par)
 %
 % Input:
+% ------
 %   fid             File identifier of output file (opened for binary writing)
 %   data            Data structure which must contain (at least) the fields listed below
 %
 % Output:
+% -------
 %   mess            Message if there was a problem writing; otherwise mess=''
 %
 %
@@ -29,6 +31,7 @@ function mess = put_sqw_detpar (fid, det)
 % moment assume that the detectors are the same for all .spe files that are
 % written to the binary file. We may want to introduce a unique detector group
 % for the general case.
+
 
 % Original author: T.G.Perring
 %

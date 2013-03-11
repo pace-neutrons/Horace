@@ -1,26 +1,17 @@
 function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
-% Read the data block from an sqw file.
-% The file pointer is left at the end of the data block.
+% Read the data block from an sqw file. The file pointer is left at the end of the data block.
 %
-% Syntax:
 %   >> [data, mess] = get_sqw_data(fid)
 %   >> [data, mess] = get_sqw_data(fid, opt)
 %   >> [data, mess] = get_sqw_data(fid, npix_lo, npix_hi)
 %
-% To any of the above: to read original prototype format file
-%   >> [data, mess] = get_sqw_data(..., '-prototype')
+% To the above, you *must* append the file format and expected data type (can be '' to autodetect):
+%   >> [data, mess] = get_sqw_data(..., format_flag, data_type)
 %
-%   * The fields filename, filepath, title, alatt, and angdeg are not stored in this prototype format,
-%     Fields filename and filepath are constructed in this routine, but title, alatt and angdeg are
-%     just given dummy values which must be filled from the main_header and header information.
-%
-%   * This option is not compatible with files of type 'b', because the npix information is needed to convert
-%     the signal and error in each bin into the new format by normalising by number of pixels in each bin.
 %
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
-%   data_in     [optional] Data structure to which the data fields below will be added or overwrite.
 %   opt         [optional] Determines which fields to read
 %                   '-h'     header-type information only: fields read: 
 %                               filename, filepath, title, alatt, angdeg,...
@@ -33,26 +24,49 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %                                  data is written back to the file with a few altered fields.
 %                   '-nopix' Pixel information not read (only meaningful for sqw data type 'a')
 %
-%                    Default: read all fields of the corresponding sqw data type ('b','b+','a','a-')
+%               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
-%   npix_lo     -|- [optional] pixel number range to be read from the file 
+%   npix_lo     -|- [optional] pixel number range to be read from the file (only applies to type 'a')
 %   npix_hi     -|
+%
+% format_flag   Format of file (character string)
+%                   Current formats:  '-v2', '-v2.1'
+%                   Obsolete formats: '-prototype'
+%
+%   data_type   Content type of that file: must be one of the permitted data structures (character string):
+%               This is required for format_flag '-v2.1'
+%               	'b'    fields: filename,...,dax,s,e
+%                   'b+'   fields: filename,...,dax,s,e,npix
+%                   'a'    fields: filename,...,dax,s,e,npix,urange,pix
+%                   'a-'   fields: filename,...,dax,s,e,npix,urange
+%
+%               For formats '-v2' and '-prototype', the contents of data type is auto-detected and
+%              the value of data_type is ignored. For clarity, you can set to the empty string
+%                   ''     auto-detect the fields in the file.
+%   
 %
 % Output:
 % -------
-%   data        Output data structure which must contain the fields listed below 
+%   data        Output data structure actually read. Must be one of:
 %                       type 'b'    fields: filename,...,dax,s,e
 %                       type 'b+'   fields: filename,...,dax,s,e,npix
 %                       type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
 %                       type 'a-'   fields: filename,...,dax,s,e,npix,urange
 %               or header information   
+%
 %   mess        Error message; blank if no errors, non-blank otherwise
+%
 %   position    Position (in bytes from start of file) of large fields:
+%              These field are correctly filled even if the header only has been requested, that is,
+%              if input option '-h' or '-hverbatim' was given
 %                   position.s      position of array s
 %                   position.e      position of array e
 %                   position.npix   position of array npix (=[] if npix not present)
+%                   position.urange position of array urange (=[] if urange not written)
 %                   position.pix    position of array pix (=[] if pix not present)
+%
 %   npixtot     Total number of pixels written to file (=[] if pix not present)
+%
 %   type        Type of sqw data written to file: 
 %               Valid sqw data structure, which will contain the fields listed below 
 %                       type 'b'    fields: filename,...,dax,s,e
@@ -111,47 +125,78 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %                   err         Error array (variance i.e. error bar squared)
 %
 %
-% Notes:
-% ------
-%   It is assumed that the file corresponds to a valid type (i.e. that any use with implementation of sqw as
-%   a proper object has already checked the consistency of the fields).
+% NOTES:
+% ======
+% Supported file Formats
+% ----------------------
+% The current sqw file format comes in two variants:
+%   - version 1 and version 2
+%      (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
+%       This format is the one still written if these fields are empty in the sqw object (or result of a
+%       cut on an sqw file assembled only to a file - see below).
+%   - version 2.1
+%       (February 2013 onwards.) Writes optional instrument and sample fields in the header block, and
+%      positions of the start of major data blocks in the sqw file. Finally, finishes with the positon
+%      of the position data block and the end of the data block as the last two 8 byte entries.
+%
+% Additionally, this routine will read the prototype sqw file format:
+%       (July 2007(?) - Autumn 2008). Almost the same format, except that data saved as type 'b' is
+%       uninterpretable by Horace because the npix information that is needed to normalise the
+%       signal and error in each bin is not stored.
+
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
+
+% Initialise output arguments
 data=[];
-position=[];
+position = struct('s',[],'e',[],'npix',[],'urange',[],'pix',[]);
 npixtot=[];
 type='';
 
-% Determine if asked to read prototype format
-if nargin>2 && ischar(varargin{end}) && strcmpi(varargin{end},'-prototype')
-    prototype=true;
-    nargs=numel(varargin)-1;
-    args=varargin(1:end-1);
-else
-    prototype=false;
-    nargs=numel(varargin);
-    args=varargin;
-end
+% Check format flag and data type
+valid_formats={'-v2.1','-v2','-prototype'};
+valid_types={'b','b+','a-','a',''};
 
-% Parse input
-if nargs==1 && ischar(args{1})
-    opt = args{1};
-elseif nargs==2 && isnumeric(args{1}) && isnumeric(args{2}) && isscalar(args{1}) && isscalar(args{2})
-    npix_lo=args{1};
-    npix_hi=args{2};
-elseif nargs>0
-    mess = 'Check the type of input argument(s)';
+if nargin>=2 && ischar(varargin{end-1}) && ischar(varargin{end})
+    format_flag=lower(strtrim(varargin{end-1}));
+    data_type=lower(strtrim(varargin{end}));
+    iform=find(strcmpi(format_flag,valid_formats),1);
+    itype=find(strcmpi(data_type,valid_types),1);
+    if ~isempty(iform) && ~isempty(itype)
+        if strcmp(format_flag,'-v2.1') && ~isempty(data_type)
+            autodetect=false;
+            prototype=false;
+        elseif strcmp(format_flag,'-v2')
+            autodetect=true;
+            prototype=false;
+        elseif strcmp(format_flag,'-prototype')
+            autodetect=true;
+            prototype=true;
+        else
+            mess='Check the validity of the combination of data format flag and data type';
+            return
+        end
+        nargs=numel(varargin)-2;
+        args=varargin(1:end-2);
+    else
+        mess='Check the validity of the data format flag and data type';
+        return
+    end
+else
+    mess='Check the number and type of input arguments';
     return
 end
 
-% check opt argument
+% Parse optional input arguments
 header_only=false;
 hverbatim=false;
 nopix=false;
-if exist('opt','var')
+
+if nargs==1 && ischar(args{1})
+    opt = args{1};
     if strcmpi(opt,'-h')
         header_only=true;
     elseif strcmpi(opt,'-hverbatim')
@@ -160,19 +205,27 @@ if exist('opt','var')
     elseif strcmpi(opt,'-nopix')
         nopix=true;
     else
-        mess = 'invalid option';
+        mess = 'Invalid option';
         return
     end
-elseif exist('npix_lo','var')
+elseif nargs==2 && isnumeric(args{1}) && isnumeric(args{2}) && isscalar(args{1}) && isscalar(args{2})
+    npix_lo=args{1};
+    npix_hi=args{2};
     if npix_lo<1 || npix_hi<npix_lo
-        mess = 'pixel range must have 1 <= npix_lo <= npix_hi';
+        mess = 'Pixel range must have 1 <= npix_lo <= npix_hi';
         return
     end
+elseif nargs>0
+    mess = 'Check the type of input argument(s)';
+    return
 end
 
 
+% --------------------------------------------------------------------------
 % Read data
-% --------------
+% --------------------------------------------------------------------------
+% This first set of fields are required for all output options
+% ------------------------------------------------------------
 if ~prototype
     [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
     [dummy_filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
@@ -198,7 +251,7 @@ if ~prototype
     [data.angdeg, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
     
 else
-    % Get file name and path (incl. final separator)
+    % Get file name and path (incl. final separator) and put empty information in fields not in the file
     [path,name,ext]=fileparts(fopen(fid));
     data.filename=[name,ext];
     data.filepath=[path,filesep];
@@ -246,7 +299,8 @@ else
 end
 
 
-% Read the bin data if required
+% Read the signal and error data if required
+% ------------------------------------------
 position.s=ftell(fid);
 if ~header_only 
     [data.s,count,ok,mess] = fread_catch(fid,prod(psize),'float32'); if ~all(ok); return; end;
@@ -264,15 +318,14 @@ else
 end
 
 
+% Read npix, urange, pix according to options and file contents
+% -------------------------------------------------------------
 % All of the above fields will be present in a valid sqw file. The following need not exist, but to be a valid sqw file,
 % for any one field to be present all earlier fields must have been written. 
-position.npix=[];
-position.pix=[];
-npixtot=[];
 
-% Determine if any more data to read
 
-if fnothingleft(fid)    % reached end of file - can only be because has type 'b'
+% Determine if type 'b' or there are more fields in the data block
+if strcmp(data_type,'b') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b' (autodetect) or 
     type='b';
     if prototype && ~header_only
         mess = 'File does not contain number of pixels for each bin - uable to convert old format data';
@@ -289,17 +342,22 @@ else
     end
 end
 
-if fnothingleft(fid)    % reached end of file - can only be because has type 'b+'
+
+% Determine if type 'b+' or there are more fields in the data block
+if strcmp(data_type,'b+') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b+'
     type='b+';
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
     return
 else
+    position.urange=ftell(fid);
     [data.urange,count,ok,mess] = fread_catch(fid,[2,4],'float32'); if ~all(ok); return; end;
 end
 
-if fnothingleft(fid)    % reached end of file - can only be because has type 'a-'
+
+% Determine if type 'a-' or there are more fields in the data block
+if strcmp(data_type,'a-') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'a-'
     type='a-';
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
@@ -321,7 +379,7 @@ else
                 status=fseek(fid,4*(9*(npix_lo-1)),'cof');
                 [data.pix,count,ok,mess] = fread_catch(fid,[9,npix_hi-npix_lo+1],'float32'); if ~all(ok); return; end;
             else
-                mess=['Selected pixel range must lie inside 1 - ',num2str(npixtot)];
+                mess=['Selected pixel range must lie inside or on the boundaries of 1 - ',num2str(npixtot)];
                 return
             end
         end

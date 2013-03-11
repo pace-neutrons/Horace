@@ -82,7 +82,10 @@ end
 try
 %    error(' use matlab');
    % verify the grid consistency and build axis along the grid dimensions, c-program does not check the grid consistency;
-    [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange,4);
+   if size(urange,2)~=4
+       error('Check size of urange - added by TGP who removed 3rd argument nd to construct_grid_size')
+   end
+    [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange);
     mem = horace_memory();
 %    nThreads=mem.threads; % picked up by bin_pixels_c directly;  
     nThreads=mem.threads; % picked up by bin_pixels_c directly;

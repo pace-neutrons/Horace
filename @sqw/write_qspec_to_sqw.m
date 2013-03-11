@@ -84,10 +84,11 @@ else
     error(['File does not exist: ',qspec_file])
 end
 
+% Calculate sqw object and save to file
 efix=0;
 emode=0;
-[grid_size, urange]=calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
-                                                 omega, dpsi, gl, gs, data, det, det, grid_size_in, urange_in);
+w=calc_sqw(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, det, grid_size_in, urange_in);
+save(w,sqw_file);
 
 %-------------------------------------------------------------------------------------
 function grid_size=make_grid_size(npnt,is_elastic)

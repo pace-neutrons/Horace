@@ -1,10 +1,10 @@
 function mess = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pixstart, npix_cumsum, run_label)
 % Write pixel information to file, reading that pixel information from a collection of other files
 %
-% Syntax:
 %   >> mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart)
 %
 % Input:
+% ------
 %   fout            File identifier of output file (opened for binary writing)
 %   infiles         Cell array of file names, or array of file identifiers of open files, from
 %                  which to accumulate the pixel information
@@ -21,6 +21,7 @@ function mess = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pi
 %                       e.g. as when temporary files have been written during cut_sqw
 %
 % Output:
+% -------
 %   mess            Message if there was a problem writing; otherwise mess=''
 %
 % Notes:

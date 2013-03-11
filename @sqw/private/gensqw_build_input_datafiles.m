@@ -13,7 +13,7 @@ spe_data = cell(size(spe_file));
 nfiles   = numel(spe_file);
 
 sqw_path=fileparts(sqw_file);
-wk_ext  = get(hor_config,'sqw_ext');
+wk_ext  = '.tmp';
 for i=1:nfiles
  % build spe data structure on the basis of spe or hdf files 
     spe_data{i}=speData(spe_file{i});% The files can be found by its name. 

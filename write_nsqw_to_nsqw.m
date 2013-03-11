@@ -6,6 +6,7 @@ function [grid_size, urange] = write_nsqw_to_nsqw (varargin)
 %   >> [grid_size, urange] = write_nsqw_to_nsqw (infiles, outfiles, grid_size_in)
 %
 % Input:
+% ------
 %   infiles         Cell array or character array of file name(s) of input file(s)
 %   outfiles        Cell array or character array of full name(s) of output file(s)
 %   grid_size_in    [Optional] Scalar or row vector of grid dimensions.
@@ -14,10 +15,11 @@ function [grid_size, urange] = write_nsqw_to_nsqw (varargin)
 %                  that encloses the whole data range.
 %
 % Ouput:
+% ------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
-%
+
 
 % Original author: T.G.Perring
 %
