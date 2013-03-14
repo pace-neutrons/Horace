@@ -163,14 +163,35 @@ tmp=(inv(win.data.u_to_rlu(1:3,1:3))) * tmp;
 uoff_arr=repmat(win.data.uoffset(1:3),1,numel(coords)/3);
 coords_cut=tmp+uoff_arr;
 
+%Extra line required here to include energy in coords_cut (needed below):
+epix=win.data.pix(4,:);%energy is never reflected, of course
+coords_cut=[coords_cut;epix];
+
 ndims=dimensions(win);
+
+%==============
+%Old code before bug spotted by Matt Mena:
 
 %Extent of data before symmetrisation:
 %note we use the axes of the cut, not the urange, since user may have
 %chosen to have white space around their slice / cut for a reason
+% for i=1:ndims
+%     min_unref{i}=min(win.data.p{win.data.pax(i)});
+%     max_unref{i}=max(win.data.p{win.data.pax(i)});
+% end
+% 
+% %Extent of data after symmetrisation:
+% for i=1:ndims
+%     min_ref{i}=min(coords_cut(win.data.pax(i),:));
+%     max_ref{i}=max(coords_cut(win.data.pax(i),:));
+% end
+%===============
+
+%New code, after bug fix (RAE 14/3/13):
+
 for i=1:ndims
-    min_unref{i}=min(win.data.p{win.data.pax(i)});
-    max_unref{i}=max(win.data.p{win.data.pax(i)});
+    min_unref{i}=min(win.data.p{i});
+    max_unref{i}=max(win.data.p{i});
 end
 
 %Extent of data after symmetrisation:
@@ -178,6 +199,8 @@ for i=1:ndims
     min_ref{i}=min(coords_cut(win.data.pax(i),:));
     max_ref{i}=max(coords_cut(win.data.pax(i),:));
 end
+
+%==============
 
 %Now work out the full extent of the symmetrised data:
 for i=1:ndims
