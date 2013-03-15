@@ -26,6 +26,12 @@ function wout=symmetrise_sqw(win,v1,v2,v3)
 win=sqw(win);
 wout=win;
 
+%New code (problem spotted by Matt Mena for case when using a single
+%contributing spe file):
+if ~iscell(win.header)
+    win.header={win.header};
+end
+
 if numel(win)~=1
     error('Horace error: symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');
 end
