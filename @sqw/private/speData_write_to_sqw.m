@@ -1,17 +1,32 @@
-function [grid_size, urange] = rundata_write_to_sqw (run_file, sqw_file, grid_size_in, urange_in, instrument, sample)
-% Read a single rundata object, and create a single sqw file.
+function [grid_size, urange] = speData_write_to_sqw (spe_data, par_file, sqw_file,...
+    efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in, instrument, sample)
+% Read a single spe file and a detector parameter file, and create a single sqw file.
 %
-%   >> [grid_size, urange] = rundata_write_to_sqw (run_file, sqw_file, grid_size_in, urange_in, instrument, sample)
+%   >> [grid_size, urange] = speData_write_to_sqw (run_file, sqw_file, grid_size_in, urange_in, instrument, sample)
 %
 % Input:
 % ------
-%   run_file        Fully initiated by rundata information instance of @rundata class
+%   spe_data        Cell array of initiated speData objects
+%   par_file        Full file name of detector parameter file (Tobyfit format)
 %   sqw_file        Full file name of output sqw file
+%
+%   efix            Fixed energy (meV) (if elastic data ie. emode=0, the value will be ignored and set to zero internally)
+%   emode           Direct geometry=1, indirect geometry=2, elastic=0
+%   alatt           Lattice parameters (Ang^-1)
+%   angdeg          Lattice angles (deg)
+%   u               First vector (1x3) defining scattering plane (r.l.u.)
+%   v               Second vector (1x3) defining scattering plane (r.l.u.)
+%   psi             Angle of u w.r.t. ki (rad)
+%   omega           Angle of axis of small goniometer arc w.r.t. notional u
+%   dpsi            Correction to psi (rad)
+%   gl              Large goniometer arc angle (rad)
+%   gs              Small goniometer arc angle (rad)
 %   grid_size_in    Scalar or row vector of grid dimensions.
 %   urange_in       Range of data grid for output. If not given, then uses smallest hypercuboid
 %                  that encloses the whole data range
 %   instrument      Structure or object containing instrument information
 %   sample          Structure or object containing sample geometry information
+%
 %
 % Output:
 % -------
@@ -30,17 +45,7 @@ bigtic
 % Read spe file and detector parameters
 % -------------------------------------
 % Masked detectors (i.e. containing NaN signal) are removed from data and detectors
-% Note: algorithm updates only if not already read from disk
-data = struct();
-[data.S,data.ERR,data.en,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=...
-    get_rundata(run_file,'S','ERR','en','efix','emode','alatt','angldeg','u','v',...
-                         'psi','omega','dpsi','gl','gs','det_par','-hor','-rad','-nonan');
-
-[data.filepath,data.filename]=get_source_fname(run_file);
-
-% Get the list of all detectors, including the detectors correspondiong to masked detectors
-det0 = get_rundata(run_file,'det_par','-hor');
-
+[data,det,keep,det0]=get_data(spe_data, par_file);
 
 % Create sqw object
 % -----------------

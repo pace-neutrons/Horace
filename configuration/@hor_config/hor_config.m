@@ -56,7 +56,7 @@ Matlab_Version=matlab_version_num();
 % let's try to identify the number of processors to use in OMP
 n_processors = getenv('OMP_NUM_THREADS');
 if(isempty(n_processors))
-    % *** > this have to be modified in a future to work on UNIX with Matlab higher then 7.10
+    % *** > this have to be modified in a future to work on UNIX with Matlab higher than 7.10
     n_processors=1;  % not good for linux
 else
     n_processors=str2double(n_processors);

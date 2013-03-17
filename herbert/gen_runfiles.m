@@ -93,9 +93,9 @@ for i=1:n_dfnd_params
     val = varargin{variables_start+i-1};
     if ismember(parameter_nams{i},{'alatt','angldeg','u','v'})
         if numel(size(val))==2 && all(size(val)==[n_files,3])
-            args{i}=num2cell(val,2);
+            args{i}=num2cell(val,2)';   % 1 x nfiles cell array
         elseif numel(val)==3
-            args{i}=num2cell(repmat(val(:)',[n_files,1]),2);
+            args{i}=num2cell(repmat(val(:)',[n_files,1]),2)';   % 1 x nfiles cell array
         else
             error('GEN_RUNFILES:invalid_argument','parameter %s must be a 3-element vector or a [%d x 3] array of doubles',parameter_nams{i},n_files);
         end
@@ -112,7 +112,7 @@ end
 
 % Make structure array with parameter names as fields and args as values
 % Put crystal type on the end as well
-struct_names_and_vals=[[parameter_nams,'is_crystal'];[args,num2cell(true(1,n_files))]];
+struct_names_and_vals=[[parameter_nams,'is_crystal'];[args,{num2cell(true(1,n_files))}]];
 dfnd_params = struct(struct_names_and_vals{:});
 
 
@@ -133,11 +133,11 @@ elseif numel(par_files)==1
         runfiles{i}=runfiles{1};
         runfiles{i}.data_file_name=spe_files{i};
         runfiles{i}.par_file_name =par_files{1};
-        runfiles{i}=rundata(runfiles{i},dfnd_params{i});
+        runfiles{i}=rundata(runfiles{i},dfnd_params(i));
     end
 else   % multiple par and spe files;
     for i=1:n_files
-        runfiles{i}=rundata(spe_files{i},par_files{i},dfnd_params{i});
+        runfiles{i}=rundata(spe_files{i},par_files{i},dfnd_params(i));
     end
 end
 

@@ -1,4 +1,4 @@
-function [tmp_file, grid_size, urange] = fake_sqw (sqw, en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_file, efix, emode, alatt, angdeg,...
                     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Create an output sqw file with dummy data using array(s) of energy bins instead spe file(s).
 %
@@ -12,6 +12,7 @@ function [tmp_file, grid_size, urange] = fake_sqw (sqw, en, par_file, sqw_file, 
 %
 % Input:
 % ------
+%   dummy_sqw       Dummy sqw object  - used only to ensure that this service routine was called
 %   en              Energy bin boundaries (must be monotonically increasing and equally spaced)
 %               or  cell array of arrays of energy bin boundaries, one array per spe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
@@ -182,7 +183,7 @@ end
 
 % Determine urange
 if numel(varargin)<2
-    urange = calc_sqw_urange (sqw, efix, emode, en_lo, en_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+    urange = calc_sqw_urange (dummy_sqw, efix, emode, en_lo, en_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 else
     urange = varargin{2};
 end

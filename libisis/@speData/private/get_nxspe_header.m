@@ -1,8 +1,7 @@
 function [this]=get_nxspe_header(this,filename)
-%
-% get information about an nxspe data containing in nexus hdf5 file
+% Get information about an nxspe data containing in nexus hdf5 file
 % and written there according to the NeXus rules.
-%
+
 if ~exist('filename','var')
     filename=fullfile(this.fileDir,[this.fileName this.fileExt]);
 end
@@ -20,5 +19,3 @@ if numel(this.en)-1~=ndims(1)
     error('speData:get_nxspe_header',['incorrect number of detectors while reading file:',filename]);
 end
 this.nxspe_root_folder = nxspe_root_folder;
-
-

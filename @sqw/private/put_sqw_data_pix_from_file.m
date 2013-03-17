@@ -24,15 +24,17 @@ function mess = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pi
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
 %
+%
 % Notes:
+% ------
 %   Take care when using this function. No checks are performed that the input files have the
 %  correct length of arrays npix and pix. It is assumed that this checking has already been done.
 %
-%  The reason for this function is that the output sqw structure may be too large to be held in memory.
-% This happens in particular during construction of the 'master' sqw file from a collection of sqw files, and
-% from taking large cuts from an sqw file (during which temporary files are written with the pixel information to
-% avoid out-of-memory problems).
-% 
+%   The reason for this function is that the output sqw structure may be too large to be held in memory.
+%  This happens in particular during construction of the 'master' sqw file from a collection of sqw files, and
+%  from taking large cuts from an sqw file (during which temporary files are written with the pixel information to
+%  avoid out-of-memory problems).
+
 
 % Original author: T.G.Perring
 %

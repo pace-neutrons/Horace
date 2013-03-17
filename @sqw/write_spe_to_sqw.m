@@ -1,14 +1,27 @@
-function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_file, efix, emode, alatt, angdeg,...
-                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+                                                 u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
-% to file.
 %
 %   >> write_spe_to_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
+% *** DEPRECATED FUNCTION **********************************************************
+% 
+% Calls to this function should be replaced by a call to gen_sqw. The only
+% differences are:
+%   - The angles psi, omega, dpsi, gl, gs are entered in degrees
+%     in gen_sqw, but are radians in write-spe_to_sqw
+%   - [Rarely used] The output from gen_sqw will return an empty parameter as the 
+%     first argument. The second and third argument output arguments are the 
+%     same as the first and second from write_spe_to_sqw
+%
+% **********************************************************************************
+%
+%
 % Input:
+% ------
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
-%   spe_data        Source of spe data e.g. full file name of spe file or nxspe file
+%   spe_file        Full file name of spe data e.g. spe file or nxspe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
 %   sqw_file        Full file name of output sqw file
 %
@@ -28,6 +41,7 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_
 %                  that encloses the whole data range
 %
 % Output:
+% -------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
@@ -37,72 +51,48 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_
 % $Revision$ ($Date$)
 
 
+disp('*** DEPRECATED FUNCTION:  Please replace write_spe_to_sqw with gen_sqw. ***')
+
+% Check input arguments
+% ---------------------
 % Check that the first argument is sqw object
-% -------------------------------------------
 if ~isa(dummy,classname)    % classname is a private method
     error('Check type of input arguments')
 end
 
-% Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
-% --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=15 && nargin<=17)
-    error('Check number of input arguments')
-end
-if is_herbert_used()
-    if ~isa(spe_data,'speData')
-        spe_file = spe_data;
-    else
-        error('WriteSpe2Sqw:InvalidArgument','Herbert IO do not understands speData yet');
-    end
-    run_file = gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs); 
-    if numel(run_file)~=1
-        error('Must only have one input data file');
-    end
-        
-else
-    if ~isa(spe_data,'speData') % if input parameter is the filename, we transform it into speData 
-        spe_data = speData(spe_data);
-    end
+% Check file names
+check_spe_exist=true;
+check_spe_unique=true;
+check_sqw_exist=false;
+[spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
+    (spe_file, par_file, sqw_file, check_spe_exist, check_spe_unique, check_sqw_exist);
+nfiles=numel(spe_file);
+
+% Check numeric parameters
+[efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+    (nfiles,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+
+% Checks specific to write_spe_to_sqw
+% -----------------------------------
+if nfiles~=1
+    error('This function takes only a single spe file data source')
 end
 
-
-bigtic
-
-% Set default grid size if none given
-if ~exist('grid_size_in','var')
-    grid_size_in=[1,1,1,1];
-elseif ~(isnumeric(grid_size_in)&&(isscalar(grid_size_in)||(isvector(grid_size_in)&&all(size(grid_size_in)==[1,4]))))
-    error ('Grid size must be scalar or row vector length 4')
-end
-
-% Check urange_in is valid, if provided
-if exist('urange_in','var')
-    if ~(isnumeric(urange_in) && length(size(urange_in))==2 && all(size(urange_in)==[2,4]) && all(urange_in(2,:)-urange_in(1,:)>=0))
-        error('urange must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper')
-    end
-else
-    urange_in =[];
-end
-
-if is_herbert_used() % =============================> rundata files processing
-    data = struct();
-    % Read spe file and detector parameters if it has not been done before and
-    % return the results, without NaN-s ('-nonan')
-    [data.S,data.ERR,data.en,det]=get_rundata(run_file{1},'S','ERR','en',...
-                                    'det_par', ...
-                                     '-hor','-rad','-nonan');
-
-    [data.filepath,data.filename]=fileparts(run_file{1}.loader.file_name);
-
-    % get the list of all detectors, including the detectors, which produce
-    % incorrect results (NaN-s) for this run
-    det0 = det;
+% Convert input angles to degrees
+rad2deg=180/pi;
+psi = psi*rad2deg;
+omega = omega*rad2deg;
+dpsi = dpsi*rad2deg;
+gl = gl*rad2deg;
+gs = gs*rad2deg;
     
-else
-    % Read spe file and detector parameters
-    [data,det,keep,det0]=get_data(spe_data, par_file);
 
+% Perform spe to sqw calculation
+% ------------------------------
+[tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_file,...
+    efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, varargin{:});
+
+% Clear output arguments if nargout==0 to have a silent return
+if nargout==0
+    clear grid_size urange
 end
-
-w=calc_sqw(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);
-save(w,sqw_file);

@@ -9,11 +9,13 @@ function mess_completion (varargin)
 %   >> mess_completion          % print termination message
 %
 % Input on initialisation:
+% ------------------------
 %   ntot            Total length of task (could be total number of iterations)
 %   t_thresh        Message printed if time since last print exceeds this threshold
 %   n_ratio_thresh  Message printed if change in ratio n/ntot exceeds this threshold
 %
 % Input on subsequent calls:
+% --------------------------
 %   n               Current position in completion of task (could be interation number)
 
 % Original author: T.G.Perring
