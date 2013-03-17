@@ -17,15 +17,16 @@ function [data,det,keep,det0]=get_data(spe_data,par_file)
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-%
 
-%TODO: ***> when invoked from write_spe_to_sqw, speData are mysteireously
+
+%TODO: ***> when invoked from write_spe_to_sqw, speData are mysteriously
 %reduced to spe; why? can it be that different matlab search path are set
 %on different machines?
-data=exportData(spe_data);   % export spe into the format requested, 
-                             % if data have not been loaded before, 
-                             % they are loaded from the linked
-                              % file now
+
+% Export spe into the format requested
+% (if data have not been loaded before, they are loaded from the linked file now)
+data=exportData(spe_data);   
+
 if isfield(data,'par')                              
     det0=data.par;
     data=rmfield(data, 'par');

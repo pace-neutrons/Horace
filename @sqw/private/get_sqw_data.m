@@ -30,11 +30,11 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %   npix_hi     -|
 %
 % format_flag   Format of file (character string)
-%                   Current formats:  '-v2', '-v2.1'
+%                   Current formats:  '-v2', '-v3'
 %                   Obsolete formats: '-prototype'
 %
 %   data_type   Content type of that file: must be one of the permitted data structures (character string):
-%               This is required for format_flag '-v2.1'
+%               This is required for format_flag '-v3'
 %               	'b'    fields: filename,...,dax,s,e
 %                   'b+'   fields: filename,...,dax,s,e,npix
 %                   'a'    fields: filename,...,dax,s,e,npix,urange,pix
@@ -134,7 +134,7 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %      (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
 %       This format is the one still written if these fields are empty in the sqw object (or result of a
 %       cut on an sqw file assembled only to a file - see below).
-%   - version 2.1
+%   - version 3
 %       (February 2013 onwards.) Writes optional instrument and sample fields in the header block, and
 %      positions of the start of major data blocks in the sqw file. Finally, finishes with the positon
 %      of the position data block and the end of the data block as the last two 8 byte entries.
@@ -157,7 +157,7 @@ npixtot=[];
 type='';
 
 % Check format flag and data type
-valid_formats={'-v2.1','-v2','-prototype'};
+valid_formats={'-v3','-v2','-prototype'};
 valid_types={'b','b+','a-','a',''};
 
 if nargin>=2 && ischar(varargin{end-1}) && ischar(varargin{end})
@@ -166,7 +166,7 @@ if nargin>=2 && ischar(varargin{end-1}) && ischar(varargin{end})
     iform=find(strcmpi(format_flag,valid_formats),1);
     itype=find(strcmpi(data_type,valid_types),1);
     if ~isempty(iform) && ~isempty(itype)
-        if strcmp(format_flag,'-v2.1') && ~isempty(data_type)
+        if strcmp(format_flag,'-v3') && ~isempty(data_type)
             autodetect=false;
             prototype=false;
         elseif strcmp(format_flag,'-v2')

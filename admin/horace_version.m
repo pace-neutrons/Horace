@@ -27,24 +27,27 @@ application.name='horace';
 %
 % July 2007(?) to Autumn 2008:
 % ----------------------------
-% Prototype sqw file format. Did not store filename, filepath, title, alatt, and angdeg
-% as part of the data block. Also, the application name and file format version number
+% Prototype sqw file format.
+% Did not store filename, filepath, title, alatt, and angdeg as part of the
+% data block. Also, the application name and file format version number
 % were not stored.
 %
 % Autumn 2008 to Feb 2013:
 % ------------------------
-% Version 1 and 2 have the same format.
+% Version 1 and 2
+% These have the same file format.
 %(The version number was being used to distinguish between Horace, not the file formats)
 %
 % 23 Feb 2013:
 % ------------
+% Version 3
 % Format of sqw file has addition information in an appendix:
 % - instrument and sample blocks
 % - positions of major data blocks in the file
 % - position of data block
 % - position of end of data block
 
-application.version=2.1;
+application.version=3;
 
 Matlab_SVN='$Revision:: 558  $ ($Date:: 2011-07-19 11:06:05 +0100 (Tue, 19 Jul 2011) $)';
 

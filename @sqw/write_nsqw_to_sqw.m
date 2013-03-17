@@ -1,15 +1,14 @@
 function write_nsqw_to_sqw (dummy, infiles, outfile)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
-% Currently the input files are restricted to have been made from a single spe file.
 %
 %   >> write_nsqw_to_sqw (dummy, infiles, outfile)
 %
 % Input:
 % ------
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
-%   infiles         Cell array or character array of file name(s) of input file(s)
-%   outfile         Full name of output file
-%
+%   infiles         Cell array or character array of sqw file name(s) of input file(s)
+%   outfile         Full name of output sqw file
+
 
 % T.G.Perring   27 June 2007
 
@@ -22,14 +21,13 @@ end
 
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------
-if ~nargin==3
+if nargin~=3
     error('Check number of input arguments')
 end
 
 
 % Check that the input files all exist and give warning if the output files overwrite the input files.
 % ----------------------------------------------------------------------------------------------------
-
 % Convert to cell array of strings if necessary
 if ~iscellstr(infiles)
     infiles=cellstr(infiles);
@@ -46,6 +44,7 @@ end
 % *** Check output file can be opened
 % *** Check that output files and input file do not coincide
 % *** Check do not repeat an input file name
+
 
 % Read header information from files, and check consistency
 % ---------------------------------------------------------
@@ -83,24 +82,22 @@ mess_completion
 
 
 % Check consistency:
-% (***At present, we insist that lattice parameters, u_to_rlu, and uoffset are identical. This may be
-% generalisable however)
-
+% (***At present, we insist that lattice parameters, u_to_rlu, and uoffset are identical. This may be generalisable however)
 npax=length(datahdr{1}.pax);
 small = 1.0e-10;% test number to define equality allowing for rounding
 for i=2:nfiles  % only need to check if more than one file
     ok = all(abs(header{i}.alatt-header{1}.alatt)<small);
     ok = ok & all(abs(header{i}.angdeg-header{1}.angdeg)<small);
     ok = ok & all(abs(header{i}.uoffset-header{1}.uoffset)<small);
-    ok = ok & all(abs(header{i}.u_to_rlu-header{1}.u_to_rlu)<small);
+    ok = ok & all(abs(header{i}.u_to_rlu(:)-header{1}.u_to_rlu(:))<small);
     if ~ok
-        error('Not all input files have the same lattice parameters,projection axes and projection axes offsets in header blocks')
+        error('Not all input files have the same lattice parameters, projection axes and projection axes offsets in the header blocks')
     end
     
     ok = all(abs(datahdr{i}.uoffset-datahdr{1}.uoffset)<small);
     ok = ok & all(abs(datahdr{i}.u_to_rlu-datahdr{1}.u_to_rlu)<small);
     if ~ok
-        error('Not all input files have the same projection axes and projection axes offsets in data blocks')
+        error('Not all input files have the same projection axes and projection axes offsets in the data blocks')
     end
 
     if length(datahdr{i}.pax)~=npax
@@ -173,9 +170,8 @@ mess_completion
 disp(' ')
 disp(['Writing to output file ',outfile,' ...'])
 
-[path,name,ext]=fileparts(outfile);
-main_header_combined.filename=[name,ext];
-main_header_combined.filepath=[path,filesep];
+main_header_combined.filename='';
+main_header_combined.filepath='';
 main_header_combined.title='';
 main_header_combined.nfiles=nfiles;
 

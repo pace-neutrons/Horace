@@ -1,7 +1,7 @@
 function urange = rundata_find_urange(run_files)
 % Find range of data in crystal Cartesian coordinates
 %
-%   >> [urange,u_to_rlu] = rundata_find_urange(run_files)
+%   >> urange = rundata_find_urange(run_files)
 %
 % Input:
 % ------

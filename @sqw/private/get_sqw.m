@@ -67,7 +67,7 @@ function [main_header,header,detpar,data,mess,position,npixtot,type,current_form
 %                       type 'a-'   fields: filename,...,dax,s,e,npix,urange
 %   current_format  =true if the file format is the current format, =false if not
 %   format_flag     Format of file
-%                       Current formats:  '-v2', '-v2.1'
+%                       Current formats:  '-v2', '-v3'
 %                       Obsolete formats: '-prototype'
 % 
 %
@@ -77,10 +77,10 @@ function [main_header,header,detpar,data,mess,position,npixtot,type,current_form
 % ----------------------
 % The current sqw file format comes in two variants:
 %   - version 1 and version 2
-%      (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
+%      (Autumn 2008 onwards.) Does not contain instrument and sample fields in the header block.
 %       This format is the one still written if these fields are empty in the sqw object (or result of a
 %       cut on an sqw file assembled only to a file - see below).
-%   - version 2.1
+%   - version 3
 %       (February 2013 onwards.) Writes optional instrument and sample fields in the header block, and
 %      positions of the start of major data blocks in the sqw file. Finally, finishes with the positon
 %      of the position data block and the end of the data block as the last two 8 byte entries.
@@ -126,7 +126,7 @@ end
 
 % Read application and file format version number
 % -----------------------------------------------
-% If version 2.1, then get the position information written in the file, and the data type ('b','b+','a-' or 'a')
+% If version 3, then get the position information written in the file, and the data type ('b','b+','a-' or 'a')
 pos_start=ftell(fid);
 [app_wrote_file,mess]=get_application(fid);
 
@@ -134,8 +134,8 @@ if isempty(mess) && strcmpi(application.name,app_wrote_file.name)
     % Post-prototype format sqw file
     current_format=true;
     file_format_version=app_wrote_file.version;
-    if file_format_version==2.1
-        format_flag='-v2.1';
+    if file_format_version==3
+        format_flag='-v3';
         pos_tmp=ftell(fid);
         
         % Get position block location and data type
@@ -260,7 +260,7 @@ position.pix=position_data.pix;
 
 % Get header optional information, if present
 % -------------------------------------------
-if file_format_version>2
+if file_format_version>=3
     if nfiles==1
         position.header_opt(1)=ftell(fid);
         [header_opt,mess]=get_sqw_header_opt(fid);
@@ -290,7 +290,7 @@ end
 % -------------------------------------------
 % Check consistency of file
 % -------------------------------------------
-if file_format_version>2
+if file_format_version>=3
     if ~isequal(position,pos_info_from_file)
         display('***********************')
         display('WARNING: Internal inconsistency of data file - check it is not corrupted')

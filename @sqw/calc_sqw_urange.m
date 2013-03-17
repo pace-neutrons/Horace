@@ -5,6 +5,7 @@ function urange = calc_sqw_urange (dummy, efix, emode, eps_lo, eps_hi, det, alat
 %   >> urange = calc_grid (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 %
 % Input: (in the following, nfile = no. spe files)
+% ------
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]

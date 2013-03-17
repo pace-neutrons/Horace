@@ -76,10 +76,10 @@ function [mess,position,npixtot,type] = put_sqw (outfile,main_header,header,detp
 % ------------
 % The current sqw file format comes in two variants:
 %   - version 1 and version 2
-%      (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
+%      (Autumn 2008 onwards.) Does not contain instrument and sample fields in the header block.
 %       This format is the one still written if these fields are empty in the sqw object (or result of a
 %       cut on an sqw file assembled only to a file - see below).
-%   - version 2.1
+%   - version 3
 %       (February 2013 onwards.) Writes optional instrument and sample fields in the header block, and
 %      positions of the start of major data blocks in the sqw file. Finally, finishes with the positon
 %      of the position data block and the end of the data block as the last two 8 byte entries.
@@ -93,8 +93,10 @@ function [mess,position,npixtot,type] = put_sqw (outfile,main_header,header,detp
 %
 % Writing pixel information from file
 % -----------------------------------
-% The optionsl argumenet '-pix' enables pixel information to be taken from other files. These
-% temporary files must have been created using the function: put_sqw_data_npix_and_pix_to_file
+% The optionsl argument '-pix' enables pixel information to be taken from other files. These
+% temporary files must have been created using the function: put_sqw_data_npix_and_pix_to_file.
+% It will be assumed that the information passed witht he '-pix' option is fully consistent
+% with the rest of the data being written by this function.
 
 
 % Original author: T.G.Perring
@@ -140,7 +142,7 @@ end
 % ------------------------------------
 % Determine the output file format version to be written
 % - if instrument and sample blocks are both empty, use version 2 format (same as version 1)
-% - if not, then use 2.1 format
+% - if not, then use 3 format
 % The reason for doing this is that older versions of Horace will be able to read the format
 
 application_out=application;
@@ -219,9 +221,9 @@ position.urange=position_data.urange;
 position.pix=position_data.pix;
 
 
-% Write format 2.1 fields
+% Write format 3 fields
 % ------------------------------------
-if file_format_version>2
+if file_format_version>=3
     
     % Write optional header fields
     % ------------------------------------

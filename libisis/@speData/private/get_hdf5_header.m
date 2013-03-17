@@ -1,7 +1,8 @@
 function [ndet,en,Ei]=get_hdf5_header(filename)
-% get information about an spe file written into hdf5 file previously
-% by the function writeSPEas_hdf5(fileName)
+% Get information about an spe hdf5 file written by the function writeSPEas_hdf5
 %
+%   >> [ndet,en,Ei]=get_hdf5_header(filename)
+
 % TODO this file should check the hdf5 file version
 fileinfo=hdf5info(filename);
 hr=[fileinfo.GroupHierarchy.Datasets.Dims];
@@ -17,5 +18,4 @@ if(ver == 1|| ver == 2)
     end
 else
     error('speData:get_hdf5_header','unsupported spe_hdf file format');
-end
 end

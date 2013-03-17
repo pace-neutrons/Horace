@@ -49,9 +49,8 @@ function [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, ps
 
 % Fill output main header block
 % -----------------------------
-[path,name,ext]=fileparts(strtrim(sqw_file));
-main_header.filename=[name,ext];
-main_header.filepath=[path,filesep];
+main_header.filename='';
+main_header.filepath='';
 main_header.title='';
 main_header.nfiles=1;
 
@@ -64,11 +63,6 @@ disp('Calculating projections...')
 % Update some header fields
 header.instrument=instrument;
 header.sample=sample;
-
-% Update some data fields
-sqw_data.filename=main_header.filename;
-sqw_data.filepath=main_header.filepath;
-sqw_data.title=main_header.title;
 
 % Flag if grid is in fact just a box i.e. 1x1x1x1
 grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_in)&&all(grid_size_in==[1,1,1,1]));
@@ -118,7 +112,7 @@ else
             sqw_data.pix = out_fields{4};
             
         catch
-            warning('HORACE:using_mex','sqw:write_spe_to_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab fucntions',lasterr());
+            warning('HORACE:using_mex','calc_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab functions',lasterr());
             use_mex=false;
         end
     end

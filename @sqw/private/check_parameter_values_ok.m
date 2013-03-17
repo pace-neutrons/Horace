@@ -3,9 +3,6 @@ function [val_out,mess]=check_parameter_values_ok(val,nfiles,nel,val_name,row_na
 % when it will be turned into an array size [nfiles,nel]
 % Also check that the elements are within the required range (given as 2 x nel matrix)
 % Values on the boundaries are acceptable by default; indicate otherwise with a 2 x nel logical array
-%
-% Example:
-%
 
 
 mess='';

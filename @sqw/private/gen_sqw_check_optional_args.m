@@ -27,7 +27,7 @@ function [grid,urange,instrument,sample]=gen_sqw_check_optional_args(nfile,grid_
 %
 % Output:
 % -------
-%   grid                Grid
+%   grid                Grid [row vector length 4]
 %   urange              Range of data grid ([] to indicate autoscaling required)
 %   instrument          Column vector of instrument descriptors, one per spe file
 %   sample              Column vector of sample descriptors, one per spe file
@@ -68,7 +68,7 @@ elseif narg==2 && isnumeric(varargin{1})    % grid, urange
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
-elseif narg==2 && isnumeric(varargin{1})    % grid, urange
+elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
     grid=grid_default;  if ~isempty(mess), error(mess), end
     urange=[];
     [instrument,mess]=check_inst_or_sample(varargin{1},nfile,'instrument',instrument_default);

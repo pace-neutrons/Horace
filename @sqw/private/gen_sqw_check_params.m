@@ -7,7 +7,8 @@ function [efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, ome
 %
 % Input:
 % ------
-%   nfile           Number of spe files
+%   nfile           Number of spe data sets
+%                   If [], then determine nfile from the sizes of the input arrays themselves
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2, elastic=0    [scalar]
 %   alatt           Lattice parameters (Ang^-1)        [row or column vector]
@@ -24,11 +25,11 @@ function [efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, ome
 % Output:
 % -------
 %   efix_out        Fixed energy (meV)                 [column vector length nfile]
-%   emode_out       Direct geometry=1, indirect geometry=2, elastic=0    [scalar]
-%   alatt_out       Lattice parameters (Ang^-1)        [row vector]
-%   angdeg_out      Lattice angles (deg)               [row vector]
-%   u_out           First vector (1x3) defining scattering plane (r.l.u.)
-%   v_out           Second vector (1x3) defining scattering plane (r.l.u.)
+%   emode_out       Direct geometry=1, indirect geometry=2, elastic=0   [column vector length nfile]
+%   alatt_out       Lattice parameters (Ang^-1)        [nfile,3] array
+%   angdeg_out      Lattice angles (deg)               [nfile,3] array
+%   u_out           First vector (1x3) defining scattering plane    [nfile,3] array
+%   v_out           Second vector (1x3) defining scattering plane   [nfile,3] array
 %   psi_out         Angle of u w.r.t. ki (deg)         [column vector length nfile]
 %   omega_out       Angle of axis of small goniometer arc w.r.t. notional u (deg) [column vector length nfile]
 %   dpsi_out        Correction to psi (deg)            [column vector length nfile]
@@ -36,24 +37,39 @@ function [efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, ome
 %   gs_out          Small goniometer arc angle (deg)   [column vector length nfile]
 
 
+% Determine number of files if not given
+if ~isempty(nfile)
+    % Check value provided is OK
+    if nfile<1
+        error('Number of spe data sets must be a positive integer >= 1')
+    end
+else
+    % Get nfile from the sizes of the input arguments themselves
+    if rem(numel(alatt),3)==0 && rem(numel(angdeg),3)==0 && rem(numel(u),3)==0 && rem(numel(v),3)==0
+        nfile=max([numel(efix), numel(alatt)/3, numel(angdeg)/3, numel(u)/3, numel(v)/3, numel(psi), numel(omega), numel(dpsi), numel(gl), numel(gs)]);
+    else
+        error('Check the sizes of arrays alatt, angdeg, u and v')
+    end
+end
+
 % Expand the input variables to vectors where values can be different for each spe file
 
 [efix_out,mess]=check_parameter_values_ok(efix,nfile,1,'efix','the number of spe files',[0,Inf],[false,true]);
 if ~isempty(mess), error(mess), end
 
-[emode_out,mess]=check_parameter_values_ok(emode,1,1,'emode','the number of spe files',[0,2]);
+[emode_out,mess]=check_parameter_values_ok(emode,nfile,1,'emode','the number of spe files',[0,2]);
 if ~isempty(mess), error(mess), end
 
-[alatt_out,mess]=check_parameter_values_ok(alatt,1,3,'alatt','the number of spe files',[0,0,0;Inf,Inf,Inf],false(2,3));
+[alatt_out,mess]=check_parameter_values_ok(alatt,nfile,3,'alatt','the number of spe files',[0,0,0;Inf,Inf,Inf],false(2,3));
 if ~isempty(mess), error(mess), end
 
-[angdeg_out,mess]=check_parameter_values_ok(angdeg,1,3,'angdeg','the number of spe files',[0,0,0;180,180,180],false(2,3));
+[angdeg_out,mess]=check_parameter_values_ok(angdeg,nfile,3,'angdeg','the number of spe files',[0,0,0;180,180,180],false(2,3));
 if ~isempty(mess), error(mess), end
 
-[u_out,mess]=check_parameter_values_ok(u,1,3,'u','');
+[u_out,mess]=check_parameter_values_ok(u,nfile,3,'u','');
 if ~isempty(mess), error(mess), end
 
-[v_out,mess]=check_parameter_values_ok(v,1,3,'v','');
+[v_out,mess]=check_parameter_values_ok(v,nfile,3,'v','');
 if ~isempty(mess), error(mess), end
 
 [psi_out,mess]=check_parameter_values_ok(psi,nfile,1,'psi','');
