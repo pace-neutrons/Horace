@@ -1,5 +1,5 @@
 function [ok,cout]=str_make_cellstr(varargin)
-% Take a set of arguments and try to make a cellstr from the contents
+% Take a set of arguments and try to make a cellstr of strings from the contents
 %
 %   >> [ok,cout] = str_make_cellstr(c1,c2,c3,...)
 %

@@ -21,5 +21,5 @@ function [dt,t_av]=pulse_width_ikcarp_param(pp,ei)
 %   dt          Standard deviation of pulse width (microseconds)
 %   t_av        First moment (microseconds)
 
-[tauf,taus,R]=ikcarp_param_convert(pp);
+[tauf,taus,R]=ikcarp_param_convert(pp,ei);
 [dt,t_av]=pulse_width_ikcarp([tauf,taus,R],ei);

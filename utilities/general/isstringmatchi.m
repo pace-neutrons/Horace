@@ -1,5 +1,5 @@
 function ok=isstringmatchi(str1,str2)
-% Determine if a string beginning with the other, ignoring case
+% Determine if a string begins with the other, ignoring case
 %
 %   >> ok=isstringmatchi(str1,str2)
 %
