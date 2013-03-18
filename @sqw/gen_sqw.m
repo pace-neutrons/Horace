@@ -35,6 +35,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
 %
 % Optional arguments:
+%
 %   grid_size_in    [Optional] Scalar or row vector of grid dimensions
 %                   Default if not given or [] is is [50,50,50,50]
 %   urange_in       [Optional] Range of data grid for output as a 2x4 matrix:
@@ -43,6 +44,24 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %   instrument      Structure or object containing instrument information [scalar or array length nfile]
 %   sample          Structure or object containing sample geometry information [scalar or array length nfile]
 %
+%
+% Keyword flags:
+%
+%   'replicate'     Build an sqw file with the same spe file being used as a data source
+%                  more than once e.g. when making a background from an empty sample
+%                  environment run. [This option simply turns off the check that the
+%                  spe file names are unique].
+%
+%   'accumulate'    Accumulate data onto an existing sqw file, retaining the same binning.
+%                  Any spe files that have already been included in the sqw file are ignored.
+%                  Any spe files that do not yet exist are ignored.
+%                   If the sqw file has not yet been created, use the input arguments to
+%                  estimate the grid size. For this reason, the parameters efix, psi,
+%                  omega, dpsi, gl, gs should be given for all planned runs.
+%
+%   'clean'         [Only valid if 'accumulate' is also present]. Delete the sqw file if
+%                  it exists.
+%                  
 %
 % Output:
 % --------
@@ -66,19 +85,40 @@ if ~isa(dummy,classname)    % classname is a private method
     error('Check type of input arguments')
 end
 
+% Determine keyword arguments, if present
+arglist=struct('replicate',0,'accumulate',0,'clean',0);
+flags={'replicate','accumulate','clean'};
+[args,opt,present] = parse_arguments(varargin,arglist,flags);
+
+if ~opt.accumulate
+    if present.clean && opt.clean
+        error('Invalid option ''clean'' unless also have option ''accumulate''')
+    end
+end
+if opt.replicate
+    require_spe_unique=false;
+else
+    require_spe_unique=true;
+end
+if opt.accumulate
+    require_spe_exist=false;
+else
+    require_spe_exist=true;
+end
+
 % Check file names
-check_spe_exist=true;
-check_spe_unique=true;
-check_sqw_exist=false;
-[spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
-    (spe_file, par_file, sqw_file, check_spe_exist, check_spe_unique, check_sqw_exist);
+require_sqw_exist=false;
+[ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
+    (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
+if ~ok, error(mess), end
 nfiles=numel(spe_file);
 
 % Check numeric parameters
-[efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
     (nfiles,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+if ~ok, error(mess), end
 
-% Check optional arguments
+% Check optional arguments (grid, urange, instument, sample)
 if nfiles==1
     grid_default=[1,1,1,1];     % for a single spe file, don't sort
 else 
@@ -86,7 +126,16 @@ else
 end
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
-[grid_size_in,urange_in,instrument,sample]=gen_sqw_check_optional_args(nfiles,grid_default,instrument_default,sample_default,varargin{:});
+[ok,mess,grid_size_in,urange_in,instrument,sample]=gen_sqw_check_optional_args(...
+    nfiles,grid_default,instrument_default,sample_default,args{:});
+if ~ok, error(mess), end
+
+% Check the input parameters define unique data sets
+[ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+    u, v, psi, omega, dpsi, gl, gs, instrument, sample);
+if ~ok
+    error(mess)
+end
 
 % Information for tmp files
 tmp_file = cell(1,nfiles);

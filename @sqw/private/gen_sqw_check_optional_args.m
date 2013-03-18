@@ -1,7 +1,7 @@
-function [grid,urange,instrument,sample]=gen_sqw_check_optional_args(nfile,grid_default,instrument_default,sample_default,varargin)
+function [ok,mess,grid,urange,instrument,sample]=gen_sqw_check_optional_args(nfile,grid_default,instrument_default,sample_default,varargin)
 % Check optional input arguments to gen_sqw, and set defaults to those that are missing
 %
-%   >> [grid,urange,inst,sample] = gen_sqw_check_optional_args(nfile,grid_default,inst_default,sample_default,arg1,arg2,...)
+%   >> [ok,mess,grid,urange,inst,sample] = gen_sqw_check_optional_args(nfile,grid_default,inst_default,sample_default,arg1,arg2,...)
 %
 % where arg1,arg2,.. can be:
 %   ..., grid_in)                   % grid size
@@ -22,11 +22,13 @@ function [grid,urange,instrument,sample]=gen_sqw_check_optional_args(nfile,grid_
 %   urange_in           Range of data grid for output as a 2x4 matrix:
 %                           [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                       If not given or [], return [] (to signifiy that it needs to be autoscaled
-%   instrument_in       Structure or object containing instrument information
-%   sample_in           Structure or object containing sample geometry information
+%   instrument_in       Structure or object containing instrument information [scalar or array]
+%   sample_in           Structure or object containing sample geometry information [scalar or array]
 %
 % Output:
 % -------
+%   ok                  Logical: true if all fine, false otherwise
+%   mess                Error message if not ok; ='' if ok
 %   grid                Grid [row vector length 4]
 %   urange              Range of data grid ([] to indicate autoscaling required)
 %   instrument          Column vector of instrument descriptors, one per spe file
@@ -36,58 +38,62 @@ function [grid,urange,instrument,sample]=gen_sqw_check_optional_args(nfile,grid_
 % Check defaults
 [grid_default,mess]=check_grid_size(grid_default);
 if ~isempty(mess)
-    error('Default grid invalid - problem in code')
+    ok=false; mess='Default grid invalid - problem in code'; return
 end
 
 if numel(instrument_default)~=1 || ~(isobject(instrument_default)||isstruct(instrument_default))
-    error('Default instrument must be a scalar structure or object')
+    ok=false; mess='Default instrument must be a scalar structure or object'; return
 end
 
 if numel(sample_default)~=1 || ~(isobject(sample_default)||isstruct(sample_default))
-    error('Default sample descriptor must be a scalar structure or object')
+    ok=false; mess='Default sample descriptor must be a scalar structure or object'; return
 end
 
 
 % Check arguments
 narg=numel(varargin);
 if narg==0
-    grid=grid_default;  if ~isempty(mess), error(mess), end
+    grid=grid_default;
     urange=[];
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
     
 elseif narg==1  % grid
-    [grid,mess]=check_grid_size(varargin{1},grid_default);  if ~isempty(mess), error(mess), end
+    [grid,mess]=check_grid_size(varargin{1},grid_default);  if ~isempty(mess), ok=false; return, end
     urange=[];
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
 elseif narg==2 && isnumeric(varargin{1})    % grid, urange
-    [grid,mess]=check_grid_size(varargin{1},grid_default);  if ~isempty(mess), error(mess), end
-    [urange,mess]=check_urange(varargin{2});                if ~isempty(mess), error(mess), end
+    [grid,mess]=check_grid_size(varargin{1},grid_default);  if ~isempty(mess), ok=false; return, end
+    [urange,mess]=check_urange(varargin{2});                if ~isempty(mess), ok=false; return, end
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
 elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
-    grid=grid_default;  if ~isempty(mess), error(mess), end
+    grid=grid_default;
     urange=[];
     [instrument,mess]=check_inst_or_sample(varargin{1},nfile,'instrument',instrument_default);
-    if ~isempty(mess), error(mess), end
+    if ~isempty(mess), ok=false; return, end
     [sample,mess]=check_inst_or_sample(varargin{2},nfile,'sample',sample_default);
-    if ~isempty(mess), error(mess), end
+    if ~isempty(mess), ok=false; return, end
 
 elseif narg==4                              % grid, urange, instrument, sample
-    [grid,mess]=check_grid_size(varargin{1},grid_default);  if ~isempty(mess), error(mess), end
-    [urange,mess]=check_urange(varargin{2});                if ~isempty(mess), error(mess), end
+    [grid,mess]=check_grid_size(varargin{1},grid_default);  if ~isempty(mess), ok=false; return, end
+    [urange,mess]=check_urange(varargin{2});                if ~isempty(mess), ok=false; return, end
     [instrument,mess]=check_inst_or_sample(varargin{3},nfile,'instrument',instrument_default);
-    if ~isempty(mess), error(mess), end
+    if ~isempty(mess), ok=false; return, end
     [sample,mess]=check_inst_or_sample(varargin{4},nfile,'sample',sample_default);
-    if ~isempty(mess), error(mess), end
+    if ~isempty(mess), ok=false; return, end
 
 else
-    error('Check number and type of optional arguments')
+    ok=false; mess='Check number and type of optional arguments'; return
 end
-    
+
+% Fill error flags
+ok=true;
+mess='';
+
 
 %--------------------------------------------------------------------------------------------------
 function [grid_out,mess]=check_grid_size(grid,grid_default)

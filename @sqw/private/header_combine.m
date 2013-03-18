@@ -39,9 +39,10 @@ function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header)
 %  *** Should insist that the structure of instrument is the same in all headers
 %      although the values of fields in nested structures and arrays can be different
 %
-% 2) The purposeof this routine is not to check the validity of the values of the
+% 2) The purpose of this routine is not to check the validity of the values of the
 %   fields (e.g. that lattice parameters are greater than zero), but instead to
-%   check the consistency of the equality or otherwise of the fields.
+%   check the consistency of the equality or otherwise of the fields as required by later
+%   algorithms in Horace
 
 nsqw=numel(header);
 

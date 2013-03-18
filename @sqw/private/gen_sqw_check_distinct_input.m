@@ -1,4 +1,4 @@
-function [ok, mess, ind] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+function [ok, mess, ind, ind_head] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, instrument, sample, header)
 % Check that the input arguments to gen_sqw define distinct input with required equality of some fields.
 % Optionally, determine in addition which are not included in the header of an sqw file
@@ -40,16 +40,27 @@ function [ok, mess, ind] = gen_sqw_check_distinct_input (spe_file, efix, emode, 
 %                  spe data that are NOT in the optional header.
 %                   - If no header is provided, then ind=[]
 %                   - If status==false, ind=[]
+%   ind_head        Index of entries into the header that do not correspond to
+%                  spe data parameters
+%                  
 %
 % Notes:
-%   A set of valid parameters requires:
-%   - The structure made from these fields must be unique
-%           spe_file, efix, psi, omega, dpsi, gl, gs
-%   - The contents of the following fields must be identical in all spe data:
-%           emode, alatt, angdeg, u, v, sample
-%   - Equality or otherwise of this parameter is irrelevant:
-%           instrument
-
+% (1)  A set of valid parameters requires:
+%     - All spe data must differ in at least one of the following
+%             spe_file, efix, psi, omega, dpsi, gl, gs
+%     - The contents of the following fields must be identical in all spe data:
+%             emode, alatt, angdeg, u, v, sample
+%     - Equality or otherwise of this parameter is irrelevant:
+%             instrument
+%
+%     Note that the file name can be the same in two or more spe data input; this is
+%     because we allow e.g. just one spe file to be used to generate a 'background'
+%     with psi different for each spe data input.
+%
+% (2) The purpose of this routine is not to check the validity of the values of the
+%     fields (e.g. that lattice parameters are greater than zero), but instead to
+%     check the consistency of the equality or otherwise of the fields as required by later
+%     algorithms in Horace.
 
 % Make a stucture array of the fields that define uniqueness
 % Convert angles to radians for comparison with header
@@ -63,7 +74,7 @@ names=fieldnames(pstruct)';     % row vector
 tol = 1.0e-14;    % test number to define equality allowing for rounding errors in double precision
 for i=2:numel(pstruct)
     if isequal(pstruct_sort(i-1),pstruct_sort(i))
-        ok=false; ind=[];
+        ok=false; ind=[]; ind_head=[];
         mess='At least two spe data input have the all the same filename, efix, psi, omega, dpsi, gl and gs'; return
     end
     ok = (emode(i)==emode(1));
@@ -72,14 +83,14 @@ for i=2:numel(pstruct)
     ok = ok & equal_to_relerr(u(i,:),u(1,:),tol,1);
     ok = ok & equal_to_relerr(v(i,:),v(1,:),tol,1);
     if ~ok
-        ind=[];
+        ind=[]; ind_head=[];
         mess=['Not all input spe data have the same values for energy mode (0,1,2)',...
             ', lattice parameters, projection axes and scattering plane u,v'];
         return
     end
     ok = isequal(sample(i),sample(1));
     if ~ok
-        ind=[];
+        ind=[]; ind_head=[];
         mess='Not all input spe data have the same fields or values of fields in the sample blocks';
         return
     end
@@ -90,12 +101,13 @@ if ~exist('header','var')
     ok=true;
     mess='';
     ind=1:numel(pstruct);
+    ind_head=[];
     
 else
     % Use header_combine to check the header and create a structure with the same fields as pstruct
     [header_out,nspe,ok,mess,hstruct_sort,indh]=header_combine(header);
     if ~ok
-        ind=[];
+        ind=[]; ind_head=[];
         mess=['Error in sqw file header: ',mess];
         return
     end
@@ -117,8 +129,8 @@ else
             i=i+1;
             j=j+1;
         else
-            [tmp,ind]=nestedSortStruct([pstruct_sort(i),hstruct_sort(j)],names);
-            if ind(1)==1
+            [tmp,tmpind]=nestedSortStruct([pstruct_sort(i),hstruct_sort(j)],names);
+            if tmpind(1)==1
                 i=i+1;
             else
                 j=j+1;
@@ -134,19 +146,19 @@ else
         ok = ok & equal_to_relerr(dsd(u(ip0(i),:)),header_out{ih0(i)}.cu,tol,1);
         ok = ok & equal_to_relerr(dsd(v(ip0(i),:)),header_out{ih0(i)}.cv,tol,1);
         if ~ok
-            ind=[];
+            ind=[]; ind_head=[];
             mess='spe data and header of sqw file are inconsistent';
             return
         end
         ok = isequal(sample(ip0(i)),header_out{ih0(i)}.sample);
         if ~ok
-            ind=[];
+            ind=[]; ind_head=[];
             mess='spe data and header of sqw file have inconsistent sample information';
             return
         end
         ok = isequal(instrument(ip0(i)),header_out{ih0(i)}.instrument);   % we require the instrument is also equal
         if ~ok
-            ind=[];
+            ind=[]; ind_head=[];
             mess='spe data and header of sqw file have inconsistent instrument information';
             return
         end
@@ -154,6 +166,7 @@ else
     ok=true;
     mess='';
     ind=find(~pcommon);
+    ind_head=find(~hcommon);
 end
 
 %--------------------------------------------------------------------------]
