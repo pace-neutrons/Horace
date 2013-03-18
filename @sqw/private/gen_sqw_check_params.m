@@ -1,8 +1,8 @@
-function [efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, omega_out, dpsi_out, gl_out, gs_out] =...
+function [ok, mess, efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, omega_out, dpsi_out, gl_out, gs_out] =...
     gen_sqw_check_params (nfile, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Check numeric input arguments to gen_sqw are valid, and return as arrays expanded as required by the number of spe files
 %
-%   >> [efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, omega_out, dpsi_out, gl_out, gs_out] =...
+%   >> [ok, mess, efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, omega_out, dpsi_out, gl_out, gs_out] =...
 %                           gen_sqw_check_params (nfiles, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 %
 % Input:
@@ -24,6 +24,8 @@ function [efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, ome
 %
 % Output:
 % -------
+%   ok              Logical: true if all fine, false otherwise
+%   mess            Error message if not ok; ='' if ok
 %   efix_out        Fixed energy (meV)                 [column vector length nfile]
 %   emode_out       Direct geometry=1, indirect geometry=2, elastic=0   [column vector length nfile]
 %   alatt_out       Lattice parameters (Ang^-1)        [nfile,3] array
@@ -41,48 +43,65 @@ function [efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out, psi_out, ome
 if ~isempty(nfile)
     % Check value provided is OK
     if nfile<1
-        error('Number of spe data sets must be a positive integer >= 1')
+        ok=false;
+        mess='Number of spe data sets must be a positive integer >= 1';
+        return
     end
 else
     % Get nfile from the sizes of the input arguments themselves
     if rem(numel(alatt),3)==0 && rem(numel(angdeg),3)==0 && rem(numel(u),3)==0 && rem(numel(v),3)==0
         nfile=max([numel(efix), numel(alatt)/3, numel(angdeg)/3, numel(u)/3, numel(v)/3, numel(psi), numel(omega), numel(dpsi), numel(gl), numel(gs)]);
     else
-        error('Check the sizes of arrays alatt, angdeg, u and v')
+        ok=false;
+        mess='Check the sizes of arrays alatt, angdeg, u and v';
+        return
     end
 end
 
 % Expand the input variables to vectors where values can be different for each spe file
 
 [efix_out,mess]=check_parameter_values_ok(efix,nfile,1,'efix','the number of spe files',[0,Inf],[false,true]);
-if ~isempty(mess), error(mess), end
+if ~isempty(mess), ok=false; return; end
 
-[emode_out,mess]=check_parameter_values_ok(emode,nfile,1,'emode','the number of spe files',[0,2]);
-if ~isempty(mess), error(mess), end
+[emode_out,mess]=check_parameter_values_ok(round(emode),nfile,1,'emode','the number of spe files',[0,2]);
+if ~isempty(mess), ok=false; return; end
 
 [alatt_out,mess]=check_parameter_values_ok(alatt,nfile,3,'alatt','the number of spe files',[0,0,0;Inf,Inf,Inf],false(2,3));
-if ~isempty(mess), error(mess), end
+if ~isempty(mess), ok=false; return; end
 
 [angdeg_out,mess]=check_parameter_values_ok(angdeg,nfile,3,'angdeg','the number of spe files',[0,0,0;180,180,180],false(2,3));
-if ~isempty(mess), error(mess), end
+if ~isempty(mess), ok=false; return; end
 
-[u_out,mess]=check_parameter_values_ok(u,nfile,3,'u','');
-if ~isempty(mess), error(mess), end
+[u_out,mess]=check_parameter_values_ok(u,nfile,3,'u','the number of spe files');
+if ~isempty(mess), ok=false; return; end
 
-[v_out,mess]=check_parameter_values_ok(v,nfile,3,'v','');
-if ~isempty(mess), error(mess), end
+[v_out,mess]=check_parameter_values_ok(v,nfile,3,'v','the number of spe files');
+if ~isempty(mess), ok=false; return; end
+
+small=1e-10;
+umod=sqrt(dot(u_out,u_out,2));
+vmod=sqrt(dot(v_out,v_out,2));
+if any(umod<small) || any(vmod<small)
+    ok=false; mess='Check that no vectors u and v have zero (or almost zero) length'; return
+elseif any(dot(u_out,v_out)./(umod.*vmod)>1-1e-6)
+    ok=false; mess='Check that u and v are not collinear or almost collinear'; return
+end
 
 [psi_out,mess]=check_parameter_values_ok(psi,nfile,1,'psi','');
-if ~isempty(mess), error(mess), end
+if ~isempty(mess), ok=false; return; end
 
 [omega_out,mess]=check_parameter_values_ok(omega,nfile,1,'omega','');
-if ~isempty(mess), error(mess), end
+if ~isempty(mess), ok=false; return; end
 
 [dpsi_out,mess]=check_parameter_values_ok(dpsi,nfile,1,'dpsi','');
-if ~isempty(mess), error(mess), end
+if ~isempty(mess), ok=false; return; end
 
 [gl_out,mess]=check_parameter_values_ok(gl,nfile,1,'gl','');
-if ~isempty(mess), error(mess), end
+if ~isempty(mess), ok=false; return; end
 
 [gs_out,mess]=check_parameter_values_ok(gs,nfile,1,'gs','');
-if ~isempty(mess), error(mess), end
+if ~isempty(mess), ok=false; return; end
+
+% Fill error flags
+ok=true;
+mess='';

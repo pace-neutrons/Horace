@@ -64,13 +64,15 @@ end
 check_spe_exist=true;
 check_spe_unique=true;
 check_sqw_exist=false;
-[spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
+[ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, check_spe_exist, check_spe_unique, check_sqw_exist);
+if ~ok, error(mess), end
 nfiles=numel(spe_file);
 
 % Check numeric parameters
-[efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
     (nfiles,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+if ~ok, error(mess), end
 
 % Checks specific to write_spe_to_sqw
 % -----------------------------------
