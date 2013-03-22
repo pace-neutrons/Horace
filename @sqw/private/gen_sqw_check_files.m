@@ -8,6 +8,7 @@ function [ok, mess, spe_file_out, par_file_out, sqw_file_out, spe_exist, spe_uni
 % Input:
 % ------
 %   spe_file            Character array or cellstr of spe file name(s)
+%                      Note that the extension '.tmp' is not permitted
 %   par_file            Name of detector parameter file Only one par file is permitted.
 %                         - if non-empty, this must exist or an error is thrown
 %                         - if empty, then ignore
@@ -30,6 +31,12 @@ function [ok, mess, spe_file_out, par_file_out, sqw_file_out, spe_exist, spe_uni
 % The output files have all leading and trailing whitespace removed.
 
 
+ext_horace={'.tmp','.sqw','.d0d','.d1d','.d2d','.d3d','.d4d'};
+
+% Default return arguments in case an error is encountered
+spe_file_out=[]; par_file_out=[]; sqw_file_out=[]; spe_exist=[]; spe_unique=[]; sqw_exist=[];
+
+
 % Check spe file input
 % --------------------
 if isstring(spe_file) && ~isempty(strtrim(spe_file))
@@ -43,9 +50,16 @@ else
     ok=false; mess='spe file input must be a single file name or cell array of file names'; return
 end
 
-% Check all spe files exist
+% Check all spe files exist and do not have a reserved extension name
 spe_exist=true(size(spe_file_out));
 for i=1:numel(spe_file_out)
+    [path,name,ext]=fileparts(spe_file_out{i});
+    if any(strcmpi(ext,[ext_horace,'.par']))
+        ok=false; 
+        mess=['spe files must not have the reserved extension ''',ext,...
+            '''. Check the file is spe type and rename.'];
+        return
+    end
     if ~exist(spe_file_out{i},'file')
         spe_exist(i)=false;
         if require_spe_exist
@@ -74,6 +88,13 @@ if ~isempty(par_file)
         ok=false; mess='If given, par filename  must be a non-empty string'; return
     end
     % Check par file exists
+    [path,name,ext]=fileparts(par_file_out);
+    if any(strcmpi(ext,[ext_horace,'.spe']))
+        ok=false; 
+        mess=['Detector parameter files must not have the reserved extension ''',ext,...
+            '''. Check the file is .par type and rename.'];
+        return
+    end
     if ~exist(par_file_out,'file')
         ok=false; mess=['Detector parameter file ',par_file_out,' not found']; return
     end

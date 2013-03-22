@@ -12,13 +12,16 @@ function mess = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pi
 %   pos_pixstart    Position (in bytes) from start of file of the start of the field pix
 %   npix_cumsum     Accumulated sum of number of pixels per bin across all the files
 %   run_label       Indicates how to re-label the run index (pix(5,...) 
-%                       'fileno'    relabel run index as the index of the file in the list infiles
-%                       'nochange'  use the run index as in the input file
-%                   This option exists to deal with the two limiting cases 
-%                    (1) There is one file per run, and the run index in the header block is the file
-%                       index e.g. as in the creating of the master sqw file
-%                    (2) The run index is already written to the files correctly indexed into the header
+%                       'fileno'        relabel run index as the index of the file in the list infiles
+%                       'nochange'      use the run index as in the input file
+%                        numeric array  offset run numbers for ith file by ith element of the array
+%                   This option exists to deal with three limiting cases:
+%                    (1) The run index is already written to the files correctly indexed into the header
 %                       e.g. as when temporary files have been written during cut_sqw
+%                    (2) There is one file per run, and the run index in the header block is the file
+%                       index e.g. as in the creating of the master sqw file
+%                    (3) The files correspond to several runs in general, which need to
+%                       be offset to give the run indices into the collective list of run parameters
 %
 % Output:
 % -------
@@ -41,13 +44,26 @@ function mess = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pi
 % $Revision$ ($Date$)
 
 
+% Get number of files
+nfiles = length(infiles);
+
 % Check run_label:
-if strcmpi(run_label,'fileno')
-    fileno=true;
-elseif strcmpi(run_label,'nochange')
+if ischar(run_label)
+    if strcmpi(run_label,'nochange')
+        change_fileno=false;
+    elseif strcmpi(run_label,'fileno')
+        change_fileno=true;
+        fileno=true;
+    else
+        mess='Invalid value for argument run_label';
+        return
+    end
+elseif isnumeric(run_label) && numel(run_label)==nfiles
+    change_fileno=true;
     fileno=false;
 else
-    mess='Invalid value for argument run_label';
+    mess='Invalid contents for argument run_label';
+    return
 end
 
 
@@ -56,7 +72,6 @@ end
 % Opening all files may cause problems as I don't know what the reasonable default is, but I assume is faster than constantly opening
 % and closing a hundred or more files]
 
-nfiles = length(infiles);
 if isnumeric(infiles)
     fid = infiles;   % copy fid
     for i=1:nfiles
@@ -131,8 +146,12 @@ while ibin_end<nbin
                         mess = ['Error reading pixel data for bin ',num2str(ibin),' in file ',infiles{i},' : ',mess];
                         return
                     end
-                    if fileno
-                        pix(5,:)=i;   % set the run index to the file index
+                    if change_fileno
+                        if fileno
+                            pix(5,:)=i;   % set the run index to the file index
+                        else
+                            pix(5,:)=pix(5,:)+run_label(i);     % offset the run index
+                        end
                     end
                     fwrite(fout,pix,'float32');
                 end
@@ -164,8 +183,12 @@ while ibin_end<nbin
                         mess = ['Error reading pixel data from ',infiles{i},' : ',mess];
                         return
                     end
-                    if fileno
-                        pix_buff(5,nbeg(1,i):nend(end,i))=i;   % set the run index to the file index
+                    if change_fileno
+                        if fileno
+                            pix_buff(5,nbeg(1,i):nend(end,i))=i;   % set the run index to the file index
+                        else
+                            pix_buff(5,nbeg(1,i):nend(end,i))=pix_buff(5,nbeg(1,i):nend(end,i))+run_label(i);     % offset the run index
+                        end
                     end
                 end
             end

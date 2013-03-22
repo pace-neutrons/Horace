@@ -1,4 +1,4 @@
-function [ok, mess, ind, ind_head] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, instrument, sample, header)
 % Check that the input arguments to gen_sqw define distinct input with required equality of some fields.
 % Optionally, determine in addition which are not included in the header of an sqw file
@@ -36,12 +36,12 @@ function [ok, mess, ind, ind_head] = gen_sqw_check_distinct_input (spe_file, efi
 % -------
 %   ok              True if all are distinct; false otherwise.
 %   mess            Message if not ok; ='' if ok.
-%   ind             Index of entries into the input arguments that correspond to
-%                  spe data that are NOT in the optional header.
+%   spe_only        Logical array: true for entries into the input arguments that
+%                  correspond to spe data that are NOT in the optional header.
 %                   - If no header is provided, then ind=[]
 %                   - If status==false, ind=[]
-%   ind_head        Index of entries into the header that do not correspond to
-%                  spe data parameters
+%   head_only       Logical array: true for entries into the header that do
+%                  not correspond to spe data parameters
 %                  
 %
 % Notes:
@@ -74,7 +74,7 @@ names=fieldnames(pstruct)';     % row vector
 tol = 1.0e-14;    % test number to define equality allowing for rounding errors in double precision
 for i=2:numel(pstruct)
     if isequal(pstruct_sort(i-1),pstruct_sort(i))
-        ok=false; ind=[]; ind_head=[];
+        ok=false; spe_only=[]; head_only=[];
         mess='At least two spe data input have the all the same filename, efix, psi, omega, dpsi, gl and gs'; return
     end
     ok = (emode(i)==emode(1));
@@ -83,14 +83,14 @@ for i=2:numel(pstruct)
     ok = ok & equal_to_relerr(u(i,:),u(1,:),tol,1);
     ok = ok & equal_to_relerr(v(i,:),v(1,:),tol,1);
     if ~ok
-        ind=[]; ind_head=[];
+        spe_only=[]; head_only=[];
         mess=['Not all input spe data have the same values for energy mode (0,1,2)',...
             ', lattice parameters, projection axes and scattering plane u,v'];
         return
     end
     ok = isequal(sample(i),sample(1));
     if ~ok
-        ind=[]; ind_head=[];
+        spe_only=[]; head_only=[];
         mess='Not all input spe data have the same fields or values of fields in the sample blocks';
         return
     end
@@ -100,14 +100,14 @@ end
 if ~exist('header','var')
     ok=true;
     mess='';
-    ind=1:numel(pstruct);
-    ind_head=[];
+    spe_only=true(numel(pstruct),1);
+    head_only=false(0,1);
     
 else
     % Use header_combine to check the header and create a structure with the same fields as pstruct
     [header_out,nspe,ok,mess,hstruct_sort,indh]=header_combine(header);
     if ~ok
-        ind=[]; ind_head=[];
+        spe_only=[]; head_only=[];
         mess=['Error in sqw file header: ',mess];
         return
     end
@@ -146,27 +146,27 @@ else
         ok = ok & equal_to_relerr(dsd(u(ip0(i),:)),header_out{ih0(i)}.cu,tol,1);
         ok = ok & equal_to_relerr(dsd(v(ip0(i),:)),header_out{ih0(i)}.cv,tol,1);
         if ~ok
-            ind=[]; ind_head=[];
+            spe_only=[]; head_only=[];
             mess='spe data and header of sqw file are inconsistent';
             return
         end
         ok = isequal(sample(ip0(i)),header_out{ih0(i)}.sample);
         if ~ok
-            ind=[]; ind_head=[];
+            spe_only=[]; head_only=[];
             mess='spe data and header of sqw file have inconsistent sample information';
             return
         end
         ok = isequal(instrument(ip0(i)),header_out{ih0(i)}.instrument);   % we require the instrument is also equal
         if ~ok
-            ind=[]; ind_head=[];
+            spe_only=[]; head_only=[];
             mess='spe data and header of sqw file have inconsistent instrument information';
             return
         end
     end
     ok=true;
     mess='';
-    ind=find(~pcommon);
-    ind_head=find(~hcommon);
+    spe_only=~pcommon;
+    head_only=~hcommon;
 end
 
 %--------------------------------------------------------------------------]

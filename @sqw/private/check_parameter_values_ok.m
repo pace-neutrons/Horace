@@ -1,9 +1,38 @@
 function [val_out,mess]=check_parameter_values_ok(val,nfiles,nel,val_name,row_name,range,boundary_ok)
 % Check value is an array size [nfiles,nel], or a vector with nel elements
-% when it will be turned into an array size [nfiles,nel]
-% Also check that the elements are within the required range (given as 2 x nel matrix)
-% Values on the boundaries are acceptable by default; indicate otherwise with a 2 x nel logical array
-
+%
+%   >> [val_out,mess]=check_parameter_values_ok(val,nfiles,nel,val_name,row_name,range,boundary_ok)
+%
+% Input:
+% ------
+%   val         Numerical array to be checked
+%   nfiles      Expected number of entries
+%   nel         Expected number of elements per entry
+%   val_name    Name of array for error messages
+%   row_name    Entry description for error messages
+%
+% Optionally:
+%   range       Range in which val must be confined
+%                 - vector length=2    (if expect scalar value i.e. nel=1)
+%                 - array size [2,nel] (if expect vector value i.e. nel>1)
+%   boundary_ok Logical array with same size as argument range, where elements
+%               indicate if the value can lie on the boundary (true) or not (false)
+%
+% Output:
+% -------
+%   val_out     Array with input array val reshaped and (if necessary) replicated 
+%               so that it has size [nfiles,nel]
+%   mess        Error message. Empty if all is OK.
+%
+%
+% EXAMPLES
+%   >> [gl_out,mess]=check_parameter_values_ok(gl,nfile,1,'gl','the number of spe files');
+%
+%   >> [angdeg_out,mess]=check_parameter_values_ok(angdeg,nfile,3,'angdeg',...
+%                               'the number of spe files',[0,0,0;180,180,180],false(2,3));
+%
+%   >> [efix_out,mess]=check_parameter_values_ok(efix,nfile,1,'efix',...
+%                               'the number of spe files',[0,Inf],[false,true]);
 
 mess='';
 if nel==1
@@ -18,7 +47,7 @@ if nel==1
     else
         val_out=[];
         if nfiles>1
-            mess=['''',val_name,''' must be a single number, or vector with length equal to ',row_name'];
+            mess=['''',val_name,''' must be a single number, or vector with length equal to ',row_name];
         else
             mess=['''',val_name,''' must be a single number'];
         end

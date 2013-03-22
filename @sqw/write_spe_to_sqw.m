@@ -51,7 +51,7 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_
 % $Revision$ ($Date$)
 
 
-disp('*** DEPRECATED FUNCTION:  Please replace write_spe_to_sqw with gen_sqw. ***')
+disp('*** DEPRECATED FUNCTION:  Please replace this call to  write_spe_to_sqw  with  gen_sqw ***')
 
 % Check input arguments
 % ---------------------

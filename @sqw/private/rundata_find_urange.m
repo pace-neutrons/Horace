@@ -10,7 +10,7 @@ function urange = rundata_find_urange(run_files)
 % Output:
 % -------
 %   urange    	2x4 array, describing min-max values in momentum/energy
-%              transfer, in crystal Cartesian coordinates and meV.
+%              transfer, in crystal Cartesian coordinates and meV. Uses bin centres.
 
 nfiles = numel(run_files);
 
