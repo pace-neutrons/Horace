@@ -7,7 +7,7 @@ function str=str_random(n)
 
 % T.G.Perring 3 August 2010
 
-ch='00123456789qwertyuiopasdfghjklzxcvbnmm';
+ch='0123456789qwertyuiopasdfghjklzxcvbnmm';
 time=now;
 sec=86400*(time-floor(time));
 msec=1000*(sec-floor(sec));
