@@ -10,21 +10,21 @@ function urange = speData_find_urange(spe_data, par_file,...
 %   par_file    Detector parameter file name
 %   efix        Fixed energy (meV)                 [vector length nfile]
 %   emode       Direct geometry=1, indirect geometry=2, elastic=0    [scalar]
-%   alatt       Lattice parameters (Ang^-1)        [row vector]
-%   angdeg      Lattice angles (deg)               [row vector]
-%   u           First vector (1x3) defining scattering plane (r.l.u.)
-%   v           Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi         Angle of u w.r.t. ki (deg)         [vector length nfile]
-%   omega       Angle of axis of small goniometer arc w.r.t. notional u (deg) [vector length nfile]
-%   dpsi        Correction to psi (deg)            [vector length nfile]
-%   gl          Large goniometer arc angle (deg)   [vector length nfile]
-%   gs          Small goniometer arc angle (deg)   [vector length nfile]
+%   alatt       Lattice parameters (Ang^-1)        [vector length 3]
+%   angdeg      Lattice angles (deg)               [vector length 3]
+%   u           First vector defining scattering plane (r.l.u.) [vector length 3]
+%   v           Second vector defining scattering plane (r.l.u.) [vector length 3]
+%   psi         Angle of u w.r.t. ki (rad)         [vector length nfile]
+%   omega       Angle of axis of small goniometer arc w.r.t. notional u (rad) [vector length nfile]
+%   dpsi        Correction to psi (rad)            [vector length nfile]
+%   gl          Large goniometer arc angle (rad)   [vector length nfile]
+%   gs          Small goniometer arc angle (rad)   [vector length nfile]
 %
 %
 % Output:
 % -------
 %   urange    	2x4 array, describing min-max values in momentum/energy
-%              transfer, in crystal Cartesian coordinates and meV.
+%              transfer, in crystal Cartesian coordinates and meV. Uses bin centres.
 
 
 % Get limits of data for grid on which to store sqw data

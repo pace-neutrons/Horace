@@ -65,21 +65,23 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %
 % Output:
 % --------
-%   tmp_file        Cell array with list of temporary files. If only one input spe file, then
-%                  no temporary file created, and tmp_file is an cell array size 1x1 with no contents
+%   tmp_file        Cell array with list of temporary files created by this call to gen_sqw.
+%                  If only one input spe file, then no temporary file created, and tmp_file
+%                  is an empty cell array.
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
 
-% T.G.Perring  14 August 2007
 
+% T.G.Perring  14 August 2007
+% T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
+%
+% $Revision$ ($Date$)
 
 % *** Possible improvements
 % - Cleverer choice of grid size on the basis of number of data points in the file
 
 
-% Check input arguments
-% ---------------------
 % Check that the first argument is sqw object
 if ~isa(dummy,classname)    % classname is a private method
     error('Check type of input arguments')
@@ -95,90 +97,165 @@ if ~opt.accumulate
         error('Invalid option ''clean'' unless also have option ''accumulate''')
     end
 end
-if opt.replicate
-    require_spe_unique=false;
-else
-    require_spe_unique=true;
-end
-if opt.accumulate
-    require_spe_exist=false;
-else
-    require_spe_exist=true;
-end
 
-% Check file names
+
+% Check file names are valid, and their existence or otherwise
+if opt.replicate,  require_spe_unique=false; else require_spe_unique=true; end
+if opt.accumulate, require_spe_exist=false;  else require_spe_exist=true;  end
 require_sqw_exist=false;
+
 [ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
 if ~ok, error(mess), end
 nfiles=numel(spe_file);
 
-% Check numeric parameters
+
+% Set the status of flags for the three cases we must handle
+% (One and only of the three cases below will be true, the others false.)
+accumulate_old_sqw=false;   % true if want to accumulate spe data to an existing sqw file (not all spe data files need exist)
+accumulate_new_sqw=false;   % true if want to accumulate spe data to a new sqw file (not all spe data files need exist)
+generate_new_sqw=false;          % true if want to generate a new sqw file (all spe data files must exist)
+if opt.accumulate
+    if sqw_exist && ~opt.clean  % accumulate onto an existing sqw file
+        accumulate_old_sqw=true;
+    else
+        accumulate_new_sqw=true;
+    end
+else
+    generate_new_sqw=true;
+end
+
+
+% Check numeric parameters (array lengths and sizes, simple requirements on validity)
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
     (nfiles,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
 
-% Check optional arguments (grid, urange, instument, sample)
-if nfiles==1
-    grid_default=[1,1,1,1];     % for a single spe file, don't sort
-else 
-    grid_default=[50,50,50,50]; % multiple spe files, 50^4 grid
-end
+
+% Check optional arguments (grid, urange, instument, sample) for size, type and validity
+grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
-[ok,mess,grid_size_in,urange_in,instrument,sample]=gen_sqw_check_optional_args(...
+[ok,mess,present,grid_size_in,urange_in,instrument,sample]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error(mess), end
-
-% Check the input parameters define unique data sets
-[ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs, instrument, sample);
-if ~ok
-    error(mess)
+if accumulate_old_sqw && (present.grid||present.urange)
+    error('If data is being accumulated to an existing sqw file, then you cannot specify the grid or urange.')
 end
 
-% Information for tmp files
-tmp_file = cell(1,nfiles);
-tmp_sqw_path = fileparts(sqw_file);
-tmp_sqw_ext = '.tmp';
 
+% Check the input parameters define unique data sets
+if accumulate_old_sqw    % combine with existing sqw file
+    % Check that the sqw file has the correct type to which to accumulate
+    [ok,mess,header_sqw,detpar_sqw,grid_size_sqw,urange_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
+    % Check that the input spe data are distinct
+    if ~ok, error(mess), end
+    [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+        u, v, psi, omega, dpsi, gl, gs, instrument, sample, header_sqw);
+    if ~ok, error(mess), end
+    if any(head_only)
+        disp('********************************************************************************')
+        disp('***  WARNING: The sqw file contains at least one data set that does not      ***')
+        disp('***           appear in the list of input spe data sets                      ***')
+        disp('********************************************************************************')
+        disp(' ')
+    end
+    if ~any(spe_exist & spe_only)   % no work to do
+        disp('--------------------------------------------------------------------------------')
+        if ~any(spe_only)
+            disp('  All the input spe data are already included in the sqw file. No work to do.')
+        elseif ~any(spe_exist)
+            disp('  None of the input spe data currently exist. No work to do.')
+        else
+            disp('  All the input spe data are already included in the sqw file, or do not')
+            disp('  currently exist. No work to do.')
+        end
+        disp('--------------------------------------------------------------------------------')
+        tmp_file={}; grid_size=grid_size_sqw; urange=urange_sqw;
+        return
+    end
+    ix=(spe_exist & spe_only);    % the spe data that needs to be processed
+else
+    [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+        u, v, psi, omega, dpsi, gl, gs, instrument, sample);
+    if ~ok, error(mess), end
+    % Have already checked that all the spe files exist for the case of generate_new_sqw is true
+    if accumulate_new_sqw && ~any(spe_exist)
+        error('None of the spe data files exist, so cannot create new sqw file.')
+    end
+    ix=spe_exist;  % the spe data that needs to be processed
+end
+indx=find(ix);
+nindx=numel(indx);
 
 % Create temporary sqw files, and combine into one (if more than one input file)
 % -------------------------------------------------------------------------------
+% At this point, there will be at least one spe data input that needs to be turned into an sqw file
+
 % Branch depending if use Herbert rundata class, or original libisis processing
 
 if is_herbert_used()    % =============================> rundata class processing
     % Create fully fledged single crystal rundata objects
-    run_files = gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+    run_files = gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),alatt(ix,:),angdeg(ix,:),...
+                                            u(ix,:),v(ix,:),psi(ix),omega(ix),dpsi(ix),gl(ix),gs(ix));
 
+    % If grid not given, make default size
+    if ~accumulate_old_sqw && isempty(grid_size_in)
+        if nfiles==1
+            grid_size_in=[1,1,1,1];     % for a single spe file, don't sort
+        else 
+            grid_size_in=[50,50,50,50]; % multiple spe files, 50^4 grid
+        end
+    elseif accumulate_old_sqw
+        grid_size_in=grid_size_sqw;
+    end
+                                        
     % If no input data range provided, calculate it from the files
-    if isempty(urange_in)
+    if ~accumulate_old_sqw && isempty(urange_in)
         urange_in = rundata_find_urange(run_files);
+        if any(~ix)
+            % Get estimate of energy bounds for those spe data that do not actually exist
+            eps_lo=NaN(nfiles,1); eps_hi=NaN(nfiles,1);
+            for i=indx
+                en=run_files{i}.en;
+                en_cent=0.5*(en(2:end)+en(1:end-1));
+                eps_lo(i)=en_cent(1); eps_hi(i)=en_cent(end);
+            end
+            [eps_lo,eps_hi]=estimate_erange(efix,emode,eps_lo,eps_hi);
+            % Compute range with those estimate energy bounds
+            urange_est=calc_urange(efix(~ix),emode(~ix),eps_lo(~ix),eps_hi(~ix),det,...
+                alatt(~ix,:),angdeg(~ix,:),u(~ix,:),v(~ix,:),psi(~ix),omega(~ix),dpsi(~ix),gl(~ix),gs(~ix));
+            % Expand range to include urange_est, if necessary
+            urange_in=[min(urange_in(1,:),urange_est(1,:)); max(urange_in(2,:),urange_est(2,:))];
+        end
+    elseif accumulate_old_sqw
+        urange_in=urange_sqw;
     end
     
     % Construct output sqw file
-    if nfiles==1
-        % Create sqw file in one step: no need to create an intermediate file as just one input spe file
+    if ~accumulate_old_sqw && nindx==1
+        % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
         [grid_size,urange] = rundata_write_to_sqw (run_files{1},sqw_file,grid_size_in,urange_in,instrument(1),sample(1));
+        tmp_file={};    % empty cell array to indicate no tmp_files created
         
     else
-        % Create temporary sqw files, one for each of the spe files
+        % Create unique temporary sqw files, one for each of the spe files
+        [tmp_file,sqw_file_tmp]=gen_tmp_filenames(spe_file,sqw_file,indx);
         nt=bigtic();
-        for i=1:nfiles
+        for i=1:nindx
             disp('--------------------------------------------------------------------------------')
-            disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
+            disp(['Processing spe file ',num2str(i),' of ',num2str(nindx),':'])
             disp(' ')
-            [source_path,source_name]=get_source_fname(run_files{i});
-            tmp_file{i}=fullfile(tmp_sqw_path,[source_name,tmp_sqw_ext]);
-            [grid_size_tmp,urange_tmp] = rundata_write_to_sqw (run_files{i},tmp_file{i},grid_size_in,urange_in,instrument(i),sample(i));
+            [grid_size_tmp,urange_tmp] = rundata_write_to_sqw (run_files{indx(i)},tmp_file{i},...
+                                        grid_size_in,urange_in,instrument(indx(i)),sample(indx(i)));
             if i==1
                 grid_size = grid_size_tmp;
                 urange = urange_tmp;
             else
                 if ~all(grid_size==grid_size_tmp) || ~all(urange(:)==urange_tmp(:))
-                    error('Logic error in code calling rundata_write_to_sqw')
+                    error('Logic error in code calling rundata_write_to_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
                 end
             end
         end
@@ -187,8 +264,16 @@ if is_herbert_used()    % =============================> rundata class processin
         
         % Create single sqw file combining all intermediate sqw files
         disp('--------------------------------------------------------------------------------')
-        disp('Creating output sqw file:')
-        write_nsqw_to_sqw (tmp_file, sqw_file);
+        if ~accumulate_old_sqw
+            disp('Creating output sqw file:')
+            write_nsqw_to_sqw (tmp_file, sqw_file);
+        else
+            disp('Accumulating in temporary output sqw file:')
+            write_nsqw_to_sqw ({sqw_file;tmp_file(:)}, sqw_file_tmp);
+            disp(' ')
+            disp(['Renaming sqw file to ',sqw_file])
+            rename_file (sqw_file_tmp, sqw_file)
+        end
         disp('--------------------------------------------------------------------------------')
     end
     

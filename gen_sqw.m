@@ -44,7 +44,8 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 %
 % Output:
 % --------
-%   tmp_file        List of temporary files
+%   tmp_file        List of temporary files created by this call to gen_sqw (can be empty
+%                  e.g. if a single spe file, when no temporary file is created)
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid

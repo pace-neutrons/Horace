@@ -1,7 +1,6 @@
 function [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
 % Get sqw_type and dimensionality of an sqw file on disk
 %
-% Syntax:
 %   >> [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
 %
 % Input:

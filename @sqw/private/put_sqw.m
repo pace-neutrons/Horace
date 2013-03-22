@@ -38,13 +38,16 @@ function [mess,position,npixtot,type] = put_sqw (outfile,main_header,header,detp
 %   npixstart   Position (in bytes) from start of file of the start of the field npix
 %   pixstart    Position (in bytes) from start of file of the start of the field pix
 %   run_label   Indicates how to re-label the run index (pix(5,...) 
-%                       'fileno'    relabel run index as the index of the file in the list infiles
-%                       'nochange'  use the run index as in the input file
-%                   This option exists to deal with the two limiting cases 
-%                    (1) There is one file per run, and the run index in the header block is the file
-%                       index e.g. as in the creating of the master sqw file
-%                    (2) The run index is already written to the files correctly indexed into the header
+%                       'fileno'        relabel run index as the index of the file in the list infiles
+%                       'nochange'      use the run index as in the input file
+%                        numeric array  offset run numbers for ith file by ith element of the array
+%                   This option exists to deal with three limiting cases:
+%                    (1) The run index is already written to the files correctly indexed into the header
 %                       e.g. as when temporary files have been written during cut_sqw
+%                    (2) There is one file per run, and the run index in the header block is the file
+%                       index e.g. as in the creating of the master sqw file
+%                    (3) The files correspond to several runs in general, which need to
+%                       be offset to give the run indices into the collective list of run parameters
 %
 % Output:
 % --------

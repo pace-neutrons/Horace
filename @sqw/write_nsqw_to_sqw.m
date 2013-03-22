@@ -8,6 +8,10 @@ function write_nsqw_to_sqw (dummy, infiles, outfile)
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   infiles         Cell array or character array of sqw file name(s) of input file(s)
 %   outfile         Full name of output sqw file
+%
+% Output:
+% -------
+%   <no output arguments>
 
 
 % T.G.Perring   27 June 2007
@@ -37,22 +41,23 @@ end
 nfiles=length(infiles);
 for i=1:nfiles
     if exist(infiles{i},'file')~=2
-        error(['ERROR: File ',infiles{i},' not found'])
+        error(['File ',infiles{i},' not found'])
     end
 end
 
 % *** Check output file can be opened
-% *** Check that output files and input file do not coincide
+% *** Check that output file and input files do not coincide
 % *** Check do not repeat an input file name
+% *** Check they are all sqw files
 
 
 % Read header information from files, and check consistency
 % ---------------------------------------------------------
-% (*** At present we require that all detector info is the same for all files, and each input file contains only one spe file)
+% At present we require that all detector info is the same for all files, and each input file contains only one spe file
 disp(' ')
 disp('Reading header(s) of input file(s) and checking consistency...')
 
-% Read data:
+% Read header information:
 main_header=cell(nfiles,1);
 header=cell(nfiles,1);
 datahdr=cell(nfiles,1);
@@ -67,7 +72,6 @@ for i=1:nfiles
     if ~current_format; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
     if ~strcmpi(type,'a'); error(['No pixel information in ',infiles{i}]); end
-    if main_header{i}.nfiles~=1; error(['Data from more than one spe file in ',infiles{i}]); end
     if i==1
         det=det_tmp;    % store the detector information for the first file
     end
@@ -82,22 +86,23 @@ mess_completion
 
 
 % Check consistency:
-% (***At present, we insist that lattice parameters, u_to_rlu, and uoffset are identical. This may be generalisable however)
+% At present, we insist that the contributing spe data are distinct in that:
+%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
+%   - emode, lattice parameters, u, v, sample must be the same for all spe data input
+% This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
+% it is assigned a different Q, and is in the spirit of independence)
+[header_combined,nspe,ok,mess] = header_combine(header);
+if ~ok, error(mess), end
+
+% We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
+
 npax=length(datahdr{1}.pax);
-small = 1.0e-10;% test number to define equality allowing for rounding
+tol = 2e-7;% test number to define equality allowing for rounding
 for i=2:nfiles  % only need to check if more than one file
-    ok = all(abs(header{i}.alatt-header{1}.alatt)<small);
-    ok = ok & all(abs(header{i}.angdeg-header{1}.angdeg)<small);
-    ok = ok & all(abs(header{i}.uoffset-header{1}.uoffset)<small);
-    ok = ok & all(abs(header{i}.u_to_rlu(:)-header{1}.u_to_rlu(:))<small);
+    ok = equal_to_relerr(datahdr{i}.uoffset, datahdr{1}.uoffset, tol, 1);
+    ok = ok & equal_to_relerr(datahdr{i}.u_to_rlu(:), datahdr{1}.u_to_rlu(:), tol, 1);
     if ~ok
-        error('Not all input files have the same lattice parameters, projection axes and projection axes offsets in the header blocks')
-    end
-    
-    ok = all(abs(datahdr{i}.uoffset-datahdr{1}.uoffset)<small);
-    ok = ok & all(abs(datahdr{i}.u_to_rlu-datahdr{1}.u_to_rlu)<small);
-    if ~ok
-        error('Not all input files have the same projection axes and projection axes offsets in the data blocks')
+        error('Input files must all have the same projection axes and projection axes offsets in the data blocks')
     end
 
     if length(datahdr{i}.pax)~=npax
@@ -105,7 +110,7 @@ for i=2:nfiles  % only need to check if more than one file
     end
     if npax<4   % one or more integration axes
         ok = all(datahdr{i}.iax==datahdr{1}.iax);
-        ok = ok & all(datahdr{i}.iint==datahdr{1}.iint);
+        ok = ok & equal_to_relerr(datahdr{i}.iint, datahdr{1}.iint, tol, 1);
         if ~ok
             error('Not all integration axes and integration limits are identical')
         end
@@ -113,7 +118,7 @@ for i=2:nfiles  % only need to check if more than one file
     if npax>0   % one or more projection axes
         ok = all(datahdr{i}.pax==datahdr{1}.pax);
         for ipax=1:npax
-            ok = ok & all(datahdr{i}.p{ipax}==datahdr{1}.p{ipax});
+            ok = ok & equal_to_relerr(datahdr{i}.p{ipax}, datahdr{1}.p{ipax}, tol, 1);
         end
         if ~ok
             error('Not all projection axes and bin boundaries are identical')
@@ -154,6 +159,7 @@ for i=1:nfiles
         npix_accum = npix_accum + bindata.npix;
     end
     fclose(fid);            % close file so that do not have lots of files open at once
+    clear bindata
     mess_completion(i)
 end
 s_accum = s_accum ./ npix_accum;
@@ -170,10 +176,11 @@ mess_completion
 disp(' ')
 disp(['Writing to output file ',outfile,' ...'])
 
+nfiles_tot=sum(nspe);
 main_header_combined.filename='';
 main_header_combined.filepath='';
 main_header_combined.title='';
-main_header_combined.nfiles=nfiles;
+main_header_combined.nfiles=nfiles_tot;
 
 sqw_data.filename=main_header_combined.filename;
 sqw_data.filepath=main_header_combined.filepath;
@@ -197,6 +204,6 @@ for i=2:nfiles
     sqw_data.urange=[min(sqw_data.urange(1,:),datahdr{i}.urange(1,:));max(sqw_data.urange(2,:),datahdr{i}.urange(2,:))];
 end
 
-run_label='fileno';
+run_label=cumsum([0;nspe(1:end-1)]);
 mess = put_sqw (outfile, main_header_combined, header, det, sqw_data, '-pix', infiles, pos_npixstart, pos_pixstart, run_label);
 if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
