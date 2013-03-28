@@ -1,6 +1,5 @@
 function write_nsqw_to_sqw (varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
-% Currently the input files are restricted to have been made from a single spe file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfile)
 %
@@ -17,4 +16,3 @@ function write_nsqw_to_sqw (varargin)
 
 % Gateway routine that calls sqw method
 write_nsqw_to_sqw (sqw, varargin{:});
-

@@ -39,12 +39,14 @@ spe_file_out=[]; par_file_out=[]; sqw_file_out=[]; spe_exist=[]; spe_unique=[]; 
 
 % Check spe file input
 % --------------------
-if isstring(spe_file) && ~isempty(strtrim(spe_file))
+if isstring(spe_file)
     spe_file_out=cellstr(strtrim(spe_file));
 elseif iscellstr(spe_file)
-    [ok,spe_file_out,all_non_empty]=str_make_cellstr_trim(spe_file);
-    if ~ok || ~all_non_empty
-        ok=false; mess='spe file input must be a single file name or cell array of file names'; return
+    [ok,spe_file_out]=str_make_cellstr(spe_file);
+    if ok
+        spe_file_out=strtrim(spe_file_out);
+    else
+        mess='spe file input must be a single file name or cell array of file names'; return
     end
 else
     ok=false; mess='spe file input must be a single file name or cell array of file names'; return
@@ -52,26 +54,33 @@ end
 
 % Check all spe files exist and do not have a reserved extension name
 spe_exist=true(size(spe_file_out));
+spe_filled=false(size(spe_file_out));
 for i=1:numel(spe_file_out)
-    [path,name,ext]=fileparts(spe_file_out{i});
-    if any(strcmpi(ext,[ext_horace,'.par']))
-        ok=false; 
-        mess=['spe files must not have the reserved extension ''',ext,...
-            '''. Check the file is spe type and rename.'];
-        return
+    if ~isempty(spe_file_out{i})
+        spe_filled(i)=true;
+        [path,name,ext]=fileparts(spe_file_out{i});
+        if any(strcmpi(ext,[ext_horace,'.par']))
+            ok=false;
+            mess=['spe files must not have the reserved extension ''',ext,...
+                '''. Check the file is spe type and rename.'];
+            return
+        end
     end
-    if ~exist(spe_file_out{i},'file')
+    if ~spe_filled(i) || ~exist(spe_file_out{i},'file')
         spe_exist(i)=false;
         if require_spe_exist
-            ok=false; mess=['spe file: ',spe_file_out{i},' does not exist']; return
+            if isempty(spe_file_out{i})
+                ok=false; mess='spe file names must be non-empty strings'; return
+            else
+                ok=false; mess=['spe file: ',spe_file_out{i},' does not exist']; return
+            end
         end
-        break
     end
 end
 
-% Check that the spe file names are all unique
+% Check that the (filled) spe file names are all unique
 spe_unique=true;
-if ~(numel(unique(spe_file_out))==numel(spe_file_out))
+if any(spe_filled) && ~(numel(unique(spe_file_out(spe_filled)))==numel(spe_file_out(spe_filled)))
     spe_unique=false;
     if require_spe_unique
         ok=false; mess='One or more spe file names are repeated. All spe files must be unique'; return
@@ -112,12 +121,17 @@ else
 end
 
 % Check sqw file exist
-sqw_exist=true;
 if ~exist(sqw_file_out,'file')
     sqw_exist=false;
     if require_sqw_exist
         ok=false; mess=['sqw file: ',sqw_file_out,' does not exist']; return
     end
+    pathsqw=fileparts(sqw_file_out);
+    if ~isempty(pathsqw) && ~exist(pathsqw,'dir')
+        ok=false; mess='Cannot find folder into which to output the sqw file'; return
+    end
+else
+    sqw_exist=true;
 end
 
 

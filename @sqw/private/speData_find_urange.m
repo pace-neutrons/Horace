@@ -9,11 +9,11 @@ function urange = speData_find_urange(spe_data, par_file,...
 %   spe_data 	Cell array of initiated speData objects
 %   par_file    Detector parameter file name
 %   efix        Fixed energy (meV)                 [vector length nfile]
-%   emode       Direct geometry=1, indirect geometry=2, elastic=0    [scalar]
-%   alatt       Lattice parameters (Ang^-1)        [vector length 3]
-%   angdeg      Lattice angles (deg)               [vector length 3]
-%   u           First vector defining scattering plane (r.l.u.) [vector length 3]
-%   v           Second vector defining scattering plane (r.l.u.) [vector length 3]
+%   emode       Direct geometry=1, indirect geometry=2, elastic=0    [vector length nfile]
+%   alatt       Lattice parameters (Ang^-1)        [array size [nfile,3]]
+%   angdeg      Lattice angles (deg)               [array size [nfile,3]]
+%   u           First vector defining scattering plane (r.l.u.) [array size [nfile,3]]
+%   v           Second vector defining scattering plane (r.l.u.) [array size [nfile,3]]
 %   psi         Angle of u w.r.t. ki (rad)         [vector length nfile]
 %   omega       Angle of axis of small goniometer arc w.r.t. notional u (rad) [vector length nfile]
 %   dpsi        Correction to psi (rad)            [vector length nfile]
@@ -77,7 +77,7 @@ for i=1:nfiles
         data.E=zeros(1,ndet);
         data.en=eps;
     end
-    [u_to_rlu, ucoords] = calc_projections (efix(i), emode, alatt, angdeg, u, v, psi(i), ...
+    [u_to_rlu, ucoords] = calc_projections (efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:), psi(i), ...
         omega(i), dpsi(i), gl(i), gs(i), data, det);
     urange = [min(urange(1,:),min(ucoords,[],2)'); max(urange(2,:),max(ucoords,[],2)')];
 end

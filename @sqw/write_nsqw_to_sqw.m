@@ -15,6 +15,9 @@ function write_nsqw_to_sqw (dummy, infiles, outfile)
 
 
 % T.G.Perring   27 June 2007
+% T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
+%
+% $Revision$ ($Date$)
 
 
 % Check that the first argument is sqw object
@@ -118,7 +121,8 @@ for i=2:nfiles  % only need to check if more than one file
     if npax>0   % one or more projection axes
         ok = all(datahdr{i}.pax==datahdr{1}.pax);
         for ipax=1:npax
-            ok = ok & equal_to_relerr(datahdr{i}.p{ipax}, datahdr{1}.p{ipax}, tol, 1);
+            ok = ok & (numel(datahdr{i}.p{ipax})==numel(datahdr{i}.p{ipax}) &...
+                equal_to_relerr(datahdr{i}.p{ipax}, datahdr{1}.p{ipax}, tol, 1));
         end
         if ~ok
             error('Not all projection axes and bin boundaries are identical')
@@ -205,5 +209,5 @@ for i=2:nfiles
 end
 
 run_label=cumsum([0;nspe(1:end-1)]);
-mess = put_sqw (outfile, main_header_combined, header, det, sqw_data, '-pix', infiles, pos_npixstart, pos_pixstart, run_label);
+mess = put_sqw (outfile, main_header_combined, header_combined, det, sqw_data, '-pix', infiles, pos_npixstart, pos_pixstart, run_label);
 if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end

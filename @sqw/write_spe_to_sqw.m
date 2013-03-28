@@ -64,35 +64,25 @@ end
 check_spe_exist=true;
 check_spe_unique=true;
 check_sqw_exist=false;
-[ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
+[ok, mess, spe_file, par_file, sqw_file] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, check_spe_exist, check_spe_unique, check_sqw_exist);
 if ~ok, error(mess), end
 nfiles=numel(spe_file);
+if nfiles~=1
+    error('This function takes only a single spe file data source')
+end
 
 % Check numeric parameters
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
     (nfiles,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
 
-% Checks specific to write_spe_to_sqw
-% -----------------------------------
-if nfiles~=1
-    error('This function takes only a single spe file data source')
-end
-
-% Convert input angles to degrees
-rad2deg=180/pi;
-psi = psi*rad2deg;
-omega = omega*rad2deg;
-dpsi = dpsi*rad2deg;
-gl = gl*rad2deg;
-gs = gs*rad2deg;
-    
 
 % Perform spe to sqw calculation
 % ------------------------------
+r2d=180/pi;
 [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_file,...
-    efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, varargin{:});
+    efix, emode, alatt, angdeg, u, v, psi*r2d, omega*r2d, dpsi*r2d, gl*r2d, gs*r2d, varargin{:});
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
