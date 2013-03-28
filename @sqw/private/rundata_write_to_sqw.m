@@ -38,7 +38,7 @@ data = struct();
 
 [data.filepath,data.filename]=get_source_fname(run_file);
 
-% Get the list of all detectors, including the detectors correspondiong to masked detectors
+% Get the list of all detectors, including the detectors corresponding to masked detectors
 det0 = get_rundata(run_file,'det_par','-hor');
 
 

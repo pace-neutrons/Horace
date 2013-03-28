@@ -38,10 +38,10 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 %   mess            Message if not ok; ='' if ok.
 %   spe_only        Logical array: true for entries into the input arguments that
 %                  correspond to spe data that are NOT in the optional header.
-%                   - If no header is provided, then ind=[]
-%                   - If status==false, ind=[]
+%                   - If no header is provided, then spe_only=true for all spe entries
 %   head_only       Logical array: true for entries into the header that do
 %                  not correspond to spe data parameters
+%                   - If no header is provided, then head_only=false(0,1)
 %                  
 %
 % Notes:
@@ -165,8 +165,10 @@ else
     end
     ok=true;
     mess='';
-    spe_only=~pcommon;
-    head_only=~hcommon;
+    spe_only=true(numel(pstruct),1);
+    head_only=true(numel(header_out),1);
+    spe_only(ip0)=false;
+    head_only(ih0)=false;
 end
 
 %--------------------------------------------------------------------------]

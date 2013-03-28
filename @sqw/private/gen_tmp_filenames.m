@@ -16,6 +16,8 @@ function [tmp_file,sqw_file_tmp] = gen_tmp_filenames (spe_file, sqw_file, ind)
 %                  array even if a single file). The name is chosen as:
 %                   - In same folder as output sqw file
 %                   - Will try to use the spe file name but with extension .tmp
+%                   - If the spe file name is empty, then will behave as if the
+%                    name of the source is 'dummy.spe'.
 %                   - If ambiguous (two spe files with the same name, either
 %                    because the same file appears twice, or the spe files are in
 %                    different folders) then the output files have name and
@@ -60,7 +62,11 @@ tmp_ext = '.tmp';
 
 name=cell(ntmp,1);
 for i=1:ntmp
-    [dummy,name{i}]=fileparts(spe_file{ind(i)});
+    if ~isempty(spe_file{ind(i)})
+        [dummy,name{i}]=fileparts(spe_file{ind(i)});
+    else
+        name{i}='dummy';
+    end
 end
 
 % Must account for the possibility that the spe file is repeated, or that

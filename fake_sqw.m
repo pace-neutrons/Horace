@@ -49,5 +49,5 @@ function [tmp_file, grid_size, urange] = fake_sqw (varargin)
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
-    clear grid_size urange
+    clear tmp_file grid_size urange
 end

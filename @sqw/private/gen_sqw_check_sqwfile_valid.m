@@ -63,7 +63,7 @@ end
 
 grid_size=zeros(1,4);
 for i=1:4
-    grid_size(i)=numel(data.p{i});
+    grid_size(i)=numel(data.p{i})-1;
 end
 urange=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
         data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];

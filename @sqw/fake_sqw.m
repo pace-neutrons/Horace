@@ -43,14 +43,11 @@ function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_
 % Use to generate an sqw file that can be used for creating simulations. Syntax very similar to
 % gen_sqw: the only difference is that the input spe data is replaced by energy bin boundaries.
 
+
 % T.G.Perring  18 May 2009
+%
+% $Revision: 690 $ ($Date: 2013-03-22 13:53:28 +0000 (Fri, 22 Mar 2013) $)
 
-
-% Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
-% --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=15 && nargin<=17)
-    error('Check number of input arguments')
-end
 
 % Check input arguments
 % ------------------------
@@ -77,82 +74,41 @@ else
     error('Energy bins must be an array of equally spaced energy bin boundaries')
 end
 
-% Check par file exists
-if ischar(par_file) && size(par_file,1)==1
-    if ~exist(par_file,'file')
-        error(['File ',par_file,' not found'])
-    end
+% Check par and sqw file names
+spe_file='';
+require_spe_exist=false;
+require_spe_unique=false;
+require_sqw_exist=false;
+[ok, mess, spe_file, par_file, sqw_file] = gen_sqw_check_files...
+    (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
+if ~ok, error(mess), end
+
+
+% Check emode, alatt, angdeg, u, v etc. and determine number of spe files
+if numel(en)>1
+    nfiles_in=numel(en); % no. datasets determined by number of energy arrays
 else
-    error('Input detector par file must be a character string')
+    nfiles_in=[];        % no. datasets determine from length of arrays of other parmaeters
+end
+[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+    (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+if ~ok, error(mess), end
+if efix(1)==0, error('Must have emode=1 (director geometry) or =2 (indirect geometry)'), end
+
+nfiles=numel(efix);
+if nfiles>1 && numel(en)==1
+    en=repmat(en,1,nfiles);
+    en_lo=en_lo*ones(1,nfiles);
+    en_hi=en_hi*ones(1,nfiles);
 end
 
-% Check that output file does not appear in input file name list
-if strcmpi(par_file,sqw_file)
-    error('Detector parameter file and output sqw file name match')
-end
-
-% Do some checks that will be able to write sqw file
-pathsqw=fileparts(sqw_file);
-if ~isempty(pathsqw) && ~exist(pathsqw,'dir')
-    error('Cannot find folder into which to output the sqw file')
-end
-
-% Check emode, alatt, angdeg, u, v
-if ~isnumeric(emode) || ~(emode==1 || emode==2)
-    error('Emode must equal 1 (direct geometry) or 2 (indirect geometry)')
-end
-if ~(isnumeric(alatt) && isvector(alatt) && numel(alatt)==3 && all(alatt>0))
-    error('Check lattice parameters')
-end
-if ~(isnumeric(angdeg) && isvector(angdeg) && numel(angdeg)==3 && all(angdeg>0))
-    error('Check lattice angles')
-end
-if ~(isnumeric(u) && isvector(u) && numel(u)==3 && ~all(u==0))
-    error('Check vector u')
-end
-if ~(isnumeric(v) && isvector(v) && numel(v)==3 && ~all(v==0))
-    error('Check vector v')
-end
-
-% Check efix, psi, omega, dpsi, gl, gs
-if ~(isnumeric(efix) && all(efix)>0)
-    error('Check fixed energy/energies are greater than zero')
-end
-if ~isnumeric(psi)
-    error('Check psi angle(s) are numeric')
-end
-if ~isnumeric(omega)
-    error('Check omega angle(s) are numeric')
-end
-if ~isnumeric(dpsi)
-    error('Check dpsi angle(s) are numeric')
-end
-if ~isnumeric(gl)
-    error('Check gl angle(s) are numeric')
-end
-if ~isnumeric(gs)
-    error('Check gs angle(s) are numeric')
-end
-
-ndata=[numel(en),numel(efix),numel(psi),numel(omega),numel(dpsi),numel(gl),numel(gs)];
-if ~all(ndata==1 | ndata==max(ndata))
-    error('Check that the number of sets of bin boundaries and number of efix, psi, omega, dpsi, gl, gs are consistent')
-end
-
-nfile=max(ndata);
-if nfile>1
-    if numel(en)==1
-        en=repmat(en,1,nfile);
-        en_lo=en_lo*ones(1,nfile);
-        en_hi=en_hi*ones(1,nfile);
-    end
-    if numel(efix)==1, efix=repmat(efix,1,nfile); end
-    if numel(psi)==1, psi=repmat(psi,1,nfile); end
-    if numel(omega)==1, omega=repmat(omega,1,nfile); end
-    if numel(dpsi)==1, dpsi=repmat(dpsi,1,nfile); end
-    if numel(gl)==1, gl=repmat(gl,1,nfile); end
-    if numel(gs)==1, gs=repmat(gs,1,nfile); end
-end
+% Check optional arguments (grid, urange, instument, sample) for size, type and validity
+grid_default=[];
+instrument_default=struct;  % default 1x1 struct
+sample_default=struct;      % default 1x1 struct
+[ok,mess,present,grid_size,urange,instrument,sample]=gen_sqw_check_optional_args(...
+    nfiles,grid_default,instrument_default,sample_default,varargin{:});
+if ~ok, error(mess), end
 
 
 % Create tmp files
@@ -161,59 +117,75 @@ end
 det=get_par(par_file,'-hor');
 ndet=size(det.x2,2);
 
-% Make temp file names
-str=str_random;     % for use in constructing file name
-tmp_file=cell(1,nfile);
-for i=1:nfile
-    tmp_file{i}=['dummy_',str,'_',num2str(i),'.tmp'];
-end
-
 % Determine a grid size if not given one on input
-if numel(varargin)<1
+if isempty(grid_size)
     av_npix_per_bin=1e4;
     ne=0;
-    for i=1:nfile
+    for i=1:nfiles
         ne=ne+numel(en{i});
     end
     npix=ne*ndet;
     grid_size=ceil(sqrt(sqrt(npix/av_npix_per_bin)));
-else
-    grid_size=varargin{1};
 end
 
 % Determine urange
-if numel(varargin)<2
-    urange = calc_sqw_urange (dummy_sqw, efix, emode, en_lo, en_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-else
-    urange = varargin{2};
+if isempty(urange)
+    d2r=pi/180;
+    urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...
+        u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
 end
 
 % Construct data structure with spe file information
-disp('--------------------------------------------------------------------------------')
-disp('Creating intermediate .tmp file(s):')
-for i=1:nfile
-    data=fake_spe(ndet,en{i},psi(i));
-    w=calc_sqw(efix(i), emode, alatt, angdeg, u, v, psi(i)*(pi/180),...
-        omega(i)*(pi/180), dpsi(i)*(pi/180), gl(i)*(pi/180), gs(i)*(pi/180), data, det, det, grid_size, urange);
-    save(w,tmp_file{i})
-end
-
-
-% Create single sqw file combining all intermediate sqw files
-% ------------------------------------------------------------
-disp('--------------------------------------------------------------------------------')
-disp('Creating output sqw file:')
-write_nsqw_to_sqw (tmp_file, sqw_file);
-
-% Delete tmp files
-for i=1:numel(tmp_file)
-    try
-        delete(tmp_file{i})
-    catch
-        if delete_error==false
-            delete_error=true;
-            disp('One or more .tmp files not deleted')
+if nfiles==1
+    % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
+    disp('--------------------------------------------------------------------------------')
+    disp('Creating output sqw file:')
+    data=fake_spe(ndet,en{1},psi);
+    w=calc_sqw(efix, emode, alatt, angdeg, u, v, psi*d2r, omega*d2r, dpsi*d2r, gl*d2r, gs*d2r,...
+        data, det, det, grid_size, urange, instrument, sample);
+    save(w,sqw_file)
+    tmp_file={};    % empty cell array to indicate no tmp_files created
+    
+else
+    % Create unique temporary sqw files, one for each of the energy bin arrays
+    spe_file=repmat({''},[nfiles,1]);     % empty spe file names
+    tmp_file=gen_tmp_filenames(spe_file,sqw_file);
+    nt=bigtic();
+    for i=1:nfiles
+        disp('--------------------------------------------------------------------------------')
+        disp(['Creating intermediate .tmp file ',num2str(i),' of ',num2str(nfiles),':'])
+        disp(' ')
+        data=fake_spe(ndet,en{i},psi(i));
+        w=calc_sqw(efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:),...
+            psi(i)*d2r, omega(i)*d2r, dpsi(i)*d2r, gl(i)*d2r, gs(i)*d2r,...
+            data, det, det, grid_size, urange, instrument(i), sample(i));
+        save(w,tmp_file{i})
+    end
+    disp('--------------------------------------------------------------------------------')
+    bigtoc(nt,'Time to create all intermediate .tmp files:');
+    disp('--------------------------------------------------------------------------------')
+    
+    % Create single sqw file combining all intermediate sqw files
+    disp('Creating output sqw file:')
+    write_nsqw_to_sqw (tmp_file, sqw_file);
+    
+    disp('--------------------------------------------------------------------------------')
+    % Delete tmp files
+    delete_error=false;
+    for i=1:numel(tmp_file)
+        try
+            delete(tmp_file{i})
+        catch
+            if delete_error==false
+                delete_error=true;
+                disp('One or more intermediate .tmp files not deleted')
+            end
         end
     end
+    
 end
-disp('--------------------------------------------------------------------------------')
+
+% Clear output arguments if nargout==0 to have a silent return
+if nargout==0
+    clear tmp_file grid_size urange
+end

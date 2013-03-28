@@ -4,17 +4,22 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 % Normal use:
 %   >> gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                               u, v, psi, omega, dpsi, gl, gs)
-%  optionally, in addition:
-%   >> gen_sqw (..., grid_size_in, urange_in)   % grid size and range of data to retain
-%   >> gen_sqw (..., instrument, sample)        % instrument and sample information
-%   >> gen_sqw (..., grid_size_in, urange_in, instrument, sample)
+%
+%  To allow an spe file to appear more than once:
+%   >> gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%                                               u, v, psi, omega, dpsi, gl, gs, 'replicate')
+%
+% Optionally (before the keyword 'replicate' if present):
+%   >> gen_sqw (..., instrument, sample,...)        % instrument and sample information
+%   >> gen_sqw (..., grid_size_in, urange_in,...)   % grid size and range of data to retain
+%   >> gen_sqw (..., grid_size_in, urange_in, instrument, sample,...)
 %
 %
 % If want output diagnostics:
-%   >> [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%                                               u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+%   >> [tmp_file,grid_size,urange] = gen_sqw (...)
 %
-% Input: (in the following, nfile = no. spe files)
+%
+% Input: (in the following, nfile = number of spe files)
 % ------
 %   spe_file        Full file name of spe file - character string or cell array of
 %                  character strings for more than one file
@@ -41,6 +46,14 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 %   instrument      Structure or object containing instrument information [scalar or array length nfile]
 %   sample          Structure or object containing sample geometry information [scalar or array length nfile]
 %
+% Optional keyword argument:
+%   'replicate'     Normally the function forbids an spe file from appearing more than once.
+%                  This is to trap common typing errors. However, sometimes you might want to
+%                  to create an sqw file using, for example, just one spe file as the source
+%                  of data for all crystal orientations in order to construct a background from an
+%                  empty piece of sample environment. In this case, use the keyword 'replicate'
+%                  to override the uniqueness check.
+%
 %
 % Output:
 % --------
@@ -49,6 +62,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
+
 
 % Original author: T.G.Perring
 %

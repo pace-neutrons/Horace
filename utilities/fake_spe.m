@@ -4,30 +4,36 @@ function varargout = fake_spe(varargin)
 % Generate data structure only:
 %   >> data = fake_spe (ndet,ebins)
 %   >> data = fake_spe (ndet,emin,de,emax)
-%   >> data = fake_spe (...,psi)
 %
 % Create spe file
 %   >> fake_spe (ndet,ebins,filename,filepath))
 %   >> fake_spe (ndet,emin,de,emax,filename,filepath)
-%   >> fake_spe (...,psi)
+%
+% Options
+%   >> data = fake_spe (...,S0)         % set all signal values to S0
+%   >> data = fake_spe (...,'mask',ind) % mask the detectors given in ind
+%
 %
 % Input:
 % ------
 %   ndet        no. of detectors
 %              e.g. ndet=36864 for MAPS, ndet=69632 for Merlin
 %
+%   ebins       array of energy bin boundaries (all equally spaced bins)
+% *OR*
 %   emin        minimum neutron energy transfer (lower bin boundary)
 %   de          energy bin width
 %   emax        maximum neutron energy transfer
-% *OR*
-%   ebins       array of energy bin boundaries (all equally spaced bins)
 %
 %   filename    name of the spe file to be generated
 %   filepath 	folder in which to place spe file
 %
-% Optional argument (specialists only)
-%   psi         If give psi angle, set the signal to this value
+% Optional arguments:
+%   S0        	Scalar intensity: set the signal to this value
 %               and error bars to unity;
+%
+%   'mask',arr  Logical array length ndet. Where true, set the signal
+%               to NaN (his indicates msked detectors)
 %
 % Output:
 % -------
@@ -42,20 +48,31 @@ function varargout = fake_spe(varargin)
 % TGP 6/3/12: Tidied a bit and different argument list permitted.
 % TGP 8/2/13: Return data structure alone as an option.
 
-if nargin>=4 && isnumeric(varargin{1}) && isnumeric(varargin{2}) &&...
+
+% Strip off 'mask' option
+if nargin>=2 && isstring(varargin{end-1}) && strncmpi(varargin{end-1},'mask',min(numel(varargin{end-1}),4))
+    narg=nargin-2;
+    mask=varargin{end};
+else
+    narg=nargin;
+    mask=[];
+end
+
+% Parse the other arguments
+if narg>=4 && isnumeric(varargin{1}) && isnumeric(varargin{2}) &&...
         isnumeric(varargin{3}) && isnumeric(varargin{4})  % arg list is (ndet,emin,de,emax,...
     ndet=varargin{1};
     energy=(varargin{2}:varargin{3}:varargin{4})';  % column vector
     filename='';
     filepath='';
-    if nargin==4
+    if narg==4
         file_given=false;
-        psi_given=false;
-    elseif nargin==5 && isnumeric(varargin{5})
+        signal_given=false;
+    elseif narg==5 && isnumeric(varargin{5})
         file_given=false;
-        psi_given=true;
-        psi=varargin{5};
-    elseif nargin==6 || nargin==7
+        signal_given=true;
+        S0=varargin{5};
+    elseif narg==6 || narg==7
         if ischar(varargin{5}) && ischar(varargin{6})
             file_given=true;
             filename=varargin{5};
@@ -63,29 +80,29 @@ if nargin>=4 && isnumeric(varargin{1}) && isnumeric(varargin{2}) &&...
         else
             error('Check finepath and filename are character strings')
         end
-        if nargin==7
-            psi_given=true;
-            psi=varargin{7};
+        if narg==7
+            signal_given=true;
+            S0=varargin{7};
         else
-            psi_given=false;
+            signal_given=false;
         end
     else
         error('Check input arguments')
     end
     
-elseif nargin>=2 && isnumeric(varargin{1}) && isnumeric(varargin{2})    % arg list is (ndet,emin,de,emax,...
+elseif narg>=2 && isnumeric(varargin{1}) && isnumeric(varargin{2})    % arg list is (ndet,ebins,...
     ndet=varargin{1};
     energy=varargin{2}(:);  % column vector
     filename='';
     filepath='';
-    if nargin==2
+    if narg==2
         file_given=false;
-        psi_given=false;
-    elseif nargin==3 && isnumeric(varargin{3})
+        signal_given=false;
+    elseif narg==3 && isnumeric(varargin{3})
         file_given=false;
-        psi_given=true;
-        psi=varargin{3};
-    elseif nargin==4 || nargin==5
+        signal_given=true;
+        S0=varargin{3};
+    elseif narg==4 || narg==5
         if ischar(varargin{3}) && ischar(varargin{4})
             file_given=true;
             filename=varargin{3};
@@ -93,11 +110,11 @@ elseif nargin>=2 && isnumeric(varargin{1}) && isnumeric(varargin{2})    % arg li
         else
             error('Check finepath and filename are character strings')
         end
-        if nargin==5
-            psi_given=true;
-            psi=varargin{5};
+        if narg==5
+            signal_given=true;
+            S0=varargin{5};
         else
-            psi_given=false;
+            signal_given=false;
         end
     else
         error('Check input arguments')
@@ -107,14 +124,29 @@ else
     error('Check number of input arguments')
 end
 
+% Check the number of elements in the mask array
+if ~isempty(mask)
+    if (isnumeric(mask)||islogical(mask)) || numel(mask)~=ndet
+        mask=logical(mask(:));  % ensure logical column vector
+    else
+        error('Check length and data type of mask array')
+    end
+end
+
 % Make S and ERR matrix of ones, so that when combined in an sqw file we
 % should be able to work out how good the errorbars on our measurement will be.
-if psi_given
-    S=psi.*(ones(numel(energy)-1,ndet));
+if signal_given
+    S=S0.*(ones(numel(energy)-1,ndet));
     ERR=ones(size(S));
 else
     S=randn(numel(energy)-1,ndet);
     ERR=rand(size(S));
+end
+
+% Mask signal and error as required
+if ~isempty(mask)
+    S(:,mask)=NaN;
+    ERR(:,mask)=NaN;
 end
 
 % Create data structure

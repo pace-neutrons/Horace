@@ -41,10 +41,10 @@ eps_hi_empty=isempty(eps_hi);
 
 % Replicate some parameters, if required
 if numel(efix)==1, efix=efix*ones(nfile,1); end
-alatt=alatt(:)'; if size(alatt,1)==1, alatt=repmat(alatt,[nfile,1]); end
-angdeg=angdeg(:)'; if size(angdeg,1)==1, angdeg=repmat(angdeg,[nfile,1]); end
-u=u(:)'; if size(u,1)==1, u=repmat(u,[nfile,1]); end
-v=v(:)'; if size(v,1)==1, v=repmat(v,[nfile,1]); end
+if numel(alatt)==3, alatt=repmat(alatt(:)',[nfile,1]); end
+if numel(angdeg)==3, angdeg=repmat(angdeg(:)',[nfile,1]); end
+if numel(u)==3, u=repmat(u(:)',[nfile,1]); end
+if numel(v)==3, v=repmat(v(:)',[nfile,1]); end
 
 % Invoke public get_par routine
 if ischar(det) && size(det,1)==1
