@@ -77,7 +77,7 @@ end
 % Evaluate dispersion relation(s)
 if ~iscell(pars), pars={pars}; end      % package parameters as a cell for convenience
 
-if nargout(dispreln)<2
+if nargout(dispreln)==1
     e=dispreln(q{:},pars{:});   % only dispersion seems to be provided
     if ~iscell(e)   % convert to cell array for convenience
         e={e};
