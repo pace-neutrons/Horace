@@ -1,10 +1,11 @@
-function w=IX_sample(varargin)
+function w=IX_aperture(varargin)
 % Constructor for IX_aperture object
 %
-%   >> aperture = IX_aperture (width,height)
-%   >> aperture = IX_aperture (name,width,height)
+%   >> aperture = IX_aperture (distnce,width,height)
+%   >> aperture = IX_aperture (name,distance,width,height)
 %
 %   name            Name of the aperture (e.g. 'in-pile')
+%   distance        Distance from sample (-ve if upstream, +ve if downstream)
 %   width           Width of aperture (m)
 %   height          Height of aperture (m)
     
@@ -12,6 +13,7 @@ function w=IX_sample(varargin)
 
 if nargin==0    % default constructor
     w.name = '';
+    w.distance = 0;
     w.width = 0;
     w.height = 0;
     
@@ -32,10 +34,11 @@ else
         w.name = '';
         noff=0;
     end
-    if any(nargin-noff==[2])
-        if nargin-noff>=2
-            w.width = varargin{noff+1};
-            w.height= varargin{noff+2};
+    if any(nargin-noff==[1,3])
+        w.distance=varargin{noff+1};
+        if nargin-noff==3
+            w.width = varargin{noff+2};
+            w.height= varargin{noff+3};
         else
             w.width = 0;
             w.height= 0;

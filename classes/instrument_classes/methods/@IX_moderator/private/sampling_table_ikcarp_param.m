@@ -19,5 +19,5 @@ function [table,t_av]=sampling_table_ikcarp_param(pp,ei,npnt)
 %   t_av        First moment of pulse shape (microseconds) 
 
 [tauf,taus,R]=ikcarp_param_convert(pp,ei);
-area=linspace(0,0.999,npnt);
+area=linspace(0,0.999,npnt)';
 [table,t_av] = area_to_t_ikcarp (area, tauf, taus, R);

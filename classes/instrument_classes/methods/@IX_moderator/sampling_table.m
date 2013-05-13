@@ -15,10 +15,10 @@ function [table,t_av]=sampling_table(moderator,ei,npnt)
 % -------
 %   a           Look-up table to convert a random number from uniform distribution
 %              in the range 0 to 1 into reduced time deviation 0 <= t_red <= 1
-%              Convert to true time t = t_av * (t_red/(1-t_red))
+%              Convert to true time t = t_av * (t_red/(1-t_red)) [Column vector]
 %   t_av        First moment of pulse shape (microseconds) 
 
-npnt_default=50;
+npnt_default=100;
 
 if nargin==2
     npnt=npnt_default;
@@ -32,5 +32,5 @@ if strcmp(model,'ikcarp')           % Raw Ikeda Carpenter
 elseif strcmp(model,'ikcarp_param') % Ikeda-Carpenter with parametrised tauf, taus, R
     [table,t_av]=sampling_table_ikcarp_param(moderator.pp,ei,npnt);
 else
-    error('Unrecognised pulse model')
+    error(['Unrecognised pulse model ''',model,''''])
 end

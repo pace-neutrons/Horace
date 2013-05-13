@@ -24,7 +24,7 @@ function [ok, message, wout] = checkfields (w)
     
 % Original author: T.G.Perring
     
-fields = {'name';'width';'height'};  % column vector of expected fields in class structure
+fields = {'name';'distance';'width';'height'};  % column vector of expected fields in class structure
 
 ok=false;
 message='';
@@ -35,7 +35,13 @@ if isequal(fieldnames(w),fields)
         message='Aperture name must be a character string';
         return
     end
-    for i=[2,3]
+    for i=2
+        if ~isnumeric(w.(fields{i})) || ~isscalar(w.(fields{i}))
+            message=['Parameter ''',fields{i},''' must be scalar'];
+            return
+        end
+    end
+    for i=[3,4]
         if ~isnumeric(w.(fields{i})) || ~isscalar(w.(fields{i})) || w.(fields{i})<0
             message=['Parameter ''',fields{i},''' must be greater of equal to zero'];
             return

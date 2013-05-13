@@ -1,5 +1,5 @@
 function [mbeg,mend]=array_unique_ranges(a)
-% Find the first and last indicies of unique ranges in an array
+% Find the first and last indicies of unique ranges in a numeric array
 %
 %   >> [mbeg,mend]=array_unique_ranges(a)
 

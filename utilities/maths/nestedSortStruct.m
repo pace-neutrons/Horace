@@ -1,4 +1,4 @@
-function [sortedStruct index] = nestedSortStruct(aStruct, fieldNamesCell, directions)
+function [sortedStruct, index] = nestedSortStruct(aStruct, fieldNamesCell, directions)
 % [sortedStruct index] = nestedSortStruct(aStruct, fieldNamesCell, directions)
 % nestedSortStruct returns a nested sort of a (one-dimensional) struct array
 % (aStruct), and can also return an index vector. The fields by which to sort are

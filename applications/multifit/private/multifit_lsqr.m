@@ -35,6 +35,9 @@ mess='';
 % Clean the function evaluation routine of buffered results to avoid any conflicts
 multifit_lsqr_func_eval
 
+% Clean up the dataset index storage to avoid any conflicts
+multifit_store_dataset_index
+
 % Package data into a single column vector, and also 1/(error_bar)
 yval=cell(size(w));
 wt=cell(size(w));
@@ -47,10 +50,10 @@ for i=1:numel(w)
         yval{i}=yval{i}(msk);         % remove the points that we are told to ignore
         wt{i}=1./sqrt(wt{i}(msk));
     end
-    yval{i}=yval{i}(:);       % make a column vector
-    wt{i}=wt{i}(:);   % make a column vector
+    yval{i}=yval{i}(:);  	% make a column vector
+    wt{i}=wt{i}(:);         % make a column vector
 end
-yval=cell2mat(yval(:));    % one long column vector
+yval=cell2mat(yval(:));     % one long column vector
 wt=cell2mat(wt(:));
 
 % Check that there are more data points than free parameters
@@ -61,19 +64,20 @@ if nval<npfree
     ok=false; mess='Number of data points must be greater than or equal to the number of free parameters'; return
 end
 
+% Listing to screen
+if ~exist('listing','var'), listing=0; end
+if isempty(listing), listing=0; end
+    
 % Catch case of simple evaluation of chi-squared
 if ~perform_fit
-    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo);
+    if listing>2, disp(' Function evaluation:'), end
+    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,false,listing);
     resid=wt.*(yval-f);
     
     c_best=resid'*resid; % Un-normalised chi-squared
     chisqr_red = c_best/nnorm;
         
 else
-    % Listing to screen
-    if ~exist('listing','var'), listing=0; end
-    if isempty(listing), listing=0; end
-    
     % Set fit control parameters
     if ~exist('fcp','var')
         fcp=[0.0001 20 0.001];
@@ -87,15 +91,13 @@ else
     if niter<0
         ok=false; mess='Number of iterations must be >=0'; return
     end
-%     if tol<0
-%         ok=false; mess='Tolerance (fraction of chi-squared) must be >=0'; return
-%     end
     
     % Output to command window
     if listing~=0, fit_listing_header(listing,niter); end
     
     % Starting values of parameters and function values
-    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo);
+    if listing>2, disp(' '), disp(' Function evaluation at starting parameter values:'), end
+    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,true,listing);
     resid=wt.*(yval-f);
     
     p_best=pfin; % Best values for parameters at start
@@ -112,7 +114,7 @@ else
         if listing~=0, fit_listing_iteration_header(listing,iter); end
         % Single value decomposition of
         resid=wt.*(yval-f_best);
-        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp);
+        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp,listing);
         nrm=zeros(npfree,1);
         for j=1:npfree
             jac(:,j)=wt.*jac(:,j);
@@ -141,7 +143,8 @@ else
             p_chg=((v*gse).*nrm);   % compute change in parameter values
             if (any(abs(p_chg)>0))  % if any change in the parameters
                 p=p_best+p_chg;
-                f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p,pinfo);
+                if listing>2, disp(' Function evaluation after stepping parmeters:'), end
+                f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p,pinfo,true,listing);
                 resid=wt.*(yval-f);
                 c=resid'*resid;
                 if c<c_best
@@ -181,7 +184,8 @@ else
     if converged
         chisqr_red = c_best/nnorm;
         % Calculate covariance matrix
-        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp);
+        if listing>2, disp(' '), disp(' Fit converged; estimate errors and covariance matrix'), end
+        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp,listing);
         for j=1:npfree
             jac(:,j)=wt.*jac(:,j);
         end;
@@ -202,12 +206,17 @@ else
     
 end
 
+% Cleanup
+% -------
 % Clean the function evaluation routine of buffered results to save memory
 multifit_lsqr_func_eval
 
+% Clean up the dataset index storage to keep things neat and tidy
+multifit_store_dataset_index
+
 
 %------------------------------------------------------------------------------------------
-function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,pinfo,f,dp)
+function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,pinfo,f,dp,listing)
 % Calculate partial derivatives of function with respect to parameters
 %
 %   >> jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,pinfo,f,dp)
@@ -225,16 +234,20 @@ function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,pinfo,f,dp)
 %   dp      Fractional step change in p for calculation of partial derivatives
 %                - if dp > 0    calculate as (f(p+h)-f(p))/h
 %                - if dp < 0    calculate as (f(p+h)-f(p-h))/(2h)
+%   listing Screen output control
 %
 %   jac     Matrix of partial derivatives: m x n array where m=length(f) and
 %           n = length(p)
 %
 
-jac=zeros(length(f),length(p));     % initialise Jacobian to zero
+if listing>2, disp(' Calculating partial derivatives:'), end
+
+jac=zeros(length(f),length(p)); % initialise Jacobian to zero
 min_abs_del=1e-12;
 for j=1:length(p)
-    del=dp*p(j);            % dp is fractional change in parameter
-    if abs(del)<=min_abs_del      % Ensure del non-zero
+    if listing>2, disp(['    Parameter ',num2str(j),':']), end
+    del=dp*p(j);                % dp is fractional change in parameter
+    if abs(del)<=min_abs_del    % Ensure del non-zero
         if p(j)>=0
             del=min_abs_del;
         else
@@ -243,12 +256,12 @@ for j=1:length(p)
     end
     if dp>=0
         ppos=p; ppos(j)=p(j)+del;
-        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo)-f)/del;
+        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo,false,listing)-f)/del;
     else
         ppos=p; ppos(j)=p(j)+del;
         pneg=p; pneg(j)=p(j)-del;
-        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo) -...
-                  multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,pinfo))/(2*del);
+        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo,false,listing) -...
+                  multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,pinfo,false,listing))/(2*del);
     end
 end
 
@@ -295,84 +308,104 @@ function fit_listing_final(listing, p_best, sig, cor, pinfo)
 if listing==1
     disp('Fit converged')
 else
-    [p,bp]=ptrans(p_best,pinfo);
-    [psig,bsig]=ptrans_sig(sig,pinfo);
+    [p,bp]=ptrans_par(p_best,pinfo);
+    [psig,bsig]=ptrans_sigma(sig,pinfo);
     disp('--------------------------------------------------------------------------------')
     disp('Fit converged:')
     disp(' ')
     disp('Parameter values (free parameters with error estimates):')
     disp('--------------------------------------------------------')
-    for ip=1:numel(p)
-        if pinfo.pfree(ip)
-            disp(sprintf('%5d %14.4g %s %-14.4g',ip,p(ip),'  +/-  ',psig(ip)))
-        elseif pinfo.pbound(ip)
-            if pinfo.ipfunc(ip)==0
-                if pinfo.pfree(pinfo.ipb(ip))
-                    disp(sprintf('%5d %14.4g %s %-14.4g %s',ip,p(ip),'  +/-  ',psig(ip),...
-                        ['    bound to parameter ',num2str(pinfo.ipb(ip))]))
-                else
-                    disp(sprintf('%5d %14.4g %s %s',ip,p(ip),'                      ',...
-                        ['    bound to parameter ',num2str(pinfo.ipb(ip))]))
-                end
-            else
-                if pinfo.bpfree{pinfo.ipfunc(ip)}(pinfo.ipb(ip))
-                    disp(sprintf('%5d %14.4g %s %-14.4g %s',ip,p(ip),'  +/-  ',psig(ip),...
-                        ['    bound to parameter ',num2str(pinfo.ipb(ip)),' of background ',arraystr(size(pinfo.nbp),pinfo.ipfunc(ip))]))
-                else
-                    disp(sprintf('%5d %14.4g %s %s',ip,p(ip),'                      ',...
-                        ['    bound to parameter ',num2str(pinfo.ipb(ip)),' of background ',arraystr(size(pinfo.nbp),pinfo.ipfunc(ip))]))
-                end
-            end
-        else
-            disp(sprintf('%5d %14.4g',ip,p(ip)))
-        end
+    if pinfo.nptot>0       % there is at least one foreground function with one or more parameters
+        disp(' ')
+        disp('Foreground parameter values:')
+        disp('----------------------------')
+        fit_listing_final_parameters(p,psig,true,pinfo.fore,pinfo.bkgd,pinfo.np,pinfo.nbp)
     end
-    
-    
-    if sum(pinfo.nbp(:))>0     % there is at least one background function with one or more parameters
+    if pinfo.nbptot>0       % there is at least one foreground function with one or more parameters
         disp(' ')
         disp('Background parameter values:')
         disp('----------------------------')
-        for i=1:numel(bp)
-            for ip=1:numel(bp{i})
-                if pinfo.bpfree{i}(ip)
-                    disp(sprintf('%5d %14.4g %s %-14.4g',ip,bp{i}(ip),'  +/-  ',bsig{i}(ip)))
-                elseif pinfo.bpbound{i}(ip)
-                    if pinfo.ibpfunc{i}(ip)==0      % bound to a global parameter
-                        if pinfo.pfree(pinfo.ibpb{i}(ip))
-                            disp(sprintf('%5d %14.4g %s %-14.4g %s',ip,bp{i}(ip),'  +/-  ',bsig{i}(ip),...
-                                ['    bound to parameter ',num2str(pinfo.ibpb{i}(ip)),' of global fit function']))
-                        else
-                            disp(sprintf('%5d %14.4g %s %s',ip,bp{i}(ip),'                      ',...
-                                ['    bound to parameter ',num2str(pinfo.ibpb{i}(ip)),' of global fit function']))
-                        end
-                    elseif pinfo.ibpfunc{i}(ip)==i  % bound to a parameter within the same background function
-                        if pinfo.bpfree{i}(pinfo.ibpb{i}(ip))
-                            disp(sprintf('%5d %14.4g %s %-14.4g %s',ip,bp{i}(ip),'  +/-  ',bsig{i}(ip),...
-                                ['    bound to parameter ',num2str(pinfo.ibpb{i}(ip))]))
-                        else
-                            disp(sprintf('%5d %14.4g %s %-14.4g %s',ip,bp{i}(ip),'                      ',...
-                                ['    bound to parameter ',num2str(pinfo.ibpb{i}(ip))]))
-                        end
-                    else                            % bound to another background function
-                        if pinfo.bpfree{pinfo.ibpfunc{i}(ip)}(pinfo.ibpb{i}(ip))
-                            disp(sprintf('%5d %14.4g %s %-14.4g %s',ip,bp{i}(ip),'  +/-  ',bsig{i}(ip),...
-                                ['    bound to parameter ',num2str(pinfo.ibpb{i}(ip)),' of background ',arraystr(size(pinfo.nbp),pinfo.ibpfunc{i}(ip))]))
-                        else
-                            disp(sprintf('%5d %14.4g %s %-14.4g %s',ip,bp{i}(ip),'  +/-  ',bsig{i}(ip),...
-                                ['    bound to parameter ',num2str(pinfo.ibpb{i}(ip)),' of background ',arraystr(size(pinfo.nbp),pinfo.ibpfunc{i}(ip))]))
-                            
-                        end
-                    end
-                else
-                    disp(sprintf('%5d %14.4g',ip,bp{i}(ip)))
-                end
-            end
-            disp(' ')
-        end
+        fit_listing_final_parameters(bp,bsig,false,pinfo.bkgd,pinfo.fore,pinfo.np,pinfo.nbp)
     end
     disp(' ')
     disp('Covariance matrix for free parameters:')
     disp('--------------------------------------')
     disp(cor);
+end
+
+%-------------------------------
+function fit_listing_final_parameters(p,sig,foreparams,this,that,np,nbp)
+nptot=numel(np);
+nbptot=numel(nbp);
+for i=1:numel(p)
+    if numel(p)>1
+        disp(['  Function ',arraystr(size(p),i),':'])
+    end
+    for ip=1:numel(p{i})
+        value=p{i}(ip);
+        sigma=sig{i}(ip);
+        if this.pfree{i}(ip)
+            % Free parameter
+            disp(sprintf('%5d %14.4g %s %-14.4g', ip, value,'  +/-  ', sigma))
+            
+        elseif this.pbound{i}(ip)
+            % Bound parameter
+            pboundto=this.ipboundto{i}(ip);             % index of parameter to which bound
+            fboundto=abs(this.ifuncboundto{i}(ip));     % index of function to which bound
+            forebound=(this.ifuncboundto{i}(ip)<0);     % true if bound to foreground function
+            sametypebound=(foreparams==forebound);      % true if bound within same type of function
+            if sametypebound
+                floating=this.pfree{fboundto}(pboundto);% true if floating parameter
+            else
+                floating=that.pfree{fboundto}(pboundto);% true if floating parameter
+            end
+            if fboundto==i && sametypebound
+                % Bound to a parameter within the same function
+                if floating
+                    disp(sprintf('%5d %14.4g %s %-14.4g %s', ip, value,'  +/-  ', sigma,...
+                        ['    bound to parameter ',num2str(pboundto)]))
+                else
+                    disp(sprintf('%5d %14.4g %s %s', ip, value, '                      ',...
+                        ['    bound to parameter ',num2str(pboundto)]))
+                end
+                
+            elseif fboundto==1 && ((forebound && nptot==1) || (~forebound && nbptot==1))
+                % Bound to a parameter of a global function (but not itself)
+                if forebound
+                    functype_str='foreground';
+                else
+                    functype_str='background';
+                end
+                if floating
+                    disp(sprintf('%5d %14.4g %s %-14.4g %s', ip, value,'  +/-  ',sigma,...
+                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' function']))
+                else
+                    disp(sprintf('%5d %14.4g %s %s', ip, value, '                      ',...
+                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' function']))
+                end
+                
+            else
+                % Bound to a parameter of a local function (but not itself)
+                if forebound
+                    functype_str='foreground';
+                    funcind_str =arraystr(size(np),fboundto);
+                else
+                    functype_str='background';
+                    funcind_str =arraystr(size(nbp),fboundto);
+                end
+                if floating
+                    disp(sprintf('%5d %14.4g %s %-14.4g %s',ip, value,'  +/-  ',sigma,...
+                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' ',funcind_str]))
+                else
+                    disp(sprintf('%5d %14.4g %s %s',ip, value, '                      ',...
+                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' ',funcind_str]))
+                end
+                
+            end
+        else
+            % Fixed parameter
+            disp(sprintf('%5d %14.4g',ip,value))
+        end
+    end
+    disp(' ')
 end

@@ -23,7 +23,7 @@ function y = conv_gau_ikcarp (x, sig_in, tauf_in, taus_in, R)
 % 
 % Problems can arise when tauf and/or taus are extremely small but non-zero.
 
-if sign(taus_in*tauf_in)>=1  % allow one (or both) of tauf=0, taus=0
+if sign(taus_in*tauf_in)>=0  % allow one (or both) of tauf=0, taus=0
     tauf=abs(tauf_in); taus=abs(taus_in); sig=abs(sig_in);
 else
     error('tauf and taus must have the same sign')

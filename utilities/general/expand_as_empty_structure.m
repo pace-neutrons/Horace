@@ -4,11 +4,13 @@ function sout=expand_as_empty_structure(sin,sz,id)
 %   >> sout=expand_as_empty_structure(sin,sz,id)
 %
 % Input:
+% ------
 %   sin     Structure (must be scalar structure)
 %   sz      Size of output struture based on sin
 %   id      Element of output structure to be set to sin
 %
 % Output:
+% -------
 %   sout    Array of structures with empty fields apart from sout(id)=sin
 
 if isstruct(sin) && isscalar(sin)

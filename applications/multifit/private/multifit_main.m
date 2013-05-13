@@ -1,8 +1,34 @@
 function [ok,mess,output] = multifit_main(varargin)
-% This is a private function that is called by the multifit gateway functions multifit and multifit_gateway
+% Fit functions to an array of data sets. In outline:
 %
-%   >> [ok,mess,output] = multifit_main (...)
+% Simultaneously fit several objects to a given function:
+%   >> [ok, mess, output] = multifit (w, func, pin)                 % all parameters free
+%   >> [ok, mess, output] = multifit (w, func, pin, pfree)          % selected parameters free to fit
+%   >> [ok, mess, output] = multifit (w, func, pin, pfree, pbind)   % binding of selected parameters in fixed ratios
+%
+% Fit x,y,e data
+%   >> [ok, mess, output] = multifit (x, y, e, func, ...)
+%
+% With optional 'background' functions added to the global function, one per object
+%   >> [ok, mess, output] = multifit (..., bkdfunc, bpin)
+%   >> [ok, mess, output] = multifit (..., bkdfunc, bpin, bpfree)
+%   >> [ok, mess, output] = multifit (..., bkdfunc, bpin, bpfree, bpbind)
+%
+% Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
+%   >> [ok, mess, output] = multifit (..., keyword, value, ...)
+%
 %   
+% Input:
+% ------
+%   x,y,e   Arrays containing x corrdinates, values y and error bars e
+% OR    w   Structure array, object array or cell array of data sets
+%
+%   func    Function to be fitted to 
+%   pin     Initial parameter values
+%   pfree   Logical array of which parameters are free to be varied
+%
+% Output:
+% -------
 %   ok      True if no problems, false otherwise
 %   mess    If ok, then empty; if ~ok, then contains informative error message
 %   output  Cell array with output:
@@ -10,6 +36,8 @@ function [ok,mess,output] = multifit_main(varargin)
 %               output = {wout, fitdata}    % see below for contents
 %           - if input arguments have requested parsing of functions, then
 %               output = {pos,func,plist,bpos,bfunc,bplist}
+%
+% This is a private function that is called by the multifit gateway functions multifit and multifit_gateway
 %
 % Ensure that the documentation below is consistent with that in multifit.m
 %
@@ -41,6 +69,12 @@ function [ok,mess,output] = multifit_main(varargin)
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate at the initial parameter values (convenient to test starting values)
 %       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
+%       'local_foreground'  Foreground function(s) apply to each dataset independently
+%       'global_foreground' Foreground function applies to all datasets
+%       'local_background'  Background function(s) apply to each dataset independently
+%       'global_background' Background function applies to all datasets
+%
+%   For internal use only:
 %       'parsefunc_'return function parsing information. For use by developers only.
 %
 %   Example:
@@ -59,32 +93,48 @@ function [ok,mess,output] = multifit_main(varargin)
 %                is taken as unity and the data is considered to be one dimensional
 %                   e.g. x=[1.1, 2.3, 4.3    &  y=[110, 121, 131
 %                           1.7, 5.4, 7.0]         141, 343,  89]
-%           or  - A cell array of length n, where x{i} gives the coordinates in the
-%                ith dimension for all the data points. The arrays can have any
-%                size, but they must all have the same size.
 %
-%       y       Array of the of data values at the points defined by x. Must
+%           or  - A cell array of length n, where x{i} gives the coordinates in the
+%                ith dimension for all the data points. The arrays must all have
+%                the same size, but there are no restrictions on what that size is.
+%
+%       y       Array of the data values at the points defined by x. Must
 %               have the same same size as x(:,:,...:,i) if x is an array, or
 %               of x{i} if x is a cell array.
 %
 %       e       Array of the corresponding error bars. Must have same size as y.
 %   
 %   Alternatively:
-%       w   - Structure with fields w.x, w.y, w.e  with form described above  (this is a single dataset)
-%           - Array of structures w(i).x, w(i).y, w(i).e  with form above (this defines several datasets)
-%           - Cell array of structures, each element a single dataset
-%           - Array of objects to be fitted.
-%           - Cell array of objects to be fitted.
-%           If a cell array, not all the objects need to be of the same class, so long as the
-%          the function to be fitted is defined as a method for each of the class types.
+%       w   - Structure with fields w.x, w.y, w.e  with one of the forms described above
+%            (this is a single dataset)
 %
-%           Notes on required methods if adding objects other than x-y-e triples:
-%           (1) The global function and background function (if given) must be methods, with
-%               input argument form as described below in detail; the general format is
+%           - Array of structures w(i).x, w(i).y, w(i).e  each with one of the forms
+%            described above (this defines several datasets)
+%
+%           - Cell array of structures, each structure a single dataset
+%            (i.e. is a scalar structure)
+%
+%           - Array of objects
+%
+%           - Cell array of objects, each object being scalar
+%
+%           - Cell array of structures or objects, each one corresponding to a
+%            single data set
+%
+%           Data input as a cell array of objects very flexible: not all the objects need to
+%          be of the same class, so long as the function being fitted is a method for
+%          each of the class types, or is a function that operates correctly on the object.
+%
+%           Notes on required methods if fitting objects (as opposed to x-y-e triples):
+%           (1) The global function and background function (if given) must be methods
+%               of the input objects that return objects of the same type, or plain
+%               functions that return an object of the same type as the object being fitted.
+%               The input argument syntax are described below in detail; the general format is
 %                   >> wcalc = my_function (w,p,c1,c2,...)
 %
-%           (2) A method that returns the intensity and variance arrays from the objects, along with
-%               a mask array that indicates which elements are to be ignored:
+%           (2) A method called sigvar_get that returns the intensity and variance
+%               arrays from the objects, along with a mask array that indicates which
+%               elements are to be ignored (msk(i)==true to keep, ==false to ignore):
 %                   >> [y,var,msk] = sigvar_get(w)
 %
 %           (3) A method that masks data points from further calculation:
@@ -113,13 +163,13 @@ function [ok,mess,output] = multifit_main(varargin)
 %               (requires overloading of the addition operator with a method named plus.m)
 %
 %   func    Function handle to function to be fitted to each of the objects.
-%           If x,y,e or structure(s) with fields w.x,w.y,w.e, must have form:
+%           If x,y,e or structure(s) with fields w.x,w.y,w.e, it must have the form:
 %               ycalc = my_function (x,p)
 %
 %             or, more generally:
 %               ycalc = my_function (x,p,c1,c2,...)
 %
-%           If objects, then:
+%           If objects, then the method or function must have the form:
 %               wcalc = my_function (w,p)
 %
 %             or, more generally:
@@ -371,400 +421,216 @@ function [ok,mess,output] = multifit_main(varargin)
 %   ok      True if all ok, false if problem fitting.
 %   mess    Character string contaoning error message if ~ok; '' if ok
 
+
+% ----------------------------------------------------------------------------------------------------------------
+% Clean up any persistent or global storage in case multifit was left in a strange state due to error or cntl-c
+% ----------------------------------------------------------------------------------------------------------------
+multifit_lsqr_func_eval
+multifit_store_dataset_index
+
+
+% ----------------------------------------------------------------------------------------------------------------
+% Parse arguments and keywords
+% ----------------------------------------------------------------------------------------------------------------
 % Set defaults:
 arglist = struct('fitcontrolparameters',[0.0001 30 0.0001],...
-                 'list',0,'keep',[],'remove',[],'mask',[],'selected',0,'evaluate',0,'chisqr',0,'parsefunc_',0);
-flags = {'selected','evaluate','chisqr','parsefunc_'};
-nop=2;
+                 'keep',[],'remove',[],'mask',[],'list',0,'selected',0,'evaluate',0,'chisqr',0,...
+                 'local_foreground',0,'global_foreground',1,'local_background',1,'global_background',0,...
+                 'parsefunc_',0);
+flags = {'selected','evaluate','chisqr',...
+         'local_foreground','global_foreground','local_background','global_background',...
+         'parsefunc_'};
 
 % Parse parameters:
-[args,options] = parse_arguments(varargin,arglist,flags);
-
-if numel(args)<1
-    ok=false;
-    mess='Check number of input arguments';
-    output=cell(1,nop);
-    return
-end
+[args,options,present] = parse_arguments(varargin,arglist,flags);
 
 % Determine if just parsing the function handles and parameters
 if options.parsefunc_
-    parsefunc=true;
     nop=6;
 else
-    parsefunc=false;
     nop=2;
 end
 
-% Find fitting functions
-% ----------------------
-% Find a scalar function handle - that will be the global function
-iarg_global_func=[];
+% Check there are some input arguments
+if numel(args)<3    % must have at least w, func, pin
+    [ok,mess,output]=multifit_error(nop,'Check number of input arguments'); return;
+end
+
+% Check if local or global foreground function
+if present.local_foreground && ~present.global_foreground
+    local_foreground=options.local_foreground;
+elseif ~present.local_foreground && present.global_foreground
+    local_foreground=~options.global_foreground;
+else
+    if options.local_foreground~=options.global_foreground
+        local_foreground=options.local_foreground;
+    else
+        [ok,mess,output]=multifit_error(nop,'Inconsistent options for global and local foreground options'); return;
+    end
+end
+
+% Check if local or global background function
+if present.local_background && ~present.global_background
+    local_background=options.local_background;
+elseif ~present.local_background && present.global_background
+    local_background=~options.global_background;
+else
+    if options.local_background~=options.global_background
+        local_background=options.local_background;
+    else
+        [ok,mess,output]=multifit_error(nop,'Inconsistent options for global and local foreground options'); return;
+    end
+end
+
+
+% ----------------------------------------------------------------------------------------------------------------
+% Find position of foreground fitting function(s)
+% ----------------------------------------------------------------------------------------------------------------
+% The first occurence of a function handle or cell array of function handles will be the foreground function(s)
+iarg_fore_func=[];
 for i=1:numel(args)
-    if isa(args{i},'function_handle')
-        if isscalar(args{i})
-            iarg_global_func=i;
-            func=args{iarg_global_func};
-        else
-            ok=false;
-            mess='Fitting function handle must be a scalar';
-            output=cell(1,nop);
-            return
-        end
+    [ok,mess,func]=function_handles_valid(args{i});
+    if ok
+        iarg_fore_func=i;
         break
     end
 end
-if isempty(iarg_global_func)
-    ok=false;
-    mess='Must provide handle to fitting function';
-    output=cell(1,nop);
-    return
+if isempty(iarg_fore_func)
+    [ok,mess,output]=multifit_error(nop,'Must provide handle(s) to foreground fitting function(s) with valid format'); return;
 end
 
 
-% Check nature of data to be fitted
-% ---------------------------------
-% If the data is an array or cell array of structures, then they have to be x-y-e triples.
-% Otherwise, any class or cell array of classes is permitted - we'll make the routine 
-% as general as possible - so long as the fitting function is a method of the class. 
-% The restriction on structures is only because this will be the most common form of data
-% entry other than specialised classes, so it is better to enforce a rigid format to
-% prevent common input errors.
-%
-% Will have at the end of this heading
-%   w                   input data packaged as cell array
-% and some variables that enable the form of the data to be unpacked
-%   xye                 logical array, size(w): indicating which data are x-y-e triples
-%   xye_xarray          logical array, size(w): indicates if x values formed a single numeric array
-%   single_data_arg     logical: false if x,y,e were separate arguments
-%   cell_data           logical: true if data was a cell array
+% ----------------------------------------------------------------------------------------------------------------
+% Check nature and validity of data type(s) to be fitted
+% ----------------------------------------------------------------------------------------------------------------
+[ok,mess,w,single_data_arg,cell_data,xye,xye_xarray] = repackage_input_datasets(args{1:iarg_fore_func-1});
+if ~ok
+    [ok,mess,output]=multifit_error(nop,mess); return;
+end
 
 
-if iarg_global_func==2
-    single_data_arg=true;
-    w=args{1};
-    if iscell(w)
-        % Any element that is a structure must be a scalar x-y-e triple
-        ndim_xye=NaN(size(w));
-        for i=1:numel(w)
-            if isstruct(w{i})
-                if isscalar(w{i})
-                    [ok,mess,ndim_xye(i)]=is_struct_xye(w{i});
-                    if ~ok
-                        ok=false;
-                        mess=['Data cell array element ',arraystr(size(w),i),' is a structure : ',mess];
-                        output=cell(1,nop);
-                        return
-                    end
-                else
-                    ok=false;
-                    mess=['Data cell array element ',arraystr(size(w),i),' invalid: is an array of structures'];
-                    output=cell(1,nop);
-                    return
-                end
-            else
-                % TGP 22 April 2012: remove the following test for the function being a method as unneccesarily restrictive; not checked for background in any case
-%                 if ~parsefunc   % don't check validity of method if just testing the parsing
-%                     tmp=functions(func);    % see Matlab documentation about using this function with caution
-%                     if ~ismethod(w{i},tmp.function)
-%                         ok=false;
-%                         mess=['Data cell array element ',arraystr(size(w),i),': fit function is not a method of this object'];
-%                         output=cell(1,nop);
-%                         return
-%                     end
-%                 end
-            end
-        end
-    elseif isstruct(w)
-        % Array of structures permitted, if each element is an x-y-e triple
-        [ok,mess,ndim_xye]=is_struct_xye(w);
-        if ~ok
-            output=cell(1,nop);
-            return
-        end
+% ----------------------------------------------------------------------------------------------------------------
+% Check number of foreground and background fitting functions
+% ----------------------------------------------------------------------------------------------------------------
+% Foreground function:
+[ok,mess,func]=function_handles_parse(func,size(w),local_foreground);
+if ~ok
+    [ok,mess,output]=multifit_error(nop,['Foreground function: ',mess]); return;
+end
+
+% The next occurence of a function handle or cell array of function handles will be background function(s), if any
+iarg_bkd_func=[];
+for i=iarg_fore_func+1:numel(args)
+    [ok,mess,bkdfunc]=function_handles_valid(args{i});
+    if ok   % if not OK, then assume that no background functions are given
+        iarg_bkd_func=i;
+        break
+    end
+end
+if isempty(iarg_bkd_func)
+    bkd=false;
+    if local_background
+        bkdfunc=cell(1);
     else
-        % Could be an array of objects
-        ndim_xye=NaN(size(w));  % NaN to indicate was not an x-y-e triple
-        % TGP 22 April 2012: remove the following test for the function being a method as unneccesarily restrictive; not checked for background in any case
-%         if ~parsefunc   % don't check validity of method if just testing the parsing
-%             tmp=functions(func);    % see Matlab documentation about using this function with caution
-%             if ~ismethod(w,tmp.function)
-%                 ok=false;
-%                 mess='Data object: fit function is not a method of this object';
-%                 output=cell(1,nop);
-%                 return
-%             end
-%         end
+        bkdfunc=cell(size(w));
     end
-elseif iarg_global_func==4
-    % Could be x-y-e triple, so package as structure and check validity
-    single_data_arg=false;
-    w.x=args{1};
-    w.y=args{2};
-    w.e=args{3};
-    [ok,mess,ndim_xye]=is_struct_xye(w);
+else
+    bkd=true;
+    [ok,mess,bkdfunc]=function_handles_parse(bkdfunc,size(w),local_background);
     if ~ok
-        output=cell(1,nop);
-        return
-    end
-else
-    ok=false;
-    mess='Syntax of data argument(s) is invalid';
-    output=cell(1,nop);
-    return
-end
-
-% Repackage the data in a standard form: a cell array where each element is
-% either an x-y-e triple with x a cell array of arrays, one for each x-coordinate
-% or an object for which func is a method. Do this for three reasons:
-%  - do not have to repackage the x in x-y-e triple every time the function is evaluated
-%    in the least-squares algorithm
-%  - a cell array prevents any confusion with a method of an object
-%  - makes the function evaluation algorithm less laden with if...end branches
-
-if ~iscell(w)
-    cell_data=false;  % flag that indicates if input data was not a cell array
-    w=num2cell(w);
-else
-    cell_data=true;
-end
-
-xye=false(size(w));     % logical array, true where data is x-y-e triple
-xye(isfinite(ndim_xye))=true;
-xye_xarray=false(size(w));
-for i=1:numel(w)
-    if isfinite(ndim_xye(i)) && ~iscell(w{i}.x)
-        % must be a valid xye triple, as otherwise element is ndim_xye(i)==NaN, and the x-coords are in a single array
-        xye_xarray(i)=true;
-        if ndim_xye(i)>1
-            w{i}.x=squeeze(num2cell(w{i}.x,1:(ndims(w{i}.x)-1)));    % separate the dimensions into cells
-        else
-            w{i}.x={w{i}.x};    % just make the array a single cell
-        end
+        [ok,mess,output]=multifit_error(nop,['Background function: ',mess]); return;
     end
 end
 
 
-
-
-% Determine if background(s) given
-% --------------------------------
-% Find a function handle, or cell array of function handles
-% If present and correct, then this block will produce a cell array of
-% function handles of the same size as the data array. Missing background functions
-% will be empty elements of bkdfunc
-bkd=false;
-bkdfunc=cell(size(w));
-if length(args)>iarg_global_func
-    iarg_bkd_func=[];
-    for i=iarg_global_func+1:numel(args)
-        if is_function_handles(args{i})
-            iarg_bkd_func=i;
-            bkd=true;
-            if isa(args{i},'function_handle')
-                bkdfunc=repmat({args{i}},size(w));
-            else
-                if isequal(size(args{i}),size(w))
-                    bkdfunc=args{i};
-                elseif isscalar(args{i})
-                    bkdfunc=repmat({args{i}{1}},size(w));
-                else
-                    ok=false;
-                    mess='Background function handle parameter must be scalar or have same size as data array';
-                    output=cell(1,nop);
-                    return
-                end
-            end
-            break
-        end
-    end
-end
-
-
+% ----------------------------------------------------------------------------------------------------------------
 % Check function arguments
-% -------------------------------
+% ----------------------------------------------------------------------------------------------------------------
+
+% Get number of foreground and background arguments
 if ~bkd
-    nglobal_args=numel(args)-iarg_global_func;
+    nfore_args=numel(args)-iarg_fore_func;
+    nbkd_args=0;
 else
-    nglobal_args=iarg_bkd_func-1-iarg_global_func;
+    nfore_args=iarg_bkd_func-1-iarg_fore_func;
     nbkd_args=numel(args)-iarg_bkd_func;
 end
 
-% Check that pin has the correct form:
-if nglobal_args>=1
-    pin=args{iarg_global_func+1};
-    [ok,np]=parameter_valid(pin);
-    if ~ok
-        mess='Check that the fitting parameter list is valid';
-        output=cell(1,nop);
-        return
-    end
+
+% Check that foreground fitting function parameter list has the correct form:
+if nfore_args>=1
+    [ok,mess,np,pin]=plist_parse(args{iarg_fore_func+1},func);
+    if ~ok; [ok,mess,output]=multifit_error(nop,['Foreground fitting function(s): ',mess]); return; end
 else
-    ok=false;
-    mess='Must give fitting function parameters';
-    output=cell(1,nop);
-    return
+    [ok,mess,output]=multifit_error(nop,'Must give foreground function(s) parameters'); return;
 end
 
 % Check background pin have correct form:
 if bkd
     if nbkd_args>=1
-        % Check form of argument
-        [ok,mess,nbp,bpin]=bkd_parameter_valid(args{iarg_bkd_func+1},bkdfunc);
-        if ~ok
-            output=cell(1,nop);
-            return
-        end
+        [ok,mess,nbp,bpin]=plist_parse(args{iarg_bkd_func+1},bkdfunc);
+        if ~ok; [ok,mess,output]=multifit_error(nop,['Background fitting function(s): ',mess]); return; end
     else
-        ok=false;
-        mess='Must give background function(s) parameters';
-        output=cell(1,nop);
-        return
+        [ok,mess,output]=multifit_error(nop,'Must give background function(s) parameters'); return;
     end
 else
     nbp=zeros(size(w));
     bpin=cell(size(w));
 end
 
-% -------------------------------------------------------------------------------------------------
-% Return if checking the parsing of the functions and their arguments
-if parsefunc
+
+% ========================================================================
+% Return if just checking the parsing of the functions and their arguments
+% ------------------------------------------------------------------------
+if options.parsefunc_
     ok=true;
     mess='';
-    output=cell(1,6);
-    output{1}=iarg_global_func;
-    output{2}=func;
-    output{3}=pin;
-    if bkd
-        output{4}=iarg_bkd_func;
-    else
-        output{4}=[];
-    end
-    output{5}=bkdfunc;
-    output{6}=bpin;
+    output={iarg_fore_func, func, pin, iarg_bkd_func, bkdfunc, bpin};
     return
 end
-% -------------------------------------------------------------------------------------------------
+% ========================================================================
 
-% Check optional global arguments
-if nglobal_args==1  % no optional arguments
-    [ok,mess,pfree]=pfree_valid_syntax([],np);
-    if ~ok
-        output=cell(1,nop);
-        return
-    end
-    [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax({},np,nbp,0);
-    if ~ok
-        output=cell(1,nop);
-        return
-    end
-    
-elseif nglobal_args==2  % must be pfree
-    [ok,mess,pfree]=pfree_valid_syntax(args{iarg_global_func+2},np);
-    if ~ok
-        output=cell(1,nop);
-        return
-    end
-    [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax({},np,nbp,0);
-    if ~ok
-        output=cell(1,nop);
-        return
-    end
-    
-elseif nglobal_args==3  % must be pfree followed by pbind
-    [ok,mess,pfree]=pfree_valid_syntax(args{iarg_global_func+2},np);
-    if ~ok
-        output=cell(1,nop);
-        return
-    end
-    [ok,mess,ipbind,ipfree,ifuncbind,rpbind]=pbind_valid_syntax(args{iarg_global_func+3},np,nbp,0);
-    if ~ok
-        output=cell(1,nop);
-        return
-    end
-    
-else
-    ok=false;
-    mess='Too many optional arguments for fitting function';
-    output=cell(1,nop);
-    return
+% ----------------------------------------------------------------------------------------------------------------
+% Check optional arguments that control which parameters are free, which are bound
+% ----------------------------------------------------------------------------------------------------------------
+
+% Check foreground function(s)
+isforeground=true;
+ilo=iarg_fore_func+2;   % The first argument was pin, so skip over that
+ihi=iarg_fore_func+nfore_args;
+[ok,mess,pfree,pbind]=function_optional_args_parse(isforeground,np,nbp,args{ilo:ihi});
+if ~ok
+    [ok,mess,output]=multifit_error(nop,mess); return;
 end
 
-% Check optional background arguments
+% Check background function(s)
+isforeground=false;
 if bkd
-    if nbkd_args==1  % no optional arguments
-        [ok,mess,bpfree]=bkd_pfree_valid_syntax({},nbp);
-        if ~ok
-            output=cell(1,nop);
-            return
-        end
-        [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
-        if ~ok
-            output=cell(1,nop);
-            return
-        end
-    elseif nbkd_args==2  % must be bpfree
-        [ok,mess,bpfree]=bkd_pfree_valid_syntax(args{iarg_bkd_func+2},nbp);
-        if ~ok
-            output=cell(1,nop);
-            return
-        end
-        [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
-        if ~ok
-            output=cell(1,nop);
-            return
-        end
-        
-    elseif nbkd_args==3  % must be bpfree followed by bpbind
-        [ok,mess,bpfree]=bkd_pfree_valid_syntax(args{iarg_bkd_func+2},nbp);
-        if ~ok
-            output=cell(1,nop);
-            return
-        end
-        [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax(args{iarg_bkd_func+3},np,nbp);
-        if ~ok
-            output=cell(1,nop);
-            return
-        end
-        
-    else
-        ok=false;
-        mess='Too many optional arguments for fitting function';
-        output=cell(1,nop);
-        return
-    end
-else % get values for absent background that will work in ptrans_create
-    [ok,mess,bpfree]=bkd_pfree_valid_syntax({},nbp);
+    ilo=iarg_bkd_func+2;   % The first argument was bpin, so skip over that
+    ihi=iarg_bkd_func+nbkd_args;
+    [ok,mess,bpfree,bpbind]=function_optional_args_parse(isforeground,np,nbp,args{ilo:ihi});
     if ~ok
-        output=cell(1,nop);
-        return
+        [ok,mess,output]=multifit_error(nop,mess); return;
     end
-    [ok,mess,ibpbind,ibpfree,ibfuncbind,rbpbind]=bkd_pbind_valid_syntax({},np,nbp);
-    if ~ok
-        output=cell(1,nop);
-        return
-    end
+else
+    [ok,mess,bpfree,bpbind]=function_optional_args_parse(isforeground,np,nbp);  % OK output guaraneteed
 end
 
 
 % Check consistency between the free parameters and all the bindings
-% (do this before considering further complications if all datapoints in one or more data objects are masked out
-%  in order to isolate syntax problems before expensive calculation of mask arrays)
-[ok,mess,pf,p_info]=ptrans_create(pin,pfree,ipbind,ipfree,ifuncbind,rpbind,...
-                                  bpin,bpfree,ibpbind,ibpfree,ibfuncbind,rbpbind);
-if ~ok
-    output=cell(1,nop);
-    return
-elseif isempty(pf) && ~options.evaluate
-    ok=false;
-    mess='No free parameters to fit';
-    output=cell(1,nop);
-    return
+% (Do this now to isolate syntax problems before potentially expenseive calculation of mask arrays.
+% Will have to repeat this check after masking because if some data sets are entirely masked then
+% some or all free parameters will no longer affect chi-square.)
+[ok,mess,pf]=ptrans_initialise(pin,pfree,pbind,bpin,bpfree,bpbind);
+
+if ~ok || (~options.evaluate && isempty(pf)) % inconsistency, or the intention is to fit but there are no free parameters
+    [ok,mess,output]=multifit_error(nop,mess); return;
 end
 
 
+% ----------------------------------------------------------------------------------------------------------------
 % Check masking values:
-% ------------------------
+% ----------------------------------------------------------------------------------------------------------------
 % If masking options are a cell array, then must be either scalar (in which case they apply to all input datasets) or have
 % shape equal to the input data array. Otherwise, will appy to all datasets
 
@@ -813,8 +679,9 @@ else
 end
 
 
+% ----------------------------------------------------------------------------------------------------------------
 % Get initial data points - mask out all the points not needed for the fit
-% -------------------------------------------------------------------------
+% ----------------------------------------------------------------------------------------------------------------
 % Accumulate the mask array for later use.
 % Needs a method sigvar_get that also returns the mask file of points that can be ignored
 
@@ -827,17 +694,13 @@ for i=1:numel(w)
         if ok && ~isempty(mess) && options.list~=0
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
-            mess=[data_id,mess];
-            output=cell(1,nop);
-            return
+            [ok,mess,output]=multifit_error(nop,[data_id,mess]); return;
         end
         [msk{i},ok,mess]=mask_for_fit_xye(w{i}.x,w{i}.y,w{i}.e,msk{i}); % accumulate bad points (y=NaN, zero error bars etc.) to the mask array
         if ok && ~isempty(mess) && options.list~=0
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
-            mess=[data_id,mess];
-            output=cell(1,nop);
-            return
+            [ok,mess,output]=multifit_error(nop,[data_id,mess]); return;
         end
         for idim=1:numel(w{i}.x)
             wmask{i}.x{idim}=w{i}.x{idim}(msk{i});
@@ -855,18 +718,14 @@ for i=1:numel(w)
         if ok && ~isempty(mess) && options.list~=0
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
-            mess=[data_id,mess];
-            output=cell(1,nop);
-            return
+            [ok,mess,output]=multifit_error(nop,[data_id,mess]); return;
         end   % display warning messages
         [ytmp,vtmp,msk_null]=sigvar_get(w{i});
         [msk{i},ok,mess]=mask_for_fit_xye({},ytmp,vtmp,(msk{i}&msk_null)); % accumulate bad points (y=NaN, zero error bars etc.) to the mask array
         if ok && ~isempty(mess) && options.list~=0
             display_mess(data_id,mess)  % display warning messages
         elseif ~ok
-            mess=[data_id,mess];
-            output=cell(1,nop);
-            return
+            [ok,mess,output]=multifit_error(nop,[data_id,mess]); return;
         end   % display warning messages
         wmask{i}=mask(w{i},msk{i}); % 24 Jan 2009: don't think we'll need to keep msk{i}, but do so for moment, for sake of symmetry
         if any(msk{i}(:)), nodata(i)=false; end
@@ -875,40 +734,48 @@ for i=1:numel(w)
 end
 
 
+% ----------------------------------------------------------------------------------------------------------------
 % Fix unbound free parameters that cannot have any effect on chi-squared because all data has been masked for that element of w
-% ------------------------------------------------------------------------------------------------------------------------------
-[ok,mess,pf,p_info]=ptrans_create(pin,pfree,ipbind,ipfree,ifuncbind,rpbind,...
-                                  bpin,bpfree,ibpbind,ibpfree,ibfuncbind,rbpbind,nodata);
-if ~ok
-    output=cell(1,nop);
-    return
-elseif isempty(pf)
-    if ~options.evaluate
-        ok=false;
-        mess='No free parameters to fit';
-        output=cell(1,nop);
-        return
-    else
-        disp('WARNING: No free parameters to fit')
+% ----------------------------------------------------------------------------------------------------------------
+[ok,mess,pf,p_info]=ptrans_initialise(pin,pfree,pbind,bpin,bpfree,bpbind,nodata);
+
+if ~ok  % inconsistency
+    [ok,mess,output]=multifit_error(nop,mess); return;
+else    % consistent, but may be no free parameters
+    if ~options.evaluate    % the intention is to fit
+        if ~isempty(pf)
+            if ~isempty(mess)     % still one or more free parameters, but print message
+                disp(' ')
+                disp('********************************************************************************')
+                disp(['WARNING: ',mess])
+                disp('********************************************************************************')
+                disp(' ')
+            end
+        else                % no free parameters, so return with error
+            [ok,mess,output]=multifit_error(nop,mess); return;
+        end
+    else                    % the intention is to evaluate the function, but print warning if there is one
+        if ~isempty(mess)
+            disp(['WARNING: ',mess])
+        end
     end
 end
 
 
-% Perform the fit
-% -----------------
-np=p_info.np;
-nbp=p_info.nbp;
+% ----------------------------------------------------------------------------------------------------------------
+% Perform the fit, evaluation or chisqr calculation (or any combination, as requested)
+% ----------------------------------------------------------------------------------------------------------------
 
 % Perform fit, if requested
 if ~options.evaluate
     perform_fit=true;
     [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
-    if ~ok, output=cell(1,nop); return, end
+    if ~ok, [ok,mess,output]=multifit_error(nop,mess); return, end
 else
     if options.chisqr
         perform_fit=false;
         [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
-        if ~ok, output=cell(1,nop); return, end
+        if ~ok, [ok,mess,output]=multifit_error(nop,mess); return, end
     else
         p_best=pf;              % Need to have the size of number of free parameters to be useable with p_info
         sig=zeros(1,numel(pf)); % Likewise
@@ -918,7 +785,7 @@ else
 end
     
 % Evaluate the functions at the fitted parameter values / input parameter requests with ratios properly resolved)
-% On the face of it, it should not be necessary to re-evaluate the funcion, as this will have been done in multifit_lsqr.
+% On the face of it, it should not be necessary to re-evaluate the function, as this will have been done in multifit_lsqr.
 % However, we may want to evaluate the output object for the whole function, not just the fitted points. If one is cunning,
 % the options.selected==true loop could be eliminated.
 if options.selected
@@ -936,8 +803,9 @@ else
 end
 
 
+% ----------------------------------------------------------------------------------------------------------------
 % Fill ouput parameters
-% ------------------------
+% ----------------------------------------------------------------------------------------------------------------
 % Turn output data into form of input data
 if single_data_arg
     % Convert x coordinates back to array, if xye triple and songle array input
@@ -964,34 +832,10 @@ else
     wout=wout{1}.y;         % if x,y,e supplied as separate arguments, then just return y array.
 end
 
-% Create fit summary
-% (Give default names of the parameters for backwards compatibility with function calls to original 'fit' function
-%  No longer try assuming form of mfit function and catch in case not, because the line
-%    try, [dummy1,dummy2,pnames] = func(x{:}, p{1}, 1); catch...
-%  could invoke a very lengthy calculation)
-
-[fitdata.p,bp_tmp]=ptrans(p_best,p_info);
-[fitdata.sig,bsig_tmp]=ptrans_sig(sig,p_info);
-if bkd
-    fitdata.bp=bp_tmp;
-    fitdata.bsig=bsig_tmp;
-end
-fitdata.corr=cor;
-fitdata.chisq=chisqr_red;
-
-fitdata.pnames=cell(1,np);
-for ip=1:np, fitdata.pnames{ip}=['p',num2str(ip)]; end
-if bkd
-    fitdata.bpnames=cell(size(nbp));
-    for i=1:numel(nbp)
-        fitdata.bpnames{i}=cell(1,nbp(i));
-        for ip=1:nbp(i), fitdata.bpnames{i}{ip}=['p',num2str(ip)]; end
-    end
-end
+% Fit parameters:
+fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_info, bkd);
 
 % Pack the output
 ok=true;
 mess='';
-output=cell(1,2);
-output{1}=wout;
-output{2}=fitdata;
+output={wout,fitdata};

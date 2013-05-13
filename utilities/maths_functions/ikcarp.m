@@ -30,7 +30,7 @@ c6=-1.3888888888888888889d-02; c7=2.9761904761904761905d-03; c8=-5.2083333333333
 c9=7.7160493827160493827d-05; c10=-9.9206349206349206349d-06; c11=1.1273448773448773449d-06;
 c12=-1.1482216343327454439d-07; c13=1.0598968932302265636d-08;
 
-if sign(taus_in*tauf_in)>=1  % allow one (or both) of tauf=0, taus=0
+if sign(taus_in*tauf_in)>=0  % allow one (or both) of tauf=0, taus=0
     tauf=abs(tauf_in); taus=abs(taus_in);
 else
     error('tauf and taus must have the same sign')

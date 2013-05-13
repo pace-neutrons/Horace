@@ -1,6 +1,11 @@
 function [ok,mess,ndim] = is_struct_xye (w)
-% Determine if an argument is an array of structures, each structure
-% 1 <= i <= numel(w) consisting of fields
+% Determine if an argument is structure array with valid fields x,y,e
+%
+%   >> [ok,mess,ndim] = is_struct_xye (w)
+%
+% Input:
+% ------
+%   w       Structure array with fields x,y and e, where:
 %
 %   w(i).x  Coordinates of the data points:
 %               - An array of any size whose outer dimension gives the
@@ -11,6 +16,7 @@ function [ok,mess,ndim] = is_struct_xye (w)
 %                as unity and the data is considered to be one dimensional
 %                   e.g. x=[1.1, 2.3, 4.3    &  y=[110, 121, 131
 %                           1.7, 5.4, 7.0]         141, 343,  89]
+%
 %      OR       - A cell array of length n, where x{i} gives the coordinates in the
 %                ith dimension for all the data points. The arrays can have any
 %                size, but they must all have the same size.
@@ -20,6 +26,18 @@ function [ok,mess,ndim] = is_struct_xye (w)
 %           of x{i} if x is a cell array.
 %
 %   w(i).e  Array of the corresponding error bars. Must have same size as y.
+%
+%
+% Output:
+% -------
+%   ok      Status flag: =true if each element of argument w satisfies one of
+%          the above formats; =false otherwise (the elements of w do not need
+%          to all have the same format)
+%
+%   mess    Error message: ='' if OK, contains error message if not OK.
+%
+%   ndim    Array with size equal to that of w with the dimensionality of
+%          each of the data sets.
 
 ok=false;
 ndim=NaN(size(w));

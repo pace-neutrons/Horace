@@ -38,7 +38,7 @@ if isequal(fieldnames(w),fields)
     end
     for i=[2,8,9,10,11]
         if ~isnumeric(w.(fields{i})) || ~isscalar(w.(fields{i})) || w.(fields{i})<0
-            message=['Parameter ''',fields{i},''' must be greater of equal to zero'];
+            message=['Parameter ''',fields{i},''' must be greater or equal to zero'];
             return
         end
     end

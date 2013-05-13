@@ -19,7 +19,7 @@ function table=sampling_table(fermi,varargin)
 %   a       Look-up table to convert a random number from uniform distribution
 %          in the range 0 to 1 into a time deviation in microseconds.
 
-npnt_default=50;
+npnt_default=100;
 
 c_e_to_t=2286.271456507406;         % t(us)=c_e_to_t *distance(m)/sqrt(E(meV))
 if nargin==1

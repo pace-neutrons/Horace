@@ -1,33 +1,118 @@
-function wout=multifit_func_eval(w,xye,func,bkdfunc,pin,bpin,pf,pinfo)
+function wout=multifit_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info)
 % Calculate the functions over the input data objects
+%
+%   >> wout=multifit_func_eval(w,xye,func,bkdfunc,pin,bpin,pf,p_info)
+%
+% Input:
+% ------
+%   w           Cell array where each element w(i) is either
+%                 - an x-y-e triple with w(i).x a cell array of arrays, one
+%                  for each x-coordinate,
+%                 - a scalar object
+%
+%   xye         Logical array, size(w): indicating which data are x-y-e triples (true),
+%              or objects (false)
+%
+%   func        Handles to foreground functions:
+%                 - a single function handle
+%                 - cell array of function handles
+%               Some, but not all, elements of the cell array can be empty.
+%              Empty elements are interpreted as not having a function to
+%              evaluate for the corresponding data set.
+%
+%   bkdfunc     Handles to background functions; same format as func, above
+%
+%   plist       Cell array of valid parameter lists, one list per foreground function.
+%
+%   bkdlist     Cell array of valid parameter lists, one list per background function.
+%
+%   pf          Free parameter initial values
+%
+%   p_info      Structure with information needed to transform from pf to the
+%              parameter values needed for function evaluation
+%
+% Output:
+% -------
+%   wout        Calculated output dataset(s). Same form as the input dataset(s)
 
 wout=cell(size(w));
 
-[p,bp]=ptrans(pf,pinfo);    % Get latest numerical parameters
+[p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
 
-% Calculate global function calculated values
-pars=parameter_set(pin,p);
-if ~iscell(pars), pars={pars}; end  % make a cell for convenience
-for i=1:numel(w)
-    if xye(i)
-        wout{i}=w{i};
-        wout{i}.y=func(w{i}.x{:},pars{:});
-        wout{i}.e=zeros(size((w{i}.x{1})));
-    else
-        wout{i}=func(w{i},pars{:});
+% Foreground function calculations
+if numel(func)==1
+    if ~isempty(func{1})
+        pars=parameter_set(plist{1},p{1});
+        if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+        for i=1:numel(w)
+            if xye(i)
+                wout{i}=w{i};
+                wout{i}.y=func{1}(w{i}.x{:},pars{:});
+                wout{i}.e=zeros(size((w{i}.y)));
+            else
+                wout{i}=func{1}(w{i},pars{:});
+            end
+        end
+    end
+else
+    for i=1:numel(w)
+        if ~isempty(func{i})
+            pars=parameter_set(plist{i},p{i});
+            if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+            if xye(i)
+                wout{i}=w{i};
+                wout{i}.y=func{i}(w{i}.x{:},pars{:});
+                wout{i}.e=zeros(size((w{i}.y)));
+            else
+                wout{i}=func{i}(w{i},pars{:});
+            end
+        end
     end
 end
 
-% Calculate background function calculation
-for i=1:numel(w)
-    if ~isempty(bkdfunc{i})
-        pars=parameter_set(bpin{i},bp{i});
+% Background function calculations
+if numel(bkdfunc)==1
+    if ~isempty(bkdfunc{1})
+        pars=parameter_set(bplist{1},bp{1});
         if ~iscell(pars), pars={pars}; end  % make a cell for convenience
-        if xye(i)
-            wout{i}.y=wout{i}.y + bkdfunc{i}(w{i}.x{:},pars{:});
-        else
-            wtmp=bkdfunc{i}(w{i},pars{:});
-            wout{i}=wout{i}+wtmp;
+        for i=1:numel(w)
+            if xye(i)
+                if isempty(wout{i})
+                    wout{i}=w{i};
+                    wout{i}.y=bkdfunc{1}(w{i}.x{:},pars{:});
+                    wout{i}.e=zeros(size((w{i}.y)));
+                else
+                    wout{i}.y=wout{i}.y + bkdfunc{1}(w{i}.x{:},pars{:});
+                end
+            else
+                if isempty(wout{i})
+                    wout{i}=bkdfunc{1}(w{i},pars{:});
+                else
+                    wout{i}=wout{i}+bkdfunc{1}(w{i},pars{:});
+                end
+            end
+        end
+    end
+else
+    for i=1:numel(w)
+        if ~isempty(bkdfunc{i})
+            pars=parameter_set(bplist{i},bp{i});
+            if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+            if xye(i)
+                if isempty(wout{i})
+                    wout{i}=w{i};
+                    wout{i}.y=bkdfunc{i}(w{i}.x{:},pars{:});
+                    wout{i}.e=zeros(size((w{i}.y)));
+                else
+                    wout{i}.y=wout{i}.y + bkdfunc{i}(w{i}.x{:},pars{:});
+                end
+            else
+                if isempty(wout{i})
+                    wout{i}=bkdfunc{i}(w{i},pars{:});
+                else
+                    wout{i}=wout{i}+bkdfunc{i}(w{i},pars{:});
+                end
+            end
         end
     end
 end

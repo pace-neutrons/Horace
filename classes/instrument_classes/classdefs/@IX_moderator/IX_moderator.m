@@ -69,7 +69,7 @@ else
             w.flux_model = varargin{noff+5};
             w.pf = varargin{noff+6};
         else
-            w.pulse_model = '';
+            w.flux_model = '';
             w.pf = [];
         end
         if nargin-noff>=8

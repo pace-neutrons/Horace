@@ -1,7 +1,7 @@
 function y=pulse_shape(moderator,ei,t)
 % Calculate normalised moderator pulse shape as a function of time in microseconds
 %
-%   >> [dt,tav]=pulse_shape(moderator,ei,t)
+%   >> y=pulse_shape(moderator,ei,t)
 %
 % Input:
 % -------
@@ -11,7 +11,7 @@ function y=pulse_shape(moderator,ei,t)
 %
 % Output:
 % -------
-%   y           Height of pulse shape. Normalised so pulse has unit area
+%   y           Array of values of pulse shape. Normalised so pulse has unit area
 
 model=moderator.pulse_model;
 if strcmp(model,'ikcarp')           % Raw Ikeda Carpenter

@@ -193,7 +193,7 @@ function [wout, fitdata, ok, mess] = multifit(win, varargin)
 %   wout    Array or cell array of the objects evaluated at the fitted parameter values
 %           If there was a problem i.e. ok==false, wout=[]
 %
-%   fitdata Result of fit for each dataset
+%   fitdata Result of fit for each dataset:
 %               fitdata.p      - parameter values
 %               fitdata.sig    - estimated errors of global parameters (=0 for fixed parameters)
 %               fitdata.bp     - background parameter values
@@ -231,22 +231,13 @@ if ~ok
     if nargout<3, error(mess), else return, end
 end
 
-plist={func,plist};
-if ~isempty(bpos)
-    for i=1:numel(bfunc)
-        bplist{i}={bfunc{i},bplist{i}};
-    end
-end
-pos=pos-1; bpos=bpos-1;     % Recall that first argument in the call to multifit was win
-varargin{pos}=@func_eval;   % The fit function needs to be func_eval
-varargin{pos+1}=plist;
-if ~isempty(bpos)
-    varargin{bpos}=@func_eval;
-    varargin{bpos+1}=bplist;
-end
+% Wrap the foreground and background functions
+noff=1;     % There is just one argument before the varargin
+args=multifit_gateway_wrap_functions (noff,varargin,pos,func,plist,bpos,bfunc,bplist,...
+                                                    @func_eval,{},@func_eval,{});
 
 % Perform the fit
-[wout,fitdata,ok,mess] = multifit_gateway (win, varargin{:});
+[wout,fitdata,ok,mess] = multifit_gateway (win, args{:});
 if ~ok && nargout<3
     error(mess)
 end
