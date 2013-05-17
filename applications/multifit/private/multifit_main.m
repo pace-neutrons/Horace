@@ -425,8 +425,10 @@ function [ok,mess,output] = multifit_main(varargin)
 % ----------------------------------------------------------------------------------------------------------------
 % Clean up any persistent or global storage in case multifit was left in a strange state due to error or cntl-c
 % ----------------------------------------------------------------------------------------------------------------
-multifit_lsqr_func_eval
-multifit_store_dataset_index
+multifit_cleanup    % initialise multifit
+if matlab_version_num>=7.06     % R2008a or more recent: robust cleanup even if cntl-c
+    cleanupObj=onCleanup(@multifit_cleanup);
+end
 
 
 % ----------------------------------------------------------------------------------------------------------------
@@ -638,10 +640,8 @@ if ~isempty(options.keep)
     xkeep=options.keep;
     if ~iscell(xkeep), xkeep={xkeep}; end  % make a single cell
     if ~(isscalar(xkeep) || isequal(size(w),size(xkeep)))
-        ok=false;
         mess='''keep'' option must provide a single entity defining keep ranges, or a cell array of entities with same size as data source';
-        output=cell(1,nop);
-        return
+        [ok,mess,output]=multifit_error(nop,mess); return;
     end
     if isscalar(xkeep), xkeep=repmat(xkeep,size(w)); end
 else
@@ -653,10 +653,8 @@ if ~isempty(options.remove)
     xremove=options.remove;
     if ~iscell(xremove), xremove={xremove}; end  % make a single cell, for later convenience
     if ~(isscalar(xremove) || isequal(size(w),size(xremove)))
-        ok=false;
         mess='''remove'' option must provide a single entity defining remove ranges, or a cell array of entities with same size as data source';
-        output=cell(1,nop);
-        return
+        [ok,mess,output]=multifit_error(nop,mess); return;
     end
     if isscalar(xremove), xremove=repmat(xremove,size(w)); end
 else
@@ -668,10 +666,8 @@ if ~isempty(options.mask)
     msk=options.mask;
     if ~iscell(msk), msk={msk}; end  % make a single cell, for later convenience
     if ~(isscalar(msk) || isequal(size(w),size(msk)))
-        ok=false;
         mess='''mask'' option must provide a single mask, or a cell array of masks with same size as data source';
-        output=cell(1,nop);
-        return
+        [ok,mess,output]=multifit_error(nop,mess); return;
     end
     if isscalar(msk), msk=repmat(msk,size(w)); end
 else
@@ -839,3 +835,14 @@ fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_info, bkd
 ok=true;
 mess='';
 output={wout,fitdata};
+
+% Cleanup multifit status
+if matlab_version_num<7.06     % prior to R2008a: does not automatically call cleanup (see start of this function)
+    multifit_cleanup
+end
+
+%=================================================================================================================
+function multifit_cleanup
+% Cleanup multfit
+multifit_store_state
+multifit_lsqr_func_eval

@@ -35,16 +35,21 @@ function wout=multifit_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info)
 % -------
 %   wout        Calculated output dataset(s). Same form as the input dataset(s)
 
+isfitting=false;
+store_vals=false;
+
 wout=cell(size(w));
 
 [p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
 
 % Foreground function calculations
+foreground=true;
 if numel(func)==1
     if ~isempty(func{1})
         pars=parameter_set(plist{1},p{1});
         if ~iscell(pars), pars={pars}; end  % make a cell for convenience
         for i=1:numel(w)
+            multifit_store_state (isfitting,i,foreground,store_vals)
             if xye(i)
                 wout{i}=w{i};
                 wout{i}.y=func{1}(w{i}.x{:},pars{:});
@@ -59,6 +64,7 @@ else
         if ~isempty(func{i})
             pars=parameter_set(plist{i},p{i});
             if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+            multifit_store_state (isfitting,i,foreground,store_vals)
             if xye(i)
                 wout{i}=w{i};
                 wout{i}.y=func{i}(w{i}.x{:},pars{:});
@@ -71,11 +77,13 @@ else
 end
 
 % Background function calculations
+background=true;
 if numel(bkdfunc)==1
     if ~isempty(bkdfunc{1})
         pars=parameter_set(bplist{1},bp{1});
         if ~iscell(pars), pars={pars}; end  % make a cell for convenience
         for i=1:numel(w)
+            multifit_store_state (isfitting,i,background,store_vals)
             if xye(i)
                 if isempty(wout{i})
                     wout{i}=w{i};
@@ -98,6 +106,7 @@ else
         if ~isempty(bkdfunc{i})
             pars=parameter_set(bplist{i},bp{i});
             if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+            multifit_store_state (isfitting,i,background,store_vals)
             if xye(i)
                 if isempty(wout{i})
                     wout{i}=w{i};

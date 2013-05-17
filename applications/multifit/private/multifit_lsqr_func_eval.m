@@ -72,12 +72,16 @@ if store_vals && isempty(store_filled)
     fcalc_store=cell(size(w)); fvar_store=cell(size(w)); bcalc_store=cell(size(w)); bvar_store=cell(size(w));
 end
 
+% Status
+isfitting=true;
+
 % Get latest numerical parameters
 [p,bp]=ptrans_par(pf,p_info);
 fcalc=cell(size(w)); fvar=cell(size(w)); bcalc=cell(size(w)); bvar=cell(size(w));
 
 % Get foreground function calculated values for non-empty functions, and store if required
 fcalculated=false(numel(func),1);
+foreground=true;
 if numel(func)==1
     if ~isempty(func{1})
         if ~isempty(store_filled) && store_filled && all(p{1}==pstore{1})
@@ -89,7 +93,7 @@ if numel(func)==1
             pars=parameter_set(plist{1},p{1});
             if ~iscell(pars), pars={pars}; end  % make a cell for convenience
             for iw=1:numel(w)
-                multifit_store_dataset_index (iw,true,store_vals)
+                multifit_store_state (isfitting,iw,foreground,store_vals)
                 if xye(iw)
                     fcalc{iw}=func{1}(w{iw}.x{:},pars{:});
                     fvar{iw}=zeros(size(fcalc{iw}));
@@ -116,7 +120,7 @@ else
                 fcalc{iw}=fcalc_store{iw};
                 fvar{iw}=fvar_store{iw};
             else
-                multifit_store_dataset_index (iw,true,store_vals)
+                multifit_store_state (isfitting,iw,foreground,store_vals)
                 pars=parameter_set(plist{iw},p{iw});
                 if ~iscell(pars), pars={pars}; end  % make a cell for convenience
                 if xye(iw)
@@ -143,6 +147,7 @@ end
 
 % Update background function calculated values for non-empty functions, and store if required
 bcalculated=false(numel(bkdfunc),1);
+background=true;
 if numel(bkdfunc)==1
     if ~isempty(bkdfunc{1})
         if ~isempty(store_filled) && store_filled && all(bp{1}==bpstore{1})
@@ -154,7 +159,7 @@ if numel(bkdfunc)==1
             pars=parameter_set(bplist{1},bp{1});
             if ~iscell(pars), pars={pars}; end  % make a cell for convenience
             for iw=1:numel(w)
-                multifit_store_dataset_index (iw,false,store_vals)
+                multifit_store_state (isfitting,iw,background,store_vals)
                 if xye(iw)
                     bcalc{iw}=bkdfunc{1}(w{iw}.x{:},pars{:});
                     bvar{iw}=zeros(size(bcalc{iw}));
@@ -181,7 +186,7 @@ else
                 bcalc{iw}=bcalc_store{iw};
                 bvar{iw}=bvar_store{iw};
             else
-                multifit_store_dataset_index (iw,false,store_vals)
+                multifit_store_state (isfitting,iw,background,store_vals)
                 pars=parameter_set(bplist{iw},bp{iw});
                 if ~iscell(pars), pars={pars}; end  % make a cell for convenience
                 if xye(iw)

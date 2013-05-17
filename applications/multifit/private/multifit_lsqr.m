@@ -35,9 +35,6 @@ mess='';
 % Clean the function evaluation routine of buffered results to avoid any conflicts
 multifit_lsqr_func_eval
 
-% Clean up the dataset index storage to avoid any conflicts
-multifit_store_dataset_index
-
 % Package data into a single column vector, and also 1/(error_bar)
 yval=cell(size(w));
 wt=cell(size(w));
@@ -210,9 +207,6 @@ end
 % -------
 % Clean the function evaluation routine of buffered results to save memory
 multifit_lsqr_func_eval
-
-% Clean up the dataset index storage to keep things neat and tidy
-multifit_store_dataset_index
 
 
 %------------------------------------------------------------------------------------------
