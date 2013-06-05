@@ -292,8 +292,8 @@ p_info.bkgd=bkgd;
 function [p,bp]=array_to_p_bp(pp,np,nbp)
 % Convert to cell arrays of column vectors for foreground and background functions
 nptot=sum(np(:));
-p=mat2cell(pp(1:nptot),np,1);
-bp=mat2cell(pp(nptot+1:end),nbp,1);
+p=reshape(mat2cell(pp(1:nptot),np(:),1),size(np));
+bp=reshape(mat2cell(pp(nptot+1:end),nbp(:),1),size(nbp));
 
 
 %--------------------------------------------------------------------------------------------------

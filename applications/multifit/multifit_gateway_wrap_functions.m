@@ -1,8 +1,8 @@
-function args_out=multifit_gateway_wrap_functions (noff,args,pos,func,plist,bpos,bfunc,bplist,...
+function args_out=multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfunc,bplist,...
                                                     fwrap,fwrap_par,bfwrap,bfwrap_par)
 % Wrap the functions for multifit with another function and arguments
 %
-%   >> args_out = multifit_gateway_wrap_functions (noff,args,pos,func,plist,bpos,bfunc,bplist,...
+%   >> args_out = multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfunc,bplist,...
 %                                                 fwrap,fwrap_par,bfwrap,bfwrap_par)
 %
 % Takes the output from a call to multfit_gateway to check the input arguments
@@ -12,13 +12,11 @@ function args_out=multifit_gateway_wrap_functions (noff,args,pos,func,plist,bpos
 %
 % Input:
 % ------
-%   noff        Number of data arguments into call to multifit_gateway when checking arguments
-%               Has the value 1 or 3 (see the two cases above)
 %   args        Cell array of input arguments as passed to the caller function
-%              e.g.  function [wfit,fitpar]=my_multifit(w,varargin)
+%              e.g.  function [wout,fitpar]=my_multifit(w,varargin)
 %               then there would be a call
 %                           :
-%                    args_out=multifit_insert_wrapper_function (noff, varargin,...)
+%                    args_out=multifit_insert_wrapper_function (varargin,...)
 %                           :
 %   pos         Position of foreground function handle(s) in input argument list
 %   func        Cell array of foreground function handle(s)
@@ -70,7 +68,6 @@ if ~isempty(bpos)
 end
 
 % Create new argument list
-pos=pos-noff; bpos=bpos-noff;
 args_out=args;
 args_out{pos}=fwrap;
 args_out{pos+1}=plist_new;

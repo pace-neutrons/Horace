@@ -1,9 +1,18 @@
 function [par,argout,present,filled]=parse_arguments(parargin,arglist,varargin)
 % Utility to parse varargin to find values of named parameters passed to a function
 %
-% Syntax:
+% Basic use:
+%   >> [par,argout,present,filled]=parse_arguments(parargin,arglist)
+%
+% Indicate which keywords are logical flags:
 %   >> [par,argout,present,filled]=parse_arguments(parargin,arglist,flags)
 %
+% Allow key words and parameters to be mixed (keys_apart==true; default==false)
+%   >> [par,argout,present,filled]=parse_arguments(parargin,arglist,flags,keys_apart)
+%
+%
+% EXAMPLE:
+% ========
 % The use of parse_arguments is most clearly illustrated by an example:
 % Consider the function:
 %
@@ -40,13 +49,14 @@ function [par,argout,present,filled]=parse_arguments(parargin,arglist,varargin)
 %        modulation: 1
 %            output: 0
 %
+%
 % In more detail:
 % ===============
-%   >> [par,argout,present]=parse_arguments(varargin,arglist,flags)
+%   >> [par,argout,present,filled]=parse_arguments(varargin,arglist,flags,keys_apart)
 %
 % Input:
 % ------
-% parargin  Cell array of arguments to be parsed. The list of arguments in varargin is
+% varargin  Cell array of arguments to be parsed. The list of arguments in varargin is
 %               par_1, par_2, par_3, ..., name_1 [,val_1] name_2 [,val_2], ...
 %           where: par_1, par_2, ... are the values of un-named parameters,
 %             and: name_1 [,val_1], ... are names of arguments (given in arglist, below)
@@ -80,14 +90,18 @@ function [par,argout,present,filled]=parse_arguments(parargin,arglist,varargin)
 %              of naems that are not permitted e.g. 'ne' and 'none' cannot bothe be names as
 %              the negation of the first is equal to the second.
 %
-% flags     Cell array giving the names of the arguments that can only be logical 0 or 1
+% flags     [Optional] Cell array giving the names of the arguments that can only be logical 0 or 1
 %           The names must be given in full (i.e. not abbreviations), and the corresponding
 %           default values given in arglist must be false, true, 0 or 1, otherwise an
 %           error is returned.
+%           If empty, or omitted, then no arguments will be indicated as flags
+%
+% keys_apart [Optional] True if all keywords and values are at the end; false if keywords
+%           and arguments can be interspersed. Default = true
+%
 %
 % Output:
 % -------
-%
 % par       Cell array that contains the leading arguments that do not correspond to 
 %           values of named arguments named in the input argument 'arglist'. Any argument
 %           type can be given; the first character string that is an abbreviation or
@@ -107,33 +121,47 @@ function [par,argout,present,filled]=parse_arguments(parargin,arglist,varargin)
 %           logical 0 or 1 indicating if the argument is non-empty (whether that be because
 %           it was supplied with a non-empty default, or because it was given a non-empty value
 %           on the command line). Provided for convenience.
-%           
-% 
 
-% names of valid arguments
+
+% Names of valid arguments
 fnames = fieldnames(arglist);
-nnames = length(fnames);
+nnames = numel(fnames);
 
-% default output argument values
-par = {};           % empty cell array
+% Default output argument values
+is_par = false(numel(parargin),1);
 argout = arglist;   % output is same as input
 present = cell2struct(repmat({false},nnames,1),fnames); % no arguments present
 
+
 % Get list of parameters that are flags, if given
 % ----------------------------------------------------
-if length(varargin)>=1  % list of flag arguments provided
-%    flagnames = lower(strvcat(varargin{1}));    % character array of flags: works for both 1xn and nx1 cell arrays of strings
-    if isa_size(varargin{1},'vector','cellstr')
+flagnames={};
+keys_apart=true;    % by default, the arguments and keywords are separate
+
+if numel(varargin)>=1 && ~isempty(varargin{1})  % list of flag arguments provided
+    if iscellstr(varargin{1})
         flagnames = lower(varargin{1});
     else
         error('List of flag names must be a cell array of strings')
     end
 end
 
+if numel(varargin)>=2 && ~isempty(varargin{2})  % keys_apart argument provided
+    if isscalar(varargin{2}) && isnumeric(varargin{2})|| islogical(varargin{2})
+        keys_apart=logical(varargin{2});
+    else
+        error('Argument ''keys_apart'' must be scalar logical')
+    end
+end
+    
+if numel(varargin)>2
+    error('Check number of arguments')
+end
+
+
 % Get list of names and whether or not they are flags
 % ----------------------------------------------------
-
-% Create list of names
+% Create list of names and their negations
 name = lower(fnames);
 name_char = char(name);
 negname_char = [repmat('no',nnames,1),name_char];
@@ -148,7 +176,7 @@ for i=1:length(ind)
     end
 end
 
-% set flag list:
+% Set flag list:
 flag = false(length(fnames),1);
 if exist('flagnames','var') % there is a list of flagnames
     for i=1:length(flagnames)
@@ -176,16 +204,14 @@ end
 % Parse cell array of input arguments and un-named parameters
 % -----------------------------------------------------------
 par_read = true;    % indicates that un-named parameters are being read
-ipar = 0;           % number of un-named parameters read so far from parargin
 i = 1;              % index of current element in parargin
 
-nparargin = length(parargin);
+nparargin = numel(parargin);
 while i <= nparargin
-    if ~isa_size(parargin{i},'row','char')
-        % not a character string, so accumulate parameters if no arguments yet encountered
+    if ~(ischar(parargin{i}) && numel(size(parargin{i}))==2 && size(parargin{i},1)==1 && ~isempty(parargin{i}))
+        % not a non-empty character string, so accumulate parameters if we permit that
         if par_read
-            ipar=ipar+1;
-            par{ipar} = parargin{ipar};
+            is_par(i)=true;
         else    % demand that once a named parameter has been read that all subsequent parameters are named
             str = disp_string(parargin{i});
             error (['Encountered the following argument when expecting an argument name:\n',str],'')
@@ -196,10 +222,9 @@ while i <= nparargin
         iname = strmatch(lower(parargin{i}),name_char);
         inegname = strmatch(lower(parargin{i}),negname_char);
         if length(iname)+length(inegname)==0
-            % name not found in list of valid arguments, so accumulate parameters if no arguments yet encountered
+            % name not found in list of valid arguments, so accumulate parameters if we permit that
             if par_read
-                ipar=ipar+1;
-                par{ipar} = parargin{ipar};
+                is_par(i)=true;
             else
                 str = disp_string(parargin{i});
                 error (['Encountered the following argument when expecting an argument name:\n',str],'')
@@ -240,7 +265,10 @@ while i <= nparargin
                     end
                 end
             end
-            par_read = false;
+            % If require that there are only recognised keywords in the remainder of the parameter list, permit no more parameters
+            if keys_apart
+                par_read = false;
+            end
             % Check if we have already had the current named argument
             if ~present.(fnames{ipos_name})
                 present.(fnames{ipos_name}) = true;
@@ -279,6 +307,9 @@ while i <= nparargin
     end
     i = i + 1;
 end
+
+% Fill par:
+par=parargin(is_par);
 
 % Fill filled:
 filled=argout;
@@ -330,18 +361,18 @@ else
 end
 
 % Create string containing values for some classes
-if (isnumeric(var) || islogical(var)) && length(dims)==2 && length(var)>0
+if (isnumeric(var) || islogical(var)) && numel(dims)==2 && ~isempty(var)
     str = num2str(var(1:min(dims(1),max_row),1:min(dims(2),max_col)));
     if dims(2)>max_col
         str = [repmat('     ',min(dims(1),max_row),1),str,repmat(' ...\n',min(dims(1),max_row),1)];
     else
         str = [repmat('     ',min(dims(1),max_row),1),str,repmat('\n',min(dims(1),max_row),1)];
     end
-    str=reshape(str',1,prod(size(str)));
+    str=reshape(str',1,numel(str));
     if dims(1)>max_row
         str = [str,'        :\n'];
     end
-elseif iscellstr(var) && length(var)>0
+elseif iscellstr(var) && ~isempty(var)
     if length(var)>1
         ind=['1,1',repmat(',1',1,length(dims)-2)];
         str = ['     element(',ind,') = '];
@@ -352,7 +383,7 @@ elseif iscellstr(var) && length(var)>0
     if length(var{1})>max_char
         str = [str(1:end-1),'...'];
     end
-elseif ischar(var) && length(var)>0
+elseif ischar(var) && ~isempty(var)
     if dims(1)>1
         ind=['1,:',repmat(',1',1,length(dims)-2)];
         str = ['     element(',ind,') = '];

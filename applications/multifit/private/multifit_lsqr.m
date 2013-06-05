@@ -1,4 +1,4 @@
-function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,listing,fcp,perform_fit)
+function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
 
 % T.G.Perring Jan 2009:
 % ------------------------
@@ -68,7 +68,7 @@ if isempty(listing), listing=0; end
 % Catch case of simple evaluation of chi-squared
 if ~perform_fit
     if listing>2, disp(' Function evaluation:'), end
-    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,false,listing);
+    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,false,listing);
     resid=wt.*(yval-f);
     
     c_best=resid'*resid; % Un-normalised chi-squared
@@ -94,24 +94,27 @@ else
     
     % Starting values of parameters and function values
     if listing>2, disp(' '), disp(' Function evaluation at starting parameter values:'), end
-    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,pinfo,true,listing);
+    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,true,listing);
     resid=wt.*(yval-f);
     
     p_best=pfin; % Best values for parameters at start
     f_best=f;    % Function values at start
     c_best=resid'*resid; % Un-normalised chi-squared
-    
+
+    if listing~=0, fit_listing_iteration_header(listing,0); end
+    if listing~=0, fit_listing_iteration(listing, 0, c_best/nnorm, [], p_best); end
+
     lambda=1;
     lambda_table=[1e1 1e1 1e2 1e2 1e2 1e2];
     
     % Iterate to find best solution
     converged=false;
-    max_rescale_lambda=0;
+    max_rescale_lambda=false;
     for iter=1:niter
         if listing~=0, fit_listing_iteration_header(listing,iter); end
         % Single value decomposition of
         resid=wt.*(yval-f_best);
-        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp,listing);
+        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,p_info,f_best,dp,listing);
         nrm=zeros(npfree,1);
         for j=1:npfree
             jac(:,j)=wt.*jac(:,j);
@@ -141,7 +144,7 @@ else
             if (any(abs(p_chg)>0))  % if any change in the parameters
                 p=p_best+p_chg;
                 if listing>2, disp(' Function evaluation after stepping parmeters:'), end
-                f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p,pinfo,true,listing);
+                f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p,p_info,true,listing);
                 resid=wt.*(yval-f);
                 c=resid'*resid;
                 if c<c_best
@@ -153,7 +156,7 @@ else
                 if listing~=0, fit_listing_iteration(listing, iter, c/nnorm, lambda, p); end
             end;
             if itable==numel(lambda_table) % Gone to end of table without improving chisqr
-                max_rescale_lambda=1;
+                max_rescale_lambda=true;
                 break;
             end
             % Chisqr didn't improve - increase lambda and recompute step in parameters
@@ -161,7 +164,14 @@ else
         end
         
         % Output to command window
-        if listing~=0, fit_listing_iteration(listing, iter, c_best/nnorm, lambda, p_best); end
+        if listing~=0
+            if ~max_rescale_lambda
+                fit_listing_iteration(listing, iter, c_best/nnorm, lambda, p_best)
+            else
+                disp(' *** No improvement in chi-squared over previous iteration ***')
+                fit_listing_iteration(listing, iter-1, c_best/nnorm, [], p_best)
+            end
+        end
         
         % if chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
         if (c_best>c_goal) || (c_best==0)
@@ -170,7 +180,8 @@ else
         end
         
         % If multipled lambda to limit of the table, give up
-        if  max_rescale_lambda==1
+        % *** DON'T THINK THAT THIS POINT CAN EVER BE REACHED
+        if  max_rescale_lambda
             converged=false;
             break
         end
@@ -182,7 +193,14 @@ else
         chisqr_red = c_best/nnorm;
         % Calculate covariance matrix
         if listing>2, disp(' '), disp(' Fit converged; estimate errors and covariance matrix'), end
-        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,pinfo,f_best,dp,listing);
+        % Recompute and store functions values at best parameters. (The stored values may not be
+        % those for best parameters which will otherwise dramatically slow down the calculation
+        % of the covariance matrix. If the stored values are for the best parameters, then this
+        % is a low cost function call, so there is little penalty.)
+        if listing>2, disp(' '), disp(' Function evaluation at best fit parameters:'), end
+        multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p_best,p_info,true,listing);
+        % Now get Jacobian matrix
+        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,p_info,f_best,dp,listing);
         for j=1:npfree
             jac(:,j)=wt.*jac(:,j);
         end;
@@ -193,7 +211,7 @@ else
         sig=sqrt(diag(cov));
         tmp=repmat(1./sqrt(diag(cov)),[1,npfree]);
         cor=tmp.*cov.*tmp';
-        if listing~=0, fit_listing_final(listing, p_best, sig, cor, pinfo); end
+        if listing~=0, fit_listing_final(listing, p_best, sig, cor, p_info); end
     else
         chisqr_red = c_best/nnorm;
         ok=true;
@@ -210,10 +228,10 @@ multifit_lsqr_func_eval
 
 
 %------------------------------------------------------------------------------------------
-function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,pinfo,f,dp,listing)
+function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp,listing)
 % Calculate partial derivatives of function with respect to parameters
 %
-%   >> jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,pinfo,f,dp)
+%   >> jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp)
 %
 %   w       Cell array of data objects
 %   xye     Logical array sye(i)==true if w{i} is x-y-e triple
@@ -222,7 +240,7 @@ function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,pinfo,f,dp,listing)
 %   pin     Function arguments for global function
 %   bpin    Cell array of function arguments for background functions
 %   p       Parameter values of free parameters
-%   pinfo   Structure with information to convert free parameters to numerical
+%   p_info  Structure with information to convert free parameters to numerical
 %           parameters needed for function evaluation
 %   f       Function values at parameter values p sbove
 %   dp      Fractional step change in p for calculation of partial derivatives
@@ -250,12 +268,12 @@ for j=1:length(p)
     end
     if dp>=0
         ppos=p; ppos(j)=p(j)+del;
-        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo,false,listing)-f)/del;
+        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,p_info,false,listing)-f)/del;
     else
         ppos=p; ppos(j)=p(j)+del;
         pneg=p; pneg(j)=p(j)-del;
-        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,pinfo,false,listing) -...
-                  multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,pinfo,false,listing))/(2*del);
+        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,p_info,false,listing) -...
+                  multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,p_info,false,listing))/(2*del);
     end
 end
 
@@ -278,8 +296,13 @@ tic
 function fit_listing_iteration_header(listing,iter)
 if listing>1
     disp('--------------------------------------------------------------------------------')
-    disp(['Iteration = ',num2str(iter)])
-    disp('------------------')
+    if iter>0
+        disp(['Iteration = ',num2str(iter)])
+        disp('------------------')
+    else
+        disp( 'Starting point')
+        disp('------------------')
+    end
 end
 
 %-------------------------------
@@ -287,8 +310,12 @@ function fit_listing_iteration(listing,iter,chisqr_red,lambda,pvary)
 if listing==1
     disp(sprintf('   %3d      %8.3f   %9.4f', iter, toc, chisqr_red));
 else
-    disp([' Total time = ',num2str(toc),'s    Reduced Chi^2 = ',num2str(chisqr_red),...
-        '      Levenberg-Marquardt = ', num2str(lambda)])
+    if ~isempty(lambda)
+        disp([' Total time = ',num2str(toc),'s    Reduced Chi^2 = ',num2str(chisqr_red),...
+            '      Levenberg-Marquardt = ', num2str(lambda)])
+    else
+        disp([' Total time = ',num2str(toc),'s    Reduced Chi^2 = ',num2str(chisqr_red)])
+    end
     disp(' Free parameter values:')
     np=numel(pvary);
     for irow=1:ceil(np/5)
@@ -298,28 +325,28 @@ else
 end
 
 %-------------------------------
-function fit_listing_final(listing, p_best, sig, cor, pinfo)
+function fit_listing_final(listing, p_best, sig, cor, p_info)
 if listing==1
     disp('Fit converged')
 else
-    [p,bp]=ptrans_par(p_best,pinfo);
-    [psig,bsig]=ptrans_sigma(sig,pinfo);
+    [p,bp]=ptrans_par(p_best,p_info);
+    [psig,bsig]=ptrans_sigma(sig,p_info);
     disp('--------------------------------------------------------------------------------')
     disp('Fit converged:')
     disp(' ')
     disp('Parameter values (free parameters with error estimates):')
     disp('--------------------------------------------------------')
-    if pinfo.nptot>0       % there is at least one foreground function with one or more parameters
+    if p_info.nptot>0       % there is at least one foreground function with one or more parameters
         disp(' ')
         disp('Foreground parameter values:')
         disp('----------------------------')
-        fit_listing_final_parameters(p,psig,true,pinfo.fore,pinfo.bkgd,pinfo.np,pinfo.nbp)
+        fit_listing_final_parameters(p,psig,true,p_info.fore,p_info.bkgd,p_info.np,p_info.nbp)
     end
-    if pinfo.nbptot>0       % there is at least one foreground function with one or more parameters
+    if p_info.nbptot>0       % there is at least one foreground function with one or more parameters
         disp(' ')
         disp('Background parameter values:')
         disp('----------------------------')
-        fit_listing_final_parameters(bp,bsig,false,pinfo.bkgd,pinfo.fore,pinfo.np,pinfo.nbp)
+        fit_listing_final_parameters(bp,bsig,false,p_info.bkgd,p_info.fore,p_info.np,p_info.nbp)
     end
     disp(' ')
     disp('Covariance matrix for free parameters:')

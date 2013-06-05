@@ -1,4 +1,4 @@
-function pbind = multifit_bind_local_par_as_global (sz, bind, foreground)
+function pbind = multifit_bind_local_pars_as_global (sz, bind, foreground)
 % Bind parameters of a function that is used across all datasets as if they were local
 %
 %   >> pbind = multifit_bind_local_par (sz, bind)

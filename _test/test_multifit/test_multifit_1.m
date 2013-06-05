@@ -146,19 +146,21 @@ if ~save_output
     old=load(output_file);
     nam=fieldnames(old);
     tol=-1.0e-13;
-    % Some code that is useful for tracking difference when in debugging mode - creates an array of the actual tolerance required
-    tol_tmp=tol*ones(size(nam));
-    for i=1:numel(nam)
-        tmp_new=multifit_legacy_convert_output(eval(nam{i}));
-        tmp_old=multifit_legacy_convert_output(old.(nam{i}));
-        while ~equal_to_tol(tmp_new, tmp_old, tol_tmp(i), 'min_denominator', 0.01)
-            tol_tmp(i)=tol_tmp(i)*10;
-            if abs(tol_tmp(i))>1
-                disp(' **** PROBLEM !!! ****')
-            end
-        end
-    end
-    tol_log10=round(log10(-tol_tmp));
+    
+%     % Some code that is useful for tracking difference when in debugging mode - creates an array of the actual tolerance required
+%     tol_tmp=tol*ones(size(nam));
+%     for i=1:numel(nam)
+%         tmp_new=multifit_legacy_convert_output(eval(nam{i}));
+%         tmp_old=multifit_legacy_convert_output(old.(nam{i}));
+%         while ~equal_to_tol(tmp_new, tmp_old, tol_tmp(i), 'min_denominator', 0.01)
+%             tol_tmp(i)=tol_tmp(i)*10;
+%             if abs(tol_tmp(i))>1
+%                 disp(' **** PROBLEM !!! ****')
+%             end
+%         end
+%     end
+%     tol_log10=round(log10(-tol_tmp));
+
     % The test proper
     for i=1:numel(nam)
         tmp_new=multifit_legacy_convert_output(eval(nam{i}));

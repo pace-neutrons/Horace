@@ -33,8 +33,16 @@ end
 
 %------------------------------------------------------------------------------
 function pnew=reshape_as(pnew,pold)
-% Reshape new input array if same number of elements but different shape
+% Reshape new input array if same number of elements but different shape,
+% or if different number of elements, then if a vector reshape to the same
+% orientation
 if numel(pnew)==numel(pold) &&...
         ~(numel(size(pnew))==numel(size(pold)) && all(size(pnew)==size(pold)))
     pnew=reshape(pnew,size(pold));
+elseif numel(pnew)~=numel(pold)
+    if iscolvector(pold)
+        pnew=pnew(:);
+    elseif isrowvector(pold)
+        pnew=pnew(:)';
+    end
 end

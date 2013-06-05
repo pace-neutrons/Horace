@@ -1,12 +1,12 @@
-function [p,bp]=ptrans_par(pf,w)
+function [p,bp]=ptrans_par(pf,p_info)
 % Transform free parameter values to parameter values needed for function evaluation
 %
-%   >> [p,bp]=ptrans_par(pf,w)
+%   >> [p,bp]=ptrans_par(pf,p_info)
 %
 % Input:
 % ------
 %   pf      Array of free parameters
-%   w       Structure containing information to convert to function parameters
+%   p_info  Structure containing information to convert to function parameters
 %          (See the function ptrans_initialise for details)
 %
 % Output:
@@ -17,10 +17,10 @@ function [p,bp]=ptrans_par(pf,w)
 %          for the background function(s)
 
 % Update list of parameter values
-pp=w.pp0;
-pp(w.free)=pf;
-pp(w.bound)=w.ratio(w.bound).*pp(w.ib(w.bound));
+pp=p_info.pp0;
+pp(p_info.free)=pf;
+pp(p_info.bound)=p_info.ratio(p_info.bound).*pp(p_info.ib(p_info.bound));
 
 % Convert to cell arrays for foreground and background functions
-p=mat2cell(pp(1:w.nptot),w.np(:),1);
-bp=mat2cell(pp(w.nptot+1:end),w.nbp(:),1);
+p=mat2cell(pp(1:p_info.nptot),p_info.np(:),1);
+bp=mat2cell(pp(p_info.nptot+1:end),p_info.nbp(:),1);

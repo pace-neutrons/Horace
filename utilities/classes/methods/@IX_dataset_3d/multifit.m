@@ -224,20 +224,22 @@ function [wout, fitdata, ok, mess] = multifit(win, varargin)
 
 % *** This function is identical for IX_dataset_1d, _2d, _3d, ...
 
-% Parse the input arguments, and repackage for fit func
-[pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win, varargin{:},'parsefunc_');
+% Parse the input arguments
+[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = multifit_gateway_parsefunc (win, varargin{:});
 if ~ok
     wout=[]; fitdata=[];
     if nargout<3, error(mess), else return, end
 end
+ndata=1;     % There is just one argument before the varargin
+pos=pos-ndata;
+bpos=bpos-ndata;
 
 % Wrap the foreground and background functions
-noff=1;     % There is just one argument before the varargin
-args=multifit_gateway_wrap_functions (noff,varargin,pos,func,plist,bpos,bfunc,bplist,...
+args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,...
                                                     @func_eval,{},@func_eval,{});
 
 % Perform the fit
-[wout,fitdata,ok,mess] = multifit_gateway (win, args{:});
+[ok,mess,wout,fitdata] = multifit_gateway (win, args{:});
 if ~ok && nargout<3
     error(mess)
 end

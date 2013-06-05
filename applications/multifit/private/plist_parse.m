@@ -10,6 +10,8 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 %               If there is only one function for which parameters are needed
 %              (i.e. input argument func is a scalar), then plist_in must be
 %                 - A valid parameter list (see below for details)
+%                Equivalently:
+%                 - A cell array containing a single valid parameter list
 %
 %               If there is more than one function then plist_in must be:
 %                 - A cell array of valid parameter lists, one parameter list
@@ -30,7 +32,7 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 %              (constructed from plist_in according to description below)
 %
 %
-% Format of A valid parameter list
+% Format of a valid parameter list
 % --------------------------------
 %  A valid parameter list is one of the following:
 %   - A numeric vector with at least one element e.g. p=[10,100,0.01]
@@ -56,19 +58,36 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 %       p<2> = {@func<1>, {@func<0>, p<0>, c1<1>, c2<1>,...}, c1<2>, c2<2>,...}
 %            :
 %
-%  EXAMPLES of plist_in:
+% When recursively nesting functions and parameter lists, there can be any
+% number of additional arguments c1, c2,... , including the case of no
+% additional arguments. The exception is the parameter list at the base.
+% For example, the following are valid (p is a numeric vector with at least one element):
+%        p
+%       {@myfunc,p}
+%       {@myfunc1,@myfunc,p}
+% but these are not valid:
+%       {p}
+%       {@myfunc,{p}}
+%
+%
+% ---------------------
+% EXAMPLES of plist_in:
+% ---------------------
 %   If just one function (i.e. func is scalar):
 %      [10,2]
-%     {[10,2],'gauss',true}
+%     {[10,2],'filter',true}
+%    {{[10,2],'filter',true}}   % valid, but it is unnecessary to put in a cell
 %
 %   If two functions:
 %      [10,5,2]                 % will apply to both functions
 %     {[10,5,2]}                % equivalent alternative syntax
 %     {[10,2],[15,3]}           % different parameters for each function
-%     {[10,2],'gauss',true}     % *** NOT VALID: not a single parameter list
-%     {{[10,2],'gauss',true}}   % valid: now a single parameter list
+%     {[10,2],'filter',true}    % *** NOT VALID: not a single parameter list
+%                                (interpreted as three parameter lists, the first
+%                                 [10,2], the second 'filter', the third true)
+%     {{[10,2],'filter',true}}  % valid: now a single parameter list
 %                               % and will apply to both functions
-%     {{[10,2],'gauss',true},{[15,3],'hat',false}}  % different parameters for each function
+%     {{[10,2],'filter',true},{[15,3],'hat',false}}  % different parameters for each function
 %
 %  NOTES:
 %   A simple cell array is only valid for plist when there is just the one function
@@ -89,17 +108,21 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 
 if numel(func)==1
     % Single function
+    if iscell(plist_in) && isscalar(plist_in)
+        % Case of {parameter_list} (there is no valid plist such that {plist} is also valid)
+        plist_in=plist_in{1};
+    end
     [ok,np]=plist_parse_single(plist_in);
     if ok
         mess='';
         plist={plist_in};
     else
-        mess='parameter list invalid';
+        mess='parameter list has invalid form';
         np=[];
         plist={};
     end
 else
-    % Cell array of functions
+    % Multiple functions
     ok=false;
     np=[]; plist={};
     sz=size(func);
@@ -113,7 +136,7 @@ else
                     plist{i}=plist_in{1};
                 end
             else
-                mess='parameter list invalid';
+                mess='parameter list has invalid form';
                 return
             end
         elseif numel(plist_in)==numel(func)
@@ -129,7 +152,7 @@ else
                     plist{i}=[];
                 else
                     np=[]; plist={};
-                    mess=['parameter list invalid for element ',arraystr(sz,i)];
+                    mess=['parameter list has invalid form for element ',arraystr(sz,i)];
                     return
                 end
             end
@@ -139,7 +162,7 @@ else
         end
         
     elseif isvector(plist_in) && isnumeric(plist_in) && numel(plist_in)>0
-        % Numeric vector
+        % Numeric vector; assumed to apply to every function
         np=numel(plist_in)*ones(sz);
         plist=cell(sz);
         for i=1:prod(sz)
@@ -212,10 +235,21 @@ function [ok,np]=plist_parse_single(plist)
 %
 %       p<2> = {@func<1>, {@func<0>, p<0>, c1<1>, c2<1>,...}, c1<2>, c2<2>,...}
 %            :
+%
+% When recursively nesting functions and parameter lists, there can be any
+% number of additional arguments c1, c2,... , including the case of no
+% additional arguments. The exception is the parameter list at the base.
+% For example, the following are valid (p is a numeric vector with at least one element):
+%        p
+%       {@myfunc,p}
+%       {@myfunc1,@myfunc,p}
+% but these are not valid:
+%       {p}
+%       {@myfunc,{p}}
 
 ok=false;
 np=[];
-if iscell(plist) && ~isempty(plist)
+if iscell(plist) && numel(plist)>=2
     if isa(plist{1},'function_handle')
         [ok,np]=plist_parse_single(plist{2});
     elseif isvector(plist{1}) && isnumeric(plist{1}) && numel(plist{1})>0

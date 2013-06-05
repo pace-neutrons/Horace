@@ -26,7 +26,7 @@ function [ok,mess,func]=function_handles_parse(func_in,size_w,local)
 %   func    Cell array of function handles. Missing functions are represented
 %          by empty elements (anything for which isempty(func{i})==true)
 %           if local: func is a cell array with size given by size_w
-%           if not:   func is a scalar cell array
+%           if not:   func is a scalar cell array (and contains a function handle)
 
 ok=true;
 mess='';

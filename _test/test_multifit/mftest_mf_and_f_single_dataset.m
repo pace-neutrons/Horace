@@ -3,7 +3,7 @@ function [y1_fit, wstruct1_fit, w1_fit, p1_fit] = mftest_mf_and_f_single_dataset
 % - equivalence of fitting xye, structure and IX_dataset_1d input in multifit, and
 % - equivalence of multifit and fit
 %
-%   >> [y1_fit, wstruct1_fit, w1_fit] = mftest_mf_and_f_single_dataset (x1,y1,e1,wstruct1,w1,varargin)
+%   >> [y1_fit, wstruct1_fit, w1_fit, p1_fit] = mftest_mf_and_f_single_dataset (x1,y1,e1,wstruct1,w1,varargin)
 %
 %   x1,y1,e1    x,y,e data in standard form for multifit
 %   wstruct1    equivalent structure with fields x,y,e

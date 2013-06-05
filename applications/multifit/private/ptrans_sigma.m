@@ -1,12 +1,12 @@
-function [psig,bsig]=ptrans_sigma(sigfree,w)
+function [psig,bsig]=ptrans_sigma(sigfree,p_info)
 % Transform free parameter errors into array matching the sizes of the parameters
 %
-%   >> [psig,bsig]=ptrans_sigma(sig_free,w)
+%   >> [psig,bsig]=ptrans_sigma(sig_free,p_info)
 %
 % Input:
 % ------
 %   sigfree Array of standard deviations of free parameters
-%   w       Structure containing information to convert to function parameters
+%   p_info  Structure containing information to convert to function parameters
 %          (See the function ptrans_initialise for details)
 %
 % Output:
@@ -17,10 +17,10 @@ function [psig,bsig]=ptrans_sigma(sigfree,w)
 %          on the parameter values for the background function(s)
 
 % Get list of estimated errors
-sig=zeros(w.npptot,1);
-sig(w.free)=sigfree;
-sig(w.bound)=abs(w.ratio(w.bound)).*sig(w.ib(w.bound));     % ratio could be negative - must take absolute value
+sig=zeros(p_info.npptot,1);
+sig(p_info.free)=sigfree;
+sig(p_info.bound)=abs(p_info.ratio(p_info.bound)).*sig(p_info.ib(p_info.bound));     % ratio could be negative - must take absolute value
 
 % Convert to cell arrays for foreground and background functions
-psig=mat2cell(sig(1:w.nptot),w.np(:),1);
-bsig=mat2cell(sig(w.nptot+1:end),w.nbp(:),1);
+psig=mat2cell(sig(1:p_info.nptot),p_info.np(:),1);
+bsig=mat2cell(sig(p_info.nptot+1:end),p_info.nbp(:),1);

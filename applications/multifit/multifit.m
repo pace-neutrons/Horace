@@ -1,4 +1,4 @@
-function varargout = multifit(varargin)
+function [wout, fitdata, ok, mess] = multifit(varargin)
 % Find best fit of a parametrised function to data with an arbitrary number of dimensions.
 %
 % The data can be x,y,e arrays or objects of a class.
@@ -321,33 +321,9 @@ function varargout = multifit(varargin)
 %       quadratic background, but all have the same initial parameter values.
 %       Two of them are constrained to a linear background.
 %
-%           >> [wfit,fitdata] = multifit (w,...
+%           >> [wout,fitdata] = multifit (w,...
 %                          @resconv, {@my_sqwfunc,{p,c1,c2},r1,r2}, [1,0,0,1,1], {4,5},...
 %                          @func_eval, {{@quad,[1.1,0.1,0.02]}}, {[],[1,1,0],[],[],[1,1,0]} )
 
-% Parsing input parameters
-% ========================
-% A feature not documented above is one to locate the presence of the global fitting function
-% and any background functions, withut actually fitting. This has a use, for example, when
-% repackaging the input for a custom call to multifit.
-%
-%   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit (...,'parsefunc_')
-%
-% This is only included for backwards compatibility. Please use the official gateway
-% function multifit_gateway
-%
-%   >> [wout,fitdata,ok,mess] = multifit_gateway (...)
-%   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (...,'parsefunc_')
-%
-% See code for multifit_gateway for more details
 
-[ok,mess,output]=multifit_main(varargin{:});
-nout=numel(output);
-if ok || nout<nargout   % if not ok, then ok is a return argument
-    n=min(nout,nargout);
-    varargout(1:n)=output(1:n);
-    if nargout>=nout+1, varargout{nout+1}=ok; end
-    if nargout>=nout+2, varargout{nout+2}=mess; end
-else
-    error(mess)
-end
+[ok,mess,wout,fitdata] = multifit_gateway (varargin{:});

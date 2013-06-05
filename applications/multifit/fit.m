@@ -329,7 +329,7 @@ function [wout,fitdata,ok,mess] = fit(varargin)
 %       quadratic background, but all have the same initial parameter values.
 %       Two of them are constrained to a linear background.
 %
-%           >> [wfit,fitdata] = multifit (w,...
+%           >> [wout,fitdata] = multifit (w,...
 %                          @resconv, {@my_sqwfunc,{p,c1,c2},r1,r2}, [1,0,0,1,1], {4,5},...
 %                          @func_eval, {{@quad,[1.1,0.1,0.02]}}, {[],[1,1,0],[],[],[1,1,0]} )
 
@@ -346,7 +346,7 @@ function [wout,fitdata,ok,mess] = fit(varargin)
 % - In the following it is necessary to call multifit, not multifit_gateway, as the overloaded version
 %  corresponding to an object may be needed (see e.g. IX_dataset_1d, which wraps the user function with a call to func_eval)
 % - It is necessary to ensure that any overloaded version of multifit has the full return arguments
-%  [wfit,fitdata,ok,mess]
+%  [wout,fitdata,ok,mess]
 
 if numel(varargin)>1
     for i=1:numel(varargin)

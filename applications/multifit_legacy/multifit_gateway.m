@@ -1,4 +1,4 @@
-function varargout=multifit_gateway(varargin)
+function varargout = multifit_gateway (varargin)
 % Gateway function to multifit
 %
 % For help on multifit, type:

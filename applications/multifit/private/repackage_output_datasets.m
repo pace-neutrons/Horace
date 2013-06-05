@@ -1,11 +1,29 @@
-function [wout,single_data_arg,cell_data,xye,xye_xarray] = repackage_output_datasets(wout)
+function wout = repackage_output_datasets(w, single_data_arg, cell_data, xye, xye_xarray)
+% Repackage calculated data into the form of the input data. Is the inverse of repackage_input_datasets
+%
+%   >> wout = repackage_output_datasets(wout, single_data_arg, cell_data, xye, xye_xarray)
+%
+% Input:
+% ------
+%   w               Repackaged data: a cell array where each element w(i) is either
+%                    - an x-y-e triple with w(i).x a cell array of arrays, one for each x-coordinate,
+%                    - a scalar object
+%
+%   single_data_arg Logical scalar: true if originally a single input data argument, false if x,y,e
+%
+%   cell_data       Logical scalar: true if originally an input data was a cell array
+%
+%   xye             Logical array, size(w): indicating which data were originally
+%                  x-y-e triples (true), or objects (false)
+%
+%   xye_xarray      Logical array, size(w): indicates that x values in x-y-e triples
+%                  originally formed a single numeric array (true), or was a cell array
+%                  with one element for each x-coordinate (false).
+%                   Is set to false for data sets that are objects
 
-% [ok,mess,w,single_data_arg,cell_data,xye,xye_xarray] = repackage_input_datasets(args{1:iarg_fore_func-1});
-
-% Turn output data into form of input data
+wout=w;
 if single_data_arg
-    % Convert x coordinates back to array, if xye triple and songle array input
-    % *** could make more efficient if for options.selected=false just pick up the input x coordinates
+    % Convert x coordinates back to array, if xye triple and single array input
     for i=1:numel(wout)
         if xye(i) && xye_xarray(i)
             nx=numel(wout{i}.x);   % is a cell array
@@ -16,7 +34,7 @@ if single_data_arg
             end
         end
     end
-    % Convert output to array, if input wa array
+    % Convert output to array, if input was an array
     if ~cell_data
         if isstruct(wout{1})
             wout=cell2mat(wout);

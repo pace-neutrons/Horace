@@ -1,5 +1,5 @@
 function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_info, bkd)
-% Pack the ooutput fit parameters into standard form
+% Pack the output fit parameters into standard form
 %
 %   >> fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_info, bkd)
 %
@@ -10,25 +10,25 @@ function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_
 %              The fields are:
 %               p      - Best fit foreground function parameter values
 %                          If only one function, a row vector
-%                          If more than one function: a cell array of row vectors
+%                          If more than one function: a row cell array of row vectors
 %               sig    - Estimated errors of foreground parameters (=0 for fixed parameters)
 %                          If only one function, a row vector
-%                          If more than one function: a cell array of row vectors
+%                          If more than one function: a row cell array of row vectors
 %               bp     - Background parameter values
 %                          If only one function, a row vector
-%                          If more than one function: a cell array of row vectors
+%                          If more than one function: a row cell array of row vectors
 %               bsig   - Estimated errors of background (=0 for fixed parameters)
 %                          If only one function, a row vector
-%                          If more than one function: a cell array of row vectors
+%                          If more than one function: a row cell array of row vectors
 %               corr   - Correlation matrix for free parameters
 %               chisq  - Reduced Chi^2 of fit i.e. divided by:
 %                           (no. of data points) - (no. free parameters))
 %               pnames - Foreground parameter names
 %                          If only one function, a cell array (row vector) of names
-%                          If more than one function: a cell array of row vector cell arrays
+%                          If more than one function: a row cell array of row vector cell arrays
 %               bpnames- Background parameter names
 %                          If only one function, a cell array (row vector) of names
-%                          If more than one function: a cell array of row vector cell arrays
+%                          If more than one function: a row cell array of row vector cell arrays
 %
 %
 % Note about parameter names:

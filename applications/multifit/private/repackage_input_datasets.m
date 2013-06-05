@@ -1,5 +1,5 @@
 function [ok, mess, wout, single_data_arg, cell_data, xye, xye_xarray] = repackage_input_datasets (varargin)
-% Check nature and validity of data type(s) to be fitted
+% Check nature and validity of data type(s) to be fitted, and repackage in a standard form.
 %
 %   >> [ok, mess, w, single_data_arg, cell_data, xye, xye_xarray] = repackage_input_datasets (x, y, e)
 %

@@ -1,5 +1,5 @@
 function test_multifit2(varargin)
-% Performs a number of tests of syntax and equivalence of multifit and fit.
+% Performs a number of tests of syntax.
 % Optionally writes results to output file or tests output against stored output
 %
 %   >> test_multifit_2           % Compares with previously saved results in test_multifit_2_output.mat

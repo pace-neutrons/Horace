@@ -15,6 +15,8 @@ function [ok,mess,ipbound,ipboundto,ifuncboundto,pratio]=pbind_parse(pbind,isfor
 %                - An empty argument (which means no binding) e.g. {} or []
 %                - A single parameter binding descriptor      e.g. {1,3} or {2,5,[7,2]}
 %                - A cell array of parameter binding descriptors  e.g. {{1,3},{2,5,[7,2]}}
+%               Equivalently:
+%                - A cell array containing one of the above forms
 %
 %               If there is more than one function the functions apply locally,
 %              one per dataset, and pbind must be:
@@ -90,6 +92,7 @@ function [ok,mess,ipbound,ipboundto,ifuncboundto,pratio]=pbind_parse(pbind,isfor
 %           {1,3,-5}        Bind p1 to p3 of foreground function 5
 %           {1,3,[7,3,2]}   Bind p1 to p3 of background function index [7,3,2]
 %           {1,3,-[4,2]}    Bind p1 to p3 of foreground function index [4,2]
+%          {1,3,-[4,2],NaN} Equivalent to the above (NaN means 'use the initial ratio')
 %
 %          If only one foreground function, then index 0 will refer to this
 %           {1,3,0}         Bind p1 to p3 of the sole foreground function
@@ -154,7 +157,12 @@ end
 
 % Parse the binding description
 if prod(sz)==1
+    % Single function
     ipbound=cell(sz); ipboundto=cell(sz); ifuncboundto=cell(sz); pratio=cell(sz);
+    if iscell(pbind) && isscalar(pbind)
+        % Case of {binding_descriptor} (there is no valid pbind such that {pbind} is also valid)
+        pbind=pbind{1};
+    end
     [ok,mess,ipbound{1},ipboundto{1},ifuncboundto{1},pratio{1}]=pbind_parse_single(pbind,np,nbp,sgn);
     if ~ok
         mess=[func_type_str,' ',arraystr(sz,1),': ',mess];
@@ -162,6 +170,7 @@ if prod(sz)==1
         return
     end
 else
+    % Multiple functions
     if iscell(pbind) && ~isempty(pbind)
         if isscalar(pbind)  % the binding argument is assumed to apply for every function; must test validity for each function of course
             ipbound=cell(sz); ipboundto=cell(sz); ifuncboundto=cell(sz); pratio=cell(sz);
@@ -236,6 +245,7 @@ function [ok,mess,ipbound,ipboundto,ifuncboundto,pratio]=pbind_parse_single(pbin
 %               {1,3,-5}        Bind p1 to p3 of foreground function 5
 %               {1,3,[7,3,2]}   Bind p1 to p3 of background function index [7,3,2]
 %               {1,3,-[4,2]}    Bind p1 to p3 of foreground function index [4,2]
+%              {1,3,-[4,2],NaN} Equivalent to the above (NaN means 'use the initial ratio')
 %
 %              If only one foreground function, then index 0 will refer to this
 %               {1,3,0}         Bind p1 to p3 of the sole foreground function
@@ -387,7 +397,7 @@ elseif iscell(pbind) % A single binding descriptor, or a cell array of binding d
             if numel(pbind{i})==4
                 if isnumeric(pbind{i}{4}) && isscalar(pbind{i}{4})
                     pratio(i)=pbind{i}{4};
-                    if ~isfinite(pbind{i}{4})
+                    if isinf(pbind{i}{4})   % we accept NaN as meaning the ratio will be defined by initial parameter values
                         ok=false;
                         mess=['Parameter binding ratio must be finite in binding description ',num2str(i)];
                         ipbound=zeros(0,1); ipboundto=zeros(0,1); ifuncboundto=zeros(0,1); pratio=zeros(0,1);
@@ -447,10 +457,10 @@ elseif iscell(pbind) % A single binding descriptor, or a cell array of binding d
             ipbound=zeros(0,1); ipboundto=zeros(0,1); ifuncboundto=zeros(0,1); pratio=zeros(0,1);
             return
         end
-        % Test that bound parameters for the given function do not appear in the free parameter list
+        % Test that bound parameters for the given function do not appear in the bound-to parameter list
         bound=false(1,npbind); bound(ipbound)=true;
-        free=false(1,npbind); free(ipboundto(ifuncboundto==ind))=true;
-        if any(bound&free)
+        boundto=false(1,npbind); boundto(ipboundto(ifuncboundto==ind))=true;
+        if any(bound&boundto)
             ok=false;
             mess='One or more parameters are bound to a parameter in the same function that is also set to be bound';
             ipbound=zeros(0,1); ipboundto=zeros(0,1); ifuncboundto=zeros(0,1); pratio=zeros(0,1);
