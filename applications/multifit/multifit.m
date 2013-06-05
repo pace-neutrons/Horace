@@ -326,4 +326,4 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
 %                          @func_eval, {{@quad,[1.1,0.1,0.02]}}, {[],[1,1,0],[],[],[1,1,0]} )
 
 
-[ok,mess,wout,fitdata] = multifit_gateway (varargin{:});
+[ok,mess,wout,fitdata] = multifit_gateway_main (varargin{:});

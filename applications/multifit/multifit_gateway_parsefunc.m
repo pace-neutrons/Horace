@@ -62,4 +62,4 @@ function [ok,mess,varargout] = multifit_gateway_parsefunc (varargin)
 
 [ok,mess,parsing,output]=multifit_main(varargin{:},'parsefunc_');
 nout=nargout-2;
-varargout(1:nout)=output(1:nout);   % appears towork even if nout<=0
+varargout(1:nout)=output(1:nout);   % appears to work even if nout<=0

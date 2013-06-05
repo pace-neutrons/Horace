@@ -5,10 +5,13 @@ function args_out=multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfun
 %   >> args_out = multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfunc,bplist,...
 %                                                 fwrap,fwrap_par,bfwrap,bfwrap_par)
 %
-% Takes the output from a call to multfit_gateway to check the input arguments
-%   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win, arg1, arg2,...'parsefunc_')
+% Takes the output from a call to multfit_gateway_parsefunc to check the input arguments
+%   >> [ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] =...
+%                   multifit_gateway_parsefunc (win, arg1, arg2,...'parsefunc_')
+%
 % or, if x-y-e arguments are separately given
-%   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (x, y, e, arg1, arg2,...'parsefunc_')
+%   >> [ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] =...
+%                   multifit_gateway_parsefunc (x, y, e, arg1, arg2,...'parsefunc_')
 %
 % Input:
 % ------
@@ -16,7 +19,7 @@ function args_out=multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfun
 %              e.g.  function [wout,fitpar]=my_multifit(w,varargin)
 %               then there would be a call
 %                           :
-%                    args_out=multifit_insert_wrapper_function (varargin,...)
+%                    args_out=multifit_gateway_wrap_functions (varargin,...)
 %                           :
 %   pos         Position of foreground function handle(s) in input argument list
 %   func        Cell array of foreground function handle(s)
@@ -33,10 +36,10 @@ function args_out=multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfun
 %
 % Output:
 % -------
-%   args_out    Cell array of arguments to be passed to multifit_gateway.
+%   args_out    Cell array of arguments to be passed to multifit_gateway_main.
 %              Continuing the example lines above:
 %                           :
-%                    [wout,fitdata,ok,mess] = multifit_gateway (win, args_out{:});
+%                    [ok,mess,wout,fitdata] = multifit_gateway_main (win, args_out{:});
 
 
 % Create new foreground parameter list(s)

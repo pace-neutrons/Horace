@@ -383,16 +383,7 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %           If there was a problem i.e. ok==false, wout=[]
 %
 %   fitdata Result of fit for each dataset
-%               fitdata.p      - parameter values
-%               fitdata.sig    - estimated errors of global parameters (=0 for fixed parameters)
-%               fitdata.bp     - background parameter values
-%               fitdata.bsig   - estimated errors of background (=0 for fixed parameters)
-%               fitdata.corr   - correlation matrix for free parameters
-%               fitdata.chisq  - reduced Chi^2 of fit (i.e. divided by
-%                                   (no. of data points) - (no. free parameters))
-%               fitdata.pnames - parameter names
-%               fitdata.bpnames- background parameter names
-%           If there was a problem i.e. ok==false, fitdata=[]
+%               ***
 %
 %   ok      True if all ok, false if problem fitting. 
 %
@@ -411,26 +402,6 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %           >> [ok,mess,output] = multifit (w,...
 %                          @resconv, {@my_sqwfunc,{p,c1,c2},r1,r2}, [1,0,0,1,1], {4,5},...
 %                          @func_eval, {{@quad,[1.1,0.1,0.02]}}, {[],[1,1,0],[],[],[1,1,0]} )
-%
-%
-%
-% Case of parsing input parameters:
-% ---------------------------------
-%   >> [pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (...,'parsefunc_')
-%
-%   pos     position of global fit function handle in input argument list ([] if ~ok))
-%   func    function handle to global fit function ([] if ~ok))
-%   plist   parameter list to global function ([] if ~ok))
-%   bpos    position of argument giving background function handle(s) in input argument list ([] if ~ok))
-%   bfunc   cell array of background function handle(s) ([] if ~ok))
-%   bplist  cell array of background parameter lists, one per background function ([] if ~ok))
-%   ok      True if all ok, false if problem fitting.
-%   mess    Character string contaoning error message if ~ok; '' if ok
-%   pfree   cell array of logical vectors describing which foreground parmeters are free or not
-%   pbind   cell array of binding descriptions for the foreground functions
-%   bpfree  cell array of logical vectors describing which background parmeters are free or not
-%   bpbind  cell array of binding descriptions for the background functions
-%   narg    Total number of arguments excluding keyword-value options 
 
 
 % ----------------------------------------------------------------------------------------------------------------

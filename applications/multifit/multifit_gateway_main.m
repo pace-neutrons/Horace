@@ -1,7 +1,7 @@
-function [ok,mess,varargout] = multifit_gateway (varargin)
-% Gateway function to multifit_main
+function [ok,mess,varargout] = multifit_gateway_main (varargin)
+% Gateway function to multifit least-squares fitting algorithm
 %
-%   >> [ok,mess,wout,fitdata] = multifit_gateway (...)
+%   >> [ok,mess,wout,fitdata] = multifit_gateway_main (...)
 %
 % Input:
 % ------
@@ -46,4 +46,4 @@ function [ok,mess,varargout] = multifit_gateway (varargin)
 
 [ok,mess,parsing,output]=multifit_main(varargin{:},'noparsefunc_');
 nout=nargout-2;
-varargout(1:nout)=output(1:nout);   % appears towork even if nout<=0
+varargout(1:nout)=output(1:nout);   % appears to work even if nout<=0
