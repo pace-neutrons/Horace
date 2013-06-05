@@ -60,8 +60,8 @@ nd=size(x,2);   % number of dimensions - assume already checked for consistency 
 np=size(x,1);   % number of points
 
 % Fixed energy
-c=get_neutron_constants;
-k_to_e = c.k_to_e;
+c=neutron_constants;
+k_to_e = c.c_k_to_emev;
 efix=win.header.efix;
 kfix=sqrt(efix/k_to_e);
 

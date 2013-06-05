@@ -1,15 +1,15 @@
-function test_main (varargin)
+function test_change_crystal (varargin)
 % Test crystal refinement functions change_crytstal and refine_crystal
 %
 %   >> test_refinement           % Use previously saved sqw input data file
-%   >> test_refinement ('save')  % Save test file to  fullfile(tempdir,'sim.sqw')
+%   >> test_refinement ('save')  % Save test file to  fullfile(tempdir,'change_crystal_sim.sqw')
 %
 % Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
 
 dir_in=fileparts(which(mfilename));
 dir_out=tempdir;
-sim_sqw_file=fullfile(dir_out,'sim.sqw');           % output file for simulation in reference lattice
-sim_sqw_file_corr=fullfile(dir_out,'sim_corr.sqw'); % output file for correction
+sim_sqw_file=fullfile(dir_out,'change_crystal_sim.sqw');           % output file for simulation in reference lattice
+sim_sqw_file_corr=fullfile(dir_out,'change_crystal_sim_corr.sqw'); % output file for correction
 
 if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
@@ -42,6 +42,7 @@ omega=0; dpsi=2; gl=3; gs=-3;
 alatt_true=[5.5,5.5,5.5];
 angdeg_true=[90,90,90];
 qfwhh=0.1;                  % Spread of Bragg peaks 
+efwhh=1;                    % Energy width of Bragg peaks
 rotvec=[10,10,0]*(pi/180);  % orientation of the true lattice w.r.t reference lattice
 
 
@@ -58,7 +59,6 @@ if save_output
     end
     
     % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
-    efwhh=1;
     for i=1:numel(psi)
         wtmp=read_horace(sqw_file{i});
         wtmp=sqw_eval(wtmp,@make_bragg_blobs,{[qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
@@ -97,12 +97,17 @@ rlu0=get_bragg_positions(read_sqw(sim_sqw_file), proj, rlu, half_len, half_thick
 %% Test new sqw object
 copyfile(sim_sqw_file,sim_sqw_file_corr)
 change_crystal_sqw(sim_sqw_file_corr,rlu_corr)
-rlu_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj, rlu, half_len, half_thick, bin_width);
+rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj, rlu, half_len, half_thick, bin_width);
 
-if max(abs(rlu_corr(:)-rlu(:)))>qfwhh
+if max(abs(rlu0_corr(:)-rlu(:)))>qfwhh
     error('Problem in refinement of crystal orientation and lattice parameters')
 else
     disp('Test succesfully completed')
+    try
+        delete(sim_sqw_file_corr)
+    catch
+        disp(['Unable to delete temporary file: ',sim_sqw_file_corr])
+    end
 end
 
 %% Problems

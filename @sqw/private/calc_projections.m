@@ -62,8 +62,8 @@ end
 % Create matrix to convert from spectrometer axes to coords along projection axes
 [spec_to_u, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
-c=get_neutron_constants;
-k_to_e = c.k_to_e;  % used by calc_projections_c;
+c=neutron_constants;
+k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
 % Calculate Q in spectrometer coordinates for each pixel 
 use_mex=get(hor_config,'use_mex') && emode==1 && ~isfield(data,'qspec');  % *** as of 6 Nov 2011 the c++ routine still only works for direct geometry
