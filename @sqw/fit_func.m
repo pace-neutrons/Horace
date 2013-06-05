@@ -196,17 +196,17 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 %
 % Fit a 2D Gaussian, allowing only height and position to vary:
 %   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
-%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], [1,1,1,0,0,0])
+%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], [1,1,1,0,0,0])
 %
 % Allow all parameters to vary, but remove two rectangles from the data
 %   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
-%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
+%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
 %                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
 %
 % The same, with a planar background:
 %   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5;
 %   >> const=0; dfdx=0; dfdy=0;
-%   >> [wfit, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
+%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ...
 %                             @plane, [const,dfdx,dfdy],...
 %                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
 
@@ -227,25 +227,18 @@ end
 % Case of more than one dataset input
 % -----------------------------------
 % Parse the input arguments, and repackage for fit func
-[pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win(1), varargin{:},'parsefunc_');
+[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = multifit_gateway_parsefunc (win(1), varargin{:});
 if ~ok
     wout=[]; fitdata=[];
     if nargout<3, error(mess), else return, end
 end
+ndata=1;     % There is just one argument before the varargin
+pos=pos-ndata;
+bpos=bpos-ndata;
 
-plist={func,plist};
-if ~isempty(bpos)
-    for i=1:numel(bfunc)
-        bplist{i}={bfunc{i},bplist{i}};
-    end
-end
-pos=pos-1; bpos=bpos-1;     % Recall that first argument in the call to multifit was win
-varargin{pos}=@func_eval;   % The fit function needs to be func_eval
-varargin{pos+1}=plist;
-if ~isempty(bpos)
-    varargin{bpos}=@func_eval;
-    varargin{bpos+1}=bplist;
-end
+% Wrap the foreground and background functions
+args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,...
+                                                    @func_eval,{},@func_eval,{});
 
 % Evaluate function for each element of the array of sqw objects
 wout=win;
@@ -255,7 +248,7 @@ mess=cell(size(wout));
 
 ok_fit_performed=false;
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
-    [wout_tmp,fitdata_tmp,ok(i),mess{i}] = multifit_gateway (win(i), varargin{:});
+    [ok(i),mess{i},wout_tmp,fitdata_tmp] = multifit_gateway (win(i), args{:});
     if ok(i)
         wout(i)=wout_tmp;
         if ~ok_fit_performed
@@ -265,7 +258,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
             fitdata(i)=fitdata_tmp;
         end
     else
-        if nargour<3, error([mess{i}, ' (dataset ',num2str(i),')']), end
+        if nargout<3, error([mess{i}, ' (dataset ',num2str(i),')']), end
         disp(['ERROR (dataset ',num2str(i),'): ',mess{i}])
     end
 end

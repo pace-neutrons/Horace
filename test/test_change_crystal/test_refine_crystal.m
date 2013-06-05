@@ -57,3 +57,10 @@ if ~ok, error(mess), end
 [rlu_corr,alatt_fit,angdeg_fit,rotmat] = refine_crystal(rlu0,alatt0,angdeg0,rlu,[5.1,5.2,5.3],[90,90,90],'free_alatt',[1,0,1]);
 [ok,mess]=equal_to_tol(struct('rlu_corr',rlu_corr,'alatt',alatt_fit,'angdeg',angdeg_fit,'rotmat',rotmat),answer,-5e-2,'min_denominator',1);
 if ~ok, error(mess), end
+
+
+% OK if got to here
+% -----------------
+disp(' ')
+disp(' All OK')
+disp(' ')

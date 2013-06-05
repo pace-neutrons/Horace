@@ -49,6 +49,8 @@ function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_
 % $Revision: 690 $ ($Date: 2013-03-22 13:53:28 +0000 (Fri, 22 Mar 2013) $)
 
 
+d2r=pi/180;
+
 % Check input arguments
 % ------------------------
 % Input energy bins
@@ -130,7 +132,6 @@ end
 
 % Determine urange
 if isempty(urange)
-    d2r=pi/180;
     urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...
         u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
 end

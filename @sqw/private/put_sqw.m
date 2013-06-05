@@ -14,11 +14,11 @@ function [mess,position,npixtot,type] = put_sqw (outfile,main_header,header,detp
 %   header      Header block (for details of data structure, type >> help get_sqw_header)
 %   detpar      Detector parameters (for details of data structure, type >> help get_sqw_detpar)
 %   data        Valid sqw data structure which must contain the fields listed below  (for details, type >> help get_sqw_data)
-%                       type 'b'    fields: uoffset,...,s,e
-%                       type 'b+'   fields: uoffset,...,s,e,npix
-%                       type 'a'    uoffset,...,s,e,npix,urange,pix
+%                       type 'b'    fields: uoffset,...,dax,s,e
+%                       type 'b+'   fields: uoffset,...,dax,s,e,npix
+%                       type 'a'    fields: uoffset,...,dax,s,e,npix,urange,pix
 %               In addition, will take the data structure of type 'a' without the individual pixel information ('a-')
-%                       type 'a-'   uoffset,...,s,e,npix,urange
+%                       type 'a-'   fields: uoffset,...,dax,s,e,npix,urange
 %               Lastly, the information as read with '-h' or '-hverbatim' option in get_sqw is valid input,
 %                       type 'h'    fields: uoffset,...,dax
 %
@@ -26,11 +26,19 @@ function [mess,position,npixtot,type] = put_sqw (outfile,main_header,header,detp
 %               from which source:
 %                  '-nopix'  Do not write the information for individual pixels
 %                  '-pix'    Write pixel information
+%
 %               The default source of pixel information is the data structure, but if the 
 %              optional arguments below are given, then use them to give the corresponding source
 %              of pixel information if option '-pix' has been specified.
 %               In particular, note that '-pix' with data type 'a-' is permitted if the following
 %              arguments are provided.
+%
+%               Lastly, one can also choose to write just the header information in data:
+%                  '-h'      The information as read with '-h' option in get_sqw is written
+%                           namely the fields: uoffset,...,dax
+%                           (Note: urange will not be written, even if present i.e. in the
+%                           case of data types 'a' or 'a-')
+%               *** NOTE: the instrument and sample fields are NOT written with this option
 %
 % [All or none of the optional arguments below must be present]
 %   infiles     Cell array of file names, or array of file identifiers of open file, from
@@ -70,7 +78,7 @@ function [mess,position,npixtot,type] = put_sqw (outfile,main_header,header,detp
 %                   position.position_info  position of start of the position block
 %
 %   npixtot     Total number of pixels written to file  (=[] if pix not written)
-%   type        Type of sqw data written to file: 'a', 'a-', 'b+' or 'b'
+%   type        Type of sqw data written to file: 'a', 'a-', 'b+', 'b' or 'h'
 % 
 %
 % NOTES:
@@ -107,6 +115,13 @@ function [mess,position,npixtot,type] = put_sqw (outfile,main_header,header,detp
 % $Revision$ ($Date$)
 
 application=horace_version;
+
+% Determine if option to write header only
+if numel(varargin)>0 && ischar(varargin{1}) && strcmpi(varargin{1},'-h')
+    opt_is_h=true;
+else
+    opt_is_h=false;
+end
 
 % Determine type of object
 if ~isempty(main_header)
@@ -226,7 +241,7 @@ position.pix=position_data.pix;
 
 % Write format 3 fields
 % ------------------------------------
-if file_format_version>=3
+if file_format_version>=3 && ~opt_is_h
     
     % Write optional header fields
     % ------------------------------------

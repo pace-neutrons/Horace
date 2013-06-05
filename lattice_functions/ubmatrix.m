@@ -1,10 +1,11 @@
-function [ub, mess] = ubmatrix (u, v, b)
+function [ub, mess, umat] = ubmatrix (u, v, b)
 % Calculate UB matrix that transforms components of a vector given in r.l.u.
 % into the components in an orthonormal frame defined by the two vectors
 % u and v (each given in r.l.u)
 %
-% Syntax:
-%   >> ub = ubmat(u, v, b)
+%   >> ub = ubmatrix (u, v, b)
+%
+%   >> [ub, mess, umat] = ubmatrix (u, v, b)    % full syntax
 %
 % Input:
 % -------
@@ -15,6 +16,7 @@ function [ub, mess] = ubmatrix (u, v, b)
 % -------
 %   ub      UB matrix; empty if there is a problem
 %   mess    Error message; empty if all OK
+%   umat    U matrix
 %
 % The orthonormal frame defined by vectors u and v is:
 %   e1  parallel to u
@@ -24,6 +26,11 @@ function [ub, mess] = ubmatrix (u, v, b)
 % Use the matrix ub to convert components of a vector as follows:
 %
 %   Vuv(i) = UB(i,j) Vrlu(j)
+%
+% Also:
+%
+%   Vuv(i) = U(i,j) Vcryst(j)   % NOTE: inv(U) == U'
+
 
 % Original author: T.G.Perring
 %
@@ -47,5 +54,6 @@ try
     ub = umat*b;
 catch
     ub = [];
-    mess = 'ERROR: Problem calculating ub matrix. Check u and v are not parallel';
+    umat = [];
+    mess = 'Problem calculating UB matrix. Check u and v are not parallel';
 end
