@@ -62,6 +62,8 @@ if isfield(proj_in,'w')
         proj.w = proj_in.w;
     elseif isempty(proj_in.w)
         proj.w=[];  % will be recognised as meaning unassigned in code that uses proj structure
+    elseif (isfield(proj_in,'type') && numel(proj_in.type)==3 && proj_in.type(3)=='n')
+        proj.w = proj_in.w;
     else
         proj = [];
         mess = 'If given, the projection description field w must be a three-vector in r.l.u., (or empty)';
@@ -75,12 +77,13 @@ end
 if isfield(proj_in,'type')
     if isa_size(proj_in.type,[1,3],'char')
         proj.type = lower(proj_in.type);
-        if isempty(strfind('arp',proj.type(1)))||isempty(strfind('arp',proj.type(2)))||isempty(strfind('arp',proj.type(3)))
+        %if isempty(strfind('arp',proj.type(1)))||isempty(strfind('arp',proj.type(2)))||isempty(strfind('arp',proj.type(3)))
+         if isempty(strfind('arpn',proj.type(1)))||isempty(strfind('arpn',proj.type(2)))||isempty(strfind('arpn',proj.type(3)))        
             proj = [];
             mess = 'In projection description, normalisation type for each axis must be ''a'', ''r'' or ''p''';
             return
         end
-        if isempty(proj.w) && proj.type(3)=='p'
+        if isempty(proj.w) && (proj.type(3)=='p' || proj.type(3) == 'n')
             proj = [];
             mess = 'In projection description, must give third axis, w, if normalisation of third axis is ''p''';
             return
