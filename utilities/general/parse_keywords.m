@@ -1,22 +1,20 @@
 function [ok,mess,ind,val]=parse_keywords(keywords,varargin)
-% Simple verification that argument list has form:
-%
-%    key1, val1, key2, val2, ...
-%
-%  where valid keywords must be in the provided list
+% Simple verification that argument list has form: key1, val1, key2, val2, ...
 %
 %   >> [ok,mess,ind,val]= parse_keywords (keywords, key1, val1, key2, val2, ...)
 %
 % Input:
+% ------
 %   keywords        Cell array of strings containing the keywords
 %   key1, key2, ... Keywords
 %   val1, val2, ... Associated values
 %
 % Output:
-%   ok      =true all ok, otherwise =false
-%   mess    empty if ok, otherwise contains error message
-%   ind     index of supplied keyword(s) into list of valid keywords
-%   val     cell array of corresponding values (empty cell array if none found)
+% -------
+%   ok              =true all ok, otherwise =false
+%   mess            Empty if ok, otherwise contains error message
+%   ind             Index of supplied keyword(s) into list of valid keywords
+%   val             Cell array of corresponding values (empty cell array if none found)
 %
 % Notes:
 %  - Simple function: it is assumed that the keywords are all different

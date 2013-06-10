@@ -20,7 +20,7 @@ try
     for i=1:numel(xb)
         xoutf=bin_boundaries_from_descriptor(xb{i},xin,true,true);
         xoutm=bin_boundaries_from_descriptor(xb{i},xin,false,true);
-        delta_array(xoutf,xoutm,-1e-14)
+        equal_to_tol(xoutf,xoutm,-1e-14)
     end
     disp('finished')
     disp(' ')
@@ -37,7 +37,7 @@ try
     disp('- Matlab implementation:')
     tic; xoutm=bin_boundaries_from_descriptor(xb,xin,false,true); toc;
     disp(' ')
-    delta_array(xoutf,xoutm,-1e-14)
+    equal_to_tol(xoutf,xoutm,-1e-14)
     cd(cwd)
 catch
     cd(cwd);

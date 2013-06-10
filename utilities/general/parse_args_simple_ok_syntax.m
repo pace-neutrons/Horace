@@ -5,17 +5,19 @@ function [ok,mess,par,ind,val]=parse_args_simple_ok_syntax (keywords,varargin)
 %         parse_args_simple_ok_syntax (keywords, par1, par2, ..., key1, val1, key2, val2, ...)
 %
 % Input:
+% ------
 %   keywords        Cell array of strings containing the keywords
 %   par1, par2 ...  Arguments (end of list determined by appearance of a key word in keywords)
 %   key1, key2 ...  Keywords
 %   val1, val2 ...  Associated values
 %
 % Output:
-%   ok      =true all ok, otherwise =false
-%   mess    empty if ok, otherwise contains error message
-%   par     cell array of the leading parameters 
-%   ind     index of supplied keyword(s) into list of valid keywords
-%   val     cell array of corresponding values (empty cell array if none found)
+% -------
+%   ok              =true all ok, otherwise =false
+%   mess            Empty if ok, otherwise contains error message
+%   par             Cell array of the leading parameters (1xn)
+%   ind             Index of supplied keyword(s) into list of valid keywords
+%   val             Cell array of corresponding values (empty cell array if none found)
 %
 % Notes:
 %  - Simple function: it is assumed that the keywords are all different
@@ -35,7 +37,7 @@ end
 % Check validity
 if ikeystart<=numel(varargin)   % at least one keyword
     [ok,mess,ind,val]=parse_keywords(keywords,varargin{ikeystart:end});
-    if ~ok, par={}; return, end
+    if ~ok, par=cell(1,0); return, end
 else
     ok=true;
     mess='';
@@ -48,6 +50,6 @@ if nargout>=3   % only create this extra argument if required
     if ikeystart>1
         par=varargin(1:ikeystart-1);
     else
-        par={};
+        par=cell(1,0);
     end
 end

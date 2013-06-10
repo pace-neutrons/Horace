@@ -1,5 +1,5 @@
 function [par,argout,present,filled]=parse_arguments(parargin,arglist,varargin)
-% Utility to parse varargin to find values of named parameters passed to a function
+% Utility to parse varargin to find values of named parameters passed to a function.
 %
 % Basic use:
 %   >> [par,argout,present,filled]=parse_arguments(parargin,arglist)
@@ -112,12 +112,12 @@ function [par,argout,present,filled]=parse_arguments(parargin,arglist,varargin)
 %           contains the values of the arguments named in varargin. Arguments that
 %           were not given values retain the default values given in the input argument arglist.
 %
-% present   Structure with the same field names as argin and argout but which have value
+% present   Structure with the same field names as arglist and argout but which have value
 %           logical 0 or 1 indicating if the argument name appeared in varargin. If a name
 %           was appeared vai its negation e.g. 'nofoo', then it is deemed to have been present
 %           i.e. present.foo = 1
 %
-% filled    Structure with the same field names as argin, and argout with values
+% filled    Structure with the same field names as arglist and argout with values
 %           logical 0 or 1 indicating if the argument is non-empty (whether that be because
 %           it was supplied with a non-empty default, or because it was given a non-empty value
 %           on the command line). Provided for convenience.
