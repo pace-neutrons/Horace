@@ -1,4 +1,4 @@
-function [grid_size, urange] = write_spe_to_sqw (varargin)
+function [grid_size, urange,det0] = write_spe_to_sqw (varargin)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 % to file.
 %
@@ -36,7 +36,7 @@ function [grid_size, urange] = write_spe_to_sqw (varargin)
 
 
 % Gateway routine that calls sqw method
-[grid_size,urange] = write_spe_to_sqw (sqw, varargin{:});
+[grid_size,urange,det0] = write_spe_to_sqw (sqw, varargin{:});
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0

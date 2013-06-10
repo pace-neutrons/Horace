@@ -71,13 +71,16 @@ elseif ~(isvector(gs) && length(gs)==nfiles && isnumeric(gs))
     error ('gs must be a single number vector with length equal to the number of spe files')
 end
 
-% Convert input angles to radians (except lattice parameters)
-deg2rad=pi/180;
-psi = psi*deg2rad;
-omega = omega*deg2rad;
-dpsi = dpsi*deg2rad;
-gl = gl*deg2rad;
-gs = gs*deg2rad;
+if ~is_herbert_used()
+    % Convert input angles to radians (except lattice parameters); rundata
+    % converts its data on-fly
+    deg2rad=pi/180;
+    psi = psi*deg2rad;
+    omega = omega*deg2rad;
+    dpsi = dpsi*deg2rad;
+    gl = gl*deg2rad;
+    gs = gs*deg2rad;
+end
 
 % Set default grid size if none given
 if ~exist('grid_size_in','var')

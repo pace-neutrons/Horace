@@ -1,6 +1,7 @@
 function [grid_size, urange] = calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
                                           omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in)
-%UNTITLED4 Summary of this function goes here
+%Summary of this function goes here
+%
 %   Detailed explanation goes here
 
 % Fill output main header block
