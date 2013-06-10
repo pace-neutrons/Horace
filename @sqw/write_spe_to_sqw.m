@@ -25,7 +25,13 @@ function [grid_size, urange,det0] = write_spe_to_sqw (dummy, spe_data, par_file,
 %   gs              Small goniometer arc angle (rad)
 %   grid_size_in    Scalar or row vector of grid dimensions. Default is [1x1x1x1]
 %   urange_in       Range of data grid for output. If not given, then uses smallest hypercuboid
-%                  that encloses the whole data range
+%                   that encloses the whole data range
+%   det0            if present, refers to the array of unmasked detector parameters in horace data format
+%                   the array is written in sqw file as reference detectors
+%                   allowing to combine multiple sqw (or tmp) files togeter
+%                   as masked detectors are usually different for different
+%                   runs. If it is absent, appropriate data file is taken
+%                   from the par_file or rundata
 %
 % Output:
 %   grid_size       Actual grid size used (size is unity along dimensions
@@ -110,7 +116,9 @@ if is_herbert_used() % =============================> rundata files processing
     
 else
     % Read spe file and detector parameters
-    [data,det,keep,det0]=get_data(spe_data, par_file);
+    if ~exist('det0','var') || isempty(det0)
+        [data,det,keep,det0]=get_data(spe_data, par_file);
+    end
 
 end
 %
