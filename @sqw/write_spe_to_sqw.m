@@ -1,5 +1,5 @@
-function [grid_size, urange] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_file, efix, emode, alatt, angdeg,...
-                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+function [grid_size, urange,det0] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_file, efix, emode, alatt, angdeg,...
+                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in,det0)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 % to file.
 %
@@ -45,16 +45,18 @@ end
 
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=15 && nargin<=17)
+if ~(nargin>=15 && nargin<=18)
     error('Check number of input arguments')
 end
 if is_herbert_used()
-    if ~isa(spe_data,'speData')
-        spe_file = spe_data;
-    else
+    if isa(spe_data,'speData')
         error('WriteSpe2Sqw:InvalidArgument','Herbert IO do not understands speData yet');
     end
-    run_file = gen_runfiles(spe_file,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs); 
+    if isa(spe_data,'rundata') % already rundata
+        run_file = spe_data;
+    else
+        run_file = gen_runfiles(spe_file,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs); 
+    end
     if numel(run_file)~=1
         error('Must only have one input data file');
     end
@@ -86,17 +88,25 @@ end
 
 if is_herbert_used() % =============================> rundata files processing
     data = struct();
+    if ~exist('det0','var') || isempty(det0)
+            det0 = get_rundata(run_file,'det_par','-hor');
+    end
+    
+
     % Read spe file and detector parameters if it has not been done before and
     % return the results, without NaN-s ('-nonan')
-    [data.S,data.ERR,data.en,det]=get_rundata(run_file{1},'S','ERR','en',...
-                                    'det_par', ...
-                                     '-hor','-rad','-nonan');
+    [data.S,data.ERR,data.en,det,efix,alatt,angdeg,...
+     psi,omega,dpsi,gl,gs]=get_rundata(run_file,'S','ERR','en',...
+                                        'det_par','efix','alatt', 'angldeg',...
+                                        'psi','omega', 'dpsi', 'gl', 'gs',...
+                                         '-hor','-rad','-nonan');
+                                 
 
-    [data.filepath,data.filename]=fileparts(run_file{1}.loader.file_name);
+    [data.filepath,data.filename]=fileparts(run_file.loader.file_name);
 
+    
     % get the list of all detectors, including the detectors, which produce
     % incorrect results (NaN-s) for this run
-    det0 = det;
     
 else
     % Read spe file and detector parameters

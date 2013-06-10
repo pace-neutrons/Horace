@@ -1,18 +1,31 @@
-function [spe_data,tmp_file] = gensqw_build_input_datafiles(dummy,spe_file,sqw_file)
+function spe_data = gensqw_build_input_datafiles(input_data_files,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs)
+
 
 % Input files
-if ischar(spe_file) && ~isempty(spe_file) && size(spe_file,1)==1
-    spe_file=cellstr(spe_file);
-elseif ~iscellstr(spe_file)
-    error('spe_file input must be a single file name or cell array of file names')
+if ischar(input_data_files) && ~isempty(input_data_files) && size(input_data_files,1)==1
+    input_data_files=cellstr(input_data_files);
+elseif ~iscellstr(input_data_files)
+    error('input_data_files (first argument) must be a single file name or cell array of file names')
 end
 
+if is_herbert_used() % =============================> rundata files processing
+    % generate list of runfiles
+    spe_data = gen_runfiles(input_data_files,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs);   
+else
+    % generate list of speData files    
+    spe_data =  gensqw_build_input_datafiles_libisis(input_data_files);
+end
+
+
+function spe_data = gensqw_build_input_datafiles_libisis(spe_file)
+
+% Input files
+
 % Make names of intermediate files
-tmp_file = cell(size(spe_file));
 spe_data = cell(size(spe_file));
 nfiles   = numel(spe_file);
 
-sqw_path=fileparts(sqw_file);
+
 wk_ext  = get(hor_config,'sqw_ext');
 for i=1:nfiles
  % build spe data structure on the basis of spe or hdf files 
@@ -23,7 +36,6 @@ for i=1:nfiles
     if strcmpi(spe_ext,wk_ext)
         error('Extension type ''',wk_ext,''' not permitted for spe input files. Rename file(s)')
     end
-    tmp_file{i}=fullfile(sqw_path,[spe_name,wk_ext]);
 end
 
 

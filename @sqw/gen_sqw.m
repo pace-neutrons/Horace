@@ -71,88 +71,56 @@ elseif ~(isnumeric(grid_size_in)&&(isscalar(grid_size_in)||(isvector(grid_size_i
    error ('Grid size must be scalar or row vector length 4')
 end     
 
+% Check other input arguments and convert angular values to radians
+% ------------------------
+[efix,psi,omega,dpsi,gl,gs]=gensqw_check_input_arg( dummy,spe_file, par_file, sqw_file, efix,...
+                                                     psi, omega, dpsi, gl, gs);
 
-%-------------------------------------------->
-if is_herbert_used() % =============================> rundata files processing
-    % this is function -- adapter as everything below runs from runfiles;
-    run_files = gen_runfiles(spe_file, par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs);
-    % If no input data range provided, calculate it from the files
-    if ~urange_given
-        urange = rundata_find_urange(dummy,run_files,emode,u,v);        
-    end    
-    
-    nfiles = numel(run_files);
-    tmp_file = cell(1,nfiles);
-    if nfiles ==1
-        disp('--------------------------------------------------------------------------------')
-        disp('Creating output sqw file:')
-        [grid_size,urange] = rundata_write_to_sqw (dummy,run_files{1},sqw_file,emode,u,v, grid_size_in, urange);
-    else
-        nt=bigtic();
-        tmp_sqw_path = fileparts(sqw_file);
-        tmp_sqw_ext = get(hor_config,'sqw_ext');
-        for i=1:nfiles
-            disp('--------------------------------------------------------------------------------')
-            disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
-            [source_path,source_name]=get_source_fname(run_files{i});
-            tmp_file{i}=fullfile(tmp_sqw_path,[source_name,tmp_sqw_ext]);
-            [grid_size_tmp,urange] = rundata_write_to_sqw (dummy,run_files{i},tmp_file{i},emode,u,v,grid_size_in, urange);
-            if i==1
-                grid_size = grid_size_tmp;
-            else
-                if ~all(grid_size==grid_size_tmp)
-                    error('Logic error in code calling write_spe_to_sqw')
-                end
-            end
-        end        
-        bigtoc(nt);
-        % Create single sqw file combining all intermediate sqw files
-        % ------------------------------------------------------------
-        disp('--------------------------------------------------------------------------------')
-        disp('Creating output sqw file:')
-        write_nsqw_to_sqw (tmp_file, sqw_file);
-
-        disp('--------------------------------------------------------------------------------')        
-    end
-else   % =============================> spe/par file processing
-
-    % Check input arguments
-    % ------------------------
-    [efix,psi,omega,dpsi,gl,gs]=gensqw_check_input_arg( dummy,spe_file, par_file, sqw_file, efix,...
-                                                            psi, omega, dpsi, gl, gs);
-
-    % generate the list of input data classess  
-    [spe_data,tmp_file] = gensqw_build_input_datafiles(dummy,spe_file,sqw_file);
-
+% generate the list of input data classess  
+spe_data = gensqw_build_input_datafiles(spe_file,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs);
+nfiles = numel(spe_data);
 
 % If no input data range provided, calculate it from the files
-    if ~urange_given
-        urange = gensqw_find_urange(dummy,spe_data,par_file,...
+if ~urange_given
+    urange = gensqw_find_urange(spe_data,par_file,...
                  efix,emode,alatt, angdeg,u,v, psi,omega, dpsi, gl, gs);    
-    end    
 
-    nfiles = numel(spe_data);
-    if nfiles==1
-        tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
-        disp('--------------------------------------------------------------------------------')
-        disp('Creating output sqw file:')
-        grid_size = write_spe_to_sqw (spe_data{1}, par_file, sqw_file, efix(1), emode, alatt, angdeg,...
+end
+
+%==========
+%Now check if any tmp files that correspond to the required spe files
+%already exist. If so, check that their data ranges are correct.
+tmp_sqw_path = fileparts(sqw_file);
+[tmp_file,testit]=gensqw_check_tmp_files(spe_file,tmp_sqw_path,urange);
+
+testit=testit>=0;
+% Write temporary sqw output file(s) (these can be deleted if all has gone well once gen_sqw has been run)
+% --------------------------------------------------------------------------------------------------------
+% *** should check that the temporary file names do not coincide with spe file names
+
+if nfiles==1
+    tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
+    disp('--------------------------------------------------------------------------------')
+    disp('Creating output sqw file:')
+    grid_size = write_spe_to_sqw (spe_data{1}, par_file, sqw_file, efix(1), emode, alatt, angdeg,...
                                   u, v, psi(1), omega(1), dpsi(1), gl(1), gs(1), grid_size_in, urange);
-    else
-    % write tmp file and combine them into single sqw file;
-    grid_size = gensqw_write_all_tmp(spe_data,par_file,tmp_file,efix,emode,alatt,angdeg,...
-                                 u, v, psi, omega, dpsi, gl, gs,...
+else
+ % write tmp file and combine them into single sqw file;
+    grid_size = gensqw_write_all_tmp(spe_data(testit),par_file,tmp_file(testit),efix(testit),emode,alatt,angdeg,...
+                                 u, v, psi(testit), omega(testit), dpsi(testit), gl(testit), gs(testit),...
                                  grid_size_in, urange);
     
+  
 
-        % Create single sqw file combining all intermediate sqw files
-        % ------------------------------------------------------------
-        disp('--------------------------------------------------------------------------------')
-        disp('Creating output sqw file:')
-        write_nsqw_to_sqw (tmp_file, sqw_file);
-        disp('--------------------------------------------------------------------------------')
-    end
+    % Create single sqw file combining all intermediate sqw files
+    % ------------------------------------------------------------
+    disp('--------------------------------------------------------------------------------')
+    disp('Creating output sqw file:')
+    write_nsqw_to_sqw (tmp_file, sqw_file);
+
+    disp('--------------------------------------------------------------------------------')
 end  % =============================> spe/par file processing
+
 
 % Delete temporary files if requested
 if get(hor_config,'delete_tmp')
@@ -171,6 +139,7 @@ if get(hor_config,'delete_tmp')
     end
 end
 
+%=========
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0

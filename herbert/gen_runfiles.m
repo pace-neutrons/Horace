@@ -92,15 +92,11 @@ for i=1:n_dfnd_params
         end
     else
         if numel(args{i})==n_files
-            par_c = cell(1,n_files);
-            par   = args{i};
-            for j=1:n_files
-                    par_c{j} = par(j);
-            end
-            args{i}=par_c; 
+            % pack each argument value into cellarray of values
+            args{i}=arrayfun(@(x) {x},args{i}); 
         else
             if numel(args{i})~=1
-                error('GEN_RUNFILES:invalid_argument','a parameter has to be either sinle value or vector of %d values',n_files);    
+                error('GEN_RUNFILES:invalid_argument','a parameter %s has to be either sinle value or vector of %d values',parameter_nams{i},n_files);    
             end
         end
 
