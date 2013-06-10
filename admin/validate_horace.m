@@ -9,10 +9,10 @@ if isempty(her_path)
 end
 
 % if we can found herbert which is needed as source of unit tests utilites
-try
-	her_path = herbert_on('where');
+her_path=fileparts(which('herbert_init'));
+if ~isempty(her_path)
 	herbert_found  =true;
-catch
+else
     herbert_found =false;
 end
 
