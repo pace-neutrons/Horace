@@ -88,7 +88,7 @@ classdef test_projection_matrix<TestCase
              angdeg= [90,90,90];
              u=[1,0,0];
              v=[0,1,0];
-             psi  =20;
+             psi  =20*(pi/180);
              omega=0;
              dpsi =0;
              gl   =0;
@@ -104,7 +104,7 @@ classdef test_projection_matrix<TestCase
              v=[0,1,0];
              psi  =0;
              omega=0;
-             dpsi =20;
+             dpsi =20*(pi/180);
              gl   =0;
              gs   =0;
             [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);                                     
@@ -119,7 +119,7 @@ classdef test_projection_matrix<TestCase
              psi  =0;
              omega=0;
              dpsi =0;
-             gl   =20;
+             gl   =20*(pi/180);
              gs   =0;
             [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);                                                     
             aa=[0.9397 0 -0.3420; 0 1.0000 0;   0.3420 0  0.9397];
@@ -134,7 +134,7 @@ classdef test_projection_matrix<TestCase
              omega=0;
              dpsi =0;
              gl   =0;
-             gs   =20;
+             gs   =20*(pi/180);
             [spec_to_proj, u_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);               
             aa=[1.0000 0 0; 0 0.9397 0.3420; 0   -0.3420    0.9397];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);                      
