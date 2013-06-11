@@ -1,7 +1,7 @@
-function wout=test_convert_legacy_sqw(win)
-% Convert old sqw object to new sqw object with ionstumnet and sample fields
+function wout=horace_convert_legacy_sqw(win)
+% Convert version_2 sqw object to version_3 sqw object with instrument and sample fields
 %
-%   >> wout=test_convert_legacy_sqw(win)
+%   >> wout=horace_convert_legacy_sqw(win)
 %
 % If not an sqw object, leave unchanged
 

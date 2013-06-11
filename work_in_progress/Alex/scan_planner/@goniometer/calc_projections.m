@@ -48,9 +48,12 @@ end
 % Create matrix to convert from spectrometer axes to coords along projection axes
 [spec_to_proj, u_to_rlu] = calc_proj_matrix (this,Crystal,u, v);
 
-
-c=get_neutron_constants;
-k_to_e = c.k_to_e; % picked up by calc_proj_c;
+% TGP June 2013: update to source of constants; replace
+%   c=get_neutron_constants;
+%   k_to_e = c.k_to_e; % picked up by calc_proj_c;
+% with
+c=neutron_constants;
+k_to_e = c.c_k_to_emev;
 
 % Convert to projection axes 
 

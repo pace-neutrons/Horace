@@ -1,10 +1,10 @@
-function test_multifit_horace(varargin)
+function test_multifit_horace_1(varargin)
 % Performs some tests of fitting to Horace objects using multifit_sqw and other functions.
 % Optionally writes results to output file
 %
-%   >> test_multifit_horace            % Compares with previously saved results in test_multifit_horace_output.mat
-%                                      % in the same folder as this function
-%   >> test_multifit_horace ('save')   % Save to  c:\temp\test_multifit_horace_output.mat
+%   >> test_multifit_horace_1            % Compares with previously saved results in test_multifit_horace_1_output.mat
+%                                        % in the same folder as this function
+%   >> test_multifit_horace_1 ('save')   % Save to  c:\temp\test_multifit_horace_1_output.mat
 %
 % Reads previously created test data sets.
 
@@ -48,17 +48,17 @@ win=[w1data,w2data];
 wsim_1=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
     @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}}, 'evaluate' );
 
-acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
-dp(win)     % Draw Points
-pl(wsim_1)  % Plot Line
+% acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
+% dp(win)     % Draw Points
+% pl(wsim_1)  % Plot Line
 
 % and now the fit
 [wfit_1,fitpar_1]=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
     @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}});
 
-acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
-dp(win)     % Draw Points
-pl(wfit_1)  % Plot Line
+% acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
+% dp(win)     % Draw Points
+% pl(wfit_1)  % Plot Line
 
 
 % This will be faster, because it gets the average h,k,l,e for all data pixels in a bin
@@ -71,9 +71,9 @@ wsim_2=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
 [wfit_2,fitpar_2]=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
     @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}}, 'ave' );
 
-acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
-dp(win)     % Draw Points
-pl(wfit_2)  % Plot Line
+% acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
+% dp(win)     % Draw Points
+% pl(wfit_2)  % Plot Line
 
 
 %% ------------------------------------------------------------------------------------------------
@@ -106,34 +106,13 @@ if ~save_output
     disp('====================================')
     disp('    Comparing with saved output')
     disp('====================================')
-    output_file=fullfile(demo_dir,'test_multifit_horace_output.mat');
+    output_file=fullfile(demo_dir,'test_multifit_horace_1_output.mat');
     old=load(output_file);
     nam=fieldnames(old);
     tol=-1.0e-13;
-    % Some code that is useful for tracking difference when in debugging mode - creates an array of the actual tolerance required
-    tol_tmp=tol*ones(size(nam));
-    for i=1:numel(nam)
-        % Convert older multifit parameter output and Horace sqw object format
-        tmp_new=multifit_legacy_convert_output(eval(nam{i}));
-        tmp_old=multifit_legacy_convert_output(old.(nam{i}));
-        tmp_new=horace_convert_legacy_sqw(tmp_new);
-        tmp_old=horace_convert_legacy_sqw(tmp_old);
-        while ~equal_to_tol(tmp_new, tmp_old, tol_tmp(i), 'min_denominator', 0.01, 'ignore_str', 1)
-            tol_tmp(i)=tol_tmp(i)*10;
-            if abs(tol_tmp(i))>1
-                disp(' **** PROBLEM !!! ****')
-            end
-        end
-    end
-    tol_log10=round(log10(-tol_tmp));
     % The test proper
     for i=1:numel(nam)
-        % Convert older multifit parameter output and Horace sqw object format
-        tmp_new=multifit_legacy_convert_output(eval(nam{i}));
-        tmp_old=multifit_legacy_convert_output(old.(nam{i}));
-        tmp_new=horace_convert_legacy_sqw(tmp_new);
-        tmp_old=horace_convert_legacy_sqw(tmp_old);
-        [ok,mess]=equal_to_tol(tmp_new, tmp_old, tol, 'min_denominator', 0.01, 'ignore_str', 1); if ~ok, error(['[',nam{i},']',mess]), end
+        [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01, 'ignore_str', 1); if ~ok, error(['[',nam{i},']',mess]), end
     end    
     disp(' ')
     disp(' All OK')
@@ -149,7 +128,7 @@ if save_output
     disp('    Save output')
     disp('===========================')
     
-    output_file='c:\temp\test_multifit_horace_output.mat';
+    output_file='c:\temp\test_multifit_horace_1_output.mat';
     save(output_file, 'wsim_1', 'wfit_1', 'fitpar_1', 'wsim_2', 'wfit_2', 'fitpar_2',...
         'wfit_single1','fitpar_single1','wfit_single2','fitpar_single2','wfit_single12','fitpar_single12',...
         'wfit_sqw_sqw','fitpar_sqw_sqw');
