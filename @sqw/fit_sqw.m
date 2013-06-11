@@ -263,7 +263,7 @@ mess=cell(size(wout));
 
 ok_fit_performed=false;
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
-    [ok(i),mess{i},wout_tmp,fitdata_tmp] = multifit_gateway (win(i), args{:});
+    [ok(i),mess{i},wout_tmp,fitdata_tmp] = multifit_gateway_main (win(i), args{:});
     if ok(i)
         wout(i)=wout_tmp;
         if ~ok_fit_performed

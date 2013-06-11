@@ -251,7 +251,7 @@ args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,
                                                     @sqw_eval,wrap_plist,@sqw_eval,wrap_plist);
 
 % Perform the fit
-[ok,mess,wout,fitdata] = multifit_gateway (win, args{:});
+[ok,mess,wout,fitdata] = multifit_gateway_main (win, args{:});
 if ~ok && nargout<3
     error(mess)
 end

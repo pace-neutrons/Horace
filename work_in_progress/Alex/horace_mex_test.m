@@ -51,8 +51,12 @@ end
 
  
 %% calculate projections:
-c=get_neutron_constants;
-k_to_e = c.k_to_e; % picked up by calc_proj_c;
+% TGP June 2013: update to source of constants; replace
+%   c=get_neutron_constants;
+%   k_to_e = c.k_to_e; % picked up by calc_proj_c;
+% with
+c=neutron_constants;
+k_to_e = c.c_k_to_emev;
 
 % Convert to projection axes 
 
