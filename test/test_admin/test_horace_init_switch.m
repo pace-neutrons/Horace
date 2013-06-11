@@ -1,7 +1,9 @@
 classdef test_horace_init_switch < TestCase   
 %The test class to check that if Libisis and Herbert are both availible, 
 % switching occurs smoothly and propertly
-%   Detailed explanation goes here
+%
+%  The switch actually does not work well in all cercumstances so no testing within unit test routine should be tried. 
+%
     
     properties
         herbert_path;
