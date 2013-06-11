@@ -117,10 +117,26 @@ if ~urange_given
         % get detector parameters 
         [data,det_masked,keep,det]=get_data(spe_data{1}, par_file);        
     end
+    if numel(psi_planned) ~= numel(efix)
+        efixI = efix(1);
+        eps_loI = eps_lo(1);        
+        eps_hiI = eps_hi(1);
+        omega_dI = omega_d(1);
+        dpsi_dI  = dpsi_d(1);
+        gl_dI = gl_d(1);
+        gs_dI = gs_d(1);                
+    else
+        efixI = efix;        
+        eps_loI = eps_lo;
+        eps_hiI = eps_hi;
+        omega_dI = omega_d;
+        dpsi_dI  = dpsi_d;
+        gl_dI = gl_d;
+        gs_dI = gs_d;                        
+    end
     
-    
-    urange_full=calc_sqw_urange(efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v,psi_planned , ...
-        omega_d, dpsi_d, gl_d, gs_d);
+    urange_full=calc_sqw_urange(efixI, emode, eps_loI, eps_hiI, det, alatt, angdeg, u, v,psi_planned , ...
+        omega_dI, dpsi_dI, gl_dI, gs_dI);
     %
     %
     if ~(all(urange_full(1,:)<=urange(1,:)) && all(urange_full(2,:)>=urange(2,:)))
