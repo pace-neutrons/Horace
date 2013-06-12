@@ -96,11 +96,13 @@ if is_herbert_used() % =============================> rundata files processing
     data = struct();
     if ~exist('det0','var') || isempty(det0)
             if iscell(run_file)
-                run_file = run_file{1}
+                run_file = run_file{1};
             end
             det0 = get_rundata(run_file,'det_par','-hor');
     end
-    
+    if iscell(run_file)
+            run_file = run_file{1};
+    end    
 
     % Read spe file and detector parameters if it has not been done before and
     % return the results, without NaN-s ('-nonan')
