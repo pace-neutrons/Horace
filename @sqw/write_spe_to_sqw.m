@@ -94,15 +94,14 @@ end
 
 if is_herbert_used() % =============================> rundata files processing
     data = struct();
-    if ~exist('det0','var') || isempty(det0)
-            if iscell(run_file)
-                run_file = run_file{1};
-            end
-            det0 = get_rundata(run_file,'det_par','-hor');
-    end
     if iscell(run_file)
-            run_file = run_file{1};
-    end    
+        run_file = run_file{1};
+    end       
+    if ~exist('det0','var') || isempty(det0)   
+        % get the list of all detectors, including the detectors, which produce
+        % incorrect results (NaN-s) for this run        
+        det0 = get_rundata(run_file,'det_par','-hor');
+    end
 
     % Read spe file and detector parameters if it has not been done before and
     % return the results, without NaN-s ('-nonan')
@@ -115,9 +114,7 @@ if is_herbert_used() % =============================> rundata files processing
 
     [data.filepath,data.filename]=fileparts(run_file.loader.file_name);
 
-    
-    % get the list of all detectors, including the detectors, which produce
-    % incorrect results (NaN-s) for this run
+ 
     
 else
     % Read spe file and detector parameters
