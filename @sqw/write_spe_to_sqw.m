@@ -61,7 +61,7 @@ if is_herbert_used()
     if isa(spe_data,'rundata') % already rundata
         run_file = spe_data;
     else
-        run_file = gen_runfiles(spe_file,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs); 
+        run_file = gen_runfiles(spe_data,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs); 
     end
     if numel(run_file)~=1
         error('Must only have one input data file');
