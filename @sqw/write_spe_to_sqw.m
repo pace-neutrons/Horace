@@ -118,9 +118,7 @@ if is_herbert_used() % =============================> rundata files processing
     
 else
     % Read spe file and detector parameters
-    if ~exist('det0','var') || isempty(det0)        
-        [data,det,keep,det0]=get_data(spe_data, par_file);
-    end
+    [data,det,keep,det0]=get_data(spe_data, par_file);
 
 end
 %
