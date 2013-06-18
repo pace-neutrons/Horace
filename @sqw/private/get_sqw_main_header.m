@@ -49,7 +49,12 @@ end
 % Read data from file:
 try
     n = fread_catch(fid,1,'int32');
-    dummy_filename = fread(fid,[1,n],'*char');
+    % Need to try to catch case of e.g. text file where n is read as a stupidly high number
+    if n>=0 && n<1024   % allow up to 1024 characters; also allow for the possibility that there was no file name at all!
+        dummy_filename = fread(fid,[1,n],'*char');
+    else
+        mess = 'Unrecognised format'; return
+    end
 
     n = fread_catch(fid,1,'int32');
     dummy_filepath = fread(fid,[1,n],'*char');

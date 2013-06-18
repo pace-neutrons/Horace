@@ -1,5 +1,5 @@
 function [application, mess] = get_application (fid, application_in)
-% Read the application block that gives information about the applciation that wrote the file
+% Read the application block that gives information about the application that wrote the file
 %
 %   >> [application, mess] = get_application (fid)
 %   >> [application, mess] = get_application (fid, application_in)

@@ -1,7 +1,7 @@
 function [alatt,angdeg,ok,mess] = lattice_parameters(win)
 % Return the lattice parameters for an array of sqw objects. Error if not the same in all objects.
 %
-%   >> [ok,mess,alatt,angdeg] = lattice_parameters(win)
+%   >> [alatt,angdeg,ok,mess] = lattice_parameters(win)
 %
 % Input:
 % ------

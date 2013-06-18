@@ -5,7 +5,7 @@ function varargout = fake_spe(varargin)
 %   >> data = fake_spe (ndet,ebins)
 %   >> data = fake_spe (ndet,emin,de,emax)
 %
-% Create spe file
+% Create spe file only (no data structure returned)
 %   >> fake_spe (ndet,ebins,filename,filepath))
 %   >> fake_spe (ndet,emin,de,emax,filename,filepath)
 %
