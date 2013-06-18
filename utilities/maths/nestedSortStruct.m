@@ -119,6 +119,6 @@ end % if exist...
 aCell = squeeze(struct2cell(aStruct))';
 
 %% sortrows of aCell, using indices from fieldNamesIdx and directions
-[sortedCell index] = sortrows(aCell, fieldNamesIdx .* directions);
+[sortedCell index] = sortrows_bugfixed(aCell, fieldNamesIdx .* directions);
 
 sortedStruct = aStruct(index); % apply the index to the struct array

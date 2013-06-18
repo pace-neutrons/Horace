@@ -27,6 +27,46 @@ function [y,ndx] = sortrows(x,col)
 %      numeric, logical, char
 %
 %   See also SORT, ISSORTED.
+%
+%==========================================================================
+% Contains fix to Matlab intrinsic sortrows to solve problem described below
+%
+% T.G.Perring reported this bug to The Mathworks on 12 June 2013.
+%
+% % Bug report in Matlab intrinsic function: sortrows
+% %
+% % If sortrows is given a cell array of logical scalars, it fails. This is
+% % not consistent with the in-code documentation that states;
+% %
+% %   Class support for input X:
+% %      numeric, logical, char
+% %
+% %
+% % The problem is on line 129 of sortrows.m which reads:
+% %
+% %   if isnumeric(x{1, k})
+% %
+% % but should be:
+% %
+% %   if isnumeric(x{1, k}) || islogical(x{1, k})
+% %
+% % The following example demonstrates the problem:
+% 
+% % Create 10x4 numeric array, all elements 0 or 1
+% x=round(rand(10,4));
+% 
+% % Convert to cell array of numeric scalars
+% xnumcell=num2cell(x);
+% 
+% % Convert the same array into a cell array of logical scalars
+% xlogcell=num2cell(logical(x));
+% 
+% % Use sortrows on the cell array of numeric scalars: works fine
+% xnumcell_sort=sortrows(xnumcell,2);
+% 
+% % Now use sortrows on the equivalent cell array of logical scalars:
+% xlogcell_sort=sortrows(xlogcell,2);     % THROWS AN ERROR
+%==========================================================================
 
 %   Copyright 1984-2011 The MathWorks, Inc. 
 %   $Revision: 1.19.4.13.8.1 $  $Date: 2011/12/27 15:46:23 $

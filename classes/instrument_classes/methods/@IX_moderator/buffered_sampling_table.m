@@ -38,9 +38,12 @@ function [table,t_av,ind]=buffered_sampling_table(moderator_in,ei_in,varargin)
 %   table       Lookup table of unique moderator entries, size=[npnt,nmod]
 %              where npnt=number of points in lookup table, nmod=number of
 %              unique moderator entries. Elements are time in reduced units.
-%               Convert to true time t = t_av * (t_red/(1-t_red))
+%              Use the look-up table to convert a random number from uniform
+%              distribution in the range 0 to 1 into reduced time deviation
+%              0 <= t_red <= 1. Convert to true time using the equation
+%              t = t_av * (t_red/(1-t_red))
 %
-%   t_av        First moment of time, size=[1,nmod]
+%   t_av        First moment of time, size=[1,nmod] (microseconds)
 %
 %   ind         Index into the lookup table: ind(i) is the column for moderator(i)
 %              ind is a column vector.
@@ -56,8 +59,8 @@ function [table,t_av,ind]=buffered_sampling_table(moderator_in,ei_in,varargin)
 %   the function will be called for again.
 
 
-nm_crit=1;  % if number of moderators is less than or equal to this, simply compute
-nm_max=1000;
+nm_crit=1;      % if number of moderators is less than or equal to this, simply compute
+nm_max=1000;    % Maximum number of moderator lookup tables that can be stored on disk
 filename=fullfile(tempdir,'IX_moderator_store.mat');
 
 [moderator,ei,im,ind]=unique_mod_ei(moderator_in,ei_in);

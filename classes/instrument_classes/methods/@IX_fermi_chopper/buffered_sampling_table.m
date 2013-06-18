@@ -35,7 +35,9 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 % -------
 %   table       Lookup table of unique chopper entries, size=[npnt,nchop]
 %              where npnt=number of points in lookup table, nchop=number of
-%              unique chopper entries.
+%              unique chopper entries. Use the look-up table to convert a
+%              random number from uniform distribution in the range 0 to 1
+%              into a time deviation in microseconds.
 %   ind         Index into the lookup table: ind(i) is the column for fermi(i)
 %              ind is a column vector.
 %
@@ -50,8 +52,8 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 %   the function will be called for again.
 
 
-nf_crit=1;  % if number of choppers is less than or equal to this, simply compute
-nf_max=1000;
+nf_crit=1;      % if number of choppers is less than or equal to this, simply compute
+nf_max=1000;    % Maximum number of chopper lookup tables that can be stored on disk
 filename=fullfile(tempdir,'IX_fermi_chopper_store.mat');
 
 [fermi,im,ind]=unique(fermi_in);
