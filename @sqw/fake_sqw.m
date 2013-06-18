@@ -28,7 +28,9 @@ function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_
 %   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
 %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
-%   grid_size_in    [Optional] Scalar or row vector of grid dimensions. Default is [50,50,50,50]
+%   grid_size_in    [Optional] Scalar or row vector of grid dimensions. The default
+%                  size will depend on the product of energy bins and detector elements
+%                  summed across all the spe files.
 %   urange_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
 %                                       that encloses the whole data range.
 %
@@ -48,7 +50,7 @@ function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_
 %
 % $Revision: 690 $ ($Date: 2013-03-22 13:53:28 +0000 (Fri, 22 Mar 2013) $)
 
-
+small_bin=1e-12;
 d2r=pi/180;
 
 % Check input arguments
@@ -65,7 +67,7 @@ if iscellnum(en) || isnumeric(en)
             error('Energy bins must numeric vectors')
         else
             de=diff(en{i});
-            if any(de)<=0 || any(diff(de))~=0
+            if any(de)<=0 || any(abs(diff(de))/de(1)>small_bin)
                 error('Energy bins widths must all be the same and non-zero')
             end
             en_lo(i)=(en{i}(1)+en{i}(2))/2;

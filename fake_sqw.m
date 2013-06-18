@@ -7,6 +7,7 @@ function [tmp_file, grid_size, urange] = fake_sqw (varargin)
 %   >> fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
+% For afficionados:
 %   >> [tmp_file, grid_size, urange] = fake_sqw (...)
 %
 % Input:
@@ -26,7 +27,9 @@ function [tmp_file, grid_size, urange] = fake_sqw (varargin)
 %   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
 %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
-%   grid_size_in    [Optional] Scalar or row vector of grid dimensions. Default is [50,50,50,50]
+%   grid_size_in    [Optional] Scalar or row vector of grid dimensions. The default
+%                  size will depend on the product of energy bins and detector elements
+%                  summed across all the spe files.
 %   urange_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
 %                                       that encloses the whole data range.
 %
