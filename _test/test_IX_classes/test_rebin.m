@@ -3,9 +3,12 @@ function test_rebin (varargin)
 %
 %   >> test_rebin           % Compare with previously saved results in test_rebin_output.mat
 %                           % in the same folder as this function
-%   >> test_rebin ('save')  % Save to  c:\temp\test_rebin_output.mat
+%   >> test_rebin ('save')  % Save to test_rebin_output.mat in tempdir (type >> help tempdir
+%                           % for information about the system specific location returned by tempdir)
 %
 % Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
+
+banner_to_screen(mfilename)
 
 if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')

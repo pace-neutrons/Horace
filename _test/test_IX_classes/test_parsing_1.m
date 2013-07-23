@@ -4,6 +4,8 @@ function test_parsing_1(nloop)
 %   >> timing_parse_functions           % Default 500 loops
 %   >> timing_parse_functions(nloop)
 
+banner_to_screen(mfilename)
+
 if nargin==0
     nloop=500;  % default value
 end
@@ -44,7 +46,8 @@ for i=1:nloop
         error('Unequal output')
     end
 end
-disp('parse_arguments and parse_args_simple gave equal output')
+disp(' ')
+disp('Result: parse_arguments and parse_args_simple gave equal output')
 disp(' ')
 disp(' ')
 

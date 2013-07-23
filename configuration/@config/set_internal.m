@@ -1,6 +1,6 @@
 function this=set_internal(this,change_sealed,varargin)
 % Set one or more fields in a configuration, optionally allowing the sealed fields to be changed
-% NOTE: This method has to be public because it is used by customised set methods
+% NOTE: This method has to be public because it is used by customised set methods for
 %       configuration objects. It should not be used in any other context.
 %
 %   >> set_internal (config_obj, change_sealed, arg1, arg2, ...)

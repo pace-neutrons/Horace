@@ -3,9 +3,12 @@ function test_integrate (varargin)
 %
 %   >> test_integrate           % Compare with previously saved results in test_integrate_output.mat
 %                               % in the same folder as this function
-%   >> test_integrate ('save')  % save to  c:\temp\test_integrate_output.mat
+%   >> test_integrate ('save')  % save to  test_integrate_output.mat in tempdir (type >> help tempdir
+%                               % for information about the system specific location returned by tempdir)
 %
 % Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
+
+banner_to_screen(mfilename)
 
 if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
@@ -46,16 +49,13 @@ ih1_mex=integrate(h1,5,10);
 set(herbert_config,'use_mex',false);
 ih1    =integrate(h1,5,10);
 delta_IX_dataset_nd(ih1_mex,ih1,tol)
-% disp_valerr(ih1_mex)
-% disp_valerr(ih1)
+
 
 set(herbert_config,'use_mex',true); 
 ih1b_mex=integrate(h1,0,20);
 set(herbert_config,'use_mex',false);
 ih1b    =integrate(h1,0,20);
 delta_IX_dataset_nd(ih1b_mex,ih1b,tol)
-% disp_valerr(ih1b_mex)
-% disp_valerr(ih1b)
 
 
 set(herbert_config,'use_mex',true); 
@@ -63,16 +63,14 @@ ip1_mex=integrate(p1,5,10);
 set(herbert_config,'use_mex',false);
 ip1    =integrate(p1,5,10);
 delta_IX_dataset_nd(ip1_mex,ip1,tol)
-% disp_valerr(ip1_mex)
-% disp_valerr(ip1)
+
 
 set(herbert_config,'use_mex',true); 
 ip1b_mex=integrate(p1,0,20);
 set(herbert_config,'use_mex',false);
 ip1b    =integrate(p1,0,20);
 delta_IX_dataset_nd(ip1b_mex,ip1b,tol)
-% disp_valerr(ip1b_mex)
-% disp_valerr(ip1b)
+
 
 
 % Big array
@@ -278,7 +276,7 @@ if save_output
     disp('    Save output')
     disp('===========================')
     
-    output_file='c:\temp\test_integrate_output.mat';
+    output_file=fullfile(tempdir,'test_integrate_output.mat');
     save(output_file,'ih1_mex','ih1b_mex','ip1_mex','ip1b_mex','ihpa_mex','ihpb_mex','ihpc_mex',...
         'ih1',    'ih1b',    'ip1',    'ip1b',    'ihpa',    'ihpb',    'ihpc',...
         'w2x_sim','w2y_sim','w2xy_sim','w2x_mex','w2y_mex','w2xy_mex','w2x','w2y','w2xy',...

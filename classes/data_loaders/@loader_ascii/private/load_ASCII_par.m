@@ -13,15 +13,15 @@ function par=load_ASCII_par(filename)
 %                   (Note the reversed sign convention cf .phx files)
 %     4th  "        width (m)
 %     5th  "        height (m)
-%     6th  "        detector ID    
+%     6th  "        detector ID
 
 %  if varargin present, do not convert into detector structure but return
-%  initial array 
+%  initial array
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-%
+
 % Remove blanks from beginning and end of filename
 filename=strtrim(filename);
 
@@ -32,18 +32,21 @@ if ~exist('filename','var')
 end
 
 if H5F.is_hdf5(filename)>0
-   error('LOAD_ASCII:load_ASCII_par',' file %s has to be an ascii file but it is hdf5 file\n',filename);
+    error('LOAD_ASCII:load_ASCII_par',' file %s has to be an ascii file but it is hdf5 file\n',filename);
 end
-
 
 use_mex = get(herbert_config,'use_mex_C');
 if use_mex
-% Read par file
     try     %using C routine
         par=get_ascii_file(filename,'par');
     catch   %using matlab routine
-        warning('HORACE:get_par','Can not invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());    
-        use_mex = false;
+        force_mex = get(herbert_config,'force_mex_if_use_mex');
+        if ~force_mex
+            warning('HORACE:get_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
+            use_mex = false;
+        else
+            error('HORACE:get_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
+        end
     end
 end
 
@@ -58,7 +61,7 @@ function par=get_par_matlab(filename)
 
 fid=fopen(filename,'rt');
 if fid==-1,
-   error('LOAD_ASCII_PAR:get_par_matlab','Error opening file %s\n',filename);
+    error('LOAD_ASCII_PAR:get_par_matlab','Error opening file %s\n',filename);
 end
 
 n=fscanf(fid,'%d \n',1);
@@ -71,5 +74,3 @@ cols=length(par); % number of columns 5 or 6
 par=[par;fscanf(fid,'%f')];
 fclose(fid);
 par=reshape(par,cols,n);
-
-

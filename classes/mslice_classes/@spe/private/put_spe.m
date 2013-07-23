@@ -38,8 +38,6 @@ try
     ierr=put_spe_mex(file_tmp,data.S,data.ERR,data.en);
     if round(ierr)~=0
         error(['Error writing spe data to ',file_tmp])
-        filename='';
-        filepath='';
     end
 catch
     try     % matlab write
@@ -47,8 +45,6 @@ catch
         [ok,mess]=put_spe_matlab(data,file_tmp);
         if ~ok
             error(mess)
-            filename='';
-            filepath='';
         end
     catch
         ok=false;

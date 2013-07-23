@@ -86,3 +86,10 @@ if ~isequal(file_out,fullfile(dir1,'crap.dat')), error('Error in translate_write
 
 [file_out,ok,mess]=translate_write(['path_0:',file1]);
 if ok, error('Error in translate_write'), end
+
+
+% Success announcement
+% --------------------
+disp(' ')
+disp('Test(s) passed')
+disp(' ')

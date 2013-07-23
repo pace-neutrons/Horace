@@ -1,32 +1,20 @@
 function []=make_cuts_and_slices ()
 % This function creates the test cuts and slices from spe file, and saves to file
 %
-%
+%   >> make_cuts_and_slices
 %
 % Creates the cuts and slices using mslice from the spe files in the zip
-% file spe_files.zip, and then saves two files:
-%
-%  - .mat    all the cuts, slices and spe files.
-%               To be directly compared with that in the SVN distribution
-%
-%  - .zip    cuts and slices only. 
-%               To be directly compared with that in the SVN distribution
-%   
-% Can also view this as a test of the latest mslice: is the output the same as the
-% saved in the SVN distribution?
+% file spe_files.zip, and then saves a number of cuts and slices to another
+% zip file in the location returned by the Matlab function tempdir.
 
-%% =================================================================================================================
-% Make cuts and slices from mslice to compare with Horace
-% --------------------------------------------------------------------
-
-work_dir=fullfile(tempdir,'test_mslice_objects');
-exist_work=exist(work_dir,'dir');
-if ~exist_work, mkdir(work_dir); end
+work_dir=tempdir;
 
 % Unzip test_data_files.zip to working area
-unzip('./make_data/spe_files.zip',work_dir)
+unzip('spe_files_source.zip',work_dir)
 
-% Create some cuts, slices, spe
+% -----------------------------------------------------------------------------
+% Use mslice to create some cuts and slices
+% -----------------------------------------------------------------------------
 spe_file=[work_dir,'EI_400-PSI_0-BASE.spe'];
 phx_file=[work_dir,'map_4to1_jul09.phx'];
 
@@ -48,8 +36,9 @@ mslice_calc_proj([0,0,1],[1.000000000000000  -1.000000000000000  -0.074426779585
                          [1.000000000000000   0.768197265570294   0.236797836452993],'L','K','H')
 
 
+% -----------------------------------------------------------------------------
 % Some cuts:
-% -----------
+% -----------------------------------------------------------------------------
 
 % Close-up cut
 mc_1=mslice_1d([1.5,0.05,2],[-1.02,-0.98],[0.98,1.02],'file',fullfile(work_dir,'mc_1.cut'));
@@ -63,8 +52,9 @@ mc_3b=mslice_1d([1.7,0.05,2.2],[-1.02,-0.98],[1.54,1.56],'file',fullfile(work_di
 mc_3c=mslice_1d([1.8,0.05,2.3],[-1.02,-0.98],[2.06,2.08],'file',fullfile(work_dir,'mc_3c.cut'));
 
 
+% -----------------------------------------------------------------------------
 % Some slices:
-% ------------
+% -----------------------------------------------------------------------------
 ms_1=mslice_2d([-2.5,0.025,2.5],[-2,0.025,2],[0.98,1.02],'range',[0,0.6],'file',fullfile(work_dir,'ms_1.slc'));
 
 % Close-up slice
@@ -82,12 +72,13 @@ mslice_calc_proj([1.000000000000000  -1.000000000000000  -0.074426779585827],...
 ms_4=mslice_2d([0,0.025,1],[0.98,1.02],0,'range',[0,0.6],'file',fullfile(work_dir,'ms_4.slc'));
 
 
+% -----------------------------------------------------------------------------
 % Create zip file with cuts and slices
-% -------------------------------------
+% -----------------------------------------------------------------------------
 files={fullfile(work_dir,'mc_1.cut'),fullfile(work_dir,'mc_2.cut'),...
        fullfile(work_dir,'mc_3a.cut'),fullfile(work_dir,'mc_3b.cut'),fullfile(work_dir,'mc_3c.cut'),...
        fullfile(work_dir,'ms_1.slc'),fullfile(work_dir,'ms_2.slc'),...
        fullfile(work_dir,'ms_3a.slc'),fullfile(work_dir,'ms_3b.slc'),fullfile(work_dir,'ms_3c.slc'),fullfile(work_dir,'ms_4.slc')};
 
-zip(fullfile(work_dir,'cut_slice_files.zip'),files);
+zip(fullfile(work_dir,'test_cut_slice_files.zip'),files);
 

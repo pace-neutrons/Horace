@@ -10,6 +10,11 @@ function timing_rebin_1d (nx0, nw)
 %
 %   For timing tests, nx0=500, nw=500 are good values. These are the defaults.
 
+% Add paths to make data
+rootpath=fileparts(mfilename('fullpath'));
+make_data_path=fullfile(rootpath,'make_data');
+addpath(make_data_path)
+
 % Set default values for nx0 and nw
 if nargin==0
     nx0=500; nw=500;
@@ -50,3 +55,6 @@ for i=1:numel(del)
     tic; whp_mat=rebin(hp_1d_gau, [1,del(i),6]); toc
     disp(' ')
 end
+
+% Remove data path
+rmpath(make_data_path)

@@ -8,6 +8,8 @@ function test_multifit_2(varargin)
 %
 % Reads previously created test data in .\make_data\test_multifit_datasets_1.mat
 
+banner_to_screen(mfilename)
+
 if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
         save_output=true;

@@ -1,7 +1,7 @@
 function w=make_test_IX_dataset_nd(sz)
 % Create IX_datset_nd with random signal and error
 %
-%   >> w=test_IX_dataset_nd(sz)     % size e.g. [17] (1D), [3,4] (2D), [20,20,1] (3D)
+%   >> w=make_test_IX_dataset_nd(sz)     % size e.g. [17] (1D), [3,4] (2D), [20,20,1] (3D)
 
 ndim=numel(sz);
 ax=repmat(struct('values',{},'axis',{},'distribution',{}),[1,ndim]);

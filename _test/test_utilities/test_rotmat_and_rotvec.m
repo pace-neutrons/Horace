@@ -130,3 +130,10 @@ if nargin==1 && ischar(opt) && isequal(lower(opt),'speed')
 elseif nargin~=0
     disp('*** Unrecognised option')
 end
+
+
+% Success announcement
+% --------------------
+disp(' ')
+disp('Test(s) passed')
+disp(' ')

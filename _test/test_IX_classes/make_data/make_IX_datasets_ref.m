@@ -1,5 +1,5 @@
 function make_IX_datasets_ref
-% Create some workspaces for testing IX objects, and save to  c:\temp\test_IX_datasets_ref.mat
+% Create some workspaces for testing IX objects
 %
 %   >> make_IX_datasets_ref
 %
@@ -24,9 +24,12 @@ function make_IX_datasets_ref
 %                      arrays, mixed histogram and point datasets
 %   pp_1d_big           The above converted to all point datasets using hist2point
 %   hh_1d_big           The above converted to all histogram datasets using point2hist
+%
+% These will be saved in the file test_IX_datasets_ref.mat in the system specific
+% temporary folder returned by matlab function tempdir (type >> help tempdir
+% for information about the system specific location returned by tempdir)
 
-
-output_file='c:\temp\test_IX_datasets_ref.mat';
+output_file=fullfile(tempdir,'test_IX_datasets_ref.mat');
 
 % Generate data
 % ---------------

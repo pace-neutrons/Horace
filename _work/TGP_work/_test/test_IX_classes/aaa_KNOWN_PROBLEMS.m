@@ -22,15 +22,14 @@ whd=point2hist(wp); whd.x_distribution=true;
 
 xb=-7.5:5:27.5;
 
-use_mex('ref_2011_08_30_0946')
 
 % Manipulations of histogram data
 % --------------------------------
 % - rebin
-wh_r_ref  =rebin(wh);
-wh_rb_ref =rebin(wh,xb);
-whd_r_ref =rebin(whd);
-whd_rb_ref=rebin(whd,xb);
+wh_r_ref  =rebin2(wh);
+wh_rb_ref =rebin2(wh,xb);
+whd_r_ref =rebin2(whd);
+whd_rb_ref=rebin2(whd,xb);
 
 hcompare(wh,wh_r_ref,wh_rb_ref)
 keep_figure
@@ -38,10 +37,10 @@ hcompare(whd,whd_r_ref,whd_rb_ref)
 keep_figure
 
 % - integration
-wh_i_ref  =integrate(wh);
-wh_ib_ref =integrate(wh,xb);
-whd_i_ref =integrate(whd);
-whd_ib_ref=integrate(whd,xb);
+wh_i_ref  =integrate2(wh);
+wh_ib_ref =integrate2(wh,xb);
+whd_i_ref =integrate2(whd);
+whd_ib_ref=integrate2(whd,xb);
 
 hcompare(wh,wh_i_ref,wh_ib_ref)
 keep_figure

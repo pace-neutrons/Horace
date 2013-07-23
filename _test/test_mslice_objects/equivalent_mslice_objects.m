@@ -19,7 +19,7 @@ elseif isa(w1,'slice') && ~(isempty(del) || isequal(fieldnames(del),{'SliceDir'}
             isequal(fieldnames(del),{'SliceFile'}) || isequal(sort(fieldnames(del)),{'SliceDir';'SliceFile'}))
     equivalent=false;
 elseif isa(w1,'spe') && ~(isempty(del) || isequal(fieldnames(del),{'filepath'}) ||...
-            isequal(fieldnames(del),{'filepath'}) || isequal(sort(fieldnames(del)),{'filename';'filepath'}))
+            isequal(fieldnames(del),{'filename'}) || isequal(sort(fieldnames(del)),{'filename';'filepath'}))
     equivalent=false;
 elseif isa(w1,'cut') || isa(w1,'slice') || isa(w1,'spe')
     equivalent=true;

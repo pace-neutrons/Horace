@@ -14,14 +14,15 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %   tol     tolerance (default: equality required)
 %               +ve number: absolute tolerance  abserr = abs(a-b)
 %               -ve number: relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))
+%
 % Valid keywords are:
-%   'nan_equal'       Treat NaNs as equal (true or false; default=true)
-%   'min_denominator' Minimum denominator for relative tolerance calculation (>=0; default=0)
-%                    When the denominator in a relative tolerance is less than this value, the
-%                    denominator is replaced by this value. Use this when the numbers being
-%                    compared could be close to zero.
-%   'ignore_str'      Ignore the length and content of strings or cell arrays of strings
-%                    (true or false; default=false)
+%  'nan_equal'       Treat NaNs as equal (true or false; default=true)
+%  'min_denominator' Minimum denominator for relative tolerance calculation (>=0; default=0)
+%                   When the denominator in a relative tolerance is less than this value, the
+%                   denominator is replaced by this value. Use this when the numbers being
+%                   compared could be close to zero.
+%  'ignore_str'      Ignore the length and content of strings or cell arrays of strings
+%                   (true or false; default=false)
 %
 % Output:
 % -------

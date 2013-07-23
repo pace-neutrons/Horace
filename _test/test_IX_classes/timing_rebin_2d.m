@@ -10,6 +10,11 @@ function timing_rebin_2d (nx, ny)
 %
 %   For timing tests, nx0=5000, ny=3000 are good values. These are the defaults.
 
+% Add paths to make data
+rootpath=fileparts(mfilename('fullpath'));
+make_data_path=fullfile(rootpath,'make_data');
+addpath(make_data_path)
+
 % Set default values for nx0 and nw
 if nargin==0
     nx=5000; ny=3000;
@@ -56,3 +61,6 @@ for i=1:numel(del)
     disp(' ')
     disp(' ')
 end
+
+% Remove data path
+rmpath(make_data_path)
