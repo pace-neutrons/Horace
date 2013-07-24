@@ -1,0 +1,6 @@
+
+ Connection-specific DNS Suffix  . : isis.cclrc.ac.uk
+ Link-local IPv6 Address . . . . . : fe80::2d08:bc5e:bee9:7a97%11
+ IPv4 Address. . . . . . . . . . . : 130.246.49.158
+ Subnet Mask . . . . . . . . . . . : 255.255.252.0
+ Default Gateway . . . . . . . . . : 130.246.48.254
