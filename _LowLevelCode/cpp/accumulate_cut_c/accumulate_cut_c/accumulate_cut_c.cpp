@@ -277,21 +277,25 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
             mexErrMsgTxt(" Data range has to be a 2x4 matrix");
       }
 //
-      if(mxGetM(prhs[Plot_axis])!=1||nAxis>4){
-         mexErrMsgTxt(" Plot axis has to be a vector of 0 to 4 numbers");
-      }
-      for(unsigned int i=0;i<mxGetN(prhs[Plot_axis]);i++){
-          if(pPAX[i]<1||pPAX[i]>4){
-           std::stringstream buf;
-           buf<<" Plot axis can vary from 1 to 4, while we get the number"<<(short)pPAX[i]<<" for the dimension"<<(short)i<<std::endl;
-           mexErrMsgTxt(buf.str().c_str());
-          }
-      }
+	  if (signalSize>1)
+	  {
+		if(mxGetM(prhs[Plot_axis])!=1||nAxis>4){
+			 mexErrMsgTxt(" Plot axis has to be a vector of 0 to 4 numbers");
+		}
+		for(unsigned int i=0;i<mxGetN(prhs[Plot_axis]);i++){
+			  if(pPAX[i]<1||pPAX[i]>4){
+	           std::stringstream buf;
+		       buf<<" Plot axis can vary from 1 to 4, while we get the number"<<(short)pPAX[i]<<" for the dimension"<<(short)i<<std::endl;
+			   mexErrMsgTxt(buf.str().c_str());
+			}
+		}
+	  }
       if(nAxis!=nDimensions){
-            if(nDimensions==2&&nAxis==1){ // this may be actually one dimensional plot
+            if((nDimensions==2&&nAxis==1) || nAxis == 0 ) // this may be actually one dimensional plot or 0 dimensional plot (point)
+			{ 
               if(pmDims[1]==1){ // have to work with a definde shape (column) arrays 
                   nDimensions=1;
-                }
+              }
             }else{
                 std::stringstream buf;
                 buf<<" number of output axis "<<nAxis<<" and number of data dimensions "<<nDimensions<<" are not equal";
@@ -308,9 +312,12 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
   for(int i=0;i<OUT_PIXEL_DATA_WIDTH;i++){	  grid_size[i]=0;
   }
-  for(int i=0;i<nDimensions;i++){ iAxis[i]=iRound(pPAX[i]);
+  if (nAxis >0) 
+  {
+	for(int i=0;i<nDimensions;i++){ iAxis[i]=iRound(pPAX[i]);
                                   grid_size[iAxis[i]-1]=iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab 
-  }                                                 // c-arrays.
+	}                                                 // c-arrays.
+  } // else -- everything will be added to a single point, grid_size is all 0;
 
   mwSize nPixels_retained=0;
   try{
