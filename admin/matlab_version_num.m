@@ -1,4 +1,4 @@
-function version=matlab_version_num
+function numver=matlab_version_num
 % Returns numeric representation of Matlab version
 %
 %   >> version = matlab_version_num
@@ -16,7 +16,11 @@ function version=matlab_version_num
 %   ans =
 %       7.0400  (i.e. not 7.4)
 
-vr = ver('MATLAB');
-vers = vr.Version;
+% T.G.Perring 23/7/13: replace teh following *horrendously slow* call to ver
+%    vr = ver('MATLAB');
+%    vers = vr.Version;
+% with:
+vers=version;
+
 vs = regexp(vers,'\.','split');
-version = str2double(vs{1})+0.01*str2double(vs{2});
+numver = str2double(vs{1})+0.01*str2double(vs{2});

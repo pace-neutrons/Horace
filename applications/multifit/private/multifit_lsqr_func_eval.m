@@ -25,7 +25,7 @@ function [ycalc,varcalc]=multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist
 %   bkdfunc     Handles to background functions; same format as func, above
 %
 %   plist       Cell array of valid parameter lists, one list per foreground function.
-%   
+%
 %   bkdlist     Cell array of valid parameter lists, one list per background function.
 %
 %   pf          Free parameter initial values
@@ -42,8 +42,8 @@ function [ycalc,varcalc]=multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist
 %
 % Output:
 % -------
-%   ycalc       Calculated signal on those data points to be retianed in fitting
-%   varcalc     Estimated cariance on the calculated values
+%   ycalc       Calculated signal on those data points to be retained in fitting
+%   varcalc     Estimated variance on the calculated values
 %
 %
 % NOTES:
@@ -68,7 +68,7 @@ end
 % Initialise store if required
 if store_vals && isempty(store_filled)
     store_filled=false;
-    pstore=cell(size(plist)); bpstore=cell(size(bplist)); 
+    pstore=cell(size(plist)); bpstore=cell(size(bplist));
     fcalc_store=cell(size(w)); fvar_store=cell(size(w)); bcalc_store=cell(size(w)); bvar_store=cell(size(w));
 end
 
@@ -79,19 +79,19 @@ isfitting=true;
 [p,bp]=ptrans_par(pf,p_info);
 fcalc=cell(size(w)); fvar=cell(size(w)); bcalc=cell(size(w)); bvar=cell(size(w));
 
+nw=numel(w);
 % Get foreground function calculated values for non-empty functions, and store if required
-fcalculated=false(numel(func),1);
 if numel(func)==1
     if ~isempty(func{1})
+        fcalc_filled=true(nw,1);
         if ~isempty(store_filled) && store_filled && all(p{1}==pstore{1})
-            for iw=1:numel(w)
-                fcalc{iw}=fcalc_store{iw};
-                fvar{iw}=fvar_store{iw};
-            end
+            fcalc=fcalc_store;
+            fvar=fvar_store;
+            fcalculated=false(nw,1);
         else
             pars=parameter_set(plist{1},p{1});
             if ~iscell(pars), pars={pars}; end  % make a cell for convenience
-            for iw=1:numel(w)
+            for iw=1:nw
                 multifit_store_state (isfitting,iw,true,store_vals)
                 if xye(iw)
                     fcalc{iw}=func{1}(w{iw}.x{:},pars{:});
@@ -108,13 +108,19 @@ if numel(func)==1
                     fcalc_store{iw}=fcalc{iw};
                     fvar_store{iw}=fvar{iw};
                 end
-                fcalculated(iw)=true;
             end
+            fcalculated=true(nw,1);
         end
+    else
+        fcalc_filled=false(nw,1);
+        fcalculated=false(nw,1);
     end
 else
-    for iw=1:numel(w)
+    fcalc_filled=false(nw,1);
+    fcalculated=false(nw,1);
+    for iw=1:nw
         if ~isempty(func{iw})
+            fcalc_filled(iw)=true;
             if ~isempty(store_filled) && store_filled && all(p{iw}==pstore{iw})
                 fcalc{iw}=fcalc_store{iw};
                 fvar{iw}=fvar_store{iw};
@@ -145,18 +151,17 @@ end
 
 
 % Update background function calculated values for non-empty functions, and store if required
-bcalculated=false(numel(bkdfunc),1);
 if numel(bkdfunc)==1
     if ~isempty(bkdfunc{1})
+        bcalc_filled=true(nw,1);
         if ~isempty(store_filled) && store_filled && all(bp{1}==bpstore{1})
-            for iw=1:numel(w)
-                bcalc{iw}=bcalc_store{iw};
-                bvar{iw}=bvar_store{iw};
-            end
+            bcalc=bcalc_store;
+            bvar=bvar_store;
+            bcalculated=false(nw,1);
         else
             pars=parameter_set(bplist{1},bp{1});
             if ~iscell(pars), pars={pars}; end  % make a cell for convenience
-            for iw=1:numel(w)
+            for iw=1:nw
                 multifit_store_state (isfitting,iw,false,store_vals)
                 if xye(iw)
                     bcalc{iw}=bkdfunc{1}(w{iw}.x{:},pars{:});
@@ -173,13 +178,19 @@ if numel(bkdfunc)==1
                     bcalc_store{iw}=bcalc{iw};
                     bvar_store{iw}=bvar{iw};
                 end
-                bcalculated(iw)=true;
             end
+            bcalculated=true(nw,1);
         end
+    else
+        bcalc_filled=false(nw,1);
+        bcalculated=false(nw,1);
     end
 else
-    for iw=1:numel(w)
+    bcalc_filled=false(nw,1);
+    bcalculated=false(nw,1);
+    for iw=1:nw
         if ~isempty(bkdfunc{iw})
+            bcalc_filled(iw)=true;
             if ~isempty(store_filled) && store_filled && all(bp{iw}==bpstore{iw})
                 bcalc{iw}=bcalc_store{iw};
                 bvar{iw}=bvar_store{iw};
@@ -219,21 +230,36 @@ end
 % Create zeros for calculated function values for empty functions
 % (There will be either a calculated foreground or calculated background for every dataset
 %  We can only do this now because we have no way of knowing the size of the zero arrays for objects)
-for iw=1:numel(w)
-    if isempty(fcalc{iw}) && ~isempty(bcalc{iw})
-        fcalc{iw}=zeros(size(bcalc{iw}));
-        fvar{iw}=zeros(size(bvar{iw}));
-    elseif ~isempty(fcalc{iw}) && isempty(bcalc{iw})
-        bcalc{iw}=zeros(size(fcalc{iw}));
-        bvar{iw}=zeros(size(fvar{iw}));
-    elseif isempty(fcalc{iw}) && isempty(bcalc{iw})
+
+if nw==1
+    if fcalc_filled && bcalc_filled
+        ycalc = fcalc{1}+bcalc{1};
+        varcalc = fvar{1}+bvar{1};
+    elseif ~fcalc_filled && bcalc_filled
+        ycalc = bcalc{1};
+        varcalc = bvar{1};
+    elseif fcalc_filled && ~bcalc_filled
+        ycalc = fcalc{1};
+        varcalc = fvar{1};
+    else
         error('Logic error in multifit. See T.G.Perring')
     end
+else
+    for iw=1:nw
+        if ~fcalc_filled(iw) && bcalc_filled(iw)
+            fcalc{iw}=zeros(size(bcalc{iw}));
+            fvar{iw}=zeros(size(bvar{iw}));
+        elseif fcalc_filled(iw) && ~bcalc_filled(iw)
+            bcalc{iw}=zeros(size(fcalc{iw}));
+            bvar{iw}=zeros(size(fvar{iw}));
+        elseif ~fcalc_filled(iw) && ~bcalc_filled(iw)
+            error('Logic error in multifit. See T.G.Perring')
+        end
+    end
+    % Package data for return
+    ycalc = cat(1,fcalc{:}) + cat(1,bcalc{:});    % one long column vector
+    varcalc = cat(1,fvar{:}) + cat(1,bvar{:});    % one long column vector
 end
-
-% Package data for return
-ycalc = cell2mat(fcalc(:)) + cell2mat(bcalc(:));    % one long column vector
-varcalc = cell2mat(fvar(:)) + cell2mat(bvar(:));    % one long column vector
 
 % Write diagnostics to screen, if requested
 if listing>2

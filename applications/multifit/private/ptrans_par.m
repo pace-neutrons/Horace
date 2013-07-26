@@ -22,5 +22,14 @@ pp(p_info.free)=pf;
 pp(p_info.bound)=p_info.ratio(p_info.bound).*pp(p_info.ib(p_info.bound));
 
 % Convert to cell arrays for foreground and background functions
-p=mat2cell(pp(1:p_info.nptot),p_info.np(:),1);
-bp=mat2cell(pp(p_info.nptot+1:end),p_info.nbp(:),1);
+if numel(p_info.np)==1
+    p={pp(1:p_info.nptot)};
+else
+    p=vec_to_cell(pp(1:p_info.nptot),p_info.np);
+end
+
+if numel(p_info.nbp)==1
+    bp={pp(p_info.nptot+1:end)};
+else
+    bp=vec_to_cell(pp(p_info.nptot+1:end),p_info.nbp);
+end

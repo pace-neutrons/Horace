@@ -168,9 +168,9 @@ negname_char = [repmat('no',nnames,1),name_char];
 negname = cellstr(negname_char);
 
 % Check that no name matches the negative of another
-ind = strmatch('no',name_char);
+ind = find(strncmp('no',name,2));
 for i=1:length(ind)
-    ipos = strmatch(name{ind(i)},negname,'exact');
+    ipos = find(strcmp(name{ind(i)},negname));
     if ~isempty(ipos);
         error (['Argument name ''',name{ind(i)},''' matches the negative of argument name ''',name{ipos},''''])
     end
@@ -180,7 +180,7 @@ end
 flag = false(length(fnames),1);
 if exist('flagnames','var') % there is a list of flagnames
     for i=1:length(flagnames)
-        ipos = strmatch(flagnames{i},name,'exact');
+        ipos = find(strcmp(flagnames{i},name));
         if ~isempty(ipos)
             flag(ipos) = true;
             % if argument is a flag, then check default value is 0 or 1 (and change type), or is logical true or false
@@ -219,8 +219,9 @@ while i <= nparargin
     else
         % is a character string, so check against argument names
         ipos_name = [];
-        iname = strmatch(lower(parargin{i}),name_char);
-        inegname = strmatch(lower(parargin{i}),negname_char);
+        nch=numel(parargin{i});
+        iname = find(strncmpi(parargin{i},name,nch));
+        inegname = find(strncmpi(parargin{i},negname,nch));
         if length(iname)+length(inegname)==0
             % name not found in list of valid arguments, so accumulate parameters if we permit that
             if par_read
@@ -240,8 +241,8 @@ while i <= nparargin
                     ipos_name = inegname;
                 end
             elseif length(iname)+length(inegname)>1 % ambiguous abbreviation
-                iname_exact = iname(strmatch(lower(parargin{i}),name(iname),'exact'));
-                inegname_exact = inegname(strmatch(lower(parargin{i}),negname(inegname),'exact'));
+                iname_exact = iname(strcmpi(parargin{i},name(iname)));
+                inegname_exact = inegname(strcmpi(parargin{i},negname(inegname)));
                 % determine if there is an exact match (recall that by construction that there can only be one)
                 if ~isempty(iname_exact)
                     is_negname = false;

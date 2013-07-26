@@ -22,5 +22,14 @@ sig(p_info.free)=sigfree;
 sig(p_info.bound)=abs(p_info.ratio(p_info.bound)).*sig(p_info.ib(p_info.bound));     % ratio could be negative - must take absolute value
 
 % Convert to cell arrays for foreground and background functions
-psig=mat2cell(sig(1:p_info.nptot),p_info.np(:),1);
-bsig=mat2cell(sig(p_info.nptot+1:end),p_info.nbp(:),1);
+if numel(p_info.np)==1
+    psig={sig(1:p_info.nptot)};
+else
+    psig=vec_to_cell(sig(1:p_info.nptot),p_info.np);
+end
+
+if numel(p_info.nbp)==1
+    bsig={sig(p_info.nptot+1:end)};
+else
+    bsig=vec_to_cell(sig(p_info.nptot+1:end),p_info.nbp(:));
+end
