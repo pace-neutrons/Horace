@@ -60,7 +60,12 @@ ix=ix(ind)';                % Indicies of included pixels coerresponding to orde
 % Find unique values
 % (intrinsic unique.m seems to be clever to notice if a list is sorted - anyway, it is faster with sorted arrays)
 [ibin_unique,m]=unique(ibin);
-m=diff([0,m]);  % Get number of repeats of each bin index (relies on the input to unique.m being pre-sorted)
+% Get number of repeats of each bin index (relies on the input to unique.m being pre-sorted)    
+if size(m,2)>1
+    m=diff([0,m]);  % pre R2013a
+else
+    m=diff([0;m]);  % post R2013a
+end
 npix=zeros(prod(grid_size),1);
 npix(ibin_unique)=m;
 ibin=ibin';
