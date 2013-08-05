@@ -93,7 +93,7 @@ end
 tmp_sqw_path = fileparts(sqw_file);
 [tmp_file,testit]=gensqw_check_tmp_files(spe_file,tmp_sqw_path,urange);
 
-testit=testit>=0;
+testit=testit<=0;
 % Write temporary sqw output file(s) (these can be deleted if all has gone well once gen_sqw has been run)
 % --------------------------------------------------------------------------------------------------------
 % *** should check that the temporary file names do not coincide with spe file names
