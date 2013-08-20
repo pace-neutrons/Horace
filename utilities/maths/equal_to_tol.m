@@ -122,15 +122,15 @@ if isequal(size(a),size(b))
     % If NaNs are to be ignored, remove them from consideration
     if nan_equal
         keep=~isnan(a);
-        if ~all(keep==~isnan(b))    % check NaNs have the same locations in both arrays
+        if ~all(keep(:)==~isnan(b(:)))    % check NaNs have the same locations in both arrays
             ok=false;
             mess='NaN elements not in same locations in numeric arrays being compared';
             return
-        elseif ~any(keep)   % if all elements are Nans, can simply return
+        elseif ~any(keep(:))   % if all elements are Nans, can simply return
             ok=true;
             mess='';
             return
-        elseif ~all(keep)   % filter out elements if some to be ignored
+        elseif ~all(keep(:))   % filter out elements if some to be ignored
             a=a(keep);
             b=b(keep);
         end

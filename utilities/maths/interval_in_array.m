@@ -4,7 +4,8 @@ function [irange,contained]=interval_in_array(x,interval,hist)
 %   >> [irange,contained]=interval_in_array(x,interval,bins)
 %
 % Input:
-%   x           Array of x values or bin boundaries, assumed monotonic increasing.
+% ------
+%   x           Vector of x values or bin boundaries, assumed monotonic increasing.
 %               If boundaries, must have length at least two.
 %
 %   interval    [xlo,xhi], the interval, assumed xlo<=xhi.
@@ -13,6 +14,7 @@ function [irange,contained]=interval_in_array(x,interval,hist)
 %               =false if points
 %
 % Output:
+% -------
 %   irange      1x2 array of lower and upper point/bin indices that enclose interval, or that
 %              part of the interval that intersects with the x array.
 %               If no data enclosed or on the boundaries at all, then irange=[]

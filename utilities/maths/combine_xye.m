@@ -5,14 +5,21 @@ function [wout,ok,mess]=combine_xye(w,xjoin,delta,tol)
 %
 %   >> wout=combine_xye(w,xjoin,delta,tol)  % combine with tolerance
 %
-%   w       array of n structures, fields w.x, w.y, w.e
-%   xjoin   array of x values at which to join the x arrays (n-1 values, i.e. one per overlap)
-%   delta   width overlap regions (so merge over the range xjoin(i)-delta/2 to xjoin(i)+delta/2
-%   tol     tolerance on x values
+% Input:
+% ------
+%   w       Array of n structures, fields w.x, w.y, w.e
+%          (Here x, y, e are vectors, and e contains standard deviations)
+%   xjoin   Array of x values at which to join the x arrays (n-1 values, i.e. one per overlap)
+%   delta   Width overlap regions (so merge over the range xjoin(i)-delta/2 to xjoin(i)+delta/2
+%   tol     [Optional] Tolerance on x values
 %               - if positive: absolute tolerance
 %               - if negative: relative tolerance on smallest interval in all datasets
 %           Default: relative tolerance of 10%  (i.e. tol=-0.1)
-%         
+%
+%
+% Output:
+% -------
+%   wout    Structure with fields w.x, w.y, w.e
 %
 % The elements of w must be either all histogram data or all to point data
 % A tolerance for the x values is assumed, equal to 0.1
@@ -101,6 +108,8 @@ else
 end
 wy=zeros(size(xrange));
 we=zeros(size(xrange));
+all_ycol=true;
+all_ecol=true;
 for i=1:nw
     if i==1,
         cent = xrange(1);
@@ -113,14 +122,24 @@ for i=1:nw
         width = xjoin(i)-xjoin(i-1);
     end
     smooth= hat2(width, 1, delta(1), 1/delta(1), xrange(irange_out{i}(1):irange_out{i}(2))-cent);
-    wy(irange_out{i}(1):irange_out{i}(2)) = wy(irange_out{i}(1):irange_out{i}(2)) + smooth.*(w(i).y(irange{i}(1):irange{i}(2)));
-    we(irange_out{i}(1):irange_out{i}(2)) = we(irange_out{i}(1):irange_out{i}(2)) + (smooth.*(w(i).e(irange{i}(1):irange{i}(2)))).^2;
+    if size(w(i).y,2)==1    % column vector
+        wy(irange_out{i}(1):irange_out{i}(2)) = wy(irange_out{i}(1):irange_out{i}(2)) + smooth.*(w(i).y(irange{i}(1):irange{i}(2)))';
+    else
+        wy(irange_out{i}(1):irange_out{i}(2)) = wy(irange_out{i}(1):irange_out{i}(2)) + smooth.*(w(i).y(irange{i}(1):irange{i}(2)));
+        all_ycol=false;
+    end
+    if size(w(i).e,2)==1    % column vector
+        we(irange_out{i}(1):irange_out{i}(2)) = we(irange_out{i}(1):irange_out{i}(2)) + (smooth.*(w(i).e(irange{i}(1):irange{i}(2)))').^2;
+    else
+        we(irange_out{i}(1):irange_out{i}(2)) = we(irange_out{i}(1):irange_out{i}(2)) + (smooth.*(w(i).e(irange{i}(1):irange{i}(2)))).^2;
+        all_ecol=false;
+    end
 end
 we= sqrt(we);
 
 wout.x=xout;
-wout.y=wy;
-wout.e=we;
+if all_ycol, wout.y=wy'; else wout.y=wy; end
+if all_ecol, wout.e=we'; else wout.e=we; end
 ok=true;
 mess='';
 
@@ -129,7 +148,7 @@ mess='';
 function y= hat2(w1, h1, w2, h2, x)
 
 % function y=hat2(w1, h1, w2, h2, x)
-% This function calculates the convolution of 2 hat functions centred 
+% This function calculates the convolution of 2 hat functions centred
 % at 0 with widths w1, w2 and heights h1,h2, over a range given by x.
 
 % Joost van Duijn: 29-08-03

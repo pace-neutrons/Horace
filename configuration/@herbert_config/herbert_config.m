@@ -42,6 +42,6 @@ config_data=struct(...
     'use_mex_C',true,               ...  % use C part of mex code
     'force_mex_if_use_mex',false,   ...  % force using mex (ususlly mex failure causes attempt to use matlab). This is rather for testing mex agains matlab
     'log_level', 1,                 .... % the level to report: -1, do not tell even about an errors (usefull for unit tests) 0 - be quet but report errors, 1 report result of long-lasting operations, 2 
-    'init_tests',false,             ...  % add uint test folders to search path (option for Herbert testing)
+    'init_tests',false,             ...  % add unit test folders to search path (option for Herbert testing)
     'sealed_fields',{{}}            ...
     );

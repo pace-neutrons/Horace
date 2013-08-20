@@ -3,8 +3,16 @@ function wout = scale(w,xscale)
 %
 %   >> wout = scale(w,xscale)
 %
+% Input:
+% ------
 %   w   IX_dataset_1d object or array of IX_dataset_1d objects
 %   x   Rescaling factor: scalar or array of values with size matching that of array w
+%
+% Output:
+% -------
+%   w   IX_dataset_1d object or array of IX_dataset_1d objects
+%
+% The signal and error values are unchanged i.e. the distribution flag is ignored.
 
 wout=w;
 if numel(w)>1 && numel(xscale)==1

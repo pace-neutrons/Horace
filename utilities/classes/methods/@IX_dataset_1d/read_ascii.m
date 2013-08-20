@@ -84,6 +84,7 @@ while 1>0
         nblock=nblock+1;
         if nblock==1, mess_1=mess; end
     else
+        fclose(fid);
         error(mess)
     end
 end
@@ -249,7 +250,8 @@ end
 % Read array to the end, or until unable to read from file with specified format
 fmt=repmat('%f',1,ncol);
 tab = char(9);
-a = textscan(fid, fmt, 'delimiter', [tab,',']);
+%a = textscan(fid, fmt, 'delimiter', [tab,',']);    % has problem if a leading tab character
+a = textscan(fid, fmt);
 if (isempty(a))
     ok=true; mess=['No data encountered in ' file_full]; return
 end
