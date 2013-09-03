@@ -136,5 +136,9 @@ end
 c1joint=c1(sort(ind1(common)));
 
 % Get unique lists
-c1unique=c1(sort(ind1));
-c2unique=c2(sort(ind2));
+if nargout>=2
+    c1unique=c1(sort(ind1));
+end
+if nargout>=3
+    c2unique=c2(sort(ind2));
+end

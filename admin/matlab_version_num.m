@@ -16,7 +16,7 @@ function numver=matlab_version_num
 %   ans =
 %       7.0400  (i.e. not 7.4)
 
-% T.G.Perring 23/7/13: replace teh following *horrendously slow* call to ver
+% T.G.Perring 23/7/13: replace the following *horrendously slow* call to ver:
 %    vr = ver('MATLAB');
 %    vers = vr.Version;
 % with:
