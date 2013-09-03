@@ -14,7 +14,7 @@ function  validate_horace()
 % unit test application will be removed and the warnings set to 'on'.
 
 
-% Look for Herbert which is needed as source of unit tests utilities
+% Look for unit tests utilities
 try
     using_herbert=is_herbert_used;
     if using_herbert
@@ -56,6 +56,8 @@ end
 %runtests(fullfile(test_path,'test_admin'));
 runtests(fullfile(test_path,'test_herbert_utilites'));
 runtests(fullfile(test_path,'test_transformation'));
+runtests(fullfile(test_path,'test_mslice_utilities'));
+runtests(fullfile(test_path,'test_sqw'));
 %runtests(fullfile(test_path,'test_ascii_column_data'));
 % test generic horace part
 %runtests(fullfile(test_path,'test_horace'));

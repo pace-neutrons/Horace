@@ -126,8 +126,18 @@ end
 
 % Check the number of elements in the mask array
 if ~isempty(mask)
-    if (isnumeric(mask)||islogical(mask)) || numel(mask)~=ndet
-        mask=logical(mask(:));  % ensure logical column vector
+    if islognum(mask) && numel(mask)==ndet  % valid logical mask
+        if ~islogical(mask)
+            mask=logical(mask);
+        end
+    elseif isnumeric(mask)
+        if all(mod(mask(:),1)==0) && min(mask(:))>=1 && max(mask(:))<=ndet && numel(unique(mask))==numel(mask)
+            ind=mask;
+            mask=false(ndet,1);
+            mask(ind)=true;
+        else
+            error(['Masked detector index number(s) must be unique and lie in the range 1 - ',num2str(ndet)])
+        end
     else
         error('Check length and data type of mask array')
     end

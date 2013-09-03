@@ -12,7 +12,7 @@ function par = get_par(file_name,varargin)
 % the Horace structure has a form:
 %   det.filename    Name of file excluding path
 %   det.filepath    Path to file including terminating file separator
-%   det.group       Row vector of detector group number - assumed to be 1:ndet
+%   det.group       Row vector of detector group number
 %   det.x2          Secondary flightpath (m)
 %   det.phi         Row vector of scattering angles (deg)
 %   det.azim        Row vector of azimuthal angles (deg)

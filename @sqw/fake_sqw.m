@@ -36,7 +36,7 @@ function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_
 %
 % Output:
 % --------
-%   tmp_file        List of temporary files
+%   tmp_file        List of temporary file names
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
