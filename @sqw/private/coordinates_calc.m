@@ -101,7 +101,8 @@ if present.d1||present.d2||present.d3||present.d4
     % Matrix and translation to convert from pixel coords to projection coordinates
     U=inv(w.data.u_to_rlu(1:3,1:3))*header_ave.u_to_rlu(1:3,1:3);
     T=inv(w.data.u_to_rlu(1:3,1:3))*(w.data.uoffset(1:3)-header_ave.uoffset(1:3));
-    uproj=U*w.data.pix(1:3,:)-repmat(T,[1,npixtot]);    % pixel Q coordinates now in projection axes
+    uproj=U*w.data.pix(1:3,:)-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
+    uproj=[uproj;w.data.pix(4,:)+header_ave.uoffset(4)];   % now append energy data
 
     % Get display axes
     pax=w.data.pax;
