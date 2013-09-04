@@ -1,24 +1,27 @@
-function wout=transform(w,xfunc,varargin)
+function wout=transform(w,xfunc,pars)
 % Transform the x-axis for an IX_dataset_1d object or array of IX_dataset_1d objects
 %
-%   >> wout = transform(w,xfunc,p1,p2,...)
+%   >> wout = transform(w,xfunc,pars)
 %
 % Input:
 % ------
 %   w       IX_dataset_1d object or array of IX_dataset_1d objects
-%   xfunc   Handle to function that transforms the x-axis. Must have the form
+%   xfunc   Handle to function that transforms the x-axis. Must have the form:
 %               xnew = myfunc(x)
-%           Or if the function requires parameters (passed as described below)
+%             or (if the function requires parameters, passed as described below)
 %               xnew = another_func(x,p1,p2)
-%           and the calls here would be e.g.
+% 
+%           The calls here would be e.g.
 %               >> wout=transform(w,@myfunc)
-%               >> wout=transform(w,@another_func,[0.02,1.5],'smooth')
+%               >> wout=transform(w,@another_func,{[0.02,1.5],'smooth'})
 %
 %           The function can an anonumous function e.g.
 %               >> fnc=@(x) x.^2;
 %               >> wout=transform(w,fnc)
 %
-%   p1,p2.. [Optional] parameters needed by the transforming function
+%   pars    [Optional] parameters needed by the transforming function
+%           If the transformation function requires more than one parameter
+%           then put them all in a cell array, as in the example above.
 %
 % Output:
 % -------
@@ -32,19 +35,28 @@ function wout=transform(w,xfunc,varargin)
 %  data is point data the x values are reordered to be monotonic increasing.
 %  A non monotonic transformation is forbidden for histogram data.
 
+if nargin==2
+    opt_pars=false;
+else
+    opt_pars=true;
+end
 hist=ishistogram(w);
-opt_pars=~isempty(varargin);
 wout=w;
 for i=1:numel(w)
     if ~opt_pars
         xnew=xfunc(w(i).x);
     else
-        xnew=xfunc(w(i).x,varargin{:});
+        if ~iscell(pars)
+            xnew=xfunc(w(i).x,pars);
+        else
+            xnew=xfunc(w(i).x,pars{:});
+        end
     end
-    dx=diff(xnew);
-    if all(dx>0)
+    xnew=reshape(xnew,size(w(i).x));     % ensure same shape of x array - user fucntion may do weird things
+    dxnew=diff(xnew);
+    if all(dxnew>0)
         wout(i).x=xnew;
-    elseif all(dx<0)
+    elseif all(dxnew<0)
         wout(i).x = fliplr(xnew);
         wout(i).signal = flipud(wout(i).signal);
         wout(i).error = flipud(wout(i).error);
@@ -55,7 +67,7 @@ for i=1:numel(w)
             wout(i).signal=wout(i).signal(ix);
             wout(i).error=wout(i).error(ix);
         else
-            error('Non-monotonic transformation of x-axis is fobidden for histogram data')
+            error('Non-monotonic transformation of x-axis is forbidden for histogram data')
         end
     end
     
