@@ -33,7 +33,7 @@ if narg < 1
 end
 
 line_width = [];
-line_type =[];
+line_style =[];
 for i = 1:narg
     try
         temp = evalin('caller',varargin{i});
@@ -44,10 +44,10 @@ for i = 1:narg
         line_width = [line_width,temp(:)']; % make argument a row vector
     elseif iscellstr(temp)
         temp=strtrim(temp);
-        line_type = [line_type,temp(:)'];   % make argument a row vector
+        line_style = [line_style,temp(:)'];   % make argument a row vector
     elseif ischar(temp) && length(size(temp))==2
         temp=strtrim(cellstr(temp));
-        line_type = [line_type,temp(:)'];   % make argument a row vector
+        line_style = [line_style,temp(:)'];   % make argument a row vector
     else
         error ('Check argument type(s)')
     end
@@ -64,19 +64,19 @@ end
 
 lstyle_char = {'-','--',':','-.'};
 lstyle_name = {'solid','dashed','dotted','ddot'};
-if ~isempty(line_type)
-    for i=1:length(line_type)
-        itype = string_find (line_type{i}, lstyle_char);
+if ~isempty(line_style)
+    for i=1:length(line_style)
+        itype = string_find (line_style{i}, lstyle_char);
         if itype == 0
-            itype = string_find (line_type{i}, lstyle_name);
+            itype = string_find (line_style{i}, lstyle_name);
         end
         if itype>0
-            line_type{i} = lstyle_char{itype};
+            line_style{i} = lstyle_char{itype};
         elseif itype==0
             error ('Invalid line style - left unchanged (aline)')
         elseif itype<0
             error ('Ambiguous abbreviation of line style - left unchanged (aline)')
         end
     end
-    set_global_var('genieplot','line_type',line_type);
+    set_global_var('genieplot','line_style',line_style);
 end
