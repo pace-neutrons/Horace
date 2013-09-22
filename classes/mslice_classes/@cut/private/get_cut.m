@@ -73,14 +73,29 @@ mess='';
 file_tmp=strtrim(filename);
 
 % Read file
-try
-    [x,y,e,npixels,pixels,footer]=get_cut_mex(file_tmp);
-    cut.x=x'; cut.y=y'; cut.e=e'; cut.npixels=npixels'; cut.pixels=pixels';
-    % Read footer information
-    appendix=get_labels_to_struct(footer);
-catch
+use_mex=get(herbert_config,'use_mex');
+if use_mex
+    try
+        [x,y,e,npixels,pixels,footer]=get_cut_mex(file_tmp);
+        cut.x=x'; cut.y=y'; cut.e=e'; cut.npixels=npixels'; cut.pixels=pixels';
+        % Read footer information
+        appendix=get_labels_to_struct(footer);
+    catch
+        force_mex=get(herbert_config,'force_mex_if_use_mex');
+        if ~force_mex
+            display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
+            use_mex=false;
+        else
+            cut=[];
+            ok=false;
+            mess=['Error loading cut data from ',file_tmp]';
+            return
+        end
+    end
+end
+if ~use_mex
     try     % try matlab algorithm
-        disp(['Matlab loading of .cut file : ' file_tmp]);
+        disp(['Matlab loading of cut file : ' file_tmp]);
         % Open file for reading
         fid=fopen(file_tmp,'rt');
         if fid==-1,
@@ -88,24 +103,34 @@ catch
         end
         % Read x,y,e and complete pixel information
         n=fscanf(fid,'%d',1);	% number of data points in the cut
-        cut.x=zeros(1,n);
-        cut.y=zeros(1,n);	% intensities
-        cut.e=zeros(1,n);	% errors
-        cut.npixels=zeros(1,n);
-        cut.pixels=[];      % pixel matrices
+        nbuff=1e5;              % initial buffer size for pixel array
+        pnt_data=zeros(4,n);
+        pix_data=zeros(6,nbuff);
+        npixtot=0;
         for i=1:n,
-            temp=fscanf(fid,'%g',4);
-            cut.x(i)=temp(1);
-            cut.y(i)=temp(2);
-            cut.e(i)=temp(3);
-            cut.npixels(i)=temp(4);
-            d=fscanf(fid,'%g',6*cut.npixels(i));
-            cut.pixels=[cut.pixels;reshape(d,6,cut.npixels(i))'];
+            pnt_data(:,i)=fscanf(fid,'%g',4);
+            npix=pnt_data(4,i);
+            npixtot=npixtot+npix;
+            if npixtot>nbuff
+                pix_data=[pix_data,zeros(6,2*npixtot-nbuff)];  % make the buffer twice as big as required total
+                nbuff=size(pix_data,2);
+            end
+            pix_data(:,npixtot-npix+1:npixtot)=fscanf(fid,'%g',[6,npix]);
+        end
+        cut.x=pnt_data(1,:);
+        cut.y=pnt_data(2,:);
+        cut.e=pnt_data(3,:);
+        cut.npixels=pnt_data(4,:);
+        if npixtot~=nbuff
+            cut.pixels=pix_data(:,1:npixtot)';
+        else
+            cut.pixels=pix_data';
         end
         % Read footer information
         appendix=get_labels_to_struct(fid);
         fclose(fid);
     catch
+        cut=[];
         ok=false;
         mess='Unable to read cut from file.';
         return
@@ -121,7 +146,6 @@ if isempty(appendix)
     cut.title=avoidtex([file,ext]);
     cut.CutFile=[file,ext];                 % If no labels, then Radu *does not* avoidtex the CutFile
     cut.CutDir=[pathname,filesep];          % If no labels, then Radu does not return the CutDir
-    return;
 else
     movefields={'x_label','y_label','title'};   % Because we move x-label, y_label, title in that order, the order these fields appear in the appendix is irrelevant
     ind=isfield(appendix,movefields);

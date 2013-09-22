@@ -1,10 +1,10 @@
 function f=transmission(fermi,varargin)
 % Calculate transmission of chopper (unit transmission at optimum)
 %
-%   >> dt=transmission(fermi)           % transmission for ei and phase in Fermi chopper object
-%   >> dt=transmission(fermi,phase)     % for specified phase: in-phase (true) or pi-rotated (false)
-%   >> dt=transmission(fermi,ei)        % for an array of specified ei
-%   >> dt=transmission(fermi,ei,phase)  % for specified ei and phase
+%   >> f=transmission(fermi)           % transmission for ei and phase in Fermi chopper object
+%   >> f=transmission(fermi,phase)     % for specified phase: in-phase (true) or pi-rotated (false)
+%   >> f=transmission(fermi,ei)        % for an array of specified ei
+%   >> f=transmission(fermi,ei,phase)  % for specified ei and phase
 %
 % Input:
 % -------

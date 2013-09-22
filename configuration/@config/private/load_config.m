@@ -11,8 +11,9 @@ function [config_data,ok,mess] = load_config (file_name)
 %   
 % Output:
 % -------
-%   config_data     Structure containing configuration data. Empty if problem or file does not exist
-%   ok              File succesfully read, or file does not exist
+%   config_data     Structure containing configuration data. Empty if file does
+%                  not exist or there is a problem
+%   ok              =true if file succesfully read, or file does not exist
 %   mess            Message. Empty if ok==true
 
 % $Revision$ ($Date$)

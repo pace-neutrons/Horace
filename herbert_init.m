@@ -121,7 +121,8 @@ for i=1:numel(application_init_old)
             try
                 feval([app_name,'_off'])    % call the 'off' routine
             catch
-                disp(['Unable to run function ',app_name,'_off.m'])
+                message=lasterr;
+                disp(['Unable to run function ',fullfile(pwd,[app_name,'_off.m']),'. Reason: ',message]);
             end
         else
             disp(['Function ',app_name,'_off.m not found in ',rootpath])
@@ -134,6 +135,7 @@ for i=1:numel(application_init_old)
         cd(start_dir)           % return to starting directory
     catch
         cd(start_dir)           % return to starting directory
-        disp(['Problems removing ',rootpath,' and any sub-directories from matlab path']);
+        message=lasterr;
+        disp(['Problems removing ',rootpath,' and any sub-directories from matlab path. Reason: ',message]);
     end
 end

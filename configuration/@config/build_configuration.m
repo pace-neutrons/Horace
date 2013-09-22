@@ -3,6 +3,10 @@ function build_configuration(this, default_config_fun, config_name)
 %
 %   >> build_configuration (config, default_config_fun, config_name)
 %
+% *** NOTE: This method has to be public because it is used by the constructor of all
+%           configuration objects other than the root configuration object. It should
+%           not be used in any other context.
+%
 % Input:
 % ------
 %   config              Instance of the root configuration class
@@ -22,24 +26,30 @@ function build_configuration(this, default_config_fun, config_name)
 % In either case, the current configuration and default configuration are saved in
 % memory.
 
-% NOTE: This method has to be public because it is used by the constructor of all
-%       configuration objects. It should not be used in any other context.
-%
 % $Revision$ ($Date$)
 
+
+% Get root configuration name
+root_config_name=mfilename('class');
+
+% Forbid this function being called on the root configuration class
+if strcmpi(root_config_name,config_name)
+    error('Cannot call build_configuration on the root configuration object')
+end
 
 % Determine if the class has already been constructed - if so, then nothing to do
 if config_store(config_name)
     return
 end
 
-% Build configuration
-root_config_name=mfilename('class');
-
-% Get default configuration
-default_config_data=default_config_fun();     % () is required to indicate that this is a function, even though it takes no arguments
-[valid,mess]=check_fields_valid(default_config_data,root_config_name);  % To check no developer errors
-if ~valid, error('Fields not all valid in default configuration: %s',mess), end
+% Get default configuration - and make some checks that there are no developer errors
+default_config_data=default_config_fun();       % () is required to indicate that this is a function, even though it takes no arguments
+if isstruct(default_config_data)
+    [valid,mess,default_config_data]=check_fields_valid(default_config_data,root_config_name);  % To check no developer errors
+    if ~valid, error('Fields not all valid in default configuration: %s',mess), end
+else
+    error('Default configuration is not a structure - developer error')
+end
 
 % Get stored configuration, if any
 file_name = config_file_name (config_name);
@@ -49,13 +59,17 @@ file_name = config_file_name (config_name);
 % ok==true if the config file does not exist but with config_data_saved empty.
 % We check the validity of the fields in the config file because it may have
 % been constructed via a route other than the constructor for this configuration.
-
 if ~isempty(saved_config_data)   % configuration data read from file
     % Check fields in saved configuration match those in child default
     if isequal(fieldnames(saved_config_data),fieldnames(default_config_data))
-        [valid,mess]=check_fields_valid(saved_config_data,root_config_name);
+        [valid,mess,saved_config_data_out]=check_fields_valid(saved_config_data,root_config_name);
         if valid
-            config_store(config_name,saved_config_data,default_config_data,this)
+            if ~isequal(saved_config_data_out,saved_config_data)
+                warning('Fields are valid but will be updated and saved to match new format')
+                [ok,mess]=save_config(file_name,saved_config_data_out);
+                if ~ok, error(mess), end
+            end
+            config_store(config_name,saved_config_data_out,default_config_data,this)
             return
         else
             warning(['Fields not all valid in saved configuration for %s: %s.',...

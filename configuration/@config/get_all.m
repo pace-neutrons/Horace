@@ -1,8 +1,8 @@
 function S=get_all(this,opt)
-% Retrieve all configurations that share the same root configuration
+% Retrieve all initialised configurations
 %
 %   >> S = get_all (config_obj)             % retrive all current configurations
-%   >> S = get_all (config_obj,'default')   % retrive all default configurations
+%   >> S = get_all (config_obj,'defaults')  % retrive all default configurations
 %
 % Input
 % -----
@@ -11,7 +11,8 @@ function S=get_all(this,opt)
 %               the root configuration object itself.
 %   
 % Keyword:
-%   'default'   If present, then retrieve the default configuration values
+%   'defaults'  If present, then retrieve the default configuration values for those
+%              conmfiguration objects that are initialised.
 %               If not present, then retrieve the current values
 %
 % Output:
@@ -24,7 +25,7 @@ function S=get_all(this,opt)
 
 if nargin==1
     S=config_store(false);
-elseif nargin==2 && ischar(opt) && ~isempty(opt) && size(opt,1)==1 && strncmpi(opt,'default',length(opt))
+elseif nargin==2 && ischar(opt) && ~isempty(opt) && size(opt,1)==1 && strncmpi(opt,'defaults',length(opt))
     S=config_store(true);
 else
     error('Check input arguments')

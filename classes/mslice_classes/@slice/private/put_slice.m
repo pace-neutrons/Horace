@@ -47,28 +47,39 @@ data.c(data.npixels==0)=null_data;
 labels=put_struct_to_labels(data,'except',{'xbounds','ybounds','x','y','c','e','npixels','pixels','SliceFile','SliceDir'});
 
 % Write to file
-try
-    footer=char(labels)';
-    line_len=size(footer,1);    % maximum string length
-    footer=footer(:)';          % make a string
-    ierr = put_slice_mex (file_tmp,header,data.x',data.y',data.c',data.e',data.npixels',data.pixels',footer,line_len);
-    if round(ierr)~=0
-        error(['Error writing slice data to ',file_tmp])
-        filename='';
-        filepath='';
-    end
-catch
-    try     % matlab write
-        disp(['Matlab writing of .slc file : ' file_tmp]);
-        [ok,mess]=put_slice_matlab(header,data,labels,file_tmp);
-        if ~ok
-            error(mess)
+use_mex=get(herbert_config,'use_mex');
+if use_mex
+    try
+        footer=char(labels)';
+        line_len=size(footer,1);    % maximum string length
+        footer=footer(:)';          % make a string
+        ierr = put_slice_mex (file_tmp,header,data.x',data.y',data.c',data.e',data.npixels',data.pixels',footer,line_len);
+        if round(ierr)~=0
+            error(['Error writing slice data to ',file_tmp])
+        end
+    catch
+        force_mex=get(herbert_config,'force_mex_if_use_mex');
+        if ~force_mex
+            display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
+            use_mex=false;
+        else
+            ok=false;
+            mess=['Error writing slice data to ',file_tmp]';
             filename='';
             filepath='';
         end
+    end
+end
+if ~use_mex
+    try     % matlab write
+        disp(['Matlab writing of slice data : ' file_tmp]);
+        [ok,mess]=put_slice_matlab(header,data,labels,file_tmp);
+        if ~ok
+            error(mess)
+        end
     catch
         ok=false;
-        mess=['Error writing cut data to ',file_tmp]';
+        mess=['Error writing slice data to ',file_tmp]';
         filename='';
         filepath='';
     end

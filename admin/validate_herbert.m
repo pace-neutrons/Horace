@@ -28,14 +28,16 @@ warning off all;
 %==============================================================================
 % Place call to tests here
 % -----------------------------------------------------------------------------
-% *** Does not do any tests as of 16 July 2013, or fails if do not have herbert_on:
-%runtests(fullfile(test_path,'test_admin'));
+runtests(fullfile(test_path,'test_admin'));
 
 banner_to_screen('test_data_loaders')
 runtests(fullfile(test_path,'test_data_loaders'));
 
 banner_to_screen('test_IX_classes')
 runtests(fullfile(test_path,'test_IX_classes'));
+
+banner_to_screen('test_map_mask')
+runtests(fullfile(test_path,'test_map_mask'));
 
 banner_to_screen('test_mslice_objects')
 runtests(fullfile(test_path,'test_mslice_objects'));

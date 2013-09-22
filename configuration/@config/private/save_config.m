@@ -1,5 +1,5 @@
 function [ok,mess] = save_config (file_name, config_data)
-% Save configuration structure
+% Save configuration structure to file
 %
 %   >> [ok,mess] = save_config (file_name, config_data)
 %

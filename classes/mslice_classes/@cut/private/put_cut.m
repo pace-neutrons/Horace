@@ -34,24 +34,35 @@ else    % bare cut object
 end
 
 % Write to file
-try
-    footer=char(labels)';
-    line_len=size(footer,1);    % maximum string length
-    footer=footer(:)';          % make a single string
-    ierr = put_cut_mex (file_tmp,data.x',data.y',data.e',data.npixels',data.pixels',footer,line_len);
-    if round(ierr)~=0
-        error(['Error writing cut data to ',file_tmp])
-        filename='';
-        filepath='';
+use_mex=get(herbert_config,'use_mex');
+if use_mex
+    try
+        footer=char(labels)';
+        line_len=size(footer,1);    % maximum string length
+        footer=footer(:)';          % make a single string
+        ierr = put_cut_mex (file_tmp,data.x',data.y',data.e',data.npixels',data.pixels',footer,line_len);
+        if round(ierr)~=0
+            error(['Error writing cut data to ',file_tmp])
+        end
+    catch
+        force_mex=get(herbert_config,'force_mex_if_use_mex');
+        if ~force_mex
+            display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
+            use_mex=false;
+        else
+            ok=false;
+            mess=['Error writing cut data to ',file_tmp]';
+            filename='';
+            filepath='';
+        end
     end
-catch
+end
+if ~use_mex
     try     % matlab write
         disp(['Matlab writing of .cut file : ' file_tmp]);
         [ok,mess]=put_cut_matlab(data,labels,file_tmp);
         if ~ok
             error(mess)
-            filename='';
-            filepath='';
         end
     catch
         ok=false;

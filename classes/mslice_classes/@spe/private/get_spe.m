@@ -26,22 +26,38 @@ data.filepath=[path,filesep];
 
 
 % Read spe file
-try
-    [data.S,data.ERR,data.en]=get_spe_mex(file_tmp);
-catch       % try matlab algorithm
+use_mex=get(herbert_config,'use_mex');
+if use_mex
     try
+        [data.S,data.ERR,data.en]=get_spe_mex(file_tmp);
+    catch
+        force_mex=get(herbert_config,'force_mex_if_use_mex');
+        if ~force_mex
+            display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
+            use_mex=false;
+        else
+            data=[];
+            ok=false;
+            mess=['Error loading spe data from ',file_tmp]';
+            return
+        end
+    end
+end
+if ~use_mex
+    try     % matlab read
         disp(['Matlab loading of .spe file : ' file_tmp]);
         [data.S,data.ERR,data.en]=get_spe_matlab(file_tmp);
     catch
+        data=[];
         ok=false;
-        mess='Unable to read spe file.';
+        mess='Unable to load spe file.';
         return
     end
 end
 
 % Put NaN for data <=10^30:
 null_data = -1.0e30;    % conventional NaN in spe files
-index=~isfinite(data.S)|data.S<=null_data|~isfinite(data.ERR);
+index=~isfinite(data.S)|data.S<=null_data/10|~isfinite(data.ERR);   % account for rounding in the write routine
 if sum(index(:)>0)
     data.S(index)=NaN;
     data.ERR(index)=0;

@@ -46,5 +46,3 @@ elseif nargin==0
 else
     error('Check number of arguments')
 end
-
-

@@ -81,7 +81,7 @@ else
             end
         else
             current_configs.(varargin{1})=varargin{2};
-            if numel(varargin)==3, default_configs.(varargin{1})=varargin{3}; end
+            if numel(varargin)>=3, default_configs.(varargin{1})=varargin{3}; end
             if numel(varargin)==4
                 config_objects.(varargin{1})=varargin{4};
                 if isfield(struct(varargin{4}),'ok')    % the distinguishing field of the root configuration

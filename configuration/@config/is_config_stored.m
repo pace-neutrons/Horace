@@ -5,7 +5,7 @@ function [ok,varargout]=is_config_stored(this,config_name)
 %
 % Input:
 % ------
-%   config_obj      Configuration object
+%   config_obj      Configuration object (only required to direct a call to this method)
 %   config_name     Name of the configuration class
 %
 % Output:
