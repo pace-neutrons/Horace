@@ -27,11 +27,17 @@ function wout=IX_map(varargin)
 %
 % Cell array specification:
 % -------------------------
-%   >> w = IX_map(cell)         % cell array where each element is an array of
-%                                spectrum numbers
+%   >> w = IX_map(cell)             % cell array where each element is an array of
+%                                    spectrum numbers
 %
-%   >> w = IX_map(cell,'wkno',wk) % in addition, give an array of numbers to
-%                                uniquely identify each workspace.
+%   >> w = IX_map(cell,'wkno',wk)   % in addition, give an array of numbers to
+%                                    uniquely identify each workspace.
+%
+% Structure:
+% ----------
+%   >> w = IX_map(struc)            % Structure with fields of IX_map object (see below)
+%
+%   >> w = IX_map(struc,'wkno',wk)
 %
 % In all cases, if the workspace numbers are not given (i.e. they are 'un-named')
 % they will be left undefined, and workspaces can be addressed by their index
@@ -40,7 +46,7 @@ function wout=IX_map(varargin)
 %
 % Contents of map object:
 % -----------------------
-%   ns      Row vector of number of spectra in erach workspace. There must be
+%   ns      Row vector of number of spectra in each workspace. There must be
 %          at least one workspace. ns(i)=0 is permitted (it means no spectra in ith workspace)
 %   s       Row vector of spectrum indicies in workspaces concatenated together. The
 %          spectrum numbers are sorted into numerically increasing order for
