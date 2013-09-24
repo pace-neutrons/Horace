@@ -109,6 +109,11 @@ qzrange=diff(w.data.urange(:,3));
 dqip=round_to_vals(qiprange/nbin);
 dqz=round_to_vals(qzrange/nbin);
 
+proj.u=[1,0,0];
+proj.v=[0,1,0];
+proj.type='rrr';
+proj.lab={'Q_{ip}','dummy','Q_z','E'};
+
 if w.main_header.nfiles==1
     ne=numel(w.header.en)-1;
 else
@@ -117,9 +122,9 @@ end
 if ne>50
     erange=diff(w.data.urange(:,4));
     de=round_to_vals(erange/33);
-    w=cut_sqw(w,dqip,dqz,de);
+    w=cut_sqw(w,proj,dqip,[-Inf,Inf],dqz,de);
 else
-    w=cut_sqw(w,dqip,dqz,0);           % Use intrinsic energy bins
+    w=cut_sqw(w,proj,dqip,[-Inf,Inf],dqz,0);           % Use intrinsic energy bins
 end
 
 
