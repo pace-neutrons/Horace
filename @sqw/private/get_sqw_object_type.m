@@ -1,7 +1,7 @@
 function [sqw_type, ndims, mess] = get_sqw_object_type (fid)
 % Read the type of sqw object written to file
 %
-%   >> [sqw_type, mess] = get_sqw_object_type (fid)
+%   >> [sqw_type, ndims, mess] = get_sqw_object_type (fid)
 %
 % Input:
 % ------

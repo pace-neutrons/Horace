@@ -70,7 +70,7 @@ else
     error('Check the number of arguments')
 end
 
-alatt=[2*pi,2*pi/clatt,2*pi];
+alatt=[2*pi,2*pi,2*pi/clatt];
 angdeg=[90,90,90];
 u=[1,0,0];
 v=[0,1,0];
@@ -86,8 +86,6 @@ gen_sqw (sqw, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, ps
 
 % The special part: replace u1 with sqrt(u1^2+u2^2) and set u2=0 - this allows for cylindrical symmetry
 % -----------------------------------------------------------------------------------------------------
-%w=read_sqw('test2_ref.sqw');
-
 w=read_sqw(sqw_file);
 
 data=w.data;
@@ -100,6 +98,30 @@ data.p=[{data.urange(:,1)},data.p([3,4])];
 data.dax=[1,2,3];
 data.ulabel={'Q_{ip}','dummy','Q_z','E'};
 w.data=data;
+
+
+% Rebin the data so can call plot straightaway with useful bins
+% --------------------------------------------------------------
+ndet=numel(w.detpar.group);
+nbin=min(max(1,round(sqrt(ndet)/2)),33);     % A reasonable number of bins along each Q axis
+qiprange=diff(w.data.urange(:,1));
+qzrange=diff(w.data.urange(:,3));
+dqip=round_to_vals(qiprange/nbin);
+dqz=round_to_vals(qzrange/nbin);
+
+if w.main_header.nfiles==1
+    ne=numel(w.header.en)-1;
+else
+    ne=numel(w.header{1}.en)-1;
+end
+if ne>50
+    erange=diff(w.data.urange(:,4));
+    de=round_to_vals(erange/33);
+    w=cut_sqw(w,dqip,dqz,de);
+else
+    w=cut_sqw(w,dqip,dqz,0);           % Use intrinsic energy bins
+end
+
 
 % Save back out to the same file
 % ------------------------------
