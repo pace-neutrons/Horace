@@ -64,10 +64,10 @@ gen_sqw_cylinder_test (spe_file, par_file, sqw_cyl_file, efix, emode, 1.5, 0, 0,
 % Visual inspection
 % Plot the cylinder averaged sqw data
 wcyl=read_sqw(sqw_cyl_file);
-w2=cut_sqw(wcyl,[0,0.03,7],0,'-nopix');
+w2=cut_sqw(wcyl,[4,0.03,6],[0.25,0.5],0,'-nopix');
 % plot(w2)
 % lz 0 0.5
-w1=cut_sqw(wcyl,[2,0.03,6.5],[53,57],'-nopix');
+w1=cut_sqw(wcyl,[2,0.03,6.5],[-0.7,0.2],[53,57],'-nopix');
 % dd(w1)
 %--------------------------------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ if save_output
     disp('===========================')
     
     output_file='c:\temp\test_gen_sqw_cylinder_output.mat';
-    save(output_file, 'w1', 'w2', 'w1rings', 'w2rings')
+    save(output_file, 'w1', 'w2')
     
     disp(' ')
     disp(['Output saved to ',output_file])
