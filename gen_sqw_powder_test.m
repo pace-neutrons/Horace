@@ -56,8 +56,6 @@ gen_sqw (sqw, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, ps
 
 % The special part: replace u1 with sqrt(u1^2+u2^2) and set u2=0 - this allows for cylindrical symmetry
 % -----------------------------------------------------------------------------------------------------
-%w=read_sqw('test2_ref.sqw');
-
 w=read_sqw(sqw_file);
 
 data=w.data;
@@ -70,6 +68,28 @@ data.p=[{data.urange(:,1)},data.p(4)];
 data.dax=[1,2];
 data.ulabel={'|Q|','dummy','dummy','E'};
 w.data=data;
+
+
+% Rebin the data so can call plot straightaway with useful bins
+% --------------------------------------------------------------
+ndet=numel(w.detpar.group);
+nbin=min(max(1,round(ndet/2)),100);     % A reasonable number of bins
+qrange=diff(w.data.urange(:,1));
+dq=round_to_vals(qrange/nbin);
+
+if w.main_header.nfiles==1
+    ne=numel(w.header.en)-1;
+else
+    ne=numel(w.header{1}.en)-1;
+end
+if ne>250
+    erange=diff(w.data.urange(:,4));
+    de=round_to_vals(erange/125);
+    w=cut_sqw(w,dq,de);
+else
+    w=cut_sqw(w,dq,0);           % Use intrinsic energy bins
+end
+
 
 % Save back out to the same file
 % ------------------------------

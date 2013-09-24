@@ -1,7 +1,7 @@
 function mess = put_sqw_object_type (fid, sqw_type, ndims)
 % Write application information data structure to file
 %
-%   >> mess = put_sqw_object_type (sqw_type)
+%   >> mess = put_sqw_object_type (fid, sqw_type, ndims)
 %
 % Input:
 % ------
