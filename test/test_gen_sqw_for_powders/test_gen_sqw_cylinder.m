@@ -99,7 +99,7 @@ if save_output
     disp('    Save output')
     disp('===========================')
     
-    output_file='c:\temp\test_gen_sqw_cylinder_output.mat';
+    output_file=fullfile(tempdir,'test_gen_sqw_cylinder_output.mat');
     save(output_file, 'w1', 'w2')
     
     disp(' ')

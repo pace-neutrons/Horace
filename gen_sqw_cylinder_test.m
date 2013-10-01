@@ -20,7 +20,7 @@ function gen_sqw_cylinder_test (spe_file, par_file, sqw_file, efix, varargin)
 %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
 % 
-% Meaning of gl and gs: they give the direction of the Az axis. If gl=gs=0 then Qz is
+% Meaning of gl and gs: they give the direction of the Qz axis. If gl=gs=0 then Qz is
 % vertically upwards. In the case when you choose omega=0 then:
 %   gl              Rotation is about horizontal axis perp. to ki, +ve tilts the
 %                  vertical upwards towards the beam dump.
@@ -52,8 +52,8 @@ function gen_sqw_cylinder_test (spe_file, par_file, sqw_file, efix, varargin)
 % $Revision: 691 $ ($Date: 2013-03-28 17:48:23 +0000 (Thu, 28 Mar 2013) $)
 
 
-% % Gateway routine that calls sqw method
-% ---------------------------------------
+% Check input arguments
+% ---------------------
 if nargin==6    % assume arguments are (spe_file, par_file, sqw_file, efix, gs, gl) to catch original quick-fix for LET, c. 1 Aug 2013
     emode=1;
     clatt=1;
@@ -70,69 +70,169 @@ else
     error('Check the number of arguments')
 end
 
-alatt=[2*pi,2*pi,2*pi/clatt];
+alatt=[2*pi,2*pi,clatt];
 angdeg=[90,90,90];
 u=[1,0,0];
 v=[0,1,0];
 psi=0;
 dpsi=0;
-grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
 if ~iscell(spe_file)
     spe_file={spe_file};    % for compatibility with older versions of Horace
 end
 
-gen_sqw (sqw, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, grid);
+nfiles=numel(spe_file);
+[efix,ok,mess]=make_array(efix,nfiles);
+if ~ok, error(['efix ',mess]), end
+[omega,ok,mess]=make_array(omega,nfiles);
+if ~ok, error(['omega ',mess]), end
+[gl,ok,mess]=make_array(gl,nfiles);
+if ~ok, error(['gl ',mess]), end
+[gs,ok,mess]=make_array(gs,nfiles);
+if ~ok, error(['ga ',mess]), end
+
+
+% Create temporary files, all on a 1x1x1x1 grid
+% ---------------------------------------------
+if nfiles==1
+    tmp_file={sqw_file};     % make cell array
+else
+    % Names of temporary files (Horace v2 convention)
+    tmp_file=cell(size(spe_file));
+    sqw_dir=fileparts(sqw_file);
+    for i=1:numel(tmp_file)
+        [dummy,spe_name]=fileparts(spe_file{i});
+        tmp_file{i}=fullfile(sqw_dir,[spe_name,'.tmp']);
+    end
+end
+
+% Process files
+grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
+for i=1:numel(spe_file)
+    gen_sqw (sqw, spe_file(i), par_file, tmp_file{i}, efix(i), emode,...
+                alatt, angdeg, u, v, psi, omega(i), dpsi, gl(i), gs(i), grid);
+end
 
 
 % The special part: replace u1 with sqrt(u1^2+u2^2) and set u2=0 - this allows for cylindrical symmetry
 % -----------------------------------------------------------------------------------------------------
-w=read_sqw(sqw_file);
+% Get range of data (is an overestimate, but will certainly contain all the data)
+head=cell(1,nfiles);
+urange=zeros(2,4,nfiles);
+for i=1:nfiles
+    head{i}=head_sqw(tmp_file{i});
+    urange(:,:,i)=head{i}.urange;
+end
+sgn=sign(urange(1,:,:).*urange(2,:,:)); % +1 if range does not include zero
+abs_urange_min=min(abs(urange),[],1);
+abs_urange_min(sgn<1)=0;
+abs_urange=[abs_urange_min;max(abs(urange),[],1)];
+abs_urange(:,1,:)=sqrt(abs_urange(:,1,:).^2 + abs_urange(:,2,:).^2);
+Qip_min=min(abs_urange(1,1,:));
+Qip_max=max(abs_urange(2,1,:));
+Qz_min=min(urange(1,3,:));
+Qz_max=max(urange(2,3,:));
+eps_min=min(urange(1,4,:));
+eps_max=max(urange(2,4,:));
 
-data=w.data;
-data.pix(1:2,:)=[sqrt(sum(data.pix(1:2,:).^2,1));zeros(1,size(data.pix,2))];
-data.urange(:,1:2)=[min(data.pix(1:2,:),[],2)';max(data.pix(1:2,:),[],2)'];
-data.iax=2;   % second axis becomes integration axis
-data.iint=[-Inf;Inf];
-data.pax=[1,3,4];
-data.p=[{data.urange(:,1)},data.p([3,4])];
-data.dax=[1,2,3];
-data.ulabel={'Q_{ip}','dummy','Q_z','E'};
-w.data=data;
+% Choose suitable rebinning for the final sqw file
+nQbin_def=33;
+nepsbin_def=33;
+head_full=head_sqw(tmp_file{1},'-full');
 
+ndet=numel(head_full.detpar.group);
+nqbin=min(max(1,round(sqrt(ndet)/2)),nQbin_def);     % A reasonable number of bins along each Q axis
+dQip=round_to_vals((Qip_max-Qip_min)/nqbin);
+dQz=round_to_vals((Qz_max-Qz_min)/nqbin);
+small=1e-10;
+Qip_bins=[dQip*(floor((Qip_min-small)/dQip)+0.5),dQip,dQip*(ceil((Qip_max+small)/dQip)-0.5)];
+Qz_bins=[dQz*(floor((Qz_min-small)/dQz)+0.5),dQz,dQz*(ceil((Qz_max+small)/dQz)-0.5)];
 
-% Rebin the data so can call plot straightaway with useful bins
-% --------------------------------------------------------------
-ndet=numel(w.detpar.group);
-nbin=min(max(1,round(sqrt(ndet)/2)),33);     % A reasonable number of bins along each Q axis
-qiprange=diff(w.data.urange(:,1));
-qzrange=diff(w.data.urange(:,3));
-dqip=round_to_vals(qiprange/nbin);
-dqz=round_to_vals(qzrange/nbin);
+if nfiles==1 && (numel(head_full.header.en)-1)<=50  % one spe file and 50 energy bins or less
+    epsbins=0;           % Use intrinsic energy bins
+else
+    deps=round_to_vals((eps_max-eps_min)/nepsbin_def);
+    epsbins=[eps_min-deps/2,deps,eps_max+deps/2];
+end
 
+% Compute Qip and Qz for each tmp file, and save all the tmp files onto the same grid
 proj.u=[1,0,0];
 proj.v=[0,1,0];
 proj.type='rrr';
 proj.lab={'Q_{ip}','dummy','Q_z','E'};
 
-if w.main_header.nfiles==1
-    ne=numel(w.header.en)-1;
-else
-    ne=numel(w.header{1}.en)-1;
-end
-if ne>50
-    erange=diff(w.data.urange(:,4));
-    de=round_to_vals(erange/33);
-    w=cut_sqw(w,proj,dqip,[-Inf,Inf],dqz,de);
-else
-    w=cut_sqw(w,proj,dqip,[-Inf,Inf],dqz,0);           % Use intrinsic energy bins
+for i=1:nfiles
+    % Read in
+    w=read_sqw(tmp_file{i});
+    % Compute new coordinates
+    data=w.data;
+    data.pix(1:2,:)=[sqrt(sum(data.pix(1:2,:).^2,1));zeros(1,size(data.pix,2))];
+    data.urange(:,1:2)=[min(data.pix(1:2,:),[],2)';max(data.pix(1:2,:),[],2)'];
+    data.iax=2;   % second axis becomes integration axis
+    data.iint=[-Inf;Inf];
+    data.pax=[1,3,4];
+    data.p=[{data.urange(:,1)},data.p([3,4])];
+    data.dax=[1,2,3];
+    data.ulabel={'Q_{ip}','dummy','Q_z','E'};
+    w.data=data;
+    % Rebin
+    w=cut_sqw(w,proj,Qip_bins,[-Inf,Inf],Qz_bins,epsbins);
+    % Save to the same tmpfile
+    save(w,tmp_file{i})
 end
 
 
-% Save back out to the same file
-% ------------------------------
-save(w,sqw_file);
+% Combne all the tmp files into the final sqw file
+% ------------------------------------------------
+if nfiles==1
+    % Single spe file, so no recombining needs to be done
+    tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
+else
+    % Multiple files
+    disp('--------------------------------------------------------------------------------')
+    disp('Creating final output sqw file:')
+    write_nsqw_to_sqw (tmp_file, sqw_file);
+    disp('--------------------------------------------------------------------------------')
+end
+
+
+% Delete temporary files if requested
+% -----------------------------------
+if get(hor_config,'delete_tmp')
+    if ~isempty(tmp_file)   % will be empty if only one spe file
+        delete_error=false;
+        for i=1:numel(tmp_file)
+            try
+                delete(tmp_file{i})
+            catch
+                if delete_error==false
+                    delete_error=true;
+                    disp('One or more temporary sqw files not deleted')
+                end
+            end
+        end
+    end
+end
+
 
 % Clear output arguments if nargout==0 to have a silent return
+% ------------------------------------------------------------
 if nargout==0
     clear tmp_file grid_size urange
+end
+
+%==================================================================================================
+function [val_out,ok,mess]=make_array(val,n)
+% Make a vector length n if scalar, or check length is n if not
+if isscalar(val)
+    val_out=val*ones(1,n);
+    ok=true;
+    mess='';
+elseif numel(val)==n
+    val_out=val;
+    ok=true;
+    mess='';
+else
+    val_out=val;
+    ok=false;
+    mess='must be a scalar or a vector with same number of elements as spe files';
 end

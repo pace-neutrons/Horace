@@ -29,7 +29,8 @@ function urange = calc_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, 
 %
 % Output:
 % --------
-%   urange          Actual range of grid
+%   urange          Actual range of data in crystal Cartesian coordinates and
+%                   energy transfer (2x4 array)
 
 % Original author: T.G.Perring
 %
