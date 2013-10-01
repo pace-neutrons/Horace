@@ -59,8 +59,8 @@ if isequal(fieldnames(w),fields)
     if ~isrowvector(wout.s)
         wout.s=wout.s(:)';   % make a row vector
     end
-    if ~isnumeric(wout.s) || any(rem(wout.s,1)~=0) || (numel(wout.s)>0 && min(wout.s)<1)    % must allow for wout.s being empty
-        message='The spectrum indicies must all be integers greater than or equal to one';
+    if ~isnumeric(wout.s) || any(rem(wout.s,1)~=0) || (numel(wout.s)>0 && min(wout.s)<0)    % must allow for wout.s being empty
+        message='The spectrum indicies must all be integers greater than or equal to zero';
         return
     else
         if sum(wout.ns)~=numel(wout.s)
