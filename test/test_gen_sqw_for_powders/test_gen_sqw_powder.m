@@ -136,7 +136,7 @@ if save_output
     disp('    Save output')
     disp('===========================')
     
-    output_file='c:\temp\test_gen_sqw_powder_output.mat';
+    output_file=fullfile(tempdir,'test_gen_sqw_powder_output.mat');
     save(output_file, 'w1', 'w2', 'w1rings', 'w2rings')
     
     disp(' ')
