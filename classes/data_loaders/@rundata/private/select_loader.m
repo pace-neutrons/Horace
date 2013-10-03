@@ -31,10 +31,11 @@ if isa(varargin{1},'char')    % build from a file;
                % set up spe and par files and check if all necessary
                % arguments are present; second argument in this case
                % has to be a par file name;
-                this.loader= loader_ascii(first_file); 
-               [this.n_detectors,this.en,this.loader]     =get_run_info(this.loader);
+               if nargin == 1
+                 this.loader= loader_ascii(first_file); 
+                 [this.n_detectors,this.en,this.loader]     =get_run_info(this.loader);
                
-               if nargin>2
+               elseif nargin>2
                   this.loader= loader_ascii(first_file,varargin{2});       
                   [this.n_detectors,this.en,this.loader]     =get_run_info(this.loader);                  
                   if nargin>3

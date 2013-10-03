@@ -200,6 +200,7 @@ if suppress_nan
     [this.S,this.ERR,this.det_par]=rm_masked(this);
 end
 
+
 [ok,mess,this]=isvalid(this);
 if ~ok
     error('RUNDATA:invalid_data',mess);
