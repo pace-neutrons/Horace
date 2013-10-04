@@ -20,7 +20,7 @@ function par = get_par(file_name,varargin)
 %   det.width       Row vector of detector widths (m)
 %   det.height      Row vector of detector heights (m)
 %
-% $Revision: 531 $ ($Date: 2011-02-18 22:10:44 +0000 (Fri, 18 Feb 2011) $)
+% $Revision$ ($Date$)
 %
 
 % redefine the file name of the par file

@@ -33,7 +33,7 @@ function [u_to_rlu,lines] = get_det_projections2(efix,en_transfer,Crystal,proj,k
 %              coordinates and energy transfer
 
 %
-% $Revision: 480 $ ($Date: 2010-07-12 12:56:46 +0100 (Mon, 12 Jul 2010) $)
+% $Revision$ ($Date$)
 %
 det = detectors_par(det_file_name,'-load');
 
@@ -154,7 +154,7 @@ function  [block_nums,nBlocks] = split_par( par)
 %
 % Original author: AB
 %
-% $Revision: 480 $ ($Date: 2010-07-12 12:56:46 +0100 (Mon, 12 Jul 2010) $)
+% $Revision$ ($Date$)
 %
 
 % how many adjacent detecotors assumed to be a line 

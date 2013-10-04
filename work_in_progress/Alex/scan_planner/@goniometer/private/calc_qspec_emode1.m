@@ -23,7 +23,7 @@ function qspec=calc_qspec_emode1 (Detectors,efix,en,k_to_e)
 % *** the emode=1 has been translated to frotran at the version after 259;
 %     ofher modes not yet (04/09/2009)
 %
-% $Revision: 301 $ ($Date: 2009-11-03 20:52:59 +0000 (Tue, 03 Nov 2009) $)
+% $Revision$ ($Date$)
 %
 
 % Get components of Q in spectrometer frame (x || ki, z vertical)

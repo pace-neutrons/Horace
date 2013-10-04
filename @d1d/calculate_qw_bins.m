@@ -16,7 +16,7 @@ function qw=calculate_qw_bins(win)
 
 % Original author: T.G.Perring
 %
-% $Revision: 587 $ ($Date: 2011-11-25 16:42:24 +0000 (Fri, 25 Nov 2011) $)
+% $Revision$ ($Date$)
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type

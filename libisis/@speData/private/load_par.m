@@ -3,7 +3,7 @@ function this = load_par(this)
 % if data not present, or data format is incorrect, throws 
 %
 %
-% $Revision: 508 $ ($Date: 2010-11-29 15:50:24 +0000 (Mon, 29 Nov 2010) $)
+% $Revision$ ($Date$)
 %
 % non-nxspe file does not have par-data in it;
 if  strcmpi(this.fileExt,'.nxspe') 

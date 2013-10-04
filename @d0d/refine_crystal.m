@@ -21,7 +21,7 @@ function varargout = refine_crystal (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 675 $ ($Date: 2013-02-04 09:56:39 +0000 (Mon, 04 Feb 2013) $)
+% $Revision$ ($Date$)
 
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
