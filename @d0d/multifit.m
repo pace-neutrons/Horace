@@ -39,7 +39,7 @@ function [wout, fitdata, ok, mess] = multifit(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 620 $ ($Date: 2012-04-03 17:52:23 +0100 (Tue, 03 Apr 2012) $)
+% $Revision$ ($Date$)
 
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------

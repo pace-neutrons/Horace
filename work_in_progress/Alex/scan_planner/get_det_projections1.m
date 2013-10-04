@@ -32,7 +32,7 @@ function [u_to_rlu,ucoords] = get_det_projections1(this,efix,en_transfer,crystal
 %              coordinates and energy transfer
 
 %
-% $Revision: 480 $ ($Date: 2010-07-12 12:56:46 +0100 (Mon, 12 Jul 2010) $)
+% $Revision$ ($Date$)
 %
 Np = 100;
 ndet=Np;

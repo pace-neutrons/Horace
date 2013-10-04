@@ -6,7 +6,7 @@ function Ei =getEi(this)
 %exist in spe class; Returns empty array if it is not; Ei data usually loaded to spe
 %structure from nxspe file or spe_h5 file;
 %
-% $Revision: 508 $ ($Date: 2010-11-29 15:50:24 +0000 (Mon, 29 Nov 2010) $)
+% $Revision$ ($Date$)
 %
 
 if  isa(this,'speData') % called on spe and this is morden spe

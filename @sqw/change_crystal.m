@@ -45,7 +45,7 @@ function varargout = change_crystal (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 601 $ ($Date: 2012-02-08 14:46:10 +0000 (Wed, 08 Feb 2012) $)
+% $Revision$ ($Date$)
 
 
 % This routine is also used to change the crystal in sqw files, for which the syntax is
