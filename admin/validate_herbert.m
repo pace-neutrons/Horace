@@ -11,12 +11,6 @@ function validate_herbert(opt)
 %                                   % (the unit tests functions may still be
 %                                   % on the path depending on the herbert_config
 %                                   % field 'init_tests'
-%
-% If an error is encountered during the test procedure, then the unit
-% test application folder will remain on the path, and the warning state
-% will still be off. The state of Herbert will not be the same in
-% consequence. However, if tests are com,pleted succesfully, then the
-% unit test application will be removed and the warnings set to 'on'.
 
 
 % On exit always revert to initial Herbert configuration
