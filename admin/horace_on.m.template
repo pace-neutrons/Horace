@@ -4,7 +4,7 @@ function path=horace_on(non_default_path)
 %  horace_on(non_default_horace_path)  -- calls horace with non-default horace folder;
 %
 %
-% $Revision: 1733 $ ($Date: 2010-06-23 17:57:14 +0100 (Wed, 23 Jun 2010) $) 
+% $Revision$ ($Date$) 
 %
 %
 default_horace_path ='/usr/local/mprogs/Horace';

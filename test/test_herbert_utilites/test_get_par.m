@@ -1,6 +1,6 @@
 classdef test_get_par< TestCase
 % 
-% $Revision: 135 $ ($Date: 2012-02-08 14:42:48 +0000 (Wed, 08 Feb 2012) $)
+% $Revision$ ($Date$)
 %
     
     properties 

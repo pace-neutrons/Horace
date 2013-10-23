@@ -4,7 +4,7 @@ rem
 rem    Compile and link options used for building MEX-files
 rem    using the Microsoft Visual C++ compiler version 10.0
 rem
-rem    $Revision: 1.1.6.3 $  $Date: 2011/03/09 05:35:31 $
+rem    $Revision$  $Date$
 rem    Copyright 2007-2009 The MathWorks, Inc.
 rem
 rem StorageVersion: 1.0

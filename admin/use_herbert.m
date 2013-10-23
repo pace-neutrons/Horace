@@ -19,7 +19,7 @@ function use_herbert(on_off)
 % utilites are registered to be always on the path. 
 %
 %
-% $Revision: 1853 $  ($Date: 2009-10-01 16:02:29 +0100 (Thu, 01 Oct 2009) $)
+% $Revision$  ($Date$)
 %
 
 hor_root=fileparts(which('horace_init.m'));

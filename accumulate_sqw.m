@@ -93,7 +93,7 @@ function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
 % Modified by R.A. Ewings from gen_sqw
 % Generalised by T.G.Perring and now calls gen_sqw
 %
-% $Revision: 301 $ ($Date: 2009-11-03 15:52:59 -0500 (Tue, 03 Nov 2009) $)
+% $Revision$ ($Date$)
 
 
 % Gateway routine that calls sqw method

@@ -41,7 +41,7 @@ function varargout = change_crystal (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 519 $ ($Date: 2011-01-12 11:46:43 +0000 (Wed, 12 Jan 2011) $)
+% $Revision$ ($Date$)
 
 % ----- The following shoudld be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
