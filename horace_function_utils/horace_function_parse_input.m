@@ -106,7 +106,7 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 
 % Original author: T.G.Perring
 %
-% $Revision: 673 $ ($Date: 2013-01-25 17:26:12 +0000 (Fri, 25 Jan 2013) $)
+% $Revision$ ($Date$)
 
 
 % Default values if there is an error

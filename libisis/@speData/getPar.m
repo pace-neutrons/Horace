@@ -6,7 +6,7 @@ function [par,this] =getPar(this)
 % Returns empty array if phx data is not in the spe data structure.
 % Phx data usually loaded to spe structure from nxspe file.
 
-% $Revision: 508 $ ($Date: 2010-11-29 15:50:24 +0000 (Mon, 29 Nov 2010) $)
+% $Revision$ ($Date$)
 
 if strcmpi(this.hdfFileExt{2},this.fileExt) % hdf_spe can have par field
     if(~this.data_loaded||isempty(this.par))

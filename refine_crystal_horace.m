@@ -21,7 +21,7 @@ function varargout = refine_crystal_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 675 $ ($Date: 2013-02-04 09:56:39 +0000 (Mon, 04 Feb 2013) $)
+% $Revision$ ($Date$)
 
 [varargout,mess] = horace_function_call_method (nargout, @refine_crystal, '$hor', varargin{:});
 if ~isempty(mess), error(mess), end

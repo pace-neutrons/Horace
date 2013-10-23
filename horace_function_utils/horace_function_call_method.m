@@ -42,7 +42,7 @@ function [argout,mess] = horace_function_call_method (nargout_caller, func, inpu
 
 % Original author: T.G.Perring
 %
-% $Revision: 521 $ ($Date: 2011-01-16 09:45:59 +0000 (Sun, 16 Jan 2011) $)
+% $Revision$ ($Date$)
 
 
 % Check input_type option

@@ -16,7 +16,7 @@ function  [par_indexes,nBlocks] = split_par( par)
 %
 % Original author: AB
 %
-% $Revision: 480 $ ($Date: 2010-07-12 12:56:46 +0100 (Mon, 12 Jul 2010) $)
+% $Revision$ ($Date$)
 %
 
 % how many adjacent detecotors assumed to be a line 

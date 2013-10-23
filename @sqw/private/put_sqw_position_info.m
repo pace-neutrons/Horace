@@ -31,7 +31,7 @@ function mess = put_sqw_position_info (fid, data)
 
 % Original author: T.G.Perring
 %
-% $Revision: 601 $ ($Date: 2012-02-08 14:46:10 +0000 (Wed, 08 Feb 2012) $)
+% $Revision$ ($Date$)
 
 mess = '';
 

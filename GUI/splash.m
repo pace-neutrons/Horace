@@ -106,7 +106,7 @@ function varargout = splash(varargin)
 %   College of Precision Instrument and Opto-Electronics Engineering,
 %   Tianjin University, 300072, P.R.China.
 %   Email: junziyang@126.com
-%   $Revision: 1.2 $  $Date: 2005/12/2 17:16:48 $
+%   $Revision$  $Date$
 
 %% Check output
 if nargout >=2  

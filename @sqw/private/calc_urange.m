@@ -34,7 +34,7 @@ function urange = calc_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, 
 
 % Original author: T.G.Perring
 %
-% $Revision: 688 $ ($Date: 2013-03-17 11:07:49 +0000 (Sun, 17 Mar 2013) $)
+% $Revision$ ($Date$)
 
 
 nfile=numel(efix);

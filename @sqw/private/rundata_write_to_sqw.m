@@ -22,7 +22,7 @@ function [grid_size, urange] = rundata_write_to_sqw (run_file, sqw_file, grid_si
 
 % Original author: T.G.Perring
 %
-% $Revision: 634 $ ($Date: 2012-06-20 10:07:00 +0100 (Wed, 20 Jun 2012) $)
+% $Revision$ ($Date$)
 
 
 bigtic

@@ -16,7 +16,7 @@ function par=get_par_matlab(filename)
 
 % Original author: T.G.Perring
 %
-% $Revision: 601 $ ($Date: 2012-02-08 14:46:10 +0000 (Wed, 08 Feb 2012) $)
+% $Revision$ ($Date$)
 %
 % Ibon Bustinduy
 
