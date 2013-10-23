@@ -4,6 +4,8 @@ function equivalent=equivalent_mslice_objects(w1,w2)
 %   >> diff_mslice_object(w1,w2)
 %
 % Checks for equality of fields, but ignores differences in the filename and filepath.
+%
+% Author: T.G.Perring
 
 if ~isequal(class(w1),class(w2))
     error('The two objects being compared must have the same class')

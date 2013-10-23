@@ -2,14 +2,15 @@ function test_read_save
 % Test reading and saving of mslice classes
 %
 %   >> test_read_save
+%
+% Author: T.G.Perring
 
 banner_to_screen(mfilename)
 
 % Unpack test objects to test area
 % --------------------------------
+unpack_data_files
 ref_dir=tempdir;
-unpack_data_files(ref_dir)
-
 
 % Read in objects
 % ----------------------------------------------------
@@ -72,27 +73,25 @@ s_com=read(spe,fullfile(ref_dir,'s_com_tmp.spe'));
 
 % Check equivalence
 % -----------------
-if ~equivalent_mslice_objects(mc_1_ref,mc_1),   error('mc_1_ref, mc_1  not equivalent'), end
-if ~equivalent_mslice_objects(mc_2_ref,mc_2),   error('mc_2_ref, mc_2  not equivalent'), end
-if ~equivalent_mslice_objects(mc_3a_ref,mc_3a), error('mc_3a_ref, mc_3a  not equivalent'), end
-if ~equivalent_mslice_objects(mc_3b_ref,mc_3b), error('mc_3b_ref, mc_3b  not equivalent'), end
-if ~equivalent_mslice_objects(mc_3c_ref,mc_3c), error('mc_3c_ref, mc_3c  not equivalent'), end
+if ~equivalent_mslice_objects(mc_1_ref,mc_1),   assertTrue(false,'mc_1_ref, mc_1  not equivalent'), end
+if ~equivalent_mslice_objects(mc_2_ref,mc_2),   assertTrue(false,'mc_2_ref, mc_2  not equivalent'), end
+if ~equivalent_mslice_objects(mc_3a_ref,mc_3a), assertTrue(false,'mc_3a_ref, mc_3a  not equivalent'), end
+if ~equivalent_mslice_objects(mc_3b_ref,mc_3b), assertTrue(false,'mc_3b_ref, mc_3b  not equivalent'), end
+if ~equivalent_mslice_objects(mc_3c_ref,mc_3c), assertTrue(false,'mc_3c_ref, mc_3c  not equivalent'), end
 
-if ~equivalent_mslice_objects(ms_1_ref,ms_1),   error('ms_1_ref, ms_1  not equivalent'), end
-if ~equivalent_mslice_objects(ms_2_ref,ms_2),   error('ms_2_ref, ms_2  not equivalent'), end
-if ~equivalent_mslice_objects(ms_3a_ref,ms_3a), error('ms_3a_ref, ms_3a  not equivalent'), end
-if ~equivalent_mslice_objects(ms_3b_ref,ms_3b), error('ms_3b_ref, ms_3b  not equivalent'), end
-if ~equivalent_mslice_objects(ms_3c_ref,ms_3c), error('ms_3c_ref, ms_3c  not equivalent'), end
-if ~equivalent_mslice_objects(ms_4_ref,ms_4),   error('ms_4_ref, ms_4  not equivalent'), end
+if ~equivalent_mslice_objects(ms_1_ref,ms_1),   assertTrue(false,'ms_1_ref, ms_1  not equivalent'), end
+if ~equivalent_mslice_objects(ms_2_ref,ms_2),   assertTrue(false,'ms_2_ref, ms_2  not equivalent'), end
+if ~equivalent_mslice_objects(ms_3a_ref,ms_3a), assertTrue(false,'ms_3a_ref, ms_3a  not equivalent'), end
+if ~equivalent_mslice_objects(ms_3b_ref,ms_3b), assertTrue(false,'ms_3b_ref, ms_3b  not equivalent'), end
+if ~equivalent_mslice_objects(ms_3c_ref,ms_3c), assertTrue(false,'ms_3c_ref, ms_3c  not equivalent'), end
+if ~equivalent_mslice_objects(ms_4_ref,ms_4),   assertTrue(false,'ms_4_ref, ms_4  not equivalent'), end
 
-if ~equivalent_mslice_objects(s1_ref,s1), error('s1_ref, s1  not equivalent'), end
-if ~equivalent_mslice_objects(s2_ref,s2), error('s2_ref, s2  not equivalent'), end
-if ~equivalent_mslice_objects(s_add_ref,s_add), error('s_add_ref, s_add  not equivalent'), end
-if ~equivalent_mslice_objects(s_com_ref,s_com), error('s_com_ref, s_com  not equivalent'), end
+if ~equivalent_mslice_objects(s1_ref,s1), assertTrue(false,'s1_ref, s1  not equivalent'), end
+if ~equivalent_mslice_objects(s2_ref,s2), assertTrue(false,'s2_ref, s2  not equivalent'), end
+if ~equivalent_mslice_objects(s_add_ref,s_add), assertTrue(false,'s_add_ref, s_add  not equivalent'), end
+if ~equivalent_mslice_objects(s_com_ref,s_com), assertTrue(false,'s_com_ref, s_com  not equivalent'), end
 
 
 % Success announcement
 % --------------------
-disp(' ')
-disp('Test(s) passed')
-disp(' ')
+banner_to_screen([mfilename,': Test(s) passed'],'bot')

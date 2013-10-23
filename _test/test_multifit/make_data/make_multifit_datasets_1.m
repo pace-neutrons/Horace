@@ -1,5 +1,6 @@
-function make_mftest_datasets_1
-% Create some test data for testing multifit. Data written to c:\temp\test_multifit_datasets_1.mat
+function make_multifit_datasets_1
+% Create some test data for testing multifit. Data written to tempdir with 
+% name test_multifit_datasets_1.mat
 %
 % Creates the following:
 %   x1, y1, e1      x,y,e arrays for a single Gaussian, with noise added
@@ -10,6 +11,8 @@ function make_mftest_datasets_1
 % and same again, with names
 %   x2,y2,e2,p2,wstruct2,w2
 %   x3,y3,e3,p3,wstruct3,w3
+%
+% Author: T.G.Perring
 
 output_file='c:\temp\test_multifit_datasets_1.mat';
 

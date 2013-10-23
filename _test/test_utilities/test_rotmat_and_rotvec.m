@@ -3,6 +3,10 @@ function test_rotmat_and_rotvec (opt)
 %
 %   >> test_rotmat_and_rotvec           % checks on algorithms
 %   >> test_rotmat_and_rotvec ('speed') % perform speed test as well
+%
+% Author: T.G.Perring
+
+banner_to_screen(mfilename)
 
 d2r=pi/180;
 tol=1e-12;
@@ -34,17 +38,17 @@ ma2_1=rotvec_to_rotmat2(tha_r,1);
 mb2_1=rotvec_to_rotmat2(thb_r,1);
 mc2_1=rotvec_to_rotmat2(thc_r,1);
 
-if max(abs(ma_0(:)-ma_1(:)))>tol, error('Bad code!'), end
-if max(abs(mb_0(:)-mb_1(:)))>tol, error('Bad code!'), end
-if max(abs(mc_0(:)-mc_1(:)))>tol, error('Bad code!'), end
+if max(abs(ma_0(:)-ma_1(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(mb_0(:)-mb_1(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(mc_0(:)-mc_1(:)))>tol, assertTrue(false,'Bad code!'), end
 
-if max(abs(ma2_0(:)-ma2_1(:)))>tol, error('Bad code!'), end
-if max(abs(mb2_0(:)-mb2_1(:)))>tol, error('Bad code!'), end
-if max(abs(mc2_0(:)-mc2_1(:)))>tol, error('Bad code!'), end
+if max(abs(ma2_0(:)-ma2_1(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(mb2_0(:)-mb2_1(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(mc2_0(:)-mc2_1(:)))>tol, assertTrue(false,'Bad code!'), end
 
-if max(abs(ma_0(:)-ma2_0(:)))>tol, error('Bad code!'), end
-if max(abs(mb_0(:)-mb2_0(:)))>tol, error('Bad code!'), end
-if max(abs(mc_0(:)-mc2_0(:)))>tol, error('Bad code!'), end
+if max(abs(ma_0(:)-ma2_0(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(mb_0(:)-mb2_0(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(mc_0(:)-mc2_0(:)))>tol, assertTrue(false,'Bad code!'), end
 
 
 % Test rotmat_to_rotvec
@@ -68,25 +72,21 @@ tha2_1=rotmat_to_rotvec2(ma,1);
 thb2_1=rotmat_to_rotvec2(mb,1);
 thc2_1=rotmat_to_rotvec2(mc,1);
 
-if max(abs(tha_0(:)-tha_r(:)))>tol, error('Bad code!'), end
-if max(abs(thb_0(:)-thb_r(:)))>tol, error('Bad code!'), end
-if max(abs(thc_0(:)-thc_r(:)))>tol, error('Bad code!'), end
+if max(abs(tha_0(:)-tha_r(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(thb_0(:)-thb_r(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(thc_0(:)-thc_r(:)))>tol, assertTrue(false,'Bad code!'), end
 
-if max(abs(tha_1(:)-tha_r(:)))>tol, error('Bad code!'), end
-if max(abs(thb_1(:)-thb_r(:)))>tol, error('Bad code!'), end
-if max(abs(thc_1(:)-thc_r(:)))>tol, error('Bad code!'), end
+if max(abs(tha_1(:)-tha_r(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(thb_1(:)-thb_r(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(thc_1(:)-thc_r(:)))>tol, assertTrue(false,'Bad code!'), end
 
-if max(abs(tha2_0(:)-tha_r(:)))>tol, error('Bad code!'), end
-if max(abs(thb2_0(:)-thb_r(:)))>tol, error('Bad code!'), end
-if max(abs(thc2_0(:)-thc_r(:)))>tol, error('Bad code!'), end
+if max(abs(tha2_0(:)-tha_r(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(thb2_0(:)-thb_r(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(thc2_0(:)-thc_r(:)))>tol, assertTrue(false,'Bad code!'), end
 
-if max(abs(tha2_1(:)-tha_r(:)))>tol, error('Bad code!'), end
-if max(abs(thb2_1(:)-thb_r(:)))>tol, error('Bad code!'), end
-if max(abs(thc2_1(:)-thc_r(:)))>tol, error('Bad code!'), end
-
-disp(' ')
-disp('Algorithm tests all passed OK')
-disp(' ')
+if max(abs(tha2_1(:)-tha_r(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(thb2_1(:)-thb_r(:)))>tol, assertTrue(false,'Bad code!'), end
+if max(abs(thc2_1(:)-thc_r(:)))>tol, assertTrue(false,'Bad code!'), end
 
 % Speed tests
 % -----------
@@ -134,6 +134,4 @@ end
 
 % Success announcement
 % --------------------
-disp(' ')
-disp('Test(s) passed')
-disp(' ')
+banner_to_screen([mfilename,': Test(s) passed'],'bot')

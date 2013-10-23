@@ -1,4 +1,9 @@
 function test_translate_read_write
+% Test the utility that translates global paths in filenames
+%
+% Author: T.G.Perring
+
+banner_to_screen(mfilename)
 
 % Create folders for tests
 % ------------------------
@@ -51,45 +56,43 @@ setenv('herbert_env_top','path_e31')
 % Reading
 
 [file_out,ok,mess]=translate_read(['path_123:::',file1]);
-if ~isequal(file_out,fullfile(dir1,file1)), error('Error in translate_read'), end
+if ~isequal(file_out,fullfile(dir1,file1)), assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(['path_123:::',file2]);
-if ~isequal(file_out,fullfile(dir2,file2)), error('Error in translate_read'), end
+if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(['path_123:::',file3]);
-if ~isequal(file_out,fullfile(dir3,file3)), error('Error in translate_read'), end
+if ~isequal(file_out,fullfile(dir3,file3)), assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(['path_123:::','nog.dat']);
-if ok, error('Error in translate_read'), end
+if ok, assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(['path_deep:',file2]);
-if ~isequal(file_out,fullfile(dir2,file2)), error('Error in translate_read'), end
+if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(['herbert_env:',file2]);
-if ~isequal(file_out,fullfile(dir2,file2)), error('Error in translate_read'), end
+if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(fullfile(dir2,file2));
-if ~isequal(file_out,fullfile(dir2,file2)), error('Error in translate_read'), end
+if isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(['path_0:',file2]);
-if ok, error('Error in translate_read'), end
+if ok, assertTrue(false,'Error in translate_read'), end
 
 % Writing
 [file_out,ok,mess]=translate_write(['path_0123:::',file1]);
-if ~isequal(file_out,fullfile(dir1,file1)), error('Error in translate_write'), end
+if ~isequal(file_out,fullfile(dir1,file1)), assertTrue(false,'Error in translate_write'), end
 
 [file_out,ok,mess]=translate_write(['herbert_env:',file2]);
-if ~isequal(file_out,fullfile(dir2,file2)), error('Error in translate_write'), end
+if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_write'), end
 
 [file_out,ok,mess]=translate_write(['path_deep:','crap.dat']);
-if ~isequal(file_out,fullfile(dir1,'crap.dat')), error('Error in translate_write'), end
+if ~isequal(file_out,fullfile(dir1,'crap.dat')), assertTrue(false,'Error in translate_write'), end
 
 [file_out,ok,mess]=translate_write(['path_0:',file1]);
-if ok, error('Error in translate_write'), end
+if ok, assertTrue(false,'Error in translate_write'), end
 
 
 % Success announcement
 % --------------------
-disp(' ')
-disp('Test(s) passed')
-disp(' ')
+banner_to_screen([mfilename,': Test(s) passed'],'bot')

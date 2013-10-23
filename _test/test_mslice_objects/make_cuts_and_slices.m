@@ -3,37 +3,47 @@ function []=make_cuts_and_slices ()
 %
 %   >> make_cuts_and_slices
 %
-% Creates the cuts and slices using mslice from the spe files in the zip
-% file spe_files.zip, and then saves a number of cuts and slices to another
-% zip file in the location returned by the Matlab function tempdir.
+% Creates the cuts and slices from an spe file that is simulated by this routine.
+% Make sure that the common test data files have been unzipped and the common
+% test functions have been placed on the path.
+% Saves a number of cuts and slices to another zip file in the location
+% returned by the Matlab function tempdir.
+%
+% Author: T.G.Perring
 
 work_dir=tempdir;
-
-% Unzip test_data_files.zip to working area
-unzip('spe_files_source.zip',work_dir)
 
 % -----------------------------------------------------------------------------
 % Use mslice to create some cuts and slices
 % -----------------------------------------------------------------------------
-spe_file=[work_dir,'EI_400-PSI_0-BASE.spe'];
+spe_file=[work_dir,'test_mslice_objects.spe'];
+par_file=[work_dir,'map_4to1_jul09.par'];
 phx_file=[work_dir,'map_4to1_jul09.phx'];
 
 efix=402.61;
 emode=1;
 
-alatt=[3.8,3.3,3.5];
-angdeg=[80,83,86];
+alatt=[3.5128,3.5128,3.5128];   % low temperature value from literature
+angdeg=[90,90,90];
 u=[0.9788,1.0230,0.0205];
 v=[0.0584,-0.0659,1.0029];
-psi=-10;
+psi=0;
 omega=0; dpsi=0; gl=0; gs=0;
 
+% Create an spe file
+en=-30:2:380;
+simulate_spe_testfunc (en, par_file, spe_file, @sqw_fcc_hfm_testfunc, [5,25,10,70,0], 0.1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+
 % Run mslice
+alatt=[3.8,3.3,3.5];
+angdeg=[80,83,86];
+psi=-10;
+
 mslice_start
 mslice_load_data (spe_file, phx_file, efix, emode, 'S(Q,w)', '')
 mslice_sample(alatt,angdeg,u,v,psi)
 mslice_calc_proj([0,0,1],[1.000000000000000  -1.000000000000000  -0.074426779585827],...
-                         [1.000000000000000   0.768197265570294   0.236797836452993],'L','K','H')
+    [1.000000000000000   0.768197265570294   0.236797836452993],'L','K','H')
 
 
 % -----------------------------------------------------------------------------
@@ -68,7 +78,7 @@ ms_3c=mslice_2d([0,0.025,1],[0,0.025,1],[2.06,2.08],'range',[0,0.6],'file',fullf
 
 % Run mslice again to get a Q-E slice
 mslice_calc_proj([1.000000000000000  -1.000000000000000  -0.074426779585827],...
-                         [1.000000000000000   0.768197265570294   0.236797836452993],[0,0,0,1],'K','H','E')
+    [1.000000000000000   0.768197265570294   0.236797836452993],[0,0,0,1],'K','H','E')
 ms_4=mslice_2d([0,0.025,1],[0.98,1.02],0,'range',[0,0.6],'file',fullfile(work_dir,'ms_4.slc'));
 
 
@@ -76,9 +86,18 @@ ms_4=mslice_2d([0,0.025,1],[0.98,1.02],0,'range',[0,0.6],'file',fullfile(work_di
 % Create zip file with cuts and slices
 % -----------------------------------------------------------------------------
 files={fullfile(work_dir,'mc_1.cut'),fullfile(work_dir,'mc_2.cut'),...
-       fullfile(work_dir,'mc_3a.cut'),fullfile(work_dir,'mc_3b.cut'),fullfile(work_dir,'mc_3c.cut'),...
-       fullfile(work_dir,'ms_1.slc'),fullfile(work_dir,'ms_2.slc'),...
-       fullfile(work_dir,'ms_3a.slc'),fullfile(work_dir,'ms_3b.slc'),fullfile(work_dir,'ms_3c.slc'),fullfile(work_dir,'ms_4.slc')};
+    fullfile(work_dir,'mc_3a.cut'),fullfile(work_dir,'mc_3b.cut'),fullfile(work_dir,'mc_3c.cut'),...
+    fullfile(work_dir,'ms_1.slc'),fullfile(work_dir,'ms_2.slc'),...
+    fullfile(work_dir,'ms_3a.slc'),fullfile(work_dir,'ms_3b.slc'),fullfile(work_dir,'ms_3c.slc'),fullfile(work_dir,'ms_4.slc')};
 
 zip(fullfile(work_dir,'test_cut_slice_files.zip'),files);
 
+
+% -----------------------------------------------------------------------------
+% Delete spe file
+% -----------------------------------------------------------------------------
+try
+    delete(spe_file)
+catch
+    disp([mfilename,': unable to delete temporary spe file'])
+end

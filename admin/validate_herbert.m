@@ -28,6 +28,7 @@ warning off all;
 %==============================================================================
 % Place call to tests here
 % -----------------------------------------------------------------------------
+banner_to_screen('test_admin')
 runtests(fullfile(test_path,'test_admin'));
 
 banner_to_screen('test_data_loaders')
