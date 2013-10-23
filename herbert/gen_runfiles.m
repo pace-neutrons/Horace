@@ -130,10 +130,14 @@ elseif numel(par_files)==1
     % Save time on multiple load of the same par into memory by reading it just once
     [par,runfiles{1}] = get_par(runfiles{1});
     for i=2:n_files
-        runfiles{i}=runfiles{1};
-        runfiles{i}.data_file_name=spe_files{i};
-        runfiles{i}.par_file_name =par_files{1};
-        runfiles{i}=rundata(runfiles{i},dfnd_params(i));
+        if isfield(dfnd_params(i),'efix') && (dfnd_params(i).efix ~= dfnd_params(i-1).efix)
+            runfiles{i}=rundata(spe_files{i},par_files{1},dfnd_params(i));            
+        else
+            runfiles{i}=runfiles{1};
+            runfiles{i}.data_file_name=spe_files{i};
+            runfiles{i}.par_file_name =par_files{1};        
+            runfiles{i}=rundata(runfiles{i},dfnd_params(i));
+        end
     end
 else   % multiple par and spe files;
     for i=1:n_files
