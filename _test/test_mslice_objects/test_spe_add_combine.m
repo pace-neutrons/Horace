@@ -25,7 +25,7 @@ if ~equivalent_mslice_objects(s_add,s_add_tmp), assertTrue(false,'s_add,s_add_tm
 combine(spe,[1/3,2/3],ref_dir,{'s1.spe','s2.spe'},'s_com_tmp.spe');
 s_com=read_spe(fullfile(ref_dir,'s_com.spe'));
 s_com_tmp=read_spe(fullfile(ref_dir,'s_com_tmp.spe'));
-if equivalent_mslice_objects(s_com,s_com_tmp), assertTrue(false,'s_com,s_com_tmp not equivalent'), end
+if ~equivalent_mslice_objects(s_com,s_com_tmp), assertTrue(false,'s_com,s_com_tmp not equivalent'), end
 
 
 % Success announcement

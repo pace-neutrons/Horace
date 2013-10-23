@@ -1,7 +1,7 @@
-function [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_IX_dataset_1d (nx0, nw)
+function [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_testdata_IX_dataset_1d (nx0, nw)
 % Create arrays of IX_dataset_1d with random x axes and Gaussian signal
 %
-%   >> [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_IX_dataset_1d (nx0, nw)
+%   >> [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_testdata_IX_dataset_1d (nx0, nw)
 %
 % The objects are different everytime this is run, as a random number generator is used.
 %
@@ -21,6 +21,8 @@ function [hh_1d_gau,hp_1d_gau,pp_1d_gau]=make_IX_dataset_1d (nx0, nw)
 %                      and the middle workspace number i.e. nw/2
 %   hp_1d_gau           hist-point (different x,y,signal and errors)
 %   pp_1d_gau           point-point (different x,y,signal and errors)
+%
+% Author: T.G.Perring
 
 
 

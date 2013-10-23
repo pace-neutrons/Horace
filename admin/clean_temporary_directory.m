@@ -1,5 +1,7 @@
-function clean_temporary_area
+function clean_temporary_directory
 % Deletes files from temp area which have one of various ISIS file extensions
+%
+% Author: T.G.Perring
 
 ext={'sqw','tmp','map','msk','cut','slc','spe','par','phx',...
      'SQW','TMP','MAP','MSK','CUT','SLC','SPE','PAR','PHX'};

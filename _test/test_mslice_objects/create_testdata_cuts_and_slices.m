@@ -1,7 +1,7 @@
-function []=make_cuts_and_slices ()
+function create_testdata_cuts_and_slices
 % This function creates the test cuts and slices from spe file, and saves to file
 %
-%   >> make_cuts_and_slices
+%   >> create_testdata_cuts_and_slices
 %
 % Creates the cuts and slices from an spe file that is simulated by this routine.
 % Make sure that the common test data files have been unzipped and the common
@@ -12,6 +12,7 @@ function []=make_cuts_and_slices ()
 % Author: T.G.Perring
 
 work_dir=tempdir;
+output_file=fullfile(work_dir,'testdata_cut_slice_files.zip');
 
 % -----------------------------------------------------------------------------
 % Use mslice to create some cuts and slices
@@ -90,7 +91,7 @@ files={fullfile(work_dir,'mc_1.cut'),fullfile(work_dir,'mc_2.cut'),...
     fullfile(work_dir,'ms_1.slc'),fullfile(work_dir,'ms_2.slc'),...
     fullfile(work_dir,'ms_3a.slc'),fullfile(work_dir,'ms_3b.slc'),fullfile(work_dir,'ms_3c.slc'),fullfile(work_dir,'ms_4.slc')};
 
-zip(fullfile(work_dir,'test_cut_slice_files.zip'),files);
+zip(output_file,files);
 
 
 % -----------------------------------------------------------------------------

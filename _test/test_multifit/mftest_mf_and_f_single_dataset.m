@@ -11,6 +11,8 @@ function [y1_fit, wstruct1_fit, w1_fit, p1_fit] = mftest_mf_and_f_single_dataset
 %
 % Note that the input can be for an arbitrary dimensional object; varargin needs to be
 % the set of arguments to be passed to fit and multifit following the input data set.
+%
+% Author: T.G.Perring
 
 tol=0;
 

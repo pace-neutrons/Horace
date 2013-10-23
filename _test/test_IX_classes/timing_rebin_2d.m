@@ -6,14 +6,11 @@ function timing_rebin_2d (nx, ny)
 %
 %   nx          Number of x bin boundaries
 %   ny          Number of y values
-%          (Type >> help make_IX_dataset_2d  for more details)
+%          (Type >> help make_testdata_IX_dataset_2d  for more details)
 %
 %   For timing tests, nx0=5000, ny=3000 are good values. These are the defaults.
-
-% Add paths to make data
-rootpath=fileparts(mfilename('fullpath'));
-make_data_path=fullfile(rootpath,'make_data');
-addpath(make_data_path)
+%
+% Author: T.G.Perring
 
 % Set default values for nx0 and nw
 if nargin==0
@@ -24,7 +21,7 @@ end
 
 % Create test data sets
 disp('Creating data for timing...')
-[hh_gau,hp_gau,pp_gau] = make_IX_dataset_2d (nx, ny);
+[hh_gau,hp_gau,pp_gau] = make_testdata_IX_dataset_2d (nx, ny);
 disp(' ')
 
 % -----------------------------------------------
@@ -32,16 +29,16 @@ disp(' ')
 % -----------------------------------------------
 % With nx0=5000; ny0=3000: conclude Matlab and fortran are very similar.
 
-set(herbert_config,'force_mex_if_use_mex',true);
+set(herbert_config,'force_mex_if_use_mex',true,'-buffer');
 del=[0.1,0.01,0.002];
 for i=1:numel(del)
     disp(['Rebin [1 (',num2str(del(i)),') 6], [2 (',num2str(del(i)),') 4]; rebin option ''int'''])
     disp('-----------------------------------------------------------------------------------')
     disp('- mex:')
-    set(herbert_config,'use_mex',true);
+    set(herbert_config,'use_mex',true,'-buffer');
     tic; wmex=rebin(hp_gau,[1,del(i),6],[2,del(i),4],'int'); toc
     disp('- matlab:')
-    set(herbert_config,'use_mex',false);
+    set(herbert_config,'use_mex',false,'-buffer');
     tic; wmat=rebin(hp_gau,[1,del(i),6],[2,del(i),4],'int'); toc
     delta_IX_dataset_nd(wmex,wmat,-1e-14)
     disp(' ')
@@ -52,15 +49,12 @@ for i=1:numel(del)
     disp(['Rebin [1 (',num2str(del(i)),') 6], [2 (',num2str(del(i)),') 4]; rebin option ''int'''])
     disp('-----------------------------------------------------------------------------------')
     disp('- mex:')
-    set(herbert_config,'use_mex',true);
+    set(herbert_config,'use_mex',true,'-buffer');
     tic; wmex=rebin(hp_gau,[1,del(i),6],[2,del(i),4],'ave'); toc
     disp('- matlab:')
-    set(herbert_config,'use_mex',false);
+    set(herbert_config,'use_mex',false,'-buffer');
     tic; wmat=rebin(hp_gau,[1,del(i),6],[2,del(i),4],'ave'); toc
     delta_IX_dataset_nd(wmex,wmat,-1e-14)
     disp(' ')
     disp(' ')
 end
-
-% Remove data path
-rmpath(make_data_path)

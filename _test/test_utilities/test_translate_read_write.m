@@ -74,7 +74,7 @@ if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate
 if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(fullfile(dir2,file2));
-if isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
+if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
 
 [file_out,ok,mess]=translate_read(['path_0:',file2]);
 if ok, assertTrue(false,'Error in translate_read'), end

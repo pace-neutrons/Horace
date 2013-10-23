@@ -13,6 +13,8 @@ function [ww_f,pp_f,ok,mess] = mftest_mf_and_f_multiple_datasets (ww,varargin)
 %
 % Routine compares output of fit with that from running multifit in a loop over all the
 % datasets.
+%
+% Author: T.G.Perring
 
 % Call to fit
 [ww_f,pp_f,ok,mess]=fit(ww, varargin{:});

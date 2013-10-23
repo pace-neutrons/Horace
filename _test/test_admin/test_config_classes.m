@@ -2,8 +2,10 @@ function test_config_classes
 % Test basic functionality of configuration classes
 %
 %   > >test_config_classes
+%
+% Author: T.G.Perring
 
-%banner_to_screen(mfilename)
+banner_to_screen(mfilename)
 
 % Set test config classes
 set(test_config,'default');
@@ -22,12 +24,12 @@ s2_def=get(test2_config);
 s2_def_pub=get(test2_config,'-pub');
 if ~isequal(fieldnames(s2_def_pub),{'v1';'v2'}) || ...
         ~isequal(s2_def.v1,s2_def_pub.v1) || ~isequal(s2_def.v2,s2_def_pub.v2)
-    error('Problem with: get(test2_config,''-pub'')')
+    assertTrue(false,'Problem with: get(test2_config,''-pub'')')
 end
 
 [v1,v3]=get(test2_config,'v1','v3');
 if ~isequal(s2_def.v1,v1) || ~isequal(s2_def.v3,v3)
-    error('Problem with: get(test2_config,''v1'',''v3'')')
+    assertTrue(false,'Problem with: get(test2_config,''v1'',''v3'')')
 end
 
 % This should fail because V3 is upper case, but the field is v3
@@ -38,7 +40,7 @@ catch
     ok=true;
 end
 if ~ok
-    error('Problem with: get(test2_config,''v1'',''V3'')')
+    assertTrue(false,'Problem with: get(test2_config,''v1'',''V3'')')
 end
 
 % This should fail because v3 is a sealed field
@@ -49,7 +51,7 @@ catch
     ok=true;
 end
 if ~ok
-    error('Problem with: get(test2_config,''v1'',''v3'',''-pub'')')
+    assertTrue(false,'Problem with: get(test2_config,''v1'',''v3'',''-pub'')')
 end
 
 
@@ -67,10 +69,10 @@ set(test2_config,'def','-buffer');
 s2_tmp=get(test2_config);
 
 if isequal(s2_tmp,s2_buf)
-    error('Error in config classes code')
+    assertTrue(false,'Error in config classes code')
 end
 if ~isequal(s2_tmp,s2_def)
-    error('Error in config classes code')
+    assertTrue(false,'Error in config classes code')
 end
 
 % Change the config without saving, change to save values, see this done properly
@@ -81,10 +83,10 @@ set(test2_config,'save');
 s2_tmp=get(test2_config);
 
 if isequal(s2_tmp,s2_buf)
-    error('Error in config classes code')
+    assertTrue(false,'Error in config classes code')
 end
 if ~isequal(s2_tmp,s2_sav)
-    error('Error in config classes code')
+    assertTrue(false,'Error in config classes code')
 end
 
 % Try to alter a sealed field
@@ -95,7 +97,7 @@ catch
     ok=true;
 end
 if ~ok
-    error('Error in config classes code')
+    assertTrue(false,'Error in config classes code')
 end
 
 % Try to alter a sealed field using root set method
@@ -106,7 +108,7 @@ catch
     ok=true;
 end
 if ~ok
-    error('Error in config classes code')
+    assertTrue(false,'Error in config classes code')
 end
 
 
@@ -114,6 +116,4 @@ end
 % ----------------------------------------------------------------------------
 % Success announcement
 % --------------------
-disp(' ')
-disp('Tests passed')
-disp(' ')
+banner_to_screen([mfilename,': Test(s) passed'],'bot')

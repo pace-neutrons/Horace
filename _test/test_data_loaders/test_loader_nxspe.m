@@ -9,10 +9,10 @@ classdef test_loader_nxspe< TestCase
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
-            set(herbert_config,'log_level',-1);
+            set(herbert_config,'log_level',-1,'-buffer');
         end
         function this=tearDown(this)
-            set(herbert_config,'log_level',this.log_level);            
+            set(herbert_config,'log_level',this.log_level,'-buffer');            
         end
         
         % tests themself

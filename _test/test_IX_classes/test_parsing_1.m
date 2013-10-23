@@ -3,6 +3,8 @@ function test_parsing_1(nloop)
 %
 %   >> timing_parse_functions           % Default 500 loops
 %   >> timing_parse_functions(nloop)
+%
+% Author: T.G.Perring
 
 banner_to_screen(mfilename)
 
@@ -43,7 +45,7 @@ for i=1:nloop
         disp(argcell{i})
         disp('   arglist:')
         disp(arglist)
-        error('Unequal output')
+        assertTrue(false,'Unequal output')
     end
 end
 disp(' ')
@@ -77,7 +79,7 @@ t=toc;
 disp(['     Time per function call (microseconds): ',num2str(1e6*t/nloop)]);
 disp(' ')
 if n_parse_arguments~=n_parse_args_simple
-    error('parse_arguments and parse_args_simple are not equivalent')
+    assertTrue(false,'parse_arguments and parse_args_simple are not equivalent')
 end
 
 disp('Parse_keywords')
@@ -85,7 +87,7 @@ tic
 n=0;
 for i=1:nloop
     [ok,mess,ind,val] = parse_keywords(argname,argcell_key{i}{:});
-    if ~ok, error(mess), end
+    if ~ok, assertTrue(false,mess), end
     n=n+sum(ind)+numel(val);
 end
 if n==n_parse_args_simple
@@ -95,3 +97,7 @@ end
 t=toc;
 disp(['     Time per function call (microseconds): ',num2str(1e6*t/nloop)]);
 disp(' ')
+
+% Success announcement
+% --------------------
+banner_to_screen([mfilename,': Test(s) passed'],'bot')

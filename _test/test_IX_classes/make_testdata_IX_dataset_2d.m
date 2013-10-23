@@ -1,7 +1,7 @@
-function [hh_gau,hp_gau,pp_gau] = make_IX_dataset_2d (nx, ny)
+function [hh_gau,hp_gau,pp_gau] = make_testdata_IX_dataset_2d (nx, ny)
 % Create IX_dataset_2d object with random x and y axes and Gaussian signal centred on [5,3]
 %
-%   >> [hh_gau,hp_gau,pp_gau] = make_IX_dataset_2d (nx, ny)
+%   >> [hh_gau,hp_gau,pp_gau] = make_testdata_IX_dataset_2d (nx, ny)
 %
 % The objects are different everytime this is run, as a random number generator is used.
 %
@@ -15,6 +15,8 @@ function [hh_gau,hp_gau,pp_gau] = make_IX_dataset_2d (nx, ny)
 %   hh_gau      hist-hist 2D Gaussian with range x=c. 0-10 and y=c. 0-6
 %   hp_gau      hist-point (different x,y,signal and errors)
 %   pp_gau      point-point (different x,y,signal and errors)
+%
+% Author: T.G.Perring
 
 xrange=10;
 yrange=6;

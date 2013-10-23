@@ -36,17 +36,17 @@ addgenpath_message (rootpath,'configuration');
 addgenpath_message (rootpath,'classes');
 
 % Utilities definitions
-addgenpath_message (rootpath, 'utilities')
+addgenpath_message (rootpath,'utilities')
 
 % Graphics
-addgenpath_message (rootpath, 'graphics')
+addgenpath_message (rootpath,'graphics')
 genieplot_init
 
 % Applications definitions
-addgenpath_message (rootpath, 'applications')
+addgenpath_message (rootpath,'applications')
 
 % Put mex files on path
-addgenpath_message (rootpath, 'DLL')
+addgenpath_message (rootpath,'DLL')
 
 % Developer options disabled by default but should be enabled when checking
 % or on a developer's machine;

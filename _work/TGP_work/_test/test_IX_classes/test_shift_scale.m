@@ -1,4 +1,6 @@
 % Some tests of shifting and scaling of IX_dataset objects
+%
+% Author: T.G.Perring
 
 arr2d=[hp1,shift_x(hp1,20),shift_y(hp1,30)];
 da(arr2d); lx 0 80; ly 0 80; keep_figure

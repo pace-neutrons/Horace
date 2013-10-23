@@ -9,10 +9,10 @@ classdef test_loader_ascii< TestCase
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
-            set(herbert_config,'log_level',-1);
+            set(herbert_config,'log_level',-1,'-buffer');
         end
         function this=tearDown(this)
-            set(herbert_config,'log_level',this.log_level);            
+            set(herbert_config,'log_level',this.log_level,'-buffer');            
         end
         
 % CONSTRUCTOR:        
@@ -69,9 +69,9 @@ classdef test_loader_ascii< TestCase
             loader=loader_ascii();
             
             old_state=get(herbert_config,'use_mex');
-            set(herbert_config,'use_mex',1);
+            set(herbert_config,'use_mex',1,'-buffer');
             [par,loader] = load_par(loader,'demo_par.par','-horace');
-            set(herbert_config,'use_mex',old_state);
+            set(herbert_config,'use_mex',old_state,'-buffer');
             if ispc
                 assertEqual(loader.par_file_name,'demo_par.par');  
             else
@@ -87,9 +87,9 @@ classdef test_loader_ascii< TestCase
             loader=loader_ascii();
             
             old_state=get(herbert_config,'use_mex');
-            set(herbert_config,'use_mex',0);
+            set(herbert_config,'use_mex',0,'-buffer');
             [par,loader] = load_par(loader,'demo_par.par','-hor');
-            set(herbert_config,'use_mex',old_state);
+            set(herbert_config,'use_mex',old_state,'-buffer');
             
             if ispc
                 assertEqual(loader.par_file_name,'demo_par.par');  

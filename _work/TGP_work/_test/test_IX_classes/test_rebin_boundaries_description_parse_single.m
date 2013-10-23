@@ -8,7 +8,8 @@
 %                           false: interpet as actual bin boundaries
 %   bin_boundaries          true:  intepret x values as bin boundaries
 %                           false: interpret as bin centres
-
+%
+% Author: T.G.Perring
 
 *** incomplete
 
