@@ -18,8 +18,8 @@ output_file=fullfile(work_dir,'testdata_cut_slice_files.zip');
 % Use mslice to create some cuts and slices
 % -----------------------------------------------------------------------------
 spe_file=[work_dir,'test_mslice_objects.spe'];
-par_file=[work_dir,'map_4to1_jul09.par'];
-phx_file=[work_dir,'map_4to1_jul09.phx'];
+par_file='map_4to1_jul09.par';
+phx_file='map_4to1_jul09.phx';
 
 efix=402.61;
 emode=1;
@@ -33,7 +33,7 @@ omega=0; dpsi=0; gl=0; gs=0;
 
 % Create an spe file
 en=-30:2:380;
-simulate_spe_testfunc (en, par_file, spe_file, @sqw_fcc_hfm_testfunc, [5,25,10,70,0], 0.1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+simulate_spe_testfunc (en, par_file, spe_file, @sqw_fcc_hfm_testfunc, [10,25,5,70,0], 0.1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 
 % Run mslice
 alatt=[3.8,3.3,3.5];

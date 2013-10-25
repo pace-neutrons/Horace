@@ -3,7 +3,8 @@ function clean_temporary_directory
 %
 % Author: T.G.Perring
 
-ext={'sqw','tmp','map','msk','cut','slc','spe','par','phx',...
+ext={'sqw','d0d','d1d','d2d','d3d','d4d',...
+     'tmp','map','msk','cut','slc','spe','par','phx',...
      'SQW','TMP','MAP','MSK','CUT','SLC','SPE','PAR','PHX'};
 
 for i=1:numel(ext)

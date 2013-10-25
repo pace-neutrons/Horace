@@ -2,12 +2,12 @@ function validate_herbert(opt)
 % Run unit tests on Herbert installation
 %
 %   >> validate_herbert             % Run full Herbert validation
-%   >> validate_herbert ('full')    % Same as above
+%   >> validate_herbert ('-full')   % Same as above
 %
-%   >> validate_herbert ('enable')  % initialise Herbert validation functions
+%   >> validate_herbert ('-enable') % initialise Herbert validation functions
 %                                   % for use by e.g. Horace
 %
-%   >> validate_herbert ('revert')  % reset Herbert to non-validation mode
+%   >> validate_herbert ('-revert') % reset Herbert to non-validation mode
 %                                   % (the unit tests functions may still be
 %                                   % on the path depending on the herbert_config
 %                                   % field 'init_tests'
@@ -32,18 +32,18 @@ full=false; enable=false; revert=false;
 if nargin==0
     full=true;
 else
-    if ischar(opt) && size(opt,1)==1
-        if strcmpi(opt,'full')
+    if ischar(opt) && size(opt,1)==1 && size(opt,2)>=2
+        if strcmpi(opt,'-full')
             full=true;
-        elseif strcmpi(opt,'enable')
+        elseif strcmpi(opt,'-enable')
             enable=true;
-        elseif strcmpi(opt,'revert')
+        elseif strcmpi(opt,'-revert')
             revert=true;
         else
-            error('Option must be ''full'', ''enable'' or ''revert''')
+            error('Option must be ''-full'', ''-enable'' or ''-revert''')
         end
     else
-        error('Option must be ''full'', ''enable'' or ''revert''')
+        error('Option must be ''-full'', ''-enable'' or ''-revert''')
     end
 end
 

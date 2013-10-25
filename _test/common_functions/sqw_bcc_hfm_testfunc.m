@@ -1,14 +1,22 @@
-function weight = sqw_bcc_hfm_testfunc (qh,qk,ql,en,p)
-% Wrapper function around dispersion relation to return spectral weight as needed by fitting routines
+function weight = sqw_bcc_hfm_testfunc (qh,qk,ql,en,par)
+% Spectral weight for bcc n.n. Heisenberg ferromagnet
 %
-%   >> weight = sqw_bcc_hfm_testfunc (qh,qk,ql,en,p)
+%   >> weight = sqw_bcc_hfm_testfunc (qh,qk,ql,en,par)
 %
-%   qh, qk, ql      Arrays of Q values at which to evaluate dispersion
-%   p               parameters for dispersion relation: p=[scale,gap,js,gamma]
-%               gap     Empirical gap at magnetic zone centres
-%               js      J*S in Hamiltonian in which each pair of spins is counted once only
-%               scale   Overall scaling factor
-%               gamma   Inverse lifetime broadening applied as a Gaussian function
-%               bkconst Background constant
+% Input:
+% ------
+%   qh,qk,ql    Arrays of h,k,l
+%   par         Parameters [Seff,SJ,gap,gamma,bkconst]
+%                   Seff    Intensity scale factor
+%                   SJ      Exchange constant (dispersion maximum 24*SJ)
+%                   gap     Gap at Bragg positions
+%                   gamma   Inverse lifetime broadening applied as a Gaussian function
+%                   bkconst Background constant
+%
+% Output:
+% -------
+%   weight      Spectral weight
 
-weight = p(3)*disp2sqw(qh,qk,ql,en,@disp_bcc_hfm_testfunc,p(1:2),p(4)) + p(5);
+gamma=par(4);
+bkconst=par(5);
+weight = disp2sqw(qh,qk,ql,en,@disp_bcc_hfm_testfunc,par(1:3),gamma) + bkconst;

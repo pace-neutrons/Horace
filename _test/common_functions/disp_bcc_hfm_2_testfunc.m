@@ -1,19 +1,28 @@
-function [wdisp,sf] = disp_bcc_hfm_2_testfunc (qh,qk,ql,p)
-% Spin wave dispersion relation for a Heisenberg ferromagnet with nearest
-% neighbour exchange only, with a fake optic branch for testing purposes
+function [wdisp,sf] = disp_bcc_hfm_2_testfunc (qh,qk,ql,par)
+% Spin wave dispersion relation for bcc n.n. Heisenberg ferromagnet and with a false optic branch
 %
-%   >> [wdisp,sf] = disp_bcc_hfm_2 (qh,qk,ql,js)
+%   >> [wdisp,sf] = disp_bcc_hfm_2 (qh,qk,ql,par)
 %
-%   qh, qk, ql      Arrays of Q values at which to evaluate dispersion
-%   p               parameters for dispersion relation: p=[gap,js,optic]
-%               gap     Empirical gap at magnetic zone centres
-%               js      J*S in Hamiltonian in which each pair of spins is counted once only
-%               optic   Gap for a fake optic mode
+% Input:
+% ------
+%   qh,qk,ql    Arrays of h,k,l
+%   par         Parameters [Seff,SJ,gap,optic]
+%                   Seff    Intensity scale factor
+%                   SJ      Exchange constant (dispersion maximum 24*SJ)
+%                   gap     Gap at Bragg positions
+%                   optic   Gap for a fake optic mode in addition to parameter gap above
+%
+% Output:
+% -------
+%   wdisp       Array of energies for the dispersion
+%   sf          Array of spectral weights
 
-gap=p(1);
-js=p(2);
-optic=p(3);
-wdisp{1} = gap + (8*js)*(1-cos(pi*qh).*cos(pi*qk).*cos(pi*ql));
+Seff=par(1);
+SJ=par(2);
+gap=par(3);
+optic=par(4);
+
+wdisp{1} = gap + (8*SJ)*(1-cos(pi*qh).*cos(pi*qk).*cos(pi*ql));
 wdisp{2} = gap + (8*js)*(1-cos(pi*qh).*cos(pi*qk).*cos(pi*ql)) + optic;
-sf{1}=ones(size(qh));
-sf{2}=0.5*ones(size(qh));
+sf{1}=Seff*ones(size(qh));
+sf{2}=(0.5*Seff)*ones(size(qh));
