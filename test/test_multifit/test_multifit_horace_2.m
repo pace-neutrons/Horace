@@ -61,7 +61,7 @@ p1sig_alt=[fitpar_1_locfore.sig{1},fitpar_1_locfore.bsig{1}(1),fitpar_1_locfore.
 
 tol=-1e-8;
 if ~equal_to_tol(p1, p1_alt, tol, 'min_denominator', 0.01) || ~equal_to_tol(p1sig, p1sig_alt, tol, 'min_denominator', 0.01)
-    error('local background and local foreground equivalent fitting give different answers')
+    assertTrue(false,'local background and local foreground equivalent fitting give different answers')
 end
 
 
@@ -80,7 +80,7 @@ if ~save_output
     tol=-1.0e-13;
     % The test proper
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01, 'ignore_str', 1); if ~ok, error(['[',nam{i},']',mess]), end
+        [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
     end    
     disp(' ')
     disp(' All OK')
@@ -96,7 +96,7 @@ if save_output
     disp('    Save output')
     disp('===========================')
     
-    output_file='c:\temp\test_multifit_horace_2_output.mat';
+    output_file=fullfile(tempdir,'test_multifit_horace_2_output.mat');
     save(output_file, 'wfit_1', 'fitpar_1', 'wfit_1_locfore', 'fitpar_1_locfore');
 
     disp(' ')

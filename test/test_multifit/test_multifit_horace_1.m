@@ -84,17 +84,17 @@ wsim_2=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
 [wfit_single1,fitpar_single1]=fit_sqw(w1data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
 [wfit_single2,fitpar_single2]=fit_sqw(w2data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
 [wfit_single12,fitpar_single12]=fit_sqw(win, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
-if ~equal_to_tol([wfit_single1,wfit_single2],wfit_single12)||~equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12), error('fit_sqw not working'), end
+if ~equal_to_tol([wfit_single1,wfit_single2],wfit_single12)||~equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12), assertTrue(false,'fit_sqw not working'), end
 
 [wfit_single1,fitpar_single1]=multifit_sqw(w1data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
 [wfit_single2,fitpar_single2]=multifit_sqw(w2data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
-if ~equal_to_tol([wfit_single1,wfit_single2],wfit_single12)||~equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12), error('fit_sqw not working'), end
+if ~equal_to_tol([wfit_single1,wfit_single2],wfit_single12)||~equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12), assertTrue(false,'fit_sqw not working'), end
 
 % Check fit_sqw_sqw behaves as is should
 [wfit_sqw_sqw,fitpar_sqw_sqw]=fit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,0], @sqw_bcc_hfm, [5,5,0,1,0], [0,0,0,0,1]);
 [tmp1,ftmp1]=multifit_sqw_sqw(w1data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1]);
 [tmp2,ftmp2]=multifit_sqw_sqw(w2data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1]);
-if ~equal_to_tol([tmp1,tmp2],wfit_sqw_sqw,-1e-8), error('fit_sqw_sqw not working'), end
+if ~equal_to_tol([tmp1,tmp2],wfit_sqw_sqw,-1e-8), assertTrue(false,'fit_sqw_sqw not working'), end
 
 
 
@@ -112,7 +112,7 @@ if ~save_output
     tol=-1.0e-13;
     % The test proper
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01, 'ignore_str', 1); if ~ok, error(['[',nam{i},']',mess]), end
+        [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
     end    
     disp(' ')
     disp(' All OK')
@@ -128,7 +128,7 @@ if save_output
     disp('    Save output')
     disp('===========================')
     
-    output_file='c:\temp\test_multifit_horace_1_output.mat';
+    output_file=fullfile(tempdir,'test_multifit_horace_1_output.mat');
     save(output_file, 'wsim_1', 'wfit_1', 'fitpar_1', 'wsim_2', 'wfit_2', 'fitpar_2',...
         'wfit_single1','fitpar_single1','wfit_single2','fitpar_single2','wfit_single12','fitpar_single12',...
         'wfit_sqw_sqw','fitpar_sqw_sqw');

@@ -4,6 +4,10 @@ function test_gen_sqw_powder(varargin)
 %                                    % in the same folder as this function
 %   >> test_gen_sqw_powder ('save')  % Save to test_gen_sqw_powder_output.mat in tempdir (type >> help tempdir
 %                                    % for information about the system specific location returned by tempdir)
+%
+% Author: T.G.Perring
+
+banner_to_screen(mfilename)
 
 % Check input argument
 if nargin==1
@@ -18,14 +22,19 @@ else
     error('Check number of input arguments')
 end
 
+% -----------------------------------------------------------------------------
+% Add common functions folder to path, and get location of common data
+addpath(fullfile(fileparts(which('horace_init')),'test','common_functions'))
+common_data_dir=fullfile(fileparts(which('horace_init')),'test','common_data');
+% -----------------------------------------------------------------------------
 % Set up paths:
 rootpath=fileparts(mfilename('fullpath'));
 
 % =====================================================================================================================
 % Create sqw file:
 en=0:1:90;
-par_file='map_4to1_dec09.par';
-sqw_file=fullfile(tempdir,'test_gen_sqw_powder.sqw');
+par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
+spe_file=fullfile(tempdir,'test_gen_sqw_powder.spe');
 efix=100;
 emode=1;
 alatt=[5,5,5];
@@ -34,32 +43,12 @@ u=[1,1,0];
 v=[0,0,1];
 psi=20;
 omega=0; dpsi=0; gl=0; gs=0;
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
-% Simulate dispersion relation with deterministic but random looking 'noise'
-w=read_sqw(sqw_file);
-ampl=10; SJ=8; gap=5;
-wcalc=disp2sqw_eval(w,@HFM_simple_cubic_nn,[ampl,SJ,gap],5);
+ampl=10; SJ=8; gap=5; gamma=5; bkconst=0;
+scale=0.1;
+simulate_spe_testfunc (en, par_file, spe_file, @sqw_sc_hfm_testfunc, [ampl,SJ,gap,gamma,bkconst], scale,...
+    efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 
-wran=sqw_eval(w,@sqw_random_looking,[0.2,0.8,1]);
-ave_err=sum(wran.data.pix(8,:))/numel(wran.data.pix(8,:));
-wcalc.data.pix(8,:)=wcalc.data.pix(8,:)+wran.data.pix(8,:)-ave_err;
-
-wran=sqw_eval(w,@sqw_random_looking,[0.2,0.8,1]);
-wcalc.data.pix(9,:)=wran.data.pix(8,:);
-
-wspe=spe(wcalc);    % convert to equivalent spe data
-
-% Write to spe file
-spe_file=fullfile(tempdir,'test_gen_sqw_powder.spe');
-save(wspe,spe_file)
-
-%--------------------------------------------------------------------------------------------------
-% % Visual inspection to check looks as expected
-% % Horace: 
-% proj.u=[1,1,0]; proj.v=[0,0,1];
-% wc=cut(wcalc,proj,0.05,0.05,[-0.1,0.1],[-Inf,Inf],'-nopix');
-% plot(wc)
 
 %--------------------------------------------------------------------------------------------------
 % Perform a powder average in Horace
@@ -75,6 +64,7 @@ pow_phx_file=fullfile(tempdir,'test_pow_rings.phx');
 save(powpar,pow_par_file)
 save(phxObject(powpar),pow_phx_file)
 
+wspe=read(spe,spe_file);
 spe_pow=remap(wspe,powmap);
 save(spe_pow,spe_pow_file)
 
@@ -108,6 +98,19 @@ w1rings=cut_sqw(wpowrings,[2,0.03,6.5],[53,57],'-nopix');
 % % Now must do the rest manually. Agrees with the rings map data in Horace
 %--------------------------------------------------------------------------------------------------
 
+%--------------------------------------------------------------------------------------------------
+% Cleanup
+try
+    delete(spe_file)
+    delete(sqw_pow_file)
+    delete(sqw_pow_rings_file)
+    delete(spe_pow_file)
+    delete(pow_par_file)
+    delete(pow_phx_file)
+catch
+    disp('Unable to delete temporary file(s)')
+end
+
 % =====================================================================================================================
 % Compare with saved output
 % ====================================================================================================================== 
@@ -120,11 +123,10 @@ if ~save_output
     nam=fieldnames(old);
     tol=-1.0e-13;
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1); if ~ok, error(['[',nam{i},']',mess]), end
+        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
     end
-    disp(' ')
-    disp('Matches within requested tolerances')
-    disp(' ')
+    % Success announcement
+    banner_to_screen([mfilename,': Test(s) passed'],'bot')
 end
 
 

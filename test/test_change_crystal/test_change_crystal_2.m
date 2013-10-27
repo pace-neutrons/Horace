@@ -6,11 +6,16 @@ function test_change_crystal_2
 % It is assumed that test_change_crystal_1 has already been succesfully performed.
 % That test ensures that change_crystal_sqw on a file is correct; here we check that
 % all the permutations of object types and files are handled correctly.
+%
+% Author: T.G.Perring
 
+banner_to_screen(mfilename)
 
 wref_file='wref.sqw';
 
+
 % Create file names
+% -----------------
 tmpdir=tempdir;
 
 w2_1_file=fullfile(tmpdir,'w2_1.sqw');
@@ -60,7 +65,9 @@ save(d2_2,d2_2_file);
 save(d1_1,d1_1_file);
 save(d1_2,d1_2_file);
 
+
 % Change crystal in the sqw object files
+% --------------------------------------
 % We assume only that change_crystal_sqw(<filename>,rlu_corr) works, as tested in another routine
 rlu_corr =[1.0817    0.0088   -0.2016;  0.0247    1.0913    0.1802;    0.1982   -0.1788    1.0555];
 
@@ -140,8 +147,6 @@ change_crystal_test(rlu_corr, d2_2_file, 'dnd', true, d2c_2_file)
 change_crystal_test(rlu_corr, d1_1_file, 'dnd', true, d1c_1_file)
 change_crystal_test(rlu_corr, d1_2_file, 'dnd', true, d1c_2_file)
 
-disp(' ')
-disp('Tests completed and were all OK')
 
 % Clean up all the files created in this test
 % -------------------------------------------
@@ -160,24 +165,30 @@ for i=1:numel(filename)
         catch
             if delete_error==false
                 delete_error=true;
-                disp('One or more temporary spe files not deleted')
+                disp('One or more temporary files not deleted')
             end
         end
     end
 end
 disp('Done')
 
+
+% Success announcement
+% --------------------
+banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
+
+
 %==================================================================================================
 function change_crystal_test(rlu_corr, input, type, expect_ok, ref_ans)
 % Test if get expected result (which may also be a failure)
 
-tmpdir='c:\temp';
+tmpdir=tempdir;
 fatal_error=false;
 
 % Check if can convert data
 try
     if ischar(input)
-        tmpfile=fullfile(tmpdir,'tmp.tmp');
+        tmpfile=fullfile(tmpdir,'test_change_crystal_2.tmp');
         copyfile(input,tmpfile);
         if strcmpi(type,'hor')
             change_crystal_horace(tmpfile,rlu_corr);
@@ -223,7 +234,7 @@ end
 if ischar(ref_ans), ref_ans=read_horace(ref_ans); end
 [ok_out,mess]=test_result(true, wout, ref_ans);
 if ~ok_out
-    error(mess)
+    assertTrue(false,mess)
 end
 
 %==================================================================================================

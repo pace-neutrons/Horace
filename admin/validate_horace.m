@@ -1,73 +1,64 @@
-function  validate_horace()
+function  validate_horace
 % Run unit tests on Horace installation
 %
 %   >> validate_horace
-%
-% This function will run the Horace unit tests with either Herbert or Libisis as the
-% underlying core utilities library.
-%
-% If an error is encountered during the test procedure, then the unit
-% test application folder will remain on the path, the Horace informational
-% output level, and the Matlab warning state will still be off. The state
-% of Herbert or Libisis, and Horace, will not be the same in
-% consequence. However, if tests are com,pleted succesfully, then the
-% unit test application will be removed and the warnings set to 'on'.
 
 
-% Look for unit tests utilities
-try
-    using_herbert=is_herbert_used;
-    if using_herbert
-        rootpath = fileparts(which('herbert_init'));
-        if ~get(herbert_config,'init_tests')
-            xunit_path= fullfile(rootpath,'_test/matlab_xunit/xunit');
-            addpath(xunit_path);
-        else
-            xunit_path='';
-        end
-    else
-        rootpath = fileparts(which('libisis_init'));
-        if ~get(libisis_config,'init_tests')
-            xunit_path= fullfile(rootpath,'matlab_xunit/xunit');
-            addpath(xunit_path);
-        else
-            xunit_path='';
-        end
-    end
-catch
-    error('VALIDATE_HORACE:wrong_call','Cannot identify the unit test utilites folder')
-end
+% On exit always revert to initial Horace configuration
+% ------------------------------------------------------
+% (Validation must always return Horace to its initial state, regardless
+%  of any changes made in the test routines)
+
+cur_config=get(hor_config);
+cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config));
+
+
+% Turn on unit test functions if required
+% ---------------------------------------
+validate_herbert('-enable')     % note: does not change Herbert configuration
 
 % Get path to unit tests:
 horace_path = fileparts(which('horace_init'));
 test_path=fullfile(horace_path,'test');
 
+
 % Run unit tests
-warning off all;
-info_level = get(hor_config,'horace_info_level');   % store current Horace informational output level
+% --------------
+% Set Horace configuration to the default (but don't save)
+% (The validation should be done starting with the defaults, otherwise an error
+%  may be due to a poor choice by the user of configuration parameters)
+set(hor_config,'defaults','-buffer');
 set(hor_config,'horace_info_level',0);              % turn off Horace informational output
- 
+
+% warning off all;
 %==============================================================================
 % Place call to tests here
 % -----------------------------------------------------------------------------
-if ~using_herbert   % test data loaders only if libisis
-	runtests(fullfile(test_path,'test_data_loaders'));
+% Still need to add: 'test_admin'  'test_energy_binning'  'test_transformation'
+test_folders={...
+    'test_ascii_column_data',...
+    'test_change_crystal',...
+    'test_file_input_methods',...
+    'test_gen_sqw_for_powders',...
+    'test_herbert_utilites',...
+    'test_mslice_utilities',...
+    'test_multifit',...
+    'test_sqw'...
+    };
+%=============================================================================
+for i=1:numel(test_folders)
+    test_folders{i}=fullfile(test_path,test_folders{i});
 end
-%runtests(fullfile(test_path,'test_admin'));
-runtests(fullfile(test_path,'test_herbert_utilites'));
-runtests(fullfile(test_path,'test_transformation'));
-runtests(fullfile(test_path,'test_mslice_utilities'));
-runtests(fullfile(test_path,'test_sqw'));
-%runtests(fullfile(test_path,'test_ascii_column_data'));
-% test generic horace part
-%runtests(fullfile(test_path,'test_horace'));
+runtests(test_folders{:});
+% warning on all;
 
-%==============================================================================
 
-warning on all;
-set(hor_config,'horace_info_level',info_level);
+% Turn off unit test functions if required
+% ----------------------------------------
+validate_herbert('-revert')
 
-% Remove unit test application if was not present already
-if ~isempty(xunit_path),
-    rmpath(xunit_path);
-end
+
+%=================================================================================================================
+function validate_horace_cleanup(cur_config)
+% Reset the configuration
+set(hor_config,cur_config);
