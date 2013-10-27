@@ -9,7 +9,7 @@ function  validate_horace
 % (Validation must always return Horace to its initial state, regardless
 %  of any changes made in the test routines)
 
-cur_config=get(hor_config);
+cur_config=get(hor_config,'-public');   % only get the public i.e. not sealed, fields
 cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config));
 
 
