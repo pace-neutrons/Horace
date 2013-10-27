@@ -1,6 +1,5 @@
-function [sqw1d_arr,sqw2d_arr,d1d_arr,d2d_arr,sqw1d_name,sqw2d_name,d1d_name,d2d_name]=make_testdata
-% Function to read test data into matlab for testing various functions, and
-% create files in the temporary folder
+function [sqw1d_arr,sqw2d_arr,d1d_arr,d2d_arr,sqw1d_name,sqw2d_name,d1d_name,d2d_name]=create_testdata
+% Function to return sqw and dnd test data and also save the same objects in the temporary folder
 %
 %   >> [sqw1d_arr,sqw2d_arr,d1d_arr,d2d_arr,...
 %           sqw1d_name,sqw2d_name,d1d_name,d2d_name]=read_testdata
@@ -16,6 +15,8 @@ function [sqw1d_arr,sqw2d_arr,d1d_arr,d2d_arr,sqw1d_name,sqw2d_name,d1d_name,d2d
 %
 %   d1d_name  cell array of the names of the two files with 1D sqw data
 %   d2d_name  cell array of the names of the two files with 1D sqw data
+%
+% Author: T.G.Perring
 
 root=fileparts(which(mfilename));
 

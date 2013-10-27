@@ -1,12 +1,12 @@
-function [wdisp,sf] = HFM_simple_cubic_nn (qh,qk,ql,par)
-% Spin wave dispersion relation for simple cubic n.n. Heisenberg ferromagnet
+function [wdisp,sf] = disp_fcc_hfm_testfunc (qh,qk,ql,par)
+% Spin wave dispersion relation for fcc n.n. Heisenberg ferromagnet
 %
-%   >> [w,s] = HFM_simple_cubic_nn (qh qk, ql, par)
+%   >> [wdisp,sf] = disp_fcc_hfm_testfunc (qh,qk,ql,par)
 %
 % Input:
 % ------
 %   qh,qk,ql    Arrays of h,k,l
-%   par         Parameters [scale,SJ,gap]
+%   par         Parameters [Seff,SJ,gap]
 %                   Seff    Intensity scale factor
 %                   SJ      Exchange constant (dispersion maximum 24*SJ)
 %                   gap     Gap at Bragg positions
@@ -20,5 +20,5 @@ Seff=par(1);
 SJ=par(2);
 gap=par(3);
 
-wdisp=gap+8*SJ*(sin(pi*qh).^2 + sin(pi*qk).^2 + sin(pi*ql).^2);
-sf=Seff*ones(size(wdisp));
+wdisp{1} = gap + (4*SJ)*(3-cos(pi*qh).*cos(pi*qk)-cos(pi*qk).*cos(pi*ql)-cos(pi*ql).*cos(pi*qh));
+sf{1}=Seff*ones(size(qh));

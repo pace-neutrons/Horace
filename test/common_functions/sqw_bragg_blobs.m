@@ -1,7 +1,7 @@
 function weight = sqw_bragg_blobs (qh,qk,ql,en,p,lattice)
 % S(Q,w) model that places four dimensional Gaussians at Bragg positions
 %
-%   >> weight = sqw_bragg_blobs (qh,qk,ql,en,p,c1,c2,)
+%   >> weight = sqw_bragg_blobs (qh,qk,ql,en,p,lattice)
 %
 %   qh,qk,ql,en Arrays of h,k,l,e
 %   p           Array of parameters [q_fwhh,e_fwhh]:

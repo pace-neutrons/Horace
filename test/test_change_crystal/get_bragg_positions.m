@@ -1,5 +1,7 @@
 function rlu0=get_bragg_positions(w, proj, rlu, half_len, half_thick, bin_width)
 % Get true positions of Bragg peaks from 1D cuts
+%
+% Author: T.G.Perring
 
 % Fit peak positions
 rlu0=zeros(size(rlu));

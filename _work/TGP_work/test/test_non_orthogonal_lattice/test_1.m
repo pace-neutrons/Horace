@@ -1,3 +1,5 @@
+% TGP comment 27/10/2013: I cannot recall what I was setting ut to test here...
+
 % Create a monoclinic lattice with c* at 70 degrees w.r.t. a*
 % -----------------------------------------------------------
 astar=1.5; bstar=2; cstar=0.5; beta=110;

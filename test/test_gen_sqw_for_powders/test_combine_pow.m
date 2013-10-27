@@ -1,9 +1,13 @@
-function test_combine_powder(varargin)
+function test_combine_pow(varargin)
 % Test combining powder cylinder sqw files
-%   >> test_combine_powder           % Compare with previously saved results in test_combine_pow_output.mat
+%   >> test_combine_pow           % Compare with previously saved results in test_combine_pow_output.mat
 %                                 % in the same folder as this function
-%   >> test_combine_powder ('save')  % Save to test_combine_pow_output.mat in tempdir (type >> help tempdir
+%   >> test_combine_pow ('save')  % Save to test_combine_pow_output.mat in tempdir (type >> help tempdir
 %                                 % for information about the system specific location returned by tempdir)
+%
+% Author: T.G.Perring
+
+banner_to_screen(mfilename)
 
 % Check input argument
 if nargin==1
@@ -18,13 +22,17 @@ else
     error('Check number of input arguments')
 end
 
+% -----------------------------------------------------------------------------
+% Add common functions folder to path, and get location of common data
+addpath(fullfile(fileparts(which('horace_init')),'test','common_functions'))
+common_data_dir=fullfile(fileparts(which('horace_init')),'test','common_data');
+% -----------------------------------------------------------------------------
 % Set up paths:
 rootpath=fileparts(mfilename('fullpath'));
 
 % =====================================================================================================================
 % Create spe files:
-par_file='map_4to1_dec09.par';
-sqw_file=fullfile(tempdir,'test_combine_pow.sqw');
+par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
 spe_file_1=fullfile(tempdir,'test_combine_pow_1.spe');
 spe_file_2=fullfile(tempdir,'test_combine_pow_2.spe');
 
@@ -40,42 +48,18 @@ omega=0; dpsi=0; gl=0; gs=0;
 % -----------------------------------------------------------
 en=-5:1:90;
 psi_1=0;
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi_1, omega, dpsi, gl, gs);
-w=read_sqw(sqw_file);
-wcalc=sqw_eval(w,@sqw_cylinder,[10,1]);
 
-wran=sqw_eval(w,@sqw_random_looking,[0.2,0.8,1]);
-ave_err=sum(wran.data.pix(8,:))/numel(wran.data.pix(8,:));
-wcalc.data.pix(8,:)=wcalc.data.pix(8,:)+wran.data.pix(8,:)-ave_err;
-
-wran=sqw_eval(w,@sqw_random_looking,[0.2,0.8,1]);
-wcalc.data.pix(9,:)=wran.data.pix(8,:);
-
-wspe=spe(wcalc);    % convert to equivalent spe data
-
-% Write to spe file
-save(wspe,spe_file_1)
+simulate_spe_testfunc (en, par_file, spe_file_1, @sqw_cylinder, [10,1], 0.3,...
+    efix, emode, alatt, angdeg, u, v, psi_1, omega, dpsi, gl, gs)
 
 
 % Simulate second file, with reproducible random looking noise
 % -------------------------------------------------------------
 en=-9.5:2:95;
 psi_2=30;
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi_2, omega, dpsi, gl, gs);
-w=read_sqw(sqw_file);
-wcalc=sqw_eval(w,@sqw_cylinder,[10,1]);
 
-wran=sqw_eval(w,@sqw_random_looking,[0.2,0.8,1]);
-ave_err=sum(wran.data.pix(8,:))/numel(wran.data.pix(8,:));
-wcalc.data.pix(8,:)=wcalc.data.pix(8,:)+wran.data.pix(8,:)-ave_err;
-
-wran=sqw_eval(w,@sqw_random_looking,[0.2,0.8,1]);
-wcalc.data.pix(9,:)=wran.data.pix(8,:);
-
-wspe=spe(wcalc);    % convert to equivalent spe data
-
-% Write to spe file
-save(wspe,spe_file_2)
+simulate_spe_testfunc (en, par_file, spe_file_2, @sqw_cylinder, [10,1], 0.3,...
+    efix, emode, alatt, angdeg, u, v, psi_2, omega, dpsi, gl, gs)
 
 
 % Create sqw files, combine and check results
@@ -106,6 +90,18 @@ w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
 % pd(w1_tot)
 %--------------------------------------------------------------------------------------------------
 
+%--------------------------------------------------------------------------------------------------
+% Cleanup
+try
+    delete(spe_file_1)
+    delete(spe_file_2)
+    delete(sqw_file_1)
+    delete(sqw_file_2)
+    delete(sqw_file_tot)
+catch
+    disp('Unable to delete temporary file(s)')
+end
+
 % =====================================================================================================================
 % Compare with saved output
 % ====================================================================================================================== 
@@ -118,11 +114,10 @@ if ~save_output
     nam=fieldnames(old);
     tol=-1.0e-13;
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1); if ~ok, error(['[',nam{i},']',mess]), end
+        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
     end
-    disp(' ')
-    disp('Matches within requested tolerances')
-    disp(' ')
+    % Success announcement
+    banner_to_screen([mfilename,': Test(s) passed'],'bot')
 end
 
 

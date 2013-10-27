@@ -1,7 +1,7 @@
 function rlu = make_rlu (rlu0, lattice0, lattice, rotvec, ang_dev, rad_dev)
 % Create input rlu for testing refine_orientation
 %
-%   >> 
+%   >> rlu = make_rlu (rlu0, lattice0, lattice, rotvec, ang_dev, rad_dev)
 %
 % Input:
 % ------
@@ -16,7 +16,8 @@ function rlu = make_rlu (rlu0, lattice0, lattice, rotvec, ang_dev, rad_dev)
 %              Each rlu vector is given diffrerent random error
 %   rad_dev     Maximum random fractional error in radial length of output rlu
 %              Each rlu vector is given diffrerent random error
-
+%
+% Author: T.G.Perring
 
 
 [b0,arlu,angrlu,mess] = bmatrix(lattice0(1:3),lattice0(4:6));

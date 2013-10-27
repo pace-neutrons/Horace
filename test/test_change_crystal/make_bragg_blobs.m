@@ -11,6 +11,8 @@ function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
 %   lattice0    [a,b,c,alf,bet,gam] lattice parameters (Ang and deg) of reference lattice
 %   lattice     [a,b,c,alf,bet,gam] lattice parameters (Ang and deg) of true lattice
 %   rotvec      Rotation vector [th1,th2,th3] (rad)
+%
+% Author: T.G.Perring
 
 qsig=p(1)/sqrt(log(256));
 esig=p(2)/sqrt(log(256));
