@@ -9,7 +9,7 @@ banner_to_screen(mfilename)
 
 % Unpack test objects to test area
 % --------------------------------
-unpack_data_files
+flnames=unpack_data_files;
 ref_dir=tempdir;
 
 % Test combining spe files
@@ -30,4 +30,23 @@ if ~equivalent_mslice_objects(s_com,s_com_tmp), assertTrue(false,'s_com,s_com_tm
 
 % Success announcement
 % --------------------
+% Delete data files
+delete_ok=true;
+for i=1:numel(flnames)
+    try
+        delete(flnames{i});
+    catch
+        if delete_ok==true
+            disp('Unable to delete one or more temporary files')
+            delete_ok=false;
+        end
+    end
+end
+% Delete files created by this function
+try
+    delete(fullfile(tempdir,'s_add_tmp.spe'));
+    delete(fullfile(tempdir,'s_com_tmp.spe'));
+catch
+    disp('Unable to delete temporary file(s)')
+end
 banner_to_screen([mfilename,': Test(s) passed'],'bot')

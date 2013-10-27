@@ -64,4 +64,9 @@ if ~isequal(c2,c2ref), assertTrue(false,'Error combining masks'), end
 %------------------------------------------------------------------------------
 % Success announcement
 % --------------------
+try
+    delete(tmpfile)
+catch
+    disp('Unable to delete temporary file')
+end
 banner_to_screen([mfilename,': Test(s) passed'],'bot')

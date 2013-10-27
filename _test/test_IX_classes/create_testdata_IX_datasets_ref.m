@@ -1,7 +1,7 @@
-function create_data_IX_datasets_ref
+function create_testdata_IX_datasets_ref
 % Create some workspaces for testing IX objects
 %
-%   >> create_data_IX_datasets_ref
+%   >> create_testdata_IX_datasets_ref
 %
 % The objects are different everytime this is run, as a random number generator is used.
 % Objects created are:

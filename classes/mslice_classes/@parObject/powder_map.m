@@ -1,5 +1,5 @@
 function [powmap,powpar]=powder_map(varargin)
-% Create map and par data by forming from an input par object
+% Create map and par objects from an input par object
 %
 %   >> [powmap,powpar]=powder_map(par,phi)
 %   >> [powmap,powpar]=powder_map(par,phi,'squeeze')

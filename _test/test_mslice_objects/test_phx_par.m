@@ -92,4 +92,14 @@ if ~equal_to_tol(det2_par,tmp,-2e-5,'ignore_str',1), assertTrue(false,'phx=>par 
 %--------------------------------------------------------------------------------------------------
 % Success announcement
 % --------------------
+try
+    delete(fullfile(tempdir,'det_1.par'))
+    delete(fullfile(tempdir,'det_2.par'))
+    delete(fullfile(tempdir,'det_3.par'))
+    delete(fullfile(tempdir,'det_1.phx'))
+    delete(fullfile(tempdir,'det_2.phx'))
+    delete(fullfile(tempdir,'det_3.phx'))
+catch
+    disp('Unable to delete temporary file(s)')
+end
 banner_to_screen([mfilename,': Test(s) passed'],'bot')

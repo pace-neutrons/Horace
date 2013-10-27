@@ -141,4 +141,9 @@ if ~isequal(wmsk,wmskref), assertTrue(false,'Error masking map object'), end
 %------------------------------------------------------------------------------
 % Success announcement
 % --------------------
+try
+    delete(tmpfile)
+catch
+    disp('Unable to delete temporary file')
+end
 banner_to_screen([mfilename,': Test(s) passed'],'bot')

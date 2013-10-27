@@ -9,7 +9,7 @@ banner_to_screen(mfilename)
 
 % Unpack test objects to test area
 % --------------------------------
-unpack_data_files
+flnames=unpack_data_files;
 ref_dir=tempdir;
 
 % Read in objects
@@ -94,4 +94,36 @@ if ~equivalent_mslice_objects(s_com_ref,s_com), assertTrue(false,'s_com_ref, s_c
 
 % Success announcement
 % --------------------
+% Delete data files
+delete_ok=true;
+for i=1:numel(flnames)
+    try
+        delete(flnames{i});
+    catch
+        if delete_ok==true
+            disp('Unable to delete one or more temporary files')
+            delete_ok=false;
+        end
+    end
+end
+% Delete files created by this function
+try
+    delete(fullfile(tempdir,'mc_1_tmp.cut'));
+    delete(fullfile(tempdir,'mc_2_tmp.cut'));
+    delete(fullfile(tempdir,'mc_3a_tmp.cut'));
+    delete(fullfile(tempdir,'mc_3b_tmp.cut'));
+    delete(fullfile(tempdir,'mc_3c_tmp.cut'));
+    delete(fullfile(tempdir,'ms_1_tmp.slc'));
+    delete(fullfile(tempdir,'ms_2_tmp.slc'));
+    delete(fullfile(tempdir,'ms_3a_tmp.slc'));
+    delete(fullfile(tempdir,'ms_3b_tmp.slc'));
+    delete(fullfile(tempdir,'ms_3c_tmp.slc'));
+    delete(fullfile(tempdir,'ms_4_tmp.slc'));
+    delete(fullfile(tempdir,'s1_tmp.spe'));
+    delete(fullfile(tempdir,'s2_tmp.spe'));
+    delete(fullfile(tempdir,'s_add_tmp.spe'));
+    delete(fullfile(tempdir,'s_com_tmp.spe'));
+catch
+    disp('Unable to delete temporary file(s)')
+end
 banner_to_screen([mfilename,': Test(s) passed'],'bot')

@@ -62,16 +62,17 @@ if full || enable
     if ~xunit_initialised
         addpath(xunit_path);
     end
-    % Set Herbert configuration to the default (but don't save)
-    % (The validation should be done starting with the defaults, otherwise an error
-    %  may be due to a poor choice by the user of configuration parameters)
-    set(herbert_config,'defaults','-buffer');
 end
 
 
 % Run unit tests if required
 % --------------------------
 if full
+    % Set Herbert configuration to the default (but don't save)
+    % (The validation should be done starting with the defaults, otherwise an error
+    %  may be due to a poor choice by the user of configuration parameters)
+    set(herbert_config,'defaults','-buffer');
+
     %==============================================================================
     % Place call to tests here
     % -----------------------------------------------------------------------------

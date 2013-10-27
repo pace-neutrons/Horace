@@ -11,15 +11,24 @@ function create_testdata_cuts_and_slices
 %
 % Author: T.G.Perring
 
+% -----------------------------------------------------------------------------
+% Add common functions folder to path, and get location of common data
+addpath(fullfile(fileparts(which('herbert_init')),'_test','common_functions'))
+common_data_dir=fullfile(fileparts(which('herbert_init')),'_test','common_data');
+% -----------------------------------------------------------------------------
+
 work_dir=tempdir;
 output_file=fullfile(work_dir,'testdata_cut_slice_files.zip');
+
+% Add folders to path
+addpath('../common_functions')
 
 % -----------------------------------------------------------------------------
 % Use mslice to create some cuts and slices
 % -----------------------------------------------------------------------------
 spe_file=[work_dir,'test_mslice_objects.spe'];
-par_file='map_4to1_jul09.par';
-phx_file='map_4to1_jul09.phx';
+par_file=fullfile(common_data_dir,'map_4to1_jul09.par');
+phx_file=fullfile(common_data_dir,'map_4to1_jul09.phx');
 
 efix=402.61;
 emode=1;
