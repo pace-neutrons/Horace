@@ -19,7 +19,7 @@ validate_herbert('-enable')     % note: does not change Herbert configuration
 
 % Get path to unit tests:
 horace_path = fileparts(which('horace_init'));
-test_path=fullfile(horace_path,'test');
+test_path=fullfile(horace_path,'_test');
 
 
 % Run unit tests
