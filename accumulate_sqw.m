@@ -2,29 +2,56 @@ function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
 % Read one or more spe files and a detector parameter file, and accumulate to an existing sqw file.
 %
 % Normal use:
-% (Give arguments for all expected input, even if the spe files do not exist)
+% -----------
+% The standard way to use accumulate_sqw is to pass the file names and parameters for
+% all the runs that are *anticipated* to be combined, but might not yet exist. Initially
+% call with the keyword 'clean' to force a fresh sqw file to be created:
+% 
+%   >> accumulate_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%                                               u, v, psi, omega, dpsi, gl, gs, 'clean')
+% 
+% As the experiment continues, subsequent calls to accumulate_sqw can be made with the
+% same argument list, apart from removing the keyword 'clean'. A check is made in the
+% function to determine which of the spe files have already been accumulated to the sqw file
+% and they will be skipped over:
+%
 %   >> accumulate_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                               u, v, psi, omega, dpsi, gl, gs)
 %
-%  Create a fresh sqw file from those spe files that currently exist:
-%   >> accumulate_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%                                               u, v, psi, omega, dpsi, gl, gs, 'clean')
+% You can always accumulate spe data that wasn't in your original list: the
+% only thing you have to be aware of is that any data outside the range that was
+% calculated for the original list of anticipated spe files and parameters will be
+% ignored. (See 'Notes' below for the details why this is.)
 %
-%  To allow an spe file to appear more than once:
-%   >> accumulate_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%                                               u, v, psi, omega, dpsi, gl, gs, 'replicate')
 %
-% Optionally (before any keywords):
-%   >> accumulate_sqw (..., instrument, sample,...)        % instrument and sample information
+% Sometimes you might want to allow an spe file to appear more than once in the list
+% of input data - for example you are contructing a 'background' data set from just
+% one spe file but for each of a set of crystal orientations. Normally accumulate_sqw
+% will return an error, but to overide this behaviour call with the 'replicate' keyword
+% in addition:
 %
-%  If the sqw file dones not yet exist, or specifty 'clean', you can give fix the grid and data range:
-%   >> accumulate_sqw (..., grid_size_in, urange_in)   % grid size and range of data to retain
+%   >> accumulate_sqw (..., 'replicate')
+%
+%
+% Optional arguments (must appear before any keywords):
+% -----------------------------------------------------
+% Include instrument and sample information:
+%
+%   >> accumulate_sqw (..., instrument, sample,...)        
+%
+% If the sqw file does not yet exist, or you  specify 'clean', you can give fix
+% the grid and data range:
+%   >> accumulate_sqw (..., grid_size_in, urange_in)
 %   >> accumulate_sqw (..., grid_size_in, urange_in, instrument, sample)
 %
+%
 % If want output diagnostics:
+% ---------------------------
 %   >> [tmp_file,grid_size,urange] = accumulate_sqw (...)
 %
 % 
+% Notes
+% -----
 % The goal of accumulate_spe is to allow you to create an sqw file which has a data
 % range large enough to contain all anticipated spe files, even if you do not
 % have all the data yet. It does this by using the crystal orientation and energy
