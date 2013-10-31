@@ -4,9 +4,11 @@ function test_multifit_horace_2(varargin)
 %
 %   >> test_multifit_horace_2            % Compares with previously saved results in test_multifit_horace_2_output.mat
 %                                        % in the same folder as this function
-%   >> test_multifit_horace_2 ('save')   % Save to  c:\temp\test_multifit_horace_2_output.mat
+%   >> test_multifit_horace_2 ('save')   % Save to test_multifit_horace_2_output.mat
 %
 % Reads previously created test data sets.
+
+banner_to_screen(mfilename)
 
 if nargin==1
     if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
@@ -82,9 +84,7 @@ if ~save_output
     for i=1:numel(nam)
         [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
     end    
-    disp(' ')
-    disp(' All OK')
-    disp(' ')
+    banner_to_screen([mfilename,': Test(s) passed'],'bot')
 end
 
 

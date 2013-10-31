@@ -136,6 +136,7 @@ end
 if isempty(urange)
     urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...
         u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
+    urange=range_add_border(urange,-1e-6);     % add a border to account for Matlab matrix multiplication bug
 end
 
 % Construct data structure with spe file information
