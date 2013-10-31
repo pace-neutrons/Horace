@@ -250,6 +250,8 @@ if ~accumulate_old_sqw && isempty(urange_in)
         % Expand range to include urange_est, if necessary
         urange_in=[min(urange_in(1,:),urange_est(1,:)); max(urange_in(2,:),urange_est(2,:))];
     end
+    % Add a border
+    urange_in=range_add_border(urange_in,-1e-6);
 elseif accumulate_old_sqw
     urange_in=urange_sqw;
 end
