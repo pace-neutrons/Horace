@@ -6,13 +6,21 @@ classdef test_rundata_get< TestCase
     properties 
         the_run; % some defined rundata class instance
         log_level;
+        test_data_path;
     end
     methods       
+        function fn=f_name(this,short_filename)
+            fn = fullfile(this.test_data_path,short_filename);
+        end
+           
         % 
         function this=test_rundata_get(name)
             this = this@TestCase(name);
             % define default rundata class instance
-            this.the_run = rundata('MAP11014.nxspe');
+            rootpath=fileparts(which('herbert_init.m'));
+            this.test_data_path = fullfile(rootpath,'_test/common_data');                      
+            
+            this.the_run = rundata(fullfile(this.test_data_path,'MAP11014.nxspe'));
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
@@ -88,7 +96,7 @@ classdef test_rundata_get< TestCase
            ds.gl   =40;                      
            ds.gs   =50;                                 
   
-           run=rundata('MAP11014.nxspe',ds);     
+           run=rundata(f_name(this,'MAP11014.nxspe'),ds);     
            
            data=get_rundata(run,'alatt','omega','psi','gl','gs','-rad');
            
@@ -107,7 +115,7 @@ classdef test_rundata_get< TestCase
            ds.gl   =40;                      
            ds.gs   =50;                                 
   
-           run=rundata('MAP11014.nxspe',ds);     
+           run=rundata(f_name(this,'MAP11014.nxspe'),ds);     
            
            [alatt,omega,psi,gl,gs]=get_rundata(run,'alatt','omega','psi','gl','gs','-rad');
            
@@ -126,7 +134,7 @@ classdef test_rundata_get< TestCase
            ds.gl   =40;                      
            ds.gs   =50;                                 
   
-           run=rundata('MAP11014.nxspe',ds);     
+           run=rundata(f_name(this,'MAP11014.nxspe'),ds);     
            
            alatt=get_rundata(run,'alatt');
            
@@ -142,7 +150,7 @@ classdef test_rundata_get< TestCase
            ds.gl   =40;                      
            ds.gs   =50;                                 
   
-           run=rundata('MAP11014.nxspe',ds);     
+           run=rundata(f_name(this,'MAP11014.nxspe'),ds);     
            
            run=get_rundata(run,'-this');
            
@@ -158,7 +166,7 @@ classdef test_rundata_get< TestCase
            ds.gl   =40;                      
            ds.gs   =50;                                 
   
-           run=rundata('MAP11014.nxspe',ds);     
+           run=rundata(f_name(this,'MAP11014.nxspe'),ds);     
            
            run=get_rundata(run);
            

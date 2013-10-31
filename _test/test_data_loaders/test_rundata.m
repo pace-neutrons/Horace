@@ -5,11 +5,18 @@ classdef test_rundata< TestCase
     
     properties 
         log_level;
+        test_data_path;
     end
     methods       
+       function fn=f_name(this,short_filename)
+            fn = fullfile(this.test_data_path,short_filename);
+        end
+         
         % 
         function this=test_rundata(name)
             this = this@TestCase(name);
+            rootpath=fileparts(which('herbert_init.m'));
+            this.test_data_path = fullfile(rootpath,'_test/common_data');                                 
         end
        function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
@@ -53,11 +60,11 @@ classdef test_rundata< TestCase
        end         
        
        function test_wrong_file_extension(this)               
-            f = @()rundata('file.unspported_extension');            
+            f = @()rundata(f_name(this,'file.unspported_extension'));            
             assertExceptionThrown(f,'CHECK_FILE_EXIST:wrong_argument');
        end
       function test_file_not_found(this)               
-            f = @()rundata('not_existing_file.spe');            
+            f = @()rundata(f_name(this,'not_existing_file.spe'));            
             assertExceptionThrown(f,'CHECK_FILE_EXIST:wrong_argument');
       end       
       
@@ -68,7 +75,7 @@ classdef test_rundata< TestCase
           ds.alatt=[1;1;1];
           ds.angldeg=[90;90;90];
  
-           run=rundata('MAP10001.spe','demo_par.PAR',ds);            
+           run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),ds);            
            fl=get(run,'loader');
            assertTrue(isa(fl,'loader_ascii'));
            % the data above fully define the  run -- check it
@@ -81,7 +88,7 @@ classdef test_rundata< TestCase
            assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));  
       end                  
       function test_hdfh5_file_loader_in_use(this)                         
-           run=rundata('MAP11020.spe_h5','demo_par.PAR','psi',2,'alatt',[1;1;1],'angldeg',[90;90;90]);            
+           run=rundata(f_name(this,'MAP11020.spe_h5'),f_name(this,'demo_par.PAR'),'psi',2,'alatt',[1;1;1],'angldeg',[90;90;90]);            
            fl=get(run,'loader');
            assertTrue(isa(fl,'loader_speh5'));
            % hdf5 file reader loads par files by the constructor
@@ -97,7 +104,7 @@ classdef test_rundata< TestCase
            
       end              
       function test_not_all_fields_defined(this)               
-           run=rundata('MAP11020.spe_h5','demo_par.PAR','efix',200.);   
+           run=rundata(f_name(this,'MAP11020.spe_h5'),f_name(this,'demo_par.PAR'),'efix',200.);   
            % run is not defined fully (properly)
            [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(run);
            assertEqual(2,is_undef);    
@@ -113,7 +120,7 @@ classdef test_rundata< TestCase
       function test_all_fields_defined_powder(this)             
           % checks different option of private function
           % what_fields_are_needed()
-           run=rundata('MAP11020.spe_h5','demo_par.PAR','efix',200.);   
+           run=rundata(f_name(this,'MAP11020.spe_h5'),f_name(this,'demo_par.PAR'),'efix',200.);   
            % run is not defined fully (properly) for crystal
            run.is_crystal=false;
            % but is sufficient for powder
@@ -134,7 +141,7 @@ classdef test_rundata< TestCase
            ds.alatt=[1;1;1];
            ds.angldeg=[90;90;90];
  
-           run=rundata('MAP10001.spe','demo_par.PAR',ds); 
+           run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),ds); 
            %run is fully defined
            run.omega=20; % let's change the omega value;
            [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(run);
@@ -153,7 +160,7 @@ classdef test_rundata< TestCase
             ds.alatt=[1;1;1];
             ds.angldeg=[90;90;90];
   
-            run=rundata('MAP11014.nxspe',ds);            
+            run=rundata(f_name(this,'MAP11014.nxspe'),ds);            
             fl=get(run,'loader');
             assertTrue(isa(fl,'loader_nxspe'));
         %run is fully defined
@@ -165,16 +172,17 @@ classdef test_rundata< TestCase
    
        end  
        function test_modify_par_file_load(this)
-          run=rundata('MAP11014.nxspe');
+          run=rundata(f_name(this,'MAP11014.nxspe'));
           assertTrue(isempty(run.det_par));
-          run=rundata(run,'par_file_name','demo_par.PAR');
+          run=rundata(run,'par_file_name',f_name(this,'demo_par.PAR'));
           
           assertEqual(28160,run.n_detectors);
           assertEqual([6,28160],size(run.det_par));          
        end
        function test_modify_par_file_empty(this)
           run=rundata();
-          run=rundata(run,'par_file_name','demo_par.PAR','data_file_name','MAP11020.spe_h5','psi',2);
+          run=rundata(run,'par_file_name',f_name(this,'demo_par.PAR'),...
+                          'data_file_name',f_name(this,'MAP11020.spe_h5'),'psi',2);
           
           assertEqual(28160,run.n_detectors);
           assertEqual([6,28160],size(run.det_par));          
@@ -183,13 +191,13 @@ classdef test_rundata< TestCase
        function test_modify_data_file_load_makes_par_wrong(this)
            % a rundata class instanciated from nxspe which makes det_par
            % defined
-          run=rundata('MAP11014.nxspe');
+          run=rundata(f_name(this,'MAP11014.nxspe'));
           assertTrue(isempty(run.det_par));
 
           run = get_rundata(run,'det_par','-this');
           % we change the initial file name to spe, which does not have
           % information about par data
-          run.data_file_name='MAP10001.spe';
+          run.data_file_name=f_name(this,'MAP10001.spe');
           run=rundata(run);
           assertTrue(isempty(run.det_par));          
        end
