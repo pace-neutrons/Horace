@@ -135,6 +135,8 @@ if isequal(size(a),size(b))
             b=b(keep);
         end
     end
+    a=a(:);
+    b=b(:);
     % Compare elements. Remove case of empty arrays - these are considered equal
     if ~isempty(a)
         if tol==0
