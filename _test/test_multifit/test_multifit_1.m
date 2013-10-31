@@ -146,9 +146,11 @@ if ok, assertTrue(false,'Should have failed, but did not'), end
 % Compare with saved output
 % ====================================================================================================================== 
 if ~save_output
-    disp('====================================')
-    disp('    Comparing with saved output')
-    disp('====================================')
+    if get(herbert_config,'log_level')>-1
+        disp('====================================')
+        disp('    Comparing with saved output')
+        disp('====================================')
+    end
     output_file=fullfile(rootpath,results_filename);
     old=load(output_file);
     nam=fieldnames(old);
@@ -156,14 +158,12 @@ if ~save_output
     % The test proper
     for i=1:numel(nam)
         [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01);
-        if ~ok 
-            assertTrue(false,['[',nam{i},']',mess])
-        else
-            disp (['[',nam{i},']',': ok'])
-        end
+        assertTrue(ok,['[',nam{i},']',mess])
     end
     % Success announcement
-    banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
+    if get(herbert_config,'log_level')>-1    
+        banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
+    end
 end
 
 
@@ -171,9 +171,11 @@ end
 % Save data
 % ====================================================================================================================== 
 if save_output
-    disp('===========================')
-    disp('    Save output')
-    disp('===========================')
+    if get(herbert_config,'log_level')>-1    
+        disp('===========================')
+        disp('    Save output')
+        disp('===========================')
+    end
     
     output_file=fullfile(tempdir,results_filename);
     save(output_file,...

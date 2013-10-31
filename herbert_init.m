@@ -69,7 +69,7 @@ function addpath_message (varargin)
 
 % T.G.Perring
 
-string=fullfile(varargin{:},'');    % '' needed to circumvent bug in fullfile if only on argument, Matlab 2008b (& maybe earlier)
+string=fullfile(varargin{:},'');    % '' needed to circumvent bug in fullfile if only one argument, Matlab 2008b (& maybe earlier)
 if exist(string,'dir')==7
     try
         addpath (string);

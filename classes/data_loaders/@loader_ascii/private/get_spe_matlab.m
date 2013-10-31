@@ -26,18 +26,20 @@ if isempty(filename),
 end
 fid=fopen(filename,'rt');
 if fid==-1,
-   error(['Error opening file ',filename]);
+   error('LOADER_ASCII:problems_with_file',[' Can not open file ',filename]);
 end
 
 % Read number of detectors and energy bins
 ndet=fscanf(fid,'%d',1);
 ne=fscanf(fid,'%d',1);
 if isempty(ne)|| isempty(ndet) 
+    fclose(fid);
     error('LOADER_ASCII:problems_with_file', ...
         ' file %s is not proper spe file as can not interpret ndet and ne parameters in first row',...
-        filename);
+          filename);
 end
 if (ndet<0) || (ndet > 1e+32) || (ne<0) || (ne> 100000)
+    fclose(fid);    
     error('LOADER_ASCII:problems_with_file','found ndet=%d and ne=%d when interpreting file %s',ndet,ne,filename);
 end
 temp=fgetl(fid);    % read eol
