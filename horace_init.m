@@ -9,17 +9,21 @@ function horace_init
 % T.G.Perring
 % $Revision$ ($Date$)
 
-% Check if supporting package is available
+% -----------------------------------------------------------------------------
+% Check if supporting Herbert package is available
 if isempty(which('herbert_init'))
     error('Ensure Herbert is installed and initialised to run Horace. (Libisis is no longer supported)')
 end
-
+% -----------------------------------------------------------------------------
 % Root directory is assumed to be that in which this function resides
 rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 
 % Add admin functions to the path first
 addpath(fullfile(rootpath,'admin'));
+
+% Add support package
+addpath_message (1,rootpath,'herbert');
 
 % DLL and configuration setup
 addpath_message (2,rootpath,'DLL');
