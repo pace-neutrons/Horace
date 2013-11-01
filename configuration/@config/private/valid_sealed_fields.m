@@ -23,7 +23,7 @@ function [ok,mess,sealed_fields_out]=valid_sealed_fields(sealed_fields,namlist)
 %                      (excluding the name 'sealed_fields', which is always sealed)
 %                       Set to {} if not ok.
 
-% $Revision: 120 $ ($Date: 2011-12-20 18:18:12 +0000 (Tue, 20 Dec 2011) $)
+% $Revision$ ($Date$)
 
 ok=true;
 mess='';

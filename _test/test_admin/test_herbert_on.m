@@ -1,6 +1,6 @@
 classdef test_herbert_on< TestCase
 % 
-% $Revision: 107 $ ($Date: 2011-11-24 10:51:03 +0000 (Thu, 24 Nov 2011) $)
+% $Revision$ ($Date$)
 %
     
     properties 

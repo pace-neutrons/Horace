@@ -10,7 +10,7 @@ function [data,this]=exportData(this)
 
 % Original author: T.G.Perring
 %
-% $Revision: 558 $ ($Date: 2011-07-19 11:06:05 +0100 (Tue, 19 Jul 2011) $)
+% $Revision$ ($Date$)
 %
 deflate_data=false;
 if(~this.data_loaded)

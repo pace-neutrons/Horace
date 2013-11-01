@@ -40,7 +40,7 @@ function [S,save,ok,mess] = parse_set (this,varargin)
 %
 % This method is designed for use in custom set methods. See the example in test2_config
 
-% $Revision: 120 $ ($Date: 2011-12-20 18:18:12 +0000 (Tue, 20 Dec 2011) $)
+% $Revision$ ($Date$)
 
 
 [S,save,ok,mess] = parse_set_internal (this, false, varargin{:});

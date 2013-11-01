@@ -11,7 +11,7 @@ function ok=valid_fieldnames(c)
 % -------
 %   ok  true if cell array elements all satisfy the rules for valid fieldname; false otherwise
 
-% $Revision: 120 $ ($Date: 2011-12-20 18:18:12 +0000 (Tue, 20 Dec 2011) $)
+% $Revision$ ($Date$)
 
 ok=true;
 for i=1:numel(c)

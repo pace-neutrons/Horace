@@ -29,7 +29,7 @@ function make_herbert_distribution_kit(varargin)
 % -- compress everything as it is which makes code suitable for further 
 % development. 
 %
-% $Revision: 1851 $ ($Date: 2012-02-02 14:56:47 +0000 (Thu, 02 Feb 2012) $)
+% $Revision$ ($Date$)
 %
 %
 keys = {'-compact','-run_by_horace'};

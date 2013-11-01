@@ -2,7 +2,7 @@ function fname=make_filename(in_dir,str)
 % function makes full filename from file path and filename and verifies, if
 % such file exists
 %
-%   $Rev: 184 $ ($Date: 2012-03-06 17:02:53 +0000 (Tue, 06 Mar 2012) $)
+%   $Rev$ ($Date$)
 %
 
 if exist(str,'file')

@@ -69,7 +69,7 @@ function [y,ndx] = sortrows(x,col)
 %==========================================================================
 
 %   Copyright 1984-2011 The MathWorks, Inc. 
-%   $Revision: 1.19.4.13.8.1 $  $Date: 2011/12/27 15:46:23 $
+%   $Revision$  $Date$
 
 % I/O details
 % -----------

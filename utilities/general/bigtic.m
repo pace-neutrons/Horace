@@ -11,7 +11,7 @@ function n_out=bigtic(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 383 $ ($Date: 2010-03-19 11:48:54 +0000 (Fri, 19 Mar 2010) $)
+% $Revision$ ($Date$)
 
 if nargin==0
     if nargout==0
