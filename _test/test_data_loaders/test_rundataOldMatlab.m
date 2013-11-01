@@ -1,9 +1,14 @@
 function  test_rundataOldMatlab()
 %The test written in a way, it can run by old matlab and the new one (using
 %xUnittests to verify brifely old matlab consistency. 
-run=rundata();
+%run=rundata();
 rootpath=fileparts(which('herbert_init.m'));
 path = fullfile(rootpath,'_test/common_data');
+
+
+log_level = get(herbert_config,'log_level');
+set(herbert_config,'log_level',-1,'-buffer'); 
+cleanupObj = onCleanup(@() set(herbert_config,'log_level',log_level,'-buffer'));
 try
      run=rundata(fullfile(path,'MAP10001.spe'),fullfile(path,'demo_par.PAR'));            
      run.is_crystal=false;
@@ -30,5 +35,7 @@ try
 catch
      error('RUNDATAOLD:nxspe_loader',lasterr());
 end
+
+
 
 

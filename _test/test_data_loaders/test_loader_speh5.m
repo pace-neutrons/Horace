@@ -1,6 +1,7 @@
 classdef test_loader_speh5< TestCase
     properties 
         test_data_path;              
+        log_level;
     end
     methods       
         % 
@@ -10,6 +11,14 @@ classdef test_loader_speh5< TestCase
             rootpath=fileparts(which('herbert_init.m'));
             this.test_data_path = fullfile(rootpath,'_test/common_data');                      
         end
+        function this=setUp(this)
+            this.log_level = get(herbert_config,'log_level');
+            set(herbert_config,'log_level',-1,'-buffer');
+        end
+        function this=tearDown(this)
+            set(herbert_config,'log_level',this.log_level,'-buffer');            
+        end
+        
         
         function fn=f_name(this,short_filename)
             fn = fullfile(this.test_data_path,short_filename);

@@ -54,8 +54,9 @@ if ~isempty(this.en)
     if (~isempty(this.S))
         if numel(this.en) ~= size(this.S,1)+1
            ok=false;
-           mess = ['en field has ',num2str(numel(this.en)),' elements and signal has ',num2str(size(this.S,1)),...
-                   '. This is inconcistent as energy fields desctibes enery bin boundaries for array of signals in this direction'];
+           mess = [' en field has ',num2str(numel(this.en)),' elements and signal has ',num2str(size(this.S,1)),'x',num2str(size(this.S,2))...
+                   ' elements.\n This is inconcistent as en field describes enery bins for array of signals and its value should be equal to  ',...
+                     num2str(size(this.S,1)), ' plus one'];
            return;
         end
     end

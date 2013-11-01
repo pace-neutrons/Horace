@@ -146,9 +146,11 @@ if ~ok, assertTrue(false,mess), end
 % Compare with saved output
 % ====================================================================================================================== 
 if ~save_output
-    disp('====================================')
-    disp('    Comparing with saved output')
-    disp('====================================')
+    if get(herbert_config,'log_level')>-1
+        disp('====================================')
+        disp('    Comparing with saved output')
+        disp('====================================')
+    end    
     output_file=fullfile(rootpath,results_filename);
     old=load(output_file);
     nam=fieldnames(old);
@@ -159,11 +161,15 @@ if ~save_output
         if ~ok 
             assertTrue(false,['[',nam{i},']',mess])
         else
-            disp (['[',nam{i},']',': ok'])
+            if get(herbert_config,'log_level')>-1            
+                disp (['[',nam{i},']',': ok'])
+            end
         end
     end
     % Success announcement
-    banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
+    if get(herbert_config,'log_level')>-1    
+        banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
+    end        
 end
 
 

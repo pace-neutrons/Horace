@@ -25,23 +25,10 @@ function [det,this]=load_par(this,varargin)
 %
 
 
-return_horace_format=false;
-file_name           = this.par_file_name;
-if nargin>1
-    [new_file_name,file_format]=parse_par_arg(file_name,varargin{:});
-    if isempty(new_file_name)
-        error('LOAD_ASCII:load_par',' undefined input file name');
-    end
-    if ~isempty(file_format)
-         return_horace_format = true;	       
-    end
-    if ~strcmp(new_file_name,file_name)
-            this.par_file_name           = check_file_exist(new_file_name,{'.par'});
-    end
+[this,return_horace_format,new_file_name]=check_par_file(this,'.par',varargin{:});
 
-end
-if isempty(this.par_file_name)
-    error('LOAD_ASCII:load_par',' undefined input par file name');
+if isempty(new_file_name) && isempty(this.par_file_name);
+    error('LOAD_ASCII:load_par',' undefined input file name; Load_ascii load_par needs par file name to be defined');
 end
 
 par             = load_ASCII_par(this.par_file_name);
@@ -49,7 +36,7 @@ par             = load_ASCII_par(this.par_file_name);
 size_par = size(par);
 ndet=size_par(2);
 if get(herbert_config,'log_level')>0
-    disp(['loaded ' num2str(ndet) ' detector(s)']);
+    disp(['LOADER_ASCII:load_par::loaded ' num2str(ndet) ' detector(s)']);
 end
 
 this.n_detectors = ndet;

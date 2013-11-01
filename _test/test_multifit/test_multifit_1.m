@@ -44,7 +44,7 @@ pin=[100,50,7,0,0];     % Note that it is assumed that these are good starting p
 % Create reference output
 [y1_fref, wstruct1_fref, w1_fref, p1_fref] = mftest_mf_and_f_single_dataset (x1,y1,e1,wstruct1,w1, @mftest_gauss_bkgd, pin);
 
-% Slow oonvergence, print output
+% Slow convergence, print output
 [y1_fslow, wstruct1_fslow, w1_fslow, p1_fslow] = mftest_mf_and_f_single_dataset (x1,y1,e1,wstruct1,w1, @mftest_gauss_bkgd, pin, [1,0,1,0,0], 'list',2);   
 
 % Equivalence of split foreground and background functions with single function

@@ -1,4 +1,4 @@
-classdef loader_ascii
+classdef loader_ascii < a_loader
 % helper class to provide loading experiment data from
 % ASCII spe file and  ASCII par file 
 %
@@ -8,21 +8,8 @@ classdef loader_ascii
 %
 
     properties
-        S  =[];
-        ERR=[];
-        en =[];
-	    % number of detectors, defined by the par file
-	    n_detectors=[];       
-        % array of detector parameters
-        det_par   =[];
-        % the variable which discribes spe file to load ASCII SPE data  from
-        file_name='';
-        % the variable which discribes par file to load ASCII PAR data  from        
-        par_file_name='';
         %%--    the fields below are responsible for work of the class as
         %%-    part of the run_data class
-        % The run_data structure fields which become defined if proper spe file is provided
-        spe_defines={'S','ERR','en'};
         % The run_data structure fields which become deifned if proper par
         % file is provided;
         par_defines={'det_par'};
@@ -48,8 +35,11 @@ classdef loader_ascii
 		%  If the constructor is called with a file name, the file has to exist. Check_file exist function verifies if
 		% the file is present regardless of the case of file name and file extension, which forces unix file system 
 		% behave like Windows file system. 
+        % The run_data structure fields which become defined if proper spe file is provided
+        spe_defines={'S','ERR','en'};
         
-        
+       
+        ascii_loader=ascii_loader@a_loader(spe_defines);        
         if nargin==0; return ; end;
 
         if ~isa(full_spe_file_name,'char')

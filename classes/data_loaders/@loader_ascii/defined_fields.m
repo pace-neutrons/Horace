@@ -12,10 +12,8 @@ function fields = defined_fields(loader_ascii)
 % $Revision$ ($Date$)
 %
 
-fields='';
-if ~isempty(loader_ascii.file_name)
-    fields = loader_ascii.spe_defines;
-end
+fields=defined_fields@a_loader(loader_ascii);
+
 if ~isempty(loader_ascii.par_file_name)
     if ~isempty(fields)
         fields = [fields,loader_ascii.par_defines];

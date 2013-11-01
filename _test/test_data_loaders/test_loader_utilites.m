@@ -25,23 +25,36 @@ classdef test_loader_utilites< TestCase
             assertEqual(version,'1.1');            
         end               
         function test_parse_par_arg_wrong(this)
-            f=@()parse_par_arg('file_name',1);
-            assertExceptionThrown(f,'PARSE_PAR_ARG:invalid_argument');            
+            absl = a_loader();
+            f=@()check_par_file(absl,'.spe','file_name',1);
+            assertExceptionThrown(f,'CHECK_FILE_EXIST:wrong_argument');            
         end
          function test_parse_par_2arg(this)
-            [f_name,key]=parse_par_arg('file_name','-hor');
-            assertEqual(f_name,'file_name');
-            assertEqual(key,'-hor');            
+            absl = a_loader();
+            [absl,key,file_name]=check_par_file(absl,'.par',f_name(this,'demo_par.PAR'),'-hor');
+            assertEqual(file_name,f_name(this,'demo_par.PAR'));
+            assertEqual(key,true);            
+            if ispc
+                assertEqual(absl.par_file_name,f_name(this,'demo_par.par'));                        
+            else
+                assertEqual(absl.par_file_name,f_name(this,'demo_par.PAR'));                                        
+            end
          end        
          function test_parse_par_3arg(this)
-            [f_name,key]=parse_par_arg('file_name','other_file_name','-hor');
-            assertEqual(f_name,'other_file_name');
-            assertEqual(key,'-hor');            
+            absl = a_loader();
+            absl.par_file_name = f_name(this,'demo_par.PAR');
+            [absl,key,file_name]=check_par_file(absl,'.par',f_name(this,'map_4to1_jul09.par'),'-hor');             
+            assertEqual(file_name,f_name(this,'map_4to1_jul09.par'));
+            assertEqual(absl.par_file_name,f_name(this,'map_4to1_jul09.par'));                                    
+            assertEqual(key,true);
         end        
          function test_parse_par_Warnarg(this)
-            [f_name,key]=parse_par_arg('file_name','other_file_name',20);
-            assertEqual(f_name,'other_file_name');
-            assertEqual(key,'-hor');            
+            absl = a_loader();
+            absl.par_file_name = f_name(this,'demo_par.PAR');            
+            [absl,key,file_name]=check_par_file(absl,'.par',f_name(this,'map_4to1_jul09.par'),20);                          
+            assertEqual(file_name,f_name(this,'map_4to1_jul09.par'));
+            assertEqual(absl.par_file_name,f_name(this,'map_4to1_jul09.par'));                                    
+            assertEqual(key,true);
          end   
 % FIND_DATASET_INFO
          function test_correct_rootDS(this)       

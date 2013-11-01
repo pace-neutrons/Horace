@@ -155,8 +155,25 @@ if is_undef==2 % run can not be defined by the arguments
 end
 
 if is_undef==1 % some data have to be either loaded or obtained from defaults
-    if any(ismember({'S','ERR','en'},fields_to_load))
+    data_fields  = {'S';'ERR';'en'};
+    data_members = ismember(data_fields ,fields_to_load)';
+    if any(data_members)
         data = load_data(this.loader);
+        % guard against the situation when data may be inconsistent with header,
+        % As all data are loaded any way, we will use newly loaded data to
+        % set up all internal fields from loaded data:
+        %
+        fields_to_load=[fields_to_load;data_fields(~data_members)];
+        
+        if ~isempty(data.det_par)
+            if size(data.S,2) ~= numel(data.det_par) 
+                % the detectors are inconsistent with data
+                % let's try to reload them
+                if ~ismember('det_par',fields_to_load)
+                    fields_to_load=[fields_to_load,'det_par'];
+                end
+            end
+        end
     end
     if ismember('det_par',fields_to_load)
         data.det_par = load_par(this.loader);

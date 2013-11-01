@@ -34,7 +34,9 @@ classdef test_rundata_isvalid<TestCase
           rd.S = ones(3,5);
           [ok,mess]=isvalid(rd);
           assertFalse(ok);
-          assertEqual(mess,'en field has 5 elements and signal has 3. This is inconcistent as energy fields desctibes enery bin boundaries for array of signals in this direction');
+          assertEqual(mess,[' en field has 5 elements and signal has 3x5 elements.\n',...
+              ' This is inconcistent as en field describes enery bins for array of signals and its value should be equal to ',...
+              ' 3 plus one']);
           
           rd.S = ones(4,5);
           assertTrue(isvalid(rd));

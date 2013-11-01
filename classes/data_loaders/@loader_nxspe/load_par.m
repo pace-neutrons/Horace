@@ -34,16 +34,12 @@ function [det,this]=load_par(this,varargin)
 % $Revision$ ($Date$)
 %
 
-return_horace_format= false;
-file_name           = this.file_name;
+old_file_name = this.file_name;
+
+[this,return_horace_format,new_file_name]=check_par_file(this,'.nxspe',varargin{:});
 %
-% verify if the parameters request other file name and horace data format;
-if nargin>1
-    [new_file_name,file_format] = parse_par_arg(file_name,varargin{:});
-    if ~isempty(file_format)
-         return_horace_format = true;	       
-    end
-    if ~strcmp(new_file_name,file_name)
+% new if the parameters request other file name and horace data format;
+if ~isempty(new_file_name) && ~strcmp(new_file_name,old_file_name)
           this =  check_file_correct(this,new_file_name);    
           % new nxspe file provied, so we have to clear all data if they
           % were availible
@@ -53,13 +49,9 @@ if nargin>1
               this.en  =[];
               this.Ei  =[];
               this.psi =[];              
-          end
-    end
+          end    
+end
 
-end
-if isempty(this.file_name)
-   error('LOAD_NXSPE:load_par',' undefined input file name');
-end
 % load operation itself
 par      = load_nxspe_par(this);
 
@@ -68,9 +60,10 @@ size_par = size(par);
 ndet     = size_par(2);
 
 if get(herbert_config,'log_level')>0
-    disp(['loaded ' num2str(ndet) ' detector(s)']);
+    disp(['LOADER_NXSPE:load_par::loaded ' num2str(ndet) ' detector(s)']);
 end
 this.n_detectors = ndet;
+this.det_par = par;
 
 
 if return_horace_format
@@ -78,6 +71,6 @@ if return_horace_format
 else
   det = par;
 end
-this.det_par = par;
+
 
 

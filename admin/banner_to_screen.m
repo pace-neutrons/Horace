@@ -51,7 +51,7 @@ banner_line='===================================================================
 spacer_line='===                                                                          ===';
 
 % Print new line
-fprintf(1,'\n') 
+fprintf(1,'\n') ;
 
 % Top of banner
 for i=1:nlines(1);
