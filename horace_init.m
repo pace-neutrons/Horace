@@ -39,22 +39,14 @@ addpath_message(1,rootpath,'GUI');
 
 
 % Set up graphical defaults for plotting
-if  is_herbert_used()
-    % For Herbert:
-    horace_plot.name_oned = 'Horace 1D plot';
-    horace_plot.name_multiplot = 'Horace multiplot';
-    horace_plot.name_stem = 'Horace stem plot';
-    horace_plot.name_area = 'Horace area plot';
-    horace_plot.name_surface = 'Horace surface plot';
-    horace_plot.name_contour = 'Horace contour plot';
-    horace_plot.name_sliceomatic = 'Sliceomatic';
-    set_global_var('horace_plot',horace_plot);
-else
-    % For libisis:
-    IXG_ST_HORACE= struct('surface_name','Horace surface plot','area_name','Horace area plot','stem_name','Horace stem plot','oned_name','Horace one dimensional plot',...
-        'multiplot_name','Horace multiplot','points_name','Horace 2d marker plot','contour_name','Horace contour plot','tag','Horace');
-    ixf_global_var('Horace','set','IXG_ST_HORACE',IXG_ST_HORACE);
-end
+horace_plot.name_oned = 'Horace 1D plot';
+horace_plot.name_multiplot = 'Horace multiplot';
+horace_plot.name_stem = 'Horace stem plot';
+horace_plot.name_area = 'Horace area plot';
+horace_plot.name_surface = 'Horace surface plot';
+horace_plot.name_contour = 'Horace contour plot';
+horace_plot.name_sliceomatic = 'Sliceomatic';
+set_global_var('horace_plot',horace_plot);
 
 [application,Matlab_code,mexMinVer,mexMaxVer,date] = horace_version();
 mc = [Matlab_code(1:48),'$)'];

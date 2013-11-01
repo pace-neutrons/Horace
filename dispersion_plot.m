@@ -174,40 +174,23 @@ end
 
 % Create output objects
 % ----------------------
-try
-    % Herbert case
-    x_axis=IX_axis('Momentum');
-    try % try to put ticks in the IX_axis object
-        ticks.positions=xrlp;
-        ticks.labels=labels;
-        x_axis.ticks=ticks;
-    catch
-    end
-    s_axis_disp=IX_axis('Energy');
-    s_axis_intensity=IX_axis('Intensity');
-    wdisp=repmat(IX_dataset_1d,1,numel(e));
-    for i=1:numel(e)
-        wdisp(i)=IX_dataset_1d('Dispersion relation',e{i},zeros(size(e{i})),s_axis_disp,x,x_axis,false);
-    end
-    if calc_weight
-        weight=repmat(IX_dataset_1d,1,numel(e));
-        for i=1:numel(e)
-            weight(i)=IX_dataset_1d('Spectral weight',sf{i},zeros(size(sf{i})),s_axis_intensity,x,x_axis,false);
-        end
-    end
+x_axis=IX_axis('Momentum');
+try % try to put ticks in the IX_axis object
+    ticks.positions=xrlp;
+    ticks.labels=labels;
+    x_axis.ticks=ticks;
 catch
-    % Libisis case
-    wdisp=IXTdataset_1d('Dispersion relation',e{1},zeros(size(e{1})),IXTaxis('Energy'),x,IXTaxis('momentum'),false);
-    if numel(e)>1, wdisp(1,numel(e))=wdisp; end
-    for i=2:numel(e)
-        wdisp(i)=IXTdataset_1d('Dispersion relation',e{i},zeros(size(e{i})),IXTaxis('Energy'),x,IXTaxis('momentum'),false);
-    end
-    if calc_weight
-        weight=IXTdataset_1d('Spectral weight',sf{1},zeros(size(sf{1})),IXTaxis('Intensity'),x,IXTaxis('momentum'),false);
-        if numel(e)>1, weight(1,numel(e))=weight; end
-        for i=2:numel(e)
-            weight(i)=IXTdataset_1d('Spectral weight',sf{i},zeros(size(sf{i})),IXTaxis('Intensity'),x,IXTaxis('momentum'),false);
-        end
+end
+s_axis_disp=IX_axis('Energy');
+s_axis_intensity=IX_axis('Intensity');
+wdisp=repmat(IX_dataset_1d,1,numel(e));
+for i=1:numel(e)
+    wdisp(i)=IX_dataset_1d('Dispersion relation',e{i},zeros(size(e{i})),s_axis_disp,x,x_axis,false);
+end
+if calc_weight
+    weight=repmat(IX_dataset_1d,1,numel(e));
+    for i=1:numel(e)
+        weight(i)=IX_dataset_1d('Spectral weight',sf{i},zeros(size(sf{i})),s_axis_intensity,x,x_axis,false);
     end
 end
 

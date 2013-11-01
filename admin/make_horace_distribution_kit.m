@@ -123,7 +123,7 @@ if(~reveal_code)
 end
 
 % if herbert used, add herbert distribution kit to the distribution
-if is_herbert_used()&&(~no_herbert)
+if ~no_herbert
     argi{1}='-run_by_horace';
     if no_demo
         argi{2} = '-compact';

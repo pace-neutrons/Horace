@@ -197,18 +197,9 @@ nindx=numel(indx);
 % -------------------------------------------------------------------------------
 % At this point, there will be at least one spe data input that needs to be turned into an sqw file
 
-% Branch depending if use Herbert rundata class, or original libisis processing
-
 % Create fully fledged single crystal rundata objects
-if is_herbert_used()
-    run_files = gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),alatt(ix,:),angdeg(ix,:),...
-        u(ix,:),v(ix,:),psi(ix),omega(ix),dpsi(ix),gl(ix),gs(ix));
-else
-    run_files=cell(1,nindx);
-    for i=1:nindx
-        run_files{i}=speData(spe_file{i});
-    end
-end
+run_files = gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),alatt(ix,:),angdeg(ix,:),...
+    u(ix,:),v(ix,:),psi(ix),omega(ix),dpsi(ix),gl(ix),gs(ix));
 
 % If grid not given, make default size
 if ~accumulate_old_sqw && isempty(grid_size_in)
@@ -223,19 +214,10 @@ end
 
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw && isempty(urange_in)
-    if is_herbert_used()
-        urange_in = rundata_find_urange(run_files);
-    else
-        urange_in = speData_find_urange(run_files,par_file,efix(ix),emode(ix),alatt(ix,:),angdeg(ix,:),...
-            u(ix,:),v(ix,:),psi(ix)*d2r,omega(ix)*d2r,dpsi(ix)*d2r,gl(ix)*d2r,gs(ix)*d2r);
-    end
+    urange_in = rundata_find_urange(run_files);
     if any(~ix)
         % Get detector parameters
-        if is_herbert_used()
-            det = get_rundata(run_files{1},'det_par','-hor');
-        else
-            error('Goddammit-sort out par file reading in Libisis!!!')
-        end
+        det = get_rundata(run_files{1},'det_par','-hor');
         % Get estimate of energy bounds for those spe data that do not actually exist
         eps_lo=NaN(nfiles,1); eps_hi=NaN(nfiles,1);
         for i=1:nindx
@@ -261,15 +243,8 @@ if ~accumulate_old_sqw && nindx==1
     % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
     disp('--------------------------------------------------------------------------------')
     disp('Creating output sqw file:')
-    if is_herbert_used
-        [grid_size,urange] = rundata_write_to_sqw (run_files{1},sqw_file,...
-            grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)));
-    else
-        [grid_size,urange] = speData_write_to_sqw (run_files{1},par_file,sqw_file,efix(indx(1)),emode(indx(1)),...
-            alatt(indx(1),:),angdeg(indx(1),:),u(indx(1),:),v(indx(1),:),psi(indx(1))*d2r,omega(indx(1))*d2r,...
-            dpsi(indx(1))*d2r,gl(indx(1))*d2r,gs(indx(1))*d2r,...
-            grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)));
-    end
+    [grid_size,urange] = rundata_write_to_sqw (run_files{1},sqw_file,...
+        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)));
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
 else
@@ -280,15 +255,8 @@ else
         disp('--------------------------------------------------------------------------------')
         disp(['Processing spe file ',num2str(i),' of ',num2str(nindx),':'])
         disp(' ')
-        if is_herbert_used
-            [grid_size_tmp,urange_tmp] = rundata_write_to_sqw (run_files{i},tmp_file{i},...
-                grid_size_in,urange_in,instrument(indx(i)),sample(indx(i)));
-        else
-            [grid_size_tmp,urange_tmp] = speData_write_to_sqw (run_files{i},par_file,tmp_file{i},...
-                efix(indx(i)),emode(indx(i)),alatt(indx(i),:),angdeg(indx(i),:),u(indx(i),:),v(indx(i),:),...
-                psi(indx(i))*d2r,omega(indx(i))*d2r,dpsi(indx(i))*d2r,gl(indx(i))*d2r,gs(indx(i))*d2r,...
-                grid_size_in,urange_in,instrument(indx(i)),sample(indx(i)));
-        end
+        [grid_size_tmp,urange_tmp] = rundata_write_to_sqw (run_files{i},tmp_file{i},...
+            grid_size_in,urange_in,instrument(indx(i)),sample(indx(i)));
         if i==1
             grid_size = grid_size_tmp;
             urange = urange_tmp;
@@ -329,7 +297,7 @@ else
             end
         end
     end
-
+    
 end
 
 

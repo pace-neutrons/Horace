@@ -28,9 +28,7 @@ try % mex C++
          
 
     mex_single([cpp_in_rel_dir 'get_ascii_file/get_ascii_file'], out_rel_dir,'get_ascii_file.cpp','IIget_acii_file.cpp');
-    if is_herbert_used()
-        copy_get_ascii_to_herbert();
-    end
+    copy_get_ascii_to_herbert();
     mex_single([cpp_in_rel_dir 'accumulate_cut_c/accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c/bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');

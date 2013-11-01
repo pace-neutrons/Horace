@@ -33,14 +33,8 @@ classdef test_get_par< TestCase
             assertEqual([6,69632],size(par));
         end
         function test_get_par_nxspe(this)
-		   if is_herbert_used()
-				par = get_par('MAR11001_test.nxspe');
-				assertEqual([6,285],size(par));            
-		   else
-		       % currently does not read nxspe
-               ok=true;			   
-			   assertTrue(ok);
-		   end
+        	par = get_par('MAR11001_test.nxspe');
+			assertEqual([6,285],size(par));            
         end
   
 
