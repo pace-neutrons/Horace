@@ -9,16 +9,17 @@ function horace_init
 % T.G.Perring
 % $Revision$ ($Date$)
 
+% Check if supporting package is available
+if isempty(which('herbert_init'))
+    error('Ensure Herbert is installed and initialised to run Horace. (Libisis is no longer supported)')
+end
+
 % Root directory is assumed to be that in which this function resides
 rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 
 % Add admin functions to the path first
 addpath(fullfile(rootpath,'admin'));
-
-% Select supporting package on basis of what is currently initiated/requested
-% and check if supporting package is available
-select_supporting_package(rootpath);
 
 % DLL and configuration setup
 addpath_message (2,rootpath,'DLL');
@@ -73,70 +74,6 @@ else
 end
 disp('!------------------------------------------------------------------!')
 
-function select_supporting_package(rootpath)
-% function chooses between herbert and Libisis as function 
-% of what was initiated or initiated last (first on the search path)
-
-herb_path=which('herbert_init');
-libs_path=which('libisis_init');
-
-herb_defined=true;
-if isempty(herb_path)
-    herb_defined=false;
-end
-libs_defined=true;
-if isempty(libs_path)
-    libs_defined=false;    
-end
-
-% if found both identify who is higher on the search path to use it.
-if herb_defined&&libs_defined 
-    herb_pattern = fileparts(herb_path);
-    libs_pattern = fileparts(libs_path);
-    iherb = strfind(path,herb_pattern);
-    ilibs = strfind(path,libs_pattern);
-    
-    if isempty(iherb)&&isempty(ilibs)
-        error('horace_init:Logic_error','Herbert and Libisis are identified as initiated but can not be found on search path'); 
-    end
-    % we may be in herbert or libisis folder but the package is not on the path
-    if isempty(iherb)||isempty(ilibs)
-        % herbert is not present, but let's pretent that it is present 
-        % and is behind libisis
-        if isempty(iherb)&&(~isempty(ilibs))
-            iherb=ilibs(1)+10; 
-        end
-        % libisis is not present, but let's pretent that it is present 
-        % and is behind herbert for next statement to work       
-        if isempty(ilibs)&&(~isempty(iherb))
-            ilibs=iherb(1)+10; 
-        end
-        
-    end
-    if iherb(1)<ilibs(1)
-        herb_defined=true;
-        libs_defined=false;
-        warning('horace_init:package_selection','Herbert and Libisis found on the search path; will use Herbert');
-        disp(' use use_herbert ''off'' to switch to use Libisis');
-    else
-        herb_defined=false;
-        libs_defined=true;       
-        warning('horace_init:package_selection','Herbert and Libisis found on the search path; Will use Libisis');
-        disp(' use use_herbert ''on'' to switch to use Herbert');
-        
-    end
-end
-
-% select herbert/libisis supporting packages as function of what is
-% availible/first on the path.
-if herb_defined
-    addpath_message (1,rootpath,'herbert');
-elseif libs_defined
-    addpath_message (1,rootpath,'libisis');    
-else
-    horace_off();
-    error('horace_init:package_selection','either Libisis or Herbert have to be initated before intiating Horace');    
-end
 
 %--------------------------------------------------------------------------
 function addpath_message (type,varargin)
