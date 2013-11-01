@@ -23,7 +23,7 @@ function varargout=disp2sqw_plot(varargin)
 %               where
 %                   qh,qk,ql    Arrays containing the coordinates of a set of points
 %                              in reciprocal lattice units
-%                   p           Vector of parameters needed by dispersion function 
+%                   p           Vector of parameters needed by dispersion function
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   w           Array of corresponding energies, or, if more than
 %                              one dispersion relation, a cell array of arrays.
@@ -31,11 +31,11 @@ function varargout=disp2sqw_plot(varargin)
 %              More general form is:
 %                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
 %                 where
-%                   p           Typically a vector of parameters that we might want 
+%                   p           Typically a vector of parameters that we might want
 %                              to fit in a least-squares algorithm
 %                   c1,c2,...   Other constant parameters e.g. file name for look-up
 %                              table.
-%   
+%
 %   pars        Arguments needed by the function. Most commonly, a vector of parameter
 %              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
 %              set of parameters is required by the function, then
@@ -144,22 +144,15 @@ weight = disp2sqw({qh,qk,ql},en,dispreln,pars,fwhh);
 
 % Create output objects
 % ----------------------
-try
-    % Herbert case
-    x_axis=IX_axis('Momentum');
-    try % try to put ticks in the IX_axis object
-        ticks.positions=xrlp;
-        ticks.labels=labels;
-        x_axis.ticks=ticks;
-    catch
-    end
-    tmp=IX_dataset_2d ('Spectral weight', weight, zeros(size(weight)),...
-        IX_axis('Spectral weight'), x', x_axis, false, en, IX_axis('Energy'), false);
+x_axis=IX_axis('Momentum');
+try % try to put ticks in the IX_axis object
+    ticks.positions=xrlp;
+    ticks.labels=labels;
+    x_axis.ticks=ticks;
 catch
-    % Libisis case
-    tmp=IXTdataset_2d ('Spectral weight', weight, zeros(size(weight)),...
-        IXTaxis('Spectral weight'), x', IXTaxis('momentum'), false, en, IXTaxis('Energy'), false);
 end
+tmp=IX_dataset_2d ('Spectral weight', weight, zeros(size(weight)),...
+    IX_axis('Spectral weight'), x', x_axis, false, en, IX_axis('Energy'), false);
 
 if opt.plot
     da(tmp)
@@ -175,7 +168,7 @@ end
 function [qh,qk,ql,xrlp,x,ind]=make_qarray(lattice,rlp,ndiv)
 % Create arrays of qh,qk,ql
 %   >> [qh,qk,ql,ind]=make_qarray(rlp,ndiv)
-%   
+%
 %   rlp         Array of r.l.p e.g. [0,0,0; 0,0,1; 0,-1,1; 1,-1,1; 1,0,1; 1,0,0];
 %   ndiv        Number of intervals into which to divide each interval e.g. 100
 %
