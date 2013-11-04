@@ -11,38 +11,19 @@ function [rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex(varargin
 %
 % $Revision$    $Date$
 %
-rez = cell(5,1);
+
 n_errors=0;
 compilation_date  =[];
-try
-    rez{1}=['accumulate_cut_c: ',accumulate_cut_c()];    
-catch
-    rez{1}=[' Error in accumulate_cut_c:  ',lasterr];
-    n_errors=n_errors+1;    
-end
-try
-    rez{2}=['bin_pixels_c    : ',bin_pixels_c()];    
-catch
-    rez{2}=[' Error in bin_pixels_c:      ',lasterr];    
-    n_errors=n_errors+1;    
-end
-try
-    rez{3}=['calc_projections: ',calc_projections_c()];    
-catch
-    rez{3}=[' Error in calc_projections_c:  ',lasterr];    
-    n_errors=n_errors+1;    
-end
-try
-    rez{4}=['get_ascii_file  : ',get_ascii_file()];    
-catch
-    rez{4}=[' Error in get_ascii_file:      ',lasterr];        
-    n_errors=n_errors+1;    
-end
-try
-    rez{5}=['sort_pixels_by_b: ',sort_pixels_by_bins()];    
-catch
-    rez{5}=[' Error in sort_pixels_by_bins: ',lasterr];        
-    n_errors=n_errors+1;    
+functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ','calc_projections: ','sort_pixels_by_b: '};
+functions_handle_list={@accumulate_cut_c,@bin_pixels_c,@calc_projections_c,@sort_pixels_by_bins};
+rez = cell(numel(functions_name_list),1);
+for i=1:numel(functions_name_list)
+    try
+        rez{i}=[functions_name_list{i},functions_handle_list{i}()];    
+    catch Err
+        rez{i}=[' Error in',functions_name_list{i},Err.message];
+        n_errors=n_errors+1;    
+    end
 end
 % calculate minumal and maximal versions of mex files; if there are errors
 % in deploying mex-files, the versions become undefined;
