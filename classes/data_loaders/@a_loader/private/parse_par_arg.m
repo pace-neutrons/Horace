@@ -23,7 +23,9 @@ if nargin>1
        file_name=varargin{1};
        if nargin==3
             if ~strncmpi(varargin{2},'-hor',4) 
-                warning('PARSE_PAR_ARG:invalid_argument',' third argument, if present, has to be the key -hor, assuming -hor');
+                if get(herbert_config,'log_level')>-1
+                    warning('PARSE_PAR_ARG:invalid_argument',' third argument, if present, has to be the key -hor, assuming -hor');
+                end
             end
             file_format='-hor';
        end

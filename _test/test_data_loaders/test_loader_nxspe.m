@@ -1,7 +1,8 @@
 classdef test_loader_nxspe< TestCase
     properties 
         log_level;
-        test_data_path;        
+        test_data_path;  
+        initial_warn_state;
     end
     methods       
         % 
@@ -9,6 +10,10 @@ classdef test_loader_nxspe< TestCase
             this = this@TestCase(name);
             rootpath=fileparts(which('herbert_init.m'));
             this.test_data_path = fullfile(rootpath,'_test/common_data');           
+            this.initial_warn_state=warning('query', 'all');
+        end
+        function delete(this)
+              warning(this.initial_warn_state)
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
@@ -90,9 +95,29 @@ classdef test_loader_nxspe< TestCase
              [S,ERR,en,loader]=load_data(loader);
               Ei = loader.efix;
               psi= loader.psi;
+              
+              if get(herbert_config,'log_level')<0
+                warnStruct = warning('off', 'LOAD_NXSPE:old_version');
+              end
+              
                   
              % ads par data and return it as horace data
              [par,loader]=load_par(loader,'-horace');             
+            % MAP11014.nxspe is version 1.1 nxspe file
+            if get(herbert_config,'log_level')>-1
+                    warnStruct = warning('query', 'last');
+                    msgid_integerCat = warnStruct.identifier;
+                    assertEqual('LOAD_NXSPE:old_version',msgid_integerCat);                
+            end
+             
+             
+             % warning about old nxspe should still be generated in other
+             % places
+            if get(herbert_config,'log_level')<0
+                warning(warnStruct);
+            end
+             
+            
              
              assertEqual(30*28160,numel(S))
              assertEqual(30*28160,numel(ERR))      
@@ -108,9 +133,27 @@ classdef test_loader_nxspe< TestCase
 %Load PAR from nxspe        
         function test_loader_par_works(this)
              loader=loader_nxspe(); 
-             % loads only spe data
-             [par,loader]=load_par(loader,f_name(this,'MAP11014.nxspe'));
-             assertEqual([6,28160],size(par))
+
+            if get(herbert_config,'log_level')<0
+               warnStruct = warning('off', 'LOAD_NXSPE:old_version');
+            end
+            % loads only par data            
+            [par,loader]=load_par(loader,f_name(this,'MAP11014.nxspe'));
+            
+            % MAP11014.nxspe is version 1.1 nxspe file
+            if get(herbert_config,'log_level')>-1
+                    warnStruct = warning('query', 'last');
+                    msgid_integerCat = warnStruct.identifier;
+                    assertEqual('LOAD_NXSPE:old_version',msgid_integerCat);                
+            end
+
+             
+             % warning about old nxspe should still be generated
+            if get(herbert_config,'log_level')<0
+                warning(warnStruct);
+            end
+                          
+             assertEqual([6,28160],size(par))             
              assertEqual(28160,loader.n_detectors)      
              assertEqual(loader.root_nexus_dir,'/11014.spe');
              assertEqual(loader.file_name,f_name(this,'MAP11014.nxspe'));
@@ -122,12 +165,23 @@ classdef test_loader_nxspe< TestCase
             % should be OK and return correct file name and file location; 
             assertEqual(loader.root_nexus_dir,'/11014.spe');
             assertEqual(loader.file_name,f_name(this,'nxspe_version1_0.nxspe'));
+            if get(herbert_config,'log_level')<0
+               warnStruct = warning('off', 'LOAD_NXSPE:old_version');
+            end
             % warnings are disabled when tests are run in some enviroments
-            [par,loader]=load_par(loader);           
+            [par,loader]=load_par(loader);   
+
+            if get(herbert_config,'log_level')>-1
+                    warnStruct = warning('query', 'last');
+                    msgid_integerCat = warnStruct.identifier;
+                    assertEqual('LOAD_NXSPE:old_version',msgid_integerCat);                
+            end
+            
+            
             % warning about old nxspe should still be generated
-            warnStruct = warning('query', 'last');
-%            msgid_integerCat = warnStruct.identifier;
-%            assertEqual('LOAD_NXSPE:old_version',msgid_integerCat);
+            if get(herbert_config,'log_level')<0
+                warning(warnStruct);
+            end
         % correct detectors and par array are still loaded from old par file
              assertEqual([6,5],size(par))
              assertEqual(5,loader.n_detectors)

@@ -36,7 +36,9 @@ if use_mex
     catch err
         force_mex = get(herbert_config,'force_mex_if_use_mex');
         if ~force_mex
-            warning('LOAD_ASCII:load_data',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
+            if get(herbert_config,'log_level')>-1
+                warning('LOAD_ASCII:load_data',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
+            end
             set(herbert_config,'use_mex_C',false);  % don't use Herbert C++ routines from now on
             use_mex=false;
         else

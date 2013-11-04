@@ -43,7 +43,9 @@ if ~isempty(this.en)
     if ~iscolvector(this.en)
         if isrowvector(this.en)
             this.en = this.en';
-            warning('RUNDATA:isvalid','en vector was a row vector which has been transformed into a column vector');
+            if get(herbert_config,'log_level')>0
+                warning('RUNDATA:isvalid','en vector was a row vector which has been transformed into a column vector');
+            end
         else
             ok=false;
             mess = 'en field, if present, has to be a column vector';

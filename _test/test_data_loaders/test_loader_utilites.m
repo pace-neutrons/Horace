@@ -1,6 +1,7 @@
 classdef test_loader_utilites< TestCase
     properties 
           test_data_path;        
+          log_level;
     end
     methods       
         % 
@@ -13,6 +14,14 @@ classdef test_loader_utilites< TestCase
             rootpath=fileparts(which('herbert_init.m'));
             this.test_data_path = fullfile(rootpath,'_test/common_data');                                            
         end
+        function this=setUp(this)
+            this.log_level = get(herbert_config,'log_level');
+            set(herbert_config,'log_level',-1,'-buffer');
+        end
+        function this=tearDown(this)
+            set(herbert_config,'log_level',this.log_level,'-buffer');            
+        end
+        
         % tests themself
         function test_FormatCurrentlyNotSupported(this)               
             f = @()find_root_nexus_dir(f_name(this,'currently_not_supported_NXSPE.nxspe'),'NXSPE');        
@@ -27,6 +36,11 @@ classdef test_loader_utilites< TestCase
         function test_parse_par_arg_wrong(this)
             absl = a_loader();
             f=@()check_par_file(absl,'.spe','file_name',1);
+            if get(herbert_config,'log_level')>-1
+                lw = warning('query','last');
+                assertEqual('PARSE_PAR_ARG:invalid_argument',lw.identifier);
+            end
+            
             assertExceptionThrown(f,'CHECK_FILE_EXIST:wrong_argument');            
         end
          function test_parse_par_2arg(this)
@@ -52,6 +66,10 @@ classdef test_loader_utilites< TestCase
             absl = a_loader();
             absl.par_file_name = f_name(this,'demo_par.PAR');            
             [absl,key,file_name]=check_par_file(absl,'.par',f_name(this,'map_4to1_jul09.par'),20);                          
+            if get(herbert_config,'log_level')>-1
+                lw = warning('query','last');
+                assertEqual('PARSE_PAR_ARG:invalid_argument',lw.identifier);
+            end
             assertEqual(file_name,f_name(this,'map_4to1_jul09.par'));
             assertEqual(absl.par_file_name,f_name(this,'map_4to1_jul09.par'));                                    
             assertEqual(key,true);

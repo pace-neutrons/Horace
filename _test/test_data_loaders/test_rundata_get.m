@@ -204,8 +204,22 @@ classdef test_rundata_get< TestCase
             assertEqual(size(S),size(ERR));
             assertEqual(size(S,2),size(det,2));            
 
-      end                        
-
     end
+    
+    function test_rundata_copied(this)
+           ds.alatt=[1;1;1];
+           ds.angldeg=[90;90;90];
+           ds.omega=20;
+           ds.psi  =30;           
+           ds.gl   =40;                      
+           ds.gs   =50;                                 
+  
+%        
+%            run=rundata(f_name(this,'MAP11014.nxspe'),ds);
+%            run2=rundata(run,f_name(this,'MAP10001.spe'),f_name(this,'demo_par.par'));
+%            [S,Err,en,efix,psi,detPar]=get_rundata(run2,...
+%                'S','ERR','en','efix','psi','det_par');
+     end
 end
 
+end

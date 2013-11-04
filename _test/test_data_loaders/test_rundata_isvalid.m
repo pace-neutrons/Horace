@@ -1,12 +1,21 @@
 classdef test_rundata_isvalid<TestCase
 
     properties
+        log_level;
     end
     
     methods
       function this=test_rundata_isvalid(name)
             this = this@TestCase(name);
       end
+      function this=setUp(this)
+            this.log_level = get(herbert_config,'log_level');
+            set(herbert_config,'log_level',-1,'-buffer');
+      end
+      function this=tearDown(this)
+            set(herbert_config,'log_level',this.log_level,'-buffer');            
+      end
+      
       %
       function this=test_SERR(this)
           rd = rundata();
