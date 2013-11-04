@@ -72,12 +72,20 @@ if prompt4compiler
         return;
     end
 end
+if ispc
 
-if user_choice=='y'
-    % Prompt for fortran compiler
-    disp('!==================================================================!')
-    disp('! please, select your FORTRAN compiler  ===========================!')
-    mex -setup
+    if user_choice=='y'
+        % Prompt for fortran compiler
+        disp('!==================================================================!')
+        disp('! please, select your FORTRAN compiler  ===========================!')
+        mex -setup
+    end
+else
+    if user_choice=='y'    
+        disp('!==================================================================!')
+        disp('! please, select your compilers    ================================!')
+        mex -setup       
+    end
 end
 % Source code directories, and output directories:
 %  - herbert target directrory:
@@ -242,6 +250,7 @@ try
        disp('!==================================================================!')    
        display(' ')
        
+        
     end            
 catch ex
      set(herbert_config,'use_mex',false);
