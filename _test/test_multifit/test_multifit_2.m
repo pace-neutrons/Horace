@@ -42,7 +42,7 @@ pin=[100,50,7,0,0];
 
 % Single dataset
 % ----------------
-tol=-1e-9;
+tol=-1e-8;
 tol_special=-1e-7;   % some special cases where a fit parameter is very small need coarser tolerance
 
 [ws1_ref,fs1_ref]=multifit(w1,@mftest_gauss_bkgd,pin);
@@ -154,7 +154,7 @@ if ~save_output
     output_file=fullfile(rootpath,results_filename);
     old=load(output_file);
     nam=fieldnames(old);
-    tol=-1.0e-12;
+    tol=1.0e-8;
     % The test proper
     for i=1:numel(nam)
         [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01);
