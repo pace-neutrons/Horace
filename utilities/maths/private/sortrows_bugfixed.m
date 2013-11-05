@@ -84,7 +84,14 @@ function [y,ndx] = sortrows(x,col)
 %        Contains row indices into X.
 
 error(nargchk(1,2,nargin,'struct'))
-if ~ismatrix(x)
+
+if matlab_version_num()<7.10
+    cond = @(x)(all(size(x))>=0);
+else    
+    cond = @ismatrix;    
+end
+ 
+if ~cond(x)
     error(message('MATLAB:sortrows:inputDimensionMismatch'));
 end
 
