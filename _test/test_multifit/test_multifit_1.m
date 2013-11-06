@@ -1,4 +1,4 @@
-classdef test_multifit_1< TestCase
+classdef test_multifit_1< TestCaseWithSave
     % Performs a number of tests of syntax and equivalence of multifit and fit.
     % Optionally writes results to output file or tests output against stored output
     %
@@ -17,92 +17,27 @@ classdef test_multifit_1< TestCase
     properties
         test_data_path;
         sd;  % source data for fitting
-        old  % old dataset one comares against
         pin; % input fitting parameters
         % data for test fitting
-        data_filename='testdata_multifit_1.mat';
-        results_filename='test_multifit_1_output.mat';
-        
-        tol = 1.e-8; % accuracy of the test
-        want_to_save_output=false; % if we want test results or save them as example to test against it later. 
-        datasets_to_save;          % cellarray of the datasets prepared for saving.
+        data_filename='testdata_multifit_1.mat';      
     end
     
     methods
         function this=test_multifit_1(varargin)
-         % constructor
+          % constructor
             if nargin > 0
                 name = varargin{1};
             else
                 name= mfilename('class');
             end
-            this = this@TestCase(name);
+            this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_multifit_1_output.mat'));
             
             this.pin=[100,50,7,0,0];     % Note that it is assumed that these are good starting parameters for the fits
-            
-            this.want_to_save_output=false;
-            
+                       
             rootpath=fileparts(mfilename('fullpath'));
-            this.sd=load(fullfile(rootpath,this.data_filename));
-            % load old data if necessary
-            if not(this.want_to_save_output)
-                output_file=fullfile(rootpath,this.results_filename);
-                this.old=load(output_file);
-            end
-            this.datasets_to_save=struct();
-            
+            this.sd=load(fullfile(rootpath,this.data_filename));           
         end
-        
-        function this=test_or_save_variables(this,varargin)
-            % method to test input variable in vararging agains saved
-            % values or save these variables to the structure to save it
-            % later (or deal with them any other way)
-            for i=1:numel(varargin)
-                if not(this.want_to_save_output)
-                    [ok,mess]=equal_to_tol(varargin{i}, this.old.(inputname(i+1)), this.tol, 'min_denominator', 0.01);
-                    assertTrue(ok,['[',inputname(i),'] :',mess])
-                else
-                    this.datasets_to_save.(inputname(i+1))=varargin{i};
-                end
-            end
-        end
-        
-        function save(this)
-            % save fitting output to the file to test against it later
-            if get(herbert_config,'log_level')>-1
-                disp('===========================')
-                disp('    Save output')
-                disp('===========================')
-            end
-            
-            meth=methods(this);
-            class_name = mfilename('class');
-            % select the methods which are the tests among all test methods
-            istests = cellfun(@(x)( ~isempty(regexp(x,'^test_','once')) && ~strcmpi(x,class_name)),meth);
-            test_methods=meth(istests);
-            % indicate that you want to store results of the test rather
-            % then testing them agains results, saved earlier. 
-            % Check for that is in test_or_save_variables
-            this.want_to_save_output=true;
-            % run test methods
-            for i=1:numel(test_methods)
-                fh=@(x)this.(test_methods{i});
-                fh(this);
-            end
-            
-            % save results
-            output_file=fullfile(tempdir(),this.results_filename);
-            dsts=this.datasets_to_save;
-            names = fieldnames(dsts);
-            save(output_file,'-struct','dsts',names{:})
-            
-            if get(herbert_config,'log_level')>-1
-                disp(' ')
-                disp(['Output saved to ',output_file])
-                disp(' ')
-            end
-            
-        end
+               
         
         % =====================================================================================================================
         %  Tests with single input data set

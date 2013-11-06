@@ -52,6 +52,7 @@ addgenpath_message (rootpath,'DLL')
 % or on a developer's machine;
 if get(herbert_config,'init_tests')
     addpath_message (rootpath,'_test/matlab_xunit/xunit');
+    addpath(fullfile(rootpath,'_test/common_functions'));  % path for common unit tests funtions/classes
 end
 
 disp('!==================================================================!')

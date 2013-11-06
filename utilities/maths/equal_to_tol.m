@@ -80,7 +80,10 @@ if (isobject(a) && isobject(b)) || (isstruct(a) && isstruct(b))
             else
                 [ok,mess]=equal_to_tol_internal(a(i).(name{j}),b(i).(name{j}),opt);
             end
-            if ~ok, return, end
+            if ~ok
+                mess=['for field: ',name{j},' :',mess];
+                return 
+            end
         end
     end
     
@@ -95,7 +98,9 @@ elseif iscell(a) && iscell(b)
     
 elseif isnumeric(a) && isnumeric(b)
     [ok,mess]=equal_to_tol_numeric(a,b,opt.tol,opt.nan_equal,opt.min_denominator);
-    if ~ok, return, end
+    if ~ok,
+        return, 
+    end
     
 else
     if strcmp(class(a),class(b))
@@ -136,7 +141,25 @@ if isequal(size(a),size(b))
         end
     end
     a=a(:);
-    b=b(:);
+    b=b(:);   
+    infs_mark=isinf(a);    
+    if any(infs_mark) % inf are present in the arrays
+        infs2_mark=isinf(b);
+        if any(infs_mark ~= infs2_mark)
+            ok=false;
+            mess='Inf elements not in same locations in numeric arrays being compared';            
+            return;
+        end
+        infss_a=sign(a(infs_mark));
+        infss_b=sign(b(infs_mark));
+        if any(infss_a ~= infss_b)        
+            mess='Inf elements have different signs in numeric arrays being compared';            
+            return;            
+        end
+        a=a(~infs_mark);
+        b=b(~infs_mark);        
+    end
+    
     % Compare elements. Remove case of empty arrays - these are considered equal
     if ~isempty(a)
         if tol==0

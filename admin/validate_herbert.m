@@ -51,6 +51,7 @@ end
 % Set paths
 rootpath = fileparts(which('herbert_init'));
 xunit_path= fullfile(rootpath,'_test/matlab_xunit/xunit');  % path for unit tests
+common_path= fullfile(rootpath,'_test/common_functions');  % path for common unit tests classes&functions
 test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests folders:
 
 xunit_initialised=get(herbert_config,'init_tests');
@@ -62,6 +63,7 @@ if full || enable
     % Put unit test application folder on the path, if not there already
     if ~xunit_initialised
         addpath(xunit_path);
+        addpath(common_path);        
     end
 end
 
@@ -105,6 +107,7 @@ if full || revert
     if ~xunit_initialised
         warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent path)
         rmpath(xunit_path);
+        rmpath(common_path);
         warning(warn_state);    % return warnings to initial state
     end
 end
