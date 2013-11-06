@@ -14,9 +14,12 @@ function [rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex(varargin
 
 n_errors=0;
 compilation_date  =[];
+
 functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ','calc_projections: ','sort_pixels_by_b: '};
 functions_handle_list={@accumulate_cut_c,@bin_pixels_c,@calc_projections_c,@sort_pixels_by_bins};
 rez = cell(numel(functions_name_list),1);
+
+
 for i=1:numel(functions_name_list)
     try
         rez{i}=[functions_name_list{i},functions_handle_list{i}()];    
