@@ -23,7 +23,8 @@ function validate_herbert(opt)
 %  during validation)
 
 cur_config=get(herbert_config);
-cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config));
+cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,{}));
+
 
 
 % Parse requested operation
@@ -72,7 +73,8 @@ if full
     % (The validation should be done starting with the defaults, otherwise an error
     %  may be due to a poor choice by the user of configuration parameters)
     set(herbert_config,'defaults','-buffer');
-
+    % make it as less talkative, as possible
+    set(herbert_config,'log_level',-1,'-buffer');    
     %==============================================================================
     % Place call to tests here
     % -----------------------------------------------------------------------------
@@ -88,7 +90,10 @@ if full
     %=============================================================================
     for i=1:numel(test_folders)
         test_folders{i}=fullfile(test_path,test_folders{i});
+        % fix the issie with test destructor, recent matlab versions have        
+        addpath(test_folders{i});
     end
+    cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders));    
     runtests(test_folders{:});
 end
 
@@ -105,6 +110,10 @@ if full || revert
 end
 
 %=================================================================================================================
-function validate_herbert_cleanup(cur_config)
+function validate_herbert_cleanup(cur_config,test_folders)
 % Reset the configuration
 set(herbert_config,cur_config);
+% clear up the test folders, previously placed on the path
+for i=1:numel(test_folders)
+    rmpath(test_folders{i});
+end

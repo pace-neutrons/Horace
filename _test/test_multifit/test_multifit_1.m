@@ -6,6 +6,10 @@ classdef test_multifit_1< TestCase
     %                                % in the same folder as this function
     %   >>save(test_multifit_1())    % Save to  c:\temp\test_multifit_1_output.mat
     %
+    %   >>test_name(test_multifit_1()) % run particular test from this
+    %                                    suite -- subsitute test_name to
+    %                                    by the name of exisitng test
+    %
     % Reads previously created test data in .\make_data\test_multifit_datasets_1.mat
     %
     % Author: T.G.Perring
@@ -15,18 +19,18 @@ classdef test_multifit_1< TestCase
         sd;  % source data for fitting
         old  % old dataset one comares against
         pin; % input fitting parameters
-        
+        % data for test fitting
         data_filename='testdata_multifit_1.mat';
         results_filename='test_multifit_1_output.mat';
         
         tol = 1.e-8; % accuracy of the test
-        want_to_save_output=false;
-        datasets_to_save;
+        want_to_save_output=false; % if we want test results or save them as example to test against it later. 
+        datasets_to_save;          % cellarray of the datasets prepared for saving.
     end
     
     methods
         function this=test_multifit_1(varargin)
-            
+         % constructor
             if nargin > 0
                 name = varargin{1};
             else
@@ -50,7 +54,9 @@ classdef test_multifit_1< TestCase
         end
         
         function this=test_or_save_variables(this,varargin)
-            % method to test or save stored variables
+            % method to test input variable in vararging agains saved
+            % values or save these variables to the structure to save it
+            % later (or deal with them any other way)
             for i=1:numel(varargin)
                 if not(this.want_to_save_output)
                     [ok,mess]=equal_to_tol(varargin{i}, this.old.(inputname(i+1)), this.tol, 'min_denominator', 0.01);
@@ -62,7 +68,7 @@ classdef test_multifit_1< TestCase
         end
         
         function save(this)
-            % save fitting output to files to test
+            % save fitting output to the file to test against it later
             if get(herbert_config,'log_level')>-1
                 disp('===========================')
                 disp('    Save output')
@@ -71,14 +77,20 @@ classdef test_multifit_1< TestCase
             
             meth=methods(this);
             class_name = mfilename('class');
+            % select the methods which are the tests among all test methods
             istests = cellfun(@(x)( ~isempty(regexp(x,'^test_','once')) && ~strcmpi(x,class_name)),meth);
             test_methods=meth(istests);
+            % indicate that you want to store results of the test rather
+            % then testing them agains results, saved earlier. 
+            % Check for that is in test_or_save_variables
             this.want_to_save_output=true;
+            % run test methods
             for i=1:numel(test_methods)
                 fh=@(x)this.(test_methods{i});
                 fh(this);
             end
             
+            % save results
             output_file=fullfile(tempdir(),this.results_filename);
             dsts=this.datasets_to_save;
             names = fieldnames(dsts);
@@ -259,23 +271,5 @@ classdef test_multifit_1< TestCase
             
         end
         
-        function this=save_output(this)
-            if this.save_output
-                if get(herbert_config,'log_level')>-1
-                    disp('===========================')
-                    disp('    Save output')
-                    disp('===========================')
-                end
-                
-                output_file=fullfile(tempdir,this.results_filename);
-                save(output_file,this.used_and_saved_datasets{:})
-                
-                if get(herbert_config,'log_level')>-1
-                    disp(' ')
-                    disp(['Output saved to ',output_file])
-                    disp(' ')
-                end
-            end
-        end
     end
 end

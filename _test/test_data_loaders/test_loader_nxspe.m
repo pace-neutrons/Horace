@@ -15,6 +15,7 @@ classdef test_loader_nxspe< TestCase
         function delete(this)
               warning(this.initial_warn_state)
         end
+        
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
             set(herbert_config,'log_level',-1,'-buffer');
