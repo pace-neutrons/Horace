@@ -28,7 +28,7 @@ classdef test_multifit_horace_1< TestCaseWithSave
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_multifit_horace_1_output.mat'));
             
             this.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
-            this.tol = 1.e-5;
+            this.tol = 1.e-8;
             
             demo_dir=fileparts(mfilename('fullpath'));
             

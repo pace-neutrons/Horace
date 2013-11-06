@@ -28,7 +28,7 @@ test_path=fullfile(horace_path,'_test');
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
 set(hor_config,'defaults','-buffer');
-set(hor_config,'horace_info_level',0,'-buffer');    % turn off Horace informational output
+set(hor_config,'horace_info_level',-1,'-buffer');    % turn off Horace informational output
 
 % warning off all;
 %==============================================================================
