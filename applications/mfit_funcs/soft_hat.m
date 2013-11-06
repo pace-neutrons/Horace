@@ -1,8 +1,8 @@
-function [y, name, pnames, pin] = hat(x, p, flag)
+function [y, name, pnames, pin] = soft_hat(x, p, flag)
 % Hat function broadened by Gaussians (different at each end) and with an overall slope.
 % 
-%   >> y = hat(x,p)
-%   >> [y, name, pnames, pin] = hat(x,p,flag)
+%   >> y = soft_hat(x,p)
+%   >> [y, name, pnames, pin] = soft_hat(x,p,flag)
 %
 % Input:
 % =======

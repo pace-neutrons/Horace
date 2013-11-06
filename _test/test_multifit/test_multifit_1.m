@@ -19,7 +19,7 @@ classdef test_multifit_1< TestCase
         data_filename='testdata_multifit_1.mat';
         results_filename='test_multifit_1_output.mat';
         
-        tol = 1.e-8; % accuracy of the test 
+        tol = 1.e-8; % accuracy of the test
         want_to_save_output=false;
         datasets_to_save;
     end
@@ -30,40 +30,37 @@ classdef test_multifit_1< TestCase
             if nargin > 0
                 name = varargin{1};
             else
-                name= mfilename('class');                
+                name= mfilename('class');
             end
-            this = this@TestCase(name);         
+            this = this@TestCase(name);
             
-            this.pin=[100,50,7,0,0];     % Note that it is assumed that these are good starting parameters for the fits            
+            this.pin=[100,50,7,0,0];     % Note that it is assumed that these are good starting parameters for the fits
             
             this.want_to_save_output=false;
-
             
-            %% =====================================================================================================================
-            %  Load data
-            % ======================================================================================================================
             rootpath=fileparts(mfilename('fullpath'));
             this.sd=load(fullfile(rootpath,this.data_filename));
             % load old data if necessary
             if not(this.want_to_save_output)
-              output_file=fullfile(rootpath,this.results_filename);
-              this.old=load(output_file);
+                output_file=fullfile(rootpath,this.results_filename);
+                this.old=load(output_file);
             end
-            this.datasets_to_save=struct();            
+            this.datasets_to_save=struct();
             
         end
         
         function this=test_or_save_variables(this,varargin)
             % method to test or save stored variables
             for i=1:numel(varargin)
-                 if not(this.want_to_save_output)
+                if not(this.want_to_save_output)
                     [ok,mess]=equal_to_tol(varargin{i}, this.old.(inputname(i+1)), this.tol, 'min_denominator', 0.01);
-                    assertTrue(ok,['[',inputname(i),'] :',mess])                                    
-                 else
-                     this.datasets_to_save.(inputname(i+1))=varargin{i};
-                 end
+                    assertTrue(ok,['[',inputname(i),'] :',mess])
+                else
+                    this.datasets_to_save.(inputname(i+1))=varargin{i};
+                end
             end
         end
+        
         function save(this)
             % save fitting output to files to test
             if get(herbert_config,'log_level')>-1
@@ -79,9 +76,8 @@ classdef test_multifit_1< TestCase
             this.want_to_save_output=true;
             for i=1:numel(test_methods)
                 fh=@(x)this.(test_methods{i});
-                fh(this);      
+                fh(this);
             end
-            
             
             output_file=fullfile(tempdir(),this.results_filename);
             dsts=this.datasets_to_save;
@@ -95,16 +91,17 @@ classdef test_multifit_1< TestCase
             end
             
         end
-        %% =====================================================================================================================
+        
+        % =====================================================================================================================
         %  Tests with single input data set
         % ======================================================================================================================
-        function this=test_single_input(this) 
+        function this=test_single_input(this)
             
             % Reference output
             % ----------------
             % Create reference output
             [y1_fref, wstruct1_fref, w1_fref, p1_fref] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1, @mftest_gauss_bkgd, this.pin);
-            % test it or store to save later
+            % Test it or store to save later
             this=test_or_save_variables(this,y1_fref, wstruct1_fref, w1_fref, p1_fref);
             
             % Slow convergence, print output
@@ -114,7 +111,7 @@ classdef test_multifit_1< TestCase
             end
             [y1_fslow, wstruct1_fslow, w1_fslow, p1_fslow] = mftest_mf_and_f_single_dataset (...
                 this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1, @mftest_gauss_bkgd, this.pin, [1,0,1,0,0], 'list',list);
-          % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fslow, wstruct1_fslow, w1_fslow, p1_fslow);
             
             
@@ -129,24 +126,23 @@ classdef test_multifit_1< TestCase
             if ~equal_to_tol(y1_fsigfix,y1_fsigfix_bk,ltol)
                 assertTrue(false,'Test failed: split foreground and background functions not equivalent to single function')
             end
-          % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fsigfix, wstruct1_fsigfix, w1_fsigfix, p1_fsigfix);
-            this=test_or_save_variables(this,y1_fsigfix_bk, wstruct1_fsigfix_bk, w1_fsigfix_bk, p1_fsigfix_bk);            
+            this=test_or_save_variables(this,y1_fsigfix_bk, wstruct1_fsigfix_bk, w1_fsigfix_bk, p1_fsigfix_bk);
             
         end
-        % Test binding
-        % ------------------
+
         function this=test_binding(this)
             % Fix ratio of two of the foreground parameters
             prat=[6,0,0,0,0]; pbnd=[3,0,0,0,0];
             [y1_fbind1_ref, wstruct1_fbind1_ref, w1_fbind1_ref, p1_fbind1_ref] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss_bkgd_bind, [this.pin,prat,pbnd], [0,0,1,1,0,zeros(1,10)]);
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fbind1_ref, wstruct1_fbind1_ref, w1_fbind1_ref, p1_fbind1_ref);
             
             [y1_fbind1_1, wstruct1_fbind1_1, w1_fbind1_1, p1_fbind1_1] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss, this.pin(1:3), [1,0,1], {1,3,0,6}, @mftest_bkgd, this.pin(4:5), [1,0]);
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fbind1_1, wstruct1_fbind1_1, w1_fbind1_1, p1_fbind1_1);
             
             ltol=0;
@@ -156,9 +152,9 @@ classdef test_multifit_1< TestCase
             
             [y1_fbind1_2, wstruct1_fbind1_2, w1_fbind1_2, p1_fbind1_2] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...    % Same, but pick ratio from input ht and sig
                 @mftest_gauss, [6*this.pin(3),this.pin(2:3)], [1,0,1], {1,3}, @mftest_bkgd, this.pin(4:5), [1,0]);
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fbind1_2, wstruct1_fbind1_2, w1_fbind1_2, p1_fbind1_2);
-
+            
             
             ltol=0;
             if ~equal_to_tol(y1_fbind1_ref,y1_fbind1_2,ltol)
@@ -174,7 +170,7 @@ classdef test_multifit_1< TestCase
                 @mftest_gauss_bkgd_bind, [this.pin,prat,pbnd], [0,0,1,0,1,zeros(1,10)]);
             % test against saved or store to save later
             this=test_or_save_variables(this,y1_fbind2_ref, wstruct1_fbind2_ref, w1_fbind2_ref, p1_fbind2_ref);
-
+            
             
             [y1_fbind2, wstruct1_fbind2, w1_fbind2, p1_fbind2] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss, this.pin(1:3), [1,0,1], {1,3,0,6}, @mftest_bkgd, this.pin(4:5),'', {{1,2,1,0.01}});
@@ -186,20 +182,20 @@ classdef test_multifit_1< TestCase
                 assertTrue(false,'Test failed: binding problem')
             end
         end
+        
         function this=test_fix_parameters_across(this)
             % Fix parameters across the foreground and background
             prat=[0,0,0.2,0,1/300]; pbnd=[0,0,4,0,2];
             [y1_fbind3_ref, wstruct1_fbind3_ref, w1_fbind3_ref, p1_fbind3_ref] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss_bkgd_bind, [100,50,5,20,0,prat,pbnd], [0,1,0,1,0,zeros(1,10)]);
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fbind3_ref, wstruct1_fbind3_ref, w1_fbind3_ref, p1_fbind3_ref);
-
+            
             
             [y1_fbind3, wstruct1_fbind3, w1_fbind3, p1_fbind3] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss, [100,50,5], [0,1,1], {3,1,1,0.2}, @mftest_bkgd, [20,0],'', {{2,2,0,1/300}});
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fbind3, wstruct1_fbind3, w1_fbind3, p1_fbind3);
-
             
             ltol=0;
             if ~equal_to_tol(y1_fbind3_ref,y1_fbind3,ltol)  % can only compare output y values - we've fudged the reference fit function, and parameters are not 'real'
@@ -213,9 +209,8 @@ classdef test_multifit_1< TestCase
             [y1_fbind4_ref, wstruct1_fbind4_ref, w1_fbind4_ref, p1_fbind4_ref] = mftest_mf_and_f_single_dataset (...
                 this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss_bkgd_bind, [100,50,5,20,0,prat,pbnd], [0,1,0,1,0,zeros(1,10)]);
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fbind4_ref, wstruct1_fbind4_ref, w1_fbind4_ref, p1_fbind4_ref);
-
             
             [y1_fbind4, wstruct1_fbind4, w1_fbind4, p1_fbind4] = mftest_mf_and_f_single_dataset (...
                 this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
@@ -225,74 +220,46 @@ classdef test_multifit_1< TestCase
                 assertTrue(false,'Test failed: binding problem')
             end
             
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,y1_fbind4, wstruct1_fbind4, w1_fbind4, p1_fbind4);
-
+            
             
         end
         
-        %% =====================================================================================================================
+        % =====================================================================================================================
         % Test multiple datasets
         % ======================================================================================================================
         function this=test_multiple_ds_fail(this)
             ww_objarr=[this.sd.w1,this.sd.w2,this.sd.w3];
             [ww_fobjarr_f,pp_fobjarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_objarr, @mftest_gauss_bkgd, this.pin);
             if ~ok, assertTrue(false,['Unexpected failure ',mess]), end
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,ww_fobjarr_f,pp_fobjarr);
             
             
             ww_objcellarr={this.sd.w1,this.sd.w2,this.sd.w3};
             [ww_fobjcellarr_f,pp_fobjcellarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_objcellarr, @mftest_gauss_bkgd, this.pin);
             if ~ok, assertTrue(false,['Unexpected failure ',mess]), end
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,ww_fobjcellarr_f,pp_fobjcellarr);
             
             
             ww_structarr=[this.sd.wstruct1,this.sd.wstruct2,this.sd.wstruct3];
             [ww_fstructarr_f,pp_fstructarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_structarr, @mftest_gauss_bkgd, this.pin);
             if ~ok, assertTrue(false,['Unexpected failure ',mess]), end
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,ww_fstructarr_f,pp_fstructarr);
             
             
             ww_cellarr={this.sd.wstruct1,this.sd.w2,this.sd.wstruct3};
             [ww_fcellarr_f,pp_fcellarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_cellarr, @mftest_gauss_bkgd, this.pin);
             if ok, assertTrue(false,['Should have failed, but did not',mess]), end
-            % test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,ww_fcellarr_f,pp_fcellarr);
             
         end
         
-        % %% =====================================================================================================================
-        % % Compare with saved output
-        % % ======================================================================================================================
-        %
-        % if ~save_output
-        %     if get(herbert_config,'log_level')>-1
-        %         disp('====================================')
-        %         disp('    Comparing with saved output')
-        %         disp('====================================')
-        %     end
-        %     output_file=fullfile(rootpath,results_filename);
-        %     old=load(output_file);
-        %     nam=fieldnames(old);
-        %     tol=-1.0e-12;
-        %     % The test proper
-        %     for i=1:numel(nam)
-        %         [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01);
-        %         assertTrue(ok,['[',nam{i},'] :',mess])
-        %     end
-        %     % Success announcement
-        %     if get(herbert_config,'log_level')>-1
-        %         banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
-        %     end
-        % end
-        
         function this=save_output(this)
-            %% =====================================================================================================================
-            % Save data
-            % ======================================================================================================================
             if this.save_output
                 if get(herbert_config,'log_level')>-1
                     disp('===========================')
