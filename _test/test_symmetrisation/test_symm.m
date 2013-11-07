@@ -1,4 +1,4 @@
-function test_dnd_symm(varargin)
+function test_symm(varargin)
 %
 % Validate the dnd symmetrisation, combination and rebin routines
 
