@@ -68,6 +68,9 @@ classdef test_symm< TestCase
         w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
         w1d_d1d=d1d(w1d_sqw);
         
+        w2d_qq_small_sqw=cut_sqw(data_source,proj,[0,0.025,0.4],[0,0.025,0.4],[-Inf,Inf],[30,40]);
+        w2d_qq_small_d2d=d2d(w2d_qq_small_sqw);
+        
         %
         % %
         save(w3d_sqw,[this.testdir,filesep,'w3d_sqw.sqw']);
@@ -78,6 +81,9 @@ classdef test_symm< TestCase
         save(w2d_qq_d2d,[this.testdir,filesep,'w2d_qq_d2d.sqw']);
         save(w1d_sqw,[this.testdir,filesep,'w1d_sqw.sqw']);
         save(w1d_d1d,[this.testdir,filesep,'w1d_d1d.sqw']);
+        %
+        save(w2d_qq_small_sqw,[this.testdir,filesep,'w2d_qq_small_sqw.sqw']);
+        save(w2d_qq_small_d2d,[this.testdir,filesep,'w2d_qq_small_d2d.sqw']);
         end
         function delete(this)
             close all;
@@ -89,11 +95,19 @@ classdef test_symm< TestCase
             w2d_qe_sqw=read_sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
             
             w3d_sqw_sym=symmetrise_sqw(w3d_sqw,[0,0,1],[-1,1,0],[0,0,0]);
-            w2d_qe_sqw_sym=symmetrise_sqw(w2d_qe_sqw,[0,0,1],[-1,1,0],[0,0,0]);
+            %w2d_qe_sqw_sym=symmetrise_sqw(w2d_qe_sqw,[0,0,1],[-1,1,0],[0,0,0]);
+            w3d_sqw_sym2=symmetrise_sqw(w3d_sqw_sym,[-1,1,0],[0,0,1],[0,0,0]);
+            w3d_sqw_sym3=symmetrise_sqw(w3d_sqw_sym2,[0,0,1],[-1,1,0],[0,0,0]);
             
-            cc=cut(w3d_sqw_sym,[-1,0.025,1],[-0.1,0.1],[0,1.4,100]);
-            [ok,mess]=equal_to_tol(cc,w2d_qe_sqw_sym,-1e-8,'ignore_str', 1);
-            assertTrue(ok,['sqw symmetrisation fails due to cut rounding problem: ',mess])
+            cc1=cut(w3d_sqw_sym,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
+            cc2=cut(w3d_sqw_sym3,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
+            %size(w2d_qe_sqw_sym.data.p{1})
+            %size(w2d_qe_sqw_sym.data.p{2})
+            %size(cc.data.p{1})
+            %size(cc.data.p{2})
+            %[ok,mess]=equal_to_tol(d2d(cc),d2d(w2d_qe_sqw_sym),-0.02,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(d2d(cc1),d2d(cc2),-1e-6,'ignore_str', 1);
+            assertTrue(ok,['sqw symmetrisation fails, most likely due to cut rounding problem: ',mess])
         end
         %at present this fails, due to problem in cut algorithm (somewhere)
         function this = test_sym_d2d(this)
@@ -139,27 +153,23 @@ classdef test_symm< TestCase
         end
         function this=test_random_symax(this)
             
-            w2d_qq_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
-            w2d_qq_sqw=read_sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
+            w2d_qq_small_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
+            %w2d_qq_small_sqw=read_sqw(fullfile(this.testdir,'w2d_qq_small_sqw.sqw'));
             %Random symm axis (ensure shoelace algorithm is actually
             %tested)
             disp(' ')
-            disp('symmetrise_horace_2d: long operation --- wait for 2 min');
-            w2_2c=symmetrise_horace_2d(w2d_qq_d2d,[0,0,1],[0.5,1,0],[0,0,0]);        
+            disp('symmetrise_horace_2d: long operation --- wait for <2 min');
+            w2_2c=symmetrise_horace_2d(w2d_qq_small_d2d,[0,0,1],[0.5,1,0],[0,0,0]);        
+            w2_2c2=symmetrise_horace_2d(w2_2c,[0,0,1],[0.5,1,0],[1,0,0]);
+            w2_2c3=symmetrise_horace_2d(w2_2c2,[0.5,1,0],[0,0,1],[1,0,0]);
             disp('long operation --- finished');                 
-            w2_2c_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0.5,1,0],[0,0,0]));
             
-            %Not easy to validate this.
-            c1=cut(compact(w2_2c),[],[-1.4,-1.1]);
-            c2=cut(compact(w2_2c_s),[],[-1.4,-1.1]);
+            c1=cut(w2_2c,[0,0.6],[-0.4,0.2]);
+            c2=cut(w2_2c3,[0,0.6],[-0.4,0.2]);
             
-            [wfit_c1,fitdata_c1]=fit_func(c1,@mgauss,[22,-0.015,0.07,22,-0.33,0.07],[1,0,1,1,1,1]);
-            [wfit_c2,fitdata_c2]=fit_func(c2,@mgauss,[22,-0.015,0.07,22,-0.33,0.07],[1,0,1,1,1,1]);
+            [ok,mess]=equal_to_tol(c1.s,c2.s,-0.005,'ignore_str', 1);
             
-            toterr=sqrt(fitdata_c1.sig.^2 + fitdata_c2.sig.^2);
-            fitdiff=abs(fitdata_c1.p - fitdata_c2.p);
-            
-            assertTrue(all(fitdiff<=1.3*toterr),'d2d symmetrisation about arbitrary axis (shoelace algorithm) failed')
+            assertTrue(ok,['d2d symmetrisation about arbitrary axis (shoelace algorithm) failed ',mess]);
         end
         
         function this=test_d1d_sym(this)
