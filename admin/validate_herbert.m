@@ -50,20 +50,23 @@ end
 
 % Set paths
 rootpath = fileparts(which('herbert_init'));
-xunit_path= fullfile(rootpath,'_test/matlab_xunit/xunit');  % path for unit tests
-common_path= fullfile(rootpath,'_test/common_functions');  % path for common unit tests classes&functions
 test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests folders:
 
+
 xunit_initialised=get(herbert_config,'init_tests');
+if revert
+   % this configuration will be make currend on clean-up
+   cur_config.init_tests=false;   
+end
+
 
 
 % Initialise if required
 % ----------------------
-if full || enable
+if enable && ~full
     % Put unit test application folder on the path, if not there already
     if ~xunit_initialised
-        addpath(xunit_path);
-        addpath(common_path);        
+        set(herbert_config,'init_tests',1,'-buffer');
     end
 end
 
@@ -76,7 +79,7 @@ if full
     %  may be due to a poor choice by the user of configuration parameters)
     set(herbert_config,'defaults','-buffer');
     % make it as less talkative, as possible
-    set(herbert_config,'log_level',-1,'-buffer');    
+    set(herbert_config,'log_level',-1,'init_tests',1,'-buffer');    
     %==============================================================================
     % Place call to tests here
     % -----------------------------------------------------------------------------
@@ -100,17 +103,6 @@ if full
 end
 
 
-% Remove unit test application if was not present already
-% -------------------------------------------------------
-if full || revert
-    % Remove unit tests from the path if not required
-    if ~xunit_initialised
-        warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent path)
-        rmpath(xunit_path);
-        rmpath(common_path);
-        warning(warn_state);    % return warnings to initial state
-    end
-end
 
 %=================================================================================================================
 function validate_herbert_cleanup(cur_config,test_folders)
@@ -120,3 +112,4 @@ set(herbert_config,cur_config);
 for i=1:numel(test_folders)
     rmpath(test_folders{i});
 end
+

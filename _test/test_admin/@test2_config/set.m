@@ -40,7 +40,7 @@ function this=set(this,varargin)
 %--------------------------------------------------------------------------------------------------
 % Get config structure with updated public fields
 [S,save_status,ok,mess]=parse_set(this,varargin{:});
-if ~ok, error(mess), end
+if ~ok, error('TESTCONFIG:set_invalid_argument',mess), end
 
 %--------------------------------------------------------------------------------------------------
 % === Alter the code only in this section ===

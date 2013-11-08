@@ -42,10 +42,10 @@ end
 if valid_fieldnames(varargin(1:narg))
     if public_only && (any(ismember(varargin(1:narg),config_data.sealed_fields)) || ...
                        any(strcmp('sealed_fields',fieldnames(config_data))))
-        error('If the ''-public'' option is given then cannot return the value of a sealed field')
+        error('CONFIG:get','If the ''-public'' option is given then cannot return the value of a sealed field')
     end
 else
-    error('All field names have to be valid field names'); 
+    error('CONFIG:get','All field names have to be valid field names'); 
 end
 
 % Get values
@@ -55,7 +55,7 @@ for i=1:numel(varargout)
     if found
         varargout{i}=data_field;
     else
-        error('The field ''%s'' does not exist in configuration %s at any depth',varargin{i},config_name);    
+        error('CONFIG:get','The field ''%s'' does not exist in configuration %s at any depth',varargin{i},config_name);    
     end    
 end
 

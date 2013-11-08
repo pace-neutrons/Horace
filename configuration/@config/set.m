@@ -37,4 +37,4 @@ function this=set(this,varargin)
 % $Revision$ ($Date$)
 
 [this,ok,mess]=set_internal(this,false,varargin{:});
-if ~ok, error(mess), end
+if ~ok, error('CONFIG:set',mess), end
