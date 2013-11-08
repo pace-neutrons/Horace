@@ -29,61 +29,61 @@ classdef test_symm< TestCase
             
         end
         function this=prepare_test_data(this)
-        
-        %% Use sqw file on RAE's laptop to perform tests. Data saved to a .mat file on SVN server for validation by others.
-        data_source='C:\Russell\PCMO\ARCS_Oct10\Data\SQW\ei140.sqw';
-        proj.u=[1,1,0]; proj.v=[-1,1,0]; proj.type='rrr';
-        
-        
-        %To ensure some of the catches for dnd symmetrisation work properly, need
-        %to add some errorbars to all of the data points as well. Take from the
-        %original data. Errorbars are rescaled to be appropriate size for new
-        %signal array
-        
-        w3d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[0,1.4,100]);
-        w3d_sqw=sqw_eval(w3d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-        errs=w3d_sqw.data.pix(8,:);
-        w3d_sqw.data.pix(9,:)=errs;
-        w3d_sqw=cut(w3d_sqw,[-1,0.025,1],[-1,0.025,1],[0,1.4,100]);
-        w3d_d3d=d3d(w3d_sqw);
-        
-        w2d_qe_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[0,1.4,100]);
-        w2d_qe_sqw=sqw_eval(w2d_qe_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-        errs=w2d_qe_sqw.data.pix(8,:);
-        w2d_qe_sqw.data.pix(9,:)=errs;
-        w2d_qe_sqw=cut(w2d_qe_sqw,[-1,0.025,1],[0,1.4,100]);
-        w2d_qe_d2d=d2d(w2d_qe_sqw);
-        
-        w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
-        w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-        errs=w2d_qq_sqw.data.pix(8,:);
-        w2d_qq_sqw.data.pix(9,:)=errs;
-        w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
-        w2d_qq_d2d=d2d(w2d_qq_sqw);
-        
-        w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
-        w1d_sqw=sqw_eval(w1d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
-        errs=w1d_sqw.data.pix(8,:);
-        w1d_sqw.data.pix(9,:)=errs;
-        w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
-        w1d_d1d=d1d(w1d_sqw);
-        
-        w2d_qq_small_sqw=cut_sqw(data_source,proj,[0,0.025,0.4],[0,0.025,0.4],[-Inf,Inf],[30,40]);
-        w2d_qq_small_d2d=d2d(w2d_qq_small_sqw);
-        
-        %
-        % %
-        save(w3d_sqw,[this.testdir,filesep,'w3d_sqw.sqw']);
-        save(w3d_d3d,[this.testdir,filesep,'w3d_d3d.sqw']);
-        save(w2d_qe_sqw,[this.testdir,filesep,'w2d_qe_sqw.sqw']);
-        save(w2d_qe_d2d,[this.testdir,filesep,'w2d_qe_d2d.sqw']);
-        save(w2d_qq_sqw,[this.testdir,filesep,'w2d_qq_sqw.sqw']);
-        save(w2d_qq_d2d,[this.testdir,filesep,'w2d_qq_d2d.sqw']);
-        save(w1d_sqw,[this.testdir,filesep,'w1d_sqw.sqw']);
-        save(w1d_d1d,[this.testdir,filesep,'w1d_d1d.sqw']);
-        %
-        save(w2d_qq_small_sqw,[this.testdir,filesep,'w2d_qq_small_sqw.sqw']);
-        save(w2d_qq_small_d2d,[this.testdir,filesep,'w2d_qq_small_d2d.sqw']);
+            
+            %% Use sqw file on RAE's laptop to perform tests. Data saved to a .mat file on SVN server for validation by others.
+            data_source='C:\Russell\PCMO\ARCS_Oct10\Data\SQW\ei140.sqw';
+            proj.u=[1,1,0]; proj.v=[-1,1,0]; proj.type='rrr';
+            
+            
+            %To ensure some of the catches for dnd symmetrisation work properly, need
+            %to add some errorbars to all of the data points as well. Take from the
+            %original data. Errorbars are rescaled to be appropriate size for new
+            %signal array
+            
+            w3d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[0,1.4,100]);
+            w3d_sqw=sqw_eval(w3d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
+            errs=w3d_sqw.data.pix(8,:);
+            w3d_sqw.data.pix(9,:)=errs;
+            w3d_sqw=cut(w3d_sqw,[-1,0.025,1],[-1,0.025,1],[0,1.4,100]);
+            w3d_d3d=d3d(w3d_sqw);
+            
+            w2d_qe_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[0,1.4,100]);
+            w2d_qe_sqw=sqw_eval(w2d_qe_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
+            errs=w2d_qe_sqw.data.pix(8,:);
+            w2d_qe_sqw.data.pix(9,:)=errs;
+            w2d_qe_sqw=cut(w2d_qe_sqw,[-1,0.025,1],[0,1.4,100]);
+            w2d_qe_d2d=d2d(w2d_qe_sqw);
+            
+            w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
+            w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
+            errs=w2d_qq_sqw.data.pix(8,:);
+            w2d_qq_sqw.data.pix(9,:)=errs;
+            w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
+            w2d_qq_d2d=d2d(w2d_qq_sqw);
+            
+            w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
+            w1d_sqw=sqw_eval(w1d_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
+            errs=w1d_sqw.data.pix(8,:);
+            w1d_sqw.data.pix(9,:)=errs;
+            w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
+            w1d_d1d=d1d(w1d_sqw);
+            
+            w2d_qq_small_sqw=cut_sqw(data_source,proj,[0,0.025,0.4],[0,0.025,0.4],[-Inf,Inf],[30,40]);
+            w2d_qq_small_d2d=d2d(w2d_qq_small_sqw);
+            
+            %
+            % %
+            save(w3d_sqw,[this.testdir,filesep,'w3d_sqw.sqw']);
+            save(w3d_d3d,[this.testdir,filesep,'w3d_d3d.sqw']);
+            save(w2d_qe_sqw,[this.testdir,filesep,'w2d_qe_sqw.sqw']);
+            save(w2d_qe_d2d,[this.testdir,filesep,'w2d_qe_d2d.sqw']);
+            save(w2d_qq_sqw,[this.testdir,filesep,'w2d_qq_sqw.sqw']);
+            save(w2d_qq_d2d,[this.testdir,filesep,'w2d_qq_d2d.sqw']);
+            save(w1d_sqw,[this.testdir,filesep,'w1d_sqw.sqw']);
+            save(w1d_d1d,[this.testdir,filesep,'w1d_d1d.sqw']);
+            %
+            save(w2d_qq_small_sqw,[this.testdir,filesep,'w2d_qq_small_sqw.sqw']);
+            save(w2d_qq_small_d2d,[this.testdir,filesep,'w2d_qq_small_d2d.sqw']);
         end
         function delete(this)
             close all;
