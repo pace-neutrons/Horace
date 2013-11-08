@@ -227,7 +227,7 @@ end
 %cannot use recompute_bin_data to get the new object...
 %Notice that Horace can deal with working out the data range itself if we
 %set the plot limits to be +/-Inf
-horace_info_level(-Inf);
+il=horace_info_level(-Inf);
 if ndims==1
     xstep=win.data.p{1}(2)-win.data.p{1}(1);
     wout=cut(wout,[min_full{1},xstep,max_full{1}]);
@@ -255,7 +255,7 @@ elseif ndims==4
 else
     error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
 end
-horace_info_level(Inf);
+horace_info_level(il);
 
 
 
