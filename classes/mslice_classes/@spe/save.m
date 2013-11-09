@@ -18,6 +18,8 @@ if ~ok, error(mess), end
 
 % Write data to file
 % ------------------
-disp(['Writing spe to ',file_full,'...'])
+if get(herbert_config,'log_level')>-1
+	disp(['Writing spe to ',file_full,'...'])
+end
 [ok,mess] = put_spe (w,file_full);
 if ~ok; error(mess); end

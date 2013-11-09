@@ -24,6 +24,9 @@ function banner_to_screen(varargin)
 
 % Parse input
 % -----------
+if get(herbert_config,'log_level')<0
+    return;
+end
 str=varargin{1};
 
 if nargin==2
