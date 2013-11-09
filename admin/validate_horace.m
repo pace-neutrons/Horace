@@ -10,7 +10,7 @@ function  validate_horace
 %  of any changes made in the test routines)
 
 cur_config=get(hor_config,'-public');   % only get the public i.e. not sealed, fields
-cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config));
+cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,{}));
 
 
 % Turn on unit test functions if required
@@ -48,7 +48,10 @@ test_folders={...
 %=============================================================================
 for i=1:numel(test_folders)
     test_folders{i}=fullfile(test_path,test_folders{i});
+      addpath(test_folders{i});    
 end
+cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,test_folders));    
+
 runtests(test_folders{:});
 % warning on all;
 
@@ -59,6 +62,11 @@ validate_herbert('-revert')
 
 
 %=================================================================================================================
-function validate_horace_cleanup(cur_config)
+function validate_horace_cleanup(cur_config,test_folders)
 % Reset the configuration
 set(hor_config,cur_config);
+% clear up the test folders, previously placed on the path
+for i=1:numel(test_folders)
+    rmpath(test_folders{i});
+end
+

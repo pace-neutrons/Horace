@@ -57,8 +57,10 @@ end
 % Read header information from files, and check consistency
 % ---------------------------------------------------------
 % At present we require that all detector info is the same for all files, and each input file contains only one spe file
-disp(' ')
-disp('Reading header(s) of input file(s) and checking consistency...')
+if get(hor_config,'horace_info_level')>-1
+	disp(' ')
+	disp('Reading header(s) of input file(s) and checking consistency...')
+end
 
 % Read header information:
 main_header=cell(nfiles,1);
@@ -138,9 +140,10 @@ end
 % require too much RAM (30GB if 200 spe files); also if we just want to check the consistency of the header information
 % in the files first we do not want to spend lots of time reading and accumulating the s,e,npix arrays. We can do
 % that now, as we have checked the consistency.
-
-disp(' ')
-disp('Reading and accumulating binning information of input file(s)...')
+if get(hor_config,'horace_info_level')>-1 
+	disp(' ')
+	disp('Reading and accumulating binning information of input file(s)...')
+end
 
 % Read data:
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
@@ -177,8 +180,10 @@ mess_completion
 
 % Write to output file
 % ---------------------------
-disp(' ')
-disp(['Writing to output file ',outfile,' ...'])
+if get(hor_config,'horace_info_level')>-1
+    disp(' ')
+    disp(['Writing to output file ',outfile,' ...'])
+end
 
 nfiles_tot=sum(nspe);
 main_header_combined.filename='';

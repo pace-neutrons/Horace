@@ -41,18 +41,23 @@ data = struct();
 % Get the list of all detectors, including the detectors corresponding to masked detectors
 det0 = get_rundata(run_file,'det_par','-hor');
 
+log_level=	get(hor_config,'horace_info_level');
 
 % Create sqw object
 % -----------------
 [w, grid_size, urange]=calc_sqw(efix, emode, alatt, angdeg, u, v, psi,...
     omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in, instrument, sample);
-
-bigtoc('Time to convert from spe to sqw data:')
-disp(' ')
+	
+if log_level>-1
+	bigtoc('Time to convert from spe to sqw data:')
+	disp(' ')
 
 
 % Write sqw object
 % ----------------
-bigtic
+	bigtic
+end
 save(w,sqw_file);
-bigtoc('Time to save data to file:')
+if log_level>-1
+	bigtoc('Time to save data to file:')
+end
