@@ -13,9 +13,10 @@ function urange = rundata_find_urange(run_files)
 %              transfer, in crystal Cartesian coordinates and meV. Uses bin centres.
 
 nfiles = numel(run_files);
-
-disp('--------------------------------------------------------------------------------')
-disp(['Calculating limits of data from ',num2str(nfiles),' spe files...'])
+if get(hor_config,'horace_info_level')>-1
+	disp('--------------------------------------------------------------------------------')
+	disp(['Calculating limits of data from ',num2str(nfiles),' spe files...'])
+end
 
 % Get the maximum limits along the projection axes across all spe files
 data.filename='';

@@ -37,9 +37,12 @@ if numel(file_internal)~=numel(w)
     error('Number of data objects in array does not match number of file names')
 end
 
+log_level= get(hor_config,'horace_info_level');
 for i=1:numel(w)
-    % Write data to file
-    disp(['Writing to ',file_internal{i},'...'])
+    % Write data to file   x
+    if log_level>-1
+        disp(['Writing to ',file_internal{i},'...'])
+    end
     mess = put_sqw (file_internal{i},w(i).main_header,w(i).header,w(i).detpar,w(i).data);
     if ~isempty(mess); error(mess); end
 

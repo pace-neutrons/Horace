@@ -57,7 +57,9 @@ main_header.nfiles=1;
 
 % Fill header and data blocks
 % ---------------------------
-disp('Calculating projections...')
+if get(hor_config,'horace_info_level')>-1
+	disp('Calculating projections...');
+end
 [header,sqw_data]=calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
 
 % Update some header fields
@@ -88,7 +90,9 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
     grid_size = grid_size_in;
 
 else
-    disp('Sorting pixels ...')
+	if get(hor_config,'horace_info_level')>-1
+		disp('Sorting pixels ...')
+	end
     
     use_mex=get(hor_config,'use_mex');
     if use_mex

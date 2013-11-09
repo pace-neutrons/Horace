@@ -121,7 +121,7 @@ if ~save_output
     output_file=fullfile(rootpath,'test_gen_sqw_powder_output.mat');
     old=load(output_file);
     nam=fieldnames(old);
-    tol=-1.0e-13;
+    tol=1.0e-5;
     for i=1:numel(nam)
         [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
     end

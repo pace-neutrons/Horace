@@ -139,16 +139,19 @@ if isempty(urange)
     urange=range_add_border(urange,-1e-6);     % add a border to account for Matlab matrix multiplication bug
 end
 
+log_level = get(hor_config,'horace_info_level');
 % Construct data structure with spe file information
 if nfiles==1
     % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
+  if(log_level>-1)
     disp('--------------------------------------------------------------------------------')
     disp('Creating output sqw file:')
-    data=fake_spe(ndet,en{1},psi);
-    w=calc_sqw(efix, emode, alatt, angdeg, u, v, psi*d2r, omega*d2r, dpsi*d2r, gl*d2r, gs*d2r,...
+  end
+  data=fake_spe(ndet,en{1},psi);
+  w=calc_sqw(efix, emode, alatt, angdeg, u, v, psi*d2r, omega*d2r, dpsi*d2r, gl*d2r, gs*d2r,...
         data, det, det, grid_size, urange, instrument, sample);
-    save(w,sqw_file)
-    tmp_file={};    % empty cell array to indicate no tmp_files created
+  save(w,sqw_file)
+  tmp_file={};    % empty cell array to indicate no tmp_files created
     
 else
     % Create unique temporary sqw files, one for each of the energy bin arrays
@@ -156,24 +159,29 @@ else
     tmp_file=gen_tmp_filenames(spe_file,sqw_file);
     nt=bigtic();
     for i=1:nfiles
-        disp('--------------------------------------------------------------------------------')
-        disp(['Creating intermediate .tmp file ',num2str(i),' of ',num2str(nfiles),':'])
-        disp(' ')
-        data=fake_spe(ndet,en{i},psi(i));
-        w=calc_sqw(efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:),...
-            psi(i)*d2r, omega(i)*d2r, dpsi(i)*d2r, gl(i)*d2r, gs(i)*d2r,...
-            data, det, det, grid_size, urange, instrument(i), sample(i));
-        save(w,tmp_file{i})
+          if log_level>-1
+            disp('--------------------------------------------------------------------------------')
+            disp(['Creating intermediate .tmp file ',num2str(i),' of ',num2str(nfiles),':'])
+            disp(' ')
+          end
+          data=fake_spe(ndet,en{i},psi(i));
+          w=calc_sqw(efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:),...
+                psi(i)*d2r, omega(i)*d2r, dpsi(i)*d2r, gl(i)*d2r, gs(i)*d2r,...
+                data, det, det, grid_size, urange, instrument(i), sample(i));
+          save(w,tmp_file{i})
     end
-    disp('--------------------------------------------------------------------------------')
-    bigtoc(nt,'Time to create all intermediate .tmp files:');
-    disp('--------------------------------------------------------------------------------')
-    
+    if log_level>-1
+        disp('--------------------------------------------------------------------------------')
+        bigtoc(nt,'Time to create all intermediate .tmp files:');
+        disp('--------------------------------------------------------------------------------')
+        disp('Creating output sqw file:')        
+    end
     % Create single sqw file combining all intermediate sqw files
-    disp('Creating output sqw file:')
+
     write_nsqw_to_sqw (tmp_file, sqw_file);
-    
-    disp('--------------------------------------------------------------------------------')
+    if log_level>-1
+        disp('--------------------------------------------------------------------------------')
+    end
     % Delete tmp files
     delete_error=false;
     for i=1:numel(tmp_file)
@@ -182,7 +190,9 @@ else
         catch
             if delete_error==false
                 delete_error=true;
-                disp('One or more intermediate .tmp files not deleted')
+                if log_level>-1
+                    disp('One or more intermediate .tmp files not deleted')
+                end
             end
         end
     end
