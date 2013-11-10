@@ -9,23 +9,30 @@ function herbert_mex(varargin)
 % -noprompt  -- do not ask to configure FORTRAN and C compiler, default ask
 %               if provided, assume that compiler is configured and we are
 %               building both fortran and C parts of code
+% -setmex    -- by default, successfully mexed  files are not set to be
+%               used. when prompt is on, you are asked to set or not set
+%               them up. use -setmex to use mex
+%               files after successfull compilation.
+%
 % -CPP    -- assume compiler configured to build C -part of code, build C;
 % -FOR    -- assume compiler configured to build FORTRAN -part of code, build FORTRAN;
 % -keep_lib  -- keep the intermediate fortran library 
 % -use_lib   -- use the previously build library when building the mex-code (missing
-%               library components will be added, will also invoke -keep_lib 
+%              library components will be added, will also invoke -keep_lib 
 % -missing   -- build only missing mex files, if not present, script
 %               rebuilds all existing files
 %
 %   $Rev$ ($Date$)
 %
 % root directory is assumed to be that in which mslice_init resides
+
 % list of keys the sctip accepts
-keys={'-noprompt','-CPP','-FOR','-use_lib','-keep_lib','-missing'};
+keys={'-noprompt','-setmex','-CPP','-FOR','-use_lib','-keep_lib','-missing'};
 %defaults:
 prompt4compiler=true;
 keep_lib       =false;
 use_lib        =false;
+set_mex        =false;
 missing        ='';
 
 
@@ -60,6 +67,9 @@ if nargin >0
     if ismember('-missing',theKeys)
         missing = '-missing';
     end
+    if ismemeber('-sefmex',theKeys)
+        set_mex = true;
+    end
 end
 
 rootpath = fileparts(which('herbert_init'));
@@ -71,6 +81,7 @@ if prompt4compiler
     if user_choice=='e'
         return;
     end
+    set_mex = ask2SetMex();
 end
 if ispc
 
@@ -99,7 +110,9 @@ herbert_F_code_dir  =fullfile(rootpath,'_LowLevelCode','Fortran');
 lib_dir             =fullfile(herbert_F_code_dir,'mex');
 try
     if user_choice ~= 'c'	
-        set(herbert_config,'use_mex',false);      
+        if set_mex
+            set(herbert_config,'use_mex',false);      
+        end
                
         if ~exist(lib_dir,'dir')
             mkdir(lib_dir);
@@ -242,17 +255,21 @@ try
                      'source_mex_interface/IFL_rebin_3d_z_hist.f90',...
                       modules{:});
 
-                    
-       set(herbert_config,'use_mex',true);	               
+                  
        display (' ')
        disp('!==================================================================!')
        disp('!  Succesfully created required FORTRAN mex files  ================!')
-       disp('!==================================================================!')    
+       if set_mex             
+        set(herbert_config,'use_mex',true);	               
+        disp('!  Setting it to immediate use                     ================!')               
+       end
+
+       disp('!==================================================================!')           
        display(' ')
        
         
     end            
-catch ex
+catch ex  
      set(herbert_config,'use_mex',false);
      display (' ')
      disp('!==================================================================!')
@@ -276,17 +293,23 @@ try
         mex -setup
     end
     if user_choice ~= 'f'
-        set(herbert_config,'use_mex_C',false);
+        if set_mex
+            set(herbert_config,'use_mex_C',false);
+        end
         % build C++ files
         mex_single_c(fullfile(herbert_C_code_dir,'get_ascii_file'), herbert_mex_target_dir,...
                     'get_ascii_file.cpp','IIget_ascii_file.cpp')
-                
+               
+
+       display (' ')
+       disp('!==================================================================!')
+       disp('!  Succesfully created required C mex files   =====================!')
+       if set_mex             
         set(herbert_config,'use_mex_C',true);
-        display (' ')
-        disp('!==================================================================!')
-        disp('!  Succesfully created required C mex files   =====================!')
-        disp('!==================================================================!')    
-        display(' ')
+        disp('!  Setting it to immediate use                     ================!')               
+       end
+       disp('!==================================================================!')            
+       display(' ')
         
     end
     
@@ -369,3 +392,30 @@ if user_choice=='e'
     disp('!==================================================================!')    
     return;
 end
+
+function set_mex = ask2SetMex()
+disp('!==================================================================!')
+disp('! Would you like to use mex files immidiately after successfull    !')
+disp('! compilation?: y/n                                                !')
+disp('! if no, you will be able to use them  by setting herbert          !')
+disp('! configuration                                                    !')
+disp('!>>set(herbert_config,''use_mex'',1,''use_mex_C'',1)                   !')
+disp('! when compilation was successfull,                                !')
+disp('! if yes, this script will do it for you                           !')
+disp('!------------------------------------------------------------------!')
+disp('!------------------------------------------------------------------!')
+user_entry=input('! y/n :','s');
+user_entry=strtrim(lower(user_entry));
+user_choice = user_entry(1);
+disp(['!===> ' user_choice,' choosen                                                    !']);
+disp('!==================================================================!')
+
+if strncmp(user_entry,'y',1)
+    set_mex = true;
+    return;
+end
+set_mex = false;
+if ~strncmp(user_entry,'n',1)
+    disp(['! unknown option ',user_entry,' selected, assuming it means no'])
+end
+    
