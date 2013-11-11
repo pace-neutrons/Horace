@@ -24,14 +24,14 @@ if isempty(nexus_folder_name)
     error('LOAD_NXSPE:invalid_argument','NXSPE data can not be located withing nexus file file %s\n',full_file_name);
 end
 
-if ~strncmp(nxspe_version,'1.1',3)
+if ~(strncmp(nxspe_version,'1.1',3) || strncmp(nxspe_version,'1.2',3))
     if strncmp(nxspe_version,'1.0',3)
         this.nxspe_version='1.0';
     else
         error('LOADER_NXSPE:invalid_argument',' loader nxpse currently supports 1.1/1.0 version only but got version: %s\n',nxspe_version);
     end
 else    
-   this.nxspe_version='1.1';
+   this.nxspe_version='1.2';
 end
 %
 %
