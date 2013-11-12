@@ -3,11 +3,20 @@ function [rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex(varargin
 % their SVN min and max version and the latest date these files were
 % compiled
 %
-% If some mex files are can not be launched,the function returns the number of erros
-% as n_errors and empty mex-files versions and dates
+% Usage:
+%>>[rez,n_errors]=check_horace_mex();
+%>>[rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex('min-max')
+%
+% if input argument is present, the function also returns min and max svn
+% versions of the mex files and the most recent compilation date of these
+% files if n_errors = 0. 
+%
+% If some mex files are can not be launched,the function returns the number of 
+% files not launched as n_errors. mex-files versions strings become empty.
 % 
-% if varargin is present, the function also returns min and max svn
-% versions of the mex files 
+% rez is cellarray, which contains reply from mex files queried about their
+% version
+% 
 %
 % $Revision$    $Date$
 %

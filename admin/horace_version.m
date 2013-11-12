@@ -1,6 +1,14 @@
-function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version(varargin)
+function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
 % the function returns the version of horace, which should correspond to
 % the distinctive tag version from the SVN server. 
+%
+% Usage:
+% [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
+% 
+% where application is a string containing the program name (horace) and 
+% horace release version. 
+%
+%
 %
 % An pre-commit hook script has to be enabled to support valid Matlab
 % versioning. The script should modify the data of this file before
@@ -13,7 +21,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version(vararg
 % returns revision data as numbers rather then strings (convenient for version analysis)
 %
 %
-% $COMMIT_COUNTER:: 49 $
+% $COMMIT_COUNTER:: 52 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will 
 % be modified and probably corrupted at commit

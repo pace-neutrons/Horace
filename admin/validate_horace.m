@@ -52,6 +52,11 @@ test_folders={...
     'test_symmetrisation',...
     'test_sqw'...
     };
+
+[mess,n_errors]=check_horace_mex();
+if n_errors==0 % also check mex files against matlab version
+    test_folders{end+1}='test_mex_nomex';
+end
 %=============================================================================
 test_f = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
 cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,test_f,cur_her_conf)); 
@@ -97,5 +102,4 @@ end
 warning(warn);
 % Turn off unit test functions if required
 % ----------------------------------------
-
 
