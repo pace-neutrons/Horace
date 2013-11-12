@@ -1,4 +1,4 @@
-function  validate_horace
+function  validate_horace(opt)
 % Run unit tests on Horace installation
 %
 %   >> validate_horace
@@ -8,6 +8,12 @@ function  validate_horace
 % ------------------------------------------------------
 % (Validation must always return Horace to its initial state, regardless
 %  of any changes made in the test routines)
+parallell=true;
+if nargin > 0 
+    if strcmpi('-nopar',opt)
+        parallell = false;
+    end
+end
 
 cur_config=get(hor_config,'-public');   % only get the public i.e. not sealed, fields
 cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,{}));
@@ -46,13 +52,26 @@ test_folders={...
     'test_sqw'...
     };
 %=============================================================================
-for i=1:numel(test_folders)
-    test_folders{i}=fullfile(test_path,test_folders{i});
-      addpath(test_folders{i});    
-end
-cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,test_folders));    
+test_f = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
+cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,test_f)); 
 
-runtests(test_folders{:});
+if license('checkout','Distrib_Computing_Toolbox') && parallell
+    cores = feature('numCores');
+    matlabpool(cores);   
+    parfor i=numel(test_f)
+        addpath(test_f{i})
+        runtests(test_f{i})
+        rmpath(test_f{i})        
+    end
+else
+    for i=1:numel(test_f)
+        addpath(test_f{i});    
+        runtests(test_f{i})
+        rmpath(test_f{i})
+    end
+end
+
+
 % warning on all;
 
 
@@ -66,7 +85,9 @@ function validate_horace_cleanup(cur_config,test_folders)
 % Reset the configuration
 set(hor_config,cur_config);
 % clear up the test folders, previously placed on the path
+warn = warning('off','all'); % avoid varnings on deleting non-existent path
 for i=1:numel(test_folders)
     rmpath(test_folders{i});
 end
+warning(warn);
 
