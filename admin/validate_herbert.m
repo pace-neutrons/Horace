@@ -1,6 +1,5 @@
 function validate_herbert(varargin)
 % Run unit tests on Herbert installation
-% if parallel computer toolbox is found, test run in parallel.
 %
 %   >> validate_herbert             % Run full Herbert validation
 %   >> validate_herbert ('-full')   % Same as above. Full must be provided
@@ -15,8 +14,8 @@ function validate_herbert(varargin)
 %                                   % on the path depending on the herbert_config
 %                                   % field 'init_tests'
 %
-% adding '-nopar'  option disables parallel execution even if parallel computer
-%                  toolbox is availible
+% adding '-par'  option enables parallel execution if parallel computer
+%                 toolbox is availible
 
 
 
@@ -36,12 +35,12 @@ cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,{}));
 
 % Parse requested operation
 % -------------------------
-options = {'-full','-enable','-revert','-nopar'};
+options = {'-full','-enable','-revert','-par'};
 
 full=true;
 enable=false; 
 revert=false;
-parallell=true;
+parallell=false;
 if nargin>0
     opt = cellfun(@toLower,varargin,'UniformOutput',false);
     known = ismember(opt,options);  
@@ -59,8 +58,8 @@ if nargin>0
     if ismember('-revert',opt)    
        revert=true;        
     end
-    if ismember('-nopar',opt)
-        parallell=false;
+    if ismember('-par',opt)
+        parallell=true;
     end
 end
 
