@@ -91,15 +91,18 @@ if full
         'test_utilities',...
         };    
     %=============================================================================
+    cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders));        
+   % init unit tests routine and make it as less talkative, as possible
+    set(herbert_config,'log_level',-1,'init_tests',1,'-buffer');             
     for i=1:numel(test_folders)
         test_folders{i}=fullfile(test_path,test_folders{i});
         % fix the issie with test destructor, recent matlab versions have        
         addpath(test_folders{i});
+        runtests(test_folders{i});        
+        rmpath(test_folders{i});
     end
-    cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders));    
-   % init unit tests routine and make it as less talkative, as possible
-    set(herbert_config,'log_level',-1,'init_tests',1,'-buffer');          
-    runtests(test_folders{:});
+
+
 end
 
 
@@ -109,7 +112,9 @@ function validate_herbert_cleanup(cur_config,test_folders)
 % Reset the configuration
 set(herbert_config,cur_config);
 % clear up the test folders, previously placed on the path
+warn = warning('off','all'); % avoid varnings on deleting non-existent path
 for i=1:numel(test_folders)
     rmpath(test_folders{i});
 end
+warning(warn);
 
