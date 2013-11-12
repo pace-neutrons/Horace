@@ -78,9 +78,7 @@ if full
     % (The validation should be done starting with the defaults, otherwise an error
     %  may be due to a poor choice by the user of configuration parameters)
     set(herbert_config,'defaults','-buffer');
-    % make it as less talkative, as possible
-    set(herbert_config,'log_level',-1,'init_tests',1,'-buffer');    
-    %==============================================================================
+     %==============================================================================
     % Place call to tests here
     % -----------------------------------------------------------------------------
     test_folders={...
@@ -99,6 +97,8 @@ if full
         addpath(test_folders{i});
     end
     cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders));    
+   % init unit tests routine and make it as less talkative, as possible
+    set(herbert_config,'log_level',-1,'init_tests',1,'-buffer');          
     runtests(test_folders{:});
 end
 

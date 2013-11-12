@@ -48,8 +48,8 @@ if isfield(S,'init_tests')
   common_path= fullfile(rootpath,'_test/common_functions');  % path for unit tests        
 
   if change_to > 0
+        addpath(common_path);              
         addpath(xunit_path);
-        addpath(common_path);        
   else
         warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent path)        
         rmpath(xunit_path);
