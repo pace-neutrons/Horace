@@ -8,20 +8,20 @@ function  validate_horace(opt)
 % ------------------------------------------------------
 % (Validation must always return Horace to its initial state, regardless
 %  of any changes made in the test routines)
-parallell=true;
+parallell=false;
 if nargin > 0 
-    if strcmpi('-nopar',opt)
-        parallell = false;
+    if strncmpi('-parallel',opt,4)
+        parallell = true;
     end
 end
 
 cur_config=get(hor_config,'-public');   % only get the public i.e. not sealed, fields
-cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,{}));
-
+%validate_herbert('-enable')     % note: does not change Herbert configuration
+cur_her_conf=get(herbert_config,'-public');
+cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,{},cur_her_conf));
 
 % Turn on unit test functions if required
 % ---------------------------------------
-validate_herbert('-enable')     % note: does not change Herbert configuration
 
 % Get path to unit tests:
 horace_path = fileparts(which('horace_init'));
@@ -34,7 +34,7 @@ test_path=fullfile(horace_path,'_test');
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
 set(hor_config,'defaults','-buffer');
-set(hor_config,'horace_info_level',-1,'-buffer');    % turn off Horace informational output
+
 
 % warning off all;
 %==============================================================================
@@ -49,16 +49,20 @@ test_folders={...
     'test_herbert_utilites',...
     'test_mslice_utilities',...
     'test_multifit',...
+    'test_symmetrisation',...
     'test_sqw'...
     };
 %=============================================================================
 test_f = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
-cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,test_f)); 
+cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,test_f,cur_her_conf)); 
 
+% initiate unit tests and set them up on the path, decrease info level
+set(herbert_config,'init_tests',1,'log_level',-1,'-buffer');
+set(hor_config,'horace_info_level',-1,'-buffer');    % turn off Horace informational output
 if license('checkout','Distrib_Computing_Toolbox') && parallell
     cores = feature('numCores');
     matlabpool(cores);   
-    parfor i=numel(test_f)
+    parfor i=1:numel(test_f)
         addpath(test_f{i})
         runtests(test_f{i})
         rmpath(test_f{i})        
@@ -75,19 +79,23 @@ end
 % warning on all;
 
 
-% Turn off unit test functions if required
-% ----------------------------------------
-validate_herbert('-revert')
+
+%validate_herbert('-revert')
 
 
 %=================================================================================================================
-function validate_horace_cleanup(cur_config,test_folders)
+function validate_horace_cleanup(cur_config,test_folders,her_cur_config)
 % Reset the configuration
 set(hor_config,cur_config);
+% revert herbert configuration
+set(herbert_config,her_cur_config);
 % clear up the test folders, previously placed on the path
 warn = warning('off','all'); % avoid varnings on deleting non-existent path
 for i=1:numel(test_folders)
     rmpath(test_folders{i});
 end
 warning(warn);
+% Turn off unit test functions if required
+% ----------------------------------------
+
 
