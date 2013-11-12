@@ -1,8 +1,11 @@
-function validate_herbert(opt)
+function validate_herbert(varargin)
 % Run unit tests on Herbert installation
+% if parallel computer toolbox is found, test run in parallel.
 %
 %   >> validate_herbert             % Run full Herbert validation
-%   >> validate_herbert ('-full')   % Same as above
+%   >> validate_herbert ('-full')   % Same as above. Full must be provided
+%                                   % with any other option if herbert
+%                                   % tests are requested
 %
 %   >> validate_herbert ('-enable') % initialise Herbert validation functions
 %                                   % for use by e.g. Horace
@@ -11,14 +14,18 @@ function validate_herbert(opt)
 %                                   % (the unit tests functions may still be
 %                                   % on the path depending on the herbert_config
 %                                   % field 'init_tests'
+%
+% adding '-nopar'  option disables parallel execution even if parallel computer
+%                  toolbox is availible
+
 
 
 % On exit always revert to initial Herbert configuration
 % ------------------------------------------------------
 % (Validation must always return Herbert to its initial state, regardless
 %  of any changes made in the test routines. For example, as of 23/10/13
-%  the call to @loader_ascii\load_data will set use_mex_C=false if a 
-%  problem is encountered, and will save the configuration. This is 
+%  the call to @loader_ascii\load_data will set use_mex_C=false if a
+%  problem is encountered, and will save the configuration. This is
 %  appropriate action when deployed, but we do not want this to be done
 %  during validation)
 
@@ -29,22 +36,31 @@ cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,{}));
 
 % Parse requested operation
 % -------------------------
-full=false; enable=false; revert=false;
-if nargin==0
-    full=true;
-else
-    if ischar(opt) && size(opt,1)==1 && size(opt,2)>=2
-        if strcmpi(opt,'-full')
-            full=true;
-        elseif strcmpi(opt,'-enable')
-            enable=true;
-        elseif strcmpi(opt,'-revert')
-            revert=true;
-        else
-            error('Option must be ''-full'', ''-enable'' or ''-revert''')
-        end
-    else
-        error('Option must be ''-full'', ''-enable'' or ''-revert''')
+options = {'-full','-enable','-revert','-nopar'};
+
+full=true;
+enable=false; 
+revert=false;
+parallell=true;
+if nargin>0
+    opt = cellfun(@toLower,varargin,'UniformOutput',false);
+    known = ismember(opt,options);  
+    if ~all(known)
+        disp(['VALIDATE_HERBERT: availible options are: ',options{:}]);
+        error('VALIDATE_HERBERT:invalid_argument',['Invalid input key(s) ',opt{~known}]);
+    end
+    full=false;
+    if ismember('-full',opt)
+       full=true;        
+    end
+    if ismember('-enable',opt)
+       enable=true;        
+    end
+    if ismember('-revert',opt)    
+       revert=true;        
+    end
+    if ismember('-nopar',opt)
+        parallell=false;
     end
 end
 
@@ -55,8 +71,8 @@ test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests fol
 
 xunit_initialised=get(herbert_config,'init_tests');
 if revert
-   % this configuration will be make currend on clean-up
-   cur_config.init_tests=false;   
+    % this configuration will be make currend on clean-up
+    cur_config.init_tests=false;
 end
 
 
@@ -78,7 +94,7 @@ if full
     % (The validation should be done starting with the defaults, otherwise an error
     %  may be due to a poor choice by the user of configuration parameters)
     set(herbert_config,'defaults','-buffer');
-     %==============================================================================
+    %==============================================================================
     % Place call to tests here
     % -----------------------------------------------------------------------------
     test_folders={...
@@ -89,20 +105,32 @@ if full
         'test_mslice_objects',...
         'test_multifit',...
         'test_utilities',...
-        };    
+        };
     %=============================================================================
-    cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders));        
-   % init unit tests routine and make it as less talkative, as possible
-    set(herbert_config,'log_level',-1,'init_tests',1,'-buffer');             
-    for i=1:numel(test_folders)
-        test_folders{i}=fullfile(test_path,test_folders{i});
-        % fix the issie with test destructor, recent matlab versions have        
-        addpath(test_folders{i});
-        runtests(test_folders{i});        
-        rmpath(test_folders{i});
+    test_f = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
+    cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_f));
+    
+    % init unit tests routine and make it as less talkative, as possible
+    set(herbert_config,'log_level',-1,'init_tests',1,'-buffer');
+    
+    if license('checkout','Distrib_Computing_Toolbox') && parallell
+        cores = feature('numCores');
+        matlabpool(cores);
+        parfor i=1:numel(test_f)
+            addpath(test_f{i})
+            runtests(test_f{i})
+            rmpath(test_f{i})
+        end
+    else
+        for i=1:numel(test_f)
+            addpath(test_f{i});
+            runtests(test_f{i})
+            rmpath(test_f{i})
+        end
     end
-
-
+    
+    
+    
 end
 
 
@@ -118,3 +146,9 @@ for i=1:numel(test_folders)
 end
 warning(warn);
 
+function lowc=toLower(x)
+if ischar(x)
+    lowc=lower(x);
+else
+    error('VALIDATE_HERBERT:invalid_argument','only string input options are allwed')
+end
