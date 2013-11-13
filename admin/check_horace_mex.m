@@ -1,11 +1,11 @@
-function [rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex(varargin)
+function [rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex()
 % function checks if horace mex files are compiled correctly and return
 % their SVN min and max version and the latest date these files were
 % compiled
 %
 % Usage:
 %>>[rez,n_errors]=check_horace_mex();
-%>>[rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex('min-max')
+%>>[rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex()
 %
 % if input argument is present, the function also returns min and max svn
 % versions of the mex files and the most recent compilation date of these
@@ -21,14 +21,16 @@ function [rez,n_errors,minVer,maxVer,compilation_date]=check_horace_mex(varargin
 % $Revision$    $Date$
 %
 
-n_errors=0;
 compilation_date  =[];
 
+% list of the function names used in nice formatted messages formed by the
+% function
 functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ','calc_projections: ','sort_pixels_by_b: '};
+% list of the mex files handles used by horace and verified by this script.
 functions_handle_list={@accumulate_cut_c,@bin_pixels_c,@calc_projections_c,@sort_pixels_by_bins};
 rez = cell(numel(functions_name_list),1);
 
-
+n_errors=0;
 for i=1:numel(functions_name_list)
     try
         rez{i}=[functions_name_list{i},functions_handle_list{i}()];    
@@ -41,7 +43,7 @@ end
 % in deploying mex-files, the versions become undefined;
 minVer = 1e+32;
 maxVer = -1;
-if nargin>0 && n_errors==0
+if nargout>2 && n_errors==0
     n_mex=numel(rez);
     
     for i=1:n_mex
