@@ -14,29 +14,6 @@ if nargin > 0
         parallell = true;
     end
 end
-
-cur_config=get(hor_config,'-public');   % only get the public i.e. not sealed, fields
-%validate_herbert('-enable')     % note: does not change Herbert configuration
-cur_her_conf=get(herbert_config,'-public');
-cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,{},cur_her_conf));
-
-% Turn on unit test functions if required
-% ---------------------------------------
-
-% Get path to unit tests:
-horace_path = fileparts(which('horace_init'));
-test_path=fullfile(horace_path,'_test');
-
-
-% Run unit tests
-% --------------
-% Set Horace configuration to the default (but don't save)
-% (The validation should be done starting with the defaults, otherwise an error
-%  may be due to a poor choice by the user of configuration parameters)
-set(hor_config,'defaults','-buffer');
-
-
-% warning off all;
 %==============================================================================
 % Place call to tests here
 % -----------------------------------------------------------------------------
@@ -56,28 +33,53 @@ test_folders={...
 [mess,n_errors]=check_horace_mex();
 if n_errors==0 % also check mex files against matlab version
     test_folders{end+1}='test_mex_nomex';
+else
+    warning('VALIDATE_HORACE:mex','mex files are disabled, and will not be tested');
 end
-%=============================================================================
-test_f = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
-cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,test_f,cur_her_conf)); 
 
-% initiate unit tests and set them up on the path, decrease info level
+% Get path to unit tests:
+horace_path = fileparts(which('horace_init'));
+test_path=fullfile(horace_path,'_test');
+% generate fill test path
+test_f = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
+%=============================================================================
+% get previous configuration and prepare to restore it on clean-up
+cur_config=get(hor_config,'-public');   % only get the public i.e. not sealed, fields
+%validate_herbert('-enable')     % note: does not change Herbert configuration
+cur_her_conf=get(herbert_config,'-public');
+cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_config,{},cur_her_conf));
+
+% Run unit tests
+% --------------
+% Set Horace configuration to the default (but don't save)
+% (The validation should be done starting with the defaults, otherwise an error
+%  may be due to a poor choice by the user of configuration parameters)
+set(hor_config,'defaults','-buffer');
+% set up other configuration options necessary for tests to run
 set(herbert_config,'init_tests',1,'log_level',-1,'-buffer');
 set(hor_config,'horace_info_level',-1,'-buffer');    % turn off Horace informational output
+
+
+time=bigtic();
 if license('checkout','Distrib_Computing_Toolbox') && parallell
+
     cores = feature('numCores');
-    matlabpool(cores);   
+    if matlabpool('SIZE')==0
+        matlabpool(cores);   
+    end
     parfor i=1:numel(test_f)
         addpath(test_f{i})
         runtests(test_f{i})
         rmpath(test_f{i})        
     end
+    bigtoc(time,'===COMPLETED UNIT TESTS IN PARALLEL');
 else
     for i=1:numel(test_f)
         addpath(test_f{i});    
         runtests(test_f{i})
         rmpath(test_f{i})
     end
+    bigtoc(time,'===COMPLETED UNIT TESTS RUN ');    
 end
 
 
