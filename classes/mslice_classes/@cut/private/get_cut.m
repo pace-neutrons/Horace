@@ -95,7 +95,9 @@ if use_mex
 end
 if ~use_mex
     try     % try matlab algorithm
-        disp(['Matlab loading of cut file : ' file_tmp]);
+		if get(herbert_config,'log_level')>-1
+			disp(['Matlab loading of cut file : ' file_tmp]);
+		end
         % Open file for reading
         fid=fopen(file_tmp,'rt');
         if fid==-1,
@@ -164,6 +166,7 @@ else
     end
     cut.appendix=appendix;
 end
-
-disp(['Loaded .cut ( ' num2str(numel(cut.npixels)) ' data points and ' num2str(size(cut.pixels,1)) ' pixels) from file : ']);
-disp(file_tmp);
+if get(herbert_config,'log_level')>-1
+	disp(['Loaded .cut ( ' num2str(numel(cut.npixels)) ' data points and ' num2str(size(cut.pixels,1)) ' pixels) from file : ']);
+	disp(file_tmp);
+end

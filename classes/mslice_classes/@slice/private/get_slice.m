@@ -87,7 +87,9 @@ if use_mex
 end
 if ~use_mex
     try     % try matlab algorithm
-        disp(['Matlab loading of slice file : ' file_tmp]);
+		if get(herbert_config,'log_level')>-1
+			disp(['Matlab loading of slice file : ' file_tmp]);
+		end
         % Open file for reading
         fid=fopen(file_tmp,'rt');
         if fid==-1,
@@ -163,5 +165,7 @@ else
     slice.SliceDir=[pathname,filesep];
 end
 
-disp(['Loaded slice ( ' num2str(numel(slice.npixels)) ' data points and ' num2str(size(slice.pixels,1)) ' pixels) from file : ']);
-disp(file_tmp);
+if get(herbert_config,'log_level')>-1
+	disp(['Loaded slice ( ' num2str(numel(slice.npixels)) ' data points and ' num2str(size(slice.pixels,1)) ' pixels) from file : ']);
+	disp(file_tmp);
+end

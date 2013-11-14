@@ -65,7 +65,9 @@ if use_mex
 end
 if ~use_mex
     try     % matlab write
-        disp(['Matlab writing of .spe file : ' file_tmp]);
+		if get(herbert_config,'log_level')>-1	
+			disp(['Matlab writing of .spe file : ' file_tmp]);
+		end
         [ok,mess]=put_spe_matlab(data,file_tmp);
         if ~ok
             error(mess)

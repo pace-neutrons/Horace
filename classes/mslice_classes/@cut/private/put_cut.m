@@ -59,7 +59,9 @@ if use_mex
 end
 if ~use_mex
     try     % matlab write
-        disp(['Matlab writing of .cut file : ' file_tmp]);
+		if get(herbert_config,'log_level')>-1
+			disp(['Matlab writing of .cut file : ' file_tmp]);
+		end
         [ok,mess]=put_cut_matlab(data,labels,file_tmp);
         if ~ok
             error(mess)

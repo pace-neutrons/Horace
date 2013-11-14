@@ -45,7 +45,9 @@ if use_mex
 end
 if ~use_mex
     try     % matlab read
-        disp(['Matlab loading of .spe file : ' file_tmp]);
+		if get(herbert_config,'log_level')>-1
+			disp(['Matlab loading of .spe file : ' file_tmp]);
+		end
         [data.S,data.ERR,data.en]=get_spe_matlab(file_tmp);
     catch
         data=[];
@@ -64,5 +66,7 @@ if sum(index(:)>0)
 end
 
 [ne,ndet]=size(data.S);
-disp(['Loaded spe data ( ' num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)) from file : ']);
-disp(file_tmp);
+if get(herbert_config,'log_level')>-1
+	disp(['Loaded spe data ( ' num2str(ndet) ' detector(s) and ' num2str(ne) ' energy bin(s)) from file : ']);
+	disp(file_tmp);
+end
