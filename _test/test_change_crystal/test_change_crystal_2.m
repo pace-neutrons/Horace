@@ -97,10 +97,10 @@ save(d1c_2,d1c_2_file);
 d2c_arr=[d2c_1,d2c_2];
 d1c_arr=[d1c_1,d1c_2];
 
-
+log_level = get(hor_config,'horace_info_level');
 % Perform tests
 % -------------
-disp('Testing...')
+if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, w2_1, '', true, w2c_1)
 change_crystal_test(rlu_corr, w2_2, '', true, w2c_2)
 change_crystal_test(rlu_corr, w1_1, '', true, w1c_1)
@@ -109,7 +109,7 @@ change_crystal_test(rlu_corr, w2_arr, '', true, w2c_arr)
 change_crystal_test(rlu_corr, w1_arr, '', true, w1c_arr)
 change_crystal_test(rlu_corr, w12_arr, '', true, w12c_arr)
 
-disp('Testing...')
+if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, d2_1, '', true, d2c_1)
 change_crystal_test(rlu_corr, d2_2, '', true, d2c_2)
 change_crystal_test(rlu_corr, d1_1, '', true, d1c_1)
@@ -117,23 +117,23 @@ change_crystal_test(rlu_corr, d1_2, '', true, d1c_2)
 change_crystal_test(rlu_corr, d2_arr, '', true, d2c_arr)
 change_crystal_test(rlu_corr, d1_arr, '', true, d1c_arr)
 
-disp('Testing...')
+if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, w2_1_file, 'hor', true, w2c_1_file)
 change_crystal_test(rlu_corr, w2_2_file, 'hor', true, w2c_2_file)
 change_crystal_test(rlu_corr, w1_1_file, 'hor', true, w1c_1_file)
 change_crystal_test(rlu_corr, w1_2_file, 'hor', true, w1c_2_file)
-disp('Testing...')
+if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, w2_1_file, 'sqw', true, w2c_1_file)
 change_crystal_test(rlu_corr, w2_2_file, 'sqw', true, w2c_2_file)
 change_crystal_test(rlu_corr, w1_1_file, 'sqw', true, w1c_1_file)
 change_crystal_test(rlu_corr, w1_2_file, 'sqw', true, w1c_2_file)
-disp('Testing...')
+if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, w2_1_file, 'dnd', true, w2c_1_file)
 change_crystal_test(rlu_corr, w2_2_file, 'dnd', true, w2c_2_file)
 change_crystal_test(rlu_corr, w1_1_file, 'dnd', true, w1c_1_file)
 change_crystal_test(rlu_corr, w1_2_file, 'dnd', true, w1c_2_file)
 
-disp('Testing...')
+if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, d2_1_file, 'hor', true, d2c_1_file)
 change_crystal_test(rlu_corr, d2_2_file, 'hor', true, d2c_2_file)
 change_crystal_test(rlu_corr, d1_1_file, 'hor', true, d1c_1_file)
@@ -150,8 +150,10 @@ change_crystal_test(rlu_corr, d1_2_file, 'dnd', true, d1c_2_file)
 
 % Clean up all the files created in this test
 % -------------------------------------------
-disp(' ')
-disp('Cleaning up temporary files...')
+if(log_level>-1)
+	disp(' ')
+	disp('Cleaning up temporary files...')
+ end
 filename={w2_1_file,w2_2_file,w1_1_file,w1_2_file,...
           d2_1_file,d2_2_file,d1_1_file,d1_2_file,...
           w2c_1_file,w2c_2_file,w1c_1_file,w1c_2_file,...
