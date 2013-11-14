@@ -101,14 +101,16 @@ try
 catch
     disp('Unable to delete temporary file(s)')
 end
-
+log_level = get(hor_config,'horace_info_level');
 % =====================================================================================================================
 % Compare with saved output
 % ====================================================================================================================== 
 if ~save_output
-    disp('====================================')
-    disp('    Comparing with saved output')
-    disp('====================================')
+	if log_level>-1
+		disp('====================================')
+		disp('    Comparing with saved output')
+		disp('====================================')
+	end
     output_file=fullfile(rootpath,'test_combine_cyl_output.mat');
     old=load(output_file);
     nam=fieldnames(old);
@@ -125,14 +127,17 @@ end
 % Save data
 % ====================================================================================================================== 
 if save_output
-    disp('===========================')
-    disp('    Save output')
-    disp('===========================')
+	if log_level>-1
+		disp('===========================')
+		disp('    Save output')
+		disp('===========================')
+	end
     
     output_file=fullfile(tempdir,'test_combine_cyl_output.mat');
     save(output_file, 'w2_1', 'w2_2', 'w2_tot', 'w1_1', 'w1_2', 'w1_tot')
-    
-    disp(' ')
-    disp(['Output saved to ',output_file])
-    disp(' ')
+	if log_level>-1    
+		disp(' ')
+		disp(['Output saved to ',output_file])
+		disp(' ')
+	end
 end
