@@ -173,7 +173,7 @@ classdef test_rundata< TestCase
        end  
        function test_modify_par_file_load(this)
           run=rundata(f_name(this,'MAP11014.nxspe'));
-          assertTrue(isempty(run.det_par));
+          assertTrue(~isempty(run.det_par));
           run=rundata(run,'par_file_name',f_name(this,'demo_par.PAR'));
           
           assertEqual(28160,run.n_detectors);
@@ -192,18 +192,30 @@ classdef test_rundata< TestCase
            % a rundata class instanciated from nxspe which makes det_par
            % defined
           run=rundata(f_name(this,'MAP11014.nxspe'));
-          assertTrue(isempty(run.det_par));
+          assertTrue(~isempty(run.det_par));
 
           run = get_rundata(run,'det_par','-this');
           % we change the initial file name to spe, which does not have
           % information about par data
           run.data_file_name=f_name(this,'MAP10001.spe');
           run=rundata(run);
-          assertTrue(isempty(run.det_par));          
+          assertTrue(~isempty(run.det_par));          
        end
        function default_rundata_type(this)
           run=rundata();
           assertEqual(run.is_crystal,get(rundata_config,'is_crystal'));
+       end
+       
+       function this=test_subsref_S(this)
+           run=rundata(f_name(this,'MAP11014.nxspe'));
+           wr=warning('off','MATLAB:structOnObject');
+           run_str = struct(run);
+           assertTrue(isempty(run_str.S));           
+           [S,run]=run.S;
+           assertTrue(~isempty(S));
+           run_str = struct(run);
+           assertEqual(S,run_str.S);
+           warning(wr);
        end
   
        

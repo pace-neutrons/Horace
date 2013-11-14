@@ -148,6 +148,18 @@ classdef rundata
                 this.is_crystal=get_defaults(this,'is_crystal');
             end
         end
-        
+        %-----------------------------------------------------------------------------
+        function [rez,this]=subsref(this,S)
+            % overloaded subsref loads data from the file if the 
+            rez=builtin('subsref',this,S); 
+            if S.type == '.'
+                if any(ismember(S.subs,fieldnames(this)))
+                    if isempty(rez)
+                        this=get_rundata(this,S.subs,'-this');
+                        rez=builtin('subsref',this,S); 
+                    end
+                end
+            end
+        end
     end
 end
