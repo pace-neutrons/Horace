@@ -55,6 +55,8 @@ if use_mex
             accumulate_cut_c(v,s,e,npix,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step,pax,parameters);
         if npix_retain>0
             urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
+        else
+            ix=ones(0,1); % to be consistent with matlab
         end
         %%<*** version specific >= 7.5
     catch
