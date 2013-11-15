@@ -11,11 +11,8 @@ function create_testdata_cuts_and_slices
 %
 % Author: T.G.Perring
 
-% -----------------------------------------------------------------------------
-% Add common functions folder to path, and get location of common data
-addpath(fullfile(fileparts(which('herbert_init')),'_test','common_functions'))
+% Get location of common data
 common_data_dir=fullfile(fileparts(which('herbert_init')),'_test','common_data');
-% -----------------------------------------------------------------------------
 
 work_dir=tempdir;
 output_file=fullfile(work_dir,'testdata_cut_slice_files.zip');
