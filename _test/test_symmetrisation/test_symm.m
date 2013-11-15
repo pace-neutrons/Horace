@@ -181,10 +181,10 @@ classdef test_symm< TestCase
             w1_1=symmetrise_horace_1d(w1d_d1d,0.25);
             w1_1s=symmetrise_sqw(w1d_sqw,[0,0,1],[-1,1,0],[0.25,0.25,0]);
             
-            acolor red
-            plot(w1_1);
-            acolor black
-            pp(w1_1s);
+%             acolor red
+%             plot(w1_1);
+%             acolor black
+%             pp(w1_1s);
             
             [wfit1_1,fitdata1_1]=fit_func(w1_1,@mgauss,[20,0.75,0.062,20,1.25,0.062],...
                 [1,1,0,1,1,0],@quad_bg,[8.95,-5.3,0.1],[1,1,1],'keep',[0.5,1.5]);
