@@ -67,7 +67,7 @@ if nargin >0
     if ismember('-missing',theKeys)
         missing = '-missing';
     end
-    if ismemeber('-sefmex',theKeys)
+    if ismember('-sefmex',theKeys)
         set_mex = true;
     end
 end
