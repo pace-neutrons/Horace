@@ -4,10 +4,12 @@ function mess = put_sqw_header (fid, data)
 %   >> mess = put_sqw_header (fid, data)
 %
 % Input:
+% ------
 %   fid             File identifier of output file (opened for binary writing)
 %   data            Data structure which must contain (at least) the fields listed below
 %
 % Output:
+% -------
 %   mess            Message if there was a problem writing; otherwise mess=''
 %
 %
@@ -31,6 +33,10 @@ function mess = put_sqw_header (fid, data)
 %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
 %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+%
+% The following two fields are part of the header, but will be written by put_sqw_header_opt:
+%   data.instrument Instrument description
+%   data.sample     Sample description
 %
 % Notes:
 % ------
@@ -58,6 +64,7 @@ function mess = put_sqw_header (fid, data)
 % * Change name of data.u to data.u_to_rlu (to avoid confusion with vector u that defines
 %  scattering plane of crystal)
 % * change name of data.label to data.ulabel (to keep association with projection axes)
+
 
 % Original author: T.G.Perring
 %

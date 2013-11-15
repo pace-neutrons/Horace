@@ -53,7 +53,7 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu, radial_cut_length, radi
 %   trans_cut_length    Length of cuts transverse to Q, given as angle in degrees
 %                      (make this large enough to accommodate likely angular misalignment)
 %   trans_bin_width     Step size of transvers cut (degrees)
-%   trans_thickness     Full thickness of cut perpendicular to Q (degrees)
+%   trans_thickness     Full thickness of cut perpendicular to Q (degrees) for radial cuts
 %
 %   energy_window       Energy window around elastic line (meV)
 %                           e.g. for -1meV to +1 meV, set  energy_window=2

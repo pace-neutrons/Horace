@@ -2,9 +2,8 @@ function [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg)
 % Calculate B matrix of Busing and Levy, returning also the reciprocal
 % lattice vector in Angstrom^-1 and the reciprocal lattice angles in degrees
 %
-% Syntax:
-%   >> b = bmat(alatt, ang)
-%   >> [b, arlu, angrlu] = bmat(alatt, ang)
+%   >> b =  bmatrix (alatt, ang)
+%   >> [b, arlu, angrlu] =  bmatrix (alatt, ang)
 %
 % Input:
 % ------
@@ -26,7 +25,7 @@ function [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg)
 % x || a*, z || cross(a*,b*), y perp. x,y
 %
 %   Vcryst(i) = B(i,j) Vrlu(j)
-%
+
 
 % Original author: T.G.Perring
 %
@@ -39,54 +38,53 @@ if max(angdeg)>=180 || min(angdeg)<=0
     b = [];
     arlu = [];
     angrlu = [];
-    mess = 'ERROR: Check lattice angles';
+    mess = 'Check lattice angles';
     return
 elseif min(alatt)<= 0
     b = [];
     arlu = [];
     angrlu = [];
-    mess = 'ERROR: Check lattice parameters';
+    mess = 'Check lattice parameters';
     return
 end
 
 
-%-----------------------
 try
-ang = angdeg*(pi/180);
-
-a = [      1     , cos(ang(3)), cos(ang(2));...
-     cos(ang(3)),      1      , cos(ang(1));...
-     cos(ang(2)), cos(ang(1)),      1       ];
-
-q = sqrt(abs(det(a)));
-
-as = (2*pi/q)*(abs(sin(ang(1)))/alatt(1));
-bs = (2*pi/q)*(abs(sin(ang(2)))/alatt(2));
-cs = (2*pi/q)*(abs(sin(ang(3)))/alatt(3));
-
-aa = acos( (cos(ang(2))*cos(ang(3))-cos(ang(1)))/abs(sin(ang(2))*sin(ang(3))) );
-bb = acos( (cos(ang(3))*cos(ang(1))-cos(ang(2)))/abs(sin(ang(3))*sin(ang(1))) );
-cc = acos( (cos(ang(1))*cos(ang(2))-cos(ang(3)))/abs(sin(ang(1))*sin(ang(2))) );
-% b-matix as in Acta Cryst. (1967). 22, 457
-b = [as,      bs*cos(cc),                   cs*cos(bb);...
-      0, bs*abs(sin(cc)), -cs*abs(sin(bb))*cos(ang(1));...
-      0,               0,                 2*pi/alatt(3)];
-if nargout >= 2
-    arlu = [as, bs, cs];
-end
-
-if nargout >= 3
-    angrlu = [aa, bb, cc]*(180/pi);
-end
-
-if nargout >= 4
-    mess = '';
-end
-
-%-----------------------
+    ang = angdeg*(pi/180);
+    
+    a = [      1     , cos(ang(3)), cos(ang(2));...
+        cos(ang(3)),      1      , cos(ang(1));...
+        cos(ang(2)), cos(ang(1)),      1       ];
+    
+    q = sqrt(abs(det(a)));
+    
+    as = (2*pi/q)*(abs(sin(ang(1)))/alatt(1));
+    bs = (2*pi/q)*(abs(sin(ang(2)))/alatt(2));
+    cs = (2*pi/q)*(abs(sin(ang(3)))/alatt(3));
+    
+    aa = acos( (cos(ang(2))*cos(ang(3))-cos(ang(1)))/abs(sin(ang(2))*sin(ang(3))) );
+    bb = acos( (cos(ang(3))*cos(ang(1))-cos(ang(2)))/abs(sin(ang(3))*sin(ang(1))) );
+    cc = acos( (cos(ang(1))*cos(ang(2))-cos(ang(3)))/abs(sin(ang(1))*sin(ang(2))) );
+    % b-matix as in Acta Cryst. (1967). 22, 457
+    b = [as,      bs*cos(cc),                   cs*cos(bb);...
+        0, bs*abs(sin(cc)), -cs*abs(sin(bb))*cos(ang(1));...
+        0,               0,                 2*pi/alatt(3)];
+    if nargout >= 2
+        arlu = [as, bs, cs];
+    end
+    
+    if nargout >= 3
+        angrlu = [aa, bb, cc]*(180/pi);
+    end
+    
+    if nargout >= 4
+        mess = '';
+    end
+    
+    %-----------------------
 catch
     b = [];
     arlu = [];
     angrlu = [];
-    mess = 'ERROR: Unable to calculate b-matrix - check lattice parameters';
+    mess = 'Unable to calculate B matrix - check lattice parameters';
 end

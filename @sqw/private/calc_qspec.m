@@ -15,6 +15,7 @@ function qspec=calc_qspec (efix, k_to_e, emode, data, det)
 % Output:
 % -------
 %   qspec(4,ne*ndet)    Momentum and energy transfer in spectrometer coordinates
+%                      (x-axis along ki, z-axis vertically upwards)
 %
 %  Note: We sometimes use this routine with the energy bin boundaries replaced with 
 %        bin centres i.e. have fudged the array data.en

@@ -3,12 +3,16 @@ function [file_internal,mess] = putfile_horace(varargin)
 %
 %   >> file_internal = function_get_file (infile)
 %
+% Input:
+% ------
 %   infile          Input file name (character string, character array, cell array of file names)
 %                   If absent, prompt for a file name
 %                   Used as file filter if a character string that is not a file e.g. '*.d0d;*.d1d;*.d2d;*.d3d;*.d4d'.
 %                   Checks files exist
-%
+% Output:
+% -------
 %   file_internal   File name or (if more than one) cell array of file names
+
 
 % Check input file name(s)
 mess='';

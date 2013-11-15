@@ -46,8 +46,8 @@ horace_defaults = ...
     'use_mex',true, ...             % user will use mex-code for time-consuming operations
     'delete_tmp',true, ...          % delete temporary files which were generated while building sqw file after sqw has been build successfully
     'use_par_from_nxspe',false, ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
-    'sqw_ext','.tmp',... % the extension an sqw file generated from a runfile would have
-    'sqw_path',''...    % the path to write temporary sqw files. Default -- the sama as initial sqw file.   
+    'sqw_ext','.tmp',...            % extension for temporary sqw files. Default: '.tmp'
+    'sqw_path',''...                % path to which to write temporary sqw files. Default: the same as input sqw file.   
     );
 
 Matlab_Version=matlab_version_num();
@@ -56,7 +56,7 @@ Matlab_Version=matlab_version_num();
 % let's try to identify the number of processors to use in OMP
 n_processors = getenv('OMP_NUM_THREADS');
 if(isempty(n_processors))
-    % *** > this have to be modified in a future to work on UNIX with Matlab higher then 7.10
+    % *** > this have to be modified in a future to work on UNIX with Matlab higher than 7.10
     n_processors=1;  % not good for linux
 else
     n_processors=str2double(n_processors);

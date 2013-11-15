@@ -1,7 +1,6 @@
 function [data, mess] = get_sqw_header (fid)
 % Read the header block for the results of performing calculate projections on spe file(s).
 %
-% Syntax:
 %   >> [data, mess] = get_sqw_header(fid, data_in)
 %
 % Input:
@@ -12,6 +11,7 @@ function [data, mess] = get_sqw_header (fid)
 % -------
 %   data        Structure containing fields read from file (details below)
 %   mess        Error message; blank if no errors, non-blank otherwise
+%
 %
 % Fields read from file are:
 %   data.filename   Name of sqw file excluding path
@@ -33,6 +33,14 @@ function [data, mess] = get_sqw_header (fid)
 %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
 %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+%   data.instrument Instrument description (scalar structure or object)
+%                   Set to default value struct (1x1 structure with no fields)
+%   data.sample     Sample description (scalar structure or object)
+%                   Set to default value struct (1x1 structure with no fields)
+%
+% The instrument and sample fields will be read by get_sqw_header_opt, if the optional
+% block is present in the sqw file.
+
 
 % Original author: T.G.Perring
 %
@@ -69,3 +77,6 @@ data = [];
 [n, count, ok, mess] = fread_catch(fid,2,'int32'); if ~all(ok); return; end;
 [ulabel, count, ok, mess] = fread_catch(fid,[n(1),n(2)],'*char'); if ~all(ok); return; end;
 data.ulabel=cellstr(ulabel)';
+
+data.instrument = struct;
+data.sample = struct;

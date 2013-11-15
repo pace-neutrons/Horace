@@ -4,10 +4,12 @@ function mess = put_application (fid, application)
 %   >> mess = put_application (application)
 %
 % Input:
+% ------
 %   fid             File identifier of output file (opened for binary writing)
 %   application     Data structure with fields below
 %
 % Output:
+% -------
 %   mess            Message if there was a problem writing; otherwise mess=''
 %
 %
@@ -15,13 +17,10 @@ function mess = put_application (fid, application)
 %   application.name        Name of application that wrote the file
 %   application.version     Version number of the application
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-
-% Generalise (with put_application) to write field names, together with
-% precisions and sizes, then branch on this info. For now, just write name
-% and version.
 
 mess = '';
 

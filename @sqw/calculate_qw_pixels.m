@@ -3,13 +3,16 @@ function qw=calculate_qw_pixels(win)
 %
 %   >> qw=calculate_qw_pixels(win)
 %
+% Input:
+% ------
 %   win     Input sqw object
 %
+% Output:
+% -------
 %   qw      Components of momentum (in rlu) and energy for each pixel in the dataset
 %           Arrays are packaged as cell array of column vectors for convenience
 %           with fitting routines etc.
 %               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
-%
 
 % Original author: T.G.Perring
 %

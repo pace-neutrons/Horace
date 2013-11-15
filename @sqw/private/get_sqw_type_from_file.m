@@ -1,7 +1,6 @@
 function [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
 % Get sqw_type and dimensionality of an sqw file on disk
 %
-% Syntax:
 %   >> [sqw_type, ndims, mess] = get_sqw_type_from_file(infile)
 %
 % Input:
@@ -33,18 +32,13 @@ end
 
 % Read application and version number
 [app_wrote_file,mess]=get_application(fid);
-%RAE modification - comment out 3rd part of if statement. This is because
-%we got failure when trying to use v2 to read v1 data, and vice versa. In
-%fact we only need to check that there is some app_wrote_file.name info.
-%For pre-sqw data this info is missing, which is all we really need to
-%check for.
-if isempty(mess) && strcmpi(application.name,app_wrote_file.name) %&& application.version==app_wrote_file.version
-    % Current version of Horace wrote file
+if isempty(mess) && strcmpi(application.name,app_wrote_file.name)
+    % Post-prototype format sqw file
     [sqw_type,ndims,mess]=get_sqw_object_type(fid);
     if ~isempty(mess); fclose(fid); mess=['Error reading sqw file type and dimensions - ',mess]; return; end
     fclose(fid);
 else
-    % Assume sqw file old format until fails
+    % Assume prototype sqw file format until fails
     fclose(fid);    % close file again to restart read process in get_sqw
     [main_header,header,detpar,data,mess,position,npixtot,type] = get_sqw (infile, '-h');
     if ~isempty(mess); mess=['Error trying to read file as old format Horace .sqw file - ',mess]; return; end

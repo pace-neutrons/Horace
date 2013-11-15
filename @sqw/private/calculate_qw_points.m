@@ -60,8 +60,8 @@ nd=size(x,2);   % number of dimensions - assume already checked for consistency 
 np=size(x,1);   % number of points
 
 % Fixed energy
-c=get_neutron_constants;
-k_to_e = c.k_to_e;
+c=neutron_constants;
+k_to_e = c.c_k_to_emev;
 efix=win.header.efix;
 kfix=sqrt(efix/k_to_e);
 
@@ -76,10 +76,9 @@ dax=win.data.dax;
 
 
 % Get matrix to convert projection axes to spectrometer axes:
-[spec_to_proj, u_to_rlu] = calc_proj_matrix (win.header.alatt, win.header.angdeg, win.header.cu, win.header.cv,...
+[spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (win.header.alatt, win.header.angdeg, win.header.cu, win.header.cv,...
     win.header.psi, win.header.omega, win.header.dpsi, win.header.gl, win.header.gs);
-rlu_to_spec=inv(u_to_rlu*spec_to_proj);
-M=rlu_to_spec*u(1:3,1:3);   % convert projection axes to spectrometer axes
+M=spec_to_rlu\u(1:3,1:3);   % convert projection axes to spectrometer axes
 
 
 % Get coordinates in frame of projection axes, accounting for offset and centre of integration axes
@@ -96,7 +95,7 @@ for i=1:length(iax)
 end
 ud=u(:,pax(dax));   % need to permute the vectors to match the display (cf. plot) axes
 prlu=repmat(ptot,[1,np])+ud*x'; % (4 x np) array of coordinates as rlu and energy
-qspec=rlu_to_spec*prlu(1:3,:);  % (3 x np) array of coordinates in spectrometer coordinates
+qspec=spec_to_rlu\prlu(1:3,:);  % (3 x np) array of coordinates in spectrometer coordinates
 eps=prlu(4,:);                  % split out energy for later convenience
 
 % if the unknown axis is energy transfer, qspec is the momentum vector, and eps=0

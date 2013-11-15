@@ -195,8 +195,8 @@ switch route
                 toly=[];
             end
             
-            w2tmp=rebin_horace(w2tmp,tolx,toly);
-            w1tmp=rebin_horace(w1tmp,tolx,toly);
+            w2tmp=rebin_horace_2d(w2tmp,tolx,toly);
+            w1tmp=rebin_horace_2d(w1tmp,tolx,toly);
             s1=w1tmp.s; e1=w1tmp.e; n1=w1tmp.npix;
             s2=w2tmp.s; e2=w2tmp.e; n2=w2tmp.npix;
             e1_old=e1; e2_old=e2;%absolute errors, not fractional.

@@ -1,8 +1,7 @@
 function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Calculate matrix that convert momentum from coordinates in spectrometer frame to
 % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
-% Allows for correction scattering plane (omega, dpsi, gl, gs) - see
-% Tobyfit for conventions
+% Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
 %   >> [spec_to_u, u_to_rlu, spec_to_rlu] = ...
 %    calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
@@ -22,21 +21,25 @@ function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (alatt, angdeg, u
 % Output:
 % -------
 %   spec_to_u   Matrix (3x3)to convert momentum from coordinates in spectrometer
-%              frame to crystal Cartesian axes. 
+%              frame to crystal Cartesian axes:
+%                   v_crystal_Cart = spec_to_u * v_spec
+%
 %   u_to_rlu    Matrix (3x3) of crystal Cartesian axes in reciprocal lattice units
 %              i.e. u_to_rlu(:,1) first vector - u(1:3,1) r.l.u. etc.
-%              This matrix can be used to convert components of a vector in the
-%              crystal Cartesian axes to r.l.u.: v_rlu = u_to_rlu * v_crystal_Cart
+%              This matrix can be used to convert components of a vector in
+%              crystal Cartesian axes to r.l.u.:
+%                   v_rlu = u_to_rlu * v_crystal_Cart
 %              (Same as inv(B) in Busing and Levy convention)
+%
 %   spec_to_rlu Matrix (3x3) to convert from spectrometer coordinates to
 %              r.l.u.:
-%                   v_rlu = u_to_rlu * v_crystal_Cart
-%              (This matrix is entirely equivalent to spec_to_u*u_to_rlu)
+%                   v_rlu = spec_to_rlu * v_spec
+%              (This matrix is entirely equivalent to u_to_rlu*spec_to_u)
 
 % T.G.Perring 15/6/07
 %
 % $Revision$ ($Date$)
-%
+
 
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and 
 b_matrix  = bmatrix(alatt, angdeg);       % bmat takes Vrlu to Vxtal_cart
@@ -62,4 +65,4 @@ spec_to_u = u_matrix\corr*cryst;
 u_to_rlu = inv(b_matrix); 
 
 % Matrix to convert from spectrometer coordinates to r.l.u.
-spec_to_rlu = spec_to_u/b_matrix;
+spec_to_rlu = b_matrix\spec_to_u;

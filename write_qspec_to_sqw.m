@@ -6,6 +6,7 @@ function [grid_size, urange] = write_qspec_to_sqw (varargin)
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
 % Input:
+% ------
 %   qspec_file      Full file name of ascii file containing qx'-qy'-qz'-eps-signal-error column data.
 %                   Here qz' is the component of momentum along ki (Ang^-1)
 %                        qy' is component vertically upwards (Ang^-1)
@@ -31,6 +32,7 @@ function [grid_size, urange] = write_qspec_to_sqw (varargin)
 %                  that encloses the whole data range
 %
 % Output:
+% -------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid

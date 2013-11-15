@@ -4,12 +4,15 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 %   >> [ix,npix,p,grid_size]=sort_pixels(u,urange,grid_size_in)
 %
 % (In the following, nd=no. dimensions, npix_in=no. pixels on input, npix=no. pixels in urange)
+%
 % Input:
+% ------
 %   u               [nd x npix_in] array of the coordinates in Cartesian grid
 %   urange          Range for the grid (2 x nd)
 %   grid_size_in    Scalar or row vector (1 x nd) of number of bins along each axis
 %
-% Output: 
+% Output:
+% -------
 %   ix(npix,1)      Index array by which the pixels have been reordered
 %                  i.e. u1(ix) gives the reordered values of u1
 %   npix(nbin,1)    Number of contributing pixels to the bins in the Cartesian grid
@@ -27,7 +30,6 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 %                       ibin(nbin(1):nbin(2))=2
 %                               :
 %                       ibin(nbin(end-1):nbin(end))=length(nbin)
-%
 
 % Original author: T.G.Perring
 %
@@ -35,7 +37,7 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 
 
 [nd,npixels] = size(u);    % no. dimensions and no. pixels
-[grid_size,p]=construct_grid_size(grid_size_in,urange,nd);
+[grid_size,p]=construct_grid_size(grid_size_in,urange);
 
 % Get bin index numbers for each array in turn (to minimise memory use)
 % Account explicitly for case of only one bin along any dimension
@@ -58,10 +60,11 @@ ix=ix(ind)';                % Indicies of included pixels coerresponding to orde
 % Find unique values
 % (intrinsic unique.m seems to be clever to notice if a list is sorted - anyway, it is faster with sorted arrays)
 [ibin_unique,m]=unique(ibin);
+% Get number of repeats of each bin index (relies on the input to unique.m being pre-sorted)    
 if size(m,2)>1
-    m=diff([0,m]);  % Get number of repeats of each bin index (relies on the input to unique.m being pre-sorted)    
+    m=diff([0,m]);  % pre R2013a
 else
-    m=diff([0;m]);  % Get number of repeats of each bin index (relies on the input to unique.m being pre-sorted)
+    m=diff([0;m]);  % post R2013a
 end
 npix=zeros(prod(grid_size),1);
 npix(ibin_unique)=m;

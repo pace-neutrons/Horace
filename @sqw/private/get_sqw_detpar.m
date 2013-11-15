@@ -1,7 +1,6 @@
 function [det, mess] = get_sqw_detpar (fid)
 % Read the detector parameter from a binary file.
 %
-% Syntax:
 %   >> [det, mess] = get_sqw_detpar(fid, det_in)
 %
 % Input:
@@ -13,6 +12,7 @@ function [det, mess] = get_sqw_detpar (fid)
 %   det         Structure containing fields read from file (details below)
 %   mess        Error message; blank if no errors, non-blank otherwise
 %
+%
 % Fields read from file are:
 %   det.filename    Name of file excluding path
 %   det.filepath    Path to file including terminating file separator
@@ -23,7 +23,7 @@ function [det, mess] = get_sqw_detpar (fid)
 %                  (West bank=0 deg, North bank=90 deg etc.)
 %   det.width       Row vector of detector widths (m)
 %   det.height      Row vector of detector heights (m)
-%
+
 
 % Original author: T.G.Perring
 %

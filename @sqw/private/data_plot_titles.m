@@ -27,6 +27,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
+Angstrom=char(197);     % Angstrom symbol
 
 % Prepare input arguments
 file = fullfile(data.filepath,data.filename);
@@ -157,9 +158,9 @@ for j=1:4
         if any(j==pax)   % j appears in the list of plot axes
             ipax = find(j==pax(dax));
             if abs(ulen(j)-1) > small
-                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' Å^{-1}'];
+                title_pax{ipax} = [totvector{j},' in ',num2str(ulen(j)),' ',Angstrom,'^{-1}'];
             else
-                title_pax{ipax} = [totvector{j},' (Å^{-1})'];
+                title_pax{ipax} = [totvector{j},' (',Angstrom,'^{-1})'];
             end
             title_main_pax{ipax} = [ulabel{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
             display_pax{ipax} = [ulabel{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];

@@ -235,52 +235,38 @@ function [wout, fitdata, ok, mess] = multifit_sqw(win, varargin)
 %
 % Fit a spin waves to a collection of sqw objects, allowing only intensity and coupling constant to vary:
 %   >> weight=100; SJ; gamma=3;
-%   >> [wfit, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0])
+%   >> [wout, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0])
 %
 % If an array of 1D cuts: allow all parameters to vary, only keep data in restricted range, and allow
 % independent linear background for each cut in the units of the x axis:
 %   >> ht=100; SJ=10; gamma=3;
 %   >> const=0; slope=0;
-%   >> [wfit, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], @linear, [const,slope]...
+%   >> [wout, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], @linear, [const,slope]...
 %                               'keep',[-1.5,0.5])
 
+
 % First, strip out the appearance of the keyword 'average'
-keep_arg=true(size(varargin));
-ave_pix=false;
-for i=1:numel(varargin)
-    if ischar(varargin{i}) && ~isempty(varargin{i})
-        sz=size(varargin{i});
-        if numel(sz)==2 && sz(1)==1 && strncmpi('average',varargin{i},numel(varargin{i}))
-            keep_arg(i)=false;
-            ave_pix=true;
-        end
-    end
-end
-varargin=varargin(keep_arg);
+arglist = struct('average',0);
+flags={'average'};
+[varargin,opt] = parse_arguments(varargin,arglist,flags,false);
 
 % Parse the input arguments, and repackage for fit sqw
-[pos,func,plist,bpos,bfunc,bplist,ok,mess] = multifit_gateway (win, varargin{:},'parsefunc_');
+[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = multifit_gateway_parsefunc (win, varargin{:});
 if ~ok
     wout=[]; fitdata=[];
     if nargout<3, error(mess), else return, end
 end
+ndata=1;     % There is just one argument before the varargin
+pos=pos-ndata;
+bpos=bpos-ndata;
 
-if ~ave_pix, plist={func,plist}; else plist={func,plist,'ave'}; end
-if ~isempty(bpos)
-    for i=1:numel(bfunc)
-        bplist{i}={bfunc{i},bplist{i}};
-    end
-end
-pos=pos-1; bpos=bpos-1;     % Recall that first argument in the call to multifit was win
-varargin{pos}=@sqw_eval;    % The fit function needs to be sqw_eval
-varargin{pos+1}=plist;
-if ~isempty(bpos)
-    varargin{bpos}=@func_eval;
-    varargin{bpos+1}=bplist;
-end
+% Wrap the foreground and background functions
+if ~opt.average, wrap_plist={}; else wrap_plist={'ave'}; end
+args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,...
+                                                    @sqw_eval,wrap_plist,@func_eval,{});
 
 % Perform the fit
-[wout,fitdata,ok,mess] = multifit_gateway (win, varargin{:});
+[ok,mess,wout,fitdata] = multifit_gateway_main (win, args{:});
 if ~ok && nargout<3
     error(mess)
 end
