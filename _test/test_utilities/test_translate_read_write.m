@@ -19,9 +19,10 @@ if exist(dir0,'dir'), rmdir(dir0,'s'); end
 if exist(dir1,'dir'), rmdir(dir1,'s'); end
 if exist(dir2,'dir'), rmdir(dir2,'s'); end
 if exist(dir3,'dir'), rmdir(dir3,'s'); end
-mkdir(dir1)
-mkdir(dir2)
-mkdir(dir3)
+mkdir(dir1);
+mkdir(dir2);
+mkdir(dir3);
+cleanup_obj=onCleanup(@()translate_read_write_cleanup(dir1,dir2,dir3,fullfile(root_dir,'herbert_tests')));
 
 % Create ascii files
 tmp=IX_dataset_1d(1:10,11:20,rand(1,10),'The title','Counts','Hours');
@@ -56,43 +57,49 @@ setenv('herbert_env_top','path_e31')
 % Reading
 
 [file_out,ok,mess]=translate_read(['path_123:::',file1]);
-if ~isequal(file_out,fullfile(dir1,file1)), assertTrue(false,'Error in translate_read'), end
+assertTrue(isequal(file_out,fullfile(dir1,file1)),['Error in translate_read ',mess])
 
 [file_out,ok,mess]=translate_read(['path_123:::',file2]);
-if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
+assertTrue(isequal(file_out,fullfile(dir2,file2)),'Error in translate_read')
 
 [file_out,ok,mess]=translate_read(['path_123:::',file3]);
-if ~isequal(file_out,fullfile(dir3,file3)), assertTrue(false,'Error in translate_read'), end
+assertTrue(isequal(file_out,fullfile(dir3,file3)),'Error in translate_read')
 
 [file_out,ok,mess]=translate_read(['path_123:::','nog.dat']);
-if ok, assertTrue(false,'Error in translate_read'), end
+assertFalse(ok,['Error in translate_read',mess]);
 
 [file_out,ok,mess]=translate_read(['path_deep:',file2]);
-if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
+assertTrue(isequal(file_out,fullfile(dir2,file2)),'Error in translate_read')
 
 [file_out,ok,mess]=translate_read(['herbert_env:',file2]);
-if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
+assertTrue(isequal(file_out,fullfile(dir2,file2)),'Error in translate_read')
 
 [file_out,ok,mess]=translate_read(fullfile(dir2,file2));
-if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_read'), end
+assertTrue(isequal(file_out,fullfile(dir2,file2)),'Error in translate_read')
 
 [file_out,ok,mess]=translate_read(['path_0:',file2]);
-if ok, assertTrue(false,'Error in translate_read'), end
+assertFalse(ok,'Error in translate_read')
 
 % Writing
 [file_out,ok,mess]=translate_write(['path_0123:::',file1]);
-if ~isequal(file_out,fullfile(dir1,file1)), assertTrue(false,'Error in translate_write'), end
+assertTrue(isequal(file_out,fullfile(dir1,file1)),['Error in translate_write',mess])
 
 [file_out,ok,mess]=translate_write(['herbert_env:',file2]);
-if ~isequal(file_out,fullfile(dir2,file2)), assertTrue(false,'Error in translate_write'), end
+assertTrue(isequal(file_out,fullfile(dir2,file2)),'Error in translate_write')
 
 [file_out,ok,mess]=translate_write(['path_deep:','crap.dat']);
-if ~isequal(file_out,fullfile(dir1,'crap.dat')), assertTrue(false,'Error in translate_write'), end
+assertTrue(isequal(file_out,fullfile(dir1,'crap.dat')),'Error in translate_write')
 
 [file_out,ok,mess]=translate_write(['path_0:',file1]);
-if ok, assertTrue(false,'Error in translate_write'), end
+assertFalse(ok,'Error in translate_write -- created non-existent path')
 
 
 % Success announcement
 % --------------------
 banner_to_screen([mfilename,': Test(s) passed'],'bot')
+
+function translate_read_write_cleanup(varargin)
+
+for i=1:nargin
+    rmdir(varargin{i},'s');
+end
