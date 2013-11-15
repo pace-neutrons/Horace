@@ -73,6 +73,27 @@ if nargin >0
 end
 
 rootpath = fileparts(which('herbert_init'));
+% Source code directories, and output directories:
+%  - herbert target directrory:
+herbert_mex_target_dir=fullfile(rootpath,'DLL',['_',computer],matlab_version_folder());
+if ~exist(herbert_mex_target_dir,'dir')
+    mkdir(herbert_mex_target_dir);
+else
+    ok = check_folder_permissions(herbert_mex_target_dir);
+    if ~ok
+        error('HERBERT_MEX:invalid_permissions','can not get write permissions to target folder %s',herbert_mex_target_dir)
+    end
+    
+end
+%  - mslice extras directory:
+herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','CPP');
+herbert_F_code_dir  =fullfile(rootpath,'_LowLevelCode','Fortran');
+lib_dir             =fullfile(herbert_F_code_dir,'mex');
+% check folder permissions
+ok = check_folder_permissions(lib_dir);
+if ~ok
+    error('HERBERT_MEX:invalid_permissions','can not get write permissions to auxiliary modules folder %s',lib_dir)
+end
 
 
 % -----------------------------------------------------
@@ -98,16 +119,7 @@ else
         mex -setup       
     end
 end
-% Source code directories, and output directories:
-%  - herbert target directrory:
-herbert_mex_target_dir=fullfile(rootpath,'DLL',['_',computer],matlab_version_folder());
-if ~exist(herbert_mex_target_dir,'dir')
-    mkdir(herbert_mex_target_dir);
-end
-%  - mslice extras directory:
-herbert_C_code_dir  =fullfile(rootpath,'_LowLevelCode','CPP');
-herbert_F_code_dir  =fullfile(rootpath,'_LowLevelCode','Fortran');
-lib_dir             =fullfile(herbert_F_code_dir,'mex');
+
 try
     if user_choice ~= 'c'	
         if set_mex
@@ -419,3 +431,9 @@ if ~strncmp(user_entry,'n',1)
     disp(['! unknown option ',user_entry,' selected, assuming it means no'])
 end
     
+function ok = check_folder_permissions(lib_dir)
+folder_name = [lib_dir,'/tmp'];
+ok =mkdir(folder_name );
+if ok
+    rmdir(folder_name,'s');
+end
