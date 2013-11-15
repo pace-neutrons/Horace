@@ -12,8 +12,8 @@ function   mex_single_f(in_dir,out_dir,lib_dir,varargin)
 %
 
 
-if nargin<3
-    error('MEX_SINGLE:invalid_argument','needs at least three arguments, but got %d',nargin)
+if nargin<4
+    error('MEX_SINGLE:invalid_argument','needs at least four arguments, but got %d',nargin)
 end
 outdir = fullfile(out_dir,'');
 % remove empty fields
