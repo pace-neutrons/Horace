@@ -15,16 +15,21 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
         test_functions_path;
         par_file;
         nfiles_max=6;
+        
+        pars;
+        scale;
+        
+        proj;        
         gen_sqw_par={};
+        % files;
         spe_file={[]};
-        sqw_file={[]};
         sqw_file_14;
         sqw_file_123456;
         sqw_file_145623;
         sqw_file_1456;
         sqw_file_11456;
         sqw_file_15456;
-        proj;
+
     end
     
     methods
@@ -46,46 +51,30 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
             
+            
             this.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
             this.tol = 1.e-5;
             this.test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
             
             addpath(this.test_functions_path);
-       
-            %% =====================================================================================================================
-            % Make instrument and sample
-            % =====================================================================================================================
-            wmod=IX_moderator('AP2',12,35,'ikcarp',[3,25,0.3],'',[],0.12,0.12,0.05,300);
-            wap=IX_aperture(-2,0.067,0.067);
-            wchop=IX_fermi_chopper(1.8,600,0.1,1.3,0.003);
-            instrument_ref.moderator=wmod;
-            instrument_ref.aperture=wap;
-            instrument_ref.fermi_chopper=wchop;
-            sample_ref=IX_sample('PCSMO',true,[1,1,0],[0,0,1],'cuboid',[0.04,0.05,0.02],1.6,300);
-            
-            instrument=repmat(instrument_ref,1,this.nfiles_max);
-            for i=1:numel(instrument)
-                instrument(i).IX_fermi_chopper.frequency=100*i;
-            end
-            
-            sample_1=sample_ref;
-            sample_2=sample_ref;
-            sample_2.temperature=350;
             
             
-            %% =====================================================================================================================
-            % Make spe files
-            % =====================================================================================================================
-            this.par_file=fullfile(this.results_path,'96dets.par');
-            if exist(this.spe_file{1},'file')
-                return;
-            end
-            
+            % build test file names
             this.spe_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max
-                this.spe_file{i}=[this.results_path,'spe_',num2str(i),'.spe'];
+                this.spe_file{i}=[tempdir,'spe_',num2str(i),'.spe'];
             end
             
+            this.par_file=fullfile(this.results_path,'96dets.par');            
+            this.sqw_file_123456=fullfile(tempdir,'sqw_123456.sqw');                   % output sqw file
+            this.sqw_file_145623=fullfile(tempdir,'sqw_145623.sqw');                   % output sqw file
+            
+            this.sqw_file_14=fullfile(tempdir,'sqw_14.sqw');                   % output sqw file
+            this.sqw_file_11456=fullfile(tempdir,'sqw_11456.sqw');                   % output sqw file
+            this.sqw_file_1456=fullfile(tempdir,'sqw_1456.sqw');                   % output sqw file
+            this.sqw_file_15456=fullfile(tempdir,'sqw_15456.sqw');                   % output sqw file
+            
+            % initiate test parameters 
             en=cell(1,this.nfiles_max);
             efix=zeros(1,this.nfiles_max);
             psi=zeros(1,this.nfiles_max);
@@ -110,65 +99,102 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             u=[1.02,0.99,0.02];
             v=[0.025,-0.01,1.04];
             
-            pars=[1000,8,2,4,0];  % [Seff,SJ,gap,gamma,bkconst]
-            scale=0.3;
-            this.gen_sqw_par={efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs};
-            for i=1:this.nfiles_max
-                simulate_spe_testfunc (en{i}, this.par_file, this.spe_file{i}, @sqw_sc_hfm_testfunc, pars, scale,...
-                    efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i));
-            end
+            this.gen_sqw_par={en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs};
+
+            this.pars=[1000,8,2,4,0];  % [Seff,SJ,gap,gamma,bkconst]
+            this.scale=0.3;           
             
-            this.sqw_file_123456=fullfile(this.results_path,'sqw_123456.sqw');                   % output sqw file 
-            this.sqw_file_145623=fullfile(this.results_path,'sqw_145623.sqw');                   % output sqw file            
-         
-            this.sqw_file_14=fullfile(this.results_path,'sqw_14.sqw');                   % output sqw file
-            this.sqw_file_11456=fullfile(this.results_path,'sqw_11456.sqw');                   % output sqw file            
-            this.sqw_file_1456=fullfile(this.results_path,'sqw_1456.sqw');                   % output sqw file
-            this.sqw_file_15456=fullfile(this.results_path,'sqw_15456.sqw');                   % output sqw file            
-            
+        end
+        function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this)            
+            en =this.gen_sqw_par{1};
+            efix=this.gen_sqw_par{2};
+            emode=this.gen_sqw_par{3};
+            alatt=this.gen_sqw_par{4};
+            angdeg=this.gen_sqw_par{5};
+            u=this.gen_sqw_par{6};
+            v=this.gen_sqw_par{7};
+            psi=this.gen_sqw_par{8};
+            omega=this.gen_sqw_par{9};
+            dpsi=this.gen_sqw_par{10};
+            gl=this.gen_sqw_par{11};
+            gs=this.gen_sqw_par{12};
         end
         function delete(this)
             %--------------------------------------------------------------------------------------------------
             % Cleanup
             %--------------------------------------------------------------------------------------------------
-            if exist(this.sqw_file_14,'file')
-                try             
-                    delete(this.sqw_file_14,this.sqw_file_145623,this.sqw_file_123456,this.sqw_file_1456,this.sqw_file_11456);
-                catch
-                    warning('TEST_GEN_SQW_ACCUM:delete','Unable to delete temporary file(s)')
-                end
-                try
-                    for i=1:numel(this.spe_file)
-                        delete(this.spe_file{i});
-                        delete(this.sqw_file{i});
-                    end
-                catch
-                    warning('TEST_GEN_SQW_ACCUM:delete','Unable to delete temporary file(s)')
-                end
-            end
-            warn=warning('off','all');
+            warn=warning('off','all');            
+            rm_files(this.spe_file{:});
+            
             rmpath(this.test_functions_path);
             warning(warn);
         end
-        function this=test_gen_sqw(this)
-            %% ---------------------------------------
-            % Test gen_sqw
-            % ---------------------------------------
-            efix=this.gen_sqw_par{1}; emode=this.gen_sqw_par{2}; alatt=this.gen_sqw_par{3}; angdeg=this.gen_sqw_par{4};
-            u=this.gen_sqw_par{5};   v=this.gen_sqw_par{6};
-            psi=this.gen_sqw_par{7}; omega=this.gen_sqw_par{8}; 
-            dpsi=this.gen_sqw_par{9}; gl=this.gen_sqw_par{10};gs=this.gen_sqw_par{11};
-            this.sqw_file=cell(1,this.nfiles_max);
-            for i=1:this.nfiles_max
-                this.sqw_file{i}=fullfile(this.results_path,['sqw_',num2str(i),'.sqw']);                   % output sqw file
-                gen_sqw (this.spe_file(i), this.par_file, this.sqw_file{i}, efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),[3,3,3,3]);
+        function rm_files(varargin)
+            for i=1:numel(varargin)
+                if exist(varargin{i},'file')
+                    delete(varargin{i});
+                end
+            end
+        end
+        function this=build_test_files(this)
+            %% =====================================================================================================================
+            % Make instrument and sample
+            % =====================================================================================================================
+            wmod=IX_moderator('AP2',12,35,'ikcarp',[3,25,0.3],'',[],0.12,0.12,0.05,300);
+            wap=IX_aperture(-2,0.067,0.067);
+            wchop=IX_fermi_chopper(1.8,600,0.1,1.3,0.003);
+            instrument_ref.moderator=wmod;
+            instrument_ref.aperture=wap;
+            instrument_ref.fermi_chopper=wchop;
+            sample_ref=IX_sample('PCSMO',true,[1,1,0],[0,0,1],'cuboid',[0.04,0.05,0.02],1.6,300);
+            
+            instrument=repmat(instrument_ref,1,this.nfiles_max);
+            for i=1:numel(instrument)
+                instrument(i).IX_fermi_chopper.frequency=100*i;
             end
             
-
-            [dummy,grid,urange]=gen_sqw (this.spe_file, this.par_file, this.sqw_file_123456, this.gen_sqw_par{:});
+            sample_1=sample_ref;
+            sample_2=sample_ref;
+            sample_2.temperature=350;
             
-
-            efix = this.gen_sqw_par{1};
+            
+            %% =====================================================================================================================
+            % Make spe files
+            % =====================================================================================================================
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
+            for i=1:this.nfiles_max
+                if ~exist(this.spe_file{i},'file')
+                    simulate_spe_testfunc (en{i}, this.par_file,this.spe_file{i}, @sqw_sc_hfm_testfunc, this.pars, this.scale,...
+                        efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i));
+                end
+            end
+            
+            
+        end
+        function this=test_gen_sqw(this)
+            
+            % build test files if they have not been build
+            this=build_test_files(this);
+            % generate the names of the output sqw files
+            sqw_file=cell(1,this.nfiles_max);
+            for i=1:this.nfiles_max            
+                sqw_file{i}=fullfile(tempdir,['sqw_',num2str(i),'.sqw']);    % output sqw file            
+            end
+            
+            cleanup_obj=onCleanup(@()rm_files(this.sqw_file_123456,this.sqw_file_145623,sqw_file{:}));
+            %% ---------------------------------------
+            % Test gen_sqw
+            % ---------------------------------------            
+            
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);            
+            for i=1:this.nfiles_max                        
+                gen_sqw (this.spe_file(i), this.par_file, sqw_file{i}, efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),[3,3,3,3]);
+            end
+            
+            
+            [dummy,grid,urange]=gen_sqw (this.spe_file, this.par_file, this.sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            
+                 
             [dummy,grid,urange]=gen_sqw (this.spe_file([1,4,5,6,2,3]), this.par_file, this.sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg, u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
             
             
@@ -177,7 +203,7 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             this.proj.u=[1,0,0.1]; this.proj.v=[0,0,1];
             
             % Check cuts from each sqw individually, and the single combined sqw file are the same
-            [ok,mess,w1a,w1ref]=is_cut_equal(this.sqw_file_123456,this.sqw_file,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            [ok,mess,w1a,w1ref]=is_cut_equal(this.sqw_file_123456,sqw_file,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
             % Test against saved or store to save later
             this=test_or_save_variables(this,w1ref,w1a);
@@ -191,52 +217,62 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             
             
         end
+        function this=test_wrong_params(this)
+            
+            this=build_test_files(this);  
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);              
+            try
+                gen_sqw (this.spe_file([1,5,4,5,6]), this.par_file, this.sqw_file_15456, efix([1,5,4,5,6]), emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]), dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]), 'replicate');
+                ok=false;
+            catch
+                ok=true;
+            end
+            assertTrue(ok,'Should have failed because of repeated spe file name and parameters');            
+        end
         
         function this=thest_accumulate_sqw(this)
+            % build test files if they have not been build
+            this=build_test_files(this);  
+            sqw_file_accum=fullfile(tempdir,'sqw_accum.sqw');            
             
+            cleanup_obj=onCleanup(@()rm_files(this.sqw_file_14,this.sqw_file_1456,this.sqw_file_15456,this.sqw_file_11456,sqw_file_accum));            
             %% ---------------------------------------
             % Test accumulate_sqw
             % ---------------------------------------
             
             % Create some sqw files against which to compare the output of accumulate_sqw
             % ---------------------------------------------------------------------------
-
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);                        
+            
             [dummy,grid,urange]=gen_sqw (this.spe_file([1,4]), this.par_file, this.sqw_file_14, efix([1,4]), emode, alatt, angdeg, u, v, psi([1,4]), omega([1,4]), dpsi([1,4]), gl([1,4]), gs([1,4]));
             
             [dummy,grid,urange]=gen_sqw (this.spe_file([1,4,5,6]), this.par_file, this.sqw_file_1456, efix([1,4,5,6]), emode, alatt, angdeg, u, v, psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));
             
-            try
-                [dummy,grid,urange]=gen_sqw (this.spe_file([1,5,4,5,6]), this.par_file, this.sqw_file_15456, efix([1,5,4,5,6]), emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]), dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]), 'replicate');
-                ok=false;
-            catch
-                ok=true;
-            end
-            assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
             
-            [dummy,grid,urange]=gen_sqw (this.spe_file([1,1,4,5,6]), this.par_file, this.sqw_file_11456, efix([1,3,4,5,6]), emode, alatt, angdeg, u, v, psi([1,3,4,5,6]), omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]), 'replicate');
+%             [dummy,grid,urange]=gen_sqw (this.spe_file([1,1,4,5,6]), this.par_file, this.sqw_file_11456, efix([1,3,4,5,6]), ...
+%              emode, alatt, angdeg, u, v, psi([1,3,4,5,6]), omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]), 'replicate');
             
             
             % Now use accumulate sqw
             % ----------------------
-            sqw_file_accum=fullfile(this.results_path,'sqw_accum.sqw');
             
             spe_accum={this.spe_file{1},'','',this.spe_file{4},'',''};
-            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,this.gen_sqw_par{:},'clean');
+            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,'clean');
             [ok,mess,w2_14]=is_cut_equal(this.sqw_file_14,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             spe_accum={this.spe_file{1},'','',this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum, this.gen_sqw_par{:});
+            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             [ok,mess,w2_1456]=is_cut_equal(this.sqw_file_1456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
-
+            
             % Test against saved or store to save later
             this=test_or_save_variables(this,w2_14,w2_1456);
-    
+            
             % Repeat a file
             spe_accum={this.spe_file{1},'',this.spe_file{5},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
             try
-                accumulate_sqw (spe_accum, this.par_file, sqw_file_accum, this.gen_sqw_par{:});
+                accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
                 ok=false;
             catch
                 ok=true;
@@ -245,20 +281,21 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             
             % Repeat a file with 'replicate'
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum, this.gen_sqw_par{:}, 'replicate');
+            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
             [ok,mess,w2_11456]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
-                       % Test against saved or store to save later
+            % Test against saved or store to save later
             this=test_or_save_variables(this,w2_11456);
-           
+            
+
             % Accumulate nothing:
-            sqw_file_accum=fullfile(this.results_path,'sqw_accum.sqw'); 
+
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum, this.gen_sqw_par{:}, 'replicate');
+            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
             [ok,mess]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
-                     
-        
+            
+            
         end
     end
 end
