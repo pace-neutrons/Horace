@@ -356,7 +356,8 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
 //  energy bins
     if(!read_SPEdata_block(stream,data_en,NE+1,SPE_DATA_BLOCK_SIZE,spe_field_width,trailing_spaces,err_message,EOL)){
         err_message<<"          when reading the energy bins\n";
-        goto Error;
+		strcpy(BUF,err_message.str().c_str());		
+		throw(const_cast<const char *>(BUF));		
     }
 
 // identify the block size for intensities + errors
@@ -369,7 +370,8 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
     parse_spe_row(BUF,BUF_SIZE,nDataPointsInRow,spe_field_width,trailing_spaces);
     if(spe_field_width<10||spe_field_width>99){
         err_message<<" wrong spe data field width="<<spe_field_width<<" identified when parsing first row of signal in spe file\n";
-        goto Error;
+		strcpy(BUF,err_message.str().c_str());		
+		throw(const_cast<const char *>(BUF));		
     }
 
 
@@ -387,13 +389,11 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
         get_my_line(stream,BUF_RUB,BUF_SIZE,EOL);  // discard ###
         if(!read_SPEdata_block(stream,data_ERR+j*NE,NE,SPE_DATA_BLOCK_SIZE,spe_field_width,trailing_spaces,err_message,EOL)){
             err_message<<"          when reading errors, block N: "<<j+1<<std::endl;
-            goto Error;
+			strcpy(BUF,err_message.str().c_str());		
+			throw(const_cast<const char *>(BUF));		
         }
 
     }
     return;
-Error:
-    strcpy(BUF,err_message.str().c_str());
-    throw(const_cast<const char *>(BUF));
 }
 
