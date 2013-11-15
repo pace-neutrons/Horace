@@ -112,9 +112,11 @@ function ok=isvalidfilename(str)
 % Depending on operating system, certain non-alphanumeric characters may be
 % permitted in file names
 %
-% *** CURRENTLY A DUMMY FUNCTION
+%
+% let's prohibit : in the file name
 
-ok=true;
+
+ok= isempty(regexp(str,'\:','once'));
 
 %-------------------------------------------------------------------------------------------
 function ok=isvalidfileext(str)

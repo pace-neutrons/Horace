@@ -91,7 +91,7 @@ assertTrue(isequal(file_out,fullfile(dir2,file2)),'Error in translate_write')
 assertTrue(isequal(file_out,fullfile(dir1,'crap.dat')),'Error in translate_write')
 
 [file_out,ok,mess]=translate_write(['path_0:',file1]);
-assertFalse(ok,'Error in translate_write -- created non-existent path')
+assertFalse(ok,'Error in translate_write -- created file on non-existent path')
 
 
 % Success announcement
