@@ -383,7 +383,8 @@ void load_spe(std::ifstream &stream,double *data_S,double *data_ERR,double * dat
         }
         if(!read_SPEdata_block(stream,data_S +j*NE, NE,SPE_DATA_BLOCK_SIZE,spe_field_width,trailing_spaces,err_message,EOL,buf_empty)){
             err_message<<"          when reading signal, block N: "<<j+1<<std::endl;
-            goto Error;
+			strcpy(BUF,err_message.str().c_str());		
+			throw(const_cast<const char *>(BUF));		
         }
         buf_empty=true;
         get_my_line(stream,BUF_RUB,BUF_SIZE,EOL);  // discard ###
