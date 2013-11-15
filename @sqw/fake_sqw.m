@@ -139,11 +139,11 @@ if isempty(urange)
     urange=range_add_border(urange,-1e-6);     % add a border to account for Matlab matrix multiplication bug
 end
 
-log_level = get(hor_config,'horace_info_level');
+horace_info_level=get(hor_config,'horace_info_level');
 % Construct data structure with spe file information
 if nfiles==1
     % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
-  if(log_level>-1)
+  if(horace_info_level>-1)
     disp('--------------------------------------------------------------------------------')
     disp('Creating output sqw file:')
   end
@@ -159,7 +159,7 @@ else
     tmp_file=gen_tmp_filenames(spe_file,sqw_file);
     nt=bigtic();
     for i=1:nfiles
-          if log_level>-1
+          if horace_info_level>-1
             disp('--------------------------------------------------------------------------------')
             disp(['Creating intermediate .tmp file ',num2str(i),' of ',num2str(nfiles),':'])
             disp(' ')
@@ -170,7 +170,7 @@ else
                 data, det, det, grid_size, urange, instrument(i), sample(i));
           save(w,tmp_file{i})
     end
-    if log_level>-1
+    if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
         bigtoc(nt,'Time to create all intermediate .tmp files:');
         disp('--------------------------------------------------------------------------------')
@@ -179,7 +179,7 @@ else
     % Create single sqw file combining all intermediate sqw files
 
     write_nsqw_to_sqw (tmp_file, sqw_file);
-    if log_level>-1
+    if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
     end
     % Delete tmp files
@@ -190,7 +190,7 @@ else
         catch
             if delete_error==false
                 delete_error=true;
-                if log_level>-1
+                if horace_info_level>-1
                     disp('One or more intermediate .tmp files not deleted')
                 end
             end

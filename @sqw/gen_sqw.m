@@ -128,7 +128,7 @@ if opt.accumulate
 else
     generate_new_sqw=true;
 end
-log_level=	get(hor_config,'horace_info_level');
+horace_info_level=get(hor_config,'horace_info_level');
 
 % Check numeric parameters (array lengths and sizes, simple requirements on validity)
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
@@ -157,7 +157,7 @@ if accumulate_old_sqw    % combine with existing sqw file
     [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
         u, v, psi, omega, dpsi, gl, gs, instrument, sample, header_sqw);
     if ~ok, error(mess), end
-    if any(head_only) && log_level>-1
+    if any(head_only) && horace_info_level>-1
         disp('********************************************************************************')
         disp('***  WARNING: The sqw file contains at least one data set that does not      ***')
         disp('***           appear in the list of input spe data sets                      ***')
@@ -165,7 +165,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         disp(' ')
     end
     if ~any(spe_exist & spe_only)   % no work to do
-		if  log_level>-1
+		if  horace_info_level>-1
 			disp('--------------------------------------------------------------------------------')
 			if ~any(spe_only)
 				disp('  All the input spe data are already included in the sqw file. No work to do.')
@@ -244,7 +244,7 @@ end
 % Construct output sqw file
 if ~accumulate_old_sqw && nindx==1
     % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
-	if log_level>-1
+	if horace_info_level>-1
 		disp('--------------------------------------------------------------------------------')
 		disp('Creating output sqw file:')
 	end
@@ -257,7 +257,7 @@ else
     [tmp_file,sqw_file_tmp]=gen_tmp_filenames(spe_file,sqw_file,indx);
     nt=bigtic();
     for i=1:nindx
-		if log_level>-1
+		if horace_info_level>-1
 			disp('--------------------------------------------------------------------------------')
 			disp(['Processing spe file ',num2str(i),' of ',num2str(nindx),':'])
 			disp(' ')
@@ -273,7 +273,7 @@ else
             end
         end
     end
-	if log_level>--1
+	if horace_info_level>--1
 		disp('--------------------------------------------------------------------------------')
 		bigtoc(nt,'Time to create all temporary sqw files:');
     
@@ -282,22 +282,22 @@ else
 	end
 	
     if ~accumulate_old_sqw
-		if log_level>-1
+		if horace_info_level>-1
 			disp('Creating output sqw file:')
 		end
         write_nsqw_to_sqw (tmp_file, sqw_file);
     else
-		if log_level>-1
+		if horace_info_level>-1
 			disp('Accumulating in temporary output sqw file:')
 		end
         write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp);
-		if log_level>-1		
+		if horace_info_level>-1		
 			disp(' ')
 			disp(['Renaming sqw file to ',sqw_file])
 		end
         rename_file (sqw_file_tmp, sqw_file)
     end
-	if log_level>-1
+	if horace_info_level>-1
 		disp('--------------------------------------------------------------------------------')
 	end
     
@@ -310,7 +310,7 @@ else
             catch
                 if delete_error==false
                     delete_error=true;
-					if log_level>-1
+					if horace_info_level>-1
 						disp('One or more temporary sqw files not deleted')
 					end
                 end

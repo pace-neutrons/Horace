@@ -47,6 +47,8 @@ function [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, ps
 %                  or the range of the data if not.
 
 
+horace_info_level=get(hor_config,'horace_info_level');
+
 % Fill output main header block
 % -----------------------------
 main_header.filename='';
@@ -57,7 +59,7 @@ main_header.nfiles=1;
 
 % Fill header and data blocks
 % ---------------------------
-if get(hor_config,'horace_info_level')>-1
+if horace_info_level>-1
 	disp('Calculating projections...');
 end
 [header,sqw_data]=calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
@@ -90,7 +92,7 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
     grid_size = grid_size_in;
 
 else
-	if get(hor_config,'horace_info_level')>-1
+	if horace_info_level>-1
 		disp('Sorting pixels ...')
 	end
     
