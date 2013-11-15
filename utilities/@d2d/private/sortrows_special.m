@@ -32,7 +32,7 @@ function [y,ndx] = sortrows_special(x,col)
 % the error checking, as this is causing slowdowns
 
 %   Copyright 1984-2006 The MathWorks, Inc. 
-%   $Revision: 741 $  $Date: 2013-10-23 19:09:07 +0100 (Wed, 23 Oct 2013) $
+%   $Revision$  $Date$
 
 % I/O details
 % -----------

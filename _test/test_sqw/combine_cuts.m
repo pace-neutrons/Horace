@@ -80,7 +80,7 @@ function vout = replicate_array (v, npix)
 
 % Original author: T.G.Perring
 %
-% $Revision: 601 $ ($Date: 2012-02-08 14:46:10 +0000 (Wed, 08 Feb 2012) $)
+% $Revision$ ($Date$)
 
 if numel(npix)==numel(v)
     % Get the bin index for each pixel
@@ -107,7 +107,7 @@ function wout=recompute_bin_data(w)
 
 % Original author: T.G.Perring
 %
-% $Revision: 601 $ ($Date: 2012-02-08 14:46:10 +0000 (Wed, 08 Feb 2012) $)
+% $Revision$ ($Date$)
 
 wout=w;
 
