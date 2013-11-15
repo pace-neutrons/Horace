@@ -22,7 +22,11 @@ classdef test_mex_nomex < TestCase
             this = this@TestCase(name);
             
             root_folder = fileparts(which('horace_init.m'));
-            this.accum_cut_folder=fullfile(root_folder,'\@sqw/private');
+            if ispc
+                this.accum_cut_folder=fullfile(root_folder,'\@sqw/private');
+            else
+                this.accum_cut_folder=fullfile(root_folder,'@sqw/private');                
+            end
             this.curr_folder = pwd();
             this.nDet=this.nPolar*this.nAzim;
         end
