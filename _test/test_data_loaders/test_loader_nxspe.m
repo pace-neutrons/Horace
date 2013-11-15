@@ -10,18 +10,16 @@ classdef test_loader_nxspe< TestCase
             this = this@TestCase(name);
             rootpath=fileparts(which('herbert_init.m'));
             this.test_data_path = fullfile(rootpath,'_test/common_data');           
-            this.initial_warn_state=warning('query', 'all');
-        end
-        function delete(this)
-              warning(this.initial_warn_state)
         end
         
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
             set(herbert_config,'log_level',-1,'-buffer');
+            this.initial_warn_state=warning('query', 'all');            
         end
         function this=tearDown(this)
             set(herbert_config,'log_level',this.log_level,'-buffer');            
+            warning(this.initial_warn_state)            
         end
         
         function fn=f_name(this,short_filename)

@@ -3,11 +3,17 @@ classdef test_merge_files < TestCase
         file1='testf1.txt';
         file2='testf2.txt';        
         file3='testtt.txt';
+        test_dir;
     end
     methods       
         % 
         function this=test_merge_files(name)
             this = this@TestCase(name);
+            this.test_dir = tempdir();
+            this.file1=fullfile(this.test_dir,this.file1);
+            this.file2=fullfile(this.test_dir,this.file2); 
+            this.file3=fullfile(this.test_dir,this.file3);                        
+            
         end
         function this=setUp(this)
             id= fopen(this.file1,'w');
