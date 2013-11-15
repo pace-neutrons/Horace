@@ -43,10 +43,10 @@ if isempty(initialised)||~initialised
     return
 end
 
-log_level = get(hor_config,'horace_info_level');
+horace_info_level=get(hor_config,'horace_info_level');
 if nargin==0  % task completed
     t = bigtoc(itimer);
-	if log_level>-1
+	if horace_info_level>-1
 		disp(['Task completed in ',num2str(t(1)-t_start),' seconds'])
 	end
     initialised=false;
@@ -56,7 +56,7 @@ else
     delta_n_ratio = (n/ntot)-n_ratio_prev_msg;
     delta_t = t(1)-t_prev_msg;
     if delta_n_ratio > n_ratio_thresh || delta_t>t_thresh
-		if log_level>-1
+		if horace_info_level>-1
 			disp(['Completed ',num2str((100*n/ntot),'%5.1f'),'% of task in ',num2str(t(1)-t_start),' seconds'])
 		end
         t_prev_msg = t(1);
