@@ -6,6 +6,7 @@ function [grid_size, urange] = write_qspec_to_sqw (dummy, qspec_file, sqw_file, 
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
 % Input:
+% ------
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   qspec_file      Full file name of ascii file containing qx-qy-qz-eps-signal-error column data.
 %                   Here qz  is the component of momentum along ki (Ang^-1)
@@ -32,6 +33,7 @@ function [grid_size, urange] = write_qspec_to_sqw (dummy, qspec_file, sqw_file, 
 %                  that encloses the whole data range
 %
 % Output:
+% -------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
@@ -84,10 +86,14 @@ else
     error(['File does not exist: ',qspec_file])
 end
 
+% Calculate sqw object and save to file
 efix=0;
 emode=0;
-[grid_size, urange]=calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
-                                                 omega, dpsi, gl, gs, data, det, det, grid_size_in, urange_in);
+instrument_default=struct;  % default 1x1 struct *** Should generalise
+sample_default=struct;      % default 1x1 struct *** Should generalise
+[w,grid_size, urange]=calc_sqw(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, det,...
+    grid_size_in, urange_in, instrument_default, sample_default);
+save(w,sqw_file);
 
 %-------------------------------------------------------------------------------------
 function grid_size=make_grid_size(npnt,is_elastic)

@@ -1,31 +1,55 @@
-function [grid_size,p]=construct_grid_size(grid_size_in,urange,nd)
-% the function verifies the grid sizes, sets defaults if grid size is wrong
-% and fills in the bins boundaries for grid axis
+function [grid_size,p]=construct_grid_size(grid_size_in,urange)
+% Return grid_size and boin boundaries from initial grid size specification and data ranges
 %
-% inputs:
-% grid_size_in  --  initial grdis size guess
-% urange        --  range of the input data
-% nd            --  number of data dimentions; should be equal to
-%                   size(grid_size,2) if grid_size is defined. defines the
-%                   grid_size otherwise;
-% outputs:
-% grid_size     -- verified or constructed grid size
-% p             -- bin coordinates;
+%   >> [grid_size,p]=construct_grid_size(grid_size_in,urange)
 %
-% Construct grid_size array if necessary
+% Input:
+% ------
+%   grid_size_in    Initial grids size definition (scalar, or [1 x nd] array)
+%   urange        	Range of the input data ([2 x nd] array)
+%                       [x1_lo,x2_lo,...; x1_hi,x2_hi,...]
 %
+% Output:
+% -------
+%   grid_size       Verified or constructed grid size:
+%                       - Always a [1 x nd] vector
+%                       - grid_size(i)=1 if range is zero
+% 	p               Cell array (size=[1,nd]) of column vectors of bin
+%                   boundaries for each dimension.
+
 % $Revision$ ($Date$)
-%
-if isscalar(grid_size_in)||size(grid_size_in,2)~=nd
+
+
+% Number of dimensions
+nd=size(urange,2);
+
+% Create grid size array
+if isscalar(grid_size_in)
     grid_size=grid_size_in*ones(1,nd);
-else
+elseif size(grid_size_in,2)==nd
     grid_size=grid_size_in;
+else
+    error('Inconsistent dimensions for grid_size and urange')
 end
 
 % Get ranges along each axis and construct bin boundaries
-grid_size(urange(2,:)==urange(1,:))=1;  % set grid size to unity wherever the range is zero
+% (Do not use linspoace, as this does not alway guarantee the correct number of bin boundaries &/or terminal values)
 p=cell(1,nd);
 for i=1:nd
-    p{i}=linspace(urange(1,i),urange(2,i),grid_size(i)+1);
-end
+    if urange(2,i)>urange(1,i)
+        if grid_size(i)>1
+            nb=grid_size(i);
+            ind=2:nb;
+            p_inner=(urange(1,i)*(nb+1-ind)+urange(2,i)*(ind-1))'/nb;
+            p{i}=[urange(1,i);p_inner;urange(2,i)];
+        else
+            p{i}=[urange(1,i);urange(2,i)];
+        end
+        p{i}=linspace(urange(1,i),urange(2,i),grid_size(i)+1)';
+    elseif urange(2,i)==urange(1,i)
+        grid_size(i)=1; % set grid size to unity wherever the range is zero
+        p{i}=[urange(1,i);urange(2,i)];
+    else
+        error('Must have urange(2,:)>urange(1,:)')
+    end
 end

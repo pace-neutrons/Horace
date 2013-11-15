@@ -1,12 +1,12 @@
 function [data, mess] = get_sqw_main_header (fid, opt)
 % Read the main header block for the results of performing calculate projections on spe file(s).
 %
-% Syntax:
 %   >> [data, mess] = get_sqw_main_header(fid, data_in)
 %
 % The default behaviour is that the filename and filepath that are written to file are ignored; 
-% we fill with the values corresponding to the file that is being read.
-% This can be cahnged with teh '-hverbatim' option (below)
+% we fill with the values corresponding to the file that is actually being read.
+% The name written in the file is read if use the '-hverbatim' option (below). This is needed if
+% want to alter header information by overwriting with a block of exactly the same length.
 %
 % Input:
 % ------
@@ -21,11 +21,13 @@ function [data, mess] = get_sqw_main_header (fid, opt)
 %   data        Structure containing fields read from file (details below)
 %   mess        Error message; blank if no errors, non-blank otherwise
 %
+%
 % Fields read from file are:
 %   data.filename   Name of sqw file that is being read, excluding path
 %   data.filepath   Path to sqw file that is being read, including terminating file separator
 %   data.title      Title of sqw data structure
 %   data.nfiles     Number of spe files that contribute
+
 
 % Original author: T.G.Perring
 %
@@ -47,7 +49,12 @@ end
 % Read data from file:
 try
     n = fread_catch(fid,1,'int32');
-    dummy_filename = fread(fid,[1,n],'*char');
+    % Need to try to catch case of e.g. text file where n is read as a stupidly high number
+    if n>=0 && n<1024   % allow up to 1024 characters; also allow for the possibility that there was no file name at all!
+        dummy_filename = fread(fid,[1,n],'*char');
+    else
+        mess = 'Unrecognised format'; return
+    end
 
     n = fread_catch(fid,1,'int32');
     dummy_filepath = fread(fid,[1,n],'*char');

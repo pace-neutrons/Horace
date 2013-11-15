@@ -1,13 +1,13 @@
 function [u_to_rlu, ucoords] = ...
     calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
-% Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates
-% and energy transfer. 
+% Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer. 
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
 %   >> [u_to_rlu, ucoords] = ...
 %    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
 %
 % Input:
+% ------
 %   efix        Fixed energy (meV)
 %   emode       Direct geometry=1, indirect geometry=2
 %   alatt       Lattice parameters (Ang^-1)
@@ -22,21 +22,23 @@ function [u_to_rlu, ucoords] = ...
 %   data        Data structure of spe file (see get_spe)
 %            or The same, but with in addition a field qspec, a 4xn array of qx,qy,qz,eps
 %   det         Data structure of par file (see get_par)
-%            or If data has field qspec, this is ignored
+%            or If data has field qspec, det is ignored
 %
 % Output:
-%   u_to_rlu    Matrix (3x3) of projection axes in reciprocal lattice units
-%              i.e. u(:,1) first vector - u(1:3,1) r.l.u. etc.
-%              This matrix can be used to convert components of a vector in the
-%              projection axes to r.l.u.: v_rlu = u * v_proj
+% -------
+%   u_to_rlu    Matrix (3x3) of crystal Cartesian axes in reciprocal lattice units
+%              i.e. u_to_rlu(:,1) first vector - u(1:3,1) r.l.u. etc.
+%              This matrix can be used to convert components of a vector in
+%              crystal Cartesian axes to r.l.u.: v_rlu = u_to_rlu * v_crystal_Cart
+%              (Same as inv(B) in Busing and Levy convention)
 %   ucoords     [4 x npix] array of coordinates of pixels in crystal Cartesian
 %              coordinates and energy transfer
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-%
-%
+
+
 % Check input parameters
 % -------------------------
 ndet=size(data.S,2);
@@ -58,17 +60,17 @@ elseif emode==0 && exp(data.en(1))<0 && ~isfield(data,'qspec')    % if qspec is 
 end
 
 % Create matrix to convert from spectrometer axes to coords along projection axes
-[spec_to_proj, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+[spec_to_u, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
-c=get_neutron_constants;
-k_to_e = c.k_to_e;  % used by calc_projections_c;
+c=neutron_constants;
+k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
 % Calculate Q in spectrometer coordinates for each pixel 
 use_mex=get(hor_config,'use_mex') && emode==1 && ~isfield(data,'qspec');  % *** as of 6 Nov 2011 the c++ routine still only works for direct geometry
 if use_mex
     try
         nThreads=get(hor_config,'threads');
-        ucoords =calc_projections_c(spec_to_proj, data, det, efix, k_to_e, emode, nThreads);
+        ucoords =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads);
     catch   % use matlab routine
         warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',lasterr());   
         use_mex=false;
@@ -80,6 +82,6 @@ if ~use_mex
     else
         qspec=data.qspec;
     end
-    ucoords = spec_to_proj*qspec(1:3,:);
+    ucoords = spec_to_u*qspec(1:3,:);
     ucoords = [ucoords;qspec(4,:)];
 end

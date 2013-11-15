@@ -9,11 +9,13 @@ function mess_completion (varargin)
 %   >> mess_completion          % print termination message
 %
 % Input on initialisation:
+% ------------------------
 %   ntot            Total length of task (could be total number of iterations)
 %   t_thresh        Message printed if time since last print exceeds this threshold
 %   n_ratio_thresh  Message printed if change in ratio n/ntot exceeds this threshold
 %
 % Input on subsequent calls:
+% --------------------------
 %   n               Current position in completion of task (could be interation number)
 
 % Original author: T.G.Perring
@@ -41,9 +43,12 @@ if isempty(initialised)||~initialised
     return
 end
 
+horace_info_level=get(hor_config,'horace_info_level');
 if nargin==0  % task completed
     t = bigtoc(itimer);
-    disp(['Task completed in ',num2str(t(1)-t_start),' seconds'])
+	if horace_info_level>-1
+		disp(['Task completed in ',num2str(t(1)-t_start),' seconds'])
+	end
     initialised=false;
 else
     n = varargin{1};
@@ -51,7 +56,9 @@ else
     delta_n_ratio = (n/ntot)-n_ratio_prev_msg;
     delta_t = t(1)-t_prev_msg;
     if delta_n_ratio > n_ratio_thresh || delta_t>t_thresh
-        disp(['Completed ',num2str((100*n/ntot),'%5.1f'),'% of task in ',num2str(t(1)-t_start),' seconds'])
+		if horace_info_level>-1
+			disp(['Completed ',num2str((100*n/ntot),'%5.1f'),'% of task in ',num2str(t(1)-t_start),' seconds'])
+		end
         t_prev_msg = t(1);
         n_ratio_prev_msg = n/ntot;
     end

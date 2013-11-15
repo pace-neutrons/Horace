@@ -1,12 +1,24 @@
-function [grid_size, urange,det0] = write_spe_to_sqw (varargin)
+function [grid_size, urange] = write_spe_to_sqw (varargin)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
-% to file.
 %
 %   >> write_spe_to_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
+% *** DEPRECATED FUNCTION **********************************************************
+% 
+% Calls to this function should be replaced by a call to gen_sqw. The only
+% differences are:
+%   - The angles psi, omega, dpsi, gl, gs are entered in degrees
+%     in gen_sqw, but are radians in write-spe_to_sqw
+%   - [Rarely used] The output from gen_sqw will return an empty parameter as the 
+%     first argument. The second and third argument output arguments are the 
+%     same as the first and second from write_spe_to_sqw
+%
+% **********************************************************************************
+%
 % Input:
-%   spe_data        Source of spe data e.g. full file name of spe file or nxspe file
+% ------
+%   spe_file        Full file name of spe data e.g. spe file or nxspe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
 %   sqw_file        Full file name of output sqw file
 %
@@ -26,6 +38,7 @@ function [grid_size, urange,det0] = write_spe_to_sqw (varargin)
 %                  that encloses the whole data range
 %
 % Output:
+% -------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
@@ -36,7 +49,7 @@ function [grid_size, urange,det0] = write_spe_to_sqw (varargin)
 
 
 % Gateway routine that calls sqw method
-[grid_size,urange,det0] = write_spe_to_sqw (sqw, varargin{:});
+[grid_size,urange] = write_spe_to_sqw (sqw, varargin{:});
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0

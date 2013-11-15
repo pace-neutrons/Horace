@@ -7,15 +7,15 @@ function [data,det] = get_ascii_column_data (datafile)
 % ------
 %   datafile    Full file name of ascii data file
 %               Format is one of the following column arrangements:
-%                   qx'  qy'  qz'  S
-%                   qx'  qy'  qz'  S  ERR
-%                   qx'  qy'  qz'  eps  S  ERR
+%                   qx  qy  qz  S
+%                   qx  qy  qz  S  ERR
+%                   qx  qy  qz  eps  S  ERR
 %
-%               Here qz' is the component of momentum along ki (Ang^-1)
-%                    qy' is component vertically upwards (Ang^-1)
-%                    qx' defines a hight-hand coordinate frame with qy' and qz'
-%                    S   signal
-%                    ERR standard deviation
+%               Here qz is the component of momentum along ki (Ang^-1)
+%                   qy  is component vertically upwards (Ang^-1)
+%                   qx  defines a hight-hand coordinate frame with qy' and qz'
+%                   S   signal
+%                   ERR standard deviation
 %
 % Output:
 % -------
@@ -28,6 +28,7 @@ function [data,det] = get_ascii_column_data (datafile)
 %                   data.S          [1 x n] array of signal values
 %                   data.ERR        [1 x n] array of error values (st. dev.)
 %                   data.en         Column vector length 2 of min and max eps in the ascii file
+%
 %   det         Data structure containing fake detector parameters for unmasked
 %              detectors (see get_par for fields)
 
@@ -42,7 +43,7 @@ data.filepath=[path,filesep];
 
 % Skip over lines that do not consist solely of two or three numbers
 data_found = 0;
-while ~ data_found
+while ~data_found
     istart = ftell(fid);
     if (istart<0)
         fclose(fid);
@@ -105,7 +106,7 @@ if eps
         data.ERR=zeros(1,size(a,2));
     end
 elseif ~eps
-    % Horace doesn't seem like all values the same: data.qspec=[a(1:3,:);zeros(1,size(a,2))];
+    % Horace doesn't seem to like all values the same: data.qspec=[a(1:3,:);zeros(1,size(a,2))];
     eps=1e-4*(2*(rand([1,size(a,2)])-0.5));
     data.qspec=[a(1:3,:);eps];
     data.S=a(4,:);
@@ -135,8 +136,8 @@ disp (['qx-qy-qz-eps data read from: ' datafile])
 % Needs to be a single detector for the rest of the code to work
 det.filename='';
 det.filepath='';
-det.x2=0;
 det.group=1;
+det.x2=0;
 det.phi=0;
 det.azim=0;
 det.width=0;

@@ -12,21 +12,17 @@ function val=horace_info_level(val_in)
 %           The larger the value, the more information is printed
 %           Default: +Inf
 
-persistent val_store
 
-% Initialise
-if isempty(val_store)
-    val_store=Inf;
+if nargout>0
+   val = get(hor_config,'horace_info_level');
 end
+
 
 if nargin>0
     if isscalar(val_in) && isnumeric(val_in) && ~isnan(val_in)
-        val_store=val_in;
+        set(hor_config,'horace_info_level',val_in,'-buffer');
     else
-        warning('Information level from Horace must be numeric and not NaN. Level left unchanged')
+        warning('HORACE:horace_info_level','Information level from Horace must be numeric and not NaN. Level left unchanged')
     end
 end
 
-if nargout>0
-   val=val_store;
-end

@@ -72,27 +72,6 @@ if type(3)=='p'
         return
     end
     if size(w,2)>1; w=w'; end    % convert to column vector
-elseif type(3) =='n'
-    if length(w)~=3
-        if length(w)==1
-            a=w(1);
-            w=[a,a,a];
-        else
-            mess = 'if n is provided, w has to be either 3-component vector or single number';
-            return
-        end
-    end
-    norml = w;
-    w = cross(u,v);
-    for i=1:3
-       if norml(i)<= 0
-          mess= 'if n is provided, w can not have 0 or negative elements';
-          return
-       end       
-    end
-    u = u/norml(1);
-    v = v/norml(2);
-    w = w/norml(3);
 else
     w=zeros(3,1);   % dummy value
 end
@@ -125,10 +104,6 @@ for i=1:3
         ulen(i) = abs(uvw_orthonorm(i,i));                  % length of ui in Ang^-1; take abs in case w does not form rh set with u and v
         u_to_rlu(:,i) = ubinv(:,i)*ulen(i);                 % normalise so ui has max(abs(h,k,l))=1
         ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i);         % get step vector in r.l.u.
-    elseif lower(type(i))=='n'
-        ulen(i) = norml(i);                  % 
-        u_to_rlu(:,i) = ubinv(:,i)*ulen(i);                 % 
-        ustep_to_rlu(:,i) = ustep(i)*u_to_rlu(:,i);         %        
     else
         mess = 'ERROR: normalisation type for each axis must be ''r'' or ''a''';
         rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return;

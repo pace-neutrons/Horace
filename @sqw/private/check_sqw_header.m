@@ -21,7 +21,7 @@ function [ok, mess] = check_sqw_header (header,field_names_only)
 % $Revision$ ($Date$)
 
 fields = {'filename';'filepath';'efix';'emode';'alatt';'angdeg';'cu';'cv';'psi';...
-    'omega';'dpsi';'gl';'gs';'en';'uoffset';'u_to_rlu';'ulen';'ulabel'};    % column
+    'omega';'dpsi';'gl';'gs';'en';'uoffset';'u_to_rlu';'ulen';'ulabel';'instrument';'sample'};    % column
 
 ok=false;
 mess='';
@@ -43,7 +43,7 @@ elseif ~(isnumeric(field_names_only)||islogical(field_names_only))
 end
 
 
-% Check fields and, if rewuested, their contents
+% Check fields and, if requested, their contents
 % ----------------------------------------------
 if isstruct(header)
     if ~isequal(fieldnames(header),fields)
@@ -64,7 +64,7 @@ elseif iscell(header) && numel(header)>1    % must have more than one entry
     end
     
 else
-    mess='Header must be a structure of cell array length>2 of structures with correct fields';
+    mess='Header must be a structure or cell array length>2 of structures with correct fields';
     return
 end
 
@@ -105,6 +105,17 @@ if header.uoffset(4)~=0; mess='ERROR: Energy offset ''uoffset(4)'' must be zero'
 if ~isa_size(header.u_to_rlu,[4,4],'double'); mess='ERROR: field ''u_to_rlu'' must be a 4x4 matrix of numbers'; return; end
 if ~isa_size(header.ulen,[1,4],'double'); mess='ERROR: field ''ulen'' must be a row vector of 4 numbers'; return; end
 if ~isa_size(header.ulabel,[1,4],'cellstr'); mess='ERROR: field ''ulabel'' must be a (row) cell array of 4 strings'; return; end
+% Contents of instrument or sample fields must be a scalar structure or object, but otherwise can be anything.
+if numel(header.instrument)~=1 || ~(isobject(header.instrument)||isstruct(header.instrument))
+    mess='ERROR: instrument descriptor must be a scalar structure or object';
+    return
+end
+if numel(header.sample)~=1 || ~(isobject(header.sample)||isstruct(header.sample))
+    mess='ERROR: sample descriptor must be a scalar structure or object';
+    return
+end
+
+
 
 % Ok if got to here
 ok=true;

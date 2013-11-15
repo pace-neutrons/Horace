@@ -4,10 +4,12 @@ function mess = put_sqw_main_header (fid, data)
 %   >> mess = put_sqw_header (fid, data)
 %
 % Input:
+% ------
 %   fid             File identifier of output file (opened for binary writing)
 %   data            Data structure which must contain (at least) the fields listed below
 %
 % Output:
+% -------
 %   mess            Message if there was a problem writing; otherwise mess=''
 %
 %
@@ -22,6 +24,7 @@ function mess = put_sqw_main_header (fid, data)
 % ------
 %   There are some other items written to the file to help when reading the file using get_sqw_data. 
 % These are indicated by comments in the code.
+
 
 % Original author: T.G.Perring
 %

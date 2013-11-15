@@ -196,14 +196,16 @@ ndims=dimensions(win);
 %New code, after bug fix (RAE 14/3/13):
 
 for i=1:ndims
-    min_unref{i}=min(win.data.p{i});
-    max_unref{i}=max(win.data.p{i});
+    bins=0.5.*(win.data.p{i}(1:end-1) + win.data.p{i}(2:end));
+    min_unref{i}=min(bins)+eps;%add small amount to avoid rounding error
+    max_unref{i}=max(bins)-eps;
 end
 
 %Extent of data after symmetrisation:
 for i=1:ndims
-    min_ref{i}=min(coords_cut(win.data.pax(i),:));
-    max_ref{i}=max(coords_cut(win.data.pax(i),:));
+    binwid=win.data.p{i}(2)-win.data.p{i}(1);
+    min_ref{i}=min(coords_cut(win.data.pax(i),:))+binwid/2;
+    max_ref{i}=max(coords_cut(win.data.pax(i),:))-binwid/2;
 end
 
 %==============
@@ -223,20 +225,25 @@ for i=1:ndims
 end
 
 %cannot use recompute_bin_data to get the new object...
-horace_info_level(-Inf);
+%Notice that Horace can deal with working out the data range itself if we
+%set the plot limits to be +/-Inf
+il=horace_info_level(-Inf);
 if ndims==1
     xstep=win.data.p{1}(2)-win.data.p{1}(1);
     wout=cut(wout,[min_full{1},xstep,max_full{1}]);
+%     wout=cut(wout,[-Inf,xstep,Inf]);
 elseif ndims==2
     xstep=win.data.p{1}(2)-win.data.p{1}(1);
     ystep=win.data.p{2}(2)-win.data.p{2}(1);
     wout=cut(wout,[min_full{1},xstep,max_full{1}],[min_full{2},ystep,max_full{2}]);
+%     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf]);
 elseif ndims==3
     xstep=win.data.p{1}(2)-win.data.p{1}(1);
     ystep=win.data.p{2}(2)-win.data.p{2}(1);
     zstep=win.data.p{3}(2)-win.data.p{3}(1);
     wout=cut(wout,[min_full{1},xstep,max_full{1}],[min_full{2},ystep,max_full{2}],...
         [min_full{3},zstep,max_full{3}]);
+%     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf],[-Inf,zstep,Inf]);
 elseif ndims==4
     xstep=win.data.p{1}(2)-win.data.p{1}(1);
     ystep=win.data.p{2}(2)-win.data.p{2}(1);
@@ -244,10 +251,11 @@ elseif ndims==4
     estep=win.data.p{4}(2)-win.data.p{4}(1);
     wout=cut(wout,[min_full{1},xstep,max_full{1}],[min_full{2},ystep,max_full{2}],...
         [min_full{3},zstep,max_full{3}],[min_full{4},estep,max_full{4}]);
+%     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf],[-Inf,zstep,Inf],[-Inf,estep,Inf]);
 else
     error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
 end
-horace_info_level(Inf);
+horace_info_level(il);
 
 
 

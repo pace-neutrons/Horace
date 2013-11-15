@@ -224,7 +224,7 @@ end
 
 % Get header information from the data source
 % --------------------------------------------
-if horace_info_level>=1, disp('--------------------------------------------------------------------------------'), end
+if horace_info_level>0, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
     [main_header,header,detpar,data,mess,position,npixtot,type]=get_sqw (data_source,'-nopix');

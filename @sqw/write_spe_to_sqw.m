@@ -1,14 +1,27 @@
-function [grid_size, urange,det0] = write_spe_to_sqw (dummy, spe_data, par_file, sqw_file, efix, emode, alatt, angdeg,...
-                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in,det0)
+function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+                                                 u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
-% to file.
 %
 %   >> write_spe_to_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
+% *** DEPRECATED FUNCTION **********************************************************
+% 
+% Calls to this function should be replaced by a call to gen_sqw. The only
+% differences are:
+%   - The angles psi, omega, dpsi, gl, gs are entered in degrees
+%     in gen_sqw, but are radians in write-spe_to_sqw
+%   - [Rarely used] The output from gen_sqw will return an empty parameter as the 
+%     first argument. The second and third argument output arguments are the 
+%     same as the first and second from write_spe_to_sqw
+%
+% **********************************************************************************
+%
+%
 % Input:
+% ------
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
-%   spe_data        Source of spe data e.g. full file name of spe file or nxspe file
+%   spe_file        Full file name of spe data e.g. spe file or nxspe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
 %   sqw_file        Full file name of output sqw file
 %
@@ -25,15 +38,10 @@ function [grid_size, urange,det0] = write_spe_to_sqw (dummy, spe_data, par_file,
 %   gs              Small goniometer arc angle (rad)
 %   grid_size_in    Scalar or row vector of grid dimensions. Default is [1x1x1x1]
 %   urange_in       Range of data grid for output. If not given, then uses smallest hypercuboid
-%                   that encloses the whole data range
-%   det0            if present, refers to the array of unmasked detector parameters in horace data format
-%                   the array is written in sqw file as reference detectors
-%                   allowing to combine multiple sqw (or tmp) files togeter
-%                   as masked detectors are usually different for different
-%                   runs. If it is absent, appropriate data file is taken
-%                   from the par_file or rundata
+%                  that encloses the whole data range
 %
 % Output:
+% -------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
@@ -43,84 +51,40 @@ function [grid_size, urange,det0] = write_spe_to_sqw (dummy, spe_data, par_file,
 % $Revision$ ($Date$)
 
 
+disp('*** DEPRECATED FUNCTION:  Please replace this call to  write_spe_to_sqw  with one to  gen_sqw ***')
+
+% Check input arguments
+% ---------------------
 % Check that the first argument is sqw object
-% -------------------------------------------
 if ~isa(dummy,classname)    % classname is a private method
     error('Check type of input arguments')
 end
 
-% Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
-% --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=15 && nargin<=18)
-    error('Check number of input arguments')
-end
-if is_herbert_used()
-    if isa(spe_data,'speData')
-        error('WriteSpe2Sqw:InvalidArgument','Herbert IO do not understands speData yet');
-    end
-    if isa(spe_data,'rundata') % already rundata
-        run_file = spe_data;
-    else
-        run_file = gen_runfiles(spe_data,par_file,alatt,angdeg,efix,psi,omega,dpsi,gl,gs); 
-    end
-    if numel(run_file)~=1
-        error('Must only have one input data file');
-    end
-        
-else
-    if ~isa(spe_data,'speData') % if input parameter is the filename, we transform it into speData 
-        spe_data = speData(spe_data);
-    end
+% Check file names
+check_spe_exist=true;
+check_spe_unique=true;
+check_sqw_exist=false;
+[ok, mess, spe_file, par_file, sqw_file] = gen_sqw_check_files...
+    (spe_file, par_file, sqw_file, check_spe_exist, check_spe_unique, check_sqw_exist);
+if ~ok, error(mess), end
+nfiles=numel(spe_file);
+if nfiles~=1
+    error('This function takes only a single spe file data source')
 end
 
+% Check numeric parameters
+[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+    (nfiles,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+if ~ok, error(mess), end
 
-bigtic
 
-% Set default grid size if none given
-if ~exist('grid_size_in','var')
-    grid_size_in=[1,1,1,1];
-elseif ~(isnumeric(grid_size_in)&&(isscalar(grid_size_in)||(isvector(grid_size_in)&&all(size(grid_size_in)==[1,4]))))
-    error ('Grid size must be scalar or row vector length 4')
+% Perform spe to sqw calculation
+% ------------------------------
+r2d=180/pi;
+[tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_file,...
+    efix, emode, alatt, angdeg, u, v, psi*r2d, omega*r2d, dpsi*r2d, gl*r2d, gs*r2d, varargin{:});
+
+% Clear output arguments if nargout==0 to have a silent return
+if nargout==0
+    clear grid_size urange
 end
-
-% Check urange_in is valid, if provided
-if exist('urange_in','var')
-    if ~(isnumeric(urange_in) && length(size(urange_in))==2 && all(size(urange_in)==[2,4]) && all(urange_in(2,:)-urange_in(1,:)>=0))
-        error('urange must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper')
-    end
-else
-    urange_in =[];
-end
-
-if is_herbert_used() % =============================> rundata files processing
-    data = struct();
-    if iscell(run_file)
-        run_file = run_file{1};
-    end       
-    if ~exist('det0','var') || isempty(det0)   
-        % get the list of all detectors, including the detectors, which produce
-        % incorrect results (NaN-s) for this run        
-        det0 = get_rundata(run_file,'det_par','-hor');
-    end
-
-    % Read spe file and detector parameters if it has not been done before and
-    % return the results, without NaN-s ('-nonan')
-    [data.S,data.ERR,data.en,det,efix,alatt,angdeg,...
-     psi,omega,dpsi,gl,gs]=get_rundata(run_file,'S','ERR','en',...
-                                        'det_par','efix','alatt', 'angldeg',...
-                                        'psi','omega', 'dpsi', 'gl', 'gs',...
-                                         '-hor','-rad','-nonan');
-                                 
-
-    [data.filepath,data.filename]=fileparts(run_file.loader.file_name);
-
- 
-    
-else
-    % Read spe file and detector parameters
-    [data,det,keep,det0]=get_data(spe_data, par_file);
-
-end
-%
-[grid_size, urange]=calc_and_write_sqw(sqw_file, efix, emode, alatt, angdeg, u, v, psi,...
-                                                      omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in);

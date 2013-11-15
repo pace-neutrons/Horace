@@ -26,7 +26,7 @@ normvec=cross(v1,v2);
 datavec1=win.data.u_to_rlu([1:3],win.data.pax(1));
 datavec2=win.data.u_to_rlu([1:3],win.data.pax(2));
 
-if xor(all(cross(normvec,datavec1)<1e-5),all(cross(normvec,datavec2)<1e-5))
+if xor(all(abs(cross(normvec,datavec1))<1e-5),all(abs(cross(normvec,datavec2))<1e-5))
     %tells us that normvec is parallel / antiparallel to ONE of the data
     %axes. Implicitly catches the case where normvec=[0,0,0]
     speedup=true;

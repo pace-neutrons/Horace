@@ -12,10 +12,10 @@ function [data,det,is_mat_file] = get_mat_column_data (datafile)
 %                   qx  qy  qz  eps  S  ERR
 %
 %               Here qz is the component of momentum along ki (Ang^-1)
-%                    qy is component vertically upwards (Ang^-1)
-%                    qx defines a hight-hand coordinate frame with qy and qz
-%                    S   signal
-%                    ERR standard deviation
+%                   qy  is component vertically upwards (Ang^-1)
+%                   qx  defines a hight-hand coordinate frame with qy and qz
+%                   S   signal
+%                   ERR standard deviation
 %
 % Output:
 % -------
@@ -28,8 +28,10 @@ function [data,det,is_mat_file] = get_mat_column_data (datafile)
 %                   data.S          [1 x n] array of signal values
 %                   data.ERR        [1 x n] array of error values (st. dev.)
 %                   data.en         Column vector length 2 of min and max eps in the ascii file
+%
 %   det         Data structure containing fake detector parameters for unmasked
 %              detectors (see get_par for fields)
+%
 %   is_mat_file True if could read file as mat file
 
 
@@ -50,6 +52,8 @@ try
     end
     is_mat_file=true;
 catch
+    data=[];
+    det=[];
     is_mat_file=false;
     return
 end
@@ -72,7 +76,7 @@ if isfield(data_in,'eps')
         error('Check that the array ''eps'' has the same number of elements as the signal array');
     end
 else
-    % Horace doesn't seem like all energy values the same
+    % Horace doesn't seem to like all energy values the same
     eps=1e-4*(2*(rand([1,nd])-0.5));
     data.qspec=[data_in.qz(:)';data_in.qx(:)';data_in.qy(:)';eps];
     mess='qx-qy-qz';
@@ -106,8 +110,8 @@ disp(mess)
 % Needs to be a single detector for the rest of the code to work
 det.filename='';
 det.filepath='';
-det.x2=0;
 det.group=1;
+det.x2=0;
 det.phi=0;
 det.azim=0;
 det.width=0;

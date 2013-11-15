@@ -18,6 +18,10 @@ function qw=calculate_qw_bins(win)
 %
 % $Revision$ ($Date$)
 
+if numel(win)~=1
+    error('Only a single sqw object is valid - cannot take an array of sqw objects')
+end
+
 u0=win.data.uoffset;
 u=win.data.u_to_rlu;
 iax=win.data.iax;
