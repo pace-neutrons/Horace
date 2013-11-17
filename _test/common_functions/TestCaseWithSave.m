@@ -13,6 +13,8 @@ classdef TestCaseWithSave < TestCase
         datasets_to_save;          % cellarray of the datasets prepared for saving.        
         % addotopma; parameters for equal_to_tol function
         comparison_par={'min_denominator', 0.01};
+        filelist_toclear={};
+        path_toclear={};
     end
     
     methods
@@ -35,11 +37,37 @@ classdef TestCaseWithSave < TestCase
                                    
             this.want_to_save_output=false;            
            % load old data if necessary
-            if not(this.want_to_save_output)
+            if not(this.want_to_save_output) && exist(inputFile,'file')
                 this.old=load(inputFile);
             end
             this.datasets_to_save=struct();
             
+        end
+        %------------------------------------------------------------------        
+        function rm_files(this,varargin)
+            for i=1:numel(varargin)
+                if exist(varargin{i},'file')
+                    delete(varargin{i});
+                end
+            end
+        end
+        %------------------------------------------------------------------        
+        function delete(this)
+            warn=warning('off','all'); 
+            rm_files(this,this.filelist_toclear{:});
+
+            for i=1:numel(this.path_toclear)       
+                rmpath(this.path_toclear{i});  
+            end
+            warning(warn);  
+        end
+        %------------------------------------------------------------------
+        function this=add_to_files_cleanList(this,varargin)
+           this.filelist_toclear=add_data_to_list(this.filelist_toclear,varargin{:});             
+        end
+        %
+        function this=add_to_path_cleanList(this,varargin)        
+            this.path_toclear= add_data_to_list(this.path_toclear,varargin{:});           
         end
         %------------------------------------------------------------------               
         function this=test_or_save_variables(this,varargin)
