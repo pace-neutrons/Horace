@@ -62,7 +62,7 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             % build test file names
             this.spe_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max
-                this.spe_file{i}=[tempdir,'spe_',num2str(i),'.spe'];
+                this.spe_file{i}=[tempdir,'gen_sqw_acc_sqw_spe_',num2str(i),'.spe'];
             end
             
             this.par_file=fullfile(this.results_path,'96dets.par');            
@@ -119,24 +119,7 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             gl=this.gen_sqw_par{11};
             gs=this.gen_sqw_par{12};
         end
-        function delete(this)
-            %--------------------------------------------------------------------------------------------------
-            % Cleanup
-            %--------------------------------------------------------------------------------------------------
-            warn=warning('off','all');            
-            rm_files(this.spe_file{:});
-            
-            rmpath(this.test_functions_path);
-            warning(warn);
-        end
-        function rm_files(varargin)
-            for i=1:numel(varargin)
-                if exist(varargin{i},'file')
-                    delete(varargin{i});
-                end
-            end
-        end
-        function this=build_test_files(this)
+      function this=build_test_files(this)
             %% =====================================================================================================================
             % Make instrument and sample
             % =====================================================================================================================
@@ -168,7 +151,7 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
                         efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i));
                 end
             end
-            
+            this=add_to_files_cleanList(this,this.spe_file{:});            
             
         end
         function this=test_gen_sqw(this)
@@ -178,10 +161,10 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             % generate the names of the output sqw files
             sqw_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max            
-                sqw_file{i}=fullfile(tempdir,['sqw_',num2str(i),'.sqw']);    % output sqw file            
+                sqw_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_sqw_',num2str(i),'.sqw']);    % output sqw file            
             end
             
-            cleanup_obj=onCleanup(@()rm_files(this.sqw_file_123456,this.sqw_file_145623,sqw_file{:}));
+            cleanup_obj=onCleanup(@()rm_files(this,this.sqw_file_123456,this.sqw_file_145623,sqw_file{:}));
             %% ---------------------------------------
             % Test gen_sqw
             % ---------------------------------------            
@@ -217,7 +200,7 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             
             
         end
-        function this=test_wrong_params(this)
+        function this=test_wrong_params_gen_sqw(this)
             
             this=build_test_files(this);  
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);              
@@ -229,14 +212,30 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             end
             assertTrue(ok,'Should have failed because of repeated spe file name and parameters');            
         end
+        function this=test_wrong_params_accum_sqw(this)
+            
+            this=build_test_files(this);  
+            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);              
+           
+          % Repeat a file
+            spe_accum={this.spe_file{1},'',this.spe_file{5},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
+            try
+                accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+                ok=false;
+            catch
+                ok=true;
+            end
+            assertTrue(ok,'Should have failed because of repeated spe file name');
+              
+        end
         
         function this=thest_accumulate_sqw(this)
             % build test files if they have not been build
             this=build_test_files(this);  
             sqw_file_accum=fullfile(tempdir,'sqw_accum.sqw');            
             
-            cleanup_obj=onCleanup(@()rm_files(this.sqw_file_14,this.sqw_file_1456,this.sqw_file_15456,this.sqw_file_11456,sqw_file_accum));            
-            %% ---------------------------------------
+            cleanup_obj=onCleanup(@()rm_files(this,this.sqw_file_14,this.sqw_file_1456,this.sqw_file_15456,this.sqw_file_11456,sqw_file_accum));            
+            % ---------------------------------------
             % Test accumulate_sqw
             % ---------------------------------------
             
@@ -269,15 +268,6 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             % Test against saved or store to save later
             this=test_or_save_variables(this,w2_14,w2_1456);
             
-            % Repeat a file
-            spe_accum={this.spe_file{1},'',this.spe_file{5},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            try
-                accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-                ok=false;
-            catch
-                ok=true;
-            end
-            assertTrue(ok,'Should have failed because of repeated spe file name');
             
             % Repeat a file with 'replicate'
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
