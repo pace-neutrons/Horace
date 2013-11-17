@@ -85,9 +85,7 @@ classdef test_symm< TestCase
             save(w2d_qq_small_sqw,[this.testdir,filesep,'w2d_qq_small_sqw.sqw']);
             save(w2d_qq_small_d2d,[this.testdir,filesep,'w2d_qq_small_d2d.sqw']);
         end
-        function delete(this)
-            close all;
-        end
+    
         %% Symmetrisation tests
         function this = test_sym_sqw(this)
             %sqw symmetrisation:
