@@ -19,8 +19,10 @@ nfiles_max=2;
 par_file=fullfile('96dets.par');
 spe_file=cell(1,nfiles_max);
 for i=1:nfiles_max
-    spe_file{i}=[outdir,'spe_',num2str(i),'.spe'];
+    spe_file{i}=[outdir,'test_gen_runfiles_spe_',num2str(i),'.spe'];
 end
+sqw_file_12=fullfile(outdir,'test_gen_runfiles_sqw_12.sqw'); 
+cleanup_obj=onCleanup(@()delete(spe_file{:},sqw_file_12));
 
 en=cell(1,nfiles_max);
 efix=zeros(1,nfiles_max);
@@ -56,7 +58,9 @@ end
 %% =====================================================================================================================
 % The line that failed before: the problem was efix the same for two files, but number of energy bins different
 % =====================================================================================================================
-sqw_file_12=fullfile(outdir,'sqw_12.sqw'); 
+
 gen_sqw (spe_file, par_file, sqw_file_12, efix(1), emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
 
 banner_to_screen([mfilename,': Test(s) passed'],'bot')
+
+
