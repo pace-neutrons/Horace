@@ -21,14 +21,6 @@ filepath{4}='@d3d\private';
 filepath{5}='@d4d\private';
 filepath{6}='@sqw';
 filepath{7}='@sqw\private';
-filepath{8}='@sigvar';
-filepath{9}='@sigvar\private';
-
-filepath{10}='libisis\@d1d';
-filepath{11}='libisis\@d2d';
-filepath{12}='libisis\@d3d';
-filepath{13}='libisis\@sqw';
-filepath{14}='private';
 
 for i=1:numel(filepath)
     generate_pcode(fullfile(fileroot,filepath{i}))
