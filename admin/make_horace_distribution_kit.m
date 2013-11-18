@@ -108,6 +108,9 @@ if no_demo
     rmdir(fullfile(horace_dir,'demo'),'s');
     rmdir(fullfile(horace_dir,'test'),'s');    
     delete(fullfile(horace_dir,'admin','validate_horace.m'));
+else
+    % copy source code files from system directory
+    copy_files_list(fullfile(rootpath,'_test'),fullfile(horace_dir,'_test'),'+_')
 end
 % copy the file which should initiate Horace (after minor modifications)
 % copyfile('horace_on.mt',[target_Dir '/horace_on.mt'],'f');
