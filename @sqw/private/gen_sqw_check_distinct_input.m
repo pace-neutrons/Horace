@@ -1,4 +1,4 @@
-function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (replicate,spe_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, instrument, sample, header)
 % Check that the input arguments to gen_sqw define distinct input with required equality of some fields.
 % Optionally, determine in addition which are not included in the header of an sqw file
@@ -66,14 +66,15 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 % Convert angles to radians for comparison with header
 d2r=pi/180;
 pstruct=struct('filename',spe_file,'efix',num2cell(efix),...
-    'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
+        'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
+
 names=fieldnames(pstruct)';     % row vector
 
 % Sort structure array
 [pstruct_sort,indp]=nestedSortStruct(pstruct,names);
 tol = 1.0e-14;    % test number to define equality allowing for rounding errors in double precision
 for i=2:numel(pstruct)
-    if isequal(pstruct_sort(i-1),pstruct_sort(i))
+    if ~replicate && isequal(pstruct_sort(i-1),pstruct_sort(i))
         ok=false; spe_only=[]; head_only=[];
         mess='At least two spe data input have the all the same filename, efix, psi, omega, dpsi, gl and gs'; return
     end

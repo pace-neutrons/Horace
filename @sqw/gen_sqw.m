@@ -182,7 +182,7 @@ if accumulate_old_sqw    % combine with existing sqw file
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
 else
-    [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+    [ok, mess] = gen_sqw_check_distinct_input (opt.replicate,spe_file, efix, emode, alatt, angdeg,...
         u, v, psi, omega, dpsi, gl, gs, instrument, sample);
     if ~ok, error(mess), end
     % Have already checked that all the spe files exist for the case of generate_new_sqw is true
