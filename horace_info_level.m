@@ -13,10 +13,8 @@ function val=horace_info_level(val_in)
 %           Default: +Inf
 
 
-if nargout>0
-   val = get(hor_config,'horace_info_level');
-end
 
+val = get(hor_config,'horace_info_level');
 
 if nargin>0
     if isscalar(val_in) && isnumeric(val_in) && ~isnan(val_in)
