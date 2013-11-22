@@ -91,7 +91,10 @@ pcode *.m
 copyfile('*.p',directory,'f')
 warning(warn_state);    % return warnings to initial state
 cd(curr_dir);
-rmdir(tmpdir,'s')   % delete temporary area
+try
+    rmdir(tmpdir,'s')   % delete temporary area
+catch
+end
 
 
 
