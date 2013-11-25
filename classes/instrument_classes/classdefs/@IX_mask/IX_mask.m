@@ -38,6 +38,7 @@ if nargin==1
         % File name input
         if ~isempty(varargin{1})
             [wout,ok,mess]=get_mask(varargin{1});
+            if ~ok, error(mess), end
         else
             error('File name cannot be an empty string')
         end
