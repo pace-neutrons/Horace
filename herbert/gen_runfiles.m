@@ -69,8 +69,8 @@ else
 end
 
 % Check number of par files is one, or matches the number of spe files
-if ~(numel(par_files)==1 || numel(par_files)==numel(spe_files))
-    error('GEN_RUNFILES:invalid_argument',' number of par files must be one or equal to the number of spe files');
+if ~(numel(par_files)==1 || numel(par_files)==numel(spe_files) || numel(par_files) == 0)
+    error('GEN_RUNFILES:invalid_argument','par files list should be empty, have one par file or number of par files should be equal to the number of spe files');
 end
 
 % Check if all requested par files exist:
