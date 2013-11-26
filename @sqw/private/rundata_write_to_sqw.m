@@ -26,11 +26,17 @@ function [grid_size, urange] = rundata_write_to_sqw (run_file, sqw_file, grid_si
 
 
 bigtic
+% detector's information into memory
+if isa(run_file,'rundata')
+    run_file = get_rundata(run_file,'det_par','-this');
+end
 
 % Read spe file and detector parameters
 % -------------------------------------
 % Masked detectors (i.e. containing NaN signal) are removed from data and detectors
-% Note: algorithm updates only if not already read from disk
+
+
+
 data = struct();
 [data.S,data.ERR,data.en,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=...
     get_rundata(run_file,'S','ERR','en','efix','emode','alatt','angldeg','u','v',...
@@ -38,8 +44,10 @@ data = struct();
 
 [data.filepath,data.filename]=get_source_fname(run_file);
 
+% Note: algorithm updates only if not already read from disk
 % Get the list of all detectors, including the detectors corresponding to masked detectors
 det0 = get_rundata(run_file,'det_par','-hor');
+
 
 horace_info_level=get(hor_config,'horace_info_level');
 
