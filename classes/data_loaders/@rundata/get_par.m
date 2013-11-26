@@ -29,7 +29,7 @@ if exist('format','var') && ~isempty(format) && strncmpi(format,'-hor',4)
     else
         filename = this.par_file_name;
     end
-    par = get_hor_format(this.det_par,filename);
+    par = get_hor_format(this.det_par,filename,this.loader.azimuthal_inverted);
 else
     par = this.det_par;
 end

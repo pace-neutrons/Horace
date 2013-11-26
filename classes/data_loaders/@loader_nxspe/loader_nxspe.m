@@ -35,7 +35,7 @@ classdef loader_nxspe < a_loader
         
         nxspe_defines={'S','ERR','en','efix','psi','det_par'};       
         this=this@a_loader(nxspe_defines);
-        
+        this.azimuthal_inverted=false;
 
         if nargin==0; return ; end;
         

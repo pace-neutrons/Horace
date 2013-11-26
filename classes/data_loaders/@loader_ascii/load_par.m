@@ -33,6 +33,7 @@ end
 
 par             = load_ASCII_par(this.par_file_name);
 
+
 size_par = size(par);
 ndet=size_par(2);
 if get(herbert_config,'log_level')>0
@@ -50,7 +51,7 @@ elseif(size_par(1)~=6)
 end
 
 if return_horace_format
-  det =  get_hor_format(par,this.par_file_name);
+  det =  get_hor_format(par,this.par_file_name,true);
 else
   det=par;
 end

@@ -18,8 +18,9 @@ classdef loader_speh5 < a_loader
         % it analyzes all data fields availible  as the input arguments and
         % verifies that all necessary data are there
             speh5_defines={'S','ERR','en','efix'};                
-            this=this@a_loader(speh5_defines);        
-            
+            this=this@a_loader(speh5_defines);
+            this.azimuthal_inverted=true;
+
             if nargin==0; return ; end;
 
             this.file_name =  check_file_correct(full_speh5_file_name); 

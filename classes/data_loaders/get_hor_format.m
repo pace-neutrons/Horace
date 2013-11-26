@@ -1,4 +1,4 @@
-function det = get_hor_format(par_array,file_name)
+function det = get_hor_format(par_array,file_name,azimuthal_inverted)
 % function transforms data obtained as par data array into Horace srtucture;
 %
 % Usage:
@@ -7,6 +7,8 @@ function det = get_hor_format(par_array,file_name)
 % par_array -- 6xNd array of angular detector parameters where Nd is number
 %              of detectors
 % file_name -- the name of the file whrer these data were read from 
+% azimuthal_inverted  -- if data were obtained from ascii file, the sign of the azimuthal angle has to be changed to have correct coordinate system
+%                        in binary file data already have correct sighn. Define this parameter to true if no data inversion is necessary
 %Output: 
 % det       -- the structure, with detector parameters information, which
 %              used in Horace data format
@@ -50,6 +52,10 @@ det.group = par_array(6,:);
 	
 det.x2    = par_array(1,:);
 det.phi   = par_array(2,:);
-det.azim  =-par_array(3,:); % Note sign change to get correct convention
+if nargin>2 && azimuthal_inverted 
+    det.azim  =-par_array(3,:); % Note sign change to get correct convention
+else
+    det.azim  = par_array(3,:); % no sign change is necessary
+end
 det.width = par_array(4,:);
 det.height= par_array(5,:);

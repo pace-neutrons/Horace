@@ -39,7 +39,8 @@ classdef loader_ascii < a_loader
         spe_defines={'S','ERR','en'};
         
        
-        ascii_loader=ascii_loader@a_loader(spe_defines);        
+        ascii_loader=ascii_loader@a_loader(spe_defines);    
+        ascii_loader.azimuthal_inverted=true;
         if nargin==0; return ; end;
 
         if ~isa(full_spe_file_name,'char')

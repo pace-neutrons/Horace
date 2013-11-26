@@ -69,7 +69,6 @@ classdef rundata
         
         % The default values for these fields are as follows:
         the_fields_defaults  = {0,0,0,0,1,true,[1,0,0],[0,1,0]};
-        
     end
     
     methods
