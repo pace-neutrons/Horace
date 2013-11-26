@@ -25,11 +25,12 @@ end
 
 if exist('format','var') && ~isempty(format) && strncmpi(format,'-hor',4)
     if ~isempty(this.loader)
-        filename = get(this.loader,'par_file_name');
+        filename = this.loader.par_file_name;
+        par = get_hor_format(this.det_par,filename,this.loader.azimuthal_inverted);        
     else
         filename = this.par_file_name;
+        par = get_hor_format(this.det_par,filename,true);        
     end
-    par = get_hor_format(this.det_par,filename,this.loader.azimuthal_inverted);
 else
     par = this.det_par;
 end
