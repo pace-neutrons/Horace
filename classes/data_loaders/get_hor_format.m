@@ -1,4 +1,4 @@
-function det = get_hor_format(par_array,file_name,azimuthal_inverted)
+function det = get_hor_format(par_array,file_name)
 % function transforms data obtained as par data array into Horace srtucture;
 %
 % Usage:
@@ -25,7 +25,8 @@ function det = get_hor_format(par_array,file_name,azimuthal_inverted)
 % det.group <- par(6,:) 
 % det.x2   <-  par(1,:) 
 % det.phi  <-  par(2,:)  
-% det.azim <- -par(3,:)   % Note sign change to get correct convention
+% det.azim <- par(3,:)   %  sign change now occurs directly in the asccii
+%                           loader
 % det.width<-  par(4,:)  
 % det.height<- par(5,:)  
 % [filepath,filename]=fileparts(file_name);
@@ -52,10 +53,10 @@ det.group = par_array(6,:);
 	
 det.x2    = par_array(1,:);
 det.phi   = par_array(2,:);
-if nargin>2 && azimuthal_inverted 
-    det.azim  =-par_array(3,:); % Note sign change to get correct convention
-else
-    det.azim  = par_array(3,:); % no sign change is necessary
-end
+%if nargin>2 && azimuthal_inverted 
+%    det.azim  =-par_array(3,:); % Note sign change to get correct convention
+%else
+det.azim  = par_array(3,:); % no sign change is necessary as it occurs in ASCII par file reader
+%end
 det.width = par_array(4,:);
 det.height= par_array(5,:);

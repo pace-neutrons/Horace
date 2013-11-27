@@ -32,6 +32,7 @@ if isempty(new_file_name) && isempty(this.par_file_name);
 end
 
 par             = load_ASCII_par(this.par_file_name);
+par(3,:) = -par(3,:);
 
 
 size_par = size(par);
@@ -51,7 +52,7 @@ elseif(size_par(1)~=6)
 end
 
 if return_horace_format
-  det =  get_hor_format(par,this.par_file_name,true);
+  det =  get_hor_format(par,this.par_file_name);
 else
   det=par;
 end

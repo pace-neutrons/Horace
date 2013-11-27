@@ -149,7 +149,8 @@ classdef rundata
         end
         %-----------------------------------------------------------------------------
         function [rez,this]=subsref(this,S)
-            % overloaded subsref loads data from the file if the 
+            % overloaded subsref loads data from the file if the data were
+            % not already loaded
             rez=builtin('subsref',this,S); 
             if S.type == '.'
                 if any(ismember(S.subs,fieldnames(this)))

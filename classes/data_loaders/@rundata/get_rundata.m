@@ -234,7 +234,7 @@ if return_structure
         out.(fields_requested{i})=this.(fields_requested{i});
     end
     if return_horace_format
-        out.det_par = get_hor_format(out.det_par,this.loader.par_file_name,this.loader.azimuthal_inverted);
+        out.det_par = get_hor_format(out.det_par,this.loader.par_file_name);
     end
     if transform_to_rad_requested
         out=transform_to_rad(out);
@@ -251,7 +251,7 @@ else % return cell array of output variables, defined by the list of
         varargout{i}=this.(fields_requested{i});
         
         if return_horace_format && strcmp('det_par',fields_requested{i})
-            varargout{i} = get_hor_format(varargout{i},this.loader.par_file_name,this.loader.azimuthal_inverted);
+            varargout{i} = get_hor_format(varargout{i},this.loader.par_file_name);
         end
         
     end

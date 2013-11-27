@@ -19,7 +19,6 @@ classdef loader_speh5 < a_loader
         % verifies that all necessary data are there
             speh5_defines={'S','ERR','en','efix'};                
             this=this@a_loader(speh5_defines);
-            this.azimuthal_inverted=true;
 
             if nargin==0; return ; end;
 

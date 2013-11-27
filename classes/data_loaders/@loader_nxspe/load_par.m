@@ -67,7 +67,7 @@ this.det_par = par;
 
 
 if return_horace_format
-  det = get_hor_format(par,this.file_name,false);
+  det = get_hor_format(par,this.file_name);
 else
   det = par;
 end

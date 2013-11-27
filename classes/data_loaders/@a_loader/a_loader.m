@@ -22,11 +22,6 @@ classdef a_loader
         % the data fields this loader defines 
         loader_defines={};
         
-        % legacy parameter. Historicaly, azimuthal angle written into ascii
-        % par file has to have opposite sign to have correct coordinate
-        % system. Setting this parameter to true indicates that data come
-        % from ascii file and inversion is necessary
-        azimuthal_inverted=[];        
     end
     
     methods
