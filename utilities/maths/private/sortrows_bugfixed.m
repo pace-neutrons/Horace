@@ -158,9 +158,9 @@ function ndx = sort_back_to_front(x, col)
 ndx = (1:m)';
 for k = n:-1:1
     if (col(k) < 0)
-        [~,ind] = sort(x(ndx,k),'descend');
+        [crap,ind] = sort(x(ndx,k),'descend');
     else
-        [~,ind] = sort(x(ndx,k),'ascend');
+        [crap,ind] = sort(x(ndx,k),'ascend');
     end
     ndx = ndx(ind);
 end
@@ -217,14 +217,14 @@ bChar = ischar(x);
 for k = n:-1:1
     if (col(k) < 0)
         if bLogical
-            [~,ind] = sort(1-uint8(full(x(ndx,k))));
+            [crap,ind] = sort(1-uint8(full(x(ndx,k))));
         elseif bChar
-            [~,ind] = sort(intmax('uint16')-uint16(full(x(ndx,k))));
+            [crap,ind] = sort(intmax('uint16')-uint16(full(x(ndx,k))));
         else
-            [~,ind] = sort(-x(ndx,k));
+            [crap,ind] = sort(-x(ndx,k));
         end
     else
-        [~,ind] = sort(x(ndx,k));
+        [crap,ind] = sort(x(ndx,k));
     end
     ndx = ndx(ind);
 end
