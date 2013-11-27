@@ -86,18 +86,14 @@ if parallel && license('checkout','Distrib_Computing_Toolbox')
     end
     time=bigtic();
     parfor i=1:numel(test_folders_full)
-        addpath(test_folders_full{i})
         runtests(test_folders_full{i})
-        rmpath(test_folders_full{i})
     end
     bigtoc(time,'===COMPLETED UNIT TESTS IN PARALLEL');
 else
     if ~final_report
         time=bigtic();
         for i=1:numel(test_folders_full)
-            addpath(test_folders_full{i});
             runtests(test_folders_full{i})
-            rmpath(test_folders_full{i})
         end
         bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
     else
