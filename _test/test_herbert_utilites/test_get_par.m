@@ -29,7 +29,7 @@ classdef test_get_par< TestCase
             assertTrue(isfield(par,'height')); 
             
             parar=get_par('one2one_112.par');
-            assertTrue(all(parar(3,:)==-par.azim));
+            assertTrue(all(parar(3,:)==par.azim));
         end               
         function test_wrong_data_format_ignored(this)                       
             par = get_par('one2one_112.par');
