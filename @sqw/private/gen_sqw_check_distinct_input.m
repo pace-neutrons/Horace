@@ -1,5 +1,5 @@
-function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (replicate,spe_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs, instrument, sample, header)
+function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+    u, v, psi, omega, dpsi, gl, gs, instrument, sample, replicate, header)
 % Check that the input arguments to gen_sqw define distinct input with required equality of some fields.
 % Optionally, determine in addition which are not included in the header of an sqw file
 %
@@ -25,10 +25,11 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (replica
 %   gs              Small goniometer arc angle (deg)   [column vector length nfile]
 %   instrument      Instrument descriptors (strucure or object) [column vector length nfile]
 %   sample          Sample descriptors (structure or object)    [column vector length nfile]
+%   replicate       If ==true: allow non-distinct input; still perform the required equality checks
 %
 % Optional:
 %   header          Header block from an sqw file. It is assumed that all spe data in
-%                  the headaer are from distinct data sets.
+%                  the header are from distinct data sets.
 %                  [structure for single spe file, or cell array of structures for more than one]
 %
 % 
@@ -76,7 +77,7 @@ tol = 1.0e-14;    % test number to define equality allowing for rounding errors 
 for i=2:numel(pstruct)
     if ~replicate && isequal(pstruct_sort(i-1),pstruct_sort(i))
         ok=false; spe_only=[]; head_only=[];
-        mess='At least two spe data input have the all the same filename, efix, psi, omega, dpsi, gl and gs'; return
+        mess='At least two spe data input have all the same filename, efix, psi, omega, dpsi, gl and gs'; return
     end
     ok = (emode(i)==emode(1));
     ok = ok & equal_to_relerr(alatt(i,:),alatt(1,:),tol,1);

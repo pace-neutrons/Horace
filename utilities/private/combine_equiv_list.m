@@ -52,7 +52,10 @@ disp('');
 
 %Suppress output messages from Horace, otherwise the screen is flooded with
 %lots of useless info...
-horace_info_level(-Inf);
+% Turn off horace_info output, but save for automatic cleanup on exit or cntl-C (TGP 30/11/13)
+info_level = get(hor_config,'horace_info_level');
+cleanup_obj=onCleanup(@()set(hor_config,'horace_info_level',info_level));
+set(hor_config,'horace_info_level',-1);
 
 %Clean up pre-existing temporary files:
 for i=1:48
@@ -199,9 +202,6 @@ save(wout,outfile);
 %delete([sourcedir,'HoraceTmpInternalMaster.sqw']);
 
 varargout{1}=wout;
-
-%End by restoring the horace info level:
-horace_info_level(Inf);
 
 disp('');
 disp('----------------------------------------------------------------');

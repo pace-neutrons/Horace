@@ -52,8 +52,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %
 %   'replicate'     Build an sqw file with the same spe file being used as a data source
 %                  more than once e.g. when making a background from an empty sample
-%                  environment run. [This option simply turns off the check that the
-%                  spe file names are unique].
+%                  environment run.
 %
 %   'accumulate'    Accumulate data onto an existing sqw file, retaining the same binning.
 %                  Any spe files that have already been included in the sqw file are ignored.
@@ -155,7 +154,7 @@ if accumulate_old_sqw    % combine with existing sqw file
     % Check that the input spe data are distinct
     if ~ok, error(mess), end
     [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
-        u, v, psi, omega, dpsi, gl, gs, instrument, sample, header_sqw);
+        u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate, header_sqw);
     if ~ok, error(mess), end
     if any(head_only) && horace_info_level>-1
         disp('********************************************************************************')
@@ -182,8 +181,8 @@ if accumulate_old_sqw    % combine with existing sqw file
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
 else
-    [ok, mess] = gen_sqw_check_distinct_input (opt.replicate,spe_file, efix, emode, alatt, angdeg,...
-        u, v, psi, omega, dpsi, gl, gs, instrument, sample);
+    [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+        u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate);
     if ~ok, error(mess), end
     % Have already checked that all the spe files exist for the case of generate_new_sqw is true
     if accumulate_new_sqw && ~any(spe_exist)
@@ -273,7 +272,7 @@ else
             end
         end
     end
-	if horace_info_level>--1
+	if horace_info_level>-1
 		disp('--------------------------------------------------------------------------------')
 		bigtoc(nt,'Time to create all temporary sqw files:');
     

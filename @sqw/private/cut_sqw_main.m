@@ -87,6 +87,8 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 
 % *** Currently only works if uoffset(4)=0 for input, output datasets
 
+horace_info_level = get(hor_config,'horace_info_level');
+
 if horace_info_level>=1
     bigtic
 end

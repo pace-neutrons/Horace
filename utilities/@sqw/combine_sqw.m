@@ -16,8 +16,6 @@ function wout=combine_sqw(w1,w2)
 % RAE 21/1/10
 %
 
-
-
 w1=sqw(w1); w2=sqw(w2);
 
 if ~is_sqw_type(w1) || ~is_sqw_type(w2)
@@ -129,7 +127,11 @@ end
 %must ensure the sum of the npix array is equal to the number of columns in
 %pixfull;
 
-horace_info_level(-Inf);
+% Turn off horace_info output, but save for automatic cleanup on exit or cntl-C (TGP 30/11/13)
+info_level = get(hor_config,'horace_info_level');
+cleanup_obj=onCleanup(@()set(hor_config,'horace_info_level',info_level));
+set(hor_config,'horace_info_level',-1);
+
 if ndims1==1
     wout.data.s=zeros(length(wout.data.p{1})-1,1);
     wout.data.e=wout.data.s;
@@ -163,4 +165,3 @@ elseif ndims1==4
 else
     error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
 end
-horace_info_level(Inf);
