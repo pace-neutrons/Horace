@@ -37,22 +37,24 @@ function horace_defaults=horace_defaults()
 
 horace_defaults = ...
     struct('mem_chunk_size',10000000,...  % maximum length of buffer array in which to accumulate points from the input file
-    'pixel_length',9,...            % number of words in a pixel
     'threads',1, ...                % how many computational threads to use in mex files and by Matlab
     'ignore_nan',1,...              % by default, ignore NaN values found in
     'ignore_inf',0,...              % do not ignore inf values;
-    'transformSPE2HDF',0,...        % if this parameter is enabled, and spe file is processed using class speData, SPE will be rewritten as hdf file for future usage.
     'horace_info_level',1,... ;     % see horace_info_level method
     'use_mex',true, ...             % user will use mex-code for time-consuming operations
-    'delete_tmp',true, ...          % delete temporary files which were generated while building sqw file after sqw has been build successfully
-    'use_par_from_nxspe',false, ... % if nxspe file is given as input file for gen_sqw procedure, the angular detector parameters would be loaded from nxspe. If this parameter is false, par file has to be located and data will be loaded from there.
-    'sqw_ext','.tmp',...            % extension for temporary sqw files. Default: '.tmp'
-    'sqw_path',''...                % path to which to write temporary sqw files. Default: the same as input sqw file.   
+    'delete_tmp',true ...           % delete temporary files which were generated while building sqw file after sqw has been build successfully
     );
 
 Matlab_Version=matlab_version_num();
 
-% Configure memory and processors
+
+% Configure memory
+% ----------------
+% Should be able to estimate the memory that can be used?
+
+
+% Configure the number of threads
+% -------------------------------
 % let's try to identify the number of processors to use in OMP
 n_processors = getenv('OMP_NUM_THREADS');
 if(isempty(n_processors))
@@ -76,10 +78,12 @@ if n_processors>4
     n_processors=4;
 end
 
+horace_defaults.threads = n_processors;
+
+
+% Configure mex useage
+% --------------------
 [dummy,n_errors]=check_horace_mex();
 if n_errors>0
     horace_defaults.use_mex=false;
 end
-
-horace_defaults.threads = n_processors;
-horace_defaults.sealed_fields={'sealed_fields','pixel_length'}; % fields whose values cannot be changed by user
