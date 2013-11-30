@@ -229,7 +229,7 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
               
         end
         
-        function this=thest_accumulate_sqw(this)
+        function this=test_accumulate_sqw(this)
             % build test files if they have not been build
             this=build_test_files(this);  
             sqw_file_accum=fullfile(tempdir,'sqw_accum.sqw');            

@@ -61,6 +61,10 @@ else
     error('Horace error: check the format of input arguments');
 end
 
+% Turn off horace_info output, but save for automatic cleanup on exit or cntl-C (TGP 30/11/13)
+info_level = get(hor_config,'horace_info_level');
+cleanup_obj=onCleanup(@()set(hor_config,'horace_info_level',info_level));
+set(hor_config,'horace_info_level',-1);
 
 switch route
     case 1
@@ -93,9 +97,7 @@ switch route
                 wtmp.data.e=wtmp.data.s; wtmp.data.npix=wtmp.data.s;
                 wtmp.data.npix(1)=sum(win.data.npix);
                 wtmp=sqw(wtmp);
-                horace_info_level(-Inf);
                 wout=cut(wtmp,xbin);
-                horace_info_level(Inf);
             else
                 error('Horace error: for rebin of 1-dimensional objects both must have the same axes');
             end  
@@ -153,9 +155,7 @@ switch route
                 wout.data.npix(1,1)=sum(sum(win.data.npix));%hack to ensure no failure of sqw construct
                 wout=sqw(wout);%convert from structure array to sqw object
                 %
-                horace_info_level(-Inf);
                 wout=cut(wout,xbin,ybin);
-                horace_info_level(Inf)
             elseif all(crossprod<1e-5) && energy_axis
                 %One of the 2 axes is energy. this simplifies things,
                 %because it means that the non-energy axes must be the
@@ -185,9 +185,7 @@ switch route
                 %
                 wout=sqw(wout);%convert back to sqw from structure array
                 %
-                horace_info_level(-Inf);
                 wout=cut(wout,xbin,ybin);
-                horace_info_level(Inf);
             else
                 error('Horace error: for rebin of 2-dimensional objects both must have same data plane');
             end
@@ -220,10 +218,9 @@ switch route
                     minz2=min(min(w2.data.p{3})); maxz2=max(max(w2.data.p{3}));
                     %
                     %Need to convert min/max of win into co-ordinate frame of w2.
-                    horace_info_level(-Inf);
+                    %makes a 2d dataset with same x/y range as win
                     wtmp=cut(win,[],[],[-Inf,Inf]);
                     w2tmp=cut(w2,[],[],[-Inf,Inf]);
-                    horace_info_level(Inf);%makes a 2d dataset with same x/y range as win
                     [xtmp,ytmp,stmp,etmp,ntmp]=convert_bins_for_shoelace(d2d(wtmp),d2d(w2tmp));
                     minx1=min(min(xtmp)); maxx1=max(max(xtmp));
                     miny1=min(min(ytmp)); maxy1=max(max(ytmp));
@@ -259,9 +256,7 @@ switch route
                     wout.data.npix(1,1,1)=sum(sum(sum(win.data.npix)));
                     wout=sqw(wout);%convert back to sqw from structure array
                     %
-                    horace_info_level(-Inf);
                     wout=cut(wout,xbin,ybin,zbin);
-                    horace_info_level(Inf); 
                 else
                     error('Horace error: for rebin of 3-dimensional objects both must have same data hyper-plane');
                 end
@@ -315,9 +310,7 @@ switch route
                 wout.data.pix=win.data.pix;
                 wout=sqw(wout);
                 %
-                horace_info_level(-Inf);
                 wout=cut(wout,xbins,ybins,zbins);
-                horace_info_level(Inf);
             end
             
             
@@ -339,7 +332,6 @@ switch route
             xbin=[];
         end
         %
-        horace_info_level(-Inf);
         ndims=dimensions(win);
         if ndims==1
             wout=cut(win,xbin);
@@ -352,7 +344,6 @@ switch route
         else
             error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
         end
-        horace_info_level(Inf);
         
     case 3
         %rebinning x and/or y-axes
@@ -382,7 +373,6 @@ switch route
             end
         end
         %
-        horace_info_level(-Inf);
         ndims=dimensions(win);
         if ndims==1
             error('Horace error: have specified 2 binning arguments for a 1-dimensional object');
@@ -395,7 +385,6 @@ switch route
         else
             error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
         end
-        horace_info_level(Inf);
         
     case 4
         %rebinning x and/or y and/or z axes
@@ -437,7 +426,6 @@ switch route
             end
         end
         %
-        horace_info_level(-Inf);
         ndims=dimensions(win);
         if ndims==1
             error('Horace error: have specified 2 or more binning arguments for a 1-dimensional object');
@@ -450,7 +438,6 @@ switch route
         else
             error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
         end
-        horace_info_level(Inf);
         
 end
 

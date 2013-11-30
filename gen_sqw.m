@@ -52,7 +52,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 %                  to create an sqw file using, for example, just one spe file as the source
 %                  of data for all crystal orientations in order to construct a background from an
 %                  empty piece of sample environment. In this case, use the keyword 'replicate'
-%                  to override the uniqueness check.
+%                  to override the uniqueness check on file name.
 %
 %
 % Output:

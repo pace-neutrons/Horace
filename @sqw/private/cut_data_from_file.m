@@ -57,7 +57,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 [vmax,ndatpix] = get(hor_config,'mem_chunk_size','pixel_length');
 pmax = vmax;                        % maximum length of array in which to buffer retained pixels (pmax>=vmax)
 
-
+horace_info_level=get(hor_config,'horace_info_level');
 
 % Output arrays for accumulated data
 % Note: matlab sillyness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,

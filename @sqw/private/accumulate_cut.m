@@ -61,7 +61,7 @@ if use_mex
         %%<*** version specific >= 7.5
     catch
         use_mex=false;
-        if horace_info_level>=1
+        if get(hor_config,'horace_info_level')>=1
             disp([' C- code generated error: ',lasterr()]);
             warning('HORACE:use_mex',' Cannot accumulate_cut using C routines; using Matlab');
         end

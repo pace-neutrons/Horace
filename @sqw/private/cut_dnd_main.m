@@ -44,11 +44,11 @@ function wout = cut_dnd_main (data_source, ndims, varargin)
 % $Revision$ ($Date$)
 
 
+horace_info_level = get(hor_config,'horace_info_level');
+
 % Parse input arguments
 % ---------------------
 % Determine if data source is sqw object or file
-horace_info_level = get(hor_config,'horace_info_level');
-
 if iscellstr(data_source)
     data_source=data_source{1};
     source_is_file=true;
