@@ -184,13 +184,16 @@ e(nopix) = 0;   % must ensure zero so that can sum over integration range(s)
 
 % Check for the case when either data.s or data.e contain NaNs or Infs, but data.npix is not zero.
 % and handle according to options settings.
-ignore=horace_cut_nan_inf;
-if ignore.nan || ignore.inf
-    if ignore.nan && ignore.inf
+[ignore_nan,ignore_inf]=get(hor_config,'ignore_nan','ignore_inf');
+ignore_nan=logical(ignore_nan);
+ignore_inf=logical(ignore_inf);
+
+if ignore_nan || ignore_inf
+    if ignore_nan && ignore_inf
         omit=~isfinite(s)|~isfinite(e);
-    elseif ignore.nan
+    elseif ignore_nan
         omit=isnan(s)|isnan(e);
-    elseif ignore.inf
+    elseif ignore_inf
         omit=isinf(s)|isinf(e);
     end
     s(omit)=0; e(omit)=0; npix(omit)=0;
@@ -221,7 +224,7 @@ e(nopix)=0;
 % Catch pathological case of s or e being Inf and we request to ignore Inf
 %(this can happen if sum several finite numbers that overflow to an infinite number).
 %(There can be no case of a pathological NaN if requested NaNs to be ignored)
-if ignore.inf
+if ignore_inf
     omit=isinf(s)|isinf(e);
     s(omit)=0; e(omit)=0; npix(omit)=0;
 end

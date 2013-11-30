@@ -49,13 +49,11 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
 % $Revision$ ($Date$)
 
-% Buffer sizes
 
-%ndatpix -- number of pieces of information the pixel info array (see write_sqw_data for more details)
-%vmax    -- maximum length of buffer array in which to accumulate points from the
-% input file
-[vmax,ndatpix] = get(hor_config,'mem_chunk_size','pixel_length');
-pmax = vmax;                        % maximum length of array in which to buffer retained pixels (pmax>=vmax)
+% Buffer sizes
+ndatpix = 9;        % number of pieces of information the pixel info array (see write_sqw_data for more details)
+vmax = get(hor_config,'mem_chunk_size');    % maximum length of buffer array in which to accumulate points from the input file
+pmax = vmax;                                % maximum length of array in which to buffer retained pixels (pmax>=vmax)
 
 horace_info_level=get(hor_config,'horace_info_level');
 

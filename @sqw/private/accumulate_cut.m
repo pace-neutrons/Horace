@@ -40,15 +40,18 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, 
 
 % $Revision$ ($Date$)
 
-ignore=horace_cut_nan_inf;
+[ignore_nan,ignore_inf]=get(hor_config,'ignore_nan','ignore_inf');
+ignore_nan=logical(ignore_nan);
+ignore_inf=logical(ignore_inf);
+
 [use_mex,n_threads]=get(hor_config,'use_mex','threads');
 
 if use_mex
     try
         % Parameters have to be doubles in current version of the c-program
         parameters = zeros(4,1);
-        parameters(1)=ignore.nan;
-        parameters(2)=ignore.inf;
+        parameters(1)=ignore_nan;
+        parameters(2)=ignore_inf;
         parameters(3)=keep_pix;
         parameters(4)=n_threads;
         [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain]=...
