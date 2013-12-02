@@ -1,7 +1,30 @@
 function this=hor_config()
 % Create the Horace configuration that sets memory options and some other defaults.
 %
-%   >> this = hor_config
+% To see the list of current configuration option values:
+%   >> hor_config
+%
+% To set values:
+%   >> set(hor_config,'name1',val1,'name2',val2,...)
+%
+% To fetch values:
+%   >> [val1,val2,...]=get(hor_config,'name1''name2',...)
+%
+%
+% Fields are:
+% -----------
+%   mem_chunk_size      Maximum number of pixels that are processed at one go during cuts
+%   threads             Number of threads to use in mex files
+%   ignore_nan          Ignore NaN data when making cuts
+%   ignore_inf          Ignore Inf data when making cuts
+%   horace_info_level   Set verbosity of informational output
+%                           -1  No information messges printed
+%                            0  Major information messges printed
+%                            1  Minor information messges printed in addition
+%                                   :
+%                       The larger the value, the more information is printed
+%   use_mex             Use mex files for time-consuming operation, if available
+%   delete_tmp          Delete temporary sqw files generated while building sqw files
 %
 % Type >> hor_config  to see the list of current configuration option values.
 
@@ -38,10 +61,10 @@ function horace_defaults=horace_defaults()
 horace_defaults = ...
     struct('mem_chunk_size',10000000,...  % maximum length of buffer array in which to accumulate points from the input file
     'threads',1, ...                % how many computational threads to use in mex files and by Matlab
-    'ignore_nan',1,...              % by default, ignore NaN values found in
-    'ignore_inf',0,...              % do not ignore inf values;
-    'horace_info_level',1,... ;     % see horace_info_level method
-    'use_mex',true, ...             % user will use mex-code for time-consuming operations
+    'ignore_nan',1,...              % ignore NaN values
+    'ignore_inf',0,...              % ignore inf values;
+    'horace_info_level',1,... ;     % set horace_info_level method
+    'use_mex',true, ...             % use mex-code for time-consuming operations
     'delete_tmp',true ...           % delete temporary files which were generated while building sqw file after sqw has been build successfully
     );
 
