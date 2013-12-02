@@ -1,47 +1,37 @@
-function mem=horace_memory(chunk_size,n_comp_threads)
-% Defines: 
-% 1) the size of the data chunk to load in the memory and 
-% 2) how many computational threads to use in mex files and by Matlab
-%    itself (if Matlab and correspondent mex file supports it)
-% Default are: mem.chunk_size=10000000, mem.threads=num_processors.
+function mem=horace_memory(chunk_size,threads)
+% Determine the size of the data chunk to load into memory and the number of threads in mex files
 %
-% Usage:
-% 1) set the chunk size and the  number of threads (and get optional result):
-% >>>[mem=] horace_memory(chunk_size,n_comp_threads)
-% 2) get the structure which keeps current values:
-%>>> mem = horace_memory;
-% where mem is the structure with fields:
-%       mem.chunk_size -- is the size of the memory to use
-%       mem.threads    -- number of threads used;
+%   >> horace_memory(chunk_size,threads)    % set numeric values in each case
+%   >> mem = horace_memory;                 % get values
+%               mem.chunk_size -- the amximum number of pixels to process at once during cuts
+%               mem.threads    -- number of computational threads to use in mex files;
 %
+% Good default choices are:
+%   chunk_size = 1e6 per GB RAM above 4GB, up to a maximum of 1e7
+%   threads    = number of processors
+%
+%
+% *** DEPRECATED FUNCTION ***
+%   Please set or get the information level directly from the Horace configuration:
+%       >> set(hor_config,'mem_chunk_size',chunk_size,'threads',threads);
+%       >> [mem.chunk_size,mem.threads]=get(hor_config,'mem_chunk_size','threads');
 
 
-persistent mem_store;
-
-% Initialise
-if isempty(mem_store)
-    [n_processors,chunk] = get(hor_config,'threads','mem_chunk_size');
-    mem_store=struct('chunk_size',chunk,'threads',n_processors);
-end
+disp('*** Deprecated function: horace_memory                                       ***')
+disp('*** Please set or get the info level directly from the Horace configuration: ***')
+disp('***   >> set(hor_config,''mem_chunk_size'',chunk_size,''threads'',threads)       ***')
+disp('***   >> [mem.chunk_size,mem.threads]=get(hor_config,''mem_chunk_size'',''threads'')')
 
 if nargin==2
-    if isscalar(chunk_size) && isnumeric(chunk_size)
-        mem_store.chunk_size=chunk_size;
-        set(hor_config,'mem_chunk_size',chunk_size);
-    else
-        warning('HORACE:memory','Memory size must be a number, Input is ignored, default value %d used instead',mem_store.chunk_size);
-    end
-    if isscalar(n_comp_threads) && isnumeric(n_comp_threads) && n_comp_threads>0
-        mem_store.threads=n_comp_threads;
-        set(hor_config,'threads',n_comp_threads);        
-    else
-        warning('HORACE:memory','Number of computational threads has to be a positive mumber.\n Input is ignored, value %d used instead',mem_store.threads);
-
+    try
+        set(hor_config,'mem_chunk_size',chunk_size,'threads',threads);
+    catch ME
+        error(ME.message)
     end
 elseif nargin~=0
-    warning('HORACE:memory','Incorrect number of arguments. memory usage and number of computational threads left unchanged')
+    error('Incorrect number of arguments')
 end
 
-if nargout>0
-   mem=mem_store;
+if nargout>0 || nargin==0
+    [mem.chunk_size,mem.threads]=get(hor_config,'mem_chunk_size','threads');
 end
