@@ -1,4 +1,4 @@
-function y=demo_FM_spinwaves_2dSlice_sqw(qh,qk,ql,en,pars)
+function y=demo_FM_spinwaves(qh,qk,ql,en,pars)
 %
 % Calculate the spectral weight from a Heisenberg ferromagnet for a Q-E slice
 % with nearest-neighbour interactions only.
