@@ -17,7 +17,7 @@ function build_configuration(this, default_config_fun, config_name)
 % In detail:
 % ----------
 % Set a configuration in memory from previously saved configuration structure stored
-% in a .mat file associated with the particular configuration class name. 
+% in a .mat file associated with the particular configuration class name.
 %
 % If the file does not exist (e.g. not been created before or has been deleted), or the
 % contents of the file are out of date (as determined from the default structure
@@ -47,8 +47,10 @@ default_config_data=default_config_fun();       % () is required to indicate tha
 if isstruct(default_config_data)
     [valid,mess,default_config_data]=check_fields_valid(default_config_data,root_config_name);  % To check no developer errors
     if ~valid, error('Fields not all valid in default configuration: %s',mess), end
+    [ok,mess,default_config_data]=isvalid (this,default_config_data);
+    if ~ok, error(['Developer error - default constructor error: ',mess]), end
 else
-    error('Default configuration is not a structure - developer error')
+    error('Developer error - Default configuration is not a structure')
 end
 
 % Get stored configuration, if any
@@ -65,12 +67,18 @@ if ~isempty(saved_config_data)   % configuration data read from file
         [valid,mess,saved_config_data_out]=check_fields_valid(saved_config_data,root_config_name);
         if valid
             if ~isequal(saved_config_data_out,saved_config_data)
-                warning('Fields are valid but will be updated and saved to match new format')
+                warning('Fieldnames are valid but will be updated and saved to match new format')
                 [ok,mess]=save_config(file_name,saved_config_data_out);
                 if ~ok, error(mess), end
             end
-            config_store(config_name,saved_config_data_out,default_config_data,this)
-            return
+            [ok,mess,saved_config_data_out]=isvalid (this,saved_config_data_out);
+            if ok
+                config_store(config_name,saved_config_data_out,default_config_data,this)
+                return
+            else
+                warning(['Field values in saved configuration are not all valid for %s: %s.',...
+                    '\nIt will be updated with default values.'],config_name,mess)
+            end
         else
             warning(['Fields not all valid in saved configuration for %s: %s.',...
                 '\nIt will be updated with default values.'],config_name,mess)

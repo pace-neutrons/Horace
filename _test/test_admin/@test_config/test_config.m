@@ -1,16 +1,26 @@
 function this=test_config
 % Create the test configuration.
 %
-%   >> this=test_config
+% To see the list of current configuration option values:
+%   >> test1_config
+%
+% To set values:
+%   >> set(test1_config,'name1',val1,'name2',val2,...)
+%
+% To fetch values:
+%   >> [val1,val2,...]=get(test1_config,'name1''name2',...)
+%
+%
+% Fields are:
+% -----------
+%   v1      A user alterable field
+%   v2      Another user alterable field
 %
 % Type >> test_config  to see the list of current configuration option values.
 %
+%
 % This is an example illustrating a simple configuration class, with two freely
 % alterable fields, and two sealed fields.
-%
-% Fields are:
-%   v1      A user alterable field
-%   v2      Another user alterable field
 
 %--------------------------------------------------------------------------------------------------
 %  ***  Alter only the contents of the subfunction at the bottom of this file called     ***

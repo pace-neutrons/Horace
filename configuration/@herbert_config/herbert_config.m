@@ -1,7 +1,29 @@
 function this=herbert_config
 % Create the Herbert configuration.
 %
-%   >> this=herbert_config
+% To see the list of current configuration option values:
+%   >> herbert_config
+%
+% To set values:
+%   >> set(herbert_config,'name1',val1,'name2',val2,...)
+%
+% To fetch values:
+%   >> [val1,val2,...]=get(herbert_config,'name1''name2',...)
+%
+%
+% Fields are:
+% -----------
+%   use_mex             Use fortran mex files for time-consuming operation, if available
+%   use_mex_C           Use c++ mex files for time-consuming operation, if available
+%  force_mex_if_use_mex Force using mex (ususlly mex failure causes an attempt to
+%                       use matlab). This is option is for testing mex agains matlab
+%   log_level           Set verbosity of informational output
+%                           -1  No information messges printed
+%                            0  Major information messges printed
+%                            1  Minor information messges printed in addition
+%                                   :
+%                       The larger the value, the more information is printed
+%   init_tests          Enable the unit test functions
 %
 % Type >> herbert_config  to see the list of current configuration option values.
 
@@ -42,6 +64,5 @@ config_data=struct(...
     'use_mex_C',true,               ...  % use C part of mex code
     'force_mex_if_use_mex',false,   ...  % force using mex (ususlly mex failure causes attempt to use matlab). This is rather for testing mex agains matlab
     'log_level', 1,                 .... % the level to report: -1, do not tell even about an errors (usefull for unit tests) 0 - be quet but report errors, 1 report result of long-lasting operations, 2 
-    'init_tests',false,             ...  % add unit test folders to search path (option for Herbert testing)
-    'sealed_fields',{{}}            ...
+    'init_tests',false              ...  % add unit test folders to search path (option for Herbert testing)
     );

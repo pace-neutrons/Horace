@@ -188,3 +188,7 @@ end
 for i=1:numel(field_nams)
     S.(field_nams{i})=field_vals{i};
 end
+
+% Check validity of values if the method isvalid exists
+[ok,mess,S]=isvalid(this,S);
+if ~ok, return, end

@@ -44,10 +44,16 @@ if ~ok, error('TESTCONFIG:set_invalid_argument',mess), end
 
 %--------------------------------------------------------------------------------------------------
 % === Alter the code only in this section ===
-% Update sealed fields only, with values that depend only on the 
-% public fields (i.e. the unsealed fields). If this convention is not 
-% followed, then the configuration is not a state function of the public
-% fields. Instead, it may depend on the previous history of the configuration.
+% You can do a couple of things here safely;
+%   - Run functions that depend on the value of configuration fields
+%   - Change sealed fields
+%
+% The following provisos apply:
+%
+%   Update sealed fields only with values that depend only on the 
+%   public fields (i.e. the unsealed fields). If this convention is not 
+%   followed, then the configuration is not a state function of the public
+%   fields. Instead, it may depend on the previous history of the configuration.
 
 if isnumeric(S.v1) && isscalar(S.v1)
     if S.v1>=0

@@ -24,8 +24,8 @@ function [S,save,ok,mess] = parse_set (this,varargin)
 %
 % Output:
 % -------
-%   S           Structure whose fields and values are those to be changed
-%              in the configuration object
+%   S           Structure with the fields of configuration object, and with
+%              values updated according to the input arguments
 %
 %   save        Save-to-file request: '-save' (save to file) or '-buffer' (save in buffer only)
 % 

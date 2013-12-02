@@ -3,7 +3,7 @@ function this=config(varargin)
 %
 %   >> this = config
 %
-% Note of the fields of the root configuration class can be altered. It exists to provide a
+% None of the fields of the root configuration class can be altered. It exists to provide a
 % conduit for other configuration classes to use the methods of the root configuration class.
 
 % $Revision$ ($Date$)
