@@ -80,8 +80,11 @@ set(hor_config,'horace_info_level',-1,'-buffer');   % turn off Horace informatio
 
 
 if parallel && license('checkout','Distrib_Computing_Toolbox')
-    cores = feature('numCores');
+    cores = feature('numCores');   
     if matlabpool('SIZE')==0
+        if cores>12
+            cores = 12;
+        end
         matlabpool(cores);
     end
     time=bigtic();
