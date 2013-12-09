@@ -11,4 +11,7 @@ config_name=class(this);
 disp(' ')
 disp([config_name,' ='])
 disp(' ')
+if isempty(config_data.sealed_fields)
+    config_data=rmfield(config_data,'sealed_fields');
+end
 disp(config_data)

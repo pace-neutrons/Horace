@@ -8,7 +8,7 @@ function this=herbert_config
 %   >> set(herbert_config,'name1',val1,'name2',val2,...)
 %
 % To fetch values:
-%   >> [val1,val2,...]=get(herbert_config,'name1''name2',...)
+%   >> [val1,val2,...]=get(herbert_config,'name1','name2',...)
 %
 %
 % Fields are:
