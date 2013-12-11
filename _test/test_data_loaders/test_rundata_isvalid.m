@@ -57,8 +57,9 @@ classdef test_rundata_isvalid<TestCase
           
           rd.en=(1:10)';
           [ok,mess]=isvalid(rd);
-          assertFalse(ok);
-          assertEqual(mess,'Last energy transfer boundarty has to be smaller then efix. In reality: efix=6, e_transfer max=10');
+          assertTrue(ok);
+          %assertFalse(ok);    
+          %assertEqual(mess,'Last energy transfer boundarty has to be smaller then efix. In reality: efix=6, e_transfer max=10');
           
           rd.en=(1:6)';
           assertTrue(isvalid(rd));                    

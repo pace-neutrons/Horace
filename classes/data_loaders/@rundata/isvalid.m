@@ -70,7 +70,7 @@ if ~isempty(this.efix)
         mess = ['efix has to be positive but appears to be: ',num2str(this.efix)];
         return;
     end
-    if ~isempty(this.en) && this.emode == 1
+    if ~isempty(this.en) && ~isempty(this.emode) && this.emode==1
         if this.efix<this.en(end)
           ok=false;
           mess = ['Last energy transfer boundarty has to be smaller then efix. In reality: efix=',...
