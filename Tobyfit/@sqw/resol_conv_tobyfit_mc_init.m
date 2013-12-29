@@ -45,8 +45,7 @@ function [ok,mess,lookup]=resol_conv_tobyfit_mc_init(win)
 %         sample        Cell array of sample objects, one per dataset
 %
 %         dq_mat        Cell array of matricies, one per dataset with size [4,11,npix],
-%                      to convert deviations in tm, tch etc. into deviations in Q in
-%                      the spectrometer frame (dQ||,dQperp,dQvert,deps)
+%                      to convert deviations in tm, tch etc. into deviations in Q in rlu
 %
 %         dt            Cell array of vectors, one entry per dataset with size [1,npix],
 %                      with time widths corresponding to energy bins for each pixel
@@ -93,7 +92,7 @@ for i=1:nw
     kf=sqrt((ei(irun)-eps)/k_to_e);
 
     % Get sample and s_mat
-    [ok,mess,sample,s_mat]=sample_coords_to_spec(win(i).header);    % s_mat has size [3,3,nrun]
+    [ok,mess,sample,s_mat,spec_to_rlu]=sample_coords_to_spec_to_rlu(win(i).header);    % s_mat has size [3,3,nrun]
     if ~ok, return, end
     sample_all(i)=sample;
 
@@ -101,9 +100,9 @@ for i=1:nw
     d_mat = spec_coords_to_det (win(i).detpar);         % d_mat has size [3,3,ndet]
     x2=win(i).detpar.x2(:); % make column vector
 
-    % Matrix that gives deviation in Q from deviations in tm, tch etc. for each pixel
+    % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     dq_mat{i} = dq_matrix (ki(irun), kf, x0(irun), xa(irun), x1(irun), x2(idet),...
-                    thetam(irun), angvel(irun), s_mat(:,:,irun), d_mat(:,:,idet), k_to_v, k_to_e);
+                    thetam(irun), angvel(irun), s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
 
     % Time width corresponding to energy bins for each pixel
     dt{i} = deps_to_dt*(x2(idet).*deps(irun)./kf.^3)';  % row vector

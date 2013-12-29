@@ -1,5 +1,5 @@
-function dq_mat =  dq_matrix (wi, wf, x0, xa, x1, x2, thetam, angvel, s_mat, d_mat, k_to_v, k_to_e)
-% Compute matrix that creates matrix for computing deviations in Q from deviations in tm, tch, x, y, z etc.
+function dq_mat =  dq_matrix (wi, wf, x0, xa, x1, x2, thetam, angvel, s_mat, d_mat, spec_to_rlu, k_to_v, k_to_e)
+% Compute matrix for computing deviations in Q (in rlu) from deviations in tm, tch, x, y, z etc.
 %
 %   >> b_mat =  b_matrix (wi, wf, x0, xa, x1, x2, thetam, angvel, s_mat, d_mat)
 %
@@ -17,6 +17,10 @@ function dq_mat =  dq_matrix (wi, wf, x0, xa, x1, x2, thetam, angvel, s_mat, d_m
 %              Size is [3,3,npix]
 %   d_mat       matrix for expressing a laboratory coordinate in the detector frame
 %              Size is [3,3,npix]
+%   spec_to_rlu Matrix to convert momentum in spectrometer coordinates to components in r.l.u.
+%              Size is [3,3,npix]
+%   k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
+%   k_to_v      Constant in v(m/s)=k_to_v*k(Ang^-1)
 %   
 % Output:
 % -------
@@ -112,10 +116,8 @@ b_mat(6,10,:)=  ct_f;
 % Matrix to convert deviations in ki and kf into deviations in Q and eps
 % ----------------------------------------------------------------------
 qk_mat = zeros(4,6,npix);
-qk_mat(1,1,:) = 1;
-qk_mat(2,2,:) = 1;
-qk_mat(3,3,:) = 1;
-qk_mat(1:3,4:6,:) = -permute(d_mat,[2,1,3]);  % inverse of d_mat(:,:,i) is transpose of same
+qk_mat(1:3,1:3,:) = spec_to_rlu;
+qk_mat(1:3,4:6,:) = -mtimesx(spec_to_rlu,permute(d_mat,[2,1,3]));  % inverse of d_mat(:,:,i) is transpose of same
 qk_mat(4,1,:) = (2*k_to_e)*wi;
 qk_mat(4,4,:) =-(2*k_to_e)*wf;
 

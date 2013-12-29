@@ -3,9 +3,13 @@ function vout = replicate_array (v, npix)
 %
 %   >> vout = replicate_array (v, n)
 %
+% Input:
+% ------
 %   v       Array of values
 %   n       List of number of times to replicate each value
 %
+% Output:
+% -------
 %   vout    Output array: column vector
 %               vout=[v(1)*ones(1:n(1)), v(2)*ones(1:n(2), ...)]'
 

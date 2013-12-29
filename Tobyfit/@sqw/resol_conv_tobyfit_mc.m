@@ -147,9 +147,9 @@ for i=1:numel(ind)
         % Fill time deviations for moderator
         if mc_contrib.moderator
             if ~modshape.refine
-                yvec(1,1,:)=moderator_times(mod_table,t_av,ind_mod{iw},irun);
+                yvec(1,1,:)=moderator_times(mod_table,t_av',ind_mod{iw},irun');
             else
-                yvec(1,1,:)=moderator_times(mod_table_refine,t_av_refine,ind_mod_refine,irun);
+                yvec(1,1,:)=moderator_times(mod_table_refine,t_av_refine',ind_mod_refine,irun');
             end
         end
         
@@ -161,7 +161,7 @@ for i=1:numel(ind)
         
         % Fermi chopper deviations
         if mc_contrib.chopper
-            yvec(4,1,:)=fermi_times(fermi_table,ind_fermi{iw},irun);
+            yvec(4,1,:)=fermi_times(fermi_table,ind_fermi{iw},irun');
         end
         
         % Sample deviations
@@ -198,28 +198,32 @@ end
 
 %--------------------------------------------------------------------------------------------------
 function t = moderator_times(table,t_av,ind,irun)
-% Get a row vector of time deviations for moderator, one per pixel
+% Get a column vector of time deviations for moderator, one per pixel
+%
+% Here we require size(table)=[npnt,nmod], size(t_av)=[nmod,1], ind and irun column vectors
 
 npix=numel(irun);
 np_mod=size(table,1);
 
-x=1+(np_mod-1)*rand(1,npix);        % position in open interval (1,np_mod)
-ix=np_mod*(ind(irun)'-1)+floor(x);  % interval number in table that contains x (floor(x) in closed interval [1,np_mod-1])
+x=1+(np_mod-1)*rand(npix,1);        % position in open interval (1,np_mod) [column]
+ix=np_mod*(ind(irun)-1)+floor(x);   % interval number in table that contains x (floor(x) in closed interval [1,np_mod-1]) [column]
 dx=mod(x,1);                        % distance from lower index
 
-t_red=(1-dx).*table(ix)' + dx.*table(ix+1)';
-t = t_av(ind(irun))' .* (t_red./(1-t_red) - 1);     % must subtract first moment
+t_red=(1-dx).*table(ix) + dx.*table(ix+1);
+t = t_av(ind(irun)) .* (t_red./(1-t_red) - 1);      % must subtract first moment
 
 
 %--------------------------------------------------------------------------------------------------
 function t = fermi_times(table,ind,irun)
-% Get a row vector of time deviations for Fermi chopper, one per pixel
+% Get a column vector of time deviations for Fermi chopper, one per pixel
+%
+% Here we require size(table)=[npnt,nchop], ind and irun column vectors
 
 npix=numel(irun);
 np_fermi=size(table,1);
 
-x=1+(np_fermi-1)*rand(1,npix);      % position in open interval (1,np_fermi)
-ix=np_fermi*(ind(irun)'-1)+floor(x);% interval number in table that contains x (floor(x) in closed interval [1,np_fermi-1])
+x=1+(np_fermi-1)*rand(npix,1);      % position in open interval (1,np_fermi)
+ix=np_fermi*(ind(irun)-1)+floor(x);% interval number in table that contains x (floor(x) in closed interval [1,np_fermi-1])
 dx=mod(x,1);                        % distance from lower index
 
-t=(1-dx).*table(ix)' + dx.*table(ix+1)';
+t=(1-dx).*table(ix) + dx.*table(ix+1);

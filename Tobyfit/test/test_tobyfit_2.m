@@ -44,7 +44,7 @@ sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
 if save_output
     fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 else
-    if ~exist(sqw_file_res,'file')||~exist(sqw_file_nores,'file')
+    if ~exist(sqw_file,'file')
         error('Input sqw files for tests does not exist')
     end
 end

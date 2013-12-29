@@ -64,7 +64,7 @@ acolor b; pd(w110a_sim)
 
 pause(2)
 % ---------------------------------------------------------------------------------------
-% Short cut
+% Long cut
 
 amp=1;  sj=40;   fwhh=50;
 
@@ -138,7 +138,7 @@ pause(2)
 % ---------------------------------------------------------------------------------------
 
 % ---------------------------------------------------------------------------------------
-% Global foreground; allow all parmaeters to vary
+% Global foreground; allow all parameters to vary
 amp=100;  sj=40;   fwhh=50;   const=0;  grad=0;
 
 w110arr1_sim=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval');

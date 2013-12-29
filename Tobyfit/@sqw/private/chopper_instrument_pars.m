@@ -29,6 +29,7 @@ function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=chopper_
 if ~iscell(header)
     nrun=1;
     inst=header.instrument;
+    header={header};
 else
     nrun=numel(header);
     inst=repmat(header{1}.instrument,[nrun,1]);
