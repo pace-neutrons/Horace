@@ -15,6 +15,6 @@ else
         y=eps;
     else
         y=zeros(size(eps));
-        y(eps>0)=eps;
+        y(eps>0)=eps(eps>0);
     end
 end
