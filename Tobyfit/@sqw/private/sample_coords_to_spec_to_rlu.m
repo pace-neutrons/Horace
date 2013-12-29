@@ -1,7 +1,7 @@
-function [ok, mess, sample, s_mat] = sample_coords_to_spec (header)
+function [ok, mess, sample, s_mat, spec_to_rlu] = sample_coords_to_spec_to_rlu (header)
 % Get the matrix to convert a coordinate in the sample coordinate frame to laboratory frame
 %
-%   >> [sample, s_mat] = sample_coords_to_spec (header)
+%   >> [sample, s_mat] = sample_coords_to_spec_to_rlu (header)
 %
 % Input:
 % ------
@@ -13,7 +13,10 @@ function [ok, mess, sample, s_mat] = sample_coords_to_spec (header)
 %   mess        Error message: empty if OK, filled otherwise
 %   sample      Sample structure or object (must be the same for every contributing run)
 %   s_mat       Matrix to convert coords in sample frame to spectrometer frame.
-%              Size is [3,3,nrun], where nrun is the number of runs that contribute to the sqw object.
+%               Size is [3,3,nrun], where nrun is the number of runs that contribute to the sqw object.
+%   spec_to_rlu Matrix to convert momentum in spectrometer coordinates to components in r.l.u.:
+%                   v_rlu = spec_to_rlu * v_spec
+%               Size is [3,3,nrun], where nrun is the number of runs that contribute to the sqw object.
 
 
 % Check sample descrption the same for all spe files in the sqw object
@@ -36,14 +39,15 @@ end
 xgeom=sample.xgeom;
 ygeom=sample.ygeom;
 s_mat=zeros(3,3,nrun);
+spec_to_rlu=zeros(3,3,nrun);
 for i=1:nrun
     if nrun~=1
         h=header{i};
     else
         h=header;
     end
-    % Matrix to convert from laboratory frame to crystal Cartesian coordinates
-    spec_to_u=calc_proj_matrix (h.alatt, h.angdeg, h.cu, h.cv, h.psi, h.omega, h.dpsi, h.gl, h.gs); % Vcryst = spec_to_u * Vspec
+    % Matrix to convert from laboratory frame to crystal Cartesian coordinates, and to rlu
+    [spec_to_u, u_to_rlu, spec_to_rlu(:,:,i)]=calc_proj_matrix (h.alatt, h.angdeg, h.cu, h.cv, h.psi, h.omega, h.dpsi, h.gl, h.gs); % Vcryst = spec_to_u * Vspec
     % Matrix to convert from crystal Cartesian coordinates to frame defined by sample geometry (x,y axes in r.l.u.)
     b=bmatrix(h.alatt, h.angdeg);
     [ub,mess,umat]=ubmatrix(xgeom, ygeom, b);   % Vsamp(i) = umat * Vcryst

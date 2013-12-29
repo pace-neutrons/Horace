@@ -115,7 +115,7 @@ if nrun==1
     if inst_func
         header.instrument=instrument(args{:});
     else
-        header.instrument=instrument(i);
+        header.instrument=instrument;
     end
 else
     for i=1:nrun

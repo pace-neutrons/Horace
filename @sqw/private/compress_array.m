@@ -1,14 +1,19 @@
 function vout = compress_array (v_in, npix, mask)
-% Rewmove blocks from an array
+% Remove blocks from an array
 %
 %   >> vout = compress_array (v, npix, mask)
 %
+% Input:
+% ------
 %   v       Two dimensional array of values, v(:,ntot) where
 %              ntot=sum(n)
 %   n       List of number of elements along outer dimension of v
 %          corresponding to one block
 %   mask    Block indicies to remove. Must have size(mask)==size(n)
+%          If an element==true, the corresponding block will be masked.
 %
+% Output:
+% -------
 %   vout    Output array, v(:,ntot_compress), where
 %               ntot_compress = sum(n(~mask))
 
