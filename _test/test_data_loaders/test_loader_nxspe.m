@@ -224,7 +224,7 @@ classdef test_loader_nxspe< TestCase
              assertEqual(28160,ndet);
              assertEqual(nxspe_file_name,file_name);
              assertEqual(800,ei);
-             assertEqual(0,psi);
+             assertEqual(20,psi);
              assertEqual('/11014.spe',nexus_dir);
              assertEqual('1.2',nxspe_ver);             
         end
