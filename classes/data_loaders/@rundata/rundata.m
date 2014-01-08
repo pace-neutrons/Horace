@@ -26,10 +26,8 @@ classdef rundata
         ERR       = [];     % Array of errors  [ne x ndet]  -- obtained from speFile or equivalent
         efix      = [];     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
         en        = [];     % Column vector of energy bin boundaries   -- obtained from speFile or equivalent
-        emode     = [];     % Energy mode [Default=1 (direct geometry)]
         
         % Detector parameters:
-        n_detectors = [];   % Number of detectors, used when dealing with masked detectors  -- will be derived
         det_par     = [];   % Array of par-values, describing detectors angular positions   -- usually obtained from parFile or equivalent
         
         % Crystal parameters:
@@ -50,25 +48,22 @@ classdef rundata
         
         % INTERNAL SERVICE PARAMETERS: (private read, private write in new Matlab versions)
         % The class which provides actual data loading:
-        loader = '';
-        
-        % The name of the file from which the data will be loaded
-        data_file_name='';  % service variable, needed by the program, as if it is not empty, the loader will be redefined
-        
-        % The name of the file from which the data will be loaded
-        par_file_name='';   % service variable, needed by the program, as if it is not empty, the parameters have to be redefined;
-        
-        % Supported file extensions
-        supported_extensions = {'.spe','.spe_h5','.nxspe'};
-        
-        % Corresponding descriptions for different extensions to be used by a GUI:
-        ext_descr = {'ASCII spe files: (*.spe)','HDF spe files: (.spe_h5)','nexus spe files (MANTID): (*.nxspe)'};
-        
+        loader = [];
+         
         % List of fields which have default values and do not have to be always defined by either file or command arguments;
-        fields_have_defaults = {'omega','dpsi','gl','gs','emode','is_crystal','u','v'};
+        fields_have_defaults = {'omega','dpsi','gl','gs','is_crystal','u','v'};
         
         % The default values for these fields are as follows:
-        the_fields_defaults  = {0,0,0,0,1,true,[1,0,0],[0,1,0]};
+        the_fields_defaults  = {0,0,0,0,true,[1,0,0],[0,1,0]};
+    end
+    properties(Dependent)
+       n_detectors = [];   % Number of detectors, used when dealing with masked detectors  -- will be derived
+       data_file_name;
+       par_file_name;  
+       emode     = 1;     % Energy mode [Default=1 (direct geometry)]
+    end
+    properties(Access=private)
+        emode_internal=[];
     end
     
     methods
@@ -121,32 +116,73 @@ classdef rundata
             %   gs          %  Small goniometer arc angle (deg)
             
             if nargin>0
-                if isstruct(varargin{1})
-                    if nargin>1
-                        this=build_from_struct(this,varargin{1},varargin{2:end});
-                    else
-                        this=build_from_struct(this,varargin{1});
-                    end
-                elseif isa(varargin{1},'rundata') % copy constructor with modifications
-                    if nargin>1
-                        this= build_from_struct(this,varargin{1},varargin{2:end});
-                    else
-                        this=varargin{1};
-                    end
-                elseif isa(varargin{1},'spe')        % build from spe class with modifications
-                    this= build_from_speClass(this,varargin{2:end});
-                else     % construct run data from the input parameters, assuming the first parameter is a file_name
-                    this=select_loader(this,varargin{:});
+                if isstring(varargin{1})
+                    this=select_loader(this,varargin{1},varargin{2:end});
+                else
+                    this=set_param_recursively(this,varargin{1},varargin{2:end});
                 end
-                % Check if some fields redefinition by command line arguments cause
-                % to change/adapt loader accordingly;
-                this=check_loader_redefined(this);
             end
             % Set default type to crystal if it has not been defined by input parameters;
             if isempty(this.is_crystal)
                 this.is_crystal=get_defaults(this,'is_crystal');
             end
         end
+        %------------------------------------------------------------------
+        function this = set.data_file_name(this,val)
+        % method to change data file for a run data class
+            this = rundata(this,'data_file_name',val);
+        end
+        function fname = get.data_file_name(this)
+        % method to query what data file a rundata class uses
+            if isempty(this.loader)
+                fname = [];
+            else
+                fname = this.loader.file_name;
+            end
+        end
+        function this = set.par_file_name(this,val)
+        % method to change par file on defined loader
+            data_fname = this.data_file_name;
+            this = rundata(this,'data_file_name',data_fname,'par_file_name',val);
+        end
+        function fname = get.par_file_name(this)
+        % method to query what par file a rundata class uses. May be empty
+        % for some data loaders, which have det information inside. 
+            if isempty(this.loader)
+                fname = [];
+            else
+                fname = this.loader.par_file_name;
+            end
+        end     
+        function ndet = get.n_detectors(this)
+        % method to check number of detectors defined in rundata
+            if isempty(this.det_par)
+                if isempty(this.loader)
+                    ndet = [];
+                else
+                   ndet = this.loader.n_detectors;
+                end
+            else
+                ndet = size(this.det_par,2);
+            end
+        end
+        function mode = get.emode(this)
+            % method to check emode and verify its defaults
+            if isempty(this.emode_internal)
+                mode = 1;
+            else
+                mode = this.emode_internal;
+            end
+        end
+        function this = set.emode(this,val)
+            % method to check emode and verify its defaults
+            if val>-1 && val <3
+                this.emode_internal = val;
+            else
+                error('RUNDATA:set_emode','unsupported emode %d',val);
+            end
+        end
+        
         %-----------------------------------------------------------------------------
         function [rez,this]=subsref(this,S)
             % overloaded subsref loads data from the file if the data were

@@ -7,20 +7,24 @@
 % as all loaders are accessed through common interface.
 %
 %usage:
+%>>[S,ERR]         = load_data(this,[new_file_name])
 %>>[S,ERR,en]      = load_data(this,[new_file_name])
 %>>[S,ERR,en,this] = load_data(this,[new_file_name])
 %>>this            = load_data(this,[new_file_name])
 %
 %
 if exist('new_file_name','var')
-    % check the new_file_name describes correct file and found the data
-    % location within nexus file;
-    this = check_file_correct(this,new_file_name);       
+    % check the new_file_name describes correct file
+    this.file_name = new_file_name;
+   %found the data location within nexus file;
+   [n_det,this.en,~,this.root_nexus_dir,this.efix,this.psi,this.nxspe_version]= check_file_correct(this.file_name);
     % if correct new file name was provided, we have to clear old par
     % values if they are present
-    if ~isempty(this.det_par)
+    if ~isempty(this.det_par) && isempty(this.par_file_name)
         this.det_par=[];
+    else    
     end
+    this.n_detectors = n_det;    
 else    
     if isempty(this.file_name)
         error('LOAD_NXSPE:invalid_argument',' input nxspe file is not defined')
@@ -30,24 +34,26 @@ end
 file_name  = this.file_name;
 root_folder= this.root_nexus_dir;
 
-data=cell(1,5);
+data=cell(1,3);
 
-this.efix = hdf5read(file_name,[root_folder,'/NXSPE_info/fixed_energy']); 
-this.psi  = hdf5read(file_name,[root_folder,'/NXSPE_info/psi']); 
 %
 data{1}  = hdf5read(file_name,[root_folder,'/data/data']);
 data{2}  = hdf5read(file_name,[root_folder,'/data/error']);
-data{3}  = hdf5read(file_name,[root_folder,'/data/energy']);
-
-% eliminate symbolic NaN-s (build according to ASCII agreement)
-nans          = ismember(data{1},-1.E+30);
+if isempty(this.en)
+  this.en =hdf5read(file_name,[root_folder,'/data/energy']);
+end
+data{3} = this.en;
+% convert symbolic NaN-s (build according to ASCII agreement) to ISO
+% NaN-s
+S = data{1};
+nans = (S(:,:)<-1.e+29);
 data{1}(nans) = NaN;
 data{2}(nans) = 0;
 
 
 this.S   = data{1};
 this.ERR = data{2};
-this.en  = data{3};
+
 if nargout==1
     varargout{1}=this;
 else    
@@ -59,6 +65,3 @@ else
     varargout(1:min_val)={data{1:min_val}};
  
 end
-
-
-

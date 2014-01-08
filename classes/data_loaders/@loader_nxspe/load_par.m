@@ -56,21 +56,8 @@ end
 par      = load_nxspe_par(this);
 
 % perform requested transformations of data
-size_par = size(par);
-ndet     = size_par(2);
-
-if get(herbert_config,'log_level')>0
-    disp(['LOADER_NXSPE:load_par::loaded ' num2str(ndet) ' detector(s)']);
-end
-this.n_detectors = ndet;
-this.det_par = par;
 
 
-if return_horace_format
-  det = get_hor_format(par,this.file_name);
-else
-  det = par;
-end
 
 
 

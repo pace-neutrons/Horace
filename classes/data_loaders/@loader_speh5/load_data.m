@@ -6,7 +6,9 @@
 % this function has to have its eqivalents in all other loader classes
 % as all loaders are accessed through common interface.
 % 
-   
+%
+% $Revision$ ($Date$)
+%   
 if exist('new_file_name','var')
     file_name =  check_file_correct(new_file_name);    
     this.file_name =file_name ;
@@ -35,7 +37,8 @@ else
     data{3} = this.en;
 end
 % eliminate symbolic NaN-s (build according to ASCII agreement)
-nans          = ismember(data{1},-1.E+30);
+S = data{1};
+nans = (S(:,:)<-1.e+29);
 data{1}(nans) = NaN;
 data{2}(nans) = 0;
 
@@ -55,9 +58,3 @@ else
     varargout(1:min_val)={data{1:min_val}};
  
 end
-
-
-
-
-
-

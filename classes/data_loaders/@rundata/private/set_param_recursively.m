@@ -1,36 +1,36 @@
-function this=build_from_struct(this,a_struct,varargin)
+function this=set_param_recursively(this,a_struct,varargin)
 % function to fill the rundata class from data, defined in the input
 % structure,class or their combinations
 %
 % $Revision$ ($Date$)
 %
-
 if isempty(a_struct)
     return;
 end
 
 if isa(a_struct,'rundata')
     this = a_struct;
+    if numel(varargin) == 0
+        return;
+    end
     if isstruct(varargin{1})
-        this=build_from_struct(this,varargin{1},varargin{2:end});
+        this=set_param_recursively(this,varargin{1},varargin{2:end});
     else
         this=parse_arg(this,varargin{:});        
     end
 elseif isstruct(a_struct)
     field_names    = fieldnames(a_struct);
-    present_fields = fieldnames(this);
-    if ~any(ismember(field_names,present_fields))
-        error('RUNDATA:build_from_struct',' attempting to set field %s but such field does not exist in run_data class\n',set_fields{ismember(set_fields,present_fields)});
-    end
-    field_values = cell(numel(field_names),1);
+    targ_fields    = fieldnames(this);
+    field_values   = cell(numel(field_names),1);
     for i=1:numel(field_names)
         field_values{i} = a_struct.(field_names{i});
     end
-    this=set_fields_skip_special(this,field_names,field_values);
-    
-    this = build_from_struct(this,varargin{1},varargin{2:end});
+    this=set_fields_skip_special(this,field_names,field_values,targ_fields);
+    if numel(varargin)>0
+        this = set_param_recursively(this,varargin{1},varargin{2:end});
+    end
 else
-    argi = {a_struct,varargin{:}};
+    argi = [a_struct,varargin];
     this=parse_arg(this,argi{:});
 end
 
@@ -51,11 +51,6 @@ function this= parse_arg(this,varargin)
 %>> result = parse_arg(template,source)
 %                similar to above but fields a and b with correspondent
 %                values are set in structure source e.g.
-%                source.a==10 and source.b=='something'
-%
-%
-% $Revision$ ($Date$)
-%
 
 % Parse arguments;
 narg = length(varargin);
@@ -65,14 +60,9 @@ if narg==0; return; end;
 valid = ~cellfun('isempty',field_vals);
 field_nams=field_nams(valid);
 field_vals=field_vals(valid);
+target_fields = fieldnames(this);
 
-target_fields = fieldnames(data_struct);
-if ~all(ismember(field_nams,target_fields))
-    miss = ~ismember(field_nams,target_fields);
-    err=sprintf('parse_arg: field %s do not exist in target structue\n',field_nams{miss});
-    error('RUNDATA:parse_arg',err);        
-end
-this = set_fields_skip_special(this,field_nams,field_vals);
+this = set_fields_skip_special(this,field_nams,field_vals,target_fields);
 
 %----------------------------------------------------------------------------------------
 function [field_nams,field_vals] = parse_config_arg(varargin)
@@ -95,7 +85,7 @@ if narg==1
     is_struct = isa(svar,'struct');
     is_cell   = iscell(svar);
     if ~(is_struct || is_cell)
-        error('PARSE_CONFIG_ARG:wrong_arguments','second parameter has to be a structure or a cell array');       
+        error('PARSE_CONFIG_ARG:wrong_arguments','input parameter has to be a structure or a cell array');       
     end
     if is_struct
         field_nams = fieldnames(svar)';
@@ -117,19 +107,29 @@ else
         
 end
 
-function this=set_fields_skip_special(this,field_names,field_values)
-
+function this=set_fields_skip_special(this,field_names,field_values,target_fields)
+% set rundata fields to the values specified checking if such fields exist
+% and are the special fields which redefine loader
+%
 file_name = '';
 par_file_name = '';
 loader_redefined = false;
 for i=1:numel(field_names)
-    if strcmp(field_names{i},'file_name')
+    cur_field = field_names{i};
+    
+    if strcmp(cur_field,'file_name') || strcmp(cur_field,'data_file_name')
         file_name = field_values{i};
         loader_redefined=true;
+        continue
     end
-    if strcmp(field_names{i},'par_file_name')
+    if strcmp(cur_field,'par_file_name')
         par_file_name = field_values{i};
         loader_redefined=true;
+        continue
+    end
+    
+    if ~ismember(cur_field,target_fields)
+        error('RUNDATA:set_fields','Attempt to set non-existing field: %s',cur_field);
     end
     
     if ~isempty(field_names{i}) 
@@ -137,10 +137,14 @@ for i=1:numel(field_names)
     end
 end
 if loader_redefined
-    if isempty(file_name)
-        this.loader.par_file_name = par_file_name;
+    if isempty(this.loader)
+        this=select_loader(this,file_name,par_file_name);
     else
-        this.loader = loaders_factory.instance().get_loader(file_name,par_file_name);
+        if isempty(file_name)
+            this.loader.par_file_name = par_file_name;
+        else
+            this.loader = loaders_factory.instance().get_loader(file_name,par_file_name);
+        end
     end
 end
 

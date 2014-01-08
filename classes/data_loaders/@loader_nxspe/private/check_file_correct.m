@@ -1,7 +1,8 @@
-function this= check_file_correct(this,full_file_name)
+function [n_detectors,en,full_file_name,nexus_dir,ei,psi,nxspe_version]= check_file_correct(full_file_name)
 % the method verifies if the file, provided exist, 
-% is the correct nxspe file and
-% identifies the location of nxspe data within the hdf5 nexus file
+% is the correct nxspe file, identifies the location of nxspe data within the hdf5 nexus file 
+% and loads main nxpse file information
+%
 %
 % $Author: Alex Buts; 20/10/2011
 %
@@ -9,37 +10,43 @@ function this= check_file_correct(this,full_file_name)
 %
 
 
-if ~isa(full_file_name,'char')
+if ~isstring(full_file_name)
     error('LOAD_NXSPE:invalid_argument',' first parameter has to be a file name');                
 else
-    full_file_name =check_file_exist(full_file_name,{'.nxspe'});         	 
+    [ok,mess,full_file_name]=check_file_exist(full_file_name,loader_nxspe.get_file_extension());
+    if ~ok
+        error('LOAD_NXSPE:invalid_argument',mess);
+    end
 end
 
 if ~H5F.is_hdf5(full_file_name)
     error('LOAD_NXSPE:invalid_argument','file %s is not proper hdf5 file\n',full_file_name);
 end
 
-[nexus_folder_name,nxspe_version,nexus_file_structure] = find_root_nexus_dir(full_file_name,'NXSPE');
-if isempty(nexus_folder_name)
+[nexus_dir,nxspe_version,nexus_file_structure] = find_root_nexus_dir(full_file_name,'NXSPE');
+if isempty(nexus_dir)
     error('LOAD_NXSPE:invalid_argument','NXSPE data can not be located withing nexus file file %s\n',full_file_name);
 end
 
 if ~(strncmp(nxspe_version,'1.1',3) || strncmp(nxspe_version,'1.2',3))
     if strncmp(nxspe_version,'1.0',3)
-        this.nxspe_version='1.0';
+        nxspe_version='1.0';
     else
-        error('LOADER_NXSPE:invalid_argument',' loader nxpse currently supports 1.1/1.0 version only but got version: %s\n',nxspe_version);
+        error('LOADER_NXSPE:invalid_argument',' loader nxpse currently supports 1.2/1.0 version only but got version: %s\n',nxspe_version);
     end
 else    
-   this.nxspe_version='1.2';
+   nxspe_version='1.2';
 end
 %
 %
-NXspeInfo   =find_dataset_info(nexus_file_structure,nexus_folder_name,'');
+NXspeInfo   =find_dataset_info(nexus_file_structure,nexus_dir,'');
 dataset_info=find_dataset_info(NXspeInfo,'data','data');
-this.n_detectors    = dataset_info.Dims(2);
-this.file_name      = full_file_name;
-this.par_file_name  = full_file_name;
-this.root_nexus_dir = nexus_folder_name;
+n_detectors    = dataset_info.Dims(2);
+
+
+en = hdf5read(full_file_name,[nexus_dir,'/data/energy']);
+ei = hdf5read(full_file_name,[nexus_dir,'/NXSPE_info/fixed_energy']);
+psi = hdf5read(full_file_name,[nexus_dir,'/NXSPE_info/psi']);
+
 
 

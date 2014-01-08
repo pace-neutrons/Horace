@@ -26,7 +26,7 @@ if isempty(filename),
 end
 fid=fopen(filename,'rt');
 if fid==-1,
-   error('LOADER_ASCII:problems_with_file',[' Can not open file ',filename]);
+   error('LOADER_ASCII:get_spe_matlab',[' Can not open file ',filename]);
 end
 
 % Read number of detectors and energy bins
@@ -34,7 +34,7 @@ ndet=fscanf(fid,'%d',1);
 ne=fscanf(fid,'%d',1);
 if isempty(ne)|| isempty(ndet) 
     fclose(fid);
-    error('LOADER_ASCII:problems_with_file', ...
+    error('LOADER_ASCII:get_spe_matlab', ...
         ' file %s is not proper spe file as can not interpret ndet and ne parameters in first row',...
           filename);
 end

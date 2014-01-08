@@ -20,11 +20,16 @@ if exist('new_file_name','var')
     if ~isa(new_file_name,'char')
         error('LOAD_ASCII:load_data','new file name has to be a string')
     end
-    this.file_name  = check_file_exist(new_file_name,{'.spe'});
-    file_name  = this.file_name;
+	[ok,mess,new_file_name] = check_file_exist(new_file_name,{'.spe'});
+	if ok
+		this.file_name  = new_file_name;
+		file_name  = this.file_name;
+	else
+        error('LOAD_ASCII:load_data',mess)
+	end
 else
     if isempty(this.file_name)
-        error('LOAD_ASCII:load_data','input spe file is not defined\n')
+        error('LOAD_ASCII:load_data','input spe file is not fully defined')
     end
     file_name= this.file_name ;
 end
@@ -50,16 +55,17 @@ if ~use_mex
     [S,ERR,en] = get_spe_matlab(file_name);
 end
 
-% Eliminate symbolic NaN-s
+% Convert symbolic NaN-s into ISO NaN-s
 nans      = (S(:,:)<-1.e+29);
 S(nans)   = NaN;
 ERR(nans) = 0;
-this.S  =S;
-this.ERR=ERR;
-this.en =en;
 
 % Fill output argument(s)
 if nargout == 1
+    this.S  =S;
+    this.ERR=ERR;
+    this.en =en;
+    
     varargout{1}=this;
 elseif nargout ==2
     varargout{1}=S;
@@ -69,6 +75,10 @@ elseif nargout == 3
     varargout{2}=ERR;
     varargout{3}=en;
 elseif nargout == 4
+    this.S  =S;
+    this.ERR=ERR;
+    this.en =en;
+    
     varargout{1}=S;
     varargout{2}=ERR;
     varargout{3}=en;

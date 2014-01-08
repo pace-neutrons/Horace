@@ -68,7 +68,10 @@ if isstruct(Groups) %got some file srtucture;
     end
 elseif ischar(Groups) % may be it is a file
     [path,filename,ext]=fileparts(Groups);
-    file = check_file_exist(fullfile(path,[filename ext]),ext);
+    [ok,mess,file] = check_file_exist(fullfile(path,[filename ext]),ext);
+    if ~ok
+        error('FIND_DATASET_INFO:check_file_exist',mess);
+    end
     if ~H5F.is_hdf5(file)
         error('FIND_DATASET_INFO:invalid_file',' file %s is not recognized as hdf5 file',file);
     end

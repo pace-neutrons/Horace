@@ -34,45 +34,44 @@ classdef test_loader_utilites< TestCase
             assertEqual(version,'1.1');            
         end               
         function test_parse_par_arg_wrong(this)
-            absl = a_loader();
-            f=@()check_par_file(absl,'.spe','file_name',1);
+            absl = a_loader_tester();
+            f=@()parse_par_file_arg(absl,'.spe','file_name',1);
             if get(herbert_config,'log_level')>-1
                 lw = warning('query','last');
                 assertEqual('PARSE_PAR_ARG:invalid_argument',lw.identifier);
             end
             
-            assertExceptionThrown(f,'CHECK_FILE_EXIST:wrong_argument');            
+            assertExceptionThrown(f,'A_LOADER:load_par');
         end
          function test_parse_par_2arg(this)
-            absl = a_loader();
-            [absl,key,file_name]=check_par_file(absl,'.par',f_name(this,'demo_par.PAR'),'-hor');
-            assertEqual(file_name,f_name(this,'demo_par.PAR'));
-            assertEqual(key,true);            
-            if ispc
-                assertEqual(absl.par_file_name,f_name(this,'demo_par.par'));                        
-            else
-                assertEqual(absl.par_file_name,f_name(this,'demo_par.PAR'));                                        
-            end
+            absl = a_loader_tester();
+            [return_horace_format,file_name_changed,new_file_name,lext]=parse_par_file_arg(absl,'.par',f_name(this,'demo_par.PAR'),'-hor');
+            assertTrue(return_horace_format);
+            assertTrue(file_name_changed);
+            assertEqual(new_file_name,f_name(this,'demo_par.par'));
+            assertEqual('.par',lext);
          end        
          function test_parse_par_3arg(this)
-            absl = a_loader();
+            absl = a_loader_tester();
             absl.par_file_name = f_name(this,'demo_par.PAR');
-            [absl,key,file_name]=check_par_file(absl,'.par',f_name(this,'map_4to1_jul09.par'),'-hor');             
-            assertEqual(file_name,f_name(this,'map_4to1_jul09.par'));
-            assertEqual(absl.par_file_name,f_name(this,'map_4to1_jul09.par'));                                    
-            assertEqual(key,true);
+            [return_horace_format,file_name_changed,new_file_name,lext]=parse_par_file_arg(absl,'.par',f_name(this,'map_4to1_jul09.par'),'-hor');             
+            assertTrue(return_horace_format);
+            assertTrue(file_name_changed);            
+            assertEqual(new_file_name,f_name(this,'map_4to1_jul09.par'));
+            assertEqual('.par',lext);
         end        
          function test_parse_par_Warnarg(this)
-            absl = a_loader();
+            absl = a_loader_tester();
             absl.par_file_name = f_name(this,'demo_par.PAR');            
-            [absl,key,file_name]=check_par_file(absl,'.par',f_name(this,'map_4to1_jul09.par'),20);                          
+            [return_horace_format,file_name_changed,new_file_name,lext]=parse_par_file_arg(absl,'.par',f_name(this,'map_4to1_jul09.par'),20);                          
             if get(herbert_config,'log_level')>-1
                 lw = warning('query','last');
                 assertEqual('PARSE_PAR_ARG:invalid_argument',lw.identifier);
             end
-            assertEqual(file_name,f_name(this,'map_4to1_jul09.par'));
-            assertEqual(absl.par_file_name,f_name(this,'map_4to1_jul09.par'));                                    
-            assertEqual(key,true);
+            assertTrue(return_horace_format);
+            assertTrue(file_name_changed);            
+            assertEqual(new_file_name,f_name(this,'map_4to1_jul09.par'));
+            assertEqual('.par',lext);
          end   
 % FIND_DATASET_INFO
          function test_correct_rootDS(this)       

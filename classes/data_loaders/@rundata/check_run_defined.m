@@ -1,4 +1,4 @@
-function [undefined,fields_to_load,fields_from_defaults,fields_undef] = check_run_defined(run,fields_needed)
+function [undefined,fields_from_loader,fields_from_defaults,fields_undef] = check_run_defined(run,fields_needed)
 % Method verifies if all necessary run parameters are defined by the class
 %
 % >> [undefined,fields_to_load,fields_from_defaults,fields_undef] = check_run_defined(run,fields_needed)
@@ -17,7 +17,8 @@ function [undefined,fields_to_load,fields_from_defaults,fields_undef] = check_ru
 %                     2  - some fields are needed, but no definition for them can be
 %                          found in memory, file or from defaults
 %
-%   fields_to_load  Cellarray of field names which have to be loaded from file
+%   fields_from_loader  Cellarray of field names which have to be obtained
+%   from loader
 %   fields_from_defaults    Cellarray of field names for which the values were
 %                          loaded from hard-coded defaults
 %   fields_undef    Cellarray of the fields which are unfilled
@@ -28,17 +29,15 @@ function [undefined,fields_to_load,fields_from_defaults,fields_undef] = check_ru
 
 
 undefined           = 0; % false; all defined;
-fields_to_load      ={};
+fields_from_loader  ={};
 fields_from_defaults={};
 
 % Check if all necessary fields are already provided
-s=warning('off','MATLAB:structOnObject');
-all_values    = struct2cell(struct(run));
-is_undef      = cellfun(@is_empty,all_values);
 all_fields    = fields(run);
-warning(s.state,'MATLAB:structOnObject');
-
 % If everything is defined, no point to bother, finish
+is_empty_f = @(field)is_empty_field(run,field);
+%
+is_undef      = cellfun(is_empty_f,all_fields);
 fields_undef  = all_fields(is_undef);
 if isempty(fields_undef)
     return;
@@ -63,9 +62,9 @@ undefined = 1;
 loader_provides = defined_fields(run.loader);
 is_in_loader    = ismember(fields_undef,loader_provides);
 if sum(is_in_loader)>0
-    fields_to_load=fields_undef(is_in_loader);
+    fields_from_loader=fields_undef(is_in_loader);
 else
-    fields_to_load={};
+    fields_from_loader={};
 end
 
 % If we can obtain everything we need from a file?
@@ -92,10 +91,10 @@ if ~isempty(fields_undef)
     
 end
 
-function isit=is_empty(the_cell)
+function isit=is_empty_field(data,field)
 % the function which is applied to each element of cell array verifying if
 % it is empty
 isit=false;
-if isempty(the_cell)
+if isempty(data.(field))
     isit=true;
 end
