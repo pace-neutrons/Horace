@@ -304,6 +304,7 @@ else
     if get(hor_config,'delete_tmp')
         delete_error=false;
         for i=1:numel(tmp_file)
+            ws=warning('off','MATLAB:DELETE:Permission');
             try
                 delete(tmp_file{i})
             catch
@@ -314,6 +315,7 @@ else
 					end
                 end
             end
+            warning(ws);
         end
     end
     
