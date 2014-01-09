@@ -63,6 +63,7 @@ end
 write_nsqw_to_sqw(sqw_file,sim_sqw_file);
 
 % Delete temporary sqw files
+ws = warning('off','MATLAB:DELETE:Permission');
 try
     for i=1:numel(psi)
         delete(sqw_file{i})
@@ -70,7 +71,7 @@ try
 catch
     disp('Unable to delete temporary sqw file(s)')
 end
-
+warning(ws);
 
 % Fit Bragg peak positions
 % ------------------------

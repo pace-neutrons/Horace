@@ -204,6 +204,7 @@ try
             error(mess)
         end
         wout=read_horace(tmpfile);
+        ws = warning('off','MATLAB:DELETE:Permission');
         try
             delete(tmpfile)
         catch
@@ -211,6 +212,7 @@ try
             mess='Cannot delete temporary file';
             error(mess)
         end
+        warning(ws);
     else
         if isempty(type)
             wout=change_crystal(input,rlu_corr);

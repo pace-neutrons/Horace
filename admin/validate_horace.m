@@ -1,25 +1,26 @@
 function validate_horace(varargin)
 % Run unit tests on Horace installation
 %
-%   >> validate_horace                  % Run full Horace validation
+%   >> validate_horace                 % Run full Horace validation
 %
-%   >> validate_herbert ('-parallel')   % Enables parallel execution of unit tests
-%                                       % if the parallel computer toolbox is available
+%   >> validate_horace ('-parallel')   % Enables parallel execution of unit tests
+%                                      % if the parallel computer toolbox is available
+%   >> validate_horace ('-talkative')  % prints output of the tests and
+%                                      %  horace commands   (log_level is set to default, not quiet)
+
 
 
 % Parse optional arguments
 % ------------------------
-options = {'-final_report','-parallel'};
+options = {'-parallel','-talkative'};
 
 if nargin==0
-    final_report=false;
     parallel=false;
+    talkative= false;
 else
-    [ok,mess,final_report,parallel]=parse_char_options(varargin,options);
+    [ok,mess,parallel,talkative]=parse_char_options(varargin,options);
     if ~ok
         error('VALIDATE_HORACE:invalid_argument',mess)
-    elseif (final_report+parallel)>1
-        error('VALIDATE_HORACE:invalid_argument','Only one of ''-final_report'' and ''-parallel'' is permitted')
     end
 end
 
@@ -75,8 +76,10 @@ set(hor_config,'defaults','-buffer');
 
 % Set up other configuration options necessary for tests to run
 set(herbert_config,'init_tests',1,'-buffer');       % initialise unit tests
-set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic output
-set(hor_config,'horace_info_level',-1,'-buffer');   % turn off Horace informational output
+if ~talkative
+    set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic output
+    set(hor_config,'horace_info_level',-1,'-buffer');   % turn off Horace informational output
+end
 
 
 if parallel && license('checkout','Distrib_Computing_Toolbox')
@@ -93,15 +96,10 @@ if parallel && license('checkout','Distrib_Computing_Toolbox')
     end
     bigtoc(time,'===COMPLETED UNIT TESTS IN PARALLEL');
 else
-    if ~final_report
-        time=bigtic();
-        for i=1:numel(test_folders_full)
-            runtests(test_folders_full{i})
-        end
-        bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
-    else
-        runtests(test_folders_full{:});
-    end
+    time=bigtic();        
+    runtests(test_folders_full{:});
+    bigtoc(time,'===COMPLETED UNIT TESTS RUN ');        
+
 end
 
 
