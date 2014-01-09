@@ -5,29 +5,26 @@ function fields = check_defined_fields(this)
 % $Revision: 311 $ ($Date: 2013-11-27 09:57:20 +0000 (Wed, 27 Nov 2013) $)
 %
 
+% a data file usually defines the following fields:
 loader_def = this.loader_defines;
+% par file can define the following fields:
 par_def    =  this.par_file_defines();
+
 if isempty(this.file_name) % no data file
-    fields = par_def;
-    ic = numel(fields);
-    for i=1:numel(loader_def)
-        field = loader_def{i};
-        if ~isempty(this.(field));
-            if ~ismember(field,fields)
-                ic =ic +1;
-                fields{ic} = field;
-            end
-        end
-    end
-else % file is there
-    fields = loader_def;
-    ic = numel(fields);
-    for i=1:numel(par_def)
-        field = par_def{i};
-        if ~ismember(field,fields)
-            ic =ic +1;
-            fields{ic} = field;
-        end
-    end
-    
+    % find the fields which are defined by the file structure. 
+    is_def = @(field)(is_field_def(this,field));
+    def_fiels = cellfun(is_def,loader_def);
+    loader_def = loader_def(def_fiels);   
 end
+% find the fields which are defined by both par and data file
+duplicates = ismember(par_def,loader_def);
+    % combine unique fields
+fields  = [loader_def,par_def(~duplicates)];
+
+
+function is=is_field_def(struct,field)
+    is = true;
+    if isempty(struct.(field))
+        is = false;
+    end
+

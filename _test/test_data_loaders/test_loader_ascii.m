@@ -96,7 +96,7 @@ classdef test_loader_ascii< TestCase
             [par,loader]=load_par(loader,par_file);
             fields = par_file_defines(loader);
             assertEqual({'det_par','n_detectors'},fields);
-            assertEqual({'det_par','n_detectors'},loader.defined_fields()); 
+            assertEqual({'n_detectors','det_par'},loader.defined_fields()); 
             [fpath,fname,fext] = fileparts(loader.par_file_name);
             if ispc
                 assertEqual([fname,fext],'demo_par.par');  

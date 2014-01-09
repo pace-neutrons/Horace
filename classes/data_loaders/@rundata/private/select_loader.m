@@ -22,9 +22,12 @@ function this=select_loader(this,varargin)
 %
   
 if nargin==1; return; end
+assume_ASCII_spe_loader = false;
 
 first_file = varargin{1};
-if ~isstring(first_file)    % build from a file;
+if isempty(first_file) % assume ASCII spe loader
+    assume_ASCII_spe_loader = true;    
+elseif ~isstring(first_file)    % build from a file;
     error('RUNDATA:invalid_argument','unsupported first argument');            
 end 
 % check if second parameter is a file
@@ -36,7 +39,13 @@ if nargin>2
         vararg_start_from=3;
     end
 end
-this.loader = loaders_factory.instance().get_loader(first_file,second_file);
+
+if assume_ASCII_spe_loader
+    this.loader = loader_ascii();
+    this.loader.par_file_name =second_file;
+else
+    this.loader = loaders_factory.instance().get_loader(first_file,second_file);
+end
 
 if nargin>vararg_start_from
     % set up values which are defined by other arguments

@@ -72,7 +72,13 @@ set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic ou
 
 if parallel && license('checkout','Distrib_Computing_Toolbox')
     cores = feature('numCores');
-    matlabpool(cores);
+    if matlabpool('SIZE')==0
+        if cores>12
+            cores = 12;
+        end
+        matlabpool(cores);
+    end
+    
     time=bigtic();
     parfor i=1:numel(test_folders_full)
         addpath(test_folders_full{i})
