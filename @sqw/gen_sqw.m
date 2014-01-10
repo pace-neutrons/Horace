@@ -218,7 +218,7 @@ if ~accumulate_old_sqw && isempty(urange_in)
     urange_in = rundata_find_urange(run_files);
     if any(~ix)
         % Get detector parameters
-        det = get_rundata(run_files{1},'det_par','-hor');
+        det = get_rundata(run_files{1},'det_par');
         % Get estimate of energy bounds for those spe data that do not actually exist
         eps_lo=NaN(nfiles,1); eps_hi=NaN(nfiles,1);
         for i=1:nindx
