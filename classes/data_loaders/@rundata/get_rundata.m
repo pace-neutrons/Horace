@@ -161,33 +161,30 @@ if is_undef==2 % run can not be defined by the arguments
 end
 
 if is_undef==1 % some data have to be either loaded or obtained from defaults
-    data_fields  = {'S';'ERR';'en'};
+    data_fields  = {'S';'ERR'};
     data_members = ismember(data_fields ,fields_to_load)';
+    loader = this.loader;
     if any(data_members)
-        data = load_data(this.loader);
+        loader = loader.load_data();
         % guard against the situation when data may be inconsistent with header,
         % As all data are loaded any way, we will use newly loaded data to
         % set up all internal fields from loaded data:
         %
         fields_to_load=[fields_to_load;data_fields(~data_members)];
         
-        if ~isempty(data.det_par)
-            det=data.det_par;
-            if size(data.S,2) ~= numel(det.x2)
-                % the detectors are inconsistent with data
-                % let's try to reload them
-                if ~ismember('det_par',fields_to_load)
-                    fields_to_load=[fields_to_load,'det_par'];
-                end
+        if ~isempty(loader.det_par)           
+            [ok,mess] = loader.is_loader_valid();
+            if ~ok % detectors are non-consistent with data
+                error('RUNDATA:invalid_arguments',mess)
             end
         end
     end
     if ismember('det_par',fields_to_load)
-        data.det_par = load_par(this.loader);
+      [~,loader] = loader.load_par();
     end
     for i=1:numel(fields_to_load)
         field = fields_to_load{i};
-        this.(field)= data.(field);
+        this.(field)= loader.(field);
     end
     default_values = get_defaults(this,fields_from_defaults);
     ndef =numel(default_values);

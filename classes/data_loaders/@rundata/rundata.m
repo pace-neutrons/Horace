@@ -28,7 +28,7 @@ classdef rundata
         en        = [];     % Column vector of energy bin boundaries   -- obtained from speFile or equivalent
         
         % Detector parameters:
-        det_par     = [];   % Array of par-values, describing detectors angular positions   -- usually obtained from parFile or equivalent
+        det_par     = [];   % Horace structure of par-values, describing detectors angular positions   -- usually obtained from parFile or equivalent
         
         % Crystal parameters:
         is_crystal  = [];   % true if single crystal (default), false if powder
@@ -170,7 +170,8 @@ classdef rundata
                     ndet = this.loader.n_detectors;
                 end
             else
-                ndet = size(this.det_par,2);
+                det = this.det_par;
+                ndet = numel(det.phi);
             end
         end
         function mode = get.emode(this)
