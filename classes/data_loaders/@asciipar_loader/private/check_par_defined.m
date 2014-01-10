@@ -1,4 +1,4 @@
-function fields = check_par_defines(this)
+function fields = check_par_defined(this)
 % method checks what fields in the structure are defined from the fields
 % the par file should define.
 %

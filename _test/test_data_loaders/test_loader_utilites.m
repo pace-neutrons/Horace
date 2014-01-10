@@ -33,47 +33,7 @@ classdef test_loader_utilites< TestCase
             assertEqual(result,'/11014.spe');
             assertEqual(version,'1.1');            
         end               
-        function test_parse_par_arg_wrong(this)
-            absl = a_loader_tester();
-            f=@()parse_par_file_arg(absl,'.spe','file_name',1);
-            if get(herbert_config,'log_level')>-1
-                lw = warning('query','last');
-                assertEqual('PARSE_PAR_ARG:invalid_argument',lw.identifier);
-            end
-            
-            assertExceptionThrown(f,'A_LOADER:load_par');
-        end
-         function test_parse_par_2arg(this)
-            absl = a_loader_tester();
-            [return_horace_format,file_name_changed,new_file_name,lext]=parse_par_file_arg(absl,'.par',f_name(this,'demo_par.PAR'),'-hor');
-            assertTrue(return_horace_format);
-            assertTrue(file_name_changed);
-            assertEqual(new_file_name,f_name(this,'demo_par.par'));
-            assertEqual('.par',lext);
-         end        
-         function test_parse_par_3arg(this)
-            absl = a_loader_tester();
-            absl.par_file_name = f_name(this,'demo_par.PAR');
-            [return_horace_format,file_name_changed,new_file_name,lext]=parse_par_file_arg(absl,'.par',f_name(this,'map_4to1_jul09.par'),'-hor');             
-            assertTrue(return_horace_format);
-            assertTrue(file_name_changed);            
-            assertEqual(new_file_name,f_name(this,'map_4to1_jul09.par'));
-            assertEqual('.par',lext);
-        end        
-         function test_parse_par_Warnarg(this)
-            absl = a_loader_tester();
-            absl.par_file_name = f_name(this,'demo_par.PAR');            
-            [return_horace_format,file_name_changed,new_file_name,lext]=parse_par_file_arg(absl,'.par',f_name(this,'map_4to1_jul09.par'),20);                          
-            if get(herbert_config,'log_level')>-1
-                lw = warning('query','last');
-                assertEqual('PARSE_PAR_ARG:invalid_argument',lw.identifier);
-            end
-            assertTrue(return_horace_format);
-            assertTrue(file_name_changed);            
-            assertEqual(new_file_name,f_name(this,'map_4to1_jul09.par'));
-            assertEqual('.par',lext);
-         end   
-% FIND_DATASET_INFO
+ % FIND_DATASET_INFO
          function test_correct_rootDS(this)       
              [DS_info,ds_path] = find_dataset_info(f_name(this,'MAP11020.spe_h5'),'',''); 
              assertTrue(all(ismember(fieldnames(DS_info),...

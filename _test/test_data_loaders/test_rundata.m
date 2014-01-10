@@ -182,7 +182,8 @@ classdef test_rundata< TestCase
             run=rundata(run,'par_file_name',par_file_name);
             
             assertEqual(28160,run.n_detectors);
-            assertEqual([6,28160],size(run.det_par));
+            det = run.det_par;
+            assertEqual(28160,numel(det.phi));
         end
         function test_modify_par_file_empty(this)
             run=rundata();
@@ -190,7 +191,8 @@ classdef test_rundata< TestCase
                 'data_file_name',f_name(this,'MAP11020.spe_h5'),'psi',2);
             
             assertEqual(28160,run.n_detectors);
-            assertEqual([6,28160],size(run.det_par));
+            det = run.det_par;
+            assertEqual(28160,numel(det.x2));
             assertEqual(2,run.psi);
         end
         function test_modify_data_file_load_makes_par_wrong(this)

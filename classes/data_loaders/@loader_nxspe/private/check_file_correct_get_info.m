@@ -1,4 +1,4 @@
-function [n_detectors,en,full_file_name,nexus_dir,ei,psi,nxspe_version]= check_file_correct(full_file_name)
+function [n_detectors,en,full_file_name,nexus_dir,ei,psi,nxspe_version]= check_file_correct_get_info(full_file_name)
 % the method verifies if the file, provided exist, 
 % is the correct nxspe file, identifies the location of nxspe data within the hdf5 nexus file 
 % and loads main nxpse file information

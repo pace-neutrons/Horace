@@ -90,6 +90,7 @@ classdef test_loader_speh5< TestCase
 %RUN_INFO
         function test_runinfo_ok(this)
             loader=loader_speh5(f_name(this,'MAP11020.spe_h5'));
+            loader.det_par = ones(6,28160);
             [ndet,en,loader] = get_run_info(loader);
             assertEqual(28160,ndet);
             assertEqual(en,loader.en);

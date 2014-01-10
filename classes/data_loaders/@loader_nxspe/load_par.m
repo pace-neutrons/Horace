@@ -1,16 +1,12 @@
 function [det,this]=load_par(this,varargin)
 % method loads par data into run data structure and returns it in the format,requested by user
-%
-% this function has to have its eqivalents in all other loader classes
-% as all loaders are accessed through common interface.
-%
 % usage:
-%>>[det,loader_nxspe]= load_par(loader_nxspe_var,'-hor')
-%                      returns detectors information loaded from the nxspe file, 
-%                      previously associated with loader_nxspe class by 
+%>>[det,loader_nxspe]= loader_nxspe.load_par(['-nohor'])
+%                      returns detectors information loaded from the nxspe file,
+%                      previously associated with loader_nxspe class by
 %                      loader_nxspe constructor
-%  loader_nxspe_var -- the instance of properly initated loader_nxspe class 
-% '-hor'            -- if present request to return the data as horace structure,
+%  loader_nxspe_var -- the instance of properly initated loader_nxspe class
+% '-nohor' or '-array' -- if present request to return the data as horace structure,
 %
 %                      if not --  as (6,ndet) array with fields:
 %
@@ -21,43 +17,87 @@ function [det,this]=load_par(this,varargin)
 %                   (Note the reversed sign convention cf .phx files)
 %     4th  "        width (m)
 %     5th  "        height (m)
-%     6th  "        detector ID    
+%     6th  "        detector ID
 %
-%>>[det,loader_nxspe]=load_par(loader_nxspe(),file_name,['-hor'])
+%>>[det,loader_nxspe]=loader_nxspe.load_par(file_name,['-array'])
 %                     returns detectors information from the file
-%                     name specified. The function alse redefines
-%                     the nxspe file name, stored in loader_nxspe
-%                     class, if loader_nxpse was the variable of
-%                     loader_nxspe class
+%                     name specified.
+% file_name -- the name of another nxspe file or ascii par or phx file.
+%                     The function redefines the nxspe loader to work with
+%                     new file if the file_name is the name of nxspe file or
+%                     sets loader_nxspe read detectors from ascii par file if
+%                     this file name refers to ascii par file
 %
 %
 % $Revision$ ($Date$)
 %
 
-old_file_name = this.file_name;
+options = {'-nohorace','-array','-horace'}; % if options changes, parse_par_file_arg should also change
+[return_array,file_profided,new_file_name,lext]=parse_par_file_arg(this,options,varargin{:});
 
-[this,return_horace_format,new_file_name]=check_par_file(this,'.nxspe',varargin{:});
-%
-% new if the parameters request other file name and horace data format;
-if ~isempty(new_file_name) && ~strcmp(new_file_name,old_file_name)
-          this =  check_file_correct(this,new_file_name);    
-          % new nxspe file provied, so we have to clear all data if they
-          % were availible
-          if ~isempty(this.S);
-              this.S   =[];
-              this.ERR =[];
-              this.en  =[];
-              this.Ei  =[];
-              this.psi =[];              
-          end    
+if file_profided
+    if ~strcmp('.nxspe',lext)
+        this.par_file_name = new_file_name;
+    else
+        this.file_name = new_file_name;
+    end
 end
 
-% load operation itself
-par      = load_nxspe_par(this);
+if isempty(this.par_file_name)
+    [det,this] = load_nxspe_par(this,return_array);
+else
+    ascii_par_file = this.par_file_name;
+    if return_array
+        params = {ascii_par_file,'-nohor'};
+    else
+        params = {ascii_par_file};
+    end
+    [det,this]=load_par@asciipar_loader(this,params{:});
+end
+%--------------------------------------------------------------------------
+function [return_array,file_provided,new_file_name,lext]=parse_par_file_arg(this,options,varargin)
+% method analyzes and processes various options specified with loader_nxspe.load_par
+% command
+%
+%
 
-% perform requested transformations of data
 
+new_file_name ='';
+file_provided=false;
+lext = this.get_file_extension();
+return_array=false;
 
-
-
-
+if numel(varargin)>0
+    log_level = get(herbert_config,'log_level');
+    [ok,mess,return_array1,return_array2,hor_format_deprecated,file_name]=parse_char_options(varargin,options);
+    if ~ok
+        if log_level >0
+            disp('Usage:');
+            help loader_nxspe.load_par;
+        end
+        error('LOADER_NXSPE:load_par',mess)
+    else
+        return_array =return_array1||return_array2;
+    end
+    %
+    if hor_format_deprecated
+        warning('LOADER_NXSPE:load_par','option -horace is deprecated, loader returns data in horace format by default')
+    end
+   % 
+    if ~isempty(file_name)
+        if numel(file_name)>1
+            if log_level >0
+                disp('Usage:');
+                help loader_nxspe.load_par;
+            end
+            error('LOADER_NXSPE:load_par','only one file name allowed as input parameter')
+        end
+        new_file_name = file_name{1};
+        [~,~,lext] = fileparts(new_file_name);
+        if isempty(lext)
+            error('LOADER_NXSPE:load_par','new file name %s should have known extension',new_file_name)
+        end
+        file_provided = true;
+    end
+    
+end

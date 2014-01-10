@@ -49,7 +49,7 @@ classdef rundata
         % INTERNAL SERVICE PARAMETERS: (private read, private write in new Matlab versions)
         % The class which provides actual data loading:
         loader = [];
-         
+        
         % List of fields which have default values and do not have to be always defined by either file or command arguments;
         fields_have_defaults = {'omega','dpsi','gl','gs','is_crystal','u','v'};
         
@@ -57,10 +57,10 @@ classdef rundata
         the_fields_defaults  = {0,0,0,0,true,[1,0,0],[0,1,0]};
     end
     properties(Dependent)
-       n_detectors = [];   % Number of detectors, used when dealing with masked detectors  -- will be derived
-       data_file_name;
-       par_file_name;  
-       emode     = 1;     % Energy mode [Default=1 (direct geometry)]
+        n_detectors = [];   % Number of detectors, used when dealing with masked detectors  -- will be derived
+        data_file_name;
+        par_file_name;
+        emode     = 1;     % Energy mode [Default=1 (direct geometry)]
     end
     properties(Access=private)
         emode_internal=[];
@@ -128,12 +128,19 @@ classdef rundata
             end
         end
         %------------------------------------------------------------------
+        function this = set.det_par(this,val)
+            if ~isstruct(val)
+                this.det_par = get_hor_format(val,'');
+            else
+                this.det_par = val;
+            end
+        end
         function this = set.data_file_name(this,val)
-        % method to change data file for a run data class
+            % method to change data file for a run data class
             this = rundata(this,'data_file_name',val);
         end
         function fname = get.data_file_name(this)
-        % method to query what data file a rundata class uses
+            % method to query what data file a rundata class uses
             if isempty(this.loader)
                 fname = [];
             else
@@ -141,26 +148,26 @@ classdef rundata
             end
         end
         function this = set.par_file_name(this,val)
-        % method to change par file on defined loader
+            % method to change par file on defined loader
             data_fname = this.data_file_name;
             this = rundata(this,'data_file_name',data_fname,'par_file_name',val);
         end
         function fname = get.par_file_name(this)
-        % method to query what par file a rundata class uses. May be empty
-        % for some data loaders, which have det information inside. 
+            % method to query what par file a rundata class uses. May be empty
+            % for some data loaders, which have det information inside.
             if isempty(this.loader)
                 fname = [];
             else
                 fname = this.loader.par_file_name;
             end
-        end     
+        end
         function ndet = get.n_detectors(this)
-        % method to check number of detectors defined in rundata
+            % method to check number of detectors defined in rundata
             if isempty(this.det_par)
                 if isempty(this.loader)
                     ndet = [];
                 else
-                   ndet = this.loader.n_detectors;
+                    ndet = this.loader.n_detectors;
                 end
             else
                 ndet = size(this.det_par,2);
@@ -187,12 +194,12 @@ classdef rundata
         function [rez,this]=subsref(this,S)
             % overloaded subsref loads data from the file if the data were
             % not already loaded
-            rez=builtin('subsref',this,S); 
+            rez=builtin('subsref',this,S);
             if S.type == '.'
                 if any(ismember(S.subs,fieldnames(this)))
                     if isempty(rez)
                         this=get_rundata(this,S.subs,'-this');
-                        rez=builtin('subsref',this,S); 
+                        rez=builtin('subsref',this,S);
                     end
                 end
             end

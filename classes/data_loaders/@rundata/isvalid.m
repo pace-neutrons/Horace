@@ -15,7 +15,7 @@ function [ok, mess,this] = isvalid (this)
 %                   set.m. (T.G.Perring)
 
 % check numeric
-numeric_fld = {'S','ERR','efix','en','emode','n_detectors','det_par',...
+numeric_fld = {'S','ERR','efix','en','emode','n_detectors',...
            'alatt','angldeg','u','v','psi','omega','dpsi','gl','gs'};
 for i=1:numel(numeric_fld)       
     if ~isempty(this.(numeric_fld{i}))
@@ -82,16 +82,12 @@ end
 
 % check det_par 
 if ~isempty(this.det_par)
-    if size(this.det_par,1)~=6
-        ok=false;
-        mess=['det_par field has to be a [6xndet] array, but has: ',num2str(size(this.det_par,1)),' columns'];
-        return
-    end
     if ~isempty(this.S)
-        if size(this.det_par,2)~=size(this.S,2)
+        detpar = this.det_par;
+        if size(detpar.x2,2)~=size(this.S,2)
             ok=false;
             mess = ['Second dimension in det_par array has to coinside with the second dimension of signal array',...
-                    ' In fact size(det_par,2)=',num2str(size(this.det_par,2)),' and size(S,2)=',num2str(size(this.S,2))];
+                    ' In fact size(det_par,2)=',num2str(size(detpar.x2,2)),' and size(S,2)=',num2str(size(this.S,2))];
             return;
         end
     end

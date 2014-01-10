@@ -17,8 +17,8 @@ classdef loader_ascii < a_loader
             fext={'.spe'};
         end
         function descr=get_file_description()
-        % method returns the description of the file format loaded by this
-        % loader.
+            % method returns the description of the file format loaded by this
+            % loader.
             ext = loader_ascii.get_file_extension();
             descr =sprintf('ASCII spe files: (*.%s)',ext{1});
             
@@ -37,7 +37,7 @@ classdef loader_ascii < a_loader
             %
             % ok   -- True if the file can be processed by the loader_ascii
             % fh --  the structure, which describes spe file
-            fh=[];            
+            fh=[];
             [ok,mess,full_file_name] = check_file_exist(file_name,{'.spe'});
             if ~ok
                 return;
@@ -48,7 +48,7 @@ classdef loader_ascii < a_loader
                 return;
             end
             [ndet,en,full_file_name]=loader_ascii.get_data_info(file_name);
-             fh = struct('n_detectors',ndet,'en',en,'file_name',full_file_name);           
+            fh = struct('n_detectors',ndet,'en',en,'file_name',full_file_name);
         end
         
         function [ndet,en,full_file_name]=get_data_info(file_name)
@@ -59,7 +59,7 @@ classdef loader_ascii < a_loader
             % where:
             % ndet  -- number of detectors
             % en    -- energy bins
-            % full_file_name -- 
+            % full_file_name --
             %
             %second form requests file to be already defined in loader
             %first form just reads file info from given spe file name.
@@ -68,15 +68,15 @@ classdef loader_ascii < a_loader
                 error('LOAD_ASCII:get_data_info',' has to be called with valid file name');
             end
             
-            if isstring(file_name)              
+            if isstring(file_name)
                 [ok,mess,full_file_name] = check_file_exist(file_name,{'.spe'});
                 if ~ok
                     error('LOAD_ASCII:get_data_info',mess);
                 end
             else
-                error('LOAD_ASCII:get_data_info',' has to be called with valid file name');                
+                error('LOAD_ASCII:get_data_info',' has to be called with valid file name');
             end
-            %                
+            %
             % get info about ascii spe file;
             [ne,ndet,en]= get_spe_matlab(full_file_name,'-info_only');
             if numel(en) ~= ne+1
@@ -94,23 +94,18 @@ classdef loader_ascii < a_loader
             %
             %parameters:
             %full_spe_file_name -- the full name of spe data file
-            %full_par_file_name -- if present -- the full name of par file 
+            %full_par_file_name -- if present -- the full name of par file
             %fh                 -- if present -- the structure which describes ascii spe
             %                      file and contains number of detectors
             %                      energy bins and full file name for this file
             %
-
+            
             ascii_loader.loader_defines ={'S','ERR','en','n_detectors'};
             if ~exist('full_spe_file_name','var')
                 return
             end
-
-            % set up file name checking that the file in fact exist and
-            % correct
-            ascii_loader.file_name =full_spe_file_name; 
-
             
-            if exist('full_par_file_name','var')      
+            if exist('full_par_file_name','var')
                 if isstruct(full_par_file_name) && ~exist('fh','var')
                     fh = full_par_file_name; % second parameters defines spe file structure
                 else
@@ -118,19 +113,24 @@ classdef loader_ascii < a_loader
                 end
             end
             if exist('fh','var')
-                if isempty(ascii_loader.n_detectors)
-                    ascii_loader.n_detectors= fh.n_detectors;
-                end
-                ascii_loader.en          = fh.en;
+                ascii_loader.n_detindata_stor    = fh.n_detectors;
+                ascii_loader.en_stor             = fh.en;
+                ascii_loader.data_file_name_stor = fh.file_name;
             else
-               [n_det,ascii_loader.en]=ascii_loader.get_data_info(full_spe_file_name);
-               if isempty(ascii_loader.n_detectors)
-                   ascii_loader.n_detectors = n_det;
-               end
-               
+                % set new file name, run all checks on this file and set up
+                % all file information
+                ascii_loader.file_name = full_spe_file_name;
+                
             end
-
         end
+        function this = set_data_info(this,full_spe_file_name)
+            % obtain data file information and set it into class
+            [ndet,en,full_file_name]=loader_ascii.get_data_info(full_spe_file_name);
+            this.data_file_name_stor = full_file_name;
+            this.n_detindata_stor = ndet;
+            this.en_stor = en;
+        end
+        
         function ascii_loader = loader_ascii(full_spe_file_name,varargin)
             % the constructor for spe data loader; called usually from run_data
             % class;
@@ -151,7 +151,7 @@ classdef loader_ascii < a_loader
             % the file is present regardless of the case of file name and file extension, which forces unix file system
             % behave like Windows file system.
             % The run_data structure fields which become defined if proper spe file is provided
-                       
+            
             ascii_loader=ascii_loader@a_loader(varargin{:});
             if exist('full_spe_file_name','var')
                 ascii_loader = ascii_loader.init(full_spe_file_name);
@@ -160,7 +160,7 @@ classdef loader_ascii < a_loader
             end
             
         end
-            
-     end
+        
+    end
 end
 

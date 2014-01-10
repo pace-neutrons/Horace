@@ -1,4 +1,4 @@
-function [par,this] = load_nxspe_par(this,return_horace_format)
+function [par,this] = load_nxspe_par(this,return_array)
 % method loads detector parametes using properly initiated nxspe class
 %
 root_folder=this.root_nexus_dir;
@@ -36,11 +36,8 @@ end
 size_par = size(par);
 ndet     = size_par(2);
 
-if return_horace_format
-    par = get_hor_format(par,file_name);
+this.det_par_stor = get_hor_format(par,file_name);
+if ~return_array
+    par = this.det_par_stor;
 end
-this.n_detectors = ndet;
-this.det_par = par;
-
-end
-
+this.n_detindata_stor = ndet;

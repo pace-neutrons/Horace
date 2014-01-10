@@ -60,7 +60,7 @@ classdef test_rundata_get< TestCase
             assertEqual(size(S),size(Err));            
             assertEqual(800,efix);
             assertEqual(0,psi);            
-            assertEqual(size(detectors,2),size(S,2));
+            assertEqual(numel(detectors.phi),size(S,2));
        end            
        function this=test_load_nxspe_all_fields(this)               
             % this form asks for all present in file run data to be obtained;
@@ -73,7 +73,7 @@ classdef test_rundata_get< TestCase
             % this form asks for all run data to be obtained;
              this.the_run.is_crystal=false;
              % and detectors returned as horace structure
-             dp =get_rundata(this.the_run,'det_par','-hor');
+             dp =get_rundata(this.the_run,'det_par');
              assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(dp))));
              assertTrue(all(ismember(fields(dp),{'filename','filepath','x2','phi','azim','width','height','group'})));              
        end  
@@ -202,7 +202,7 @@ classdef test_rundata_get< TestCase
             [S,ERR,det]=get_rundata(run,'-nonan','S','ERR','det_par','en');
             assertEqual(size(S),[30,26495]);
             assertEqual(size(S),size(ERR));
-            assertEqual(size(S,2),size(det,2));            
+            assertEqual(size(S,2),numel(det.azim));            
 
     end
     

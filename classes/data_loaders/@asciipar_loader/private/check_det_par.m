@@ -1,10 +1,13 @@
-function [det_par,n_detectros] = check_det_par(value)
+function [det_par,n_det,file_name] = check_det_par(value)
 % method checks if value can represent par file and detectors coordinates
+% and converts this value into format, used in det_par field
 %
-
+% $Revision$ ($Date$)
+%
+file_name='';
 if isempty(value)
     det_par = [];
-    n_detectros=[];
+    n_det=[];
     return;
 end
 if isstruct(value)
@@ -12,13 +15,14 @@ if isstruct(value)
     if ~all(ismember({'group','x2','phi','azim','width','height'},flds))
         error('A_LOADER:set_det_par',' attempt to set invalid detectors structure')
     end
-    n_detectros = numel(value.group);
+    n_det = numel(value.group);
+    file_name   = fullfile(value.filepath,value.filename);
 else
-    [n_col,n_detectros] = size(value);
+    [n_col,n_det] = size(value);
     if n_col ~= 6
         error('A_LOADER:set_det_par',' attempt to set invalid detectors parameters')
     end
-    
+    value = get_hor_format(value,'');
 end
 det_par = value;
 

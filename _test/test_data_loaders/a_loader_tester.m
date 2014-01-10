@@ -1,4 +1,8 @@
 classdef a_loader_tester< a_loader
+    %
+    % $Revision$ ($Date$)
+    %
+    
     methods(Static)
         % static methods
         function [is,fh] = can_load(file_name)
@@ -24,12 +28,18 @@ classdef a_loader_tester< a_loader
         function this=init(this,data_file_name,varargin)
             error('A_LOADER:abstract_method_called','');            
         end
+        function this=set_data_info(this,data_file_name,varargin)
+            error('A_LOADER:abstract_method_called','');            
+        end
         
         function this=a_loader_tester(varargin)
             % test constructor
             this=this@a_loader(varargin{:});
         end
        
+        function this=set_defined_fields(this,fields)
+            this.loader_defines = fields;
+        end
    
     end
 end

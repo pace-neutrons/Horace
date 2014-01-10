@@ -68,10 +68,12 @@ classdef test_rundata_isvalid<TestCase
           rd.det_par = ones(6,3);
           assertTrue(isvalid(rd));          
           
-          rd.det_par = ones(5,3);
-          [ok,mess]=isvalid(rd);
-          assertFalse(ok);
-          assertEqual(mess,'det_par field has to be a [6xndet] array, but has: 5 columns');
+          %rd.det_par = 
+          %[ok,mess]=isvalid(rd);
+          %assertFalse(ok);
+          f = @()get_hor_format(ones(5,3),'');
+          assertExceptionThrown(f,'GET_HOR_FORMAT:invalid_file_format');
+          %assertEqual(mess,'det_par field has to be a [6xndet] array, but has: 5 columns');
           
            rd.det_par = ones(6,10);
            rd.S       = ones(3,9);

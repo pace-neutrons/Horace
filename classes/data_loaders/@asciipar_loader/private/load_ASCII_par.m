@@ -20,7 +20,7 @@ function par=load_ASCII_par(filename)
 
 % Original author: T.G.Perring
 %
-% $Revision: 278 $ ($Date: 2013-11-01 20:07:58 +0000 (Fri, 01 Nov 2013) $)
+% $Revision$ ($Date$)
 
 % If no input parameter given, return
 if ~exist('filename','var')
@@ -42,10 +42,10 @@ if use_mex
     catch   %using matlab routine
         force_mex = get(herbert_config,'force_mex_if_use_mex');
         if ~force_mex
-            warning('A_LOADER:get_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
+            warning('ASCIIPAR_LOADER:load_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
             use_mex = false;
         else
-            error('A_LOADER:get_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
+            error('ASCIIPAR_LOADER:load_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
         end
     end
 end

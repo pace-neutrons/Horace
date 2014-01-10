@@ -1,5 +1,5 @@
- function [varargout]=load_data(this,new_file_name)
-% function loads mxspe data into run_data structure        
+function [varargout]=load_data(this,new_file_name)
+% function loads mxspe data into run_data structure
 %
 % this fucntion is the method of loader_nxspe class
 %
@@ -14,22 +14,15 @@
 %
 %
 if exist('new_file_name','var')
-    % check the new_file_name describes correct file
+    % check the new_file_name describes correct file, got internal file
+    % info and obtain this info.
     this.file_name = new_file_name;
-   %found the data location within nexus file;
-   [n_det,this.en,~,this.root_nexus_dir,this.efix,this.psi,this.nxspe_version]= check_file_correct(this.file_name);
-    % if correct new file name was provided, we have to clear old par
-    % values if they are present
-    if ~isempty(this.det_par) && isempty(this.par_file_name)
-        this.det_par=[];
-    else    
-    end
-    this.n_detectors = n_det;    
-else    
-    if isempty(this.file_name)
-        error('LOAD_NXSPE:invalid_argument',' input nxspe file is not defined')
-    end 
 end
+
+if isempty(this.file_name)
+    error('LOAD_NXSPE:invalid_argument',' input nxspe file is not defined')
+end
+
 %
 file_name  = this.file_name;
 root_folder= this.root_nexus_dir;
@@ -40,7 +33,7 @@ data=cell(1,3);
 data{1}  = hdf5read(file_name,[root_folder,'/data/data']);
 data{2}  = hdf5read(file_name,[root_folder,'/data/error']);
 if isempty(this.en)
-  this.en =hdf5read(file_name,[root_folder,'/data/energy']);
+    this.en_stor =hdf5read(file_name,[root_folder,'/data/energy']);
 end
 data{3} = this.en;
 % convert symbolic NaN-s (build according to ASCII agreement) to ISO
@@ -51,17 +44,17 @@ data{1}(nans) = NaN;
 data{2}(nans) = 0;
 
 
-this.S   = data{1};
-this.ERR = data{2};
+this.S_stor   = data{1};
+this.ERR_stor = data{2};
 
 if nargout==1
     varargout{1}=this;
-else    
+else
     min_val = nargout;
     if min_val>3;
         min_val=3;
         varargout{4}=this;
     end
     varargout(1:min_val)={data{1:min_val}};
- 
+    
 end

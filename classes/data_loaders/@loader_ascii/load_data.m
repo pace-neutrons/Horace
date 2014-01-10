@@ -20,19 +20,15 @@ if exist('new_file_name','var')
     if ~isa(new_file_name,'char')
         error('LOAD_ASCII:load_data','new file name has to be a string')
     end
-	[ok,mess,new_file_name] = check_file_exist(new_file_name,{'.spe'});
-	if ok
-		this.file_name  = new_file_name;
-		file_name  = this.file_name;
-	else
-        error('LOAD_ASCII:load_data',mess)
-	end
+    this.file_name  = new_file_name;
+    
 else
     if isempty(this.file_name)
         error('LOAD_ASCII:load_data','input spe file is not fully defined')
     end
-    file_name= this.file_name ;
+    
 end
+file_name  = this.file_name;
 
 use_mex=get(herbert_config,'use_mex_C');
 if use_mex
@@ -62,9 +58,10 @@ ERR(nans) = 0;
 
 % Fill output argument(s)
 if nargout == 1
-    this.S  =S;
-    this.ERR=ERR;
-    this.en =en;
+    % set also all dependent on S variables
+    this.S_stor  =S;
+    this.ERR_stor=ERR;
+    this.en_stor =en;
     
     varargout{1}=this;
 elseif nargout ==2
@@ -75,9 +72,9 @@ elseif nargout == 3
     varargout{2}=ERR;
     varargout{3}=en;
 elseif nargout == 4
-    this.S  =S;
-    this.ERR=ERR;
-    this.en =en;
+    this.S_stor  =S;
+    this.ERR_stor=ERR;
+    this.en_stor =en;
     
     varargout{1}=S;
     varargout{2}=ERR;

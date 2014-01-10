@@ -44,7 +44,7 @@ classdef loader_nxspe < a_loader
             % ok   -- True if the file can be processed by the loader_ascii
             % fh --  the structure, which describes spe file
             fh=[];
-            [ok,mess,full_file_name] = check_file_exist(file_name,{'.nxspe'});
+            [ok,~,full_file_name] = check_file_exist(file_name,{'.nxspe'});
             if ~ok
                 return;
             end
@@ -54,9 +54,9 @@ classdef loader_nxspe < a_loader
                 return;
             end
             [ndet,en,full_file_name,ei,psil,nexus_dir,nxspe_ver]=loader_nxspe.get_data_info(file_name);
-            fh = struct('n_detectors',ndet,'en',en,'file_name',full_file_name,...
-                        'efix',ei,'psi',psil,'root_nexus_dir',...
-                         nexus_dir,'nxspe_version',nxspe_ver);
+            fh = struct('n_detindata_stor',ndet,'en',en,'data_file_name_stor',full_file_name,...
+                'efix',ei,'psi',psil,'root_nexus_dir',...
+                nexus_dir,'nxspe_version',nxspe_ver);
         end
         function [ndet,en,full_file_name,ei,psi,nexus_dir,nxspe_ver]=get_data_info(file_name)
             % Load header information of nxspe MANTID file
@@ -79,7 +79,7 @@ classdef loader_nxspe < a_loader
             if ~exist('file_name','var')
                 error('LOAD_NXSPE:get_data_info',' has to be called with valid file name');
             end
-            [ndet,en,full_file_name,nexus_dir,ei,psi,nxspe_ver]= check_file_correct(file_name);
+            [ndet,en,full_file_name,nexus_dir,ei,psi,nxspe_ver]= check_file_correct_get_info(file_name);
         end
         
         
@@ -98,13 +98,10 @@ classdef loader_nxspe < a_loader
             %                      file and contains number of detectors
             %                      energy bins and full file name for this file
             %
-            this.loader_defines ={'S','ERR','en','efix','psi','det_par','n_detectors'};            
+            this.loader_defines ={'S','ERR','en','efix','psi','det_par','n_detectors'};
             if ~exist('full_nxspe_file_name','var')
                 return
             end
-            % set up file name checking that the file in fact exists and
-            % correct
-            this.file_name =full_nxspe_file_name;
             
             if exist('full_par_file_name','var')
                 if isstruct(full_par_file_name) && ~exist('fh','var')
@@ -119,8 +116,10 @@ classdef loader_nxspe < a_loader
                     this.(defined_fields{i}) = fh.(defined_fields{i});
                 end
             else
-                [this.n_detectors,this.en,ff,this.efix,this.psi,this.root_nexus_dir,this.nxspe_version]= ...
-                    this.get_data_info(this.file_name);
+                % set up file name checking that the file in fact exists and
+                % correct
+                this.file_name =full_nxspe_file_name;
+                
             end
             
         end
@@ -157,46 +156,12 @@ classdef loader_nxspe < a_loader
                 fields  = fields(~psi_loc);
             end
         end
-        
-        function this = set_file(this,new_file)
-            % overload set_file_name
-            this.file_name = new_file;
-            [this.n_detectors,this.en,ff,this.efix,this.psi,this.root_nexus_dir,this.nxspe_version]= ...
-                this.get_data_info(this.file_name);
-        end
-        function [det,this]=load_par(this,varargin)
-            % method loads par data into run data structure and returns this structure
-            % in the format,requested by user
-            %
-            % if par_file_name is present or specified in varargin, the
-            % method returns data from this file. 
-            % if this file is nxspe file, the method also resets all data,
-            % previously loaded to the 
-            
-            [return_horace_format,file_changed,new_file_name,lext]=parse_par_file_arg(this,{'.par','.phx','.nxspe'},varargin{:});
-            
-            if file_changed
-                if ~strcmp('.nxspe',lext)
-                    this.par_file_name = new_file_name;
-                else
-                    this = set_file(this,new_file_name);
-                end
-            end
-            
-            if isempty(this.par_file_name)
-                [det,this] = load_nxspe_par(this,return_horace_format);
-            else
-                ascii_par_file = this.par_file_name;
-                if file_changed
-                    ascii_par_file=new_file_name;
-                end
-                if return_horace_format
-                    params = {ascii_par_file,'-hor'};
-                else
-                    params = {ascii_par_file};                    
-                end
-                [det,this]=load_par@a_loader(this,params{:});
-            end
+        function this = set_data_info(this,nxspe_file_name)
+            % obtain data file information and set it into class
+            [this.n_detindata_stor,this.en_stor,this.data_file_name_stor,...
+                this.efix,this.psi,...
+                this.root_nexus_dir,this.nxspe_version]=...                
+                loader_nxspe.get_data_info(nxspe_file_name);
         end
     end
     methods(Static)

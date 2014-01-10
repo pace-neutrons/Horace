@@ -8,10 +8,10 @@ classdef loader_speh5 < a_loader
     
     properties
         % incident energy
-        efix =[];        
+        efix =[];
     end
     properties(Access=private)
-       % speh5 version;
+        % speh5 version;
         speh5_version=[];
     end
     methods(Static)
@@ -20,11 +20,11 @@ classdef loader_speh5 < a_loader
             fext={'.spe_h5'};
         end
         function descr=get_file_description()
-        % method returns the description of the file format loaded by this
-        % loader.
+            % method returns the description of the file format loaded by this
+            % loader.
             ext = loader_speh5.get_file_extension();
-            descr =sprintf('HDF5 spe files: (*.%s)',ext{1});            
-        end       
+            descr =sprintf('HDF5 spe files: (*.%s)',ext{1});
+        end
         
         function [ok,fh] = can_load(file_name)
             % check if the file name is spe file name and the file can be
@@ -38,7 +38,7 @@ classdef loader_speh5 < a_loader
             %
             % ok   -- True if the file can be processed by the loader_ascii
             % fh --  the structure, which describes spe file
-            fh=[];            
+            fh=[];
             [ok,mess,full_file_name] = check_file_exist(file_name,{'.spe_h5'});
             if ~ok
                 return;
@@ -83,30 +83,28 @@ classdef loader_speh5 < a_loader
                 error('LOADER_SPEH5:get_data_info',[' can not identify the data structure location'...
                     ' the file %s is not proper spe_h5 file'],full_file_name);
             end
-            ndet =  data_info.Dims(2);            
+            ndet =  data_info.Dims(2);
             en   =  hdf5read(full_file_name,'En_Bin_Bndrs');
             spe_h5Ver = hdf5read(full_file_name,'spe_hdf_version');
             if spe_h5Ver >= 2
-               ei   =  hdf5read(full_file_name,'Ei');
+                ei   =  hdf5read(full_file_name,'Ei');
             else
-               ei  = NaN;
+                ei  = NaN;
             end
-
-        end  
-        
+        end
     end
     
     
     methods
-       function this = init(this,speh5_file_name,par_file_name,fh)
-          % method initate internal structure of loader_speh5, which is responsible for
+        function this = init(this,speh5_file_name,par_file_name,fh)
+            % method initate internal structure of loader_speh5, which is responsible for
             % work with spe data file written into hdf5 format.
             %Usage:
             %>>loader=loader.init(full_spe_file_name,[full_par_file_name],[fh]);
             %
             %parameters:
             %full_spe_file_name -- the full name of spe data file
-            %full_par_file_name -- if present -- the full name of par file 
+            %full_par_file_name -- if present -- the full name of par file
             %fh                 -- if present -- the structure which describes ascii spe
             %                      file and contains number of detectors
             %                      energy bins and other spe_h5 information
@@ -114,10 +112,9 @@ classdef loader_speh5 < a_loader
             if ~exist('speh5_file_name','var')
                 return
             end
-
-            this.file_name =speh5_file_name;
-
-            if exist('par_file_name','var')             
+            
+            
+            if exist('par_file_name','var')
                 if isstruct(par_file_name) && ~exist('fh','var')
                     fh = par_file_name; % second parameters defines spe_h5 file structure
                 else
@@ -126,29 +123,30 @@ classdef loader_speh5 < a_loader
             end
             
             if exist('fh','var')
-                this.n_detectors = fh.n_detectors;
-                this.en          = fh.en;
-                this.efix        = fh.ei;
-                this.speh5_version = fh.speh5_version;
+                this.n_detindata_stor = fh.n_detectors;
+                this.en_stor          = fh.en;
+                this.efix             = fh.ei;
+                this.speh5_version    = fh.speh5_version;
+                this.data_file_name_stor = fh.file_name;
             else
-                [this.n_detectors,this.en,fn,this.efix,this.speh5_version]=this.get_data_info(this.file_name);
+                this.file_name =speh5_file_name;
             end
             
-        end        
+        end
         
         function this = loader_speh5(full_speh5_file_name,varargin)
-        % the constructor for spe_h5 data loader 
-        % 
-        % it analyzes all data fields availible  as the input arguments and
-        % verifies that all necessary data are there
-                
+            % the constructor for spe_h5 data loader
+            %
+            % it analyzes all data fields availible  as the input arguments and
+            % verifies that all necessary data are there
+            
             this=this@a_loader(varargin{:});
             if exist('full_speh5_file_name','var')
                 this = this.init(full_speh5_file_name);
             else
                 this = this.init();
-            end                         
-  
+            end
+            
         end
         function fields = defined_fields(this)
             % the method returns the cellarray of fields names, which are
@@ -157,10 +155,17 @@ classdef loader_speh5 < a_loader
             %>> fields= defined_fields(loader);
             %
             fields = defined_fields@a_loader(this);
-            if ~isempty(this.speh5_version) && this.speh5_version >=2                
+            if ~isempty(this.speh5_version) && this.speh5_version >=2
                 fields = [fields,'efix'];
             end
         end
+        function this = set_data_info(this,full_speh5_file_name)
+            % obtain data file information and store it into the class
+            [this.n_detindata_stor,this.en_stor,this.data_file_name_stor, ...
+            this.efix,this.speh5_version]=loader_speh5.get_data_info(full_speh5_file_name);
+        end
+        
+        
     end
     
 end

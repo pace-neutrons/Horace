@@ -28,7 +28,7 @@ function [varargout] =get_rundata(this,varargin)
 %   opt1,opt2       Optional key modifiers (begin with '-') that control
 %                   the format of the output:
 %
-%       '-horace'     -- Detector parameters to be returned as a horace 
+%       '-horace'     -- Detector parameters to be returned as a horace
 %    or '-hor'           structure rather then 6 column array.
 %                        Cannot be used with '-this' key.
 %
@@ -85,7 +85,7 @@ function [varargout] =get_rundata(this,varargin)
 
 
 % possible modifiers of the data format
-keys_recognized={'-hor','-horace','-nonan','-rad','-this'};
+keys_recognized={'-nonan','-rad','-this'};
 
 if isempty(this.loader)
     error('RUNDATA:invalid_arguments','Can not get data as data loader is not defined for this instance of the class');
@@ -98,45 +98,51 @@ end
 
 % what is actually defined by this class instance:
 % (should be only public fiedls but currenly works with all)
-all_fields              = fieldnames(this);
-% separate fields and keys
-[keys,fields_requested] = split_keys_nonkeys(keys_recognized,all_fields,varargin{:});
-
+[ok,mess,suppress_nan,get_rad,return_this,fields_requested] = parse_char_options(varargin,keys_recognized);
+if(~ok)
+    error('RUNDATA:invalid_arguments',mess);
+end
+all_fields = fieldnames(this);
+non_fields =~ismember(fields_requested,all_fields);
+if any(non_fields)    
+    error('RUNDATA:invalid_arguments',[' missing fields requested: ',fields_requested{non_fields}]);
+end
 % --> CHECK THE CONSISTENCY OF OUTPUT FIELDS
 % identify desired form of output:
 % when more then one output argument, we probably want the list of
 % variables; if only one -- it is structure or class
-if nargout==1
+if nargout==1 
     return_structure=true;
+    if numel(fields_requested)==1 && ~return_this
+        return_structure = false;
+    end
 else
-    return_structure=false;
-end
-% if there is one field requested to return, it is probably a variable
-if numel(fields_requested)==1
     return_structure=false;
 end
 
 % check if I want just read data into the class and return this class
-return_this =false;
-if ismember('-this',keys)
-    return_this     = true;
-    return_structure= true;
+
+if return_this
     if nargout>1
         error('RUNDATA:invalid_arguments',' modifying the class structure is not consistent with  more then one output argument\n');
     end
 end
 % can and if we should delete NaN-s from output data
-suppress_nan=false;
-if ismember('-nonan',keys)&&any(ismember({'S','ERR','det_par'},fields_requested))
-    suppress_nan = true;
-    if return_this
+
+if return_this
+    if suppress_nan && return_this
         error('RUNDATA:invalid_arguments',' -this and -nonan keys are incompartible\n');
+        % for nonan you need S fields
     end
-    % for nonan you need S fields
-    if (~ismember('S',fields_requested)) && isempty(this.S)
-        error('RUNDATA:invalid_arguments',' can not drop NaN values if signal is not defined \n');
+    if get_rad
+        error('RUNDATA:invalid_arguments',' -this and -rad keys are incompartible\n');
     end
 end
+if (~ismember('S',fields_requested) || isempty(this.S)) && suppress_nan
+    error('RUNDATA:invalid_arguments',' can not drop NaN values if signal is not defined/not requested \n');
+end
+
+
 
 % --> CHECK THE CONSISTENCY OF THE DATA ITSELF
 % what fields are actually needed:?
@@ -166,7 +172,8 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         fields_to_load=[fields_to_load;data_fields(~data_members)];
         
         if ~isempty(data.det_par)
-            if size(data.S,2) ~= numel(data.det_par) 
+            det=data.det_par;
+            if size(data.S,2) ~= numel(det.x2)
                 % the detectors are inconsistent with data
                 % let's try to reload them
                 if ~ismember('det_par',fields_to_load)
@@ -179,7 +186,8 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         data.det_par = load_par(this.loader);
     end
     for i=1:numel(fields_to_load)
-        this.(fields_to_load{i})= data.(fields_to_load{i});
+        field = fields_to_load{i};
+        this.(field)= data.(field);
     end
     default_values = get_defaults(this,fields_from_defaults);
     ndef =numel(default_values);
@@ -194,22 +202,7 @@ end
 
 % Deal with input parameters (keys) ----------------
 % if parameters have to be represented as horace structure;
-return_horace_format=false;
-if any(ismember({'-hor','-horace'},keys))&& ismember('det_par',fields_requested)
-    return_horace_format = true;
-    if return_this
-        error('RUNDATA:invalid_arguments',' -this and -hor keys are incompartible\n');
-    end
-end
 
-transform_to_rad_requested=false;
-if ismember('-rad',keys)
-    transform_to_rad_requested=true;
-    if return_this
-        error('RUNDATA:invalid_arguments',' -this and -rad keys are incompartible\n');
-    end
-    
-end
 
 % modify result to return only detectors and data which not contain NaN and
 % Inf
@@ -233,10 +226,7 @@ if return_structure
     for i=1:numel(fields_requested)
         out.(fields_requested{i})=this.(fields_requested{i});
     end
-    if return_horace_format
-        out.det_par = get_hor_format(out.det_par,this.loader.par_file_name);
-    end
-    if transform_to_rad_requested
+    if get_rad
         out=transform_to_rad(out);
     end
     
@@ -249,13 +239,8 @@ else % return cell array of output variables, defined by the list of
     
     for i=1:min_num
         varargout{i}=this.(fields_requested{i});
-        
-        if return_horace_format && strcmp('det_par',fields_requested{i})
-            varargout{i} = get_hor_format(varargout{i},this.loader.par_file_name);
-        end
-        
     end
-    if transform_to_rad_requested
+    if get_rad
         varargout=transform_to_rad([varargout;fields_requested]);
     end
     

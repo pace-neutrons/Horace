@@ -1,0 +1,74 @@
+function [return_array,lext,this]=parse_loadpar_arguments(this,options,varargin)
+% method processes the arguments specified with load_par methods
+%
+% this function has to have its eqivalents in all other loader classes
+% as all loaders are accessed through common interface.
+%
+% usage:
+%>>this = load_par(this,'-nohor')
+%                      returns detectors information loaded from the nxspe file,
+%                      previously associated with loader_nxspe class by
+%                      loader_nxspe constructor
+%  this             -- the instance of properly initated loader class
+%
+% '-nohor' or '-array' -- if present request to return the data as
+%                      as (6,ndet) array with fields:
+%
+%     1st column    sample-detector distance
+%     2nd  "        scattering angle (deg)
+%     3rd  "        azimuthal angle (deg)
+%                   (west bank = 0 deg, north bank = -90 deg etc.)
+%                   (Note the reversed sign convention cf .phx files)
+%     4th  "        width (m)
+%     5th  "        height (m)
+%     6th  "        detector ID
+% it return it as horace structure otherwise
+%
+%>>[det,this]=load_par(this,file_name,['-nohor'])
+%                     returns detectors information from the file
+%                     name specified. The function alse redefines
+%                     the file name, stored in the loader
+%
+
+
+
+return_array = false;
+hor_format_deprecated=false;
+file_name  = {};
+%
+if numel(varargin)>0
+    [ok,mess,return_array,return_array2,hor_format_deprecated,file_name]=parse_char_options(varargin,options);
+    if ~ok
+        if get(herbert_config,'log_level')>0
+            disp('Usage:');
+            help asciipar_loader.load_par;
+        end
+        
+        error('ASCIIPAR_LOADER:load_par',mess)
+    else
+        return_array =return_array||return_array2;
+    end
+    
+end
+%
+if hor_format_deprecated
+    warning('ASCIIPAR_LOADER:load_par','option -horace is deprecated, loader returns data in horace format by default')
+end
+if numel(file_name)>1
+    if get(herbert_config,'log_level')>0
+        disp('Usage:');
+        help asciipar_loader.load_par;
+    end
+    
+    error('ASCIIPAR_LOADER:load_par','Too many input aruments')
+elseif numel(file_name)==1
+    this.par_file_name = file_name{1};
+end
+
+if isempty(this.par_file_name)
+    error('ASCIIPAR_LOADER:load_par','Attempting to load ASCII detector parameters but the parameters file is not defined')
+end
+if ~exist('lext','var')
+    [~,~,lext] = fileparts(this.par_file_name);
+end
+
