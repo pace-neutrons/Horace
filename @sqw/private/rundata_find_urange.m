@@ -25,7 +25,7 @@ urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
 for i=1:nfiles
     [efix,en,emode,ndet,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=get_rundata(run_files{i},...
         'efix','en','emode','n_detectors','alatt','angldeg','u','v','psi','omega','dpsi','gl','gs','det_par',...
-        '-hor','-rad');
+        '-rad');
     eps=(en(2:end)+en(1:end-1))/2;
     if length(eps)>1
         data.S=zeros(2,ndet);

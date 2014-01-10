@@ -40,13 +40,13 @@ end
 data = struct();
 [data.S,data.ERR,data.en,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=...
     get_rundata(run_file,'S','ERR','en','efix','emode','alatt','angldeg','u','v',...
-                         'psi','omega','dpsi','gl','gs','det_par','-hor','-rad','-nonan');
+                         'psi','omega','dpsi','gl','gs','det_par','-rad','-nonan');
 
 [data.filepath,data.filename]=get_source_fname(run_file);
 
 % Note: algorithm updates only if not already read from disk
 % Get the list of all detectors, including the detectors corresponding to masked detectors
-det0 = get_rundata(run_file,'det_par','-hor');
+det0 = get_rundata(run_file,'det_par');
 
 
 horace_info_level=get(hor_config,'horace_info_level');
