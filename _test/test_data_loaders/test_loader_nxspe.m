@@ -372,7 +372,42 @@ classdef test_loader_nxspe< TestCase
             fields = defined_fields(loader);
             assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors'},fields);
         end
-        
+        function test_load(this)
+            dat_file =f_name(this,'MAP11014v2.nxspe');
+            lx = loader_nxspe(dat_file);
+            lx=lx.load();
+            
+            fields = defined_fields(lx);
+            
+            assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors'},fields);
+            assertEqual(lx.n_detectors,size(lx.S,2));
+            assertEqual(numel(lx.en),size(lx.S,1)+1);
+            S = lx.S;
+            ERR = lx.ERR;
+            det = lx.det_par;
+            
+            ndet = lx.n_detectors;
+            nen =  numel(lx.en)-1;
+            lx.S=ones(nen,ndet);
+            lx = lx.load('-keep');
+            assertEqual(ones(nen,ndet),lx.S);
+            assertEqual(ERR,lx.ERR);
+            assertEqual(det,lx.det_par);
+            
+            lx = lx.load_data();
+            lx.ERR=ones(nen,ndet);
+            assertEqual(S,lx.S);
+            assertEqual(ones(nen,ndet),lx.ERR);
+            assertEqual(det,lx.det_par);
+            
+            lx = lx.load_data();
+            lx.det_par = ones(6,ndet);
+            lx = lx.load('-keep');
+            assertEqual(S,lx.S);
+            assertEqual(ERR,lx.ERR);
+            one_det = get_hor_format(ones(6,ndet));
+            assertEqual(one_det ,lx.det_par);
+        end
         
     end
 end

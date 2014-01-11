@@ -218,6 +218,35 @@ classdef a_loader < asciipar_loader;
             % -keepexisting  if option is present, method does not overload
             %                data, already loaded in memory
             %
+            options = {'-keepexisting'};
+            [ok,mess,keepexising]=parse_char_options(varargin,options);
+            if ~ok
+                error('A_LOADER:load',mess);
+            end
+            if keepexising
+                [s_empty,err_empty,dat_empty,det_empty] = data_empty(this);
+                if dat_empty
+                    [S,ERR,en]=this.load_data();
+                    this.en_stor = en;
+                    if s_empty
+                        this.S_stor = S;
+                    end
+                    if err_empty
+                        this.ERR_stor = ERR;
+                    end
+                    this.n_detindata_stor = size(S,2);
+                end
+                if det_empty
+                    [~,this]=this.load_par();
+                end
+                [ok,mess]=is_loader_valid(this);
+                if ~ok
+                    error('A_LOADER:load',mess);
+                end
+            else
+                this=this.load_data();
+                [~,this]=this.load_par();
+            end
         end
         % -----------------------------------------------------------------
         % ---- SETTERS GETTERS FOR CLASS PROPERTIES     -------------------
