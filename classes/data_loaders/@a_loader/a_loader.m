@@ -10,7 +10,18 @@ classdef a_loader < asciipar_loader;
     % If the main data file contains detector information, new loader should also
     % overload methods responsible for loading detector's information to work
     % both with ASCII par files and the detector information containing in
-    % the main data file (if the later intended to be used)
+    % the main data file (if the later intended to be used). These methods
+    % are defined in asciipar_loader.
+    %
+    % When overloading abstract methods, a new loader should work(set/get)
+    % through protected data properties as public set/get properties for
+    % data variables ensure integrity of variables (waste of time when
+    % loading from file) and
+    %disabled: set methods break connection with data file
+    % assuming user setting the data, which overwrite data from file.
+    %
+    % $Author: Alex Buts; 05/01/2014
+    %
     %
     % $Revision$ ($Date$)
     %
@@ -33,13 +44,17 @@ classdef a_loader < asciipar_loader;
     properties(Access=protected)
         % the data fields which are defined in the main data file
         loader_defines={};
-        %
+        % number of detectors defined by data file (e.g. second dimension
+        % of SPE Signal array)
         n_detindata_stor=[];
+        % Internal Signal array
         S_stor=[];
+        % Internal Error array
         ERR_stor=[];
+        % internal energy bins array
         en_stor=[];
-        % name of data file 
-        data_file_name_stor='';        
+        % name of data file to load data from
+        data_file_name_stor='';
     end
     %
     methods(Abstract, Static)
@@ -95,7 +110,7 @@ classdef a_loader < asciipar_loader;
         % end
         %function this=delete(this) -- made non-abstract generic
         this=set_data_info(this,file_name);
-        % method sets internal data information obtained for appropriate file
+        % method sets internal file information obtained for appropriate file
         % by get_data_info method;
     end
     
@@ -186,20 +201,35 @@ classdef a_loader < asciipar_loader;
             %         0 if it is incosistant (e.g size(S) ~= size(ERR)) or size(en,1)
             %         ~=size(S,2) etc...
             %
-            % if ok =1, ndet  and en should be defined. This method can not
-            % be defined for a_loader, as uses abstract class methods,
-            % defined in particular loaders
+            % if ok =1, intenal ndet and en fields are defined. This method can not
+            % be invoked for a_loader, as uses abstract class methods,
+            % defined by particular loaders
             [ok,mess,ndet,en] = is_loader_valid_internal(this);
         end
         
+        function this=load(this,varargin)
+            % load all information, stored in data and par files into
+            % memory
+            %usage:
+            %loader = load(loader,['-keepexisting'])
+            %
+            %presumes that data file name and par file name (if nececcsary)
+            %are already set up
+            % -keepexisting  if option is present, method does not overload
+            %                data, already loaded in memory
+            %
+        end
         % -----------------------------------------------------------------
         % ---- SETTERS GETTERS FOR CLASS PROPERTIES     -------------------
         % -----------------------------------------------------------------
         function this=set.file_name(this,new_name)
             % method checks if a file with the name file_name exists
             %
-            % Then it sets this file name as the source par file name and
-            % clears all previously loaded run information information (if any) occupying substantial memory.
+            % Then it sets this file name as the source par file name,
+            % reads file info, calculates all dependent information and
+            % clears all previously loaded run information
+            % (if any) inconsistent with new file or occupying substantial
+            % memory.
             
             if isempty(new_name)
                 % disconnect detector information in memory from a par file
@@ -217,8 +247,6 @@ classdef a_loader < asciipar_loader;
             if ~strcmp(this.data_file_name_stor,f_name)
                 this= this.delete();
                 this=this.set_data_info(f_name);
-%                 this.data_file_name_stor = f_name;
-%                 [this.n_detindata_stor,this.en_stor]=this.get_data_info(f_name);
             else
                 return
             end
@@ -247,7 +275,8 @@ classdef a_loader < asciipar_loader;
             S = get_consistent_array(this,'S_stor');
         end
         function this = set.S(this,value)
-            % set signal and break connection between the signal and the
+            % set consistent with error signal valye
+            % disabled: break connection between the signal and the
             % data file if any
             this = set_consistent_array(this,'S_stor',value);
         end
@@ -257,7 +286,8 @@ classdef a_loader < asciipar_loader;
             ERR = get_consistent_array(this,'ERR_stor');
         end
         function this = set.ERR(this,value)
-            % set error and break connection between the error and the
+            % set error consistent with sigmal value
+            % disabled: and break connection between the error and the
             % data file if any
             this = set_consistent_array(this,'ERR_stor',value);
         end
@@ -274,7 +304,6 @@ classdef a_loader < asciipar_loader;
             end
             this = set_consistent_array(this,'en_stor',value);
         end
-        
         % ------------------------------------------------------------------
     end
     

@@ -234,9 +234,9 @@ classdef test_loader_nxspe< TestCase
             nxspe_file_name = fullfile(this.test_data_path,'MAP11014.nxspe');
             
             
-            [ok,fh]=loader_nxspe.can_load(spe_file_name);
+            [ok,mess]=loader_nxspe.can_load(spe_file_name);
             assertTrue(~ok);
-            assertTrue(isempty(fh));
+            assertEqual(' The extension .spe of file: MAP10001 is not among supported extensions',mess);
             
             [ok,fh]=loader_nxspe.can_load(nxspe_file_name);
             assertTrue(ok);

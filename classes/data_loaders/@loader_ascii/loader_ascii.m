@@ -40,6 +40,7 @@ classdef loader_ascii < a_loader
             fh=[];
             [ok,mess,full_file_name] = check_file_exist(file_name,{'.spe'});
             if ~ok
+                fh=mess;
                 return;
             end
             if H5F.is_hdf5(full_file_name)>0

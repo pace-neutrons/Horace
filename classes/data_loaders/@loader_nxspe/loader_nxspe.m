@@ -44,8 +44,9 @@ classdef loader_nxspe < a_loader
             % ok   -- True if the file can be processed by the loader_ascii
             % fh --  the structure, which describes spe file
             fh=[];
-            [ok,~,full_file_name] = check_file_exist(file_name,{'.nxspe'});
+            [ok,mess,full_file_name] = check_file_exist(file_name,{'.nxspe'});
             if ~ok
+                fh = mess;
                 return;
             end
             if ~H5F.is_hdf5(full_file_name)
@@ -66,11 +67,10 @@ classdef loader_nxspe < a_loader
             % where:
             % ndet  -- number of detectors
             % en    -- energy bins
-            % full_file_name -- the full name (with path) of the nxpse file
-            % ei    -- incident energy
-            % psi   -- crystal rotation angle (should be NaN if undefined, but some )
-            % nexus_dir -- internal nexus folder name where the data can be
-            %              located
+            % full_file_name -- the full name (with path) of the source nxpse file
+            % ei     -- incident energy
+            % psi    -- crystal rotation angle (should be NaN if undefined, but some )
+            % nexus_dir -- internal nexus folder name where the data are stored
             % nxspe_ver -- version of the nxspe data
             %
             %second form requests file to be already defined in loader
@@ -86,14 +86,15 @@ classdef loader_nxspe < a_loader
     end
     methods
         function this = init(this,full_nxspe_file_name,full_par_file_name,fh)
-            % method initate internal structure of ascii_loader, which is responsible for
-            % work with spe data file.
+            % method initate internal structure of nxspe_loader, which is responsible for
+            % work with nxspe data file.
             %Usage:
             %>>loader=loader.init(full_spe_file_name,[full_par_file_name],[fh]);
             %
             %parameters:
             %full_spe_file_name -- the full name of spe data file
-            %full_par_file_name -- if present -- the full name of par file
+            %full_par_file_name -- if present -- the full name of par file,
+            %                      which overwrite detecror infomation stored in nxspe file
             %fh                 -- if present -- the structure which describes ascii spe
             %                      file and contains number of detectors
             %                      energy bins and full file name for this file
@@ -151,22 +152,26 @@ classdef loader_nxspe < a_loader
             %>> fields= defined_fields(loader);
             %
             fields = defined_fields@a_loader(this);
+            % psi in nxspe file can be empty or ill defined.
             if ~isempty(this.psi) && isnan(this.psi)
                 psi_loc = ismember(fields,'psi');
                 fields  = fields(~psi_loc);
             end
         end
+        
         function this = set_data_info(this,nxspe_file_name)
             % obtain data file information and set it into class
             [this.n_detindata_stor,this.en_stor,this.data_file_name_stor,...
                 this.efix,this.psi,...
-                this.root_nexus_dir,this.nxspe_version]=...                
+                this.root_nexus_dir,this.nxspe_version]=...
                 loader_nxspe.get_data_info(nxspe_file_name);
         end
     end
     methods(Static)
         function ndet=get_par_info(par_file_name,file_name)
             % get number of detectors described in ASCII par or phx file
+            % if such file is present or get this information from nxspe
+            % file if ascii par file is absent.
             if ~isempty(par_file_name)
                 ndet = a_loader.get_par_info(par_file_name);
             else

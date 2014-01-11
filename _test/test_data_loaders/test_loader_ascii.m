@@ -186,9 +186,9 @@ classdef test_loader_ascii< TestCase
             other_file_name = fullfile(this.test_data_path,'MAP11014.nxspe');
             
             
-            [ok,fh]=loader_ascii.can_load(other_file_name);
+            [ok,mess]=loader_ascii.can_load(other_file_name);
             assertTrue(~ok);
-            assertTrue(isempty(fh));
+            assertEqual(' The extension .nxspe of file: MAP11014 is not among supported extensions',mess);
             
             [ok,fh]=loader_ascii.can_load(spe_file_name);
             assertTrue(ok);
