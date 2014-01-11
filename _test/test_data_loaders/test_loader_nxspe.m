@@ -100,17 +100,17 @@ classdef test_loader_nxspe< TestCase
             psi= loader.psi;
             
             if get(herbert_config,'log_level')<0
-                warnStruct = warning('off', 'LOAD_NXSPE:old_version');
+                warnStruct = warning('off', 'LOADER_NXSPE:load_par');
             end
             
             
             % ads par data and return it as horace data
-            [par,loader]=load_par(loader,'-horace');
+            par=load_par(loader,'-horace');
             % MAP11014.nxspe is version 1.1 nxspe file
             if get(herbert_config,'log_level')>-1
                 warnStruct = warning('query', 'last');
                 msgid_integerCat = warnStruct.identifier;
-                assertEqual('LOAD_NXSPE:old_version',msgid_integerCat);
+                assertEqual('LOADER_NXSPE:load_par',msgid_integerCat);
             end
             
             % warning about old nxspe should still be generated in other
@@ -406,6 +406,12 @@ classdef test_loader_nxspe< TestCase
             assertEqual(S,lx.S);
             assertEqual(ERR,lx.ERR);
             one_det = get_hor_format(ones(6,ndet));
+            assertEqual(one_det ,lx.det_par);
+            
+            lx.S=[];
+            lx = lx.load('-keep');
+            assertEqual(S,lx.S);
+            assertEqual(ERR,lx.ERR);
             assertEqual(one_det ,lx.det_par);
         end
         

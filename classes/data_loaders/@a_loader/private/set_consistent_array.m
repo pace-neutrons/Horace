@@ -8,7 +8,12 @@ function this = set_consistent_array(this,field_name,value)
 %
 
 if isempty(value)
-    this=this.delete();
+    if isempty(this.file_name)
+        this=this.delete();
+    else
+        this.S_stor=[];
+        this.ERR_stor=[];
+    end
     return
 end
 

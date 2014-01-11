@@ -166,6 +166,25 @@ classdef loader_nxspe < a_loader
                 this.root_nexus_dir,this.nxspe_version]=...
                 loader_nxspe.get_data_info(nxspe_file_name);
         end
+        function this=delete(this)
+            % delete all memory demanding data/fields from memory and close all
+            % open files (if any)
+            %
+            % loader class has to be present in RHS to propagate the changes
+            % Deleter is generic untill loaders fields are generic. Any specific
+            % deleter should be overloaded
+            %
+            %
+            this.S_stor = [];
+            this.ERR_stor = [];
+            this.det_par_stor=[];
+            if isempty(this.data_file_name_stor)
+                this.en_stor=[];
+                this.n_detindata_stor=[];
+                this=this.delete_par();
+            end
+        end
+        
     end
     methods(Static)
         function ndet=get_par_info(par_file_name,file_name)
