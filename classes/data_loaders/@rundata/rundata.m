@@ -205,5 +205,18 @@ classdef rundata
                 end
             end
         end
+        
+        function saveNXSPE(this,filename)
+            if isempty(this.loader)
+                ld=loader_nxspe();
+            else
+                ld=this.loader;
+            end
+            ld.S = this.S;
+            ld.ERR=this.ERR;
+            ld.en = this.en;
+            ld.det_par = this.det_par;
+            ls.saveNXSPE(filename,this.efix,this.psi);
+        end
     end
 end
