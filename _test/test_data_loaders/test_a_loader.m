@@ -204,15 +204,28 @@ classdef test_a_loader< TestCase
             lt = a_loader_tester();
             lt.S=ones(5,3);
             lt.ERR = zeros(5,3);
-            lt.en = ones(6,1);
+            lt.en = 1:6;
             lt.det_par = ones(6,6);
-            f=@()lt.saveNXSPE('testfile.nxspe',10,3);
+            
+            test_file = fullfile(tempdir,'save_nxspe_testfile.nxspe');
+            f=@()lt.saveNXSPE(test_file,10,3);
             assertExceptionThrown(f,'A_LOADER:load');
             
             lt.det_par = ones(6,3);
-            delete('testfile.nxspe');
-            lt.saveNXSPE('testfile.nxspe',10,3);
             
+            lt.saveNXSPE(test_file,10,3);
+            
+            lstor = loader_nxspe(test_file);
+            lstor = lstor.load();
+            
+            assertEqual(lt.n_detectors,lstor.n_detectors);
+            assertEqual(lt.S,lstor.S);
+            assertEqual(lt.ERR,lstor.ERR);
+            assertEqual(lt.en,lstor.en);
+            assertEqual(10,lstor.efix);
+            assertEqual(3,lstor.psi);
+            
+            delete(test_file);
         end
         
     end

@@ -215,7 +215,7 @@ classdef a_loader < asciipar_loader;
             %
             %presumes that data file name and par file name (if nececcsary)
             %are already set up
-            % -keepexisting  if option is present, method does not overload
+            % -keepexisting  if option is present, method does not load
             %                data, already loaded in memory
             %
             options = {'-keepexisting'};
@@ -248,8 +248,19 @@ classdef a_loader < asciipar_loader;
                 [~,this]=this.load_par();
             end
         end
+        %
         function this=saveNXSPE(this,filename,efix,psi)
-            % method to save data in memory as nxspe file
+            % method to save loaders data  as nxspe file
+            
+            % filename -- the name of the file to write data to. Should not exist
+            % efix     -- incident energy for direct or indirect instrument. Only
+            %             direct is currently supported througn NEXUS instrument
+            % Optional variables:
+            % psi      -- the rotation angle of crystal. will be NaN if absent
+            %
+            % emode    -- energy transfer mode; 1 - direct, 2 - indirect, 0 -- elastic.
+            %             will be 1 if absent. If present, psi has to be present.
+            
             this=load(this,'-keep');
             save_nxspe_internal(this,filename,efix,psi);
         end
@@ -285,11 +296,12 @@ classdef a_loader < asciipar_loader;
                 return
             end
         end
+        %
         function filename = get.file_name(this)
             % get actual data file name
             filename = this.data_file_name_stor;
         end
-        
+        %
         function ndet = get.n_detectors(this)
             %method to get number of detectors
             ndet = this.n_detinpar_stor;
@@ -303,32 +315,36 @@ classdef a_loader < asciipar_loader;
                 end
             end
         end
-        
+        %
         function S = get.S(this)
             % get signal if all signal&error&energy fields are well defined
             S = get_consistent_array(this,'S_stor');
         end
+        %
         function this = set.S(this,value)
             % set consistent with error signal valye
             % disabled: break connection between the signal and the
             % data file if any
             this = set_consistent_array(this,'S_stor',value);
         end
-        
+        %
         function ERR = get.ERR(this)
             % get error if all signal&error&energy fields are well defined
             ERR = get_consistent_array(this,'ERR_stor');
         end
+        %
         function this = set.ERR(this,value)
             % set error consistent with sigmal value
             % disabled: and break connection between the error and the
             % data file if any
             this = set_consistent_array(this,'ERR_stor',value);
         end
+        %
         function en = get.en(this)
             % get energy bins
             en = this.en_stor;
         end
+        %
         function this = set.en(this,value)
             % set energy bins and break connection between the data and the
             % data file if any
