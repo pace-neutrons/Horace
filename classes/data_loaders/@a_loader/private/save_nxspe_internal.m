@@ -92,7 +92,8 @@ write_string_sign(group_id,'name','Horace','short_name','HOR');
 group2_id = H5G.create(fid,'fermi',10);
 write_attr_group(group2_id,struct('NX_class','NXfermi_chopper'));
 double_id = H5T.copy('H5T_NATIVE_DOUBLE');
-space_id = H5S.create('H5S_SCALAR');
+space_id= H5S.create_simple (1,1, 1);
+%space_id = H5S.create('H5S_SCALAR');
 % efix
 dataset1_id = H5D.create(group_id,'energy',double_id,space_id,'H5P_DEFAULT');
 H5D.write(dataset1_id,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',efix);
@@ -166,7 +167,8 @@ function write_info(fid,efix,psi)
 group_id = H5G.create(fid,'NXSPE_info',100);
 write_attr_group(group_id,struct('NX_class','NXcollection'));
 double_id = H5T.copy('H5T_NATIVE_DOUBLE');
-space_id = H5S.create('H5S_SCALAR');
+space_id= H5S.create_simple (1,1, 1);
+%space_id = H5S.create('H5S_SCALAR');
 % efix
 dataset1_id = H5D.create(group_id,'fixed_energy',double_id,space_id,'H5P_DEFAULT');
 H5D.write(dataset1_id,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',efix);
@@ -212,20 +214,7 @@ for i=1:numel(attr_names)
     end
     
 end
-%
-% function write_string_sign(group_id,definition,name,attr_name,attr_cont)
-% % write information that indicates this file is nxspe file
-% type_id = H5T.copy('H5T_C_S1');
-% H5T.set_size(type_id, numel(name));
-% %type_id = H5T.create('H5T_STRING',numel(val));
-% space_id = H5S.create('H5S_SCALAR');
-% dataset_id = H5D.create(group_id,definition,type_id,space_id,'H5P_DEFAULT');
-% H5D.write(dataset_id,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',name);
-% 
-% write_attr_group(dataset_id,struct(attr_name,attr_cont));
-% H5D.close(dataset_id);
-% H5S.close(space_id);
-% H5T.close(type_id);
+
 function write_string_sign(group_id,ds_name,name,attr_name,attr_cont)
 % write information that indicates this file is nxspe file
 % type_id = H5T.copy('H5T_C_S1');
