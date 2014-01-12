@@ -248,6 +248,11 @@ classdef a_loader < asciipar_loader;
                 [~,this]=this.load_par();
             end
         end
+        function this=saveNXSPE(this,filename,efix,psi)
+            % method to save data in memory as nxspe file
+            this=load(this,'-keep');
+            save_nxspe_internal(this,filename,efix,psi);
+        end
         % -----------------------------------------------------------------
         % ---- SETTERS GETTERS FOR CLASS PROPERTIES     -------------------
         % -----------------------------------------------------------------

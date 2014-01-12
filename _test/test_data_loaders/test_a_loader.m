@@ -200,6 +200,21 @@ classdef test_a_loader< TestCase
             
         end
         
+        function test_save_nxspe(this)
+            lt = a_loader_tester();
+            lt.S=ones(5,3);
+            lt.ERR = zeros(5,3);
+            lt.en = ones(6,1);
+            lt.det_par = ones(6,6);
+            f=@()lt.saveNXSPE('testfile.nxspe',10,3);
+            assertExceptionThrown(f,'A_LOADER:load');
+            
+            lt.det_par = ones(6,3);
+            delete('testfile.nxspe');
+            lt.saveNXSPE('testfile.nxspe',10,3);
+            
+        end
+        
     end
 end
 
