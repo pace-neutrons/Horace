@@ -208,6 +208,9 @@ classdef test_a_loader< TestCase
             lt.det_par = ones(6,6);
             
             test_file = fullfile(tempdir,'save_nxspe_testfile.nxspe');
+            if exist(test_file,'file')
+                delete(test_file);
+            end
             f=@()lt.saveNXSPE(test_file,10,3);
             assertExceptionThrown(f,'A_LOADER:load');
             
@@ -224,6 +227,12 @@ classdef test_a_loader< TestCase
             assertEqual(lt.en,lstor.en);
             assertEqual(10,lstor.efix);
             assertEqual(3,lstor.psi);
+            
+            det_load = lstor.det_par;
+            det_old  = lt.det_par;
+            assertEqual(det_load.phi,det_old.phi);
+            assertEqual(det_load.azim,det_old.azim);
+            assertEqual(det_load.x2,det_old.x2);            
             
             delete(test_file);
         end
