@@ -213,16 +213,40 @@ for i=1:numel(attr_names)
     
 end
 %
-function write_string_sign(group_id,definition,name,attr_name,attr_cont)
+% function write_string_sign(group_id,definition,name,attr_name,attr_cont)
+% % write information that indicates this file is nxspe file
+% type_id = H5T.copy('H5T_C_S1');
+% H5T.set_size(type_id, numel(name));
+% %type_id = H5T.create('H5T_STRING',numel(val));
+% space_id = H5S.create('H5S_SCALAR');
+% dataset_id = H5D.create(group_id,definition,type_id,space_id,'H5P_DEFAULT');
+% H5D.write(dataset_id,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',name);
+% 
+% write_attr_group(dataset_id,struct(attr_name,attr_cont));
+% H5D.close(dataset_id);
+% H5S.close(space_id);
+% H5T.close(type_id);
+function write_string_sign(group_id,ds_name,name,attr_name,attr_cont)
 % write information that indicates this file is nxspe file
-type_id = H5T.copy('H5T_C_S1');
-H5T.set_size(type_id, numel(name));
-%type_id = H5T.create('H5T_STRING',numel(val));
-space_id = H5S.create('H5S_SCALAR');
-dataset_id = H5D.create(group_id,definition,type_id,space_id,'H5P_DEFAULT');
-H5D.write(dataset_id,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',name);
+% type_id = H5T.copy('H5T_C_S1');
+% space_id = H5S.create_simple(1,numel(name),numel(name));
+% dataset_id = H5D.create(group_id,ds_name,type_id,space_id,'H5P_DEFAULT');
+% %space_id = H5S.create('H5S_SCALAR');
+% %dataset_id = H5D.create(group_id,definition,type_id,space_id,'H5P_DEFAULT');
+% H5D.write(dataset_id,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',name);
+
+filetype = H5T.copy ('H5T_FORTRAN_S1');
+H5T.set_size (filetype, numel(name));
+memtype = H5T.copy ('H5T_C_S1');
+H5T.set_size (memtype, numel(name));
+
+space = H5S.create_simple (1,1, 1);
+dataset_id = H5D.create (group_id, ds_name, filetype, space, 'H5P_DEFAULT');
+H5D.write (dataset_id, memtype, 'H5S_ALL', 'H5S_ALL', 'H5P_DEFAULT', name);
 
 write_attr_group(dataset_id,struct(attr_name,attr_cont));
 H5D.close(dataset_id);
-H5S.close(space_id);
-H5T.close(type_id);
+H5S.close(space);
+H5T.close(filetype);
+H5T.close(memtype);
+
