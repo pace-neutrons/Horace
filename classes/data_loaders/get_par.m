@@ -39,10 +39,11 @@ function par = get_par(file_name,varargin)
 if ~exist('file_name','var')
     error('GET_PAR:invalid_argument','function has to be called with valid filename');
 end
-[~,~,fext] = fileparts(file_name);
-if strncmpi(fext,'.par',4)||strncmpi(fext,'.phx',4) % it is probably ascii par or phx file
+
+[ok,~,full_file_name]=check_file_exist(file_name,{'.par','.phx'});
+if ok
     % create ascii loader object
-    rd = asciipar_loader(file_name);
+    rd = asciipar_loader(full_file_name);
 else     % it should be an hdf file with par data in it
     rd = loaders_factory.instance().get_loader(file_name);
 end

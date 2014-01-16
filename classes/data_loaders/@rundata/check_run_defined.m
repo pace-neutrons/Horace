@@ -1,4 +1,4 @@
-function [undefined,fields_from_loader,fields_from_defaults,fields_undef] = check_run_defined(run,fields_needed)
+function [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fields_needed)
 % Method verifies if all necessary run parameters are defined by the class
 %
 % >> [undefined,fields_to_load,fields_from_defaults,fields_undef] = check_run_defined(run,fields_needed)
@@ -27,10 +27,15 @@ function [undefined,fields_from_loader,fields_from_defaults,fields_undef] = chec
 %
 % $Revision$ ($Date$)
 
+%
+% What fields have to be defined (as function of crystal/powder parameter)?
+if ~exist('fields_needed','var')
+    fields_needed = what_fields_are_needed(run);
+end
+
 
 undefined           = 0; % false; all defined;
 fields_from_loader  ={};
-fields_from_defaults={};
 
 % Check if all necessary fields are already provided
 all_fields    = fields(run);
@@ -43,10 +48,6 @@ if isempty(fields_undef)
     return;
 end
 
-% What fields have to be defined (as function of crystal/powder parameter)?
-if ~exist('fields_needed','var')
-    fields_needed = what_fields_are_needed(run);
-end
 
 % Only some of undefined fields are needed to define run
 is_needed     = ismember(fields_undef,fields_needed);
@@ -67,18 +68,8 @@ else
     fields_from_loader={};
 end
 
-% If we can obtain everything we need from a file?
 fields_undef = fields_undef(~is_in_loader);
-if isempty(fields_undef) % we can load everything
-    fields_from_defaults={};
-    return;
-end
 
-% Do the missing fields have defaults?
-have_defaults        = ismember(fields_undef,run.fields_have_defaults);
-fields_from_defaults = fields_undef(have_defaults);
-% and now something else left:
-fields_undef = fields_undef(~have_defaults);
 % necessary fields are still undefined by the run
 if ~isempty(fields_undef)
     undefined = 2;
@@ -95,6 +86,11 @@ function isit=is_empty_field(data,field)
 % the function which is applied to each element of cell array verifying if
 % it is empty
 isit=false;
-if isempty(data.(field))
+val = data.(field);
+if isempty(val)
     isit=true;
+else
+    if isstring(val) && strncmp('undef',val,5)
+        isit = true;
+    end
 end

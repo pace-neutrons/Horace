@@ -33,8 +33,8 @@ classdef test_rundata< TestCase
         end
         function test_defaultsOK_andFixed(this)
             nn=numel(fields(rundata));
-            % 24 fields by default;
-            assertEqual(22,nn);
+            % number of public fields by default;
+            assertEqual(20,nn);
         end
         function test_build_from_wrong_struct(this)
             a.x=10;
@@ -57,9 +57,9 @@ classdef test_rundata< TestCase
         
         function test_wrong_file_extension(this)
             f = @()rundata(f_name(this,'file.unspported_extension'));
-            ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');            
+            ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
             assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
-            warning(ws);            
+            warning(ws);
         end
         function test_file_not_found(this)
             f = @()rundata(f_name(this,'not_existing_file.spe'));
@@ -77,16 +77,16 @@ classdef test_rundata< TestCase
             spe_file = f_name(this,'MAP10001.spe');
             par_file = f_name(this,'demo_par.PAR');
             run=rundata(spe_file,par_file ,ds);
-            fl=get(run,'loader');
+            fl=run.loader();
             assertTrue(isa(fl,'loader_ascii'));
             % the data above fully define the  run -- check it
-            [is_undef,fields_from_loader,fields_from_defaults,undef_fields]=check_run_defined(run);
+            [is_undef,fields_from_loader,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
             assertTrue(isempty(undef_fields));
-            assertEqual(4,numel(fields_from_loader));
-            assertTrue(all(ismember({'S','ERR','en','det_par'},fields_from_loader)));
-            assertEqual(6,numel(fields_from_defaults));
-            assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
+            assertEqual(3,numel(fields_from_loader));
+            assertTrue(all(ismember({'S','ERR','det_par'},fields_from_loader)));
+            %             assertEqual(6,numel(fields_from_defaults));
+            %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
         function test_hdfh5_file_loader_in_use(this)
             spe_file = f_name(this,'MAP11020.spe_h5');
@@ -96,29 +96,30 @@ classdef test_rundata< TestCase
             assertTrue(isa(fl,'loader_speh5'));
             % hdf5 file reader loads par files by the constructor
             % the data above fully define the  run
-            [is_undef,fields_from_loader,fields_from_defaults,undef_fields]=check_run_defined(run);
+            [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
             assertTrue(isempty(undef_fields));
             
-            assertEqual(5,numel(fields_from_loader));
-            assertTrue(all(ismember({'S','ERR','efix','en','det_par'},fields_from_loader)));
-            assertEqual(6,numel(fields_from_defaults));
-            assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
+            assertEqual(3,numel(fields_to_load));
+            %            assertTrue(all(ismember({'S','ERR','efix','en','det_par'},fields_from_loader)));
+            assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
+            %             assertEqual(6,numel(fields_from_defaults));
+            %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
             
         end
         function test_not_all_fields_defined(this)
             run=rundata(f_name(this,'MAP11020.spe_h5'),f_name(this,'demo_par.PAR'),'efix',200.);
             % run is not defined fully (properly)
-            [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(run);
+            [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(2,is_undef);
             % missing fields
             assertEqual(3,numel(undef_fields));
             assertTrue(all(ismember({'alatt','angldeg','psi'},undef_fields)));
             % and these fields can be retrieved
-            assertEqual(4,numel(fields_to_load));
-            assertTrue(all(ismember({'S','ERR','en','det_par'},fields_to_load)));
-            assertEqual(6,numel(fields_from_defaults));
-            assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
+            assertEqual(3,numel(fields_to_load));
+            assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
+            %             assertEqual(6,numel(fields_from_defaults));
+            %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
         function test_all_fields_defined_powder(this)
             % checks different option of private function
@@ -127,14 +128,14 @@ classdef test_rundata< TestCase
             % run is not defined fully (properly) for crystal
             run.is_crystal=false;
             % but is sufficient for powder
-            [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(run);
+            [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
             % missing fields
             assertTrue(isempty(undef_fields));
             % and these fields can be retrieved from file
-            assertEqual(4,numel(fields_to_load));
-            assertTrue(all(ismember({'S','ERR','en','det_par'},fields_to_load)));
-            assertTrue(isempty(fields_from_defaults));
+            assertEqual(3,numel(fields_to_load));
+            assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
+            %assertTrue(isempty(fields_from_defaults));
         end
         
         function test_get_signalFromASCII(this)
@@ -147,10 +148,10 @@ classdef test_rundata< TestCase
             run=rundata(f_name(this,'MAP10001.spe'),f_name(this,'demo_par.PAR'),ds);
             %run is fully defined
             run.omega=20; % let's change the omega value;
-            [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(run);
+            [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
             assertTrue(isempty(undef_fields));
-            assertTrue(all(ismember({'dpsi','gl','gs'},fields_from_defaults)));
+            %assertTrue(all(ismember({'dpsi','gl','gs'},fields_from_defaults)));
             assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
             
             [S,Err,en]=get_signal(run);
@@ -167,22 +168,22 @@ classdef test_rundata< TestCase
             fl=get(run,'loader');
             assertTrue(isa(fl,'loader_nxspe'));
             %run is fully defined
-            [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(run);
+            [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
             assertTrue(isempty(undef_fields));
-            assertTrue(all(ismember({'S','ERR','efix','det_par','psi'},fields_to_load)));
-            assertTrue(all(ismember({'omega','dpsi','gl','gs'},fields_from_defaults)));
+            assertTrue(all(ismember({'S','ERR','det_par','psi'},fields_to_load)));
+            %assertTrue(all(ismember({'omega','dpsi','gl','gs'},fields_from_defaults)));
             
         end
         function test_modify_par_file_load(this)
             data_file = f_name(this,'MAP11014.nxspe');
             run=rundata(data_file);
             par_file_name = f_name(this,'demo_par.PAR');
-            assertTrue(~isempty(run.det_par));
+            assertTrue(isempty(run.det_par));
             run=rundata(run,'par_file_name',par_file_name);
             
             assertEqual(28160,run.n_detectors);
-            det = run.det_par;
+            det = get_par(run);
             assertEqual(28160,numel(det.phi));
         end
         function test_modify_par_file_empty(this)
@@ -191,7 +192,7 @@ classdef test_rundata< TestCase
                 'data_file_name',f_name(this,'MAP11020.spe_h5'),'psi',2);
             
             assertEqual(28160,run.n_detectors);
-            det = run.det_par;
+            det = get_par(run);
             assertEqual(28160,numel(det.x2));
             assertEqual(2,run.psi);
         end
@@ -199,14 +200,14 @@ classdef test_rundata< TestCase
             % a rundata class instanciated from nxspe which makes det_par
             % defined
             run=rundata(f_name(this,'MAP11014.nxspe'));
-            assertTrue(~isempty(run.det_par));
+            assertTrue(isempty(run.det_par));
             
             run = get_rundata(run,'det_par','-this');
             % we change the initial file name to spe, which does not have
             % information about par data
             run.data_file_name=f_name(this,'MAP10001.spe');
-
-            assertTrue(~isempty(run.det_par));
+            
+            assertTrue(isempty(run.det_par));
         end
         function default_rundata_type(this)
             run=rundata();
@@ -218,7 +219,8 @@ classdef test_rundata< TestCase
             wr=warning('off','MATLAB:structOnObject');
             run_str = struct(run);
             assertTrue(isempty(run_str.S));
-            [S,run]=run.S;
+            [~,~,~,run]=get_signal(run);
+            S=run.S;
             assertTrue(~isempty(S));
             run_str = struct(run);
             assertEqual(S,run_str.S);

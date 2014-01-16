@@ -1,4 +1,4 @@
-function [return_array,lext,this]=parse_loadpar_arguments(this,options,varargin)
+function [return_array,force_reload,lext,this]=parse_loadpar_arguments(this,options,varargin)
 % method processes the arguments specified with load_par methods
 %
 % this function has to have its eqivalents in all other loader classes
@@ -13,7 +13,7 @@ function [return_array,lext,this]=parse_loadpar_arguments(this,options,varargin)
 %
 % '-nohor' or '-array' -- if present request to return the data as
 %                      as (6,ndet) array with fields:
-%
+
 %     1st column    sample-detector distance
 %     2nd  "        scattering angle (deg)
 %     3rd  "        azimuthal angle (deg)
@@ -23,6 +23,15 @@ function [return_array,lext,this]=parse_loadpar_arguments(this,options,varargin)
 %     5th  "        height (m)
 %     6th  "        detector ID
 % it return it as horace structure otherwise
+
+% '-forcereload'    -- load_par command does not reload
+%                    detector information if the full file name
+%                    (with path)
+%                    stored in the horace detector structure
+%                    coinsides with par_file_name defined in
+%                    the class. Include this option if one
+%                    wants to reload this information at each
+%                    load_par.
 %
 %>>[det,this]=load_par(this,file_name,['-nohor'])
 %                     returns detectors information from the file
@@ -33,11 +42,12 @@ function [return_array,lext,this]=parse_loadpar_arguments(this,options,varargin)
 
 
 return_array = false;
+force_reload = false;
 hor_format_deprecated=false;
 file_name  = {};
 %
 if numel(varargin)>0
-    [ok,mess,return_array,return_array2,hor_format_deprecated,file_name]=parse_char_options(varargin,options);
+    [ok,mess,return_array,return_array2,hor_format_deprecated,force_reload,file_name]=parse_char_options(varargin,options);
     if ~ok
         if get(herbert_config,'log_level')>0
             disp('Usage:');

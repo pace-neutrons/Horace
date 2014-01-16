@@ -41,10 +41,10 @@ if nargin>2
 end
 
 if assume_ASCII_spe_loader
-    this.loader = loader_ascii();
-    this.loader.par_file_name =second_file;
+    this.loader_stor = loader_ascii();
+    this.loader_stor.par_file_name =second_file;
 else
-    this.loader = loaders_factory.instance().get_loader(first_file,second_file);
+    this.loader_stor = loaders_factory.instance().get_loader(first_file,second_file);
 end
 
 if nargin>vararg_start_from

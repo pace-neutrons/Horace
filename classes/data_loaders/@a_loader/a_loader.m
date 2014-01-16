@@ -42,8 +42,6 @@ classdef a_loader < asciipar_loader;
     end
     
     properties(Access=protected)
-        % the data fields which are defined in the main data file
-        loader_defines={};
         % number of detectors defined by data file (e.g. second dimension
         % of SPE Signal array)
         n_detindata_stor=[];
@@ -55,6 +53,8 @@ classdef a_loader < asciipar_loader;
         en_stor=[];
         % name of data file to load data from
         data_file_name_stor='';
+        % the data fields which are defined in the main data file
+        loader_defines={};
     end
     %
     methods(Abstract, Static)
@@ -155,6 +155,11 @@ classdef a_loader < asciipar_loader;
                 this.n_detectors = ndet;
             end
         end
+        %
+        function fields = loader_can_define(this)
+            fields = this.loader_defines;
+        end
+        %
         function fields = defined_fields(this)
             % the method returns the cellarray of fields names,
             % which are defined by current instance of loader class

@@ -100,7 +100,7 @@ classdef test_rundata_get< TestCase
             
             data=get_rundata(run,'alatt','omega','psi','gl','gs','-rad');
             
-            assertEqual(ds.alatt,  data.alatt);
+            assertEqual(ds.alatt',  data.alatt);
             assertEqual(data.omega,ds.omega*pi/180);
             assertEqual(data.psi,  ds.psi*pi/180);
             assertEqual(data.gl,   ds.gl*pi/180);
@@ -119,7 +119,7 @@ classdef test_rundata_get< TestCase
             
             [alatt,omega,psi,gl,gs]=get_rundata(run,'alatt','omega','psi','gl','gs','-rad');
             
-            assertEqual(ds.alatt,alatt);
+            assertEqual(ds.alatt',alatt);
             assertEqual(omega,ds.omega*pi/180);
             assertEqual(psi,ds.psi*pi/180);
             assertEqual(gl, ds.gl*pi/180);
@@ -139,7 +139,7 @@ classdef test_rundata_get< TestCase
             alatt=get_rundata(run,'alatt');
             
             assertTrue(~isstruct(alatt));
-            assertEqual(ds.alatt,alatt);
+            assertEqual(ds.alatt',alatt);
         end
         function test_get_this(this)
             % form loads data in class iteslf rather then into guest structure
@@ -155,7 +155,7 @@ classdef test_rundata_get< TestCase
             run=get_rundata(run,'-this');
             
             assertTrue(isa(run,'rundata'));
-            assertEqual(ds.alatt,run.alatt);
+            assertEqual(ds.alatt',run.alatt);
         end
         function test_get_data_struct(this)
             % form returns a structure
@@ -171,7 +171,7 @@ classdef test_rundata_get< TestCase
             run=get_rundata(run);
             
             assertTrue(isstruct(run));
-            assertEqual(ds.alatt,run.alatt);
+            assertEqual(ds.alatt',run.alatt);
         end
         function test_this_nonc_with_rad(this)
             % inconsistent data mofifiers
@@ -221,7 +221,8 @@ classdef test_rundata_get< TestCase
             %                'S','ERR','en','efix','psi','det_par');
         end
         function test_full_get(this)
-            spe_file = fullfile(this.test_data_path,'MAP10001.spe');
+            spe_file = {fullfile(this.test_data_path,'MAP10001.spe'),...
+                        fullfile(this.test_data_path,'MAP11014.nxspe')};
             par_file = fullfile(this.test_data_path,'demo_par.PAR');
             en_sample=[0:5:150]';
             

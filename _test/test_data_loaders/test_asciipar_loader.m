@@ -1,23 +1,23 @@
 classdef test_asciipar_loader< TestCase
-    properties 
-       test_data_path;        
+    properties
+        test_data_path;
     end
-    methods       
-        % 
+    methods
+        %
         function this=test_asciipar_loader(name)
             this = this@TestCase(name);
             rootpath=fileparts(which('herbert_init.m'));
-            this.test_data_path = fullfile(rootpath,'_test/common_data');           
+            this.test_data_path = fullfile(rootpath,'_test/common_data');
         end
         
         function test_constructors(this)
             par_file = 'missing_par_file.par';
             f = @()asciipar_loader(par_file);
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:set_par_file_name');            
+            assertExceptionThrown(f,'ASCIIPAR_LOADER:set_par_file_name');
             
             par_file = fullfile(this.test_data_path,'demo_par.par');
             al1=asciipar_loader(par_file);
-
+            
             
             [fp,fn,fext]=fileparts(al1.par_file_name);
             assertEqual('demo_par',fn);
@@ -27,7 +27,7 @@ classdef test_asciipar_loader< TestCase
             
             al2 = asciipar_loader(al1);
             
-            assertEqual(par,al2.det_par);           
+            assertEqual(par,al2.det_par);
         end
         function test_set_par_file(this)
             par_file = fullfile(this.test_data_path,'map_4to1_jul09.par');
@@ -37,12 +37,12 @@ classdef test_asciipar_loader< TestCase
             
             [fp,fn,fext]=fileparts(al.par_file_name);
             assertEqual('map_4to1_jul09',fn);
-            assertEqual('.par',fext);            
+            assertEqual('.par',fext);
             
-            assertEqual(36864,al.n_detectors);                        
+            assertEqual(36864,al.n_detectors);
         end
         
-        function test_load_par_fails(this)            
+        function test_load_par_fails(this)
             al=asciipar_loader();
             f = @()al.load_par();
             assertExceptionThrown(f,'ASCIIPAR_LOADER:load_par');
@@ -62,7 +62,7 @@ classdef test_asciipar_loader< TestCase
             
         end
         
-        function test_load_ASCII_par_binary(this)             
+        function test_load_ASCII_par_binary(this)
             al=asciipar_loader();
             par_file = fullfile(this.test_data_path,'demo_par.par');
             
@@ -70,71 +70,71 @@ classdef test_asciipar_loader< TestCase
             set(herbert_config,'use_mex',1,'-buffer');
             [par,al] = al.load_par(par_file);
             set(herbert_config,'use_mex',old_state,'-buffer');
-
-            [fpath,fname,fext]= fileparts(al.par_file_name);                        
+            
+            [fpath,fname,fext]= fileparts(al.par_file_name);
             if ispc
-                assertEqual([fname,fext],'demo_par.par');  
+                assertEqual([fname,fext],'demo_par.par');
             else
                 assertEqual([fname,fext],'demo_par.PAR');
             end
             
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(par))));
-            assertTrue(all(ismember(fields(par),{'filename','filepath','x2','phi','azim','width','height','group'})));            
+            assertTrue(all(ismember(fields(par),{'filename','filepath','x2','phi','azim','width','height','group'})));
             assertEqual(28160,numel(par.x2))
             assertEqual(28160,al.n_detectors)
             
-            set(herbert_config,'use_mex',old_state,'-buffer');                       
+            set(herbert_config,'use_mex',old_state,'-buffer');
         end
         
-        function test_load_ASCII_par_matlab(this)             
+        function test_load_ASCII_par_matlab(this)
             al=asciipar_loader();
-            par_file = fullfile(this.test_data_path,'demo_par.par');            
+            par_file = fullfile(this.test_data_path,'demo_par.par');
             
             old_state=get(herbert_config,'use_mex');
             set(herbert_config,'use_mex',0,'-buffer');
             [par,al] = al.load_par(par_file);
             set(herbert_config,'use_mex',old_state,'-buffer');
-
-            [fpath,fname,fext] = fileparts(al.par_file_name);     
+            
+            [fpath,fname,fext] = fileparts(al.par_file_name);
             if ispc
-                assertEqual([fname,fext],'demo_par.par');  
+                assertEqual([fname,fext],'demo_par.par');
             else
                 assertEqual([fname,fext],'demo_par.PAR');
             end
             
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(par))));
-            assertTrue(all(ismember(fields(par),{'filename','filepath','x2','phi','azim','width','height','group'})));            
-            assertEqual(28160,numel(par.x2))  
+            assertTrue(all(ismember(fields(par),{'filename','filepath','x2','phi','azim','width','height','group'})));
+            assertEqual(28160,numel(par.x2))
             assertEqual(28160,al.n_detectors)
         end
-% LOAD PAR forcing mex files     
-        function test_wrong_n_columns_fails(this)               
+        % LOAD PAR forcing mex files
+        function test_wrong_n_columns_fails(this)
             al=asciipar_loader();
-            par_file = fullfile(this.test_data_path,'wrong_demo_par_7Col.PAR');            
-
-            f = @()al.load_par(par_file);          
+            par_file = fullfile(this.test_data_path,'wrong_demo_par_7Col.PAR');
+            
+            f = @()al.load_par(par_file);
             use_mex=get(herbert_config,'use_mex_C');
-            force_mex_if_use_mex=get(herbert_config,'force_mex_if_use_mex');   
-            set(herbert_config,'use_mex_C',true,'force_mex_if_use_mex',true,'-buffer');            
+            force_mex_if_use_mex=get(herbert_config,'force_mex_if_use_mex');
+            set(herbert_config,'use_mex_C',true,'force_mex_if_use_mex',true,'-buffer');
             % should throw; par file has 7 columns
             assertExceptionThrown(f,'ASCIIPAR_LOADER:load_par');
-            set(herbert_config,'use_mex_C',use_mex,'force_mex_if_use_mex',force_mex_if_use_mex,'-buffer');                        
-
-        end        
-        function test_mslice_par(this)
-           al=asciipar_loader();
-           par_file = fullfile(this.test_data_path,'demo_par.par');
-
-           [par,al]=al.load_par(par_file,'-nohor');          
-           assertEqual([6,28160],size(par));
+            set(herbert_config,'use_mex_C',use_mex,'force_mex_if_use_mex',force_mex_if_use_mex,'-buffer');
             
-           [fpath,fname,fext] = fileparts(al.par_file_name);            
-           if ispc
-                assertEqual([fname,fext],'demo_par.par'); 
+        end
+        function test_mslice_par(this)
+            al=asciipar_loader();
+            par_file = fullfile(this.test_data_path,'demo_par.par');
+            
+            [par,al]=al.load_par(par_file,'-nohor');
+            assertEqual([6,28160],size(par));
+            
+            [fpath,fname,fext] = fileparts(al.par_file_name);
+            if ispc
+                assertEqual([fname,fext],'demo_par.par');
             else
-                assertEqual([fname,fext],'demo_par.PAR');            
+                assertEqual([fname,fext],'demo_par.PAR');
             end
-        end 
+        end
         function test_get_par_info(this)
             
             par_file = fullfile(this.test_data_path,'demo_par.par');
@@ -149,22 +149,22 @@ classdef test_asciipar_loader< TestCase
             assertExceptionThrown(f,'ASCIIPAR_LOADER:get_par_info');
             
         end
-
-       function test_set_par(this)
+        
+        function test_set_par(this)
             par_file = fullfile(this.test_data_path,'demo_par.par');
             al=asciipar_loader(par_file);
-           
+            
             assertEqual(28160,al.n_detectors);
             assertTrue(isempty(al.det_par));
-           
+            
             al.par_file_name = '';
             assertTrue(isempty(al.n_detectors));
-
+            
             al.par_file_name = par_file;
             assertEqual(28160,al.n_detectors);
             
             [par,al] = al.load_par();
-            assertEqual(par,al.det_par);            
+            assertEqual(par,al.det_par);
             
             al.det_par = ones(6,10);
             assertEqual(10,al.n_detectors);
@@ -173,26 +173,44 @@ classdef test_asciipar_loader< TestCase
             al.det_par = [];
             assertTrue(isempty(al.n_detectors));
             assertTrue(isempty(al.par_file_name));
-       end
-       function test_par_file_defines(this)
-          al=asciipar_loader();           
-          assertTrue(isempty(al.par_file_defines()));
-          
-          par_file = fullfile(this.test_data_path,'demo_par.par');
-          al.par_file_name = par_file;
-          assertEqual({'det_par','n_detectors'},al.par_file_defines());
-          
-          
-          al.par_file_name = '';
-          assertTrue(isempty(al.par_file_defines()));
-          
-          [det,al] = al.load_par(par_file);
-          assertEqual({'det_par','n_detectors'},al.par_file_defines());
-          
-          al.par_file_name = '';
-          assertEqual({'det_par','n_detectors'},al.par_file_defines());          
-       end
-       
+        end
+        function test_par_file_defines(this)
+            al=asciipar_loader();
+            assertTrue(isempty(al.par_file_defines()));
+            
+            par_file = fullfile(this.test_data_path,'demo_par.par');
+            al.par_file_name = par_file;
+            assertEqual({'det_par','n_detectors'},al.par_file_defines());
+            
+            
+            al.par_file_name = '';
+            assertTrue(isempty(al.par_file_defines()));
+            
+            [det,al] = al.load_par(par_file);
+            assertEqual({'det_par','n_detectors'},al.par_file_defines());
+            
+            al.par_file_name = '';
+            assertEqual({'det_par','n_detectors'},al.par_file_defines());
+        end
+        
+        function test_det_info_contained_and_array(this)
+            par_file = fullfile(this.test_data_path,'demo_par.par');
+            al = asciipar_loader(par_file);
+            [det,al] = al.load_par();
+            det_initial = det;
+            
+            det.x2(1:10)=-1;
+            al.det_par = det;
+            
+            % loader contained
+            [~,al]=al.load_par(par_file);
+            assertEqual(al.det_par.x2,det.x2);
+            
+            
+            [det,al]=al.load_par(par_file,'-f','-array');            
+            assertEqual(al.det_par.x2,det_initial.x2);
+            assertEqual(det,get_hor_format(det_initial));
+        end
         
     end
 end

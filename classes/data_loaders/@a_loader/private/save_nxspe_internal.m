@@ -5,14 +5,14 @@ function save_nxspe_internal(this,filename,efix,psi)
 % efix     -- incident energy for direct or indirect instrument. Only
 %             direct is currently supported througn NEXUS instrument
 % Optional variables:
-% psi      -- the rotation angle of crystal. will be NaN if absent
+% psi      -- the rotation angle of crystal. will write NaN into file if
+%             this variable is absent
 %
 % $Author: Alex Buts; 05/01/2014
 %
 %
 % $Revision$ ($Date$)
 %
-
 if exist(filename,'file')
     error('A_LOADER:saveNXSPE','File %s already exist',filename);
 end
@@ -39,9 +39,12 @@ end
 fcpl = H5P.create('H5P_FILE_CREATE');
 fapl = H5P.create('H5P_FILE_ACCESS');
 fid = H5F.create(filename,'H5F_ACC_TRUNC',fcpl,fapl);
+%
+% make this file look like real nexus
 write_attr_group(fid,file_attr);
-group_name = mfilename('class');
 
+% nexus data
+group_name = mfilename('class');
 group_id = H5G.create(fid,group_name,1000);
 write_attr_group(group_id,struct('NX_class','NXentry'));
 %-------------------------------------------------------------------------
@@ -60,6 +63,9 @@ write_string_sign(group_id,'program_name','herbert','version',hv);
 if ~exist('psi','var')
     psi = NaN;
 end
+if isempty(psi)
+    psi =NaN;
+end
 if ~exist('efix','var')
     efix = this.efix;
 end
@@ -71,19 +77,25 @@ write_data(this,group_id);
 % write other data, typical for NeXus class
 write_instrument(group_id,efix);
 write_sample(group_id);
-
+% close all and finish
 H5G.close(group_id);
 H5P.close(fcpl);
 H5P.close(fapl);
 H5F.close(fid);
+end
+
+
 %%-------------------------------------------------------------------------
 function write_sample(fid)
-%
+% write NeXus sample
 group_id = H5G.create(fid,'sample',10);
 write_attr_group(group_id,struct('NX_class','NXsample'));
 H5G.close(group_id);
+end
 %
 function write_instrument(fid,efix)
+% write instrument. At the moment it is only chopper instrument which may
+% be incorrect for indirect geometry. But Horace does not use it anyway.
 %
 group_id = H5G.create(fid,'instrument',10);
 write_attr_group(group_id,struct('NX_class','NXinstrument'));
@@ -103,6 +115,7 @@ H5S.close(space_id);
 H5T.close(double_id);
 H5G.close(group2_id);
 H5G.close(group_id);
+end
 %
 function write_data(this,fid)
 % write all nxspe data;
@@ -140,10 +153,12 @@ H5D.close(ds_id);
 %
 H5T.close(double_id);
 H5G.close(group_id);
+end
 %
 function [polar_width,azim_width]=get_angular_width(det)
 polar_width=det.width;
 azim_width = det.height;
+end
 %
 function dset_id=write_double_dataset(group_id,ds_name,dataset,double_id)
 
@@ -160,6 +175,7 @@ else
 end
 H5D.write(dset_id,'H5ML_DEFAULT','H5S_ALL','H5S_ALL','H5P_DEFAULT',dataset);
 H5S.close(space_id);
+end
 %
 function write_info(fid,efix,psi)
 % write nxspe info describing nxspe incident energy, psi and ki/kf scaling
@@ -189,10 +205,10 @@ H5T.close(int_id);
 H5T.close(double_id);
 H5S.close(space_id);
 H5G.close(group_id);
+end
 %
 function write_attr_group(group_id,data)
-
-
+% write group of string attributes
 attr_names = fieldnames(data);
 for i=1:numel(attr_names)
     
@@ -214,9 +230,13 @@ for i=1:numel(attr_names)
     end
     
 end
-
+end
+%
 function write_string_sign(group_id,ds_name,name,attr_name,attr_cont)
-% write information that indicates this file is nxspe file
+% write string dataset with possible attribute
+% Such structure is used in NeXus e.g. to indicate that this file is nxspe file
+% and on number of other ocasions
+%
 % type_id = H5T.copy('H5T_C_S1');
 % space_id = H5S.create_simple(1,numel(name),numel(name));
 % dataset_id = H5D.create(group_id,ds_name,type_id,space_id,'H5P_DEFAULT');
@@ -238,4 +258,4 @@ H5D.close(dataset_id);
 H5S.close(space);
 H5T.close(filetype);
 H5T.close(memtype);
-
+end

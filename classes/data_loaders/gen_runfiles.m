@@ -11,7 +11,7 @@ function runfiles = gen_runfiles(spe_files,varargin)
 %                  more than one file
 %^1 par_file        [Optional] full file name of detector parameter file
 %                  i.e. Tobyfit format detector parameter file. Will override
-%                  any detector inofmration in the "spe" files 
+%                  any detector inofmration in the "spe" files
 %
 % Addtional information can be included in the rundata objects, or override
 % if the fields are in the rundata object as follows:
@@ -87,7 +87,7 @@ for i=1:numel(par_files)
 end
 
 
-% Check other parameters 
+% Check other parameters
 % ----------------------
 n_files       = numel(spe_files);
 n_dfnd_params = nargin-variables_start;
@@ -135,13 +135,10 @@ elseif numel(par_files)==1
     % Save time on multiple load of the same par into memory by reading it just once
     [par,runfiles{1}] = get_par(runfiles{1});
     for i=2:n_files
-        if isfield(dfnd_params(i),'efix') && (dfnd_params(i).efix ~= dfnd_params(i-1).efix)
-            runfiles{i}=rundata(spe_files{i},par_files{1},dfnd_params(i));            
-        else
-            runfiles{i}=runfiles{1};
-            runfiles{i}.data_file_name=spe_files{i};
-            runfiles{i}.par_file_name =par_files{1};        
-            runfiles{i}=rundata(runfiles{i},dfnd_params(i));
+        runfiles{i}=rundata(spe_files{i},par_files{1},dfnd_params(i));
+        runfiles{i}.det_par = par;
+        if isempty(runfiles{i}.det_par) || isstring(runfiles{i}.n_detectors)
+            erorr('GEN_RUNFILES:invalid_argument','invalid runfile detectors: %s',runfiles{i}.loader.n_detectors);
         end
     end
 else   % multiple par and spe files;

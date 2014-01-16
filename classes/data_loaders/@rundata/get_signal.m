@@ -15,7 +15,7 @@ function [S,Err,en,this] =get_signal(this,varargin)
 %
 
 if exist('file_name','var')||isempty(this.S)
-    [this.S,this.ERR,this.en,this.loader] = load_data(this.loader,varargin{:});    
+    [this.S,this.ERR,this.en,this.loader_stor] = load_data(this.loader_stor,varargin{:});    
     if max(this.en)>=this.efix
         error('RUN_DATA:get_signal','maximal energy scale %d exceed maximal input energy %d',max(this.en),this.efix);
     end

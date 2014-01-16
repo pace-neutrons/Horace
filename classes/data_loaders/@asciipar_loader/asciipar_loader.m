@@ -64,7 +64,7 @@ classdef asciipar_loader
             % as all loaders are accessed through common interface.
             %
             % usage:
-            %>>[det,this] = load_par(this,'-nohor')
+            %>>[det,this] = load_par(this,['-nohor'],['-force'])
             %                      returns detectors information loaded from the nxspe file,
             %                      previously associated with loader_nxspe class by
             %                      loader_nxspe constructor
@@ -73,8 +73,7 @@ classdef asciipar_loader
             %  this             -- the instance of properly initated loader class
             %
             % '-nohor' or '-array' -- if present request to return the data as
-            %                      as (6,ndet) array with fields:
-            %
+            %                      as (6,ndet) array with the data:
             %     1st column    sample-detector distance
             %     2nd  "        scattering angle (deg)
             %     3rd  "        azimuthal angle (deg)
@@ -83,8 +82,19 @@ classdef asciipar_loader
             %     4th  "        width (m)
             %     5th  "        height (m)
             %     6th  "        detector ID
+            %  otherwise, data will be returned as horace structure,
+            %  defined below.
             %
-            %>>[det,this]=load_par(this,file_name,['-nohor'])
+            % '-forcereload'    -- load_par command does not reload
+            %                    detector information if the full file name
+            %                    (with path)
+            %                    stored in the horace detector structure
+            %                    coinsides with par_file_name defined in
+            %                    the class. Include this option if one
+            %                    wants to reload this information at each
+            %                    load_par.
+            %
+            %>>[det,this]=load_par(this,file_name,['-nohor'],['-forcereload'])
             %                     returns detectors information from the
             %                     par or phx file name specified.
             %                     The function alse redefines
@@ -102,9 +112,9 @@ classdef asciipar_loader
             %   det.width       Row vector of detector widths (m)
             %   det.height      Row vector of detector heights (m)
             
-            options = {'-nohorace','-array','-horace'};
-            [return_array,lext,this] = parse_loadpar_arguments(this,options,varargin{:});
-            [this,det] = load_phx_or_par_private(this,return_array,lext);
+            options = {'-nohorace','-array','-horace','-forcereload'};
+            [return_array,force_reload,lext,this] = parse_loadpar_arguments(this,options,varargin{:});
+            [det,this] = load_phx_or_par_private(this,return_array,force_reload,lext);
             
         end
         %

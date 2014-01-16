@@ -141,9 +141,9 @@ if loader_redefined
         this=select_loader(this,file_name,par_file_name);
     else
         if isempty(file_name)
-            this.loader.par_file_name = par_file_name;
+            this.loader_stor.par_file_name = par_file_name;
         else
-            this.loader = loaders_factory.instance().get_loader(file_name,par_file_name);
+            this.loader_stor = loaders_factory.instance().get_loader(file_name,par_file_name);
         end
     end
 end

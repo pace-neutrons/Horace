@@ -92,15 +92,16 @@ classdef test_a_loader< TestCase
             al=a_loader_tester();
             al = al.set_defined_fields({'S','ERR','en'});
             al.S = ones(3,5);
-            assertEqual('ill defined',al.S);
+            
+            assertEqual('ill defined : size(Signal) ~= size(ERR)',al.S);
             assertTrue(isempty(al.ERR));
             assertTrue(isempty(al.en));
             assertEqual(5,al.n_detectors);
             assertEqual({'S','n_detectors'},al.defined_fields());
             
             al.ERR = zeros(3,5);
-            assertEqual('ill defined',al.S);
-            assertEqual('ill defined',al.ERR);
+            assertEqual('ill defined : size(en) ~= size(S,1)+1',al.S);
+            assertEqual('ill defined : size(en) ~= size(S,1)+1',al.ERR);
             assertTrue(isempty(al.en));
             assertEqual(5,al.n_detectors);
             assertEqual({'S','ERR','n_detectors'},al.defined_fields());

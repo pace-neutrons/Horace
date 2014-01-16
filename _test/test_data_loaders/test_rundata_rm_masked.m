@@ -19,7 +19,7 @@ classdef test_rundata_rm_masked< TestCase
             run=rundata();
             run.S=ones(3,5);
             run.ERR=ones(3,5);
-            run.det_par=get_hor_format(ones(6,3),'');
+            run.det_par=ones(6,3);
             f = @()rm_masked(run);
             assertExceptionThrown(f,'RUNDATA:rm_masked');
         end
@@ -27,7 +27,8 @@ classdef test_rundata_rm_masked< TestCase
             run=rundata();
             run.S=ones(3,5);
             run.ERR=ones(3,5);
-            run.det_par=get_hor_format(ones(6,5),'');
+            run.en = 1:4;
+            run.det_par=ones(6,5);
             [s,err,det]=rm_masked(run);
             
             assertEqual(run.S,s);
@@ -37,9 +38,12 @@ classdef test_rundata_rm_masked< TestCase
         function test_works_removesNAN(this)
             run=rundata();
             run.S=ones(3,5);
-            run.S(1,1)=NaN;
             run.ERR=ones(3,5);
+            run.en = 1:4;
             run.det_par=get_hor_format(ones(6,5),'fffff');
+            
+            run.S(1,1)=NaN;
+            
             [s,err,det]=rm_masked(run);
             
             assertEqual(size(s),[3,4]);

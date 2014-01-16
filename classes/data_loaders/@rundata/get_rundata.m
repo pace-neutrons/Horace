@@ -148,9 +148,9 @@ end
 % what fields are actually needed:?
 if isempty(fields_requested) % all data fields are needed
     fields_requested  = what_fields_are_needed(this);
-    [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(this);
+    [is_undef,fields_to_load,undef_fields]=check_run_defined(this);
 else       % needed the fields requested by varargin, they have been selected above:
-    [is_undef,fields_to_load,fields_from_defaults,undef_fields]=check_run_defined(this,fields_requested);
+    [is_undef,fields_to_load,undef_fields]=check_run_defined(this,fields_requested);
 end
 %
 if is_undef==2 % run can not be defined by the arguments
@@ -182,18 +182,12 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
     if ismember('det_par',fields_to_load)
       [~,loader] = loader.load_par();
     end
+    this.loader_stor=loader;
+    loader_dep = ismember(fields_to_load,this.loader_dependent_fields);
+    fields_to_load = fields_to_load(~loader_dep);
     for i=1:numel(fields_to_load)
         field = fields_to_load{i};
         this.(field)= loader.(field);
-    end
-    default_values = get_defaults(this,fields_from_defaults);
-    ndef =numel(default_values);
-    if ndef==1
-        this.(fields_from_defaults{1})= default_values;
-    else
-        for i=1:ndef
-            this.(fields_from_defaults{i})= default_values{i};
-        end
     end
 end
 
@@ -208,10 +202,6 @@ if suppress_nan
 end
 
 
-[ok,mess,this]=isvalid(this);
-if ~ok
-    error('RUNDATA:invalid_data',mess);
-end
 % what and how to return the result
 if return_structure
     if return_this
