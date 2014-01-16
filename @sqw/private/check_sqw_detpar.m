@@ -44,7 +44,7 @@ end
 % Check data argument
 % ---------------------
 % Check field names
-if ~isstruct(det) || ~isequal(fieldnames(det),fields)
+if ~isstruct(det) || ~all(ismember(fieldnames(det),fields))   %isequal(fieldnames(det),fields) ???
     mess='Detpar is not a structure with required fields'; return
 end
 
