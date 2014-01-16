@@ -138,7 +138,7 @@ if return_this
         error('RUNDATA:invalid_arguments',' -this and -rad keys are incompartible\n');
     end
 end
-if (~ismember('S',fields_requested) || isempty(this.S)) && suppress_nan
+if ~ismember('S',fields_requested) && suppress_nan
     error('RUNDATA:invalid_arguments',' can not drop NaN values if signal is not defined/not requested \n');
 end
 

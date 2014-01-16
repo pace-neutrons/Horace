@@ -210,6 +210,7 @@ classdef test_a_loader< TestCase
             
             test_file = fullfile(tempdir,'save_nxspe_testfile.nxspe');
             %test_file = 'save_nxspe_testfile.nxspe';
+%            test_file = 'save_nxspe_testfile.nxspe';
             if exist(test_file,'file')
                 delete(test_file);
             end
