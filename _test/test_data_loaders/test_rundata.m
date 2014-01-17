@@ -227,7 +227,12 @@ classdef test_rundata< TestCase
             warning(wr);
         end
         
-        
+        function test_save_rundata_nxspe(this)
+            test_file = fullfile(tempdir,'test_save_rundata_nxspe.nxspe');
+            if exist(test_file,'file')
+                delete(test_file);
+            end
+        end
         
     end
 end

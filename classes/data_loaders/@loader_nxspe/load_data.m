@@ -1,7 +1,7 @@
 function [varargout]=load_data(this,new_file_name)
-% function loads mxspe data into run_data structure
+% function loads nxspe data into run_data structure
 %
-% this fucntion is the method of loader_nxspe class
+% this function is the method of loader_nxspe class
 %
 % this function has to have its eqivalents in all other loader classes
 % as all loaders are accessed through common interface.
@@ -13,6 +13,10 @@ function [varargout]=load_data(this,new_file_name)
 %>>this            = load_data(this,[new_file_name])
 %
 %
+%
+% $Revision$ ($Date$)
+%
+
 if exist('new_file_name','var')
     % check the new_file_name describes correct file, got internal file
     % info and obtain this info.

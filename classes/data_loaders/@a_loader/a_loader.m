@@ -157,6 +157,7 @@ classdef a_loader < asciipar_loader;
         end
         %
         function fields = loader_can_define(this)
+            % what fields loader can actually define
             fields = this.loader_defines;
         end
         %
@@ -289,7 +290,7 @@ classdef a_loader < asciipar_loader;
                     this.n_detindata_stor=[];
                 end
             else
-                [ok,mess,f_name] = check_file_exist(new_name,this.get_file_extension());
+                [ok,mess,f_name] = check_file_exist(this,new_name);
                 if ~ok
                     error('A_LOADER:set_file_name',mess);
                 end
@@ -360,6 +361,11 @@ classdef a_loader < asciipar_loader;
             this = set_consistent_array(this,'en_stor',value);
         end
         % ------------------------------------------------------------------
+        function [ok,mess,f_name]=check_file_exist(this,new_name)
+            % method to check if file with extension correspondent to this
+            % loader exists. Make public for easy overloading           
+            [ok,mess,f_name] = check_file_exist(this,new_name,this.get_file_extension());
+        end
     end
     
 end
