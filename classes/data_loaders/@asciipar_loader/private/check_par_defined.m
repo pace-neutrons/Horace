@@ -5,7 +5,7 @@ function fields = check_par_defined(this)
 % $Revision$ ($Date$)
 %
 
-df = {'det_par','n_detectors'};
+df = this.par_can_define();
 if ~isempty(this.par_file_name)
     fields  = df;   
 else

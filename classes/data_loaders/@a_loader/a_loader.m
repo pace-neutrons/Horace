@@ -159,6 +159,11 @@ classdef a_loader < asciipar_loader;
         function fields = loader_can_define(this)
             % what fields loader can actually define
             fields = this.loader_defines;
+            if ~isempty(this.par_file_name)
+                par_fields = this.par_can_define();
+                not_in_loader = ~ismember(par_fields,fields);
+                fields = [fields,par_fields{not_in_loader}];
+            end
         end
         %
         function fields = defined_fields(this)
@@ -364,7 +369,7 @@ classdef a_loader < asciipar_loader;
         function [ok,mess,f_name]=check_file_exist(this,new_name)
             % method to check if file with extension correspondent to this
             % loader exists. Make public for easy overloading           
-            [ok,mess,f_name] = check_file_exist(this,new_name,this.get_file_extension());
+            [ok,mess,f_name] = check_file_exist(new_name,this.get_file_extension());
         end
     end
     

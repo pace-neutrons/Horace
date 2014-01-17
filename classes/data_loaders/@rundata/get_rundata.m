@@ -104,14 +104,14 @@ if(~ok)
 end
 all_fields = fieldnames(this);
 non_fields =~ismember(fields_requested,all_fields);
-if any(non_fields)    
+if any(non_fields)
     error('RUNDATA:invalid_arguments',[' missing fields requested: ',fields_requested{non_fields}]);
 end
 % --> CHECK THE CONSISTENCY OF OUTPUT FIELDS
 % identify desired form of output:
 % when more then one output argument, we probably want the list of
 % variables; if only one -- it is structure or class
-if nargout==1 
+if nargout==1
     return_structure=true;
     if numel(fields_requested)==1 && ~return_this
         return_structure = false;
@@ -130,7 +130,7 @@ end
 % can and if we should delete NaN-s from output data
 
 if return_this
-    if suppress_nan && return_this
+    if suppress_nan
         error('RUNDATA:invalid_arguments',' -this and -nonan keys are incompartible\n');
         % for nonan you need S fields
     end
@@ -148,7 +148,8 @@ end
 % what fields are actually needed:?
 if isempty(fields_requested) % all data fields are needed
     fields_requested  = what_fields_are_needed(this);
-    [is_undef,fields_to_load,undef_fields]=check_run_defined(this);
+    [is_undef,fields_to_load,undef_fields]=check_run_defined(this,fields_requested);
+    
 else       % needed the fields requested by varargin, they have been selected above:
     [is_undef,fields_to_load,undef_fields]=check_run_defined(this,fields_requested);
 end
@@ -172,7 +173,7 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         %
         fields_to_load=[fields_to_load;data_fields(~data_members)];
         
-        if ~isempty(loader.det_par)           
+        if ~isempty(loader.det_par)
             [ok,mess] = loader.is_loader_valid();
             if ~ok % detectors are non-consistent with data
                 error('RUNDATA:invalid_arguments',mess)
@@ -180,7 +181,7 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         end
     end
     if ismember('det_par',fields_to_load)
-      [~,loader] = loader.load_par();
+        [~,loader] = loader.load_par();
     end
     this.loader_stor=loader;
     loader_dep = ismember(fields_to_load,this.loader_dependent_fields);

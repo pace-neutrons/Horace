@@ -204,6 +204,10 @@ classdef asciipar_loader
         % ------------------------------------------------------------------
     end
     methods(Static)
+        function fields = par_can_define()
+            fields = {'det_par','n_detectors'};            
+        end
+        
         function ndet=get_par_info(par_file_name,varargin)
             % get number of detectors described in ASCII par or phx file
             
