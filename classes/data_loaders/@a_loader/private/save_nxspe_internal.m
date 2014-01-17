@@ -13,16 +13,11 @@ function save_nxspe_internal(this,filename,efix,psi)
 %
 % $Revision$ ($Date$)
 %
+
+% check inputs and set defaults.
 if exist(filename,'file')
     error('A_LOADER:saveNXSPE','File %s already exist',filename);
 end
-[v1,v2,v3]= H5.get_libversion();
-datem=[datestr(now,31),'+00:00'];
-datem(11)='T';
-file_attr=struct('NeXus_version','4.3.0 ','file_name',...
-    fullfile(filename),'HDF5_Version',...
-    sprintf('%d.%d.%d',v1,v2,v3),'file_time',datem); % time example: 2011-06-23T09:12:44+00:00
-
 if ~exist('emode','var')
     if isfield(this,'emode')
         emode = this.emode;
@@ -33,6 +28,53 @@ end
 if emode<0 || emode>2
     error('A_LOADER:saveNXSPE','attempt to save with unsupported emode %d; emode has to be from 0 to 2',emode);
 end
+if ~exist('efix','var')
+    try
+        efix = this.efix;
+    catch
+        error('A_LOADER:saveNXSPE','efix has to be defined for saveNXSPE but it is not');
+    end
+end
+if isempty(efix)
+    error('A_LOADER:saveNXSPE','efix has to be not empty for saveNXSPE but it is empty');
+end
+if ~isnumeric(efix)
+    error('A_LOADER:saveNXSPE',' expecting efix to have digita value but it has %s: ',efix);
+end
+if ~exist('psi','var')
+    try
+        psi = this.psi;
+    catch
+        psi = NaN;
+    end
+end
+if isempty(psi) || ~isreal(psi)
+    psi =NaN;
+end
+if isempty(this.det_par) || isstring(this.det_par)
+    error('A_LOADER:saveNXSPE','data do not contain correct detector information to save');
+end
+if isempty(this.S) || isstring(this.S)
+    error('A_LOADER:saveNXSPE','data do not contain correct signal information to save');
+end
+if isempty(this.ERR) || isstring(this.ERR)
+    error('A_LOADER:saveNXSPE','data do not contain correct error information to save');
+end
+if isempty(this.n_detectors) || isstring(this.n_detectors)
+    error('A_LOADER:saveNXSPE','data do not contain correct detector information or detectors are not consistent with signal and error arrays');
+end
+
+%--------------------------------------------------------------------------
+
+
+[v1,v2,v3]= H5.get_libversion();
+datem=[datestr(now,31),'+00:00'];
+datem(11)='T';
+file_attr=struct('NeXus_version','4.3.0 ','file_name',...
+    fullfile(filename),'HDF5_Version',...
+    sprintf('%d.%d.%d',v1,v2,v3),'file_time',datem); % time example: 2011-06-23T09:12:44+00:00
+
+
 %-------------------------------------------------------------------------
 % Start wriging file
 %-------------------------------------------------------------------------
@@ -60,15 +102,6 @@ write_string_sign(group_id,'definition','NXSPE','version',version);
 write_string_sign(group_id,'program_name','herbert','version',hv);
 %-------------------------------------------------------------------------
 % write nxspe info
-if ~exist('psi','var')
-    psi = NaN;
-end
-if isempty(psi)
-    psi =NaN;
-end
-if ~exist('efix','var')
-    efix = this.efix;
-end
 write_info(group_id,efix,psi);
 %-------------------------------------------------------------------------
 % write signal/error/det_inf  &etc
@@ -86,6 +119,11 @@ end
 
 
 %%-------------------------------------------------------------------------
+function [polar_width,azim_width]=get_angular_width(det)
+polar_width=det.width;
+azim_width = det.height;
+end
+%
 function write_sample(fid)
 % write NeXus sample
 group_id = H5G.create(fid,'sample',10);
@@ -142,7 +180,7 @@ H5D.close(ds_id);
 ds_id=write_double_dataset(group_id,'azimuthal',det.azim,double_id);
 H5D.close(ds_id);
 
-ds_id=write_double_dataset(group_id,'distance',det.azim,double_id);
+ds_id=write_double_dataset(group_id,'distance',det.x2,double_id);
 H5D.close(ds_id);
 
 [polar_width,azim_width]=get_angular_width(det);
@@ -153,11 +191,6 @@ H5D.close(ds_id);
 %
 H5T.close(double_id);
 H5G.close(group_id);
-end
-%
-function [polar_width,azim_width]=get_angular_width(det)
-polar_width=det.width;
-azim_width = det.height;
 end
 %
 function dset_id=write_double_dataset(group_id,ds_name,dataset,double_id)

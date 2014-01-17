@@ -348,13 +348,13 @@ classdef rundata
             end
         end
         %-----------------------------------------------------------------------------
-        function saveNXSPE(this,filename)
+        function this=saveNXSPE(this,filename)
             if isempty(this.loader)
                 warning('RUNDATA:invalid_argument','nothing to save');
                 return
             else
                 ld=this.loader;
-                ld.saveNXSPE(filename,this.efix,this.psi);
+                this.loader_stor=ld.saveNXSPE(filename,this.efix,this.psi);
             end
             
         end

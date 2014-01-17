@@ -232,6 +232,46 @@ classdef test_rundata< TestCase
             if exist(test_file,'file')
                 delete(test_file);
             end
+            tf = memfile();
+            tf.S=ones(10,28160);
+            tf.ERR=ones(10,28160);
+            tf.en = 1:11;
+            tf.save('test_file');
+            
+            run=rundata('test_file.memfile');
+            f=@()run.saveNXSPE(test_file);
+            assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+            
+            run.par_file_name = f_name(this,'demo_par.PAR');
+            f=@()run.saveNXSPE(test_file);
+            % efix has to be defined
+            assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+            
+            run.efix = 1;
+            f=@()run.saveNXSPE(test_file);
+            % efix has to be defined
+            assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+            
+            run.efix = 150;
+            run=run.saveNXSPE(test_file);
+            
+            ld = loader_nxspe(test_file);
+            ld=ld.load();
+            
+            assertEqual(ld.efix,run.efix);
+            assertEqual(ld.S,run.S);
+            det1=ld.det_par;
+            det2=run.det_par;
+            assertEqual(det1.x2,det2.x2);
+            assertEqual(det1.phi,det2.phi);
+            assertEqual(det1.azim,det2.azim);
+            assertEqual(det1.group,det2.group);
+            assertTrue(isnan(ld.psi));
+            
+            if exist(test_file,'file')
+                delete(test_file);
+            end
+            
         end
         
     end
