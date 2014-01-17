@@ -138,7 +138,7 @@ elseif numel(par_files)==1
         runfiles{i}=rundata(spe_files{i},par_files{1},dfnd_params(i));
         runfiles{i}.det_par = par;
         if isempty(runfiles{i}.det_par) || isstring(runfiles{i}.n_detectors)
-            erorr('GEN_RUNFILES:invalid_argument','invalid runfile detectors: %s',runfiles{i}.loader.n_detectors);
+            error('GEN_RUNFILES:invalid_argument','invalid runfile detectors: %s',runfiles{i}.loader.n_detectors);
         end
     end
 else   % multiple par and spe files;
@@ -151,6 +151,6 @@ end
 for i=1:n_files
     undefined = check_run_defined(runfiles{i});
     if undefined==2
-        error('GEN_RUNFILES:invalid_argument',' the run data for data file %s are not fully defined',runfiles{i}.file_name);
+        error('GEN_RUNFILES:invalid_argument',' the run data for data file %s are not fully defined',runfiles{i}.data_file_name);
     end
 end

@@ -60,7 +60,7 @@ end
 undefined = 1;
 
 % Can missing fields be obtained from data loader?
-loader_provides = defined_fields(run.loader);
+loader_provides = loader_can_define(run.loader);
 is_in_loader    = ismember(fields_undef,loader_provides);
 if sum(is_in_loader)>0
     fields_from_loader=fields_undef(is_in_loader);
