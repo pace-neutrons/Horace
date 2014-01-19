@@ -113,19 +113,20 @@ end
 log_level = get(hor_config,'horace_info_level');
 % =====================================================================================================================
 % Compare with saved output
-% ====================================================================================================================== 
+% ======================================================================================================================
 if ~save_output
     if log_level>-1
-      disp('====================================')
-      disp('    Comparing with saved output')
-      disp('====================================')
+        disp('====================================')
+        disp('    Comparing with saved output')
+        disp('====================================')
     end
     output_file=fullfile(rootpath,'test_gen_sqw_powder_output.mat');
     old=load(output_file);
     nam=fieldnames(old);
     tol=1.0e-5;
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
+        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1);
+        assertTrue(ok,['[',nam{i},']',mess])
     end
     % Success announcement
     banner_to_screen([mfilename,': Test(s) passed'],'bot')
@@ -134,20 +135,20 @@ end
 
 % =====================================================================================================================
 % Save data
-% ====================================================================================================================== 
+% ======================================================================================================================
 if save_output
     if log_level>-1
-       disp('===========================')
-       disp('    Save output')
-       disp('===========================')
+        disp('===========================')
+        disp('    Save output')
+        disp('===========================')
     end
     
     output_file=fullfile(tempdir,'test_gen_sqw_powder_output.mat');
     save(output_file, 'w1', 'w2', 'w1rings', 'w2rings')
     
-    if log_level>-1    
-       disp(' ')
-       disp(['Output saved to ',output_file])
-       disp(' ')
+    if log_level>-1
+        disp(' ')
+        disp(['Output saved to ',output_file])
+        disp(' ')
     end
 end
