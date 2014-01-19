@@ -60,7 +60,7 @@ end
 
 % Invoke public get_par routine
 if ischar(det) && size(det,1)==1
-    det=get_par(det,'-hor');
+    det=get_par(det);
 end
 
 % Get urange
