@@ -118,7 +118,7 @@ if ~ok, error(mess), end
 % Create tmp files
 % ------------------
 % Read par file
-det=get_par(par_file,'-hor');
+det=get_par(par_file);
 ndet=size(det.x2,2);
 
 % Determine a grid size if not given one on input
