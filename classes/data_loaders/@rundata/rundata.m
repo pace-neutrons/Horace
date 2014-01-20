@@ -2,7 +2,7 @@ classdef rundata
     % The class describes single processed run used in Horace and Mslice
     % It used as an interface to load processed run data from any file format
     % supported and to verify that all data necessary for the run
-    % are availible either from the file itself or from the parameters,
+    % are available either from the file itself or from the parameters,
     % supplied with the file.
     %
     % If some parameters, which describe the run are missing from the

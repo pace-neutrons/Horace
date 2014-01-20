@@ -32,17 +32,17 @@ classdef loader_nxspe < a_loader
         end
         
         function [ok,fh] = can_load(file_name)
-            % check if the file name is spe file name and the file can be
-            % loaded by loader_ascii
+            % check if the file name is nxspe file name and the file can be
+            % loaded by loader_nxspe
             %
             %Usage:
-            %>>[ok,fh]=loader.is_loader_correct(file_name)
+            %>>[ok,fh]=loader.can_load(file_name)
             % Input:
             % file_name -- the name of the file to check
             % Output:
             %
-            % ok   -- True if the file can be processed by the loader_ascii
-            % fh --  the structure, which describes spe file
+            % ok   -- True if the file can be processed by the loader_nxspe
+            % fh --  the structure, which describes nxspe file
             fh=[];
             [ok,mess,full_file_name] = check_file_exist(file_name,{'.nxspe'});
             if ~ok
@@ -68,13 +68,10 @@ classdef loader_nxspe < a_loader
             % ndet  -- number of detectors
             % en    -- energy bins
             % full_file_name -- the full name (with path) of the source nxpse file
-            % ei     -- incident energy
-            % psi    -- crystal rotation angle (should be NaN if undefined, but some )
-            % nexus_dir -- internal nexus folder name where the data are stored
-            % nxspe_ver -- version of the nxspe data
-            %
-            %second form requests file to be already defined in loader
-            %first form just reads file info from given spe file name.
+            % ei             -- incident energy
+            % psi            -- crystal rotation angle (should be NaN if undefined, but some versions wrongly write 0 in this case)
+            % nexus_dir      -- internal nexus folder name where the data are stored
+            % nxspe_ver      -- version of the nxspe data
             %
             if ~exist('file_name','var')
                 error('LOAD_NXSPE:get_data_info',' has to be called with valid file name');
@@ -86,18 +83,18 @@ classdef loader_nxspe < a_loader
     end
     methods
         function this = init(this,full_nxspe_file_name,full_par_file_name,fh)
-            % method initate internal structure of nxspe_loader, which is responsible for
+            % method initiates internal structure of nxspe_loader, which is responsible for
             % work with nxspe data file.
             %Usage:
             %>>loader=loader.init(full_spe_file_name,[full_par_file_name],[fh]);
             %
             %parameters:
             %full_spe_file_name -- the full name of spe data file
-            %full_par_file_name -- if present -- the full name of par file,
-            %                      which overwrite detecror infomation stored in nxspe file
-            %fh                 -- if present -- the structure which describes ascii spe
+            %full_par_file_name -- if present -- the full name of ASCII par file,
+            %                      which overwrite detector information stored in nxspe file
+            %fh                 -- if present -- the structure which describes nxspe
             %                      file and contains number of detectors
-            %                      energy bins and full file name for this file
+            %                      energy bins, full file name and other nxspe information for this file
             %
             this.loader_defines ={'S','ERR','en','efix','psi','det_par','n_detectors'};
             if ~exist('full_nxspe_file_name','var')
@@ -171,10 +168,6 @@ classdef loader_nxspe < a_loader
             % open files (if any)
             %
             % loader class has to be present in RHS to propagate the changes
-            % Deleter is generic untill loaders fields are generic. Any specific
-            % deleter should be overloaded
-            %
-            %
             this.S_stor = [];
             this.ERR_stor = [];
             this.det_par_stor=[];
@@ -189,6 +182,7 @@ classdef loader_nxspe < a_loader
     methods(Static)
         function ndet=get_par_info(par_file_name,file_name)
             % get number of detectors described in ASCII par or phx file
+			% which overrides the nxspe detectors information 
             % if such file is present or get this information from nxspe
             % file if ascii par file is absent.
             if ~isempty(par_file_name)

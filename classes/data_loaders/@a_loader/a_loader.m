@@ -13,12 +13,10 @@ classdef a_loader < asciipar_loader;
     % the main data file (if the later intended to be used). These methods
     % are defined in asciipar_loader.
     %
-    % When overloading abstract methods, a new loader should work(set/get)
-    % through protected data properties as public set/get properties for
+    % When overloading abstract methods, a new loader should use (set/get)
+    % protected data properties as public properties for
     % data variables ensure integrity of variables (waste of time when
-    % loading from file) and
-    %disabled: set methods break connection with data file
-    % assuming user setting the data, which overwrite data from file.
+    % loading from file)
     %
     % $Author: Alex Buts; 05/01/2014
     %
@@ -81,43 +79,46 @@ classdef a_loader < asciipar_loader;
         fext=get_file_extension();
         % returns the file extension used by this loader
     end
+        %------------------------------------------------------------------
+        % A_LOADER Interface:
+        %------------------------------------------------------------------
     
     methods(Abstract)
         [varargout]=load_data(this,varargin);
-        % Get number of detectors and energy boundaries defined in the
-        % data file or/and par file if such file is defined and
-        % check the correspondence between spe and par part of the file
-        % if detector information is defined separately from the main data.
-        % e.g. ASCII spe file
-        %
-        % loader class has to be present in RHS if the data fields obtained
-        % from the file need to be stored in the class and reused later
+		% Load main data defined for the loader. (e.g. Signal and Error)
+		% Expected interface:
+		%>>this=load_data(this,varargin);             1)
+		%>>[S,ERR]=load_data(this,varargin);          2)
+		%>>[S,ERR,en]=load_data(this,varargin);       3)
+		%>>[S,ERR,en,this]=load_data(this,varargin);  4)
+		% 
+		% the class instance has to be present in the RHS of the load_data statement in form 1 or 4
+        % if one wants to load data into the the class memory itself.
+		% forms 2) and 3) just load and return signal, error and energy bins if possible. 
         %
         %
         %
         
         this=init(this,data_file_name,varargin);
-        % the method initializes which performs main part of the constructor.
-        % Invoked separately it initializes a loader, defined by empty
-        % construtcor.
+        % the method performs the initialization of the main part of the constructor.
+		%
+        % Invoked separately it initializes a loader, defined by empty constructor.
         %
-        % Common constructor of specific loader the_loader should have a form similar to
+        % Common constructor of a specific loader the_loader should have the form similar to
         % the following:
         %
-        % funciton this = the_loader(data_file,par_file,varargin)
+        % function this = the_loader(data_file,par_file,varargin)
         %   this =the_loader@a_loader(par_file);
         %   this=this.init(data_file,varargin);
         % end
-        %function this=delete(this) -- made non-abstract generic
+		% See loader_ascii or loader_nxspe for actual example of init method and the constructor. 
+
         this=set_data_info(this,file_name);
         % method sets internal file information obtained for appropriate file
-        % by get_data_info method;
+        % by get_data_info method into internal class memory. 
     end
     
     methods
-        %------------------------------------------------------------------
-        % A_LOADER Interface:
-        %------------------------------------------------------------------
         % constructor;
         function this=a_loader(varargin)
             % initiate the list of the fields this loader defines
@@ -132,14 +133,17 @@ classdef a_loader < asciipar_loader;
             this=this@asciipar_loader(varargin{:});
         end
         function [ndet,en,this]=get_run_info(this)
-            % Get number of detectors and energy boundaries defined by the class
-            % the spe file and in connected to it ascii par or phx file
+            % Get number of detectors and energy boundaries defined by the data files
+            % and detector files processed by this class instance
+			%
+            % The definition can be both in data and detector part of the file
+			% and this method checks if these data are consistent. 
             %
-            % >> [ndet,en] = get_par_info(loader_ascii)
+            % >> [ndet,en] = get_par_info(the_loader)
             
-            %  loader_ascii    -- is the instance of loader_ascii file.
-            %  ndet            -- number of detectors defined in par file
-            %  en              -- energy boundaries, defined in spe file;
+            %  the_loader     -- is the instance of  a particular loader with initiated file.
+            %  ndet            -- number of detectors defined in par&data file
+            %  en              -- energy boundaries, defined in data file (e.g. spe file);
             %
             %
             
@@ -191,7 +195,7 @@ classdef a_loader < asciipar_loader;
             % open files (if any)
             %
             % loader class has to be present in RHS to propagate the changes
-            % Deleter is generic untill loaders fields are generic. Any specific
+            % Deleter is generic until loaders fields are generic. Any specific
             % deleter should be overloaded
             %
             %
@@ -224,10 +228,11 @@ classdef a_loader < asciipar_loader;
             %usage:
             %loader = load(loader,['-keepexisting'])
             %
-            %presumes that data file name and par file name (if nececcsary)
+            %presumes that data file name and par file name (if necessary)
             %are already set up
-            % -keepexisting  if option is present, method does not load
-            %                data, already loaded in memory
+            % -keepexisting  if option is present, method does not load/overwrite
+            %                data, already loaded in memory if these data are consistent with 
+			%                the data defined by the file. 
             %
             options = {'-keepexisting'};
             [ok,mess,keepexising]=parse_char_options(varargin,options);
@@ -261,16 +266,14 @@ classdef a_loader < asciipar_loader;
         end
         %
         function this=saveNXSPE(this,filename,efix,psi)
-            % method to save loaders data  as nxspe file
+            % method to save loaders data stored in memory as nxspe file
             
             % filename -- the name of the file to write data to. Should not exist
             % efix     -- incident energy for direct or indirect instrument. Only
-            %             direct is currently supported througn NEXUS instrument
+            %             direct is currently supported through NEXUS instrument
             % Optional variables:
             % psi      -- the rotation angle of crystal. will be NaN if absent
             %
-            % emode    -- energy transfer mode; 1 - direct, 2 - indirect, 0 -- elastic.
-            %             will be 1 if absent. If present, psi has to be present.
             
             this=load(this,'-keep');
             save_nxspe_internal(this,filename,efix,psi);
@@ -281,10 +284,10 @@ classdef a_loader < asciipar_loader;
         function this=set.file_name(this,new_name)
             % method checks if a file with the name file_name exists
             %
-            % Then it sets this file name as the source par file name,
+            % Then it sets this file name as the source data file name,
             % reads file info, calculates all dependent information and
             % clears all previously loaded run information
-            % (if any) inconsistent with new file or occupying substantial
+            % (if any) inconsistent with the new file or occupying substantial
             % memory.
             
             if isempty(new_name)
@@ -309,7 +312,9 @@ classdef a_loader < asciipar_loader;
         end
         %
         function filename = get.file_name(this)
-            % get actual data file name
+            % returns actual data file name, which is the source of the data, 
+			% this class instance is responsible for. 
+			
             filename = this.data_file_name_stor;
         end
         %
@@ -333,9 +338,7 @@ classdef a_loader < asciipar_loader;
         end
         %
         function this = set.S(this,value)
-            % set consistent with error signal valye
-            % disabled: break connection between the signal and the
-            % data file if any
+            % set signal value consistent with error value
             this = set_consistent_array(this,'S_stor',value);
         end
         %
@@ -345,7 +348,7 @@ classdef a_loader < asciipar_loader;
         end
         %
         function this = set.ERR(this,value)
-            % set error consistent with sigmal value
+            % set error consistent with signal value
             % disabled: and break connection between the error and the
             % data file if any
             this = set_consistent_array(this,'ERR_stor',value);
@@ -357,8 +360,7 @@ classdef a_loader < asciipar_loader;
         end
         %
         function this = set.en(this,value)
-            % set energy bins and break connection between the data and the
-            % data file if any
+            % set energy bin boundaries. 
             sv = size(value);
             if sv(1) == 1 && sv(2)>1
                 value = value';
@@ -368,7 +370,7 @@ classdef a_loader < asciipar_loader;
         % ------------------------------------------------------------------
         function [ok,mess,f_name]=check_file_exist(this,new_name)
             % method to check if file with extension correspondent to this
-            % loader exists. Make public for easy overloading           
+            % loader exists. Make public for easy overloading and work with memfiles.           
             [ok,mess,f_name] = check_file_exist(new_name,this.get_file_extension());
         end
     end

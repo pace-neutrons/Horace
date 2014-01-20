@@ -2,8 +2,8 @@ classdef asciipar_loader
     % The class responsible for loading ascii par and phx files
     %
     %Defines methods used to load detector parameters from ASCI par or phx file
-    %or when the main data file does not contain detector information or
-    %detector parameters have to be redefined form ASCII par file.
+    %when the main data file does not contain detector information or
+    %detector parameters have to be redefined form an ASCII par file.
     %
     % If the main data file contains detector information, child loader
     % should
@@ -20,16 +20,15 @@ classdef asciipar_loader
         % the variable which describes the name of ASCII par file which, if present
         % contain detector information overwriting existing or providing
         % missing information about the detectors angular positions
-        par_file_name='';
-        % number of detectors, defined in the file, described by the par
-        % file name
-        %n_detectors=[];
-        
+        par_file_name='';       
     end
     properties (Access=protected)
-        % helper properties used in set/get number of detectors
+        % number of detectors, defined in the file, described by the par
+        % file name
         n_detinpar_stor=[];
+		% storage field for detector information
         det_par_stor=[];
+		% storage field for ASCII par file name
         par_file_name_stor ='';
     end
     %
@@ -58,19 +57,19 @@ classdef asciipar_loader
         end
         function [det,this]=load_par(this,varargin)
             % method loads par data into run data structure and returns it in the format,requested by user
-            % if requsted
+            % if requested
             %
-            % this function has to have its eqivalents in all other loader classes
-            % as all loaders are accessed through common interface.
+            % If the particular loader supposed to download its own detector information, this function should be overloaded
+            % to access those information and to do arbitration what detector information should be used
             %
             % usage:
             %>>[det,this] = load_par(this,['-nohor'],['-force'])
-            %                      returns detectors information loaded from the nxspe file,
-            %                      previously associated with loader_nxspe class by
-            %                      loader_nxspe constructor
+            %                      returns detectors information loaded from the file,
+            %                      previously associated with a class by
+            %                      the class constructor
             %  det              -- detector's information in the form of
             %                      the Horace structure
-            %  this             -- the instance of properly initated loader class
+            %  this             -- the instance of properly initiated loader class
             %
             % '-nohor' or '-array' -- if present request to return the data as
             %                      as (6,ndet) array with the data:
@@ -86,18 +85,18 @@ classdef asciipar_loader
             %  defined below.
             %
             % '-forcereload'    -- load_par command does not reload
-            %                    detector information if the full file name
-            %                    (with path)
-            %                    stored in the horace detector structure
-            %                    coinsides with par_file_name defined in
-            %                    the class. Include this option if one
-            %                    wants to reload this information at each
-            %                    load_par.
+            %                     detector information if the full file name
+            %                     (with path)
+            %                     stored in the Horace detector structure
+            %                     coincides with par_file_name defined in
+            %                     the class. Include this option if one
+            %                     wants to reload this information at each
+            %                     load_par.
             %
             %>>[det,this]=load_par(this,file_name,['-nohor'],['-forcereload'])
             %                     returns detectors information from the
             %                     par or phx file name specified.
-            %                     The function alse redefines
+            %                     The function also redefines
             %                     the file name, stored in the loader
             %
             %
@@ -152,14 +151,11 @@ classdef asciipar_loader
             %Usage:
             %loader.det_par = value;
             %where value is 6-column array of detector's value correspondent to
-            %the one, usually defined im par file but with opposite sign of azimuthal angle
-            %or horace structure with correspondant information
+            %the one, usually defined in par file but with opposite sign of azimuthal angle
+            %or Horace structure with correspondent information
             %
-            %if the value to set is syntaxially correct, the operation sets
+            %if the value to set is syntactically correct, the operation sets
             %also n_detectors to the number of detectors, defined by the array
-            % If the par_file_name is present, this operation also clears
-            % par_file_name
-            %
             if isempty(value)
                 this=this.delete_par();
                 return

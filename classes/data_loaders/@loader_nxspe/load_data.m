@@ -3,7 +3,7 @@ function [varargout]=load_data(this,new_file_name)
 %
 % this function is the method of loader_nxspe class
 %
-% this function has to have its eqivalents in all other loader classes
+% this function has to have its equivalents in all other loader classes
 % as all loaders are accessed through common interface.
 %
 %usage:

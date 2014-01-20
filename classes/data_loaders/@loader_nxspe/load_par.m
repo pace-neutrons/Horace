@@ -1,12 +1,16 @@
 function [det,this]=load_par(this,varargin)
 % method loads par data into run data structure and returns it in the format,requested by user
 % usage:
+% if ascii par file is defined, the method returns the information from ASCII par file
+% if it is absent, it returns detectors information stored in nxspe file. 
+%
 %>>[det,loader_nxspe]= loader_nxspe.load_par(['-nohor'])
 %                      returns detectors information loaded from the nxspe file,
 %                      previously associated with loader_nxspe class by
 %                      loader_nxspe constructor
-%  loader_nxspe_var -- the instance of properly initated loader_nxspe class
-% '-nohor' or '-array' -- if present request to return the data as horace structure,
+%
+%  loader_nxspe_var -- the instance of properly initiated loader_nxspe class
+% '-nohor' or '-array' -- if present request to return the data as Horace structure,
 %
 %                      if not --  as (6,ndet) array with fields:
 %
@@ -56,12 +60,10 @@ else
 end
 %--------------------------------------------------------------------------
 function [return_array,file_provided,new_file_name,lext]=parse_par_file_arg(this,options,varargin)
-% method analyzes and processes various options specified with loader_nxspe.load_par
+% method analyses and processes various options specified with loader_nxspe.load_par
 % command
 %
 %
-
-
 new_file_name ='';
 file_provided=false;
 lext = this.get_file_extension();
@@ -81,7 +83,7 @@ if numel(varargin)>0
     end
     %
     if hor_format_deprecated
-        warning('LOADER_NXSPE:load_par','option -horace is deprecated, loader returns data in horace format by default')
+        warning('LOADER_NXSPE:load_par','option -horace is deprecated, loader returns data in Horace format by default')
     end
    % 
     if ~isempty(file_name)

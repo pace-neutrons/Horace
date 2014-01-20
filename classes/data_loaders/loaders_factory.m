@@ -1,5 +1,5 @@
 classdef loaders_factory < Singleton
-    % The class responsible for generating any registered file loaders on
+    % The class responsible for providing and initiating requested file loader on
     % demand
     %
     %
@@ -8,9 +8,9 @@ classdef loaders_factory < Singleton
     
     
     properties(Access=private) %
-        % Registered file readers
+        % Registered file readers:
         % Add all new file readers which inherit from a_loader to this list in the order
-        % of expected frequency for their appearence.
+        % of expected frequency for their appearance.
         supported_readers = {loader_nxspe(),loader_ascii(),memfile(),loader_speh5()};
         % field describes
         reader_descriptions = {};
@@ -57,14 +57,15 @@ classdef loaders_factory < Singleton
             n_loaders = numel(obj.supported_readers);
         end
         function loader = get_loader(obj,data_file_name,par_file_name)
-            % return initated loader which can load the data from the specified data file
+            % return initiated loader which can load the data from the specified data file
+			%
             %Usage:
-            %loader=loaders_factory.instance().get_loader(data_file_name,[par_file_name]);
+            %>>loader=loaders_factory.instance().get_loader(data_file_name,[par_file_name]);
             % where:
             % data_file_name  -- the name of the file, which is the source of the data
             % par_file_name   -- if present the name of the ascii par or phx file
             %                    to load information from. If not present, loader
-            %                    is not fully defined or expects to load detecor
+            %                    is not fully defined or expects to load detector
             %                    information from the main data file.
             %
             [ok,message,full_data_name] = check_file_exist(data_file_name,'*');

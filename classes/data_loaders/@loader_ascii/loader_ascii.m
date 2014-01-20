@@ -7,10 +7,6 @@ classdef loader_ascii < a_loader
     % $Revision$ ($Date$)
     %
     
-    properties
-        %%--    the fields below are responsible for work of the class as
-        %%-    part of the run_data class
-    end
     methods(Static)
         function fext=get_file_extension()
             % return the file extension used by this loader
@@ -60,10 +56,10 @@ classdef loader_ascii < a_loader
             % where:
             % ndet  -- number of detectors
             % en    -- energy bins
-            % full_file_name --
+            % full_file_name -- the full (with the path) file name with the spe information. On unix machines this 
+			%                   name can be also modified to have the extension case correspondent to the existing spe file 
+			%                   (e.g .spe if lower case extension spe file exist or SPE if upper case extension file exist)
             %
-            %second form requests file to be already defined in loader
-            %first form just reads file info from given spe file name.
             %
             if ~exist('file_name','var')
                 error('LOAD_ASCII:get_data_info',' has to be called with valid file name');
@@ -88,7 +84,7 @@ classdef loader_ascii < a_loader
     
     methods
         function ascii_loader = init(ascii_loader,full_spe_file_name,full_par_file_name,fh)
-            % method initate internal structure of ascii_loader, which is responsible for
+            % method initiates internal structure of ascii_loader, which is responsible for
             % work with spe data file.
             %Usage:
             %>>loader=loader.init(full_spe_file_name,[full_par_file_name],[fh]);

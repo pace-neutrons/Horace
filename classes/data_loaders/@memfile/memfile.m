@@ -1,5 +1,5 @@
 classdef memfile<a_loader
-    % class which resempbles data file stored to memory and loaded from
+    % class which resembles data file stored to memory and loaded from
     % memory
     %
     % $Revision: 334 $ ($Date: 2014-01-16 13:40:57 +0000 (Thu, 16 Jan 2014) $)
@@ -29,11 +29,11 @@ classdef memfile<a_loader
         end
         
         function [ok,fh] = can_load(file_name)
-            % check if the file name is spe file name and the file can be
-            % loaded by loader_ascii
+            % check if the file name is memfile file name and the file can be
+            % loaded by memfile class
             %
             %Usage:
-            %>>[ok,fh]=loader.is_loader_correct(file_name)
+            %>>[ok,fh]=memfile.can_load(file_name)
             % Input:
             % file_name -- the name of the file to check
             % Output:
@@ -45,9 +45,9 @@ classdef memfile<a_loader
         end
         
         function [ndet,en,full_file_name,ei,psi]=get_data_info(file_name)
-            % Load header information of nxspe MANTID file
+            % Load header information of previously stored memfile file
             %
-            % >> [ndet,en,full_file_name,ei,psi,nexus_ver,nexus_dir] = loader_nxspe.get_data_info(filename)
+            % >> [ndet,en,full_file_name,ei,psi] = memfile.get_data_info(filename)
             %
             % where:
             % ndet  -- number of detectors
@@ -55,11 +55,6 @@ classdef memfile<a_loader
             % full_file_name -- the full name (with path) of the source nxpse file
             % ei     -- incident energy
             % psi    -- crystal rotation angle (should be NaN if undefined, but some )
-            % nexus_dir -- internal nexus folder name where the data are stored
-            % nxspe_ver -- version of the nxspe data
-            %
-            %second form requests file to be already defined in loader
-            %first form just reads file info from given spe file name.
             %
             if ~exist('file_name','var')
                 error('MEMFILE:get_data_info',' has to be called with valid file name');
@@ -123,7 +118,7 @@ classdef memfile<a_loader
             %
             
             % the method returns the cellarray of fields names, which are
-            % defined by ascii spe file and par file if present
+            % defined by current memfile
             %usage:
             %>> fields= defined_fields(loader);
             %
@@ -137,6 +132,8 @@ classdef memfile<a_loader
             
         end
         function [det,this]=load_par(this,varargin)
+		% loads detectors parameters information 
+		%
             if isempty(this.par_file_name)
                 mf = memfile_fs.instance().load_file(this.file_name);
                 this.det_par = mf.det_par;
@@ -158,7 +155,7 @@ classdef memfile<a_loader
                 
                 memfile_fs.instance().save_file(fname,this);
             else
-                error('MEMFILE:save',' can only save in file with extension .memfile and privided with %s',fext);
+                error('MEMFILE:save',' can only save in file with extension .memfile and provided with %s',fext);
             end
         end
         % -----------------------------------------------------------------
