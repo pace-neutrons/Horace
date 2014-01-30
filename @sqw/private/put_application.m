@@ -1,7 +1,7 @@
-function mess = put_application (fid, application)
+function [mess, position] = put_application (fid, application)
 % Write application information data strcuture to file
 %
-%   >> mess = put_application (application)
+%   >> [mess, position] = put_application (fid, application)
 %
 % Input:
 % ------
@@ -11,9 +11,11 @@ function mess = put_application (fid, application)
 % Output:
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
+%   position        Position of the start of the application block
 %
 %
 % Fields written to file are:
+% ---------------------------
 %   application.name        Name of application that wrote the file
 %   application.version     Version number of the application
 
@@ -23,17 +25,15 @@ function mess = put_application (fid, application)
 % $Revision$ ($Date$)
 
 mess = '';
+position = ftell(fid);
 
-% Skip if fid not open
-flname=fopen(fid);
-if isempty(flname)
-    mess = 'No open file with given file identifier. Skipping write routine';
-    return
+try
+    n=length(application.name);
+    fwrite(fid,n,'int32');              % write length of name
+    fwrite(fid,application.name,'char');
+    
+    fwrite(fid,application.version,'float64');
+    
+catch
+    mess='Error writing application block to file';
 end
-
-% Write to file
-n=length(application.name);
-fwrite(fid,n,'int32');              % write length of name
-fwrite(fid,application.name,'char');
-
-fwrite(fid,application.version,'float64');

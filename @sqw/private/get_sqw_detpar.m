@@ -1,19 +1,21 @@
-function [det, mess] = get_sqw_detpar (fid)
+function [mess, det, position] = get_sqw_detpar (fid)
 % Read the detector parameter from a binary file.
 %
-%   >> [det, mess] = get_sqw_detpar(fid, det_in)
+%   >> [mess, det, position] = get_sqw_detpar (fid)
 %
 % Input:
 % ------
-%   fid         File pointer to (already open) binary fil
+%   fid         File pointer to (already open) binary file
 %
 % Output:
 % -------
-%   det         Structure containing fields read from file (details below)
 %   mess        Error message; blank if no errors, non-blank otherwise
+%   det         Structure containing fields read from file (details below)
+%   position        Position of start of detector parameter block
 %
 %
 % Fields read from file are:
+% --------------------------
 %   det.filename    Name of file excluding path
 %   det.filepath    Path to file including terminating file separator
 %   det.group       Row vector of detector group number
@@ -30,17 +32,23 @@ function [det, mess] = get_sqw_detpar (fid)
 % $Revision$ ($Date$)
 
 det = [];
+position = ftell(fid);
 
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[det.filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
-
-[n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[det.filepath, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
-
-[ndet, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-[det.group, count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-[det.x2,    count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-[det.phi,   count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-[det.azim,  count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-[det.width, count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-[det.height,count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
+try
+    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+    [det.filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    
+    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+    [det.filepath, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    
+    [ndet, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
+    [det.group, count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
+    [det.x2,    count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
+    [det.phi,   count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
+    [det.azim,  count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
+    [det.width, count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
+    [det.height,count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
+    
+catch
+    mess='Error reading detector parameter block from file';
+end

@@ -26,7 +26,7 @@ elseif narg==1 && isnumeric(varargin{1}) && numel(size(varargin{1})==2) && all(s
     [alatt,angdeg,ok,mess]=rlu_corr_to_lattice(rlu_corr,alatt0,angdeg0);
     if ~ok, return, end
     
-elseif narg<=4
+elseif narg>=1 && narg<=4
     alatt=varargin{1}(:)';  % ensure row vector
     if ~isnumeric(alatt)||numel(alatt)~=3||any(alatt<=0)
         ok=false; mess='Check new lattice parameters [a,b,c] are all greater than zero'; return
@@ -44,7 +44,7 @@ elseif narg<=4
     [b,arlu,angrlu,mess] = bmatrix(alatt,angdeg);
     if ~isempty(mess), ok=false; return, end
 
-    if narg==2
+    if narg<=2
         rlu_corr=b\b0;
     elseif narg==3
         rotmat=varargin{3};

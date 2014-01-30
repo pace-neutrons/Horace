@@ -48,9 +48,7 @@ function varargout = change_crystal (varargin)
 % $Revision$ ($Date$)
 
 
-% This routine is also used to change the crystal in sqw files, for which the syntax is
-%   >> change_crystal(filename,...)
-% and the output overwrites the input file.
+% This routine is also used to change the crystal in sqw files, when it overwrites the input file.
 
 % Parse input
 % -----------
@@ -61,15 +59,10 @@ if ~isempty(mess), error(mess); end
 % ------------------
 if w.source_is_file
     for i=1:numel(w.data)
-        [h.main_header,h.header,h.detpar,h.data,mess]=get_sqw (w.data{i},'-hverbatim');
+        [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-hverbatim');
         if ~isempty(mess), error(mess), end
         [h.header,h.data]=change_crystal_alter_fields(h.header,h.data,args{:});
-
-        fout=fopen(w.data{i},'r+');    % open for reading and writing
-        if fout<0, error(['Unable to open file ',w.data{i},' to change crystal information.']), end
-        frewind(fout)   % get to beginning of file (may not be necessary)
-        mess = put_sqw (fout,h.main_header,h.header,h.detpar,h.data,'-h');
-        if fopen(fout), fclose(fout); end
+        mess = put_sqw (w.data{i},h.main_header,h.header,h.detpar,h.data,'-h');
         if ~isempty(mess), error(['Error writing to file ',w.data{i},' - check the file is not corrupted: ',mess]), end
     end
     argout={};

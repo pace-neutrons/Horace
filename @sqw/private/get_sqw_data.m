@@ -1,12 +1,12 @@
-function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
+function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargin)
 % Read the data block from an sqw file. The file pointer is left at the end of the data block.
 %
-%   >> [data, mess] = get_sqw_data(fid)
-%   >> [data, mess] = get_sqw_data(fid, opt)
-%   >> [data, mess] = get_sqw_data(fid, npix_lo, npix_hi)
+%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid)
+%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid, opt)
+%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid, npix_lo, npix_hi)
 %
 % To the above, you *must* append the file format and expected data type (can be '' to autodetect):
-%   >> [data, mess] = get_sqw_data(..., format_flag, data_type)
+%   >> [data, mess] = get_sqw_data(..., file_format, data_type_in)
 %
 %
 % Input:
@@ -29,55 +29,57 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 %   npix_lo     -|- [optional] pixel number range to be read from the file (only applies to type 'a')
 %   npix_hi     -|
 %
-% format_flag   Format of file (character string)
-%                   Current formats:  '-v2', '-v3'
-%                   Obsolete formats: '-prototype'
+%   file_format     Format of file (character string)
+%                       Current formats:  '-v2', '-v3'
+%                       Obsolete formats: '-prototype'
 %
-%   data_type   Content type of that file: must be one of the permitted data structures (character string):
-%               This is required for format_flag '-v3'
-%               	'b'    fields: filename,...,dax,s,e
-%                   'b+'   fields: filename,...,dax,s,e,npix
-%                   'a'    fields: filename,...,dax,s,e,npix,urange,pix
-%                   'a-'   fields: filename,...,dax,s,e,npix,urange
+%   data_type_in    If file_format is '-v3', this must be the known data block type in the file: can only be one of:
+%                       'b'    fields: filename,...,dax,s,e
+%                       'b+'   fields: filename,...,dax,s,e,npix
+%                       'a'    fields: filename,...,dax,s,e,npix,urange,pix
+%                       'a-'   fields: filename,...,dax,s,e,npix,urange
 %
-%               For formats '-v2' and '-prototype', the contents of data type is auto-detected and
-%              the value of data_type is ignored. For clarity, you can set to the empty string
-%                   ''     auto-detect the fields in the file.
+%                   If file_format is '-v2' and '-prototype', the contents of data type is auto-detected and
+%                  the value of data_type_in is ignored. For clarity, you can set data_type_in to the empty string:
+%                       ''     auto-detect the fields in the file (file format '-v2' and '-prototype' only)
 %   
 %
 % Output:
 % -------
-%   data        Output data structure actually read. Must be one of:
-%                       type 'b'    fields: filename,...,dax,s,e
-%                       type 'b+'   fields: filename,...,dax,s,e,npix
-%                       type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
-%                       type 'a-'   fields: filename,...,dax,s,e,npix,urange
-%               or header information   
-%
 %   mess        Error message; blank if no errors, non-blank otherwise
 %
-%   position    Position (in bytes from start of file) of large fields:
+%   data        Output data structure actually read from the file. Will be one of:
+%                   type 'h'    fields: fields: uoffset,...,dax[,urange]
+%                   type 'b'    fields: filename,...,dax,s,e
+%                   type 'b+'   fields: filename,...,dax,s,e,npix
+%                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
+%                   type 'a-'   fields: filename,...,dax,s,e,npix,urange
+%               The final field urange is present for type 'h' if the header information was read from an sqw-type file.
+%
+%   position    Position (in bytes from start of file) of start of data block and of large fields:
 %              These field are correctly filled even if the header only has been requested, that is,
 %              if input option '-h' or '-hverbatim' was given
+%                   position.data   position of start of data block
 %                   position.s      position of array s
 %                   position.e      position of array e
 %                   position.npix   position of array npix (=[] if npix not present)
-%                   position.urange position of array urange (=[] if urange not written)
+%                   position.urange position of array urange (=[] if urange not present)
 %                   position.pix    position of array pix (=[] if pix not present)
 %
-%   npixtot     Total number of pixels written to file (=[] if pix not present)
+%   npixtot     Total number of pixels written in file (=[] if the pix array is not present)
 %
-%   type        Type of sqw data written to file: 
-%               Valid sqw data structure, which will contain the fields listed below 
-%                       type 'b'    fields: filename,...,dax,s,e
-%                       type 'b+'   fields: filename,...,dax,s,e,npix
-%                       type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
-%               or if the pix field is not read from type 'a', in which case 
-%                       type 'a-'   fields: filename,...,dax,s,e,npix,urange
+%   data_type   Type of sqw data written in the file 
+%                   type 'b'    fields: filename,...,dax,s,e
+%                   type 'b+'   fields: filename,...,dax,s,e,npix
+%                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
+%                   type 'a-'   fields: filename,...,dax,s,e,npix,urange
+%               If file_format is '-v3', this will be the same as the input argument 'data_type_in':
+%               If file_format is '-v2' or '-prototype', data_type will have been autodetected regardless
+%              of the value of the input data_type_in, which is ignored (see above)
 %
 %
 % Fields read from the file are:
-%
+% ------------------------------
 %   data.filename   Name of sqw file that is being read, excluding path
 %   data.filepath   Path to sqw file that is being read, including terminating file separator
 %          [Note that the filename and filepath that are written to file are ignored; we fill with the 
@@ -130,49 +132,55 @@ function [data, mess, position, npixtot, type] = get_sqw_data (fid, varargin)
 % Supported file Formats
 % ----------------------
 % The current sqw file format comes in two variants:
-%   - version 1 and version 2
+%   - Horace version 1 and version 2: file format '-v2'
 %      (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
-%       This format is the one still written if these fields are empty in the sqw object (or result of a
-%       cut on an sqw file assembled only to a file - see below).
-%   - version 3
-%       (February 2013 onwards.) Writes optional instrument and sample fields in the header block, and
-%      positions of the start of major data blocks in the sqw file. Finally, finishes with the positon
-%      of the position data block and the end of the data block as the last two 8 byte entries.
+%       This format is the one still written if these fields all have the 'empty' value in the sqw object.
+%   - Horace version 3: file format '-v3'.
+%       (November 2013 onwards.) Writes the instrument and sample fields from the header block, and
+%      positions of the start of major data blocks in the sqw file. This format is written if the
+%      instrument and sample fields are not 'empty'.
 %
-% Additionally, this routine will read the prototype sqw file format:
-%       (July 2007(?) - Autumn 2008). Almost the same format, except that data saved as type 'b' is
-%       uninterpretable by Horace because the npix information that is needed to normalise the
-%       signal and error in each bin is not stored.
+% The data structure and as saved to file for these two formats is the same. However, in '-v2'
+% the end of the file indicates the end of the data block, wheras '-v3' does not go to the end of
+% the file. In the latter case the type of data in the file has to be explicitly given as an
+% input argument, whereas it can be deduced for '-v2'
+%
+% Additionally, this routine will read the prototype sqw file format (July 2007(?) - Autumn 2008).
+% The data block as written to file differs from the '-v2' and '-v3' formats in a few regards:
+%   - title,alatt,angdeg are not stored in the data section (these will be filled from the
+%     main header when converting to the current data format).
+%   - The signal and error for the bins in stored without normalisation by the number of pixels.
+%     Any data stored as type 'b' is therefore uninterpretable by Horace version 1 onwards because
+%     the npix information that is needed to normalise the signal and error in each bin is not available.
 
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
-
 % Initialise output arguments
 data=[];
-position = struct('s',[],'e',[],'npix',[],'urange',[],'pix',[]);
+position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]);
 npixtot=[];
-type='';
+data_type='';
 
 % Check format flag and data type
 valid_formats={'-v3','-v2','-prototype'};
 valid_types={'b','b+','a-','a',''};
 
 if nargin>=2 && ischar(varargin{end-1}) && ischar(varargin{end})
-    format_flag=lower(strtrim(varargin{end-1}));
-    data_type=lower(strtrim(varargin{end}));
-    iform=find(strcmpi(format_flag,valid_formats),1);
-    itype=find(strcmpi(data_type,valid_types),1);
+    file_format=lower(strtrim(varargin{end-1}));
+    data_type_in=lower(strtrim(varargin{end}));
+    iform=find(strcmpi(file_format,valid_formats),1);
+    itype=find(strcmpi(data_type_in,valid_types),1);
     if ~isempty(iform) && ~isempty(itype)
-        if strcmp(format_flag,'-v3') && ~isempty(data_type)
+        if strcmp(file_format,'-v3') && ~isempty(data_type_in)
             autodetect=false;
             prototype=false;
-        elseif strcmp(format_flag,'-v2')
+        elseif strcmp(file_format,'-v2')
             autodetect=true;
             prototype=false;
-        elseif strcmp(format_flag,'-prototype')
+        elseif strcmp(file_format,'-prototype')
             autodetect=true;
             prototype=true;
         else
@@ -325,10 +333,10 @@ end
 
 
 % Determine if type 'b' or there are more fields in the data block
-if strcmp(data_type,'b') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b' (autodetect) or 
-    type='b';
+if strcmp(data_type_in,'b') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b'
+    data_type='b';
     if prototype && ~header_only
-        mess = 'File does not contain number of pixels for each bin - uable to convert old format data';
+        mess = 'File does not contain number of pixels for each bin - unable to convert old format data';
         return
     end
     return
@@ -344,8 +352,8 @@ end
 
 
 % Determine if type 'b+' or there are more fields in the data block
-if strcmp(data_type,'b+') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b+'
-    type='b+';
+if strcmp(data_type_in,'b+') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b+'
+    data_type='b+';
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
@@ -357,8 +365,8 @@ end
 
 
 % Determine if type 'a-' or there are more fields in the data block
-if strcmp(data_type,'a-') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'a-'
-    type='a-';
+if strcmp(data_type_in,'a-') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'a-'
+    data_type='a-';
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
@@ -386,7 +394,7 @@ else
     else
         status=fseek(fid,4*(9*npixtot),'cof');  % skip field pix
     end
-    type='a';
+    data_type='a';
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
@@ -409,7 +417,7 @@ end
 %==================================================================================================
 function [s,e]=convert_signal_error(s,e,npix)
 % Convert prototype (July 2007) format into standard format signal and error arrays
-% Prototype format files have zeros for singal and variance arrays with no pixels
+% Prototype format files have zeros for signal and variance arrays with no pixels
 pixels = npix~=0;
 s(pixels) = s(pixels)./npix(pixels);
 e(pixels) = e(pixels)./(npix(pixels).^2);

@@ -1,5 +1,5 @@
 function varargout=change_crystal_horace(varargin)
-% Change the crystal lattice and orientation in a file or set of files containing a Horace data object (sqw or dnd)
+% Change the crystal lattice and orientation in a file or set of files containing a Horace data object
 % 
 % Most commonly:
 %   >> change_crystal (file, rlu_corr)              % change lattice parameters and orientation

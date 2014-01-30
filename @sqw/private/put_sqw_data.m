@@ -1,72 +1,88 @@
-function [mess,position,npixtot,type] = put_sqw_data (fid, data, opt, infiles, npixstart, pixstart, run_label)
-% Write data to binary file
+function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infiles, npixstart, pixstart, run_label)
+% Write data block to binary file
 %
-%   >> [mess, position, npixtot, type] = write (fid, data)
-%   >> [mess, position, npixtot, type] = write (fid, data, '-nopix')
-%   >> [mess, position, npixtot, type] = write (fid, data, '-pix')
-%   >> [mess, position, npixtot, type] = write (fid, data, '-pix', infiles, npixstart, pixstart, run_label)
+%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data)
+%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data, '-h')
+%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data, '-nopix')
+%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data, '-pix')
+%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data, '-pix', infiles, npixstart, pixstart, run_label)
 %
 % Input:
 % -------
 %   fid         File identifier of output file (opened for binary writing)
-%   data        Valid sqw data structure which must contain the fields listed below
-%                       type 'b'    fields: uoffset,...,dax,s,e
-%                       type 'b+'   fields: uoffset,...,dax,s,e,npix
-%                       type 'a'    fields: uoffset,...,dax,s,e,npix,urange,pix
-%               In addition, will take the data structure of type 'a' without the individual pixel information ('a-')
-%                       type 'a-'   fields: uoffset,...,dax,s,e,npix,urange
-%               Lastly, the information as read with '-h' or '-hverbatim' option in get_sqw is valid input,
-%                       type 'h'    fields: uoffset,...,dax
 %
-%   opt         [optional argument for type 'a' or type 'a-'] Determines whether or not to write pixel info, and
-%               from which source:
+%   data        Data structure abstracted from a valid sqw data type, which must contain the fields:
+%                   type 'h'    fields: filename,...,uoffset,...,dax[,urange]
+%                   type 'b'    fields: filename,...,uoffset,...,dax,s,e
+%                   type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
+%                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
+%                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
+%               If type 'a-', then the individual pixel information will normally be given with the '-pix'
+%              option followed by the arguments infiles,...run_label (see below).
+%               Type 'h' is obtained from a valid sqw file by reading with get_sqw with the '-h' or '-his'
+%              options (or their '-hverbatim' and '-hisverbatim' variants). The final field urange is
+%              present if the header information was read from an sqw-type file.
+%               Input data of type 'h' is only valid when overwriting data fields in a pre-existing sqw file.
+%              It is assumed that all entries of the fields filename,...,uoffset,...dax will have the same lengths in
+%              bytes as the existing entries in the file.
+%
+%   opt         Determines which parts of the input data structure to write to a file. By default, the
+%              entire contents of the input data structure are written, apart from the case of 'h' when
+%              urange will not be written if present. The default behaviour can be altered with one of
+%              the following options:
+%                  '-h'      Write only the header fields of the input data: filename,...,uoffset,...,dax
+%                           (Note that urange is not written, even if present in the input data)
 %                  '-nopix'  Do not write the information for individual pixels
-%                  '-pix'    Write pixel information
+%                  '-pix'    Write pixel information, either from the data structure, or from the
+%                            information in the additional optional arguments infiles...run_label (see below).
+%               An option that is consistent with the input data are accepted, even if redundant
+%               e.g.'-nopix' with data type 'h'.
 %
-%               The default source of pixel information is the data structure, but if the
-%              optional arguments below are given, then use them to give the corresponding source
-%              of pixel information if option '-pix' has been specified.
-%               In particular, note that '-pix' with data type 'a-' is permitted if the following
-%              arguments are provided.
-%
-%               Lastly, one can also choose to write just the header information in data:
-%                  '-h'      The information as read with '-h' option in get_sqw is written
-%                           namely the fields: uoffset,...,dax
-%                           (Note: urange will not be written, even if present i.e. in the
-%                           case of data types 'a' or 'a-')
-%
-% [All or none of the optional arguments below must be present]
+% [The following are valid only with the '-pix' option. Either all or none of them must be present]
 %   infiles     Cell array of file names, or array of file identifiers of open file, from
 %              which to accumulate the pixel information
+%
 %   npixstart   Position (in bytes) from start of file of the start of the field npix
+%
 %   pixstart    Position (in bytes) from start of file of the start of the field pix
+%
 %   run_label   Indicates how to re-label the run index (pix(5,...)
 %                       'fileno'        relabel run index as the index of the file in the list infiles
 %                       'nochange'      use the run index as in the input file
 %                        numeric array  offset run numbers for ith file by ith element of the array
-%                   This option exists to deal with three limiting cases:
-%                    (1) The run index is already written to the files correctly indexed into the header
-%                       e.g. as when temporary files have been written during cut_sqw
-%                    (2) There is one file per run, and the run index in the header block is the file
-%                       index e.g. as in the creating of the master sqw file
-%                    (3) The files correspond to several runs in general, which need to
-%                       be offset to give the run indices into the collective list of run parameters
+%               This option exists to deal with three limiting cases:
+%                (1) The run index is already written to the files correctly indexed into the header
+%                   e.g. as when temporary files have been written during cut_sqw
+%                (2) There is one file per run, and the run index in the header block is the file
+%                   index e.g. as in the creating of the master sqw file
+%                (3) The files correspond to several runs in general, which need to
+%                   be offset to give the run indices into the collective list of run parameters
 %
 %
 % Output:
 % -------
 %   mess        Message if there was a problem writing; otherwise mess=''
-%   position    Position (in bytes from start of file) of large fields:
-%                   position.s      position of array s
-%                   position.e      position of array e
-%                   position.npix   position of array npix (=[] if npix not written)
-%                   position.urange position of array urange (=[] if urange not written)
-%                   position.pix    position of array pix (=[] if pix not written)
-%   npixtot     Total number of pixels written to file (=[] if pix not written)
-%   type        Type of sqw data written to file: 'a', 'a-', 'b+', 'b' or 'h'
+%
+%   position    Position (in bytes from start of file) of data block and large fields actually written by the call to this function:
+%                   position.data   position of start of data block
+%                   position.s      position of array s (=[] if s not written i.e. input data is 'h')
+%                   position.e      position of array e (=[] if e not written i.e. input data is 'h')
+%                   position.npix   position of array npix (=[] if npix not written i.e. input data is 'b' or 'h')
+%                   position.urange position of array urange (=[] if urange not written i.e. input data is 'b+','b' or 'h')
+%                   position.pix    position of array pix (=[] if pix not written i.e. input data is 'a-','b+','b' or 'h')
+%
+%   npixtot     Total number of pixels actually written by the call to this function (=[] if pix not written)
+%
+%   data_type   Type of data actually written to the file by the call to this function: 'a', 'a-', 'b+', 'b' or 'h'
+%              Note that this is not necessarily the same as the data type that the file
+%              will eventually contain. For example, if 'a-' then we will usually (if not
+%              always!) have eventually written the pixel information from files using
+%              the infiles...run_label options; if 'h' then header information will have been
+%              overwritten data in a file containing one of 'a','a-','b+','b'.
 %
 %
 % Fields written to the file are:
+% -------------------------------
 %   data.filename   Name of sqw file that is being read, excluding path
 %   data.filepath   Path to sqw file that is being read, including terminating file separator
 %   data.title      Title of sqw data structure
@@ -126,8 +142,7 @@ function [mess,position,npixtot,type] = put_sqw_data (fid, data, opt, infiles, n
 % axes. We therefore do not want to allow rouding errors to accumulate, and so retain the original
 % data points in their original coordinate frame.
 %
-%   It is assumed that the data corresponds to a valid type (i.e. that any use with implementation of sqw as
-% a proper object has already checked the consistency of the fields)
+%   It is assumed that the data corresponds to a valid type, or has been abstracted from a valid type
 
 
 % Original author: T.G.Perring
@@ -135,80 +150,113 @@ function [mess,position,npixtot,type] = put_sqw_data (fid, data, opt, infiles, n
 % $Revision$ ($Date$)
 
 mess = '';
-position=[];
+position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]);
 npixtot=[];
-type='';
 
-% Skip if fid not open
-flname=fopen(fid);
-if isempty(flname)
-    mess = 'No open file with given file identifier. Skipping write routine';
-    return
-end
+% Determine type of input data structure
+data_type_in = data_structure_type(data);
 
-% Determine type of structure and write options
-type_in = data_type(data);
-type = type_in;
-if exist('opt','var') && ischar(opt) && strcmpi(opt,'-h')
-    write_header_only=true;
-else
-    write_header_only=false;
-    if strcmpi(type_in,'h')
-        write_header_only=true;     % cannot write any other fields
-        if exist('opt','var')
-            disp('WARNING: options specified in put_sqw_data ignored for header type data (i.e. ''h'' type)')
-        end
-    elseif strcmpi(type_in,'b')||strcmpi(type_in,'b+')
-        if exist('opt','var')
-            disp('WARNING: options specified in put_sqw_data ignored for ''b'' or ''b+'' type data')
-        end
-    elseif strcmpi(type_in,'a')    % pixel info will be written from data, nless
-        if ~exist('opt','var')
-            pix_from_struct = true;
-            pix_from_file = false;
-        elseif ischar(opt) && strcmpi(opt,'-nopix')
-            pix_from_struct = false;
-            pix_from_file = false;
-        elseif ischar(opt) && strcmpi(opt,'-pix')
-            if nargin==3        % no pixel file info
-                pix_from_struct = true;
-                pix_from_file = false;
-            elseif nargin==7    % pixel file information
-                pix_from_struct = false;
-                pix_from_file = true;
-            else
-                mess = 'Check number of input arguments (type of input data is ''a'')';
-                return
-            end
-        else
-            mess = 'Unrecognised option';
+% Determine if valid write options and number of further optional arguments
+opt_pix=false;
+opt_nopix=false;
+opt_h=false;
+if exist('opt','var');   % true if write option argument is present
+    opt_none=false;
+    opt_narg=nargin-3;  % number of arguments following write option argument
+    if ischar(opt) && strcmpi(opt,'-pix')
+        opt_pix=true;
+        if ~(opt_narg==0 || opt_narg==4)
+            mess='Number of arguments for option ''-pix'' is invalid';
             return
         end
-    elseif strcmpi(type_in,'a-')
-        if ~exist('opt','var')
-            pix_from_struct = false;
-            pix_from_file = false;
-        elseif ischar(opt) && strcmpi(opt,'-nopix')
-            pix_from_struct = false;
-            pix_from_file = false;
-        elseif ischar(opt) && strcmpi(opt,'-pix')
-            if nargin==7    % pixel file information
-                pix_from_struct = false;
-                pix_from_file = true;
-            else
-                mess = 'Check number of input arguments (type of input data is ''a-'')';
-                return
-            end
-        else
-            mess = 'Unrecognised option';
+    elseif ischar(opt) && strcmpi(opt,'-nopix')
+        opt_nopix=true;
+        if opt_narg~=0
+            mess='Number of arguments for option ''-nopix'' is invalid';
+            return
+        end
+    elseif ischar(opt) && strcmpi(opt,'-h')
+        opt_h=true;
+        if opt_narg~=0
+            mess='Number of arguments for option ''-h'' is invalid';
             return
         end
     else
-        error('logic error in put_sqw_data')
+        mess='Unrecognised write option specified in put_sqw_data';
+        return
     end
+else
+    opt_none=true;
 end
 
-% Write to file
+% Determine if valid write option for inpur data structure
+if strcmpi(data_type_in,'h')
+    if opt_h || opt_nopix || opt_none
+        write_header_only=true;
+    else
+        mess = 'Invalid write option specified in put_sqw_data for ''h'' type data';
+        return
+    end
+elseif strcmpi(data_type_in,'b')||strcmpi(data_type_in,'b+')
+    if opt_h
+        write_header_only=true;
+    elseif opt_nopix || opt_none
+        write_header_only=false;
+    else
+        mess = 'Invalid write option specified in put_sqw_data for ''b'' or ''b+'' type data';
+        return
+    end
+elseif strcmpi(data_type_in,'a-')
+    write_header_only=false;
+    if opt_h
+        write_header_only=true;
+    elseif opt_nopix || opt_none
+        pix_from_struct = false;
+        pix_from_file = false;
+    elseif opt_pix
+        if opt_narg==4    % pixel file information
+            pix_from_struct = false;
+            pix_from_file = true;
+        else
+            mess = 'Invalid number of option arguments for ''-pix'' option with ''a-'' type data in put_sqw_data';
+            return
+        end
+    else
+        mess = 'Invalid write option specified in put_sqw_data for ''a'' type data';
+        return
+    end
+elseif strcmpi(data_type_in,'a')
+    write_header_only=false;
+    if opt_h
+        write_header_only=true;
+    elseif opt_nopix
+        pix_from_struct = false;
+        pix_from_file = false;
+    elseif opt_pix
+        if opt_narg==0        % no pixel file info
+            pix_from_struct = true;
+            pix_from_file = false;
+        elseif opt_narg==4    % pixel file information
+            pix_from_struct = false;
+            pix_from_file = true;
+        else
+            mess = 'Invalid number of option arguments for ''-pix'' option with ''a'' type data in put_sqw_data';
+            return
+        end
+    elseif opt_none
+        pix_from_struct = true;
+        pix_from_file = false;
+    else
+        mess = 'Invalid write option specified in put_sqw_data for ''a'' type data';
+        return
+    end
+else
+    error('logic error in put_sqw_data')
+end
+
+
+% Write header information to file
+% --------------------------------
 n=length(data.filename);
 fwrite(fid,n,'int32');              % write length of filename
 fwrite(fid,data.filename,'char');
@@ -258,58 +306,63 @@ position.urange=[];
 position.pix=[];
 npixtot=[];
 
-% If header to be written only, return
-if write_header_only
-    return
-end
 
-% Now write other cases
-position.s=ftell(fid);
-fwrite(fid,data.s,'float32');
-
-position.e=ftell(fid);
-fwrite(fid,data.e,'float32');
-
-% Optional fields depending on input data structure and options
-
-if strcmpi(type_in,'a')||strcmpi(type_in,'a-')||strcmpi(type_in,'b+')
-    position.npix=ftell(fid);
-    fwrite(fid,data.npix,'int64');  % make int64 so that can deal with huge numbers of pixels
-end
-
-if strcmpi(type_in,'a')||strcmpi(type_in,'a-')
-    % Write urange
-    position.urange=ftell(fid);
-    fwrite(fid,data.urange,'float32');
-    % Write pix if requested
-    if pix_from_struct
-        fwrite(fid,1,'int32');          % redundant field - only present for backwards compatibility
-        npixtot=size(data.pix,2);
-        fwrite(fid,npixtot,'int64');    % make int64 so that can deal with huge numbers of pixels
-        position.pix=ftell(fid);
-        type='a';
-        if npixtot>0
-            % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
-            % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
-            % could have no pixels because none contributed to the given data range.
-            block_size=1000000;
-            for ipix=1:block_size:npixtot
-                istart = ipix;
-                iend   = min(ipix+block_size-1,npixtot);
-                fwrite(fid,data.pix(:,istart:iend),'float32');
-            end
-        end
-    elseif pix_from_file
-        fwrite(fid,1,'int32');              % redundant field - only present for backwards compatibility
-        npix_cumsum = cumsum(data.npix(:)); % accumulated number of pixels per bin as a column vector
-        npixtot=npix_cumsum(end);
-        fwrite(fid,npixtot,'int64');        % make int64 so that can deal with huge numbers of pixels
-        position.pix=ftell(fid);
-        type='a';
-        if npixtot>0
-            mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
-        end
-    else
-        type='a-';
+% Write further information to file, if requested
+% -----------------------------------------------
+if ~write_header_only
+    data_type = data_type_in;
+    
+    position.s=ftell(fid);
+    fwrite(fid,data.s,'float32');
+    
+    position.e=ftell(fid);
+    fwrite(fid,data.e,'float32');
+    
+    % Optional fields depending on input data structure and options
+    
+    if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')||strcmpi(data_type_in,'b+')
+        position.npix=ftell(fid);
+        fwrite(fid,data.npix,'int64');  % make int64 so that can deal with huge numbers of pixels
     end
+    
+    if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')
+        % Write urange
+        position.urange=ftell(fid);
+        fwrite(fid,data.urange,'float32');
+        % Write pix if requested
+        if pix_from_struct
+            fwrite(fid,1,'int32');          % redundant field - only present for backwards compatibility
+            npixtot=size(data.pix,2);
+            fwrite(fid,npixtot,'int64');    % make int64 so that can deal with huge numbers of pixels
+            position.pix=ftell(fid);
+            data_type='a';
+            if npixtot>0
+                % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
+                % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
+                % could have no pixels because none contributed to the given data range.
+                block_size=1000000;
+                for ipix=1:block_size:npixtot
+                    istart = ipix;
+                    iend   = min(ipix+block_size-1,npixtot);
+                    fwrite(fid,data.pix(:,istart:iend),'float32');
+                end
+            end
+        elseif pix_from_file
+            fwrite(fid,1,'int32');              % redundant field - only present for backwards compatibility
+            npix_cumsum = cumsum(data.npix(:)); % accumulated number of pixels per bin as a column vector
+            npixtot=npix_cumsum(end);
+            fwrite(fid,npixtot,'int64');        % make int64 so that can deal with huge numbers of pixels
+            position.pix=ftell(fid);
+            data_type='a';
+            if npixtot>0
+                mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
+            end
+        else
+            data_type='a-';
+        end
+    end
+
+else
+    % Only wrote the header information
+    data_type='h';
 end

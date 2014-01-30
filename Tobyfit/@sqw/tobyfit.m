@@ -242,6 +242,14 @@ fitdata=[];
 rlu_corr=[];
 fitmod=[];
 
+% Check the data types are ok
+for i=1:numel(win)
+    if ~is_sqw_type(win(i));   % must be if sqw type
+        ok=false; mess='All input datasets must be sqw type';
+        if nargout<3, error(mess), else return, end
+    end
+end
+
 % Strip out Tobyfit specific arguments from varargin
 arglist = struct('mc_contributions',[],'mc_npoints',10,'refine_crystal',[],'refine_moderator',[]);
 [varargin,opt,present] = parse_arguments(varargin,arglist,[],false);
@@ -275,8 +283,8 @@ bpos=bpos-ndata;
 narg=narg-ndata;
 
 
-% Fill look-up tables, pre-calculate matricies etc.
-% -------------------------------------------------
+% Prepare Monte Carlo arguments, crystal and moderator refinement
+% ---------------------------------------------------------------
 % Set which contributions to the resolution are to be accounted for
 [mc_contrib,ok,mess]=tobyfit_mc_contributions(mc_contrib);
 if ~ok
@@ -347,20 +355,33 @@ if refine_moderator
         if nargout<3, error(mess), else return, end
     end
     
-    % Check validity of refinement options structure, and set starting values for lattice parameters if necessary
+    % Check validity of refinement options structure on entry
     [mod_opts,ok,mess] = tobyfit_refine_moderator_options(mod_opts);
     if ~ok
         if nargout<3, error(mess), else return, end
     end
     
     % Get model and starting parameters if not given
-    if isempty(mod_opts.pulse_model)
-        [mod_opts.pulse_model,mod_opts.pp_init,ok,mess] = pulse_shape_parameters(win);
+    if isempty(mod_opts.pulse_model) || isempty(mod_opts.pp_init)
+        [pulse_model_default,pp_init_default,ok,mess] = pulse_shape_parameters(win);
         if ~ok
             if nargout<3, error(mess), else return, end
         end
-        mod_opts.pp_init=mod_opts.pp_init(:)';  % guarantee it is a row vector
-        mod_opts.pp_free=true(size(mod_opts.pp_init));
+        if isempty(mod_opts.pulse_model)
+            mod_opts.pulse_model=pulse_model_default;
+        end
+        if isempty(mod_opts.pp_init)
+            mod_opts.pp_init=pp_init_default(:)';   % guarantee it is a row vector
+        end
+    end
+    if isempty(mod_opts.pp_free)
+        mod_opts.pp_free=true(size(mod_opts.pp_init));  % default is all parameters are free
+    end
+    
+    % Check validity of refinement options structure after filling missing arguments
+    [mod_opts,ok,mess] = tobyfit_refine_moderator_options(mod_opts);
+    if ~ok
+        if nargout<3, error(mess), else return, end
     end
     
     % Append crystal refinement parameters to the foreground parameter arguments
@@ -386,12 +407,6 @@ else
     modshape.refine=false;
 end
 
-% Initialise lookup tables
-[ok,mess,lookup]=resol_conv_tobyfit_mc_init(win);
-if ~ok
-    if nargout<3, error(mess), else return, end
-end
-
 
 % Perform the fit
 % ---------------
@@ -400,12 +415,12 @@ resol_conv_tobyfit_mc_control('multifit',size(win))
 
 
 % Wrap the foreground and background functions
-wrap_plist={mc_contrib,mc_npoints,lookup,xtal,modshape};
+wrap_plist={mc_contrib,mc_npoints,xtal,modshape};
 args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,...
                                         @resol_conv_tobyfit_mc,wrap_plist,@func_eval,{});
 
 % Least-squares fitting
-[ok,mess,wout,fitdata] = multifit_gateway_main (win, args{:});
+[ok,mess,wout,fitdata] = multifit_gateway_main (win, args{:}, 'init_func', @resol_conv_tobyfit_mc_init);
 if ~ok
     if nargout<3, error(mess), else return, end
 end

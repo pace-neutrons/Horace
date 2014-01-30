@@ -74,10 +74,10 @@ npixtot=zeros(nfiles,1);
 
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
 for i=1:nfiles
-    [main_header{i},header{i},det_tmp,datahdr{i},mess,position,npixtot(i),type,current_format,format_flag] = get_sqw (infiles{i},'-h');
+    [mess,main_header{i},header{i},det_tmp,datahdr{i},position,npixtot(i),data_type,file_format,current_format] = get_sqw (infiles{i},'-h');
     if ~current_format; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
-    if ~strcmpi(type,'a'); error(['No pixel information in ',infiles{i}]); end
+    if ~strcmpi(data_type,'a'); error(['No pixel information in ',infiles{i}]); end
     if i==1
         det=det_tmp;    % store the detector information for the first file
     end
@@ -155,7 +155,7 @@ for i=1:nfiles
     status=fseek(fid,pos_datastart(i),'bof'); % Move directly to location of start of data section
     if status<0; fclose(fid); error(['Error finding location of binning data in file ',infiles{i}]); end
     
-    [bindata,mess]=get_sqw_data(fid,'-nopix',format_flag,type);
+    [mess,bindata]=get_sqw_data(fid,'-nopix',file_format,data_type);
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
     if i==1
         s_accum = (bindata.s).*(bindata.npix);

@@ -1,5 +1,5 @@
 function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile, npix, pix)
-% Write npix and pix to a file with same format as write_sqw_data
+% Write npix and pix to a file with same format as put_sqw_data
 %
 %   >> [mess, position] = put_sqw_data_npix_and_pix_to_file (outfile, npix, pix)
 %
@@ -25,7 +25,7 @@ function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile,
 %   position    Position (in bytes from start of file) of large fields:
 %                   position.npix   position of array npix (in bytes) from beginning of file
 %                   position.pix    position of array pix (in bytes) from beginning of file
-%   npixtot     Total number of pixels written to file  (=[] if pix not written)
+%   npixtot     Total number of pixels written to file
 
 % T.G.Perring 10 August 2007
 
@@ -35,26 +35,26 @@ position = [];
 
 % Open output file
 if isnumeric(outfile)
-    fout = outfile;   % copy fid
-    if isempty(fopen(fout))
+    fid = outfile;   % copy fid
+    if isempty(fopen(fid))
         mess = 'No open file with given file identifier';
         return
     end
     close_file = false;
 else
-    fout=fopen(outfile,'A');    % no automatic flushing: can be faster
-    if fout<0
+    fid=fopen(outfile,'A');    % no automatic flushing: can be faster
+    if fid<0
         mess = ['Unable to open file ',outfile];
         return
     end
     close_file = true;
 end
 
-% Write npix and pix in teh same format a write_sqw_data
-position.npix=ftell(fout);
-fwrite(fout,npix,'int64');  % make int64 so that can deal with huge numbers of pixels
+% Write npix and pix in the same format as put_sqw_data
+position.npix=ftell(fid);
+fwrite(fid,npix,'int64');  % make int64 so that can deal with huge numbers of pixels
 
-position.pix=ftell(fout);
+position.pix=ftell(fid);
 npixtot = size(pix,2);
 % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
 % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
@@ -63,10 +63,10 @@ block_size=1000000;
 for ipix=1:block_size:npixtot
     istart = ipix;
     iend   = min(ipix+block_size-1,npixtot);
-    fwrite(fout,pix(:,istart:iend),'float32');
+    fwrite(fid,pix(:,istart:iend),'float32');
 end
 
 % Close file if necessary
 if close_file
-    fclose(fout);
+    fclose(fid);
 end

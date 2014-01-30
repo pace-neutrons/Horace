@@ -47,7 +47,7 @@ end
 sqw_type=true(size(filename));
 ndims=zeros(size(filename));
 for i=1:numel(filename)
-    [sqw_type_tmp, ndims_tmp, mess] = get_sqw_type_from_file (filename{i});   % must use temporary output arguments as may be unfilled if error
+    [mess, sqw_type_tmp, ndims_tmp] = get_sqw_type_from_file (filename{i});   % must use temporary output arguments as may be unfilled if error
     if ~isempty(mess)
         sqw_type=[]; ndims=[];  % need to reset in case earlier succesful calls to get_sqw_type_from_file
         return

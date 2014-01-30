@@ -1,21 +1,25 @@
-function [application, mess] = get_application (fid, application_in)
+function [mess, application, position] = get_application (fid, expected_name)
 % Read the application block that gives information about the application that wrote the file
 %
-%   >> [application, mess] = get_application (fid)
-%   >> [application, mess] = get_application (fid, application_in)
+%   >> [mess, application, position] = get_application (fid)
+%   >> [mess, application, position] = get_application (fid, expected_name)
 %
 % Input:
 % ------
 %   fid             File pointer to (already open) binary file
-%   application_in  [optional] Data structure to which the data
-%                  fields below will be added or overwrite.
+%   expected_name   [Optional] Expected application name. An error is returned
+%                  if the application name recorded in the file does not match
+%                  the expected name
 %
 % Output:
 % -------
-%   application     Structure containing fields read from file (details below)
 %   mess            Error message; blank if no errors, non-blank otherwise
+%   application     Structure containing fields read from file (details below)
+%   position        Position of the start of the application block
+%
 %
 % Fields read from file are:
+% --------------------------
 %   application.name        Name of application that wrote the file
 %   application.version     Version number of the application
 
@@ -24,39 +28,35 @@ function [application, mess] = get_application (fid, application_in)
 %
 % $Revision$ ($Date$)
 
-if nargin==2
-    if isstruct(application_in)
-        application = application_in;
-    else
-        application = [];
-        mess = 'Check the type of input argument application_in';
-        return
-    end
-end
+mess = '';
+application = [];
+position = ftell(fid);
 
 % Read data from file. We require:
 % (1) the application name is a valid variable name
 % (2) the version to be real and greater or equal to zero
-
 try
     n = fread (fid,1,'int32');
     % Need to try to catch case of e.g. text file where n is read as a stupidly high number
     if n>0 && n<1024   % allow up to 1024 characters
         name = fread (fid,[1,n],'*char');
         if ~isvarname(name)
-            application = []; mess = 'Application name must be a valid Matlab variable name'; return
+            mess = 'Application name must be a valid Matlab variable name'; return
+        else
+            if nargin==2 && ~strcmpi(name,expected_name)
+                mess = 'Application name recorded in file does not match the expected name'; return
+            end
         end
         version = fread (fid,1,'float64');
-        if ~isscalar(version) || version<0
-            application = []; mess = 'Version must be greater or equal to zero'; return
+        if ~isscalar(version) || version<0 || version>99999999
+            mess = 'Version must be greater or equal to zero'; return
         end
         application.name = name;
         application.version = version;
-        mess='';
     else
-        application = []; mess = 'Unrecognised format for application and version'; return
+        mess = 'Unrecognised format for application and version'; return
     end
     
 catch
-    application = []; mess='Problems reading data file';
+    mess='Problems reading application information from file';
 end

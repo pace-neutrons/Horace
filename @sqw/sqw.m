@@ -119,7 +119,7 @@ elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)
     % filename: is a single row of characters
     % ----------------------------------------
     if ~dnd_type    % insist on sqw type
-        [w.main_header,w.header,w.detpar,w.data,mess,position,npixtot,type] = get_sqw (args{1});
+        [mess,w.main_header,w.header,w.detpar,w.data,position,npixtot,type] = get_sqw (args{1});
         if ~isempty(mess), error(mess), end
         if ~strcmpi(type,'a')   % not a valid sqw-type structure
             error('Data file does not contain valid sqw-type object')
@@ -128,7 +128,7 @@ elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)
         w.main_header=make_sqw_main_header;
         w.header=make_sqw_header;
         w.detpar=make_sqw_detpar;
-        [main_header,header,detpar,w.data,mess,position,npixtot,type] = get_sqw (args{1},'-nopix');
+        [mess,main_header,header,detpar,w.data,position,npixtot,type] = get_sqw (args{1},'-nopix');
         if ~isempty(mess), error(mess), end
         if ~(strcmpi(type,'a')||strcmpi(type,'b+'))   % not a valid sqw or dnd structure
             error('Data file does not contain valid dnd-type object')

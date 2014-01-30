@@ -188,7 +188,7 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 % Ouput:
 % ------
 %   header      Header information in data structure suitable for put_sqw_header
-%   sqw_data    Data structure suitable for write_sqw_data
+%   sqw_data    Data structure suitable for put_sqw_data
 
 % Original author: T.G.Perring
 %

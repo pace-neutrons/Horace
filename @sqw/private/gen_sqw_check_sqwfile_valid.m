@@ -45,7 +45,7 @@ end
 
 % Get header information to check other fields
 % --------------------------------------------
-[main_header,header,detpar,data,mess,position,npixtot]=get_sqw (sqw_file,'-h');
+[mess,main_header,header,detpar,data]=get_sqw (sqw_file,'-h');
 header_ave=header_average(header);
 
 tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)

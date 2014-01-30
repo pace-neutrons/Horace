@@ -1,7 +1,7 @@
-function [sqw_type, ndims, mess] = get_sqw_object_type (fid)
+function [mess, sqw_type, ndims, position] = get_sqw_object_type (fid)
 % Read the type of sqw object written to file
 %
-%   >> [sqw_type, ndims, mess] = get_sqw_object_type (fid)
+%   >> [mess, sqw_type, ndims, position] = get_sqw_object_type (fid)
 %
 % Input:
 % ------
@@ -9,9 +9,10 @@ function [sqw_type, ndims, mess] = get_sqw_object_type (fid)
 %
 % Output:
 % -------
+%   mess        Error message; blank if no errors, non-blank otherwise
 %   sqw_type    Type of sqw object written to file: =1 if sqw type; =0 if dnd type
 %   ndims       Number of dimensions of sqw object
-%   mess        Error message; blank if no errors, non-blank otherwise
+%   position    Position of the start of the sqw object type block
 
 
 % Original author: T.G.Perring
@@ -19,15 +20,15 @@ function [sqw_type, ndims, mess] = get_sqw_object_type (fid)
 % $Revision$ ($Date$)
 
 
+mess='';
 sqw_type=[];
 ndims=[];
-mess='';
+position = ftell(fid);
 
-% Read data from file:
 try
     tmp = fread (fid,1,'int32');
     sqw_type = logical(tmp);
     ndims = fread (fid,1,'int32');
 catch
-    mess='problems reading data file';
+    mess='Error reading sqw type and dimensions block from file';
 end

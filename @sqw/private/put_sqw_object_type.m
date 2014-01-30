@@ -1,7 +1,7 @@
-function mess = put_sqw_object_type (fid, sqw_type, ndims)
+function [mess, position] = put_sqw_object_type (fid, sqw_type, ndims)
 % Write application information data structure to file
 %
-%   >> mess = put_sqw_object_type (fid, sqw_type, ndims)
+%   >> [mess, position] = put_sqw_object_type (fid, sqw_type, ndims)
 %
 % Input:
 % ------
@@ -12,6 +12,7 @@ function mess = put_sqw_object_type (fid, sqw_type, ndims)
 % Output:
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
+%   position        Position of the start of the sqw object type block
 
 
 % Original author: T.G.Perring
@@ -19,15 +20,12 @@ function mess = put_sqw_object_type (fid, sqw_type, ndims)
 % $Revision$ ($Date$)
 
 mess = '';
+position = ftell(fid);
 
-% Skip if fid not open
-flname=fopen(fid);
-if isempty(flname)
-    mess = 'No open file with given file identifier. Skipping write routine';
-    return
+try
+    tmp=int32(logical(sqw_type));
+    fwrite(fid,tmp,'int32');
+    fwrite(fid,ndims,'int32');
+catch
+    mess='Error writing sqw type and dimensions block to file';
 end
-
-% Write to file
-tmp=int32(logical(sqw_type));
-fwrite(fid,tmp,'int32');
-fwrite(fid,ndims,'int32');

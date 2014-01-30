@@ -115,8 +115,6 @@ if numel(header.sample)~=1 || ~(isobject(header.sample)||isstruct(header.sample)
     return
 end
 
-
-
 % Ok if got to here
 ok=true;
 
