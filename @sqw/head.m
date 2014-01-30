@@ -72,7 +72,7 @@ end
 
 if w.source_is_file
     for i=1:nw
-        [h.main_header,h.header,h.detpar,h.data,mess,position,npixtot]=get_sqw (w.data{i},'-h');
+        [mess,h.main_header,h.header,h.detpar,h.data,position,npixtot]=get_sqw (w.data{i},'-h');
         if ~isempty(mess); error(mess); end
         if nout==0
             if w.sqw_type(i)

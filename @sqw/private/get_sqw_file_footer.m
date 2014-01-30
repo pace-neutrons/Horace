@@ -1,29 +1,29 @@
-function [position_info_location, data_type, mess] = get_sqw_file_footer (fid)
+function [mess, position_info_location, data_type, position] = get_sqw_file_footer (fid)
 % Read final entry to sqw file: location of position information in the file and data_type
 %
-%   >> [position_info_location, data_type, mess] = get_sqw_file_footer (fid)
+%   >> [mess, position_info_location, data_type, position] = get_sqw_file_footer (fid)
 %
-% It is assumed that on entry that the pointer is just after the end of this block
-% (this should in fact be at the end of the file).
+% It is assumed that on entry that the pointer is just after the end of this block,
+% which should in fact be the end of the file.
 %
 % Input:
 % ------
-%   fid                     File identifier of output file (opened for binary writing)
+%   fid                     File pointer to (already open) binary file
 %
 % Output:
 % -------
-%   position_info_location  Position of the position information block
-%   data_type               Type of sqw data contained in the file:
-%                               type 'b'    fields: uoffset,...,dax,s,e
-%                               type 'b+'   fields: uoffset,...,dax,s,e,npix
-%                               type 'a'    fields: uoffset,...,dax,s,e,npix,urange,pix
-%                               type 'a-'   fields: uoffset,...,dax,s,e,npix,urange
-%
 %   mess                    Message if there was a problem writing; otherwise mess=''
+%   position_info_location  Position of the position information block
+%   data_type               Type of sqw data contained in the file: will be one of
+%                               type 'b'    fields: filename,...,uoffset,...,dax,s,e
+%                               type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
+%                               type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
+%                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
+%   position                Position of the file footer in the file
 
 position_info_location=[];
 data_type='';
-mess='';
+position = ftell(fid);
 
 % Read data from file:
 try
@@ -33,5 +33,5 @@ try
     [position_info_location, count, ok, mess] = fread_catch(fid,1,'float64'); if ~all(ok); return; end;
     [data_type, count, ok, mess] = fread_catch(fid,[1,n],'*char*1'); if ~all(ok); return; end;
 catch
-    mess='problems reading data file';
+    mess='Error reading footer block from file';
 end

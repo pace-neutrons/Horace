@@ -51,7 +51,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 
 
 % Buffer sizes
-ndatpix = 9;        % number of pieces of information the pixel info array (see write_sqw_data for more details)
+ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
 vmax = get(hor_config,'mem_chunk_size');    % maximum length of buffer array in which to accumulate points from the input file
 pmax = vmax;                                % maximum length of array in which to buffer retained pixels (pmax>=vmax)
 

@@ -8,14 +8,10 @@ function [mod_opts,ok,mess] = tobyfit_refine_moderator_options(varargin)
 % Default options
 %   >> opts = tobyfit_refine_moderator_options
 %
-% Set initial lattice parameters different to those in the sqw objects
-%   >> opts = tobyfit_refine_moderator_options (alatt_init, angdeg_init)
-%
-% In addition, there are keyword arguments to control the refinement e.g.
-%   >> opts = tobyfit_refine_moderator_options(..., 'fix_angdeg')
-%   >> opts = tobyfit_refine_moderator_options(..., 'free_alatt', [1,0,1])
-%
-%   By default, all parameters are free to be refined.
+% Set moderator pulse shape model and parameters different to those in the sqw objects
+%   >> opts = tobyfit_refine_moderator_options (pulse_model,pp_init)    % model and initial parameters
+%   >> opts = tobyfit_refine_moderator_options ('',pp_init)             % initial parameters
+%   >> opts = tobyfit_refine_moderator_options (pp_free)                % parameters to refine
 %
 %
 % Input:
@@ -76,12 +72,16 @@ else
     mod_opts=check_ok;     % structure with fields all set to []
     
     % Check if initial lattice parameters for refinement, if given
-    if numel(varargin)>=1, mod_opts.pulse_model=varargin{1}; end
-    if numel(varargin)>=2, mod_opts.pp_init=varargin{2}; end
-    if numel(varargin)>=3, mod_opts.pp_free=varargin{3}; end
-    if numel(varargin)>=4
-        mod_opts=check_ok; ok=false; mess='Check number of input arguments';
-        if nargout>1, return, else error(mess), end
+    if numel(varargin)==1 && (isnumeric(varargin{1})||islogical(varargin{1}))  % catch likely mistakes a user might make
+        mod_opts.pp_free=varargin{1};
+    else
+        if numel(varargin)>=1, mod_opts.pulse_model=varargin{1}; end
+        if numel(varargin)>=2, mod_opts.pp_init=varargin{2}; end
+        if numel(varargin)>=3, mod_opts.pp_free=varargin{3}; end
+        if numel(varargin)>=4
+            mod_opts=check_ok; ok=false; mess='Check number of input arguments';
+            if nargout>1, return, else error(mess), end
+        end
     end
     
     % Check validity of structure
@@ -154,19 +154,13 @@ elseif isempty(mod_opts.pp_free)
     mod_opts.pp_free=[];
 else
     mod_opts=empty_struct(names);
-    ok=false; mess='Check the free/fixed parameter list for moderator pulse shape parameters for refinement'; return
+    ok=false; mess='Check the free/fixed parameter list for refinement is an array of logicals'; return
 end
 
 % Check mutual consistency of parameters
 if ~isempty(mod_opts.pulse_model) && isempty(mod_opts.pp_init)
     mod_opts=empty_struct(names);
     ok=false; mess='If the moderator pulse shape name for refinement is given, you must give the initial parameter values'; return
-elseif isempty(mod_opts.pulse_model) && ~isempty(mod_opts.pp_init)
-    mod_opts=empty_struct(names);
-    ok=false; mess='You must give the moderator pulse shape for refinement if you give the initial parameter values'; return
-elseif isempty(mod_opts.pp_init) && ~isempty(mod_opts.pp_free)
-    mod_opts=empty_struct(names);
-    ok=false; mess='You must give the moderator pulse shape for refinement if you give the fixed/free parameter list'; return
 elseif ~isempty(mod_opts.pp_init)
     if isempty(mod_opts.pp_free)
         mod_opts.pp_free=true(size(mod_opts.pp_init));

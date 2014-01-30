@@ -35,7 +35,7 @@ function [xtal_opts,ok,mess] = tobyfit_refine_crystal_options(varargin)
 %                  component along the y axis)
 %                   If empty or omitted, then takes the default [0,1,0]
 %
-% Keywords (more than one is permitted if not inconsistent)
+% Keywords (more than one is permitted so long as the keywords are consistent)
 %   fix_lattice     Fix all lattice parameters [a,b,c,alf,bet,gam]
 %                  i.e. only allow crystal orientation to be refined
 %   fix_alatt       Fix [a,b,c] but allow lattice angles alf, bet and gam to be refined
@@ -76,7 +76,7 @@ function [xtal_opts,ok,mess] = tobyfit_refine_crystal_options(varargin)
 %   >> opts = tobyfit_refine_crystal_options([4.227,4.227,13.3],'fix_angdeg')
 
 
-% For use in other routines: pass a structure and check that it is a valid
+% For use within other routines: pass a structure and check that it is a valid
 % opts strcuture:
 %   >> [opts,ok,mess] = tobyfit_refine_crystal_options(struct)
 

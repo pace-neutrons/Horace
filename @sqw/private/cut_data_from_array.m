@@ -37,7 +37,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % T.G.Perring   31 July 2007
 
 
-ndatpix = 9;        % number of pieces of information the pixel info array (see write_sqw_data for more details)
+ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
 horace_info_level=get(hor_config,'horace_info_level');
 
 % Output arrays for accumulated data

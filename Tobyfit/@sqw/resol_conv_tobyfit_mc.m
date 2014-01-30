@@ -1,4 +1,4 @@
-function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,lookup,xtal,modshape)
+function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,xtal,modshape)
 % Calculate sqw for a model scattering function. Only applies to sqw-type datasets.
 %
 %   >> wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,lookup)
@@ -38,10 +38,6 @@ function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,looku
 %
 %   mc_npoints  Number of Monte Carlo points per pixel
 %
-%   lookup      Structure containing pre-computed lookup tables, transformation matricies
-%              etc. used to reduce repeated computationally intense calculations.
-%               See the help to resol_conv_tobyfit_mc_init.m for details
-%
 %   xtal        Crystal refinement constants. Structure with fields:
 %                   refine      Logical: true (refinement to be performed); false (not)
 %                   urot        x-axis for rotation (r.l.u.)
@@ -79,6 +75,11 @@ wout = win;
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 % Unpack lookup tables and other pre-computed parameters
+[ok,mess,lookup]=resol_conv_tobyfit_mc_init();
+if ~ok
+    error(mess)     % something went wrong!
+end
+
 mod_table=lookup.mod_table.table;
 t_av=lookup.mod_table.t_av;
 ind_mod=lookup.mod_table.ind;

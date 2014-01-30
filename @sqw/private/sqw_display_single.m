@@ -40,7 +40,7 @@ if ~exist('npixtot','var') || isempty(npixtot)
 end
 
 if ~exist('type','var') || isempty(type)
-    type = data_type(din.data);
+    type = data_structure_type(din.data);
 end
 
 if strcmpi(type,'a')

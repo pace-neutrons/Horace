@@ -216,7 +216,7 @@ if save_to_file
         end
     end
     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    fout = fopen (outfile, 'W');
+    fout = fopen (outfile, 'w');
     if (fout < 0)
         error (['Cannot open output file ' outfile])
     end
@@ -229,12 +229,12 @@ end
 if horace_info_level>0, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [main_header,header,detpar,data,mess,position,npixtot,type]=get_sqw (data_source,'-nopix');
+    [mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
 
     if ~isempty(mess)
         error('Error reading data from file %s \n %s',data_source,mess)
     end
-    if ~strcmpi(type,'a')
+    if ~strcmpi(data_type,'a')
         if save_to_file; fclose(fout); end    % close the output file opened earlier
         error('Data file is not sqw file with pixel information - cannot take cut')
     end
