@@ -101,18 +101,22 @@ classdef test_rundata_isvalid<TestCase
             rd.is_crystal = true;
             assertTrue(isvalid(rd));
             
+            ws=warning('off','MATLAB:subsasgnMustHaveOutput');            
             f=@()subsasgn(rd,struct('type','.','subs','is_crystal'),3);
             assertExceptionThrown(f,'RUNDATA:set_is_crystal');
+            warning(ws);
         end
         function this = test_3vectors(this)
             rd=rundata();
             %rd.u='a';
+            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
             f=@()subsasgn(rd,struct('type','.','subs','u'),'a');
             assertExceptionThrown(f,'RUNDATA:invalid_argument');
             
             %rd.u=1;
             f=@()subsasgn(rd,struct('type','.','subs','u'),1);
             assertExceptionThrown(f,'RUNDATA:invalid_argument');
+            warning(ws);
             
             rd.u=[1,2,3];
             rd.v=[3;4;5];
@@ -125,6 +129,7 @@ classdef test_rundata_isvalid<TestCase
         function this = test_1vectors(this)
             rd=rundata();
             %rd.gl='a';
+            ws=warning('off','MATLAB:subsasgnMustHaveOutput');            
             f=@()subsasgn(rd,struct('type','.','subs','gl'),'a');
             %            assertEqual(mess,' field: gl has to be numeric but it is not');
             assertExceptionThrown(f,'RUNDATA:set_angular_value');
@@ -139,7 +144,7 @@ classdef test_rundata_isvalid<TestCase
             f=@()subsasgn(rd,struct('type','.','subs','gl'),400);
             %            assertEqual(mess,' field: gl has to in range of +-360 deg but it is not');
             assertExceptionThrown(f,'RUNDATA:set_angular_value');
-            
+            warning(ws);
             
             rd.gl=0;
             rd.gs=1;
@@ -163,6 +168,7 @@ classdef test_rundata_isvalid<TestCase
         function this = test_LatticeCorrect(this)
             rd=rundata();
             %rd.angldeg = [-400,0,0]
+            ws=warning('off','MATLAB:subsasgnMustHaveOutput');            
             f=@()subsasgn(rd,struct('type','.','subs','angldeg'),[-400,0,0]);
             assertExceptionThrown(f,'RUNDATA:set_lattice_angles');
             
@@ -170,6 +176,7 @@ classdef test_rundata_isvalid<TestCase
             %rd.angldeg = [45,120,45]
             f=@()subsasgn(rd,struct('type','.','subs','angldeg'),[45,120,50]);
             assertExceptionThrown(f,'RUNDATA:set_lattice_angles');
+            warning(ws);
         end
         
         

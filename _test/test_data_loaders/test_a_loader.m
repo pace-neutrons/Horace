@@ -75,16 +75,21 @@ classdef test_a_loader< TestCase
             assertEqual(36864,al.n_detectors);
             
             spe_file  = fullfile(this.test_data_path,'MAP10001.spe');
+            
+            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
+            
             f=@()subsasgn(al,struct('type','.','subs','file_name'),spe_file);
             
             assertExceptionThrown(f,'A_LOADER:set_file_name');
             
             spe_file  = fullfile(tempdir(),'abstract_test_file.altf');
+            
             f=@()subsasgn(al,struct('type','.','subs','file_name'),spe_file);
             fl = fopen(spe_file,'w');
             fclose(fl);
             
             assertExceptionThrown(f,'A_LOADER:abstract_method_called');
+            warning(ws);
             
             delete(spe_file);
         end
@@ -210,7 +215,7 @@ classdef test_a_loader< TestCase
             
             test_file = fullfile(tempdir,'save_nxspe_testfile.nxspe');
             %test_file = 'save_nxspe_testfile.nxspe';
-%            test_file = 'save_nxspe_testfile.nxspe';
+            %            test_file = 'save_nxspe_testfile.nxspe';
             if exist(test_file,'file')
                 delete(test_file);
             end
@@ -235,7 +240,7 @@ classdef test_a_loader< TestCase
             det_old  = lt.det_par;
             assertEqual(det_load.phi,det_old.phi);
             assertEqual(det_load.azim,det_old.azim);
-            assertEqual(det_load.x2,det_old.x2);            
+            assertEqual(det_load.x2,det_old.x2);
             
             delete(test_file);
         end

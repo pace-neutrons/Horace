@@ -84,8 +84,10 @@ classdef test_memfile< TestCase
             
             % other file does not exist;
             %mf.file_name = 'other_file.memfile';
+            ws=warning('off','MATLAB:subsasgnMustHaveOutput');            
             f=@()subsasgn(mf,struct('type','.','subs','file_name'),'other_file.memfile');
             assertExceptionThrown(f,'A_LOADER:set_file_name');
+            warning(ws);
             
             
             mf1=memfile();
