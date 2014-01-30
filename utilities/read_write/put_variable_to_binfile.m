@@ -65,17 +65,17 @@ end
 %--------------------------------------------------------------------------
 function put_class(fid,type,sz)
 % Write the class name and array size. Note that neither can be empty
-fwrite(fid,length(type),'double');
+fwrite(fid,length(type),'float64');
 fwrite(fid,type,'char*1');
-fwrite(fid,length(sz),'double');
-fwrite(fid,sz,'double');
+fwrite(fid,length(sz),'float64');
+fwrite(fid,sz,'float64');
 
 %--------------------------------------------------------------------------
 function put_fnames(fid,names)
 % Write the field names of a structure. Can be empty cell array
 nn=numel(names);
-fwrite(fid,nn,'double');
+fwrite(fid,nn,'float64');
 for i=1:nn
-    fwrite(fid,length(names{i}),'double');
+    fwrite(fid,length(names{i}),'float64');
     fwrite(fid,names{i},'char*1');
 end

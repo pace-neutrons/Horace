@@ -1,13 +1,20 @@
 function pbind = multifit_bind_local_pars_as_global (sz, bind, foreground)
-% Bind parameters of a function that is used across all datasets as if they were local
+% Bind parameters of a function that is used across all datasets as if they were global
 %
 %   >> pbind = multifit_bind_local_par (sz, bind)
+%
+% This is a utility function that can be used to simplify the binding of 
+% parameters when a local function is used but which is the same for all
+% datasets. A common requirement is for some of the parameters to be global
+% but others local; this function will create the binding description
+% that defines this behaviour during a fit.
 %
 % Input:
 % ------
 %   sz          Size of the array of datasets
 %   bind        Logical array of 0 or 1, indicating which parameters are unbound
-%              or bound, respectively
+%              (i.e. vary independently) or bound as global (i.e. are equal and
+%              vary together for all datasets) respectively
 %   forgeound   =true   if the functiona are foreground functions
 %               =false if background functions
 %

@@ -1,7 +1,7 @@
 function [isfitting,index,foreground,store_calcs]=multifit_gateway_get_state
 % Get the most recently set datset index and type of function evaluation request
 %
-%   >> [index,foreground,store_calcs] = multifit_gateway_get_state
+%   >> [isfitting,index,foreground,store_calcs] = multifit_gateway_get_state
 %
 % Output:
 % -------

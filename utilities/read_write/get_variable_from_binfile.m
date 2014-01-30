@@ -5,7 +5,7 @@ function var=get_variable_from_binfile(fid)
 %
 % Input:
 % ------
-%   fid     File identifier of file already open for reading as binary
+%   fid     File pointer to (already open) binary file
 %
 % Output:
 % -------
@@ -80,18 +80,18 @@ end
 %--------------------------------------------------------------------------
 function [type,sz]=get_class(fid)
 % Read the class name and array size. Note that neither can be empty
-nchar=fread(fid,1,'double');
+nchar=fread(fid,1,'float64');
 type=fread(fid,[1,nchar],'*char*1');
-nel=fread(fid,1,'double');
-sz=fread(fid,[1,nel],'double');
+nel=fread(fid,1,'float64');
+sz=fread(fid,[1,nel],'float64');
 
 %--------------------------------------------------------------------------
 function names=get_fnames(fid)
 % Read the field names of a structure. Can be empty cell array
-nn=fread(fid,1,'double');
+nn=fread(fid,1,'float64');
 names=cell(nn,1);
 for i=1:nn
-    nchar=fread(fid,1,'double');
+    nchar=fread(fid,1,'float64');
     names{i}=fread(fid,[1,nchar],'*char*1');
 end
 

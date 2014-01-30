@@ -43,10 +43,10 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 % Ensure that the documentation below is consistent with that in multifit.m
 %
 % -------------------------------------------------------------------------------------------------
-% Find best fit of a parametrised function to data. Works for arbitrary 
+% Find best fit of a parametrised function to data. Works for an arbitrary 
 % number of dimensions. Various keywords control output.
 %
-% The data can be x,y,e arrays or objects of a class.
+% The data can be x,y,e arrays, or objects of a class.
 %
 % Simultaneously fit several data sets to a given function (w is an array of several datasets):
 %   >> [ok, mess, output] = multifit (w, func, pin)                 % all parameters free
@@ -58,7 +58,7 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %   >> [ok, mess, output] = multifit (..., bkdfunc, bpin, bpfree)
 %   >> [ok, mess, output] = multifit (..., bkdfunc, bpin, bpfree, bpbind)
 %
-% Additional keywords controlling which ranges to keep, remove from objects, control fitting algorithm etc.
+% Additional keywords control which ranges of the data to keep or remove from objects, control fitting algorithm etc.
 %   >> [ok, mess, output] = multifit (..., keyword, value, ...)
 %
 %   Keywords are:
@@ -70,6 +70,8 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %       'fit'       alter convergence critera for the fit etc.
 %       'evaluate'  evaluate at the initial parameter values (convenient to test starting values)
 %       'chisqr'    evaluate chi-squared at the initial parameter values (ignored if 'evaluate' not set)
+%       'foreground'
+%       'background'
 %
 %     Control if foreground and background functions apply to each dataset independently or are global
 %       'global_foreground' Foreground function applies to all datasets [default]
@@ -77,6 +79,9 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %
 %       'local_background'  Background function(s) apply to each dataset independently [default]
 %       'global_background' Background function applies to all datasets
+%
+%     Apply a pre-processing function to the data before least squares fitting
+%       'init_func'         Function handle
 %
 %   For internal use only:
 %     'parsefunc_'  Return function parsing information. For use by developers only.
@@ -421,7 +426,7 @@ arglist = struct('fitcontrolparameters',[0.0001 30 0.0001],...
                  'keep',[],'remove',[],'mask',[],'list',0,'selected',0,...
                  'evaluate',0,'foreground',0,'background',0,'chisqr',0,...
                  'local_foreground',0,'global_foreground',1,'local_background',1,'global_background',0,...
-                 'parsefunc_',0);
+                 'init_func',[],'parsefunc_',0);
 flags = {'selected','evaluate','foreground','background','chisqr',...
          'local_foreground','global_foreground','local_background','global_background',...
          'parsefunc_'};
@@ -501,6 +506,17 @@ else
     eval_chisqr=false;
     eval_foreground=true;
     eval_background=true;
+end
+
+% Check preprocessor option is a function handle, if present
+if ~isempty(options.init_func)
+    if isa(options.init_func,'function_handle')
+        init_func=options.init_func;
+    else
+        [ok,mess,output]=multifit_error(nop,'The option ''init_func'' must be a function handle'); return
+    end
+else
+    init_func=[];
 end
 
 % ----------------------------------------------------------------------------------------------------------------
@@ -791,28 +807,37 @@ end
 % ----------------------------------------------------------------------------------------------------------------
 
 % Perform fit, if requested
-if fitting
-    perform_fit=true;
-    [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
+if fitting || eval_chisqr
+    if ~isempty(init_func)
+        [ok,mess]=init_func(wmask);
+        if ~ok, [ok,mess,output]=multifit_error(nop,['Preprocessor function: ',mess]); return, end
+    end
+    [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,fitting);
     if ~ok, [ok,mess,output]=multifit_error(nop,mess); return, end
 else
-    if eval_chisqr
-        perform_fit=false;
-        [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(wmask,xye,func,bkdfunc,pin,bpin,pf,p_info,options.list,options.fitcontrolparameters,perform_fit);
-        if ~ok, [ok,mess,output]=multifit_error(nop,mess); return, end
-    else
-        p_best=pf;              % Need to have the size of number of free parameters to be useable with p_info
-        sig=zeros(1,numel(pf)); % Likewise
-        cor=zeros(numel(pf));   % Set to zero, as no fitting done
-        chisqr_red=0;           % If do not want to use multifit_lsqr because of unwanted checks and overheads
-    end
+    p_best=pf;              % Need to have the size of number of free parameters to be useable with p_info
+    sig=zeros(1,numel(pf)); % Likewise
+    cor=zeros(numel(pf));   % Set to zero, as no fitting done
+    chisqr_red=0;           % If do not want to use multifit_lsqr because of unwanted checks and overheads
 end
     
 % Evaluate the functions at the fitted parameter values / input parameter requests with ratios properly resolved)
 % On the face of it, it should not be necessary to re-evaluate the function, as this will have been done in multifit_lsqr.
-% However, we may want to evaluate the output object for the whole function, not just the fitted points. If one is cunning,
-% the options.selected==true loop could be eliminated.
+% However, there are two reasons why we perform an independent final function evaluation:
+% (1) We may want to evaluate the output object for the whole function, not just the fitted points.
+% (2) The evaluation of the function inside multifit_lsqr retains only the calculated values at the data points
+%     used in the evaluation of chi-squared; the evaluation of the output object(s) may require other fields to be
+%     evaluated. For example, when fitting Horace sqw objects, the signal for each of the individual pixels needs to
+%     be recomputed.
+% If the calculated objects were retained after each iteration, rather than just the values at the data points, then
+% it would be possible to use the stored values to avoid this final recalculation for the case of 
+% options.selected==true. We could also avoid the second evaluation in the case of eval_chisqr==true.
+
 if options.selected
+    if ~isempty(init_func)
+        [ok,mess]=init_func(wmask);
+        if ~ok, [ok,mess,output]=multifit_error(nop,['Preprocessor function: ',mess]); return, end
+    end
     wout=multifit_func_eval(wmask,xye,func,bkdfunc,pin,bpin,p_best,p_info,eval_foreground,eval_background);
     for i=1:numel(wout) % must expand the calculated values into the unmasked x-y-e triple - may be neater way to do this
         if xye(i)
@@ -823,6 +848,10 @@ if options.selected
         end
     end
 else
+    if ~isempty(init_func)
+        [ok,mess]=init_func(w);
+        if ~ok, [ok,mess,output]=multifit_error(nop,['Preprocessor function: ',mess]); return, end
+    end
     wout=multifit_func_eval(w,xye,func,bkdfunc,pin,bpin,p_best,p_info,eval_foreground,eval_background);
 end
 

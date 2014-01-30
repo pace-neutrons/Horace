@@ -34,8 +34,7 @@ function [ycalc,varcalc]=multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist
 %              parameter values needed for function evaluation
 %
 %   store_vals  Logical scalar: =true if calculated signal and variance on
-%              on calculation (could be useful in Monte Carlo function evaluation)
-%              are to be stored; =false otherwise
+%              on calculation are to be stored; =false otherwise
 %
 %   listing     Control diagnostic output to the screen if >2 then list which
 %              datasets were computed for the foreground and background functions
