@@ -3,9 +3,24 @@ function appdata=sliceomaticfigure(d)
 % Create the figure window to be used by the sliceomatic GUI.
 % D is the app data to attach to the figure
   
-% Init sliceomatic
-fig = gcf;
-clf(fig,'reset')
+%------------------------------------------------------------------------------
+% === TGP 4 Feb 2014: replaced:
+
+% % Init sliceomatic
+% fig = gcf;
+% clf(fig,'reset')
+
+% === with:
+
+% If existing Sliceomatic figure, reset; otherwise create a new figure
+fig=findobj('name','Sliceomatic','type','figure');
+if ~isempty(fig)
+    clf(fig,'reset')
+else
+    fig=figure;
+end
+%------------------------------------------------------------------------------
+
          set (fig,'MenuBar','none','Resize','on',...
               'NumberTitle','off',...
               'PaperPositionMode','auto');
