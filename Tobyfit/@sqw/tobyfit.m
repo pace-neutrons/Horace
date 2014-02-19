@@ -1,4 +1,4 @@
-function [wout, fitdata, ok, mess, rlu_corr, fitmod] = tobyfit(win, varargin)
+function [wout, fitdata, ok, mess, varargout] = tobyfit(win, varargin)
 % Simultaneously fit a model for S(Q,w) to an array of sqw objects.
 % Optionally allows background functions,which are also S(Q,w) models, that vary independently for each sqw object.
 %
@@ -441,8 +441,8 @@ if refine_crystal
     rotmat=rotvec_to_rotmat2(rotvec);
     ub=ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt,angdeg));
     rlu_corr=ub\rotmat*xtal.ub0;
-else
-    rlu_corr=[];
+    % Pack output arguments
+    varargout={rlu_corr};
 end
 
 % Get the moderator refinement parameters
@@ -455,8 +455,8 @@ if refine_moderator
     else
         fitmod.sig=fitdata.sig{1}(end-npmod+1:end);
     end
-else
-    fitmod=[];
+    % Pack output arguments
+    varargout={fitmod.pulse_model,fitmod.p,fitmod.sig};
 end
 
 
