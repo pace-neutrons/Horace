@@ -18,23 +18,27 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 %
 % Input:
 % ------
-%   nargout_caller  Number of output arguments expected by the caller function. This isused
-%                  to reate the field nargout_req in the output data source object if the input
-%                  data is an bject or filename(s)
+%   nargout_caller  Number of output arguments expected by the caller function. This is used
+%                  to create the field nargout_req in the output data source object if the input
+%                  data is an object or filename(s)
 % *EITHER*
 %   data_object     sqw or dnd object (or arrays of objects) containing data to be processed
 %                  by the caller function.
 % *OR*
-%   dummy_object     
-%                   Dummy data object (e.g. from call to sqw constructor with no input arguments)
+%   dummy_object    Dummy data object (e.g. from call to sqw constructor with no input arguments)
 %                  This determines what sort of data the file(s) or data source object
-%                  must contain.
+%                  must contain (class must be one of sqw, d0d, d1d, d2d, d3d or d4d).
 %
-%   data_source     File name, or cell array of file names, containing Horace data
-%                    *OR*
-%                   Data source object from an earlier call to this function (see output argument
+%   data_source     Data source object from an earlier call to this function (see output argument
 %                  below for detailed description).
-%
+%                    *OR*
+%                   If the final input argument is '$obj_and_file_ok', then a file name, or cell array
+%                  of file names, containing Horace data. This option is for those rare cases where
+%                  we want an object method to be able to take a file name e.g. w=read(sqw,'myfile.sqw')
+%                  as an alternative to >> w=read_sqw('myfile.sqw'). This option is best avoided
+%                  because it sits outside the standard convention for the writing of methods that
+%                  operate on both objects and files.
+%                   
 %
 %   arg1, arg2,...  All other input arguments; these are passed through in output argument args (see below)
 %
@@ -55,6 +59,10 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 %                                      the actual contents are. That is, the file may contain sqw data,
 %                                      but if sqw_type(i) is false then it will be read as dnd object.
 %                       ndims           Array giving dimensions of the data
+%                       nfiles          Array giving number of contributing spse data sets to each data source
+%                                      Contains zeros if not sqw_type. (This is the case even if the file
+%                                      data contains sqw information, because if sqw_type==false then the
+%                                      file is going to be read as a dnd object)
 %                       source_arg_is_struct
 %                                       Type of input data source:
 %                                           =true if it was a data source structure
@@ -110,30 +118,41 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 
 
 % Default values if there is an error
-data_source=struct('source_is_file',{},'data',{},'sqw_type',{},'ndims',{},'source_arg_is_struct',{},'nargout_req',{});
+data_source=struct('source_is_file',{},'data',{},'sqw_type',{},'ndims',{},'nfiles',{},'source_arg_is_struct',{},'nargout_req',{});
 args=cell(1,0);
 
 % Parse input arguments
 % ---------------------
 narg=numel(varargin);
-if narg>=2 && (is_horace_data_object(varargin{1})||is_horace_data_file_opt(varargin{1})) && is_filename(varargin{2})
-    % Input arguments must start: (dummy_obj, filename,...)
-    %                         or: (file_opt, filename,...)
+% Check if the input format (nargout_caller, dummy_obj, filename,...,'$obj_and_file_ok') is permitted
+if narg>=1 && isstring(varargin{end}) && strcmpi(varargin{end},'$obj_and_file_ok')
+    obj_and_file_ok=true;
+    narg=narg-1;
+else
+    obj_and_file_ok=false;
+end
+
+% Check for valid argument lists
+if narg>=2 && is_filename(varargin{2}) && (is_horace_data_file_opt(varargin{1}) || (obj_and_file_ok && is_horace_data_object(varargin{1})))  
+    % Input arguments must start: (nargout_caller, dummy_obj, filename,...,'$obj_and_file_ok')
+    %                         or: (nargout_caller, file_opt, filename,...)
     % The dummy object determines the data that must be contained in the files:
     %  - if sqw object: All files contain sqw data i.e. have pixel information.
     %  - if dnd object: All files must have the same dimensionality as the dummy object.
     %                  The files will be read as dnd data; any pixel information is ignored.
     try
-        [sqw_type,ndims,filename,mess] = is_sqw_type_file(sqw,varargin{2});
+        [sqw_type,ndims,nfiles,filename,mess] = is_sqw_type_file(sqw,varargin{2});
     catch
         mess = 'Unable to read data file(s) - check file(s) exist and are Horace data file(s) (sqw or dnd type binary file)';
     end
     if isempty(mess)
         [is_opt,opt_sqw,opt_dnd,opt_hor]=is_horace_data_file_opt(varargin{1});
         if is_opt
-            sqw_obj=false; dnd_obj=false;
+            sqw_obj=false;
+            dnd_obj=false;
         else
-            sqw_obj=isa(varargin{1},'sqw'); dnd_obj=~sqw_obj;
+            sqw_obj=isa(varargin{1},'sqw');
+            dnd_obj=~sqw_obj;
         end
         if (sqw_obj||opt_sqw) && ~all(sqw_type(:))
             mess='Data file(s) must all be sqw type i.e. must contain pixel information';
@@ -147,13 +166,18 @@ if narg>=2 && (is_horace_data_object(varargin{1})||is_horace_data_file_opt(varar
         else
             data_source(1).source_is_file=true;
             data_source(1).data=filename;
-            if narg>=3, args=varargin(3:end); else args=cell(1,0); end    % to work in all cases
+            if narg>=3, args=varargin(3:narg); else args=cell(1,0); end     % to work in all cases
             if sqw_obj||opt_sqw||(opt_hor&&all(sqw_type(:)))
                 data_source(1).sqw_type=sqw_type;
             else
                 data_source(1).sqw_type=false(size(sqw_type));  % force dnd reading of files
             end
             data_source(1).ndims=ndims;
+            if data_source(1).sqw_type
+                data_source(1).nfiles=nfiles;
+            else
+                data_source(1).nfiles=zeros(size(nfiles));      % if forced dnd reading, set nfiles to match
+            end
             data_source(1).source_arg_is_struct=false;
             data_source(1).nargout_req=nargout_caller;
         end
@@ -162,13 +186,14 @@ if narg>=2 && (is_horace_data_object(varargin{1})||is_horace_data_file_opt(varar
 elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &&...
         numel(fields(data_source))==numel(fields(varargin{2})) &&...
         all(strcmp(fields(data_source),fields(varargin{2}))))
-    % Input arguments must start: (dummy_obj, data_source_structure,...)
+    % Input arguments must start: (nargout_caller, dummy_obj, data_source_structure,...)
     % Already checked that the contents of the data_source_structure are valid if got this far.
     % However, must make sure that the data_source object is consistent with the class of dummy_obj.
     % We 'round down' the sqw type if file data source structure; or use dnd() or sqw() according
     % to class(dummy_obj) if object data source structure.
     mess='';
     if ~isa(varargin{1},'sqw')
+        % Dummy object is d0d, d1d,... or d4d
         % If file or object data, must do the following:
         if any(varargin{2}.ndims~=dimensions(varargin{1}(1)))
             mess='Not all data sources have the correct dimensionality';
@@ -180,44 +205,52 @@ elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &
         if ~data_source.source_is_file && isa(data_source.data,'sqw')
             data_source.data=dnd(data_source.data);
         end
+        % Make sure the nfiles is zet to zero
+        data_source.nfiles=zeros(size(data_source.nfiles));
     else
+        % Dummy object is sqw object
         data_source=varargin{2};
         if ~data_source.source_is_file && ~isa(data_source.data,'sqw')
-            data_source.data=sqw(data_source.data);
+            data_source.data=sqw(data_source.data);     % turn dnd object into dnd-type sqw object
         end
     end
     if isempty(mess)
         data_source.source_arg_is_struct=true;
-        if narg>=3, args=varargin(3:end); else args=cell(1,0); end    % to work in all cases
+        if narg>=3, args=varargin(3:narg); else args=cell(1,0); end    % to work in all cases
     end
     
 elseif narg>=1 && is_horace_data_object(varargin{1})
-    % Input arguments must start: (data_object,...)
+    % Input arguments must start: (nargout_caller, data_object,...)
     % We restrict the call to make a hard check on input, that is, an sqw object must
     % contain pixel information (to be consistent with how file data is handled).
+    % That is, a dnd-tpye sqw object is not permitted.
     mess='';
     if isa(varargin{1},'sqw')
         sqw_type=true(size(varargin{1}));
         ndims=zeros(size(varargin{1}));
+        nfiles=zeros(size(varargin{1}));
         for i=1:numel(varargin{1})
             if ~is_sqw_type(varargin{1}(i))
                 mess='Data file(s) must all be sqw type i.e. must contain pixel information';
                 break
             end
             ndims(i)=dimensions(varargin{1}(i));
+            nfiles(i)=varargin{1}(i).main_header.nfiles;
         end
     else
         sqw_type=false(size(varargin{1}));
         ndims=dimensions(varargin{1}(1)) * ones(size(varargin{1}));
+        nfiles=zeros(size(varargin{1}));
     end
     if isempty(mess)
         data_source(1).source_is_file=false;
         data_source(1).data=varargin{1};   % should be efficient - just copying a pointer
         data_source(1).sqw_type=sqw_type;
         data_source(1).ndims=ndims;
+        data_source(1).nfiles=nfiles;
         data_source(1).source_arg_is_struct=false;
         data_source(1).nargout_req=nargout_caller;
-        if narg>=2, args=varargin(2:end); else args=cell(1,0); end    % to work in all cases
+        if narg>=2, args=varargin(2:narg); else args=cell(1,0); end    % to work in all cases
     end
     
 else

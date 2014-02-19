@@ -37,8 +37,14 @@ addpath_message (1,rootpath,'utilities');
 % Functions for fitting etc.
 addpath_message (1,rootpath,'functions');
 
-%Add GUI path
+% Add GUI path
 addpath_message(1,rootpath,'GUI');
+
+% Add Tobyfit prototype
+if ispc
+    addpath_message (1,rootpath,'Tobyfit');
+    tobyfit_init
+end
 
 %addpath_message (1,rootpath,'work_in_progress');   % not included in the distribution
 

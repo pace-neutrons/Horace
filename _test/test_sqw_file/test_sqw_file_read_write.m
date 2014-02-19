@@ -23,8 +23,6 @@ inst2.flipper=true;
 inst3=create_test_instrument(195,600,'a');
 inst3.filter=[3,4,5];
 
-
-
 tmpsqwfile=fullfile(tempdir,'test_sqw_file_read_write_tmp.sqw');
 
 % Write out to sqw files, read back in, and test they are the same
@@ -104,6 +102,8 @@ tmp=read_sqw(tmpsqwfile);
 %==================================================================================================
 % Test syntax and file i/o of set_instrument and set_sample
 %==================================================================================================
+% These tests exercise the read/write of get_sqw and put_sqw, and the correct operation
+% of the set_sample and set_instrument methods for both objects and files.
 
 % Add sample to a single spe file sqw object
 f1_1_s1=change_header_test(f1_1,'-none',sam1);
@@ -130,17 +130,64 @@ f1_2_i0s2=change_header_test(f1_2_i1s1,struct,sam2);
 f1_2_i0s0=change_header_test(f1_2_i1s1,struct,struct);
 
 
+% Use instrument function definition to change instrument
+% -------------------------------------------------------
+% Create reference object, testing setting of array instrument on the way
+tmpsqwfile=fullfile(tempdir,'test_sqw_file_fileref_store.sqw');
+wref=f1_2;
+wref.header{1}.efix=130;
+wref.header{1}.efix=135;
+inst_arr=create_test_instrument(95,250,'s');
+inst_arr(2)=create_test_instrument(105,300,'a');
+wref=change_header_test(wref,inst_arr,sam1);
+save(wref,tmpsqwfile);
+wref=read_sqw(tmpsqwfile);     % creates with same file name will be set with read_sqw
 
 
+% Change the two instruments
+inst_arr=create_test_instrument(400,500,'s');
+inst_arr(2)=create_test_instrument(105,600,'a');
+wtmp_ref=wref;
+wtmp_ref.header{1}.instrument=inst_arr(1);
+wtmp_ref.header{2}.instrument=inst_arr(2);
+
+wtmp=set_instrument(wref,@create_test_instrument,[400;105],[500;600],{'s';'a'});
+assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
+
+save(wref,tmpsqwfile);     % recreate reference file
+set_instrument_horace(tmpsqwfile,@create_test_instrument,[400;105],[500;600],{'s';'a'});
+assertTrue(isequal(wtmp_ref,read_sqw(tmpsqwfile)),'Incorrectly set instrument for sqw file')
 
 
+% Both instruments set to the same
+inst_arr=create_test_instrument(400,500,'s');
+inst_arr(2)=create_test_instrument(400,500,'s');
+wtmp_ref=wref;
+wtmp_ref.header{1}.instrument=inst_arr(1);
+wtmp_ref.header{2}.instrument=inst_arr(2);
+
+wtmp=set_instrument(wref,@create_test_instrument,400,500,'s');
+assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
+
+save(wref,tmpsqwfile);     % recreate reference file
+set_instrument_horace(tmpsqwfile,@create_test_instrument,400,500,'s');
+assertTrue(isequal(wtmp_ref,read_sqw(tmpsqwfile)),'Incorrectly set instrument for sqw file')
 
 
+% Set ei in chopper to whatever is in the spe files
+inst_arr=create_test_instrument(135,500,'s');
+inst_arr(2)=create_test_instrument(50,500,'s');
+wtmp_ref=wref;
+wtmp_ref.header{1}.instrument=inst_arr(1);
+wtmp_ref.header{2}.instrument=inst_arr(2);
 
+wtmp=set_instrument(wref,@create_test_instrument,'-efix',500,'s');
+assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
 
+save(wref,tmpsqwfile);     % recreate reference file
+set_instrument_horace(tmpsqwfile,@create_test_instrument,'-efix',500,'s');
+assertTrue(isequal(wtmp_ref,read_sqw(tmpsqwfile)),'Incorrectly set instrument for sqw file')
 
-
-
-
-
-
+%----------------------------------------------------------------------------------------
+% Cleanup
+delete(tmpsqwfile)

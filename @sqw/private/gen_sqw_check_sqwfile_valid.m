@@ -30,7 +30,7 @@ function [ok,mess,header,detpar,grid_size,urange]=gen_sqw_check_sqwfile_valid(sq
 % Determine if the file contains sqw data, and dimensionality
 % -----------------------------------------------------------
 % (Note: as of 19 Mar 2013, this involves an implicit read of header if prototype sqw file format)
-[sqw_type, ndims, filename, mess] = is_sqw_type_file(sqw,sqw_file);
+[sqw_type, ndims, nfiles, filename, mess] = is_sqw_type_file(sqw,sqw_file);
 if ~isempty(mess)
     ok=false;
     header={}; detpar=[]; grid_size=[]; urange=[];

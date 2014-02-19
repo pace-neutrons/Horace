@@ -5,13 +5,14 @@ function [mod_opts,ok,mess] = tobyfit_refine_moderator_options(varargin)
 %   >> opts = tobyfit_refine_moderator_options (...)   % see below for useage
 %   >> [wout,fit]=tobyfit(...,'refine_moderator',opts,...)
 %
-% Default options
+% Use current moderator lineshape, with current parameters as initial values:
 %   >> opts = tobyfit_refine_moderator_options
+%   >> opts = tobyfit_refine_moderator_options (pp_free)                % logical list of parameters to refine
 %
-% Set moderator pulse shape model and parameters different to those in the sqw objects
-%   >> opts = tobyfit_refine_moderator_options (pulse_model,pp_init)    % model and initial parameters
-%   >> opts = tobyfit_refine_moderator_options ('',pp_init)             % initial parameters
-%   >> opts = tobyfit_refine_moderator_options (pp_free)                % parameters to refine
+% Set moderator pulse shape model and/or parameters different to those in the sqw objects:
+%   >> opts = tobyfit_refine_moderator_options ('',pp_init)             % retain model; new initial parameters
+%   >> opts = tobyfit_refine_moderator_options (pulse_model,pp_init)    % new model and initial parameters
+%   >> opts = tobyfit_refine_moderator_options (...,pp_free)            % and logical list of parameters to refine
 %
 %
 % Input:
@@ -56,9 +57,9 @@ function [mod_opts,ok,mess] = tobyfit_refine_moderator_options(varargin)
 %   >> [opts,ok,mess] = tobyfit_refine_moderator_options(struct)
 
 
-% Get crystal refinement options structure
-% ----------------------------------------
-% Determine if xtal_opts structure input or not
+% Get moderator refinement options structure
+% ------------------------------------------
+% Determine if options structure input or not
 if nargin==1 && isstruct(varargin{1})   % input a single structure
     if isscalar(varargin{1})
         [mod_opts,ok,mess]=check_ok(varargin{1});
