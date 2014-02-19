@@ -1,8 +1,8 @@
 function varargout = head (varargin)
 % Display a summary of an sqw object or file containing sqw information.
-% 
-%   >> head(w)              % Summary for object (or array of objects)
-%   >> head(sqw,filename)   % Summary for named file (or array of names)
+%
+%   >> head(w)              % Display summary for object (or array of objects)
+%   >> head(sqw,filename)   % Display summary for named file (or array of names)
 %
 % To return header information in a structure, without displaying to screen:
 %
@@ -45,7 +45,7 @@ function varargout = head (varargin)
 
 % Parse input
 % -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:},'$obj_and_file_ok');
 if ~isempty(mess), error(mess); end
 
 % Perform operations
@@ -71,17 +71,24 @@ end
 % if data_source is a sqw object.
 
 if w.source_is_file
-    for i=1:nw
-        [mess,h.main_header,h.header,h.detpar,h.data,position,npixtot]=get_sqw (w.data{i},'-h');
-        if ~isempty(mess); error(mess); end
-        if nout==0
+    if nout==0
+        for i=1:nw
+            [mess,h.main_header,h.header,h.detpar,h.data,position,npixtot]=get_sqw (w.data{i},'-h');
             if w.sqw_type(i)
                 sqw_display_single (h,npixtot,'a')
             else
                 npixtot=1;      % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
                 sqw_display_single (h,npixtot,'b+')
             end
-        else
+        end
+    else
+        for i=1:nw
+            if w.sqw_type(i) && hfull
+                [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-his');
+            else
+                [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-h');
+            end
+            if ~isempty(mess); error(mess); end
             if nw==1
                 if w.sqw_type(i) && hfull
                     hout=h;
@@ -110,8 +117,9 @@ else
                 h.data=rmfield(h.data,{'s','e','npix','pix'});
             else
                 h=rmfield(w.data(i).data,{'s','e','npix'});
-                if isfield(h,'pix'), h=rmfield(h,'pix'); end    % if sqw type, then remove pix array
-                if ~is_sqw_type(w.data(i))
+                if is_sqw_type(w.data(i))
+                    h=rmfield(h,'pix');
+                else
                     if isfield(h,'urange'), h=rmfield(h,'urange'); end  % if, for some reason, there is a urange field, remove it.
                 end
             end

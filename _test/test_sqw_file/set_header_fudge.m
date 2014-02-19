@@ -1,19 +1,19 @@
-function wout=set_header_fudge(w,field,varargin)
+function wout=set_header_fudge(w,field,val)
 % Fudge to get around the object hierarchy in set functions that prevents direct assignment
 % of sample or instrument fields to objects
 wout=w;
 tmp=wout.header;
 if isstruct(tmp)
-    if numel(varargin)~=1, error('Check number of values'), end
-    tmp.(field)=varargin{1};
+    if numel(val)~=1, error('Check number of values'), end
+    tmp.(field)=val;
 else
-    if numel(varargin)==1
+    if numel(val)==1
         for i=1:numel(tmp)
-            tmp{i}.(field)=varargin{1};
+            tmp{i}.(field)=val;
         end
-    elseif numel(varargin)==numel(tmp)
+    elseif numel(val)==numel(tmp)
         for i=1:numel(tmp)
-            tmp{i}.(field)=varargin{i};
+            tmp{i}.(field)=val(i);
         end
     else
         error('Check number of values')

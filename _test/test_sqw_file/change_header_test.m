@@ -2,11 +2,12 @@ function wnew=change_header_test(w,inst,samp)
 % Alter an object's header, and test against altering with set_sample and set_header,
 % both in object form and file form.
 %
-% Return the altered object, so it can be used as input into further tests
+% Return the altered object, so it can be used as input into further tests, with
+% name of file that contains the object on disk
 
 no_inst=true;
 no_samp=true;
-tmpsqwfile=fullfile(tempdir,'test_sqw_file_read_write_tmp.sqw');
+tmpsqwfile=fullfile(tempdir,'change_header_test.sqw');
 
 % Make an sqw object with a sample
 wnew=w;
@@ -32,3 +33,6 @@ if ~no_inst, set_instrument_horace(tmpsqwfile,inst); end
 if ~no_samp, set_sample_horace(tmpsqwfile,samp); end
 tmpfromfile=read_sqw(tmpsqwfile);
 [ok,mess]=equal_to_tol(wnew,tmpfromfile,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+
+% Delete output file, if can
+delete(tmpsqwfile)

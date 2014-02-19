@@ -1,21 +1,23 @@
 function [argout,mess] = horace_function_call_method (nargout_caller, func, input_type, varargin)
 % Generic function to call sqw or dnd class methods
 %
-%   >> [argout,mess] = horace_function_call_method (nargout_req, data_source, arg1, arg2, ...)
+%   >> [argout,mess] = horace_function_call_method (nargout_caller, func, input_type, data_source, arg1, arg2, ...)
 %
 % Input:
 % ------
 %   nargout_caller  Number of return arguments expected by caller. This gives the
 %                  minimum number of return arguments that must be provided
-%   func            Handle to function
+%   func            Handle to function name (the appropriate class will be resolved
+%                  in this function)
 %   input_type      Required data input type
-%                       'sqw' - sqw objects (must not distinguish between sqw-type and dnd-type)
-%                       'dnd' - dnd objects
-%                       'hor' - either of the above
-%   data_source     sqw or dnd object or array of objects
-%              *OR* filename or cell array of filenames
-%                   If input_type is 'hor', then will treat as all sqw files, if can
-%                   Otherwise, will attempt to treat as all dnd files with same dimensionality.
+%                       '$sqw' - sqw objects
+%                       '$dnd' - dnd objects
+%                       '$hor' - either of the above
+%   data_source     sqw or dnd object (or array of objects)
+%                       *OR*
+%                   filename or cell array of filenames
+%                     If input_type is '$hor', then will treat as all sqw files, if can
+%                     Otherwise, will attempt to treat as all dnd files with same dimensionality.
 %
 %   arg1, arg2,...  Arguments to be passed to the method
 %
@@ -31,7 +33,7 @@ function [argout,mess] = horace_function_call_method (nargout_caller, func, inpu
 %                       If no arguments, then a cell array with a single
 %                      empty cell array
 %
-%   mess            Error message; empty if all OK, otherwise meeage 
+%   mess            Error message; empty if all OK, otherwise contains a message 
 %                   and argout is set to empty cell array.
 %
 %  The convention is that if the source of data to the calling function (as indicated by
@@ -47,19 +49,8 @@ function [argout,mess] = horace_function_call_method (nargout_caller, func, inpu
 
 % Check input_type option
 % -----------------------
-opt_sqw=false; opt_dnd=false; opt_hor=false;
-sz=size(input_type);
-if ischar(input_type) && numel(sz)==2 && sz(1)==1 && sz(2)==4
-    if strcmpi(input_type,'$sqw')
-        opt_sqw=true;
-    elseif strcmpi(input_type,'$dnd')
-        opt_dnd=true;
-    elseif strcmpi(input_type,'$hor')
-        opt_hor=true;
-    else
-        error('Invalid value for ''input_type''')
-    end
-else
+[ok,opt_sqw,opt_dnd,opt_hor]=is_horace_data_file_opt(input_type);
+if ~ok
     error('Invalid value for ''input_type''')
 end
     
@@ -68,22 +59,20 @@ end
 argout={};
 if numel(varargin)>=1
     % Check for Horace data object type or filename input
-    sqw_obj=isa(varargin{1},'sqw');
-    dnd_obj=isa(varargin{1},'d0d')||isa(varargin{1},'d1d')||...
-        isa(varargin{1},'d2d')||isa(varargin{1},'d3d')||isa(varargin{1},'d4d');
-    if sqw_obj||dnd_obj
+    [hor_obj,sqw_obj,dnd_obj]=is_horace_data_object(varargin{1});
+    if hor_obj
         % Horace object passed as first argument: this is assumed to be the data source
         if opt_hor || (opt_sqw&&sqw_obj) || (opt_dnd&&dnd_obj)
             [w, args, mess] = horace_function_parse_input (nargout_caller,varargin{:});
         else
             if opt_sqw
-                mess='Invalid data type: expect sqw object(s)';
+                mess='Invalid data type: expected sqw object(s)';
             else
-                mess='Invalid data type: expect d0d,d1d,d2d,d3d,or d4d object(s)';
+                mess='Invalid data type: expected d0d,d1d,d2d,d3d,or d4d object(s)';
             end
         end
     else
-        % Only other valid input is filename(s)
+        % If first argument is not a Horace object, then only other valid input is filename(s)
         [w, args, mess] = horace_function_parse_input (nargout_caller,input_type,varargin{:});
     end
     if ~isempty(mess), return, end
@@ -122,6 +111,7 @@ end
 
 % Perform operations
 % ------------------
+% Channel the call to a method of the correct class
 argout=func(dummy_obj,w,args{:});
 
 % Package output arguments

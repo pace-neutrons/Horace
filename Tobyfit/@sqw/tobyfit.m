@@ -349,7 +349,7 @@ if refine_moderator
         if nargout<3, error(mess), else return, end
     end
     % Check all incident energies are the same in input objects
-    [ei_common,ok,mess] = efix(win);
+    [ei_common,emode,ok,mess] = get_efix(win);
     if ~ok
         mess=['Moderator refinement: ',mess];
         if nargout<3, error(mess), else return, end
@@ -363,7 +363,7 @@ if refine_moderator
     
     % Get model and starting parameters if not given
     if isempty(mod_opts.pulse_model) || isempty(mod_opts.pp_init)
-        [pulse_model_default,pp_init_default,ok,mess] = pulse_shape_parameters(win);
+        [pulse_model_default,pp_init_default,ok,mess] = get_mod_pulse(win);
         if ~ok
             if nargout<3, error(mess), else return, end
         end

@@ -5,16 +5,17 @@ Guiding principles of functions that can take an object or file
    
  * If they cannot take an array of objects, they cannot take an array of files, and vice versa
  
- * They always appears as
+ * The functions always appears as
 	myfunc_horace 		Takes sqw, dnd objects or file(s) containing data of those types
-						sqw objects MUST have pixel information;
-						files MUST be either all sqw type or all have same dimension (will be treated as  
-						***
-						Arrays of sqw objects or files can be any dimensionality
+				- sqw objects MUST all have pixel information (i.e. dnd-type sqw objects are not permitted)
+				- files MUST be either all be sqw-type or all have same dimension (when they will be
+				 treated as dnd data) [This is so that they can be treated as equivalent to an array of
+				 sqw objects, or an array of dnd objects)
+				- Arrays of sqw objectscan be any dimensionality
 						 BUT WHAT ABOUT CUT? Argumnets differ for different dimensionality
 						Arrays of dnd objects must all have same dimensionality
-	myfunc_sqw 			Takes sqw objects only
-	myfunc_dnd 			Takes dnd objects only
+	myfunc_sqw 		Takes sqw objects only
+	myfunc_dnd 		Takes dnd objects only
 	
    and the corresponding methods are defined
 	myfunc 				For all classes sqw, d0d, d1d, d2d, d3d, d4d
@@ -41,7 +42,7 @@ Guiding principles of functions that can take an object or file
  Thoughts
  ========
  There is no absolute requirement for a dnd method to call an equivalent sqw method - there may
- simply not be a meaningful equivalent method for an sqw object, or we may not have iomplemented it.
+ simply not be a meaningful equivalent method for an sqw object, or we may not have implemented it.
  
  Likewise, there is no need for there to be an equivalent dnd method to an sqw method.
  

@@ -25,11 +25,19 @@ function [argout,mess]=horace_function_pack_output(w,varargin)
 %   mess            Error message; empty if all OK, otherwise meeage 
 %                  and argout is set to empty cell array.
 %
+%
 %  The convention is that if the source of data to the calling function (as indicated by
-% the field source_arg_is_struct in w) is an object of the class or is one or more
-% filenames, then the output arguments, if any, are filled.
-%  If the source of data is a data source structure, then a single output argument is returned
-% to be unpacked by the function that called the function that calls this one.
+% the field source_arg_is_struct in w) is an object or is one or more filenames, then
+% the output arguments are placed in a cell array. This is because the calling function
+% will be returning the arguments as varargout, and the output from this function will
+% correctly be the cell array that is varargout.
+%
+%  If the source of data to the calling function is a data source structure, then the
+% output arguments arg1, arg2,... are placed in a cell array that in turn is set to
+% the only element of the cell array that is argout. This is because the calling function
+% was in turn called a function that packed the input object into the data source 
+% structure (or itself was passed a data source structure). The output will be unpacked
+% by the function that called the function that called this one.
 
 if numel(varargin)>=w.nargout_req
     if w.source_arg_is_struct

@@ -31,7 +31,7 @@ function varargout = read (varargin)
 
 % Parse input
 % -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+[w, args, mess] = horace_function_parse_input (nargout,varargin{:},'$obj_and_file_ok');
 if ~isempty(mess), error(mess); end
 
 % Perform operations

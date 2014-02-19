@@ -21,7 +21,7 @@ function varargout=set_sample_sqw(varargin)
 %
 % $Revision: 791 $ ($Date: 2013-11-15 22:54:46 +0000 (Fri, 15 Nov 2013) $)
 
-if nargin<1 ||nargin>2
+if nargin<1 || nargin>2
     error('Check number of input arguments')
 elseif nargout>0
     error('No output arguments returned by this function')

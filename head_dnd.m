@@ -1,8 +1,8 @@
 function varargout=head_dnd(varargin)
 % Display a summary of a file or set of files containing dnd-type information
 % 
-%   >> head_dnd          % Prompts for file
-%   >> head_dnd (file)   % Summary for named file or for cell array of file names
+%   >> head_sqw          % Prompts for file and display summary of contents
+%   >> head_sqw (file)   % Display summary for named file or for cell array of file names
 %
 % To return header information in a structure, without displaying to screen:
 %
