@@ -13,6 +13,8 @@ function [dt,t_av]=pulse_width(moderator,ei)
 %   dt          Standard deviation of pulse width (microseconds)
 %   t_av        First moment (microseconds)
 
+if ~isscalar(moderator), error('Function only takes a scalar object'), end
+
 model=moderator.pulse_model;
 if strcmp(model,'ikcarp')           % Raw Ikeda Carpenter
     [dt,t_av]=pulse_width_ikcarp(moderator.pp,ei);

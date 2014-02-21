@@ -1,15 +1,17 @@
-function [table,t_av]=sampling_table(moderator,ei,npnt)
+function [table,t_av]=sampling_table(moderator,ei,varargin)
 % Create lookup table from which to create random sampling of moderator function
 %
-%   >> [a,t_av]=sampling_table(moderator,ei)       % sampling_table for ei (default number of points)
-%   >> [a,t_av]=sampling_table(moderator,ei,npnt)  % with specified number of points (npnt>=2)
+%   >> [a,t_av]=sampling_table(moderator,ei)        % sampling_table for ei (default number of points)
+%   >> [a,t_av]=sampling_table(moderator,ei,npnt)   % with specified number of points (npnt>=2)
+%   >> [a,t_av]=sampling_table(...,'fast')          % faster but less accurate algorithm
 %
 % Input:
 % -------
-%   moderator   IX_fermi_chopper object
+%   moderator   IX_moderator object
 %   ei          Incident energy (mev)
-%   npnt        Number of points in lookup table.
-%               If omitted, set to 50
+%   npnt        [Optional] Number of points in lookup table.
+%               If omitted, set to 100
+%   opt         [Optional] if 'fast', use faster but less accurate algorithm
 %
 % Output:
 % -------
@@ -20,17 +22,37 @@ function [table,t_av]=sampling_table(moderator,ei,npnt)
 
 npnt_default=100;
 
-if nargin==2
+if ~isscalar(moderator), error('Function only takes a scalar object'), end
+
+% Optional argument
+if nargin>=3 && isstring(varargin{end})
+    if strcmpi(varargin{end},'fast')
+        fast=true;
+        narg=nargin-1;
+    else
+        error('Unrecognised optional argument')
+    end
+else
+    fast=false;
+    narg=nargin;
+end
+
+% Number of points
+if narg==2
     npnt=npnt_default;
-elseif npnt<2
+elseif narg>2
+    npnt=varargin{1};
+else
     error('Check number of sampling points in the table to be constructed')
 end
 
 model=moderator.pulse_model;
 if strcmp(model,'ikcarp')           % Raw Ikeda Carpenter
-    [table,t_av]=sampling_table_ikcarp(moderator.pp,ei,npnt);
+    [table,t_av]=sampling_table_ikcarp(moderator.pp,ei,npnt,fast);
+    
 elseif strcmp(model,'ikcarp_param') % Ikeda-Carpenter with parametrised tauf, taus, R
-    [table,t_av]=sampling_table_ikcarp_param(moderator.pp,ei,npnt);
+    [table,t_av]=sampling_table_ikcarp_param(moderator.pp,ei,npnt,fast);
+    
 else
     error(['Unrecognised pulse model ''',model,''''])
 end

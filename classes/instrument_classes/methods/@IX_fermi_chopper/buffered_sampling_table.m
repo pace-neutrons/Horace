@@ -3,7 +3,7 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 %
 %   >> table = buffered_sampling_table (fermi)
 %   >> table = buffered_sampling_table (fermi, npnt)
-%   >> table = buffered_sampling_table (...,opt)
+%   >> table = buffered_sampling_table (...,opt1,opt2,...)
 %
 % Input:
 % ------
@@ -15,13 +15,16 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 %               If the number is different to that in the stored lookup table,
 %              if read, the stored lookup table will be purged.
 %
-%   opt         Option:
+%   opt1,...    Options:
+%                   'fast'      Use fast algorithm for computing lookup tables
+%                              Not quite as accurate as the default
+%
 %                   'purge'     Clear file buffer prior to writing new entries
 %                              (will be deleted even if no new entry will be written)
 %
 %                   'nocheck'   Do not check to see if the stored lookup table
 %                              holds the data, regardless of the default threshold
-%                              for the number of chopper entries for checking
+%                              for the number of moderator entries for checking
 %                              the file is exceeded. Any stored lookup will not be
 %                              added to.
 %
@@ -60,36 +63,33 @@ filename=fullfile(tempdir,'IX_fermi_chopper_store.mat');
 fermi=fermi(:);     % ensure column vector
 ind=ind(:);         % ensure column vector
 nf=numel(fermi);
-if nf<=nf_crit
-    check_store=false;
-else
-    check_store=true;
-end
 
-% Strip off option
-if nargin>1 && ischar(varargin{end})
-    opt=varargin{end};
-    if strcmpi(opt,'purge')
-        [ok,mess]=delete_store(filename);
-        if ~ok, warning(mess), end
-    elseif strcmpi(opt,'check')
-        check_store=true;
-    elseif strcmpi(opt,'nocheck')
-        check_store=false;
-    else
-        error('Unrecognised options')
-    end
-    narg=numel(varargin)-1;
-else
-    narg=numel(varargin);
-end
+% Parse optional arguments
+check_store_def=(nf>nf_crit);   % default value of check_store
 
-% Check if number of points is given
-if narg==1
-    npnt=varargin{1};
-else
+arglist=struct('fast',0,'purge',0,'check',check_store_def);
+flags={'fast','purge','check'};
+[par,opt] = parse_arguments(varargin,arglist,flags);
+
+if numel(par)==1
+    npnt=par{1};
+elseif numel(par)==0
     npnt=[];    % signifies use default
+else
+    error('Check number of arguments')
 end
+
+if opt.purge
+    [ok,mess]=delete_store(filename);
+    if ~ok, warning(mess), end
+end
+check_store=opt.check;
+if opt.fast
+    fast={'fast'};
+else
+    fast={};
+end
+
 
 % Fill lookup table, creating or adding entries for the stored lookup file
 if check_store
@@ -99,14 +99,14 @@ if check_store
         [ix,iv]=array_filter(fermi,fermi0);
         npnt0=size(table0,1);
         if numel(ix)==0         % no stored entries for the input choppers
-            table=fill_table(fermi,npnt0);
+            table=fill_table(fermi,npnt0,fast{:});
             [ok,mess]=write_store(filename,fermi,table,fermi0,table0,nf_max);
             if ~ok, warning(mess), end
         elseif numel(ix)==nf    % all entries previously stored
             table=table0(:,iv);
         else
             new=true(nf,1); new(ix)=false;
-            table_new=fill_table(fermi(new),npnt0);
+            table_new=fill_table(fermi(new),npnt0,fast{:});
             table=zeros(npnt0,nf);
             table(:,new)=table_new;
             table(:,ix)=table0(:,iv);
@@ -116,31 +116,31 @@ if check_store
     else
         % Problem reading the store, or it doesn't exist, or the number of points is different. Create with new values if can.
         if ~ok, warning(mess), end
-        table=fill_table(fermi,npnt);
+        table=fill_table(fermi,npnt,fast{:});
         [ok,mess]=write_store(filename,fermi,table);
         if ~ok, warning(mess), end
     end
 else
-    table=fill_table(fermi,npnt);
+    table=fill_table(fermi,npnt,fast{:});
 end
 
 
 %==================================================================================================
-function table=fill_table(fermi,npnt)
+function table=fill_table(fermi,npnt,varargin)
 nf=numel(fermi);
 if isempty(npnt)
-    table=sampling_table(fermi(1))';   % column vector
+    table=sampling_table(fermi(1),varargin{:})';   % column vector
     if nf>1
         table=repmat(table,[1,nf]);
         npnt_def=size(table,1);
         for i=2:nf
-            table(:,i)=sampling_table(fermi(i),npnt_def)';
+            table(:,i)=sampling_table(fermi(i),npnt_def,varargin{:})';
         end
     end
 else
     table=zeros(npnt,nf);
     for i=1:nf
-        table(:,i)=sampling_table(fermi(i),npnt)';
+        table(:,i)=sampling_table(fermi(i),npnt,varargin{:})';
     end
 end
 

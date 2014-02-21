@@ -1,7 +1,7 @@
 function [t_red,t_av] = area_to_t_ikcarp (area, tauf, taus, R)
 % Inverse function to cumulative integral of a normalised Ikeda-Carpenter function
 %
-%   >> x = area_to_t_ikcarp (area, tauf, taus, r)
+%   >> x = area_to_t_ikcarp (area, tauf, taus, R)
 %
 % Input:
 % ------

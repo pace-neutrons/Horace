@@ -18,6 +18,8 @@ function gam=gamma(fermi,varargin)
 % -------
 %   gam     (2*R/peak_fwhh)*abs(1/s-1/v);   s=optimal transmission
 
+if ~isscalar(fermi), error('Function only takes a scalar object'), end
+
 c_e_to_t=2286.271456507406;         % t(us)=c_e_to_t *distance(m)/sqrt(E(meV))
 if nargin==1
     ei=fermi.energy;

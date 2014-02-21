@@ -1,10 +1,10 @@
 function f=partial_transmission(fermi,varargin)
-% Calculate partial transmission integrated over [-Inf,t] using ei in Fermi cjopper object
+% Calculate partial transmission integrated over [-Inf,t] using ei in Fermi chopper object
 %
-%   >> a=area(fermi)            % full transmission (integral over -Inf to +Inf) with phase in fermi
-%   >> a=area(fermi,phase)      % for specified phase: in-phase (true) or pi-rotated (false)
-%   >> a=area(fermi,t)          % partial transmission for an array of times with phase in fermi
-%   >> a=area(fermi,t,phase)    % partial transmission for an array of times with the specified phase
+%   >> f=partial_transmission(fermi)            % full transmission (integral over -Inf to +Inf) with phase in fermi
+%   >> f=partial_transmission(fermi,phase)      % for specified phase: in-phase (true) or pi-rotated (false)
+%   >> f=partial_transmission(fermi,t)          % partial transmission for an array of times with phase in fermi
+%   >> f=partial_transmission(fermi,t,phase)    % partial transmission for an array of times with the specified phase
 %
 % If t=Inf, then returns same result as: transmission(fermi)
 %
@@ -19,6 +19,8 @@ function f=partial_transmission(fermi,varargin)
 % Output:
 % -------
 %   f       Relative transmission (unit transmission at peak)
+
+if ~isscalar(fermi), error('Function only takes a scalar object'), end
 
 c_e_to_t=2286.271456507406;         % t(us)=c_e_to_t *distance(m)/sqrt(E(meV))
 if nargin==1

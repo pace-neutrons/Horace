@@ -13,6 +13,8 @@ function y=pulse_shape(moderator,ei,t)
 % -------
 %   y           Array of values of pulse shape. Normalised so pulse has unit area
 
+if ~isscalar(moderator), error('Function only takes a scalar object'), end
+
 model=moderator.pulse_model;
 if strcmp(model,'ikcarp')           % Raw Ikeda Carpenter
     y=pulse_shape_ikcarp(moderator.pp,ei,t);

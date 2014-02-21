@@ -19,6 +19,8 @@ function [dt,pk_fwhh]=pulse_width(fermi,varargin)
 %   dt      Standard deviation of pulse width (microseconds)
 %   pk_fwhh FWHH at energy corresponding to maximum transmission (microseconds)
 
+if ~isscalar(fermi), error('Function only takes a scalar object'), end
+
 c_e_to_t=2286.271456507406;         % t(us)=c_e_to_t *distance(m)/sqrt(E(meV))
 if nargin==1
     ei=fermi.energy;

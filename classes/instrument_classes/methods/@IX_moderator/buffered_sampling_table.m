@@ -3,7 +3,7 @@ function [table,t_av,ind]=buffered_sampling_table(moderator_in,ei_in,varargin)
 %
 %   >> table = buffered_sampling_table (moderator, ei)
 %   >> table = buffered_sampling_table (moderator, ei, npnt)
-%   >> table = buffered_sampling_table (...,opt)
+%   >> table = buffered_sampling_table (...,opt1,opt2,...)
 %
 % Input:
 % ------
@@ -17,7 +17,10 @@ function [table,t_av,ind]=buffered_sampling_table(moderator_in,ei_in,varargin)
 %               If the number is different to that in the stored lookup table,
 %              if read, the stored lookup table will be purged.
 %
-%   opt         Option:
+%   opt1,...    Options:
+%                   'fast'      Use fast algorithm for computing lookup tables
+%                              Not quite as accurate as the default
+%
 %                   'purge'     Clear file buffer prior to writing new entries
 %                              (will be deleted even if no new entry will be written)
 %
@@ -63,41 +66,51 @@ nm_crit=1;      % if number of moderators is less than or equal to this, simply 
 nm_max=1000;    % Maximum number of moderator lookup tables that can be stored on disk
 filename=fullfile(tempdir,'IX_moderator_store.mat');
 
-[moderator,ei,im,ind]=unique_mod_ei(moderator_in,ei_in);
+% Get list of moderators whose pulse width depends on ei
+nm=numel(moderator_in);
+if numel(ei_in)~=nm
+    error('Number of moderators and number of incident energies must match')
+end
+status=false(size(moderator_in));
+for i=1:nm
+    status(i)=pulse_depends_on_ei(moderator_in(i));
+end
+ei_tmp=ei_in;
+ei_tmp(~status)=0;  % set ei=0 for those moderators whose pulse shape does not depend on ei
+
+% Get list of unique moderators
+[moderator,ei,im,ind]=unique_mod_ei(moderator_in,ei_tmp);
 moderator=moderator(:); % ensure column vector
 ei=ei(:);               % ensure column vector
 ind=ind(:);             % ensure column vector
 nm=numel(moderator);
-if nm<=nm_crit
-    check_store=false;
-else
-    check_store=true;
-end
 
-% Strip off option
-if nargin>2 && ischar(varargin{end})
-    opt=varargin{end};
-    if strcmpi(opt,'purge')
-        [ok,mess]=delete_store(filename);
-        if ~ok, warning(mess), end
-    elseif strcmpi(opt,'check')
-        check_store=true;
-    elseif strcmpi(opt,'nocheck')
-        check_store=false;
-    else
-        error('Unrecognised options')
-    end
-    narg=numel(varargin)-1;
-else
-    narg=numel(varargin);
-end
+% Parse optional arguments
+check_store_def=(nm>nm_crit);   % default value of check_store
 
-% Check if number of points is given
-if narg==1
-    npnt=varargin{1};
-else
+arglist=struct('fast',0,'purge',0,'check',check_store_def);
+flags={'fast','purge','check'};
+[par,opt] = parse_arguments(varargin,arglist,flags);
+
+if numel(par)==1
+    npnt=par{1};
+elseif numel(par)==0
     npnt=[];    % signifies use default
+else
+    error('Check number of arguments')
 end
+
+if opt.purge
+    [ok,mess]=delete_store(filename);
+    if ~ok, warning(mess), end
+end
+check_store=opt.check;
+if opt.fast
+    fast={'fast'};
+else
+    fast={};
+end
+
 
 % Fill lookup table, creating or adding entries for the stored lookup file
 if check_store
@@ -107,7 +120,7 @@ if check_store
         [ix,iv]=array_filter_mod_ei(moderator,ei,moderator0,ei0);
         npnt0=size(table0,1);
         if numel(ix)==0         % no stored entries for the input moderators
-            [table,t_av]=fill_table(moderator,ei,npnt0);
+            [table,t_av]=fill_table(moderator,ei,npnt0,fast{:});
             [ok,mess]=write_store(filename,moderator,ei,table,t_av,...
                                             moderator0,ei0,table0,t_av0,nm_max);
             if ~ok, warning(mess), end
@@ -116,7 +129,7 @@ if check_store
             t_av=t_av0(iv);
         else
             new=true(nm,1); new(ix)=false;
-            [table_new,t_av_new]=fill_table(moderator(new),ei(new),npnt0);
+            [table_new,t_av_new]=fill_table(moderator(new),ei(new),npnt0,fast{:});
             table=zeros(npnt0,nm);
             table(:,new)=table_new;
             table(:,ix)=table0(:,iv);
@@ -130,12 +143,12 @@ if check_store
     else
         % Problem reading the store, or it doesn't exist, or the number of points is different. Create with new values if can.
         if ~ok, warning(mess), end
-        [table,t_av]=fill_table(moderator,ei,npnt);
+        [table,t_av]=fill_table(moderator,ei,npnt,fast{:});
         [ok,mess]=write_store(filename,moderator,ei,table,t_av);
         if ~ok, warning(mess), end
     end
 else
-    [table,t_av]=fill_table(moderator,ei,npnt);
+    [table,t_av]=fill_table(moderator,ei,npnt,fast{:});
 end
 
 
@@ -159,22 +172,22 @@ S0=catstruct(struct_special(moderator0(:)),struct('ei',num2cell(ei0(:))));
 
 
 %==================================================================================================
-function [table,t_av]=fill_table(moderator,ei,npnt)
+function [table,t_av]=fill_table(moderator,ei,npnt,varargin)
 nm=numel(moderator);
 t_av=zeros(1,nm);
 if isempty(npnt)
-    [table,t_av(1)]=sampling_table(moderator(1),ei(1));   % column vector
+    [table,t_av(1)]=sampling_table(moderator(1),ei(1),varargin{:});   % column vector
     if nm>1
         table=repmat(table,[1,nm]);
         npnt_def=size(table,1);
         for i=2:nm
-            [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt_def);
+            [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt_def,varargin{:});
         end
     end
 else
     table=zeros(npnt,nm);
     for i=1:nm
-        [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt);
+        [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt,varargin{:});
     end
 end
 
