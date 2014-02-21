@@ -129,8 +129,8 @@ else
     end
     
     % Lookup tables for moderator and chopper
-    fermi_table=fermi_sampling_table(chopper_all);
-    mod_table=moderator_sampling_table(moderator_all,ei_all);
+    fermi_table=fermi_sampling_table(chopper_all,'fast','nocheck');
+    mod_table=moderator_sampling_table(moderator_all,ei_all,'fast');
     
     % Extract aperture information
     ap_wh=aperture_width_height(aperture_all);

@@ -67,7 +67,7 @@ end
 
 % Not in the store, so compute
 moderator=IX_moderator(0,0,pulse_model,pp);
-[table,t_av]=sampling_table(moderator,ei);
+[table,t_av]=sampling_table(moderator,ei,'fast');
 t_av=1e-6*t_av;     % convert to seconds
 
 % Make sure the store is big enough to hold the new table
