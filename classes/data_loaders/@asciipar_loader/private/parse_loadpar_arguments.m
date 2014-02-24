@@ -1,8 +1,6 @@
 function [return_array,force_reload,lext,this]=parse_loadpar_arguments(this,options,varargin)
 % method processes the arguments specified with load_par methods
 %
-% this function has to have its eqivalents in all other loader classes
-% as all loaders are accessed through common interface.
 %
 % usage:
 %>>this = load_par(this,'-nohor')

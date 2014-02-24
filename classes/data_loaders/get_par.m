@@ -1,5 +1,5 @@
 function par = get_par(file_name,varargin)
-% Function uses rundata class to read only par data form correspondent file
+% Function uses loaders factory to read ASCII par data form correspondent file
 %
 %Usage:
 %>>par=get_par(file_name,[-nohor])
