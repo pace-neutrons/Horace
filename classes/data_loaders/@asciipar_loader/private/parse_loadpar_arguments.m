@@ -79,6 +79,6 @@ if isempty(this.par_file_name)
     error('ASCIIPAR_LOADER:load_par','Attempting to load ASCII detector parameters but the parameters file is not defined')
 end
 if ~exist('lext','var')
-    [~,~,lext] = fileparts(this.par_file_name);
+    [crap1,crap2,lext] = fileparts(this.par_file_name);
 end
 

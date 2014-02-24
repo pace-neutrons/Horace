@@ -40,7 +40,7 @@ if ~exist('file_name','var')
     error('GET_PAR:invalid_argument','function has to be called with valid filename');
 end
 
-[ok,~,full_file_name]=check_file_exist(file_name,{'.par','.phx'});
+[ok,mess,full_file_name]=check_file_exist(file_name,{'.par','.phx'});
 if ok
     % create ascii loader object
     rd = asciipar_loader(full_file_name);
