@@ -32,7 +32,7 @@ function [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peak_cwhh_xye(x,y,e,fac,outer)
 %
 % If there is no peak, then the return arguments are set to NaN.
 % The occasions when this happens are
-%  - The input arrays are empty or have only one point
+%  - The input arrays are empty or have only one point or two points
 %  - The peak value is at the first or last point
 
 % Check option
@@ -41,21 +41,34 @@ if nargin==4
 elseif nargin~=5
     error('Check number of input arguments')
 end
+
+% Check fac
 if fac<=0 || fac>=1
     error('Peak width search factor must lie in the range 0 < fac < 1')
 end
 
 % Check lengths of input arrays
 np=numel(x);
-if numel(y)~=np || numel(e)~=np
-    error('x,y,e arrays must have equal lengths')
+ne=numel(e);
+if ne>0
+    if numel(y)~=np || numel(e)~=np
+        error('x,y,e arrays must have equal lengths')
+    end
+else
+    if numel(y)~=np
+        error('x,y arrays must have equal lengths')
+    end
 end
 
 % Convert to column vectors
 x=x(:); y=y(:); e=e(:);
 
 % Remove points with infinite or NaN values
-ok=isfinite(y(:))&isfinite(e(:));
+if ne>0
+    ok=isfinite(y(:))&isfinite(e(:));
+else
+    ok=isfinite(y(:));
+end
 if ~all(ok)
     x=x(ok); y=y(ok); e=e(ok);
     np=numel(x);

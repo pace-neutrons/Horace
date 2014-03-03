@@ -1,7 +1,7 @@
-function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_info, bkd)
+function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, converged, p_info, bkd)
 % Pack the output fit parameters into standard form
 %
-%   >> fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_info, bkd)
+%   >> fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, converged, p_info, bkd)
 %
 %
 % Output:
@@ -14,19 +14,20 @@ function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_
 %               sig    - Estimated errors of foreground parameters (=0 for fixed parameters)
 %                          If only one function, a row vector
 %                          If more than one function: a row cell array of row vectors
-%               bp     - Background parameter values
+%               bp     - Background parameter values (if background function(s) present)
 %                          If only one function, a row vector
 %                          If more than one function: a row cell array of row vectors
-%               bsig   - Estimated errors of background (=0 for fixed parameters)
+%               bsig   - Estimated errors of background, if present (=0 for fixed parameters)
 %                          If only one function, a row vector
 %                          If more than one function: a row cell array of row vectors
 %               corr   - Correlation matrix for free parameters
 %               chisq  - Reduced Chi^2 of fit i.e. divided by:
 %                           (no. of data points) - (no. free parameters))
+%               converged - True if fit converged, false otherwise
 %               pnames - Foreground parameter names
 %                          If only one function, a cell array (row vector) of names
 %                          If more than one function: a row cell array of row vector cell arrays
-%               bpnames- Background parameter names
+%               bpnames- Background parameter names  (if background function(s) present)
 %                          If only one function, a cell array (row vector) of names
 %                          If more than one function: a row cell array of row vector cell arrays
 %
@@ -75,6 +76,7 @@ end
 
 fitdata.corr=cor;
 fitdata.chisq=chisqr_red;
+fitdata.converged=converged;
 
 if nforefunc==1
     fitdata.pnames=cell(1,np(1));

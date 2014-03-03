@@ -819,6 +819,7 @@ else
     sig=zeros(1,numel(pf)); % Likewise
     cor=zeros(numel(pf));   % Set to zero, as no fitting done
     chisqr_red=0;           % If do not want to use multifit_lsqr because of unwanted checks and overheads
+    converged=false;        % didn't fit, so set to false
 end
     
 % Evaluate the functions at the fitted parameter values / input parameter requests with ratios properly resolved)
@@ -863,7 +864,7 @@ end
 wout = repackage_output_datasets(wout, single_data_arg, cell_data, xye, xye_xarray);
 
 % Fit parameters:
-fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, p_info, bkd);
+fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, converged, p_info, bkd);
 
 % Pack the output
 ok=true;
