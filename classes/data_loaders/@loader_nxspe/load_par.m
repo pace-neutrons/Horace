@@ -95,7 +95,7 @@ if numel(varargin)>0
             error('LOADER_NXSPE:load_par','only one file name allowed as input parameter')
         end
         new_file_name = file_name{1};
-        [~,~,lext] = fileparts(new_file_name);
+        [dummy0,dummy1,lext] = fileparts(new_file_name);
         if isempty(lext)
             error('LOADER_NXSPE:load_par','new file name %s should have known extension',new_file_name)
         end

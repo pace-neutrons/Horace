@@ -239,6 +239,8 @@ classdef a_loader < asciipar_loader;
             if ~ok
                 error('A_LOADER:load',mess);
             end
+
+            
             if keepexising
                 [s_empty,err_empty,dat_empty,det_empty] = data_empty(this);
                 if dat_empty
@@ -253,7 +255,7 @@ classdef a_loader < asciipar_loader;
                     this.n_detindata_stor = size(S,2);
                 end
                 if det_empty
-                    [~,this]=this.load_par();
+                    [dummy,this]=this.load_par();
                 end
                 [ok,mess]=is_loader_valid(this);
                 if ~ok
@@ -261,11 +263,11 @@ classdef a_loader < asciipar_loader;
                 end
             else
                 this=this.load_data();
-                [~,this]=this.load_par();
+                [dummy,this]=this.load_par();
             end
         end
         %
-        function this=saveNXSPE(this,filename,efix,psi)
+        function this=saveNXSPE(this,filename,efix,psi,varargin)
             % method to save loaders data stored in memory as nxspe file
             
             % filename -- the name of the file to write data to. Should not exist
@@ -274,9 +276,34 @@ classdef a_loader < asciipar_loader;
             % Optional variables:
             % psi      -- the rotation angle of crystal. will be NaN if absent
             %
-            
-            this=load(this,'-keep');
-            save_nxspe_internal(this,filename,efix,psi);
+            % -reload  -- by default, saveNXSPE saves whatever is in memory
+            %             and loads data from source file only if they are
+            %             not already in the memory. 
+            %             provide this option if you want to reload data
+            %             from source files discarding anything already in
+            %             the memory. 
+            % w, a,w+ and a+  options define readwrite or write access to the
+            %               file. (see Matlab manual for details of these options)
+            %              Adding to existing nxspe file is not
+            %              currently supported, so the only difference
+            %              between the options is that method will thow 
+            %              if the file, opened in read-write mode exist.
+            %              Existing file in write mode will be silently 
+            %              overwritten. 
+            %  readwrite mode is assumed by  default
+            options = {'-reload'};
+            % rw_mode is default, just for the future, it is not currently used
+            [ok,mess,reload,remaining]=parse_char_options(varargin,options);
+            if ~ok
+                error('A_LOADER:saveNXSPE',mess);
+            end
+            if reload
+                this=load(this);                
+            else
+                this=load(this,'-keep');
+            end
+
+            save_nxspe_internal(this,filename,efix,psi,remaining{:});
         end
         % -----------------------------------------------------------------
         % ---- SETTERS GETTERS FOR CLASS PROPERTIES     -------------------

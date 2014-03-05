@@ -38,7 +38,7 @@ classdef memfile_fs < Singleton
     methods % Public Access
         function isit=file_exist(this,file_name)
             % check if the file with given name exist
-            [~,fname,fext]=fileparts(file_name);
+            [dummy,fname,fext]=fileparts(file_name);
             if ~isempty(fext) && ~strcmp('.memfile',fext)
                 isit = false;
                 return
@@ -56,7 +56,7 @@ classdef memfile_fs < Singleton
         function this=save_file(this,file_name,file_obj)
             % method to save a memfile in the file system
             if isa(file_obj,'memfile')
-                [~,fname,fext]=fileparts(file_name);
+                [dummy,fname,fext]=fileparts(file_name);
                 if ~isempty(fext) && ~strcmp('.memfile',fext)
                     error('MEMFILE_FS:save_file','memfiles can be stored only in files with extension .memfile and got %s',fext);
                 end
@@ -67,7 +67,7 @@ classdef memfile_fs < Singleton
         end
         function fcont=load_file(this,file_name)
             % method to load a memfile from the file system
-            [~,fn,fext] = fileparts(file_name);
+            [dummy,fn,fext] = fileparts(file_name);
             if this.existing_files.isKey(fn)
                 fcont = this.existing_files(fn);
             else

@@ -219,7 +219,7 @@ classdef test_rundata< TestCase
             wr=warning('off','MATLAB:structOnObject');
             run_str = struct(run);
             assertTrue(isempty(run_str.S));
-            [~,~,~,run]=get_signal(run);
+            [dummy0,dummy1,dummy2,run]=get_signal(run);
             S=run.S;
             assertTrue(~isempty(S));
             run_str = struct(run);

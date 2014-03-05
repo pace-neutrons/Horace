@@ -213,7 +213,7 @@ classdef test_a_loader< TestCase
             lt.en = 1:6;
             lt.det_par = ones(6,6);
             
-            test_file = fullfile(tempdir,'save_nxspe_testfile.nxspe');
+            test_file = fullfile(tempdir,'save_nxspe_testfile2.nxspe');
             %test_file = 'save_nxspe_testfile.nxspe';
             %            test_file = 'save_nxspe_testfile.nxspe';
             if exist(test_file,'file')
@@ -244,7 +244,47 @@ classdef test_a_loader< TestCase
             
             delete(test_file);
         end
-        
+        function test_rewrite_nxspe(this)
+            lt = a_loader_tester();
+            lt.S=ones(5,3);
+            lt.ERR = zeros(5,3);
+            lt.en = 1:6;
+            lt.det_par = ones(6,3);            
+            
+            test_file = fullfile(tempdir,'save_nxspe_testfile1.nxspe');
+            %test_file = 'save_nxspe_testfile.nxspe';
+            %            test_file = 'save_nxspe_testfile.nxspe';
+            if exist(test_file,'file')
+                delete(test_file);
+            end                       
+            lt.saveNXSPE(test_file,10,3,'w');
+            
+            f=@()lt.saveNXSPE(test_file,10,3);
+            assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+
+            f=@()lt.saveNXSPE(test_file,10,3,'a');
+            assertExceptionThrown(f,'A_LOADER:saveNXSPE');
+                        
+            lt.saveNXSPE(test_file,10,3,'w');
+            
+            lstor = loader_nxspe(test_file);
+            lstor = lstor.load();
+            
+            assertEqual(lt.n_detectors,lstor.n_detectors);
+            assertEqual(lt.S,lstor.S);
+            assertEqual(lt.ERR,lstor.ERR);
+            assertEqual(lt.en,lstor.en);
+            assertEqual(10,lstor.efix);
+            assertEqual(3,lstor.psi);
+            
+            det_load = lstor.det_par;
+            det_old  = lt.det_par;
+            assertEqual(det_load.phi,det_old.phi);
+            assertEqual(det_load.azim,det_old.azim);
+            assertEqual(det_load.x2,det_old.x2);
+            
+            delete(test_file);
+        end        
     end
 end
 

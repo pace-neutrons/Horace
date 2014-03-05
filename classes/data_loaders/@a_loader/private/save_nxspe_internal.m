@@ -1,4 +1,4 @@
-function save_nxspe_internal(this,filename,efix,psi)
+function save_nxspe_internal(this,filename,efix,psi,varargin)
 % internal function to save loader's data in nxspe format
 % inputs:
 % filename -- the name of the file to write data to. Should not exist
@@ -8,16 +8,46 @@ function save_nxspe_internal(this,filename,efix,psi)
 % psi      -- the rotation angle of crystal. will write NaN into file if
 %             this variable is absent
 %
+% file_access -- w, a options define readwrite or write access to the
+%                file. (see Matlab manual for details of these options)
+%                Adding to existing nxspe file is not currently supported,
+%                so the only difference between the options is that method 
+%                will thow  if the file, opened in read-write mode exist.
+%
+%                Existing file in write mode will be silently 
+%                overwritten. 
+%
 % $Author: Alex Buts; 05/01/2014
 %
 %
 % $Revision$ ($Date$)
 %
+% file access options
+options={'w', 'a'};
+[ok,mess,write_access,ap]=parse_char_options(varargin,options);
+if ~ok
+    error('A_LOADER:load',mess);
+end
+[filepath,fname]=fileparts(filename);
+filename = fullfile(filepath,[fname,'.nxspe']);
+
+readwrite_access = true;
+if ap  
+    readwrite_access = true;
+end
+if write_access
+   readwrite_access =false;
+end
 
 % check inputs and set defaults.
-if exist(filename,'file')
-    error('A_LOADER:saveNXSPE','File %s already exist',filename);
+if exist(filename,'file') 
+    if readwrite_access
+        error('A_LOADER:saveNXSPE','File %s already exist',filename);
+    else
+        delete(filename);
+    end
 end
+
 if ~exist('emode','var')
     if isfield(this,'emode')
         emode = this.emode;
@@ -83,6 +113,11 @@ fapl = H5P.create('H5P_FILE_ACCESS');
 fid = H5F.create(filename,'H5F_ACC_TRUNC',fcpl,fapl);
 %
 % make this file look like real nexus
+if matlab_version_num()<=7.07
+    %pNew->iVID=H5Gopen(pNew->iFID,"/");    
+    file = fid;
+    fid = H5G.open(fid,'/');    
+end
 write_attr_group(fid,file_attr);
 
 % nexus data
@@ -98,7 +133,7 @@ else
 end
 
 write_string_sign(group_id,'definition','NXSPE','version',version);
-[~,hv] = herbert_version('-brief');
+[dummy,hv] = herbert_version('-brief');
 write_string_sign(group_id,'program_name','herbert','version',hv);
 %-------------------------------------------------------------------------
 % write nxspe info
@@ -114,7 +149,13 @@ write_sample(group_id);
 H5G.close(group_id);
 H5P.close(fcpl);
 H5P.close(fapl);
-H5F.close(fid);
+
+if exist('file','var')
+    H5G.close(fid);
+    H5F.close(file);
+else    
+    H5F.close(fid);    
+end
 end
 
 
@@ -253,15 +294,25 @@ for i=1:numel(attr_names)
         H5T.set_size(type_id, numel(val));
         %type_id = H5T.create('H5T_STRING',numel(val));
         space_id = H5S.create('H5S_SCALAR');
-        %loc_id, name, type_id, space_id, acpl_id
+        %loc_id, name, type_id, space_id, acpl_id        
         attr_id = H5A.create(group_id,an,type_id,space_id,'H5P_DEFAULT');
+        %attr_id = H5A.create(loc_id, name, type_id, space_id, create_plist)         
         H5A.write(attr_id,'H5ML_DEFAULT',val);
         
         H5A.close(attr_id);
         H5S.close(space_id);
         H5T.close(type_id);
     end
-    
+%      aid2 = H5Screate(H5S_SCALAR);
+% 187	        aid1 = H5Tcopy(H5T_C_S1);
+% 188	        H5Tset_size(aid1, strlen(NEXUS_VERSION));
+% 189	        if (am1 == H5F_ACC_RDWR)
+% 190	        {
+% 191	        H5Adelete(pNew->iVID, "NeXus_version"); 
+% 192	        }
+% 193	        attr1= H5Acreate(pNew->iVID, "NeXus_version", aid1, aid2, H5P_DEFAULT);
+% 194	        if (attr1<0)
+% 195	         
 end
 end
 %

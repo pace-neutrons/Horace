@@ -181,7 +181,7 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         end
     end
     if ismember('det_par',fields_to_load)
-        [~,loader] = loader.load_par();
+        [dummy,loader] = loader.load_par();
     end
     this.loader_stor=loader;
     loader_dep = ismember(fields_to_load,this.loader_dependent_fields);

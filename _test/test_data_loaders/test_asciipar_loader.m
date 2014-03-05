@@ -203,7 +203,7 @@ classdef test_asciipar_loader< TestCase
             al.det_par = det;
             
             % loader contained
-            [~,al]=al.load_par(par_file);
+            [dummy,al]=al.load_par(par_file);
             assertEqual(al.det_par.x2,det.x2);
             
             

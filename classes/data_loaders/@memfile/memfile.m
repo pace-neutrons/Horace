@@ -145,7 +145,7 @@ classdef memfile<a_loader
         end
         function this=save(this,file_name)
             % save memfile into its memory file system
-            [~,fname,fext]=fileparts(file_name);
+            [dummy,fname,fext]=fileparts(file_name);
             if isempty(fext)
                 fext='.memfile';
             end
@@ -176,7 +176,7 @@ classdef memfile<a_loader
         % -----------------------------------------------------------------
         function [ok,mess,f_name]=check_file_exist(this,new_name)
             % method to check if file with extension correspondent to this loader exists
-            [~,fn,fext] = fileparts(new_name);
+            [dummy,fn,fext] = fileparts(new_name);
             fbex = this.get_file_extension();
             if strcmp(fbex{1},fext)
                 ok = memfile_fs.instance().file_exist(fn);
