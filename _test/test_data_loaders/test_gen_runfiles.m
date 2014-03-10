@@ -98,7 +98,9 @@ classdef test_gen_runfiles< TestCase
                 assertEqual(emodel,this.emode);
                 assertEqual(28160,ndetl);
                 assertEqual(alattl,this.alatt);
-                assertEqual(angdegl,this.angdeg*(pi/180));
+                % Depending on policy decided on angdeg
+                %assertEqual(angdegl,this.angdeg*(pi/180));
+                assertEqual(angdegl,this.angdeg);                
                 assertEqual(ul,this.u);
                 assertEqual(vl,this.v);
                 assertEqual(psil,this.psi(i)*(pi/180));

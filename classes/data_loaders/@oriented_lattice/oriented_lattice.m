@@ -154,7 +154,8 @@ classdef oriented_lattice
             alat = this.alatt__;
         end
         function angdeg=get.angdeg(this)
-            angdeg= oriented_lattice.transform_and_get_angular(this.angular_units__,this.angdeg__);
+            %angdeg= oriented_lattice.transform_and_get_angular(this.angular_units__,this.angdeg__);
+            angdeg= this.angdeg__;
         end
         %
         function this=set.alatt(this,val)
