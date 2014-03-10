@@ -9,14 +9,14 @@ function [varargout] =get_rundata(this,varargin)
 % Examples:
 %   >> [S,psi]            = get_rundata (this,'S','psi')
 %   >> [S,Err,en]         = get_rundata (this,'S','Err','en')
-%   >> [S,Err,en,psi,par] = get_rundata (this,'S','Err','en','psi','par')
+%   >> [S,Err,en,psi,par] = get_rundata (this,'S','Err','en','psi','det_par')
 %   >> data               = get_rundata (this)
 %   >> data               = get_rundata (this,'S','Err','en')
 %
-%   >> data               = get_rundata (this,'-hor','-nonan')
-%   >> data               = get_rundata (this,'par','-horace')
+%   >> data               = get_rundata (this,'-nonan','-rad')
+%   >> data               = get_rundata (this,'det_par')
 %
-%   >> this               = get_rundata (this,'par','-this')
+%   >> this               = get_rundata (this,'det_par','-this')
 %
 % Input:
 % ------
@@ -28,10 +28,6 @@ function [varargout] =get_rundata(this,varargin)
 %   opt1,opt2       Optional key modifiers (begin with '-') that control
 %                   the format of the output:
 %
-%       '-horace'     -- Detector parameters to be returned as a horace
-%    or '-hor'           structure rather then 6 column array.
-%                        Cannot be used with '-this' key.
-%
 %       '-nonan'      -- Signals, errors and corresponding detectors values
 %                        which are undefined (have values NaN) are removed.
 %                        Cannot be used with '-this' key.
@@ -41,7 +37,10 @@ function [varargout] =get_rundata(this,varargin)
 %
 %       '-this'       -- Explicitly requests to modify input class data and
 %                        return these data as output argument.
-%                        Incompatible with '-hor', '-rad', and '-nonan' keys
+%                        Incompatible with  '-nonan' and '-rad' keys as 
+%                        these keys request changes in the data structure and '-this' 
+%                        loads the data into memory in the form, they are present in a
+%                        file
 %
 %                        If more then one output argument is supplied to
 %                        the function, this key is ignored;
@@ -69,7 +68,7 @@ function [varargout] =get_rundata(this,varargin)
 % - have defaults defined by rundata_config
 %
 % The function retrieves the requested data as follows:
-% 1) The data already loaded into memorty.
+% 1) The data already loaded into memory.
 % 2) The data present in the spe and par file or their equivalents, when
 %    the data are loaded to memory and returned
 % 3) If 1) and 2) is not possible, method tries to retrieve defaults values
@@ -97,16 +96,18 @@ if ~iscellstr(varargin)
 end
 
 % what is actually defined by this class instance:
-% (should be only public fiedls but currenly works with all)
+% (should be only public fields but currently works with all)
 [ok,mess,suppress_nan,get_rad,return_this,fields_requested] = parse_char_options(varargin,keys_recognized);
 if(~ok)
     error('RUNDATA:invalid_arguments',mess);
 end
-all_fields = fieldnames(this);
+[all_fields,lattice_fields] = what_fields_are_needed(this,'all_fields');
 non_fields =~ismember(fields_requested,all_fields);
 if any(non_fields)
     error('RUNDATA:invalid_arguments',[' missing fields requested: ',fields_requested{non_fields}]);
 end
+in_latice = ismember(lattice_fields,fields_requested);
+lattice_fields = lattice_fields(in_latice);
 % --> CHECK THE CONSISTENCY OF OUTPUT FIELDS
 % identify desired form of output:
 % when more then one output argument, we probably want the list of
@@ -131,11 +132,11 @@ end
 
 if return_this
     if suppress_nan
-        error('RUNDATA:invalid_arguments',' -this and -nonan keys are incompartible\n');
+        error('RUNDATA:invalid_arguments',' -this and -nonan keys are incompatible\n');
         % for nonan you need S fields
     end
     if get_rad
-        error('RUNDATA:invalid_arguments',' -this and -rad keys are incompartible\n');
+        error('RUNDATA:invalid_arguments',' -this and -rad keys are incompatible\n');
     end
 end
 if ~ismember('S',fields_requested) && suppress_nan
@@ -183,25 +184,38 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
     if ismember('det_par',fields_to_load)
         [dummy,loader] = loader.load_par();
     end
-    this.loader_stor=loader;
-    loader_dep = ismember(fields_to_load,this.loader_dependent_fields);
+    this.loader__=loader;
+    loader_defines = loader.loader_can_define();
+    loader_dep = ismember(fields_to_load,loader_defines);
     fields_to_load = fields_to_load(~loader_dep);
+    if numel(lattice_fields)>0
+        loader_lattice_fields=ismember(lattice_fields,loader_defines);
+        % copy lattice parameter which loader defines
+        if any(loader_lattice_fields)
+            lattice_in_loader=lattice_fields(loader_lattice_fields);
+            for i=1:numel(lattice_in_loader)
+                this=set_lattice_field(this,lattice_in_loader{i},loader.(lattice_in_loader{i}));
+            end
+        end
+    end
     for i=1:numel(fields_to_load)
         field = fields_to_load{i};
         this.(field)= loader.(field);
     end
 end
 
+
 % Deal with input parameters (keys) ----------------
 % if parameters have to be represented as horace structure;
-
+if get_rad
+    this.lattice.angular_units = 'rad';
+end
 
 % modify result to return only detectors and data which not contain NaN and
 % Inf
 if suppress_nan
     [this.S,this.ERR,this.det_par]=rm_masked(this);
 end
-
 
 % what and how to return the result
 if return_structure
@@ -212,12 +226,8 @@ if return_structure
         out=struct();
     end
     for i=1:numel(fields_requested)
-        out.(fields_requested{i})=this.(fields_requested{i});
+        out.(fields_requested{i})=get_field(this,fields_requested{i});
     end
-    if get_rad
-        out=transform_to_rad(out);
-    end
-    
     varargout{1}=out;
     
 else % return cell array of output variables, defined by the list of
@@ -226,10 +236,7 @@ else % return cell array of output variables, defined by the list of
     if numel(fields_requested)<min_num; min_num =numel(fields_requested);end
     
     for i=1:min_num
-        varargout{i}=this.(fields_requested{i});
-    end
-    if get_rad
-        varargout=transform_to_rad([varargout;fields_requested]);
+        varargout{i}=get_field(this,fields_requested{i});
     end
     
 end

@@ -15,25 +15,43 @@ function [ok, mess,this] = isvalid (this)
 %                   set.m. (T.G.Perring)
 
 % check numeric
-numeric_fld = {'S','ERR','efix','en','emode','n_detectors',...
-    'alatt','angldeg','u','v','psi','omega','dpsi','gl','gs'};
-ok=true;
-mess='';
+numeric_fld = {'S','ERR','efix','en','emode','n_detectors'};
+lattice_fld = {'alatt','angdeg','u','v','psi','omega','dpsi','gl','gs'};
+
 for i=1:numel(numeric_fld)
-    if ~isempty(this.(numeric_fld{i}))
-        if ~isa(this.(numeric_fld{i}),'numeric')
-            ok = false;
-            val = this.(numeric_fld{i});
-            if ~isstring(val)
-                if isemtpy(val)
-                    val = 'emtpy';
-                else
-                    val = 'unexpected (not empty and not error string)';
-                end
-            end
-            mess = [' field: ',numeric_fld{i},' has to be numeric but its value is: ',val];
-            return
+    [ok,mess]=check_field(this,numeric_fld{i});
+    if ~ok
+        return;
+    end
+end
+
+if this.is_crystal
+    for i=1:numel(lattice_fld)
+        [ok,mess]=check_field(this.lattice,lattice_fld{i});
+        if ~ok
+            return;
         end
+        
+    end
+    
+end
+
+function [ok,mess]=check_field(class,field_name)
+ok = true;
+mess='';
+if ~isempty(class.(field_name))
+    if ~isa(class.(field_name),'numeric')
+        ok = false;
+        val = class.(field_name);
+        if ~isstring(val)
+            if isemtpy(val)
+                val = 'empty';
+            else
+                val = 'unexpected (not empty and not error string)';
+            end
+        end
+        mess = [' field: ',field_name,' has to be numeric but its value is: ',val];
+        return
     end
 end
 

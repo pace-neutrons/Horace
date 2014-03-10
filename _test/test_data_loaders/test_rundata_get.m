@@ -90,7 +90,7 @@ classdef test_rundata_get< TestCase
         function test_transform2rad_struct(this)
             % asks to transform some known fields into radians
             ds.alatt  =[1;1;1];
-            ds.angldeg=[90;90;90];
+            ds.angdeg=[90;90;90];
             ds.omega=20;
             ds.psi  =30;
             ds.gl   =40;
@@ -109,7 +109,7 @@ classdef test_rundata_get< TestCase
         
         function test_transform2rad_cells(this)
             ds.alatt=[1;1;1];
-            ds.angldeg=[90;90;90];
+            ds.angdeg=[90;90;90];
             ds.omega=20;
             ds.psi  =30;
             ds.gl   =40;
@@ -128,7 +128,7 @@ classdef test_rundata_get< TestCase
         function test_get_struct(this)
             % form asking for single data field returns single data field
             ds.alatt=[1;1;1];
-            ds.angldeg=[90;90;90];
+            ds.angdeg=90;
             ds.omega=20;
             ds.psi  =30;
             ds.gl   =40;
@@ -144,7 +144,7 @@ classdef test_rundata_get< TestCase
         function test_get_this(this)
             % form loads data in class iteslf rather then into guest structure
             ds.alatt=[1;1;1];
-            ds.angldeg=[90;90;90];
+            ds.angdeg=90;
             ds.omega=20;
             ds.psi  =30;
             ds.gl   =40;
@@ -155,12 +155,12 @@ classdef test_rundata_get< TestCase
             run=get_rundata(run,'-this');
             
             assertTrue(isa(run,'rundata'));
-            assertEqual(ds.alatt',run.alatt);
+            assertEqual(ds.alatt',run.lattice.alatt);
         end
         function test_get_data_struct(this)
             % form returns a structure
-            ds.alatt=[1;1;1];
-            ds.angldeg=[90;90;90];
+            ds.alatt=1;
+            ds.angdeg=90;
             ds.omega=20;
             ds.psi  =30;
             ds.gl   =40;
@@ -171,7 +171,9 @@ classdef test_rundata_get< TestCase
             run=get_rundata(run);
             
             assertTrue(isstruct(run));
-            assertEqual(ds.alatt',run.alatt);
+            assertEqual([1,1,1],run.alatt);
+            assertEqual([90,90,90],run.angdeg);
+         
         end
         function test_this_nonc_with_rad(this)
             % inconsistent data mofifiers
@@ -230,14 +232,14 @@ classdef test_rundata_get< TestCase
                 [1,0,0],[0,1,0],0,0,0,0,0);
             
             [efix,en,emode,ndet,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=get_rundata(run_files{1},...
-                'efix','en','emode','n_detectors','alatt','angldeg','u','v','psi','omega','dpsi','gl','gs','det_par',...
+                'efix','en','emode','n_detectors','alatt','angdeg','u','v','psi','omega','dpsi','gl','gs','det_par',...
                 '-rad');
             
             assertEqual(800,efix);
             assertEqual(1,emode);
             assertEqual(en_sample,en);
             assertEqual([6.2832,6.2832,6.2832],alatt);
-            assertEqual([90,90,90],angdeg);            
+            assertEqual([90,90,90]*(pi/180),angdeg);            
             assertEqual(28160,ndet);
             assertEqual([1,0,0],u);
             assertEqual([0,1,0],v);
@@ -247,6 +249,24 @@ classdef test_rundata_get< TestCase
             assertEqual(0,gl);
             assertEqual(0,gs);
         end
+        
+
+        function test_error(this)
+            % to test errors, whcuch seems ere observed
+            spefile = fullfile(this.test_data_path,'MAP11020.spe_h5');
+            parfile = fullfile(this.test_data_path,'demo_par.PAR');
+
+            r=rundata(spefile,parfile,'efix',45,'psi',-32,'angdeg',[91,92,93],'alatt',[4.5,4.6,4.7]); 
+            gg=get_rundata(r,'det_par');
+            gg1 = get_par(parfile);
+            
+            assertEqual(gg,gg1)
+            
+            angdeg = get_rundata(r,'angdeg','-rad');
+            assertEqual([91,92,93]*(pi/180),angdeg);
+            
+        end
+
         
     end
     

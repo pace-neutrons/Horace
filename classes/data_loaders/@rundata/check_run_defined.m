@@ -32,18 +32,26 @@ function [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fie
 if ~exist('fields_needed','var')
     fields_needed = what_fields_are_needed(run);
 end
+fields_from_loader = {};
 
+[all_fields,lattice_fields] = what_fields_are_needed(run);
+undefined  = 0; % false; all defined;
 
-undefined           = 0; % false; all defined;
-fields_from_loader  ={};
-
-% Check if all necessary fields are already provided
-all_fields    = fields(run);
+if ~isempty(lattice_fields)
+    % If everything is defined, no point to bother, finish
+    is_empty_f = @(field)is_empty_field(run.lattice,field);
+    is_undef_lattice   = cellfun(is_empty_f,lattice_fields);
+    undef_lattice      = lattice_fields(is_undef_lattice);
+    other_fields   = ~ismember(all_fields,lattice_fields);
+    all_fields     = all_fields(other_fields);
+else
+    undef_lattice = {};
+end
 % If everything is defined, no point to bother, finish
 is_empty_f = @(field)is_empty_field(run,field);
 %
 is_undef      = cellfun(is_empty_f,all_fields);
-fields_undef  = all_fields(is_undef);
+fields_undef  = {all_fields{is_undef},undef_lattice{:}};
 if isempty(fields_undef)
     return;
 end

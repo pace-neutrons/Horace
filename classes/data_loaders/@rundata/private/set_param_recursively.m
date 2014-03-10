@@ -129,7 +129,12 @@ for i=1:numel(field_names)
     end
     
     if ~ismember(cur_field,target_fields)
-        error('RUNDATA:set_fields','Attempt to set non-existing field: %s',cur_field);
+        if ismember(cur_field,oriented_lattice.lattice_fields())
+            this = set_lattice_field(this,cur_field,field_values{i});
+            continue
+        else
+            error('RUNDATA:set_fields','Attempt to set non-existing field: %s',cur_field);
+        end
     end
     
     if ~isempty(field_names{i}) 
@@ -137,13 +142,13 @@ for i=1:numel(field_names)
     end
 end
 if loader_redefined
-    if isempty(this.loader)
+    if isempty(this.loader__)
         this=select_loader(this,file_name,par_file_name);
     else
         if isempty(file_name)
-            this.loader_stor.par_file_name = par_file_name;
+            this.loader__.par_file_name = par_file_name;
         else
-            this.loader_stor = loaders_factory.instance().get_loader(file_name,par_file_name);
+            this.loader__ = loaders_factory.instance().get_loader(file_name,par_file_name);
         end
     end
 end

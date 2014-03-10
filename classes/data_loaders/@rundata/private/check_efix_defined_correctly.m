@@ -6,13 +6,13 @@ function efix = check_efix_defined_correctly(this)
 % $Revision$ ($Date$)
 %
 
-if isempty(this.loader_stor)
-    efix = this.efix_stor;
+if isempty(this.loader__)
+    efix = this.efix__;
 else
-    if ismember('efix',this.loader_stor.defined_fields())
-        efix = this.loader_stor.efix;
+    if ismember('efix',this.loader__.defined_fields())
+        efix = this.loader__.efix;
     else
-        efix = this.efix_stor;
+        efix = this.efix__;
     end
 end
 

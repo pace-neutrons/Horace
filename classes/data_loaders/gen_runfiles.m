@@ -19,7 +19,7 @@ function runfiles = gen_runfiles(spe_files,varargin)
 %^1 efix            Fixed energy (meV)   [scalar or vector length nfile] ^1
 %   emode           Direct geometry=1, indirect geometry=2
 %^1 alatt           Lattice parameters (Ang^-1)  [vector length 3, or array size [nfile,3]]
-%^1 angldeg         Lattice angles (deg)         [vector length 3, or array size [nfile,3]]
+%^1 angdeg          Lattice angles (deg)         [vector length 3, or array size [nfile,3]]
 %   u               First vector defining scattering plane (r.l.u.)  [vector length 3, or array size [nfile,3]]
 %   v               Second vector defining scattering plane (r.l.u.) [vector length 3, or array size [nfile,3]]
 %^1 psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
@@ -45,7 +45,7 @@ function runfiles = gen_runfiles(spe_files,varargin)
 
 
 % Optional parameters names list
-parameter_nams={'efix','emode','alatt','angldeg','u','v','psi','omega','dpsi','gl','gs'};
+parameter_nams={'efix','emode','alatt','angdeg','u','v','psi','omega','dpsi','gl','gs'};
 
 % Input files
 % -----------
@@ -96,7 +96,7 @@ args=cell(1,n_dfnd_params);
 % Transform all arrays with one dimension of n_files into cell arrays
 for i=1:n_dfnd_params
     val = varargin{variables_start+i-1};
-    if ismember(parameter_nams{i},{'alatt','angldeg','u','v'})
+    if ismember(parameter_nams{i},{'alatt','angdeg','u','v'})
         if numel(size(val))==2 && all(size(val)==[n_files,3])
             args{i}=num2cell(val,2)';   % 1 x nfiles cell array
         elseif numel(val)==3
@@ -116,8 +116,7 @@ for i=1:n_dfnd_params
 end
 
 % Make structure array with parameter names as fields and args as values
-% Put crystal type on the end as well
-struct_names_and_vals=[[parameter_nams,'is_crystal'];[args,{num2cell(true(1,n_files))}]];
+struct_names_and_vals=[parameter_nams;args];
 dfnd_params = struct(struct_names_and_vals{:});
 
 

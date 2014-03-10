@@ -26,7 +26,7 @@ end
 %default_values=cell(n_fields,1);
 
 
-check_def= @(field_name)check_default(rundata(),field_name);
+check_def= @(field_name)check_default(this,field_name);
 [has_defaults,default_values] = cellfun(check_def,fields_needed,'UniformOutput',false);
 has_defaults = cellfun(@(x)(x~=0),has_defaults);
 
@@ -49,14 +49,16 @@ end
 function [has_default,default_val]=check_default(rundata_def,field_name)
 
 try
-    default_val = rundata_def.(field_name);    
+    default_val = rundata_def.(field_name);
 catch
-    default_val =[];
-    has_default = false;
-    return;    
+    try
+        default_val = rundata_def.lattice.(field_name);
+    catch
+        default_val =[];
+        has_default = false;
+        return;
+    end
 end
-if isempty(default_val)
-    has_default = false;
-else
-    has_default = true;
-end
+
+has_default = true;
+

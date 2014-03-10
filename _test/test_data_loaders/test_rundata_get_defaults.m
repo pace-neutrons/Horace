@@ -24,14 +24,19 @@ classdef test_rundata_get_defaults< TestCase
             rd=rundata();
             
             def_fields = rd.fields_with_defaults();
+            assertEqual({'emode'},def_fields);
+            rd.lattice = oriented_lattice();
             
-            assertEqual({'omega','dpsi','gl','gs','is_crystal','u','v'},def_fields);
+  
+            def_fields = rd.fields_with_defaults();
+    
+            assertEqual({'emode','omega','dpsi','gl','gs','u','v'},def_fields);
             def_values = get_defaults(rd);
-            assertEqual(0,def_values{1});
+            assertEqual(1,def_values{1});
             assertEqual(0,def_values{2});
             assertEqual(0,def_values{3});
             assertEqual(0,def_values{4});
-            assertEqual(true,def_values{5});
+            assertEqual(0,def_values{5});
             assertEqual([1,0,0],def_values{6});
             assertEqual([0,1,0],def_values{7});
         end
@@ -55,6 +60,7 @@ classdef test_rundata_get_defaults< TestCase
         
         function this=test_correct_defaults(this)
             rd=rundata();
+            rd.lattice=oriented_lattice();
             
             def=get_defaults(rd,'omega');
             assertEqual(0,def{1})
@@ -65,6 +71,7 @@ classdef test_rundata_get_defaults< TestCase
         end
         function this=test_correct_deforder(this)
             rd=rundata();
+            rd.lattice = oriented_lattice();
             
             def=get_defaults(rd,'v','u','omega');
             

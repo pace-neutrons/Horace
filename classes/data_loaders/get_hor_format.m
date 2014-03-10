@@ -44,18 +44,19 @@ function det = get_hor_format(par_data,file_name)
 %
 % $Revision$ ($Date$)
 %
-hor_fields={'x2','phi','azim','width','height','group'};
+hor_fields={'group','x2','phi','azim','width','height'};
+array_colN=[6,1,2,3,4,5];
 
 if ~exist('file_name','var')
     file_name = '';
 end
 if isstruct(par_data)
-    det = convert_structure_to_array(par_data,hor_fields);
+    det = convert_structure_to_array(par_data,hor_fields,array_colN);
 else
-    det = convert_array_to_structure(par_data,hor_fields,file_name);
+    det = convert_array_to_structure(par_data,hor_fields,array_colN,file_name);
 end
 
-function det=convert_array_to_structure(par_data,hor_fields,file_name)
+function det=convert_array_to_structure(par_data,hor_fields,array_colN,file_name)
 % convert horace detector information array into horace structure
 %
 [path,name,ext]=fileparts(file_name);
@@ -72,11 +73,12 @@ end
 
 for i=1:numel(hor_fields)
     field = hor_fields{i};
-    det.(field) = par_data(i,:);
+    ind   = array_colN(i);
+    det.(field) = par_data(ind,:);
 end
 %det.azim  = par_data(3,:); % no sign change is necessary as it occurs in ASCII par file reader
 
-function  det = convert_structure_to_array(par_data,hor_fields)
+function  det = convert_structure_to_array(par_data,hor_fields,array_colN)
 % convert horace detector information structure detector information array
 %
 ndet = numel(par_data.phi);
@@ -84,5 +86,6 @@ det=zeros(6,ndet);
 
 for i=1:numel(hor_fields)
     field = hor_fields{i};
-    det(i,:) = par_data.(field);
+    ind   = array_colN(i);
+    det(ind,:) = par_data.(field);
 end

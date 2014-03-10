@@ -91,14 +91,14 @@ classdef test_gen_runfiles< TestCase
                 assertTrue(isempty(run_files{i}.S));
                 assertTrue(isempty(run_files{i}.ERR));
                 [efixl,enl,emodel,ndetl,alattl,angdegl,ul,vl,psil,omegal,dpsil,gll,gsl,detl]=get_rundata(run_files{i},...
-                    'efix','en','emode','n_detectors','alatt','angldeg','u','v','psi','omega','dpsi','gl','gs','det_par',...
+                    'efix','en','emode','n_detectors','alatt','angdeg','u','v','psi','omega','dpsi','gl','gs','det_par',...
                     '-rad');
                 assertEqual(efixl,this.efix(i));
                 assertEqual(enl,this.en{i}');
                 assertEqual(emodel,this.emode);
                 assertEqual(28160,ndetl);
                 assertEqual(alattl,this.alatt);
-                assertEqual(angdegl,this.angdeg);
+                assertEqual(angdegl,this.angdeg*(pi/180));
                 assertEqual(ul,this.u);
                 assertEqual(vl,this.v);
                 assertEqual(psil,this.psi(i)*(pi/180));
@@ -110,7 +110,7 @@ classdef test_gen_runfiles< TestCase
                 
                 
                 [Sl,ERRl,enl,efixl,emodel,alattl,angdegl,ul,vl,psil,omegal,dpsil,gll,gsl,detl]=...
-                    get_rundata(run_files{i},'S','ERR','en','efix','emode','alatt','angldeg','u','v',...
+                    get_rundata(run_files{i},'S','ERR','en','efix','emode','alatt','angdeg','u','v',...
                     'psi','omega','dpsi','gl','gs','det_par','-rad','-nonan');
                 
                 nen = numel(this.en{i})-1;
@@ -124,7 +124,7 @@ classdef test_gen_runfiles< TestCase
                 assertEqual(emodel,this.emode);
                 %assertEqual(ndetl,28158);
                 assertEqual(alattl,this.alatt);
-                assertEqual(angdegl,this.angdeg);
+                assertEqual(angdegl,this.angdeg*(pi/180));
                 assertEqual(ul,this.u);
                 assertEqual(vl,this.v);
                 assertEqual(psil,this.psi(i)*(pi/180));

@@ -11,7 +11,7 @@ classdef rundata
     %
     % The data availability is not verified by the class constructor
     % -- the class method % "get_rundata"
-    % used to verify if data are availible and to actually load data from the
+    % used to verify if data are available and to actually load data from the
     % file.
     %
     % IF the data are not defined by the user, can not be found in the file and
@@ -22,6 +22,11 @@ classdef rundata
     %
     properties(Dependent)
         n_detectors = [];   % Number of detectors, used when dealing with masked detectors  -- will be derived
+        %
+        S         = [];     % Array of signal [ne x ndet]   -- obtained from speFile or equivalent
+        ERR       = [];     % Array of errors  [ne x ndet]  -- obtained from speFile or equivalent
+        en        = [];     % Column vector of energy bin boundaries   -- obtained from speFile or equivalent
+        %
         % Detector parameters:
         det_par     = [];   % Horace structure of par-values, describing detectors angular positions   -- usually obtained from parFile or equivalent
         % Helper variables used to display data file name and redefine
@@ -29,73 +34,43 @@ classdef rundata
         data_file_name='';
         % par file name defined in loader
         par_file_name ='';
-        %
-        alatt     = [];     % Lattice parameters [a,b,c] (Ang^-1)   -- has to be in file or supplied  as  parameters list
-        angldeg   = [];     % Lattice angles [alf,bet,gam] (deg)    -- has to be in file or supplied  as  parameters list
         
         % Experiment parameters;
-        efix      = [];     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
-        emode     = 1;     % Energy transfer mode [Default=1 (direct geometry)]
-        %
-        S         = [];     % Array of signal [ne x ndet]   -- obtained from speFile or equivalent
-        ERR       = [];     % Array of errors  [ne x ndet]  -- obtained from speFile or equivalent
-        en        = [];     % Column vector of energy bin boundaries   -- obtained from speFile or equivalent
-        % Crystal orientation
-        u         = [1,0,0];
-        v         = [0,1,0];
+        efix    ;     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
+        emode  ;     % Energy transfer mode [Default=1 (direct geometry)]
         
-        % Goniometer parameters
-        psi   = [];         %  Angle of u w.r.t. ki (deg)  [Default=0]
-        omega = 0;         %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
-        dpsi  = 0;         %  Correction to psi (deg)  [Default=0]
-        gl    = 0;         %  Large goniometer arc angle (deg)  [Default=0]
-        gs    = 0;         %  Small goniometer arc angle (deg)  [Default=0]
-        % Crystal parameters:
-        is_crystal  = 1;    % true if single crystal (default), false if powder
-        
-        
-        loader ='';         % visual representation of a loader
+        % accessor to verify if the oriented lattice is present (and the
+        % rundata describe crystal)
+        is_crystal;
+        % accessor to access the oriented lattice
+        lattice;
+        % visual representation of a loader
+        loader ;
     end
     
     properties(Constant,Access=private)
-        % List of fields which have default values and do not have to be always defined by either file or command arguments;
-        fields_have_defaults = {'omega','dpsi','gl','gs','is_crystal','u','v'};        
+        % list of the fields defined in any loader
+        loader_dependent_fields__={'S','ERR','en','det_par','n_detectors'};
+        % minimal set of fields, defining reasonable run
+        min_field_set__ = {'efix','en','emode','n_detectors','S','ERR','det_par'};
     end
     properties(Access=private)
         % energy transfer mode
-        emode_internal=[];
-        %  incident energy or crystal analyzer energy
-        efix_stor = [];
+        emode__=1;
+        %  incident energy or crystal analyser energy
+        efix__ = [];
         %
-        % list of the fields by default are defined in any loader
-        loader_dependent_fields={'S','ERR','en','det_par','n_detectors'};
         % INTERNAL SERVICE PARAMETERS: (private read, private write in new Matlab versions)
         % The class which provides actual data loading:
-        loader_stor = [];
-        %
-        alat_stor = [];
-        angldeg_stor=[];
-        % the defaults for these fields are:
-        u_stor    = [1,0,0];
-        v_stor    = [0,1,0];
-        % Goniometer parameters
-        psi_stor   = [];         %  Angle of u w.r.t. ki (deg)  [Default=0]
-        omega_stor = 0;         %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
-        dpsi_stor  = 0;         %  Correction to psi (deg)  [Default=0]
-        gl_stor    = 0;         %  Large goniometer arc angle (deg)  [Default=0]
-        gs_stor    = 0;         %  Small goniometer arc angle (deg)  [Default=0]
-        % default value for crystal (true) and stored value of this
-        % property
-        is_crystal_stor = 1;
+        loader__ = [];
         
-        % service variable used to help veiwing u,v
-        uv_cros_stor=[0,0,1]; % cross(u,v);
-        surf_ar_stor = 1;  % abs(uv_cros_stor.*uv_cros_stor);
+        % oriented lattice which describes crytsal (present if run describes crystal)
+        oriented_lattice__ =[];
         
     end
     methods(Static)
-        function fields = fields_with_defaults()
-            fields =rundata.fields_have_defaults;
+        function fields = main_data_fields()
+            fields = rundata.min_field_set__;
         end
     end
     
@@ -134,19 +109,6 @@ classdef rundata
             %
             % Crystal parameters:
             %   is_crystal  % true if single crystal, false if powder
-            %   alatt       % Lattice parameters [a,b,c] (Ang^-1
-            %   angldeg     % Lattice angles [alf,bet,gam] (deg)
-            %
-            % Crystal orientation:
-            %   u           % first vector defining scattering plane
-            %   v           % second vector defining scattering plane
-            %
-            % Goniometer parameters:
-            %   psi         %  Angle of u w.r.t. ki (deg)
-            %   omega       %  Angle of axis of small goniometer arc w.r.t. notional u (deg)
-            %   dpsi        %  Correction to psi (deg)
-            %   gl          %  Large goniometer arc angle (deg)
-            %   gs          %  Small goniometer arc angle (deg)
             
             if nargin>0
                 if isstring(varargin{1})
@@ -156,127 +118,79 @@ classdef rundata
                 end
             end
         end
-        %------------------------------------------------------------------
-        % PROPERTIES WITH DEFAULTS
-        %------------------------------------------------------------------
-        function psi = get.psi(this)
-            psi = this.psi_stor;
-        end
-        function omega = get.omega(this)
-            omega  = this.omega_stor;
-        end
-        function dpsi = get.dpsi(this)
-            dpsi = this.dpsi_stor;
-        end
-        function gl=get.gl(this)
-            gl= this.gl_stor;
-        end
-        function gs=get.gs(this)
-            gs= this.gs_stor;
-        end
-        function this = set.psi(this,val)
-            this.psi_stor=check_angular_set(val);
-        end
-        function this = set.omega(this,val)
-            this.omega_stor=check_angular_set(val);
-        end
-        function this  = set.dpsi(this,val)
-            this.dpsi_stor=check_angular_set(val);
-        end
-        function this =set.gl(this,val)
-            this.gl_stor=check_angular_set(val);
-        end
-        function this =set.gs(this,val)
-            this.gs_stor=check_angular_set(val);
-        end
-        %----------------------------
-        function u=get.u(this)
-            if this.surf_ar_stor<1.e-6
-                u=sprintf('u || v where u= [%d,%d,%d]; v= [%d,%d,%d]',this.u_stor,this.v_stor);
-            else
-                u=this.u_stor;
+        
+        function fields = fields_with_defaults(this)
+            % method returns data fields, which have default values
+            fields = {'emode'};
+            if ~isempty(this.oriented_lattice__)
+                lattice_fields = oriented_lattice.fields_with_defaults();
+                fields ={fields{:},lattice_fields{:}};
             end
         end
-        function v=get.v(this)
-            if this.surf_ar_stor<1.e-6
-                v=sprintf('u || v where u= [%d,%d,%d]; v= [%d,%d,%d]',this.u_stor,this.v_stor);
-            else
-                v=this.v_stor;
-            end
-        end
-        function this=set.u(this,u)
-            if numel(u) ~= 3
-                error('RUNDATA:invalid_argument',' vector u has to be a vector of 3 elements')
-            end
-            if size(u,2)==1;
-                u=u';
-            end
-            this.u_stor=u;
-            this.uv_cros_stor=cross(u,this.v_stor);
-            this.surf_ar_stor = sum(this.uv_cros_stor.*this.uv_cros_stor);
-        end
-        function this=set.v(this,v)
-            if numel(v) ~= 3
-                error('RUNDATA:invalid_argument',' vector v has to be a vector of 3 elements')
-            end
-            if size(v,2)==1;
-                v=v';
-            end
-            this.v_stor=v;
-            this.uv_cros_stor=cross(this.u_stor,v);
-            this.surf_ar_stor = sum(this.uv_cros_stor.*this.uv_cros_stor);
-        end
+        %         function val = subsref(this,S)
+        %         end
+        
         %----
         function mode = get.emode(this)
-            % method to check emode and verify its defaults
-            if isempty(this.emode_internal)
-                mode = 1;
-            else
-                mode = this.emode_internal;
-            end
+            % method to check emode and verify its default
+            mode = this.emode__;
         end
         function this = set.emode(this,val)
             % method to check emode and verify its defaults
             if val>-1 && val <3
-                this.emode_internal = val;
+                this.emode__ = val;
             else
-                error('RUNDATA:set_emode','unsupported emode %d',val);
+                error('RUNDATA:set_emode','unsupported emode %d, only 0 1 and 2 are supported',val);
             end
         end
         %----
         function is = get.is_crystal(this)
-            is = logical(this.is_crystal_stor);
-        end
-        function this = set.is_crystal(this,val)
-            if val<0 || val > 1
-                error('RUNDATA:set_is_crystal',' is crystal can be only 0 or 1 (true or false)');
+            if isempty(this.oriented_lattice__)
+                is = false;
+            else
+                is = true;
             end
-            this.is_crystal_stor = val;
-        end
-        %------------------------------------------------------------------
-        % PROPERTIES WITH DEFAULTS -- END;
-        %------------------------------------------------------------------
-        %---
-        function alat=get.alatt(this)
-            alat = this.alat_stor;
-        end
-        function angdeg=get.angldeg(this)
-            angdeg= this.angldeg_stor;
         end
         %
-        function this=set.alatt(this,val)            
-            this.alat_stor = check_3Dvector(val);
-        end
-        function this=set.angldeg(this,val)
-            this.angldeg_stor = check_3DAngles_correct(val);
-        end                
-        %---
-        function loader=get.loader(this)
-            if isempty(this.loader_stor)
-                loader=[];
+        function this = set.is_crystal(this,val)
+            if val == 0
+                this.oriented_lattice__ = [];
+            elseif val == 1
+                if isempty(this.oriented_lattice__)
+                    this.oriented_lattice__ = oriented_lattice();
+                end
+            elseif isa(val,'oriented_lattice')
+                this.oriented_lattice__ = val;
             else
-                loader=this.loader_stor;
+                error('RUNDATA:set_is_crystal',' you can either remove crystal information or set oriented lattice to define crystal');
             end
+        end
+        %
+        function lattice = get.lattice(this)
+            lattice = this.oriented_lattice__;
+        end
+        %
+        function this = set.lattice(this,val)
+            if isa(val,'oriented_lattice')
+                this.oriented_lattice__ = val;
+            elseif isemtpy(val)
+                this.oriented_lattice__ =[];
+            else
+                error('RUNDATA:set_lattice','set lattice parameter can be oriented_lattice only')
+            end
+        end
+        %
+        function this = set_lattice_field(this,name,val)
+            % method sets a field of  lattice if the lattice
+            % present and initates the lattice first if it is not present
+            if isempty(this.oriented_lattice__)
+                this.oriented_lattice__ = oriented_lattice();
+            end
+            this.oriented_lattice__.(name)=val;
+        end
+        %
+        function loader=get.loader(this)
+            loader=this.loader__;
         end
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES
@@ -336,25 +250,33 @@ classdef rundata
         function efix = get.efix(this)
             efix = check_efix_defined_correctly(this);
         end
+        %
         function this = set.efix(this,val)
-            if isempty(this.loader_stor)
-                this.efix_stor=val;
+            if isempty(this.loader__)
+                this.efix__=val;
             else
-                if ismember('efix',loader_can_define(this.loader_stor))
-                    this.loader_stor.efix = val;
+                if ismember('efix',loader_can_define(this.loader__))
+                    this.loader__.efix = val;
                 else
-                    this.efix_stor = val;
+                    this.efix__ = val;
                 end
             end
         end
+        
         %-----------------------------------------------------------------------------
-        function this=saveNXSPE(this,filename)
+        
+        function this=saveNXSPE(this,filename,varargin)
             if isempty(this.loader)
                 warning('RUNDATA:invalid_argument','nothing to save');
                 return
             else
                 ld=this.loader;
-                this.loader_stor=ld.saveNXSPE(filename,this.efix,this.psi);
+                if this.is_crystal
+                    psi = this.lattice.psi;
+                else
+                    psi = nan;
+                end
+                this.loader__=ld.saveNXSPE(filename,this.efix,psi,varargin{:});
             end
             
         end

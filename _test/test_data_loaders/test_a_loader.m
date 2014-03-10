@@ -262,7 +262,7 @@ classdef test_a_loader< TestCase
              % it looks like clear bug in hdf 1.6 for Matlab 2008b which
              % does not release file after hdf write. Because of this, the
              % file can not be overwrtitten until matlab is shut down. 
-             % it looks like Matlab/hdf bug as other Matlab versions do not
+             % it looks like Matlab/hdf bug as higher Matlab versions do not
              % have such problem
             if matlab_version_num()>7.07
                 f=@()lt.saveNXSPE(test_file,10,3);

@@ -106,7 +106,7 @@ file_attr=struct('NeXus_version','4.3.0 ','file_name',...
 
 
 %-------------------------------------------------------------------------
-% Start wriging file
+% Start writing file
 %-------------------------------------------------------------------------
 fcpl = H5P.create('H5P_FILE_CREATE');
 fapl = H5P.create('H5P_FILE_ACCESS');
@@ -303,23 +303,13 @@ for i=1:numel(attr_names)
         H5S.close(space_id);
         H5T.close(type_id);
     end
-%      aid2 = H5Screate(H5S_SCALAR);
-% 187	        aid1 = H5Tcopy(H5T_C_S1);
-% 188	        H5Tset_size(aid1, strlen(NEXUS_VERSION));
-% 189	        if (am1 == H5F_ACC_RDWR)
-% 190	        {
-% 191	        H5Adelete(pNew->iVID, "NeXus_version"); 
-% 192	        }
-% 193	        attr1= H5Acreate(pNew->iVID, "NeXus_version", aid1, aid2, H5P_DEFAULT);
-% 194	        if (attr1<0)
-% 195	         
 end
 end
 %
 function write_string_sign(group_id,ds_name,name,attr_name,attr_cont)
 % write string dataset with possible attribute
 % Such structure is used in NeXus e.g. to indicate that this file is nxspe file
-% and on number of other ocasions
+% and on number of other occasions
 %
 % type_id = H5T.copy('H5T_C_S1');
 % space_id = H5S.create_simple(1,numel(name),numel(name));

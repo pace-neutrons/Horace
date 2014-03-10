@@ -1,14 +1,14 @@
 function [par,this]=get_par(this,format)
 % Returns detector parameter data from properly initiated data loader
 %
-%   >> par = get_par(rundata_instance,['-hor'])
+%   >> par = get_par(rundata_instance,['-nohor'])
 %   >> [par,rundata_instance] = get_par(rundata_instance,['-array'])
 %
 % Input:
 % ------
 
-%   rundata_instance    Properly initated instance of the rundata class
-%  '-array','-nohorace'   return resutls as 6xndet array of coordinates
+%   rundata_instance    Properly initiated instance of the rundata class
+%  '-array','-nohorace'   return results as 6xndet array of coordinates
 %
 % Output:
 % -------
@@ -17,11 +17,11 @@ function [par,this]=get_par(this,format)
 
 
 if isempty(this.det_par)
-    if isempty(this.loader)
-        error('RUNDATA:invalid_argument','get_par function needs initated loader');
+    if isempty(this.loader__)
+        error('RUNDATA:invalid_argument','get_par function needs initiated loader');
     end
     if ~exist('format','var')
         format={};
     end
-    [par,this.loader_stor]= this.loader.load_par(format{:});
+    [par,this.loader__]= this.loader.load_par(format{:});
 end

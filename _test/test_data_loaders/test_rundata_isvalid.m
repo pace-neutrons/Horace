@@ -95,62 +95,38 @@ classdef test_rundata_isvalid<TestCase
         end
         function this = test_is_crystal(this)
             rd=rundata();
-            rd.is_crystal = false;
             assertTrue(isvalid(rd));
             
-            rd.is_crystal = true;
+            rd.lattice = oriented_lattice();
             assertTrue(isvalid(rd));
             
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');            
+            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
             f=@()subsasgn(rd,struct('type','.','subs','is_crystal'),3);
             assertExceptionThrown(f,'RUNDATA:set_is_crystal');
             warning(ws);
         end
         function this = test_3vectors(this)
             rd=rundata();
-            %rd.u='a';
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
-            f=@()subsasgn(rd,struct('type','.','subs','u'),'a');
-            assertExceptionThrown(f,'RUNDATA:invalid_argument');
             
-            %rd.u=1;
-            f=@()subsasgn(rd,struct('type','.','subs','u'),1);
-            assertExceptionThrown(f,'RUNDATA:invalid_argument');
-            warning(ws);
+            rd = set_lattice_field(rd,'u',[1,2,3]);
+            rd = set_lattice_field(rd,'v',[3;4;5]);
+            rd = set_lattice_field(rd,'alatt',1:3);
+            rd = set_lattice_field(rd,'angdeg',(2:4)');
             
-            rd.u=[1,2,3];
-            rd.v=[3;4;5];
-            rd.alatt=1:3;
-            rd.angldeg=(2:4)';
             [ok,mess]=isvalid(rd);
             assertTrue(ok);
             assertEqual(mess,'');
         end
+        
         function this = test_1vectors(this)
             rd=rundata();
-            %rd.gl='a';
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');            
-            f=@()subsasgn(rd,struct('type','.','subs','gl'),'a');
-            %            assertEqual(mess,' field: gl has to be numeric but it is not');
-            assertExceptionThrown(f,'RUNDATA:set_angular_value');
+            rd.is_crystal = true;
             
-            
-            %rd.gl=[1,2];
-            f=@()subsasgn(rd,struct('type','.','subs','gl'),[1,2]);
-            %            assertEqual(mess,' field: gl has to have 1 element but has: 2
-            %            element(s)');
-            assertExceptionThrown(f,'RUNDATA:set_angular_value');
-            
-            f=@()subsasgn(rd,struct('type','.','subs','gl'),400);
-            %            assertEqual(mess,' field: gl has to in range of +-360 deg but it is not');
-            assertExceptionThrown(f,'RUNDATA:set_angular_value');
-            warning(ws);
-            
-            rd.gl=0;
-            rd.gs=1;
-            rd.psi=1;
-            rd.omega=10;
-            rd.dpsi=-10;
+            rd.lattice.gl=0;
+            rd.lattice.gs=1;
+            rd.lattice.psi=1;
+            rd.lattice.omega=10;
+            rd.lattice.dpsi=-10;
             
             [ok,mess]=isvalid(rd);
             assertTrue(ok);
@@ -158,25 +134,13 @@ classdef test_rundata_isvalid<TestCase
         end
         function this = test_degrees(this)
             rd=rundata();
-            rd.gl=0;          
+            rd.is_crystal = true;
+            rd.lattice.gl=0;
             
-            rd.angldeg=[45,90,50];
+            rd.lattice.angdeg=[45,90,50];
             [ok,mess]=isvalid(rd);
             assertTrue(ok);
             assertEqual(mess,'');
-        end
-        function this = test_LatticeCorrect(this)
-            rd=rundata();
-            %rd.angldeg = [-400,0,0]
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');            
-            f=@()subsasgn(rd,struct('type','.','subs','angldeg'),[-400,0,0]);
-            assertExceptionThrown(f,'RUNDATA:set_lattice_angles');
-            
-            %assertEqual(mess,'field ''angldeg'' does not define correct 3D lattice');
-            %rd.angldeg = [45,120,45]
-            f=@()subsasgn(rd,struct('type','.','subs','angldeg'),[45,120,50]);
-            assertExceptionThrown(f,'RUNDATA:set_lattice_angles');
-            warning(ws);
         end
         
         

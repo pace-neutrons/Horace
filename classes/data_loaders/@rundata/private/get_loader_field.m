@@ -4,5 +4,5 @@ function val = get_loader_field(this,field_name)
 if isempty(this.loader)
     val=[];
 else
-    val=this.loader_stor.(field_name);
+    val=this.loader__.(field_name);
 end
