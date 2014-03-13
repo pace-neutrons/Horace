@@ -113,6 +113,11 @@ classdef rundata
             if nargin>0
                 if isstring(varargin{1})
                     this=select_loader(this,varargin{1},varargin{2:end});
+                elseif isa(varargin{1},'sqw') %
+                    if nargin>1
+                        error('RUNDATA:rundata','if sqw object is the source of the rundata, it should be the only parameter');
+                    end
+                    this = build_rundata_from_sqw(varargin{1});
                 else
                     this=set_param_recursively(this,varargin{1},varargin{2:end});
                 end
