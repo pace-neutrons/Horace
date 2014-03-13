@@ -18,7 +18,7 @@ v=[0,1,0];
 omega=0;dpsi=0;gl=0;gs=0;
 
 psi=[0:4:90];
-nxspe_limit = numel(psi)/2;
+nxspe_limit = numel(psi)+2;%numel(psi)/2;
 file_list = cell(1,numel(psi));
 
 %horace_info_level(-Inf);
@@ -51,7 +51,7 @@ catch
     display('Problem generating data for Horace demo - check that 4to1_124.PAR file is present in current (demo) directory');
 end
 
-set(hor_config,horace_info_level(hil));
+set(hor_config,'horace_info_level',hil);
 %horace_info_level(hil)
 delete(sqw_file_single);
 
