@@ -12,7 +12,7 @@
 
 %Run the command below to obtain the data we will use for the demo. This
 %process can take a few minutes - be patient!
-setup_demo_data
+%file_list=setup_demo_data();
 
 %At the end of this you should have a set of files called
 %HoraceDemoDataFileN.spe, where N is 1 to 23.
@@ -43,20 +43,27 @@ psi=[0:4:90];%the angle of the sample w.r.t. the incident beam for each run.
 %u=[1,0,0] - see above).
 
 nfiles=numel(psi);
-spe_file=cell(1,nfiles);
-for i=1:length(psi)
-    spe_file{i}=[indir,filesep,'HoraceDemoDataFile',num2str(i),'.spe'];    
+if exist('file_list','var')
+    spe_file = file_list;
+else
+    spe_file=cell(1,nfiles);
+    for i=1:length(psi)
+        spe_file{i}=[indir,filesep,'HoraceDemoDataFile',num2str(i),'.nxspe'];
+        if ~exist(spe_file{i},'file')
+            spe_file{i}=[indir,filesep,'HoraceDemoDataFile',num2str(i),'.spe'];
+        end
+    end
 end
 
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-          u, v, psi, omega, dpsi, gl, gs);
+    u, v, psi, omega, dpsi, gl, gs);
 
-      
+
 %====================================
 %% Make plots etc
 %====================================
 
-%Viewing axes to look at the data. These can be any orthogonal set you like   
+%Viewing axes to look at the data. These can be any orthogonal set you like
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 %3D slice - view using sliceomatic
@@ -122,7 +129,7 @@ plot(w_sqw)
 %% Symmetrising, and some other bits and bobs
 
 %You can fold about some axis, to improve stats:
-wsym=symmetrise_sqw(cc2a,[1,0,0],[0,0,1],[0,0,0]);%specify a plane using 2 vectors in it, and an 
+wsym=symmetrise_sqw(cc2a,[1,0,0],[0,0,1],[0,0,0]);%specify a plane using 2 vectors in it, and an
 %offset of this plane from the origin. So the above should fold about the
 %line h=0:
 
@@ -149,4 +156,3 @@ plot(wadd);%notice the changed limits of the colour scale!
 
 
 
-                 

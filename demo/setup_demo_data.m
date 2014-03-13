@@ -1,4 +1,4 @@
-function setup_demo_data
+function file_list=setup_demo_data()
 %
 % Internal routine for demo - generates some spe files that can then be
 % used in the Horace demo suite.
@@ -18,8 +18,12 @@ v=[0,1,0];
 omega=0;dpsi=0;gl=0;gs=0;
 
 psi=[0:4:90];
+nxspe_limit = numel(psi)/2;
+file_list = cell(1,numel(psi));
 
-horace_info_level(-Inf);
+%horace_info_level(-Inf);
+hil=get(hor_config,'horace_info_level');
+set(hor_config,'horace_info_level',-Inf);
 display('Getting data for Horace demo... Please wait a few minutes');
 try
     for i=1:numel(psi)
@@ -30,17 +34,25 @@ try
         %Make the fake data:
         w=sqw_eval(w,@demo_FM_spinwaves,[300 0 2 10 2]);%simulate spinwave cross-section 
         w=noisify(w,1);%add some noise to simulate real data
-        d=spe(w+0.74);%also add a constant background
-        save(d,[demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.spe']);
+        if i<nxspe_limit
+            d = rundata(w+0.74);
+            file_list{i} = [demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.nxspe'];
+            saveNXSPE(d,file_list{i});
+        else
+            d=spe(w+0.74);%also add a constant background
+            file_list{i} = [demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.spe'];
+            save(d,file_list{i});
+        end
         %remove intermediate file
     end
 catch
-    horace_info_level(Inf)
+    set(hor_config,horace_info_level(hil));
     delete(sqw_file_single);
     display('Problem generating data for Horace demo - check that 4to1_124.PAR file is present in current (demo) directory');
 end
 
-horace_info_level(Inf)
+set(hor_config,horace_info_level(hil));
+%horace_info_level(hil)
 delete(sqw_file_single);
 
     
