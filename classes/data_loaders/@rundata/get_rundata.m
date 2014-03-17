@@ -190,11 +190,12 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
     fields_to_load = fields_to_load(~loader_dep);
     if numel(lattice_fields)>0
         loader_lattice_fields=ismember(lattice_fields,loader_defines);
-        % copy lattice parameter which loader defines
+        % copy lattice parameter which loader defines, if lattice
+        % parameters are not already defined
         if any(loader_lattice_fields)
             lattice_in_loader=lattice_fields(loader_lattice_fields);
             for i=1:numel(lattice_in_loader)
-                this=set_lattice_field(this,lattice_in_loader{i},loader.(lattice_in_loader{i}));
+               this=set_lattice_field(this,lattice_in_loader{i},loader.(lattice_in_loader{i}),'-ifempty');
             end
         end
     end

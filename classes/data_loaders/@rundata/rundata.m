@@ -185,14 +185,6 @@ classdef rundata
             end
         end
         %
-        function this = set_lattice_field(this,name,val)
-            % method sets a field of  lattice if the lattice
-            % present and initates the lattice first if it is not present
-            if isempty(this.oriented_lattice__)
-                this.oriented_lattice__ = oriented_lattice();
-            end
-            this.oriented_lattice__.(name)=val;
-        end
         %
         function loader=get.loader(this)
             loader=this.loader__;
