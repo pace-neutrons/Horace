@@ -31,19 +31,28 @@ function [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fie
 % What fields have to be defined (as function of crystal/powder parameter)?
 if ~exist('fields_needed','var')
     fields_needed = what_fields_are_needed(run);
+    [all_fields,lattice_fields] = what_fields_are_needed(run);    
+else
+    [all_fields,lattice_fields] = what_fields_are_needed(run,fields_needed);
 end
 fields_from_loader = {};
 
-[all_fields,lattice_fields] = what_fields_are_needed(run);
+
 undefined  = 0; % false; all defined;
 
 if ~isempty(lattice_fields)
     % If everything is defined, no point to bother, finish
-    is_empty_f = @(field)is_empty_field(run.lattice,field);
+    if isempty(run.lattice)
+        the_lattice = oriented_lattice();
+    else
+        the_lattice = run.lattice;        
+    end
+    is_empty_f = @(field)is_empty_field(the_lattice,field);
     is_undef_lattice   = cellfun(is_empty_f,lattice_fields);
     undef_lattice      = lattice_fields(is_undef_lattice);
     other_fields   = ~ismember(all_fields,lattice_fields);
     all_fields     = all_fields(other_fields);
+    
 else
     undef_lattice = {};
 end

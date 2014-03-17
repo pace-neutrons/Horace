@@ -114,13 +114,13 @@ classdef test_rundata< TestCase
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
             % missing fields
-             % and these fields can be retrieved
+            % and these fields can be retrieved
             assertEqual(3,numel(fields_to_load));
             assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
             %             assertEqual(6,numel(fields_from_defaults));
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
         end
-         function test_not_all_fields_defined_crystal(this)
+        function test_not_all_fields_defined_crystal(this)
             run=rundata(f_name(this,'MAP11020.spe_h5'),f_name(this,'demo_par.PAR'),'efix',200.,'gl',1.);
             % run is not defined fully (properly)
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
@@ -133,7 +133,7 @@ classdef test_rundata< TestCase
             assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
             %             assertEqual(6,numel(fields_from_defaults));
             %             assertTrue(all(ismember({'omega','dpsi','gl','gs','u','v'},fields_from_defaults)));
-        end     
+        end
         function test_all_fields_defined_powder(this)
             % checks different option of private function
             % what_fields_are_needed()
@@ -287,6 +287,26 @@ classdef test_rundata< TestCase
             if exist(test_file,'file')
                 delete(test_file);
             end
+            
+        end
+        function test_set_field_have_preference(this)
+            run=rundata(f_name(this,'MAP11014.nxspe'));
+            
+            assertEqual(0,get_rundata(run,'psi'));
+            
+            run=set_lattice_field(run,'psi',10);
+            assertEqual(10,get_rundata(run,'psi'));
+            
+
+            run=set_lattice_field(run,'psi',20,'-ifempty');
+            assertEqual(10,get_rundata(run,'psi'));
+            
+            lat=oriented_lattice();
+            run.lattice = lat;
+            assertEqual(0,get_rundata(run,'psi'));
+            
+            run=set_lattice_field(run,'psi',20,'-ifempty');            
+            assertEqual(20,get_rundata(run,'psi'));
             
         end
         
