@@ -19,7 +19,7 @@ function gen_sqw_cylinder_test (spe_file, par_file, sqw_file, efix, varargin)
 %   omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
 %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
-% 
+%
 % Meaning of gl and gs: they give the direction of the Qz axis. If gl=gs=0 then Qz is
 % vertically upwards. In the case when you choose omega=0 then:
 %   gl              Rotation is about horizontal axis perp. to ki, +ve tilts the
@@ -40,7 +40,7 @@ function gen_sqw_cylinder_test (spe_file, par_file, sqw_file, efix, varargin)
 % *** IMPORTANCE NOTES ***
 %
 % - This sqw object that is created is a 3D object, with axes (Q_inplane, Qz, eps)
-% 
+%
 % - Use cut_sqw and @sqw/cut WITHOUT the proj option. All other use may lead to
 %  unexpected behaviour. The symmetrisation routines may not work, but the only
 %  symmetrisation that is meaningful is to add +ve and -ve Qz, so this can be
@@ -109,7 +109,7 @@ end
 grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
 for i=1:numel(spe_file)
     gen_sqw (sqw, spe_file(i), par_file, tmp_file{i}, efix(i), emode,...
-                alatt, angdeg, u, v, psi, omega(i), dpsi, gl(i), gs(i), grid);
+        alatt, angdeg, u, v, psi, omega(i), dpsi, gl(i), gs(i), grid);
 end
 
 
@@ -187,36 +187,36 @@ if nfiles==1
     % Single spe file, so no recombining needs to be done
     tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
 else
-     % Multiple files
+    % Multiple files
     il = get(hor_config,'horace_info_level');
     if il>-1
-       disp('--------------------------------------------------------------------------------')
-       disp('Creating final output sqw file:')
+        disp('--------------------------------------------------------------------------------')
+        disp('Creating final output sqw file:')
     end
     write_nsqw_to_sqw (tmp_file, sqw_file);
-    if il>-1    
-       disp('--------------------------------------------------------------------------------')
+    if il>-1
+        disp('--------------------------------------------------------------------------------')
     end
 end
 
 
 % Delete temporary files if requested
 % -----------------------------------
-if get(hor_config,'delete_tmp')
-    if ~isempty(tmp_file)   % will be empty if only one spe file
-        delete_error=false;
-        for i=1:numel(tmp_file)
-            try
-                delete(tmp_file{i})
-            catch
-                if delete_error==false
-                    delete_error=true;
-                    disp('One or more temporary sqw files not deleted')
-                end
+%if get(hor_config,'delete_tmp')
+if ~isempty(tmp_file)   % will be empty if only one spe file
+    delete_error=false;
+    for i=1:numel(tmp_file)
+        try
+            delete(tmp_file{i})
+        catch
+            if delete_error==false
+                delete_error=true;
+                disp('One or more temporary sqw files not deleted')
             end
         end
     end
 end
+%end
 
 
 % Clear output arguments if nargout==0 to have a silent return

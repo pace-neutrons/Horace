@@ -28,7 +28,7 @@ function gen_sqw_powder_test (spe_file, par_file, sqw_file, efix, emode)
 % *** IMPORTANCE NOTES ***
 %
 % - This sqw object that is created is a 2D object, with axes (|Q|, eps)
-% 
+%
 % - Use cut_sqw and @sqw/cut WITHOUT the proj option. All other use may lead to
 %  unexpected behaviour. The symmetrisation routines may not work, but the only
 %  symmetrisation that is meaningful is to add +ve and -ve Qz, so this can be
@@ -73,7 +73,7 @@ end
 grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
 for i=1:numel(spe_file)
     gen_sqw (sqw, spe_file(i), par_file, tmp_file{i}, efix(i), emode,...
-                alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, grid);
+        alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, grid);
 end
 
 
@@ -149,37 +149,37 @@ if nfiles==1
 else
     il = get(hor_config,'horace_info_level');
     if il>-1
-      % Multiple files
-      disp('--------------------------------------------------------------------------------')
-      disp('Creating final output sqw file:')
+        % Multiple files
+        disp('--------------------------------------------------------------------------------')
+        disp('Creating final output sqw file:')
     end
     
     write_nsqw_to_sqw (tmp_file, sqw_file);
     
     if il>-1
-      disp('--------------------------------------------------------------------------------')
-    end      
-
+        disp('--------------------------------------------------------------------------------')
+    end
+    
 end
 
 
 % Delete temporary files if requested
 % -----------------------------------
-if get(hor_config,'delete_tmp')
-    if ~isempty(tmp_file)   % will be empty if only one spe file
-        delete_error=false;
-        for i=1:numel(tmp_file)
-            try
-                delete(tmp_file{i})
-            catch
-                if delete_error==false
-                    delete_error=true;
-                    disp('One or more temporary sqw files not deleted')
-                end
+%if get(hor_config,'delete_tmp')
+if ~isempty(tmp_file)   % will be empty if only one spe file
+    delete_error=false;
+    for i=1:numel(tmp_file)
+        try
+            delete(tmp_file{i})
+        catch
+            if delete_error==false
+                delete_error=true;
+                disp('One or more temporary sqw files not deleted')
             end
         end
     end
 end
+%end
 
 
 % Clear output arguments if nargout==0 to have a silent return

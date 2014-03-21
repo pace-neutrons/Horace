@@ -164,18 +164,18 @@ if accumulate_old_sqw    % combine with existing sqw file
         disp(' ')
     end
     if ~any(spe_exist & spe_only)   % no work to do
-		if  horace_info_level>-1
-			disp('--------------------------------------------------------------------------------')
-			if ~any(spe_only)
-				disp('  All the input spe data are already included in the sqw file. No work to do.')
-			elseif ~any(spe_exist)
-				disp('  None of the input spe data currently exist. No work to do.')
-			else
-				disp('  All the input spe data are already included in the sqw file, or do not')
-				disp('  currently exist. No work to do.')
-			end
-			disp('--------------------------------------------------------------------------------')
-		end
+        if  horace_info_level>-1
+            disp('--------------------------------------------------------------------------------')
+            if ~any(spe_only)
+                disp('  All the input spe data are already included in the sqw file. No work to do.')
+            elseif ~any(spe_exist)
+                disp('  None of the input spe data currently exist. No work to do.')
+            else
+                disp('  All the input spe data are already included in the sqw file, or do not')
+                disp('  currently exist. No work to do.')
+            end
+            disp('--------------------------------------------------------------------------------')
+        end
         tmp_file={}; grid_size=grid_size_sqw; urange=urange_sqw;
         return
     end
@@ -243,10 +243,10 @@ end
 % Construct output sqw file
 if ~accumulate_old_sqw && nindx==1
     % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
-	if horace_info_level>-1
-		disp('--------------------------------------------------------------------------------')
-		disp('Creating output sqw file:')
-	end
+    if horace_info_level>-1
+        disp('--------------------------------------------------------------------------------')
+        disp('Creating output sqw file:')
+    end
     [grid_size,urange] = rundata_write_to_sqw (run_files{1},sqw_file,...
         grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)));
     tmp_file={};    % empty cell array to indicate no tmp_files created
@@ -256,11 +256,11 @@ else
     [tmp_file,sqw_file_tmp]=gen_tmp_filenames(spe_file,sqw_file,indx);
     nt=bigtic();
     for i=1:nindx
-		if horace_info_level>-1
-			disp('--------------------------------------------------------------------------------')
-			disp(['Processing spe file ',num2str(i),' of ',num2str(nindx),':'])
-			disp(' ')
-		end
+        if horace_info_level>-1
+            disp('--------------------------------------------------------------------------------')
+            disp(['Processing spe file ',num2str(i),' of ',num2str(nindx),':'])
+            disp(' ')
+        end
         [grid_size_tmp,urange_tmp] = rundata_write_to_sqw (run_files{i},tmp_file{i},...
             grid_size_in,urange_in,instrument(indx(i)),sample(indx(i)));
         if i==1
@@ -272,52 +272,52 @@ else
             end
         end
     end
-	if horace_info_level>-1
-		disp('--------------------------------------------------------------------------------')
-		bigtoc(nt,'Time to create all temporary sqw files:');
+    if horace_info_level>-1
+        disp('--------------------------------------------------------------------------------')
+        bigtoc(nt,'Time to create all temporary sqw files:');
+        
+        % Create single sqw file combining all intermediate sqw files
+        disp('--------------------------------------------------------------------------------')
+    end
     
-		% Create single sqw file combining all intermediate sqw files
-		disp('--------------------------------------------------------------------------------')
-	end
-	
     if ~accumulate_old_sqw
-		if horace_info_level>-1
-			disp('Creating output sqw file:')
-		end
+        if horace_info_level>-1
+            disp('Creating output sqw file:')
+        end
         write_nsqw_to_sqw (tmp_file, sqw_file);
     else
-		if horace_info_level>-1
-			disp('Accumulating in temporary output sqw file:')
-		end
+        if horace_info_level>-1
+            disp('Accumulating in temporary output sqw file:')
+        end
         write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp);
-		if horace_info_level>-1		
-			disp(' ')
-			disp(['Renaming sqw file to ',sqw_file])
-		end
+        if horace_info_level>-1
+            disp(' ')
+            disp(['Renaming sqw file to ',sqw_file])
+        end
         rename_file (sqw_file_tmp, sqw_file)
     end
-	if horace_info_level>-1
-		disp('--------------------------------------------------------------------------------')
-	end
+    if horace_info_level>-1
+        disp('--------------------------------------------------------------------------------')
+    end
     
-    % Delete temporary files if requested
-    if get(hor_config,'delete_tmp')
-        delete_error=false;
-        for i=1:numel(tmp_file)
-            ws=warning('off','MATLAB:DELETE:Permission');
-            try
-                delete(tmp_file{i})
-            catch
-                if delete_error==false
-                    delete_error=true;
-					if horace_info_level>-1
-						disp('One or more temporary sqw files not deleted')
-					end
+    % Delete temporary files
+    %if get(hor_config,'delete_tmp')if requested
+    delete_error=false;
+    for i=1:numel(tmp_file)
+        ws=warning('off','MATLAB:DELETE:Permission');
+        try
+            delete(tmp_file{i})
+        catch
+            if delete_error==false
+                delete_error=true;
+                if horace_info_level>-1
+                    disp('One or more temporary sqw files not deleted')
                 end
             end
-            warning(ws);
         end
+        warning(ws);
     end
+    %end
     
 end
 
