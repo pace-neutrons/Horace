@@ -1,8 +1,8 @@
 function  clear_particular_config(this,class_instance,clear_file)
-% internal method to remove from particular configuration from memory
+% internal method to remove particular configuration from memory 
 %
 % if clear_file == true also deletes the correspondent configuration file
-
+%
 %
 % $Revision: 313 $ ($Date: 2013-12-02 11:31:41 +0000 (Mon, 02 Dec 2013) $)
 %

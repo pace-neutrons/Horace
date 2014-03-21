@@ -1,16 +1,19 @@
 classdef config_store < handle
     % Class provides single storage point for various configuration
-    % classes.
+    % classes. 
     %
-    
+    % it stores/restores the classes, inheriting from config_base class
+    %
+    %
+    %
     % $Revision: 313 $ ($Date: 2013-12-02 11:31:41 +0000 (Mon, 02 Dec 2013) $)
-    
+    %
     properties(Dependent)
         % the full path to the folder where the configuration is stored
         config_folder;
-        % field allowing to observe config storage (mainly for testing and
-        % debug purposes)
-        config_storage;
+        % property to observe config classes currently initated in
+        % the singleton (mainly for testing and debug purposes)
+        config_classes;
     end
     properties(Constant=true)
         % the name of the folder where the configuration is stored;
@@ -55,27 +58,53 @@ classdef config_store < handle
         function store_config(this,config_class,varargin)
             % store configuration in memory and on file if requested.
             %
-            % clonfig class which property saveable==true, are saved both
+            % config_class class which property saveable==true, are saved both
             % into  memory, and to the hdd.
             %
             % if option -forcesave (or -force is provided) file is saved
             % into disc regardless of its status in memory
             
             options={'-forcesave'};
-            [ok,mess,force_save]=parse_char_options(varargin,options);
+            [ok,mess,force_save,other_options]=parse_char_options(varargin,options);
             if ~ok
                 error('CONFIG_STORE:store_config',mess);
             end
-            config_store_internal(this,config_class,force_save);
+            config_store_internal(this,config_class,force_save,other_options{:});
         end
-        function obj=restore_config(this,class_to_restore)
+        function   [obj,varargout]=restore_config(this,class_to_restore,varargin)
             % return configuration from memory or load it from a file if such
             % configuration exist on file and not in memory
             %
+            %
             % class_to_restore -- the class instance of which should to be
             % restored from the hdd
+            %
+            % if class_to_restore has option return_defaults==true,
+            % default class configuration is returned
+            %
+            % if varargin is present, method returns not the clas itself, but
+            % the range of the values of the class field names, specified in
+            % the varargin.            
+            %Usage:
+            %
+            % obj = conifg_store.instance().restore_config(herbert_config)
+            %       unusual instance of herbert config, with modified
+            %       detaults. Should not be used
+            %
+            % [use_mex,use_mex_C]=conifg_store.instance().restore_config(herbert_config,...
+            %                     'use_mex','use_mex_C')
+            %                     returns current herbert config settings for fields
+            %                      'use_mex' and 'use_mex_C'
             
-            obj=restore_config_internal(this,class_to_restore);
+            outputs=restore_config_internal(this,class_to_restore,max(nargout,1)-1,varargin{:});
+            if iscell(outputs)
+                obj=outputs{1};
+                for i=2:nargout
+                    varargout{i-1}=outputs{i};
+                end
+            else
+                obj=outputs;
+            end
         end
         %------------------------------------------------------------------
         function clear_config(this,class_instance,varargin)
@@ -84,20 +113,20 @@ classdef config_store < handle
             % if option -file exist, it also deletes the file
             % where this configuration is stored.
             %
-            options={'-file'};
+            options={'-files'};
             [ok,mess,clear_file]=parse_char_options(varargin,options);
             if ~ok
                 error('CONFIG_STORE:clear_config',mess);
             end
-            clear_particular_config(this,class_instance,clear_file);            
+            clear_particular_config(this,class_instance,clear_file);
         end
         %
         function clear_all(this,varargin)
             % clear all configurations, stored in memory.
             % if option -file exist, it also deletes all files with stored
             % configurations
-            %            
-            options={'-file'};
+            %
+            options={'-files'};
             [ok,mess,clear_files]=parse_char_options(varargin,options);
             if ~ok
                 error('CONFIG_STORE:clear_config',mess);
@@ -109,7 +138,7 @@ classdef config_store < handle
         end
         function isit=is_configured(this,class_instance,varargin)
             % method checks if the class class_instance is
-            % stored with the config_store
+            % stored within the config_store
             %
             % if option -in_mem provided, it checks only if such configuration
             % is loaded in the memory
@@ -127,9 +156,10 @@ classdef config_store < handle
             path=this.config_folder_;
         end
         %
-        function storage = get.config_storage(this)
-            storage = fields(this.config_storage_);
+        function storage = get.config_classes(this)
+            storage = fieldnames(this.config_storage_);
         end
+        
     end
 end
 

@@ -1,68 +1,182 @@
-function this=herbert_config
-% Create the Herbert configuration.
-%
-% To see the list of current configuration option values:
-%   >> herbert_config
-%
-% To set values:
-%   >> set(herbert_config,'name1',val1,'name2',val2,...)
-%
-% To fetch values:
-%   >> [val1,val2,...]=get(herbert_config,'name1','name2',...)
-%
-%
-% Fields are:
-% -----------
-%   use_mex             Use fortran mex files for time-consuming operation, if available
-%   use_mex_C           Use c++ mex files for time-consuming operation, if available
-%  force_mex_if_use_mex Force using mex (ususlly mex failure causes an attempt to
-%                       use matlab). This is option is for testing mex agains matlab
-%   log_level           Set verbosity of informational output
-%                           -1  No information messges printed
-%                            0  Major information messges printed
-%                            1  Minor information messges printed in addition
-%                                   :
-%                       The larger the value, the more information is printed
-%   init_tests          Enable the unit test functions
-%
-% Type >> herbert_config  to see the list of current configuration option values.
-
-%--------------------------------------------------------------------------------------------------
-%  ***  Alter only the contents of the subfunction at the bottom of this file called     ***
-%  ***  default_config, and the help section above, which describes the contents of the  ***
-%  ***  configuration structure.                                                         ***
-%--------------------------------------------------------------------------------------------------
-% This block contains generic code. Do not alter. Alter only the sub-function default_config below
-root_config=config;
-
-config_name=mfilename('class');
-[ok,this]=is_config_stored(root_config,config_name);
-if ~ok
-    this=class(struct([]),config_name,root_config);
-    build_configuration(this,@default_config,config_name);
+classdef herbert_config<config_base
+    % Create the Herbert configuration.
+    %
+    % To see the list of current configuration option values:
+    %   >> herbert_config
+    %
+    % To set values:
+    %   >> set(herbert_config,'name1',val1,'name2',val2,...)
+    % or just
+    %   >>hc = herbert_config();
+    %   >>hc.name1 = val1;
+    %
+    % To fetch values:
+    %   >> [val1,val2,...]=get(herbert_config,'name1','name2',...)
+    % or just
+    %   >>val1 = herbert_config.name1;
+    
+    %
+    % Fields are:
+    % -----------
+    %   use_mex             Use fortran mex files for time-consuming
+    %                       operation, if available
+    %   use_mex_C           Use c++ mex files for time-consuming operation,
+    %                       if available
+    %  force_mex_if_use_mex Force using mex (ususlly mex failure causes an
+    %                       attempt to use matlab).
+    %                       This is option is for testing mex agains matlab
+    %   log_level           Set verbosity of informational output
+    %                           -1  No information messges printed
+    %                            0  Major information messges printed
+    %                            1  Minor information messges printed in addition
+    %                                   :
+    %                       The larger the value, the more information is printed
+    %   init_tests          Enable the unit test functions
+    %
+    % Type >> herbert_config  to see the list of current configuration option values.
+    
+    properties(Dependent)
+        %   Use fortran mex files for time-consuming operation, if available
+        use_mex;
+        % use C part of mex code
+        use_mex_C;
+        % force using mex (ususlly mex failure causes attempt to use matlab). This is rather for testing mex agains matlab
+        force_mex_if_use_mex;
+        % the level to report: -1, do not tell even about an errors (usefull for unit tests) 0 - be quet but report errors, 1 report result of long-lasting operations, 2
+        log_level
+        % add unit test folders to search path (option for Herbert testing)
+        init_tests;
+        % location of the folder with unit tests
+        unit_test_folder;
+    end
+    %
+    properties(Constant,Access=private)
+        saved_properties_list_={'use_mex','use_mex_C','force_mex_if_use_mex',...
+            'log_level','init_tests','unit_test_folder'};
+    end
+    properties(Access=private)
+        % these values provide defaults for the properties above
+        use_mex_              = false;
+        use_mex_C_            = false;
+        force_mex_if_use_mex_ = false;
+        log_level_            = 0;
+        init_tests_           = false;
+        unit_test_folder_     = [];
+    end
+    methods
+        function this = herbert_config()
+            % constructor
+            this=this@config_base(mfilename('class'));
+        end
+        %-----------------------------------------------------------------
+        % overloaded getters
+        function use = get.use_mex(this)
+            use = get_or_restore_field(this,'use_mex');
+        end
+        function use = get.use_mex_C(this)
+            use = get_or_restore_field(this,'use_mex_C');
+        end
+        function force = get.force_mex_if_use_mex(this)
+            force = get_or_restore_field(this,'force_mex_if_use_mex');
+        end
+        function level = get.log_level(this)
+            level = get_or_restore_field(this,'log_level');
+        end
+        function doinit=get.init_tests(this)
+            doinit = get_or_restore_field(this,'init_tests');
+        end
+        function folder=get.unit_test_folder(this)
+            folder = get_or_restore_field(this,'unit_test_folder');
+        end
+        %-----------------------------------------------------------------
+        % overloaded setters
+        function this = set.use_mex(this,val)
+            if val>0
+                use = true;
+            else
+                use = false;
+            end
+            config_store.instance().store_config(this,'use_mex',use);
+        end
+        function this = set.use_mex_C(this,val)
+            if val>0
+                use = true;
+            else
+                use = false;
+            end
+            config_store.instance().store_config(this,'use_mex_C',use);
+        end
+        function this = set.force_mex_if_use_mex(this,val)
+            if val>0
+                use = true;
+            else
+                use = false;
+            end
+            config_store.instance().store_config(this,'force_mex_if_use_mex',use);
+        end
+        function this = set.log_level(this,val)
+            if ~isnumeric(val)
+                error('HERBERT_CONFIG:set_log_level',' log level should be a number')
+            end
+            config_store.instance().store_config(this,'log_level',val);
+        end
+        %
+        function this=set.init_tests(this,val)
+            if val>0
+                init = true;
+            else
+                init = false;
+            end
+            config_store.instance().store_config(this,'init_tests',init);
+            path = process_unit_test_path(init);
+            config_store.instance().store_config(this,'unit_test_folder',path);
+            
+        end
+        function this=set.unit_test_folder(this,val)
+            % do nothing. Matlab complains that this method absent but in
+            % fact it should be
+            error('HERBERT_CONFIG:set_unit_test_folder','unit_test_folder can not be set separately')
+        end
+        %------------------------------------------------------------------
+        % ABSTACT INTERFACE DEFINED
+        %------------------------------------------------------------------
+        function data=get_data_to_store(this)
+            % method returns the structure with the data, expected to be stored
+            % in configuration
+            fields = this.saved_properties_list_;
+            data=struct();
+            for i=1:numel(fields)
+                data.(fields{i}) = get_internal_field(this,fields{i});
+            end
+        end
+        %
+        function this=set_stored_data(this,data)
+            % method places the data, provided as second argument, into
+            % the class storage. (the operation opposite to
+            % get_data_to_store operation.
+            %
+            % it should not be used in the configuration file as allows to
+            % create orphaned (not managed by config_store) configurations
+            fields = fieldnames(data);
+            for i=1:numel(fields)
+                field_name = fields{i};
+                this.([fname ,'_']) = data.(field_name);
+            end
+            % set up matlab search path
+            path = process_unit_test_path(data.init_tests_);
+            config_store.instance().store_config(this,'unit_test_folder',path);
+            
+        end
+        function fields = get_storage_field_names(this)
+            % helper function returns the list of the name of the structure,
+            % get_data_to_store returns
+            fields = this.saved_properties_list_;
+        end
+        function value = get_internal_field(this,field_name)
+            % method gets internal field value bypassing standard get/set
+            % methods interface
+            value = this.([field_name,'_']);
+        end
+    end
 end
 
-
-%--------------------------------------------------------------------------------------------------
-%  Alter only the contents of the following subfunction, and the help section of the main function
-%
-%  This subfunction sets the field names, their defaults, and which ones are sealed against change
-%  by the 'set' method.
-%
-%  The sealed fields must be a cell array of field names, or can be empty. The matlab function
-%  struct that can be used has confusing syntax for this purpose: suppose we have fields
-%  called 'v1', 'v2', 'v3',...  then we might have:
-%   - if no sealed fields:  ...,sealed_fields,{{''}},...  (or simply not set field 'sealed_fields')
-%   - if one sealed field   ...,sealed_fields,{{'v1'}},...
-%   - if two sealed fields  ...,sealed_fields,{{'v1','v2'}},...
-%
-%--------------------------------------------------------------------------------------------------
-function config_data=default_config
-
-config_data=struct(...
-    'use_mex',true,                 ...  % use fortran part of mex code
-    'use_mex_C',true,               ...  % use C part of mex code
-    'force_mex_if_use_mex',false,   ...  % force using mex (ususlly mex failure causes attempt to use matlab). This is rather for testing mex agains matlab
-    'log_level', 1,                 .... % the level to report: -1, do not tell even about an errors (usefull for unit tests) 0 - be quet but report errors, 1 report result of long-lasting operations, 2 
-    'init_tests',false              ...  % add unit test folders to search path (option for Herbert testing)
-    );

@@ -1,12 +1,12 @@
 function [ok,mess] = save_config (file_name, config_data)
 % Save configuration structure to file
 %
-%   >> [ok,mess] = save_config (file_name, config_data)
+%   >> [ok,mess] = save_config (file_name, config_data_class)
 %
 % Input:
 % ------
-%   file_name       Full name of file to hold configuration stucture
-%   config_data     Structure holding the configuration
+%   file_name          Full name of file to hold configuration stucture
+%   config_data_class  Class holding the structure with configuration
 %
 % Output:
 % -------

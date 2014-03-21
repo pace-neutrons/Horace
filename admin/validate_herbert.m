@@ -38,7 +38,7 @@ test_folders={...
     'test_config' ...
     };
 %=============================================================================
-
+wof = warning('off','MATLAB:class:DestructorError');
 % Generate full test paths to unit tests:
 rootpath = fileparts(which('herbert_init'));
 test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests folders:
@@ -95,7 +95,7 @@ else
     bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
     
 end
-
+warning(wof);
 
 %=================================================================================================================
 function validate_herbert_cleanup(cur_config,test_folders)

@@ -48,12 +48,7 @@ addgenpath_message (rootpath,'applications')
 % Put mex files on path
 addgenpath_message (rootpath,'DLL')
 
-% Developer options disabled by default but should be enabled when checking
-% or on a developer's machine;
-if get(herbert_config,'init_tests')
-    % this will set all necessary path through overloaded set command
-    set(herbert_config,'init_tests',1);
-end
+
 
 disp('!==================================================================!')
 disp('!         ISIS utilities for visualisation and analysis            !')

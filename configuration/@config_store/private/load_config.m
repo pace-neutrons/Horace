@@ -2,7 +2,7 @@ function [config_data,result,mess] = load_config (file_name,class_field_names)
 % Load configuration from file, if it exists and suitabnle.
 % Otherwise, return empty structure.
 %
-%   >> [config_data,ok,mess] = load_config (file_name)
+%   >> [config_data,ok,mess] = load_config (file_name,class_field_names)
 %
 % Input:
 % ------
@@ -32,7 +32,7 @@ if exist(file_name,'file')
         mess=['Problem reading configuration file ',file_name];
         return
     end
-    if isfield(S,'config_data')
+    if isfield(S,'config_data') && isstruct(S.config_data)
         stored_fields = fieldnames(S.config_data);
         if numel(stored_fields) == numel(class_field_names)
             if ~all(ismember(class_field_names,stored_fields))
