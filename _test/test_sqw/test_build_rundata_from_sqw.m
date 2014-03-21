@@ -37,7 +37,7 @@ classdef test_build_rundata_from_sqw < TestCase
         end
         
         function this=test_build_rundata(this)
-
+            
             
             rd = build_rundata_from_sqw(this.sqw_obj);
             
@@ -57,7 +57,16 @@ classdef test_build_rundata_from_sqw < TestCase
             
             det = get_par(this.par_file);
             det_par = rd.det_par;
-            assertEqual(det_par,det);
+            %
+            assertElementsAlmostEqual(det_par.azim,det.azim,'absolute',7.7e-6);
+            assertElementsAlmostEqual(det_par.group,det.group,'absolute',1.e-12);
+            assertElementsAlmostEqual(det_par.height,det.height,'absolute',1.e-9);
+            assertElementsAlmostEqual(det_par.phi,det.phi,'absolute',2.e-6);            
+            assertElementsAlmostEqual(det_par.width,det.width,'absolute',2.e-6);                        
+            assertElementsAlmostEqual(det_par.x2,det.x2,'absolute',2.e-6);                                    
+            assertEqual(det_par.filename,det.filename)
+            assertEqual(det_par.filepath,det.filepath)            
+            %assertEqual(det_par,det);
             
         end
     end
