@@ -6,20 +6,23 @@ function varargout= get(this,varargin)
 %
 %   >> S = get(config_obj,'-public')    % returns only the values of public fields
 %                                       % i.e. omits sealed fields
+%   >> S = get(config_obj,'defaults')   % returns the defaults this
+%                                       % configuration has
 %
 %   >> [val1,val2,...] = get(config_obj,'field1','field2',...); % returns named fields
 %
-% Recursively searches the sub-structures and classes of the configuration class
-% until a field with the given name is found.
+%
 %
 % This is deprecated function kept for compatibility with old interface
 
 % $Revision: 287 $ ($Date: 2013-11-08 18:47:25 +0000 (Fri, 08 Nov 2013) $)
-options = {'-public'};
-[ok,mess,public,other]=parse_char_options(varargin,options);
+options = {'-public','defaults'};
+[ok,mess,public,defaults,other]=parse_char_options(varargin,options);
 if ~ok; error('CONFIG_BASE:get',mess); end
 % public field is not currently used
-
+if defaults
+    this.return_defaults = true;
+end
 if numel(other) == 0 % form 1
     S = struct();
     fields =  this.get_storage_field_names();
@@ -35,3 +38,4 @@ n_calls = min(numel(other),nargout);
 for i=1:n_calls
     varargout{i} = this.(other{i});
 end
+
