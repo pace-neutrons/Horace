@@ -14,9 +14,9 @@ function validate_horace(varargin)
 % ------------------------
 options = {'-parallel','-talkative'};
 
+talkative= true;
 if nargin==0
     parallel=false;
-    talkative= false;
 else
     [ok,mess,parallel,talkative]=parse_char_options(varargin,options);
     if ~ok
@@ -60,8 +60,8 @@ test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutpu
 % (Validation must always return Horace and Herbert to their initial states, regardless
 %  of any changes made in the test routines)
 
-cur_herbert_conf=get(herbert_config,'-public');
-cur_horace_config=get(hor_config,'-public');   % only get the public i.e. not sealed, fields
+cur_herbert_conf=get(herbert_config);
+cur_horace_config=get(hor_config);   % only get the public i.e. not sealed, fields
 
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
 cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_herbert_conf,cur_horace_config,{}));
