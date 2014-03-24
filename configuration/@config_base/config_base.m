@@ -4,11 +4,38 @@ classdef config_base
     % config_storage class
     %
     %
+    % all derived classes used with configuration have to define two
+    % abstract methods of this class (see below) and specify the setters
+    % and getters for all stored properties in the following form:
+    %
+    % a) the property itself has to be defined as dependent e.g.:
+    %
+    % properties(Dependent)
+    %     stored_poperty
+    % end
+    %
+    % b) it has default value, which is differs from the property iteslt 
+    % properties(Access=private)
+    %    stored_poperty_=default_value
+    % end
+    %
+    % c) Its getter has the form:
+    %function use = get.stored_poperty(this)
+    %        use = get_or_restore_field(this,'stored_poperty');
+    %end
+    % d) Its setter has the form:
+    %function this = set.stored_poperty(this,val)
+    %       config_store.instance().store_config(this,'stored_poperty',use);
+    %end    
+    % 
+    %
+    %
     % $Revision: 313 $ ($Date: 2013-12-02 11:31:41 +0000 (Mon, 02 Dec 2013) $)
     %
     
     properties(Dependent)
-        % property defines the name of the derived storage class
+        % property defines the name of the derived storage class. The
+        % storage knows the stored configuration under this name.
         class_name;
         % property specifies if changes to the class should be stored on
         % hdd to restore them later
@@ -24,25 +51,27 @@ classdef config_base
     end
     %
     methods(Abstract)
-        data=get_data_to_store(class_instance)
-        % method returns the structure with the data, expected to be stored
-        % in config_store
-        
-        this=set_stored_data(class_instance,data)
-        % method places the data, provided as second argument, into
-        % the class storage. (the operation opposite to
-        % get_data_to_store operation.
-        %
-        % it should not be used in the configuration file as allows to
-        % create orphaned (not managed by config_store) configurations
-        
         fields = get_storage_field_names(class_instance)
-        % helper function returns the list of the names of the structure,
-        % get_data_to_store returns
+        % helper function returns the list of the public properties,
+        % which values one needs to store. 
+        %
+        % For the example provided in the class description, this method
+        % has to have a form:
+        %
+        %function fields = get_storage_field_names(class_instance)
+        %   fields  = {stored_poperty};
+        %end
         
         value = get_internal_field(this,field_name)
         % method gets internal field value bypassing standard get/set
         % methods interface
+        %
+        % For the example provided in the class description, this method
+        % has to have a form:
+        %
+        %function value = get_internal_field(this,field_name)
+        %   value = this.([field_name,'_']);
+        %end
     end
     methods
         function obj=config_base(class_name)
@@ -96,13 +125,46 @@ classdef config_base
             if this.return_defaults
                 value = get_internal_field(this,field_name);
             else
+                % get actual configuration
                 % if class have never been stored in configuration, it
                 % will return defaults
-                value = config_store.instance().restore_config(this,field_name);
+                value = config_store.instance().get_config_field(this,field_name);
             end
         end
+        %
+        function data=get_data_to_store(this)
+            % method returns the structure with the data, expected to be stored
+            % in configuration
+            fields = this.get_storage_field_names();
+            data=struct();
+            for i=1:numel(fields)
+                data.(fields{i}) = get_internal_field(this,fields{i});
+            end
+        end
+        %
+        function class_instance = set_stored_data(class_instance,data)
+            % Method executes class setters for the config class_instance 
+            % using data structure provided as second argument
+            %
+            % data structure has to have fields with names equal to the
+            % names of the class setters
+            % 
+            % it can be used to load data from config store to config class 
+            % instance thourh such usage is not standard and should be used 
+            % for testing and debugging purposes only 
+            %
+            fields = fieldnames(data);
+            for i=1:numel(fields)
+                field_name = fields{i};
+                class_instance.(field_name) = data.(field_name);
+            end
+            
+        end
+    end
+    %
+    methods(Static)
         
     end
-    
 end
+
 

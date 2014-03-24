@@ -35,6 +35,10 @@ classdef herbert_config<config_base
     %
     % Type >> herbert_config  to see the list of current configuration option values.
     
+    %
+    % $Revision$ ($Date$)
+    %
+    
     properties(Dependent)
         %   Use fortran mex files for time-consuming operation, if available
         use_mex;
@@ -46,13 +50,16 @@ classdef herbert_config<config_base
         log_level
         % add unit test folders to search path (option for Herbert testing)
         init_tests;
+    end
+    properties(Dependent,SetAccess=private)
         % location of the folder with unit tests
         unit_test_folder;
+        
     end
     %
     properties(Constant,Access=private)
         saved_properties_list_={'use_mex','use_mex_C','force_mex_if_use_mex',...
-            'log_level','init_tests','unit_test_folder'};
+            'log_level','init_tests'};
     end
     properties(Access=private)
         % these values provide defaults for the properties above
@@ -61,7 +68,6 @@ classdef herbert_config<config_base
         force_mex_if_use_mex_ = false;
         log_level_            = 0;
         init_tests_           = false;
-        unit_test_folder_     = [];
     end
     methods
         function this = herbert_config()
@@ -84,9 +90,6 @@ classdef herbert_config<config_base
         end
         function doinit=get.init_tests(this)
             doinit = get_or_restore_field(this,'init_tests');
-        end
-        function folder=get.unit_test_folder(this)
-            folder = get_or_restore_field(this,'unit_test_folder');
         end
         %-----------------------------------------------------------------
         % overloaded setters
@@ -128,45 +131,21 @@ classdef herbert_config<config_base
                 init = false;
             end
             config_store.instance().store_config(this,'init_tests',init);
-            path = process_unit_test_path(init);
-            config_store.instance().store_config(this,'unit_test_folder',path);
-            
+            process_unit_test_path(init,'set_path');
         end
-        function this=set.unit_test_folder(this,val)
-            % do nothing. Matlab complains that this method absent but in
-            % fact it should be
-            error('HERBERT_CONFIG:set_unit_test_folder','unit_test_folder can not be set separately')
+        %------------------------------------------------------------------
+        function folder=get.unit_test_folder(this)
+            % getter for dependent property unit_test_folder;
+            init = get_or_restore_field(this,'init_tests');
+            if init
+                folder = process_unit_test_path(init);
+            else
+                folder =[];
+            end
         end
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
-        function data=get_data_to_store(this)
-            % method returns the structure with the data, expected to be stored
-            % in configuration
-            fields = this.saved_properties_list_;
-            data=struct();
-            for i=1:numel(fields)
-                data.(fields{i}) = get_internal_field(this,fields{i});
-            end
-        end
-        %
-        function this=set_stored_data(this,data)
-            % method places the data, provided as second argument, into
-            % the class storage. (the operation opposite to
-            % get_data_to_store operation.
-            %
-            % it should not be used in the configuration file as allows to
-            % create orphaned (not managed by config_store) configurations
-            fields = fieldnames(data);
-            for i=1:numel(fields)
-                field_name = fields{i};
-                this.([fname ,'_']) = data.(field_name);
-            end
-            % set up matlab search path
-            path = process_unit_test_path(data.init_tests_);
-            config_store.instance().store_config(this,'unit_test_folder',path);
-            
-        end
         function fields = get_storage_field_names(this)
             % helper function returns the list of the name of the structure,
             % get_data_to_store returns

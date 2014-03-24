@@ -19,10 +19,6 @@ classdef some_test_class2<some_test_class
             data = get_data_to_store@some_test_class(this);
             data.c = this.c;            
         end
-        function this=set_stored_data(this,data)
-            this = set_stored_data@some_test_class(this,data);           
-            this.c = data.c;
-        end
         % method places the data, provided as second argument, into
         % internal class storage. (the operation opposite to
         % get_data_to_store operation

@@ -50,13 +50,6 @@ classdef some_test_class<config_base
             data = struct('a',this.a,'b',this.b);
             
         end
-        function this=set_stored_data(this,data)
-            this.a = data.a;
-            this.b = data.b;
-        end
-        % method places the data, provided as second argument, into
-        % internal class storage. (the operation opposite to
-        % get_data_to_store operation
         function fields = get_storage_field_names(this)
             % helper function returns the list of the name of the structure,
             % get_data_to_store returns

@@ -1,6 +1,6 @@
 classdef config_store < handle
     % Class provides single storage point for various configuration
-    % classes. 
+    % classes.
     %
     % it stores/restores the classes, inheriting from config_base class
     %
@@ -71,7 +71,28 @@ classdef config_store < handle
             end
             config_store_internal(this,config_class,force_save,other_options{:});
         end
-        function   [obj,varargout]=restore_config(this,class_to_restore,varargin)
+        %
+        function  [val,varargout] = get_config_field(this,class_to_restore,varargin)
+            % 
+            class_name = class_to_restore.class_name;
+            
+            if isfield(this.config_storage_,class_name)
+                config_data = this.config_storage_.(class_name);
+            else
+                config_data = this.get_config(class_to_restore);
+            end
+            
+            if numel(varargin) < nargout
+                error('CONFIG_STORE:restore_config',' some output values are not set by this function call');
+            end
+            val=config_data.(varargin{1});            
+            for i=2:nargout
+                varargout{i-1}=config_data.(varargin{i});
+            end
+            
+        end
+        
+        function   config_data=get_config(this,class_to_restore)
             % return configuration from memory or load it from a file if such
             % configuration exist on file and not in memory
             %
@@ -84,7 +105,7 @@ classdef config_store < handle
             %
             % if varargin is present, method returns not the clas itself, but
             % the range of the values of the class field names, specified in
-            % the varargin.            
+            % the varargin.
             %Usage:
             %
             % obj = conifg_store.instance().restore_config(herbert_config)
@@ -96,15 +117,9 @@ classdef config_store < handle
             %                     returns current herbert config settings for fields
             %                      'use_mex' and 'use_mex_C'
             
-            outputs=restore_config_internal(this,class_to_restore,max(nargout,1)-1,varargin{:});
-            if iscell(outputs)
-                obj=outputs{1};
-                for i=2:nargout
-                    varargout{i-1}=outputs{i};
-                end
-            else
-                obj=outputs;
-            end
+            config_data=this.get_config_internal(class_to_restore);
+            % execute class setters             
+            class_to_restore.set_stored_data(config_data);            
         end
         %------------------------------------------------------------------
         function clear_config(this,class_instance,varargin)

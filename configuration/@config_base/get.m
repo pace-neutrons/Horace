@@ -4,8 +4,7 @@ function varargout= get(this,varargin)
 %   >> S = get(config_obj)      % returns a structure with the current values
 %                               % of the fields in the requested configuration object
 %
-%   >> S = get(config_obj,'-public')    % returns only the values of public fields
-%                                       % i.e. omits sealed fields
+
 %   >> S = get(config_obj,'defaults')   % returns the defaults this
 %                                       % configuration has
 %

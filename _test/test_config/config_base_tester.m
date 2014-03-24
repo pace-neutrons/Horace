@@ -29,20 +29,12 @@ classdef config_base_tester <config_base
             config_store.instance().store_config(this,'my_prop2',val);
         end
         %------------------------------------------------------------------
+        % genetic test methods
+              
+        %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
-        function data=get_data_to_store(this)
-            % method returns the structure with the data, expected to be stored
-            % in configuration
-            data = struct('my_prop',this.my_prop_,'my_prop2',this.my_prop2_);
-        end
-        function this=set_stored_data(this,data)
-            % method places the data, provided as second argument, into
-            % internal class storage. (the operation opposite to
-            % get_data_to_store operation
-            this.my_prop_ = data.my_prop;
-            this.my_prop2_ = data.my_prop2;            
-        end
+    
         function fields = get_storage_field_names(class_instance)
             % helper function returns the list of the name of the structure,
             % get_data_to_store returns

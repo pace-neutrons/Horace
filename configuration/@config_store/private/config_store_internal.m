@@ -7,26 +7,27 @@ function config_store_internal(this,config_class,force_save,varargin)
 % {'field_name1',field_value1,'field_name2',field_value2,.... }
 %
 % in this case, only the fields and values specified in this list are set
-% if the class was already stored in configuration.
+% if the class was already stored in configuration. If it was not in the
+% configuration, other values for config class are taken fron config_class
+% defaults. 
 %
 %
 % $Revision: 278 $ ($Date: 2013-11-01 20:07:58 +0000 (Fri, 01 Nov 2013) $)
 %
 class_name = config_class.class_name;
-if nargin>3
+if nargin>3 % we need to set some fields before storing the configuration. 
     if isfield(this.config_storage_,class_name)
         data_to_save = this.config_storage_.(class_name);
     elseif check_isconfigured(this,config_class,false)
-        obj=this.restore_config(config_class);
-        data_to_save = obj.get_data_to_store();
-    else
+        data_to_save=this.get_config(config_class);
+    else % defaults from the class
         data_to_save = config_class.get_data_to_store();
     end
     % change only the fields, specified in the varargin
     for i=1:2:numel(varargin)
         data_to_save.(varargin{i})=varargin{i+1};
     end
-else
+else % defaults
     data_to_save = config_class.get_data_to_store();
 end
 

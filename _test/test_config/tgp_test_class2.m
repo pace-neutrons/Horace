@@ -3,13 +3,13 @@ classdef tgp_test_class2<tgp_test_class
     %   Detailed explanation goes here
     
     properties(Dependent)
-      v3
-      v4
+        v3
+        v4
     end
     properties(Access=protected)
-      v3_='hello'
-      v4_=[13,14]
- 
+        v3_='hello'
+        v4_=[13,14]
+        
     end
     
     
@@ -30,26 +30,10 @@ classdef tgp_test_class2<tgp_test_class
         end
         function this = set.v4(this,val)
             config_store.instance().store_config(this,'v4',val);
-        end        
+        end
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
-        %------------------------------------------------------------------        
-        function data=get_data_to_store(this)            
-            % method returns the structure with the data, expected to be stored
-            % in configuration
-            data = get_data_to_store@tgp_test_class(this);
-            data.v3 = this.v3_;
-            data.v4 = this.v4_;            
-        end
-        function this=set_stored_data(this,data)
-            this = set_stored_data@tgp_test_class(this,data);           
-            this.v3_ = data.v3;
-            this.v4_ = data.v4;
-              
-        end        
-        % method places the data, provided as second argument, into
-        % internal class storage. (the operation opposite to
-        % get_data_to_store operation
+        %------------------------------------------------------------------
         function fields = get_storage_field_names(this)
             % helper function returns the list of the name of the structure,
             % get_data_to_store returns
@@ -57,7 +41,7 @@ classdef tgp_test_class2<tgp_test_class
             % method sets the internal class field value bypassing standard
             % get/set methods interface
             fields = get_storage_field_names@tgp_test_class(this);
-            fields = [fields,{'v3','v4'}];            
+            fields = [fields,{'v3','v4'}];
         end
         function value = get_internal_field(this,field_name)
             % method gets internal field value bypassing standard get/set

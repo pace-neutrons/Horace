@@ -1,4 +1,4 @@
-function [config_data,result,mess] = load_config (file_name,class_field_names)
+function [config_data,result,mess] = load_config_from_file(file_name,class_field_names)
 % Load configuration from file, if it exists and suitabnle.
 % Otherwise, return empty structure.
 %

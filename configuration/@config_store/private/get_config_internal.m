@@ -1,4 +1,4 @@
-function out=restore_config_internal(this,class_to_restore,n_additional_outs,varargin)
+function config_data=get_config_internal(this,class_to_restore)
 % method loads class configuration from the hard drive
 %
 %input:
@@ -24,7 +24,7 @@ if isfield(this.config_storage_,class_name)
 else
     filename = fullfile(this.config_folder,[class_name,'.mat']);
     class_fields = class_to_restore.get_storage_field_names();
-    [config_data,result,mess] = load_config (filename,class_fields);
+    [config_data,result,mess] = load_config_from_file(filename,class_fields);
     
     if result ~= 1
         % problems with loading
@@ -37,28 +37,10 @@ else
             delete(filename);
         end       
     end
-    %
-    if ~isempty(config_data)
-        this.config_storage_.(class_name)= config_data;
-    else % get defaults
-        if numel(varargin) == 0
-            out =class_to_restore;
-            return
-        else
-            config_data = class_to_restore.get_data_to_store();
-        end
+    % set obtained config data into storage. 
+    if isempty(config_data) % get defaults
+        config_data = class_to_restore.get_data_to_store();
     end
-end
-% return the object with stored data
-if isempty(varargin)
-    out  = class_to_restore.set_stored_data(config_data);
-else
-    if numel(varargin) < n_additional_outs
-        error('CONFIG_STORE:restore_config',' some output values are not set by this function call');
-    end
-    out = cell(n_additional_outs+1,1);
-    for i=1:n_additional_outs+1
-        out{i} = config_data.(varargin{i});
-    end
+     this.config_storage_.(class_name) = config_data;
 end
 

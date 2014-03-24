@@ -15,17 +15,6 @@ classdef tgp_test_class1<tgp_test_class
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
-        function data=get_data_to_store(this)
-            % method returns the structure with the data, expected to be stored
-            % in configuration
-            data = get_data_to_store@tgp_test_class(this);
-        end
-        function this=set_stored_data(this,data)
-            this = set_stored_data@tgp_test_class(this,data);
-        end
-        % method places the data, provided as second argument, into
-        % internal class storage. (the operation opposite to
-        % get_data_to_store operation
         function fields = get_storage_field_names(this)
             % helper function returns the list of the name of the structure,
             % get_data_to_store returns

@@ -90,7 +90,7 @@ classdef test_config_classes< TestCase
             config_store.instance().clear_all('-files');
         end
         
-        function this=xest_set_herbert_tests(this)
+        function this=test_set_herbert_tests(this)
             hc = herbert_config();
             conf=hc.init_tests;
             
