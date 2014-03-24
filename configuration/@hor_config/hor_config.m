@@ -179,30 +179,6 @@ classdef hor_config<config_base
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
-        function data=get_data_to_store(this)
-            % method returns the structure with the data, expected to be stored
-            % in configuration
-            fields = this.saved_properties_list_;
-            data=struct();
-            for i=1:numel(fields)
-                data.(fields{i}) = get_internal_field(this,fields{i});
-            end
-        end
-        %
-        function this=set_stored_data(this,data)
-            % method places the data, provided as second argument, into
-            % the class storage. (the operation opposite to
-            % get_data_to_store operation.
-            %
-            % it should not be used in the configuration file as allows to
-            % create orphaned (not managed by config_store) configurations
-            fields = fieldnames(data);
-            for i=1:numel(fields)
-                field_name = fields{i};
-                this.([fname ,'_']) = data.(field_name);
-            end
-        end
-        %
         function fields = get_storage_field_names(this)
             % helper function returns the list of the name of the structure,
             % get_data_to_store returns
