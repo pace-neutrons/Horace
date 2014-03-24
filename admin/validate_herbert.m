@@ -93,12 +93,12 @@ if parallel && license('checkout','Distrib_Computing_Toolbox')
     bigtoc(time,'===COMPLETED UNIT TESTS IN PARALLEL');
 else
     time=bigtic();
-    for i=1:numel(test_folders_full)  
-        fprintf('------testing: %s',test_folders_full{i});
-        runtests(test_folders_full{i})
-    end
+%     for i=1:numel(test_folders_full)  
+%         fprintf('------testing: %s',test_folders_full{i});
+%         runtests(test_folders_full{i})
+%     end
     
-    %runtests(test_folders_full{:});
+    runtests(test_folders_full{:});
     bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
     
 end
