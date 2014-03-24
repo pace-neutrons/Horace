@@ -14,9 +14,9 @@ function validate_horace(varargin)
 % ------------------------
 options = {'-parallel','-talkative'};
 
-talkative= true;
 if nargin==0
     parallel=false;
+    talkative= false;
 else
     [ok,mess,parallel,talkative]=parse_char_options(varargin,options);
     if ~ok
@@ -72,14 +72,21 @@ cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_herbert_conf,cur_horace_con
 % Set Horace and Herbert configurations to the defaults (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
-set(herbert_config,'defaults','-buffer');
-set(hor_config,'defaults','-buffer');
+%set(herbert_config,'defaults','-buffer');
+%set(hor_config,'defaults','-buffer');
+set(herbert_config,'defaults');
+set(hor_config,'defaults');
+
 
 % Set up other configuration options necessary for tests to run
-set(herbert_config,'init_tests',1,'-buffer');       % initialise unit tests
+%set(herbert_config,'init_tests',1,'-buffer');       % initialise unit tests
+set(herbert_config,'init_tests',1);       % initialise unit tests
 if ~talkative
-    set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic output
-    set(hor_config,'horace_info_level',-1,'-buffer');   % turn off Horace informational output
+%    set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic output
+%    set(hor_config,'horace_info_level',-1,'-buffer');   % turn off Horace informational output
+    set(herbert_config,'log_level',-1);       % minimise any diagnostic output
+    set(hor_config,'horace_info_level',-1);   % turn off Horace informational output
+
 end
 
 
