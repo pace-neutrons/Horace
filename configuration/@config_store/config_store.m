@@ -73,7 +73,7 @@ classdef config_store < handle
         end
         %
         function  [val,varargout] = get_config_field(this,class_to_restore,varargin)
-            % 
+            %
             class_name = class_to_restore.class_name;
             
             if isfield(this.config_storage_,class_name)
@@ -85,7 +85,7 @@ classdef config_store < handle
             if numel(varargin) < nargout
                 error('CONFIG_STORE:restore_config',' some output values are not set by this function call');
             end
-            val=config_data.(varargin{1});            
+            val=config_data.(varargin{1});
             for i=2:nargout
                 varargout{i-1}=config_data.(varargin{i});
             end
@@ -118,8 +118,15 @@ classdef config_store < handle
             %                      'use_mex' and 'use_mex_C'
             
             config_data=this.get_config_internal(class_to_restore);
-            % execute class setters             
-            class_to_restore.set_stored_data(config_data);            
+            % execute class setters.
+            
+            % Important!!!
+            % Despite we are not returning the resulting configuratio,
+            % executing this allows to set up global dependent fields (e.g.
+            % set up unit test directories. But this can not set up
+            % internal privated dependent fields so a configuration can not
+            % have such fields! (the setting got lost)
+            class_to_restore.set_stored_data(config_data);
         end
         %------------------------------------------------------------------
         function clear_config(this,class_instance,varargin)
@@ -138,8 +145,8 @@ classdef config_store < handle
         %
         function clear_all(this,varargin)
             % clear all configurations, stored in memory.
-            % if option -file exist, it also deletes all files with stored
-            % configurations
+            % if option -file exist, it also deletes all files related to 
+            % stored in memory configurations
             %
             options={'-files'};
             [ok,mess,clear_files]=parse_char_options(varargin,options);

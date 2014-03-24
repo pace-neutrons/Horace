@@ -157,7 +157,11 @@ if ~save_output
     tol=1.0e-8;
     % The test proper
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}), old.(nam{i}), tol, 'min_denominator', 0.01);
+        struct = eval(nam{i});
+        if isa(struct,'struct') && isfield(struct,'converged')
+            struct= rmfield(struct,'converged');
+        end
+        [ok,mess]=equal_to_tol(struct, old.(nam{i}), tol, 'min_denominator', 0.01);
         if ~ok 
             assertTrue(false,['[',nam{i},']',mess])
         else

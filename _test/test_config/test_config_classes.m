@@ -28,6 +28,7 @@ classdef test_config_classes< TestCase
             
         end
         function this=test_getstruct(this)
+            config_store.instance().clear_config(tgp_test_class2,'-files');            
             
             % ----------------------------------------------------------------------------
             % Test getting values from a configuration
@@ -42,7 +43,7 @@ classdef test_config_classes< TestCase
             assertTrue(isequal(this.s2_def.v1,v1),'Problem with: get(test2_config,''v1'',''v3'')')
             assertTrue(isequal(this.s2_def.v3,v3),'Problem with: get(test2_config,''v1'',''v3'')')
             
-            config_store.instance().clear_all('-files');
+            config_store.instance().clear_config(tgp_test_class2,'-files');
         end
         
         function this=test_get_wrongCase(this)
@@ -71,7 +72,7 @@ classdef test_config_classes< TestCase
             assertTrue(~isequal(s2_tmp,s2_buf),'Error in config classes code');
             assertTrue(isequal(s2_tmp,this.s2_def),'Error in config classes code');
             
-            config_store.instance().clear_all('-files');
+            config_store.instance().clear_config(tgp_test_class2,'-files');
         end
         function this=test_set_withbuffer(this)
             set(tgp_test_class2,'v1',-30);
@@ -87,7 +88,7 @@ classdef test_config_classes< TestCase
             assertTrue(~isequal(s2_tmp,s2_buf),'Error in config classes code')
             assertTrue(isequal(s2_tmp,s2_sav),'Error in config classes code')
             
-            config_store.instance().clear_all('-files');
+            config_store.instance().clear_config(tgp_test_class2,'-files');
         end
         
         function this=test_set_herbert_tests(this)
