@@ -8,14 +8,15 @@ classdef test_config_base < TestCase
         end
         
         function test_store_restore_in_memory(this)
-            config_store.instance().clear_all()
+            config = config_base_tester();
+            
+            config_store.instance().clear_config(config)
             config_file = fullfile(config_store.instance().config_folder(),'config_base_tester.mat');
             % set up
             if exist(config_file,'file')
                 delete(config_file);
             end
               
-            config = config_base_tester();
             
             assertEqual('beee',config.my_prop);
             
