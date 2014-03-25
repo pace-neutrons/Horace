@@ -24,12 +24,9 @@ classdef test_config_classes< TestCase
             this.s0_def=get(tgp_test_class);
             this.s1_def=get(tgp_test_class1);
             this.s2_def=get(tgp_test_class2);
-            
-            
         end
         function this=test_getstruct(this)
-            config_store.instance().clear_config(tgp_test_class2,'-files');            
-            
+            config_store.instance().clear_config(tgp_test_class2,'-files');
             % ----------------------------------------------------------------------------
             % Test getting values from a configuration
             % ----------------------------------------------------------------------------
@@ -48,6 +45,7 @@ classdef test_config_classes< TestCase
         
         function this=test_get_wrongCase(this)
             % This should fail because V3 is upper case, but the field is v3
+            
             try
                 [v1,v3]=get(tgp_test_class2,'v1','V3');
                 ok=false;
@@ -55,13 +53,13 @@ classdef test_config_classes< TestCase
                 ok=true;
             end
             assertTrue(ok,'Problem with: get(test2_config,''v1'',''V3'')')
+            
         end
         
         function this=test_get_and_save(this)
             % ----------------------------------------------------------------------------
             % Test getting values and saving
             % ----------------------------------------------------------------------------
-            
             % Change the config without saving, change to default without saving - see that this is done properly
             set(tgp_test_class2,'v1',55,'-buffer');
             s2_buf=get(tgp_test_class2);
@@ -92,8 +90,11 @@ classdef test_config_classes< TestCase
         end
         
         function this=test_set_herbert_tests(this)
-            hc = herbert_config();
-            conf=hc.init_tests;
+            % disp(herbert_config)
+            %hc = herbert_config;
+            %conf = hc.init_tests;
+            found=which('add_data_to_list.m');
+            assertFalse(isempty(found));
             
             set(herbert_config,'init_tests',0);
             notfound=which('add_data_to_list.m');
@@ -105,9 +106,12 @@ classdef test_config_classes< TestCase
             assertFalse(isempty(found));
             % note it tested out of init_tests==0 as assertTrue is not
             % availible there
-            assertTrue(isempty(notfound),' folder was not removed from search path properly');            
+            assertTrue(isempty(notfound),' folder was not removed from search path properly');
             
-            hc.init_tests= conf;
+            % as we are in unit tests, this we certainly want conf=1 its more robust
+            % but setting it to conf together with -buffer option in config
+            % allows to find unwanted memory clearence bugs;
+            %hc.init_tests= conf;
             
         end
         %

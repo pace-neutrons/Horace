@@ -129,7 +129,7 @@ classdef herbert_config<config_base
                 init = true;
             else
                 init = false;
-            end
+            end            
             config_store.instance().store_config(this,'init_tests',init);
             process_unit_test_path(init,'set_path');
         end

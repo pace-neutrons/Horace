@@ -13,6 +13,7 @@ classdef test_singleton_impl<TestCase
             this = this@TestCase(name);
         end
        function this=tearDown(this)
+
             clear SingletonImplToTest;
         end
         
@@ -118,13 +119,14 @@ classdef test_singleton_impl<TestCase
             assertEqual(5,d.myData)
             
             % Destroy Singleton in Memory
-            clear all
-            
+            %clear all
+            clear SingletonImplToTest
             
             % Create New Instance 'e'
             % The myData property is empty.
             e = SingletonImplToTest.instance();
             assertTrue(isempty(e.myData));
+             
         end
     end
 end

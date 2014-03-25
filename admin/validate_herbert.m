@@ -62,16 +62,13 @@ cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders_full))
 % Set Herbert configuration to the default (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
-%set(herbert_config,'defaults','-buffer');
-set(herbert_config,'defaults');
+set(herbert_config,'defaults','-buffer');
 
 
 % Set up other configuration options necessary for tests to run
-%set(herbert_config,'init_tests',1,'-buffer');       % initialise unit tests
-set(herbert_config,'init_tests',1);
+set(herbert_config,'init_tests',1,'-buffer');       % initialise unit tests
 if ~talkative
-    %set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic output
-    set(herbert_config,'log_level',-1);
+    set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic output
 end
 
 
@@ -93,11 +90,6 @@ if parallel && license('checkout','Distrib_Computing_Toolbox')
     bigtoc(time,'===COMPLETED UNIT TESTS IN PARALLEL');
 else
     time=bigtic();
-%     for i=1:numel(test_folders_full)  
-%         fprintf('------testing: %s',test_folders_full{i});
-%         runtests(test_folders_full{i})
-%     end
-    
     runtests(test_folders_full{:});
     bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
     
@@ -107,7 +99,7 @@ warning(wof);
 %=================================================================================================================
 function validate_herbert_cleanup(cur_config,test_folders)
 % Reset the configuration
-set(herbert_config,cur_config);
+%set(herbert_config,cur_config);
 % clear up the test folders, previously placed on the path
 warn = warning('off','all'); % avoid varnings on deleting non-existent path
 for i=1:numel(test_folders)
