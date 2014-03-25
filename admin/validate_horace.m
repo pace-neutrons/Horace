@@ -72,26 +72,22 @@ cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_herbert_conf,cur_horace_con
 % Set Horace and Herbert configurations to the defaults (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
-%set(herbert_config,'defaults','-buffer');
-%set(hor_config,'defaults','-buffer');
-set(herbert_config,'defaults');
-set(hor_config,'defaults');
-
-
-% Set up other configuration options necessary for tests to run
-%set(herbert_config,'init_tests',1,'-buffer');       % initialise unit tests
-set(herbert_config,'init_tests',1);       % initialise unit tests
+hoc = hor_config();
+hec = herbert_config();
+%if ~parallel
+hoc.saveable = false;    % equivalent to older '-buffer' option for all setters below
+hec.saveable = false;    % equivalent to older '-buffer' option for all setters below
+%end
+set(hoc,'defaults'); set(hec,'defaults');
+set(hec,'init_tests',1);       % initialise unit tests
 if ~talkative
-%    set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic output
-%    set(hor_config,'horace_info_level',-1,'-buffer');   % turn off Horace informational output
-    set(herbert_config,'log_level',-1);       % minimise any diagnostic output
-    set(hor_config,'horace_info_level',-1);   % turn off Horace informational output
-
+    set(hoc,'log_level',-1);       % minimise any diagnostic output
+    set(hec,'log_level',-1);   % turn off Horace informational output
 end
 
 
 if parallel && license('checkout','Distrib_Computing_Toolbox')
-    cores = feature('numCores');   
+    cores = feature('numCores');
     if matlabpool('SIZE')==0
         if cores>12
             cores = 12;
@@ -104,18 +100,18 @@ if parallel && license('checkout','Distrib_Computing_Toolbox')
     end
     bigtoc(time,'===COMPLETED UNIT TESTS IN PARALLEL');
 else
-    time=bigtic();        
+    time=bigtic();
     runtests(test_folders_full{:});
-    bigtoc(time,'===COMPLETED UNIT TESTS RUN ');        
-
+    bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
+    
 end
 
 
 %=================================================================================================================
 function validate_horace_cleanup(cur_herbert_config,cur_horace_config,test_folders)
 % Reset the configurations, and remove unit test folders from the path
-set(hor_config,cur_horace_config);
-set(herbert_config,cur_herbert_config);
+%set(hor_config,cur_horace_config);
+%set(herbert_config,cur_herbert_config);
 
 % Clear up the test folders, previously placed on the path
 warn = warning('off','all'); % avoid varning on deleting non-existent path
