@@ -17,7 +17,7 @@ if nargin==0
     talkative=false;
     parallel=false;
 else
-    [ok,mess,talkative,parallel]=parse_char_options(varargin,options);
+    [ok,mess,parallel,talkative]=parse_char_options(varargin,options);
     if ~ok
         error('VALIDATE_HERBERT:invalid_argument',mess)
     end
@@ -62,15 +62,14 @@ cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders_full))
 % Set Herbert configuration to the default (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
-set(herbert_config,'defaults','-buffer');
+hec = herbert_config();
+hec.saveable = false; % equivalent to older '-buffer' option for all setters below
 
-
-% Set up other configuration options necessary for tests to run
-set(herbert_config,'init_tests',1,'-buffer');       % initialise unit tests
+set(hec,'defaults');
+set(hec,'init_tests',1);       % initialise unit tests
 if ~talkative
-    set(herbert_config,'log_level',-1,'-buffer');       % minimise any diagnostic output
+    set(hec,'log_level',-1);   % turn off herbert informational output
 end
-
 
 if parallel && license('checkout','Distrib_Computing_Toolbox')
     cores = feature('numCores');
@@ -99,7 +98,7 @@ warning(wof);
 %=================================================================================================================
 function validate_herbert_cleanup(cur_config,test_folders)
 % Reset the configuration
-%set(herbert_config,cur_config);
+set(herbert_config,cur_config);
 % clear up the test folders, previously placed on the path
 warn = warning('off','all'); % avoid varnings on deleting non-existent path
 for i=1:numel(test_folders)
