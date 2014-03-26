@@ -12,13 +12,15 @@ function validate_horace(varargin)
 
 % Parse optional arguments
 % ------------------------
-options = {'-parallel','-talkative'};
+options = {'-parallel','-talkative','-nomex','-forcemex'};
 
 if nargin==0
     parallel=false;
     talkative= false;
+    forcemex = true;
+    nomex = false;
 else
-    [ok,mess,parallel,talkative]=parse_char_options(varargin,options);
+    [ok,mess,parallel,talkative,nomex,forcemex]=parse_char_options(varargin,options);
     if ~ok
         error('VALIDATE_HORACE:invalid_argument',mess)
     end
@@ -46,6 +48,10 @@ if n_errors==0  % also check mex files against matlab versions, if mex functions
     test_folders{end+1}='test_mex_nomex';
 else
     warning('VALIDATE_HORACE:mex','mex files are disabled, and will not be tested');
+    if forcemex
+        error('VALIDATE_HORACE:mex',' can not force mex if no mex files are present');
+    end
+    nomex = true;
 end
 %=============================================================================
 
@@ -79,7 +85,10 @@ hoc.saveable = false;    % equivalent to older '-buffer' option for all setters 
 hec.saveable = false;    % equivalent to older '-buffer' option for all setters below
 %end
 set(hoc,'defaults'); set(hec,'defaults');
-set(hec,'init_tests',1);       % initialise unit tests
+% special unit tests settings. 
+hec.init_tests=true;       % initialise unit tests
+hoc.use_mex = ~nomex;
+hoc.force_mex_if_use_mex=forcemex;
 if ~talkative
     set(hoc,'log_level',-1);       % minimise any diagnostic output
     set(hec,'log_level',-1);   % turn off Horace informational output
@@ -110,8 +119,8 @@ end
 %=================================================================================================================
 function validate_horace_cleanup(cur_herbert_config,cur_horace_config,test_folders)
 % Reset the configurations, and remove unit test folders from the path
-%set(hor_config,cur_horace_config);
-%set(herbert_config,cur_herbert_config);
+set(hor_config,cur_horace_config);
+set(herbert_config,cur_herbert_config);
 
 % Clear up the test folders, previously placed on the path
 warn = warning('off','all'); % avoid varning on deleting non-existent path
