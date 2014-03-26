@@ -180,8 +180,8 @@ classdef hor_config<config_base
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
         function fields = get_storage_field_names(this)
-            % helper function returns the list of the name of the structure,
-            % get_data_to_store returns
+            % helper function returns the list of the public names of the fields,
+            % which should be saved
             fields = this.saved_properties_list_;
         end
         %

@@ -57,15 +57,17 @@ ix=find(ok);                % Pixel indicies that are included in the grid
 [ibin,ind]=sort(ibin(ok));  % ordered bin numbers of the included pixels with index array into the original list of bin numbers of included pixels
 ix=ix(ind)';                % Indicies of included pixels coerresponding to ordered list; convert to column vector
 
-% Find unique values
-% (intrinsic unique.m seems to be clever to notice if a list is sorted - anyway, it is faster with sorted arrays)
-[ibin_unique,m]=unique(ibin);
-% Get number of repeats of each bin index (relies on the input to unique.m being pre-sorted)    
-if size(m,2)>1
-    m=diff([0,m]);  % pre R2013a
-else
-    m=diff([0;m]);  % post R2013a
-end
-npix=zeros(prod(grid_size),1);
-npix(ibin_unique)=m;
+% %SOMETHING WRONG WITH THIS!
+% % Find unique values
+% % (intrinsic unique.m seems to be clever to notice if a list is sorted - anyway, it is faster with sorted arrays)
+% [ibin_unique,m]=unique(ibin);
+% % Get number of repeats of each bin index (relies on the input to unique.m being pre-sorted)
+% if size(m,2)>1
+%     m=diff([0,m]);  % pre R2013a
+% else
+%     m=diff([0;m]);  % post R2013a
+% end
+% npix=zeros(prod(grid_size),1);
+% npix(ibin_unique)=m;
 ibin=ibin';
+npix=accumarray(ibin,1,[prod(grid_size),1]);
