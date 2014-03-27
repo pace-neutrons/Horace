@@ -33,9 +33,9 @@ classdef hor_config<config_base
     %   delete_tmp          Delete temporary sqw files generated while building sqw files
     %
     % Type >> hor_config  to see the list of current configuration option values.
-    
+    %
     % $Revision$ ($Date$)
-    
+    %
     properties(Dependent)
         mem_chunk_size    % maximum length of buffer array in which to accumulate points from the input file
         threads           % how many computational threads to use in mex files and by Matlab
@@ -162,6 +162,7 @@ classdef hor_config<config_base
                 [dummy,n_errors]=check_horace_mex();
                 if n_errors>0
                     use = false;
+                    warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated, Use mex set to false');
                 end
             end
             

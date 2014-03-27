@@ -1,4 +1,4 @@
-classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
+classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
     % Series of tests of gen_sqw and associated functions
     % Optionally writes results to output file
     %
@@ -33,7 +33,7 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
     end
     
     methods
-        function this=test_gen_sqw_accumulate_sqw (varargin)
+        function this=test_gen_sqw_accumulate_sqw_nomex(varargin)
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
@@ -50,6 +50,14 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
                 name= mfilename('class');
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
+            %-------------------------------------------------------------
+            hc = hor_config;
+            cur_mex = hc.use_mex;
+            hc.saveable=false;
+            hc.use_mex=false;
+            
+            cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
+            %-------------------------------------------------------------
             
             
             this.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
@@ -62,17 +70,17 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             % build test file names
             this.spe_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max
-                this.spe_file{i}=[tempdir,'gen_sqw_acc_sqw_spe_',num2str(i),'.spe'];
+                this.spe_file{i}=[tempdir,'gen_sqw_acc_sqw_spe_nomex',num2str(i),'.spe'];
             end
             
             this.par_file=fullfile(this.results_path,'96dets.par');
-            this.sqw_file_123456=fullfile(tempdir,'sqw_123456.sqw');                   % output sqw file
-            this.sqw_file_145623=fullfile(tempdir,'sqw_145623.sqw');                   % output sqw file
+            this.sqw_file_123456=fullfile(tempdir,'sqw_123456nomex.sqw');                   % output sqw file
+            this.sqw_file_145623=fullfile(tempdir,'sqw_145623nomex.sqw');                   % output sqw file
             
-            this.sqw_file_14=fullfile(tempdir,'sqw_14.sqw');                   % output sqw file
-            this.sqw_file_11456=fullfile(tempdir,'sqw_11456.sqw');                   % output sqw file
-            this.sqw_file_1456=fullfile(tempdir,'sqw_1456.sqw');                   % output sqw file
-            this.sqw_file_15456=fullfile(tempdir,'sqw_15456.sqw');                   % output sqw file
+            this.sqw_file_14=fullfile(tempdir,'sqw_14nomex.sqw');                   % output sqw file
+            this.sqw_file_11456=fullfile(tempdir,'sqw_11456nomex.sqw');                   % output sqw file
+            this.sqw_file_1456=fullfile(tempdir,'sqw_1456nomex.sqw');                   % output sqw file
+            this.sqw_file_15456=fullfile(tempdir,'sqw_15456nomex.sqw');                   % output sqw file
             
             % initiate test parameters
             en=cell(1,this.nfiles_max);
@@ -120,6 +128,15 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             gs=this.gen_sqw_par{12};
         end
         function this=build_test_files(this)
+            %-------------------------------------------------------------
+            hc = hor_config;
+            cur_mex = hc.use_mex;
+            hc.saveable=false;
+            hc.use_mex=false;
+            
+            cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
+            %-------------------------------------------------------------
+            
             %% =====================================================================================================================
             % Make instrument and sample
             % =====================================================================================================================
@@ -155,13 +172,22 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             
         end
         function this=test_gen_sqw(this)
+            %-------------------------------------------------------------
+            hc = hor_config;
+            cur_mex = hc.use_mex;
+            hc.saveable=false;
+            hc.use_mex=false;
+            
+            cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
+            %-------------------------------------------------------------
+
             
             % build test files if they have not been build
             this=build_test_files(this);
             % generate the names of the output sqw files
             sqw_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max
-                sqw_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_sqw_',num2str(i),'.sqw']);    % output sqw file
+                sqw_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_sqw_nomex',num2str(i),'.sqw']);    % output sqw file
             end
             if ~this.want_to_save_output
                 cleanup_obj=onCleanup(@()rm_files(this,this.sqw_file_123456,this.sqw_file_145623,sqw_file{:}));
@@ -202,6 +228,16 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             
         end
         function this=test_wrong_params_gen_sqw(this)
+            %-------------------------------------------------------------
+            hc = hor_config;
+            cur_mex = hc.use_mex;
+            hc.saveable=false;
+            hc.use_mex=false;
+            
+            cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
+            %-------------------------------------------------------------
+
+            
             
             this=build_test_files(this);
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
@@ -214,6 +250,16 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
         end
         function this=test_wrong_params_accum_sqw(this)
+            %-------------------------------------------------------------
+            hc = hor_config;
+            cur_mex = hc.use_mex;
+            hc.saveable=false;
+            hc.use_mex=false;
+            
+            cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
+            %-------------------------------------------------------------
+
+            
             
             this=build_test_files(this);
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
@@ -231,9 +277,19 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
         end
         
         function this=test_accumulate_sqw(this)
+            %-------------------------------------------------------------
+            hc = hor_config;
+            cur_mex = hc.use_mex;
+            hc.saveable=false;
+            hc.use_mex=false;
+            
+            cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
+            %-------------------------------------------------------------
+
+            
             % build test files if they have not been build
             this=build_test_files(this);
-            sqw_file_accum=fullfile(tempdir,'test_accumulate_sqw_sqw_accum.sqw');
+            sqw_file_accum=fullfile(tempdir,'test_accumulate_sqw_sqw_accum_nomex.sqw');
             
             if ~this.want_to_save_output
                 cleanup_obj=onCleanup(@()rm_files(this,this.sqw_file_14,this.sqw_file_1456,this.sqw_file_15456,this.sqw_file_11456,sqw_file_accum));
@@ -253,7 +309,7 @@ classdef test_gen_sqw_accumulate_sqw < TestCaseWithSave
             
             
             [dummy,dummy,urange]=gen_sqw (this.spe_file([1,1,4,5,6]), this.par_file, this.sqw_file_11456, efix([1,3,4,5,6]), ...
-                              emode, alatt, angdeg, u, v, psi([1,3,4,5,6]), omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]), 'replicate');
+                emode, alatt, angdeg, u, v, psi([1,3,4,5,6]), omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]), 'replicate');
             
             
             % Now use accumulate sqw
