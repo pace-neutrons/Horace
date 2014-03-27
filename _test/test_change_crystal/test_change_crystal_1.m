@@ -115,9 +115,8 @@ end
 % Delete temporary sqw files
 for i=1:numel(sqw_file)
     try
-    catch
-        
-        delete(sqw_file{i})
+        delete(sqw_file{i})        
+    catch        
     end
 end
 warning(ws);
