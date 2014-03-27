@@ -7,8 +7,20 @@ function validate_horace(varargin)
 %                                      % if the parallel computer toolbox is available
 %   >> validate_horace ('-talkative')  % prints output of the tests and
 %                                      %  horace commands   (log_level is set to default, not quiet)
-
-
+%   >> validate_horace ('-nomex')      % validated matlab code forcefully
+%                                      % disabling mex even if mex files
+%                                      % are availible
+% >>  validate_horace ('-forcemex')    % works onlty if mex files are
+%                                      % present and pass crude testing ( can be run)
+%                                      % then fail if mex code was not able
+%                                      % to produce result (by default -- in
+%                                      % this case horace tries matlab
+%                                      % code)
+%
+%
+    %
+    % $Revision$ ($Date$)
+    %
 
 % Parse optional arguments
 % ------------------------
@@ -81,8 +93,8 @@ cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_herbert_conf,cur_horace_con
 hoc = hor_config();
 hec = herbert_config();
 %if ~parallel
-hoc.saveable = false;    % equivalent to older '-buffer' option for all setters below
-hec.saveable = false;    % equivalent to older '-buffer' option for all setters below
+%hoc.saveable = false;    % equivalent to older '-buffer' option for all setters below
+%hec.saveable = false;    % equivalent to older '-buffer' option for all setters below
 %end
 set(hoc,'defaults'); set(hec,'defaults');
 % special unit tests settings. 

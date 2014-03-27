@@ -14,8 +14,8 @@ common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
 % -----------------------------------------------------------------------------
 
 dir_out=tempdir;
-sim_sqw_file=fullfile(dir_out,'test_change_crystal_sim.sqw');           % output file for simulation in reference lattice
-sim_sqw_file_corr=fullfile(dir_out,'test_change_crystal_sim_corr.sqw'); % output file for correction
+sim_sqw_file=fullfile(dir_out,'test_change_crystal_1sim.sqw');           % output file for simulation in reference lattice
+sim_sqw_file_corr=fullfile(dir_out,'test_change_crystal_1sim_corr.sqw'); % output file for correction
 
 
 % Data for creation of test sqw file
@@ -47,10 +47,13 @@ urange = calc_sqw_urange (efix, emode, en(1), en(end), par_file, alatt, angdeg, 
 
 sqw_file=cell(size(psi));
 for i=1:numel(psi)
-    sqw_file{i}=fullfile(dir_out,['dummy_',num2str(i),'.sqw']);
+    sqw_file{i}=fullfile(dir_out,['dummy_test_change_crystal_1_',num2str(i),'.sqw']);
     fake_sqw (en, par_file, sqw_file{i}, efix, emode, alatt, angdeg,...
         u, v, psi(i), omega, dpsi, gl, gs, [1,1,1,1], urange);
 end
+
+cleanup_obj=onCleanup(@()test_change_crystal_1_cleanup(sqw_file,sim_sqw_file,sim_sqw_file_corr));
+
 
 % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
 for i=1:numel(psi)
@@ -61,17 +64,6 @@ end
 
 % Combine the sqw files
 write_nsqw_to_sqw(sqw_file,sim_sqw_file);
-
-% Delete temporary sqw files
-ws = warning('off','MATLAB:DELETE:Permission');
-try
-    for i=1:numel(psi)
-        delete(sqw_file{i})
-    end
-catch
-    disp('Unable to delete temporary sqw file(s)')
-end
-warning(ws);
 
 % Fit Bragg peak positions
 % ------------------------
@@ -103,11 +95,32 @@ end
 
 % Success announcement and cleanup
 % --------------------------------
+
+banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
+
+function test_change_crystal_1_cleanup(sqw_file,sim_sqw_file,sim_sqw_file_corr)
+
+ws = warning('off','MATLAB:DELETE:Permission');
+
 try
-    delete(sim_sqw_file)
-    delete(sim_sqw_file_corr)
+    if exist(sim_sqw_file,'file')
+        delete(sim_sqw_file)
+    end
+    if exist(sim_sqw_file_corr,'file')
+        delete(sim_sqw_file_corr)
+    end
 catch
     disp('Unable to delete temporary sqw file(s)')
 end
+% Delete temporary sqw files
+for i=1:numel(sqw_file)
+    try
+    catch
+        
+        delete(sqw_file{i})
+    end
+end
+warning(ws);
 
-banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
+
+
