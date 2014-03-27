@@ -22,6 +22,7 @@ classdef config_store < handle
     properties(Access=private)
         config_folder_;
         config_storage_;
+        saveable_;
     end
     
     methods(Access=private)
@@ -33,6 +34,7 @@ classdef config_store < handle
             newStore.config_folder_ = make_config_folder(config_store.config_folder_name);
             % initialize configurations storage.
             newStore.config_storage_ = struct();
+            newStore.saveable_ = containers.Map();
         end
     end
     
@@ -91,7 +93,29 @@ classdef config_store < handle
             end
             
         end
-        
+        %------------------------------------------------------------------
+        % Two methods responsible for the class to be configured saveable
+        % saveble property is not stored to HDD and is the property
+        % of the object persistent untill objects configuration is in memory
+        function is = get_saveable(this,class_to_check)
+            class_name = class_to_check.class_name;
+            if this.saveable_.isKey(class_name)
+                is = this.saveable_(class_name);
+            else
+                is = class_to_check.get_saveable_default();
+                this.saveable_(class_name)=is;
+            end
+        end
+        function set_saveable(this,class_instance,is_it)
+            if is_it > 0
+                is_saveable=true;
+            else
+                is_saveable=false;
+            end
+            class_name = class_instance.class_name;
+            this.saveable_(class_name)=is_saveable;
+        end
+        %------------------------------------------------------------------
         function   config_data=get_config(this,class_to_restore)
             % return configuration from memory or load it from a file if such
             % configuration exist on file and not in memory
@@ -145,7 +169,7 @@ classdef config_store < handle
         %
         function clear_all(this,varargin)
             % clear all configurations, stored in memory.
-            % if option -file exist, it also deletes all files related to 
+            % if option -file exist, it also deletes all files related to
             % stored in memory configurations
             %
             options={'-files'};

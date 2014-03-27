@@ -34,7 +34,6 @@ end
 if config_class.saveable || force_save
     % avoid saving if stored class is equal to the class
     % already in memory (as it has been already loaded)
-    
     if isfield(this.config_storage_,class_name) && ~force_save
         % if the data to save have not changed, we not saving anything to
         % file

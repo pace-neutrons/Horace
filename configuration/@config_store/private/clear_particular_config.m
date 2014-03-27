@@ -10,6 +10,9 @@ function  clear_particular_config(this,class_instance,clear_file)
 class_name =  class_instance.class_name;
 if isfield(this.config_storage_,class_name)
     this.config_storage_=rmfield(this.config_storage_,class_name);
+    if this.saveable_.isKey(class_name)
+        this.saveable_.remove(class_name);
+    end
 end
 if clear_file
     filename = fullfile(this.config_folder,[class_name,'.mat']);

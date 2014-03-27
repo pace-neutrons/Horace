@@ -14,7 +14,7 @@ classdef config_base
     %     stored_poperty
     % end
     %
-    % b) it has default value, which is differs from the property iteslt 
+    % b) it has default value, which is differs from the property iteslt
     % properties(Access=private)
     %    stored_poperty_=default_value
     % end
@@ -26,8 +26,8 @@ classdef config_base
     % d) Its setter has the form:
     %function this = set.stored_poperty(this,val)
     %       config_store.instance().store_config(this,'stored_poperty',use);
-    %end    
-    % 
+    %end
+    %
     %
     %
     % $Revision: 313 $ ($Date: 2013-12-02 11:31:41 +0000 (Mon, 02 Dec 2013) $)
@@ -53,7 +53,7 @@ classdef config_base
     methods(Abstract)
         fields = get_storage_field_names(class_instance)
         % helper function returns the list of the public properties,
-        % which values one needs to store. 
+        % which values one needs to store.
         %
         % For the example provided in the class description, this method
         % has to have a form:
@@ -92,16 +92,19 @@ classdef config_base
             name = this.class_name_;
         end
         %-----------------------------------------------------------------
-        function is = get.saveable(this)
+        function is = get_saveable_default(this)
+            % this method returns the default saveable state the
+            % particular object
+            % if object is not saveable, this method should be overloaded
+            %
             is = this.is_saveable_;
+        end
+        function is=get.saveable(this)
+            is = config_store.instance().get_saveable(this);
         end
         %
         function this=set.saveable(this,val)
-            if val > 0
-                this.is_saveable_=true;
-            else
-                this.is_saveable_=false;
-            end
+            config_store.instance().set_saveable(this,val);
         end
         %------------------------------------------------------------------
         function is = get.return_defaults(this)
@@ -143,15 +146,15 @@ classdef config_base
         end
         %
         function class_instance = set_stored_data(class_instance,data)
-            % Method executes class setters for the config class_instance 
+            % Method executes class setters for the config class_instance
             % using data structure provided as second argument
             %
             % data structure has to have fields with names equal to the
             % names of the class setters
-            % 
-            % it can be used to load data from config store to config class 
-            % instance thourh such usage is not standard and should be used 
-            % for testing and debugging purposes only 
+            %
+            % it can be used to load data from config store to config class
+            % instance thourh such usage is not standard and should be used
+            % for testing and debugging purposes only
             %
             fields = fieldnames(data);
             for i=1:numel(fields)
