@@ -63,8 +63,9 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             this.tol = 1.e-5;
             this.test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
             
-            addpath(this.test_functions_path);
-            
+            addpath(this.test_functions_path)
+            this.proj.u=[1,0,0];
+            this.proj.v=[0,1,0];
             
             % build test file names
             this.spe_file=cell(1,this.nfiles_max);
@@ -303,6 +304,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % Create some sqw files against which to compare the output of accumulate_sqw
             % ---------------------------------------------------------------------------
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
+            proj.u=u;
+            proj.v=v;            
             
             [dummy,dummy,urange14]=gen_sqw (this.spe_file([1,4]), this.par_file, this.sqw_file_14, efix([1,4]), emode, alatt, angdeg, u, v, psi([1,4]), omega([1,4]), dpsi([1,4]), gl([1,4]), gs([1,4]));
             
@@ -322,14 +325,14 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 emode, alatt, angdeg, u, v, psi(1:4), omega(1:4), dpsi(1:4), gl(1:4), gs(1:4),'clean');
             
             assertElementsAlmostEqual(urange14,acc_urange14,'relative',1.e-2)
-            [ok,mess,w2_14]=is_cut_equal(this.sqw_file_14,sqw_file_accum,this.proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
+            [ok,mess,w2_14]=is_cut_equal(this.sqw_file_14,sqw_file_accum,proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             spe_accum={this.spe_file{1},'','',this.spe_file{4},this.spe_file{5},this.spe_file{6}};
             [dummy,dummy,acc_urange1456]=accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %assertEqual(urange1456,acc_urange1456)
             
-            [ok,mess,w2_1456]=is_cut_equal(this.sqw_file_1456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
+            [ok,mess,w2_1456]=is_cut_equal(this.sqw_file_1456,sqw_file_accum,proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
@@ -339,7 +342,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % Repeat a file with 'replicate'
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
             accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
-            [ok,mess,w2_11456]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
+            [ok,mess,w2_11456]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
             this=test_or_save_variables(this,w2_11456);
@@ -349,7 +352,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
             accumulate_sqw (spe_accum, this.par_file, sqw_file_accum, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
-            [ok,mess]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
+            [ok,mess]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
             
             
