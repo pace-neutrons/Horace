@@ -21,6 +21,9 @@ function [xcent,xpeak,fwhh,xneg,xpos,ypeak,imax,irange]=peaks_cwhh_xye(x,y,e,fac
 %       'height', hmin      Keep only those peaks whose height is at least the given value
 %   'rel_height', rel_hmin  Keep only those peaks whose height is at least a fraction
 %                          rel_hmin of the tallest peak
+%   'err_height', herr_fac  Keep only those peaks whose height above the defining boundaries
+%                          determined by input argument fac is at least a factor
+%                          herr_fac larger than the error bar on the height difference
 %
 % In addition with the above, or on their own:
 %           'na', nmax      Keep nmax peaks with largest areas (cannot use with 'nh')
@@ -54,33 +57,42 @@ narg=numel(varargin);
 if rem(narg,2)~=0
     error('Check the number of optional arguments')
 end
-rel_amin=[];
-amin=[];
-rel_hmin=[];
-hmin=[];
+rel_arange=[];
+arange=[];
+rel_hrange=[];
+hrange=[];
+herr_fac=[];
 na=[];
 nh=[];
 for i=1:2:narg
     if isstring(varargin{i}) && ~isempty(varargin{i})
         if strcmpi(varargin{i},'rel_area')
-            rel_amin=varargin{i+1};
-            if rel_amin<=0 || rel_amin>=1
-                error('Relative peak area cut-off must lie in the range 0 < rel_amin < 1')
+            rel_arange=varargin{i+1};
+            if ~(isnumeric(rel_arange) && numel(rel_arange)==2 && diff(rel_arange)>0 && rel_arange(1)>=0 && rel_arange(2) <=1)
+                error('Peak relative area range must have 0 =< amin < amax =< 1')
             end
         elseif strcmpi(varargin{i},'area')
-            amin=varargin{i+1};
-            if amin<=0
-                error('Peak area cut-off must be greater than zero')
+            arange=varargin{i+1};
+            if ~(isnumeric(arange) && numel(arange)==2 && diff(arange)>0 && arange(1)>=0)
+                error('Peak area range must have 0 =< amin < amax')
             end
         elseif strcmpi(varargin{i},'rel_height')
-            rel_hmin=varargin{i+1};
-            if rel_hmin<=0 || rel_hmin>=1
-                error('Relative peak height cut-off must lie in the range 0 < rel_hmin < 1')
+            rel_hrange=varargin{i+1};
+            if ~(isnumeric(rel_hrange) && numel(rel_hrange)==2 && diff(rel_hrange)>0 && rel_hrange(1)>=0 && rel_hrange(2) <=1)
+                error('Peak relative height range must have 0 =< hmin < hmax =< 1')
             end
         elseif strcmpi(varargin{i},'height')
-            hmin=varargin{i+1};
-            if hmin<=0
-                error('Peak height cut-off must be greater than zero')
+            hrange=varargin{i+1};
+            if ~(isnumeric(hrange) && numel(hrange)==2 && diff(hrange)>0 && hrange(1)>=0)
+                error('Peak height range must have 0 =< hmin < hmax')
+            end
+        elseif strcmpi(varargin{i},'err_height')
+            herr_fac=varargin{i+1};
+            if herr_fac<=0
+                error('Peak height as a multiple of error bar must be greater than zero')
+            end
+            if isempty(e)
+                error('Must have error bars to determine peak height as a multiple of error on peak height')
             end
         elseif strcmpi(varargin{i},'na')
             na=varargin{i+1};
@@ -174,23 +186,33 @@ if numel(ind_ok)>1
         disp('Logic error!')
     end
 end
-area=ypeak.*fwhh;
+npk=numel(imax);
+area=zeros(npk,1);
+area_err=zeros(npk,1);
+for i=1:npk
+    [area(i),area_err(i)]=peak_integral(x,y,e,irange(i,1),irange(i,2));
+end
+%area=ypeak.*fwhh;
 
 % Filter peaks on optional criteria
-npk=numel(imax);
-if npk>1 && (~isempty(rel_amin) || ~isempty(amin) || ~isempty(rel_hmin) || ~isempty(hmin))
+if npk>1 && (~isempty(rel_arange) || ~isempty(arange) || ~isempty(rel_hrange) || ~isempty(hrange) || ~isempty(herr_fac))
     ok=true(size(imax));
-    if ~isempty(rel_amin)
-        ok=ok & ((area./max(area))>=rel_amin);
+    if ~isempty(rel_arange)
+        ok=ok & ((area./max(area))>=rel_arange(1)) & ((area./max(area))<=rel_arange(2));
     end
-    if ~isempty(amin)
-        ok=ok & (area>=amin);
+    if ~isempty(arange)
+        ok=ok & (area>=arange(1)) & (area<=arange(2));
     end
-    if ~isempty(rel_hmin)
-        ok=ok & (ypeak/max(ypeak)>=rel_hmin);
+    if ~isempty(rel_hrange)
+        ok=ok & (ypeak/max(ypeak)>=rel_hrange(1)) & (ypeak/max(ypeak)<=rel_hrange(2));
     end
-    if ~isempty(hmin)
-        ok=ok & (ypeak>=hmin);
+    if ~isempty(hrange)
+        ok=ok & (ypeak>=hrange(1)) & (ypeak<=hrange(2));
+    end
+    if ~isempty(herr_fac)
+        herr_fac_lo=(ypeak-y(irange(:,1)))./sqrt(e(imax).^2+e(irange(:,1)).^2);
+        herr_fac_hi=(ypeak-y(irange(:,2)))./sqrt(e(imax).^2+e(irange(:,2)).^2);
+        ok=ok & (herr_fac_lo>=herr_fac & herr_fac_hi>=herr_fac);
     end
     xcent=xcent(ok);
     xpeak=xpeak(ok);
@@ -225,6 +247,7 @@ if ~isempty(ind)
     irange=irange(ind,:);
     area=area(ind);
 end
+
 
 %========================================================================================
 function imax=find_maxima(yin)
@@ -286,3 +309,17 @@ xpos = (x(ip-1)*(y(ip)-fac*ymax)+x(ip)*(fac*ymax-y(ip-1)))/(y(ip)-y(ip-1));
 
 xcent = 0.5*(xneg+xpos);
 fwhh = xpos-xneg;
+
+
+%========================================================================================
+function [A,sig_A]=peak_integral(x,y,e,imin,imax)
+% Simple trapezoidal integral between two limits, subtracting a 'background'
+% defined as the linear interpolation between the bounds.
+
+% Area of peak between range
+[sout,eout]=integrate_1d_points(x(:),y(:),e(:),[x(imin),x(imax)]);
+% Area under straight line between end points of range
+[sbk,ebk]=integrate_1d_points([x(imin);x(imax)],[y(imin);y(imax)],[e(imin);e(imax)],[x(imin),x(imax)]);
+
+A=sout-sbk;
+sig_A=sqrt(eout^2+ebk^2);

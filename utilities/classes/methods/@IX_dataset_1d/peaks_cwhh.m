@@ -20,6 +20,9 @@ function [xcent,xpeak,fwhh,xneg,xpos,ypeak]=peaks_cwhh(w,varargin)
 %       'height', hmin      Keep only those peaks whose height is at least the given value
 %   'rel_height', rel_hmin  Keep only those peaks whose height is at least a fraction
 %                          rel_hmin of the tallest peak
+%   'err_height', herr_fac  Keep only those peaks whose height above the defining boundaries
+%                          determined by input argument fac is at least a factor
+%                          herr_fac larger than the error bar on the height difference
 %
 % In addition with the above, or on their own:
 %           'na', nmax      Keep nmax peaks with largest areas (cannot use with 'nh')
