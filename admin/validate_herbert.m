@@ -37,7 +37,7 @@ test_folders={...
     'test_utilities',...
     };
 %=============================================================================
-wof = warning('off','MATLAB:class:DestructorError');
+warn_state_init = warning('off','MATLAB:class:DestructorError');
 % Generate full test paths to unit tests:
 rootpath = fileparts(which('herbert_init'));
 test_path=fullfile(rootpath,'_test');   % path to folder with all unit tests folders:
@@ -62,13 +62,13 @@ cleanup_obj=onCleanup(@()validate_herbert_cleanup(cur_config,test_folders_full))
 % Set Herbert configuration to the default (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)
-hec = herbert_config();
-hec.saveable = false; % equivalent to older '-buffer' option for all setters below
+hconfig = herbert_config();
+hconfig.saveable = false; % equivalent to older '-buffer' option for all setters below
 
-set(hec,'defaults');
-set(hec,'init_tests',1);       % initialise unit tests
+set(hconfig,'defaults');
+set(hconfig,'init_tests',1);       % initialise unit tests
 if ~talkative
-    set(hec,'log_level',-1);   % turn off herbert informational output
+    set(hconfig,'log_level',-1);   % turn off herbert informational output
 end
 
 if parallel && license('checkout','Distrib_Computing_Toolbox')
@@ -93,7 +93,7 @@ else
     bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
     
 end
-warning(wof);
+warning(warn_state_init);
 
 %=================================================================================================================
 function validate_herbert_cleanup(cur_config,test_folders)
