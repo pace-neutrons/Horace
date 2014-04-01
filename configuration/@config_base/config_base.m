@@ -14,7 +14,12 @@ classdef config_base
     %     stored_poperty
     % end
     %
-    % b) it has default value, which is differs from the property iteslt
+    % b) it has default value, which differs from the property iteslt.
+    % 
+    %    If user suposes to use suggested abstract methods implementations,
+    %    the name of the internal property with defaults 
+    %    has to be different from the public property name a) by the underscore 
+    %    at the end of its name
     % properties(Access=private)
     %    stored_poperty_=default_value
     % end
@@ -25,7 +30,7 @@ classdef config_base
     %end
     % d) Its setter has the form:
     %function this = set.stored_poperty(this,val)
-    %       config_store.instance().store_config(this,'stored_poperty',use);
+    %       config_store.instance().store_config(this,'stored_poperty',val);
     %end
     %
     %
