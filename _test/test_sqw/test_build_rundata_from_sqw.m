@@ -39,7 +39,7 @@ classdef test_build_rundata_from_sqw < TestCase
         function this=test_build_rundata(this)
             
             
-            rd = build_rundata_from_sqw(this.sqw_obj);
+            rd = rundata(this.sqw_obj);
             
             assertEqual(rd.emode, this.emode);
             assertEqual(rd.efix, this.efix);
