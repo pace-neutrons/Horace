@@ -1,6 +1,16 @@
-function rd=build_rundata_from_sqw(sqw)
+function rd=rundata(sqw)
 % function builds rundata object from sqw object
-%  
+%
+%>>rd = rundata(sqw)
+%
+%Input:   sqw -- a non-empty sqw object (for single input file?)
+%Output:  rd  -- rundata object with the data from sqw object
+%
+%
+%
+% $Revision: 353 $ ($Date: 2014-03-17 12:18:23 +0000 (Mon, 17 Mar 2014) $)
+%
+
 %
 data = sqw.data;
 header = sqw.header;
