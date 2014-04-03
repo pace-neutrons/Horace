@@ -31,7 +31,7 @@ classdef test_config_base < TestCase
             config2 = config_base_tester();
             assertEqual('meee',config2.my_prop);
             
-            config2.return_defaults = true;
+            config2.returns_defaults = true;
             assertEqual('beee',config2.my_prop);            
             
             config_store.instance().clear_config(config,'-file')
@@ -66,7 +66,7 @@ classdef test_config_base < TestCase
             config2 = config_base_tester();
             assertEqual('meee',config2.my_prop);
             
-            config2.return_defaults = true;
+            config2.returns_defaults = true;
             assertEqual('beee',config2.my_prop);            
             
             config_store.instance().clear_config(config,'-file')

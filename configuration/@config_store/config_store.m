@@ -124,7 +124,7 @@ classdef config_store < handle
             % class_to_restore -- the class instance of which should to be
             % restored from the hdd
             %
-            % if class_to_restore has option return_defaults==true,
+            % if class_to_restore has option returns_defaults==true,
             % default class configuration is returned
             %
             % if varargin is present, method returns not the clas itself, but

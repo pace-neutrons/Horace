@@ -75,7 +75,7 @@ classdef loaders_factory < Singleton
             end
             for i=1:numel(obj.supported_readers)
                 loader = obj.supported_readers{i};
-                [ok,fh] = loader.can_load(data_file_name);
+                [ok,fh] = loader.can_load(full_data_name);
                 if ok
                     if exist('par_file_name','var')
                         loader=loader.init(full_data_name,par_file_name,fh);

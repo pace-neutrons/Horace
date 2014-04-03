@@ -20,7 +20,7 @@ options = {'-public','defaults'};
 if ~ok; error('CONFIG_BASE:get',mess); end
 % public field is not currently used
 if defaults
-    this.return_defaults = true;
+    this.returns_defaults = true;
 end
 if numel(fields_to_get) == 0 % form 1
     S = struct();

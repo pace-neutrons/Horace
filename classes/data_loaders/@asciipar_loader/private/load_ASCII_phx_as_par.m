@@ -80,9 +80,13 @@ fclose(fid);
 if numel(phx)~=ndet*7
     error('A_LOADER:io_error',['File determined to have ',num2str(ndet),' detectors, but contents are inconsistent with a .phx file']);
 end
-group=unique(round(phx(7,:)));
+phx = reshape(phx,7,ndet);
+% exclude 2-nd row to have the same format as  par
+phx=[phx(1,:);phx(3:7,:)];
+
+group=unique(round(phx(6,:)));
 if numel(group)==1      % all group numbers were the same (when rounded to the nearest integer)
-    phx(7,:) =1:ndet;
+    phx(6,:) =1:ndet;
 elseif ~(numel(group)==ndet && min(group)>0)
     error('A_LOADER:io_error','The detector group numbers must be unique integers >= 1, or all the same (when they will be set to 1:ndet');
 end
