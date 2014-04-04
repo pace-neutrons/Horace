@@ -69,7 +69,7 @@ classdef loader_speh5 < a_loader
                 error('LOAD_SPEH5:get_data_info',' has to be called with valid file name');
             end
             
-            if isstring(file_name)
+            if ischar(file_name)
                 [ok,mess,full_file_name] = check_file_exist(file_name,{'.spe_h5'});
                 if ~ok
                     error('LOAD_SPEH5:get_data_info',mess);

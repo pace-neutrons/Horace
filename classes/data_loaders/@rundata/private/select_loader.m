@@ -27,14 +27,14 @@ assume_ASCII_spe_loader = false;
 first_file = varargin{1};
 if isempty(first_file) % assume ASCII spe loader
     assume_ASCII_spe_loader = true;    
-elseif ~isstring(first_file)    % build from a file;
+elseif ~ischar(first_file)    % build from a file;
     error('RUNDATA:invalid_argument','unsupported first argument');            
 end 
 % check if second parameter is a file
 second_file ='';
 vararg_start_from=2;
 if nargin>2
-    if isstring(varargin{2})
+    if ischar(varargin{2})
         second_file=varargin{2};
         vararg_start_from=3;
     end

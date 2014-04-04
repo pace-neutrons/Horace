@@ -43,7 +43,7 @@ if ~isempty(class.(field_name))
     if ~isa(class.(field_name),'numeric')
         ok = false;
         val = class.(field_name);
-        if ~isstring(val)
+        if ~ischar(val)
             if isemtpy(val)
                 val = 'empty';
             else

@@ -136,7 +136,7 @@ elseif numel(par_files)==1
     for i=2:n_files
         runfiles{i}=rundata(spe_files{i},par_files{1},dfnd_params(i));
         runfiles{i}.det_par = par;
-        if isempty(runfiles{i}.det_par) || isstring(runfiles{i}.n_detectors)
+        if isempty(runfiles{i}.det_par) || ischar(runfiles{i}.n_detectors)
             error('GEN_RUNFILES:invalid_argument','invalid runfile detectors: %s',runfiles{i}.loader.n_detectors);
         end
     end

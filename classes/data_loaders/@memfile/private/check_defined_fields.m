@@ -14,7 +14,7 @@ try
     if isempty(fv)
         is=false;
     else
-        if isstring(fv)
+        if ischar(fv)
             is=false;
         else
             is=true;

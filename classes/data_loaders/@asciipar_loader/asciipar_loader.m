@@ -45,7 +45,7 @@ classdef asciipar_loader
             %>>this=asciipar_loader(other_loader);
             %
             if nargin>0
-                if isstring(varargin{1})
+                if ischar(varargin{1})
                     this.par_file_name = varargin{1};
                 elseif isa(varargin{1},'asciipar_loader')
                     this=varargin{1};

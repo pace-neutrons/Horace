@@ -81,16 +81,16 @@ end
 if isempty(psi) || ~isreal(psi)
     psi =NaN;
 end
-if isempty(this.det_par) || isstring(this.det_par)
+if isempty(this.det_par) || ischar(this.det_par)
     error('A_LOADER:saveNXSPE','data do not contain correct detector information to save');
 end
-if isempty(this.S) || isstring(this.S)
+if isempty(this.S) || ischar(this.S)
     error('A_LOADER:saveNXSPE','data do not contain correct signal information to save');
 end
-if isempty(this.ERR) || isstring(this.ERR)
+if isempty(this.ERR) || ischar(this.ERR)
     error('A_LOADER:saveNXSPE','data do not contain correct error information to save');
 end
-if isempty(this.n_detectors) || isstring(this.n_detectors)
+if isempty(this.n_detectors) || ischar(this.n_detectors)
     error('A_LOADER:saveNXSPE','data do not contain correct detector information or detectors are not consistent with signal and error arrays');
 end
 
@@ -289,7 +289,7 @@ for i=1:numel(attr_names)
     an = attr_names{i};
     val = data.(an);
     
-    if isstring(val)
+    if ischar(val)
         type_id = H5T.copy('H5T_C_S1');
         H5T.set_size(type_id, numel(val));
         %type_id = H5T.create('H5T_STRING',numel(val));

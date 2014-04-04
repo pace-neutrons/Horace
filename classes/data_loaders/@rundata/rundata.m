@@ -111,7 +111,7 @@ classdef rundata
             %   is_crystal  % true if single crystal, false if powder
             
             if nargin>0
-                if isstring(varargin{1})
+                if ischar(varargin{1})
                     this=select_loader(this,varargin{1},varargin{2:end});
                 else
                     this=set_param_recursively(this,varargin{1},varargin{2:end});

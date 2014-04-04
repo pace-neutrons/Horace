@@ -10,7 +10,7 @@ function [n_detectors,en,full_file_name,nexus_dir,ei,psi,nxspe_version]= check_f
 %
 
 
-if ~isstring(full_file_name)
+if ~ischar(full_file_name)
     error('LOAD_NXSPE:invalid_argument',' first parameter has to be a file name');                
 else
     [ok,mess,full_file_name]=check_file_exist(full_file_name,loader_nxspe.get_file_extension());

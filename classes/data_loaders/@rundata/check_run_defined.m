@@ -107,7 +107,7 @@ val = data.(field);
 if isempty(val)
     isit=true;
 else
-    if isstring(val) && strncmp('undef',val,5)
+    if ischar(val) && strncmp('undef',val,5)
         isit = true;
     end
 end

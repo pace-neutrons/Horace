@@ -29,7 +29,7 @@ det_fields = fields(det);
 det_m = struct();
 for i=1:numel(det_fields)
     field = det_fields{i};
-    if ~isstring(det.(field))
+    if ~ischar(det.(field))
         array = det.(field);
         det_m.(field) = array(line_notmasked);
     else
