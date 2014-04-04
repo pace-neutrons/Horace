@@ -13,7 +13,10 @@ classdef loaders_factory < Singleton
         % of expected frequency for their appearance.
         supported_readers = {loader_nxspe(),loader_ascii(),memfile(),loader_speh5()};
         % field describes
-        reader_descriptions = {};
+        reader_descriptions_ = {};
+    end
+    properties(Dependent)
+        reader_descriptions;
     end
     
     methods(Access=private)
@@ -29,7 +32,8 @@ classdef loaders_factory < Singleton
             for i=1:nLoaders
                 rd{i} = newObj.supported_readers{i}.get_file_description();
             end
-            newObj.reader_descriptions=rd;
+            empty =  cellfun(@isempty,rd);
+            newObj.reader_descriptions_=rd(~empty);
         end
     end
     
@@ -48,10 +52,11 @@ classdef loaders_factory < Singleton
     
     %*** Define your own methods for the Singleton.
     methods % Public Access
-        function ext_list=get_descriptions(obj)
+        function ext_list=get.reader_descriptions(obj)
             % return the list of the file extensions, defined by
-            ext_list = obj.reader_extensions;
+            ext_list = obj.reader_descriptions_;
         end
+        
         function n_loaders=get_nLoaders(obj)
             %return number of registered data loaders
             n_loaders = numel(obj.supported_readers);

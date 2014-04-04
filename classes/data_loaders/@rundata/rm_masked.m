@@ -3,10 +3,10 @@ function [S_m,Err_m,det_m]=rm_masked(this)
 % detectors, which provided such signal
 %
 if isempty(this.S)||isempty(this.ERR)||isempty(this.det_par)
-    error('RUNDATA:rm_masked',' singal, error and detectors arrays have to be defined\n');
+    error('RUNDATA:rm_masked',' signal, error and detectors arrays have to be defined\n');
 end
 if any(size(this.S)~=size(this.ERR))||(size(this.S,2)~=numel(this.det_par.x2))
-    error('RUNDATA:rm_masked',' singal error and detectors arrays are not consistent\n');
+    error('RUNDATA:rm_masked',' signal error and detectors arrays are not consistent\n');
 end
 
 index_masked = (isnan(this.S)|(isinf(this.S))); % masked pixels
