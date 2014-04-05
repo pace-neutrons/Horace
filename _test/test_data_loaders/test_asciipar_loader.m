@@ -229,7 +229,24 @@ classdef test_asciipar_loader< TestCase
             assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);            
             
         end
-        
+        function test_load_phx_mex(this)
+            hcfg=herbert_config();
+            current = hcfg.use_mex;
+            c = onCleanup(@()set(hcfg,'use_mex',current));
+            hcfg.use_mex = true;
+            
+            phx_file = fullfile(this.test_data_path,'map_4to1_jul09.phx');
+            par_file = fullfile(this.test_data_path,'map_4to1_jul09.par');
+            al = asciipar_loader(phx_file);
+            
+            [det,al] = al.load_par('-nohor');
+            al.par_file_name  = par_file;
+            [detp,al] = al.load_par('-nohor');
+            
+            assertElementsAlmostEqual(det(2,:),detp(2,:),'relative',1.e-4);
+            assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);            
+            
+        end        
     end
 end
 

@@ -28,7 +28,7 @@ if ~isempty(loader.det_par_stor) &&(~force_reload)
     end
     if strcmp(fullfile(loader.det_par_stor.filepath,loader.det_par_stor.filename),sample)
         if return_array
-            det=get_hor_format(load.det_par);
+            det=get_hor_format(loader.det_par);
         else
             det = loader.det_par;
         end
