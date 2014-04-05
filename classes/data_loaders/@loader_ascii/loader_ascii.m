@@ -10,13 +10,13 @@ classdef loader_ascii < a_loader
     methods(Static)
         function fext=get_file_extension()
             % return the file extension used by this loader
-            fext={'.spe'};
+            fext='.spe';
         end
         function descr=get_file_description()
             % method returns the description of the file format loaded by this
             % loader.
             ext = loader_ascii.get_file_extension();
-            descr =sprintf('ASCII spe files: (*.%s)',ext{1});
+            descr =sprintf('ASCII spe files: (*%s)',ext);
             
         end
         
@@ -56,9 +56,9 @@ classdef loader_ascii < a_loader
             % where:
             % ndet  -- number of detectors
             % en    -- energy bins
-            % full_file_name -- the full (with the path) file name with the spe information. On unix machines this 
-			%                   name can be also modified to have the extension case correspondent to the existing spe file 
-			%                   (e.g .spe if lower case extension spe file exist or SPE if upper case extension file exist)
+            % full_file_name -- the full (with the path) file name with the spe information. On unix machines this
+            %                   name can be also modified to have the extension case correspondent to the existing spe file
+            %                   (e.g .spe if lower case extension spe file exist or SPE if upper case extension file exist)
             %
             %
             if ~exist('file_name','var')

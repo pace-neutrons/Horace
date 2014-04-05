@@ -22,13 +22,13 @@ classdef loader_nxspe < a_loader
     methods(Static)
         function fext=get_file_extension()
             % return the file extension used by this loader
-            fext={'.nxspe'};
+            fext='.nxspe';
         end
         function descr=get_file_description()
             % method returns the description of the file format loaded by this
             % loader.
             ext = loader_nxspe.get_file_extension();
-            descr =sprintf('nexus spe files (MANTID): (*%s)',ext{1});
+            descr =sprintf('nexus spe files (MANTID): (*%s)',ext);
         end
         
         function [ok,fh] = can_load(file_name)
@@ -182,7 +182,7 @@ classdef loader_nxspe < a_loader
     methods(Static)
         function ndet=get_par_info(par_file_name,file_name)
             % get number of detectors described in ASCII par or phx file
-			% which overrides the nxspe detectors information 
+            % which overrides the nxspe detectors information
             % if such file is present or get this information from nxspe
             % file if ascii par file is absent.
             if ~isempty(par_file_name)

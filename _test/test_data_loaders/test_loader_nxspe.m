@@ -306,8 +306,7 @@ classdef test_loader_nxspe< TestCase
         function test_get_file_extension(this)
             fext=loader_nxspe.get_file_extension();
             
-            assertEqual(fext{1},'.nxspe');
-            assertEqual(1,numel(fext));
+            assertEqual(fext,'.nxspe');
             
             descr = loader_nxspe.get_file_description();
             assertEqual('nexus spe files (MANTID): (*.nxspe)',descr);

@@ -14,9 +14,16 @@ classdef loaders_factory < Singleton
         supported_readers = {loader_nxspe(),loader_ascii(),memfile(),loader_speh5()};
         % field describes
         reader_descriptions_ = {};
+        % supported filenames extensions;
+        readers_fext_={};
     end
     properties(Dependent)
+        % list of the supported readers names with their brief
+        % descriptions        
         reader_descriptions;
+        % returns list of file extensions, supported by current file
+        % readers
+        supported_file_extensions;
     end
     
     methods(Access=private)
@@ -29,11 +36,14 @@ classdef loaders_factory < Singleton
             nLoaders = numel(newObj.supported_readers);
             
             rd = cell(nLoaders,1);
+            ext = cell(nLoaders,1);
             for i=1:nLoaders
                 rd{i} = newObj.supported_readers{i}.get_file_description();
+                ext{i}= newObj.supported_readers{i}.get_file_extension();
             end
             empty =  cellfun(@isempty,rd);
             newObj.reader_descriptions_=rd(~empty);
+            newObj.readers_fext_ = ext(~empty);
         end
     end
     
@@ -50,20 +60,23 @@ classdef loaders_factory < Singleton
         end
     end
     
-    %*** Define your own methods for the Singleton.
     methods % Public Access
-        function ext_list=get.reader_descriptions(obj)
-            % return the list of the file extensions, defined by
-            ext_list = obj.reader_descriptions_;
+        function descr_list=get.reader_descriptions(obj)
+            % returns list of the supported readers namew sith their briefe
+            % descriptions
+            descr_list = obj.reader_descriptions_;
         end
-        
+        function ext_list=get.supported_file_extensions(obj)
+            % return the list of the file extensions, supported by the file reader
+            ext_list=obj.readers_fext_;
+        end
         function n_loaders=get_nLoaders(obj)
             %return number of registered data loaders
             n_loaders = numel(obj.supported_readers);
         end
         function loader = get_loader(obj,data_file_name,par_file_name)
             % return initiated loader which can load the data from the specified data file
-			%
+            %
             %Usage:
             %>>loader=loaders_factory.instance().get_loader(data_file_name,[par_file_name]);
             % where:

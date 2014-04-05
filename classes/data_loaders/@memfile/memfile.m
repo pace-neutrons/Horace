@@ -21,11 +21,11 @@ classdef memfile<a_loader
     methods(Static)
         function fext=get_file_extension()
             % return the file extension used by this loader
-            fext={'.memfile'};
+            fext='.memfile';
         end
         function descr=get_file_description()
             % avoid description to not to try load this file from GUI
-            descr ={};
+            descr ='';
         end
         
         function [ok,fh] = can_load(file_name)
@@ -178,7 +178,7 @@ classdef memfile<a_loader
             % method to check if file with extension correspondent to this loader exists
             [dummy,fn,fext] = fileparts(new_name);
             fbex = this.get_file_extension();
-            if strcmp(fbex{1},fext)
+            if strcmp(fbex,fext)
                 ok = memfile_fs.instance().file_exist(fn);
                 if ok
                     mess ='';

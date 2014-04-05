@@ -243,8 +243,8 @@ classdef test_loader_ascii< TestCase
         function test_get_file_extension(this)
             fext=loader_ascii.get_file_extension();
             
-            assertEqual(fext{1},'.spe');
-            assertEqual(1,numel(fext));
+            assertEqual(fext,'.spe');
+            assertEqual(4,numel(fext));
         end
         function test_is_loader_defined(this)
             spe_file_name = fullfile(this.test_data_path,'MAP10001.spe');

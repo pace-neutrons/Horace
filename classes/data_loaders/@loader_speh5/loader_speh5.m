@@ -17,13 +17,13 @@ classdef loader_speh5 < a_loader
     methods(Static)
         function fext=get_file_extension()
             % return the file extension used by this loader
-            fext={'.spe_h5'};
+            fext='.spe_h5';
         end
         function descr=get_file_description()
             % method returns the description of the file format loaded by this
             % loader.
             ext = loader_speh5.get_file_extension();
-            descr =sprintf('HDF5 spe files: (*.%s)',ext{1});
+            descr =sprintf('HDF5 spe files: (*.%s)',ext);
         end
         
         function [ok,fh] = can_load(file_name)
@@ -162,7 +162,7 @@ classdef loader_speh5 < a_loader
         function this = set_data_info(this,full_speh5_file_name)
             % obtain data file information and store it into the class
             [this.n_detindata_stor,this.en_stor,this.data_file_name_stor, ...
-            this.efix,this.speh5_version]=loader_speh5.get_data_info(full_speh5_file_name);
+                this.efix,this.speh5_version]=loader_speh5.get_data_info(full_speh5_file_name);
         end
         
         
