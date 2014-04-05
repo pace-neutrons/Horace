@@ -23,7 +23,7 @@ classdef loader_speh5 < a_loader
             % method returns the description of the file format loaded by this
             % loader.
             ext = loader_speh5.get_file_extension();
-            descr =sprintf('HDF5 spe files: (*.%s)',ext);
+            descr =sprintf('HDF5 spe files: (*%s)',ext);
         end
         
         function [ok,fh] = can_load(file_name)
