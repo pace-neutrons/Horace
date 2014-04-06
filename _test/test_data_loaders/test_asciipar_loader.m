@@ -231,9 +231,9 @@ classdef test_asciipar_loader< TestCase
         end
         function test_load_phx_mex(this)
             hcfg=herbert_config();
-            current = hcfg.use_mex;
-            c = onCleanup(@()set(hcfg,'use_mex',current));
-            hcfg.use_mex = true;
+            current = hcfg.use_mex_C;
+            c = onCleanup(@()set(hcfg,'use_mex_C',current));
+            hcfg.use_mex_C = true;
             
             phx_file = fullfile(this.test_data_path,'map_4to1_jul09.phx');
             par_file = fullfile(this.test_data_path,'map_4to1_jul09.par');

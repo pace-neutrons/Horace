@@ -191,7 +191,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ]){
                     buf<<" this program request one output parameter when loading PHX files\n";
                     goto error;
                 }
-                plhs[0]=mxCreateDoubleMatrix(7,FILE_TYPE.nData_records,mxREAL);
+                plhs[0]=mxCreateDoubleMatrix(6,FILE_TYPE.nData_records,mxREAL);
                 double *pData=mxGetPr(plhs[0]);
                 load_plain(data_stream,pData,FILE_TYPE);
                 break;

@@ -37,7 +37,8 @@ use_mex = get(herbert_config,'use_mex_C');
 if use_mex
     try     %using C routine
         phx=get_ascii_file(filename,'phx');
-        phx=[phx(1,:);phx(3:7,:)];
+        [ncol,ndata]=size(phx);
+        phx=[phx(1,:);phx(3:6,:);1:ndata];
     catch   %using matlab routine
         force_mex = get(herbert_config,'force_mex_if_use_mex');
         if ~force_mex
