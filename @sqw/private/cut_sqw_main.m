@@ -122,10 +122,11 @@ end
 
 % Get proj structure, if present, and binning information
 if numel(varargin)>=1 && (isstruct(varargin{1}) || isempty(varargin{1})) % only proj is consistent with this case
+    proj_given=true;
     proj_in=varargin{1};
     pbin=varargin(2:end-length(opt));
 else
-    proj_in=struct([]);
+    proj_given=false;
     pbin=varargin(1:end-length(opt));
 end
 
@@ -177,9 +178,9 @@ end
 
 
 % Checks on number of binning arguments
-if isempty(proj_in)     % must refer to plot axes (in the order of the display list)
+if ~proj_given          % must refer to plot axes (in the order of the display list)
     if numel(pbin)~=ndims
-        error('Number of binning arguments must match dimension of sqw data being cut')
+        error('Number of binning arguments must match the number of dimensions of the sqw data being cut')
     end
 else                    % must refer to new projection axes
     if numel(pbin)~=4
@@ -189,7 +190,7 @@ end
         
 
 % Check the proj data structure is valid, if given
-if isempty(proj_in)
+if ~proj_given
     proj = struct([]);
 else
     [proj,mess] = proj_fill_fields(proj_in);
