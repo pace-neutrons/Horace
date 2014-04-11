@@ -316,6 +316,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             
             % Now use accumulate sqw
             % ----------------------
+            this.proj.u=u;
+            this.proj.v=v;            
             
             spe_accum={this.spe_file{1},'','',this.spe_file{4}};
             [dummy,dummy,acc_urange14]=accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix(1:4), ...
