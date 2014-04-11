@@ -202,7 +202,7 @@ end
 
 % Delete temporary files if requested
 % -----------------------------------
-%if get(hor_config,'delete_tmp')
+if get(hor_config,'delete_tmp')
 if ~isempty(tmp_file)   % will be empty if only one spe file
     delete_error=false;
     for i=1:numel(tmp_file)
@@ -216,7 +216,7 @@ if ~isempty(tmp_file)   % will be empty if only one spe file
         end
     end
 end
-%end
+end
 
 
 % Clear output arguments if nargout==0 to have a silent return
