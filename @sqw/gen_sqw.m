@@ -301,22 +301,22 @@ else
     end
     
     % Delete temporary files
-    if get(hor_config,'delete_tmp')if requested
-    delete_error=false;
-    for i=1:numel(tmp_file)
-        ws=warning('off','MATLAB:DELETE:Permission');
-        try
-            delete(tmp_file{i})
-        catch
-            if delete_error==false
-                delete_error=true;
-                if horace_info_level>-1
-                    disp('One or more temporary sqw files not deleted')
+    if get(hor_config,'delete_tmp') %if requested
+        delete_error=false;
+        for i=1:numel(tmp_file)
+            ws=warning('off','MATLAB:DELETE:Permission');
+            try
+                delete(tmp_file{i})
+            catch
+                if delete_error==false
+                    delete_error=true;
+                    if horace_info_level>-1
+                        disp('One or more temporary sqw files not deleted')
+                    end
                 end
             end
+            warning(ws);
         end
-        warning(ws);
-    end
     end
     
 end
