@@ -301,7 +301,7 @@ else
     end
     
     % Delete temporary files
-    %if get(hor_config,'delete_tmp')if requested
+    if get(hor_config,'delete_tmp')if requested
     delete_error=false;
     for i=1:numel(tmp_file)
         ws=warning('off','MATLAB:DELETE:Permission');
@@ -317,7 +317,7 @@ else
         end
         warning(ws);
     end
-    %end
+    end
     
 end
 

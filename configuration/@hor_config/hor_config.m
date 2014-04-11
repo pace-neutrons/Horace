@@ -6,14 +6,14 @@ classdef hor_config<config_base
     %
     % To set values:
     %   >> set(hor_config,'name1',val1,'name2',val2,...)
-    % or 
+    % or
     %   >>hc = hor_config();
     %   >>hc.name1=val1;
     %
     %
     % To fetch values:
     %   >> [val1,val2,...]=get(hor_config,'name1','name2',...)
-    %or 
+    %or
     %   >>val1 = hor_config.name1;
     %
     %
@@ -45,7 +45,7 @@ classdef hor_config<config_base
         log_level         % the same as horace_info level
         use_mex           % use mex-code for time-consuming operations
         force_mex_if_use_mex % testing and debugging option -- fail if mex can not be used
-        %delete_tmp        % delete te
+        delete_tmp        % automatically delete temporary files after generating sqw files
     end
     properties(Access=protected)
         % private properties behind public interface
@@ -56,12 +56,13 @@ classdef hor_config<config_base
         log_level_ = 1;
         use_mex_ = true;
         force_mex_if_use_mex_ = false;
+        delete_tmp_ = true;
     end
     
     properties(Constant,Access=private)
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
             'ignore_inf', 'log_level','use_mex',...
-            'force_mex_if_use_mex'}
+            'force_mex_if_use_mex','delete_tmp'}
     end
     
     methods
@@ -98,6 +99,9 @@ classdef hor_config<config_base
         end
         function force = get.force_mex_if_use_mex(this)
             force = get_or_restore_field(this,'force_mex_if_use_mex');
+        end
+        function delete = get.delete_tmp(this)
+            delete = get_or_restore_field(this,'delete_tmp');
         end
         
         %-----------------------------------------------------------------
@@ -148,7 +152,7 @@ classdef hor_config<config_base
             else
                 error('HOR_CONFIG:set_horace_info_level',' horace_info_level has to be numeric');
             end
-        end        
+        end
         %
         function this = set.use_mex(this,val)
             if val>0
@@ -177,6 +181,15 @@ classdef hor_config<config_base
             end
             config_store.instance().store_config(this,'force_mex_if_use_mex',use);
         end
+        function this = set.delete_tmp(this,val)
+            if val>0
+                del = true;
+            else
+                del = false;
+            end
+            config_store.instance().store_config(this,'delete_tmp',del);
+        end
+        
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
