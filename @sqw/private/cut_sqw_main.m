@@ -121,7 +121,7 @@ if length(varargin)>=2 && ischar(varargin{end-1}) && size(varargin{end-1},1)==1
 end
 
 % Get proj structure, if present, and binning information
-if numel(varargin)>=1 && (isstruct(varargin{1}) || isempty(varargin{1})) % only proj is consistent with this case
+if numel(varargin)>=1 && isstruct(varargin{1})
     proj_given=true;
     proj_in=varargin{1};
     pbin=varargin(2:end-length(opt));
