@@ -32,8 +32,11 @@ centre=[-2*pi/lam,0];
 %plane (2theta), and then an azimuthal angle which is a rotation around the
 %circle defined by 2theta.
 
-tth=detpar(2,:);
-azi=detpar(3,:);
+tth=detpar.phi;
+azi=detpar.azim;
+
+% tth=detpar(2,:);
+% azi=detpar(3,:);
 rho=kfhw.*ones(size(tth));
 
 checkit=diff(azi);%difference in azimuthal angle between adjacent pixels in list
