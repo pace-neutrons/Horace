@@ -103,7 +103,7 @@ if ~ok, error(mess), end
 % We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
 
 npax=length(datahdr{1}.pax);
-tol = 2e-7;% test number to define equality allowing for rounding
+tol = 4*eps(single(1));% test number to define equality allowing for rounding
 for i=2:nfiles  % only need to check if more than one file
     ok = equal_to_relerr(datahdr{i}.uoffset, datahdr{1}.uoffset, tol, 1);
     ok = ok & equal_to_relerr(datahdr{i}.u_to_rlu(:), datahdr{1}.u_to_rlu(:), tol, 1);
@@ -124,8 +124,10 @@ for i=2:nfiles  % only need to check if more than one file
     if npax>0   % one or more projection axes
         ok = all(datahdr{i}.pax==datahdr{1}.pax);
         for ipax=1:npax
+            % toll of a sinble axis writtn onto hdd with single presicion. Dodgy! 
+            tolax=4*eps(single(max(datahdr{i}.p{ipax})-min(datahdr{i}.p{ipax})));
             ok = ok & (numel(datahdr{i}.p{ipax})==numel(datahdr{i}.p{ipax}) &...
-                equal_to_relerr(datahdr{i}.p{ipax}, datahdr{1}.p{ipax}, tol, 1));
+                equal_to_relerr(datahdr{i}.p{ipax}, datahdr{1}.p{ipax}, tolax, 1));
         end
         if ~ok
             error('Not all projection axes and bin boundaries are identical')
