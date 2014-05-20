@@ -9,7 +9,7 @@ function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header)
 %               Each header block is structure (single spe file) or a cell
 %              array of single structures.
 %               The special case of a single header block from a single spe
-%              file bein passed as a structure is allowed.
+%              file being passed as a structure is allowed.
 %
 % Output:
 % -------
@@ -44,15 +44,25 @@ function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header)
 %   check the consistency of the equality or otherwise of the fields as required by later
 %   algorithms in Horace
 
+hstruct=struct('filename','','efix',[],'psi',[],'omega',[],'dpsi',[],'gl',[],'gs',[]);
+
 nsqw=numel(header);
 
-% Catch case of a single header bloack from a single spe file - no processing required.
+% Catch case of a single header block from a single spe file - no processing required.
 if isstruct(header) && nsqw==1
     header_out=header;
     nspe=1;
     ok=true;
     mess='';
-    hstruct_sort=header;
+    hstruct_sort=hstruct;
+    names=fieldnames(hstruct);
+    for j=1:numel(names)
+        if j==1
+            hstruct_sort.filename=fullfile(header_out.filepath,header_out.filename);
+        else
+            hstruct_sort.(names{j})=header_out.(names{j});
+        end
+    end
     ind=1;
     return
 end
@@ -84,7 +94,7 @@ end
 % Check the headers are all unique across the relevant fields, and have equality in other required fields
 % -------------------------------------------------------------------------------------------------------
 % Make a stucture array of the fields that define uniqueness
-hstruct=repmat(struct('filename','','efix',[],'psi',[],'omega',[],'dpsi',[],'gl',[],'gs',[]), size(header_out));
+hstruct=repmat(hstruct, size(header_out));
 names=fieldnames(hstruct);
 for i=1:nfiles_tot
     for j=1:numel(names)
