@@ -1,7 +1,7 @@
 function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, instrument, sample, replicate, header)
 % Check that the input arguments to gen_sqw define distinct input with required equality of some fields.
-% Optionally, determine in addition which are not included in the header of an sqw file
+% Optionally, determine in addition which input are not included in the header of an sqw file
 %
 %   >> status = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
 %                                              u, v, psi, omega, dpsi, gl, gs, instrument, sample)
@@ -117,7 +117,8 @@ else
         header_out={header_out};    % make a cell array for convenience later on
     end
     % Check the fields are the same in pstruct and hstruct - to catch editing that has introduced inconsistencies
-    if ~all(strcmp(names,fieldnames(hstruct_sort)'))
+    names_hstruct_sort=fieldnames(hstruct_sort)';
+    if numel(names)~=numel(names_hstruct_sort) || ~all(strcmp(names,names_hstruct_sort))
         error('Fieldnames not identical in pstruct and hstruct: error in code; see T.G.Perring')
     end
     % Find the entries in pstruct_sort that also appear in hstruct_sort
