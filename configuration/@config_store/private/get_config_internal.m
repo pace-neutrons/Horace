@@ -5,9 +5,9 @@ function config_data=get_config_internal(this,class_to_restore)
 % class_to_restore -- instance of the class to restore from HDD (memory if
 %                     already loaded)
 %Returns:
-% 
+%
 % the object with its fields loaded from storage if varargin is empty
-% 
+%
 %
 % $Revision: 278 $ ($Date: 2013-11-01 20:07:58 +0000 (Fri, 01 Nov 2013) $)
 %
@@ -31,18 +31,18 @@ else
         end
         if exist(filename,'file')
             delete(filename);
-        end       
+        end
     end
-    % set obtained config data into storage. 
+    % set obtained config data into storage.
     if isempty(config_data) % get defaults
-        config_data = class_to_restore.get_data_to_store();        
+        config_data = class_to_restore.get_data_to_store();
     end
-     this.config_storage_.(class_name) = config_data;
-     % this returns current state of saveable property and if it is not
-     % set, returns default state of the object.
-      if ~this.saveable_.isKey(class_name)
-          this.saveable_(class_name)=class_to_restore.get_saveable_default();
-      end
-     
+    this.config_storage_.(class_name) = config_data;
+    % this returns current state of saveable property and if it is not
+    % set, returns default state of the object.
+    if ~this.saveable_.isKey(class_name)
+        this.saveable_(class_name)=class_to_restore.get_saveable_default();
+    end
+    
 end
 
