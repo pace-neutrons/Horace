@@ -38,12 +38,19 @@ else
     if isnumeric(varargin{1}) && (ischar(varargin{2})|| isempty(varargin{2}))
         n=varargin{1};
         mess=varargin{2};
+    elseif ischar(varargin{1}) && (isnumeric(varargin{2}))
+        n=0;
+        mess=varargin{1};
+        if varargin{2}>1
+            display_time=true;
+        end
+        
     else
         disp('WARNING: Check arguments to bigtoc. Function call ignored.')
     end
     if nargin>2
         if isnumeric(varargin{3})
-            if varargin>1
+            if varargin{3}>1
                 display_time=true;
             end
         else
