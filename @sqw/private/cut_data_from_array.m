@@ -64,7 +64,7 @@ end
 if horace_info_level>=1, t_read = bigtoc(1); end
 if horace_info_level>=2
     disp('-----------------------------')
-    fprintf(' Cut data started at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
+    fprintf(' Cut data started at:  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
 end
 
 % Accumulate pixels
@@ -121,8 +121,8 @@ if horace_info_level>=1
         disp(['        Elapsed time is ',num2str(t_sort(1)),' seconds'])
         disp(['            CPU time is ',num2str(t_sort(2)),' seconds'])
     end
-    if horace_info_level>=2
-        fprintf('Cut data finished at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
+    if horace_info_level>1
+        fprintf('Cut data finished at:  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
     end
     disp('-----------------------------')
     disp(' ')
