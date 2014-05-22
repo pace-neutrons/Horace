@@ -274,8 +274,7 @@ else
     end
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
-        bigtoc(nt,'Time to create all temporary sqw files:');
-        
+        bigtoc(nt,'Time to create all temporary sqw files:',horace_info_level);
         % Create single sqw file combining all intermediate sqw files
         disp('--------------------------------------------------------------------------------')
     end
