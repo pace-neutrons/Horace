@@ -67,5 +67,5 @@ end
 bigtic
 save(w,sqw_file);
 if horace_info_level>-1
-	bigtoc('Time to save data to file:')
+	bigtoc('Time to save data to file:',horace_info_level)
 end
