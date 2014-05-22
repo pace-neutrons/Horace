@@ -1,5 +1,5 @@
 function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
-                                                               urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
+    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
 %
 %   >> [s, e, npix, npix_retain] = cut_data (pix_in, nstart, nend, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
@@ -62,12 +62,16 @@ for i=1:length(range)
     v(:,ibeg(i):iend(i)) = pix_in(:,nstart(i):nend(i));
 end
 if horace_info_level>=1, t_read = bigtoc(1); end
+if horace_info_level>=2
+    disp('-----------------------------')
+    fprintf(' Cut data started at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
+end
 
 % Accumulate pixels
 if horace_info_level>=1, bigtic(2), end
 if horace_info_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
 [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-                                                                        v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
+    v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
 if horace_info_level>=1, t_accum = bigtoc(2); end
 
 % Sort pixels
@@ -80,14 +84,14 @@ if keep_pix
     
     if use_mex
         try
-           pix = sort_pixels_by_bins(pix,ix,npix);
-           clear ix ;  % clear big arrays
+            pix = sort_pixels_by_bins(pix,ix,npix);
+            clear ix ;  % clear big arrays
         catch
-             use_mex=false;
-              if horace_info_level>=1
-                   message=lasterr();
-                     warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',message)
-               end
+            use_mex=false;
+            if horace_info_level>=1
+                message=lasterr();
+                warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',message)
+            end
         end
     end
     if ~use_mex
@@ -116,6 +120,9 @@ if horace_info_level>=1
         disp ('  Timings for handling pixel information')
         disp(['        Elapsed time is ',num2str(t_sort(1)),' seconds'])
         disp(['            CPU time is ',num2str(t_sort(2)),' seconds'])
+    end
+    if horace_info_level>=2
+        fprintf('Cut data finished at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
     end
     disp('-----------------------------')
     disp(' ')

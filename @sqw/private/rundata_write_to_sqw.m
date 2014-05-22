@@ -57,7 +57,7 @@ horace_info_level=get(hor_config,'horace_info_level');
     omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in, instrument, sample);
 	
 if horace_info_level>-1
-	bigtoc('Time to convert from spe to sqw data:')
+	bigtoc('Time to convert from spe to sqw data:',horace_info_level)
 	disp(' ')
 end
 

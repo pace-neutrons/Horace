@@ -172,7 +172,7 @@ else
     end
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
-        bigtoc(nt,'Time to create all intermediate .tmp files:');
+        bigtoc(nt,'Time to create all intermediate .tmp files:',horace_info_level);
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')        
     end

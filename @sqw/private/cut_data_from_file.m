@@ -1,5 +1,5 @@
 function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-                                                               urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
+    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
 %
 %   >> [s, e, npix, npix_retain] = cut_data (fid, nstart, nend, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
@@ -92,7 +92,7 @@ end
 % Work array into which to read data
 v = zeros(ndatpix,min(vmax,npix_read));  % coordinates, signal and error as read from file - make it no longer than necessary
 
-% number of blocks to be read from hdd -- used in the progress indicator. 
+% number of blocks to be read from hdd -- used in the progress indicator.
 nsteps=floor(npix_read/vmax)+1;
 i_step=0;
 
@@ -100,6 +100,12 @@ vpos = 1;               % start of new work array (vpos gives position of next p
 t_read  = [0,0];
 t_accum = [0,0];
 t_sort  = [0,0];
+
+if horace_info_level>=2
+    disp('-----------------------------')
+    fprintf(' Cut data from file started at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
+end
+
 for i=1:length(range)
     rpos = 1;       % start of new range (rpos gives position of next point to read in the current range
     ok = fseek (fid, (4*ndatpix)*noffset(i), 'cof'); % initial offset is from end of previous range; ndatpix x float32 per pixel in the file
@@ -135,12 +141,12 @@ for i=1:length(range)
         else            % work array filled up; process the data read up to now, and reset position in work array to beginning
             if horace_info_level>=1, bigtic(2), end
             if horace_info_level>=0
-                  i_step=i_step+1;
-                  mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
-                  disp(mess)
+                i_step=i_step+1;
+                mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
+                disp(mess)
             end
             [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-                                                             v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
+                v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
             if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
             npix_retain = npix_retain + del_npix_retain;
             if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
@@ -156,14 +162,14 @@ end
 if vpos>1   % flush out work array - the array contains some unprocessed data
     if horace_info_level>=1, bigtic(2), end
     if horace_info_level>=0
-           i_step=i_step+1;
-           mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
-           disp(mess)
-     end
+        i_step=i_step+1;
+        mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
+        disp(mess)
+    end
     [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-                                                     v(:,1:vpos-1), urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
-    if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end                                                 
-
+        v(:,1:vpos-1), urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
+    if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
+    
     npix_retain = npix_retain + del_npix_retain;
     if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
     if keep_pix
@@ -189,6 +195,11 @@ if horace_info_level>=1
         disp(['        Elapsed time is ',num2str(t_sort(1)),' seconds'])
         disp(['            CPU time is ',num2str(t_sort(2)),' seconds'])
     end
+    if horace_info_level>=2
+        disp('-----------------------------')
+        fprintf(' Cut data from file finished at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
+    end
+    
     disp('-----------------------------')
     disp(' ')
 end
@@ -227,8 +238,8 @@ end
                 
                 if use_mex
                     try
-                    pix = sort_pixels_by_bins(pix,ix,npix);
-                    clear ix ;  % clear big arrays
+                        pix = sort_pixels_by_bins(pix,ix,npix);
+                        clear ix ;  % clear big arrays
                     catch
                         use_mex=false;
                         if horace_info_level>=1
@@ -244,13 +255,13 @@ end
                 end
             end
         end
-
+        
         function accumulate_pix_to_memory
             pix(:,ppos:pend) = v(:,ok);    % accumulate pixels into buffer array
             ix(ppos:pend) = ix_add;
             ppos = pend+1;
         end
-
+        
         function accumulate_pix_to_file
             % Increment buffer file number and create temporary file name
             nfile = nfile + 1;

@@ -540,6 +540,6 @@ if horace_info_level>=1
     disp(['         Fraction of file read: ',num2str(100*npix_read/npixtot,'%8.4f'),' %   (=',num2str(npix_read),' points)'])
     disp(['     Fraction of file retained: ',num2str(100*npix_retain/npixtot,'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
     disp(' ')
-    bigtoc('Total time in cut_sqw:')
+    bigtoc('Total time in cut_sqw:',horace_info_level)
     disp('--------------------------------------------------------------------------------')
 end
