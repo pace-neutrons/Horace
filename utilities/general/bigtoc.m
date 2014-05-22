@@ -59,7 +59,7 @@ if nargout==0
     disp(['Elapsed time is ',num2str(t_tmp(1)),' seconds'])
     disp(['    CPU time is ',num2str(t_tmp(2)),' seconds'])
     if display_time
-        fprintf(' System time is  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
+        fprintf(' System time is  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));        
     end
 else
     t=t_tmp;
