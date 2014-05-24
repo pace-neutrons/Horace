@@ -6,13 +6,17 @@ function t = bigtoc(varargin)
 %   >> t = bigtoc(...,mess)
 %   >> t = bigtoc(...,mess,log_level)
 %
-%   n       timer number (omit for default timer)
-%   mess    [optional] message
-%   log_level [optional] log level, if this value > 1, the function prints
-%   system time in the form: yyyy;mm;dd|hh;mm;ss
+% Input:
+% ------
+%   n           timer number (omit for default timer)
+%   mess        [optional] message
+%   log_level   [optional] log level, if this value > 1, the function prints
+%               system time in the form: yyyy/mm/dd hh:mm:ss
 %
-%   t       t(1)=elapsed wall time
-%           t(2)=elapsed CPU time
+% Output:
+% -------
+%   t           t(1)=elapsed wall time
+%               t(2)=elapsed CPU time
 %
 %
 % Original author: T.G.Perring
@@ -44,7 +48,6 @@ else
         if varargin{2}>1
             display_time=true;
         end
-        
     else
         disp('WARNING: Check arguments to bigtoc. Function call ignored.')
     end
