@@ -25,17 +25,18 @@ function [grid_size, urange] = rundata_write_to_sqw (run_file, sqw_file, grid_si
 % $Revision$ ($Date$)
 
 
-bigtic
-% detector's information into memory
-if isa(run_file,'rundata')
-    run_file = get_rundata(run_file,'det_par','-this');
-end
+horace_info_level=get(hor_config,'horace_info_level');
 
 % Read spe file and detector parameters
 % -------------------------------------
 % Masked detectors (i.e. containing NaN signal) are removed from data and detectors
 
+bigtic
 
+% detector's information into memory
+if isa(run_file,'rundata')
+    run_file = get_rundata(run_file,'det_par','-this');
+end
 
 data = struct();
 [data.S,data.ERR,data.en,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=...
@@ -48,14 +49,18 @@ data = struct();
 % Get the list of all detectors, including the detectors corresponding to masked detectors
 det0 = get_rundata(run_file,'det_par');
 
+if horace_info_level>-1
+	bigtoc('Time to read spe and detector data:')
+	disp(' ')
+end
 
-horace_info_level=get(hor_config,'horace_info_level');
 
 % Create sqw object
 % -----------------
+bigtic
 [w, grid_size, urange]=calc_sqw(efix, emode, alatt, angdeg, u, v, psi,...
     omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in, instrument, sample);
-	
+
 if horace_info_level>-1
 	bigtoc('Time to convert from spe to sqw data:',horace_info_level)
 	disp(' ')
@@ -66,6 +71,7 @@ end
 % ----------------
 bigtic
 save(w,sqw_file);
+
 if horace_info_level>-1
 	bigtoc('Time to save data to file:',horace_info_level)
 end
