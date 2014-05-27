@@ -11,7 +11,7 @@ function mess = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pi
 %   pos_npixstart   Position (in bytes) from start of file of the start of the field npix
 %   pos_pixstart    Position (in bytes) from start of file of the start of the field pix
 %   npix_cumsum     Accumulated sum of number of pixels per bin across all the files
-%   run_label       Indicates how to re-label the run index (pix(5,...) 
+%   run_label       Indicates how to re-label the run index (pix(5,...)
 %                       'fileno'        relabel run index as the index of the file in the list infiles
 %                       'nochange'      use the run index as in the input file
 %                        numeric array  offset run numbers for ith file by ith element of the array
@@ -108,9 +108,9 @@ end
 %                     write to the output file
 %  This is done because in general there is simply insufficient memory to hold the whole contents of all the files
 %
-%  We cannot read the number of pixels for each bin for all the individual input files, as we do not have enough
-%  memory even for that if larger than e.g. ~20^4 grid. We need to read these in, a section at a time, into a buffer. 
-
+%  We cannot read the number of pixels in each bin from all the individual input files, as we do not have enough
+%  memory even for that, in general. We need to read these in, a section at a time, into a buffer.
+% (For example, if 50^4 grid, 300 files then array size of npix= 8*300*50^4 = 15GB).
 
 pmax = get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
 nbin = numel(npix_cumsum);                  % total number of bins
@@ -140,7 +140,7 @@ while ibin_end<nbin
             for i=1:nfiles
                 npix_in_bin = npix_section{i}(ibin-ibin_start+1);
                 if npix_in_bin>0
-                    [pix,count,ok,mess] = fread_catch(fid(i),[9,npix_in_bin],'float32');
+                    [pix,count,ok,mess] = fread_catch(fid(i),[9,npix_in_bin],'*float32');
                     if ~all(ok);
                         if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
                         mess = ['Error reading pixel data for bin ',num2str(ibin),' in file ',infiles{i},' : ',mess];
@@ -169,11 +169,11 @@ while ibin_end<nbin
             nend = reshape(cumsum(npix_flush(:)),size(npix_flush)); % end pixel number for each bin for each file
             nbeg = nend-npix_flush+1;                               % start pixel number for each bin for each file
             % Read pixels from input files
-            pix_buff = zeros(9,nend(end));                          % buffer for pixel information
+            pix_buff = zeros(9,nend(end),'single');                 % buffer for pixel information
             for i=1:nfiles
                 if npix_in_files(i)>0
                     try
-                        [pix_buff(:,nbeg(1,i):nend(end,i)),count,ok,mess] = fread_catch(fid(i),[9,npix_in_files(i)],'float32');
+                        [pix_buff(:,nbeg(1,i):nend(end,i)),count,ok,mess] = fread_catch(fid(i),[9,npix_in_files(i)],'*float32');
                     catch   % fixup to account for not reading required number of items (should really go in fread_catch)
                         ok = false;
                         mess = 'Unrecoverable read error after maximum no. tries';
@@ -205,7 +205,7 @@ while ibin_end<nbin
                 ind=[nranges{:}];           % index into pix_buff of the order in which to write pixels
                 pix_buff=pix_buff(:,ind);   % rearrange pix_buff
                 fwrite(fout,pix_buff,'float32');    % write to output file
-%                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
+                %                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
             end
             clear npix_flush npix_in_files nend nbeg ok ind pix_buff  % clear the memory ofbig arrays (esp. pix_buff)
             nbuff_write = nbuff_write + 1;
@@ -221,8 +221,6 @@ mess_completion
 
 % Close down
 if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
-    
-end
 
 %================================================================================================
 function [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_start,ibin_max)
@@ -233,12 +231,14 @@ function [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_st
 %   >> [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_start,ibin_max)
 %
 % Input:
+% ------
 %   fid             Array of file identifiers for the input sqw files
 %   ibin_start      Get section starting with this bin number
 %   ibin_max        Maximum number of bins
 %
 % Output:
-%   npix_section    npix_section{i} is the section npix(ibin-start:ibin_end) for the ith input file
+% -------
+%   npix_section    npix_section{i} is the section npix(ibin_start:ibin_end) for the ith input file
 %   ibin_end        Last bin number in the buffer - it is determined either by the maximum size of nbin in the
 %                  files (as given by ibin_max), or by the largest permitted size of the buffer
 %   mess            Error message: if all OK will be empty, if not OK will contain a message
@@ -261,13 +261,12 @@ for i=1:nfiles
         mess = ['Unable to find location of npix data in ',filename];
         return
     end
-    [npix_section{i},count,ok,mess] = fread_catch(fid(i),ibin_buffer_fill,'int64'); if ~all(ok); return; end;
+    [tmp,count,ok,mess] = fread_catch(fid(i),ibin_buffer_fill,'*int64'); if ~all(ok); return; end;
+    npix_section{i}=double(tmp);    % all tmp have the same size, so no defragging of stack
     status=fseek(fid(i),pos_on_input,'bof');    % put back in position that had on entry
     if status<0
         filename = fopen(fid);
         mess = ['Unable to return to entry location of pixel data in ',filename];
         return
     end
-end
-
 end

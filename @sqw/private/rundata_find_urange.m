@@ -15,21 +15,20 @@ function urange = rundata_find_urange(run_files)
 
 nfiles = numel(run_files);
 
-horace_info_level=get(hor_config,'horace_info_level');
-if horace_info_level>-1
-    disp('--------------------------------------------------------------------------------')
-    disp(['Calculating limits of data from ',num2str(nfiles),' spe files...'])
-end
-
 % Get the maximum limits along the projection axes across all spe files
-bigtic;
 data.filename='';
 data.filepath='';
 urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
+det_buff=[];    % buffer of detector information
 for i=1:nfiles
     [efix,en,emode,ndet,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=get_rundata(run_files{i},...
         'efix','en','emode','n_detectors','alatt','angdeg','u','v','psi','omega','dpsi','gl','gs','det_par',...
         '-rad');
+    if isempty(det_buff) || ~isequal(det,det_buff)
+        detdcn=calc_detdcn(det);
+        det_buff=det;
+    end
+    
     eps=(en(2:end)+en(1:end-1))/2;
     if length(eps)>1
         data.S=zeros(2,ndet);
@@ -40,10 +39,6 @@ for i=1:nfiles
         data.E=zeros(1,ndet);
         data.en=eps;
     end
-    [u_to_rlu, ucoords] = calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+    [u_to_rlu, ucoords] = calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn);
     urange = [min(urange(1,:),min(ucoords,[],2)'); max(urange(2,:),max(ucoords,[],2)')];
-end
-
-if horace_info_level>-1
-    bigtoc('Time to compute limits:',horace_info_level);
 end

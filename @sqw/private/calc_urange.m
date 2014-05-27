@@ -64,6 +64,7 @@ else
     data.E=zeros(1,ndet);
 end
 
+detdcn=calc_detdcn(det);
 urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
 for i=1:nfile
     if ~eps_hi_empty
@@ -72,6 +73,6 @@ for i=1:nfile
         data.en=eps_lo(i);
     end
     [u_to_rlu, ucoords] = calc_projections (efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:), psi(i), ...
-        omega(i), dpsi(i), gl(i), gs(i), data, det);
+        omega(i), dpsi(i), gl(i), gs(i), data, det, detdcn);
     urange = [min(urange(1,:),min(ucoords,[],2)'); max(urange(2,:),max(ucoords,[],2)')];
 end

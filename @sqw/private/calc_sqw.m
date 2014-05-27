@@ -1,5 +1,5 @@
 function [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, psi,...
-    omega, dpsi, gl, gs, data, det, det0, grid_size_in, urange_in, instrument, sample)
+    omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_in, instrument, sample)
 % Create an sqw file, optionally keeping only those data points within a defined data range.
 %
 %   >> [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, psi,...
@@ -26,6 +26,8 @@ function [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, ps
 %                  from the data, the the corresponding detectors must have been
 %                  removed from det.
 %                  [If data has field qspec, then det is ignored]
+%   detdcn          Direction of detector in spectrometer coordinates ([3 x ndet] array)
+%                       [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %   det0            Detector structure corresponding to unmasekd detectors. This
 %                  is what is used int the creation of the sqw object. It must
 %                  be consistent with det.
@@ -62,7 +64,7 @@ main_header.nfiles=1;
 if horace_info_level>-1
 	disp('Calculating projections...');
 end
-[header,sqw_data]=calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+[header,sqw_data]=calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn);
 
 % Update some header fields
 header.instrument=instrument;
@@ -158,7 +160,7 @@ w=sqw(d);
 
 
 %------------------------------------------------------------------------------------------------------------------
-function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
+function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn)
 % Calculate sqw file header and data for a single spe file
 %
 %   >> [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
@@ -184,6 +186,8 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 %              from the data, the the corresponding detectors must have been
 %              removed from det.
 %              [If data has field qspec, then det is ignored]
+%   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
+%                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %
 % Ouput:
 % ------
@@ -201,7 +205,8 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 [ne,ndet]=size(data.S);
 
 % Calculate projections
-[u_to_rlu, ucoords] = calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+[u_to_rlu, ucoords] = calc_projections (efix, emode, alatt, angdeg, u, v, psi,...
+                                            omega, dpsi, gl, gs, data, det, detdcn);
 
 urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
 p=cell(1,4);

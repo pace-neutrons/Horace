@@ -119,6 +119,7 @@ if ~ok, error(mess), end
 % ------------------
 % Read par file
 det=get_par(par_file);
+detdcn=calc_detdcn(det);
 ndet=size(det.x2,2);
 
 % Determine a grid size if not given one on input
@@ -149,7 +150,7 @@ if nfiles==1
   end
   data=fake_spe(ndet,en{1},psi);
   w=calc_sqw(efix, emode, alatt, angdeg, u, v, psi*d2r, omega*d2r, dpsi*d2r, gl*d2r, gs*d2r,...
-        data, det, det, grid_size, urange, instrument, sample);
+        data, det, detdcn, det, grid_size, urange, instrument, sample);
   save(w,sqw_file)
   tmp_file={};    % empty cell array to indicate no tmp_files created
     
@@ -167,7 +168,7 @@ else
           data=fake_spe(ndet,en{i},psi(i));
           w=calc_sqw(efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:),...
                 psi(i)*d2r, omega(i)*d2r, dpsi(i)*d2r, gl(i)*d2r, gs(i)*d2r,...
-                data, det, det, grid_size, urange, instrument(i), sample(i));
+                data, det, detdcn, det, grid_size, urange, instrument(i), sample(i));
           save(w,tmp_file{i})
     end
     if horace_info_level>-1
@@ -178,7 +179,7 @@ else
     end
     % Create single sqw file combining all intermediate sqw files
 
-    write_nsqw_to_sqw (tmp_file, sqw_file);
+    write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
     end
