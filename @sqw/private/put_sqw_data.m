@@ -313,16 +313,16 @@ if ~write_header_only
     data_type = data_type_in;
     
     position.s=ftell(fid);
-    fwrite(fid,data.s,'float32');
+    fwrite(fid,single(data.s),'float32');
     
     position.e=ftell(fid);
-    fwrite(fid,data.e,'float32');
+    fwrite(fid,single(data.e),'float32');
     
     % Optional fields depending on input data structure and options
     
     if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')||strcmpi(data_type_in,'b+')
         position.npix=ftell(fid);
-        fwrite(fid,data.npix,'int64');  % make int64 so that can deal with huge numbers of pixels
+        fwrite(fid,int64(data.npix),'int64');  % make int64 so that can deal with huge numbers of pixels
     end
     
     if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')
@@ -340,11 +340,16 @@ if ~write_header_only
                 % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
                 % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
                 % could have no pixels because none contributed to the given data range.
-                block_size=1000000;
-                for ipix=1:block_size:npixtot
-                    istart = ipix;
-                    iend   = min(ipix+block_size-1,npixtot);
-                    fwrite(fid,data.pix(:,istart:iend),'float32');
+                block_size=get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
+                % block_size=1000000;
+                if npixtot<=block_size
+                    fwrite(fid,single(data.pix),'float32');
+                else
+                    for ipix=1:block_size:npixtot
+                        istart = ipix;
+                        iend   = min(ipix+block_size-1,npixtot);
+                        fwrite(fid,single(data.pix(:,istart:iend)),'float32');
+                    end
                 end
             end
         elseif pix_from_file
@@ -361,7 +366,7 @@ if ~write_header_only
             data_type='a-';
         end
     end
-
+    
 else
     % Only wrote the header information
     data_type='h';

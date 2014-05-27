@@ -1,5 +1,5 @@
 function [u_to_rlu, ucoords] = ...
-    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
+    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer. 
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
@@ -23,6 +23,9 @@ function [u_to_rlu, ucoords] = ...
 %            or The same, but with in addition a field qspec, a 4xn array of qx,qy,qz,eps
 %   det         Data structure of par file (see get_par)
 %            or If data has field qspec, det is ignored
+%   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
+%                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
+%               This should be precalculated from the contents of det
 %
 % Output:
 % -------
@@ -78,10 +81,10 @@ if use_mex
 end
 if ~use_mex
     if ~isfield(data,'qspec')
-        qspec=calc_qspec(efix, k_to_e, emode, data, det);
+        [qspec,en]=calc_qspec(efix, k_to_e, emode, data, detdcn);
+        ucoords = [spec_to_u*qspec;en];
     else
         qspec=data.qspec;
+        ucoords = [spec_to_u*qspec(1:3,:);qspec(4,:)];
     end
-    ucoords = spec_to_u*qspec(1:3,:);
-    ucoords = [ucoords;qspec(4,:)];
 end

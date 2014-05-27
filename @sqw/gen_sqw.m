@@ -215,6 +215,12 @@ end
 
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw && isempty(urange_in)
+    if horace_info_level>-1
+        disp('--------------------------------------------------------------------------------')
+        disp(['Calculating limits of data for ',num2str(nfiles),' spe files...'])
+    end
+    
+    bigtic
     urange_in = rundata_find_urange(run_files);
     if any(~ix)
         % Get detector parameters
@@ -235,10 +241,23 @@ if ~accumulate_old_sqw && isempty(urange_in)
     end
     % Add a border
     urange_in=range_add_border(urange_in,-1e-6);
+    
+    if horace_info_level>-1
+        bigtoc('Time to compute limits:',horace_info_level);
+    end
+    
 elseif accumulate_old_sqw
     urange_in=urange_sqw;
 end
 
+% %++++++++++++++++++++++++++++++++++++++++++
+% if ~accumulate_old_sqw
+%     tmp_file=[];
+%     grid_size=[];
+%     urange=[];
+%     return
+% end
+% %++++++++++++++++++++++++++++++++++++++++++
 
 % Construct output sqw file
 if ~accumulate_old_sqw && nindx==1
@@ -247,31 +266,23 @@ if ~accumulate_old_sqw && nindx==1
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
     end
-    [grid_size,urange] = rundata_write_to_sqw (run_files{1},sqw_file,...
-        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)));
+    
+    write_banner=false;
+    [grid_size,urange] = rundata_write_to_sqw (run_files{1},{sqw_file},...
+        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner);
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
+    if horace_info_level>-1
+        disp('--------------------------------------------------------------------------------')
+    end
 else
     % Create unique temporary sqw files, one for each of the spe files
     [tmp_file,sqw_file_tmp]=gen_tmp_filenames(spe_file,sqw_file,indx);
     nt=bigtic();
-    for i=1:nindx
-        if horace_info_level>-1
-            disp('--------------------------------------------------------------------------------')
-            disp(['Processing spe file ',num2str(i),' of ',num2str(nindx),':'])
-            disp(' ')
-        end
-        [grid_size_tmp,urange_tmp] = rundata_write_to_sqw (run_files{i},tmp_file{i},...
-            grid_size_in,urange_in,instrument(indx(i)),sample(indx(i)));
-        if i==1
-            grid_size = grid_size_tmp;
-            urange = urange_tmp;
-        else
-            if ~all(grid_size==grid_size_tmp) || ~all(urange(:)==urange_tmp(:))
-                error('Logic error in code calling rundata_write_to_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
-            end
-        end
-    end
+    write_banner=true;
+    [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
+        grid_size_in,urange_in,instrument(indx),sample(indx),write_banner);
+    
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
         bigtoc(nt,'Time to create all temporary sqw files:',horace_info_level);
@@ -279,22 +290,24 @@ else
         disp('--------------------------------------------------------------------------------')
     end
     
+    % Accumulate sqw files
     if ~accumulate_old_sqw
         if horace_info_level>-1
             disp('Creating output sqw file:')
         end
-        write_nsqw_to_sqw (tmp_file, sqw_file);
+        write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
     else
         if horace_info_level>-1
             disp('Accumulating in temporary output sqw file:')
         end
-        write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp);
+        write_nsqw_to_sqw (sqw, [sqw_file;tmp_file], sqw_file_tmp);
         if horace_info_level>-1
             disp(' ')
             disp(['Renaming sqw file to ',sqw_file])
         end
         rename_file (sqw_file_tmp, sqw_file)
     end
+    
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
     end

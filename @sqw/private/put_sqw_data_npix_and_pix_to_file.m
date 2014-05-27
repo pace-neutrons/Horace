@@ -52,18 +52,23 @@ end
 
 % Write npix and pix in the same format as put_sqw_data
 position.npix=ftell(fid);
-fwrite(fid,npix,'int64');  % make int64 so that can deal with huge numbers of pixels
+fwrite(fid,int64(npix),'int64');    % make int64 so that can deal with huge numbers of pixels
 
 position.pix=ftell(fid);
 npixtot = size(pix,2);
 % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
 % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
 % could have no pixels because none contributed to the given data range.
-block_size=1000000;
-for ipix=1:block_size:npixtot
-    istart = ipix;
-    iend   = min(ipix+block_size-1,npixtot);
-    fwrite(fid,pix(:,istart:iend),'float32');
+block_size=get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
+% block_size=1000000;
+if npixtot<=block_size
+    fwrite(fid,single(pix),'float32');
+else
+    for ipix=1:block_size:npixtot
+        istart = ipix;
+        iend   = min(ipix+block_size-1,npixtot);
+        fwrite(fid,single(pix(:,istart:iend)),'float32');
+    end
 end
 
 % Close file if necessary

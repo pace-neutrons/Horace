@@ -13,7 +13,7 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 % ------
 %   fid         File pointer to (already open) binary file
 %   opt         [optional] Determines which fields to read
-%                   '-h'     header-type information only: fields read: 
+%                   '-h'     header-type information only: fields read:
 %                               filename, filepath, title, alatt, angdeg,...
 %                                   uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
 %                              (If file was written from a structure of type 'b' or 'b+', then
@@ -42,7 +42,7 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %                   If file_format is '-v2' and '-prototype', the contents of data type is auto-detected and
 %                  the value of data_type_in is ignored. For clarity, you can set data_type_in to the empty string:
 %                       ''     auto-detect the fields in the file (file format '-v2' and '-prototype' only)
-%   
+%
 %
 % Output:
 % -------
@@ -68,7 +68,7 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %
 %   npixtot     Total number of pixels written in file (=[] if the pix array is not present)
 %
-%   data_type   Type of sqw data written in the file 
+%   data_type   Type of sqw data written in the file
 %                   type 'b'    fields: filename,...,dax,s,e
 %                   type 'b+'   fields: filename,...,dax,s,e,npix
 %                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
@@ -82,7 +82,7 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 % ------------------------------
 %   data.filename   Name of sqw file that is being read, excluding path
 %   data.filepath   Path to sqw file that is being read, including terminating file separator
-%          [Note that the filename and filepath that are written to file are ignored; we fill with the 
+%          [Note that the filename and filepath that are written to file are ignored; we fill with the
 %           values corresponding to the file that is being read.]
 %
 %   data.title      Title of sqw data structure
@@ -104,7 +104,7 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
 %   data.p          Cell array containing bin boundaries along the plot axes [column vectors]
 %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-%   data.dax        Index into data.pax of the axes for display purposes. For example we may have 
+%   data.dax        Index into data.pax of the axes for display purposes. For example we may have
 %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
 %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
@@ -310,17 +310,19 @@ end
 % Read the signal and error data if required
 % ------------------------------------------
 position.s=ftell(fid);
-if ~header_only 
-    [data.s,count,ok,mess] = fread_catch(fid,prod(psize),'float32'); if ~all(ok); return; end;
-    data.s = reshape(data.s,psize);
+if ~header_only
+    [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*float32'); if ~all(ok); return; end;
+    data.s = reshape(double(tmp),psize);
+    clear tmp
 else
     status=fseek(fid,4*(prod(psize)),'cof');  % skip field s
 end
 
 position.e=ftell(fid);
 if ~header_only
-    [data.e,count,ok,mess] = fread_catch(fid,prod(psize),'float32'); if ~all(ok); return; end;
-    data.e = reshape(data.e,psize);
+    [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*float32'); if ~all(ok); return; end;
+    data.e = reshape(double(tmp),psize);
+    clear tmp
 else
     status=fseek(fid,4*(prod(psize)),'cof');  % skip field e
 end
@@ -329,7 +331,7 @@ end
 % Read npix, urange, pix according to options and file contents
 % -------------------------------------------------------------
 % All of the above fields will be present in a valid sqw file. The following need not exist, but to be a valid sqw file,
-% for any one field to be present all earlier fields must have been written. 
+% for any one field to be present all earlier fields must have been written.
 
 
 % Determine if type 'b' or there are more fields in the data block
@@ -343,8 +345,9 @@ if strcmp(data_type_in,'b') || (autodetect && fnothingleft(fid))    % reached en
 else
     position.npix=ftell(fid);
     if ~header_only
-        [data.npix,count,ok,mess] = fread_catch(fid,prod(psize),'int64'); if ~all(ok); return; end;
-        data.npix = reshape(data.npix,psize);
+        [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*int64'); if ~all(ok); return; end;
+        data.npix = reshape(double(tmp),psize);
+        clear tmp
     else
         status=fseek(fid,8*(prod(psize)),'cof');  % skip field npix
     end
@@ -378,14 +381,18 @@ else
     if ~header_only && ~nopix
         if ~exist('npix_lo','var')
             if npixtot~=0
-                [data.pix,count,ok,mess] = fread_catch(fid,[9,npixtot],'float32'); if ~all(ok); return; end;
+                [tmp,count,ok,mess] = fread_catch(fid,[9,npixtot],'*float32'); if ~all(ok); return; end;
+                data.pix=double(tmp);
+                clear tmp
             else
                 data.pix=zeros(9,0);
             end
         else
             if npix_hi<=npixtot
                 status=fseek(fid,4*(9*(npix_lo-1)),'cof');
-                [data.pix,count,ok,mess] = fread_catch(fid,[9,npix_hi-npix_lo+1],'float32'); if ~all(ok); return; end;
+                [tmp,count,ok,mess] = fread_catch(fid,[9,npix_hi-npix_lo+1],'float32'); if ~all(ok); return; end;
+                data.pix=double(tmp);
+                clear tmp
             else
                 mess=['Selected pixel range must lie inside or on the boundaries of 1 - ',num2str(npixtot)];
                 return

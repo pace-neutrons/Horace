@@ -77,6 +77,7 @@ if exist(qspec_file,'file')
     if ~is_mat_file
         [data,det]=get_ascii_column_data(qspec_file);
     end
+    detdcn=calc_detdcn(det);
     if ~exist('grid_size_in','var')
         npnt=size(data.qspec,2);
         is_elastic=(all(data.qspec(4,:)==0));
@@ -91,7 +92,7 @@ efix=0;
 emode=0;
 instrument_default=struct;  % default 1x1 struct *** Should generalise
 sample_default=struct;      % default 1x1 struct *** Should generalise
-[w,grid_size, urange]=calc_sqw(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, det,...
+[w,grid_size, urange]=calc_sqw(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn, det,...
     grid_size_in, urange_in, instrument_default, sample_default);
 save(w,sqw_file);
 

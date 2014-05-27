@@ -5,6 +5,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %   >> [s, e, npix, npix_retain] = cut_data (fid, nstart, nend, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
 %
 % Input:
+% ------
 %   fid             File identifier, with current position in the file being the start of the array of pixel information
 %   nstart          Column vector of read start locations in file
 %   nend            Column vector of read end locations in file
@@ -27,6 +28,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %   nbin            Number of bins along the projection axes with two or more bins [row vector]
 %
 % Output:
+% -------
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
 %   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix=[])
@@ -116,7 +118,9 @@ for i=1:length(range)
                 vend = vpos+range(i)-rpos;  % last column that will be filled in this loop of the while statement
                 if horace_info_level>=1, bigtic(1), end
                 try
-                    [v(:,vpos:vend),count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], 'float32');
+                    [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], '*float32');
+                    v(:,vpos:vend)=double(tmp);
+                    clear tmp
                 catch   % fixup to account for not reading required number of items (should really go in fread_catch)
                     ok = false;
                     mess = 'Unrecoverable read error';
@@ -128,7 +132,9 @@ for i=1:length(range)
             else    % read in as much of the range as can
                 if horace_info_level>=1, bigtic(1), end
                 try
-                    [v(:,vpos:vmax),count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], 'float32');
+                    [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], '*float32');
+                    v(:,vpos:vmax)=double(tmp);
+                    clear tmp
                 catch   % fixup to account for not reading required number of items (should really go in fread_catch)
                     ok = false;
                     mess = 'Unrecoverable read error';
@@ -250,8 +256,8 @@ end
                 end
                 if ~use_mex
                     [ix,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-                    clear ix ;           % clear big arrays so that final output variable pix is not way up the stack
-                    pix=pix(:,ind);      % reorders pix
+                    clear ix ;          % clear big arrays so that final output variable pix is not way up the stack
+                    pix=pix(:,ind);     % reorders pix
                 end
             end
         end
