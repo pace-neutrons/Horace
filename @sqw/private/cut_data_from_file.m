@@ -108,6 +108,7 @@ if horace_info_level>=2
     fprintf(' Cut data from file started at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
 end
 
+if horace_info_level>=1, bigtic(1), end
 for i=1:length(range)
     rpos = 1;       % start of new range (rpos gives position of next point to read in the current range
     ok = fseek (fid, (4*ndatpix)*noffset(i), 'cof'); % initial offset is from end of previous range; ndatpix x float32 per pixel in the file
@@ -116,7 +117,7 @@ for i=1:length(range)
         if vpos<=vmax   % work array not yet filled up
             if range(i)-rpos+1 <= vmax-vpos+1   % enough space to hold remainder of range
                 vend = vpos+range(i)-rpos;  % last column that will be filled in this loop of the while statement
-                if horace_info_level>=1, bigtic(1), end
+%**                if horace_info_level>=1, bigtic(1), end
                 try
                     [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], '*float32');
                     v(:,vpos:vend)=double(tmp);
@@ -125,12 +126,12 @@ for i=1:length(range)
                     ok = false;
                     mess = 'Unrecoverable read error';
                 end
-                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
+%**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
                 if ~all(ok); fclose(fid); error(mess); end;
                 vpos = vend+1;
                 break   % jump out of while loop
             else    % read in as much of the range as can
-                if horace_info_level>=1, bigtic(1), end
+%**                if horace_info_level>=1, bigtic(1), end
                 try
                     [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], '*float32');
                     v(:,vpos:vmax)=double(tmp);
@@ -139,13 +140,16 @@ for i=1:length(range)
                     ok = false;
                     mess = 'Unrecoverable read error';
                 end
-                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
+%**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
                 if ~all(ok); fclose(fid); error(mess); end;
                 rpos = rpos+vmax-vpos+1;
                 vpos = vmax+1;
             end
         else            % work array filled up; process the data read up to now, and reset position in work array to beginning
-            if horace_info_level>=1, bigtic(2), end
+            if horace_info_level>=1
+                t_read = t_read + bigtoc(1);
+                bigtic(2)
+            end
             if horace_info_level>=0
                 i_step=i_step+1;
                 mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
@@ -162,9 +166,12 @@ for i=1:length(range)
                 accumulate_pix(false)
                 if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
             end
+            if horace_info_level>=1, bigtic(1), end
         end
     end
 end
+if horace_info_level>=1, t_read = t_read + bigtoc(1); end
+
 if vpos>1   % flush out work array - the array contains some unprocessed data
     if horace_info_level>=1, bigtic(2), end
     if horace_info_level>=0

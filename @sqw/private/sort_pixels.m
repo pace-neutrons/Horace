@@ -55,7 +55,7 @@ end
 % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
 ix=find(ok);                % Pixel indicies that are included in the grid
 [ibin,ind]=sort(ibin(ok));  % ordered bin numbers of the included pixels with index array into the original list of bin numbers of included pixels
-ix=ix(ind)';                % Indicies of included pixels coerresponding to ordered list; convert to column vector
+ix=ix(ind)';                % Indicies of included pixels corresponding to ordered list; convert to column vector
 
 ibin=ibin';
 npix=accumarray(ibin,1,[prod(grid_size),1]);

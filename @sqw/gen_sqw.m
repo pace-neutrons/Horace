@@ -268,7 +268,7 @@ if ~accumulate_old_sqw && nindx==1
     end
     
     write_banner=false;
-    [grid_size,urange] = rundata_write_to_sqw (run_files{1},{sqw_file},...
+    [grid_size,urange] = rundata_write_to_sqw (run_files,{sqw_file},...
         grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner);
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
