@@ -4,6 +4,6 @@ function [u_to_rlu, ucoords] = ...
 %
 % $Revision: 791 $ ($Date: 2013-11-15 22:54:46 +0000 (Fri, 15 Nov 2013) $)
 
-
+detdcn=calc_detdcn(det);
 [u_to_rlu, ucoords] = ...
-    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn);
