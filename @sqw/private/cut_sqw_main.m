@@ -217,7 +217,7 @@ if save_to_file
         end
     end
     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    fout = fopen (outfile, 'w');
+    fout = fopen (outfile, 'wb');
     if (fout < 0)
         error (['Cannot open output file ' outfile])
     end
