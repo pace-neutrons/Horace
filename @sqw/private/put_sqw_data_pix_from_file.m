@@ -198,11 +198,19 @@ while ibin_end<nbin
             if sum(ok(:))>0
                 nbeg=nbeg'; nbeg=nbeg(ok);  % transpose and use OK to get start of ranges in order of files for a given bin
                 nend=nend'; nend=nend(ok);  % similarly for end of range
-                nranges=cell(1,length(nbeg));
+                
+                %                 nranges=cell(1,length(nbeg));
+                %                 for i=1:length(nbeg)
+                %                     nranges{i}=nbeg(i):nend(i);
+                %                 end
+                %                 ind=[nranges{:}];           % index into pix_buff of the order in which to write pixels
+                blocks_size = nend-nbeg+1;
+                all_sizes =[0;cumsum(blocks_size)];
+                ind  = zeros(all_sizes(end),1);
                 for i=1:length(nbeg)
-                    nranges{i}=nbeg(i):nend(i);
+                    ind((all_sizes(i)+1):all_sizes(i+1))=nbeg(i):nend(i);
                 end
-                ind=[nranges{:}];           % index into pix_buff of the order in which to write pixels
+                
                 pix_buff=pix_buff(:,ind);   % rearrange pix_buff
                 fwrite(fout,pix_buff,'float32');    % write to output file
                 %                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
