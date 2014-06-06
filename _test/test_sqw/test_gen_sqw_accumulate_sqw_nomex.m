@@ -190,7 +190,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
                 sqw_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_sqw_nomex',num2str(i),'.sqw']);    % output sqw file
             end
             if ~this.want_to_save_output
-                cleanup_obj=onCleanup(@()rm_files(this,this.sqw_file_123456,this.sqw_file_145623,sqw_file{:}));
+                cleanup_obj1=onCleanup(@()rm_files(this,this.sqw_file_123456,this.sqw_file_145623,sqw_file{:}));
             end
             %% ---------------------------------------
             % Test gen_sqw
@@ -292,7 +292,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             sqw_file_accum=fullfile(tempdir,'test_accumulate_sqw_sqw_accum_nomex.sqw');
             
             if ~this.want_to_save_output
-                cleanup_obj=onCleanup(@()rm_files(this,this.sqw_file_14,this.sqw_file_1456,this.sqw_file_15456,this.sqw_file_11456,sqw_file_accum));
+                cleanup_obj1=onCleanup(@()rm_files(this,this.sqw_file_14,this.sqw_file_1456,this.sqw_file_15456,this.sqw_file_11456,sqw_file_accum));
             end
             % ---------------------------------------
             % Test accumulate_sqw

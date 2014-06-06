@@ -124,7 +124,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(MATLABDIR)\extern\include"
+				AdditionalIncludeDirectories="$(MATLABDIR)64\extern\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SORT_PIXELS_BY_BINS_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -353,10 +353,6 @@
 				RelativePath=".\sort_pixels_by_bins.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\stdafx.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -365,10 +361,6 @@
 			>
 			<File
 				RelativePath=".\sort_pixels_by_bins.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.h"
 				>
 			</File>
 		</Filter>

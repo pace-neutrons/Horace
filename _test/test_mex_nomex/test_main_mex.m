@@ -89,13 +89,14 @@ classdef test_main_mex < TestCase
             %
             dummy = sqw();
             set(hor_config,'use_mex',0,'-buffer');
-            [u_to_rlu_matl, ucoords_matl]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+            [u_to_rlu_matl,urange_matl,pix_matl]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
             
             set(hor_config,'use_mex',1,'-buffer');
-            [u_to_rlu_c, ucoords_c]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+            [u_to_rlu_c, urange_c,pix_c]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
             
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
-            assertElementsAlmostEqual(ucoords_matl,ucoords_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(pix_matl,pix_c,'absolute',1.e-8);            
             
         end
         function  [efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det]=calc_fake_data(this)
@@ -115,8 +116,8 @@ classdef test_main_mex < TestCase
             azim=(0:(this.nAzim-1))*(2*pi/(this.nAzim-1));
             det.phi = reshape(repmat(azim,this.nPolar,1),1,this.nDet);
             det.azim =reshape(repmat(polar,this.nAzim,1)',1,this.nDet);
-            data.S   = ones(this.nEn,this.nDet);
-            data.ERR = ones(this.nEn,this.nDet);
+            data.S   = rand(this.nEn,this.nDet);           
+            data.ERR = sqrt(data.S);
             data.en =(-efix+(0:(this.nEn))*(1.99999*efix/(this.nEn)))';
         end
         function [vv,box_sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,theta,phi)
