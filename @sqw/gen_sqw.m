@@ -280,8 +280,16 @@ else
     [tmp_file,sqw_file_tmp]=gen_tmp_filenames(spe_file,sqw_file,indx);
     nt=bigtic();
     write_banner=true;
+    % old matlab compartibility operator
+    if numel(fields(instrument))~=0
+        instrument = instrument(indx);
+    end
+    if numel(fields(sample))~=0
+        sample = sample(indx);
+    end    
+    
     [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
-        grid_size_in,urange_in,instrument(indx),sample(indx),write_banner);
+        grid_size_in,urange_in,instrument,sample,write_banner);
     
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
