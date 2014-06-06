@@ -195,7 +195,7 @@ bool accumulate_cut(double *s, double *e, double *npix,
 double xt,yt,zt,Et,nPixSq;
 long i,j;
 mwSize ix,iy,iz,ie,il;
-mwSize i0,j0,distribution_size;
+mwSize distribution_size;
 // numbers of the pixels in grid
 distribution_size = grid_size[0]*grid_size[1]*grid_size[2]*grid_size[3];
 // input pixel data and their shapes
@@ -236,7 +236,7 @@ zBinR       = grid_size[2]/(cut_range[5]-cut_range[4]);
 eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
 
 
-#pragma omp parallel default(none) private(i,i0,xt,yt,zt,Et,ix,iy,iz,ie,il,nPixSq) \
+#pragma omp parallel default(none) private(i,xt,yt,zt,Et,ix,iy,iz,ie,il,nPixSq) \
      num_threads(numRealThreads) \
      shared(pixel_data,ok,nGridCell,s,e,npix) \
      firstprivate(data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
@@ -249,7 +249,7 @@ eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
 
 #pragma omp for schedule(static,10)
     for(i=0;i<data_size;i++){
-            i0=i*PIX_WIDTH;
+            size_t i0=i*PIX_WIDTH;
 
             xt = pixel_data[i0+u1];
             yt = pixel_data[i0+u2];
@@ -357,8 +357,8 @@ try{
 			if(!ok[j])continue;
 
 			size_t nCell = nGridCell[j];            // this is the index of a pixel in the grid cell
-			j0    = ppInd[nCell]*PIX_WIDTH; // each one position in a grid cell corresponds to a pixel of the size PIX_WIDTH
-			i0    = j*PIX_WIDTH;
+			size_t j0    = ppInd[nCell]*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH
+			size_t i0    = j*PIX_WIDTH;
 #pragma omp atomic
 			(*(ppInd+nCell))++;
 
