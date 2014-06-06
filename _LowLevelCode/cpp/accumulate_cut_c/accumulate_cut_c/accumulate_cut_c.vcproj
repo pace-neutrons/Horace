@@ -211,7 +211,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				OpenMP="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -292,7 +292,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				OpenMP="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -353,42 +353,6 @@
 				RelativePath=".\accumulate_cut_c.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\stdafx.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -397,10 +361,6 @@
 			>
 			<File
 				RelativePath=".\accumulate_cut_c.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.h"
 				>
 			</File>
 		</Filter>

@@ -58,10 +58,10 @@ data.filename='';
 data.filepath='';
 if ~eps_hi_empty
     data.S=zeros(2,ndet);
-    data.E=zeros(2,ndet);
+    data.ERR=zeros(2,ndet);
 else
     data.S=zeros(1,ndet);
-    data.E=zeros(1,ndet);
+    data.ERR=zeros(1,ndet);
 end
 
 detdcn=calc_detdcn(det);
@@ -72,7 +72,7 @@ for i=1:nfile
     else
         data.en=eps_lo(i);
     end
-    [u_to_rlu, ucoords] = calc_projections (efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:), psi(i), ...
+    [u_to_rlu, urange1] = calc_projections (efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:), psi(i), ...
         omega(i), dpsi(i), gl(i), gs(i), data, det, detdcn);
-    urange = [min(urange(1,:),min(ucoords,[],2)'); max(urange(2,:),max(ucoords,[],2)')];
+    urange = [min(urange(1,:),urange1(1,:)); max(urange(2,:),urange1(2,:))];
 end

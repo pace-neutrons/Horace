@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "sort_pixels_by_bins.h"
 //
 const int PIXEL_DATA_WIDTH=9;

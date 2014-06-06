@@ -1,4 +1,4 @@
-function [u_to_rlu, ucoords]= get_test_calc_projections(sqw,...
+function [u_to_rlu, urange,pix]= get_test_calc_projections(sqw,...
                               efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
 % Transform in an spe file with coords in the 4D space defined by crystal Cartesian coordinates
 % and energy transfer. 
@@ -18,7 +18,7 @@ dpsi_rad= dpsi*pi/180;
 gl_rad  = gl*pi/180;
 gs_rad  = gs*pi/180;
     
-[u_to_rlu, ucoords]=calc_projections (efix, emode, alatt, angdeg, u, v, psi_rad, omg_rad, dpsi_rad, gl_rad, gs_rad, data, det);
+[u_to_rlu, urange,pix]=calc_projections (efix, emode, alatt, angdeg, u, v, psi_rad, omg_rad, dpsi_rad, gl_rad, gs_rad, data, det);
 
 
 end

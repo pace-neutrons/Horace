@@ -1,6 +1,4 @@
 // accumulate_cut.cpp : Defines the exported functions for the DLL application.
-
-#include "stdafx.h"
 #include "accumulate_cut_c.h"
 enum InputArguments {
     Pixel_data,
@@ -437,7 +435,7 @@ int PIXEL_data_width=PIXEL_DATA_WIDTH;
 //    nRealThreads= omp_get_num_threads()
 //	 mexPrintf(" n real threads %d :\n",nRealThread);}
 
-#pragma omp for schedule(static,1)
+#pragma omp for
     for(i=0;i<data_size;i++){
             j0=i*PIXEL_data_width;
 

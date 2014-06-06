@@ -1,13 +1,15 @@
 // calc_projections_c.cpp : Defines the exported functions for the DLL application.
 //
-#include "stdafx.h"
 #include "calc_projections_c.h"
+#include <vector>
+#include <sstream> 
 
 #ifdef __GNUC__
 #   if __GNUC__ <= 4
 #		 if __GNUC_MINOR__ < 2  // then the compiler do not undertand OpenMP functions, let's define them
 void omp_set_num_threads(int nThreads){};
-int  omp_get_num_threads(void){};
+int  omp_get_num_threads(void){return 1};
+
 #		endif
 #	endif
 #endif
@@ -68,220 +70,350 @@ double getMatlabScalar(const mxArray *pPar,const char * const fieldName){
 
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
-   unsigned int eMode(1),nThreads(1),i;
+    unsigned int nThreads(1),i;
     size_t nDataPoints,nEnShed;
     mwSize nDetectors,nEnergies;
     double efix,k_to_e;
 
     const char REVISION[]="$Revision::      $ ($Date::                                              $)";
     if(nrhs==0&&nlhs==1){
-            plhs[0]=mxCreateString(REVISION); 
-            return;
+        plhs[0]=mxCreateString(REVISION); 
+        return;
     }
-      
-
-      if(nrhs<NUM_IN_args-1){
-          std::stringstream buf;
-          buf<<" this function takes "<<NUM_IN_args<<" input parameters, namely ";
-          buf<< "transf_matrix, data, detector_coordinates and four or three system variables";
-          mexErrMsgTxt(buf.str().c_str());
-      }
-      if(nlhs!=1){
-          mexErrMsgTxt("this function takes one output argument");
-      }
-      for(i=0;i<(unsigned int)nrhs;i++){
-          if(!prhs[i]){
-              std::stringstream buf;
-              buf<<" parameter N "<<i<<" can not be empty";
-              mexErrMsgTxt(buf.str().c_str());
-          }
-      }
-      if(!mxIsStruct(prhs[Data])){
-          mexErrMsgTxt("second argument (Data) has to be a single structure ");
-      }
-      if(!mxIsStruct(prhs[Detectors])){
-          mexErrMsgTxt("third argument (Detectors) has to be a single structure");
-      }
 
 
+    if(nrhs<NUM_IN_args-1){
+        std::stringstream buf;
+        buf<<" this function takes "<<NUM_IN_args<<" input parameters, namely ";
+        buf<< "transf_matrix, data, detector_coordinates and four or three system variables";
+        mexErrMsgTxt(buf.str().c_str());
+    }
+    if(nlhs!=2){
+        mexErrMsgTxt("this function takes two output arguments ");
+    }
+    for(i=0;i<(unsigned int)nrhs;i++){
+        if(!prhs[i]){
+            std::stringstream buf;
+            buf<<" parameter N "<<i<<" can not be empty";
+            mexErrMsgTxt(buf.str().c_str());
+        }
+    }
+    if(!mxIsStruct(prhs[Data])){
+        mexErrMsgTxt("second argument (Data) has to be a single structure ");
+    }
+    if(!mxIsStruct(prhs[Detectors])){
+        mexErrMsgTxt("third argument (Detectors) has to be a single structure");
+    }
 
 
-     double *pProj_matrix = (double *)mxGetPr(prhs[Spec_to_proj]);
-     double *pEnergy      = (double *)mxGetPr(mxGetField(prhs[Data],0,"en"));
-     double *pDetPhi      = (double *)mxGetPr(mxGetField(prhs[Detectors],0,"phi"));
-     double *pDetPsi      = (double *)mxGetPr(mxGetField(prhs[Detectors],0,"azim"));
+    double *pProj_matrix = (double *)mxGetPr(prhs[Spec_to_proj]);
+    double *pEnergy      = (double *)mxGetPr(mxGetField(prhs[Data],0,"en"));
+    double *pDetPhi      = (double *)mxGetPr(mxGetField(prhs[Detectors],0,"phi"));
+    double *pDetPsi      = (double *)mxGetPr(mxGetField(prhs[Detectors],0,"azim"));
 
-     efix   = getMatlabScalar(prhs[nEfix],"variable efix");
-     k_to_e = getMatlabScalar(prhs[nK_to_e],"variable k_to_e");
-     eMode  = (int)getMatlabScalar(prhs[nEmode],"variable eMode");
-     if(eMode!=1){
-        mexErrMsgTxt("no modes except mode 1 are currently supported");
-     }
-     if(nrhs==NUM_IN_args-1){   // the n-threads is not specified; using default (1)
-         nThreads=1;
-     }else{
-         nThreads=(int)getMatlabScalar(prhs[nNThreads],"variable nThreads");
-     }
+    efix   = getMatlabScalar(prhs[nEfix],"variable efix");
+    k_to_e = getMatlabScalar(prhs[nK_to_e],"variable k_to_e");
+    int ieMode  = (int)getMatlabScalar(prhs[nEmode],"variable eMode");
+    if(ieMode<0 || ieMode > 2){
+        mexErrMsgTxt("only modes 0-2 (Elastic,Direct,Indirect) are currently supported");
+    }
+    eMode mode = eMode(ieMode);
 
-   if(mxGetM(prhs[Spec_to_proj])!=3||mxGetN(prhs[Spec_to_proj])!=3){
-          mexErrMsgTxt("first argument (projection matix) has to be 3x3 matrix");
+    if(nrhs==NUM_IN_args-1){   // the n-threads is not specified; using default (1)
+        nThreads=1;
+    }else{
+        nThreads=(int)getMatlabScalar(prhs[nNThreads],"variable nThreads");
+    }
+
+    if(mxGetM(prhs[Spec_to_proj])!=3||mxGetN(prhs[Spec_to_proj])!=3){
+        mexErrMsgTxt("first argument (projection matix) has to be 3x3 matrix");
     }
     if(pEnergy==NULL){
-          mexErrMsgTxt("experimental data can not be empty");
+        mexErrMsgTxt("experimental data can not be empty");
     }
-    nDataPoints =mxGetN(mxGetField(prhs[Data],0,"S"));
-    nEnShed     =mxGetM(mxGetField(prhs[Data],0,"S"));
+
+    mxArray *maSignal = mxGetField(prhs[Data],0,"S");
+    if (maSignal == NULL){
+        mexErrMsgTxt("Can not retrieve sinal (S field) array from the data structure");
+    }
+    double * pSignal = (double *)mxGetPr(maSignal);
+    double * pError  = (double *)mxGetPr(mxGetField(prhs[Data],0,"ERR"));
+    if (pError == NULL){
+        mexErrMsgTxt("Can not retrieve error (ERR field) array from the data structure");
+    }
+
+    nDataPoints =mxGetN(maSignal);
+    nEnShed     =mxGetM(maSignal);
+
     nDetectors  =mxGetN(mxGetField(prhs[Detectors],0,"phi"));
     nEnergies   =mxGetM(mxGetField(prhs[Data],0,"en"));
+
     if(nDataPoints !=nDetectors){
-            mexErrMsgTxt("spectrum data are not consistent with the detectors data");
+        mexErrMsgTxt("spectrum data are not consistent with the detectors data");
     }
+
+    mxArray *mapDet =  mxGetField(prhs[Detectors],0,"group");
+    double * pDetGroup;
+    bool clearTmpDet(false);
+    if (mapDet == NULL)
+    {
+        pDetGroup = new double[nDetectors];
+        clearTmpDet = true;
+        for(size_t i=0;i<nDetectors;i++)pDetGroup[i]=double(i)+1;
+    }
+    else
+    {
+        pDetGroup = (double *)mxGetPr(mapDet);
+    }
+
+
 
     mwSize dims[2],nEnPoints;
     double *pEnPoints;
     if(nEnergies==nEnShed){     // energy is calculated on edges of energy bins
-           nEnPoints=nEnergies;
-           pEnPoints    = (double *)mxCalloc(nEnPoints, sizeof(double));
-           if(!pEnPoints){				mexErrMsgTxt("error allocating memory for auxiliary energy points");
-           }
-           for(i=0;i<nEnPoints;i++){
-                pEnPoints[i] = pEnergy[i];
-            }
+        nEnPoints=nEnergies;
+        pEnPoints    = (double *)mxCalloc(nEnPoints, sizeof(double));
+        if(!pEnPoints){
+            if(clearTmpDet) delete [] pDetGroup;    
+            mexErrMsgTxt("error allocating memory for auxiliary energy points");
+        }
+
+        for(i=0;i<nEnPoints;i++){
+            pEnPoints[i] = pEnergy[i];
+        }
 
     }else if(nEnShed+1==nEnergies){ // energy is calculated in centres of energy bins
-           nEnPoints=nEnergies-1;
-           pEnPoints    = (double *)mxCalloc(nEnPoints, sizeof(double));
-           if(!pEnPoints){				mexErrMsgTxt("error allocating memory for auxiliary energy points");
-           }
-            for(i=0;i<nEnPoints;i++){
-                pEnPoints[i] = 0.5*(pEnergy[i]+pEnergy[i+1]);
-            }
+        nEnPoints=nEnergies-1;
+        pEnPoints    = (double *)mxCalloc(nEnPoints, sizeof(double));
 
+        if(!pEnPoints)
+        {
+            if(clearTmpDet) delete [] pDetGroup;    
+            mexErrMsgTxt("error allocating memory for auxiliary energy points");
+        }
 
+        for(i=0;i<nEnPoints;i++){
+            pEnPoints[i] = 0.5*(pEnergy[i]+pEnergy[i+1]);
+        }
 
     }else{
+        if(clearTmpDet) delete [] pDetGroup;    
         mexErrMsgTxt("Energies in data spectrum and in energy spectrum are not consistent");
     }
-
-
-    dims[0]=4;
-    dims[1]=nDetectors*nEnPoints;
+    dims[0]=2;
+    dims[1]=4;
     plhs[0]= mxCreateNumericArray(2,dims, mxDOUBLE_CLASS,mxREAL);
     if(!plhs[0]){
+        if(clearTmpDet) delete [] pDetGroup;    
+
         mexErrMsgTxt("Can not allocate memory for output data");
     }
-    double *pTransfDet = (double *)mxGetPr(plhs[0]);
+
+
+
+    dims[0]=9;
+    dims[1]=nDetectors*nEnPoints;
+    plhs[1]= mxCreateNumericArray(2,dims, mxDOUBLE_CLASS,mxREAL);
+    if(!plhs[1]){
+        if(clearTmpDet) delete [] pDetGroup;    
+
+        mexErrMsgTxt("Can not allocate memory for output data");
+    }
+    //
+    double *pMinMax     = (double *)mxGetPr(plhs[0]);
+    double *pTransfDet = (double *)mxGetPr(plhs[1]);
     try{
-        calc_projections_emode1(pTransfDet,pProj_matrix,pEnPoints,nEnPoints,pDetPhi,pDetPsi,nDetectors,efix,k_to_e,nThreads);
+        calc_projections_emode(pMinMax,pTransfDet,mode,pSignal,pError,pDetGroup,
+            pProj_matrix,pEnPoints,nEnPoints,pDetPhi,pDetPsi,nDetectors,efix,k_to_e,nThreads);
         mxFree(pEnPoints);
     }catch(char const *err){
         mxFree(pEnPoints);
+        if(clearTmpDet) delete [] pDetGroup;
         mexErrMsgTxt(err);
     }
+
+    if(clearTmpDet) delete [] pDetGroup;    
 
 
 }
 const double 	Pi = 3.1415926535897932384626433832795028841968;
 const double    grad2rad=Pi/180;
 
-void calc_projections_emode1(double * const pTransfDetectors,
-                             double const * const pMatrix,double const * const pEnergies, mwSize nEnergies,
-                             double const * const pDetPhi,double const * const pDetPsi, mwSize nDetectors,
-                             double efix, double k_to_e,int nThreads){
-/********************************************************************************************************************
-* Calculate projections in direct mode;
-* Output:
-* pTransfDetectors[4*nDetectors*nEnergies] the matrix of 4D coordinates detectors. The coordinates are transformed  into the projections axis
-* Inputs:
-* pMatrix[3,3]          Matrix to convert components from the spectrometer frame to projection axes
-* pEnergies[nEnergies]  Array of energies of arrival of detected particles
-* pDetPhi[nDetectors]   ! -- arrays of  ... and
-* pDetPsi[nDetectors]   ! -- azimutal coordinates of the detectors
-* efix      -- initial energy of the particles
-* k_to_e    -- De-Broyle parameter to transform energy of particles into their wavelength
-* enRange   -- how to treat energy array -- relate energies to the bin center or to the bin edges
-* nThreads  -- number of computational threads to start in parallel mode
-*/
+void calc_projections_emode(double * const pMinMax,
+                            double * const pTransfDetectors,
+                            eMode emode,
+                            double const * const pSignal, double const * const pError,double const * const pDetGroup,
+                            double const * const pMatrix,double const * const pEnergies, mwSize nEnergies,
+                            double const * const pDetPhi,double const * const pDetPsi, mwSize nDetectors,
+                            double efix, double k_to_e,int nThreads)
+{
+    /********************************************************************************************************************
+    * Calculate projections in direct mode;
+    * Output:
+    * pTransfDetectors[4*nDetectors*nEnergies] the matrix of 4D coordinates detectors. The coordinates are transformed  into the projections axis
+    * Inputs:
+    * pMatrix[3,3]          Matrix to convert components from the spectrometer frame to projection axes
+    * pEnergies[nEnergies]  Array of energies of arrival of detected particles
+    * pDetPhi[nDetectors]   ! -- arrays of  ... and
+    * pDetPsi[nDetectors]   ! -- azimutal coordinates of the detectors
+    * efix      -- initial energy of the particles
+    * k_to_e    -- De-Broyle parameter to transform energy of particles into their wavelength
+    * enRange   -- how to treat energy array -- relate energies to the bin center or to the bin edges
+    * nThreads  -- number of computational threads to start in parallel mode
+    */
 
 
-    mwSize i;
     double ki,*pKf;
     ki=sqrt(efix/k_to_e);
-//    kf=sqrt((efix-eps)/k_to_e); % [nEnergies x 1]
+    //    kf=sqrt((efix-eps)/k_to_e); % [nEnergies x 1]
 
     pKf= (double *)mxCalloc(nEnergies, sizeof(double));
     if(!pKf){  throw(" Can not allocate temporary memory for array of wave vectors");}
-    for(i=0;i<nEnergies;i++){
-            pKf[i]=sqrt((efix-pEnergies[i])/k_to_e);
-    }
-
-    double phi,psi,sPhi,ex,ey,ez,q1,q2,q3;
-    mwSize i0,j0,j;
-    int ii;
-
-    omp_set_num_threads(nThreads);
-#pragma omp parallel default(none) private(ii,j,i0,j0,ex,ey,ez,phi,psi,sPhi,q1,q2,q3) \
-     shared(nEnergies,nDetectors,pKf)\
-     firstprivate(ki)
+    // 
+    for(mwSize i=0;i<nEnergies;i++)
     {
-#pragma omp for
-    for(ii=0;ii<nDetectors;ii++){
-//	detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
-        phi =pDetPhi[ii]*grad2rad;
-        psi =pDetPsi[ii]*grad2rad;
-        sPhi=sin(phi);
-        ex = cos(phi);
-        ey = sPhi*cos(psi);
-        ez = sPhi*sin(psi);
-
-//    q(1:3,:) = repmat([ki;0;0],[1,ne*ndet]) - ...
-//        repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
-        i0 = ii*nEnergies;
-        for(j=0;j<nEnergies;j++){
-            j0=4*(i0+j);
-            q1    = ki - ex*pKf[j];
-            q2    = -ey*pKf[j];
-            q3    = -ez*pKf[j];
-
-//			u(1,i)=c(1,1)*q(1,i)+c(1,2)*q(2,i)+c(1,3)*q(3,i)
-//		    u(2,i)=c(2,1)*q(1,i)+c(2,2)*q(2,i)+c(2,3)*q(3,i)
-//			u(3,i)=c(3,1)*q(1,i)+c(3,2)*q(2,i)+c(3,3)*q(3,i)
-            pTransfDetectors[j0  ] = pMatrix[0]*q1+pMatrix[3]*q2+pMatrix[6]*q3;
-            pTransfDetectors[j0+1] = pMatrix[1]*q1+pMatrix[4]*q2+pMatrix[7]*q3;
-            pTransfDetectors[j0+2] = pMatrix[2]*q1+pMatrix[5]*q2+pMatrix[8]*q3;
-
-
-//			q(4,:)=repmat(eps',1,ndet);
-            pTransfDetectors[j0+3] = pEnergies[j];
+        switch (emode)
+        {
+        case Direct:
+            {
+                pKf[i]=sqrt((efix-pEnergies[i])/k_to_e);
+                break;
+            }
+        case Indirect:
+            {
+                pKf[i]=sqrt((efix+pEnergies[i])/k_to_e);
+                break;
+            }
+        case Elastic:
+            {
+                // in this case, energies array should contain wavelength
+                pKf[i]=2*Pi/(pEnergies[i]);
+                break;
+            }
         }
     }
-    }  // end parallel
+
+    omp_set_num_threads(nThreads);
+
+    //std::vector<double> qe_min(4*nThreads,FLT_MAX);
+    //std::vector<double> qe_max(4*nThreads,-FLT_MAX);
+#pragma omp parallel default(none)  \
+    shared(pKf,pMatrix,pTransfDetectors,pDetPhi,pDetPsi,pSignal,pError,pEnergies,pDetGroup)\
+    firstprivate(nDetectors,nEnergies,ki) //\
+    //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)    
+    {
+#pragma omp for 
+        for(long ii=0;ii<nDetectors;ii++)
+        {
+            //	detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
+            double phi =pDetPhi[ii]*grad2rad;
+            double psi =pDetPsi[ii]*grad2rad;
+            double sPhi=sin(phi);
+            double ex = cos(phi);
+            double ey = sPhi*cos(psi);
+            double ez = sPhi*sin(psi);
+
+            //    q(1:3,:) = repmat([ki;0;0],[1,ne*ndet]) - ...
+            //        repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+            size_t i0 = ii*nEnergies;
+            for(size_t j=0;j<nEnergies;j++)
+            {
+                size_t j0=9*(i0+j);
+                double q1    = ki - ex*pKf[j];
+                double q2    = -ey*pKf[j];
+                double q3    = -ez*pKf[j];
+
+                //u(1,i)=c(1,1)*q(1,i)+c(1,2)*q(2,i)+c(1,3)*q(3,i)
+                //u(2,i)=c(2,1)*q(1,i)+c(2,2)*q(2,i)+c(2,3)*q(3,i)
+                //u(3,i)=c(3,1)*q(1,i)+c(3,2)*q(2,i)+c(3,3)*q(3,i)
+                pTransfDetectors[j0+0] = pMatrix[0]*q1+pMatrix[3]*q2+pMatrix[6]*q3;
+                pTransfDetectors[j0+1] = pMatrix[1]*q1+pMatrix[4]*q2+pMatrix[7]*q3;
+                pTransfDetectors[j0+2] = pMatrix[2]*q1+pMatrix[5]*q2+pMatrix[8]*q3;
+                //q(4,:)=repmat(eps',1,ndet);
+                pTransfDetectors[j0+3] =  pEnergies[j];
+/*  -- strange multithreaded cases sometimes
+                int n_cur = 4*omp_get_thread_num();
+                for(int ike=0;ike<4;ike++)
+                {
+                    // min-max values;
+                    if(pTransfDetectors[j0+ike]<qe_min[n_cur+ike])qe_min[n_cur+ike] = pTransfDetectors[j0+ike];
+                    if(pTransfDetectors[j0+ike]>qe_max[n_cur+ike])qe_max[n_cur+ike] = pTransfDetectors[j0+ike];
+                }
+*/
+                // to be consistent with MATLAB
+                pTransfDetectors[j0+4] = 1;
+                // pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+                pTransfDetectors[j0+5] = pDetGroup[ii];
+                //pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
+                pTransfDetectors[j0+6] = double(j)+1;
+                //pix(8,:)=data.S(:)';
+                pTransfDetectors[j0+7] = pSignal[i0+j];
+                //pix(9,:)=((data.ERR(:)).^2)';
+                pTransfDetectors[j0+8] = pError[i0+j]*pError[i0+j];
+
+
+            }
+        } // end omp for
+
+    }  // end parallel block 
 
     mxFree(pKf);
+    // mvs do not support reduction min/max Shame! Calculate single threaded here
+    for(int i=0;i<4;i++)
+    {
+        pMinMax[2*i+0]  = 1.e+38;
+        pMinMax[2*i+1]  =-1.e+38;
+    }
+
+    for(long ii=0;ii<nDetectors*nEnergies;ii++)
+    {
+        for(int ike=0;ike<4;ike++)
+        {
+            if(pTransfDetectors[ii*9+ike]<pMinMax[2*ike+0])pMinMax[2*ike+0] = pTransfDetectors[ii*9+ike];           
+            if(pTransfDetectors[ii*9+ike]>pMinMax[2*ike+1])pMinMax[2*ike+1] = pTransfDetectors[ii*9+ike];           
+        }
+
+    }
+
+    /*
+ 
+
+
+    for(int ii=0;ii<nThreads;ii++)
+    {
+    for(int ike=0;ike<4;ike++)
+    {
+    if(qe_min[4*ii+ike]<pMinMax[2*ike+0])pMinMax[2*ike+0]=qe_min[4*ii+ike];
+    if(qe_max[4*ii+ike]>pMinMax[2*ike+1])pMinMax[2*ike+1]=qe_max[4*ii+ike];
+ 
+    }
+    }
+    */
 }
 
+
 /*
-      case(1)
-    ki=sqrt(efix/k_to_e);
-    kf=sqrt((efix-eps)/k_to_e); % [ne x 1]
+case(1)
+ki=sqrt(efix/k_to_e);
+kf=sqrt((efix-eps)/k_to_e); % [ne x 1]
 
-    detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
-    qspec(1:3,:) = repmat([ki;0;0],[1,ne*ndet]) - ...
-        repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
-    qspec(4,:)=repmat(eps',1,ndet);
+detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
+qspec(1:3,:) = repmat([ki;0;0],[1,ne*ndet]) - ...
+repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+qspec(4,:)=repmat(eps',1,ndet);
 case(2)
-    kf=sqrt(efix/k_to_e);
-    ki=sqrt((efix+eps)/k_to_e); % [ne x 1]
+kf=sqrt(efix/k_to_e);
+ki=sqrt((efix+eps)/k_to_e); % [ne x 1]
 
-    detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
-    qspec(1:3,:) = repmat([ki';zeros(1,ne);zeros(1,ne)],[1,ndet]) - ...
-        repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
-    qspec(4,:)=repmat(eps',1,ndet);
+detdcn=[cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
+qspec(1:3,:) = repmat([ki';zeros(1,ne);zeros(1,ne)],[1,ndet]) - ...
+repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+qspec(4,:)=repmat(eps',1,ndet);
 case(3)
-    k=(2*pi)./lambda;   % [ne x 1]
+k=(2*pi)./lambda;   % [ne x 1]
 
-    Q_by_k = repmat([1;0;0],[1,ndet]) - [cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
-    qspec(1:3,:) = repmat(k',[3,ndet]).*reshape(repmat(reshape(Q_by_k,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
+Q_by_k = repmat([1;0;0],[1,ndet]) - [cosd(det.phi); sind(det.phi).*cosd(det.azim); sind(det.phi).*sind(det.azim)];   % [3 x ndet]
+qspec(1:3,:) = repmat(k',[3,ndet]).*reshape(repmat(reshape(Q_by_k,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
 
 
 

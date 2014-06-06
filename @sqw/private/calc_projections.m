@@ -1,6 +1,6 @@
-function [u_to_rlu, ucoords] = ...
+function [u_to_rlu,urange, pix] = ...
     calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn)
-% Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer. 
+% Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
 %   >> [u_to_rlu, ucoords] = ...
@@ -44,7 +44,7 @@ function [u_to_rlu, ucoords] = ...
 
 % Check input parameters
 % -------------------------
-ndet=size(data.S,2);
+[ne,ndet]=size(data.S);
 % Check length of detectors in spe file and par file are same
 if ~isfield(data,'qspec') && ndet~=length(det.phi)
     mess1=['.spe file ' data.filename ' and .par file ' det.filename ' not compatible'];
@@ -68,16 +68,20 @@ end
 c=neutron_constants;
 k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
-% Calculate Q in spectrometer coordinates for each pixel 
+% Calculate Q in spectrometer coordinates for each pixel
 use_mex=get(hor_config,'use_mex') && emode==1 && ~isfield(data,'qspec');  % *** as of 6 Nov 2011 the c++ routine still only works for direct geometry
 if use_mex
-    try
-        nThreads=get(hor_config,'threads');
-        ucoords =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads);
-    catch   % use matlab routine
-        warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',lasterr());   
-        use_mex=false;
-    end    
+    if isfield(data,'qspec')
+        use_mex = false;
+    else
+        try
+            nThreads=get(hor_config,'threads');
+            [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads);
+        catch   % use matlab routine
+            warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',lasterr());
+            use_mex=false;
+        end
+    end
 end
 if ~use_mex
     if ~isfield(data,'qspec')
@@ -87,4 +91,28 @@ if ~use_mex
         qspec=data.qspec;
         ucoords = [spec_to_u*qspec(1:3,:);qspec(4,:)];
     end
+    
+    urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
+    % calculated urange only;
+    if nargout==2
+        return;
+    end
+    %
+    pix=ones(9,ne*ndet);
+    pix(1:4,:)=ucoords;
+    clear ucoords;  % delete big array before creating another big array
+    if ~isfield(data,'qspec')
+        if isfield(det,'group')
+            pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+        else
+            group = 1:ndet;
+            pix(6,:)=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index            
+        end
+        pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
+    else
+        pix(6:7,:)=1;
+    end
+    pix(8,:)=data.S(:)';
+    pix(9,:)=((data.ERR(:)).^2)';
+  
 end

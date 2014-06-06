@@ -205,10 +205,9 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 [ne,ndet]=size(data.S);
 
 % Calculate projections
-[u_to_rlu, ucoords] = calc_projections (efix, emode, alatt, angdeg, u, v, psi,...
+[u_to_rlu,urange,pix] = calc_projections (efix, emode, alatt, angdeg, u, v, psi,...
                                             omega, dpsi, gl, gs, data, det, detdcn);
 
-urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
 p=cell(1,4);
 for id=1:4
     p{id}=[urange(1,id);urange(2,id)];
@@ -260,14 +259,4 @@ sqw_data.e=sum(data.ERR(:).^2);
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;
 
-sqw_data.pix=ones(9,ne*ndet);
-sqw_data.pix(1:4,:)=ucoords;
-clear ucoords;  % delete big array before creating another big array
-if ~isfield(data,'qspec')
-    sqw_data.pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
-    sqw_data.pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
-else
-    sqw_data.pix(6:7,:)=1;
-end
-sqw_data.pix(8,:)=data.S(:)';
-sqw_data.pix(9,:)=((data.ERR(:)).^2)';
+sqw_data.pix=pix;
