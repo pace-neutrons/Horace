@@ -32,7 +32,7 @@ classdef test_main_mex < TestCase
             this.this_folder = fileparts(which('test_main_mex.m'));
             this.curr_folder = pwd();
             this.nDet=this.nPolar*this.nAzim;
-           % addpath(this.this_folder);
+            % addpath(this.this_folder);
         end
         function this=setUp(this)
             %addpath(this.accum_cut_folder);
@@ -96,9 +96,38 @@ classdef test_main_mex < TestCase
             
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
-            assertElementsAlmostEqual(pix_matl,pix_c,'absolute',1.e-8);            
+            assertElementsAlmostEqual(pix_matl,pix_c,'absolute',1.e-8);
             
         end
+        function test_calc_proj_options(this)
+            hcf=hor_config;
+            if ~hcf.use_mex
+                return;
+            end
+            cleanup_obj=onCleanup(@()set(hcf,'use_mex',1));
+            
+            [efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det]=calc_fake_data(this);
+            dummy = sqw();
+            hcf.saveable=false;
+            hcf.use_mex = 0;
+            [u_to_rlu_matl,urange_matl]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,0);
+            hcf.use_mex = 1;
+            [u_to_rlu_c,urange_c]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,0);
+            assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
+            
+            
+            hcf.use_mex = 0;
+            [u_to_rlu_matl,urange_matl,pix_m]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,1);
+            assertEqual(size(pix_m,1),4)
+            hcf.use_mex = 1;
+            [u_to_rlu_c,urange_c,pix_c]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,1);
+            assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
+            assertEqual(size(pix_c,1),4)
+            assertElementsAlmostEqual(pix_m,pix_c,'absolute',1.e-8);            
+        end
+        
         function  [efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det]=calc_fake_data(this)
             efix = this.efix;
             emode=1;
@@ -116,7 +145,7 @@ classdef test_main_mex < TestCase
             azim=(0:(this.nAzim-1))*(2*pi/(this.nAzim-1));
             det.phi = reshape(repmat(azim,this.nPolar,1),1,this.nDet);
             det.azim =reshape(repmat(polar,this.nAzim,1)',1,this.nDet);
-            data.S   = rand(this.nEn,this.nDet);           
+            data.S   = rand(this.nEn,this.nDet);
             data.ERR = sqrt(data.S);
             data.en =(-efix+(0:(this.nEn))*(1.99999*efix/(this.nEn)))';
         end
