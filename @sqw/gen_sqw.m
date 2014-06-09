@@ -91,8 +91,8 @@ if ~isa(dummy,classname)    % classname is a private method
 end
 
 % Determine keyword arguments, if present
-arglist=struct('replicate',0,'accumulate',0,'clean',0);
-flags={'replicate','accumulate','clean'};
+arglist=struct('replicate',0,'accumulate',0,'clean',0,'tmp_only',0);
+flags={'replicate','accumulate','clean','tmp_only'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
 if ~opt.accumulate
@@ -250,14 +250,6 @@ elseif accumulate_old_sqw
     urange_in=urange_sqw;
 end
 
-% %++++++++++++++++++++++++++++++++++++++++++
-% if ~accumulate_old_sqw
-%     tmp_file=[];
-%     grid_size=[];
-%     urange=[];
-%     return
-% end
-% %++++++++++++++++++++++++++++++++++++++++++
 
 % Construct output sqw file
 if ~accumulate_old_sqw && nindx==1
@@ -280,13 +272,14 @@ else
     [tmp_file,sqw_file_tmp]=gen_tmp_filenames(spe_file,sqw_file,indx);
     nt=bigtic();
     write_banner=true;
-    % old matlab compartibility operator
+    
+    % Older matlab compatibility operator: overcome flaw in indexing empty structure arrays pre 2011b or so.
     if numel(fields(instrument))~=0
         instrument = instrument(indx);
     end
     if numel(fields(sample))~=0
         sample = sample(indx);
-    end    
+    end
     
     [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
         grid_size_in,urange_in,instrument,sample,write_banner);
@@ -298,44 +291,46 @@ else
         disp('--------------------------------------------------------------------------------')
     end
     
-    % Accumulate sqw files
-    if ~accumulate_old_sqw
-        if horace_info_level>-1
-            disp('Creating output sqw file:')
+    % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
+    if ~opt.tmp_only
+        if ~accumulate_old_sqw
+            if horace_info_level>-1
+                disp('Creating output sqw file:')
+            end
+            write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
+        else
+            if horace_info_level>-1
+                disp('Accumulating in temporary output sqw file:')
+            end
+            write_nsqw_to_sqw (sqw, [sqw_file;tmp_file], sqw_file_tmp);
+            if horace_info_level>-1
+                disp(' ')
+                disp(['Renaming sqw file to ',sqw_file])
+            end
+            rename_file (sqw_file_tmp, sqw_file)
         end
-        write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
-    else
+        
         if horace_info_level>-1
-            disp('Accumulating in temporary output sqw file:')
+            disp('--------------------------------------------------------------------------------')
         end
-        write_nsqw_to_sqw (sqw, [sqw_file;tmp_file], sqw_file_tmp);
-        if horace_info_level>-1
-            disp(' ')
-            disp(['Renaming sqw file to ',sqw_file])
-        end
-        rename_file (sqw_file_tmp, sqw_file)
-    end
-    
-    if horace_info_level>-1
-        disp('--------------------------------------------------------------------------------')
-    end
-    
-    % Delete temporary files
-    if get(hor_config,'delete_tmp') %if requested
-        delete_error=false;
-        for i=1:numel(tmp_file)
-            ws=warning('off','MATLAB:DELETE:Permission');
-            try
-                delete(tmp_file{i})
-            catch
-                if delete_error==false
-                    delete_error=true;
-                    if horace_info_level>-1
-                        disp('One or more temporary sqw files not deleted')
+        
+        % Delete temporary files
+        if get(hor_config,'delete_tmp') %if requested
+            delete_error=false;
+            for i=1:numel(tmp_file)
+                ws=warning('off','MATLAB:DELETE:Permission');
+                try
+                    delete(tmp_file{i})
+                catch
+                    if delete_error==false
+                        delete_error=true;
+                        if horace_info_level>-1
+                            disp('One or more temporary sqw files not deleted')
+                        end
                     end
                 end
+                warning(ws);
             end
-            warning(ws);
         end
     end
     

@@ -1,4 +1,4 @@
-function [u_to_rlu,urange, pix] = ...
+function [u_to_rlu, urange, pix] = ...
     calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
@@ -34,8 +34,18 @@ function [u_to_rlu,urange, pix] = ...
 %              This matrix can be used to convert components of a vector in
 %              crystal Cartesian axes to r.l.u.: v_rlu = u_to_rlu * v_crystal_Cart
 %              (Same as inv(B) in Busing and Levy convention)
-%   ucoords     [4 x npix] array of coordinates of pixels in crystal Cartesian
-%              coordinates and energy transfer
+%   urange      [2 x 4] array containing the full extent of the data in crystal Cartesian
+%              coordinates and energy transfer; first row the minima, second row the
+%              maxima.
+%   pix         [9 x npix] array of pixel information:
+%                   pix(1:4,:)  coordinates in crystal Cartesian coordinates and energy
+%                   pix(5,:)    run index: alway unity from this routine
+%                   pix(6,:)    detecetor index
+%                   pix(7,:)    energy bin index
+%                   pix(8,:)    signal
+%                   pix(9,:)    error squared
+%              The order of the pixels is increasing energy dfor first detector, then
+%              increasing energy for the second detector, ....
 
 % Original author: T.G.Perring
 %
@@ -93,11 +103,13 @@ if ~use_mex
     end
     
     urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
-    % calculated urange only;
+    
+    % Return without filling the pixel array if urange only is requested
     if nargout==2
         return;
     end
-    %
+    
+    % Fill pixel array
     pix=ones(9,ne*ndet);
     pix(1:4,:)=ucoords;
     clear ucoords;  % delete big array before creating another big array
