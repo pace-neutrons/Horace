@@ -1,5 +1,5 @@
 function [u_to_rlu, urange, pix] = ...
-    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn)
+    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn,proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
@@ -26,6 +26,14 @@ function [u_to_rlu, urange, pix] = ...
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %               This should be precalculated from the contents of det
+%   proj_mode   The format of the pix output, the routine returns,
+%               when proj_mode is as follows:
+%     0         pix arry will be empty array
+%     1         pix array will be [4 x nPix] array of transformed
+%               uCoordinates, see below
+%     2 or not present -- pix array will be [9 x nPix] array as described
+%              below
+
 %
 % Output:
 % -------
@@ -61,6 +69,13 @@ if ~isfield(data,'qspec') && ndet~=length(det.phi)
     mess2=['Number of detectors is different: ' num2str(ndet) ' and ' num2str(length(det.phi))];
     error('%s\n%s',mess1,mess2)
 end
+if ~exist('proj_mode','var')
+    proj_mode = 2;
+end
+if proj_mode<0 || proj_mode >2
+    warning('HORACE:calc_projections',' proj_mode can be 0,1 or 2 and got %d. Assuming mode 2(all pixel information)',proj_mode);
+    proj_mode = 2;
+end
 
 % Check incident energy consistent with energy bins
 % (if data contains the field qspec, then en is 2x1 array with min and max energy transfer)
@@ -86,7 +101,7 @@ if use_mex
     else
         try
             nThreads=get(hor_config,'threads');
-            [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads);
+            [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
         catch   % use matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',lasterr());
             use_mex=false;
@@ -106,6 +121,14 @@ if ~use_mex
     
     % Return without filling the pixel array if urange only is requested
     if nargout==2
+        return;
+    end
+    if proj_mode == 0
+        pix =[];
+        return;
+    end
+    if proj_mode == 1
+        pix =ucoords;
         return;
     end
     
