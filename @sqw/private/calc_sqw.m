@@ -255,8 +255,7 @@ sqw_data.pax=[1,2,3,4];
 sqw_data.p=p;
 sqw_data.dax=[1,2,3,4];
 sqw_data.s=sum(data.S(:));
-sqw_data.e=sum(data.ERR(:).^2);
+sqw_data.e=sum(pix(9,:));   % take advantage of the squaring that has already been done for pix array
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;
-
 sqw_data.pix=pix;
