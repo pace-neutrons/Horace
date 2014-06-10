@@ -18,7 +18,7 @@ function varargout=set_instrument_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 791 $ ($Date: 2013-11-15 22:54:46 +0000 (Fri, 15 Nov 2013) $)
+% $Revision$ ($Date$)
 
 if nargin<1
     error('Check number of input arguments')
