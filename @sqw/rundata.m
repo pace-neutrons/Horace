@@ -8,7 +8,7 @@ function rd=rundata(sqw)
 %
 %
 %
-% $Revision: 353 $ ($Date: 2014-03-17 12:18:23 +0000 (Mon, 17 Mar 2014) $)
+% $Revision$ ($Date$)
 %
 
 %

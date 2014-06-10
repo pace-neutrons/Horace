@@ -23,7 +23,7 @@ function [mess, header, position] = get_sqw_header_samp (fid, header)
 
 % Original author: T.G.Perring
 %
-% $Revision: 791 $ ($Date: 2013-11-15 22:54:46 +0000 (Fri, 15 Nov 2013) $)
+% $Revision$ ($Date$)
 
 mess = '';
 position = ftell(fid);
