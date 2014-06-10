@@ -212,16 +212,25 @@ bool accumulate_cut(double *s, double *e, double *npix,
     mwSize nPixelDatas = mxGetM(pPixel_data); 
 
     mwSize nPixel_retained(0),nCellOccupied(0);
-    char *ok;
-    mwSize *nGridCell;
-    //
-    try{         	ok = new char[data_size];
-    }catch(...){ 	throw(" Can not allocate auxiliary memory for the selectors of the retained pixels");
+
+    std::vector<char> ok(data_size);
+    std::vector<mwSize> nGridCell(data_size);
+    //  memory to sort pixels according to the grid bins
+    std::vector<mwSize >  ppInd(distribution_size);
+
+    bool place_pixels_in_old_array(false); // true does not works properly
+
+    // temporary area for all sorted pixels
+    mxArray *tPixelSorted;
+    try
+    { 
+        tPixelSorted  = mxCreateDoubleMatrix(PIX_WIDTH,data_size,mxREAL);
+    }catch(...)
+    {	
+        tPixelSorted=NULL;
+        throw("  Can not allocate memory for sorted pixels");
     }
-    try{         	nGridCell	= new mwSize[data_size]; // grid indexes of the retainde pixels
-    }catch(...){	delete [] ok;
-    throw(" Can not allocate auxiliary memory for the grid indexes of the retainde pixels");
-    }
+    double *pPixelSorted=mxGetPr(tPixelSorted);
 
 
     omp_set_num_threads(num_threads);
@@ -253,12 +262,12 @@ bool accumulate_cut(double *s, double *e, double *npix,
 
 
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
-    shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor) \
+    shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted) \
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
     reduction(+:nPixel_retained)
     {
 #pragma omp for 
-        for(int i=0;i<data_size;i++)
+        for(long i=0;i<data_size;i++)
         {
             size_t i0=i*PIX_WIDTH;
 
@@ -311,9 +320,9 @@ bool accumulate_cut(double *s, double *e, double *npix,
         } // end for -- imlicit barrier;
         // combine all thread-calculated distributions together
 #pragma omp for
-        for (int i=0;i<distribution_size;i++)
+        for (long i=0;i<distribution_size;i++)
         {
-            for(size_t i0=0;i0<num_threads;i0++)
+            for(int i0=0;i0<num_threads;i0++)
             {
                 s[i]   +=se_stor[i0][2*i+0];
                 e[i]   +=se_stor[i0][2*i+1];
@@ -325,82 +334,68 @@ bool accumulate_cut(double *s, double *e, double *npix,
         //    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
         //    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
 #pragma omp for
-        for(int i=0;i<distribution_size;i++){
+        for(long i=0;i<distribution_size;i++){
             nPixSq  =npix[i];
             if(nPixSq ==0)nPixSq = 1;
             s[i]   /=nPixSq;
             nPixSq *=nPixSq;
             e[i]   /=nPixSq;
         }
-    } // end parallel region
 
-    // sort pixels according to the grid bins
-    mwSize *ppInd;
-    try{
-        ppInd = new mwSize[distribution_size];
-    }catch(...){
-        delete [] nGridCell;
-        delete [] ok;
-        throw("  Can not allocate auxiliary memory for grid indexes boundaries");
-    }
-    // where to place new pixels
-    try
-    { 
-        PixelSorted   = mxCreateDoubleMatrix(PIX_WIDTH,nPixel_retained,mxREAL);
-    }catch(...)
-    {	
-        delete [] nGridCell;
-        delete [] ok;
+        // sort pixels according to grid cells
+        //    ix=find(ok);                % Pixel indicies that are included in the grid
+        //    [ibin,ind]=sort(ibin(ok));  % ordered bin numbers of the included pixels with index array into the original list of bin numbers of included pixels
+        //    ix=ix(ind)';                % Indicies of included pixels coerresponding to ordered list; convert to column vector
+        //    % Sort into increasing bin number and return indexing array
+        //    % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
+        //    sqw_data.pix=sqw_data.pix(:,ix);
+#pragma omp single
+        {
+            ppInd[0]=0;
+            for(long i=1;i<distribution_size;i++){   // initiate the boudaries of the cells to keep pixels
+                ppInd[i]=ppInd[i-1]+(mwSize)npix[i-1];
+            }; 
+        }
 
-        PixelSorted=NULL;
-        throw("  Can not allocate memory for sorted pixels");
-    }
-    bool place_pixels_in_old_array(false);
-    double *pPixelSorted=mxGetPr(PixelSorted);
+        size_t Block_Size = sizeof(*pixel_data)*PIX_WIDTH;
 
-
-    // sort pixels according to grid cells
-    //    ix=find(ok);                % Pixel indicies that are included in the grid
-    //    [ibin,ind]=sort(ibin(ok));  % ordered bin numbers of the included pixels with index array into the original list of bin numbers of included pixels
-    //    ix=ix(ind)';                % Indicies of included pixels coerresponding to ordered list; convert to column vector
-    //    % Sort into increasing bin number and return indexing array
-    //    % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
-    //    sqw_data.pix=sqw_data.pix(:,ix);
-
-    ppInd[0]=0;
-    for(int i=1;i<distribution_size;i++){   // initiate the boudaries of the cells to keep pixels
-        ppInd[i]=ppInd[i-1]+(mwSize)npix[i-1];
-    }; 
-    //double *buf =(double *)mxMalloc(PIX_WIDTH*numRealThreads*sizeof(double));
-
-    size_t Block_Size = sizeof(*pixel_data)*PIX_WIDTH;
-
-    /*#pragma omp parallel  default(none) \
-    shared(ppInd,pPixelSorted,ok,nGridCell,pixel_data) \
-    firstprivate(data_size,Block_Size) 
-    {*/
 #pragma omp for
-    for(int j=0;j<data_size;j++)
-    {    
-        if(!ok[j])continue;
+        for(long j=0;j<data_size;j++)
+        {    
+            if(!ok[j])continue;
 
-        size_t nCell = nGridCell[j];            // this is the index of a pixel in the grid cell
-        size_t j0    = ppInd[nCell]*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH
-        size_t i0    = j*PIX_WIDTH;
+            size_t nCell = nGridCell[j];            // this is the index of a pixel in the grid cell
+            size_t j0    = ppInd[nCell]*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH
+            size_t i0    = j*PIX_WIDTH;
 #pragma omp atomic
-        (*(ppInd+nCell))++;
+            ppInd[nCell]++;
 
-        memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
-        //for(i=0;i<PIX_WIDTH;i++){
-        //	pPixelSorted[j0+i]=pixel_data[i0+i];}
+            memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
+            //for(i=0;i<PIX_WIDTH;i++){
+            //	pPixelSorted[j0+i]=pixel_data[i0+i];}
+        }
+
+    } // end parallel region
+    // where to place new pixels
+    if (data_size == nPixel_retained){
+        PixelSorted = tPixelSorted;
     }
-    //} // end parallel region
-
-
-    delete [] ppInd;
-    delete [] ok;
-    delete [] nGridCell;
-    //mxFree(buf);
-
+    else{
+        try
+        { 
+            PixelSorted   = mxCreateDoubleMatrix(PIX_WIDTH,nPixel_retained,mxREAL);
+        }catch(...)
+        {	
+            PixelSorted=NULL;
+            throw("  Can not allocate memory for sorted pixels");
+        }
+        // copy pixels info from heap to matlab controlled memory;
+        double *pPixels = mxGetPr(PixelSorted);
+        for(size_t i=0;i<nPixel_retained*PIX_WIDTH;i++)
+        {
+            pPixels[i] = pPixelSorted[i];
+        }
+        mxDestroyArray(tPixelSorted);
+    }
     return place_pixels_in_old_array;
 }
