@@ -440,26 +440,13 @@ void calc_projections_emode(double * const pMinMax,
 
     mxFree(pKf);
     // mvs do not support reduction min/max Shame! Calculate single threaded here
-    for(int i=0;i<4;i++)
-    {
+    for(int i=0;i<4;i++){
         pMinMax[2*i+0]  = 1.e+38;
         pMinMax[2*i+1]  =-1.e+38;
     }
-/*
-    for(long ii=0;ii<nDetectors*nEnergies;ii++)
-    {
-        for(int ike=0;ike<4;ike++)
-        {
-            if(pTransfDetectors[ii*9+ike]<pMinMax[2*ike+0])pMinMax[2*ike+0] = pTransfDetectors[ii*9+ike];           
-            if(pTransfDetectors[ii*9+ike]>pMinMax[2*ike+1])pMinMax[2*ike+1] = pTransfDetectors[ii*9+ike];           
-        }
 
-    }
-*/
-    for(int ii=0;ii<nThreads;ii++)
-    {
-        for(int ike=0;ike<4;ike++)
-        {
+    for(int ii=0;ii<nThreads;ii++){
+        for(int ike=0;ike<4;ike++){
             if(qe_min[4*ii+ike]<pMinMax[2*ike+0])pMinMax[2*ike+0]=qe_min[4*ii+ike];
             if(qe_max[4*ii+ike]>pMinMax[2*ike+1])pMinMax[2*ike+1]=qe_max[4*ii+ike];
         }
