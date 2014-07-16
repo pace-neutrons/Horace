@@ -36,7 +36,7 @@ if nargin==3
     n_ratio_prev_msg = 0;
     initialised = true;
     if horace_info_level>1    
-        fprintf(' Task started on  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));        
+        fprintf(' Task started at  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));        
     end
     
     return
@@ -55,7 +55,7 @@ if nargin==0  % task completed
         disp(['Task completed in ',num2str(t(1)-t_start),' seconds'])
     end
     if horace_info_level>1
-        fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
+        fprintf(' At time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
     end
     initialised=false;
 else

@@ -28,9 +28,12 @@ function [mess, position] = put_sqw_position_info (fid, position_in, update)
 %   position.e              position of array e
 %   position.npix           position of array npix (=[] if npix not written)
 %   position.urange         position of array urange (=[] if urange not written)
+%   position.npix_nz        position of array npix_nz (=[] if npix_nz not written)
+%   position.ipix_nz        position of array ipix_nz (=[] if ipix_nz not written)
+%   position.pix_nz         position of array pix_nz (=[] if pix_nz not written)
 %   position.pix            position of array pix  (=[] if pix not written)
-%   position.instrument     start of header instrument blocks (=[] if not written in the file)
-%   position.sample         start of header sample blocks (=[] if not written in the file)
+%   position.instrument     start of header instrument blocks (=[] if not written)
+%   position.sample         start of header sample blocks (=[] if not written)
 %   position.position_info  start of the position block
 
 

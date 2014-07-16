@@ -1,5 +1,5 @@
 function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
-% Calculate matrix that convert momentum from coordinates in spectrometer frame to
+% Calculate matrix that converts momentum from coordinates in spectrometer frame to
 % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %

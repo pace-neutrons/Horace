@@ -7,8 +7,8 @@ function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile,
 % ------
 %   outfile     File name, or file identifier of open file, to which to append data
 %   npix        Array containing the number of pixels in each bin
-%   data.pix    Array containing data for each pixel:
-%              If npixtot=sum(npix), then pix(9,npixtot) contains:
+%   pix         Array containing data for each pixel:
+%              Each column of the of the array (which has size [9,npixtot] where npixtot=sum(npix)) contains:
 %                   u1      -|
 %                   u2       |  Coordinates of pixel in the projection axes of the original sqw file(s)
 %                   u3       |

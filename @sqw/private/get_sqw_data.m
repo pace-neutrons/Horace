@@ -1,12 +1,9 @@
 function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargin)
 % Read the data block from an sqw file. The file pointer is left at the end of the data block.
 %
-%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid)
-%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid, opt)
-%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid, npix_lo, npix_hi)
-%
-% To the above, you *must* append the file format and expected data type (can be '' to autodetect):
-%   >> [data, mess] = get_sqw_data(..., file_format, data_type_in)
+%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid, file_format, data_type_in)
+%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid, opt, file_format, data_type_in)
+%   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid, npix_lo, npix_hi, file_format, data_type_in)
 %
 %
 % Input:
@@ -38,6 +35,8 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %                       'b+'   fields: filename,...,dax,s,e,npix
 %                       'a'    fields: filename,...,dax,s,e,npix,urange,pix
 %                       'a-'   fields: filename,...,dax,s,e,npix,urange
+%                       'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
+%                       'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %
 %                   If file_format is '-v2' and '-prototype', the contents of data type is auto-detected and
 %                  the value of data_type_in is ignored. For clarity, you can set data_type_in to the empty string:
@@ -54,6 +53,8 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %                   type 'b+'   fields: filename,...,dax,s,e,npix
 %                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
 %                   type 'a-'   fields: filename,...,dax,s,e,npix,urange
+%                   type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
+%                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %               The final field urange is present for type 'h' if the header information was read from an sqw-type file.
 %
 %   position    Position (in bytes from start of file) of start of data block and of large fields:
@@ -64,6 +65,9 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %                   position.e      position of array e
 %                   position.npix   position of array npix (=[] if npix not present)
 %                   position.urange position of array urange (=[] if urange not present)
+%                   position.npix_nz position of array npix_nz (=[] if npix_nz not present)
+%                   position.ipix_nz position of array ipix_nz (=[] if ipix_nz not present)
+%                   position.pix_nz  position of array pix_nz (=[] if pix_nz not present)
 %                   position.pix    position of array pix (=[] if pix not present)
 %
 %   npixtot     Total number of pixels written in file (=[] if the pix array is not present)
@@ -73,6 +77,8 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %                   type 'b+'   fields: filename,...,dax,s,e,npix
 %                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
 %                   type 'a-'   fields: filename,...,dax,s,e,npix,urange
+%                   type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
+%                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %               If file_format is '-v3', this will be the same as the input argument 'data_type_in':
 %               If file_format is '-v2' or '-prototype', data_type will have been autodetected regardless
 %              of the value of the input data_type_in, which is ignored (see above)
@@ -109,8 +115,10 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
 %                  be reordered [row vector]
-%   data.s          Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%
+% If standard sqw format:
+%   data.s          Average signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%   data.e          Average variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.urange     True range of the data along each axis [urange(2,4)]
@@ -125,6 +133,26 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 %                   ien         Energy bin number for the pixel in the array in the (irun)th header
 %                   signal      Signal array
 %                   err         Error array (variance i.e. error bar squared)
+%
+%
+% If sparse format:
+%   data.s          Average signal in the bins as a sparse column vector
+%   data.e          Corresponding variance in the bins as a sparse column vector
+%   data.npix       Number of contributing pixels as a sparse column vector
+%   data.urange     <as above>
+%
+%   data.pix        Index of pixels, sorted so that all the pixels in the first
+%                  bin appear first, then all the pixels in the second bin etc. (column vector)
+%                                   ipix0 = ie + ne*(id-1)
+%                               where
+%                                   ie  energy bin index
+%                                   id  detector index into list of all detectors (i.e. masked and unmasked)
+%                                   ne  number of energy bins
+%
+%   data.npix_nz    Number of pixels in each bin with pixels with non-zero counts (sparse column vector)
+%   data.ipix_nz    Index of pixels into pix array with non-zero counts
+%   data.pix_nz     Array with idet,ien,s,e for the pixels with non-zero signal sorted so that
+%                  all the pixels in the first bin appear first, then all the pixels in the second bin etc.
 %
 %
 % NOTES:
@@ -160,27 +188,28 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 
 % Initialise output arguments
 data=[];
-position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]);
+position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'ipix_nz',[],'pix_nz',[],'pix',[]);
 npixtot=[];
 data_type='';
 
 % Check format flag and data type
 valid_formats={'-v3','-v2','-prototype'};
-valid_types={'b','b+','a-','a',''};
+valid_types={'b','b+','a-','a','sp',''};
 
 if nargin>=2 && ischar(varargin{end-1}) && ischar(varargin{end})
     file_format=lower(strtrim(varargin{end-1}));
     data_type_in=lower(strtrim(varargin{end}));
+    data_type_in_is_sparse=strcmpi(data_type_in,'sp');
     iform=find(strcmpi(file_format,valid_formats),1);
     itype=find(strcmpi(data_type_in,valid_types),1);
     if ~isempty(iform) && ~isempty(itype)
         if strcmp(file_format,'-v3') && ~isempty(data_type_in)
             autodetect=false;
             prototype=false;
-        elseif strcmp(file_format,'-v2')
+        elseif strcmp(file_format,'-v2') && ~data_type_in_is_sparse
             autodetect=true;
             prototype=false;
-        elseif strcmp(file_format,'-prototype')
+        elseif strcmp(file_format,'-prototype') && ~data_type_in_is_sparse
             autodetect=true;
             prototype=true;
         else
@@ -217,10 +246,15 @@ if nargs==1 && ischar(args{1})
         return
     end
 elseif nargs==2 && isnumeric(args{1}) && isnumeric(args{2}) && isscalar(args{1}) && isscalar(args{2})
-    npix_lo=args{1};
-    npix_hi=args{2};
-    if npix_lo<1 || npix_hi<npix_lo
-        mess = 'Pixel range must have 1 <= npix_lo <= npix_hi';
+    if ~data_type_in_is_sparse
+        npix_lo=args{1};
+        npix_hi=args{2};
+        if npix_lo<1 || npix_hi<npix_lo
+            mess = 'Pixel range must have 1 <= npix_lo <= npix_hi';
+            return
+        end
+    else
+        mess = 'Option to read a limited pixel range is not valid for sparse format sqw data';
         return
     end
 elseif nargs>0
@@ -306,106 +340,183 @@ else
     psize=[1,1];    % to hold a scalar
 end
 
-
-% Read the signal and error data if required
-% ------------------------------------------
-position.s=ftell(fid);
-if ~header_only
-    [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*float32'); if ~all(ok); return; end;
-    data.s = reshape(double(tmp),psize);
-    clear tmp
-else
-    status=fseek(fid,4*(prod(psize)),'cof');  % skip field s
-end
-
-position.e=ftell(fid);
-if ~header_only
-    [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*float32'); if ~all(ok); return; end;
-    data.e = reshape(double(tmp),psize);
-    clear tmp
-else
-    status=fseek(fid,4*(prod(psize)),'cof');  % skip field e
-end
-
-
-% Read npix, urange, pix according to options and file contents
-% -------------------------------------------------------------
-% All of the above fields will be present in a valid sqw file. The following need not exist, but to be a valid sqw file,
-% for any one field to be present all earlier fields must have been written.
-
-
-% Determine if type 'b' or there are more fields in the data block
-if strcmp(data_type_in,'b') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b'
-    data_type='b';
-    if prototype && ~header_only
-        mess = 'File does not contain number of pixels for each bin - unable to convert old format data';
-        return
-    end
-    return
-else
-    position.npix=ftell(fid);
+% Read s,e... fields
+% ------------------
+if ~data_type_in_is_sparse
+    % -----------------------------------------
+    % Data_type is not 'sp' or 'sp-'
+    % -----------------------------------------
+    
+    % Read the signal and error data if required
+    % ------------------------------------------
+    position.s=ftell(fid);
     if ~header_only
-        [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*int64'); if ~all(ok); return; end;
-        data.npix = reshape(double(tmp),psize);
+        [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*float32'); if ~all(ok); return; end;
+        data.s = reshape(double(tmp),psize);
         clear tmp
     else
-        status=fseek(fid,8*(prod(psize)),'cof');  % skip field npix
+        status=fseek(fid,4*(prod(psize)),'cof');  % skip field s
     end
-end
-
-
-% Determine if type 'b+' or there are more fields in the data block
-if strcmp(data_type_in,'b+') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b+'
-    data_type='b+';
-    if prototype && ~header_only
-        [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+    
+    position.e=ftell(fid);
+    if ~header_only
+        [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*float32'); if ~all(ok); return; end;
+        data.e = reshape(double(tmp),psize);
+        clear tmp
+    else
+        status=fseek(fid,4*(prod(psize)),'cof');  % skip field e
     end
-    return
-else
-    position.urange=ftell(fid);
-    [data.urange,count,ok,mess] = fread_catch(fid,[2,4],'float32'); if ~all(ok); return; end;
-end
-
-
-% Determine if type 'a-' or there are more fields in the data block
-if strcmp(data_type_in,'a-') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'a-'
-    data_type='a-';
-    if prototype && ~header_only
-        [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+    
+    % Read npix, urange, pix according to options and file contents
+    % -------------------------------------------------------------
+    % All of the above fields will be present in a valid sqw file. The following need not exist, but to be a valid sqw file,
+    % for any one field to be present all earlier fields must have been written.
+    
+    % Determine if type 'b' or there are more fields in the data block
+    if strcmp(data_type_in,'b') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b'
+        data_type='b';
+        if prototype && ~header_only
+            mess = 'File does not contain number of pixels for each bin - unable to convert old format data';
+            return
+        end
+        return
+    else
+        position.npix=ftell(fid);
+        if ~header_only
+            [tmp,count,ok,mess] = fread_catch(fid,prod(psize),'*int64'); if ~all(ok); return; end;
+            data.npix = reshape(double(tmp),psize);
+            clear tmp
+        else
+            status=fseek(fid,8*(prod(psize)),'cof');  % skip field npix
+        end
     end
-    return
-else
-    [dummy,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;   % redundant field
-    [npixtot,count,ok,mess] = fread_catch(fid,1,'int64'); if ~all(ok); return; end;
-    position.pix=ftell(fid);
-    if ~header_only && ~nopix
-        if ~exist('npix_lo','var')
-            if npixtot~=0
-                [tmp,count,ok,mess] = fread_catch(fid,[9,npixtot],'*float32'); if ~all(ok); return; end;
-                data.pix=double(tmp);
-                clear tmp
+    
+    % Determine if type 'b+' or there are more fields in the data block
+    if strcmp(data_type_in,'b+') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'b+'
+        data_type='b+';
+        if prototype && ~header_only
+            [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+        end
+        return
+    else
+        position.urange=ftell(fid);
+        [data.urange,count,ok,mess] = fread_catch(fid,[2,4],'float32'); if ~all(ok); return; end;
+    end
+    
+    % Determine if type 'a-' or there are more fields in the data block
+    if strcmp(data_type_in,'a-') || (autodetect && fnothingleft(fid))    % reached end of file - can only be because has type 'a-'
+        data_type='a-';
+        if prototype && ~header_only
+            [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+        end
+        return
+    else
+        [dummy,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;   % redundant field
+        [npixtot,count,ok,mess] = fread_catch(fid,1,'int64'); if ~all(ok); return; end;
+        position.pix=ftell(fid);
+        if ~header_only && ~nopix
+            if ~exist('npix_lo','var')
+                if npixtot~=0
+                    [tmp,count,ok,mess] = fread_catch(fid,[9,npixtot],'*float32'); if ~all(ok); return; end;
+                    data.pix=double(tmp);
+                    clear tmp
+                else
+                    data.pix=zeros(9,0);
+                end
             else
-                data.pix=zeros(9,0);
+                if npix_hi<=npixtot
+                    status=fseek(fid,4*(9*(npix_lo-1)),'cof');
+                    [tmp,count,ok,mess] = fread_catch(fid,[9,npix_hi-npix_lo+1],'float32'); if ~all(ok); return; end;
+                    data.pix=double(tmp);
+                    clear tmp
+                else
+                    mess=['Selected pixel range must lie inside or on the boundaries of 1 - ',num2str(npixtot)];
+                    return
+                end
             end
         else
-            if npix_hi<=npixtot
-                status=fseek(fid,4*(9*(npix_lo-1)),'cof');
-                [tmp,count,ok,mess] = fread_catch(fid,[9,npix_hi-npix_lo+1],'float32'); if ~all(ok); return; end;
-                data.pix=double(tmp);
-                clear tmp
-            else
-                mess=['Selected pixel range must lie inside or on the boundaries of 1 - ',num2str(npixtot)];
-                return
-            end
+            status=fseek(fid,4*(9*npixtot),'cof');  % skip field pix
         end
+        data_type='a';
+        if prototype && ~header_only
+            [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+        end
+        return
+    end
+    
+else
+    % -----------------------------------------
+    % Data_type is 'sp' or 'sp-'
+    % -----------------------------------------
+    
+    % Read signal, variance and number of contributing pixels as sparse arrays
+    position.s=ftell(fid);
+    if ~header_only
+        [data.s,ok,mess] = read_sparse(fid,header_only);
     else
-        status=fseek(fid,4*(9*npixtot),'cof');  % skip field pix
+        [tmp,ok,mess] = read_sparse(fid,header_only);
     end
-    data_type='a';
-    if prototype && ~header_only
-        [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+    if ~all(ok); return; end;
+    
+    position.e=ftell(fid);
+    if ~header_only
+        [data.e,ok,mess] = read_sparse(fid,header_only);
+    else
+        [tmp,ok,mess] = read_sparse(fid,header_only);
     end
-    return
+    if ~all(ok); return; end;
+    
+    position.npix=ftell(fid);
+    if ~header_only
+        [data.npix,ok,mess] = read_sparse(fid,header_only);
+    else
+        [tmp,ok,mess] = read_sparse(fid,header_only);
+    end
+    if ~all(ok); return; end;
+    
+    % Read urange
+    position.urange=ftell(fid);
+    [data.urange,count,ok,mess] = fread_catch(fid,[2,4],'float32'); if ~all(ok); return; end;
+    
+    % Read pixel information
+    position.npix_nz=ftell(fid);
+    if ~header_only
+        [data.npix_nz,ok,mess] = read_sparse(fid,header_only);
+    else
+        [tmp,ok,mess] = read_sparse(fid,header_only);
+    end
+    if ~all(ok); return; end;
+    
+    % Read pixel information
+    [npixtot_nz,count,ok,mess] = fread_catch(fid,1,'float64'); if ~all(ok); return; end;
+    position.ipix_nz=ftell(fid);
+    if ~header_only && ~nopix
+        [tmp,count,ok,mess] = fread_catch(fid,[npixtot_nz,1],'*int32'); if ~all(ok); return; end;
+        data.ipix_nz=double(tmp);
+        clear tmp
+    else
+        status=fseek(fid,4*npixtot_nz,'cof');  % skip field
+    end
+    
+    position.pix_nz=ftell(fid);
+    if ~header_only && ~nopix
+        [tmp,count,ok,mess] = fread_catch(fid,[4,npixtot_nz],'*float32'); if ~all(ok); return; end;
+        data.pix_nz=double(tmp);
+        clear tmp
+    else
+        status=fseek(fid,4*(4*npixtot_nz),'cof');  % skip field
+    end
+    
+    [npixtot,count,ok,mess] = fread_catch(fid,1,'float64'); if ~all(ok); return; end;
+    position.pix=ftell(fid);
+    if ~header_only && ~nopix
+        [tmp,count,ok,mess] = fread_catch(fid,[npixtot,1],'*int32'); if ~all(ok); return; end;
+        data.pix=double(tmp);
+        clear tmp
+    else
+        status=fseek(fid,4*npixtot,'cof');  % skip field
+    end
+    
 end
 
 

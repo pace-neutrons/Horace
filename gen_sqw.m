@@ -54,6 +54,12 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 %                  empty piece of sample environment. In this case, use the keyword 'replicate'
 %                  to override the uniqueness check on file name.
 %
+%   'sparse_tmp'    Create temporary sqw files in sparse format. For inelastic instruments
+%                  this can result in markedly reduced file sizes and enables faster
+%                  combination into the final sqw file.
+%
+%   'tmp_only'      Exit without creating the final sqw file.
+%
 %
 % Output:
 % --------

@@ -35,7 +35,9 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 % 
 % Output:
 % -------
-%   ok              True if all are distinct; false otherwise.
+%   ok              True if input arguments define distinct input, and are consistent with 
+%                  the corresponding entries in the optional header if they appear in that
+%                  header; false otherwise.
 %   mess            Message if not ok; ='' if ok.
 %   spe_only        Logical array: true for entries into the input arguments that
 %                  correspond to spe data that are NOT in the optional header.

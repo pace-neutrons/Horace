@@ -1,9 +1,9 @@
 function [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, psi,...
-    omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_in, instrument, sample)
+    omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_in, instrument, sample, sparse_format)
 % Create an sqw file, optionally keeping only those data points within a defined data range.
 %
 %   >> [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, psi,...
-%                   omega, dpsi, gl, gs, data, det, grid_size_in, urange_in, instrument, sample
+%                   omega, dpsi, gl, gs, data, det, grid_size_in, urange_in, instrument, sample, sparse_format)
 %
 % Input:
 % ------
@@ -38,11 +38,12 @@ function [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, ps
 %                   If [] then uses the smallest hypercuboid that encloses the whole data range.
 %   instrument      Structure or object containing instrument information [scalar]
 %   sample          Structure or object containing sample geometry information [scalar]
+%   sparse_format   =true then create sqw files in sparse format; if false then standard sqw files
 %
 %
 % Output:
 % --------
-%   w               Output sqw object
+%   w               Output sqw object, or data structure if sparse_format is true
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid - the specified range if it was given,
@@ -64,7 +65,7 @@ main_header.nfiles=1;
 if horace_info_level>-1
 	disp('Calculating projections...');
 end
-[header,sqw_data]=calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn);
+[header,sqw_data]=calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn, sparse_format);
 
 % Update some header fields
 header.instrument=instrument;
@@ -73,12 +74,12 @@ header.sample=sample;
 % Flag if grid is in fact just a box i.e. 1x1x1x1
 grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_in)&&all(grid_size_in==[1,1,1,1]));
 
-% Set urange, and determine if all the data is on the surface or within the box defined by the ranges
+% Set urange, and determine if all the data is within the box defined by the ranges
 if isempty(urange_in)
-    urange = sqw_data.urange;   % range of the data
+    urange = sqw_data.urange;   % actual range of the data
     data_in_range = true;
 else
-    urange = urange_in;         % use input urange
+    urange = urange_in;         % use input urange to define retained pixels
     if any(urange(1,:)>sqw_data.urange(1,:)) || any(urange(2,:)<sqw_data.urange(2,:))
         data_in_range = false;
     else
@@ -88,11 +89,12 @@ end
 
 % If grid that is other than 1x1x1x1, or range was given, then sort pixels
 if grid_is_unity && data_in_range   % the most work we have to do is just change the bin boundary fields
+    grid_size = grid_size_in;
     for id=1:4
         sqw_data.p{id}=[urange(1,id);urange(2,id)];
     end
-    grid_size = grid_size_in;
 
+    
 else
 	if horace_info_level>-1
 		disp('Sorting pixels ...')
@@ -157,11 +159,14 @@ d.header=header;
 d.detpar=det0;
 d.data=sqw_data;
 w=sqw(d);
+if sparse_format
+    w=sqw_sparse(w);
+end
 
 
 %------------------------------------------------------------------------------------------------------------------
-function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn)
-% Calculate sqw file header and data for a single spe file
+function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn, sparse_format)
+% Calculate sqw file header and data for a single spe file with a single bin
 %
 %   >> [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
 %
@@ -188,11 +193,13 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 %              [If data has field qspec, then det is ignored]
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
+%   sparse_format =true then create sqw files in sparse format; if false then standard sqw files
 %
 % Ouput:
 % ------
 %   header      Header information in data structure suitable for put_sqw_header
-%   sqw_data    Data structure suitable for put_sqw_data
+%   sqw_data    Header part of data structure suitable for put_sqw_data
+
 
 % Original author: T.G.Perring
 %
@@ -205,8 +212,13 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 [ne,ndet]=size(data.S);
 
 % Calculate projections
+if sparse_format
+    proj_mode=2;    % *** optimise for sparse calculation later
+else
+    proj_mode=2;
+end
 [u_to_rlu,urange,pix] = calc_projections (efix, emode, alatt, angdeg, u, v, psi,...
-                                            omega, dpsi, gl, gs, data, det, detdcn);
+    omega, dpsi, gl, gs, data, det, detdcn, proj_mode);
 
 p=cell(1,4);
 for id=1:4

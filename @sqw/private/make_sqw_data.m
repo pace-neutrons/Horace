@@ -68,8 +68,8 @@ function [data,mess] = make_sqw_data (varargin)
 %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
 %                  be reordered [row vector]
-%   data.s          Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%   data.s          Average signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%   data.e          Average variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.urange     True range of the data along each axis [urange(2,4)]

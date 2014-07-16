@@ -27,10 +27,15 @@ function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header
 %              option followed by the arguments infiles,...run_label (see below).
 %               Type 'h' is obtained from a valid sqw file by reading with get_sqw with the '-h' or '-his'
 %              options (or their '-hverbatim' and '-hisverbatim' variants). The final field urange is
-%              present if the header information was read from an sqw-type file.
+%              present if the header information was read from an sqw-type file, but is not written here.
 %               Input data of type 'h' is only valid when overwriting data fields in a pre-existing sqw file.
 %              It is assumed that all entries of the fields filename,...,uoffset,...dax will have the same lengths in
 %              bytes as the existing entries in the file.
+%
+%               Also accepts sparse sqw data type 
+%                   type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
+%                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
+%
 %
 %   opt         Determines which parts of the input data structures to write to a file. By default, the
 %              entire contents of the input data structure are written, apart from the case of 'h' when
@@ -81,6 +86,9 @@ function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header
 %                   position.e              position of array e
 %                   position.npix           position of array npix (=[] if npix not written in the file)
 %                   position.urange         position of array urange (=[] if urange not written in the file)
+%                   position.npix_nz        position of array npix_nz (=[] if npix_nz not written in the file)
+%                   position.ipix_nz        position of array ipix_nz (=[] if ipix_nz not written in the file)
+%                   position.pix_nz         position of array pix_nz (=[] if pix_nz not written in the file)
 %                   position.pix            position of array pix  (=[] if pix not written in the file)
 %                   position.instrument     start of header instrument blocks (=[] if not written in the file)
 %                   position.sample         start of header sample blocks (=[] if not written in the file)
@@ -92,7 +100,7 @@ function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header
 %   npixtot     Total number of pixels in the file  (=[] if no pix field information in the file)
 %              That is, if pix is absent then npixtot==[]; whereas if size(pix)==[9,0], npixtot=0)
 %
-%   data_type   Type of sqw data written in the file: 'a', 'a-', 'b+' or 'b'
+%   data_type   Type of sqw data written in the file: 'a', 'a-', 'b+', 'b' or 'sp'
 %              Note that only types 'a' and 'b+' correspond to valid sqw objects (sqw-type and dnd-type respectively)
 %
 %
@@ -157,7 +165,8 @@ application=horace_version;
 
 % Initialise output
 position = struct('main_header',[],'header',[],'detpar',[],...
-    'data',[],'s',[],'e',[],'npix',[],'urange',[],'pix',[],'instrument',[],'sample',[],'position_info',[]);
+    'data',[],'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'ipix_nz',[],'pix_nz',[],'pix',[],...
+    'instrument',[],'sample',[],'position_info',[]);
 npixtot = [];
 data_type='';
 
@@ -181,6 +190,7 @@ else
     newfile=true;
     write_data_header_only=false;
     write_inst_and_samp=true;
+    write_sparse_format = strcmpi(data_structure_type(data),'sp');
 end
 
 % Open output file with correct read/write permission, or check currently open file is OK
@@ -191,6 +201,7 @@ if ~isempty(mess), return, end
 % Write application and version number
 % ------------------------------------
 % Determine the output file format version to be written:
+% - If the data has the sparse structure (type 'sp') (introduced in version 3), use the version 3 format
 % - If one or both of the instrument or sample blocks are non-empty, use the version 3 format
 % - If the instrument and sample blocks are both empty, use the version 2 format (which is the same as version 1)
 % However, if overwriting an existing sqw file
@@ -201,7 +212,7 @@ if ~isempty(mess), return, end
 
 filled_inst_or_sample=put_sqw_header_get_type (header);
 if newfile
-    if ~filled_inst_or_sample
+    if ~write_sparse_format && ~filled_inst_or_sample
         application.version=2;  % disguise as having been created by Horace version 2
         file_format='-v2';
     else
@@ -294,6 +305,9 @@ position.e=position_data.e;
 position.npix=position_data.npix;
 position.urange=position_data.urange;
 position.pix=position_data.pix;
+position.npix_nz=position_data.npix_nz;
+position.ipix_nz=position_data.ipix_nz;
+position.pix_nz=position_data.pix_nz;
 npixtot=npixtot_written;
 data_type=data_type_written;
 
@@ -436,4 +450,3 @@ else
         end
     end
 end
-        

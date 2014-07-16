@@ -1,7 +1,9 @@
-function [grid_size, urange] = rundata_write_to_sqw (run_files, sqw_file, grid_size_in, urange_in, instrument, sample, write_banner)
-% Read a single rundata object, and create a single sqw file.
+function [grid_size, urange] = rundata_write_to_sqw (run_files, sqw_file, grid_size_in, urange_in, instrument, sample,...
+                                                        sparse_format, write_banner)
+% Read a cell array of rundata objects, and create a set of sqw files.
 %
-%   >> [grid_size, urange] = rundata_write_to_sqw (run_file, sqw_file, grid_size_in, urange_in, instrument, sample)
+%   >> [grid_size, urange] = rundata_write_to_sqw (run_file, sqw_file, grid_size_in, urange_in, instrument, sample,...
+%                                                       sparse_format, write_banner)
 %
 % Input:
 % ------
@@ -12,6 +14,7 @@ function [grid_size, urange] = rundata_write_to_sqw (run_files, sqw_file, grid_s
 %                  that encloses the whole data range
 %   instrument      Array of structures or objects containing instrument information
 %   sample          Array of structures or objects containing sample geometry information
+%   sparse_format   =true then create sqw files in sparse format; if false then standard sqw files
 %   write_banner    =true then write banner; =false then done (no banner will be
 %                   written anyway if the output logging level is not low enough)
 %
@@ -31,7 +34,7 @@ nfiles = numel(run_files);
 
 horace_info_level=get(hor_config,'horace_info_level');
 
-% ==== TGP 27/05/14: are these lines necessary (will ned to be done for each file if are)
+% ==== *** TGP 27/05/14: are these lines necessary (will need to be done for each file if are)
 % % detector's information into memory
 % if isa(run_file,'rundata')
 %     run_file = get_rundata(run_file,'det_par','-this');
@@ -74,7 +77,7 @@ for i=1:nfiles
         det_buff=det;
     end
     [w, grid_size_tmp, urange_tmp]=calc_sqw(efix, emode, alatt, angdeg, u, v, psi,...
-        omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_in, instrument(i), sample(i));
+        omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_in, instrument(i), sample(i), sparse_format);
     if i==1
         grid_size = grid_size_tmp;
         urange = urange_tmp;
@@ -93,7 +96,14 @@ for i=1:nfiles
     % Write sqw object
     % ----------------
     bigtic
-    save(w,sqw_file{i});
+    if ~sparse_format
+        save(w,sqw_file{i});
+    else
+        mess=put_sqw (sqw_file{i},w.main_header,w.header,w.detpar,w.data);
+        if ~isempty(mess)
+            error(['Error saving to file: ',mess])
+        end
+    end
     
     if horace_info_level>-1
         bigtoc('Time to save sqw data to file:',horace_info_level)

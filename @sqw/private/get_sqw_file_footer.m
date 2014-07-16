@@ -19,6 +19,8 @@ function [mess, position_info_location, data_type, position] = get_sqw_file_foot
 %                               type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
 %                               type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
 %                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
+%                               type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
+%                               type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %   position                Position of the file footer in the file
 
 position_info_location=[];

@@ -15,9 +15,10 @@ function [mess,filename,fid,fid_input]=get_sqw_open(file)
 %   filename    Full name of input file 
 %   fid         File identifier of file to which to write data. The insertion point is
 %              always set to the beginning of the file, even for a currently open file.
+%              Set to -1 if an error.
 %   fid_input   Identifies the status of the input file
 %                   =true  if 'file' was the fid to an open file
-%                   =false if 'file' was a file name
+%                   =false if 'file' was a file name or an error
 
 
 % Original author: T.G.Perring
@@ -26,8 +27,8 @@ function [mess,filename,fid,fid_input]=get_sqw_open(file)
 
 mess='';
 filename='';
-fid=[];
-fid_input=[];
+fid=-1;
+fid_input=false;
 
 % Set the read/write permission that is required
 permission_req='rb';   % open for reading

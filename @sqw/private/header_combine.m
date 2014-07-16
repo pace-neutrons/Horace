@@ -18,7 +18,7 @@ function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header)
 %              otherwise it is a cell array. This is the standard format for
 %              an sqw file.) [column vector]
 %   nspe        Array of length equal to the number of input header blocks containing
-%              the number of spe files in each ionput header block [column vector]
+%              the number of spe files in each input header block [column vector]
 %   ok          True if no problems combining, false otherwise
 %   mess        Error message if not ok; equal to '' if ok
 %   hstruct_sort Structure with the fields that define uniqueness of a header entry

@@ -15,10 +15,20 @@ function data_type = data_structure_type(data)
 %               ='a-' (sqw without pix)
 %               ='h'  (header part of data structure only)
 %
+%               ='sp' (sparse data section format)
+%
 % Simple routine - it assumes that the data structure actually has
 % one of the above formats.
 
 % T.G.Perring   02/08/2007
+
+if issparse(data.s)
+    if isfield(data,'npix_nz');
+        data_type = 'sp'; return
+    else
+        data_type = 'sp-'; return
+    end
+end
 
 if ~isfield(data,'s');      data_type = 'h';  return; end
 if ~isfield(data,'npix');   data_type = 'b';  return; end

@@ -24,12 +24,12 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 %   grid_size       Scalar or row vector (1xnd) of number of actual bins along each axis
 %                  This may differ from the input grid_size if the range along any of the
 %                  axes is zero: in this case the size of the grid along those axes = 1
-%   ibin(npix,1)    Column vector with list of bins to which the sorted pixels contribute
+%   ibin(npixtot,1) Column vector with list of bins to which the sorted pixels contribute
 %                  Available for convenience as it can be constructed from npix:
-%                       ibin(1:nbin(1))=1
-%                       ibin(nbin(1):nbin(2))=2
+%                       ibin(1:npix(1))=1
+%                       ibin(npix(1):npix(2))=2
 %                               :
-%                       ibin(nbin(end-1):nbin(end))=length(nbin)
+%                       ibin(npix(end-1):npix(end))=length(npix)
 
 % Original author: T.G.Perring
 %

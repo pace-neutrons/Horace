@@ -52,6 +52,7 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %                   type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
 %                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
 %                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
+%                   type 'sp'   fields: filename,...,uoffset,....dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %               The final field urange is present for type 'h' if the header information was read from an sqw-type file.
 %
 %   position    Position (in bytes from start of file) of blocks of fields and large fields:
@@ -66,6 +67,9 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %                   position.e              position of array e
 %                   position.npix           position of array npix (=[] if npix not written in the file)
 %                   position.urange         position of array urange (=[] if urange not written in the file)
+%                   position.npix_nz        position of array npix_nz (=[] if npix_nz not written in the file)
+%                   position.ipix_nz        position of array ipix_nz (=[] if ipix_nz not written in the file)
+%                   position.pix_nz         position of array pix_nz (=[] if pix_nz not written in the file)
 %                   position.pix            position of array pix  (=[] if pix not written in the file)
 %                   position.instrument     start of header instrument blocks (=[] if not written in the file)
 %                   position.sample         start of header sample blocks (=[] if not written in the file)
@@ -78,6 +82,8 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %                   type 'b+'   fields: filename,...,dax,s,e,npix
 %                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
 %                   type 'a-'   fields: filename,...,dax,s,e,npix,urange
+%                   type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
+%                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %
 %   current_format  =true if the file format has one of the current formats, =false if not
 %
@@ -130,7 +136,8 @@ header = [];
 detpar = [];
 data = [];
 position = struct('main_header',[],'header',[],'detpar',[],...
-    'data',[],'s',[],'e',[],'npix',[],'urange',[],'pix',[],'instrument',[],'sample',[],'position_info',[]);
+    'data',[],'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'ipix_nz',[],'pix_nz',[],'pix',[],...
+    'instrument',[],'sample',[],'position_info',[]);
 npixtot = [];
 data_type = '';
 file_format = '';
@@ -291,6 +298,9 @@ position.e=position_data.e;
 position.npix=position_data.npix;
 position.urange=position_data.urange;
 position.pix=position_data.pix;
+position.npix_nz=position_data.npix_nz;
+position.ipix_nz=position_data.ipix_nz;
+position.pix_nz=position_data.pix_nz;
 
 
 % Get header optional information, if present

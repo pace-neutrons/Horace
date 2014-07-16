@@ -224,8 +224,6 @@ while ibin_end<nbin
     end
 end
 mess_completion
-% disp([' single bin write operations: ',num2str(nsinglebin_write)])
-% disp(['     buffer write operations: ',num2str(nbuff_write)])
 
 % Close down
 if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;

@@ -21,10 +21,14 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %              option followed by the arguments infiles,...run_label (see below).
 %               Type 'h' is obtained from a valid sqw file by reading with get_sqw with the '-h' or '-his'
 %              options (or their '-hverbatim' and '-hisverbatim' variants). The final field urange is
-%              present if the header information was read from an sqw-type file.
+%              present if the header information was read from an sqw-type file, but is not written here.
 %               Input data of type 'h' is only valid when overwriting data fields in a pre-existing sqw file.
 %              It is assumed that all entries of the fields filename,...,uoffset,...dax will have the same lengths in
 %              bytes as the existing entries in the file.
+%
+%               Also accepts sparse sqw data type:
+%                   type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
+%                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %
 %   opt         Determines which parts of the input data structure to write to a file. By default, the
 %              entire contents of the input data structure are written, apart from the case of 'h' when
@@ -67,13 +71,16 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %                   position.data   position of start of data block
 %                   position.s      position of array s (=[] if s not written i.e. input data is 'h')
 %                   position.e      position of array e (=[] if e not written i.e. input data is 'h')
-%                   position.npix   position of array npix (=[] if npix not written i.e. input data is 'b' or 'h')
-%                   position.urange position of array urange (=[] if urange not written i.e. input data is 'b+','b' or 'h')
-%                   position.pix    position of array pix (=[] if pix not written i.e. input data is 'a-','b+','b' or 'h')
+%                   position.npix   position of array npix (=[] if npix not written)
+%                   position.urange position of array urange (=[] if urange not written)
+%                   position.npix_nz position of array npix_nz (=[] if npix_nz not written)
+%                   position.ipix_nz position of array ipix_nz (=[] if ipix_nz not written)
+%                   position.pix_nz  position of array pix_nz (=[] if pix_nz not written)
+%                   position.pix    position of array pix (=[] if pix not written)
 %
 %   npixtot     Total number of pixels actually written by the call to this function (=[] if pix not written)
 %
-%   data_type   Type of data actually written to the file by the call to this function: 'a', 'a-', 'b+', 'b' or 'h'
+%   data_type   Type of data actually written to the file by the call to this function: 'a', 'a-', 'b+', 'b', 'h' or 'sp'
 %              Note that this is not necessarily the same as the data type that the file
 %              will eventually contain. For example, if 'a-' then we will usually (if not
 %              always!) have eventually written the pixel information from files using
@@ -109,8 +116,10 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
 %                  be reordered [row vector]
-%   data.s          Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%
+% If standard sqw format:
+%   data.s          Average signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%   data.e          Average variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.urange     True range of the data along each axis [urange(2,4)]. This is in the coordinates of the
@@ -126,6 +135,26 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %                   ien         Energy bin number for the pixel in the array in the (irun)th header
 %                   signal      Signal array
 %                   err         Error array (variance i.e. error bar squared)
+%
+% If sparse format:
+%   data.s          Average signal in the bins as a sparse column vector
+%   data.e          Corresponding variance in the bins as a sparse column vector
+%   data.npix       Number of contributing pixels as a sparse column vector
+%   data.urange     <as above>
+%
+%   data.pix        Index of pixels, sorted so that all the pixels in the first
+%                  bin appear first, then all the pixels in the second bin etc. (column vector)
+%                                   ipix0 = ie + ne*(id-1)
+%                               where
+%                                   ie  energy bin index
+%                                   id  detector index into list of all detectors (i.e. masked and unmasked)
+%                                   ne  number of energy bins
+%
+%   data.npix_nz    Number of pixels in each bin with pixels with non-zero counts (sparse column vector)
+%   data.ipix_nz    Index of pixels into pix array with non-zero counts
+%   data.pix_nz     Array with idet,ien,s,e for the pixels with non-zero signal sorted so that
+%                  all the pixels in the first bin appear first, then all the pixels in the second bin etc.
+%
 %
 % Notes:
 % ------
@@ -150,7 +179,7 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 % $Revision$ ($Date$)
 
 mess = '';
-position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]);
+position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'ipix_nz',[],'pix_nz',[],'pix',[]);
 npixtot=[];
 
 % Determine type of input data structure
@@ -206,7 +235,7 @@ elseif strcmpi(data_type_in,'b')||strcmpi(data_type_in,'b+')
         mess = 'Invalid write option specified in put_sqw_data for ''b'' or ''b+'' type data';
         return
     end
-elseif strcmpi(data_type_in,'a-')
+elseif strcmpi(data_type_in,'a-') || strcmpi(data_type_in,'sp-')
     write_header_only=false;
     if opt_h
         write_header_only=true;
@@ -225,7 +254,7 @@ elseif strcmpi(data_type_in,'a-')
         mess = 'Invalid write option specified in put_sqw_data for ''a'' type data';
         return
     end
-elseif strcmpi(data_type_in,'a')
+elseif strcmpi(data_type_in,'a') || strcmpi(data_type_in,'sp')
     write_header_only=false;
     if opt_h
         write_header_only=true;
@@ -240,14 +269,14 @@ elseif strcmpi(data_type_in,'a')
             pix_from_struct = false;
             pix_from_file = true;
         else
-            mess = 'Invalid number of option arguments for ''-pix'' option with ''a'' type data in put_sqw_data';
+            mess = ['Invalid number of option arguments for ''-pix'' option with ',data_type_in,' type data in put_sqw_data'];
             return
         end
     elseif opt_none
         pix_from_struct = true;
         pix_from_file = false;
     else
-        mess = 'Invalid write option specified in put_sqw_data for ''a'' type data';
+        mess = ['Invalid write option specified in put_sqw_data for ',data_type_in,' type data'];
         return
     end
 else
@@ -255,7 +284,7 @@ else
 end
 
 
-% Write header information to file
+% Write header information to file (apart from urange, which is only present if 'a','a-','sp','sp-')
 % --------------------------------
 n=length(data.filename);
 fwrite(fid,n,'int32');              % write length of filename
@@ -304,6 +333,8 @@ position.e=[];
 position.npix=[];
 position.urange=[];
 position.pix=[];
+position.npix_nz=[];
+position.pix_nz=[];
 npixtot=[];
 
 
@@ -312,58 +343,100 @@ npixtot=[];
 if ~write_header_only
     data_type = data_type_in;
     
-    position.s=ftell(fid);
-    fwrite(fid,single(data.s),'float32');
-    
-    position.e=ftell(fid);
-    fwrite(fid,single(data.e),'float32');
-    
-    % Optional fields depending on input data structure and options
-    
-    if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')||strcmpi(data_type_in,'b+')
+    if ~(strcmpi(data_type_in,'sp-')||strcmpi(data_type_in,'sp'))
+        % -----------------------------------------
+        % Data_type is not 'sp' or 'sp-'
+        % -----------------------------------------
+        
+        position.s=ftell(fid);
+        fwrite(fid,single(data.s),'float32');
+        
+        position.e=ftell(fid);
+        fwrite(fid,single(data.e),'float32');
+        
+        % Optional fields depending on input data structure and options
+        
+        if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')||strcmpi(data_type_in,'b+')
+            position.npix=ftell(fid);
+            fwrite(fid,int64(data.npix),'int64');  % make int64 so that can deal with huge numbers of pixels
+        end
+        
+        if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')
+            % Write urange
+            position.urange=ftell(fid);
+            fwrite(fid,data.urange,'float32');
+            % Write pix if requested
+            if pix_from_struct
+                fwrite(fid,1,'int32');          % redundant field - only present for backwards compatibility
+                npixtot=size(data.pix,2);
+                fwrite(fid,npixtot,'int64');    % make int64 so that can deal with huge numbers of pixels
+                position.pix=ftell(fid);
+                data_type='a';
+                if npixtot>0
+                    % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
+                    % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
+                    % could have no pixels because none contributed to the given data range.
+                    block_size=get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
+                    if npixtot<=block_size
+                        fwrite(fid,single(data.pix),'float32');
+                    else
+                        for ipix=1:block_size:npixtot
+                            istart = ipix;
+                            iend   = min(ipix+block_size-1,npixtot);
+                            fwrite(fid,single(data.pix(:,istart:iend)),'float32');
+                        end
+                    end
+                end
+            elseif pix_from_file
+                fwrite(fid,1,'int32');              % redundant field - only present for backwards compatibility
+                npix_cumsum = cumsum(data.npix(:)); % accumulated number of pixels per bin as a column vector
+                npixtot=npix_cumsum(end);
+                fwrite(fid,npixtot,'int64');        % make int64 so that can deal with huge numbers of pixels
+                position.pix=ftell(fid);
+                data_type='a';
+                if npixtot>0
+                    mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
+                end
+            else
+                data_type='a-';
+            end
+        end
+        
+    else
+        % -----------------------------------------
+        % Data_type is 'sp' or 'sp-'
+        % -----------------------------------------
+        % Write signal, variance and number of contributing pixels as sparse arrays
+        position.s=ftell(fid);
+        write_sparse(fid,data.s,'float32');
+        
+        position.e=ftell(fid);
+        write_sparse(fid,data.e,'float32');
+        
         position.npix=ftell(fid);
-        fwrite(fid,int64(data.npix),'int64');  % make int64 so that can deal with huge numbers of pixels
-    end
-    
-    if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')
+        write_sparse(fid,data.npix,'int32');    % only a single spe file: so do not need to allow for a large number of pixels in one bin
+        
         % Write urange
         position.urange=ftell(fid);
         fwrite(fid,data.urange,'float32');
-        % Write pix if requested
-        if pix_from_struct
-            fwrite(fid,1,'int32');          % redundant field - only present for backwards compatibility
-            npixtot=size(data.pix,2);
-            fwrite(fid,npixtot,'int64');    % make int64 so that can deal with huge numbers of pixels
+        
+        if strcmpi(data_type_in,'sp')
+            % Write pixel information
+            position.npix_nz=ftell(fid);
+            write_sparse(fid,data.npix_nz,'int32');     % only a single spe file: so do not need to allow for a large number of pixels in one bin
+            
+            fwrite(fid,numel(data.ipix_nz),'float64');  % number of pixels with non-zero signal
+            position.ipix_nz=ftell(fid);
+            fwrite(fid,int32(data.ipix_nz),'int32');    % only single spe file, so pixel index <2e9 e.g. 10^5 dets, 1^3 energy bins
+            
+            position.pix_nz=ftell(fid);
+            fwrite(fid,single(data.pix_nz),'float32');
+            
+            fwrite(fid,numel(data.pix),'float64');
             position.pix=ftell(fid);
-            data_type='a';
-            if npixtot>0
-                % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
-                % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
-                % could have no pixels because none contributed to the given data range.
-                block_size=get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
-                % block_size=1000000;
-                if npixtot<=block_size
-                    fwrite(fid,single(data.pix),'float32');
-                else
-                    for ipix=1:block_size:npixtot
-                        istart = ipix;
-                        iend   = min(ipix+block_size-1,npixtot);
-                        fwrite(fid,single(data.pix(:,istart:iend)),'float32');
-                    end
-                end
-            end
-        elseif pix_from_file
-            fwrite(fid,1,'int32');              % redundant field - only present for backwards compatibility
-            npix_cumsum = cumsum(data.npix(:)); % accumulated number of pixels per bin as a column vector
-            npixtot=npix_cumsum(end);
-            fwrite(fid,npixtot,'int64');        % make int64 so that can deal with huge numbers of pixels
-            position.pix=ftell(fid);
-            data_type='a';
-            if npixtot>0
-                mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
-            end
-        else
-            data_type='a-';
+            fwrite(fid,int32(data.pix),'int32');    % only single spe file, so pixel index <2e9 e.g. 10^5 dets, 1^3 energy bins
+            
+            npixtot=numel(data.pix);
         end
     end
     

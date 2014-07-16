@@ -12,6 +12,8 @@ function [mess, position] = put_sqw_file_footer (fid, position_info_location, da
 %                               type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
 %                               type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
 %                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
+%                               type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
+%                               type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %
 % Output:
 % -------

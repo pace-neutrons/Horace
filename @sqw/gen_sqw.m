@@ -64,6 +64,12 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %   'clean'         [Only valid if 'accumulate' is also present]. Delete the sqw file if
 %                  it exists.
 %
+%   'sparse_tmp'    Create temporary sqw files in sparse format. For inelastic instruments
+%                  this can result in markedly reduced file sizes and enables faster
+%                  combination into the final sqw file.
+%
+%   'tmp_only'      Exit without creating the final sqw file.
+%
 %
 % Output:
 % --------
@@ -91,8 +97,8 @@ if ~isa(dummy,classname)    % classname is a private method
 end
 
 % Determine keyword arguments, if present
-arglist=struct('replicate',0,'accumulate',0,'clean',0,'tmp_only',0);
-flags={'replicate','accumulate','clean','tmp_only'};
+arglist=struct('replicate',0,'accumulate',0,'clean',0,'sparse_tmp',0,'tmp_only',0);
+flags={'replicate','accumulate','clean','sparse_tmp','tmp_only'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
 if ~opt.accumulate
@@ -259,9 +265,11 @@ if ~accumulate_old_sqw && nindx==1
         disp('Creating output sqw file:')
     end
     
+    sparse_tmp=false;
+    
     write_banner=false;
     [grid_size,urange] = rundata_write_to_sqw (run_files,{sqw_file},...
-        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner);
+        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),sparse_tmp,write_banner);
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
     if horace_info_level>-1
@@ -282,7 +290,7 @@ else
     end
     
     [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
-        grid_size_in,urange_in,instrument,sample,write_banner);
+        grid_size_in,urange_in,instrument,sample,opt.sparse_tmp,write_banner);
     
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')

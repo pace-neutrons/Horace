@@ -1,10 +1,10 @@
 function [u_to_rlu, urange, pix] = ...
-    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn,proj_mode)
+    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn, proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
-% Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
+% Allows for correction to the scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
-%   >> [u_to_rlu, ucoords] = ...
-%    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
+%   >> [u_to_rlu, urange, pix] = ...
+%    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn, proj_mode)
 %
 % Input:
 % ------
@@ -26,15 +26,12 @@ function [u_to_rlu, urange, pix] = ...
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %               This should be precalculated from the contents of det
-%   proj_mode   The format of the pix output, the routine returns,
-%               when proj_mode is as follows:
-%     0         pix arry will be empty array
-%     1         pix array will be [4 x nPix] array of transformed
-%               uCoordinates, see below
-%     2 or not present -- pix array will be [9 x nPix] array as described
-%              below
-
-%
+%   proj_mode   [Optional] The contents of the output argument pix
+%                   0   pix array will be empty array
+%                   1   pix array will be [4 x npixtot] array of transformed
+%                      ucoordinates. See below for details
+%                   2   pix array will be [9 x npixtot] array as described below
+%               Default if not given: 2
 % Output:
 % -------
 %   u_to_rlu    Matrix (3x3) of crystal Cartesian axes in reciprocal lattice units
@@ -45,7 +42,13 @@ function [u_to_rlu, urange, pix] = ...
 %   urange      [2 x 4] array containing the full extent of the data in crystal Cartesian
 %              coordinates and energy transfer; first row the minima, second row the
 %              maxima.
-%   pix         [9 x npix] array of pixel information:
+%   pix         If proj_mode=0
+%                  [] (empty array)
+%               If proj_mode=1:
+%                 [4 x npix] array of pixel information:
+%                   pix(1:4,:)  coordinates in crystal Cartesian coordinates and energy
+%               If proj_mode=2:
+%                 [9 x npix] array of pixel information:
 %                   pix(1:4,:)  coordinates in crystal Cartesian coordinates and energy
 %                   pix(5,:)    run index: alway unity from this routine
 %                   pix(6,:)    detecetor index
@@ -71,9 +74,8 @@ if ~isfield(data,'qspec') && ndet~=length(det.phi)
 end
 if ~exist('proj_mode','var')
     proj_mode = 2;
-end
-if proj_mode<0 || proj_mode >2
-    warning('HORACE:calc_projections',' proj_mode can be 0,1 or 2 and got %d. Assuming mode 2(all pixel information)',proj_mode);
+elseif ~(proj_mode==0 || proj_mode==1 || proj_mode==2)
+    warning('HORACE:calc_projections',' proj_mode can only be 0,1 or 2 and got %d. Assuming mode 2 (all pixel information)',proj_mode);
     proj_mode = 2;
 end
 
@@ -91,7 +93,7 @@ end
 [spec_to_u, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
 c=neutron_constants;
-k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
+k_to_e = c.c_k_to_emev;
 
 % Calculate Q in spectrometer coordinates for each pixel
 use_mex=get(hor_config,'use_mex') && emode==1 && ~isfield(data,'qspec');  % *** as of 6 Nov 2011 the c++ routine still only works for direct geometry
@@ -101,7 +103,7 @@ if use_mex
     else
         try
             nThreads=get(hor_config,'threads');
-            [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
+            [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads, proj_mode);
         catch   % use matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',lasterr());
             use_mex=false;
@@ -120,34 +122,32 @@ if ~use_mex
     urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
     
     % Return without filling the pixel array if urange only is requested
-    if nargout==2
-        return;
-    end
-    if proj_mode == 0
-        pix =[];
-        return;
-    end
-    if proj_mode == 1
-        pix =ucoords;
-        return;
+    if nargout==3
+        if proj_mode==0
+            % Empty array
+            pix =[];
+        elseif proj_mode==1
+            % Return just ucoords
+            pix =ucoords;
+        else
+            % Fill pixel array
+            pix=ones(9,ne*ndet);
+            pix(1:4,:)=ucoords;
+            clear ucoords;  % delete big array before creating another big array
+            if ~isfield(data,'qspec')
+                if isfield(det,'group')
+                    pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+                else
+                    group = 1:ndet;
+                    pix(6,:)=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+                end
+                pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
+            else
+                pix(6:7,:)=1;
+            end
+            pix(8,:)=data.S(:)';
+            pix(9,:)=((data.ERR(:)).^2)';
+        end
     end
     
-    % Fill pixel array
-    pix=ones(9,ne*ndet);
-    pix(1:4,:)=ucoords;
-    clear ucoords;  % delete big array before creating another big array
-    if ~isfield(data,'qspec')
-        if isfield(det,'group')
-            pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
-        else
-            group = 1:ndet;
-            pix(6,:)=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index            
-        end
-        pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
-    else
-        pix(6:7,:)=1;
-    end
-    pix(8,:)=data.S(:)';
-    pix(9,:)=((data.ERR(:)).^2)';
-  
 end
