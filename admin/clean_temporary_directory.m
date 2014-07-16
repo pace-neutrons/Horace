@@ -8,7 +8,7 @@ function clean_temporary_directory (opt)
 % Author: T.G.Perring
 
 ext={'sqw','d0d','d1d','d2d','d3d','d4d',...
-    'tmp','map','msk','cut','slc','spe','par','phx'};
+    'tmp','dat','map','msk','cut','slc','spe','par','phx'};
 
 if nargin==1
     if ischar(opt) && size(opt,1)==1 && size(opt,2)>1 && strncmpi(opt,'-all',numel(opt))

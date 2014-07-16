@@ -34,7 +34,7 @@ wout=w;
 if isequal(fieldnames(w),fields)
     if ~(isnumeric(w.s) && isnumeric(w.e) && (isequal(size(w.s),size(w.e))||isequal(size(w.e),[0,0])))
         % Note: variance array can be empty, in which case it will be ignored
-        message='Numeric array sizes for fields ''y'' and ''e'' incompatible';
+        message='Numeric array sizes for fields ''s'' and ''e'' incompatible';
         return
     end
     if any(w.e<0)
