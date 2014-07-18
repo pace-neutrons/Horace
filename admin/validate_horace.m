@@ -55,15 +55,16 @@ test_folders={...
     'test_sqw_file'...
     };
 
+% Check mex files against matlab versions, if mex functions are available
 [mess,n_errors]=check_horace_mex();
-if n_errors==0  % also check mex files against matlab versions, if mex functions are available
+if n_errors==0
     test_folders{end+1}='test_mex_nomex';
 else
-    warning('VALIDATE_HORACE:mex','mex files are disabled, and will not be tested');
-    if forcemex
-        error('VALIDATE_HORACE:mex',' can not force mex if no mex files are present');
-    end
     nomex = true;
+    warning('VALIDATE_HORACE:mex','mex files are not all working, and will not be tested');
+    if forcemex
+        error('VALIDATE_HORACE:mex','cannot force mex if mex files are not working');
+    end
 end
 %=============================================================================
 
@@ -92,18 +93,17 @@ cleanup_obj=onCleanup(@()validate_horace_cleanup(cur_herbert_conf,cur_horace_con
 %  may be due to a poor choice by the user of configuration parameters)
 hoc = hor_config();
 hec = herbert_config();
-%if ~parallel
-%hoc.saveable = false;    % equivalent to older '-buffer' option for all setters below
-%hec.saveable = false;    % equivalent to older '-buffer' option for all setters below
-%end
-set(hoc,'defaults'); set(hec,'defaults');
-% special unit tests settings. 
+
+set(hec,'defaults');
+set(hoc,'defaults');
+
+% Special unit tests settings. 
 hec.init_tests=true;       % initialise unit tests
 hoc.use_mex = ~nomex;
 hoc.force_mex_if_use_mex=forcemex;
 if ~talkative
-    set(hoc,'log_level',-1);       % minimise any diagnostic output
-    set(hec,'log_level',-1);   % turn off Horace informational output
+    set(hec,'log_level',-1);    % turn off informational output
+    set(hoc,'log_level',-1);    % minimise any diagnostic output
 end
 
 

@@ -1,20 +1,34 @@
-function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
-% the function returns the version of horace, which should correspond to
-% the distinctive tag version from the SVN server. 
+function [application,svn]=horace_version(opt)
+% Returns the version of Horace, which . 
 %
-% Usage:
-% [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
-% [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version('brief')
-% 
-% where application is a structure containing the fields with program name
-% (horace)and horace release version. 
+%   >> application = horace_version         % fast: no checks of svn information or mex files
+%   >> [application,svn] = horace_version                   % full check of mex files
+%   >> [application,svn] = horace_version('full')           % same as above
+%   >> [application,svn] = horace_version('mex_nocheck')    % don't check mex files
 %
-% if horace_version is called with parameter, the function
-% returns revision data (Matlab_SVN) as number rather then string
-% (convenient for versions comparison)
+% Output:
+% -------
+%   application Structure with information about Horace version. Fields are:
+%                   name    Names of application: 'horace'
+%                   version Formal version number e.g. 3.1, which should correspond
+%                           to a distinctive tag on the SVN server
 %
+%   svn         Structure with svn version information. Fields are:
+%                   svn_version         Version number e.g. 877
+%                   svn_version_str     Full svn version string with version and date
+%                   mex_ok              True if all mex files are working file; false otherwise
+%                   mex_min_version     Least recent version number of a mex code file
+%                                       =[] if ~mex_ok
+%                   mex_min_version     Most recent version number of a mex code file
+%                                       =[] if ~mex_ok
+%                   mex_last_compilation_date   Date of the most recently compiled mex file
+%                                       ='' if ~mex_ok
+%                   mex_messages        Cell array of strings with information about mex files
+%               
 %
-% An pre-commit hook script provided as part of the package 
+% Important note from Alex Buts:
+% ------------------------------
+% A pre-commit hook script provided as part of the package 
 % has to be enabled on svn and svn file properies 
 % (Keywords) Date and Revision should be set on this file 
 % to support valid Matlab versioning.
@@ -32,7 +46,6 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
 % after the counter changed, the svn version row below will be updated 
 % to the latest svn version at commit.
 
-application.name='horace';
 
 % -------------------------------------------------------------------------
 % Version history of sqw file formats
@@ -60,26 +73,28 @@ application.name='horace';
 % - position of data block
 % - position of end of data block
 
-application.version=3;
 
-Matlab_SVN='$Revision::      $ ($Date::                                              $)';
+application.name='horace';
+application.version=3.1;
 
-% Information about name and version of application
-mexMinVer     = [];
-mexMaxVer     = [];
-date          = [];
-if get(hor_config,'use_mex')
-    [mex_messages,n_errors,mexMinVer,mexMaxVer,date]=check_horace_mex();
-    if n_errors~= 0
-        set(hor_config,'use_mex',0);
+if nargout>1
+    str = '$Revision::      $ ($Date::                                              $)';
+    svn.svn_version = str2double(str(12:17));
+    svn.svn_version_str = str;
+    if nargin==0 || isstring(opt) && strncmpi(opt,'full',numel(opt))
+        [mex_messages,n_errors,minVer,maxVer,compilation_date]=check_horace_mex();
+        svn.mex_ok=~logical(n_errors);
+        svn.mex_min_version=minVer;
+        svn.mex_max_version=maxVer;
+        svn.mex_last_compilation_date=compilation_date;
+        svn.mex_messages=mex_messages;
+    elseif isstring(opt) && strncmpi(opt,'mex_no_check',numel(opt))
+        svn.mex_ok=false;
+        svn.mex_min_version=[];
+        svn.mex_max_version=[];
+        svn.mex_last_compilation_date='';
+        svn.mex_messages={};
+    else
+        error('Unrecognised optional input argument')
     end
-end
-hd     =str2double(Matlab_SVN(12:17));
-
-application.svn_version=hd;
-application.mex_min_version = mexMinVer;
-application.mex_max_version = mexMaxVer;
-application.mex_last_compilation_date=date;
-if nargin>0    
-    Matlab_SVN =application.svn_version;
 end

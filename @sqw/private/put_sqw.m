@@ -198,10 +198,10 @@ end
 if ~isempty(mess), return, end
 
 
-% Write application and version number
-% ------------------------------------
+% Write application and file format version number
+% ------------------------------------------------
 % Determine the output file format version to be written:
-% - If the data has the sparse structure (type 'sp') (introduced in version 3), use the version 3 format
+% - If the data has the sparse structure (type 'sp') (introduced in version 3), use the version 3.1 format
 % - If one or both of the instrument or sample blocks are non-empty, use the version 3 format
 % - If the instrument and sample blocks are both empty, use the version 2 format (which is the same as version 1)
 % However, if overwriting an existing sqw file

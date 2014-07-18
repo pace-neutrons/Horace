@@ -166,7 +166,7 @@ classdef hor_config<config_base
                 [dummy,n_errors]=check_horace_mex();
                 if n_errors>0
                     use = false;
-                    warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated, Use mex set to false');
+                    warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated; use_mex set to false');
                 end
             end
             

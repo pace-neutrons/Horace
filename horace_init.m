@@ -23,31 +23,28 @@ addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
 addpath(fullfile(rootpath,'admin'));
 
 % Add support package
-addpath_message (1,rootpath,'herbert');
+addpath_message (rootpath,'herbert');
 
 % DLL and configuration setup
-addpath_message (2,rootpath,'DLL');
-addpath_message (1,rootpath,'configuration');
+addpath_message (rootpath,'DLL');
+addpath_message (rootpath,'configuration');
 
 % Other directories
-addpath_message (1,rootpath,'horace_function_utils');
-addpath_message (1,rootpath,'lattice_functions');
-addpath_message (1,rootpath,'utilities');
+addpath_message (rootpath,'horace_function_utils');
+addpath_message (rootpath,'lattice_functions');
+addpath_message (rootpath,'utilities');
 
 % Functions for fitting etc.
-addpath_message (1,rootpath,'functions');
+addpath_message (rootpath,'functions');
 
 % Add GUI path
-addpath_message(1,rootpath,'GUI');
+addpath_message (rootpath,'GUI');
 
 % Add Tobyfit prototype
 if ispc
-    addpath_message (1,rootpath,'Tobyfit');
+    addpath_message (rootpath,'Tobyfit');
     tobyfit_init
 end
-
-%addpath_message (1,rootpath,'work_in_progress');   % not included in the distribution
-
 
 % Set up graphical defaults for plotting
 horace_plot.name_oned = 'Horace 1D plot';
@@ -59,9 +56,6 @@ horace_plot.name_contour = 'Horace contour plot';
 horace_plot.name_sliceomatic = 'Sliceomatic';
 set_global_var('horace_plot',horace_plot);
 
-[application,Matlab_code,mexMinVer,mexMaxVer,date] = horace_version();
-mc = [Matlab_code(1:48),'$)'];
-
 disp('!==================================================================!')
 disp('!                      HORACE                                      !')
 disp('!------------------------------------------------------------------!')
@@ -69,24 +63,35 @@ disp('!  Visualisation of multi-dimensional neutron spectroscopy data    !')
 disp('!                                                                  !')
 disp('!  T.G.Perring, J van Duijn, R.A.Ewings         November 2008      !')
 disp('!------------------------------------------------------------------!')
-disp(['! Matlab  code: ',mc,' !']);
-if isempty(mexMaxVer)
-    disp('! Mex code:    Disabled  or not supported on this platform         !')
+
+if ~get(hor_config,'use_mex')
+    [application,svn] = horace_version('mex_no_check');
+    disp(['! Matlab code: ',svn.svn_version_str(1:48),'$)','  !']);
+    disp( '!    Mex code: Currently not selected; using Matlab functions      !')
 else
-    if mexMinVer==mexMaxVer
-        mess=sprintf('! Mex files   : $Revision::%4d  $ (%s$) !',mexMaxVer,date(1:28));
+    [application,svn] = horace_version('full');
+    disp(['! Matlab code: ',svn.svn_version_str(1:48),'$)','  !']);
+    if svn.mex_ok
+        if svn.mex_min_version==svn.mex_max_version
+            mess=sprintf('! Mex files   : $Revision::%4d  $ (%s$) !',...
+                svn.mex_min_version,svn.mex_last_compilation_date(1:28));
+        else
+            mess=sprintf(...
+                '! Mex files   :$Revisions::%4d-%3d(%s$) !',...
+                svn.mex_min_version,svn.mex_max_version,svn.mex_last_compilation_date(1:28));
+        end
+        disp(mess)
     else
-        mess=sprintf(...
-            '! Mex files   :$Revisions::%4d-%3d(%s$) !',mexMinVer,mexMaxVer,date(1:28));
+        set(hor_config,'use_mex',0);
+        disp( '!    Mex code: Disabled or not supported; using Matlab functions   !')
     end
-    disp(mess)
-    
 end
+
 disp('!------------------------------------------------------------------!')
 
 
 %--------------------------------------------------------------------------
-function addpath_message (type,varargin)
+function addpath_message (varargin)
 % Add a path from the component directory names, printing a message if the
 % directory does not exist.
 % e.g.
@@ -99,13 +104,8 @@ string=fullfile(varargin{:},''); % '' is introduced for compartibility with
 % error in fullfile funtion called with
 % one argument
 if exist(string,'dir')==7
-    if(type==1)
         path=genpath_special(string);
         addpath(path);
-    else
-        path=genpath_special(string);
-        addpath(path);
-    end
 else
     warning('HORACE:init','"%s" is not a directory - not added to path',string)
 end
