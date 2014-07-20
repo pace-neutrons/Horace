@@ -1,12 +1,13 @@
 function [mess,filename,fid,fid_input]=put_sqw_open(file,newfile)
 % Open a file for output, or check that a currently open file has correct read/write attributes
 %
+%   >> [mess,filename,fid,fid_input]=put_sqw_open(file)
 %   >> [mess,filename,fid,fid_input]=put_sqw_open(file,newfile)
 %
 % Input:
 % ------
 %   file        File name, or file identifier of open file, to which to write data
-%   newfile     File creation status:
+%   newfile     File creation status (default: true):
 %                   =true  if writing to a fresh file, or deleting cntents of an existing file
 %                   =false if overwriting part of an existing file (w.g. if writing new header)
 %
@@ -34,7 +35,7 @@ fid=-1;
 fid_input=false;
 
 % Set the read/write permission that is required
-if newfile
+if nargin==1 || newfile
     permission_req='wb';    % Used to have 'Wb': no automatic flushing: can be faster but R2012b documnetation says use for tape
 else
     permission_req='rb+';   % open for reading and writing

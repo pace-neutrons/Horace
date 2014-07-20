@@ -26,11 +26,8 @@ ndims = [];
 nfiles = [];
 
 % Open file
-fid=fopen(infile,'r');
-if fid<0
-    mess=['Unable to open file ',infile];
-    return
-end
+[mess,filename,fid]=get_sqw_open(infile);
+if fid<0, return, end
 
 % Read application and version number
 mess=get_application(fid,application.name);

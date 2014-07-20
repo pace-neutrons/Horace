@@ -217,11 +217,8 @@ if save_to_file
         end
     end
     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    fout = fopen (outfile, 'wb');
-    if (fout < 0)
-        error (['Cannot open output file ' outfile])
-    end
-    
+    [mess,outfilefull,fout]=put_sqw_open(outfile);
+    if fout<0, error(mess), end
 end
 
 
@@ -395,11 +392,10 @@ end
 % -----------------------
 % read data and accumulate signal and error
 if source_is_file
-    
-    fid=fopen(data_source,'r');
+    [mess,filename,fid]=get_sqw_open(data_source);
     if fid<0
         if save_to_file; fclose(fout); end    % close the output file opened earlier
-        error(['Unable to open file ',data_source])
+        error(mess)
     end
     status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
     if status<0;
@@ -501,7 +497,7 @@ end
 % Save to file if requested
 % ---------------------------
 if save_to_file
-    if horace_info_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
+    if horace_info_level>=0, disp(['Writing cut to output file ',outfilefull,'...']), end
     try
         if ~pix_tmpfile
             mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
@@ -516,7 +512,7 @@ if save_to_file
             warning(['Error writing to file: ',mess])
         end
     catch   % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
-        if ~isempty(fopen(fout)); fclose(fout); end
+        if ~isempty(outfilefull); fclose(fout); end
         warning('Error writing to file: unknown cause')
     end
     if horace_info_level>=0, disp(' '), end
