@@ -54,25 +54,47 @@ function [application,svn]=horace_version(opt)
 % July 2007(?) to Autumn 2008:
 % ----------------------------
 % Prototype sqw file format.
+%      File format version name: '-prototype'
+%    File format version number: 0
+%
 % Did not store filename, filepath, title, alatt, and angdeg as part of the
 % data block. Also, the application name and file format version number
 % were not stored.
 %
 % Autumn 2008 to Feb 2013:
 % ------------------------
-% Version 1 and 2
-% These have the same file format.
-%(The version number was being used to distinguish between Horace, not the file formats)
+% Horace versions 1 and 2
+%      File format version name: '-v2'
+%    File format version number: 2
 %
-% 23 Feb 2013:
-% ------------
-% Version 3
+% These have the same file format. The version number stored in the file
+% was being used to distinguish between Horace versions, not the file
+% formats.
+%
+% November 2013:
+% --------------
+% Horace version 3
+%      File format version name: '-v3'
+%    File format version number: 3
+%
 % Format of sqw file has addition information in an appendix:
 % - instrument and sample blocks
 % - positions of major data blocks in the file
 % - position of data block
 % - position of end of data block
-
+%
+% August 2014:
+% ------------
+% Horace version 3.1
+%      File format version name: '-v3.1'
+%    File format version number: 3.1
+%
+% Format of sqw file has the same information as format 3, but the fields
+% are stored as float64 in general, apart from s,e,pix
+% In addition a new sparse format was introduced for the case of sqw type
+% data from a single spe file.
+%
+% -------------------------------------------------------------------------
 
 application.name='horace';
 application.version=3.1;

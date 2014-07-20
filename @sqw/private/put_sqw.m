@@ -161,9 +161,11 @@ function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header
 %
 % $Revision$ ($Date$)
 
-application=horace_version;
 
-% Initialise output
+% Get application and version number
+application=horace_version();
+
+% Initialise output arguments
 position = struct('main_header',[],'header',[],'detpar',[],...
     'data',[],'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'ipix_nz',[],'pix_nz',[],'pix',[],...
     'instrument',[],'sample',[],'position_info',[]);
@@ -193,22 +195,23 @@ else
     write_sparse_format = strcmpi(data_structure_type(data),'sp');
 end
 
+
 % Open output file with correct read/write permission, or check currently open file is OK
+% ---------------------------------------------------------------------------------------
 [mess,filename,fid,fid_input]=put_sqw_open(outfile,newfile);
 if ~isempty(mess), return, end
 
 
 % Write application and file format version number
 % ------------------------------------------------
-% Determine the output file format version to be written:
-% - If the data has the sparse structure (type 'sp') (introduced in version 3), use the version 3.1 format
+% Determine the output file format version to be written to a new file:
+% - If the data has the sparse structure (type 'sp') use the additional format added to '-v3' to hold this type
 % - If one or both of the instrument or sample blocks are non-empty, use the version 3 format
 % - If the instrument and sample blocks are both empty, use the version 2 format (which is the same as version 1)
-% However, if overwriting an existing sqw file
-% - If the format is already '-v3' then it must remain so, even if the instrument and sample information field correspond to empty information.
-
-% being removed from a file that already has
-% such information, the file will remain in the version 3 format.
+% However, if appending to or overwriting parts of an existing sqw file
+% - If the format is already '-v3' then it must remain so, even if the instrument and sample information
+%   fields correspond to empty information (this is because of the inability to shorten an existing file in
+%   matlab)
 
 filled_inst_or_sample=put_sqw_header_get_type (header);
 if newfile

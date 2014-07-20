@@ -113,10 +113,8 @@ if save_to_file
         end
     end
     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    fout = fopen (outfile, 'wb');
-    if (fout < 0)
-        error (['Cannot open output file ' outfile])
-    end
+    [mess,outfilefull,fout]=put_sqw_open(outfile);
+    if fout<0, error(mess), end
 end
 
 
@@ -127,6 +125,7 @@ if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
     [mess,main_header,header,detpar,data]=get_sqw (data_source,'-nopix');
     if ~isempty(mess)
+        if save_to_file; fclose(fout); end    % close the output file opened earlier
         error('Error reading data from file %s \n %s',data_source,mess)
     end
 else
@@ -150,6 +149,7 @@ end
 % Determine new plot and integration axes
 [sub_iax, sub_iint, sub_pax, sub_p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin(invdax), data.p, nbin);
 if ~isempty(mess)
+    if save_to_file; fclose(fout); end    % close the output file opened earlier
     error(mess)
 end
 
@@ -254,13 +254,16 @@ end
 
 % Make valid dnd-type sqw fields
 [w,mess]=make_sqw(true,data_out);
-if ~isempty(mess), error(mess), end
+if ~isempty(mess)
+    if save_to_file; fclose(fout); end    % close the output file opened earlier
+    error(mess)
+end
 
 
 % Save to file if requested
 % ---------------------------
 if save_to_file
-    if horace_info_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
+    if horace_info_level>=0, disp(['Writing cut to output file ',outfilefull,'...']), end
     try
         mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
         fclose(fout);
@@ -268,7 +271,7 @@ if save_to_file
             warning(['Error writing to file: ',mess])
         end
     catch   % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
-        if ~isempty(fopen(fout)); fclose(fout); end
+        if ~isempty(outfilefull); fclose(fout); end
         warning('Error writing to file: unknown cause')
     end
     if horace_info_level>=0, disp(' '), end
