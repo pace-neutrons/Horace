@@ -8,7 +8,6 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %   >> [...] = get_sqw (infile, '-hverbatim')
 %   >> [...] = get_sqw (infile, '-hisverbatim')
 %   >> [...] = get_sqw (infile, '-nopix')
-%   >> [...] = get_sqw (infile, npix_lo, npix_hi)
 %
 % Input:
 % --------
@@ -85,50 +84,17 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %                   type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
 %                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
 %
-%   current_format  =true if the file format has one of the current formats, =false if not
-%
 %   file_format     Format of file
-%                       Current formats:  '-v2', '-v3'
-%                       Obsolete formats: '-prototype'
-% 
 %
-% NOTES:
-% ======
-% Supported file Formats
-% ----------------------
-% The current sqw file format comes in two variants:
-%   - Horace version 1 and version 2: file format '-v2'
-%      (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
-%       This format is the one still written if these fields all have the 'empty' value in the sqw object.
-%   - Horace version 3: file format '-v3'.
-%       (November 2013 onwards.) Writes the instrument and sample fields from the header block, and
-%      positions of the start of major data blocks in the sqw file. This format is written if the
-%      instrument and sample fields are not 'empty'.
-%
-% Adding sample or instrument data to an existing '-v2' file will convert the format to '-v3'.
-% Subsequently setting the sample and instrument to 'empty' will *NOT* convert the file back
-% to '-v2' due to limitations of Matlab file writing. (Matlab does not permit the length of an
-% existing file to be shortened).
-%
-% Additionally, this routine will read the prototype sqw file format (July 2007(?) - Autumn 2008).
-% This differs from the Horace '-v2' and '-v3' file formats in a few regards:
-%   - The application name and version are not saved in the file, nor are the sqw-type and
-%     number of dimensions. These have to be determined from the other contents.
-%   - title,alatt,angdeg are not stored in the data section (these will be filled from the
-%     main header when converting to the current data format).
-%   - The signal and error for the bins in stored without normalisation by the number of pixels.
-%     Any data stored as type 'b' is therefore uninterpretable by Horace version 1 onwards because
-%     the npix information that is needed to normalise the signal and error in each bin is not available.
-%
-% We will only attempt to read an unrecognised file as the sqw-type prototype file, and ignore the
-% possibility of it being a dnd file.
+%   current_format  =true if the file format has one of the current formats, =false if not
+
 
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
-application=horace_version;
+application=horace_version();
 
 % Initialise output
 main_header = [];
@@ -186,6 +152,8 @@ if tidy_close(mess,fid_input,fid), return, end
 pos_start=ftell(fid);
 [mess,app_wrote_file]=get_application(fid,application.name);
 
+%if app_wrote_file.file_format
+
 if isempty(mess)
     % Post-prototype format sqw file
     current_format=true;
@@ -221,6 +189,13 @@ if isempty(mess)
 else
     % Assume prototype sqw file format
     disp('File does not have current Horace data file format. Attempting to read as prototype format Horace .sqw file...')
+    fseek(fid,pos_start,'bof');         % return to start of file
+    n = fread_catch(fid,1,'int32');     % first entry is length of character string with file name
+    if n<0 || n>1024
+        mess='Unable to read file as prototype Horace .sqw file';
+        if tidy_close(mess,fid_input,fid), return, end
+    end
+    
     current_format=false;
     file_format='-prototype';
     sqw_type=true;          % assume old sqw file format

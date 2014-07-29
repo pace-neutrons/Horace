@@ -1,67 +1,51 @@
-function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infiles, npixstart, pixstart, run_label)
+function [mess,position,npixtot,data_type] = put_sqw_data (fid, fmt_ver, data, varargin)
 % Write data block to binary file
 %
-%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data)
-%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data, '-h')
-%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data, '-nopix')
-%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data, '-pix')
-%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data, '-pix', infiles, npixstart, pixstart, run_label)
+%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, fmt_ver, data)
+%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, fmt_ver, data, '-h')
+%   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, fmt_ver, data, '-pix', v1, v2,...)
 %
 % Input:
 % -------
 %   fid         File identifier of output file (opened for binary writing)
 %
+%   fmt_ver     Version of file format e.g. appversion('-v3')
+%
 %   data        Data structure abstracted from a valid sqw data type, which must contain the fields:
 %                   type 'h'    fields: filename,...,uoffset,...,dax[,urange]
-%                   type 'b'    fields: filename,...,uoffset,...,dax,s,e
 %                   type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
 %                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
 %                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
-%               If type 'a-', then the individual pixel information will normally be given with the '-pix'
-%              option followed by the arguments infiles,...run_label (see below).
-%               Type 'h' is obtained from a valid sqw file by reading with get_sqw with the '-h' or '-his'
-%              options (or their '-hverbatim' and '-hisverbatim' variants). The final field urange is
-%              present if the header information was read from an sqw-type file, but is not written here.
-%               Input data of type 'h' is only valid when overwriting data fields in a pre-existing sqw file.
-%              It is assumed that all entries of the fields filename,...,uoffset,...dax will have the same lengths in
-%              bytes as the existing entries in the file.
-%
-%               Also accepts sparse sqw data type:
 %                   type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
-%                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
+%                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,npix_nz,pix_nz,pix_nz (sparse format)
+%
+%               - Type 'b+ has the same fields as a dnd-type sqw object
+%
+%               - Type 'a' and 'sp' correspond to an sqw-type sqw object
+%
+%               - Type 'a-' and 'sp-' correspond to what is read using get_sqw with '-nopix'. This data
+%                type needs to be accompanied with the '-pix' option followed by additional
+%                arguments that give the source of the pixel information (see below).
+%
+%               - Type 'h' is obtained from a valid sqw file by reading with get_sqw with the '-h' or '-his'
+%                options (or their '-hverbatim' and '-hisverbatim' variants). The final field urange is
+%                present if the header information was read from an sqw-type file, but is not written here.
+%                 Input data of type 'h' is only valid when overwriting data fields in a pre-existing sqw file.
+%                It is assumed that all entries of the fields filename,...,uoffset,...dax will have the same lengths in
+%                bytes as the existing entries in the file.
 %
 %   opt         Determines which parts of the input data structure to write to a file. By default, the
 %              entire contents of the input data structure are written, apart from the case of 'h' when
-%              urange will not be written if present. The default behaviour can be altered with one of
+%              urange will not be written even if present. The default behaviour can be altered with one of
 %              the following options:
 %                  '-h'      Write only the header fields of the input data: filename,...,uoffset,...,dax
 %                           (Note that urange is not written, even if present in the input data)
-%                  '-nopix'  Do not write the information for individual pixels
 %                  '-pix'    Write pixel information, either from the data structure, or from the
 %                            information in the additional optional arguments infiles...run_label (see below).
 %               An option that is consistent with the input data are accepted, even if redundant
-%               e.g.'-nopix' with data type 'h'.
 %
-% [The following are valid only with the '-pix' option. Either all or none of them must be present]
-%   infiles     Cell array of file names, or array of file identifiers of open file, from
-%              which to accumulate the pixel information
-%
-%   npixstart   Position (in bytes) from start of file of the start of the field npix
-%
-%   pixstart    Position (in bytes) from start of file of the start of the field pix
-%
-%   run_label   Indicates how to re-label the run index (pix(5,...)
-%                       'fileno'        relabel run index as the index of the file in the list infiles
-%                       'nochange'      use the run index as in the input file
-%                        numeric array  offset run numbers for ith file by ith element of the array
-%               This option exists to deal with three limiting cases:
-%                (1) The run index is already written to the files correctly indexed into the header
-%                   e.g. as when temporary files have been written during cut_sqw
-%                (2) There is one file per run, and the run index in the header block is the file
-%                   index e.g. as in the creating of the master sqw file
-%                (3) The files correspond to several runs in general, which need to
-%                   be offset to give the run indices into the collective list of run parameters
-%
+%   v1, v2,...  [Valid only with the '-pix' option] Arguments defining how pixels are to be collected
+%               from various sources other than input argument 'data' and written to this file.
 %
 % Output:
 % -------
@@ -74,18 +58,12 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %                   position.npix   position of array npix (=[] if npix not written)
 %                   position.urange position of array urange (=[] if urange not written)
 %                   position.npix_nz position of array npix_nz (=[] if npix_nz not written)
-%                   position.ipix_nz position of array ipix_nz (=[] if ipix_nz not written)
 %                   position.pix_nz  position of array pix_nz (=[] if pix_nz not written)
 %                   position.pix    position of array pix (=[] if pix not written)
 %
 %   npixtot     Total number of pixels actually written by the call to this function (=[] if pix not written)
 %
-%   data_type   Type of data actually written to the file by the call to this function: 'a', 'a-', 'b+', 'b', 'h' or 'sp'
-%              Note that this is not necessarily the same as the data type that the file
-%              will eventually contain. For example, if 'a-' then we will usually (if not
-%              always!) have eventually written the pixel information from files using
-%              the infiles...run_label options; if 'h' then header information will have been
-%              overwritten data in a file containing one of 'a','a-','b+','b'.
+%   data_type   Type of data actually written to the file by the call to this function: 'a', 'b+', 'h' or 'sp'
 %
 %
 % Fields written to the file are:
@@ -138,22 +116,20 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %
 % If sparse format:
 %   data.s          Average signal in the bins as a sparse column vector
-%   data.e          Corresponding variance in the bins as a sparse column vector
-%   data.npix       Number of contributing pixels as a sparse column vector
+%   data.e          Corresponding variance in the bins (sparse column vector)
+%   data.npix       Number of contributing pixels to each bin as a sparse column vector
 %   data.urange     <as above>
-%
-%   data.pix        Index of pixels, sorted so that all the pixels in the first
-%                  bin appear first, then all the pixels in the second bin etc. (column vector)
-%                                   ipix0 = ie + ne*(id-1)
-%                               where
-%                                   ie  energy bin index
-%                                   id  detector index into list of all detectors (i.e. masked and unmasked)
-%                                   ne  number of energy bins
-%
-%   data.npix_nz    Number of pixels in each bin with pixels with non-zero counts (sparse column vector)
-%   data.ipix_nz    Index of pixels into pix array with non-zero counts
+%   data.npix_nz    Number of non-zero pixels in each bin (sparse column vector)
 %   data.pix_nz     Array with idet,ien,s,e for the pixels with non-zero signal sorted so that
 %                  all the pixels in the first bin appear first, then all the pixels in the second bin etc.
+%   data.pix        Index of pixels, sorted so that all the pixels in the first
+%                  bin appear first, then all the pixels in the second bin etc. (column vector)
+%                           ipix = ie + ne*(id-1)
+%                       where
+%                           ie  energy bin index
+%                           id  detector index into list of all detectors (i.e. masked and unmasked)
+%                           ne  number of energy bins
+%
 %
 %
 % Notes:
@@ -163,13 +139,14 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %
 %   The data for the individual pixels is expressed in the projection axes of the original
 % contributing sqw files, as is recorded in the corresponding header block (see put_sqw_header).
-% The arguments u_to_rlu, ulen, ulabel refer to the projection axes used for the plot and integration
-% axes, and give the units in which the bin boundaries p are expressed.
+% The arguments u_to_rlu, ulen, ulabel written in this function refer to the projection axes used
+% for the plot and integration axes, and give the units in which the bin boundaries p are expressed.
 %
 %   The reason why we keep the coordinate frames separate is that in succesive cuts from sqw data
 % structures we are constantly recomputing the coordinates of pixels in the plot/integration projection
 % axes. We therefore do not want to allow rouding errors to accumulate, and so retain the original
-% data points in their original coordinate frame.
+% data points in their original coordinate frame. It also makes operations such as reorienting the crystal
+% very fast, as it only requires header information to be overwritten.
 %
 %   It is assumed that the data corresponds to a valid type, or has been abstracted from a valid type
 
@@ -178,269 +155,178 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %
 % $Revision$ ($Date$)
 
-mess = '';
-position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'ipix_nz',[],'pix_nz',[],'pix',[]);
+
+% Initialise output arguments
+position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'pix_nz',[],'pix',[]);
 npixtot=[];
 
 % Determine type of input data structure
 data_type_in = data_structure_type(data);
 
 % Determine if valid write options and number of further optional arguments
-opt_pix=false;
-opt_nopix=false;
-opt_h=false;
-if exist('opt','var');   % true if write option argument is present
-    opt_none=false;
-    opt_narg=nargin-3;  % number of arguments following write option argument
-    if ischar(opt) && strcmpi(opt,'-pix')
-        opt_pix=true;
-        if ~(opt_narg==0 || opt_narg==4)
-            mess='Number of arguments for option ''-pix'' is invalid';
-            return
-        end
-    elseif ischar(opt) && strcmpi(opt,'-nopix')
-        opt_nopix=true;
-        if opt_narg~=0
-            mess='Number of arguments for option ''-nopix'' is invalid';
-            return
-        end
-    elseif ischar(opt) && strcmpi(opt,'-h')
-        opt_h=true;
-        if opt_narg~=0
+[mess,write_header_only,data_type,optvals] = check_options(data_type_in,varargin{:});
+if ~isempty(mess), return, end
+
+
+% Write header information to file
+% --------------------------------
+[fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
+
+write_sqw_var_char (fid, fmt_ver, data.filename);
+write_sqw_var_char (fid, fmt_ver, data.filepath);
+write_sqw_var_char (fid, fmt_ver, data.title);
+
+fwrite(fid, data.alatt,    fmt_dble);
+fwrite(fid, data.angdeg,   fmt_dble);
+fwrite(fid, data.uoffset,  fmt_dble);
+fwrite(fid, data.u_to_rlu, fmt_dble);
+fwrite(fid, data.ulen,     fmt_dble);
+
+write_sqw_var_char (fid, fmt_ver, char(data.ulabel))
+
+npax = length(data.pax);    % write number plot axes - gives the dimensionality of the plot
+niax = 4 - npax;
+fwrite(fid, npax, fmt_int);
+
+if niax>0
+    fwrite(fid, data.iax,  fmt_int);
+    fwrite(fid, data.iint, fmt_dble);
+end
+
+if npax>0
+    fwrite(fid, data.pax, fmt_int);
+    for i=1:npax
+        np=length(data.p{i});   % write length of vector data.p{i}
+        fwrite(fid, np, fmt_int);
+        fwrite(fid, data.p{i}, fmt_dble);
+    end
+    fwrite(fid, data.dax, fmt_int);
+end
+
+
+% Write signal information to file, if requested
+% ----------------------------------------------
+if ~write_header_only
+    if strcmpi(data_type_in,'sp-')||strcmpi(data_type_in,'sp')
+        % Sparse data
+        [mess,pos_update,npixtot] = put_sqw_data_signal_sparse (fid, fmt_ver, data, optvals{:});
+        if ~isempty(mess), return, end
+        position=update(position,pos_update);
+    else
+        % Non-sparse data
+        [mess,pos_update,npixtot] = put_sqw_data_signal (fid, fmt_ver, data, optvals{:});
+        if ~isempty(mess), return, end
+        position=update(position,pos_update);
+    end
+    
+end
+
+%==================================================================================================
+function [mess,write_header_only,data_type_out,optvals] = check_options(data_type,varargin)
+% Check the data type and optional arguments to put_sqw_data for validity
+%
+%   >> [mess,write_header_only,optvals] = check_options(data_type,)
+%   >> [mess,write_header_only,optvals] = check_options(data_type,opt,)
+%   >> [mess,write_header_only,optvals] = check_options(data_type,opt,p1,p2,...)
+%
+% Input:
+% ------
+%   data_type   Data structure type; one of: 'h','b+','a-','a','sp-','sp'
+%   opt         [optional] option character string: one of '-h','-pix'
+%   p1,p2,...   Optional arguments as may be required by the option string:
+%               Only '-pix' currently can take optional arguments.
+%               No checks are performed on these arguments, only that the presence
+%              or otherwise is consistent with the option string.
+%
+% Output:
+% -------
+%   mess                Error message if a problem; ='' if all OK
+%   write_header_only   =true if only the data block header is to be written
+%   data_type_out       Type of data that will be written to file
+%   optvals             Optional arguments
+
+mess='';
+write_header_only=false;
+data_type_out='';
+optvals={};
+
+% Check optionarl arguments are valid
+opt.pix=false;
+opt.h=false;
+if numel(varargin)>0
+    option=varargin{1};
+    if ischar(option) && strcmpi(option,'-pix')
+        opt.pix=true;
+        optvals=varargin(2:end);
+    elseif ischar(option) && strcmpi(option,'-h')
+        if numel(varargin)>1
             mess='Number of arguments for option ''-h'' is invalid';
             return
         end
+        opt.h=true;
+        optvals={};
     else
-        mess='Unrecognised write option specified in put_sqw_data';
+        mess='Unrecognised option specified in put_sqw_data';
         return
     end
-else
-    opt_none=true;
 end
+noopt=~(opt.pix||opt.h);
 
-% Determine if valid write option for inpur data structure
-if strcmpi(data_type_in,'h')
-    if opt_h || opt_nopix || opt_none
+% Determine if valid write option for input data structure
+if strcmpi(data_type,'h')
+    if opt.h || noopt
         write_header_only=true;
+        data_type_out='h';
     else
         mess = 'Invalid write option specified in put_sqw_data for ''h'' type data';
         return
     end
-elseif strcmpi(data_type_in,'b')||strcmpi(data_type_in,'b+')
-    if opt_h
+    
+elseif strcmpi(data_type,'b+')
+    if opt.h
         write_header_only=true;
-    elseif opt_nopix || opt_none
+        data_type_out='h';
+    elseif noopt
         write_header_only=false;
+        data_type_out='b+';
     else
-        mess = 'Invalid write option specified in put_sqw_data for ''b'' or ''b+'' type data';
+        mess = 'Invalid write option specified in put_sqw_data for ''b+'' type data';
         return
     end
-elseif strcmpi(data_type_in,'a-') || strcmpi(data_type_in,'sp-')
-    write_header_only=false;
-    if opt_h
+    
+elseif strcmpi(data_type,'a-') || strcmpi(data_type,'sp-')
+    if opt.h
         write_header_only=true;
-    elseif opt_nopix || opt_none
-        pix_from_struct = false;
-        pix_from_file = false;
-    elseif opt_pix
-        if opt_narg==4    % pixel file information
-            pix_from_struct = false;
-            pix_from_file = true;
-        else
-            mess = 'Invalid number of option arguments for ''-pix'' option with ''a-'' type data in put_sqw_data';
+        data_type_out='h';
+    elseif opt.pix
+        write_header_only=false;
+        data_type_out=data_type(1:end-1);   % remove the trailing '-'
+        if isempty(optvals)
+            mess=['Must supply an additional source of pixel information for ''',data_type,''' type data'];
             return
         end
     else
-        mess = 'Invalid write option specified in put_sqw_data for ''a'' type data';
-        return
-    end
-elseif strcmpi(data_type_in,'a') || strcmpi(data_type_in,'sp')
-    write_header_only=false;
-    if opt_h
-        write_header_only=true;
-    elseif opt_nopix
-        pix_from_struct = false;
-        pix_from_file = false;
-    elseif opt_pix
-        if opt_narg==0        % no pixel file info
-            pix_from_struct = true;
-            pix_from_file = false;
-        elseif opt_narg==4    % pixel file information
-            pix_from_struct = false;
-            pix_from_file = true;
+        if noopt
+            mess=['Must supply an additional source of pixel information for ''',data_type,''' type data'];
+            return
         else
-            mess = ['Invalid number of option arguments for ''-pix'' option with ',data_type_in,' type data in put_sqw_data'];
+            mess = 'Invalid write option specified in put_sqw_data for ''a'' type data';
             return
         end
-    elseif opt_none
-        pix_from_struct = true;
-        pix_from_file = false;
+    end
+    
+elseif strcmpi(data_type,'a') || strcmpi(data_type,'sp')
+    if opt.h
+        write_header_only=true;
+        data_type_out='h';
+    elseif opt.pix || noopt
+        write_header_only=false;
+        data_type_out=data_type;
     else
-        mess = ['Invalid write option specified in put_sqw_data for ',data_type_in,' type data'];
+        mess = ['Invalid write option specified in put_sqw_data for ',data_type,' type data'];
         return
     end
-else
-    error('logic error in put_sqw_data')
-end
-
-
-% Write header information to file (apart from urange, which is only present if 'a','a-','sp','sp-')
-% --------------------------------
-n=length(data.filename);
-fwrite(fid,n,'int32');              % write length of filename
-fwrite(fid,data.filename,'char');
-
-n=length(data.filepath);
-fwrite(fid,n,'int32');              % write length of filepath
-fwrite(fid,data.filepath,'char');
-
-n=length(data.title);
-fwrite(fid,n,'int32');              % write length of title
-fwrite(fid,data.title,'char');
-
-fwrite(fid,data.alatt,'float32');
-fwrite(fid,data.angdeg,'float32');
-fwrite(fid,data.uoffset,'float32');
-fwrite(fid,data.u_to_rlu,'float32');
-fwrite(fid,data.ulen,'float32');
-
-ulabel=char(data.ulabel);
-n=size(ulabel);
-fwrite(fid,n,'int32');      % write size of character array of the axes labels
-fwrite(fid,ulabel,'char');
-
-npax = length(data.pax);    % write number plot axes - gives the dimensionality of the plot
-niax = 4 - npax;
-fwrite(fid,npax,'int32');
-
-if niax>0
-    fwrite(fid,data.iax,'int32');
-    fwrite(fid,data.iint,'float32');
-end
-
-if npax>0
-    fwrite(fid,data.pax,'int32');
-    for i=1:npax
-        np=length(data.p{i});   % write length of vector data.p{i}
-        fwrite(fid,np,'int32');
-        fwrite(fid,data.p{i},'float32');
-    end
-    fwrite(fid,data.dax,'int32');
-end
-
-position.s=[];
-position.e=[];
-position.npix=[];
-position.urange=[];
-position.pix=[];
-position.npix_nz=[];
-position.pix_nz=[];
-npixtot=[];
-
-
-% Write further information to file, if requested
-% -----------------------------------------------
-if ~write_header_only
-    data_type = data_type_in;
-    
-    if ~(strcmpi(data_type_in,'sp-')||strcmpi(data_type_in,'sp'))
-        % -----------------------------------------
-        % Data_type is not 'sp' or 'sp-'
-        % -----------------------------------------
-        
-        position.s=ftell(fid);
-        fwrite(fid,single(data.s),'float32');
-        
-        position.e=ftell(fid);
-        fwrite(fid,single(data.e),'float32');
-        
-        % Optional fields depending on input data structure and options
-        
-        if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')||strcmpi(data_type_in,'b+')
-            position.npix=ftell(fid);
-            fwrite(fid,int64(data.npix),'int64');  % make int64 so that can deal with huge numbers of pixels
-        end
-        
-        if strcmpi(data_type_in,'a')||strcmpi(data_type_in,'a-')
-            % Write urange
-            position.urange=ftell(fid);
-            fwrite(fid,data.urange,'float32');
-            % Write pix if requested
-            if pix_from_struct
-                fwrite(fid,1,'int32');          % redundant field - only present for backwards compatibility
-                npixtot=size(data.pix,2);
-                fwrite(fid,npixtot,'int64');    % make int64 so that can deal with huge numbers of pixels
-                position.pix=ftell(fid);
-                data_type='a';
-                if npixtot>0
-                    % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
-                    % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
-                    % could have no pixels because none contributed to the given data range.
-                    block_size=get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
-                    if npixtot<=block_size
-                        fwrite(fid,single(data.pix),'float32');
-                    else
-                        for ipix=1:block_size:npixtot
-                            istart = ipix;
-                            iend   = min(ipix+block_size-1,npixtot);
-                            fwrite(fid,single(data.pix(:,istart:iend)),'float32');
-                        end
-                    end
-                end
-            elseif pix_from_file
-                fwrite(fid,1,'int32');              % redundant field - only present for backwards compatibility
-                npix_cumsum = cumsum(data.npix(:)); % accumulated number of pixels per bin as a column vector
-                npixtot=npix_cumsum(end);
-                fwrite(fid,npixtot,'int64');        % make int64 so that can deal with huge numbers of pixels
-                position.pix=ftell(fid);
-                data_type='a';
-                if npixtot>0
-                    mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
-                end
-            else
-                data_type='a-';
-            end
-        end
-        
-    else
-        % -----------------------------------------
-        % Data_type is 'sp' or 'sp-'
-        % -----------------------------------------
-        % Write signal, variance and number of contributing pixels as sparse arrays
-        position.s=ftell(fid);
-        write_sparse(fid,data.s,'float32');
-        
-        position.e=ftell(fid);
-        write_sparse(fid,data.e,'float32');
-        
-        position.npix=ftell(fid);
-        write_sparse(fid,data.npix,'int32');    % only a single spe file: so do not need to allow for a large number of pixels in one bin
-        
-        % Write urange
-        position.urange=ftell(fid);
-        fwrite(fid,data.urange,'float32');
-        
-        if strcmpi(data_type_in,'sp')
-            % Write pixel information
-            position.npix_nz=ftell(fid);
-            write_sparse(fid,data.npix_nz,'int32');     % only a single spe file: so do not need to allow for a large number of pixels in one bin
-            
-            fwrite(fid,numel(data.ipix_nz),'float64');  % number of pixels with non-zero signal
-            position.ipix_nz=ftell(fid);
-            fwrite(fid,int32(data.ipix_nz),'int32');    % only single spe file, so pixel index <2e9 e.g. 10^5 dets, 1^3 energy bins
-            
-            position.pix_nz=ftell(fid);
-            fwrite(fid,single(data.pix_nz),'float32');
-            
-            fwrite(fid,numel(data.pix),'float64');
-            position.pix=ftell(fid);
-            fwrite(fid,int32(data.pix),'int32');    % only single spe file, so pixel index <2e9 e.g. 10^5 dets, 1^3 energy bins
-            
-            npixtot=numel(data.pix);
-        end
-    end
     
 else
-    % Only wrote the header information
-    data_type='h';
+    error('Unrecognised data type in put_sqw_data')
 end

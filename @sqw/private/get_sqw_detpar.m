@@ -1,16 +1,17 @@
-function [mess, det, position] = get_sqw_detpar (fid)
+function [mess, det, position] = get_sqw_detpar (fid, fmt_ver)
 % Read the detector parameter from a binary file.
 %
-%   >> [mess, det, position] = get_sqw_detpar (fid)
+%   >> [mess, det, position] = get_sqw_detpar (fid, fmt_ver)
 %
 % Input:
 % ------
-%   fid         File pointer to (already open) binary file
+%   fid             File pointer to (already open) binary file
+%   fmt_ver         Version of file format e.g. appversion('-v3')
 %
 % Output:
 % -------
-%   mess        Error message; blank if no errors, non-blank otherwise
-%   det         Structure containing fields read from file (details below)
+%   mess            Error message; blank if no errors, non-blank otherwise
+%   det             Structure containing fields read from file (details below)
 %   position        Position of start of detector parameter block
 %
 %
@@ -34,20 +35,19 @@ function [mess, det, position] = get_sqw_detpar (fid)
 det = [];
 position = ftell(fid);
 
+[fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
+
 try
-    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-    [det.filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    det.filename = read_sqw_var_char (fid, fmt_ver);
+    det.filepath = read_sqw_var_char (fid, fmt_ver);
     
-    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-    [det.filepath, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
-    
-    [ndet, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-    [det.group, count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-    [det.x2,    count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-    [det.phi,   count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-    [det.azim,  count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-    [det.width, count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
-    [det.height,count,ok,mess] = fread_catch(fid, [1,ndet], 'float32'); if ~all(ok); return; end;
+    ndet = fread(fid, 1, fmt_int);
+    det.group  = fread(fid, [1,ndet], fmt_dble);
+    det.x2     = fread(fid, [1,ndet], fmt_dble);
+    det.phi    = fread(fid, [1,ndet], fmt_dble);
+    det.azim   = fread(fid, [1,ndet], fmt_dble);
+    det.width  = fread(fid, [1,ndet], fmt_dble);
+    det.height = fread(fid, [1,ndet], fmt_dble);
     
 catch
     mess='Error reading detector parameter block from file';

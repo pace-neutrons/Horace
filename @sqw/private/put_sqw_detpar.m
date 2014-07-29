@@ -1,11 +1,12 @@
-function [mess, position] = put_sqw_detpar (fid, det)
+function [mess, position] = put_sqw_detpar (fid, fmt_ver, det)
 % Write detector information to binary file.
 %
-%   >> [mess, position] = put_sqw_detpar (fid, det)
+%   >> [mess, position] = put_sqw_detpar (fid, fmt_ver, det)
 %
 % Input:
 % ------
 %   fid             File identifier of output file (opened for binary writing)
+%   fmt_ver         Version of file format e.g. appversion('-v3')
 %   det             Structure which must contain (at least) the fields listed below
 %
 % Output:
@@ -43,24 +44,22 @@ function [mess, position] = put_sqw_detpar (fid, det)
 mess = '';
 position = ftell(fid);
 
+[fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
+
 try
-    n=length(det.filename);
-    fwrite(fid,n,'int32');
-    fwrite(fid,det.filename,'char');
-    
-    n=length(det.filepath);
-    fwrite(fid,n,'int32');
-    fwrite(fid,det.filepath,'char');
+    write_sqw_var_char (fid, fmt_ver, det.filename);
+    write_sqw_var_char (fid, fmt_ver, det.filepath);
     
     ndet=size(det.x2,2);    % no. detectors
-    fwrite(fid,ndet,'int32');
+    fwrite(fid,ndet,fmt_int);
     
-    fwrite(fid,det.group,'float32');
-    fwrite(fid,det.x2,'float32');
-    fwrite(fid,det.phi,'float32');
-    fwrite(fid,det.azim,'float32');
-    fwrite(fid,det.width,'float32');
-    fwrite(fid,det.height,'float32');
+    fwrite(fid, det.group,  fmt_dble);
+    fwrite(fid, det.x2,     fmt_dble);
+    fwrite(fid, det.phi,    fmt_dble);
+    fwrite(fid, det.azim,   fmt_dble);
+    fwrite(fid, det.width,  fmt_dble);
+    fwrite(fid, det.height, fmt_dble);
+    
 catch
     mess='Error writing detector parameter block to file';
 end

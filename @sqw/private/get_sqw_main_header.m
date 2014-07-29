@@ -1,7 +1,7 @@
-function [mess, main_header, position] = get_sqw_main_header (fid, opt)
+function [mess, main_header, position] = get_sqw_main_header (fid, fmt_ver, opt)
 % Read the main header block for the results of performing calculate projections on spe file(s).
 %
-%   >> [mess, main_header, position] = get_sqw_main_header(fid)
+%   >> [mess, main_header, position] = get_sqw_main_header(fid, fmt_ver)
 %
 % The default behaviour is that the filename and filepath that are written to file are ignored; 
 % we fill with the values corresponding to the file that is actually being read.
@@ -11,6 +11,7 @@ function [mess, main_header, position] = get_sqw_main_header (fid, opt)
 % Input:
 % ------
 %   fid             File pointer to (already open) binary file
+%   fmt_ver         Version of file format e.g. appversion('-v3')
 %   opt             [Optional] read flag:
 %                   '-verbatim'   The file name as stored in the main_header is returned as stored,
 %                                and not constructed from the value of fopen(fid).
@@ -37,6 +38,8 @@ mess='';
 main_header=[];
 position = ftell(fid);
 
+ver3p1=appversion(3.1);
+
 % Check verbatim option
 if exist('opt','var')
     if ischar(opt) && strcmpi(opt,'-verbatim')
@@ -51,32 +54,26 @@ end
 
 % Read data from file:
 try
-    n = fread_catch(fid,1,'int32');
-    % Need to try to catch case of e.g. text file where n is read as a stupidly high number
-    if n>=0 && n<1024   % allow up to 1024 characters; also allow for the possibility that there was no file name at all!
-        dummy_filename = fread(fid,[1,n],'*char');
-    else
-        mess = 'Unrecognised format for application and version'; return
-    end
-
-    n = fread_catch(fid,1,'int32');
-    dummy_filepath = fread(fid,[1,n],'*char');
-
+    dummy_filename = read_sqw_var_char (fid, fmt_ver);
+    dummy_filepath = read_sqw_var_char (fid, fmt_ver);
     if verbatim
-        % Read filename and path from file
+        % Set filename and path from file contents
         main_header.filename=dummy_filename;
         main_header.filepath=dummy_filepath;
     else
-        % Get file name and path (incl. final separator)
+        % Set file name and path from file name (incl. final separator)
         [path,name,ext]=fileparts(fopen(fid));
         main_header.filename=[name,ext];
         main_header.filepath=[path,filesep];
     end
     
-    n = fread_catch(fid,1,'int32');
-    main_header.title = fread(fid,[1,n],'*char');
+    main_header.title = read_sqw_var_char (fid, fmt_ver);
 
-    main_header.nfiles = fread(fid,1,'int32');
+    if fmt_ver>=ver3p1
+        main_header.nfiles = fread(fid,1);
+    else
+        main_header.nfiles = fread(fid,1,'int32');
+    end
 
 catch
     mess='Error reading main header block from file';

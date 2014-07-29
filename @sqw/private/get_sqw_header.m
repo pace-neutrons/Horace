@@ -1,11 +1,12 @@
-function [mess, header, position] = get_sqw_header (fid, nfiles)
+function [mess, header, position] = get_sqw_header (fid, fmt_ver, nfiles)
 % Read the header blocks for the contributing spe file(s) to an sqw file.
 %
-%   >> [mess, header, position] = get_sqw_header (fid, nfiles)
+%   >> [mess, header, position] = get_sqw_header (fid, fmt_ver, nfiles)
 %
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
+%   fmt_ver         Version of file format e.g. appversion('-v3')
 %   nfiles      Number of contributing data sets to the header (>=1)
 %
 % Output:
@@ -51,14 +52,14 @@ function [mess, header, position] = get_sqw_header (fid, nfiles)
 
 if nfiles==1
     position = ftell(fid);
-    [mess, header] = get_sqw_header_single (fid);
+    [mess, header] = get_sqw_header_single (fid,fmt_ver);
     
 else
     header = cell(nfiles,1);
     position = zeros(nfiles,1);
     for i=1:nfiles
         position(i) = ftell(fid);
-        [mess, header{i}] = get_sqw_header_single (fid);
+        [mess, header{i}] = get_sqw_header_single (fid,fmt_ver);
         if ~isempty(mess)
             mess = [mess,': spe file ',num2str(i)];
             return
@@ -68,7 +69,7 @@ end
 
 
 %------------------------------------------------------------------------------
-function [mess, header] = get_sqw_header_single (fid)
+function [mess, header] = get_sqw_header_single (fid, fmt_ver)
 % Read a single header structure from sqw file
 %
 %   >> [mess, header] = get_sqw_header_single (fid, header)
@@ -76,44 +77,48 @@ function [mess, header] = get_sqw_header_single (fid)
 % Input:
 % ------
 %   fid             File identifier of output file
+%   fmt_ver         Version of file format e.g. appversion('-v3')
 %
 % Output:
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
 %   header          Header block: single data structure
 
+mess='';
 header=struct;
 
+[fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
+
 try
-    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-    [header.filename, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    % Read from file
+    header.filename = read_sqw_var_char (fid, fmt_ver);
+    header.filepath = read_sqw_var_char (fid, fmt_ver);
+
+    header.efix = fread(fid, 1, fmt_dble);
+
+    header.efix   = fread(fid, 1, fmt_dble);
+    header.emode  = fread(fid, 1, fmt_int);
+    header.alatt  = fread(fid, [1,3], fmt_dble);
+    header.angdeg = fread(fid, [1,3], fmt_dble);
+    header.cu     = fread(fid, [1,3], fmt_dble);
+    header.cv     = fread(fid, [1,3], fmt_dble);
+    header.psi    = fread(fid, 1, fmt_dble);
+    header.omega  = fread(fid, 1, fmt_dble);
+    header.dpsi   = fread(fid, 1, fmt_dble);
+    header.gl     = fread(fid, 1, fmt_dble);
+    header.gs     = fread(fid, 1, fmt_dble);
     
-    [n, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-    [header.filepath, count, ok, mess] = fread_catch(fid,[1,n],'*char'); if ~all(ok); return; end;
+    ne = fread(fid, 1, fmt_int);
+    header.en = fread(fid, [ne,1], fmt_dble);
+
+    header.uoffset  = fread(fid, [4,1], fmt_dble);
+    header.u_to_rlu = fread(fid, [4,4], fmt_dble);
+    header.ulen     = fread(fid, [1,4], fmt_dble);
     
-    [header.efix,   count, ok, mess] = fread_catch(fid,1,    'float32'); if ~all(ok); return; end;
-    [header.emode,  count, ok, mess] = fread_catch(fid,1,    'int32');   if ~all(ok); return; end;
-    [header.alatt,  count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
-    [header.angdeg, count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
-    [header.cu,     count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
-    [header.cv,     count, ok, mess] = fread_catch(fid,[1,3],'float32'); if ~all(ok); return; end;
-    [header.psi,    count, ok, mess] = fread_catch(fid,1,    'float32'); if ~all(ok); return; end;
-    [header.omega,  count, ok, mess] = fread_catch(fid,1,    'float32'); if ~all(ok); return; end;
-    [header.dpsi,   count, ok, mess] = fread_catch(fid,1,    'float32'); if ~all(ok); return; end;
-    [header.gl,     count, ok, mess] = fread_catch(fid,1,    'float32'); if ~all(ok); return; end;
-    [header.gs,     count, ok, mess] = fread_catch(fid,1,    'float32'); if ~all(ok); return; end;
-    
-    [ne, count, ok, mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;
-    [header.en,count,ok,mess] = fread_catch(fid, [ne,1], 'float32'); if ~all(ok); return; end;
-    
-    [header.uoffset, count, ok, mess] = fread_catch(fid,[4,1],'float32'); if ~all(ok); return; end;
-    [header.u_to_rlu,count, ok, mess] = fread_catch(fid,[4,4],'float32'); if ~all(ok); return; end;
-    [header.ulen,    count, ok, mess] = fread_catch(fid,[1,4],'float32'); if ~all(ok); return; end;
-    
-    [n, count, ok, mess] = fread_catch(fid,2,'int32'); if ~all(ok); return; end;
-    [ulabel, count, ok, mess] = fread_catch(fid,[n(1),n(2)],'*char'); if ~all(ok); return; end;
+    ulabel=read_sqw_var_char (fid,fmt_ver,true);
     header.ulabel=cellstr(ulabel)';
     
+    % Structures with no fields for sample and instrument
     header.instrument = struct;
     header.sample = struct;
     

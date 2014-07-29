@@ -1,7 +1,9 @@
-function [v,ok,mess]=read_sparse(fid,skip)
-% Read sparse column vector of doubles written with write_sparse
+function [v,ok,mess]=read_sparse2(fid,skip)
+% Read sparse column vector of doubles written with write_sparse2
 %
-%   >> [v,ok,mess] = read_sparse(fid,skip)
+%   >> [v,ok,mess] = read_sparse2(fid)
+%   >> [v,ok,mess] = read_sparse2(fid,skip)
+%   >> [v,ok,mess] = read_sparse2(fid,type,***)
 %
 % Input:
 % ------
@@ -31,39 +33,25 @@ nbits=n(3);
 
 % Read or skip over data
 if ~skip
-    % Read indicies
-    if nel>=intmax('int32')
-        ind = fread(fid,[nval,1],'*int64');
-    else
-        ind = fread(fid,[nval,1],'*int32');
-    end
-    
-    % Read values
     if nbits==32
-        val = fread(fid,[nval,1],'*float32');
+        val = fread(fid,[2,nval],'*float32');
     elseif nbits==64
-        val = fread(fid,[nval,1],'*float64');
+        val = fread(fid,[2,nval],'*float64');
     elseif nbits==-32
-        val = fread(fid,[nval,1],'*int32');
+        val = fread(fid,[2,nval],'*int32');
     else
         error('Unrecognised type')
     end
     
     % Construct sparse column vector
-    v=sparse(double(ind),1,double(val),nel,1);
+    v=sparse(double(val(1,:)),1,double(val(2,:)),nel,1);
 else
-    % Skip over the data, if requested, but position at end of the data
-    if nel>=intmax('int32')
-        nbytes=8*nval;
-    else
-        nbytes=4*nval;
-    end
     if nbits==32
-        nbytes=nbytes+4*nval;
+        nbytes=4*nval;
     elseif nbits==64
-        nbytes=nbytes+8*nval;
+        nbytes=8*nval;
     elseif nbits==32
-        nbytes=nbytes+4*nval;
+        nbytes=4*nval;
     else
         error('Unrecognised type')
     end

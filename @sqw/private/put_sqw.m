@@ -1,11 +1,14 @@
-function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header,detpar,data,varargin)
+function [mess,position,npixtot,data_type,file_format] = put_sqw (outfile,main_header,header,detpar,data,varargin)
 % Write an sqw data structure to file
 %
 %   >> [mess, position, npixtot, type] = put_sqw (outfile, main_header, header, detpar, data)
-%   >> [mess, position, npixtot, type] = put_sqw (outfile, main_header, header, detpar, data, '-nopix')
-%   >> [mess, position, npixtot, type] = put_sqw (outfile, main_header, header, detpar, data, '-pix')
-%   >> [mess, position, npixtot, type] = put_sqw (outfile, main_header, header, detpar, data, '-pix',...
-%                                                              infiles, npixstart, pixstart, run_label)
+%   >> [mess, position, npixtot, type] = put_sqw (outfile, main_header, header, detpar, data, '-h')
+%   >> [mess, position, npixtot, type] = put_sqw (outfile, main_header, header, detpar, data, '-his')
+%   >> [mess, position, npixtot, type] = put_sqw (outfile, main_header, header, detpar, data, '-pix', v1, v2, ...)
+%
+% In addition, specify a file format other than the latest version compatible with the input data:
+%   >> [...] = put_sqw (...,'file_format',fmt)
+%
 %
 % Input:
 % -------
@@ -19,7 +22,6 @@ function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header
 %
 %   data        Data section structure abstracted from sqw data type, which must contain the fields:
 %                   type 'h'    fields: filename,...,uoffset,...,dax[,urange]
-%                   type 'b'    fields: filename,...,uoffset,...,dax,s,e
 %                   type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
 %                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
 %                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
@@ -49,27 +51,17 @@ function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header
 %                           Also, as above, option '-his' can only be applied to a pre-existing sqw file.
 %                  '-nopix'  Do not write the information for individual pixels
 %                  '-pix'    Write pixel information, either from the data structure, or from the
-%                           information in the additional optional arguments infiles...run_label (see below).
+%                           information in the additional optional arguments (see below).
 %
-% [The following are valid only with the '-pix' option. Either all or none of them must be present]
-%   infiles     Cell array of file names, or array of file identifiers of open file, from
-%              which to accumulate the pixel information
+%   v1, v2,...  [Valid only with the '-pix' option] Arguments defining how pixels are to be collected
+%               from various sources other than input argument 'data' and written to this file.
 %
-%   npixstart   Position (in bytes) from start of file of the start of the field npix
-%
-%   pixstart    Position (in bytes) from start of file of the start of the field pix
-%
-%   run_label   Indicates how to re-label the run index (pix(5,:))
-%                       'fileno'        relabel run index as the index of the file in the list infiles
-%                       'nochange'      use the run index as in the input file
-%                        numeric array  offset run numbers for ith file by ith element of the array
-%                   This option exists to deal with three limiting cases:
-%                    (1) The run index is already written to the files correctly indexed into the header
-%                       e.g. as when temporary files have been written during cut_sqw
-%                    (2) There is one file per run, and the run index in the header block is the file
-%                       index e.g. as in the creating of the master sqw file
-%                    (3) The files correspond to several runs in general, which need to
-%                       be offset to give the run indices into the collective list of run parameters
+%   file_format [Optional] File format to be written:
+%                   '-v3.1'     Default
+%                   '-v3'       Format used by Horace version 3. Sparse sqw structures will be written as
+%                              full format
+%               
+%   
 %
 % Output:
 % --------
@@ -93,36 +85,26 @@ function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header
 %                   position.instrument     start of header instrument blocks (=[] if not written in the file)
 %                   position.sample         start of header sample blocks (=[] if not written in the file)
 %                   position.position_info  start of the position block (=[] if not written in the file
-%                                          i.e. has file format '-v2')
+%                                          i.e. has file format '-v1')
 %               The positions of these blocks are correct for the output file, even if the options '-h'
 %               or '-his' are given.
 %
 %   npixtot     Total number of pixels in the file  (=[] if no pix field information in the file)
 %              That is, if pix is absent then npixtot==[]; whereas if size(pix)==[9,0], npixtot=0)
 %
-%   data_type   Type of sqw data written in the file: 'a', 'a-', 'b+', 'b' or 'sp'
+%   data_type   Type of sqw data written in the file: 'a', 'a-', 'b+', 'b', 'sp-', 'sp'
 %              Note that only types 'a' and 'b+' correspond to valid sqw objects (sqw-type and dnd-type respectively)
+%
+%   file_format Format of file actually written (recall v3 will write in v2 format if no sample
+%              and instrument information)
+%                   Current formats:  '-v1', '-v3', '-v3.1'
 %
 %
 % NOTES:
 % ======
 % File Formats
 % ------------
-% The current sqw file format comes in two variants:
-%   - Horace version 1 and version 2: file format '-v2'
-%      (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
-%       This format is the one still written if these fields all have the 'empty' value in the sqw object.
-%   - Horace version 3: file format '-v3'.
-%       (November 2013 onwards.) Writes the instrument and sample fields from the header block, and
-%      positions of the start of major data blocks in the sqw file. This format is written if the
-%      instrument and sample fields are not 'empty'.
-%
-% Adding sample or instrument data to an existing '-v2' file will convert the format to '-v3'.
-% Subsequently setting the sample and instrument to 'empty' will *NOT* convert the file back
-% to '-v2' due to limitations of Matlab file writing. (Matlab does not permit the length of an
-% existing file to be shortened).
-%
-% This function cannot be used to write the prototype file format, which is now obsolete
+% This function cannot be used to write the prototype file format, '-v0', which is now obsolete
 %
 %
 % Input
@@ -163,27 +145,66 @@ function [mess,position,npixtot,data_type] = put_sqw (outfile,main_header,header
 
 
 % Get application and version number
+% ----------------------------------
 application=horace_version();
 
 % Initialise output arguments
+% ---------------------------
 position = struct('main_header',[],'header',[],'detpar',[],...
     'data',[],'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'ipix_nz',[],'pix_nz',[],'pix',[],...
     'instrument',[],'sample',[],'position_info',[]);
 npixtot = [];
 data_type='';
+file_format='';
 
-% Determine type of object
+% Determine form of input to be written
+% -------------------------------------
+% Determine type of object and data, and whether the sample or instrument fields are filled
+% in the header
 if ~isempty(main_header)
     sqw_type=true;
 else
     sqw_type=false;
 end
+filled_inst_or_sample=put_sqw_header_get_type (header);
+[data_type_in,sparse_fmt]=data_structure_type(data);
 
+% Parse optional arguments
+% ------------------------
+narg=numel(varargin);
+if narg>=2 && ischar(varargin{end-1}) && strcmpi(varargin{end-1},'file_format')
+    try
+        file_format_in=appversion(varargin{end});
+        if ~any(file_format_in)
+        end
+    catch
+        mess='Unrecognised file_format description';
+        return
+    end
+    narg=narg-2;
+else
+    file_format_in=[];
+end
+if narg==1 && strcmpi(varargin{1},{'-h','-his','-nopix'})
+    opt=varargin{1};
+    optvals={};
+elseif narg>=1 && strcmpi(varargin{1},'pix')
+    opt=varargin{1};
+    optvals=varargin(2:end);
+elseif narg==0
+    opt='';
+    optvals={};
+else
+    mess='Invalid options to put_sqw';
+    return
+end
+  
 % Determine if option is set to write header only: this can only be done to a previously written sqw file
-if numel(varargin)>0 && ischar(varargin{1}) && (strcmpi(varargin{1},'-h')||strcmpi(varargin{1},'-his'))
+% that is complete i.e. is 'a', 'b+' or 'sp'.
+if strcmpi(opt,{'-h','-his'})
     newfile=false;
     write_data_header_only=true;
-    if strcmpi(varargin{1},'-h')
+    if strcmpi(opt,'-h')
         write_inst_and_samp=false;
     else
         write_inst_and_samp=true;
@@ -192,7 +213,6 @@ else
     newfile=true;
     write_data_header_only=false;
     write_inst_and_samp=true;
-    write_sparse_format = strcmpi(data_structure_type(data),'sp');
 end
 
 
@@ -205,31 +225,58 @@ if ~isempty(mess), return, end
 % Write application and file format version number
 % ------------------------------------------------
 % Determine the output file format version to be written to a new file:
-% - If the data has the sparse structure (type 'sp') use the additional format added to '-v3' to hold this type
+% - If the data has the sparse structure (type 'sp') use the additional format added to '-v3.1' to hold this type
 % - If one or both of the instrument or sample blocks are non-empty, use the version 3 format
 % - If the instrument and sample blocks are both empty, use the version 2 format (which is the same as version 1)
-% However, if appending to or overwriting parts of an existing sqw file
+%
+% However, if appending to, or overwriting parts of, an existing sqw file
 % - If the format is already '-v3' then it must remain so, even if the instrument and sample information
 %   fields correspond to empty information (this is because of the inability to shorten an existing file in
 %   matlab)
 
-filled_inst_or_sample=put_sqw_header_get_type (header);
+% Valid file formats:
+ver2=appversion('-v2');
+ver3=appversion('-v3');
+ver3p1=appversion('-v3.1');    % Current default format
+
 if newfile
-    if ~write_sparse_format && ~filled_inst_or_sample
-        application.version=2;  % disguise as having been created by Horace version 2
+    if isempty(file_format_in) || file_format_in==ver3p1
+        fmt_ver=ver3p1;     % Use the default format; 
+        
+    elseif file_format_in==ver3
+        if sparse_fmt
+            mess='Requested output format incompatible with sparse data';   % *** could autovonvert to non-sparse
+            if tidy_close(mess,fid_input,fid), return, end
+        end
+        
+    elseif file_format_in==ver2
+        if sparse_fmt
+            mess='Requested output format incompatible with sparse data';   % *** could autovonvert to non-sparse
+            if tidy_close(mess,fid_input,fid), return, end
+        end
+        if filled_inst_or_sample
+            mess='Requested output format incompatible with writing instrument &/or sample information';   % *** could drpa this information
+            if tidy_close(mess,fid_input,fid), return, end
+        end
+        
+    elseif ~write_sparse_format && ~filled_inst_or_sample
+        application.file_format='-v2';  % disguise as having been created by Horace version 2
         file_format='-v2';
+        
     else
-        file_format='-v3';
+        mess='Unrecognised file format version';
+        if tidy_close(mess,fid_input,fid), return, end
+        
     end
 else
     [mess,application_file] = get_application (fid,application.name);  % get Horace version that wrote the file
     if tidy_close(mess,fid_input,fid), return, end
-    if application_file.version==2 && ~(filled_inst_or_sample && write_inst_and_samp)
-        application.version=2;  % retain disguise as still having been created by Horace version 2
+    if application_file.file_format==2 && ~(filled_inst_or_sample && write_inst_and_samp)
+        application.file_format=2;  % retain disguise as still having been created by Horace version 2
         file_format='-v2';
     else    % if '-v3', must remain so even if no sample or instrument information
         file_format='-v3';
-        if application_file.version==2
+        if application_file.file_format==2
             change_v2_to_v3=true;
         else
             change_v2_to_v3=false;
@@ -244,7 +291,7 @@ if tidy_close(mess,fid_input,fid), return, end
 % Write sqw_type and dimensions
 % ------------------------------------
 ndims = data_dims(data);
-mess = put_sqw_object_type (fid, sqw_type, ndims);
+mess = put_sqw_object_type (fid, fmt_ver, sqw_type, ndims);
 if tidy_close(mess,fid_input,fid), return, end
 
 
@@ -252,7 +299,7 @@ if tidy_close(mess,fid_input,fid), return, end
 % ------------------------------------
 % (empty if dnd-style data)
 if ~isempty(main_header)
-    [mess,position.main_header] = put_sqw_main_header (fid, main_header);
+    [mess,position.main_header] = put_sqw_main_header (fid, fmt_ver, main_header);
     if tidy_close(mess,fid_input,fid), return, end
 end
 
@@ -261,7 +308,7 @@ end
 % -----------------------------------------
 % (empty if dnd-style data)
 if ~isempty(header)
-    [mess,position.header] = put_sqw_header (fid, header);
+    [mess,position.header] = put_sqw_header (fid, fmt_ver, header);
     if tidy_close(mess,fid_input,fid), return, end
 end
 
@@ -270,7 +317,7 @@ end
 % ------------------------------------
 % (empty if dnd-style data)
 if ~isempty(detpar)
-    [mess,position.detpar] = put_sqw_detpar (fid, detpar);
+    [mess,position.detpar] = put_sqw_detpar (fid, fmt_ver, detpar);
     if tidy_close(mess,fid_input,fid), return, end
 end
 
@@ -278,9 +325,9 @@ end
 % Write data
 % ------------------------------------
 if ~write_data_header_only
-    [mess,position_data,npixtot_written,data_type_written] = put_sqw_data (fid, data, varargin{:});
+    [mess,position_data,npixtot_written,data_type_written] = put_sqw_data (fid, fmt_ver, data, varargin{:});
 else
-    [mess,position_data,npixtot_written,data_type_written] = put_sqw_data (fid, data, '-h', varargin{2:end});
+    [mess,position_data,npixtot_written,data_type_written] = put_sqw_data (fid, fmt_ver, data, '-h', varargin{2:end});
 end
 if tidy_close(mess,fid_input,fid), return, end
 
@@ -303,14 +350,8 @@ if ~newfile
     if tidy_close(mess,fid_input,fid), return, end
 end
 
-position.s=position_data.s;
-position.e=position_data.e;
-position.npix=position_data.npix;
-position.urange=position_data.urange;
-position.pix=position_data.pix;
-position.npix_nz=position_data.npix_nz;
-position.ipix_nz=position_data.ipix_nz;
-position.pix_nz=position_data.pix_nz;
+position=updatestruct(position,position_data);
+
 npixtot=npixtot_written;
 data_type=data_type_written;
 

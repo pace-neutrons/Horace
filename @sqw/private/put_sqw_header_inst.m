@@ -1,7 +1,7 @@
 function [mess, position] = put_sqw_header_inst (fid, header)
 % Write the instrument fields in the header block.
 %
-%   >> [mess, position] = put_sqw_header_inst (fid, header)
+%   >> [mess, position] = put_sqw_header_inst (fid, fmt_ver, header)
 %
 % Input:
 % ------

@@ -1,7 +1,8 @@
-function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile, npix, pix)
-% Write npix and pix to a file with same format as put_sqw_data
+function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile, npix, pix, varargin)
+% Write npix and pix to a new file with the same format as put_sqw (non-sparse format)
 %
-%   >> [mess, position] = put_sqw_data_npix_and_pix_to_file (outfile, npix, pix)
+%   >> [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile, npix, pix)
+%   >> [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (...,'file_format',fmt)
 %
 % Input:
 % ------
@@ -18,6 +19,8 @@ function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile,
 %                   ien         Energy bin number for the pixel in the array in the (irun)th header
 %                   signal      Signal array
 %                   err         Error array (variance i.e. error bar squared)
+%   file_format [Optional] File format to be written (appversion object). If not given, then
+%              assumes the current default.
 %
 % Output:
 % -------
@@ -29,49 +32,32 @@ function [mess, position, npixtot] = put_sqw_data_npix_and_pix_to_file (outfile,
 
 % T.G.Perring 10 August 2007
 
+position = struct('npix',[],'pix',[]);
+npixtot = [];
 
-mess = [];
-position = [];
+% Check file format
+if numel(varargin)==2 && ischar(varargin{1}) && strcmpi(varargin{1},'file_format')
+    fmt_ver=varargin{2};
+    [ok,mess]=fmt_check_file_format(fmt_ver);
+    if ~ok, return, end
+elseif isempty(varargin)
+    fmt_ver=fmt_check_file_format();    % get default file format
+else
+    mess='Invalid optional argument(s)';
+    return
+end
 
 % Open output file
-if isnumeric(outfile)
-    fid = outfile;   % copy fid
-    if isempty(fopen(fid))
-        mess = 'No open file with given file identifier';
-        return
-    end
-    close_file = false;
-else
-    fid=fopen(outfile,'A');    % no automatic flushing: can be faster
-    if fid<0
-        mess = ['Unable to open file ',outfile];
-        return
-    end
-    close_file = true;
-end
+[mess,filename,fid,fid_input]=put_sqw_open(outfile);
+if ~isempty(mess), return, end
 
-% Write npix and pix in the same format as put_sqw_data
-position.npix=ftell(fid);
-fwrite(fid,int64(npix),'int64');    % make int64 so that can deal with huge numbers of pixels
-
-position.pix=ftell(fid);
-npixtot = size(pix,2);
-% Try writing large array of pixel information a block at a time - seems to speed up the write slightly
-% Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
-% could have no pixels because none contributed to the given data range.
-block_size=get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
-% block_size=1000000;
-if npixtot<=block_size
-    fwrite(fid,single(pix),'float32');
-else
-    for ipix=1:block_size:npixtot
-        istart = ipix;
-        iend   = min(ipix+block_size-1,npixtot);
-        fwrite(fid,single(pix(:,istart:iend)),'float32');
-    end
-end
+% Write npix and pix in the same format as put_sqw_data (non-sparse format)
+data=struct('npix',npix,'pix',pix);
+[mess,pos_tmp,npixtot] = put_sqw_data_signal (fid, fmt_ver, data);
+if ~isempty(mess), return, end
+position=updatestruct(position,pos_tmp);
 
 % Close file if necessary
-if close_file
+if ~fid_input
     fclose(fid);
 end

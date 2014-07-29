@@ -1,11 +1,12 @@
-function [mess,position] = put_sqw_main_header (fid, main_header)
+function [mess,position] = put_sqw_main_header (fid, fmt_ver, main_header)
 % Write the main header block for the results of performing calculate projections on spe file(s).
 %
-%   >> [mess,position] = put_sqw_main_header (fid, main_header)
+%   >> [mess,position] = put_sqw_main_header (fid, fmt_ver, main_header)
 %
 % Input:
 % ------
 %   fid             File identifier of output file (opened for binary writing)
+%   fmt_ver         Version of file format e.g. appversion('-v3')
 %   main_header     Data structure which must contain (at least) the fields listed below
 %
 % Output:
@@ -35,20 +36,17 @@ function [mess,position] = put_sqw_main_header (fid, main_header)
 mess = '';
 position = ftell(fid);
 
+ver3p1=appversion(3.1);
+
 try
-    n=length(main_header.filename);
-    fwrite(fid,n,'int32');              % write length of filename
-    fwrite(fid,main_header.filename,'char');
-    
-    n=length(main_header.filepath);
-    fwrite(fid,n,'int32');              % write length of filepath
-    fwrite(fid,main_header.filepath,'char');
-    
-    n=length(main_header.title);
-    fwrite(fid,n,'int32');              % write length of title
-    fwrite(fid,main_header.title,'char');
-    
-    fwrite(fid,main_header.nfiles,'int32');
+    write_sqw_var_char (fid, fmt_ver, main_header.filename);
+    write_sqw_var_char (fid, fmt_ver, main_header.filepath);
+    write_sqw_var_char (fid, fmt_ver, main_header.title);
+    if fmt_ver>=ver3p1
+        fwrite(fid,main_header.nfiles);
+    else
+        fwrite(fid,main_header.nfiles,'int32');
+    end
     
 catch
     mess='Error writing main header block to file';

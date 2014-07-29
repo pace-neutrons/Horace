@@ -1,7 +1,5 @@
 function write_sparse2(fid,v,type)
-***
-% Write sparse column vector of doubles, assumed to contain integer values
-% This is a specialised version of write_sparse designed for swifter reading or portions
+% Write sparse column vector of doubles designed for swifter reading of sections
 %
 %   >> write_sparse2(fid,v,type)
 %
@@ -9,28 +7,43 @@ function write_sparse2(fid,v,type)
 % ------
 %   fid     File identifier of already open file for binary output
 %   v       Values to be written
-%   type    Data type in which to save indicies and values: one of
-%               'int32', 'int64'
-%           The indicies of non-zero values and the values are both written
-%          in the same data type. If there are more than 2e9 data elements
-%          or the values lie outside the range -2e9 to +2e9 then the
-%          saved data will be corrupt.
+%   type    Data type in which to save indicies and values: one of:
 %
-% This fom of sparse writing enables faster reading of the data from a large
+% Limitations on the values array:
+%
+%   type      maximum array length          value type
+% --------------------------------------------------------------------
+% 'int32'   2,147,483,647  (ie. (2^31)-1)   -(2^31)<= integer =< (2^31)-1
+%
+% 'float32'    16,777,216  (ie. 2^24)      float (written in single precision)
+%                                         or  |integer| < 16,777,216  (ie. 2^24)
+%
+% 'float64'    9.0072e+15  (ie. 2^53)   float (written in double precision)
+%                                         or  |integer| 9.0072e+15  (ie. 2^53)
+%
+% This fom of sparse writing enables faster reading of sections from a large
 % array because the indicies and values are stored in adjacent words of
 % 4 or 8 bytes.
-%
+
 % Make sure any changes here are synchronised with the corresponding read_sparse2
 
-if ~(strcmp(type,'float32')||strcmp(type,'float64'))
+
+% Check type is valid
+if strcmp(type,'float32')
+    nbits=32;
+elseif strcmp(type,'float64')
+    nbits=64;
+elseif strcmp(type,'int32')
+    nbits=-32;
+else
     error('Unrecognised type')
 end
 
+% Write nbits and data sizes
 nel=size(v,1);
-fwrite(fid,nel,type);   % write number of elements in the array (including zeros)
 [ind,~,val]=find(v);
-nval=numel(val);    	% number of non-zero values
-fwrite(fid,nval,type);
+nval=numel(val);            % number of non-zero values
+fwrite(fid,[nel,nval,nbits],'float64');
 
 % Write indicies of non-zeros values (account for the possibility of more than 2e9 non-zero elements)
 if nval>=intmax('int32')
@@ -40,14 +53,10 @@ else
 end
 
 % Write non-zero values
-if strcmp(type,'float32')
-    fwrite(fid,single(val),'float32');
-elseif strcmp(type,'int32')
-    fwrite(fid,int32(val),'int32');
-elseif strcmp(type,'float64')
-    fwrite(fid,val,'float64');
-elseif strcmp(type,'int64')
-    fwrite(fid,int64(val),'int64');
-else
-    error('Unrecognised type')
+if nbits==32
+    fwrite(fid,single([ind';val']),'float32');
+elseif nbits==64
+    fwrite(fid,single([ind';val']),'float64');
+elseif nbits==-32
+    fwrite(fid,int32([ind';val']),'int32');
 end
