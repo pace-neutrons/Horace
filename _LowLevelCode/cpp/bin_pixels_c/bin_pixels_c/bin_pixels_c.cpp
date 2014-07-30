@@ -364,18 +364,20 @@ bool accumulate_cut(double *s, double *e, double *npix,
         {    
             if(!ok[j])continue;
 
-            size_t nCell = nGridCell[j];            // this is the index of a pixel in the grid cell
-            size_t j0    = ppInd[nCell]*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH
+            size_t nCell = nGridCell[j];       // this is the index of a pixel in the grid cell
+            size_t j0;
+#pragma omp critical
+            {
+               j0    = ppInd[nCell]*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH
+               ppInd[nCell]++;
+            }
             size_t i0    = j*PIX_WIDTH;
-#pragma omp atomic
-            ppInd[nCell]++;
-
             memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
             //for(i=0;i<PIX_WIDTH;i++){
             //	pPixelSorted[j0+i]=pixel_data[i0+i];}
         }
-
     } // end parallel region
+
     // where to place new pixels
     if (data_size == nPixel_retained){
         PixelSorted = tPixelSorted;
