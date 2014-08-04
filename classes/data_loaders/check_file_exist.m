@@ -50,7 +50,7 @@ if strcmp('.memfile',lext)
     if ok
         mess='';
     else
-        mess = [' can not find file: ',file_l];
+        mess = ['*** Can not find file: ',file_l];
     end
     file_name=[filename,lext];
     return
@@ -60,13 +60,15 @@ end
 if ~exist(file_l,'file')
     if ispc
         ok = false;
-        mess = [' can not find file: ',file_l];
+        file_l= regexprep(file_l,'\\','/');
+        mess = ['*** Can not find file: ',file_l];
         return;
     end
     file_u=fullfile(filepath,[filename,upper(ext)]);
     if ~exist(file_u,'file');
         ok = false;
-        mess = [' can not find file: ',fullfile(filepath,filename),' with extensions: ',lext,' or ',upper(ext)];
+        fp = regexprep(fullfile(filepath,filename),'\\','/');
+        mess = ['*** Can not find file: ',fp,' with extensions: ',lext,' or ',upper(ext)];
         return;
     end
     file_name = file_u;
