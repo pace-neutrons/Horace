@@ -1,13 +1,12 @@
-function [mess, application, position] = get_application (fid, expected_name)
+function [mess, application, pos_start] = get_sqw_application (fid, expected_name)
 % Read the application block that gives information about the application that wrote the file
 %
-%   >> [mess, application, position] = get_application (fid)
-%   >> [mess, application, position] = get_application (fid, expected_name)
+%   >> [mess, application, pos_start] = get_sqw_application (fid, expected_name)
 %
 % Input:
 % ------
 %   fid             File pointer to (already open) binary file
-%   expected_name   [Optional] Expected application name. An error is returned
+%   expected_name   Expected application name. An error is returned
 %                  if the application name recorded in the file does not match
 %                  the expected name
 %
@@ -15,26 +14,26 @@ function [mess, application, position] = get_application (fid, expected_name)
 % -------
 %   mess            Error message; blank if no errors, non-blank otherwise
 %   application     Structure containing fields read from file (details below)
-%   position        Position of the start of the application block
+%   pos_start       Position of the start of the application block
 %
 %
 % Fields read from file are:
 % --------------------------
 %   application.name        Name of application that wrote the file
-%   application.version     Version number of the application
-%   application.file_format Version of file format e.g. '-v3'
+%   application.version     Version of the application (appversion object)
+%   application.file_format Version of file format (appversion object)
 %
 %
-% Note: This function will not recognise the prototype file format.
-
+% NOTE: The prototype file format ('-v0') is not directly recognised, but is
+%       assigned if the first entry is a double followed by a character string
+%       of that length. An informatinal message is given.
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
 mess = '';
-application = [];
-position = ftell(fid);
+pos_start = ftell(fid);
 
 % Read data from file. We require:
 % (1) the application name is a valid variable name
@@ -42,34 +41,38 @@ position = ftell(fid);
 try
     n = fread (fid,1,'int32');
     % Need to try to catch case of e.g. text file where number of characters is read as a stupidly high number
-    if n>0 && n<1024   % allow up to 1024 characters
+    if n>0 && n<4096   % allow up to 4096 characters
         
         % Get application name
         % --------------------
         name = fread (fid,[1,n],'*char*1');
-        if ~isvarname(name)
-            mess = 'Application name must be a valid Matlab variable name'; return
+        if strcmpi(name,expected_name)
+            application.name = name;
         else
-            if nargin==2 && ~strcmpi(name,expected_name)
-                mess = 'Application name recorded in file does not match the expected name'; return
-            end
+            % Prototype version happens to start with a file name. Try this.
+            disp('File does not have one of the current Horace data file formats. Attempting to read as prototype format Horace .sqw file...')
+            application.name = expected_name;
+            application.version = appversion(0);
+            application.file_format = appversion(0);
+            fseek(fid,pos_start,'bof');          % return to position in file that entered this function
         end
-        application.name = name;
         
         % Get application version number
         % ------------------------------
         ver_num = fread (fid,1,'float64');
-        ver3p1=appversion(3.1);
+        ver3p1=appversion(3,1);
         
         if ~isscalar(ver_num) || ver_num<-1 || ver_num>99999999
-            mess = 'Version must be greater or equal to zero'; return
+            mess = 'Version must be greater or equal to zero';
+            application = [];
+            return
         end
         if ver_num==-1
             % New formt; must read as version 3.1 format
             ver_str = read_sqw_var_char(fid, ver3p1);
             application.version = appversion(ver_str);
         else
-            % Will only be version 1,2 or 3
+            % Will only be version 1 or 3
             application.version = appversion(ver_num);
         end
         
@@ -92,9 +95,13 @@ try
         end
             
     else
-        mess = 'Unrecognised format for application and version'; return
+        mess = 'Unrecognised format for application and version';
+        application = [];
+        return
     end
     
 catch
     mess='Problems reading application information from file';
+    application = [];
+
 end

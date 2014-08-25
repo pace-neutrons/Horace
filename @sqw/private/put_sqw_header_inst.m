@@ -1,4 +1,4 @@
-function [mess, position] = put_sqw_header_inst (fid, header)
+function [mess, pos_start] = put_sqw_header_inst (fid, fmt_ver, header)
 % Write the instrument fields in the header block.
 %
 %   >> [mess, position] = put_sqw_header_inst (fid, fmt_ver, header)
@@ -6,6 +6,7 @@ function [mess, position] = put_sqw_header_inst (fid, header)
 % Input:
 % ------
 %   fid             File identifier of output file (opened for binary writing)
+%   fmt_ver         Version of file format e.g. appversion('-v3')
 %   header          Header block: single data structure (if single spe file) or
 %                  cell array of structures, one per spe file, which must contain
 %                  at least the fields listed below.
@@ -13,7 +14,7 @@ function [mess, position] = put_sqw_header_inst (fid, header)
 % Output:
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
-%   position        Position of the start of the header instrument block
+%   pos_start       Position of the start of the header instrument block
 %
 %
 % Fields written to file are:
@@ -27,14 +28,17 @@ function [mess, position] = put_sqw_header_inst (fid, header)
 % contents, it is written in full (however deeply nested, cell array, structures and
 % objects). This is to allow the format to evolve but to be reasonably robust in that
 % the generic read will do the best that it can.
-
+%
+% If the header has only one file, or the instrument is the same for all files, then only one
+% copy of the instrument is written. A header section is added to enable the 
+% read routine to interpret the contents written by this function.
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
 mess='';
-position = ftell(fid);
+pos_start = ftell(fid);
 
 try
     % Description of instrument block format in file

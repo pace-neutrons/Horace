@@ -15,7 +15,7 @@ function write_sparse(fid,v,type)
 %   - 'float64' if the magnitude of the largest integer is <9e15
 % 
 % There is no advantage to saving the values as a hypothetical 'int64'
-% because integer accuracy is already lost if held as a float64.
+% because integer accuracy is already lost for values >9e15 if held as a float64.
 
 
 % Make sure any changes here are synchronised with the corresponding read_sparse
@@ -23,11 +23,11 @@ function write_sparse(fid,v,type)
 
 % Check type is valid
 if strcmp(type,'float32')
-    nbits=32;
+    nbytecode=4;
 elseif strcmp(type,'float64')
-    nbits=64;
+    nbytecode=8;
 elseif strcmp(type,'int32')
-    nbits=-32;
+    nbytecode=-4;
 else
     error('Unrecognised type')
 end
@@ -36,7 +36,7 @@ end
 nel=size(v,1);
 [ind,~,val]=find(v);
 nval=numel(val);            % number of non-zero values
-fwrite(fid,[nel,nval,nbits],'float64');
+fwrite(fid,[nel,nval,nbytecode],'float64');
 
 % Write indicies of non-zeros values (account for the possibility of array length greater than 2e9)
 if nel>=intmax('int32')
@@ -46,10 +46,10 @@ else
 end
 
 % Write non-zero values
-if nbits==32
+if nbytecode==4
     fwrite(fid,single(val),'float32');
-elseif nbits==64
+elseif nbytecode==8
     fwrite(fid,val,'float64');
-elseif nbits==-32
+elseif nbytecode==-4
     fwrite(fid,int32(val),'int32');
 end

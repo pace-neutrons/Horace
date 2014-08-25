@@ -1,7 +1,7 @@
-function [mess,position] = put_sqw_main_header (fid, fmt_ver, main_header)
+function [mess,pos_start] = put_sqw_main_header (fid, fmt_ver, main_header)
 % Write the main header block for the results of performing calculate projections on spe file(s).
 %
-%   >> [mess,position] = put_sqw_main_header (fid, fmt_ver, main_header)
+%   >> [mess,pos_start] = put_sqw_main_header (fid, fmt_ver, main_header)
 %
 % Input:
 % ------
@@ -12,7 +12,7 @@ function [mess,position] = put_sqw_main_header (fid, fmt_ver, main_header)
 % Output:
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
-%   position        Position of start of main header block
+%   pos_start       Position of start of main header block
 %
 %
 % Fields written to file are:
@@ -34,19 +34,16 @@ function [mess,position] = put_sqw_main_header (fid, fmt_ver, main_header)
 % $Revision$ ($Date$)
 
 mess = '';
-position = ftell(fid);
+pos_start = ftell(fid);
 
-ver3p1=appversion(3.1);
-
+[fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
+len_name_max=1024;  % fixed length of name string
+len_title_max=8192; % fixed length of title string
 try
-    write_sqw_var_char (fid, fmt_ver, main_header.filename);
-    write_sqw_var_char (fid, fmt_ver, main_header.filepath);
-    write_sqw_var_char (fid, fmt_ver, main_header.title);
-    if fmt_ver>=ver3p1
-        fwrite(fid,main_header.nfiles);
-    else
-        fwrite(fid,main_header.nfiles,'int32');
-    end
+    write_sqw_var_char (fid, fmt_ver, main_header.filename, len_name_max);
+    write_sqw_var_char (fid, fmt_ver, main_header.filepath, len_name_max);
+    write_sqw_var_char (fid, fmt_ver, main_header.title,    len_title_max);
+    fwrite(fid, main_header.nfiles, fmt_int);
     
 catch
     mess='Error writing main header block to file';

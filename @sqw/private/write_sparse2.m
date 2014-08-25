@@ -13,15 +13,15 @@ function write_sparse2(fid,v,type)
 %
 %   type      maximum array length          value type
 % --------------------------------------------------------------------
-% 'int32'   2,147,483,647  (ie. (2^31)-1)   -(2^31)<= integer =< (2^31)-1
+% 'int32'   2,147,483,647  (2^31-1)         -(2^31)<= integer =< (2^31)-1
 %
-% 'float32'    16,777,216  (ie. 2^24)      float (written in single precision)
+% 'float32'    16,777,216  (2^24)           float (written in single precision)
 %                                         or  |integer| < 16,777,216  (ie. 2^24)
 %
-% 'float64'    9.0072e+15  (ie. 2^53)   float (written in double precision)
+% 'float64'  281,474,976,710,655 (2^48-1)   float (written in double precision)
 %                                         or  |integer| 9.0072e+15  (ie. 2^53)
 %
-% This fom of sparse writing enables faster reading of sections from a large
+% This form of sparse writing enables faster reading of sections from a large
 % array because the indicies and values are stored in adjacent words of
 % 4 or 8 bytes.
 
@@ -30,11 +30,11 @@ function write_sparse2(fid,v,type)
 
 % Check type is valid
 if strcmp(type,'float32')
-    nbits=32;
+    nbytecode=4;
 elseif strcmp(type,'float64')
-    nbits=64;
+    nbytecode=8;
 elseif strcmp(type,'int32')
-    nbits=-32;
+    nbytecode=-4;
 else
     error('Unrecognised type')
 end
@@ -43,20 +43,13 @@ end
 nel=size(v,1);
 [ind,~,val]=find(v);
 nval=numel(val);            % number of non-zero values
-fwrite(fid,[nel,nval,nbits],'float64');
-
-% Write indicies of non-zeros values (account for the possibility of more than 2e9 non-zero elements)
-if nval>=intmax('int32')
-    fwrite(fid,int64(ind),'int64');
-else
-    fwrite(fid,int32(ind),'int32');
-end
+fwrite(fid,[nel,nval,nbytecode],'float64');
 
 % Write non-zero values
-if nbits==32
+if nbytecode==4
     fwrite(fid,single([ind';val']),'float32');
-elseif nbits==64
-    fwrite(fid,single([ind';val']),'float64');
-elseif nbits==-32
+elseif nbytecode==8
+    fwrite(fid,[ind';val'],'float64');
+elseif nbytecode==-4
     fwrite(fid,int32([ind';val']),'int32');
 end

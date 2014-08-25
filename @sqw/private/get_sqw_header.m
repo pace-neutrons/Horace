@@ -1,12 +1,12 @@
-function [mess, header, position] = get_sqw_header (fid, fmt_ver, nfiles)
+function [mess, header, pos_start, pos_arr] = get_sqw_header (fid, fmt_ver, nfiles)
 % Read the header blocks for the contributing spe file(s) to an sqw file.
 %
-%   >> [mess, header, position] = get_sqw_header (fid, fmt_ver, nfiles)
+%   >> [mess, header, pos_start] = get_sqw_header (fid, fmt_ver, nfiles)
 %
 % Input:
 % ------
 %   fid         File pointer to (already open) binary file
-%   fmt_ver         Version of file format e.g. appversion('-v3')
+%   fmt_ver     Version of file format e.g. appversion('-v3')
 %   nfiles      Number of contributing data sets to the header (>=1)
 %
 % Output:
@@ -15,6 +15,8 @@ function [mess, header, position] = get_sqw_header (fid, fmt_ver, nfiles)
 %              cell array of structures, one per spe file. The fields are
 %              listed below.
 %   mess        Error message; blank if no errors, non-blank otherwise
+%   pos_start   Position of start of header block
+%   pos_arr     Column vector with the positions of the start of each header block
 %
 %
 % Fields read from file are:
@@ -50,15 +52,17 @@ function [mess, header, position] = get_sqw_header (fid, fmt_ver, nfiles)
 %
 % $Revision$ ($Date$)
 
+pos_start=ftell(fid);
+
 if nfiles==1
-    position = ftell(fid);
+    pos_arr = ftell(fid);
     [mess, header] = get_sqw_header_single (fid,fmt_ver);
     
 else
     header = cell(nfiles,1);
-    position = zeros(nfiles,1);
+    pos_arr = NaN(nfiles,1);
     for i=1:nfiles
-        position(i) = ftell(fid);
+        pos_arr(i) = ftell(fid);
         [mess, header{i}] = get_sqw_header_single (fid,fmt_ver);
         if ~isempty(mess)
             mess = [mess,': spe file ',num2str(i)];
@@ -85,7 +89,6 @@ function [mess, header] = get_sqw_header_single (fid, fmt_ver)
 %   header          Header block: single data structure
 
 mess='';
-header=struct;
 
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
 
@@ -115,8 +118,7 @@ try
     header.u_to_rlu = fread(fid, [4,4], fmt_dble);
     header.ulen     = fread(fid, [1,4], fmt_dble);
     
-    ulabel=read_sqw_var_char (fid,fmt_ver,true);
-    header.ulabel=cellstr(ulabel)';
+    header.ulabel=read_sqw_var_char (fid,fmt_ver,true)';
     
     % Structures with no fields for sample and instrument
     header.instrument = struct;
@@ -124,4 +126,6 @@ try
     
 catch
     mess='Error reading header block from file';
+    header=struct([]);
+
 end

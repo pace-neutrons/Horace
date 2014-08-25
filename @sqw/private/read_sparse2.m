@@ -1,62 +1,99 @@
-function [v,ok,mess]=read_sparse2(fid,skip)
+function v=read_sparse2(fid,varargin)
 % Read sparse column vector of doubles written with write_sparse2
 %
+% Read whole array:
 %   >> [v,ok,mess] = read_sparse2(fid)
 %   >> [v,ok,mess] = read_sparse2(fid,skip)
-%   >> [v,ok,mess] = read_sparse2(fid,type,***)
+%
+% Read a section of the array:
+%   >> [v,ok,mess] = read_sparse2(fid,type,nrange,irange)
 %
 % Input:
 % ------
 %   fid     File identifier of already open file for binary output
 %   skip    [Optional] If true, move to the end of the data without reading
-%           Default: read the data
+%           Default: read the data (skip==false)
+% *OR*
+%   type    Type of data stored ('int32','float32','float64')
+%   nrange  Range of indicies of the array to be read
+%   irange  Range of values actually written to file that encompass this range
+%
+%           This second read option requires prior knowledge of the type of data
+%           in the file, and the range of non-zero values and their indicies that
+%           are within the range nrange. If nrange==[], then it is assumed that
+%           the 
 %
 % Output:
 % -------
 %   v       Column vector (sparse format)
+%
+% It is assumed that the file position indicator is at the start of the information
+% written by write_sparse2.
+%
+% On exit, the file pointer will be be at the end of the information written by
+% write_sparse2 in the case of reading the whole array; if reading an array section
+% the indicator will be at the position of the end of the section.
 
 % Make sure any changes here are synchronised with the corresponding read_sparse
 
 
-% Check arguments
-if nargin==2
-    if ~islogical(skip), skip=logical(skip); end
-elseif nargin==1
+% Check number of arguments
+nopt=numel(varargin);
+if nopt==3
+    read_all=false;
     skip=false;
+elseif nopt==0
+    read_all=true;
+    skip=false;
+elseif nopt==1
+    read_all=true;
+    skip=logical(varargin{1});
+else
+    error('Check number of arguments')
 end
 
 % Read data sizes and type
-n = fread(fid,3,'float64');
-nel=n(1);
-nval=n(2);
-nbits=n(3);
+if read_all
+    n = fread(fid,3,'float64');
+    nel=n(1);
+    nval=n(2);
+    nbytecode=n(3);
+else
+    type=varargin{1};
+    nrange=varargin{2};
+    irange=varargin{3};
+    nel=nrange(2)-nrange(1)+1;
+    nval=irange(2)-irange(1)+1;
+    if strcmp(type,'float32')
+        nbytecode=4;
+    elseif strcmp(type,'float64')
+        nbytecode=8;
+    elseif strcmp(type,'int32')
+        nbytecode=-4;
+    else
+        error('Unrecognised type')
+    end
+    fseek(fid,24+2*(irange(1)-1)*abs(nbytecode),'cof');
+end
 
 % Read or skip over data
 if ~skip
-    if nbits==32
+    if nbytecode==4
         val = fread(fid,[2,nval],'*float32');
-    elseif nbits==64
+    elseif nbytecode==8
         val = fread(fid,[2,nval],'*float64');
-    elseif nbits==-32
+    elseif nbytecode==-4
         val = fread(fid,[2,nval],'*int32');
-    else
-        error('Unrecognised type')
     end
     
     % Construct sparse column vector
-    v=sparse(double(val(1,:)),1,double(val(2,:)),nel,1);
-else
-    if nbits==32
-        nbytes=4*nval;
-    elseif nbits==64
-        nbytes=8*nval;
-    elseif nbits==32
-        nbytes=4*nval;
+    if read_all
+        v=sparse(double(val(1,:)),1,double(val(2,:)),nel,1);
     else
-        error('Unrecognised type')
+        v=sparse(double(val(1,:))-(nrange(1)-1),1,double(val(2,:)),nel,1);
     end
-    fseek(fid,nbytes,'cof');  % skip field pix
+    
+else
+    fseek(fid,2*nval*abs(nbytecode),'cof');
     v=[];
-    ok=true;
-    mess='';
 end

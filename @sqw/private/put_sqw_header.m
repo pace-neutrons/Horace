@@ -1,4 +1,4 @@
-function [mess,position] = put_sqw_header (fid, fmt_ver, header)
+function [mess, pos_start, pos_arr] = put_sqw_header (fid, fmt_ver, header)
 % Write the header blocks for the contributing spe file(s) to an sqw file.
 %
 %   >> [mess,position] = put_sqw_header (fid, header)
@@ -14,7 +14,8 @@ function [mess,position] = put_sqw_header (fid, fmt_ver, header)
 % Output:
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
-%   position        Column vector with the positions of the start of each header block
+%   pos_start       Position of start of header block
+%   pos_arr         Column vector with the positions of the start of each header block
 %
 %
 % Fields written to file are:
@@ -65,18 +66,20 @@ function [mess,position] = put_sqw_header (fid, fmt_ver, header)
 % $Revision$ ($Date$)
 
 mess='';
+pos_start=ftell(fid);
 
 if isstruct(header) % should be a single header, as a data structure
-    position = ftell(fid);
+    pos_arr = ftell(fid);
     mess = put_sqw_header_single (fid, fmt_ver, header);
 else    % should be a cell array of headers
     nfiles=numel(header);
-    position=zeros(nfiles,1);
+    pos_arr=NaN(nfiles,1);
     for i=1:nfiles
-        position(i)=ftell(fid);
+        pos_arr(i)=ftell(fid);
         mess = put_sqw_header_single (fid, fmt_ver, header{i});
         if ~isempty(mess)
             mess=[mess,': spe file ',num2str(i)];
+            pos_arr=NaN(nfiles,1);
             return
         end
     end
@@ -101,10 +104,10 @@ function mess = put_sqw_header_single (fid, fmt_ver, header)
 mess = '';
 
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
-   
+len_name_max=1024;  % fixed length of name string
 try
-    write_sqw_var_char (fid, fmt_ver, header.filename);
-    write_sqw_var_char (fid, fmt_ver, header.filepath);
+    write_sqw_var_char (fid, fmt_ver, header.filename, len_name_max);
+    write_sqw_var_char (fid, fmt_ver, header.filepath, len_name_max);
     
     fwrite(fid, header.efix,   fmt_dble);
     fwrite(fid, header.emode,  fmt_int);
@@ -125,7 +128,7 @@ try
     fwrite(fid, header.u_to_rlu, fmt_dble);
     fwrite(fid, header.ulen,     fmt_dble);
     
-    write_sqw_var_char(fid, fmt_ver, char(header.ulabel))
+    write_sqw_var_char(fid, fmt_ver, header.ulabel, len_name_max)
     
 catch
     mess='Error writing header block to file';

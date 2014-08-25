@@ -1,7 +1,7 @@
-function [mess, main_header, position] = get_sqw_main_header (fid, fmt_ver, opt)
+function [mess, main_header, pos_start] = get_sqw_main_header (fid, fmt_ver, opt)
 % Read the main header block for the results of performing calculate projections on spe file(s).
 %
-%   >> [mess, main_header, position] = get_sqw_main_header(fid, fmt_ver)
+%   >> [mess, main_header, pos_start] = get_sqw_main_header(fid, fmt_ver)
 %
 % The default behaviour is that the filename and filepath that are written to file are ignored; 
 % we fill with the values corresponding to the file that is actually being read.
@@ -19,7 +19,7 @@ function [mess, main_header, position] = get_sqw_main_header (fid, fmt_ver, opt)
 % -------
 %   mess            Error message; blank if no errors, non-blank otherwise
 %   main_header     Structure containing fields read from file (details below)
-%   position        Position of start of main header block
+%   pos_start       Position of start of main header block
 %
 %
 % Fields read from file are:
@@ -35,8 +35,7 @@ function [mess, main_header, position] = get_sqw_main_header (fid, fmt_ver, opt)
 % $Revision$ ($Date$)
 
 mess='';
-main_header=[];
-position = ftell(fid);
+pos_start = ftell(fid);
 
 ver3p1=appversion(3.1);
 
@@ -54,12 +53,12 @@ end
 
 % Read data from file:
 try
-    dummy_filename = read_sqw_var_char (fid, fmt_ver);
-    dummy_filepath = read_sqw_var_char (fid, fmt_ver);
+    filename = read_sqw_var_char (fid, fmt_ver);
+    filepath = read_sqw_var_char (fid, fmt_ver);
     if verbatim
         % Set filename and path from file contents
-        main_header.filename=dummy_filename;
-        main_header.filepath=dummy_filepath;
+        main_header.filename=filename;
+        main_header.filepath=filepath;
     else
         % Set file name and path from file name (incl. final separator)
         [path,name,ext]=fileparts(fopen(fid));
@@ -70,11 +69,13 @@ try
     main_header.title = read_sqw_var_char (fid, fmt_ver);
 
     if fmt_ver>=ver3p1
-        main_header.nfiles = fread(fid,1);
+        main_header.nfiles = fread(fid,1,'float64');
     else
         main_header.nfiles = fread(fid,1,'int32');
     end
 
 catch
     mess='Error reading main header block from file';
+    main_header=struct([]);
+    
 end

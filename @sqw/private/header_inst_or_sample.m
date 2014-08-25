@@ -1,7 +1,7 @@
-function inst_or_sample = put_sqw_header_get_type (header)
-% Determines if the header contains a non-empty instument or sample field for one or more entries
+function inst_or_sample = header_inst_or_sample (header)
+% Determine if the header contains a non-empty instrument or sample field for one or more entries
 %
-%   >> no_inst_and_sample = put_sqw_header_get_type (header)
+%   >> no_inst_and_sample = header_inst_or_sample (header)
 %
 % Input:
 % ------
@@ -10,11 +10,11 @@ function inst_or_sample = put_sqw_header_get_type (header)
 % Output:
 % -------
 %   inst_and_sample     Logical scalar:
-%                        true: If there are no instument and sample fields
+%                       false: If there are no instument and sample fields
 %                              for any of the headers, or if they have the
 %                              default 'empty' status i.e. ==struct (this is
 %                              a 1x1 structure with no fields).
-%                       false: Otherwise
+%                        true: Otherwise
 
 
 % Original author: T.G.Perring

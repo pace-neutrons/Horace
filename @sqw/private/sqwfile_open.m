@@ -1,0 +1,89 @@
+function [S, mess] = sqwfile_open (file, opt)
+% Open an sqw file for reading or writing
+%
+%   >> [S, mess] = sqwfile_open (file)
+%   >> [S, mess] = sqwfile_open (file, 'new')
+%   >> [S, mess] = sqwfile_open (file, 'old')
+%   >> [S, mess] = sqwfile_open (file, 'readonly')
+%
+% Input:
+% ------
+%   file    Name of file to which to write data
+%
+%   opt     [Optional] file creation status:
+%               'old'       Open an existing file for reading and writing.
+%                          Error if the file doesn't exist.
+%               'new'       Open a file for reading and writing
+%                          Discarding all contents if the file already exists
+%               'readonly'  Open an existing file for reading only.
+%
+%           Default if not given:
+%                           Open an existing file for reading and writing
+%                          Create a new file if doesn't already exist
+%
+% Output:
+% -------
+%   S       sqwfile structure with the information read from the
+%          contents of an existing file
+%
+%   mess    Message:
+%               - if no problem, then mess=''
+%               - if a problem, then contains error message
+
+
+% Original author: T.G.Perring
+%
+% $Revision: 882 $ ($Date: 2014-07-20 10:12:36 +0100 (Sun, 20 Jul 2014) $)
+
+
+% Parse optional argument
+% -----------------------
+if nargin==1
+    permission='rb+';
+    check_exists=false;
+    
+elseif ~isempty(opt) && isstring(opt)
+    if strcmpi(opt,'new')
+        permission='wb+';
+        check_exists=false;
+    elseif strcmpi(opt,'old')
+        permission='rb+';
+        check_exists=true;
+    elseif strcmpi(opt,'readonly')
+        permission='rb';
+        check_exists=true;
+    else
+        mess='Unrecognised optional argument';
+        S=sqwfile(); return
+    end
+    
+else
+    mess='Invalid optional argument';
+    S=sqwfile(); return
+end
+
+
+% Check file and open
+% -------------------
+if ~isempty(file) && isstring(file) % assume file is a file name
+    % Check file exists, if required
+    if check_exists && ~exist(file,'file')
+        mess=['File does not exist: ',strtrim(file)];
+        S=sqwfile(); return
+    end
+    
+    % Open the file
+    fid=fopen(file,permission);
+    if fid<0
+        mess=['Unable to open file: ',strtrim(file)];
+        S=sqwfile(); return
+    end
+
+    % Read the information block from the sqw file
+    [mess, S] = get_sqw_information (fid);
+    
+else
+    mess='File name must be a non-empty character string';
+    S=sqwfile(); return
+    
+end

@@ -1,24 +1,84 @@
-function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_format,current_format] = get_sqw (infile,varargin)
-% Load an sqw file from disk
+function [w, ok, mess, S] = get_sqw (file, varargin)
+% Read information from an sqw file as a structure
 %
-%   >> [mess,main_header,header,detpar,data,position,npixtot,data_type,file_format,current_format]...
-%            = get_sqw (infile)
-%   >> [...] = get_sqw (infile, '-h')
-%   >> [...] = get_sqw (infile, '-his')
-%   >> [...] = get_sqw (infile, '-hverbatim')
-%   >> [...] = get_sqw (infile, '-hisverbatim')
-%   >> [...] = get_sqw (infile, '-nopix')
+% If dnd-type or sqw-type data (sparse or non-sparse):
+% ----------------------------------------------------
+%   >> [w,ok,mess] = get_sqw (file)                 % load sqw or dnd structure according to contents
+%   >> [w,ok,mess] = get_sqw (file,'-dnd')          % load as dnd-type structure even if sqw contents
+%   >> [w,ok,mess] = get_sqw (file,'-sqw')          % throw error if not sqw-type
+% 
+%   >> [w,ok,mess] = get_sqw (file,'-h')            % read all except s,e,npix,pix [npix_nz,pix_nz]
+%   >> [w,ok,mess] = get_sqw (file,'-his')          % read all except s,e,npix,pix [npix_nz,pix_nz]
+%   >> [w,ok,mess] = get_sqw (file,'-hverbatim')    % read all except s,e,npix,pix [npix_nz,pix_nz]
+%   >> [w,ok,mess] = get_sqw (file,'-hisverbatim')  % read all except s,e,npix,pix [npix_nz,pix_nz]
+%   >> [w,ok,mess] = get_sqw (file,'-nopix')        % read all except pix [npix_nz,pix_nz]
+%
+%   To return as non-sparse format structures if stored as sparse format:
+%   >> ... = get_sqw (...,'-full')	
+%
+%
+% If buffer file data:
+% --------------------
+%   >> [w,ok,mess] = get_sqw (file)                 
+%   >> [w,ok,mess] = get_sqw (file,'-buffer')       % load as buffer data (i.e. npix,pix (npix_nz,pix_nz)
+%                                                   % even if sqw-type data
+%
+%   To return as non-sparse format structures if stored as sparse format:
+%   >> ... = get_sqw (...,'-full')	
+%
+%
+% Individual fields:
+% ------------------
+%   If non-sparse format:
+%   ---------------------
+% 	>> [npix,ok,mess] = get_sqw (file,'npix')           % load npix
+%   >> [npix,ok,mess] = get_sqw (file,'npix', [blo,bhi])% load npix between given bin numbers
+% 
+% 	>> [pix,ok,mess] = get_sqw (file,'pix')             % load pix
+%   >> [pix,ok,mess] = get_sqw (file,'pix', [plo,phi])  % load pix between given pixel numbers
+% 
+%   If sparse format:
+%   -----------------
+%   >> [npix,ok,mess] = get_sqw (file,'npix')           % load npix
+%   >> [npix,ok,mess] = get_sqw (file,'npix', [blo,bhi], [ilo,ihi])
+%                                                       % load between the given bin numbers
+%                                                       % ilo,ihi range of entries in npix
+% 	To load as a full array: >> ... = load(...,'full')												
+% 					
+%   >> [npix_nz,ok,mess] = get_sqw (file,'npix_nz')
+%   >> [npix_nz,ok,mess] = get_sqw (file,'npix_nz', [blo,bhi], [ilo,ihi]) 	
+%                                                       % load between the given bin numbers
+%                                                       % ilo,ihi range of entries in npix_nz
+% 					
+%   >> [pix_nz,ok,mess] = get_sqw (file,'pix_nz')       % load pix_nz
+%   >> [pix_nz,ok,mess] = get_sqw (file,'pix_nz', [ilo,ihi])  
+%                                                       % ilo,ihi range of entries in pix_nz
+%
+%   >> [pix,ok,mess] = get_sqw (file,'pix')             % load pix
+%   >> [pix,ok,mess] = get_sqw (file,'pix', [plo,phi])  % load between the given pixel numbers
+%
+%   To load as a full arrays:
+%   - npix or npix_nz:
+%   >> ... = get_sqw (...,'-full')	
+%
+%   - pix:
+%   >> [pix,ok,mess] = get_sqw (file,'pix','-full')
+%   >> [pix,ok,mess] = get_sqw (file,'pix', [plo,phi], [ilo,ihi])  
+%                                                       % load between the given pixel numbers
+%                                                       % ilo,ihi range of entries in pix_nz
+%       NOTE: - The pixel coordinates are all set to zero
+%             - In the last case the '-full' option is not needed, as sparse is meaningless
 %
 % Input:
 % --------
-%   infile      File name, or file identifier of open file, from which to read data
+%   file        File name, or sqwfile information structure. It is assumed that the file
+%              contains data that is dnd-type or sqw-type, or buffer. These can be non-sparse
+%              format or sparse format.
 %
 %   opt         [optional] Determines which fields to read:
 %                   '-h'            - header block without instrument and sample information, and
 %                                   - data block fields: filename, filepath, title, alatt, angdeg,...
-%                                                          uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
-%                                    (If the file was written from a structure of type 'b' or 'b+', then
-%                                    urange does not exist, and the output field will not be created)
+%                                                          uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax
 %                   '-his'          - header block in full i.e. with without instrument and sample information, and
 %                                   - data block fields as for '-h'
 %                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
@@ -26,310 +86,489 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %                                  value of fopen(fid). This is needed in some applications where
 %                                  data is written back to the file with a few altered fields.
 %                   '-hisverbatim'  Similarly as for '-his'
-%                   '-nopix'        Pixel information not read (only meaningful for sqw data type 'a')
+%                   '-nopix'        Pixel information not read (only meaningful for sqw-type data)
 %
-%               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
+%               Some individual fields can be read
+%                   'npix'
+%                   'pix'
+%                   'npix_nz'
+%                   'pix_nz'
 %
-%   npix_lo     -|- [optional] pixel number range to be read from the file
-%   npix_hi     -|
+%               Default: read all fields of whatever is the data contained in the file
+%
+%   p1,p2,...   [optional Parameters as required/optional with the different values of opt
+%
+%   '-full'     [optional] Return 
 %
 %
 % Output:
 % --------
+%   w           Data structure read from file
+%
+%   ok          Status flag; =true if no errors; =false if there was error reading the data
+%
 %   mess        Error message; blank if no errors, non-blank otherwise
 %
-%   main_header Main header block (for details of data structure, type >> help get_sqw_main_header)
-%
-%   header      Header block (for details of data structure, type >> help get_sqw_header)
-%              Cell array if more than one contributing spe file.
-%
-%   detpar      Detector parameters (for details of data structure, type >> help get_sqw_detpar)
-%
-%   data        Output data structure actually read from the file. Will be one of:
-%                   type 'h'    fields: filename,...,uoffset,...,dax[,urange]
-%                   type 'b'    fields: filename,...,uoffset,...,dax,s,e
-%                   type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
-%                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
-%                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
-%                   type 'sp'   fields: filename,...,uoffset,....dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
-%               The final field urange is present for type 'h' if the header information was read from an sqw-type file.
-%
-%   position    Position (in bytes from start of file) of blocks of fields and large fields:
-%              These field are correctly filled even if the header only has been requested, that is,
-%              if input option '-h' or '-hverbatim' was given
-%                   position.main_header    start of main_header block (=[] if not written in the file)
-%                   position.header         start of each header block (column vector, length main_header.nfiles)
-%                                          (=[] if not written in the file)
-%                   position.detpar         start of detector parameter block (=[] if not written in the file)
-%                   position.data           start of data block
-%                   position.s              position of array s
-%                   position.e              position of array e
-%                   position.npix           position of array npix (=[] if npix not written in the file)
-%                   position.urange         position of array urange (=[] if urange not written in the file)
-%                   position.npix_nz        position of array npix_nz (=[] if npix_nz not written in the file)
-%                   position.ipix_nz        position of array ipix_nz (=[] if ipix_nz not written in the file)
-%                   position.pix_nz         position of array pix_nz (=[] if pix_nz not written in the file)
-%                   position.pix            position of array pix  (=[] if pix not written in the file)
-%                   position.instrument     start of header instrument blocks (=[] if not written in the file)
-%                   position.sample         start of header sample blocks (=[] if not written in the file)
-%                   position.position_info  position of start of the position block (=[] if not written in the file)
-%
-%   npixtot     Total number of pixels written to file (=[] if pix not present in the file)
-%
-%   data_type   Type of sqw data written in the file 
-%                   type 'b'    fields: filename,...,dax,s,e
-%                   type 'b+'   fields: filename,...,dax,s,e,npix
-%                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
-%                   type 'a-'   fields: filename,...,dax,s,e,npix,urange
-%                   type 'sp-'  fields: filename,...,dax,s,e,npix,urange (sparse format)
-%                   type 'sp'   fields: filename,...,dax,s,e,npix,urange,pix,npix_nz,ipix_nz,pix_nz (sparse format)
-%
-%   file_format     Format of file
-%
-%   current_format  =true if the file format has one of the current formats, =false if not
-
+%   S           sqwfile structure with the information updated to match the written sqw file.
 
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
-application=horace_version();
-
-% Initialise output
-main_header = [];
-header = [];
-detpar = [];
-data = [];
-position = struct('main_header',[],'header',[],'detpar',[],...
-    'data',[],'s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'ipix_nz',[],'pix_nz',[],'pix',[],...
-    'instrument',[],'sample',[],'position_info',[]);
-npixtot = [];
-data_type = '';
-file_format = '';
-current_format = false;
-
-% Check options
-opt_h=false;
-opt_his=false;
-verbatim=false;
-opt_nopix=false;
-pix_range=false;
-opt_char={'-h','-his','-hverbatim','-hisverbatim','-nopix'};
-if numel(varargin)==1 && ischar(varargin{1}) && any(strcmpi(varargin{1},opt_char))   % single option that is a character string
-    if strcmpi(varargin{1},'-h')||strcmpi(varargin{1},'-hverbatim')
-        opt_h=true;
-    end
-    if strcmpi(varargin{1},'-his')||strcmpi(varargin{1},'-hisverbatim')
-        opt_his=true;
-    end
-    if strcmpi(varargin{1},'-hverbatim')||strcmpi(varargin{1},'-hisverbatim')
-        verbatim=true;
-    end
-    if strcmpi(varargin{1},'-nopix')
-        opt_nopix=true;
-    end
-    
-elseif numel(varargin)==2 && isnumeric(varargin{1}) && isnumeric(varargin{2}) &&...
-                             isscalar(varargin{1}) && isscalar(varargin{2})
-    pix_range=true;
-    npix_lo=varargin{1};
-    npix_hi=varargin{2};
-    
-elseif numel(varargin)>0
-    mess='Unrecognised options to get_sqw';
-    return
-end
 
 % Open file
-[mess,filename,fid,fid_input]=get_sqw_open(infile);
-if tidy_close(mess,fid_input,fid), return, end
+% ---------
+if ~isstruct(file)
+    file_open_on_entry=false;
+    [S,mess]=sqwfile_open(file,'readonly');
+    % If an error, then set w to empty argument; in principle could cause a crash if caller expects structure
+    if ~isempty(mess), w=[]; [ok,S]=tidy_close(file_open_on_entry,S.fid); return, end
+else
+    file_open_on_entry=true;
+    S=file;
+end
+fid=S.fid;
+fmt_ver=S.application.file_format;
+info=S.info;
+position=S.position;
+fmt=S.fmt;
 
 
-% Get file format, and recorded sqw_type and data_type if available
-% --------------------------------------------------------------
-% If '-v3', then get the position information written in the file, and the data type
-pos_start=ftell(fid);
-[mess,app_wrote_file]=get_application(fid,application.name);
+% Parse optional arguments
+% ------------------------
+[mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,varargin{:});
+read_sqw_header = (datastruct && S.sqw_type);  % read sqw header only if data structure return and sqw data in file
 
-%if app_wrote_file.file_format
+% Initialise output
+if datastruct
+    w.main_header = struct([]);
+    w.header = struct([]);
+    w.detpar = struct([]);
+    w.data = struct([]);
+else
+    w=[];
+end
+if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
-if isempty(mess)
-    % Post-prototype format sqw file
-    current_format=true;
-    if app_wrote_file.version==3
-        file_format='-v3';
-        pos_tmp=ftell(fid);
-        
-        % Get position block location and data type
-        fseek(fid,0,'eof');     % go to end of file
-        [mess,position_info_location,data_type_from_file]=get_sqw_file_footer(fid);
-        if tidy_close(mess,fid_input,fid), return, end
 
-        % Get position information
-        fseek(fid,position_info_location,'bof');
-        [mess,pos_info_from_file]=get_sqw_position_info(fid);
-        if tidy_close(mess,fid_input,fid), return, end
-        position.position_info=position_info_location;
-
-        % Return to end of application block
-        fseek(fid,pos_tmp,'bof');
-        
-    elseif app_wrote_file.version<=2
-        file_format='-v2';
-        data_type_from_file='';            % unknown data type
-        
+% Get main header, headers and detectors (if requested)
+% --------------------------------------
+if read_sqw_header
+    % Main header
+    if opt.hverbatim
+        [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver,'-verbatim');
     else
-        mess='Unrecognised sqw file format version';
-        if tidy_close(mess,fid_input,fid), return, end
+        [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver);
     end
-    [mess,sqw_type]=get_sqw_object_type(fid);
-    if tidy_close(mess,fid_input,fid), return, end
-    
-else
-    % Assume prototype sqw file format
-    disp('File does not have current Horace data file format. Attempting to read as prototype format Horace .sqw file...')
-    fseek(fid,pos_start,'bof');         % return to start of file
-    n = fread_catch(fid,1,'int32');     % first entry is length of character string with file name
-    if n<0 || n>1024
-        mess='Unable to read file as prototype Horace .sqw file';
-        if tidy_close(mess,fid_input,fid), return, end
-    end
-    
-    current_format=false;
-    file_format='-prototype';
-    sqw_type=true;          % assume old sqw file format
-    data_type_from_file=''; % unknown data type
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
-    % Return to start of file (no application block was found in the file)
-    fseek(fid,pos_start,'bof');
-end
+    % Header
+    [mess, w.header] = get_sqw_header (fid, fmt_ver, S.info.nfiles);
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
-
-% Get main header
-% ---------------
-if sqw_type
-    if ~verbatim
-        [mess, main_header, position.main_header] = get_sqw_main_header (fid);
-    else
-        [mess, main_header, position.main_header] = get_sqw_main_header (fid, '-verbatim');
-    end
-    if tidy_close(mess,fid_input,fid), return, end
-    nfiles = main_header.nfiles;
-else
-    main_header=struct([]);
-    nfiles = 0;
-end
-
-
-% Get headers for each contributing spe file
-% ------------------------------------------
-if sqw_type
-    [mess, header, position.header] = get_sqw_header (fid, nfiles);
-    if tidy_close(mess,fid_input,fid), return, end
-else
-    header=struct([]);
-end
-
-
-% Get detector parameters
-% -----------------------
-if sqw_type
-    [mess, detpar, position.detpar] = get_sqw_detpar (fid);
-    if tidy_close(mess,fid_input,fid), return, end
-else
-    detpar=struct([]);
+    % Detctors
+    [mess, w.detpar] = get_sqw_detpar (fid, fmt_ver);
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
 
 
 % Get data
 % --------
-if (opt_h||opt_his) && ~verbatim
-    data_opt={'-h'};
-elseif (opt_h||opt_his) && verbatim
-    data_opt={'-hverbatim'};
-elseif opt_nopix
-    data_opt={'-nopix'};
-elseif pix_range
-    data_opt={npix_lo,npix_hi};
+if datastruct
+    [mess, w.data] = get_sqw_data (fid, fmt_ver,...
+        sparse_fmt, datastruct, make_full_fmt, opt, opt_name, optvals{:});
+    if fmt_ver==appversion(0);
+        % Prototype file format. Should only have been able to get here if sqw-type data in file
+        w.data.title=w.main_header.title;
+        header_ave=header_average(w.header);
+        w.data.alatt=header_ave.alatt;
+        w.data.angdeg=header_ave.angdeg;
+    end
 else
-    data_opt={};
+    [mess, w] = get_sqw_data (fid, fmt_ver,...
+        sparse_fmt, datastruct, make_full_fmt, opt, opt_name, optvals{:});
 end
-[mess, data, position_data, npixtot, data_type] = get_sqw_data (fid, data_opt{:}, file_format, data_type_from_file);
-if tidy_close(mess,fid_input,fid), return, end
-
-% Fill fields not held in data section from the header
-if strcmp(file_format,'-prototype')
-    data.title=main_header.title;
-    header_ave=header_average(header);
-    data.alatt=header_ave.alatt;
-    data.angdeg=header_ave.angdeg;
-end
-
-% Fill position structure
-position.data=position_data.data;
-position.s=position_data.s;
-position.e=position_data.e;
-position.npix=position_data.npix;
-position.urange=position_data.urange;
-position.pix=position_data.pix;
-position.npix_nz=position_data.npix_nz;
-position.ipix_nz=position_data.ipix_nz;
-position.pix_nz=position_data.pix_nz;
+if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
 
 % Get header optional information, if present
 % -------------------------------------------
-if strcmp(file_format,'-v3') && ~opt_h
-    fseek(fid,pos_info_from_file.instrument,'bof');     % might need to skip redundant bytes
-    % Instrument information
-    [mess, header, position.instrument] = get_sqw_header_inst (fid, header);
-    if tidy_close(mess,fid_input,fid), return, end
-    % Sample information
-    [mess, header, position.sample] = get_sqw_header_samp (fid, header);
-    if tidy_close(mess,fid_input,fid), return, end
+if read_sqw_header && ~isnan(S.position.instrument)
+    fseek(fid,S.position.instrument,'bof');     % might need to skip redundant bytes
     
-    % Check consistency of file - debugging tool
-    % -------------------------------------------
-    if strcmp(file_format,'-v3')
-        if ~isequal(position,pos_info_from_file)
-            display('***********************')
-            display('WARNING: Internal inconsistency of data file - check it is not corrupted')
-            display('***********************')
-        end
-    end
+    % Instrument information
+    [mess, w.header] = get_sqw_header_inst (fid, fmt_ver, w.header);
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    
+    % Sample information
+    [mess, w.header] = get_sqw_header_samp (fid, fmt_ver, w.header);
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+
 end
 
 
 % Closedown
 % ---------
-if ~fid_input   % opened file in this routine, so close again
+if ~file_open_on_entry  % opened file in this routine, so close again
     fclose(fid);
 end
 
 
-%--------------------------------------------------------------------------------------------------
-function status=tidy_close(mess,file_already_open,fid)
-% Tidy shut down of file if there was an error
+%==================================================================================================
+function [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,varargin)
+% Check the data type and optional arguments for validity
 %
-%   >> status=tidy_close(mess,file_already_open,fid)
+%   >> [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S)
+%   >> [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,opt)
+%   >> [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,opt,p1,p2,...)
+%
+%   >> [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(..., '-full')
 %
 % Input:
 % ------
-%   mess                Message; if empty, then assume there was no error; otherwise assume an error
-%   file_already_open   True if the output sqw file was already open on input (so don't close it)
-%   fid                 File identifier of sqw file. If not 
+%   S               sqwfile structure
+%
+%   opt             [optional] option character string one of:
+%                       '-dnd','-sqw','-h','-his','-hverbatim','-hisverbatim','-nopix','-buffer'
+%                       'npix','npix_nz','pix_nz','pix'
+%
+%   p1,p2,...       Optional arguments as may be required by the option argument
 %
 % Output:
 % -------
-%   status              True if input argument 'mess' reported an error; false otherwise
+%   mess            Error message if a problem; ='' if all OK
+%
+%   datastruct      Signifies data to be read:
+%                     - true  if a data structure ('-dnd','-sqw','-h*','-nopix','-buffer')
+%                     - false if a field from the data
+%
+%   make_full_fmt Data is sparse format but conversion to non-sparse is requested
+%                  (If the data is not sparse format, then then this will be set to false)
+%
+%   opt             Structure with fields set to true or false according to the option:
+%                       'dnd','sqw','h','his','hverbatim','hisverbatim','-nopix','buffer'
+%                       'npix','npix_nz','pix_nz','pix'
+%
+%   opt_name        Option as character string
+%                       '-dnd','-sqw','-h','-his','-hverbatim','-hisverbatim','-nopix','-buffer'
+%                       'npix','npix_nz','pix_nz','pix'
+%                   If no option, opt_name=''
+%
+%   optvals         Optional arguments (={} if none)
+%
+%
+% The valid combinations of options and option arguments are given in the help to get_sqw
 
-if isempty(mess)
-    status=false;
+mess='';
+datastruct=false;
+make_full_fmt=false;
+opt=struct('-dnd',false,'-sqw',false,'-nopix',false,'-buffer',false,...
+    '-h',false,'-his',false,'-hverbatim',false,'-hisverbatim',false,...
+    'npix',false,'npix_nz',false,'pix_nz',false,'pix',false);
+opt_name='';
+optvals={};
+
+% Determine if full format conversion is required
+% -----------------------------------------------
+narg=numel(varargin);
+if narg>=1 && isstring(varargin{end}) && strcmpi(varargin{end},'-full')
+    make_full_fmt=true;
+    narg=narg-1;
+end
+
+% Check optional arguments have valid syntax of form (...,opt, v1, v2,...)
+% ------------------------------------------------------------------------
+% Check the field names first, to minimise time spent processing these, as
+% speed of reading can be critical for those options
+if narg>0
+    opt_name=varargin{1};
+    narg_opt=narg-1;
+    if isstring(opt_name) && ~isempty(opt_name)
+        if strcmpi(opt_name,'npix')
+            if narg_opt<=1
+                if narg_opt>0
+                    [val,mess]=range_ok(varargin{2},'Bin index range for ''npix'': ');
+                    if ~isempty(mess), return, end
+                    optvals={val};
+                else
+                    optvals={};
+                end
+                opt.npix=true;
+            else
+                mess='Number of arguments for option ''npix'' is invalid';
+                return
+            end
+            
+        elseif strcmpi(opt_name,'npix_nz')
+            if narg_opt<=1
+                if narg_opt>0
+                    [val,mess]=range_ok(varargin{2},'Bin index range for ''npix_nz'': ');
+                    if ~isempty(mess), return, end
+                    optvals={val};
+                else
+                    optvals={};
+                end
+                opt.npix_nz=true;
+            else
+                mess='Number of arguments for option ''npix_nz'' is invalid';
+                return
+            end
+            
+        elseif strcmpi(opt_name,'pix_nz')
+            if narg_opt<=1
+                if narg_opt>0
+                    [val,mess]=range_ok(varargin{2},'Entry index range for ''pix_nz'': ');
+                    if ~isempty(mess), return, end
+                    optvals={val};
+                else
+                    optvals={};
+                end
+                opt.pix_nz=true;
+            else
+                mess='Number of arguments for option ''-pix_nz'' is invalid';
+                return
+            end
+            
+        elseif strcmpi(opt_name,'pix')
+            if narg_opt<=2
+                if narg_opt>0
+                    [val,mess]=range_ok(varargin{2},'Pixel index range for ''pix'': ');
+                    if ~isempty(mess), return, end
+                    optvals={val};
+                    if narg_opt==2
+                        [val2,mess]=range_ok(varargin{2},'Entry index range for ''pix_nz'': ');
+                        if ~isempty(mess), return, end
+                        optvals=[optvals,val2];
+                    end
+                else
+                    optvals={};
+                end
+                opt.npix=true;
+            else
+                mess='Number of arguments for option ''-pix_nz'' is invalid';
+                return
+            end
+            
+        elseif strcmpi(opt_name,'-dnd')
+            if narg_opt>0
+                mess='Number of arguments for option ''-dnd'' is invalid';
+                return
+            end
+            opt.dnd=true;
+            optvals={};
+            datastruct=true;
+            
+        elseif strcmpi(opt_name,'-sqw')
+            if narg_opt>0
+                mess='Number of arguments for option ''-sqw'' is invalid';
+                return
+            end
+            opt.sqw=true;
+            optvals={};
+            datastruct=true;
+        
+        elseif strcmpi(opt_name,'-nopix')
+            if narg_opt>0
+                mess='Number of arguments for option ''-nopix'' is invalid';
+                return
+            end
+            opt.nopix=true;
+            optvals={};
+            datastruct=true;
+        
+        elseif strcmpi(opt_name,'-buffer')
+            if narg_opt>0
+                mess='Number of arguments for option ''-buffer'' is invalid';
+                return
+            end
+            opt.buffer=true;
+            optvals={};
+            datastruct=true;
+                    
+        elseif strcmpi(opt_name,'-h')
+            if narg_opt>0
+                mess='Number of arguments for option ''-h'' is invalid';
+                return
+            end
+            opt.h=true;
+            optvals={};
+            datastruct=true;
+            
+        elseif strcmpi(opt_name,'-his')
+            if narg_opt>0
+                mess='Number of arguments for option ''-his'' is invalid';
+                return
+            end
+            opt.his=true;
+            optvals={};
+            datastruct=true;
+            
+        elseif strcmpi(opt_name,'-hverbatim')
+            if narg_opt>0
+                mess='Number of arguments for option ''-hverbatim'' is invalid';
+                return
+            end
+            opt.hverbatim=true;
+            optvals={};
+            datastruct=true;
+            
+        elseif strcmpi(opt_name,'-hisverbatim')
+            if narg_opt>0
+                mess='Number of arguments for option ''-hisverbatim'' is invalid';
+                return
+            end
+            opt.hisverbatim=true;
+            optvals={};
+            datastruct=true;
+
+        else
+            mess='Unrecognised option';
+            return
+        end
+    else
+        mess='Unrecognised option';
+        return
+    end
+end
+
+
+% Determine if valid write option for data type
+% ---------------------------------------------
+info=S.info;
+is_sparse=info.sparse;
+is_sqw=(info.sqw_data & info.sqw_type);
+is_dnd=(info.sqw_data & ~info.sqw_type);
+is_buffer=info.buffer_type;
+
+% Check consistency of field reading with non-sparse format
+if ~is_sparse && (opt.npix_nz || opt.pix_nz)
+    mess = ['Can only read field ',opt_name,' from sparse format data'];
+    return
+end
+
+% Check consistency of the options with the different data types
+if is_dnd
+    if opt.sqw || opt.nopix || opt.buffer
+        mess = ['Cannot use option ''',opt_name,''' with dnd-type data'];
+        return
+    elseif opt.npix_nz || opt.pix_nz || opt.pix
+        mess = ['Cannot read field ''',opt_name,''' from dnd-type data'];
+        return
+    end
+        
+elseif is_sqw
+    if opt.pix && numel(optvals)==2
+        if is_sparse
+            make_full_fmt=true;
+        else
+            mess = 'Too many arguments for option ''pix'' with non-sparse format sqw-type data';
+            return
+        end
+    end
+    
+elseif is_buffer
+    if opt.dnd || opt.sqw || opt.h || opt.his || opt.hverbatim || opt.hisverbatim || opt.nopix
+        mess = ['Cannot use option ''',opt_name,''' with buffer (i.e. npix and pix) data'];
+        return
+    elseif opt.pix && numel(optvals)==2
+        if is_sparse
+            make_full_fmt=true;
+        else
+            mess = 'Too many arguments for option ''pix'' with non-sparse format buffer (i.e. npix and pix) data';
+            return
+        end
+    end
+    
 else
-    status=true;
-    % Close sqw file, if open
-    if ~file_already_open && fid>=3 && ~isempty(fopen(fid))
+    error('Unrecognised data type')
+    
+end
+
+
+%==================================================================================================
+function [val_out,mess]=range_ok(val,mess_in)
+% Check an argument specifies an integer range
+%
+%   >> [val,mess]=range_ok(val_in,mess_in)
+%
+% Input:
+% ------
+%   val         Numeric array of form [ilo,ihi] where 0 < ilo <= ihi (ilo, ihi integers)
+%              or a numeric scalar 0 < val_in (val_in an integer)
+%
+%   mess_in     message stub
+%
+% Output:
+% -------
+%   val_out     If all is OK, then a copy of input argument val_in, or expanded
+%              to [val_in,val_in] if input was a scalar
+%               If there was a problem, [NaN,NaN]
+%   mess        if all OK: empty string ''; otherwise contains an error message
+
+mess='';
+if isnumeric(val)
+    if numel(val)==2 && val(2)>=val(1) && all(rem(val,1)==0) && val(1)>0
+        val_out=val;
+    elseif isscalar(val) && rem(val,1)==0 && val>0
+        val_out=[val,val];
+    else
+        val_out=[NaN,NaN];
+        mess='Range must be an integer range [a,b] with b>a>0 or an integer scalar >0';
+        if nargin>1
+            mess=[mess_in,mess];
+        end
+    end
+else
+    val_out=[NaN,NaN];
+    mess='Range must be an integer range [a,b] with b>a>0 or an integer scalar >0';
+    if nargin>1
+        mess=[mess_in,mess];
+    end
+end
+
+
+%==================================================================================================
+function [ok,S]=tidy_close(leave_open,fid,ftmp)
+% Tidy shut down of files if there was an error
+%
+%   >> [ok,S]=tidy_close(leave_fid_open,fid,ftmp)
+%
+% Input:
+% ------
+%   leave_fid_open      Leave the sqw file open, if not already closed
+%   fid                 File identifier of sqw file
+%   ftmp                [Optional] File identifier of temporary file; if present then close the file
+%                      and delete if an error
+%
+% Output:
+% -------
+%   ok                  Status. Set to false.
+%   S                   sqwfile structure with default contents
+
+ok=false;
+
+% Close sqw file if requested
+if fid>=3 && ~isempty(fopen(fid))
+    if leave_open
+        S=sqwfile();
+        S.fid=fid;
+        S.filename=fopen(fid);
+    else
         fclose(fid);
+        S=sqwfile();
+    end
+else
+    S=sqwfile();
+end
+
+% Close and delete temporary file, if open
+if exist('ftmp','var') && ftmp>=3 && ~isempty(fopen(fid))
+    tmpfile=fopen(ftmp);
+    fclose(ftmp);
+    try
+        delete(tmpfile)
+    catch
+        disp('Unable to delete buffer file created when writing output sqw file')
     end
 end

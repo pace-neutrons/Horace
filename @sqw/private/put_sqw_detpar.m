@@ -1,7 +1,7 @@
-function [mess, position] = put_sqw_detpar (fid, fmt_ver, det)
+function [mess, pos_start] = put_sqw_detpar (fid, fmt_ver, det)
 % Write detector information to binary file.
 %
-%   >> [mess, position] = put_sqw_detpar (fid, fmt_ver, det)
+%   >> [mess, pos_start] = put_sqw_detpar (fid, fmt_ver, det)
 %
 % Input:
 % ------
@@ -12,7 +12,7 @@ function [mess, position] = put_sqw_detpar (fid, fmt_ver, det)
 % Output:
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
-%   position        Position of start of detector parameter block
+%   pos_start       Position of start of detector parameter block
 %
 %
 % Fields written to file are:
@@ -42,13 +42,13 @@ function [mess, position] = put_sqw_detpar (fid, fmt_ver, det)
 % $Revision$ ($Date$)
 
 mess = '';
-position = ftell(fid);
+pos_start = ftell(fid);
 
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
-
+len_name_max=1024;  % fixed length of name string
 try
-    write_sqw_var_char (fid, fmt_ver, det.filename);
-    write_sqw_var_char (fid, fmt_ver, det.filepath);
+    write_sqw_var_char (fid, fmt_ver, det.filename, len_name_max);
+    write_sqw_var_char (fid, fmt_ver, det.filepath, len_name_max);
     
     ndet=size(det.x2,2);    % no. detectors
     fwrite(fid,ndet,fmt_int);

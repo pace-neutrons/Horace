@@ -1,7 +1,7 @@
-function [mess, det, position] = get_sqw_detpar (fid, fmt_ver)
+function [mess, det, pos_start] = get_sqw_detpar (fid, fmt_ver)
 % Read the detector parameter from a binary file.
 %
-%   >> [mess, det, position] = get_sqw_detpar (fid, fmt_ver)
+%   >> [mess, det, pos_start] = get_sqw_detpar (fid, fmt_ver)
 %
 % Input:
 % ------
@@ -12,7 +12,7 @@ function [mess, det, position] = get_sqw_detpar (fid, fmt_ver)
 % -------
 %   mess            Error message; blank if no errors, non-blank otherwise
 %   det             Structure containing fields read from file (details below)
-%   position        Position of start of detector parameter block
+%   pos_start       Position of start of detector parameter block
 %
 %
 % Fields read from file are:
@@ -32,8 +32,7 @@ function [mess, det, position] = get_sqw_detpar (fid, fmt_ver)
 %
 % $Revision$ ($Date$)
 
-det = [];
-position = ftell(fid);
+pos_start = ftell(fid);
 
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
 
@@ -51,4 +50,6 @@ try
     
 catch
     mess='Error reading detector parameter block from file';
+    det = [];
+
 end

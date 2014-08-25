@@ -31,7 +31,7 @@ ver3p1=appversion(3.1);
 try
     sqw_type = read_sqw_var_logical_scalar (fid, fmt_ver);
     if fmt_ver>=ver3p1
-        ndims = fread (fid,1);
+        ndims = fread (fid,1,'float64');
     else
         ndims = fread (fid,1,'int32');
     end

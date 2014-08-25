@@ -1,7 +1,7 @@
-function [mess, position] = put_application (fid, application)
+function [mess, pos_start] = put_sqw_application (fid, application)
 % Write application information data strcuture to file
 %
-%   >> [mess, position] = put_application (fid, application)
+%   >> [mess, pos_start] = put_sqw_application (fid, application)
 %
 % Input:
 % ------
@@ -11,7 +11,7 @@ function [mess, position] = put_application (fid, application)
 % Output:
 % -------
 %   mess            Message if there was a problem writing; otherwise mess=''
-%   position        Position of the start of the application block
+%   pos_start       Position of the start of the application block
 %
 %
 % Fields written to file are:
@@ -26,15 +26,14 @@ function [mess, position] = put_application (fid, application)
 % $Revision$ ($Date$)
 
 mess = '';
-position = ftell(fid);
+pos_start = ftell(fid);
 
-file_format=application.file_format;
 ver3p1=appversion(3.1);
-
+len_ch=256; % fixed length of character string
 try
     % Write application name
     % ----------------------
-    % Must stick with the following write format for name and version for get_application to work
+    % Must stick with the following write format for name and version for get_sqw_application to work
     n=length(application.name);
     fwrite(fid,n,'int32');              % write length of name
     fwrite(fid,application.name,'char*1');
@@ -42,15 +41,15 @@ try
     % Write application version and file format
     % -----------------------------------------
     % The file format version must be written and read in version 3.1 form in all future releases
-    if file_format>=ver3p1
+    if application.file_format>=ver3p1
         flag=-1;    % -1 indicates change from numeric to character string version format
         fwrite(fid,flag,'float64');
-        write_sqw_var_char (fid, ver3p1, version_str(application.version));
-        write_sqw_var_char (fid, ver3p1, version_str(file_format));
+        write_sqw_var_char (fid, ver3p1, version_str(application.version), len_ch);
+        write_sqw_var_char (fid, ver3p1, version_str(application.file_format), len_ch);
     else
         % Horace version and file format version assumed to be the same for Horace v3 and below
         % Can only be '-v3' or '-v1' file format; 
-        fmt_num=version_num(file_format);
+        fmt_num=version_num(application.file_format);
         fwrite(fid,fmt_num(1),'float64');  
     end
     
