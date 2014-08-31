@@ -43,7 +43,6 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %   >> [npix,ok,mess] = get_sqw (file,'npix', [blo,bhi], [ilo,ihi])
 %                                                       % load between the given bin numbers
 %                                                       % ilo,ihi range of entries in npix
-% 	To load as a full array: >> ... = load(...,'full')												
 % 					
 %   >> [npix_nz,ok,mess] = get_sqw (file,'npix_nz')
 %   >> [npix_nz,ok,mess] = get_sqw (file,'npix_nz', [blo,bhi], [ilo,ihi]) 	
@@ -61,6 +60,9 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %   - npix or npix_nz:
 %   >> ... = get_sqw (...,'-full')	
 %
+%   - pix_nz: 
+%       <not applicable - option is just ignored>
+%
 %   - pix:
 %   >> [pix,ok,mess] = get_sqw (file,'pix','-full')
 %   >> [pix,ok,mess] = get_sqw (file,'pix', [plo,phi], [ilo,ihi])  
@@ -69,6 +71,7 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %       NOTE: - The pixel coordinates are all set to zero
 %             - In the last case the '-full' option is not needed, as sparse is meaningless
 %
+%
 % Input:
 % --------
 %   file        File name, or sqwfile information structure. It is assumed that the file
@@ -76,6 +79,10 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %              format or sparse format.
 %
 %   opt         [optional] Determines which fields to read:
+%                   '-dnd'          - Read as dnd even if sqw fields
+%                   '-sqw'          - Read as sqw - so will throw error if does not contain sqw data
+%                   '-buffer'       - Read npix and pix only (will throw error if dnd data only)
+%
 %                   '-h'            - header block without instrument and sample information, and
 %                                   - data block fields: filename, filepath, title, alatt, angdeg,...
 %                                                          uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax
@@ -98,7 +105,8 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %
 %   p1,p2,...   [optional Parameters as required/optional with the different values of opt
 %
-%   '-full'     [optional] Return 
+%   '-full'     [optional] Convert to full format arrays in output. Ignored if data is
+%               already full format.
 %
 %
 % Output:
@@ -130,9 +138,6 @@ else
 end
 fid=S.fid;
 fmt_ver=S.application.file_format;
-info=S.info;
-position=S.position;
-fmt=S.fmt;
 
 
 % Parse optional arguments
@@ -458,6 +463,20 @@ if is_dnd
     end
         
 elseif is_sqw
+    if opt.pix
+        if numel(optvals)==2
+            if is_sparse
+                make_full_fmt=true;
+            else
+                mess = 'Too many arguments for option ''pix'' with non-sparse format sqw-type data';
+                return
+            end
+        elseif numel(optvals)==1 && is_sparse && make_full_fmt
+            mess = 'Too few arguments for option ''pix'' to convert sparse format sqw-type data to full format';
+            return
+        end
+    end
+    
     if opt.pix && numel(optvals)==2
         if is_sparse
             make_full_fmt=true;
@@ -471,11 +490,16 @@ elseif is_buffer
     if opt.dnd || opt.sqw || opt.h || opt.his || opt.hverbatim || opt.hisverbatim || opt.nopix
         mess = ['Cannot use option ''',opt_name,''' with buffer (i.e. npix and pix) data'];
         return
-    elseif opt.pix && numel(optvals)==2
-        if is_sparse
-            make_full_fmt=true;
-        else
-            mess = 'Too many arguments for option ''pix'' with non-sparse format buffer (i.e. npix and pix) data';
+    elseif opt.pix
+        if numel(optvals)==2
+            if is_sparse
+                make_full_fmt=true;
+            else
+                mess = 'Too many arguments for option ''pix'' with non-sparse format buffer (i.e. npix and pix) data';
+                return
+            end
+        elseif numel(optvals)==1 && is_sparse && make_full_fmt
+            mess = 'Too few arguments for option ''pix'' to convert non-sparse format buffer (i.e. npix and pix) data to full format';
             return
         end
     end

@@ -1,7 +1,7 @@
-function [mess, header, pos_start, pos_arr] = get_sqw_header (fid, fmt_ver, nfiles)
+function [mess, header] = get_sqw_header (fid, fmt_ver, nfiles)
 % Read the header blocks for the contributing spe file(s) to an sqw file.
 %
-%   >> [mess, header, pos_start] = get_sqw_header (fid, fmt_ver, nfiles)
+%   >> [mess, header] = get_sqw_header (fid, fmt_ver, nfiles)
 %
 % Input:
 % ------
@@ -15,8 +15,6 @@ function [mess, header, pos_start, pos_arr] = get_sqw_header (fid, fmt_ver, nfil
 %              cell array of structures, one per spe file. The fields are
 %              listed below.
 %   mess        Error message; blank if no errors, non-blank otherwise
-%   pos_start   Position of start of header block
-%   pos_arr     Column vector with the positions of the start of each header block
 %
 %
 % Fields read from file are:
@@ -52,7 +50,6 @@ function [mess, header, pos_start, pos_arr] = get_sqw_header (fid, fmt_ver, nfil
 %
 % $Revision$ ($Date$)
 
-pos_start=ftell(fid);
 
 if nfiles==1
     pos_arr = ftell(fid);
@@ -60,9 +57,7 @@ if nfiles==1
     
 else
     header = cell(nfiles,1);
-    pos_arr = NaN(nfiles,1);
     for i=1:nfiles
-        pos_arr(i) = ftell(fid);
         [mess, header{i}] = get_sqw_header_single (fid,fmt_ver);
         if ~isempty(mess)
             mess = [mess,': spe file ',num2str(i)];

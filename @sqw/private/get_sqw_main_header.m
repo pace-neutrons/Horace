@@ -1,4 +1,4 @@
-function [mess, main_header, pos_start] = get_sqw_main_header (fid, fmt_ver, opt)
+function [mess, main_header] = get_sqw_main_header (fid, fmt_ver, opt)
 % Read the main header block for the results of performing calculate projections on spe file(s).
 %
 %   >> [mess, main_header, pos_start] = get_sqw_main_header(fid, fmt_ver)
@@ -19,7 +19,6 @@ function [mess, main_header, pos_start] = get_sqw_main_header (fid, fmt_ver, opt
 % -------
 %   mess            Error message; blank if no errors, non-blank otherwise
 %   main_header     Structure containing fields read from file (details below)
-%   pos_start       Position of start of main header block
 %
 %
 % Fields read from file are:
@@ -35,7 +34,6 @@ function [mess, main_header, pos_start] = get_sqw_main_header (fid, fmt_ver, opt
 % $Revision$ ($Date$)
 
 mess='';
-pos_start = ftell(fid);
 
 ver3p1=appversion(3.1);
 

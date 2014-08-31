@@ -79,7 +79,7 @@ if ~isempty(file) && isstring(file) % assume file is a file name
         S=sqwfile(); return
     end
 
-    % Read the information block from the sqw file
+    % Read the information block from the sqw file (call even if new file)
     [mess, S] = get_sqw_information (fid);
     
 else

@@ -1,7 +1,7 @@
-function [mess, info, pos_start] = get_sqw_info (fid, fmt_ver)
+function [mess, info] = get_sqw_info (fid, fmt_ver)
 % Read some key information about the sqw file
 %
-%   >> [mess, info, pos_start] = get_sqw_info (fid, fmt_ver)
+%   >> [mess, info] = get_sqw_info (fid, fmt_ver)
 %
 % Input:
 % ------
@@ -12,7 +12,6 @@ function [mess, info, pos_start] = get_sqw_info (fid, fmt_ver)
 % -------
 %   mess        Error message; blank if no errors, non-blank otherwise
 %   info        Structure with various basic pieces of information about the file contents:
-%   pos_start   Position of the start of the information block
 %
 %
 % Fields read from file are:
@@ -34,7 +33,6 @@ function [mess, info, pos_start] = get_sqw_info (fid, fmt_ver)
 
 
 mess='';
-pos_start = ftell(fid);
 
 try
     n = fread(fid,1,'float64');

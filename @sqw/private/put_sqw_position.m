@@ -21,10 +21,10 @@ function [mess, pos_start] = put_sqw_position (fid, fmt_ver, position, update)
 %
 % Fields written to file are:
 % ---------------------------
-%   position.application    start of application block
-%   position.info           start of info block
-%   position.position       start of position block
-%   position.fmt            start of format block
+%   position.application    start of application block (for prototype file format is NaN)
+%   position.info           start of info block (for file formats prior to 3.1 is NaN)
+%   position.position       start of position block (for file formats prior to 3.1 is NaN)
+%   position.fmt            start of format block (for file formats prior to 3.1 is NaN)
 %   position.main_header    start of main_header block (=NaN if not written)
 %   position.header         start of header block (=NaN if not written)
 %   position.instrument     start of header instrument blocks (=NaN if not written)

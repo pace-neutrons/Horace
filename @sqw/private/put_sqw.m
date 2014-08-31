@@ -159,7 +159,7 @@ if newfile
         S.application=application;              % update the application block
         [mess, position_sqwfile] = put_sqw_information (S);  % write to file (will update with correct information later)
         if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
-        position=updatestruct(position,position_sqwfile);
+        position=mergestruct(position,position_sqwfile);
     else
         mess='Unsupported file format';
         [ok,S]=tidy_close(file_open_on_entry,fid); return
@@ -221,8 +221,8 @@ else
 end
 if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
-position = updatestruct(position,position_data);
-fmt = updatestruct(fmt,fmt_data);
+position = mergestruct(position,position_data);
+fmt = mergestruct(fmt,fmt_data);
 
 
 % Write sample and instrument information

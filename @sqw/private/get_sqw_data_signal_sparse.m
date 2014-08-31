@@ -1,10 +1,10 @@
-function [mess,position,data,npixtot] = get_sqw_data_signal_sparse (fid, fmt_ver, varargin)
+function [mess,data] = get_sqw_data_signal_sparse (fid, fmt_ver, varargin)
 % Read data structure from sparse format file
 %
-%   >> [mess,position,data,npixtot] = get_sqw_data_signal_sparse (fid, fmt_ver)
-%   >> [mess,position,data,npixtot] = get_sqw_data_signal_sparse (fid, fmt_ver, '-skip')
-%   >> [mess,position,data,npixtot] = get_sqw_data_signal_sparse (fid, fmt_ver, '-dnd')
-%   >> [mess,position,data,npixtot] = get_sqw_data_signal_sparse (fid, fmt_ver, '-nopix')
+%   >> [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver)
+%   >> [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, '-skip')
+%   >> [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, '-dnd')
+%   >> [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, '-nopix')
 %
 % Input:
 % ------
@@ -19,16 +19,6 @@ function [mess,position,data,npixtot] = get_sqw_data_signal_sparse (fid, fmt_ver
 % Output:
 % -------
 %   mess        Error message; ='' if all OK, non-empty if a problem
-%   position    Structure with positions of fields; an entry is set to [] if
-%              corresponding field was not present in the file (the position will be
-%              filled even for fields that ar present but were not read).
-%       position.s          Start of signal array
-%       position.e          Start of error array
-%       position.npix       Start of npix array
-%       position.urange     Start of urange array
-%       position.npix_nz    Start of npix_nz array
-%       position.pix_nz     Start of pix_nz array
-%       position.pix        Start of pix array
 %
 %   data        Contains data read from file )if '-skip'
 %                   dnd-type data read from file: s,e,npix

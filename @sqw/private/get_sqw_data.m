@@ -1,8 +1,7 @@
-function [mess, data, position, npixtot, npixtot_nz] = get_sqw_data (fid, fmt_ver,...
-    sparse_fmt, datastruct, make_full_fmt, opt, opt_name, varargin)
+function [mess, data] = get_sqw_data (fid, fmt_ver, sparse_fmt, datastruct, make_full_fmt, opt, opt_name, varargin)
 % Read the data block or field from the data block in an sqw file.
 %
-%   >> [mess, data, pos_start] = get_sqw_data (fid, fmt_ver, datastruct, make_full_fmt, opt, opt_name, varargin);
+%   >> [mess, data] = get_sqw_data (fid, fmt_ver, datastruct, make_full_fmt, opt, opt_name, varargin);
 %
 %
 % Input:
@@ -38,20 +37,6 @@ function [mess, data, position, npixtot, npixtot_nz] = get_sqw_data (fid, fmt_ve
 %
 %   data            Structure containing fields read from file. If a single field was
 %                  requested, then this is returned as the relevant type.
-%
-%   position        Position (in bytes from start of file) of data block and large fields actually written by the call to this function:
-%                       position.data           start of data block
-%                       position.s              position of array s
-%                       position.e              position of array e
-%                       position.npix           position of array npix (=NaN if npix not written)
-%                       position.urange         position of array urange (=NaN if urange not written)
-%                       position.npix_nz        position of array npix_nz (=NaN if npix_nz not written)
-%                       position.pix_nz         position of array pix_nz (=NaN if pix_nz not written)
-%                       position.pix            position of array pix  (=NaN if pix not written)
-%
-%   npixtot         Number of pixels in the data file
-%
-%   npixtot_nz      Number of pixels with non-zero signal
 %
 %
 % It is assumed that the options are consistent with the data in the file - this
@@ -133,8 +118,6 @@ function [mess, data, position, npixtot, npixtot_nz] = get_sqw_data (fid, fmt_ve
 
 % Initialise output arguments
 
-pos_start = ftell(fid);
-
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
 
 read_header = (datastruct && ~opt.buffer);
@@ -213,7 +196,7 @@ end
 
 if ~sparse_fmt
     % Non-sparse data format
-    [mess,position,data,npixtot] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, opt);
+    [mess,data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, opt);
     
 else
     % Sparse data format

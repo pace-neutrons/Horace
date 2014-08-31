@@ -1,7 +1,7 @@
-function [mess, header, pos_start] = get_sqw_header_samp (fid, fmt_ver, header)
+function [mess, header] = get_sqw_header_samp (fid, fmt_ver, header)
 % Read the sample fields in the header block.
 %
-%   >> [mess, header, position] = get_sqw_header_samp (fid, header)
+%   >> [mess, header] = get_sqw_header_samp (fid, header)
 %
 % Input:
 % ------
@@ -14,7 +14,6 @@ function [mess, header, pos_start] = get_sqw_header_samp (fid, fmt_ver, header)
 % -------
 %   mess        Message if there was a problem writing; otherwise mess=''
 %   header      Header block with the sample field updated for each data set
-%   pos_start   Position of the start of the header sample block
 %
 %
 % Fields read from file are:
@@ -27,7 +26,6 @@ function [mess, header, pos_start] = get_sqw_header_samp (fid, fmt_ver, header)
 % $Revision$ ($Date$)
 
 mess = '';
-pos_start = ftell(fid);
 
 try
     block_descr=get_variable_from_binfile(fid);

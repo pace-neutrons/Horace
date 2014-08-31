@@ -1,7 +1,7 @@
-function [mess, fmt, pos_start] = get_sqw_fmt (fid, fmt_ver)
+function [mess, fmt] = get_sqw_fmt (fid, fmt_ver)
 % Get the formats of various key arrays in the sqw file
 %
-%   >> [mess, fmt, pos_start] = get_sqw_fmt (fid, fmt_ver)
+%   >> [mess, fmt] = get_sqw_fmt (fid, fmt_ver)
 %
 % Input:
 % ------
@@ -12,7 +12,6 @@ function [mess, fmt, pos_start] = get_sqw_fmt (fid, fmt_ver)
 % -------
 %   mess        Message if there was a problem writing; otherwise mess=''
 %   fmt         Structure with information about format of key arrays
-%   position    Position of the start of the information block
 %
 %
 % Fields read from file are:
@@ -31,7 +30,6 @@ function [mess, fmt, pos_start] = get_sqw_fmt (fid, fmt_ver)
 % $Revision: 880 $ ($Date: 2014-07-16 08:18:58 +0100 (Wed, 16 Jul 2014) $)
 
 mess = '';
-pos_start = ftell(fid);
 
 try
     fmt = struct('s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'pix_nz',[],'pix',[]);

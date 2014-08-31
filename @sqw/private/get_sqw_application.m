@@ -1,7 +1,7 @@
-function [mess, application, pos_start] = get_sqw_application (fid, expected_name)
+function [mess, application] = get_sqw_application (fid, expected_name)
 % Read the application block that gives information about the application that wrote the file
 %
-%   >> [mess, application, pos_start] = get_sqw_application (fid, expected_name)
+%   >> [mess, application] = get_sqw_application (fid, expected_name)
 %
 % Input:
 % ------
@@ -14,7 +14,6 @@ function [mess, application, pos_start] = get_sqw_application (fid, expected_nam
 % -------
 %   mess            Error message; blank if no errors, non-blank otherwise
 %   application     Structure containing fields read from file (details below)
-%   pos_start       Position of the start of the application block
 %
 %
 % Fields read from file are:
@@ -33,7 +32,6 @@ function [mess, application, pos_start] = get_sqw_application (fid, expected_nam
 % $Revision$ ($Date$)
 
 mess = '';
-pos_start = ftell(fid);
 
 % Read data from file. We require:
 % (1) the application name is a valid variable name

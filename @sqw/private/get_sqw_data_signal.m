@@ -1,10 +1,10 @@
-function [mess,position,data,npixtot] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, varargin)
+function [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, varargin)
 % Read data structure
 %
-%   >> [mess,position,data,npixtot] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz)
-%   >> [mess,position,data,npixtot] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-skip')
-%   >> [mess,position,data,npixtot] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-dnd')
-%   >> [mess,position,data,npixtot] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-nopix')
+%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz)
+%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-skip')
+%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-dnd')
+%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-nopix')
 %
 % Input:
 % ------
@@ -22,14 +22,6 @@ function [mess,position,data,npixtot] = get_sqw_data_signal (fid, fmt_ver, is_sq
 % Output:
 % -------
 %   mess        Error message; ='' if all OK, non-empty if a problem
-%   position    Structure with positions of fields; an entry is set to [] if
-%              corresponding field was not present in the file (the position will be
-%              filled even for fields that ar present but were not read).
-%       position.s      Start of signal array
-%       position.e      Start of error array
-%       position.npix   Start of npix array
-%       position.urange Start of urange array
-%       position.pix    Start of pix array
 %
 %   data        Contains data read from file )if '-skip'
 %                   dnd-type data read from file: s,e,npix
@@ -61,8 +53,6 @@ function [mess,position,data,npixtot] = get_sqw_data_signal (fid, fmt_ver, is_sq
 
 
 mess='';
-position = struct('s',[],'e',[],'npix',[],'urange',[],'pix',[]);
-npixtot=[];
 
 % Check input options
 % -------------------
@@ -124,7 +114,7 @@ if ~skip
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
 else
-    fseek(fid,8*(prod(sz)),'cof');  % skip field e
+    fseek(fid,8*(prod(sz)),'cof');  % skip field npix
 end
 
 % Return if only dnd data in the file - have reached the end of the data section

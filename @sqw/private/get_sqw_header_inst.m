@@ -1,7 +1,7 @@
-function [mess, header, pos_start] = get_sqw_header_inst (fid, fmt_ver, header)
+function [mess, header] = get_sqw_header_inst (fid, fmt_ver, header)
 % Read the instrument fields in the header block.
 %
-%   >> [mess, header, position] = get_sqw_header_inst (fid, header)
+%   >> [mess, header] = get_sqw_header_inst (fid, header)
 %
 % Input:
 % ------
@@ -14,7 +14,6 @@ function [mess, header, pos_start] = get_sqw_header_inst (fid, fmt_ver, header)
 % -------
 %   mess        Message if there was a problem writing; otherwise mess=''
 %   header      Header block with the instrument field updated for each data set
-%   pos_start   Position of the start of the header instrument block
 %
 %
 % Fields read from file are:
@@ -26,7 +25,6 @@ function [mess, header, pos_start] = get_sqw_header_inst (fid, fmt_ver, header)
 % $Revision$ ($Date$)
 
 mess = '';
-pos_start = ftell(fid);
 
 try
     block_descr=get_variable_from_binfile(fid);

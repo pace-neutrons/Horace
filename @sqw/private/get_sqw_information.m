@@ -1,7 +1,7 @@
-function [mess, S, pos_start] = get_sqw_information (fid)
+function [mess, S] = get_sqw_information (fid)
 % Get information header blocks from sqw file
 %
-%   >> [mess, S, pos_start] = get_sqw_information (fid)
+%   >> [mess, S] = get_sqw_information (fid)
 %
 % Input:
 % ------
@@ -11,12 +11,15 @@ function [mess, S, pos_start] = get_sqw_information (fid)
 % -------
 %   mess        Message if there was a problem writing; otherwise mess=''
 %   S           sqwfile structure
-%   pos_start   Position of start of detector parameter block
+%
+%
+% This function will place the file position pointer at the end of the file
+% information section. In file versions 3.1, 3 ,1, and 0 this corresponds to
+% the start of the main_header section
 
 
 mess='';
 S=sqwfile();
-pos_start=ftell(fid);
 
 % Fill sqwfile structure
 S.fid=fid;
@@ -28,6 +31,7 @@ if ~newfile
     
     expected_name='Horace';
     % Get Horace version and file format
+    pos_application = ftell(fid);   % only needed to construct sqwfile structure for old formats
     [mess, S.application] = get_sqw_application (fid, expected_name);
     if ~isempty(mess)
         S=sqwfile(); return
@@ -62,6 +66,7 @@ if ~newfile
         if ~isempty(mess)
             S=sqwfile(); return
         end
+        S.position.application=pos_application;     % need to update
     end
     
 end
