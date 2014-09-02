@@ -144,7 +144,7 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ve
 %                           ie  energy bin index
 %                           id  detector index into list of all detectors (i.e. masked and unmasked)
 %                           ne  number of energy bins
-%                       If more than one run contributed, then 
+%                   If more than one run contributed, then 
 %                           ipix = ie + ne*(id-1) + cumsum(ne(1:irun-1))*ndet
 %
 %
@@ -241,12 +241,12 @@ end
 
 
 %==================================================================================================
-function [mess,data_type_write,opt,opt_name,optvals] = check_options(data_type_in,varargin)
+function [mess,data_type_write,opt,optvals] = check_options(data_type_in,varargin)
 % Check the data type and optional arguments for validity
 %
-%   >> [mess,data_type_write,opt,opt_name,optvals] = check_options(data_type_in)
-%   >> [mess,data_type_write,opt,opt_name,optvals] = check_options(data_type_in,opt)
-%   >> [mess,data_type_write,opt,opt_name,optvals] = check_options(data_type_in,opt,p1,p2,...)
+%   >> [mess,data_type_write,opt,optvals] = check_options(data_type_in)
+%   >> [mess,data_type_write,opt,optvals] = check_options(data_type_in,opt)
+%   >> [mess,data_type_write,opt,optvals] = check_options(data_type_in,opt,p1,p2,...)
 %
 % Input:
 % ------
@@ -276,15 +276,11 @@ function [mess,data_type_write,opt,opt_name,optvals] = check_options(data_type_i
 %   opt             Structure with fields 'h', 'pix', 'buffer' with values true
 %                  or false for the different values
 %
-%   opt_name        Option as character string: '-h', '-buffer', '-pix'
-%                   If no option, opt_name=''
-%
 %   optvals         Optional arguments (={} if none)
 
 mess='';
 data_type_write='';
 opt=struct('h',false,'buffer',false,'pix',false);
-opt_name='';
 optvals={};
 
 narg=numel(varargin);

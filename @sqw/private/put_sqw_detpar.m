@@ -41,6 +41,7 @@ function [mess, pos_start] = put_sqw_detpar (fid, fmt_ver, det)
 %
 % $Revision$ ($Date$)
 
+
 mess = '';
 pos_start = ftell(fid);
 

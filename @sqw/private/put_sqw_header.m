@@ -65,6 +65,7 @@ function [mess, pos_start, pos_arr] = put_sqw_header (fid, fmt_ver, header)
 %
 % $Revision$ ($Date$)
 
+
 mess='';
 pos_start=ftell(fid);
 

@@ -10,6 +10,12 @@ function [mess, info, position, fmt] = get_sqw_LEGACY_info_position_fmt (fid, fm
 %
 % The file pointer will be left at the start of the main_header section
 
+
+% Original author: T.G.Perring
+%
+% $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
+
+
 S=sqwfile();
 info=S.info;
 position=S.position;

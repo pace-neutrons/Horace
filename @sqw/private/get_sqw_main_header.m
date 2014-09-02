@@ -33,6 +33,7 @@ function [mess, main_header] = get_sqw_main_header (fid, fmt_ver, opt)
 %
 % $Revision$ ($Date$)
 
+
 mess='';
 
 ver3p1=appversion(3.1);

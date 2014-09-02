@@ -17,8 +17,10 @@ function S = sqwfile
 %   info.sqw_data    =true if file contains valid sqw data (i.e. dnd-type or sqw-type data)
 %   info.sqw_type    Type of sqw object written to file: =true if sqw-type; =false if dnd-type
 %   info.buffer_type =true if npix-and-pix buffer file; =false if not
-%   info.ndims       Number of dimensions of npix array
 %   info.nfiles      Number of contributing spe data sets (=0 if not sqw-type; =NaN if buffer file)
+%   info.ne          Array of the number of energy bins in each spe data set
+%   info.ndet        Number of detectors
+%   info.ndims       Number of dimensions of npix array
 %   info.sz_npix     Number of bins along each dimension ([1,4] array; excess elements = NaN)
 %   info.npixtot     Total number of pixels
 %   info.npixtot_nz  Total number of non-zero signal pixels
@@ -49,13 +51,19 @@ function S = sqwfile
 %   fmt.pix_nz      Format of array pix_nz (='' if pix_nz not written)
 %   fmt.pix         Format of array pix  (='' if pix not written)
 
+
+% Original author: T.G.Perring
+%
+% $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
+
+
 S.fid=-1;
 S.filename='';
 
 S.application=struct('name','','version',appversion(0),'file_format',appversion(0));
 
 S.info=struct('sparse',false,'sqw_data',false,'sqw_type',false,'buffer_type',false,...
-    'ndims',NaN,'nfiles',NaN,'sz_npix',NaN(1,4),'npixtot',NaN,'npixtot_nz',NaN);
+    'nfiles',NaN,'ne',NaN,'ndet',NaN,'ndims',NaN,'sz_npix',NaN(1,4),'npixtot',NaN,'npixtot_nz',NaN);
 
 S.position = struct('application',NaN,'info',NaN,'position',NaN,'fmt',NaN,...
     'main_header',NaN,'header',NaN,'instrument',NaN,'sample',NaN,'detpar',NaN,'data',NaN,...

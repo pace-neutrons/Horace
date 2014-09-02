@@ -20,8 +20,10 @@ function [mess, info] = get_sqw_info (fid, fmt_ver)
 %   info.sqw_data    =true if file contains valid sqw data (i.e. dnd-type or sqw-type data)
 %   info.sqw_type    Type of sqw object written to file: =true if sqw-type; =false if dnd-type
 %   info.buffer_type =true if npix-and-pix buffer file; =false if not
-%   info.ndims       Number of dimensions of npix array
 %   info.nfiles      Number of contributing spe data sets (=0 if not sqw-type; =NaN if buffer file)
+%   info.ne          Array of the number of energy bins in each spe data set
+%   info.ndet        Number of detectors
+%   info.ndims       Number of dimensions of npix array
 %   info.sz_npix     Number of bins along each dimension ([1,4] array; excess elements = NaN)
 %   info.npixtot     Total number of pixels
 %   info.npixtot_nz  Total number of non-zero signal pixels
@@ -36,13 +38,13 @@ mess='';
 
 try
     n = fread(fid,1,'float64');
-    tmp = fread(fid,[1,n],'float64'););
+    tmp = fread(fid,[1,n],'float64');
     info=struct('sparse',logical(tmp(1)),'sqw_data',logical(tmp(2)),...
         'sqw_type',logical(tmp(3)),'buffer_type',logical(tmp(4)),...
-    'ndims',tmp(5),'nfiles',tmp(6),'sz_npix',tmp(7:end-2),'npixtot',tmp(end-1),'npixtot_nz',tmp(end));
-
+        'nfiles',tmp(5),'ne',tmp(6:end-6),'sz_npix',tmp(end-5:end-2),'npixtot',tmp(end-1),'npixtot_nz',tmp(end));
+    
 catch
     mess='Error reading contents information summary block from file';
     info=[];
-
+    
 end

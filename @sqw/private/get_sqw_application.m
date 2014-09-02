@@ -27,9 +27,11 @@ function [mess, application] = get_sqw_application (fid, expected_name)
 %       assigned if the first entry is a double followed by a character string
 %       of that length. An informatinal message is given.
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
+
 
 mess = '';
 

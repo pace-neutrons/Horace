@@ -25,7 +25,7 @@ function [data,mess] = make_sqw_data (varargin)
 %
 %   lattice Defines crystal lattice: [a,b,c,alpha,beta,gamma]
 %
-%   ndim    umber of dimensions
+%   ndim    Number of dimensions
 %
 %
 % Output:

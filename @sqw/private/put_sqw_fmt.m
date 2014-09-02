@@ -30,6 +30,7 @@ function [mess, pos_start] = put_sqw_fmt (fid, fmt_ver, fmt)
 %
 % $Revision: 885 $ ($Date: 2014-07-29 17:35:24 +0100 (Tue, 29 Jul 2014) $)
 
+
 mess='';
 pos_start = ftell(fid);
 

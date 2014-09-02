@@ -29,6 +29,7 @@ function [mess, fmt] = get_sqw_fmt (fid, fmt_ver)
 %
 % $Revision: 880 $ ($Date: 2014-07-16 08:18:58 +0100 (Wed, 16 Jul 2014) $)
 
+
 mess = '';
 
 try

@@ -1,34 +1,39 @@
-function [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, varargin)
+function [mess, data] = get_sqw_data_signal (fid, fmt_ver, S, opt, varargin)
 % Read data structure
 %
-%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz)
-%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-skip')
-%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-dnd')
-%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, '-nopix')
+%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, S, opt)
+%   >> [mess, data] = get_sqw_data_signal (fid, fmt_ver, S, opt, range)
 %
 % Input:
 % ------
 %   fid         File identifier of output file (opened for binary reading). The file position
 %              indicator on entry to be at the start of the signal array.
+%
 %               The input file is assumed to have either dnd-type or sqw-type data.
 %   fmt_ver     Version of file format e.g. appversion('-v3')
-%   is_sqw      =true if the dat file is known to contain sqw-type data, =false if dnd-type data
-%   sz          Size of the signal array [n1,n2,...] for as many dimensions as the data
-%   opt         [Optional] control which fields to read
-%                   '-skip'     Do not read any information into data
-%                   '-dnd'      Only read fields s,e,n
-%                   '-nopix'    Do not read pix array
+%
+%   S           sqwfile structure that contains information about the data in the sqw file
+%
+%   opt         Structure that defines the output (only one field can be true, the other false):
+%                       'dnd','sqw','nopix','buffer'
+%                       'npix','pix'
+%
+%   range       Optional argument in the case of opt.npix or opt.pix: specifies
+%                   if opt.npix     [bin_lo, bin_hi]
+%                   if opt.pix      [pix_lo, pix_hi]
 %
 % Output:
 % -------
 %   mess        Error message; ='' if all OK, non-empty if a problem
 %
-%   data        Contains data read from file )if '-skip'
-%                   dnd-type data read from file: s,e,npix
-%                   sqw-type data read from file: s,e,npix,urange,pix
-%                   '-skip' : empty strucure, struct()
-%                   '-nopix':   'a-' format data: s,e,npix,urange
-%               where the fields are:
+%   data        Contains data read from file
+%               If option is one of 'dnd', 'sqw', 'nopix', 'buffer', then data
+%              is a structure with the fields below:
+%                   opt.dnd:    s,e,npix
+%                   opt.sqw:    s,e,npix,urange,pix
+%                   opt.nopix:  s,e,npix,urange
+%                   opt.buffer: npix,pix
+%              
 %       data.s          Average signal in the bins (sparse column vector)
 %       data.e          Corresponding variance in the bins (sparse column vector)
 %       data.npix       Number of contributing pixels to each bin as a sparse column vector
@@ -47,126 +52,118 @@ function [mess, data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, varargin)
 %                       signal      Signal array
 %                       err         Error array (variance i.e. error bar squared)
 %
-% Note: for '-v0', '-v1' and '-v3', the number of bytes is
-%   'b+': 16*nbins
-%   'a':  16*nbins + 36*npixels + 44
+%               If option is to read npix or pix, then data is a single array:
+%                   opt.npix    npix arrayarray (or column vector if range present, length=diff(range))
+%                   opt.pix     [9,npixtot] array (or [9,n] array if range present, n=diff(range))
+
+
+% Original author: T.G.Perring
+%
+% $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
 
 
 mess='';
 
-% Check input options
-% -------------------
-if numel(varargin)>0
-    if strcmpi(varargin{1},'-skip')
-        skip=true;
-    elseif strcmpi(varargin{1},'-dnd')
-        skip=false;
-        skip_urange=true;
-        skip_pix=true;
-    elseif strcmpi(varargin{1},'-nopix')
-        skip=false;
-        skip_urange=false;
-        skip_pix=true;
-    end
+% Prepare some parameters for reading the data
+% --------------------------------------------
+% Unpack fields of S to reduce access time later on
+info=S.info;
+pos=S.position;
+fmt=S.fmt;
+
+% Get size of signal, error, npix arrays
+ndims=info.dims;
+if ndims>1
+    sz=info.sz_npix(1:ndims);
+elseif ndims==1
+    sz=[info.sz_npix(1),1];
 else
-    skip=false;
+    sz=[1,1];
 end
 
-[fmt_dble,fmt_int,nbyte_dble,nbyte_int]=fmt_sqw_fields(fmt_ver);
-is_ver0=(fmt_ver==appversion(0));
-is_ver_lt_3p1=(fmt_ver<appversion(3,1));
+% Determine which fields to read and if output is a data structure
+read_se     = opt.dnd || opt.sqw || opt.nopix;
+read_npix   = read_se || opt.buffer || opt.npix;
+read_urange = opt.sqw || opt.nopix;
+read_pix    = opt.sqw || opt.buffer || opt.pix;
+
+datastruct  = opt.dnd || opt.sqw || opt.nopix || opt.buffer;
 
 
-% Read s and e
-% ------------
-position.s=ftell(fid);
-if ~skip
-    tmp = fread(fid, prod(sz), '*float32');
+% Read the fields
+% ---------------
+% Read signal and error
+if read_se
+    fseek(fid,pos.s,'bof');
+    tmp = fread(fid, prod(sz), ['*',fmt.s]);
     data.s = reshape(double(tmp),sz);
     clear tmp
-else
-    fseek(fid,4*(prod(sz)),'cof');  % skip field s
-end
 
-position.e=ftell(fid);
-if ~skip
-    tmp = fread(fid, prod(sz), '*float32');
+    fseek(fid,pos.e,'bof');
+    tmp = fread(fid, prod(sz), ['*',fmt.e]);
     data.e = reshape(double(tmp),sz);
     clear tmp
-else
-    fseek(fid,4*(prod(sz)),'cof');  % skip field e
 end
-
 
 % Read npix
-% ----------
-% Catch case of '-v0' dnd file - this is not readable as information about pixels was not recorded
-if is_ver0 && fnothingleft(fid)
-    mess = 'File does not contain number of pixels for each bin - unable to convert old format dnd-type data';
-    return
-end
-
-if ~skip
-    tmp = fread(fid, prod(sz), '*int64');
-    data.npix = reshape(double(tmp),sz);
-    clear tmp
-    if is_ver0
-        [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+if read_npix
+    if numel(varargin)==0   % read whole array
+        fseek(fid,pos.npix,'bof');
+        tmp = fread(fid, prod(sz), ['*',fmt.npix]);
+        if datastruct
+            data.npix = reshape(double(tmp),sz);
+        else
+            data = reshape(double(tmp),sz);
+        end
+    else
+        pos_start = pos.npix + fmt_nbytes(fmt.npix)*(varargin{1}(1)-1);
+        fseek(fid,pos_start,'bof');
+        tmp = fread(fid, diff(varargin{1}+1), ['*',fmt.npix]);
+        if datastruct
+            data.npix = double(tmp);
+        else
+            data = double(tmp);
+        end
     end
-else
-    fseek(fid,8*(prod(sz)),'cof');  % skip field npix
+    clear tmp
 end
-
-% Return if only dnd data in the file - have reached the end of the data section
-if ~is_sqw
-    return  
-end
-
 
 % Read urange
-% -----------
-position.urange=ftell(fid);
-if ~skip && ~skip_urange
-    data.urange = fread(fid, [2,4], fmt_dble);
-else
-    fseek(fid,8*nbyte_dble,'cof');
+if read_urange
+    fseek(fid,pos.urange,'bof');
+    data.urange = fread(fid, [2,4], ['*',fmt.urange]);
 end
-
 
 % Read pix
-% --------
-% *** Redundant field prior to '-v3.1':
-if is_ver_lt_3p1
-fseek(fid,4,'cof');
-end
-
-% npixtot
-npixtot=fread(fid, 1, 'int64');
-
-% pix
-position.pix=ftell(fid);
-if ~skip && ~skip_pix
-    if npixtot>0
-        tmp=fread(fid, [9,npixtot] ,'*float32');
-        data.pix=double(tmp);
+if read_pix
+    if numel(varargin)==0   % read whole array
+        pos_start = pos.pix;
+        npix_read = info.npixtot;
     else
-        data.pix=zeros(9,0);
+        pos_start = pos.pix + 9*fmt_nbytes(fmt.pix)*(varargin{1}(1)-1);
+        npix_read = diff(varargin{1})+1;
     end
-else
-    fseek(fid,36*npixtot,'cof');
+    if npix_read>0
+        fseek(fid,pos_start,'bof');
+        tmp = fread(fid, [9,npix_read], ['*',fmt.pix]);
+        if datastruct
+            data.pix = double(tmp);
+        else
+            data = double(tmp);
+        end
+        clear tmp
+    else
+        if datastruct
+            data.pix = zeros(9,0);
+        else
+            data = zeros(9,0);
+        end
+    end
 end
 
-
-%==================================================================================================
-function answer=fnothingleft(fid)
-% Determine if there is any more data in the file. Do this by trying to advance one byte
-% Alternative is to go to end of file (fseek(fid,0,'eof') and see if location is the same.
-status=fseek(fid,1,'cof');  % try to advance one byte
-if status~=0;
-    answer=true;
-else
-    answer=false;
-    fseek(fid,-1,'cof');    % go back one byte
+% Special case of version 0 format: need to normalise signal and error by npix
+if read_se && fmt_ver==appversion(0)     % read_se only can happen if read_npix too
+    [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
 end
 
 %==================================================================================================

@@ -28,6 +28,11 @@ function write_sparse2(fid,v,type)
 % Make sure any changes here are synchronised with the corresponding read_sparse2
 
 
+% Original author: T.G.Perring
+%
+% $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
+
+
 % Check type is valid
 if strcmp(type,'float32')
     nbytecode=4;

@@ -1,5 +1,5 @@
 function [ok,mess]=test_sparse
-% Test Horace sparse array routines write_sparse, write-sparse2, read_sparse, read_sparse2
+% Test Horace sparse array routines write_sparse, write_sparse2, read_sparse, read_sparse2
 
 % Create column vector with length 20:
 ind=[2,9,12,16,18,19];
@@ -48,9 +48,35 @@ elseif ~isequal(a,aread)
     return
 end
 
-% Skip data
+% Check full option works
 fid=fopen(file,'rb');
 aread=read_sparse(fid,true);
+pos=ftell(fid);
+fclose(fid);
+if pos~=pos_ref;
+    mess='sparse: position error';
+    return
+elseif ~isequal(full(a),aread)
+    mess='sparse: write-read does not preserve array values with full==true';
+    return
+end
+
+% Check negation of full option works
+fid=fopen(file,'rb');
+aread=read_sparse(fid,false);
+pos=ftell(fid);
+fclose(fid);
+if pos~=pos_ref;
+    mess='sparse: position error';
+    return
+elseif ~isequal(a,aread)
+    mess='sparse: write-read does not preserve array values with full==false';
+    return
+end
+
+% Skip data
+fid=fopen(file,'rb');
+aread=read_sparse(fid,'skip');
 pos=ftell(fid);
 fclose(fid);
 if pos~=pos_ref;
@@ -86,9 +112,35 @@ elseif ~isequal(a,aread)
     return
 end
 
-% Skip data
+% Test full option works
 fid=fopen(file,'rb');
 aread=read_sparse2(fid,true);
+pos=ftell(fid);
+fclose(fid);
+if pos~=pos_ref;
+    mess='sparse2: position error';
+    return
+elseif ~isequal(full(a),aread)
+    mess='sparse2: write-read does not preserve array values with full==true';
+    return
+end
+
+% Test negation of full option works
+fid=fopen(file,'rb');
+aread=read_sparse2(fid,false);
+pos=ftell(fid);
+fclose(fid);
+if pos~=pos_ref;
+    mess='sparse2: position error';
+    return
+elseif ~isequal(a,aread)
+    mess='sparse2: write-read does not preserve array values with full==false';
+    return
+end
+
+% Skip data
+fid=fopen(file,'rb');
+aread=read_sparse2(fid,'skip');
 pos=ftell(fid);
 fclose(fid);
 if pos~=pos_ref;
@@ -99,7 +151,7 @@ elseif ~isempty(aread)
     return
 end
 
-% Read a bit of data, and test output is same as input, with position in correct place
+% Read a bit of data, and test output is same as input
 asub=a(nrange(1):nrange(2));
 fid=fopen(file,'rb');
 aread=read_sparse2(fid,type,nrange,irange);
@@ -108,5 +160,16 @@ if ~isequal(asub,aread)
     mess='sparse2: write-read does not preserve sub-section values';
     return
 end
+
+% Read a bit of data, and test output is same as input, with full==true
+asub=a(nrange(1):nrange(2));
+fid=fopen(file,'rb');
+aread=read_sparse2(fid,type,nrange,irange,true);
+fclose(fid);
+if ~isequal(full(asub),aread)
+    mess='sparse2: write-read does not preserve sub-section values';
+    return
+end
+
 
 mess='';

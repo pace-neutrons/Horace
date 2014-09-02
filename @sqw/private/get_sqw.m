@@ -29,6 +29,11 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %
 % Individual fields:
 % ------------------
+%   Non-sparse arrays (or sparse arrays with the '-full' option) are returned with
+% the requisite shape for the stored object.
+%   If an array section is read, or an array is sparse, then a column vector
+% is returned (pix is always a [9,n] array).
+%
 %   If non-sparse format:
 %   ---------------------
 % 	>> [npix,ok,mess] = get_sqw (file,'npix')           % load npix
@@ -142,8 +147,9 @@ fmt_ver=S.application.file_format;
 
 % Parse optional arguments
 % ------------------------
-[mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,varargin{:});
-read_sqw_header = (datastruct && S.sqw_type);  % read sqw header only if data structure return and sqw data in file
+[mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,varargin{:});
+read_data_header = (datastruct && ~opt.buffer);     % all data structure output except buffer
+read_sqw_header  = read_data_header && ~opt.dnd;    % same, except dnd as well
 
 % Initialise output
 if datastruct
@@ -161,7 +167,7 @@ if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 % --------------------------------------
 if read_sqw_header
     % Main header
-    if opt.hverbatim
+    if opt.hverbatim || opt.hisverbatim
         [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver,'-verbatim');
     else
         [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver);
@@ -172,7 +178,7 @@ if read_sqw_header
     [mess, w.header] = get_sqw_header (fid, fmt_ver, S.info.nfiles);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
-    % Detctors
+    % Detectors
     [mess, w.detpar] = get_sqw_detpar (fid, fmt_ver);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
@@ -180,9 +186,9 @@ end
 
 % Get data
 % --------
+fseek(fid,S.position.data,'bof');
 if datastruct
-    [mess, w.data] = get_sqw_data (fid, fmt_ver,...
-        sparse_fmt, datastruct, make_full_fmt, opt, opt_name, optvals{:});
+    [mess, w.data] = get_sqw_data (fid, fmt_ver, S, read_data_header, make_full_fmt, opt, optvals{:});
     if fmt_ver==appversion(0);
         % Prototype file format. Should only have been able to get here if sqw-type data in file
         w.data.title=w.main_header.title;
@@ -191,8 +197,7 @@ if datastruct
         w.data.angdeg=header_ave.angdeg;
     end
 else
-    [mess, w] = get_sqw_data (fid, fmt_ver,...
-        sparse_fmt, datastruct, make_full_fmt, opt, opt_name, optvals{:});
+    [mess, w] = get_sqw_data (fid, fmt_ver, S, read_data_header, make_full_fmt, opt, optvals{:});
 end
 if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
@@ -221,14 +226,14 @@ end
 
 
 %==================================================================================================
-function [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,varargin)
+function [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,varargin)
 % Check the data type and optional arguments for validity
 %
-%   >> [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S)
-%   >> [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,opt)
-%   >> [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,opt,p1,p2,...)
+%   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S)
+%   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,opt)
+%   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,opt,p1,p2,...)
 %
-%   >> [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(..., '-full')
+%   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(..., '-full')
 %
 % Input:
 % ------
@@ -248,31 +253,37 @@ function [mess,datastruct,make_full_fmt,opt,opt_name,optvals] = check_options(S,
 %                     - true  if a data structure ('-dnd','-sqw','-h*','-nopix','-buffer')
 %                     - false if a field from the data
 %
-%   make_full_fmt Data is sparse format but conversion to non-sparse is requested
+%   make_full_fmt   Data is sparse format but conversion to non-sparse is requested
 %                  (If the data is not sparse format, then then this will be set to false)
 %
 %   opt             Structure with fields set to true or false according to the option:
-%                       'dnd','sqw','h','his','hverbatim','hisverbatim','-nopix','buffer'
+%                       'dnd','sqw','h','his','hverbatim','hisverbatim','nopix','buffer'
 %                       'npix','npix_nz','pix_nz','pix'
-%
-%   opt_name        Option as character string
-%                       '-dnd','-sqw','-h','-his','-hverbatim','-hisverbatim','-nopix','-buffer'
-%                       'npix','npix_nz','pix_nz','pix'
-%                   If no option, opt_name=''
 %
 %   optvals         Optional arguments (={} if none)
 %
 %
 % The valid combinations of options and option arguments are given in the help to get_sqw
 
+
+% Initialise output arguments
+% ---------------------------
 mess='';
 datastruct=false;
 make_full_fmt=false;
 opt=struct('-dnd',false,'-sqw',false,'-nopix',false,'-buffer',false,...
     '-h',false,'-his',false,'-hverbatim',false,'-hisverbatim',false,...
     'npix',false,'npix_nz',false,'pix_nz',false,'pix',false);
-opt_name='';
 optvals={};
+
+
+% Get information about the file
+% ------------------------------
+info=S.info;
+is_sparse=info.sparse;
+is_sqw=(info.sqw_data & info.sqw_type);
+is_dnd=(info.sqw_data & ~info.sqw_type);
+is_buffer=info.buffer_type;
 
 % Determine if full format conversion is required
 % -----------------------------------------------
@@ -291,69 +302,89 @@ if narg>0
     narg_opt=narg-1;
     if isstring(opt_name) && ~isempty(opt_name)
         if strcmpi(opt_name,'npix')
-            if narg_opt<=1
-                if narg_opt>0
-                    [val,mess]=range_ok(varargin{2},'Bin index range for ''npix'': ');
+            if (~is_sparse && narg_opt==1) || (is_sparse && narg_opt==2)
+                [val,mess]=range_ok(varargin{2},'Bin index range for ''npix'': ');
+                if ~isempty(mess), return, end
+                if narg_opt==2
+                    [val2,mess]=range_ok(varargin{3},'Entry index range for ''npix'': ');
                     if ~isempty(mess), return, end
-                    optvals={val};
+                    optvals={val,val2};
                 else
-                    optvals={};
+                    optvals={val};
                 end
-                opt.npix=true;
+            elseif narg_opt==0
+                optvals={};
             else
-                mess='Number of arguments for option ''npix'' is invalid';
+                if is_sparse
+                    mess='Number of arguments for option ''npix'' with sparse data is invalid';
+                else
+                    mess='Number of arguments for option ''npix'' with non-sparse data is invalid';
+                end
                 return
             end
+            opt.npix=true;
             
         elseif strcmpi(opt_name,'npix_nz')
-            if narg_opt<=1
-                if narg_opt>0
+            if is_sparse
+                if narg_opt==2
                     [val,mess]=range_ok(varargin{2},'Bin index range for ''npix_nz'': ');
                     if ~isempty(mess), return, end
-                    optvals={val};
-                else
+                    [val2,mess]=range_ok(varargin{3},'Entry index range for ''npix_nz'': ');
+                    if ~isempty(mess), return, end
+                    optvals={val,val2};
+                elseif narg_opt==0
                     optvals={};
+                else
+                    mess='Number of arguments for option ''npix_nz'' is invalid';
+                    return
                 end
                 opt.npix_nz=true;
             else
-                mess='Number of arguments for option ''npix_nz'' is invalid';
+                mess = 'Can only read field ''npix_nz'' from sparse format data';
                 return
             end
             
         elseif strcmpi(opt_name,'pix_nz')
-            if narg_opt<=1
-                if narg_opt>0
+            if is_sparse
+                if narg_opt==1
                     [val,mess]=range_ok(varargin{2},'Entry index range for ''pix_nz'': ');
                     if ~isempty(mess), return, end
                     optvals={val};
-                else
+                elseif narg_opt==0
                     optvals={};
+                else
+                    mess='Number of arguments for option ''-pix_nz'' is invalid';
+                    return
                 end
                 opt.pix_nz=true;
             else
-                mess='Number of arguments for option ''-pix_nz'' is invalid';
+                mess = 'Can only read field ''pix_nz'' from sparse format data';
                 return
             end
             
         elseif strcmpi(opt_name,'pix')
-            if narg_opt<=2
-                if narg_opt>0
-                    [val,mess]=range_ok(varargin{2},'Pixel index range for ''pix'': ');
+            if narg_opt==1 || (narg_opt==2 && is_sparse)
+                [val,mess]=range_ok(varargin{2},'Pixel index range for ''pix'': ');
+                if ~isempty(mess), return, end
+                if narg_opt==2
+                    [val2,mess]=range_ok(varargin{3},'Entry index range for ''pix_nz'': ');
                     if ~isempty(mess), return, end
-                    optvals={val};
-                    if narg_opt==2
-                        [val2,mess]=range_ok(varargin{2},'Entry index range for ''pix_nz'': ');
-                        if ~isempty(mess), return, end
-                        optvals=[optvals,val2];
-                    end
+                    optvals={val,val2};
+                    make_full_fmt=true;
                 else
-                    optvals={};
+                    optvals={val};
+                    if is_sparse && make_full_format
+                        mess = 'Too few arguments for option ''pix'' to convert non-sparse data to full format';
+                        return
+                    end
                 end
-                opt.npix=true;
+            elseif narg_opt==0
+                optvals={};
             else
                 mess='Number of arguments for option ''-pix_nz'' is invalid';
                 return
             end
+            opt.pix=true;
             
         elseif strcmpi(opt_name,'-dnd')
             if narg_opt>0
@@ -438,21 +469,8 @@ if narg>0
 end
 
 
-% Determine if valid write option for data type
-% ---------------------------------------------
-info=S.info;
-is_sparse=info.sparse;
-is_sqw=(info.sqw_data & info.sqw_type);
-is_dnd=(info.sqw_data & ~info.sqw_type);
-is_buffer=info.buffer_type;
-
-% Check consistency of field reading with non-sparse format
-if ~is_sparse && (opt.npix_nz || opt.pix_nz)
-    mess = ['Can only read field ',opt_name,' from sparse format data'];
-    return
-end
-
 % Check consistency of the options with the different data types
+% --------------------------------------------------------------
 if is_dnd
     if opt.sqw || opt.nopix || opt.buffer
         mess = ['Cannot use option ''',opt_name,''' with dnd-type data'];
@@ -461,47 +479,11 @@ if is_dnd
         mess = ['Cannot read field ''',opt_name,''' from dnd-type data'];
         return
     end
-        
-elseif is_sqw
-    if opt.pix
-        if numel(optvals)==2
-            if is_sparse
-                make_full_fmt=true;
-            else
-                mess = 'Too many arguments for option ''pix'' with non-sparse format sqw-type data';
-                return
-            end
-        elseif numel(optvals)==1 && is_sparse && make_full_fmt
-            mess = 'Too few arguments for option ''pix'' to convert sparse format sqw-type data to full format';
-            return
-        end
-    end
-    
-    if opt.pix && numel(optvals)==2
-        if is_sparse
-            make_full_fmt=true;
-        else
-            mess = 'Too many arguments for option ''pix'' with non-sparse format sqw-type data';
-            return
-        end
-    end
     
 elseif is_buffer
     if opt.dnd || opt.sqw || opt.h || opt.his || opt.hverbatim || opt.hisverbatim || opt.nopix
         mess = ['Cannot use option ''',opt_name,''' with buffer (i.e. npix and pix) data'];
         return
-    elseif opt.pix
-        if numel(optvals)==2
-            if is_sparse
-                make_full_fmt=true;
-            else
-                mess = 'Too many arguments for option ''pix'' with non-sparse format buffer (i.e. npix and pix) data';
-                return
-            end
-        elseif numel(optvals)==1 && is_sparse && make_full_fmt
-            mess = 'Too few arguments for option ''pix'' to convert non-sparse format buffer (i.e. npix and pix) data to full format';
-            return
-        end
     end
     
 else

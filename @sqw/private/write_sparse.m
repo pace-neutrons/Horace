@@ -17,8 +17,12 @@ function write_sparse(fid,v,type)
 % There is no advantage to saving the values as a hypothetical 'int64'
 % because integer accuracy is already lost for values >9e15 if held as a float64.
 
-
 % Make sure any changes here are synchronised with the corresponding read_sparse
+
+
+% Original author: T.G.Perring
+%
+% $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
 
 
 % Check type is valid

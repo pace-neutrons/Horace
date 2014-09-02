@@ -100,9 +100,11 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %
 % $Revision$ ($Date$)
 
+
 % To do list:
 % -----------
 % *** Catch trying to write a dnd header to an sqw file ?
+
 
 % Valid file formats:
 ver1=appversion(1);
@@ -126,7 +128,7 @@ data_type_name_in = data_structure_type_name (w.data);
 
 % Parse optional arguments
 % ------------------------
-[mess,fmt_ver,data_type_name_write,opt,opt_name,optvals] = check_options(data_type_name_in,varargin);
+[mess,fmt_ver,data_type_name_write,opt,optvals] = check_options(data_type_name_in,varargin);
 [data_type_write,sparse_fmt]=data_structure_name_to_type(data_type_name_write);
 if ~isempty(mess), ok=false; S=sqwfile(); return, end
 
@@ -157,6 +159,10 @@ if newfile
     if fmt_ver==ver3p1
         application.file_format=fmt_ver;        % add file format to application
         S.application=application;              % update the application block
+        
+        *** what to do about sparse buffer files: need ne to resolve!
+        
+        S.info.ne=NaN(w.main_header.nfiles,1);  % fill with array of correct length
         [mess, position_sqwfile] = put_sqw_information (S);  % write to file (will update with correct information later)
         if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
         position=mergestruct(position,position_sqwfile);
@@ -190,7 +196,7 @@ end
 % -----------------------------------------
 % (empty if dnd-style data)
 if data_type_write.sqw_data
-    [mess,position.header,position_header_arr] = put_sqw_header (fid, fmt_ver, w.header);
+    [mess,position.header] = put_sqw_header (fid, fmt_ver, w.header);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
 
@@ -266,13 +272,9 @@ if newfile
     info.sqw_data=data_type_write.sqw_data;
     info.sqw_type=data_type_write.sqw_type;
     info.buffer_type=data_type_write.buffer_type;
+
     [ndims,sz]=data_dims(w.data);
     info.ndims=ndims;
-    if sqw_type
-        info.nfiles=w.main_header.nfiles;
-    else
-        info.nfiles=0;
-    end
     info.sz_npix=[sz,NaN(1,4-ndims)];
 
     % Update info, position and fmt sections of S (application section already updated)
@@ -300,14 +302,14 @@ end
 
 
 %==================================================================================================
-function [mess,fmt_ver,data_type_write,opt,opt_name,optvals] = check_options(data_type_in,varargin)
+function [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,varargin)
 % Check the data type and optional arguments for validity
 %
-%   >> [mess,fmt_ver,data_type_write,opt,opt_name,optvals] = check_options(data_type_in)
-%   >> [mess,fmt_ver,data_type_write,opt,opt_name,optvals] = check_options(data_type_in,opt)
-%   >> [mess,fmt_ver,data_type_write,opt,opt_name,optvals] = check_options(data_type_in,opt,p1,p2,...)
+%   >> [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in)
+%   >> [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,opt)
+%   >> [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,opt,p1,p2,...)
 %
-%   >> [mess,fmt_ver,data_type_write,opt,opt_name,optvals] = check_options(..., 'file_format', fmt)
+%   >> [mess,fmt_ver,data_type_write,opt,optvals] = check_options(..., 'file_format', fmt)
 %
 % Input:
 % ------
@@ -340,9 +342,6 @@ function [mess,fmt_ver,data_type_write,opt,opt_name,optvals] = check_options(dat
 %   opt             Structure with fields 'h', 'his', 'pix', 'buffer' with values true
 %                  or false for the different values
 %
-%   opt_name        Option as character string: '-h', '-his', '-pix', '-buffer'
-%                   If no option, opt_name=''
-%
 %   optvals         Optional arguments (={} if none)
 %
 %
@@ -365,7 +364,6 @@ mess='';
 fmt_ver=[];
 data_type_write='';
 opt=struct('h',false,'his',false,'buffer',false,'pix',false);
-opt_name='';
 optvals={};
 
 % Determine if output file format was specified

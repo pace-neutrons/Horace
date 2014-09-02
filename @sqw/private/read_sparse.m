@@ -1,30 +1,58 @@
-function v=read_sparse(fid,skip)
+function v=read_sparse(fid,varargin)
 % Read sparse column vector of doubles written with write_sparse
 %
 %   >> [v,ok,mess] = read_sparse(fid)
-%   >> [v,ok,mess] = read_sparse(fid,skip)
+%   >> [v,ok,mess] = read_sparse(fid,makefull)      % return array in full format if full==true
+%   >> [v,ok,mess] = read_sparse(...'skip')         % skip over the data
 %
 % Input:
 % ------
-%   fid     File identifier of already open file for binary output
-%   skip    [Optional] If true, move to the end of the data without reading
-%           Default: read the data (skip==false)
+%   fid         File identifier of already open file for binary output
+%   makefull    [Optional] =true return array in full format; =false leave in sparse
+%               Default: false
+%  'skip'       [Optional] If present, move to the end of the data without reading
+%               Default: read the data (skip==false)
 %
 % Output:
 % -------
-%   v       Column vector (sparse format)
+%   v           Column vector (sparse format)
+%   ok          =true if all OK, false if not
+%   mess        Error message if not ok, ='' if ok
 %
 % It is assumed that the file position indicator is at the start of the information
-% written by write-sparse2.
+% written by write_sparse.
 
 % Make sure any changes here are synchronised with the corresponding read_sparse
 
 
+% Original author: T.G.Perring
+%
+% $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
+
+
 % Check arguments
-if nargin==2
-    if ~islogical(skip), skip=logical(skip); end
-elseif nargin==1
+nopt=numel(varargin);
+if nopt==0
+    makefull=false;
     skip=false;
+else
+    if ischar(varargin{nopt})
+        if strcmpi(varargin{nopt},'skip')
+            skip=true;
+        else
+            error('Unrecognised option')
+        end
+        nopt=nopt-1;
+    else
+        skip=false;
+    end
+    if nopt==1
+        makefull=logical(varargin{nopt});
+    elseif nopt==0
+        makefull=false;
+    else
+        error('Check number of input arguments')
+    end
 end
 
 % Read data sizes and type
@@ -51,8 +79,13 @@ if ~skip
         val = fread(fid,[nval,1],'*int32');
     end
     
-    % Construct sparse column vector
-    v=sparse(double(ind),1,double(val),nel,1);
+    % Construct column vector
+    if makefull
+        v=zeros(nel,1);
+        v(ind)=val;
+    else
+        v=sparse(double(ind),1,double(val),nel,1);
+    end
     
 else
     % Skip over the data, if requested, but position at end of the data

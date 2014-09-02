@@ -39,9 +39,11 @@ function [mess, pos_start] = put_sqw_position (fid, fmt_ver, position, update)
 %   position.pix_nz         position of array pix_nz (=NaN if pix_nz not written)
 %   position.pix            position of array pix  (=NaN if pix not written)
 
+
 % Original author: T.G.Perring
 %
 % $Revision: 880 $ ($Date: 2014-07-16 08:18:58 +0100 (Wed, 16 Jul 2014) $)
+
 
 mess = '';
 pos_start = ftell(fid);

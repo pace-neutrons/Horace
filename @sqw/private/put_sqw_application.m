@@ -25,6 +25,7 @@ function [mess, pos_start] = put_sqw_application (fid, application)
 %
 % $Revision$ ($Date$)
 
+
 mess = '';
 pos_start = ftell(fid);
 

@@ -25,6 +25,7 @@ function [mess, header] = get_sqw_header_samp (fid, fmt_ver, header)
 %
 % $Revision$ ($Date$)
 
+
 mess = '';
 
 try

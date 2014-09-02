@@ -1,4 +1,4 @@
-function [mess, data] = get_sqw_data (fid, fmt_ver, sparse_fmt, datastruct, make_full_fmt, opt, opt_name, varargin)
+function [mess, data] = get_sqw_data (fid, fmt_ver, S, read_header, make_full_fmt, opt, varargin)
 % Read the data block or field from the data block in an sqw file.
 %
 %   >> [mess, data] = get_sqw_data (fid, fmt_ver, datastruct, make_full_fmt, opt, opt_name, varargin);
@@ -10,26 +10,20 @@ function [mess, data] = get_sqw_data (fid, fmt_ver, sparse_fmt, datastruct, make
 %
 %   fmt_ver         Version of file format e.g. appversion('-v3')
 %
-%   sparse_fmt      Data format: =true if sparse format, =false if non-sparse format
+%   S               sqwfile structure that contains information about the data in the sqw file
 %
-%   datastruct      Signifies data to be read:
-%                     - true  if a data structure ('-dnd','-sqw','-h*','-nopix','-buffer')
-%                     - false if a field from the data
+%   read_header     Signifies if data section header is to be read or not
+%                       =true   read header
+%                       =false  do not read header
 %
 %   make_full_fmt   Data is sparse format but conversion to non-sparse is requested
 %
 %   opt             Structure with fields set to true or false according to the option:
-%                       'dnd','sqw','h','his','hverbatim','hisverbatim','nopix','buffer'
+%                       'dnd','sqw','nopix','buffer'
 %                       'npix','npix_nz','pix_nz','pix'
 %
-%   opt_name        Option as character string
-%                       '-dnd','-sqw','-h','-his','-hverbatim','-hisverbatim','-nopix','-buffer'
-%                       'npix','npix_nz','pix_nz','pix'
-%                   If no option, opt_name=''
-%
-%   optvals         Optional arguments (={} if none)
-%
-%   p1,p2,...   [optional Parameters as required/optional with the different values of opt
+%   p1,p2,...       [optional Parameters as required/optional with the different values of opt
+%                   See get_sqw_data_signal and get_sqw_data_signal_sparse for more details
 %
 % Output:
 % -------
@@ -107,7 +101,7 @@ function [mess, data] = get_sqw_data (fid, fmt_ver, sparse_fmt, datastruct, make
 %                           ie  energy bin index
 %                           id  detector index into list of all detectors (i.e. masked and unmasked)
 %                           ne  number of energy bins
-%                       If more than one run contributed, then
+%                   If more than one run contributed, then
 %                           ipix = ie + ne*(id-1) + cumsum(ne(1:irun-1))*ndet
 
 
@@ -116,16 +110,13 @@ function [mess, data] = get_sqw_data (fid, fmt_ver, sparse_fmt, datastruct, make
 % $Revision$ ($Date$)
 
 
-% Initialise output arguments
-
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
-
-read_header = (datastruct && ~opt.buffer);
 
 
 % Read header information from file
 % ---------------------------------
 if read_header
+    mess='';
     if fmt_ver>appversion(0)
         filename = read_sqw_var_char (fid,fmt_ver);
         filepath = read_sqw_var_char (fid,fmt_ver);
@@ -173,18 +164,15 @@ if read_header
     if npax>0
         data.pax = fread(fid, [1,npax], fmt_int);
         data.p=cell(1,npax);
-        sz=ones(1,max(npax,2));  % will contain size array of signal, error and npix arrays
         for i=1:npax
             np = fread(fid, 1, fmt_int);
             data.p{i} = fread(fid, [np,1], fmt_int);
-            sz(i)=np-1;
         end
         data.dax = fread(fid, [1,npax], fmt_int);
     else
         data.pax=zeros(1,0);    % create empty index of plot axes
         data.p=cell(1,0);
         data.dax=zeros(1,0);    % create empty index of plot axes
-        sz=[1,1];    % to hold a scalar
     end
     
 end
@@ -192,13 +180,28 @@ end
 
 % Read signal information from file, if requested
 % -----------------------------------------------
-% Even if no data is read from the file, we must skip to the end of the data section
-
-if ~sparse_fmt
-    % Non-sparse data format
-    [mess,data] = get_sqw_data_signal (fid, fmt_ver, is_sqw, sz, opt);
-    
-else
-    % Sparse data format
-    
+if read_signal
+    if ~S.info.sparse
+        % Non-sparse data format
+        if read_header
+            [mess, data_signal] = get_sqw_data_signal (fid, fmt_ver, S, opt, varargin{:});
+            if ~isempty(mess), return, end
+            data = updatestruct(data,data_signal);
+        else
+            [mess, data] = get_sqw_data_signal (fid, fmt_ver, S, opt, varargin{:});
+            if ~isempty(mess), return, end
+        end
+        
+    else
+        % Sparse data format
+        if read_header
+            [mess, data_signal] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_fmt, opt, varargin{:});
+            if ~isempty(mess), return, end
+            data = updatestruct(data,data_signal);
+        else
+            [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_fmt, opt, varargin{:});
+            if ~isempty(mess), return, end
+        end
+        
+    end
 end

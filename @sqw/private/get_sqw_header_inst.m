@@ -20,9 +20,11 @@ function [mess, header] = get_sqw_header_inst (fid, fmt_ver, header)
 % --------------------------
 %   header.instrument   Instrument description (scalar structure or object)
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
+
 
 mess = '';
 

@@ -72,6 +72,12 @@ function [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, d
 % It is already assumed that the data and the fields of data that reach this routine are
 % consistent with the needs of the calling function.
 
+
+% Original author: T.G.Perring
+%
+% $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
+
+
 mess='';
 position = struct('s',NaN,'e',NaN,'npix',NaN,'urange',NaN,'pix',NaN);
 fieldfmt = struct('s','','e','','npix','','urange','','pix','');
