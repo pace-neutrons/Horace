@@ -152,7 +152,7 @@ read_data_header = (datastruct && ~opt.buffer);     % all data structure output 
 read_sqw_header  = read_data_header && ~opt.dnd;    % same, except dnd as well
 
 % Initialise output
-if datastruct
+if datastruct && ~opt.buffer
     w.main_header = struct([]);
     w.header = struct([]);
     w.detpar = struct([]);
@@ -187,7 +187,7 @@ end
 % Get data
 % --------
 fseek(fid,S.position.data,'bof');
-if datastruct
+if datastruct && ~opt.buffer
     [mess, w.data] = get_sqw_data (fid, fmt_ver, S, read_data_header, make_full_fmt, opt, optvals{:});
     if fmt_ver==appversion(0);
         % Prototype file format. Should only have been able to get here if sqw-type data in file
@@ -256,7 +256,7 @@ function [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,varargin)
 %   make_full_fmt   Data is sparse format but conversion to non-sparse is requested
 %                  (If the data is not sparse format, then then this will be set to false)
 %
-%   opt             Structure with fields set to true or false according to the option:
+%   opt             Structure that defines the output (one field must be true, the others false):
 %                       'dnd','sqw','h','his','hverbatim','hisverbatim','nopix','buffer'
 %                       'npix','npix_nz','pix_nz','pix'
 %
@@ -271,8 +271,8 @@ function [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,varargin)
 mess='';
 datastruct=false;
 make_full_fmt=false;
-opt=struct('-dnd',false,'-sqw',false,'-nopix',false,'-buffer',false,...
-    '-h',false,'-his',false,'-hverbatim',false,'-hisverbatim',false,...
+opt=struct('dnd',false,'sqw',false,'nopix',false,'buffer',false,...
+    'h',false,'his',false,'hverbatim',false,'hisverbatim',false,...
     'npix',false,'npix_nz',false,'pix_nz',false,'pix',false);
 optvals={};
 
@@ -466,6 +466,24 @@ if narg>0
         mess='Unrecognised option';
         return
     end
+    
+else
+    % No option given. Find the equivalent explicit option that leads to the same result
+    % depending on data type (sqw, dnd, buffer)
+    if is_sqw
+        opt.sqw=true;
+        optvals={};
+        datastruct=true;
+    elseif is_dnd
+        opt.dnd=true;
+        optvals={};
+        datastruct=true;
+    elseif is_buffer
+        opt.buffer=true;
+        optvals={};
+        datastruct=true;
+    end
+    
 end
 
 

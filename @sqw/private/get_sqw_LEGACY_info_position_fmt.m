@@ -120,11 +120,29 @@ info.sparse=false;
 info.sqw_data=true;
 info.sqw_type=sqw_type;
 info.buffer_type=false;
+if sqw_type
+    info.nfiles=main_header.nfiles;
+else
+    info.nfiles=NaN;
+end
 info.ndims=ndims;
 if sqw_type
-    info.nfiles=w.main_header.nfiles;
+    if isstruct(header)
+        ne=numel(header.en)-1;
+    else
+        ne=zeros(nfiles,1);
+        for i=1:nfiles
+            ne=numel(header{i}.en)-1;
+        end
+    end
+    info.ne=ne;
 else
-    info.nfiles=0;
+    info.ne=NaN;
+end
+if sqw_type
+    info.ndet=numel(detpar.x2);
+else
+    info.ndet=NaN;
 end
 info.sz_npix=sz_npix;
 if sqw_type

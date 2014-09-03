@@ -17,9 +17,12 @@ function S = sqwfile
 %   info.sqw_data    =true if file contains valid sqw data (i.e. dnd-type or sqw-type data)
 %   info.sqw_type    Type of sqw object written to file: =true if sqw-type; =false if dnd-type
 %   info.buffer_type =true if npix-and-pix buffer file; =false if not
-%   info.nfiles      Number of contributing spe data sets (=0 if not sqw-type; =NaN if buffer file)
-%   info.ne          Array of the number of energy bins in each spe data set
-%   info.ndet        Number of detectors
+%   info.nfiles      sqw-type: Number of contributing spe data sets; dnd-type: =NaN
+%                    buffer:   Number of spe files if sparse; non-sparse then =NaN
+%   info.ne          sqw-type: Column vector of no. energy bins in each spe file; dnd-type: =NaN
+%                    buffer:   Column vector of no. energy bins if sparse; =NaN if non-sparse
+%   info.ndet        sqw-type: Number of detectors; dnd-type: =NaN
+%                    buffer:   Number of detectors if sparse; =NaN if non-sparse
 %   info.ndims       Number of dimensions of npix array
 %   info.sz_npix     Number of bins along each dimension ([1,4] array; excess elements = NaN)
 %   info.npixtot     Total number of pixels

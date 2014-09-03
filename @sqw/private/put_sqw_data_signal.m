@@ -2,8 +2,8 @@ function [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, d
 % Write data structure, with pixel data optionally coming from other source(s)
 %
 %   >> [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, data)
-%   >> [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, data, opt)
-%   >> [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, data, opt, p1, p2,...)
+%   >> [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, data, opt_name)
+%   >> [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, data, opt_name, p1, p2,...)
 %
 % Input:
 % ------
@@ -36,7 +36,7 @@ function [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, d
 %                       signal      Signal array
 %                       err         Error array (variance i.e. error bar squared)
 %
-%   opt         [Optional] Determine how to write data:
+%   opt_name    [Optional] Determine how to write data:
 %                  '-pix'    Write pixel information, either from the data structure, or from the
 %                            information in the additional optional arguments infiles...run_label (see below).
 %                  '-buffer' Write npix and pix arrays only
@@ -84,9 +84,9 @@ fieldfmt = struct('s','','e','','npix','','urange','','pix','');
 npixtot=NaN;
 
 if numel(varargin)>0
-    if strcmpi(varargin{1},'-buffer')
+    if strcmp(varargin{1},'-buffer')
         buffer=true;
-    elseif strcmpi(varargin{1},'-pix')
+    elseif strcmp(varargin{1},'-pix')
         buffer=false;
     else
         mess='Logic error in put_sqw functions. See T.G.Perring';

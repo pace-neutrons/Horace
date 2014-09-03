@@ -1,7 +1,7 @@
 function [mess, data] = get_sqw_data (fid, fmt_ver, S, read_header, make_full_fmt, opt, varargin)
 % Read the data block or field from the data block in an sqw file.
 %
-%   >> [mess, data] = get_sqw_data (fid, fmt_ver, datastruct, make_full_fmt, opt, opt_name, varargin);
+%   >> [mess, data] = get_sqw_data (fid, fmt_ver, datastruct, make_full_fmt, opt, varargin);
 %
 %
 % Input:
@@ -18,7 +18,7 @@ function [mess, data] = get_sqw_data (fid, fmt_ver, S, read_header, make_full_fm
 %
 %   make_full_fmt   Data is sparse format but conversion to non-sparse is requested
 %
-%   opt             Structure with fields set to true or false according to the option:
+%   opt             Structure that defines the output (one field must be true, the others false):
 %                       'dnd','sqw','nopix','buffer'
 %                       'npix','npix_nz','pix_nz','pix'
 %

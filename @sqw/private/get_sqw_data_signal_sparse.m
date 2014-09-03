@@ -17,7 +17,7 @@ function [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_f
 %
 %   make_full_fmt   Make sparse arrays full format if true
 %
-%   opt         Structure that defines the output (only one field can be true, the other false):
+%   opt         Structure that defines the output (one field must be true, the others false):
 %                       'dnd','sqw','nopix','buffer'
 %                       'npix','npix_nz','pix_nz','pix'
 %
@@ -215,7 +215,7 @@ if read_pix
         tmp = fread(fid, npix_read, ['*',fmt.pix]);
         if make_full_fmt
             if datastruct
-                data.pix = make_pix_full(tmp,pix_nz,ne,ndet);
+                data.pix = make_pix_full(tmp,pix_nz,info.ne,info.ndet);
             else
                 data = make_pix_full(tmp,pix_nz,info.ne,info.ndet);
             end

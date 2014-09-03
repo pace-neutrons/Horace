@@ -14,7 +14,7 @@ function [mess, data] = get_sqw_data_signal (fid, fmt_ver, S, opt, varargin)
 %
 %   S           sqwfile structure that contains information about the data in the sqw file
 %
-%   opt         Structure that defines the output (only one field can be true, the other false):
+%   opt         Structure that defines the output (one field must be true, the others false):
 %                       'dnd','sqw','nopix','buffer'
 %                       'npix','pix'
 %

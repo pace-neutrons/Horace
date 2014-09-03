@@ -1,8 +1,9 @@
 function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data, varargin)
 % Write sparse data structure, with pixel data optionally coming from other source(s)
 %
-%   >> [mess,position,npixtot] = put_sqw_data_signal_sparse (fid, fmt_ver, data)
-%   >> [mess,position,npixtot] = put_sqw_data_signal_sparse (fid, fmt_ver, data, p1, p2,...)
+%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data)
+%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data, opt_name)
+%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data, opt_name, p1, p2,...)
 %
 % Input:
 % ------
@@ -37,7 +38,7 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_spars
 %                       If more than one run contributed, then 
 %                           ipix = ie + ne*(id-1) + cumsum(ne(1:irun-1))*ndet
 %
-%   opt         [Optional] Determine how to write data:
+%   opt_name    [Optional] Determine how to write data:
 %                  '-pix'    Write pixel information, either from the data structure, or from the
 %                            information in the additional optional arguments infiles...run_label (see below).
 %                  '-buffer' Write npix and pix arrays only
@@ -93,9 +94,9 @@ npixtot=NaN;
 npixtot_nz=NaN;
 
 if numel(varargin)>0
-    if strcmpi(varargin{1},'-buffer')
+    if strcmp(varargin{1},'-buffer')
         buffer=true;
-    elseif strcmpi(varargin{1},'-pix')
+    elseif strcmp(varargin{1},'-pix')
         buffer=false;
     else
         mess='Logic error in put_sqw functions. See T.G.Perring';

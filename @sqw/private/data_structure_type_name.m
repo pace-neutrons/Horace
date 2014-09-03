@@ -1,11 +1,19 @@
-function [data_type_name,sparse_fmt] = data_structure_type_name(data)
+function [data_type_name,sparse_fmt,flat] = data_structure_type_name(w)
 % Determine data type of the data field of an sqw data structure
 %
 %   >> [data_type,data_type_name,sparse_fmt] = data_structure_type_name(data)
 %
 % Input:
 % ------
-%   data            Data structure
+%   w               Data structure. Must have either the standard sqw format
+%                  i.e. four fields named:
+%                       main_header, header, detpar, data
+%
+%                  or one of the flat format buffer structures:
+%                       non-sparse: npix, pix
+%                       sparse:     ndet, ne, npix, npix_nz, pix_nz, pix
+%                                  (ndet=no. detectors; ne=column vector of
+%                                   number of energy bins in each spe file)
 %
 % Output:
 % -------
@@ -24,11 +32,15 @@ function [data_type_name,sparse_fmt] = data_structure_type_name(data)
 %                                   npix_nz,pix_nz,pix arrays
 %
 %                       ='buffer'    npix, pix
-%                       ='buffer_sp' npix,npix_nz,pix_nz,pix
+%                       ='buffer_sp' npix, npix_nz, pix_nz, pix
 %
 %   sparse_fmt      Indicates if data has sparse format or not:
 %                       =true  if data is sparse format
 %                       =false if data is sparse
+%
+%   flat            If the data has one of the buffer formats, then
+%                       =true  if the data structure is flat
+%                       =false if not
 %
 % NOTE: This is not a robust routine - it assumes that the data structure
 %       actually has one of the above formats.
@@ -38,41 +50,60 @@ function [data_type_name,sparse_fmt] = data_structure_type_name(data)
 %
 % $Revision$ ($Date$)
 
-data_type=struct('sqw_data',false,'sqw_type',false,'dnd_type',false,'buffer_type',false,...
-    'h',false,'dnd',false,'dnd_sp',false,'sqw_',false,'sqw_sp_',false,'sqw',false,'sqw_sp',false,...
-    'buffer',false,'buffer_sp',false);
 
-% Take the presence or absence of a signal array as the defining quality of dnd or sqw
-if isfield(data,'s')
-    if issparse(data.s)
-        sparse_fmt=true;
-        if isfield(data,'pix');
-            data_type_name = 'sqw_sp';
-        elseif isfield(data,'urange');
-            data_type_name = 'sqw_sp_';
-        else
-            data_type_name = 'dnd_sp';
-        end
-    else
-        if isfield(data,'pix');
-            data_type_name = 'sqw';
-        elseif isfield(data,'urange');
-            data_type_name = 'sqw_';
-        else
-            data_type_name = 'dnd';
-        end
-    end
-else
-    if isfield(data,'npix') && isfield(data,'pix')
-        if isfield(data,'npix_nz') && isfield(data,'pix_nz')
-            data_type_name='buffer_sp';
+if isfield(w,'data')
+    data=w.data;
+    % Take the presence or absence of a signal array as the defining quality of buffer, or dnd or sqw
+    if isfield(data,'s')
+        if issparse(data.s)
             sparse_fmt=true;
+            if isfield(data,'pix');
+                data_type_name = 'sqw_sp';
+            elseif isfield(data,'urange');
+                data_type_name = 'sqw_sp_';
+            else
+                data_type_name = 'dnd_sp';
+            end
         else
-            data_type_name='buffer';
             sparse_fmt=false;
+            if isfield(data,'pix');
+                data_type_name = 'sqw';
+            elseif isfield(data,'urange');
+                data_type_name = 'sqw_';
+            else
+                data_type_name = 'dnd';
+            end
         end
     else
-        data_type_name = 'h';
-        sparse_fmt=false;   % actually meaningless here, but must return a value
+        if isfield(data,'npix') && isfield(data,'pix')
+            if isfield(data,'npix_nz') && isfield(data,'pix_nz')
+                sparse_fmt=true;
+                data_type_name = 'buffer_sp';
+            else
+                sparse_fmt=false;
+                data_type_name = 'buffer';
+            end
+        else
+            sparse_fmt=false;   % actually meaningless here, but must return a value
+            data_type_name = 'h';
+        end
     end
+    flat=false;
+    
+else
+    % Check carefully with correct fields are present for flat format buffer structure
+    % as it will be easy to get this wrong when constructing the structure on the fly
+    if isfield(w,'npix') && isfield(w,'pix')
+        if isfield(w,'npix_nz') && isfield(w,'pix_nz') && isfield(w,'ndet') && isfield(w,'ne')
+            sparse_fmt=true;
+            data_type_name = 'buffer_sp';
+        else
+            sparse_fmt=false;
+            data_type_name = 'buffer';
+        end
+    else
+        error('Logic error in put_sqw functions. See T.G.Perring')
+    end
+    flat=true;
+    
 end

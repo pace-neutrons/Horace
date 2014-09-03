@@ -7,7 +7,7 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %
 %   >> [...] = put_sqw (..., 'file_format', fmt)   % specifiy an older file format for output
 %
-% Save npix and pix information to a temporary file (no format option available)
+% Save npix and pix information to a temporary file (no file format option available)
 %   >> [ok,mess,S] = put_sqw (file, w, '-buffer')           % save npix and pix to buffer
 %
 % Replace header in an existing file:
@@ -28,13 +28,22 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %               set of fields can be given:
 %                   'h', 'his': w.data only needs the header fields:
 %                                       filename,...,uoffset,...,dax
-%                   'buffer':   Only npix and pixel information are used (non-sparse format only):
-%                                   w.main_header, w.header, w.detpar must exist, but can be empty
-%                                   w.data.npix, w.data.pix
+%
 %                   'pix':      w.data does not need the field pix , because the additional
 %                               arguments v1, v2, ...  will define sources of the pixel information
 %
-%   opt         Determines which parts of the input data structures to write to a file. By default, the
+%                   'buffer':   If non-sparse, only npix and pixel information are used:
+%                                   w.main_header, w.header, w.detpar must exist, but can be empty
+%                                   w.data.npix, w.data.pix must exist
+%                               If sparse, then must have in addition:
+%                                   w.detpar, w.header.en or w.header{i}.en (single, multiple spe files)
+%                                   w.data.npix, w.data.npix_nz, w.data.pix_nz, w.pix
+%                               Alternatively, a structure can be given with the required fields:
+%                                - non-sparse: npix, pix
+%                                - sparse:     ndet, ne, npix, npix_nz, pix_nz, pix
+%                                             (ndet=no. detectors; ne=column vector of no. en bins in each spe file)
+%
+%   opt_name    Determines which parts of the input data structures to write to a file. By default, the
 %              entire contents of the input data structure are written, apart from the case of 'h' when
 %              urange will not be written if present. The default behaviour can be altered with one of
 %              the following options:
@@ -120,22 +129,21 @@ application=horace_version();
 % ---------------------------
 ok=true;
 
-% Determine form of input to be written
-% -------------------------------------
-% Determine type of object and data, and whether the sample or instrument fields are filled in the header
-filled_inst_or_sample = header_inst_or_sample (w.header);
-data_type_name_in = data_structure_type_name (w.data);
+% Determine form of input
+% -----------------------
+% Determine type of object and data
+[data_type_name_in,sparse_fmt,flat] = data_structure_type_name (w);
+data_type_in=data_structure_name_to_type(data_type_name_in);
 
 % Parse optional arguments
 % ------------------------
-[mess,fmt_ver,data_type_name_write,opt,optvals] = check_options(data_type_name_in,varargin);
-[data_type_write,sparse_fmt]=data_structure_name_to_type(data_type_name_write);
+[mess,newfile,fmt_ver,data_type_name_write,opt,optvals] = check_options(data_type_name_in,varargin);
 if ~isempty(mess), ok=false; S=sqwfile(); return, end
+data_type_write=data_structure_name_to_type(data_type_name_write);
 
 
 % Open output file with correct read/write permission, or check currently open file is OK
 % ---------------------------------------------------------------------------------------
-newfile=~isempty(fmt_ver);
 if ~isstruct(file)
     file_open_on_entry=false;
     if newfile
@@ -148,24 +156,22 @@ else
     file_open_on_entry=true;
     S=file;
 end
+
 fid=S.fid;
 info=S.info;
 position=S.position;
 fmt=S.fmt;
 
-
 if newfile
-    % Writing and sqw file or a buffer file
+    % Writing an sqw file (sqw or dnd type), or a buffer file
+    application.file_format=fmt_ver;        % add file format to application
+    S.application=application;              % update the application block
+    [info_nfiles,info_ne,info_ndet]=sqwfile_get_pars(w,data_type_in,sparse_fmt,flat,data_type_write);
+    S.info.ne=info_ne;                      % fill with array of correct length
     if fmt_ver==ver3p1
-        application.file_format=fmt_ver;        % add file format to application
-        S.application=application;              % update the application block
-        
-        *** what to do about sparse buffer files: need ne to resolve!
-        
-        S.info.ne=NaN(w.main_header.nfiles,1);  % fill with array of correct length
         [mess, position_sqwfile] = put_sqw_information (S);  % write to file (will update with correct information later)
         if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
-        position=mergestruct(position,position_sqwfile);
+        position=updatestruct(position,position_sqwfile);
     else
         mess='Unsupported file format';
         [ok,S]=tidy_close(file_open_on_entry,fid); return
@@ -178,7 +184,8 @@ else
             [ok,S]=tidy_close(file_open_on_entry,fid); return
         end
     else
-        if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+        mess='Unsupported file format';
+        [ok,S]=tidy_close(file_open_on_entry,fid); return
     end
 end
 
@@ -214,27 +221,41 @@ end
 % ------------------------------------
 if newfile
     % Writing sqw data or buffer data to a new file
-    if opt.buffer
-        [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = put_sqw_data (fid, fmt_ver, w.data, '-buffer');
+    if data_type_write.buffer || data_type_write.buffer_sp
+        % buffer data, or buffer option with sqw data
+        if flat % data has flat buffer structure format
+            [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+                put_sqw_data (fid, fmt_ver, w, sparse_fmt, '-buffer');
+        else    % data has sqw structure
+            [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+                put_sqw_data (fid, fmt_ver, w.data, sparse_fmt, '-buffer');
+        end
+        
     elseif opt.pix
-        [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = put_sqw_data (fid, fmt_ver, w.data, '-pix', optvals{:});
+        % sqw output with pix data from another source
+        [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+            put_sqw_data (fid, fmt_ver, w.data, sparse_fmt, '-pix', optvals{:});
+        
     else
-        [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = put_sqw_data (fid, fmt_ver, w.data);
+        % All other cases: dnd data or sqw data
+        [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+            put_sqw_data (fid, fmt_ver, w.data, sparse_fmt);
     end
 else
     % Can only be writing header to an existing file
-    [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = put_sqw_data (fid, fmt_ver, w.data, '-h');
+    [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+        put_sqw_data (fid, fmt_ver, w.data, sparse_fmt, '-h');
 end
 if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
-position = mergestruct(position,position_data);
-fmt = mergestruct(fmt,fmt_data);
+position = updatestruct(position,position_data);
+fmt = updatestruct(fmt,fmt_data);
 
 
 % Write sample and instrument information
 % ---------------------------------------
 if data_type_write.sqw_data
-    if filled_inst_or_sample
+    if header_inst_or_sample(w.header);
         % If not a new file, then must get to the end of the data section before writing instrument
         % and sample information. If we are just writing the header, then the earlier write to the
         % data section will have left the file poisiton indicator at the start of the signal array,
@@ -255,7 +276,7 @@ if data_type_write.sqw_data
         
     else
         % If not a new file, then could have sample and instrument blocks written to file.
-        % Can remove reference to these by setting positions to NaN. (Cannot remove by closing file.)
+        % Can remove reference to these by setting positions to NaN. (Cannot remove by merely closing the file.)
         if ~newfile
             position.instrument=NaN;
             position.sample=NaN;
@@ -272,7 +293,9 @@ if newfile
     info.sqw_data=data_type_write.sqw_data;
     info.sqw_type=data_type_write.sqw_type;
     info.buffer_type=data_type_write.buffer_type;
-
+    info.nfiles=info_nfiles;
+    info.ne=info_ne;
+    info.ndet=info_ndet;
     [ndims,sz]=data_dims(w.data);
     info.ndims=ndims;
     info.sz_npix=[sz,NaN(1,4-ndims)];
@@ -302,23 +325,23 @@ end
 
 
 %==================================================================================================
-function [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,varargin)
+function [mess,newfile,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,varargin)
 % Check the data type and optional arguments for validity
 %
-%   >> [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in)
-%   >> [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,opt)
-%   >> [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,opt,p1,p2,...)
+%   >> [mess,newfile,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in)
+%   >> [mess,newfile,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,opt_name)
+%   >> [mess,newfile,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in,opt_name,p1,p2,...)
 %
-%   >> [mess,fmt_ver,data_type_write,opt,optvals] = check_options(..., 'file_format', fmt)
+%   >> [mess,newfile,fmt_ver,data_type_write,opt,optvals] = check_options(..., 'file_format', fmt)
 %
 % Input:
 % ------
-%   data_type_in    Data structure type. Assumesd to be one of:
+%   data_type_in    Data structure type. Assumed to be one of:
 %                       'dnd', 'dnd_sp', 'sqw_', 'sqw_sp_', 'sqw', 'sqw_sp'
 %                       'buffer', 'buffer_sp'
 %                       'h'
 %
-%   opt             [optional] option character string: one of '-h', '-his', '-buffer', '-pix'
+%   opt_name        [optional] option character string: one of '-h', '-his', '-buffer', '-pix'
 %
 %   p1,p2,...       Optional arguments as may be required by the option string:
 %                   Only '-pix' currently can take optional arguments.
@@ -329,6 +352,8 @@ function [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in
 % -------
 %   mess            Error message if a problem; ='' if all OK
 %
+%   newfile         If true: need to open a new file; if false: need to open an existing file
+%
 %   fmt_ver         Format of file to be written to if new file (appversion object)
 %                   Empty if an existing file must be used
 %
@@ -337,7 +362,8 @@ function [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in
 %                       'buffer', 'buffer_sp'
 %                       'h'
 %                   Note that the input cases 'sqw_' and 'sqw_sp_' are not possible
-%                  because they will have required the '-pix' option to be provided.
+%                  as output possibilities because they will have required the '-pix'
+%                  option to be provided.
 %
 %   opt             Structure with fields 'h', 'his', 'pix', 'buffer' with values true
 %                  or false for the different values
@@ -361,10 +387,12 @@ function [mess,fmt_ver,data_type_write,opt,optvals] = check_options(data_type_in
 %   >> [ok,mess,S] = put_sqw (file, w, '-his')  % replace instrument and sample info as well
 
 mess='';
+newfile=false;
 fmt_ver=[];
 data_type_write='';
 opt=struct('h',false,'his',false,'buffer',false,'pix',false);
 optvals={};
+
 
 % Determine if output file format was specified
 % ---------------------------------------------
@@ -384,6 +412,13 @@ if narg>=2 && isstring(varargin{end-1}) && strcmpi(varargin{end-1},'file_format'
 else
     fmt_ver=[];
 end
+
+if isempty(fmt_ver)
+    newfile=false;
+else
+    newfile=true;
+end
+
 
 % Check optional arguments have valid syntax of form (...,opt, v1, v2,...)
 % ------------------------------------------------------------------------
@@ -428,6 +463,7 @@ if narg>0
     end
 end
 noopt=~(opt.h||opt.his||opt.buffer||opt.pix);
+
 
 % Determine if valid write option for input data structure type
 % -------------------------------------------------------------
@@ -511,6 +547,41 @@ end
 
 
 %==================================================================================================
+function [nfiles,ndet,ne]=sqwfile_get_pars(w,data_type_in,sparse_fmt,flat,data_type_write)
+% Get some parameters from the input data structure as required for an sqwfile structure
+%
+%   >> [nfiles,ndet,ne]=sqwfile_get_pars(w,data_type_in,sparse_fmt,flat,data_type_write)
+%
+% sqw_type (sparse or non-sparse), and sparse buffer: correct values for ndet, ne, nfiles
+% dnd_type (sparse or non-sparse), and non-sparse buffer: all three are NaN
+
+if data_type_write.sqw_type || (data_type_write.buffer && sparse_fmt)
+    if data_type_in.buffer_type && flat
+        nfiles=numel(w.ne);
+        ndet=w.det;
+        ne=w.ne;
+    else
+        nfiles=w.main_header.nfiles;
+        ndet=numel(w.detpar.x2);
+        if isstruct(w.header)
+            ne=numel(w.header.en)-1;
+        else
+            ne=zeros(nfiles,1);
+            header=w.header;
+            for i=1:nfiles
+                ne=numel(header{i}.en)-1;
+            end
+        end
+    end
+else
+    % Writing dnd-type data or non-sparse buffer
+    nfiles=NaN;
+    ndet=NaN;
+    ne=NaN;
+end
+
+
+%==================================================================================================
 function [ok,S]=tidy_close(leave_open,fid,ftmp)
 % Tidy shut down of files if there was an error
 %
@@ -554,4 +625,3 @@ if exist('ftmp','var') && ftmp>=3 && ~isempty(fopen(fid))
         disp('Unable to delete buffer file created when writing output sqw file')
     end
 end
-
