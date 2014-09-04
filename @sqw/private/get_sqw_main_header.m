@@ -1,4 +1,4 @@
-function [mess, main_header] = get_sqw_main_header (fid, fmt_ver, opt)
+function [mess, main_header] = get_sqw_main_header (fid, fmt_ver, verbatim)
 % Read the main header block for the results of performing calculate projections on spe file(s).
 %
 %   >> [mess, main_header, pos_start] = get_sqw_main_header(fid, fmt_ver)
@@ -12,9 +12,9 @@ function [mess, main_header] = get_sqw_main_header (fid, fmt_ver, opt)
 % ------
 %   fid             File pointer to (already open) binary file
 %   fmt_ver         Version of file format e.g. appversion('-v3')
-%   opt             [Optional] read flag:
-%                   '-verbatim'   The file name as stored in the main_header is returned as stored,
-%                                and not constructed from the value of fopen(fid).
+%   verbatim        Read file name as verbatim
+%                       = true  read the stored data file name
+%                       = false return the data file name as the file being read
 % Output:
 % -------
 %   mess            Error message; blank if no errors, non-blank otherwise
@@ -37,18 +37,6 @@ function [mess, main_header] = get_sqw_main_header (fid, fmt_ver, opt)
 mess='';
 
 ver3p1=appversion(3.1);
-
-% Check verbatim option
-if exist('opt','var')
-    if ischar(opt) && strcmpi(opt,'-verbatim')
-        verbatim=true;
-    else
-        mess = 'invalid option';
-        return
-    end
-else
-    verbatim=false;
-end
 
 % Read data from file:
 try

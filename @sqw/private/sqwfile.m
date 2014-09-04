@@ -73,5 +73,3 @@ S.position = struct('application',NaN,'info',NaN,'position',NaN,'fmt',NaN,...
     's',NaN,'e',NaN,'npix',NaN,'urange',NaN,'npix_nz',NaN,'pix_nz',NaN,'pix',NaN);
 
 S.fmt = struct('s','','e','','npix','','urange','','npix_nz','','pix_nz','','pix','');
-
-S=class(S,'sqwfile');

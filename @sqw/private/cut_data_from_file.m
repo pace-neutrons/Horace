@@ -119,10 +119,10 @@ for i=1:length(range)
                 vend = vpos+range(i)-rpos;  % last column that will be filled in this loop of the while statement
 %**                if horace_info_level>=1, bigtic(1), end
                 try
-                    [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], '*float32');
+                    tmp = fread_catch(fid, [ndatpix,range(i)-rpos+1], '*float32');
                     v(:,vpos:vend)=double(tmp);
                     clear tmp
-                catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+                catch   % fixup to account for not reading required number of items
                     ok = false;
                     mess = 'Unrecoverable read error';
                 end
@@ -133,10 +133,10 @@ for i=1:length(range)
             else    % read in as much of the range as can
 %**                if horace_info_level>=1, bigtic(1), end
                 try
-                    [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], '*float32');
+                    tmp = fread_catch(fid, [ndatpix,vmax-vpos+1], '*float32');
                     v(:,vpos:vmax)=double(tmp);
                     clear tmp
-                catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+                catch   % fixup to account for not reading required number of items
                     ok = false;
                     mess = 'Unrecoverable read error';
                 end

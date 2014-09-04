@@ -82,6 +82,11 @@ if ~isempty(file) && isstring(file) % assume file is a file name
     % Read the information block from the sqw file (call even if new file)
     [mess, S] = get_sqw_information (fid);
     
+    % Close file if there was an error
+    if ~isempty(mess)
+        if ~isempty(fopen(fid)), fclose(fid); end
+    end
+    
 else
     mess='File name must be a non-empty character string';
     S=sqwfile(); return

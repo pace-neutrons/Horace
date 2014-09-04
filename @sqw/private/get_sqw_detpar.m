@@ -32,6 +32,8 @@ function [mess, det] = get_sqw_detpar (fid, fmt_ver)
 % $Revision$ ($Date$)
 
 
+mess='';
+
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
 
 try

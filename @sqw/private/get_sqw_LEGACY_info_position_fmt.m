@@ -45,7 +45,7 @@ try
     [mess, main_header, header, detpar, data, pos_main_sections] = get_sqw_LEGACY_header_sections (fid, fmt_ver, sqw_type);
     if ~isempty(mess), return, end
 catch
-    if ver0
+    if fmt_ver==ver0
         mess='Attempt to interpret file as prototype format Horace sqw data failed';
     else
         mess='Fatal error attempting to read file';
@@ -55,7 +55,7 @@ end
 ndims=numel(data.pax);
 sz_npix=NaN(1,4);
 for i=1:ndims
-    sz_npix(i)=numel(data.pax{i})-1;
+    sz_npix(i)=numel(data.p{i})-1;
 end
 nbins=prod(sz_npix(1:ndims));
 
@@ -69,7 +69,8 @@ if fmt_ver<ver3
         pos_arr.urange=pos_arr.npix+8*nbins;
         pos_arr.pix=pos_arr.npix + 44;  % bytes: 2x4xfloat32 for urange, 4 blank, 8 for npixtot
         % Work out npixtot from the length from start of signal array to end of file
-        pos_endfile=ftell(fseek(fid,0,'eof'));
+        fseek(fid,0,'eof');
+        pos_endfile=ftell(fid);
         nbytes=pos_endfile-pos_arr.s;
         npixtot=(nbytes-(16*nbins+44))/36;
         if npixtot<0 || rem(npixtot,1)~=0
@@ -96,7 +97,7 @@ else
     % Get npixtot from file (cannot use the trick for ver1 or ver0 above, as more in the file after data section)
     if sqw_type
         fseek(fid,pos_info_from_file.pix-8,'bof');  % npixtot immediately before pix array
-        npixtot=fread_catch(fid,1,'int64');
+        npixtot=fread(fid,1,'int64');
     end
     
     % Positions of s,e,npix,urange,pix arrays
@@ -130,6 +131,7 @@ if sqw_type
     if isstruct(header)
         ne=numel(header.en)-1;
     else
+        nfiles=main_header.nfiles;
         ne=zeros(nfiles,1);
         for i=1:nfiles
             ne=numel(header{i}.en)-1;
@@ -242,7 +244,8 @@ position=struct();
 if sqw_type
     % Main header
     position.main_header = ftell(fid);
-    [mess, main_header] = get_sqw_main_header (fid, fmt_ver);
+    verbatim=false;
+    [mess, main_header] = get_sqw_main_header (fid, fmt_ver, verbatim);
     if ~isempty(mess), return, end
 
     % Header
@@ -266,14 +269,13 @@ end
 
 % Data
 position.data=ftell(fid);
-sparse_fmt=false;
-datastruct=true;
+S=sqwfile();
+read_header=true;
+verbatim=false;
 make_full_fmt=false;
-opt=struct('h',true,'buffer',false);    % enough to read the data header
-opt_name='-h';
-optvals={};
-[mess, data] = get_sqw_data (fid, fmt_ver,...
-    sparse_fmt, datastruct, make_full_fmt, opt, opt_name, optvals{:});
+opt=struct('dnd',false,'sqw',false,'nopix',false,'buffer',false,...
+    'npix',false,'npix_nz',false,'pix_nz',false,'pix',false);
+[mess, data] = get_sqw_data (fid, fmt_ver, S, read_header, verbatim, make_full_fmt, opt);
 if ~isempty(mess), return, end
 
 

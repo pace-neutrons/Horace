@@ -147,12 +147,10 @@ fmt_ver=S.application.file_format;
 
 % Parse optional arguments
 % ------------------------
-[mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,varargin{:});
-read_data_header = (datastruct && ~opt.buffer);     % all data structure output except buffer
-read_sqw_header  = read_data_header && ~opt.dnd;    % same, except dnd as well
+[mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin{:});
 
 % Initialise output
-if datastruct && ~opt.buffer
+if flag.sqw_struct
     w.main_header = struct([]);
     w.header = struct([]);
     w.detpar = struct([]);
@@ -165,13 +163,9 @@ if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
 % Get main header, headers and detectors (if requested)
 % --------------------------------------
-if read_sqw_header
+if flag.read_sqw_header
     % Main header
-    if opt.hverbatim || opt.hisverbatim
-        [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver,'-verbatim');
-    else
-        [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver);
-    end
+    [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver, flag.verbatim);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
     % Header
@@ -187,8 +181,8 @@ end
 % Get data
 % --------
 fseek(fid,S.position.data,'bof');
-if datastruct && ~opt.buffer
-    [mess, w.data] = get_sqw_data (fid, fmt_ver, S, read_data_header, make_full_fmt, opt, optvals{:});
+if flag.sqw_struct
+    [mess, w.data] = get_sqw_data (fid, fmt_ver, S, flag.read_data_header, flag.verbatim, make_full_fmt, opt, optvals{:});
     if fmt_ver==appversion(0);
         % Prototype file format. Should only have been able to get here if sqw-type data in file
         w.data.title=w.main_header.title;
@@ -197,14 +191,14 @@ if datastruct && ~opt.buffer
         w.data.angdeg=header_ave.angdeg;
     end
 else
-    [mess, w] = get_sqw_data (fid, fmt_ver, S, read_data_header, make_full_fmt, opt, optvals{:});
+    [mess, w] = get_sqw_data (fid, fmt_ver, S, flag.read_data_header, flag.verbatim, make_full_fmt, opt, optvals{:});
 end
 if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
 
 % Get header optional information, if present
 % -------------------------------------------
-if read_sqw_header && ~isnan(S.position.instrument)
+if flag.read_inst_and_sample && ~isnan(S.position.instrument)
     fseek(fid,S.position.instrument,'bof');     % might need to skip redundant bytes
     
     % Instrument information
@@ -226,7 +220,7 @@ end
 
 
 %==================================================================================================
-function [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,varargin)
+function [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin)
 % Check the data type and optional arguments for validity
 %
 %   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S)
@@ -249,9 +243,16 @@ function [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,varargin)
 % -------
 %   mess            Error message if a problem; ='' if all OK
 %
-%   datastruct      Signifies data to be read:
-%                     - true  if a data structure ('-dnd','-sqw','-h*','-nopix','-buffer')
-%                     - false if a field from the data
+%   flag            Structure with various logical flags as fields:
+%               datastruct      =true if output is a structure
+%               sqw_struct      =true if fields main_header, header, detpar, data
+%               buffer          =true if output is a buffer (a flat data structure)
+%               field           =true if output is a single item i.e. not a structure
+%               read_data_header     =true if read data block header
+%               read_sqw_header      =true if read main_header, header, detpar
+%               read_inst_and_sample =true if read instrument and sample blocks
+%               verbatim             =true if data file name in main_header and data sections
+%                                     are to be read as stored
 %
 %   make_full_fmt   Data is sparse format but conversion to non-sparse is requested
 %                  (If the data is not sparse format, then then this will be set to false)
@@ -504,10 +505,61 @@ elseif is_buffer
         return
     end
     
-else
+elseif ~is_sqw
     error('Unrecognised data type')
     
 end
+
+% Repackage result of opt in a more convenient way for reading data from the file
+flag = flags_from_opt (opt, datastruct);
+
+
+%==================================================================================================
+function flag = flags_from_opt (opt, datastruct)
+% Translate the opt structure into various flags that direct the reading from the file
+%
+%   >> flag = flags_from_opt (opt)
+%
+% Input:
+% ------
+%   opt     Structure that defines the output (one field must be true, the others false):
+%                       'dnd','sqw','h','his','hverbatim','hisverbatim','nopix','buffer'
+%                       'npix','npix_nz','pix_nz','pix'
+%
+%   datastruct  If output is a structure then =true; else =false;
+%
+% Output:
+% -------
+%   flag    Structure with various logical flags as fields:
+%               datastruct      =true if output is a structure
+%               sqw_struct      =true if fields main_header, header, detpar, data
+%               buffer          =true if output is a buffer (a flat data structure)
+%               field           =true if output is a single item i.e. not a structure
+%               read_data_header     =true if read data block header
+%               read_sqw_header      =true if read main_header, header, detpar
+%               read_inst_and_sample =true if read instrument and sample blocks
+%               verbatim             =true if data file name in main_header and data sections
+%                                     are to be read as stored
+
+% Form of output:
+sqw_struct = datastruct && ~opt.buffer;
+buffer = opt.buffer;
+field = ~datastruct;
+
+% An sqw_structure implies reading data section header and vice versa:
+read_data_header = sqw_struct;
+
+read_sqw_header = sqw_struct && ~opt.dnd;
+
+% If read header only must explicitly ask for the instrument and sample info for it to be read
+read_inst_and_sample = read_sqw_header && ~(opt.h || opt.hverbatim);
+
+% Verbatim reading is only an option for reading header
+verbatim = opt.hverbatim || opt.hisverbatim;
+
+flag = struct('datastruct',datastruct,'sqw_struct',sqw_struct,'buffer',buffer,'field',field,...
+    'read_data_header',read_data_header,'read_sqw_header',read_sqw_header,...
+    'read_inst_and_sample',read_inst_and_sample,'verbatim',verbatim);
 
 
 %==================================================================================================

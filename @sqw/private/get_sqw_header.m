@@ -92,8 +92,6 @@ try
     header.filename = read_sqw_var_char (fid, fmt_ver);
     header.filepath = read_sqw_var_char (fid, fmt_ver);
 
-    header.efix = fread(fid, 1, fmt_dble);
-
     header.efix   = fread(fid, 1, fmt_dble);
     header.emode  = fread(fid, 1, fmt_int);
     header.alatt  = fread(fid, [1,3], fmt_dble);

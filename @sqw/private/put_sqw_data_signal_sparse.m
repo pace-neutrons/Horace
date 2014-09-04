@@ -24,19 +24,33 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_spars
 %       data.urange     True range of the data along each axis [urange(2,4)]. This is in the
 %                      coordinates of the plot/integration projection axes, NOT the projection
 %                      axes of the individual pixel info.
-%       data.npix_nz    Number of non-zero pixels in each bin (sparse column vector)
-%       data.pix_nz     Array with idet,ien,s,e for the pixels with non-zero signal sorted so that
-%                      all the pixels in the first bin appear first, then all the pixels in the
-%                      second bin etc. If more than one run contributed, array contains irun,idet,ien,s,e.
-%       data.pix        Index of pixels, sorted so that all the pixels in the first
-%                      bin appear first, then all the pixels in the second bin etc. (column vector)
-%                           ipix = ie + ne*(id-1)
+%       data.pix_nz Array with columns containing [id,ie,s,e]' for the pixels with non-zero
+%                  signal sorted so that all the pixels in the first bin appear first, then
+%                  all the pixels in the second bin etc. Here
+%                           ie      In the range 1 to ne (the number of energy bins
+%                           id      In the range 1 to ndet (the number of detectors)
+%                  but these are NOT the energy bin and detector indicies of a pixel; instead
+%                  they are the pair of indicies into the location in the pix array below.
+%                           ind = ie + ne*(id-1)
+%
+%                   If more than one run contributed, array contains ir,id,ie,s,e, where
+%                           ir      In the range 1 to nrun (the number of runs)
+%                  where ir now adds a third index into the pix array.
+%
+%       data.pix    Pixel index array, sorted so that all the pixels in the first
+%                  bin appear first, then all the pixels in the second bin etc. (column vector)
+%                   The pixel index is defined by the energy bin number and detector number:
+%                           ipix = ien + ne*(idet-1)
 %                       where
-%                           ie  energy bin index
-%                           id  detector index into list of all detectors (i.e. masked and unmasked)
-%                           ne  number of energy bins
-%                       If more than one run contributed, then 
-%                           ipix = ie + ne*(id-1) + cumsum(ne(1:irun-1))*ndet
+%                           ien     energy bin index
+%                           idet    detector index into list of all detectors (i.e. masked and unmasked)
+%                           ne      number of energy bins
+%
+%                   If more than one run contributed, then
+%                           ipix = ien + ne*(idet-1) + ndet*sum(ne(1:irun-1))
+%                       where in addition
+%                           irun    run index
+%                           ne      array with number of energy bins for each run
 %
 %   opt_name    [Optional] Determine how to write data:
 %                  '-pix'    Write pixel information, either from the data structure, or from the
