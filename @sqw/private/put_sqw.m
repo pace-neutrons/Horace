@@ -137,7 +137,7 @@ data_type_in=data_structure_name_to_type(data_type_name_in);
 
 % Parse optional arguments
 % ------------------------
-[mess,newfile,fmt_ver,data_type_name_write,opt,optvals] = check_options(data_type_name_in,varargin);
+[mess,newfile,fmt_ver,data_type_name_write,opt,optvals] = check_options(data_type_name_in,varargin{:});
 if ~isempty(mess), ok=false; S=sqwfile(); return, end
 data_type_write=data_structure_name_to_type(data_type_name_write);
 
@@ -195,7 +195,7 @@ end
 % (empty if dnd-style data)
 if data_type_write.sqw_data
     [mess,position.main_header] = put_sqw_main_header (fid, fmt_ver, w.main_header);
-    if tidy_close(mess,fid), ok=false; S=sqwfile(); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
 
 
@@ -313,6 +313,7 @@ else
 end
 
 % Write sqwfile
+fseek(fid,0,'bof');
 mess = put_sqw_information (S);
 if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
     
@@ -321,6 +322,8 @@ if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 % ---------
 if ~file_open_on_entry  % opened file in this routine, so close again
     fclose(fid);
+    S.fid=-1;
+    S.filename='';
 end
 
 
@@ -411,12 +414,6 @@ if narg>=2 && isstring(varargin{end-1}) && strcmpi(varargin{end-1},'file_format'
     narg=narg-2;
 else
     fmt_ver=[];
-end
-
-if isempty(fmt_ver)
-    newfile=false;
-else
-    newfile=true;
 end
 
 
@@ -535,7 +532,7 @@ if ~isempty(fmt_ver)
         mess='Cannot specify output file format when writing header only';
         return
     elseif strcmpi(data_type_write,'buffer')
-        mess='Cannot specify output file format when writing npic and pix buffer';
+        mess='Cannot specify output file format when writing npix and pix buffer';
         return
     end
 else
@@ -543,6 +540,15 @@ else
     if ~strcmpi(data_type_write,'h')
         fmt_ver=fmt_check_file_format();
     end
+end
+
+
+% Set newfile flag
+% ----------------
+if isempty(fmt_ver)
+    newfile=false;
+else
+    newfile=true;
 end
 
 

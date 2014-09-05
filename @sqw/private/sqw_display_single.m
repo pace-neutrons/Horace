@@ -1,16 +1,14 @@
-function sqw_display_single (din,npixtot,type)
+function sqw_display_single (din,type,npixtot)
 % Display useful information from an sqw object
 %
-% Syntax:
-%
 %   >> sqw_display_single (din)
-%   >> sqw_display_single (din,npixtot,type)
+%   >> sqw_display_single (din,type,npixtot)
 %
+% Input:
+% ------
 %   din             Structure from sqw object (sqw-type or dnd-type)
-%
-% Optionally:
-%   npixtot         total number of pixels if sqw type
-%   type            data type: 'a' or 'b+'
+%   type            [Optional] data type: 'sqw' or 'dnd'
+%   npixtot         [Optional] total number of pixels if sqw type
 %                  
 %   If the optional parameters are given, then only the header information
 %   part of data needs to be passed, namely the fields:
@@ -23,34 +21,31 @@ function sqw_display_single (din,npixtot,type)
 %   If an optional parameter is given but is empty, then the missing value for that
 %   parameter is computed from the data structure.
 %
+% NOTE: uses sprintf to get fixed formatting of numbers (num2str strips trailing blanks)
+
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
 
 
-% NOTE: use sprintf to get fixed formatting of numbers (num2str strips trailing blanks)
-
 % Determine if displaying dnd-type or sqw-type sqw object
-
-
-[ndim,sz] = data_dims(din.data);
-if ~exist('npixtot','var') || isempty(npixtot)
-    npixtot = sum(din.data.npix(:));
-end
-
 if ~exist('type','var') || isempty(type)
-    type = data_type(din);
+    type = data_structure_type_name(din);
 end
 
-if strcmpi(type,'a')
-    sqw_type=true;  % object will be dnd type
+if strcmpi(type,'sqw')
+    sqw_type=true;
     nfiles = din.main_header.nfiles;
+    if ~exist('npixtot','var') || isempty(npixtot)
+        npixtot = sum(din.data.npix(:));
+    end
 else
     sqw_type=false;
 end
 
 % Display summary information
+[ndim,sz] = data_dims(din.data);
 disp(' ')
 disp([' ',num2str(ndim),'-dimensional object:'])
 disp(' -------------------------')

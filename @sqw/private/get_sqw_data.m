@@ -173,11 +173,11 @@ if read_header
     npax = fread(fid, 1, fmt_int);
     niax=4-npax;
     if niax>0
-        data.uoffset = fread(fid, [1,niax], fmt_int);
-        data.uoffset = fread(fid, [2,niax], fmt_dble);
+        data.iax  = fread(fid, [1,niax], fmt_int);
+        data.iint = fread(fid, [2,niax], fmt_dble);
     else
-        data.iax=zeros(1,0);    % create empty index of integration array in standard form
-        data.iint=zeros(2,0);
+        data.iax  = zeros(1,0); % create empty index of integration array in standard form
+        data.iint = zeros(2,0);
     end
     
     if npax>0
@@ -185,7 +185,7 @@ if read_header
         data.p=cell(1,npax);
         for i=1:npax
             np = fread(fid, 1, fmt_int);
-            data.p{i} = fread(fid, [np,1], fmt_int);
+            data.p{i} = fread(fid, [np,1], fmt_dble);
         end
         data.dax = fread(fid, [1,npax], fmt_int);
     else
@@ -206,7 +206,7 @@ if read_signal
         if read_header
             [mess, data_signal] = get_sqw_data_signal (fid, fmt_ver, S, opt, varargin{:});
             if ~isempty(mess), return, end
-            data = updatestruct(data,data_signal);
+            data = mergestruct(data,data_signal);
         else
             [mess, data] = get_sqw_data_signal (fid, fmt_ver, S, opt, varargin{:});
             if ~isempty(mess), return, end
@@ -217,7 +217,7 @@ if read_signal
         if read_header
             [mess, data_signal] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_fmt, opt, varargin{:});
             if ~isempty(mess), return, end
-            data = updatestruct(data,data_signal);
+            data = mergestruct(data,data_signal);
         else
             [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_fmt, opt, varargin{:});
             if ~isempty(mess), return, end

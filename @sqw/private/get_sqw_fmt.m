@@ -36,11 +36,11 @@ try
     fmt = struct('s',[],'e',[],'npix',[],'urange',[],'npix_nz',[],'pix_nz',[],'pix',[]);
     nam=fieldnames(fmt);
     for i=1:numel(nam)
-        fmt.(nam(i)) = read_sqw_var_char (fid, fmt_ver);
+        fmt.(nam{i}) = read_sqw_var_char (fid, fmt_ver);
     end
     
 catch
-    mess = 'Unable to read position information from file';
+    mess = 'Unable to read format information from file';
     fmt=[];
     
 end

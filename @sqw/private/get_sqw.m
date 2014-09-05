@@ -1,6 +1,11 @@
 function [w, ok, mess, S] = get_sqw (file, varargin)
 % Read information from an sqw file as a structure
 %
+% Header information only
+% -----------------------
+%   >> [S,ok,mess] = get_sqw (file,'-info')         % sqwfile structure only
+%
+%
 % If dnd-type or sqw-type data (sparse or non-sparse):
 % ----------------------------------------------------
 %   >> [w,ok,mess] = get_sqw (file)                 % load sqw or dnd structure according to contents
@@ -77,6 +82,13 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %             - In the last case the '-full' option is not needed, as sparse is meaningless
 %
 %
+% Information structure
+% ---------------------
+% In all cases, a structure containing basic information can be returned as the fourth output:
+%
+%   >> [...,S] = get_sqw (...)
+%
+%
 % Input:
 % --------
 %   file        File name, or sqwfile information structure. It is assumed that the file
@@ -117,6 +129,7 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 % Output:
 % --------
 %   w           Data structure read from file
+%               If called with the '-info' option, w will be identical to S (below) if read was succesful
 %
 %   ok          Status flag; =true if no errors; =false if there was error reading the data
 %
@@ -130,13 +143,15 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 % $Revision$ ($Date$)
 
 
+w=[];
+
 % Open file
 % ---------
 if ~isstruct(file)
     file_open_on_entry=false;
     [S,mess]=sqwfile_open(file,'readonly');
     % If an error, then set w to empty argument; in principle could cause a crash if caller expects structure
-    if ~isempty(mess), w=[]; [ok,S]=tidy_close(file_open_on_entry,S.fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,S.fid); return, end
 else
     file_open_on_entry=true;
     S=file;
@@ -148,6 +163,7 @@ fmt_ver=S.application.file_format;
 % Parse optional arguments
 % ------------------------
 [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin{:});
+if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
 % Initialise output
 if flag.sqw_struct
@@ -155,14 +171,12 @@ if flag.sqw_struct
     w.header = struct([]);
     w.detpar = struct([]);
     w.data = struct([]);
-else
-    w=[];
 end
 if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
 
-% Get main header, headers and detectors (if requested)
-% --------------------------------------
+% Get main header, headers and detectors, if requested
+% ----------------------------------------------------
 if flag.read_sqw_header
     % Main header
     [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver, flag.verbatim);
@@ -178,26 +192,28 @@ if flag.read_sqw_header
 end
 
 
-% Get data
-% --------
-fseek(fid,S.position.data,'bof');
-if flag.sqw_struct
-    [mess, w.data] = get_sqw_data (fid, fmt_ver, S, flag.read_data_header, flag.verbatim, make_full_fmt, opt, optvals{:});
-    if fmt_ver==appversion(0);
-        % Prototype file format. Should only have been able to get here if sqw-type data in file
-        w.data.title=w.main_header.title;
-        header_ave=header_average(w.header);
-        w.data.alatt=header_ave.alatt;
-        w.data.angdeg=header_ave.angdeg;
+% Get data, if requested
+% ----------------------
+if ~flag.info
+    fseek(fid,S.position.data,'bof');
+    if flag.sqw_struct
+        [mess, w.data] = get_sqw_data (fid, fmt_ver, S, flag.read_data_header, flag.verbatim, make_full_fmt, opt, optvals{:});
+        if fmt_ver==appversion(0);
+            % Prototype file format. Should only have been able to get here if sqw-type data in file
+            w.data.title=w.main_header.title;
+            header_ave=header_average(w.header);
+            w.data.alatt=header_ave.alatt;
+            w.data.angdeg=header_ave.angdeg;
+        end
+    else
+        [mess, w] = get_sqw_data (fid, fmt_ver, S, flag.read_data_header, flag.verbatim, make_full_fmt, opt, optvals{:});
     end
-else
-    [mess, w] = get_sqw_data (fid, fmt_ver, S, flag.read_data_header, flag.verbatim, make_full_fmt, opt, optvals{:});
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
-if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 
 
-% Get header optional information, if present
-% -------------------------------------------
+% Get header optional information, if requested
+% ---------------------------------------------
 if flag.read_inst_and_sample && ~isnan(S.position.instrument)
     fseek(fid,S.position.instrument,'bof');     % might need to skip redundant bytes
     
@@ -214,8 +230,17 @@ end
 
 % Closedown
 % ---------
+ok=true;
 if ~file_open_on_entry  % opened file in this routine, so close again
     fclose(fid);
+    S.fid=-1;
+    S.filename='';
+end
+
+% Catch case of reading basic information only
+% --------------------------------------------
+if flag.info
+    w=S;
 end
 
 
@@ -234,6 +259,7 @@ function [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin)
 %   S               sqwfile structure
 %
 %   opt             [optional] option character string one of:
+%                       '-info'
 %                       '-dnd','-sqw','-h','-his','-hverbatim','-hisverbatim','-nopix','-buffer'
 %                       'npix','npix_nz','pix_nz','pix'
 %
@@ -244,6 +270,7 @@ function [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin)
 %   mess            Error message if a problem; ='' if all OK
 %
 %   flag            Structure with various logical flags as fields:
+%               info            =true if information only: empty output
 %               datastruct      =true if output is a structure
 %               sqw_struct      =true if fields main_header, header, detpar, data
 %               buffer          =true if output is a buffer (a flat data structure)
@@ -258,6 +285,7 @@ function [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin)
 %                  (If the data is not sparse format, then then this will be set to false)
 %
 %   opt             Structure that defines the output (one field must be true, the others false):
+%                       'info'
 %                       'dnd','sqw','h','his','hverbatim','hisverbatim','nopix','buffer'
 %                       'npix','npix_nz','pix_nz','pix'
 %
@@ -270,9 +298,10 @@ function [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin)
 % Initialise output arguments
 % ---------------------------
 mess='';
+flag=struct();
 datastruct=false;
 make_full_fmt=false;
-opt=struct('dnd',false,'sqw',false,'nopix',false,'buffer',false,...
+opt=struct('info',false,'dnd',false,'sqw',false,'nopix',false,'buffer',false,...
     'h',false,'his',false,'hverbatim',false,'hisverbatim',false,...
     'npix',false,'npix_nz',false,'pix_nz',false,'pix',false);
 optvals={};
@@ -387,6 +416,15 @@ if narg>0
             end
             opt.pix=true;
             
+        elseif strcmpi(opt_name,'-info')
+            if narg_opt>0
+                mess='Number of arguments for option ''-info'' is invalid';
+                return
+            end
+            opt.info=true;
+            optvals={};
+            datastruct=false;
+                
         elseif strcmpi(opt_name,'-dnd')
             if narg_opt>0
                 mess='Number of arguments for option ''-dnd'' is invalid';
@@ -395,7 +433,7 @@ if narg>0
             opt.dnd=true;
             optvals={};
             datastruct=true;
-            
+        
         elseif strcmpi(opt_name,'-sqw')
             if narg_opt>0
                 mess='Number of arguments for option ''-sqw'' is invalid';
@@ -523,6 +561,7 @@ function flag = flags_from_opt (opt, datastruct)
 % Input:
 % ------
 %   opt     Structure that defines the output (one field must be true, the others false):
+%                       'info'
 %                       'dnd','sqw','h','his','hverbatim','hisverbatim','nopix','buffer'
 %                       'npix','npix_nz','pix_nz','pix'
 %
@@ -531,6 +570,7 @@ function flag = flags_from_opt (opt, datastruct)
 % Output:
 % -------
 %   flag    Structure with various logical flags as fields:
+%               info            =true if information only: empty output
 %               datastruct      =true if output is a structure
 %               sqw_struct      =true if fields main_header, header, detpar, data
 %               buffer          =true if output is a buffer (a flat data structure)
@@ -542,9 +582,10 @@ function flag = flags_from_opt (opt, datastruct)
 %                                     are to be read as stored
 
 % Form of output:
+info = opt.info;
 sqw_struct = datastruct && ~opt.buffer;
 buffer = opt.buffer;
-field = ~datastruct;
+field = ~datastruct && ~opt.info;
 
 % An sqw_structure implies reading data section header and vice versa:
 read_data_header = sqw_struct;
@@ -557,7 +598,7 @@ read_inst_and_sample = read_sqw_header && ~(opt.h || opt.hverbatim);
 % Verbatim reading is only an option for reading header
 verbatim = opt.hverbatim || opt.hisverbatim;
 
-flag = struct('datastruct',datastruct,'sqw_struct',sqw_struct,'buffer',buffer,'field',field,...
+flag = struct('info',info,'datastruct',datastruct,'sqw_struct',sqw_struct,'buffer',buffer,'field',field,...
     'read_data_header',read_data_header,'read_sqw_header',read_sqw_header,...
     'read_inst_and_sample',read_inst_and_sample,'verbatim',verbatim);
 

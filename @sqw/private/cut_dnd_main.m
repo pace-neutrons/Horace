@@ -123,7 +123,8 @@ end
 if horace_info_level>=1, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [mess,main_header,header,detpar,data]=get_sqw (data_source,'-nopix');
+    [h,ok,mess]=get_sqw (data_source,'-nopix');
+    data=h.data;
     if ~isempty(mess)
         if save_to_file; fclose(fout); end    % close the output file opened earlier
         error('Error reading data from file %s \n %s',data_source,mess)
@@ -265,7 +266,7 @@ end
 if save_to_file
     if horace_info_level>=0, disp(['Writing cut to output file ',outfilefull,'...']), end
     try
-        mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
+        [ok,mess] = put_sqw (fout,w); *** fout=>S
         fclose(fout);
         if ~isempty(mess)
             warning(['Error writing to file: ',mess])

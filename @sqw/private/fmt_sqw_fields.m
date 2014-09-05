@@ -17,7 +17,7 @@ function [fmt_dble,fmt_int,nbyte_dble,nbyte_int]=fmt_sqw_fields(fmt_ver)
 % This routine does not provide the formats for the s,e,npix,pix arrays, which are defined
 % in the particular put_* and get_* functions specifically for reading these variables
 
-ver3p1=appversion(3.1);
+ver3p1=appversion(3,1);
 if fmt_ver>=ver3p1
     fmt_dble='float64';
     fmt_int='float64';

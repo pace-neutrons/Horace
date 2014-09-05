@@ -7,16 +7,16 @@ function [ok, mess, type, dout] = check_sqw (d, type_in)
 % ------
 %   d       Input data structure. 
 %   type_in     Test valid instance of specified type
-%               'a'     full sqw-type data structure
-%               'b+'    dnd-type data structure
+%               'sqw'     full sqw-type data structure
+%               'dnd'    dnd-type data structure
 %               If empty or absent, permit either
 %
 % Output:
 % -------
 %   ok      ok=true if valid, =false if not
 %   mess    Message if not a valid sqw object, empty string if is valid.
-%   type    type='b+' if no pixel information (i.e. 'dnd' case);
-%           type='a' if full pixel information (i.e. 'sqw' type)
+%   type    type='dnd' if no pixel information (i.e. 'dnd' case);
+%           type='sqw' if full pixel information (i.e. 'sqw' type)
 %               If not OK, then type=''
 %   dout    Output data structure with valid fields
 %           - Empty fields that are valid are converted to required form
@@ -45,7 +45,7 @@ end
 % Check input options flags - these better be OK if Horace is written correctly
 if ~exist('type_in','var')||isempty(type_in)
     type_in = [];
-elseif ~(isequal(type_in,'a')||isequal(type_in,'b+'))
+elseif ~(isequal(type_in,'sqw')||isequal(type_in,'dnd'))
     error('Invalid argument type_in to check_sqw - logic problem in Horace')
 end
 
@@ -62,12 +62,12 @@ end
 [ok,mess] = check_sqw_main_header(d.main_header);
 if ~ok, mess=['main_header: ',mess]; return, end
 
-if isempty(d.main_header) && (isempty(type_in)||strcmpi(type_in,'b+'))
+if isempty(d.main_header) && (isempty(type_in)||strcmpi(type_in,'dnd'))
     dnd_type=true;  % object can only be possibly be dnd type
-    tmp_type='b+';
-elseif (isempty(type_in)||strcmpi(type_in,'a'))
+    tmp_type='dnd';
+elseif (isempty(type_in)||strcmpi(type_in,'sqw'))
     dnd_type=false; % object can only be possibly be sqw type
-    tmp_type='a';
+    tmp_type='sqw';
 else
     mess='Main header inconsistent with valid object'; return
 end

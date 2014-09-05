@@ -99,7 +99,7 @@ for i=1:nfiles
     if ~sparse_format
         save(w,sqw_file{i});
     else
-        mess=put_sqw (sqw_file{i},w.main_header,w.header,w.detpar,w.data);
+        [ok,mess]=put_sqw (sqw_file{i},w);
         if ~isempty(mess)
             error(['Error saving to file: ',mess])
         end

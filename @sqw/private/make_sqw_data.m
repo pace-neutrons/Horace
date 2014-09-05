@@ -1,6 +1,5 @@
 function [data,mess] = make_sqw_data (varargin)
-% Make a valid detpar field
-% Create a valid structure for an sqw object
+% Make a valid structure for a dnd-type sqw object
 %
 %   >> [data,mess] = make_sqw_data (u1,p1,u2,p2,...,un,pn)  % Define plot axes
 %   >> [data,mess] = make_sqw_data (u0,...)
@@ -31,12 +30,7 @@ function [data,mess] = make_sqw_data (varargin)
 % Output:
 % -------
 %
-%   data        Output data structure which must contain the fields listed below 
-%                       type 'b+'   fields: uoffset,...,s,e,npix
-%               [The following other valid structures are not created by this function
-%                       type 'b'    fields: uoffset,...,s,e
-%                       type 'a'    uoffset,...,s,e,npix,urange,pix
-%                       type 'a-'   uoffset,...,s,e,npix,urange         ]
+%   data        Output data structure for a valid dnd-type sqw object
 %
 %   mess        Message; ='' if no problems, otherwise contians error message
 %
@@ -71,23 +65,12 @@ function [data,mess] = make_sqw_data (varargin)
 %   data.s          Average signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.e          Average variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
-%                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.urange     True range of the data along each axis [urange(2,4)]
-%   data.pix        Array containing data for each pixel:
-%                  If npixtot=sum(npix), then pix(9,npixtot) contains:
-%                   u1      -|
-%                   u2       |  Coordinates of pixel in the projection axes
-%                   u3       |
-%                   u4      -|
-%                   irun        Run index in the header block from which pixel came
-%                   idet        Detector group number in the detector listing for the pixel
-%                   ien         Energy bin number for the pixel in the array in the (irun)th header
-%                   signal      Signal array
-%                   err         Error array (variance i.e. error bar squared)
+
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
+
 
 data=[];
 mess='';

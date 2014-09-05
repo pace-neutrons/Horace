@@ -17,7 +17,7 @@ function ch=read_sqw_var_char (fid,fmt_ver,isarr)
 % -------
 %   ch          Character string, or cell array of strings
 
-if fmt_ver>=appversion(3.1)
+if fmt_ver>=appversion(3,1)
     n=fread(fid,[1,2],'float64');
     if n(1)==1
         ch=strtrim(fread(fid,n,'*char*1'));

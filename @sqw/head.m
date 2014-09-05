@@ -73,20 +73,20 @@ end
 if w.source_is_file
     if nout==0
         for i=1:nw
-            [mess,h.main_header,h.header,h.detpar,h.data,position,npixtot]=get_sqw (w.data{i},'-h');
+            [h,ok,mess,S] =get_sqw (w.data{i},'-h');
+            npixtot=S.info.npixtot;
             if w.sqw_type(i)
-                sqw_display_single (h,npixtot,'a')
+                sqw_display_single (h,'sqw',npixtot)
             else
-                npixtot=1;      % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
-                sqw_display_single (h,npixtot,'b+')
+                sqw_display_single (h,'dnd')
             end
         end
     else
         for i=1:nw
             if w.sqw_type(i) && hfull
-                [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-his');
+                [h,ok,mess]=get_sqw (w.data{i},'-his');
             else
-                [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-h');
+                [h,ok,mess]=get_sqw (w.data{i},'-h');
             end
             if ~isempty(mess); error(mess); end
             if nw==1

@@ -7,7 +7,6 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 % Input:
 % ------
 %   data            Structure for which titles are to be created from the data in its fields.
-%                   Type >> help check_sqw_data for a full description of the fields
 %
 % Output:
 % -------

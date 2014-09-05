@@ -51,7 +51,7 @@ try
     
     nam=fieldnames(position);
     for i=1:numel(nam)
-        position.(nam(i))=tmp(i);
+        position.(nam{i})=tmp(i);
     end
     
 catch

@@ -146,7 +146,7 @@ elseif narg==1 || isa(args{1},'function_handle')
     for i=1:nobj
         % Read the header part of the data
         if source_is_file
-            [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (flname{i},'-hisverbatim');
+            [h,ok,mess]=get_sqw (flname{i},'-hisverbatim');
             if ~isempty(mess), error(mess), end
         else
             h=wout(i);  % pointer to object
@@ -183,7 +183,7 @@ elseif narg==1 || isa(args{1},'function_handle')
         % Write back out
         if source_is_file
             h.header=tmp;
-            mess = put_sqw (flname{i},h.main_header,h.header,h.detpar,h.data,'-his');
+            [ok,mess] = put_sqw (flname{i},h,'-his');
             if ~isempty(mess), error(['Error writing to file ',flname{i},' - check the file is not corrupted: ',mess]), end
         else
             wout(i).header=tmp;

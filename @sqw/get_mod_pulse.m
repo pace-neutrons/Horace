@@ -68,8 +68,9 @@ nend=cumsum(nfiles(:));
 nbeg=nend-nfiles(:)+1;
 for i=1:nobj
     if source_is_file
-        [mess,main_header,header]=get_sqw (w.data{i},'-his');
+        [h,ok,mess]=get_sqw (w.data{i},'-his');
         if ~isempty(mess), error(mess), end
+        header=h.header;
     else
         header=w.data(i).header;
     end

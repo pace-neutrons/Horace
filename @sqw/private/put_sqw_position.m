@@ -57,9 +57,9 @@ try
     nam=fieldnames(position_tmp);
     tmp=NaN(1,numel(nam));
     for i=1:numel(nam)
-        tmp(i)=position_tmp.(nam(i));
+        tmp(i)=position_tmp.(nam{i});
     end
-    fwrite(fid, numel(tmp), 'float64')
+    fwrite(fid, numel(tmp), 'float64');
     fwrite(fid, tmp, 'float64');
     
 catch

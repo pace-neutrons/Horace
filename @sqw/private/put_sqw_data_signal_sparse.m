@@ -116,6 +116,8 @@ if numel(varargin)>0
         mess='Logic error in put_sqw functions. See T.G.Perring';
         return
     end
+else
+    buffer-false;
 end
 
 % Determine if definitely only one spe file contributing

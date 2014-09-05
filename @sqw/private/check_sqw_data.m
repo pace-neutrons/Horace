@@ -9,8 +9,8 @@ function [ok, type, mess] = check_sqw_data (data, type_in, field_names_only)
 % ------
 %   data        Structure to be tested
 %   type_in     Test valid instance of specified type
-%               'a'     full sqw-type data structure
-%               'b+'    dnd-type data structure
+%               'sqw'     full sqw-type data structure
+%               'dnd'    dnd-type data structure
 %               If empty or absent, permit either
 %   fields_names_only
 %               If=true, check field names only
@@ -19,8 +19,8 @@ function [ok, type, mess] = check_sqw_data (data, type_in, field_names_only)
 % Output:
 % -------
 %   ok          OK=true if valid, OK=false if not
-%   type        type='b+' if no pixel information (i.e. 'dnd' case);
-%               type='a' if full pixel information (i.e. 'sqw' type)
+%   type        type='dnd' if no pixel information (i.e. 'dnd' case);
+%               type='sqw' if full pixel information (i.e. 'sqw' type)
 %               If not OK, then type=''
 %   mess        if OK, then empty string; if ~OK contains error message
 
@@ -41,7 +41,7 @@ mess='';
 % Check input options flags - these better be OK if Horace is written correctly
 if ~exist('type_in','var')||isempty(type_in)
     type_in = [];
-elseif ~(isequal(type_in,'a')||isequal(type_in,'b+'))
+elseif ~(isequal(type_in,'sqw')||isequal(type_in,'dnd'))
     error('Invalid argument type_in to check_sqw_data - logic problem in Horace')
 end
 
@@ -55,10 +55,10 @@ end
 % Check data argument
 % ---------------------
 % Check field names
-if isstruct(data) && isequal(fieldnames(data),fields_a) && (isempty(type_in)||strcmpi(type_in,'a'))
-    tmp_type='a';
-elseif isstruct(data) && isequal(fieldnames(data),fields_bplus) && (isempty(type_in)||strcmpi(type_in,'b+'))
-    tmp_type='b+';
+if isstruct(data) && isequal(fieldnames(data),fields_a) && (isempty(type_in)||strcmpi(type_in,'sqw'))
+    tmp_type='sqw';
+elseif isstruct(data) && isequal(fieldnames(data),fields_bplus) && (isempty(type_in)||strcmpi(type_in,'dnd'))
+    tmp_type='dnd';
 else
     mess='Data is not a structure with required fields'; return
 end
@@ -148,7 +148,7 @@ if ~field_names_only
     if any(data.npix<0)
         mess='ERROR: field ''npix'' must not have negative elements'; return; end
 
-    if tmp_type=='a'    % extra fields required for sqw object
+    if tmp_type=='sqw'    % extra fields required for sqw object
         npixtot=sum(data.npix(:));
         if ~npixtot==0
             if ~isa_size(data.urange,[2,4],'double') || any(diff(data.urange,1)<0)

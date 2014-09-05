@@ -227,12 +227,18 @@ end
 if horace_info_level>0, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
-
+    [h,ok,mess,S]=get_sqw (data_source,'-nopix');
     if ~isempty(mess)
         error('Error reading data from file %s \n %s',data_source,mess)
     end
-    if ~strcmpi(data_type,'a')
+    main_header=h.main_header;
+    header=h.header;
+    detpar=h.detpar;
+    data=h.data;
+    position=S.position;
+    npixtot=S.info.npixtot;
+    sqw_type=S.info.sqw_type;
+    if ~sqw_type
         if save_to_file; fclose(fout); end    % close the output file opened earlier
         error('Data file is not sqw file with pixel information - cannot take cut')
     end
@@ -500,9 +506,9 @@ if save_to_file
     if horace_info_level>=0, disp(['Writing cut to output file ',outfilefull,'...']), end
     try
         if ~pix_tmpfile
-            mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
+            [ok,mess] = put_sqw (fout,w);   *** fout=>S
         else
-            mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
+            [ok,mess] = put_sqw (fout,w,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange'); *** fout=>S
             for ifile=1:length(pix.tmpfiles)   % delete the temporary files
                 delete(pix.tmpfiles{ifile});
             end

@@ -93,7 +93,7 @@ pos=S.position;
 fmt=S.fmt;
 
 % Get size of signal, error, npix arrays
-ndims=info.dims;
+ndims=info.ndims;
 if ndims>1
     sz=info.sz_npix(1:ndims);
 elseif ndims==1
@@ -165,7 +165,7 @@ end
 % Read urange
 if read_urange
     fseek(fid,pos.urange,'bof');
-    data.urange = fread(fid, [2,4], ['*',fmt.urange]);
+    data.urange = fread(fid, [2,4], fmt.urange);
 end
 
 % Read npix_nz
@@ -258,6 +258,3 @@ if read_pix
         end
     end
 end
-
-%==================================================================================================
-function pix_full = make_pix_full(pix,pix_nz,ind_beg,ne,ndet)

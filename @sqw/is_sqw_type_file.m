@@ -45,18 +45,19 @@ for i=1:numel(filename)
     end
 end
     
-% Simply an interface to private function that we wish to keep hidden
+% Get information from files
 sqw_type=true(size(filename));
 ndims=zeros(size(filename));
 nfiles=zeros(size(filename));
 for i=1:numel(filename)
-    [mess, sqw_type_tmp, ndims_tmp, nfiles_tmp] = get_sqw_type_from_file (filename{i});   % must use temporary output arguments as may be unfilled if error
+    [S,ok,mess] = get_sqw (filename{i},'-info');
     if ~isempty(mess)
-        sqw_type=[]; ndims=[];  nfiles=[];  % need to reset in case earlier succesful calls to get_sqw_type_from_file
+        sqw_type=[]; ndims=[];  nfiles=[];  % need to reset in case earlier succesful calls to get_sqw
         return
     end
-    sqw_type(i)=sqw_type_tmp;
-    ndims(i)=ndims_tmp;
-    nfiles(i)=nfiles_tmp;
+    info=S.info;
+    sqw_type(i)=info.sqw_type;
+    ndims(i)=info.ndims;
+    nfiles(i)=info.nfiles;
 end
 mess='';

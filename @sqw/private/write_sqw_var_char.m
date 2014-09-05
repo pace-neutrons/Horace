@@ -15,12 +15,13 @@ function write_sqw_var_char (fid,fmt_ver,ch,nfix)
 
 
 
-if fmt_ver>=appversion(3.1)
+if fmt_ver>=appversion(3,1)
     % Remove leading and trailing blanks, and turn into character array
     if iscellstr(ch)
         chtmp=char(strtrim(ch));
     else
         chtmp=strtrim(ch);
+        if isempty(chtmp), chtmp=char({''}); end    % make size [1,0]
     end
     % Write to file
     n=size(chtmp);

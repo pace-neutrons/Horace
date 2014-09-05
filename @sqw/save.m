@@ -43,7 +43,7 @@ for i=1:numel(w)
     if horace_info_level>-1
         disp(['Writing to ',file_internal{i},'...'])
     end
-    mess = put_sqw (file_internal{i},w(i).main_header,w(i).header,w(i).detpar,w(i).data);
+    [ok,mess] = put_sqw (file_internal{i},w(i));
     if ~isempty(mess); error(mess); end
 
 end

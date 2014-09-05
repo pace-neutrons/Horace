@@ -1,7 +1,7 @@
 function [data_type_name,sparse_fmt,flat] = data_structure_type_name(w)
 % Determine data type of the data field of an sqw data structure
 %
-%   >> [data_type,data_type_name,sparse_fmt] = data_structure_type_name(data)
+%   >> [data_type,data_type_name,sparse_fmt] = data_structure_type_name(w)
 %
 % Input:
 % ------
@@ -51,7 +51,7 @@ function [data_type_name,sparse_fmt,flat] = data_structure_type_name(w)
 % $Revision$ ($Date$)
 
 
-if isfield(w,'data')
+if isa(w,'sqw') || isfield(w,'data')    % catch case of object (isfield only seems to work on structures)
     data=w.data;
     % Take the presence or absence of a signal array as the defining quality of buffer, or dnd or sqw
     if isfield(data,'s')

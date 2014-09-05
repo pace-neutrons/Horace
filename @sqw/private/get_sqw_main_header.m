@@ -36,7 +36,7 @@ function [mess, main_header] = get_sqw_main_header (fid, fmt_ver, verbatim)
 
 mess='';
 
-ver3p1=appversion(3.1);
+ver3p1=appversion(3,1);
 
 % Read data from file:
 try

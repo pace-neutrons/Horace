@@ -29,7 +29,7 @@ function [mess, pos_start] = put_sqw_application (fid, application)
 mess = '';
 pos_start = ftell(fid);
 
-ver3p1=appversion(3.1);
+ver3p1=appversion(3,1);
 len_ch=256; % fixed length of character string
 try
     % Write application name

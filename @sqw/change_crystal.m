@@ -59,10 +59,10 @@ if ~isempty(mess), error(mess); end
 % ------------------
 if w.source_is_file
     for i=1:numel(w.data)
-        [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-hverbatim');
+        [h,ok,mess]=get_sqw (w.data{i},'-hverbatim');
         if ~isempty(mess), error(mess), end
         [h.header,h.data]=change_crystal_alter_fields(h.header,h.data,args{:});
-        mess = put_sqw (w.data{i},h.main_header,h.header,h.detpar,h.data,'-h');
+        [ok,mess] = put_sqw (w.data{i},h,'-h');
         if ~isempty(mess), error(['Error writing to file ',w.data{i},' - check the file is not corrupted: ',mess]), end
     end
     argout={};

@@ -59,7 +59,7 @@ elseif narg==1
     if w.source_is_file
         for i=1:numel(w.data)
             % Read the header part of the data
-            [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-hisverbatim');
+            [h,ok,mess]=get_sqw (w.data{i},'-hisverbatim');
             if ~isempty(mess), error(mess), end
             % Change the header
             nfiles=h.main_header.nfiles;
@@ -73,7 +73,7 @@ elseif narg==1
                 h.header.sample=sample;
             end
             % Write back out
-            mess = put_sqw (w.data{i},h.main_header,h.header,h.detpar,h.data,'-his');
+            [ok,mess] = put_sqw (w.data{i},h,'-his');
             if ~isempty(mess), error(['Error writing to file ',w.data{i},' - check the file is not corrupted: ',mess]), end
         end
         argout={};

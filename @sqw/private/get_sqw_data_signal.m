@@ -72,7 +72,7 @@ pos=S.position;
 fmt=S.fmt;
 
 % Get size of signal, error, npix arrays
-ndims=info.dims;
+ndims=info.ndims;
 if ndims>1
     sz=info.sz_npix(1:ndims);
 elseif ndims==1
@@ -118,7 +118,7 @@ if read_npix
     else
         pos_start = pos.npix + fmt_nbytes(fmt.npix)*(varargin{1}(1)-1);
         fseek(fid,pos_start,'bof');
-        tmp = fread(fid, diff(varargin{1}+1), ['*',fmt.npix]);
+        tmp = fread(fid, diff(varargin{1})+1, ['*',fmt.npix]);
         if datastruct
             data.npix = double(tmp);
         else
@@ -131,7 +131,7 @@ end
 % Read urange
 if read_urange
     fseek(fid,pos.urange,'bof');
-    data.urange = fread(fid, [2,4], ['*',fmt.urange]);
+    data.urange = fread(fid, [2,4], fmt.urange);
 end
 
 % Read pix

@@ -80,7 +80,7 @@ else
     if dnd_type
         [d.data,mess]=make_sqw_data(varargin{2:end});
     else
-        mess='Constructor does not exist';
+        mess='Constructor does not exist for sqw-type data';
     end
     if ~isempty(mess)
         d=struct([]);   % there was a problem

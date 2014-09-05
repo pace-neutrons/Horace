@@ -263,10 +263,10 @@ if ~opt.h
         if ~isempty(mess), return, end
     else
         % Non-sparse data
-        [mess,pos_update,fmt_update,npixtot,npixtot_nz] = put_sqw_data_signal (fid, fmt_ver, data, varargin{:});
+        [mess,pos_update,fmt_update,npixtot] = put_sqw_data_signal (fid, fmt_ver, data, varargin{:});
         if ~isempty(mess), return, end
     end
-    position=update(position,pos_update);
-    fieldfmt=update(fieldfmt,fmt_update);
+    position=updatestruct(position,pos_update);
+    fieldfmt=updatestruct(fieldfmt,fmt_update);
     
 end

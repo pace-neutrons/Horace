@@ -66,8 +66,8 @@ if fmt_ver<ver3
     pos_arr.e=pos_arr.s + 4*nbins;
     pos_arr.npix=pos_arr.e + 4*nbins;
     if sqw_type
-        pos_arr.urange=pos_arr.npix+8*nbins;
-        pos_arr.pix=pos_arr.npix + 44;  % bytes: 2x4xfloat32 for urange, 4 blank, 8 for npixtot
+        pos_arr.urange=pos_arr.npix + 8*nbins;
+        pos_arr.pix=pos_arr.npix + 8*nbins + 44;    % bytes: 2x4xfloat32 for urange, 4 blank, 8 for npixtot
         % Work out npixtot from the length from start of signal array to end of file
         fseek(fid,0,'eof');
         pos_endfile=ftell(fid);
@@ -317,6 +317,7 @@ try
 catch
     mess='Error reading footer block from file';
 end
+
 
 %==================================================================================================
 function [mess, position] = get_sqw_LEGACY_position_info (fid)
