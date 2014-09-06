@@ -28,6 +28,8 @@ function [data_type_name,sparse_fmt] = data_structure_type_to_name(data_type)
 %   data_type_nam   Name of data type:
 %                       ='h'         header part of data structure only
 %                                   i.e. fields filename,...,uoffset,...,dax
+%                                    The fields main_header, header, detpar
+%                                   must exist but can be empty.
 %
 %                       ='dnd'       dnd object or dnd structure
 %                       ='dnd_sp'    dnd structure, sparse format

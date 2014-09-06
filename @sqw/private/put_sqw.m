@@ -28,6 +28,7 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %               set of fields can be given:
 %                   'h', 'his': w.data only needs the header fields:
 %                                       filename,...,uoffset,...,dax
+%                               The fields main_header, header, detpar must exist but can be empty.
 %
 %                   'pix':      w.data does not need the field pix , because the additional
 %                               arguments v1, v2, ...  will define sources of the pixel information
@@ -64,8 +65,9 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %                   '-v3.1'     Default
 %                   '-v3'       Format used by Horace version 3. Sparse sqw structures will be written as
 %                              full format
-%               Not valid if writing header only (which is only done to pre-existing files) or
-%               buffer file (which will always use the current default format)
+%                   '-v1'       Format used by Horace version 1 and 2.
+%               The file format cannot be given if writing header only (which is only done to pre-existing
+%               files) or buffer file (which will always use the current default format)
 %   
 %
 % Output:
@@ -178,12 +180,11 @@ if newfile
     end
 else
     % Can only be writing header to a pre-existing file
-    if fmt_ver==ver3p1
-        if S.buffer_type
-            mess='Cannot write header information to this file - it is a buffer file';
-            [ok,S]=tidy_close(file_open_on_entry,fid); return
-        end
-    else
+    [mess,header_opt_and_write] = check_header_opt_ok (info,w);
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    
+    % Check format of output file is acceptable
+    if fmt_ver<ver3p1
         mess='Unsupported file format';
         [ok,S]=tidy_close(file_open_on_entry,fid); return
     end
@@ -192,8 +193,7 @@ end
 
 % Write main header
 % ------------------------------------
-% (empty if dnd-style data)
-if data_type_write.sqw_data
+if data_type_write.sqw_type || header_opt_and_write
     [mess,position.main_header] = put_sqw_main_header (fid, fmt_ver, w.main_header);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
@@ -201,8 +201,7 @@ end
 
 % Write header(s) of individual spe file(s)
 % -----------------------------------------
-% (empty if dnd-style data)
-if data_type_write.sqw_data
+if data_type_write.sqw_type || header_opt_and_write
     [mess,position.header] = put_sqw_header (fid, fmt_ver, w.header);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
@@ -210,8 +209,7 @@ end
 
 % Write detector parameters
 % ------------------------------------
-% (empty if dnd-style data)
-if data_type_write.sqw_data
+if data_type_write.sqw_type || header_opt_and_write
     [mess,position.detpar] = put_sqw_detpar (fid, fmt_ver, w.detpar);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
@@ -254,12 +252,12 @@ fmt = updatestruct(fmt,fmt_data);
 
 % Write sample and instrument information
 % ---------------------------------------
-if data_type_write.sqw_data
+if data_type_write.sqw_type || (header_opt_and_write && opt.his)
     if header_inst_or_sample(w.header);
         % If not a new file, then must get to the end of the data section before writing instrument
-        % and sample information. If we are just writing the header, then the earlier write to the
-        % data section will have left the file poisiton indicator at the start of the signal array,
-        % not the end of the data section.
+        % and sample information. This is because if we are just writing the header, then the earlier
+        % write to the data section will have left the file position indicator at the start of the
+        % signal array, not the end of the data section.
         if ~newfile
             if ~isnan(position.instrument)
                 fseek(fid,position.instrument,'bof');   % end of data section
@@ -268,15 +266,16 @@ if data_type_write.sqw_data
             end
         end
         % Now write instrument and sample blocks
-        [mess,position.instrument] = put_sqw_header_inst (fid, fmt_ver, header);
+        [mess,position.instrument] = put_sqw_header_inst (fid, fmt_ver, w.header);
         if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
         
-        [mess,position.sample] = put_sqw_header_samp (fid, fmt_ver, header);
+        [mess,position.sample] = put_sqw_header_samp (fid, fmt_ver, w.header);
         if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
         
     else
         % If not a new file, then could have sample and instrument blocks written to file.
-        % Can remove reference to these by setting positions to NaN. (Cannot remove by merely closing the file.)
+        % We would like to delete them from the file, but we cannot remove by merely closing
+        % However, we can remove any reference to these by setting their positions to NaN.
         if ~newfile
             position.instrument=NaN;
             position.sample=NaN;
@@ -367,6 +366,10 @@ function [mess,newfile,fmt_ver,data_type_write,opt,optvals] = check_options(data
 %                   Note that the input cases 'sqw_' and 'sqw_sp_' are not possible
 %                  as output possibilities because they will have required the '-pix'
 %                  option to be provided.
+%                   If data_type_in is 'h' then the type of data in the output file will
+%                  not be the same as data_type_write, because the function will be overwriting
+%                  existing data. In all other cases data_type_write is the same as the
+%                  type that will be contained by the final file, as a new file is created.
 %
 %   opt             Structure with fields 'h', 'his', 'pix', 'buffer' with values true
 %                  or false for the different values
@@ -549,6 +552,40 @@ if isempty(fmt_ver)
     newfile=false;
 else
     newfile=true;
+end
+
+
+%==================================================================================================
+function [mess,header_opt_and_write] = check_header_opt_ok (info, w)
+% Check that the input data for header option and existing file contents are consistent
+%
+%   >> [mess,header_opt_and_write] = check_header_opt_ok (info, w)
+%
+% - The header in an sqw-type sqw file can only be updated if all of w.main_header, w.header,
+%   w.detpar and the header fields of w.data are filled.
+%
+% - The header in a dnd-type sqw file can be updated so long as the header fields of w.data
+%   are filled, but the contents of w.main_header, w.header adn w.detpar are immaterial
+%   (i.e. the header can have been obtained from a dnd-type file, or an sqw-type file).
+%
+% - Buffer files cannot have headers written to them
+
+if info.buffer_type
+    mess='Cannot write header information to this file - it is a buffer file';
+    header_opt_and_write=false;
+    
+else
+    if info.sqw_type
+        if ~isempty(w.main_header)
+            mess='';
+            header_opt_and_write=true;
+        else
+            mess='Cannot update an sqw-type sqw file unless all header fields are filled';
+        end
+    else
+        mess='';
+        header_opt_and_write=false;
+    end
 end
 
 

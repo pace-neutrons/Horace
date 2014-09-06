@@ -128,8 +128,11 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %
 % Output:
 % --------
-%   w           Data structure read from file
-%               If called with the '-info' option, w will be identical to S (below) if read was succesful
+%   w           Data structure read from file.
+%               The structure has sqw format i.e. fields main_header, header, detpar, data unless
+%                   - returning buffer data: flat structure
+%                   - individual field: single object
+%                   - info option: will be identical to S (below) if the read was succesful
 %
 %   ok          Status flag; =true if no errors; =false if there was error reading the data
 %
@@ -248,11 +251,11 @@ end
 function [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin)
 % Check the data type and optional arguments for validity
 %
-%   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S)
-%   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,opt)
-%   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(S,opt,p1,p2,...)
+%   >> [mess,flag,make_full_fmt,opt,optvals] = check_options(S)
+%   >> [mess,flag,make_full_fmt,opt,optvals] = check_options(S,opt)
+%   >> [mess,flag,make_full_fmt,opt,optvals] = check_options(S,opt,p1,p2,...)
 %
-%   >> [mess,datastruct,make_full_fmt,opt,optvals] = check_options(..., '-full')
+%   >> [mess,flag,make_full_fmt,opt,optvals] = check_options(..., '-full')
 %
 % Input:
 % ------
@@ -270,9 +273,9 @@ function [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin)
 %   mess            Error message if a problem; ='' if all OK
 %
 %   flag            Structure with various logical flags as fields:
-%               info            =true if information only: empty output
 %               datastruct      =true if output is a structure
-%               sqw_struct      =true if fields main_header, header, detpar, data
+%               info            =true if information only: empty output
+%               sqw_struct      =true if output fields main_header, header, detpar, data
 %               buffer          =true if output is a buffer (a flat data structure)
 %               field           =true if output is a single item i.e. not a structure
 %               read_data_header     =true if read data block header
@@ -299,7 +302,6 @@ function [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin)
 % ---------------------------
 mess='';
 flag=struct();
-datastruct=false;
 make_full_fmt=false;
 opt=struct('info',false,'dnd',false,'sqw',false,'nopix',false,'buffer',false,...
     'h',false,'his',false,'hverbatim',false,'hisverbatim',false,...
@@ -423,7 +425,6 @@ if narg>0
             end
             opt.info=true;
             optvals={};
-            datastruct=false;
                 
         elseif strcmpi(opt_name,'-dnd')
             if narg_opt>0
@@ -432,7 +433,6 @@ if narg>0
             end
             opt.dnd=true;
             optvals={};
-            datastruct=true;
         
         elseif strcmpi(opt_name,'-sqw')
             if narg_opt>0
@@ -441,7 +441,6 @@ if narg>0
             end
             opt.sqw=true;
             optvals={};
-            datastruct=true;
         
         elseif strcmpi(opt_name,'-nopix')
             if narg_opt>0
@@ -450,7 +449,6 @@ if narg>0
             end
             opt.nopix=true;
             optvals={};
-            datastruct=true;
         
         elseif strcmpi(opt_name,'-buffer')
             if narg_opt>0
@@ -459,7 +457,6 @@ if narg>0
             end
             opt.buffer=true;
             optvals={};
-            datastruct=true;
                     
         elseif strcmpi(opt_name,'-h')
             if narg_opt>0
@@ -468,7 +465,6 @@ if narg>0
             end
             opt.h=true;
             optvals={};
-            datastruct=true;
             
         elseif strcmpi(opt_name,'-his')
             if narg_opt>0
@@ -477,7 +473,6 @@ if narg>0
             end
             opt.his=true;
             optvals={};
-            datastruct=true;
             
         elseif strcmpi(opt_name,'-hverbatim')
             if narg_opt>0
@@ -486,7 +481,6 @@ if narg>0
             end
             opt.hverbatim=true;
             optvals={};
-            datastruct=true;
             
         elseif strcmpi(opt_name,'-hisverbatim')
             if narg_opt>0
@@ -495,7 +489,6 @@ if narg>0
             end
             opt.hisverbatim=true;
             optvals={};
-            datastruct=true;
 
         else
             mess='Unrecognised option';
@@ -512,15 +505,12 @@ else
     if is_sqw
         opt.sqw=true;
         optvals={};
-        datastruct=true;
     elseif is_dnd
         opt.dnd=true;
         optvals={};
-        datastruct=true;
     elseif is_buffer
         opt.buffer=true;
         optvals={};
-        datastruct=true;
     end
     
 end
@@ -548,31 +538,32 @@ elseif ~is_sqw
     
 end
 
-% Repackage result of opt in a more convenient way for reading data from the file
-flag = flags_from_opt (opt, datastruct);
+% Repackage result of opt in a more convenient way for reading data from the file,
+% flagging also which fields to read with header option if given
+flag = flags_from_opt (is_sqw, opt);
 
 
 %==================================================================================================
-function flag = flags_from_opt (opt, datastruct)
+function flag = flags_from_opt (is_sqw, opt)
 % Translate the opt structure into various flags that direct the reading from the file
 %
-%   >> flag = flags_from_opt (opt)
+%   >> flag = flags_from_opt (is_sqw, opt, datastruct)
 %
 % Input:
 % ------
+%   is_sqw  The file being read is an sqw-type sqw file
+%
 %   opt     Structure that defines the output (one field must be true, the others false):
 %                       'info'
 %                       'dnd','sqw','h','his','hverbatim','hisverbatim','nopix','buffer'
 %                       'npix','npix_nz','pix_nz','pix'
 %
-%   datastruct  If output is a structure then =true; else =false;
-%
 % Output:
 % -------
 %   flag    Structure with various logical flags as fields:
-%               info            =true if information only: empty output
 %               datastruct      =true if output is a structure
-%               sqw_struct      =true if fields main_header, header, detpar, data
+%               info            =true if information only: empty output
+%               sqw_struct      =true if output fields main_header, header, detpar, data
 %               buffer          =true if output is a buffer (a flat data structure)
 %               field           =true if output is a single item i.e. not a structure
 %               read_data_header     =true if read data block header
@@ -581,24 +572,33 @@ function flag = flags_from_opt (opt, datastruct)
 %               verbatim             =true if data file name in main_header and data sections
 %                                     are to be read as stored
 
+
+% One of the header options:
+header_opt = opt.h || opt.his || opt.hverbatim || opt.hisverbatim;
+
 % Form of output:
 info = opt.info;
-sqw_struct = datastruct && ~opt.buffer;
+sqw_struct = opt.sqw || opt.dnd || opt.nopix || header_opt;
 buffer = opt.buffer;
-field = ~datastruct && ~opt.info;
+datastruct = sqw_struct || info || buffer;
+field = ~datastruct;
 
-% An sqw_structure implies reading data section header and vice versa:
+% An sqw_structure implies reading the data section header and vice versa:
 read_data_header = sqw_struct;
 
-read_sqw_header = sqw_struct && ~opt.dnd;
+% Read main_header, header, detpar if sqw structure output, unless those fields are empty or 
+% we explicitly asked for dnd output. That is, if gave a header option, return main_header etc.
+% if those fields are available, as well as if we asked for sqw output.
+read_sqw_header = is_sqw && (opt.sqw || opt.nopix || header_opt);
 
-% If read header only must explicitly ask for the instrument and sample info for it to be read
+% If gave the header option, read the instrument and sample information only if explicitly asked
+% for it. If opt.sqw or opt.nopix, then always read instrument and sample.
 read_inst_and_sample = read_sqw_header && ~(opt.h || opt.hverbatim);
 
 % Verbatim reading is only an option for reading header
 verbatim = opt.hverbatim || opt.hisverbatim;
 
-flag = struct('info',info,'datastruct',datastruct,'sqw_struct',sqw_struct,'buffer',buffer,'field',field,...
+flag = struct('datastruct',datastruct,'info',info,'sqw_struct',sqw_struct,'buffer',buffer,'field',field,...
     'read_data_header',read_data_header,'read_sqw_header',read_sqw_header,...
     'read_inst_and_sample',read_inst_and_sample,'verbatim',verbatim);
 

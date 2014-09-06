@@ -105,7 +105,7 @@ if ndim~=4
 end
 
 % Print warning if no data in the cut, if full cut has been passed
-if npixtot < 0.5   % in case so huge that can no longer hold integer with full precision
+if sqw_type && npixtot==0
     disp(' WARNING: The dataset contains no counts')
     disp(' ')
 end
