@@ -9,6 +9,8 @@ function [det,this]=load_par(this,varargin)
 %                      previously associated with loader_nxspe class by
 %                      loader_nxspe constructor
 %
+%  '-forcereload'     usually data are loaded in memory onece, and taken from memory after that 
+%                     -forcereload request always loading data into memory.
 %  loader_nxspe_var -- the instance of properly initiated loader_nxspe class
 % '-nohor' or '-array' -- if present request to return the data as Horace structure,
 %
@@ -36,8 +38,8 @@ function [det,this]=load_par(this,varargin)
 % $Revision$ ($Date$)
 %
 
-options = {'-nohorace','-array','-horace'}; % if options changes, parse_par_file_arg should also change
-[return_array,file_profided,new_file_name,lext]=parse_par_file_arg(this,options,varargin{:});
+options = {'-nohorace','-array','-horace','-forcereload'}; % if options changes, parse_par_file_arg should also change
+[return_array,reload,file_profided,new_file_name,lext]=parse_par_file_arg(this,options,varargin{:});
 
 if file_profided
     if ~strcmp('.nxspe',lext)
@@ -48,7 +50,7 @@ if file_profided
 end
 
 if isempty(this.par_file_name)
-    [det,this] = load_nxspe_par(this,return_array);
+    [det,this] = load_nxspe_par(this,return_array,reload);
 else
     ascii_par_file = this.par_file_name;
     if return_array
@@ -59,7 +61,7 @@ else
     [det,this]=load_par@asciipar_loader(this,params{:});
 end
 %--------------------------------------------------------------------------
-function [return_array,file_provided,new_file_name,lext]=parse_par_file_arg(this,options,varargin)
+function [return_array,reload,file_provided,new_file_name,lext]=parse_par_file_arg(this,options,varargin)
 % method analyses and processes various options specified with loader_nxspe.load_par
 % command
 %
@@ -68,10 +70,11 @@ new_file_name ='';
 file_provided=false;
 lext = this.get_file_extension();
 return_array=false;
+reload = false;
 
 if numel(varargin)>0
     log_level = get(herbert_config,'log_level');
-    [ok,mess,return_array1,return_array2,hor_format_deprecated,file_name]=parse_char_options(varargin,options);
+    [ok,mess,return_array1,return_array2,hor_format_deprecated,reload,file_name]=parse_char_options(varargin,options);
     if ~ok
         if log_level >0
             disp('Usage:');

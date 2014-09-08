@@ -70,6 +70,9 @@ classdef asciipar_loader
             %  det              -- detector's information in the form of
             %                      the Horace structure
             %  this             -- the instance of properly initiated loader class
+            %  '-forcereload'     usually data are loaded in memory onece, and taken from memory after that 
+            %                     -forcereload request always loading data into memory.
+            
             %
             % '-nohor' or '-array' -- if present request to return the data as
             %                      as (6,ndet) array with the data:

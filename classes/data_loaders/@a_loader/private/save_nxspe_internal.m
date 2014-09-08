@@ -3,7 +3,8 @@ function save_nxspe_internal(this,filename,efix,psi,varargin)
 % inputs:
 % filename -- the name of the file to write data to. Should not exist
 % efix     -- incident energy for direct or indirect instrument. Only
-%             direct is currently supported througn NEXUS instrument
+%             direct is currently supported through NEXUS instrument as 
+%             I've newer seen indirect nxspe (though it can work)
 % Optional variables:
 % psi      -- the rotation angle of crystal. will write NaN into file if
 %             this variable is absent
