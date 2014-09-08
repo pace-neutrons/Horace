@@ -180,7 +180,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             
             cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
             %-------------------------------------------------------------
-
+            
             
             % build test files if they have not been build
             this=build_test_files(this);
@@ -236,7 +236,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             
             cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
             %-------------------------------------------------------------
-
+            
             
             
             this=build_test_files(this);
@@ -258,7 +258,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             
             cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
             %-------------------------------------------------------------
-
+            
             
             
             this=build_test_files(this);
@@ -276,7 +276,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             
         end
         
-        function this=test_accumulate_sqw(this)
+        function this=test_accumulate_sqw14(this)
             %-------------------------------------------------------------
             hc = hor_config;
             cur_mex = hc.use_mex;
@@ -285,14 +285,14 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             
             cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
             %-------------------------------------------------------------
-
+            
             
             % build test files if they have not been build
             this=build_test_files(this);
-            sqw_file_accum=fullfile(tempdir,'test_accumulate_sqw_sqw_accum_nomex.sqw');
+            sqw_file_accum=fullfile(tempdir,'test_accumulate_sqw_sqw14_accum_nomex.sqw');
             
             if ~this.want_to_save_output
-                cleanup_obj1=onCleanup(@()rm_files(this,this.sqw_file_14,this.sqw_file_1456,this.sqw_file_15456,this.sqw_file_11456,sqw_file_accum));
+                cleanup_obj1=onCleanup(@()rm_files(this,this.sqw_file_14,sqw_file_accum));
             end
             % ---------------------------------------
             % Test accumulate_sqw
@@ -304,8 +304,49 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             
             [dummy,dummy,urange14]=gen_sqw (this.spe_file([1,4]), this.par_file, this.sqw_file_14, efix([1,4]), emode, alatt, angdeg, u, v, psi([1,4]), omega([1,4]), dpsi([1,4]), gl([1,4]), gs([1,4]));
             
-            [dummy,dummy,urange1456]=gen_sqw (this.spe_file([1,4,5,6]), this.par_file, this.sqw_file_1456, efix([1,4,5,6]), emode, alatt, angdeg, u, v,...
-                psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));
+            
+            % Now use accumulate sqw
+            % ----------------------
+            this.proj.u=u;
+            this.proj.v=v;
+            
+            spe_accum={this.spe_file{1},'','',this.spe_file{4}};
+            [dummy,dummy,acc_urange14]=accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix(1:4), ...
+                emode, alatt, angdeg, u, v, psi(1:4), omega(1:4), dpsi(1:4), gl(1:4), gs(1:4),'clean');
+            
+            assertElementsAlmostEqual(urange14,acc_urange14,'relative',1.e-2)
+            [ok,mess,w2_14]=is_cut_equal(this.sqw_file_14,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
+            
+            
+            % Test against saved or store to save later
+            this=test_or_save_variables(this,w2_14);
+        end
+        function this=test_accumulate_sqw11456(this)
+            %-------------------------------------------------------------
+            hc = hor_config;
+            cur_mex = hc.use_mex;
+            hc.saveable=false;
+            hc.use_mex=false;
+            
+            cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
+            %-------------------------------------------------------------
+            
+            
+            % build test files if they have not been build
+            this=build_test_files(this);
+            sqw_file_accum=fullfile(tempdir,'test_accumulate_sqw_sqw11456_accum_nomex.sqw');
+            
+            if ~this.want_to_save_output
+                cleanup_obj1=onCleanup(@()rm_files(this,this.sqw_file_11456,sqw_file_accum));
+            end
+            % ---------------------------------------
+            % Test accumulate_sqw
+            % ---------------------------------------
+            
+            % Create some sqw files against which to compare the output of accumulate_sqw
+            % ---------------------------------------------------------------------------
+            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             
             
             [dummy,dummy,urange]=gen_sqw (this.spe_file([1,1,4,5,6]), this.par_file, this.sqw_file_11456, efix([1,3,4,5,6]), ...
@@ -314,30 +355,14 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             
             % Now use accumulate sqw
             % ----------------------
-            
-            spe_accum={this.spe_file{1},'','',this.spe_file{4}};
-            [dummy,dummy,acc_urange14]=accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix(1:4), ...
-                emode, alatt, angdeg, u, v, psi(1:4), omega(1:4), dpsi(1:4), gl(1:4), gs(1:4),'clean');
-            
-            assertElementsAlmostEqual(urange14,acc_urange14,'relative',1.e-2)
-            [ok,mess,w2_14]=is_cut_equal(this.sqw_file_14,sqw_file_accum,this.proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
-            assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
-            
-            spe_accum={this.spe_file{1},'','',this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            [dummy,dummy,acc_urange1456]=accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            %assertEqual(urange1456,acc_urange1456)
-            
-            [ok,mess,w2_1456]=is_cut_equal(this.sqw_file_1456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
-            assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
-            
-            % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_14,w2_1456);
+            this.proj.u=u;
+            this.proj.v=v;
             
             
             % Repeat a file with 'replicate'
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
             accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
-            [ok,mess,w2_11456]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
+            [ok,mess,w2_11456]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
             this=test_or_save_variables(this,w2_11456);
@@ -347,10 +372,60 @@ classdef test_gen_sqw_accumulate_sqw_nomex < TestCaseWithSave
             
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
             accumulate_sqw (spe_accum, this.par_file, sqw_file_accum, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
-            [ok,mess]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-0.5,0.5],[-2.1,-1.9],[-Inf,Inf]);
+            [ok,mess]=is_cut_equal(this.sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
             
             
         end
+        
+        function this=test_accumulate_sqw1456(this)
+            %-------------------------------------------------------------
+            hc = hor_config;
+            cur_mex = hc.use_mex;
+            hc.saveable=false;
+            hc.use_mex=false;
+            
+            cleanup_obj=onCleanup(@()set(hc,'use_mex',cur_mex));
+            %-------------------------------------------------------------
+            
+            
+            % build test files if they have not been build
+            this=build_test_files(this);
+            sqw_file_accum=fullfile(tempdir,'test_accumulate_sqw_sqw_accum1456_nomex.sqw');
+            
+            if ~this.want_to_save_output
+                cleanup_obj1=onCleanup(@()rm_files(this,this.sqw_file_1456,sqw_file_accum));
+            end
+            % ---------------------------------------
+            % Test accumulate_sqw
+            % ---------------------------------------
+            
+            % Create some sqw files against which to compare the output of accumulate_sqw
+            % ---------------------------------------------------------------------------
+            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
+            
+            [dummy,dummy,urange1456]=gen_sqw (this.spe_file([1,4,5,6]), this.par_file, this.sqw_file_1456, efix([1,4,5,6]), emode, alatt, angdeg, u, v,...
+                psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));
+            
+            
+            % Now use accumulate sqw
+            % ----------------------
+            this.proj.u=u;
+            this.proj.v=v;
+            
+            spe_accum={this.spe_file{1},'','',this.spe_file{4},this.spe_file{5},this.spe_file{6}};
+            [dummy,dummy,acc_urange1456]=accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            
+            %TODO: This is actually bad as urange is not really close
+            %assertElementsAlmostEqual(urange1456,acc_urange1456,'relative',1.e-2);
+            
+            [ok,mess,w2_1456]=is_cut_equal(this.sqw_file_1456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
+            
+            % Test against saved or store to save later
+            this=test_or_save_variables(this,w2_1456);
+            
+        end
+        
     end
 end
