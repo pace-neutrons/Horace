@@ -72,25 +72,33 @@ save(spe_pow,spe_pow_file)
 sqw_pow_rings_file=fullfile(tempdir,'test_pow_rings.sqw');
 gen_sqw_powder_test (spe_pow_file, pow_par_file, sqw_pow_rings_file, efix, emode);
 
+% clean up
+cleanup_obj=onCleanup(@()rm_files(spe_file,sqw_pow_file,sqw_pow_rings_file,spe_pow_file,pow_par_file,pow_phx_file));
+
 %--------------------------------------------------------------------------------------------------
 % Visual inspection
 % Plot the powder averaged sqw data
 wpow=read_sqw(sqw_pow_file);
-w2=cut_sqw(wpow,[0,0.03,7],0,'-nopix');
+
+cuts_list= containers.Map();
+cuts_list('w2') = @()cut_sqw(wpow,[0,0.03,7],0,'-nopix');
+cuts_list('w1')=@()cut_sqw(wpow,[2,0.03,6.5],[53,57],'-nopix');
+
 % plot(w2)
 % lz 0 0.5
-w1=cut_sqw(wpow,[2,0.03,6.5],[53,57],'-nopix');
 % dd(w1)
 
 % Plot the same slice and cut from the sqw file created using the rings map
 % Slightly different - as expected, because of the summing of a ring of pixels
 % onto a single pixel in the rings map.
 wpowrings=read_sqw(sqw_pow_rings_file);
-w2rings=cut_sqw(wpowrings,[0,0.03,7],0,'-nopix');
+
 % plot(w2rings)
 % lz 0 0.5
-w1rings=cut_sqw(wpowrings,[2,0.03,6.5],[53,57],'-nopix');
 % dd(w1rings)
+cuts_list('w2rings') = @()cut_sqw(wpow,[0,0.03,7],0,'-nopix');
+cuts_list('w1rings')=@()cut_sqw(wpowrings,[2,0.03,6.5],[53,57],'-nopix');
+
 
 % % mslice:
 % mslice_start
@@ -99,56 +107,23 @@ w1rings=cut_sqw(wpowrings,[2,0.03,6.5],[53,57],'-nopix');
 %--------------------------------------------------------------------------------------------------
 
 %--------------------------------------------------------------------------------------------------
-% Cleanup
-try
-    delete(spe_file)
-    delete(sqw_pow_file)
-    delete(sqw_pow_rings_file)
-    delete(spe_pow_file)
-    delete(pow_par_file)
-    delete(pow_phx_file)
-catch
-    disp('Unable to delete temporary file(s)')
-end
 log_level = get(hor_config,'horace_info_level');
-% =====================================================================================================================
-% Compare with saved output
-% ======================================================================================================================
+sample_file=fullfile(rootpath,'test_gen_sqw_powder_output.mat');
+
 if ~save_output
-    if log_level>-1
-        disp('====================================')
-        disp('    Comparing with saved output')
-        disp('====================================')
-    end
-    output_file=fullfile(rootpath,'test_gen_sqw_powder_output.mat');
-    old=load(output_file);
-    nam=fieldnames(old);
+    % =====================================================================================================================
+    % Compare with saved output
+    % =====================================================================================================================
     tol=1.0e-5;
-    for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1);
-        assertTrue(ok,['[',nam{i},']',mess])
-    end
+    num_failed=check_sample_output(sample_file,tol,cuts_list,log_level);
+    
+    assertEqual(num_failed,0,' One or more tests in test_gen_sqw_powder failed');
     % Success announcement
     banner_to_screen([mfilename,': Test(s) passed'],'bot')
-end
-
-
-% =====================================================================================================================
-% Save data
-% ======================================================================================================================
-if save_output
-    if log_level>-1
-        disp('===========================')
-        disp('    Save output')
-        disp('===========================')
-    end
+else
+    % =====================================================================================================================
+    % Save data
+    % ======================================================================================================================
+    save_sample_output(sample_file,cuts_list,log_level);
     
-    output_file=fullfile(tempdir,'test_gen_sqw_powder_output.mat');
-    save(output_file, 'w1', 'w2', 'w1rings', 'w2rings')
-    
-    if log_level>-1
-        disp(' ')
-        disp(['Output saved to ',output_file])
-        disp(' ')
-    end
 end

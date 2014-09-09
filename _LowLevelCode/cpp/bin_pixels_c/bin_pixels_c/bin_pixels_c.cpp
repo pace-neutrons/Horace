@@ -58,7 +58,7 @@ void omp_set_num_threads(int nThreads){};
 #   endif
 #endif
 
-bool accumulate_cut(double *s, double *e, double *npix,
+bool bin_pixels(double *s, double *e, double *npix,
                     mxArray*  pPixel_data, mxArray* &PixelSorted,
                     double const* const cut_range,
                     mwSize grid_size[4], int num_threads);
@@ -181,7 +181,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
     bool place_pixels_in_old_array;
     try{
-        place_pixels_in_old_array = accumulate_cut(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
+        place_pixels_in_old_array = bin_pixels(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
     }catch(const char *err){
         mexErrMsgTxt(err);
     }
@@ -197,7 +197,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
 }
 
-bool accumulate_cut(double *s, double *e, double *npix,
+bool bin_pixels(double *s, double *e, double *npix,
                     mxArray*  pPixel_data, mxArray* &PixelSorted,
                     double const* const cut_range,
                     mwSize grid_size[4], int num_threads)
@@ -259,7 +259,7 @@ bool accumulate_cut(double *s, double *e, double *npix,
         se_stor[i].assign(2*distribution_size,0.);
         ind_stor[i].assign(distribution_size,0);
     }
-
+    //std::vector<int> locks(distribution_size,0);
 
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
     shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted) \
@@ -365,11 +365,20 @@ bool accumulate_cut(double *s, double *e, double *npix,
             if(!ok[j])continue;
 
             size_t nCell = nGridCell[j];       // this is the index of a pixel in the grid cell
-            size_t j0;
-# pragma omp critical
-            j0    = (ppInd[nCell])++;
 
-            j0 *=PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH
+//            int locked;
+//#pragma omp atomic write
+//            locked=locks[nCell]++;
+//            while (locked>0) {locked=locks[nCell];}
+
+
+            size_t j0 = (ppInd[nCell])*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+#pragma omp atomic
+            ppInd[nCell]++;
+
+//#pragma omp atomic
+//            locks[nCell]--;
+
             size_t i0    = j*PIX_WIDTH;
             memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
             //for(i=0;i<PIX_WIDTH;i++){

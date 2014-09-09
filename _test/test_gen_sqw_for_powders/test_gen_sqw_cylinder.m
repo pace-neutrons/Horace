@@ -55,14 +55,18 @@ simulate_spe_testfunc (en, par_file, spe_file, @sqw_sc_hfm_testfunc, [ampl,SJ,ga
 sqw_cyl_file=fullfile(tempdir,'test_cyl_4to1.sqw');
 gen_sqw_cylinder_test (spe_file, par_file, sqw_cyl_file, efix, emode, 1.5, 0, 0, 0);
 
+% clean up
+cleanup_obj=onCleanup(@()rm_files(spe_file,sqw_cyl_file));
+
 %--------------------------------------------------------------------------------------------------
 % Visual inspection
 % Plot the cylinder averaged sqw data
 wcyl=read_sqw(sqw_cyl_file);
-w2=cut_sqw(wcyl,[4,0.03,6],[-0.15,0.35],0,'-nopix');
-% plot(w2)
-% lz 0 0.5
-w1=cut_sqw(wcyl,[2,0.03,6.5],[-0.7,0.2],[53,57],'-nopix');
+
+cuts_list= containers.Map();
+cuts_list('w2') = @()cut_sqw(wcyl,[4,0.03,6],[-0.15,0.35],0,'-nopix');
+cuts_list('w1')=@()cut_sqw(wcyl,[2,0.03,6.5],[-0.7,0.2],[53,57],'-nopix');
+
 % dd(w1)
 %--------------------------------------------------------------------------------------------------
 
@@ -74,44 +78,23 @@ try
 catch
     disp('Unable to delete temporary file(s)')
 end
+
 log_level = get(hor_config,'horace_info_level');
-% =====================================================================================================================
-% Compare with saved output
-% =====================================================================================================================
+sample_file=fullfile(rootpath,'test_gen_sqw_cylinder_output.mat');
 if ~save_output
-    if log_level>-1
-      disp('====================================')
-      disp('    Comparing with saved output')
-      disp('====================================')
-    end
-    output_file=fullfile(rootpath,'test_gen_sqw_cylinder_output.mat');
-    old=load(output_file);
-    nam=fieldnames(old);
+    % =====================================================================================================================
+    % Compare with saved output
+    % =====================================================================================================================    
     tol=-1.0e-13;
-    for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
-    end
+    num_failed=check_sample_output(sample_file,tol,cuts_list,log_level);
+    
+    assertEqual(num_failed,0,' One or more tests in test_gen_sqw_cylinder failed');
     % Success announcement
     banner_to_screen([mfilename,': Test(s) passed'],'bot')
+else
+    % =====================================================================================================================
+    % Save data
+    % ======================================================================================================================
+    save_sample_output(sample_file,cuts_list,log_level);
 end
 
-
-% =====================================================================================================================
-% Save data
-% ====================================================================================================================== 
-if save_output
-    if log_level>-1
-       disp('===========================')
-       disp('    Save output')
-       disp('===========================')
-    end
-    
-    output_file=fullfile(tempdir,'test_gen_sqw_cylinder_output.mat');
-    save(output_file, 'w1', 'w2')
-    
-    if log_level>-1    
-       disp(' ')
-       disp(['Output saved to ',output_file])
-       disp(' ')
-    end
-end
