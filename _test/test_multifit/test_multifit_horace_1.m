@@ -121,9 +121,10 @@ classdef test_multifit_horace_1< TestCaseWithSave
             
             tol = this.tol;
             this.tol = -1;
-            %fitpar_single1.corr=[];
-            %fitpar_single2.corr=[];            
-            %fitpar_single12.corr=[];                        
+            fitpar_single1.corr=[];
+            fitpar_single2.corr=[];
+            fitpar_single12(1).corr=[];
+            fitpar_single12(2).corr=[];
             this=test_or_save_variables(this,fitpar_single1,fitpar_single2,fitpar_single12);
             this.tol=tol;
             %
