@@ -68,76 +68,42 @@ sqw_file_1=fullfile(tempdir,'test_pow_1.sqw');
 sqw_file_2=fullfile(tempdir,'test_pow_2.sqw');
 sqw_file_tot=fullfile(tempdir,'test_pow_tot.sqw');
 
+% clean up
+cleanup_obj=onCleanup(@()rm_files(spe_file_1,spe_file_2,sqw_file_1,sqw_file_2,sqw_file_tot));
+
 gen_sqw_powder_test (spe_file_1, par_file, sqw_file_1, efix, emode);
 gen_sqw_powder_test (spe_file_2, par_file, sqw_file_2, efix, emode);
 gen_sqw_powder_test ({spe_file_1,spe_file_2}, par_file, sqw_file_tot, efix, emode);
 
-w2_1=cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
-w2_2=cut_sqw(sqw_file_2,[0,0.05,8],0,'-nopix');
-w2_tot=cut_sqw(sqw_file_tot,[0,0.05,8],0,'-nopix');
+cuts_list= containers.Map();
+cuts_list('w2_1') = @()cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
+cuts_list('w2_2')=@()cut_sqw(sqw_file_2,[0,0.05,8],0,'-nopix');
+cuts_list('w2_tot')=@()cut_sqw(sqw_file_tot,[0,0.05,8],0,'-nopix');
 
-w1_1=cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
-w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
-w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
+cuts_list('w1_1')=@()cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
+cuts_list('w1_2')=@()cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
+cuts_list('w1_tot')=@()cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
 
-%--------------------------------------------------------------------------------------------------
-% Visually inspect
-% acolor k
-% dd(w1_1)
-% acolor b
-% pd(w1_2)
-% acolor r
-% pd(w1_tot)
-%--------------------------------------------------------------------------------------------------
 
 %--------------------------------------------------------------------------------------------------
-% Cleanup
-try
-    delete(spe_file_1)
-    delete(spe_file_2)
-    delete(sqw_file_1)
-    delete(sqw_file_2)
-    delete(sqw_file_tot)
-catch
-    disp('Unable to delete temporary file(s)')
-end
 log_level = get(hor_config,'horace_info_level');
-% =====================================================================================================================
-% Compare with saved output
-% ====================================================================================================================== 
+output_file=fullfile(rootpath,'test_combine_pow_output.mat');
 if ~save_output
-    if log_level>-1
-      disp('====================================')
-      disp('    Comparing with saved output')
-      disp('====================================')
-    end
-    output_file=fullfile(rootpath,'test_combine_pow_output.mat');
-    old=load(output_file);
-    nam=fieldnames(old);
-    tol=-1.0e-5;
-    for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol, 'ignore_str', 1); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
-    end
+    % =====================================================================================================================
+    % Compare with saved output
+    % ======================================================================================================================
+    tol=0.0002; % BAD
+    num_failed=check_sample_output(output_file,tol,cuts_list,log_level);
+    
+    assertEqual(num_failed,0,' One or more tests in test_combibe_pow failed');
     % Success announcement
     banner_to_screen([mfilename,': Test(s) passed'],'bot')
+else
+    % =====================================================================================================================
+    % Save data
+    % ======================================================================================================================    
+    save_sample_output(output_file,cuts_list,log_level);    
 end
 
 
-% =====================================================================================================================
-% Save data
-% ====================================================================================================================== 
-if save_output
-    if log_level>-1
-       disp('===========================')
-       disp('    Save output')
-       disp('===========================')
-    end
-    
-    output_file=fullfile(tempdir,'test_combine_pow_output.mat');
-    save(output_file, 'w2_1', 'w2_2', 'w2_tot', 'w1_1', 'w1_2', 'w1_tot')
-    if log_level>-1    
-       disp(' ')
-       disp(['Output saved to ',output_file])
-       disp(' ')
-    end
-end
+
