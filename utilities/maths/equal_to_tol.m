@@ -164,22 +164,29 @@ if isequal(size(a),size(b))
     if ~isempty(a)
         if tol==0
             ok=all(a==b);
+            errf = @(nok)a(nok);
         elseif tol>0
-            ok=all(abs(a-b)<=tol);
+            okk = (abs(a-b)<=tol);            
+            ok=all(okk);
+            errf = @(nok)abs(a(nok)-b(nok));            
         else
             if min_denominator>0
                 den=max(max(abs(a),abs(b)),min_denominator*ones(size(a)));
             else
                 den=max(abs(a),abs(b));
             end
-            ok=all((abs(a-b)./den<=abs(tol))|den==0|isinf(den));   % if both are zero, then accept, or if either a or b in infinite
+            okk = (abs(a-b)./den<=abs(tol))|den==0|isinf(den);
+            ok=all(okk);   % if both are zero, then accept, or if either a or b in infinite
+            errf=@(nok)(abs(a(nok)-b(nok))./den(nok));
         end
         if ok
             ok=true;    % stupid matlab feature: all(A) if A is a matrix results in a row vector! behaves as all(A(:)) in an if statement however.
             mess='';
         else
             ok=false;
-            mess='Numeric arrays not equal within requested tolerance';
+            anok = a(~okk);
+            [maxErr,ind]=max(errf(~okk));
+            mess=sprintf('Numeric arrays not equal within requested tolerance, max error: %f for value A=%f ',maxErr,anok(ind));
         end
     else
         ok=true;
