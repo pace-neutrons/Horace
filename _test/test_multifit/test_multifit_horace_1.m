@@ -119,12 +119,13 @@ classdef test_multifit_horace_1< TestCaseWithSave
             assertTrue(equal_to_tol([wfit_single1,wfit_single2],wfit_single12),'fit_sqw not working for dataset');
             assertTrue(equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12),'fit_sqw not working for fit parameters');
             
-            tol = this.tol;
-            this.tol = -1;
             fitpar_single1.corr=[];
             fitpar_single2.corr=[];
             fitpar_single12(1).corr=[];
             fitpar_single12(2).corr=[];
+            
+            tol = this.tol;
+            this.tol = -1;           
             this=test_or_save_variables(this,fitpar_single1,fitpar_single2,fitpar_single12);
             this.tol=tol;
             %
