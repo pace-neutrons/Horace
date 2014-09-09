@@ -98,35 +98,49 @@ classdef test_multifit_horace_1< TestCaseWithSave
         function this=test_fit_single_or_array(this)
             % Check fit_sqw correctly fits array of input
             [wfit_single1,fitpar_single1]=fit_sqw(this.w1data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
-                         
+            
             [wfit_single2,fitpar_single2]=fit_sqw(this.w2data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
             [wfit_single12,fitpar_single12]=fit_sqw(this.win, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
             
-            assertTrue(equal_to_tol([wfit_single1,wfit_single2],wfit_single12),'fit_sqw workspaces not working');            
+            assertTrue(equal_to_tol([wfit_single1,wfit_single2],wfit_single12),'fit_sqw workspaces not working');
             assertTrue(equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12),'fit_sqw fitting not working')
             
-           % Test against saved or store to save later
-            this=test_or_save_variables(this,wfit_single1,fitpar_single1,wfit_single2,fitpar_single2,wfit_single12,fitpar_single12);
-   
+            % Test against saved or store to save later
+            this=test_or_save_variables(this,wfit_single1,wfit_single2,wfit_single12);
+            
+        end
+        function this=test_fit_single_or_array2(this)
+            
+            [wfit_single12,fitpar_single12]=fit_sqw(this.win, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
+            
             [wfit_single1,fitpar_single1]=multifit_sqw(this.w1data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
             [wfit_single2,fitpar_single2]=multifit_sqw(this.w2data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1], @linear_bkgd, [0,0]);
+            
             assertTrue(equal_to_tol([wfit_single1,wfit_single2],wfit_single12),'fit_sqw not working for dataset');
             assertTrue(equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12),'fit_sqw not working for fit parameters');
-              
-       
+            
+            tol = this.tol;
+            this.tol = -1;
+            %fitpar_single1.corr=[];
+            %fitpar_single2.corr=[];            
+            %fitpar_single12.corr=[];                        
+            this=test_or_save_variables(this,fitpar_single1,fitpar_single2,fitpar_single12);
+            this.tol=tol;
+            %
+            
         end
         function this=test_multifit_single_or_array(this)
             
-             
+            
             % Check fit_sqw_sqw behaves as is should
             [wfit_sqw_sqw,fitpar_sqw_sqw]=fit_sqw_sqw(this.win, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,0], @sqw_bcc_hfm, [5,5,0,1,0], [0,0,0,0,1]);
             [tmp1,ftmp1]=multifit_sqw_sqw(this.w1data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1]);
             [tmp2,ftmp2]=multifit_sqw_sqw(this.w2data, @sqw_bcc_hfm, [5,5,1,10,0], [0,1,1,1,1]);
             assertTrue(equal_to_tol([tmp1,tmp2],wfit_sqw_sqw,-1e-8),'fit_sqw_sqw not working')
- 
-           % Test against saved or store to save later
+            
+            % Test against saved or store to save later
             this=test_or_save_variables(this,wfit_sqw_sqw,fitpar_sqw_sqw);
-             
-        end             
+            
+        end
     end
 end
