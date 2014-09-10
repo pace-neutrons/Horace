@@ -31,9 +31,10 @@ else
         end
         if exist(filename,'file')
             delete(filename);
-        end
+        end       
     end
-    % set obtained config data into storage.
+
+    % set obtained config data into storage. 
     if isempty(config_data) % get defaults
         config_data = class_to_restore.get_data_to_store();
     end
