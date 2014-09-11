@@ -85,7 +85,7 @@ classdef test_combine_pow < TestCaseWithSave
             w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
             
             tol = this.tol;
-            this.tol = -2.e-3;
+            this.tol = -2.e-2;
             this=test_or_save_variables(this,w2_1,w1_1 );
             this.tol = tol;
             
@@ -116,7 +116,7 @@ classdef test_combine_pow < TestCaseWithSave
             w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
             
             tol = this.tol;
-            %this.tol = -1.e-3;
+            this.tol = -9.e-2;
             this=test_or_save_variables(this,w2_2,w1_2);
             this.tol = tol;
             
@@ -146,7 +146,7 @@ classdef test_combine_pow < TestCaseWithSave
             
             
             tol = this.tol;
-            this.tol = -2.e-3;
+            this.tol = -2.e-2;
             this=test_or_save_variables(this,w2_tot,w1_tot);
             this.tol = tol;
             
