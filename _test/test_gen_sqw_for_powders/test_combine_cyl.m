@@ -1,117 +1,165 @@
-function test_combine_cyl(varargin)
-% Test combining powder cylinder sqw files
-%   >> test_combine_cyl           % Compare with previously saved results in test_combine_cyl_output.mat
-%                                 % in the same folder as this function
-%   >> test_combine_cyl ('save')  % Save to test_combine_cyl_output.mat in tempdir (type >> help tempdir
-%                                 % for information about the system specific location returned by tempdir)
-%
-% Author: T.G.Perring
-
-banner_to_screen(mfilename)
-
-% Check input argument
-if nargin==1
-    if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
-        save_output=true;
-    else
-        error('Unrecognised option')
-    end
-elseif nargin==0
-    save_output=false;
-else
-    error('Check number of input arguments')
-end
-
-% -----------------------------------------------------------------------------
-% Add common functions folder to path, and get location of common data
-addpath(fullfile(fileparts(which('horace_init')),'_test','common_functions'))
-common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
-% -----------------------------------------------------------------------------
-% Set up paths:
-rootpath=fileparts(mfilename('fullpath'));
-
-% =====================================================================================================================
-% Create spe files:
-par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
-spe_file_1=fullfile(tempdir,'test_combine_cyl_1.spe');
-spe_file_2=fullfile(tempdir,'test_combine_cyl_2.spe');
-
-efix=100;
-emode=1;
-alatt=2*pi*[1,1,1];
-angdeg=[90,90,90];
-u=[1,0,0];
-v=[0,1,0];
-omega=0; dpsi=0; gl=0; gs=0;
-
-% Simulate first file, with reproducible random looking noise
-% -----------------------------------------------------------
-en=-5:1:90;
-psi_1=0;
-
-simulate_spe_testfunc (en, par_file, spe_file_1, @sqw_cylinder, [10,1], 0.3,...
-    efix, emode, alatt, angdeg, u, v, psi_1, omega, dpsi, gl, gs)
-
-
-% Simulate second file, with reproducible random looking noise
-% -------------------------------------------------------------
-en=-9.5:2:95;
-psi_2=30;
-
-simulate_spe_testfunc (en, par_file, spe_file_2, @sqw_cylinder, [10,1], 0.3,...
-    efix, emode, alatt, angdeg, u, v, psi_2, omega, dpsi, gl, gs)
-
-
-% Create sqw files, combine and check results
-% -------------------------------------------
-sqw_file_1=fullfile(tempdir,'test_cyl_1.sqw');
-sqw_file_2=fullfile(tempdir,'test_cyl_2.sqw');
-sqw_file_tot=fullfile(tempdir,'test_cyl_tot.sqw');
-% clean up
-cleanup_obj=onCleanup(@()rm_files(spe_file_1,spe_file_2,sqw_file_1,sqw_file_2,sqw_file_tot));
-
-
-
-gen_sqw_cylinder_test (spe_file_1, par_file, sqw_file_1, efix, emode, alatt(3), psi_1, 90, 0);
-gen_sqw_cylinder_test (spe_file_2, par_file, sqw_file_2, efix, emode, alatt(3), psi_2, 90, 0);
-gen_sqw_cylinder_test ({spe_file_1,spe_file_2}, par_file, sqw_file_tot, efix, emode, alatt(3), [psi_1,psi_2], 90, 0);
-
-cuts_list= containers.Map();
-cuts_list('w2_1') = @()cut_sqw(sqw_file_1,0.1,0.1,[40,50],'-nopix');
-cuts_list('w2_2')=@()cut_sqw(sqw_file_2,0.1,0.1,[40,50],'-nopix');
-cuts_list('w2_tot')=@()cut_sqw(sqw_file_tot,0.1,0.1,[40,50],'-nopix');
-
-cuts_list('w1_1')=@()cut_sqw(sqw_file_1,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
-cuts_list('w1_2')=@()cut_sqw(sqw_file_2,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
-cuts_list('w1_tot')=@()cut_sqw(sqw_file_tot,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
-
-%--------------------------------------------------------------------------------------------------
-% Visually inspect
-% acolor k
-% dd(w1_1)
-% acolor b
-% pd(w1_2)
-% acolor r
-% pd(w1_tot)  % does not overlay - but that is OK
-%--------------------------------------------------------------------------------------------------
-
-%--------------------------------------------------------------------------------------------------
-log_level = get(hor_config,'horace_info_level');
-output_file=fullfile(rootpath,'test_combine_cyl_output.mat');
-if ~save_output
-    % =====================================================================================================================
-    % Compare with saved output
-    % ======================================================================================================================
-    tol=-0.0002; % BAD
-    num_failed=check_sample_output(output_file,tol,cuts_list,log_level);
+classdef test_combine_cyl < TestCaseWithSave
+    % Test combining powder cylinder sqw files
+    %   >> test_combine_cyl           % Compare with previously saved results in test_combine_cyl_output.mat
+    %                                 % in the same folder as this function
+    %   >> test_combine_cyl().save()  % Save to test_combine_cyl_output.mat in tempdir (type >> help tempdir
+    %                                  % for information about the system specific location returned by tempdir)
+    %
+    % Author: T.G.Perring
     
-    assertEqual(num_failed,0,' One or more tests in test_combibe_cyl failed');
-    % Success announcement
-    banner_to_screen([mfilename,': Test(s) passed'],'bot')
-else
-    % =====================================================================================================================
-    % Save data
-    % ======================================================================================================================    
-    save_sample_output(output_file,cuts_list,log_level);    
+    properties
+        spe_file_1;
+        spe_file_2;
+        par_file;
+        %
+        efix;
+        psi_1;
+        psi_2;
+        alatt;
+    end
+    methods
+        function this=test_combine_cyl(varargin)
+            % constructor
+            if nargin > 0
+                name = varargin{1};
+            else
+                name= mfilename('class');
+            end
+            this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_cyl_output.mat'));
+            common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
+            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');            
+            addpath(test_functions_path);
+            
+            
+            % =====================================================================================================================
+            % Create spe files:
+            this.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
+            spe_dir = fileparts(mfilename('fullpath'));
+            this.spe_file_1=fullfile(spe_dir,'test_combine_1.nxspe');
+            this.spe_file_2=fullfile(spe_dir,'test_combine_2.nxspe');
+            
+            this.efix=100;
+            emode=1;
+            this.alatt=2*pi*[1,1,1];
+            angdeg=[90,90,90];
+            u=[1,0,0];
+            v=[0,1,0];
+            omega=0; dpsi=0; gl=0; gs=0;
+            
+            % Simulate first file, with reproducible random looking noise
+            % -----------------------------------------------------------
+            en=-5:1:90;
+            this.psi_1=0;
+            
+            if ~exist(this.spe_file_1,'file')
+                simulate_spe_testfunc (en, this.par_file, this.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
+                    this.efix, emode, this.alatt, angdeg, u, v, this.psi_1, omega, dpsi, gl, gs)
+            end
+            % Simulate second file, with reproducible random looking noise
+            % -------------------------------------------------------------
+            en=-9.5:2:95;
+            this.psi_2=30;
+            if ~exist(this.spe_file_2,'file')
+                simulate_spe_testfunc (en, this.par_file, this.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
+                    this.efix, emode, this.alatt, angdeg, u, v, this.psi_2, omega, dpsi, gl, gs)
+            end
+            %this=add_to_files_cleanList(this,this.spe_file_1,this.spe_file2);
+            add_to_path_cleanList(this,test_functions_path);
+            
+            
+        end
+        
+        function this=test_combine_pow1(this)
+            % Create sqw files, combine and check results
+            % -------------------------------------------
+            sqw_file_1=fullfile(tempdir,'test_cyl_1.sqw');
+            % clean up
+            cleanup_obj=onCleanup(@()rm_files(this,sqw_file_1));
+            
+            emode = 1;
+            
+            gen_sqw_cylinder_test (this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode, this.alatt(3), this.psi_1, 90, 0);
+            
+            w2_1 = cut_sqw(sqw_file_1,0.1,0.1,[40,50],'-nopix');
+            w1_1 = cut_sqw(sqw_file_1,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
+            
+            tol = this.tol;
+            this.tol = -2.e-3;
+            this=test_or_save_variables(this,w2_1,w1_1 );
+            this.tol = tol;
+            
+            %--------------------------------------------------------------------------------------------------
+            % Visually inspect
+            % acolor k
+            % dd(w1_1)
+            % acolor b
+            % pd(w1_2)
+            % acolor r
+            % pd(w1_tot)  % does not overlay - but that is OK
+            %--------------------------------------------------------------------------------------------------
+            
+        end
+        function this=test_combine_cyl2(this)
+            % Create sqw files, combine and check results
+            % -------------------------------------------
+            sqw_file_2=fullfile(tempdir,'test_cyl_2.sqw');
+            % clean up
+            cleanup_obj=onCleanup(@()rm_files(this,sqw_file_2));
+            
+            emode = 1;
+            
+            gen_sqw_cylinder_test (this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode, this.alatt(3), this.psi_2, 90, 0);
+            
+            w2_2=cut_sqw(sqw_file_2,0.1,0.1,[40,50],'-nopix');
+            
+            w1_2=cut_sqw(sqw_file_2,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
+            
+            tol = this.tol;
+            %this.tol = -1.e-3;
+            this=test_or_save_variables(this,w2_2,w1_2);
+            this.tol = tol;
+            
+            %--------------------------------------------------------------------------------------------------
+            % Visually inspect
+            % acolor k
+            % dd(w1_1)
+            % acolor b
+            % pd(w1_2)
+            % acolor r
+            % pd(w1_tot)  % does not overlay - but that is OK
+            %--------------------------------------------------------------------------------------------------
+        end
+        function this=test_combine_cyl_tot(this)
+            % Create sqw files, combine and check results
+            % -------------------------------------------
+            sqw_file_tot=fullfile(tempdir,'test_cyl_tot.sqw');
+            % clean up
+            cleanup_obj=onCleanup(@()rm_files(this,sqw_file_tot));
+            
+            emode = 1;
+            gen_sqw_cylinder_test ({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode, this.alatt(3), [this.psi_1,this.psi_2], 90, 0);
+            
+            w2_tot=cut_sqw(sqw_file_tot,0.1,0.1,[40,50],'-nopix');
+            
+            w1_tot=cut_sqw(sqw_file_tot,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
+            
+            
+            tol = this.tol;
+            this.tol = -2.e-3;
+            this=test_or_save_variables(this,w2_tot,w1_tot);
+            this.tol = tol;
+            
+            %--------------------------------------------------------------------------------------------------
+            % Visually inspect
+            % acolor k
+            % dd(w1_1)
+            % acolor b
+            % pd(w1_2)
+            % acolor r
+            % pd(w1_tot)  % does not overlay - but that is OK
+            %--------------------------------------------------------------------------------------------------
+            
+        end
+        
+    end
 end
-

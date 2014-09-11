@@ -25,7 +25,7 @@ for i=1:numel(nam)
     % pd(w1_tot)
     %--------------------------------------------------------------------------------------------------
     
-    [ok,mess]=equal_to_tol(ws,  old.(nam{i}), tol, 'ignore_str', 1);
+    [ok,mess]=equal_to_tol(ws,  old.(nam{i}), tol, 'ignore_str', 1,'min_denominator',1.);
     if ~ok
         warning('TEST_SAMPLE:fail','Error in test N %d for array %s\nMessage: %s',i,nam{i},mess)
         num_failed=num_failed+1;
