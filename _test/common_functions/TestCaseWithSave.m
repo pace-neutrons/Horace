@@ -120,13 +120,13 @@ classdef TestCaseWithSave < TestCase
             end            
         end
         %------------------------------------------------------------------             
-        function this=subsasgn(this,S,B) 
-            % old matlabs do not understand private field. 
-            if any(ismemmber(S.subs,'results_filename'))
-                error('TestCaseWithSave:privare_field','Can not change results_filename');
-            end
-            builtin('subassign',this,S,B);
-        end
+%         function this=subsasgn(this,S,B) 
+%             % old matlabs do not understand private field. 
+%             if any(ismember(S.subs,'results_filename'))
+%                 error('TestCaseWithSave:privare_field','Can not change results_filename');
+%             end
+%             builtin('subassign',this,S,B);
+%         end
     end
     
 end

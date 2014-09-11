@@ -163,7 +163,8 @@ if isequal(size(a),size(b))
     % Compare elements. Remove case of empty arrays - these are considered equal
     if ~isempty(a)
         if tol==0
-            ok=all(a==b);
+            okk=a==b;
+            ok=all(okk);
             errf = @(nok)a(nok);
         elseif tol>0
             okk = (abs(a-b)<=tol);            
