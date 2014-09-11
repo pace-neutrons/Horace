@@ -34,7 +34,8 @@ rootpath=fileparts(mfilename('fullpath'));
 % Create sqw file:
 en=0:1:90;
 par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
-spe_file=fullfile(tempdir,'test_gen_sqw_powder.spe');
+spe_dir = fileparts(mfilename('fullpath'));
+spe_file=fullfile(spe_dir,'test_gen_sqw.nxspe');
 efix=100;
 emode=1;
 alatt=[5,5,5];
@@ -46,34 +47,42 @@ omega=0; dpsi=0; gl=0; gs=0;
 
 ampl=10; SJ=8; gap=5; gamma=5; bkconst=0;
 scale=0.1;
-simulate_spe_testfunc (en, par_file, spe_file, @sqw_sc_hfm_testfunc, [ampl,SJ,gap,gamma,bkconst], scale,...
-    efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 
-
-%--------------------------------------------------------------------------------------------------
-% Perform a powder average in Horace
+if ~exist(spe_file,'file')   
+    simulate_spe_testfunc (en, par_file, spe_file, @sqw_sc_hfm_testfunc, [ampl,SJ,gap,gamma,bkconst], scale,...
+        efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+end
+% clean up
 sqw_pow_file=fullfile(tempdir,'test_pow_4to1.sqw');
-gen_sqw_powder_test (spe_file, par_file, sqw_pow_file, efix, emode);
-
-% Create a simple powder file for Horace and mslice to compare with
 spe_pow_file=fullfile(tempdir,'test_pow_rings.spe');
 pow_par_file=fullfile(tempdir,'test_pow_rings.par');
 pow_phx_file=fullfile(tempdir,'test_pow_rings.phx');
+sqw_pow_rings_file=fullfile(tempdir,'test_pow_rings.sqw');
+%
+cleanup_obj=onCleanup(@()rm_files(sqw_pow_file,sqw_pow_rings_file,spe_pow_file,pow_par_file,pow_phx_file));
 
+%--------------------------------------------------------------------------------------------------
+% Perform a powder average in Horace
+gen_sqw_powder_test (spe_file, par_file, sqw_pow_file, efix, emode);
+
+% Create a simple powder file for Horace and mslice to compare with
 [powmap,powpar]=powder_map(parObject(par_file),[3,0.2626,60],'squeeze');
 save(powpar,pow_par_file)
 save(phxObject(powpar),pow_phx_file)
 
-wspe=read(spe,spe_file);
+
+ld=loaders_factory.instance().get_loader(spe_file);
+data.filename='';
+data.filepath='';
+[data.S,data.ERR,data.en] = ld.load_data();
+wspe=spe(data);
+
 spe_pow=remap(wspe,powmap);
 save(spe_pow,spe_pow_file)
 
 % Create sqw file from the powder map
-sqw_pow_rings_file=fullfile(tempdir,'test_pow_rings.sqw');
 gen_sqw_powder_test (spe_pow_file, pow_par_file, sqw_pow_rings_file, efix, emode);
 
-% clean up
-cleanup_obj=onCleanup(@()rm_files(spe_file,sqw_pow_file,sqw_pow_rings_file,spe_pow_file,pow_par_file,pow_phx_file));
 
 %--------------------------------------------------------------------------------------------------
 % Visual inspection
@@ -114,10 +123,10 @@ if ~save_output
     % =====================================================================================================================
     % Compare with saved output
     % =====================================================================================================================
-    tol=1.0e-5;
+    tol=-2.0e-2;
     num_failed=check_sample_output(sample_file,tol,cuts_list,log_level);
     
-    assertEqual(num_failed,0,' One or more tests in test_gen_sqw_powder failed');
+    assertEqual(num_failed,0,' number of failed tests in test_gen_sqw_powder is more then 0');
     % Success announcement
     banner_to_screen([mfilename,': Test(s) passed'],'bot')
 else
