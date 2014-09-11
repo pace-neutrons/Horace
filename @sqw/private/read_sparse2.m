@@ -2,12 +2,12 @@ function v=read_sparse2(fid,varargin)
 % Read sparse column vector of doubles written with write_sparse2
 %
 % Read whole array:
-%   >> [v,ok,mess] = read_sparse2(fid)
-%   >> [v,ok,mess] = read_sparse2(fid,makefull)
+%   >> v = read_sparse2(fid)
+%   >> v = read_sparse2(fid,makefull)
 %
 % Read a section of the array:
-%   >> [v,ok,mess] = read_sparse2(fid,type,nrange,irange)
-%   >> [v,ok,mess] = read_sparse2(fid,type,nrange,irange,makefull)
+%   >> v = read_sparse2(fid,type,nrange,irange)
+%   >> v = read_sparse2(fid,type,nrange,irange,makefull)
 %
 % Skip over the data
 %   >> ... = read_sparse2(...,'skip')

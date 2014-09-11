@@ -106,7 +106,8 @@ function [mess, data] = get_sqw_data (fid, fmt_ver, S, read_header, verbatim, ma
 %
 %                   If more than one run contributed, array contains ir,id,ie,s,e, where
 %                           ir      In the range 1 to nrun (the number of runs)
-%                  where ir now adds a third index into the pix array.
+%                  In this case, ir adds a third index into the pix array, and 
+%                           ind = ie + max(ne)*(id-1) + ndet*max(ne)*(ir-1)
 %
 %   data.pix        Pixel index array, sorted so that all the pixels in the first
 %                  bin appear first, then all the pixels in the second bin etc. (column vector)
@@ -118,7 +119,7 @@ function [mess, data] = get_sqw_data (fid, fmt_ver, S, read_header, verbatim, ma
 %                           ne      number of energy bins
 %
 %                   If more than one run contributed, then
-%                           ipix = ien + ne*(idet-1) + ndet*sum(ne(1:irun-1))
+%                           ipix = ien + max(ne)*(idet-1) + ndet*max(ne)*(irun-1)
 %                       where in addition
 %                           irun    run index
 %                           ne      array with number of energy bins for each run
@@ -129,71 +130,78 @@ function [mess, data] = get_sqw_data (fid, fmt_ver, S, read_header, verbatim, ma
 % $Revision$ ($Date$)
 
 
-[fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
+mess='';
 
+[fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
 
 % Read header information from file
 % ---------------------------------
 if read_header
-    mess='';
-    if fmt_ver>appversion(0)
-        filename = read_sqw_var_char (fid,fmt_ver);
-        filepath = read_sqw_var_char (fid,fmt_ver);
-        if verbatim
-            % Read filename and path from file
-            data.filename=filename;
-            data.filepath=filepath;
+    try
+        mess='';
+        if fmt_ver>appversion(0)
+            filename = read_sqw_var_char (fid,fmt_ver);
+            filepath = read_sqw_var_char (fid,fmt_ver);
+            if verbatim
+                % Read filename and path from file
+                data.filename=filename;
+                data.filepath=filepath;
+            else
+                % Get file name and path (incl. final separator)
+                [path,name,ext]=fileparts(fopen(fid));
+                data.filename=[name,ext];
+                data.filepath=[path,filesep];
+            end
+            data.title  = read_sqw_var_char (fid,fmt_ver);
+            data.alatt  = fread(fid, [1,3], fmt_dble);
+            data.angdeg = fread(fid, [1,3], fmt_dble);
+            
         else
             % Get file name and path (incl. final separator)
             [path,name,ext]=fileparts(fopen(fid));
             data.filename=[name,ext];
             data.filepath=[path,filesep];
+            % Put empty information in fields not in the file, to be filled outside this routine
+            data.title = '';
+            data.alatt = zeros(1,3);
+            data.angdeg = zeros(1,3);
         end
-        data.title  = read_sqw_var_char (fid,fmt_ver);
-        data.alatt  = fread(fid, [1,3], fmt_dble);
-        data.angdeg = fread(fid, [1,3], fmt_dble);
         
-    else
-        % Get file name and path (incl. final separator)
-        [path,name,ext]=fileparts(fopen(fid));
-        data.filename=[name,ext];
-        data.filepath=[path,filesep];
-        % Put empty information in fields not in the file, to be filled outside this routine
-        data.title = '';
-        data.alatt = zeros(1,3);
-        data.angdeg = zeros(1,3);
-    end
-    
-    data.uoffset  = fread(fid, [4,1], fmt_dble);
-    data.u_to_rlu = fread(fid, [4,4], fmt_dble);
-    data.ulen     = fread(fid, [1,4], fmt_dble);
-    
-    data.ulabel=read_sqw_var_char (fid,fmt_ver,true)';
-    
-    npax = fread(fid, 1, fmt_int);
-    niax=4-npax;
-    if niax>0
-        data.iax  = fread(fid, [1,niax], fmt_int);
-        data.iint = fread(fid, [2,niax], fmt_dble);
-    else
-        data.iax  = zeros(1,0); % create empty index of integration array in standard form
-        data.iint = zeros(2,0);
-    end
-    
-    if npax>0
-        data.pax = fread(fid, [1,npax], fmt_int);
-        data.p=cell(1,npax);
-        for i=1:npax
-            np = fread(fid, 1, fmt_int);
-            data.p{i} = fread(fid, [np,1], fmt_dble);
+        data.uoffset  = fread(fid, [4,1], fmt_dble);
+        data.u_to_rlu = fread(fid, [4,4], fmt_dble);
+        data.ulen     = fread(fid, [1,4], fmt_dble);
+        
+        data.ulabel=read_sqw_var_char (fid,fmt_ver,true)';
+        
+        npax = fread(fid, 1, fmt_int);
+        niax=4-npax;
+        if niax>0
+            data.iax  = fread(fid, [1,niax], fmt_int);
+            data.iint = fread(fid, [2,niax], fmt_dble);
+        else
+            data.iax  = zeros(1,0); % create empty index of integration array in standard form
+            data.iint = zeros(2,0);
         end
-        data.dax = fread(fid, [1,npax], fmt_int);
-    else
-        data.pax=zeros(1,0);    % create empty index of plot axes
-        data.p=cell(1,0);
-        data.dax=zeros(1,0);    % create empty index of plot axes
+        
+        if npax>0
+            data.pax = fread(fid, [1,npax], fmt_int);
+            data.p=cell(1,npax);
+            for i=1:npax
+                np = fread(fid, 1, fmt_int);
+                data.p{i} = fread(fid, [np,1], fmt_dble);
+            end
+            data.dax = fread(fid, [1,npax], fmt_int);
+        else
+            data.pax=zeros(1,0);    % create empty index of plot axes
+            data.p=cell(1,0);
+            data.dax=zeros(1,0);    % create empty index of plot axes
+        end
+        
+    catch
+        mess='Error reading data block header from file';
+        data=struct([]);
+        
     end
-    
 end
 
 

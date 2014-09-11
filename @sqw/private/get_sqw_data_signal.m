@@ -33,7 +33,7 @@ function [mess, data] = get_sqw_data_signal (fid, fmt_ver, S, opt, varargin)
 %                   opt.sqw:    s,e,npix,urange,pix
 %                   opt.nopix:  s,e,npix,urange
 %                   opt.buffer: npix,pix
-%              
+%
 %       data.s          Average signal in the bins (sparse column vector)
 %       data.e          Corresponding variance in the bins (sparse column vector)
 %       data.npix       Number of contributing pixels to each bin as a sparse column vector
@@ -64,106 +64,113 @@ function [mess, data] = get_sqw_data_signal (fid, fmt_ver, S, opt, varargin)
 
 mess='';
 
-% Prepare some parameters for reading the data
-% --------------------------------------------
-% Unpack fields of S to reduce access time later on
-info=S.info;
-pos=S.position;
-fmt=S.fmt;
-
-% Get size of signal, error, npix arrays
-ndims=info.ndims;
-if ndims>1
-    sz=info.sz_npix(1:ndims);
-elseif ndims==1
-    sz=[info.sz_npix(1),1];
-else
-    sz=[1,1];
-end
-
-% Determine which fields to read and if output is a data structure
-read_se     = opt.dnd || opt.sqw || opt.nopix;
-read_npix   = read_se || opt.buffer || opt.npix;
-read_urange = opt.sqw || opt.nopix;
-read_pix    = opt.sqw || opt.buffer || opt.pix;
-
-datastruct  = opt.dnd || opt.sqw || opt.nopix || opt.buffer;
-
-
-% Read the fields
-% ---------------
-% Read signal and error
-if read_se
-    fseek(fid,pos.s,'bof');
-    tmp = fread(fid, prod(sz), ['*',fmt.s]);
-    data.s = reshape(double(tmp),sz);
-    clear tmp
-
-    fseek(fid,pos.e,'bof');
-    tmp = fread(fid, prod(sz), ['*',fmt.e]);
-    data.e = reshape(double(tmp),sz);
-    clear tmp
-end
-
-% Read npix
-if read_npix
-    if numel(varargin)==0   % read whole array
-        fseek(fid,pos.npix,'bof');
-        tmp = fread(fid, prod(sz), ['*',fmt.npix]);
-        if datastruct
-            data.npix = reshape(double(tmp),sz);
-        else
-            data = reshape(double(tmp),sz);
-        end
+try
+    % Prepare some parameters for reading the data
+    % --------------------------------------------
+    % Unpack fields of S to reduce access time later on
+    info=S.info;
+    pos=S.position;
+    fmt=S.fmt;
+    
+    % Get size of signal, error, npix arrays
+    ndims=info.ndims;
+    if ndims>1
+        sz=info.sz_npix(1:ndims);
+    elseif ndims==1
+        sz=[info.sz_npix(1),1];
     else
-        pos_start = pos.npix + fmt_nbytes(fmt.npix)*(varargin{1}(1)-1);
-        fseek(fid,pos_start,'bof');
-        tmp = fread(fid, diff(varargin{1})+1, ['*',fmt.npix]);
-        if datastruct
-            data.npix = double(tmp);
-        else
-            data = double(tmp);
-        end
+        sz=[1,1];
     end
-    clear tmp
-end
-
-% Read urange
-if read_urange
-    fseek(fid,pos.urange,'bof');
-    data.urange = fread(fid, [2,4], fmt.urange);
-end
-
-% Read pix
-if read_pix
-    if numel(varargin)==0   % read whole array
-        pos_start = pos.pix;
-        npix_read = info.npixtot;
-    else
-        pos_start = pos.pix + 9*fmt_nbytes(fmt.pix)*(varargin{1}(1)-1);
-        npix_read = diff(varargin{1})+1;
+    
+    % Determine which fields to read and if output is a data structure
+    read_se     = opt.dnd || opt.sqw || opt.nopix;
+    read_npix   = read_se || opt.buffer || opt.npix;
+    read_urange = opt.sqw || opt.nopix;
+    read_pix    = opt.sqw || opt.buffer || opt.pix;
+    
+    datastruct  = opt.dnd || opt.sqw || opt.nopix || opt.buffer;
+    
+    
+    % Read the fields
+    % ---------------
+    % Read signal and error
+    if read_se
+        fseek(fid,pos.s,'bof');
+        tmp = fread(fid, prod(sz), ['*',fmt.s]);
+        data.s = reshape(double(tmp),sz);
+        clear tmp
+        
+        fseek(fid,pos.e,'bof');
+        tmp = fread(fid, prod(sz), ['*',fmt.e]);
+        data.e = reshape(double(tmp),sz);
+        clear tmp
     end
-    if npix_read>0
-        fseek(fid,pos_start,'bof');
-        tmp = fread(fid, [9,npix_read], ['*',fmt.pix]);
-        if datastruct
-            data.pix = double(tmp);
+    
+    % Read npix
+    if read_npix
+        if numel(varargin)==0   % read whole array
+            fseek(fid,pos.npix,'bof');
+            tmp = fread(fid, prod(sz), ['*',fmt.npix]);
+            if datastruct
+                data.npix = reshape(double(tmp),sz);
+            else
+                data = reshape(double(tmp),sz);
+            end
         else
-            data = double(tmp);
+            pos_start = pos.npix + fmt_nbytes(fmt.npix)*(varargin{1}(1)-1);
+            fseek(fid,pos_start,'bof');
+            tmp = fread(fid, diff(varargin{1})+1, ['*',fmt.npix]);
+            if datastruct
+                data.npix = double(tmp);
+            else
+                data = double(tmp);
+            end
         end
         clear tmp
-    else
-        if datastruct
-            data.pix = zeros(9,0);
+    end
+    
+    % Read urange
+    if read_urange
+        fseek(fid,pos.urange,'bof');
+        data.urange = fread(fid, [2,4], fmt.urange);
+    end
+    
+    % Read pix
+    if read_pix
+        if numel(varargin)==0   % read whole array
+            pos_start = pos.pix;
+            npix_read = info.npixtot;
         else
-            data = zeros(9,0);
+            pos_start = pos.pix + 9*fmt_nbytes(fmt.pix)*(varargin{1}(1)-1);
+            npix_read = diff(varargin{1})+1;
+        end
+        if npix_read>0
+            fseek(fid,pos_start,'bof');
+            tmp = fread(fid, [9,npix_read], ['*',fmt.pix]);
+            if datastruct
+                data.pix = double(tmp);
+            else
+                data = double(tmp);
+            end
+            clear tmp
+        else
+            if datastruct
+                data.pix = zeros(9,0);
+            else
+                data = zeros(9,0);
+            end
         end
     end
-end
-
-% Special case of version 0 format: need to normalise signal and error by npix
-if read_se && fmt_ver==appversion(0)     % read_se only can happen if read_npix too
-    [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+    
+    % Special case of version 0 format: need to normalise signal and error by npix
+    if read_se && fmt_ver==appversion(0)     % read_se only can happen if read_npix too
+        [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
+    end
+    
+catch
+    mess='Error reading data block bin and pixel data from file';
+    data=struct([]);
+    
 end
 
 %==================================================================================================

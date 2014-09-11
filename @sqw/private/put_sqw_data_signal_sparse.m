@@ -35,7 +35,8 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_spars
 %
 %                   If more than one run contributed, array contains ir,id,ie,s,e, where
 %                           ir      In the range 1 to nrun (the number of runs)
-%                  where ir now adds a third index into the pix array.
+%                  In this case, ir adds a third index into the pix array, and 
+%                           ind = ie + max(ne)*(id-1) + ndet*max(ne)*(ir-1)
 %
 %       data.pix    Pixel index array, sorted so that all the pixels in the first
 %                  bin appear first, then all the pixels in the second bin etc. (column vector)
@@ -47,7 +48,7 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_spars
 %                           ne      number of energy bins
 %
 %                   If more than one run contributed, then
-%                           ipix = ien + ne*(idet-1) + ndet*sum(ne(1:irun-1))
+%                           ipix = ien + max(ne)*(idet-1) + ndet*max(ne)*(irun-1)
 %                       where in addition
 %                           irun    run index
 %                           ne      array with number of energy bins for each run
@@ -117,7 +118,7 @@ if numel(varargin)>0
         return
     end
 else
-    buffer-false;
+    buffer=false;
 end
 
 % Determine if definitely only one spe file contributing
@@ -162,7 +163,7 @@ if isfield(data,'pix') || numel(varargin)>1
         % Pixels to be written from from structure
         npixtot_nz=size(data.pix_nz,2);
         npixtot=numel(data.pix);
-        fwrite(fid,size(data.pix_nz),'float64')
+        fwrite(fid,size(data.pix_nz),'float64');
         fwrite(fid,npixtot,'float64');
         
         if single_file

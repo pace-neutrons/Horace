@@ -148,7 +148,7 @@ if ~field_names_only
     if any(data.npix<0)
         mess='ERROR: field ''npix'' must not have negative elements'; return; end
 
-    if tmp_type=='sqw'    % extra fields required for sqw object
+    if strcmp(tmp_type,'sqw')    % extra fields required for sqw object
         npixtot=sum(data.npix(:));
         if ~npixtot==0
             if ~isa_size(data.urange,[2,4],'double') || any(diff(data.urange,1)<0)

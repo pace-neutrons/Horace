@@ -58,7 +58,8 @@ function [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_f
 %
 %                   If more than one run contributed, array contains ir,id,ie,s,e, where
 %                           ir      In the range 1 to nrun (the number of runs)
-%                  where ir now adds a third index into the pix array.
+%                  In this case, ir adds a third index into the pix array, and 
+%                           ind = ie + max(ne)*(id-1) + ndet*max(ne)*(ir-1)
 %
 %       data.pix    Pixel index array, sorted so that all the pixels in the first
 %                  bin appear first, then all the pixels in the second bin etc. (column vector)
@@ -70,7 +71,7 @@ function [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_f
 %                           ne      number of energy bins
 %
 %                   If more than one run contributed, then
-%                           ipix = ien + ne*(idet-1) + ndet*sum(ne(1:irun-1))
+%                           ipix = ien + max(ne)*(idet-1) + ndet*max(ne)*(irun-1)
 %                       where in addition
 %                           irun    run index
 %                           ne      array with number of energy bins for each run
@@ -85,176 +86,188 @@ function [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_f
 % $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
 
 
-% Prepare some parameters for reading the data
-% --------------------------------------------
-% Unpack fields of S to reduce access time later on
-info=S.info;
-pos=S.position;
-fmt=S.fmt;
+mess='';
 
-% Get size of signal, error, npix arrays
-ndims=info.ndims;
-if ndims>1
-    sz=info.sz_npix(1:ndims);
-elseif ndims==1
-    sz=[info.sz_npix(1),1];
-else
-    sz=[1,1];
-end
-
-% Determine which fields to read and if output is a data structure
-read_se     = opt.dnd || opt.sqw || opt.nopix;
-read_npix   = read_se || opt.buffer || opt.npix;
-read_urange = opt.sqw || opt.nopix;
-read_npix_nz= ((opt.sqw || opt.buffer) && ~make_full_fmt) || opt.npix_nz;
-read_pix_nz = opt.sqw || opt.buffer || (opt.pix && make_full_fmt) || opt.pix_nz;
-read_pix    = opt.sqw || opt.buffer || opt.pix;
-
-datastruct  = opt.dnd || opt.sqw || opt.nopix || opt.buffer;
-
-
-% Read the fields
-% ---------------
-% Read signal and error
-if read_se
-    fseek(fid,pos.s,'bof');
-    if make_full_fmt    % for some reason, this odd looking 3 lines is faster (1 sep 2014)
-        [s,ok,mess] = read_sparse(fid,make_full_fmt);
-        if ~ok, return, end
-        data.s=reshape(s,sz);
-        clear s
+try
+    % Prepare some parameters for reading the data
+    % --------------------------------------------
+    % Unpack fields of S to reduce access time later on
+    info=S.info;
+    pos=S.position;
+    fmt=S.fmt;
+    
+    % Get size of signal, error, npix arrays
+    ndims=info.ndims;
+    if ndims>1
+        sz=info.sz_npix(1:ndims);
+    elseif ndims==1
+        sz=[info.sz_npix(1),1];
     else
-        [data.s,ok,mess] = read_sparse(fid);
-        if ~ok, return, end
+        sz=[1,1];
     end
     
-    fseek(fid,pos.e,'bof');
-    if make_full_fmt    % for some reason, this odd looking 3 lines is faster (1 sep 2014)
-        [e,ok,mess] = read_sparse(fid,make_full_fmt);
-        if ~ok, return, end
-        data.e=reshape(e,sz);
-        clear e
-    else
-        [data.e,ok,mess] = read_sparse(fid);
-        if ~ok, return, end
-    end
-end
-
-% Read npix
-if read_npix
-    fseek(fid,pos.npix,'bof');
-    if datastruct
+    % Determine which fields to read and if output is a data structure
+    read_se     = opt.dnd || opt.sqw || opt.nopix;
+    read_npix   = read_se || opt.buffer || opt.npix;
+    read_urange = opt.sqw || opt.nopix;
+    read_npix_nz= ((opt.sqw || opt.buffer) && ~make_full_fmt) || opt.npix_nz;
+    read_pix_nz = opt.sqw || opt.buffer || (opt.pix && make_full_fmt) || opt.pix_nz;
+    read_pix    = opt.sqw || opt.buffer || opt.pix;
+    
+    datastruct  = opt.dnd || opt.sqw || opt.nopix || opt.buffer;
+    
+    
+    % Read the fields
+    % ---------------
+    % Read signal and error
+    if read_se
+        fseek(fid,pos.s,'bof');
         if make_full_fmt    % for some reason, this odd looking 3 lines is faster (1 sep 2014)
-            [npix,ok,mess] = read_sparse2(fid,fmt.npix,make_full_fmt);
-            if ~ok, return, end
-            data.npix=reshape(npix,sz);
-            clear npix
+            s = read_sparse(fid,make_full_fmt);
+            data.s=reshape(s,sz);
+            clear s
         else
-            [data.npix,ok,mess] = read_sparse2(fid,fmt.npix);
-            if ~ok, return, end
+            data.s = read_sparse(fid);
         end
-    else
-        [data,ok,mess] = read_sparse2(fid,fmt.npix,varargin{:},make_full_fmt);
-        if ~ok, return, end
-        if numel(varargin)~=0 && make_full_fmt
-            data=reshape(data,sz);
-        end
-    end
-end
-
-% Read urange
-if read_urange
-    fseek(fid,pos.urange,'bof');
-    data.urange = fread(fid, [2,4], fmt.urange);
-end
-
-% Read npix_nz
-if read_npix_nz
-    fseek(fid,pos.npix_nz,'bof');
-    if datastruct   % only case is sqw in sparse format
-        [data.npix_nz,ok,mess] = read_sparse2(fid,fmt.npix_nz);
-    else
-        [data,ok,mess] = read_sparse2(fid,fmt.npix_nz,varargin{:},make_full_fmt);
-    end
-    if ~ok, return, end
-end
-
-% Read pix_nz
-if read_pix_nz
-    nrows=4+(info.nfiles>1);% 4 rows if single file, 5 rows if more than one
-    if numel(varargin)==0   % read whole array
-        pos_start = pos.pix_nz;
-        npix_read = info.npixtot_nz;
-    else
-        if opt.pix_nz
-            range=varargin{1};
-        elseif opt.pix      % read_pix_nz ensures that this also has make_full_fmt
-            range=varargin{2};
-        end
-        pos_start = pos.pix_nz + nrows*fmt_nbytes(fmt.pix_nz)*(range(1)-1);
-        npix_read = diff(range)+1;
-    end
-    if npix_read>0
-        fseek(fid,pos_start,'bof');
-        tmp = fread(fid, [nrows,npix_read], ['*',fmt.pix_nz]);
-        if datastruct && ~make_full_fmt
-            data.pix_nz = double(tmp);
-        elseif opt.pix_nz
-            data = double(tmp);
-        else    % used to create full format pix array, either in sqw or buffer output, or pix output
-            pix_nz = double(tmp);
-        end
-        clear tmp
-    else
-        if datastruct && ~make_full_fmt
-            data.pix = zeros(nrows,0);
-        elseif opt.pix_nz
-            data = zeros(nrows,0);
+        
+        fseek(fid,pos.e,'bof');
+        if make_full_fmt    % for some reason, this odd looking 3 lines is faster (1 sep 2014)
+            e = read_sparse(fid,make_full_fmt);
+            data.e=reshape(e,sz);
+            clear e
         else
-            pix_nz = zeros(nrows,0);
+            data.e = read_sparse(fid);
         end
     end
-end
-
-% Read pix
-if read_pix
-    if numel(varargin)==0   % read whole array
-        pos_start = pos.pix;
-        npix_read = info.npixtot;
-    else
-        pos_start = pos.pix + fmt_nbytes(fmt.pix)*(varargin{1}(1)-1);
-        npix_read = diff(varargin{1})+1;
-    end
-    if npix_read>0
-        fseek(fid,pos_start,'bof');
-        tmp = fread(fid, npix_read, ['*',fmt.pix]);
-        if make_full_fmt
-            if datastruct
-                data.pix = make_pix_full(tmp,pix_nz,varargin{1}(1),info.ne,info.ndet);
+    
+    % Read npix
+    if read_npix
+        fseek(fid,pos.npix,'bof');
+        if datastruct   % reading in the whole npix array
+            if make_full_fmt    % for some reason, this odd looking 3 lines is faster (1 sep 2014)
+                npix = read_sparse2(fid,make_full_fmt);
+                data.npix=reshape(npix,sz);
+                clear npix
             else
-                data = make_pix_full(tmp,pix_nz,varargin{1}(1),info.ne,info.ndet);
+                data.npix = read_sparse2(fid);
             end
         else
-            if datastruct
-                data.pix = double(tmp);
+            if numel(varargin)==0   % reading in the entire array
+                data = read_sparse2(fid,make_full_fmt);
+                if make_full_fmt
+                     data=reshape(data,sz);
+                end
             else
+                data = read_sparse2(fid,fmt.npix,varargin{:},make_full_fmt);
+            end
+        end
+    end
+    
+    % Read urange
+    if read_urange
+        fseek(fid,pos.urange,'bof');
+        data.urange = fread(fid, [2,4], fmt.urange);
+    end
+    
+    % Read npix_nz
+    if read_npix_nz
+        fseek(fid,pos.npix_nz,'bof');
+        if datastruct   % reading in the whole npix_nz array; only case is sqw in sparse format
+            data.npix_nz = read_sparse2(fid);
+        else
+            if numel(varargin)==0   % reading the entire array
+                data = read_sparse2(fid,make_full_fmt);
+                if make_full_fmt
+                     data=reshape(data,sz);
+                end
+            else
+                data = read_sparse2(fid,fmt.npix_nz,varargin{:},make_full_fmt);
+            end
+        end
+    end
+    
+    % Read pix_nz
+    if read_pix_nz
+        nrows=4+(info.nfiles>1);    % 4 rows if single file, 5 rows if more than one
+        if numel(varargin)==0       % read whole array
+            pos_start = pos.pix_nz;
+            npix_read = info.npixtot_nz;
+        else
+            if opt.pix_nz
+                range=varargin{1};
+            elseif opt.pix          % read_pix_nz ensures that this also has make_full_fmt
+                range=varargin{2};
+            end
+            pos_start = pos.pix_nz + nrows*fmt_nbytes(fmt.pix_nz)*(range(1)-1);
+            npix_read = diff(range)+1;
+        end
+        if npix_read>0
+            fseek(fid,pos_start,'bof');
+            tmp = fread(fid, [nrows,npix_read], ['*',fmt.pix_nz]);
+            if datastruct && ~make_full_fmt
+                data.pix_nz = double(tmp);
+            elseif opt.pix_nz
                 data = double(tmp);
+            else    % used to create full format pix array, either in sqw or buffer output, or pix output
+                pix_nz = double(tmp);
             end
-        end
-        clear tmp
-    else
-        if make_full_fmt
-            if datastruct
-                data.pix = zeros(9,0);
-            else
-                data = zeros(9,0);
-            end
+            clear tmp
         else
-            if datastruct
-                data.pix = zeros(0,1);
+            if datastruct && ~make_full_fmt
+                data.pix = zeros(nrows,0);
+            elseif opt.pix_nz
+                data = zeros(nrows,0);
             else
-                data = zeros(0,1);
+                pix_nz = zeros(nrows,0);
             end
         end
     end
+    
+    % Read pix
+    if read_pix
+        if numel(varargin)==0   % read whole array
+            pos_start = pos.pix;
+            npix_read = info.npixtot;
+        else
+            pos_start = pos.pix + fmt_nbytes(fmt.pix)*(varargin{1}(1)-1);
+            npix_read = diff(varargin{1})+1;
+        end
+        if npix_read>0
+            fseek(fid,pos_start,'bof');
+            tmp = fread(fid, npix_read, ['*',fmt.pix]);
+            if make_full_fmt
+                if datastruct
+                    data.pix = pix_sparse_to_full(tmp,pix_nz,varargin{1}(1),info.ne,info.ndet);
+                else
+                    data = pix_sparse_to_full(tmp,pix_nz,varargin{1}(1),info.ne,info.ndet);
+                end
+            else
+                if datastruct
+                    data.pix = double(tmp);
+                else
+                    data = double(tmp);
+                end
+            end
+            clear tmp
+        else
+            if make_full_fmt
+                if datastruct
+                    data.pix = zeros(9,0);
+                else
+                    data = zeros(9,0);
+                end
+            else
+                if datastruct
+                    data.pix = zeros(0,1);
+                else
+                    data = zeros(0,1);
+                end
+            end
+        end
+    end
+    
+catch
+    mess='Error reading data block sparse format bin and pixel data from file';
+    data=struct([]);
+    
 end

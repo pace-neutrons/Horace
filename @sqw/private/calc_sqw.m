@@ -160,7 +160,7 @@ d.detpar=det0;
 d.data=sqw_data;
 w=sqw(d);
 if sparse_format
-    w=sqw_sparse(w);
+    w=sparse(w);
 end
 
 

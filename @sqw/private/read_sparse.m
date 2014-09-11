@@ -1,9 +1,9 @@
 function v=read_sparse(fid,varargin)
 % Read sparse column vector of doubles written with write_sparse
 %
-%   >> [v,ok,mess] = read_sparse(fid)
-%   >> [v,ok,mess] = read_sparse(fid,makefull)      % return array in full format if full==true
-%   >> [v,ok,mess] = read_sparse(...'skip')         % skip over the data
+%   >> v = read_sparse(fid)
+%   >> v = read_sparse(fid,makefull)      % return array in full format if full==true
+%   >> v = read_sparse(...'skip')         % skip over the data
 %
 % Input:
 % ------
@@ -16,8 +16,6 @@ function v=read_sparse(fid,varargin)
 % Output:
 % -------
 %   v           Column vector (sparse format)
-%   ok          =true if all OK, false if not
-%   mess        Error message if not ok, ='' if ok
 %
 % It is assumed that the file position indicator is at the start of the information
 % written by write_sparse.
