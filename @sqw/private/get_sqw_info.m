@@ -41,10 +41,10 @@ mess='';
 
 try
     n = fread(fid,1,'float64');
-    tmp = fread(fid,[1,n],'float64');
+    tmp = fread(fid,n,'float64');
     info=struct('sparse',logical(tmp(1)),'sqw_data',logical(tmp(2)),...
         'sqw_type',logical(tmp(3)),'buffer_type',logical(tmp(4)),...
-        'nfiles',tmp(5),'ne',tmp(6:end-8),'ndet',tmp(end-7),'ndims',tmp(end-6),'sz_npix',tmp(end-5:end-2),'npixtot',tmp(end-1),'npixtot_nz',tmp(end));
+        'nfiles',tmp(5),'ne',tmp(6:end-8),'ndet',tmp(end-7),'ndims',tmp(end-6),'sz_npix',tmp(end-5:end-2)','npixtot',tmp(end-1),'npixtot_nz',tmp(end));
     
 catch
     mess='Error reading contents information summary block from file';

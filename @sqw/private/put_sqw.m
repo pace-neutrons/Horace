@@ -168,8 +168,10 @@ if newfile
     % Writing an sqw file (sqw or dnd type), or a buffer file
     application.file_format=fmt_ver;        % add file format to application
     S.application=application;              % update the application block
-    [info_nfiles,info_ne,info_ndet]=sqwfile_get_pars(w,data_type_in,sparse_fmt,flat,data_type_write);
-    S.info.ne=info_ne;                      % fill with array of correct length
+    [info.nfiles,info.ndet,info.ne]=sqwfile_get_pars(w,data_type_in,sparse_fmt,flat,data_type_write);
+    S.info.ne=info.ne;                      % fill with array of correct length
+    
+    % Write information at top of file
     if fmt_ver==ver3p1
         [mess, position_sqwfile] = put_sqw_information (S);  % write to file (will update with correct information later)
         if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
@@ -178,6 +180,7 @@ if newfile
         mess='Unsupported file format';
         [ok,S]=tidy_close(file_open_on_entry,fid); return
     end
+    
 else
     % Can only be writing header to a pre-existing file
     [mess,header_opt_and_write] = check_header_opt_ok (info,w);
@@ -193,7 +196,7 @@ end
 
 % Write main header
 % ------------------------------------
-if data_type_write.sqw_type || header_opt_and_write
+if data_type_write.sqw_type || (~newfile && header_opt_and_write)
     [mess,position.main_header] = put_sqw_main_header (fid, fmt_ver, w.main_header);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
@@ -201,7 +204,7 @@ end
 
 % Write header(s) of individual spe file(s)
 % -----------------------------------------
-if data_type_write.sqw_type || header_opt_and_write
+if data_type_write.sqw_type || (~newfile && header_opt_and_write)
     [mess,position.header] = put_sqw_header (fid, fmt_ver, w.header);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
@@ -209,7 +212,7 @@ end
 
 % Write detector parameters
 % ------------------------------------
-if data_type_write.sqw_type || header_opt_and_write
+if data_type_write.sqw_type || (~newfile && header_opt_and_write)
     [mess,position.detpar] = put_sqw_detpar (fid, fmt_ver, w.detpar);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
@@ -252,7 +255,7 @@ fmt = updatestruct(fmt,fmt_data);
 
 % Write sample and instrument information
 % ---------------------------------------
-if data_type_write.sqw_type || (header_opt_and_write && opt.his)
+if data_type_write.sqw_type || (~newfile && header_opt_and_write && opt.his)
     if header_inst_or_sample(w.header);
         % If not a new file, then must get to the end of the data section before writing instrument
         % and sample information. This is because if we are just writing the header, then the earlier
@@ -292,9 +295,6 @@ if newfile
     info.sqw_data=data_type_write.sqw_data;
     info.sqw_type=data_type_write.sqw_type;
     info.buffer_type=data_type_write.buffer_type;
-    info.nfiles=info_nfiles;
-    info.ne=info_ne;
-    info.ndet=info_ndet;
     [ndims,sz]=data_dims(w.data);
     info.ndims=ndims;
     info.sz_npix=[sz,NaN(1,4-ndims)];
@@ -612,7 +612,7 @@ if data_type_write.sqw_type || (data_type_write.buffer && sparse_fmt)
             ne=zeros(nfiles,1);
             header=w.header;
             for i=1:nfiles
-                ne=numel(header{i}.en)-1;
+                ne(i)=numel(header{i}.en)-1;
             end
         end
     end

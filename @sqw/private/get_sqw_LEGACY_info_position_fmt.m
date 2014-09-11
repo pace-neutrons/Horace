@@ -134,7 +134,7 @@ if sqw_type
         nfiles=main_header.nfiles;
         ne=zeros(nfiles,1);
         for i=1:nfiles
-            ne=numel(header{i}.en)-1;
+            ne(i)=numel(header{i}.en)-1;
         end
     end
     info.ne=ne;

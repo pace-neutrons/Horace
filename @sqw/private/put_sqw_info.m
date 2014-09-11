@@ -42,8 +42,8 @@ mess='';
 pos_start = ftell(fid);
 
 try
-    tmp=[double(info.sparse),double(info.sqw_data),double(info.sqw_type),double(info.buffer_type),...
-        info.nfiles, info.ne, info.ndet, info.ndims, info.sz_npix, info.npixtot, info.npixtot_nz];
+    tmp=[double(info.sparse);double(info.sqw_data);double(info.sqw_type);double(info.buffer_type);...
+        info.nfiles; info.ne; info.ndet; info.ndims; info.sz_npix'; info.npixtot; info.npixtot_nz];
     fwrite(fid, numel(tmp), 'float64');
     fwrite(fid, tmp, 'float64');
 
