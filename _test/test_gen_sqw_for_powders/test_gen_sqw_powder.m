@@ -123,7 +123,7 @@ if ~save_output
     % =====================================================================================================================
     % Compare with saved output
     % =====================================================================================================================
-    tol=-2.0e-2;
+    tol=-3.0e-2;
     num_failed=check_sample_output(sample_file,tol,cuts_list,log_level);
     
     assertEqual(num_failed,0,' number of failed tests in test_gen_sqw_powder is more then 0');
