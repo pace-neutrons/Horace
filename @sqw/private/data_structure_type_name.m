@@ -5,8 +5,8 @@ function [data_type_name,sparse_fmt,flat] = data_structure_type_name(w)
 %
 % Input:
 % ------
-%   w               Data structure. Must have either the standard sqw format
-%                  i.e. four fields named:
+%   w               sqw object (sqw-type or dnd-type) or data structure.
+%                  Must have either the standard sqw format
 %                       main_header, header, detpar, data
 %
 %                  or one of the flat format buffer structures:
@@ -53,7 +53,7 @@ function [data_type_name,sparse_fmt,flat] = data_structure_type_name(w)
 % $Revision$ ($Date$)
 
 
-if isa(w,'sqw') || isfield(w,'data')    % catch case of object (isfield only seems to work on structures)
+if isa(w,'sqw') || isfield(w,'data')    % catch case of object
     data=w.data;
     % Take the presence or absence of a signal array as the defining quality of buffer, or dnd or sqw
     if isfield(data,'s')

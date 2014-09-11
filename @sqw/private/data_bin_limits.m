@@ -1,9 +1,8 @@
-function [val, n] = data_bin_limits (din)
+function [val, n] = data_bin_limits (data)
 % Get limits of the data in an n-dimensional dataset, that is, find the
 % coordinates along each of the axes of the smallest cuboid that contains
 % bins with non-zero values of contributing pixels.
 %
-% Syntax:
 %   >> [val, n] = data_bin_limits (din)
 %
 % Input:
@@ -20,16 +19,15 @@ function [val, n] = data_bin_limits (din)
 %           elements along each axis
 %           isempty(n)=true if there is no data in the dataset
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-%
-% Horace v0.1   J. van Duijn, T.G.Perring
 
 
-s = sum_dimensions(din.npix);
+s = sum_dimensions(data.npix);
 
-ndim = length(din.p);
+ndim = length(data.p);
 val = zeros(2,ndim);
 n = zeros(2,ndim);
 for i=1:ndim
@@ -37,6 +35,6 @@ for i=1:ndim
     if isempty(lis); val=[]; n=[]; return; end;
     n(1,i)=lis(1);
     n(2,i)=lis(end);
-    val(1,i)=din.p{i}(1);
-    val(2,i)=din.p{i}(lis(end)+1);
+    val(1,i)=data.p{i}(1);
+    val(2,i)=data.p{i}(lis(end)+1);
 end

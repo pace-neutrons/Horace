@@ -45,7 +45,7 @@ else
 end
 
 % Display summary information
-[ndim,sz] = data_dims(din.data);
+[ndim,sz] = data_structure_dims(din);
 disp(' ')
 disp([' ',num2str(ndim),'-dimensional object:'])
 disp(' -------------------------')

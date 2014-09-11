@@ -20,11 +20,12 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %   energy_axis     The index of the column in the 4x4 matrix din.u that corresponds
 %                  to the energy axis
 
+% Only needs the header part of the data field
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
+
 
 Angstrom=char(197);     % Angstrom symbol
 

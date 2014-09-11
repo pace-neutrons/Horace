@@ -23,26 +23,37 @@ function [mess, position] = put_sqw_information (S)
 
 
 fid=S.fid;
+fmt_ver=S.application.file_format;
 
 position_ref = struct('application',ftell(fid),'info',NaN,'position',NaN,'fmt',NaN);
 position=position_ref;
 
-fmt_ver=S.application.file_format;
+ver3p1=appversion(3,1);
 
 try
     [mess, position.application] = put_sqw_application (fid, S.application);
     if ~isempty(mess), position=position_ref; return, end
-        
-    [mess, position.info] = put_sqw_info (fid, fmt_ver, S.info);
-    if ~isempty(mess), position=position_ref; return, end
-    
-    [mess, position.position] = put_sqw_position (fid, fmt_ver, S.position);
-    if ~isempty(mess), position=position_ref; return, end
+       
+    if fmt_ver==ver3p1
+        % Latest format
+        [mess, position.info] = put_sqw_info (fid, fmt_ver, S.info);
+        if ~isempty(mess), position=position_ref; return, end
 
-    [mess, position.fmt] = put_sqw_fmt (fid, fmt_ver, S.fmt);
-    if ~isempty(mess), position=position_ref; return, end
+        [mess, position.position] = put_sqw_position (fid, fmt_ver, S.position);
+        if ~isempty(mess), position=position_ref; return, end
+
+        [mess, position.fmt] = put_sqw_fmt (fid, fmt_ver, S.fmt);
+        if ~isempty(mess), position=position_ref; return, end
+        
+    else
+        % Older formats ('-v3','-v1','-v0') - use legacy function
+        mess = put_sqw_LEGACY_object_type (fid, S.info.sqw_type, S.info.ndims);
+        if ~isempty(mess), position=position_ref; return, end
+        
+    end
     
 catch
     mess='Error writing summary block to file';
     position=position_ref;
+    
 end
