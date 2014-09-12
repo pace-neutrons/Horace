@@ -1,15 +1,30 @@
 function [mess, S] = put_sqw_LEGACY_position_info_footer (Sin, newfile, wrote_inst_and_samp)
+% Update the sqwfile structure and write position and footer information, if required
+%
+%   >> [mess, S] = put_sqw_LEGACY_position_info_footer (Sin, newfile, wrote_inst_and_samp)
 
-fid=Sin.fid;
+% *** Should only ever be called if dat_type is sqw-type, because sample and instrument information 
+%     can only be written to such a file. Therefore some of the checks in this function are redundant.
 
 
-% Update the file format depending on newfile and wrote_inst_and_samp
+% Original author: T.G.Perring
+%
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+
+
+% Initialise output arguments
+mess='';
 S=Sin;
+
+
+% -------------------------------------------------------------------------------------------------
+% Update the file format depending on newfile and wrote_inst_and_samp
+% -------------------------------------------------------------------------------------------------
 if newfile
     if ~wrote_inst_and_samp
-        % If requested '-v1', will certainly be '-v1' as the inst and sample were ignored
-        % If requested '-v3', then all data written will be '-v1' format, so label
-        % as such (this was the behaviour of earlier versions of Horace)
+        % - If requested '-v1', will certainly be '-v1' as the inst and sample were ignored
+        % - If requested '-v3', then all data written will be '-v1' format, so label as such 
+        %   (this was the behaviour of earlier versions of Horace)
         S.application.file_format=appversion(1);
     end
 else
@@ -22,9 +37,20 @@ else
 end
 
 
-% Create the legacy position block
+% -------------------------------------------------------------------------------------------------
+% Write position and footer information if '-v3'
+% -------------------------------------------------------------------------------------------------
+% Return if '-v1'
+if S.application.file_format==appversion(1)
+    mess='';
+    return
+end
+
+fid=Sin.fid;
 position=S.position;
 
+% Create the legacy position block
+% --------------------------------
 pos = struct('main_header',[],'header',[],'detpar',[],'data',[],'s',[],'e',[],'npix',[],...
     'urange',[],'pix',[],'instrument',[],'sample',[],'position_info',[]);
 if ~isnan(position.main_header), pos.main_header=position.main_header; end
@@ -37,10 +63,10 @@ if ~isnan(position.urange), pos.urange=position.urange; end
 if ~isnan(position.pix), pos.pix=position.pix; end
 if ~isnan(position.instrument), pos.instrument=position.instrument; end
 if ~isnan(position.sample), pos.sample=position.sample; end
-pos.position_info=0;    % dummy value to ensure correct space in file; will be updated later.
 
 
 % Create the footer block
+% -----------------------
 if S.info.sqw_type
     data_type='a';
 else
@@ -48,18 +74,59 @@ else
 end
 
 
-% Write data to file
-if newfile
-    % Can write straight to file
-    [mess, position] = put_sqw_LEGACY_position_info (fid, position, true);
-    if ~isempty(mess), return, end
-    mess=put_sqw_LEGACY_file_footer(fid,position.position_info, data_type);
-    if ~isempty(mess), return, end
-    
-else
-    % Determine
-end
+% Get to a suitable location to write the legacy position block
+% -------------------------------------------------------------
+% If a newfile, then use the current location, as the last I/O action was
+% writing the data (if no inst+samp) or the inst+samp. There should have been no
+% fseek operations since, so the file position locator is at the next position to write
+%
+% If not a new file
+% - if inst+samp was written, use the current location as again this was the most
+%   recent I/O action and there have been no fseek operations since.
+% - if no inst+samp was written, then either
+%       - there is no inst+sample (because there never was, or we no longer want
+%         to keep the current inst+samp), so move to the end of the data section
+%       - we want to keep the existing inst+samp, in which case the current location
+%         of the position information is a good location.
 
+if ~newfile
+    % Get location of position and footer sections in the current file
+    fseek(fid,0,'eof');
+    [mess, position_info_location, data_type_stored, footer_location] = get_sqw_LEGACY_file_footer (fid);
+    if ~isempty(mess), return, end
+    if ~strcmpi(data_type,data_type_stored)     % should be OK, but lets catch a logic error
+        mess='Stored data type and actual data type mis-match (put_sqw_LEGACY_position_info_footer)';
+        return
+    end
+    % Move to location where position section is to be written
+    if ~wrote_inst_and_samp
+        if isnan(position.instrument)
+            fseek(fid,position.data_end,'bof');     % end of data section
+        else
+            fseek(fid,position_info_location,'bof');
+        end
+    end
+end
+pos.position_info=ftell(fid);
+
+
+% Write data to file
+% ------------------
+% Write position information
+mess = put_sqw_LEGACY_position_info (fid, pos, false);
+if ~isempty(mess), return, end
+
+% Write footer
+if ~newfile
+    % Determine if there is room to add before the end of the file (the footer
+    % will have the same length, as the data_type cannot have changed); the footer
+    % must always run up to the end of the file.
+    if ftell(fid)<footer_location
+        fseek(fid,footer_location,'bof');
+    end
+end
+mess = put_sqw_LEGACY_file_footer(fid, pos.position_info, data_type);
+if ~isempty(mess), return, end
 
 
 

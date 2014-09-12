@@ -67,6 +67,7 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ve
 %                   position.npix_nz        position of array npix_nz (=NaN if npix_nz not written)
 %                   position.pix_nz         position of array pix_nz (=NaN if pix_nz not written)
 %                   position.pix            position of array pix  (=NaN if pix not written)
+%                   position.data_end       end of data block (equivalent to start of following section)
 %
 %   fieldfmt    Structure with format of fields written; an entry is set to '' if
 %              corresponding field was not written.
@@ -192,7 +193,8 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ve
 
 
 % Initialise output arguments
-position = struct('data',ftell(fid),'s',NaN,'e',NaN,'npix',NaN,'urange',NaN,'npix_nz',NaN,'pix_nz',NaN,'pix',NaN);
+position = struct('data',ftell(fid),'s',NaN,'e',NaN,'npix',NaN,'urange',NaN,...
+    'npix_nz',NaN,'pix_nz',NaN,'pix',NaN,'data_end',NaN);
 fieldfmt = struct('s','','e','','npix','','urange','','npix_nz','','pix_nz','','pix','');
 npixtot=NaN;
 npixtot_nz=NaN;
@@ -270,4 +272,5 @@ if ~opt.h
     position=updatestruct(position,pos_update);
     fieldfmt=updatestruct(fieldfmt,fmt_update);
     
+    position.data_end=ftell(fid);
 end

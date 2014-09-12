@@ -138,7 +138,7 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %
 %   mess        Error message; blank if no errors, non-blank otherwise
 %
-%   S           sqwfile structure with the information updated to match the written sqw file.
+%   S           sqwfile structure with the information matching the sqw file contents
 
 
 % Original author: T.G.Perring

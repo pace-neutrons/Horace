@@ -70,13 +70,14 @@ if fmt_ver<ver3
         pos_arr.pix=pos_arr.npix + 8*nbins + 44;    % bytes: 2x4xfloat32 for urange, 4 blank, 8 for npixtot
         % Work out npixtot from the length from start of signal array to end of file
         fseek(fid,0,'eof');
-        pos_endfile=ftell(fid);
-        nbytes=pos_endfile-pos_arr.s;
-        npixtot=(nbytes-(16*nbins+44))/36;
+        pos_data_end=ftell(fid);
+        npixtot=(pos_data_end-pos_arr.pix)/36;
         if npixtot<0 || rem(npixtot,1)~=0
             mess='Error reading sqw-type data from version 1 or prototype format file (npixtot error)';
             return
         end
+    else
+        pos_data_end=pos_arr.npix + 8*nbins;
     end
 else
     % Get position block location and data type
@@ -107,6 +108,9 @@ else
     if sqw_type
         pos_arr.urange=pos_info_from_file.urange;
         pos_arr.pix=pos_info_from_file.pix;
+        pos_data_end = pos_arr.pix + 36*npixtot;
+    else
+        pos_data_end = pos_arr.npix + 8*nbins;
     end
     
 end
@@ -162,6 +166,7 @@ if fmt_ver==ver3
     end
 end
 position=updatestruct(position,pos_arr);
+position.data_end=pos_data_end;
 
 % fmt block:
 fmt.s='float32';
@@ -213,6 +218,7 @@ try
 catch
     mess='Error reading sqw type and dimensions block from file';
 end
+
 
 %==================================================================================================
 function [mess, main_header, header, detpar, data, position] = get_sqw_LEGACY_header_sections (fid, fmt_ver, sqw_type)
@@ -277,46 +283,6 @@ opt=struct('dnd',false,'sqw',false,'nopix',false,'buffer',false,...
     'npix',false,'npix_nz',false,'pix_nz',false,'pix',false);
 [mess, data] = get_sqw_data (fid, fmt_ver, S, read_header, verbatim, make_full_fmt, opt);
 if ~isempty(mess), return, end
-
-
-%==================================================================================================
-function [mess, position_info_location, data_type, position] = get_sqw_LEGACY_file_footer (fid)
-% Read final entry to sqw file: location of position information in the file and data_type
-%
-%   >> [mess, position_info_location, data_type, position] = get_sqw_file_footer (fid)
-%
-% It is assumed that on entry that the pointer is just after the end of this block,
-% which should in fact be the end of the file.
-%
-% Input:
-% ------
-%   fid                     File pointer to (already open) binary file
-%
-% Output:
-% -------
-%   mess                    Message if there was a problem writing; otherwise mess=''
-%   position_info_location  Position of the position information block
-%   data_type               Type of sqw data contained in the file: will be one of
-%                               type 'b'    fields: filename,...,uoffset,...,dax,s,e
-%                               type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
-%                               type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
-%                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
-%   position                Position of the file footer in the file
-
-position_info_location=[];
-data_type='';
-position = ftell(fid);
-
-% Read data from file:
-try
-    fseek(fid,-4,'cof');        % we assume that we are at the end of the block of data
-    n = fread(fid,1,'int32');   % length of data_type
-    fseek(fid,-(n+12),'cof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
-    position_info_location = fread(fid,1,'float64');
-    data_type = fread(fid,[1,n],'*char*1');
-catch
-    mess='Error reading footer block from file';
-end
 
 
 %==================================================================================================

@@ -252,15 +252,17 @@ if newfile
         [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
             put_sqw_data (fid, fmt_ver, w.data, sparse_fmt);
     end
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    
+    % Update position and format structures
+    position = updatestruct(position,position_data);
+    fmt = updatestruct(fmt,fmt_data);
+
 else
     % Can only be writing header to an existing file
-    [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
-        put_sqw_data (fid, fmt_ver, w.data, sparse_fmt, '-h');
+    mess = put_sqw_data (fid, fmt_ver, w.data, sparse_fmt, '-h');
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
-if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
-
-position = updatestruct(position,position_data);
-fmt = updatestruct(fmt,fmt_data);
 
 
 % Write sample and instrument information
@@ -272,12 +274,7 @@ if write_inst_and_samp
         % write to the data section will have left the file position indicator at the start of the
         % signal array, not the end of the data section.
         if ~newfile
-            if ~isnan(position.instrument)
-                fseek(fid,position.instrument,'bof');   % end of data section
-            else
-                *** NOT TRUE:
-                fseek(fid,0,'eof');     % end of data section is end of file
-            end
+            fseek(fid,position.data_end,'bof');     % end of data section
         end
         % Now write instrument and sample blocks
         [mess,position.instrument] = put_sqw_header_inst (fid, fmt_ver, w.header);
@@ -306,8 +303,7 @@ end
 % Update S, and save to file
 % --------------------------
 if newfile
-    % Update all fields of S (even the application section may hve been changed)
-    S.application=application;
+    % Update info, position and fmt fields of S
     S.info=info;
     S.position=position;
     S.fmt=fmt;
@@ -319,9 +315,10 @@ else
     
 end
 
-% Older file format: write footer sections and update S if required
+% Older file formats: write footer sections and update S if required
 if fmt_ver<ver3p1
     [mess,S] = put_sqw_LEGACY_position_info_footer (S, newfile, wrote_inst_and_samp);
+    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
 
 % Write sqwfile

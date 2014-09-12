@@ -45,6 +45,7 @@ function S = sqwfile
 %   position.npix_nz        position of array npix_nz (=NaN if npix_nz not written)
 %   position.pix_nz         position of array pix_nz (=NaN if pix_nz not written)
 %   position.pix            position of array pix  (=NaN if pix not written)
+%   position.data_end       end of data block (equivalent to start of following section)
 %
 %   fmt.s           Format of array s
 %   fmt.e           Format of array e
@@ -70,6 +71,6 @@ S.info=struct('sparse',false,'sqw_data',false,'sqw_type',false,'buffer_type',fal
 
 S.position = struct('application',NaN,'info',NaN,'position',NaN,'fmt',NaN,...
     'main_header',NaN,'header',NaN,'instrument',NaN,'sample',NaN,'detpar',NaN,'data',NaN,...
-    's',NaN,'e',NaN,'npix',NaN,'urange',NaN,'npix_nz',NaN,'pix_nz',NaN,'pix',NaN);
+    's',NaN,'e',NaN,'npix',NaN,'urange',NaN,'npix_nz',NaN,'pix_nz',NaN,'pix',NaN,'data_end',NaN);
 
 S.fmt = struct('s','','e','','npix','','urange','','npix_nz','','pix_nz','','pix','');

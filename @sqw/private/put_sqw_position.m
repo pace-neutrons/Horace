@@ -38,6 +38,7 @@ function [mess, pos_start] = put_sqw_position (fid, fmt_ver, position, update)
 %   position.npix_nz        position of array npix_nz (=NaN if npix_nz not written)
 %   position.pix_nz         position of array pix_nz (=NaN if pix_nz not written)
 %   position.pix            position of array pix  (=NaN if pix not written)
+%   position.data_end       end of data block (equivalent to start of following section)
 
 
 % Original author: T.G.Perring
