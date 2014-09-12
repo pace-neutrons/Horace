@@ -85,7 +85,7 @@ classdef test_combine_cyl < TestCaseWithSave
             
             tol = this.tol;
             this.tol = -2.e-3;
-            this=test_or_save_variables(this,w2_1,w1_1 );
+            this=test_or_save_variables(this,w2_1,w1_1,'ignore_str',1 );
             this.tol = tol;
             
             %--------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ classdef test_combine_cyl < TestCaseWithSave
             
             tol = this.tol;
             %this.tol = -1.e-3;
-            this=test_or_save_variables(this,w2_2,w1_2);
+            this=test_or_save_variables(this,w2_2,w1_2,'ignore_str',1);
             this.tol = tol;
             
             %--------------------------------------------------------------------------------------------------
@@ -144,10 +144,8 @@ classdef test_combine_cyl < TestCaseWithSave
             w1_tot=cut_sqw(sqw_file_tot,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
             
             
-            tol = this.tol;
-            this.tol = -2.e-3;
-            this=test_or_save_variables(this,w2_tot,w1_tot);
-            this.tol = tol;
+            this=test_or_save_variables(this,w2_tot,w1_tot,'ignore_str',1,'tol',-2.e-3);
+
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
