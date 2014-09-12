@@ -72,7 +72,7 @@ try
             ver_str = read_sqw_var_char(fid, ver3p1);
             application.version = appversion(ver_str);
         else
-            % Will only be version 1 or 3
+            % Will only be version 1, 2 or 3
             application.version = appversion(ver_num);
         end
         
@@ -86,7 +86,7 @@ try
             fmt_str = read_sqw_var_char(fid, ver3p1);
             application.file_format = appversion(fmt_str);
         else
-            % File format version is '-v1' (Hoace 1,2) or '-v3' (Horace 3) for earlier versions
+            % File format version is '-v1' (Horace 1,2) or '-v3' (Horace 3) for earlier versions
             if ver_num==3
                 application.file_format = appversion(3);
             else

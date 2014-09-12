@@ -51,7 +51,11 @@ try
         % Horace version and file format version assumed to be the same for Horace v3 and below
         % Can only be '-v3' or '-v1' file format; 
         fmt_num=version_num(application.file_format);
-        fwrite(fid,fmt_num(1),'float64');  
+        if fmt_num(1)==3
+            fwrite(fid,3,'float64');
+        else
+            fwrite(fid,2,'float64');    % Horace version 2 was the stable release version
+        end
     end
     
 catch
