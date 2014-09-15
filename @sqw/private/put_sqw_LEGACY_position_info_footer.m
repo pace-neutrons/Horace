@@ -1,7 +1,7 @@
-function [mess, S] = put_sqw_LEGACY_position_info_footer (Sin, newfile, wrote_inst_and_samp)
+function [mess, S] = put_sqw_LEGACY_position_info_footer (Sin, newfile, pos_header_arr, wrote_inst_and_samp)
 % Update the sqwfile structure and write position and footer information, if required
 %
-%   >> [mess, S] = put_sqw_LEGACY_position_info_footer (Sin, newfile, wrote_inst_and_samp)
+%   >> [mess, S] = put_sqw_LEGACY_position_info_footer (Sin, newfile, pos_header_arr, wrote_inst_and_samp)
 
 % *** Should only ever be called if dat_type is sqw-type, because sample and instrument information 
 %     can only be written to such a file. Therefore some of the checks in this function are redundant.
@@ -53,7 +53,7 @@ position=S.position;
 pos = struct('main_header',[],'header',[],'detpar',[],'data',[],'s',[],'e',[],'npix',[],...
     'urange',[],'pix',[],'instrument',[],'sample',[],'position_info',[]);
 if ~isnan(position.main_header), pos.main_header=position.main_header; end
-if ~isnan(position.header), pos.header=position.header; end
+if ~isnan(position.header), pos.header=pos_header_arr; end
 if ~isnan(position.detpar), pos.detpar=position.detpar; end
 pos.s=position.s;
 pos.e=position.e;

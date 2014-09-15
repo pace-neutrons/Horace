@@ -221,7 +221,7 @@ end
 % Write header(s) of individual spe file(s)
 % -----------------------------------------
 if write_non_data_sections
-    [mess,position.header] = put_sqw_header (fid, fmt_ver, w.header);
+    [mess,position.header,pos_header_arr] = put_sqw_header (fid, fmt_ver, w.header);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
 
@@ -323,7 +323,7 @@ end
 
 % Older file formats: write footer sections and update S if required
 if fmt_ver<ver3p1
-    [mess,S] = put_sqw_LEGACY_position_info_footer (S, newfile, wrote_inst_and_samp);
+    [mess,S] = put_sqw_LEGACY_position_info_footer (S, newfile, pos_header_arr, wrote_inst_and_samp);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
 end
 
