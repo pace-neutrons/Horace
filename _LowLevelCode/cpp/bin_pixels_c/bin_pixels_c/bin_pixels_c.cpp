@@ -58,6 +58,7 @@ void omp_set_num_threads(int nThreads){};
 #   endif
 #endif
 
+#define OMP3
 
 
 
@@ -189,7 +190,11 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
     bool place_pixels_in_old_array;
     try{
+#ifdef OMP3
+        place_pixels_in_old_array = bin_pixelsOMP3(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
+#else
         place_pixels_in_old_array = bin_pixels(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
+#endif
     }catch(const char *err){
         mexErrMsgTxt(err);
     }
@@ -473,7 +478,7 @@ bool bin_pixelsOMP3(double *s, double *e, double *npix,
         se_stor[i].assign(2*distribution_size,0.);
         ind_stor[i].assign(distribution_size,0);
     }
-    std::vector<int> locks(distribution_size,0);
+    std::vector<int> locks(distribution_size);
 
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
     shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted,locks) \
@@ -573,6 +578,7 @@ bool bin_pixelsOMP3(double *s, double *e, double *npix,
 
         size_t Block_Size = sizeof(*pixel_data)*PIX_WIDTH;
 
+
 #pragma omp for
         for(long j=0;j<data_size;j++)
         {    
@@ -580,14 +586,12 @@ bool bin_pixelsOMP3(double *s, double *e, double *npix,
 
             size_t nCell = nGridCell[j];       // this is the index of a pixel in the grid cell
 
-            volatile int locked;
-#pragma omp atomic write
-            locked=locks[nCell]++;
-            volatile int unlock = locked+1;
-            while (locked!=unlock) {unlock=locks[nCell]-1;}
 
+#pragma omp atomic
+            locks[nCell]++;
 
-            size_t j0 = (ppInd[nCell])*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+            size_t j0 = (ppInd[nCell]+locks[nCell]-1)*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+#pragma omp atomic
             ppInd[nCell]++;
 
 #pragma omp atomic 
