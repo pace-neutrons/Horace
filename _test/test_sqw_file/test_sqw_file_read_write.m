@@ -142,7 +142,8 @@ inst_arr(2)=create_test_instrument(105,300,'a');
 wref=change_header_test(wref,inst_arr,sam1);
 save(wref,tmpsqwfile);
 wref=read_sqw(tmpsqwfile);     % creates with same file name will be set with read_sqw
-
+% Cleanup
+clean = onCleanup(@()delete(tmpsqwfile));
 
 % Change the two instruments
 inst_arr=create_test_instrument(400,500,'s');
@@ -189,5 +190,3 @@ set_instrument_horace(tmpsqwfile,@create_test_instrument,'-efix',500,'s');
 assertTrue(isequal(wtmp_ref,read_sqw(tmpsqwfile)),'Incorrectly set instrument for sqw file')
 
 %----------------------------------------------------------------------------------------
-% Cleanup
-delete(tmpsqwfile)
