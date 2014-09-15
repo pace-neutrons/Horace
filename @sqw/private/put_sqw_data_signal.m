@@ -60,11 +60,11 @@ function [mess,position,fieldfmt,npixtot] = put_sqw_data_signal (fid, fmt_ver, d
 %
 %   fieldfmt    Structure with format of fields written; an entry is set to '' if
 %              corresponding field was not written.
-%                   fieldfmt.s         
-%                   fieldfmt.e          
-%                   fieldfmt.npix       
-%                   fieldfmt.urange    
-%                   fieldfmt.npix_nz   
+%                   fieldfmt.s
+%                   fieldfmt.e
+%                   fieldfmt.npix
+%                   fieldfmt.urange
+%                   fieldfmt.npix_nz
 %
 %   npixtot     Total number of pixels actually written by the call to this function
 %              (=NaN if pix not written)
@@ -98,53 +98,59 @@ end
 
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
 
-% Write signal, variance
-if ~buffer
-    position.s=ftell(fid);
-    fieldfmt.s='float32';
-    fwrite(fid, single(data.s), 'float32');
-
-    position.e=ftell(fid);
-    fieldfmt.e='float32';
-    fwrite(fid, single(data.e), 'float32');
-end
-
-% Write npix
-position.npix=ftell(fid);
-fieldfmt.npix='int64';
-fwrite(fid, int64(data.npix), 'int64');  % make int64 so that can deal with huge numbers of pixels
-
-% Write urange
-if ~buffer && isfield(data,'urange')
-    position.urange=ftell(fid);
-    fieldfmt.urange=fmt_dble;
-    fwrite(fid, data.urange, fmt_dble);
-end
-
-% Write pixel information
-if isfield(data,'pix') || numel(varargin)>1
-    % *** Redundant field prior to '-v3.1':
-    if fmt_ver<appversion(3,1)
-        fwrite(fid,1,'int32');
+% Write data to file
+try
+    % Write signal, variance
+    if ~buffer
+        position.s=ftell(fid);
+        fieldfmt.s='float32';
+        fwrite(fid, single(data.s), 'float32');
+        
+        position.e=ftell(fid);
+        fieldfmt.e='float32';
+        fwrite(fid, single(data.e), 'float32');
     end
     
-    % Pixel information
-    if numel(varargin)<=1
-        % Pixels to be written from structure
-        npixtot=size(data.pix,2);
-        fwrite(fid,npixtot,'int64');        % make int64 so that can deal with huge numbers of pixels
-
-        position.pix=ftell(fid);
-        npixchunk=get(hor_config,'mem_chunk_size');     % size of buffer to hold pixel information
-        fieldfmt.pix=put_sqw_data_pix_array(fid, data.pix, npixchunk);
-        
-    else
-        % Pixels to be written from other source(s), assumed consistent with data written so far
-        % Overrides any pix information in the data structure
-        % This function must write npixtot and pix array
-        [mess,position.pix,fieldfmt.pix,npixtot] = put_sqw_data_pix_from_sources (fid, fmt_ver, varargin{2:end});
-        
+    % Write npix
+    position.npix=ftell(fid);
+    fieldfmt.npix='int64';
+    fwrite(fid, int64(data.npix), 'int64');  % make int64 so that can deal with huge numbers of pixels
+    
+    % Write urange
+    if ~buffer && isfield(data,'urange')
+        position.urange=ftell(fid);
+        fieldfmt.urange=fmt_dble;
+        fwrite(fid, data.urange, fmt_dble);
     end
+    
+    % Write pixel information
+    if isfield(data,'pix') || numel(varargin)>1
+        % *** Redundant field prior to '-v3.1':
+        if fmt_ver<appversion(3,1)
+            fwrite(fid,1,'int32');
+        end
+        
+        % Pixel information
+        if numel(varargin)<=1
+            % Pixels to be written from structure
+            npixtot=size(data.pix,2);
+            fwrite(fid,npixtot,'int64');        % make int64 so that can deal with huge numbers of pixels
+            
+            position.pix=ftell(fid);
+            npixchunk=get(hor_config,'mem_chunk_size');     % size of buffer to hold pixel information
+            fieldfmt.pix=put_sqw_data_pix_array(fid, data.pix, npixchunk);
+            
+        else
+            % Pixels to be written from other source(s), assumed consistent with data written so far
+            % Overrides any pix information in the data structure
+            % This function must write npixtot and pix array
+            [mess,position.pix,fieldfmt.pix,npixtot] = put_sqw_data_pix_from_sources (fid, fmt_ver, varargin{2:end});
+            if ~isempty(mess), return, end
+        end
+    end
+    
+catch
+    mess='Error writing bin and/or pixel data in the data section to file';
 end
 
 %==================================================================================================

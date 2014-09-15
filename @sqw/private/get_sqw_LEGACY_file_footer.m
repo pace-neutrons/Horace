@@ -21,6 +21,7 @@ function [mess, position_info_location, data_type, position] = get_sqw_LEGACY_fi
 %                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
 %   position                Position of the file footer in the file
 
+mess='';
 position_info_location=[];
 data_type='';
 position = ftell(fid);

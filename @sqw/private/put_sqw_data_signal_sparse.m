@@ -35,7 +35,7 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_spars
 %
 %                   If more than one run contributed, array contains ir,id,ie,s,e, where
 %                           ir      In the range 1 to nrun (the number of runs)
-%                  In this case, ir adds a third index into the pix array, and 
+%                  In this case, ir adds a third index into the pix array, and
 %                           ind = ie + max(ne)*(id-1) + ndet*max(ne)*(ir-1)
 %
 %       data.pix    Pixel index array, sorted so that all the pixels in the first
@@ -128,83 +128,89 @@ else
     single_file=false;
 end
 
-% Write signal, variance
-if ~buffer
-    position.s=ftell(fid);
-    fieldfmt.s='float32';
-    write_sparse(fid,data.s,'float32');
-    
-    position.e=ftell(fid);
-    fieldfmt.e='float32';
-    write_sparse(fid,data.e,'float32');
-end
-
-% Write npix
-if single_file
-    position.npix=ftell(fid);
-    fieldfmt.npix='int32';
-    write_sparse2(fid,data.npix,'int32');    % can assume there are less than 2e9 pixels
-else
-    position.npix=ftell(fid);
-    fieldfmt.npix='float64';
-    write_sparse2(fid,data.npix,'float64');  % allow for more than 2e9 pixels
-end
-
-% Write urange
-if ~buffer && isfield(data,'urange')
-    position.urange=ftell(fid);
-    fieldfmt.urange='float64';
-    fwrite(fid,data.urange,'float64');
-end
-
-% Write pixel information
-if isfield(data,'pix') || numel(varargin)>1
-    if numel(varargin)<=1
-        % Pixels to be written from from structure
-        npixtot_nz=size(data.pix_nz,2);
-        npixtot=numel(data.pix);
-        fwrite(fid,size(data.pix_nz),'float64');
-        fwrite(fid,npixtot,'float64');
+% Write data to file
+try
+    % Write signal, variance
+    if ~buffer
+        position.s=ftell(fid);
+        fieldfmt.s='float32';
+        write_sparse(fid,data.s,'float32');
         
-        if single_file
-            position.npix_nz=ftell(fid);
-            fieldfmt.npix_nz='int32';
-            write_sparse2(fid,data.npix_nz,'int32');    % can assume there are less than 2e9 pixels
-            
-            position.pix_nz=ftell(fid);
-            fieldfmt.pix_nz='float32';
-            fwrite(fid,single(data.pix_nz),'float32');
-            
-            position.pix=ftell(fid);
-            fieldfmt.pix='int32';
-            fwrite(fid,int32(data.pix),'int32');        % can assume there are less than 2e9 pixels
-        else
-            position.npix_nz=ftell(fid);
-            fieldfmt.npix_nz='float64';
-            write_sparse2(fid,data.npix_nz,'float64');  % allow for more than 2e9 pixels
-            
-            position.pix_nz=ftell(fid);
-            fieldfmt.pix_nz='float32';
-            fwrite(fid,single(data.pix_nz),'float32');
-            
-            position.pix=ftell(fid);
-            fieldfmt.pix='float64';
-            fwrite(fid,data.pix,'float64');             % allow for more than 2e9 pixels
-        end
-        
-    else
-        % Pixels to be written from other source(s), assumed consistent with data written so far
-        % Overrides any pix information in the data structure
-        % This function must write:
-        %   - size(pix_nz)
-        %   - npixtot
-        %   - npix_nz, pix_nz, pix arrays in sparse format
-        % Return 
-        %   - positions of the starts of npix_nz, pix_nz, pix arrays as a structure with those names
-        %   - formats of those three arrays as a structure with those names
-        %
-        % [mess,position_sp,fieldfmt_sp,npixtot,npixtot_nz] = put_sqw_data_pix_from_sources_sparse (fid, fmt_ver, varargin{2:end});
-        mess='Cannot write sparse pixel information from sources other than the input data structure';
-        return
+        position.e=ftell(fid);
+        fieldfmt.e='float32';
+        write_sparse(fid,data.e,'float32');
     end
+    
+    % Write npix
+    if single_file
+        position.npix=ftell(fid);
+        fieldfmt.npix='int32';
+        write_sparse2(fid,data.npix,'int32');    % can assume there are less than 2e9 pixels
+    else
+        position.npix=ftell(fid);
+        fieldfmt.npix='float64';
+        write_sparse2(fid,data.npix,'float64');  % allow for more than 2e9 pixels
+    end
+    
+    % Write urange
+    if ~buffer && isfield(data,'urange')
+        position.urange=ftell(fid);
+        fieldfmt.urange='float64';
+        fwrite(fid,data.urange,'float64');
+    end
+    
+    % Write pixel information
+    if isfield(data,'pix') || numel(varargin)>1
+        if numel(varargin)<=1
+            % Pixels to be written from from structure
+            npixtot_nz=size(data.pix_nz,2);
+            npixtot=numel(data.pix);
+            fwrite(fid,size(data.pix_nz),'float64');
+            fwrite(fid,npixtot,'float64');
+            
+            if single_file
+                position.npix_nz=ftell(fid);
+                fieldfmt.npix_nz='int32';
+                write_sparse2(fid,data.npix_nz,'int32');    % can assume there are less than 2e9 pixels
+                
+                position.pix_nz=ftell(fid);
+                fieldfmt.pix_nz='float32';
+                fwrite(fid,single(data.pix_nz),'float32');
+                
+                position.pix=ftell(fid);
+                fieldfmt.pix='int32';
+                fwrite(fid,int32(data.pix),'int32');        % can assume there are less than 2e9 pixels
+            else
+                position.npix_nz=ftell(fid);
+                fieldfmt.npix_nz='float64';
+                write_sparse2(fid,data.npix_nz,'float64');  % allow for more than 2e9 pixels
+                
+                position.pix_nz=ftell(fid);
+                fieldfmt.pix_nz='float32';
+                fwrite(fid,single(data.pix_nz),'float32');
+                
+                position.pix=ftell(fid);
+                fieldfmt.pix='float64';
+                fwrite(fid,data.pix,'float64');             % allow for more than 2e9 pixels
+            end
+            
+        else
+            % Pixels to be written from other source(s), assumed consistent with data written so far
+            % Overrides any pix information in the data structure
+            % This function must write:
+            %   - size(pix_nz)
+            %   - npixtot
+            %   - npix_nz, pix_nz, pix arrays in sparse format
+            % Return
+            %   - positions of the starts of npix_nz, pix_nz, pix arrays as a structure with those names
+            %   - formats of those three arrays as a structure with those names
+            %
+            % [mess,position_sp,fieldfmt_sp,npixtot,npixtot_nz] = put_sqw_data_pix_from_sources_sparse (fid, fmt_ver, varargin{2:end});
+            mess='Cannot write sparse pixel information from sources other than the input data structure';
+            return
+        end
+    end
+    
+catch
+    mess='Error writing bin and/or pixel data in the data section to file';
 end

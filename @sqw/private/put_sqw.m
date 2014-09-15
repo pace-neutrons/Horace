@@ -197,10 +197,16 @@ if newfile
     
 else
     % Can only be writing header to a pre-existing file
-    [mess,write_non_data_sections] = check_header_opt_ok (info,data_type_in);
+    [mess,write_non_data_sections] = check_header_opt_ok (info,w);
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
     write_inst_and_samp = (write_non_data_sections && opt.his); % means: write if they exist, remove if don't
 
+    % Get format
+    fmt_ver=S.application.file_format;
+    
+    % Overcome a very weird error if writing to an existing file tha I've encountered
+    % Seems that some status flag(s) is/are lost; jogging the file solves it!
+    fseek(fid,ftell(fid),'bof');
 end
 
 
@@ -576,7 +582,7 @@ end
 
 
 %==================================================================================================
-function [mess,header_opt_write_non_data] = check_header_opt_ok (info, data_type_in)
+function [mess,header_opt_write_non_data] = check_header_opt_ok (info, w)
 % Check that the input data for header option and existing file contents are consistent
 %
 %   >> [mess,header_opt_and_write] = check_header_opt_ok (info, w)
@@ -596,11 +602,12 @@ if info.buffer_type
     
 else
     if info.sqw_type
-        if data_type_in.sqw_type
+        if ~isempty(w.main_header)
             mess='';
             header_opt_write_non_data=true;
         else
             mess='Cannot update an sqw-type sqw file unless all header fields are filled';
+            header_opt_write_non_data=false;
         end
     else
         mess='';

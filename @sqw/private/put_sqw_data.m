@@ -151,7 +151,7 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ve
 %
 %                   If more than one run contributed, array contains ir,id,ie,s,e, where
 %                           ir      In the range 1 to nrun (the number of runs)
-%                  In this case, ir adds a third index into the pix array, and 
+%                  In this case, ir adds a third index into the pix array, and
 %                           ind = ie + max(ne)*(id-1) + ndet*max(ne)*(ir-1)
 %
 %   data.pix        Pixel index array, sorted so that all the pixels in the first
@@ -193,6 +193,7 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ve
 
 
 % Initialise output arguments
+mess='';
 position = struct('data',ftell(fid),'s',NaN,'e',NaN,'npix',NaN,'urange',NaN,...
     'npix_nz',NaN,'pix_nz',NaN,'pix',NaN,'data_end',NaN);
 fieldfmt = struct('s','','e','','npix','','urange','','npix_nz','','pix_nz','','pix','');
@@ -219,41 +220,46 @@ end
 % Write header information to file
 % --------------------------------
 if ~opt.buffer
-    [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
-    len_name_max=1024;  % fixed length of name string
-    len_title_max=8192; % fixed length of title string
-    
-    write_sqw_var_char (fid, fmt_ver, data.filename, len_name_max);
-    write_sqw_var_char (fid, fmt_ver, data.filepath, len_name_max);
-    write_sqw_var_char (fid, fmt_ver, data.title,    len_title_max);
-    
-    fwrite(fid, data.alatt,    fmt_dble);
-    fwrite(fid, data.angdeg,   fmt_dble);
-    fwrite(fid, data.uoffset,  fmt_dble);
-    fwrite(fid, data.u_to_rlu, fmt_dble);
-    fwrite(fid, data.ulen,     fmt_dble);
-    
-    write_sqw_var_char (fid, fmt_ver, data.ulabel, len_name_max);
-    
-    npax = length(data.pax);    % write number plot axes - gives the dimensionality of the plot
-    niax = 4 - npax;
-    fwrite(fid, npax, fmt_int);
-    
-    if niax>0
-        fwrite(fid, data.iax,  fmt_int);
-        fwrite(fid, data.iint, fmt_dble);
-    end
-    
-    if npax>0
-        fwrite(fid, data.pax, fmt_int);
-        for i=1:npax
-            np=length(data.p{i});   % write length of vector data.p{i}
-            fwrite(fid, np, fmt_int);
-            fwrite(fid, data.p{i}, fmt_dble);
+    try
+        [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
+        len_name_max=1024;  % fixed length of name string
+        len_title_max=8192; % fixed length of title string
+        
+        write_sqw_var_char (fid, fmt_ver, data.filename, len_name_max);
+        write_sqw_var_char (fid, fmt_ver, data.filepath, len_name_max);
+        write_sqw_var_char (fid, fmt_ver, data.title,    len_title_max);
+        
+        fwrite(fid, data.alatt,    fmt_dble);
+        fwrite(fid, data.angdeg,   fmt_dble);
+        fwrite(fid, data.uoffset,  fmt_dble);
+        fwrite(fid, data.u_to_rlu, fmt_dble);
+        fwrite(fid, data.ulen,     fmt_dble);
+        
+        write_sqw_var_char (fid, fmt_ver, data.ulabel, len_name_max);
+        
+        npax = length(data.pax);    % write number plot axes - gives the dimensionality of the plot
+        niax = 4 - npax;
+        fwrite(fid, npax, fmt_int);
+        
+        if niax>0
+            fwrite(fid, data.iax,  fmt_int);
+            fwrite(fid, data.iint, fmt_dble);
         end
-        fwrite(fid, data.dax, fmt_int);
+        
+        if npax>0
+            fwrite(fid, data.pax, fmt_int);
+            for i=1:npax
+                np=length(data.p{i});   % write length of vector data.p{i}
+                fwrite(fid, np, fmt_int);
+                fwrite(fid, data.p{i}, fmt_dble);
+            end
+            fwrite(fid, data.dax, fmt_int);
+        end
+        
+    catch
+        mess='Unable to write data section header information to file';
+        return
     end
-    
 end
 
 

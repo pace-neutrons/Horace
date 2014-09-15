@@ -13,7 +13,6 @@ function [mess, S] = put_sqw_LEGACY_position_info_footer (Sin, newfile, wrote_in
 
 
 % Initialise output arguments
-mess='';
 S=Sin;
 
 
@@ -90,7 +89,8 @@ end
 %         of the position information is a good location.
 
 if ~newfile
-    % Get location of position and footer sections in the current file
+    % Get location of position and footer sections in the current file (will need footer location later)
+    pos_tmp=ftell(fid);
     fseek(fid,0,'eof');
     [mess, position_info_location, data_type_stored, footer_location] = get_sqw_LEGACY_file_footer (fid);
     if ~isempty(mess), return, end
@@ -98,12 +98,15 @@ if ~newfile
         mess='Stored data type and actual data type mis-match (put_sqw_LEGACY_position_info_footer)';
         return
     end
-    % Move to location where position section is to be written
+    fseek(fid,pos_tmp,'bof');   % return to position before this excursion
+    
+    % If inst+samp written, currently in correct location; if not, move to location where
+    % position section is to be written
     if ~wrote_inst_and_samp
         if isnan(position.instrument)
-            fseek(fid,position.data_end,'bof');     % end of data section
+            fseek(fid,position.data_end,'bof');     % end of data section (dont want to keep any existing inst+samp)
         else
-            fseek(fid,position_info_location,'bof');
+            fseek(fid,position_info_location,'bof');% retain existing inst+samp, so use current location
         end
     end
 end
