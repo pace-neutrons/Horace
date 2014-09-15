@@ -58,7 +58,7 @@ void omp_set_num_threads(int nThreads){};
 #   endif
 #endif
 
-#define OMP3
+
 
 
 
@@ -66,10 +66,6 @@ bool bin_pixels(double *s, double *e, double *npix,
                 mxArray*  pPixel_data, mxArray* &PixelSorted,
                 double const* const cut_range,
                 mwSize grid_size[4], int num_threads);
-bool bin_pixelsOMP3(double *s, double *e, double *npix,
-                    mxArray*  pPixel_data, mxArray* &PixelSorted,
-                    double const* const cut_range,
-                    mwSize grid_size[4], int num_threads);
 
 
 //
@@ -190,11 +186,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
     bool place_pixels_in_old_array;
     try{
-#ifdef OMP3
-        place_pixels_in_old_array = bin_pixelsOMP3(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
-#else
         place_pixels_in_old_array = bin_pixels(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
-#endif
     }catch(const char *err){
         mexErrMsgTxt(err);
     }
@@ -209,214 +201,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
 
 }
-
 bool bin_pixels(double *s, double *e, double *npix,
-                mxArray*  pPixel_data, mxArray* &PixelSorted,
-                double const* const cut_range,
-                mwSize grid_size[4], int num_threads)
-{
-    double xt,yt,zt,Et,nPixSq;
-    mwSize distribution_size;
-    // numbers of the pixels in grid
-    distribution_size = grid_size[0]*grid_size[1]*grid_size[2]*grid_size[3];
-    // input pixel data and their shapes
-    double *pixel_data = mxGetPr(pPixel_data); 
-    mwSize data_size   = mxGetN(pPixel_data); 
-    mwSize nPixelDatas = mxGetM(pPixel_data); 
-
-    mwSize nPixel_retained(0),nCellOccupied(0);
-
-    std::vector<char> ok(data_size);
-    std::vector<mwSize> nGridCell(data_size);
-    //  memory to sort pixels according to the grid bins
-    std::vector<mwSize >  ppInd(distribution_size);
-
-    bool place_pixels_in_old_array(false); // true does not works properly
-
-    // temporary area for all sorted pixels
-    mxArray *tPixelSorted;
-    try
-    { 
-        tPixelSorted  = mxCreateDoubleMatrix(PIX_WIDTH,data_size,mxREAL);
-    }catch(...)
-    {	
-        tPixelSorted=NULL;
-        throw("  Can not allocate memory for sorted pixels");
-    }
-    double *pPixelSorted=mxGetPr(tPixelSorted);
-
-
-    omp_set_num_threads(num_threads);
-
-
-    double  xBinR,yBinR,zBinR,eBinR;                 // new bin sizes in four dimensins 
-    mwSize  nDimX(0),nDimY(0),nDimZ(0),nDimE(0); // reduction dimensions; if 0, the dimension is reduced;
-
-    //       nel=[1,cumprod(grid_size)]; % Number of elements per unit step along each dimension
-    mwSize      nDimLength(1);
-    nDimX      =nDimLength;    nDimLength*=grid_size[0];
-    nDimY      =nDimLength;    nDimLength*=grid_size[1];
-    nDimZ      =nDimLength;    nDimLength*=grid_size[2];
-    nDimE      =nDimLength;    
-    //
-    xBinR       = grid_size[0]/(cut_range[1]-cut_range[0]);
-    yBinR       = grid_size[1]/(cut_range[3]-cut_range[2]);
-    zBinR       = grid_size[2]/(cut_range[5]-cut_range[4]);
-    eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
-
-
-    std::vector<std::vector<double> >  se_stor(num_threads);
-    std::vector<std::vector<size_t> >  ind_stor(num_threads);
-    for(int i=0;i<num_threads;i++)
-    {
-        se_stor[i].assign(2*distribution_size,0.);
-        ind_stor[i].assign(distribution_size,0);
-    }
-#pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
-    shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted) \
-    firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
-    reduction(+:nPixel_retained)
-    {
-#pragma omp for 
-        for(long i=0;i<data_size;i++)
-        {
-            size_t i0=i*PIX_WIDTH;
-
-            xt = pixel_data[i0+u1];
-            yt = pixel_data[i0+u2];
-            zt = pixel_data[i0+u3];
-            Et = pixel_data[i0+u4];
-
-            //  ok = indx(:,1)>=cut_range(1,1) & indx(:,1)<=cut_range(2,1) & indx(:,2)>=cut_range(1,2) & indx(:,2)<=urange_step(2,2) & ...
-            //       indx(:,3)>=cut_range(1,3) & indx(:,3)<=cut_range(2,3) & indx(:,4)>=cut_range(1,4) & indx(:,4)<=cut_range(2,4);
-            ok[i]=false;
-            if(xt<cut_range[0]||xt>cut_range[1])continue;
-            if(xt==cut_range[1])xt*=(1-FLT_EPSILON);
-            if(yt<cut_range[2]||yt>cut_range[3])continue;
-            if(yt==cut_range[3])yt*=(1-FLT_EPSILON);
-            if(zt<cut_range[4]||zt>cut_range[5])continue; 			
-            if(zt==cut_range[5])zt*=(1-FLT_EPSILON);
-            if(Et<cut_range[6]||Et>cut_range[7])continue; 			
-            if(Et==cut_range[7])Et*=(1-FLT_EPSILON);
-
-            nPixel_retained++;
-
-            //ibin(ok) = ibin(ok) + nel(id)*max(0,min((grid_size(id)-1),floor(grid_size(id)*((u(id,ok)-urange(1,id))/(urange(2,id)-urange(1,id))))));
-
-            mwSize ix=(mwSize)floor((xt-cut_range[0])*xBinR);
-            mwSize iy=(mwSize)floor((yt-cut_range[2])*yBinR);
-            mwSize iz=(mwSize)floor((zt-cut_range[4])*zBinR);
-            mwSize ie=(mwSize)floor((Et-cut_range[6])*eBinR);
-
-            mwSize il=ix*nDimX+iy*nDimY+iz*nDimZ+ie*nDimE;
-
-            ok[i]       = true;
-            nGridCell[i]= il;
-
-
-            ////    sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);			
-            //#pragma omp atomic   // beware C index one less then Matlab; should use enum instead
-            //            s[il]   +=pixel_data[i0+7]; 
-            ////    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
-            //#pragma omp atomic
-            //            e[il]   +=pixel_data[i0+8];
-            //#pragma omp atomic
-            //            npix[il]++;
-            int n_thread = omp_get_thread_num();
-            se_stor[n_thread][2*il+0]+=pixel_data[i0+7]; 
-            se_stor[n_thread][2*il+1]+=pixel_data[i0+8]; 
-            ind_stor[n_thread][il]++;
-
-
-        } // end for -- imlicit barrier;
-        // combine all thread-calculated distributions together
-#pragma omp for
-        for (long i=0;i<distribution_size;i++)
-        {
-            for(int i0=0;i0<num_threads;i0++)
-            {
-                s[i]   +=se_stor[i0][2*i+0];
-                e[i]   +=se_stor[i0][2*i+1];
-                npix[i]+=ind_stor[i0][i];
-            }
-        }
-
-
-        //    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
-        //    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
-#pragma omp for
-        for(long i=0;i<distribution_size;i++){
-            nPixSq  =npix[i];
-            if(nPixSq ==0)nPixSq = 1;
-            s[i]   /=nPixSq;
-            nPixSq *=nPixSq;
-            e[i]   /=nPixSq;
-        }
-
-        // sort pixels according to grid cells
-        //    ix=find(ok);                % Pixel indicies that are included in the grid
-        //    [ibin,ind]=sort(ibin(ok));  % ordered bin numbers of the included pixels with index array into the original list of bin numbers of included pixels
-        //    ix=ix(ind)';                % Indicies of included pixels coerresponding to ordered list; convert to column vector
-        //    % Sort into increasing bin number and return indexing array
-        //    % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
-        //    sqw_data.pix=sqw_data.pix(:,ix);
-#pragma omp single
-        {
-            ppInd[0]=0;
-            for(long i=1;i<distribution_size;i++){   // initiate the boudaries of the cells to keep pixels
-                ppInd[i]=ppInd[i-1]+(mwSize)npix[i-1];
-            }; 
-        }
-
-        size_t Block_Size = sizeof(*pixel_data)*PIX_WIDTH;
-    }// end parallel region
-
-    //#pragma omp for
-    for(long j=0;j<data_size;j++)
-    {    
-        if(!ok[j])continue;
-
-        size_t nCell = nGridCell[j];       // this is the index of a pixel in the grid cell
-
-
-
-        size_t j0 = (ppInd[nCell])*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-        //#pragma omp atomic
-        ppInd[nCell]++;
-
-
-        size_t i0    = j*PIX_WIDTH;
-        //memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
-        for(size_t i=0;i<PIX_WIDTH;i++){
-            pPixelSorted[j0+i]=pixel_data[i0+i];}
-    }
-    //   } // other place for parallel to end up
-
-    // where to place new pixels
-    if (data_size == nPixel_retained){
-        PixelSorted = tPixelSorted;
-    }
-    else{
-        try
-        { 
-            PixelSorted   = mxCreateDoubleMatrix(PIX_WIDTH,nPixel_retained,mxREAL);
-        }catch(...)
-        {	
-            PixelSorted=NULL;
-            throw("  Can not allocate memory for sorted pixels");
-        }
-        // copy pixels info from heap to matlab controlled memory;
-        double *pPixels = mxGetPr(PixelSorted);
-        for(size_t i=0;i<nPixel_retained*PIX_WIDTH;i++)
-        {
-            pPixels[i] = pPixelSorted[i];
-        }
-        mxDestroyArray(tPixelSorted);
-    }
-    return place_pixels_in_old_array;
-}
-#ifdef OMP3
-bool bin_pixelsOMP3(double *s, double *e, double *npix,
                     mxArray*  pPixel_data, mxArray* &PixelSorted,
                     double const* const cut_range,
                     mwSize grid_size[4], int num_threads)
@@ -478,10 +263,10 @@ bool bin_pixelsOMP3(double *s, double *e, double *npix,
         se_stor[i].assign(2*distribution_size,0.);
         ind_stor[i].assign(distribution_size,0);
     }
-    std::vector<int> locks(distribution_size);
+    std::vector<int> increments(distribution_size,0);
 
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
-    shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted,locks) \
+    shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted,increments) \
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
     reduction(+:nPixel_retained)
     {
@@ -588,14 +373,14 @@ bool bin_pixelsOMP3(double *s, double *e, double *npix,
 
 
 #pragma omp atomic
-            locks[nCell]++;
+            increments[nCell]++;
 
-            size_t j0 = (ppInd[nCell]+locks[nCell]-1)*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+            size_t j0 = (ppInd[nCell]+increments[nCell]-1)*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 #pragma omp atomic
             ppInd[nCell]++;
 
 #pragma omp atomic 
-            locks[nCell]--;
+            increments[nCell]--;
 
             size_t i0    = j*PIX_WIDTH;
             //memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
@@ -627,4 +412,4 @@ bool bin_pixelsOMP3(double *s, double *e, double *npix,
     }
     return place_pixels_in_old_array;
 }
-#endif
+
