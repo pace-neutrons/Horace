@@ -56,18 +56,15 @@ void omp_set_num_threads(int nThreads){};
 #define omp_get_max_threads() 1
 #define omp_get_thread_num()  0
 #   endif
-#  if __GNUC__ >3 &&(__GNUC_MINOR__ > 3)
-//#define OMP3
-#  endif
 #endif
 
 
 
 
 bool bin_pixels(double *s, double *e, double *npix,
-                    mxArray*  pPixel_data, mxArray* &PixelSorted,
-                    double const* const cut_range,
-                    mwSize grid_size[4], int num_threads);
+                mxArray*  pPixel_data, mxArray* &PixelSorted,
+                double const* const cut_range,
+                mwSize grid_size[4], int num_threads);
 bool bin_pixelsOMP3(double *s, double *e, double *npix,
                     mxArray*  pPixel_data, mxArray* &PixelSorted,
                     double const* const cut_range,
@@ -192,15 +189,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
     bool place_pixels_in_old_array;
     try{
-#ifdef OMP3
-	if (num_threads==1)
-	    place_pixels_in_old_array = bin_pixels(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
-	else
-	    place_pixels_in_old_array = bin_pixelsOMP3(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
-
-#else
         place_pixels_in_old_array = bin_pixels(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
-#endif
     }catch(const char *err){
         mexErrMsgTxt(err);
     }
@@ -217,9 +206,9 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 }
 
 bool bin_pixels(double *s, double *e, double *npix,
-                    mxArray*  pPixel_data, mxArray* &PixelSorted,
-                    double const* const cut_range,
-                    mwSize grid_size[4], int num_threads)
+                mxArray*  pPixel_data, mxArray* &PixelSorted,
+                double const* const cut_range,
+                mwSize grid_size[4], int num_threads)
 {
     double xt,yt,zt,Et,nPixSq;
     mwSize distribution_size;
@@ -375,28 +364,28 @@ bool bin_pixels(double *s, double *e, double *npix,
         }
 
         size_t Block_Size = sizeof(*pixel_data)*PIX_WIDTH;
-}
+    }// end parallel region
 
-//#pragma omp for
-        for(long j=0;j<data_size;j++)
-        {    
-            if(!ok[j])continue;
+    //#pragma omp for
+    for(long j=0;j<data_size;j++)
+    {    
+        if(!ok[j])continue;
 
-            size_t nCell = nGridCell[j];       // this is the index of a pixel in the grid cell
-
-
-
-            size_t j0 = (ppInd[nCell])*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-//#pragma omp atomic
-            ppInd[nCell]++;
+        size_t nCell = nGridCell[j];       // this is the index of a pixel in the grid cell
 
 
-            size_t i0    = j*PIX_WIDTH;
-            //memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
-            for(size_t i=0;i<PIX_WIDTH;i++){
-            	pPixelSorted[j0+i]=pixel_data[i0+i];}
-        }
- //   } // end parallel region
+
+        size_t j0 = (ppInd[nCell])*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+        //#pragma omp atomic
+        ppInd[nCell]++;
+
+
+        size_t i0    = j*PIX_WIDTH;
+        //memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
+        for(size_t i=0;i<PIX_WIDTH;i++){
+            pPixelSorted[j0+i]=pixel_data[i0+i];}
+    }
+    //   } // other place for parallel to end up
 
     // where to place new pixels
     if (data_size == nPixel_retained){
@@ -607,7 +596,7 @@ bool bin_pixelsOMP3(double *s, double *e, double *npix,
             size_t i0    = j*PIX_WIDTH;
             //memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
             for(size_t i=0;i<PIX_WIDTH;i++){
-            	pPixelSorted[j0+i]=pixel_data[i0+i];}
+                pPixelSorted[j0+i]=pixel_data[i0+i];}
         }
     } // end parallel region
 
