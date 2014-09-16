@@ -28,10 +28,11 @@ tmpsqwfile=fullfile(tempdir,'test_sqw_file_read_write_tmp.sqw');
 % Write out to sqw files, read back in, and test they are the same
 % ----------------------------------------------------------------
 save(f1_1,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
-[ok,mess]=equal_to_tol(f1_1,tmp,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+[ok,mess]=equal_to_tol(f1_1,tmp,'ignore_str',1); 
+assertTrue(ok,mess);
 
 save(f1_3,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
-[ok,mess]=equal_to_tol(f1_3,tmp,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+[ok,mess]=equal_to_tol(f1_3,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 
 % Reference sqw objects with different samples
@@ -50,30 +51,36 @@ f1_1_s3_ref=set_header_fudge(f1_1,'sample',sam3);
 % Set sample
 f1_1_s1=set_sample(f1_1,sam1);
 [ok,mess]=equal_to_tol(f1_1_s1_ref,f1_1_s1,'ignore_str',1);
-if ~ok, assertTrue(false,mess), end
+assertTrue(ok,mess)
 
 % Write and read back in
 try
-    save(f1_1_s1,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
-catch
-    assertTrue(false,'Error reading/writing sqw object')
+    save(f1_1_s1,tmpsqwfile); 
+    tmp=read(sqw,tmpsqwfile);
+catch err
+    warning('test_sqw_file_read_write:io','Error reading/writing sqw object')
+    rethrow(err);
 end
-[ok,mess]=equal_to_tol(f1_1_s1,tmp,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+[ok,mess]=equal_to_tol(f1_1_s1,tmp,'ignore_str',1); assertTrue(ok,mess)
+
+% Cleanup
+clean0 = onCleanup(@()delete(tmpsqwfile));
 
 % Remove the sample again, and confirm the same as original object after writing and reading
 % ------------------------------------------------------------------------------------------
 % Set sample
 f1_1_s0=set_sample(f1_1_s1,[]);
 [ok,mess]=equal_to_tol(f1_1,f1_1_s0,'ignore_str',1);
-if ~ok, assertTrue(false,mess), end
+assertTrue(ok,mess)
 
 % Write and read back in
 try
     save(f1_1_s0,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
-catch
-    assertTrue(false,'Error reading/writing sqw object')
+catch err
+    warning('test_sqw_file_read_write:io1','Error reading/writing sqw object')
+    rethrow(err);    
 end
-[ok,mess]=equal_to_tol(f1_1_s0,tmp,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+[ok,mess]=equal_to_tol(f1_1_s0,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 % Now change the sample in a file
 % -------------------------------
@@ -81,22 +88,22 @@ end
 save(f1_1,tmpsqwfile)
 set_sample_horace(tmpsqwfile,sam1);
 tmp=read_sqw(tmpsqwfile);
-[ok,mess]=equal_to_tol(f1_1_s1_ref,tmp,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+[ok,mess]=equal_to_tol(f1_1_s1_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 % Now add a longer sample - this should be appended to the end
 set_sample_horace(tmpsqwfile,sam2);
 tmp=read_sqw(tmpsqwfile);
-[ok,mess]=equal_to_tol(f1_1_s2_ref,tmp,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+[ok,mess]=equal_to_tol(f1_1_s2_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 % Now add a longer sample still - but shorter than the sum of sam1 and sam2: should overwrite
 set_sample_horace(tmpsqwfile,sam3);
 tmp=read_sqw(tmpsqwfile);
-[ok,mess]=equal_to_tol(f1_1_s3_ref,tmp,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+[ok,mess]=equal_to_tol(f1_1_s3_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 % Dummy sample
 set_sample_horace(tmpsqwfile,[]);
 tmp=read_sqw(tmpsqwfile);
-[ok,mess]=equal_to_tol(f1_1,tmp,'ignore_str',1); if ~ok, assertTrue(false,mess), end
+[ok,mess]=equal_to_tol(f1_1,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 
 %==================================================================================================
