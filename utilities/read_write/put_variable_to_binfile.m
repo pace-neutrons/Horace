@@ -51,8 +51,9 @@ elseif isobject(var)
     end
     
 else
+    % 19 Sep 2014, TGP: change 'ubit1' to 'ubit8'
     class_type={'char','double','single','logical','int8','int16','int32','int64','uint8','uint16','uint32','uint64'};
-    fmt={'char*1','float64','float32','ubit1','int8','int16','int32','int64','uint8','uint16','uint32','uint64'};
+    fmt={'char*1','float64','float32','ubit8','int8','int16','int32','int64','uint8','uint16','uint32','uint64'};
     ind=find(strcmp(type,class_type));
     if ~isempty(ind)
         put_class(fid,type,sz)
