@@ -55,6 +55,7 @@ pos = struct('main_header',[],'header',[],'detpar',[],'data',[],'s',[],'e',[],'n
 if ~isnan(position.main_header), pos.main_header=position.main_header; end
 if ~isnan(position.header), pos.header=pos_header_arr; end
 if ~isnan(position.detpar), pos.detpar=position.detpar; end
+if ~isnan(position.data), pos.data=position.data; end
 pos.s=position.s;
 pos.e=position.e;
 pos.npix=position.npix;
