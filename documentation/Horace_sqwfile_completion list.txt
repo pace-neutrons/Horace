@@ -1,0 +1,36 @@
+=================================================
+Things to do to finish off Horace IO change:
+=================================================
+- cut_sqw_main and cut_data_from_file do direct reads still rather than going via get_sqw
+- cut_data_from_file calls put_sqw_data_npix_and_pix_to_file
+- put_sqw with pix from multiple sources
+- cut_dnd_main, cut_sqw_main: Need to open files correctly (put_sqw_open at the moment)
+
+
+- put author and version into all Horace and Herbert functions
+
+
+=================================================
+Check
+=================================================
+Does put_sqw need to be able to take an sqwfile structure as input?
+
+
+=================================================
+Maybe?
+=================================================
+Add rebin, integrate (+others methods?) from IX_dataset_nd
+
+Change appversion to reduce times to read (too long!)
+
+Fast version of is_sqw_type_file that does not read the full header information from v3 and earlier
+
+
+=================================================
+Bugs
+=================================================
+get_efix_horace('c:\temp\crap_dnd.d2d')
+
+Herbert non-monotonic 1D array if point data
+
+

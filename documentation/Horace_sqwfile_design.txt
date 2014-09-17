@@ -1,0 +1,92 @@
+===============================================================================
+Types of data
+===============================================================================
+- dnd 				'dnd'
+- dnd sparse		'dnd_sp'
+- sqw 				'sqw'
+- sqw sparse		'sqw_sp'
+
+File containing only:
+- npix + pix 		'npix_pix'
+
+The last is used to make intermediate files that only are used cutting an sqw
+file with final output being a file. These intermediate files are used just as
+.tmp files in gen_sqw are: the pixels are sorted in bin order, but because the
+cut may have changed the projection axes the collection of buffer files have to
+be combined by reading the contents of a few bins at  time from each of the
+files.
+
+The only difference is that the header information doesn't need to be held as
+these files are not expected to be stored. In fact, if we did not allow for the
+possibility of keeping the .tmp files, we wouldn't need to write the headers
+in those files either.
+
+
+===============================================================================
+Algorithms
+===============================================================================
+Opening a file:
+===============
+[this,ok,mess]=open(sqwfile,file)		% open an existing sqw file
+										% loads basic information about the file
+											
+[this,ok,mess]=open(sqwfile,file,'new')	% open a new file, or replace existing file
+
+
+Reading from file:
+==================
+[w,ok,mess] = load (this) 				% load sqw or dnd object according to contents of the file
+[w,ok,mess] = load (this,'dnd') 		% load as dnd even if sqw contents
+
+[S,ok,mess] = load (this,'h') 			% read all into a structure except s,e,npix,pix [npix_nz,pix_nz]
+[S,ok,mess] = load (this,'his') 		% read all into a structure except s,e,npix,pix [npix_nz,pix_nz]
+[S,ok,mess] = load (this,'hverbatim') 	% read all into a structure except s,e,npix,pix [npix_nz,pix_nz]
+[S,ok,mess] = load (this,'hisverbatim') % read all into a structure except s,e,npix,pix [npix_nz,pix_nz]
+[S,ok,mess] = load (this,'nopix') 		% read all into a structure except pix [npix_nz,pix_nz]
+
+If non-sparse contents:
+-----------------------
+[npix,ok,mess] = load(this,'npix')
+[npix,ok,mess] = load(this,'npix', [blo,bhi])
+
+[pix,ok,mess] = load(this,'pix')
+[pix,ok,mess] = load(this,'pix', [plo,phi])
+
+If sparse contents:
+-----------------------
+[npix,ok,mess] = load(this,'npix')
+[npix,ok,mess] = load(this,'npix', [blo,bhi], [ilo,ihi]) 	% blo,bhi defines the bin number range
+												% ilo,ihi range of entries in npix
+[npix_nz,ok,mess] = load(this,'npix_nz')
+[npix_nz,ok,mess] = load(this,'npix_nz', [blo,bhi], [ilo,ihi]) 	
+												% blo,bhi defines the bin number range
+												% ilo,ihi range of entries in npix_nz
+To load as full array:
+[npix_nz,ok,mess] = load(...,'full')												
+					
+Only returned as full array, but with the pixel coordinates all set to zero:
+pix = load(this,'pix')
+pix = load(this,'pix', [plo,phi], [pnzlo,pnzhi])  
+												% plo,phi ranges of entries in pix
+												% pnzlo,pnzhi ranges of entries in pix_nz
+
+Writing to file:
+================
+[ok,mess,this] = save (this, S) 			% write contents of structure or sqw object
+[ok,mess,this] = save (this, S, 'h') 	% write header (without instrument and sample)
+											% from structure or sqw object
+[ok,mess,this] = save (this, S, 'his') 	% write header (with instrument and sample) [
+											% from structure or sqw object
+											
+[ok,mess,this] = save (this, S, 'pix', v1, v2,...) 	% write 
+
+[ok,mess,this] = save_data_signal (this, data)
+[ok,mess,this] = save_data_signal (this, data, 'pix', v1, v2,...) 	% write 
+
+
+
+Closing file:
+=============
+[ok,mess]=close(this) 		% close an sqwfile
+
+
