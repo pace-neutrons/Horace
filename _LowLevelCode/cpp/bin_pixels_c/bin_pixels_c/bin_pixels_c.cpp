@@ -58,10 +58,15 @@ void omp_set_num_threads(int nThreads){};
 #   endif
 #endif
 
-bool accumulate_cut(double *s, double *e, double *npix,
-                    mxArray*  pPixel_data, mxArray* &PixelSorted,
-                    double const* const cut_range,
-                    mwSize grid_size[4], int num_threads);
+
+
+
+
+bool bin_pixels(double *s, double *e, double *npix,
+                mxArray*  pPixel_data, mxArray* &PixelSorted,
+                double const* const cut_range,
+                mwSize grid_size[4], int num_threads);
+
 
 //
 
@@ -181,7 +186,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
     bool place_pixels_in_old_array;
     try{
-        place_pixels_in_old_array = accumulate_cut(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
+        place_pixels_in_old_array = bin_pixels(pS,pErr,pNpix,pPixData, PixelSorted, pUranges,iGridSizes,num_threads);
     }catch(const char *err){
         mexErrMsgTxt(err);
     }
@@ -196,8 +201,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
 
 }
-
-bool accumulate_cut(double *s, double *e, double *npix,
+bool bin_pixels(double *s, double *e, double *npix,
                     mxArray*  pPixel_data, mxArray* &PixelSorted,
                     double const* const cut_range,
                     mwSize grid_size[4], int num_threads)
@@ -259,10 +263,10 @@ bool accumulate_cut(double *s, double *e, double *npix,
         se_stor[i].assign(2*distribution_size,0.);
         ind_stor[i].assign(distribution_size,0);
     }
-
+    std::vector<int> increments(distribution_size,0);
 
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
-    shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted) \
+    shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted,increments) \
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
     reduction(+:nPixel_retained)
     {
@@ -359,23 +363,32 @@ bool accumulate_cut(double *s, double *e, double *npix,
 
         size_t Block_Size = sizeof(*pixel_data)*PIX_WIDTH;
 
+
 #pragma omp for
         for(long j=0;j<data_size;j++)
         {    
             if(!ok[j])continue;
 
-            size_t nCell = nGridCell[j];            // this is the index of a pixel in the grid cell
-            size_t j0    = ppInd[nCell]*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH
-            size_t i0    = j*PIX_WIDTH;
+            size_t nCell = nGridCell[j];       // this is the index of a pixel in the grid cell
+
+
+#pragma omp atomic
+            increments[nCell]++;
+
+            size_t j0 = (ppInd[nCell]+increments[nCell]-1)*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 #pragma omp atomic
             ppInd[nCell]++;
 
-            memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
-            //for(i=0;i<PIX_WIDTH;i++){
-            //	pPixelSorted[j0+i]=pixel_data[i0+i];}
-        }
+#pragma omp atomic 
+            increments[nCell]--;
 
+            size_t i0    = j*PIX_WIDTH;
+            //memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
+            for(size_t i=0;i<PIX_WIDTH;i++){
+                pPixelSorted[j0+i]=pixel_data[i0+i];}
+        }
     } // end parallel region
+
     // where to place new pixels
     if (data_size == nPixel_retained){
         PixelSorted = tPixelSorted;
@@ -399,3 +412,4 @@ bool accumulate_cut(double *s, double *e, double *npix,
     }
     return place_pixels_in_old_array;
 }
+

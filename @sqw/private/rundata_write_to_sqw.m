@@ -87,6 +87,21 @@ for i=1:nfiles
         end
     end
     
+    % RHEL bug try to go around it
+    hc = hor_config();
+    if hc.estimate_processing_time
+        time = bigtoc;
+        increase_threads = hc.check_time_acceptable(time(1));
+        if increase_threads>0
+            warning('SQW:rundata_to_sqw','Thread pool increased to 8')
+            hc.threads = 8;
+        elseif increase_threads<0
+            warning('SQW:rundata_to_sqw','Thread pool decreased to 1')
+            hc.threads = 1;
+        end
+    end
+    
+    
     if horace_info_level>-1
         bigtoc('Time to convert from spe to sqw data:',horace_info_level)
         disp(' ')

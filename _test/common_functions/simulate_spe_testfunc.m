@@ -1,7 +1,7 @@
-function simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, scale, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+function spe_file=simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, scale, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Simulate an spe file using an sqw model, with reproducible random looking noise
 %
-% >> simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, scale, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+% >>spe_file=simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, scale, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 %
 % The usual definitions, but in addition:
 % 
@@ -32,10 +32,10 @@ wran=sqw_eval(wcalc,@sqw_rand_like,[0,1]);
 wcalc.data.pix(9,:)=(0.05*peak*scale)*(1+wran.data.pix(8,:));
 
 % Convert to equivalent spe data
-wspe=spe(wcalc);
+wspe=rundata(wcalc);
 
 % Write to spe file
-save(wspe,spe_file)
+wspe.saveNXSPE(spe_file);
 
 % Delete temporary sqw file
 try

@@ -212,7 +212,7 @@ for i=1:niax
     urange(2,iiax)=min(vlims(iiax,2),urange_out(2,iiax));
     if urange(1,iiax)>urange(2,iiax)
         iax=[]; iint=[]; pax=[]; p=[]; urange=[];
-        mess = 'Integration range outside extent of data for at least one integration axis';
+        mess = sprintf('Integration range outside extent of data for integration axis N %d, axis num among four axes: %d',i,iiax);
         return
     end
 end

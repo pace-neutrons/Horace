@@ -27,6 +27,7 @@ classdef hor_config<config_base
     %                           -1  No information messages printed
     %                            0  Major information messages printed
     %                            1  Minor information messages printed in addition
+    %                            2  Time of the run measured and printed as well. 
     %                                   :
     %                       The larger the value, the more information is printed
     %   use_mex             Use mex files for time-consuming operation, if available
@@ -46,6 +47,15 @@ classdef hor_config<config_base
         use_mex           % use mex-code for time-consuming operations
         force_mex_if_use_mex % testing and debugging option -- fail if mex can not be used
         delete_tmp        % automatically delete temporary files after generating sqw files
+        % These three method added to deal with RHEL 6 & 7 OMP error, when
+        % OMP job runs extreamly slow after 
+        avrg_gensqw_time   % the average time to run gensqw omp job set this value to enable OMP thread managment
+                           % the value should bee bit more then
+                           % 3*time_to_complete_the_job single threaded
+        call_counter       % counter used in measuring the OMP job performance fall if any
+        estimate_processing_time  % boolean which is true if avrg_gensqw_time is set
+                                  %and OMP thread managment should be enabled
+        
     end
     properties(Access=protected)
         % private properties behind public interface
@@ -57,12 +67,15 @@ classdef hor_config<config_base
         use_mex_ = true;
         force_mex_if_use_mex_ = false;
         delete_tmp_ = true;
+        avrg_gensqw_time_ = 0;
+        call_counter_ = 0;
     end
     
     properties(Constant,Access=private)
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
             'ignore_inf', 'log_level','use_mex',...
-            'force_mex_if_use_mex','delete_tmp'}
+            'force_mex_if_use_mex','delete_tmp',...
+            'avrg_gensqw_time','call_counter'}
     end
     
     methods
@@ -189,6 +202,85 @@ classdef hor_config<config_base
             end
             config_store.instance().store_config(this,'delete_tmp',del);
         end
+        %--------------------------------------------------------------------
+        function this = set.avrg_gensqw_time(this,val)
+            if val>0
+                config_store.instance().store_config(this,'avrg_gensqw_time',val);
+            else
+                config_store.instance().store_config(this,'avrg_gensqw_time',0);
+            end
+            
+        end
+        
+        function time = get.avrg_gensqw_time(this)
+            time = get_or_restore_field(this,'avrg_gensqw_time');
+        end
+        
+        function increase_threads = check_time_acceptable(this,time)
+            % method comapres etalon time, defined within the class
+            % with the time provided as input
+            % and returns suggestions on increase/decrease number of
+            % threads executing the job evaluated
+            %
+            % Usage:
+            % nthreads=hor_config_instance.check_time_acceptable(time)
+            %          where time is the time clacked to do the job. 
+            %Returns:
+            % 0    -- if time provided is less then 4 etalon times
+            % -1   -- if the time is higher then 4 etalon times for the first time
+            % 1    -- if -1 was issued before and the time was smaller then 3
+            %         etalon times three times in a row
+
+            increase_threads = 0;
+            etalon = this.avrg_gensqw_time;
+            if this.call_counter~=0
+                if time<=3*etalon % normal speed of calculating data wtih one omp thread. 
+                    this.call_counter_incr();
+                    if this.call_counter >= 4
+                        increase_threads = 1;
+                        this.call_counter = 0;
+                    end
+                else 
+                    % increase number of threads only if the execution time
+                    % was low three times in a row. Drop call counter to
+                    % inital value otherwise. 
+                    if this.call_counter>1
+                        this.call_counter=1;
+                    end
+                end
+            else
+                if time>4*etalon
+                    this.call_counter_incr();
+                    increase_threads = -1;
+                end
+            end
+            
+        end
+        
+        function this = set.call_counter(this,val)
+            config_store.instance().store_config(this,'call_counter',val);
+        end
+        function this = call_counter_incr(this)
+            count = get_or_restore_field(this,'call_counter');
+            count=count+1;
+            config_store.instance().store_config(this,'call_counter',count);
+        end       
+        function count = get.call_counter(this)
+            count = get_or_restore_field(this,'call_counter');
+        end
+        %
+        %function this = set.estimate_processing_time(this,val)
+        %end
+        
+        function est = get.estimate_processing_time(this)
+            time = get_or_restore_field(this,'avrg_gensqw_time');
+            if time>0
+                est=true;
+            else
+                est = false;
+            end
+        end
+        
         
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED

@@ -19,7 +19,7 @@ nfiles_max=2;
 par_file=fullfile('96dets.par');
 spe_file=cell(1,nfiles_max);
 for i=1:nfiles_max
-    spe_file{i}=[outdir,'test_gen_runfiles_spe_',num2str(i),'.spe'];
+    spe_file{i}=[outdir,'test_gen_runfiles_spe_',num2str(i),'.nxspe'];
 end
 sqw_file_12=fullfile(outdir,'test_gen_runfiles_sqw_12.sqw'); 
 cleanup_obj=onCleanup(@()delete(spe_file{:},sqw_file_12));
