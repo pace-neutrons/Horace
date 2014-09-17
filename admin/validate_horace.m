@@ -1,42 +1,27 @@
 function validate_horace(varargin)
 % Run unit tests on Horace installation
 %
-%   >> validate_horace                 % Run full Horace validation
+%   >> validate_horace                  %  Run full Horace validation
+%   >> validate_horace (fname)          %  Run Horace validation on the single named folder
+%   >> validate_horace (fname_cell)     %  Run Horace validation on the folders named
+%                                       % in a cell array of names
 %
-%   >> validate_horace ('-parallel')   % Enables parallel execution of unit tests
-%                                      % if the parallel computer toolbox is available
-%   >> validate_horace ('-talkative')  % prints output of the tests and
-%                                      %  horace commands   (log_level is set to default, not quiet)
-%   >> validate_horace ('-nomex')      % validated matlab code forcefully
-%                                      % disabling mex even if mex files
-%                                      % are availible
-% >>  validate_horace ('-forcemex')    % works onlty if mex files are
-%                                      % present and pass crude testing ( can be run)
-%                                      % then fail if mex code was not able
-%                                      % to produce result (by default -- in
-%                                      % this case horace tries matlab
-%                                      % code)
+% In addition, one of more options are allowed fromt he following
 %
-%
-    %
-    % $Revision$ ($Date$)
-    %
+%   >> validate_horace (...'-parallel') %  Enables parallel execution of unit tests
+%                                       % if the parallel computer toolbox is available
+%   >> validate_horace (...'-talkative')%  Prints output of the tests and
+%                                       % horace commands (log_level is set to default,
+%                                       % not quiet)
+%   >> validate_horace (...'-nomex')    %  Validate matlab code by forcefully
+%                                       % disabling mex even if mex files
+%                                       % are available
+% >>  validate_horace (...'-forcemex')  %  Enforce use of mex files only. The
+%                                       % default otherwise for Horace to revert to
+%                                       % using matlab code.
 
-% Parse optional arguments
-% ------------------------
-options = {'-parallel','-talkative','-nomex','-forcemex'};
+% $Revision$ ($Date$)
 
-if nargin==0
-    parallel=false;
-    talkative= false;
-    forcemex = true;
-    nomex = false;
-else
-    [ok,mess,parallel,talkative,nomex,forcemex]=parse_char_options(varargin,options);
-    if ~ok
-        error('VALIDATE_HORACE:invalid_argument',mess)
-    end
-end
 
 %==============================================================================
 % Place list of test folders here (relative to the master _test folder)
@@ -54,8 +39,36 @@ test_folders={...
     'test_sqw',...
     'test_sqw_file'...
     };
+%==============================================================================
 
-% Check mex files against matlab versions, if mex functions are available
+% Parse arguments
+% ---------------
+% Determine if first argument is not one of the options
+if nargin>0 && ((ischar(varargin{1}) && ~strcmp(varargin{1}(1),'-')) || iscellstr(varargin{1}))
+    test_folders=varargin{1};
+    if ischar(test_folders), test_folders={test_folders}; end
+    nopt_beg=2;
+else
+    nopt_beg=1;
+end
+
+% Find optional arguments
+options = {'-parallel','-talkative','-nomex','-forcemex'};
+if nopt_beg>nargin
+    parallel=false;
+    talkative= false;
+    forcemex = true;
+    nomex = false;
+else
+    [ok,mess,parallel,talkative,nomex,forcemex]=parse_char_options(varargin,options);
+    if ~ok
+        error('VALIDATE_HORACE:invalid_argument',mess)
+    end
+end
+
+
+% Check mex files if mex functions are available
+% ----------------------------------------------
 [mess,n_errors]=check_horace_mex();
 if n_errors==0
     test_folders{end+1}='test_mex_nomex';
@@ -66,9 +79,10 @@ else
         error('VALIDATE_HORACE:mex','cannot force mex if mex files are not working');
     end
 end
-%=============================================================================
 
-% Generate full test paths to unit tests:
+
+% Generate full test paths to unit tests
+% --------------------------------------
 horace_path = fileparts(which('horace_init'));
 test_path=fullfile(horace_path,'_test');
 test_folders_full = cellfun(@(x)fullfile(test_path,x),test_folders,'UniformOutput',false);
