@@ -145,7 +145,7 @@ classdef config_store < handle
             % execute class setters.
             
             % Important!!!
-            % Despite we are not returning the resulting configuratio,
+            % Despite we are not returning the resulting configuration,
             % executing this allows to set up global dependent fields (e.g.
             % set up unit test directories. But this can not set up
             % internal privated dependent fields so a configuration can not

@@ -40,13 +40,19 @@ classdef herbert_config<config_base
     %
     
     properties(Dependent)
-        %   Use fortran mex files for time-consuming operation, if available
+        %   Use fortran mex files for time-consuming operation, if
+        %   available.
         use_mex;
         % use C part of mex code
         use_mex_C;
-        % force using mex (ususlly mex failure causes attempt to use matlab). This is rather for testing mex agains matlab
+        % force using mex (ususlly mex failure causes attempt to use  
+        % matlab). This is rather for testing mex agains matlab
         force_mex_if_use_mex;
-        % the level to report: -1, do not tell even about an errors (usefull for unit tests) 0 - be quet but report errors, 1 report result of long-lasting operations, 2
+        % the level to report: 
+        % -1, do not tell even about an errors (usefull for unit tests) 
+        % 0 - be quet but report errors, 
+        % 1 report result of long-lasting operations, 
+        % 2 report elaborate timing
         log_level
         % add unit test folders to search path (option for Herbert testing)
         init_tests;

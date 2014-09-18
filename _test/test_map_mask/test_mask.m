@@ -11,10 +11,10 @@ tmpfile=fullfile(tempdir,'tmp.msk');
 % Empty mask - read and write, test consistency
 % ---------------------------------------------
 w1=IX_mask;
-if ~isempty(w1.msk), assertTrue(false,'Default mask constructor problem'), end
+assertTrue(isempty(w1.msk),'Default mask constructor problem');
 save(w1,tmpfile)
 wtmp=read(IX_mask,tmpfile);
-if ~isequal(w1,wtmp), assertTrue(false,'Write+read does not make an identity'), end
+assertTrue(isequal(w1,wtmp),'Write+read does not make an identity');
 
 
 %------------------------------------------------------------------------------

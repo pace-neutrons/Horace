@@ -16,7 +16,7 @@ function  stream = get_bytestream_from_obj(anyData,varargin)
 %
 
 if nargin>1
-    stream = byte_stream(bytestream,'Serialize');
+    stream = byte_stream(anyData,'Serialize');
 else
     
     try
