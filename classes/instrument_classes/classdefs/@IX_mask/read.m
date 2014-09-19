@@ -18,12 +18,4 @@ if ~ok, error(mess), end
 
 % Read data from file
 % ---------------------
-wout = wdummy;
-[tstruct,ok,mess]=get_mask(file_full);
-if ~ok, error(mess), end
-[ok,mess,tstruct]=checkfields(tstruct);   % Make checkfields the ultimate arbiter of the validity of a structure
-if ~ok; error(mess); end
-
-wout.msk = tstruct.msk;
-
-
+wout=IX_mask(file_full);
