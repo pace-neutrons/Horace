@@ -42,17 +42,17 @@ classdef config_store < handle
         function obj = instance(varargin)
             % Instance function concrete implementation.
             %
-            persistent unique_config_store_;
+            persistent unique_store_;
             if nargin>0
-                unique_config_store_ = [];
+                unique_store_ = [];
                 obj = [];
                 return;
             end
-            if isempty(unique_config_store_)
+            if isempty(unique_store_)
                 obj = config_store();
-                unique_config_store_ = obj;
+                unique_store_ = obj;
             else
-                obj = unique_config_store_;
+                obj = unique_store_;
             end
         end
     end
@@ -71,7 +71,7 @@ classdef config_store < handle
             if ~ok
                 error('CONFIG_STORE:store_config',mess);
             end
-            config_store_internal(this,config_class,force_save,other_options{:});
+            store_internal(this,config_class,force_save,other_options{:});
         end
         %
         function  [val,varargout] = get_config_field(this,class_to_restore,varargin)

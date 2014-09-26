@@ -33,6 +33,8 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 opt=struct('nan_equal',true,...
     'min_denominator',0,...
     'ignore_str',false);
+warn = warning('off','MATLAB:structOnObject');
+cl1 = onCleanup(@()warning(warn));
 
 if nargin==2
     opt.tol=0;    % default is to force equality of numeric elements

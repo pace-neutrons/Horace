@@ -1,4 +1,4 @@
-function config_store_internal(this,config_class,force_save,varargin)
+function store_internal(this,config_class,force_save,varargin)
 % Function stores the configutation class - child of a config_base class
 % in single memory place and
 % in a special file in the configurations location folder.

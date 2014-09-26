@@ -78,5 +78,6 @@ if isempty(this.par_file_name)
 end
 if ~exist('lext','var')
     [crap1,crap2,lext] = fileparts(this.par_file_name);
+    lext= lower(lext);
 end
 
