@@ -25,7 +25,7 @@ classdef test_loaders_factory< TestCase
             ascii_spe  = fullfile(this.test_data_path,'MAP10001.spe');
             spe_h5     = fullfile(this.test_data_path,'MAP11020.spe_h5');
             nxspe_f    = fullfile(this.test_data_path,'MAP11014v2.nxspe');
-            memfile_f    = fullfile(this.test_data_path,'some.memfile');
+            memfile_f    = fullfile(this.test_data_path,'some_memfile.mem');
             
             mf=memfile();
             mf.S=ones(10,20);
@@ -48,7 +48,7 @@ classdef test_loaders_factory< TestCase
             assertTrue(isa(memfile_ld,'memfile'))
             
             % clear all memfiles from memory
-            memfile_fs.instance().format();
+            mem_file_fs.instance().format();
         end
         
     end

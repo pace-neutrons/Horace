@@ -48,5 +48,5 @@ else     % it should be an hdf file with par data in it
     rd = loaders_factory.instance().get_loader(file_name);
 end
 
-% return loaded par data from the rundata class
+% return loaded par data from specified loader instance
 par=rd.load_par(varargin{:});

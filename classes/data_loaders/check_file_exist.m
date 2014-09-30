@@ -35,7 +35,7 @@ file_name='';
 lext = lower(ext);
 if ~iscell(supported_file_extensions)
     supported_file_extensions={supported_file_extensions};
-    % memfile always exist but found only when searchinf for all files    %
+    % mem file always exist but found only when searchinf for all files    %
 end
 if ~(any(ismember(supported_file_extensions,lext)) || strncmp(supported_file_extensions{1},'*',1))
     ok = false;
@@ -45,8 +45,8 @@ end
 
 % make the file independent on the extension case;
 file_l =fullfile(filepath,[filename,lext]);
-if strcmp('.memfile',lext)
-    ok = memfile_fs.instance().file_exist(filename);
+if strcmp('.mem',lext)
+    ok = mem_file_fs.instance().file_exist(filename);
     if ok
         mess='';
     else

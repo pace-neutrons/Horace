@@ -63,11 +63,11 @@ classdef test_memfile< TestCase
             
             assertEqual(mf1,mf);
             % clear all stored memfiles from memory
-            memfile_fs.instance().format();
+            mem_file_fs.instance().format();
         end
         function test_memfile_constr1(this)
             
-            f=@()memfile('some_memfile.memfile');
+            f=@()memfile('some_memfile.mem');
             assertExceptionThrown(f,'MEMFILE_FS:load_file');
             
             mf=memfile();
@@ -80,18 +80,18 @@ classdef test_memfile< TestCase
             assertEqual(ones(10,20),mf.S);
             assertEqual(zeros(10,20),mf.ERR);
             
-            mf.save('some_memfile.memfile');
+            mf.save('some_memfile.mem');
             
             % other file does not exist;
             %mf.file_name = 'other_file.memfile';
             ws=warning('off','MATLAB:subsasgnMustHaveOutput');            
-            f=@()subsasgn(mf,struct('type','.','subs','file_name'),'other_file.memfile');
+            f=@()subsasgn(mf,struct('type','.','subs','file_name'),'other_file.mem');
             assertExceptionThrown(f,'A_LOADER:set_file_name');
             warning(ws);
             
             
             mf1=memfile();
-            mf1.file_name='some_memfile.memfile';
+            mf1.file_name='some_memfile.mem';
             mf1=mf1.load_data();
             assertEqual(ones(10,20),mf.S);
             assertEqual(zeros(10,20),mf.ERR);
@@ -111,7 +111,7 @@ classdef test_memfile< TestCase
             assertEqual((0:1.1:11)',en);
             
             % clear all stored memfiles from memory
-            memfile_fs.instance().format();
+            mem_file_fs.instance().format();
         end
         function test_memfile_det_par(this)
             
@@ -122,10 +122,10 @@ classdef test_memfile< TestCase
             mf.en =(0:1.1:11);
             mf.efix = 11;
             mf.psi  = 10;
-            mf.save('some_memfile.memfile');
+            mf.save('some_memfile.mem');
             clear mf;
             
-            mf=memfile('some_memfile.memfile',par_file);
+            mf=memfile('some_memfile.mem',par_file);
             assertTrue(isempty(mf.S));
             assertTrue(isempty(mf.ERR));
             
@@ -149,7 +149,7 @@ classdef test_memfile< TestCase
             assertEqual(28160,ndet);
             assertEqual((0:1.1:11)',en);
             % clear all stored memfiles from memory
-            memfile_fs.instance().format();
+            mem_file_fs.instance().format();
             
         end
         

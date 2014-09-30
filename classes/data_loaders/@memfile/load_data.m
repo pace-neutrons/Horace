@@ -25,11 +25,11 @@ end
 
 filename =this.file_name;
 if isempty(filename )
-    error('MEMFILE:load_data',' input .memfile file is not defined')
+    error('MEMFILE:load_data',' input .mem file is not defined')
 end
 
 
-tmf = memfile_fs.instance().load_file(filename);
+tmf = mem_file_fs.instance().load_file(filename);
 data{1}  = tmf.S;
 data{2}  = tmf.ERR;
 if isempty(this.en)

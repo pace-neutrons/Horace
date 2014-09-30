@@ -28,7 +28,7 @@ classdef test_gen_runfiles< TestCase
             mf = memfile();
             
             for i=1:this.nfiles_max
-                this.test_files{i}=['TestFile',num2str(i),'.memfile'];
+                this.test_files{i}=['TestFile',num2str(i),'.mem'];
                 mf.efix = this.efix(i);
                 mf.en   = this.en{i};
                 nen = numel(this.en{i})-1;

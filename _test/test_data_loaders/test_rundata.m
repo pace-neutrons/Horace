@@ -254,7 +254,7 @@ classdef test_rundata< TestCase
             tf.en = 1:11;
             tf.save('test_file');
             
-            run=rundata('test_file.memfile');
+            run=rundata('test_file.mem');
             f=@()run.saveNXSPE(test_file);
             assertExceptionThrown(f,'A_LOADER:saveNXSPE');
             

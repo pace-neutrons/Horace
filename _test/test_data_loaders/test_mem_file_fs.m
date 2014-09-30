@@ -1,4 +1,4 @@
-classdef test_memfile_fs< TestCase
+classdef test_mem_file_fs< TestCase
     %
     %     $Revision: 334 $ ($Date: 2014-01-16 13:40:57 +0000 (Thu, 16 Jan 2014) $)
     %
@@ -6,7 +6,7 @@ classdef test_memfile_fs< TestCase
         test_data_path;
     end
     methods
-        function this=test_memfile_fs(name)
+        function this=test_mem_file_fs(name)
             this = this@TestCase(name);
             rootpath=fileparts(which('herbert_init.m'));
             this.test_data_path = fullfile(rootpath,'_test/common_data');
@@ -15,21 +15,21 @@ classdef test_memfile_fs< TestCase
         end
         
         function this=setUp(this)
-            memfile_fs.instance().format();
+            mem_file_fs.instance().format();
         end
         
         function this=tearDown(this)
-            memfile_fs.instance().format();
+            mem_file_fs.instance().format();
         end
         
-        function test_memfile_fs_work(this)
-            n_files = memfile_fs.instance().get_numfiles();
+        function test_mem_file_fs_work(this)
+            n_files = mem_file_fs.instance().get_numfiles();
             assertEqual(0,n_files)
             
-            files = memfile_fs.instance().ls();
+            files = mem_file_fs.instance().ls();
             assertTrue(isempty(files));
             
-            f=@()memfile_fs.instance().save_file('test_file','arbitrary_contents');
+            f=@()mem_file_fs.instance().save_file('test_file','arbitrary_contents');
             assertExceptionThrown(f,'MEMFILE_FS:save_file')
             
             
@@ -39,32 +39,32 @@ classdef test_memfile_fs< TestCase
             mf1.S=ones(10,3);
             mf1.ERR=ones(10,3);
             
-            memfile_fs.instance().save_file('test_file1',mf1);
-            memfile_fs.instance().save_file('test_file2',mf2);
+            mem_file_fs.instance().save_file('test_file1',mf1);
+            mem_file_fs.instance().save_file('test_file2',mf2);
             
-            n_files = memfile_fs.instance().get_numfiles();
+            n_files = mem_file_fs.instance().get_numfiles();
             assertEqual(2,n_files)
-            files = memfile_fs.instance().ls();
+            files = mem_file_fs.instance().ls();
             assertTrue(all(ismember({'test_file1','test_file2'},files)));
             
-            f = @()memfile_fs.instance().load_file('missing_file');
+            f = @()mem_file_fs.instance().load_file('missing_file');
             assertExceptionThrown(f,'MEMFILE_FS:load_file')
             
             %
-            exist=memfile_fs.instance().file_exist('missing_file');
+            exist=mem_file_fs.instance().file_exist('missing_file');
             assertFalse(exist);
-            exist=memfile_fs.instance().file_exist('test_file2');
+            exist=mem_file_fs.instance().file_exist('test_file2');
             assertTrue(exist);
             
             
-            mfl=memfile_fs.instance().load_file('test_file1');
+            mfl=mem_file_fs.instance().load_file('test_file1');
             assertEqual(mf1,mfl);
             
-            memfile_fs.instance().format();
-            n_files = memfile_fs.instance().get_numfiles();
+            mem_file_fs.instance().format();
+            n_files = mem_file_fs.instance().get_numfiles();
             assertEqual(0,n_files)
             
-            files = memfile_fs.instance().ls();
+            files = mem_file_fs.instance().ls();
             assertTrue(isempty(files));
             
         end

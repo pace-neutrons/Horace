@@ -21,7 +21,7 @@ classdef memfile<a_loader
     methods(Static)
         function fext=get_file_extension()
             % return the file extension used by this loader
-            fext='.memfile';
+            fext='.mem';
         end
         function descr=get_file_description()
             % avoid description to not to try load this file from GUI
@@ -41,7 +41,7 @@ classdef memfile<a_loader
             % ok   -- True if the file can be processed by the loader_ascii
             % fh --  the structure, which describes spe file
             fh=[];
-            ok = memfile_fs.instance().file_exist(file_name);
+            ok = mem_file_fs.instance().file_exist(file_name);
         end
         
         function [ndet,en,full_file_name,ei,psi]=get_data_info(file_name)
@@ -59,7 +59,7 @@ classdef memfile<a_loader
             if ~exist('file_name','var')
                 error('MEMFILE:get_data_info',' has to be called with valid file name');
             end
-            tf = memfile_fs.instance().load_file(file_name);
+            tf = mem_file_fs.instance().load_file(file_name);
             ndet = tf.n_detectors;
             ei   = tf.efix;
             en    = tf.en;
@@ -132,10 +132,10 @@ classdef memfile<a_loader
             
         end
         function [det,this]=load_par(this,varargin)
-		% loads detectors parameters information 
-		%
+        % loads detectors parameters information 
+        %
             if isempty(this.par_file_name)
-                mf = memfile_fs.instance().load_file(this.file_name);
+                mf = mem_file_fs.instance().load_file(this.file_name);
                 this.det_par = mf.det_par;
                 det = mf.det_par;
             else
@@ -147,15 +147,15 @@ classdef memfile<a_loader
             % save memfile into its memory file system
             [dummy,fname,fext]=fileparts(file_name);
             if isempty(fext)
-                fext='.memfile';
+                fext='.mem';
             end
-            if strcmp('.memfile',fext)
+            if strcmp('.mem',fext)
                 this.data_file_name_stor = [fname,fext];
                 %
                 
-                memfile_fs.instance().save_file(fname,this);
+                mem_file_fs.instance().save_file(fname,this);
             else
-                error('MEMFILE:save',' can only save in file with extension .memfile and provided with %s',fext);
+                error('MEMFILE:save',' can only save in file with extension .mem and provided with %s',fext);
             end
         end
         % -----------------------------------------------------------------
@@ -179,7 +179,7 @@ classdef memfile<a_loader
             [dummy,fn,fext] = fileparts(new_name);
             fbex = this.get_file_extension();
             if strcmp(fbex,fext)
-                ok = memfile_fs.instance().file_exist(fn);
+                ok = mem_file_fs.instance().file_exist(fn);
                 if ok
                     mess ='';
                 else
@@ -189,7 +189,7 @@ classdef memfile<a_loader
                 f_name = [fn,fext];
             else
                 ok=false;
-                mess='this loader can process memfiles only';
+                mess='this loader can process mem files only';
                 f_name='';
             end
         end

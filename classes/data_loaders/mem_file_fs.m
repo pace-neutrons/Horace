@@ -1,4 +1,4 @@
-classdef memfile_fs < Singleton
+classdef mem_file_fs < Singleton
     % The class provides file system type interface for saving/storing memfiles
     % in memory
     %
@@ -15,7 +15,7 @@ classdef memfile_fs < Singleton
         % Guard the constructor against external invocation.  We only want
         % to allow a single instance of this class.  See description in
         % Singleton superclass.
-        function newObj = memfile_fs()
+        function newObj = mem_file_fs()
             % Initialise your custom properties.
             newObj.existing_files=containers.Map;
         end
@@ -26,7 +26,7 @@ classdef memfile_fs < Singleton
         function obj = instance()
             persistent uniqueMemfilesFS_instance;
             if isempty(uniqueMemfilesFS_instance)
-                obj = memfile_fs();
+                obj = mem_file_fs();
                 uniqueMemfilesFS_instance = obj;
             else
                 obj = uniqueMemfilesFS_instance;
@@ -39,7 +39,7 @@ classdef memfile_fs < Singleton
         function isit=file_exist(this,file_name)
             % check if the file with given name exist
             [dummy,fname,fext]=fileparts(file_name);
-            if ~isempty(fext) && ~strcmp('.memfile',fext)
+            if ~isempty(fext) && ~strcmp('.mem',fext)
                 isit = false;
                 return
             end
