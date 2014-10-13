@@ -1,10 +1,11 @@
 function m_ans = lower_index (arr,val)
-% Return the smallest index m such that val=<arr(m) given a strictly monotonically increasing array arr
+% Return the smallest index m such that val=<arr(m) given a monotonically increasing array arr
 %
 %   >> m = lower_index (arr,val)
 %
 % If arr(end)<val then m=numel(arr)+1
 % val can be a scalar or an array
+% m has the same shape as val
 
 % Actually, the use of histc appears to give the correct result even if not *strictly* monotonic
 

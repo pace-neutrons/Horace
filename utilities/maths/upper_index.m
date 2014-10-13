@@ -1,12 +1,14 @@
 function m_ans = upper_index (arr, val)
-% Return the largest index m such that arr(m)<=val given a strictly monotonically increasing array arr
+% Return the largest index m such that arr(m)<=val given a monotonically increasing array arr
 %
 %   >> m = upper_index (arr,val)
 %
 % If val<arr(1) then m=0
 % val can be a scalar or an array
+% m has the same shape as val
 
-% Actually, the use of histc appears to give the correct result even if not *strictly* monotonic
+% Actually, the use of histc appears to give the correct result even if not *strictly* monotonic,
+% although you might think it shold only be the case for strictly monontonic.
 
 n=numel(arr);
 m=numel(val);
