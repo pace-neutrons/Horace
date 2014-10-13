@@ -1,5 +1,9 @@
 function datahdr=data_to_dataheader(data)
-% Take a structure containing the data section of an sqw object and return the fields as per 'h' option in get_sqw
+% Return the fields that the 'h' option in get_sqw extracts from the data section of an sqw object
+%
+%   >> datahdr=data_to_dataheader(data)
+%
+% Utility routine
 
 
 % Original author: T.G.Perring
@@ -21,3 +25,6 @@ datahdr.iint=data.iint;
 datahdr.pax=data.pax;
 datahdr.p=data.p;
 datahdr.dax=data.dax;
+if isfield(data,'urange')
+    datahdr.urange=data.urange;
+end

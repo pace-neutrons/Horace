@@ -92,8 +92,9 @@ efix=0;
 emode=0;
 instrument_default=struct;  % default 1x1 struct *** Should generalise
 sample_default=struct;      % default 1x1 struct *** Should generalise
+sparse_tmp=false;
 [w,grid_size, urange]=calc_sqw(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn, det,...
-    grid_size_in, urange_in, instrument_default, sample_default);
+    grid_size_in, urange_in, instrument_default, sample_default, sparse_tmp);
 save(w,sqw_file);
 
 %-------------------------------------------------------------------------------------

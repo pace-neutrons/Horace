@@ -2,8 +2,8 @@ function validate_horace(varargin)
 % Run unit tests on Horace installation
 %
 %   >> validate_horace                  %  Run full Horace validation
-%   >> validate_horace (fname)          %  Run Horace validation on the single named folder
-%   >> validate_horace (fname_cell)     %  Run Horace validation on the folders named
+%   >> validate_horace (foldname)       %  Run Horace validation on the single named folder
+%   >> validate_horace (foldname_cell)  %  Run Horace validation on the folders named
 %                                       % in a cell array of names
 %
 % In addition, one of more options are allowed fromt he following
@@ -16,7 +16,7 @@ function validate_horace(varargin)
 %   >> validate_horace (...'-nomex')    %  Validate matlab code by forcefully
 %                                       % disabling mex even if mex files
 %                                       % are available
-% >>  validate_horace (...'-forcemex')  %  Enforce use of mex files only. The
+%   >> validate_horace (...'-forcemex') %  Enforce use of mex files only. The
 %                                       % default otherwise for Horace to revert to
 %                                       % using matlab code.
 

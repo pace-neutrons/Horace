@@ -5,14 +5,14 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %   >> [ok,mess,S] = put_sqw (file, w)
 %   >> [ok,mess,S] = put_sqw (file, w, '-pix', v1, v2,...)  % save pix information from other sources
 %
-%   >> [...] = put_sqw (..., 'file_format', fmt)   % specifiy an older file format for output
+%   >> [...] = put_sqw (..., 'file_format', fmt)    % specifiy an older file format for output
 %
 % Save npix and pix information to a temporary file (no file format option available)
-%   >> [ok,mess,S] = put_sqw (file, w, '-buffer')           % save npix and pix to buffer
+%   >> [ok,mess,S] = put_sqw (file, w, '-buffer')   % save npix and pix to buffer
 %
 % Replace header in an existing file:
-%   >> [ok,mess,S] = put_sqw (file, w, '-h')    % without replacing instrument and sample info
-%   >> [ok,mess,S] = put_sqw (file, w, '-his')  % replace instrument and sample info as well
+%   >> [ok,mess,S] = put_sqw (file, w, '-h')        % without replacing instrument and sample info
+%   >> [ok,mess,S] = put_sqw (file, w, '-his')      % replace instrument and sample info as well
 %
 %
 %

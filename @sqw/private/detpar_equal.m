@@ -1,7 +1,7 @@
-function ok = isequal_par(det1,det2)
+function ok = detpar_equal(det1,det2)
 % Checks if two detector structures are identical apart from the names of the files from which they were read
 %
-%   >> ans = isequal_par(det1,det2)
+%   >> ans = detpar_equal(det1,det2)
 %
 % Input:
 % ------

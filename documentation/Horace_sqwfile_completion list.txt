@@ -1,6 +1,14 @@
 =================================================
 Things to do to finish off Horace IO change:
 =================================================
+- In combine:
+	- Functions needed still:
+		memory_allocation (in combine)
+		get_buffer_parameters (in put_sqw_data_pix_from_sources)
+	- Misc:
+		does read_sparse2 work if give [ilo,ihi] corresponding to zero range?
+		can we make read_sparse2 more eficient if know full range, or ilo>ihi?
+
 - cut_sqw_main and cut_data_from_file do direct reads still rather than going via get_sqw
 - cut_data_from_file calls put_sqw_data_npix_and_pix_to_file
 - put_sqw with pix from multiple sources
@@ -32,5 +40,13 @@ Bugs
 get_efix_horace('c:\temp\crap_dnd.d2d')
 
 Herbert non-monotonic 1D array if point data
+
+
+=================================================
+House-keeping
+=================================================
+get_test_get_calculations - should be better documented!
+More importantly, is there a systematic naming scheme for accessing private
+functions that need to be tested as part of teh unit tests program?
 
 

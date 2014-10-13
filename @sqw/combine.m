@@ -1,4 +1,4 @@
-function varargout = write_nsqw_to_sqw (dummy, infiles, wsqw, wsqw_sp, outfile)
+function varargout = combine (dummy, infiles, wsqw, wsqw_sp, outfile)
 % Combine a collection of sqw files &/or sqw objects &/or sparse sqw data structures with a common grid
 %
 % Create sqw file:
@@ -18,21 +18,25 @@ function varargout = write_nsqw_to_sqw (dummy, infiles, wsqw, wsqw_sp, outfile)
 %
 % Output:
 % -------
-%   <no output arguments>
+%   wout            Combined sqw object
+%                   If not given, then assumed that an output file name was given
 
-% *** catch case of a single input data source - and deal with carefully
 
+% Original author: T.G.Perring
+%
+% $Revision: 880 $ ($Date: 2014-07-16 08:18:58 +0100 (Wed, 16 Jul 2014) $)
+%
 % T.G.Perring   27 June 2007
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
-% T.G.Perring   29 June 2014   Combine arbitrary sqw and sparse sqw ('tmp') files and objects with the same bins 
-%
-% $Revision$ ($Date$)
+% T.G.Perring   29 June 2014   Combine arbitrary sqw and sparse sqw files and objects with the same bins 
+
+
+% *** catch case of a single input data source - and deal with carefully
 
 
 horace_info_level=get(hor_config,'horace_info_level');
 
-npix_mem_max=1e9;   % maxmimum memory (bytes) to hold npix arrays read from file (excludes npix arrays in objects)
-pix_mem_max=3e9;    % maxmimum memory (bytes) to hold pix arrays read from file (excludes pix arrays in objects)
+mem_max_sqw=4e9;    % maximum memory (bytes) which is allowed for all sqw data
 
 
 % Check that the first argument is sqw object
@@ -96,115 +100,116 @@ if ~(isstruct(wsqw_sp) && isfield(wsqw_sp(1),'data') && isfield(wsqw_sp(1).data,
 end
 
 
+% =================================================================================================
 % Check consistency of header information
-% ---------------------------------------
-% At present we require that all detector info is the same for all data sources, and all spe files are distinct (in the
-% sense defined below)
-
+% =================================================================================================
+% Read header information
+% -----------------------
 if horace_info_level>-1
 	disp(' ')
 	disp('Reading header(s) of input sqw data source(s) and checking consistency...')
 end
 
-% Read header information:
 nsource=nsqw+nsqw_sp+nfiles;
-main_header=cell(nsource,1);
+S=cell(nsource,1);
+sparse_fmt=false(nsource,1);
 header=cell(nsource,1);
 datahdr=cell(nsource,1);
 npixtot=zeros(nsource,1);
-source=cell(nsource,1);
-sparse_fmt=false(nsource,1);
-data_type=cell(nsource,1);
-pos_data_start=zeros(nsource,1);
-pos_npix_start=zeros(nsource,1);
-pos_npix_nz_start=zeros(nsource,1);
-pos_ipix_nz_start=zeros(nsource,1);
-pos_pix_nz_start=zeros(nsource,1);
-pos_pix_start=zeros(nsource,1);
 
-j=0;
+j=0;    % count sqw data sets
 
 % Parcel up the sqw object header information
 for i=1:nsqw
     j=j+1;
-    main_header{j}=wsqw(j).main_header;
+    sparse_fmt(j)=false;
     header{j}=wsqw(j).header;
-    det_tmp=wsqw(i).detpar;
     datahdr{j}=data_to_dataheader(wsqw{i}.data);
     npixtot(j)=size(wsqw(i).data.pix,2);
-    sparse_fmt(j)=false;
-    if j==1, det=det_tmp; end   % store the detector information for the first file
-    if ~detpar_equal(det,det_tmp); error('Detector parameter data is not the same in all sqw objects'); end
-    clear det_tmp       % save memory on what could be a large variable
+    if j>1
+        if ~detpar_equal(wsqw(i).detpar,detpar); error('Detector parameter data is not the same in all sqw data sets'); end
+    else
+        detpar=wsqw(i).detpar;     % store the detector information for the first file
+    end
 end
 
 % Parcel up the sparse sqw data structure header information
 for i=1:nsqw_sp
     j=j+1;
-    main_header{j}=wsqw_sp(j).main_header;
+    sparse_fmt(j)=true;
     header{j}=wsqw_sp(j).header;
-    det_tmp=wsqw_sp(i).detpar;
     datahdr{j}=data_to_dataheader(wsqw_sp{i}.data);    
     npixtot(j)=size(wsqw_sp(i).data.pix,1);
-    sparse_fmt(j)=true;
-    if j==1, det=det_tmp; end   % store the detector information for the first file
-    if ~detpar_equal(det,det_tmp); error('Detector parameter data is not the same in all sparse sqw data structures'); end
-    clear det_tmp       % save memory on what could be a large variable
+    if j>1
+        if ~detpar_equal(wsqw_sp(i).detpar,detpar); error('Detector parameter data is not the same in all sqw data sets'); end
+    else
+        detpar=wsqw_sp(i).detpar;  % store the detector information for the first file
+    end
 end
 
-% Get the header information from 
+% Get the header information from sqw files
+cur_fmt = fmt_check_file_format();
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
 for i=1:nfiles
     j=j+1;
-    [mess,main_header{j},header{j},det_tmp,datahdr{j},position,npixtot(j),data_type{j},file_format,current_format] = get_sqw (infiles{i},'-h');
-    if ~current_format; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
+    [w,ok,mess,S{j}]=get_sqw(infiles{i},'-h');
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
-    if ~(strcmpi(data_type{j},'a')||strcmpi(data_type{j},'sp')); error(['No pixel information in ',infiles{i}]); end
-    source{j}=infiles{i};
-    if strcmpi(data_type{j},'a'), sparse_fmt(j)=true; end
-    pos_data_start(j)=position.data;    % start of data block
-    pos_npix_start(j)=position.npix;    % start of npix field
-    pos_npix_nz_start(j)=position.npix_nz;  % start of npix_nz field
-    pos_ipix_nz_start(j) =position.ipix_nz; % start of ipix field
-    pos_pix_nz_start(j)=position.pix_nz;    % start of npix_nz field
-    pos_pix_start(j) =position.pix;     % start of pix field
-    if j==1, det=det_tmp; end   % store the detector information for the first file
-    if ~detpar_equal(det,det_tmp); error('Detector parameter data is not the same in all files'); end
-    clear det_tmp       % save memory on what could be a large variable
+    if S{j}.application.file_format~=cur_fmt; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
+    info=S{j}.info;
+    if ~info.sqw_type; error(['No pixel information in ',infiles{i}]); end
+    sparse_fmt(j)=info.sparse;
+    header{j}=w.header;
+    datahdr{j}=w.data;
+    npixtot(j)=info.npixtot;
+    if j>1
+        if ~detpar_equal(w.detpar,detpar); error('Detector parameter data is not the same in all sqw data sets'); end
+    else
+        detpar=w.detpar;   % store the detector information for the first file
+    end
     mess_completion(i)
 end
 mess_completion
 
 
-% Check consistency:
-% At present, we insist that the contributing spe data are distinct in that:
-%   - filename, efix, psi, omega, dpsi, gl, gs cannot all be equal for two spe data input
-%   - emode, lattice parameters, u, v, sample must be the same for all spe data input
-% This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
-% it is assigned a different Q, and is in the spirit of independence)
-[header_combined,nspe,ok,mess] = header_combine(header);
+% Check consistency of run headers
+% --------------------------------
+% Check that the headers permit combining the sqw data
+[header_combined,run_label,ok,mess] = header_combine(header);
 if ~ok, error(mess), end
 
-% We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
+
+% Check consistency of data headers
+% ---------------------------------
+% We must have same data information for:
+%       alatt, angdeg, uoffset, u_to_rlu, ulen, iax, iint, pax, p
+% We assume that the alatt and angdeg are already all equal, as the sqw header
+% blocks have already passed, and in a valid sqw object the alatt and angdeg
+% should be the same as those in the data block.
+
+% *** Can generalise:
+%       - the bin boundaries only need to be commensurate. THe s,e,npix arrays
+%         could be offset inside an encompassing array
+%       - the data could be re-cut to be commensurate (and same dimensionality)
+%         as the first object. Hold the re-cut data in a temporary variable or file.
 
 % Number of projection axes and size of signal array
 npax=length(datahdr{1}.pax);
-sz=zeros(1,npax);
+sz=ones(1,max(npax,2));
 for i=1:npax
     sz(i)=numel(datahdr{i}.pax)-1;
 end
 
 % Consistency check:
-tol = 4*eps(single(1)); % test number to define equality allowing for rounding
-for i=2:nsource  % only need to check if more than one data source
+tol = 1e-14;        % test number to define equality allowing for rounding
+for i=2:nsource     % only need to check if more than one data source
     ok = equal_to_relerr(datahdr{i}.uoffset, datahdr{1}.uoffset, tol, 1);
     ok = ok & equal_to_relerr(datahdr{i}.u_to_rlu(:), datahdr{1}.u_to_rlu(:), tol, 1);
     if ~ok
-        error('Input files must all have the same projection axes and projection axes offsets in the data blocks')
+        error('Data to be combined must all have the same projection axes and projection axes offsets in the data blocks')
     end
 
     if length(datahdr{i}.pax)~=npax
-        error('Input files must all have the same number of projection axes')
+        error('Data to be combined must all have the same number of projection axes')
     end
     if npax<4   % one or more integration axes
         ok = all(datahdr{i}.iax==datahdr{1}.iax);
@@ -216,9 +221,9 @@ for i=2:nsource  % only need to check if more than one data source
     if npax>0   % one or more projection axes
         ok = all(datahdr{i}.pax==datahdr{1}.pax);
         for ipax=1:npax
-            % Absolute tolerance of maximum bin boundary value written to file in single precision
+            % Absolute tolerance of maximum bin boundary value written to file in double precision
             % This sets the absolute tolerance for all bin boundaries
-            abs_tolaxis=4*eps(single(max(abs([datahdr{i}.p{ipax}(1),datahdr{i}.p{ipax}(end)]))));
+            abs_tolaxis=4*eps(max(abs([datahdr{i}.p{ipax}(1),datahdr{i}.p{ipax}(end)])));
             ok = ok & (numel(datahdr{i}.p{ipax})==numel(datahdr{i}.p{ipax}) &...
                 max(abs(datahdr{i}.p{ipax}-datahdr{1}.p{ipax}))<abs_tolaxis);
         end
@@ -229,6 +234,7 @@ for i=2:nsource  % only need to check if more than one data source
 end
 
 
+% =================================================================================================
 % Now read in binning information
 % ---------------------------------
 % We did not read in the arrays s, e, npix from the files because if have a 50^4 grid then the size of the three
@@ -236,6 +242,7 @@ end
 % require too much RAM (30GB if 200 spe files); also if we just want to check the consistency of the header information
 % in the files first we do not want to spend lots of time reading and accumulating the s,e,npix arrays. We can do
 % that now, as we have checked the consistency.
+
 if horace_info_level>-1 
 	disp(' ')
 	disp('Accumulating binning information of input data source(s)...')
@@ -245,13 +252,10 @@ s_accum=zeros(sz);
 e_accum=zeros(sz);
 npix_accum=zeros(sz);
 
-npix_in_memory=true;
-pix_in_memory=true;
-npix=cell(nsource,1);      % to hold the npix arrays
-npix_nz=cell(nsource,1);   % to hold the npix_nz arrays
-ipix_nz=cell(nsource,1);   % to hold the ipix_nz arrays
-pix_nz=cell(nsource,1);    % to hold the pix_nz arrays
-pix=cell(nsource,1);       % to hold the ipix arrays
+npix=cell(nsource,1);
+npix_nz=cell(nsource,1);
+pix_nz=cell(nsource,1);
+pix=cell(nsource,1);
 
 j=0;
 
@@ -275,7 +279,6 @@ if nsqw_sp>0
         j=j+1;
         npix{j}=wsqw_sp(i).data.npix;
         npix_nz{j}=wsqw_sp(i).data.npix_nz;
-        ipix_nz{j}=wsqw_sp(i).data.ipix_nz;
         pix_nz{j}=wsqw_sp(i).data.pix_nz;
         pix{j}=wsqw_sp(i).data.pix;
         s_accum = s_accum + (wsqw_sp(i).data.s).*npix{j};       % s_accum is full, so sparse intermediate in the accumulation is converted
@@ -284,67 +287,49 @@ if nsqw_sp>0
     end
 end
 
-% Process sqw filea:
+% Process sqw files:
+% To minimise IO operations and repeated OS &/or diskcache re-buffering of data, read in as many
+% of npix, npix_nz, pix_nz, pix as our memory reserves allow.
+
+% Compute memory needs of arrays in files
+keep_npix=false;
+keep_npix_nz=false;
+keep_pix_nz=false;
+keep_pix=false;
+mem_tot = get_num_bytes(wsqw) + get_num_bytes(wsqw_sp);
+if mem_tot<mem_max_sqw
+    [mem_npix,mem_npix_nz,mem_pix_nz,mem_pix]=memory_allocation(S);
+    if mem_tot+mem_npix<mem_max_sqw; keep_npix=true; end
+    if mem_tot+mem_npix+mem_npix_nz<mem_max_sqw; keep_npix_nz=true; end
+    if mem_tot+mem_npix+mem_npix_nz+mem_pix_nz<mem_max_sqw; keep_pix_nz=true; end
+    if mem_tot+mem_npix+mem_npix_nz+mem_pix_nz+mem_pix<mem_max_sqw; keep_pix=true; end
+end
+
 if nfiles>0
     if horace_info_level>-1, disp(' - processing sqw file(s)...'), end
-    npix_mem=0;     % only additional memory needed to hold data from files needs to be monitored
-    pix_mem=0;      % similarly
     mess_completion(nfiles,5,0.1);   % initialise completion message reporting
     for i=1:nfiles
         j=j+1;
-        fid=fopen(infiles{i},'r');
-        if fid<0; error(['Unable to open input file ',infiles{i}]); end
-        status=fseek(fid,pos_data_start(i),'bof'); % Move directly to location of start of data section
-        if status<0; fclose(fid); error(['Error finding location of binning data in file ',infiles{i}]); end
-        [mess,bindata]=get_sqw_data(fid,'-nopix',file_format,data_type{j});
-        if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
-        % Append npix and npix_nz (if applicable) to corresponding cell arrays - if enough memory
-        if npix_in_memory
-            if (npix_mem+get_num_bytes(bindata.npix)<=npix_mem_max)
-                npix_mem=npix_mem+get_num_bytes(bindata.npix);
-                npix{j}=bindata.npix;
-            else
-                npix_in_memory=false;
-                npix=cell(nsource,1);      % re-initialise for consistency
-                npix_nz=cell(nsource,1);   % re-initialise for consistency
-            end
-            if npix_in_memory && sparse_fmt(j) && (npix_mem+get_num_bytes(bindata.npix_nz)<=npix_mem_max)
-                npix_mem=npix_mem+get_num_bytes(bindata.npix_nz);
-                npix_nz{j}=bindata.npix_nz;
-            else
-                npix_in_memory=false;
-                npix=cell(nsource,1);      % re-initialise for consistency
-                npix_nz=cell(nsource,1);   % re-initialise for consistency
-            end
+        % Open file
+        [S(j),mess]=sqwfile_open(infiles{i},'readonly');
+        if ~isempty(mess); tidy_close(S); error('Error reading data from file %s \n %s',infiles{i},mess); end
+
+        % Read s,e,npix (and headers and detectors again, but that's OK)
+        w = get_sqw (S(j),'-dnd');
+        
+        % Keep npix if can, and read and keep npix_nz, pix_nz, pix if can
+        if keep_npix, npix{i}=w.bindata.npix; end
+        if S(j).info.sparse
+            if keep_npix_nz, npix_nz{j} = get_sqw (S(j),'npix_nz'); end
+            if keep_pix_nz, pix_nz{j} = get_sqw (S(j),'pix_nz'); end
         end
-        % Append ipix_nz, pix_nz and pix (if applicable) to corresponding cell arrays - if enough memory
-        if pix_in_memory
-            if (pix_mem+get_num_bytes(bindata.pix)<=pix_mem_max)
-                pix_mem=pix_mem+get_num_bytes(bindata.pix);
-                pix{j}=bindata.pix;
-            else
-                pix_in_memory=false;
-                pix_nz=cell(nsource,1);   % re-initialise for consistency
-                ipix_nz=cell(nsource,1);  % re-initialise for consistency
-                pix=cell(nsource,1);      % re-initialise for consistency
-            end
-            if pix_in_memory && sparse_fmt(j) && (pix_mem+get_num_bytes(bindata.ipix_nz)+get_num_bytes(bindata.pix_nz)<=pix_mem_max)
-                pix_mem=pix_mem+get_num_bytes(bindata.ipix_nz)+get_num_bytes(bindata.pix_nz);
-                ipix_nz{j}=bindata.ipix_nz;
-                pix_nz{j}=bindata.pix_nz;
-            else
-                pix_in_memory=false;
-                pix_nz=cell(nsource,1);   % re-initialise for consistency
-                ipix_nz=cell(nsource,1);  % re-initialise for consistency
-                pix=cell(nsource,1);      % re-initialise for consistency
-            end
-        end
+        if keep_pix, pix_nz{j} = get_sqw (S(j),'pix_nz'); end
+
         % Accumulate s,e,npix
-        s_accum = s_accum + (bindata.s).*(bindata.npix);
-        e_accum = e_accum + (bindata.e).*(bindata.npix).^2;
-        npix_accum = npix_accum + bindata.npix;
-        fclose(fid);            % close file so that do not have lots of files open at once
-        clear bindata
+        s_accum = s_accum + (w.data.s).*(w.data.npix);
+        e_accum = e_accum + (w.data.e).*(w.data.npix).^2;
+        npix_accum = npix_accum + w.data.npix;
+
         mess_completion(i)
     end
 end
@@ -359,6 +344,7 @@ e_accum(nopix)=0;
 clear nopix
 
 
+% =================================================================================================
 % Write to output file
 % ---------------------------
 if horace_info_level>-1
@@ -394,17 +380,26 @@ for j=2:nsource
     sqw_data.urange=[min(sqw_data.urange(1,:),datahdr{i}.urange(1,:));max(sqw_data.urange(2,:),datahdr{i}.urange(2,:))];
 end
 
-run_label=cumsum([0;nspe(1:end-1)]);
 
-% Package source information about pixels
+% Package source information
+wout.main_header=main_header_combined;
+wout.header=header_combined;
+wout.detpar=detpar;
+wout.data=sqw_data;
 
-
-pix_info=struct('source',{source},'sparse',sparse_fmt,...
-    'npix',{npix},'npix_nz',{npix_nz},'ipix_nz',{ipix_nz},'pix_nz',{pix_nz},'pix',{pix},...
-    'pos_npix_start',pos_npix_start,'pos_npix_nz_start',pos_npix_nz_start,'pos_ipix_nz_start',pos_ipix_nz_start,...
-    'pos_pix_nz_start',pos_pix_nz_start,'pos_pix_start',pos_pix_start,...
-    'spec_to_pix',spec_to_pix,'spec_to_rlu',spec_to_rlu,'detdcn',detdcn);
+src=struct('S',S,'sparse_fmt',sparse_fmt,'npix',npix,'npix_nz',npix_nz,'pix_nz',pix_nz,'pix',pix);
 
 % Write to file
-mess = put_sqw (outfile, main_header_combined, header_combined, det, sqw_data, '-pix', pix_info, run_label);
+[ok,mess,Sout] = put_sqw (file, wout, '-pix', src, npix_accum, run_label, header_combined, detpar);
 if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
+
+
+%==================================================================================================
+function tidy_close(S)
+% Close all open files in an array of sqwfile structures
+for i=1:numel(S)
+    fid=S(i).fid;
+    if fid>=3 && ~isempty(fopen(fid))
+        fclose(fid);
+    end
+end

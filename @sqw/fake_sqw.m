@@ -140,6 +140,8 @@ if isempty(urange)
     urange=range_add_border(urange,-1e-6);     % add a border to account for Matlab matrix multiplication bug
 end
 
+sparse_tmp=false;   % create full format tmp files for the time-being
+
 horace_info_level=get(hor_config,'horace_info_level');
 % Construct data structure with spe file information
 if nfiles==1
@@ -150,7 +152,7 @@ if nfiles==1
   end
   data=fake_spe(ndet,en{1},psi);
   w=calc_sqw(efix, emode, alatt, angdeg, u, v, psi*d2r, omega*d2r, dpsi*d2r, gl*d2r, gs*d2r,...
-        data, det, detdcn, det, grid_size, urange, instrument, sample);
+        data, det, detdcn, det, grid_size, urange, instrument, sample, sparse_tmp);
   save(w,sqw_file)
   tmp_file={};    % empty cell array to indicate no tmp_files created
     
@@ -168,7 +170,7 @@ else
           data=fake_spe(ndet,en{i},psi(i));
           w=calc_sqw(efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:),...
                 psi(i)*d2r, omega(i)*d2r, dpsi(i)*d2r, gl(i)*d2r, gs(i)*d2r,...
-                data, det, detdcn, det, grid_size, urange, instrument(i), sample(i));
+                data, det, detdcn, det, grid_size, urange, instrument(i), sample(i), sparse_tmp);
           save(w,tmp_file{i})
     end
     if horace_info_level>-1

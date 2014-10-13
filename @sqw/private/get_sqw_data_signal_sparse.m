@@ -25,8 +25,8 @@ function [mess, data] = get_sqw_data_signal_sparse (fid, fmt_ver, S, make_full_f
 %                   if opt.npix     [bin_lo, bin_hi],   [ind_lo, ind_hi]
 %                   if opt.npix_nz  [bin_lo, bin_hi],   [ind_lo, ind_hi]
 %                   if opt.pix_nz   [ind_lo, ind_hi]
-%                   if opt.pix_nz   [pix_lo, pix_hi]                        if not make_full_fmt
-%                                   [pix_lo, pix_hi]    [ind_lo, ind_hi]    if make_full_fmt
+%                   if opt.pix      [pix_lo, pix_hi]                        if make_full_fmt==false
+%                                   [pix_lo, pix_hi]    [ind_lo, ind_hi]    if make_full_fmt==true
 %
 % Output:
 % -------
@@ -226,10 +226,12 @@ try
     % Read pix
     if read_pix
         if numel(varargin)==0   % read whole array
+            ind_beg = 0;
             pos_start = pos.pix;
             npix_read = info.npixtot;
         else
-            pos_start = pos.pix + fmt_nbytes(fmt.pix)*(varargin{1}(1)-1);
+            ind_beg = varargin{1}(1);
+            pos_start = pos.pix + fmt_nbytes(fmt.pix)*(ind_beg-1);
             npix_read = diff(varargin{1})+1;
         end
         if npix_read>0
@@ -237,9 +239,9 @@ try
             tmp = fread(fid, npix_read, ['*',fmt.pix]);
             if make_full_fmt
                 if datastruct
-                    data.pix = pix_sparse_to_full(tmp,pix_nz,varargin{1}(1),info.ne,info.ndet);
+                    data.pix = pix_sparse_to_full(tmp,pix_nz,ind_beg,info.ne,info.ndet);
                 else
-                    data = pix_sparse_to_full(tmp,pix_nz,varargin{1}(1),info.ne,info.ndet);
+                    data = pix_sparse_to_full(tmp,pix_nz,ind_beg,info.ne,info.ndet);
                 end
             else
                 if datastruct

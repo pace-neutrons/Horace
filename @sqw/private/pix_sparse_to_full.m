@@ -38,7 +38,7 @@ function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,ne,ndet)
 %
 %   ind_beg         Index of first element of pix within the entire pix array. This is needed because
 %                  pix and pix_nz may only refer to a section of the complete pix array. If not a 
-%                  section, then ind_beg=0
+%                  section, then ind_beg=1
 %
 %   ne              Column vector with number of energy bins for each contributing spe file
 %
@@ -63,9 +63,9 @@ if numel(ne)==1     % single run
     
     % Get index of pixels with non-zero signal (offset to start of pix array if it is a section)
     if ind_beg==1    % no offset needed, so keep code fast
-        ind = ne*(pix_nz(6,:)-1) + pix_nz(7,:);
+        ind = ne*(pix_nz(1,:)-1) + pix_nz(2,:);
     else
-        ind = (ne*(pix_nz(6,:)-1) + pix_nz(7,:)) - (ind_beg-1);
+        ind = (ne*(pix_nz(1,:)-1) + pix_nz(2,:)) - (ind_beg-1);
     end
     
     % Fill signal and error for non-zero pixels
@@ -82,26 +82,12 @@ else
     
     % Get index of pixels with non-zero signal (offset to start of pix array if it is a section)
     if ind_beg==1    % no offset needed, so keep code fast
-        ind = (ndet*nemax)*(pix_nz(5,:)-1) + nemax*(pix_nz(6,:)-1) + pix_nz(7,:);
+        ind = (ndet*nemax)*(pix_nz(1,:)-1) + nemax*(pix_nz(2,:)-1) + pix_nz(3,:);
     else
-        ind = ((ndet*nemax)*(pix_nz(5,:)-1) + nemax*(pix_nz(6,:)-1) + pix_nz(7,:)) - (ind_beg-1);
+        ind = ((ndet*nemax)*(pix_nz(1,:)-1) + nemax*(pix_nz(2,:)-1) + pix_nz(3,:)) - (ind_beg-1);
     end
     
     % Fill signal and error for non-zero pixels
     pixout(8:9,ind) = pix_nz(4:5,:); 
     
 end
-
-
-% if isscalar(ne)
-%     pix_nz=[ceil(ipix_nz/ne); rem(ipix_nz-1,ne)+1; pix(8:9,nonempty)];
-%     pixout=(ne*(pix(6,:)-1) + pix(7,:))';
-% else
-%     nemax=max(ne);
-%     ir=ceil(ipix_nz/(ndet*nemax));
-%     irem=rem(ipix_nz-1,(ndet*nemax))+1;
-%     id=ceil(irem/nemax);
-%     ie=rem(irem-1,nemax)+1;
-%     pix_nz=[ir; id; ie; pix(8:9,nonempty)];
-%     pixout=((ndet*nemax)*(pix(5,:)-1) + nemax*(pix(6,:)-1) + pix(7,:))';
-% end
