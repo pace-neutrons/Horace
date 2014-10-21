@@ -115,6 +115,7 @@ S=cell(nsource,1);
 sparse_fmt=false(nsource,1);
 header=cell(nsource,1);
 datahdr=cell(nsource,1);
+nfiles=zeros(nsource,1);
 npixtot=zeros(nsource,1);
 
 j=0;    % count sqw data sets
@@ -123,8 +124,9 @@ j=0;    % count sqw data sets
 for i=1:nsqw
     j=j+1;
     sparse_fmt(j)=false;
-    header{j}=wsqw(j).header;
-    datahdr{j}=data_to_dataheader(wsqw{i}.data);
+    header{j}=wsqw(i).header;
+    datahdr{j}=data_to_dataheader(wsqw(i).data);
+    nfiles(j)=wsqw(i).main_header.nfiles;
     npixtot(j)=size(wsqw(i).data.pix,2);
     if j>1
         if ~detpar_equal(wsqw(i).detpar,detpar); error('Detector parameter data is not the same in all sqw data sets'); end
@@ -137,8 +139,9 @@ end
 for i=1:nsqw_sp
     j=j+1;
     sparse_fmt(j)=true;
-    header{j}=wsqw_sp(j).header;
-    datahdr{j}=data_to_dataheader(wsqw_sp{i}.data);    
+    header{j}=wsqw_sp(i).header;
+    datahdr{j}=data_to_dataheader(wsqw_sp(i).data);    
+    nfiles(j)=wsqw_sp(i).main_header.nfiles;
     npixtot(j)=size(wsqw_sp(i).data.pix,1);
     if j>1
         if ~detpar_equal(wsqw_sp(i).detpar,detpar); error('Detector parameter data is not the same in all sqw data sets'); end
@@ -152,7 +155,7 @@ cur_fmt = fmt_check_file_format();
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
 for i=1:nfiles
     j=j+1;
-    [w,ok,mess,S{j}]=get_sqw(infiles{i},'-h');
+    [w,ok,mess,S{j}] = get_sqw (infiles{i},'-h');
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
     if S{j}.application.file_format~=cur_fmt; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
     info=S{j}.info;
@@ -160,6 +163,7 @@ for i=1:nfiles
     sparse_fmt(j)=info.sparse;
     header{j}=w.header;
     datahdr{j}=w.data;
+    nfiles(j)=info.nfiles;
     npixtot(j)=info.npixtot;
     if j>1
         if ~detpar_equal(w.detpar,detpar); error('Detector parameter data is not the same in all sqw data sets'); end
@@ -311,19 +315,22 @@ if nfiles>0
     for i=1:nfiles
         j=j+1;
         % Open file
-        [S(j),mess]=sqwfile_open(infiles{i},'readonly');
+        [S{j},mess]=sqwfile_open(infiles{i},'readonly');
         if ~isempty(mess); tidy_close(S); error('Error reading data from file %s \n %s',infiles{i},mess); end
 
         % Read s,e,npix (and headers and detectors again, but that's OK)
-        w = get_sqw (S(j),'-dnd');
+        w = get_sqw (S{j},'-dnd');
         
         % Keep npix if can, and read and keep npix_nz, pix_nz, pix if can
         if keep_npix, npix{i}=w.bindata.npix; end
-        if S(j).info.sparse
-            if keep_npix_nz, npix_nz{j} = get_sqw (S(j),'npix_nz'); end
-            if keep_pix_nz, pix_nz{j} = get_sqw (S(j),'pix_nz'); end
+        if S{j}.info.sparse
+            if keep_npix_nz, npix_nz{j} = get_sqw (S{j},'npix_nz'); end
+            if keep_pix_nz, pix_nz{j} = get_sqw (S{j},'pix_nz'); end
         end
-        if keep_pix, pix_nz{j} = get_sqw (S(j),'pix_nz'); end
+        if keep_pix
+            pix_nz{j} = get_sqw (S{j},'pix_nz');
+            S{j}=sqwfile_close(S{j});   % can close the file, as all required data is in memory
+        end
 
         % Accumulate s,e,npix
         s_accum = s_accum + (w.data.s).*(w.data.npix);
@@ -387,10 +394,10 @@ wout.header=header_combined;
 wout.detpar=detpar;
 wout.data=sqw_data;
 
-src=struct('S',S,'sparse_fmt',sparse_fmt,'npix',npix,'npix_nz',npix_nz,'pix_nz',pix_nz,'pix',pix);
+src=struct('S',S,'sparse_fmt',sparse_fmt,'nfiles',nfiles,'npix',npix,'npix_nz',npix_nz,'pix_nz',pix_nz,'pix',pix);
 
 % Write to file
-[ok,mess,Sout] = put_sqw (file, wout, '-pix', src, npix_accum, run_label, header_combined, detpar);
+[ok,mess,Sout] = put_sqw (file, wout, '-pix', src, header_combined, detpar, run_label, npix_accum);
 if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
 
 

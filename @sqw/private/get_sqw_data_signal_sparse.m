@@ -239,9 +239,9 @@ try
             tmp = fread(fid, npix_read, ['*',fmt.pix]);
             if make_full_fmt
                 if datastruct
-                    data.pix = pix_sparse_to_full(tmp,pix_nz,ind_beg,info.ne,info.ndet);
+                    data.pix = pix_sparse_to_full(tmp,pix_nz,ind_beg,numel(info.ne),max(info.ne),info.ndet);
                 else
-                    data = pix_sparse_to_full(tmp,pix_nz,ind_beg,info.ne,info.ndet);
+                    data = pix_sparse_to_full(tmp,pix_nz,ind_beg,numel(info.ne),max(info.ne),info.ndet);
                 end
             else
                 if datastruct

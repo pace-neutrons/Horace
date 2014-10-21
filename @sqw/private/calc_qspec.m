@@ -49,7 +49,7 @@ elseif emode==2
         eps=(data.en(2:end)+data.en(1:end-1))/2;    % get bin centres
     else
         eps=data.en;        % just pass the energy values as bin centres
-    end
+    end   
     ki=sqrt((efix+eps)/k_to_e); % [ne x 1]
     qspec = repmat([ki';zeros(1,ne);zeros(1,ne)],[1,ndet]) - ...
         repmat(kf,[3,ne*ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);

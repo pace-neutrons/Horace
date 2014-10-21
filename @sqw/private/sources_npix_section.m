@@ -8,6 +8,7 @@ function npix_section=sources_npix_section(src,srcind,i_binbuff)
 %   src         Array of structures, one per data source, with the following fields:
 %                   S           sqwfile object for an open file (=[] if not file data source)
 %                   sparse_fmt  true if sparse format object or file; false otherwise
+%                   nfiles      number of contributing spe files in the data source
 %                   npix        npix array    (=[] if not stored in memory)
 %                   npix_nz     npix_nz array (=[] if not stored in memory, or non-sparse format)
 %                   pix_nz      pix_nz array  (=[] if not stored in memory, or non-sparse format)
@@ -45,7 +46,7 @@ for i=1:nsource
     if w.sparse_fmt
         if isempty(w.npix)
             if irange(i)
-                npix_section{i}=get_sqw(w.S,'npix',[blo,bhi],[ilo(i),ihi(i)],'-full');
+                npix_section{i}=get_sqw (w.S,'npix',[blo,bhi],[ilo(i),ihi(i)],'-full');
             else
                 npix_section{i}=zeros(bhi-blo+1,1); % no non-zero elements, so speed up construction
             end
@@ -54,7 +55,7 @@ for i=1:nsource
         end
     else
         if isempty(w.npix)
-            npix_section{i}=get_sqw(w.S,'npix',[blo,bhi]);
+            npix_section{i}=get_sqw (w.S,'npix',[blo,bhi]);
         else
             npix_section{i}=w.npix(blo:bhi);
         end

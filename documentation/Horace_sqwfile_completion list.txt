@@ -9,9 +9,11 @@ Things to do to finish off Horace IO change:
 		does read_sparse2 work if give [ilo,ihi] corresponding to zero range?
 		can we make read_sparse2 more eficient if know full range, or ilo>ihi?
 
+- In put_sqw_data_pix_from_sources:
+	- trap errors better
+
 - cut_sqw_main and cut_data_from_file do direct reads still rather than going via get_sqw
 - cut_data_from_file calls put_sqw_data_npix_and_pix_to_file
-- put_sqw with pix from multiple sources
 - cut_dnd_main, cut_sqw_main: Need to open files correctly (put_sqw_open at the moment)
 
 
@@ -19,9 +21,26 @@ Things to do to finish off Horace IO change:
 
 
 =================================================
+*** DO NOT FORGET ***
+=================================================
+sources_pix_section
+	- need to add case of sparse data with multiple spe files
+
+
+=================================================
 Check
 =================================================
 Does put_sqw need to be able to take an sqwfile structure as input?
+
+
+=================================================
+Optimisations
+=================================================
+source_pix_section:
+-------------------
+pre-compute kfix, ki or kf (depenfing on emode), so don't do sqrts
+(reckon should save c. 1 minute for Parshall example on my laptop)
+
 
 
 =================================================
@@ -45,8 +64,10 @@ Herbert non-monotonic 1D array if point data
 =================================================
 House-keeping
 =================================================
-get_test_get_calculations - should be better documented!
-More importantly, is there a systematic naming scheme for accessing private
-functions that need to be tested as part of teh unit tests program?
+- get_test_get_calculations - should be better documented!
+- is there a systematic naming scheme for accessing private
+  functions that need to be tested as part of the unit tests program?
+  Need to include:
+	- test_sparse
 
 

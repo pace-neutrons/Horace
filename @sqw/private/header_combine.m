@@ -12,12 +12,12 @@ function [header_out,run_label,ok,mess,hstruct_sort,ind] = header_combine(header
 %               Note:
 %               - The case of a single header block with a single spe file is
 %                correctly caught as such.
-%               - There is an ambiguity when trying to catch the case of a single 
+%               - There is an ambiguity when trying to catch the case of a single
 %                header block with multiple spe files: this will be a cell array
 %                of single structures, which will be interpreted as multiple
 %                header blocks, each with a single spe file. To ensure that the
 %                argument 'header' is interpreted as a single header block,
-%                either put in a cell array with one element, or set the 
+%                either put in a cell array with one element, or set the
 %                optional argument 'single' below.
 %
 %   single      [optional] If present, require 'header' to come fron a single header
@@ -32,7 +32,19 @@ function [header_out,run_label,ok,mess,hstruct_sort,ind] = header_combine(header
 %              an sqw file.) [column vector]
 %
 %   run_label   Structure that defines how run indicies in the sqw data must be
-%              renumbered. Only one of these will be true/non-empty
+%              renumbered. Arrays ix and ixarr are filled for all cases; For the
+%              simple but frequent cases of nochange or simple offset
+%              that information is stored too.
+%           run_label.ix        Cell array with length equal to the number of data sources,
+%                              each entry being a column vector of the new labels for the
+%                              corresponding run in the output sqw data. That is, ix{i}(j)
+%                              is the new run number for the jth run of the ith sqw file.
+%           run_label.ixarr     Alternative representation of the same information: an
+%                              array with size [<max_number_runs_in_a_header_block>,
+%                              <number_of_header_blocks>] so that each column contains the
+%                              new labels for the corresponding run in the output sqw data.
+%                              That is, ix(i,j) is the index of the entry in header_out
+%                              corresponding to the ith run of the jth input sqw file.
 %           run_label.nochange  true if the run indicies in all header blocks are
 %                              to be left unchanged [this happens when combining
 %                              sqw data from cuts taken from the same master sqw file]
@@ -41,12 +53,6 @@ function [header_out,run_label,ok,mess,hstruct_sort,ind] = header_combine(header
 %                              to the corresponding runs [this happens typically when
 %                              using gen_sqw or accumulate_sqw, as every sqw file
 %                              corresponds to a different spe file]
-%           run_label.ix        If not empty, then is a cell array of length equal
-%                              to the number of input header blocks, each entry being
-%                              a column vector of the new labels for the corresponding
-%                              run in the corresponding sqw data. That is, ix{i}(j)
-%                              is the index of the entry in header_out corresponding
-%                              to the jth run of the ith sqw file.
 %
 %   ok          True if no problems combining, false otherwise
 %
@@ -93,7 +99,6 @@ function [header_out,run_label,ok,mess,hstruct_sort,ind] = header_combine(header
 
 tol = 2.0e-7;   % test number to define equality allowing for rounding errors
 
-run_label=struct('nochange',false,'offset',[],'ix',{{}});
 hstruct=struct('filename','','efix',[],'psi',[],'omega',[],'dpsi',[],'gl',[],'gs',[]);
 
 force_single_header_block=(nargin==2 && single);
@@ -104,7 +109,7 @@ force_multiple_header_block=(nargin==2 && ~single);
 % -------------------------------------------------------------------------------------
 if isstruct(header) || (iscell(header) && numel(header)==1 && isstruct(header{1}))
     if force_multiple_header_block
-        header_out=cell(0,1); hstruct_sort=struct([]); ind=[];
+        [header_out,run_label,ok,hstruct_sort,ind] = output_on_error;
         mess=['Input argument ''header'' inconsistent with the declaration it comes '...
             'from more than one header block'];
         return
@@ -114,7 +119,7 @@ if isstruct(header) || (iscell(header) && numel(header)==1 && isstruct(header{1}
     else
         header_out=header{1};
     end
-    run_label.nochange=true;
+    run_label=struct('ix',{{1}},'ixarr',1,'nochange',true,'offset',[]);
     ok=true;
     mess='';
     hstruct_sort=hstruct;
@@ -137,8 +142,7 @@ end
 if force_single_header_block
     for i=1:numel(header)
         if ~isstruct(header{i})
-            ok=false;
-            header_out=cell(0,1); hstruct_sort=struct([]); ind=[];
+            [header_out,run_label,ok,hstruct_sort,ind] = output_on_error;
             mess=['Input argument ''header'' inconsistent with the declaration it contains '...
                 'headers from just one header block'];
             return
@@ -161,7 +165,7 @@ end
 % just one sqw file. Can vastly optimise the code in this case as it is cheap to check
 % equality of headers, but much more expensive to do all the equal_to_tol and equal_to_relerr
 % checks repeatedly on loads of identical header blocks, each of which might contain hundreds
-% of headers. If all header blocks are euqal, then all we need to do is check one header block
+% of headers. If all header blocks are equal, then all we need to do is check one header block
 if nsqw>1 && all(nspe==nspe(1))
     all_same_header_block=true;
     for i=2:nsqw
@@ -218,7 +222,7 @@ isqw=isqw(ind); % list of sqw object numbers corresponding to the sorted header 
 
 h_unique=false(size(hstruct));
 h_unique(1)=true;
-indh=zeros(size(hstruct));  % array to hold index in list of unique elements of hstruct_sort 
+indh=zeros(size(hstruct));  % array to hold index in list of unique elements of hstruct_sort
 indh(1)=1;  % first element of hstruct_sort is by definition unique
 j=1;        % counter of unique elements of hstruct_sort
 for i=2:nfiles_tot
@@ -232,14 +236,17 @@ for i=2:nfiles_tot
     ok = ok & equal_to_relerr(header_out{i}.u_to_rlu(:), header_out{1}.u_to_rlu(:), tol, 1);
     ok = ok & equal_to_relerr(header_out{i}.ulen, header_out{1}.ulen, tol, 1);
     if ~ok
-        header_out=cell(0,1); hstruct_sort=struct([]); ind=[];
+        header_out=cell(0,1);
+        run_label=struct('ix',{{}},'ixarr',[],'nochange',false,'offset',[]);
+        ok=false;
         mess=['Not all input files have the same values for energy mode (0,1,2), lattice parameters,',...'
             'projection axes and projection axes offsets in the header blocks'];
+        hstruct_sort=struct([]); ind=[];
         return
     end
     ok = isequal(header_out{i}.sample, header_out{1}.sample);
     if ~ok
-        header_out=cell(0,1); hstruct_sort=struct([]); ind=[];
+        [header_out,run_label,ok,hstruct_sort,ind] = output_on_error;
         mess='Not all input files have the same fields or values of the fields in the sample in the header blocks';
         return
     end
@@ -248,8 +255,9 @@ for i=2:nfiles_tot
     if equal_to_tol(hstruct_sort(i-1),hstruct_sort(i),-tol,'min_denominator',1)
         % If runs are identical, check that they come from different sqw objects
         if isqw(i-1)==isqw(i)
-            header_out=cell(0,1); ok=false; hstruct_sort=struct([]); ind=[];
-            mess='At least two headers in the same sqw data have the all the same filename, efix, psi, omega, dpsi, gl and gs'; return
+            [header_out,run_label,ok,hstruct_sort,ind] = output_on_error;
+            mess='At least two headers in the same sqw data have the all the same filename, efix, psi, omega, dpsi, gl and gs';
+            return
         end
         % Check that en, ulabel, instrument are equal
         ok = (numel(header_out{i-1}.en)==numel(header_out{i}.en));
@@ -257,8 +265,9 @@ for i=2:nfiles_tot
         ok = ok & isequal(header_out{i-1}.ulabel, header_out{i}.ulabel);
         ok = ok & isequal(header_out{i-1}.instrument, header_out{i}.instrument);
         if ~ok
-            header_out=cell(0,1); ok=false; hstruct_sort=struct([]); ind=[];
-            mess='One or more instances of same runs with different energy bins, instrument or axes labels'; return
+            [header_out,run_label,ok,hstruct_sort,ind] = output_on_error;
+            mess='One or more instances of same runs with different energy bins, instrument or axes labels';
+            return
         end
     else
         j=j+1;  % increment unique header counter
@@ -273,22 +282,46 @@ end
 % All the header blocks have been checked to be internally OK and also valid for combining
 ok=true;
 mess='';
+run_label=struct('ix',{{}},'ixarr',[],'nochange',false,'offset',[]);
 
-% Catch some common cases
 if nsqw==1
-    % Only one header block - now confirmed to be OK
-    run_label.nochange=true;
-    return
+    % Only one header block (or one distinct header block) - now confirmed to be OK
+    ix=repmat({(1:nspe)'},1,numel(header));     % allow for case where nsqw==1 because all header were the same
+    ixarr=repmat((1:nspe)',1,numel(header));
+    run_label=struct('ix',{ix},'ixarr',ixarr,'nochange',true,'offset',[]);
+    
 elseif all(h_unique)
     % All sqw data have different runs
-    run_label.offset=cumsum([0;nspe(1:end-1)]);
-    return
+    ix=mat2cell((1:sum(nspe))',nspe);
+    ixarr=zeros(max(nspe),numel(nspe));
+    for i=1:numel(nspe)
+        ixarr(1:nspe(i),i)=ix{i};
+    end
+    offset=cumsum([0;nspe(1:end-1)]);
+    run_label=struct('ix',{ix},'ixarr',ixarr,'nochange',false,'offset',offset);
+    
+else
+    % General case
+    indx=find(h_unique);    % indicies of unique headers in hstruct_sort
+    header_out=header_out(ind(indx));   % corresponding full headers
+    indh(ind)=indh;         % indicies of unique elements in hstruct_sort, in the order of spe files in the headers
+    ix=mat2cell(indh,nspe);
+    ixarr=zeros(max(nspe),numel(nspe));
+    for i=1:numel(nspe)
+        ixarr(1:nspe(i),i)=ix{i};
+    end
+    run_label=struct('ix',{ix},'ixarr',ixarr,'nochange',false,'offset',[]);
+    hstruct_sort=hstruct_sort(indx);
+    ind=(1:numel(indx))';   % we have sorted the headers to match hstruct_sort
+    
 end
 
-% General case
-indx=find(h_unique);    % indicies of unique headers in hstruct_sort
-header_out=header_out(ind(indx));   % corresponding full headers
-indh(ind)=indh;         % indicies of unique elements in hstruct_sort, in the order of spe files in the headers
-run_label.ix=mat2cell(indh,nspe);
-hstruct_sort=hstruct_sort(indx);
-ind=(1:numel(indx))';   % we have sorted the headers to match hstruct_sort
+
+%==================================================================================================
+function [header_out,run_label,ok,hstruct_sort,ind] = output_on_error
+% Return standard values if error
+header_out=cell(0,1);
+run_label=struct('ix',{{}},'ixarr',[],'nochange',false,'offset',[]);
+ok=false;
+hstruct_sort=struct([]);
+ind=[];

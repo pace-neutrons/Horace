@@ -8,6 +8,7 @@ function srcind = sources_get_index_arrays(src,npix_accum,nbin_buff_size,npix_bu
 %   src         Array of structures, one per data source, with the following fields:
 %                   S           sqwfile object for an open file (=[] if not file data source)
 %                   sparse_fmt  true if sparse format object or file; false otherwise
+%                   nfiles      number of contributing spe files in the data source
 %                   npix        npix array    (=[] if not stored in memory)
 %                   npix_nz     npix_nz array (=[] if not stored in memory, or non-sparse format)
 %                   pix_nz      pix_nz array  (=[] if not stored in memory, or non-sparse format)
@@ -90,7 +91,7 @@ for i=1:nsource
     % Get upper indicies of pix corresponding to each of the blocks of buffered pixels
     w=src(i);
     if isempty(w.npix)
-        npix=get_sqw(w.S,'npix','-full');   % read npix from the sqw file
+        npix=get_sqw (w.S,'npix','-full');   % read npix from the sqw file
     else
         npix=w.npix;
         if issparse(npix), npix=full(npix); end
@@ -112,7 +113,7 @@ for i=1:nsource
         
         % Get upper indicies of pix_nz corresponding to each of the blocks of buffered pixels
         if isempty(w.npix_nz)
-            npix_nz=get_sqw(w.S,'npix_nz','-full');
+            npix_nz=get_sqw (w.S,'npix_nz','-full');
         else
             npix_nz=w.npix_nz;
             if issparse(npix_nz), npix_nz=full(npix_nz); end

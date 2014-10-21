@@ -1,7 +1,7 @@
-function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,ne,ndet)
+function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,nrun,ne,ndet)
 % Create full pix array from sparse format representation
 %
-%   >> pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,ne,ndet)
+%   >> pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,nrun,ne,ndet)
 %
 % The input arguments can define the entire pix array, or a section of the array.
 %
@@ -40,7 +40,9 @@ function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,ne,ndet)
 %                  pix and pix_nz may only refer to a section of the complete pix array. If not a 
 %                  section, then ind_beg=1
 %
-%   ne              Column vector with number of energy bins for each contributing spe file
+%   nrun            Number of contributing spe data sets
+%
+%   ne              Number of energy bins in the spe data set with the largest number
 %
 %   ndet            Number of detectors
 %
@@ -57,7 +59,7 @@ function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,ne,ndet)
 
 npixtot=numel(pix);
 
-if numel(ne)==1     % single run
+if nrun==1
     % Create output pix array (use: idet= ceil(pix/ne); ien = rem(pix-1,ne)+1;)
     pixout = [zeros(4,npixtot); ones(1,npixtot); ceil(pix'/ne); rem(pix'-1,ne)+1; zeros(2,npixtot)];
     
@@ -72,19 +74,18 @@ if numel(ne)==1     % single run
     pixout(8:9,ind) = pix_nz(3:4,:);
     
 else
-    nemax = max(ne);
     % Create output pix array
-    irun = ceil(pix'/(ndet*nemax));
-    irem = rem(pix'-1,(ndet*nemax))+1;
-    idet = ceil(irem/nemax);
-    ien  = rem(irem-1,nemax)+1;
+    irun = ceil(pix'/(ndet*ne));
+    irem = rem(pix'-1,(ndet*ne))+1;
+    idet = ceil(irem/ne);
+    ien  = rem(irem-1,ne)+1;
     pixout = [zeros(4,npixtot); irun; idet; ien; zeros(2,npixtot)];
     
     % Get index of pixels with non-zero signal (offset to start of pix array if it is a section)
     if ind_beg==1    % no offset needed, so keep code fast
-        ind = (ndet*nemax)*(pix_nz(1,:)-1) + nemax*(pix_nz(2,:)-1) + pix_nz(3,:);
+        ind = (ndet*ne)*(pix_nz(1,:)-1) + ne*(pix_nz(2,:)-1) + pix_nz(3,:);
     else
-        ind = ((ndet*nemax)*(pix_nz(1,:)-1) + nemax*(pix_nz(2,:)-1) + pix_nz(3,:)) - (ind_beg-1);
+        ind = ((ndet*ne)*(pix_nz(1,:)-1) + ne*(pix_nz(2,:)-1) + pix_nz(3,:)) - (ind_beg-1);
     end
     
     % Fill signal and error for non-zero pixels

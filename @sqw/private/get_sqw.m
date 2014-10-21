@@ -235,9 +235,7 @@ end
 % ---------
 ok=true;
 if ~file_open_on_entry  % opened file in this routine, so close again
-    fclose(fid);
-    S.fid=-1;
-    S.filename='';
+    S = sqwfile_close(S);
 end
 
 % Catch case of reading basic information only

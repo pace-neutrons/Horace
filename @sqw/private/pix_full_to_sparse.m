@@ -1,7 +1,7 @@
-function [npix_nz,pix_nz,pixout] = pix_full_to_sparse(pix,npix,ne,ndet)
+function [npix_nz,pix_nz,pixout] = pix_full_to_sparse(pix,npix,nrun,ne,ndet)
 % Create sparse pix arrays from full npix and pix arrays
 %
-%   >> [npix_nz,pix_nz,pixout] = pix_full_to_sparse(pix,npix,ne,nfiles,ndet)
+%   >> [npix_nz,pix_nz,pixout] = pix_full_to_sparse(pix,npix,nrun,ne,ndet)
 %
 % Note that this requires the entire npix and pix arrays; sections are not permitted
 %
@@ -11,7 +11,9 @@ function [npix_nz,pix_nz,pixout] = pix_full_to_sparse(pix,npix,ne,ndet)
 %
 %   npix            Array of numbe of pixels in each bin
 %
-%   ne              Column vector with number of energy bins for each contributing spe file
+%   nrun            Number of contributing spe data sets
+%
+%   ne              Number of energy bins in the spe data set with the largest number
 %
 %   ndet            Number of detectors (only required if more than one spe file)
 %
@@ -64,15 +66,14 @@ npix_nz=accumarray(ibin_nz,1,[numel(npix),1]);  % number of pixels with non-zero
 npix_nz=sparse(npix_nz);
 
 ipix_nz=find(nonempty);     % indicies of pixels with non-zero signal and error
-if isscalar(ne)
+if nrun==1
     pix_nz=[ceil(ipix_nz/ne); rem(ipix_nz-1,ne)+1; pix(8:9,nonempty)];
     pixout=(ne*(pix(6,:)-1) + pix(7,:))';
 else
-    nemax=max(ne);
-    ir=ceil(ipix_nz/(ndet*nemax));
-    irem=rem(ipix_nz-1,(ndet*nemax))+1;
-    id=ceil(irem/nemax);
-    ie=rem(irem-1,nemax)+1;
+    ir=ceil(ipix_nz/(ndet*ne));
+    irem=rem(ipix_nz-1,(ndet*ne))+1;
+    id=ceil(irem/ne);
+    ie=rem(irem-1,ne)+1;
     pix_nz=[ir; id; ie; pix(8:9,nonempty)];
-    pixout=((ndet*nemax)*(pix(5,:)-1) + nemax*(pix(6,:)-1) + pix(7,:))';
+    pixout=((ndet*ne)*(pix(5,:)-1) + ne*(pix(6,:)-1) + pix(7,:))';
 end
