@@ -1,5 +1,5 @@
 function pix = sources_pix_section (src, srcind, i_pixbuff, run_label, ne_max, sparse_single,...
-    efix, k_to_e, emode, en, detdcn, spec_to_pix)
+    kfix, emode, k, en, detdcn, spec_to_pix)
 % Buffer a block of pix in a cell array, one array per data source
 %
 %   >> pix_section=sources_pix_section(src,srcind,i_pixbuff)
@@ -49,15 +49,18 @@ function pix = sources_pix_section (src, srcind, i_pixbuff, run_label, ne_max, s
 %   sparse_single   True if all sparse data (in memory or in file) come from a single run
 %                   false otherwise
 %
-%   efix            Fixed energy for each of the runs (meV)
+%   kfix            Column vector with fixed wavevector for each run in the header (Ang^-1)
 %
-%   k_to_e          Constant in the relation energy (meV) = k_to_e *(wavevector^2)
+%   emode           Column vector with fixed emode (0,1,2) for each run in the header
+%                   Direct geometry=1, indirect geometry=2, elastic=0
 %
-%   emode           Direct geometry=1, indirect geometry=2, elastic=0
-%                   If elastic, then interprets energy bins as logarithm of wavelength (Ang)
+%   ne              Column vector with number of energy bins for each run in the header
 %
-%   en              Cell array of column vectors, one per run in the header, containing the
-%                   centres of the energy bins
+%   k               Cell array of column vectors, one per run, with centres of the energy bins
+%                   converted to wavevector (Ang^-1)
+%
+%   en              Cell array of column vectors, one per run, with the centres of the energy bins
+%                   in meV
 %
 %   detdcn          Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                       [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
@@ -113,7 +116,7 @@ for i=1:nsource
             if sparse_single
                 irun=run_label.ix{i}(1);
                 pix(1:4,jlo:jhi) = ...
-                    calc_ucoords (efix(irun), k_to_e, emode, en{irun}, detdcn, spec_to_pix{irun}, pix(6,jlo:jhi), pix(7,jlo:jhi));
+                    calc_ucoords (kfix(irun), emode, k{irun}, en{irun}, detdcn, spec_to_pix{irun}, pix(6,jlo:jhi), pix(7,jlo:jhi));
             else
                 error('Combining sparse data sets with at least one made from multiple spe runs not implemented yet')
             end

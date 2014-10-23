@@ -26,7 +26,7 @@ function S = sqwfile
 %   info.ndims       Number of dimensions of npix array
 %   info.sz_npix     Number of bins along each dimension ([1,4] array; excess elements = NaN)
 %   info.npixtot     Total number of pixels
-%   info.npixtot_nz  Total number of non-zero signal pixels
+%   info.npixtot_nz  Total number of non-zero signal pixels; =NaN if non-sparse
 %   
 %   position.application    start of application block (for prototype file format is NaN)
 %   position.info           start of info block (for file formats prior to 3.1 is NaN)

@@ -1,4 +1,4 @@
-function srcind = sources_get_index_arrays(src,npix_accum,nbin_buff_size,npix_buff_size)
+function [srcind,npixtot] = sources_get_index_arrays(src,npix_accum,nbin_buff_size,npix_buff_size)
 % Get index arrays for the buffered sections of npix and pix to be written when combinng sqw data
 %
 %   >> srcind = sources_get_index_arrays(src,npix_all,nbin_buff_size,npix_buff_size)
@@ -36,30 +36,32 @@ function srcind = sources_get_index_arrays(src,npix_accum,nbin_buff_size,npix_bu
 %           Non-sparse and sparse data sets:
 %           --------------------------------
 %           blo_binbuff (1:Nb,1)    Lower and upper bin numbers for each of the blocks of npix
-%           bhi_binbuff (1:Nb,1)    and npix_nz to buffer
+%           bhi_binbuff (1:Nb,1)   and npix_nz to buffer
 %           np_binbuff (1:Nb,1)     Number of pixels in each bin buffer block
 %
 %           blo (1:Np,1)            Lower and upper bin numbers for each of the blocks of pixels
-%           bhi (1:Np,1)            to buffer
+%           bhi (1:Np,1)           to buffer
 %           np (1:Np,1)             Number of pixels in each pixel buffer block
 %
 %           plo (1:Ns,1:Np)         For each file, the lower and upper indicies of pix
-%           phi (1:Ns,1:Np)         corresponding to each of the blocks of buffered pixels.
+%           phi (1:Ns,1:Np)        corresponding to each of the blocks of buffered pixels.
 %           dp  (1:Ns,1:Np)         For each file, the number of pixels in each block of buffered pixels
 %
 %           For sparse data sets (fields set to [] if all non-sparse data sets:
 %           --------------------
 %           ilo_npix (1:Ns,1:Nb)    For each file, the lower and upper indicies into the list
-%           ihi_npix (1:Ns,1:Nb)    of non-zero elements of npix corresponding to each of the
+%           ihi_npix (1:Ns,1:Nb)   of non-zero elements of npix corresponding to each of the
 %                                   blocks of npix to buffer.
 %
 %           ilo_npix_nz (1:Ns,1:Nb) For each file, the lower and upper indicies into the list
-%           ihi_npix_nz (1:Ns,1:Nb) of non-zero elements of npix corresponding to each of the
+%           ihi_npix_nz (1:Ns,1:Nb)of non-zero elements of npix corresponding to each of the
 %                                   blocks of npix to buffer.
 %
 %           ilo_pix_nz (1:Ns,1:Np)  For each file, the lower and upper indicies of pix_nz
-%           ihi_pix_nz (1:Ns,1:Np)  corresponding to each of the blocks of buffered pixels.
-
+%           ihi_pix_nz (1:Ns,1:Np) corresponding to each of the blocks of buffered pixels.
+%
+%
+%   npixtot     Total number of pixels
 
 % Original author: T.G.Perring
 %
@@ -68,18 +70,19 @@ function srcind = sources_get_index_arrays(src,npix_accum,nbin_buff_size,npix_bu
 
 npix_accum_cumsum = cumsum(npix_accum(:));
 
-% List of upper bin indicies for blocks of pixels to buffer
+% List of bin indicies for blocks of pixels to buffer
 bhi=upper_bin_index(npix_accum_cumsum,npix_buff_size);
-blo=[1,bhi(1:end)+1];
+blo=[1;bhi(1:end-1)+1];
 
-np=npix_accum_cumsum(bhi);  % Number of pixels in each pixel buffer block
+np=npix_accum_cumsum(bhi)-[0;npix_accum_cumsum(bhi(1:end-1))];  % Number of pixels in each pixel buffer block
 
-% List of upper bin indicies for blocks of npix to buffer
+% List of bin indicies for blocks of npix to buffer
 bhi_binbuff=upper_bin_index(npix_accum_cumsum(bhi),nbin_buff_size);
-blo_binbuff=[1,bhi_binbuff(1:end-1)+1];
+blo_binbuff=[1;bhi_binbuff(1:end-1)+1];
 
-np_binbuff=npix_accum_cumsum(bhi_binbuff);  % Number of pixels in each bin buffer block
+np_binbuff=npix_accum_cumsum(bhi_binbuff)-[0;npix_accum_cumsum(bhi_binbuff(1:end-1))];  % Number of pixels in each bin buffer block
 
+% Compute pixel indexing arrays
 nsource=numel(src);
 n_binbuff=numel(bhi_binbuff);   % number of times the npix buffer will be filled
 n_pixbuff=numel(bhi);           % number of times the pix buffer will be filled
@@ -160,3 +163,5 @@ srcind.ilo_pix_nz  = ilo_pix_nz;
 srcind.ihi_pix_nz  = ihi_pix_nz;
 srcind.ilo_npix_nz = ilo_npix_nz;
 srcind.ihi_npix_nz = ihi_npix_nz;
+
+npixtot = npix_accum_cumsum(end);

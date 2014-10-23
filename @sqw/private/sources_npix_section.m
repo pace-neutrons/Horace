@@ -1,4 +1,4 @@
-function npix_section=sources_npix_section(src,srcind,i_binbuff)
+function npix=sources_npix_section(src,srcind,i_binbuff)
 % Buffer a block of npix in a cell array, one array per data source
 %
 %   >> npix_section=sources_npix_section(src,srcind,i_binbuff)
@@ -21,17 +21,14 @@ function npix_section=sources_npix_section(src,srcind,i_binbuff)
 %
 % Output:
 % -------
-%   npix_section    Cell array of column vectors, each vector containing the
-%                   section of npix for one data set
+%   npix        Two-dimensional array, each column containing the section of npix
+%               for a single run
 
 
 % Original author: T.G.Perring
 %
 % $Revision: 909 $ ($Date: 2014-09-12 18:20:05 +0100 (Fri, 12 Sep 2014) $)
 
-
-nsource=numel(src);
-npix_section=cell(nsource,1);
 
 blo=srcind.blo_binbuff(i_binbuff);
 bhi=srcind.bhi_binbuff(i_binbuff);
@@ -41,28 +38,25 @@ if srcind.any_sparse        % at least one sparse data set
     irange=(ihi-ilo>=0);    % will be true for non-sparse data sets, but we don't use it with those
 end
 
+nsource=numel(src);
+npix=zeros(bhi-blo+1,nsource);
 for i=1:nsource
     w=src(i);
     if w.sparse_fmt
         if isempty(w.npix)
             if irange(i)
-                npix_section{i}=get_sqw (w.S,'npix',[blo,bhi],[ilo(i),ihi(i)],'-full');
+                npix(:,i)=get_sqw (w.S,'npix',[blo,bhi],[ilo(i),ihi(i)],'-full');
             else
-                npix_section{i}=zeros(bhi-blo+1,1); % no non-zero elements, so speed up construction
+                npix(:,i)=zeros(bhi-blo+1,1); % no non-zero elements, so speed up construction
             end
         else
-            npix_section{i}=full(w.npix(blo:bhi));  % ensure npix has full format
+            npix(:,i)=full(w.npix(blo:bhi));  % ensure npix has full format
         end
     else
         if isempty(w.npix)
-            npix_section{i}=get_sqw (w.S,'npix',[blo,bhi]);
+            npix(:,i)=get_sqw (w.S,'npix',[blo,bhi]);
         else
-            npix_section{i}=w.npix(blo:bhi);
+            npix(:,i)=w.npix(blo:bhi);
         end
     end
-end
-
-% Ensure npix sections are all column vectors
-for i=1:nsource
-    npix_section{i}=npix_section{i}(:);
 end

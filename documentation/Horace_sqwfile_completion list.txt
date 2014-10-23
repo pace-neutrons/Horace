@@ -4,10 +4,10 @@ Things to do to finish off Horace IO change:
 - In combine:
 	- Functions needed still:
 		memory_allocation (in combine)
-		get_buffer_parameters (in put_sqw_data_pix_from_sources)
+
 	- Misc:
 		does read_sparse2 work if give [ilo,ihi] corresponding to zero range?
-		can we make read_sparse2 more eficient if know full range, or ilo>ihi?
+		can we make read_sparse2 more efficient if know full range, or ilo>ihi?
 
 - In put_sqw_data_pix_from_sources:
 	- trap errors better
@@ -24,7 +24,9 @@ Things to do to finish off Horace IO change:
 *** DO NOT FORGET ***
 =================================================
 sources_pix_section
+	- need to handle case of one bin having more pixels than the pixel buffer size
 	- need to add case of sparse data with multiple spe files
+	- capture case of repeated pixels
 
 
 =================================================
