@@ -68,12 +68,14 @@ elseif strcmp(os_dirname,'_GLNXA64')
     else
         matlab_dirname='_R2009a';
     end
-    
+elseif strcmp(os_dirname,'_MACI64')
+         matlab_dirname='_R2009a';
 else
     % OS which is not currently supported by this script
     matlab_dirname = '';
     
 end
+
 
 % Matlab extension types 
 % ----------------------
