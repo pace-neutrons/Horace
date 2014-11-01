@@ -10,7 +10,7 @@ function [data_type_name,sparse_fmt] = data_structure_type_to_name(data_type)
 %                                              sqw or dnd type (sparse or non-sparse)
 %                       data_type.sqw_type      sqw-type data (sparse or non-sparse)
 %                       data_type.dnd_type      dnd-type data (sparse or non-sparse)
-%                       data_type.buffer_type   buffer data  (sparse or non-sparse)
+%                       data_type.buffer_data   buffer data  (sparse or non-sparse)
 %                       data_type.h'            header part of data structure only
 %                       data_type.dnd'          dnd object or dnd structure
 %                       data_type.dnd_sp'       dnd structure, sparse format
@@ -18,31 +18,40 @@ function [data_type_name,sparse_fmt] = data_structure_type_to_name(data_type)
 %                       data_type.sqw_'         sqw structure withut pix array
 %                       data_type.sqw_sp'       sqw structure, sparse format
 %                       data_type.sqw_sp_'      sqw structure, sparse format without
-%                       data_type.buffer'       npix, pix
-%                       data_type.buffer_sp'    npix,npix_nz,pix_nz,pix
+%                       data_type.buffer'       buffer data
+%                       data_type.buffer_sp'    buffer data, sparse format
 %
 %                   One and only one of the fields 'h'...'buffer_sp' will be true
 %
 % Output:
 % -------
 %   data_type_nam   Name of data type:
-%                       ='h'         header part of data structure only
-%                                   i.e. fields filename,...,uoffset,...,dax
-%                                    The fields main_header, header, detpar
-%                                   must exist but can be empty.
+%               ='h'         header part of w.data only is required
+%                           i.e. fields filename,...,uoffset,...,dax
+%                           [The fields main_header, header, detpar
+%                           must exist but can be empty - they are ignored]
 %
-%                       ='dnd'       dnd object or dnd structure
-%                       ='dnd_sp'    dnd structure, sparse format
+%               ='dnd'       dnd object or dnd structure
+%               ='dnd_sp'    dnd structure, sparse format
 %
-%                       ='sqw'       sqw object or sqw structure
-%                       ='sqw_'      sqw structure withut pix array
+%               ='sqw'       sqw object or sqw structure
+%               ='sqw_sp'    sqw structure, sparse format
 %
-%                       ='sqw_sp'    sqw structure, sparse format
-%                       ='sqw_sp_'   sqw structure, sparse format without
-%                                   npix_nz,pix_nz,pix arrays
+%               ='sqw_'      sqw structure without pix array
+%               ='sqw_sp_'   sqw structure, sparse format, without
+%                           npix_nz,pix_nz,pix arrays
 %
-%                       ='buffer'    npix, pix
-%                       ='buffer_sp' npix,npix_nz,pix_nz,pix
+%               ='buffer'    sqw structure, only w.data.npix, w.data.pix required
+%                           [The fields main_header, header, detpar
+%                           must exist but can be empty - they are ignored]
+%                       *OR* Flat structure with only npix, pix required
+%
+%               ='buffer_sp' sqw structure, required fields:
+%                               w.header: en 
+%                               w.detpar: <all fields>
+%                               w.data: p, npix, npix_nz, pix_nz, pix are required
+%                       *OR* Flat structure with fields:
+%                               sz, nfiles, ndet, ne_max, npix, npix_nz, pix_nz, pix
 %
 %   sparse_fmt      Indicates if data has sparse format or not:
 %                       =true  if data is sparse format

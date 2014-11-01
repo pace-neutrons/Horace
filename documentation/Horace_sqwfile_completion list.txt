@@ -1,10 +1,12 @@
+
+sources_pix_section still not updated to reflect ne_max
+
+
+
 =================================================
 Things to do to finish off Horace IO change:
 =================================================
 - In combine:
-	- Functions needed still:
-		memory_allocation (in combine)
-
 	- Misc:
 		does read_sparse2 work if give [ilo,ihi] corresponding to zero range?
 		can we make read_sparse2 more efficient if know full range, or ilo>ihi?
@@ -15,7 +17,7 @@ Things to do to finish off Horace IO change:
 - cut_sqw_main and cut_data_from_file do direct reads still rather than going via get_sqw
 - cut_data_from_file calls put_sqw_data_npix_and_pix_to_file
 - cut_dnd_main, cut_sqw_main: Need to open files correctly (put_sqw_open at the moment)
-
+- replace write_nsqw_to_sqw with combine_sqw and combine
 
 - put author and version into all Horace and Herbert functions
 
@@ -38,10 +40,6 @@ Does put_sqw need to be able to take an sqwfile structure as input?
 =================================================
 Optimisations
 =================================================
-source_pix_section:
--------------------
-pre-compute kfix, ki or kf (depenfing on emode), so don't do sqrts
-(reckon should save c. 1 minute for Parshall example on my laptop)
 
 
 
@@ -67,9 +65,14 @@ Herbert non-monotonic 1D array if point data
 House-keeping
 =================================================
 - get_test_get_calculations - should be better documented!
+
 - is there a systematic naming scheme for accessing private
   functions that need to be tested as part of the unit tests program?
-  Need to include:
-	- test_sparse
+	accumulate_cut_tester
+	calc_projections_tester
+	get_test_calc_projections
+
+- Tests to include:
+	- test_sparse 	[private]
 
 

@@ -53,11 +53,11 @@ catch
     return
 end
 ndims=numel(data.pax);
-sz_npix=NaN(1,4);
+sz=NaN(1,4);
 for i=1:ndims
-    sz_npix(i)=numel(data.p{i})-1;
+    sz(i)=numel(data.p{i})-1;
 end
-nbins=prod(sz_npix(1:ndims));
+nbins=prod(sz(1:ndims));
 
 
 % Read position information, if any, and work out/read npixtot
@@ -124,7 +124,7 @@ end
 info.sparse=false;
 info.sqw_data=true;
 info.sqw_type=sqw_type;
-info.buffer_type=false;
+info.buffer_data=false;
 if sqw_type
     info.nfiles=main_header.nfiles;
 else
@@ -150,7 +150,7 @@ if sqw_type
 else
     info.ndet=NaN;
 end
-info.sz_npix=sz_npix;
+info.sz=sz;
 if sqw_type
     info.npixtot=npixtot;
 end

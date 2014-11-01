@@ -1,10 +1,11 @@
-function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ver, data, sparse_fmt, varargin)
+function [mess,position,fieldfmt,nz_npix,nz_npix_nz,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ver, data, sparse_fmt, varargin)
 % Write data block to binary file
 %
-%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ver, data, sparse_fmt)
-%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ver, data, sparse_fmt, '-h')
-%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ver, data, sparse_fmt, '-pix', v1, v2,...)
-%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ver, data, sparse_fmt, '-buffer')
+%   >> [mess,position,fieldfmt,nz_npix,nz_npix_nz,npixtot,npixtot_nz] =...
+%              put_sqw_data (fid, fmt_ver, data, sparse_fmt)
+%   >> [...] = put_sqw_data (fid, fmt_ver, data, sparse_fmt, '-h')
+%   >> [...] = put_sqw_data (fid, fmt_ver, data, sparse_fmt, '-pix', v1, v2,...)
+%   >> [...] = put_sqw_data (fid, fmt_ver, data, sparse_fmt, '-buffer')
 %
 % Input:
 % -------
@@ -79,11 +80,17 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data (fid, fmt_ve
 %                   fieldfmt.pix_nz
 %                   fieldfmt.pix
 %
+%   nz_npix     Number of non-zero values of npix
+%              (=NaN if not sparse)
+%
+%   nz_npix_nz  Number of non-zero values of npix_nz
+%              (=NaN if pix not written, or if not sparse format)
+%
 %   npixtot     Total number of pixels actually written by the call to this function
 %              (=NaN if pix not written)
 %
 %   npixtot_nz  Total number of pixels with non-zero signal actually written by the call to this function
-%              (=NaN if pix not written, =0 if pix written but not sparse format)
+%              (=NaN if pix not written, or if not sparse format)
 %
 %
 % Fields written to the file are:
@@ -197,6 +204,8 @@ mess='';
 position = struct('data',ftell(fid),'s',NaN,'e',NaN,'npix',NaN,'urange',NaN,...
     'npix_nz',NaN,'pix_nz',NaN,'pix',NaN,'data_end',NaN);
 fieldfmt = struct('s','','e','','npix','','urange','','npix_nz','','pix_nz','','pix','');
+nz_npix=NaN;
+nz_npix_nz=NaN;
 npixtot=NaN;
 npixtot_nz=NaN;
 
@@ -268,11 +277,13 @@ end
 if ~opt.h
     if sparse_fmt
         % Sparse data
-        [mess,pos_update,fmt_update,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data, varargin{:});
+        [mess,pos_update,fmt_update,nz_npix,nz_npix_nz,npixtot,npixtot_nz] =...
+            put_sqw_data_signal_sparse (fid, fmt_ver, data, varargin{:});
         if ~isempty(mess), return, end
     else
         % Non-sparse data
-        [mess,pos_update,fmt_update,npixtot] = put_sqw_data_signal (fid, fmt_ver, data, varargin{:});
+        [mess,pos_update,fmt_update,npixtot] =...
+            put_sqw_data_signal (fid, fmt_ver, data, varargin{:});
         if ~isempty(mess), return, end
     end
     position=updatestruct(position,pos_update);

@@ -1,16 +1,14 @@
-function d = sparse (w)
-% Create sparse format sqw data structure (not an object) from an sqw object
+function w=full_sqw(dummy_sqw, d)
+% Create full format sqw object from a sparse sqw data structure
 %
-%   >> d = sparse (w)
+%   >> w = full_sqw (dummy_sqw, d)
 %
 % Input:
 % ------
-%   w       sqw object (or array of sqw objects) of sqw type or dnd-type
+%   dummy_sqw   Dummy sqw object  - used only to ensure that this service routine was called
 %
-% Output:
-% -------
-%   d       Data structure (or array of data structures) with same format as sqw object,
-%           with the following exceptions:
+%   d           Data structure (or array of data structures) with same format as sqw object,
+%               with the following exceptions:
 %
 %       data.s          Average signal in the bins (sparse column vector)
 %       data.e          Corresponding variance in the bins (sparse column vector)
@@ -52,6 +50,11 @@ function d = sparse (w)
 %               If option is to read npix, npix_nz, pix_nz or pix, then data is a single array:
 %                   opt.npix    npix arrayarray (or column vector if range present, length=diff(range))
 %                   opt.pix     [9,npixtot] array (or [9,n] array if range present, n=diff(range))
+%
+% Output:
+% -------
+%   w       sqw object (or array of sqw objects)
+%
 
 
 % Original author: T.G.Perring
@@ -59,32 +62,31 @@ function d = sparse (w)
 % $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
 
 
-nw=numel(w);
-if nw>=1
-    d=sparse_single(w);
-    if nw>1
-        d=repmat(d,size(w));
-        for i=2:nw
-            d(i)=sparse_single(w(i));
-        end
+nw=numel(d);
+if nw==1
+    w=full_sqw_single(d);
+elseif nw>1
+    w=repmat(sqw,size(d));
+    for i=1:nw
+        w(i)=full_sqw_single(d(i));
     end
 else
-    d=struct([]);
+    w=repmat(sqw,[0,0]);
 end
 
 
 %==================================================================================================
-function d = sparse_single(w)
+function w = full_sqw_single(d)
 
 % Fill main header, header and detector sections
 % -------------------------------------------------
-d.main_header=w.main_header;
-d.header=w.header;
-d.detpar=w.detpar;
+w.main_header=d.main_header;
+w.header=d.header;
+w.detpar=d.detpar;
 
 % Fill data section
 % -----------------
-data=w.data;    % just a pointer, and saves on overheads resolving later
+data=d.data;    % just a pointer, and saves on overheads resolving later
 
 data_new.filename=data.filename;
 data_new.filepath=data.filepath;
@@ -101,27 +103,34 @@ data_new.pax=data.pax;
 data_new.p=data.p;
 data_new.dax=data.dax;
 
-% Fill sparse data section:
-data_new.s=sparse(data.s(:));
-data_new.e=sparse(data.e(:));
-data_new.npix=sparse(data.npix(:));
-
-if is_sqw_type(w)
-    data_new.urange=data.urange;
-    
-    nfiles=w.main_header.nfiles;
-    ndet=numel(w.detpar.x2);
-    if nfiles==1
-        ne=numel(w.header.en)-1;
-    else
-        ne=zeros(nfiles,1);
-        header=w.header;
-        for i=1:nfiles
-            ne(i)=numel(header{i}.en)-1;
-        end
-    end
-    [data_new.npix_nz,data_new.pix_nz,data_new.pix] =...
-        pix_full_to_sparse(data.pix,data.npix,numel(ne),max(ne),ndet);
+% Get size of s,e,n arrays
+nd=numel(data.pax);
+szarr=ones(1,max(nd,2));
+for i=1:nd
+    szarr(i)=length(data.p{i})-1;
 end
 
-d.data=data_new;
+% Fill sparse data section:
+data_new.s=reshape(full(data.s),szarr);
+data_new.e=reshape(full(data.e),szarr);
+data_new.npix=reshape(full(data.npix),szarr);
+
+if isfield(data,'pix')  % is sqw-type
+    data_new.urange=data.urange;
+    
+    nfiles=d.main_header.nfiles;
+    [kfix,emode,ne,k,en,spec_to_pix]=header_calc_ucoord_info(d.header);
+    ndet=numel(d.detpar.x2);
+    detdcn = calc_detdcn(d.detpar);
+    
+    data_new.pix = pix_sparse_to_full(data.pix,data.pix_nz,1,nfiles,max(ne),ndet);
+    
+    if nfiles==1
+        data_new.pix(1:4,:) = calc_ucoords (kfix, emode, k{1}, en{1}, detdcn, spec_to_pix{1}, data_new.pix(6,:), data_new.pix(7,:));
+    else
+        error('Expanding sparse data sets with at least one made from multiple spe runs not implemented yet')
+    end
+end
+
+w.data=data_new;
+w=sqw(w);

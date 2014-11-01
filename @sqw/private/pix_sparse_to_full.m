@@ -40,7 +40,7 @@ function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,nrun,ne,ndet)
 %                  pix and pix_nz may only refer to a section of the complete pix array. If not a 
 %                  section, then ind_beg=1
 %
-%   nrun            Number of contributing spe data sets
+%   nrun            Number of contributing spe data sets (single spe=1, multiple spe=<anything else>)
 %
 %   ne              Number of energy bins in the spe data set with the largest number
 %

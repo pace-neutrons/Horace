@@ -1,4 +1,4 @@
-function write_sparse(fid,v,type)
+function [nval,nel]=write_sparse(fid,v,type)
 % Write sparse column vector of doubles.
 %
 %   >> write_sparse(fid,v,type)
@@ -10,12 +10,18 @@ function write_sparse(fid,v,type)
 %   type    Data type in which to save values: one of
 %               'int32', 'float32', 'float64'
 %
-% If v is holding integers, then use:
-%   - 'int32'   if the magnitude of the largest integer is <2e9
-%   - 'float64' if the magnitude of the largest integer is <9e15
+%           If v is holding integers, then use:
+%               - 'int32'   if the magnitude of the largest integer is <2e9
+%               - 'float64' if the magnitude of the largest integer is <9e15
 % 
-% There is no advantage to saving the values as a hypothetical 'int64'
-% because integer accuracy is already lost for values >9e15 if held as a float64.
+%          (There is no advantage to saving the values as a hypothetical 'int64'
+%           because integer accuracy is already lost for values >9e15 if held
+%           as a float64.)
+%
+% Output:
+% -------
+%   nval    Number of non-zeros elements in the vector v
+%   nel     Number of elements in the vector v
 
 % Make sure any changes here are synchronised with the corresponding read_sparse
 

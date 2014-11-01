@@ -11,7 +11,7 @@ function [npix_nz,pix_nz,pixout] = pix_full_to_sparse(pix,npix,nrun,ne,ndet)
 %
 %   npix            Array of numbe of pixels in each bin
 %
-%   nrun            Number of contributing spe data sets
+%   nrun            Number of contributing spe data sets (single spe=1, multiple spe=<anything else>)
 %
 %   ne              Number of energy bins in the spe data set with the largest number
 %
@@ -58,14 +58,14 @@ function [npix_nz,pix_nz,pixout] = pix_full_to_sparse(pix,npix,nrun,ne,ndet)
 
 
 % Information about contribution of pixels with non-zero counts to bins
-nonempty=(pix(8,:)~=0 & pix(9,:)~=0);           % logical index of pixels with non-zero signal AND error
+nonempty=(pix(8,:)~=0 | pix(9,:)~=0);           % empty pixels have zero signal AND error
 ibin=replicate_iarray(1:numel(npix),npix);      % bin indicies for all pixels
-ibin_nz=ibin(nonempty);                         % bin indicies of pixels with non-zero signal and error
-npix_nz=accumarray(ibin_nz,1,[numel(npix),1]);  % number of pixels with non-zero signal and error in each bin
+ibin_nz=ibin(nonempty);                         % bin indicies of pixels with non-zero signal or error
+npix_nz=accumarray(ibin_nz,1,[numel(npix),1]);  % number of pixels with non-zero signal or error in each bin
 
 npix_nz=sparse(npix_nz);
 
-ipix_nz=find(nonempty);     % indicies of pixels with non-zero signal and error
+ipix_nz=find(nonempty);     % indicies of pixels with non-zero signal or error
 if nrun==1
     pix_nz=[ceil(ipix_nz/ne); rem(ipix_nz-1,ne)+1; pix(8:9,nonempty)];
     pixout=(ne*(pix(6,:)-1) + pix(7,:))';

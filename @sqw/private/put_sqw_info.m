@@ -20,17 +20,21 @@ function [mess, pos_start] = put_sqw_info (fid, fmt_ver, info)
 %   info.sparse      =true if signal fields are in sparse format; =false otherwise
 %   info.sqw_data    =true if file contains valid sqw data (i.e. dnd-type or sqw-type data)
 %   info.sqw_type    Type of sqw object written to file: =true if sqw-type; =false if dnd-type
-%   info.buffer_type   =true if npix-and-pix buffer file; =false if not
+%   info.buffer_data   =true if npix-and-pix buffer file; =false if not
 %   info.nfiles      sqw-type: Number of contributing spe data sets; dnd-type: =NaN
-%                    buffer:   Number of spe files if sparse; non-sparse then =NaN
+%                    buffer:   1 (single spe) or NaN (multiple spe) if sparse; non-sparse then =NaN
 %   info.ne          sqw-type: Column vector of no. energy bins in each spe file; dnd-type: =NaN
-%                    buffer:   Column vector of no. energy bins if sparse; =NaN if non-sparse
+%                    buffer:   Maximum value of no. energy bins if sparse; =NaN if non-sparse
 %   info.ndet        sqw-type: Number of detectors; dnd-type: =NaN
 %                    buffer:   Number of detectors if sparse; =NaN if non-sparse
-%   info.ndims       Number of dimensions of npix array
-%   info.sz_npix     Number of bins along each dimension ([1,4] array; excess elements = NaN)
+%   info.ndims       sqw_data: Dimensionality of the sqw data
+%                    buffer:   NaN
+%   info.sz          sqw_data: Number of bins along each dimension ([1,4] array; excess elements = NaN)
+%                    buffer:   Size of npix array
+%   info.nz_npix     Number of non-zero values of npix; =NaN if non-sparse
+%   info.nz_npix_nz  Number of non-zero values of npix_nz; =NaN if non-sparse
 %   info.npixtot     Total number of pixels
-%   info.npixtot_nz  Total number of non-zero signal pixels
+%   info.npixtot_nz  Total number of non-zero signal pixels; =NaN if non-sparse
 
 
 % Original author: T.G.Perring
@@ -42,8 +46,9 @@ mess='';
 pos_start = ftell(fid);
 
 try
-    tmp=[double(info.sparse);double(info.sqw_data);double(info.sqw_type);double(info.buffer_type);...
-        info.nfiles; info.ne; info.ndet; info.ndims; info.sz_npix'; info.npixtot; info.npixtot_nz];
+    tmp=[double(info.sparse);double(info.sqw_data);double(info.sqw_type);double(info.buffer_data);...
+        info.nfiles; info.ne; info.ndet; info.ndims; info.sz';...
+        info.nz_npix; info.nz_npix_nz; info.npixtot; info.npixtot_nz];
     fwrite(fid, numel(tmp), 'float64');
     fwrite(fid, tmp, 'float64');
 

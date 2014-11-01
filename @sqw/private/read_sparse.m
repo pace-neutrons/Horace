@@ -17,6 +17,7 @@ function v=read_sparse(fid,varargin)
 % -------
 %   v           Column vector (sparse format)
 %
+%
 % It is assumed that the file position indicator is at the start of the information
 % written by write_sparse.
 

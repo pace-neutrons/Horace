@@ -97,13 +97,18 @@ try
     fmt=S.fmt;
     
     % Get size of signal, error, npix arrays
-    ndims=info.ndims;
-    if ndims>1
-        sz=info.sz_npix(1:ndims);
-    elseif ndims==1
-        sz=[info.sz_npix(1),1];
+    if info.sqw_data
+        ndims=info.ndims;
+        if ndims>1
+            sz=info.sz(1:ndims);
+        elseif ndims==1
+            sz=[info.sz(1),1];
+        else
+            sz=[1,1];
+        end
     else
-        sz=[1,1];
+        ndims=sum(~isnan(info.sz));
+        sz=info.sz(1:ndims);
     end
     
     % Determine which fields to read and if output is a data structure
@@ -188,7 +193,11 @@ try
     
     % Read pix_nz
     if read_pix_nz
-        nrows=4+(info.nfiles>1);    % 4 rows if single file, 5 rows if more than one
+        if info.nfiles==1   % 4 rows if single file, 5 rows if more than one
+            nrows=4;
+        else
+            nrows=5;
+        end    
         if numel(varargin)==0       % read whole array
             pos_start = pos.pix_nz;
             npix_read = info.npixtot_nz;

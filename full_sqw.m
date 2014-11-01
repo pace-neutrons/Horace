@@ -1,14 +1,10 @@
-function d = sparse (w)
-% Create sparse format sqw data structure (not an object) from an sqw object
+function w=full_sqw(d)
+% Create full format sqw object from a sparse sqw data structure
 %
-%   >> d = sparse (w)
+%   >> w = full_sqw (d)
 %
 % Input:
 % ------
-%   w       sqw object (or array of sqw objects) of sqw type or dnd-type
-%
-% Output:
-% -------
 %   d       Data structure (or array of data structures) with same format as sqw object,
 %           with the following exceptions:
 %
@@ -52,6 +48,11 @@ function d = sparse (w)
 %               If option is to read npix, npix_nz, pix_nz or pix, then data is a single array:
 %                   opt.npix    npix arrayarray (or column vector if range present, length=diff(range))
 %                   opt.pix     [9,npixtot] array (or [9,n] array if range present, n=diff(range))
+%
+% Output:
+% -------
+%   w       sqw object (or array of sqw objects)
+%
 
 
 % Original author: T.G.Perring
@@ -59,69 +60,5 @@ function d = sparse (w)
 % $Revision: 890 $ ($Date: 2014-08-31 16:32:12 +0100 (Sun, 31 Aug 2014) $)
 
 
-nw=numel(w);
-if nw>=1
-    d=sparse_single(w);
-    if nw>1
-        d=repmat(d,size(w));
-        for i=2:nw
-            d(i)=sparse_single(w(i));
-        end
-    end
-else
-    d=struct([]);
-end
-
-
-%==================================================================================================
-function d = sparse_single(w)
-
-% Fill main header, header and detector sections
-% -------------------------------------------------
-d.main_header=w.main_header;
-d.header=w.header;
-d.detpar=w.detpar;
-
-% Fill data section
-% -----------------
-data=w.data;    % just a pointer, and saves on overheads resolving later
-
-data_new.filename=data.filename;
-data_new.filepath=data.filepath;
-data_new.title=data.title;
-data_new.alatt=data.alatt;
-data_new.angdeg=data.angdeg;
-data_new.uoffset=data.uoffset;
-data_new.u_to_rlu=data.u_to_rlu;
-data_new.ulen=data.ulen;
-data_new.ulabel=data.ulabel;
-data_new.iax=data.iax;
-data_new.iint=data.iint;
-data_new.pax=data.pax;
-data_new.p=data.p;
-data_new.dax=data.dax;
-
-% Fill sparse data section:
-data_new.s=sparse(data.s(:));
-data_new.e=sparse(data.e(:));
-data_new.npix=sparse(data.npix(:));
-
-if is_sqw_type(w)
-    data_new.urange=data.urange;
-    
-    nfiles=w.main_header.nfiles;
-    ndet=numel(w.detpar.x2);
-    if nfiles==1
-        ne=numel(w.header.en)-1;
-    else
-        ne=zeros(nfiles,1);
-        header=w.header;
-        for i=1:nfiles
-            ne(i)=numel(header{i}.en)-1;
-        end
-    end
-    [data_new.npix_nz,data_new.pix_nz,data_new.pix] =...
-        pix_full_to_sparse(data.pix,data.npix,numel(ne),max(ne),ndet);
-end
-
-d.data=data_new;
+% Gateway routine that calls sqw method
+w = full_sqw (sqw, d);

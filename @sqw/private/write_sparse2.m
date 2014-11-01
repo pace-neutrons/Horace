@@ -1,4 +1,4 @@
-function write_sparse2(fid,v,type)
+function [nval,nel]=write_sparse2(fid,v,type)
 % Write sparse column vector of doubles designed for swifter reading of sections
 %
 %   >> write_sparse2(fid,v,type)
@@ -8,9 +8,18 @@ function write_sparse2(fid,v,type)
 %   fid     File identifier of already open file for binary output
 %   v       Values to be written
 %   type    Data type in which to save indicies and values: one of:
+%               'int32', 'float32', 'float64'
+%           See below for limitations on the array sizes and values for these types
 %
+% Output:
+% -------
+%   nval    Number of non-zeros elements in the vector v
+%   nel     Number of elements in the vector v
+%
+%
+% -------------------------------------------------------------------------------
 % Limitations on the values array:
-%
+% -------------------------------------------------------------------------------
 %   type      maximum array length          value type
 % --------------------------------------------------------------------
 % 'int32'   2,147,483,647  (2^31-1)         -(2^31)<= integer =< (2^31)-1
@@ -20,6 +29,7 @@ function write_sparse2(fid,v,type)
 %
 % 'float64'  281,474,976,710,655 (2^48-1)   float (written in double precision)
 %                                         or  |integer| 9.0072e+15  (ie. 2^53)
+% -------------------------------------------------------------------------------
 %
 % This form of sparse writing enables faster reading of sections from a large
 % array because the indicies and values are stored in adjacent words of

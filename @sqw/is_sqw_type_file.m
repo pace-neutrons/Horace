@@ -16,6 +16,7 @@ function [sqw_type, ndims, nfiles, filename, mess] = is_sqw_type_file(w,infile)
 %   filename    Cell array of file names (even if only one file, this is still a cell array)
 %   mess        Error message; blank if no errors, non-blank otherwise
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)

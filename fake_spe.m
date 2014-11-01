@@ -33,7 +33,7 @@ function varargout = fake_spe(varargin)
 %               and error bars to unity;
 %
 %   'mask',arr  Logical array length ndet. Where true, set the signal
-%               to NaN (his indicates msked detectors)
+%               to NaN (this indicates masked detectors)
 %
 % Output:
 % -------

@@ -36,13 +36,17 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %                   'buffer':   If non-sparse, only npix and pixel information are used:
 %                                   w.main_header, w.header, w.detpar must exist, but can be empty
 %                                   w.data.npix, w.data.pix must exist
-%                               If sparse, then must have in addition:
-%                                   w.detpar, w.header.en or w.header{i}.en (single, multiple spe files)
-%                                   w.data.npix, w.data.npix_nz, w.data.pix_nz, w.pix
+%                               If sparse, then must have the following fields:
+%                                   w.header.en or w.header{i}.en (single, multiple spe files)
+%                                   w.detpar
+%                                   w.data.p, w.data.npix, w.data.npix_nz, w.data.pix_nz, w.pix
 %                               Alternatively, a structure can be given with the required fields:
 %                                - non-sparse: npix, pix
-%                                - sparse:     ndet, ne, npix, npix_nz, pix_nz, pix
-%                                             (ndet=no. detectors; ne=column vector of no. en bins in each spe file)
+%                                - sparse:     sz, nfiles, ndet, ne_max, npix, npix_nz, pix_nz, pix
+%                                           (sz      = Size of npix array when in non-sparse format
+%                                            nfiles  = 1 (single spe file) NaN (more than one)
+%                                            ndet    = no. detectors; ne=column vector of
+%                                            ne_max  = max. no. en bins in the spe files)
 %
 %   opt_name    Determines which parts of the input data structures to write to a file. By default, the
 %              entire contents of the input data structure are written, apart from the case of 'h' when
@@ -175,11 +179,8 @@ if newfile
     info.sparse=sparse_fmt;
     info.sqw_data=data_type_write.sqw_data;
     info.sqw_type=data_type_write.sqw_type;
-    info.buffer_type=data_type_write.buffer_type;
-    [info.nfiles,info.ndet,info.ne]=sqwfile_get_pars(w,data_type_in,sparse_fmt,flat,data_type_write);
-    [ndims,sz]=data_structure_dims(w);
-    info.ndims=ndims;
-    info.sz_npix=[sz,NaN(1,4-ndims)];
+    info.buffer_data=data_type_write.buffer_data;
+    [info.nfiles,info.ne,info.ndet,info.ndims,info.sz]=sqwfile_get_pars(w,data_type_in,flat,data_type_write);
     S.info=info;                            % update the information block
     
     % Write information at top of file (do this now to reserve the right amount of space in the file)
@@ -241,21 +242,21 @@ if newfile
     if data_type_write.buffer || data_type_write.buffer_sp
         % buffer data, or buffer option with sqw data
         if flat % data has flat buffer structure format
-            [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+            [mess,position_data,fmt_data,info.nz_npix,info.nz_npix_nz,info.npixtot,info.npixtot_nz] = ...
                 put_sqw_data (fid, fmt_ver, w, sparse_fmt, '-buffer');
         else    % data has sqw structure
-            [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+            [mess,position_data,fmt_data,info.nz_npix,info.nz_npix_nz,info.npixtot,info.npixtot_nz] = ...
                 put_sqw_data (fid, fmt_ver, w.data, sparse_fmt, '-buffer');
         end
         
     elseif opt.pix
         % sqw output with pix data from another source
-        [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+        [mess,position_data,fmt_data,info.nz_npix,info.nz_npix_nz,info.npixtot,info.npixtot_nz] = ...
             put_sqw_data (fid, fmt_ver, w.data, sparse_fmt, '-pix', optvals{:});
         
     else
         % All other cases: dnd data or sqw data
-        [mess,position_data,fmt_data,info.npixtot,info.npixtot_nz] = ...
+        [mess,position_data,fmt_data,info.nz_npix,info.nz_npix_nz,info.npixtot,info.npixtot_nz] = ...
             put_sqw_data (fid, fmt_ver, w.data, sparse_fmt);
     end
     if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
@@ -594,7 +595,7 @@ function [mess,header_opt_write_non_data] = check_header_opt_ok (info, w)
 %
 % - Buffer files cannot have headers written to them
 
-if info.buffer_type
+if info.buffer_data
     mess='Cannot write header information to this file - it is a buffer file';
     header_opt_write_non_data=false;
     
@@ -615,37 +616,54 @@ end
 
 
 %==================================================================================================
-function [nfiles,ndet,ne]=sqwfile_get_pars(w,data_type_in,sparse_fmt,flat,data_type_write)
+function [nfiles,ne,ndet,ndims,sz]=sqwfile_get_pars(w,data_type_in,flat,data_type_write)
 % Get some parameters from the input data structure as required for an sqwfile structure
 %
-%   >> [nfiles,ndet,ne]=sqwfile_get_pars(w,data_type_in,sparse_fmt,flat,data_type_write)
-%
-% sqw_type (sparse or non-sparse), and sparse buffer: correct values for ndet, ne, nfiles
-% dnd_type (sparse or non-sparse), and non-sparse buffer: all three are NaN
+%   >> [nfiles,ne,ndet,ndims,sz]=sqwfile_get_pars(w,data_type_in,flat,data_type_write)
 
-if data_type_write.sqw_type || (data_type_write.buffer_type && sparse_fmt)
-    if data_type_in.buffer_type && flat
-        nfiles=numel(w.ne);
+  
+[ndims,szsqw,szarr]=data_structure_dims(w);
+
+if data_type_write.sqw_type || data_type_write.buffer_sp
+    % Writing sqw-type data or sparse buffer
+    if data_type_in.buffer_sp && flat   % input data is sparse buffer
+        if w.nfiles==1
+            nfiles=1;
+        else
+            nfiles=NaN;
+        end
+        ne=w.ne_max;
         ndet=w.ndet;
-        ne=w.ne;
-    else
-        nfiles=w.main_header.nfiles;
-        ndet=numel(w.detpar.x2);
+    else    % input data is sqw-type (even if writing out buffer data)
         if isstruct(w.header)
+            nfiles=1;
             ne=numel(w.header.en)-1;
         else
-            ne=zeros(nfiles,1);
             header=w.header;
+            nfiles=numel(w.header);     % don't use main_header, as buffer might not have it (unlikely, though)
+            ne=zeros(nfiles,1);
             for i=1:nfiles
                 ne(i)=numel(header{i}.en)-1;
             end
         end
+        if data_type_write.buffer_data
+            if nfiles~=1, nfiles=NaN; end
+            ne=max(ne);
+        end
+        ndet=numel(w.detpar.x2);
     end
 else
     % Writing dnd-type data or non-sparse buffer
     nfiles=NaN;
-    ndet=NaN;
     ne=NaN;
+    ndet=NaN;
+end
+
+% Return sqw dimensionality (sqw-type or dnd-type data) or size of npix array (buffer data)
+if data_type_write.sqw_data
+    sz=[szsqw,NaN(1,4-ndims)];
+else
+    sz=[szarr,NaN(1,4-numel(szarr))];
 end
 
 

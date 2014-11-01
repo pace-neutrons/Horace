@@ -1,0 +1,28 @@
+Testing procedure
+==================
+
+Run aaa_setup
+
+In Horace v3:
+	Run create_sqw_data_from_fe787
+		Creates data files
+		
+	Run save_sqw_data
+		Reads in all sqw and dnd files created above and creates a .mat file
+		
+	Run create_spe_data (requires 2014a)
+		Creates some spe files for later use (without making any assumptions about Horace IO functions
+		working correctly)
+
+	Run test_gen_sqw_1('ref')
+		Creates reference versions of some sqw files from the spe data
+		
+In New Horace:
+
+	Run test_read_sqw_data
+		Loads the mat file and then uses read_horace to read files and compare with mat file contents
+		
+	test_IO_v1
+		First set of tests
+		
+	R

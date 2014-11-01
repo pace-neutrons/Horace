@@ -16,15 +16,19 @@ function S = sqwfile
 %   info.sparse      =true if signal fields are in sparse format; =false otherwise
 %   info.sqw_data    =true if file contains valid sqw data (i.e. dnd-type or sqw-type data)
 %   info.sqw_type    Type of sqw object written to file: =true if sqw-type; =false if dnd-type
-%   info.buffer_type =true if npix-and-pix buffer file; =false if not
+%   info.buffer_data =true if npix-and-pix buffer file; =false if not
 %   info.nfiles      sqw-type: Number of contributing spe data sets; dnd-type: =NaN
-%                    buffer:   Number of spe files if sparse; non-sparse then =NaN
+%                    buffer:   1 (single spe) or NaN (multiple spe) if sparse; non-sparse then =NaN
 %   info.ne          sqw-type: Column vector of no. energy bins in each spe file; dnd-type: =NaN
-%                    buffer:   Column vector of no. energy bins if sparse; =NaN if non-sparse
+%                    buffer:   Maximum value of no. energy bins if sparse; =NaN if non-sparse
 %   info.ndet        sqw-type: Number of detectors; dnd-type: =NaN
 %                    buffer:   Number of detectors if sparse; =NaN if non-sparse
-%   info.ndims       Number of dimensions of npix array
-%   info.sz_npix     Number of bins along each dimension ([1,4] array; excess elements = NaN)
+%   info.ndims       sqw_data: Dimensionality of the sqw data
+%                    buffer:   NaN
+%   info.sz          sqw_data: Number of bins along each dimension ([1,4] array; excess elements = NaN)
+%                    buffer:   Size of npix array
+%   info.nz_npix     Number of non-zero values of npix; =NaN if non-sparse
+%   info.nz_npix_nz  Number of non-zero values of npix_nz; =NaN if non-sparse
 %   info.npixtot     Total number of pixels
 %   info.npixtot_nz  Total number of non-zero signal pixels; =NaN if non-sparse
 %   
@@ -66,8 +70,9 @@ S.filename='';
 
 S.application=struct('name','','version',appversion(0),'file_format',appversion(0));
 
-S.info=struct('sparse',false,'sqw_data',false,'sqw_type',false,'buffer_type',false,...
-    'nfiles',NaN,'ne',NaN,'ndet',NaN,'ndims',NaN,'sz_npix',NaN(1,4),'npixtot',NaN,'npixtot_nz',NaN);
+S.info=struct('sparse',false,'sqw_data',false,'sqw_type',false,'buffer_data',false,...
+    'nfiles',NaN,'ne',NaN,'ndet',NaN,'ndims',NaN,'sz',NaN(1,4),...
+    'nz_npix',NaN,'nz_npix_nz',NaN,'npixtot',NaN,'npixtot_nz',NaN);
 
 S.position = struct('application',NaN,'info',NaN,'position',NaN,'fmt',NaN,...
     'main_header',NaN,'header',NaN,'instrument',NaN,'sample',NaN,'detpar',NaN,'data',NaN,...

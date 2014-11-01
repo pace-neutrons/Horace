@@ -73,13 +73,18 @@ try
     fmt=S.fmt;
     
     % Get size of signal, error, npix arrays
-    ndims=info.ndims;
-    if ndims>1
-        sz=info.sz_npix(1:ndims);
-    elseif ndims==1
-        sz=[info.sz_npix(1),1];
+    if info.sqw_data
+        ndims=info.ndims;
+        if ndims>1
+            sz=info.sz(1:ndims);
+        elseif ndims==1
+            sz=[info.sz(1),1];
+        else
+            sz=[1,1];
+        end
     else
-        sz=[1,1];
+        ndims=sum(~isnan(info.sz));
+        sz=info.sz(1:ndims);
     end
     
     % Determine which fields to read and if output is a data structure

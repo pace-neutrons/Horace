@@ -1,34 +1,40 @@
-function varargout = combine (dummy, infiles, wsqw, wsqw_sp, outfile)
-% Combine a collection of sqw files &/or sqw objects &/or sparse sqw data structures with a common grid
-%
-% Create sqw file:
-%   >> write_nsqw_to_sqw (dummy, infiles, wsqw, wsqw_sparse, outfile)
+function varargout = combine (varargin)
+% Combine a collection of sqw files &/or sqw objects &/or sparse sqw data structures
 %
 % Create sqw object:
-%   >> wout = write_nsqw_to_sqw (dummy, infiles, wsqw, wsqw_sparse)
+%   >> wout = combine (s1, s2, s3,...)
+%
+% Create sqw file:
+%   >> combine (s1, s2, s3,..., outfile)
 %
 % Input:
 % ------
-%   dummy           Dummy sqw object  - used only to ensure that this service routine was called
-%   infiles         Cell array or character array of sqw file name(s) of input file(s) (ignored if empty)
-%   wsqw            Array of sqw objects to be combined (ignored if empty)
-%   wsqw_sparse     Array of sparse sqw data structures to be combined (ignored if empty)
-%   outfile         Full name of output sqw file
-%                   If not given, then it is assumed that the output will be to an sqw object in memory
+%   s1, s2,...  Data to be combined. Each of s1, s2, s3,... can be one of
+%               - sqw file name, or cell array of sqw file names (if a name
+%                is empty it is ignored)
+%               - sqw object or array of sqw objects (if an object matches
+%                the empty sqw object it is ignored)
+%               - sparse sqw data structure or array of sparse sqw structures
+%                (if an object 
+%
+%   outfile     [Optional] Full name of output sqw file
+%               If not given, then it is assumed that the output will be to
+%               an sqw object in memory
 %
 % Output:
 % -------
-%   wout            Combined sqw object
-%                   If not given, then assumed that an output file name was given
+%   wout        [Optional] sqw object with combined data
+%               If not given, then it is assumed that an output file name was given
 
 
 % Original author: T.G.Perring
 %
 % $Revision: 880 $ ($Date: 2014-07-16 08:18:58 +0100 (Wed, 16 Jul 2014) $)
 %
-% T.G.Perring   27 June 2007
-% T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
-% T.G.Perring   29 June 2014   Combine arbitrary sqw and sparse sqw files and objects with the same bins 
+% T.G.Perring   27 June 2007    Original function - called write_nsqw_to_sqw
+% T.G.Perring   22 March 2013   Modified to enable sqw files with more than one spe file to be combined.
+% T.G.Perring   29 June 2014    Renamed combine; merges an arbitrary collection of 
+%                               sqw and sparse sqw files and objects with the same bins 
 
 
 % *** catch case of a single input data source - and deal with carefully
@@ -39,65 +45,31 @@ horace_info_level=get(hor_config,'horace_info_level');
 mem_max_sqw=4e9;    % maximum memory (bytes) which is allowed for all sqw data
 
 
-% Check that the first argument is sqw object
+% Check that the input data sources are valid
 % -------------------------------------------
-if ~isa(dummy,classname)    % classname is a private method 
-    error('Check type of input arguments')
-end
-
-% Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
-% --------------------------------------------------------------------------------------------------------------------
-if nargin==4 && nargout==0          % no output object, and no output file
-    error ('Neither output sqw object nor output sqw file requested - routine is not being asked to do anything')
-elseif nargin==4 && nargout==1      % output object, but no output file
-    obj_out=true;
-    file_out=false;
-elseif nargin==5 && nargout==0      % no output object, but output file
-    obj_out=false;
-    file_out=true;
-elseif nargin==5 && nargout==1      % output object and output file
-    obj_out=true;
-    file_out=true;
+if nargout==1
+    file_output=false;
 else
-    error('Check number of input and output arguments')
+    file_output=true;
+end
+[ok,mess,wsqw,wsqw_sp,infiles,outfile] = combine_parse_input (file_output,varargin{:});
+if ~ok
+    error(mess)
 end
 
-
-% Check that the input files all exist
-% ------------------------------------
-% Convert to cell array of strings if necessary
-if ~iscellstr(infiles)
-    infiles=cellstr(infiles);
-end
-
-% Check input files exist
-nfiles=length(infiles);
-for i=1:nfiles
-    if exist(infiles{i},'file')~=2
-        error(['File ',infiles{i},' not found'])
-    end
-end
-
-% *** Check output file can be opened, if one requested
-% *** Check that output file and input files do not coincide
-
-
-% Check that the sqw objects are all sqw type
-% -------------------------------------------
 nsqw=numel(wsqw);
-for i=1:nsqw
-    if ~is_sqw_type(wsqw(i))
-        error(['Element ',num2str(i),' of the sqw object array does not contain pixel information i.e. is not sqw-type'])
-    end
+nsqw_sp=numel(wsqw_sp);
+ninfiles=numel(infiles);
+nsource=nsqw+nsqw_sp+ninfiles;
+
+
+% Catch case of just a single input data source
+% ---------------------------------------------
+% This is a trivial case where nothing has to be combined
+if nsource==1
+    error('Only one data source - nothing to be combined')
 end
 
-% Check the sparse data structures
-% --------------------------------
-% *** Currently is not a proper check of fields, as there is no true object of sqw_sparse format. Just catch silliness
-nsqw_sp=numel(wsqw_sp);
-if ~(isstruct(wsqw_sp) && isfield(wsqw_sp(1),'data') && isfield(wsqw_sp(1).data,'npix_nz'))
-    error('Argument to contain sparse sqw data is not a structure or does not have a required field')
-end
 
 
 % =================================================================================================
@@ -110,7 +82,7 @@ if horace_info_level>-1
 	disp('Reading header(s) of input sqw data source(s) and checking consistency...')
 end
 
-nsource=nsqw+nsqw_sp+nfiles;
+
 S=cell(nsource,1);
 sparse_fmt=false(nsource,1);
 header=cell(nsource,1);
@@ -152,8 +124,8 @@ end
 
 % Get the header information from sqw files
 cur_fmt = fmt_check_file_format();
-mess_completion(nfiles,5,0.1);   % initialise completion message reporting
-for i=1:nfiles
+mess_completion(ninfiles,5,0.1);   % initialise completion message reporting
+for i=1:ninfiles
     j=j+1;
     [w,ok,mess,S{j}] = get_sqw (infiles{i},'-h');
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
@@ -200,7 +172,7 @@ if ~ok, error(mess), end
 npax=length(datahdr{1}.pax);
 sz=ones(1,max(npax,2));
 for i=1:npax
-    sz(i)=numel(datahdr{i}.pax)-1;
+    sz(i)=numel(datahdr{1}.p{i})-1;
 end
 
 % Consistency check:
@@ -302,17 +274,17 @@ keep_pix_nz=false;
 keep_pix=false;
 mem_tot = get_num_bytes(wsqw) + get_num_bytes(wsqw_sp);
 if mem_tot<mem_max_sqw
-    [mem_npix,mem_npix_nz,mem_pix_nz,mem_pix]=memory_allocation(S);
+    [mem_npix,mem_npix_nz,mem_pix_nz,mem_pix]=sources_file_mem_req(S);
     if mem_tot+mem_npix<mem_max_sqw; keep_npix=true; end
     if mem_tot+mem_npix+mem_npix_nz<mem_max_sqw; keep_npix_nz=true; end
     if mem_tot+mem_npix+mem_npix_nz+mem_pix_nz<mem_max_sqw; keep_pix_nz=true; end
     if mem_tot+mem_npix+mem_npix_nz+mem_pix_nz+mem_pix<mem_max_sqw; keep_pix=true; end
 end
 
-if nfiles>0
+if ninfiles>0
     if horace_info_level>-1, disp(' - processing sqw file(s)...'), end
-    mess_completion(nfiles,5,0.1);   % initialise completion message reporting
-    for i=1:nfiles
+    mess_completion(ninfiles,5,0.1);   % initialise completion message reporting
+    for i=1:ninfiles
         j=j+1;
         % Open file
         [S{j},mess]=sqwfile_open(infiles{i},'readonly');
@@ -322,7 +294,7 @@ if nfiles>0
         w = get_sqw (S{j},'-dnd');
         
         % Keep npix if can, and read and keep npix_nz, pix_nz, pix if can
-        if keep_npix, npix{i}=w.bindata.npix; end
+        if keep_npix, npix{i}=w.data.npix; end
         if S{j}.info.sparse
             if keep_npix_nz, npix_nz{j} = get_sqw (S{j},'npix_nz'); end
             if keep_pix_nz, pix_nz{j} = get_sqw (S{j},'pix_nz'); end
@@ -359,11 +331,14 @@ if horace_info_level>-1
     disp(['Writing to output file ',outfile,' ...'])
 end
 
-nfiles_tot=sum(nspe);
 main_header_combined.filename='';
 main_header_combined.filepath='';
 main_header_combined.title='';
-main_header_combined.nfiles=nfiles_tot;
+if iscell(header_combined)
+    main_header_combined.nfiles=numel(header_combined);
+else
+    main_header_combined.nfiles=1;
+end
 
 sqw_data.filename=main_header_combined.filename;
 sqw_data.filepath=main_header_combined.filepath;

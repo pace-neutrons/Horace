@@ -1,4 +1,4 @@
-function ucoords=calc_ucoords (kfix, emode, k, en, detdcn, id, ie)
+function ucoords=calc_ucoords (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
 % Calculate the components of Q in reference frame fixed w.r.t. spectrometer
 %
 %   >> qspec = calc_qspec (efix, k_to_e, emode, data, det)
@@ -47,4 +47,4 @@ else
     
 end
 
-ucoords = [spec_to_u*qspec; eps];
+ucoords = [spec_to_pix*qspec; eps];

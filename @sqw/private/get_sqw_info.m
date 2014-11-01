@@ -19,15 +19,19 @@ function [mess, info] = get_sqw_info (fid, fmt_ver)
 %   info.sparse      =true if signal fields are in sparse format; =false otherwise
 %   info.sqw_data    =true if file contains valid sqw data (i.e. dnd-type or sqw-type data)
 %   info.sqw_type    Type of sqw object written to file: =true if sqw-type; =false if dnd-type
-%   info.buffer_type =true if npix-and-pix buffer file; =false if not
+%   info.buffer_data =true if npix-and-pix buffer file; =false if not
 %   info.nfiles      sqw-type: Number of contributing spe data sets; dnd-type: =NaN
 %                    buffer:   Number of spe files if sparse; non-sparse then =NaN
 %   info.ne          sqw-type: Column vector of no. energy bins in each spe file; dnd-type: =NaN
-%                    buffer:   Column vector of no. energy bins if sparse; =NaN if non-sparse
+%                    buffer:   Maximum value of no. energy bins if sparse; =NaN if non-sparse
 %   info.ndet        sqw-type: Number of detectors; dnd-type: =NaN
 %                    buffer:   Number of detectors if sparse; =NaN if non-sparse
-%   info.ndims       Number of dimensions of npix array
-%   info.sz_npix     Number of bins along each dimension ([1,4] array; excess elements = NaN)
+%   info.ndims       sqw_data: Dimensionality of the sqw data
+%                    buffer:   NaN
+%   info.sz          sqw_data: Number of bins along each dimension ([1,4] array; excess elements = NaN)
+%                    buffer:   Size of npix array
+%   info.nz_npix     Number of non-zero values of npix; =NaN if non-sparse
+%   info.nz_npix_nz  Number of non-zero values of npix_nz; =NaN if non-sparse
 %   info.npixtot     Total number of pixels
 %   info.npixtot_nz  Total number of non-zero signal pixels
 
@@ -43,8 +47,9 @@ try
     n = fread(fid,1,'float64');
     tmp = fread(fid,n,'float64');
     info=struct('sparse',logical(tmp(1)),'sqw_data',logical(tmp(2)),...
-        'sqw_type',logical(tmp(3)),'buffer_type',logical(tmp(4)),...
-        'nfiles',tmp(5),'ne',tmp(6:end-8),'ndet',tmp(end-7),'ndims',tmp(end-6),'sz_npix',tmp(end-5:end-2)','npixtot',tmp(end-1),'npixtot_nz',tmp(end));
+        'sqw_type',logical(tmp(3)),'buffer_data',logical(tmp(4)),...
+        'nfiles',tmp(5),'ne',tmp(6:end-10),'ndet',tmp(end-9),'ndims',tmp(end-8),'sz',tmp(end-7:end-4)',...
+        'nz_npix',tmp(end-3),'nz_npix_nz',tmp(end-2),'npixtot',tmp(end-1),'npixtot_nz',tmp(end));
     
 catch
     mess='Error reading contents information summary block from file';

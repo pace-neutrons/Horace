@@ -313,7 +313,7 @@ info=S.info;
 is_sparse=info.sparse;
 is_sqw=(info.sqw_data & info.sqw_type);
 is_dnd=(info.sqw_data & ~info.sqw_type);
-is_buffer=info.buffer_type;
+is_buffer=info.buffer_data;
 
 % Determine if full format conversion is required
 % -----------------------------------------------
@@ -517,7 +517,12 @@ end
 % Check consistency of the options with the different data types
 % --------------------------------------------------------------
 if is_dnd
-    if opt.sqw || opt.nopix || opt.buffer
+    if opt.nopix
+        % 24/10/14 (TGP): '-nopix' is only a valid option with sqw data, but because it
+        % is a benign error to use it on dnd data, we can just replace it with opt.dnd
+        opt.dnd=true;
+        opt.nopix=false;
+    elseif opt.sqw || opt.buffer
         mess = ['Cannot use option ''',opt_name,''' with dnd-type data'];
         return
     elseif opt.npix_nz || opt.pix_nz || opt.pix

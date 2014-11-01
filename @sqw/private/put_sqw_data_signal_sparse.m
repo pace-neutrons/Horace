@@ -1,9 +1,10 @@
-function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data, varargin)
+function [mess,position,fieldfmt,nz_npix,nz_npix_nz,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data, varargin)
 % Write sparse data structure, with pixel data optionally coming from other source(s)
 %
-%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data)
-%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data, opt_name)
-%   >> [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_sparse (fid, fmt_ver, data, opt_name, p1, p2,...)
+%   >> [mess,position,fieldfmt,nz_npix,nz_npix_nz,npixtot,npixtot_nz] =...
+%              put_sqw_data_signal_sparse (fid, fmt_ver, data)
+%   >> [...] = put_sqw_data_signal_sparse (fid, fmt_ver, data, opt_name)
+%   >> [...] = put_sqw_data_signal_sparse (fid, fmt_ver, data, opt_name, p1, p2,...)
 %
 % Input:
 % ------
@@ -87,11 +88,16 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_spars
 %                   fieldfmt.pix_nz
 %                   fieldfmt.pix
 %
+%   nz_npix     Number of non-zero values of npix
+%
+%   nz_npix_nz  Number of non-zero values of npix_nz
+%              (=NaN if pix not written)
+%
 %   npixtot     Total number of pixels actually written by the call to this function
 %              (=NaN if pix not written)
 %
 %   npixtot_nz  Total number of pixels with non-zero signal actually written by the call to this function
-%              (=NaN if pix not written, =0 if pix written but not sparse format)
+%              (=NaN if pix not written)
 %
 % It is already assumed that the data and the fields of data that reach this routine are
 % consistent with the needs of the calling function.
@@ -105,6 +111,8 @@ function [mess,position,fieldfmt,npixtot,npixtot_nz] = put_sqw_data_signal_spars
 mess='';
 position = struct('s',NaN,'e',NaN,'npix',NaN,'urange',NaN,'npix_nz',NaN,'pix_nz',NaN,'pix',NaN);
 fieldfmt = struct('s','','e','','npix','','urange','','npix_nz','','pix_nz','','pix','');
+nz_npix=NaN;
+nz_npix_nz=NaN;
 npixtot=NaN;
 npixtot_nz=NaN;
 
@@ -145,11 +153,11 @@ try
     if single_file
         position.npix=ftell(fid);
         fieldfmt.npix='int32';
-        write_sparse2(fid,data.npix,'int32');    % can assume there are less than 2e9 pixels
+        nz_npix=write_sparse2(fid,data.npix,'int32');   % can assume there are less than 2e9 pixels
     else
         position.npix=ftell(fid);
         fieldfmt.npix='float64';
-        write_sparse2(fid,data.npix,'float64');  % allow for more than 2e9 pixels
+        nz_npix=write_sparse2(fid,data.npix,'float64'); % allow for more than 2e9 pixels
     end
     
     % Write urange
@@ -171,7 +179,7 @@ try
             if single_file
                 position.npix_nz=ftell(fid);
                 fieldfmt.npix_nz='int32';
-                write_sparse2(fid,data.npix_nz,'int32');    % can assume there are less than 2e9 pixels
+                nz_npix_nz=write_sparse2(fid,data.npix_nz,'int32'); % can assume there are less than 2e9 pixels
                 
                 position.pix_nz=ftell(fid);
                 fieldfmt.pix_nz='float32';
@@ -183,7 +191,7 @@ try
             else
                 position.npix_nz=ftell(fid);
                 fieldfmt.npix_nz='float64';
-                write_sparse2(fid,data.npix_nz,'float64');  % allow for more than 2e9 pixels
+                nz_npix_nz=write_sparse2(fid,data.npix_nz,'float64');   % allow for more than 2e9 pixels
                 
                 position.pix_nz=ftell(fid);
                 fieldfmt.pix_nz='float32';
@@ -197,15 +205,6 @@ try
         else
             % Pixels to be written from other source(s), assumed consistent with data written so far
             % Overrides any pix information in the data structure
-            % This function must write:
-            %   - size(pix_nz)
-            %   - npixtot
-            %   - npix_nz, pix_nz, pix arrays in sparse format
-            % Return
-            %   - positions of the starts of npix_nz, pix_nz, pix arrays as a structure with those names
-            %   - formats of those three arrays as a structure with those names
-            %
-            % [mess,position_sp,fieldfmt_sp,npixtot,npixtot_nz] = put_sqw_data_pix_from_sources_sparse (fid, fmt_ver, varargin{2:end});
             mess='Cannot write sparse pixel information from sources other than the input data structure';
             return
         end
