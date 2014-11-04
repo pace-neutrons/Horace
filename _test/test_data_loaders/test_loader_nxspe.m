@@ -161,6 +161,28 @@ classdef test_loader_nxspe< TestCase
             assertEqual(loader.file_name,f_name(this,'MAP11014.nxspe'));
             assertEqual(loader.det_par,par);
         end
+        function test_load_phx_from_nxspe(this)
+            
+            % loads only par data
+            par_file = f_name(this,'map5935_small.nxspe');
+            loader=loader_nxspe(par_file);
+            [nxpse_phx,loader]=loader.load_par('-getphx');
+            
+            loader.par_file_name = f_name(this,'map_4to1_jul09.par');
+            ascii_phx=loader.load_par('-getphx');
+            
+            
+            difr=0.5*abs((nxpse_phx(1,:)-ascii_phx(1,:))./(nxpse_phx(1,:)+ascii_phx(1,:)));
+            assertTrue(sum(difr>1.e-3)==0)
+            difr=0.5*abs((nxpse_phx(2,:)-ascii_phx(2,:))./(nxpse_phx(2,:)+ascii_phx(2,:)));
+            assertTrue(sum(difr>1.e-1)==0)           
+            %difr=0.5*abs((nxpse_phx(3,:)-ascii_phx(3,:))./(nxpse_phx(3,:)+ascii_phx(3,:)));
+            %assertTrue(sum(difr>1.e-1)==0)               
+            % this should be fixed one day            
+            %assertElementsAlmostEqual(nxpse_phx(4,:),ascii_phx(4,:),'relative',1.e-2);
+            %assertElementsAlmostEqual(nxpse_phx(5,:),ascii_phx(5,:),'relative',1.e-4);
+        end
+        
         
         function test_warn_on_nxspe1_0(this)
             loader = loader_nxspe(f_name(this,'nxspe_version1_0.nxspe'));

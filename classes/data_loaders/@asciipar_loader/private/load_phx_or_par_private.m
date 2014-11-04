@@ -122,8 +122,6 @@ function phx = convert_par2phx(par)
 %    4 	angular width e.g. delta scattered angle (deg)
 %    5 	angular height e.g. delta azimuthal angle (deg)
 
-% assuming: width  = l2*cos(polar)*dPolar     (rad)
-% assuming: height = l2*sin(polar)*dAzimuthal (rad)
 phx = par;
 phx(4,:) =(360/pi)*atan(0.5*(par(4,:)./par(1,:)));
 phx(5,:) =(360/pi)*atan(0.5*(par(5,:)./par(1,:)));
@@ -136,13 +134,8 @@ function par = convert_phx2par(phx)
 % par contains col:
 %     4th  "        width (m)
 %     5th  "        height (m)
-% assuming: width  = l2*cos(polar)*dPolar     (rad)
-% assuming: height = l2*sin(polar)*dAzimuthal (rad)
 
 par = phx;
-% par.width=2*x2.*tand(0.5*phx.dphi);
-% par.height=2*x2.*tand(0.5*phx.danght);
-
 par(4,:) =2*(phx(1,:).*tand(0.5*phx(4,:)));
 par(5,:) =2*(phx(1,:).*tand(0.5*phx(5,:)));
 
