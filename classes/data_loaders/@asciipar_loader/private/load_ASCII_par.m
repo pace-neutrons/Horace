@@ -54,6 +54,9 @@ if ~use_mex
     par=get_par_matlab(filename);
 end
 
+par(3,:) = -par(3,:);
+
+
 
 
 function par=get_par_matlab(filename)

@@ -1,4 +1,4 @@
-function [return_array,force_reload,lext,this]=parse_loadpar_arguments(this,options,varargin)
+function [return_array,force_reload,getphx,lext,this]=parse_loadpar_arguments(this,options,varargin)
 % method processes the arguments specified with load_par methods
 %
 %
@@ -42,10 +42,11 @@ function [return_array,force_reload,lext,this]=parse_loadpar_arguments(this,opti
 return_array = false;
 force_reload = false;
 hor_format_deprecated=false;
+getphx = false;
 file_name  = {};
 %
 if numel(varargin)>0
-    [ok,mess,return_array,return_array2,hor_format_deprecated,force_reload,file_name]=parse_char_options(varargin,options);
+    [ok,mess,return_array,return_array2,hor_format_deprecated,force_reload,getphx,file_name]=parse_char_options(varargin,options);
     if ~ok
         if get(herbert_config,'log_level')>0
             disp('Usage:');
@@ -57,6 +58,9 @@ if numel(varargin)>0
         return_array =return_array||return_array2;
     end
     
+end
+if getphx
+    return_array = true;
 end
 %
 if hor_format_deprecated

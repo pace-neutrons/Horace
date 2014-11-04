@@ -1,4 +1,4 @@
-function [det,loader]=load_phx_or_par_private(loader,return_array,force_reload,lext)
+function [det,loader]=load_phx_or_par_private(loader,return_array,force_reload,getphx,lext)
 % method loads par data into run data structure and returns it in the format,requested by user
 %
 % this function has to have its eqivalents in all other loader classes
@@ -28,9 +28,13 @@ if ~isempty(loader.det_par_stor) &&(~force_reload)
     end
     if strcmp(fullfile(loader.det_par_stor.filepath,loader.det_par_stor.filename),sample)
         if return_array
+            % this will convert par structure into array
             det=get_hor_format(loader.det_par);
         else
             det = loader.det_par;
+        end
+        if getphx
+            det = convert_par2phx(det);
         end
         return;
     end
@@ -38,16 +42,17 @@ end
 %
 switch lext
     case '.par'
-        par      = load_ASCII_par(loader.par_file_name);
-        par(3,:) = -par(3,:);
+        rez  =  load_ASCII_par(loader.par_file_name);
+        is_phx=false;
     case '.phx'
-        par = load_ASCII_phx_as_par(loader.par_file_name);
+        rez  =  load_ASCII_phx(loader.par_file_name);
+        is_phx = true;
     otherwise
         error('ASCIIPAR_LOADER:load_par','unknown file extension for file %s',loader.par_file_name);
 end
 %
 %
-size_par = size(par);
+size_par = size(rez);
 ndet=size_par(2);
 if get(herbert_config,'log_level')>0
     disp(['ASCIIPAR_LOADER:load_ascii_par::loaded ' num2str(ndet) ' detector(s)']);
@@ -55,15 +60,89 @@ end
 %
 if size_par(1)==5
     det_id = 1:ndet;
-    par = [par;det_id];
+    rez = [rez;det_id];
 elseif(size_par(1)~=6)
     error('ASCIIPAR_LOADER:load_par',' proper par file has to have 5 or 6 column but this one has %d',size_par(1));
 end
 %
-det =  get_hor_format(par,loader.par_file_name);
-loader.det_par_stor    = det;
-loader.n_detinpar_stor = ndet;
-%
 if return_array
-    det=par;
+    if getphx
+        if is_phx
+            det = rez;
+        else
+            det = convert_par2phx(rez);
+        end
+    else
+        if is_phx
+            det = convert_phx2par(rez);
+        else
+            det =rez;
+        end
+    end
+    loader_defined=false;
+else
+    if is_phx
+        par = convert_phx2par(rez);
+    else
+        par = rez;
+    end
+    det =  get_hor_format(par,loader.par_file_name);
+    loader.det_par_stor    = det;
+    loader.n_detinpar_stor = ndet;
+    loader_defined=true;
 end
+
+% define loader in Horace format
+if nargout >1 && ~loader_defined
+    if isstruct(det)
+        det_i = det;
+    else
+        if is_phx
+            if getphx
+                par = convert_phx2par(rez);
+            else
+                par = det;
+            end            
+        else
+            par =rez;
+        end
+        det_i =  get_hor_format(par,loader.par_file_name);
+    end
+    loader.det_par_stor    = det_i;
+    loader.n_detinpar_stor = ndet;
+    
+end
+%
+
+function phx = convert_par2phx(par)
+% par contains col:
+%     4th  "        width (m)
+%     5th  "        height (m)
+%phx contains col:
+%    4 	angular width e.g. delta scattered angle (deg)
+%    5 	angular height e.g. delta azimuthal angle (deg)
+
+% assuming: width  = l2*cos(polar)*dPolar     (rad)
+% assuming: height = l2*sin(polar)*dAzimuthal (rad)
+phx = par;
+phx(4,:) =(360/pi)*atan(0.5*(par(4,:)./par(1,:)));
+phx(5,:) =(360/pi)*atan(0.5*(par(5,:)./par(1,:)));
+
+
+function par = convert_phx2par(phx)
+%phx contains col:
+%    4 	angular width e.g. delta scattered angle (deg)
+%    5 	angular height e.g. delta azimuthal angle (deg)
+% par contains col:
+%     4th  "        width (m)
+%     5th  "        height (m)
+% assuming: width  = l2*cos(polar)*dPolar     (rad)
+% assuming: height = l2*sin(polar)*dAzimuthal (rad)
+
+par = phx;
+% par.width=2*x2.*tand(0.5*phx.dphi);
+% par.height=2*x2.*tand(0.5*phx.danght);
+
+par(4,:) =2*(phx(1,:).*tand(0.5*phx(4,:)));
+par(5,:) =2*(phx(1,:).*tand(0.5*phx(5,:)));
+

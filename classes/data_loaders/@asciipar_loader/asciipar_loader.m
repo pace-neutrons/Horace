@@ -63,7 +63,7 @@ classdef asciipar_loader
             % to access those information and to do arbitration what detector information should be used
             %
             % usage:
-            %>>[det,this] = load_par(this,['-nohor'],['-force'])
+            %>>[det,this] = load_par(this,['-nohor'],['-force'],'-getphx')
             %                      returns detectors information loaded from the file,
             %                      previously associated with a class by
             %                      the class constructor
@@ -96,7 +96,7 @@ classdef asciipar_loader
             %                     wants to reload this information at each
             %                     load_par.
             %
-            %>>[det,this]=load_par(this,file_name,['-nohor'],['-forcereload'])
+            %>>[det,this]=load_par(this,file_name,['-nohor'],['-forcereload'],['-getphx'])
             %                     returns detectors information from the
             %                     par or phx file name specified.
             %                     The function also redefines
@@ -113,10 +113,33 @@ classdef asciipar_loader
             %                  (West bank=0 deg, North bank=90 deg etc.)
             %   det.width       Row vector of detector widths (m)
             %   det.height      Row vector of detector heights (m)
-            
-            options = {'-nohorace','-array','-horace','-forcereload'};
-            [return_array,force_reload,lext,this] = parse_loadpar_arguments(this,options,varargin{:});
-            [det,this] = load_phx_or_par_private(this,return_array,force_reload,lext);
+            %
+            % '-getphx'         option returns data in phx format. 
+            %                   invoking this assumes (and sets up) -nohorace
+            %                   option.
+            % Phx data format has a form:
+            %
+            % 1st (1)	secondary flightpath,e.g. sample to detector distance (m)
+            % 2nd (-)   0
+            % 3rd (2)	scattering angle (deg)
+            % 4th (3)	azimuthal angle (deg) (west bank = 0 deg, north bank = 90 deg etc.)
+            %           Note the reversed sign convention wrt the .par files. For details, see: SavePAR v
+            % 5th (4) 	angular width e.g. delta scattered angle (deg)
+            % 6th (5)	angular height e.g. delta azimuthal angle (deg)
+            % 7th (6)	 detector ID   – this is Mantid specific value, which may not hold similar meaning in files written by different applications.
+            %
+            % In standard phx file only the columns 3,4,5 and 6 contain useful information.
+            % You can expect to find column 1 to be the secondary flightpath and the column
+            % 7 – the detector ID in Mantid-generated phx files only or in
+            % the files read from nxspe source
+            %
+            % reader ignores column 2, so -getphx option returns array of 
+            % 6xndet data in similar to par format, but the meaning or the
+            % columns 4 and 5 are different
+            %
+            options = {'-nohorace','-array','-horace','-forcereload','-getphx'};
+            [return_array,force_reload,getphx,lext,this] = parse_loadpar_arguments(this,options,varargin{:});
+            [det,this] = load_phx_or_par_private(this,return_array,force_reload,getphx,lext);
             
         end
         %

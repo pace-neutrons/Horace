@@ -226,8 +226,34 @@ classdef test_asciipar_loader< TestCase
             [detp,al] = al.load_par('-nohor');
             
             assertElementsAlmostEqual(det(2,:),detp(2,:),'relative',1.e-4);
-            assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);            
+            assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);
             
+        end
+        function test_load_phx_as_par_mex(this)
+            hcfg=herbert_config();
+            current = hcfg.use_mex_C;
+            c = onCleanup(@()set(hcfg,'use_mex_C',current));
+            hcfg.use_mex_C = true;
+            
+            phx_file = fullfile(this.test_data_path,'map_4to1_jul09.phx');
+            par_file = fullfile(this.test_data_path,'map_4to1_jul09.par');
+            al = asciipar_loader(phx_file);
+            
+            [det,al] = al.load_par('-nohor');
+            hor_par = al.det_par;
+            al.par_file_name  = par_file;
+            [detp] = al.load_par('-nohor');
+
+            % test return from memory             
+            al.det_par = hor_par;
+            det2 = al.load_par('-nohor');
+            assertElementsAlmostEqual(det(2,:),detp(2,:),'relative',1.e-4);
+            assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);
+            % phx file does not contain correct L2 values to read par from phx correctly            
+            assertElementsAlmostEqual(det(4,:),(10/6)*detp(4,:),'absolute',1.e-2);
+            assertElementsAlmostEqual(det(5,:),(10/6)*detp(5,:),'absolute',1.e-2);
+            
+            assertElementsAlmostEqual(det2,det,'relative',1.e-8);
         end
         function test_load_phx_mex(this)
             hcfg=herbert_config();
@@ -239,14 +265,45 @@ classdef test_asciipar_loader< TestCase
             par_file = fullfile(this.test_data_path,'map_4to1_jul09.par');
             al = asciipar_loader(phx_file);
             
-            [det,al] = al.load_par('-nohor');
+            [det,al] = al.load_par('-getphx');
+            hor_par = al.det_par;
             al.par_file_name  = par_file;
-            [detp,al] = al.load_par('-nohor');
+            [detp] = al.load_par('-getphx');
+            
+            % test return from memory 
+            al.det_par = hor_par;
+            det2 = al.load_par('-getphx');
+            
             
             assertElementsAlmostEqual(det(2,:),detp(2,:),'relative',1.e-4);
-            assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);            
+            assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);
+            assertElementsAlmostEqual(det(4,:),detp(4,:),'relative',1.e-2);
+            assertElementsAlmostEqual(det(5,:),detp(5,:),'relative',1.e-2);
             
-        end        
+            assertElementsAlmostEqual(det,det2,'relative',1.e-8);            
+            
+        end
+
+        function test_load_phx_nomex(this)
+            hcfg=herbert_config();
+            current = hcfg.use_mex;
+            c = onCleanup(@()set(hcfg,'use_mex',current));
+            hcfg.use_mex = false;
+            
+            phx_file = fullfile(this.test_data_path,'map_4to1_jul09.phx');
+            par_file = fullfile(this.test_data_path,'map_4to1_jul09.par');
+            al = asciipar_loader(phx_file);
+            
+            [det,al] = al.load_par('-getphx');
+            al.par_file_name  = par_file;
+            [detp] = al.load_par('-getphx');
+            assertElementsAlmostEqual(det(2,:),detp(2,:),'relative',1.e-4);
+            assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);
+            assertElementsAlmostEqual(det(4,:),detp(4,:),'relative',1.e-2);
+            assertElementsAlmostEqual(det(5,:),detp(5,:),'relative',1.e-2);
+            
+        end
+        
     end
 end
 

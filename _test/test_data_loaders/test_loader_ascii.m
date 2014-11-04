@@ -267,6 +267,9 @@ classdef test_loader_ascii< TestCase
             [ok,mess]=la.is_loader_valid();
             assertEqual(1,ok);
             assertEqual('',mess);
+        end
+        
+        function test_load_phx(this)
             
         end
         
