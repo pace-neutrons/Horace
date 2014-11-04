@@ -56,6 +56,7 @@ end
 
 if ~use_mex
    phx=get_phx_matlab(filename);
+   [ncol,ndet]=size(phx);
 end
 
 group=unique(round(phx(6,:)));
