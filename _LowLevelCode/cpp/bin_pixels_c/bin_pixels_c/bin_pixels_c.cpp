@@ -47,7 +47,7 @@ enum pix_fields
     iErr = 8, //         Error array (variance i.e. error bar squared)
     PIX_WIDTH=9  // Number of pixel fields
 };
-
+// modify this to support INTEL compiler (what OMP version(s) it has?
 #ifdef __GNUC__
 #   if __GNUC__ < 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ < 2)
 // then the compiler does not undertand OpenMP functions, let's define them
@@ -56,6 +56,11 @@ void omp_set_num_threads(int nThreads){};
 #define omp_get_max_threads() 1
 #define omp_get_thread_num()  0
 #   endif
+# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 3) 
+    #define    OMP_VERSION_3 
+#endif
+#else
+    #undef    OMP_VERSION_3 
 #endif
 
 
@@ -371,16 +376,15 @@ bool bin_pixels(double *s, double *e, double *npix,
 
             size_t nCell = nGridCell[j];       // this is the index of a pixel in the grid cell
 
+            size_t j0;
+#ifdef OMP_VERSION_3
+    #pragma omp atomic
+            j0 = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+#else
+    #pragma omp critical
+            j0 = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+#endif
 
-#pragma omp atomic
-            increments[nCell]++;
-
-            size_t j0 = (ppInd[nCell]+increments[nCell]-1)*PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-#pragma omp atomic
-            ppInd[nCell]++;
-
-#pragma omp atomic 
-            increments[nCell]--;
 
             size_t i0    = j*PIX_WIDTH;
             //memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
@@ -413,3 +417,4 @@ bool bin_pixels(double *s, double *e, double *npix,
     return place_pixels_in_old_array;
 }
 
+#undef OMP_VERSION_3
