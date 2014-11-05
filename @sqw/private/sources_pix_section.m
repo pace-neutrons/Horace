@@ -1,8 +1,13 @@
-function pix = sources_pix_section (src, srcind, i_pixbuff, run_label, ne_max, sparse_single,...
-    kfix, emode, k, en, detdcn, spec_to_pix)
+function pix = sources_pix_section (src, srcind, i_pixbuff, run_label,...
+    ne_max, sparse_all_single, kfix, emode, k, en, detdcn, spec_to_pix)
 % Buffer a block of pix in a cell array, one array per data source
 %
-%   >> pix_section=sources_pix_section(src,srcind,i_pixbuff)
+% If no data is sparse:
+%   >> pix = sources_pix_section (src, srcind, i_pixbuff, run_label)
+%
+% If one or more data sources are sparse:
+%   >> pix = sources_pix_section (src, srcind, i_pixbuff, run_label,...
+%                       ne_max, sparse_single, kfix, emode, k, en, detdcn, spec_to_pix)
 %
 % Input:
 % ------
@@ -46,15 +51,13 @@ function pix = sources_pix_section (src, srcind, i_pixbuff, run_label, ne_max, s
 %   ne_max          Column vector, one element per data set, containing the number of energy bins
 %                   for the contributing run with the most energy bins
 %
-%   sparse_single   True if all sparse data (in memory or in file) come from a single run
+%   sparse_all_single True if all sparse data (in memory or in file) come from a single run
 %                   false otherwise
 %
 %   kfix            Column vector with fixed wavevector for each run in the header (Ang^-1)
 %
 %   emode           Column vector with fixed emode (0,1,2) for each run in the header
 %                   Direct geometry=1, indirect geometry=2, elastic=0
-%
-%   ne              Column vector with number of energy bins for each run in the header
 %
 %   k               Cell array of column vectors, one per run, with centres of the energy bins
 %                   converted to wavevector (Ang^-1)
@@ -81,12 +84,12 @@ function pix = sources_pix_section (src, srcind, i_pixbuff, run_label, ne_max, s
 
 
 nsource=numel(src);
-ndet=size(detdcn,2);
 
 plo=srcind.plo(:,i_pixbuff);
 phi=srcind.phi(:,i_pixbuff);
 dp =srcind.dp(:,i_pixbuff);
 if srcind.any_sparse        % at least one sparse data set
+    ndet=size(detdcn,2);
     ilo=srcind.ilo_pix_nz(:,i_pixbuff);
     ihi=srcind.ihi_pix_nz(:,i_pixbuff);
 end
@@ -105,15 +108,15 @@ for i=1:nsource
                 pix(:,jlo:jhi) = get_sqw (w.S,'pix',[plo(i),phi(i)],[ilo(i),ihi(i)]);
             elseif isempty(w.pix)
                 pix_block = get_sqw (w.S,'pix',[plo(i),phi(i)]);
-                pix(:,jlo:jhi) = pix_sparse_to_full(pix_block,w.pix_nz(ilo(i):ihi(i)),plo(i),ne_max(i),ndet);
+                pix(:,jlo:jhi) = pix_sparse_to_full(pix_block,w.pix_nz(:,ilo(i):ihi(i)),plo(i),ne_max(i),ndet);
             elseif isempty(w.pix_nz)
                 pix_nz = get_sqw (w.S,'pix_nz',[ilo(i),ihi(i)]);
                 pix(:,jlo:jhi) = pix_sparse_to_full(w.pix(plo(i):phi(i)),pix_nz,plo(i),ne_max(i),ndet);
             else
-                pix(:,jlo:jhi) = pix_sparse_to_full(w.pix(plo(i):phi(i)),w.pix_nz(ilo(i):ihi(i)),plo(i),ne_max(i),ndet);
+                pix(:,jlo:jhi) = pix_sparse_to_full(w.pix(plo(i):phi(i)),w.pix_nz(:,ilo(i):ihi(i)),plo(i),ne_max(i),ndet);
             end
             % Compute pixel projections
-            if sparse_single
+            if sparse_all_single
                 irun=run_label.ix{i}(1);
                 pix(1:4,jlo:jhi) = ...
                     calc_ucoords (kfix(irun), emode, k{irun}, en{irun}, detdcn, spec_to_pix{irun}, pix(6,jlo:jhi), pix(7,jlo:jhi));

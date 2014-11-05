@@ -58,7 +58,7 @@ function [mess, pos_pix, fmt_pix, npixtot] = put_sqw_data_pix_from_sources (fid,
 %   pos_pix     Position (in bytes from start of file) of the pix array
 %
 %   fmt_pix     Structure with format of pix array e.g. 'float32' (this is the
-%               value for all file format up to and including '-v3.1'
+%               value for all file formats up to and including '-v3.1'
 %
 %   npixtot     Total number of pixels actually written by the call to this function
 
@@ -76,25 +76,31 @@ fmt_pix='float32';
 % Get parameters
 [nbin_buff_size,npix_buff_size] = get_buffer_parameters;
 
-% Information from header
-[kfix,emode,ne,k,en,spec_to_pix] = header_calc_ucoord_info (header);
-detdcn = calc_detdcn(detpar);
-ne_max=zeros(size(kfix));
-for i=1:numel(ne_max)
-    ne_max=max(ne(run_label.ix{i}));
-end
-
-% Determine if all sparse data sets (in memory or in file) come from a single run
-sparse_single=true;
-for i=1:numel(src)
-    if src(i).sparse_fmt && ~src(i).nfiles==1
-        sparse_single=false;
-        break
-    end
-end
-
 % Get indexing arrays
 [srcind,npixtot] = sources_get_index_arrays (src, npix_accum, nbin_buff_size, npix_buff_size);
+
+% Compute arguments neede to convert from sparse data
+any_sparse=srcind.any_sparse;
+if any_sparse
+    % Information from header
+    [kfix,emode,ne,k,en,spec_to_pix] = header_calc_ucoord_info (header);
+    ne_max=zeros(size(kfix));
+    for i=1:numel(ne_max)
+        ne_max(i)=max(ne(run_label.ix{i}));
+    end
+    
+    % Pre-compute detector directions for computation of pixel coordinates
+    detdcn = calc_detdcn(detpar);
+
+    % Determine if all sparse data sets (in memory or in file) come from a single run
+    sparse_all_single=true;
+    for i=1:numel(src)
+        if src(i).sparse_fmt && ~src(i).nfiles==1
+            sparse_all_single=false;
+            break
+        end
+    end
+end
 
 
 % Loop over pixel buffer blocks, writing to output
@@ -117,8 +123,12 @@ for i=1:n_pixbuff
     end
     
     % Fill pixel buffer
-    pix = sources_pix_section (src, srcind, i, run_label, ne_max, sparse_single,...
-        kfix, emode, k, en, detdcn, spec_to_pix);
+    if ~any_sparse
+        pix = sources_pix_section (src, srcind, i, run_label);
+    else
+        pix = sources_pix_section (src, srcind, i, run_label, ne_max, sparse_all_single,...
+            kfix, emode, k, en, detdcn, spec_to_pix);
+    end
     
     % Rearrange pixels into increasing bin number
     brange=(blo(i)-boffset:bhi(i)-boffset);

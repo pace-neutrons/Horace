@@ -45,7 +45,7 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %                                - sparse:     sz, nfiles, ndet, ne_max, npix, npix_nz, pix_nz, pix
 %                                           (sz      = Size of npix array when in non-sparse format
 %                                            nfiles  = 1 (single spe file) NaN (more than one)
-%                                            ndet    = no. detectors; ne=column vector of
+%                                            ndet    = no. detectors
 %                                            ne_max  = max. no. en bins in the spe files)
 %
 %   opt_name    Determines which parts of the input data structures to write to a file. By default, the

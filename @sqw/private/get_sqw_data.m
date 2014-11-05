@@ -232,4 +232,11 @@ if read_signal
         end
         
     end
+    
+else
+    % Can only be because it was requested to read the header only
+    if S.info.sqw_type
+        fseek(fid,S.position.urange,'bof');
+        data.urange = fread(fid, [2,4], S.fmt.urange);
+    end
 end

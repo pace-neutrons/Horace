@@ -121,7 +121,7 @@ if is_sqw_type(w)
         end
     end
     [data_new.npix_nz,data_new.pix_nz,data_new.pix] =...
-        pix_full_to_sparse(data.pix,data.npix,numel(ne),max(ne),ndet);
+        pix_full_to_sparse(data.pix,data.npix,nfiles,max(ne),ndet);
 end
 
 d.data=data_new;

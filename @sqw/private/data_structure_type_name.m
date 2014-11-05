@@ -15,7 +15,7 @@ function varargout = data_structure_type_name(w)
 %               sparse:     sz, nfiles, ndet, ne_max, npix, npix_nz, pix_nz, pix
 %                          (sz      = Size of npix array when in non-sparse format
 %                           nfiles  = 1 (single spe file) NaN (more than one)
-%                           ndet    = no. detectors; ne=column vector of
+%                           ndet    = no. detectors
 %                           ne_max  = max. no. en bins in the spe files)
 %
 % Output:

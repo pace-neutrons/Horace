@@ -1,4 +1,4 @@
-function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,nrun,ne,ndet)
+function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,ne_max,ndet)
 % Create full pix array from sparse format representation
 %
 %   >> pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,nrun,ne,ndet)
@@ -40,9 +40,7 @@ function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,nrun,ne,ndet)
 %                  pix and pix_nz may only refer to a section of the complete pix array. If not a 
 %                  section, then ind_beg=1
 %
-%   nrun            Number of contributing spe data sets (single spe=1, multiple spe=<anything else>)
-%
-%   ne              Number of energy bins in the spe data set with the largest number
+%   ne_max          Number of energy bins in the spe data set with the most energy bins
 %
 %   ndet            Number of detectors
 %
@@ -59,15 +57,15 @@ function pixout = pix_sparse_to_full(pix,pix_nz,ind_beg,nrun,ne,ndet)
 
 npixtot=numel(pix);
 
-if nrun==1
+if size(pix_nz,1)==4    % single spe file
     % Create output pix array (use: idet= ceil(pix/ne); ien = rem(pix-1,ne)+1;)
-    pixout = [zeros(4,npixtot); ones(1,npixtot); ceil(pix'/ne); rem(pix'-1,ne)+1; zeros(2,npixtot)];
+    pixout = [zeros(4,npixtot); ones(1,npixtot); ceil(pix'/ne_max); rem(pix'-1,ne_max)+1; zeros(2,npixtot)];
     
     % Get index of pixels with non-zero signal (offset to start of pix array if it is a section)
     if ind_beg==1    % no offset needed, so keep code fast
-        ind = ne*(pix_nz(1,:)-1) + pix_nz(2,:);
+        ind = ne_max*(pix_nz(1,:)-1) + pix_nz(2,:);
     else
-        ind = (ne*(pix_nz(1,:)-1) + pix_nz(2,:)) - (ind_beg-1);
+        ind = (ne_max*(pix_nz(1,:)-1) + pix_nz(2,:)) - (ind_beg-1);
     end
     
     % Fill signal and error for non-zero pixels
@@ -75,17 +73,17 @@ if nrun==1
     
 else
     % Create output pix array
-    irun = ceil(pix'/(ndet*ne));
-    irem = rem(pix'-1,(ndet*ne))+1;
-    idet = ceil(irem/ne);
-    ien  = rem(irem-1,ne)+1;
+    irun = ceil(pix'/(ndet*ne_max));
+    irem = rem(pix'-1,(ndet*ne_max))+1;
+    idet = ceil(irem/ne_max);
+    ien  = rem(irem-1,ne_max)+1;
     pixout = [zeros(4,npixtot); irun; idet; ien; zeros(2,npixtot)];
     
     % Get index of pixels with non-zero signal (offset to start of pix array if it is a section)
     if ind_beg==1    % no offset needed, so keep code fast
-        ind = (ndet*ne)*(pix_nz(1,:)-1) + ne*(pix_nz(2,:)-1) + pix_nz(3,:);
+        ind = (ndet*ne_max)*(pix_nz(1,:)-1) + ne_max*(pix_nz(2,:)-1) + pix_nz(3,:);
     else
-        ind = ((ndet*ne)*(pix_nz(1,:)-1) + ne*(pix_nz(2,:)-1) + pix_nz(3,:)) - (ind_beg-1);
+        ind = ((ndet*ne_max)*(pix_nz(1,:)-1) + ne_max*(pix_nz(2,:)-1) + pix_nz(3,:)) - (ind_beg-1);
     end
     
     % Fill signal and error for non-zero pixels

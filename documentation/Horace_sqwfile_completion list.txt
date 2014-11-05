@@ -36,6 +36,8 @@ Check
 =================================================
 Does put_sqw need to be able to take an sqwfile structure as input?
 
+Does combine check that different crystal reorientations are not being mixed?
+
 
 =================================================
 Optimisations

@@ -26,6 +26,9 @@ function [srcind,npixtot] = sources_get_index_arrays(src,npix_accum,nbin_buff_si
 % -------
 %   srcind      Structure with fields containing various index arrays defined below
 %
+%           any_sparse              True if one or more data sources is sparse
+%                                   False otherwise
+%
 %           If we define:
 %               Nb  number of blocks of npix to buffer
 %               Np  number of blocks of pixels to buffer
@@ -77,7 +80,8 @@ blo=[1;bhi(1:end-1)+1];
 np=npix_accum_cumsum(bhi)-[0;npix_accum_cumsum(bhi(1:end-1))];  % Number of pixels in each pixel buffer block
 
 % List of bin indicies for blocks of npix to buffer
-bhi_binbuff=upper_bin_index(npix_accum_cumsum(bhi),nbin_buff_size);
+ind=upper_bin_index(npix_accum_cumsum(bhi),nbin_buff_size);
+bhi_binbuff=bhi(ind);
 blo_binbuff=[1;bhi_binbuff(1:end-1)+1];
 
 np_binbuff=npix_accum_cumsum(bhi_binbuff)-[0;npix_accum_cumsum(bhi_binbuff(1:end-1))];  % Number of pixels in each bin buffer block
@@ -99,7 +103,7 @@ for i=1:nsource
         npix=w.npix;
         if issparse(npix), npix=full(npix); end
     end
-    npix_cumsum=cumsum(npix);   % npix was made full as cumsum will be almost full anyway
+    npix_cumsum=cumsum(npix(:));    % npix was made full as cumsum will be almost full anyway
     phi(i,:)=npix_cumsum(bhi);
     
     if w.sparse_fmt
@@ -121,7 +125,7 @@ for i=1:nsource
             npix_nz=w.npix_nz;
             if issparse(npix_nz), npix_nz=full(npix_nz); end
         end
-        npix_nz_cumsum=cumsum(npix_nz);
+        npix_nz_cumsum=cumsum(npix_nz(:));
         ihi_pix_nz(i,:)=npix_nz_cumsum(bhi);
 
         % Get indicies of end of ranges of npix_nz so we can read the correct section from file
@@ -144,6 +148,8 @@ else
 end
 
 % Package the information
+srcind.any_sparse = any_sparse;
+
 srcind.blo_binbuff = blo_binbuff;
 srcind.bhi_binbuff = bhi_binbuff;
 srcind.np_binbuff  = np_binbuff;
@@ -156,12 +162,11 @@ srcind.plo = plo;
 srcind.phi = phi;
 srcind.dp  = dp;
 
-srcind.any_sparse = any_sparse;
 srcind.ilo_npix = ilo_npix;
 srcind.ihi_npix = ihi_npix;
-srcind.ilo_pix_nz  = ilo_pix_nz;
-srcind.ihi_pix_nz  = ihi_pix_nz;
 srcind.ilo_npix_nz = ilo_npix_nz;
 srcind.ihi_npix_nz = ihi_npix_nz;
+srcind.ilo_pix_nz  = ilo_pix_nz;
+srcind.ihi_pix_nz  = ihi_pix_nz;
 
 npixtot = npix_accum_cumsum(end);

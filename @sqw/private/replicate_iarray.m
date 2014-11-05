@@ -28,7 +28,7 @@ if numel(npix)==numel(v)
     ok=(npix~=0);
     dv=diff(v(ok));
     vout=zeros(nend(end),1);
-    vout(nbeg(ok))=[v(find(ok,1)),dv];
+    vout(nbeg(ok))=[v(find(ok,1));dv(:)];
     vout=cumsum(vout);
 else
     error('Number of elements in input array(s) incompatible')

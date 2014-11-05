@@ -123,7 +123,7 @@ if isfield(data,'pix')  % is sqw-type
     ndet=numel(d.detpar.x2);
     detdcn = calc_detdcn(d.detpar);
     
-    data_new.pix = pix_sparse_to_full(data.pix,data.pix_nz,1,nfiles,max(ne),ndet);
+    data_new.pix = pix_sparse_to_full(data.pix,data.pix_nz,1,max(ne),ndet);
     
     if nfiles==1
         data_new.pix(1:4,:) = calc_ucoords (kfix, emode, k{1}, en{1}, detdcn, spec_to_pix{1}, data_new.pix(6,:), data_new.pix(7,:));

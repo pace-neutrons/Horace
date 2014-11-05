@@ -1,7 +1,6 @@
 function [mem_npix,mem_npix_nz,mem_pix_nz,mem_pix]=sources_file_mem_req(S)
 % Determine how much memory is required to hold npix and pix arrays for sqw data in files
 %
-%
 %   >> [mem_npix,mem_npix_nz,mem_pix_nz,mem_pix]=sources_file_mem_req(S)
 %
 % Input:
@@ -48,10 +47,11 @@ function mem = sources_file_mem_req_single(S)
 % -------
 %   mem     Array with required [mem_npix, mem_npix_nz, mem_pix_nz, mem_pix]
 %
-% The memory requirements are not exact: they are computed on the basis of
+% The memory requirements may not be exact: they are computed on the basis of
 % the number of elements in the arrays (and non-zero elements in the case of
-% sparse arrays), but do not include any overheads associated with the storage.
-% These will be small in comparison to realistic sizes of the various arrays.
+% sparse arrays), but the overheads associated with the storage were empirically
+% determined for a few test examples in R2014a on a Windows 7 laptop.
+% The overheads will be small in comparison to realistic sizes of the various arrays.
 % If the number of elements is sufficiently small that the overheads are
 % relatively large the the absolute memory requirements will be small compared
 % to realistic amounts
@@ -68,8 +68,8 @@ if info.sparse
     else
         ncol=4;
     end
-    mem(1)=16*info.nz_npix;
-    mem(2)=16*info.nz_npix_nz;
+    mem(1)=16*info.nz_npix + 16;    % Tested 2014a on Win7; extra 16 bytes overhead
+    mem(2)=16*info.nz_npix_nz + 16;
     mem(3)=8*ncol*info.npixtot_nz;
     mem(4)=8*info.npixtot;
 else
