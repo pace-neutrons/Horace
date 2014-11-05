@@ -51,7 +51,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 pref = varargin{2};
             else
                 pref = 'mex';
-            end
+            end            
             
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
 
@@ -71,6 +71,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 this.mex_mode = false;
                 this.skip_tests=false;
             end
+            this.errmessage_prefix = ['Test with ',pref];
+
             
             % do other initialization
             this.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
