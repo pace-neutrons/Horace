@@ -56,7 +56,7 @@ void omp_set_num_threads(int nThreads){};
 #define omp_get_max_threads() 1
 #define omp_get_thread_num()  0
 #   endif
-# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 3) 
+# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4) 
     #define    OMP_VERSION_3 
 #endif
 #else
@@ -378,7 +378,7 @@ bool bin_pixels(double *s, double *e, double *npix,
 
             size_t j0;
 #ifdef OMP_VERSION_3
-    #pragma omp atomic
+    #pragma omp atomic capture
             j0 = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 #else
     #pragma omp critical
