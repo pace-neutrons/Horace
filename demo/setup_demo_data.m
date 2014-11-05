@@ -45,9 +45,10 @@ try
         end
         %remove intermediate file
     end
-catch
-    set(hor_config,horace_info_level(hil));
+catch err
+    set(hor_config,'horace_info_level',hil);
     delete(sqw_file_single);
+    fprintf('Errore producing fake_sqw data: %s Reason: %s\n',err.identifier,err.message);
     display('Problem generating data for Horace demo - check that 4to1_124.PAR file is present in current (demo) directory');
 end
 
