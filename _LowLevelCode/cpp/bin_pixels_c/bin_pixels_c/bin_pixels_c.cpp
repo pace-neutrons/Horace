@@ -379,7 +379,9 @@ bool bin_pixels(double *s, double *e, double *npix,
             size_t j0;
 #ifdef OMP_VERSION_3
     #pragma omp atomic capture
-            j0 = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+            j0 = ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+            
+            j0*=PIX_WIDTH;
 #else
     #pragma omp critical
             j0 = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
