@@ -15,6 +15,10 @@ classdef TestCaseWithSave < TestCase
         comparison_par={'min_denominator', 0.01};
         filelist_toclear={};
         path_toclear={};
+        % the string printed in the case of errors in
+        % test_or_save_variables intended to provide additional information
+        % about the error (usually set in front of test_or_save_variables)        
+        errmessage_prefix = ''
     end
     
     methods
@@ -108,7 +112,7 @@ classdef TestCaseWithSave < TestCase
             for i=1:numel(ws_list)
                 if not(this.want_to_save_output)
                     [ok,mess]=equal_to_tol(ws_list{i}, this.old.(inputname(i+1)),toll,keyval{:});
-                    assertTrue(ok,['[',inputname(i+1),'] :',mess])
+                    assertTrue(ok,[this.errmessage_prefix,': [',inputname(i+1),'] :',mess])
                 else
                     this.datasets_to_save.(inputname(i+1))=ws_list{i};
                 end
