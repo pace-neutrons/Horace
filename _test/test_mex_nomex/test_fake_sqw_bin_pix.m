@@ -57,15 +57,26 @@ classdef test_fake_sqw_bin_pix < TestCase
                 u, v, psi, omega, dpsi, gl, gs);
             
             w_mex=read_sqw(sqw_file_single);
+       
+            n_det_zeros = sum(w_mex.data.pix(6,:)==0);
+            assertEqual(0,n_det_zeros,'detectors id can not be equal to 0');
+            n_en_zeros = sum(w_mex.data.pix(7,:)==0);
+            assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
+               
             
             hc.use_mex = 0;
             fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
             
             w_nomex=read_sqw(sqw_file_single);
+            n_det_zeros = sum(w_nomex.data.pix(6,:)==0);
+            assertEqual(0,n_det_zeros,'detectors id can not be equal to 0');
+            n_en_zeros = sum(w_nomex.data.pix(7,:)==0);
+            assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
             
-            % can not compare pixel arrays as pixel sorting will be
-            % different. Compare the whole image instead
+            
+          % can not compare pixel arrays as pixel sorting will be
+            % different. Compare the whole image instead              
             w_mex = d4d(w_mex);
             w_nomex = d4d(w_nomex);
             [ok,mess]=equal_to_tol(w_mex,w_nomex,-1.e-8);
