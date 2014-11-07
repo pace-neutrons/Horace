@@ -99,7 +99,7 @@ end
 [fmt_dble,fmt_int]=fmt_sqw_fields(fmt_ver);
 
 % Write data to file
-try
+% try
     % Write signal, variance
     if ~buffer
         position.s=ftell(fid);
@@ -149,9 +149,9 @@ try
         end
     end
     
-catch
-    mess='Error writing bin and/or pixel data in the data section to file';
-end
+% catch
+%     mess='Error writing bin and/or pixel data in the data section to file';
+% end
 
 %==================================================================================================
 function fieldfmt=put_sqw_data_pix_array(fid,pix,npixchunk)

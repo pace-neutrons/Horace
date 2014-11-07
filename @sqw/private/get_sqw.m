@@ -403,7 +403,7 @@ if narg>0
                     make_full_fmt=true;
                 else
                     optvals={val};
-                    if is_sparse && make_full_format
+                    if is_sparse && make_full_fmt
                         mess = 'Too few arguments for option ''pix'' to convert non-sparse data to full format';
                         return
                     end

@@ -289,7 +289,7 @@ if ninfiles>0
         if mem_tot+mem_npix+mem_npix_nz+mem_pix_nz+mem_pix<mem_max_sqw; keep_pix=true; end
     end
     
-    % *=*=* Debug utility: get rid of at some point
+    % ***= Debug utility: get rid of at some point
     [keep_npix,keep_npix_nz,keep_pix_nz,keep_pix]=keep_debug(keep_npix,keep_npix_nz,keep_pix_nz,keep_pix);
     
     % Read in data from files
@@ -305,13 +305,19 @@ if ninfiles>0
         w = get_sqw (S{j},'-dnd');
         
         % Keep npix if can, and read and keep npix_nz, pix_nz, pix if can
-        if keep_npix, npix{i}=w.data.npix; end
+        if keep_npix
+            npix{i}=w.data.npix;
+        end
         if sparse_fmt{j}
             if keep_npix_nz, npix_nz{j} = get_sqw (S{j},'npix_nz'); end
             if keep_pix_nz, pix_nz{j} = get_sqw (S{j},'pix_nz'); end
         end
         if keep_pix
             pix{j} = get_sqw (S{j},'pix');
+        end
+        
+        % Close files if all of npix[,npix_nz,pix_nz],pix in memory
+        if keep_npix && keep_pix && (~sparse_fmt{j} || (keep_npix_nz && keep_pix_nz))
             S{j}=sqwfile_close(S{j});   % can close the file, as all required data is in memory
             S{j}=[];                    % clear, as will not need the information
         end
@@ -393,6 +399,9 @@ src=struct('S',S,'sparse_fmt',sparse_fmt,'nfiles',nfiles,'npix',npix,'npix_nz',n
 % Write to file
 [ok,mess,Sout] = put_sqw (outfile, wout, '-pix', src, header_combined, detpar, run_label, npix_accum);
 if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
+
+% Close all input data files
+tidy_close(S);
 
 
 %==================================================================================================
@@ -554,10 +563,12 @@ end
 
 %==================================================================================================
 function tidy_close(S)
-% Close all open files in an array of sqwfile structures
+% Close all open files in a cell array of sqwfile structures
 for i=1:numel(S)
-    fid=S(i).fid;
-    if fid>=3 && ~isempty(fopen(fid))
-        fclose(fid);
+    if ~isempty(S{i})
+        fid=S{i}.fid;
+        if fid>=3 && ~isempty(fopen(fid))
+            fclose(fid);
+        end
     end
 end

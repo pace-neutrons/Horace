@@ -32,6 +32,12 @@ sources_pix_section
 
 
 =================================================
+*** Tidying ***
+=================================================
+Rationalise tidy_close across all functions
+
+
+=================================================
 Check
 =================================================
 Does put_sqw need to be able to take an sqwfile structure as input?
