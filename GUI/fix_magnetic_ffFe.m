@@ -1,9 +1,10 @@
-function wout=Fe_magnetic_ff(win)
+function wout=fix_magnetic_ffFe(win)
 %
-% Correct a dataset for the magnetic scattering form factor 
-% 
+% Correct a dataset for the magnetic scattering form factor for Fe (0)
+% calculated in dipole approximation
 %
 %
+% conversion factor to change from rlu to wave-vector in A^(-1)
 rul2u = win.data.ulen(1:3);
 rlu2u_sq = rul2u.* rul2u;
 %We can cheat here by making a dummy sqw function that returns the bose
@@ -17,7 +18,7 @@ wout=mrdivide(win,sqw_magFF);
 function y = fe_form_factor_J2(h,k,l,en,rlu2u_sq)
 %
 % Magnetic form factor, dipole approximation
-% it is factorized over (q in A)^2 so we need to convert from rlu to q in A
+% it is factorized over (q^2 in A^-2) so we need to convert from rlu to q in A
 %
 % data copied from https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html
 %J2
