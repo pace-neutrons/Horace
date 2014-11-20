@@ -154,7 +154,7 @@ else
         disp('Creating final output sqw file:')
     end
     
-    write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
+    combine (sqw, tmp_file, sqw_file);
     
     if il>-1
         disp('--------------------------------------------------------------------------------')

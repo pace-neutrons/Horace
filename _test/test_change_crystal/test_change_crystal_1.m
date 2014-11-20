@@ -63,7 +63,7 @@ for i=1:numel(psi)
 end
 
 % Combine the sqw files
-write_nsqw_to_sqw(sqw_file,sim_sqw_file);
+combine (sqw,sqw_file,sim_sqw_file);
 
 % Fit Bragg peak positions
 % ------------------------

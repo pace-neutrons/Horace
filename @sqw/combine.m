@@ -351,10 +351,6 @@ clear nopix
 % =================================================================================================
 % Write to output file
 % ---------------------------
-if horace_info_level>-1
-    disp(' ')
-    disp(['Writing to output file ',outfile,' ...'])
-end
 
 main_header_combined.filename='';
 main_header_combined.filepath='';
@@ -396,12 +392,21 @@ wout.data=sqw_data;
 
 src=struct('S',S,'sparse_fmt',sparse_fmt,'nfiles',nfiles,'npix',npix,'npix_nz',npix_nz,'pix_nz',pix_nz,'pix',pix);
 
-% Write to file
-[ok,mess,Sout] = put_sqw (outfile, wout, '-pix', src, header_combined, detpar, run_label, npix_accum);
-if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
-
-% Close all input data files
-tidy_close(S);
+% Write to file or return object as required
+if file_output
+    if horace_info_level>-1
+        disp(' ')
+        disp(['Writing to output file ',outfile,' ...'])
+    end
+    [ok,mess,Sout] = put_sqw (outfile, wout, '-pix', src, header_combined, detpar, run_label, npix_accum);
+    tidy_close(S);  % Close all input data files
+    if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
+else
+    [mess, ~, ~, ~, wout.data.pix] = put_sqw_data_pix_from_sources ([], '', src, header_combined, detpar, run_label, npix_accum);
+    tidy_close(S);  % Close all input data files
+    if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
+    varargout{1} = sqw(wout);
+end
 
 
 %==================================================================================================
@@ -422,7 +427,7 @@ narg=numel(varargin);
 
 % Check last argument is a valid file name, if an output file name is required
 if need_outfile
-    if narg>=1
+    if narg>=1 && ~isempty(varargin{end}) && isstring(varargin{end})
         [outfile,ok,mess] = translate_write (varargin{end});
         if ~ok, return, end
     else

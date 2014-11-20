@@ -181,7 +181,7 @@ else
     end
     % Create single sqw file combining all intermediate sqw files
 
-    write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
+    combine (sqw, tmp_file, sqw_file);
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
     end

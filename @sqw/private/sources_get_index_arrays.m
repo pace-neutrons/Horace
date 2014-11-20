@@ -18,8 +18,10 @@ function [srcind,npixtot] = sources_get_index_arrays(src,npix_accum,nbin_buff_si
 %               This is assumed to be consistent with the information in src
 %   
 %   nbin_buff_size  Maximum number of bins to be buffered in one chunk
+%                   If Inf or empty, then make just one bin buffer
 %
 %   npix_buff_size  Maximum number of pixels to be buffered in one chunk
+%                   If Inf or empty, then make just one buffer
 %
 %
 % Output:
@@ -72,6 +74,12 @@ function [srcind,npixtot] = sources_get_index_arrays(src,npix_accum,nbin_buff_si
 
 
 npix_accum_cumsum = cumsum(npix_accum(:));
+if isinf(nbin_buff_size) || isempty(nbin_buff_size)
+    nbin_buff_size=numel(npix_accum);       % total number of bins
+end
+if isinf(npix_buff_size) || isempty(npix_buff_size)
+    npix_buff_size=npix_accum_cumsum(end);  % total number of pixels
+end
 
 % List of bin indicies for blocks of pixels to buffer
 bhi=upper_bin_index(npix_accum_cumsum,npix_buff_size);

@@ -305,12 +305,12 @@ else
             if horace_info_level>-1
                 disp('Creating output sqw file:')
             end
-            write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
+            combine (sqw, tmp_file, sqw_file);
         else
             if horace_info_level>-1
                 disp('Accumulating in temporary output sqw file:')
             end
-            write_nsqw_to_sqw (sqw, [sqw_file;tmp_file], sqw_file_tmp);
+            combine (sqw, sqw_file, tmp_file, sqw_file_tmp);
             if horace_info_level>-1
                 disp(' ')
                 disp(['Renaming sqw file to ',sqw_file])

@@ -1,14 +1,22 @@
-function [mess, pos_pix, fmt_pix, npixtot] = put_sqw_data_pix_from_sources (fid, fmt_ver,...
+function [mess, pos_pix, fmt_pix, npixtot, varargout] = put_sqw_data_pix_from_sources (fid, fmt_ver,...
     src, header, detpar, run_label, npix_accum)
-% Write pixel information to an sqw file from various sources
+% Return pixel information or write it to an sqw file, from information in various input sources
 %
+% To write to a file:
 %   >> [mess, pos_pix, fmt_pix, npixtot] = put_sqw_data_pix_from_sources (fid, fmt_ver, src, npix_accum, run_label)
+%
+% To return an array:
+%   >> [mess, pos_pix, fmt_pix, npixtot, pix] = put_sqw_data_pix_from_sources ([], fmt_ver, src, npix_accum, run_label)
+%
+% NOTE: THis function can perform one or the other, not both
 %
 % Input:
 % ------
 %   fid         File identifier of output file (opened for binary writing)
+%               If empty, then it is assumed that the pixe information will be returned as
+%              an array.
 %
-%   fmt_ver     Version of file format e.g. appversion('-v3')
+%   fmt_ver     Version of file format e.g. appversion('-v3'). Ignored if fid is empty.
 %
 %   src         Array of structures, one per data source, with the following fields
 %                   S           sqwfile object for an open file (=[] if not file data source)
@@ -56,11 +64,16 @@ function [mess, pos_pix, fmt_pix, npixtot] = put_sqw_data_pix_from_sources (fid,
 %   mess        Message if there was a problem writing; otherwise mess=''
 %
 %   pos_pix     Position (in bytes from start of file) of the pix array
+%               Empty if not writing to file
 %
-%   fmt_pix     Structure with format of pix array e.g. 'float32' (this is the
+%   fmt_pix     Character string with format of pix array e.g. 'float32' (this is the
 %               value for all file formats up to and including '-v3.1'
+%               Empty if not writing to file
 %
 %   npixtot     Total number of pixels actually written by the call to this function
+%
+%   pix         Array of pixel information (size is [9,npixtot])
+%               Unfilled if writing to file
 
 
 % Original author: T.G.Perring
@@ -70,11 +83,32 @@ function [mess, pos_pix, fmt_pix, npixtot] = put_sqw_data_pix_from_sources (fid,
 
 % Initialise output arguments
 mess='';
-pos_pix=ftell(fid);
-fmt_pix='float32';
+if nargout==4 && ~isempty(fid)
+    write_to_file=true;
+    pos_pix=ftell(fid);
+    fmt_pix='float32';
+elseif nargout==5 && isempty(fid)
+    write_to_file=false;
+    pos_pix=[];
+    fmt_pix='';
+else
+    mess=['Must either return pixels or write to file in ',mfilename];
+    pos_pix=[];
+    fmt_pix='';
+    npixtot=[];
+    if nargout>4, varargout{1}=[]; end
+    return
+end
 
 % Get parameters
-[nbin_buff_size,npix_buff_size] = get_buffer_parameters;
+if write_to_file
+    [nbin_buff_size,npix_buff_size] = get_buffer_parameters;
+    % ***= Debug utility: get rid of at some point
+    [nbin_buff_size,npix_buff_size]=get_buffer_parameters_debug(nbin_buff_size,npix_buff_size);
+else
+    nbin_buff_size=Inf;
+    npix_buff_size=Inf;
+end
 
 % Get indexing arrays
 [srcind,npixtot] = sources_get_index_arrays (src, npix_accum, nbin_buff_size, npix_buff_size);
@@ -136,6 +170,13 @@ for i=1:n_pixbuff
     pix = pix(:,ind);
     
     % Write pixel buffer
-    fwrite(fid,pix,fmt_pix);
+    if write_to_file
+        fwrite(fid,pix,fmt_pix);
+    end
     
+end
+
+% Return pix array
+if ~write_to_file
+    varargout{1}=pix;
 end
