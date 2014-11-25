@@ -30,7 +30,11 @@ function ucoords=calc_ucoords (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
     
 % Get components of Q in spectrometer frame (x || ki, z vertical)
 if emode==1
-    qspec = repmat([kfix;0;0],1,numel(id)) - repmat(k(ie')',3,1).*detdcn(:,id);
+    try
+        qspec = repmat([kfix;0;0],1,numel(id)) - repmat(k(ie')',3,1).*detdcn(:,id);
+    catch
+        disp('Oops!')
+    end
     eps=en(ie')';   % ensures is a row vector, even if en is scalar
     
 elseif emode==2

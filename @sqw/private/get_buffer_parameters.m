@@ -18,7 +18,3 @@ function [nbin_buff_size,npix_buff_size] = get_buffer_parameters
 
 nbin_buff_size = get(hor_config,'mem_chunk_size');
 npix_buff_size = nbin_buff_size;
-
-% *** for debug purposes
-nbin_buff_size = 7500;
-npix_buff_size = 5000;

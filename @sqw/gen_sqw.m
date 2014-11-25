@@ -265,7 +265,7 @@ if ~accumulate_old_sqw && nindx==1
         disp('Creating output sqw file:')
     end
     
-    sparse_tmp=false;
+    sparse_tmp=false;  % ***= change back to =false for release
     
     write_banner=false;
     [grid_size,urange] = rundata_write_to_sqw (run_files,{sqw_file},...
