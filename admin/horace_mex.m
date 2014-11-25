@@ -7,7 +7,9 @@ function horace_mex
 % to configure a gcc compiler (version >= 4.3 requested)  to produce omp
 % code one have to edit  ~/.matlab/mexoptions.sh file and add -fopenmp key
 % to the proprer compiler and linker keys
+%
 % $Revision$ ($Date$)
+%
 
 start_dir=pwd;
 C_compiled=false;
@@ -16,47 +18,57 @@ try % mex C++
     % root directory is assumed to be that in which this function resides
     rootpath = fileparts(which('horace_init'));
     cd(rootpath);
-
+    
     fortran_in_rel_dir = ['_LowLevelCode',filesep,'intel',filesep];
     cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
     % get folder names corresponding to the current Matlab version and OS
     [VerFolderName,versionDLLextention,OSdirname]=matlab_version_folder();
-     out_rel_dir = ['DLL',filesep,OSdirname,filesep,VerFolderName];
-     if(~exist(out_rel_dir,'dir'))
-         mkdir(out_rel_dir);
-     end
-         
+    out_rel_dir = ['DLL',filesep,OSdirname,filesep,VerFolderName];
+    if(~exist(out_rel_dir,'dir'))
+        mkdir(out_rel_dir);
+    end
+    
     mex_single([cpp_in_rel_dir 'accumulate_cut_c/accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c/bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
-
+    
     disp('**********> Succesfully created all required mex files from C++')
     C_compiled=true;
+    add_version_foloder(out_rel_dir);
 catch
     message=lasterr();
     warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',message);
-  
+    
 end
 %
 F_compiled=false;
 try  % mex FORTRAN
     disp('**********> Creating mex files from FORTRAN code')
-%    mex_single(fortran_in_rel_dir, out_rel_dir,'get_par_fortran.F','IIget_par_fortran.f');
-%    mex_single(fortran_in_rel_dir, out_rel_dir,'get_phx_fortran.f','IIget_phx_fortran.f');
-%    mex_single([fortran_in_rel_dir 'get_spe_fortran' filesep 'get_spe_fortran'], out_rel_dir,'get_spe_fortran.F','IIget_spe_fortran.F');
-%
-%    disp('**********> Succesfully created all requsted mex files from FORTRAN')
-     disp('**********> No FORTRAN functions used at the moment')
-     F_compiled=true;
-catch 
-    message=lasterr();    
+    %    mex_single(fortran_in_rel_dir, out_rel_dir,'get_par_fortran.F','IIget_par_fortran.f');
+    %    mex_single(fortran_in_rel_dir, out_rel_dir,'get_phx_fortran.f','IIget_phx_fortran.f');
+    %    mex_single([fortran_in_rel_dir 'get_spe_fortran' filesep 'get_spe_fortran'], out_rel_dir,'get_spe_fortran.F','IIget_spe_fortran.F');
+    %
+    %    disp('**********> Succesfully created all requsted mex files from FORTRAN')
+    disp('**********> No FORTRAN functions used at the moment')
+    F_compiled=true;
+catch
+    message=lasterr();
     warning('**********> Can not create FORTRAN mex files, reason: %s Please try to do it manually.',message);
 end
 cd(start_dir);
 if C_compiled && F_compiled
     set(hor_config,'use_mex',true);
 end
+
+function add_version_foloder(out_rel_dir)
+% Add folder with compiled mex files to matlab search path
+%
+hor_folder = fileparts(which('horace_init.m'));
+mex_folder = fullfile(hor_folder,out_rel_dir);
+addpath(mex_folder);
+
+
 
 
 %%----------------------------------------------------------------
@@ -98,7 +110,7 @@ if(nFiles==1)
 else
     flname1 = add_files{1};
     flname2 =  cell2str(add_files{3:nCells});
-
+    
     mex(flname1,flname2, '-outdir', outdir);
 end
 
@@ -110,10 +122,10 @@ fname = fullfile(outdir,[sfname,'.',mexext()]);
 if exist(fname,'file')
     try
         delete(fname);
-        access = true;               
+        access = true;
     catch
-        access = false;       
-    end    
+        access = false;
+    end
 else
     h=fopen(fname,'w+');
     if h<3
@@ -136,39 +148,39 @@ function str = cell2str(c)
 
 
 if ~iscell(c)
-
-   if ischar(c)
-      str = c;
-   elseif isnumeric(c)
-      str = mat2str(c);
-   else
-      error('Illegal array in input.')
-   end
-
+    
+    if ischar(c)
+        str = c;
+    elseif isnumeric(c)
+        str = mat2str(c);
+    else
+        error('Illegal array in input.')
+    end
+    
 else
-
-   N = length(c);
-   if N > 0
-      if ischar(c{1})
-         str = c{1};
-         for ii=2:N
-            if ~ischar(c{ii})
-               error('Inconsistent cell array');
+    
+    N = length(c);
+    if N > 0
+        if ischar(c{1})
+            str = c{1};
+            for ii=2:N
+                if ~ischar(c{ii})
+                    error('Inconsistent cell array');
+                end
+                str = [str,c{ii}];
             end
-            str = [str,c{ii}];
-         end
-      else
-         error(' char cells requested');
-      end
-   else
-      str = '';
-   end
-
+        else
+            error(' char cells requested');
+        end
+    else
+        str = '';
+    end
+    
 end
 
 function copy_get_ascii_to_herbert()
 % function copies get_ascii_file to herbert executable as it is currently
-% the same exec. 
+% the same exec.
 
 her_path = fileparts(which('herbert_init.m'));
 hor_path = fileparts(which('horace_init.m'));

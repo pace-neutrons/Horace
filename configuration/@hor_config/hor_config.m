@@ -5,16 +5,16 @@ classdef hor_config<config_base
     %   >> hor_config
     %
     % To set values:
+    %   >> hc = hor_config();
+    %   >> hc.name1=val1;
+    % or   
     %   >> set(hor_config,'name1',val1,'name2',val2,...)
-    % or
-    %   >>hc = hor_config();
-    %   >>hc.name1=val1;
     %
     %
     % To fetch values:
-    %   >> [val1,val2,...]=get(hor_config,'name1','name2',...)
-    %or
-    %   >>val1 = hor_config.name1;
+    % >> val1 = hor_config.name1;
+    %or    
+    % >>[val1,val2,...]=get(hor_config,'name1','name2',...)    
     %
     %
     % Fields are:
@@ -31,7 +31,7 @@ classdef hor_config<config_base
     %                                   :
     %                       The larger the value, the more information is printed
     %   use_mex             Use mex files for time-consuming operation, if available
-    %   delete_tmp          Delete temporary sqw files generated while building sqw files
+    %   force_mex_if_use_mex % testing and debugging option -- fail if mex can not be used   
     %
     % Type >> hor_config  to see the list of current configuration option values.
     %

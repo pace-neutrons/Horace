@@ -39,7 +39,7 @@ function [application,svn]=horace_version(opt)
 % the best and most portable for any OS I can think of). 
 %
 %
-% $COMMIT_COUNTER:: 58 $
+% $COMMIT_COUNTER:: 59 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will 
 % be modified and probably corrupted at commit
