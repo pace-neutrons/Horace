@@ -59,7 +59,12 @@ npixtot=numel(pix);
 
 if size(pix_nz,1)==4    % single spe file
     % Create output pix array (use: idet= ceil(pix/ne); ien = rem(pix-1,ne)+1;)
-    pixout = [zeros(4,npixtot); ones(1,npixtot); ceil(pix'/ne_max); rem(pix'-1,ne_max)+1; zeros(2,npixtot)];
+    % (This is considerably faster than:
+    %     pixout = [zeros(4,npixtot); ones(1,npixtot); ceil(pix'/ne_max); rem(pix'-1,ne_max)+1; zeros(2,npixtot)];
+    pixout = zeros(9,npixtot);
+    pixout(5,:) = ones(1,npixtot);
+    pixout(6,:) = ceil(pix'/ne_max);
+    pixout(7,:) = rem(pix'-1,ne_max)+1;
     
     % Get index of pixels with non-zero signal (offset to start of pix array if it is a section)
     if ind_beg==1    % no offset needed, so keep code fast
@@ -73,11 +78,13 @@ if size(pix_nz,1)==4    % single spe file
     
 else
     % Create output pix array
-    irun = ceil(pix'/(ndet*ne_max));
+    pixout = zeros(9,npixtot);
     irem = rem(pix'-1,(ndet*ne_max))+1;
-    idet = ceil(irem/ne_max);
-    ien  = rem(irem-1,ne_max)+1;
-    pixout = [zeros(4,npixtot); irun; idet; ien; zeros(2,npixtot)];
+    pixout(5,:)=ceil(pix'/(ndet*ne_max));
+    pixout(6,:)=ceil(irem/ne_max);
+    pixout(7,:)=rem(irem-1,ne_max)+1;
+    
+    %pixout = [zeros(4,npixtot); irun; idet; ien; zeros(2,npixtot)];
     
     % Get index of pixels with non-zero signal (offset to start of pix array if it is a section)
     if ind_beg==1    % no offset needed, so keep code fast

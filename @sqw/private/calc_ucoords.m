@@ -1,7 +1,7 @@
 function ucoords=calc_ucoords (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
 % Calculate the components of Q in reference frame fixed w.r.t. spectrometer
 %
-%   >> qspec = calc_qspec (efix, k_to_e, emode, data, det)
+%   >> ucoords=calc_ucoords (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
 %
 % Input:
 % ------
@@ -30,25 +30,22 @@ function ucoords=calc_ucoords (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
     
 % Get components of Q in spectrometer frame (x || ki, z vertical)
 if emode==1
-    try
-        qspec = repmat([kfix;0;0],1,numel(id)) - repmat(k(ie')',3,1).*detdcn(:,id);
-    catch
-        disp('Oops!')
-    end
+    qspec = repmat([kfix;0;0],1,numel(id)) - repmat(k(ie')',3,1).*detdcn(:,id);
     eps=en(ie')';   % ensures is a row vector, even if en is scalar
+    ucoords = [spec_to_pix*qspec; eps];
     
 elseif emode==2
     qspec = [k(ie')';zeros(2,numel(id))] - kfix*detdcn(:,id);
     eps=en(ie')';   % ensures is a row vector, even if en is scalar
+    ucoords = [spec_to_pix*qspec; eps];
 
 elseif emode==0
     Q_by_k = repmat([1;0;0],1,numel(id)) - detdcn;
     qspec = repmat(k(ie')',[3,ndet]).*Q_by_k;
     eps=zeros(1,numel(id));
+    ucoords = [spec_to_pix*qspec; eps];
     
 else
     error('EMODE must =1 (direct geometry), =2 (indirect geometry), or =0 (elastic)')
     
 end
-
-ucoords = [spec_to_pix*qspec; eps];

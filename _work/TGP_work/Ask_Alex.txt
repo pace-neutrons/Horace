@@ -3,4 +3,9 @@ What does the syntax in the following line mean?
 	this = this@test_gen_sqw_accumulate_sqw_mex(name,'nomex'); 
 	
 	
-	
+-----------------------------------------------------------------------------------------
+Questions re changes to Horace:
+-----------------------------------------------------------------------------------------
+delete_tmp still present in horace (see changes to hor_config in v930)
+
+
