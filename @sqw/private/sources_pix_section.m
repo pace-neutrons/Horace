@@ -42,7 +42,7 @@ function pix = sources_pix_section (src, srcind, i_pixbuff, run_label,...
 %           run_label.nochange  true if the run indicies in all header blocks are
 %                              to be left unchanged [this happens when combining
 %                              sqw data from cuts taken from the same master sqw file]
-%           run_label.offset    If not empty, then contains array length equal to
+%           run_label.offset    If not empty, then contains column vector length equal to
 %                              the number of input header blocks with offsets to add
 %                              to the corresponding runs [this happens typically when
 %                              using gen_sqw or accumulate_sqw, as every sqw file
@@ -105,7 +105,9 @@ for i=1:nsource
         if w.sparse_fmt
             % Get pix section
             if isempty(w.pix_nz) && isempty(w.pix)
-                pix(:,jlo:jhi) = get_sqw (w.S,'pix',[plo(i),phi(i)],[ilo(i),ihi(i)]);
+                pix_block = get_sqw (w.S,'pix',[plo(i),phi(i)]);
+                pix_nz = get_sqw (w.S,'pix_nz',[ilo(i),ihi(i)]);
+                pix(:,jlo:jhi) = pix_sparse_to_full(pix_block,pix_nz,plo(i),ne_max(i),ndet);
             elseif isempty(w.pix)
                 pix_block = get_sqw (w.S,'pix',[plo(i),phi(i)]);
                 pix(:,jlo:jhi) = pix_sparse_to_full(pix_block,w.pix_nz(:,ilo(i):ihi(i)),plo(i),ne_max(i),ndet);
@@ -136,15 +138,17 @@ for i=1:nsource
 end
 
 % Re-number the runs to match the order of the headers in the combined header block
-if ~isempty(run_label.offset)
-    pix(5,:) = pix(5,:) + replicate_iarray (run_label.offset, dp)';
-    
-elseif ~isempty(run_label.ix)
-    isource = replicate_iarray (1:numel(dp), dp)';
-    ind = sub2ind (size(run_label.ix), pix(5,:), isource);
-    pix(5,:) = run_label.ix(ind);
-    
-elseif isempty(run_label.nochange)
-    error('Logic error - see T.G.Perring')  % nochange==true should be the only remaining possibility
-    
+if ~run_label.nochange
+    if ~isempty(run_label.offset)
+        pix(5,:) = pix(5,:) + replicate_iarray (run_label.offset, dp)';
+        
+    elseif ~isempty(run_label.ix)
+        isource = replicate_iarray (1:numel(dp), dp)';
+        ind = sub2ind (size(run_label.ix), pix(5,:), isource);
+        pix(5,:) = run_label.ix(ind);
+        
+    else
+        error('Logic error - see T.G.Perring')  % nochange==true should be the only remaining possibility
+        
+    end
 end

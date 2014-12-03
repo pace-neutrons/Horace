@@ -1,8 +1,3 @@
-
-sources_pix_section still not updated to reflect ne_max
-
-
-
 =================================================
 Things to do to finish off Horace IO change:
 =================================================
@@ -10,16 +5,14 @@ Things to do to finish off Horace IO change:
 	- Misc:
 		does read_sparse2 work if give [ilo,ihi] corresponding to zero range?
 		can we make read_sparse2 more efficient if know full range, or ilo>ihi?
-
-- In put_sqw_data_pix_from_sources:
-	- trap errors better
-
-- cut_sqw_main and cut_data_from_file do direct reads still rather than going via get_sqw
-- cut_data_from_file calls put_sqw_data_npix_and_pix_to_file
-- cut_dnd_main, cut_sqw_main: Need to open files correctly (put_sqw_open at the moment)
-- replace write_nsqw_to_sqw with combine_sqw and combine
+	
+- replace write_nsqw_to_sqw with combine_sqw and combine - still need to supersede RAE's version fully
 
 - put author and version into all Horace and Herbert functions
+
+- put_sqw
+	- if sqwfile source, check the permissions of the file are correct for newfile or not
+	  according to the value of the variable newfile returned earlier by function check_options.
 
 
 =================================================
@@ -30,25 +23,30 @@ sources_pix_section
 	- need to add case of sparse data with multiple spe files
 	- capture case of repeated pixels
 
+Add memory limit in combine to hor_config
 
+	
 =================================================
 *** Tidying ***
 =================================================
-Rationalise tidy_close across all functions
+When finished, remove 'debug' utilities indicated by ***= in comment lines
+
+get_sqw, put_sqw - don't return 'ok'
+
+semi-public wrapper to put_sqw_data_pix_from_sources ?
 
 
 =================================================
 Check
 =================================================
-Does put_sqw need to be able to take an sqwfile structure as input?
-
 Does combine check that different crystal reorientations are not being mixed?
 
 
 =================================================
 Optimisations
 =================================================
-
+*MUST* replace appversion: in the iron 2D cut 25% of the time was spent in
+creating and comparing appversion objects! (0.4s out of 1.7s)
 
 
 =================================================
@@ -56,9 +54,7 @@ Maybe?
 =================================================
 Add rebin, integrate (+others methods?) from IX_dataset_nd
 
-Change appversion to reduce times to read (too long!)
-
-Fast version of is_sqw_type_file that does not read the full header information from v3 and earlier
+Fast version of is_sqw_type_file that does not read the full header information from v3 and earlier ?
 
 
 =================================================

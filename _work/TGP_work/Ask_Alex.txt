@@ -6,6 +6,8 @@ What does the syntax in the following line mean?
 -----------------------------------------------------------------------------------------
 Questions re changes to Horace:
 -----------------------------------------------------------------------------------------
+cut creates temporary files in tempdir - will this be a problem on unix?
+
 delete_tmp still present in horace (see changes to hor_config in v930)
 
 

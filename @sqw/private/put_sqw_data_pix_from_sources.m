@@ -49,7 +49,7 @@ function [mess, pos_pix, fmt_pix, npixtot, varargout] = put_sqw_data_pix_from_so
 %           run_label.nochange  true if the run indicies in all header blocks are
 %                              to be left unchanged [this happens when combining
 %                              sqw data from cuts taken from the same master sqw file]
-%           run_label.offset    If not empty, then contains array length equal to
+%           run_label.offset    If not empty, then contains column vector length equal to
 %                              the number of input header blocks with offsets to add
 %                              to the corresponding runs [this happens typically when
 %                              using gen_sqw or accumulate_sqw, as every sqw file

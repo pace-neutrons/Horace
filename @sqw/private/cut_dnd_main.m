@@ -113,8 +113,8 @@ if save_to_file
         end
     end
     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    [mess,outfilefull,fout]=put_sqw_open(outfile);
-    if fout<0, error(mess), end
+    [Sout,mess]=sqwfile_open(outfile,'new');
+    if ~isempty(mess), error(mess), end
 end
 
 
@@ -123,10 +123,10 @@ end
 if horace_info_level>=1, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [h,ok,mess]=get_sqw (data_source,'-nopix');
+    [h,ok,mess]=get_sqw(data_source,'-nopix');
     data=h.data;
     if ~isempty(mess)
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
+        if save_to_file; sqwfile_close(Sout,'delete'); end      % close the output file opened earlier
         error('Error reading data from file %s \n %s',data_source,mess)
     end
 else
@@ -150,7 +150,7 @@ end
 % Determine new plot and integration axes
 [sub_iax, sub_iint, sub_pax, sub_p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin(invdax), data.p, nbin);
 if ~isempty(mess)
-    if save_to_file; fclose(fout); end    % close the output file opened earlier
+    if save_to_file; sqwfile_close(Sout,'delete'); end      % close the output file opened earlier
     error(mess)
 end
 
@@ -256,7 +256,7 @@ end
 % Make valid dnd-type sqw fields
 [w,mess]=make_sqw(true,data_out);
 if ~isempty(mess)
-    if save_to_file; fclose(fout); end    % close the output file opened earlier
+    if save_to_file; sqwfile_close(Sout,'delete'); end    % close the output file opened earlier
     error(mess)
 end
 
@@ -264,16 +264,18 @@ end
 % Save to file if requested
 % ---------------------------
 if save_to_file
-    if horace_info_level>=0, disp(['Writing cut to output file ',outfilefull,'...']), end
+    if horace_info_level>=0, disp(['Writing cut to output file ',Sout.filename,'...']), end
     try
-        [ok,mess] = put_sqw (fout,w); *** fout=>S
-        fclose(fout);
-        if ~isempty(mess)
+        [ok,mess,Sout] = put_sqw (Sout,w);
+        if isempty(mess)
+            sqwfile_close (Sout);
+        else
             warning(['Error writing to file: ',mess])
+            sqwfile_close (Sout,'delete');
         end
     catch   % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
-        if ~isempty(outfilefull); fclose(fout); end
         warning('Error writing to file: unknown cause')
+        sqwfile_close(Sout,'delete');
     end
     if horace_info_level>=0, disp(' '), end
 end

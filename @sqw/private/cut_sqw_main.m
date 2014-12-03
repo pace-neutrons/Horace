@@ -217,8 +217,8 @@ if save_to_file
         end
     end
     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    [mess,outfilefull,fout]=put_sqw_open(outfile);
-    if fout<0, error(mess), end
+    [Sout,mess]=sqwfile_open(outfile,'new');
+    if ~isempty(mess), error(mess), end
 end
 
 
@@ -227,19 +227,28 @@ end
 if horace_info_level>0, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [h,ok,mess,S]=get_sqw (data_source,'-nopix');
+    % Open data source
+    [S,mess]=sqwfile_open(data_source,'readonly');
     if ~isempty(mess)
+        if save_to_file; sqwfile_close(Sout,'delete'); end    % close the output file opened earlier
+        error(mess)
+    end
+    % Get all the information except pixels
+    [h,ok,mess] = get_sqw (S,'-nopix');
+    if ~isempty(mess)
+        sqwfile_close(S);
+        if save_to_file; sqwfile_close(Sout,'delete'); end    % close the output file opened earlier
         error('Error reading data from file %s \n %s',data_source,mess)
     end
     main_header=h.main_header;
     header=h.header;
     detpar=h.detpar;
     data=h.data;
-    position=S.position;
     npixtot=S.info.npixtot;
     sqw_type=S.info.sqw_type;
     if ~sqw_type
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
+        sqwfile_close(S);
+        if save_to_file; sqwfile_close(Sout,'delete'); end    % close the output file opened earlier
         error('Data file is not sqw file with pixel information - cannot take cut')
     end
 else
@@ -309,7 +318,8 @@ end
 % output data coordinate frame that encloses the output data volume
 [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, rot, trans, pbin, pin, en);
 if ~isempty(mess)   % problem getting limits from the input
-    if save_to_file; fclose(fout); end    % close the output file opened earlier
+    if source_is_file; sqwfile_close(S); end    % close the data source
+    if save_to_file; sqwfile_close(Sout,'delete'); end   % close the output file opened earlier
     error(mess)
 end
 
@@ -386,43 +396,39 @@ else
 end
 ebin=ustep(4);                  % plays role of rot_ustep for energy
 trans_elo = urange_offset(1,4); % plays role of trans_bott_left for energy
-% set flag to indicate if buffering to temporary files is permitted
-if nargout==0   % can buffer only if no output cut object
-   pix_tmpfile_ok = true;
-else
-   pix_tmpfile_ok = false;
-end
 
 
 % Get accumulated signal
 % -----------------------
-% read data and accumulate signal and error
+% Read data and accumulate signal and error
 if source_is_file
-    [mess,filename,fid]=get_sqw_open(data_source);
-    if fid<0
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
-        error(mess)
+    % Set flag to indicate if buffering to temporary files is permitted
+    if nargout==0   % can buffer only if no output cut object
+        pix_tmpfile_ok = true;
+    else
+        pix_tmpfile_ok = false;
     end
-    status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
-    if status<0;
-        fclose(fid);
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
-        error(['Error finding location of pixel data in file ',data_source]);
+    % Cut data from file
+    try
+        [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (S, nstart, nend, keep_pix,...
+            urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1, pix_tmpfile_ok);
+        sqwfile_close(S);
+    catch
+        sqwfile_close(S);
+        if save_to_file; sqwfile_close(Sout,'delete'); end    % close the output file opened earlier
+        rethrow(lasterror)
     end
-    [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-                                                urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
-    fclose(fid);
-
- 
+    % Determine if buffer files were created
+    if isstruct(pix)
+        pix_tmpfile=true;
+        Stmp=pix;   % pix contains sqwfile structure(s) of temporary output file(s)
+        clear pix
+    else
+        pix_tmpfile=false;
+    end
 else
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (data.pix, nstart, nend, keep_pix, ...
-                                                urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
-end
-% For convenience later on, set a flag that indicates if pixel info buffered in files
-if isstruct(pix)
-    pix_tmpfile=true;
-else
-    pix_tmpfile=false;
+        urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
 end
     
 % Convert range from steps to actual range with respect to output uoffset:
@@ -482,44 +488,46 @@ data_out.npix = npix;
 no_pix = (npix==0);     % true where there are no pixels contributing to the bin
 data_out.s(no_pix)=0;   % want signal to be NaN where there are no contributing pixels, not +/- Inf
 data_out.e(no_pix)=0;
-
-if keep_pix
-    data_out.urange = urange_pix;
-    if ~pix_tmpfile; data_out.pix = pix; end
-end
-
-% Collect fields to make those for a valid sqw object
 if keep_pix
     w.main_header=main_header;
     w.header=header;
     w.detpar=detpar;
-    w.data=data_out; % will be missing the field 'pix' if pix_tmpfile_ok=true
+    data_out.urange=urange_pix;
+    if ~pix_tmpfile
+        data_out.pix=pix;
+    end
+    w.data=data_out;    % will be missing the field 'pix' if pix_tmpfile_ok=true
 else
-    [w,mess]=make_sqw(true,data_out);   % make dnd-type sqw structure
-    if ~isempty(mess), error(mess), end
+    w=make_sqw(true,data_out);  % make dnd-type sqw structure
 end
 
 
 % Save to file if requested
 % ---------------------------
 if save_to_file
-    if horace_info_level>=0, disp(['Writing cut to output file ',outfilefull,'...']), end
+    if horace_info_level>=0, disp(['Writing cut to output file ',Sout.filename,'...']), end
     try
-        if ~pix_tmpfile
-            [ok,mess] = put_sqw (fout,w);   *** fout=>S
-        else
-            [ok,mess] = put_sqw (fout,w,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange'); *** fout=>S
-            for ifile=1:length(pix.tmpfiles)   % delete the temporary files
-                delete(pix.tmpfiles{ifile});
+        if keep_pix
+            if ~pix_tmpfile
+                [ok,mess,Sout] = put_sqw (Sout, w);
+            else
+                src = sources_init (Stmp);
+                run_label = run_label_init (main_header.nfiles, numel(Stmp));
+                [ok,mess,Sout] = put_sqw (Sout, w, '-pix', src, header, detpar, run_label, npix);
+                sqwfile_close(Stmp,'delete');   % delete all the temporary files
             end
+        else
+            [ok,mess,Sout] = put_sqw (Sout, w);
         end
-        fclose(fout);
-        if ~isempty(mess)
+        if isempty(mess)
+            sqwfile_close(Sout);
+        else
             warning(['Error writing to file: ',mess])
+            sqwfile_close(Sout,'delete');
         end
     catch   % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
-        if ~isempty(outfilefull); fclose(fout); end
         warning('Error writing to file: unknown cause')
+        sqwfile_close(Sout,'delete');
     end
     if horace_info_level>=0, disp(' '), end
 end

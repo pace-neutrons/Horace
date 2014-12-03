@@ -68,6 +68,7 @@ function [srcind,npixtot] = sources_get_index_arrays(src,npix_accum,nbin_buff_si
 %
 %   npixtot     Total number of pixels
 
+
 % Original author: T.G.Perring
 %
 % $Revision: 909 $ ($Date: 2014-09-12 18:20:05 +0100 (Fri, 12 Sep 2014) $)

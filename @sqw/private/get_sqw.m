@@ -94,6 +94,8 @@ function [w, ok, mess, S] = get_sqw (file, varargin)
 %   file        File name, or sqwfile information structure. It is assumed that the file
 %              contains data that is dnd-type or sqw-type, or buffer. These can be non-sparse
 %              format or sparse format.
+%               If the data source is given as an sqwfile information structure, no assumption
+%              is made as to the current location of the position indicator.
 %
 %   opt         [optional] Determines which fields to read:
 %                   '-dnd'          - Read as dnd even if sqw fields
@@ -154,7 +156,7 @@ if ~isstruct(file)
     file_open_on_entry=false;
     [S,mess]=sqwfile_open(file,'readonly');
     % If an error, then set w to empty argument; in principle could cause a crash if caller expects structure
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,S.fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 else
     file_open_on_entry=true;
     S=file;
@@ -166,7 +168,7 @@ fmt_ver=S.application.file_format;
 % Parse optional arguments
 % ------------------------
 [mess,flag,make_full_fmt,opt,optvals] = check_options(S,varargin{:});
-if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 
 % Initialise output
 if flag.sqw_struct
@@ -175,23 +177,25 @@ if flag.sqw_struct
     w.detpar = struct([]);
     w.data = struct([]);
 end
-if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 
 
 % Get main header, headers and detectors, if requested
 % ----------------------------------------------------
 if flag.read_sqw_header
+    fseek(fid,S.position.main_header,'bof');
+    
     % Main header
     [mess, w.main_header] = get_sqw_main_header (fid, fmt_ver, flag.verbatim);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 
     % Header
     [mess, w.header] = get_sqw_header (fid, fmt_ver, S.info.nfiles);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 
     % Detectors
     [mess, w.detpar] = get_sqw_detpar (fid, fmt_ver);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 end
 
 
@@ -211,7 +215,7 @@ if ~flag.info
     else
         [mess, w] = get_sqw_data (fid, fmt_ver, S, flag.read_data_header, flag.verbatim, make_full_fmt, opt, optvals{:});
     end
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 end
 
 
@@ -222,11 +226,11 @@ if flag.read_inst_and_sample && ~isnan(S.position.instrument)
     
     % Instrument information
     [mess, w.header] = get_sqw_header_inst (fid, fmt_ver, w.header);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
     
     % Sample information
     [mess, w.header] = get_sqw_header_samp (fid, fmt_ver, w.header);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 
 end
 
@@ -649,46 +653,22 @@ end
 
 
 %==================================================================================================
-function [ok,S]=tidy_close(leave_open,fid,ftmp)
-% Tidy shut down of files if there was an error
+function [ok,Sout]=tidy_close(S,leave_open)
+% Tidy shut down if there was an error
 %
-%   >> [ok,S]=tidy_close(leave_fid_open,fid,ftmp)
+%   >> [ok,Sout]=tidy_close(S,leave_fid_open)
 %
 % Input:
 % ------
-%   leave_fid_open      Leave the sqw file open, if not already closed
-%   fid                 File identifier of sqw file
-%   ftmp                [Optional] File identifier of temporary file; if present then close the file
-%                      and delete if an error
+%   S               sqwfile structure of data source
+%   leave_open      Leave the sqw file open, if not already closed
 %
 % Output:
 % -------
-%   ok                  Status. Set to false.
-%   S                   sqwfile structure with default contents
+%   ok              Status. Set to false.
+%   Sout            sqwfile structure
 
-ok=false;
-
-% Close sqw file if requested
-if fid>=3 && ~isempty(fopen(fid))
-    if leave_open
-        S=sqwfile();
-        S.fid=fid;
-        S.filename=fopen(fid);
-    else
-        fclose(fid);
-        S=sqwfile();
-    end
-else
-    S=sqwfile();
-end
-
-% Close and delete temporary file, if open
-if exist('ftmp','var') && ftmp>=3 && ~isempty(fopen(fid))
-    tmpfile=fopen(ftmp);
-    fclose(ftmp);
-    try
-        delete(tmpfile)
-    catch
-        disp('Unable to delete buffer file created when writing output sqw file')
-    end
+ok=false;   % return argument to show there was an error
+if ~leave_open
+    Sout=sqwfile_close(S);
 end

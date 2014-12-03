@@ -1,8 +1,7 @@
 function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, urange_step_pix, keep_pix,...
-                                                      v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
+    v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
 % Accumulate signal into output arrays
 %
-% Syntax:
 %   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
 %
 % Input: (* denotes output argumnet with same name exists - exploits in-place working of Matlab R2007a)

@@ -318,8 +318,8 @@ if ninfiles>0
         
         % Close files if all of npix[,npix_nz,pix_nz],pix in memory
         if keep_npix && keep_pix && (~sparse_fmt{j} || (keep_npix_nz && keep_pix_nz))
-            S{j}=sqwfile_close(S{j});   % can close the file, as all required data is in memory
-            S{j}=[];                    % clear, as will not need the information
+            sqwfile_close(S{j});    % can close the file, as all required data is in memory
+            S{j}=[];                % clear, as will not need the information
         end
         
         % Accumulate s,e,npix
@@ -390,7 +390,7 @@ wout.header=header_combined;
 wout.detpar=detpar;
 wout.data=sqw_data;
 
-src=struct('S',S,'sparse_fmt',sparse_fmt,'nfiles',nfiles,'npix',npix,'npix_nz',npix_nz,'pix_nz',pix_nz,'pix',pix);
+src = sources_init (S, sparse_fmt, nfiles, npix, npix_nz, pix_nz, pix);
 
 % Write to file or return object as required
 if file_output
@@ -571,9 +571,6 @@ function tidy_close(S)
 % Close all open files in a cell array of sqwfile structures
 for i=1:numel(S)
     if ~isempty(S{i})
-        fid=S{i}.fid;
-        if fid>=3 && ~isempty(fopen(fid))
-            fclose(fid);
-        end
+        sqwfile_close(S{i});
     end
 end

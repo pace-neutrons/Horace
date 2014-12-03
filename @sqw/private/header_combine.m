@@ -48,7 +48,7 @@ function [header_out,run_label,ok,mess,hstruct_sort,ind] = header_combine(header
 %           run_label.nochange  true if the run indicies in all header blocks are
 %                              to be left unchanged [this happens when combining
 %                              sqw data from cuts taken from the same master sqw file]
-%           run_label.offset    If not empty, then contains array length equal to
+%           run_label.offset    If not empty, then contains column vector length equal to
 %                              the number of input header blocks with offsets to add
 %                              to the corresponding runs [this happens typically when
 %                              using gen_sqw or accumulate_sqw, as every sqw file
@@ -119,7 +119,7 @@ if isstruct(header) || (iscell(header) && numel(header)==1 && isstruct(header{1}
     else
         header_out=header{1};
     end
-    run_label=struct('ix',{{1}},'ixarr',1,'nochange',true,'offset',[]);
+    run_label = run_label_init (1);
     ok=true;
     mess='';
     hstruct_sort=hstruct;
@@ -236,12 +236,9 @@ for i=2:nfiles_tot
     ok = ok & equal_to_relerr(header_out{i}.u_to_rlu(:), header_out{1}.u_to_rlu(:), tol, 1);
     ok = ok & equal_to_relerr(header_out{i}.ulen, header_out{1}.ulen, tol, 1);
     if ~ok
-        header_out=cell(0,1);
-        run_label=struct('ix',{{}},'ixarr',[],'nochange',false,'offset',[]);
-        ok=false;
+        [header_out,run_label,ok,hstruct_sort,ind] = output_on_error;
         mess=['Not all input files have the same values for energy mode (0,1,2), lattice parameters,',...'
             'projection axes and projection axes offsets in the header blocks'];
-        hstruct_sort=struct([]); ind=[];
         return
     end
     ok = isequal(header_out{i}.sample, header_out{1}.sample);
@@ -282,23 +279,14 @@ end
 % All the header blocks have been checked to be internally OK and also valid for combining
 ok=true;
 mess='';
-run_label=struct('ix',{{}},'ixarr',[],'nochange',false,'offset',[]);
 
 if nsqw==1
     % Only one header block (or one distinct header block) - now confirmed to be OK
-    ix=repmat({(1:nspe)'},1,numel(header));     % allow for case where nsqw==1 because all header were the same
-    ixarr=repmat((1:nspe)',1,numel(header));
-    run_label=struct('ix',{ix},'ixarr',ixarr,'nochange',true,'offset',[]);
+    run_label = run_label_init (nspe, numel(header));   % allow for case where nsqw==1 because all header were the same
     
 elseif all(h_unique)
     % All sqw data have different runs
-    ix=mat2cell((1:sum(nspe))',nspe);
-    ixarr=zeros(max(nspe),numel(nspe));
-    for i=1:numel(nspe)
-        ixarr(1:nspe(i),i)=ix{i};
-    end
-    offset=cumsum([0;nspe(1:end-1)]);
-    run_label=struct('ix',{ix},'ixarr',ixarr,'nochange',false,'offset',offset);
+    run_label = run_label_init (nspe);
     
 else
     % General case
@@ -306,11 +294,7 @@ else
     header_out=header_out(ind(indx));   % corresponding full headers
     indh(ind)=indh;         % indicies of unique elements in hstruct_sort, in the order of spe files in the headers
     ix=mat2cell(indh,nspe);
-    ixarr=zeros(max(nspe),numel(nspe));
-    for i=1:numel(nspe)
-        ixarr(1:nspe(i),i)=ix{i};
-    end
-    run_label=struct('ix',{ix},'ixarr',ixarr,'nochange',false,'offset',[]);
+    run_label = run_label_init (ix);
     hstruct_sort=hstruct_sort(indx);
     ind=(1:numel(indx))';   % we have sorted the headers to match hstruct_sort
     
@@ -321,7 +305,7 @@ end
 function [header_out,run_label,ok,hstruct_sort,ind] = output_on_error
 % Return standard values if error
 header_out=cell(0,1);
-run_label=struct('ix',{{}},'ixarr',[],'nochange',false,'offset',[]);
+run_label = run_label_init;
 ok=false;
 hstruct_sort=struct([]);
 ind=[];

@@ -157,7 +157,7 @@ if ~isstruct(file)
     else
         [S,mess] = sqwfile_open (file, 'old');
     end
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,S.fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 else
     file_open_on_entry=true;
     S=file;
@@ -185,7 +185,7 @@ if newfile
     
     % Write information at top of file (do this now to reserve the right amount of space in the file)
     [mess, position_sqwfile] = put_sqw_information (S);  % write to file (will update with correct information later)
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
     position=updatestruct(position,position_sqwfile);
     
     % Set write flags for sections other than data section
@@ -199,7 +199,7 @@ if newfile
 else
     % Can only be writing header to a pre-existing file
     [mess,write_non_data_sections] = check_header_opt_ok (info,w);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
     write_inst_and_samp = (write_non_data_sections && opt.his); % means: write if they exist, remove if don't
 
     % Get format
@@ -215,7 +215,7 @@ end
 % ------------------------------------
 if write_non_data_sections
     [mess,position.main_header] = put_sqw_main_header (fid, fmt_ver, w.main_header);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 end
 
 
@@ -223,7 +223,7 @@ end
 % -----------------------------------------
 if write_non_data_sections
     [mess,position.header,pos_header_arr] = put_sqw_header (fid, fmt_ver, w.header);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 end
 
 
@@ -231,7 +231,7 @@ end
 % ------------------------------------
 if write_non_data_sections
     [mess,position.detpar] = put_sqw_detpar (fid, fmt_ver, w.detpar);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 end
 
 
@@ -259,7 +259,7 @@ if newfile
         [mess,position_data,fmt_data,info.nz_npix,info.nz_npix_nz,info.npixtot,info.npixtot_nz] = ...
             put_sqw_data (fid, fmt_ver, w.data, sparse_fmt);
     end
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
     
     % Update position and format structures
     position = updatestruct(position,position_data);
@@ -268,7 +268,7 @@ if newfile
 else
     % Can only be writing header to an existing file
     mess = put_sqw_data (fid, fmt_ver, w.data, sparse_fmt, '-h');
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 end
 
 
@@ -285,10 +285,10 @@ if write_inst_and_samp
         end
         % Now write instrument and sample blocks
         [mess,position.instrument] = put_sqw_header_inst (fid, fmt_ver, w.header);
-        if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+        if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
         
         [mess,position.sample] = put_sqw_header_samp (fid, fmt_ver, w.header);
-        if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+        if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
         
         % Set flag that indicates instrument and sample information was actually written
         wrote_inst_and_samp=true;
@@ -325,13 +325,13 @@ end
 % Older file formats: write footer sections and update S if required
 if fmt_ver<ver3p1
     [mess,S] = put_sqw_LEGACY_position_info_footer (S, newfile, pos_header_arr, wrote_inst_and_samp);
-    if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+    if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 end
 
 % Write sqwfile
 fseek(fid,0,'bof');
 mess = put_sqw_information (S);
-if ~isempty(mess), [ok,S]=tidy_close(file_open_on_entry,fid); return, end
+if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
     
 
 % Closedown
@@ -668,46 +668,22 @@ end
 
 
 %==================================================================================================
-function [ok,S]=tidy_close(leave_open,fid,ftmp)
-% Tidy shut down of files if there was an error
+function [ok,Sout]=tidy_close(S,leave_open)
+% Tidy shut down if there was an error
 %
-%   >> [ok,S]=tidy_close(leave_fid_open,fid,ftmp)
+%   >> [ok,Sout]=tidy_close(S,leave_fid_open)
 %
 % Input:
 % ------
-%   leave_fid_open      Leave the sqw file open, if not already closed
-%   fid                 File identifier of sqw file
-%   ftmp                [Optional] File identifier of temporary file; if present then close the file
-%                      and delete if an error
+%   S               sqwfile structure of data source
+%   leave_open      Leave the sqw file open, if not already closed
 %
 % Output:
 % -------
-%   ok                  Status. Set to false.
-%   S                   sqwfile structure with default contents
+%   ok              Status. Set to false.
+%   Sout            sqwfile structure
 
-ok=false;
-
-% Close sqw file if requested
-if fid>=3 && ~isempty(fopen(fid))
-    if leave_open
-        S=sqwfile();
-        S.fid=fid;
-        S.filename=fopen(fid);
-    else
-        fclose(fid);
-        S=sqwfile();
-    end
-else
-    S=sqwfile();
-end
-
-% Close and delete temporary file, if open
-if exist('ftmp','var') && ftmp>=3 && ~isempty(fopen(fid))
-    tmpfile=fopen(ftmp);
-    fclose(ftmp);
-    try
-        delete(tmpfile)
-    catch
-        disp('Unable to delete buffer file created when writing output sqw file')
-    end
+ok=false;   % return argument to show there was an error
+if ~leave_open
+    Sout=sqwfile_close(S);
 end
