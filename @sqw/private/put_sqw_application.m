@@ -45,12 +45,12 @@ try
     if application.file_format>=ver3p1
         flag=-1;    % -1 indicates change from numeric to character string version format
         fwrite(fid,flag,'float64');
-        write_sqw_var_char (fid, ver3p1, version_str(application.version), len_ch);
-        write_sqw_var_char (fid, ver3p1, version_str(application.file_format), len_ch);
+        write_sqw_var_char (fid, ver3p1, appversion_str(application.version), len_ch);
+        write_sqw_var_char (fid, ver3p1, appversion_str(application.file_format), len_ch);
     else
         % Horace version and file format version assumed to be the same for Horace v3 and below
         % Can only be '-v3' or '-v1' file format; 
-        fmt_num=version_num(application.file_format);
+        fmt_num=appversion_num(application.file_format);
         if fmt_num(1)==3
             fwrite(fid,3,'float64');
         else

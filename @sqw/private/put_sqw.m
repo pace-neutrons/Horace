@@ -425,7 +425,7 @@ if narg>=2 && isstring(varargin{end-1}) && strcmpi(varargin{end-1},'file_format'
     try
         fmt_ver=appversion(varargin{end});
         if ~fmt_check_file_format (fmt_ver, 'write')
-            mess=['Cannot write with format ',verstion_str(fmt_ver)];
+            mess=['Cannot write with format ',appversion_str(fmt_ver)];
             return
         end
     catch

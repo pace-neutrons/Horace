@@ -81,7 +81,7 @@ function varargout=fmt_check_file_format(ver,opt)
 
 if nargin==0
     varargout{1}=appversion(3,1);           % '-v3.1'
-elseif isa(ver,'appversion') && isscalar(ver)
+elseif isnumeric(ver) && isscalar(ver)
     if nargin==1 || strcmpi(opt,'write')
         if ver==appversion(3,1) ||...       % '-v3.1'
                 ver==appversion(3) ||...    % '-v3'
