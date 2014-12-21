@@ -1,22 +1,22 @@
-function ucoords=calc_ucoords (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
+function ucoords=calc_ucoords_singlerun (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
 % Calculate the components of Q in reference frame fixed w.r.t. spectrometer
 %
-%   >> ucoords=calc_ucoords (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
+%   >> ucoords = calc_ucoords_singlerun (kfix, emode, k, en, detdcn, spec_to_pix, id, ie)
 %
 % Input:
 % ------
 %   kfix        Fixed wavevector (Ang^-1)
 %   emode       Direct geometry=1, indirect geometry=2, elastic=0
-%   k           Wavevector at bin centres (Ang^-1)
-%   en          Energy transfer at bin centres (meV)
+%   k           Wavevectors at bin centres (Ang^-1) (column vector)
+%   en          Energy transfers at bin centres (meV) (column vector)
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %               [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
-%   spec_to_pix Matrix to convert spectrometer coordinates
+%   spec_to_pix Matrix to convert from spectrometer coordinates
 %               (x-axis along ki, z-axis vertically upwards) to pixel coordinates.
 %               Need to account for the possibility that the crystal has been reoriented,
 %               in which case the pixels are no longer in crystal Cartesian coordinates.
-%   id          Index of detector into detdcn
-%   ie          Index of energy bin
+%   id          Index of detectors into detdcn for each pixel (row vector)
+%   ie          Index of energy bins for each pixel (row vector)
 %
 % Output:
 % -------

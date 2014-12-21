@@ -121,7 +121,7 @@ for i=1:nsource
             if sparse_all_single
                 irun=run_label.ix{i}(1);
                 pix(1:4,jlo:jhi) = ...
-                    calc_ucoords (kfix(irun), emode, k{irun}, en{irun}, detdcn, spec_to_pix{irun}, pix(6,jlo:jhi), pix(7,jlo:jhi));
+                    calc_ucoords_singlerun (kfix(irun), emode, k{irun}, en{irun}, detdcn, spec_to_pix{irun}, pix(6,jlo:jhi), pix(7,jlo:jhi));
             else
                 error('Combining sparse data sets with at least one made from multiple spe runs not implemented yet')
             end

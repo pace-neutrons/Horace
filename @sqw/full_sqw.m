@@ -126,9 +126,11 @@ if isfield(data,'pix')  % is sqw-type
     data_new.pix = pix_sparse_to_full(data.pix,data.pix_nz,1,max(ne),ndet);
     
     if nfiles==1
-        data_new.pix(1:4,:) = calc_ucoords (kfix, emode, k{1}, en{1}, detdcn, spec_to_pix{1}, data_new.pix(6,:), data_new.pix(7,:));
+        data_new.pix(1:4,:) = calc_ucoords_singlerun (kfix, emode, k{1}, en{1}, detdcn,...
+            spec_to_pix{1}, data_new.pix(6,:), data_new.pix(7,:));
     else
-        error('Expanding sparse data sets with at least one made from multiple spe runs not implemented yet')
+        data_new.pix(1:4,:) = calc_ucoords_multirun (kfix', emode, cell2arr(k,true), cell2arr(en,true), detdcn,...
+            cell2arr(spec_to_pix), data_new.pix(5,:), data_new.pix(6,:), data_new.pix(7,:));
     end
 end
 

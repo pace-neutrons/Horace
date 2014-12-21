@@ -21,9 +21,10 @@ Things to do to finish off Horace IO change:
 sources_pix_section
 	- need to handle case of one bin having more pixels than the pixel buffer size
 	- need to add case of sparse data with multiple spe files
-	- capture case of repeated pixels
+	- capture case of repeated pixels (as happens when combining cuts that overlap)
 
 Add memory limit in combine to hor_config
+
 
 	
 =================================================
@@ -35,11 +36,17 @@ get_sqw, put_sqw - don't return 'ok'
 
 semi-public wrapper to put_sqw_data_pix_from_sources ?
 
+Change documentation about file IO in fields summary document
+
+
 
 =================================================
 Check
 =================================================
 Does combine check that different crystal reorientations are not being mixed?
+
+Mega test of sparse to full with runs with different ki, also emode=2,0
+
 
 
 =================================================

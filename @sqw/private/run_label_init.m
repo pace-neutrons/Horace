@@ -6,6 +6,9 @@ function run_label = run_label_init (varargin)
 %   >> run_label = run_label_init (nspe)        % nochange
 %   >> run_label = run_label_init (ix)
 %
+% Input:
+% ------
+%   nspe
 %
 % Output:
 % -------
