@@ -41,7 +41,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             %
             % Reads previously created test data sets.
             
-            % constructor
+            % onstructocr
             if nargin > 0
                 name = varargin{1};
             else
