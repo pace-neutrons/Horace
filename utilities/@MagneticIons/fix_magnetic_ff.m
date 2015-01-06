@@ -40,28 +40,32 @@ if isa(win,'sqw')
     %We can cheat here by making a dummy sqw function that returns the bose
     %factor for all of the points:
     
-    sqw_magFF=sqw_eval(win,@fe_form_factor_J2,self);
+    sqw_magFF=sqw_eval(win,@form_factor,self);
 else
     rlu2u = win.ulen(1:3);    
     rlu2u_sq = rlu2u.*rlu2u;
     self.rlu2uSq_ = rlu2u_sq;
     
-    % unpack integration and projection axis to 4D structure
+
     wis = struct(win);
     sizes = cell(4,1);
     old_size = size(wis.s);
     wp       = wis.p;
     iax = wis.iax;
+    % extend integration axis to values never availible to provide limiting
+    % value when projection axis are expanded
+    iwax = [iax,5];
     iint = wis.iint;
     dax  = wis.dax;
     pax = wis.pax;
+    % unpack integration and projection axis to 4D structure    
     if numel(wis.iax)>0
         p = cell(1,4);
         
         ciax = 1;
         cpax = 1;
         for i=1:4
-            if i==iax(ciax)
+            if i==iwax(ciax)
                 p{i} = iint(:,ciax);
                 ciax=ciax+1;
                 sizes{i}=1;
@@ -82,7 +86,7 @@ else
     end
     
     wout=sqw('$dnd',wis );
-    wout = struct(func_eval(wout,@fe_form_factor_J2,self));
+    wout = struct(func_eval(wout,@form_factor,self));
     wout.data.p = wp;
     wout.data.iax = iax;
     wout.data.iint = iint;
@@ -99,7 +103,7 @@ wout=mrdivide(win,sqw_magFF);
 
 %==============================
 
-function FF = fe_form_factor_J2(h,k,l,en,self)
+function FF = form_factor(h,k,l,en,self)
 % function calculates magnetic form-factor using exponential representation
 %
 rlu2u_sq = self.rlu2uSq_;
