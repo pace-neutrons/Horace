@@ -31,6 +31,10 @@ addgenpath_message (rootpath,'compatibility');
 
 % Configurations
 addgenpath_message (rootpath,'configuration');
+% set up path to unit tests if necessary (TODO -- investigate why
+% herbert_config constructor does not do it implicitly)
+hc = herbert_config;
+hc.init_tests = hc.init_tests;
 
 % Class definitions, with methods and operator definitions
 addgenpath_message (rootpath,'classes');
