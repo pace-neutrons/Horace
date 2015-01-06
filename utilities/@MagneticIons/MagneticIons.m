@@ -8,15 +8,42 @@ classdef MagneticIons
     %
     % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
     %
-        
-    properties
-        % displays set of ion names, with defined interpolation function.  
+    
+    properties(Dependent)
+        % the ion used for fixing magnetic form factor
+        currentIon
+        % displays set of ion names, with defined interpolation function.
         IonNames
     end
+    properties(Access= private)
+        currentIon_='Fe0'
+        % fucntions calculating magnatic momentums for current ion
+        J0_ff_;J2_ff_;J4_ff_;J6_ff_;
+        % coefficients used to convert hkl squared coordinates into A^(-2)
+        rlu2uSq_;
+    end
+    
     methods
-        function mi=MagneticIons()
+        function mi=MagneticIons(varargin)
+            if nargin >0
+                mi.currentIon_=varargin{1};
+            end
+            [mi.J0_ff_,mi.J2_ff_,mi.J4_ff_,mi.J6_ff_]=mi.getIngerpolant(mi.currentIon_);
+        end
+        %
+        function name = get.currentIon(self)
+            name= self.currentIon_;
+        end
+        function self = set.currentIon(self,newIonName)
+            if ismember(self.Ions_,newIonName)
+                self.currentIon_ = newIonName;
+                [self.J0_ff_,self.J2_ff_,self.J4_ff_,self.J6_ff_]=self.getIngerpolant(self,self.currentIon_);
+            else
+                error('MagneticIons:InvalidArgument',' Ion %s is not currently supported',newIonName)
+            end
         end
         
+        %
         function ionNames    = get.IonNames(self)
             % Method returns list of ion names defined by the class
             ionNames = self.Ions_;
@@ -34,7 +61,7 @@ classdef MagneticIons
             %         The functions depend on Q^2 in angstroms^(-1) and
             %         magnetic form-factor observed in neutron experiments
             %         in reciprocal point of space q (expressed in reverse
-            %         angstroms) 
+            %         angstroms)
             %         can be calculated by the formula:
             %FF=J0_ff(q2).^2+J2_ff(q2).^2;
             %         where q2==q*q
@@ -50,7 +77,7 @@ classdef MagneticIons
             J0_ff = @(x2)((par(1,1)*exp(-par(1,2)*x2)+par(1,3)*exp(-par(1,4)*x2)+par(1,5)*exp(-par(1,6)*x2)+par(1,7)));
             if nargout>1
                 for i=1:nargout-1
-                    varargout{i}=@(x2)((par(i+1,1)*exp(-par(i+1,2)*x2)+par(i+1,3)*exp(-par(i+1,4)*x2)+par(i+1,5)*exp(-par(i+1,6)*x2)+par(i+1,7)));
+                    varargout{i}=@(x2)(((par(i+1,1)*exp(-par(i+1,2)*x2)+par(i+1,3)*exp(-par(i+1,4)*x2)+par(i+1,5)*exp(-par(i+1,6)*x2)+par(i+1,7)).*x2));
                 end
             end
             
@@ -185,7 +212,7 @@ classdef MagneticIons
             0, 0, 0, 0, 0, 0, 0, 0],...                                       // <j6>
             %double j_Fe0[4][8] =
             [0.0706, 35.008, 0.3589, 15.358, 0.5819, 5.561, -0.0114, 0.1398; ... // <j0>
-            1.9405, 18.473, 1.9566, 6.323, 0.5166, 2.161, 0.0036, 0.0394; ...   // <j2>
+            1.9405, 18.4733, 1.9566, 6.323, 0.5166, 2.1607, 0.0036, 0.0394; ...   // <j2>
             -0.5029, 19.677, 0.2999, 3.776, 0.2576, 1.424, 0.0071, 0.0292; ...  // <j4>
             0, 0, 0, 0, 0, 0, 0, 0],...                                        // <j6>
             %double j_Fe1[4][8] =
