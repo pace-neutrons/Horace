@@ -1,7 +1,8 @@
 classdef MagneticIons
-    % Class provides magnetic form factors for various magnetic ions.
+    % Class provides magnetic form factors for various magnetic ions
+    % and supports corrections of Horace datasets by this form factor.
     %
-    % Copied from Mantid class MagneticIon
+    % Magneic pCopied from Mantid class MagneticIon
     % Original data  copied from https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html
     % Fe verified against these data
     %
@@ -17,7 +18,8 @@ classdef MagneticIons
     end
     properties(Access= private)
         currentIon_='Fe0'
-        % fucntions calculating magnatic momentums for current ion
+        % handles to fucntions calculating magnatic momentums of appropriate order 
+        % for current ion
         J0_ff_;J2_ff_;J4_ff_;J6_ff_;
         % coefficients used to convert hkl squared coordinates into A^(-2)
         rlu2uSq_;
@@ -25,19 +27,27 @@ classdef MagneticIons
     
     methods
         function mi=MagneticIons(varargin)
-            if nargin >0
-                mi.currentIon_=varargin{1};
+            % Constructor:
+            %Usage:
+            %>>mi = MagnaticIons(IonName)
+            %where IonName is the name of the ion to calculate form factor.
+            % If IonName is empty or absent, Fe0 ion used as the default. 
+            %
+            if nargin >0 && not(isempty(varargin{1}))
+                mi.currentIon=varargin{1};
+            else
+                mi.currentIon = 'Fe0';
             end
-            [mi.J0_ff_,mi.J2_ff_,mi.J4_ff_,mi.J6_ff_]=mi.getIngerpolant(mi.currentIon_);
+
         end
         %
         function name = get.currentIon(self)
             name= self.currentIon_;
         end
         function self = set.currentIon(self,newIonName)
-            if ismember(self.Ions_,newIonName)
+            if ismember(newIonName,self.Ions_)
                 self.currentIon_ = newIonName;
-                [self.J0_ff_,self.J2_ff_,self.J4_ff_,self.J6_ff_]=self.getIngerpolant(self,self.currentIon_);
+                [self.J0_ff_,self.J2_ff_,self.J4_ff_,self.J6_ff_]=self.getIngerpolant(self.currentIon_);
             else
                 error('MagneticIons:InvalidArgument',' Ion %s is not currently supported',newIonName)
             end
@@ -51,8 +61,8 @@ classdef MagneticIons
         function [J0_ff,varargout] = getIngerpolant(self,IonName)
             % Method returns set of interpolating functions used to
             % calculate magnetic form factor in up to sixtupole
-            % approximation. Some ions have all coefficients of six order equal
-            % to 0
+            % approximation. Some ions have all coefficients of six order 
+            % momentum equal to 0
             %>> Usage:
             %>>mi = MagneticIons();
             %>>[J0_ff,J2_ff]=mi.getIngerpolant('Fe0')
@@ -60,11 +70,11 @@ classdef MagneticIons
             %         up to second moment approximation.
             %         The functions depend on Q^2 in angstroms^(-1) and
             %         magnetic form-factor observed in neutron experiments
-            %         in reciprocal point of space q (expressed in reverse
-            %         angstroms)
-            %         can be calculated by the formula:
-            %FF=J0_ff(q2).^2+J2_ff(q2).^2;
-            %         where q2==q*q
+            %         in reciprocal point of space Q (expressed in reverse
+            %         angstroms) can be calculated by the formula:
+            %
+            %>>FF=J0_ff(Q2).^2+J2_ff(Q2).^2;
+            %  where Q2==Q.*Q
             %
             %
             %
@@ -86,7 +96,7 @@ classdef MagneticIons
     end
     
     properties(Constant, Access=private)
-        
+        % supported ions
         Ions_ = {'Sc0','Sc1','Sc2','Ti0','Ti1','Ti2','Ti3',...
             'V0','V1','V2','V3','V4','Cr0','Cr1','Cr2','Cr3','Cr4',...
             'Mn0','Mn1','Mn2','Mn3','Mn4','Fe0','Fe1','Fe2','Fe3','Fe4',...
