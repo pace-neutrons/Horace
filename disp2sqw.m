@@ -110,6 +110,6 @@ else
     for i=1:numel(e)
         edisp=repmat(e{i}(:),[1,ne]);
         sfact=repmat(sf{i}(:),[1,ne]);
-        weight=weight + sfact.*exp(-(edisp-en_arr).^2/(2*sig^2))/(sig*sqrt(2*pi));
+        weight=weight + sfact.*exp(-(edisp-en_arr).^2/(2*sig.^2))./(sig*sqrt(2*pi));
     end
 end

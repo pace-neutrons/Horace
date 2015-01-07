@@ -1,25 +1,28 @@
 function wout=fix_magnetic_ff(self,win)
-% Correct a dataset for the magnetic scattering form the magnetic ion
-% provided
+% Correct scattering intensity in a dataset for the magnetic scattering
+% form factor of the magnetic ion provided.
 %
 % List of magnetic ions with defined form factors can be retrived from
 % MagneticIons class.
 %
 %
 %Usage:
-% mi= MagneticIons('Fe0')
+%>>mi= MagneticIons('Fe0')
 %>>sqw_corrected = mi.fix_magnetic_ff(sqw_data)
 %where:
-% 'Fe0'    -- the name of ion, which scattering is corrected.
+% 'Fe0'    -- the name of the ion, which scattering is corrected.
 % sqw_data -- dnd or sqw dataset to correct
 %
 % Returns:
-% sqw_corrected  -- input dataset divided by magnetic form factor of
-%                   selected ion.
+% sqw_corrected  -- input dataset divided by the magnetic form factor of
+%                   the selected ion. 
+%                   Signal on each pixel in sqw dataset
+%                   is also divided if sqw dataset is corrected.
 %
 %Notes:
 %
-% * AT THE MOMENT IS IMPLEMENTED FOR ORTHOGONAL LATTICE ONLY!
+% * AT THE MOMENT IS IMPLEMENTED FOR ORTHOGONAL LATTICE ONLY! though
+%   generaliztion is trivial
 %
 % * Repetetive applications of the corrections to the same dataset works and
 %   causes wrong corrections. 
