@@ -1,83 +1,133 @@
-function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu, radial_cut_length, radial_bin_width, radial_thickness,...
-                                                            trans_cut_length, trans_bin_width, trans_thickness, varargin)
-% Get actual Bragg peak positions, given initial estimates of their positions, from an sqw object or file
-% The fits to the Bragg peaks can be checked with function bragg_positions_view.
+function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
+    radial_cut_length, radial_bin_width, radial_thickness,...
+    trans_cut_length, trans_bin_width, trans_thickness, varargin)
+% Get actual Bragg peak positions, given initial estimates of their positions:
 %
-%   >> rlu0=bragg_positions(w, proj, rlu, cut_length, cut_thickness, bin_width, energy_window)
+%   >> rlu0 = bragg_positions (w, rlu, ...
+%                  radial_cut_length, radial_bin_width, radial_thickness,...
+%                  trans_cut_length, trans_bin_width, trans_thickness, energy_window)
 %
-%   >> [rlu0,widths,wcut,wpeak]=bragg_positions(...)   % Return cuts and peak analysis for each Bragg point
+% The fits to the Bragg peaks can be checked with function bragg_positions_view:
 %
-% Use this function to find the true peak positions of a set of Bragg peaks. You provide the estimate of
-% their positions (usually just the indicies of the Bragg peaks) and some parameters that describe the
-% length, bin size and thickness of cuts through the nominal positions. The output can then be passed
-% to functions that refine the crystal orientation e.g. refine_crystal (type >> help refine_crystal
-% for more details of this function.
+%   >> [rlu0, widths, wcut, wpeak] = bragg_positions (...)
+%   >> bragg_positions_view (wcut, wpeak)
+%             (Press <CR> and follow instructions)
 %
-% The algorithm performs thre orthogonal cuts through the nominal Bragg peak position, and finds the
-% mid-point between the half-height positions either side of the peak for each of the three cuts. The
-% process is repeated for each Bragg peak in the input list. Various diagnostic information is returned,
-% including the cuts and peak analysis. Make sure that the length and thickness of the cut fully cover
+% Detailed description:
+% ---------------------
+% Use this function to find the true peak positions of a set of Bragg peaks.
+% You provide the estimate of their positions (usually just the indicies of
+% the Bragg peaks) and some parameters that describe the length, bin size and
+% thickness of cuts through the nominal positions. The output can then be
+% passed to functions that refine the crystal orientation e.g. refine_crystal
+% (type >> help refine_crystal for more details of this function.
+%
+% For each Bragg position, the algorithm makes three orthogonal cuts through
+% the nominal Bragg peak position, and finds the mid-point between the
+% half-height positions either side of the peak for each of the three cuts.
+% Alternatively, you can choose for a Gaussian to be fitted to each cut. The
+% process is repeated for each Bragg peak in the input list. Various
+% diagnostic information is returned, including the cuts themselves and the
+% peak analysis. Make sure that the length and thickness of the cut fully cover
 % the peaks, and that the bin width is appropriate.
 %
-% In practice, when refining the crystal orientation it is a good idea to get an approximate correction
-% from two key Bragg peaks (e.g. in the horizontal plane, about 90 degrees apart), and then perform a
-% refinement with a large list of reflections. The first correction should ensure that the nominal
-% Bragg peak positions are all close to the true positions, so there is little concern that the
-% length, bin and thickness parameters are inappropriate.
+% In practice, when refining the crystal orientation it is a good idea to get
+% an approximate correction from two key Bragg peaks (e.g. in the horizontal
+% plane, about 90 degrees apart), and then perform a refinement with a large
+% list of reflections afterwards. The first correction should ensure that the
+% nominal Bragg peak positions are all close to the true positions, so there
+% is little concern that the length, bin and thickness parameters are
+% inappropriate.
 %
 % Summary of this and related functions:
+%   bragg_positions         % Get true Bragg peak positions
 %
-%   bragg_positions         % get true Bragg peak positions 
-%   refine_crystal          % get a matrix that relates the nominal crystal orientation to the true one
+%   bragg_positions_view    % Cycle through the cuts and peak anaysis from
+%                           % the above
 %
-%   change_crystal_horace   % apply the correction matrix to an sqw or dnd file
-%   change_crystal          % apply the correction matrix to an sqw or dnd object
+%   refine_crystal          % Get a matrix that relates the nominal crystal
+%                           % orientation to the refined orientation
 %
-%   uv_correct2             % return correct indexing of vectors u and v that define the scattering plane
-%                           % in mslice
+%   change_crystal_horace   % Apply the correction matrix to an sqw or dnd file
+%   change_crystal          % Apply the correction matrix to an sqw or dnd object
 %
+%   uv_correct2             % Return correct indexing of vectors u and v that
+%                           % define the scattering plane for mslice
+%
+% Syntax:
+% -------
+%   >> [rlu0, widths, wcut, wpeak] = bragg_positions (w, rlu, ...
+%               radial_cut_length, radial_bin_width, radial_thickness,...
+%               trans_cut_length, trans_bin_width, trans_thickness, energy_window)
+%
+%   >> [rlu0, widths, wcut, wpeak] = bragg_positions (..., keyword1, keyword2)
 %
 % Input:
 % ------
 %   w                   Data source (sqw file name or sqw object)
-%   rlu                 Set of nominal Bragg peak indicies in r.l.u. as a (n x 3) matrix:
+%   rlu                 Set of nominal Bragg peak indicies in (n x 3) matrix:
 %                           h1, k1, l1
 %                           h2, k2, l2
 %                           :   :   :
-%                       These are the indicies of the Bragg peaks e.g. 1,0,0; 0,1,0
+%                       These are the indicies of the Bragg peaks
+%                       e.g. [1,0,0; 0,1,0; 1,1,0]
 %
-%   radial_cut_length   Length of cuts parallel to Q of Bragg peak, as fraction of |Q| (typical value e.g. 0.2)
-%   radial_bin_width    Bin size as a fraction of |Q| (typical value e.g. 0.002)
-%   radial_thickness    Full thickness along radial direction for transverse cuts (e.g. 0.05)
+%   radial_cut_length-| Length of cuts along Q of Bragg peak,, bin size along
+%   radial_bin_width  | the cut, and the thickness in the two perpendicular
+%   radial_thickness -| directions.
+%                       - If option 'bin_relative' these are given as fractions
+%                         of |Q|. Good values might be 0.2, 0.002, 0.05 respectively
+%                       - If option 'bin_absolute' they are in inverse Angstroms 
+%                         Start with, say: 1.5, 0.05, 0.5 respectively
 %
-%   trans_cut_length    Length of cuts transverse to Q, given as angle in degrees
-%                      (make this large enough to accommodate likely angular misalignment)
-%   trans_bin_width     Step size of transvers cut (degrees)
-%   trans_thickness     Full thickness of cut perpendicular to Q (degrees) for radial cuts
+%   trans_cut_length-|  Length of cuts transverse to Q, bin size along
+%   trans_bin_width  |  the cut, and the thickness in the two perpendicular
+%   trans_thickness -|  directions.
+%                       - If option 'bin_relative' these are given in degrees
+%                         Good values might be 15, 0.5, 5 respectively
+%                       - If option 'bin_absolute' they are in inverse Angstroms 
+%                         Start with, say: 1.5, 0.05, 0.5 respectively
 %
 %   energy_window       Energy window around elastic line (meV)
+%                       Choose according to the instrument resolution.
 %                           e.g. for -1meV to +1 meV, set  energy_window=2
+%
+% Keyword options:
+% ----------------
+% Binning:
+%   'bin_angstrom'  Radial and transverse cut length, bin size, and thickness
+%                  are in inverse Angstroms
+%   'bin_relative'  Cut length, bin size and thickness are fractions of |Q|
+%                  (radial cuts) and degrees (transverse cuts) [Default]
+%
+% Fitting:
+%   'outer'         Determine peak position from centre half-height; find
+%                  peak width moving inwards from limits of data - useful if
+%                  there is known to be a single peak in the data as it is 
+%                  more robust to too finely binned data.  [Default]
+%   'inner'         Determine peak position from centre half height; find peak
+%                  width moving outwards from peak maximum
+%   'gaussian'      Fit Gaussian on a linear background.
+%
 %
 % Output:
 % -------
-%   rlu0            The actual peak positions as (n x 3) matrix of h,k,l as indexed with
-%                  the current lattice parameters
-%   widths          Array (size (n x 3)) containing the FWHH in Ang^-1 of the peaks along each of the three projection axes
-%   wcut            Array of cuts, size (n x 3),  along three orthogonal directions
-%                  through each Bragg point from which the peak positions were determined
-%                  The cuts are IX_dataset_1d objects and can be plotted using the plot
-%                  functions for these methods.
-%   wpeak           Array of spectra, size (n x 3), that summarise the peak analysis.
-%                  Can be overplotted on the corresponding cuts in output argument wcut.
-%                  The peak summaries are IX_dataset_1d objects and can be plotted using the plot
-%                  functions for these methods.
-% Peak fit option:
-%   'outer'         Centre half-height; find peak width moving inwards from limits of data - useful
-%                  if there is known to be a single peak in the data as it is more robust to
-%                  too finely binned data.  [Default]
-%   'inner'         Centre half height; find peak width moving outwards from peak position
-%   'gaussian'      Fit Gaussian on a linear background.
-%   
+%   rlu0            The actual peak positions as (n x 3) matrix of h,k,l as
+%                  indexed with the current lattice parameters
+%   widths          Array (size (n x 3)) containing the FWHH in Ang^-1 of the
+%                  peaks along each of the three projection axes
+%   wcut            Array of cuts, size (n x 3),  along three orthogonal
+%                  directions through each Bragg point from which the peak
+%                  positions were determined. Pass to bragg_positions_view
+%                  together with wpeak (below) to view the output. [Note: the
+%                  cuts are IX_dataset_1d objects and can be plotted using
+%                  the plot functions for these methods.]
+%   wpeak           Array of spectra, size (n x 3), that summarise the peak
+%                  analysis. Pass to bragg_positions_view together with wCUT
+%                  (above) to view the output. [Note: the cuts are
+%                  IX_dataset_1d objects and can be plotted using the plot
+%                  functions for these methods.]
+
 
 % Banner - catch case of old format
 if nargin<8
@@ -138,8 +188,8 @@ if ~isscalar(trans_thickness) || ~isnumeric(trans_thickness) || trans_thickness<
 end
 
 % Parse parameters:
-arglist = struct('inner',0,'outer',0,'gaussian',0);
-flags = {'inner','outer','gaussian'};
+arglist = struct('bin_relative',0,'bin_absolute',0,'inner',0,'outer',0,'gaussian',0);
+flags = {'bin_relative','bin_absolute','inner','outer','gaussian'};
 [args,opt] = parse_arguments(varargin,arglist,flags);
 if numel(args)>1
     error('Check number and type of optional parameters')
@@ -153,9 +203,21 @@ if numel(args)==1
     end
 else
     energy_window=Inf;
-    disp('Using default energy window as -Inf to Inf')
+    disp(' ')
+    disp('*** Using default energy window as -Inf to Inf ***')
+    disp(' ')
 end
 eint=[-energy_window/2,energy_window/2];
+
+% Get binning option
+optsum=opt.bin_relative+opt.bin_absolute;
+if optsum==0
+    relative_binning=true;
+elseif optsum==1
+    relative_binning=logical(opt.bin_relative);
+else
+    error('Check binning options')
+end
 
 % Get peak option
 optsum=(opt.inner+opt.outer+opt.gaussian);
@@ -207,30 +269,37 @@ for i=1:size(rlu,1)
     end
     proj.type='aaa';        % force unit length of projection axes to be 1 Ang^-1
     
-% radial_cut_length, radial_bin_width, radial_thickness,...
-% trans_cut_length, trans_bin_width, trans_thickness, energy_window)    
-    len_r=radial_cut_length*modQ;
-    bin_r=radial_bin_width*modQ;
-    thick_r=radial_thickness*modQ;
-    len_t=(pi/180)*trans_cut_length*modQ;
-    bin_t=(pi/180)*trans_bin_width*modQ;
-    thick_t=(pi/180)*trans_thickness*modQ;
+    % radial_cut_length, radial_bin_width, radial_thickness,...
+    % trans_cut_length, trans_bin_width, trans_thickness, energy_window)
+    if relative_binning
+        len_r=radial_cut_length*modQ;
+        bin_r=radial_bin_width*modQ;
+        thick_r=radial_thickness*modQ;
+        len_t=(pi/180)*trans_cut_length*modQ;
+        bin_t=(pi/180)*trans_bin_width*modQ;
+        thick_t=(pi/180)*trans_thickness*modQ;
+    else
+        len_r=radial_cut_length;
+        bin_r=radial_bin_width;
+        thick_r=radial_thickness;
+        len_t=trans_cut_length;
+        bin_t=trans_bin_width;
+        thick_t=trans_thickness;
+    end
     
     % Make three orthogonal cuts through nominal Bragg peak positions
-    disp('================================================================================')
-    disp('================================================================================')
-    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 1'])
+    disp('--------------------------------------------------------------------------------')
+    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 1 (radial scan)'])
     w1a_1=cut_sqw(w, proj, [-len_r/2,bin_r,+len_r/2] ,[-thick_t/2,+thick_t/2]   ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
+    disp(' ')
     
-    disp('================================================================================')
-    disp('================================================================================')
-    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 2'])
+    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 2 (transverse scan)'])
     w1a_2=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-len_t/2,bin_t,+len_t/2] ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
-
-    disp('================================================================================')
-    disp('================================================================================')
-    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 3'])
+    disp(' ')
+    
+    disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 3 (transverse scan)'])
     w1a_3=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-thick_t/2,+thick_t/2]   ,[-len_t/2,bin_t,+len_t/2], eint, '-nopix');
+    disp(' ')
     
     % Get peak positions
     upos0=zeros(3,1);
@@ -254,7 +323,7 @@ for i=1:size(rlu,1)
     
     % Get matrix to convert upos0 to rlu
     upos2rlu=w1a_1.u_to_rlu(1:3,1:3);
-
+    
     % Convert peak position into r.l.u.
     if all(isfinite(upos0))
         rlu0(i,:)=(upos2rlu*upos0)' + rlu(i,:);
@@ -264,7 +333,6 @@ for i=1:size(rlu,1)
     end
 end
 
-disp(' ')
 disp('--------------------------------------------------------------------------------')
 if any(peak_problem(:))
     disp('Problems determining peak position for:')
@@ -275,6 +343,7 @@ if any(peak_problem(:))
     end
     disp(' ')
     disp(['Total number of peaks = ',num2str(size(rlu,1))])
+    disp('--------------------------------------------------------------------------------')
 end
 
 %-----------------------------------------------------------------------------------------------------------
