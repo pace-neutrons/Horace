@@ -39,9 +39,9 @@ plot_cut_peak(wcut(ipk,icmp),wpeak(ipk,icmp),ipk,icmp)
 while true
     disp('---------------------------------------------------------------------------------')
     disp( 'Enter one of the following:')
-    disp(['  - peak number (1-',num2str(npk),') and scan number (1-3)'])
+    disp(['  - peak number (1-',num2str(npk),') and scan number (1-3) e.g. ',num2str(npk),',3'])
     disp(['  - <CR> to continue from present peak and scan (',num2str(ipk),',',num2str(icmp),')'])
-    disp( '  - ''Q'' or ''q'' to quit');
+    disp( '  - Q or q to quit');
     disp(' ')
     opt=input('Type option: ','s');
     if isempty(opt)
