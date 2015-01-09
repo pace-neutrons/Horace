@@ -27,6 +27,14 @@ set(hor_config,'horace_info_level',-Inf);
 display('Getting data for Horace demo... Please wait a few minutes');
 try
     for i=1:numel(psi)
+        if i<nxspe_limit
+            file_list{i} = [demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.nxspe'];            
+        else
+            file_list{i} = [demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.spe'];            
+        end
+        if exist(file_list{i},'file')
+            continue;
+        end
         fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                          u, v, psi(i), omega, dpsi, gl, gs);
 
@@ -36,11 +44,9 @@ try
         w=noisify(w,1);%add some noise to simulate real data
         if i<nxspe_limit
             d = rundata(w+0.74);
-            file_list{i} = [demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.nxspe'];
             saveNXSPE(d,file_list{i});
         else
             d=spe(w+0.74);%also add a constant background
-            file_list{i} = [demo_dir,filesep,'HoraceDemoDataFile',num2str(i),'.spe'];
             save(d,file_list{i});
         end
         %remove intermediate file
@@ -54,6 +60,8 @@ end
 
 set(hor_config,'horace_info_level',hil);
 %horace_info_level(hil)
-delete(sqw_file_single);
+if exist(sqw_file_single,'file')
+    delete(sqw_file_single);
+end
 
     
