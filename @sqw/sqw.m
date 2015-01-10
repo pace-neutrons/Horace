@@ -125,7 +125,7 @@ elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)
             error('Data file does not contain valid sqw-type object')
         end
     else            % insist on dnd type
-        [w,ok,mess,S] = get_sqw (args{1},'-nopix');
+        [w,ok,mess,S] = get_sqw (args{1},'-dnd');
         if ~isempty(mess), error(mess), end
         if ~S.info.sqw_data     % not a valid sqw or dnd structure
             error('Data file does not contain valid dnd-type object')

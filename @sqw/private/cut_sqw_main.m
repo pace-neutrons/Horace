@@ -429,6 +429,7 @@ if source_is_file
 else
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (data.pix, nstart, nend, keep_pix, ...
         urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax_gt1, nbin_gt1);
+    pix_tmpfile=false;
 end
     
 % Convert range from steps to actual range with respect to output uoffset:
