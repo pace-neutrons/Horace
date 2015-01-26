@@ -21,6 +21,9 @@ function wout=symmetrise_sqw(win,v1,v2,v3)
 %Modified by RAE 30/11/12 to account for possibility of non-orthogonal
 %lattice (bug in previous incarnation of the code).
 
+%Further modifications (with thanks to Marek Pikulski of ETHZ) to reduce memory load
+%and decrease execution time
+
 %==============================
 %Some checks on the inputs:
 win=sqw(win);
@@ -29,7 +32,9 @@ wout=win;
 %New code (problem spotted by Matt Mena for case when using a single
 %contributing spe file):
 if ~iscell(win.header)
-    win.header={win.header};
+    header = win.header;
+else
+    header = win.header{1};
 end
 
 if numel(win)~=1
@@ -87,12 +92,12 @@ end
 % First step, therefore, is to work out what is the reflection matrix in
 % the orthonormal frame specified by u_to_rlu.
 
-uconv=win.header{1}.u_to_rlu(1:3,1:3);
+uconv=header.u_to_rlu(1:3,1:3);
 
 %convert the vectors specifying the reflection plane from rlu to the
 %orthonormal frame of the pix array:
-vec1=(inv(uconv))*(v1'-win.header{1}.uoffset(1:3));
-vec2=(inv(uconv))*(v2'-win.header{1}.uoffset(1:3));
+vec1=(inv(uconv))*(v1'-header.uoffset(1:3));
+vec2=(inv(uconv))*(v2'-header.uoffset(1:3));
 
 %Normal to the plane, in the frame of pix array:
 normvec=cross(vec1,vec2);
@@ -111,24 +116,20 @@ for i=1:3
 end
 
 %Coordinates of detector pixels, in the frame discussed above
-coords=win.data.pix([1:3],:);
+coords=@() win.data.pix([1:3],:); % MP: emulate a pointer / lazy data copy
+
+num_pixels=size(win.data.pix, 2); % MP, num_pixels=numel(coords)/3
 
 %Note that we allow the inclusion of an offset from the origin of the 
 %reflection plane. This is specified in rlu.
-vec3=(inv(uconv))*(v3'-win.header{1}.uoffset(1:3));
+vec3=(inv(uconv))*(v3'-header.uoffset(1:3));
 %Ensure v3 is a column vector:
 if size(vec3)==[1,3]
     vec3=vec3';
 end
 
-%Repeat v3 so that it has 3 rows, and the no. of columns = no. det. pixels
-v3new=repmat(vec3,1,(numel(coords))/3);
-
 %Translate the pixel co-ords by v3:
-coords_transl=coords-v3new;
-
-%Reflect the translated co-ords:
-coords_refl=Reflec*coords_transl;
+coords_new=bsxfun(@minus, coords(), vec3); % MP: favor bsxfun(@minus, A, B) over A-repmat(B)
 
 %What we want to do now is to replace elements of the pix array whose
 %coordinates are on one side of the plane with coords_refl, but not replace the elements on
@@ -138,18 +139,19 @@ coords_refl=Reflec*coords_transl;
 %dot product of the normal and the coordinate of the point relative to some
 %position in the plane.
 
-normmat=repmat(normvec,1,numel(coords) / 3);
+side_dot=coords_new'*normvec; % MP: vector of scalar products, w/o repmat/bsxfun
 
-side_dot=dot(normmat,coords_transl);
-
-keepit=repmat(side_dot<=0,3,1);%keep points on RHS
-reflit=repmat(side_dot>0,3,1);%use reflected point (is on LHS)
-
-coords_new=coords_transl.*keepit + coords_refl.*reflit;
-
-coords_new=coords_new+v3new;
+% MP: (TODO) mem usage of the following could be reduced further by making it work
+% in-place (the Reflec*... part created a temporary)
+idx = find(side_dot > 0);
+coords_new([1:3], idx) = Reflec*coords_new([1:3], idx); % MP: (TODO) could potentially be optimized further
+clear 'side_dot'; % MP: not needed anymore
+coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
 wout.data.pix([1:3],:)=coords_new;
+clear 'coords_new';
+coords_new = @() wout.data.pix([1:3],:); % MP: 'pointer'
+
 
 %=========================================================================
 
@@ -160,18 +162,16 @@ wout.data.pix([1:3],:)=coords_new;
 
 %Convert co-ords of pixel array to those of the slice/cut frame (remember
 %to include uoffset!!!)
-tmp=(win.header{1}.u_to_rlu(1:3,1:3)) * coords_new;
-uoff_arr=repmat(win.header{1}.uoffset(1:3),1,numel(coords)/3);
-tmp=tmp+uoff_arr;
-
+tmp=(header.u_to_rlu(1:3,1:3)) * coords_new();
+tmp=bsxfun(@plus, tmp, header.uoffset(1:3)); % MP: replaced repmat
 tmp=(inv(win.data.u_to_rlu(1:3,1:3))) * tmp;
 
-uoff_arr=repmat(win.data.uoffset(1:3),1,numel(coords)/3);
-coords_cut=tmp+uoff_arr;
+coords_cut=bsxfun(@plus, tmp, win.data.uoffset(1:3)); % MP: replaced repmat
+clear 'tmp';
 
 %Extra line required here to include energy in coords_cut (needed below):
-epix=win.data.pix(4,:);%energy is never reflected, of course
-coords_cut=[coords_cut;epix];
+epix=@() win.data.pix(4,:);%energy is never reflected, of course % MP: only accessed once
+coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
 
 ndims=dimensions(win);
 
@@ -207,6 +207,8 @@ for i=1:ndims
     min_ref{i}=min(coords_cut(win.data.pax(i),:))+binwid/2;
     max_ref{i}=max(coords_cut(win.data.pax(i),:))-binwid/2;
 end
+
+clear 'coords_cut'; % MP: not needed anymore
 
 %==============
 
