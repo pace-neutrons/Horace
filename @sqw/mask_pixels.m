@@ -50,6 +50,10 @@ end
 
 % Check mask is OK
 [nd,sz]=dimensions(win);
+if numel(sz)==1
+    sz=[sz,1];
+end
+
 [ok,sqw_obj]=is_horace_data_object(mask_array);
 if ok
     if sqw_obj
