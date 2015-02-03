@@ -61,7 +61,7 @@ if ~isempty(col_type)
         if itype>0
             col_type{i} = col_brev{itype};
         elseif itype==0
-            error ('Invalid color - current value(s) left unchanged')
+            error ('Invalid color - current value(s) left unchanged. Ensure you have not given a Matlab variable the same name as a colour string (e.g. b, k, etc)')
         elseif itype<0
             error ('Ambiguous abbreviation of color name - current value(s) left unchanged')
         end
