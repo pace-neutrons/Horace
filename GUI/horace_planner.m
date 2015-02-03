@@ -22,7 +22,7 @@ function varargout = horace_planner(varargin)
 
 % Edit the above text to modify the response to help horace_planner
 
-% Last Modified by GUIDE v2.5 18-May-2011 16:08:33
+% Last Modified by GUIDE v2.5 03-Feb-2015 11:00:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -601,7 +601,5 @@ disp(['ERROR: ',err_code]);
 set(handles.message_text,'String','Error - see Matlab command window for details');
 guidata(gcbo,handles);
 drawnow;
-
-
 
 
