@@ -30,6 +30,7 @@ function wout = mask_pixels (win, mask_array)
 % -------
 %   wout                Output dataset.
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
@@ -58,6 +59,9 @@ end
 if ok
     if sqw_obj
         [nd_msk,sz_msk]=dimensions(mask_array);
+        if numel(sz_msk)==1
+            sz_msk=[sz_msk,1];
+        end
         if isequal(nd,nd_msk) && isequal(sz,sz_msk) && isequal(win.data.npix,mask_array.data.npix)
             mask_array=logical(mask_array.data.pix(8,:));
         else
@@ -79,5 +83,5 @@ ibin = replicate_array(1:prod(sz),win.data.npix);   % (linear) bin number for ea
 npix=accumarray(ibin(mask_array),ones(1,sum(mask_array)),[prod(sz),1]);
 wout.data.npix=reshape(npix,sz);
 wout.data.pix=win.data.pix(:,mask_array);
-wout.data.urange=[min(wout.data.pix(1:4,:),[],2)';max(wout.data.pix(1:4,:),[],2)'];
+wout.data.urange=recompute_urange(wout);
 wout=recompute_bin_data(wout);

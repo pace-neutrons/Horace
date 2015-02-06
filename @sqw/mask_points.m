@@ -1,12 +1,10 @@
 function [sel,ok,mess] = mask_points (win, varargin)
 % Determine the points to keep on the basis of ranges and mask array.
-% Does NOT find array elements with zero error bars, NaN data values etc. This is
-% a job to be performed inside the generic fit routine.
 %
-% Syntax:
 %   >> sel = mask_points (win, 'keep', xkeep, 'remove', xremove, 'mask', mask)
 %
 % or any selection (in any order) of the keyword-argument pairs e.g.
+%
 %   >> sel = mask_points (win, 'mask', mask, 'xremove', xremove)
 %
 % Input:
@@ -47,6 +45,11 @@ function [sel,ok,mess] = mask_points (win, varargin)
 %   ok      =true if worked, =false if error
 %
 %   mess    messages: if ok=true then informational or warning, if ok=false then the error message
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 
 
 % Set defaults:

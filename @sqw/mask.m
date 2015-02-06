@@ -1,7 +1,6 @@
 function wout = mask (win, mask_array)
 % Remove the bins indicated by the mask array
 %
-% Syntax:
 %   >> wout = mask (win, mask_array)
 %
 % Input:
@@ -52,5 +51,5 @@ if is_sqw_type(win)
     mask_pix = logical(replicate_array (mask_array, win.data.npix));
     wout.data.pix=[];   % Clear the memory of a large array that is going to be replaced - but is a field, so musst leave present
     wout.data.pix=win.data.pix(:,mask_pix);
-    wout.data.urange=[min(wout.data.pix(1:4,:),[],2)';max(wout.data.pix(1:4,:),[],2)'];
+    wout.data.urange=recompute_urange(wout);
 end
