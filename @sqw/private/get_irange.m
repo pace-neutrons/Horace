@@ -1,5 +1,5 @@
 function [irange,inside,outside] = get_irange(urange,varargin)
-% Get range of bin boundary indicies that intersect an n-dimensional rectange
+% Get ranges of bins that partially or wholly lie inside an n-dimensional rectange
 %
 %   >> irange = get_irange(urange,p1,p2,p3,...pnd)
 %   >> [irange,inside,outside] = get_irange(urange,p1,p2,p3,...pnd)
@@ -12,9 +12,9 @@ function [irange,inside,outside] = get_irange(urange,varargin)
 %   urange  Range to cover: array size [2,ndim] of [urange_lo; urange_hi]
 %          where ndim is the number of dimensions. It is required that
 %          urange_lo <=urange_hi for each dimension
-%   p1(:)   Bin boundaries along first axis
-%   p2(:)   Similarly axis 2
-%   p3(:)   Similarly axis 3
+%   p1      Bin boundaries along first axis (column vector)
+%   p2      Similarly axis 2
+%   p3      Similarly axis 3
 %    :              :
 %           It is assumed that each array of bin boundaries has
 %          at least two values (i.e. at least one bin), and that
@@ -28,8 +28,9 @@ function [irange,inside,outside] = get_irange(urange,varargin)
 %   inside  If the range defined by urange is fully contained within
 %          the bin boundaries, then contained==true. Otherwise,
 %          inside==false.
-%   outside If the range defined by urange is fully outsie the bin
-%          boundaries, then outside=true;
+%   outside If the range defined by urange is fully outside the bin
+%          boundaries i.e. there is no interstcion of the two volumes,
+%          then outside=true;
 
 
 % Original author: T.G.Perring
