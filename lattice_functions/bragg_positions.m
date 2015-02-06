@@ -95,7 +95,7 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 % Keyword options:
 % ----------------
 % Binning:
-%   'bin_angstrom'  Radial and transverse cut length, bin size, and thickness
+%   'bin_absolute'  Radial and transverse cut length, bin size, and thickness
 %                  are in inverse Angstroms
 %   'bin_relative'  Cut length, bin size and thickness are fractions of |Q|
 %                  (radial cuts) and degrees (transverse cuts) [Default]

@@ -62,8 +62,8 @@ end
 
 if ndim>3
     % Check first if the simple section of dimensions 4,5,... leaves any points (as fast to test)
-    irange = get_irange(urange(:,4:end),varargin{4:end});
-    if isempty(irange); return; end
+    [irange,inside,outside] = get_irange(urange(:,4:end),varargin{4:end});
+    if outside; return; end
     irangecell=cell(1,ndim-2);  % one cell for the first three dimensions
     for i=4:ndim
         irangecell{i-2} = irange(1,i-3):irange(2,i-3);

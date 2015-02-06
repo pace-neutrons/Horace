@@ -1,7 +1,6 @@
 function wout = section (win,varargin)
 % Takes a section out of an sqw object
 %
-% Syntax:
 %   >> wout = section (win, [ax_1_lo, ax_1_hi], [ax_2_lo, ax_2_hi], ...)
 %
 % Input:
@@ -24,8 +23,8 @@ function wout = section (win,varargin)
 %
 %
 % Example: to alter the limits of the first and third axes of a 3D sqw object:
-%   >> wout = section (win, [1.9,2.1], 0, [-0.55,-0.45])
-%                                                           
+%   >> wout = section (win, [1.9,2.1], [], [-0.55,-0.45])
+
 
 % Original author: T.G.Perring
 %
@@ -58,6 +57,8 @@ end
 % Initialise output argument
 wout = win;
 
+tol=4*eps('single');    % accetable tolerance: bin centres deemed contained in new boundaries
+
 for n=1:numel(win)
     [ndim,sz]=dimensions(win(n));   % need to get sz array specific for each element in array win
     % Get section parameters and axis arrays:
@@ -77,7 +78,7 @@ for n=1:numel(win)
             end
             pax=win(n).data.dax(i);
             pcent = 0.5*(p{pax}(2:end)+p{pax}(1:end-1));          % values of bin centres
-            lis=find(pcent>=varargin{i}(1) & pcent<=varargin{i}(2));    % index of bins whose centres lie in the sectioning range
+            lis=find(pcent>=(varargin{i}(1)-tol) & pcent<=(varargin{i}(2)+tol));    % index of bins whose centres lie in the sectioning range
             if ~isempty(lis)
                 irange(1,pax) = lis(1);
                 irange(2,pax) = lis(end);
@@ -99,17 +100,11 @@ for n=1:numel(win)
     % Section the pix array, if sqw type, and update urange
     if is_sqw_type(win(n))
         % Section pix array
-        npixtot_out=sum(wout(n).data.npix(:));
-        wout(n).data.pix=zeros(9,npixtot_out); % initialise output array
         [nstart,nend] = get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
-        nel=nend-nstart+1;  % number of elements in each range
-        n0=1;
-        for i=1:numel(nstart)
-            wout(n).data.pix(:,n0:n0+nel(i)-1)=win(n).data.pix(:,nstart(i):nend(i));
-            n0=n0+nel(i);
-        end
+        ind=ind_from_nrange(nstart,nend);
+        wout(n).data.pix=win(n).data.pix(:,ind);
         % Update urange
-        wout(n).data.urange=[min(wout(n).data.pix(1:4,:),[],2)';max(wout(n).data.pix(1:4,:),[],2)'];
+        wout(n).data.urange=recompute_urange(wout(n));
     end
 
 end
