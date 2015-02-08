@@ -2,12 +2,14 @@ function dout = replicate_dnd (din, dref)
 % Make a higher dimensional dataset from a lower dimensional dataset by
 % replicating the data along the extra dimensions of a reference dataset.
 %
-% Syntax:
+% The algorithm requires that the plot axes match in the input and reference
+% datasets.
+%
 %   >> dout = replicate (din, dref)
 %
 % Input:
 % ------
-%   din     dnd structure.
+%   din     dnd structure or array of structures
 %
 %   dref    Reference dnd structure to use as template for expanding the 
 %           input straucture.
@@ -21,17 +23,16 @@ function dout = replicate_dnd (din, dref)
 % Output:
 % -------
 %   dout    Output dnd structure.
-%
+
 
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-%
-% Horace v0.1   J.Van Duijn, T.G.Perring
 
-% Check that plot axes are common, and that the dref is greater or equal dimensionality
-nd_in = length(din.pax);
-nd_ref= length(dref.pax);
+
+% Check that plot axes are common, and that the dref has greater or equal dimensionality
+nd_in = numel(din.pax);
+nd_ref= numel(dref.pax);
 size_in = size(din.s);
 size_ref= size(dref.s);
 
@@ -46,6 +47,7 @@ elseif nd_in==0
     dout.npix=din.npix*ones(size(dref.s));
     return
 else
+    % Have 1 =< nd_in <= nd_ref
     dim_common=false(1,nd_ref);
     for i=1:nd_in
         ipax=find(dref.pax==din.pax(i));
