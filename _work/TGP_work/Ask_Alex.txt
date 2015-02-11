@@ -11,3 +11,14 @@ cut creates temporary files in tempdir - will this be a problem on unix?
 delete_tmp still present in horace (see changes to hor_config in v930)
 
 
+
+
+
+-----------------------------------------------------------------------------------------
+Questions re mslice & Herbert conflicts:
+-----------------------------------------------------------------------------------------
+When I run my startup, mslice functions override those in Herbert:
+
+>> which equal_to_tol -all
+T:\SVN_area\mslice_trunk\utilities\general\equal_to_tol.m
+t:\SVN_area\herbert_trunk\utilities\maths\equal_to_tol.m   % Shadowed

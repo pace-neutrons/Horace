@@ -14,6 +14,15 @@ Things to do to finish off Horace IO change:
 	- if sqwfile source, check the permissions of the file are correct for newfile or not
 	  according to the value of the variable newfile returned earlier by function check_options.
 
+- non-orthogonal axes:
+	- make_sqw_data: take nonorthogonal as true or false
+	- pass through from make_sqw
+	- pass through sqw/sqw
+
+	- syntax of d0d,d1d,d2d,d3d,d4d: take a proj and the axes
+ 	  This will put it on the same footing as cut
+	- SImpler case: take 'nonrothonal' keyword argument at the end of arg list
+
 
 =================================================
 *** DO NOT FORGET ***
@@ -47,13 +56,14 @@ Does combine check that different crystal reorientations are not being mixed?
 
 Mega test of sparse to full with runs with different ki, also emode=2,0
 
+Ensure that all pbin <=> p are consistent; in particular, use make_bin_boundary_desciptor
+and make_const_bin_boundaries wherever create boundaries
 
 
 =================================================
 Optimisations
 =================================================
-*MUST* replace appversion: in the iron 2D cut 25% of the time was spent in
-creating and comparing appversion objects! (0.4s out of 1.7s)
+
 
 
 =================================================
@@ -75,6 +85,9 @@ Herbert non-monotonic 1D array if point data
 =================================================
 House-keeping
 =================================================
+- Documentation for sqw_eval is wrong: does not refer to the correct function
+  (see esp. syntax line (line 3), and description of sqwfunc
+
 - get_test_get_calculations - should be better documented!
 
 - is there a systematic naming scheme for accessing private

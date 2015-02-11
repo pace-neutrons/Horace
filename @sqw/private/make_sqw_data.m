@@ -77,6 +77,9 @@ mess='';
 
 narg = length(varargin);
 
+% Determine if the last argument is 'nonorthogonal'
+
+
 if narg==0 || (narg==1 && isscalar(varargin{1}) && isnumeric(varargin{1}))
     % Call of form: make_sqw_data or make_sqw_data(ndim)
     if narg==0
@@ -193,13 +196,12 @@ elseif narg>=1
             u_to_rlu(1:3,2)=[1,0,0];   % make u2 parallel to a*
         end
     end
-    if nq<=2    % third axis not give, so cannot have 'p' type normalisation for third axis
-        [rlu_to_ustep, u_to_rlu, ulen, mess] = ...
-            rlu_to_ustep_matrix (latt(1:3), latt(4:6), u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', [1,1,1], 'ppr');
+    if nq<=2    % third axis not given, so cannot have 'p' type normalisation for third axis
+        proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', 'type', 'ppr');
     else
-        [rlu_to_ustep, u_to_rlu, ulen, mess] = ...
-            rlu_to_ustep_matrix (latt(1:3), latt(4:6), u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', [1,1,1], 'ppp', u_to_rlu(1:3,3)');
+        proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', u_to_rlu(1:3,3)', 'type', 'ppr');
     end
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, latt(1:3), latt(4:6), [1,1,1]);
     if ~isempty(mess)   % problem calculating ub matrix and related quantities
         mess='ERROR: Check lattice parameters and that u1 and u2 are not parallel';
         return
