@@ -12,7 +12,11 @@ function [nstart,nend] = get_nrange(nelmts,irange)
 % ------
 %   nelmts      Array of number of points in n-dimensional array of bins
 %              e.g. 3x5x7 array such that nelmts(i,j,k) gives no. points in
-%              the (i,j,k)th bin
+%              the (i,j,k)th bin. If the number of dimensions defined by irange,
+%              ndim=size(irange,2), is greater than the number of dimensions
+%              defined by nelmts, n=numel(size(nelmts)), then the excess
+%              dimensions required of nelmts are all assumed to be singleton
+%              following the usual matlab convention.
 %   irange      Ranges of section [irange_lo;irange_hi]
 %              e.g. [1,2,6;3,4,7] means bins 1:3, 2:4, 6:7 along the three
 %              axes. Assumes irange_lo<=irange_hi.
@@ -41,7 +45,9 @@ nd=sz(2);
 
 dims = size(nelmts);
 ndim = numel(dims);
-if ndim==2 && dims(2)==1 && nd==1
+if isempty(nelmts)
+    error('Number array cannot be empty')
+elseif ndim==2 && dims(2)==1 && nd==1
     dims=dims(1:end-1); % treat as case of a column vector
     ndim=1;
 elseif ~(ndim==nd || (ndim<nd && all(irange(1,ndim+1:end)==1) && all(irange(2,ndim+1:end)==1)))
@@ -53,7 +59,8 @@ if any(dims<irange(2,:))
 end 
 
 % Get contiguous ranges
-full_dim = all(irange(:,1:ndim)==[ones(1,numel(dims));dims],1);  % ith element = 1 if irange(:,i)==[1;dims(i)]
+% (At this point, we have ndim as the relevant number of dimensions, all trailing singletons in irange dropped)
+full_dim = all(irange(:,1:ndim)==[ones(1:ndim);dims],1);  % ith element = 1 if irange(:,i)==[1;dims(i)]
 ind = find(~full_dim);
 if isempty(ind) % all dimensions run over full ranges
     nstart = 1;

@@ -1,8 +1,8 @@
 function [irange,inside,outside] = get_irange(urange,varargin)
 % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange
 %
-%   >> irange = get_irange(urange,p1,p2,p3,...pnd)
-%   >> [irange,inside,outside] = get_irange(urange,p1,p2,p3,...pnd)
+%   >> irange = get_irange(urange,p1,p2,p3,...pndim)
+%   >> [irange,inside,outside] = get_irange(urange,p1,p2,p3,...pndim)
 %
 % Works for an arbitrary number of dimensions ndim (ndim>0), and with
 % non-uniformly spaced bin boundaries.
@@ -16,6 +16,7 @@ function [irange,inside,outside] = get_irange(urange,varargin)
 %   p2      Similarly axis 2
 %   p3      Similarly axis 3
 %    :              :
+%   pndim   Similarly axis ndim
 %           It is assumed that each array of bin boundaries has
 %          at least two values (i.e. at least one bin), and that
 %          the bin boundaries are monotonic increasing.
@@ -23,8 +24,8 @@ function [irange,inside,outside] = get_irange(urange,varargin)
 % Output:
 % -------
 %   irange  Bin index range: array size [2,ndim]. If the region defined by
-%          urange lies fully outside the bins, then for at least one 
-%          dimension index i the ranges will have irange(1,i)>irange(2,i).
+%          urange lies fully outside the bins, then irange is set to zeros(0,ndim)
+%          i.e. isempty(irange)==true.
 %   inside  If the range defined by urange is fully contained within
 %          the bin boundaries, then contained==true. Otherwise,
 %          inside==false.
@@ -38,30 +39,30 @@ function [irange,inside,outside] = get_irange(urange,varargin)
 % $Revision$ ($Date$)
 
 
-nd=numel(varargin);
-if nd==0
+ndim=numel(varargin);
+if ndim==0
     error('Must give bin boundary array(s)')
-elseif size(urange,2)~=nd
-    error('Check number of bin boundary arrays matches size of urange')
+elseif numel(size(urange))~=2 || size(urange,1)~=2 || size(urange,2)~=ndim
+    error('Check urange is a 2 x ndim array where ndim is the number of bin boundary arrays')
 elseif any(urange(1,:)>urange(2,:))
     error('Must have urange_lo <= urange_hi for all dimensions')
 end
 
-irange = zeros(2,nd);
+irange = zeros(2,ndim);
 inside=true;
-for id=1:nd
-    blo = upper_index(varargin{id},urange(1,id));
-    bhi = lower_index(varargin{id},urange(2,id));
-    bmax=numel(varargin{id});
-    irange(1,id) = max(1,blo);
-    irange(2,id) = min(bmax,bhi)-1;
+outside=false;
+for idim=1:ndim
+    blo = upper_index(varargin{idim},urange(1,idim));
+    bhi = lower_index(varargin{idim},urange(2,idim));
+    bmax=numel(varargin{idim});
+    irange(1,idim) = max(1,blo);
+    irange(2,idim) = min(bmax,bhi)-1;
     if inside  && (blo==0 || bhi>bmax)   % section not within the input bins
         inside=false;
     end
 end
 
 if any(irange(1,:)>irange(2,:)) % section not in the input bins
+    irange=zeros(0,ndim);
     outside=true;
-else
-    outside=false;
 end
