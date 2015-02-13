@@ -121,7 +121,7 @@ if length(varargin)>=2 && ischar(varargin{end-1}) && size(varargin{end-1},1)==1
 end
 
 % Get proj structure, if present, and binning information
-if numel(varargin)>=1 && isstruct(varargin{1})
+if numel(varargin)>=1 && (isstruct(varargin{1}) || isa(varargin{1},'projaxes'))
     proj_given=true;
     proj_in=varargin{1};
     pbin=varargin(2:end-length(opt));
@@ -191,9 +191,9 @@ end
 
 % Check the proj data structure is valid, if given
 if ~proj_given
-    proj = struct([]);
+    proj = repmat(projaxes,0);  % empty instance of the projaxes class
 else
-    [proj,mess] = proj_fill_fields(proj_in);
+    [proj,mess] = projaxes(proj_in);
     if ~isempty(mess)
         error(mess)
     end
@@ -270,7 +270,7 @@ upix_offset = header_ave.uoffset;
 % expressed.
 
 if ~isempty(proj)
-    [rlu_to_ustep, u_to_rlu] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, [1,1,1], proj.type, proj.w);
+    [rlu_to_ustep, u_to_rlu] = projaxes_to_rlu (proj, alatt, angdeg, [1,1,1]);
     uin_to_rlu = data.u_to_rlu(1:3,1:3);
     rot = inv(u_to_rlu)*uin_to_rlu;         % convert components from data input proj. axes to output proj. axes
     trans = inv(uin_to_rlu)*(proj.uoffset(1:3)-data.uoffset(1:3));  % offset between the origins of input and output proj. axes, in input proj. coords
@@ -365,7 +365,7 @@ end
 
 % Get matrix and translation vector to express plot axes with two or more bins as multiples of step size from lower limits
 if ~isempty(proj)
-    [rlu_to_ustep, u_to_rlu, ulen] = rlu_to_ustep_matrix (alatt, angdeg, proj.u, proj.v, ustep(1:3), proj.type, proj.w);
+    [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, alatt, angdeg, ustep(1:3));
     rot_ustep = rlu_to_ustep*upix_to_rlu; % convert from pixel proj. axes to steps of output projection axes
     trans_bott_left = inv(upix_to_rlu)*(proj.uoffset(1:3)-upix_offset(1:3)+u_to_rlu*urange_offset(1,1:3)'); % offset between origin
     % of pixel proj. axes and the lower limit of hyper rectangle defined by range of data , expressed in pixel proj. coords
