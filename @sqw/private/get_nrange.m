@@ -60,7 +60,7 @@ end
 
 % Get contiguous ranges
 % (At this point, we have ndim as the relevant number of dimensions, all trailing singletons in irange dropped)
-full_dim = all(irange(:,1:ndim)==[ones(1:ndim);dims],1);  % ith element = 1 if irange(:,i)==[1;dims(i)]
+full_dim = all(irange(:,1:ndim)==[ones(1,ndim);dims],1);  % ith element = 1 if irange(:,i)==[1;dims(i)]
 ind = find(~full_dim);
 if isempty(ind) % all dimensions run over full ranges
     nstart = 1;
