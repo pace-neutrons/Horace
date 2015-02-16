@@ -1,6 +1,7 @@
 function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, angdeg, ustep)
 % Determine matricies to convert rlu <=> projection axes, and their lengths
 %
+%   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, alatt, angdeg)
 %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, alatt, angdeg, ustep)
 %
 % The projection axes are three vectors that may or may not be orthononal
@@ -14,6 +15,7 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, an
 %   angdeg  Row vector of lattice angles (degrees)
 %   ustep   Row vector giving step sizes along the projection axes as multiple
 %          of the projection axes (e.g. [0.05,0.05,0.025]
+%           Default if not given: [1,1,1] i.e. unit step
 %
 % Output:
 % -------
@@ -40,6 +42,10 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, an
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 
+
+if ~exist('ustep','var')
+    ustep=[1,1,1];
+end
 
 [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
 if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end

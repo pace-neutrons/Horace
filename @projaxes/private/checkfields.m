@@ -135,14 +135,15 @@ end
 % uoffset
 % -------
 if isobject(p) || isfield(p,'uoffset')
-    if isnumeric(p.uoffset) && (numel(p.uoffset)==3 || numel(p.uoffset)==4)
+    if isnumeric(p.uoffset) && ...
+            (numel(p.uoffset)==3 || (numel(p.uoffset)==4 && p.uoffset(4)==0))
         if numel(p.uoffset)==3
             pout.uoffset=[p.uoffset(:);0];
         else
             pout.uoffset=p.uoffset(:);
         end
     else
-        message='Vector uoffset must have form [h0,k0,l0] or [h0,k0,l0,en0]';
+        message='Vector uoffset must have form [h0,k0,l0] or [h0,k0,l0,0]';
         ok=false; pout=default_proj(); return
     end
 else
