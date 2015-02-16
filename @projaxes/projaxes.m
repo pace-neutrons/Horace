@@ -31,17 +31,18 @@ function [proj,mess] = projaxes(varargin)
 %
 % Optional arguments:
 %   w           [1x3] Vector of third axis (r.l.u.) - only needed if the third
-%               character of argument type is 'p'. Will otherwise be ignored.
+%               character of argument 'type' is 'p'. Will otherwise be ignored.
 %
-%   nonorthogonal If false (default), construct orthogonal axes u1,u2,u3 from u,v
+%   nonorthogonal Indicate if non-orthogonal axes are permitted
+%               If false (default): construct orthogonal axes u1,u2,u3 from u,v
 %               by defining: u1 || u; u2 in plane of u and v but perpendicular
 %               to u with positive component along v; u3 || u x v
 %
-%               If true, use u,v (and w, if given) as non-orthogonal projection
+%               If true: use u,v (and w, if given) as non-orthogonal projection
 %               axes: u1 || u, u2 || v, u3 || w if given, or u3 || u x v if not.
 %
 %   type        [1x3] Character string defining normalisation. Each character
-%               indicates how u1, u2, u3 normalised as follows:
+%               indicates how u1, u2, u3 are normalised, as follows:
 %               - if 'a': projection axis unit length is one inverse Angstrom
 %               - if 'r': then if ui=(h,k,l) in r.l.u., is normalised so max(abs(h,k,l))=1
 %               - if 'p': if orthogonal projection axes:

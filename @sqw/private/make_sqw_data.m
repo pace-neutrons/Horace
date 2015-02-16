@@ -2,31 +2,60 @@ function [data,mess] = make_sqw_data (varargin)
 % Make a valid detpar field
 % Create a valid structure for an sqw object
 %
+% Simplest constructor
+%   >> [data,mess] = make_sqw_data          % assumes ndim=0
+%   >> [data,mess] = make_sqw_data (ndim)   % sets dimensionality
+%
+% Old style syntax:
 %   >> [data,mess] = make_sqw_data (u1,p1,u2,p2,...,un,pn)  % Define plot axes
 %   >> [data,mess] = make_sqw_data (u0,...)
 %   >> [data,mess] = make_sqw_data (lattice,...)
 %   >> [data,mess] = make_sqw_data (lattice,u0,...)
+%   >> [data,mess] = make_sqw_data (...,'nonorthogonal')    % permit non-orthogonal axes
 %
-%   >> [data,mess] = make_sqw_data (ndim)
+% New style syntax:
+%   >> [data,mess] = make_sqw_data (proj, p1_bin, p2_bin, p3_bin, p4_bin)
+%   >> [data,mess] = make_sqw_data (lattice,...)
+%
 %
 % Input:
 % -------
-%   u0      Vector of form [h0,k0,l0] or [h0,k0,l0,en0]
-%          that defines an origin point on the manifold of the dataset.
-%          If en0 omitted, then assumed to be zero.
-%   u1      Vector [h1,k1,l1] or [h1,k1,l1,en1] defining a plot axis. Must
-%          not mix momentum and energy components e.g. [1,1,2], [0,2,0,0] and
-%          [0,0,0,1] are valid; [1,0,0,1] is not.
-%   p1      Vector of form [plo,delta_p,phi] that defines bin centres and step size
-%          in multiples of u1.
-%   u2,p2   For next plot axis
+%   ndim            Number of dimensions
 %
-%       [If un is omitted, then it is assumed to be [0,0,0,1] i.e. the energy axis]
+% **OR**
+%   lattice         [Optional] Defines crystal lattice: [a,b,c,alpha,beta,gamma]
+%                  Assumes to be [2*pi,2*pi,2*pi,90,90,90] if not given.
 %
-%   lattice Defines crystal lattice: [a,b,c,alpha,beta,gamma]
+%   u0              [Optional] Vector of form [h0,k0,l0] or [h0,k0,l0,en0]
+%                  that defines an origin point on the manifold of the dataset.
+%                   If en0 omitted, then assumed to be zero.
 %
-%   ndim    umber of dimensions
+%   u1              Vector [h1,k1,l1] or [h1,k1,l1,en1] defining a plot axis. Must
+%                  not mix momentum and energy components e.g. [1,1,2], [0,2,0,0] and
+%                  [0,0,0,1] are valid; [1,0,0,1] is not.
 %
+%   p1              Vector of form [plo,delta_p,phi] that defines bin centres
+%                  and step size in multiples of u1.
+%
+%   u2,p2           For next plot axis
+%    :                  :
+%
+%   'nonorthogonal' Keyword that permits the projection axes to be non-orthogonal
+%
+% **OR**
+%   lattice         [Optional] Defines crystal lattice: [a,b,c,alpha,beta,gamma]
+%                  Assumes to be [2*pi,2*pi,2*pi,90,90,90] if not given.
+%
+%   proj            Projection structure or object.
+%
+%   p1_bin,p2_bin.. Binning descriptors, that give bin boundaries or integration
+%                  ranges for each of the four axes of momentum and energy. They
+%                  each have one fo the forms:
+%                   - [pcent_lo,pstep,pcent_hi] (pcent_lo<=pcent_hi; pstep>0)
+%                   - [pint_lo,pint_hi]         (pint_lo<=pint_hi)
+%                   - [pint]                    (interpreted as [pint,pint]
+%                   - [] or empty               (interpreted as [0,0]
+%                   - scalar numeric cellarray  (interpreted as bin boundaries)
 %
 % Output:
 % -------
@@ -85,213 +114,59 @@ function [data,mess] = make_sqw_data (varargin)
 %                   signal      Signal array
 %                   err         Error array (variance i.e. error bar squared)
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
+
 
 data=[];
 mess='';
 
 narg = length(varargin);
 
-% Determine if the last argument is 'nonorthogonal'
-
 if narg==0 || (narg==1 && isscalar(varargin{1}) && isnumeric(varargin{1}))
-    % Call of form: make_sqw_data or make_sqw_data(ndim)
+    % ----------------------------------------------------
+    % Call of form: make_sqw_data() or make_sqw_data(ndim)
+    % ----------------------------------------------------
     if narg==0
         ndim=0;
     else
         ndim=varargin{1};
+        if ~any(ndim==[0,1,2,3,4])
+            mess='Numeric input must be 0,1,2,3 or 4 to create empty dataset';
+            return
+        end
     end
-    if ndim==0 || ndim==1 || ndim==2 || ndim==3 || ndim==4
-        data.filename = '';
-        data.filepath = '';
-        data.title = '';
-        data.alatt = [2*pi, 2*pi, 2*pi];
-        data.angdeg = [90, 90, 90];
-        data.uoffset = zeros(4,1);
-        data.u_to_rlu = eye(4);
-        data.ulen=[1,1,1,1];
-        data.ulabel={'\zeta','\xi','\eta','E'};
-        data.iax=ndim+1:4;
-        data.iint=zeros(2,size(data.iax,2));
-        data.pax=1:ndim;
-        data.p=repmat({[0;1]},1,ndim);
-        data.dax=1:ndim;
-        data.s=0;
-        data.e=0;
-        data.npix=1;
-    else
-        mess='ERROR: Numeric input must be 0,1,2,3 or 4 to create empty dataset';
-        return
-    end
+    lattice=[2*pi,2*pi,2*pi,90,90,90];
+    pbin=[repmat({{[0,1]}},1,ndim),cell(1,4-ndim)];
+    data = make_sqw_data_from_proj (lattice, projaxes, pbin{:});
     
 elseif narg>=1
+    % -------------------------------------------------------------------------------------
+    % Call of form: make_sqw_data(u1,p1,u2,p2,...,un,pn) or make_sqw_data(proj,p1,p2,p3,p4)
+    % -------------------------------------------------------------------------------------
     
     % Determine if first argument is lattice parameters
-    if isnumeric(varargin{1}) && isvector(varargin{1}) && length(varargin{1})==6
+    if isnumeric(varargin{1}) && isvector(varargin{1}) && numel(varargin{1})==6
         n0=1;   % position of lattice argument in list
         latt=varargin{1};
     else
         n0=0;
         latt=[2*pi,2*pi,2*pi,90,90,90];
     end
-    
-    % Determine if second argument is offset
     narg=narg-n0;   % number of arguments following lattice
-    ndim=floor(narg/2);
-    if ndim>4, mess='ERROR: Check number of arguments'; return; end;    % Too many arguments
-    if narg-2*ndim>0    % odd number of arguments, so first must be an offset
-        n0=n0+1;
-        ncmp = length(varargin{n0});
-        if ncmp==3
-            u0(1:3,1)=varargin{n0};
-            u0(4,1)=0;
-        elseif ncmp==4
-            u0(1:4,1)=varargin{n0};
-        else
-            mess='ERROR: Origin offset must have form [h,k,l] or [h,k,l,e]';
-            return
-        end
+    
+    % Determine if remaining input is proj,p1,p2,p3,p4, or uoffset,[u0,]u1,p1,...
+    if narg==5 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'projaxes'))
+        % Remaining input has form proj,p1,p2,p3,p4
+        [data,mess]=make_sqw_data_from_proj(latt,varargin{1+n0:end});
     else
-        u0=zeros(4,1);
-    end
-    
-    % Get the vectors and binning for plot axes
-    u_to_rlu = zeros(4);
-    for i=1:ndim
-        ncmp=length(varargin{2*i-1+n0});
-        if ncmp==3||ncmp==4
-            u_to_rlu(1:ncmp,i)=varargin{2*i-1+n0};
-        else
-            mess='ERROR: Check defining projection axes have form [h,k,l] or [h,k,l,e]';
+        % Remaining input has form uoffset,[u0,]u1,p1,...
+        [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(varargin{1+n0:end});
+        if ~isempty(mess)
             return
         end
-    end
-    
-    % Check that there is at most one axis that is energy, and that the axes are purely energy or h,k,l;
-    % then circularly shift so that energy axis is highest dimension
-    ind_range=1:ndim;   % Index to the range in the input argument list (may permute the projection axes, below)
-    ind_en=find(u_to_rlu(4,:)~=0);
-    if length(ind_en)>1
-        mess='ERROR: Only one projection axis can have energy as a component';
-        return
-    elseif length(ind_en)==1
-        if max(abs(u_to_rlu(1:3,ind_en)))~=0 || any(max(abs(u_to_rlu(:,1:ndim)),[],1)==0)
-            mess='ERROR: Projection axes must be purely momentum or energy';
-            return
-        end
-        nshift=ndim-ind_en;
-        if nshift~=0
-            u_to_rlu(:,1:ndim)=circshift(u_to_rlu(:,1:ndim),[0,nshift]);
-            ind_range=circshift(ind_range,[0,nshift]);
-        end
-        if ndim<4
-            u_to_rlu(4,4)=u_to_rlu(4,ndim);
-            u_to_rlu(4,ndim)=0;
-        end
-    elseif isempty(ind_en) && ndim<4
-        if any(max(abs(u_to_rlu(:,1:ndim)),[],1)==0)
-            mess='ERROR: Projection axes must be purely momentum or energy';
-            return
-        end
-        u_to_rlu(4,4)=1;
-    elseif isempty(ind_en) && ndim==4
-        mess='ERROR: One of the projection axes must be energy for a 4-dimensional dataset';
-        return
-    end
- 
-    % Construct orthogonal set of momentum axes
-    nq=ndim-length(ind_en);    % Number of Q axes
-    if nq==0    % either 0D dataset, or 1D dataset with energy axis as projection axis
-        u_to_rlu(1:3,1:2)=[1,0,0;0,1,0]';
-    elseif nq==1
-        if u_to_rlu(2,1)==0 && u_to_rlu(3,1)==0    % u1 parallel to a*
-            u_to_rlu(1:3,2)=[0,1,0];   % make u2 parallel to b*
-        else
-            u_to_rlu(1:3,2)=[1,0,0];   % make u2 parallel to a*
-        end
-    end
-    if nq<=2    % third axis not given, so cannot have 'p' type normalisation for third axis
-        proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', 'type', 'ppr');
-    else
-        proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', u_to_rlu(1:3,3)', 'type', 'ppr');
-    end
-    [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, latt(1:3), latt(4:6), [1,1,1]);
-    if ~isempty(mess)   % problem calculating ub matrix and related quantities
-        mess='ERROR: Check lattice parameters and that u1 and u2 are not parallel';
-        return
-    end
-    
-    % Extract the ranges
-    urange=zeros(3,ndim);
-    pvals=cell(1,3);
-    for i=1:ndim
-        j=2*i+n0;
-        ncmp=length(varargin{j});
-        if ncmp==3
-            urange(:,i)=varargin{j};
-            % Replace the following line to avoid rounding errors when e.g. urange(:,1)=[0,0.1,1]
-            % pvals{i}=[(urange(1,i)-urange(2,i)/2):urange(2,i):(urange(3,i)+urange(2,i)/2)]';
-            if urange(2,i)<=0 || urange(3,i)<=urange(1,i)
-                mess='ERROR: Check that ranges have form [plo,delta_p,phi], plo<phi and delta_p>0';
-                return
-            end
-            % If energy is a plot axis, then absorb any offset into the range
-            if nq~=ndim && i==ind_en
-                urange(1,i)=urange(1,i)+u0(4);
-                urange(3,i)=urange(3,i)+u0(4);
-            end
-            pvals{i}=(urange(1,i)-urange(2,i)/2:urange(2,i):urange(3,i)+urange(2,i)/2)';
-            if pvals{i}(end)<urange(3,i)
-                pvals{i}=[pvals{i};pvals{i}(end)+urange(2,i)];
-            elseif pvals{i}(end-1)>=urange(3,i)
-                pvals{i}=pvals{i}(1:end-1);
-            end
-        else
-            mess='ERROR: Check ranges have form [plo,delta_p,phi]';
-            return
-        end
-    end
-    if ndim>0
-        pvals=pvals(ind_range);     % rearrange according to the circular shifting done earlier to place energy axis in 4th position
-    end
-    
-    % Fill the output structure
-    data.filename = '';
-    data.filepath = '';
-    data.title = '';
-    data.alatt=latt(1:3);
-    data.angdeg=latt(4:6);
-    data.uoffset=[u0(1:3);0];   % will absorb the energy offset into integration or plot axis
-    data.u_to_rlu=zeros(4); data.u_to_rlu(1:3,1:3)=u_to_rlu; data.u_to_rlu(4,4)=1;
-    data.ulen=[ulen,1];
-    data.ulabel={'\zeta','\xi','\eta','E'};
-    if nq==ndim     % energy is an integration axis
-        data.iax=ndim+1:4;
-        data.iint=[zeros(2,size(data.iax,2)-1),[u0(4);u0(4)]];
-        data.pax=1:ndim;
-    else            % energy is a plot axis
-        data.iax=nq+1:3;
-        data.iint=zeros(2,size(data.iax,2));
-        data.pax=[1:nq,4];
-    end
-    if ndim==0
-        data.p=cell(1,0);
-        data.dax=zeros(1,0);
-        data.s=0;
-        data.e=0;
-        data.npix=1;
-    else
-        data.p=pvals;
-        [dummy,data.dax]=sort(ind_range);
-        data_size=zeros(1,ndim);
-        for i=1:ndim
-            data_size(i)=length(pvals{i})-1;
-        end
-        if length(data_size)==1, data_size=[data_size,1]; end
-        data.s=zeros(data_size);
-        data.e=zeros(data_size);
-        data.npix=ones(data_size);
+        [data,mess]=make_sqw_data_from_proj(latt,proj,pbin{:});
     end
 end

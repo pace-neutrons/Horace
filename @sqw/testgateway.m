@@ -3,7 +3,7 @@ function varargout = testgateway (dummy, func_name, varargin)
 %
 %   >> [b1,b2,...] = testgateway (sqw, 'myfunc', a1, a2, ...)
 %
-% This will evaluate the following line from the @sqw folder:
+% This will evaluate the following line from the @sqw/private folder:
 %
 %   >> [b1,b2,...] = myfunc (a1, a2, ...)
 %
@@ -20,7 +20,13 @@ if ~isa(dummy,'sqw')
     error('First argument must be an sqw object (whcih will be ignored)')
 end
 
-if ~ischar(func_name)
+if isstring(func_name) && ~isempty(func_name)
+    rootpath=fileparts(mfilename('fullpath'));
+    full_func_name=fullfile(rootpath,'private',func_name);
+    if ~exist(full_func_name,'file')
+        error(['File does not exist: ',full_func_name])
+    end
+else
     error('Check second argument is the name of a function')
 end
 
