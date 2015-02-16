@@ -1,31 +1,46 @@
-function [keyval_list,other]=extract_keyvalues(data,keys)
-% funcntion to extract key-val pairs from the list of data in the form
-%data={something1,key1,val1,something2,key2,val2,key3,val3}
-% 
-%Usave:
-%>>[keyval_list,other_data] = extract_keyvalues(data,keys)
-%Where data are the cellarray in the form:
-%data={something1,key1,val1,something2,key2,val2,key3,val3}
-%keys is the cellarray of strings, defining  the key-values pairs to extract:
-%keys = {key1,key2,key3}
-% and the result have form:
-%other_data = {something1,something2}
-%keyval_list = {key1,val1,key2,val2,key3,val3}
+function [keyval,data]=extract_keyvalues(arglist,keywords)
+% Extract keyword-value pairs from a list of input parameters
+%
+%   >> [keyval,data_out] = extract_keyvalues (data_in,keywords)
+%
+% Input:
+% ------
+%   arglist     Cellarray (row) of arguments that contains data and
+%               keyword-value pairs. These items can be interspersed i.e.
+%               has in general the form e.g.
+%                   data={something1,key1,val1,something2,key2,val2,key3,val3...}
+%   keywords    Cellarray of permissible keywords e.g.
+%                   keys = {key1,key2,key3...}
+%
+% Output:
+% -------
+%   keyval      Cell array containing the extracted keyword-value pairs
+%                   {key1,val1,key2,val2,key3,val3...}
+%
+%   data        Arguments that do not follow keywords:
+%                   {something1,something2,...}
 %
 %
-% Throws if a key is not followed by a value e.g:
+% Throws an error if a key is not followed by a value e.g:
+
+
+% Original author: A.Buts
 %
-%data={something1,key1,key2,val2,key3,val3}
-%and the keys requested are {key1,key2,key3}
-if numel(data) == 0
-    keyval_list=[];
-    other = [];
+% $Revision$ ($Date$)
+
+
+% Catch case of empty data cell array
+if numel(arglist) == 0
+    keyval=cell(1,0);
+    data = cell(1,0);
     return;
 end
 
-keys_check = @(x)iskey(x,keys);
-keys_present = cellfun(keys_check,data);
-vals_present = logical(zeros(1,numel(keys_present)));
+% Get locations of keywords and values
+keys_check = @(x)iskey(x,keywords);
+keys_present = cellfun(keys_check,arglist);
+
+vals_present = false(1,numel(keys_present));
 vals_present(2:end) = keys_present(1:end-1);
 
 collisions = vals_present&keys_present;
@@ -33,15 +48,15 @@ if any(collisions)
     error('EXTRACT_KEYVALUES:invalid_argument',' some keys do not have values attached');
 end
 
-keyval_pres = vals_present|keys_present;
+keyval_present = vals_present|keys_present;
 
+% Fill output arguments
+keyval = arglist(keyval_present);
+data       = arglist(~keyval_present);
 
-keyval_list = data(keyval_pres);
-other       = data(~keyval_pres);
-
+%------------------------------------------------------------------------------
 function is = iskey(val,keys)
-
-if isstring(val)
+if ~isempty(val) && isstring(val)
     is = any(ismember(keys,val));
 else
     is = false;
