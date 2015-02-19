@@ -43,7 +43,7 @@ function [wout,mess]=recover_object(w)
 % Squeeze the Harace object (assumes it is a Horace object)
 if isa(w,'sqw')
     if all(is_sqw_type(w))
-        wout=w.data;
+        wout=w;
     elseif ~any(is_sqw_type(w))
         ndims=dimensions(w(1));
         for i=2:numel(w)
