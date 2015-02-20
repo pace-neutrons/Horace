@@ -1,29 +1,37 @@
 function bragg_positions_view(wcut,wpeak)
-% View the output of fitting to Bragg peaks performed by bragg_positions
+% View the output of fitting to Bragg peaks performed by bragg_positions.
+%
+% This utility allows the cuts and peak analysis performed in bragg_positions
+% to be plotted together, for each of the three cuts through a Bragg peaks,
+% and for each of the Bragg peaks in turn. The user is prompted for which
+% peaks and cuts to be plotted.
 %
 %   >> bragg_positions_view(wcut,wpeak)
 %
-% This utility allows the cuts and peak analysis to be plotted together
-% for each of the three cuts through all of the Bragg peaks that were passed
-% to the function bragg_positions.
-%
-% The input arguments are the following two outputs from bragg_positions:
-%
-%   wcut            Array of cuts, size (n x 3),  along three orthogonal directions
-%                  through each Bragg point from which the peak positions were determined
-%                  The cuts are IX_dataset_1d objects and can be plotted using the plot
-%                  functions for these methods.
-%   wpeak           Array of spectra, size (n x 3), that summarise the peak analysis.
-%                  Can be overplotted on the corresponding cuts in output argument wcut.
-%                  The peak summaries are IX_dataset_1d objects and can be plotted using the plot
-%                  functions for these methods.
-%
+% Input:
+% ------
+%   wcut            Array of cuts, size (n x 3), along three orthogonal
+%                  directions through each Bragg point from which the peak
+%                  positions were determined. (The cuts are IX_dataset_1d
+%                  objects and can also be plotted using the plot functions
+%                  for these objects.)
+%   wpeak           Array of spectra, size (n x 3), that summarises the peak
+%                  analysis. Will be overplotted on the corresponding cuts
+%                  as contained in the output argument wcut. (The peak 
+%                  summaries are IX_dataset_1d objects and can also be plotted
+%                  using the plot functions for these objects.)
 %
 %
 % EXAMPLE OF USE:
 %
 %   >> [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...)  % other arguments are needed
 %   >> bragg_positions_view(wcut,wpeak)
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
 
 % Check input
 npk=size(wcut,1);
