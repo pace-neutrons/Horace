@@ -17,11 +17,14 @@ function varargout = ixf_global_path (operation, name, val)
 % Set:
 %   >> ixf_global_path ('set', pathname, cellstr)
 
+
 % Global paths must be non-empty if they exist. Ensusre this is always satisfied for the
 % routines to be inernally consistent.
 
 % Initiate a structure to store global paths
+mlock;  % for stability
 persistent global_paths
+
 if ~isstruct(global_paths) && isempty(global_paths)
     global_paths=struct;     % make empty structure
 end

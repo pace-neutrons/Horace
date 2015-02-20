@@ -4,6 +4,8 @@ function s=neutron_constants
 %   >> s=neutron_constants      % return structure
 %   >> neutron_constants        % list constants
 
+
+mlock;  % for stability
 persistent structure
 
 if isempty(structure)

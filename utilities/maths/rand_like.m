@@ -21,6 +21,8 @@ function R=rand_like(varargin)
 %
 % Is much slower (x100?) than Matlab rand if called for scalar output.
 
+
+mlock;  % for stability
 persistent start_saved
 
 % Find seed, or set if 'start' option given

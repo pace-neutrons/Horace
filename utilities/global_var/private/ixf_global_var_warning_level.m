@@ -10,12 +10,11 @@ function varargout=ixf_global_var_warning_level(varargin)
 %   level   String with value 'none', 'info', 'warning', 'error'
 %   is_none,is_info,is_warning,is_error     Logical flags
 
-% *************************
-% *** PUT BACK !!!
-% mlock; % for stability
 
 % Initiate a structure to store global variable routines warning level
+mlock;  % for stability
 persistent level_store  
+
 if isempty(level_store)
     level_store={'none',true,false,false,false};     % make empty structure
 end

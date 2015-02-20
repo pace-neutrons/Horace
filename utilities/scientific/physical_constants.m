@@ -10,6 +10,7 @@ function s=physical_constants
 %        s.speed_of_light_exponent=8
 
 
+mlock;  % for stability
 persistent structure
 
 if isempty(structure)

@@ -108,13 +108,10 @@ function varargout=ixf_global_var(varargin)
 %           a global variable that has been cleared or created but not filled 
 
 
-
-% *************************
-% *** PUT BACK !!!
-% mlock; % for stability
-
 % Initiate a structure to store everything
+mlock;  % for stability
 persistent main_struct  
+
 if ~isstruct(main_struct) && isempty(main_struct)
     main_struct=struct;     % make empty structure
 end
