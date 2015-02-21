@@ -4,68 +4,86 @@ function varargout=disp2sqw_plot(varargin)
 %   >> disp2sqw_plot(rlp,dispreln,pars,ecent,fwhh)
 %   >> disp2sqw_plot(lattice,rlp,dispreln,pars,ecent,fwhh)
 %
-%   >> disp2sqw_plot(...,'labels',{'G','X',...})  % customised labels at the positions of the rlp
-%   >> disp2sqw_plot(...,'ndiv',n)          % plot with number of points per interval other than the default
+%   >> disp2sqw_plot(...,'labels',{'G','X',...})  % customised labels
+%   >> disp2sqw_plot(...,'ndiv',n)          % alter density of points
 %
-%   >> weight=disp2sqw_plot(...)            % output IX_dataset_2d with spectral weight
-%   >> weight=disp2sqw_plot(...,'noplot')   % output IX_dataset_2d with spectral weight, no plot
+%   >> weight=disp2sqw_plot(...)            % output spectral weight and plot
+%   >> weight=disp2sqw_plot(...,'noplot')   % output spectral weight, no plot
 %
 % Input:
 % --------
-%   lattice     [optional] Lattice parameters [a,b,c,alpha,beta,gamma]  (Angstrom, degrees)
+%   lattice     [optional] Lattice parameters [a,b,c,alpha,beta,gamma] in
+%              Angstrom and degrees
 %               Default is [2*pi,2*pi,2*pi,90,90,90]
 %
-%   rlp         Array of r.l.p. e.g. [0,0,0; 0,0,1; 0,-1,1; 1,-1,1; 1,0,1; 1,0,0];
+%   rlp         Array of r.l.p. e.g. [0,0,0; 0,0,1; 1,0,1; 1,0,0];
 %
-%   dispreln    Handle to function that calculates the dispersion relation w(Q) and spectrl weight, s(Q)
-%              Most commonly used form is:
+%   dispreln    Handle to function that calculates the dispersion relation
+%              or set of dispersion relations w(Q) and corresponding spectral
+%              weight, s(Q)
+%               Must have the form:
 %                   [w,s] = dispreln (qh,qk,ql,p)
 %               where
-%                   qh,qk,ql    Arrays containing the coordinates of a set of points
-%                              in reciprocal lattice units
-%                   p           Vector of parameters needed by dispersion function
+%                 Input:
+%                   qh,qk,ql    Arrays containing the coordinates of a set 
+%                              of points in reciprocal lattice units
+%                   p           Vector of parameters needed by the function 
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
+%                 Output:
 %                   w           Array of corresponding energies, or, if more than
+%                              one dispersion relation, a cell array of arrays.
+%                   s           Array of spectral weights, or, if more than
 %                              one dispersion relation, a cell array of arrays.
 %
 %              More general form is:
 %                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
 %                 where
-%                   p           Typically a vector of parameters that we might want
-%                              to fit in a least-squares algorithm
-%                   c1,c2,...   Other constant parameters e.g. file name for look-up
-%                              table.
+%                   p           Typically a vector of parameters that we might 
+%                              want to fit in a least-squares algorithm
+%                   c1,c2,...   Other constant parameters e.g. file name of
+%                              a look-up table.
 %
-%   pars        Arguments needed by the function. Most commonly, a vector of parameter
-%              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
-%              set of parameters is required by the function, then
-%              package these into a cell array and pass that as pars. In the example
-%              above then pars = {p, c1, c2, ...}
+%   pars        Arguments needed by the function.
+%               - Most commonly, a vector of parameter values e.g. [A,js,gam]
+%                 as intensity, exchange, lifetime.
+%               - More generally, if addition constant arguments are needed
+%                 by the dispersion function, then package these into a cell
+%                 array and pass that as pars. In the example above then
+%                 pars = {p, c1, c2, ...}
 %
-%   ecent       Energy bin centres: [ecent_lo, step, ecent_hi]
+%   ecent       Defines energy bin centres: [ecent_lo, step, ecent_hi]
 %
-%   fwhh        Full-width half-height of Gaussian broadening to dispersion relation(s)
-%
+%   fwhh        Full-width half-height of Gaussian broadening to dispersion
+%               relation(s)%
 %
 % Keyword options (can be abbreviated to single letter):
 %
-%   'labels'    Tick labels to place at the positions of the Q points in argument rlp.
+%   'labels'    Tick labels to place at the positions of the Q points in
+%              argument rlp.
 %                 e.g. {'G','X','M','R'}
 %               By default the labels are character representations of rlp
 %                 e.g. {0,0,0; 0.5,0,0; 0.5,0.5,0; 0.5,0.5,0.5}
 %               becomes
 %                     {'0,0,0', '0.5,0,0', '0.5,0.5,0', '0.5,0.5,0.5'}
 %
-%   'ndiv'   	Number of points into which to divide the interval between two r.l.p. (default=100)
+%   'ndiv'   	Number of points into which to divide the interval between
+%              two r.l.p. (default=100)
 %
 %   'noplot'    Do not plot, just return the output IX_dataset_2d (see below)
 %
 %
 % Ouptut:
 % --------
-%   weight      IX_dataset_2d with spectral weight
+%   weight      [Optional] IX_dataset_2d with spectral weight
+%
+%
+% See also: dispersion_plot
 
-% T.G.Perring, 1 October 2009
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
 
 % Set defaults:
 arglist = struct('plot',1,'labels','','ndiv',100);

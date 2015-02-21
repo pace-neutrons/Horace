@@ -1,24 +1,32 @@
 function weight = disp2sqw(varargin)
-% Calculate spectral weight at a set of points given dispersion relation and spectral weight
+% Calculate spectral weight given dispersion relation and spectral weight
 %
 %   >> weight = disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
 %   >> weight = disp2sqw(q,en,dispreln,pars,fwhh)
 %
 % Input:
 % ------
-%   qh,qk,ql,en Arrays containing points at which to evaluate sqw from the broadened dispersion
+%   qh,qk,ql,en Arrays containing points at which to evaluate sqw from the
+%              broadened dispersion
 %     *OR*
-%   q           Cell array of three arrays {qh,qk,ql} at which to evaluate the dispersion
-%   en          Array of energy transfers at which the broadened dispersion is evaluate for every q
+%   q           Cell array of three arrays {qh,qk,ql} at which to evaluate
+%              the dispersion
 %
-%   dispreln    Handle to function that calculates the dispersion relation w(Q) and spectrl weight, s(Q)
-%              Must have form:
+%   en          Array of energy transfers at which the broadened dispersion
+%              is evaluate for every q
+%
+%   dispreln    Handle to function that calculates the dispersion relation
+%              or set of dispersion relations w(Q) and corresponding spectral
+%              weight, s(Q)
+%               Must have the form:
 %                   [w,s] = dispreln (qh,qk,ql,p)
 %               where
-%                   qh,qk,ql    Arrays containing the coordinates of a set of points
-%                              in reciprocal lattice units
-%                   p           Vector of parameters needed by dispersion function 
+%                 Input:
+%                   qh,qk,ql    Arrays containing the coordinates of a set 
+%                              of points in reciprocal lattice units
+%                   p           Vector of parameters needed by the function 
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
+%                 Output:
 %                   w           Array of corresponding energies, or, if more than
 %                              one dispersion relation, a cell array of arrays.
 %                   s           Array of spectral weights, or, if more than
@@ -27,28 +35,38 @@ function weight = disp2sqw(varargin)
 %              More general form is:
 %                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
 %                 where
-%                   p           Typically a vector of parameters that we might want 
-%                              to fit in a least-squares algorithm
-%                   c1,c2,...   Other constant parameters e.g. file name for look-up
-%                              table.
+%                   p           Typically a vector of parameters that we might 
+%                              want to fit in a least-squares algorithm
+%                   c1,c2,...   Other constant parameters e.g. file name of
+%                              a look-up table.
 %   
-%   pars        Arguments needed by the function. Most commonly, a vector of parameter
-%              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
-%              set of parameters is required by the function, then
-%              package these into a cell array and pass that as pars. In the example
-%              above then pars = {p, c1, c2, ...}
+%   pars        Arguments needed by the function.
+%               - Most commonly, a vector of parameter values e.g. [A,js,gam]
+%                 as intensity, exchange, lifetime.
+%               - More generally, if addition constant arguments are needed
+%                 by the dispersion function, then package these into a cell
+%                 array and pass that as pars. In the example above then
+%                 pars = {p, c1, c2, ...}
 %
-%   fwhh        Full-width half-height of Gaussian broadening to dispersion relation(s)
+%   fwhh        Full-width half-height of Gaussian broadening to dispersion
+%               relation(s)
 %
 % Output:
 % -------
 %   weight      Array with spectral weight at the q,e points
-%               If q and en given:  weight is an nq x ne array, where nq is the number
-%                                   of q points, and ne the number of energy points
-%               If qw given together: weight has the same size and dimensions as q{1} i.e. qh
+%               If q and en given:  weight is an nq x ne array, where nq
+%                                   is the number of q points, and ne the
+%                                   number of energy points
+%               If qw given together: weight has the same size and dimensions
+%                                     as q{1} i.e. qh
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
 
 % Parse input arguments
-%disp2sqw(qh,qk,ql,en,dispreln,pars,fwhh)
 if nargin==7
     expand_qe=false;    % set of distinct q points
     q=varargin(1:3);

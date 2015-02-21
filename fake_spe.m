@@ -1,5 +1,5 @@
 function varargout = fake_spe(varargin)
-% Generates a fake .spe data, optionally writing to file, so that simulations can be performed.
+% Generates a fake .spe data, optionally writing to file
 %
 % Generate data structure only:
 %   >> data = fake_spe (ndet,ebins)
@@ -16,17 +16,17 @@ function varargout = fake_spe(varargin)
 %
 % Input:
 % ------
-%   ndet        no. of detectors
+%   ndet        Number of detectors
 %              e.g. ndet=36864 for MAPS, ndet=69632 for Merlin
 %
-%   ebins       array of energy bin boundaries (all equally spaced bins)
+%   ebins       Array of energy bin boundaries (all equally spaced bins)
 % *OR*
-%   emin        minimum neutron energy transfer (lower bin boundary)
-%   de          energy bin width
-%   emax        maximum neutron energy transfer
+%   emin        Minimum neutron energy transfer (lower bin boundary)
+%   de          Energy bin width
+%   emax        Maximum neutron energy transfer
 %
-%   filename    name of the spe file to be generated
-%   filepath 	folder in which to place spe file
+%   filename    Name of the spe file to be generated
+%   filepath 	Folder in which to place spe file
 %
 % Optional arguments:
 %   S0        	Scalar intensity: set the signal to this value
