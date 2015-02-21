@@ -41,7 +41,8 @@ function varargout=change_crystal_horace(varargin)
 %  The input data file(s) can be reset to their original orientation by inverting the
 %  input data e.g.
 %    - call with inv(rlu_corr)
-%    - call with the original alatt, angdeg, u and v (if sqw-type data)
+%    - call with the original alatt, angdeg, and (if sqw-type data) u and v 
+
 
 % Original author: T.G.Perring
 %

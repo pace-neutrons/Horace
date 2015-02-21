@@ -41,6 +41,7 @@ function varargout=change_crystal_sqw(varargin)
 %    - call with inv(rlu_corr)
 %    - call with the original alatt, angdeg, u and v
 
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
