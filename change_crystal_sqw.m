@@ -46,6 +46,7 @@ function varargout=change_crystal_sqw(varargin)
 %
 % $Revision$ ($Date$)
 
+
 if nargin<1 ||nargin>5
     error('Check number of input arguments')
 elseif nargout>0

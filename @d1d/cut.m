@@ -1,40 +1,35 @@
 function varargout = cut (varargin)
-% Take a cut from a d1d object or array of objects by integrating over one or more of the plot axes.
-% 
-% Syntax:
-%  make cut:
-%   >> w = cut (data_source, p1_bin, p2_bin)
+% Take a cut from a d2d object by integrating over the plot axis.
 %
-%   >> w = cut (..., '-save')       % Save cut to file (prompt for output file)
+%   >> w = cut (data_source, p1_bin)
+%
+%   >> w = cut (..., '-save')       % Save cut to file (prompts for file)
 %   >> w = cut (...,  filename)     % save cut to named file
 %
-%   >> cut(...)                     % save cut to file without making output to workspace 
+%   >> cut(...)                     % save cut to file; no output workspace 
 % 
 % Input:
 % ------
-%   data_source     Data source: sqw file name or d1d-type data structure
+%   data_source     Data source: file name or d1d object
+%                  Can also be a cell array of file names, or an array of
+%                  d1d objects.
 %
-%   p1_bin          Binning along first plot axis
-%   p2_bin          Binning along second plot axis
+%   p1_bin          Binning along the plot axis
 %                           
-%                   For each binning entry:
-%               - [] or ''          Plot axis: use bin boundaries of input data
-%               - [pstep]           Plot axis: sets step size; plot limits taken from extent of the data
-%                                   If pstep=0 then use current bin size and synchronise
-%                                  the output bin boundaries with the current boundaries. The overall range is
-%                                  chosen to ensure that the range of the input data is contained within
-%                                  the bin boundaries.
-%               - [plo, phi]        Integration axis: range of integration - those bin centres that lie inside this range 
-%                                  are included.
-%               - [plo, pstep, phi] Plot axis: minimum and maximum bin centres and step size
-%                                   If pstep=0 then use current bin size and synchronise
-%                                  the output bin boundaries with the current boundaries. The overall range is
-%                                  chosen to ensure that the range plo to phi is contained within
-%                                  the bin boundaries.
+%           - [] or ''          Plot axis: use bin boundaries of input data
+%           - [pstep]           Plot axis: Step size pstep must be 0 or
+%                              the current bin size (no other rebinning
+%                              is permitted)
+%           - [plo, phi]        Integration axis: range of integration.
+%                              Those bin centres that lie inside this range 
+%                              are included.
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres.
+%                              The step size pstep must be 0 or the current
+%                              bin size (no other rebinning is permitted)
 %
 % Output:
 % -------
-%   w              Output data object (d0d, d1d, d2d depending on binning requirements)
+%   w              Output data object (d0d or d1d depending on binning)
 
 
 % Original author: T.G.Perring
@@ -42,7 +37,7 @@ function varargout = cut (varargin)
 % $Revision$ ($Date$)
 
 
-% ----- The following shoudld be independent of d0d, d1d,...d4d ------------
+% ----- The following should be independent of d0d, d1d,...d4d ------------
 % Work via sqw class type
 
 
