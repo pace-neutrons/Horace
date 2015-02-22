@@ -44,7 +44,8 @@ function [proj,mess] = projaxes(varargin)
 %   type        [1x3] Character string defining normalisation. Each character
 %               indicates how u1, u2, u3 are normalised, as follows:
 %               - if 'a': projection axis unit length is one inverse Angstrom
-%               - if 'r': then if ui=(h,k,l) in r.l.u., is normalised so max(abs(h,k,l))=1
+%               - if 'r': then if ui=(h,k,l) in r.l.u., is normalised so 
+%                         max(abs(h,k,l))=1
 %               - if 'p': if orthogonal projection axes:
 %                               |u1|=|u|, (u x u2)=(u x v), (u x u3)=(u x w)
 %                           i.e. the projections of u,v,w along u1,u2,u3 match
@@ -56,9 +57,10 @@ function [proj,mess] = projaxes(varargin)
 %                 	'ppr'  if w not given
 %                 	'ppp'  if w is given
 %
-%	uoffset     Row or column vector of offset of origin of projection axes (r.l.u.)
+%	uoffset     Row or column vector of offset of origin of projection axes (rlu)
 %
-%   lab         Short labels for u1,u2,u3,u4 as cell array (e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
+%   lab         Short labels for u1,u2,u3,u4 as cell array 
+%               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
 %                   *OR*
 %   lab1        Short label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
 %   lab2        Short label for u2 axis
@@ -76,7 +78,8 @@ function [proj,mess] = projaxes(varargin)
 %           proj.nonorthogonal  logical true or false
 %           proj.type           [1x3] Char. string defining normalisation
 %                               each character being 'a','r' or 'p' e.g. 'rrp'
-%           proj.uoffset        [4x1] column vector of offset of origin of projection axes (r.l.u. and en)
+%           proj.uoffset        [4x1] column vector of offset of origin of 
+%                               projection axes (r.l.u. and en)
 %           proj.lab            [1x4] cell array of projection axis labels
 
 
