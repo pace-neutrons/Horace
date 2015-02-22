@@ -1,42 +1,37 @@
 function wout = cut_dnd_main (data_source, ndims, varargin)
-% Take a cut from an dnd-type sqw object by integrating over one or more of the plot axes.
-% 
-%   >> w = cut_dnd_main (data_source, ndims, p1_bin, p2_bin...)     
-%                                           % cut plot axes, keeping existing integration ranges
-%                                           % (as many binning arguments as there are plot axes)
-%   >> w = cut_dnd_main (..., '-save')      % Save cut to file (prompt for output file)
-%   >> w = cut_dnd_main (...,  filename)    % save cut to named file
+% Takes cut from a dnd-type sqw object by integrating over plot axes.
 %
-%   >> cut(...)                     % save cut to file without making output to workspace 
+%   >> w = cut_dnd_main (data_source, ndims, p1_bin, p2_bin...)
+%
+%   >> w = cut_dnd_main (..., '-save')   % Save cut to file (prompts for file)
+%   >> w = cut_dnd_main (...,  filename) % save cut to named file
+%
+%   >> cut_dnd_main (...)                % save cut to file; no output workspace 
 % 
 % Input:
 % ------
-%   data_source_in  Data source: dnd object or filename of a file with sqw-type or dnd-type data
-%                  (character string or cellarray with one character string)
-%
-%   ndims           Number of dimensions of the sqw data
+%   data_source     Data source: dnd object or filename of a file with
+%                  sqw-type or dnd-type data (character string or cellarray
+%                  with one character string)
 %
 %   p1_bin          Binning along first plot axis
 %   p2_bin          Binning along second plot axis
-%                           :
-%                   for as many axes as there are plot axes. For each binning entry:
-%               - [] or ''          Plot axis: use bin boundaries of input data
-%               - [pstep]           Plot axis: sets step size; plot limits taken from extent of the data
-%                                   If pstep=0 then use current bin size and synchronise
-%                                  the output bin boundaries with the current boundaries. The overall range is
-%                                  chosen to ensure that the range of the input data is contained within
-%                                  the bin boundaries.
-%               - [plo, phi]        Integration axis: range of integration - those bin centres that lie inside this range 
-%                                  are included.
-%               - [plo, pstep, phi] Plot axis: minimum and maximum bin centres and step size
-%                                   If pstep=0 then use current bin size and synchronise
-%                                  the output bin boundaries with the current boundaries. The overall range is
-%                                  chosen to ensure that the range plo to phi is contained within
-%                                  the bin boundaries.
+%                           
+%                   For each binning entry:
+%           - [] or ''          Plot axis: use bin boundaries of input data
+%           - [pstep]           Plot axis: Step size pstep must be 0 or
+%                              the current bin size (no other rebinning
+%                              is permitted)
+%           - [plo, phi]        Integration axis: range of integration.
+%                              Those bin centres that lie inside this range 
+%                              are included.
+%           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres.
+%                              The step size pstep must be 0 or the current
+%                              bin size (no other rebinning is permitted)
 %
 % Output:
 % -------
-%   w              Output data object
+%   w              Output data object (d0d, d1d or d2d depending on binning)
 
 
 % Original author: T.G.Perring
@@ -98,7 +93,12 @@ if save_to_file && ~isempty(outfile)    % check file name makes reasonable sense
 end
 
 
-% Checks on number of binning arguments
+% Checks on binning arguments
+for i=1:numel(pbin)
+    if ~(isempty(pbin{i}) || isnumeric(pbin{i}))
+        error('Binning arguments must all be numeric')
+    end
+end
 if numel(pbin)~=ndims
     error('Number of binning arguments must match dimension of dnd data being cut')
 end
