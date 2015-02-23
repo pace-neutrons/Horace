@@ -91,19 +91,19 @@ end
 %Now switch between 1d and 2d cases
 if nd==1
     if exist('axlim','var')
-        videofig(numel(w.header),@animate_1d,{split(w),axlim},5,10,[],'Name','Horace Run Inspector');
+        run_inspector_videofig(numel(w.header),@run_inspector_animate_1d,{split(w),axlim},5,10,[],'Name','Horace Run Inspector');
     else
-        videofig(numel(w.header),@animate_1d,{split(w),[]},5,10,[],'Name','Horace Run Inspector');
+        run_inspector_videofig(numel(w.header),@run_inspector_animate_1d,{split(w),[]},5,10,[],'Name','Horace Run Inspector');
     end
 elseif nd==2
     if exist('axlim','var') && ~exist('clim','var')
-        videofig(numel(w.header),@animate_2d,{split(w),[],axlim},5,10,[],'Name','Horace Run Inspector');
+        run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),[],axlim},5,10,[],'Name','Horace Run Inspector');
     elseif ~exist('axlim','var') && exist('clim','var')
-        videofig(numel(w.header),@animate_2d,{split(w),clim,[]},5,10,[],'Name','Horace Run Inspector');
+        run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),clim,[]},5,10,[],'Name','Horace Run Inspector');
     elseif exist('axlim','var') && exist('clim','var')
-        videofig(numel(w.header),@animate_2d,{split(w),clim,axlim},5,10,[],'Name','Horace Run Inspector');
+        run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),clim,axlim},5,10,[],'Name','Horace Run Inspector');
     else
-        videofig(numel(w.header),@animate_2d,{split(w),[],[]},5,10,[],'Name','Horace Run Inspector');
+        run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),[],[]},5,10,[],'Name','Horace Run Inspector');
     end
 end
 

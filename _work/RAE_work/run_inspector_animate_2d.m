@@ -1,4 +1,4 @@
-function animate_2d(frame_no,w,clim,axlim)
+function run_inspector_animate_2d(frame_no,w,clim,axlim)
 %
 % Make an animation of data from contributing runs in a 2d sqw object.
 %
