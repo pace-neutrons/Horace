@@ -1,4 +1,4 @@
-function animate_1d(frame_no,w,axlim)
+function run_inspector_animate_1d(frame_no,w,axlim)
 %
 % Make an animation of data from contributing runs in a 1d sqw object.
 %
