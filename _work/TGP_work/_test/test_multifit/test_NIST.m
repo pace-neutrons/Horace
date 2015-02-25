@@ -1,15 +1,17 @@
-function test_NIST (p_tol, sig_tol)
+function test_NIST (p_tol, sig_tol, varargin)
 % Interface to NIST test datasets for non-linear regression
 % See: http://www.itl.nist.gov/div898/strd/nls/nls_main.shtml
 %
-%   >> test_NIST
 %   >> test_NIST (p_tol, sig_tol)
+%   >> test_NIST (p_tol, sig_tol, opt1, opt2,...)
 %
 % Input:
 % ------
-%   p_tol   Acceptable relative tolerance on fit parameters (Default: 1e-4)
+%   p_tol   Acceptable relative tolerance on fit parameters
 %   sig_tol Acceptable relative tolerance on estimated standard deviations
-%           (Default: 1e-2)
+%   opt1    Additional optional arguments that are passed straight through
+%   opt2    to multifit. Could include e.g. ...,'fit',[1e-6,50,1e-4],...
+%     :     and/or ...,'list',2,...
 %
 %
 % The full set of tests is:
@@ -75,18 +77,12 @@ S=load(fullfile(rootpath,'nistdata.mat'));
 
 % Perform tests
 % -------------
-if nargin==0
-    p_tol=1e-4;
-    sig_tol=1e-2;
-elseif nargin~=2
-    error('Check number of input arguments')
-end
 
 % Lower difficulty:
 disp('======================================================================')
 disp('  Lower difficulty level')
 disp('======================================================================')
-[p_ok,sig_ok,perr,sigerr,converged]=test_NIST_datasetlist(S,f_lower,p_tol,sig_tol);
+[p_ok,sig_ok,perr,sigerr,converged]=test_NIST_datasetlist(S,f_lower,p_tol,sig_tol,varargin{:});
 disp(' ')
 disp(' ')
 disp(' ')
@@ -95,7 +91,7 @@ disp(' ')
 disp('======================================================================')
 disp('  Average difficulty level')
 disp('======================================================================')
-[p_ok,sig_ok,perr,sigerr,converged]=test_NIST_datasetlist(S,f_average,p_tol,sig_tol);
+[p_ok,sig_ok,perr,sigerr,converged]=test_NIST_datasetlist(S,f_average,p_tol,sig_tol,varargin{:});
 disp(' ')
 disp(' ')
 disp(' ')
@@ -104,4 +100,4 @@ disp(' ')
 disp('======================================================================')
 disp('  Higher difficulty level')
 disp('======================================================================')
-[p_ok,sig_ok,perr,sigerr,converged]=test_NIST_datasetlist(S,f_higher,p_tol,sig_tol);
+[p_ok,sig_ok,perr,sigerr,converged]=test_NIST_datasetlist(S,f_higher,p_tol,sig_tol,varargin{:});

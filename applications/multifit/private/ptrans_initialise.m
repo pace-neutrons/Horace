@@ -270,17 +270,17 @@ fore.ipboundto = cell(sz_fore);
 fore.ifuncboundto = cell(sz_fore);
 for i=1:nforefunc
     fore.ipboundto{i}=zeros(np(i),1);
-    fore.ipboundto{i}(fore.pbound{i}) = ipboundto{i};
+    fore.ipboundto{i}(ipbound{i}) = ipboundto{i};       % Feb 2015, changed from: fore.ipboundto{i}(fore.pbound{i}) = ipboundto{i};
     fore.ifuncboundto{i}=zeros(np(i),1);
-    fore.ifuncboundto{i}(fore.pbound{i}) = ifuncboundto{i};
+    fore.ifuncboundto{i}(ipbound{i}) = ifuncboundto{i}; % Feb 2015, changed from: fore.ifuncboundto{i}(fore.pbound{i}) = ifuncboundto{i};
 end
 bkgd.ipboundto = cell(sz_bkd);
 bkgd.ifuncboundto = cell(sz_bkd);
 for i=1:nbkdfunc
     bkgd.ipboundto{i}=zeros(nbp(i),1);
-    bkgd.ipboundto{i}(bkgd.pbound{i}) = ibpboundto{i};
+    bkgd.ipboundto{i}(ibpbound{i}) = ibpboundto{i};         % Feb 2015, changed from: bkgd.ipboundto{i}(bkgd.pbound{i}) = ibpboundto{i};
     bkgd.ifuncboundto{i}=zeros(nbp(i),1);
-    bkgd.ifuncboundto{i}(bkgd.pbound{i}) = ibfuncboundto{i};
+    bkgd.ifuncboundto{i}(ibpbound{i}) = ibfuncboundto{i};   % Feb 2015, changed from: bkgd.ifuncboundto{i}(bkgd.pbound{i}) = ibfuncboundto{i};
 end
 [fore.pratio, bkgd.pratio] = array_to_p_bp (ratio, p_info.np, p_info.nbp);  % Cell array of column vectors of binding ratios for bound parameters
 

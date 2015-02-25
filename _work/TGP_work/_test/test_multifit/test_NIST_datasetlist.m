@@ -1,18 +1,22 @@
-function [p_ok,sig_ok,perr,sigerr,converged]=test_NIST_datasetlist(S,namelist,p_tol,sig_tol)
+function [p_ok,sig_ok,perr,sigerr,converged]=...
+    test_NIST_datasetlist(S,namelist,p_tol,sig_tol,varargin)
 % Test the datsets and fit functions in the NIST non-linear regression test suite
 %
-%   >> [wdata,wfit,fitpar]=test_NIST_dataset(S,name)
-%   >> [wdata,wfit,fitpar]=test_NIST_dataset(S,name,'nodisp')
+%   >> [p_ok,sig_ok,perr,sigerr,converged]=...
+%                   test_NIST_datasetlist(S,namelist,p_tol,sig_tol)
+%   >> [p_ok,sig_ok,perr,sigerr,converged]=...
+%                   test_NIST_datasetlist(...,opt1,op2,...)
 %
 % Input:
 % ------
 %   S       Data structure containing the data
 %   name    Cell array of name(s) of regresson test(s)
 %           e.g. {'Misra1a', 'Chwirut2', 'Chwirut1', 'Lanczos3'}
-% Optional:
 %   p_tol   Acceptable relative tolerance on fit parameters
-%   sig_tol Acceptable relative tolerance on 
-%  'nodisp' Don't display fit information to the screen
+%   sig_tol Acceptable relative tolerance on estimated standard deviations
+%   opt1    Additional optional arguments that are passed straight through
+%   opt2    to multifit. Could include e.g. ...,'fit',[1e-6,50,1e-4],...
+%     :     and/or ...,'list',2,...
 %
 %
 % Output: (here n= number of dataset names in input argument 'name')
@@ -37,14 +41,13 @@ sigerr=zeros(nf,3);
 converged=true(nf,3);
 for i=1:nf
     disp(['=== Dataset: ',namelist{i},' ===']);
-    [wdata,wfit,fitpar,perr(i,:),sigerr(i,:)]=test_NIST_dataset(S,lower(namelist{i}),'nodisp');
+    [wdata,wfit,fitpar,perr(i,:),sigerr(i,:)]=...
+        test_NIST_dataset(S,lower(namelist{i}),'nodisp',varargin{:});
     converged(i,1)=fitpar(1).converged;
     converged(i,2)=fitpar(2).converged;
     converged(i,3)=fitpar(3).converged;
 end
 
-if nargin<3, p_tol=Inf; end
-if nargin<4, sig_tol=Inf; end
 p_ok=(perr<=p_tol) & converged;
 sig_ok=(sigerr<=sig_tol) & converged;
 

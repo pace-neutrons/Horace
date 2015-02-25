@@ -1,14 +1,21 @@
-function [wdata,wfit,fitpar,perr,sigerr]=test_NIST_dataset(S,name,opt)
+function [wdata,wfit,fitpar,perr,sigerr]=test_NIST_dataset(S,name,opt,varargin)
 % Test one of the datsets and fit functions in the NIST non-linear regression test suite
 %
-%   >> [wdata,wfit,fitpar]=test_NIST_dataset(S,name)
+%   >> [wdata,wfit,fitpar]=test_NIST_dataset(S,name,'disp')
 %   >> [wdata,wfit,fitpar]=test_NIST_dataset(S,name,'nodisp')
+%
+%   >> [wdata,wfit,fitpar]=test_NIST_dataset(...,opt1,opt2,...)
 %
 % Input:
 % ------
 %   S       Data structure containing the data
 %   name    Name of regresson test e.g. 'gauss2'
-%  'nodisp' Don't display fit information to the screen
+%   disp    Display option:
+%            'nodisp' Don't display fit information to the screen
+%            'disp'   Display fit information to the screen
+%   opt1    Additional optional arguments that are passed straight through
+%   opt2    to multifit. Could include e.g. ...,'fit',[1e-6,50,1e-4],...
+%     :     and/or ...,'list',2,...
 %
 %
 % Output:
@@ -18,7 +25,7 @@ function [wdata,wfit,fitpar,perr,sigerr]=test_NIST_dataset(S,name,opt)
 %           (1) Initial parameter set b0 (far from the solution)
 %           (2) Initial parameter set b1 (near the solution)
 %           (3) Initial parameter set breal (the actual solution)
-%   fip     Array of multifit parameter fit structures, one for each
+%   fitpar  Array of multifit parameter fit structures, one for each
 %           of the three fits
 %   perr    Vector length 3 of the maximum relative error in the fitted
 %           parameters, one element for each of the three initial starting
@@ -27,14 +34,12 @@ function [wdata,wfit,fitpar,perr,sigerr]=test_NIST_dataset(S,name,opt)
 
 
 % Get display option
-if nargin==3
-    if ischar(opt) && strcmpi(opt,'nodisp')
-        nodisp=true;
-    else
-        error('Invalid option')
-    end
-else
+if ischar(opt) && strcmpi(opt,'nodisp')
+    nodisp=true;
+elseif ischar(opt) && strcmpi(opt,'disp')
     nodisp=false;
+else
+    error('Invalid option')
 end
 
 % Extract model
@@ -67,7 +72,7 @@ if ~nodisp
     disp('--------------------------')
 end
 pinit=d.b0;
-[yfit,fitp]=multifit(x,y,e,@nistfunc_eval,{pinit,func});
+[yfit,fitp]=multifit(x,y,e,@nistfunc_eval,{pinit,func},varargin{:});
 [perr(1),sigerr(1)]=display_fit(d,fitp,nodisp);
 wfit=IX_dataset_1d(x,yfit,zeros(size(x)),['Model name: ',name,' - b0'],'','');
 fitpar=fitp;
@@ -82,7 +87,7 @@ if ~nodisp
     disp('--------------------------')
 end
 pinit=d.b1;
-[yfit,fitp]=multifit(x,y,e,@nistfunc_eval,{pinit,func});
+[yfit,fitp]=multifit(x,y,e,@nistfunc_eval,{pinit,func},varargin{:});
 [perr(2),sigerr(2)]=display_fit(d,fitp,nodisp);
 wfit(2)=IX_dataset_1d(x,yfit,zeros(size(x)),['Model name: ',name,' - b0'],'','');
 fitpar(2)=fitp;
@@ -97,7 +102,7 @@ if ~nodisp
     disp('-----------------------------')
 end
 pinit=d.breal;
-[yfit,fitp]=multifit(x,y,e,@nistfunc_eval,{pinit,func});
+[yfit,fitp]=multifit(x,y,e,@nistfunc_eval,{pinit,func},varargin{:});
 [perr(3),sigerr(3)]=display_fit(d,fitp,nodisp);
 wfit(3)=IX_dataset_1d(x,yfit,zeros(size(x)),['Model name: ',name,' - b0'],'','');
 fitpar(3)=fitp;

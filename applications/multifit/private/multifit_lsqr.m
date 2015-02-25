@@ -24,6 +24,11 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 % Modified by A.Jutan (519)-679-2111
 % Modified by Ray Muzic 14-Jul-1992
 
+
+% -----------------------------------------------------------------------------------
+% Initialisation
+% -----------------------------------------------------------------------------------
+% Initialise output parameters
 p_best=pfin;
 sig=zeros(1,numel(pfin));
 cor=zeros(numel(pfin));
@@ -35,7 +40,7 @@ mess='';
 % Clean the function evaluation routine of buffered results to avoid any conflicts
 multifit_lsqr_func_eval
 
-% Package data into a single column vector, and also 1/(error_bar)
+% Package data values and weights (i.e. 1/error_bar) each into a single column vector
 yval=cell(size(w));
 wt=cell(size(w));
 for i=1:numel(w)
@@ -61,12 +66,33 @@ if nval<npfree
     ok=false; mess='Number of data points must be greater than or equal to the number of free parameters'; return
 end
 
-% Listing to screen
-if ~exist('listing','var'), listing=0; end
-if isempty(listing), listing=0; end
-    
-% Catch case of simple evaluation of chi-squared
+% Set the extent of listing to screen
+if ~exist('listing','var') || isempty(listing)
+    listing=0;
+end
+
+% Set fit control parameters
+if ~exist('fcp','var')
+    fcp=[0.0001 20 0.001];
+end
+dp=fcp(1);      % derivative step length
+niter=fcp(2);   % maximum number of iterations
+tol=fcp(3);     % convergence criterion
+if abs(dp)<1e-12
+    ok=false; mess='Derivative step length must be greater or equal to 10^-12'; return
+end
+if niter<0
+    ok=false; mess='Number of iterations must be >=0'; return
+end
+
+
+% -----------------------------------------------------------------------------------
+% Perform fit (or evaulation of chisqr 
+% -----------------------------------------------------------------------------------
 if ~perform_fit
+    % -----------------------------------------------------------------------------------
+    % Case of solely evaluation of chi-squared at input set of parameters
+    % -----------------------------------------------------------------------------------
     if listing>2, disp(' Function evaluation:'), end
     f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,false,listing);
     resid=wt.*(yval-f);
@@ -75,20 +101,10 @@ if ~perform_fit
     chisqr_red = c_best/nnorm;
         
 else
-    % Set fit control parameters
-    if ~exist('fcp','var')
-        fcp=[0.0001 20 0.001];
-    end
-    dp=fcp(1);      % derivative step length
-    niter=fcp(2);   % maximum number of iterations
-    tol=fcp(3);     % convergence criterion
-    if abs(dp)<1e-12
-        ok=false; mess='Derivative step length must be greater or equal to 10^-12'; return
-    end
-    if niter<0
-        ok=false; mess='Number of iterations must be >=0'; return
-    end
-    
+    % -----------------------------------------------------------------------------------
+    % Case of parameter optimisation
+    % -----------------------------------------------------------------------------------
+
     % Output to command window
     if listing~=0, fit_listing_header(listing,niter); end
     
@@ -112,7 +128,8 @@ else
     max_rescale_lambda=false;
     for iter=1:niter
         if listing~=0, fit_listing_iteration_header(listing,iter); end
-        % Single value decomposition of
+        
+        % Compute Jacobian matrix
         resid=wt.*(yval-f_best);
         jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,p_info,f_best,dp,listing);
         nrm=zeros(npfree,1);
@@ -127,10 +144,11 @@ else
         [jac,s,v]=svd(jac,0);
         s=diag(s);
         g=jac'*resid;
+        
         % Compute change in parameter values.
-        % If does not improve chisqr to less than the goal value, then alter
-        % the Levenberg-Marquardt parameter until it does (up to a maximum
-        % number of times).
+        % If the change does not improve chisqr  then increase the
+        % Levenberg-Marquardt parameter until it does (up to a maximum
+        % number of times gicven by the length of lambda_table).
         if tol>0
             c_goal=(1-tol)*c_best;  % Goal for improvement in chisqr
         else
@@ -141,13 +159,13 @@ else
             se=sqrt((s.*s)+lambda);
             gse=g./se;
             p_chg=((v*gse).*nrm);   % compute change in parameter values
-            if (any(abs(p_chg)>0))  % if any change in the parameters
+            if (any(abs(p_chg)>0))  % there is a change in (at least one of) the parameters
                 p=p_best+p_chg;
                 if listing>2, disp(' Function evaluation after stepping parmeters:'), end
                 f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p,p_info,true,listing);
                 resid=wt.*(yval-f);
                 c=resid'*resid;
-                if c<c_best
+                if c<c_best || c==0
                     p_best=p;
                     f_best=f;
                     c_best=c;
@@ -173,15 +191,14 @@ else
             end
         end
         
-        % if chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
+        % If chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
         if (c_best>c_goal) || (c_best==0)
             converged=true;
             break;
         end
         
         % If multipled lambda to limit of the table, give up
-        % *** DON'T THINK THAT THIS POINT CAN EVER BE REACHED
-        if  max_rescale_lambda
+        if max_rescale_lambda
             converged=false;
             break
         end
@@ -233,6 +250,8 @@ function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp,listing)
 %
 %   >> jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp)
 %
+% Input:
+% ------
 %   w       Cell array of data objects
 %   xye     Logical array sye(i)==true if w{i} is x-y-e triple
 %   func    Handle to global function
@@ -248,6 +267,8 @@ function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp,listing)
 %                - if dp < 0    calculate as (f(p+h)-f(p-h))/(2h)
 %   listing Screen output control
 %
+% Output:
+% -------
 %   jac     Matrix of partial derivatives: m x n array where m=length(f) and
 %           n = length(p)
 %
@@ -276,6 +297,7 @@ for j=1:length(p)
                   multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,p_info,false,listing))/(2*del);
     end
 end
+
 
 %------------------------------------------------------------------------------------------
 % Functions for listing to screen (separated to keep main code tidy)
