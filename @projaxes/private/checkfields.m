@@ -27,9 +27,11 @@ function [ok, message, pout] = checkfields (p)
 
 
 ok=true;
-if isobject(p)
+if isa(p,'projaxes')
+    isprojaxes=true;
     pout=p;
 else
+    isprojaxes=false;
     pout=default_proj();
 end
 message='';
@@ -44,7 +46,7 @@ end
 
 % Check vectors u,v and w
 % -----------------------
-isu=isobject(p) || isfield(p,'u'); isv=isobject(p) || isfield(p,'v'); isw=isobject(p) || isfield(p,'w');
+isu=isprojaxes || isfield(p,'u'); isv=isprojaxes || isfield(p,'v'); isw=isprojaxes || isfield(p,'w');
 if ~(isu || isv || isw) % none of u,v,w were given
     pout.u=[1,0,0];
     pout.v=[0,1,0];
@@ -90,7 +92,7 @@ end
 
 % Check orthogonality
 % -------------------
-if isobject(p) || isfield(p,'nonorthogonal')
+if isprojaxes || isfield(p,'nonorthogonal')
     if islognumscalar(p.nonorthogonal)
         pout.nonorthogonal=logical(p.nonorthogonal);
     else
@@ -104,7 +106,7 @@ end
 
 % Normalisation type
 % ------------------
-if (isobject(p) || isfield(p,'type')) && ~isempty(p.type)
+if (isprojaxes || isfield(p,'type')) && ~isempty(p.type)
     if isstring(p.type) && numel(p.type)==3
         type=lower(p.type);
         if ~(isempty(strfind('arp',type(1))) || isempty(strfind('arp',type(2))) || isempty(strfind('arp',type(1))))
@@ -134,7 +136,7 @@ end
 
 % uoffset
 % -------
-if isobject(p) || isfield(p,'uoffset')
+if isprojaxes || isfield(p,'uoffset')
     if isnumeric(p.uoffset) && ...
             (numel(p.uoffset)==3 || (numel(p.uoffset)==4 && p.uoffset(4)==0))
         if numel(p.uoffset)==3
@@ -153,7 +155,7 @@ end
 
 % Check labels
 % ------------
-if isobject(p) || isfield(p,'lab')
+if isprojaxes || isfield(p,'lab')
     % Can either give one or more of lab1, lab2,... as separate fields, or a single cell array with all four
     if isstruct(p) && (isfield(p,'lab1')||isfield(p,'lab2')||isfield(p,'lab3')||isfield(p,'lab4'))
         message = 'In projection description, either give one or more of lab1, lab2,... as separate fields, or a single cell array, lab, with all four labels';

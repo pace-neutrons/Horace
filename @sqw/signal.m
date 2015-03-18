@@ -1,15 +1,32 @@
 function wout=signal(w,name)
-% Set the signal axis (i.e. intensity) to the values for the named argument
+% Set the intensity of an sqw object to the values for the named argument
 %
-%   >> wout=signal(w,param_name)    %
+%   >> wout=signal(w,param_name)
 %
-%   e.g. >> wout=signal(w,'h')  % set to component along a*
-%
-%   Valid parameter names are:
-%               'd1','d2',...       Display axes (for as many dimensions as sqw object has)
+% Input:
+% -----
+%   w       Input sqw object
+%   name    Name of the parameter to use as the intensity
+%          Valid parameter names are:
+%               'd1','d2',...       Display axes (for as many dimensions as
+%                                  the sqw object has)
 %               'h', 'k', 'l'       r.l.u.
 %               'E'                 energy transfer
 %               'Q'                 |Q|
+%
+% Output:
+% -------
+%   wout    Output sqw object with the intensities of the pixels set to the
+%          value of the input parameter name
+%
+% EXAMPLE
+%   >> wout=signal(w,'h')   % set the intensity to the component along a*
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
 
 if ~is_sqw_type(w)
     error('Signal change only possible for full sqw objects i.e. which have individual pixel information')

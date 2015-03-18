@@ -1,20 +1,24 @@
 function [ok,mess,xvals,xpix,xvar,xdevsqr]=coordinates_calc(w,xlist)
-% Get average values of one or more coordinates for the pixels in each bin of an sqw object
+% Get the average values of one or more coordinates in each bin of an sqw object
 %
-% Syntax:
 %   >> xvals = coordinates_calc (w, xlist)
 %
 % Input:
 % ------
 %   w       sqw object
-%   xlist   One or more valid coordinate names (string or cell array of strings)
+%   xlist   One or more coordinate names (string or cell array of strings)
 %           Valid names are:
-%               'd1','d2',...       Display axes (for as many dimensions as sqw object has)
+%               'd1','d2',...       Display axes (for as many dimensions as
+%                                  the sqw object has)
 %               'h', 'k', 'l'       r.l.u.
 %               'E'                 energy transfer
 %               'Q'                 |Q|
 %
-%           E.g. valid xlist include: 'E'  {'d1','d2'}  {'d3','E','Q','k'}, {'h'}
+%           e.g. valid values for xlist include: 
+%               'E'
+%               {'h'}
+%               {'d1','d2'}
+%               {'d3','E','Q','k'}
 %
 % Output:
 % -------
@@ -22,18 +26,24 @@ function [ok,mess,xvals,xpix,xvar,xdevsqr]=coordinates_calc(w,xlist)
 %
 %   mess    empty if all OK, error message otherwise
 %
-%   xvals   Cell array of xvalues corresponding to the names in xlist, with size
-%          of each entry being that of the signal array.
-%           If input was a single name as a character string, then xvals is a numeric array; if
-%          a single name in a cell array, then xvals is a cell array with one element.
+%   xvals   Cell array of xvalues corresponding to the names in xlist, with
+%          the size of each entry being that of the signal array.
+%           If input was a single name as a character string, then xvals is
+%          a numeric array; if a single name in a cell array, then xvals is
+%          a cell array with one element.
 %
 %   xpix    Cell array of corresponding values for each pixel (column vectors)
 %
-%   xvar    Variance of xvalues, size equal to that of the signal array.
+%   xvar    Variance of xvalues in each bin (array size equal to that of
+%          the signal array)
 %
-%   xdevsqr Cell array of corresponding squared-deviation for each pixel (column vectors)
+%   xdevsqr Cell array of corresponding squared-deviation for each pixel
+%          (column vectors)
 
-% T.G.Perring 9 August 2009
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 
 
 % Get list of coordinates to average
@@ -53,7 +63,9 @@ for i=1:numel(xlist)
     if ~isempty(tmp)
         ind(tmp)=i;
     else
-        xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false; mess=['Unrecognised coordinate name: ''',xlist{i},'''']; return
+        xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false;
+        mess=['Unrecognised coordinate name: ''',xlist{i},''''];
+        return
     end
 end
 
@@ -61,12 +73,16 @@ end
 nd=dimensions(w);
 noff=1;     % start of a bunch of names associated with plot axes
 if any(logical(ind(noff+nd:noff+3)))
-    xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false; mess=['Coordinate name incompatible with dimensionality of sqw object (=',num2str(nd),')']; return
+    xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false;
+    mess=['Coordinate name incompatible with dimensionality of sqw object (=',num2str(nd),')'];
+    return
 end
 
 % Can inly perform operation for sqw-type object
 if ~is_sqw_type(w)
-    xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false; mess='Function only has meaning for an sqw-type object, not a dnd-type sqw object'; return
+    xvals=[]; xpix=[]; xvar=[]; xdevsqr=[]; ok=false;
+    mess='Function only has meaning for an sqw-type object, not a dnd-type sqw object';
+    return
 end
 
 
@@ -74,7 +90,8 @@ end
 % ---------------------------
 % (Evaluate only those requested - keeps calculations down on what could be a long function call)
 
-present=cell2struct(num2cell(logical(ind)),xname,2);  % convenient structure of logicals with fields matching the valid coordinate names
+% Convenient structure of logicals with fields matching the valid coordinate names
+present=cell2struct(num2cell(logical(ind)),xname,2);
 ind=cell2struct(num2cell(ind),xname,2);
 
 xpix=cell(1,numel(xlist));
@@ -86,7 +103,7 @@ if present.h||present.k||present.l||present.Q
     uhkl=header_ave.u_to_rlu(1:3,1:3)*w.data.pix(1:3,:)+repmat(header_ave.uoffset(1:3),[1,npixtot]);
     if present.Q
         % Get |Q|
-        B=bmatrix(header_ave.alatt, header_ave.angdeg);     % B matrix of Busing and Levy
+        B=bmatrix(header_ave.alatt, header_ave.angdeg);
         qcryst=B*uhkl;
         Q=sqrt(sum(qcryst.^2,1));
     end
@@ -102,15 +119,15 @@ if present.d1||present.d2||present.d3||present.d4
     U=inv(w.data.u_to_rlu(1:3,1:3))*header_ave.u_to_rlu(1:3,1:3);
     T=inv(w.data.u_to_rlu(1:3,1:3))*(w.data.uoffset(1:3)-header_ave.uoffset(1:3));
     uproj=U*w.data.pix(1:3,:)-repmat(T,[1,npixtot]);        % pixel Q coordinates now in projection axes
-    uproj=[uproj;w.data.pix(4,:)+header_ave.uoffset(4)];   % now append energy data
+    uproj=[uproj;w.data.pix(4,:)+header_ave.uoffset(4)];    % now append energy data
 
     % Get display axes
     pax=w.data.pax;
     dax=w.data.dax;
-    if present.d1, xpix{ind.d1}=uproj(pax(dax(1)),:)'; end   % column vector
-    if present.d2, xpix{ind.d2}=uproj(pax(dax(2)),:)'; end   % column vector
-    if present.d3, xpix{ind.d3}=uproj(pax(dax(3)),:)'; end   % column vector
-    if present.d4, xpix{ind.d4}=uproj(pax(dax(4)),:)'; end   % column vector
+    if present.d1, xpix{ind.d1}=uproj(pax(dax(1)),:)'; end  % column vector
+    if present.d2, xpix{ind.d2}=uproj(pax(dax(2)),:)'; end  % column vector
+    if present.d3, xpix{ind.d3}=uproj(pax(dax(3)),:)'; end  % column vector
+    if present.d4, xpix{ind.d4}=uproj(pax(dax(4)),:)'; end  % column vector
     clear uproj     % clear possibly large array
 end
 
