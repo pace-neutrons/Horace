@@ -211,6 +211,10 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 %                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3])
 
 
+% Note: we could rely on the generic fit function in Herbert, but this would
+% recheck the parsing 
+
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
@@ -227,7 +231,8 @@ end
 % Case of more than one dataset input
 % -----------------------------------
 % Parse the input arguments, and repackage for fit func
-[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = multifit_gateway_parsefunc (win(1), varargin{:});
+[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = ...
+    multifit_gateway_parsefunc (win(1), varargin{:});
 if ~ok
     wout=[]; fitdata=[];
     if nargout<3, error(mess), else return, end
