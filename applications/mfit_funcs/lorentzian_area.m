@@ -1,14 +1,14 @@
-function [y, name, pnames, pin] = gauss_area(x, p, flag)
-% Gaussian. Fits area and width (cf. gauss which fits height and width)
+function [y, name, pnames, pin] = lorentzian_area(x, p, flag)
+% Lorentzian function
 % 
-%   >> y = gauss_area(x,p)
-%   >> [y, name, pnames, pin] = gauss_area(x,p,flag)
+%   >> y = lorentzian(x,p)
+%   >> [y, name, pnames, pin] = lorentzian(x,p,flag)
 %
 % Input:
 % =======
 %   x   Vector of x-axis values at which to evaluate function
 %   p   Vector of parameters needed by the function:
-%           p = [area, centre, st_deviation]
+%           p = [area, centre, gamma]   (gamma=half-width_half-height)
 %
 % Optional:
 %   flag    Alternative behaviour to follow other than function evaluation [optional]:
@@ -30,12 +30,12 @@ function [y, name, pnames, pin] = gauss_area(x, p, flag)
 
 if nargin==2
     % Simply calculate function at input values
-    y=(p(1)/(abs(p(3))*sqrt(2*pi)))*exp(-0.5*((x-p(2))/p(3)).^2);
+    y=(p(1)*abs(p(3))/pi)./((x-p(2)).^2 + p(3)^2);
 else
     % Return parameter names or interactively prompt for parameter values
 	y=[];
-	name='Gaussian';
-	pnames=str2mat('Area','Centre','Sigma');
+	name='Lorentzian';
+	pnames=str2mat('Height','Centre','Gamma');
 	if flag==1
         pin=zeros(size(p));
     elseif flag==2
@@ -43,8 +43,8 @@ else
 		[centre,height]=ginput(1);
 		mf_msg('Click on half-height');
 		[width,dummy]=ginput(1);
-		sigma=0.8493218*abs(width-centre);
-        area=height*sigma*sqrt(2*pi);
-		pin=[area,centre,sigma];
+		gamma=abs(width-centre);
+        area=pi*height*gamma;
+		pin=[area,centre,gamma];
 	end
 end

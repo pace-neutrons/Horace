@@ -1,7 +1,7 @@
-function y = mlorentzian(x, p)
+function y = mlorz(x, p)
 % Multiple Lorentzians
 % 
-%   >> y = mlorentzian(x,p)
+%   >> y = mlorz(x,p)
 %
 % Input:
 % =======
@@ -15,7 +15,6 @@ function y = mlorentzian(x, p)
 
 % T.G.Perring
 
-% Simply calculate function at input values
 if rem(length(p),3)==0
     nlor=length(p)/3;
     ht=p(1:3:end);

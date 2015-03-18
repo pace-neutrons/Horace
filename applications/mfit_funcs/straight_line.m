@@ -8,7 +8,7 @@ function [y, name, pnames, pin] = straight_line(x, p, flag)
 % =======
 %   x   Vector of x-axis values at which to evaluate function
 %   p   Vector of parameters needed by the function
-%           p=[intercept,gradient]
+%           y = p(1) + p(2)*x
 %
 % Optional:
 %   flag    Alternative behaviour to follow other than function evaluation [optional]:
@@ -25,7 +25,8 @@ function [y, name, pnames, pin] = straight_line(x, p, flag)
 %   pnames  Parameter names
 %   pin     iflag=1: = [];
 %           iflag=2: = values of the parameters returned from interactive prompting
-%
+
+% T.G.Perring
 
 if nargin==2
     y=p(1)+p(2)*x;

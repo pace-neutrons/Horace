@@ -7,7 +7,7 @@ function [y, name, pnames, pin] = expon_bkgd(x, p, flag)
 % Input:
 % =======
 %   x   Vector of x-axis values at which to evaluate function
-%   p   Vector of parmaeters: defines y = p(1)*exp(-x/p(2))
+%   p   Vector of parameters: defines y = p(1)*exp(-x/p(2))
 %           p = [height_at_x=0, decay, bkgd_const, bkgd_slope]
 %
 % Optional:
@@ -25,7 +25,8 @@ function [y, name, pnames, pin] = expon_bkgd(x, p, flag)
 %   pnames  Parameter names
 %   pin     iflag=1: = [];
 %           iflag=2: = values of the parameters returned from interactive prompting
-%
+
+% T.G.Perring
 
 if nargin==2
     % Simply calculate function at input values

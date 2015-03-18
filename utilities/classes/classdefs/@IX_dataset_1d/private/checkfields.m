@@ -76,7 +76,7 @@ if isequal(fieldnames(w),fields)
         message='Check x-axis values are all finite (i.e. no Inf or NaN)'; return
     else
         if numel(wout.x)==numel(wout.signal) && any(diff(wout.x)<0)
-            message='Check x-axis values are monotonic increasing'; return
+            %message='Check x-axis values are monotonic increasing'; return
         elseif numel(wout.x)==numel(wout.signal)+1 && ~all(diff(wout.x)>0)
             message='Histogram bin boundaries along x-axis must be strictly monotonic increasing'; return
         end

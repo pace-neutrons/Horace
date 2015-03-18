@@ -12,6 +12,8 @@ function y = mexpon(x, p)
 % ========
 %   y   Vector of calculated y-axis values
 
+% T.G.Perring
+
 if rem(length(p),2)==0
     nexp=length(p)/2;
     ht=p(1:2:end);

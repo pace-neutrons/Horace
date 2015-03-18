@@ -26,10 +26,11 @@ function [y, name, pnames, pin] = gauss_area_bkgd(x, p, flag)
 %   pin     iflag=1: = [];
 %           iflag=2: = values of the parameters returned from interactive prompting
 
+% T.G.Perring
 
 if nargin==2
     % Simply calculate function at input values
-    y=(abs(p(1))/(p(3)*sqrt(2*pi)))*exp(-0.5*((x-p(2))/p(3)).^2) + (p(4)+x*p(5));
+    y=(p(1)/(abs(p(3))*sqrt(2*pi)))*exp(-0.5*((x-p(2))/p(3)).^2) + (p(4)+x*p(5));
 else
     % Return parameter names or interactively prompt for parameter values
 	y=[];

@@ -1,7 +1,7 @@
-function y = mlorentzian_bkgd(x, p)
+function y = mlorz_bkgd(x, p)
 % Multple Lorentzians on linear background
 % 
-%   >> y = mlorentzian_bkgd(x,p)
+%   >> y = mlorz_bkgd(x,p)
 %
 % Input:
 % =======
@@ -15,7 +15,6 @@ function y = mlorentzian_bkgd(x, p)
 
 % T.G.Perring
 
-% Simply calculate function at input values
 if rem(length(p),3)==2
     nlor=(length(p)-2)/3;
     ht=p(1:3:end-2);

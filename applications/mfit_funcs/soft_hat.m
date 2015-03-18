@@ -31,6 +31,7 @@ function [y, name, pnames, pin] = soft_hat(x, p, flag)
 %   pin     iflag=1: = [];
 %           iflag=1: = values of the parameters returned from interactive prompting
 
+% T.G.Perring
 
 if nargin==2
     sig2fwhh=sqrt(8*log(2));

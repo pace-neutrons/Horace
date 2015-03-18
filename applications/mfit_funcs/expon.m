@@ -1,5 +1,5 @@
 function [y, name, pnames, pin] = expon(x, p, flag)
-% Exponential function: y = p(1)*exp(-x/p(2))
+% Exponential function
 % 
 %   >> y = expon(x,p)
 %   >> [y, name, pnames, pin] = expon(x,p,flag)
@@ -7,7 +7,7 @@ function [y, name, pnames, pin] = expon(x, p, flag)
 % Input:
 % =======
 %   x   Vector of x-axis values at which to evaluate function
-%   p   Vector length 2: defines y = p(1)*exp(-x/p(2))
+%   p   Vector of parameters: defines y = p(1)*exp(-x/p(2))
 %           p = [height_at_x=0, decay]
 %
 % Optional:
@@ -25,7 +25,8 @@ function [y, name, pnames, pin] = expon(x, p, flag)
 %   pnames  Parameter names
 %   pin     iflag=1: = [];
 %           iflag=2: = values of the parameters returned from interactive prompting
-%
+
+% T.G.Perring
 
 if nargin==2
     % Simply calculate function at input values
