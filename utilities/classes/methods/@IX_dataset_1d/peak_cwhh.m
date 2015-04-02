@@ -67,7 +67,7 @@ else
     xpos=zeros(size(w));
     ypeak=zeros(size(w));
     peak=true;
-    wout=repmat(IX_dataset_1d,size(win));
+    wout=repmat(IX_dataset_1d,size(w));
     for i=1:nw
         if length(w(i).x)~=length(w(i).signal)
             xc=0.5*(w(i).x(1:end-1)+w(i).x(2:end));
