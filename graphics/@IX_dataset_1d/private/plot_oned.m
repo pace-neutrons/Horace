@@ -160,14 +160,9 @@ elseif plot_type(1)=='l'
 elseif plot_type(1)=='m'
     plot_markers (w)
 elseif plot_type(1)=='d'
-    plot_markers (w)
-    hold on
-    plot_errors (w)
-    plot_line (w)
+    plot_markers_errors_lines(w)
 elseif plot_type(1)=='p'
-    plot_markers (w)
-    hold on
-    plot_errors (w)
+    plot_markers_errors(w)
 end
 hold off    % release plot (could have been held for overplotting, or by 'dd' for example
 

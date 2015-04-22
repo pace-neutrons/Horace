@@ -41,7 +41,7 @@ axes_h=get(fig_h,'CurrentAxes');
 % Plot handle(s)
 h_children=get(axes_h,'children');
 type_children=get(h_children,'type');
-ok_plot_types={'line','patch','surface'};
+ok_plot_types={'line','patch','surface','hggroup'}; % hggroup == errorbar plot, added 2015-01-20, G.S.Tucker
 isplot_h=false(size(h_children));
 plot_type=cell(size(h_children));
 for i=1:numel(ok_plot_types)

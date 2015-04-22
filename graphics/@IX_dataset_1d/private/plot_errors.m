@@ -10,25 +10,21 @@ iwid = mod(0:nw-1,length(line_width))+1;
 for i=1:nw
     if i==2; hold on; end   % hold on for array input
     nx=length(w(i).x);
-    ny=length(w(i).signal);
-    xb=zeros(1,3*ny);       % x array for plotting error bars
+    ny=length(w(i).signal);    
+    %plot data
     if (nx == ny)           % point data
-        xb(1:3:end)=w(i).x;
-        xb(2:3:end)=w(i).x;
-        xb(3:3:end)=NaN;
+        temp=w(i).x;
     else
         temp=0.5*(w(i).x(2:nx) + w(i).x(1:nx-1));
-        xb(1:3:end)=temp;
-        xb(2:3:end)=temp;
-        xb(3:3:end)=NaN;
     end
-    yb=zeros(1,3*ny);       % y array for plotting error bars
-    yb(1:3:end)=w(i).signal-w(i).error;
-    yb(2:3:end)=w(i).signal+w(i).error;
-    yb(3:3:end)=NaN;
-
-    % plots data
-    plot(xb,yb,'Color',color{icol(i)},'LineWidth',line_width(iwid(i)));
+    h=errorbar(temp,w(i).signal,w(i).error,'Color',color{icol(i)},...
+        'LineStyle','none','LineWidth',line_width(iwid(i)),...
+        'Marker','none');
+    % Set errorbar cap lengths to zero
+    c=get(h,'children');xd=get(c(2),'XData');
+    xd(4:9:end)=xd(1:9:end);xd(5:9:end)=xd(1:9:end);
+    xd(7:9:end)=xd(1:9:end);xd(8:9:end)=xd(1:9:end);
+    set(c(2),'XData',xd)
 end
 
 % Make linear or log axes as required
