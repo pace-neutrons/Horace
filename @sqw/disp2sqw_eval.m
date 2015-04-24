@@ -36,7 +36,25 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
-%   fwhh        Full-width half-height of Gaussian broadening to dispersion relation(s)
+%   fwhh       Parametrizes the resolution function. There are three
+%              possible input values of fwhh:
+%
+%       double              A single FWHM value determines the FWHM of the 
+%                           Gaussian resolution function
+%       function_handle     A function that produces the FWHM value as a
+%                           function of energy transfer, it has to have the
+%                           following simple header (where omega can be a row
+%                           vector of energies:
+%                               dE = resfun(omega)
+%       function_handle     A function handle of a function with two input
+%                           parameters with the following header:
+%                               I = shapefun(Emat,omega)
+%                           where Emat is a matrix with dimensions of [nQ nE]
+%                           and omega is a column vector with nQ elements. The
+%                           shapefun produces a peakshape for every Q point
+%                           centered at the given omega and normalized to one.
+%                           The output I has the same dimensions as the
+%                           input Emat.
 %
 %   'all'       [option] Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
