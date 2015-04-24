@@ -22,9 +22,9 @@ function weight = disp2sqw(varargin)
 %                   [w,s] = dispreln (qh,qk,ql,p)
 %               where
 %                 Input:
-%                   qh,qk,ql    Arrays containing the coordinates of a set 
+%                   qh,qk,ql    Arrays containing the coordinates of a set
 %                              of points in reciprocal lattice units
-%                   p           Vector of parameters needed by the function 
+%                   p           Vector of parameters needed by the function
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                 Output:
 %                   w           Array of corresponding energies, or, if more than
@@ -35,11 +35,11 @@ function weight = disp2sqw(varargin)
 %              More general form is:
 %                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
 %                 where
-%                   p           Typically a vector of parameters that we might 
+%                   p           Typically a vector of parameters that we might
 %                              want to fit in a least-squares algorithm
 %                   c1,c2,...   Other constant parameters e.g. file name of
 %                              a look-up table.
-%   
+%
 %   pars        Arguments needed by the function.
 %               - Most commonly, a vector of parameter values e.g. [A,js,gam]
 %                 as intensity, exchange, lifetime.
@@ -48,9 +48,25 @@ function weight = disp2sqw(varargin)
 %                 array and pass that as pars. In the example above then
 %                 pars = {p, c1, c2, ...}
 %
-%   fwhh        Full-width half-height of Gaussian broadening to dispersion
-%               relation(s)
+%   fwhh        Parametrizes the resolution function. There are three
+%               possible input values of fwhh:
 %
+%       double              A single FWHM value determines the FWHM of the 
+%                           Gaussian resolution function
+%       function_handle     A function that produces the FWHM value as a
+%                           function of energy transfer, it has to have the
+%                           following simple header (where omega can be a row
+%                           vector of energies:
+%                               dE = resfun(omega)
+%       function_handle     A function handle of a function with two input
+%                           parameters with the following header:
+%                               I = shapefun(Emat,omega)
+%                           where Emat is a matrix with dimensions of [nQ nE]
+%                           and omega is a column vector with nQ elements. The
+%                           shapefun produces a peakshape for every Q point
+%                           centered at the given omega and normalized to one.
+%                           The output I has the same dimensions as the
+%                           input Emat.
 % Output:
 % -------
 %   weight      Array with spectral weight at the q,e points
@@ -101,8 +117,8 @@ if nargout(dispreln)==1
         e={e};
     end
     sf=cell(size(e));
-    for i=1:numel(e)
-        sf{i}=ones(size(e{i}));
+    for ii=1:numel(e)
+        sf{ii}=ones(size(e{ii}));
     end
 else
     [e,sf]=dispreln(q{:},pars{:});
@@ -112,22 +128,74 @@ else
     end
 end
 
-% Accumulate weight
-sig=fwhh/sqrt(log(256));
-if ~expand_qe
-    weight=zeros(numel(q{1}),1);
-    for i=1:numel(e)
-        weight=weight + sf{i}(:).*exp(-(e{i}(:)-en(:)).^2/(2*sig^2))/(sig*sqrt(2*pi));
+
+% resolution function definintion and weight accumulation.
+
+if isa(fwhh,'double')
+    % Gaussian resolution function with fixed resolution
+    resfun = @(Emat,center)gauss_internal(Emat,center,@(x)(fwhh+x*0));
+elseif isa(fwhh,'function_handle')
+    if nargin(fwhh) == 1
+        % Gaussian resolution function with variable resolution
+        resfun = @(Emat,center)gauss_internal(Emat,center,fwhh);
+    elseif nargin(fwhh) == 2
+        % Arbitrary resolution function
+        resfun = fwhh;
+    else
+        error('disp2sqw:WrongInput','The fwhh function needs to have either one or two input parameters!');
     end
+else
+    error('disp2sqw:WrongInput','The fwhh parameter has to be either a scalar or function handle!');
+end
+
+
+if ~expand_qe
+    if ~isa(fwhh,'double')
+        error('disp2sqw:WrongInput','The fwhh function has to be scalar since expand_qe option is false!');
+    end
+    % TODO
+    % only work for constant energy resolution
+    sig = fwhh/sqrt(log(256));
+    weight=zeros(numel(q{1}),1);
+    for ii=1:numel(e)
+        
+        weight=weight + sf{ii}(:).*exp(-(e{ii}(:)-en(:)).^2/(2*sig^2))/(sig*sqrt(2*pi));
+    end
+    
     weight=reshape(weight,size(q{1}));
 else
-    nq=numel(q{1});
-    ne=numel(en);
-    weight=zeros(nq,ne);
-    en_arr=repmat(en(:)',[nq,1]);
-    for i=1:numel(e)
-        edisp=repmat(e{i}(:),[1,ne]);
-        sfact=repmat(sf{i}(:),[1,ne]);
-        weight=weight + sfact.*exp(-(edisp-en_arr).^2/(2*sig.^2))./(sig*sqrt(2*pi));
+    nq = numel(q{1});
+    ne = numel(en);
+    weight = zeros(nq,ne);
+    en_arr = repmat(en(:)',[nq,1]);
+    
+    for ii = 1:numel(e)
+        %weight = weight + bsxfun(@times,sf{ii}(:),exp(-(bsxfun(@minus,e{ii}(:),en_arr)).^2/(2*sig.^2))./(sig*sqrt(2*pi)));
+        weight = weight + bsxfun(@times,sf{ii}(:),resfun(en_arr,e{ii}(:)));
     end
+end
+
+end
+
+function G = gauss_internal(Emat,center,FWHMfun)
+% 1D Gauss function
+%
+% G = gauss_internal(Emat,center,FWHMfun)
+%
+% Input:
+%
+% Emat      Matrix with energy bin values, dimensions of [nQ nE].
+% center    Column vector of the center of the Gaussians with nQ elements.
+% FWHMfun   Function handle: dE = resfun(E), works on vectors.
+%
+% Output:
+%
+% G         Output matrix, with Gaussians, dimensions are [nQ nE].
+%
+
+% resolution for every omega values
+sig = repmat(FWHMfun(center)/sqrt(log(256)),[1 size(Emat,2)]);
+% intensities
+G = exp(-(bsxfun(@minus,center,Emat)).^2./(2*sig.^2))./(sig*sqrt(2*pi));
+
 end
