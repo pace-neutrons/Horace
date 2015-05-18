@@ -36,7 +36,8 @@ elseif ischar(fig_name) || iscellstr(fig_name)
         h=[h;findobj('name',fig_name{i},'type','figure')];
     end
     ok=true; mess=''; return
-    
+elseif isa(fig_name,'matlab.ui.Figure')
+    h=fig_name; ok=true;mess=''; return
 else
     h=[]; ok=false; mess='Check validity of figure name(s)'; return
 end
