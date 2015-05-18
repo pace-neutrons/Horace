@@ -64,21 +64,21 @@ else
 end
 
 % Switch on options (note:delete is silent if object does not exist)
+if verLessThan('matlab','8.4')
+    delete(curr_colorbar, curr_slider_min, curr_slider_max, curr_slider_min_val, curr_slider_max_val);
+else
+    curr_colorbar=[];curr_slider_min=[]; curr_slider_max=[];curr_slider_min_val=[];curr_slider_max_val=[];
+end
+
 switch option
     case 'create'
-        delete(curr_colorbar, curr_slider_min, curr_slider_max, curr_slider_min_val, curr_slider_max_val);
-        
+        %do nothing
     case 'update'
-        if colorslider_exist
-            delete(curr_colorbar, curr_slider_min, curr_slider_max, curr_slider_min_val, curr_slider_max_val);
-        else
+        if ~colorslider_exist
             return  % no colorslider to update
         end
-        
     case 'delete'
-        delete(curr_colorbar, curr_slider_min, curr_slider_max, curr_slider_min_val, curr_slider_max_val);
-        return
-        
+        return % already deleted above
     otherwise
         error('incorrect option given')
 end

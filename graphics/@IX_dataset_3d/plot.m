@@ -114,3 +114,6 @@ axis normal
 if nargout>=1, fig_handle=fig_; end
 if nargout>=2, axes_handle=axes_; end
 if nargout>=3, plot_handle=plot_; end
+if ~verLessThan('matlab','8.4')
+   figure(figureHandle_)
+end
