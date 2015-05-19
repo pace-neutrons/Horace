@@ -64,11 +64,11 @@ else
 end
 
 % Switch on options (note:delete is silent if object does not exist)
-if verLessThan('matlab','8.4')
-    delete(curr_colorbar, curr_slider_min, curr_slider_max, curr_slider_min_val, curr_slider_max_val);
-else
-    curr_colorbar=[];curr_slider_min=[]; curr_slider_max=[];curr_slider_min_val=[];curr_slider_max_val=[];
+if numel(curr_colorbar)>0
+   delete(curr_colorbar);delete(curr_slider_min); delete(curr_slider_max);
+   delete(curr_slider_min_val);delete(curr_slider_max_val);
 end
+
 
 switch option
     case 'create'
