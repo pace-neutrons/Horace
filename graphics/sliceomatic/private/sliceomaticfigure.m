@@ -18,7 +18,8 @@ fig=findobj('name','Sliceomatic','type','figure');
 if ~isempty(fig)
     clf(fig,'reset')
 else
-    fig=figure('name','Sliceomatic');
+%    fig=figure('name','Sliceomatic');
+    fig=figure;
 end
 colormap(cm);
 %------------------------------------------------------------------------------
@@ -35,10 +36,9 @@ uicontrol(fig,'style','edit','string','0',...
     'units','normal','pos',[.05 0.005 .05 .035],'Tag','slice_u2','Callback',{@textbox_axis, 'YNew'});
 uicontrol(fig,'style','edit','string','0',...
     'units','normal','pos',[.9 0.005 .05 .035],'Tag','slice_u3','Callback',{@textbox_axis, 'ZNew'});
-
-uicontrol(fig,'style','edit','string',round(d.clim(1,2),2),...
+uicontrol(fig,'style','edit','string',round_gen(d.clim(1,2),2),...
     'units','normal','pos',[.70 0.02 .1 .035],'Tag','iso_2','Callback',{@textbox_axis, 'ISONew2'});
-uicontrol(fig,'style','edit','string',round(d.clim(1,1),2),...
+uicontrol(fig,'style','edit','string',round_gen(d.clim(1,1),2),...
     'units','normal','pos',[.20 0.02 .1 .035],'Tag','iso_1','Callback',{@textbox_axis, 'ISONew1'});
 % --- end of DJW mod
 
