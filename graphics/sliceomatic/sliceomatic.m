@@ -100,7 +100,9 @@ function sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis,clim,isof
 %   isoflag TRUE if isonormals are to be plotted later on. FALSE (or simply
 %           omitted) if not. Isonormals take longer to calculate.
 
+
 colordef white  % to avoid screw-up that earlier 'colordef none' produces
+
 
 % *** Remove:
 % IXG_ST_STDVALUES = ixf_global_var('libisis_graphics','get','IXG_ST_STDVALUES');
@@ -120,8 +122,10 @@ end
 % Will reset just before exiting this function
 mode = get(0, 'DefaultFigureRendererMode');
 rend = get(0, 'DefaultFigureRenderer');
-set(0, 'DefaultFigureRendererMode', 'manual');
-set(0,'DefaultFigureRenderer','zbuffer');
+if verLessThan('matlab','8.4')
+    set(0, 'DefaultFigureRendererMode', 'manual');
+    set(0,'DefaultFigureRenderer','zbuffer');
+end
 %-------------------------------------------------------------------------------------------------
 
 if isa(U1,'double')

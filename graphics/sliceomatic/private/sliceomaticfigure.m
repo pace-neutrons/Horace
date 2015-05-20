@@ -13,12 +13,14 @@ function appdata=sliceomaticfigure(d)
 % === with:
 
 % If existing Sliceomatic figure, reset; otherwise create a new figure
+cm = colormap;
 fig=findobj('name','Sliceomatic','type','figure');
 if ~isempty(fig)
     clf(fig,'reset')
 else
-    fig=figure;
+    fig=figure('name','Sliceomatic');
 end
+colormap(cm);
 %------------------------------------------------------------------------------
 
 set (fig,'MenuBar','none','Resize','on',...
@@ -27,16 +29,16 @@ set (fig,'MenuBar','none','Resize','on',...
 %modified by srikanth on 9thmay 2003
 
 % --- section modified by DJW 18th June 2007
-uicontrol('style','edit','string','0',...
+uicontrol(fig,'style','edit','string','0',...
     'units','normal','pos',[.8 .905 .05 .05],'Tag','slice_u1','Callback',{@textbox_axis, 'XNew'});
-uicontrol('style','edit','string','0',...
+uicontrol(fig,'style','edit','string','0',...
     'units','normal','pos',[.05 0.005 .05 .035],'Tag','slice_u2','Callback',{@textbox_axis, 'YNew'});
-uicontrol('style','edit','string','0',...
+uicontrol(fig,'style','edit','string','0',...
     'units','normal','pos',[.9 0.005 .05 .035],'Tag','slice_u3','Callback',{@textbox_axis, 'ZNew'});
 
-uicontrol('style','edit','string',d.clim(1,2),...
+uicontrol(fig,'style','edit','string',round(d.clim(1,2),2),...
     'units','normal','pos',[.70 0.02 .1 .035],'Tag','iso_2','Callback',{@textbox_axis, 'ISONew2'});
-uicontrol('style','edit','string',d.clim(1,1),...
+uicontrol(fig,'style','edit','string',round(d.clim(1,1),2),...
     'units','normal','pos',[.20 0.02 .1 .035],'Tag','iso_1','Callback',{@textbox_axis, 'ISONew1'});
 % --- end of DJW mod
 
@@ -126,6 +128,7 @@ try
     cameratoolbar(fig,'show');
     cameratoolbar(fig,'togglescenelight');
     %cameratoolbar(fig,'setmode','orbit');
+    figure(fig)
 end
 
 d = figmenus(d);
@@ -137,6 +140,7 @@ uicontrol('style','popup','string',...
     {'jet','hsv','cool','hot','pink','bone','copper','flag','prism','rand','custom'},...
     'callback','sliceomatic colormap',...
     'units','normal','pos',[0 .85 .1 .1]);
+colormap('jet');
 
 uicontrol('style','text','string','AlphaMap',...
     'units','normal','pos',[.9 .9 .1 .1]);
