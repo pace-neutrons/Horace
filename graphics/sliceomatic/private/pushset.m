@@ -6,18 +6,18 @@ function pushset(handle,prop,value)
 % assigns VALUE as the new value.
 %
 
- % nargchk(3,3,'wrong number of arguments.');
- nargchk(3,3,nargin);
- 
-  proplist=fieldnames(get(handle(1)));
-  prop=proplist{strcmpi(prop,proplist)};
-  appstr = [prop '_hgstack'];
+% nargchk(3,3,'wrong number of arguments.');
+nargchk(3,3,nargin);
 
-  for k=1:prod(size(handle))
+proplist=fieldnames(get(handle(1)));
+prop=proplist{strcmpi(prop,proplist)};
+appstr = [prop '_hgstack'];
 
+for k=1:prod(size(handle))
+    
     oldv = get(handle(k),prop);
     olds = getappdata(handle(k),appstr);
     set(handle(k),prop,value);
     setappdata(handle(k),appstr,{ oldv olds });
     
-  end
+end

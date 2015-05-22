@@ -21,19 +21,37 @@ for i=1:nw
     else
         temp=0.5*(w(i).x(2:nx) + w(i).x(1:nx-1));
     end
-    h=errorbar(temp,w(i).signal,w(i).error,'Color',color{icol(i)},...
-        'LineStyle','none','LineWidth',line_width(iwid(i)),...
-        'Marker',marker_type{ityp(i)},'MarkerSize',marker_size(isiz(i)));
     % Set errorbar cap lengths to zero
     if verLessThan('matlab','8.4')
+        h=errorbar(temp,w(i).signal,w(i).error,'Color',color{icol(i)},...
+            'LineStyle','none','LineWidth',line_width(iwid(i)),...
+            'Marker',marker_type{ityp(i)},'MarkerSize',marker_size(isiz(i)));
+        
         c=get(h,'children');xd=get(c(2),'XData');
         xd(4:9:end)=xd(1:9:end);xd(5:9:end)=xd(1:9:end);
         xd(7:9:end)=xd(1:9:end);xd(8:9:end)=xd(1:9:end);
-        set(c(2),'XData',xd)        
+        set(c(2),'XData',xd)
     else
-        %TODO! 
-        %Its currently unclear how to remove horisontal tags
-        %xd = h.XData;
+        %TODO! Should be better way of doing this
+        %Its currently unclear how to
+        %Set errorbar cap lengths to zero
+        plot(temp,w(i).signal,'Color',color{icol(i)},...
+            'LineStyle','none','LineWidth',line_width(iwid(i)),...
+            'Marker',marker_type{ityp(i)},'MarkerSize',marker_size(isiz(i)));
+        hold(gca,'on')
+        ind = 1:numel(w(i).signal);
+        errX = zeros(3*numel(w(i).signal),1);
+        errY = zeros(3*numel(w(i).signal),1);
+        errX(3*(ind -1)+1) = temp(ind);
+        errY(3*(ind -1)+1) = w(i).signal(ind)-w(i).error(ind);
+        errX(3*(ind -1)+2) = temp(ind);
+        errY(3*(ind -1)+2) = w(i).signal(ind)+w(i).error(ind);
+        errX(3*(ind -1)+3) = temp(ind);
+        errY(3*(ind -1)+3) = NaN;
+        
+        plot(errX,errY,'Color',color{icol(i)},...
+            'LineStyle','-','LineWidth',line_width(iwid(i)))
+        hold(gca,'off')
     end
 end
 
