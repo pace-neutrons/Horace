@@ -21,7 +21,7 @@ end
 d = getappdata(fig,'sliceomatic');
 
 % need to do some checks in case multiple items are being plotted
-if ~isempty(d.motionmetaslice) && ishandle(d.motionmetaslice)
+if isfield(d,'motionmetaslice') && ~isempty(d.motionmetaslice) && ishandle(d.motionmetaslice)
     p = ancestor(d.motionmetaslice,'figure');
 else
     p = [];

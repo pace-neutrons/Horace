@@ -85,7 +85,11 @@ clim = [min(w.signal(:)) max(w.signal(:))];
 % Plot data
 sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
                         xlabel, ylabel, zlabel, clim, keyword.isonormals);
-title(w.title);
+if verLessThan('matlab','8.4')
+    title(w.title);
+else
+    title(w.title,'FontWeight','normal','FontSize',10);    
+end
 [fig_, axes_, plot_, plot_type] = genie_figure_all_handles (gcf);
 
 % Because we are not going through the usual genie_figure_create route, set some of

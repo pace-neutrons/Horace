@@ -13,19 +13,20 @@ function appdata=sliceomaticfigure(d)
 % === with:
 
 % If existing Sliceomatic figure, reset; otherwise create a new figure
-cm = colormap;
 fig=findobj('name','Sliceomatic','type','figure');
 if ~isempty(fig)
+    cm = colormap;
     clf(fig,'reset')
+    colormap(cm);
 else
-%    fig=figure('name','Sliceomatic');
-    fig=figure;
+    %    fig=figure('name','Sliceomatic');
+    fig=figure('Position',[5, 30, 800, 600],'name','Sliceomatic');
 end
-colormap(cm);
 %------------------------------------------------------------------------------
 
 set (fig,'MenuBar','none','Resize','on',...
     'NumberTitle','off',...
+    'units','normal',...
     'PaperPositionMode','auto');
 %modified by srikanth on 9thmay 2003
 
@@ -73,9 +74,9 @@ else
     aspect=[max(d.xlim)-min(d.xlim),max(d.ylim)-min(d.ylim),max(d.zlim)-min(d.zlim)];
     daspect(aspect);
 end
-set(get(gca,'XLabel'),'String',d.xaxis)
-set(get(gca,'YLabel'),'String',d.yaxis)
-set(get(gca,'ZLabel'),'String',d.zaxis)
+set(get(d.axmain,'XLabel'),'String',d.xaxis)
+set(get(d.axmain,'YLabel'),'String',d.yaxis)
+set(get(d.axmain,'ZLabel'),'String',d.zaxis)
 
 
 % Set up the four controller axes.
@@ -116,12 +117,13 @@ d.axiso  = axes('units','normal','pos',[0.3 .01 .4 .05],'box','on',...
     'color','none',...
     'layer','top');
 setappdata(d.axiso,'motionpointer','SOM top');
+%
 set([d.axx d.axy d.axz d.axiso],'handlevisibility','off');
-setappdata(gcf,'sliceomatic',d);
+setappdata(fig,'sliceomatic',d);
 
 % Set up the default sliceomatic controllers
-slicecontrols(gcf,1);
-isocontrols(gcf,1);
+slicecontrols(fig,1);
+isocontrols(fig,1);
 
 % Button Down Functions
 set(d.axx,'buttondownfcn','sliceomatic Xnew');
@@ -132,12 +134,11 @@ set(d.axiso,'buttondownfcn','sliceomatic ISO');
 % Set up our motion function before cameratoolbar is active.
 d.motionmetaslice = [];
 
-set(gcf,'windowbuttonmotionfcn',@sliceomaticmotion);
+set(fig,'windowbuttonmotionfcn',@sliceomaticmotion);
 
 % Try setting up the camera toolbar
 try
     %    modified by I.Bustinduy =============================== <<<<<<<<
-    
     cameratoolbar(fig,'show');
     cameratoolbar(fig,'togglescenelight');
     %cameratoolbar(fig,'setmode','orbit');
@@ -147,17 +148,17 @@ end
 d = figmenus(d);
 
 % Color and alph maps
-uicontrol('style','text','string','ColorMap',...
+uicontrol(fig,'style','text','string','ColorMap',...
     'units','normal','pos',[0 .9 .1 .1]);
-uicontrol('style','popup','string',...
+uicontrol(fig,'style','popup','string',...
     {'jet','hsv','cool','hot','pink','bone','copper','flag','prism','rand','custom'},...
     'callback','sliceomatic colormap',...
     'units','normal','pos',[0 .85 .1 .1]);
 colormap('jet');
 
-uicontrol('style','text','string','AlphaMap',...
+uicontrol(fig,'style','text','string','AlphaMap',...
     'units','normal','pos',[.9 .9 .1 .1]);
-uicontrol('style','popup','string',{'rampup','rampdown','vup','vdown','rand'},...
+uicontrol(fig,'style','popup','string',{'rampup','rampdown','vup','vdown','rand'},...
     'callback','sliceomatic alphamap',...
     'units','normal','pos',[.9 .85 .1 .1]);
 

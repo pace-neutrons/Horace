@@ -21,10 +21,16 @@ for i=1:nw
         'LineStyle','none','LineWidth',line_width(iwid(i)),...
         'Marker','none');
     % Set errorbar cap lengths to zero
-    c=get(h,'children');xd=get(c(2),'XData');
-    xd(4:9:end)=xd(1:9:end);xd(5:9:end)=xd(1:9:end);
-    xd(7:9:end)=xd(1:9:end);xd(8:9:end)=xd(1:9:end);
-    set(c(2),'XData',xd)
+    if verLessThan('matlab','8.4')   
+        c=get(h,'children');xd=get(c(2),'XData');
+        xd(4:9:end)=xd(1:9:end);xd(5:9:end)=xd(1:9:end);
+        xd(7:9:end)=xd(1:9:end);xd(8:9:end)=xd(1:9:end);
+        set(c(2),'XData',xd)
+    else
+        %TODO! 
+        %Its currently unclear how to remove horisontal tags
+        %xd = h.XData;       
+    end
 end
 
 % Make linear or log axes as required
