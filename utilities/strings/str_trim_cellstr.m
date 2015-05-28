@@ -1,7 +1,7 @@
-function [cout,all_non_empty] = str_trim_cellstr(cin)
+function [cout,all_non_empty,ok] = str_trim_cellstr(cin)
 % Trim leading and trailing whitespace and remove empty entries from a cellstr
 %
-%   >> [ok,cout] = str_make_cellstr(cin)
+%   >> [cout,all_non_empty,ok] = str_trim_cellstr(cin)
 %
 % Input:
 % ------
@@ -9,12 +9,12 @@ function [cout,all_non_empty] = str_trim_cellstr(cin)
 %
 % Output:
 % -------
-%   ok              =true if valid input (could all be empty)
 %   cout            Column vector cellstr, with empty entries removed.
 %   all_non_empty   True if all strings are non-empty
+%   ok              Logical column vector, true where cout is non-empty
 
-ok=true(size(cin));
 cout=strtrim(cin(:));
+ok=true(size(cout));
 for i=1:numel(cout)
     ok(i)=~isempty(cout{i});
 end

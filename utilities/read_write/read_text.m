@@ -1,10 +1,9 @@
 function tline = read_text (file, max_size_MB)
 % Reads lines of text from an ASCII file into a cell array of strings
 %
-% Syntax:
-%   >> w = read_text (file)    % read from named file
-%   >> w = read_text           % prompts for file
-%
+%   >> w = read_text                % prompts for file
+%   >> w = read_text (file)         % read from named file if less than 50MB
+%   >> w = read_text (file,max_MB)  % Only read if file smaller than this size
 
 if ~exist('max_size_MB','var')
     max_size_MB=50;  % max. number of lines that can be read from file
@@ -20,7 +19,7 @@ if ~ok, error(mess), end
 
 % Read data
 % -----------
-tline = textcell (file,max_size_MB);
+tline = textcell (file_full,max_size_MB);
 
 
 % Earlier version (prior to 4 Dec 2012) - retain for time being as reading ASCII files on different architectures can be tricky

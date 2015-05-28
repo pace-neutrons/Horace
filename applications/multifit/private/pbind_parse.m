@@ -1,7 +1,7 @@
 function [ok,mess,ipbound,ipboundto,ifuncboundto,pratio]=pbind_parse(pbind,isforeground,np,nbp)
 % Resolve a binding description
 %
-%   >> [ok,mess,ipbound,ipboundto,ifuncboundto,pratio]=pbind_parse(bpbind_in,np,nbp,ind)
+%   >> [ok,mess,ipbound,ipboundto,ifuncboundto,pratio]=pbind_parse(pbind,isforeground,np,nbp)
 %
 % Input:
 % ------

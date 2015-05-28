@@ -1,7 +1,7 @@
 function [ok,cout,all_non_empty]=str_make_cellstr_trim(varargin)
 % Take a set of arguments and try to make a cellstr of non-empty strings from the contents
 %
-%   >> [ok,cout] = str_make_cellstr(c1,c2,c3,...)
+%   >> [ok,cout,all_non_empty] = str_make_cellstr(c1,c2,c3,...)
 %
 % Input:
 % ------
