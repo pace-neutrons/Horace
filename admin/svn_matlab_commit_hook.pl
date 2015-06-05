@@ -6,10 +6,10 @@ use strict;
 # COMMIT_COUNTER :: {num}
 # in this file and increases the number {num} near the COMMIT_COUNTER in this file. 
 #
-# When this script is installed as the precommit hook
+# When this script is installed as the pre-commit hook
 # for TortoseSVN, and the text file supplied as the input parameter for this file 
 # is under version control with correspondent properties enabled, 
-# the modification above lead to the mofification of the file version and revision to 
+# the modification above lead to the modification of the file version and revision to 
 # the current subversion value. 
 # 
 # 

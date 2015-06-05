@@ -23,7 +23,7 @@ function [value,sigma]=value(w,x)
 
 % Original author: T.G.Perring
 %
-% $Revision: 977 $ ($Date: 2015-02-21 18:58:56 +0000 (Sat, 21 Feb 2015) $)
+% $Revision$ ($Date$)
 
 
 if numel(w)~=1

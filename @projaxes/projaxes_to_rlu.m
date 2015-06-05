@@ -38,7 +38,7 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, an
 
 % Original author: T.G.Perring
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 

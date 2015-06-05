@@ -23,7 +23,7 @@ function ind = ind_from_nrange (nstart, nend)
 
 % Original author: T.G.Perring
 %
-% $Revision: 815 $ ($Date: 2013-12-29 19:40:56 +0000 (Sun, 29 Dec 2013) $)
+% $Revision$ ($Date$)
 
 
 if numel(nstart)==numel(nend)

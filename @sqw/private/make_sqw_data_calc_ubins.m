@@ -37,7 +37,7 @@ function [iax,iint,pax,p,mess]=make_sqw_data_calc_ubins(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 967 $ ($Date: 2015-02-13 17:52:42 +0000 (Fri, 13 Feb 2015) $)
+% $Revision$ ($Date$)
 
 
 iax=zeros(1,4);

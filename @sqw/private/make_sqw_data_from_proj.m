@@ -27,7 +27,7 @@ function [data,mess]=make_sqw_data_from_proj(lattice,proj_in,p1,p2,p3,p4)
 
 % Original author: T.G.Perring
 %
-% $Revision: 967 $ ($Date: 2015-02-13 17:52:42 +0000 (Fri, 13 Feb 2015) $)
+% $Revision$ ($Date$)
 
 
 data=[];

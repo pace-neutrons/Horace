@@ -85,7 +85,7 @@ function [proj,mess] = projaxes(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 893 $ ($Date: 2014-09-04 17:47:17 +0100 (Thu, 04 Sep 2014) $)
+% $Revision$ ($Date$)
 
 
 mess='';

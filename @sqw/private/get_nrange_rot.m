@@ -40,7 +40,7 @@ function [nstart,nend] = get_nrange_rot(nelmts,istart,iend,irange)
 
 % Original author: T.G.Perring
 %
-% $Revision: 962 $ ($Date: 2015-02-06 12:43:16 +0000 (Fri, 06 Feb 2015) $)
+% $Revision$ ($Date$)
 
 
 % Get number of dimensions and check consistency
