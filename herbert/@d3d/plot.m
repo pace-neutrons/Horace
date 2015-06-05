@@ -26,3 +26,6 @@ function [figureHandle, axesHandle, plotHandle] = plot(w, varargin)
 if nargout>=1, figureHandle=figureHandle_; end
 if nargout>=2, axesHandle=axesHandle_; end
 if nargout>=3, plotHandle=plotHandle_; end
+if ~verLessThan('matlab','8.4')
+   figure(figureHandle_)
+end
