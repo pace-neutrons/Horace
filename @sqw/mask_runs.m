@@ -20,7 +20,7 @@ function wout=mask_runs(win,runno)
 
 % Original author: R.A.Ewings
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 
 
 % Check object to be masked is an sqw-type object

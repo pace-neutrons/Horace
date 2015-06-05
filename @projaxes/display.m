@@ -6,7 +6,7 @@ function display(w)
 
 % Original author: T.G.Perring
 %
-% $Revision: 278 $ ($Date: 2013-11-01 20:07:58 +0000 (Fri, 01 Nov 2013) $)
+% $Revision$ ($Date$)
 
 class_name = class(w);
 if isempty(w)

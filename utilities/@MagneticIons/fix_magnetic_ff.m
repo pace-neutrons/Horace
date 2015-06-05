@@ -27,7 +27,7 @@ function wout=fix_magnetic_ff(self,win)
 % * Repetetive applications of the corrections to the same dataset works and
 %   causes wrong corrections. 
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 %
 
 
