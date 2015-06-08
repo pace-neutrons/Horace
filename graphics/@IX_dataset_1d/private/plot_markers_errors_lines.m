@@ -23,14 +23,11 @@ for i=1:nw
     else
         temp=0.5*(w(i).x(2:nx) + w(i).x(1:nx-1));
     end
-    h=errorbar(temp,w(i).signal,w(i).error,'Color',color{icol(i)},...
-          'LineStyle',line_style{ilin(i)},'LineWidth',line_width(iwid(i)),...
-          'Marker',marker_type{ityp(i)},'MarkerSize',marker_size(isiz(i)));
-    % Set errorbar cap lengths to zero
-    c=get(h,'children');xd=get(c(2),'XData');
-    xd(4:9:end)=xd(1:9:end);xd(5:9:end)=xd(1:9:end);
-    xd(7:9:end)=xd(1:9:end);xd(8:9:end)=xd(1:9:end);
-    set(c(2),'XData',xd)
+    %custom_errorbars(x,signal,error,color,linestyle,linewidth,marker_type,marker_size)
+    custom_errorbars(temp,w(i).signal,w(i).error,color{icol(i)},...
+        line_style{ilin(i)},line_width(iwid(i)),...
+        marker_type{ityp(i)},marker_size(isiz(i)));
+   
 end
 
 % Make linear or log axes as required
