@@ -22,7 +22,7 @@ else
     % Set errorbar cap lengths to zero for Matlab V>2014a in any other way
     h=plot(x,signal,'Color',color,...
         'LineStyle',linestyle,'LineWidth',linewidth,...
-        'Marker','none','MarkerSize',marker_size);
+        'Marker',marker_type,'MarkerSize',marker_size);
     hold_state=ishold;
     
     hold 'on'
