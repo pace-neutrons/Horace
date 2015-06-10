@@ -4,7 +4,7 @@ function y = gauss2d_bkgd(x1, x2, p)
 %   >> y = gauss2d_bkgd(x1,x2,p)
 %
 %  Function has form
-%       y = h * exp(-1/2 * [dx1,dx2].*cov.*[dx1;dx2]) + (b0 + b1*x + b2*x.^2)
+%       y = h * exp(-1/2 * [dx1,dx2].*cov.*[dx1;dx2]) + (b0 + b1*x1 + b2*x2)
 %   where
 %       dx1 = x1-x1_0
 %       dx2 = x2-x2_0
@@ -13,7 +13,8 @@ function y = gauss2d_bkgd(x1, x2, p)
 %
 % Input:
 % =======
-%   x   Vector of x-axis values at which to evaluate function
+%   x1  Vector of x-axis values at which to evaluate function
+%   x2  Vector of second x-axis values at which to evaluate function
 %   p   Vector of parameters needed by the function:
 %           p = [height, x1_0, x2_0, c11, c12, c22, b0, b1, b2]
 %

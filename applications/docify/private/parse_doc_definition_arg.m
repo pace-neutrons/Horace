@@ -10,25 +10,27 @@ val_out=val;
 ok=true;
 changed=false;
 mess='';
-ind=strfind(val,'#');
-if numel(ind)==1 && ind<numel(val) && isposchint(val(ind+1:end))
-    if ind==1
-        n=str2double(val(ind+1:end));
-        if n>=1 && n<=numel(args)
-            val_out=args{n};
-            changed=true;
-        else
-            val_out=[];
-            ok=false;
-            if numel(args)>0
-                mess=['Invalid argument number: must be in range 1 to ',num2str(numel(args))];
+if ischar(val)
+    ind=strfind(val,'#');
+    if numel(ind)==1 && ind<numel(val) && isposchint(val(ind+1:end))
+        if ind==1
+            n=str2double(val(ind+1:end));
+            if n>=1 && n<=numel(args)
+                val_out=args{n};
+                changed=true;
             else
-                mess='No arguments allowed';
+                val_out=[];
+                ok=false;
+                if numel(args)>0
+                    mess=['Invalid argument number: must be in range 1 to ',num2str(numel(args))];
+                else
+                    mess='No arguments allowed';
+                end
             end
+        elseif strcmp(val(1:ind-1),repmat('\',1,ind-1))
+            val_out=val(2:end);
+            changed=true;
         end
-    elseif strcmp(val(1:ind-1),repmat('\',1,ind-1))
-        val_out=val(2:end);
-        changed=true;
     end
 end
 

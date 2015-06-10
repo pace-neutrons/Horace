@@ -1,5 +1,5 @@
-function [var,iskey,isend,args,ok,mess]=parse_key(str)
-% Determine if a line consists solely of keywords or logical block names
+function [var,iskey,isend,iscom,args,ok,mess]=parse_key(str)
+% Determine if a line consists solely of keyword, logical block name, or docify comment line
 %
 %   >> [var,iskey,isend,args,ok,mess]=parse_key(str)
 %
@@ -12,11 +12,13 @@ function [var,iskey,isend,args,ok,mess]=parse_key(str)
 %   var     Name of keyword or logical. Empty if not.
 %   iskey   Flag: =true if keyword (i.e. begins with '#'; false if logical
 %   isend   Flag: =true if has form /end
+%   iscom   Flag: =true if docify comment line (i.e. begins with '<<')
 %   args    Cell array of arguments. This can be non-empty only if a
 %          keyword without /end
-%   ok      =true if a valid keyword or logical block name
+%   ok      =true if a valid keyword, logical block name, or docify comment line
 %               [%][white_space]<#varname[/end]:>  arg1 arg2 ...
 %           OR  [%][white_space]<block_name[/end]:>
+%           OR  [%][white_space]<<...
 %           =false if not
 %   mess    Message if not ok (empty otherwise)
 
@@ -24,7 +26,8 @@ function [var,iskey,isend,args,ok,mess]=parse_key(str)
 % Default return (corresponds to valid line with no keyword or block name)
 var='';
 iskey=false;
-isend='';
+isend=false;
+iscom=false;
 ok=true;
 mess='';
 args={};
@@ -41,6 +44,16 @@ else
     iscomment=false;
 end
 
+% Determine if a docify comment line; return if so
+if length(str)>2 && str(1)=='<'
+    com=strtrim(str(2:end));
+    if ~isempty(com) && com(1)=='<'
+        iscom=true;
+        return
+    end
+end
+
+% Determine if keyword or block name
 if length(str)>3 && str(1)=='<'
     ind=strfind(str,'>');
     if ind>0

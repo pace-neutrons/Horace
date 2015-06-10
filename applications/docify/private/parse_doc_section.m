@@ -61,9 +61,9 @@ state=blockobj([],'add',main_block,storing);
 % Find keyword and logical block lines, and determine if a line is to be buffered
 nstr=numel(cstr);
 for i=1:nstr
-    [var,iskey,isend,argstr,ok,mess]=parse_key(cstr{i});
+    [var,iskey,isend,iscom,argstr,ok,mess]=parse_key(cstr{i});
     if ok   % block indicator or keyword
-        if ~iskey
+        if ~iskey && ~iscom
             var=lower(var);
             % Block name. As part of checks, even if we are not reading the
             % current block (so the block name value may be undefined) we
@@ -71,7 +71,7 @@ for i=1:nstr
             % properly
             if strcmpi(var,blockobj(state,'current')) && isend
                 % End of current block
-                state=blockobj(state,'remove');             % move up to the parent block
+                state=blockobj(state,'remove');         % move up to the parent block
                 storing=blockobj(state,'storing');      % update storing status
             elseif ~isend
                 % Start of new block
@@ -92,7 +92,7 @@ for i=1:nstr
                 mess=['Block end for: ''',var,''' does not match current block:''',blockobj(state,'current'),''''];
                 return
             end
-        else
+        elseif iskey
             % Keyword line
             % We require that any substitutions are strings, not cell arrays. Check only
             % if storing, as substitutions may not be defined for blocks that are not being parsed.
@@ -130,6 +130,8 @@ for i=1:nstr
                 mess={'Unrecognised keyword or end status in line:',cstr{i}};
                 return
             end
+        else
+            % Comment line
         end
     else
         % Line needs to be a valid comment line or a substitution of a cell array of strings
