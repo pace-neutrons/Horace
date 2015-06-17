@@ -56,6 +56,6 @@ A=area_ikcarp(t,tauf,taus,R);   % area array at times t
 t=t(ix);
 
 t_av=3*tauf+R*taus;
-ti=interp1(A,t,area)/t_av;      % interpolated times, normalised by t_av
+ti=interp1(A,t,area,'linear','extrap')/t_av;      % interpolated times, normalised by t_av
 t_red=ti./(1+ti);
 

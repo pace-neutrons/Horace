@@ -24,4 +24,9 @@ else
     end
 end
 
-print('-dmeta','-noui',['-f',num2str(fig)]);
+if verLessThan('matlab','8.4')
+    print('-dmeta','-noui',['-f',num2str(fig)]);
+else
+    fignum=get(fig,'Number');
+    print('-dmeta','-noui',['-f',num2str(fignum)]);
+end

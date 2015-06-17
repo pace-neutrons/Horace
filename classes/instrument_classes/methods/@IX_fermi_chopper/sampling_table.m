@@ -94,7 +94,7 @@ else
     npnt0=max(500,5*npnt);  % for a lookup table of areas to interpolate on
     t=(table(1)*(npnt0-1:-1:0)+table(end)*(0:npnt0-1))/(npnt0-1);
     A=partial_transmission(fermi,t,phase);
-    table(2:npnt-1)=interp1(A,t,area);
+    table(2:npnt-1)=interp1(A,t,area,'linear','extrap');
 end
 
 end
