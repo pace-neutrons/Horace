@@ -14,7 +14,7 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, an
 %   alatt   Row vector of lattice parameters (Angstroms)
 %   angdeg  Row vector of lattice angles (degrees)
 %   ustep   Row vector giving step sizes along the projection axes as multiple
-%          of the projection axes (e.g. [0.05,0.05,0.025]
+%           of the projection axes (e.g. [0.05,0.05,0.025]
 %           Default if not given: [1,1,1] i.e. unit step
 %
 % Output:

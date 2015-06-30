@@ -1,5 +1,7 @@
 function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
+   proj,pax, nbin)
+%function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+%    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
 %
 %   >> [s, e, npix, npix_retain] = cut_data (fid, nstart, nend, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
@@ -69,6 +71,7 @@ e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 npix_retain = 0;
+%------------------------------------------------
 
 noffset = nstart-[0;nend(1:end-1)]-1;   % offset from end of one block to the start of the next
 range = nend-nstart+1;                  % length of the block to be read
@@ -107,6 +110,7 @@ if horace_info_level>=2
     disp('-----------------------------')
     fprintf(' Cut data from file started at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
 end
+%
 
 if horace_info_level>=1, bigtic(1), end
 for i=1:length(range)
@@ -117,7 +121,7 @@ for i=1:length(range)
         if vpos<=vmax   % work array not yet filled up
             if range(i)-rpos+1 <= vmax-vpos+1   % enough space to hold remainder of range
                 vend = vpos+range(i)-rpos;  % last column that will be filled in this loop of the while statement
-%**                if horace_info_level>=1, bigtic(1), end
+                %**                if horace_info_level>=1, bigtic(1), end
                 try
                     [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], '*float32');
                     v(:,vpos:vend)=double(tmp);
@@ -126,12 +130,12 @@ for i=1:length(range)
                     ok = false;
                     mess = 'Unrecoverable read error';
                 end
-%**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
+                %**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
                 if ~all(ok); fclose(fid); error(mess); end;
                 vpos = vend+1;
                 break   % jump out of while loop
             else    % read in as much of the range as can
-%**                if horace_info_level>=1, bigtic(1), end
+                %**                if horace_info_level>=1, bigtic(1), end
                 try
                     [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], '*float32');
                     v(:,vpos:vmax)=double(tmp);
@@ -140,7 +144,7 @@ for i=1:length(range)
                     ok = false;
                     mess = 'Unrecoverable read error';
                 end
-%**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
+                %**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
                 if ~all(ok); fclose(fid); error(mess); end;
                 rpos = rpos+vmax-vpos+1;
                 vpos = vmax+1;
@@ -156,7 +160,7 @@ for i=1:length(range)
                 disp(mess)
             end
             [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-                v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
+                v, proj, pax);
             if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
             npix_retain = npix_retain + del_npix_retain;
             if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
@@ -180,7 +184,7 @@ if vpos>1   % flush out work array - the array contains some unprocessed data
         disp(mess)
     end
     [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-        v(:,1:vpos-1), urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
+        v(:,1:vpos-1), proj, pax);
     if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
     
     npix_retain = npix_retain + del_npix_retain;

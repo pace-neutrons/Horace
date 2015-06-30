@@ -1,5 +1,8 @@
 function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, urange_step_pix, keep_pix,...
-                                                      v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
+    v, proj, pax)
+
+%function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, urange_step_pix, keep_pix,...
+%    v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
 % Accumulate signal into output arrays
 %
 % Syntax:
@@ -37,22 +40,7 @@ function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_mat
 
 % T.G.Perring   19 July 2007
 
-% Transform the coordinates u1-u4 into the new projection axes, if necessary
-% *** TGP 9 Dec 2012: this looks as if the case of energy being a plot axis that rounding errors will in general be a problem.
-if ebin==1 && trans_elo==0   % Catch special (and common) case of energy being an integration axis to save calculations
-    indx=[(v(1:3,:)'-repmat(trans_bott_left',[size(v,2),1]))*rot_ustep',v(4,:)'];  % nx4 matrix
-else
-    indx=[(v(1:3,:)'-repmat(trans_bott_left',[size(v,2),1]))*rot_ustep',(v(4,:)'-trans_elo)*(1/ebin)];  % nx4 matrix
-end
-
-% Find the points that lie inside or on the boundary of the range of the cut
-% TGP 9 Dec 2012: fix the problem with rounding energy bins away *** Do not think it is a full fix: indx(:,4) will have rounding errors in general (see above)
-ok = indx(:,1)>=urange_step(1,1) & indx(:,1)<=urange_step(2,1) & indx(:,2)>=urange_step(1,2) & indx(:,2)<=urange_step(2,2) & ...
-     indx(:,3)>=urange_step(1,3) & indx(:,3)<=urange_step(2,3) & indx(:,4)>=urange_step(1,4) & indx(:,4)<=urange_step(2,4);
-%ok = indx(:,1)>=urange_step(1,1) & indx(:,1)<urange_step(2,1) & indx(:,2)>=urange_step(1,2) & indx(:,2)<urange_step(2,2) & ...
-%     indx(:,3)>=urange_step(1,3) & indx(:,3)<urange_step(2,3) & indx(:,4)>=urange_step(1,4) & indx(:,4)<urange_step(2,4);
-
-indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
+[indx,ok] = proj.get_contributing_pix_ind(v);
 if isempty(indx)    % if no pixels in range, return
     npix_retain=0;
     if keep_pix

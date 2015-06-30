@@ -144,8 +144,9 @@ else
     [~,~,proj]=checkfields(struct);     % pass scalar structure with no fields for default
 end
 
+if ~isempty(mess) && nargout==1
+    error('PROJAXES:invalid_argument',mess)
+end
+
 % Create output class
 proj=class(proj,'projaxes');
-if ~isempty(mess) && nargout==1
-    error(mess)
-end
