@@ -51,7 +51,7 @@ classdef test_main_mex < TestCase
             assertTrue(~isempty(mex_present),'Mex file accumulate_cut_c is not availible on this computer')
             
             
-            [v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,10*(pi/180),45*(pi/180));
+            [v,sizes,proj,urange_step_pix]=gen_fake_accum_cut_data(this,[1,-1,0],[1,1,1]);
             %[v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,0,0);
             s=zeros(sizes);
             e=zeros(sizes);
@@ -60,7 +60,7 @@ classdef test_main_mex < TestCase
             set(hor_config,'use_mex',0,'-buffer');
             dummy  = sqw();
             [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] = accumulate_cut_tester(dummy,s, e, npix, urange_step_pix, true,...
-                v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, [1,2,3,4]);
+                v, proj, [1,2,3,4]);
             
             
             %check C-part
@@ -69,7 +69,7 @@ classdef test_main_mex < TestCase
             e=zeros(sizes);
             npix=zeros(sizes);
             [s_c, e_c, npix_c, urange_step_pix_c, npix_retain_c,ok_c, ix_c] = accumulate_cut_tester(dummy,s, e, npix, urange_step_pix, true,...
-                v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, [1,2,3,4]);
+                v, proj, [1,2,3,4]);
             
             % verify results against each other.
             assertElementsAlmostEqual(s_m,s_c);
@@ -125,7 +125,7 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
             assertEqual(size(pix_c,1),4)
-            assertElementsAlmostEqual(pix_m,pix_c,'absolute',1.e-8);            
+            assertElementsAlmostEqual(pix_m,pix_c,'absolute',1.e-8);
         end
         
         function  [efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det]=calc_fake_data(this)
@@ -149,27 +149,39 @@ classdef test_main_mex < TestCase
             data.ERR = sqrt(data.S);
             data.en =(-efix+(0:(this.nEn))*(1.99999*efix/(this.nEn)))';
         end
-        function [vv,box_sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,theta,phi)
+        function [vv,box_sizes,proj,urange_step_pix]=gen_fake_accum_cut_data(this,u,v)
             
-            rx = @(x)[1,0,0;0,cos(x),-sin(x);0,sin(x),cos(x)];
-            ry = @(x)[cos(x),0,sin(x);0,1,0;-sin(x),0,cos(x)];
+            %%rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step
+            %rx = @(x)[1,0,0;0,cos(x),-sin(x);0,sin(x),cos(x)];
+            %ry = @(x)[cos(x),0,sin(x);0,1,0;-sin(x),0,cos(x)];
             
-            rot_ustep = rx(theta)*ry(phi);
+            %rot_ustep = rx(theta)*ry(phi);
+            data.alatt = [3,4,5];
+            data.angdeg = [90,90,95];
+            data.u_to_rlu = eye(4);
+            data.uoffset = [0;0;0;0];      %(4x1)
+            data.upix_to_rlu = eye(3);
+            data.upix_offset = [0;0;0;0];
             
-            box_sizes=[50,50,50,50];
+            data.ulabel = {'xx','yy','zz','ee'};
             
-            urange_step_pix = zeros(2,4);
-            urange_step     = zeros(2,4);
-            urange_step_pix(1,:) =  Inf;
-            urange_step_pix(2,:) = -Inf;
+            ebin=1.99*this.efix/this.nEn;
+            en = -this.efix+(0:(this.nEn-1))*ebin;
+
+            box_sizes=[50,50,50,50];            
+            data.ulen  = [1/50,1/50,1/50,ebin];
+            
+            
+            prs = struct('u',u,'v',v);
+            proj = projection(prs);
+            proj=proj.define_tranformation(data);
+            
             
             rs= [0.11930-1;1.338890;0.02789];
             
             nPixels = this.nDet*this.nEn;
             vv=ones(9,nPixels);
             %rot_inv=inv(rot_ustep);
-            ebin=1.99*this.efix/this.nEn;
-            en = -this.efix+(0:(this.nEn-1))*ebin;
             
             vv(1,:) =(0:(nPixels-1))*20/(nPixels);
             vv(2,:) =(0:(nPixels-1))*10/(nPixels);
@@ -180,32 +192,24 @@ classdef test_main_mex < TestCase
             vv(1:3,:)=vv(1:3,:)+repmat(rs',[size(vv,2),1])';
             vv(4,:)=repmat(en,1,this.nDet);
             
+            
+            
+            urange_step_pix = zeros(2,4);
+            urange_step     = zeros(2,4);
+            urange_step_pix(1,:) =  Inf;
+            urange_step_pix(2,:) = -Inf;
             minv  =min(vv,[],2);
             maxv  =max(vv,[],2);
             minv=minv(1:4);
             maxv=maxv(1:4);
+
+            % set to cut half of the dataset
+            urange_step(1,:) =  (0.5*(minv+0.5*(minv+maxv))-minv)./data.ulen';
+            urange_step(2,:) =  (0.5*(maxv+0.5*(minv+maxv))-minv)./data.ulen';
             
-            % this should cut off half of the Q-dE volume
-            urange_step(1,:) =  0.5*(minv+0.5*(minv+maxv))-minv;
-            urange_step(2,:) =  0.5*(maxv+0.5*(minv+maxv))-minv;
-            trans_elo = urange_step(1,4);
-            trans_bott_left=urange_step(1,1:3)';
+            proj=proj.set_proj_ranges(data.ulen,urange_step,zeros(1,4));
             
             
-            vt = (vv(1:3,:)'-repmat(trans_bott_left',[size(vv,2),1]))*rot_ustep';
-            minv  =min(vt,[],1);
-            maxv  =max(vt,[],1);
-            urange_step(1,1:3)=minv;
-            urange_step(2,1:3)=maxv;
-            
-            delta=(urange_step(2,:)-urange_step(1,:))./box_sizes;
-            delta=[1,1,1,1]./delta;
-            urange_step = urange_step.*repmat(delta,2,1);
-            
-            urange_step(2,:)=urange_step(2,:)-urange_step(1,:);
-            urange_step(1,:)=urange_step(1,:)-urange_step(1,:);
-            
-            rot_ustep = (rot_ustep'.*repmat(delta(1:3)',1,3));
         end
     end
 end

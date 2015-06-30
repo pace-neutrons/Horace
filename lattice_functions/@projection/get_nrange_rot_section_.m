@@ -1,4 +1,5 @@
-function [nstart,nend] = get_nrange_rot_section (urange,rot,trans,nelmts,varargin)
+function [nstart,nend] = get_nrange_rot_section_(this,urange,nelmts,varargin)
+%function [nstart,nend] = get_nrange_rot_section_(this,urange,rot, trans, nelmts,varargin)
 % Get indicies that define ranges of contiguous elements from an n-dimensional
 % array of bins of elements, where the bins partially or wholly lie
 % inside a hypercuboid volume that on the first three axes can be rotated and
@@ -13,16 +14,6 @@ function [nstart,nend] = get_nrange_rot_section (urange,rot,trans,nelmts,varargi
 %          that is rotated and shifted with respect to that frame in
 %          which the bin boundaries p1,p2,p3 are expressed, see below)
 %
-%   rot     Matrix, A     --|  (3x3 array)
-%   trans   Translation, T--|  (column vector length 3)
-%           These relate the two coordinate frames of the bin boundary
-%          arrays and of urange:
-%              r'(i) = A(i,j)(r(j) - T(j))
-%          where r(j) are the coordinates of a vector in the frame of the
-%          bin boundaries p1,p2,p3 (below), and r'(i) are the coordinates
-%          of the frame in which urange is expressed.
-%           Note that T is given in coordinates of the axes of the bin
-%          boundaries.
 %
 %   nelmts  Array of number of points in n-dimensional array of bins
 %          e.g. 3x5x7 array such that nelmts(i,j,k) gives no. points in
@@ -54,7 +45,7 @@ function [nstart,nend] = get_nrange_rot_section (urange,rot,trans,nelmts,varargi
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 989 $ ($Date: 2015-06-24 19:53:21 +0100 (Wed, 24 Jun 2015) $)
 
 
 % Check input arguments
@@ -75,7 +66,7 @@ elseif ~(ndim>=numel(sz))
 end
 
 % Get contiguous arrays
-[istart,iend,irange,inside,outside] = get_irange_rot(urange,rot,trans,varargin{:});
+[istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin{:});
 if ~outside
     [nstart,nend] = get_nrange_rot(nelmts,istart,iend,irange);
 else

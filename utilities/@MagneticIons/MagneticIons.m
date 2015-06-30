@@ -67,7 +67,8 @@ classdef MagneticIons
             %>>mi = MagneticIons();
             %>>[J0_ff,J2_ff]=mi.getIngerpolant('Fe0')
             %         Returns functions, calculating magnetic moment of Fe0 ion in
-            %         up to second moment approximation.
+            %         up to second moment approximation. (all odd momentums
+            %         are 0 so naturally not returned)
             %         The functions depend on Q^2 in angstroms^(-1) and
             %         magnetic form-factor observed in neutron experiments
             %         in reciprocal point of space Q (expressed in reverse

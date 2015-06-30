@@ -1,4 +1,4 @@
-function [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (urange_in, rot, trans, pbin, pin, en)
+function [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (urange_in, proj,pbin, pin, en)
 % Create bin boundaries for integration and plot axes from requested limits and step sizes
 % Uses knowledge of the range of the data and energy bins of the data to set values for those
 % not provided.
@@ -9,9 +9,13 @@ function [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (urange_in, rot,
 % Input:
 % ------
 %   urange_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
+%   proj        the class which defines the projection, trans in this case
+%               should be empty
+%  or: 
 %   rot         Matrix [3x3]     --|  that relate a vector expressed in the
 %   trans       Translation [3x1]--|  frame of the bin boundaries to those of urange:
 %                                         r'(i) = A(i,j)(r(j) - trans(j))
+
 %   pbin        Cell array of requested limits and bins for integration and plot axes:
 %       pbin{1}     Binning along first Q axis
 %       pbin{2}     Binning along second Q axis
@@ -161,10 +165,9 @@ iax = iax(1:niax);
 % ------------------------------------------------------------------------
 % Get range in output projection axes from the 8 points defined in momentum space by urange_in:
 % This gives the maximum extent of the data pixels that can possibly contribute to the output data. 
-[x1,x2,x3]=ndgrid(urange_in(:,1)-trans(1),urange_in(:,2)-trans(2),urange_in(:,3)-trans(3));
-vertex_in=[x1(:)';x2(:)';x3(:)'];
-vertex_out = rot*vertex_in;
-urange_out=[[min(vertex_out,[],2)';max(vertex_out,[],2)'],urange_in(:,4)];  % 2x4 array of limits in output proj. axes
+% third coodinate is not used.
+urange_out = proj.find_bounding_box(urange_in);
+
 
 iint=zeros(2,niax);
 p   =cell(1,npax);

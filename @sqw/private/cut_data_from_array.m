@@ -1,5 +1,8 @@
 function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
-    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
+    proj, pax, nbin)
+
+%function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (pix_in, nstart, nend, keep_pix, ...
+%    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
 %
 %   >> [s, e, npix, npix_retain] = cut_data (pix_in, nstart, nend, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
@@ -71,7 +74,7 @@ end
 if horace_info_level>=1, bigtic(2), end
 if horace_info_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
 [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-    v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax);
+    v, proj, pax);
 if horace_info_level>=1, t_accum = bigtoc(2); end
 
 % Sort pixels

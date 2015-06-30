@@ -1,4 +1,4 @@
-classdef test_calc_projections<TestCase
+classdef test_calc_projections %<TestCase
 % The test class which gets different transformation
 %
 % the purpose -- compare these transformations with Mantid transformations;
@@ -9,7 +9,7 @@ classdef test_calc_projections<TestCase
     
     methods
     function this=test_calc_projections(name)
-            this=this@TestCase(name);
+            %this=this@TestCase(name);
     end
     function test_transf1(this)
       alatt = [1,2,3];
@@ -41,7 +41,7 @@ classdef test_calc_projections<TestCase
                     0      0      0      -0.0393 -0.0374 -0.0354 -0.0786 -0.0748  -0.0707; ...
                     0      0      0       0       0       0      -0.0014 -0.0013  -0.0012; ...
                    -0.5000 0.5000 1.5000 -0.5000  0.5000  1.5000 -0.5000  0.5000   1.5000];
-       assertElementsAlmostEqual(uc_sample,ucoords[:,1:4],'absolute',2E-4);
+       assertElementsAlmostEqual(uc_sample,ucoords(:,1:4),'absolute',2E-4);
                           
     end
     end
