@@ -114,7 +114,7 @@ classdef spher_proj<aprojection
             
         end
         %
-        function [nbinstart,nbinend] = get_bin_range(this,urange,nelmts,varargin)
+        function [nbinstart,nbinend] = get_nbin_range(this,urange,nelmts,varargin)
             % Get range of grid bin indexes, which may contribute into the final
             % cut.
             [nbinstart,nbinend] = get_nrange_proj_section_(this,urange,nelmts,varargin{:});

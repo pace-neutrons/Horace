@@ -100,7 +100,7 @@ for n=1:numel(win)
     % Section the pix array, if sqw type, and update urange
     if is_sqw_type(win(n))
         % Section pix array
-        [nstart,nend] = get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
+        [nstart,nend] = aprojection.get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
         ind=ind_from_nrange(nstart,nend);
         wout(n).data.pix=win(n).data.pix(:,ind);
         % Update urange

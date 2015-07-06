@@ -1,4 +1,4 @@
-function [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin)
+function [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin)
 % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
 % where the first three dimensions can be rotated and translated w.r.t. the
 % cuboid that is split into bins.
@@ -64,7 +64,7 @@ elseif any(urange(1,:)>urange(2,:))
 end
 if ndim==3
     % No check on outer dimensions required
-    [istart,iend,inside,outside] = get_irange3D_rot(this,urange,varargin{1:3});
+    [istart,iend,inside,outside] = get_irange3D(this,urange,varargin{1:3});
     irange=zeros(2,0);
 else
     % Check first if the simple section of dimensions 4,5,... leaves any points (as fast to test)
@@ -75,7 +75,7 @@ else
         return
     end
     % Now look at inner three dimensions
-    [istart,iend,inside3D,outside3D] = get_irange3D_rot(this,urange,varargin{1:3});
+    [istart,iend,inside3D,outside3D] = get_irange3D(this,urange,varargin{1:3});
     if ~outside3D
         inside=(inside & inside3D);
     else
@@ -88,7 +88,7 @@ end
 end
 
 %========================================================================================
-function [istart,iend,inside,outside] = get_irange3D_rot(this,urange,p1,p2,p3)
+function [istart,iend,inside,outside] = get_irange3D(this,urange,p1,p2,p3)
 % Get indicies that define contiguous ranges of bins that partially or wholly
 % lie inside a cuboid volume that is rotated and translated w.r.t. the
 % cuboid that is split into bins.
@@ -145,46 +145,42 @@ function [istart,iend,inside,outside] = get_irange3D_rot(this,urange,p1,p2,p3)
 %           Note that T is given in coordinates of the axes of the bin
 %          boundaries.
 
-[rot,trans] = this.get_box_transf_();
-
 psize=[numel(p1),numel(p2),numel(p3)];
-
+%
+trans = this.ucentre;
 % Grid of bin verticies:
 [x1,x2,x3]=ndgrid(p1-trans(1),p2-trans(2),p3-trans(3));
+np = numel(x1);
+
+rs = [reshape(x1,1,np);reshape(x2,1,np);reshape(x3,1,np)];
 
 % Coordinates of bin verticies in rotated and translated frame in which urange is given
-ucoords=rot*[x1(:)';x2(:)';x3(:)'];
+ucoords=this.spher_transform(rs);
+%ucoords = reshape(ucoords,[3,psize]);
 
-bin_inside = ~(bin_outside(1)|bin_outside(2)|bin_outside(3));   % =0 if bin outside, =1 if at least partially intersects volume
+inside = (bin_inside(1)|bin_inside(2)|bin_inside(3));   % =0 if bin outside, =1 if at least partially intersects volume
 
-change = diff([false;bin_inside(:);false]);
+change = diff([false;inside(:);false]);
 istart = find(change==1);
 iend   = find(change==-1)-1;
-
+inside = reshape(inside,psize);
 
 % Determine values of inside and outside
 % --------------------------------------
-[b1,b2,b3]=ndgrid(urange(:,1),urange(:,2),urange(:,3));     % urange in the frame of bin boundaries
-bcoords=rot\[b1(:)';b2(:)';b3(:)'] - repmat(trans(:),1,8);
-if min(bcoords(1,:))>=p1(1) && max(bcoords(1,:))<=p1(end) &&...
-        min(bcoords(2,:))>=p2(1) && max(bcoords(2,:))<=p2(end) &&...
-        min(bcoords(3,:))>=p3(1) && max(bcoords(3,:))<=p3(end)
-    inside=true;
-else
-    inside=false;
-end
+%[b1,b2,b3]=ndgrid(urange(:,1),urange(:,2),urange(:,3));     % urange in the frame of bin boundaries
+%bcoords=rot\[b1(:)';b2(:)';b3(:)'] - repmat(trans(:),1,8);
+% if min(bcoords(1,:))>=p1(1) && max(bcoords(1,:))<=p1(end) &&...
+%         min(bcoords(2,:))>=p2(1) && max(bcoords(2,:))<=p2(end) &&...
+%         min(bcoords(3,:))>=p3(1) && max(bcoords(3,:))<=p3(end)
+%     inside=true;
+% else
+%     inside=false;
+% end
     
 outside=isempty(istart);
 
-    function wrk = bin_outside (idim)
-        % Determine if the bins lie wholly outside the limits along dimension number idim
-        wrk = reshape(ucoords(idim,:)<=urange(1,idim),psize);
-        all_low = wrk(1:end-1,1:end-1,1:end-1) & wrk(2:end,1:end-1,1:end-1) & wrk(1:end-1,2:end,1:end-1) & wrk(2:end,2:end,1:end-1) & ...
-            wrk(1:end-1,1:end-1,2:end) & wrk(2:end,1:end-1,2:end) & wrk(1:end-1,2:end,2:end) & wrk(2:end,2:end,2:end);
-        wrk = reshape(ucoords(idim,:)>=urange(2,idim),psize);
-        all_hi  = wrk(1:end-1,1:end-1,1:end-1) & wrk(2:end,1:end-1,1:end-1) & wrk(1:end-1,2:end,1:end-1) & wrk(2:end,2:end,1:end-1) & ...
-            wrk(1:end-1,1:end-1,2:end) & wrk(2:end,1:end-1,2:end) & wrk(1:end-1,2:end,2:end) & wrk(2:end,2:end,2:end);
-        wrk = all_low | all_hi;
+    function wrk = bin_inside (idim)
+        wrk = (ucoords(idim,:)<urange(1,idim));
     end
 
 end

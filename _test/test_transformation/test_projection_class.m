@@ -43,7 +43,7 @@ classdef test_projection_class<TestCase
             data.ulabel = {'a','b','c','d'};
             data.ulen = ones(4,1);        
             
-            proj=proj.define_tranformation(data);
+            proj=proj.init_tranformation(data);
         end
         function test_set_can_mex_keep(this)
             proj = projection();
