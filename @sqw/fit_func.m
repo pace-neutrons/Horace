@@ -59,12 +59,10 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 %   *   'chisqr'        Evaluate chi-squared at the initial parameter values 
 %                      (ignored if 'evaluate' not set). 
 % 
-% 
 %   EXAMPLES: 
 %   >> [wout, fitdata] = fit_func(...,'keep',[0.4,1.8],'list',2) 
 % 
 %   >> [wout, fitdata] = fit_func(...,'select') 
-% 
 % 
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit without throwing an error, call with additional 
@@ -96,6 +94,7 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 %                          width of a peak) 
 %               - c1,c2,... Any further arguments needed by the function (e.g. 
 %                          they could be the filenames of lookup tables) 
+% 
 %             Type >> help gauss2d  or >> help mexpon for examples 
 % 
 %   pin     Initial function parameter values 
@@ -168,6 +167,7 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 %                          width of a peak) 
 %               - c1,c2,... Any further arguments needed by the function (e.g. 
 %                          they could be the filenames of lookup tables) 
+% 
 %             Type >> help gauss2d  or >> help mexpon for examples 
 % 
 %   bpin    Initial parameter values for the background function.  See the 
@@ -269,65 +269,91 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 %   >> [wout, fitdata] = fit_func(...,'keep',[0.4,1.8],'list',2) 
 % 
 % 
-% 
-% 
 % Output: 
 % ======= 
 %   wout    sqw object or array of sqw objects evaluated at the 
 %           final fit parameter values. 
 % 
 %           If there was a problem for ith data set i.e. ok(i)==false, then 
-%           wout(i)==w(i) (or wout{i}=[] if cell array input). 
-%           If there was a fundamental problem e.g. incorrect input argument 
-%          syntax, then wout=[]. 
+%           wout(i)==w(i) 
 % 
-% fitdata   Structure array with the result of the fit for each dataset 
-%               fitdata.p      - Parameter values 
-%               fitdata.sig    - Estimated errors of global parameters 
-%                                (=0 for fixed parameters) 
-%               fitdata.bp     - Background parameter values 
-%               fitdata.bsig   - Estimated errors of background 
-%                                (=0 for fixed parameters) 
-%               fitdata.corr   - Correlation matrix for free parameters 
-%               fitdata.chisq  - Reduced Chi^2 of fit (i.e. divided by 
+%           If there was a fundamental problem e.g. incorrect input argument 
+%          syntax, or none of the fits succeeded (i.e. all(ok(:))==false) 
+%          then wout=[]. 
+% 
+% fitdata   Structure with result of the fit for each dataset. The fields are: 
+%          	p      - Parameter values [Row vector] 
+%           sig    - Estimated errors of global parameters (=0 for fixed 
+%                    parameters) [Row vector] 
+%           bp     - Background parameter values [Row vector] 
+%        	bsig   - Estimated errors of background (=0 for fixed parameters) 
+%                    [Row vector] 
+%       	corr   - Correlation matrix for free parameters 
+%          	chisq  - Reduced Chi^2 of fit (i.e. divided by 
 %                                (no. of data points) - (no. free parameters)) 
-%               fitdata.pnames - Parameter names 
-%               fitdata.bpnames- Background parameter names 
+%       	converged - True if the fit converged, false otherwise 
+%           pnames - Parameter names: a cell array (row vector) 
+%        	bpnames- Background parameter names: a cell array (row vector) 
+% 
+%           Single data set input: 
+%           ---------------------- 
+%           If there was a problem i.e. ok==false, then fitdata=[] 
+% 
+%           Array of data sets: 
+%           ------------------- 
+%           fitdata is an array of structures with the size of the input 
+%          data array. 
 % 
 %           If there was a problem for ith data set i.e. ok(i)==false, then 
-%          fitdata(i) will be dummy. 
-%           If there was a fundamental problem e.g. incorrect input argument 
-%          syntax, then fitdata=[]. 
+%          fitdata(i) will contain dummy information. 
 % 
-%   ok      True if all ok, false if problem fitting. 
+%           If there was a fundamental problem e.g. incorrect input argument 
+%          syntax, or none of the fits succeeded (i.e. all(ok(:))==false) 
+%          then fitdata=[]. 
+% 
+%   ok      True: A fit coould be performed. This includes the cases of 
+%             both convergence and failure to converge 
+%           False: Fundamental problem with the input arguments e.g. 
+%             the number of free parameters equals or exceeds the number 
+%             of data points 
+% 
+%           Array of data sets: 
+%           ------------------- 
 %           If an array of input datasets was given, then ok is an array with 
 %          the size of the input data array. 
-%           If the error was fundamental e.g. wrong argument syntax, then 
-%          ok will be a scalar, as the dataset argument may have been an 
-%          unrecognised type and so its size is not meaningful. 
 % 
-%   mess    Character string containing error message if not ok; '' if ok 
+%           If there was a fundamental problem e.g. incorrect input argument 
+%          syntax, or none of the fits succeeded (i.e. all(ok(:))==false) 
+%          then ok is scalar and ok==false. 
+% 
+%   mess    Error message if ok==false; Empty string if ok==true. 
+% 
+%           Array of data sets: 
+%           ------------------- 
 %           If an array of datasets was given, then mess is a cell array of 
 %          strings with the same size as the input data array. 
-%           If the error was fundamental e.g. wrong argument syntax, then 
-%          mess will be a simple character string, as the dataset argument 
-%          may have been an unrecognised type and so its size is not meaningful. 
+% 
+%           If there was a fundamental problem e.g. incorrect input argument 
+%          syntax, or none of the fits succeeded (i.e. all(ok(:))==false) 
+%          then mess is a single character string. 
+% 
 % 
 % EXAMPLES: 
+% ========= 
 % 
 % Fit a 2D Gaussian, allowing only height and position to vary: 
-%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5; 
-%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], [1,1,1,0,0,0]) 
+%   >> ht=100; x0=1; y0=3; var_x=2; var_y=1.5; 
+%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], [1,1,1,0,0,0]) 
 % 
 % Allow all parameters to vary, but remove two rectangles from the data 
-%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5; 
-%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ... 
+%   >> ht=100; x0=1; y0=3; var_x=2; var_y=1.5; 
+%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], ... 
 %                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3]) 
 % 
 % The same, with a planar background: 
-%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5; 
+%   >> ht=100; x0=1; y0=3; var_x=2; var_y=1.5; 
 %   >> const=0; dfdx=0; dfdy=0; 
-%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ... 
+%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], ... 
 %                             @planar_bg, [const,dfdx,dfdy],... 
 %                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3]) 
  
@@ -340,35 +366,22 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
 %   multifit=false; 
 %   func_prefix='fit'; 
 %   func_suffix='_func'; 
+%   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit') 
 %   obj_name = 'sqw' 
 % 
 %   doc_forefunc = 'sqw_doc:::doc_fitfunc_sqw_simple.m' 
 %   doc_backfunc = 'sqw_doc:::doc_fitfunc_sqw_simple.m' 
 % 
-%   keywords={''} 
+%   custom_keywords = false; 
 % 
 % <#doc_beg:> 
 %   <#file:> multifit_doc:::doc_fit_short.m 
 % 
 % 
 %   <#file:> multifit_doc:::doc_fit_long.m 
-% EXAMPLES: 
 % 
-% Fit a 2D Gaussian, allowing only height and position to vary: 
-%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5; 
-%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], [1,1,1,0,0,0]) 
 % 
-% Allow all parameters to vary, but remove two rectangles from the data 
-%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5; 
-%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ... 
-%                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3]) 
-% 
-% The same, with a planar background: 
-%   >> ht=100; x0=1; y0=3; sigx=2; sigy=1.5; 
-%   >> const=0; dfdx=0; dfdy=0; 
-%   >> [wout, fdata] = fit(w, @gauss2d, [ht,x0,y0,sigx,0,sigy], ... 
-%                             @planar_bg, [const,dfdx,dfdy],... 
-%                               'remove',[0.2,0.5,2,0.7; 1,2,1.4,3]) 
+%   <#file:> multifit_doc:::doc_fit_examples_2d.m 
 % <#doc_end:> 
  
  
@@ -378,7 +391,8 @@ function [wout, fitdata, ok, mess] = fit_func(win, varargin)
  
  
 % Note: we could rely on the generic fit function in Herbert, but this would 
-% recheck the parsing 
+% re-check the parsing for every element of the array of objects to be fitted. 
+% Furthermore, we cannot customise the help documentation. 
  
  
 % Catch case of a single dataset input 
@@ -406,7 +420,7 @@ bpos=bpos-ndata;
 args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,... 
                                                     @func_eval,{},@func_eval,{}); 
  
-% Evaluate function for each element of the array of sqw objects 
+% Evaluate function for each element of the array of objects 
 wout=win; 
 fitdata=repmat(struct,size(wout));  % array of empty structures 
 ok=false(size(wout)); 

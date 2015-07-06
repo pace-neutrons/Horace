@@ -64,12 +64,10 @@ function [wout, fitdata, ok, mess] = fit(win, varargin)
 %   *   'chisqr'        Evaluate chi-squared at the initial parameter values 
 %                      (ignored if 'evaluate' not set). 
 % 
-% 
 %   EXAMPLES: 
 %   >> [wout, fitdata] = fit(...,'keep',[0.4,1.8],'list',2) 
 % 
 %   >> [wout, fitdata] = fit(...,'select') 
-% 
 % 
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit without throwing an error, call with additional 
@@ -87,11 +85,12 @@ function [wout, fitdata, ok, mess] = fit(win, varargin)
 %   multifit=false; 
 %   func_prefix='fit'; 
 %   func_suffix=''; 
+%   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit') 
 %   obj_name = 'sqw' 
 % 
 %   full_help = 'sqw/fit_func' 
 % 
-%   keywords={''} 
+%   custom_keywords = false; 
 % 
 % <#doc_beg:> 
 %   <#file:> multifit_doc:::doc_fit_short.m 
