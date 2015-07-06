@@ -1,12 +1,11 @@
 function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,xtal,modshape)
-% Calculate sqw for a model scattering function. Only applies to sqw-type datasets.
+% Calculate resolution broadened sqw object(s) for a model scattering function.
 %
 %   >> wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,lookup)
 %
 % Input:
 % ------
-%   win         Dataset (or array of datasets) that provides the axes and points
-%              for the calculation
+%   win         sqw object or array of objects
 %
 %   sqwfunc     Handle to function that calculates S(Q,w)
 %               Most commonly used form is:
@@ -58,7 +57,8 @@ function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,xtal,
 % -------
 %   wout        Output dataset or array of datasets with computed signal
 %
-% NOTE: COntributions to resolution are
+%
+% NOTE: Contributions to resolution are
 %   yvec(1,...):   t_m      deviation in departure time from moderator surface
 %   yvec(2,...):   y_a      y-coordinate of neutron at apperture
 %   yvec(3,...):   z_a      z-coordinate of neutron at apperture

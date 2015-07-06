@@ -97,11 +97,14 @@ function [wout, fitdata, ok, mess] = multifit_sqw_sqw(win, varargin)
 %   *   'global_background' Background function applies to all datasets 
 %                          [Default: false] 
 % 
+%     Special keyword(s): 
+%       'average'       Compute S(Q,w) at the average values of h,k,l of 
+%                       the pixels in a bin, not for each pixel individually. 
+% 
 %   EXAMPLES: 
 %   >> [wout, fitdata] = multifit_sqw_sqw(...,'keep',[0.4,1.8],'list',2) 
 % 
 %   >> [wout, fitdata] = multifit_sqw_sqw(...,'select') 
-% 
 % 
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit without throwing an error, call with additional 
@@ -140,7 +143,7 @@ function [wout, fitdata, ok, mess] = multifit_sqw_sqw(win, varargin)
 %           If 'local_forground' is set to true, then the same function will 
 %           be fitted independently to each dataset. Alternatively, give an 
 %           array of handles, one per dataset. 
-%           The function must calculate S(Q,w) and have the form: 
+%           The function must calculate S(Q,w). It must have the form: 
 %               weight = my_sqwfunc (qh,qk,ql,en,p) 
 % 
 %             or, more generally: 
@@ -336,7 +339,7 @@ function [wout, fitdata, ok, mess] = multifit_sqw_sqw(win, varargin)
 %           If 'global_background' is set to true, then give just one 
 %           function handle; that function will be fitted globaly to all 
 %           data sets. 
-%           The function must calculate S(Q,w) and have the form: 
+%           The function must calculate S(Q,w). It must have the form: 
 %               weight = my_sqwfunc (qh,qk,ql,en,p) 
 % 
 %             or, more generally: 
@@ -498,10 +501,15 @@ function [wout, fitdata, ok, mess] = multifit_sqw_sqw(win, varargin)
 % * 'global_background' Background function applies to all datasets 
 %                      [Default: false] 
 % 
+% Special keyword(s): 
+%   'average'     Requests that S(Q,w) is computed for the average values 
+%                 of h,k,l for the pixels in a bin, not for each pixel 
+%                 individually. This reduces cost of expensive calculations 
+%                 of S(Q,w). 
+% 
+% 
 %   Example: 
 %   >> [wout, fitdata] = multifit_sqw_sqw(...,'keep',[0.4,1.8],'list',2) 
-% 
-% 
 % 
 % 
 % Output: 
@@ -509,63 +517,67 @@ function [wout, fitdata, ok, mess] = multifit_sqw_sqw(win, varargin)
 %   wout    sqw object or array of sqw objects evaluated at the 
 %           final fit parameter values. 
 % 
-%           If there was a problem for ith data set i.e. ok(i)==false, then 
-%           wout(i)==w(i) (or wout{i}=[] if cell array input). 
-%           If there was a fundamental problem e.g. incorrect input argument 
-%          syntax, then wout=[]. 
+%           If there was a problem i.e. ok==false, then wout=[]. 
 % 
-% fitdata   Structure array with the result of the fit for each dataset 
-%               fitdata.p      - Parameter values 
-%               fitdata.sig    - Estimated errors of global parameters 
-%                                (=0 for fixed parameters) 
-%               fitdata.bp     - Background parameter values 
-%               fitdata.bsig   - Estimated errors of background 
-%                                (=0 for fixed parameters) 
-%               fitdata.corr   - Correlation matrix for free parameters 
-%               fitdata.chisq  - Reduced Chi^2 of fit (i.e. divided by 
-%                                (no. of data points) - (no. free parameters)) 
-%               fitdata.pnames - Parameter names 
-%               fitdata.bpnames- Background parameter names 
+%   fitdata Structure with result of the fit for each dataset. The fields are: 
+%           p      - Best fit foreground function parameter values 
+%                      If only one function, a row vector 
+%                      If more than one function: a row cell array of row vectors 
+%           sig    - Estimated errors of foreground parameters (=0 for fixed 
+%                    parameters) 
+%                      If only one function, a row vector 
+%                      If more than one function: a row cell array of row vectors 
+%           bp     - Background parameter values 
+%                      If only one function, a row vector 
+%                      If more than one function: a row cell array of row vectors 
+%           bsig   - Estimated errors of background (=0 for fixed parameters) 
+%                      If only one function, a row vector 
+%                      If more than one function: a row cell array of row vectors 
+%           corr   - Correlation matrix for free parameters 
+%           chisq  - Reduced Chi^2 of fit i.e. divided by: 
+%                       (no. of data points) - (no. free parameters)) 
+%           converged - True if the fit converged, false otherwise 
+%           pnames - Foreground parameter names 
+%                      If only one function, a cell array (row vector) of names 
+%                      If more than one function: a row cell array of row vector 
+%                                                 cell arrays 
+%           bpnames- Background parameter names 
+%                      If only one function, a cell array (row vector) of names 
+%                      If more than one function: a row cell array of row vector 
+%                                                 cell arrays 
 % 
-%           If there was a problem for ith data set i.e. ok(i)==false, then 
-%          fitdata(i) will be dummy. 
-%           If there was a fundamental problem e.g. incorrect input argument 
-%          syntax, then fitdata=[]. 
+%           If there was a problem i.e. ok==false, then fitdata=[]. 
 % 
-%   ok      True if all ok, false if problem fitting. 
-%           If an array of input datasets was given, then ok is an array with 
-%          the size of the input data array. 
-%           If the error was fundamental e.g. wrong argument syntax, then 
-%          ok will be a scalar, as the dataset argument may have been an 
-%          unrecognised type and so its size is not meaningful. 
+%   ok      True: A fit coould be performed. This includes the cases of 
+%                 both convergence and failure to converge 
+%           False: Fundamental problem with the input arguments e.g. the 
+%                 number of free parameters equals or exceeds the number 
+%                 of data points 
 % 
-%   mess    Character string containing error message if not ok; '' if ok 
-%           If an array of datasets was given, then mess is a cell array of 
-%          strings with the same size as the input data array. 
-%           If the error was fundamental e.g. wrong argument syntax, then 
-%          mess will be a simple character string, as the dataset argument 
-%          may have been an unrecognised type and so its size is not meaningful. 
+%   mess    Error message if ok==false; Empty string if ok==true. 
 % 
 % 
 % EXAMPLES: 
+% ========= 
 % 
-% Fit a spin waves to a collection of  four sqw objects, allowing only intensity 
+% Fit spin wave model to a collection of four sqw objects, allowing only intensity 
 % and coupling constant to vary: 
 %   >> weight=100; SJ=10; gamma=3; 
-%   >> [wout, fdata] = fit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0]) 
+%   >> [wout, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0]) 
+% (Identical to using multifit_sqw because we are not fitting the background) 
 % 
-% If a 1D cut: allow all spin wave parameters to vary, only keep data in 
+% If 1D cuts: allow all spin wave parameters to vary, only keep data in 
 % restricted range, and allow a background of form (const + A|Q|^2): 
 %   >> weight=100; SJ=10; gamma=3; 
 %   >> const=0; quad=0; 
-%   >> [wout, fdata] = fit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],... 
+%   >> [wout, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],... 
 %                       @const_modqsqr, [const,quad],'keep',[-1.5,0.5]) 
 % 
 % As above, but allow the intensities to vary independently for the spin 
 % waves while keeping the exchange constant and lifetime global 
 %   >> weight=100; SJ=10; gamma=3; 
 %   >> const=0; quad=0; 
-%   >> [wout, fdata] = fit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],... 
+%   >> [wout, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],... 
 %                       [],{[],{1,1,1},{1,1,1},{1,1,1}} 
 %                       @const_modqsqr, [const,quad],'keep',[-1.5,0.5],... 
 %                       'local_foreground') 
@@ -580,37 +592,44 @@ function [wout, fitdata, ok, mess] = multifit_sqw_sqw(win, varargin)
 %   multifit=true; 
 %   func_prefix='multifit'; 
 %   func_suffix='_sqw_sqw'; 
+%   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit') 
 %   obj_name = 'sqw' 
 % 
 %   doc_forefunc = 'sqw_doc:::doc_fitfunc_sqw_sqw.m' 
 %   doc_backfunc = 'sqw_doc:::doc_fitfunc_sqw_sqw.m' 
 % 
-%   keywords={''} 
+%   custom_keywords = true; 
+%   doc_custom_keywords_short = 'sqw_doc:::doc_keyword_short_average.m'; 
+%   doc_custom_keywords_long  = 'sqw_doc:::doc_keyword_long_average.m'; 
 % 
 % <#doc_beg:> 
 %   <#file:> multifit_doc:::doc_multifit_short.m 
 % 
 % 
 %   <#file:> multifit_doc:::doc_multifit_long.m 
-% EXAMPLES: 
 % 
-% Fit a spin waves to a collection of  four sqw objects, allowing only intensity 
+% 
+% EXAMPLES: 
+% ========= 
+% 
+% Fit spin wave model to a collection of four sqw objects, allowing only intensity 
 % and coupling constant to vary: 
 %   >> weight=100; SJ=10; gamma=3; 
-%   >> [wout, fdata] = fit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0]) 
+%   >> [wout, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0]) 
+% (Identical to using multifit_sqw because we are not fitting the background) 
 % 
-% If a 1D cut: allow all spin wave parameters to vary, only keep data in 
+% If 1D cuts: allow all spin wave parameters to vary, only keep data in 
 % restricted range, and allow a background of form (const + A|Q|^2): 
 %   >> weight=100; SJ=10; gamma=3; 
 %   >> const=0; quad=0; 
-%   >> [wout, fdata] = fit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],... 
+%   >> [wout, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],... 
 %                       @const_modqsqr, [const,quad],'keep',[-1.5,0.5]) 
 % 
 % As above, but allow the intensities to vary independently for the spin 
 % waves while keeping the exchange constant and lifetime global 
 %   >> weight=100; SJ=10; gamma=3; 
 %   >> const=0; quad=0; 
-%   >> [wout, fdata] = fit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],... 
+%   >> [wout, fdata] = multifit_sqw_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],... 
 %                       [],{[],{1,1,1},{1,1,1},{1,1,1}} 
 %                       @const_modqsqr, [const,quad],'keep',[-1.5,0.5],... 
 %                       'local_foreground') 
@@ -627,8 +646,9 @@ arglist = struct('average',0);
 flags={'average'}; 
 [varargin,opt] = parse_arguments(varargin,arglist,flags,false); 
  
-% Parse the input arguments, and repackage for fit sqw 
-[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = multifit_gateway_parsefunc (win, varargin{:}); 
+% Parse the input arguments, and repackage for fit func 
+[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = ... 
+    multifit_gateway_parsefunc (win, varargin{:}); 
 if ~ok 
     wout=[]; fitdata=[]; 
     if nargout<3, error(mess), else return, end 

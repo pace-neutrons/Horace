@@ -107,7 +107,6 @@ function [wout, fitdata, ok, mess] = multifit(win, varargin)
 % 
 %   >> [wout, fitdata] = multifit(...,'select') 
 % 
-% 
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit without throwing an error, call with additional 
 % arguments that return status and error message: 
@@ -125,11 +124,12 @@ function [wout, fitdata, ok, mess] = multifit(win, varargin)
 %   multifit=true; 
 %   func_prefix='multifit'; 
 %   func_suffix=''; 
+%   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit') 
 %   obj_name = 'sqw' 
 % 
 %   full_help = 'sqw/multifit_func' 
 % 
-%   keywords={''} 
+%   custom_keywords = false; 
 % 
 % <#doc_beg:> 
 %   <#file:> multifit_doc:::doc_multifit_short.m 
