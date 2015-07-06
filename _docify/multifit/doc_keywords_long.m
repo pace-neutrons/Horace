@@ -1,9 +1,13 @@
 % Define the following:
 % ---------------------
 %   multifit        logical     True if multifit, false if just fit
-%   func_prefix     string      'multifit' or 'fit'
+%   func_prefix     string      'multifit' or 'fit' generally
 %   func_suffix     string      Suffix to function e.g. '_sqw'
-%   keywords        cellstr     Additional keywords
+%   custom_keywords logical     True if additional keywords for this
+%                               instance of multifit
+%   doc_custom_keywords_long
+%                   string      Name of file with long documentation of the
+%                               custom keywords
 
 
 <#doc_beg:>
@@ -93,10 +97,13 @@
 %                      independently [Default: true]
 % * 'global_background' Background function applies to all datasets
 %                      [Default: false]
+%
 <MULTIFIT/END:>
-%<keywords>
+<CUSTOM_KEYWORDS:>
+% Special keyword(s):
+    <#FILE:> <doc_custom_keywords_long>
+%
+<CUSTOM_KEYWORDS/END:>
 %
 %   Example:
 %   >> [wout, fitdata] = <func_prefix><func_suffix>(...,'keep',[0.4,1.8],'list',2)
-%
-%

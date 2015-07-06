@@ -23,5 +23,11 @@ function plist_new = multifit_gateway_parameter_set (plist, pnew)
 %
 %
 % This is a gateway routine to a private multifit function
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$) 
+
 
 plist_new = parameter_set (plist, pnew);

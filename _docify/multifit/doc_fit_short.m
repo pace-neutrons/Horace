@@ -21,8 +21,10 @@
 % A background function can be added to the fit function.
 % If passed an array of datasets, then each dataset is fitted independently.
 %
+<DIFFERS_FROM:>
 % Differs from multifit<func_suffix>, which fits all datasets in the array
 % simultaneously but with independent backgrounds.
+<DIFFERS_FROM/END:>
 <SYNONYMOUS:>
 %
 % For full help, read the documentation displayed when you type:
@@ -33,14 +35,14 @@
 % Fit several datasets in succession to a given function:
 % -------------------------------------------------------
 <MAIN:>
-%   >> [wout, fitdata] = fit<func_suffix> (x, y, e, func, pin)
-%   >> [wout, fitdata] = fit<func_suffix> (x, y, e, func, pin, pfree)          
-%   >> [wout, fitdata] = fit<func_suffix> (x, y, e, func, pin, pfree, pbind)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (x, y, e, func, pin)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (x, y, e, func, pin, pfree)          
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (x, y, e, func, pin, pfree, pbind)
 %
 <MAIN/END:>
-%   >> [wout, fitdata] = fit<func_suffix> (w, func, pin)                 
-%   >> [wout, fitdata] = fit<func_suffix> (w, func, pin, pfree)          
-%   >> [wout, fitdata] = fit<func_suffix> (w, func, pin, pfree, pbind)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (w, func, pin)                 
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (w, func, pin, pfree)          
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (w, func, pin, pfree, pbind)
 %
 % These cover the respective cases of:
 %   - All parameters free
@@ -50,14 +52,15 @@
 %
 % With optional background function added to the function:
 % --------------------------------------------------------
-%   >> [wout, fitdata] = fit<func_suffix> (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = fit<func_suffix> (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = fit<func_suffix> (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (..., bkdfunc, bpin, bpfree, bpbind)
 %
 %
 <#FILE:> multifit_doc:::doc_keywords_short.m
+%
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit without throwing an error, call with additional
 % arguments that return status and error message:
 %
-%   >> [wout, fitdata, ok, mess] = fit<func_suffix> (...)
+%   >> [wout, fitdata, ok, mess] = <func_prefix><func_suffix> (...)

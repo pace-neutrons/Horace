@@ -21,5 +21,11 @@ function p = multifit_gateway_parameter_get(plist)
 %
 %
 % This is a gateway routine to a private multifit function
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$) 
+
 
 p = parameter_get(plist);

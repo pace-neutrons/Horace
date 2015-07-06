@@ -145,64 +145,76 @@
 %   wout    <obj_name> object or array of <obj_name> objects evaluated at the
 %           final fit parameter values.
 %
+%           If there was a problem for ith data set i.e. ok(i)==false, then
+%           wout(i)==w(i)
+%
 <METHOD/END:>
 <MAIN:>
 %   wout    Output with same form as input data but with y values evaluated
 %           at the final fit parameter values. If the input was three separate
 %           x,y,e arrays, then only the calculated y values are returned.
 %
+%           If there was a problem for ith data set i.e. ok(i)==false, then
+%           wout(i)==w(i) if w is an array of structures or objects, or
+%           wout{i}=[] if cell array input).
+%
 <MAIN/END:>
-%           If there was a problem for ith data set i.e. ok(i)==false, then
-%           wout(i)==w(i) (or wout{i}=[] if cell array input).
 %           If there was a fundamental problem e.g. incorrect input argument
-%          syntax, then wout=[].
+%          syntax, or none of the fits succeeded (i.e. all(ok(:))==false)
+%          then wout=[].
 %
-% fitdata   Structure array with the result of the fit for each dataset
-%               fitdata.p      - Parameter values
-%               fitdata.sig    - Estimated errors of global parameters
-%                                (=0 for fixed parameters)
-%               fitdata.bp     - Background parameter values
-%               fitdata.bsig   - Estimated errors of background
-%                                (=0 for fixed parameters)
-%               fitdata.corr   - Correlation matrix for free parameters
-%               fitdata.chisq  - Reduced Chi^2 of fit (i.e. divided by
+% fitdata   Structure with result of the fit for each dataset. The fields are:
+%          	p      - Parameter values [Row vector]
+%           sig    - Estimated errors of global parameters (=0 for fixed 
+%                    parameters) [Row vector]
+%           bp     - Background parameter values [Row vector]
+%        	bsig   - Estimated errors of background (=0 for fixed parameters)
+%                    [Row vector]
+%       	corr   - Correlation matrix for free parameters
+%          	chisq  - Reduced Chi^2 of fit (i.e. divided by
 %                                (no. of data points) - (no. free parameters))
-%               fitdata.pnames - Parameter names
-%               fitdata.bpnames- Background parameter names
+%       	converged - True if the fit converged, false otherwise
+%           pnames - Parameter names: a cell array (row vector)
+%        	bpnames- Background parameter names: a cell array (row vector)
+%
+%           Single data set input:
+%           ----------------------
+%           If there was a problem i.e. ok==false, then fitdata=[]
+%
+%           Array of data sets:
+%           -------------------
+%           fitdata is an array of structures with the size of the input
+%          data array.
 %
 %           If there was a problem for ith data set i.e. ok(i)==false, then
-%          fitdata(i) will be dummy.
-%           If there was a fundamental problem e.g. incorrect input argument
-%          syntax, then fitdata=[].
+%          fitdata(i) will contain dummy information.
 %
-%   ok      True if all ok, false if problem fitting. 
+%           If there was a fundamental problem e.g. incorrect input argument
+%          syntax, or none of the fits succeeded (i.e. all(ok(:))==false)
+%          then fitdata=[].
+%
+%   ok      True: A fit coould be performed. This includes the cases of
+%             both convergence and failure to converge
+%           False: Fundamental problem with the input arguments e.g.
+%             the number of free parameters equals or exceeds the number
+%             of data points
+%
+%           Array of data sets:
+%           -------------------
 %           If an array of input datasets was given, then ok is an array with
 %          the size of the input data array.
-%           If the error was fundamental e.g. wrong argument syntax, then
-%          ok will be a scalar, as the dataset argument may have been an
-%          unrecognised type and so its size is not meaningful.
 %
-%   mess    Character string containing error message if not ok; '' if ok
+%           If there was a fundamental problem e.g. incorrect input argument
+%          syntax, or none of the fits succeeded (i.e. all(ok(:))==false)
+%          then ok is scalar and ok==false.
+%
+%   mess    Error message if ok==false; Empty string if ok==true.
+%
+%           Array of data sets:
+%           -------------------
 %           If an array of datasets was given, then mess is a cell array of
 %          strings with the same size as the input data array.
-%           If the error was fundamental e.g. wrong argument syntax, then
-%          mess will be a simple character string, as the dataset argument
-%          may have been an unrecognised type and so its size is not meaningful.
 %
-<MAIN:>
-% EXAMPLES
-%   Fit a gaussian on a linear background, given x,y,e arrays:
-%
-%   >> pin=[20,10,3];   % Initial height, position and standard deviation
-%   >> bg=[2,0]         % Initial intercept and gradient of background
-%   >> [yfit,fitpar]=fit(x,y,e,@gauss,pin,@linear_bg,bg)
-%
-%   Remove a portion of the data, and give copious output during the fitting
-%
-%   >> [yfit,fitpar]=fit(x,y,e,@gauss,pin,@linear_bg,bg,'remove',[12,14],'list',2)
-%
-%   Fix the position and constrain the width to be a constant multiple of
-%   the constant part of the linear background:
-%
-%   >> [yfit,fitpar]=fit(x,y,e,@gauss,pin,[1,0,1],{3,1,1},@linear_bg,bg)
-<MAIN/END:>
+%           If there was a fundamental problem e.g. incorrect input argument
+%          syntax, or none of the fits succeeded (i.e. all(ok(:))==false)
+%          then mess is a single character string.

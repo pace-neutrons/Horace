@@ -112,7 +112,6 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
 % 
 %   >> [wout, fitdata] = multifit(...,'select') 
 % 
-% 
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit without throwing an error, call with additional 
 % arguments that return status and error message: 
@@ -203,6 +202,7 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
 %                          width of a peak) 
 %               - c1,c2,... Any further arguments needed by the function (e.g. 
 %                          they could be the filenames of lookup tables) 
+% 
 %             Type >> help gauss2d  or >> help mexpon for examples 
 % 
 %           If fitting objects, then if w is an instance of an object, the 
@@ -450,6 +450,7 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
 %                          width of a peak) 
 %               - c1,c2,... Any further arguments needed by the function (e.g. 
 %                          they could be the filenames of lookup tables) 
+% 
 %             Type >> help gauss2d  or >> help mexpon for examples 
 % 
 %           If fitting objects, then if w is an instance of an object, the 
@@ -648,10 +649,9 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
 % * 'global_background' Background function applies to all datasets 
 %                      [Default: false] 
 % 
+% 
 %   Example: 
 %   >> [wout, fitdata] = multifit(...,'keep',[0.4,1.8],'list',2) 
-% 
-% 
 % 
 % 
 % Output: 
@@ -660,72 +660,84 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
 %           at the final fit parameter values. If the input was three separate 
 %           x,y,e arrays, then only the calculated y values are returned. 
 % 
-%           If there was a problem for ith data set i.e. ok(i)==false, then 
-%           wout(i)==w(i) (or wout{i}=[] if cell array input). 
-%           If there was a fundamental problem e.g. incorrect input argument 
-%          syntax, then wout=[]. 
+%           If there was a problem i.e. ok==false, then wout=[]. 
 % 
-% fitdata   Structure array with the result of the fit for each dataset 
-%               fitdata.p      - Parameter values 
-%               fitdata.sig    - Estimated errors of global parameters 
-%                                (=0 for fixed parameters) 
-%               fitdata.bp     - Background parameter values 
-%               fitdata.bsig   - Estimated errors of background 
-%                                (=0 for fixed parameters) 
-%               fitdata.corr   - Correlation matrix for free parameters 
-%               fitdata.chisq  - Reduced Chi^2 of fit (i.e. divided by 
-%                                (no. of data points) - (no. free parameters)) 
-%               fitdata.pnames - Parameter names 
-%               fitdata.bpnames- Background parameter names 
+%   fitdata Structure with result of the fit for each dataset. The fields are: 
+%           p      - Best fit foreground function parameter values 
+%                      If only one function, a row vector 
+%                      If more than one function: a row cell array of row vectors 
+%           sig    - Estimated errors of foreground parameters (=0 for fixed 
+%                    parameters) 
+%                      If only one function, a row vector 
+%                      If more than one function: a row cell array of row vectors 
+%           bp     - Background parameter values 
+%                      If only one function, a row vector 
+%                      If more than one function: a row cell array of row vectors 
+%           bsig   - Estimated errors of background (=0 for fixed parameters) 
+%                      If only one function, a row vector 
+%                      If more than one function: a row cell array of row vectors 
+%           corr   - Correlation matrix for free parameters 
+%           chisq  - Reduced Chi^2 of fit i.e. divided by: 
+%                       (no. of data points) - (no. free parameters)) 
+%           converged - True if the fit converged, false otherwise 
+%           pnames - Foreground parameter names 
+%                      If only one function, a cell array (row vector) of names 
+%                      If more than one function: a row cell array of row vector 
+%                                                 cell arrays 
+%           bpnames- Background parameter names 
+%                      If only one function, a cell array (row vector) of names 
+%                      If more than one function: a row cell array of row vector 
+%                                                 cell arrays 
 % 
-%           If there was a problem for ith data set i.e. ok(i)==false, then 
-%          fitdata(i) will be dummy. 
-%           If there was a fundamental problem e.g. incorrect input argument 
-%          syntax, then fitdata=[]. 
+%           If there was a problem i.e. ok==false, then fitdata=[]. 
 % 
-%   ok      True if all ok, false if problem fitting. 
-%           If an array of input datasets was given, then ok is an array with 
-%          the size of the input data array. 
-%           If the error was fundamental e.g. wrong argument syntax, then 
-%          ok will be a scalar, as the dataset argument may have been an 
-%          unrecognised type and so its size is not meaningful. 
+%   ok      True: A fit coould be performed. This includes the cases of 
+%                 both convergence and failure to converge 
+%           False: Fundamental problem with the input arguments e.g. the 
+%                 number of free parameters equals or exceeds the number 
+%                 of data points 
 % 
-%   mess    Character string containing error message if not ok; '' if ok 
-%           If an array of datasets was given, then mess is a cell array of 
-%          strings with the same size as the input data array. 
-%           If the error was fundamental e.g. wrong argument syntax, then 
-%          mess will be a simple character string, as the dataset argument 
-%          may have been an unrecognised type and so its size is not meaningful. 
+%   mess    Error message if ok==false; Empty string if ok==true. 
 % 
 % 
-% EXAMPLES 
-%   Fit a gaussian on a linear background to two data sets, given x,y,e arrays: 
+% EXAMPLES: 
+% ========= 
 % 
+% Fit a Gaussian on a linear background to two data sets: 
+% 
+% If the data is in arrays x,y,e arrays, then package data into an array of 
+% structures with fields x,y,e: 
 %   >> w=struct('x',x1,'y',y1,'e',e1);      % x1,y1,e1 contain first data set 
 %   >> w(2)=struct('x',x2,'y',y2,'e',e2);   % x2,y2,e2 contain 2nd data set 
 % 
-%   Fit global Gaussian, with independent linear backgrounds which have the 
-%   same starting parameters: 
+% Fit a global Gaussian, with independent linear backgrounds which have the 
+% same starting parameters: 
 % 
 %   >> pin=[20,10,3];   % Initial height, position and standard deviation 
 %   >> bg=[2,0]         % Initial intercept and gradient of background 
-%   >> [wfit,fitpar]=fit(w,@gauss,pin,@linear_bg,bg) 
+%   >> [wfit,fitpar]=multifit(w,@gauss,pin,@linear_bg,bg) 
 % 
-%   Remove a portion of the data, and give copious output during the fitting 
-%   - remove a common range: 
-%   >> [yfit,fitpar]=fit(x,y,e,@gauss,pin,@linear_bg,bg,'remove',... 
-%                                               [12,14],'list',2) 
-%   - remove different ranges for the two data sets: 
-%   >> [yfit,fitpar]=fit(x,y,e,@gauss,pin,@linear_bg,bg,'remove',... 
-%                                               {[12,14],[10,13]},'list',2) 
+% Remove a portion of the data, and give copious output during the fitting 
+% - remove a common range: 
+%   >> [wfit,fitpar]=multifit(w,@gauss,pin,@linear_bg,bg,'remove',... 
+%                                             [12,14],'list',2) 
+% - remove different ranges for the two data sets: 
+%   >> [wfit,fitpar]=multifit(w,@gauss,pin,@linear_bg,bg,'remove',... 
+%                                             {[12,14],[10,13]},'list',2) 
 % 
-%   Fix the position and constrain (1) the constant part of the background 
-%   of the first data set to be a fixed multiple of the width of the Gaussian, 
-%   and (2) the gradient of the background to the second data set to be 
-%   a fixed multiple of the height of the Gaussian: 
+% Fix the position and constrain (1) the constant part of the background 
+% of the first data set to be a fixed multiple of the width of the Gaussian, 
+% and (2) the gradient of the background to the second data set to be 
+% a fixed multiple of the height of the Gaussian: 
 % 
-%   >> [yfit,fitpar]=fit(x,y,e,@gauss,pin,[1,0,1],@linear_bg,bg,... 
-%                               {{1,3,-1},{2,1,-1,1e-3}}) 
+%   >> [wfit,fitpar]=multifit(w,@gauss,pin,[1,0,1],@linear_bg,bg,... 
+%                             {{1,3,-1},{2,1,-1,1e-3}}) 
+% 
+% Fit independent Gaussians but which are constrained to have the same 
+% widths 
+% 
+%   >> [wfit,fitpar]=multifit(w,@gauss,pin,{{},{3,3,1}},@linear_bg,bg,... 
+%                                         'local_foreground') 
  
 % <#doc_def:> 
 %   first_line = {'% Simultaneously fits a function to several datasets, with optional',... 
@@ -737,14 +749,18 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
 %   multifit=true; 
 %   func_prefix='multifit'; 
 %   func_suffix=''; 
+%   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit') 
 % 
-%   keywords={''} 
+%   custom_keywords = false; 
 % 
 % <#doc_beg:> 
 %   <#file:> multifit_doc:::doc_multifit_short.m 
 % 
 % 
 %   <#file:> multifit_doc:::doc_multifit_long.m 
+% 
+% 
+%   <#file:> multifit_doc:::doc_multifit_examples_1d.m 
 % <#doc_end:> 
  
  

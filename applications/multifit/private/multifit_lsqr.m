@@ -1,5 +1,31 @@
-function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
-
+function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
+    multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
+% Perform least-squares minimissation
+%
+%   >> [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
+%       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
+%
+% Input:
+% ------
+%
+%
+% Output:
+% -------
+%   p_best      Column vector of final fit parameters
+%   sig         Column vector of estimated standard deviations
+%   cor         Correlation matrix for the free parameters
+%   chisqr_red  Reduced chi-squared at fional fit parameters
+%   converged   True if fit converged; false if not.
+%
+%   ok          True: A fit coould be performed. This includes the cases of
+%                 both convergence and failure to converge
+%               False: Fundamental problem with the input arguments e.g.
+%                 the number of free parameters equals or exceeds the number
+%                 of data points
+%               
+%   mess        Error message if ok==false; Empty string if ok==true.
+%
+%
 % T.G.Perring Jan 2009:
 % ------------------------
 % Generalise to arbitrary data objects which have a certain set of methods defined on them (see

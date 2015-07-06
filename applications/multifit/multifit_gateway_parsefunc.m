@@ -18,26 +18,31 @@ function [ok,mess,varargout] = multifit_gateway_parsefunc (varargin)
 % -------
 %   ok          True if all ok, false if there is a syntax problem.
 %   mess        Character string containing error message if ~ok; '' if ok
-%   pos         Position of foreground function handle argument in input argument list
+%   pos         Position of foreground function handle argument in input
+%              argument list
 %   func        Cell array of function handle(s) to foreground function(s)
 %   plist       Cell array of parameter lists, one per foreground function
 %   pfree       Cell array of logical row vectors, one per foreground function,
 %              describing which parameters are free or not
-%   pbind       Structure defining the foreground function binding, each field a
-%              cell array with the same size as the corresponding functions array:
-%           ipbound     Cell array of column vectors of indicies of bound parameters,
-%                      one vector per function
-%           ipboundto   Cell array of column vectors of the parameters to which those
-%                      parameters are bound, one vector per function
-%           ifuncboundto  Cell array of column vectors of single indicies of the functions
-%                      corresponding to the free parameters, one vector per function. The
-%                      index is ifuncfree(i)<0 for foreground functions, and >0 for
-%                      background functions.
-%           pratio      Cell array of column vectors of the ratios (bound_parameter/free_parameter),
-%                      if the ratio was explicitly given. Will contain NaN if not (the
-%                      ratio will be determined from the initial parameter values). One
-%                      vector per function.
-%   bpos        Position of background function handle argument in input argument list
+%   pbind       Structure defining the foreground function binding, each field
+%              a cell array with the same size as the corresponding functions
+%              array:
+%           ipbound     Cell array of column vectors of indicies of bound
+%                      parameters, one vector per function
+%           ipboundto   Cell array of column vectors of the parameters to
+%                      which those parameters are bound, one vector per
+%                      function
+%           ifuncboundto  Cell array of column vectors of single indicies
+%                      of the functions corresponding to the free parameters,
+%                      one vector per function. The index is ifuncfree(i)<0
+%                      for foreground functions, and >0 for background functions.
+%           pratio      Cell array of column vectors of the ratios
+%                      (bound_parameter/free_parameter),if the ratio was
+%                      explicitly given. Will contain NaN if not (the ratio
+%                      will be determined from the initial parameter values).
+%                      One vector per function.
+%   bpos        Position of background function handle argument in input 
+%              argument list
 %   bfunc       Cell array of function handle(s) to background function(s)
 %   bplist      Cell array of parameter lists, one per background function
 %   bpfree      Cell array of logical row vectors, one per background function,
@@ -58,6 +63,11 @@ function [ok,mess,varargout] = multifit_gateway_parsefunc (varargin)
 %                   multifit_gateway_parsefunc (varargin{:});
 %   >> pbind_cell = multifit_gateway_pbind_struct_to_cell (pbind);
 %   >> bpbind_cell= multifit_gateway_pbind_struct_to_cell (bpbind);
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$) 
 
 
 [ok,mess,parsing,output]=multifit_main(varargin{:},'parsefunc_');

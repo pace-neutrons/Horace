@@ -40,6 +40,11 @@ function args_out=multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfun
 %              Continuing the example lines above:
 %                           :
 %                    [ok,mess,wout,fitdata] = multifit_gateway_main (win, args_out{:});
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$) 
 
 
 % Create new foreground parameter list(s)

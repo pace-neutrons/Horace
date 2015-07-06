@@ -4,12 +4,14 @@ function y = gauss2d(x1, x2, p)
 %   >> y = gauss2d(x1,x2,p)
 %
 %  Function has form:
-%       y = h * exp(-1/2 * [dx1,dx2].*cov.*[dx1;dx2])
+%       y = h * exp(-1/2 * [dx1,dx2].*cov^-1.*[dx1;dx2])
 %   where
 %       dx1 = x1-x1_0
 %       dx2 = x2-x2_0
 %   
 %       cov = [c11, c12; c12, c22]  i.e. covariance matrix
+%               (c11 is the variance of x1, c22 is the variance of x2
+%               and c12/sqrt(c11*c22) is the correlation between x1 and x2).
 %
 % Input:
 % =======

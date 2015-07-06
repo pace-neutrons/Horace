@@ -27,8 +27,10 @@
 % Similarly, you can specify a global background function, by given the
 % keyword option 'global_background'
 %
+<DIFFERS_FROM:>
 % Differs from fit<func_suffix>, which independently fits each dataset in
 % succession.
+<DIFFERS_FROM/END:>
 <SYNONYMOUS:>
 %
 % For full help, read the documentation displayed when you type:
@@ -39,14 +41,14 @@
 % Simultaneously fit datasets to a single function ('global foreground'):
 % -----------------------------------------------------------------------
 <MAIN:>
-%   >> [wout, fitdata] = multifit<func_suffix> (x, y, e, func, pin)
-%   >> [wout, fitdata] = multifit<func_suffix> (x, y, e, func, pin, pfree)          
-%   >> [wout, fitdata] = multifit<func_suffix> (x, y, e, func, pin, pfree, pbind)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (x, y, e, func, pin)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (x, y, e, func, pin, pfree)          
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (x, y, e, func, pin, pfree, pbind)
 %
 <MAIN/END:>
-%   >> [wout, fitdata] = multifit<func_suffix> (w, func, pin)                 
-%   >> [wout, fitdata] = multifit<func_suffix> (w, func, pin, pfree)          
-%   >> [wout, fitdata] = multifit<func_suffix> (w, func, pin, pfree, pbind)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (w, func, pin)                 
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (w, func, pin, pfree)          
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (w, func, pin, pfree, pbind)
 %
 % These cover the respective cases of:
 %   - All parameters free
@@ -56,9 +58,9 @@
 %
 % With optional background functions added to the foreground:
 % -----------------------------------------------------------
-%   >> [wout, fitdata] = multifit<func_suffix> (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = multifit<func_suffix> (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = multifit<func_suffix> (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (..., bkdfunc, bpin, bpfree, bpbind)
 %
 %   If you give just one background function then that function will be used for
 %   all datasets, but the parameters will be varied independently for each dataset
@@ -73,18 +75,19 @@
 % for each dataset.
 %
 % To have independent foreground functions for each dataset:
-%   >> [wout, fitdata] = multifit<func_suffix> (..., 'local_foreground')
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (..., 'local_foreground')
 %
 %   If you give just one foreground function then that function will be used for
 %   all datasets, but the parameters will be varied independently for each dataset
 %
 % To have a global background function across all datasets:
-%   >> [wout, fitdata] = multifit<func_suffix> (..., 'global_background')
+%   >> [wout, fitdata] = <func_prefix><func_suffix> (..., 'global_background')
 %
 %
 <#FILE:> multifit_doc:::doc_keywords_short.m
+%
 % If unable to fit, then the program will halt and display an error message. 
 % To return if unable to fit without throwing an error, call with additional
 % arguments that return status and error message:
 %
-%   >> [wout, fitdata, ok, mess] = multifit<func_suffix> (...)
+%   >> [wout, fitdata, ok, mess] = <func_prefix><func_suffix> (...)

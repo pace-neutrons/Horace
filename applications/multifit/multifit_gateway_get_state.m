@@ -24,6 +24,12 @@ function [isfitting,index,foreground,store_calcs]=multifit_gateway_get_state
 % This function can be called inside user provided functions to control 
 % the calculation of function e.g. having dataset specific branching, or
 % control of random number generators.
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$) 
+
 
 % Simply an interface to a hidden function in the multifit /private folder
 [isfitting,index,foreground,store_calcs]=multifit_store_state;

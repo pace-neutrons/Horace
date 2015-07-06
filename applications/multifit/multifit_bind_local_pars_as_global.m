@@ -21,6 +21,12 @@ function pbind = multifit_bind_local_pars_as_global (sz, bind, foreground)
 % Output:
 % -------
 %   pbind       Cell array of binding descriptions
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$) 
+
 
 nw=prod(sz);
 if nw==0

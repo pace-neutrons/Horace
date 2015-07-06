@@ -38,6 +38,12 @@ function pbind_cell=multifit_gateway_pbind_struct_to_cell (pbind_struct)
 %                      for background functions
 %                    - The ratio is a finite number, or NaN to indicate that the fixed ratio 
 %                      is the value given by the initial parmaeter values
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$) 
+
 
 pbind_cell=cell(size(pbind_struct.ipbound));
 for i=1:numel(pbind_cell)
