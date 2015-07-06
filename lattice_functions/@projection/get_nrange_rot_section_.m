@@ -65,9 +65,9 @@ elseif ~(ndim>=numel(sz))
 end
 
 % Get contiguous arrays
-[istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin{:});
+[istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin{:});
 if ~outside
-    [nstart,nend] = get_nrange_rot(nelmts,istart,iend,irange);
+    [nstart,nend] = aprojection.get_nrange_4D(nelmts,istart,iend,irange);
 else
     nstart=zeros(0,1);
     nend=zeros(0,1);

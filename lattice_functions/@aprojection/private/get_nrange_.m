@@ -1,4 +1,4 @@
-function [nstart,nend] = get_nrange(nelmts,irange)
+function [nstart,nend] = get_nrange_(nelmts,irange)
 % Get contiguous ranges of an array for a section of the binning array
 %
 % Given an array containing number of points in bins, and a section of

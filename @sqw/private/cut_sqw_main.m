@@ -354,7 +354,7 @@ for i=1:4
     nbin_in(i)=length(pin{i})-1;
 end
 % Reshape of data.npix in following line is necessary to insert singleton dimensions for integration axes
-[nstart,nend]=proj.get_bin_range(urange+border,reshape(data.npix,nbin_in), pin{:});
+[nstart,nend]=proj.get_nbin_range(urange+border,reshape(data.npix,nbin_in), pin{:});
 
 % Get matrix, and offset in pixel proj. axes, that convert from coords in pixel proj. axes to multiples of step from lower point of range
 % ---------------------------------------------------------------------------------------------------------------------------------------------

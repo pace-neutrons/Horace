@@ -1,4 +1,4 @@
-function [nstart,nend] = get_nrange_rot(nelmts,istart,iend,irange)
+function [nstart,nend] = get_nrange_4D_(nelmts,istart,iend,irange)
 % Get contiguous ranges of an array for a section of the binning array
 %
 % Given an array containing number of points in bins, contiguous bin ranges
@@ -86,7 +86,7 @@ end
 if ndim>3 && (numel(istart)==1 && istart(1)==1 && iend(1)==prod(dims(1:3)))
     % All bins in inner three dimensions are retained, and at least one extra dimension
     irange3D=[ones(1,3);dims(1:3)];
-    [nstart,nend] = get_nrange(nelmts,[irange3D,irange]);
+    [nstart,nend] = aprojection.get_nrange(nelmts,[irange3D,irange]);
 else
     if ndim>3
         % Limited number of bins from inner three dimensions, and at least one extra dimension
