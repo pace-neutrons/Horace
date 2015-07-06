@@ -1,12 +1,15 @@
 classdef projection<aprojection
-    %  Class defines
-    %  build on the basis of these axis
+    %  Class defines coordinate projections necessary to make horace cuts 
+    %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
-    %  Defines two vectors u and v that give the direction of u1
-    %  (parallel to u) and u2 (in the plane of u1 and u2, with u2
-    %  having positive component along v); also defines the
-    %  normalisation of u1,u2,u3
-    
+    %  Uses projection axis and projection logic, defined by projaxis class
+    %  and works as interface to this class for defining projection
+    %
+    %  Defines coordinate transformations, used by cut_sqw when making
+    %  horace cuts
+    %
+    % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+    %   
     properties %(SetAccess=protected)
         %
         usteps = [1,1,1,1]
@@ -117,11 +120,19 @@ classdef projection<aprojection
             angl = this.angdeg_;
         end
         %-----------------------------------------------------------------
-        function this=define_tranformation(this,data)
+        function this=init_tranformation(this,data)
             % Retrieve all parameters, necessary to define a transformation
             % from sqw data
             this = set_data_transf_(this,data);
         end
+        function urange_out = find_maximal_data_range(this,urange_in)
+            % find the whole range of input data which may contribute
+            % into the result.
+            % urange_in -- the range of the data in initial coordinate
+            % system.
+            urange_out  = find_ranges_(this,urange_in);
+        end
+        
         function this = set_proj_ranges(this,ustep,urange_step,urange_offset)
             % urange_step -- number of bin in every cut direction
             % ustep -- step size in each cut direction
@@ -129,13 +140,6 @@ classdef projection<aprojection
             this.urange_step = urange_step;
             this.urange_offset = urange_offset;
             
-        end
-        function urange_out = find_bounding_box(this,urange_in)
-            % find the whole range of input data which may contribute
-            % into the result.
-            % urange_in -- the range of the data in initial coordinate
-            % system.
-            urange_out  = find_ranges_(this,urange_in);
         end
         function [nbinstart,nbinend] = get_bin_range(this,urange,nelmts,varargin)
             % Get range of grid bin indexes, which may contribute into the final

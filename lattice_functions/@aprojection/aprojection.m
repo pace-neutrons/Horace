@@ -38,13 +38,13 @@ classdef aprojection
         end        
     end
     methods(Abstract)
-        this=define_tranformation(this,data);
+        this=init_tranformation(this,data);
         % Retrieve all parameters, necessary to define a transformation
         % from sqw data
         this = set_proj_ranges(this,ustep,urange_step,urange_offset);
         % urange_step -- number of bin in every cut direction
         % ustep -- step size in each cut direction
-        urange_out = find_bounding_box(this,urange_in);
+        urange_out = find_maximal_data_range(this,urange_in);
         % find the whole range of input data which may contribute
         % into the result.
         % urange_in -- the range of the data in initial coordinate

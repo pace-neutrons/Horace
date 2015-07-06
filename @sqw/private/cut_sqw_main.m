@@ -309,10 +309,10 @@ pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
 % are expressed. Recall that this is not necessarily the same as that in which the individual pixel information is
 % expressed.
 if proj_given
-    proj = proj.define_tranformation(data);
+    proj = proj.init_tranformation(data);
 else
     proj = projection();  % empty instance of the projaxes class
-    proj = proj.define_tranformation(data);
+    proj = proj.init_tranformation(data);
     
     % is empty, then the order is as the axes displayed in a plot
     ptmp=pbin;          % input refers to display axes
