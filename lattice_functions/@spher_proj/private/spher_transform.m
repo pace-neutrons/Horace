@@ -6,7 +6,7 @@ function new_coord = spher_transform(this,rs)
 %
 ez = this.ez;
 ex = this.ex;
-[r,theta,phi] = cart2pol(rs(1,:),rs(2,:),rs(3,:));
+[phi,theta,r] = cart2sph(rs(1,:),rs(2,:),rs(3,:));
 
 new_coord=[r;theta*(180./pi);phi*(180./pi)];
 

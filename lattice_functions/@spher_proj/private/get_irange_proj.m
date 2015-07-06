@@ -156,14 +156,12 @@ rs = [reshape(x1,1,np);reshape(x2,1,np);reshape(x3,1,np)];
 
 % Coordinates of bin verticies in rotated and translated frame in which urange is given
 ucoords=this.spher_transform(rs);
-%ucoords = reshape(ucoords,[3,psize]);
 
-inside = (bin_inside(1)|bin_inside(2)|bin_inside(3));   % =0 if bin outside, =1 if at least partially intersects volume
+inside = ~(bin_outside(1)|bin_outside(2)|bin_outside(3));   % =0 if bin outside, =1 if at least partially intersects volume
 
 change = diff([false;inside(:);false]);
 istart = find(change==1);
 iend   = find(change==-1)-1;
-inside = reshape(inside,psize);
 
 % Determine values of inside and outside
 % --------------------------------------
@@ -178,9 +176,16 @@ inside = reshape(inside,psize);
 % end
     
 outside=isempty(istart);
+inside = ~outside;
 
-    function wrk = bin_inside (idim)
-        wrk = (ucoords(idim,:)<urange(1,idim));
+    function wrk = bin_outside (idim)
+        % Determine if the bins lie wholly outside the limits along dimension number idim
+        wrk = reshape(ucoords(idim,:)<=urange(1,idim),psize);
+        all_low = wrk(1:end-1,1:end-1,1:end-1) & wrk(2:end,1:end-1,1:end-1) & wrk(1:end-1,2:end,1:end-1) & wrk(2:end,2:end,1:end-1) & ...
+            wrk(1:end-1,1:end-1,2:end) & wrk(2:end,1:end-1,2:end) & wrk(1:end-1,2:end,2:end) & wrk(2:end,2:end,2:end);
+        wrk = reshape(ucoords(idim,:)>=urange(2,idim),psize);
+        all_hi  = wrk(1:end-1,1:end-1,1:end-1) & wrk(2:end,1:end-1,1:end-1) & wrk(1:end-1,2:end,1:end-1) & wrk(2:end,2:end,1:end-1) & ...
+            wrk(1:end-1,1:end-1,2:end) & wrk(2:end,1:end-1,2:end) & wrk(1:end-1,2:end,2:end) & wrk(2:end,2:end,2:end);
+        wrk = all_low | all_hi;
     end
-
 end
