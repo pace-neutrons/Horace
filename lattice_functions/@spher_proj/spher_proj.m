@@ -1,10 +1,10 @@
 classdef spher_proj<aprojection
-    % Class defines spherical coordinate projection, used by cut_sqw 
-    % to make spherical cuts 
+    % Class defines spherical coordinate projection, used by cut_sqw
+    % to make spherical cuts
     %
     %
     % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
-    %      
+    %
     properties %(SetAccess=protected)
         %
         usteps = [1,1,1,1]
@@ -14,10 +14,10 @@ classdef spher_proj<aprojection
         urange_offset = zeros(1,4);
     end
     properties(Dependent)
-        ex; %[1x3] Vector of axis in spherical coordinate system, 
-           % where azimuthal angle phi is caunted from (r.l.u.)
-        ez; %[1x3] Vector of axis in spherical coordinate system 
-           % where polar angle theta is caunted from (r.l.u.)
+        ex; %[1x3] Vector of axis in spherical coordinate system,
+        % where azimuthal angle phi is caunted from (r.l.u.)
+        ez; %[1x3] Vector of axis in spherical coordinate system
+        % where polar angle theta is caunted from (r.l.u.)
         ucentre; % [1x3] vector,defining of the centre of spherical projection
         type; %='a' units of r;
         uoffset; %=[0,0,0,0];
@@ -31,7 +31,7 @@ classdef spher_proj<aprojection
         angdeg_= [90,90,90];
         %
         ex_ = [1,0,0]
-        ez_ = [0,0,1]   
+        ez_ = [0,0,1]
         ucentre_ = [0,0,0]
         type_ = 'a'
         %------------------------------------
@@ -40,7 +40,7 @@ classdef spher_proj<aprojection
         data_ulen_     = [1,1,1,1];
         data_upix_to_rlu_ = eye(3);
         data_upix_offset_ = [0;0;0;0] %upix_offset;
-        data_lab_ = ['qx','qy','qz','en'];
+        data_lab_ = ['azim','polar','\ro','en'];
     end
     
     methods
@@ -72,13 +72,9 @@ classdef spher_proj<aprojection
         function type = get.type(this)
             type = this.type_;
         end
- 
+        
         function lab = get.lab(this)
-            if isempty(this.projaxes_)
-                lab = this.data_lab_;
-            else
-                lab = this.projaxes_.lab;
-            end
+            lab = this.data_lab_;
         end
         
         function alat = get.alatt(this)
@@ -89,7 +85,7 @@ classdef spher_proj<aprojection
         end
         %------------------------------------------------------------------
         % Particular implementation of aprojection abstract interface
-        %------------------------------------------------------------------       
+        %------------------------------------------------------------------
         function this=init_tranformation(this,data)
             % Retrieve all parameters, necessary to define a transformation
             % from sqw data

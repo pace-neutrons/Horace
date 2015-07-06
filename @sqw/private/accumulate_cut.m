@@ -62,6 +62,8 @@ if proj.can_mex_cut && use_mex
     else
         use_mex = false;
     end
+else
+    use_mex = false;
 end
 
 if ~use_mex
