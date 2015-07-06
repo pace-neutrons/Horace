@@ -1,5 +1,5 @@
 function [irange,inside,outside] = get_irange(urange,varargin)
-% Get ranges of bins that partially or wholly lie inside an n-dimensional rectange
+% Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle
 %
 %   >> irange = get_irange(urange,p1,p2,p3,...pndim)
 %   >> [irange,inside,outside] = get_irange(urange,p1,p2,p3,...pndim)

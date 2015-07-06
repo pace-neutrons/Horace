@@ -166,7 +166,7 @@ iax = iax(1:niax);
 % Get range in output projection axes from the 8 points defined in momentum space by urange_in:
 % This gives the maximum extent of the data pixels that can possibly contribute to the output data. 
 % third coodinate is not used.
-urange_out = proj.find_bounding_box(urange_in);
+urange_out = proj.find_maximal_data_range(urange_in);
 
 
 iint=zeros(2,niax);
