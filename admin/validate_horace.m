@@ -113,7 +113,7 @@ hec = herbert_config();
 set(hec,'defaults');
 set(hoc,'defaults');
 
-% Special unit tests settings. 
+% Special unit tests settings.
 hec.init_tests=true;       % initialise unit tests
 hoc.use_mex = ~nomex;
 hoc.force_mex_if_use_mex=forcemex;
@@ -125,11 +125,21 @@ end
 
 if parallel && license('checkout','Distrib_Computing_Toolbox')
     cores = feature('numCores');
-    if matlabpool('SIZE')==0
-        if cores>12
-            cores = 12;
+    if verLessThan('matlab','8.4')
+        if matlabpool('SIZE')==0
+            if cores>12
+                cores = 12;
+            end
+            matlabpool(cores);
         end
-        matlabpool(cores);
+    else
+        if isempty(gcp('nocreate'))
+            if cores>12
+                cores = 12;
+            end
+            parpool(cores);
+            
+        end
     end
     time=bigtic();
     parfor i=1:numel(test_folders_full)
