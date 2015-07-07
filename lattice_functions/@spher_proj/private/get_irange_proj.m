@@ -1,4 +1,4 @@
-function [istart,iend,irange,inside,outside] = get_irange_proj_(this,urange,varargin)
+function [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin)
 % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
 % where the first three dimensions can be rotated and translated w.r.t. the
 % cuboid that is split into bins.

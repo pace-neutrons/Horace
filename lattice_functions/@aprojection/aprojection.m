@@ -1,35 +1,55 @@
 classdef aprojection
     %  Abstract class, defining interface using by cut_sqw
-    %  when transforming pixels from original to cut's coordinate system
+    %  when transforming pixels from original to the cut's coordinate
+    %  system
     %
     % Also defines generic operations on sqw object, which may be useful
-    % for any projection classes.
+    % and can be used by any projection class.
+    %
+    % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+    %
     properties(Dependent)
         % is special mex routines, written for performance reason and as such
         % deeply embedded with cut_sqw objects  are availible for given
         % projection type
         can_mex_cut; %false
-        % can projection retain pixels so that further cuts can be made
-        % from the results of projection. E.g. one can make subsequent cuts
-        % from a
-        can_keep_pixels; %false;
+        %---------------------------------
         %
         % Convenience function, providing commin interface to projection
         % data
+        % the lattice parameters
         alatt
+        % angles between the lattice edges
         angdeg
-        
+        %---------------------------------
+        % step sizes in every projection directions
+        usteps
+        % data ranges in new coordinate system in units of steps in each
+        % direction
+        urange_step;
+        % shift of the projection centre
+        urange_offset;
     end
+    %----------------------------------------------------------------------
     properties(Access=protected)
         alatt_=[1,1,1];
         angdeg_= [90,90,90];
         %------------------------------------
-        data_u_to_rlu_ = eye(3);
-        data_uoffset_  = [0;0;0;0]
-        data_ulen_     = [1,1,1,1];
-        data_upix_to_rlu_ = eye(3);
+        data_u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in hkle representation
+        %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
+        data_uoffset_  = [0;0;0;0] %Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+        data_ulen_     = [1,1,1,1]; %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        data_upix_to_rlu_ = eye(4);
         data_upix_offset_ = [0;0;0;0] %upix_offset;
         data_lab_ = ['qx','qy','qz','en'];
+        %------------------------------------
+        usteps_ = [1,1,1,1];
+        % data ranges in new coordinate system in units of steps in each
+        % direction
+        urange_step_ =zeros(2,4);
+        % shift of the projection centre
+        urange_offset_ = zeros(1,4);
+        
     end
     
     methods
@@ -40,32 +60,50 @@ classdef aprojection
             % generic projection can not run mex code
             can_mex_cut  = can_mex_cut_(self);
         end
-        function can_retain_pixels = get.can_keep_pixels(self)
-            % generic projection can not apply one cut after another, so
-            % keeping pixels is prohibited by default
-            can_retain_pixels = can_keep_pixels_(self);
-        end
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
         function this=retrieve_existing_tranf(this,data)
             % Retrieve all parameters for transformation already
-            % defined over sqw data
+            % defined over sqw data and store them in projection to
+            % use later.
             this = set_data_transf_(this,data);
         end
+        function this = set_proj_binning(this,ustep,urange_step,urange_offset)
+            % urange_step -- number of bin in every cut direction
+            % ustep -- step size in each cut direction
+            this.usteps_ = ustep;
+            this.urange_step_ = urange_step;
+            this.urange_offset_ = urange_offset;
+        end
+        %------------------------------------------------------------------
+        % accessors
+        %------------------------------------------------------------------
         function alat = get.alatt(this)
             alat = this.alatt_;
         end
+        %
         function angl = get.angdeg(this)
             angl = this.angdeg_;
         end
+        %
+        function usteps = get.usteps(this)
+            usteps = this.usteps_;
+        end
+        %
+        function urange_step = get.urange_step(this)
+            % Get limits of cut expressed in the units of bin size in each
+            % direction
+            urange_step = this.urange_step_;
+        end
+        function urange_offset= get.urange_offset(this)
+            urange_offset = this.urange_offset_;
+        end
+        
     end
     %
     methods(Access = protected)
         function isit= can_mex_cut_(self)
-            isit = false;
-        end
-        function isit= can_keep_pixels_(self)
             isit = false;
         end
     end
@@ -184,20 +222,22 @@ classdef aprojection
             [nstart,nend] = get_nrange_4D_(nelmts,istart,iend,irange);
         end
     end
+    %----------------------------------------------------------------------
+    %  ABSTRACT INTERFACE -- use 
+    %----------------------------------------------------------------------
     methods(Abstract)
-        this = set_proj_ranges(this,ustep,urange_step,urange_offset);
-        % urange_step -- number of bin in every cut direction
-        % ustep -- step size in each cut direction
-        urange_out = find_maximal_data_range(this,urange_in);
-        %
+        urange_out = find_max_data_range(this,urange_in);
+        % find the whole range of input data which may contribute
+        % into the result.
+        
         [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
-        % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
-        % where the first three dimensions can be rotated and translated w.r.t. the
-        % cuboid that is split into bins.       
+        % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
+        % defined by projection limits.
         [indx,ok] = get_contributing_pix_ind(this,v);
-        % get list of indexes contributing into the cut
-        [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param(this,data_in,pax);
-        % get projection parameters, necessary for properly definind a sqw or dnd object
+        % get list of pixels indexes contributing into the cut
         %
+        [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param(this,data_in,pax);
+        % get projection parameters, necessary for properly definind a sqw
+        % or dnd object from the projection
     end
 end

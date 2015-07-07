@@ -28,7 +28,7 @@ classdef test_projection_class<TestCase
             proj = projection(prja);
             assertElementsAlmostEqual(proj.u,[1,0,0])
             assertElementsAlmostEqual(proj.v,[0,1,1])
-            assertElementsAlmostEqual(proj.w,[0,-1,1])           
+            assertElementsAlmostEqual(proj.w,[0,-1,1])
         end
         function test_set_u_transf(this)
             proj = projection();
@@ -41,14 +41,13 @@ classdef test_projection_class<TestCase
             data.upix_to_rlu = eye(4);
             data.upix_offset = zeros(1,4);
             data.ulabel = {'a','b','c','d'};
-            data.ulen = ones(4,1);        
+            data.ulen = ones(4,1);
             
             proj=proj.retrieve_existing_tranf(data);
         end
         function test_set_can_mex_keep(this)
             proj = projection();
             assertTrue(proj.can_mex_cut);
-            assertTrue(proj.can_keep_pixels);            
         end
     end
 end

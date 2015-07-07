@@ -5,14 +5,6 @@ classdef spher_proj<aprojection
     %
     % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
     %
-    properties %(SetAccess=protected)
-        %
-        usteps = [1,1,1,1]
-        % data ranges in new coordinate system in units of steps in each
-        % direction
-        urange_step =zeros(2,4);
-        urange_offset = zeros(1,4);
-    end
     properties(Dependent)
         ex; %[1x3] Vector of axis in spherical coordinate system,
         % where azimuthal angle phi is caunted from (r.l.u.)
@@ -71,7 +63,7 @@ classdef spher_proj<aprojection
         %------------------------------------------------------------------
         % Particular implementation of aprojection abstract interface
         %------------------------------------------------------------------
-        function urange_out = find_maximal_data_range(this,urange_in)
+        function urange_out = find_max_data_range(this,urange_in)
             % find the whole range of input data which may contribute
             % into the result.
             % urange_in -- the range of the data in initial coordinate
