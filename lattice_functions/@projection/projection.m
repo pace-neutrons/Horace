@@ -1,5 +1,5 @@
 classdef projection<aprojection
-    %  Class defines coordinate projections necessary to make horace cuts 
+    %  Class defines coordinate projections necessary to make horace cuts
     %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
     %  Uses projection axis and projection logic, defined by projaxis class
@@ -9,7 +9,7 @@ classdef projection<aprojection
     %  horace cuts
     %
     % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
-    %   
+    %
     properties %(SetAccess=protected)
         %
         usteps = [1,1,1,1]
@@ -26,22 +26,11 @@ classdef projection<aprojection
         uoffset; %=[0,0,0,0];
         lab     %={'\zeta','\xi','\eta','E'};
         %
-        alatt
-        angdeg
     end
     properties(Access=private)
         % reference to the class, which defines the projection axis
         projaxes_=[]
         %
-        alatt_=[1,1,1];
-        angdeg_= [90,90,90];
-        %------------------------------------
-        data_u_to_rlu_ = eye(3);
-        data_uoffset_  = [0;0;0;0]
-        data_ulen_     = [1,1,1,1];
-        data_upix_to_rlu_ = eye(3);
-        data_upix_offset_ = [0;0;0;0] %upix_offset;
-        data_lab_ = ['qx','qy','qz','en'];
     end
     methods(Access = protected)
         % overloads for staitc methods which define if the projection can
@@ -61,6 +50,7 @@ classdef projection<aprojection
             proj = proj@aprojection();
             if nargin==0 % return defaults
                 proj.projaxes_ = [];
+                proj.data_lab_ = ['qx','qy','qz','en'];
             else
                 if isa(varargin{1},'projaxes')
                     proj.projaxes_ = varargin{1};
@@ -113,18 +103,9 @@ classdef projection<aprojection
             end
         end
         
-        function alat = get.alatt(this)
-            alat = this.alatt_;
-        end
-        function angl = get.angdeg(this)
-            angl = this.angdeg_;
-        end
-        %-----------------------------------------------------------------
-        function this=init_tranformation(this,data)
-            % Retrieve all parameters, necessary to define a transformation
-            % from sqw data
-            this = set_data_transf_(this,data);
-        end
+        %------------------------------------------------------------------
+        % Particular implementation of aprojection abstract interface
+        %------------------------------------------------------------------
         function urange_out = find_maximal_data_range(this,urange_in)
             % find the whole range of input data which may contribute
             % into the result.
@@ -141,10 +122,11 @@ classdef projection<aprojection
             this.urange_offset = urange_offset;
             
         end
-        function [nbinstart,nbinend] = get_nbin_range(this,urange,nelmts,varargin)
-            % Get range of grid bin indexes, which may contribute into the final
-            % cut.
-            [nbinstart,nbinend] = get_nrange_rot_section_(this,urange,nelmts,varargin{:});
+        function [istart,iend,irange,inside,outside] =get_irange_proj(this,urange,varargin)
+            % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
+            % where the first three dimensions can be rotated and translated w.r.t. the
+            % cuboid that is split into bins.
+            [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin{:});
         end
         %
         function [indx,ok] = get_contributing_pix_ind(this,v)

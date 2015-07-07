@@ -1,9 +1,9 @@
-function [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin)
+function [istart,iend,irange,inside,outside] = get_irange_proj_(this,urange,varargin)
 % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
 % where the first three dimensions can be rotated and translated w.r.t. the
 % cuboid that is split into bins.
 %
-%   >> [istart,iend,irange] = get_irange_rot(urange,rot,trans,p1,p2,p3,...pndim)
+%   >> [istart,iend,irange] = get_irange_proj(urange,rot,trans,p1,p2,p3,...pndim)
 %   >> [istart,iend,irange,inside,outside] = get_irange_rot(...)
 %
 % Works for an arbitrary number of dimensions ndim (ndim>0), and with
