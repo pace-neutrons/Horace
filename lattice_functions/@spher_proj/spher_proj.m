@@ -10,7 +10,7 @@ classdef spher_proj<aprojection
         % where azimuthal angle phi is caunted from (r.l.u.)
         ez; %[1x3] Vector of axis in spherical coordinate system
         % where polar angle theta is caunted from (r.l.u.)
-        ucentre; % [1x3] vector,defining of the centre of spherical projection
+        ucentre; % [3x1] vector,defining of the centre of spherical projection
         type; %='a' units of r;
         uoffset; %=[0,0,0,0];
         lab     %={'\ro','\theta','\phi','E'};
@@ -20,7 +20,7 @@ classdef spher_proj<aprojection
         %
         ex_ = [1,0,0]
         ez_ = [0,0,1]
-        ucentre_ = [0,0,0]
+        ucentre_ = [0;0;0]
         type_ = 'a'
         %------------------------------------
     end
@@ -48,7 +48,12 @@ classdef spher_proj<aprojection
             if numel(value)~=3
                 error('SPHER_PROJ:invalid_argument','Projection centre has to be a 3-element vector')
             end
-            this.ucentre_ = value;
+            if all(size(value) == [1,3])
+                this.ucentre_ = value';                                
+            else
+                this.ucentre_ = value;                
+            end
+
         end
         
         
@@ -70,17 +75,6 @@ classdef spher_proj<aprojection
             % system.
             urange_out  = find_ranges_(this,urange_in);
         end
-        %
-        
-        %
-        function this = set_proj_ranges(this,ustep,urange_step,urange_offset)
-            % urange_step -- number of bin in every cut direction
-            % ustep -- step size in each cut direction
-            this.usteps = ustep;
-            this.urange_step = urange_step;
-            this.urange_offset = urange_offset;
-        end
-        %
         function [istart,iend,irange,inside,outside] =get_irange_proj(this,urange,varargin)
             % Get range of grid bin indexes, which may contribute into the final
             % cut.

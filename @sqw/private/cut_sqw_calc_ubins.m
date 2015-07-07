@@ -11,11 +11,7 @@ function [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (urange_in, proj
 %   urange_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
 %   proj        the class which defines the projection, trans in this case
 %               should be empty
-%  or: 
-%   rot         Matrix [3x3]     --|  that relate a vector expressed in the
-%   trans       Translation [3x1]--|  frame of the bin boundaries to those of urange:
-%                                         r'(i) = A(i,j)(r(j) - trans(j))
-
+%
 %   pbin        Cell array of requested limits and bins for integration and plot axes:
 %       pbin{1}     Binning along first Q axis
 %       pbin{2}     Binning along second Q axis

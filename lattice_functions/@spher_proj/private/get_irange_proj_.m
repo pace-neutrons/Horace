@@ -1,4 +1,4 @@
-function [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin)
+function [istart,iend,irange,inside,outside] = get_irange_proj_(this,urange,varargin)
 % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
 % where the first three dimensions can be rotated and translated w.r.t. the
 % cuboid that is split into bins.
@@ -147,7 +147,7 @@ function [istart,iend,inside,outside] = get_irange3D(this,urange,p1,p2,p3)
 
 psize=[numel(p1),numel(p2),numel(p3)];
 %
-trans = this.ucentre;
+trans =  this.data_u_to_rlu_(1:3,1:3)\(this.ucentre-this.data_uoffset_(1:3));
 % Grid of bin verticies:
 [x1,x2,x3]=ndgrid(p1-trans(1),p2-trans(2),p3-trans(3));
 np = numel(x1);
