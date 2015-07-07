@@ -174,7 +174,7 @@ classdef test_main_mex < TestCase
             
             prs = struct('u',u,'v',v);
             proj = projection(prs);
-            proj=proj.init_tranformation(data);
+            proj=proj.retrieve_existing_tranf(data);
             
             
             rs= [0.11930-1;1.338890;0.02789];

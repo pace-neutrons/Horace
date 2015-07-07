@@ -1,10 +1,10 @@
-function [nstart,nend] = get_nrange_rot_section_(this,urange,nelmts,varargin)
+function [nstart,nend] = get_nbin_range(this,urange,nelmts,varargin)
 % Get indicies that define ranges of contiguous elements from an n-dimensional
 % array of bins of elements, where the bins partially or wholly lie
-% inside a hypercuboid volume that on the first three axes can be rotated and
+% inside a hypersphere volume that on the first three axes can be transformed and
 % translated w.r.t. to the hypercuboid that is split into bins.
 %
-%   >> [nstart,nend] = this.get_nrange_rot_section_(urange,nelmts,p1,p2,p3,...)
+%   >> [nstart,nend] = this.get_nrange_proj_section(urange,nelmts,p1,p2,p3,...)
 % 
 % Input:
 % ------
@@ -65,7 +65,7 @@ elseif ~(ndim>=numel(sz))
 end
 
 % Get contiguous arrays
-[istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin{:});
+[istart,iend,irange,inside,outside] = this.get_irange_proj(urange,varargin{:});
 if ~outside
     [nstart,nend] = aprojection.get_nrange_4D(nelmts,istart,iend,irange);
 else

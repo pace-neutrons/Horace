@@ -23,24 +23,14 @@ classdef spher_proj<aprojection
         uoffset; %=[0,0,0,0];
         lab     %={'\ro','\theta','\phi','E'};
         %
-        alatt
-        angdeg
     end
     properties(Access=private)
-        alatt_=[1,1,1];
-        angdeg_= [90,90,90];
         %
         ex_ = [1,0,0]
         ez_ = [0,0,1]
         ucentre_ = [0,0,0]
         type_ = 'a'
         %------------------------------------
-        data_u_to_rlu_ = eye(3);
-        data_uoffset_  = [0;0;0;0]
-        data_ulen_     = [1,1,1,1];
-        data_upix_to_rlu_ = eye(3);
-        data_upix_offset_ = [0;0;0;0] %upix_offset;
-        data_lab_ = ['azim','polar','\ro','en'];
     end
     
     methods
@@ -49,6 +39,7 @@ classdef spher_proj<aprojection
             if nargin>0
                 proj.ucentre = varargin{1};
             end
+            proj.data_lab_ = ['azim','polar','\ro','en'];            
         end
         %
         function u = get.ex(this)
@@ -77,20 +68,9 @@ classdef spher_proj<aprojection
             lab = this.data_lab_;
         end
         
-        function alat = get.alatt(this)
-            alat = this.alatt_;
-        end
-        function angl = get.angdeg(this)
-            angl = this.angdeg_;
-        end
         %------------------------------------------------------------------
         % Particular implementation of aprojection abstract interface
         %------------------------------------------------------------------
-        function this=init_tranformation(this,data)
-            % Retrieve all parameters, necessary to define a transformation
-            % from sqw data
-            this = set_data_transf_(this,data);
-        end
         function urange_out = find_maximal_data_range(this,urange_in)
             % find the whole range of input data which may contribute
             % into the result.
@@ -107,13 +87,12 @@ classdef spher_proj<aprojection
             this.usteps = ustep;
             this.urange_step = urange_step;
             this.urange_offset = urange_offset;
-            
         end
         %
-        function [nbinstart,nbinend] = get_nbin_range(this,urange,nelmts,varargin)
+        function [istart,iend,irange,inside,outside] =get_irange_proj(this,urange,varargin)
             % Get range of grid bin indexes, which may contribute into the final
             % cut.
-            [nbinstart,nbinend] = get_nrange_proj_section_(this,urange,nelmts,varargin{:});
+            [istart,iend,irange,inside,outside] = get_irange_proj_(this,urange,varargin{:});
         end
         %
         function [indx,ok] = get_contributing_pix_ind(this,v)

@@ -13,6 +13,23 @@ classdef aprojection
         % from the results of projection. E.g. one can make subsequent cuts
         % from a
         can_keep_pixels; %false;
+        %
+        % Convenience function, providing commin interface to projection
+        % data
+        alatt
+        angdeg
+        
+    end
+    properties(Access=protected)
+        alatt_=[1,1,1];
+        angdeg_= [90,90,90];
+        %------------------------------------
+        data_u_to_rlu_ = eye(3);
+        data_uoffset_  = [0;0;0;0]
+        data_ulen_     = [1,1,1,1];
+        data_upix_to_rlu_ = eye(3);
+        data_upix_offset_ = [0;0;0;0] %upix_offset;
+        data_lab_ = ['qx','qy','qz','en'];
     end
     
     methods
@@ -28,7 +45,22 @@ classdef aprojection
             % keeping pixels is prohibited by default
             can_retain_pixels = can_keep_pixels_(self);
         end
+        %------------------------------------------------------------------
+        % Common interface to projection data
+        %------------------------------------------------------------------
+        function this=retrieve_existing_tranf(this,data)
+            % Retrieve all parameters for transformation already
+            % defined over sqw data
+            this = set_data_transf_(this,data);
+        end
+        function alat = get.alatt(this)
+            alat = this.alatt_;
+        end
+        function angl = get.angdeg(this)
+            angl = this.angdeg_;
+        end
     end
+    %
     methods(Access = protected)
         function isit= can_mex_cut_(self)
             isit = false;
@@ -38,6 +70,7 @@ classdef aprojection
         end
     end
     methods(Static)
+        %
         function [irange,inside,outside] = get_irange(urange,varargin)
             % Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle
             %
@@ -74,6 +107,7 @@ classdef aprojection
             %          then outside=true;
             [irange,inside,outside] = get_irange_(urange,varargin{:});
         end
+        %
         function [nstart,nend] = get_nrange(nelmts,irange)
             % Get contiguous ranges of an array for a section of the binning array
             %
@@ -107,6 +141,7 @@ classdef aprojection
             %              elements i.e. have the value zeros(0,1).
             [nstart,nend] = get_nrange_(nelmts,irange);
         end
+        %
         function [nstart,nend] = get_nrange_4D(nelmts,istart,iend,irange)
             % Get contiguous ranges of an array for a section of the binning array
             %
@@ -150,21 +185,15 @@ classdef aprojection
         end
     end
     methods(Abstract)
-        this=init_tranformation(this,data);
-        % Retrieve all parameters, necessary to define a transformation
-        % from sqw data
         this = set_proj_ranges(this,ustep,urange_step,urange_offset);
         % urange_step -- number of bin in every cut direction
         % ustep -- step size in each cut direction
         urange_out = find_maximal_data_range(this,urange_in);
-        % find the whole range of input data which may contribute
-        % into the result.
-        % urange_in -- the range of the data in initial coordinate
-        % system.
-        [nbinstart,nbinend] = get_nbin_range(this,urange,nelmts,varargin);
-        % Get range of grid bin indexes, which may contribute into the final
-        % cut.
         %
+        [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
+        % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
+        % where the first three dimensions can be rotated and translated w.r.t. the
+        % cuboid that is split into bins.       
         [indx,ok] = get_contributing_pix_ind(this,v);
         % get list of indexes contributing into the cut
         [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param(this,data_in,pax);

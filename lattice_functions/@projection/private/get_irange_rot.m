@@ -3,7 +3,7 @@ function [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,vararg
 % where the first three dimensions can be rotated and translated w.r.t. the
 % cuboid that is split into bins.
 %
-%   >> [istart,iend,irange] = get_irange_rot(urange,rot,trans,p1,p2,p3,...pndim)
+%   >> [istart,iend,irange] = this.get_irange_rot(urange,p1,p2,p3,...pndim)
 %   >> [istart,iend,irange,inside,outside] = get_irange_rot(...)
 %
 % Works for an arbitrary number of dimensions ndim (ndim>0), and with
