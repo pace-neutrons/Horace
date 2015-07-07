@@ -207,7 +207,7 @@ classdef test_main_mex < TestCase
             urange_step(1,:) =  (0.5*(minv+0.5*(minv+maxv))-minv)./data.ulen';
             urange_step(2,:) =  (0.5*(maxv+0.5*(minv+maxv))-minv)./data.ulen';
             
-            proj=proj.set_proj_ranges(data.ulen,urange_step,zeros(1,4));
+            proj=proj.set_proj_binning(data.ulen,urange_step,zeros(1,4));
             
             
         end

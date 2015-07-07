@@ -1,8 +1,8 @@
 function [urange_step_pix, ok, ix, s, e, npix, npix_retain,success] = ...
     accumulate_cut_(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads)
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
-
+%
+%Inteface to accumulate rectangular cut using mex code. 
+%
 [rot_ustep,trans_bott_left,ebin,trans_elo,urange_step] = this.get_pix_transf_();
 try
     % Parameters have to be doubles in current version of the c-program

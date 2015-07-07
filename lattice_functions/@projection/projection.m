@@ -10,13 +10,8 @@ classdef projection<aprojection
     %
     % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
     %
-    properties %(SetAccess=protected)
+    properties 
         %
-        usteps = [1,1,1,1]
-        % data ranges in new coordinate system in units of steps in each
-        % direction
-        urange_step =zeros(2,4);
-        urange_offset = zeros(1,4);
     end
     properties(Dependent)
         u; %[1x3] Vector of first axis (r.l.u.)
@@ -37,10 +32,6 @@ classdef projection<aprojection
         % keep pixels and have mex functions defined
         function isit= can_mex_cut_(self)
             % ortho projection have mex procedures defined
-            isit = true;
-        end
-        function isit= can_keep_pixels_(self)
-            % ortho projection can keep pixels allowing cuts from cuts
             isit = true;
         end
     end
@@ -106,7 +97,7 @@ classdef projection<aprojection
         %------------------------------------------------------------------
         % Particular implementation of aprojection abstract interface
         %------------------------------------------------------------------
-        function urange_out = find_maximal_data_range(this,urange_in)
+        function urange_out = find_max_data_range(this,urange_in)
             % find the whole range of input data which may contribute
             % into the result.
             % urange_in -- the range of the data in initial coordinate
@@ -114,14 +105,6 @@ classdef projection<aprojection
             urange_out  = find_ranges_(this,urange_in);
         end
         
-        function this = set_proj_ranges(this,ustep,urange_step,urange_offset)
-            % urange_step -- number of bin in every cut direction
-            % ustep -- step size in each cut direction
-            this.usteps = ustep;
-            this.urange_step = urange_step;
-            this.urange_offset = urange_offset;
-            
-        end
         function [istart,iend,irange,inside,outside] =get_irange_proj(this,urange,varargin)
             % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
             % where the first three dimensions can be rotated and translated w.r.t. the

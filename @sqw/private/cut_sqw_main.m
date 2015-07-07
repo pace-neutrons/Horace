@@ -324,11 +324,6 @@ else
     end
     
 end
-% some projection classes are not capable of retaining pixels (e.g.
-% spherical)
-if ~proj.can_keep_pixels
-    keep_pix = false;
-end
 
 % output (clarify input?) data coordinate frame that encloses the output data volume
 [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, proj, pbin, pin, en);
@@ -389,7 +384,7 @@ if ~isempty(pax_gt1)
     ustep(pax_gt1)=ustep_gt1;
 end
 % Get matrix and translation vector to express plot axes with two or more bins as multiples of step size from lower limits
-proj = proj.set_proj_ranges(ustep,urange_step,urange_offset);
+proj = proj.set_proj_binning(ustep,urange_step,urange_offset);
 if nargout==0   % can buffer only if no output cut object
     pix_tmpfile_ok = true;
 else
