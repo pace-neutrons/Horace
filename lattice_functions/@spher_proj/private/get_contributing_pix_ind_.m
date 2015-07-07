@@ -4,8 +4,8 @@ function [indx,ok]=get_contributing_pix_ind_(this,v)
 %TODO re-align
 ez = this.ez;
 ex = this.ex;
-center = this.ucentre;
-[phi,theta,r] = cart2sph(v(1,:)-center(1),v(2,:)-center(2),v(3,:)-center(3));
+trans =  this.data_u_to_rlu_(1:3,1:3)\(this.ucentre-this.data_uoffset_(1:3));
+[phi,theta,r] = cart2sph(v(1,:)-trans(1),v(2,:)-trans(2),v(3,:)-trans(3));
 ubin          = this.usteps;
 urange_offset = this.urange_offset;
 urange_step   = this.urange_step;

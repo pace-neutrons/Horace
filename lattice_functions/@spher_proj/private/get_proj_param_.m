@@ -3,7 +3,7 @@ function [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(proj,data_in,pax)
 % its behaviour wrt subsequent cuts.
 %
 
-uoffset = [proj.ucentre,0]';
+uoffset = [proj.ucentre;0];
 
 ulabel = proj.lab;
 dax = zeros(1,length(pax));
