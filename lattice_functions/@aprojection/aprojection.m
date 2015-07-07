@@ -39,7 +39,7 @@ classdef aprojection
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         data_uoffset_  = [0;0;0;0] %Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
         data_ulen_     = [1,1,1,1]; %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        data_upix_to_rlu_ = eye(4);
+        data_upix_to_rlu_ = eye(3);
         data_upix_offset_ = [0;0;0;0] %upix_offset;
         data_lab_ = ['qx','qy','qz','en'];
         %------------------------------------
