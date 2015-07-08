@@ -154,7 +154,8 @@ if length(varargin)>=2 && ischar(varargin{end-1}) && size(varargin{end-1},1)==1
 end
 
 % Get proj structure, if present, and binning information
-if numel(varargin)>=1 && (isstruct(varargin{1}) || isa(varargin{1},'aprojection'))
+if numel(varargin)>=1 && (isstruct(varargin{1}) ||...
+         isa(varargin{1},'aprojection') || isa(varargin{1},'projaxes'))
     proj_given=true;
     if isa(varargin{1},'aprojection')
         proj=varargin{1};

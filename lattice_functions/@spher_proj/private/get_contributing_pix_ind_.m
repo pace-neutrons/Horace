@@ -5,7 +5,8 @@ function [indx,ok]=get_contributing_pix_ind_(this,v)
 ez = this.ez;
 ex = this.ex;
 trans =  this.data_u_to_rlu_(1:3,1:3)\(this.ucentre-this.data_uoffset_(1:3));
-[phi,theta,r] = cart2sph(v(1,:)-trans(1),v(2,:)-trans(2),v(3,:)-trans(3));
+rs = this.data_u_to_rlu_(1:3,1:3)*[(v(1,:)-trans(1));(v(2,:)-trans(2));(v(3,:)-trans(3))];
+[phi,theta,r] = cart2sph(rs(1,:),rs(2,:),rs(3,:));
 ubin          = this.usteps;
 urange_offset = this.urange_offset;
 urange_step   = this.urange_step;
@@ -13,9 +14,9 @@ urange_step   = this.urange_step;
 % Transform the coordinates u1-u4 into the new projection axes, if necessary
 % *** TGP 9 Dec 2012: this looks as if the case of energy being a plot axis that rounding errors will in general be a problem.
 if ubin(4)==1 && urange_offset(4)==0   % Catch special (and common) case of energy being an integration axis to save calculations
-    indx=[(r/ubin(1))',(theta*(180./pi/ubin(2)))',(phi*(180./pi/ubin(3)))',v(4,:)'];  % nx4 matrix
+    indx=[(r/ubin(1))'-urange_offset(1),(theta*(180./pi/ubin(2)))'-urange_offset(2),(phi*(180./pi/ubin(3)))'-urange_offset(3),v(4,:)'];  % nx4 matrix
 else
-    indx=[(r/ubin(1))',(theta*(180./pi/ubin(2)))',(phi*(180./pi/ubin(3)))',(v(4,:)'-urange_offset(4))*(1/ubin(4))];  % nx4 matrix
+    indx=[(r/ubin(1))'-urange_offset(1),(theta*(180./pi/ubin(2)))'-urange_offset(2),(phi*(180./pi/ubin(3)))'-urange_offset(3),(v(4,:)'-urange_offset(4))*(1/ubin(4))];  % nx4 matrix
 end
 
 % Find the points that lie inside or on the boundary of the range of the cut

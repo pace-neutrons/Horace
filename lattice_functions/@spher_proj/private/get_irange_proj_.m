@@ -150,9 +150,14 @@ psize=[numel(p1),numel(p2),numel(p3)];
 trans =  this.data_u_to_rlu_(1:3,1:3)\(this.ucentre-this.data_uoffset_(1:3));
 % Grid of bin verticies:
 [x1,x2,x3]=ndgrid(p1-trans(1),p2-trans(2),p3-trans(3));
-np = numel(x1);
+if this.type(1)=='r'   
+    rs=this.data_u_to_rlu_(1:3,1:3)*[x1(:)';x2(:)';x3(:)'];
+else
+    rs = [x1(:)';x2(:)';x3(:)'];    
+end
 
-rs = [reshape(x1,1,np);reshape(x2,1,np);reshape(x3,1,np)];
+
+
 
 % Coordinates of bin verticies in rotated and translated frame in which urange is given
 ucoords=this.spher_transform(rs);
