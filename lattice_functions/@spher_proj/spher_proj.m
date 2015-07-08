@@ -30,7 +30,7 @@ classdef spher_proj<aprojection
             if nargin>0
                 proj.ucentre = varargin{1};
             end
-            proj.data_lab_ = ['\theta','\phi','\ro','en'];            
+            proj.data_lab_ = {'\theta','\phi','\ro','En'};
         end
         %
         function u = get.ex(this)
@@ -48,11 +48,11 @@ classdef spher_proj<aprojection
                 error('SPHER_PROJ:invalid_argument','Projection centre has to be a 3-element vector')
             end
             if all(size(value) == [1,3])
-                this.ucentre_ = value';                                
+                this.ucentre_ = value';
             else
-                this.ucentre_ = value;                
+                this.ucentre_ = value;
             end
-
+            
         end
         
         

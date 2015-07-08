@@ -5,7 +5,7 @@ function [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(proj,data_in,pax)
 
 uoffset = [proj.ucentre;0];
 
-ulabel = proj.lab;
+ulabel = {'\theta','\phi','\ro','En'};
 dax = zeros(1,length(pax));
 plotaxis = data_in.pax(data_in.dax);   % plot axes in the input data set in order x-axis, y-axis, ...
 j=1;
@@ -16,9 +16,8 @@ for i=1:length(plotaxis)
         j=j+1;
     end
 end
-%wrong!
-u_to_rlu=data_in.u_to_rlu();
-ulen = [1,1,1,1];
+u_to_rlu=proj.data_u_to_rlu_;
+ulen = proj.usteps;
 %[~,~,~,~,~,u_to_rlu,ulen] = proj.get_pix_transf_();
 %u_to_rlu = [[u_to_rlu,[0;0;0]];[0,0,0,1]];
 %ulen = [ulen,1];
