@@ -11,8 +11,7 @@ classdef spher_proj<aprojection
         ez; %[1x3] Vector of axis in spherical coordinate system
         % where polar angle theta is caunted from (r.l.u.)
         ucentre; % [3x1] vector,defining of the centre of spherical projection
-        type; %='a' units of r;
-        uoffset; %=[0,0,0,0];
+        type; %='r' units of r;
         lab     %={'\ro','\theta','\phi','E'};
         %
     end
@@ -21,7 +20,7 @@ classdef spher_proj<aprojection
         ex_ = [1,0,0]
         ez_ = [0,0,1]
         ucentre_ = [0;0;0]
-        type_ = 'a'
+        type_ = 'rdd' % rlu, degree, degree
         %------------------------------------
     end
     
@@ -31,7 +30,7 @@ classdef spher_proj<aprojection
             if nargin>0
                 proj.ucentre = varargin{1};
             end
-            proj.data_lab_ = ['azim','polar','\ro','en'];            
+            proj.data_lab_ = ['\theta','\phi','\ro','en'];            
         end
         %
         function u = get.ex(this)
