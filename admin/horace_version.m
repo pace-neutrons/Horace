@@ -25,7 +25,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
 % the best and most portable for any OS I can think of). 
 %
 %
-% $COMMIT_COUNTER:: 60 $
+% $COMMIT_COUNTER:: 61 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will 
 % be modified and probably corrupted at commit

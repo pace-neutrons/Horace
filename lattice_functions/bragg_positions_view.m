@@ -30,7 +30,7 @@ function bragg_positions_view(wcut,wpeak)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 975 $ ($Date: 2015-02-20 14:27:56 +0000 (Fri, 20 Feb 2015) $)
 
 
 % Check input
