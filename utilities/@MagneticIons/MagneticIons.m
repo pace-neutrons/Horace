@@ -22,7 +22,7 @@ classdef MagneticIons
         % for current ion
         J0_ff_;J2_ff_;J4_ff_;J6_ff_;
         % coefficients used to convert hkl squared coordinates into A^(-2)
-        rlu2uSq_;
+        u_2_rlu;
     end
     
     methods
