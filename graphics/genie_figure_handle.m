@@ -15,13 +15,30 @@ function [h,ok,mess]=genie_figure_handle (fig_name)
 %  of the handles is not a figure handle, in which case an error is thrown.
 
 if isnumeric(fig_name)   % could be array of figure handles
-    id=fig_name;
-    ok_id=ishandle(id);
-    if all(ok_id) && isequal(findobj(id,'type','figure'),id(:))
-        h=id(:);    % ensure column
-        ok=true; mess=''; return
+    if verLessThan('matlab','8.4')
+        id=fig_name;
+        ok_id=ishandle(id);
+        if all(ok_id) && isequal(findobj(id,'type','figure'),id(:))
+            h=id(:);    % ensure column
+            ok=true; mess=''; return
+        else
+            h=[]; ok=false; mess='Check validity of figure handle(s)'; return
+        end
     else
-        h=[]; ok=false; mess='Check validity of figure handle(s)'; return
+        all_fig = get(0,'Children');
+        fig_numbers = zeros(numel(all_fig),1);
+        for i=1:numel(all_fig)
+            fig_numbers(i)= all_fig(i).Number;
+        end
+        for i = 1:numel(fig_name)
+            fi = find(fig_numbers==fig_name(i));
+            if ~isempty(fi)
+                h = all_fig(fi); ok=true; mess=[];
+                return
+            end
+        end
+        h=[]; ok=false; mess='Check validity of figure handle(s)';
+        return        
     end
     
 elseif ischar(fig_name) || iscellstr(fig_name)
