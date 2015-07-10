@@ -204,7 +204,11 @@ if (newplot)
         zticks=w{1}(1).s_axis.ticks;
     end
     % change titles:
-    title(tt);
+    if verLessThan('matlab','8.4')
+        title(tt);
+    else
+        title(tt,'FontWeight','normal');        
+    end
     xlabel(tx);
     ylabel(ty);
     if ~plot_type(1)=='a'   % don't try to plot along z axis if just an area plot
