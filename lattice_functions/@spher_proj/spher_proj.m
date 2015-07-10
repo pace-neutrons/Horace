@@ -17,8 +17,8 @@ classdef spher_proj<aprojection
     end
     properties(Access=private)
         %
-        ex_ = [1,0,0]
-        ez_ = [0,0,1]
+        ex_ = 'u-aligned'
+        ez_ = 'w-aligned'
         ucentre_ = [0;0;0]
         type_ = 'rdd' % rlu, degree, degree
         %------------------------------------
