@@ -36,19 +36,16 @@ function wout=fix_magnetic_ff(self,win)
 % conversion factor to change from rlu to wave-vector in A^(-1)
 %
 if isa(win,'sqw')
-    rlu2u = win.data.ulen(1:3);   
-    rlu2u_sq = rlu2u.*rlu2u;
-    self.rlu2uSq_ = rlu2u_sq;
+    header_ave=header_average(win);    
+    self.u_2_rlu = header_ave.u_to_rlu(1:3,1:3);
     
     %We can cheat here by making a dummy sqw function that returns the bose
     %factor for all of the points:
     
     sqw_magFF=sqw_eval(win,@form_factor,self);
 else
-    rlu2u = win.ulen(1:3);    
-    rlu2u_sq = rlu2u.*rlu2u;
-    self.rlu2uSq_ = rlu2u_sq;
-    
+    self.u_2_rlu = data_out.u_to_rlu;
+   
 
     wis = struct(win);
     sizes = cell(4,1);
@@ -109,8 +106,9 @@ wout=mrdivide(win,sqw_magFF);
 function FF = form_factor(h,k,l,en,self)
 % function calculates magnetic form-factor using exponential representation
 %
-rlu2u_sq = self.rlu2uSq_;
+u_2_rlu = self.u_2_rlu;
+q = u_2_rlu\[h';k';l'];
 
-q2 = ((h.*h)*rlu2u_sq(1)+(k.*k)*rlu2u_sq(2)+(l.*l)*rlu2u_sq(3))/(16*pi*pi);
+q2 = (q(1,:).*q(1,:)+q(2,:).*q(2,:)+q(3,:).*q(3,:))/(16*pi*pi);
 FF=self.J0_ff_(q2).^2+self.J2_ff_(q2).^2+self.J4_ff_(q2).^2+self.J6_ff_(q2).^2;
 
