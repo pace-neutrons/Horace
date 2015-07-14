@@ -10,8 +10,8 @@ classdef test_spher_cut_proj<TestCase
         end
         function test_constructor(this)
             proj = spher_proj();
-            assertElementsAlmostEqual(proj.ex,[1,0,0])
-            assertElementsAlmostEqual(proj.ez,[0,0,1])
+            assertEqual(proj.ex,'u-aligned')
+            assertEqual(proj.ez,'w-aligned')
             assertElementsAlmostEqual(proj.ucentre,[0;0;0])
             
             S.type = '.';
