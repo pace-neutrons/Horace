@@ -79,6 +79,14 @@ classdef projection<aprojection
                 type = this.projaxes_.type;
             end
         end
+        function this =set.type(this,val)
+            if isempty(this.projaxes_)
+                error('PROJECTION:invalid_argument','define projection plains first');
+            else
+                this.projaxes_.type = val;
+            end
+        end
+        
         function uoffset = get.uoffset(this)
             if isempty(this.projaxes_)
                 uoffset = [0;0;0;0];
