@@ -236,7 +236,7 @@ classdef aprojection
         [indx,ok] = get_contributing_pix_ind(this,v);
         % get list of pixels indexes contributing into the cut
         %
-        [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param(this,data_in,pax);
+        [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax);
         % get projection parameters, necessary for properly definind a sqw
         % or dnd object from the projection
     end

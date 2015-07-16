@@ -9,7 +9,17 @@ function test_sqw_file_read_write
 % These objects were read from an sqw file during the creation process, so we should not
 % have any subsequent problems with writing to and reading from disk.
 
-load('testdata_base_objects.mat')
+ds=load('testdata_base_objects.mat');
+existing_objects=fieldnames(ds);
+for i=1:numel(existing_objects)
+    % HACK ! deal with old style sqw objects, which have not stored
+    % @axis_name
+    cur_sqw=sqw(struct(ds.(existing_objects{i})));
+    var_name = existing_objects{i};
+    
+    eval(sprintf('%s = cur_sqw;', var_name));
+end
+
 
 % Create three different samples
 sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);

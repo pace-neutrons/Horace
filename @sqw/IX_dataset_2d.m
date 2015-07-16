@@ -27,7 +27,12 @@ wout=IX_dataset_2d;
 if numel(w)>1, wout(numel(w))=wout; end  % allocate array
 
 for i=1:numel(w)
-    [title_main, title_pax] = data_plot_titles (w(i).data);    % note: axes annotations correctly account for permutation in w.data.dax
+    if isfield(w(i).data,'axis_caption_fun') && ~isemtpy(w(i).data.axis_caption_fun)
+        title_fun = w(i).data.axis_caption_fun;
+        [title_main, title_pax] = title_fun(w(i).data);    % note: axes annotations should correctly account for permutation in w.data.dax
+    else
+        [title_main, title_pax] = data_plot_titles (w(i).data);    % note: axes annotations correctly account for permutation in w.data.dax
+    end
 
     s_axis = IX_axis ('Intensity');
     axis_1 = IX_axis (title_pax{1});

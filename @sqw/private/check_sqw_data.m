@@ -51,13 +51,19 @@ elseif ~(isnumeric(field_names_only)||islogical(field_names_only))
     error('Invalid argument field_names_only to check_sqw_data - logic problem in Horace')
 end
 
+% HACK!
+fndata = fieldnames(data);
+all_members_ind = ismember(fndata,'axis_caption_fun');
+if any(all_members_ind)
+    fndata = fndata(~all_members_ind);
+end
 
 % Check data argument
 % ---------------------
 % Check field names
-if isstruct(data) && isequal(fieldnames(data),fields_a) && (isempty(type_in)||strcmpi(type_in,'a'))
+if isstruct(data) && isequal(fndata,fields_a) && (isempty(type_in)||strcmpi(type_in,'a'))
     tmp_type='a';
-elseif isstruct(data) && isequal(fieldnames(data),fields_bplus) && (isempty(type_in)||strcmpi(type_in,'b+'))
+elseif isstruct(data) && isequal(fndata,fields_bplus) && (isempty(type_in)||strcmpi(type_in,'b+'))
     tmp_type='b+';
 else
     mess='Data is not a structure with required fields'; return
