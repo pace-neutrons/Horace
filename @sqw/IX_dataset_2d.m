@@ -27,7 +27,7 @@ wout=IX_dataset_2d;
 if numel(w)>1, wout(numel(w))=wout; end  % allocate array
 
 for i=1:numel(w)
-    if isfield(w(i).data,'axis_caption_fun') && ~isemtpy(w(i).data.axis_caption_fun)
+    if isfield(w(i).data,'axis_caption_fun') && ~isempty(w(i).data.axis_caption_fun)
         title_fun = w(i).data.axis_caption_fun;
         [title_main, title_pax] = title_fun(w(i).data);    % note: axes annotations should correctly account for permutation in w.data.dax
     else
