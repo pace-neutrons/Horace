@@ -360,6 +360,7 @@ if strcmp(data_type_in,'b+') || (autodetect && fnothingleft(fid))    % reached e
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
+    data.axis_caption_fun = @data_plot_titles;    
     return
 else
     position.urange=ftell(fid);
@@ -373,7 +374,6 @@ if strcmp(data_type_in,'a-') || (autodetect && fnothingleft(fid))    % reached e
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
-    return
 else
     [dummy,count,ok,mess] = fread_catch(fid,1,'int32'); if ~all(ok); return; end;   % redundant field
     [npixtot,count,ok,mess] = fread_catch(fid,1,'int64'); if ~all(ok); return; end;
@@ -405,8 +405,10 @@ else
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
-    return
 end
+data.axis_caption_fun = @data_plot_titles;
+
+
 
 
 %==================================================================================================

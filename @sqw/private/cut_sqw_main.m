@@ -458,8 +458,15 @@ data_out.angdeg   = data.angdeg;
 % -------------------------------------------------
 % Store output parameters relevant for future cuts and correct displaying
 % of sqw object
+
 [data_out.uoffset,data_out.ulabel,data_out.dax,data_out.u_to_rlu,...
-    data_out.ulen] = proj.get_proj_param(data,pax);
+    data_out.ulen,h_axis_caption] = proj.get_proj_param(data,pax);
+%HACK!
+if isempty(h_axis_caption)
+    data_out.axis_caption_fun = @data_plot_titles;
+else
+    data_out.axis_caption_fun = h_axis_caption;
+end
 %
 data_out.iax = iax;
 data_out.iint = iint;

@@ -56,6 +56,10 @@ if nargin==2 && isstruct(varargin{2})
     if ~dnd_type
         if isequal(fieldnames(varargin{2}),fields)    % sqw-type top level fields
             d=varargin{2};
+            %HACK
+            if ~isfield(d.data,'axis_caption_fun')
+                d.data.axis_caption_fun = @data_plot_titles;
+            end
         else
             d=struct([]);   % there was a problem
             mess='Fields of structure not compatible with sqw type structure';

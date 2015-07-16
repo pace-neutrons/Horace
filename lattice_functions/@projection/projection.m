@@ -124,10 +124,11 @@ classdef projection<aprojection
             % get list of indexes contributing into the cut
             [indx,ok] = get_contributing_pix_ind_(this,v);
         end
-        function [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param(this,data_in,pax)
+        function [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax)
             % get projection parameters, necessary for properly definind a sqw or dnd object
             %
             [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(this,data_in,pax);
+            title_function = [];
         end
         %
         function [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...

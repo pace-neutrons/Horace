@@ -170,3 +170,4 @@ elseif narg>=1
         [data,mess]=make_sqw_data_from_proj(latt,proj,pbin{:});
     end
 end
+data.axis_caption_fun = @data_plot_titles;
