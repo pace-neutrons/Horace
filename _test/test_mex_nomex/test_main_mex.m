@@ -160,8 +160,8 @@ classdef test_main_mex < TestCase
             data.angdeg = [90,90,95];
             data.u_to_rlu = eye(4);
             data.uoffset = [0;0;0;0];      %(4x1)
-            data.upix_to_rlu = eye(3);
-            data.upix_offset = [0;0;0;0];
+            upix_to_rlu = eye(3);
+            upix_offset = [0;0;0;0];
             
             data.ulabel = {'xx','yy','zz','ee'};
             
@@ -174,7 +174,7 @@ classdef test_main_mex < TestCase
             
             prs = struct('u',u,'v',v);
             proj = projection(prs);
-            proj=proj.retrieve_existing_tranf(data);
+            proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
             
             
             rs= [0.11930-1;1.338890;0.02789];

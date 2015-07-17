@@ -85,7 +85,6 @@ else
         data_in_range = true;
     end
 end
-
 % If grid that is other than 1x1x1x1, or range was given, then sort pixels
 if grid_is_unity && data_in_range   % the most work we have to do is just change the bin boundary fields
     for id=1:4
@@ -155,7 +154,7 @@ end
 d.main_header=main_header;
 d.header=header;
 d.detpar=det0;
-d.data=sqw_data;
+d.data=data_sqw_dnd(sqw_data);
 w=sqw(d);
 
 

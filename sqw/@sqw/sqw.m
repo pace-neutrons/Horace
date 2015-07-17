@@ -74,6 +74,9 @@ if nargin>=1 && ischar(varargin{1}) && strcmpi(varargin{1},'$dnd')
 elseif nargin>=1 && ischar(varargin{1}) && strcmpi(varargin{1},'$sqw')
     dnd_type=false;
     args=varargin(2:end);
+elseif nargin==1 && isa(varargin{1},'data_sqw_dnd')
+    dnd_type=varargin{1}.dnd_type;
+    args=varargin;
 else
     dnd_type=false;
     args=varargin;
@@ -82,7 +85,7 @@ narg=numel(args);
 
 
 % Branch on input
-if narg==1 && isstruct(args{1})
+if narg==1 &&( isstruct(args{1}) || isa(args{1},'data_sqw_dnd'))
     % structure input:
     % ----------------
     sz=size(args{1});
@@ -133,9 +136,7 @@ elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)
         if ~(strcmpi(type,'a')||strcmpi(type,'b+'))   % not a valid sqw or dnd structure
             error('Data file does not contain valid dnd-type object')
         end
-        if isfield(w.data,'urange')
-            w.data=rmfield(w.data,'urange');    % remove urange field, if present (file may have only contained dnd type data anyway)
-        end
+        w.data = clear_sqw_data(w.data);
     end
     [ok,mess,type,w]=check_sqw(w);   % Make check_sqw the ultimate arbiter of the validity of a structure
     if ok

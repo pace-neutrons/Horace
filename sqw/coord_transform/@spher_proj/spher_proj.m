@@ -85,10 +85,10 @@ classdef spher_proj<aprojection
             [indx,ok] = get_contributing_pix_ind_(this,v);
         end
         %
-        function [uoffset,ulabel,dax,u_to_rlu,ulen,h_axis_names_function] = get_proj_param(this,data_in,pax)
+        function [uoffset,ulabel,dax,u_to_rlu,ulen,axis_names] = get_proj_param(this,data_in,pax)
             % get projection parameters, necessary for properly definind a sqw or dnd object
             %
-            [uoffset,ulabel,dax,u_to_rlu,ulen,h_axis_names_function] = get_proj_param_(this,data_in,pax);
+            [uoffset,ulabel,dax,u_to_rlu,ulen,axis_names] = get_proj_param_(this,data_in,pax);
         end
         %
         %

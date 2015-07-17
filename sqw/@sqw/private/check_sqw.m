@@ -93,10 +93,10 @@ if dnd_type && ~isempty(d.detpar)
 end
 
 
-% Check data block
-% ---------------------
-[ok,type,mess] = check_sqw_data(d.data,tmp_type);
-if ~ok, mess=['data: ',mess]; return, end
+% Check data block -- obsolete for data class
+%---------------------
+%[ok,type,mess] = d.data.check_sqw_data(tmp_type);
+%if ~ok, mess=['data: ',mess]; return, end
 
 
 % OK if got to here
@@ -111,19 +111,4 @@ ok=true;
 
 if dout_required
     dout=d;
-    if isempty(d.data.iax) && ~isequal(d.data.iax,zeros(1,0))
-        dout.data.iax=zeros(1,0);
-    end
-    if isempty(d.data.iint) && ~isequal(d.data.iint,zeros(2,0))
-        dout.data.iint=zeros(2,0);
-    end
-    if isempty(d.data.pax) && ~isequal(d.data.pax,zeros(1,0))
-        dout.data.pax=zeros(1,0);
-    end
-    if isempty(d.data.dax) && ~isequal(d.data.dax,zeros(1,0))
-        dout.data.dax=zeros(1,0);
-    end
-    if isempty(d.data.p) && ~isequal(d.data.p,cell(1,0))
-        dout.data.p=cell(1,0);
-    end
 end

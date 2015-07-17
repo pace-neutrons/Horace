@@ -291,8 +291,6 @@ upix_offset = header_ave.uoffset;
 %
 data.alatt=alatt;
 data.angdeg=angdeg;
-data.upix_to_rlu = upix_to_rlu;
-data.upix_offset = upix_offset;
 %
 % Get plot and integration axis information, and which blocks of data to read from file/structure
 % ------------------------------------------------------------------------------------------------
@@ -310,10 +308,10 @@ pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
 % are expressed. Recall that this is not necessarily the same as that in which the individual pixel information is
 % expressed.
 if proj_given
-    proj = proj.retrieve_existing_tranf(data);
+    proj = proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
 else
     proj = projection();  % empty instance of the projaxes class
-    proj = proj.retrieve_existing_tranf(data);
+    proj = proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
     
     % is empty, then the order is as the axes displayed in a plot
     ptmp=pbin;          % input refers to display axes
@@ -435,24 +433,13 @@ for i=1:length(pax)
     nbin(i)=length(p{i})-1;
 end
 if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness
+% prepare ouput data
+data_out = data;
+
 s = reshape(s,nbin_as_size);
 e = reshape(e,nbin_as_size);
 npix = reshape(npix,nbin_as_size);
 
-% define the structure and field sequence of the ouput object
-%  necessary for old-style constructors to work.
-data_out = struct('filename','', 'filepath','','title','', 'alatt',[],...
-    'angdeg',[], 'uoffset',[],'u_to_rlu',[],'ulen',[], 'ulabel',[],...
-    'iax',[], 'iint',[], 'pax',[],'p',[],'dax',[], 's',[],'e',[],...
-    'npix',[],'urange',[],'pix',[]);
-
-data_out.filename = data.filename;
-data_out.filepath = data.filepath;
-data_out.title    = data.title;
-data_out.uoffset  = data.uoffset;
-%
-data_out.alatt    = data.alatt;
-data_out.angdeg   = data.angdeg;
 
 % Parcel up data as the output sqw data structure
 % -------------------------------------------------
@@ -460,13 +447,9 @@ data_out.angdeg   = data.angdeg;
 % of sqw object
 
 [data_out.uoffset,data_out.ulabel,data_out.dax,data_out.u_to_rlu,...
-    data_out.ulen,h_axis_caption] = proj.get_proj_param(data,pax);
+    data_out.ulen,axis_caption] = proj.get_proj_param(data,pax);
 %HACK!
-if isempty(h_axis_caption)
-    data_out.axis_caption_fun = @data_plot_titles;
-else
-    data_out.axis_caption_fun = h_axis_caption;
-end
+data_out.axis_caption = axis_caption;
 %
 data_out.iax = iax;
 data_out.iint = iint;
@@ -525,9 +508,8 @@ end
 % Create output argument if requested
 % -----------------------------------
 if nargout~=0
-    if keep_pix
-        wout=sqw(w);
-    else
+    wout=sqw(w);   
+    if ~keep_pix
         wout=dnd(sqw(w));
     end
 end

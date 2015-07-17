@@ -88,12 +88,11 @@ classdef test_combine_pow < TestCaseWithSave
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
-            % acolor k
-            % dd(w1_1)
-            % acolor b
-            % pd(w1_2)
-            % acolor r
-            % pd(w1_tot)  % does not overlay - but that is OK
+             acolor k
+             dd(w1_1)
+             acolor b
+             da(w2_1)
+             close all
             %--------------------------------------------------------------------------------------------------
             
         end

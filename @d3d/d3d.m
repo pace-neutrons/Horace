@@ -87,4 +87,4 @@ else
     end
 end
 
-w=class(w.data,class_type);
+w=class(struct(w.data),class_type);

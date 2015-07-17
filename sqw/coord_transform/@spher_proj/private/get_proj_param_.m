@@ -1,4 +1,4 @@
-function [uoffset,ulabel,dax,u_to_rlu,ulen,h_axis_titles] = get_proj_param_(proj,data_in,pax)
+function [uoffset,ulabel,dax,u_to_rlu,ulen,axis_titles] = get_proj_param_(proj,data_in,pax)
 % store parameters, describing cut sqw object and important for
 % its behaviour wrt subsequent cuts.
 %
@@ -22,4 +22,4 @@ ulen = proj.usteps;
 %u_to_rlu = [[u_to_rlu,[0;0;0]];[0,0,0,1]];
 %ulen = [ulen,1];
 
-h_axis_titles = @spher_plot_titles;
+axis_titles = spher_proj_caption();

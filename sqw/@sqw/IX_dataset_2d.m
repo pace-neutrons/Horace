@@ -27,23 +27,23 @@ wout=IX_dataset_2d;
 if numel(w)>1, wout(numel(w))=wout; end  % allocate array
 
 for i=1:numel(w)
-    if isfield(w(i).data,'axis_caption_fun') && ~isempty(w(i).data.axis_caption_fun)
-        title_fun = w(i).data.axis_caption_fun;
-        [title_main, title_pax] = title_fun(w(i).data);    % note: axes annotations should correctly account for permutation in w.data.dax
+    if isfield(w(i).data,'axis_caption') && ~isempty(w(i).data.axis_caption)
+        title_fun_calc = w(i).data.axis_caption;
     else
-        [title_main, title_pax] = data_plot_titles (w(i).data);    % note: axes annotations correctly account for permutation in w.data.dax
+        title_fun_calc  = an_axis_caption();
     end
-
+    [title_main, title_pax] = title_fun_calc.data_plot_titles(w(i).data);   % note: axes annotations correctly account for permutation in w.data.dax
+    
     s_axis = IX_axis ('Intensity');
     axis_1 = IX_axis (title_pax{1});
     axis_2 = IX_axis (title_pax{2});
-
+    
     nopix=(w(i).data.npix==0);
     signal=w(i).data.s;
     signal(nopix)=NaN;
     err=sqrt(w(i).data.e);
     err(nopix)=0;
-
+    
     % Check if display axes are reversed
     if all(w(i).data.dax==[2,1])    % axes are permuted for plotting purposes
         wout(i) = IX_dataset_2d (title_squeeze(title_main), signal', err',...
@@ -52,7 +52,7 @@ for i=1:numel(w)
         wout(i) = IX_dataset_2d (title_squeeze(title_main), signal, err,...
             s_axis, w(i).data.p{1}, axis_1, true, w(i).data.p{2}, axis_2, true);
     end
-
+    
 end
 
 wout=reshape(wout,size(w));
