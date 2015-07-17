@@ -17,7 +17,7 @@ classdef TestCaseWithSave < TestCase
         path_toclear={};
         % the string printed in the case of errors in
         % test_or_save_variables intended to provide additional information
-        % about the error (usually set in front of test_or_save_variables)        
+        % about the error (usually set in front of test_or_save_variables)
         errmessage_prefix = ''
     end
     
@@ -43,6 +43,35 @@ classdef TestCaseWithSave < TestCase
             % load old data if necessary
             if not(this.want_to_save_output) && exist(inputFile,'file')
                 this.old=load(inputFile);
+                %----------------------------------------------------------
+                % TRANSIENT OPERATION! necessary (and valid) until data
+                % class changes
+                fields = fieldnames(this.old);
+                for i=1:numel(fields)
+                    is_sqw= isa(this.old.(fields{i}),'sqw');
+                    is_dnd= isa(this.old.(fields{i}),'dnd');
+                    if is_sqw||is_dnd
+                        old_data = struct(this.old.(fields{i}).data);
+                        
+                        if isfield(old_data,'axis_caption_fun')
+                            old_data= rmfield(old_data,'axis_caption_fun');
+                        end
+                        new_data = data_sqw_dnd(old_data);
+                        this.old.(fields{i}).data = new_data;
+                        if is_dnd
+                            this.old.(fields{i})=dnd(this.old.(fields{i}));
+                        end
+                    end
+                    if isa(this.old.(fields{i}),'data_sqw_dnd')
+                        old_data = struct(this.old.(fields{i}));
+                        if isfield(old_data,'axis_caption_fun')
+                            old_data= rmfield(old_data,'axis_caption_fun');
+                        end
+                        
+                        this.old.(fields{i}) = data_sqw_dnd(old_data);
+                    end
+                end
+                %----------------------------------------------------------
             end
             this.datasets_to_save=struct();
             
