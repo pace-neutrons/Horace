@@ -37,13 +37,13 @@ function [d, mess] = make_sqw (varargin)
 % -------
 %   d       Data structure; set to empty structure if error with input.
 %           If input not a structure:
-%               The output should be a valid sqw data structure. 
+%               The output should be a valid sqw data structure.
 %           If input was a structure:
 %               The output may not be a valid sqw data structure, as no checks
 %              are performed on the input fields.
 %
 %           A check should always be performed by a subsequent call to check_sqw.
-%           
+%
 %
 %   mess    ='' if valid output structure; set to error message if not.
 
@@ -52,13 +52,12 @@ mess='';
 fields = {'main_header';'header';'detpar';'data'};  % column
 
 dnd_type=varargin{1};
-if nargin==2 && isstruct(varargin{2})
+if nargin==2 && (isstruct(varargin{2}))
     if ~dnd_type
         if isequal(fieldnames(varargin{2}),fields)    % sqw-type top level fields
             d=varargin{2};
-            %HACK
-            if ~isfield(d.data,'axis_caption_fun')
-                d.data.axis_caption_fun = @data_plot_titles;
+            if ~isa(d.data,'data_sqw_dnd')
+                d.data = data_sqw_dnd(d.data);
             end
         else
             d=struct([]);   % there was a problem
@@ -71,18 +70,22 @@ if nargin==2 && isstruct(varargin{2})
         if isequal(fieldnames(varargin{2}),fields)    % sqw-type top level fields, so interpret as wanting to make dnd from sqw structure
             d.data=varargin{2}.data;
         else
-            d.data=varargin{2};
+            if isa(varargin{2},'data_sqw_dnd')
+                d.data=varargin{2};
+            else
+                d.data=clear_sqw_data(data_sqw_dnd(varargin{2}));
+            end
         end
         % In case structure is not actually a true sqw-type structure, don't fail if fields urange and pix do not exist
-        if isfield(d.data,'urange'), d.data=rmfield(d.data,'urange'); end
-        if isfield(d.data,'pix'), d.data=rmfield(d.data,'pix'); end
+        %if isfield(d.data,'urange'), d.data=rmfield(d.data,'urange'); end
+        %if isfield(d.data,'pix'), d.data=rmfield(d.data,'pix'); end
     end
 else
     d.main_header=make_sqw_main_header;
     d.header=make_sqw_header;
     d.detpar=make_sqw_detpar;
     if dnd_type
-        [d.data,mess]=make_sqw_data(varargin{2:end});
+        d.data=data_sqw_dnd(varargin{2:end});
     else
         mess='Constructor does not exist';
     end

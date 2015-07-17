@@ -1,11 +1,11 @@
-function [data,mess]=make_sqw_data_from_proj(lattice,proj_in,p1,p2,p3,p4)
+function [data,mess]=make_sqw_data_from_proj(data,lattice,proj_in,p1,p2,p3,p4)
 % Create data filed for sqw object from input of the form
 %
 %   >> [data,mess] = make_sqw_data_from_proj(lattice,proj,p1,p2,p3,p4)
 %
 % Input:
 % ------
-%   lattice         [Optional] Defines crystal lattice: [a,b,c,alpha,beta,gamma]
+%   lattice        [Optional] Defines crystal lattice: [a,b,c,alpha,beta,gamma]
 %                  Assumes to be [2*pi,2*pi,2*pi,90,90,90] if not given.
 %
 %   proj            Projection structure or object.
@@ -27,10 +27,9 @@ function [data,mess]=make_sqw_data_from_proj(lattice,proj_in,p1,p2,p3,p4)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 985 $ ($Date: 2015-06-05 17:38:55 +0100 (Fri, 05 Jun 2015) $)
 
 
-data=[];
 
 % Check projection
 if isstruct(proj_in) || isa(proj_in,'projaxes')

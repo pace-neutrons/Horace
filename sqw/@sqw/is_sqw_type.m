@@ -17,7 +17,7 @@ function sqw_type = is_sqw_type(w)
 
 sqw_type=false(size(w));
 for i=1:numel(w)
-    if isfield(w(i).data,'pix')
+    if ~isempty(w(i).data.pix)
         sqw_type(i) = true;
     else
         sqw_type(i) = false;

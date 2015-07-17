@@ -1,4 +1,4 @@
-function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargin)
+function [mess, data, position, npixtot, data_type] = get_sqw_data (data,fid, varargin)
 % Read the data block from an sqw file. The file pointer is left at the end of the data block.
 %
 %   >> [mess, data, position, npixtot, data_type] = get_sqw_data(fid)
@@ -156,10 +156,9 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (fid, varargi
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1019 $ ($Date: 2015-07-16 12:20:46 +0100 (Thu, 16 Jul 2015) $)
 
 % Initialise output arguments
-data=[];
 position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]);
 npixtot=[];
 data_type='';
@@ -360,7 +359,8 @@ if strcmp(data_type_in,'b+') || (autodetect && fnothingleft(fid))    % reached e
     if prototype && ~header_only
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
-    data.axis_caption_fun = @data_plot_titles;    
+	%HACK	
+    data.axis_caption = an_axis_caption();
     return
 else
     position.urange=ftell(fid);
@@ -406,7 +406,8 @@ else
         [data.s,data.e]=convert_signal_error(data.s,data.e,data.npix);
     end
 end
-data.axis_caption_fun = @data_plot_titles;
+%HACK
+data.axis_caption = an_axis_caption();
 
 
 

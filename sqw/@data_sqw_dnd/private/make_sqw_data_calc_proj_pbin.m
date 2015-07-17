@@ -39,7 +39,7 @@ function [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 985 $ ($Date: 2015-06-05 17:38:55 +0100 (Fri, 05 Jun 2015) $)
 
 
 % Default return values

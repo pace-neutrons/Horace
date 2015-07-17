@@ -285,7 +285,8 @@ if ~newfile
     end
     % Get the position locations (looks inefficient, but only reads the header information, which is very small)
     fseek(fid,position.data,'bof');    % return to the start of the data block
-    [mess,dummy_data,position_data,npixtot_written,data_type_written] = get_sqw_data (fid, '-h', existing_file_format, data_type_from_file);
+    sqw_dat = data_sqw_dnd();
+    [mess,dummy_data,position_data,npixtot_written,data_type_written] = sqw_dat.get_sqw_data (fid, '-h', existing_file_format, data_type_from_file);
     if tidy_close(mess,fid_input,fid), return, end
 end
 

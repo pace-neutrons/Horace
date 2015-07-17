@@ -273,7 +273,8 @@ elseif pix_range
 else
     data_opt={};
 end
-[mess, data, position_data, npixtot, data_type] = get_sqw_data (fid, data_opt{:}, file_format, data_type_from_file);
+data = data_sqw_dnd();
+[mess, data, position_data, npixtot, data_type] = data.get_sqw_data (fid, data_opt{:}, file_format, data_type_from_file);
 if tidy_close(mess,fid_input,fid), return, end
 
 % Fill fields not held in data section from the header

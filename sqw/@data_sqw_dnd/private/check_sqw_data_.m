@@ -1,4 +1,4 @@
-function [ok, type, mess] = check_sqw_data (data, type_in, field_names_only)
+function [ok, type, mess] = check_sqw_data_(data, type_in, field_names_only)
 % Check that the fields in the data are OK
 %
 %   >> [ok, mess] = check_sqw_data (data)
@@ -26,13 +26,13 @@ function [ok, type, mess] = check_sqw_data (data, type_in, field_names_only)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1019 $ ($Date: 2015-07-16 12:20:46 +0100 (Thu, 16 Jul 2015) $)
 
-fields_a = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
-    'pax';'p';'dax';'s';'e';'npix';'urange';'pix'}; % column
+%fields_a = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
+%    'pax';'p';'dax';'s';'e';'npix';'urange';'pix';'axis_caption'}; % column
 
-fields_bplus = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
-    'pax';'p';'dax';'s';'e';'npix'}; % column
+%fields_bplus = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
+%    'pax';'p';'dax';'s';'e';'npix';'axis_caption'}; % column
 
 ok=false;
 type='';
@@ -44,30 +44,36 @@ if ~exist('type_in','var')||isempty(type_in)
 elseif ~(isequal(type_in,'a')||isequal(type_in,'b+'))
     error('Invalid argument type_in to check_sqw_data - logic problem in Horace')
 end
-
 if ~exist('field_names_only','var')||isempty(field_names_only)
     field_names_only = false;
 elseif ~(isnumeric(field_names_only)||islogical(field_names_only))
     error('Invalid argument field_names_only to check_sqw_data - logic problem in Horace')
 end
 
-% HACK!
-fndata = fieldnames(data);
-all_members_ind = ismember(fndata,'axis_caption_fun');
-if any(all_members_ind)
-    fndata = fndata(~all_members_ind);
+
+
+if isempty(data.p) || isempty(data.urange)
+   tmp_type='b+';
+else
+    tmp_type='b+';    
 end
+%fndata = fieldnames(data);
+% HACK!
+%all_members_ind = ismember(fndata,'axis_caption');
+%if any(all_members_ind)
+%    fndata = fndata(~all_members_ind);
+%end
 
 % Check data argument
 % ---------------------
 % Check field names
-if isstruct(data) && isequal(fndata,fields_a) && (isempty(type_in)||strcmpi(type_in,'a'))
-    tmp_type='a';
-elseif isstruct(data) && isequal(fndata,fields_bplus) && (isempty(type_in)||strcmpi(type_in,'b+'))
-    tmp_type='b+';
-else
-    mess='Data is not a structure with required fields'; return
-end
+%if isequal(fndata,fields_a) && (isempty(type_in)||strcmpi(type_in,'a'))
+%    tmp_type='a';
+%elseif isequal(fndata,fields_bplus) && (isempty(type_in)||strcmpi(type_in,'b+'))
+%    tmp_type='b+';
+%else
+%    mess='Data is not a structure with required fields'; return
+%end
 
 
 if ~field_names_only

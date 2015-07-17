@@ -154,7 +154,10 @@ position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]
 npixtot=[];
 
 % Determine type of input data structure
-data_type_in = data_structure_type(data);
+data_type_in = data.data_type();
+if isempty(data.s)
+    data_type_in='h';
+end
 
 % Determine if valid write options and number of further optional arguments
 opt_pix=false;

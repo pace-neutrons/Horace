@@ -1,5 +1,5 @@
-function [data,mess] = make_sqw_data (varargin)
-% Make a valid detpar field
+function [data,mess] = make_sqw_data (data,varargin)
+% Make a valid data structure
 % Create a valid structure for an sqw object
 %
 % Simplest constructor
@@ -117,11 +117,11 @@ function [data,mess] = make_sqw_data (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1019 $ ($Date: 2015-07-16 12:20:46 +0100 (Thu, 16 Jul 2015) $)
 
 
-data=[];
 mess='';
+define_axis_caption=true;
 
 narg = length(varargin);
 
@@ -140,7 +140,7 @@ if narg==0 || (narg==1 && isscalar(varargin{1}) && isnumeric(varargin{1}))
     end
     lattice=[2*pi,2*pi,2*pi,90,90,90];
     pbin=[repmat({{[0,1]}},1,ndim),cell(1,4-ndim)];
-    data = make_sqw_data_from_proj (lattice, projaxes, pbin{:});
+    data = make_sqw_data_from_proj (data,lattice, projaxes, pbin{:});
     
 elseif narg>=1
     % -------------------------------------------------------------------------------------
@@ -160,14 +160,25 @@ elseif narg>=1
     % Determine if remaining input is proj,p1,p2,p3,p4, or uoffset,[u0,]u1,p1,...
     if narg==5 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'projaxes'))
         % Remaining input has form proj,p1,p2,p3,p4
-        [data,mess]=make_sqw_data_from_proj(latt,varargin{1+n0:end});
+        [data,mess]=make_sqw_data_from_proj(data,latt,varargin{1+n0:end});
+    elseif nargin == 2 && isstruct(varargin{1})
+        [data,define_axis_caption]=copy_data_from_structure(data,varargin{1});
     else
         % Remaining input has form uoffset,[u0,]u1,p1,...
-        [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(varargin{1+n0:end});
+        [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(data,varargin{1+n0:end});
         if ~isempty(mess)
             return
         end
-        [data,mess]=make_sqw_data_from_proj(latt,proj,pbin{:});
+        [data,mess]=make_sqw_data_from_proj(data,latt,proj,pbin{:});
     end
 end
-data.axis_caption_fun = @data_plot_titles;
+if define_axis_caption
+    data.axis_caption = an_axis_caption();
+end
+if isempty(mess)
+    type_in = data.data_type();
+    [ok, type, mess]=data.check_sqw_data_(type_in);
+    if ~ok
+        error('DATA_SQW_DND:invalid_arguments',mess);
+    end
+end

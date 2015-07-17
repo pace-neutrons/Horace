@@ -63,11 +63,11 @@ classdef aprojection
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
-        function this=retrieve_existing_tranf(this,data)
+        function this=retrieve_existing_tranf(this,data,upix_to_rlu,upix_offset)
             % Retrieve all parameters for transformation already
             % defined over sqw data and store them in projection to
             % use later.
-            this = set_data_transf_(this,data);
+            this = set_data_transf_(this,data,upix_to_rlu,upix_offset);
         end
         function this = set_proj_binning(this,ustep,urange_step,urange_offset)
             % urange_step -- number of bin in every cut direction

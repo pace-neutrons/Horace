@@ -38,12 +38,12 @@ classdef test_projection_class<TestCase
             %
             data.u_to_rlu = eye(4); %(4x4)
             data.uoffset = zeros(1,4);      %(4x1)
-            data.upix_to_rlu = eye(4);
-            data.upix_offset = zeros(1,4);
+            upix_to_rlu = eye(4);
+            upix_offset = zeros(1,4);
             data.ulabel = {'a','b','c','d'};
             data.ulen = ones(4,1);
             
-            proj=proj.retrieve_existing_tranf(data);
+            proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
         end
         function test_set_can_mex_keep(this)
             proj = projection();

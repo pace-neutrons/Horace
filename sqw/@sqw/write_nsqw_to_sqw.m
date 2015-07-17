@@ -151,6 +151,7 @@ end
 
 % Read data:
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
+sqw_data = data_sqw_dnd();
 for i=1:nfiles
     fid=fopen(infiles{i},'r');
     if fid<0; error(['Unable to open input file ',infiles{i}]); end
@@ -158,7 +159,7 @@ for i=1:nfiles
     status=fseek(fid,pos_datastart(i),'bof'); % Move directly to location of start of data section
     if status<0; fclose(fid); error(['Error finding location of binning data in file ',infiles{i}]); end
     
-    [mess,bindata]=get_sqw_data(fid,'-nopix',file_format,data_type);
+    [mess,bindata]=sqw_data.get_sqw_data(fid,'-nopix',file_format,data_type);
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
     if i==1
         s_accum = (bindata.s).*(bindata.npix);
