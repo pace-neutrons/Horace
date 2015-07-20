@@ -38,12 +38,29 @@ classdef test_proj_captions<TestCase
         
         
         function test_spher_caption(this)
-            
             capt = spher_proj_caption();
             assertFalse(capt.changes_aspect_ratio);
+            this.data.ulabel={'\ro'  '\theta'  '\phi'  'E'};
             
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 capt.data_plot_titles(this.data);
+
+            assertTrue(iscell(title_main));
+            assertEqual(size(title_main),[1,2]);
+            %
+            assertTrue(iscell(title_pax));
+            assertTrue(isempty(title_pax));
+            %
+            assertTrue(iscell(title_iax));
+            assertEqual(size(title_iax),[4,1]);
+            %
+            assertTrue(iscell(display_pax));
+            assertTrue(isempty(display_pax));
+            %
+            assertTrue(iscell(display_iax));
+            assertEqual(size(display_iax),[4,1]);
+            %
+            assertEqual(energy_axis,4);
             
         end
     end
