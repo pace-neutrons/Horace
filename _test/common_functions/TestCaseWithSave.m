@@ -57,9 +57,14 @@ classdef TestCaseWithSave < TestCase
                             old_data= rmfield(old_data,'axis_caption_fun');
                         end
                         new_data = data_sqw_dnd(old_data);
-                        this.old.(fields{i}).data = new_data;
+                        old_sqw = this.old.(fields{i});
                         if is_dnd
-                            this.old.(fields{i})=dnd(this.old.(fields{i}));
+                            this.old.(fields{i})=dnd(old_sqw);
+                        else
+                            for j=1:numel(new_data)
+                                old_sqw(j).data = new_data(j);                            
+                            end
+                            this.old.(fields{i})=old_sqw;
                         end
                     end
                     if isa(this.old.(fields{i}),'data_sqw_dnd')
