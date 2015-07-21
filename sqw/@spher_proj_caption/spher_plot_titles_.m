@@ -55,16 +55,6 @@ for i=1:length(pax)
 end
 dax = data.dax;
 
-% for i=1:length(iax)
-%     % get offset from integration axis, accounting for non-finite limit(s)
-%     if isfinite(iint(1,i)) && isfinite(iint(2,i))
-%         iint_ave=0.5*(iint(1,i)+iint(2,i));
-%     else
-%         iint_ave=0;
-%     end
-%     uoff_spher=iint_ave*u_to_rlu(:,iax(i));  % overall displacement of plot volume in (rlu;en)
-% end
-
 % Axes and integration titles
 % Character representations of input data
 small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
@@ -74,23 +64,27 @@ uoff_ch=cell(1,4);
 u_to_rlu_ch=cell(4,4);
 for j=1:4
     if abs(centre(j)) > small
-        uoff_ch{j} = num2str(centre(j),'%+11.4g');
+        uoff_ch{j} = num2str(centre(j),'%11.4g');
     else
-        uoff_ch{j} = num2str(0,'%+11.4g');
+        uoff_ch{j} = num2str(0,'%11.4g');
     end
-%     if abs(uofftot(j)) > small
-%         uofftot_ch{j} = num2str(uofftot(j),'%+11.4g');
-%     else
-%         uofftot_ch{j} = num2str(0,'%+11.4g');
-%     end
+    %     if abs(uofftot(j)) > small
+    %         uofftot_ch{j} = num2str(uofftot(j),'%+11.4g');
+    %     else
+    %         uofftot_ch{j} = num2str(0,'%+11.4g');
+    %     end
     for i=1:4
         if abs(u_to_rlu(i,j)) > small
-            u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+            u_to_rlu_ch{i,j} = num2str(u_to_rlu(i,j),'%11.4g');  % + format ensures sign (+ or -) is attached to character representation
         else
-            u_to_rlu_ch{i,j} = num2str(0,'%+11.4g');  % format ensures sign (+ or -) is attached to character representation
+            u_to_rlu_ch{i,j} = num2str(0,'%11.4g');  % + format ensures sign (+ or -) is attached to character representation
         end
     end
 end
+
+% HACK:
+spher_units('r') =[u_to_rlu_ch{1,1},' ',spher_units('r')];
+
 
 % pre-allocate cell arrays for titling:
 title_pax = cell(length(pax),1);
@@ -106,19 +100,16 @@ for j=1:4
     if any(j==pax)   % j appears in the list of plot axes
         ipax = find(j==pax(dax));
         unit = spher_units(types{j});
-        if abs(ulen(j)-1) > small
-            title_pax{ipax} = [ulabel{j},' in ',num2str(ulen(j)),unit];
-        else
-            title_pax{ipax} = [ulabel{j},' in ',unit];            
-        end
-        title_main_pax{ipax} = [ulabel{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),unit];
-        display_pax{ipax} = [ulabel{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),unit];
+        title_pax{ipax} = [ulabel{j},' in ',unit];
+        
+        title_main_pax{ipax} = [ulabel{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),'in ',unit];
+        display_pax{ipax} = [ulabel{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),'in ',unit];
     elseif any(j==iax)   % j appears in the list of integration axes
         iiax = find(j==iax);
         unit = spher_units(types{j});
-        title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',ulabel{j},' \leq ',num2str(iint(2,iiax)),unit];
+        title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',ulabel{j},' \leq ',num2str(iint(2,iiax)),' in ', unit];
         title_main_iax{iiax} = title_iax{iiax};
-        display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',ulabel{j},' =< ',num2str(iint(2,iiax)),unit];
+        display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',ulabel{j},' =< ',num2str(iint(2,iiax)),' in ',unit];
     else
         error ('ERROR: Axis is neither plot axis nor integration axis')
     end
