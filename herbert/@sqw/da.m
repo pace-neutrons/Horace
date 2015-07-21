@@ -12,11 +12,10 @@ function [figureHandle, axesHandle, plotHandle] = da(w,varargin)
 %   >> [fig_handle, axes_handle, plot_handle] = da(w,...) 
 flags={'-noaspect'};
 [ok,mess,noaspect,other_args]=parse_char_options(varargin,flags);
-if ~noaspect
-    if isfield(w.data,'axis_caption')
-        noaspect= ~w.data.axis_caption.changes_aspect_ratio;
-    end
-end
+
+obj_noaspect = w.data.axis_caption.changes_aspect_ratio;
+noaspect = ~noaspect || obj_noaspect ;
+
 if ~ok
     error('DA:invalid_argument',mess)
 end
