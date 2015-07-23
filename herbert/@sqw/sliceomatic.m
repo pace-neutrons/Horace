@@ -52,7 +52,11 @@ else
     qpax = rem([epax,epax+1],3)+1;      % indices of the other two display axes (cyclic permutation)
     aspect(epax) = a(epax)/max([ulen(qpax(1))*a(qpax(1)), ulen(qpax(2))*a(qpax(2))]);
 end
-set(gca,'DataAspectRatio',aspect);
+%
+do_aspect = w.data.axis_caption.changes_aspect_ratio;
+if do_aspect
+    set(gca,'DataAspectRatio',aspect);
+end
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end
