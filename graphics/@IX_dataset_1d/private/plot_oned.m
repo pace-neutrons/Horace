@@ -171,7 +171,13 @@ if (newplot)
     [tx,ty]=make_label(w(1));  % Create axis annotations
     tt=w(1).title(:);   % tt=[w(1).title(:);['Plot binning = ',num2str(binning)]];
     % change titles:
-    title(tt);
+    % change titles:
+    if verLessThan('matlab','8.4')
+        title(tt);
+    else
+        title(tt,'FontWeight','normal');        
+    end   
+
     xlabel(tx);
     ylabel(ty);
 %     % calculate space for titles:
