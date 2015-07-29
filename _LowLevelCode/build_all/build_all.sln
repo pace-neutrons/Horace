@@ -1,21 +1,17 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "build_all", "build_all.vcproj", "{870590B0-E920-4B29-A2A9-3ABEF5D8590B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{FFD6E603-ED85-4A3A-A35E-6D847CE2AB19} = {FFD6E603-ED85-4A3A-A35E-6D847CE2AB19}
-		{672157BD-9B1B-4BC7-87AD-BA4596367EAB} = {672157BD-9B1B-4BC7-87AD-BA4596367EAB}
-		{BC33A7CD-98C2-4EE5-B5C3-7796CFD97138} = {BC33A7CD-98C2-4EE5-B5C3-7796CFD97138}
-		{2F2ECEEF-3129-4E36-AB1F-005C19F06512} = {2F2ECEEF-3129-4E36-AB1F-005C19F06512}
-	EndProjectSection
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "build_all", "build_all.vcxproj", "{870590B0-E920-4B29-A2A9-3ABEF5D8590B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "accumulate_cut_c", "..\cpp\accumulate_cut_c\accumulate_cut_c\accumulate_cut_c.vcproj", "{FFD6E603-ED85-4A3A-A35E-6D847CE2AB19}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "accumulate_cut_c", "..\cpp\accumulate_cut_c\accumulate_cut_c\accumulate_cut_c.vcxproj", "{FFD6E603-ED85-4A3A-A35E-6D847CE2AB19}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bin_pixels_c", "..\cpp\bin_pixels_c\bin_pixels_c\bin_pixels_c.vcproj", "{672157BD-9B1B-4BC7-87AD-BA4596367EAB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bin_pixels_c", "..\cpp\bin_pixels_c\bin_pixels_c\bin_pixels_c.vcxproj", "{672157BD-9B1B-4BC7-87AD-BA4596367EAB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc_projections_c", "..\cpp\calc_projections_c\calc_projections_c\calc_projections_c.vcproj", "{BC33A7CD-98C2-4EE5-B5C3-7796CFD97138}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calc_projections_c", "..\cpp\calc_projections_c\calc_projections_c\calc_projections_c.vcxproj", "{BC33A7CD-98C2-4EE5-B5C3-7796CFD97138}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sort_pixels_by_bins", "..\cpp\sort_pixels_by_bins\sort_pixels_by_bins\sort_pixels_by_bins.vcproj", "{2F2ECEEF-3129-4E36-AB1F-005C19F06512}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sort_pixels_by_bins", "..\cpp\sort_pixels_by_bins\sort_pixels_by_bins\sort_pixels_by_bins.vcxproj", "{2F2ECEEF-3129-4E36-AB1F-005C19F06512}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -83,11 +83,16 @@ if keep_pix
     if horace_info_level>=0, disp(['Sorting pixel information for ',num2str(npix_retain),' pixels']), end
     pix = v(:,ok);          % pixels that are to be retained
     clear v                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
-    use_mex=get(hor_config,'use_mex');
     
+    %use_mex=get(hor_config,'use_mex');
+    use_mex = false;
     if use_mex
         try
-            pix = sort_pixels_by_bins(pix,ix,npix);
+            if isa(pix,'double')
+                pix = sort_pixels_by_bins(pix,ix,npix,8);                
+            else
+                pix = sort_pixels_by_bins(pix,ix,npix,4);
+            end
             clear ix ;  % clear big arrays
         catch
             use_mex=false;

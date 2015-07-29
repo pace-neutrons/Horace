@@ -1,21 +1,21 @@
 classdef an_axis_caption
     %Lightweight class -- parent for different various axis caption classes
     %
-    %By default implements sqw cut object captions functionality
+    % By default implements sqw recangular cut captions
     %
     %
     % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
     %
-    
     properties(Dependent)
-        % property specifies if 2D picture, this class captions is intended
-        % to should change aspect ration according to aspect ratio of the
-        % data along axis
+        % property specifies if 2D or 3D picture, this class captions
+        % is created for, changes aspect ration according to aspect ratio
+        % of the data along axes
         changes_aspect_ratio;
     end
-    properties(Access=protected)        
+    properties(Access=protected)
         caption_calc_func_;
         % internal property, which defines if appropriate picture changes
+        % aspect ratio.
         changes_aspect_ratio_=true;
     end
     
