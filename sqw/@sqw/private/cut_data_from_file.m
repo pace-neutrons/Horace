@@ -1,5 +1,5 @@
 function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-   proj,pax, nbin)
+    proj,pax, nbin)
 %function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
 %    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
@@ -95,13 +95,12 @@ else
 end
 
 % Work array into which to read data
-v = zeros(ndatpix,min(vmax,npix_read));  % coordinates, signal and error as read from file - make it no longer than necessary
+v = single(zeros(ndatpix,min(vmax,npix_read)));  % coordinates, signal and error as read from file - make it no longer than necessary
 
 % number of blocks to be read from hdd -- used in the progress indicator.
 nsteps=floor(npix_read/vmax)+1;
 i_step=0;
 
-vpos = 1;               % start of new work array (vpos gives position of next point to be filled in the work array v)
 t_read  = [0,0];
 t_accum = [0,0];
 t_sort  = [0,0];
@@ -111,68 +110,36 @@ if horace_info_level>=2
     fprintf(' Cut data from file started at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
 end
 %
-
+pix_retained = {};
+pix_ix_retained={};
+num_retained_blocks = 0;
 if horace_info_level>=1, bigtic(1), end
+% % This needs rethinking and some ?minor? redesighning
+% if license('checkout','Distrib_Computing_Toolbox')
+%     cores = feature('numCores');
+%     if verLessThan('matlab','8.4')
+%         if matlabpool('SIZE')==0
+%             if cores>12
+%                 cores = 12;
+%             end
+%             matlabpool(cores);
+%         end
+%     else
+%         if isempty(gcp('nocreate'))
+%             if cores>12
+%                 cores = 12;
+%             end
+%             parpool(cores);
+%
+%         end
+%     end
+%     parallell = true;
+% else
+%     parallell = false;
+% end
+vpos = 1;    % start of new work array (vpos gives position of next point to be filled in the work array v)
 for i=1:length(range)
-    rpos = 1;       % start of new range (rpos gives position of next point to read in the current range
-    ok = fseek (fid, (4*ndatpix)*noffset(i), 'cof'); % initial offset is from end of previous range; ndatpix x float32 per pixel in the file
-    if ok~=0; fclose(fid); error('Unable to jump to required location in file'); end;
-    while rpos <= range(i)
-        if vpos<=vmax   % work array not yet filled up
-            if range(i)-rpos+1 <= vmax-vpos+1   % enough space to hold remainder of range
-                vend = vpos+range(i)-rpos;  % last column that will be filled in this loop of the while statement
-                %**                if horace_info_level>=1, bigtic(1), end
-                try
-                    [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,range(i)-rpos+1], '*float32');
-                    v(:,vpos:vend)=double(tmp);
-                    clear tmp
-                catch   % fixup to account for not reading required number of items (should really go in fread_catch)
-                    ok = false;
-                    mess = 'Unrecoverable read error';
-                end
-                %**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
-                if ~all(ok); fclose(fid); error(mess); end;
-                vpos = vend+1;
-                break   % jump out of while loop
-            else    % read in as much of the range as can
-                %**                if horace_info_level>=1, bigtic(1), end
-                try
-                    [tmp,count,ok,mess] = fread_catch(fid, [ndatpix,vmax-vpos+1], '*float32');
-                    v(:,vpos:vmax)=double(tmp);
-                    clear tmp
-                catch   % fixup to account for not reading required number of items (should really go in fread_catch)
-                    ok = false;
-                    mess = 'Unrecoverable read error';
-                end
-                %**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
-                if ~all(ok); fclose(fid); error(mess); end;
-                rpos = rpos+vmax-vpos+1;
-                vpos = vmax+1;
-            end
-        else            % work array filled up; process the data read up to now, and reset position in work array to beginning
-            if horace_info_level>=1
-                t_read = t_read + bigtoc(1);
-                bigtic(2)
-            end
-            if horace_info_level>=0
-                i_step=i_step+1;
-                mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
-                disp(mess)
-            end
-            [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-                v, proj, pax);
-            if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
-            npix_retain = npix_retain + del_npix_retain;
-            if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
-            vpos = 1;
-            if keep_pix
-                if horace_info_level>=1, bigtic(3), end
-                accumulate_pix(false)
-                if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
-            end
-            if horace_info_level>=1, bigtic(1), end
-        end
-    end
+    vpos=read_and_accumulate_data(range(i),vpos);
 end
 if horace_info_level>=1, t_read = t_read + bigtoc(1); end
 
@@ -191,10 +158,48 @@ if vpos>1   % flush out work array - the array contains some unprocessed data
     if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
     if keep_pix
         if horace_info_level>=1, bigtic(3), end
-        accumulate_pix(true)
+        accumulate_pix(true,v,ok,ix_add)
         if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
     end
 end
+%---------------------------------------------------------------------------------
+% Finish -- glue up all arrays with pixels into final pixel arrays
+%---------------------------------------------------------------------------------
+if ~isempty(pix_retained)  % prepare the output pix array
+    clear v ok ix_add; % clear big arrays
+    % temporary -- need fixing
+    %use_mex=get(hor_config,'use_mex');
+    use_mex=false;
+    if use_mex
+        try
+            if isa(pix_retained,'double')
+                pix = sort_pixels_by_bins(pix_retained,pix_ix_retained,8);
+            else
+                pix = sort_pixels_by_bins(pix_retained,pix_ix_retained,4);
+            end
+            %pix = sort_pixels_by_bins(pix_retained,pix_ix_retained);
+            clear pix_retained pix_ix_retained;  % clear big arrays
+        catch
+            use_mex=false;
+            if horace_info_level>=1
+                message=lasterr();
+                warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',message)
+            end
+        end
+    end
+    if ~use_mex
+        ix = cat(1,pix_ix_retained{:});
+        clear pix_ix_retained;
+        [~,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
+        clear ix ;          % clear big arrays so that final output variable pix is not way up the stack
+        % TODO: make single!
+        pix = double(cat(2,pix_retained{:}));
+        clear pix_retained;
+        pix=pix(:,ind);     % reorders pix
+        clear ind;
+    end
+end
+
 
 if horace_info_level>=1
     disp('-----------------------------')
@@ -220,10 +225,74 @@ if horace_info_level>=1
     disp('-----------------------------')
     disp(' ')
 end
+% nested function to read and accumulate data
+    function vpos=read_and_accumulate_data(the_range,vpos)       
+        rpos = 1;       % start of new range (rpos gives position of next point to read in the current range
+        buf_max_size = size(v,2);
+        ok = fseek (fid, (4*ndatpix)*noffset(i), 'cof'); % initial offset is from end of previous range; ndatpix x float32 per pixel in the file
+        if ok~=0; fclose(fid); error('Unable to jump to required location in file'); end;
+        while rpos <= the_range
+            if vpos<=buf_max_size   % work array not yet filled up
+                if the_range-rpos+1 <= buf_max_size-vpos+1   % enough space to hold remainder of range
+                    vend = vpos+the_range-rpos;  % last column that will be filled in this loop of the while statement
+                    %**                if horace_info_level>=1, bigtic(1), end
+                    try
+                        [tmp,~,ok,mess] = fread_catch(fid, [ndatpix,the_range-rpos+1], '*float32');
+                        v(:,vpos:vend)=tmp;
+                        clear tmp
+                    catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+                        ok = false;
+                        mess = 'Unrecoverable read error';
+                    end
+                    %**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
+                    if ~all(ok); fclose(fid); error(mess); end;
+                    vpos = vend+1;
+                    break   % jump out of while loop
+                else    % read in as much of the range as can
+                    %**                if horace_info_level>=1, bigtic(1), end
+                    try
+                        [tmp,~,ok,mess] = fread_catch(fid, [ndatpix,buf_max_size-vpos+1], '*float32');
+                        v(:,vpos:buf_max_size)=tmp;
+                        clear tmp
+                    catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+                        ok = false;
+                        mess = 'Unrecoverable read error';
+                    end
+                    %**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
+                    if ~all(ok); fclose(fid); error(mess); end;
+                    rpos = rpos+buf_max_size-vpos+1;
+                    vpos = buf_max_size+1;
+                end
+            else   % work array filled up; process the data read up to now, and reset position in work array to beginning
+                if horace_info_level>=1
+                    t_read = t_read + bigtoc(1);
+                    bigtic(2)
+                end
+                if horace_info_level>=0
+                    i_step=i_step+1;
+                    mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
+                    disp(mess)
+                end
+                [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
+                    v, proj, pax);
+                if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
+                npix_retain = npix_retain + del_npix_retain;
+                if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
+                vpos = 1;
+                if keep_pix
+                    if horace_info_level>=1, bigtic(3), end
+                    accumulate_pix(false,v,ok,ix_add)
+                    if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
+                end
+                if horace_info_level>=1, bigtic(1), end
+            end
+        end
+        
+    end
 
 % Nested function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
 % Note: the routine implicitly assumes that pmax>=max(length(ok))==vmax. Routine works even if no pixels retained
-    function accumulate_pix (finish)
+    function accumulate_pix (finish,v,ok,ix_add)
         if pix_tmpfile_ok
             if del_npix_retain>0    % accumulate pixels if any read in
                 if ppos+del_npix_retain-1>pmax        % not enough room left in buffer to add more pixels
@@ -231,7 +300,7 @@ end
                     accumulate_pix_to_file  % flush current pixel information to file and reset buffer arrays
                 end
                 pend = ppos+del_npix_retain-1;
-                accumulate_pix_to_memory    % add the new pixels to the buffers
+                accumulate_pix_to_memory(v,ok,ix_add)   % add the new pixels to the buffers
             end
             pend = ppos-1;
             if finish && pend>0
@@ -246,37 +315,14 @@ end
             end
         else
             if del_npix_retain>0    % accumulate pixels if any read in
-                pix = [pix,v(:,ok)];
-                ix  = [ix;ix_add];
-            end
-            if finish && ~isempty(pix)  % prepare the output pix array
-                use_mex=get(hor_config,'use_mex');
-                clear v ok ix_add; % clear big arrays
-                
-                if use_mex
-                    try
-                        pix = sort_pixels_by_bins(pix,ix,npix);
-                        clear ix ;  % clear big arrays
-                    catch
-                        use_mex=false;
-                        if horace_info_level>=1
-                            message=lasterr();
-                            warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',message)
-                        end
-                    end
-                end
-                if ~use_mex
-                    [ix,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-                    clear ix ;          % clear big arrays so that final output variable pix is not way up the stack
-                    pix=pix(:,ind);     % reorders pix
-                end
+                accumulate_pix_to_memory(v,ok,ix_add);
             end
         end
         
-        function accumulate_pix_to_memory
-            pix(:,ppos:pend) = v(:,ok);    % accumulate pixels into buffer array
-            ix(ppos:pend) = ix_add;
-            ppos = pend+1;
+        function accumulate_pix_to_memory(v,ok,ix_add)
+            num_retained_blocks=num_retained_blocks+1;
+            pix_retained{num_retained_blocks} = v(:,ok);    % accumulate pixels into buffer array
+            pix_ix_retained{num_retained_blocks} = ix_add;
         end
         
         function accumulate_pix_to_file

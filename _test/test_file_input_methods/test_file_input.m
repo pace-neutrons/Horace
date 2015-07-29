@@ -63,7 +63,8 @@ cut_sqw(sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file)
 tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
 
 cut_horace(sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+tmp=read(sqw,tmp_file); 
+[ok,mess]=equal_to_tol(tmp0,tmp,'ignore_str',1); assertTrue(ok,['test_file_input: Error in functionality',mess]);
 
 cut_sqw(sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
 tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end

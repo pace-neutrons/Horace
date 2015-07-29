@@ -39,6 +39,13 @@ function [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_mat
 % - Aim to take advantage of in-place working within accumulate_cut
 
 % T.G.Perring   19 July 2007
+%
+%
+% Temporary and ineffective solution to keep pixels double all through the
+% Horace. TODO: redefine piexels as single and propagate it through all Horace
+if isa(v,'single')
+    v= double(v);
+end
 
 [indx,ok] = proj.get_contributing_pix_ind(v);
 if isempty(indx)    % if no pixels in range, return

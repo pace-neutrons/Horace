@@ -6,7 +6,7 @@
 
 #ifdef __GNUC__
 #   if __GNUC__ <= 4
-#		 if __GNUC_MINOR__ < 2  // then the compiler do not undertand OpenMP functions, let's define them
+#		 if __GNUC_MINOR__ < 2  // then the compiler do not understand OpenMP functions, let's define them
 void omp_set_num_threads(int nThreads){};
 int  omp_get_num_threads(void){return 1};
 
@@ -14,7 +14,7 @@ int  omp_get_num_threads(void){return 1};
 #	endif
 #endif
 
-// ebumerate input patameters for easy references. 
+// enumerate input parameters for easy references. 
 enum inPar{
     Spec_to_proj,
     Data,
@@ -30,7 +30,7 @@ enum inPar{
 
 //============================================================================================
 //**
-//> the function transforms the detector positions from the instrtumental to the crystal system of coordinates
+//> the function transforms the detector positions from the instrumental to the crystal system of coordinates
 //
 // usage:
 // ucoordinates=calc_projections_c(transf_matrix,data,detectors);
@@ -38,7 +38,7 @@ enum inPar{
 // input parameters:
 // transf_matrix -- 3x3 rotational(Sp=1) matrix of transformation from device coordinates to the
 //                   crystal coordinated
-// data          -- structure with the data from experiment, has to have fields in accordence with the
+// data          -- structure with the data from experiment, has to have fields in accordance with the
 //                  enum dataStructure above; The program uses the field data.energy --an array of 1xnEnergy values
 //
 // detectors     -- structure with the data, which describes the detector positions with the field,
@@ -55,7 +55,7 @@ enum inPar{
 //<
 //============================================================================================
 
-//* Possible prototipe for a generic function
+//* Possible prototype for a generic function
 double getMatlabScalar(const mxArray *pPar,const char * const fieldName){
     if(pPar==NULL){
         mexErrMsgTxt(" The parameter has to be defined");
@@ -156,7 +156,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
     mxArray *maSignal = mxGetField(prhs[Data],0,"S");
     if (maSignal == NULL){
-        mexErrMsgTxt("Can not retrieve sinal (S field) array from the data structure");
+        mexErrMsgTxt("Can not retrieve signal (S field) array from the data structure");
     }
     double * pSignal = (double *)mxGetPr(maSignal);
     double * pError  = (double *)mxGetPr(mxGetField(prhs[Data],0,"ERR"));
@@ -204,7 +204,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
             pEnPoints[i] = pEnergy[i];
         }
 
-    }else if(nEnShed+1==nEnergies){ // energy is calculated in centres of energy bins
+    }else if(nEnShed+1==nEnergies){ // energy is calculated in centers of energy bins
         nEnPoints=nEnergies-1;
         pEnPoints    = (double *)mxCalloc(nEnPoints, sizeof(double));
 

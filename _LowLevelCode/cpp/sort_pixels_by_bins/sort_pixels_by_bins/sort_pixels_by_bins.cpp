@@ -4,7 +4,7 @@ const int PIXEL_DATA_WIDTH=9;
 enum Input_Arguments{
     Pixel_data,
     Pixel_Indexes,
-    Pixel_Distributions,
+    DataType,
     N_INPUT_Arguments
 };
 enum Out_Arguments{
