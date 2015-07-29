@@ -68,31 +68,42 @@ classdef test_proj_captions<TestCase
             assertFalse(capt.changes_aspect_ratio);
             this.data.ulabel={ '\rho','\theta','\phi','E'};
             this.data.iax=[1,4];
+            % 
             this.data.pax=[2,3];
+            % if pax defined, p has to be too. 
+            this.data.p={[1;4;10],[2;10;20]};
             this.data.dax=[1,2];
             this.data.ulen=[1 0.5000 1 1];
             this.data.urange=[0.1500  -89.3891 -179.9992   40.0000;
                               0.2500   89.3295  179.9985   60.0000];
-            this.data.uoffset=[1,1,0];
+            this.data.uoffset=[1;1;0;0];
             this.data.iint=[0.1500   40.0000; 0.2500   60.0000];
+            this.data.s=ones(2);
+            this.data.e=ones(2);            
+            this.data.npix=ones(2);                        
+            
+            [ok,type,mess]=this.data.check_sqw_data('b+');
+            assertTrue(ok);
+            assertEqual(type,'b+');            
+            assertTrue(isempty(mess));                        
             
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 capt.data_plot_titles(this.data);
 
             assertTrue(iscell(title_main));
-            assertEqual(size(title_main),[1,2]);
+            assertEqual(size(title_main),[1,4]);
             %
             assertTrue(iscell(title_pax));
-            assertTrue(isempty(title_pax));
+            assertEqual(size(title_pax),[2,1]);
             %
             assertTrue(iscell(title_iax));
-            assertEqual(size(title_iax),[4,1]);
+            assertEqual(size(title_iax),[2,1]);
             %
             assertTrue(iscell(display_pax));
-            assertTrue(isempty(display_pax));
+            assertEqual(size(display_pax),[2,1]);
             %
             assertTrue(iscell(display_iax));
-            assertEqual(size(display_iax),[4,1]);
+            assertEqual(size(display_iax),[2,1]);
             %
             assertEqual(energy_axis,4);
             

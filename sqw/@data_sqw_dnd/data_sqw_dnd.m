@@ -97,10 +97,15 @@ classdef data_sqw_dnd
             obj.pix=[];
             obj.urange=[];
         end
-        %function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
-        %    % old style validator for all inputs.
-        %    [ok, type, mess]=obj.check_sqw_data_(type_in, varargin{:});
-        %end
+        function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
+            % old style validator for consistency of imput data.
+            %
+            % only a and 'b+' types are possible as inputs and outputs
+            % varargin may contain 'field_names_only' which in fact
+            % disables validation
+            %
+            [ok, type, mess]=obj.check_sqw_data_(type_in, varargin{:});
+        end
     end
 end
 
