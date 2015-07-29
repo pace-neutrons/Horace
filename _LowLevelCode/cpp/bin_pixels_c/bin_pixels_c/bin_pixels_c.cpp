@@ -340,8 +340,8 @@ bool bin_pixels(double *s, double *e, double *npix,
         }
 
 
-        //    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
-        //    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
+        //    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalize data
+        //    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalize variance
 #pragma omp for
         for(long i=0;i<distribution_size;i++){
             nPixSq  =npix[i];
@@ -352,16 +352,16 @@ bool bin_pixels(double *s, double *e, double *npix,
         }
 
         // sort pixels according to grid cells
-        //    ix=find(ok);                % Pixel indicies that are included in the grid
+        //    ix=find(ok);                % Pixel indices that are included in the grid
         //    [ibin,ind]=sort(ibin(ok));  % ordered bin numbers of the included pixels with index array into the original list of bin numbers of included pixels
-        //    ix=ix(ind)';                % Indicies of included pixels coerresponding to ordered list; convert to column vector
+        //    ix=ix(ind)';                % Indices of included pixels corresponding to ordered list; convert to column vector
         //    % Sort into increasing bin number and return indexing array
         //    % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
         //    sqw_data.pix=sqw_data.pix(:,ix);
 #pragma omp single
         {
             ppInd[0]=0;
-            for(long i=1;i<distribution_size;i++){   // initiate the boudaries of the cells to keep pixels
+            for(long i=1;i<distribution_size;i++){   // initiate the boundaries of the cells to keep pixels
                 ppInd[i]=ppInd[i-1]+(mwSize)npix[i-1];
             }; 
         }
@@ -408,7 +408,7 @@ bool bin_pixels(double *s, double *e, double *npix,
             PixelSorted=NULL;
             throw("  Can not allocate memory for sorted pixels");
         }
-        // copy pixels info from heap to matlab controlled memory;
+        // copy pixels info from heap to Matlab controlled memory;
         double *pPixels = mxGetPr(PixelSorted);
         for(size_t i=0;i<nPixel_retained*PIX_WIDTH;i++)
         {

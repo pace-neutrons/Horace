@@ -148,7 +148,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
     }
 
     if(mxGetM(prhs[Spec_to_proj])!=3||mxGetN(prhs[Spec_to_proj])!=3){
-        mexErrMsgTxt("first argument (projection matix) has to be 3x3 matrix");
+        mexErrMsgTxt("first argument (projection matrix) has to be 3x3 matrix");
     }
     if(pEnergy==NULL){
         mexErrMsgTxt("experimental data can not be empty");

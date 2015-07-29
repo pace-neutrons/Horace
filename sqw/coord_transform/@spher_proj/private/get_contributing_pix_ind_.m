@@ -1,5 +1,19 @@
 function [indx,ok]=get_contributing_pix_ind_(this,v)
-
+% Build array of pixel indexes in spherical coordinate system.
+%
+% Input:
+% v --9xNpix array of pixels where rows 1:4 of array v represent
+%     pixels coordinates in crystal cartesian coordinate system
+%
+% Output:
+% indx -- 4xNpix_cotnr integer indexes of pixels, contributing into the cut.
+%         The indexes are calculated in the grid of the object where the
+%         cut is taken from.
+% ok   -- Npix sized logical array of indexes where true, corresponds to
+%         pixels, contributing into the cut and false --the one which
+%         fall outside of the binning ranges.
+%
+%
 %[rot_ustep,trans_bott_left,ebin,trans_elo,urange_step] = this.get_pix_transf_();
 %TODO re-align
 ez = this.ez;
@@ -20,10 +34,10 @@ urange_offset = this.urange_offset;
 % convert angular ranges to radians as pixel coordinates are in radians
 urange_offset(2)=urange_offset(2)*(pi/180);
 urange_offset(3)=urange_offset(3)*(pi/180);
-% binning ranges 
+% binning ranges
 urange_step   = this.urange_step;
 %new_coord=[r;theta*(180./pi);phi*(180./pi)];
-% Transform the coordinates u1-u4 into the ubins 
+% Transform the coordinates u1-u4 into the ubins
 if ubin(4)==1 && urange_offset(4)==0   % Catch special (and common) case of energy being an integration axis to save calculations
     indx=[(r'-urange_offset(1))/ubin(1),(theta'-urange_offset(2))*(180./pi/ubin(2)),(phi'-urange_offset(3))*(180./pi/ubin(3)),v(4,:)'];  % nx4 matrix
 else
