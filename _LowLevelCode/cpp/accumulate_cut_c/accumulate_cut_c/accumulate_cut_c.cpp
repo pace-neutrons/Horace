@@ -320,14 +320,14 @@ parameters)
 % Accumulate signal into output arrays
 %
 %
-% Input: (* denotes output argumnet with same name exists - exploits in-place working of Matlab R2007a)
+% Input: (* denotes output argument with same name exists - exploits in-place working of Matlab R2007a)
 % * s                Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 % * e                Array of accumulated variance
 % * npix             Array of number of contributing pixels
 % * actual_pix_range Actual range of contributing pixels
 %   cut_range     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
 %                  integration axes (or plot axes with one bin), and (ii) step range (0 to no. bins)
-%                  for plotaxes (with more than one bin)
+%                  for plot axes (with more than one bin)
 %   rot_ustep       Matrix [3x3]     --|  that relate a vector expressed in the
 %   trans_bott_left Translation [3x1]--|  frame of the pixel data to no. steps from lower data limit
 %                                             r_step(i) = A(i,j)(r(j) - trans(j))

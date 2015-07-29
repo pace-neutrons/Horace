@@ -6,11 +6,16 @@ function [urange_step_pix, ok, ix, s, e, npix, npix_retain,success] = ...
 [rot_ustep,trans_bott_left,ebin,trans_elo,urange_step] = this.get_pix_transf_();
 try
     % Parameters have to be doubles in current version of the c-program
-    parameters = zeros(4,1);
+    parameters = zeros(5,1);
     parameters(1)=ignore_nan;
     parameters(2)=ignore_inf;
     parameters(3)=keep_pix;
     parameters(4)=n_threads;
+    if isa(v,'single')
+        parameters(5)=4;
+    else
+        parameters(5)=8;        
+    end
     [urange_step_pix, ok, ix, s, e, npix, npix_retain]=...
         accumulate_cut_c(v,s,e,npix,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step,pax,parameters);
     if npix_retain==0
@@ -19,11 +24,15 @@ try
     success = true;
     %%<*** version specific >= 7.5
 catch Err
-    success =false;
     if get(hor_config,'horace_info_level')>=1
         disp([' C- code generated error: ',Err.message]);
         warning('HORACE:use_mex',' Cannot accumulate_cut using C routines; using Matlab');
     end
+    urange_step_pix=[];
+    ok=[];
+    ix=[];
+    npix_retain=[];
+    success=false;
 end
 
 
