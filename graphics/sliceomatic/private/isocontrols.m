@@ -16,7 +16,7 @@ if onoff
         'xdata',d.clim,'ydata',[0 5],...
         'alphadata',1.0, ...
         'hittest','off');
-    title('Iso Surface Controller');
+    title('Iso Surface Controller','FontWeight','normal');
     set(d.axiso,'handlevisibility','off');
 else
     % Turn off the controller

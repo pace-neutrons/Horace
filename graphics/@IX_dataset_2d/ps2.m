@@ -6,7 +6,8 @@ function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
 %                   % (IX_dataset_2d with same array size as w, or a numeric array)
 %
 % Advanced use:
-%   >> ps2(...,'name',fig_name)        % draw with name = fig_name
+%   >> ps2(...,'name',fig_name)     % overplot on figure with name = fig_name
+%                                   % or figure with given figure number
 %
 % Differs from ps in that the signal sets the z axis, and the colouring is set by the 
 % error bars, or another object. This enable a function of three variables to be plotted

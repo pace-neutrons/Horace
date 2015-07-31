@@ -1,11 +1,15 @@
 function [x,y,z]=xyzselect
-% Puts cross-hairs on the current figure (area or surface plot) and print position when the left mouse button is pressed.
+% Create cross-hairs on current figure and print x,y,z triples on mouse click.
+%
+% Move the cross-hairs with the mouse and press the left mouse button to 
+% print the position. Continue until hit return, when cross-hairs
+% disappear.
 %
 %   >> xyzselect              % prints x,y,z value(s) to command screen
-%   >> [x,y,z] = xyzselect    % prints to screen and fills x,y,z as row vectors
+%   >> [x,y,z] = xyzselect    % prints to screen and fills x,y,z column vectors
 %
-% Essentially, this is the matlab intrinsic function ginput but writing values
-% to the command window as well.
+% This is similar to the matlab intrinsic function ginput but extended to
+% area and surface plots, and writes values to the command window as well.
 
 if nargout~=0; x=[];y=[];z=[]; end;
 val=[0,0];
@@ -24,11 +28,3 @@ while ~isempty(val)
         end
     end
 end
-
-% %   >> pnts  = xyz      % prints to screen and fills pnts as (n x 2) array
-% %                           x1  y1  z1
-% %                           x2  y2  z2
-% %                            :   :   :
-% if nargout==1
-%     x=[x,y,z];
-% end

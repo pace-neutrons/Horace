@@ -11,6 +11,7 @@ function ly (varargin)
 % or
 %   >> ly ({[ylo1,yhi2],[ylo2,yhi2],...})
 
+
 % Get figure
 if isempty(findall(0,'Type','figure'))
     disp('No current figure - change y limits ignored')
@@ -18,10 +19,10 @@ if isempty(findall(0,'Type','figure'))
 end
 
 % Get y range
-if nargin ==0
-    % Get y axis limits for entire data range
-    [xrange,yrange_dummy,yrange] = graph_range(gcf);
-    yrange={yrange};
+if nargin==0
+    % Get y axis limits in the current range of x:
+    [range, subrange] = graph_range(gcf,'evaluate');
+    yrange={subrange.y};
 
 elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnumeric(varargin{2})||numel(varargin{2})==1)
     % Read scalar ylo and yhi from either function syntax or command syntax

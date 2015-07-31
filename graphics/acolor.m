@@ -1,5 +1,5 @@
 function acolor(varargin)
-% Change the colour for line and markers
+% Change the colour for line and markers for following plots
 %
 % The color can be entered as either the standard one-character 
 % Matlab abbreviation or an unambiguous abbreviation of the full
@@ -10,6 +10,8 @@ function acolor(varargin)
 %   >> acolor('k')      % black
 %   >> acolor('re')
 %   >> acolor('bla')
+%
+%   >> aline            % displays the current value(s)
 %
 % Argument can set a sequence of colors for cascade plots e.g.
 %   >> acolor('r','b','bla','g')

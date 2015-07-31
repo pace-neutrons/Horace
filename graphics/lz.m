@@ -6,7 +6,7 @@ function lz (zlo, zhi)
 %   >> lz  zlo  zhi
 %
 %   >> lz    % set z limits to include all data
-%
+
 
 % Get figure
 if isempty(findall(0,'Type','figure'))
@@ -15,21 +15,22 @@ if isempty(findall(0,'Type','figure'))
 end
 
 % Find out if there is z data
-[zpresent, cpresent] = graph_range_zc_present (gcf);
-if ~zpresent && ~cpresent
+present = graph_range (gcf,'present');
+if ~(present.z || present.c)
     error('No z range to change')
 end
 
 % Get z range
-if nargin ==0
-    % Get z axis limits for entire data range
-    [xrange,yrange,ysubrange,zrange_dummy,zrange,crange] = graph_range(gcf);
-    if ~zpresent
-        set (gca, 'CLim', crange);  % assume that crange is axis to be changed (area plot)
-        return
+if nargin==0
+    % Get z axis limits in the current limits of x and y (or full range if c data)
+    [range,subrange] = graph_range(gcf,'evaluate');
+    if present.z
+        zrange=subrange.z;
+    else
+        zrange=range.c;
     end
-
-elseif nargin ==2
+    
+elseif nargin==2
     % Read parameters from either function syntax or command syntax
     zrange=zeros(1,2);
     if isnumeric(zlo) && isscalar(zlo)
@@ -65,10 +66,9 @@ else
 end
 
 % Change limits
-if ~zpresent
-    set (gca, 'CLim', zrange);  % assume that crange is axis to be changed
-    % Update colorslider, if present
-    colorslider('update')
-else
+if present.z
     set (gca, 'ZLim', zrange);
+else
+    set (gca, 'CLim', zrange);  % assume that crange is axis to be changed
+    colorslider('update')       % update colorslider, if present
 end

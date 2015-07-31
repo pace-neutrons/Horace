@@ -61,8 +61,3 @@ while ~isempty(val)
         end
     end
 end
-
-% %   >> pnts  = cursor(...)  % As above and fills pnts as (n x 2) array
-% if nargout==1
-%     x=[x,y];
-% end

@@ -5,7 +5,9 @@ function [fig_, axes_, plot_, ok, mess] = plot_oned (w_in, varargin)
 %   >> plot_oned (w_in, xlo, xhi, ylo, yhi)
 %   >> plot_oned (...,key1, val1, key2, val2,...)
 %
-%   Valid keywords and values
+% w_in is an IX_dataset_1d object, or array of IX_dataset_1d objects
+%
+% Valid keywords and values
 %       'name'      Name of figure window
 %       'newplot'   True if new window to be created, false if use existing window if possible
 %       'type'      'e'     errors =  error bars
@@ -15,9 +17,10 @@ function [fig_, axes_, plot_, ok, mess] = plot_oned (w_in, varargin)
 %                   'd'     data   =  markers, error bars, lines
 %                   'p'     points =  markers and error bars
 
+
 plot_types={'errors','histogram','line','markers','data','points'};
-default_fig_name=get_global_var('genieplot','name_oned');
 default_plot_type='data';
+default_fig_name=get_global_var('genieplot','name_oned');
 
 arglist = struct('name',default_fig_name,...
     'newplot',true,...
@@ -26,7 +29,7 @@ arglist = struct('name',default_fig_name,...
 [par,keyword] = parse_arguments(varargin,arglist);
 
 fig_=[]; axes_=[]; plot_=[];
-ok=true; mess='';
+
 
 % Check input arguments
 % ---------------------
@@ -45,32 +48,6 @@ else
     if nargout<=3, error(mess), else return, end
 end
 
-% Get figure name or figure number: if not given, use default one-dimensional plot name
-% Only one of fig_name or fig_handle will be created - used to branch later on
-if isstring(keyword.name)
-    if ~isempty(keyword.name)
-        fig_name=keyword.name;
-    else
-        fig_name=default_fig_name;
-    end
-elseif isnumeric(keyword.name) && isscalar(keyword.name) && ~newplot
-    tmp_fig_name = genie_figure_name(keyword.name);
-    if ~isempty(tmp_fig_name)
-        fig_handle=keyword.name;
-    else    % figure doesnt exist
-        disp('The numbered figure does not exist; following default overplotting action')
-        fig_name=default_fig_name;
-    end
-else
-    ok=false; 
-    if newplot
-        mess='Figure name must be a character string for a new plot';
-    else
-        mess='Figure name must be a character string or figure number for overplotting';
-    end
-    if nargout<=3, error(mess), else return, end
-end
-
 % Get plot type
 if isstring(keyword.type)
     if ~isempty(keyword.type)
@@ -86,6 +63,12 @@ if isstring(keyword.type)
     end
 else
     ok=false; mess='Plot type must be a character string';
+    if nargout<=3, error(mess), else return, end
+end
+
+% Get figure name or figure handle - used to branch later on
+[fig_out,ok,mess]=genie_figure_target(keyword.name,newplot,default_fig_name);
+if ~ok
     if nargout<=3, error(mess), else return, end
 end
 
@@ -123,15 +106,14 @@ end
 
 % Perform plot
 % ------------
-% Create new graphics window if one is not currently active, and make the current graphics window
-% Determine if newplot required (overrides any value given as keyword argument)
-if exist('fig_name','var')
-    new_figure = genie_figure_create (fig_name);
+% Create new graphics window if required
+if isstring(fig_out)
+    new_figure = genie_figure_create (fig_out);
     if new_figure
-        newplot=true;   % if had to create a new figure window, then create axes etc.
+        newplot=true;   % if had to create a new figure window
     end
 else
-    figure(fig_handle); % overplotting on existing plot; make the current figure
+    figure(fig_out); % overplotting on existing plot; make the current figure
 end
 
 % If newplot, delete any axes
@@ -146,7 +128,6 @@ binning=get_global_var('genieplot','oned_binning');
 if binning <= 1   % accepts value of zero
     w = w_in;
 else
-    % w = w_in; % *** UNTIL SORT OUT REBUNCH
     w = rebunch(w_in,binning);
 end
 
@@ -164,33 +145,17 @@ elseif plot_type(1)=='d'
 elseif plot_type(1)=='p'
     plot_markers_errors(w)
 end
-hold off    % release plot (could have been held for overplotting, or by 'dd' for example
+hold off    % release plot (could have been held for overplotting, for example
 
 % Create/change title if a new plot
 if (newplot)
     [tx,ty]=make_label(w(1));  % Create axis annotations
     tt=w(1).title(:);   % tt=[w(1).title(:);['Plot binning = ',num2str(binning)]];
-    % change titles:
-    % change titles:
-    if verLessThan('matlab','8.4')
-        title(tt);
-    else
-        title(tt,'FontWeight','normal');        
-    end   
-
+    % Change titles:
+    title(tt,'FontWeight','normal');          
     xlabel(tx);
     ylabel(ty);
-%     % calculate space for titles:
-%     nt = numel(tt);
-%     nx = numel(tx);
-%     ny = numel(ty);
-%     % units per single height of line (quick fix assuming default aspect ratio and font size)
-%     h = 0.03833;
-%     % allow for up to 4 lines in tx and ty, and 5 lines in tt:
-%     xplo=min(0.13+(ny-1)*h,0.245);  yplo=min(0.11+(nx-1)*h,0.225);  xphi=0.905;   yphi=max(0.925-(nt-1)*h,0.772);
-%     pos = [xplo,yplo,xphi-xplo,yphi-yplo];
-%     set(gca,'position',pos)
-    % change ticks
+    % Change ticks
     xticks=w(1).x_axis.ticks;
     if ~isempty(xticks.positions), set(gca,'XTick',xticks.positions); end
     if ~isempty(xticks.labels), set(gca,'XTickLabel',xticks.labels); end

@@ -1,12 +1,12 @@
 function lc (clo, chi)
-% Change intensity limits on current figure if it is  a surface and contour plot
+% Change intensity limits on current figure if it is a surface or contour plot
 %
 %   >> lc (clo, chi)
 % or
 %   >> lc  clo  chi
 %
 %   >> lc    % set intensity limits to include all data
-%
+
 
 % Get figure
 if isempty(findall(0,'Type','figure'))
@@ -14,12 +14,19 @@ if isempty(findall(0,'Type','figure'))
     return
 end
 
-% Get intensity range
-if nargin ==0
-    % Get intensity axis limits for entire data range
-    [xrange,yrange,ysubrange,zrange,zsubrange,crange] = graph_range(gcf);
+% Find out if there is c data
+present = graph_range (gcf,'present');
+if ~present.c
+    error('No c range to change')
+end
 
-elseif nargin ==2
+% Get intensity range
+if nargin==0
+    % Get intensity axis limits for entire data range
+    [range,subrange] = graph_range(gcf,'evaluate');
+    crange=range.c;
+
+elseif nargin==2
     % Read parameters from either function syntax or command syntax
     crange=zeros(1,2);
     if isnumeric(clo) && isscalar(clo)
@@ -56,6 +63,4 @@ end
 
 % Change limits
 set (gca, 'CLim', crange);
-
-% Update colorslider, if present
-colorslider('update')
+colorslider('update')   % update colorslider, if present

@@ -13,15 +13,13 @@ for i=1:nw
     if i==2; hold on; end   % hold on for array input
     nx=length(w(i).x);
     ny=length(w(i).signal);
-    % plot data
     if (nx == ny)   % point data
-        plot(w(i).x,w(i).signal,'LineStyle','none','Color',color{icol(i)},...
-            'Marker',marker_type{ityp(i)},'MarkerSize',marker_size(isiz(i)));
+        temp=w(i).x;
     else
         temp=0.5*(w(i).x(2:nx) + w(i).x(1:nx-1));
-        plot(temp,w(i).signal,'LineStyle','none','Color',color{icol(i)},...
-            'Marker',marker_type{ityp(i)},'MarkerSize',marker_size(isiz(i)));
     end
+    plot(temp,w(i).signal,'LineStyle','none','Color',color{icol(i)},...
+        'Marker',marker_type{ityp(i)},'MarkerSize',marker_size(isiz(i)));
 end
 
 % Make linear or log axes as required

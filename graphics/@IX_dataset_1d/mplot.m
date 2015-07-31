@@ -1,6 +1,6 @@
 function [fig_handle, axes_handle, plot_handle] = mplot(w,varargin)
 % Draw an area plot of an IX_dataset_1d or array of IX_dataset_1d.
-% Same as mplot - included as a synonym
+% Same as da - included as a synonym for backwards compatibility
 %
 %   >> mplot(w)
 %   >> mplot(w,xlo,xhi)

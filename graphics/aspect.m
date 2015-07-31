@@ -1,5 +1,9 @@
 function aspect(varargin)
-% Set aspect ratio given the length of one unit length along each of the plot axes
+% Set aspect ratio of current figure
+%
+% Set aspect ratio manually:
+% --------------------------
+% Give the length of a unit of measure along each of the axes
 %
 %   >> aspect(x_ulen, y_ulen)
 %   >> aspect([x_ulen, y_ulen])
@@ -7,18 +11,14 @@ function aspect(varargin)
 %   >> aspect(x_ulen, y_ulen, z_ulen)
 %   >> aspect([x_ulen, y_ulen, z_ulen])
 %
-%   >> aspect(mode)     % where mode is either 'auto' or 'manual'.
+%   e.g. Suppose one unit along the x-axis corresponds to 1.5 Ang^-1, and
+%        one unit along the y-axis corresponds to 2.5 Ang^-1. In that case
+%        aspect(1.5,2.5) ensures that 1cm on the page corresponds to the
+%        same number of Ang^-1 along both the x- and y-axes
 %
-% Input: 
-% ------
-%	axesHandle  Handle of the axes which is to be scaled.
-%   x_ulen      Defines the unit length along the x axis
-%   y_ulen      Defines the unit length along the y axis
-%   z_ulen      Defines the unit length along the z axis]
-%   mode        Either 'auto' or 'manual'
-%
-% When the mode is set to 'auto', matlab chooses the aspect ratio which
-% fills the figure the best.
+% Autoscale the axes:
+% -------------------
+%   >> aspect('auto')
 
 if nargin==0
     error('No arguments given')

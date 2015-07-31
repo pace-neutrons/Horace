@@ -11,6 +11,7 @@ function lx (varargin)
 % or
 %   >> lx ({[xlo1,xhi2],[xlo2,xhi2],...})
 
+
 % Get figure
 if isempty(findall(0,'Type','figure'))
     disp('No current figure - change x limits ignored')
@@ -18,10 +19,10 @@ if isempty(findall(0,'Type','figure'))
 end
 
 % Get x range
-if nargin ==0
+if nargin==0
     % Get x axis limits for entire data range
-    xrange = graph_range(gcf);
-    xrange={xrange};
+    range = graph_range(gcf,'evaluate');
+    xrange={range.x};
 
 elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnumeric(varargin{2})||numel(varargin{2})==1)
     % Read scalar xlo and xhi from either function syntax or command syntax

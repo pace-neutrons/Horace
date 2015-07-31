@@ -4,7 +4,8 @@ function [fig_handle, axes_handle, plot_handle] = ps(w,varargin)
 %   >> ps(w)
 %
 % Advanced use:
-%   >> ps(w,...,'name',fig_name)        % draw with name = fig_name
+%   >> ps(w,...,'name',fig_name)    % overplot on figure with name = fig_name
+%                                   % or figure with given figure number
 %
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ps(w,...) 

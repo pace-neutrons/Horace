@@ -23,14 +23,14 @@ function [fig_handle, axes_handle, plot_handle] = sliceomatic(w, varargin)
 %      see the result if you right-click on an arrow indicating a slice on
 %      the graphics window.
 %
-% - To set the default for future Sliceomatic sessions - 
+% - To set the default for future Sliceomatic sessions -
 %      On the 'Object_Defaults' menu select 'Slice Color Texture'
 
 arglist=struct('name','',...
-               'x_axis','x-axis',...
-               'y_axis','y-axis',...
-               'z_axis','z-axis',...
-               'isonormals',0);
+    'x_axis','x-axis',...
+    'y_axis','y-axis',...
+    'z_axis','z-axis',...
+    'isonormals',0);
 flags={'isonormals'};
 
 [par,keyword,present] = parse_arguments(varargin,arglist,flags);
@@ -79,18 +79,29 @@ end
 % Permute axes 1 and 2 - usual wierd Matlab thing
 signal = permute(w.signal,[2,1,3]);
 
-[xlabel,ylabel,zlabel,slabel]=make_label(w);
+[xlabel,ylabel,zlabel]=make_label(w);
 clim = [min(w.signal(:)) max(w.signal(:))];
+
+% ------ Fixes problem on dual monitor systems. Need checks about negative side
+% effects on other systems.
+mode = get(0, 'DefaultFigureRendererMode');
+rend = get(0, 'DefaultFigureRenderer');
+set(0, 'DefaultFigureRendererMode', 'manual');
+set(0,'DefaultFigureRenderer','zbuffer');
+% ------
 
 % Plot data
 sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
-                        xlabel, ylabel, zlabel, clim, keyword.isonormals);
-if verLessThan('matlab','8.4')
-    title(w.title);
-else
-    title(w.title,'FontWeight','normal','FontSize',10);    
-end
-[fig_, axes_, plot_, plot_type] = genie_figure_all_handles (gcf);
+    xlabel, ylabel, zlabel, clim, keyword.isonormals);
+
+% ----- Return rendering mode
+set(0, 'DefaultFigureRendererMode', mode);
+set(0,'DefaultFigureRenderer',rend );
+% ------
+
+%title(w.title,'FontWeight','normal','FontSize',10);
+title(w.title,'FontWeight','normal');
+[fig_, axes_, plot_] = genie_figure_all_handles (gcf);
 
 % Because we are not going through the usual genie_figure_create route, set some of
 % the options that function sets

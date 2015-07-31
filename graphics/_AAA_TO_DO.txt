@@ -1,0 +1,93 @@
+================================
+Functions:
+================================
+
+Independent of genie_figure:
+-----------------------------
+aspect
+clearfigs
+meta
+xycursor
+xyselect
+xyzselect
+
+
+
+Inquires of graph_range: makes an assumption about the 
+type of plot objects present and the number of frames
+------------------------------------------------------
+(These routines assume that there is only one graphics frame)
+(They also only test the type of plot recognised in graph_range,
+but in practive this means they omit only image, text and
+rectangle objects)
+
+colorslider
+
+lx
+ly
+lz
+lc
+
+
+
+Only makes changes to genieplot persistent variables:
+------------------------------------------------
+(no graphics changes)
+
+acolor
+aline
+amark
+bin
+
+
+
+Makes changes to genieplot persistent variables:
+------------------------------------------------
+(Assume only one graphics frame in the figure)
+
+linx, liny, linz
+logx, logy, logz
+
+
+
+Specifically genie_figure
+--------------------------
+genie_figure_create
+genie_figure_keep == keep_figure
+genie_figure_make_cur == make_current
+is_genie_figure
+
+*** genie_figure_all_handles
+*** genie_figure_name (only used in plot_oned and plot_twod)
+
+
+
+================================
+Small to do:
+================================
+
+genie_figure_all_handles
+	Rename - this is not really about genie figures, except that
+	we reutrn plot handles for only selected plot objects - and for
+	a single graphics window. In that sense it is.
+	
+	
+
+	
+================================
+Small to do:
+================================
+
+get rid of verLessThan? When was it introduced?
+
+graph_range to get limits for hggroup objects
+
+No 2D contour plot at the moment (dc, pc)
+
+Check ps and ps2 are working (despite claims of _AAA_NOT_COMPLETED.txt)
+
+Is smoothing in 2D implemented? (despite claims of _AAA_NOT_COMPLETED.txt)
+
+colorslider needs tidying; can we bury colorslider_copmmand in private?
+
+mycolormaps, viewcolormap, one_color: overhaul!

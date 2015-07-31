@@ -3,27 +3,30 @@ function [fig_, axes_, plot_, ok, mess] = plot_twod (w_in, varargin)
 %
 %   >> plot_twod (w_in, xlo, xhi)
 %   >> plot_twod (w_in, xlo, xhi, ylo, yhi)
+%   >> plot_twod (w_in, xlo, xhi, ylo, yhi, zlo, zhi)
 %   >> plot_twod (...,key1, val1, key2, val2,...)
 %
-%   w_in is an array of IX_dataset_2d, or in the case of plot type 'surface2' it could be
-%   a cell array of two IX_dataset_2d arrays or an IX_dataset_2d scalar and a numeric array.
+% w_in is an array of IX_dataset_2d, or in the case of plot type 'surface2'
+% it could be a cell array of either two IX_dataset_2d arrays or an 
+% IX_dataset_2d scalar and a numeric array.
 %
-%   Valid keywords and values
+% Valid keywords and values:
 %       'name'      Name of figure window
 %       'newplot'   True if new window to be created, false if use existing window if possible
 %       'type'      'area'      area plot
 %                   'surface'   surface plot
 
+
 plot_types={'area','surface','surface2','contour'};
 
-arglist = struct('name','',...
+arglist = struct('name',[],...
     'newplot',true,...
     'type','');
 
 [par,keyword] = parse_arguments(varargin,arglist);
 
 fig_=[]; axes_=[]; plot_=[];
-ok=true; mess='';
+
 
 % Check input arguments
 % ---------------------
@@ -62,37 +65,20 @@ else
     if nargout<=3, error(mess), else return, end
 end
 
-% Get figure name or figure number: if not given, use appropriate default two-dimensional plot name
-% Only one of fig_name or fig_handle will be created - used to branch later on
-if isstring(keyword.name)
-    if ~isempty(keyword.name)
-        fig_name=keyword.name;
-    else
-        if strcmpi(plot_type,'area')        % area plot
-            fig_name=get_global_var('genieplot','name_area');
-        elseif strcmpi(plot_type,'surface') % surface plot
-            fig_name=get_global_var('genieplot','name_surface');
-        elseif strcmpi(plot_type,'surface2')% surface2 plot
-            fig_name=get_global_var('genieplot','name_surface');
-        elseif strcmpi(plot_type,'contour') % contour plot
-            fig_name=get_global_var('genieplot','name_contour');
-        end
-    end
-elseif isnumeric(keyword.name) && isscalar(keyword.name) && ~newplot
-    tmp_fig_name = genie_figure_name(keyword.name);
-    if ~isempty(tmp_fig_name)
-        fig_handle=keyword.name;
-    else    % figure doesnt exist
-        disp('The numbered figure does not exist; following default overplotting action')
-        fig_name=default_fig_name;
-    end
+% Get figure name or figure handle - used to branch later on
+if strcmpi(plot_type,'area')        % area plot
+    default_fig_name=get_global_var('genieplot','name_area');
+elseif strcmpi(plot_type,'surface') % surface plot
+    default_fig_name=get_global_var('genieplot','name_surface');
+elseif strcmpi(plot_type,'surface2')% surface2 plot
+    default_fig_name=get_global_var('genieplot','name_surface');
+elseif strcmpi(plot_type,'contour') % contour plot
+    default_fig_name=get_global_var('genieplot','name_contour');
 else
-    ok=false;
-    if newplot
-        mess='Figure name must be a character string for a new plot';
-    else
-        mess='Figure name must be a character string or figure number for overplotting';
-    end
+    error('Logic error: unrecognised plot_type')
+end
+[fig_out,ok,mess]=genie_figure_target(keyword.name,newplot,default_fig_name);
+if ~ok
     if nargout<=3, error(mess), else return, end
 end
 
@@ -141,15 +127,14 @@ end
 
 % Perform plot
 % ------------
-% Create new graphics window if one is not currently active, and make the current graphics window
-% Determine if newplot required (overrides any value given as keyword argument)
-if exist('fig_name','var')
-    new_figure = genie_figure_create (fig_name);
+% Create new graphics window if required
+if isstring(fig_out)
+    new_figure = genie_figure_create (fig_out);
     if new_figure
-        newplot=true;   % if had to create a new figure window, then create axes etc.
+        newplot=true;   % if had to create a new figure window
     end
 else
-    figure(fig_handle); % overplotting on existing plot; make the current figure
+    figure(fig_out); % overplotting on existing plot; make the current figure
 end
 
 % If newplot, delete any axes
@@ -185,46 +170,33 @@ elseif strcmpi(plot_type,'surface2')% surface2 plot
 
 elseif strcmpi(plot_type,'contour') % contour plot
     plot_contour (w);
+    
 end
 hold off    % release plot
 
 % Create/change title if a new plot
 if (newplot)
     if ~iscell(w)
-        [tx,ty,tz]=make_label(w(1));  % Create axis annotations
+        [tx,ty,tz]=make_label(w(1));    % Create axis annotations
         tt=w(1).title(:);  % tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
         xticks=w(1).x_axis.ticks;
         yticks=w(1).y_axis.ticks;
         zticks=w(1).s_axis.ticks;
     else
-        [tx,ty,tz]=make_label(w{1}(1));  % Create axis annotations
+        [tx,ty,tz]=make_label(w{1}(1)); % Create axis annotations
         tt=w{1}(1).title(:);  % tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
         xticks=w{1}(1).x_axis.ticks;
         yticks=w{1}(1).y_axis.ticks;
         zticks=w{1}(1).s_axis.ticks;
     end
-    % change titles:
-    if verLessThan('matlab','8.4')
-        title(tt);
-    else
-        title(tt,'FontWeight','normal');        
-    end
+    % Change titles:
+    title(tt,'FontWeight','normal');        
     xlabel(tx);
     ylabel(ty);
-    if ~plot_type(1)=='a'   % don't try to plot along z axis if just an area plot
+    if ~strcmpi(plot_type,'area')   % don't try to plot along z axis if just an area plot
         zlabel(tz)
     end
-%     % calculate space for titles:
-%     nt = numel(tt);
-%     nx = numel(tx);
-%     ny = numel(ty);
-%     % units per single height of line (quick fix assuming default aspect ratio and font size)
-%     h = 0.03833;
-%     % allow for up to 4 lines in tx and ty, and 5 lines in tt:
-%     xplo=min(0.13+(ny-1)*h,0.245);  yplo=min(0.11+(nx-1)*h,0.225);  xphi=0.905;   yphi=max(0.925-(nt-1)*h,0.772);
-%     pos = [xplo,yplo,xphi-xplo,yphi-yplo];
-%     set(gca,'position',pos)
-    % change ticks
+    % Change ticks
     if ~isempty(xticks.positions), set(gca,'XTick',xticks.positions); end
     if ~isempty(xticks.labels), set(gca,'XTickLabel',xticks.labels); end
     if ~isempty(yticks.positions), set(gca,'YTick',yticks.positions); end

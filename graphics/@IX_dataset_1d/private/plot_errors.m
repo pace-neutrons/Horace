@@ -11,16 +11,13 @@ for i=1:nw
     if i==2; hold on; end   % hold on for array input
     nx=length(w(i).x);
     ny=length(w(i).signal);
-    %plot data
     if (nx == ny)           % point data
         temp=w(i).x;
     else
         temp=0.5*(w(i).x(2:nx) + w(i).x(1:nx-1));
     end
-    %custom_errorbars(x,signal,error,color,linestyle,linewidth,marker_type,marker_size)
     custom_errorbars(temp,w(i).signal,w(i).error,color{icol(i)},...
-        'none',line_width(iwid(i)),'none',0);
-    
+        'none',line_width(iwid(i)),'none',6);   % need non-zero markersize
 end
 
 % Make linear or log axes as required

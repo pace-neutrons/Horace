@@ -3,11 +3,16 @@ function colorslider(varargin)
 %
 %   >> colorslider                  % add to current figure
 %   >> colorslider (fig)            % add to named or numbered figure
+%
 %   >> colorslider ('delete')       % delete colorslider from current figure
 %   >> colorslider ('update')       % update colorslider on current figure
 %                                    (use if resize the figure, to reshape slider boxes)
 %   >> colorslider (fig,'delete')   % delete colorslider from named or numbered figure
 %   >> colorslider (fig,'update')   % update colorslider on named or numbered figure
+%
+%
+% NOTE: flaw in syntax: cannot add a colorslider to a figure with the name
+%       'delete' or 'update' - unlikely to happen, but poor anyway!
 
 % Adapted from script by Radu Coldea 02-Oct-1999, by Dean Whittaker 2-2-2007, and then Toby Perring
 
@@ -22,29 +27,19 @@ else
     option='create';
     narg=nargin;
 end
+
 if narg==0
-    fig='';
+    fig=[];
 elseif narg==1
     fig=varargin{1};
 else
     error('Check number and type of input arguments')
 end
 
-% Determine which figure to get handles
-if ~exist('fig','var')||(isempty(fig)),
-    if isempty(findall(0,'Type','figure'))
-        error('No current figure exists - no ranges can be returned.')
-    else
-        fig=gcf;
-    end
-else
-    [fig,ok,mess]=genie_figure_handle(fig);
-    if ~ok, error(mess), end
-    if isempty(fig)
-        error('No figure with given name or figure number - no ranges can be returned.')
-    elseif numel(fig)>1
-        error('Can return ranges for one figure only.')
-    end
+% Determine figure handle
+[fig_handle,ok,mess]=get_figure_handle_single(fig);
+if ~ok
+    error([mess,'; cannot create/edit colorslider.'])
 end
 
 % Get various handles for the figure
@@ -68,7 +63,6 @@ if numel(curr_colorbar)>0
    delete(curr_colorbar);delete(curr_slider_min); delete(curr_slider_max);
    delete(curr_slider_min_val);delete(curr_slider_max_val);
 end
-
 
 switch option
     case 'create'

@@ -38,7 +38,7 @@ switch cmd
         end
         
     case 'max'
-        % only change i_max if numeric value entered and would not make range=0
+        % Only change i_max if numeric value entered and would not make range=0
         temp = get(slider_max_value,'String');
         if str2double(temp)==i_max % do not change i_min if range becomes 0
             i_max=get(slider_min,'value');
@@ -72,4 +72,3 @@ i_min_round = truncdig(i_min,3);
 i_max_round = truncdig(i_max,3);
 set(slider_min_value,'String',num2str(i_min_round));
 set(slider_max_value,'String',num2str(i_max_round));
-%end

@@ -2,9 +2,8 @@ function h=custom_errorbars(x,signal,error,color,linestyle,linewidth,...
     marker_type,marker_size)
 % Custom errorbars function, plotting sighal with error and
 % error-bars caps width set up to 0
-%
+
 % $Revision: 977 $ ($Date: 2015-02-21 18:58:56 +0000 (Sat, 21 Feb 2015) $)
-%
 
 % Set errorbar cap lengths to zero
 if verLessThan('matlab','8.4')
@@ -17,9 +16,9 @@ if verLessThan('matlab','8.4')
     xd(7:9:end)=xd(1:9:end);xd(8:9:end)=xd(1:9:end);
     set(c(2),'XData',xd)
 else
-    %TODO! Should be better way of doing this
-    %Its currently unclear how to
-    % Set errorbar cap lengths to zero for Matlab V>2014a in any other way
+    % TODO! Should be better way of doing this, but it is currently unclear
+    % how to set errorbar cap lengths to zero for Matlab V>=2014b in any
+    % other way.
     h=plot(x,signal,'Color',color,...
         'LineStyle',linestyle,'LineWidth',linewidth,...
         'Marker',marker_type,'MarkerSize',marker_size);
@@ -36,8 +35,8 @@ else
     errX(3*(ind -1)+3) = x(ind);
     errY(3*(ind -1)+3) = NaN;
     
-    plot(errX,errY,'Color',color,...
-        'LineStyle','-','LineWidth',linewidth);
+    plot(errX,errY,'Color',color,'LineStyle','-','LineWidth',linewidth);
+    
     if ~hold_state
         hold 'off'
     end

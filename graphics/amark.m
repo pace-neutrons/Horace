@@ -1,11 +1,13 @@
 function amark(varargin)
-% Change the marker type and size
+% Change the marker type and size for following plots
 %
 % Syntax examples:
 %	>> amark(6)
 %	>> amark(10,'+')
 %   >> amark('+')
-%	>> amark('+',10)    *** NOT VALID IN COMMAND LINE MODE
+%	>> amark('+',10)    % WARNING: Not valid in command mode
+%
+%   >> amark            % displays the current value(s)
 %
 % Arguments can set a sequence of type and/or size for cascade plots e.g.
 %   >> amark (13,14,'+','*','.')
@@ -19,7 +21,7 @@ function amark(varargin)
 %                      diamond ------|       6-pointed star -------|
 %
 %
-% Size of markers is in points (default size is 6)
+% The size of markers is measured in points (default size is 6)
 
 % Create two row vectors, of marker sizes and marker types:
 narg = length(varargin);

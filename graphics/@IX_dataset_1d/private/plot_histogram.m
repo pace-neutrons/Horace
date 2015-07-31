@@ -14,10 +14,10 @@ for i=1:nw
     if i==2; hold on; end   % hold on for array input
     nx=length(w(i).x);
     ny=length(w(i).signal);
-
+    
     xb=zeros(1,2*ny);    % x array for plotting histogram
     yb=zeros(1,2*ny);    % y array for plotting histograms
-
+    
     if (nx==ny)         % point data
         if nx>1
             del0=0.5*(w(i).x(2)-w(i).x(1));

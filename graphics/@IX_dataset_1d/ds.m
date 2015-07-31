@@ -1,5 +1,5 @@
 function [fig_handle, axes_handle, plot_handle] = ds(w,varargin)
-% Draw a surface plot of an IX_dataset_2d or array of IX_dataset_2d
+% Draw a surface plot of an IX_dataset_1d or array of IX_dataset_1d
 %
 %   >> ds(w)
 %   >> ds(w,xlo,xhi)

@@ -1,7 +1,10 @@
 function bin (n)
 % Alter the binning for 1D graphics display.
 %
-%   >> bin(n)   % n=0 or n=1 corresponds to no binning being applied
+%   >> bin(n)   % Set the plot grouping to be n data points together
+%               % n=0 or n=1 corresponds to no binning being applied
+%
+%   >> bin      % Prints the current value of n
 
 % Display current value if no input argument
 if nargin==0

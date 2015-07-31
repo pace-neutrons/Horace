@@ -1,5 +1,5 @@
 function aline(varargin)
-% Change the line type (given by character string) and width
+% Change the line type and width for following plots
 %
 % Syntax examples:
 %	>> aline(2)
@@ -7,11 +7,16 @@ function aline(varargin)
 %   >> aline('-.')
 %	>> aline('-',10)
 %
-% Arguments can set a sequence of type and/or size for cascade plots e.g.
-%   >> aline (1,2,':','-','-.')
-%   >> aline ({'-','--'},1:0.5:4)   % example with a cell array and implicit array of linewidths
+%   >> aline            % displays the current value(s)
 %
-% Valid line types: type either the Matlab code or text equivalent (as minimum abbreviations)
+% Arguments can set a sequence of type and/or size for cascade plots e.g.
+%   >> aline (1,2,':','-','-.')     % Linewidth repeats 1,2,1,2,...
+%                                   % Type repeats ':','-','-.'':','-','-.'...
+%   >> aline ({'dot','sol'},1:0.5:4)% Example with a cell array of line types
+%                                   % and implicit array of linewidths
+%
+% Valid line types: type either the Matlab code or text equivalent
+% (only the minimum unambiguous abbreviation is necessary)
 %        '-'      solid
 %        '--'     dashed
 %        ':'      dotted

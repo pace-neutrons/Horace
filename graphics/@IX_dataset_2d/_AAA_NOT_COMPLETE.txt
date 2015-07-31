@@ -1,5 +1,0 @@
-NOT COMPLETE
-
-- smoothing not implemented
-
-- plot_surface, plot_contour not written

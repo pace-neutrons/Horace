@@ -1,68 +1,61 @@
 function genie_figure_make_cur(fig)
-% Make requested figure current for plotting
+% Make requested figure(s) current for plotting
 %
-%   >> genie_figure_make_cur      % make the active figure current
-%   >> genie_figure_make_cur(fig) % make the numbered or named figure current
+%   >> genie_figure_make_cur        % make the current figure active for plotting
+%   >> genie_figure_make_cur(fig)   % make the numbered or named figure(s) active
+%   >> genie_figure_make_cur('-all')% make one of each figure name active
+%
+% Input:
+% ------
+%   fig         Figure name or cellstr of figure names
+%          *OR* Figure number or array of figure numbers
+%          *OR* Figure handle or array of figure handles
+%
+% Only operates on figures created with the keep/make_cur menu items.
+% If more than one figure with the same name is provided, then the most
+% recently active is made current.
 
-% Based on routines taken from mslice
 
-% *** Should make all the unique figures current - that is the multi-name equivalent of genie_figure_keep
-% *** Currently objects if more than one figure
+% Determine which figure(s) to make current
+if ~exist('fig','var'), fig=[]; end
+[fig_handle,ok,mess] = get_figure_handle (fig);
+if ~ok, error(mess), end
+[ok,curr] = is_genie_figure (fig_handle);
+if ~any(ok)
+    disp('No keep/make_current figure(s) with given name(s), figure number(s) or figure handle(s)')
+    return
+end
 
-% Determine which figures to make current
-if ~exist('fig','var')||(isempty(fig)),
-    if isempty(findall(0,'Type','figure'))
-        disp('No current figure exists - no figure to make current.')
-        return
-    else
-        fig=gcf;
+% Make the most recent figure with a given name the current figure
+% Use the fact that the handle array is in order of activity
+fig_handle=fig_handle(~curr);
+if numel(fig_handle)>1
+    [fig_name,ind]=unique(get(fig_handle,'Name'),'first');
+    fig_handle=fig_handle(ind);
+end
+
+for h=fig_handle'   % needs to be row vector here
+    name=get(h,'Name');
+    
+    % Find the current figure with the given name, if there is one, and keep it
+    hcur=findobj('Type','figure','Tag',[name,'$current$']);
+    if ~isempty(hcur)
+        genie_figure_keep(hcur)
     end
-else
-    [fig,ok,mess]=genie_figure_handle(fig);
-    if ~ok, error(mess), end
-    if isempty(fig)
-        disp('No figure with given name or figure number - no figure to make current.')
-        return
-    elseif numel(fig)>1
-        error('More than one figure requested to be made current - not possible.')
+    
+    % Set tag to indicate figure is current
+    set(h,'Tag',[name,'$current$']);
+    
+    % Enable keep uimenu option, if present
+    hmenu=findobj(h,'Type','uimenu','Tag','keep');
+    if ~isempty(hmenu),
+        set(hmenu,'Enable','on'),
     end
-end
-
-% Read figure tag, return if empty or if old figure tab could not be identified
-tag=get(fig,'Tag');
-tag=strtrim(tag);
-if isempty(tag)
-    disp('Figure has no current tag. Cannot determine which type of plot it contains. No action taken.');
-    return;
-end
-
-if ~strncmp('$keep$',tag,6)
-    disp('The figure tag is not the format $keep$<figure tag>. No action taken.');
-    return;
-end
-
-% Extract original tag of figure
-tag=tag(7:end);
-if isempty(tag)
-    disp('The original figure tag appears to be empty. No action taken.');
-    return;
-end
-
-% Keep all other figures with the same original tag
-h=findobj('Type','figure','Tag',tag);
-for i=1:numel(h),
-    genie_figure_keep(h(i));
-end
-
-% Put original tag and enable keep option on current figure
-set(fig,'Tag',tag);
-h=findobj(fig,'Type','uimenu','Tag','keep');
-if ~isempty(h),
-    set(h,'Enable','on'),
-end
-
-% Disable Make Current uimenu option for current figure
-h=findobj(fig,'Type','uimenu','Tag','make_cur');
-if ~isempty(h),
-    set(h,'Enable','off'),
+    
+    % Disable Make Current uimenu option, if present
+    hmenu=findobj(h,'Type','uimenu','Tag','make_cur');
+    if ~isempty(h),
+        set(hmenu,'Enable','off'),
+    end
+    
 end

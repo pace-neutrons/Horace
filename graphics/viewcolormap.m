@@ -7,7 +7,7 @@ function viewcolormap(colmap)
 % e.g. >> colmap=mycolormaps('babbyblue')
 % (The full list is displayed if you type >> help mycolormaps)
 %
-%  Moregenerally, us the built-in function colormap to set the colormap
+%  More generally, use the built-in function colormap to set the colormap
 
 % Uses Herbert graphics
 
