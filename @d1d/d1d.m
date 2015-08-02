@@ -84,4 +84,4 @@ else
     end
 end
 
-w=class(struct(w.data),class_type);
+w=class(w.data.get_dnd_data(),class_type);

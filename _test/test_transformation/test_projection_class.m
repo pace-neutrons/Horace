@@ -38,10 +38,15 @@ classdef test_projection_class<TestCase
             %
             data.u_to_rlu = eye(4); %(4x4)
             data.uoffset = zeros(1,4);      %(4x1)
-            upix_to_rlu = eye(4);
-            upix_offset = zeros(1,4);
+            upix_to_rlu = eye(3);
+            upix_offset = zeros(4,1);
             data.ulabel = {'a','b','c','d'};
             data.ulen = ones(4,1);
+            data.iax=[];
+            data.pax=[1,2,3,4];
+            data.iint=[];
+            data.p={1:10;1:20;1:30;1:40};
+     
             
             proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
         end
