@@ -32,53 +32,75 @@ classdef test_main_mex < TestCase
             this.this_folder = fileparts(which('test_main_mex.m'));
             this.curr_folder = pwd();
             this.nDet=this.nPolar*this.nAzim;
+            
+            this.use_mex = get(hor_config,'use_mex');
             % addpath(this.this_folder);
         end
         function this=setUp(this)
             %addpath(this.accum_cut_folder);
             %cd(this.accum_cut_folder);
-            this.use_mex = get(hor_config,'use_mex');
-            
         end
         function tearDown(this)
             %cd(this.curr_folder);
             %rmpath(this.accum_cut_folder);
             set(hor_config,'use_mex',this.use_mex);
         end
+        function this=test_accum_cut_mex_multithread(this)
+            if ~this.use_mex
+                warning('TEST:skipped','test_accum_cut_mex skipped as mex is disabled')
+            end
+            [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
+            pax = [1,2,3,4];
+            [urange_step_pix_recent1, ok1, ix1, s1, e1, npix1, npix_retain1,success]= ...
+                proj.accumulate_cut(data.pix,data.s,data.e,data.npix,pax,1,0,1,1);
+            assertTrue(success)
+            [urange_step_pix_recent2, ok2, ix2, s2, e2, npix2, npix_retain2,success]= ...
+                proj.accumulate_cut(data.pix,data.s,data.e,data.npix,pax,1,0,1,4);
+            assertTrue(success)
+            
+            assertEqual(npix_retain1,npix_retain2)
+            assertElementsAlmostEqual(urange_step_pix_recent1,urange_step_pix_recent2);
+            assertEqual(sum(ok1),sum(ok2));
+            assertEqual(sort(ix1),sort(ix2));
+            assertElementsAlmostEqual(s1,s2);
+            assertElementsAlmostEqual(e1,e2);
+            assertElementsAlmostEqual(npix1,npix2);
+            
+        end
+        
         
         function this=test_accum_cut(this)
             mex_present=fileparts(which('accumulate_cut_c'));
             assertTrue(~isempty(mex_present),'Mex file accumulate_cut_c is not availible on this computer')
             
             
-            [v,sizes,proj,urange_step_pix]=gen_fake_accum_cut_data(this,[1,-1,0],[1,1,1]);
+            [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
             %[v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,0,0);
-            s=zeros(sizes);
-            e=zeros(sizes);
-            npix=zeros(sizes);
+            urange_step_pix=zeros(2,4);
+            urange_step_pix(1,:) =  Inf;
+            urange_step_pix(2,:) = -Inf;
+            
             %check matlab-part
             set(hor_config,'use_mex',0,'-buffer');
             dummy  = sqw();
-            [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] = accumulate_cut_tester(dummy,s, e, npix, urange_step_pix, true,...
-                v, proj, [1,2,3,4]);
+            dummy.data = data;
+            [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] = accumulate_cut_tester(dummy,urange_step_pix, true,...
+                proj, [1,2,3,4]);
             
             
             %check C-part
             set(hor_config,'use_mex',1,'-buffer');
-            s=zeros(sizes);
-            e=zeros(sizes);
-            npix=zeros(sizes);
-            [s_c, e_c, npix_c, urange_step_pix_c, npix_retain_c,ok_c, ix_c] = accumulate_cut_tester(dummy,s, e, npix, urange_step_pix, true,...
-                v, proj, [1,2,3,4]);
+            [s_c, e_c, npix_c, urange_step_pix_c, npix_retain_c,ok_c, ix_c] = accumulate_cut_tester(dummy,urange_step_pix, true,...
+                proj, [1,2,3,4]);
             
             % verify results against each other.
+            assertElementsAlmostEqual(urange_step_pix_m,urange_step_pix_c);
             assertElementsAlmostEqual(s_m,s_c);
             assertElementsAlmostEqual(e_m,e_c);
             assertElementsAlmostEqual(npix_m,npix_c,'absolute',1.e-12);
-            assertElementsAlmostEqual(urange_step_pix_m,urange_step_pix_c);
             assertEqual(npix_retain_m,npix_retain_c);
             assertEqual(ok_m,ok_c);
-            assertElementsAlmostEqual(ix_m,ix_c,'absolute',1.e-12);
+            assertElementsAlmostEqual(ix_m,double(ix_c),'absolute',1.e-12);
         end
         
         function this=test_calc_proj(this)
@@ -149,65 +171,71 @@ classdef test_main_mex < TestCase
             data.ERR = sqrt(data.S);
             data.en =(-efix+(0:(this.nEn))*(1.99999*efix/(this.nEn)))';
         end
-        function [vv,box_sizes,proj,urange_step_pix]=gen_fake_accum_cut_data(this,u,v)
-            
-            %%rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step
-            %rx = @(x)[1,0,0;0,cos(x),-sin(x);0,sin(x),cos(x)];
-            %ry = @(x)[cos(x),0,sin(x);0,1,0;-sin(x),0,cos(x)];
-            
-            %rot_ustep = rx(theta)*ry(phi);
-            data.alatt = [3,4,5];
-            data.angdeg = [90,90,95];
-            data.u_to_rlu = eye(4);
-            data.uoffset = [0;0;0;0];      %(4x1)
-            upix_to_rlu = eye(3);
-            upix_offset = [0;0;0;0];
-            
-            data.ulabel = {'xx','yy','zz','ee'};
-            
-            ebin=1.99*this.efix/this.nEn;
-            en = -this.efix+(0:(this.nEn-1))*ebin;
-
-            box_sizes=[50,50,50,50];            
-            data.ulen  = [1/50,1/50,1/50,ebin];
-            
-            
-            prs = struct('u',u,'v',v);
-            proj = projection(prs);
-            proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
-            
-            
-            rs= [0.11930-1;1.338890;0.02789];
+        function [data,proj]=gen_fake_accum_cut_data(this,u,v)
+            % build fake data to test accumulate cut
             
             nPixels = this.nDet*this.nEn;
+            ebin=1.99*this.efix/this.nEn;
+            en = -this.efix+(0:(this.nEn-1))*ebin;
+            
+            L1=20;
+            L2=10;
+            L3=2;
+            E0=min(en);
+            E1=max(en);
+            Es=2;
+            prj = projaxes(u,v);
+            data = data_sqw_dnd([3,4,5,90,90,90],prj,[0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
+            % clear npix as we will cut data to fill it in
+            if sum(data.npix(:))>0
+                data.s    = zeros(size(data.s));
+                data.e    = zeros(size(data.s));
+                data.npix = zeros(size(data.s));
+            end
+            
             vv=ones(9,nPixels);
-            %rot_inv=inv(rot_ustep);
-            
-            vv(1,:) =(0:(nPixels-1))*20/(nPixels);
-            vv(2,:) =(0:(nPixels-1))*10/(nPixels);
-            vv(3,:) =(0:(nPixels-1))*2/(nPixels);
-            
-            
-            % shift data to test shift
-            vv(1:3,:)=vv(1:3,:)+repmat(rs',[size(vv,2),1])';
+            for i=1:3
+                p=data.p{i};
+                ac=0.5*(p(2:end)+p(1:end-1));
+                p_mi=min(ac);
+                p_ma=max(ac);
+                step=(p_ma-p_mi)/(nPixels-1);
+                vv(i,:) =p_mi:step:p_ma;
+            end
             vv(4,:)=repmat(en,1,this.nDet);
             
             
-            
-            urange_step_pix = zeros(2,4);
-            urange_step     = zeros(2,4);
-            urange_step_pix(1,:) =  Inf;
-            urange_step_pix(2,:) = -Inf;
             minv  =min(vv,[],2);
             maxv  =max(vv,[],2);
             minv=minv(1:4);
             maxv=maxv(1:4);
-
-            % set to cut half of the dataset
-            urange_step(1,:) =  (0.5*(minv+0.5*(minv+maxv))-minv)./data.ulen';
-            urange_step(2,:) =  (0.5*(maxv+0.5*(minv+maxv))-minv)./data.ulen';
+            %
+            data.pix = vv;
+            [ok,type,mess] = data.check_sqw_data('a');
+            assertTrue(ok,['Invalid test data generated: ',mess]);
+            assertEqual(type,'b+','Invalid test data type generated, type ''b+'' expected')
             
-            proj=proj.set_proj_binning(data.ulen,urange_step,zeros(1,4));
+            % set to cut half of the dataset in all 4 dimensions (1/16 of
+            % total dataset)
+            urange(1,:) =  0.5*(minv+maxv);
+            % move range in e-direction a bit to avoid accum_cut binning
+            % coinside with initial binning and result depending on
+            % round-off errors -- then it give different results in case of
+            % used on different machines and c vs matlab
+            urange(1,4) =  1.01*urange(1,4);            
+            urange(2,:) =  (maxv-minv);
+            
+            % Prepare cut projection to cut half of the data
+            proj = projection(prj);
+            upix_to_rlu=eye(3);
+            upix_offset = zeros(4,1);
+            
+            proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
+            % Important!!!!! to have the same number of bins as target data.s.
+            % The question is how to assure that. 
+            step = (maxv-minv)./size(data.s)';           
+            proj=proj.set_proj_binning(urange,[1,2,3,4],[],...
+                {minv(1):step(1):maxv(1),minv(2):step(2):maxv(2),minv(3):step(3):maxv(3),minv(4):step(4):maxv(4)});
             
             
         end
