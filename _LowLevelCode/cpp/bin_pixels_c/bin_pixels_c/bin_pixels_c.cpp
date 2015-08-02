@@ -50,7 +50,7 @@ enum pix_fields
 // modify this to support INTEL compiler (what OMP version(s) it has?
 #ifdef __GNUC__
 #   if __GNUC__ < 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ < 2)
-// then the compiler does not undertand OpenMP functions, let's define them
+// then the compiler does not understand OpenMP functions, let's define them
 void omp_set_num_threads(int nThreads){};
 #define omp_get_num_threads() 1
 #define omp_get_max_threads() 1
@@ -379,9 +379,7 @@ bool bin_pixels(double *s, double *e, double *npix,
             size_t j0;
 #ifdef OMP_VERSION_3
     #pragma omp atomic capture
-            j0 = ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-            
-            j0*=PIX_WIDTH;
+            j0 = = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 #else
     #pragma omp critical
             j0 = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
