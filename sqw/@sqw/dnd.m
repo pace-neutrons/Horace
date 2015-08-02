@@ -20,12 +20,11 @@ if nd<0||nd>4
     error('Dimensionality of sqw object must be 0,1,2..4')
 end
 for i=1:numel(win)
-    din=struct(clear_sqw_data(win(i).data));    
-    %if is_sqw_type(win(i))
-    %    %din=rmfield(win(i).data,{'urange','pix'});
-    %else
-    %    din=struct(win(i).data);
-    %end
+    if ~isempty(win(i).data)
+        din=win(i).data.get_dnd_data();    
+    else
+        din = struct();
+    end
 
     if i==1
         if nd==0

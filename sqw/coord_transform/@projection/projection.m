@@ -21,6 +21,7 @@ classdef projection<aprojection
         uoffset; %=[0,0,0,0];
         lab     %={'\zeta','\xi','\eta','E'};
         %
+        %
     end
     properties(Access=private)
         % reference to the class, which defines the projection axis
@@ -100,8 +101,7 @@ classdef projection<aprojection
             else
                 lab = this.projaxes_.lab;
             end
-        end
-        
+        end       
         %------------------------------------------------------------------
         % Particular implementation of aprojection abstract interface
         %------------------------------------------------------------------

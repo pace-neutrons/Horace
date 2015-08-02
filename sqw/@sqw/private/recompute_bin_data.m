@@ -14,7 +14,7 @@ wout=w;
 
 nbin=numel(w.data.npix);
 
-t1=tic();
+%t1=tic();
 
 try
     %error('MATLAB:nomem','bla=bla')   

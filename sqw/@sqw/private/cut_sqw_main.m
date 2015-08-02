@@ -126,8 +126,6 @@ if horace_info_level>=1
     bigtic
 end
 
-small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing matricies are diagonal etc.
-
 
 % Parse input arguments
 % ---------------------
@@ -155,7 +153,7 @@ end
 
 % Get proj structure, if present, and binning information
 if numel(varargin)>=1 && (isstruct(varargin{1}) ||...
-         isa(varargin{1},'aprojection') || isa(varargin{1},'projaxes'))
+        isa(varargin{1},'aprojection') || isa(varargin{1},'projaxes'))
     proj_given=true;
     if isa(varargin{1},'aprojection')
         proj=varargin{1};
@@ -301,7 +299,6 @@ pin=cell(1,4);
 pin(data.pax)=data.p;   % works even if zero elements
 pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
 
-
 % Get matrix to convert from projection axes of input data to required output projection axes
 % ---------------------------------------------------------------------------------------------
 % The conversion here is that for the projection axes in which the plot and integration axes of the data section
@@ -324,66 +321,22 @@ else
     
 end
 
-% output (clarify input?) data coordinate frame that encloses the output data volume
+% retrieve data coordinate frame that encloses the output data volume in
+% projected coordinate system ang generate full set of axis new projection
+% has
 [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, proj, pbin, pin, en);
 if ~isempty(mess)   % problem getting limits from the input
     if save_to_file; fclose(fout); end    % close the output file opened earlier
     error(mess)
 end
 
-% Get the start and end index of contiguous blocks of pixel information in the data
-% *** should use optimised algorithm for cases when rot is diagonal ?
-% *** should the border be bigger, to account for single <-> double rounding errors? (see value of small)
-border = small*[-1,-1,-1,-1;1,1,1,1];   % put a small border around the range to ensure we don't miss any
-% pixels on the boundary because of rounding errors in get_nrange_rot_section
+% Set matrix and translation vector to express plot axes with two or more bins
+% as multiples of step size from lower limits
+proj = proj.set_proj_binning(urange,pax,iax,p);
 
-%---------------------------------------------------
-% Construct arrays of bin boundaries that include integration axes as axes with just one bin
-% (Need to go through the following for the case when have data structure with less than four plot axes)
-pin=cell(1,4);
-pin(data.pax)=data.p;
-pin(data.iax)=mat2cell(data.urange(:,data.iax),2,ones(1,length(data.iax)));
-nbin_in=zeros(1,4);
-for i=1:4
-    nbin_in(i)=length(pin{i})-1;
-end
-% Reshape of data.npix in following line is necessary to insert singleton dimensions for integration axes
-[nstart,nend]=proj.get_nbin_range(urange+border,reshape(data.npix,nbin_in), pin{:});
+% get indexes of pixels contributing into projection
+[nstart,nend]=proj.get_nbin_range(data.npix);
 
-% Get matrix, and offset in pixel proj. axes, that convert from coords in pixel proj. axes to multiples of step from lower point of range
-% ---------------------------------------------------------------------------------------------------------------------------------------------
-%  (Step size of zero is possible e.g. integration range is zero over what we know is exactly zero for Qz on HET west bank
-% or energy transfer if select constant-E plane exactly at bin centre)
-%  In the cutting algorithm, plot axes with one bin only will be treated exactly as integration axes; we can always reshape the output
-% to insert singleton dimensions as required.
-%  (*** Implicitly assumes that there is no energy offset in uoffset, either in the input data or the requested output proj axes
-%   *** Will need to modify get_nrange_rot_section, cut_sqw_calc_ubins and routines they call to handle this.)
-
-% Get plot axes with two or more bins, and the number of bins along those axes
-j=1;
-pax_gt1=[];
-nbin_gt1=[];
-ustep_gt1=[];
-for i=1:length(pax)
-    if length(p{i})>2
-        pax_gt1(j)=pax(i);              % row vector of plot axes with two or more bins
-        nbin_gt1(j)=length(p{i})-1;     % row vector of number of bins
-        ustep_gt1(j)=(p{i}(end)-p{i}(1))/(length(p{i})-1);  % row vector of bin widths
-        j=j+1;
-    end
-end
-% Set range and step size for plot axes with two or more bins to be the permitted range in multiples of the bin width
-% Treat other axes as unit step length, range in units of output proj. axes
-urange_step=urange;             % range expressed as steps/length of output ui
-urange_offset = zeros(1,4);     % offset for start of measurement as lower left corner/origin as defined by uoffset
-ustep = ones(1,4);              % step as multiple of unit ui/unity
-if ~isempty(pax_gt1)
-    urange_step(:,pax_gt1)=[zeros(1,length(pax_gt1));nbin_gt1];
-    urange_offset(pax_gt1)=urange(1,pax_gt1);
-    ustep(pax_gt1)=ustep_gt1;
-end
-% Get matrix and translation vector to express plot axes with two or more bins as multiples of step size from lower limits
-proj = proj.set_proj_binning(ustep,urange_step,urange_offset);
 if nargout==0   % can buffer only if no output cut object
     pix_tmpfile_ok = true;
 else
@@ -395,6 +348,8 @@ end
 % Get accumulated signal
 % -----------------------
 % read data and accumulate signal and error
+targ_pax = proj.target_pax();
+targ_nbin = proj.target_nbin();
 if source_is_file
     
     fid=fopen(data_source,'r');
@@ -409,13 +364,13 @@ if source_is_file
         error(['Error finding location of pixel data in file ',data_source]);
     end
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-        proj, pax_gt1, nbin_gt1);
+        proj, targ_pax, targ_nbin);
     fclose(fid);
     
     
 else
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array (data.pix, nstart, nend, keep_pix, ...
-        proj, pax_gt1, nbin_gt1);
+        proj, targ_pax, targ_nbin);
 end
 % For convenience later on, set a flag that indicates if pixel info buffered in files
 if isstruct(pix)
@@ -425,7 +380,7 @@ else
 end
 
 % Convert range from steps to actual range with respect to output uoffset:
-urange_pix = urange_step_pix.*repmat(ustep,[2,1]) + repmat(urange_offset,[2,1]);
+urange_pix = urange_step_pix.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
 
 % Account for singleton dimensions i.e. plot axes with just one bin (and look after case of zero or one dimension)
 nbin=[];
@@ -508,7 +463,7 @@ end
 % Create output argument if requested
 % -----------------------------------
 if nargout~=0
-    wout=sqw(w);   
+    wout=sqw(w);
     if ~keep_pix
         wout=dnd(sqw(w));
     end

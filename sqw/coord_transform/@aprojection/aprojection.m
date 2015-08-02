@@ -29,6 +29,10 @@ classdef aprojection
         urange_step;
         % shift of the projection centre
         urange_offset;
+        % indexes of projextion axis of the target progection
+        target_pax
+        %number of bins in the target projection
+        target_nbin
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
@@ -42,14 +46,29 @@ classdef aprojection
         data_upix_to_rlu_ = eye(3);
         data_upix_offset_ = [0;0;0;0] %upix_offset;
         data_lab_ = ['qx','qy','qz','en'];
+        % input data projection axis
+        data_iax_=zeros(1,0);
+        data_pax_=zeros(1,0);
+        data_iint_=zeros(2,0);
+        data_p_=cell(1,0);
+        % initial data range
+        data_urange_;
         %------------------------------------
+        % Transformed coordinates
+        urange_;
         usteps_ = [1,1,1,1];
         % data ranges in new coordinate system in units of steps in each
         % direction
         urange_step_ =zeros(2,4);
         % shift of the projection centre
         urange_offset_ = zeros(1,4);
+        %
+        targ_pax_
+        targ_iax_
+        targ_p_
         
+        pax_gt1_=[];
+        nbin_gt1_=[];
     end
     
     methods
@@ -66,15 +85,21 @@ classdef aprojection
         function this=retrieve_existing_tranf(this,data,upix_to_rlu,upix_offset)
             % Retrieve all parameters for transformation already
             % defined over sqw data and store them in projection to
-            % use later.
+            % use later to calculate new transformation.
             this = set_data_transf_(this,data,upix_to_rlu,upix_offset);
         end
-        function this = set_proj_binning(this,ustep,urange_step,urange_offset)
-            % urange_step -- number of bin in every cut direction
-            % ustep -- step size in each cut direction
-            this.usteps_ = ustep;
-            this.urange_step_ = urange_step;
-            this.urange_offset_ = urange_offset;
+        function this = set_proj_binning(this,urange,prj_ax_ind,int_ax_ind,prj_ax_bins)
+            %   urange      Array of limits of data that can possibly contribute to the output data structure in the
+            %               coordinate frame of the output structure [2x4].
+            %   prj_ax_ind  Index of plot axes into the projection axes  [row vector]
+            %               e.g. if data is 3D, data.pax=[1,3,4] means u1, u3, u4 axes are x,y,z in any plotting
+            %   int_ax_ind  Index of integration axes into the projection axes  [row vector]
+            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+            %   prj_ax_bins  Cell array containing bin boundaries along the plot axes [column vectors]
+            %               i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of prj_ax_ind)
+            %
+            %
+            this = this.set_proj_binning_(urange,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
         %------------------------------------------------------------------
         % accessors
@@ -99,12 +124,30 @@ classdef aprojection
         function urange_offset= get.urange_offset(this)
             urange_offset = this.urange_offset_;
         end
-        
+        function pax = get.target_pax(this)
+            pax = this.pax_gt1_;
+        end
+        function nbin = get.target_nbin(this)
+            nbin = this.nbin_gt1_;
+        end
     end
     %
     methods(Access = protected)
         function isit= can_mex_cut_(self)
             isit = false;
+        end
+        function [nbin_in,pin]= get_input_data_binning_(this)
+            % input data binning how data are initially binned, and full
+            % data projection axis
+            %
+            % auxiliary variable derived from input data projection axis
+            pin=cell(1,4);
+            pin(this.data_pax_)=this.data_p_;
+            pin(this.data_iax_)=mat2cell(this.urange_(:,this.data_iax_),2,ones(1,length(this.data_iax_)));
+            nbin_in=zeros(1,4);
+            for i=1:4
+                nbin_in(i)=length(pin{i})-1;
+            end
         end
     end
     methods(Static)
@@ -223,7 +266,7 @@ classdef aprojection
         end
     end
     %----------------------------------------------------------------------
-    %  ABSTRACT INTERFACE -- use 
+    %  ABSTRACT INTERFACE -- use
     %----------------------------------------------------------------------
     methods(Abstract)
         urange_out = find_max_data_range(this,urange_in);
