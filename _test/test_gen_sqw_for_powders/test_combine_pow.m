@@ -84,7 +84,7 @@ classdef test_combine_pow < TestCaseWithSave
             w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
             
-            this=test_or_save_variables(this,w2_1,w1_1,'tol',-2.e-2,'ignore_str',1 );
+            this=test_or_save_variables(this,w2_1,w1_1,'tol',-2.e-2,'ignore_str',1,'convert_old_classes' );
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -111,16 +111,14 @@ classdef test_combine_pow < TestCaseWithSave
             
             w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
             
-            this=test_or_save_variables(this,w2_2,w1_2,'tol',-9.e-2,'ignore_str',1);
+            this=test_or_save_variables(this,w2_2,w1_2,'tol',-9.e-2,'ignore_str',1,'convert_old_classes');
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
-            % acolor k
-            % dd(w1_1)
-            % acolor b
-            % pd(w1_2)
-            % acolor r
-            % pd(w1_tot)  % does not overlay - but that is OK
+            acolor k
+            dd(w1_2)
+            acolor b
+            plot(w2_2)
             %--------------------------------------------------------------------------------------------------
         end
         function this=test_combine_pow_tot(this)
@@ -137,14 +135,14 @@ classdef test_combine_pow < TestCaseWithSave
             
             w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
                        
-            this=test_or_save_variables(this,w2_tot,w1_tot,'tol',-2.e-2,'ignore_str',1);
+            this=test_or_save_variables(this,w2_tot,w1_tot,'tol',-2.e-2,'ignore_str',1,'convert_old_classes');
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
-            % acolor k
-            % dd(w1_1)
-            % acolor b
-            % pd(w1_2)
+            acolor k
+            dd(w1_tot)
+            acolor b
+            plot(w2_tot)
             % acolor r
             % pd(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------

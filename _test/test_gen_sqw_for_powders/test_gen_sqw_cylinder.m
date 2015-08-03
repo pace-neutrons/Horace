@@ -83,7 +83,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             
             % dd(w1)
             %--------------------------------------------------------------------------------------------------
-            this=test_or_save_variables(this,w2,w1,'tol',-1.e-5,'ignore_str',1);
+            this=test_or_save_variables(this,w2,w1,'tol',-1.e-5,'ignore_str',1,'convert_old_classes');
 
             
             
