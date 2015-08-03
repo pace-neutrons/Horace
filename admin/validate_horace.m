@@ -150,8 +150,9 @@ else
     time=bigtic();
     runtests(test_folders_full{:});
     bigtoc(time,'===COMPLETED UNIT TESTS RUN ');
-    
+
 end
+close all
 
 
 %=================================================================================================================

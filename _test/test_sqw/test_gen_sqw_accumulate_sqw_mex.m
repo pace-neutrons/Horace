@@ -239,14 +239,14 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             [ok,mess,w1a,w1ref]=is_cut_equal(sqw_file_123456,sqw_file,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w1ref,w1a);
+            this=test_or_save_variables(this,w1ref,w1a,'convert_old_classes');
             
             
             % Check cuts from gen_sqw output with spe files in a different order are the same
             [ok,mess,dummy_w1,w1b]=is_cut_equal(sqw_file_123456,sqw_file_145623,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,'Cuts from gen_sqw output with spe files in a different order are not the same');
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w1ref,w1b);
+            this=test_or_save_variables(this,w1ref,w1b,'convert_old_classes');
             
             
         end
@@ -347,7 +347,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_14);
+            this=test_or_save_variables(this,w2_14,'convert_old_classes');
             
             
         end
@@ -398,7 +398,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_1456);
+            this=test_or_save_variables(this,w2_1456,'convert_old_classes');
             
         end
         function this=test_accumulate_sqw11456(this)
@@ -444,7 +444,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             [ok,mess,w2_11456]=is_cut_equal(sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_11456);
+            this=test_or_save_variables(this,w2_11456,'convert_old_classes');
             
             
             if this.want_to_save_output

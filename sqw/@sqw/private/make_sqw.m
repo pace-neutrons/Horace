@@ -84,12 +84,5 @@ else
     d.main_header=make_sqw_main_header;
     d.header=make_sqw_header;
     d.detpar=make_sqw_detpar;
-    if dnd_type
-        d.data=data_sqw_dnd(varargin{2:end});
-    else
-        mess='Constructor does not exist';
-    end
-    if ~isempty(mess)
-        d=struct([]);   % there was a problem
-    end
+    d.data=data_sqw_dnd(varargin{2:end});
 end
