@@ -19,6 +19,10 @@ classdef TestCaseWithSave < TestCase
         % test_or_save_variables intended to provide additional information
         % about the error (usually set in front of test_or_save_variables)
         errmessage_prefix = ''
+        % the classes which are currently changing so should be stored
+        % differently -- some fields or class definition may change.
+        transient_classes={'sqw','dnd','data_sqw_dnd','d1d','d2d','d3d','d4d'};
+        convert_class_funs;
     end
     
     methods
@@ -38,49 +42,86 @@ classdef TestCaseWithSave < TestCase
                 this.results_path=fileparts(mfilename('fullpath'));
                 inputFile = fullfile(this.results_path,this.results_filename);
             end
+            %----------------------------------------------------------
+            % TRANSIENT OPERATION! necessary (and valid) until data
+            % class changes are not completed
+            this.convert_class_funs{1} = @(x)(convert_old_sqw_to_new_sqw(this,x));
+            this.convert_class_funs{2} = @(x)(convert_old_dnd_to_new_dnd(this,x));
+            this.convert_class_funs{3} = @(x)(convert_old_data_sqw_dnd(this,x));
+            this.convert_class_funs{4} = @(x)(convert_old_d1d(this,x));
+            this.convert_class_funs{5} = @(x)(convert_old_d2d(this,x));
+            this.convert_class_funs{6} = @(x)(convert_old_d3d(this,x));
+            this.convert_class_funs{7} = @(x)(convert_old_d4d(this,x));
             
             this.want_to_save_output=false;
+            
             % load old data if necessary
             if not(this.want_to_save_output) && exist(inputFile,'file')
                 this.old=load(inputFile);
-                %----------------------------------------------------------
-                % TRANSIENT OPERATION! necessary (and valid) until data
-                % class changes
-                fields = fieldnames(this.old);
-                for i=1:numel(fields)
-                    is_sqw= isa(this.old.(fields{i}),'sqw');
-                    is_dnd= isa(this.old.(fields{i}),'dnd');
-                    if is_sqw||is_dnd
-                        old_data = struct(this.old.(fields{i}).data);
-                        
-                        if isfield(old_data,'axis_caption_fun')
-                            old_data= rmfield(old_data,'axis_caption_fun');
-                        end
-                        new_data = data_sqw_dnd(old_data);
-                        old_sqw = this.old.(fields{i});
-                        if is_dnd
-                            this.old.(fields{i})=dnd(old_sqw);
-                        else
-                            for j=1:numel(new_data)
-                                old_sqw(j).data = new_data(j);                            
-                            end
-                            this.old.(fields{i})=old_sqw;
-                        end
-                    end
-                    if isa(this.old.(fields{i}),'data_sqw_dnd')
-                        old_data = struct(this.old.(fields{i}));
-                        if isfield(old_data,'axis_caption_fun')
-                            old_data= rmfield(old_data,'axis_caption_fun');
-                        end
-                        
-                        this.old.(fields{i}) = data_sqw_dnd(old_data);
-                    end
-                end
-                %----------------------------------------------------------
             end
             this.datasets_to_save=struct();
             
         end
+        %------------------------------------------------------------------
+        function new_sqw=convert_old_sqw_to_new_sqw(this,old_sqw)
+            old_data = struct(old_sqw.data);
+            
+            if isfield(old_data,'axis_caption_fun')
+                old_data= rmfield(old_data,'axis_caption_fun');
+            end
+            new_data = data_sqw_dnd(old_data);
+            new_sqw = sqw(new_data);
+        end
+        function new_dnd=convert_old_dnd_to_new_dnd(this,old_dnd)
+            old_data = struct(old_dnd);
+            
+            if isfield(old_data,'axis_caption_fun')
+                old_data= rmfield(old_data,'axis_caption_fun');
+            end
+            new_dnd = dnd(old_data);
+        end
+        function new_data=convert_old_data_sqw_dnd(this,old_data_cl)
+            old_data = struct(old_data_cl);
+            
+            if isfield(old_data,'axis_caption_fun')
+                old_data= rmfield(old_data,'axis_caption_fun');
+            end
+            new_data = data_sqw_dnd(old_data);
+        end
+        function new_dnd=convert_old_d1d(this,old_d1d)
+            old_data = struct(old_d1d);
+            
+            if isfield(old_data,'axis_caption_fun')
+                old_data= rmfield(old_data,'axis_caption_fun');
+            end
+            new_dnd = d1d(old_data);
+        end
+        function new_dnd=convert_old_d2d(this,old_d2d)
+            old_data = struct(old_d2d);
+            
+            if isfield(old_data,'axis_caption_fun')
+                old_data= rmfield(old_data,'axis_caption_fun');
+            end
+            new_dnd = d2d(old_data);
+        end
+        function new_dnd=convert_old_d3d(this,old_d3d)
+            old_data = struct(old_d3d);
+            
+            if isfield(old_data,'axis_caption_fun')
+                old_data= rmfield(old_data,'axis_caption_fun');
+            end
+            new_dnd = d3d(old_data);
+        end
+        function new_dnd=convert_old_d4d(this,old_d4d)
+            old_data = struct(old_d4d);
+            
+            if isfield(old_data,'axis_caption_fun')
+                old_data= rmfield(old_data,'axis_caption_fun');
+            end
+            new_dnd = d4d(old_data);
+        end
+        
+        
         %------------------------------------------------------------------
         function rm_files(this,varargin)
             for i=1:numel(varargin)
@@ -112,7 +153,7 @@ classdef TestCaseWithSave < TestCase
             % method to test input variable in vararging agains saved
             % values or save these variables to the structure to save it
             % later (or deal with them any other way)
-            keys = {'ignore_str','nan_equal','min_denominator','tol'};
+            keys = {'ignore_str','nan_equal','min_denominator','tol','convert_old_classes'};
             [keyval,ws_list] = extract_keyvalues(varargin,keys);
             if numel(ws_list) == 0
                 return;
@@ -141,11 +182,32 @@ classdef TestCaseWithSave < TestCase
                     keyval = this.comparison_par;
                 end
             end
+            % check if old class conversion is requested
+            tmp_str = cellfun(@(x)(num2str(x)),keyval,'UniformOutput',false);
+            convert_old_class_place  = ismember(tmp_str,'convert_old_classes');
+            if any(convert_old_class_place)
+                keyval = keyval(~convert_old_class_place);
+                convert_old=true;
+            else
+                convert_old=false;
+            end
+            
             
             
             for i=1:numel(ws_list)
                 if not(this.want_to_save_output)
-                    [ok,mess]=equal_to_tol(ws_list{i}, this.old.(inputname(i+1)),toll,keyval{:});
+                    ref_data = this.old.(inputname(i+1));
+                    if convert_old
+                        class_name = class(ws_list{i});
+                        class_to_convert_found = ismember(this.transient_classes,class_name);
+                        if any(class_to_convert_found)
+                            convertor = this.convert_class_funs{class_to_convert_found};
+                            ref_data = convertor(ref_data);
+                        end
+                        
+                    end
+                    [ok,mess]=equal_to_tol(ws_list{i}, ref_data,toll,keyval{:});
+                    
                     assertTrue(ok,[this.errmessage_prefix,': [',inputname(i+1),'] :',mess])
                 else
                     this.datasets_to_save.(inputname(i+1))=ws_list{i};
