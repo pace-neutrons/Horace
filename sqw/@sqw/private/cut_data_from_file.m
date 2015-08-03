@@ -167,37 +167,7 @@ end
 %---------------------------------------------------------------------------------
 if ~isempty(pix_retained)  % prepare the output pix array
     clear v ok ix_add; % clear big arrays
-    % temporary -- need fixing
-    %use_mex=get(hor_config,'use_mex');
-    use_mex=false;
-    if use_mex
-        try
-            if isa(pix_retained,'double')
-                pix = sort_pixels_by_bins(pix_retained,pix_ix_retained,8);
-            else
-                pix = sort_pixels_by_bins(pix_retained,pix_ix_retained,4);
-            end
-            %pix = sort_pixels_by_bins(pix_retained,pix_ix_retained);
-            clear pix_retained pix_ix_retained;  % clear big arrays
-        catch
-            use_mex=false;
-            if horace_info_level>=1
-                message=lasterr();
-                warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',message)
-            end
-        end
-    end
-    if ~use_mex
-        ix = cat(1,pix_ix_retained{:});
-        clear pix_ix_retained;
-        [~,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-        clear ix ;          % clear big arrays so that final output variable pix is not way up the stack
-        % TODO: make single!
-        pix = double(cat(2,pix_retained{:}));
-        clear pix_retained;
-        pix=pix(:,ind);     % reorders pix
-        clear ind;
-    end
+    pix = sort_pixels(pix_retained,pix_ix_retained,npix);   
 end
 
 

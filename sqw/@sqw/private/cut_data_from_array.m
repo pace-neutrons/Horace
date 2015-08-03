@@ -38,7 +38,9 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 % - Aim to take advantage of in-place working within accumulate_cut
 
 % T.G.Perring   31 July 2007
-
+%
+% $Revision$ ($Date$)
+%
 
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
 horace_info_level=get(hor_config,'horace_info_level');
@@ -84,29 +86,7 @@ if keep_pix
     pix = v(:,ok);          % pixels that are to be retained
     clear v                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
     
-    %use_mex=get(hor_config,'use_mex');
-    use_mex = false;
-    if use_mex
-        try
-            if isa(pix,'double')
-                pix = sort_pixels_by_bins(pix,ix,npix,8);                
-            else
-                pix = sort_pixels_by_bins(pix,ix,npix,4);
-            end
-            clear ix ;  % clear big arrays
-        catch
-            use_mex=false;
-            if horace_info_level>=1
-                message=lasterr();
-                warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n using Matlab',message)
-            end
-        end
-    end
-    if ~use_mex
-        [ix,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-        clear ix ;           % clear big arrays so that final output variable pix is not way up the stack
-        pix=pix(:,ind);      % reorders pix
-    end
+    pix = sort_pixels(pix,ix,npix);
     
     if horace_info_level>=1, t_sort = bigtoc(3); end
 else
