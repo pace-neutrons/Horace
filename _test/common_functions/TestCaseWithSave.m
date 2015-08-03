@@ -70,7 +70,8 @@ classdef TestCaseWithSave < TestCase
                 old_data= rmfield(old_data,'axis_caption_fun');
             end
             new_data = data_sqw_dnd(old_data);
-            new_sqw = sqw(new_data);
+            old_sqw.data = new_data;
+            new_sqw = old_sqw;
         end
         function new_dnd=convert_old_dnd_to_new_dnd(this,old_dnd)
             old_data = struct(old_dnd);
