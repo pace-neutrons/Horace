@@ -121,6 +121,7 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(pix_matl,pix_c,'absolute',1.e-8);
             
         end
+        
         function test_calc_proj_options(this)
             hcf=hor_config;
             if ~hcf.use_mex
@@ -148,6 +149,36 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
             assertEqual(size(pix_c,1),4)
             assertElementsAlmostEqual(pix_m,pix_c,'absolute',1.e-8);
+        end
+        
+        function test_sort_pixels(this)
+            % prepare pixels to sort           
+            pix=ones(9,10000);
+            xs = 9.6:-1:0.6;
+            [ux,uy,uz,et]=ndgrid(xs,xs,xs,xs);
+            pix(1,:) = ux(:);
+            pix(2,:) = uy(:);
+            pix(3,:) = uz(:);
+            pix(4,:) = et(:);
+            pix(7,:) = 1:size(pix,2);
+            npix = ones(10,10,10,10);
+            ix = round(pix(1,:));
+            iy = round(pix(2,:));
+            iz = round(pix(3,:));
+            ie = round(pix(4,:));
+            ix = sub2ind(size(npix), ix,iy,iz,ie);
+            
+            % test sorting parameters and matlab sorting
+            pix1 = sort_pixels(pix,ix,[]);
+            assertElementsAlmostEqual(pix1(7,1:10),10000:-1:9991);
+            
+            pix2 = sort_pixels(pix,ix,npix,'-nomex');
+            assertElementsAlmostEqual(pix1,pix2);
+            
+            if ~get(hor_config,'use_mex')
+                return
+            end
+            
         end
         
         function  [efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det]=calc_fake_data(this)
@@ -222,7 +253,7 @@ classdef test_main_mex < TestCase
             % coinside with initial binning and result depending on
             % round-off errors -- then it give different results in case of
             % used on different machines and c vs matlab
-            urange(1,4) =  1.01*urange(1,4);            
+            urange(1,4) =  1.01*urange(1,4);
             urange(2,:) =  (maxv-minv);
             
             % Prepare cut projection to cut half of the data
@@ -232,8 +263,8 @@ classdef test_main_mex < TestCase
             
             proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
             % Important!!!!! to have the same number of bins as target data.s.
-            % The question is how to assure that. 
-            step = (maxv-minv)./size(data.s)';           
+            % The question is how to assure that.
+            step = (maxv-minv)./size(data.s)';
             proj=proj.set_proj_binning(urange,[1,2,3,4],[],...
                 {minv(1):step(1):maxv(1),minv(2):step(2):maxv(2),minv(3):step(3):maxv(3),minv(4):step(4):maxv(4)});
             
