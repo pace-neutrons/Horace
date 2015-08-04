@@ -346,16 +346,17 @@ bool bin_pixels(double *s, double *e, double *npix,
             size_t j0;
 #ifdef OMP_VERSION_3
     #pragma omp atomic capture
-            j0 = = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+            j0 = ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+	    j0 *= pix_fields::PIX_WIDTH;
 #else
     #pragma omp critical
-            j0 = PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+            j0 = pix_fields::PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 #endif
 
 
-            size_t i0    = j*PIX_WIDTH;
+            size_t i0    = j*pix_fields::PIX_WIDTH;
             //memcpy((pPixelSorted+j0),(pixel_data+i0),Block_Size);
-            for(size_t i=0;i<PIX_WIDTH;i++){
+            for(size_t i=0;i<pix_fields::PIX_WIDTH;i++){
                 pPixelSorted[j0+i]=pixel_data[i0+i];}
         }
     } // end parallel region
@@ -375,7 +376,7 @@ bool bin_pixels(double *s, double *e, double *npix,
         }
         // copy pixels info from heap to Matlab controlled memory;
         double *pPixels = mxGetPr(PixelSorted);
-        for(size_t i=0;i<nPixel_retained*PIX_WIDTH;i++)
+        for(size_t i=0;i<nPixel_retained*pix_fields::PIX_WIDTH;i++)
         {
             pPixels[i] = pPixelSorted[i];
         }

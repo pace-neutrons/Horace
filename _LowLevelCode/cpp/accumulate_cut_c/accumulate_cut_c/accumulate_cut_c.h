@@ -12,11 +12,27 @@
 #include <matrix.h>
 #include <cfloat>
 #include <memory>
+#include "../../../build_all/OMP_Storage.h"
 
 #define iRound(x)  (int)floor((x)+0.5)
 //
 // $Revision::      $ ($Date::                                              $)" 
 //
+enum program_settings {
+    Ignore_Nan,
+    Ignore_Inf,
+    Keep_pixels,
+    N_Parallel_Processes,
+    NbytesInPixel, // 
+    N_PROG_SETTINGS
+};
+
+template <class T>
+bool isNaN(T val) {
+    volatile T buf = val;
+    return (val != buf);
+}
+
 
 /** Routine to calculate pixels data belonging to appropriate range */
 template<class T>
@@ -103,7 +119,7 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
     size_t distribution_size = nDimLength;
 
     omp_set_num_threads(num_OMP_Threads);
-    int PIXEL_data_width = PIXEL_DATA_WIDTH;
+    int PIXEL_data_width = pix_fields::PIX_WIDTH;
 
     std::vector<double> qe_min(4 * num_OMP_Threads, FLT_MAX);
     std::vector<double> qe_max(4 * num_OMP_Threads, -FLT_MAX);
