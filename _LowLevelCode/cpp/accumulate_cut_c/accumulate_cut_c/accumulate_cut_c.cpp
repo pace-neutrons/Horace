@@ -1,6 +1,5 @@
 // accumulate_cut.cpp : Defines the exported functions for the DLL application.
 #include "accumulate_cut_c.h"
-#include "../../../build_all/OMP_Storage.h"
 
 enum InputArguments {
     Pixel_data,
@@ -26,20 +25,6 @@ enum OutputArguments { // unique output arguments,
     Npix_Retained,
     N_OUTPUT_Arguments
 };
-enum program_settings {
-    Ignore_Nan,
-    Ignore_Inf,
-    Keep_pixels,
-    N_Parallel_Processes,
-    NbytesInPixel, // 
-    N_PROG_SETTINGS
-};
-
-template <class T>
-bool isNaN(T val) {
-    volatile T buf = val;
-    return (val != buf);
-}
 
 
 const int PIXEL_DATA_WIDTH = 9;
