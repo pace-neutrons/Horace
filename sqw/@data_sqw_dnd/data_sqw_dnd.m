@@ -33,7 +33,8 @@ classdef data_sqw_dnd
         e=[]          %Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
         npix=[]       %No. contributing pixels to each bin of the plot axes.
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        urange=[]  %True range of the data along each axis [urange(2,4)]
+        urange=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
+               -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels   
         pix=[]     %Array containing data for each pixel:
         % If npixtot=sum(npix), then pix(9,npixtot) contains:
         % u1      -|
@@ -93,6 +94,11 @@ classdef data_sqw_dnd
                 end
             end
         end
+        function dnd_struct=get_dnd_data(obj)
+            %functin retrieves dnd structure from the sqw_dnd_data class
+            dnd_struct = obj.get_dnd_data_();
+        end
+        
         function obj=clear_sqw_data(obj)
             obj.pix=[];
             obj.urange=[];
@@ -100,11 +106,11 @@ classdef data_sqw_dnd
         function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of imput data.
             %
-            % only a and 'b+' types are possible as inputs and outputs
+            % only 'a' and 'b+' types are possible as inputs and outputs
             % varargin may contain 'field_names_only' which in fact
             % disables validation
             %
-            [ok, type, mess]=obj.check_sqw_data_(type_in, varargin{:});
+            [ok, type, mess]=obj.check_sqw_data_(type_in);
         end
     end
 end
