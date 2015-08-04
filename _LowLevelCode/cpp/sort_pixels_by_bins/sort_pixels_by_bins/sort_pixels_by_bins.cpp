@@ -77,7 +77,7 @@ std::string  verify_pix_array(const mxArray * pix_cell_array_ptr, bool &single_p
         cell_element_ptr = mxGetCell(pix_cell_array_ptr, ind);
         if (cell_element_ptr != NULL) {
             // check if a contributing pixels have the same parameters
-            auto category = mxGetClassID(cell_element_ptr);
+            category = mxGetClassID(cell_element_ptr);
             if (category == mxDOUBLE_CLASS) {
                 if (array_type_is_known) {
                     if (single_precision)return "Input pixels array contains blocks with different type of pixels. Only one type of pixels (single or double) is supported";

@@ -35,24 +35,6 @@ enum output_arguments{  // not used at the moment
     Sqw_data,
     N_OUTPUT_Arguments
 };
-enum pix_fields
-{
-    u1=0, //      -|
-    u2=1, //       |  Coordinates of pixel in the pixel projection axes
-    u3=2, //       |
-    u4=3, //      -|
-    irun=4, //        Run index in the header block from which pixel came
-    idet=5, //        Detector group number in the detector listing for the pixel
-    ien = 6, //         Energy bin number for the pixel in the array in the (irun)th header
-    iSign=7, //      Signal array
-    iErr = 8, //         Error array (variance i.e. error bar squared)
-    PIX_WIDTH=9  // Number of pixel fields
-};
-// modify this to support INTEL compiler (what OMP version(s) it has?
-
-
-
-
 
 bool bin_pixels(double *s, double *e, double *npix,
                 mxArray*  pPixel_data, mxArray* &PixelSorted,
@@ -80,9 +62,9 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 //    sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
 //    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
 //    sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
-//    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
+//    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalize data
 //
-//    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
+//    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalize variance
 //    clear ix ibin   % biggish arrays no longer needed
 //    nopix=(sqw_data.npix==0);
 //    sqw_data.s(nopix)=0;

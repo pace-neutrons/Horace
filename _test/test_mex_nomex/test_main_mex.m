@@ -150,6 +150,47 @@ classdef test_main_mex < TestCase
             assertEqual(size(pix_c,1),4)
             assertElementsAlmostEqual(pix_m,pix_c,'absolute',1.e-8);
         end
+        function test_recompute_bin_data(this)
+
+            [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
+             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
+            
+            test_sqw = sqw();
+            pix=ones(9,40000);
+            xs = 0.1:1:10;
+            xp = 0.1:0.5:10;
+            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
+            pix(1,:) = ux(:);
+            pix(2,:) = uy(:);
+            pix(3,:) = uz(:);
+            pix(4,:) = et(:);
+            %pix(7,:) = 1:size(pix,2);
+            npix = 4*ones(10,10,10,10);
+            test_sqw.data.npix = npix;
+            test_sqw.data.pix  = pix;
+            set(hor_config,'use_mex',false);
+            new_sqw = recompute_bin_data_tester(test_sqw);
+            s = new_sqw.data.s;
+            e = new_sqw.data.e;
+            assertElementsAlmostEqual(4*s,npix);
+            assertElementsAlmostEqual((4*4)*e,npix);            
+            
+            
+            if ~cur_mex
+                return
+            end
+            set(hor_config,'use_mex',true,'threads',1);
+            new_sqw1 = recompute_bin_data_tester(test_sqw);
+            assertElementsAlmostEqual(new_sqw1.data.s,s)
+            assertElementsAlmostEqual(new_sqw1.data.e,e)            
+
+            set(hor_config,'use_mex',true,'threads',8);    
+            new_sqw2 = recompute_bin_data_tester(test_sqw);            
+            assertElementsAlmostEqual(new_sqw2.data.s,s)
+            assertElementsAlmostEqual(new_sqw2.data.e,e)            
+            
+        end
+            
         
         function test_sort_pix(this)
             % prepare pixels to sort
