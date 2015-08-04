@@ -151,33 +151,82 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(pix_m,pix_c,'absolute',1.e-8);
         end
         
-        function test_sort_pixels(this)
-            % prepare pixels to sort           
-            pix=ones(9,10000);
+        function test_sort_pix(this)
+            % prepare pixels to sort
+            pix=ones(9,40000);
             xs = 9.6:-1:0.6;
-            [ux,uy,uz,et]=ndgrid(xs,xs,xs,xs);
+            xp = 0.1:0.5:10;
+            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
             pix(1,:) = ux(:);
             pix(2,:) = uy(:);
             pix(3,:) = uz(:);
             pix(4,:) = et(:);
             pix(7,:) = 1:size(pix,2);
-            npix = ones(10,10,10,10);
-            ix = round(pix(1,:));
-            iy = round(pix(2,:));
-            iz = round(pix(3,:));
-            ie = round(pix(4,:));
+            npix = 4*ones(10,10,10,10);
+            ix = ceil(pix(1,:));
+            iy = ceil(pix(2,:));
+            iz = ceil(pix(3,:));
+            ie = ceil(pix(4,:));
             ix = sub2ind(size(npix), ix,iy,iz,ie);
             
             % test sorting parameters and matlab sorting
-            pix1 = sort_pixels(pix,ix,[]);
-            assertElementsAlmostEqual(pix1(7,1:10),10000:-1:9991);
+            pix1 = sort_pix(pix,ix,[]);
+            assertElementsAlmostEqual(pix1(7,1:4),[1810,1820,3810,3820]);
+            assertElementsAlmostEqual(pix1(7,5:8),[1809,1819,3809,3819]);
+            assertElementsAlmostEqual(pix1(7,end-3:end),[36181,36191,38181,38191]);
             
-            pix2 = sort_pixels(pix,ix,npix,'-nomex');
+            pix2 = sort_pix(pix,ix,npix,'-nomex');
             assertElementsAlmostEqual(pix1,pix2);
             
             if ~get(hor_config,'use_mex')
                 return
             end
+            % test mex
+            pix1 = sort_pix(pix,ix,npix,'-force_mex');
+            assertElementsAlmostEqual(pix1(7,1:4),[1810,1820,3810,3820]);
+            assertElementsAlmostEqual(pix1,pix2);
+            
+            pix0 = single(pix);
+            ix0  = int64(ix);
+            pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
+            assertElementsAlmostEqual(pix0a,pix2,'absolute',1.e-6);
+            
+            
+        end
+        function profile_sort_pix(this)
+            xs = 9.99:-0.1:0.01;
+            xp = 0.01:0.1:9.99;
+            [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
+            NumPix = numel(ux);
+            pix=ones(9,NumPix);
+            pix(1,:) = ux(:);
+            pix(2,:) = uy(:);
+            pix(3,:) = uz(:);
+            pix(4,:) = et(:);
+            pix(7,:) = 1:NumPix;
+            npix = ones(10,10,10,10)*(NumPix/10000);
+            ix = ceil(pix(1,:));
+            iy = ceil(pix(2,:));
+            iz = ceil(pix(3,:));
+            ie = ceil(pix(4,:));
+            ix = sub2ind(size(npix), ix,iy,iz,ie);
+            pix0 = single(pix);
+            ix0 = int64(ix);
+            clear iy iz ie ux uy uz et
+            
+            disp('Profile started')
+            profile on
+            % test sorting parameters and matlab sorting
+            t1=tic();
+            pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_type');
+            t=toc(t1)
+            pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_type');
+            t=toc(t1)            
+            pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_type');
+            t=toc(t1)            
+            
+            profile off
+            profview;
             
         end
         

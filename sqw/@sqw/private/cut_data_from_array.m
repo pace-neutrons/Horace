@@ -86,7 +86,7 @@ if keep_pix
     pix = v(:,ok);          % pixels that are to be retained
     clear v                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
     
-    pix = sort_pixels(pix,ix,npix);
+    pix = sort_pix(pix,ix,npix);
     
     if horace_info_level>=1, t_sort = bigtoc(3); end
 else
