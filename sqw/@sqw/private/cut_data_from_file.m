@@ -167,7 +167,7 @@ end
 %---------------------------------------------------------------------------------
 if ~isempty(pix_retained)  % prepare the output pix array
     clear v ok ix_add; % clear big arrays
-    pix = sort_pixels(pix_retained,pix_ix_retained,npix);   
+    pix = sort_pix(pix_retained,pix_ix_retained,npix);   
 end
 
 

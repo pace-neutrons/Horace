@@ -1,4 +1,4 @@
-function   pix = sort_pixels(pix_retained,pix_ix_retained,npix,varargin)
+function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 % function sorts pixels according to their indexes in n-D array npix
 %
 %input:
@@ -14,7 +14,11 @@ function   pix = sort_pixels(pix_retained,pix_ix_retained,npix,varargin)
 %               (usually for testing)
 %
 % '-force_mex' -- use only mex code and fail if mex is not availible
-%              (usually for testing)
+%                (usually for testing)
+% '-keep_type' -- if provieded, the routine will retain type of pixels
+%                 it get on input, if not, output pixels will be converted
+%                 to double
+%
 % these two options can not be used together.
 %
 
@@ -26,9 +30,9 @@ function   pix = sort_pixels(pix_retained,pix_ix_retained,npix,varargin)
 %
 
 %  Process inputs
-options = {'-nomex','-force_mex'};
+options = {'-nomex','-force_mex','-keep_type'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok,mess,nomex,force_mex]=parse_char_options(varargin,options);
+[ok,mess,nomex,force_mex,keep_type]=parse_char_options(varargin,options);
 if ~ok
     error('SORT_PIXELS:invalid_argument',['sort_pixels: invalid argument',mess])
 end
@@ -58,12 +62,15 @@ end
 %
 if use_mex
     try
+        % TODO: make "keep type" a default behaviour!        
+        % function retrieves keep_type variable value from this file
+        % so returns double or single resolution pixels depending on this
         pix = sort_pixels_by_bins(pix_retained,pix_ix_retained,npix);
         %pix = sort_pixels_by_bins(pix_retained,pix_ix_retained);
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch
         use_mex=false;
-        if horace_info_level>=1
+        if get(hor_config,'horace_info_level')>=1
             message=lasterr();
             warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n trying Matlab',message)
             if force_mex
@@ -81,16 +88,21 @@ if ~use_mex
     clear pix_ix_retained;
     [~,ind]=sort(ix);  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
     clear ix ;          % clear big arrays so that final output variable pix is not way up the stack
-    % TODO: make single!
     if numel(pix_retained) == 1
-        pix = double(pix_retained{1});
+        pix = pix_retained{1};
     else
-        pix = double(cat(2,pix_retained{:}));
+        pix = cat(2,pix_retained{:});
     end
     clear pix_retained;
     pix=pix(:,ind);     % reorders pix
     clear ind;
+    % TODO: make "keep type" a default behaviour!
+    if ~keep_type
+        if ~isa(pix,'double')
+            pix = double(pix);
+        end
+    end
+    
 end
-
 
 

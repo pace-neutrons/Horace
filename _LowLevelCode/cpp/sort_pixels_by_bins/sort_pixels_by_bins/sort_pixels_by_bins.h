@@ -19,8 +19,8 @@
 
 
 // $Revision$ $Date$
-template<class T, class N>
-void sort_pixels_by_bins( T * const pPixelSorted, size_t nPixelsSorted, std::vector<const T *> &PixelData, std::vector<size_t> &NPixels,
+template<class T, class N, class K>
+void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vector<const T *> &PixelData, std::vector<size_t> &NPixels,
     std::vector<const N *> &PixelIndexes, std::vector<size_t> NIndexes,
     double const *const pCellDens, size_t distribution_size,    
     size_t *const ppInd) {
@@ -50,7 +50,7 @@ void sort_pixels_by_bins( T * const pPixelSorted, size_t nPixelsSorted, std::vec
             ppInd[ind]++;
 
             for (size_t i = 0; i < PIXEL_DATA_WIDTH; i++) {  // copy all pixel data into the location requested
-                pPixelSorted[jBase + i] = pPixData[i0 + i];
+                pPixelSorted[jBase + i] = static_cast<K>(pPixData[i0 + i]);
             }
         }
     }
