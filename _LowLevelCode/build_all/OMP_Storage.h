@@ -1,6 +1,10 @@
 #ifndef H_OMP_STORAGE
 #define H_OMP_STORAGE
 
+//
+// $Revision::      $ ($Date::                                              $)" 
+//
+
 
 
 #include <limits>
@@ -24,6 +28,23 @@ void omp_set_num_threads(int nThreads) {};
 #else
 #undef    OMP_VERSION_3 
 #endif
+
+enum pix_fields
+{
+    u1 = 0, //      -|
+    u2 = 1, //       |  Coordinates of pixel in the pixel projection axes
+    u3 = 2, //       |
+    u4 = 3, //      -|
+    irun = 4, //        Run index in the header block from which pixel came
+    idet = 5, //        Detector group number in the detector listing for the pixel
+    ien = 6, //         Energy bin number for the pixel in the array in the (irun)th header
+    iSign = 7, //      Signal array
+    iErr = 8, //         Error array (variance i.e. error bar squared)
+    PIX_WIDTH = 9  // Number of pixel fields
+};
+// modify this to support INTEL compiler (what OMP version(s) it has?
+
+
 
 
 class omp_storage

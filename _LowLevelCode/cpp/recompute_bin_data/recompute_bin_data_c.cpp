@@ -1,43 +1,22 @@
-#include <float.h>
-#include <limits>
-#include <sstream>
-#include <cmath>
-#include <omp.h>
-//
-#include <mex.h>
-#include <matrix.h>
-#include <cfloat>
+#include "recompute_bin_data.h"
 
 
 enum InputArguments {
+    Npix_data,
     Pixel_data,
-    Signal,
-    Error,
-    Npixels,
-    CoordRotation_matrix,
-    CoordShif_matrix,
-    Scale_energy,
-    Shift_energy,
-    DataCut_range,
-    Plot_axis,
-    Program_settings,
+    Num_threads,
     N_INPUT_Arguments
 };
 enum OutputArguments { // unique output arguments,
-    Actual_Pix_Range,
-    Pixels_Ok,
-    Pixels_Ind,
-    Signal_modified,
-    Error_Modified,
-    Npixels_out,
-    Npix_Retained,
+    Signal,
+    Error,
     N_OUTPUT_Arguments
 };
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-    const char REVISION[] = "$Revision:: 876  $ ($Date:: 2014-06-10 12:31:44 +0100 (Tue, 10 Jun 2014) $)";
+    const char REVISION[] = "$Revision::      $ ($Date::                                              $)";
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
         return;
@@ -65,4 +44,52 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             }
         }
     }
+    /********************************************************************************/
+    /* retrieve input parameters */
+    // get npix -- can be 1-D to 4D double array
+    double const * const pNpix = (double *)mxGetPr(prhs[Npix_data]);
+    if (!pNpix)mexErrMsgTxt("ERROR::recompute_bin_data_c-> undefined or empty npix array");
+
+
+    mwSize num_of_dims = mxGetNumberOfDimensions(prhs[Npix_data]);
+    const mwSize *dims = mxGetDimensions(prhs[Npix_data]);
+
+    // Get pixels array
+    // this one can be either float or double one day. But not yet
+    //mxClassID category = mxGetClassID(cell_element_ptr);
+    // if (category == mxDOUBLE_CLASS or mxSINGLE_CLASS)
+    //***********************************
+    double const * const pPixelData = (double *)mxGetPr(prhs[Pixel_data]);
+    if (!pPixelData)mexErrMsgTxt("ERROR::recompute_bin_data_c-> undefined or empty pixels array");
+    size_t  nPixels = mxGetN(prhs[Pixel_data]);
+    size_t  nPixDataCols = mxGetM(prhs[Pixel_data]);
+    if (nPixDataCols != pix_fields::PIX_WIDTH)mexErrMsgTxt("ERROR::recompute_bin_data_c-> the pixel data have to be a 9*num_of_pixels array");
+
+    double *pThreads  = (double *)mxGetPr(prhs[Num_threads]);
+    int n_threads = int(*pThreads);
+    // Check wrong n_threads
+    if (n_threads>128) n_threads = 8;
+    if (n_threads<=0) n_threads = 1;
+
+    /********************************************************************************/
+    /* Define output*/
+    plhs[Signal] = mxCreateNumericArray(num_of_dims, dims, mxDOUBLE_CLASS, mxREAL);
+    if (!plhs[Signal])mexErrMsgTxt("ERROR::recompute_bin_data_c-> can not allocate memory for output signal array");
+    plhs[Error] = mxCreateNumericArray(num_of_dims, dims, mxDOUBLE_CLASS, mxREAL);
+    if (!plhs[Error])mexErrMsgTxt("ERROR::recompute_bin_data_c-> can not allocate memory for output error array");
+
+    double *pSignal = (double *)mxGetPr(plhs[Signal]);
+    double *pError  = (double *)mxGetPr(plhs[Error]);
+    size_t distr_size(1);
+    for (size_t i = 0; i < num_of_dims; i++) {
+        distr_size*=size_t(dims[i]);
+    }
+    try {
+        recompute_pix_sums(pSignal,pError, distr_size, pNpix, pPixelData, nPixels, n_threads);
+
+    }catch(const char *err) {
+        mexErrMsgTxt(err);
+    }
+
+
 }
