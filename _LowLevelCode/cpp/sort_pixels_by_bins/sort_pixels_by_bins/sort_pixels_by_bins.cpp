@@ -219,7 +219,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     const mxArray *pKeep_inputType = mexGetVariablePtr("caller","keep_type");
     bool keep_input_type  = *(reinterpret_cast<const bool *>(pKeep_inputType));
 
-    // evaluate input pixels cellarray
+    // evaluate input pixels cell array
     bool pix_single_precision(false);
     std::vector<size_t> pix_sizes;
     std::vector<const double *> pPix_blocks;
@@ -228,7 +228,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (err_code.size() > 0) {
         mexErrMsgTxt(err_code.c_str());
     }
-    // evaluate input indexes cellarray
+    // evaluate input indexes cell array
     bool index_is_integer(false);
     std::vector<size_t> index_sizes;
     std::vector<const double *> pIndex_blocks;

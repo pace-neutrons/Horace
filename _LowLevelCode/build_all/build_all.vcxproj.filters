@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="OMP_Storage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

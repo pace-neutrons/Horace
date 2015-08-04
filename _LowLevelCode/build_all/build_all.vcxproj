@@ -176,7 +176,7 @@
     <ClCompile Include="build_all.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="OMP_Storage.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

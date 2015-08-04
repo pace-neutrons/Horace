@@ -9,7 +9,8 @@
 #include <matrix.h>
 #include <cfloat>
 #include <cstring>
-#include <vector>
+#include <memory>
+#include "../../../build_all/OMP_Storage.h"
 //
 enum input_arguments{
     Sqw_parameters,
@@ -48,20 +49,6 @@ enum pix_fields
     PIX_WIDTH=9  // Number of pixel fields
 };
 // modify this to support INTEL compiler (what OMP version(s) it has?
-#ifdef __GNUC__
-#   if __GNUC__ < 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ < 2)
-// then the compiler does not understand OpenMP functions, let's define them
-void omp_set_num_threads(int nThreads){};
-#define omp_get_num_threads() 1
-#define omp_get_max_threads() 1
-#define omp_get_thread_num()  0
-#   endif
-# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4) 
-    #define    OMP_VERSION_3 
-#endif
-#else
-    #undef    OMP_VERSION_3 
-#endif
 
 
 
@@ -261,17 +248,13 @@ bool bin_pixels(double *s, double *e, double *npix,
     eBinR       = grid_size[3]/(cut_range[7]-cut_range[6]);
 
 
-    std::vector<std::vector<double> >  se_stor(num_threads);
-    std::vector<std::vector<size_t> >  ind_stor(num_threads);
-    for(int i=0;i<num_threads;i++)
-    {
-        se_stor[i].assign(2*distribution_size,0.);
-        ind_stor[i].assign(distribution_size,0);
-    }
+    std::unique_ptr<omp_storage> pStorHolder(new omp_storage(num_threads, distribution_size, s, e, npix));
+    auto pStor = pStorHolder.get();
+
     std::vector<int> increments(distribution_size,0);
 
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
-    shared(pixel_data,ok,nGridCell,s,e,npix,se_stor,ind_stor,ppInd,pPixelSorted,increments) \
+    shared(pixel_data,ok,nGridCell,pStor,ppInd,pPixelSorted,increments,s,e,npix,pStorHolder) \
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
     reduction(+:nPixel_retained)
     {
@@ -321,21 +304,22 @@ bool bin_pixels(double *s, double *e, double *npix,
             //#pragma omp atomic
             //            npix[il]++;
             int n_thread = omp_get_thread_num();
-            se_stor[n_thread][2*il+0]+=pixel_data[i0+7]; 
-            se_stor[n_thread][2*il+1]+=pixel_data[i0+8]; 
-            ind_stor[n_thread][il]++;
-
+            pStor->add_signal(pixel_data[i0 + 7], pixel_data[i0 + 8],n_thread,il);
 
         } // end for -- imlicit barrier;
         // combine all thread-calculated distributions together
-#pragma omp for
-        for (long i=0;i<distribution_size;i++)
+        if (pStor->is_mutlithreaded)
         {
-            for(int i0=0;i0<num_threads;i0++)
+#pragma omp for
+            for (long i = 0; i < distribution_size; i++)
             {
-                s[i]   +=se_stor[i0][2*i+0];
-                e[i]   +=se_stor[i0][2*i+1];
-                npix[i]+=ind_stor[i0][i];
+                for (int i0 = 0; i0 < num_threads; i0++)
+                {
+                    size_t ind = i0*distribution_size + i;
+                    s[i] += *(pStor->pSignal + ind);
+                    e[i] += *(pStor->pError + ind);
+                    npix[i] += *(pStor->pNpix + ind);
+                }
             }
         }
 
@@ -359,6 +343,7 @@ bool bin_pixels(double *s, double *e, double *npix,
         //    % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
         //    sqw_data.pix=sqw_data.pix(:,ix);
 #pragma omp single
+        pStorHolder.release();
         {
             ppInd[0]=0;
             for(long i=1;i<distribution_size;i++){   // initiate the boundaries of the cells to keep pixels
