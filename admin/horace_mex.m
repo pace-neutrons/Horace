@@ -32,6 +32,7 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'bin_pixels_c/bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
+    mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'recompute_bin_data_c.cpp');    
     
     disp('**********> Succesfully created all required mex files from C++')
     C_compiled=true;
