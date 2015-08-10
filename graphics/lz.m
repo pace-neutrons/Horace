@@ -30,6 +30,10 @@ if nargin==0
         zrange=range.c;
     end
     
+    if zrange(1)==zrange(2)
+        error('The upper and lower limits of the data are equal')
+    end
+    
 elseif nargin==2
     % Read parameters from either function syntax or command syntax
     zrange=zeros(1,2);

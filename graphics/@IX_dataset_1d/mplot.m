@@ -12,15 +12,18 @@ function [fig_handle, axes_handle, plot_handle] = mplot(w,varargin)
 %
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = mplot(w,...) 
+%
+%
+% Synonym for da(...)
+
 
 % Check input arguments
-[ok,mess]=parse_args_simple_ok_syntax({'name'},varargin{:});
-if ~ok
-    error(mess)
-end
+opt=struct('newplot',true,'lims_type','xyz');
+[args,ok,mess]=genie_figure_parse_plot_args(opt,varargin{:});
+if ~ok, error(mess), end
 
 % Perform plot
-[fig_,axes_,plot_] = da(IX_dataset_2d(w), varargin{:});
+[fig_,axes_,plot_] = da(IX_dataset_2d(w), args{:});
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

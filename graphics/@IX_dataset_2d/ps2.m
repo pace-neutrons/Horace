@@ -1,13 +1,19 @@
 function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
-% Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d, with colour scale from a second source
+% Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d
 %
 %   >> ps2(w)       % Use error bars to set colour scale
 %   >> ps2(w,wc)    % Signal in wc sets colour scale
-%                   % (IX_dataset_2d with same array size as w, or a numeric array)
+%                   %   wc can be any object with a signal array with same
+%                   %  size as w, e.g. sqw object, IX_dataset_2d object, or
+%                   %  a numeric array.
+%                   %   - If w is an array of objects, then wc must contain
+%                   %     the same number of objects.
+%                   %   - If wc is a numeric array then w must be a scalar
+%                   %     object.
 %
 % Advanced use:
 %   >> ps2(...,'name',fig_name)     % overplot on figure with name = fig_name
-%                                   % or figure with given figure number
+%                                   % or figure with given figure number or handle
 %
 % Differs from ps in that the signal sets the z axis, and the colouring is set by the 
 % error bars, or another object. This enable a function of three variables to be plotted
@@ -17,51 +23,25 @@ function [fig_handle, axes_handle, plot_handle] = ps2(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ps2(w,...) 
 
-% Check input arguments
-[ok,mess]=parse_args_simple_ok_syntax({'name'},varargin{:});
-if ~ok
-    error(mess)
-end
 
+% Check input arguments (must allow for the two cases of one or two plotting input arguments)
 if ~isa(w,'IX_dataset_2d')
     error('First argument must be a 2D data object class IX_dataset_2d')
 end
 
-% Perform plot
-if numel(varargin)>0 && (isa(varargin{1},class(w))||(isnumeric(varargin{1})&&rem(numel(varargin),2)==1))
-    % Find out if two IX_datset_2d passed into function, and check they have consistent sizes
-    wc=varargin{1};
-    if isa(wc,class(w))
-        if numel(w)==numel(wc)
-            for i=1:numel(w)
-                if size(w(i).signal)~=size(wc(i).signal)
-                    error('The signal arrays of corresponding pairs of datasets in the two arrays of datasets do not have the same size')
-                end
-            end
-        else
-            error('The number of datasets must be the same in the two arrays of datasets to be plotted')
-        end
-    else
-        if numel(w)==1
-            sz=size(wc);
-            if ~(numel(sz)==2 && all(size(w.signal)==sz))
-                error('Size of signal array of the dataset and the numeric array do not match')
-            end
-        else
-            error('Can only have one dataset if second argument is a numeric array')
-        end
-    end
-    % Perform plot
-    [fig_,axes_,plot_,ok,mess]=plot_twod ({w,wc},varargin{2:end},'newplot',false,'type','surface2');
-    if ~ok
-        error(mess)
-    end
+opt=struct('newplot',false);
+[args,ok,mess,nw,lims,fig]=genie_figure_parse_plot_args2(opt,w,varargin{:});
+if ~ok, error(mess), end
+if nw==2
+    data={w,IX_dataset_2d(varargin{1})};
 else
-    [fig_,axes_,plot_,ok,mess]=plot_twod (w,varargin{:},'newplot',false,'type','surface2');
-    if ~ok
-        error(mess)
-    end
+    data=w;
 end
+
+% Perform plot
+type='surface2';
+[fig_,axes_,plot_,ok,mess]=plot_twod (data,opt.newplot,type,fig);
+if ~ok, error(mess), end
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

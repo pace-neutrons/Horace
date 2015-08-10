@@ -22,7 +22,13 @@ end
 if nargin==0
     % Get y axis limits in the current range of x:
     [range, subrange] = graph_range(gcf,'evaluate');
-    yrange={subrange.y};
+    
+    yrange=subrange.y;
+    if yrange(1)==yrange(2)
+        error('The upper and lower limits of the data are equal')
+    end
+    
+    yrange={yrange};
 
 elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnumeric(varargin{2})||numel(varargin{2})==1)
     % Read scalar ylo and yhi from either function syntax or command syntax

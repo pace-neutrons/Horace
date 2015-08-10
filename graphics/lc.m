@@ -25,7 +25,11 @@ if nargin==0
     % Get intensity axis limits for entire data range
     [range,subrange] = graph_range(gcf,'evaluate');
     crange=range.c;
-
+    
+    if crange(1)==crange(2)
+        error('The upper and lower limits of the data are equal')
+    end
+    
 elseif nargin==2
     % Read parameters from either function syntax or command syntax
     crange=zeros(1,2);

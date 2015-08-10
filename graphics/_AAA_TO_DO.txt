@@ -1,5 +1,5 @@
 ================================
-Functions:
+Functions summary:
 ================================
 
 Independent of genie_figure:
@@ -53,23 +53,16 @@ logx, logy, logz
 Specifically genie_figure
 --------------------------
 genie_figure_create
+genie_figure_target
 genie_figure_keep == keep_figure
 genie_figure_make_cur == make_current
 is_genie_figure
 
-*** genie_figure_all_handles
-*** genie_figure_name (only used in plot_oned and plot_twod)
+genie_figure_all_handles 	*** Makes assumptions about the type
+								of plot objects we recognise
+genie_figure_parse_pot_args
+genie_figure_parse_pot_args2
 
-
-
-================================
-Small to do:
-================================
-
-genie_figure_all_handles
-	Rename - this is not really about genie figures, except that
-	we reutrn plot handles for only selected plot objects - and for
-	a single graphics window. In that sense it is.
 	
 	
 
@@ -77,6 +70,14 @@ genie_figure_all_handles
 ================================
 Small to do:
 ================================
+Add paoc, psoc etc to Herbert and Horace
+
+overplotting seems to be resetting limits in 2015a (but not 2014a) - why?
+
+Horace: 1D objects dont understand da,ds etc, and 2D dont know dl, dp...
+
+plot_oned, plot_twod can be tidied as a lot of argument checking is
+now done in genie_figure_parse_pot_args.
 
 get rid of verLessThan? When was it introduced?
 
@@ -84,9 +85,7 @@ graph_range to get limits for hggroup objects
 
 No 2D contour plot at the moment (dc, pc)
 
-Check ps and ps2 are working (despite claims of _AAA_NOT_COMPLETED.txt)
-
-Is smoothing in 2D implemented? (despite claims of _AAA_NOT_COMPLETED.txt)
+Implement smoothing in 2D
 
 colorslider needs tidying; can we bury colorslider_copmmand in private?
 

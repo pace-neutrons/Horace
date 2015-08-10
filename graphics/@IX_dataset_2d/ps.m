@@ -4,23 +4,22 @@ function [fig_handle, axes_handle, plot_handle] = ps(w,varargin)
 %   >> ps(w)
 %
 % Advanced use:
-%   >> ps(w,...,'name',fig_name)    % overplot on figure with name = fig_name
-%                                   % or figure with given figure number
+%   >> ps(w,'name',fig_name)        % overplot on figure with name = fig_name
+%                                   % or figure with given figure number or handle
 %
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ps(w,...) 
 
+
 % Check input arguments
-[ok,mess]=parse_args_simple_ok_syntax({'name'},varargin{:});
-if ~ok
-    error(mess)
-end
+opt=struct('newplot',false);
+[args,ok,mess,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
+if ~ok, error(mess), end
 
 % Perform plot
-[fig_,axes_,plot_,ok,mess]=plot_twod (w,varargin{:},'newplot',false,'type','surface');
-if ~ok
-    error(mess)
-end
+type='surface';
+[fig_,axes_,plot_,ok,mess]=plot_twod (w,opt.newplot,type,fig);
+if ~ok, error(mess), end
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end

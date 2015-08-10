@@ -22,8 +22,14 @@ end
 if nargin==0
     % Get x axis limits for entire data range
     range = graph_range(gcf,'evaluate');
-    xrange={range.x};
+    xrange=range.x;
 
+    if xrange(1)==xrange(2)
+        error('The upper and lower limits of the data are equal')
+    end
+    
+    xrange={xrange};
+    
 elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnumeric(varargin{2})||numel(varargin{2})==1)
     % Read scalar xlo and xhi from either function syntax or command syntax
     xlo=varargin{1};

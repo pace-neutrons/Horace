@@ -75,7 +75,6 @@ else
             fig_out=fig_handle;
         else
             fig_out=[];
-            mess='Figure name must be a character string, figure number or figure handle to a single figure for overplotting';
         end
     end
 end

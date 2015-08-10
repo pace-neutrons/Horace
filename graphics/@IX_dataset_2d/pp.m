@@ -5,19 +5,19 @@ function [fig_handle, axes_handle, plot_handle] = pp(w,varargin)
 %
 % Advanced use:
 %   >> pp(w,'name',fig_name)        % overplot on figure with name = fig_name
-%                                   % or figure with given figure number
+%                                   % or figure with given figure number or handle
 %
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = pp(w,...) 
 
+
 % Check input arguments
-[ok,mess]=parse_args_simple_ok_syntax({'name'},varargin{:});
-if ~ok
-    error(mess)
-end
+opt=struct('newplot',false);
+[args,ok,mess]=genie_figure_parse_plot_args(opt,varargin{:});
+if ~ok, error(mess), end
 
 % Perform plot
-[fig_,axes_,plot_]=pp(IX_dataset_1d(w),varargin{:});
+[fig_,axes_,plot_] = pp(IX_dataset_1d(w), args{:});
 
 % Output only if requested
 if nargout>=1, fig_handle=fig_; end
