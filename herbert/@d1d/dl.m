@@ -5,6 +5,9 @@ function [figureHandle, axesHandle, plotHandle] = dl(win,varargin)
 %   >> dl(w,xlo,xhi)
 %   >> dl(w,xlo,xhi,ylo,yhi)
 %
+% Advanced use:
+%   >> dl(w,...,'name',fig_name)        % draw with name = fig_name
+%
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = dl(w,...) 
 

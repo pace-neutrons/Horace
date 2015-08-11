@@ -3,6 +3,10 @@ function [figureHandle, axesHandle, plotHandle] = pa(w,varargin)
 %
 %   >> pa(w)
 %
+% Advanced use:
+%   >> pa(w,'name',fig_name)        % overplot on figure with name = fig_name
+%                                   % or figure with given figure number or handle
+%
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = pa(w,...) 
 

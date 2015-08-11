@@ -3,31 +3,25 @@ function [figureHandle, axesHandle, plotHandle] = ps(w,varargin)
 %
 %   >> ps(w)
 %
+% Advanced use:
+%   >> ps(w,'name',fig_name)        % overplot on figure with name = fig_name
+%                                   % or figure with given figure number or handle
+%
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ps(w,...) 
 
-for i=1:numel(w)
-    if dimensions(w(i))~=2
-        if numel(w)==1
-            error('sqw object is not two dimensional')
-        else
-            error('Not all elements in the array of sqw objects are two dimensional')
-        end
-    end
-end
-name_surface =  get_global_var('horace_plot','name_surface');
 
-[figureHandle_, axesHandle_, plotHandle_] = ps(IX_dataset_2d(w), varargin{:}, 'name', name_surface);
+[ok,mess]=dimensions_match(w,2);
+if ~ok, error(mess), end
 
-pax = w(1).data.pax;
-dax = w(1).data.dax;                 % permutation of projection axes to give display axes
-ulen = w(1).data.ulen(pax(dax));     % unit length in order of the display axes
-energy_axis = 4;    % by convention in Horace
-if pax(dax(1))~=energy_axis && pax(dax(2))~=energy_axis    % both plot axes are Q axes
-    aspect(ulen(1), ulen(2));
-end
+% Check input arguments
+nam=get_global_var('horace_plot','name_surface');
+opt=struct('newplot',false,'default_name',nam);
+[args,ok,mess]=genie_figure_parse_plot_args(opt,varargin{:});
+if ~ok, error(mess), end
 
-colorslider
+% Perform plot
+[figureHandle_, axesHandle_, plotHandle_] = ps(IX_dataset_2d(w), args{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end

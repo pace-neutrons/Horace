@@ -6,6 +6,12 @@ function [figureHandle, axesHandle, plotHandle] = da(w,varargin)
 %   >> da(w,xlo,xhi,ylo,yhi)
 %   >> da(w,xlo,xhi,ylo,yhi,zlo,zhi)
 %
+% Advanced use:
+%   >> da(w,...,'name',fig_name)        % Draw with name = fig_name
+%
+%   >> da(w,...,'-noaspect')            % Do not change aspect ratio
+%                                       % according to data axes unit lengths
+%
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = da(w,...) 
 

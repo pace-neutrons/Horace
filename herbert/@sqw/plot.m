@@ -2,26 +2,26 @@ function [figureHandle, axesHandle, plotHandle] = plot(w,varargin)
 % Plot 1D, 2D or 3D sqw object or array of objects
 %
 %   >> plot(w)
+%   >> plot(w,opt1,opt2,...)    % plot with optional arguments
 %
 % Equivalent to:
-%   >> dp(w)              % 1D dataset
+%   >> dp(w)                % 1D dataset
+%   >> dp(w,...)
 %
-%   >> da(w)              % 2D dataset
+%   >> da(w)                % 2D dataset
+%   >> da(w,...)
 %
-%   >> sliceomatic(w)     % 3D dataset
+%   >> sliceomatic(w)       % 3D dataset
+%   >> sliceomatic(w,...)
+%
+% For details of optional parameters type >> help sqw/dp, >> help sqw/da,
+% or >> help sqw/sliceomatic as appropriate
 
-nd=zeros(size(w));
-for i=1:numel(w)
-    nd(i)=dimensions(w(i)); % find out what dimensionality dataset we have.
-end
 
-if ~all(nd==nd(i))
-    error('Not all objects to be plotted have the same dimensionality')
-else
-    nd=nd(1);
-    if nd==0 || nd>=4
-        error('Dataset is neither 1d, 2d, nor 3d, so cannot be plotted');
-    end
+[ok,mess,nd]=dimensions_match(w);
+if ~ok, error(mess), end
+if nd<1 || nd>3
+    error('Can only plot one, two or three-dimensional sqw objects')
 end
 
 if nd==1

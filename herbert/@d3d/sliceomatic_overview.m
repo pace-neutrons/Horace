@@ -4,15 +4,29 @@ function [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargi
 %   >> sliceomatic_overview(w)        % down third (vertical) axis
 %   >> sliceomatic_overview(w,axis)   % down axis of choice (axis=1,2 or 3)
 % 
-%   w       d3d object
-%   axis    integer in the range 1 to 3, to specify which axis to view along
+%   >> sliceomatic_overview (w,... 'isonormals', true) % to enable isonormals
+%
+%   >> sliceomatic_overview (w,...,'-noaspect')  % Do not change aspect ratio
+%                                       % according to data axes unit lengths
+%
+% To get handles to the graphics figure:
+%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(w,...)
 %
 % Do a sliceomatic plot, but set the axes so that we look straight down the
 % 3rd (vertical) axis, so that when the slider is moved we get a series of
 % what appear to be 2d slices.
 %
-% To get handles to the graphics figure:
-%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(w)
+%
+% NOTES:
+%
+% - Ensure that the slice color plotting is in 'texture' mode -
+%      On the 'AllSlices' menu click 'Color Texture'. No indication will
+%      be made on this menu to show that it has been selected, but you can
+%      see the result if you right-click on an arrow indicating a slice on
+%      the graphics window.
+%
+% - To set the default for future Sliceomatic sessions -
+%      On the 'Object_Defaults' menu select 'Slice Color Texture'
 
 % RAE 25/3/2010
 
