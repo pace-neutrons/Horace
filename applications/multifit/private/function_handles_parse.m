@@ -11,7 +11,7 @@ function [ok,mess,func]=function_handles_parse(func_in,size_w,local)
 %          function to evaluate for the corresponding data set.
 %
 %   size_w  Size of the array of data sets
-%           If given, then a single function handle or scalar cell array with
+%           If local==true, then a single function handle or scalar cell array with
 %          one function handle will be expanded to a cell array of handles
 %          with this size. A cell array of handles if not scalar will
 %          be checked to have this number of elements. Must have prod(size_nw))>=1

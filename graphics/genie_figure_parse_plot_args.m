@@ -16,7 +16,7 @@ function [args,ok,mess,lims,fig_out]=genie_figure_parse_plot_args(opt,varargin)
 %                   lims_type   Limits type: 'xy' or 'xyz'
 %                                   Only applies if 'draw'
 %
-%   p1,p2,...   Arguments: pairs or limits, or 'name',namestr
+%   p1,p2,...   Arguments: pairs of limits, or 'name',namestr
 %
 % Output:
 % -------
