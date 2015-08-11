@@ -5,6 +5,9 @@ function [figureHandle, axesHandle, plotHandle] = de(win,varargin)
 %   >> de(w,xlo,xhi)
 %   >> de(w,xlo,xhi,ylo,yhi)
 %
+% Advanced use:
+%   >> de(w,...,'name',fig_name)        % draw with name = fig_name
+%
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = de(w,...) 
 
