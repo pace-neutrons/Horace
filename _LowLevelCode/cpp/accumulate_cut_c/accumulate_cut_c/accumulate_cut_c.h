@@ -6,10 +6,7 @@
 #include <limits>
 #include <sstream>
 #include <cmath>
-#include <omp.h>
 //
-#include <mex.h>
-#include <matrix.h>
 #include <cfloat>
 #include <memory>
 #include "../../../build_all/OMP_Storage.h"
