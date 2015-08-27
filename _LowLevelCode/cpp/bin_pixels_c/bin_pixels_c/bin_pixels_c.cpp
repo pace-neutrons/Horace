@@ -3,7 +3,6 @@
 #include <cmath>
 #include <time.h>
 #include <float.h>
-#include <omp.h>
 
 #include <mex.h>
 #include <matrix.h>

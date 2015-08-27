@@ -8,7 +8,6 @@
 
 
 #include <limits>
-#include <omp.h>
 //
 #include <mex.h>
 #include <matrix.h>
@@ -21,11 +20,14 @@ void omp_set_num_threads(int nThreads) {};
 #define omp_get_num_threads() 1
 #define omp_get_max_threads() 1
 #define omp_get_thread_num()  0
+#else
+#include <omp.h>
 #   endif
 # if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4) 
 #define    OMP_VERSION_3 
 #endif
 #else
+#include <omp.h>
 #undef    OMP_VERSION_3 
 #endif
 
