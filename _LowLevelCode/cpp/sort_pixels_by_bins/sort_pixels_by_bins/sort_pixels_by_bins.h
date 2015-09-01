@@ -9,8 +9,8 @@
 //#include <omp.h>
 
 //
-#include <mex.h>
-#include <matrix.h>
+
+#include "../../../build_all/CommonCode.h"
 
 
 #define iRound(x)  (int)floor((x)+0.5)
@@ -44,12 +44,12 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vec
         const T* pPixData= PixelData[nblock];
 
         for (size_t j = 0; j < nBlockInd ; j++) {    // sort pixels according to cells
-            size_t i0 = j*PIXEL_DATA_WIDTH;
+            size_t i0 = j*pix_fields::PIX_WIDTH;
             size_t ind = (size_t)(pCellInd[j] - 1); // -1 as Matlab arrays start from one;
-            size_t jBase = ppInd[ind] * PIXEL_DATA_WIDTH;
+            size_t jBase = ppInd[ind] * pix_fields::PIX_WIDTH;
             ppInd[ind]++;
 
-            for (size_t i = 0; i < PIXEL_DATA_WIDTH; i++) {  // copy all pixel data into the location requested
+            for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {  // copy all pixel data into the location requested
                 pPixelSorted[jBase + i] = static_cast<K>(pPixData[i0 + i]);
             }
         }
