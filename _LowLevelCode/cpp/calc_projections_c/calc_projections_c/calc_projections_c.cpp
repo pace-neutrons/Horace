@@ -3,16 +3,7 @@
 #include "calc_projections_c.h"
 #include <vector>
 #include <sstream> 
-
-#ifdef __GNUC__
-#   if __GNUC__ <= 4
-#		 if __GNUC_MINOR__ < 2  // then the compiler do not understand OpenMP functions, let's define them
-void omp_set_num_threads(int nThreads){};
-int  omp_get_num_threads(void){return 1};
-
-#		endif
-#	endif
-#endif
+#include "../../../build_all/CommonCode.h"
 
 // enumerate input parameters for easy references. 
 enum inPar{

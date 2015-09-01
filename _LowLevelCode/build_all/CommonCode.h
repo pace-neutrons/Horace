@@ -1,8 +1,8 @@
-#ifndef H_OMP_STORAGE
-#define H_OMP_STORAGE
+#ifndef H_COMMON_CODE
+#define H_COMMON_CODE
 
 //
-// $Revision::      $ ($Date::                                              $)" 
+// $Revision:: 1053 $ ($Date:: 2015-08-27 15:39:00 +0100 (Thu, 27 Aug 2015) $)" 
 //
 
 

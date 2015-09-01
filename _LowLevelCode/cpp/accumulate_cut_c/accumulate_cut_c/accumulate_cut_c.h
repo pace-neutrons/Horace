@@ -9,7 +9,7 @@
 //
 #include <cfloat>
 #include <memory>
-#include "../../../build_all/OMP_Storage.h"
+#include "../../../build_all/CommonCode.h"
 
 #define iRound(x)  (int)floor((x)+0.5)
 //

@@ -1,7 +1,8 @@
 #ifndef H_RECOMPUTE_BIN_DATA
 #define H_RECOMPUTE_BIN_DATA
 
-#include "../../build_all/OMP_Storage.h"
+#include "../../build_all/CommonCode.h"
+
 #include <sstream>
 #include <memory>
 //

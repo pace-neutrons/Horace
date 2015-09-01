@@ -102,7 +102,7 @@ std::string  verify_pix_array(const mxArray * pix_cell_array_ptr, bool &single_p
             auto dims = mxGetDimensions(cell_element_ptr);
             if (number_of_dimensions != 2)return "Input pixels array contains non-2D block of pixels";
 
-            if (dims[0] != PIXEL_DATA_WIDTH)return "Input pixels array contains block of pixels with dimension 1 not equal to 9. Can not process this";
+            if (dims[0] != pix_fields::PIX_WIDTH)return "Input pixels array contains block of pixels with dimension 1 not equal to 9. Can not process this";
             // retrieve pixels block data
             n_tot_pixels += dims[1];
             pix_block_sizes[ind] = dims[1];

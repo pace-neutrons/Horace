@@ -9,7 +9,7 @@
 #include <cfloat>
 #include <cstring>
 #include <memory>
-#include "../../../build_all/OMP_Storage.h"
+#include "../../../build_all/CommonCode.h"
 //
 enum input_arguments{
     Sqw_parameters,
