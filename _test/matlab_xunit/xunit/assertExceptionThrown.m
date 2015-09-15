@@ -32,7 +32,14 @@ try
     noException = true;
     
 catch exception
-    if ~strcmp(exception.identifier, expectedId)
+    if strcmp(exception.identifier,'MATLAB:subsasgnMustHaveOutput')
+        try
+            rez = f();
+            noException = true;
+        catch exception
+        end
+    end
+    if ~strcmp(exception.identifier, expectedId) && ~noException
         message = sprintf('Expected exception %s but got exception %s.', ...
             expectedId, exception.identifier);
         if nargin >= 3
