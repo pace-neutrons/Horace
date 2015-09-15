@@ -126,7 +126,7 @@ mod_opts=mod_opts_in;
 % Check name
 if isempty(mod_opts.pulse_model)
     mod_opts.pulse_model=[];
-elseif ~isstring(mod_opts.pulse_model)
+elseif ~is_string(mod_opts.pulse_model)
     mod_opts=empty_struct(names);
     ok=false; mess='Check moderator pulse shape name for refinement is a character string'; return
 end

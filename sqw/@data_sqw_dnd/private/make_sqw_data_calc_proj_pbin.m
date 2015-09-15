@@ -49,7 +49,7 @@ mess='';
 
 % Determine if last argument is 'nonorthogonal'
 narg=numel(varargin);
-if narg>=1 && isstring(varargin{end})
+if narg>=1 && is_string(varargin{end})
     if ~isempty(varargin{end}) && numel(varargin{end})<=13 &&...
             strncmpi(varargin{end},'nonorthogonal',numel(varargin{end}))
         nonorthogonal=true;
