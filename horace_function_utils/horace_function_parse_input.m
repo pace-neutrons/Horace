@@ -125,7 +125,7 @@ args=cell(1,0);
 % ---------------------
 narg=numel(varargin);
 % Check if the input format (nargout_caller, dummy_obj, filename,...,'$obj_and_file_ok') is permitted
-if narg>=1 && isstring(varargin{end}) && strcmpi(varargin{end},'$obj_and_file_ok')
+if narg>=1 && is_string(varargin{end}) && strcmpi(varargin{end},'$obj_and_file_ok')
     obj_and_file_ok=true;
     narg=narg-1;
 else

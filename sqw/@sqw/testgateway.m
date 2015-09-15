@@ -20,7 +20,7 @@ if ~isa(dummy,'sqw')
     error('First argument must be an sqw object (whcih will be ignored)')
 end
 
-if isstring(func_name) && ~isempty(func_name)
+if is_string(func_name) && ~isempty(func_name)
     rootpath=fileparts(mfilename('fullpath'));
     full_func_name=fullfile(rootpath,'private',func_name);
     if ~exist(full_func_name,'file')

@@ -31,7 +31,7 @@ adjust=true;
 present=false;
 
 % Strip off final option '-aspect' or '-noaspect'
-if numel(args_in)>=1 && isstring(args_in{end}) && numel(args_in{end})>=2 && args_in{end}(1)=='-'
+if numel(args_in)>=1 && is_string(args_in{end}) && numel(args_in{end})>=2 && args_in{end}(1)=='-'
     tf=strncmpi(args_in{end},{'-aspect','-noaspect'},numel(args_in{end}));
     if any(tf)
         adjust=tf(1);

@@ -33,9 +33,9 @@ if numel(varargin)==0
     mc_contrib=mc_contrib_all; ok=true; mess=''; return
 elseif numel(varargin)==1 && isempty(varargin{1})
     mc_contrib=mc_contrib_all; ok=true; mess=''; return
-elseif numel(varargin)==1 && isstring(varargin{1}) && strcmpi(varargin{1},'all')
+elseif numel(varargin)==1 && is_string(varargin{1}) && strcmpi(varargin{1},'all')
     mc_contrib=mc_contrib_all; ok=true; mess=''; return
-elseif numel(varargin)==1 && isstring(varargin{1}) && strcmpi(varargin{1},'none')
+elseif numel(varargin)==1 && is_string(varargin{1}) && strcmpi(varargin{1},'none')
     mc_contrib=mc_contrib_none; ok=true; mess=''; return
 end
 

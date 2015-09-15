@@ -2,11 +2,11 @@
 %   ignore_latt: ingore lattice parameters 
 %   (these have been refined since ILL data analysis)
 function compare(l, r, ignore_latt)
-    if isstring(l)
+    if is_string(l)
         disp(['Loading ' l '...']);
         l = read_sqw(l);
     end
-    if isstring(r)
+    if is_string(r)
         disp(['Loading ' r '...']);
         r = read_sqw(r);
     end
