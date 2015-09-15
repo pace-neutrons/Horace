@@ -39,7 +39,7 @@ end
 % Determine if need to do fudge search on Windows to catch shortcuts
 noext=false;
 if numel(varargin)==2
-    if isstring(varargin{2}) && strcmpi(varargin{2},'-noext')
+    if is_string(varargin{2}) && strcmpi(varargin{2},'-noext')
         if ispc
             noext=true;
         end

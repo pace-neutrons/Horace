@@ -43,7 +43,7 @@ ok=true;
 mess='';
 
 % Find figure handles
-if nargin==0 || (isempty(fig) && ~isstring(fig))
+if nargin==0 || (isempty(fig) && ~is_string(fig))
     % Catch case of no input
     if isempty(findall(0,'Type','figure'))
         fig_handle=empty_default_graphics_object();

@@ -32,7 +32,7 @@ message='';
 wout=w;
 
 if isequal(fieldnames(w),fields)
-    if ~isstring(w.name)
+    if ~is_string(w.name)
         message='Moderator name must be a character string';
         return
     end
@@ -48,11 +48,11 @@ if isequal(fieldnames(w),fields)
             return
         end
     end
-    if ~isstring(w.pulse_model)
+    if ~is_string(w.pulse_model)
         message='Moderator pulse model must be a character string';
         return
     end
-    if ~isstring(w.flux_model)
+    if ~is_string(w.flux_model)
         message='Moderator pulse model must be a character string';
         return
     end

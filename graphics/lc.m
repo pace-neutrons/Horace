@@ -35,7 +35,7 @@ elseif nargin==2
     crange=zeros(1,2);
     if isnumeric(clo) && isscalar(clo)
         crange(1)=clo;
-    elseif ~isempty(clo) && isstring(clo)
+    elseif ~isempty(clo) && is_string(clo)
         try
             crange(1) = evalin('caller',clo);
         catch
@@ -47,7 +47,7 @@ elseif nargin==2
 
     if isnumeric(chi) && isscalar(chi)
         crange(2)=chi;
-    elseif ~isempty(chi) && isstring(chi)
+    elseif ~isempty(chi) && is_string(chi)
         try
             crange(2) = evalin('caller',chi);
         catch

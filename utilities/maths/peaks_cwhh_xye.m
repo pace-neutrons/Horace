@@ -65,7 +65,7 @@ herr_fac=[];
 na=[];
 nh=[];
 for i=1:2:narg
-    if isstring(varargin{i}) && ~isempty(varargin{i})
+    if is_string(varargin{i}) && ~isempty(varargin{i})
         if strcmpi(varargin{i},'rel_area')
             rel_arange=varargin{i+1};
             if ~(isnumeric(rel_arange) && numel(rel_arange)==2 && diff(rel_arange)>0 && rel_arange(1)>=0 && rel_arange(2) <=1)

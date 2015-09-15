@@ -46,7 +46,7 @@ if nargin>=3
 else
     shape = shape_default;
 end
-if ~isempty(shape) && isstring(shape)
+if ~isempty(shape) && is_string(shape)
     ishape = string_find (shape,shapes);
     if ishape<0
         error ('Ambiguous convolution function name')

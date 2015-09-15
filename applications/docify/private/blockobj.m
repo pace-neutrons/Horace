@@ -38,7 +38,7 @@ elseif strcmpi(opt,'storing')
     end
     
 elseif strcmpi(opt,'add')
-    if numel(varargin)==2 && isstring(varargin{1}) &&...
+    if numel(varargin)==2 && is_string(varargin{1}) &&...
             ~isempty(varargin{1}) && islognumscalar(varargin{2})
         a=[S,struct('name',varargin{1},'storing',logical(varargin{2}))];
     else

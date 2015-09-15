@@ -25,7 +25,7 @@ function [powmap,powpar]=powder_map(varargin)
 
 % Parse input arguments
 % ---------------------
-if nargin>=1 && isstring(varargin{end}) && ~isempty(varargin{end})...
+if nargin>=1 && is_string(varargin{end}) && ~isempty(varargin{end})...
         && strncmpi(varargin{end},'squeeze',numel(varargin{end}))
     squeeze=true;
     narg=nargin-1;

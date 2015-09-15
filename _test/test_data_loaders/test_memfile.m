@@ -22,13 +22,13 @@ classdef test_memfile< TestCase
             
             
             mf.S=ones(10,20);
-            assertTrue(isstring(mf.S));
+            assertTrue(is_string(mf.S));
             assertEqual(20,mf.n_detectors);
             assertTrue(isempty(mf.ERR));
             
             mf.ERR=zeros(10,20);
-            assertTrue(isstring(mf.S));
-            assertTrue(isstring(mf.ERR));
+            assertTrue(is_string(mf.S));
+            assertTrue(is_string(mf.ERR));
             assertEqual(20,mf.n_detectors);
             
             mf.en=1:11;

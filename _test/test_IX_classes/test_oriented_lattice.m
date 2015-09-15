@@ -85,8 +85,8 @@ classdef test_oriented_lattice< TestCase
             assertVectorsAlmostEqual([0,1,0],ol.v);
             
             ol.v = [1,0,0];
-            assertTrue(isstring(ol.v));
-            assertTrue(isstring(ol.u));
+            assertTrue(is_string(ol.v));
+            assertTrue(is_string(ol.u));
             
             ol.u = 1;
             assertEqual([1,1,1],ol.u)

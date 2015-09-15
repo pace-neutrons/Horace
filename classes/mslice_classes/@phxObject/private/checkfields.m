@@ -32,7 +32,7 @@ message='';
 wout=w;
 
 if isequal(fieldnames(wout),fields)
-    if ~isstring(wout.filename)||~isstring(wout.filepath)   % allows empty strings
+    if ~is_string(wout.filename)||~is_string(wout.filepath)   % allows empty strings
         message='File name and path must both be character strings'; return
     end
     ndet=numel(wout.group);

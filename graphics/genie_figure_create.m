@@ -15,7 +15,7 @@ function new_figure = genie_figure_create (fig_name)
 %                       This figure was made the current figure for plotting.
 
 
-if isstring(fig_name)
+if is_string(fig_name)
     fig_name=strtrim(fig_name);
 else
     error('Check input figure name is a character string')

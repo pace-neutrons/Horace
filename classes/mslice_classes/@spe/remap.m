@@ -26,7 +26,7 @@ function spe_out=remap(spe_data,map,opt)
 % Sum or average?
 % ---------------
 if nargin==3
-    if isstring(opt) && ~isempty(opt)...
+    if is_string(opt) && ~isempty(opt)...
             && strncmpi(opt,'sum',numel(opt))
         normalise=false;
     else

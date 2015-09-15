@@ -46,7 +46,7 @@ if isequal(fieldnames(w),fields)
     end
     
     % Check units
-    if isstring(w.units)
+    if is_string(w.units)
         if isempty(w.units)
             wout.units='';
         end
@@ -55,7 +55,7 @@ if isequal(fieldnames(w),fields)
     end
     
     % Check code
-    if isstring(w.code)
+    if is_string(w.code)
         if isempty(w.code)
             wout.code='';
         end

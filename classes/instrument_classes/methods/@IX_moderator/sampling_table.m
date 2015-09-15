@@ -25,7 +25,7 @@ npnt_default=100;
 if ~isscalar(moderator), error('Function only takes a scalar object'), end
 
 % Optional argument
-if nargin>=3 && isstring(varargin{end})
+if nargin>=3 && is_string(varargin{end})
     if strcmpi(varargin{end},'fast')
         fast=true;
         narg=nargin-1;

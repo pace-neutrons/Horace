@@ -79,11 +79,11 @@ end
 % Find 'wkno' option, if given
 % -----------------------------
 wkno_def=zeros(1,0);
-if nargin>1 && isstring(varargin{end}) && strncmpi(varargin{end},'wkno',numel(varargin{end}))    % ...,'wkno')
+if nargin>1 && is_string(varargin{end}) && strncmpi(varargin{end},'wkno',numel(varargin{end}))    % ...,'wkno')
     narg=nargin-1;
     opt=true;
     optval=false;
-elseif nargin>2 && isstring(varargin{end-1}) && strncmpi(varargin{end-1},'wkno',numel(varargin{end-1}))    % ...,'wkno',val)
+elseif nargin>2 && is_string(varargin{end-1}) && strncmpi(varargin{end-1},'wkno',numel(varargin{end-1}))    % ...,'wkno',val)
     narg=nargin-2;
     opt=true;
     optval=true;
@@ -118,7 +118,7 @@ elseif narg==1 && iscell(varargin{1})
         wout.wkno=wkno_def;
     end
     
-elseif narg==1 && isstring(varargin{1})
+elseif narg==1 && is_string(varargin{1})
     % File name input
     if ~isempty(varargin{1})
         [wout,ok,mess]=get_map(varargin{1});

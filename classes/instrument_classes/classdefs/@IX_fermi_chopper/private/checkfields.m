@@ -32,7 +32,7 @@ message='';
 wout=w;
 
 if isequal(fieldnames(w),fields)
-    if ~isstring(w.name)
+    if ~is_string(w.name)
         message='Fermi chopper name must be a character string';
         return
     end

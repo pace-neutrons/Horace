@@ -38,7 +38,7 @@ elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnume
     yrange=zeros(1,2);
     if isnumeric(ylo) && isscalar(ylo)
         yrange(1)=ylo;
-    elseif ~isempty(ylo) && isstring(ylo)
+    elseif ~isempty(ylo) && is_string(ylo)
         try
             yrange(1) = evalin('caller',ylo);
         catch
@@ -50,7 +50,7 @@ elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnume
 
     if isnumeric(yhi) && isscalar(yhi)
         yrange(2)=yhi;
-    elseif ~isempty(yhi) && isstring(yhi)
+    elseif ~isempty(yhi) && is_string(yhi)
         try
             yrange(2) = evalin('caller',yhi);
         catch

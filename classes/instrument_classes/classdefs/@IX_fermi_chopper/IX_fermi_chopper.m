@@ -49,7 +49,7 @@ elseif nargin==1 && isstruct(varargin{1})    % structure
     if ~ok, error(mess), return, end
     
 else
-    if isstring(varargin{1})
+    if is_string(varargin{1})
         w.name = varargin{1};
         noff=1;
     else

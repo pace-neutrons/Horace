@@ -69,11 +69,11 @@ end
 
 % If y_axis exists, make a column array of IX_axis objects
 if narg>=2 && ~isempty(varargin{2})
-    if isstring(varargin{2})
+    if is_string(varargin{2})
         ny_axis=1;
         y_axis=IX_axis(varargin{2});
     elseif iscellstr(varargin{2})
-        ok=cellfun(@isstring,varargin{2});
+        ok=cellfun(@is_string,varargin{2});
         if ~all(ok(:))
             error('Check y_axis argument - must be string, cell array of strings, or IX_axis object(s)')
         end

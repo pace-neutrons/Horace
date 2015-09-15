@@ -39,7 +39,7 @@ elseif nargin==2
     zrange=zeros(1,2);
     if isnumeric(zlo) && isscalar(zlo)
         zrange(1)=zlo;
-    elseif ~isempty(zlo) && isstring(zlo)
+    elseif ~isempty(zlo) && is_string(zlo)
         try
             zrange(1) = evalin('caller',zlo);
         catch
@@ -51,7 +51,7 @@ elseif nargin==2
 
     if isnumeric(zhi) && isscalar(zhi)
         zrange(2)=zhi;
-    elseif ~isempty(zhi) && isstring(zhi)
+    elseif ~isempty(zhi) && is_string(zhi)
         try
             zrange(2) = evalin('caller',zhi);
         catch

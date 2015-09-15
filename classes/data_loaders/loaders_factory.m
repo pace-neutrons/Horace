@@ -62,7 +62,7 @@ classdef loaders_factory < Singleton
     
     methods % Public Access
         function descr_list=get.reader_descriptions(obj)
-            % returns list of the supported readers namew sith their briefe
+            % returns list of the supported readers names with their brief
             % descriptions
             descr_list = obj.reader_descriptions_;
         end
@@ -93,8 +93,12 @@ classdef loaders_factory < Singleton
             end
             for i=1:numel(obj.supported_readers)
                 loader = obj.supported_readers{i};
+				% check if loader can load the file. Return structure, containing 
+				% opened file handle and auxiliary information, read from the file
+				% if it can load a file for init function not to read it again. 
                 [ok,fh] = loader.can_load(full_data_name);
                 if ok
+					% if loader can, initialize loader with the file.
                     if exist('par_file_name','var')
                         loader=loader.init(full_data_name,par_file_name,fh);
                     else

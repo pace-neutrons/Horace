@@ -55,7 +55,7 @@ else
 end
 
 % Get plot type
-if isstring(plot_type) && ~isempty(plot_type)
+if is_string(plot_type) && ~isempty(plot_type)
     ind=string_find(plot_type,plot_types);
     if ind>0
         plot_type=plot_types{ind};
@@ -119,7 +119,7 @@ end
 % Perform plot
 % ------------
 % Create new graphics window if required
-if isstring(fig_out)
+if is_string(fig_out)
     new_figure = genie_figure_create (fig_out);
     if new_figure
         newplot=true;   % if had to create a new figure window

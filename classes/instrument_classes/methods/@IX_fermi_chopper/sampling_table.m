@@ -32,7 +32,7 @@ if ~isscalar(fermi), error('Function only takes a scalar object'), end
 c_e_to_t=2286.271456507406;         % t(us)=c_e_to_t *distance(m)/sqrt(E(meV))
 
 % Find if 'fast' option is present
-if nargin>=2 && isstring(varargin{end})
+if nargin>=2 && is_string(varargin{end})
     if strcmpi(varargin{end},'fast')
         fast=true;
         narg=nargin-1;

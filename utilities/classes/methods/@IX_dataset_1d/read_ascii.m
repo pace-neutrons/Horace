@@ -390,7 +390,7 @@ if ~isempty(header)
     end
     if isfield(tmp,'x_distribution')
         var=tmp.x_distribution;
-        if isstring(var) && numel(str2num(var))==1
+        if is_string(var) && numel(str2num(var))==1
             w.x_distribution=str2num(var);
         else
             disp('Header information has wrong format to create x-axis distribution flag')

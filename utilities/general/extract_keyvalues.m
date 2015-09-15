@@ -56,7 +56,7 @@ data       = arglist(~keyval_present);
 
 %------------------------------------------------------------------------------
 function is = iskey(val,keys)
-if ~isempty(val) && isstring(val)
+if ~isempty(val) && is_string(val)
     is = any(ismember(keys,val));
 else
     is = false;

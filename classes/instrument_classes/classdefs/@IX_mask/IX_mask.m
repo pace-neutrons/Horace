@@ -34,7 +34,7 @@ if nargin==1
         % Structure with the fields of a mask object is permitted
         wout = varargin{1};
         
-    elseif isstring(varargin{1})
+    elseif is_string(varargin{1})
         % File name input
         if ~isempty(varargin{1})
             [wout,ok,mess]=get_mask(varargin{1});

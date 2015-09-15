@@ -29,7 +29,7 @@ function [fig_handle, ok, mess] = get_figure_handle_single (fig)
 %   mess        Empty string if OK==true; error message if OK==false.
 
 
-if nargin==0 || (isempty(fig) && ~isstring(fig))
+if nargin==0 || (isempty(fig) && ~is_string(fig))
     % Catch case of no input
     if isempty(findall(0,'Type','figure'))
         [fig_handle,ok,mess]=error_return('No current figure exists');

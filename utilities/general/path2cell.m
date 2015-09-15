@@ -12,7 +12,7 @@ function C=path2cell(pathstr)
 %   C           Cell array of strings, one element per entry in pathstr
 
 
-if isstring(pathstr)
+if is_string(pathstr)
     % Seems that sometimes the path ends with the pathsep, sometimes not
     if ~isempty(pathstr) && pathstr(end:end)==pathsep
         pathstr=pathstr(1:end-1);

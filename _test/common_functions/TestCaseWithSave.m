@@ -161,7 +161,7 @@ classdef TestCaseWithSave < TestCase
             end
             
             % function decides if the variable equal to tol
-            f_tol_present = @(var)(isstring(var)&&strcmp(var,'tol'));
+            f_tol_present = @(var)(is_string(var)&&strcmp(var,'tol'));
             % check if var 'tol' among the input arguments
             tol_provided = cellfun(f_tol_present,keyval);
             if any(tol_provided)
@@ -173,7 +173,7 @@ classdef TestCaseWithSave < TestCase
                 toll = this.tol;
             end
             
-            f_mind_present = @(var)(isstring(var)&&strcmp(var,'min_denominator'));
+            f_mind_present = @(var)(is_string(var)&&strcmp(var,'min_denominator'));
             mind_provided = cellfun(f_mind_present,keyval);
             
             if ~any(mind_provided)

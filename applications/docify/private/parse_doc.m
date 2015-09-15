@@ -84,7 +84,7 @@ docnew=doc;
 no_change=true;
 
 % Get data from source
-if isstring(source) && ~isempty(source)
+if is_string(source) && ~isempty(source)
     [file_full,ok,mess]=translate_read(source);
     if ok
         cstr0=read_text(file_full);

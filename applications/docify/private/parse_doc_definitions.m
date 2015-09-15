@@ -97,7 +97,7 @@ end
 name=fields(S);
 for i=1:numel(name)
     value=S.(name{i});
-    if iscellstr(value) || islognumscalar(value) || isstring(value)
+    if iscellstr(value) || islognumscalar(value) || is_string(value)
         if islognumscalar(value)
             S.(name{i})=logical(value);   % convert to scalar logical
         elseif iscellstr(value)

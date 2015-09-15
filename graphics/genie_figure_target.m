@@ -33,11 +33,11 @@ function [fig_out,ok,mess]=genie_figure_target(fig,newplot,default_fig_name)
 
 
 % Interpret fig as a name if can; if no fig, set to default figure name
-if isempty(fig) && ~isstring(fig)
+if isempty(fig) && ~is_string(fig)
     fig_name=default_fig_name;
     
-elseif isstring(fig) || (iscellstr(fig) && isscalar(fig) && isstring(fig))
-    if isstring(fig)
+elseif is_string(fig) || (iscellstr(fig) && isscalar(fig) && is_string(fig))
+    if is_string(fig)
         fig_name=strtrim(fig);
     else
         fig_name=strtrim(fig{1});

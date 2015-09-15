@@ -46,7 +46,7 @@ if numel(w)~=1
 end
 
 % Get figure name: if not given, use appropriate default sliceomatic plot name
-if isstring(keyword.name)
+if is_string(keyword.name)
     if ~isempty(keyword.name)
         fig_name=keyword.name;
     else
