@@ -283,8 +283,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 ok, plhs[Pixels_Ind], pPixRange,
                 rot_matrix, shift_matrix, ebin, e_shift, data_limits,
                 grid_size, iAxis, nAxis, pProg_settings);
-        }
-        else {
+        }else {
             const float *pFloatPixData = reinterpret_cast<const float *>(pPixelData);
             nPixels_retained = accumulate_cut<float>(pSignal, pError, pNpix,
                 pFloatPixData, nPixDataCols,

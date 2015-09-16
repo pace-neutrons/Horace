@@ -69,21 +69,22 @@ public:
         if (num_OMP_Threads > 1) {
             is_mutlithreaded = true;
             // allocate storage for particular threads
+            bool onHeap(true);
             try {
                 se_vec_stor.assign(3 * num_OMP_Threads*distribution_size, 0.);
-                double *pArray = &se_vec_stor[0];
-                pSignal = pArray;
-                pError = pArray + num_OMP_Threads*distribution_size;
-                pNpix = pArray + 2 * num_OMP_Threads*distribution_size;
+                largeMemory = &se_vec_stor[0];
+                onHeap = true;
             }
             catch (...) // no space on stack try heap, 
             {
                 largeMemory = (double *)mxCalloc(3 * num_OMP_Threads*distribution_size, sizeof(double));
                 if (!largeMemory)throw("Can not allocate memory for processing data on threads. Decrease number of threads");
-                pSignal = largeMemory;
-                pError = largeMemory + num_OMP_Threads*distribution_size;
-                pNpix = largeMemory + 2 * num_OMP_Threads*distribution_size;
+                onHeap = false;
             }
+            pSignal = largeMemory;
+            pError = largeMemory + num_OMP_Threads*distribution_size;
+            pNpix = largeMemory + 2 * num_OMP_Threads*distribution_size;
+            if(onHeap)largeMemory=NULL;
 
         }
         else {

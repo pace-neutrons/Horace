@@ -56,8 +56,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     // Get pixels array
     // this one can be either float or double one day. But not yet
-    //mxClassID category = mxGetClassID(cell_element_ptr);
-    // if (category == mxDOUBLE_CLASS or mxSINGLE_CLASS)
+    bool pixAreDouble(true);
+    mxClassID category = mxGetClassID(prhs[Pixel_data]);
+    if (category == mxSINGLE_CLASS) {
+        pixAreDouble = false;
+    }
+    // if (category == mxDOUBLE_CLASS or )
     //***********************************
     double const * const pPixelData = (double *)mxGetPr(prhs[Pixel_data]);
     if (!pPixelData)mexErrMsgTxt("ERROR::recompute_bin_data_c-> undefined or empty pixels array");

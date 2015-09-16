@@ -16,7 +16,7 @@ classdef test_spher_cut_proj<TestCase
             
             S.type = '.';
             S.subs  = 'ucentre';
-            f=@()subsasgn(proj,S,10);
+            f=@()(subsasgn(proj,S,10));
             assertExceptionThrown(f,'SPHER_PROJ:invalid_argument')
             
             proj.ucentre = [0,1,0];
