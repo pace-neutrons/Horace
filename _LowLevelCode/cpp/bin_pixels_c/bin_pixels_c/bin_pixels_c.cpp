@@ -195,9 +195,9 @@ bool bin_pixels(double *s, double *e, double *npix,
     std::vector<mwSize> nGridCell(data_size);
     //  memory to sort pixels according to the grid bins
     std::vector<mwSize >  ppInd(distribution_size);
-//#ifndef OMP_VERSION_3
-//    std::vector<std::mutex> cell_cnt_mutex(distribution_size);
-//#endif
+#ifndef OMP_VERSION_3
+    std::vector<std::mutex> cell_cnt_mutex(distribution_size);
+#endif
 
     bool place_pixels_in_old_array(false); // true does not works properly
 
@@ -238,10 +238,18 @@ bool bin_pixels(double *s, double *e, double *npix,
 
     std::vector<int> increments(distribution_size,0);
 
+#ifdef OMP_VERSION_3
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
-    shared(pixel_data,ok,nGridCell,pStor,ppInd,pPixelSorted,increments,s,e,npix,pStorHolder) \
+    shared(pixel_data, ok, nGridCell, pStor, ppInd, pPixelSorted, increments, s, e, npix, pStorHolder)\
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
     reduction(+:nPixel_retained)
+#else
+#pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
+    shared(pixel_data, ok, nGridCell, pStor, ppInd, pPixelSorted, increments, s, e, npix, pStorHolder,cell_cnt_mutex)\
+    firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
+    reduction(+:nPixel_retained)
+
+#endif
     {
 #pragma omp for 
         for(long i=0;i<data_size;i++)
@@ -352,13 +360,13 @@ bool bin_pixels(double *s, double *e, double *npix,
             j0 = ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 
 #else
-//            cell_cnt_mutex[nCell].lock;
-//            j0 = ppInd[nCell]++;
-//            cell_cnt_mutex[nCell].unlock;
-    #pragma omp critical
-            j0 = pix_fields::PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+          cell_cnt_mutex[nCell].lock();
+          j0 = ppInd[nCell]++;
+          cell_cnt_mutex[nCell].unlock();
+//#pragma omp critical
+//            j0 = ppInd[nCell]++; 
 #endif
-            j0 *= pix_fields::PIX_WIDTH;
+            j0 *= pix_fields::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 
 
             size_t i0    = j*pix_fields::PIX_WIDTH;
