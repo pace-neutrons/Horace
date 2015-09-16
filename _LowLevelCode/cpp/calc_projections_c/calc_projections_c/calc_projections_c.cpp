@@ -58,7 +58,7 @@ double getMatlabScalar(const mxArray *pPar,const char * const fieldName){
     return (double)*mxGetPr(pPar);
 };
 
-
+//============================================================================================
 void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 {
     unsigned int nThreads(1),i;

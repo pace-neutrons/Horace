@@ -9,6 +9,7 @@
 #include <cfloat>
 #include <cstring>
 #include <memory>
+#include <mutex>
 #include "../../../build_all/CommonCode.h"
 //
 enum input_arguments{
@@ -102,7 +103,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
     if (nPars!=N_ARGUMENT_CELLS){
         std::stringstream buf;
-        buf<<"ERROR::bin_pixels expexts array of "<<(short)N_ARGUMENT_CELLS; 
+        buf<<"ERROR::bin_pixels expects array of "<<(short)N_ARGUMENT_CELLS; 
         buf<<"cells \n but got "<<(short)nPars<<" cells\n";
         mexErrMsgTxt(buf.str().c_str());
     }
@@ -194,6 +195,9 @@ bool bin_pixels(double *s, double *e, double *npix,
     std::vector<mwSize> nGridCell(data_size);
     //  memory to sort pixels according to the grid bins
     std::vector<mwSize >  ppInd(distribution_size);
+//#ifndef OMP_VERSION_3
+//    std::vector<std::mutex> cell_cnt_mutex(distribution_size);
+//#endif
 
     bool place_pixels_in_old_array(false); // true does not works properly
 
@@ -346,11 +350,15 @@ bool bin_pixels(double *s, double *e, double *npix,
 #ifdef OMP_VERSION_3
     #pragma omp atomic capture
             j0 = ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-	        j0 *= pix_fields::PIX_WIDTH;
+
 #else
+//            cell_cnt_mutex[nCell].lock;
+//            j0 = ppInd[nCell]++;
+//            cell_cnt_mutex[nCell].unlock;
     #pragma omp critical
             j0 = pix_fields::PIX_WIDTH*ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 #endif
+            j0 *= pix_fields::PIX_WIDTH;
 
 
             size_t i0    = j*pix_fields::PIX_WIDTH;

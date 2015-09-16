@@ -283,8 +283,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         //---------------------------------------------------------------------------------------------
 
         try {
-            switch (type_requested)
-            {
+            switch (type_requested){
             case Pix8IndIOut8: {
                 double * const pPixelSorted = (double *)mxGetPr(plhs[Pixels_Sorted]);
                 std::vector<const int64_t *> piIndex_blocks(pIndex_blocks.size());
@@ -389,7 +388,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         mxFree(ppInd);
     }
     catch (...) {
-        mexErrMsgTxt("Sort_pixels_by_bins: can not allocate memory for working array to sort pixels 3");
+        mexErrMsgTxt("Sort_pixels_by_bins: can not allocate memory for working array to sort pixels, location 3");
     }
 
 }

@@ -25,9 +25,11 @@ compilation_date  =[];
 
 % list of the function names used in nice formatted messages formed by the
 % function
-functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ','calc_projections: ','sort_pixels_by_b: '};
+functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ',...                                              
+    'calc_projections: ','sort_pixels_by_b: ','recomput_bin_dta: '};
 % list of the mex files handles used by horace and verified by this script.
-functions_handle_list={@accumulate_cut_c,@bin_pixels_c,@calc_projections_c,@sort_pixels_by_bins};
+functions_handle_list={@accumulate_cut_c,@bin_pixels_c,...
+    @calc_projections_c,@sort_pixels_by_bins,@recompute_bin_data_c};
 rez = cell(numel(functions_name_list),1);
 
 n_errors=0;
