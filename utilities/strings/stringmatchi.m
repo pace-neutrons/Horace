@@ -17,7 +17,7 @@ function ind = stringmatchi (str, strcell)
 %          of other element
 
 
-if ~isstring(str)
+if ~is_string(str)
     error('First argument must be a string')
 end
 

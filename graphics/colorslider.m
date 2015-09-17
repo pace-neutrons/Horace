@@ -17,10 +17,10 @@ function colorslider(varargin)
 % Adapted from script by Radu Coldea 02-Oct-1999, by Dean Whittaker 2-2-2007, and then Toby Perring
 
 % Parse arguments
-if nargin>=1 && isstringmatchi(varargin{end},'delete')
+if nargin>=1 && is_stringmatchi(varargin{end},'delete')
     option='delete';
     narg=nargin-1;
-elseif nargin>=1 && isstringmatchi(varargin{end},'update')
+elseif nargin>=1 && is_stringmatchi(varargin{end},'update')
     option='update';
     narg=nargin-1;
 else

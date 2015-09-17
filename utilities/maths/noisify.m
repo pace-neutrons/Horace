@@ -20,7 +20,7 @@ function [yout,eout] = noisify (y,e,varargin)
 %   If no input errors, e, just set e=[]
 
 if nargin==3 && ischar(varargin{1})
-    if isstringmatchi(varargin{1},'poisson')
+    if is_stringmatchi(varargin{1},'poisson')
         yout=zeros(size(y));
         for i=1:numel(y)
             yout(i)=randpoisson(abs(y(i)));

@@ -37,7 +37,7 @@ function wout = func_eval (w, func_handle, pars, opt)
 % Check optional argument
 if nargin<4                         % no option given
     all_bins=false;
-elseif isstringmatchi(opt,'all')    % option 'all' given
+elseif is_stringmatchi(opt,'all')    % option 'all' given
     all_bins=true;
 else
     error('Unrecognised option')

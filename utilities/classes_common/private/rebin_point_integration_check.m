@@ -17,9 +17,9 @@ function [point_integration, ok, mess] = rebin_point_integration_check (nax, opt
 ok=true; mess='';
 if ischar(option) || (iscellstr(option) && numel(option)==1)
     if iscellstr(option), option=option{1}; end
-    if isstringmatchi(option,'integrate')
+    if is_stringmatchi(option,'integrate')
         point_integration=true(1,nax);
-    elseif isempty(option) || isstringmatchi(option,'average')
+    elseif isempty(option) || is_stringmatchi(option,'average')
         point_integration=false(1,nax);
     else
         point_integration=false(0,0);
@@ -28,9 +28,9 @@ if ischar(option) || (iscellstr(option) && numel(option)==1)
 elseif iscellstr(option) && numel(option)==nax
     point_integration=true(1,nax);
     for iax=1:nax
-        if isstringmatchi(option{iax},'integrate')
+        if is_stringmatchi(option{iax},'integrate')
             point_integration(iax)=true;
-        elseif isempty(option{iax}) || isstringmatchi(option{iax},'average')
+        elseif isempty(option{iax}) || is_stringmatchi(option{iax},'average')
             point_integration(iax)=false;
         else
             point_integration=false(0,0);

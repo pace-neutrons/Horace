@@ -17,7 +17,7 @@ end
 
 integrate=false;
 if nargin==5
-    if isstringmatchi(opt,'integrate')
+    if is_stringmatchi(opt,'integrate')
         integrate=true;
     else
         error('Check optional arguments')

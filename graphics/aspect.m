@@ -32,9 +32,9 @@ a=get(gca,'DataAspectRatio');
 
 % Branch on input arguments
 if nargin==1 && ischar(varargin{1})
-    if isstringmatchi(varargin{1},'auto')
+    if is_stringmatchi(varargin{1},'auto')
         set(gca,'DataAspectRatioMode','auto');
-    elseif isstringmatchi(varargin{1},'manual')
+    elseif is_stringmatchi(varargin{1},'manual')
         set(gca,'DataAspectRatioMode','manual');
     else
         error('Input arguments must be unit length along axes or ''auto'' or ''manual''')

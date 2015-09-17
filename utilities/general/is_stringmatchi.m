@@ -1,7 +1,7 @@
-function ok=isstringmatchi(str1,str2)
+function ok=is_stringmatchi(str1,str2)
 % Determine if a string begins with the other, ignoring case
 %
-%   >> ok=isstringmatchi(str1,str2)
+%   >> ok=is_stringmatchi(str1,str2)
 %
 % Note: if either string is empty, or if either input is not a string, then ok=false
 
