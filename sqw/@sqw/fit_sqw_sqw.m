@@ -422,7 +422,7 @@ end
 % First, strip out the appearance of the keyword 'average' 
 arglist = struct('average',0); 
 flags={'average'}; 
-[varargin,opt] = parse_arguments(varargin,arglist,flags,false); 
+[varargin,opt] = parse_arguments(varargin,arglist,flags,struct('keys_at_end',false)); 
  
 % Parse the input arguments, and repackage for fit func 
 [ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = ... 

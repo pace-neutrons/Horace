@@ -641,7 +641,7 @@ end
  
 % Strip out Tobyfit specific arguments from varargin 
 arglist = struct('mc_contributions',[],'mc_npoints',10,'refine_crystal',[],'refine_moderator',[]); 
-[varargin,opt,present] = parse_arguments(varargin,arglist,[],false); 
+[varargin,opt,present] = parse_arguments(varargin,arglist,[],struct('keys_at_end',false)); 
 mc_contrib=opt.mc_contributions; 
 mc_npoints=opt.mc_npoints; 
 if present.refine_crystal 

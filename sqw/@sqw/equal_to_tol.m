@@ -76,7 +76,7 @@ horace_info_level=get(hor_config,'horace_info_level');
 
 % Check if reorder option is present (only relevant if sqw-type)
 opt=struct('reorder',1);
-[args,opt,present,filled,ok,mess]=parse_args_simple(varargin,opt);
+[args,opt,present,filled,ok,mess]=parse_arguments(varargin,opt);
 if ~ok
     error(mess);
 end
