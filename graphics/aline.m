@@ -71,16 +71,16 @@ lstyle_char = {'-','--',':','-.'};
 lstyle_name = {'solid','dashed','dotted','ddot'};
 if ~isempty(line_style)
     for i=1:length(line_style)
-        itype = string_find (line_style{i}, lstyle_char);
-        if itype == 0
-            itype = string_find (line_style{i}, lstyle_name);
+        itype = stringmatchi (line_style{i}, lstyle_char);
+        if isempty(itype)
+            itype = stringmatchi (line_style{i}, lstyle_name);
         end
-        if itype>0
-            line_style{i} = lstyle_char{itype};
-        elseif itype==0
+        if isempty(itype)
             error ('Invalid line style - left unchanged (aline)')
-        elseif itype<0
+        elseif numel(itype)>1
             error ('Ambiguous abbreviation of line style - left unchanged (aline)')
+        else
+            line_style{i} = lstyle_char{itype};
         end
     end
     set_global_var('genieplot','line_style',line_style);

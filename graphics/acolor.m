@@ -56,16 +56,16 @@ col_brev = {'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w'};
 col_full = {'red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'black', 'white'};
 if ~isempty(col_type)
     for i=1:numel(col_type)
-        itype = string_find (col_type{i}, col_brev);
-        if itype == 0
-            itype = string_find (col_type{i}, col_full);
+        itype = stringmatchi (col_type{i}, col_brev);
+        if isempty(itype)
+            itype = stringmatchi (col_type{i}, col_full);
         end
-        if itype>0
-            col_type{i} = col_brev{itype};
-        elseif itype==0
+        if isempty(itype)
             error ('Invalid color - current value(s) left unchanged. Ensure you have not given a Matlab variable the same name as a colour string (e.g. b, k, etc)')
-        elseif itype<0
+        elseif numel(itype)>1
             error ('Ambiguous abbreviation of color name - current value(s) left unchanged')
+        else
+            col_type{i} = col_brev{itype};
         end
     end
     set_global_var('genieplot','color',col_type);

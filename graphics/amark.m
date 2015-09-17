@@ -69,10 +69,10 @@ end
 markers = {'+', 'o', '*', '.', 'x', 's', 'd', '^', 'v', '>', '<', 'p', 'h'};
 if ~isempty(marker_type)
     for i=1:length(marker_type)
-        itype = string_find (marker_type{i}, markers);
-        if itype==0
+        itype = stringmatchi (marker_type{i}, markers);
+        if isempty(itype)
             error ('Invalid marker type - left unchanged (amark). Ensure you have not given a Matlab variable the same name as a marker string (e.g. o, x, d, etc)')
-        elseif itype<0
+        elseif numel(itype)>1
             error ('Ambiguous abbreviation of marker type - left unchanged (amark)')
         end
     end

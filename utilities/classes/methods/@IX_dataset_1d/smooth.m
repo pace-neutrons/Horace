@@ -47,10 +47,10 @@ else
     shape = shape_default;
 end
 if ~isempty(shape) && is_string(shape)
-    ishape = string_find (shape,shapes);
-    if ishape<0
+    ishape = stringmatchi (shape,shapes);
+    if numel(ishape)>1
         error ('Ambiguous convolution function name')
-    elseif ishape==0
+    elseif isempty(ishape)
         error (['Function ''',shape,''' is not recognised as an available option'])
     end
 else

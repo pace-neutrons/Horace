@@ -61,8 +61,8 @@ end
 
 % Get plot type
 if is_string(plot_type) && ~isempty(plot_type)
-    ind=string_find(plot_type,plot_types);
-    if ind>0
+    ind=stringmatchi(plot_type,plot_types);
+    if ~isempty(ind)
         plot_type=plot_types{ind};
     else
         ok=false; mess='Plot type not recognised';
