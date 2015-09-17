@@ -87,7 +87,7 @@ elseif nargout==0
             error('Cannot set dataset index for function evaluation if under multifit control')
         end
         
-    elseif nargin==2 && isstringmatchi(varargin{1},'multifit')  % Initialise multifit control
+    elseif nargin==2 && is_stringmatchi(varargin{1},'multifit')  % Initialise multifit control
         ind=[];
         multifit_control=true;
         if isrowvector(varargin{2}) && isnumeric(varargin{2}) && all(varargin{2}>=0) && all((varargin{2}-round(varargin{2}))==0)
