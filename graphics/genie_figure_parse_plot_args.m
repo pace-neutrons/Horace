@@ -2,7 +2,7 @@ function [args,ok,mess,lims,fig_out]=genie_figure_parse_plot_args(opt,varargin)
 % Parse the input arguments for the various different plot functions
 %
 %   >> [args,ok,mess,lims_type,fig_out] = genie_figure_parse_plot_args...
-%                                   (opt,arg1,arg2,...)
+%                                   (opt,p1,p2,...)
 %
 % Input:
 % ------
@@ -47,7 +47,7 @@ if newplot || ~over_curr
     
     % Parse input
     name_struct_default.name=default_name;
-    [lims,name_struct,present,filled,ok,mess]=parse_args_simple(varargin(:),name_struct_default);
+    [lims,name_struct,present,filled,ok,mess]=parse_arguments(varargin,name_struct_default);
     if ~ok, [args,ok,mess,lims,fig_out]=error_return(mess); return, end
     
     % Check name is valid

@@ -15,6 +15,10 @@ function ind = string_find (str, strcell)
 %           ind<0  more than one possible match: |ind| = number matches
 %
 % Related to Matlab intrinsic strmatch, but not identical
+%
+%
+% *** DEPRECATED FUNCTION ***
+%           Use stringmatchi instead
 
 if ~(ischar(str) && size(str,1)==1)
     ind = 0;  % not a single string

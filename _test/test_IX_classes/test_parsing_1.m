@@ -21,8 +21,8 @@ arglist = struct('name','',...
              
 % Fill array of arguments to test parsing functions
 disp('Creating some test input arguments...')
-argscell=cell(1,nloop);             
-argscell_key=cell(1,nloop);             
+argcell=cell(1,nloop);             
+argcell_key=cell(1,nloop);             
 for i=1:nloop
     indpar=logical(round(rand(size(inpars))));
     indarg=logical(round(rand(size(argname))));

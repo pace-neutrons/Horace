@@ -770,3 +770,6 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
  
  
 [ok,mess,wout,fitdata] = multifit_gateway_main (varargin{:}); 
+if ~ok && nargout<3 
+    error(mess) 
+end

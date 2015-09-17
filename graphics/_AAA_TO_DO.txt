@@ -74,7 +74,10 @@ Add paoc, psoc etc to Herbert and Horace
 
 overplotting seems to be resetting limits in 2015a (but not 2014a) - why?
 
-Horace: 1D objects dont understand da,ds etc, and 2D dont know dl, dp...
+Horace: 1D objects don't understand da,ds etc, and 2D don't know dl, dp...
+        I think that this is correct; cannot in general combine 1d objects
+		into 2D sqw object (bins not matching), and splitting 2D sqw is not 
+		obviously a useful thing to do.
 
 plot_oned, plot_twod can be tidied as a lot of argument checking is
 now done in genie_figure_parse_pot_args.

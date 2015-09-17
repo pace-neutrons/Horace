@@ -1,408 +1,981 @@
-function [par,argout,present,filled]=parse_arguments(parargin,arglist,varargin)
-% Utility to parse varargin to find values of named parameters passed to a function.
+function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
+% Parse a cell array to find values of parameters and named keywords
 %
 % Basic use:
-%   >> [par,argout,present,filled]=parse_arguments(parargin,arglist)
+% ----------
+% Unlimited number of parameters:
+%   >> [par,keyval,present,filled,ok,mess]=...
+%              parse_arguments (args, keyval_def)
 %
+% Specify the number of required parameters and number of optional parameters:
+%   >> [...] = parse_arguments (args, npar_req, npar_opt, keyval_def)
+%
+% Specify the names of required parameters as a cell array of strings, and
+% optional parameters as a structure giving names and values:
+%   >> [...] = parse_arguments (args, par_req, par_opt, keyval_def)
+%
+%
+% Optional additional arguments (one or both, in either order) 
+% -----------------------------
 % Indicate which keywords are logical flags:
-%   >> [par,argout,present,filled]=parse_arguments(parargin,arglist,flags)
+%   >> [...] = parse_arguments (..., flagnames)
 %
-% Allow key words and parameters to be mixed (keys_apart==true; default==false)
-%   >> [par,argout,present,filled]=parse_arguments(parargin,arglist,flags,keys_apart)
+% Additional options (contained in a structure):
+%   >> [...] = parse_arguments (..., opt)
 %
 %
-% EXAMPLE:
-% ========
-% The use of parse_arguments is most clearly illustrated by an example:
+% Input:
+% ------
+%   args        Cell array of arguments to be parsed. The list of arguments is
+%              in general a set of parameters followed by optional keyword-value
+%              pairs:
+%                 par_1, par_2, par_3, ..., name_1, val_1, name_2, val_2, ...
+%
+%               where
+%                 par_1, par_2, ... are the values of positional parameters
+%
+%                 name_1 ,val_1, ... are optional named arguments and their
+%                                     corresponding values.
+%               Note:
+%               - The valid keywords are the field names of the structure
+%                keyval_def (details below), and their default output values
+%                are given by the values of those fields.
+%
+%               - The keyword names can be exact matches or unambiguous
+%                abbreviations [exact only if opt.keys_exact ia set to true].
+%
+%               - Keyword names that are also defined as logical flags in
+%                flagnames (below) can also be given as their negation
+%                by default [change this by setting opt.flags_noneg==true]
+%                 e.g. if 'mask' is a keyword, 'nomask' is also valid.
+%
+%               - The value of a logical flag does not need to be given a
+%                value: if 'foo' is a flag then
+%                   ...,'foo',1,...          sets argout.foo = 1
+%                   ...,'foo',...            sets argout.foo = 1
+%                   ...,'foo',0,...          sets argout.foo = 0
+%                   ...,'nofoo',...          sets argout.foo = 0
+%
+%               - If a keyword is not given, then the default value defined by
+%                keyval_def is returned.
+%
+%               - A prefix to the keywords can be specified in the options
+%                (see below). For example if a field of keyval_def is
+%                'mask' and the prefix '-' is specified then the keyowrd
+%                must appear in args as '-mask', and its negatin (if it is
+%                a logical flag) is '-nomask'.
+%
+%               - By default, all positional parameters must appear first; the
+%                first time a character string is encountered that matches a
+%                parameter name that marks the point when only keyword-value
+%                pairs and logical flags can follow. The default can be changed
+%                to allow mixed parameters and keywords if opt_keys_at_end is
+%                set to false.
+%
+% Optionally: give either the number of required and optional positional
+% parameters:
+%   npar_req    The number of required positional parameters. It can be 
+%              0,1,2,...  [Default: =[] which is equivalent to 0]
+%
+%               Cell array with the names of required positional parameters%
+%   npar_opt    The number of optional positional parameters. It
+%              can be 0,1,2,... Inf . [Default: =[] which is equivalent to 0]
+%
+% Or the alternative option: give the names of required positional parameters
+% and both the names and values of optional positional parameters:
+%   par_req     Cell array with the names of required positional parameters
+%              [Default: =[] which means no required parameters]
+%
+%   par_opt     Structure with the names and values of optional positional
+%              parameters. The names of the parameters are given by the
+%              field names of the structure, and the values by the values of
+%              the fields. [Default=[] which means no optional parameters]
+%
+% If neither option is given, then this is interpreted as no required 
+% parameters and unlimited optional parameters i.e. it is the same as
+% npar_req=0, npar+opt=Inf [Note this is NOT the same as the default
+% numeric input]
+%
+%               
+%   keyval_def  Structure with field names giving the parameter names, and
+%              default values. Note that some keywrods may not be permitted
+%              if negation of logical flags is permitted (which is the
+%              default behaviour)  e.g. if 'mask' is a logical flag then
+%              'nomask' is implicity also a name, and this is not permiitted
+%              to be a field of keyval_def.
+%
+%   flagnames   [Optional] Cell array giving the keywords that can only be
+%              logical 0 or 1. The names must be given in full (i.e. not
+%              abbreviations), and the corresponding default values given in
+%              keyval_def must be false, true, 0 or 1, otherwise an error
+%              error is returned.
+%               If empty, or omitted, then no arguments will be logical flags.
+%
+%   opt         [Optional] Structure giving control options. Valid fields are
+%              given below, together with the default values if the field is
+%              not given.
+%               prefix      Value of prefix to keywords. Must be a character
+%                          string e.g. '-'. [Default: '' i.e. no prefix]
+%
+%               prefix_req  True if require that the prefix be present, false
+%                          otherwise. [Default: false]
+%                           For example if 'mask' is a keyword, opt.prefix='-'
+%                          opt.prefix_req=false, then 'mask' and '-mask' are
+%                          both valid.
+%
+%               flags_noneg True if flags cannot be negated e.g. if 'full' is
+%                          a flag, 'nofull' is not permitted. [Default: false]
+%
+%               flags_noval True if flags cannot be given values e.g.
+%                          ...,'foo',1,... is not permitted; the value is
+%                          set by specifing ...,'foo',... or ...,'nofoo',...
+%                           [Default: false]
+%                           Note: opt.flags_noneg and opt.flags_noval cannot
+%                          both be true if a logical flag has default value
+%                          true in keyval_def, because then there is no way
+%                          to set its value to false.
+%
+%               keys_exact  True if exact match to keywords is required
+%
+%               keys_at_end True if keywords must appear at the end of the
+%                          argument list; otherwise keywrods and un-named
+%                          parameters can be mixed. [Default: true]
+%
+%               noffset     Offset (>=0) for error message display. If
+%                          not all arguments are passed to parse_arguments
+%                          then if an error is found at the third position
+%                          in args, the error message that parse_arguments
+%                          gives will be stated at the third position, but
+%                          this will not be at the true position in the list.
+%                          Give the offset here. For example, you might not
+%                          pass the first three arguments because these must
+%                          always be present, set opt.noffset=3.
+%
+% Output:
+% -------
+% par       If only the number of required and optional positional parameters
+%          was given (or neither option): Cell array that contains values of
+%          arguments that do not correspond to keywords.
+% 
+%           If the names of required and optional parameters were given:
+%          Structure with fieldnames corresponding to the parameter names
+%          and the values of those fields set to the parameter values.
+%          Optional parameters that did not appear are set to their default 
+%          values as given in the input argument par_opt.
+%
+% keyval    Structure with fieldnames corresponding to the keywords and
+%          values that are read form the argument list, or from the default
+%          values in keyval_def for those keywords that were not in the
+%          argument list.
+%
+% present   Structure with field names matching the positional parameter names
+%          (if they were given) and the keyword names, and which have values
+%          logical 0 or 1 indicating if the parameter or keyword appeared in args.
+%          If a keyword appeared as its negation e.g. 'nofoo', then it is deemed
+%          to have been present i.e. present.foo = 1
+%
+% filled    Structure with field names matching the positional parameter names
+%          (if they were given) and the keyword names, and which have values
+%          logical 0 or 1 indicating if the argument is non-empty (whether
+%          that be because it was supplied with a non-empty default, or
+%          because it was given a non-empty value on the command line).
+%
+% ok        True if all is OK, false if not. If there is an error, but ok is
+%          not a return argument, then an exception will be thrown. If ok is
+%          a return argument, then an error will not throw an exception, so 
+%          you must test the value of ok on return.
+%
+% mess      Error message of not ok; empty string if all is ok.
+%
+%
+% EXAMPLE 1: Unlimited number of positional parameters:
+% =====================================================
 % Consider the function:
+%       function parse_test (varargin)
 %
-%   function parse_test (varargin)
-%   % 
-%   arglist = struct('background',[12000,18000], ...    % argument names and default values
-%                    'normalise', 1, ...
-%                    'modulation', 0, ...
-%                    'output', 'data.txt');
-%   flags = {'normalise','modulation'};                 % arguments which are logical flags
-%   
-%   [par,argout,present] = parse_arguments(varargin,arglist,flags);
-%   par
-%   argout
-%   present
+%       % Argument names and default values:
+%       keyval_def = struct('background',[12000,18000], ...
+%                           'normalise', 1, ...
+%                           'modulation', 0, ...
+%                           'output', 'data.txt');
 %
-% Then calling my_func with input:
+%       % Arguments which are logical flags:
+%       flagnames = {'normalise','modulation'};
+%
+%       % Parse input:
+%       [par, keyval, present] = parse_arguments...
+%                   (varargin, keyval_def, flagnames);
+%
+%       % Display results
+%       par
+%       keyval
+%       present
+%
+%       end
+%
+% Then calling parse_test with input as follows:
 %   >> parse_test('input_file.dat',18,{'hello','tiger'},...
 %                       'back',[15000,19000],'mod','nonorm')
 %
 % results in the output:
-%   par = 
+%   par =
 %        'input_file.dat'    [18]    {1x2 cell}
-% 
-%   argout = 
+%
+%   argout =
 %        background: [15000 19000]
 %         normalise: 0
 %        modulation: 1
 %            output: 'data.txt'
-% 
-%   present = 
+%
+%   present =
 %        background: 1
 %         normalise: 1
 %        modulation: 1
 %            output: 0
 %
 %
-% In more detail:
-% ===============
-%   >> [par,argout,present,filled]=parse_arguments(varargin,arglist,flags,keys_apart)
+% EXAMPLE 2: Named required and optional parameters
+% =================================================
+%
+%       function parse_test (varargin)
+%
+%       % Required parameters:
+%       par_req = {'data_source', 'ei'};
+%
+%       % Optional parameters:
+%       par_opt = struct('emin', -0.3, 'emax', 0.95, 'de', 0.005);
+%
+%       % Argument names and default values:
+%       keyval_def = struct('background',[12000,18000], ...
+%                           'normalise', 1, ...
+%                           'modulation', 0, ...
+%                           'output', 'data.txt');
+%
+%       % Arguments which are logical flags:
+%       flagnames = {'normalise','modulation'};
+%
+%       % Parse input:
+%       [par,argout,present] = parse_arguments(varargin,...
+%                       par_req, par_opt, keyval_def, flagnames);
+%
+%       % Display results
+%       par
+%       argout
+%       present
+%
+%       end
+%
+% Then calling parse_test with input:
+%   >> parse_test('input_file.dat',18,-0.5,0.6,...
+%                       'back',[15000,19000],'mod','nonorm')
+%
+% results in the output:
+%     par = 
+% 
+%         data_source: 'input_file.dat'
+%                  ei: 18
+%                emin: -0.5000
+%                emax: 0.6000
+%                  de: 0.0050
+% 
+% 
+%     argout = 
+% 
+%         background: [15000 19000]
+%          normalise: 0
+%         modulation: 1
+%             output: 'data.txt'
+% 
+% 
+%     present = 
+% 
+%         data_source: 1
+%                  ei: 1
+%                emin: 1
+%                emax: 1
+%                  de: 0
+%          background: 1
+%           normalise: 1
+%          modulation: 1
+%              output: 0
+
+
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$) 
+
+
+throw_error=(nargout<=4);
+
+% Check if legacy input arguments format
+if nargin>=2 && nargin<=4 && isstruct(varargin{1})
+    % Legacy input: (args, keyval_def, [flagnames], [opt] )
+    par_req=0;
+    par_opt_def=Inf;
+    keyval_def=varargin{1};
+    nopt=2;
+elseif nargin>=4
+    % New format: (args,par_req,par_opt_def,keyval_def,varargin)
+    par_req=varargin{1};
+    par_opt_def=varargin{2};
+    keyval_def=varargin{3};
+    nopt=4;
+else
+    % Error:
+    ok=false;
+    mess='Check num,ber are type of input arguments';
+    if throw_error, error(mess), else...
+            [par,keyval,present,filled]=error_return; return
+    end
+end
+
+% Get flagnames and opt
+[ok, mess, flagnames, opt] = parse_opt_args (varargin{nopt:end});
+if ~ok
+    if throw_error, error(mess), else...
+            [par,keyval,present,filled]=error_return; return
+    end
+end
+
+% Check parameter arguments
+[ok,mess,par,nam_par,np_req,np_opt]=check_par_arguments(par_req,par_opt_def);
+if ~ok
+    if throw_error, error(mess), else...
+            [par,keyval,present,filled]=error_return; return
+    end
+end
+
+% Check keyword arguments and get variables for parsing
+[ok,mess,keyval,nam,namchk,ind,flag,negflag]=check_keywords...
+    (keyval_def,flagnames,opt);
+if ~ok
+    if throw_error, error(mess), else...
+            [par,keyval,present,filled]=error_return; return
+    end
+end
+
+% Check parameter names and keywords are collectively unique
+if ~(isempty(nam_par) || isempty(nam))
+    tmp=sort([nam_par;nam]);
+    for i=2:numel(tmp)
+        if strcmpi(tmp{i-1},tmp{i})
+            ok=false;
+            mess=['The combined parameter and keyword name list contains ''',...
+                tmp{i},''' at least twice (with keyword negation &/or prefix.'];
+            if throw_error, error(mess), else...
+                    [par,keyval,present,filled]=error_return; return
+            end
+        end
+    end
+end
+
+% Parse the input argument list
+[ok,mess,par,keyval,present]=parse_args(args,par,nam_par,np_req,np_opt,...
+    keyval,nam,namchk,ind,flag,negflag,opt);
+
+if ok
+    filled=false(numel(nam),1);
+    for i=1:numel(filled)
+        if ~isempty(keyval.(nam{i}))
+            filled(i)=true;
+        end
+    end
+    filled=cell2struct(num2cell(filled),nam);
+else
+    if throw_error, error(mess), else...
+            [par,keyval,present,filled]=error_return; return
+    end
+end
+
+
+%----------------------------------------------------------------------------------------
+function [ok, mess, flagnames, opt] = parse_opt_args (varargin)
+% Get optional arguments
+
+narg=numel(varargin);
+if narg==2 && iscellstr(varargin{1}) && isstruct(varargin{2})
+    flagnames = varargin{1};
+    [ok,mess,opt] = update_opt (varargin{2});
+    
+elseif narg==1 && iscellstr(varargin{1})
+    flagnames=varargin{1};
+    [ok,mess,opt] = update_opt (struct());      % loads default
+    
+elseif narg==1 && isstruct(varargin{1})
+    flagnames={};
+    [ok,mess,opt] = update_opt (varargin{1});
+    
+elseif narg==0
+    flagnames={};
+    [ok,mess,opt] = update_opt(struct());   % loads default
+    
+else
+    ok=false;
+    mess='Check validity of optional arguments ''flagnames'' and/or ''opt''';
+end
+
+
+%----------------------------------------------------------------------------------------
+function [ok,mess,opt_out] = update_opt (opt)
+% Update the values of the fields in the options structure, checking also
+% that the input structure does not contain unexpected fields (which will
+% likely be due to typos, given that this is for developers, not users)
+%
+% Returns default option values if there is an error
+
+ok=true;
+mess='';
+
+nam={'prefix';'prefix_req';'flags_noneg';'flags_noval';...
+    'keys_exact';'keys_at_end';'noffset'};
+val={'';true;false;false;false;true;0};
+
+optnam=fieldnames(opt);
+for i=1:numel(optnam)
+    ind=find(strcmpi(optnam{i},nam),1);
+    if ~isempty(ind)
+        if ind==1 && is_string(opt.(optnam{i}))
+            val{1}=opt.(optnam{i});     % this way we dont worry about letter case
+            
+        elseif ind==2 && islognumscalar(opt.(optnam{i}))
+            val{2}=logical(opt.(optnam{i}));
+            
+        elseif ind==3 && islognumscalar(opt.(optnam{i}))
+            val{3}=logical(opt.(optnam{i}));
+            
+        elseif ind==4 && islognumscalar(opt.(optnam{i}))
+            val{4}=logical(opt.(optnam{i}));
+            
+        elseif ind==5 && islognumscalar(opt.(optnam{i}))
+            val{5}=logical(opt.(optnam{i}));
+            
+        elseif ind==6 && islognumscalar(opt.(optnam{i}))
+            val{6}=logical(opt.(optnam{i}));
+            
+        elseif ind==7 && isnumeric(opt.(optnam{i})) && opt.(optnam{i})>=0
+            val{7}=logical(opt.(optnam{i}));
+        end
+        
+    else
+        ok=false;
+        mess=['Unexpected option name, type or value: ''',optnam{i},''''];
+        
+    end
+end
+
+opt_out=cell2struct(val,nam);
+
+
+%----------------------------------------------------------------------------------------
+function [ok,mess,par,nam,nreq,nopt]=check_par_arguments(par_req,par_opt)
+% Check the validity of the arguments defining required and positional parameters
 %
 % Input:
 % ------
-% varargin  Cell array of arguments to be parsed. The list of arguments in varargin is
-%               par_1, par_2, par_3, ..., name_1 [,val_1] name_2 [,val_2], ...
-%           where: par_1, par_2, ... are the values of un-named parameters,
-%             and: name_1 [,val_1], ... are names of arguments (given in arglist, below)
-%                  and their corresponding values.
-%            Note:
-%             - The argument names can be exact matches or unambiguous abbreviations of 
-%              the names in arglist
-%             - The negation of a name is also a valid argument name e.g. if 'mask' is
-%              a name, then 'nomask' is implicity also a name.
-%             - If a name takes a value (i.e. is not indicated as a logical in flags, below)
-%              then the following are valid within varargin:
-%                   ...,'foo',bar,...        argument 'foo' is given value: bar
-%                                           (i.e. argout.foo = bar)
-%                   ...,'nofoo',...          argument 'foo' is set to empty value
-%                                           (i.e. isempty(argout.foo) is
-%                                           true, but present.foo is true
-%             - If a name is a logical, then any of the following are valid
-%                   ...,'foo',1,...          sets argout.foo = 1
-%                   ...,'foo',...            sets argout.foo = 1
-%                   ...,'foo',0,...          sets argout.foo = 0
-%                   ...,'nofoo',...          sets argout.foo = 0
+%   par_req Required parameters: a cell array of parameter names or a number
+%           0,1,2,...
 %
-%             - If a name does not appear in varargin, then the output value in argout is
-%              set to the default value in arglist.
+%   par_opt Optional parameters: a structure giving names and default values
+%           or a number 0,1,2,... or Inf
 %
-% arglist   Structure with field names giving the argument names, and values giving the
-%           default output values for those arguments.
-%            Note:
-%             - Because the negation of a name is also a valid argument name - e.g. if 'mask'
-%              is a name, then 'nomask' is implicity also a name - there are some combinations
-%              of naems that are not permitted e.g. 'ne' and 'none' cannot bothe be names as
-%              the negation of the first is equal to the second.
-%
-% flags     [Optional] Cell array giving the names of the arguments that can only be logical 0 or 1
-%           The names must be given in full (i.e. not abbreviations), and the corresponding
-%           default values given in arglist must be false, true, 0 or 1, otherwise an
-%           error is returned.
-%           If empty, or omitted, then no arguments will be indicated as flags
-%
-% keys_apart [Optional] True if all keywords and values are at the end; false if keywords
-%           and arguments can be interspersed. Default = true
-%
+% In either case, an empty argument means no parameters of that type are
+% permitted i.e. is equivalent to 0.
 %
 % Output:
 % -------
-% par       Cell array that contains the leading arguments that do not correspond to 
-%           values of named arguments named in the input argument 'arglist'. Any argument
-%           type can be given; the first character string that is an abbreviation or
-%           exact match to one of one of the argument names in arglist will indicate
-%           the start of name-value pairing.
+%   ok      True if all OK, false otherwise
 %
-% argout    Structure with fieldnames provided by the input argument arglist, and
-%           contains the values of the arguments named in varargin. Arguments that
-%           were not given values retain the default values given in the input argument arglist.
+%   par     Structure with default values if parameters are named. (Note:
+%          required parameters are given the value [], but by definition
+%          these will be required to be given a value.)
+%           Empty cell array if parameters are not named.
 %
-% present   Structure with the same field names as arglist and argout but which have value
-%           logical 0 or 1 indicating if the argument name appeared in varargin. If a name
-%           was appeared vai its negation e.g. 'nofoo', then it is deemed to have been present
-%           i.e. present.foo = 1
+%   nam     Names of parameters. Empty cell array if parameters are not named.
 %
-% filled    Structure with the same field names as arglist and argout with values
-%           logical 0 or 1 indicating if the argument is non-empty (whether that be because
-%           it was supplied with a non-empty default, or because it was given a non-empty value
-%           on the command line). Provided for convenience.
+%   nreq    Number of required parameters: 0,1,2,...
+%
+%   nopt    Number of optional parameters: 0,1,2,...  or Inf
 
 
-% Names of valid arguments
-fnames = fieldnames(arglist);
-nnames = numel(fnames);
 
-% Default output argument values
-is_par = false(numel(parargin),1);
-argout = arglist;   % output is same as input
-present = cell2struct(repmat({false},nnames,1),fnames); % no arguments present
-
-
-% Get list of parameters that are flags, if given
-% ----------------------------------------------------
-flagnames={};
-keys_apart=true;    % by default, the arguments and keywords are separate
-
-if numel(varargin)>=1 && ~isempty(varargin{1})  % list of flag arguments provided
-    if iscellstr(varargin{1})
-        flagnames = lower(varargin{1});
+% Check required parameter names
+%-------------------------------
+if ~isempty(par_req)
+    if isnumeric(par_req)
+        if isscalar(par_req) && par_req>=0 && isfinite(par_req) && rem(par_req,1)==0
+            nreq=par_req;
+            nam_req={};
+        else
+            ok=false;
+            mess='The number of required parameters must be 0,1,2,...';
+            par={}; nam={}; nreq=0; nopt=0;
+            return
+        end
+        
+    elseif iscellstr(par_req)
+        for i=1:numel(par_req)
+            if ~isvarname(par_req{i})
+                ok=false;
+                mess=['Required parameter name ''',par_req{i},...
+                    ''' is not a valid Matlab variable name'];
+                par={}; nam={}; nreq=0; nopt=0;
+                return
+            end
+        end
+        if numel(par_req)>1
+            tmp=sort(par_req);
+            for i=2:numel(par_req)
+                if strcmpi(tmp{i-1},tmp{i})
+                    ok=false;
+                    mess=['The required parameters name list contains ''',...
+                        tmp{i},''' at least twice. Names must be unique.'];
+                    par={}; nam={}; nreq=0; nopt=0;
+                    return
+                end
+            end
+        end
+        nreq=numel(par_req);
+        nam_req=par_req(:);     % ensure column vector
     else
-        error('List of flag names must be a cell array of strings')
+        ok=false;
+        mess=['Required parameters must be given as a list of names or ',...
+            'the number of required parameters'];
+        par={}; nam={}; nreq=0; nopt=0;
+        return
     end
+else
+    % Empty argument assumed to mean no required parameters
+    nreq=0;
+    nam_req={};
 end
 
-if numel(varargin)>=2 && ~isempty(varargin{2})  % keys_apart argument provided
-    if isscalar(varargin{2}) && isnumeric(varargin{2})|| islogical(varargin{2})
-        keys_apart=logical(varargin{2});
+
+% Optional parameters
+%--------------------
+if ~isempty(par_opt)
+    if isnumeric(par_opt)
+        if isscalar(par_opt) && par_opt>=0 && (isinf(par_opt) || rem(par_opt,1)==0)
+            nopt=par_opt;
+            nam_opt={};
+        else
+            ok=false;
+            mess=['The number of optional parameters must be 0,1,2,...',...
+                ', or Inf for an unlimited number'];
+            par={}; nam={}; nreq=0; nopt=0;
+            return
+        end
+    elseif isstruct(par_opt)
+        nam_opt=fieldnames(par_opt);
+        if numel(nam_opt)>0
+            nopt=numel(nam_opt);
+        else
+            nopt=0;
+            nam_opt={};
+        end
     else
-        error('Argument ''keys_apart'' must be scalar logical')
+        ok=false;
+        mess=['Optional parameters must given as a structure or the ',...
+            'number of required parameters'];
+        par={}; nam={}; nreq=0; nopt=0;
+        return
     end
+else
+    % Empty argument assumed to mean an unlimited number of optional parameters
+    nopt=0;
+    nam_opt={};
 end
+
+
+% Combine the input
+% -----------------
+% If required and optional parameters are both >0, must both be un-named or
+% both named.
+if nreq>0 && nopt>0
+    % Both required parameters and optional parameters
+    if ~xor(isempty(nam_req),isempty(nam_opt))
+        if ~isempty(nam_req)     % both defined by names
+            nam=[nam_req;nam_opt];
+            tmp=sort(nam);
+            for i=2:numel(tmp)
+                if strcmpi(tmp{i-1},tmp{i})
+                    ok=false;
+                    mess=['The combined required and optional parameter names contain ''',...
+                        tmp{i},''' at least twice. Names must be unique.'];
+                    par={}; nam={}; nreq=0; nopt=0;
+                    return
+                end
+            end
+            par=catstruct(cell2struct(repmat({[]},nreq,1),nam_req), par_opt);
+        else
+            par={};
+            nam={};
+        end
+    else
+        ok=false;
+        mess=['If a non-zero number of each of required and optional parameters',...
+            ' is given, they must both be given numerically or both named'];
+        par={}; nam={}; nreq=0; nopt=0;
+        return
+    end
+elseif nreq>0
+    % Required parameters only
+    if ~isempty(nam_req)
+        par=cell2struct(repmat({[]},nreq,1),nam_req);
+        nam=nam_req;
+    else
+        par={};
+        nam={};
+    end
+elseif nopt>0
+    % Optional parameters only
+    if ~isempty(nam_opt)
+        par=par_opt;
+        nam=nam_opt;
+    else
+        par={};
+        nam={};
+    end
+else
+    % No required and no optional parameters
+    par={};
+    nam={};
+end
+
+
+% Ok if got to here
+%------------------
+ok=true;
+mess='';
+
+
+%----------------------------------------------------------------------------------------
+function [ok,mess,keyval,nam,namchk,ind,flag,negflag]=check_keywords...
+    (keyval_in,flagnam,opt)
+%
+%
+% Input:
+% ------
+%   keyval_in   Structure: fieldnames are names of keywords, field values
+%              are the default values
+%   flagnam     Call array with names of flags. The names must fields of
+%              keyval_in
+%   opt         Structure with values of options: required fields are:
+%                   prefix      Value of prefix to keywords. Must be a
+%                              character string.
+%                   prefix_req  True if require that the prefix be present,
+%                              false otherwise
+%                   flags_noneg True if flags cannot be negated.
+%                   flags_noval True if flags cannot be given values. If
+%                              flags_noneg and flags_noval then the default
+%                              for flags must be false, as there is no way
+%                              to set them to false.
+%
+% Output:
+% -------
+%   ok          true if no problems constructing keyword list
+%   mess        '' id ok, otherwise contains error message
+%   keyval      Structure with defaults for flags turned in logicals
+%   nam         Keywords i.e. fieldnames(keyval)
+%   namchk      Keywords with all permissible prefixing or negation. This will
+%              be used to parse arguments. Each keyword is unique.
+%   ind         Index of permissible keyworwds into the root keyword list
+%   flag        Logical array with true where namchk is a flag or negation
+%              of a flag
+%   negflag     Logical array with true where namchk is the negation of a flag
+%
+%
+% If a keyword='hello' and prefix='-', then if opt.prefix_req==false valid
+% keywords are:
+%       'hello' and '-hello'
+%
+% If the keyword is also a flag, then the full list is:
+%       'hello', '-hello', 'nohello' and '-nohello'
+%
+% Checka re performed to ensure that prefix and flag status do not construct
+% duplicate names. For example:
+% - 'nohello' and 'hello' are not permitted if 'hello' is a flag
+%       (because the negation of 'hello' matches 'nohello').
+% - 'nohello' and 'hello' are permitted if 'hello' is NOT a flag
+
+
+% Note about efficiency: TGP did some timing tests of the 'N^2' algorithm
+% where for each keyword we check against all others, and an algorithm where
+% the keywords are sorted and then compare adjacent keywords. For 300 keywords
+% or less, the N^2 algorithm is about 5 times slower, and about 2x slower
+% for N<20. Given the fact that in practice N<20, the other overheads,
+% that the calling function will march through the list anyway at least once,
+% it is not worth the effort of optimising where the comparison keyword comes
+% from a second list that also needs to be incremented.
+
+
+% Catch case of no keywords
+if isempty(keyval_in)
+    % Any empty object
+    keyval=struct([]);
+    nam=cell(0,1);
     
-if numel(varargin)>2
-    error('Check number of arguments')
+elseif isstruct(keyval_in)
+    % Keyword structure given
+    keyval=keyval_in;
+    nam=fieldnames(keyval);
+    
+else
+    keyval=struct([]);
+    nam=cell(0,1);
+    n=0;
+    flag=false(0,1);
+    ok=false;
+    mess='Keywords and their defaults can only be given as a structure';
+    namchk=nam; ind=(1:n)'; negflag=false(n,1);
+    return
 end
 
+n=numel(nam);
+flag=false(n,1);
 
-% Get list of names and whether or not they are flags
-% ----------------------------------------------------
-% Create list of names and their negations
-name = lower(fnames);
-name_char = char(name);
-negname_char = [repmat('no',nnames,1),name_char];
-negname = cellstr(negname_char);
-
-% Check that no name matches the negative of another
-ind = find(strncmp('no',name,2));
-for i=1:length(ind)
-    ipos = find(strcmp(name{ind(i)},negname));
-    if ~isempty(ipos);
-        error (['Argument name ''',name{ind(i)},''' matches the negative of argument name ''',name{ipos},''''])
-    end
-end
-
-% Set flag list:
-flag = false(length(fnames),1);
-if exist('flagnames','var') % there is a list of flagnames
-    for i=1:length(flagnames)
-        ipos = find(strcmp(flagnames{i},name));
+% Determine which names are flags
+if ~isempty(flagnam)
+    for i=1:numel(flagnam)
+        ipos = find(strcmpi(flagnam{i},nam),1);    % can only be 0 or 1 match
         if ~isempty(ipos)
-            flag(ipos) = true;
-            % if argument is a flag, then check default value is 0 or 1 (and change type), or is logical true or false
-            if islogical_value(arglist.(fnames{ipos}))
-                argout.(fnames{ipos}) = logical(arglist.(fnames{ipos}));
-            else
-                if isnumeric(arglist.(fnames{ipos}))
-                    error (['Default value of argument ''',name{ipos},''' is numeric but does not have value 0 or 1'.\n'...
-                            'Function parse_arguments does not accept is as a logical'],'')
+            flag(ipos)=true;
+            % Ensure default is a logical scalar
+            val=keyval.(nam{ipos});
+            if islognumscalar(val)
+                if ~logical(val) || ~opt.flags_noneg || ~opt.flags_noval
+                    keyval.(nam{ipos}) = logical(val);
                 else
-                    error (['Default value of argument ''',name{ipos},''' has class type ',class(arglist.(fnames{ipos})),'.\n'...
-                            'Cannot convert to a logical'],'')
+                    ok=false;
+                    mess=['Default value of flag ''',nam{ipos},...
+                        ''' must be false if flags_noneg and flags_noval are both true'];
+                    namchk=nam; ind=(1:n)'; negflag=false(n,1);
+                    return
                 end
+            else
+                ok=false;
+                mess=['Default value of flag ''',nam{ipos},...
+                    ''' must be 0 or 1, or true or false'];
+                namchk=nam; ind=(1:n)'; negflag=false(n,1);
+                return
             end
         else
-            error(['Flag name ''',flagnames{i},''' not in list of argument names'])
+            ok=false;
+            mess=['Flag name ''',flagnam{i},''' is not in the named parameter list'];
+            namchk=nam; ind=(1:n)'; negflag=false(n,1);
+            return
         end
     end
 end
 
-% Parse cell array of input arguments and un-named parameters
-% -----------------------------------------------------------
-par_read = true;    % indicates that un-named parameters are being read
-i = 1;              % index of current element in parargin
+% Determine full list of names allowing for prefix and negation of flags
+if any(flag) && ~opt.flags_noneg
+    negnam=nam(flag);
+    for i=1:numel(negnam)
+        negnam{i}=['no',negnam{i}];
+    end
+    namchk=[nam;negnam];
+    ind=[(1:n)';find(flag)];
+    flag=[flag;true(numel(negnam),1)];
+    negflag=[false(n,1);true(numel(negnam),1)];
+else
+    namchk=nam;
+    ind=(1:n)';
+    negflag=false(n,1);
+end
 
-nparargin = numel(parargin);
-while i <= nparargin
-    if ~(ischar(parargin{i}) && numel(size(parargin{i}))==2 && size(parargin{i},1)==1 && ~isempty(parargin{i}))
-        % not a non-empty character string, so accumulate parameters if we permit that
-        if par_read
-            is_par(i)=true;
-        else    % demand that once a named parameter has been read that all subsequent parameters are named
-            str = disp_string(parargin{i});
-            error (['Encountered the following argument when expecting an argument name:\n',str],'')
+if ~isempty(opt.prefix)
+    if opt.prefix_req
+        for i=1:numel(namchk)
+            namchk{i}=[opt.prefix,namchk{i}];
         end
     else
-        % is a character string, so check against argument names
-        ipos_name = [];
-        nch=numel(parargin{i});
-        iname = find(strncmpi(parargin{i},name,nch));
-        inegname = find(strncmpi(parargin{i},negname,nch));
-        if length(iname)+length(inegname)==0
-            % name not found in list of valid arguments, so accumulate parameters if we permit that
-            if par_read
-                is_par(i)=true;
+        prenamchk=cell(size(namchk));
+        for i=1:numel(namchk)
+            prenamchk{i}=[opt.prefix,namchk{i}];
+        end
+        namchk=[namchk;prenamchk];
+        ind=[ind;ind];
+        flag=[flag;flag];
+        negflag=[negflag;negflag];
+    end
+end
+
+% Check there are no duplications in the list arising from negation and/or prefixing
+if numel(namchk)>1
+    [tmp,ix]=sort(namchk);
+    for i=2:numel(namchk)
+        if strcmpi(tmp{i-1},tmp{i})
+            ok=false;
+            mess=['The keywords ''',nam{ind(ix(i-1))},''' and ''',nam{ind(ix(i))},...
+                ''' are ambiguous due to prefixing and/or negation'];
+            return
+        end
+    end
+end
+
+% All ok if got to here
+ok=true;
+mess='';
+
+
+%----------------------------------------------------------------------------------------
+function [ok,mess,par,keyval,present]=parse_args(args,par,nam_par,np_req,np_opt,keyval,...
+    nam,namchk,ind,flag,negflag,opt)
+% Parse the input argument list
+%
+%   opt     Options structure required fields
+%               flags_noval
+%               keys_exact
+%               keys_at_end
+%               noffset
+
+ok=true;
+mess='';
+
+narg=numel(args);
+indpar=false(1,narg);
+np_max=np_req+np_opt;
+nkey=numel(nam);
+
+i=1;
+np=0;
+key_present=false(numel(nam),1);
+expect_key=false;
+while i<=narg
+    % Determine if argument is a keyword; ambiguous keywords are an error
+    iskey=false;
+    if nkey>0 && is_string(args{i}) && ~isempty(args{i})
+        if opt.keys_exact
+            ipos=find(strcmpi(args{i},namchk)); % strings in namchk are unique
+            if ~isempty(ipos), iskey=true; end
+        else
+            ipos=stringmatchi(args{i},namchk);
+            if ~isempty(ipos)
+                if numel(ipos)==1
+                    iskey=true;
+                else
+                    ok=false;
+                    mess=['Ambiguous keyword at position ',...
+                        num2str(i+opt.noffset),' in the argument list'];
+                    break
+                end
+            end
+        end
+    end
+    
+    % Branch on parameter or keyword
+    if ~iskey
+        if ~expect_key
+            np=np+1;
+            if np<=np_max
+                indpar(i)=true;
             else
-                str = disp_string(parargin{i});
-                error (['Encountered the following argument when expecting an argument name:\n',str],'')
+                ok=false;
+                mess=['The number of positional parameter(s) exceeds the maximum request of ',num2str(np_max)];
+                break
             end
         else
-            % determine if name is an unambigous abbreviation or exact match to a named argument
-            if length(iname)+length(inegname)==1    % abbreviation of just one name
-                if length(iname)==1
-                    is_negname = false;
-                    ipos_name = iname;
-                elseif length(inegname)==1
-                    is_negname = true;
-                    ipos_name = inegname;
-                end
-            elseif length(iname)+length(inegname)>1 % ambiguous abbreviation
-                iname_exact = iname(strcmpi(parargin{i},name(iname)));
-                inegname_exact = inegname(strcmpi(parargin{i},negname(inegname)));
-                % determine if there is an exact match (recall that by construction that there can only be one)
-                if ~isempty(iname_exact)
-                    is_negname = false;
-                    ipos_name = iname_exact;
-                elseif ~isempty(inegname_exact)
-                    is_negname = true;
-                    ipos_name = inegname_exact;
-                else    % cannot resolve the ambiguity. Don't attempt to interpret as an un-named parameter
-                    % get two examples the ambiguity
-                    if length(iname)>1; name1=name{iname(1)}; name2=name{iname(2)};
-                    elseif length(inegname)>1; name1=negname{inegname(1)}; name2=negname{inegname(2)};
-                    else name1=name{iname(1)}; name2=negname{inegname(1)};
-                    end
-                    if length(iname)+length(inegname)==2
-                        error(['Argument name ''',lower(parargin{i}),''' is an ambiguous abbrevation of\n'...
-                               'the valid argument names:   ''',name1,'''   &   ''',name2,''''],'')
-                    else
-                        error(['Argument name ''',lower(parargin{i}),''' is an ambiguous abbrevation of\n'...
-                               '   ''',name1,'''   &   ''',name2,'''\n',...
-                               'and ',num2str(length(iname)+length(inegname)-2),' other valid argument name(s)'],'')
-                    end
-                end
-            end
-            % If require that there are only recognised keywords in the remainder of the parameter list, permit no more parameters
-            if keys_apart
-                par_read = false;
-            end
-            % Check if we have already had the current named argument
-            if ~present.(fnames{ipos_name})
-                present.(fnames{ipos_name}) = true;
+            ok=false;
+            mess=['Expected a keyword but found ',disp_string(args{i}),...
+                ' at position ',num2str(i+opt.noffset),' in the argument list'];
+            break
+        end
+        
+    else
+        ikey=ind(ipos);
+        % Check if the keyword has already appeared or not
+        if ~key_present(ikey)
+            key_present(ikey)=true;
+        else
+            ok=false;
+            mess=['Keyword ''',nam{ikey},...
+                ''' (or its negation if a flag) appears more than once'];
+            break
+        end
+        % Get value corresponding to keyword
+        if flag(ipos)
+            if opt.flags_noval || i==narg || ~islognumscalar(args{i+1})
+                keyval.(nam{ikey})=~negflag(ipos);
             else
-                error (['Argument (or abbreviations) named ''',name{ipos_name},''' &/or ''',negname{ipos_name},'''\n'...
-                        'appears more than once in the argument list'],'')
+                i=i+1;
+                keyval.(nam{ikey})=xor(negflag(ipos),logical(args{i}));
             end
-            if ~is_negname  % argument is a name, not the negative of a name
-                if flag(ipos_name)
-                    if i<nparargin && islogical_value(parargin{i+1})
-                        i = i + 1;
-                        argout.(fnames{ipos_name}) = logical(parargin{i});
-                    else
-                        argout.(fnames{ipos_name}) = true;
-                    end
-                else
-                    if i<nparargin
-                        i = i + 1;
-                        argout.(fnames{ipos_name}) = parargin{i};
-                    else
-                        error (['Argument name ''',name{ipos_name},''' expects a value but none was provided'])
-                    end
-                end
-            elseif is_negname    % argument is the negative of a names argument
-                if flag(ipos_name)
-                    argout.(fnames{ipos_name}) = false;
-                else
-                    try % attempt to fill with empty matrix of the same class as the default value
-                        argout.(fnames{ipos_name}) = eval([class(arglist.(fnames{ipos_name})),'([])']);
-                    catch
-                        argout.(fnames{ipos_name}) = [];
-                    end
-                end
+        else
+            if i<narg
+                i=i+1;
+                keyval.(nam{ikey})=args{i};
+            else
+                ok=false;
+                mess=['Keyword ''',nam{ikey},...
+                    ''' expects a value, but the keyword is the final argument'];
+                break
             end
         end
+        expect_key = opt.keys_at_end;   % if true, will expect only keywords from now
     end
-    i = i + 1;
+    i=i+1;
 end
 
-% Fill par:
-par=parargin(is_par);
-
-% Fill filled:
-filled=argout;
-for i=1:numel(fnames)
-    if ~isempty(argout.(fnames{i}))
-        filled.(fnames{i})=true;
+% Searched the argument list. Now pack final output
+if ok
+    if np>=np_req
+        if isempty(par) % no named parameters
+            par=args(indpar);
+            present=cell2struct(num2cell(key_present),nam);
+        else
+            if np>0
+                ix=find(indpar);
+                for i=1:np
+                    par.(nam_par{i})=args{ix(i)};
+                end
+                par_present=[true(np,1);false(np_max-np,1)];
+                present=cell2struct(num2cell([par_present;key_present]),[nam_par;nam]);
+            end
+        end
     else
-        filled.(fnames{i})=false;
-    end
-end
-
-%--------------------------------------------------------------------------------------------------
-function ok = islogical_value (par)
-% strict testing that a parameter is numeric 0,1 or logical true, false
-if islogical(par)
-    ok = true;
-elseif isnumeric(par)
-    temp = double(par);
-    if temp==0 || temp==1
-        ok = true;
-    else
-        ok = false;
+        ok=false;
+        mess=['The number of positional parameter(s) is less than the minimum request of ',num2str(np_req)];
+        present=struct([]);
     end
 else
-    ok = false;
+    present=struct([]);
 end
 
-%--------------------------------------------------------------------------------------------------
-function str = disp_string(var)
-% create a string with newlines that attempts to give the outline of contents of a variable so
-% that informative error messages can be given.
-% Inelegant and idiosynchratic perhaps, but invaluable when performing diagnosis
 
-max_row = 5;    % max. no. rows to print for a numeric array
-max_col = 4;    % max. no. columns to print for a numeric array
-max_char = 50;  % max. no. characters to print in a string
-dims = size(var);
+%----------------------------------------------------------------------------------------
+function str=disp_string(var)
+% Encapsulate information about enexpected variable as a string
 
-% Get size and class of input variable
-str_type = '['; 
-for i=1:length(size(var))
-    str_type = [str_type,num2str(dims(i)),'x'];
-end
-str_type(end:end)=']';
-if iscellstr(var)
-    str_type = [str_type,'   ','cellstr'];
-else
-    str_type = [str_type,'   ',class(var)];
-end
-
-% Create string containing values for some classes
-if (isnumeric(var) || islogical(var)) && numel(dims)==2 && ~isempty(var)
-    str = num2str(var(1:min(dims(1),max_row),1:min(dims(2),max_col)));
-    if dims(2)>max_col
-        str = [repmat('     ',min(dims(1),max_row),1),str,repmat(' ...\n',min(dims(1),max_row),1)];
+nchar_max=10;
+if is_string(var)
+    if isempty(var)
+        str='empty string';
     else
-        str = [repmat('     ',min(dims(1),max_row),1),str,repmat('\n',min(dims(1),max_row),1)];
-    end
-    str=reshape(str',1,numel(str));
-    if dims(1)>max_row
-        str = [str,'        :\n'];
-    end
-elseif iscellstr(var) && ~isempty(var)
-    if length(var)>1
-        ind=['1,1',repmat(',1',1,length(dims)-2)];
-        str = ['     element(',ind,') = '];
-    else
-        str = '     ';
-    end
-    str = [str,'''',var{1}(1:min(length(var{1}),max_char)),''''];
-    if length(var{1})>max_char
-        str = [str(1:end-1),'...'];
-    end
-elseif ischar(var) && ~isempty(var)
-    if dims(1)>1
-        ind=['1,:',repmat(',1',1,length(dims)-2)];
-        str = ['     element(',ind,') = '];
-    else
-        str = '     ';
-    end
-    str = [str,'''',var(1,1:min(dims(2),max_char)),''''];
-    if dims(2)>max_char
-        str = [str(1:end-1),'...'];
-    end
-end
-
-if exist('str','var') 
-    if ~isempty(str) 
-        str = ['     ',str_type,'\nvalue:\n',str];
-    else 
-        str = ['     ',str_type];
+        if numel(var)<nchar_max
+            str=['string ''',var,''''];
+        else
+            str=['string ''',var(1,nchar_max),'...'''];
+        end
     end
 else
-    str = ['     ',str_type];
+    if isscalar(var)
+        str=['argument of class ',class(var)];
+    else
+        sz=size(var);
+        sz_str='[';
+        for i=1:numel(sz)
+            sz_str=[sz_str,num2str(sz(i)),'x'];
+        end
+        sz_str(end)=']';
+        str=['argument ',sz_str,' array of class ',class(var)];
+    end
 end
+
+
+%----------------------------------------------------------------------------------------
+function [par,keyval,present,filled]=error_return
+% Default output if there is an error
+par={};
+keyval=struct([]);
+present=struct([]);
+filled=struct([]);

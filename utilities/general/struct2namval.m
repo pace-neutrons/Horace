@@ -1,5 +1,5 @@
 function c=struct2namval(s)
-% Covert structure to cell array of name1,val1,name2,val2,...
+% Convert structure to cell array of name1,val1,name2,val2,...
 %
 %   >> c=struct2namval(s)
 %

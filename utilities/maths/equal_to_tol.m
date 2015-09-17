@@ -41,7 +41,7 @@ if nargin==2
 elseif nargin==3 && isnumeric(varargin{1})
     opt.tol=varargin{1};
 elseif nargin>=3
-    [par,opt,present,filled,ok,mess]=parse_args_simple(varargin,opt);
+    [par,opt,present,filled,ok,mess]=parse_arguments(varargin,opt);
     if ~ok, error(mess), end
     if numel(par)==0
         opt.tol=0;
