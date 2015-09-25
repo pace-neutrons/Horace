@@ -78,6 +78,9 @@ if nargin==3
     if ischar(check_type) && length(size(check_type))==2 && size(check_type,1)==1
         if isa(var,check_type)
             type_ok = 1;
+        elseif isa(var,'single') && strcmp(check_type,'double')
+            %var = double(var);
+            type_ok = 1;
         elseif strcmpi(check_type,'cellstr') && iscellstr(var)   % catch special case of a cell array of strings
             type_ok = 1;
         end
