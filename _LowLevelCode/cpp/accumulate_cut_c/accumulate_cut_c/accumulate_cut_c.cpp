@@ -105,27 +105,31 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // program parameters; get from the data or use defaults
     mxArray *ppS(NULL);
     // inputs:
-    double  *pProg_settings;
+    std::vector<double> projSettings(5);
     if (nrhs == N_INPUT_Arguments) {
+        double  *pProg_settings;
         pProg_settings = (double *)mxGetPr(prhs[Program_settings]);
+        for (size_t i = 0; i < 5; i++) {
+            projSettings[i]=pProg_settings[i];
+        }
     }
     else {
-        ppS = mxCreateDoubleMatrix(N_PROG_SETTINGS, 1, mxREAL);
-        pProg_settings = (double *)mxGetPr(ppS);
         // supply defaults
-        pProg_settings[Ignore_Nan] = 1;	pProg_settings[Ignore_Inf] = 1;	pProg_settings[Keep_pixels] = 0;	pProg_settings[N_Parallel_Processes] = 1;
+        projSettings[Ignore_Nan] = 1;	projSettings[Ignore_Inf] = 1;	projSettings[Keep_pixels] = 0;	projSettings[N_Parallel_Processes] = 1;
     }
     // associate and extract all inputs
     //----------------------------------------------------------------------------------------------------------
     //  pixel_data(9,:)              u1,u2,u3,u4,irun,idet,ien,s,e for each pixel,
     //                               where ui are coords in projection axes of the pixel data in the file
-    bool pixDataAreDouble = false;
-    if (pProg_settings[NbytesInPixel] > 4) {
-        pixDataAreDouble = true;
-    }
-    double const *pPixelData = (double *)mxGetPr(prhs[Pixel_data]);
     size_t  nPixDataRows = mxGetM(prhs[Pixel_data]);
     size_t  nPixDataCols = mxGetN(prhs[Pixel_data]);
+
+    bool pixDataAreDouble = false;
+    if (projSettings[NbytesInPixel] > 4) {
+        pixDataAreDouble = true;
+    }
+    // Make it double to cast to necessary type later
+    double const *pPixelData = (double *)mxGetPr(prhs[Pixel_data]);
 
     // * s                           Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
     int    nDimensions = (int)mxGetNumberOfDimensions(prhs[Signal]);
@@ -144,22 +148,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // plot axis
     double const *pPAX = mxGetPr(prhs[Plot_axis]);
     int    const nAxis = (int)mxGetN(prhs[Plot_axis]);
-    //-------------------------------------------------------------------------------------------------------------
-    // preprocess input arguments and identify the grid sizes
-    mwSize grid_size[OUT_PIXEL_DATA_WIDTH];
-    // integer axis indexes (taken from pPax)
-    int iAxis[OUT_PIXEL_DATA_WIDTH]; // maximum value not to bother with alloc/delete
-    for (int i = 0; i < OUT_PIXEL_DATA_WIDTH; i++) {
-        grid_size[i] = 0;
-    }
-
-    if (nAxis > 0)
-    {
-        for (int i = 0; i < nDimensions; i++) {
-            iAxis[i] = iRound(pPAX[i]);
-            grid_size[iAxis[i] - 1] = iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab 
-        }                                                 // c-arrays.
-    } // else -- everything will be added to a single point, grid_size is all 0;
 
     // check the consistency of the input data
     {
@@ -219,10 +207,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 }
             }
         }
+        // process issue occurring with 1D cut, when axis is 1 and signal array is 2D array with second dimension 1 (always in Matlab) 
         if (nAxis != nDimensions) {
             if ((nDimensions == 2 && nAxis == 1) || nAxis == 0) // this may be actually one dimensional plot or 0 dimensional plot (point)
             {
-                if (pmDims[1] == 1) { // have to work with a definde shape (column) arrays 
+                if (pmDims[1] == 1) { // have to work with a defied shape (column) arrays 
                     nDimensions = 1;
                 }
             }
@@ -233,6 +222,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             }
         }
     }//
+    //-------------------------------------------------------------------------------------------------------------
+    // preprocess input arguments and identify the grid sizes
+    std::vector<mwSize> grid_size(OUT_PIXEL_DATA_WIDTH, 0);
+    // integer axis indexes (taken from pPax)
+    std::vector<int> iAxis(OUT_PIXEL_DATA_WIDTH, -1); // maximum value not to bother with alloc/delete
+
+
+    if (nAxis > 0)
+    {
+        for (int i = 0; i < nDimensions; i++) {
+            iAxis[i] = iRound(pPAX[i]);
+            grid_size[iAxis[i] - 1] = iRound(pmDims[i]); // here iAxis[i]-1 to agree with the numbering of the arrays in Matlab 
+        }                                                 // c-arrays.
+    } // else -- everything will be added to a single point, grid_size is all 0;
+
 
     //****************************************************************************************************************
     //* Create matrixes for the return arguments */
@@ -282,22 +286,25 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 pPixelData, nPixDataCols,
                 ok, plhs[Pixels_Ind], pPixRange,
                 rot_matrix, shift_matrix, ebin, e_shift, data_limits,
-                grid_size, iAxis, nAxis, pProg_settings);
+                grid_size, iAxis, nAxis, projSettings);
         }else {
             const float *pFloatPixData = reinterpret_cast<const float *>(pPixelData);
             nPixels_retained = accumulate_cut<float>(pSignal, pError, pNpix,
                 pFloatPixData, nPixDataCols,
                 ok, plhs[Pixels_Ind], pPixRange,
                 rot_matrix, shift_matrix, ebin, e_shift, data_limits,
-                grid_size, iAxis, nAxis, pProg_settings);
+                grid_size, iAxis, nAxis, projSettings);
 
         }
     }
     catch (const char *err) {
         mexErrMsgTxt(err);
+    } catch (...) {
+        mexErrMsgTxt("Got unhandled exception from accumulate_cut block");
     }
 
-    if (!iRound(pProg_settings[Keep_pixels])) { // if we do not keep pixels, let's free the array of the pixels in range
+
+    if (!iRound(projSettings[Keep_pixels])) { // if we do not keep pixels, let's free the array of the pixels in range
         mxDestroyArray(pixOK);
         dims[0] = 0;
         dims[1] = 0;

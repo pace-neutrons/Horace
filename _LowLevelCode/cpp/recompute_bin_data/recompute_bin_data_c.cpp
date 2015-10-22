@@ -89,7 +89,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         distr_size*=size_t(dims[i]);
     }
     try {
-        recompute_pix_sums(pSignal,pError, distr_size, pNpix, pPixelData, nPixels, n_threads);
+        if(pixAreDouble){
+            recompute_pix_sums<double>(pSignal,pError, distr_size, pNpix, pPixelData, nPixels, n_threads);
+        }
+        else {
+            float const * const fPixData = (float *)pPixelData;
+            recompute_pix_sums<float>(pSignal, pError, distr_size, pNpix, fPixData, nPixels, n_threads);
+        }
 
     }catch(const char *err) {
         mexErrMsgTxt(err);

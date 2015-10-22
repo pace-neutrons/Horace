@@ -247,7 +247,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         std::vector<mwSize> dimVec(2, 9);
         dimVec[1] = nPixelsSorted;
         const mwSize  *dims = &dimVec[0];
-        if (pix_single_precision && !keep_input_type) {
+        if (pix_single_precision && keep_input_type) {
             plhs[Pixels_Sorted] = mxCreateNumericArray(2, dims, mxSINGLE_CLASS, mxREAL);
             double_output = false;
         }
