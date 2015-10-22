@@ -9,9 +9,9 @@
 // $Revision:: 1045 $ ($Date:: 2015-08-04 13:42:10 +0100 (Tue, 04 Aug 2015) $)" 
 //
 
-
+template<class T>
 void recompute_pix_sums(double *const pSignal, double *const pError, size_t distr_size,
-    double const *const pNpix, double const *const pPixelData, size_t nPixels, int num_OMP_Threads)
+    double const *const pNpix, T const *const pPixelData, size_t nPixels, int num_OMP_Threads)
 {
 
 
@@ -21,10 +21,10 @@ void recompute_pix_sums(double *const pSignal, double *const pError, size_t dist
     bool multithreaded(false);
     if (num_OMP_Threads > 1) {
         multithreaded = true;
-        cumSumData.resize(distr_size);
+        cumSumData.resize(distr_size+1);
         cumSumData[0] = 0;
-        for (size_t i = 1; i < distr_size; i++) {
-            cumSumData[i] = cumSumData[i - 1] + size_t(pNpix[i]);
+        for (size_t i = 1; i <= distr_size; i++) {
+            cumSumData[i] = cumSumData[i - 1] + size_t(pNpix[i-1]);
         }
     }
 

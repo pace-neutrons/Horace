@@ -34,12 +34,12 @@ bool isNaN(T val) {
 /** Routine to calculate pixels data belonging to appropriate range */
 template<class T>
 mwSize accumulate_cut(double *s, double *e, double *npix,
-    T const* pixel_data, size_t data_size,
+    T const*const pixel_data, size_t data_size,
     mxLogical *ok, mxArray *&ix_final_pixIndex, double *actual_pix_range,
     double const* rot_ustep, double const* trans_bott_left, double ebin, double trans_elo, // transformation matrix
     double const* cut_range,
-    mwSize grid_size[4], int const *iAxis, int nAxis,
-    double const* pProg_settings)
+    const std::vector<mwSize> &grid_size, const std::vector<int> &iAxis, int nAxis,
+    const std::vector<double> &progSettings)
 {
 
     double Et;
@@ -49,11 +49,11 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
 
     //if we want to ignore nan and inf in the data
     bool ignore_nan(false);
-    if (pProg_settings[Ignore_Nan] > FLT_EPSILON) {
+    if (progSettings[Ignore_Nan] > FLT_EPSILON) {
         ignore_nan = true;
     }
     bool ignore_inf(false);
-    if (pProg_settings[Ignore_Inf] > FLT_EPSILON) {
+    if (progSettings[Ignore_Inf] > FLT_EPSILON) {
         ignore_inf = true;
     }
     ignore_something = ignore_nan | ignore_inf;
@@ -65,11 +65,11 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
 
 
     int num_OMP_Threads(1);
-    if (pProg_settings[N_Parallel_Processes] > 1) {
-        num_OMP_Threads = (int)pProg_settings[N_Parallel_Processes];
+    if (progSettings[N_Parallel_Processes] > 1) {
+        num_OMP_Threads = (int)progSettings[N_Parallel_Processes];
     }
     bool keep_pixels(false);
-    if (pProg_settings[Keep_pixels] > FLT_EPSILON) {
+    if (progSettings[Keep_pixels] > FLT_EPSILON) {
         keep_pixels = true;
     }
 
@@ -233,10 +233,10 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
             {
                 for (int i0 = 0; i0 < num_OMP_Threads; i0++)
                 {
-                    size_t ind = i0*distribution_size + i;
-                    s[i] += *(pStor->pSignal + ind);
-                    e[i] += *(pStor->pError + ind);
-                    npix[i] += *(pStor->pNpix + ind);
+                    size_t indl = i0*distribution_size + i;
+                    s[i] += *(pStor->pSignal + indl);
+                    e[i] += *(pStor->pError + indl);
+                    npix[i] += *(pStor->pNpix + indl);
                 }
             }
         }
