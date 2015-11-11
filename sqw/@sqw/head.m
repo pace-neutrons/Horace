@@ -116,7 +116,7 @@ else
                 h=struct(w.data(i));
                 h.data=rmfield(h.data,{'s','e','npix','pix'});
             else
-                h=rmfield(w.data(i).data,{'s','e','npix'});
+                h=rmfield(struct(w.data(i).data),{'s','e','npix'});
                 if is_sqw_type(w.data(i))
                     h=rmfield(h,'pix');
                 else

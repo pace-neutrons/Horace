@@ -136,8 +136,16 @@ fwhh=args{noff+5};
 
 % Determine if need to calculate dispersion, weight, or both, and consistency with dispreln
 % ------------------------------------------------------------------------------------------
-if nargout(dispreln)<2
-    error('The provided dispersion function does not appear to return spectral weight')
+nout = nargout(dispreln);
+errstr = 'The provided dispersion function does not appear to return spectral weight';
+if nout<0
+    try
+        [e,sf]=dispreln(0,0,0,pars{:});
+    catch
+        error(errstr);
+    end
+elseif nout<2
+    error(errstr);
 end
 
 % Make labels

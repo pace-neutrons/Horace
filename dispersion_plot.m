@@ -146,8 +146,18 @@ calc_weight = return_weight | plot_weight;
 if ~calc_dispersion && ~calc_weight
     error('Neither requested to return calculation nor to plot calculation')
 end
-if nargout(dispreln)<2 && calc_weight
-    error('Requested spectral weight to be calculated, but the provided dispersion function does not return it')
+if calc_weight
+    nout = nargout(dispreln);
+    errstr = 'Requested spectral weight to be calculated, but the provided dispersion function does not return it';
+    if nout<0
+        try
+            [e,sf]=dispreln(0,0,0,pars{:});
+        catch
+            error(errstr);
+        end
+    elseif nout<2
+        error(errstr);
+    end
 end
 
 
