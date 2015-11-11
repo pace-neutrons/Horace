@@ -111,6 +111,27 @@ end
 % Evaluate dispersion relation(s)
 if ~iscell(pars), pars={pars}; end      % package parameters as a cell for convenience
 
+% Checks if we are calling a spinW object, and if so prepend 'param' to pars{}
+if ~isempty(strfind(func2str(dispreln),'.horace(')) && exist('sw')==2 && exist('sw','class')==8
+    inpForm.fname  = {'component' 'norm' 'dE'  'func'         'param'};
+    inpForm.defval = {'Sperp'     false  0     @obj.matparser []     };
+    inpForm.size   = {[1 -1]      [1 1]  [1 1] [1 1]          [1 -2] };
+    inpForm.soft   = {false       false  false false          true   };
+    warnState = warning('off','sw_readparam:UnreadInput');
+    try
+        param = sw_readparam(inpForm, pars{:})
+    catch
+        par0 = pars;
+        pars = {'param',pars{:}};
+        try
+             param = sw_readparam(inpForm, pars{:});
+        catch
+             % Might not be a spinW object remove 'param' and proceed as before
+             pars = par0;
+        end
+    end
+end
+
 if nargout(dispreln)==1
     e=dispreln(q{:},pars{:});   % only dispersion seems to be provided
     if ~iscell(e)   % convert to cell array for convenience
@@ -127,7 +148,6 @@ else
         sf={sf};
     end
 end
-
 
 % resolution function definintion and weight accumulation.
 
