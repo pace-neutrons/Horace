@@ -10,18 +10,18 @@ function make_horace_distribution_kit(varargin)
 %                    the private horace folders
 %'-compact'      -- if present, request dropping the demo and test files
 %                   with test folders, default -- comress demo and tests
-%                   together with main code. 
+%                   together with main code.
 %'-noherbert'    -- do not pack herbert tohether with horace
 %
 % To use Horace  one has to unpack the resulting zip file and add the folder
-% where the function Horace_init.m resides to the matlab search path. 
-% alternatively, you can edit the file Horace_on.mt, file and 
+% where the function Horace_init.m resides to the matlab search path.
+% alternatively, you can edit the file Horace_on.mt, file and
 % replace the variable $libisis_path$ and $Horathe_path$ by the actual
-% folders  where the files Horace_init.m and libisis_init.m or herbert_init reside 
-% (Horace needs Libisis or Herbert to work) 
-% and add to the search path the file Horace_on.m, 
+% folders  where the files Horace_init.m and libisis_init.m or herbert_init reside
+% (Horace needs Libisis or Herbert to work)
+% and add to the search path the file Horace_on.m,
 % after renaming the file Horace_on.m.template to horace_on.m.
-% 
+%
 %
 % $Revision$ ($Date$)
 %
@@ -42,17 +42,17 @@ if nargin>0
         end
         error('MAKE_HORACE_DISTRIBUTION_KIT:invalid_argument',' unknown or unsupported key %s %s %s',varargin{non_member});
     end
-   % interpret existing keys    
+    % interpret existing keys
     if ismember('-reveal_code',varargin)
         reveal_code =true;
     end
     if ismember('-compact',varargin)
         no_demo=true;
-    end    
+    end
     if ismember('-noherbert',varargin)
         no_herbert  = true;
     end
- 
+    
 end
 
 rootpath = fileparts(which('horace_init')); % MUST have rootpath so that horace_init, horace_off are included
@@ -67,8 +67,8 @@ root_dir     = current_dir;
 % if inside horace package dir, go avay from there:
 if strncmpi(rootpath,current_dir,numel(rootpath))
     dir_to_return_to = current_dir;
-	cd(rootpath);
-	cd('../');
+    cd(rootpath);
+    cd('../');
     current_dir  = pwd;
     root_dir     = current_dir;
 end
@@ -76,10 +76,10 @@ end
 target_Dir=[root_dir,'/ISIS'];
 horace_dir = [target_Dir,'/Horace'];
 % copy everything, which can be found under root Horace folder
-copy_files_list(rootpath,horace_dir); 
+copy_files_list(rootpath,horace_dir);
 % copy source code files from system directory
 copy_files_list(fullfile(rootpath,'_LowLevelCode'),fullfile(horace_dir,'_LowLevelCode'),...
-                '+_','h','cpp','c','sln','vcproj'); 
+    '+_','h','cpp','c','sln','vcproj');
 
 
 % remove sqw and intermediate working file if they are there
@@ -87,9 +87,9 @@ if exist(fullfile(horace_dir,'demo','fe_demo.sqw'),'file')
     delete(fullfile(horace_dir,'demo','fe_demo.sqw'))
 end
 delete(fullfile(horace_dir,'demo','*.spe'));
-delete(fullfile(horace_dir,'demo','*.nxspe'));    
-delete(fullfile(horace_dir,'demo','*.spe_h5'));        
-delete(fullfile(horace_dir,'demo','*.tmp'));            
+delete(fullfile(horace_dir,'demo','*.nxspe'));
+delete(fullfile(horace_dir,'demo','*.spe_h5'));
+delete(fullfile(horace_dir,'demo','*.tmp'));
 
 % Delete unwanted directories (with all their sub-directories)
 % ------------------------------------------------------------
@@ -105,8 +105,12 @@ end
 
 % if necessary, remove demo and test folders
 if no_demo
-    rmdir(fullfile(horace_dir,'demo'),'s');
-    rmdir(fullfile(horace_dir,'test'),'s');    
+    if exist(fullfile(horace_dir,'demo'),'dir')
+        rmdir(fullfile(horace_dir,'demo'),'s');
+    end
+    if exist(fullfile(horace_dir,'test'),'dir')
+        rmdir(fullfile(horace_dir,'test'),'s');
+    end
     delete(fullfile(horace_dir,'admin','validate_horace.m'));
 else
     % copy source code files from system directory
@@ -120,9 +124,9 @@ copyfile(install_script,fullfile(target_Dir,'horace_on.m.template'),'f');
 %
 disp('!    The HORACE program files collected successfully ==============!')
 if(~reveal_code)
-	disp('!    p-coding private Horace parts and deleting unnecessary fiders=!')
-	pCode_Horace_kit(horace_dir);
-	disp('!    Horace p-coding completed =====================================!')
+    disp('!    p-coding private Horace parts and deleting unnecessary fiders=!')
+    pCode_Horace_kit(horace_dir);
+    disp('!    Horace p-coding completed =====================================!')
 end
 
 % if herbert used, add herbert distribution kit to the distribution
@@ -132,16 +136,16 @@ if ~no_herbert
         argi{2} = '-compact';
     end
     make_herbert_distribution_kit(target_Dir,argi{:});
-    pref='';    
-else    
-    pref='_only';    
+    pref='';
+else
+    pref='_only';
 end
 %
 %
 disp('!    Start compressing all necessary files together ================!')
-% 
+%
 if no_demo
-    horace_file_name=['Horace',pref,'_nodemo.zip'];    
+    horace_file_name=['Horace',pref,'_nodemo.zip'];
 else
     horace_file_name= ['horace',pref,'_distribution_kit.zip'];
 end
@@ -158,9 +162,9 @@ if ~isempty(dir_to_return_to)
     if err
         disp(['Error copying file to destination: ',mess]);
         warning('MAKE_HORACE_DISTRIBUTION_KIT:copy_file',...
-                ' can not move distributive into target folder %s\n left it in the folder %s\n',...
-                 dir_to_return_to,dir);
-    end   
+            ' can not move distributive into target folder %s\n left it in the folder %s\n',...
+            dir_to_return_to,dir);
+    end
     cd(dir_to_return_to);
 end
 
@@ -173,7 +177,7 @@ if ~strncmp(horace_dir,rootpath,source_len)
     rmdir(horace_dir,'s');
 end
 if ~strcmpi(target_Dir,current_dir)
-    rmdir(target_Dir,'s');    
+    rmdir(target_Dir,'s');
 end
 
 disp('!    All done folks ================================================!')
