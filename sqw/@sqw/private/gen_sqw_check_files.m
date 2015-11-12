@@ -42,10 +42,11 @@ spe_file_out=[]; par_file_out=[]; sqw_file_out=[]; spe_exist=[]; spe_unique=[]; 
 
 %RAE - is_string fails in Matlab versions earlier than 2015b
 %this is a nasty fix for this one example - are there others???
-try tf=is_string(spe_file);
-catch
-    tf=isstring(spe_file);
-end
+%try 
+tf=is_string(spe_file);
+%catch
+%    tf=isstring(spe_file);
+%end
 
 if tf
     spe_file_out=cellstr(strtrim(spe_file));
@@ -124,10 +125,11 @@ end
 % ---------------
 
 %See above (RAE)
-try tf=is_string(sqw_file);
-catch
-    tf=isstring(sqw_file);
-end
+%try 
+tf=is_string(sqw_file);
+%catch
+%    tf=isstring(sqw_file);
+%end
 
 if tf && ~isempty(strtrim(sqw_file))
     sqw_file_out=strtrim(sqw_file);
