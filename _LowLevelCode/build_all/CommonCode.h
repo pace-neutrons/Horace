@@ -13,22 +13,19 @@
 #include <matrix.h>
 #include <vector>
 
-#ifdef __GNUC__
-#   if __GNUC__ < 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ < 2)
-// then the compiler does not understand OpenMP functions, let's define them
+#ifndef _OPENMP
 void omp_set_num_threads(int nThreads) {};
 #define omp_get_num_threads() 1
 #define omp_get_max_threads() 1
 #define omp_get_thread_num()  0
 #else
 #include <omp.h>
-#   endif
-# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4) 
-#define    OMP_VERSION_3 
 #endif
+
+# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
+#define  OMP_VERSION_3
 #else
-#include <omp.h>
-#undef    OMP_VERSION_3 
+#undef   OMP_VERSION_3
 #endif
 
 enum pix_fields
