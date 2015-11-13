@@ -930,6 +930,8 @@ if ok
                 end
                 par_present=[true(np,1);false(np_max-np,1)];
                 present=cell2struct(num2cell([par_present;key_present]),[nam_par;nam]);
+            else
+                present=cell2struct(num2cell(key_present),nam);
             end
         end
     else
