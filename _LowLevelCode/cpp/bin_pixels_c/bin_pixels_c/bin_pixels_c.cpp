@@ -1,15 +1,3 @@
-#include <iostream>
-#include <sstream>
-#include <cmath>
-#include <time.h>
-#include <float.h>
-
-#include <mex.h>
-#include <matrix.h>
-#include <cfloat>
-#include <cstring>
-#include <memory>
-#include <mutex>
 #include "../../../build_all/CommonCode.h"
 //
 enum input_arguments{

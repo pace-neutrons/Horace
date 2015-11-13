@@ -7,23 +7,15 @@
 #define H_CALC_PROJECTIONS_C
 
 
-
-#include <float.h>
-#include <limits>
-#include <sstream>
-#include <cmath>
-#include <omp.h>
-//
-#include <mex.h>
-#include <matrix.h>
+#include "../../../build_all/CommonCode.h"
 
 
 // $Revision$ $Date$
 enum eMode
 {
-	Elastic,
-	Direct,
-	Indirect
+  Elastic,
+  Direct,
+  Indirect
 };
 // the enum identifies the formats, output data (second output of the calc_projections function) can have
 enum urangeModes
@@ -36,10 +28,10 @@ enum urangeModes
 };
 
 void calc_projections_emode(double * const /*pMinMax */,
-							 double * const /*pTransfDetectors*/,
-							 eMode /*emode*/, urangeModes, /*mode */
-							 double const * const pSignal, double const * const pError,double const * const pDetGroup,
+               double * const /*pTransfDetectors*/,
+               eMode /*emode*/, urangeModes, /*mode */
+               double const * const pSignal, double const * const pError,double const * const pDetGroup,
                              double const * const pMatrix,double const * const pEnergies, mwSize nEnergies,
                              double const * const pDetPhi,double const * const pDetPsi, mwSize nDetectors,
-						     double efix, double k_to_e,int nThreads);
+                 double efix, double k_to_e,int nThreads);
 #endif

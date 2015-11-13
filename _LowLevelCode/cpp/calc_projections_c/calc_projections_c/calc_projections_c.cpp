@@ -1,10 +1,7 @@
 // calc_projections_c.cpp : Defines the exported functions for the DLL application.
 //
 #include "calc_projections_c.h"
-#include <vector>
-#include <sstream> 
-#include "../../../build_all/CommonCode.h"
-
+//
 // enumerate input parameters for easy references. 
 enum inPar{
     Spec_to_proj,
@@ -274,7 +271,7 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
 
 
 }
-const double 	Pi = 3.1415926535897932384626433832795028841968;
+const double    Pi = 3.1415926535897932384626433832795028841968;
 const double    grad2rad=Pi/180;
 
 void calc_projections_emode(double * const pMinMax,

@@ -1,14 +1,6 @@
 #ifndef H_SORT_PIXELS_BY_BINS
 #define H_SORT_PIXELS_BY_BINS
 
-#include <float.h>
-#include <limits>
-#include <vector>
-#include <sstream>
-#include <cmath>
-//#include <omp.h>
-
-//
 
 #include "../../../build_all/CommonCode.h"
 

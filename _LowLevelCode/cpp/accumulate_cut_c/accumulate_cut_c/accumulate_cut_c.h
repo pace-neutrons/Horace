@@ -2,13 +2,6 @@
 #define H_ACCUMULATE_CUT
 
 
-#include <float.h>
-#include <limits>
-#include <sstream>
-#include <cmath>
-//
-#include <cfloat>
-#include <memory>
 #include "../../../build_all/CommonCode.h"
 
 #define iRound(x)  (int)floor((x)+0.5)
@@ -20,7 +13,7 @@ enum program_settings {
     Ignore_Inf,
     Keep_pixels,
     N_Parallel_Processes,
-    NbytesInPixel, // 
+    NbytesInPixel, //
     N_PROG_SETTINGS
 };
 
