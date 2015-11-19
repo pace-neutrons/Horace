@@ -22,7 +22,7 @@ function varargout = horace(varargin)
 
 % Edit the above text to modify the response to help horace
 
-% Last Modified by GUIDE v2.5 07-Dec-2010 11:54:27
+% Last Modified by GUIDE v2.5 19-Nov-2015 11:00:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -4461,6 +4461,7 @@ w=get(handles.Cutfile_w_edit,'String');
 u_rlu=get(handles.Cutfile_rlu_1_radiobutton,'Value');
 v_rlu=get(handles.Cutfile_rlu_2_radiobutton,'Value');
 w_rlu=get(handles.Cutfile_rlu_3_radiobutton,'Value');
+orth_axes=get(handles.Cutfile_orthaxes_radiobutton,'Value');
 a1=get(handles.Cutfile_ax1_range_edit,'String');
 a2=get(handles.Cutfile_ax2_range_edit,'String');
 a3=get(handles.Cutfile_ax3_range_edit,'String');
@@ -4520,11 +4521,18 @@ else
     angstring=[angstring,'a'];
 end
 %
+if orth_axes
+    nonorth=0;
+else
+    nonorth=1;
+end
+%
 proj.u=u'; proj.v=v';
 if ~isempty(w)
     proj.w=w';
 end
 proj.type=angstring;
+proj.nonorthogonal=nonorth;
 %===
 if isempty(a1) || isempty(a2) || isempty(a3) || isempty(a4)
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
@@ -5805,4 +5813,33 @@ catch
     guidata(gcbo,handles);
 end
 
+
+% --- Executes on button press in Cutfile_orthaxes_radiobutton.
+function Cutfile_orthaxes_radiobutton_Callback(hObject, eventdata, handles)
+% hObject    handle to Cutfile_orthaxes_radiobutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Cutfile_orthaxes_radiobutton
+
+button_state=get(hObject,'Value');
+if button_state==get(hObject,'Max');%button is pressed
+    set(handles.Cutfile_nonorth_axes_radiobutton,'Value',0);
+end
+guidata(gcbo, handles);
+
+
+% --- Executes on button press in Cutfile_nonorth_axes_radiobutton.
+function Cutfile_nonorth_axes_radiobutton_Callback(hObject, eventdata, handles)
+% hObject    handle to Cutfile_nonorth_axes_radiobutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Cutfile_nonorth_axes_radiobutton
+
+button_state=get(hObject,'Value');
+if button_state==get(hObject,'Max');%button is pressed
+    set(handles.Cutfile_orthaxes_radiobutton,'Value',0);
+end
+guidata(gcbo, handles);
 
