@@ -1,4 +1,4 @@
-function [xcoords,ycoords,zcoords,pts]=...
+function [xcoords,ycoords,zcoords,pts,ptlabs]=...
     calc_coverage_from_detpars(Ei,hw,omega_min,omega_max,detpar,u,v,alatt,angdeg)
 %
 % Calculate the coverage of reciprocal space of a Horace type angle sweep,
@@ -35,31 +35,65 @@ centre=[-2*pi/lam,0];
 tth=detpar.phi;
 azi=detpar.azim;
 
+%define angular width of pixel by looking at width (detpar.width) compared
+%to x2
+angwid=atand(detpar.width(1)/detpar.x2(1));
+
 % tth=detpar(2,:);
 % azi=detpar(3,:);
 rho=kfhw.*ones(size(tth));
 
 checkit=diff(azi);%difference in azimuthal angle between adjacent pixels in list
-test2=sign(checkit);%sign - there is a discontinuity in sign when we move to the next tube along
-test3=diff(test2);%where sign is the same, this is zero. Non-zero where not.
-ff=find(abs(test3)>0);%find indices of non-zeros
-ff=ff([2:2:end]);%these are the extremal edges of tubes
 
-ind=[round(linspace(1,ff(1),16))];
-for i=1:length(ff)-1
+%We want to find where the difference is greater than say 3 - this would
+%correspond either to a sign change, which is either the middle of a tube
+%or the ends. Or if one has horizontal tubs (like MAPS) there is a big change
+%between going from one end of the tube to the other.
+%For the former we just have a couple of half tubes, which for
+%drawing purposes is ok.
+
+%New code
+c1=find(abs(checkit) > 5);
+%This is a list of ends / middles. But want the index immediateley after each of
+%these. So in a loop make a new array where we interleave into ff:
+ff=[1];
+for i=1:numel(c1)
+    ff=[ff c1(i) c1(i)+1];
+end
+
+%Old code
+% test2=sign(checkit);%sign - there is a discontinuity in sign when we move to the next tube along
+% test3=diff(test2);%where sign is the same, this is zero. Non-zero where not.
+% ff=find(abs(test3)>0);%find indices of non-zeros
+% ff=ff([2:2:end]);%these are the extremal edges of tubes
+% 
+%This bit then breaks each tube up into 16 sections
+%ind=[round(linspace(1,ff(1),8))];
+ind=[];
+for i=1:2:length(ff)-1
     ind=[ind round(linspace(ff(i),ff(i+1),16))];
 end
 
-jj=jet(30);
+% ind=ff;
+
 counter=1;
 for i=linspace(omega_min,omega_max,30)
     %rotmat=[cosd(i) sind(i); -sind(i) cosd(i)];
     rotmat=[cosd(180+i) sind(180+i); -sind(180+i) cosd(180+i)];
     
+    %Pixel centre positions
     X=rho.*cosd(tth);
     Y=(rho.*sind(tth)).*cosd(azi);
     Z=(rho.*sind(tth)).*sind(-azi);
-
+    
+    %Pixel vertices - because MAPS is a special case with horizontal tubes
+    %the code needs to be clever enough to work out whether or not the tube
+    %is vertical or horizontal. If vertical then vertices will be +/- X and
+    %Y. If the horizontal then +/- X and Z (or Y and Z!!!). To sort this
+    %out determine the line joining pairs of pixels that we count, then use
+    %this to work out what sort of patch is required.
+    
+    
     %In order to have a plot that is not insane, we need to count a reduced
     %number of these pixels. To do so, we need to calculate their periodicity,
     %or just to take a fixed fraction of them...
@@ -80,116 +114,28 @@ end
 
 %====================================
 %Dots at reciprocal lattice pts (out of plane as well):
-areal=alatt(1)*[1,0,0]';
-breal=alatt(2)*([cosd(angdeg(1)) -sind(angdeg(1)) 0; sind(angdeg(1)) cosd(angdeg(1)) 0; 0 0 1])*[1,0,0]';
-aa=angdeg(3);
-uvec=cross(breal,[0,0,1]);
-uvec=uvec./norm(uvec);
-rotmat_generic=[cosd(aa)+(uvec(1)^2)*(1-cosd(aa)),...
-        (uvec(1)*uvec(2)*(1-cosd(aa)) - uvec(3)*sind(aa)),...
-        (uvec(1)*uvec(3)*(1-cosd(aa)) + uvec(2)*sind(aa));...
-        (uvec(2)*uvec(1)*(1-cosd(aa)) + uvec(3)*sind(aa)),...
-        cosd(aa)+(uvec(2)^2)*(1-cosd(aa)),...
-        (uvec(2)*uvec(3)*(1-cosd(aa)) - uvec(1)*sind(aa));...
-        (uvec(3)*uvec(1)*(1-cosd(aa)) - uvec(2)*sind(aa)),...
-        (uvec(3)*uvec(2)*(1-cosd(aa)) + uvec(1)*sind(aa)),...
-        cosd(aa)+(uvec(3)^2)*(1-cosd(aa))];
-creal=alatt(3)*rotmat_generic*(breal./alatt(2));    
 
-as=2*pi*(cross(breal,creal))./(dot(areal,cross(breal,creal)));
-bs=2*pi*(cross(creal,areal))./(dot(areal,cross(breal,creal)));
-cs=2*pi*(cross(areal,breal))./(dot(areal,cross(breal,creal)));
+[bm,arlu,angrlu]=bmatrix(alatt,angdeg);
+ub=ubmatrix(u,v,bm);
 
-%Next point is to work out how to draw the plane defined by u and v, and
-%put reciprocal lattice points in the right places.
+%Calculate the space that might be covered, in rlu
+xlist=[floor((-2*pi*2/lam)./arlu(1)):eps+ceil((2*pi*2/lam)./arlu(1))];
+ylist=[floor((-2*pi*2/lam)./arlu(2)):eps+ceil((2*pi*2/lam)./arlu(2))];
+zlist=[floor((-2*pi*2/lam)./arlu(3)):eps+ceil((2*pi*2/lam)./arlu(3))];
 
-qpar=u(1).*as + u(2).*bs + u(3).*cs;
-qperp=v(1).*as + v(2).*bs + v(3).*cs;
-w=(cross(v',u'));
-qoop=w(1).*as + w(2).*bs + w(3).*cs;
-
-xlist=[floor((-2*pi*2/lam)/norm(qpar)):eps+ceil((2*pi*2/lam)/norm(qpar))];
-ylist=[floor((-2*pi*2/lam)/norm(qperp)):eps+ceil((2*pi*2/lam)/norm(qperp))];
-zlist=[floor((-2*pi*2/lam)/norm(qoop)):eps+ceil((2*pi*2/lam)/norm(qoop))];
-
+counter=1;
 pts=[];
 for i=1:numel(xlist)
     for j=1:numel(ylist)
         for k=1:numel(zlist)
-            if sqrt(sum((xlist(i).*qpar).^2) + sum((ylist(j).*qperp).^2) + sum((zlist(k).*qoop).^2))<=2*pi*2/lam
-                newpt=[xlist(i)*norm(qpar) ylist(j)*norm(qperp) zlist(k)*norm(qoop)];
-                %newpt=[xlist(i).*qpar'+ylist(j).*qperp'+zlist(k).*qoop'];
-                pts=[pts; newpt];
+            qp=[xlist(i)*ub*[1,0,0]'] + [ylist(j)*ub*[0,1,0]'] + [zlist(k)*ub*[0,0,1]'];
+            if sqrt(sum(qp.^2))<=2*pi*2/lam
+                pts=[pts; qp'];
+                ptlabs{counter}=num2str([xlist(i) ylist(j) zlist(k)]);
+                counter=counter+1;
             end
         end
     end
 end
-% plot(pts(:,1),pts(:,2),'ok','LineWidth',1,'MarkerSize',4);
-
-%===
-%Make the plot look a little bit nicer:
-% set(gca,'DataAspectRatio',[1,1,1]);
-% grid on;
-% set(gca,'Layer','top');
-% for i=1:numel(xcoords)
-%     mmin(i)=min(zcoords{i});
-%     mmax(i)=max(zcoords{i});
-% end
-% axis([-4*pi/lam 4*pi/lam -4*pi/lam 4*pi/lam min(mmin)-1 max(mmax)+1 ...
-%     -0.2 0.2]);
-% %note the title here is special case for IN5
-% title(['Ei=',num2str(Ei),'meV, E=',num2str(hw),'meV, ',...
-%     num2str(omega_min+180),'<psi<',num2str(omega_max+180)]);
-% colormap jet
-% colorbar
-% caxis([omega_min,omega_max]);
-
-%================================================
-
-%Next step is to plot a side view as well:
-%A cleverer way of showing the side view would be to use patches of the y
-%and z co-ordinates.
-% subplot(2,2,2);
-% counter=1;
-% for i=linspace(omega_min,omega_max,30)
-%     plot(ycoords{counter},zcoords{counter},'Color',jj(counter,:));
-%     hold on;
-%     counter=counter+1;
-% end
-% 
-% set(gca,'DataAspectRatio',[1,1,1]);
-% grid on;
-% set(gca,'Layer','top');
-% hold on;
-% plot(pts(:,2),pts(:,3),'ok','LineWidth',1,'MarkerSize',4);
-% colormap jet
-% colorbar
-% caxis([omega_min,omega_max]);
-% 
-% %==========================================================================
-% %Also plot view from bottom (of 1st panel):
-% subplot(2,2,3);
-% counter=1;
-% for i=linspace(omega_min,omega_max,30)
-%     plot(xcoords{counter},zcoords{counter},'Color',jj(counter,:));
-%     hold on;
-%     counter=counter+1;
-% end
-% 
-% set(gca,'DataAspectRatio',[1,1,1]);
-% grid on;
-% set(gca,'Layer','top');
-% hold on;
-% plot(pts(:,1),pts(:,3),'ok','LineWidth',1,'MarkerSize',4);
-% colormap jet
-% colorbar
-% caxis([omega_min,omega_max]);
-% 
-% 
-
-
-
-
-
 
 

@@ -1,35 +1,35 @@
 function varargout = horace_planner(varargin)
-% HORACE_PLANNER_V2 M-file for horace_planner_v2.fig
-%      HORACE_PLANNER_V2, by itself, creates a new HORACE_PLANNER_V2 or raises the existing
+% HORACE_PLANNER M-file for horace_planner.fig
+%      HORACE_PLANNER, by itself, creates a new HORACE_PLANNER or raises the existing
 %      singleton*.
 %
-%      H = HORACE_PLANNER_V2 returns the handle to a new HORACE_PLANNER_V2 or the handle to
+%      H = HORACE_PLANNER returns the handle to a new HORACE_PLANNER or the handle to
 %      the existing singleton*.
 %
-%      HORACE_PLANNER_V2('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in HORACE_PLANNER_V2.M with the given input arguments.
+%      HORACE_PLANNER('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in HORACE_PLANNER.M with the given input arguments.
 %
-%      HORACE_PLANNER_V2('Property','Value',...) creates a new HORACE_PLANNER_V2 or raises the
+%      HORACE_PLANNER('Property','Value',...) creates a new HORACE_PLANNER or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
 %      applied to the GUI before horace_planner_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to horace_planner_v2_OpeningFcn via varargin.
+%      stop.  All inputs are passed to horace_planner_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help horace_planner_v2
+% Edit the above text to modify the response to help horace_planner
 
-% Last Modified by GUIDE v2.5 30-Oct-2015 14:11:02
+% Last Modified by GUIDE v2.5 23-Nov-2015 13:48:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_planner_v2_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_planner_v2_OutputFcn, ...
+                   'gui_OpeningFcn', @horace_planner_OpeningFcn, ...
+                   'gui_OutputFcn',  @horace_planner_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,26 +44,26 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before horace_planner_v2 is made visible.
-function horace_planner_v2_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before horace_planner is made visible.
+function horace_planner_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to horace_planner_v2 (see VARARGIN)
+% varargin   command line arguments to horace_planner (see VARARGIN)
 
-% Choose default command line output for horace_planner_v2
+% Choose default command line output for horace_planner
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes horace_planner_v2 wait for user response (see UIRESUME)
+% UIWAIT makes horace_planner wait for user response (see UIRESUME)
 % uiwait(handles.Planner);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_planner_v2_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_planner_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -486,7 +486,7 @@ end
 
 try
     [xcoords,ycoords,zcoords,pts,ptlabs]=...
-        calc_coverage_from_detpars_v2(ei,eps,psimin,psimax,detpar,u,v,alatt,angdeg);
+        calc_coverage_from_detpars(ei,eps,psimin,psimax,detpar,u,v,alatt,angdeg);
 catch
     disp_error('non-trivial error on execution of calculations. Check inputs carefully...');              
     return;
