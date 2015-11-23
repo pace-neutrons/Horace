@@ -1,35 +1,35 @@
 function varargout = horace_planner(varargin)
-% HORACE_PLANNER M-file for horace_planner.fig
-%      HORACE_PLANNER, by itself, creates a new HORACE_PLANNER or raises the existing
+% HORACE_PLANNER_V2 M-file for horace_planner_v2.fig
+%      HORACE_PLANNER_V2, by itself, creates a new HORACE_PLANNER_V2 or raises the existing
 %      singleton*.
 %
-%      H = HORACE_PLANNER returns the handle to a new HORACE_PLANNER or the handle to
+%      H = HORACE_PLANNER_V2 returns the handle to a new HORACE_PLANNER_V2 or the handle to
 %      the existing singleton*.
 %
-%      HORACE_PLANNER('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in HORACE_PLANNER.M with the given input arguments.
+%      HORACE_PLANNER_V2('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in HORACE_PLANNER_V2.M with the given input arguments.
 %
-%      HORACE_PLANNER('Property','Value',...) creates a new HORACE_PLANNER or raises the
+%      HORACE_PLANNER_V2('Property','Value',...) creates a new HORACE_PLANNER_V2 or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
 %      applied to the GUI before horace_planner_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to horace_planner_OpeningFcn via varargin.
+%      stop.  All inputs are passed to horace_planner_v2_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help horace_planner
+% Edit the above text to modify the response to help horace_planner_v2
 
-% Last Modified by GUIDE v2.5 03-Feb-2015 11:00:25
+% Last Modified by GUIDE v2.5 30-Oct-2015 14:11:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_planner_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_planner_OutputFcn, ...
+                   'gui_OpeningFcn', @horace_planner_v2_OpeningFcn, ...
+                   'gui_OutputFcn',  @horace_planner_v2_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,26 +44,26 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before horace_planner is made visible.
-function horace_planner_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before horace_planner_v2 is made visible.
+function horace_planner_v2_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to horace_planner (see VARARGIN)
+% varargin   command line arguments to horace_planner_v2 (see VARARGIN)
 
-% Choose default command line output for horace_planner
+% Choose default command line output for horace_planner_v2
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes horace_planner wait for user response (see UIRESUME)
+% UIWAIT makes horace_planner_v2 wait for user response (see UIRESUME)
 % uiwait(handles.Planner);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_planner_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_planner_v2_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -483,9 +483,10 @@ end
 
 %If we get to this stage, then all of the inputs are OK, and we can
 %proceed.
+
 try
-    [xcoords,ycoords,zcoords,pts]=...
-        calc_coverage_from_detpars(ei,eps,psimin,psimax,detpar,u,v,alatt,angdeg);
+    [xcoords,ycoords,zcoords,pts,ptlabs]=...
+        calc_coverage_from_detpars_v2(ei,eps,psimin,psimax,detpar,u,v,alatt,angdeg);
 catch
     disp_error('non-trivial error on execution of calculations. Check inputs carefully...');              
     return;
@@ -494,38 +495,100 @@ end
 %Now make the plots:
 axes(handles.axes1);
 cla;%clear pre-existing plots on these axes
-jj=jet(30);
 counter=1;
-xmin=zeros(1,30); xmax=xmin;
-ymin=xmin; ymax=ymin;
-for i=linspace(psimin,psimax,30)
-    plot(handles.axes1,xcoords{counter},ycoords{counter},'Color',jj(counter,:));
-    hold on;
-    xmin(counter)=min(xcoords{counter}); xmax(counter)=max(xcoords{counter});
-    ymin(counter)=min(ycoords{counter}); ymax(counter)=max(ycoords{counter});
-    counter=counter+1;
-end
-xmax=max(xmax); xmin=min(xmin);
-ymax=max(ymax); ymin=min(ymin);
-myind=find(pts(:,1)<=xmax & pts(:,1)>=xmin & pts(:,2)<=ymax & pts(:,2)>=ymin);
+accumx=[]; accumy=[]; accumz=[];
+jj=jet(30);
 
-set(gca,'DataAspectRatio',[1,1,1]);
-grid on;
-set(gca,'Layer','top');
+set(handles.message_text,'String','Calculating detector coverage...');
+guidata(gcbo,handles);
+drawnow;
+
+%Calculate concave hull for first sample orientation
+cloud=[xcoords{1}',ycoords{1}',zcoords{1}'];
+cloud = cloud + (rand(size(cloud))-0.5)*0.001;%noisify points to avoid coplanar triangulation
+cloud2=sortrows(cloud,[1,2,3]);%sort results
+ind=[1:8:size(cloud2,1)];%now only use every 8th point (less dense point cloud)
+cloud3=cloud2(ind,:);
+
+%Look at distance from one point to its neighbours
+dx=diff(cloud3(:,1)); dy=diff(cloud3(:,2)); dz=diff(cloud3(:,3));
+dr=sqrt(dx.^2 + dy.^2 + dz.^2);
+mdr=mean(dr);
+mdz=max(dz);
+dd=mean([mean(abs(dz)) mean(abs(dy)) mean(abs(dx))]);%some sort of measure of nn distance
+
+%perform the triangulation / concave hull
+%tic
+[triHull, vbOutside, vbInside] = AlphaHull(cloud3,2*dd);
+%toc
+
+%Plot the first orientation:
+%figure;
+tt=trisurf(triHull(vbOutside,:),cloud3(:,1),cloud3(:,2),cloud3(:,3),... 
+    'FaceColor',jj(1,:),'FaceAlpha',0.1);
+set(tt,'EdgeColor','none');
 hold on;
+axis equal
+drawnow
+
+%Keep a running tab of the max/min values along the 3 axes
+maxx=max(cloud3(:,1)); minx=min(cloud3(:,1));
+maxy=max(cloud3(:,2)); miny=min(cloud3(:,2));
+maxz=max(cloud3(:,3)); minz=min(cloud3(:,3));
+
+%Now rotate the triangulation stepwise and plot:
+psivals=linspace(psimin,psimax,30);
+for i=2:numel(psivals)
+    dpsi=psivals(i)-psivals(1);%relative change in orientation
+    rotmat=[cosd(dpsi) sind(dpsi) 0; -sind(dpsi) cosd(dpsi) 0; 0 0 1];
+    cloud4=(rotmat*cloud3')';
+    
+    %See if extent in any of the planes has changed:
+    maxx2=max(cloud4(:,1)); minx2=min(cloud4(:,1));
+    maxy2=max(cloud4(:,2)); miny2=min(cloud4(:,2));
+    maxz2=max(cloud4(:,3)); minz2=min(cloud4(:,3));
+    if minx2<minx; minx=minx2; end
+    if maxx2>maxx; maxx=maxx2; end
+    if miny2<miny; miny=miny2; end
+    if maxy2>maxy; maxy=maxy2; end
+    if minz2<minz; minz=minz2; end
+    if maxz2>maxz; maxz=maxz2; end
+    
+    tt=trisurf(triHull(vbOutside,:),cloud4(:,1),cloud4(:,2),cloud4(:,3),... 
+        'FaceColor',jj(i,:),'FaceAlpha',0.1);
+    set(tt,'EdgeColor','none');
+    hold on;
+    axis equal
+    drawnow;
+end
+
+%Finally, draw on the reciprocal lattice:
+ptlabs(pts(:,1)>maxx)=[]; pts(pts(:,1)>maxx,:)=[]; 
+ptlabs(pts(:,2)>maxy)=[]; pts(pts(:,2)>maxy,:)=[];
+ptlabs(pts(:,3)>maxz)=[]; pts(pts(:,3)>maxz,:)=[];
+
+ptlabs(pts(:,1)<minx)=[]; pts(pts(:,1)<minx,:)=[];
+ptlabs(pts(:,2)<miny)=[]; pts(pts(:,2)<miny,:)=[];
+ptlabs(pts(:,3)<minz)=[]; pts(pts(:,3)<minz,:)=[];
+
 try
-    plot(pts(myind,1),pts(myind,2),'ok','LineWidth',1,'MarkerSize',4);
+    plot3(pts(:,1),pts(:,2),pts(:,3),'ok','MarkerFaceColor','k');
+    for i=1:size(pts,1)
+        text(pts(i,1)+0.1,pts(i,2)+0.1,pts(i,3)+0.1,ptlabs{i});
+    end
 catch
     %something went wrong - e.g. invalid lattice pars or angles
     disp_error('non-trivial error on execution of calculations. (suspected invalid lattice pars or angles) Check lattice inputs carefully...');                  
     return;
 end
+
 colormap jet
 cbarlab=colorbar;
 caxis([psimin,psimax]);
 %axis tight
-xlabel('Q // u [Ang^-^1]');
-ylabel('Q // v [Ang^-^1]');
+xlabel('Q // u (Ang^-^1)');
+ylabel('Q perp u [in uv-plane] (Ang^-^1)');
+zlabel('Q perp uv-plane (Ang^-1^1)');
 tt=title(['Ei=',num2str(ei),'meV, E=',num2str(eps),'meV, ',...
      num2str(psimin),'<psi<',num2str(psimax)]);
 xlab=xlabel(cbarlab,'dataset psi vals');
@@ -533,64 +596,6 @@ xlabpos=get(xlab,'Position');
 xlabpos(2)=psimax+0.08*abs(psimax-psimin);
 set(xlab,'Position',xlabpos);
 
-axes(handles.axes2);
-cla;%clear pre-existing plots on these axes
-jj=jet(30);
-counter=1;
-zmin=zeros(1,30); zmax=zmin;
-ymin=zmin; ymax=ymin;
-for i=linspace(psimin,psimax,30)
-    plot(handles.axes2,ycoords{counter},zcoords{counter},'Color',jj(counter,:));
-    hold on;
-    zmin(counter)=min(zcoords{counter}); zmax(counter)=max(zcoords{counter});
-    ymin(counter)=min(ycoords{counter}); ymax(counter)=max(ycoords{counter});
-    counter=counter+1;
-end
-zmax=max(zmax); zmin=min(zmin);
-ymax=max(ymax); ymin=min(ymin);
-myind=find(pts(:,3)<=zmax & pts(:,3)>=zmin & pts(:,2)<=ymax & pts(:,2)>=ymin);
-
-set(gca,'DataAspectRatio',[1,1,1]);
-grid on;
-set(gca,'Layer','top');
-hold on;
-plot(pts(myind,2),pts(myind,3),'ok','LineWidth',1,'MarkerSize',4);
-colormap jet
-colorbar
-caxis([psimin,psimax]);
-axis tight
-xlabel('Q // v [Ang^-^1]');
-ylabel('Q out of plane [Ang^-^1]');
-
-
-axes(handles.axes3);
-cla;%clear pre-existing plots on these axes
-jj=jet(30);
-counter=1;
-zmin=zeros(1,30); zmax=zmin;
-xmin=zmin; xmax=xmin;
-for i=linspace(psimin,psimax,30)
-    plot(handles.axes3,xcoords{counter},zcoords{counter},'Color',jj(counter,:));
-    hold on;
-    zmin(counter)=min(zcoords{counter}); zmax(counter)=max(zcoords{counter});
-    xmin(counter)=min(xcoords{counter}); xmax(counter)=max(xcoords{counter});
-    counter=counter+1;
-end
-zmax=max(zmax); zmin=min(zmin);
-xmax=max(xmax); xmin=min(xmin);
-myind=find(pts(:,3)<=zmax & pts(:,3)>=zmin & pts(:,1)<=xmax & pts(:,1)>=xmin);
-
-set(gca,'DataAspectRatio',[1,1,1]);
-grid on;
-set(gca,'Layer','top');
-hold on;
-plot(pts(myind,1),pts(myind,3),'ok','LineWidth',1,'MarkerSize',4);
-colormap jet
-colorbar
-caxis([psimin,psimax]);
-axis tight
-xlabel('Q // u [Ang^-^1]');
-ylabel('Q out of plane [Ang^-^1]');
 
 set(handles.message_text,'String','Calculation performed successfully');
 guidata(gcbo,handles);
@@ -603,3 +608,9 @@ guidata(gcbo,handles);
 drawnow;
 
 
+
+% --------------------------------------------------------------------
+function Untitled_1_Callback(hObject, eventdata, handles)
+% hObject    handle to Untitled_1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
