@@ -12,6 +12,11 @@
 #include <mex.h>
 #include <matrix.h>
 #include <vector>
+#include <cmath>
+#include <iostream>
+#include <sstream>
+#include <memory>
+#include <mutex>
 
 #ifndef _OPENMP
 void omp_set_num_threads(int nThreads) {};
