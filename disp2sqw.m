@@ -119,7 +119,7 @@ if ~isempty(strfind(func2str(dispreln),'.horace(')) && exist('sw')==2 && exist('
     inpForm.soft   = {false       false  false false          true   };
     warnState = warning('off','sw_readparam:UnreadInput');
     try
-        param = sw_readparam(inpForm, pars{:})
+        param = sw_readparam(inpForm, pars{:});
     catch
         par0 = pars;
         pars = {'param',pars{:}};
