@@ -4,13 +4,19 @@ function varargout = data_structure_type_name(w)
 %   >> [data_type_name,sparse_fmt,flat] = data_structure_type_name(w)
 %   >> [data_type_name,sparse_fmt,flat,ok,mess] = data_structure_type_name(w)
 %
+%
+% NOTE: This is not a robust routine - it assumes that the data structure w
+%       actually has one of the permitted formats.
+%
+%
 % Input:
 % ------
 %   w       sqw object or data structure (sqw-type or dnd-type)
-%          Must have either the standard sqw format i.e. four fields named:
-%               main_header, header, detpar, data
+%          (Must have either the standard sqw format i.e. four fields named:
+%               main_header, header, detpar, data)
 %
-%          or one of the flat format buffer structures: i.e. with fields
+%           *OR*
+%           one of the flat format buffer structures: i.e. with fields
 %               non-sparse: npix, pix
 %               sparse:     sz, nfiles, ndet, ne_max, npix, npix_nz, pix_nz, pix
 %                          (sz      = Size of npix array when in non-sparse format
@@ -61,9 +67,6 @@ function varargout = data_structure_type_name(w)
 %   mess            If empty, then all OK; otherwise contains error message
 %                   If mess is not a return argument, then if an error is
 %                  encountered then function will throw an error.
-%
-% NOTE: This is not a robust routine - it assumes that the data structure
-%       actually has one of the above formats.
 
 
 % Original author: T.G.Perring
@@ -117,7 +120,7 @@ if isa(w,'sqw') || isfield(w,'data')    % catch case of sqw object as well as sq
     
 elseif isstruct(w)
     % Check carefully that the correct fields are present for flat format buffer structure
-    % as it will be easy to get this wrong when constructing the structure on the fly
+    % as it will be easy for a developer to get this wrong when constructing the structure on the fly
     if isfield(w,'npix') && isfield(w,'pix')
         if isfield(w,'sz') && isfield(w,'ndet') && isfield(w,'ne_max') && isfield(w,'npix_nz') && isfield(w,'pix_nz')
             sparse_fmt=true;

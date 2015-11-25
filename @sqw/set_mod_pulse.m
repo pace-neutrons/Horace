@@ -34,7 +34,7 @@ if narg~=2
 end
 
 pulse_model=args{1};
-if ~isstring(pulse_model)
+if ~is_string(pulse_model)
     error('Moderator pulse model name must be a character string')
 end
 

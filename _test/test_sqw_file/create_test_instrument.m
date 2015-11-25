@@ -22,7 +22,7 @@ if ~(isnumeric(hz) && isscalar(hz) && hz>0)
     error('Chopper frequency must be greater than zero (and scalar)')
 end
 
-if isstring(chopper) && ~isempty(chopper)
+if is_string(chopper) && ~isempty(chopper)
     ind=find(strncmpi(chopper,chop_name,numel(chopper)));
     if ~isscalar(ind)
         error('Unrecognised chopper type')

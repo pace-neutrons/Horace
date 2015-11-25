@@ -47,9 +47,16 @@ function [data_type,sparse_fmt] = data_structure_name_to_type(data_type_name)
 %                       data_type.sqw'          sqw object or sqw structure
 %                       data_type.sqw_'         sqw structure withut pix array
 %                       data_type.sqw_sp'       sqw structure, sparse format
-%                       data_type.sqw_sp_'      sqw structure, sparse format without
+%                       data_type.sqw_sp_'      sqw structure, sparse format, without
+%                                              npix_nz,pix_nz,pix arrays
 %                       data_type.buffer'       buffer data
 %                       data_type.buffer_sp'    buffer data, sparse format
+%
+%                   One and only one of the fields 'h'...'buffer_sp' will be true
+%
+%                   Note: the structure contains reducdant information; the
+%                   first four fields are summary fields whose values can
+%                   be determined from the later fields.
 
 
 % Original author: T.G.Perring

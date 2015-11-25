@@ -5,11 +5,12 @@ function [nd,sz,szarr] = data_structure_dims(w)
 %
 % Input:
 % ------
-%   w       sqw object (sqw-type or dnd-type) or data structure.
-%          Must have either the standard sqw format i.e. four fields named:
-%               main_header, header, detpar, data
+%   w       sqw object or data structure (sqw-type or dnd-type)
+%          (Must have either the standard sqw format i.e. four fields named:
+%               main_header, header, detpar, data)
 %
-%          or one of the flat format buffer structures: i.e. with fields
+%           *OR*
+%           one of the flat format buffer structures: i.e. with fields
 %               non-sparse: npix, pix
 %               sparse:     sz, nfiles, ndet, ne_max, npix, npix_nz, pix_nz, pix
 %                          (sz      = Size of npix array when in non-sparse format

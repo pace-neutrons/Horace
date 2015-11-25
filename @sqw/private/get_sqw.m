@@ -322,7 +322,7 @@ is_buffer=info.buffer_data;
 % Determine if full format conversion is required
 % -----------------------------------------------
 narg=numel(varargin);
-if narg>=1 && isstring(varargin{end}) && strcmpi(varargin{end},'-full')
+if narg>=1 && is_string(varargin{end}) && strcmpi(varargin{end},'-full')
     make_full_fmt=true;
     narg=narg-1;
 end
@@ -334,7 +334,7 @@ end
 if narg>0
     opt_name=varargin{1};
     narg_opt=narg-1;
-    if isstring(opt_name) && ~isempty(opt_name)
+    if is_string(opt_name) && ~isempty(opt_name)
         if strcmpi(opt_name,'npix')
             if (~is_sparse && narg_opt==1) || (is_sparse && narg_opt==2)
                 [val,mess]=range_ok(varargin{2},'Bin index range for ''npix'': ');

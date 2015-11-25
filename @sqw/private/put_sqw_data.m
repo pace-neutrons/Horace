@@ -144,8 +144,8 @@ function [mess,position,fieldfmt,nz_npix,nz_npix_nz,npixtot,npixtot_nz] = put_sq
 % If sparse format:
 %   data.s          Average signal in the bins as a sparse column vector
 %   data.e          Corresponding variance in the bins (sparse column vector)
-%   data.npix       Number of contributing pixels to each bin as a sparse column vector
-%   data.urange     <as above>
+%   data.npix       Number of contributing pixels to each bin (sparse column vector)
+%   data.urange     <as for standard sqw format>
 %   data.npix_nz    Number of non-zero pixels in each bin (sparse column vector)
 %   data.pix_nz     Array with columns containing [id,ie,s,e]' for the pixels with non-zero
 %                  signal sorted so that all the pixels in the first bin appear first, then

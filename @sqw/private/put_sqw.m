@@ -7,8 +7,8 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %
 %   >> [...] = put_sqw (..., 'file_format', fmt)    % specifiy an older file format for output
 %
-% Save npix and pix information to a temporary file (no file format option available)
-%   >> [ok,mess,S] = put_sqw (file, w, '-buffer')   % save npix and pix to buffer
+% Save npix and pix information to a new temporary file (no file format option available)
+%   >> [ok,mess,S] = put_sqw (file, w, '-buffer')   % save npix and pix to buffer file
 %
 % Replace header in an existing file:
 %   >> [ok,mess,S] = put_sqw (file, w, '-h')        % without replacing instrument and sample info
@@ -18,35 +18,39 @@ function [ok, mess, S] = put_sqw (file, w, varargin)
 %
 % Input:
 % -------
-%   file        File name, or sqwfile information structure
+%   file        File name, or sqwfile information structure for an open sqw file.
+%               The contents of the files will be discarded unless writing 
+%              header information only (see '-h' or '-his' options below)
 %
-%   w           A single sqw object or structure with the fields of a valid sqw object.
+%   w           A single sqw object or a structure with the fields of a valid sqw object.
 %               w can be a sparse dnd-type or sqw-type structure.
-%               Type >> help sqw    for a full description of all the fields
 %
 %               In the case of optional arguments, then a structure with an incomplete
 %               set of fields can be given:
-%                   'h', 'his': w.data only needs the header fields:
+%                   'h', 'his': w.main_header, w.header, w.detpar  must exist but can be empty.
+%                               w.data only needs the header fields:
 %                                       filename,...,uoffset,...,dax
-%                               The fields main_header, header, detpar must exist but can be empty.
 %
 %                   'pix':      w.data does not need the field pix , because the additional
 %                               arguments v1, v2, ...  will define sources of the pixel information
 %
-%                   'buffer':   If non-sparse, only npix and pixel information are used:
-%                                   w.main_header, w.header, w.detpar must exist, but can be empty
-%                                   w.data.npix, w.data.pix must exist
+%                   'buffer':   If non-sparse, only npix and pix are used:
+%                                   w.main_header, w.header, w.detpar  must exist, but can be empty
+%                                   w.data.npix, w.data.pix  must exist
+%
 %                               If sparse, then must have the following fields:
-%                                   w.header.en or w.header{i}.en (single, multiple spe files)
+%                                   w.header.en (single spe file) or w.header{i}.en (multiple spe files)
 %                                   w.detpar
 %                                   w.data.p, w.data.npix, w.data.npix_nz, w.data.pix_nz, w.pix
-%                               Alternatively, a structure can be given with the required fields:
+%
+%                               Alternatively, a flat structure can be given with the required fields:
 %                                - non-sparse: npix, pix
 %                                - sparse:     sz, nfiles, ndet, ne_max, npix, npix_nz, pix_nz, pix
 %                                           (sz      = Size of npix array when in non-sparse format
 %                                            nfiles  = 1 (single spe file) NaN (more than one)
 %                                            ndet    = no. detectors
-%                                            ne_max  = max. no. en bins in the spe files)
+%                                            ne_max  = number en bins in the spe file with the largest
+%                                                      number of energy bins)
 %
 %   opt_name    Determines which parts of the input data structures to write to a file. By default, the
 %              entire contents of the input data structure are written, apart from the case of 'h' when
@@ -151,6 +155,7 @@ data_type_write=data_structure_name_to_type(data_type_name_write);
 % Open output file with correct read/write permission, or check currently open file is OK
 % ---------------------------------------------------------------------------------------
 if ~isstruct(file)
+    % Assume is a file name
     file_open_on_entry=false;
     if newfile
         [S,mess] = sqwfile_open (file, 'new');
@@ -159,6 +164,7 @@ if ~isstruct(file)
     end
     if ~isempty(mess), [ok,S]=tidy_close(S,file_open_on_entry); return, end
 else
+    % Assume is an sqwfile structure
     file_open_on_entry=true;
     S=file;
 end
@@ -421,7 +427,7 @@ optvals={};
 % Determine if output file format was specified
 % ---------------------------------------------
 narg=numel(varargin);
-if narg>=2 && isstring(varargin{end-1}) && strcmpi(varargin{end-1},'file_format')
+if narg>=2 && is_string(varargin{end-1}) && strcmpi(varargin{end-1},'file_format')
     try
         fmt_ver=appversion(varargin{end});
         if ~fmt_check_file_format (fmt_ver, 'write')
@@ -442,7 +448,7 @@ end
 % ------------------------------------------------------------------------
 if narg>0
     opt_name=varargin{1};
-    if isstring(opt_name) && ~isempty(opt_name)
+    if is_string(opt_name) && ~isempty(opt_name)
         if strcmpi(opt_name,'-h')
             if narg>1
                 mess='Number of arguments for option ''-h'' is invalid';

@@ -19,8 +19,8 @@ function [mess, application] = get_sqw_application (fid, expected_name)
 % Fields read from file are:
 % --------------------------
 %   application.name        Name of application that wrote the file
-%   application.version     Version of the application (appversion object)
-%   application.file_format Version of file format (appversion object)
+%   application.version     Version of the application (appversion format)
+%   application.file_format Version of file format (appversion format)
 %
 %
 % NOTE: The prototype file format ('-v0') is not directly recognised, but is

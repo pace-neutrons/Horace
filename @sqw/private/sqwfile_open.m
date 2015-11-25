@@ -1,5 +1,5 @@
 function [S, mess] = sqwfile_open (file, opt)
-% Open an sqw file for reading or writing
+% Open an sqw file for reading or writing, checking valid file if not 'new'.
 %
 %   >> [S, mess] = sqwfile_open (file)
 %   >> [S, mess] = sqwfile_open (file, 'new')
@@ -8,7 +8,17 @@ function [S, mess] = sqwfile_open (file, opt)
 %
 % Input:
 % ------
-%   file    Name of file to which to write data
+%   file    Name of file to which to read or write data.
+%           If the file already exists (i.e. will be opened for reading and
+%          writing, or readonly) then it must be a valid sqw file. An error
+%          will be thrown if it is not.
+%
+%           An sqw file means one of:
+%           - file with data for an sqw or dnd object
+%           - buffer data (i.e. npix and pix information only)
+%           The formats can be non-sparse or sparse. For full details of the
+%           format
+%         
 %
 %   opt     [Optional] file creation status:
 %               'old'       Open an existing file for reading and writing.
@@ -42,7 +52,7 @@ if nargin==1
     permission='rb+';
     check_exists=false;
     
-elseif ~isempty(opt) && isstring(opt)
+elseif ~isempty(opt) && is_string(opt)
     if strcmpi(opt,'new')
         permission='wb+';
         check_exists=false;
@@ -65,7 +75,7 @@ end
 
 % Check file and open
 % -------------------
-if ~isempty(file) && isstring(file) % assume file is a file name
+if ~isempty(file) && is_string(file) % assume file is a file name
     % Check file exists, if required
     if check_exists && ~exist(file,'file')
         mess=['File does not exist: ',strtrim(file)];

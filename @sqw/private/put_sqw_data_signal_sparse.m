@@ -25,6 +25,7 @@ function [mess,position,fieldfmt,nz_npix,nz_npix_nz,npixtot,npixtot_nz] = put_sq
 %       data.urange     True range of the data along each axis [urange(2,4)]. This is in the
 %                      coordinates of the plot/integration projection axes, NOT the projection
 %                      axes of the individual pixel info.
+%       data.npix_nz    Number of non-zero pixels in each bin (sparse column vector)
 %       data.pix_nz Array with columns containing [id,ie,s,e]' for the pixels with non-zero
 %                  signal sorted so that all the pixels in the first bin appear first, then
 %                  all the pixels in the second bin etc. Here

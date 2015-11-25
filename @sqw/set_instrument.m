@@ -300,7 +300,7 @@ function status = substitution_arguments_present(subst_args,args)
 narg=numel(args);
 isstr=false(narg,1);
 for i=1:narg
-    isstr(i)=isstring(args{i});
+    isstr(i)=is_string(args{i});
 end
 strargs=args(isstr);
 
@@ -331,7 +331,7 @@ end
 % Substitute values
 argout=argin;
 for i=1:numel(argin)
-    if isstring(argin{i}) && strcmpi(argin{i},'-efix')
+    if is_string(argin{i}) && strcmpi(argin{i},'-efix')
         if ifile>1 || w.main_header.nfiles>1
             argout{i}=w.header{ifile}.efix;
         else

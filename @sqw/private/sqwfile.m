@@ -10,8 +10,10 @@ function S = sqwfile
 %   filename    Name of file
 %
 %   application.name        Name of application that wrote the file
-%   application.version     Version number of the application
-%   application.file_format Version of file format (appversion object)
+%   application.version     Version of the application
+%                          (appversion format - see appversion.m)
+%   application.file_format Version of file format
+%                          (appversion format - see appversion.m)
 %
 %   info.sparse      =true if signal fields are in sparse format; =false otherwise
 %   info.sqw_data    =true if file contains valid sqw data (i.e. dnd-type or sqw-type data)

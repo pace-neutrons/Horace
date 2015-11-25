@@ -1,19 +1,19 @@
 function [Sout, mess] = sqwfile_close (S,opt)
-% Close an sqw file for reading or writing
+% Close an sqw file or set of files for reading or writing
 %
 %   >> [S, mess] = sqwfile_close (S)
 %
 % Input:
 % ------
-%   S       sqwfile structure with the information read from the
-%          contents of an existing file
+%   S       sqwfile structure or array of sqwfile structures with the
+%          information read from the contents of an existing file.
 %   opt     If opt=='delete' then the file is deleted after closing.
 %
 % Output:
 % -------
 %   Sout    Output sqwfile structure. If succesfully closed, then
 %          the fid is set to -1, but all other data are left untouched
-%           If there was anb error (i.e. mess is not empty) then
+%           If there was an error (i.e. mess is not empty) then
 %          the Sout==S, except Sout.fid=-1 if the file was closed.
 %   mess    Error message; if any problems closing then mess
 %          contains error message; ='' if all OK
@@ -29,7 +29,7 @@ deletefile=false;
 
 % Check option
 if nargin==2
-    if isstring(opt) && strcmp(opt,'delete')
+    if is_string(opt) && strcmp(opt,'delete')
         deletefile=true;
     else
         mess='Invalid option to sqwfile_close - the option was ignored';

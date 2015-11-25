@@ -105,7 +105,7 @@ elseif narg==1 && isstruct(varargin{1})
 else
     arglist = struct('nonorthogonal', [], 'type', [], 'uoffset', [], ...
         'lab', [], 'lab1', [], 'lab2', [], 'lab3', [], 'lab4', []);
-    [par,argout,present,~,ok,mess] = parse_args_simple(varargin,arglist);
+    [par,argout,present,~,ok,mess] = parse_arguments(varargin,arglist);
     if ok
         if numel(par)<=3
             if numel(par)==0

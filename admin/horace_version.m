@@ -53,14 +53,14 @@ if nargout>1
     str = '$Revision::      $ ($Date::                                              $)';
     svn.svn_version = str2double(str(12:17));
     svn.svn_version_str = str;
-    if nargin==0 || isstring(opt) && strncmpi(opt,'full',numel(opt))
+    if nargin==0 || is_string(opt) && strncmpi(opt,'full',numel(opt))
         [mex_messages,n_errors,minVer,maxVer,compilation_date]=check_horace_mex();
         svn.mex_ok=~logical(n_errors);
         svn.mex_min_version=minVer;
         svn.mex_max_version=maxVer;
         svn.mex_last_compilation_date=compilation_date;
         svn.mex_messages=mex_messages;
-    elseif isstring(opt) && strncmpi(opt,'mex_no_check',numel(opt))
+    elseif is_string(opt) && strncmpi(opt,'mex_no_check',numel(opt))
         svn.mex_ok=false;
         svn.mex_min_version=[];
         svn.mex_max_version=[];

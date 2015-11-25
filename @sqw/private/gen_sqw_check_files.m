@@ -39,7 +39,7 @@ spe_file_out=[]; par_file_out=[]; sqw_file_out=[]; spe_exist=[]; spe_unique=[]; 
 
 % Check spe file input
 % --------------------
-if isstring(spe_file)
+if is_string(spe_file)
     spe_file_out=cellstr(strtrim(spe_file));
 elseif iscellstr(spe_file)
     [ok,spe_file_out]=str_make_cellstr(spe_file);
@@ -91,7 +91,7 @@ end
 % Check parameter file
 % --------------------
 if ~isempty(par_file)
-    if isstring(par_file) && ~isempty(strtrim(par_file))
+    if is_string(par_file) && ~isempty(strtrim(par_file))
         par_file_out=strtrim(par_file);
     else
         ok=false; mess='If given, par filename  must be a non-empty string'; return
@@ -114,7 +114,7 @@ end
 
 % Check sqw file
 % ---------------
-if isstring(sqw_file) && ~isempty(strtrim(sqw_file))
+if is_string(sqw_file) && ~isempty(strtrim(sqw_file))
     sqw_file_out=strtrim(sqw_file);
 else
     ok=false; mess='sqw file name must be a non-empty string'; return

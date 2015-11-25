@@ -23,6 +23,10 @@ function [data_type_name,sparse_fmt] = data_structure_type_to_name(data_type)
 %
 %                   One and only one of the fields 'h'...'buffer_sp' will be true
 %
+%                   Note: the structure contains reducdant information; the
+%                   first four fields are summary fields whose values can
+%                   be determined from the later fields.
+%
 % Output:
 % -------
 %   data_type_nam   Name of data type:
@@ -61,6 +65,7 @@ function [data_type_name,sparse_fmt] = data_structure_type_to_name(data_type)
 % Original author: T.G.Perring
 %
 % $Revision: 885 $ ($Date: 2014-07-29 17:35:24 +0100 (Tue, 29 Jul 2014) $)
+
 
 names=fieldnames(data_type);
 val=cell2mat(struct2cell(data_type));

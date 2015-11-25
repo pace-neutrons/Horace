@@ -427,7 +427,7 @@ narg=numel(varargin);
 
 % Check last argument is a valid file name, if an output file name is required
 if need_outfile
-    if narg>=1 && ~isempty(varargin{end}) && isstring(varargin{end})
+    if narg>=1 && ~isempty(varargin{end}) && is_string(varargin{end})
         [outfile,ok,mess] = translate_write (varargin{end});
         if ~ok, return, end
     else

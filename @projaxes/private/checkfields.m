@@ -105,7 +105,7 @@ end
 % Normalisation type
 % ------------------
 if (isobject(p) || isfield(p,'type')) && ~isempty(p.type)
-    if isstring(p.type) && numel(p.type)==3
+    if is_string(p.type) && numel(p.type)==3
         type=lower(p.type);
         if ~(isempty(strfind('arp',type(1))) || isempty(strfind('arp',type(2))) || isempty(strfind('arp',type(1))))
             pout.type=type;

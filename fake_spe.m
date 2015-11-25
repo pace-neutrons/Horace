@@ -50,7 +50,7 @@ function varargout = fake_spe(varargin)
 
 
 % Strip off 'mask' option
-if nargin>=2 && isstring(varargin{end-1}) && strncmpi(varargin{end-1},'mask',min(numel(varargin{end-1}),4))
+if nargin>=2 && is_string(varargin{end-1}) && strncmpi(varargin{end-1},'mask',min(numel(varargin{end-1}),4))
     narg=nargin-2;
     mask=varargin{end};
 else
