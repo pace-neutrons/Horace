@@ -57,7 +57,8 @@ classdef test_multifit_horace_spinw< TestCaseWithSave
             sbcc.genmagstr('mode','direct','S',[0 0 1; 0 0 1]');  % Ferromagnetic
             sbcc.fileid(0);   % Silences information text from SpinW to commandline window
             this.sqw_bcc_spw = @(qh,qk,ql,en,p) ...
-               (p(3)/S)*disp2sqw(qh,qk,ql,en,@sbcc.horace,{[p(1)/2 p(2)]/S,'mat',{'D(3,3)','J1'},'hermit',false},p(4)) + p(5);
+               (p(3)/S)*disp2sqw(qh,qk,ql,en,@sbcc.horace,{[p(1)/2 p(2)]/S,'mat',{'D(3,3)','J1'},'hermit',false,'fitmode',2},p(4)) ...
+               + p(5);
                
             % Combine the two cuts into an array of sqw objects and fit
             % ---------------------------------------------------------
