@@ -91,14 +91,54 @@ if ~isa(dummy,classname)    % classname is a private method
 end
 
 % Determine keyword arguments, if present
-arglist=struct('replicate',0,'accumulate',0,'clean',0,'tmp_only',0);
+arglist=struct('replicate',0,'accumulate',0,'clean',0,'tmp_only',0,'time',0);
 flags={'replicate','accumulate','clean','tmp_only'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
+%Horrible hack (2nd if statement) because of shortcoming in the way
+%parse_arguments is set up for mixtures of logical keywords and optional
+%input arguments
 if ~opt.accumulate
     if present.clean && opt.clean
         error('Invalid option ''clean'' unless also have option ''accumulate''')
     end
+    if present.time && (exist(opt.time,'var') || ~isnumeric(opt.time) || opt.time~=0)
+        error('Invalid option ''time'' unless also have option ''accumulate'' and/or a date-time vector following')
+    end
+end
+
+
+%If we are to run in 'time' mode, where execution waits for some period,
+%then must do so here, because any later we check whether or not spe files
+%exist.
+if present.time
+    if ~isnumeric(opt.time)
+        error('Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
+    elseif numel(opt.time)~=6
+        error('Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
+    end
+
+    end_time=datenum(opt.time);
+    time_now=now;
+
+    if end_time<=time_now
+        error('Date-time for accumulate_sqw to start is in the past');
+    elseif (end_time-time_now) > 1
+        disp('**************************************************************************************************')
+        disp('***  WARNING: date-time specified for accumulate_sqw to start is more than 1 day in the future ***');
+        disp('***  Hit Ctrl-C to abort and re-launch gen_sqw / accumulate_sqw                                ***');
+        disp('**************************************************************************************************')
+    else
+        disp('**************************************************************************************************')
+        disp('***  Waiting to accumulate data to sqw_file                                                    ***');
+        disp(['***  Waiting until: ',num2str(opt.time(4)),'hr',num2str(opt.time(5)),...
+            ', ',num2str(opt.time(3)),'-',num2str(opt.time(2)),'-',num2str(opt.time(1)),'              ***']);
+        disp('**************************************************************************************************')
+    end
+
+    %time in seconds to wait:
+    pause_sec=(end_time - time_now)*24*60*60;
+    pause(pause_sec);
 end
 
 

@@ -106,6 +106,15 @@ function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
 %                  empty piece of sample environment. In this case, use the keyword 'replicate'
 %                  to override the uniqueness check.
 %
+%   'time',[yyyy,mm,dd,hh,mm,ss]    Specify a time at which file
+%                   accumulation should start, in specified date-time
+%                   format. This is for when file accumulation is very time
+%                   consuming, so you may wish to start the process a few
+%                   hours before you come in of a morning (for example).
+%                   The program will be inactive (and not other Matlab
+%                   commands may be issued) until the specified time is
+%                   reached.
+%
 %
 % Output:
 % --------
@@ -119,6 +128,7 @@ function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
 % Original author: T.G.Perring
 % Modified by R.A. Ewings from gen_sqw
 % Generalised by T.G.Perring and now calls gen_sqw
+% New time feature added by R.A. Ewings (30/11/2015)
 %
 % $Revision$ ($Date$)
 
