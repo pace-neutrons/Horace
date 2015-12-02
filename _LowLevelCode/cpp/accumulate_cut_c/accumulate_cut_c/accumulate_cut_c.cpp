@@ -105,17 +105,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // program parameters; get from the data or use defaults
     mxArray *ppS(NULL);
     // inputs:
-    std::vector<double> projSettings(5);
+    std::vector<double> projSettings(4);
     if (nrhs == N_INPUT_Arguments) {
         double  *pProg_settings;
         pProg_settings = (double *)mxGetPr(prhs[Program_settings]);
-        for (size_t i = 0; i < 5; i++) {
+        for (size_t i = 0; i < 4; i++) {
             projSettings[i]=pProg_settings[i];
         }
     }
     else {
         // supply defaults
-        projSettings[Ignore_Nan] = 1;	projSettings[Ignore_Inf] = 1;	projSettings[Keep_pixels] = 0;	projSettings[N_Parallel_Processes] = 1;
+        projSettings[Ignore_Nan] = 1; projSettings[Ignore_Inf] = 1; projSettings[Keep_pixels] = 0; projSettings[N_Parallel_Processes] = 1;
     }
     // associate and extract all inputs
     //----------------------------------------------------------------------------------------------------------
@@ -123,10 +123,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //                               where ui are coords in projection axes of the pixel data in the file
     size_t  nPixDataRows = mxGetM(prhs[Pixel_data]);
     size_t  nPixDataCols = mxGetN(prhs[Pixel_data]);
-
-    bool pixDataAreDouble = false;
-    if (projSettings[NbytesInPixel] > 4) {
-        pixDataAreDouble = true;
+    mxClassID  category = mxGetClassID(prhs[Pixel_data]);
+    bool pixDataAreDouble;
+    switch(category) {
+        case(mxDOUBLE_CLASS):
+            pixDataAreDouble = true;
+            break;
+        case(mxSINGLE_CLASS):
+            pixDataAreDouble = false;
+            break;
+        default:
+            mexErrMsgTxt("pixels type can be either single or double. Got unsupported type");
     }
     // Make it double to cast to necessary type later
     double const *pPixelData = (double *)mxGetPr(prhs[Pixel_data]);

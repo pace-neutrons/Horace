@@ -79,6 +79,7 @@ public:
     */
     void init_storage(int num_OMP_Threads, size_t distribution_size, double *s, double *e, double *npix) {
         size_t new_data_size = 3 * num_OMP_Threads*distribution_size;
+        distr_size = distribution_size;
 
         if (num_OMP_Threads > 1) {
             is_mutlithreaded = true;
@@ -92,6 +93,8 @@ public:
                     if (se_vec_stor.size() == 0) {
                         mxFree(largeMemory);
                         largeMemory = NULL;
+                    } else {
+                        se_vec_stor.resize(0);
                     }
                 }
             }
@@ -139,9 +142,9 @@ public:
         stor.ind_stor[n_thread][il]++; */
 
         size_t ind = n_thread*distr_size + index;
-        (*(pSignal + ind)) += signal;
-        (*(pError + ind)) += error;
-        (*(pNpix + ind)) += 1;
+        pSignal[ind] += signal;
+        pError[ind]  += error;
+        pNpix[ind]   +=1;
     }
     ~omp_storage() {
         if (largeMemory && se_vec_stor.size() == 0) {
