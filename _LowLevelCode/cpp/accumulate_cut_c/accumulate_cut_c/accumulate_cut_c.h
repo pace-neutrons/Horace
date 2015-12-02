@@ -157,7 +157,7 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
 
             // Transform the coordinates u1-u4 into the new projection axes, if necessary
             //    indx=[(v(1:3,:)'-repmat(trans_bott_left',[size(v,2),1]))*rot_ustep',v(4,:)'];  % nx4 matrix
-            double xt1 = double(pixel_data[j0]) - trans_bott_left[0];
+            double xt1 = double(pixel_data[j0])     - trans_bott_left[0];
             double yt1 = double(pixel_data[j0 + 1]) - trans_bott_left[1];
             double zt1 = double(pixel_data[j0 + 2]) - trans_bott_left[2];
 
@@ -173,30 +173,34 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
 
             //  ok = indx(:,1)>=cut_range(1,1) & indx(:,1)<=cut_range(2,1) & indx(:,2)>=cut_range(1,2) & indx(:,2)<=urange_step(2,2) & ...
             //       indx(:,3)>=cut_range(1,3) & indx(:,3)<=cut_range(2,3) & indx(:,4)>=cut_range(1,4) & indx(:,4)<=cut_range(2,4);
-            if (Et<cut_range[6] || Et>cut_range[7]) 	continue;
-            if (Et == cut_range[7])Et *= (1 - FLT_EPSILON);
+            if (Et<cut_range[6] || Et>cut_range[7])   continue;
+            double Ett = Et; // variables used to calculate indexes and evaluate min-max differ
+            if (Ett == cut_range[7])Ett *= (1 - FLT_EPSILON); 
 
             double xt = xt1*rot_ustep[0] + yt1*rot_ustep[3] + zt1*rot_ustep[6];
             if (xt<cut_range[0] || xt>cut_range[1])   continue;
-            if (xt == cut_range[1])xt *= (1 - FLT_EPSILON);
+            double xtt= xt; // variables used to calculate indexes and evaluate min-max differ
+            if (xtt == cut_range[1])xtt *= (1 - FLT_EPSILON);
 
             double yt = xt1*rot_ustep[1] + yt1*rot_ustep[4] + zt1*rot_ustep[7];
-            if (yt<cut_range[2] || yt>cut_range[3]) 	continue;
-            if (yt == cut_range[3])yt *= (1 - FLT_EPSILON);
+            if (yt<cut_range[2] || yt>cut_range[3])   continue;
+            double ytt = yt; // variables used to calculate indexes and evaluate min-max differ
+            if (ytt == cut_range[3])ytt *= (1 - FLT_EPSILON);
 
             double zt = xt1*rot_ustep[2] + yt1*rot_ustep[5] + zt1*rot_ustep[8];
-            if (zt<cut_range[4] || zt>cut_range[5])	continue;
-            if (zt == cut_range[5])zt *= (1 - FLT_EPSILON);
+            if (zt<cut_range[4] || zt>cut_range[5])   continue;
+            double ztt = zt; // variables used to calculate indexes and evaluate min-max differ
+            if (ztt == cut_range[5])ztt *= (1 - FLT_EPSILON);
 
             nPixel_retained++;
 
 
             //     indx=indx(ok,:);    % get good indices (including integration axes and plot axes with only one bin)
 
-            mwSize indX = (mwSize)floor(xt - cut_range[0]);
-            mwSize indY = (mwSize)floor(yt - cut_range[2]);
-            mwSize indZ = (mwSize)floor(zt - cut_range[4]);
-            mwSize indE = (mwSize)floor(Et - cut_range[6]);
+            mwSize indX = (mwSize)floor(xtt - cut_range[0]);
+            mwSize indY = (mwSize)floor(ytt - cut_range[2]);
+            mwSize indZ = (mwSize)floor(ztt - cut_range[4]);
+            mwSize indE = (mwSize)floor(Ett - cut_range[6]);
 
             mwSize il = indX*nDimX + indY*nDimY + indZ*nDimZ + indE*nDimE;
             ok[i] = true;
