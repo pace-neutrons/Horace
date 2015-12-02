@@ -11,12 +11,7 @@ try
     parameters(2)=ignore_inf;
     parameters(3)=keep_pix;
     parameters(4)=n_threads;
-    if isa(v,'single')
-        parameters(5)=4;
-    else
-        parameters(5)=8;        
-    end
-    [urange_step_pix, ok, ix, s, e, npix, npix_retain]=...
+   [urange_step_pix, ok, ix, s, e, npix, npix_retain]=...
         accumulate_cut_c(v,s,e,npix,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step,pax,parameters);
     if npix_retain==0
         ix=ones(0,1); % to be consistent with matlab

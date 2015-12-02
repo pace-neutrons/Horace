@@ -386,9 +386,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexErrMsgTxt(err);
         }
         mxFree(ppInd);
-    }
-    catch (...) {
-        mexErrMsgTxt("Sort_pixels_by_bins: can not allocate memory for working array to sort pixels, location 3");
+    } catch (const char *err) {
+        mexErrMsgTxt(err);
+    } catch (...) {
+        mexErrMsgTxt("Sort_pixels_by_bins: unhandled exception in sort_pixels_by_bins procedure, location 3");
     }
 
 }

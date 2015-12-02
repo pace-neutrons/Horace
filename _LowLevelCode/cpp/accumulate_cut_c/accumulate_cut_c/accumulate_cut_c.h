@@ -227,23 +227,21 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
 
 
         } // end for -- implicit barrier;
-        if (pStor->is_mutlithreaded)
-        {
+#pragma omp barrier
+        if (pStor->is_mutlithreaded) {
 #pragma omp for
-            for (long i = 0; i < distribution_size; i++)
-            {
-                for (int i0 = 0; i0 < num_OMP_Threads; i0++)
-                {
-                    size_t indl = i0*distribution_size + i;
-                    s[i] += *(pStor->pSignal + indl);
-                    e[i] += *(pStor->pError + indl);
-                    npix[i] += *(pStor->pNpix + indl);
-                }
-            }
+             for (long i = 0; i < distribution_size; i++) {
+                  for (int i0 = 0; i0 < num_OMP_Threads; i0++) {
+                      size_t indl = i0*distribution_size + i;
+                      s[i] += *(pStor->pSignal + indl);
+                       e[i] += *(pStor->pError + indl);
+                       npix[i] += *(pStor->pNpix + indl);
+                    }
+               }
         }
+   } // end parallel region
 
 
-    } // end parallel region
     //pStorHolder.release();
       // min-max value initialization
     for (int i = 0; i < 4; i++) {
@@ -257,8 +255,15 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
             if (qe_max[4 * ii + ike] > actual_pix_range[2 * ike + 1])actual_pix_range[2 * ike + 1] = qe_max[4 * ii + ike];
         }
     }
-
-
+#ifdef _DEBUG
+    size_t ntot_pix(0);
+    for (size_t i = 0; i < distribution_size; i++) {
+        ntot_pix += size_t(npix[i]);
+    }
+    if (ntot_pix != nPixel_retained) {
+        throw(" Multithreading error, number of pixels in array not equal to number of pixels retained");
+    }
+#endif
     //
 
 
