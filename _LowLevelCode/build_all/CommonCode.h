@@ -32,7 +32,6 @@ void omp_set_num_threads(int nThreads) {};
 #else
 #undef   OMP_VERSION_3
 #endif
-
 enum pix_fields
 {
     u1 = 0, //      -|
