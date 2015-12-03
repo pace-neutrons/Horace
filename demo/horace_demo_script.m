@@ -24,7 +24,7 @@ file_list=setup_demo_data();
 
 demo_dir=pwd;
 indir=demo_dir;     % source directory of spe (or nxspe) files
-par_file=[indir,filesep,'4to1_124.PAR'];     % detector parameter file
+par_file=[indir,filesep,'4to1_124.par'];     % detector parameter file
 sqw_file=[indir,filesep,'fe_demo.sqw'];        % output sqw file
 data_source =sqw_file;
 
@@ -58,7 +58,7 @@ end
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs);
 
-
+return
 %====================================
 %% Make plots etc
 %====================================

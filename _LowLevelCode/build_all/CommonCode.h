@@ -30,9 +30,8 @@ void omp_set_num_threads(int nThreads) {};
 # if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
 #define  OMP_VERSION_3
 #else
-#undef   OMP_VERSION_3
+#undef  OMP_VERSION_3
 #endif
-
 enum pix_fields
 {
     u1 = 0, //      -|
@@ -66,27 +65,61 @@ public:
     double *pSignal, *pError, *pNpix;
 
     omp_storage(int num_OMP_Threads, size_t distribution_size, double *s, double *e, double *npix) :
-        distr_size(distribution_size), largeMemory(NULL)
+        distr_size(distribution_size), data_size(0), largeMemory(NULL)
     {
+        this->init_storage(num_OMP_Threads, distribution_size,s,e,npix);
+    };
+    /* Initialize OMP storage
+      *@param num_OMP_Threads   -- number of OMP threads to use
+      *@param distribution_size -- linear size of the distribution (Product of all dimensions)
+      *@param s     -- array of pixels signals (size of distribution_size)
+      *@param e     -- array of pixels errors (size of distribution_size)
+      *@param npix  -- array of number of pixels in each cell (size of distribution_size)
+    */
+    void init_storage(int num_OMP_Threads, size_t distribution_size, double *s, double *e, double *npix) {
+        size_t new_data_size = 3 * num_OMP_Threads*distribution_size;
+        distr_size = distribution_size;
+
         if (num_OMP_Threads > 1) {
             is_mutlithreaded = true;
-            // allocate storage for particular threads
-            bool onHeap(true);
-            try {
-                se_vec_stor.assign(3 * num_OMP_Threads*distribution_size, 0.);
-                largeMemory = &se_vec_stor[0];
-                onHeap = true;
+            bool allocate_memory = true;
+            if (largeMemory) {
+                if (new_data_size == data_size) {
+                    allocate_memory = false;
+                }
+                else {
+                    allocate_memory = true;
+                    if (se_vec_stor.size() == 0) {
+                        mxFree(largeMemory);
+                        largeMemory = NULL;
+                    } else {
+                        se_vec_stor.resize(0);
+                    }
+                }
             }
-            catch (...) // no space on stack try heap, 
-            {
-                largeMemory = (double *)mxCalloc(3 * num_OMP_Threads*distribution_size, sizeof(double));
-                if (!largeMemory)throw("Can not allocate memory for processing data on threads. Decrease number of threads");
-                onHeap = false;
+            if (allocate_memory) {
+                // allocate storage for particular threads
+                try {
+                    se_vec_stor.assign(new_data_size, 0.);
+                    largeMemory = &se_vec_stor[0];
+                }
+                catch (...) // no space on stack try heap, 
+                {
+                    largeMemory = (double *)mxCalloc(new_data_size, sizeof(double));
+                    if (!largeMemory)throw("Can not allocate memory for processing data on threads. Decrease number of threads");
+                    for (size_t i = 0; i < new_data_size; i++) {
+                        largeMemory[i] = 0;
+                    }
+
+                }
+            } else { // Nullify existing memory
+                for (size_t i = 0; i < new_data_size; i++) {
+                    largeMemory[i] = 0;
+                }
             }
             pSignal = largeMemory;
             pError = largeMemory + num_OMP_Threads*distribution_size;
             pNpix = largeMemory + 2 * num_OMP_Threads*distribution_size;
-            if(onHeap)largeMemory=NULL;
 
         }
         else {
@@ -95,9 +128,11 @@ public:
             pError = e;
             pNpix = npix;
         }
+        data_size = new_data_size;
 
 
-    };
+
+    }
     void add_signal(const double &signal, const double &error, int n_thread, size_t index)
     {
         /*  signal_stor[n_thread][il] += ;
@@ -105,19 +140,20 @@ public:
         stor.ind_stor[n_thread][il]++; */
 
         size_t ind = n_thread*distr_size + index;
-        (*(pSignal + ind)) += signal;
-        (*(pError + ind)) += error;
-        (*(pNpix + ind)) += 1;
+        pSignal[ind] += signal;
+        pError[ind]  += error;
+        pNpix[ind]   +=1;
     }
     ~omp_storage() {
-        if (largeMemory) {
+        if (largeMemory && se_vec_stor.size() == 0) {
             mxFree(largeMemory);
+            largeMemory = NULL;
         }
     }
 
 private:
     size_t distr_size;
-
+    size_t data_size;
 
     std::vector<double > se_vec_stor;
     double * largeMemory;
