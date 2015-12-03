@@ -30,7 +30,7 @@ void omp_set_num_threads(int nThreads) {};
 # if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
 #define  OMP_VERSION_3
 #else
-#undef   OMP_VERSION_3
+#undef  OMP_VERSION_3
 #endif
 enum pix_fields
 {
@@ -112,8 +112,7 @@ public:
                     }
 
                 }
-            }
-            else {
+            } else { // Nullify existing memory
                 for (size_t i = 0; i < new_data_size; i++) {
                     largeMemory[i] = 0;
                 }
