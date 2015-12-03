@@ -121,6 +121,9 @@ npix_lastflush=0;                           % last pixel index for which data ha
 nsinglebin_write = 0;
 nbuff_write = 0;
 mess_completion(npix_cumsum(end),5,1);      % initialise completion message reporting - only if exceeds time threshold
+if log_level > 1
+    total_size_written=0;
+end
 while ibin_end<nbin
     % Refill buffer with next section of npix arrays from the input files
     ibin_start = ibin_end+1;
@@ -171,9 +174,11 @@ while ibin_end<nbin
             % Read pixels from input files
             pix_tb=cell(1,nfiles);                                  % buffer for pixel information
             npixels = 0;
+            %
             if (log_level>1)
                 t0 = tic;
             end
+            %
             for i=1:nfiles
                 if npix_in_files(i)>0
                     try
@@ -191,12 +196,12 @@ while ibin_end<nbin
                     end
                 end
             end
+            %
             if (log_level>1)
                 tel=toc(t0);
                 disp(['   ***time to read sub-cells: ',num2str(tel),' speed: ',num2str(npixels*4/tel/(1024*1024)),'MB/sec'])
             end
-            
-
+            %
             if change_fileno
                 for i=1:nfiles
                     pix_block = pix_tb{i};
@@ -235,11 +240,13 @@ while ibin_end<nbin
                     disp(['   ***pix_buff: ',num2str(size(pix_buff))])
                     t0 = tic;
                 end
-
+                
                 fwrite(fout,pix_buff,'float32');    % write to output file
-                if (log_level>1)                
+                if (log_level>1)
                     tel=toc(t0);
-                    disp(['   ***timeto flush buffer : ',num2str(tel),' speed: ',num2str(numel(pix_buff)*4/tel/(1024*1024)),'MB/sec'])
+                    current_MbSize = numel(pix_buff)*4/(1024*1024);
+                    disp(['   ***timeto flush buffer : ',num2str(tel),' speed: ',num2str(current_MbSize /tel),'MB/sec'])
+                    total_size_written=total_size_written+current_MbSize;
                 end
                 %                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
             end
@@ -254,6 +261,9 @@ end
 %profile off
 %profile viewer
 mess_completion
+if (log_level>1)
+  disp(['***Size of the generated file is: ',num2str(total_size_written),'MB'])    
+end
 % disp([' single bin write operations: ',num2str(nsinglebin_write)])
 % disp(['     buffer write operations: ',num2str(nbuff_write)])
 
