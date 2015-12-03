@@ -7,7 +7,7 @@ function file_list=setup_demo_data()
 demo_dir=pwd;
 
 en=[-80:8:760];
-par_file=[demo_dir,filesep,'4to1_124.PAR'];
+par_file=[demo_dir,filesep,'4to1_124.par'];
 sqw_file_single=[demo_dir,filesep,'single.sqw'];
 efix=800;
 emode=1;

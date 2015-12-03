@@ -111,8 +111,8 @@ end
 %  We cannot read the number of pixels in each bin from all the individual input files, as we do not have enough
 %  memory even for that, in general. We need to read these in, a section at a time, into a buffer.
 % (For example, if 50^4 grid, 300 files then array size of npix= 8*300*50^4 = 15GB).
-
-pmax = get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
+%profile on
+[pmax,log_level] = get(hor_config,'mem_chunk_size','log_level');    % size of buffer to hold pixel information
 nbin = numel(npix_cumsum);                  % total number of bins
 ibin_end=0;                                 % initialise the value of the largest element number of npix that is stored
 ibin_lastflush=0;                           % last bin index for which data has been written to output file
@@ -169,11 +169,17 @@ while ibin_end<nbin
             nend = reshape(cumsum(npix_flush(:)),size(npix_flush)); % end pixel number for each bin for each file
             nbeg = nend-npix_flush+1;                               % start pixel number for each bin for each file
             % Read pixels from input files
-            pix_buff = zeros(9,nend(end),'single');                 % buffer for pixel information
+            pix_tb=cell(1,nfiles);                                  % buffer for pixel information
+            npixels = 0;
+            if (log_level>1)
+                t0 = tic;
+            end
             for i=1:nfiles
                 if npix_in_files(i)>0
                     try
-                        [pix_buff(:,nbeg(1,i):nend(end,i)),count,ok,mess] = fread_catch(fid(i),[9,npix_in_files(i)],'*float32');
+                        [pix_tb{i},~,ok,mess] = fread_catch(fid(i),[9,npix_in_files(i)],'*float32');
+                        npixels = npixels +numel(pix_tb{i});
+                        %[pix_buff(:,nbeg(1,i):nend(end,i)),count,ok,mess] =
                     catch   % fixup to account for not reading required number of items (should really go in fread_catch)
                         ok = false;
                         mess = 'Unrecoverable read error after maximum no. tries';
@@ -183,15 +189,28 @@ while ibin_end<nbin
                         mess = ['Error reading pixel data from ',infiles{i},' : ',mess];
                         return
                     end
-                    if change_fileno
+                end
+            end
+            if (log_level>1)
+                tel=toc(t0);
+                disp(['   ***time to read sub-cells: ',num2str(tel),' speed: ',num2str(npixels*4/tel/(1024*1024)),'MB/sec'])
+            end
+            
+
+            if change_fileno
+                for i=1:nfiles
+                    pix_block = pix_tb{i};
+                    if(numel(pix_block) > 0)
                         if fileno
-                            pix_buff(5,nbeg(1,i):nend(end,i))=i;   % set the run index to the file index
+                            pix_block(5,:)=i;
                         else
-                            pix_buff(5,nbeg(1,i):nend(end,i))=pix_buff(5,nbeg(1,i):nend(end,i))+run_label(i);     % offset the run index
+                            pix_block(5,:) =pix_block(5,:)+run_label(i); % offset the run index
                         end
+                        pix_tb{i} = pix_block;
                     end
                 end
             end
+            pix_buff = cat(2,pix_tb{:});
             % Write to the output file
             npix_flush=npix_flush'; % transpose so order of elements is succesive files for 1st bin, succesive files for second etc.
             ok=npix_flush>0;        % ranges with at least one pixel
@@ -212,7 +231,16 @@ while ibin_end<nbin
                 end
                 
                 pix_buff=pix_buff(:,ind);   % rearrange pix_buff
+                if (log_level>1)
+                    disp(['   ***pix_buff: ',num2str(size(pix_buff))])
+                    t0 = tic;
+                end
+
                 fwrite(fout,pix_buff,'float32');    % write to output file
+                if (log_level>1)                
+                    tel=toc(t0);
+                    disp(['   ***timeto flush buffer : ',num2str(tel),' speed: ',num2str(numel(pix_buff)*4/tel/(1024*1024)),'MB/sec'])
+                end
                 %                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
             end
             clear npix_flush npix_in_files nend nbeg ok ind pix_buff  % clear the memory ofbig arrays (esp. pix_buff)
@@ -223,6 +251,8 @@ while ibin_end<nbin
         mess_completion(npix_lastflush)
     end
 end
+%profile off
+%profile viewer
 mess_completion
 % disp([' single bin write operations: ',num2str(nsinglebin_write)])
 % disp(['     buffer write operations: ',num2str(nbuff_write)])
