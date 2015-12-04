@@ -162,6 +162,9 @@ while ibin_end<nbin
             nsinglebin_write = nsinglebin_write + 1;
         else    % can hold data for at least one bin in buffer
             % Get information about number of pixels to be read from all the files
+            if (log_level>1)
+                t_total_block = tic;
+            end
             nbin_flush = ibin-ibin_lastflush;           % number of bins read into buffer
             npix_flush = zeros(nbin_flush,nfiles);      % to hold the no. pixels in each bin of the section we will write
             for i=1:nfiles
@@ -198,8 +201,8 @@ while ibin_end<nbin
             end
             %
             if (log_level>1)
-                tel=toc(t0);
-                disp(['   ***time to read sub-cells: ',num2str(tel),' speed: ',num2str(npixels*4/tel/(1024*1024)),'MB/sec'])
+                t_read=toc(t0);
+                disp(['   ***time to read sub-cells: ',num2str(t_read),' speed: ',num2str(npixels*4/t_read/(1024*1024)),'MB/sec'])
             end
             %
             if change_fileno
@@ -243,15 +246,21 @@ while ibin_end<nbin
                 
                 fwrite(fout,pix_buff,'float32');    % write to output file
                 if (log_level>1)
-                    tel=toc(t0);
+                    t_write=toc(t0);
                     current_MbSize = numel(pix_buff)*4/(1024*1024);
-                    disp(['   ***timeto flush buffer : ',num2str(tel),' speed: ',num2str(current_MbSize /tel),'MB/sec'])
+                    disp(['   ***time to flush buffer : ',num2str(t_write),' speed: ',num2str(current_MbSize /t_write),'MB/sec'])
                     total_size_written=total_size_written+current_MbSize;
                 end
                 %                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
             end
             clear npix_flush npix_in_files nend nbeg ok ind pix_buff  % clear the memory ofbig arrays (esp. pix_buff)
             nbuff_write = nbuff_write + 1;
+            if (log_level>1)
+                t_block = toc(t_total_block);
+                t_IO    = t_write+t_read;
+                disp(['   ***time to process I/O block : ',num2str(t_block),'sec, IO time in total is: ',num2str(100*t_IO/t_block),'%'])
+            end
+            
         end
         ibin_lastflush = ibin;
         npix_lastflush = npix_cumsum(ibin_lastflush);
@@ -262,7 +271,7 @@ end
 %profile viewer
 mess_completion
 if (log_level>1)
-  disp(['***Size of the generated file is: ',num2str(total_size_written),'MB'])    
+    disp(['***Size of the generated file is: ',num2str(total_size_written),'MB'])
 end
 % disp([' single bin write operations: ',num2str(nsinglebin_write)])
 % disp(['     buffer write operations: ',num2str(nbuff_write)])

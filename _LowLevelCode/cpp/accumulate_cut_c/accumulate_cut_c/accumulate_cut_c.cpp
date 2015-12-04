@@ -256,8 +256,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (!pixOK) {
         mexErrMsgTxt(" Can not allocate memory for pixel validity array\n");
     }
-
-    //plhs[Pixels_Ok] =
     mxLogical *ok = (mxLogical *)mxGetPr(pixOK);
 
     plhs[Actual_Pix_Range] = mxCreateDoubleMatrix(2, 4, mxREAL);

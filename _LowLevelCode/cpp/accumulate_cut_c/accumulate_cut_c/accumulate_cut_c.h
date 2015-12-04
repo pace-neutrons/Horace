@@ -23,7 +23,7 @@ bool isNaN(T val) {
     return (val != buf);
 }
 
-static std::unique_ptr<omp_storage> pStorHolder;
+//static std::unique_ptr<omp_storage> pStorHolder;
 /** Routine to calculate pixels data belonging to appropriate range */
 template<class T>
 mwSize accumulate_cut(double *s, double *e, double *npix,
@@ -114,11 +114,12 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
     std::vector<double> qe_min(4 * num_OMP_Threads, FLT_MAX);
     std::vector<double> qe_max(4 * num_OMP_Threads, -FLT_MAX);
 
-    if (!pStorHolder){
-      pStorHolder.reset(new omp_storage(num_OMP_Threads, distribution_size, s, e, npix));
-    } else {
-        pStorHolder->init_storage(num_OMP_Threads, distribution_size, s, e, npix);
-    }
+    std::unique_ptr<omp_storage> pStorHolder(new omp_storage(num_OMP_Threads, distribution_size, s, e, npix));
+    //if (!pStorHolder){
+    //  pStorHolder.reset(new omp_storage(num_OMP_Threads, distribution_size, s, e, npix));
+    //} else {
+    //    pStorHolder->init_storage(num_OMP_Threads, distribution_size, s, e, npix);
+    //}
 
     auto pStor = pStorHolder.get();
 
@@ -242,7 +243,7 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
    } // end parallel region
 
 
-    //pStorHolder.release();
+    pStorHolder.reset();
       // min-max value initialization
     for (int i = 0; i < 4; i++) {
         actual_pix_range[2 * i + 0] = std::numeric_limits<double>::max();
