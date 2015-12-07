@@ -111,7 +111,7 @@ end
 %  We cannot read the number of pixels in each bin from all the individual input files, as we do not have enough
 %  memory even for that, in general. We need to read these in, a section at a time, into a buffer.
 % (For example, if 50^4 grid, 300 files then array size of npix= 8*300*50^4 = 15GB).
-%profile on
+profile on
 [pmax,log_level] = get(hor_config,'mem_chunk_size','log_level');    % size of buffer to hold pixel information
 nbin = numel(npix_cumsum);                  % total number of bins
 ibin_end=0;                                 % initialise the value of the largest element number of npix that is stored
@@ -251,8 +251,8 @@ while ibin_end<nbin
         mess_completion(npix_lastflush)
     end
 end
-%profile off
-%profile viewer
+profile off
+profile viewer
 mess_completion
 % disp([' single bin write operations: ',num2str(nsinglebin_write)])
 % disp(['     buffer write operations: ',num2str(nbuff_write)])
