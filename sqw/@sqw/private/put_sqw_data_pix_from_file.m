@@ -117,11 +117,13 @@ nbin = numel(npix_cumsum);                  % total number of bins
 ibin_end=0;                                 % initialise the value of the largest element number of npix that is stored
 ibin_lastflush=0;                           % last bin index for which data has been written to output file
 npix_lastflush=0;                           % last pixel index for which data has been written to output file
+file_size     =0;
 
 nsinglebin_write = 0;
 nbuff_write = 0;
 mess_completion(npix_cumsum(end),5,1);      % initialise completion message reporting - only if exceeds time threshold
 while ibin_end<nbin
+    
     % Refill buffer with next section of npix arrays from the input files
     ibin_start = ibin_end+1;
     [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_start,nbin);
@@ -134,6 +136,9 @@ while ibin_end<nbin
     % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
     % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
     while ibin_lastflush < ibin_end
+        if (log_level>1)
+            t_all=tic;
+        end
         ibin = min(ibin_end,upper_index(npix_cumsum, npix_lastflush+pmax));
         if ibin==ibin_lastflush     % catch case when buffer cannot hold data for just the one bin
             ibin = ibin+1;
@@ -172,7 +177,7 @@ while ibin_end<nbin
             pix_tb=cell(1,nfiles);                                  % buffer for pixel information
             npixels = 0;
             if (log_level>1)
-                t0 = tic;
+                tr = tic;
             end
             for i=1:nfiles
                 if npix_in_files(i)>0
@@ -192,11 +197,11 @@ while ibin_end<nbin
                 end
             end
             if (log_level>1)
-                tel=toc(t0);
-                disp(['   ***time to read sub-cells: ',num2str(tel),' speed: ',num2str(npixels*4/tel/(1024*1024)),'MB/sec'])
+                t_read=toc(tr);
+                disp(['   ***time to read sub-cells: ',num2str(t_read),' speed: ',num2str(npixels*4/t_read/(1024*1024)),'MB/sec'])
             end
             
-
+            
             if change_fileno
                 for i=1:nfiles
                     pix_block = pix_tb{i};
@@ -233,24 +238,37 @@ while ibin_end<nbin
                 pix_buff=pix_buff(:,ind);   % rearrange pix_buff
                 if (log_level>1)
                     disp(['   ***pix_buff: ',num2str(size(pix_buff))])
-                    t0 = tic;
+                    tw = tic;
                 end
-
+                
                 fwrite(fout,pix_buff,'float32');    % write to output file
-                if (log_level>1)                
-                    tel=toc(t0);
-                    disp(['   ***timeto flush buffer : ',num2str(tel),' speed: ',num2str(numel(pix_buff)*4/tel/(1024*1024)),'MB/sec'])
+                if (log_level>1)
+                    t_write=toc(tw);
+                    block_size = numel(pix_buff)*4/(1024*1024);
+                    file_size = file_size+block_size;
+                    disp(['   ***timeto flush buffer : ',num2str(t_write),' speed: ',num2str(block_size/t_write),'MB/sec'])
                 end
                 %                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
             end
             clear npix_flush npix_in_files nend nbeg ok ind pix_buff  % clear the memory ofbig arrays (esp. pix_buff)
             nbuff_write = nbuff_write + 1;
+            if (log_level>1)
+                t_total=toc(t_all);
+                t_io   = t_write+t_read;
+                disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])                
+            end
+            
         end
         ibin_lastflush = ibin;
         npix_lastflush = npix_cumsum(ibin_lastflush);
         mess_completion(npix_lastflush)
     end
 end
+if (log_level>1)
+    disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])                    
+    disp(['******Processed: ',num2str(file_size),' MB'])
+end
+
 %profile off
 %profile viewer
 mess_completion
