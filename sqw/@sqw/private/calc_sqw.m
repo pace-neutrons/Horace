@@ -93,9 +93,9 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
     grid_size = grid_size_in;
 
 else
-    if horace_info_level>-1
-        disp('Sorting pixels ...')
-    end
+	if horace_info_level>-1
+		disp('Sorting pixels ...')
+	end
     
     use_mex=get(hor_config,'use_mex');
     if use_mex

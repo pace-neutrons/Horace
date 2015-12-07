@@ -13,7 +13,7 @@ function varargout=spaghetti_plot(varargin)
 %   >> spaghetti_plot(...,'logscale')              % plots intensity in log10 scale
 %   >> spaghetti_plot(...,'clim',[cmin cmax])      % sets the colorscale (needed for logscale)
 %
-%   >> wdisp=spaghetti_plot(...)                   % outputs the cuts as a d2d array
+%   >> wdisp=spaghetti_plot(...)                   % outputs the cuts as an IX_dataset_2d array
 %   >> wdisp=spaghetti_plot(...,'noplot')          % outputs arrays without plotting
 %
 %   >> [wdisp,cuts]=spaghetti_plot(...)            % generates a set of 1D cuts
@@ -25,7 +25,7 @@ function varargout=spaghetti_plot(varargin)
 %   data_source     Data source: sqw object or filename of a file with sqw-type data
 %                     (character string or cellarray with one character string)
 %
-%   wdisp           Array of d2d objects containing the cuts - e.g. previous generated
+%   wdisp           Array of IX_dataset_2d containing the cuts - e.g. previous generated
 %
 % Keyword options (can be abbreviated to single letter):
 %
@@ -72,9 +72,7 @@ function varargout=spaghetti_plot(varargin)
 %
 % Output:
 % -------
-%   wdisp       Array of d2d objects containing the cuts, one per q-segment.
-%
-%   cuts        Array of d1d objects of energy cuts along the hkl-lines
+%   wdisp       Array of IX_dataset_2d containing the cuts, one per q-segment.
 %
 % The function determines the q-directions for cuts of the sqw object as follows:
 %   u is the direction between the desired q-points specified in rlp
@@ -86,9 +84,10 @@ function varargout=spaghetti_plot(varargin)
 
 % Original author: M. D. Le
 %
-% $Revision$ ($Date$)
+% $revision$ ($date$)
 
 % TODO: Make it work for dnd objects (no arbitrary projections...)
+% TODO: Make smoothing work for IX_dataset objects
 
 % Set defaults
 % ------------
@@ -101,7 +100,7 @@ flags = {'noplot','logscale'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
 if numel(args)~=2
-    if length(args{1})>1 && strcmp(class(args{1}(1)),'d2d')
+    if length(args{1})>1 && strcmp(class(args{1}(1)),'IX_dataset_2d')
         plot_dispersion(args{1},opt);
         return
     else
@@ -123,9 +122,9 @@ if strcmp(class(args{2}),'sqw')
     hd = struct(args{2}).data;
 elseif sqwfile
     hd = head_sqw(args{2});
-elseif length(args{2})>1 && strcmp(class(args{2}(1)),'d2d')
+elseif length(args{2})>1 && strcmp(class(args{2}(1)),'IX_dataset_2d')
     plot_dispersion(args{2},opt);
-    return;
+    return
 else
     error('Check argument giving data source. Must be an sqw object or sqw file')
 end
@@ -143,8 +142,14 @@ end
 
 % Make labels
 % ------------
-if present.labels && (isempty(opt.labels) || ~iscellstr(opt.labels) || numel(opt.labels)~=size(rlp,1))
-    error('Check number of user-supplied labels and that they form a cell array of strings');
+if ~present.labels
+    labels=make_labels(rlp);
+else
+    if ~isempty(opt.labels) && iscellstr(opt.labels) && numel(opt.labels)==size(rlp,1)
+        labels=opt.labels;
+    else
+        error('Check number of user-supplied labels and that they form a cell array of strings')
+    end
 end
 
 
@@ -153,6 +158,7 @@ end
 b = bmatrix(hd.alatt,hd.angdeg);
 nseg=size(rlp,1)-1;
 proj.type='rrr';
+qinc=0;
 
 
 % Checks if all the rlp's are in a plane
@@ -163,17 +169,9 @@ if nseg>1
     u2rlp = rlp(2,:)-rlp(3,:);
     u2crt = (b*u2rlp')';
     u2crt0 = cross(u1crt,u2crt);
-    % Checks if rlp's are colinear.
-    j=3;
-    while abs(sum(u2crt0))<min(opt.qbin)/100 && j<=nseg
-        u2rlp = rlp(j,:)-rlp(j+1,:);
-        u2crt = (b*u2rlp')';
-        u2crt0 = cross(u1crt,u2crt);
-        j=j+1;
-    end
     % By definition, 2 lines define a plane, so we only check the case of nseg>2
     if nseg>2
-        for i=j:nseg
+        for i=3:nseg
             u2rlp = rlp(i,:)-rlp(i+1,:);
             u2crt = (b*u2rlp')';
             norve = cross(u1crt,u2crt);
@@ -197,14 +195,14 @@ end
 xrlp = 0;
 for i=1:nseg
     % Choose u1 along the user desired q-direction 
-    u1rlp = rlp(i+1,:)-rlp(i,:);
+    u1rlp = rlp(i,:)-rlp(i+1,:);
     u1crt = (b*u1rlp')';
     u1crt = u1crt./norm(u1crt);
     % Choose u2 to be either perpendicular to the plane of all the rlp (previous determined)
     %   or the plane defined by u1 and c* or, if u1||c*, the plane defined by u1 and a*.
     if isempty(u2crt0)
         u2crt = cross(u1crt,b*[0;0;1]./norm(b*[0;0;1]));
-        if abs(sum(u2crt))<min(opt.qbin)/100
+        if sum(u2crt)==0
             u2crt = cross(u1crt,b*[1;0;0]./norm(b*[1;0;0]));
         end
     else 
@@ -230,34 +228,54 @@ for i=1:nseg
     u1 = [dot(b*rlp(i,:)',u1crt)/ulen(1), u1bin, dot(b*rlp(i+1,:)',u1crt)/ulen(1)];
     u2 = [u20-u2bin,u20+u2bin];
     u3 = [u30-u3bin,u30+u3bin];
-    % Make cut, and save to array of d2d
-    wdisp(i) = cut_sqw(sqw,proj,u1,u2,u3,ebin,'-nopix');
+    % cuts requires monotonically increasing bins
+    if (u1(3)-u1(1))<0
+        u1 = fliplr(u1);
+        flipit = true;
+    else
+        flipit = false;
+    end
+    % Make cut, set x-axis as incremental q (in 1/Ang), and update its running value
+    qcut = cut_sqw(sqw,proj,u1,u2,u3,ebin,'-nopix')
+    if opt.smooth>0
+        qcut = smooth(qcut,opt.smooth,opt.smooth_shape);
+    end
     if nargout>1
         u1v = u1(1):u1(2):u1(3)
         for j=1:numel(u1v)-1
-            varargout{2}{i}(j) = cut(wdisp(i),u1v(j:j+1),[]);
-        end
-    end 
-    if present.labels
-        titlestr = sprintf('Segment from "%s" (%f %f %f) to "%s" (%f %f %f)',...
-                    opt.labels{i},rlp(i,:),opt.labels{i+1},rlp(i+1,:));
-    else
-        titlestr = sprintf('Segment from (%f %f %f) to (%f %f %f)',rlp(i,:),rlp(i+1,:));
-    end
-    if i>1
-        wdisp(i).title = titlestr;
-    else
-        binstr = sprintf(['q bin size approximately %f ',char(197),'^{-1}'],opt.qbin);
-        if numel(opt.qwidth)==1
-            wdisp(i).title=sprintf(['integrated over %f ',char(197),...
-                    '^{-1} in perpendicular q-directions\n%s\n%s'],opt.qwidth(1),binstr,titlestr)
-        else
-            wdisp(i).title=sprintf(['integrated over %f ',char(197),...
-                    '^{-1} in qv and %f ',char(197),'^{-1} in qw\n%s\n%s'],opt.qwidth,binstr,titlestr)
+            varargout{2}{i}(j) = cut(qcut,u1v(j:j+1),[]);
         end
     end
+    % Need to convert to IX_dataset_2d in order flip the data, and adjust bin boundaries
+    wdisp(i) = IX_dataset_2d(qcut);
+    if flipit
+        wdisp(i).signal = flipud(wdisp(i).signal);
+        wdisp(i).error  = flipud(wdisp(i).error);
+    end
+    % Modifies the first and last bins of each segment so there is no overlap between segments
+    wdisp(i).x(1)   = wdisp(i).x(1)  +u1bin/2;
+    wdisp(i).x(end) = wdisp(i).x(end)-u1bin/2;
+    % Converts the x-axis from r.l.u. along the segment q-direction to incremental |q| in 1/Ang
+    wdisp(i).x = qinc + (wdisp(i).x-wdisp(i).x(1)).*ulen(1);
+    qinc = wdisp(i).x(end);
+    % Update current segment length for labelling position.
+    wdisp(i).x_axis = IX_axis('Momentum',[char(197),'^{-1}']);
+    wdisp(i).y_axis = IX_axis('Energy','meV');
+    wdisp(i).title{4} = sprintf('Segment from (%f %f %f) to (%f %f %f)',rlp(i,:),rlp(i+1,:));
+    wdisp(i).x_axis.code = labels{i};
 end
 
+% Stuff unused fields in the IX_dataset_2D with information required for reploting from the array
+if numel(opt.qwidth)==1
+    intstr=sprintf(['integrated over %f ',char(197),'^{-1} in perpendicular q-directions'],opt.qwidth(1));
+else
+    intstr=sprintf(['integrated over %f ',char(197),'^{-1} in qv and %f ',char(197),'^{-1} in qw'],opt.qwidth);
+end
+wdisp(1).y_axis.code = sprintf(['q bin size approximately %f ',char(197),'^{-1}'],opt.qbin);
+wdisp(1).s_axis.code = intstr;
+
+
+% Output arrays if desired
 %-------------------------
 if nargout>0
     varargout{1}=wdisp;
@@ -272,65 +290,9 @@ end
 
 
 %========================================================================================================
-function plot_dispersion(wdisp_in,opt)
+function plot_dispersion(wdisp,opt)
 % Plots the dispersion in the structure wdisp
-    qinc = 0;
-    title = wdisp_in(1).title;
-    lnbrk = strfind(title,sprintf('\n'));
-    if ~isempty(lnbrk)
-        lnbrk = lnbrk(end);
-    end
-    wdisp_in(1).title = title(lnbrk+1:end);
-    for i=1:length(wdisp_in)
-        u1bin = mode(diff(wdisp_in(i).p{1}));
-        ulen = wdisp_in(i).ulen;
-        % Internally use IX_dataset_2d to manipulate the x-axis (flip and adjust bin boundaries)
-        if opt.smooth>0
-            wdisp(i) = IX_dataset_2d(smooth(wdisp_in(i),opt.smooth,opt.smooth_shape));
-        else
-            wdisp(i) = IX_dataset_2d(wdisp_in(i));
-        end
-        % Modifies the first and last bins of each segment so there is no overlap between segments
-        wdisp(i).x(1)   = wdisp(i).x(1)  +u1bin/2;
-        wdisp(i).x(end) = wdisp(i).x(end)-u1bin/2;
-        % Converts the x-axis from r.l.u. along the segment q-direction to incremental |q| in 1/Ang
-        wdisp(i).x = qinc + (wdisp(i).x-wdisp(i).x(1)).*ulen(1);
-        qinc = wdisp(i).x(end);
-        % Update current segment length for labelling position.
-        wdisp(i).x_axis = IX_axis('Momentum',[char(197),'^{-1}']);
-        wdisp(i).y_axis = IX_axis('Energy','meV');
-        % Finds labels in segment title
-        brk = strfind(wdisp_in(i).title,sprintf('\n'));
-        if ~isempty(brk)
-            brk = brk(end);
-            wdisp_in(i).title = title(brk+1:end);
-        end
-        bra = strfind(wdisp_in(i).title,'(');
-        ket = strfind(wdisp_in(i).title,')');
-        hkls = [sscanf(wdisp_in(i).title(bra(1):ket(1)),'(%f %f %f)');
-                sscanf(wdisp_in(i).title(bra(2):ket(2)),'(%f %f %f)')];
-        quotes = strfind(wdisp_in(i).title,'"');
-        if i>1 && abs(sum(hkls(1:3)-hkl0(4:6)))>0.01
-            warning(sprintf('(hkl) points for segments %d and %d do not match',i-1,i));
-            if isempty(quotes)
-                labels{i} = sprintf('[%s]/[%s]',str_compress(num2str(hkl0(4:6)')),str_compress(num2str(hkls(1:3)')));
-            else
-                labels{i} = sprintf('%s/%s',labels{i},wdisp_in(i).title(quotes(1)+1:quotes(2)-1));
-            end
-        else
-            if isempty(quotes)
-                labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
-            else
-                labels{i} = wdisp_in(i).title(quotes(1)+1:quotes(2)-1);
-            end
-        end
-        if isempty(quotes)
-            labels{i+1} = ['[',str_compress(num2str(hkls(4:6)'),','),']'];
-        else
-            labels{i+1} = wdisp_in(i).title(quotes(3)+1:quotes(4)-1);
-        end
-        hkl0 = hkls;
-    end
+    wdisp(1).title = {wdisp(1).title{1},wdisp(1).s_axis.code,wdisp(1).y_axis.code};
     % This might not be the best way to do this but the 2D dataset should(!) hopefully not
     %   take up too much memory to make a copy of wdisp...
     if opt.logscale
@@ -338,13 +300,13 @@ function plot_dispersion(wdisp_in,opt)
             wdisp(i).signal = log10(wdisp(i).signal);
         end
     end
-    wdisp(1).title = title(1:lnbrk);
     plot(wdisp);
     hold on;
     xrlp = 0;
     for i=1:length(wdisp);
         xrlp(i+1) = wdisp(i).x(end);
         plot([1 1]*xrlp(i+1),get(gca,'YLim'),'-k');
+        labels{i} = wdisp(i).x_axis.code;
     end
     hold off;
     plot_labels(labels,xrlp);
@@ -360,14 +322,6 @@ function plot_dispersion(wdisp_in,opt)
         set(findobj(chld,'tag','color_slider_max_value'),'String',num2str(opt.clim(2)));
     end
     if opt.logscale
-        if sum(isnan(opt.clim))~=2
-            clim = opt.clim;
-        else
-            clim = 10.^get(gca,'CLim')
-            chld = get(gcf,'Children');
-            set(findobj(chld,'tag','color_slider_min_value'),'String',num2str(clim(1)));
-            set(findobj(chld,'tag','color_slider_max_value'),'String',num2str(clim(2)));
-        end
         hc=colorbar; 
         % Old style workaround - does not work on Matlab 2015 onwards
         if verLessThan('matlab','8.6')
@@ -378,13 +332,13 @@ function plot_dispersion(wdisp_in,opt)
         % New style workaround - only works on Matlab 2015 onwards!
         else
             set(hc,'TicksMode','manual');
-            majorticks = ceil(log10(clim(1))):floor(log10(clim(2)));
+            majorticks = ceil(log10(opt.clim(1))):floor(log10(opt.clim(2)));
             ntick=(numel(majorticks)-1)*9;
             unitbefore = 10^majorticks(1)/10;
-            tickstart = ceil(clim(1)*unitbefore)/unitbefore;
+            tickstart = ceil(opt.clim(1)*unitbefore)/unitbefore;
             ticksbefore = tickstart:unitbefore:unitbefore*9;
             unitafter = 10^majorticks(end);
-            tickend = floor(clim(2)*unitafter)/unitafter;
+            tickend = floor(opt.clim(2)*unitafter)/unitafter;
             ticksafter = unitafter:unitafter:tickend;
             ntick = ntick + numel(ticksbefore) + numel(ticksafter);
             minorticks = zeros(1,ntick);
@@ -407,6 +361,16 @@ function plot_dispersion(wdisp_in,opt)
             set(hc,'TickLabels',ticklabels);
         end
     end
+
+%========================================================================================================
+function labels=make_labels(rlp)
+% Make labels for graphs from list of r.l.p
+nrlp=size(rlp,1);
+labels=cell(1,nrlp);
+for i=1:nrlp
+    labels{i}=['[',str_compress(num2str(rlp(i,:)),','),']'];
+end
+
 
 %========================================================================================================
 function plot_labels(labels,xvals)
