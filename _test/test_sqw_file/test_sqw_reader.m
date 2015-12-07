@@ -7,7 +7,6 @@ classdef test_sqw_reader< TestCase
         sample_dir;
         sample_file;
         positions
-        fid
     end
     
     
@@ -19,13 +18,17 @@ classdef test_sqw_reader< TestCase
             this=this@TestCase(name);
             this.sample_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_symmetrisation');
             this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');
-            this.fid = fopen(this.sample_file);
+            fid = fopen(this.sample_file);
+            if fid<1
+                error('Can not open sample file %s',this.sample_file)
+            end
+            cleanup_obj=onCleanup(@()fclose(fid ));
             theSqw = sqw();
-            [mess,main_header,header,det_tmp,datahdr,this.positions,npixtot,data_type,file_format,current_format] = get_sqw (theSqw,this.fid,'-h');
+            [mess,main_header,header,det_tmp,datahdr,this.positions,npixtot,data_type,file_format,current_format] = get_sqw (theSqw,fid,'-h');
             if ~isempty(mess)
                 error('Can not read sample file %s header, error: %s',this.sample_file,mess)
             end
-            cleanup_obj=onCleanup(@()fclose(this.fid));
+            
             
             
         end
@@ -39,11 +42,16 @@ classdef test_sqw_reader< TestCase
             pix_start_pos  =this.positions.pix;   % start of pix field
             
             
-            sr =  sqw_reader(this.fid,npix_start_pos,n_bin,pix_start_pos,10);
+            sr =  sqw_reader(this.sample_file,npix_start_pos,n_bin,pix_start_pos,10);
             
+            f = @()(sr.get_pix_for_bin(0));
+            assertExceptionThrown(f,'SQW_READER:read_pix');
             
             pix = sr.get_pix_for_bin(1);
-          
+            assertEqual(size(pix),[9,3]);
+            pix = sr.get_pix_for_bin(2);
+            assertEqual(size(pix),[9,3]);
+            cleanup_obj=onCleanup(@()sr.delete());
         end
         
     end
