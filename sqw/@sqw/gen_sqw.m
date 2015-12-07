@@ -82,6 +82,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 
 % *** Possible improvements
 % - Cleverer choice of grid size on the basis of number of data points in the file
+% private?
 
 d2r=pi/180;     % conversion factor from degrees to radians
 
