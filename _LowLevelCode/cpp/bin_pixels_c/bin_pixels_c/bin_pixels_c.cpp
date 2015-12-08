@@ -392,7 +392,7 @@ bool bin_pixels(double *s, double *e, double *npix,
                 PixelSorted=NULL;
                 throw("  Can not allocate memory for sorted pixels");
             }
-            double *pPixels = mxGetPr(PixelSorted);
+            pPixels = mxGetPr(PixelSorted);
         }
        // copy pixels info from heap to Matlab controlled memory;
 #pragma omp for
