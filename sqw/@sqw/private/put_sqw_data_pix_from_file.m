@@ -236,11 +236,11 @@ while ibin_end<nbin
                 end
                 
                 pix_buff=pix_buff(:,ind);   % rearrange pix_buff
+                
                 if (log_level>1)
                     disp(['   ***pix_buff: ',num2str(size(pix_buff))])
                     tw = tic;
-                end
-                
+                end                
                 fwrite(fout,pix_buff,'float32');    % write to output file
                 if (log_level>1)
                     t_write=toc(tw);
