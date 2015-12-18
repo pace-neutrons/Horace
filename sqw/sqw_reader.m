@@ -158,7 +158,10 @@ classdef sqw_reader<handle
                 self.read_pixels_(bin_number,pix_num)
             end
             pix_num_in_buf = pix_num-self.pix_in_buf_start_+1;
-            
+            if verLessThan('matlab','7.12')
+                pix_num_in_buf  = double(pix_num_in_buf);
+                npix = double(npix);
+            end
             %
             pix_info = self.pix_buffer_(:,pix_num_in_buf:pix_num_in_buf+npix-1);
             
@@ -294,6 +297,9 @@ classdef sqw_reader<handle
             if nargin == 2
                 self.num_first_bin_  = first_bin;
                 self.nbin_buffer_    = nbin_selection;
+                if verLessThan('matlab','7.12')
+                    nbin_selection = double(nbin_selection);
+                end
                 pix_pos = cumsum(nbin_selection);
                 self.nbin_sum_buffer_= [0;pix_pos(1:end-1)];
                 self.num_buf_bins_   = numel(nbin_selection);
