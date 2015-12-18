@@ -48,40 +48,40 @@ classdef test_sqw_reader< TestCase
             
             
             [pix_num,npix] = sr.get_npix_for_bin(1);
-            assertEqual(pix_num,int64(1));
-            assertEqual(npix,int64(3));
+            assertEqual(double(pix_num),1);
+            assertEqual(double(npix),3);
             [pix_num,npix] = sr.get_npix_for_bin(2);
-            assertEqual(pix_num,int64(4));
-            assertEqual(npix,int64(3));
+            assertEqual(double(pix_num),4);
+            assertEqual(double(npix),3);
             
             [pix_num,npix] = sr.get_npix_for_bin(7);
-            assertEqual(pix_num,int64(18));
-            assertEqual(npix,int64(1));
+            assertEqual(double(pix_num),18);
+            assertEqual(double(npix),1);
             
             
             [pix_num,npix] = sr.get_npix_for_bin(1);
-            assertEqual(npix,int64(3));
-            assertEqual(pix_num,int64(1));
+            assertEqual(double(npix),3);
+            assertEqual(double(pix_num),1);
             % check end of nbin buffer
             [pix_num,npix] = sr.get_npix_for_bin(4096);
-            assertEqual(npix ,int64(6));
-            assertEqual(pix_num,int64(7887));
+            assertEqual(double(npix) ,6);
+            assertEqual(double(pix_num),7887);
             % here pix should be retrieved from the buffer
             [pix_num,npix] = sr.get_npix_for_bin(1);
-            assertEqual(pix_num,int64(1));
-            assertEqual(npix,int64(3));
+            assertEqual(double(pix_num),1);
+            assertEqual(double(npix),3);
             % Gradual bin buffer advance
             [pix_num,npix] = sr.get_npix_for_bin(4097);
-            assertEqual(npix ,int64(2));
-            assertEqual(pix_num,int64(7887+6));
+            assertEqual(double(npix) ,2);
+            assertEqual(double(pix_num),7887+6);
             
             [pix_num,npix] = sr.get_npix_for_bin(8096);
-            assertEqual(npix ,int64(0));
-            assertEqual(pix_num,int64(14159));
+            assertEqual(double(npix) ,0);
+            assertEqual(double(pix_num),14159);
             
             [pix_num,npix] = sr.get_npix_for_bin(8097);
-            assertEqual(npix ,int64(0));
-            assertEqual(pix_num,int64(14159));
+            assertEqual(double(npix) ,0);
+            assertEqual(double(pix_num),14159);
             
         end
         function this=test_reader_npix_cash_miss(this)
@@ -99,29 +99,29 @@ classdef test_sqw_reader< TestCase
             % should clear bin buffer
             [pix_num,npix] = sr.get_npix_for_bin(8096);
             assertEqual(npix ,int64(0));
-            assertEqual(pix_num,int64(14159));
+            assertEqual(double(pix_num),14159);
             % check buf end
             [pix_num,npix] = sr.get_npix_for_bin(8192);
-            assertEqual(npix ,int64(0));
-            assertEqual(pix_num,int64(14159));
+            assertEqual(double(npix) ,0);
+            assertEqual(double(pix_num),14159);
             
             % should clear bin buffer and start again
             [pix_num,npix] = sr.get_npix_for_bin(7);
-            assertEqual(pix_num,int64(18));
-            assertEqual(npix,int64(1));
+            assertEqual(double(pix_num),18);
+            assertEqual(double(npix),1);
             
             % should take data from bin buffer
             [pix_num,npix] = sr.get_npix_for_bin(4096);
-            assertEqual(npix ,int64(6));
-            assertEqual(pix_num,int64(7887));
+            assertEqual(double(npix) ,6);
+            assertEqual(double(pix_num),7887);
             
             % check end of the buffer
             nbins = sr.nbins;
             [pix_num,npix] = sr.get_npix_for_bin(nbins-1);
-            assertEqual(npix ,int64(0));
-            assertEqual(pix_num,int64(1164180+1));
+            assertEqual(double(npix) ,0);
+            assertEqual(double(pix_num),1164180+1);
             [pix_num,npix] = sr.get_npix_for_bin(nbins);
-            assertEqual(int64(this.npixtot),pix_num+npix-1);
+            assertEqual(this.npixtot,double(pix_num+npix-1));
             
         end
         function this=test_reader_npix_cash_miss_simple(this)
@@ -138,9 +138,9 @@ classdef test_sqw_reader< TestCase
             nbins = sr.nbins;
             [pix_num,npix] = sr.get_npix_for_bin(nbins-1);
             assertEqual(npix ,int64(0));
-            assertEqual(pix_num,int64(1164180+1));
+            assertEqual(double(pix_num),1164180+1);
             [pix_num,npix] = sr.get_npix_for_bin(nbins);
-            assertEqual(int64(this.npixtot),pix_num+npix-1);
+            assertEqual(this.npixtot,double(pix_num+npix-1));
         end
         function this = test_read_pixels(this)
             pos_s = this.positions.s;
@@ -168,8 +168,8 @@ classdef test_sqw_reader< TestCase
             assertEqual(size(pix1),[9,3]);
             % this now should work from cash only
             [pix_num,npix] = sr.get_npix_for_bin(1);
-            assertEqual(pix_num,int64(1));
-            assertEqual(npix,int64(3));
+            assertEqual(double(pix_num),1);
+            assertEqual(double(npix),3);
             
             pix_info = the_sqw.data.pix(:,pps(1)+1:pps(1)+pns(1));
             assertEqual(single(pix_info),pix1);
@@ -178,8 +178,8 @@ classdef test_sqw_reader< TestCase
             pix2 = sr.get_pix_for_bin(2207);
             assertEqual(size(pix2),[9,2]);
             [pix_num,npix] = sr.get_npix_for_bin(2207);
-            assertEqual(pix_num,int64(4095));
-            assertEqual(npix,int64(2));
+            assertEqual(double(pix_num),4095);
+            assertEqual(double(npix),2);
             
             pix_info = the_sqw.data.pix(:,pps(2207)+1:pps(2207)+pns(2207));
             assertEqual(single(pix_info),pix2);
@@ -188,9 +188,9 @@ classdef test_sqw_reader< TestCase
             %
             pix3 = sr.get_pix_for_bin(4096);
             [pix_num,npix] = sr.get_npix_for_bin(4096);
-            assertEqual(int64(size(pix3)),[9,npix]);
-            assertEqual(pix_num,int64(7887));
-            assertEqual(npix,int64(6));
+            assertEqual(size(pix3),double([9,npix]));
+            assertEqual(double(pix_num),7887);
+            assertEqual(double(npix),6);
             
             pix_info = the_sqw.data.pix(:,pps(4096)+1:pps(4096)+pns(4096));
             assertEqual(single(pix_info),pix3);
@@ -198,9 +198,9 @@ classdef test_sqw_reader< TestCase
             
             pix4 = sr.get_pix_for_bin(4097);
             [pix_num,npix] = sr.get_npix_for_bin(4097);
-            assertEqual(int64(size(pix4)),[9,npix]);
-            assertEqual(pix_num,int64(7887+6));
-            assertEqual(npix ,int64(2));
+            assertEqual(size(pix4),double([9,npix]));
+            assertEqual(double(pix_num),(7887+6));
+            assertEqual(double(npix) ,(2));
             
             pix_info = the_sqw.data.pix(:,pps(4097)+1:pps(4097)+pns(4097));
             assertEqual(single(pix_info),pix4);
@@ -209,21 +209,21 @@ classdef test_sqw_reader< TestCase
             pix4a = sr.get_pix_for_bin(8192);
             [pix_num,npix] = sr.get_npix_for_bin(8192);
             assertEqual(size(pix4a),[0,0]);
-            assertEqual(npix ,int64(0));
-            assertEqual(pix_num,int64(14159));
+            assertEqual(double(npix) ,(0));
+            assertEqual(double(pix_num),(14159));
             pix4a = sr.get_pix_for_bin(8193);
             [pix_num,npix] = sr.get_npix_for_bin(8193);
             assertEqual(size(pix4a),[0,0]);
-            assertEqual(npix ,int64(0));
-            assertEqual(pix_num,int64(14159));
+            assertEqual(double(npix) ,(0));
+            assertEqual(double(pix_num),(14159));
             
             
             nbins = sr.nbins;
             pix5 = sr.get_pix_for_bin(nbins);
             [pix_num,npix] = sr.get_npix_for_bin(nbins);
             assertEqual(size(pix5),[0,0]);
-            assertEqual(npix ,int64(0));
-            assertEqual(int64(this.npixtot),pix_num+npix-1);
+            assertEqual(double(npix) ,(0));
+            assertEqual(this.npixtot,double(pix_num+npix-1));
             
             %profile on
             t0= tic;
@@ -232,8 +232,8 @@ classdef test_sqw_reader< TestCase
                 
                 [pix_num,npix] = sr.get_npix_for_bin(i);
                 if npix > 0
-                    assertEqual(int64(size(pix)),[9,npix]);
-                    assertEqual(pix_num,int64(pps(i)+1));
+                    assertEqual(size(pix),double([9,npix]));
+                    assertEqual(double(pix_num),(pps(i)+1));
                     pix_info = the_sqw.data.pix(:,pps(i)+1:pps(i)+pns(i));
                     assertEqual(single(pix_info),pix);
                 end

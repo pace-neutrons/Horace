@@ -398,7 +398,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         plhs[0] = mxCreateString(REVISION);
         return;
     }
-
+    bool debug_file_reader(false);
     //* Check for proper number of arguments. */
     {
         if (nrhs != N_INPUT_Arguments&&nrhs != N_INPUT_Arguments - 1) {
@@ -406,6 +406,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             buf << "ERROR::combine_sqw needs " << (short)N_INPUT_Arguments << " but got " << (short)nrhs
                 << " input arguments and " << (short)nlhs << " output argument(s)\n";
             mexErrMsgTxt(buf.str().c_str());
+        }
+        if (nlhs == 2) {
+            debug_file_reader = true;
         }
         /*
         if (nlhs != N_OUTPUT_Arguments) {
@@ -470,7 +473,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 ProgSettings.totNumBins = size_t(pProg_settings[i]);
                 break;
             case(1):
-                // -1 --> convert 
+                // -1 --> convert to C-arrays from Matlab array counting
                 ProgSettings.nBin2read = size_t(pProg_settings[i])-1;
                 break;
             case(2) :
@@ -514,21 +517,24 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         fileReader[i].init(fileName[i], fileParam[i]);
     }
     size_t n_buf_pixels(0),n_bins_processed(0);
+    if (debug_file_reader) {
+        auto PixBuffer = mxCreateNumericMatrix(9, ProgSettings.pixBufferSize, mxSINGLE_CLASS, mxREAL);
+        if (!PixBuffer) {
+            mexErrMsgTxt("Can not allocate output pixels buffer");
+        }
+        float *pPixBuffer = (float *)mxGetPr(PixBuffer);
 
-    auto PixBuffer = mxCreateNumericMatrix(9, ProgSettings.pixBufferSize, mxSINGLE_CLASS, mxREAL);
-    if (!PixBuffer) {
-        mexErrMsgTxt("Can not allocate output pixels buffer");
+        read_pix_info(pPixBuffer, n_buf_pixels, n_bins_processed, fileReader, ProgSettings);
+        auto OutParam = mxCreateNumericMatrix(2, 1, mxUINT64_CLASS, mxREAL);
+        uint64_t *outData = (uint64_t *)mxGetPr(OutParam);
+        outData[0] = n_buf_pixels;
+        outData[1] = n_bins_processed;
+
+        plhs[pix_data] = PixBuffer;
+        plhs[pix_info] = OutParam;
     }
-    float *pPixBuffer = (float *)mxGetPr(PixBuffer);
+    else {
 
-    read_pix_info(pPixBuffer, n_buf_pixels,n_bins_processed, fileReader, ProgSettings);
-    auto OutParam = mxCreateNumericMatrix(2,1, mxUINT64_CLASS,mxREAL);
-    uint64_t *outData =(uint64_t *)mxGetPr(OutParam);
-    outData[0]= n_buf_pixels;
-    outData[1] = n_bins_processed;
-
-
-    plhs[pix_data] = PixBuffer;
-    plhs[pix_info] = OutParam;
+    }
 }
 
