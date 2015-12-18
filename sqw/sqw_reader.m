@@ -297,7 +297,7 @@ classdef sqw_reader<handle
             if nargin == 2
                 self.num_first_bin_  = first_bin;
                 self.nbin_buffer_    = nbin_selection;
-                if verLessThan('matlab','7.12')
+                if verLessThan('matlab','7.15')
                     nbin_selection = double(nbin_selection);
                 end
                 pix_pos = cumsum(nbin_selection);
