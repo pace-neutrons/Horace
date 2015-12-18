@@ -7,22 +7,30 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <map>
 //
 // $Revision:: 1045 $ ($Date:: 2015-08-04 13:42:10 +0100 (Tue, 04 Aug 2015) $)" 
 //
 
 // information, describes files to combine (will be processed later)
-struct fileParameters {
+class fileParameters {
+public:
     size_t nbin_start_pos;   // the initial file position where nbin array is located in the file
     size_t pix_start_pos;   // the initial file position where the pixel array is located in file
     int    file_id;
-    size_t total_NfileBins; // the number of bins in this file
+    size_t total_NfileBins; // the number of bins in this file (has to be the same for all files)
+    fileParameters(const mxArray *pFileParam);
+    fileParameters():nbin_start_pos(0), pix_start_pos(0), 
+    file_id(0), total_NfileBins(0){}
+private:
+    static const std::map<std::string, int> fileParamNames;
 };
 
 enum readBinInfoOption {
     sumPixInfo,
     keepPixInfo
 };
+//-----------------------------------------------------------------------------------------------------------------
 class cells_in_memory {
     public:
         cells_in_memory(size_t buf_size) :
@@ -54,7 +62,32 @@ class cells_in_memory {
 
         static const size_t BIN_SIZE_BYTES=8;
 };
+//-----------------------------------------------------------------------------------------------------------------
+class sqw_pix_writer {
+public:
+    sqw_pix_writer(size_t buf_size):
+    PIX_BUF_SIZE(buf_size),
+    last_pix_written(0), pix_array_position(0){}
 
+    void init(const std::string &outfile, const fileParameters &fpar);
+    void write_pixels(const size_t nPixelsToWrite);
+    float * get_pBuffer(){return &pix_buffer[0]; }
+    ~sqw_pix_writer();
+private:
+    // size of write pixels buffer (in pixels)
+    size_t PIX_BUF_SIZE;
+    std::string filename;
+
+    std::ofstream h_out_sqw;
+    size_t last_pix_written;
+    size_t pix_array_position;
+    size_t nbin_position;
+
+    std::vector<float> pix_buffer;
+
+};
+
+//-----------------------------------------------------------------------------------------------------------------
 class sqw_reader {
     /* Class provides bin and pixel information for a pixels of an sqw file.
 

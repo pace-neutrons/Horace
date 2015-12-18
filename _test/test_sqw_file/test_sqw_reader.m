@@ -8,6 +8,7 @@ classdef test_sqw_reader< TestCase
         sample_file;
         positions
         npixtot
+        test_dir
     end
     
     
@@ -30,7 +31,7 @@ classdef test_sqw_reader< TestCase
                 error('Can not read sample file %s header, error: %s',this.sample_file,mess)
             end
             this.npixtot = npixtot;
-            
+            this.test_dir = tempdir;
             
         end
         
@@ -264,7 +265,9 @@ classdef test_sqw_reader< TestCase
             files = {this.sample_file};
             file_par = {struct('npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
             params = [n_bin,1,100];
-            [pix_data,pix_info] = combine_sqw(files,file_par,params);
+            dummy_out_file_par = struct('npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
+            [pix_data,pix_info] = combine_sqw(files,file_par,'dummy_sqw_rez',...
+                dummy_out_file_par,params);
             
             assertEqual(pix_info(1),uint64(99))
             assertEqual(pix_info(2),uint64(42))
@@ -273,7 +276,8 @@ classdef test_sqw_reader< TestCase
             
             params = [n_bin,1,this.npixtot];
             t0= tic;
-            [pix_data,pix_info] = combine_sqw(files,file_par,params);
+            [pix_data,pix_info] = combine_sqw(files,file_par,'dummy_sqw_rez',...
+                dummy_out_file_par,params);
             t1=toc(t0);
             
             disp([' Time to process ',num2str(n_bin),' cells containing ',...
@@ -282,16 +286,59 @@ classdef test_sqw_reader< TestCase
             assertEqual(pix_info(1),uint64(this.npixtot))
             assertEqual(pix_info(2),uint64(n_bin-1))
             
-           
+            
             assertEqual(pix_data(:,1:2248),single(the_sqw.data.pix(:,1:2248)))
-
+            
             assertEqual(pix_data(:,4095),single(the_sqw.data.pix(:,4095)))
             assertEqual(pix_data(:,4096),single(the_sqw.data.pix(:,4096)))
             assertEqual(pix_data(:,4097),single(the_sqw.data.pix(:,4097)))
-
-            assertEqual(pix_data(:,7892),single(the_sqw.data.pix(:,7892)))            
+            
+            assertEqual(pix_data(:,7892),single(the_sqw.data.pix(:,7892)))
             assertEqual(pix_data(:,7893),single(the_sqw.data.pix(:,7893)))
             assertEqual(pix_data,single(the_sqw.data.pix))
+            
+        end
+        function this = test_rewrite_pixarray_mex(this)
+            use_mex = get(hor_config,'use_mex');
+            if ~use_mex
+                return;
+            end
+            %
+            pos_s = this.positions.s;
+            pos_e = this.positions.e;
+            n_bin = (pos_e-pos_s)/4;
+            npix_start_pos =this.positions.npix;  % start of npix field
+            pix_start_pos  =this.positions.pix;   % start of pix field
+            
+            
+            in_files = {this.sample_file};
+            file_par = {struct('npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
+            params = [n_bin,1,1000000];
+            out_file = fullfile(this.test_dir,'dummy_sqw_rez.sqw');
+            cleanup_obj=onCleanup(@()delete(out_file));
+            
+            out_file_par = struct('npix_start_pos',0,'pix_start_pos',0,'file_id',0);
+            t0= tic;
+            combine_sqw(in_files,file_par,out_file,...
+                out_file_par ,params);
+            t1=toc(t0);
+            disp([' Time to process ',num2str(n_bin),' cells containing ',...
+                num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
+            
+            assertTrue(exist(out_file,'file')==2);
+            
+            fid = fopen(out_file,'r');
+            pix = fread(fid,[9,this.npixtot],'float32');
+            fclose(fid);
+            %
+            t0= tic;
+            the_sqw = read_sqw(this.sample_file);
+            t1=toc(t0);
+            disp([' Direct read of file with ',num2str(n_bin),' cells containing ',...
+                num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
+            assertEqual(pix(:,999992),the_sqw.data.pix(:,999992))
+            assertEqual(pix(:,999993),the_sqw.data.pix(:,999993))
+            assertEqual(pix,the_sqw.data.pix);
             
         end
         
