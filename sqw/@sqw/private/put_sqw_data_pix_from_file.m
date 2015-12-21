@@ -66,6 +66,33 @@ else
     return
 end
 
+% size of buffer to hold pixel information, the log level and if use mex to
+% build the result
+[pmax,log_level,use_mex] = get(hor_config,'mem_chunk_size','log_level','use_mex');
+if use_mex
+    pix_out_position = ftell(fout);
+    fout_name = fopen(fout);
+    fclose(fout);
+    [mess,infiles] = combine_files_using_mex(fout_name,pix_out_position,...
+                     infiles,npixstart, pixstart,runlabel,change_fileno,fileno);
+    if isemtpy(mess)
+        return
+    else  % Mex combining have failed, try Matlab
+        
+        fout = fopen(fout_name,'rb+');
+        if (fout<0)
+            mess=['Unable to reopen output file: ',fout_name,'with all necessary permissions'];
+            return
+        end
+        status = fseek(fout,pix_out_position,'bof');
+        if status<0
+            mess=['Error finding location of pixel data in output file: ',fout_name];
+            fclose(fout);
+            return
+        end        
+    end
+end
+
 
 % Open all input files and move to the start of the pixel information
 % [Currently opens all the input files simultaneously.  (TGP desktop PC on 1 July 2007 machine will open up to 509 files when tested)
@@ -112,7 +139,7 @@ end
 %  memory even for that, in general. We need to read these in, a section at a time, into a buffer.
 % (For example, if 50^4 grid, 300 files then array size of npix= 8*300*50^4 = 15GB).
 %profile on
-[pmax,log_level] = get(hor_config,'mem_chunk_size','log_level');    % size of buffer to hold pixel information
+
 nbin = numel(npix_cumsum);                  % total number of bins
 ibin_end=0;                                 % initialise the value of the largest element number of npix that is stored
 ibin_lastflush=0;                           % last bin index for which data has been written to output file
@@ -240,7 +267,7 @@ while ibin_end<nbin
                 if (log_level>1)
                     disp(['   ***pix_buff: ',num2str(size(pix_buff))])
                     tw = tic;
-                end                
+                end
                 fwrite(fout,pix_buff,'float32');    % write to output file
                 if (log_level>1)
                     t_write=toc(tw);
@@ -255,7 +282,7 @@ while ibin_end<nbin
             if (log_level>1)
                 t_total=toc(t_all);
                 t_io   = t_write+t_read;
-                disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])                
+                disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])
             end
             
         end
@@ -265,7 +292,7 @@ while ibin_end<nbin
     end
 end
 if (log_level>1)
-    disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])                    
+    disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])
     disp(['******Processed: ',num2str(file_size),' MB'])
 end
 
@@ -326,3 +353,12 @@ for i=1:nfiles
         return
     end
 end
+%
+function  [mess,infiles] = combine_files_using_mex(fout_name,pix_out_position,...
+                     infiles,npixstart, pixstart,runlabel,change_fileno,fileno)
+% prepare input data for mex-combining and attempt to combine input data
+% using mex. 
+    nfiles = numel(infiles);
+    
+end
+    

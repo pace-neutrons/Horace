@@ -15,12 +15,13 @@
 // information, describes files to combine (will be processed later)
 class fileParameters {
 public:
+    std::string fileName;
     size_t nbin_start_pos;   // the initial file position where nbin array is located in the file
     size_t pix_start_pos;   // the initial file position where the pixel array is located in file
     int    file_id;
     size_t total_NfileBins; // the number of bins in this file (has to be the same for all files)
     fileParameters(const mxArray *pFileParam);
-    fileParameters():nbin_start_pos(0), pix_start_pos(0), 
+    fileParameters():fileName(""),nbin_start_pos(0), pix_start_pos(0),
     file_id(0), total_NfileBins(0){}
 private:
     static const std::map<std::string, int> fileParamNames;
@@ -69,7 +70,7 @@ public:
     PIX_BUF_SIZE(buf_size),
     last_pix_written(0), pix_array_position(0){}
 
-    void init(const std::string &outfile, const fileParameters &fpar);
+    void init(const fileParameters &fpar);
     void write_pixels(const size_t nPixelsToWrite);
     float * get_pBuffer(){return &pix_buffer[0]; }
     ~sqw_pix_writer();
@@ -101,8 +102,8 @@ class sqw_reader {
     */
 public:
     sqw_reader();
-    sqw_reader(const std::string &infile, const fileParameters &fpar);
-    void init(const std::string &infile, const fileParameters &fpar);
+    sqw_reader(const fileParameters &fpar);
+    void init(const fileParameters &fpar);
     ~sqw_reader() {
         h_data_file.close();
     }
