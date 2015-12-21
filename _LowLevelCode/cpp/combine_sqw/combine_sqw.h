@@ -9,7 +9,7 @@
 #include <memory>
 #include <map>
 //
-// $Revision:: 1045 $ ($Date:: 2015-08-04 13:42:10 +0100 (Tue, 04 Aug 2015) $)" 
+// $Revision::      $ ($Date::                                              $)" 
 //
 
 // information, describes files to combine (will be processed later)
@@ -97,7 +97,7 @@ class sqw_reader {
     cashed in a buffer and provided from the buffer if available
 
     %
-    % $Revision: 1099 $($Date : 2015 - 12 - 07 21 : 20 : 34 + 0000 (Mon, 07 Dec 2015) $)
+    % $Revision$($Date : 2015 - 12 - 07 21 : 20 : 34 + 0000 (Mon, 07 Dec 2015) $)
     %
     */
 public:

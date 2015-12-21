@@ -511,7 +511,7 @@ fileParameters::fileParameters(const mxArray *pFileParam) {
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-    const char REVISION[] = "$Revision:: 1063 $ ($Date:: 2015-10-22 20:18:41 +0100 (Thu, 22 Oct 2015) $)";
+    const char REVISION[] = "$Revision::      $ ($Date::                                              $)";
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
         return;
