@@ -1,4 +1,4 @@
-function mess = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pixstart, npix_cumsum, run_label)
+function [mess,fid_input] = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pixstart, npix_cumsum, run_label)
 % Write pixel information to file, reading that pixel information from a collection of other files
 %
 %   >> mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart)
@@ -65,7 +65,7 @@ else
     mess='Invalid contents for argument run_label';
     return
 end
-
+fid_input = false;
 % size of buffer to hold pixel information, the log level and if use mex to
 % build the result
 [pmax,log_level,use_mex] = get(hor_config,'mem_chunk_size','log_level','use_mex');
@@ -73,12 +73,13 @@ if use_mex
     pix_out_position = ftell(fout);
     fout_name = fopen(fout);
     fclose(fout);
-    [mess,infiles] = combine_files_using_mex(fout_name,pix_out_position,...
-                     infiles,npixstart, pixstart,runlabel,change_fileno,fileno);
-    if isemtpy(mess)
+    n_bins = numel(npix_cumsum);
+    [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_position,...
+                     infiles,pos_npixstart, pos_pixstart,run_label,change_fileno,fileno);
+    if isempty(mess)
+        fid_input = true;
         return
     else  % Mex combining have failed, try Matlab
-        
         fout = fopen(fout_name,'rb+');
         if (fout<0)
             mess=['Unable to reopen output file: ',fout_name,'with all necessary permissions'];
@@ -354,11 +355,54 @@ for i=1:nfiles
     end
 end
 %
-function  [mess,infiles] = combine_files_using_mex(fout_name,pix_out_position,...
-                     infiles,npixstart, pixstart,runlabel,change_fileno,fileno)
+function  [mess,infiles] = combine_files_using_mex(fout_name,n_bin,pix_out_position,...
+    infiles,npixstart, pixstart,runlabel,change_fileno,fileno)
 % prepare input data for mex-combining and attempt to combine input data
-% using mex. 
-    nfiles = numel(infiles);
-    
+% using mex.
+nfiles = numel(infiles);
+if isnumeric(infiles)
+    close_files = true;
+else
+    close_files = false;
 end
+in_params=cell(nfiles,1);
+for i=1:nfiles
+    if close_files
+        filename = fopen(infiles(i));
+        fclose(filename);
+    else
+        filename = infiles{i};
+    end
+    if change_fileno
+        if fileno
+            file_id = i;   % set the run index to the file index
+        else
+            file_id = runlabel(i);  % offset the run index
+        end
+    else
+        file_id = 0;
+    end
+    in_params{i} = struct('file_name',filename,...
+        'npix_start_pos',npixstart(i),'pix_start_pos',pixstart(i),'file_id',file_id);
+end
+
+out_param = struct('file_name',fout_name ,...
+        'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
     
+[out_buf_size,log_level] = get(hor_config,'mem_chunk_size','log_level');
+
+% conversion parameters include:
+% n_bin        -- number of bins in the image array
+% 1            -- first bin to start copty pixels for
+% out_buf_size -- the size of ouput buffer to use for writing pixels
+% change_fileno-- if pixel run id should be changed
+% fileno       -- if change_fileno is true, how to calculate the new pixel
+%                 id -- by providing new id or by adding it to existing.
+program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno];
+try
+    combine_sqw(in_params,out_param ,program_param);
+    mess = '';
+catch ME;
+    mess = [ME.dientifier,'::',ME.message];    
+end
+

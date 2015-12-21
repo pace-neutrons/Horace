@@ -102,8 +102,8 @@ class sqw_reader {
     */
 public:
     sqw_reader();
-    sqw_reader(const fileParameters &fpar);
-    void init(const fileParameters &fpar);
+    sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided);
+    void init(const fileParameters &fpar,bool changefileno, bool fileno_provided);
     ~sqw_reader() {
         h_data_file.close();
     }
@@ -131,6 +131,11 @@ private:
 
      // number of pixels to read in pix buffer
     size_t PIX_BUF_SIZE;
+    //Boolean indicating that the id, which specify pixel run number should be modified
+    bool change_fileno;
+    // Boolean, indicating if one needs to offset pixel's run number id by fileDescr.file_id
+    // or set up its value into fileDescr.file_id;
+    bool fileno;
 };
 
 

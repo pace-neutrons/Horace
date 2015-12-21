@@ -1,4 +1,4 @@
-function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header)
+function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header,varargin)
 % Combine header blocks to form a single block
 %
 %   >> [header_out,nfiles,ok,mess] = header_combine(header)
@@ -7,9 +7,15 @@ function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header)
 % ------
 %   header      Cell array of header blocks from a number of sqw files
 %               Each header block is structure (single spe file) or a cell
-%              array of single structures.
+%               array of single structures.
 %               The special case of a single header block from a single spe
-%              file being passed as a structure is allowed.
+%               file being passed as a structure is allowed.
+%   varargin    If present can be the keyword 'allow_equal_headers',
+%               which disables checking input files for absolutely
+%               equal headers. Two input files with equal haders is an error
+%               in normal operations so this option  used in
+%               tests only.
+
 %
 % Output:
 % -------
@@ -105,12 +111,16 @@ for i=1:nfiles_tot
         end
     end
 end
+reject_equal_headers = true;
+if nargin>1 && strcmp(varargin{1},'allow_equal_headers')
+    reject_equal_headers = false;
+end
 
 % Sort structure array
 [hstruct_sort,ind]=nestedSortStruct(hstruct,names');
 tol = 2.0e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
 for i=2:nfiles_tot
-    if isequal(hstruct_sort(i-1),hstruct_sort(i))
+    if reject_equal_headers && isequal(hstruct_sort(i-1),hstruct_sort(i))
         header_out=cell(0,1); nspe=[]; ok=false; hstruct_sort=struct([]); ind=[];
         mess='At least two headers have the all the same filename, efix, psi, omega, dpsi, gl and gs'; return
     end

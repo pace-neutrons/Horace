@@ -27,6 +27,15 @@ void omp_set_num_threads(int nThreads) {};
 #include <omp.h>
 #endif
 
+
+#ifdef __cplusplus 
+extern "C" bool utIsInterruptPending();
+#else
+extern bool utIsInterruptPending();
+#endif
+
+
+
 # if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
 #define  OMP_VERSION_3
 #else

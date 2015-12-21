@@ -261,10 +261,12 @@ classdef test_sqw_reader< TestCase
             
             pns = reshape(the_sqw.data.npix,numel(the_sqw.data.npix),1);
             pps  = [0;cumsum(pns)];
+            log_level = get(hor_config,'log_level');
+            
             
             in_file_par = {struct('file_name',this.sample_file,...
-                       'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
-            params = [n_bin,1,100];
+                'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
+            params = [n_bin,1,100,log_level];
             dummy_out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
             [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             
@@ -273,13 +275,14 @@ classdef test_sqw_reader< TestCase
             assertEqual(pix_data(1:99),single(the_sqw.data.pix(1:99)))
             %cleanup_obj=onCleanup(@()sr.delete());
             
-            params = [n_bin,1,this.npixtot];
+            params = [n_bin,1,this.npixtot,log_level];
             t0= tic;
             [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             t1=toc(t0);
-            
-            disp([' Time to process ',num2str(n_bin),' cells containing ',...
-                num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
+            if log_level >1
+                disp([' Time to process ',num2str(n_bin),' cells containing ',...
+                    num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
+            end
             
             assertEqual(pix_info(1),uint64(this.npixtot))
             assertEqual(pix_info(2),uint64(n_bin-1))
@@ -307,22 +310,23 @@ classdef test_sqw_reader< TestCase
             n_bin = (pos_e-pos_s)/4;
             npix_start_pos =this.positions.npix;  % start of npix field
             pix_start_pos  =this.positions.pix;   % start of pix field
-            
+            log_level = get(hor_config,'log_level');
             
             file_par = {struct('file_name',this.sample_file,'npix_start_pos',...
-                        npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
-            params = [n_bin,1,1000000];
-            out_file = fullfile(this.test_dir,'dummy_sqw_rez.sqw');
+                npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
+            params = [n_bin,1,1000000,log_level];
+            out_file = fullfile(this.test_dir,'rewrite_pixarray_mex_sqw_rez.sqw');
             cleanup_obj=onCleanup(@()delete(out_file));
             
             out_file_par = struct('file_name',out_file,'npix_start_pos',0,...
-                                   'pix_start_pos',0,'file_id',0);
+                'pix_start_pos',0,'file_id',0);
             t0= tic;
             combine_sqw(file_par,out_file_par,params);
             t1=toc(t0);
-            disp([' Time to process ',num2str(n_bin),' cells containing ',...
-                num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
-            
+            if log_level>1
+                disp([' Time to process ',num2str(n_bin),' cells containing ',...
+                    num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
+            end
             assertTrue(exist(out_file,'file')==2);
             
             fid = fopen(out_file,'r');
@@ -332,11 +336,73 @@ classdef test_sqw_reader< TestCase
             t0= tic;
             the_sqw = read_sqw(this.sample_file);
             t1=toc(t0);
-            disp([' Direct read of file with ',num2str(n_bin),' cells containing ',...
-                num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
+            if log_level >1
+                disp([' Direct read of file with ',num2str(n_bin),' cells containing ',...
+                    num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
+            end
             assertEqual(pix(:,999992),the_sqw.data.pix(:,999992))
             assertEqual(pix(:,999993),the_sqw.data.pix(:,999993))
             assertEqual(pix,the_sqw.data.pix);
+        end
+        function this=test_combine_two(this)
+            use_mex = get(hor_config,'use_mex');
+            if ~use_mex
+                return;
+            end
+            infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
+            outfile = fullfile(this.test_dir,'test_combine_two_sqw.sqw');
+            cleanup_obj=onCleanup(@()delete(outfile));
+            
+            dummy = sqw();
+            write_nsqw_to_sqw (dummy, infiles, outfile,'allow_equal_headers');
+            
+            
+            old_sqw = read_sqw(infiles{1});
+            new_sqw = read_sqw(outfile);
+            
+            
+            assertEqual(size(old_sqw.data.npix),size(new_sqw.data.npix));
+            assertEqual(2*old_sqw.data.npix,new_sqw.data.npix);
+            old_pix_size = size(old_sqw.data.pix);
+            assertEqual(size(new_sqw.data.pix),[old_pix_size(1),2*old_pix_size(2)] );
+            
+        end
+        
+        function this=test_mex_nomex(this)
+            use_mex = get(hor_config,'use_mex');
+            if ~use_mex
+                return;
+            end
+            infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
+            outfile_mex = fullfile(this.test_dir,'test_combine_two_sqw_mex.sqw');
+            cleanup_obj=onCleanup(@()delete(outfile_mex));
+            
+            dummy = sqw();
+            t0= tic;
+            write_nsqw_to_sqw (dummy, infiles, outfile_mex,'allow_equal_headers');
+            t1=toc(t0);
+            
+            mex_sqw = read_sqw(outfile_mex);
+            
+            
+            outfile_nom = fullfile(this.test_dir,'test_combine_two_sqw_nomex.sqw');
+            cleanup_obj1=onCleanup(@()delete(outfile_nom));
+            cleanup_obj2=onCleanup(@()set(hor_config,'use_mex',1));
+            
+            set(hor_config,'use_mex',0);
+            t0= tic;
+            write_nsqw_to_sqw (dummy, infiles, outfile_nom,'allow_equal_headers');
+            t2=toc(t0);
+            
+            if get(hor_config,'log_level') >1
+                disp([' Combining two files using mex  takes ',num2str(t1),'sec'])
+                disp([' Combining two files with nomex takes ',num2str(t2),'sec'])
+            end
+            
+            
+            nomex_sqw = read_sqw(outfile_nom);
+            assertEqual(mex_sqw.data.npix,nomex_sqw.data.npix);
+            assertEqual(mex_sqw.data.pix,nomex_sqw.data.pix);
             
         end
         

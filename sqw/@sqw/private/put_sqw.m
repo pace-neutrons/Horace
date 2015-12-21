@@ -264,9 +264,9 @@ end
 % Write data
 % ------------------------------------
 if ~write_data_header_only
-    [mess,position_data,npixtot_written,data_type_written] = put_sqw_data (fid, data, varargin{:});
+    [mess,position_data,npixtot_written,data_type_written,fid_input] = put_sqw_data (fid, data, varargin{:});
 else
-    [mess,position_data,npixtot_written,data_type_written] = put_sqw_data (fid, data, '-h', varargin{2:end});
+    [mess,position_data,npixtot_written,data_type_written,fid_input] = put_sqw_data (fid, data, '-h', varargin{2:end});
 end
 if tidy_close(mess,fid_input,fid), return, end
 

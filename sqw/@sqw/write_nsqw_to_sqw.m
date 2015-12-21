@@ -1,4 +1,4 @@
-function write_nsqw_to_sqw (dummy, infiles, outfile)
+function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (dummy, infiles, outfile)
@@ -8,6 +8,11 @@ function write_nsqw_to_sqw (dummy, infiles, outfile)
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   infiles         Cell array or character array of sqw file name(s) of input file(s)
 %   outfile         Full name of output sqw file
+%   varargin        If present can be the keyword 'allow_equal_headers',
+%                   which disables checking input files for absolutely
+%                   equal headers. Two file having equal haders is an error
+%                   in normal operations so this option  used in
+%                   tests only.
 %
 % Output:
 % -------
@@ -29,7 +34,7 @@ end
 
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------
-if nargin~=3
+if nargin<3
     error('Check number of input arguments')
 end
 
@@ -97,7 +102,7 @@ mess_completion
 %   - emode, lattice parameters, u, v, sample must be the same for all spe data input
 % This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
 % it is assigned a different Q, and is in the spirit of independence)
-[header_combined,nspe,ok,mess] = header_combine(header);
+[header_combined,nspe,ok,mess] = header_combine(header,varargin{:});
 if ~ok, error(mess), end
 
 % We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p

@@ -1,6 +1,8 @@
 #include "combine_sqw.h"
 #include <algorithm>
 #include <numeric>
+#include <ctime>
+#include <iomanip>
 
 enum InputArguments {
     inFileParams,
@@ -43,7 +45,7 @@ const std::map<std::string, int> fileParameters::fileParamNames = {
 void sqw_pix_writer::init(const fileParameters &fpar) {
 
     this->filename = fpar.fileName;
-    this->h_out_sqw.open(fpar.fileName,std::ofstream::binary| std::ofstream::out);
+    this->h_out_sqw.open(fpar.fileName,std::ofstream::binary| std::ofstream::out|std::ofstream::app);
     if (!this->h_out_sqw.is_open()) {
         std::string err = "SQW_PIX_WRITER: Can not open target sqw file: " + fpar.fileName;
         mexErrMsgTxt(err.c_str());
@@ -236,20 +238,46 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
         }
     }
 }
-void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const fileParameters &outPar) {
+void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const fileParameters &outPar,int log_level) {
 
     sqw_pix_writer pixWriter(param.pixBufferSize);
     pixWriter.init(outPar);
+    std::clock_t c_start;
+    if (log_level>-1){
+        c_start = std::clock();
+    }
+
+    std::clock_t c_end = std::clock();
+
+    //std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
+    //    << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n";
 
     ProgParameters var_par = param;
     var_par.nBin2read = 0;
     size_t n_bins_processed(0);
+    size_t break_count(0);
+    size_t break_frequency = param.totNumBins/100;
     while (n_bins_processed < param.totNumBins-1) {
         float *pBuffer = pixWriter.get_pBuffer();
         size_t n_buf_pixels(0);
         read_pix_info(pBuffer, n_buf_pixels, n_bins_processed, fileReaders, var_par);
         pixWriter.write_pixels(n_buf_pixels);
         var_par.nBin2read = n_bins_processed+1;
+        //------------Logging and interruptions ---
+        break_count++;
+        if (break_count >= break_frequency) {
+            if (log_level>-1){
+                std::stringstream buf;
+                buf<<std::fixed << std::setprecision(1)<<"COMBINE_SQW_C: Completed "<<float(100* n_bins_processed)/float(param.totNumBins)
+                <<"% of task in ";
+            //disp(['Completed ', num2str((100 * n / ntot), '%5.1f'), '% of task in ', num2str(t(1) - t_start), ' seconds'])
+                mexPrintf(buf.str().c_str());
+            }
+            if (utIsInterruptPending()) {
+                mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
+                return;
+            }
+        }
 
     }
 
@@ -261,18 +289,21 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 
 sqw_reader::sqw_reader() :
     bin_buffer(4096),npix_in_buf_start(0), buf_pix_end(0),
-    PIX_BUF_SIZE(4096)
+    PIX_BUF_SIZE(4096), change_fileno(false), fileno(true)
 {}
 
-sqw_reader::sqw_reader(const fileParameters &fpar) : sqw_reader()
+sqw_reader::sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided)
+    : sqw_reader()
 {
-    this->init(fpar);
+    this->init(fpar, changefileno, fileno_provided);
 }
-void sqw_reader::init(const fileParameters &fpar){
+void sqw_reader::init(const fileParameters &fpar,bool changefileno,bool fileno_provided){
     
     
     this->full_file_name = fpar.fileName;
-    this->fileDescr = fpar,
+    this->fileDescr = fpar;
+    this->change_fileno = changefileno;
+    this->fileno  = fileno_provided;
 
     h_data_file.open(full_file_name, std::fstream::in|std::fstream::binary);
     if (!h_data_file.is_open()) {
@@ -359,9 +390,13 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
    if (err.size() > 0) {
        mexErrMsgTxt(err.c_str());
    }
-   if (this->fileDescr.file_id > 0) {
+   if (this->change_fileno) {
        for (size_t i = 0; i < num_pix_to_read; i++) {
-            this->pix_buffer[5+i*9] = float(this->fileDescr.file_id);
+           if (fileno) {
+               this->pix_buffer[4 + i * 9]  = float(this->fileDescr.file_id);
+           }else{
+               this->pix_buffer[4 + i * 9] += float(this->fileDescr.file_id);
+           }
        }
 
    }
@@ -486,9 +521,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //--------------------------------------------------------
 
     bool debug_file_reader(false);
+    size_t n_prog_params(3);
+    bool change_fileno(false), fileno_provided(true);
+    int log_level;
     //* Check for proper number of arguments. */
     {
-        if (nrhs != N_INPUT_Arguments&&nrhs != N_INPUT_Arguments - 1) {
+        if (nrhs != N_INPUT_Arguments) {
             std::stringstream buf;
             buf << "ERROR::combine_sqw needs " << (short)N_INPUT_Arguments << " but got " << (short)nrhs
                 << " input arguments and " << (short)nlhs << " output argument(s)\n";
@@ -497,6 +535,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (nlhs == 2) {
             debug_file_reader = true;
         }
+        n_prog_params = mxGetN(prhs[programSettings]);
+        if (!(n_prog_params == 4 || n_prog_params == 6)){
+            std::string err= "ERROR::combine_sqw => array of program parameter settings (input N 3) should have 4 or 6 elements but got: "+
+                    std::to_string(n_prog_params);
+            mexErrMsgTxt(err.c_str());
+        }
+
     }
     /********************************************************************************/
     /* retrieve input parameters */
@@ -526,8 +571,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     // Retrieve programs parameters
     ProgParameters ProgSettings;
+
     auto pProg_settings = (double *)mxGetPr(prhs[programSettings]);
-    for (size_t i = 0; i < 3; i++) {
+
+    for (size_t i = 0; i < n_prog_params; i++) {
         switch (i) {
             case(0):
                 ProgSettings.totNumBins = size_t(pProg_settings[i]);
@@ -538,6 +585,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 break;
             case(2) :
                 ProgSettings.pixBufferSize = size_t(pProg_settings[i]);
+                break;
+            case(3) :
+                log_level = int(pProg_settings[i]);
+                break;
+            case(4) :
+                change_fileno=bool(pProg_settings[i]);
+                break;
+            case(5):
+                fileno_provided = bool(pProg_settings[i]);
+                break;
         }
     }
     // set up the number of bins, which is currently equal for all input files
@@ -562,7 +619,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //--------------------------------------------------------
     std::vector<sqw_reader> fileReader(n_files);
     for (size_t i = 0; i < n_files; i++) {
-        fileReader[i].init(fileParam[i]);
+        fileReader[i].init(fileParam[i],change_fileno,fileno_provided);
     }
     size_t n_buf_pixels(0),n_bins_processed(0);
     if (debug_file_reader) {
@@ -582,7 +639,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         plhs[pix_info] = OutParam;
     }
     else {
-        combine_sqw(ProgSettings, fileReader, OutFilePar);
+        combine_sqw(ProgSettings, fileReader, OutFilePar, log_level);
     }
 }
 
