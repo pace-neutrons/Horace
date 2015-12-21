@@ -262,12 +262,11 @@ classdef test_sqw_reader< TestCase
             pns = reshape(the_sqw.data.npix,numel(the_sqw.data.npix),1);
             pps  = [0;cumsum(pns)];
             
-            files = {this.sample_file};
-            file_par = {struct('npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
+            in_file_par = {struct('file_name',this.sample_file,...
+                       'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
             params = [n_bin,1,100];
-            dummy_out_file_par = struct('npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
-            [pix_data,pix_info] = combine_sqw(files,file_par,'dummy_sqw_rez',...
-                dummy_out_file_par,params);
+            dummy_out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
+            [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             
             assertEqual(pix_info(1),uint64(99))
             assertEqual(pix_info(2),uint64(42))
@@ -276,8 +275,7 @@ classdef test_sqw_reader< TestCase
             
             params = [n_bin,1,this.npixtot];
             t0= tic;
-            [pix_data,pix_info] = combine_sqw(files,file_par,'dummy_sqw_rez',...
-                dummy_out_file_par,params);
+            [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             t1=toc(t0);
             
             disp([' Time to process ',num2str(n_bin),' cells containing ',...
@@ -311,16 +309,16 @@ classdef test_sqw_reader< TestCase
             pix_start_pos  =this.positions.pix;   % start of pix field
             
             
-            in_files = {this.sample_file};
-            file_par = {struct('npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
+            file_par = {struct('file_name',this.sample_file,'npix_start_pos',...
+                        npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
             params = [n_bin,1,1000000];
             out_file = fullfile(this.test_dir,'dummy_sqw_rez.sqw');
             cleanup_obj=onCleanup(@()delete(out_file));
             
-            out_file_par = struct('npix_start_pos',0,'pix_start_pos',0,'file_id',0);
+            out_file_par = struct('file_name',out_file,'npix_start_pos',0,...
+                                   'pix_start_pos',0,'file_id',0);
             t0= tic;
-            combine_sqw(in_files,file_par,out_file,...
-                out_file_par ,params);
+            combine_sqw(file_par,out_file_par,params);
             t1=toc(t0);
             disp([' Time to process ',num2str(n_bin),' cells containing ',...
                 num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])

@@ -3,9 +3,7 @@
 #include <numeric>
 
 enum InputArguments {
-    tmp_files_list,
-    fileParam,
-    outFileName,
+    inFileParams,
     outFileParams,
     programSettings,
     N_INPUT_Arguments
@@ -32,21 +30,22 @@ enum DATA_DESCR {
 };
 // map used to process input file(s) parameters
 const std::map<std::string, int> fileParameters::fileParamNames = {
-    {std::string("npix_start_pos"),0},
-    {std::string("pix_start_pos"),1},
-    {std::string("file_id"),2},
-    {std::string("nbins_total"),3}
+    {std::string("file_name"),0 },
+    {std::string("npix_start_pos"),1},
+    {std::string("pix_start_pos"),2},
+    {std::string("file_id"),3},
+    {std::string("nbins_total"),4}
 };
 
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
-void sqw_pix_writer::init(const std::string &outfile, const fileParameters &fpar) {
+void sqw_pix_writer::init(const fileParameters &fpar) {
 
-    this->filename = outfile;
-    this->h_out_sqw.open(outfile,std::ofstream::binary| std::ofstream::out);
+    this->filename = fpar.fileName;
+    this->h_out_sqw.open(fpar.fileName,std::ofstream::binary| std::ofstream::out);
     if (!this->h_out_sqw.is_open()) {
-        std::string err = "SQW_PIX_WRITER: Can not open target sqw file: " + outfile;
+        std::string err = "SQW_PIX_WRITER: Can not open target sqw file: " + fpar.fileName;
         mexErrMsgTxt(err.c_str());
     }
 
@@ -237,10 +236,10 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
         }
     }
 }
-void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const std::string &outFile, const fileParameters &outPar) {
+void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const fileParameters &outPar) {
 
     sqw_pix_writer pixWriter(param.pixBufferSize);
-    pixWriter.init(outFile, outPar);
+    pixWriter.init(outPar);
 
     ProgParameters var_par = param;
     var_par.nBin2read = 0;
@@ -265,14 +264,14 @@ sqw_reader::sqw_reader() :
     PIX_BUF_SIZE(4096)
 {}
 
-sqw_reader::sqw_reader(const std::string &infile, const fileParameters &fpar) : sqw_reader()
+sqw_reader::sqw_reader(const fileParameters &fpar) : sqw_reader()
 {
-    this->init(infile,fpar);
+    this->init(fpar);
 }
-void sqw_reader::init(const std::string &infile, const fileParameters &fpar){
+void sqw_reader::init(const fileParameters &fpar){
     
     
-    this->full_file_name = infile;
+    this->full_file_name = fpar.fileName;
     this->fileDescr = fpar,
 
     h_data_file.open(full_file_name, std::fstream::in|std::fstream::binary);
@@ -414,7 +413,7 @@ size_t sqw_reader::check_binInfo_loaded_(size_t bin_number) {
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
-
+/* Convert input Matlab structure with the fields, described by */
 fileParameters::fileParameters(const mxArray *pFileParam) {
 
     mwSize total_num_of_elements = mxGetNumberOfElements(pFileParam);
@@ -422,12 +421,12 @@ fileParameters::fileParameters(const mxArray *pFileParam) {
 
     if (total_num_of_elements != 1) {
         std::stringstream buf;
-        buf << "ERROR::combine_sqw ==> each field of file parameter structure should contain only one element, not" << (short)total_num_of_elements << std::endl;
+        buf << "ERROR::combine_sqw ==> each field of file parameter structure should contain only one element, not: " << (short)total_num_of_elements << std::endl;
         mexErrMsgTxt(buf.str().c_str());
     }
-    if (number_of_fields > 4) {
+    if (number_of_fields > 5) {
         std::stringstream buf;
-        buf << "ERROR::combine_sqw ==> each file parameter structure should contain no more then fields but have: " << (short)number_of_fields << std::endl;
+        buf << "ERROR::combine_sqw ==> each file parameter structure should contain no more then 5 fields but have: " << (short)number_of_fields << std::endl;
         mexErrMsgTxt(buf.str().c_str());
     }
 
@@ -443,28 +442,32 @@ fileParameters::fileParameters(const mxArray *pFileParam) {
 
         const mxArray *pFieldCont = mxGetFieldByNumber(pFileParam, 0, field_index);
         switch (ind) {
-            case(0):{
+            case(0) : {
+                fileName = std::string(mxArrayToString(pFieldCont));
+                break;
+            }
+            case(1):{
                 double *pnBin_start = mxGetPr(pFieldCont);
                 nbin_start_pos = int64_t(pnBin_start[0]);
                 break;
                 }
-            case(1) : {
+            case(2) : {
                 double *pPixStart = mxGetPr(pFieldCont);
                 pix_start_pos = int64_t(pPixStart[0]);
                 break;
                 }
-            case(2) :{
+            case(3) :{
                 double *pFileID = mxGetPr(pFieldCont);
                 file_id = int(pFileID[0]);
                 break;
                 }
-            case(3) :{
+            case(4) :{
                 double *pNpixTotal = mxGetPr(pFieldCont);
                 total_NfileBins = size_t(pNpixTotal[0]);
                 break;
                 }
            default:{
-              mexWarnMsgTxt("combine_sqw: unknown parameter (should not happen)");
+              mexWarnMsgTxt("combine_sqw: unknown parameter (should never happen)");
               }
         }
     }
@@ -497,36 +500,28 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
     /********************************************************************************/
     /* retrieve input parameters */
-    // Pointer to list of files to process
-    auto pFileList      = prhs[tmp_files_list];
-    mxClassID  category = mxGetClassID(pFileList);
-    if (category != mxCELL_CLASS)mexErrMsgTxt("Input files list has to be packed in cellarray");
+    // Pointer to list of file parameters to process. The parameters may change as
+    // module takes more from Matlab code
+    auto pParamList = prhs[inFileParams];
+    mxClassID  category = mxGetClassID(pParamList);
+    if (category != mxCELL_CLASS)mexErrMsgTxt("Input file parameters have to be packed in cellarray");
 
-    size_t n_files = mxGetNumberOfElements(pFileList);
+    size_t n_files = mxGetNumberOfElements(pParamList);
     size_t n_realFiles = 0;
-    std::vector<std::string> fileName(n_files);
+    std::vector<fileParameters> fileParam(n_files);
     for (size_t i = 0; i < n_files; i++) {
         const mxArray *pCellElement;
-        pCellElement = mxGetCell(pFileList,i);
+        pCellElement = mxGetCell(pParamList,i);
         if (pCellElement == NULL) { // empty cell
             continue;
         }
-        if (mxCHAR_CLASS != mxGetClassID(pCellElement)) {
+        if (mxSTRUCT_CLASS != mxGetClassID(pCellElement)) {
             std::stringstream buf;
-            buf << "ERROR::combine_sqw => all cells in the input file list have to be filenames but element N" << i << " is not\n";
+            buf << "ERROR::combine_sqw => all cells in the input parameter list have to be structures but element N" << i << " is not\n";
             mexErrMsgTxt(buf.str().c_str());
         }
-        fileName[n_realFiles] = std::string(mxArrayToString(pCellElement));
+        fileParam[n_realFiles] = fileParameters(pCellElement);
         n_realFiles++;
-    }
-    // Pointer to list of file parameters to process. The parameters will change as
-    // module takes more from Matlab code
-    auto pParamList = prhs[fileParam];
-    size_t nfParams = mxGetNumberOfElements(pParamList);
-    if (nfParams != n_files) {
-        std::stringstream buf;
-        buf << "ERROR::combine_sqw => Number of file parameters: "<< nfParams<<" is not equal to number of files: "<< n_files<<std::endl;
-        mexErrMsgTxt(buf.str().c_str());
     }
 
     // Retrieve programs parameters
@@ -544,40 +539,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             case(2) :
                 ProgSettings.pixBufferSize = size_t(pProg_settings[i]);
         }
-
+    }
+    // set up the number of bins, which is currently equal for all input files
+    for (size_t i = 0; i < n_files; i++) {
+        fileParam[i].total_NfileBins = ProgSettings.totNumBins;
     }
 
 
-    size_t n_realParam = 0;
-    std::vector<fileParameters> fileParam(nfParams);
-    for (size_t i = 0; i < nfParams; i++) {
-        const mxArray *pCellElement;
-        pCellElement = mxGetCell(pParamList, i);
-        if (pCellElement == NULL) { // empty cell
-            continue;
-        }
-        if (mxSTRUCT_CLASS != mxGetClassID(pCellElement)) {
-            std::stringstream buf;
-            buf << "ERROR::combine_sqw => all cells in the input parameter list have to be structures but element N" << i << " is not\n";
-            mexErrMsgTxt(buf.str().c_str());
-        }
-        fileParam[n_realParam] = fileParameters(pCellElement);
-        fileParam[n_realParam].total_NfileBins = ProgSettings.totNumBins;
-        n_realParam++;
-    }
-
-    if (n_realParam != n_realFiles) {
-        std::stringstream buf;
-        buf << "ERROR::combine_sqw => Number of defined file parameters: " << nfParams << " not equal to number of defined files: " << n_files << std::endl;
-        mexErrMsgTxt(buf.str().c_str());
-    }
-    // Pointer to output file name;
-    if (mxCHAR_CLASS != mxGetClassID(prhs[outFileName])) {
-        std::stringstream buf;
-        buf << "ERROR::combine_sqw => output file name has to be a char array (string) but it is not\n";
-        mexErrMsgTxt(buf.str().c_str());
-    }
-    const std::string outFileName(mxArrayToString(prhs[outFileName]));
     // Pointer to output file parameters;
     auto pOutFileParams = prhs[outFileParams];
     if (mxSTRUCT_CLASS != mxGetClassID(pOutFileParams)) {
@@ -585,8 +553,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         buf << "ERROR::combine_sqw => the output file parameters have to be a structure but it is not";
         mexErrMsgTxt(buf.str().c_str());
     }
-
     auto OutFilePar = fileParameters(pOutFileParams);
+    // set up the number of bins, which is currently equal for input and output files
     OutFilePar.total_NfileBins = ProgSettings.totNumBins;
 
     //--------------------------------------------------------
@@ -594,7 +562,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //--------------------------------------------------------
     std::vector<sqw_reader> fileReader(n_files);
     for (size_t i = 0; i < n_files; i++) {
-        fileReader[i].init(fileName[i], fileParam[i]);
+        fileReader[i].init(fileParam[i]);
     }
     size_t n_buf_pixels(0),n_bins_processed(0);
     if (debug_file_reader) {
@@ -614,7 +582,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         plhs[pix_info] = OutParam;
     }
     else {
-        combine_sqw(ProgSettings, fileReader, outFileName, OutFilePar);
+        combine_sqw(ProgSettings, fileReader, OutFilePar);
     }
 }
 
