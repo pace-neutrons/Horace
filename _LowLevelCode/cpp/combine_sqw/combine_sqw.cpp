@@ -15,11 +15,18 @@ enum OutputArguments { // unique output arguments,
     pix_info,
     N_OUTPUT_Arguments
 };
-// parameters the mex file uses
+// parameters the mex file uses and accepts in the array of input parameters
 struct ProgParameters {
     size_t totNumBins;  // total number of bins in files to combine (has to be the same for all files)
     size_t nBin2read;  // current bin number to read (start from 0 for first bin of the array)
     size_t pixBufferSize; // the size of the buffer to return combined pixels
+    int log_level;       // the number defines how talkative program is. usually it its > 1 all 
+                        // all diagnostics information gets printed
+    size_t num_log_ticks; // how many times per combine files to print log message about completion percentage
+    // Default constructor
+    ProgParameters():totNumBins(0), nBin2read(0),
+        pixBufferSize(10000000),log_level(1), num_log_ticks(100)
+        {};
 };
 
 // Enum describing main parameters of the data, stored in the file.
@@ -202,7 +209,8 @@ void cells_in_memory::read_all_bin_info(size_t bin_number) {
 //--------------------------------------------------------------------------------------------------------------------
 
 void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_processed,
-                    std::vector<sqw_reader> &fileReader,const ProgParameters &param) {
+                    std::vector<sqw_reader> &fileReader,
+                    const size_t first_bin,const size_t nBinsTotal, size_t pix_buf_size) {
 
     size_t n_files = fileReader.size();
     n_buf_pixels = 0;
@@ -215,7 +223,7 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
     }
 
 
-    for (size_t n_bin = param.nBin2read; n_bin < param.totNumBins; n_bin++) {
+    for (size_t n_bin = first_bin; n_bin < nBinsTotal; n_bin++) {
         size_t cell_pix = 0;
         for (size_t i = 0; i < n_files; i++) {
             fileReader[i].get_npix_for_bin(n_bin, pix_start_num, npix);
@@ -225,7 +233,7 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
         n_bins_processed = n_bin;
         if (cell_pix == 0)continue;
 
-        if (cell_pix + n_buf_pixels > param.pixBufferSize) {
+        if (cell_pix + n_buf_pixels > pix_buf_size) {
             n_bins_processed--;
             break;
         }
@@ -238,28 +246,37 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
         }
     }
 }
-void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const fileParameters &outPar,int log_level) {
+/* combine range of input sqw files into single output sqw file */
+void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const fileParameters &outPar) {
 
     sqw_pix_writer pixWriter(param.pixBufferSize);
     pixWriter.init(outPar);
+
+    int log_level= param.log_level;
+    size_t num_output_ticks = param.num_log_ticks;
+
     std::clock_t c_start;
     if (log_level>-1){
         c_start = std::clock();
     }
 
-    ProgParameters var_par = param;
-    var_par.nBin2read = 0;
+    size_t start_bin = param.nBin2read;
+    size_t n_bins_total = param.totNumBins;
+    size_t pix_buffer_size = param.pixBufferSize;
+
     size_t n_bins_processed(0);
     size_t n_pixels_processed(0);
-    size_t break_step = param.totNumBins / 100;
+    size_t break_step = n_bins_total / num_output_ticks;
     size_t break_count(0);
     size_t break_point = break_step;
-    while (n_bins_processed < param.totNumBins-1) {
+    while (n_bins_processed < n_bins_total-1) {
         float *pBuffer = pixWriter.get_pBuffer();
         size_t n_buf_pixels(0);
-        read_pix_info(pBuffer, n_buf_pixels, n_bins_processed, fileReaders, var_par);
+        read_pix_info(pBuffer, n_buf_pixels, n_bins_processed, fileReaders,
+            start_bin, n_bins_total, pix_buffer_size);
+
         pixWriter.write_pixels(n_buf_pixels);
-        var_par.nBin2read = n_bins_processed+1;
+        start_bin = n_bins_processed+1;
         //------------Logging and interruptions ---
         break_count+= n_bins_processed;
         n_pixels_processed+= n_buf_pixels;
@@ -269,7 +286,7 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
                 std::clock_t c_end = std::clock();
                 std::stringstream buf;
                 buf<<"MEX::COMBINE_SQW: Completed "<< std::setw(4)<< std::setprecision(3)
-                   <<float(100* n_bins_processed)/float(param.totNumBins)
+                   <<float(100* n_bins_processed)/float(n_bins_total)
                    << "%  of task in "<< std::setprecision(0) <<std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC <<" sec\n";
 
                 mexPrintf("%s",buf.str().c_str());
@@ -286,7 +303,7 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     if (log_level > -1) {
         std::clock_t c_end = std::clock();
         std::stringstream buf;
-        buf << "MEX::COMBINE_SQW: Completed combining file with " << param.totNumBins << " bins and "<< n_pixels_processed
+        buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_total << " bins and "<< n_pixels_processed
             << " pixels in " << std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
         mexPrintf("%s",buf.str().c_str());
     }
@@ -533,7 +550,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     bool debug_file_reader(false);
     size_t n_prog_params(3);
+    // if pixel's run numbers id should be renamed and in which manned
     bool change_fileno(false), fileno_provided(true);
+    // how many times print diagnostic message during file combining
+    size_t num_output_ticks(100);
     int log_level;
     //* Check for proper number of arguments. */
     {
@@ -547,8 +567,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             debug_file_reader = true;
         }
         n_prog_params = mxGetN(prhs[programSettings]);
-        if (!(n_prog_params == 4 || n_prog_params == 6)){
-            std::string err= "ERROR::combine_sqw => array of program parameter settings (input N 3) should have 4 or 6 elements but got: "+
+        if (!(n_prog_params == 4 || n_prog_params == 7)) {
+            std::string err= "ERROR::combine_sqw => array of program parameter settings (input N 3) should have form 4 or 7 elements but got: "+
                     std::to_string(n_prog_params);
             mexErrMsgTxt(err.c_str());
         }
@@ -598,7 +618,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 ProgSettings.pixBufferSize = size_t(pProg_settings[i]);
                 break;
             case(3) :
-                log_level = int(pProg_settings[i]);
+                ProgSettings.log_level = int(pProg_settings[i]);
                 break;
             case(4) :
                 change_fileno=bool(pProg_settings[i]);
@@ -606,6 +626,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             case(5):
                 fileno_provided = bool(pProg_settings[i]);
                 break;
+            case(6):
+                ProgSettings.num_log_ticks = size_t(pProg_settings[i]);
+                break;
+
         }
     }
     // set up the number of bins, which is currently equal for all input files
@@ -640,7 +664,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         float *pPixBuffer = (float *)mxGetPr(PixBuffer);
 
-        read_pix_info(pPixBuffer, n_buf_pixels, n_bins_processed, fileReader, ProgSettings);
+        read_pix_info(pPixBuffer, n_buf_pixels, n_bins_processed, fileReader,
+            ProgSettings.nBin2read,ProgSettings.totNumBins,ProgSettings.pixBufferSize);
         auto OutParam = mxCreateNumericMatrix(2, 1, mxUINT64_CLASS, mxREAL);
         uint64_t *outData = (uint64_t *)mxGetPr(OutParam);
         outData[0] = n_buf_pixels;
@@ -650,7 +675,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         plhs[pix_info] = OutParam;
     }
     else {
-        combine_sqw(ProgSettings, fileReader, OutFilePar, log_level);
+        combine_sqw(ProgSettings, fileReader, OutFilePar);
     }
 }
 

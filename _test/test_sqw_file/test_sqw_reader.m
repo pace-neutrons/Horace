@@ -266,7 +266,7 @@ classdef test_sqw_reader< TestCase
             
             in_file_par = {struct('file_name',this.sample_file,...
                 'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
-            params = [n_bin,1,100,log_level];
+            params = [n_bin,1,100,log_level,false,false,100];
             dummy_out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
             [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             
@@ -275,7 +275,7 @@ classdef test_sqw_reader< TestCase
             assertEqual(pix_data(1:99),single(the_sqw.data.pix(1:99)))
             %cleanup_obj=onCleanup(@()sr.delete());
             
-            params = [n_bin,1,this.npixtot,log_level];
+            params = [n_bin,1,this.npixtot,log_level,false,false,100];
             t0= tic;
             [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             t1=toc(t0);
@@ -314,7 +314,7 @@ classdef test_sqw_reader< TestCase
             
             file_par = {struct('file_name',this.sample_file,'npix_start_pos',...
                 npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
-            params = [n_bin,1,1000000,log_level];
+            params = [n_bin,1,1000000,log_level,false,false,100];
             out_file = fullfile(this.test_dir,'rewrite_pixarray_mex_sqw_rez.sqw');
             cleanup_obj=onCleanup(@()delete(out_file));
             
