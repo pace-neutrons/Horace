@@ -247,16 +247,13 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
         c_start = std::clock();
     }
 
-    std::clock_t c_end = std::clock();
-
-    //std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
-    //    << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n";
-
     ProgParameters var_par = param;
     var_par.nBin2read = 0;
     size_t n_bins_processed(0);
+    size_t n_pixels_processed(0);
+    size_t break_step = param.totNumBins / 100;
     size_t break_count(0);
-    size_t break_frequency = param.totNumBins/100;
+    size_t break_point = break_step;
     while (n_bins_processed < param.totNumBins-1) {
         float *pBuffer = pixWriter.get_pBuffer();
         size_t n_buf_pixels(0);
@@ -264,13 +261,16 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
         pixWriter.write_pixels(n_buf_pixels);
         var_par.nBin2read = n_bins_processed+1;
         //------------Logging and interruptions ---
-        break_count++;
-        if (break_count >= break_frequency) {
+        break_count+= n_bins_processed;
+        n_pixels_processed+= n_buf_pixels;
+        if (break_count >= break_point) {
+            break_point+= break_step;
             if (log_level>-1){
+                std::clock_t c_end = std::clock();
                 std::stringstream buf;
-                buf<<std::fixed << std::setprecision(1)<<"COMBINE_SQW_C: Completed "<<float(100* n_bins_processed)/float(param.totNumBins)
-                <<"% of task in ";
-            //disp(['Completed ', num2str((100 * n / ntot), '%5.1f'), '% of task in ', num2str(t(1) - t_start), ' seconds'])
+                buf<< std::setprecision(4) <<"MEX:: COMBINE_SQW: Completed "<<float(100* n_bins_processed)/float(param.totNumBins)
+                << "perc  of task in "<< (c_end - c_start) / CLOCKS_PER_SEC <<"sec\n";
+
                 mexPrintf(buf.str().c_str());
             }
             if (utIsInterruptPending()) {
@@ -280,6 +280,14 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
         }
 
     }
+    if (log_level > -1) {
+        std::clock_t c_end = std::clock();
+        std::stringstream buf;
+        buf << "MEX:: COMBINE_SQW: Completed combining file with " << param.totNumBins << "bins and "<< n_pixels_processed
+            << " pixels in " << (c_end - c_start) / CLOCKS_PER_SEC << "sec\n";
+        mexPrintf(buf.str().c_str());
+    }
+
 
 }
 
