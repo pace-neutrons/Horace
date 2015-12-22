@@ -20,7 +20,7 @@ classdef test_sqw_reader< TestCase
             this=this@TestCase(name);
             this.sample_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_symmetrisation');
             this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');
-            fid = fopen(this.sample_file);
+            fid = fopen(this.sample_file,'rb');
             if fid<1
                 error('Can not open sample file %s',this.sample_file)
             end

@@ -233,7 +233,7 @@ bool bin_pixels(double *s, double *e, double *npix,
 #ifdef OMP_VERSION_3
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
     shared(pixel_data, ok, nGridCell, pStor, ppInd, \
-    tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained\
+    tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,\
     s, e, npix, pStorHolder)\
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
     reduction(+:nPixel_retained)
