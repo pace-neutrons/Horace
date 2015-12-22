@@ -268,12 +268,13 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
             if (log_level>-1){
                 std::clock_t c_end = std::clock();
                 std::stringstream buf;
-                buf<<"MEX:: COMBINE_SQW: Completed "<< std::setw(4)<< std::setprecision(3)
+                buf<<"MEX::COMBINE_SQW: Completed "<< std::setw(4)<< std::setprecision(3)
                    <<float(100* n_bins_processed)/float(param.totNumBins)
-                   << "%  of task in "<< std::setprecision(0) <<std::setw(8) << (c_end - c_start) / CLOCKS_PER_SEC <<"sec\n";
+                   << "%  of task in "<< std::setprecision(0) <<std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC <<" sec\n";
 
                 mexPrintf("%s",buf.str().c_str());
-                mexEvalString("drawnow;");
+                //mexEvalString("drawnow");
+                mexEvalString("pause(.002);");
             }
             if (utIsInterruptPending()) {
                 mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
@@ -285,8 +286,8 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     if (log_level > -1) {
         std::clock_t c_end = std::clock();
         std::stringstream buf;
-        buf << "MEX:: COMBINE_SQW: Completed combining file with " << param.totNumBins << " bins and "<< n_pixels_processed
-            << " pixels in " << std::setw(8) << (c_end - c_start) / CLOCKS_PER_SEC << "sec\n";
+        buf << "MEX::COMBINE_SQW: Completed combining file with " << param.totNumBins << " bins and "<< n_pixels_processed
+            << " pixels in " << std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
         mexPrintf("%s",buf.str().c_str());
     }
 

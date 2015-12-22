@@ -30,9 +30,12 @@ void omp_set_num_threads(int nThreads) {};
 
 #ifdef __cplusplus 
 extern "C" bool utIsInterruptPending();
+extern "C" bool ioFlush(void);
 #else
 extern bool utIsInterruptPending();
+extern bool ioFlush(void);
 #endif
+
 
 
 
