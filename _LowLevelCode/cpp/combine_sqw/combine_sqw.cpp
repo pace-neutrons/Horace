@@ -325,6 +325,7 @@ sqw_reader::sqw_reader(const fileParameters &fpar, bool changefileno, bool filen
 {
     this->init(fpar, changefileno, fileno_provided);
 }
+//
 void sqw_reader::init(const fileParameters &fpar,bool changefileno,bool fileno_provided){
     
     
@@ -448,13 +449,15 @@ size_t sqw_reader::check_binInfo_loaded_(size_t bin_number) {
 
     if (num_pix_to_read > this->PIX_BUF_SIZE) {
         num_pix_to_read = this->bin_buffer.num_pix_to_fit(bin_number, PIX_BUF_SIZE);
-    } else {
-        if (num_pix_to_read > this->PIX_BUF_SIZE) {
+        if (num_pix_to_read > this->PIX_BUF_SIZE) { 
+            // single bin still contains more pixels then pix buffer
             this->PIX_BUF_SIZE = num_pix_to_read;
             // npix buffer should be extended
             this->pix_buffer.resize(this->PIX_BUF_SIZE*DATA_DESCR::PIX_SIZE);
-        }else {
-            /*
+         }
+    } else {
+    // bin buffer should be extended, but
+                /*
              % let's do nothing for the time being
              %    last_loc_pix_number = self.pix_pos_in_buffer_(end - 1);
              %    while (num_pix_to_read < self.pix_buf_size_ + pix_buf_position && last_loc_pix_number<self.num_bins_)
@@ -467,7 +470,6 @@ size_t sqw_reader::check_binInfo_loaded_(size_t bin_number) {
             %    end
             */
 
-        }
     }
     return num_pix_to_read;
 
@@ -549,12 +551,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //--------------------------------------------------------
 
     bool debug_file_reader(false);
-    size_t n_prog_params(3);
+    size_t n_prog_params(4);
     // if pixel's run numbers id should be renamed and in which manned
     bool change_fileno(false), fileno_provided(true);
-    // how many times print diagnostic message during file combining
-    size_t num_output_ticks(100);
-    int log_level;
     //* Check for proper number of arguments. */
     {
         if (nrhs != N_INPUT_Arguments) {
@@ -568,7 +567,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         n_prog_params = mxGetN(prhs[programSettings]);
         if (!(n_prog_params == 4 || n_prog_params == 7)) {
-            std::string err= "ERROR::combine_sqw => array of program parameter settings (input N 3) should have form 4 or 7 elements but got: "+
+            std::string err= "ERROR::combine_sqw => array of program parameter settings (input N 3) should have  4 or 7 elements but got: "+
                     std::to_string(n_prog_params);
             mexErrMsgTxt(err.c_str());
         }
