@@ -373,11 +373,23 @@ classdef test_sqw_reader< TestCase
             if ~use_mex
                 return;
             end
-            infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
+            dummy = sqw();
+            infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};            
+            
+            outfile_nom = fullfile(this.test_dir,'test_combine_two_sqw_nomex.sqw');
+            cleanup_obj1=onCleanup(@()delete(outfile_nom));
+            cleanup_obj2=onCleanup(@()set(hor_config,'use_mex',1));
             outfile_mex = fullfile(this.test_dir,'test_combine_two_sqw_mex.sqw');
             cleanup_obj=onCleanup(@()delete(outfile_mex));
             
-            dummy = sqw();
+            
+            set(hor_config,'use_mex',0);
+            t0= tic;
+            write_nsqw_to_sqw (dummy, infiles, outfile_nom,'allow_equal_headers');
+            t2=toc(t0);
+            
+           
+            set(hor_config,'use_mex',1);
             t0= tic;
             write_nsqw_to_sqw (dummy, infiles, outfile_mex,'allow_equal_headers');
             t1=toc(t0);
@@ -385,14 +397,6 @@ classdef test_sqw_reader< TestCase
             mex_sqw = read_sqw(outfile_mex);
             
             
-            outfile_nom = fullfile(this.test_dir,'test_combine_two_sqw_nomex.sqw');
-            cleanup_obj1=onCleanup(@()delete(outfile_nom));
-            cleanup_obj2=onCleanup(@()set(hor_config,'use_mex',1));
-            
-            set(hor_config,'use_mex',0);
-            t0= tic;
-            write_nsqw_to_sqw (dummy, infiles, outfile_nom,'allow_equal_headers');
-            t2=toc(t0);
             
             if get(hor_config,'log_level') >1
                 disp([' Combining two files using mex  takes ',num2str(t1),'sec'])
