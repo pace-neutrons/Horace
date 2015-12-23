@@ -84,8 +84,9 @@ sqw_pix_writer::~sqw_pix_writer() {
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
-void cells_in_memory::init(std::fstream  &fileDescr, size_t bin_start_pos, size_t n_tot_bins) {
+void cells_in_memory::init(std::fstream  &fileDescr, size_t bin_start_pos, size_t n_tot_bins,size_t BufferSize) {
     fReader = &fileDescr;
+    BIN_BUF_SIZE = BufferSize;
     nbin_buffer.resize(BIN_BUF_SIZE,0);
     pix_pos_in_buffer.resize(BIN_BUF_SIZE,0);
     nTotalBins      = n_tot_bins;
@@ -95,7 +96,7 @@ void cells_in_memory::init(std::fstream  &fileDescr, size_t bin_start_pos, size_
 /* return number of pixels this bin buffer describes */
 size_t cells_in_memory::num_pix_described(size_t bin_number)const {
     size_t loc_bin = bin_number - this->num_first_buf_bin;
-    size_t end = BIN_BUF_SIZE - 1;
+    size_t end = this->buf_end-1;
     if (loc_bin >= this->pix_pos_in_buffer.size()) {
         return pix_pos_in_buffer[end] + nbin_buffer[end];
     } else {
@@ -110,7 +111,8 @@ size_t cells_in_memory::num_pix_to_fit(size_t bin_number, size_t buf_size)const 
     size_t shift = pix_pos_in_buffer[n_bin];
     size_t val = buf_size+ shift;
     auto begin = pix_pos_in_buffer.begin()+ n_bin;
-    auto it = std::upper_bound(begin, pix_pos_in_buffer.end(), val);
+    auto end = pix_pos_in_buffer.begin()+this->buf_end;
+    auto it = std::upper_bound(begin, end, val);
 
     it--;
     if (it == pix_pos_in_buffer.begin()) {
@@ -144,6 +146,8 @@ size_t cells_in_memory::read_bins(size_t num_bin) {
     this->buf_bin_end = bin_end;
 
     size_t  tot_num_bins_to_read = bin_end - num_bin;
+    this->buf_end = tot_num_bins_to_read;
+
 
     size_t bin_pos = binFileStartPos + num_bin*BIN_SIZE_BYTES;
     size_t length = tot_num_bins_to_read*BIN_SIZE_BYTES;
@@ -234,7 +238,11 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
         if (cell_pix == 0)continue;
 
         if (cell_pix + n_buf_pixels > pix_buf_size) {
-            n_bins_processed--;
+            if (n_bins_processed == 0) {
+                mexErrMsgTxt("COMBINE_SQW:read_pixels => output pixels buffer is to small to accommodate single bin. Increase the size of output pixels buffer");
+            } else {
+                n_bins_processed--;
+            }
             break;
         }
 
