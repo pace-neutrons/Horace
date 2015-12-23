@@ -374,7 +374,7 @@ classdef test_sqw_reader< TestCase
                 return;
             end
             dummy = sqw();
-            infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};            
+            infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
             
             outfile_nom = fullfile(this.test_dir,'test_combine_two_sqw_nomex.sqw');
             cleanup_obj1=onCleanup(@()delete(outfile_nom));
@@ -388,7 +388,7 @@ classdef test_sqw_reader< TestCase
             write_nsqw_to_sqw (dummy, infiles, outfile_nom,'allow_equal_headers');
             t2=toc(t0);
             
-           
+            
             set(hor_config,'use_mex',1);
             t0= tic;
             write_nsqw_to_sqw (dummy, infiles, outfile_mex,'allow_equal_headers');
@@ -409,6 +409,48 @@ classdef test_sqw_reader< TestCase
             assertEqual(mex_sqw.data.pix,nomex_sqw.data.pix);
             
         end
+        
+        function this=test_large_bins(this)
+            use_mex = get(hor_config,'use_mex');
+            if ~use_mex
+                return;
+            end
+            
+            proj = projection();
+            cs=cut_sqw(this.sample_file,proj,[-1,1],[-1,1],[-1,1],[-1,101]);
+            test_file = fullfile(this.test_dir,'test_large_bins_sqw.sqw');
+            cleanup_obj1=onCleanup(@()delete(test_file));
+ 
+            save(cs,test_file);
+            
+            anSQW = sqw();
+            fid = fopen(test_file,'rb');
+            if fid<1
+                error('Can not open test file %s',test_file)
+            end
+            cleanup_obj2=onCleanup(@()fclose(fid ));
+            
+           [mess,main_header,header,det_tmp,datahdr,pos,npix_tot,data_type,file_format,current_format] = get_sqw (anSQW,fid,'-h');
+            npix_start_pos =pos.npix;  % start of npix field
+            pix_start_pos  =pos.pix;   % start of pix field
+            fclose(fid);
+            
+            
+            params = [1,1,10000000,2,false,false,100];
+            in_file_par = {struct('file_name',test_file,'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
+            out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
+       
+            [pix_data,pix_info] = combine_sqw(in_file_par,out_file_par,params);
+            assertEqual(double(pix_info(1)),npix_tot)
+            assertEqual(double(pix_info(2)),0)
+            
+            assertEqual(pix_data(:,1:npix_tot),single(cs.data.pix));
+            
+          
+            
+            
+        end
+        
         
     end
 end

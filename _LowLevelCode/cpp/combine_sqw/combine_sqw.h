@@ -37,9 +37,9 @@ class cells_in_memory {
         cells_in_memory(size_t buf_size) :
             nTotalBins(0), binFileStartPos(0),
             num_first_buf_bin(0), buf_bin_end(0), sum_prev_bins(0),
-            BIN_BUF_SIZE(buf_size) {
+            BIN_BUF_SIZE(buf_size), buf_end(1){
         }
-        void init(std::fstream  &fileDescr, size_t bin_start_pos,size_t n_tot_bins);
+        void init(std::fstream  &fileDescr, size_t bin_start_pos,size_t n_tot_bins,size_t bufSize=4096);
 
         size_t num_pix_described(size_t bin_number)const;
         size_t num_pix_to_fit(size_t bin_number,size_t buf_size)const;
@@ -56,6 +56,7 @@ class cells_in_memory {
         std::vector<uint64_t> pix_pos_in_buffer;
         // number of pixels to read in bin buffer
         size_t BIN_BUF_SIZE;
+        size_t buf_end; // number of pixels actually read in the buffer
         std::fstream  *fReader;
 
         size_t read_bins(size_t num_bin);
