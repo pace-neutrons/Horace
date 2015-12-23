@@ -323,18 +323,18 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 
-sqw_reader::sqw_reader() :
-    bin_buffer(4096),npix_in_buf_start(0), buf_pix_end(0),
-    PIX_BUF_SIZE(4096), change_fileno(false), fileno(true)
+sqw_reader::sqw_reader(size_t working_buf_size) :
+    bin_buffer(working_buf_size),npix_in_buf_start(0), buf_pix_end(0),
+    PIX_BUF_SIZE(working_buf_size), change_fileno(false), fileno(true)
 {}
 
-sqw_reader::sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided)
-    : sqw_reader()
+sqw_reader::sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided,size_t working_buf_size)
+    : sqw_reader(working_buf_size)
 {
-    this->init(fpar, changefileno, fileno_provided);
+    this->init(fpar, changefileno, fileno_provided, working_buf_size);
 }
 //
-void sqw_reader::init(const fileParameters &fpar,bool changefileno,bool fileno_provided){
+void sqw_reader::init(const fileParameters &fpar,bool changefileno,bool fileno_provided, size_t working_buf_size){
     
     
     this->full_file_name = fpar.fileName;
@@ -348,7 +348,7 @@ void sqw_reader::init(const fileParameters &fpar,bool changefileno,bool fileno_p
         error += full_file_name;
         mexErrMsgTxt(error.c_str());
     }
-    bin_buffer.init(h_data_file, fpar.nbin_start_pos, fpar.total_NfileBins);
+    bin_buffer.init(h_data_file, fpar.nbin_start_pos, fpar.total_NfileBins, working_buf_size);
 
     this->pix_buffer.resize(PIX_BUF_SIZE*DATA_DESCR::PIX_SIZE);
 
@@ -562,6 +562,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     size_t n_prog_params(4);
     // if pixel's run numbers id should be renamed and in which manned
     bool change_fileno(false), fileno_provided(true);
+    size_t read_buf_size(4096);
     //* Check for proper number of arguments. */
     {
         if (nrhs != N_INPUT_Arguments) {
@@ -574,8 +575,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             debug_file_reader = true;
         }
         n_prog_params = mxGetN(prhs[programSettings]);
-        if (!(n_prog_params == 4 || n_prog_params == 7)) {
-            std::string err= "ERROR::combine_sqw => array of program parameter settings (input N 3) should have  4 or 7 elements but got: "+
+        if (!(n_prog_params == 4 || n_prog_params == 8)) {
+            std::string err= "ERROR::combine_sqw => array of program parameter settings (input N 3) should have  4 or 8 elements but got: "+
                     std::to_string(n_prog_params);
             mexErrMsgTxt(err.c_str());
         }
@@ -636,7 +637,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             case(6):
                 ProgSettings.num_log_ticks = size_t(pProg_settings[i]);
                 break;
-
+            case(7):
+                read_buf_size  = size_t(pProg_settings[i]);
+                break;
         }
     }
     // set up the number of bins, which is currently equal for all input files
@@ -661,7 +664,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //--------------------------------------------------------
     std::vector<sqw_reader> fileReader(n_files);
     for (size_t i = 0; i < n_files; i++) {
-        fileReader[i].init(fileParam[i],change_fileno,fileno_provided);
+        fileReader[i].init(fileParam[i],change_fileno,fileno_provided,read_buf_size);
     }
     size_t n_buf_pixels(0),n_bins_processed(0);
     if (debug_file_reader) {
@@ -676,7 +679,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         auto OutParam = mxCreateNumericMatrix(2, 1, mxUINT64_CLASS, mxREAL);
         uint64_t *outData = (uint64_t *)mxGetPr(OutParam);
         outData[0] = n_buf_pixels;
-        outData[1] = n_bins_processed;
+        outData[1] = n_bins_processed+1;
 
         plhs[pix_data] = PixBuffer;
         plhs[pix_info] = OutParam;

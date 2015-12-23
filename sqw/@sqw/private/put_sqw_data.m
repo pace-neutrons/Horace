@@ -79,7 +79,7 @@ function [mess,position,npixtot,data_type,fid_input] = put_sqw_data (fid, data, 
 %              always!) have eventually written the pixel information from files using
 %              the infiles...run_label options; if 'h' then header information will have been
 %              overwritten data in a file containing one of 'a','a-','b+','b'.
-% fid_input    The identified, stating if the output file is still open (Matlab files combining) or not (mex files combining)
+% fid_input    The identified, stating if the output file should be kept open (Matlab files combining) or not (mex files combining)
 %
 %
 % Fields written to the file are:
@@ -153,7 +153,7 @@ function [mess,position,npixtot,data_type,fid_input] = put_sqw_data (fid, data, 
 mess = '';
 position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]);
 npixtot=[];
-fid_input = true;
+fid_input = false;
 
 % Determine type of input data structure
 data_type_in = data.data_type();
