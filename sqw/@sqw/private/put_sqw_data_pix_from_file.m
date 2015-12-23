@@ -400,7 +400,7 @@ out_param = struct('file_name',fout_name ,...
 %                 id -- by providing new id or by adding it to existing.
 % num_ticks    -- approximate number of log messages to generate while 
 %                 combining files together 
-program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,4096];
+program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,512];
 try
     combine_sqw(in_params,out_param ,program_param);
     mess = '';

@@ -214,12 +214,13 @@ void cells_in_memory::read_all_bin_info(size_t bin_number) {
 
 void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_processed,
                     std::vector<sqw_reader> &fileReader,
-                    const size_t first_bin,const size_t nBinsTotal, size_t pix_buf_size) {
+                    const size_t nBinsTotal, size_t pix_buf_size) {
 
     size_t n_files = fileReader.size();
     n_buf_pixels = 0;
     size_t n_tot_bins(0);
     size_t npix, pix_start_num;
+    size_t first_bin = n_bins_processed;
     //
     bool common_position(false);
     if (n_files == 1) {
@@ -269,32 +270,32 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     }
 
     size_t start_bin = param.nBin2read;
+    size_t n_pixels_processed(0);
     size_t n_bins_total = param.totNumBins;
     size_t pix_buffer_size = param.pixBufferSize;
 
-    size_t n_bins_processed(0);
-    size_t n_pixels_processed(0);
+    //
     size_t break_step = n_bins_total / num_output_ticks;
-    size_t break_count(0);
     size_t break_point = break_step;
-    while (n_bins_processed < n_bins_total - 1) {
+    //
+    while (start_bin < n_bins_total - 1) {
         float *pBuffer = pixWriter.get_pBuffer();
         size_t n_buf_pixels(0);
-        read_pix_info(pBuffer, n_buf_pixels, n_bins_processed, fileReaders,
-            start_bin, n_bins_total, pix_buffer_size);
+        read_pix_info(pBuffer, n_buf_pixels, start_bin, fileReaders,
+            n_bins_total, pix_buffer_size);
 
         pixWriter.write_pixels(n_buf_pixels);
-        start_bin = n_bins_processed + 1;
+        //new start bin is by on shifter wrt the last bin read
+        start_bin++;
         //------------Logging and interruptions ---
-        break_count += n_bins_processed;
         n_pixels_processed += n_buf_pixels;
-        if (break_count >= break_point) {
+        if (start_bin >= break_point) {
             break_point += break_step;
             if (log_level > -1) {
                 std::clock_t c_end = std::clock();
                 std::stringstream buf;
                 buf << "MEX::COMBINE_SQW: Completed " << std::setw(4) << std::setprecision(3)
-                    << float(100 * n_bins_processed) / float(n_bins_total)
+                    << float(100 * start_bin) / float(n_bins_total)
                     << "%  of task in " << std::setprecision(0) << std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
 
                 mexPrintf("%s", buf.str().c_str());
@@ -439,7 +440,6 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
    }
    this->npix_in_buf_start = pix_start_num;
    this->buf_pix_end = this->npix_in_buf_start+ num_pix_to_read+1;
-
 
 }
 /*
@@ -674,8 +674,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         float *pPixBuffer = (float *)mxGetPr(PixBuffer);
 
+        size_t n_bins_processed = ProgSettings.nBin2read;
         read_pix_info(pPixBuffer, n_buf_pixels, n_bins_processed, fileReader,
-            ProgSettings.nBin2read,ProgSettings.totNumBins,ProgSettings.pixBufferSize);
+            ProgSettings.totNumBins,ProgSettings.pixBufferSize);
         auto OutParam = mxCreateNumericMatrix(2, 1, mxUINT64_CLASS, mxREAL);
         uint64_t *outData = (uint64_t *)mxGetPr(OutParam);
         outData[0] = n_buf_pixels;
