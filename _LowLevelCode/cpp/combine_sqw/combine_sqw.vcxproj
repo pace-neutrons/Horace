@@ -210,6 +210,7 @@ copy $(OutDir)*.pdb  $(OutDir)..\..\..\..\..\DLL\_PCWIN64\*</Command>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;COMBINE_SQW_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(MATLABDIR)64\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
