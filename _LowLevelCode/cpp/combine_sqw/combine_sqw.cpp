@@ -277,34 +277,34 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     size_t break_step = n_bins_total / num_output_ticks;
     size_t break_count(0);
     size_t break_point = break_step;
-    while (n_bins_processed < n_bins_total-1) {
+    while (n_bins_processed < n_bins_total - 1) {
         float *pBuffer = pixWriter.get_pBuffer();
         size_t n_buf_pixels(0);
         read_pix_info(pBuffer, n_buf_pixels, n_bins_processed, fileReaders,
             start_bin, n_bins_total, pix_buffer_size);
 
         pixWriter.write_pixels(n_buf_pixels);
-        start_bin = n_bins_processed+1;
+        start_bin = n_bins_processed + 1;
         //------------Logging and interruptions ---
-        break_count+= n_bins_processed;
-        n_pixels_processed+= n_buf_pixels;
+        break_count += n_bins_processed;
+        n_pixels_processed += n_buf_pixels;
         if (break_count >= break_point) {
-            break_point+= break_step;
-            if (log_level>-1){
+            break_point += break_step;
+            if (log_level > -1) {
                 std::clock_t c_end = std::clock();
                 std::stringstream buf;
-                buf<<"MEX::COMBINE_SQW: Completed "<< std::setw(4)<< std::setprecision(3)
-                   <<float(100* n_bins_processed)/float(n_bins_total)
-                   << "%  of task in "<< std::setprecision(0) <<std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC <<" sec\n";
+                buf << "MEX::COMBINE_SQW: Completed " << std::setw(4) << std::setprecision(3)
+                    << float(100 * n_bins_processed) / float(n_bins_total)
+                    << "%  of task in " << std::setprecision(0) << std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
 
-                mexPrintf("%s",buf.str().c_str());
+                mexPrintf("%s", buf.str().c_str());
                 //mexEvalString("drawnow");
                 mexEvalString("pause(.002);");
             }
-            if (utIsInterruptPending()) {
-                mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
-                return;
-            }
+        }
+        if (utIsInterruptPending()) {
+            mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
+            return;
         }
 
     }
