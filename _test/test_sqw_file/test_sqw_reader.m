@@ -266,16 +266,16 @@ classdef test_sqw_reader< TestCase
             
             in_file_par = {struct('file_name',this.sample_file,...
                 'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
-            params = [n_bin,1,100,log_level,false,false,100];
+            params = [n_bin,1,100,log_level,false,false,100,4096];
             dummy_out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
             [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             
             assertEqual(pix_info(1),uint64(99))
-            assertEqual(pix_info(2),uint64(42))
+            assertEqual(pix_info(2),uint64(43))
             assertEqual(pix_data(1:99),single(the_sqw.data.pix(1:99)))
             %cleanup_obj=onCleanup(@()sr.delete());
             
-            params = [n_bin,1,this.npixtot,log_level,false,false,100];
+            params = [n_bin,1,this.npixtot,log_level,false,false,100,4096];
             t0= tic;
             [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             t1=toc(t0);
@@ -285,7 +285,7 @@ classdef test_sqw_reader< TestCase
             end
             
             assertEqual(pix_info(1),uint64(this.npixtot))
-            assertEqual(pix_info(2),uint64(n_bin-1))
+            assertEqual(pix_info(2),uint64(n_bin))
             
             
             assertEqual(pix_data(:,1:2248),single(the_sqw.data.pix(:,1:2248)))
@@ -314,7 +314,7 @@ classdef test_sqw_reader< TestCase
             
             file_par = {struct('file_name',this.sample_file,'npix_start_pos',...
                 npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
-            params = [n_bin,1,1000000,log_level,false,false,100];
+            params = [n_bin,1,1000000,log_level,false,false,100,4096];
             out_file = fullfile(this.test_dir,'rewrite_pixarray_mex_sqw_rez.sqw');
             cleanup_obj=onCleanup(@()delete(out_file));
             
@@ -428,26 +428,24 @@ classdef test_sqw_reader< TestCase
             if fid<1
                 error('Can not open test file %s',test_file)
             end
-            cleanup_obj2=onCleanup(@()fclose(fid ));
+            %cleanup_obj2=onCleanup(@()fclose(fid ));
             
            [mess,main_header,header,det_tmp,datahdr,pos,npix_tot,data_type,file_format,current_format] = get_sqw (anSQW,fid,'-h');
+            fclose(fid);
+   
             npix_start_pos =pos.npix;  % start of npix field
             pix_start_pos  =pos.pix;   % start of pix field
-            fclose(fid);
             
             
-            params = [1,1,10000000,2,false,false,100];
+            params = [1,1,10000000,2,false,false,100,4096];
             in_file_par = {struct('file_name',test_file,'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
             out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
        
             [pix_data,pix_info] = combine_sqw(in_file_par,out_file_par,params);
             assertEqual(double(pix_info(1)),npix_tot)
-            assertEqual(double(pix_info(2)),0)
+            assertEqual(double(pix_info(2)),1)
             
             assertEqual(pix_data(:,1:npix_tot),single(cs.data.pix));
-            
-          
-            
             
         end
         

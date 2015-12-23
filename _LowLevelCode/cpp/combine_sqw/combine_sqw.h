@@ -102,9 +102,9 @@ class sqw_reader {
     %
     */
 public:
-    sqw_reader();
-    sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided);
-    void init(const fileParameters &fpar,bool changefileno, bool fileno_provided);
+    sqw_reader(size_t working_buf_size=4096);
+    sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided,size_t working_buf_size=4096);
+    void init(const fileParameters &fpar,bool changefileno, bool fileno_provided,size_t working_buf_size=4096);
     ~sqw_reader() {
         h_data_file.close();
     }
