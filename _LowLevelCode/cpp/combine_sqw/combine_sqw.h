@@ -9,7 +9,7 @@
 #include <memory>
 #include <map>
 #include <stdio.h>
-#define STDIO
+//#define STDIO
 
 //
 // $Revision::      $ ($Date::                                              $)" 
