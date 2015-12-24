@@ -8,6 +8,9 @@
 #include <fstream>
 #include <memory>
 #include <map>
+#include <stdio.h>
+#define STDIO
+
 //
 // $Revision::      $ ($Date::                                              $)" 
 //
@@ -17,7 +20,7 @@ class fileParameters {
 public:
     std::string fileName;
     size_t nbin_start_pos;   // the initial file position where nbin array is located in the file
-    size_t pix_start_pos;   // the initial file position where the pixel array is located in file
+    long pix_start_pos;   // the initial file position where the pixel array is located in file
     int    file_id;
     size_t total_NfileBins; // the number of bins in this file (has to be the same for all files)
     fileParameters(const mxArray *pFileParam);
@@ -39,12 +42,18 @@ class cells_in_memory {
             num_first_buf_bin(0), buf_bin_end(0), pix_before_buffer(0),
             BIN_BUF_SIZE(buf_size), BUF_SIZE_STEP(buf_size), buf_end(1){
         }
-        void init(std::fstream  &fileDescr, size_t bin_start_pos,size_t n_tot_bins,size_t bufSize=4096);
+#ifdef STDIO
+        void init(FILE *fileDescr, size_t bin_start_pos,size_t n_tot_bins,size_t bufSize=4096);
+        long fpos;
+#else
+        void init(std::fstream  &fileDescr, size_t bin_start_pos, size_t n_tot_bins, size_t bufSize = 4096);
+#endif
 
         size_t num_pix_described(size_t bin_number)const;
         size_t num_pix_to_fit(size_t bin_number,size_t buf_size)const;
         void   get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix);
         void expand_pixels_selection(size_t bin_number);
+
     private:
         size_t  nTotalBins;
         size_t  binFileStartPos;
@@ -61,13 +70,16 @@ class cells_in_memory {
         size_t buf_end; /* points to the place after the last bin actually read into the buffer.
         Differs from BIN_BUF_SIZE, as BIN_BUF_SIZE is physical buffer size which may not have all or any bins read into
         e.g at the end, where all available bins were read */
-
+#ifdef STDIO
+        FILE *fReader;
+#else
         std::fstream  *fReader;
+#endif
 
         size_t read_bins(size_t num_bin,size_t buf_start,size_t buf_size);
         void read_all_bin_info(size_t bin_number);
 
-        static const size_t BIN_SIZE_BYTES=8;
+        static const long BIN_SIZE_BYTES=8;
 };
 //-----------------------------------------------------------------------------------------------------------------
 class sqw_pix_writer {
@@ -115,7 +127,11 @@ public:
     sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided,size_t working_buf_size=4096);
     void init(const fileParameters &fpar,bool changefileno, bool fileno_provided,size_t working_buf_size=4096);
     ~sqw_reader() {
+#ifdef STDIO
+       fclose(h_data_file);
+#else
         h_data_file.close();
+#endif
     }
     /* get number of pixels, stored in the bin and the position of these pixels within pixel array */
     void get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix);
@@ -129,7 +145,12 @@ private:
     // the name of the file to process
     std::string full_file_name;
     // handle pointing to open file
+#ifdef STDIO
+    FILE *h_data_file;
+#else
     std::fstream h_data_file;
+#endif
+
     // parameters, which describe 
     fileParameters fileDescr;
 

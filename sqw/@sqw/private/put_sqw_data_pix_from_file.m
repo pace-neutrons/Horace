@@ -405,6 +405,6 @@ try
     combine_sqw(in_params,out_param ,program_param);
     mess = '';
 catch ME;
-    mess = [ME.dientifier,'::',ME.message];    
+    mess = [ME.identifier,'::',ME.message];    
 end
 
