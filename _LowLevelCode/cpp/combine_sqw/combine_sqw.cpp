@@ -114,8 +114,8 @@ size_t cells_in_memory::num_pix_to_fit(size_t bin_number, size_t buf_size)const 
     auto it = std::upper_bound(begin, end, val);
 
     it--;
-    if (it == pix_pos_in_buffer.begin()) {
-        return this->nbin_buffer[0];
+    if (it == begin) {
+        return this->nbin_buffer[n_bin];
     } else {
         return *it- shift;
     }
