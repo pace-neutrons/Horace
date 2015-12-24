@@ -266,24 +266,27 @@ classdef test_sqw_reader< TestCase
             
             in_file_par = {struct('file_name',this.sample_file,...
                 'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
-            params = [n_bin,1,100,log_level,false,false,100,4096];
+            params = [n_bin,1,100,log_level,false,false,100,64];
             dummy_out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
-            [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
+            [pix_data,npix,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
+            
+            assertEqual(npix(1:43),uint64(pns(1:43)));
             
             assertEqual(pix_info(1),uint64(99))
             assertEqual(pix_info(2),uint64(43))
             assertEqual(pix_data(1:99),single(the_sqw.data.pix(1:99)))
             %cleanup_obj=onCleanup(@()sr.delete());
             
-            params = [n_bin,1,this.npixtot,log_level,false,false,100,4096];
+            params = [n_bin,1,this.npixtot,log_level,false,false,100,64];
             t0= tic;
-            [pix_data,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
+            [pix_data,npix,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             t1=toc(t0);
             if log_level >1
                 disp([' Time to process ',num2str(n_bin),' cells containing ',...
                     num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
             end
             
+            assertEqual(npix,uint64(pns));
             assertEqual(pix_info(1),uint64(this.npixtot))
             assertEqual(pix_info(2),uint64(n_bin))
             
@@ -420,7 +423,7 @@ classdef test_sqw_reader< TestCase
             cs=cut_sqw(this.sample_file,proj,[-1,1],[-1,1],[-1,1],[-1,101]);
             test_file = fullfile(this.test_dir,'test_large_bins_sqw.sqw');
             cleanup_obj1=onCleanup(@()delete(test_file));
- 
+            
             save(cs,test_file);
             
             anSQW = sqw();
@@ -430,9 +433,9 @@ classdef test_sqw_reader< TestCase
             end
             %cleanup_obj2=onCleanup(@()fclose(fid ));
             
-           [mess,main_header,header,det_tmp,datahdr,pos,npix_tot,data_type,file_format,current_format] = get_sqw (anSQW,fid,'-h');
+            [mess,main_header,header,det_tmp,datahdr,pos,npix_tot,data_type,file_format,current_format] = get_sqw (anSQW,fid,'-h');
             fclose(fid);
-   
+            
             npix_start_pos =pos.npix;  % start of npix field
             pix_start_pos  =pos.pix;   % start of pix field
             
@@ -440,8 +443,9 @@ classdef test_sqw_reader< TestCase
             params = [1,1,10000000,2,false,false,100,4096];
             in_file_par = {struct('file_name',test_file,'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
             out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
-       
-            [pix_data,pix_info] = combine_sqw(in_file_par,out_file_par,params);
+            
+            [pix_data,npix,pix_info] = combine_sqw(in_file_par,out_file_par,params);
+            assertEqual(npix(1),pix_info(1));
             assertEqual(double(pix_info(1)),npix_tot)
             assertEqual(double(pix_info(2)),1)
             
