@@ -401,10 +401,17 @@ out_param = struct('file_name',fout_name ,...
 % num_ticks    -- approximate number of log messages to generate while 
 %                 combining files together 
 program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,1024];
+t_start=tic;   
 try
     combine_sqw(in_params,out_param ,program_param);
     mess = '';
 catch ME;
     mess = [ME.identifier,'::',ME.message];    
 end
-
+if log_level>0
+    te=toc(t_start);
+    disp(['Task completed in ',num2str(te),' seconds'])
+end
+if log_level>1
+    fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
+end
