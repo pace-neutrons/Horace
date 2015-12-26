@@ -25,9 +25,9 @@ struct ProgParameters {
                         // all diagnostics information gets printed
     size_t num_log_ticks; // how many times per combine files to print log message about completion percentage
     // Default constructor
-    ProgParameters():totNumBins(0), nBin2read(0),
-        pixBufferSize(10000000),log_level(1), num_log_ticks(100)
-        {};
+    ProgParameters() :totNumBins(0), nBin2read(0),
+        pixBufferSize(10000000), log_level(1), num_log_ticks(100)
+    {};
 };
 
 
@@ -46,13 +46,13 @@ const std::map<std::string, int> fileParameters::fileParamNames = {
 void sqw_pix_writer::init(const fileParameters &fpar) {
 
     this->filename = fpar.fileName;
-    this->h_out_sqw.open(fpar.fileName,std::ofstream::binary| std::ofstream::out|std::ofstream::app);
+    this->h_out_sqw.open(fpar.fileName, std::ofstream::binary | std::ofstream::out | std::ofstream::app);
     if (!this->h_out_sqw.is_open()) {
         std::string err = "SQW_PIX_WRITER: Can not open target sqw file: " + fpar.fileName;
         mexErrMsgTxt(err.c_str());
     }
 
-    this->last_pix_written =0;
+    this->last_pix_written = 0;
     this->pix_array_position = fpar.pix_start_pos;
     this->nbin_position = fpar.nbin_start_pos;
 
@@ -64,11 +64,11 @@ void sqw_pix_writer::write_pixels(const size_t n_pix_to_write) {
 
     char * buffer = reinterpret_cast<char *>(&pix_buffer[0]);
     size_t length = n_pix_to_write*PIX_BLOCK_SIZE_BYTES;
-    size_t pix_pos = pix_array_position+ last_pix_written*PIX_BLOCK_SIZE_BYTES;
+    size_t pix_pos = pix_array_position + last_pix_written*PIX_BLOCK_SIZE_BYTES;
     //
     this->h_out_sqw.seekp(pix_pos);
     //
-    this->h_out_sqw.write(buffer,length);
+    this->h_out_sqw.write(buffer, length);
     last_pix_written += n_pix_to_write;
 
 }
@@ -80,25 +80,25 @@ sqw_pix_writer::~sqw_pix_writer() {
 //--------------------------------------------------------------------------------------------------------------------
 #ifdef STDIO
 void cells_in_memory::init(FILE *fileDescr, size_t bin_start_pos, size_t n_tot_bins, size_t BufferSize) {
-fReader = fileDescr;
+    fReader = fileDescr;
 #else
 void cells_in_memory::init(std::fstream  &fileDescr, size_t bin_start_pos, size_t n_tot_bins, size_t BufferSize) {
     fReader = &fileDescr;
 #endif
 
-    BUF_SIZE_STEP = BufferSize; 
+    BUF_SIZE_STEP = BufferSize;
     BIN_BUF_SIZE = 2 * BUF_SIZE_STEP;
 
-    nbin_buffer.resize(BIN_BUF_SIZE,0);
-    pix_pos_in_buffer.resize(BIN_BUF_SIZE,0);
-    nTotalBins      = n_tot_bins;
+    nbin_buffer.resize(BIN_BUF_SIZE, 0);
+    pix_pos_in_buffer.resize(BIN_BUF_SIZE, 0);
+    nTotalBins = n_tot_bins;
     binFileStartPos = bin_start_pos;
 }
 
 /* return number of pixels this bin buffer describes */
 size_t cells_in_memory::num_pix_described(size_t bin_number)const {
     size_t loc_bin = bin_number - this->num_first_buf_bin;
-    size_t end = this->buf_end-1;
+    size_t end = this->buf_end - 1;
     size_t num_pix_start = pix_pos_in_buffer[loc_bin];
     return pix_pos_in_buffer[end] + nbin_buffer[end] - num_pix_start;
 
@@ -106,18 +106,19 @@ size_t cells_in_memory::num_pix_described(size_t bin_number)const {
 
 /* return the number of pixels described by the bins fitting the buffer of the size specified*/
 size_t cells_in_memory::num_pix_to_fit(size_t bin_number, size_t buf_size)const {
-    size_t n_bin = bin_number-num_first_buf_bin;
+    size_t n_bin = bin_number - num_first_buf_bin;
     size_t shift = pix_pos_in_buffer[n_bin];
-    size_t val = buf_size+ shift;
-    auto begin = pix_pos_in_buffer.begin()+ n_bin;
-    auto end = pix_pos_in_buffer.begin()+this->buf_end;
+    size_t val = buf_size + shift;
+    auto begin = pix_pos_in_buffer.begin() + n_bin;
+    auto end = pix_pos_in_buffer.begin() + this->buf_end;
     auto it = std::upper_bound(begin, end, val);
 
     it--;
     if (it == begin) {
         return this->nbin_buffer[n_bin];
-    } else {
-        return *it- shift;
+    }
+    else {
+        return *it - shift;
     }
 
 
@@ -131,32 +132,32 @@ size_t cells_in_memory::num_pix_to_fit(size_t bin_number, size_t buf_size)const 
 Returns:
 absolute number of last bin read into the buffer.
 */
-size_t cells_in_memory::read_bins(size_t num_bin,size_t buf_start,size_t buf_size) {
+size_t cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_size) {
 
     if (num_bin >= this->nTotalBins) {
         mexErrMsgTxt("READ_SQW::read_bins =>Accessing bin out of bin range");
     }
 
     this->num_first_buf_bin = num_bin;
-    size_t bin_end = this->num_first_buf_bin + buf_size+buf_start;
+    size_t bin_end = this->num_first_buf_bin + buf_size + buf_start;
 
     if (bin_end > nTotalBins) {
         bin_end = nTotalBins;
     }
-    else if (bin_end+ buf_size >= nTotalBins ) { // finish reading extended buffer as all bins fit extended buffer 
+    else if (bin_end + buf_size >= nTotalBins) { // finish reading extended buffer as all bins fit extended buffer 
         bin_end = nTotalBins;
     }
 
-    size_t  tot_num_bins_to_read = bin_end - num_bin- buf_start;
-    if (tot_num_bins_to_read>this->BIN_BUF_SIZE) {
+    size_t  tot_num_bins_to_read = bin_end - num_bin - buf_start;
+    if (tot_num_bins_to_read > this->BIN_BUF_SIZE) {
         tot_num_bins_to_read = this->BIN_BUF_SIZE;
         bin_end = this->num_first_buf_bin + this->BIN_BUF_SIZE;
     }
     this->buf_bin_end = bin_end;
-    this->buf_end = buf_start+tot_num_bins_to_read;
+    this->buf_end = buf_start + tot_num_bins_to_read;
 
 
-    long bin_pos = binFileStartPos + (num_bin+buf_start)*BIN_SIZE_BYTES;
+    long bin_pos = binFileStartPos + (num_bin + buf_start)*BIN_SIZE_BYTES;
 #ifdef STDIO
     uint64_t * buffer = reinterpret_cast<uint64_t *>(&nbin_buffer[buf_start]);
     long length = tot_num_bins_to_read;
@@ -164,11 +165,11 @@ size_t cells_in_memory::read_bins(size_t num_bin,size_t buf_start,size_t buf_siz
     bin_pos -= this->fpos;
     auto err = fseek(fReader, bin_pos, SEEK_CUR);
     if (err) {
-        mexErrMsgTxt("COMBINE_SQW:read_pixels seek error ");
+        mexErrMsgTxt("COMBINE_SQW:read_bins seek error ");
     }
     size_t nBytes = fread(buffer, BIN_SIZE_BYTES, tot_num_bins_to_read, fReader);
     if (nBytes != tot_num_bins_to_read) {
-        mexErrMsgTxt("COMBINE_SQW:read_pixels Read error, can not read the number of bytes requested");
+        mexErrMsgTxt("COMBINE_SQW:read_bins Read error, can not read the number of bytes requested");
     }
     this->fpos = ftell(fReader);
 #else
@@ -193,7 +194,7 @@ size_t cells_in_memory::read_bins(size_t num_bin,size_t buf_start,size_t buf_siz
 
 #endif
     this->pix_pos_in_buffer[0] = 0;
-    for (size_t i = 1; i < tot_num_bins_to_read+ buf_start; i++) {
+    for (size_t i = 1; i < tot_num_bins_to_read + buf_start; i++) {
         this->pix_pos_in_buffer[i] = this->pix_pos_in_buffer[i - 1] + this->nbin_buffer[i - 1];
     }
     return tot_num_bins_to_read;
@@ -216,21 +217,21 @@ void cells_in_memory::get_npix_for_bin(size_t bin_number, size_t &pix_start_num,
 
 }
 /* read bin info to describe sufficient number of pixels in buffer
-   bin number is already in the bin buffer and we want to read additional bins 
+   bin number is already in the bin buffer and we want to read additional bins
    describing more pixels
 */
 void cells_in_memory::expand_pixels_selection(size_t bin_number) {
-    if(this->buf_bin_end==this->nTotalBins){
+    if (this->buf_bin_end == this->nTotalBins) {
         return;
     }
     size_t  num_bin_in_buf = bin_number - this->num_first_buf_bin;
     // move bin buffer into new position
     this->num_first_buf_bin = bin_number;
-    this->pix_before_buffer+= this->pix_pos_in_buffer[num_bin_in_buf];
+    this->pix_before_buffer += this->pix_pos_in_buffer[num_bin_in_buf];
     for (size_t i = num_bin_in_buf; i < this->buf_end; i++) {
-        this->nbin_buffer[i- num_bin_in_buf] = this->nbin_buffer[i];
+        this->nbin_buffer[i - num_bin_in_buf] = this->nbin_buffer[i];
     }
-    read_bins(bin_number, this->buf_end- num_bin_in_buf,this->BUF_SIZE_STEP);
+    read_bins(bin_number, this->buf_end - num_bin_in_buf, this->BUF_SIZE_STEP);
 
 }
 //
@@ -243,23 +244,23 @@ void cells_in_memory::read_all_bin_info(size_t bin_number) {
     }
     //------------------------------------------------------------------------------
     size_t firstNewBin = this->buf_bin_end;
-    size_t n_strides = (bin_number- firstNewBin)/ this->BUF_SIZE_STEP + 1;
+    size_t n_strides = (bin_number - firstNewBin) / this->BUF_SIZE_STEP + 1;
     for (size_t i = 0; i < n_strides; i++) {
-        size_t start_bin = firstNewBin+i*this->BUF_SIZE_STEP;
+        size_t start_bin = firstNewBin + i*this->BUF_SIZE_STEP;
         // store pixel info for all previous bins
         size_t end = this->buf_end - 1;
         this->pix_before_buffer += (this->pix_pos_in_buffer[end] + this->nbin_buffer[end]);
-        read_bins(start_bin,0, this->BUF_SIZE_STEP);
-     }
+        read_bins(start_bin, 0, this->BUF_SIZE_STEP);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 
-void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_processed,
-                    std::vector<sqw_reader> &fileReader,
-                    const size_t nBinsTotal, size_t pix_buf_size,uint64_t *nBinBuffer=NULL) {
+void read_pix_info(float *pPixBuffer, size_t &n_buf_pixels, size_t &n_bins_processed,
+    std::vector<sqw_reader> &fileReader,
+    const size_t nBinsTotal, size_t pix_buf_size, uint64_t *nBinBuffer = NULL) {
 
     size_t n_files = fileReader.size();
     n_buf_pixels = 0;
@@ -277,7 +278,7 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
         size_t cell_pix = 0;
         for (size_t i = 0; i < n_files; i++) {
             fileReader[i].get_npix_for_bin(n_bin, pix_start_num, npix);
-            cell_pix+= npix;
+            cell_pix += npix;
         }
 
         n_bins_processed = n_bin;
@@ -290,7 +291,8 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
         if (cell_pix + n_buf_pixels > pix_buf_size) {
             if (n_bins_processed == 0) {
                 mexErrMsgTxt("COMBINE_SQW:read_pixels => output pixels buffer is to small to accommodate single bin. Increase the size of output pixels buffer");
-            } else {
+            }
+            else {
                 n_bins_processed--;
             }
             break;
@@ -299,8 +301,8 @@ void read_pix_info(float *pPixBuffer,size_t &n_buf_pixels, size_t &n_bins_proces
 
         for (size_t i = 0; i < n_files; i++) {
             fileReader[i].get_pix_for_bin(n_bin, pPixBuffer, n_buf_pixels,
-                    pix_start_num, npix, common_position);
-            n_buf_pixels  += npix;
+                pix_start_num, npix, common_position);
+            n_buf_pixels += npix;
         }
     }
 }
@@ -310,11 +312,11 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     sqw_pix_writer pixWriter(param.pixBufferSize);
     pixWriter.init(outPar);
 
-    int log_level= param.log_level;
+    int log_level = param.log_level;
     size_t num_output_ticks = param.num_log_ticks;
 
     std::clock_t c_start;
-    if (log_level>-1){
+    if (log_level > -1) {
         c_start = std::clock();
     }
 
@@ -361,9 +363,9 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     if (log_level > -1) {
         std::clock_t c_end = std::clock();
         std::stringstream buf;
-        buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_total << " bins and "<< n_pixels_processed
+        buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_total << " bins and " << n_pixels_processed
             << " pixels in " << std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
-        mexPrintf("%s",buf.str().c_str());
+        mexPrintf("%s", buf.str().c_str());
     }
 
 
@@ -374,23 +376,23 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 //--------------------------------------------------------------------------------------------------------------------
 
 sqw_reader::sqw_reader(size_t working_buf_size) :
-    bin_buffer(working_buf_size),npix_in_buf_start(0), buf_pix_end(1),
+    bin_buffer(working_buf_size), npix_in_buf_start(0), buf_pix_end(1),
     PIX_BUF_SIZE(working_buf_size), change_fileno(false), fileno(true)
 {}
 
-sqw_reader::sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided,size_t working_buf_size)
+sqw_reader::sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided, size_t working_buf_size)
     : sqw_reader(working_buf_size)
 {
     this->init(fpar, changefileno, fileno_provided, working_buf_size);
 }
 //
-void sqw_reader::init(const fileParameters &fpar,bool changefileno,bool fileno_provided, size_t working_buf_size){
-    
-    
+void sqw_reader::init(const fileParameters &fpar, bool changefileno, bool fileno_provided, size_t working_buf_size) {
+
+
     this->full_file_name = fpar.fileName;
     this->fileDescr = fpar;
     this->change_fileno = changefileno;
-    this->fileno  = fileno_provided;
+    this->fileno = fileno_provided;
 #ifdef STDIO
     h_data_file = fopen(full_file_name.c_str(), "rb");
     bin_buffer.fpos = ftell(h_data_file);
@@ -400,7 +402,7 @@ void sqw_reader::init(const fileParameters &fpar,bool changefileno,bool fileno_p
         mexErrMsgTxt(error.c_str());
     }
 #else
-    h_data_file.open(full_file_name, std::fstream::in|std::fstream::binary);
+    h_data_file.open(full_file_name, std::fstream::in | std::fstream::binary);
     if (!h_data_file.is_open()) {
         std::string error("Can not open file: ");
         error += full_file_name;
@@ -430,11 +432,11 @@ void sqw_reader::get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size
 
 
 
-/* return pixel information for the pixels stored in the bin 
+/* return pixel information for the pixels stored in the bin
 * @param bin_number  -- the bin number to get results for
 * @param pix_info    -- the pointer to the pixel buffer where results should be placed
 * @param buf_position-- position in the pix buffer where pixels should be stored
-* @param pix_start_num      --calculated first bin's pixel number in the linear array of all pixels 
+* @param pix_start_num      --calculated first bin's pixel number in the linear array of all pixels
 *                             (on hdd or Horace pix array)
 * @param num_bin_pix         -- number of pixels in the bin requested
 * @param position_is_defined -- if true, pix_start_num and num_bin_pix are already calculated and used as input,
@@ -444,21 +446,21 @@ void sqw_reader::get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size
 *                      for the pixels, belonging to the bin requested. The data start at buf_position
 */
 void sqw_reader::get_pix_for_bin(size_t bin_number, float *pix_info, size_t buf_position,
-    size_t &pix_start_num, size_t &num_bin_pix,bool position_is_defined) {
+    size_t &pix_start_num, size_t &num_bin_pix, bool position_is_defined) {
 
-    if (!position_is_defined){
+    if (!position_is_defined) {
         this->get_npix_for_bin(bin_number, pix_start_num, num_bin_pix);
     }
     if (num_bin_pix == 0) return;
 
-    if (pix_start_num < this->npix_in_buf_start || pix_start_num+ num_bin_pix > this->buf_pix_end) {
+    if (pix_start_num < this->npix_in_buf_start || pix_start_num + num_bin_pix > this->buf_pix_end) {
         this->read_pixels(bin_number, pix_start_num);
     }
 
     size_t out_buf_start = buf_position*PIX_SIZE;
-    size_t in_buf_start  = (pix_start_num- this->npix_in_buf_start)*PIX_SIZE;
-    for(size_t i=0;i<num_bin_pix*PIX_SIZE;i++){
-        pix_info[out_buf_start +i]= pix_buffer[in_buf_start+i];
+    size_t in_buf_start = (pix_start_num - this->npix_in_buf_start)*PIX_SIZE;
+    for (size_t i = 0; i < num_bin_pix*PIX_SIZE; i++) {
+        pix_info[out_buf_start + i] = pix_buffer[in_buf_start + i];
     }
 
 }
@@ -477,55 +479,58 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
     // shrink if necessary
     // if we are here, nbin buffer is intact and pixel buffer is
     // invalidated
-   size_t num_pix_to_read = this->check_binInfo_loaded_(bin_number);
-   long pix_pos = this->fileDescr.pix_start_pos +  pix_start_num*PIX_BLOCK_SIZE_BYTES;
+    size_t num_pix_to_read = this->check_binInfo_loaded_(bin_number);
+    long pix_pos = this->fileDescr.pix_start_pos + pix_start_num*PIX_BLOCK_SIZE_BYTES;
 
 #ifdef STDIO
-   if (num_pix_to_read == 0) {
-       return;
-   }
-   void * buffer = &pix_buffer[0];
+    if (num_pix_to_read == 0) {
+        return;
+    }
+    void * buffer = &pix_buffer[0];
 
-   pix_pos -= this->bin_buffer.fpos;
-   auto err= fseek(h_data_file, pix_pos, SEEK_CUR);
-   if (err){
-       mexErrMsgTxt("COMBINE_SQW:read_pixels seek error");
-   }
-   size_t nBytes = fread(buffer, PIX_BLOCK_SIZE_BYTES, num_pix_to_read, h_data_file);
-   if (nBytes != num_pix_to_read) {
-       mexErrMsgTxt("COMBINE_SQW:read_pixels Read error, can not read the number of pixels requested");
-   }
-   this->bin_buffer.fpos = ftell(h_data_file);
+    pix_pos -= this->bin_buffer.fpos;
+    auto err = fseek(h_data_file, pix_pos, SEEK_CUR);
+    if (err) {
+        mexErrMsgTxt("COMBINE_SQW:read_pixels seek error");
+    }
+    size_t nBytes = fread(buffer, PIX_BLOCK_SIZE_BYTES, num_pix_to_read, h_data_file);
+    if (nBytes != num_pix_to_read) {
+        mexErrMsgTxt("COMBINE_SQW:read_pixels Read error, can not read the number of pixels requested");
+    }
+    this->bin_buffer.fpos = ftell(h_data_file);
 
 #else
-   char * buffer = reinterpret_cast<char *>(&pix_buffer[0]);
-   size_t length = num_pix_to_read*PIX_BLOCK_SIZE_BYTES;
+    char * buffer = reinterpret_cast<char *>(&pix_buffer[0]);
+    size_t length = num_pix_to_read*PIX_BLOCK_SIZE_BYTES;
 
-   std::string err;
-   h_data_file.seekp(pix_pos);
-   try{
-    h_data_file.read(buffer, length);
-   }catch (std::ios_base::failure &e) {
-      err = "COMBINE_SQW:read_pixels read error: "+std::string(e.what());
-   }catch (...) {
-      err = "COMBINE_SQW:read_pixels unhandled read error. ";
-   }
-   if (err.size() > 0) {
-       mexErrMsgTxt(err.c_str());
-   }
+    std::string err;
+    h_data_file.seekp(pix_pos);
+    try {
+        h_data_file.read(buffer, length);
+    }
+    catch (std::ios_base::failure &e) {
+        err = "COMBINE_SQW:read_pixels read error: " + std::string(e.what());
+    }
+    catch (...) {
+        err = "COMBINE_SQW:read_pixels unhandled read error. ";
+    }
+    if (err.size() > 0) {
+        mexErrMsgTxt(err.c_str());
+    }
 #endif
-   if (this->change_fileno) {
-       for (size_t i = 0; i < num_pix_to_read; i++) {
-           if (fileno) {
-               this->pix_buffer[4 + i * 9]  = float(this->fileDescr.file_id);
-           }else{
-               this->pix_buffer[4 + i * 9] += float(this->fileDescr.file_id);
-           }
-       }
+    if (this->change_fileno) {
+        for (size_t i = 0; i < num_pix_to_read; i++) {
+            if (fileno) {
+                this->pix_buffer[4 + i * 9] = float(this->fileDescr.file_id);
+            }
+            else {
+                this->pix_buffer[4 + i * 9] += float(this->fileDescr.file_id);
+            }
+        }
 
-   }
-   this->npix_in_buf_start = pix_start_num;
-   this->buf_pix_end = this->npix_in_buf_start+ num_pix_to_read;
+    }
+    this->npix_in_buf_start = pix_start_num;
+    this->buf_pix_end = this->npix_in_buf_start + num_pix_to_read;
 
 }
 /*
@@ -536,7 +541,7 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
 % processed
 %
 */
-size_t sqw_reader::check_binInfo_loaded_(size_t bin_number,bool extend_pix_buffer) {
+size_t sqw_reader::check_binInfo_loaded_(size_t bin_number, bool extend_pix_buffer) {
 
     // assume bin buffer is intact with bin_number loaded and get number of pixels this bin buffer describes
     size_t num_pix_to_read = this->bin_buffer.num_pix_described(bin_number);
@@ -548,11 +553,12 @@ size_t sqw_reader::check_binInfo_loaded_(size_t bin_number,bool extend_pix_buffe
             this->PIX_BUF_SIZE = num_pix_to_read;
             // npix buffer should be extended
             this->pix_buffer.resize(this->PIX_BUF_SIZE*PIX_SIZE);
-         }
-    } else { // bin buffer should be extended
-        if (extend_pix_buffer){
+        }
+    }
+    else { // bin buffer should be extended
+        if (extend_pix_buffer) {
             this->bin_buffer.expand_pixels_selection(bin_number);
-            return check_binInfo_loaded_(bin_number,false);
+            return check_binInfo_loaded_(bin_number, false);
         }
 
     }
@@ -580,45 +586,46 @@ fileParameters::fileParameters(const mxArray *pFileParam) {
         mexErrMsgTxt(buf.str().c_str());
     }
 
-    for (int field_index=0; field_index<number_of_fields; field_index++){
+    for (int field_index = 0; field_index < number_of_fields; field_index++) {
         const std::string FieldName(mxGetFieldNameByNumber(pFileParam, field_index));
         int ind(-1);
         try {
             ind = fileParamNames.at(FieldName);
-        }catch (std::out_of_range) {
+        }
+        catch (std::out_of_range) {
             std::string err = "ERROR::combine_sqw ==> file parameters structure contains unknown parameter: " + FieldName;
             mexErrMsgTxt(err.c_str());
         }
 
         const mxArray *pFieldCont = mxGetFieldByNumber(pFileParam, 0, field_index);
         switch (ind) {
-            case(0) : {
-                fileName = std::string(mxArrayToString(pFieldCont));
-                break;
-            }
-            case(1):{
-                double *pnBin_start = mxGetPr(pFieldCont);
-                nbin_start_pos = int64_t(pnBin_start[0]);
-                break;
-                }
-            case(2) : {
-                double *pPixStart = mxGetPr(pFieldCont);
-                pix_start_pos = long(pPixStart[0]);
-                break;
-                }
-            case(3) :{
-                double *pFileID = mxGetPr(pFieldCont);
-                file_id = int(pFileID[0]);
-                break;
-                }
-            case(4) :{
-                double *pNpixTotal = mxGetPr(pFieldCont);
-                total_NfileBins = size_t(pNpixTotal[0]);
-                break;
-                }
-           default:{
-              mexWarnMsgTxt("combine_sqw: unknown parameter (should never happen)");
-              }
+        case(0) : {
+            fileName = std::string(mxArrayToString(pFieldCont));
+            break;
+        }
+        case(1) : {
+            double *pnBin_start = mxGetPr(pFieldCont);
+            nbin_start_pos = int64_t(pnBin_start[0]);
+            break;
+        }
+        case(2) : {
+            double *pPixStart = mxGetPr(pFieldCont);
+            pix_start_pos = long(pPixStart[0]);
+            break;
+        }
+        case(3) : {
+            double *pFileID = mxGetPr(pFieldCont);
+            file_id = int(pFileID[0]);
+            break;
+        }
+        case(4) : {
+            double *pNpixTotal = mxGetPr(pFieldCont);
+            total_NfileBins = size_t(pNpixTotal[0]);
+            break;
+        }
+        default: {
+            mexWarnMsgTxt("combine_sqw: unknown parameter (should never happen)");
+        }
         }
     }
 }
@@ -653,8 +660,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         n_prog_params = mxGetN(prhs[programSettings]);
         if (!(n_prog_params == 4 || n_prog_params == 8)) {
-            std::string err= "ERROR::combine_sqw => array of program parameter settings (input N 3) should have  4 or 8 elements but got: "+
-                    std::to_string(n_prog_params);
+            std::string err = "ERROR::combine_sqw => array of program parameter settings (input N 3) should have  4 or 8 elements but got: " +
+                std::to_string(n_prog_params);
             mexErrMsgTxt(err.c_str());
         }
 
@@ -672,7 +679,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     std::vector<fileParameters> fileParam(n_files);
     for (size_t i = 0; i < n_files; i++) {
         const mxArray *pCellElement;
-        pCellElement = mxGetCell(pParamList,i);
+        pCellElement = mxGetCell(pParamList, i);
         if (pCellElement == NULL) { // empty cell
             continue;
         }
@@ -692,31 +699,31 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     for (size_t i = 0; i < n_prog_params; i++) {
         switch (i) {
-            case(0):
-                ProgSettings.totNumBins = size_t(pProg_settings[i]);
-                break;
-            case(1):
-                // -1 --> convert to C-arrays from Matlab array counting
-                ProgSettings.nBin2read = size_t(pProg_settings[i])-1;
-                break;
-            case(2) :
-                ProgSettings.pixBufferSize = size_t(pProg_settings[i]);
-                break;
-            case(3) :
-                ProgSettings.log_level = int(pProg_settings[i]);
-                break;
-            case(4) :
-                change_fileno=bool(pProg_settings[i]);
-                break;
-            case(5):
-                fileno_provided = bool(pProg_settings[i]);
-                break;
-            case(6):
-                ProgSettings.num_log_ticks = size_t(pProg_settings[i]);
-                break;
-            case(7):
-                read_buf_size  = size_t(pProg_settings[i]);
-                break;
+        case(0) :
+            ProgSettings.totNumBins = size_t(pProg_settings[i]);
+            break;
+        case(1) :
+            // -1 --> convert to C-arrays from Matlab array counting
+            ProgSettings.nBin2read = size_t(pProg_settings[i]) - 1;
+            break;
+        case(2) :
+            ProgSettings.pixBufferSize = size_t(pProg_settings[i]);
+            break;
+        case(3) :
+            ProgSettings.log_level = int(pProg_settings[i]);
+            break;
+        case(4) :
+            change_fileno = bool(pProg_settings[i]);
+            break;
+        case(5) :
+            fileno_provided = bool(pProg_settings[i]);
+            break;
+        case(6) :
+            ProgSettings.num_log_ticks = size_t(pProg_settings[i]);
+            break;
+        case(7) :
+            read_buf_size = size_t(pProg_settings[i]);
+            break;
         }
     }
     // set up the number of bins, which is currently equal for all input files
@@ -741,9 +748,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //--------------------------------------------------------
     std::vector<sqw_reader> fileReader(n_files);
     for (size_t i = 0; i < n_files; i++) {
-        fileReader[i].init(fileParam[i],change_fileno,fileno_provided,read_buf_size);
+        fileReader[i].init(fileParam[i], change_fileno, fileno_provided, read_buf_size);
     }
-    size_t n_buf_pixels(0),n_bins_processed(0);
+    size_t n_buf_pixels(0), n_bins_processed(0);
     if (debug_file_reader) {
         auto PixBuffer = mxCreateNumericMatrix(9, ProgSettings.pixBufferSize, mxSINGLE_CLASS, mxREAL);
         if (!PixBuffer) {
@@ -751,15 +758,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         auto nbin_Buffer = mxCreateNumericMatrix(ProgSettings.totNumBins, 1, mxUINT64_CLASS, mxREAL);
         float *pPixBuffer = (float *)mxGetPr(PixBuffer);
-        uint64_t *nbinBuf  = (uint64_t *)mxGetPr(nbin_Buffer);
+        uint64_t *nbinBuf = (uint64_t *)mxGetPr(nbin_Buffer);
 
         size_t n_bins_processed = ProgSettings.nBin2read;
         read_pix_info(pPixBuffer, n_buf_pixels, n_bins_processed, fileReader,
-            ProgSettings.totNumBins,ProgSettings.pixBufferSize,nbinBuf);
+            ProgSettings.totNumBins, ProgSettings.pixBufferSize, nbinBuf);
         auto OutParam = mxCreateNumericMatrix(2, 1, mxUINT64_CLASS, mxREAL);
         uint64_t *outData = (uint64_t *)mxGetPr(OutParam);
         outData[0] = n_buf_pixels;
-        outData[1] = n_bins_processed+1;
+        outData[1] = n_bins_processed + 1;
 
         plhs[pix_data] = PixBuffer;
         plhs[npix_in_bins] = nbin_Buffer;
