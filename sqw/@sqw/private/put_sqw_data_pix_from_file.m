@@ -400,15 +400,16 @@ out_param = struct('file_name',fout_name ,...
 %                 id -- by providing new id or by adding it to existing.
 % num_ticks    -- approximate number of log messages to generate while 
 %                 combining files together 
-program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,1024];
+program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,128*1024];
 t_start=tic;   
 try
     combine_sqw(in_params,out_param ,program_param);
     mess = '';
 catch ME;
-    mess = [ME.identifier,'::',ME.message];    
+    mess = [ME.identifier,'::',ME.message]; 
+    disp(['Error using C to combine files: ',mess,'; Reverted to Matlab'])
 end
-if log_level>0
+if log_level > 0
     te=toc(t_start);
     disp(['Task completed in ',num2str(te),' seconds'])
 end
