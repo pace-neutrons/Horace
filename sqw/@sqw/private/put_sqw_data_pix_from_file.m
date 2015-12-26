@@ -75,7 +75,7 @@ if use_mex
     fclose(fout);
     n_bins = numel(npix_cumsum);
     [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_position,...
-                     infiles,pos_npixstart, pos_pixstart,run_label,change_fileno,fileno);
+        infiles,pos_npixstart, pos_pixstart,run_label,change_fileno,fileno);
     if isempty(mess)
         fid_input = true;
         return
@@ -90,7 +90,7 @@ if use_mex
             mess=['Error finding location of pixel data in output file: ',fout_name];
             fclose(fout);
             return
-        end        
+        end
     end
 end
 
@@ -387,8 +387,8 @@ for i=1:nfiles
 end
 
 out_param = struct('file_name',fout_name ,...
-        'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
-    
+    'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
+
 [out_buf_size,log_level] = get(hor_config,'mem_chunk_size','log_level');
 
 % conversion parameters include:
@@ -398,11 +398,16 @@ out_param = struct('file_name',fout_name ,...
 % change_fileno-- if pixel run id should be changed
 % fileno       -- if change_fileno is true, how to calculate the new pixel
 %                 id -- by providing new id or by adding it to existing.
-% num_ticks    -- approximate number of log messages to generate while 
-%                 combining files together 
-program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,128*1024];
-t_start=tic;   
+% num_ticks    -- approximate number of log messages to generate while
+%                 combining files together
+% buf size     -- bufer size -- the size of bufer used for each input file
+%                 read operations
+program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,64*1024];
+t_start=tic;
 try
+    if log_level>1
+        fprintf(' Combining Task started at  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
+    end
     combine_sqw(in_params,out_param ,program_param);
     mess = '';
 catch ME;
@@ -411,7 +416,7 @@ catch ME;
 end
 if log_level > 0
     te=toc(t_start);
-    disp(['Task completed in ',num2str(te),' seconds'])
+    disp([' Task completed in ',num2str(te),' seconds'])
 end
 if log_level>1
     fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
