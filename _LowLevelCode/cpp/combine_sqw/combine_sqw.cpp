@@ -113,7 +113,7 @@ size_t cells_in_memory::num_pix_to_fit(size_t bin_number, size_t buf_size)const 
     auto end = pix_pos_in_buffer.begin() + this->buf_end;
     auto it = std::upper_bound(begin, end, val);
 
-    it--;
+    --it; // went step back to value smaller then the one exceeding the threshold
     if (it == begin) {
         return this->nbin_buffer[n_bin];
     }
@@ -316,8 +316,10 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     size_t num_output_ticks = param.num_log_ticks;
 
     std::clock_t c_start;
+    time_t t_start;
     if (log_level > -1) {
         c_start = std::clock();
+        time(&t_start);
     }
 
     size_t start_bin = param.nBin2read;
@@ -342,12 +344,16 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
         n_pixels_processed += n_buf_pixels;
         if (start_bin >= break_point) {
             break_point += break_step;
-            if (log_level > -1) {
+            if (log_level > 0) {
                 std::clock_t c_end = std::clock();
+                time_t t_end;
+                time(&t_end);
+                double seconds = difftime(t_end,t_start);
                 std::stringstream buf;
                 buf << "MEX::COMBINE_SQW: Completed " << std::setw(4) << std::setprecision(3)
                     << float(100 * start_bin) / float(n_bins_total)
-                    << "%  of task in " << std::setprecision(0) << std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
+                    << "%  of task in " << std::setprecision(0) << std::setw(6) << seconds << " sec; SPU time: "
+                    <<  (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
 
                 mexPrintf("%s", buf.str().c_str());
                 //mexEvalString("drawnow");
@@ -362,9 +368,14 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     }
     if (log_level > -1) {
         std::clock_t c_end = std::clock();
+        time_t t_end;
+        time(&t_end);
+        double seconds = difftime(t_end, t_start);
+
         std::stringstream buf;
         buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_total << " bins and " << n_pixels_processed
-            << " pixels in " << std::setw(6) << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
+            << " pixels\n"
+            << " Spent: "<< std::setprecision(0) << std::setw(6)<<seconds<< " sec; CPU time: " << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
         mexPrintf("%s", buf.str().c_str());
     }
 
