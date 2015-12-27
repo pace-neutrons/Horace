@@ -375,7 +375,7 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
         std::stringstream buf;
         buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_total << " bins and " << n_pixels_processed
             << " pixels\n"
-            << " Spent: "<< std::setprecision(0) << std::setw(6)<<seconds<< " sec; CPU time: " << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
+            << " Spent: "<< std::setprecision(0) << std::setw(6)<<int(seconds)<< " sec; CPU time: " << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
         mexPrintf("%s", buf.str().c_str());
     }
 
