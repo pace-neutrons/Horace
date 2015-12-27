@@ -352,7 +352,7 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
                 std::stringstream buf;
                 buf << "MEX::COMBINE_SQW: Completed " << std::setw(4) << std::setprecision(3)
                     << float(100 * start_bin) / float(n_bins_total)
-                    << "%  of task in " << std::setprecision(0) << std::setw(6) << seconds << " sec; SPU time: "
+                    << "%  of task in " << std::setprecision(0) << std::setw(6) << int(seconds) << " sec; SPU time: "
                     <<  (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
 
                 mexPrintf("%s", buf.str().c_str());
