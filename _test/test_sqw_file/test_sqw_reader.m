@@ -11,8 +11,6 @@ classdef test_sqw_reader< TestCase
         test_dir
     end
     
-    
-    
     methods
         
         %The above can now be read into the test routine directly.
@@ -274,7 +272,7 @@ classdef test_sqw_reader< TestCase
             
             assertEqual(pix_info(1),uint64(99))
             assertEqual(pix_info(2),uint64(43))
-            assertEqual(pix_data(1:99),single(the_sqw.data.pix(1:99)))
+            assertEqual(pix_data,single(the_sqw.data.pix(:,1:99)))
             %cleanup_obj=onCleanup(@()sr.delete());
             
             params = [n_bin,1,this.npixtot,log_level,false,false,100,64];
@@ -302,6 +300,7 @@ classdef test_sqw_reader< TestCase
             assertEqual(pix_data,single(the_sqw.data.pix))
             
         end
+        %
         function this = test_rewrite_pixarray_mex(this)
             use_mex = get(hor_config,'use_mex');
             if ~use_mex
@@ -347,6 +346,7 @@ classdef test_sqw_reader< TestCase
             assertEqual(pix(:,999993),the_sqw.data.pix(:,999993))
             assertEqual(pix,the_sqw.data.pix);
         end
+        %
         function this=test_combine_two(this)
             use_mex = get(hor_config,'use_mex');
             if ~use_mex
