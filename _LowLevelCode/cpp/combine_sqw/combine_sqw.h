@@ -34,6 +34,44 @@ enum readBinInfoOption {
     sumPixInfo,
     keepPixInfo
 };
+
+//-----------------------------------------------------------------------------------------------------------------
+/* Class provides unblocking read/write buffer for IO operations on two threads */
+class exchange_buffer {
+public:
+    // read buffer
+    char *const  get_write_buffer(size_t &nPixels,size_t &n_bin_processed);
+    float *const get_and_lock_read_buffer();
+    // lock write buffer from modifications by other threads too but unlocks read buffer
+    void set_and_lock_write_buffer(const size_t nPixels, const size_t nBinsProcessed);
+    void unlock_write_buffer();
+    void set_interrupted() {
+        interrupted=true;
+    }
+    bool is_interrupted()const{return interrupted; }
+
+    exchange_buffer(size_t b_size):
+    buf_size(b_size*PIX_SIZE),
+    n_read_pixels(0),n_bins_processed(0),
+    interrupted(false), exchange_locked(false){};
+
+    size_t pix_buf_size()const {
+        return( buf_size/ PIX_SIZE);
+    }
+private:
+    size_t buf_size;
+    size_t n_read_pixels,n_bins_processed;
+    bool interrupted,exchange_locked;
+    std::mutex exchange_lock;
+    std::mutex write_lock;
+
+    std::vector<float> read_buf;
+    std::vector<float> write_buf;
+
+    static const size_t PIX_SIZE = 9; // size of the pixel in pixel data units (float)
+
+};
+
 //-----------------------------------------------------------------------------------------------------------------
 class cells_in_memory {
     public:
@@ -84,27 +122,33 @@ class cells_in_memory {
 //-----------------------------------------------------------------------------------------------------------------
 class sqw_pix_writer {
 public:
-    sqw_pix_writer(size_t buf_size):
-    PIX_BUF_SIZE(buf_size),
-    last_pix_written(0), pix_array_position(0){}
+    sqw_pix_writer(exchange_buffer &buf):
+    Buff(buf),
+    last_pix_written(0), pix_array_position(0),
+    num_bins_to_process(0){}
 
-    void init(const fileParameters &fpar);
-    void write_pixels(const size_t nPixelsToWrite);
-    float * get_pBuffer(){return &pix_buffer[0]; }
+    void init(const fileParameters &fpar,const size_t nBins2Process);
+    void write_pixels(const char * const buffer,const size_t n_pix_to_write);
+    void run_write_pix_job();
+    void operator()() {
+        this->run_write_pix_job();
+    }
     ~sqw_pix_writer();
+
 private:
+    exchange_buffer &Buff;
+
     // size of write pixels buffer (in pixels)
-    size_t PIX_BUF_SIZE;
     std::string filename;
 
     std::ofstream h_out_sqw;
     size_t last_pix_written;
     size_t pix_array_position;
     size_t nbin_position;
+    size_t num_bins_to_process;
 
     std::vector<float> pix_buffer;
     //
-    static const size_t PIX_SIZE = 9; // size of the pixel in pixel data units (float)
     static const size_t PIX_BLOCK_SIZE_BYTES = 36; //9 * 4; // size of the pixel block in bytes
 
 
@@ -136,7 +180,7 @@ public:
     /* get number of pixels, stored in the bin and the position of these pixels within pixel array */
     void get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix);
     /* return pixel information for the pixels stored in the bin */
-    void get_pix_for_bin(size_t bin_number, float *pix_info,size_t cur_buf_position,
+    void get_pix_for_bin(size_t bin_number,  float *const pix_info,size_t cur_buf_position,
                          size_t &pix_start_num, size_t &num_bin_pix, bool position_is_defined = false);
 private:
     void read_pixels(size_t bin_number, size_t pix_start_num);
