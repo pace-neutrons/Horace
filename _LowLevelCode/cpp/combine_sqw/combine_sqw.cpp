@@ -46,10 +46,6 @@ const std::map<std::string, int> fileParameters::fileParamNames = {
 //
 float *const exchange_buffer::get_and_lock_read_buffer() {
 
-    if (this->n_read_pixels == 0) {
-        this->exchange_lock.lock();
-        this->exchange_locked = true;
-    }
     //this->read_lock.lock();
 
     if (this->read_buf.size() != this->buf_size)
@@ -60,46 +56,57 @@ float *const exchange_buffer::get_and_lock_read_buffer() {
 // also unlocks read buffer
 void exchange_buffer::set_and_lock_write_buffer(const size_t nPixels, const size_t nBinsProcessed) {
 
-    if (!this->exchange_locked) {
-        this->exchange_lock.lock();
-        this->exchange_locked=true;
-    }
     // try lock in case write have not been completed yet.
     std::lock_guard<std::mutex> lock(this->write_lock);
 
     this->write_buf.swap(this->read_buf);
     this->n_read_pixels = nPixels;
+    this->n_read_pix_total+= nPixels;
     this->n_bins_processed = nBinsProcessed;
-
-    this->exchange_locked = false;
-    this->exchange_lock.unlock();
+    // last bins may not contain pixels so set write allowed instead of npix>0
+    this->write_allowed = true;
+    this->data_ready.notify_one();
 
 }
 
 
 char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n_bins_processed) {
 
-    std::lock_guard<std::mutex> lock(this->exchange_lock);
+    std::unique_lock<std::mutex> lock(this->exchange_lock);
+    this->data_ready.wait(lock, [this]() {return (this->write_allowed); });
 
+    this->write_lock.lock();
     n_pix_to_write = this->n_read_pixels;
     n_bins_processed = this->n_bins_processed;
-
     if (n_pix_to_write > 0) {
-        this->write_lock.lock();
         return reinterpret_cast<char * const>(&write_buf[0]);
     }
     else {
         return NULL;
     }
+
 }
 void exchange_buffer::unlock_write_buffer() {
 
+    this->write_allowed = false;
     this->n_read_pixels = 0;
     this->write_lock.unlock();
 }
 //
 void exchange_buffer::check_log_and_interrupt(){
     if (this->n_bins_processed >= this->break_point) {
+        time_t t_end;
+        time(&t_end);
+        double seconds = difftime(t_end, this->t_prev);
+        this->t_prev = t_end;
+        if(seconds > 30.|| seconds<10.){
+            // want to see logging each 15 second
+            double speed = double(break_point) / seconds;
+            size_t step = int(15*speed);
+            if(step<1)step = 1;
+            this->break_step = step;
+        }
+
         this->break_point += this->break_step;
         this->do_logging = true;
         this->logging_ready.notify_one();
@@ -114,8 +121,9 @@ void exchange_buffer::check_log_and_interrupt(){
 }
 void exchange_buffer::set_write_job_completed() { 
     this->do_logging = true;
+    // release possible logging
     this->logging_ready.notify_one();
-    write_job_completed = true; 
+    this->write_job_completed = true; 
 }
 // runs on main thread and prints log messages when instructed by write thread (problem with Matlab if run on worker thread)
 void exchange_buffer::print_log_meassage(int log_level) {
@@ -151,7 +159,7 @@ void exchange_buffer::print_final_log_mess(int log_level)const {
         double seconds = difftime(t_end, t_start);
 
         std::stringstream buf;
-        buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_processed << " bins and " << n_read_pixels
+        buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_processed << " bins and " << n_read_pix_total
             << " pixels\n"
             << " Spent: " << std::setprecision(0) << std::setw(6) << int(seconds) << " sec; CPU time: " << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
         mexPrintf("%s", buf.str().c_str());
