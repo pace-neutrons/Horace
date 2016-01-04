@@ -62,14 +62,15 @@ public:
     buf_size(b_size*PIX_SIZE),
     n_read_pixels(0),n_bins_processed(0),
     num_bins_to_process(num_bins_2_process), 
-    interrupted(false), exchange_locked(false),
+    interrupted(false), write_allowed(false),
     write_job_completed(false),
-    num_log_messages(num_log_ticks)
+    break_step(1),num_log_messages(num_log_ticks), break_point(0),n_read_pix_total(0)
     {
         break_step = num_bins_to_process / num_log_messages;
         break_point = break_step;
         c_start = std::clock();
         time(&t_start);
+        t_prev = t_start;
 
 
     };
@@ -85,14 +86,15 @@ public:
     std::condition_variable logging_ready;
 private:
     size_t buf_size;
-    size_t n_read_pixels,n_bins_processed,num_bins_to_process;
-    bool interrupted,exchange_locked, write_job_completed;
+    size_t n_read_pixels, n_bins_processed,num_bins_to_process;
+    bool interrupted, write_allowed,write_job_completed;
     // logging and timing:
-    size_t break_step, num_log_messages, break_point;
+    size_t break_step, num_log_messages, break_point, n_read_pix_total;
     std::clock_t c_start;
-    time_t t_start;
+    time_t t_start,t_prev;
 
 
+    std::condition_variable data_ready;
     std::mutex exchange_lock;
     std::mutex write_lock;
 
