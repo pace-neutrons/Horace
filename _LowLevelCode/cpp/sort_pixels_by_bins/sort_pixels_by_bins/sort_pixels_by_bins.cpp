@@ -270,7 +270,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     */
     InputOutputTypes type_requested = process_types(pix_single_precision, index_is_integer, double_output);
     if (type_requested == ERROR){ 
-
+        mexErrMsgTxt("Sort_pixels_by_bins: unsupported combination of input/output types");
     }
 
     try {
@@ -381,7 +381,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 mexErrMsgTxt("Sort_pixels_by_bins: Got unsupported combination of input/output types");
             }
         }catch (const char *err) {
-            //	    delete [] ppInd;
             mxFree(ppInd);
             mexErrMsgTxt(err);
         }
