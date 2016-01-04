@@ -45,13 +45,14 @@ class exchange_buffer {
 public:
     // read buffer
     char *const  get_write_buffer(size_t &nPixels,size_t &n_bin_processed);
-    float *const get_and_lock_read_buffer();
+    float *const get_read_buffer(const size_t buf_size=0);
     // lock write buffer from modifications by other threads too but unlocks read buffer
     void set_and_lock_write_buffer(const size_t nPixels, const size_t nBinsProcessed);
     void unlock_write_buffer();
 
-    void set_interrupted() {
+    void set_interrupted(const std::string &err_message) {
         interrupted=true;
+        this->error_message = err_message;
     }
     bool is_interrupted()const{return interrupted; }
     bool is_write_job_completed()const{return write_job_completed;}
@@ -84,6 +85,8 @@ public:
     // logging semaphore
     bool do_logging;
     std::condition_variable logging_ready;
+    // error message used in case if program is interrupted;
+    std::string error_message;
 private:
     size_t buf_size;
     size_t n_read_pixels, n_bins_processed,num_bins_to_process;

@@ -44,9 +44,12 @@ const std::map<std::string, int> fileParameters::fileParamNames = {
 //--------------------------------------------------------------------------------------------------------------------
 //
 //
-float *const exchange_buffer::get_and_lock_read_buffer() {
+float *const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
 
     //this->read_lock.lock();
+    if(changed_buf_size!=0){
+        this->buf_size = changed_buf_size*PIX_SIZE;
+    }
 
     if (this->read_buf.size() != this->buf_size)
         this->read_buf.resize(this->buf_size);
@@ -75,17 +78,20 @@ char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n
     std::unique_lock<std::mutex> lock(this->exchange_lock);
     this->data_ready.wait(lock, [this]() {return (this->write_allowed); });
 
-    this->write_lock.lock();
-    n_pix_to_write = this->n_read_pixels;
-    n_bins_processed = this->n_bins_processed;
-    if (n_pix_to_write > 0) {
+    if (this->n_read_pixels > 0) {
+        this->write_lock.lock();
+        n_pix_to_write = this->n_read_pixels;
+        n_bins_processed = this->n_bins_processed;
         return reinterpret_cast<char * const>(&write_buf[0]);
     }
     else {
+        n_pix_to_write=0;
+        n_bins_processed = 0;
         return NULL;
     }
 
 }
+//
 void exchange_buffer::unlock_write_buffer() {
 
     this->write_allowed = false;
@@ -112,7 +118,7 @@ void exchange_buffer::check_log_and_interrupt(){
         this->logging_ready.notify_one();
 
     if (utIsInterruptPending()) {
-        this->set_interrupted();
+        this->set_interrupted("==> C-code interrupted by CTRL-C");
         //mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
         return;
         }
@@ -150,6 +156,7 @@ void exchange_buffer::print_log_meassage(int log_level) {
 
 
 }
+//
 void exchange_buffer::print_final_log_mess(int log_level)const {
 
     if (log_level > -1) {
@@ -433,12 +440,12 @@ struct pix_reader {
         size_t n_bins_total = param.totNumBins;
         //
         //
-        while (start_bin < n_bins_total - 1 && !Buff.is_interrupted()) {
+        while (start_bin < n_bins_total && !Buff.is_interrupted()) {
             size_t n_buf_pixels(0);
             this->read_pix_info(n_buf_pixels, start_bin);
 
             //pixWriter.write_pixels(Buff);
-            //new start bin is by on shifter wrt the last bin read
+            //new start bin is by one shifted wrt the last bin read
             start_bin++;
             //------------Logging and interruptions ---
             n_pixels_processed += n_buf_pixels;
@@ -462,7 +469,7 @@ struct pix_reader {
             common_position = true;
         }
 
-        float *const pPixBuffer = Buff.get_and_lock_read_buffer();
+        float * pPixBuffer = Buff.get_read_buffer();
         size_t pix_buffer_size = Buff.pix_buf_size();
 
 
@@ -482,7 +489,13 @@ struct pix_reader {
 
             if (cell_pix + n_buf_pixels > pix_buffer_size) {
                 if (n_bins_processed == 0) {
-                    mexErrMsgTxt("COMBINE_SQW:read_pixels => output pixels buffer is to small to accommodate single bin. Increase the size of output pixels buffer");
+                    if (n_buf_pixels == 0) {
+                        pPixBuffer = Buff.get_read_buffer(cell_pix);
+                        pix_buffer_size = Buff.pix_buf_size();
+                    }else{
+                        Buff.set_interrupted("==>output pixels buffer is to small to accommodate single bin. Increase the size of output pixels buffer");
+                    break;
+                    }
                 }
                 else {
                     n_bins_processed--;
@@ -538,7 +551,7 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 
   
     if (Buff.is_interrupted()) {
-        mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
+        mexErrMsgIdAndTxt("MEX_COMBINE_SQW:interrupted", Buff.error_message.c_str());
     }
 
  
