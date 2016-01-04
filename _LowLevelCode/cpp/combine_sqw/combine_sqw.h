@@ -9,6 +9,9 @@
 #include <memory>
 #include <map>
 #include <stdio.h>
+#include <ctime>
+#include <thread>
+
 //#define STDIO
 
 //
@@ -45,25 +48,53 @@ public:
     // lock write buffer from modifications by other threads too but unlocks read buffer
     void set_and_lock_write_buffer(const size_t nPixels, const size_t nBinsProcessed);
     void unlock_write_buffer();
+
     void set_interrupted() {
         interrupted=true;
     }
     bool is_interrupted()const{return interrupted; }
+    bool is_write_job_completed()const{return write_job_completed;}
+    void set_write_job_completed();
 
-    exchange_buffer(size_t b_size):
+    exchange_buffer(size_t b_size,size_t num_bins_2_process,size_t num_log_ticks):
+    do_logging(false),
     buf_size(b_size*PIX_SIZE),
     n_read_pixels(0),n_bins_processed(0),
-    interrupted(false), exchange_locked(false){};
+    num_bins_to_process(num_bins_2_process), 
+    interrupted(false), exchange_locked(false),
+    write_job_completed(false),
+    num_log_messages(num_log_ticks)
+    {
+        break_step = num_bins_to_process / num_log_messages;
+        break_point = break_step;
+        c_start = std::clock();
+        time(&t_start);
+
+
+    };
+    void check_log_and_interrupt();
+    void print_log_meassage(int log_level);
+    void print_final_log_mess(int log_level)const;
 
     size_t pix_buf_size()const {
         return( buf_size/ PIX_SIZE);
     }
+    // logging semaphore
+    bool do_logging;
+    std::condition_variable logging_ready;
 private:
     size_t buf_size;
-    size_t n_read_pixels,n_bins_processed;
-    bool interrupted,exchange_locked;
+    size_t n_read_pixels,n_bins_processed,num_bins_to_process;
+    bool interrupted,exchange_locked, write_job_completed;
+    // logging and timing:
+    size_t break_step, num_log_messages, break_point;
+    std::clock_t c_start;
+    time_t t_start;
+
+
     std::mutex exchange_lock;
     std::mutex write_lock;
+
 
     std::vector<float> read_buf;
     std::vector<float> write_buf;

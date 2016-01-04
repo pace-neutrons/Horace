@@ -1,9 +1,8 @@
 #include "combine_sqw.h"
 #include <algorithm>
 #include <numeric>
-#include <ctime>
+
 #include <iomanip>
-#include <thread>
 #include <chrono>
 
 enum InputArguments {
@@ -99,6 +98,68 @@ void exchange_buffer::unlock_write_buffer() {
     this->n_read_pixels = 0;
     this->write_lock.unlock();
 }
+//
+void exchange_buffer::check_log_and_interrupt(){
+    if (this->n_bins_processed >= this->break_point) {
+        this->break_point += this->break_step;
+        this->do_logging = true;
+        this->logging_ready.notify_one();
+
+    if (utIsInterruptPending()) {
+        this->set_interrupted();
+        //mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
+        return;
+        }
+    }
+    
+}
+void exchange_buffer::set_write_job_completed() { 
+    this->do_logging = true;
+    this->logging_ready.notify_one();
+    write_job_completed = true; 
+}
+// runs on main thread and prints log messages when instructed by write thread (problem with Matlab if run on worker thread)
+void exchange_buffer::print_log_meassage(int log_level) {
+
+
+    if (log_level > 0) {
+        std::clock_t c_end = std::clock();
+        time_t t_end;
+        time(&t_end);
+        double seconds = difftime(t_end, t_start);
+        std::stringstream buf;
+        buf << "MEX::COMBINE_SQW: Completed " << std::setw(4) << std::setprecision(3)
+            << float(100 * n_bins_processed) / float(num_bins_to_process)
+            << "%  of task in " << std::setprecision(0) << std::setw(6) << int(seconds) << " sec; CPU time: "
+            << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
+
+        mexPrintf("%s", buf.str().c_str());
+        //mexEvalString("drawnow");
+        mexEvalString("pause(.002);");
+        //std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+    }
+    this->do_logging = false;
+
+
+}
+void exchange_buffer::print_final_log_mess(int log_level)const {
+
+    if (log_level > -1) {
+        std::clock_t c_end = std::clock();
+        time_t t_end;
+        time(&t_end);
+        double seconds = difftime(t_end, t_start);
+
+        std::stringstream buf;
+        buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_processed << " bins and " << n_read_pixels
+            << " pixels\n"
+            << " Spent: " << std::setprecision(0) << std::setw(6) << int(seconds) << " sec; CPU time: " << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
+        mexPrintf("%s", buf.str().c_str());
+    }
+
+}
+
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
@@ -137,12 +198,12 @@ void sqw_pix_writer::run_write_pix_job() {
         size_t length = n_pix_to_write*PIX_BLOCK_SIZE_BYTES;
 
         this->write_pixels(buf, length);
-
         last_pix_written += n_pix_to_write;
 
+        Buff.check_log_and_interrupt();
         Buff.unlock_write_buffer();
     }
-
+    Buff.set_write_job_completed();
 }
 //
 void sqw_pix_writer::write_pixels(const char *buffer, size_t length) {
@@ -356,22 +417,14 @@ struct pix_reader {
     //
     void run_read_job() {
         int log_level = param.log_level;
-        size_t num_output_ticks = param.num_log_ticks;
 
-        std::clock_t c_start;
-        time_t t_start;
-        if (log_level > -1) {
-            c_start = std::clock();
-            time(&t_start);
-        }
-
+ 
         size_t start_bin = param.nBin2read;
         size_t n_pixels_processed(0);
 
         //
         size_t n_bins_total = param.totNumBins;
-        size_t break_step = n_bins_total / num_output_ticks;
-        size_t break_point = break_step;
+        //
         //
         while (start_bin < n_bins_total - 1 && !Buff.is_interrupted()) {
             size_t n_buf_pixels(0);
@@ -382,45 +435,8 @@ struct pix_reader {
             start_bin++;
             //------------Logging and interruptions ---
             n_pixels_processed += n_buf_pixels;
-            if (start_bin >= break_point) {
-                break_point += break_step;
-                if (log_level > 0) {
-                    std::clock_t c_end = std::clock();
-                    time_t t_end;
-                    time(&t_end);
-                    double seconds = difftime(t_end, t_start);
-                    std::stringstream buf;
-                    buf << "MEX::COMBINE_SQW: Completed " << std::setw(4) << std::setprecision(3)
-                        << float(100 * start_bin) / float(n_bins_total)
-                        << "%  of task in " << std::setprecision(0) << std::setw(6) << int(seconds) << " sec; CPU time: "
-                        << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
-
-                    mexPrintf("%s", buf.str().c_str());
-                    //mexEvalString("drawnow");
-                    //mexEvalString("pause(.002);");
-                    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-
-                }
-            }
-            if (utIsInterruptPending()) {
-                Buff.set_interrupted();
-                //mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
-                return;
-            }
-
         }
-        if (log_level > -1) {
-            std::clock_t c_end = std::clock();
-            time_t t_end;
-            time(&t_end);
-            double seconds = difftime(t_end, t_start);
 
-            std::stringstream buf;
-            buf << "MEX::COMBINE_SQW: Completed combining file with " << n_bins_total << " bins and " << n_pixels_processed
-                << " pixels\n"
-                << " Spent: " << std::setprecision(0) << std::setw(6) << int(seconds) << " sec; CPU time: " << (c_end - c_start) / CLOCKS_PER_SEC << " sec\n";
-            mexPrintf("%s", buf.str().c_str());
-        }
 
     }
     void read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer = NULL) {
@@ -482,12 +498,15 @@ struct pix_reader {
 /* combine range of input sqw files into single output sqw file */
 void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const fileParameters &outPar) {
 
+    exchange_buffer Buff(param.pixBufferSize,param.totNumBins, param.num_log_ticks);
 
-    exchange_buffer Buff(param.pixBufferSize);
     pix_reader Reader(param, fileReaders, Buff);
 
     sqw_pix_writer pixWriter(Buff);
     pixWriter.init(outPar, param.totNumBins);
+
+    int log_level = param.log_level;
+
 
     std::thread reader([&Reader]() {
         Reader.run_read_job();
@@ -496,13 +515,26 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
         pixWriter.run_write_pix_job();
     });
 
+    std::mutex log_mutex;
+    while(!Buff.is_write_job_completed()){
+
+        std::unique_lock<std::mutex> l(log_mutex);
+        Buff.logging_ready.wait(l,[&Buff](){return Buff.do_logging;});
+
+        Buff.print_log_meassage(log_level);
+    }
+
     reader.join();
     writer.join();
 
+    Buff.print_final_log_mess(log_level);
+
+  
     if (Buff.is_interrupted()) {
         mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
     }
 
+ 
 }
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
@@ -887,7 +919,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         auto nbin_Buffer = mxCreateNumericMatrix(ProgSettings.totNumBins, 1, mxUINT64_CLASS, mxREAL);
         uint64_t *nbinBuf = (uint64_t *)mxGetPr(nbin_Buffer);
 
-        exchange_buffer Buffer(ProgSettings.pixBufferSize);
+        exchange_buffer Buffer(ProgSettings.pixBufferSize, ProgSettings.totNumBins, ProgSettings.num_log_ticks);
         pix_reader Reader(ProgSettings, fileReader, Buffer);
 
 
