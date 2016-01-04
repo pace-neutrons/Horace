@@ -147,6 +147,8 @@ ibin_end=0;                                 % initialise the value of the larges
 ibin_lastflush=0;                           % last bin index for which data has been written to output file
 npix_lastflush=0;                           % last pixel index for which data has been written to output file
 file_size     =0;
+t_io  = 0;
+t_total=1;
 
 nsinglebin_write = 0;
 nbuff_write = 0;
@@ -191,6 +193,9 @@ while ibin_end<nbin
                 end
             end
             nsinglebin_write = nsinglebin_write + 1;
+            if (log_level>1)
+                t_io=toc(t_all);                
+            end
         else    % can hold data for at least one bin in buffer
             % Get information about number of pixels to be read from all the files
             nbin_flush = ibin-ibin_lastflush;           % number of bins read into buffer
