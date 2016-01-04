@@ -1,7 +1,6 @@
 #include "combine_sqw.h"
 #include <algorithm>
 #include <numeric>
-
 #include <iomanip>
 #include <chrono>
 

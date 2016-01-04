@@ -13,7 +13,6 @@ enum OutputArguments { // unique output arguments,
     N_OUTPUT_Arguments
 };
 
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
@@ -85,10 +84,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     double *pSignal = (double *)mxGetPr(plhs[Signal]);
     double *pError  = (double *)mxGetPr(plhs[Error]);
+
     size_t distr_size(1);
     for (size_t i = 0; i < num_of_dims; i++) {
         distr_size*=size_t(dims[i]);
     }
+    // do main calculations
     try {
         if(pixAreDouble){
             recompute_pix_sums<double>(pSignal,pError, distr_size, pNpix, pPixelData, nPixels, n_threads);
