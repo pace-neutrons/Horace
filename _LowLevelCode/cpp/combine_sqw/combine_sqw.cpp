@@ -78,15 +78,14 @@ char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n
     std::unique_lock<std::mutex> lock(this->exchange_lock);
     this->data_ready.wait(lock, [this]() {return (this->write_allowed); });
 
+    n_bins_processed = this->n_bins_processed;
     if (this->n_read_pixels > 0) {
         this->write_lock.lock();
         n_pix_to_write = this->n_read_pixels;
-        n_bins_processed = this->n_bins_processed;
         return reinterpret_cast<char * const>(&write_buf[0]);
     }
     else {
         n_pix_to_write=0;
-        n_bins_processed = 0;
         return NULL;
     }
 
@@ -494,13 +493,12 @@ struct pix_reader {
                         pix_buffer_size = Buff.pix_buf_size();
                     }else{
                         Buff.set_interrupted("==>output pixels buffer is to small to accommodate single bin. Increase the size of output pixels buffer");
-                    break;
+                        break;
                     }
                 }
                 else {
                     n_bins_processed--;
                 }
-                break;
             }
 
 
