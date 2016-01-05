@@ -498,6 +498,7 @@ struct pix_reader {
                 }
                 else {
                     n_bins_processed--;
+                    break;
                 }
             }
 
