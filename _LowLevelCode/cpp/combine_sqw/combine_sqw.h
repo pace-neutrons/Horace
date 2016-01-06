@@ -19,13 +19,13 @@
 // $Revision::      $ ($Date::                                              $)" 
 //
 
-// information, describes files to combine (will be processed later)
+/* Class describes a file to combine */
 class fileParameters {
 public:
     std::string fileName;
-    size_t nbin_start_pos;   // the initial file position where nbin array is located in the file
+    size_t nbin_start_pos; // the initial file position where nbin array is located in the file
     long pix_start_pos;   // the initial file position where the pixel array is located in file
-    int    file_id;
+    int    file_id;       // the number which used to identify pixels, obtained from this particular file
     size_t total_NfileBins; // the number of bins in this file (has to be the same for all files)
     fileParameters(const mxArray *pFileParam);
     fileParameters():fileName(""),nbin_start_pos(0), pix_start_pos(0),
@@ -34,13 +34,28 @@ private:
     static const std::map<std::string, int> fileParamNames;
 };
 
+// parameters the mex routine uses and accepts in the array of input parameters
+struct ProgParameters {
+    size_t totNumBins;  // total number of bins in files to combine (has to be the same for all files)
+    size_t nBin2read;  // current bin number to read (start from 0 for first bin of the array)
+    size_t pixBufferSize; // the size of the buffer to return combined pixels
+    int log_level;       // the number defines how talkative program is. usually it its > 1 all 
+                         // all diagnostics information gets printed
+    size_t num_log_ticks; // how many times per combine files to print log message about completion percentage
+                          // Default constructor
+    ProgParameters() :totNumBins(0), nBin2read(0),
+        pixBufferSize(10000000), log_level(1), num_log_ticks(100)
+    {};
+};
+
+
 enum readBinInfoOption {
     sumPixInfo,
     keepPixInfo
 };
 
 //-----------------------------------------------------------------------------------------------------------------
-/* Class provides unblocking read/write buffer for IO operations on two threads */
+/* Class provides unblocking read/write buffer and logging operations for asynchronous read and write operations on 3 threads */
 class exchange_buffer {
 public:
     // read buffer
@@ -110,6 +125,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------------------------------------------
+/* Class describes block of bins, loaded in memory and describe location of correspondent block of pixels on HDD*/
 class cells_in_memory {
     public:
         cells_in_memory(size_t buf_size) :
@@ -157,6 +173,7 @@ class cells_in_memory {
         static const long BIN_SIZE_BYTES=8;
 };
 //-----------------------------------------------------------------------------------------------------------------
+/* Class responsible for writing block of pixels on HDD */
 class sqw_pix_writer {
 public:
     sqw_pix_writer(exchange_buffer &buf):
@@ -193,7 +210,7 @@ private:
 
 //-----------------------------------------------------------------------------------------------------------------
 class sqw_reader {
-    /* Class provides bin and pixel information for a pixels of an sqw file.
+    /* Class provides bin and pixel information for a pixels of a sinlge sqw file.
 
     Created to read bin and pixel information from a cell stored on hdd,
     but optimized for subsequent data access, so subsequent cells are
@@ -257,5 +274,25 @@ private:
 
 
 
+//-----------------------------------------------------------------------------------------------------------------
+/* Structure (class) supporting the read operations for range of input files and combining the information 
+from this files together in the file buffer*/
+struct pix_reader {
+    ProgParameters &param;
+    std::vector<sqw_reader> &fileReaders;
+    exchange_buffer &Buff;
+
+    pix_reader(ProgParameters &prog_par, std::vector<sqw_reader> &tmpReaders, exchange_buffer &buf) :
+        param(prog_par), fileReaders(tmpReaders), Buff(buf)
+    { }
+    // satisfy thread interface
+    void operator()() {
+        this->run_read_job();
+    }
+
+    //
+    void run_read_job();
+    void read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer = NULL);
+};
 
 #endif
