@@ -16,19 +16,6 @@ enum OutputArguments { // unique output arguments,
     pix_info,
     N_OUTPUT_Arguments
 };
-// parameters the mex file uses and accepts in the array of input parameters
-struct ProgParameters {
-    size_t totNumBins;  // total number of bins in files to combine (has to be the same for all files)
-    size_t nBin2read;  // current bin number to read (start from 0 for first bin of the array)
-    size_t pixBufferSize; // the size of the buffer to return combined pixels
-    int log_level;       // the number defines how talkative program is. usually it its > 1 all 
-                        // all diagnostics information gets printed
-    size_t num_log_ticks; // how many times per combine files to print log message about completion percentage
-    // Default constructor
-    ProgParameters() :totNumBins(0), nBin2read(0),
-        pixBufferSize(10000000), log_level(1), num_log_ticks(100)
-    {};
-};
 
 
 // map used to process input file(s) parameters
@@ -56,7 +43,11 @@ float *const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
 
     return &read_buf[0];
 }
-// also unlocks read buffer
+
+/* Initiate access to write buffer when read operation is completed and set up the write buffer parameters
+@param nPixel        -- number of pixels to write
+@param nBinProcessed -- number of bins processed up to this moment of time. Indicates the stage of the combine job
+                        as job finishes when nBinsProcessed=nBinsTotal  */
 void exchange_buffer::set_and_lock_write_buffer(const size_t nPixels, const size_t nBinsProcessed) {
 
     // try lock in case write have not been completed yet.
@@ -72,7 +63,8 @@ void exchange_buffer::set_and_lock_write_buffer(const size_t nPixels, const size
 
 }
 
-
+/* Give write thread access to the write buffer. Returns NULL if no pixels are currently in buffer and locks
+   write buffer, which has to be unlocked later. */
 char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n_bins_processed) {
 
     std::unique_lock<std::mutex> lock(this->exchange_lock);
@@ -90,14 +82,16 @@ char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n
     }
 
 }
-//
+/* Indicates the end of single write-pixels operations and unlocks write buffer indicating that the data
+in the buffer can be discarded */
 void exchange_buffer::unlock_write_buffer() {
 
     this->write_allowed = false;
     this->n_read_pixels = 0;
     this->write_lock.unlock();
 }
-//
+/* Verifies if logging is due and send messages to logging thread to report progress.
+Also verifies if operations should be terminated as user pressed CTRL-C */
 void exchange_buffer::check_log_and_interrupt(){
     if (this->n_bins_processed >= this->break_point) {
         time_t t_end;
@@ -124,13 +118,15 @@ void exchange_buffer::check_log_and_interrupt(){
     }
     
 }
+/* Sets internal variables of exchange buffer to state, indicating end of operations*/
 void exchange_buffer::set_write_job_completed() { 
     this->do_logging = true;
     // release possible logging
     this->logging_ready.notify_one();
     this->write_job_completed = true; 
 }
-// runs on main thread and prints log messages when instructed by write thread (problem with Matlab if run on worker thread)
+/* runs on main thread and prints log messages when instructed by write thread 
+ (due to the problem with Matlab if logging is run on worker thread) */
 void exchange_buffer::print_log_meassage(int log_level) {
 
 
@@ -155,7 +151,9 @@ void exchange_buffer::print_log_meassage(int log_level) {
 
 
 }
-//
+
+/* runs on main thread and prints log messages about end of the job
+(due to the problem with Matlab if logging is run on worker thread) */
 void exchange_buffer::print_final_log_mess(int log_level)const {
 
     if (log_level > -1) {
@@ -174,8 +172,13 @@ void exchange_buffer::print_final_log_mess(int log_level)const {
 }
 
 //--------------------------------------------------------------------------------------------------------------------
+//----------- PIX WRITER ---------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------------
+/*Initialize writer parameters
+Input:
+@param fpar           -- input parameters describing the output file
+@param n_bins2process -- number of bins to process (combine)
+*/
 void sqw_pix_writer::init(const fileParameters &fpar, const size_t n_bins2process) {
 
     this->num_bins_to_process = n_bins2process;
@@ -189,11 +192,8 @@ void sqw_pix_writer::init(const fileParameters &fpar, const size_t n_bins2proces
     this->last_pix_written = 0;
     this->pix_array_position = fpar.pix_start_pos;
     this->nbin_position = fpar.nbin_start_pos;
-
-
-
 }
-//
+/* Operation which runs on separate thread and writes pixels */
 void sqw_pix_writer::run_write_pix_job() {
 
     size_t n_bins_processed(0);
@@ -218,7 +218,7 @@ void sqw_pix_writer::run_write_pix_job() {
     }
     Buff.set_write_job_completed();
 }
-//
+/* Write chunk on pixels stored in write buffer */
 void sqw_pix_writer::write_pixels(const char *buffer, size_t length) {
     //
     size_t pix_pos = pix_array_position + last_pix_written*PIX_BLOCK_SIZE_BYTES;
@@ -229,11 +229,12 @@ void sqw_pix_writer::write_pixels(const char *buffer, size_t length) {
     //
 
 }
+//
 sqw_pix_writer::~sqw_pix_writer() {
     this->h_out_sqw.close();
 }
 //--------------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------------
+//---------------- BINS IN MEMORY ------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 #ifdef STDIO
 void cells_in_memory::init(FILE *fileDescr, size_t bin_start_pos, size_t n_tot_bins, size_t BufferSize) {
@@ -314,7 +315,7 @@ size_t cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_s
     this->buf_end = buf_start + tot_num_bins_to_read;
 
 
-    long bin_pos = binFileStartPos + (num_bin + buf_start)*BIN_SIZE_BYTES;
+    std::streamoff bin_pos = binFileStartPos + (num_bin + buf_start)*BIN_SIZE_BYTES;
 #ifdef STDIO
     uint64_t * buffer = reinterpret_cast<uint64_t *>(&nbin_buffer[buf_start]);
     long length = tot_num_bins_to_read;
@@ -330,7 +331,7 @@ size_t cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_s
     }
     this->fpos = ftell(fReader);
 #else
-    long length = tot_num_bins_to_read*BIN_SIZE_BYTES;
+    std::streamoff length = tot_num_bins_to_read*BIN_SIZE_BYTES;
     char * buffer = reinterpret_cast<char *>(&nbin_buffer[buf_start]);
 
     fReader->seekp(bin_pos);
@@ -357,6 +358,7 @@ size_t cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_s
     return tot_num_bins_to_read;
 }
 
+/* loads bin information for a pixel, which does not have this information loaded */
 void cells_in_memory::get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix) {
 
     //
@@ -375,8 +377,7 @@ void cells_in_memory::get_npix_for_bin(size_t bin_number, size_t &pix_start_num,
 }
 /* read bin info to describe sufficient number of pixels in buffer
    bin number is already in the bin buffer and we want to read additional bins
-   describing more pixels
-*/
+   describing more pixels  */
 void cells_in_memory::expand_pixels_selection(size_t bin_number) {
     if (this->buf_bin_end == this->nTotalBins) {
         return;
@@ -414,106 +415,95 @@ void cells_in_memory::read_all_bin_info(size_t bin_number) {
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
+//
+void pix_reader::run_read_job() {
+    int log_level = param.log_level;
 
-struct pix_reader {
-    ProgParameters &param;
-    std::vector<sqw_reader> &fileReaders;
-    exchange_buffer &Buff;
 
-    pix_reader(ProgParameters &prog_par, std::vector<sqw_reader> &tmpReaders, exchange_buffer &buf) :
-        param(prog_par), fileReaders(tmpReaders), Buff(buf)
-    { }
-    // satisfy thread interface
-    void operator()() {
-        this->run_read_job();
-    }
+    size_t start_bin = param.nBin2read;
+    size_t n_pixels_processed(0);
+
     //
-    void run_read_job() {
-        int log_level = param.log_level;
+    size_t n_bins_total = param.totNumBins;
+    //
+    //
+    while (start_bin < n_bins_total && !Buff.is_interrupted()) {
+        size_t n_buf_pixels(0);
+        this->read_pix_info(n_buf_pixels, start_bin);
 
- 
-        size_t start_bin = param.nBin2read;
-        size_t n_pixels_processed(0);
-
-        //
-        size_t n_bins_total = param.totNumBins;
-        //
-        //
-        while (start_bin < n_bins_total && !Buff.is_interrupted()) {
-            size_t n_buf_pixels(0);
-            this->read_pix_info(n_buf_pixels, start_bin);
-
-            //pixWriter.write_pixels(Buff);
-            //new start bin is by one shifted wrt the last bin read
-            start_bin++;
-            //------------Logging and interruptions ---
-            n_pixels_processed += n_buf_pixels;
-        }
-
-
+        //pixWriter.write_pixels(Buff);
+        //new start bin is by one shifted wrt the last bin read
+        start_bin++;
+        //------------Logging and interruptions ---
+        n_pixels_processed += n_buf_pixels;
     }
-    void read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer = NULL) {
-
-        n_buf_pixels = 0;
-        size_t first_bin = n_bins_processed;
 
 
-        size_t n_files = this->fileReaders.size();
-        const size_t nBinsTotal(this->param.totNumBins);
-        size_t n_tot_bins(0);
-        size_t npix, pix_start_num;
-        //
-        bool common_position(false);
-        if (n_files == 1) {
-            common_position = true;
+}
+void pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer) {
+
+    n_buf_pixels = 0;
+    size_t first_bin = n_bins_processed;
+
+
+    size_t n_files = this->fileReaders.size();
+    const size_t nBinsTotal(this->param.totNumBins);
+    size_t n_tot_bins(0);
+    size_t npix, pix_start_num;
+    //
+    bool common_position(false);
+    if (n_files == 1) {
+        common_position = true;
+    }
+
+    float * pPixBuffer = Buff.get_read_buffer();
+    size_t pix_buffer_size = Buff.pix_buf_size();
+
+
+    for (size_t n_bin = first_bin; n_bin < nBinsTotal; n_bin++) {
+        size_t cell_pix = 0;
+        for (size_t i = 0; i < n_files; i++) {
+            fileReaders[i].get_npix_for_bin(n_bin, pix_start_num, npix);
+            cell_pix += npix;
         }
 
-        float * pPixBuffer = Buff.get_read_buffer();
-        size_t pix_buffer_size = Buff.pix_buf_size();
+        n_bins_processed = n_bin;
+        if (nBinBuffer) {
+            nBinBuffer[n_bin] = cell_pix;
+        }
 
+        if (cell_pix == 0)continue;
 
-        for (size_t n_bin = first_bin; n_bin < nBinsTotal; n_bin++) {
-            size_t cell_pix = 0;
-            for (size_t i = 0; i < n_files; i++) {
-                fileReaders[i].get_npix_for_bin(n_bin, pix_start_num, npix);
-                cell_pix += npix;
-            }
-
-            n_bins_processed = n_bin;
-            if (nBinBuffer) {
-                nBinBuffer[n_bin] = cell_pix;
-            }
-
-            if (cell_pix == 0)continue;
-
-            if (cell_pix + n_buf_pixels > pix_buffer_size) {
-                if (n_bins_processed == 0) {
-                    if (n_buf_pixels == 0) {
-                        pPixBuffer = Buff.get_read_buffer(cell_pix);
-                        pix_buffer_size = Buff.pix_buf_size();
-                    }else{
-                        Buff.set_interrupted("==>output pixels buffer is to small to accommodate single bin. Increase the size of output pixels buffer");
-                        break;
-                    }
+        if (cell_pix + n_buf_pixels > pix_buffer_size) {
+            if (n_bins_processed == 0) {
+                if (n_buf_pixels == 0) {
+                    pPixBuffer = Buff.get_read_buffer(cell_pix);
+                    pix_buffer_size = Buff.pix_buf_size();
                 }
                 else {
-                    n_bins_processed--;
+                    Buff.set_interrupted("==>output pixels buffer is to small to accommodate single bin. Increase the size of output pixels buffer");
                     break;
                 }
             }
-
-
-            for (size_t i = 0; i < n_files; i++) {
-                fileReaders[i].get_pix_for_bin(n_bin, pPixBuffer, n_buf_pixels,
-                    pix_start_num, npix, common_position);
-                n_buf_pixels += npix;
+            else {
+                n_bins_processed--;
+                break;
             }
         }
-        // unlocks read buffer too
-        Buff.set_and_lock_write_buffer(n_buf_pixels, n_bins_processed + 1);
-    }
-};
 
+
+        for (size_t i = 0; i < n_files; i++) {
+            fileReaders[i].get_pix_for_bin(n_bin, pPixBuffer, n_buf_pixels,
+                pix_start_num, npix, common_position);
+            n_buf_pixels += npix;
+        }
+    }
+    // unlocks read buffer too
+    Buff.set_and_lock_write_buffer(n_buf_pixels, n_bins_processed + 1);
+}
+//--------------------------------------------------------------------------------------------------------------------
+//--------- MAIN COMBINE JOB -----------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
 /* combine range of input sqw files into single output sqw file */
 void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const fileParameters &outPar) {
 
@@ -552,13 +542,10 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     if (Buff.is_interrupted()) {
         mexErrMsgIdAndTxt("MEX_COMBINE_SQW:interrupted", Buff.error_message.c_str());
     }
-
- 
 }
 //--------------------------------------------------------------------------------------------------------------------
+//-----------  SQW READER (FOR SINGLE SQW FILE)  ---------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------------
-
 sqw_reader::sqw_reader(size_t working_buf_size) :
     bin_buffer(working_buf_size), npix_in_buf_start(0), buf_pix_end(1),
     PIX_BUF_SIZE(working_buf_size), change_fileno(false), fileno(true)
@@ -662,7 +649,7 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
     // if we are here, nbin buffer is intact and pixel buffer is
     // invalidated
     size_t num_pix_to_read = this->check_binInfo_loaded_(bin_number);
-    long pix_pos = this->fileDescr.pix_start_pos + pix_start_num*PIX_BLOCK_SIZE_BYTES;
+    std::streamoff pix_pos = this->fileDescr.pix_start_pos + pix_start_num*PIX_BLOCK_SIZE_BYTES;
 
 #ifdef STDIO
     if (num_pix_to_read == 0) {
@@ -751,7 +738,8 @@ size_t sqw_reader::check_binInfo_loaded_(size_t bin_number, bool extend_pix_buff
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
-/* Convert input Matlab structure with the fields, described by */
+/* Convert input Matlab structure with the fields, necessary to describe input & output sqw file into 
+   fileParameters class*/
 fileParameters::fileParameters(const mxArray *pFileParam) {
 
     mwSize total_num_of_elements = mxGetNumberOfElements(pFileParam);
