@@ -234,10 +234,10 @@ bool bin_pixels(double *s, double *e, double *npix,
 #ifdef OMP_VERSION_3
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
     shared(pixel_data, ok, nGridCell, pStor, ppInd, \
-    tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained\
+    tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained,\
     s, e, npix)\
-    firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) \
-    reduction(+:nPixel_retained)
+    firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
+
 #else
 #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
     shared(pixel_data, ok, nGridCell, pStor, ppInd, \
@@ -270,7 +270,6 @@ bool bin_pixels(double *s, double *e, double *npix,
             if(Et<cut_range[6]||Et>cut_range[7])continue;
             if(Et==cut_range[7])Et*=(1-FLT_EPSILON);
 
-            nPixel_retained++;
 
             //ibin(ok) = ibin(ok) + nel(id)*max(0,min((grid_size(id)-1),floor(grid_size(id)*((u(id,ok)-urange(1,id))/(urange(2,id)-urange(1,id))))));
 
@@ -289,10 +288,6 @@ bool bin_pixels(double *s, double *e, double *npix,
             //#pragma omp atomic   // beware C index one less then Matlab; should use enum instead
             //            s[il]   +=pixel_data[i0+7]; 
             ////    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
-            //#pragma omp atomic
-            //            e[il]   +=pixel_data[i0+8];
-            //#pragma omp atomic
-            //            npix[il]++;
             int n_thread = omp_get_thread_num();
             pStor->add_signal(pixel_data[i0 + 7], pixel_data[i0 + 8],n_thread,il);
             pix_retained[n_thread]++;
