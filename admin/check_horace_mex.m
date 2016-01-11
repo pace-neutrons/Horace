@@ -28,6 +28,9 @@ compilation_date  =[];
 functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ',...
     'calc_projections: ','sort_pixels_by_b: ','recomput_bin_dta: ',...
     'combine_sqw :     '};
+combine_num = numel(functions_name_list); % provide special treatment for combine_sqw function
+% its expected to be last function of the pack
+
 % list of the mex files handles used by horace and verified by this script.
 functions_handle_list={@accumulate_cut_c,@bin_pixels_c,...
     @calc_projections_c,@sort_pixels_by_bins,@recompute_bin_data_c,...
@@ -41,7 +44,7 @@ for i=1:numel(functions_name_list)
         rez{i}=[functions_name_list{i},functions_handle_list{i}()];
     catch Err
         rez{i}=[' Error in',functions_name_list{i},Err.message];
-        if strcmpi(functions_name_list{1},functions_name_list{i})
+        if strcmpi(functions_name_list{combine_num},functions_name_list{i})
             can_use_mex_4_combine=true;
         else
             n_errors=n_errors+1;
@@ -50,13 +53,18 @@ for i=1:numel(functions_name_list)
 end
 % calculate minumal and maximal versions of mex files; if there are errors
 % in deploying mex-files, the versions become undefined;
+if ~can_use_mex_4_combine
+    ver_rez = rez(1:combine_num-1);
+else    
+    ver_rez = rez;
+end
 minVer = 1e+32;
 maxVer = -1;
 if nargout>2 && n_errors==0
-    n_mex=numel(rez);
+    n_mex=numel(ver_rez);
     
     for i=1:n_mex
-        ver_str=rez{i};
+        ver_str=ver_rez{i};
         ind = regexp(ver_str,':');
         ver_s=ver_str(ind(3)+1:ind(3)+5);
         ver=sscanf(ver_s,'%d');

@@ -238,17 +238,19 @@ sqw_pix_writer::~sqw_pix_writer() {
 //--------------------------------------------------------------------------------------------------------------------
 void cells_in_memory::init(const std::string &full_file_name, size_t bin_start_pos, size_t n_tot_bins, size_t BufferSize, bool use_multithreading) {
 
+    this->full_file_name = full_file_name;
+
 #ifdef STDIO
-    h_data_file = fopen(full_file_name.c_str(), "rb");
-    bin_buffer.fpos = ftell(h_data_file);
-    if (!h_data_file) {
+    h_data_file_bin = fopen(full_file_name.c_str(), "rb");
+    bin_buffer.fpos = ftell(h_data_file_bin);
+    if (!h_data_file_bin) {
         std::string error("Can not open file: ");
         error += full_file_name;
         mexErrMsgTxt(error.c_str());
     }
 #else
-    h_data_file.open(full_file_name, std::fstream::in | std::fstream::binary);
-    if (!h_data_file.is_open()) {
+    h_data_file_bin.open(full_file_name, std::ios::in | std::ios::binary);
+    if (!h_data_file_bin.is_open()) {
         std::string error("Can not open file: ");
         error += full_file_name;
         mexErrMsgTxt(error.c_str());
@@ -273,16 +275,19 @@ void cells_in_memory::init(const std::string &full_file_name, size_t bin_start_p
 }
 cells_in_memory::~cells_in_memory() {
     if (this->use_multithreading) {
+        this->bin_read_lock.lock();
         this->read_completed = true;
         // finish incomplete read job if it has not been finished naturally
         this->nbins_read = false;
         this->read_bins_needed.notify_one();
+        this->bin_read_lock.unlock();
+
         read_bins_job_holder.join();
     }
 #ifdef STDIO
-    fclose(h_data_file);
+    fclose(h_data_file_bin);
 #else
-    h_data_file.close();
+    h_data_file_bin.close();
 #endif
 
 }
@@ -518,10 +523,10 @@ void cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_siz
     std::streamoff length = tot_num_bins_to_read*BIN_SIZE_BYTES;
     char * buffer = reinterpret_cast<char *>(&inbuf[buf_start]);
 
-    h_data_file.seekp(bin_pos);
+    h_data_file_bin.seekg(bin_pos);
     std::string err;
     try {
-        h_data_file.read(buffer, length);
+        h_data_file_bin.read(buffer, length);
     }
     catch (std::ios_base::failure &e) {
         err = "COMBINE_SQW:read_bins read error: " + std::string(e.what());
@@ -702,12 +707,22 @@ sqw_reader::sqw_reader(size_t working_buf_size) :
 
 sqw_reader::~sqw_reader() {
     if (this->use_multithreading_pix) {
+        this->pix_read_lock.lock();
+
         this->pix_read_job_completed = true;
         // finish incomplete read job if it has not been finished naturally
         this->pix_read = false;
         this->read_pix_needed.notify_one();
+        this->pix_read_lock.unlock();
+
         read_pix_job_holder.join();
     }
+#ifdef STDIO
+    fclose(h_data_file_pix);
+#else
+    h_data_file_pix.close();
+#endif
+
 }
 
 
@@ -742,6 +757,23 @@ void sqw_reader::init(const fileParameters &fpar, bool changefileno, bool fileno
    }
 
     cells_in_memory::init(fpar.fileName, fpar.nbin_start_pos, fpar.total_NfileBins, working_buf_size, bin_multithreading);
+#ifdef STDIO
+    h_data_file_pix = fopen(full_file_name.c_str(), "rb");
+    bin_buffer.fpos = ftell(h_data_file_pix);
+    if (!h_data_file_pix) {
+        std::string error("Can not open file: ");
+        error += full_file_name;
+        mexErrMsgTxt(error.c_str());
+    }
+#else
+    h_data_file_pix.open(this->full_file_name, std::ios::in| std::ios::binary);
+    if (!h_data_file_pix.is_open()) {
+        std::string error("Can not open file: ");
+        error += this->full_file_name;
+        mexErrMsgTxt(error.c_str());
+    }
+#endif
+
 
     this->fileDescr = fpar;
     this->change_fileno = changefileno;
@@ -852,7 +884,7 @@ void sqw_reader::read_pixels_job() {
 void sqw_reader::read_pix_io(size_t pix_start_num, std::vector<float> &pix_buffer, size_t num_pix_to_read) {
 
     std::streamoff pix_pos = this->fileDescr.pix_start_pos + pix_start_num*PIX_BLOCK_SIZE_BYTES;
-    std::lock_guard<std::mutex> lock(this->io_lock);
+    //std::lock_guard<std::mutex> lock(this->io_lock); <-- not necessary for separate file access
 #ifdef STDIO
     if (num_pix_to_read == 0) {
         return;
@@ -860,24 +892,24 @@ void sqw_reader::read_pix_io(size_t pix_start_num, std::vector<float> &pix_buffe
     void * buffer = &pix_buffer[0];
 
     pix_pos -= this->bin_buffer.fpos;
-    auto err = fseek(h_data_file, pix_pos, SEEK_CUR);
+    auto err = fseek(h_data_file_pix, pix_pos, SEEK_CUR);
     if (err) {
         mexErrMsgTxt("COMBINE_SQW:read_pixels seek error");
     }
-    size_t nBytes = fread(buffer, PIX_BLOCK_SIZE_BYTES, num_pix_to_read, h_data_file);
+    size_t nBytes = fread(buffer, PIX_BLOCK_SIZE_BYTES, num_pix_to_read, h_data_file_pix);
     if (nBytes != num_pix_to_read) {
         mexErrMsgTxt("COMBINE_SQW:read_pixels Read error, can not read the number of pixels requested");
     }
-    this->bin_buffer.fpos = ftell(h_data_file);
+    this->bin_buffer.fpos = ftell(h_data_file_pix);
 
 #else
     char * buffer = reinterpret_cast<char *>(&pix_buffer[0]);
     size_t length = num_pix_to_read*PIX_BLOCK_SIZE_BYTES;
 
     std::string err;
-    h_data_file.seekp(pix_pos);
+    h_data_file_pix.seekg(pix_pos);
     try {
-        h_data_file.read(buffer, length);
+        h_data_file_pix.read(buffer, length);
     }
     catch (std::ios_base::failure &e) {
         err = "COMBINE_SQW:read_pixels read error: " + std::string(e.what());
@@ -888,9 +920,14 @@ void sqw_reader::read_pix_io(size_t pix_start_num, std::vector<float> &pix_buffe
     if (err.size() > 0) {
         mexErrMsgTxt(err.c_str());
     }
+    size_t n_read_pixels = num_pix_to_read;
+    if (h_data_file_pix.eof()) {
+        n_read_pixels = h_data_file_pix.gcount()/ PIX_BLOCK_SIZE_BYTES;
+        h_data_file_pix.clear();
+    }
 #endif
     if (this->change_fileno) {
-        for (size_t i = 0; i < num_pix_to_read; i++) {
+        for (size_t i = 0; i < n_read_pixels; i++) {
             if (fileno) {
                 pix_buffer[4 + i * 9] = float(this->fileDescr.file_id);
             }
