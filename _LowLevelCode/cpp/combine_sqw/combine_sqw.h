@@ -129,88 +129,75 @@ private:
 class cells_in_memory {
     public:
         cells_in_memory(size_t buf_size) :
+            use_multithreading(false),
+            max_num_of_pixels(std::numeric_limits<size_t>::max()),
             nTotalBins(0), binFileStartPos(0),
-            num_first_buf_bin(0), buf_bin_end(0), pix_before_buffer(0),
-            BIN_BUF_SIZE(buf_size), BUF_SIZE_STEP(buf_size), buf_end(1){
+            num_first_buf_bin(0), buf_nbin_end(0), pix_before_buffer(0),
+            BIN_BUF_SIZE(buf_size), BUF_SIZE_STEP(buf_size), buf_end(1),
+            nbins_read(false), read_completed(false),
+            n_first_rbuf_bin(0){
         }
-#ifdef STDIO
-        void init(FILE *fileDescr, size_t bin_start_pos,size_t n_tot_bins,size_t bufSize=4096);
-        long fpos;
-#else
-        void init(std::fstream  &fileDescr, size_t bin_start_pos, size_t n_tot_bins, size_t bufSize = 4096);
-#endif
+        void init(const std::string &full_file_name, size_t bin_start_pos, size_t n_tot_bins, size_t BufferSize, bool use_multithreading);
 
         size_t num_pix_described(size_t bin_number)const;
         size_t num_pix_to_fit(size_t bin_number,size_t buf_size)const;
+        /* get number of pixels, stored in the bin and the position of these pixels within pixel array */
         void   get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix);
         void expand_pixels_selection(size_t bin_number);
+        ~cells_in_memory();
+    protected:
+        // the name of the file to process
+        std::string full_file_name;
+        size_t max_num_of_pixels;
 
+        std::mutex io_lock;
+        // handle pointing to open file
+#ifdef STDIO
+        FILE *h_data_file;
+        long fpos;
+#else
+        std::fstream h_data_file;
+#endif
     private:
         size_t  nTotalBins;
         size_t  binFileStartPos;
 
         size_t  num_first_buf_bin; // number of first bin in the buffer
-        size_t  buf_bin_end; //  number of the last bin in the buffer+1
-                             // buffer containing bin info
+        size_t  buf_nbin_end; //  number of the last bin in the buffer+1
         size_t  pix_before_buffer; /* number of pixels, located before the first pixel, described by the buffer 
         e.g. position of the first pixel located in the first bin of the buffer */
-        std::vector<uint64_t> nbin_buffer;
-        std::vector<uint64_t> pix_pos_in_buffer;
-        size_t BIN_BUF_SIZE; // physical size of the pixels buffer
+        std::vector<uint64_t> nbin_buffer;       // buffer containing bin info
+        std::vector<uint64_t> pix_pos_in_buffer; // buffer containing pixels positions for bins, located in the buffer
+        size_t BIN_BUF_SIZE; // physical size of the bins buffer
         size_t BUF_SIZE_STEP; // unit step for BIN_BUF_SIZE, which should not exceed 2*BUF_SIZE_STEP;
         size_t buf_end; /* points to the place after the last bin actually read into the buffer.
         Differs from BIN_BUF_SIZE, as BIN_BUF_SIZE is physical buffer size which may not have all or any bins read into
         e.g at the end, where all available bins were read */
-#ifdef STDIO
-        FILE *fReader;
-#else
-        std::fstream  *fReader;
-#endif
 
-        size_t read_bins(size_t num_bin,size_t buf_start,size_t buf_size);
+        // thread buffer and thread reading operations ;
+        bool use_multithreading;
+        std::mutex bin_read_lock,exchange_lock;
+        bool nbins_read, read_completed;
+        size_t n_first_rbuf_bin,rbuf_nbin_end, rbuf_end;
+        std::vector<uint64_t>   nbin_read_buffer;
+        std::condition_variable bins_ready,read_bins_needed;
+        std::thread read_bins_job_holder;
+
+        void read_bins(size_t num_bin, size_t buf_start, size_t buf_size,
+            std::vector<uint64_t> &buffer, size_t &bin_end, size_t &buf_end);
+        void  record_read_bins(size_t num_bin, size_t buf_nbin_end, size_t buf_end, const std::vector<uint64_t> &buffer);
+
         void read_all_bin_info(size_t bin_number);
+        void read_bins_job();
+        void calc_buf_range(size_t num_bin, size_t buf_start, size_t buf_size, size_t &tot_num_bins_to_read, size_t & bin_end, size_t & buf_end);
 
         static const long BIN_SIZE_BYTES=8;
 };
-//-----------------------------------------------------------------------------------------------------------------
-/* Class responsible for writing block of pixels on HDD */
-class sqw_pix_writer {
-public:
-    sqw_pix_writer(exchange_buffer &buf):
-    Buff(buf),
-    last_pix_written(0), pix_array_position(0),
-    num_bins_to_process(0){}
-
-    void init(const fileParameters &fpar,const size_t nBins2Process);
-    void write_pixels(const char * const buffer,const size_t n_pix_to_write);
-    void run_write_pix_job();
-    void operator()() {
-        this->run_write_pix_job();
-    }
-    ~sqw_pix_writer();
-
-private:
-    exchange_buffer &Buff;
-
-    // size of write pixels buffer (in pixels)
-    std::string filename;
-
-    std::ofstream h_out_sqw;
-    size_t last_pix_written;
-    size_t pix_array_position;
-    size_t nbin_position;
-    size_t num_bins_to_process;
-
-    std::vector<float> pix_buffer;
-    //
-    static const size_t PIX_BLOCK_SIZE_BYTES = 36; //9 * 4; // size of the pixel block in bytes
-
-
-};
 
 //-----------------------------------------------------------------------------------------------------------------
-class sqw_reader {
-    /* Class provides bin and pixel information for a pixels of a sinlge sqw file.
+class sqw_reader :public cells_in_memory
+{
+    /* Class provides bin and pixel information for a pixels of a single sqw file.
 
     Created to read bin and pixel information from a cell stored on hdd,
     but optimized for subsequent data access, so subsequent cells are
@@ -223,36 +210,19 @@ class sqw_reader {
 public:
     sqw_reader(size_t working_buf_size=4096);
     sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided,size_t working_buf_size=4096);
-    void init(const fileParameters &fpar,bool changefileno, bool fileno_provided,size_t working_buf_size=4096);
-    ~sqw_reader() {
-#ifdef STDIO
-       fclose(h_data_file);
-#else
-        h_data_file.close();
-#endif
-    }
-    /* get number of pixels, stored in the bin and the position of these pixels within pixel array */
-    void get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix);
+    ~sqw_reader();
+    void init(const fileParameters &fpar,bool changefileno, bool fileno_provided,size_t working_buf_size=4096,int use_multithreading = 0);
     /* return pixel information for the pixels stored in the bin */
     void get_pix_for_bin(size_t bin_number,  float *const pix_info,size_t cur_buf_position,
                          size_t &pix_start_num, size_t &num_bin_pix, bool position_is_defined = false);
 private:
     void read_pixels(size_t bin_number, size_t pix_start_num);
-    size_t check_binInfo_loaded_(size_t bin_number, bool extend_pix_buffer=true);
+    size_t check_binInfo_loaded_(size_t bin_number, bool extend_bin_buffer, size_t pix_start_num);
 
-    // the name of the file to process
-    std::string full_file_name;
-    // handle pointing to open file
-#ifdef STDIO
-    FILE *h_data_file;
-#else
-    std::fstream h_data_file;
-#endif
+    void read_pix_io(size_t pix_start_num, std::vector<float> &pix_buffer, size_t num_pix_to_read);
 
     // parameters, which describe 
     fileParameters fileDescr;
-
-    cells_in_memory bin_buffer;
 
     size_t npix_in_buf_start; //= 0;
     size_t buf_pix_end; //  number of last pixel in the buffer+1
@@ -268,6 +238,16 @@ private:
 
     static const size_t PIX_SIZE = 9; // size of the pixel in pixel data units (float)
     static const size_t PIX_BLOCK_SIZE_BYTES = 36; //9 * 4; // size of the pixel block in bytes
+
+   // thread buffer and thread reading operations ;
+    std::mutex pix_read_lock, pix_exchange_lock;
+    bool use_multithreading_pix,pix_read,pix_read_job_completed;
+    size_t n_first_buf_pix;
+    std::vector<float> thread_pix_buffer;
+    std::condition_variable pix_ready, read_pix_needed;
+    std::thread read_pix_job_holder;
+
+    void read_pixels_job();
 
 
 };
@@ -293,6 +273,42 @@ struct pix_reader {
     //
     void run_read_job();
     void read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer = NULL);
+};
+
+//-----------------------------------------------------------------------------------------------------------------
+/* Class responsible for writing block of pixels on HDD */
+class sqw_pix_writer {
+public:
+    sqw_pix_writer(exchange_buffer &buf) :
+        Buff(buf),
+        last_pix_written(0), pix_array_position(0),
+        num_bins_to_process(0) {}
+
+    void init(const fileParameters &fpar, const size_t nBins2Process);
+    void write_pixels(const char * const buffer, const size_t n_pix_to_write);
+    void run_write_pix_job();
+    void operator()() {
+        this->run_write_pix_job();
+    }
+    ~sqw_pix_writer();
+
+private:
+    exchange_buffer &Buff;
+
+    // size of write pixels buffer (in pixels)
+    std::string filename;
+
+    std::ofstream h_out_sqw;
+    size_t last_pix_written;
+    size_t pix_array_position;
+    size_t nbin_position;
+    size_t num_bins_to_process;
+
+    std::vector<float> pix_buffer;
+    //
+    static const size_t PIX_BLOCK_SIZE_BYTES = 36; //9 * 4; // size of the pixel block in bytes
+
+
 };
 
 #endif

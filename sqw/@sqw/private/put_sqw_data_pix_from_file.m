@@ -69,7 +69,7 @@ end
 fid_input = false;
 % size of buffer to hold pixel information, the log level and if use mex to
 % build the result
-[pmax,log_level,use_mex] = get(hor_config,'mem_chunk_size','log_level','use_mex');
+[pmax,log_level,use_mex] = get(hor_config,'mem_chunk_size','log_level','use_mex_for_combine');
 if use_mex
     pix_out_position = ftell(fout);
     fout_name = fopen(fout);
@@ -395,7 +395,8 @@ end
 out_param = struct('file_name',fout_name ,...
     'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
 
-[out_buf_size,log_level] = get(hor_config,'mem_chunk_size','log_level');
+[out_buf_size,log_level,buf_size,multithreaded_combining] = get(hor_config,'mem_chunk_size','log_level',...
+    'mex_combine_buffer_size','mex_combine_multithreaded');
 
 % conversion parameters include:
 % n_bin        -- number of bins in the image array
@@ -408,7 +409,8 @@ out_param = struct('file_name',fout_name ,...
 %                 combining files together
 % buf size     -- bufer size -- the size of bufer used for each input file
 %                 read operations
-program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,64*1024];
+% multithreaded_combining - use multiple threads to read files 
+program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,buf_size,multithreaded_combining];
 t_start=tic;
 try
     if log_level>1
