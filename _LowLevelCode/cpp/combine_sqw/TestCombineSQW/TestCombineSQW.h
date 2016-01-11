@@ -18,7 +18,7 @@ public:
     void test_sqw_reader_propagate_pix() {
         sqw_reader reader(128);
         fileParameters file_par;
-        file_par.fileName = "d:/users/abuts/SVN/ISIS/Horace/_test/test_symmetrisation/w3d_sqw.sqw";
+        file_par.fileName = "d:/Data/svn/Horace/_test/test_symmetrisation/w3d_sqw.sqw";
         file_par.file_id = 0;
         file_par.nbin_start_pos = 5194471;
         file_par.pix_start_pos = 8973651;
@@ -56,7 +56,7 @@ public:
     void test_sqw_reader_propagate_pix_multi() {
         sqw_reader reader(128);
         fileParameters file_par;
-        file_par.fileName = "d:/users/abuts/SVN/ISIS/Horace/_test/test_symmetrisation/w3d_sqw.sqw";
+        file_par.fileName = "d:/Data/svn/Horace/_test/test_symmetrisation/w3d_sqw.sqw";
         file_par.file_id = 0;
         file_par.nbin_start_pos = 5194471;
         file_par.pix_start_pos = 8973651;
@@ -96,7 +96,7 @@ public:
         std::vector<sqw_reader> reader_noThread(1);
 
         fileParameters file_par;
-        file_par.fileName = "d:/users/abuts/SVN/ISIS/Horace/_test/test_symmetrisation/w3d_sqw.sqw";
+        file_par.fileName = "d:/Data/svn/Horace/_test/test_symmetrisation/w3d_sqw.sqw";
         file_par.file_id = 0;
         file_par.nbin_start_pos = 5194471;
         file_par.pix_start_pos = 8973651;
