@@ -348,14 +348,16 @@ classdef test_sqw_reader< TestCase
         end
         %
         function this=test_combine_two(this)
-            use_mex = get(hor_config,'use_mex');
+            [use_mex,thread_mode] = get(hor_config,'use_mex_for_combine','mex_combine_thread_mode');
             if ~use_mex
                 return;
             end
             infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
             outfile = fullfile(this.test_dir,'test_combine_two_sqw.sqw');
             cleanup_obj=onCleanup(@()delete(outfile));
+            cleanup1  =onCleanup(@()set(hor_config,'mex_combine_thread_mode',thread_mode));
             
+            set(hor_config,'mex_combine_thread_mode',0);
             dummy = sqw();
             write_nsqw_to_sqw (dummy, infiles, outfile,'allow_equal_headers');
             
@@ -372,7 +374,7 @@ classdef test_sqw_reader< TestCase
         end
         
         function this=test_mex_nomex(this)
-            use_mex = get(hor_config,'use_mex');
+            use_mex = get(hor_config,'use_mex_for_combine');
             if ~use_mex
                 return;
             end
@@ -386,13 +388,13 @@ classdef test_sqw_reader< TestCase
             cleanup_obj=onCleanup(@()delete(outfile_mex));
             
             
-            set(hor_config,'use_mex',0);
+            set(hor_config,'mex_combine_thread_mode',-1);
             t0= tic;
             write_nsqw_to_sqw (dummy, infiles, outfile_nom,'allow_equal_headers');
             t2=toc(t0);
             
-            
-            set(hor_config,'use_mex',1);
+            % set single threading excecution
+            set(hor_config,'mex_combine_thread_mode',0);
             t0= tic;
             write_nsqw_to_sqw (dummy, infiles, outfile_mex,'allow_equal_headers');
             t1=toc(t0);
@@ -414,7 +416,7 @@ classdef test_sqw_reader< TestCase
         end
         
         function this=test_large_bins(this)
-            use_mex = get(hor_config,'use_mex');
+            use_mex = get(hor_config,'use_mex_for_combine');
             if ~use_mex
                 return;
             end
@@ -453,7 +455,7 @@ classdef test_sqw_reader< TestCase
             
         end
         function this=test_mex_nomex_multi(this)
-            use_mex = get(hor_config,'use_mex');
+            use_mex = get(hor_config,'use_mex_for_combine');
             if ~use_mex
                 return;
             end
@@ -467,13 +469,13 @@ classdef test_sqw_reader< TestCase
             cleanup_obj=onCleanup(@()delete(outfile_mex));
             
             
-            set(hor_config,'use_mex',0);
+            set(hor_config,'use_mex_for_combine',false);
             t0= tic;
             write_nsqw_to_sqw (dummy, infiles, outfile_nom,'allow_equal_headers');
             t2=toc(t0);
             
             
-            set(hor_config,'use_mex',1);
+            set(hor_config,'mex_combine_thread_mode',1);
             t0= tic;
             write_nsqw_to_sqw (dummy, infiles, outfile_mex,'allow_equal_headers');
             t1=toc(t0);
@@ -522,7 +524,7 @@ classdef test_sqw_reader< TestCase
             pix_start_pos  =pos.pix;   % start of pix field
             
             
-            params = [1,1,10000000,2,false,false,100,4096,true];
+            params = [1,1,10000000,2,false,false,100,4096,1];
             in_file_par = {struct('file_name',test_file,'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
             out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
             
@@ -533,9 +535,35 @@ classdef test_sqw_reader< TestCase
             
             assertEqual(pix_data(:,1:npix_tot),single(cs.data.pix));
             
-        end        
+        end
+        function this=test_combine_two_multi(this)
+            [use_mex,thread_mode] = get(hor_config,'use_mex_for_combine','mex_combine_thread_mode');
+            if ~use_mex
+                return;
+            end
+            infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
+            outfile = fullfile(this.test_dir,'test_combine_two_sqw.sqw');
+            cleanup_obj=onCleanup(@()delete(outfile));
+            cleanup1  =onCleanup(@()set(hor_config,'mex_combine_thread_mode',thread_mode));
+            
+            set(hor_config,'mex_combine_thread_mode',1);
+            dummy = sqw();
+            write_nsqw_to_sqw (dummy, infiles, outfile,'allow_equal_headers');
+            
+            
+            old_sqw = read_sqw(infiles{1});
+            new_sqw = read_sqw(outfile);
+            
+            
+            assertEqual(size(old_sqw.data.npix),size(new_sqw.data.npix));
+            assertEqual(2*old_sqw.data.npix,new_sqw.data.npix);
+            old_pix_size = size(old_sqw.data.pix);
+            assertEqual(size(new_sqw.data.pix),[old_pix_size(1),2*old_pix_size(2)] );
+            
+        end
+        
         function this = test_read_pix_buf_mex_multithread(this)
-            use_mex = get(hor_config,'use_mex');
+            use_mex = get(hor_config,'use_mex_for_combine');
             if ~use_mex
                 return;
             end
@@ -555,7 +583,7 @@ classdef test_sqw_reader< TestCase
             
             in_file_par = {struct('file_name',this.sample_file,...
                 'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
-            params = [n_bin,1,100,log_level,false,false,100,64,true];
+            params = [n_bin,1,100,log_level,false,false,100,64,1];
             dummy_out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
             [pix_data,npix,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             
@@ -573,7 +601,7 @@ classdef test_sqw_reader< TestCase
             assertEqual(pix_data,single(the_sqw.data.pix(:,1:99)))
             %cleanup_obj=onCleanup(@()sr.delete());
             
-            params = [n_bin,1,this.npixtot,log_level,false,false,100,64,3];
+            params = [n_bin,1,this.npixtot,log_level,false,false,100,64,1];
             t0= tic;
             [pix_data,npix,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
             t1=toc(t0);
@@ -581,7 +609,7 @@ classdef test_sqw_reader< TestCase
                 disp([' Time to process ',num2str(n_bin),' cells containing ',...
                     num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
             end
-
+            
             if any(abs(double(npix)-pns)>1.e-4)
                 non_equal = abs(double(npix)-pns)>1.e-4;
                 ii = find(non_equal);
@@ -596,7 +624,7 @@ classdef test_sqw_reader< TestCase
                 fprintf(['wrong multithrading reaing Pixel N %d\n',...
                     ' Right pixel: %f|%f|%f|%f|%f|%f|%f|%f|%f\n Wrong pixel: %f|%f|%f|%f|%f|%f|%f|%f|%f\n'],...
                     ind,the_sqw.data.pix(:,ind),pix_data(:,ind));
-            end           
+            end
             if any(any(abs(pix_data-the_sqw.data.pix)>1.e-4))
                 non_equal = abs(pix_data-the_sqw.data.pix)>1.e-4;
                 ii = find(non_equal);
@@ -604,7 +632,7 @@ classdef test_sqw_reader< TestCase
                 fprintf(['wrong multithrading reaing Pixel N %d\n',...
                     ' Right pixel: %f|%f|%f|%f|%f|%f|%f|%f|%f\n Wrong pixel: %f|%f|%f|%f|%f|%f|%f|%f|%f\n'],...
                     ind,the_sqw.data.pix(:,ind),pix_data(:,ind));
-            end              
+            end
             
             assertEqual(npix,uint64(pns));
             assertEqual(pix_info(1),uint64(this.npixtot))
@@ -618,7 +646,7 @@ classdef test_sqw_reader< TestCase
             
             assertEqual(pix_data(:,7892),single(the_sqw.data.pix(:,7892)))
             assertEqual(pix_data(:,7893),single(the_sqw.data.pix(:,7893)))
-                     
+            
             assertEqual(pix_data,single(the_sqw.data.pix))
             
         end
@@ -626,7 +654,5 @@ classdef test_sqw_reader< TestCase
         
     end
 end
-
-
 
 

@@ -396,7 +396,7 @@ out_param = struct('file_name',fout_name ,...
     'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
 
 [out_buf_size,log_level,buf_size,multithreaded_combining] = get(hor_config,'mem_chunk_size','log_level',...
-    'mex_combine_buffer_size','mex_combine_multithreaded');
+    'mex_combine_buffer_size','mex_combine_thread_mode');
 
 % conversion parameters include:
 % n_bin        -- number of bins in the image array

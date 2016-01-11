@@ -66,9 +66,9 @@ classdef hor_config<config_base
         delete_tmp        % automatically delete temporary files after generating sqw files
         
         use_mex_for_combine
+        mex_combine_thread_mode
         % size of buffer used during mex combine for each file
         mex_combine_buffer_size
-        mex_combine_multithreaded
     end
     properties(Access=protected)
         % private properties behind public interface
@@ -84,18 +84,19 @@ classdef hor_config<config_base
         delete_tmp_ = true;
         
         can_use_mex_4_combine_ = false;
-        use_mex_for_combine_   = false;
+        %-1 not use mex; 0 not use threads, 1 full multithreading, 2 -- multithreaded bins only,
+        % 3 multithreaded pix only        
+        mex_combine_thread_mode_   = -1;
         mex_combine_buffer_size_ = 1024;
-        % 0 false, 1 full multithreading, 2 -- multithreaded bins only, 3
-        % multithreaded pix only
-        mex_combine_multithreaded_ = 0;
     end
     
     properties(Constant,Access=private)
+        % change this list if saveable fields have changed or redefine 
+        % get_storage_field_names function below
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
             'ignore_inf', 'log_level','use_mex',...
             'force_mex_if_use_mex','delete_tmp',...
-            'avrg_gensqw_time','call_counter'}
+            'mex_combine_thread_mode','mex_combine_buffer_size'}
     end
     
     methods
@@ -140,7 +141,12 @@ classdef hor_config<config_base
         function use = get.use_mex_for_combine(this)
             can_use = get_or_restore_field(this,'can_use_mex_4_combine');
             if can_use
-                use = get_or_restore_field(this,'use_mex_for_combine');
+                use = get_or_restore_field(this,'mex_combine_thread_mode');
+                if use>=0
+                    use = true;
+                else
+                    use = false;                    
+                end
             else
                 use = false;
             end
@@ -148,8 +154,8 @@ classdef hor_config<config_base
         function size= get.mex_combine_buffer_size(this)
             size = get_or_restore_field(this,'mex_combine_buffer_size');
         end
-        function type= get.mex_combine_multithreaded(this)
-            type = get_or_restore_field(this,'mex_combine_multithreaded');
+        function type= get.mex_combine_thread_mode(this)
+            type = get_or_restore_field(this,'mex_combine_thread_mode');
         end
         %-----------------------------------------------------------------
         % overloaded setters
@@ -240,9 +246,9 @@ classdef hor_config<config_base
         end
         function this = set.use_mex_for_combine(this,val)
             if val>0
-                use = true;
+                use = 0;
             else
-                use = false;
+                use = -1;
             end
             try
                 ver = combine_sqw();
@@ -254,7 +260,7 @@ classdef hor_config<config_base
                     ' Will not use mex for combininng'],ME.message);
                 config_store.instance().store_config(this,'can_use_mex_4_combine',false);
             end
-            config_store.instance().store_config(this,'use_mex_for_combine',use);
+            config_store.instance().store_config(this,'mex_combine_thread_mode',use);
         end
         function this= set.mex_combine_buffer_size(this,val)
             if val<64
@@ -266,17 +272,23 @@ classdef hor_config<config_base
             end
             config_store.instance().store_config(this,'mex_combine_buffer_size',val);
         end
-        function this= set.mex_combine_multithreaded(this,val)
-            if val<0|| val>3
-                error('HOR_CONFIG:mex_combine_multithreaded',...
-                    [' mex_combine_multithreaded should be a number between 0 and 3\n ',...
-                    '  meaning 0 -- no multitheading and 1 full multitrheading',...
-                    '  or two debug options:\n', ...
+        function this= set.mex_combine_thread_mode(this,val)
+            if  val>3
+                error('HOR_CONFIG:mex_combine_thread_mode',...
+                    [' mex_combine_multithreaded should be a number smaller or equal 3\n ',...
+                    '  meaning:\n', ...
+                    '  negative -- no mex combining\n',...
+                    ' 0 -- no multitheading ',...
+                    ' 1 -- full multitrheading',...
+                    ' and two debug options:\n', ...
                     ' 2 -- only bin numbers are read by separate thread',...
                     ' 3 -- only pixels are read by separate thread']);
             end
+            if val<0
+                val = -1;
+            end
             
-            config_store.instance().store_config(this,'mex_combine_multithreaded',val);
+            config_store.instance().store_config(this,'mex_combine_thread_mode',val);
         end
         
         %--------------------------------------------------------------------

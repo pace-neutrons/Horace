@@ -68,11 +68,14 @@ Matlab_SVN='$Revision::      $ ($Date::                                         
 mexMinVer     = [];
 mexMaxVer     = [];
 date          = [];
-if get(hor_config,'use_mex')
+
+use_mex = get(hor_config,'use_mex');
+if use_mex
     [mex_messages,n_errors,mexMinVer,mexMaxVer,date]=check_horace_mex();
     if n_errors~= 0
         set(hor_config,'use_mex',0);
     end
+    
 end
 hd     =str2double(Matlab_SVN(12:17));
 

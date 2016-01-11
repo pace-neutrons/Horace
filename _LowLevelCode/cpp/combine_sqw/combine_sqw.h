@@ -152,12 +152,7 @@ class cells_in_memory {
 
         std::mutex io_lock;
         // handle pointing to open file
-#ifdef STDIO
-        FILE *h_data_file;
-        long fpos;
-#else
-        std::fstream h_data_file;
-#endif
+
     private:
         size_t  nTotalBins;
         size_t  binFileStartPos;
@@ -192,6 +187,12 @@ class cells_in_memory {
         void calc_buf_range(size_t num_bin, size_t buf_start, size_t buf_size, size_t &tot_num_bins_to_read, size_t & bin_end, size_t & buf_end);
 
         static const long BIN_SIZE_BYTES=8;
+#ifdef STDIO
+        FILE *h_data_file_bin;
+        long fpos;
+#else
+        std::ifstream h_data_file_bin;
+#endif
 };
 
 //-----------------------------------------------------------------------------------------------------------------
@@ -248,6 +249,13 @@ private:
     std::thread read_pix_job_holder;
 
     void read_pixels_job();
+
+#ifdef STDIO
+    FILE *h_data_file_pix;
+    long fpos;
+#else
+    std::ifstream h_data_file_pix;
+#endif
 
 
 };
