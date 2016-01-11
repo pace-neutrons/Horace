@@ -33,15 +33,22 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
     mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'recompute_bin_data_c.cpp');
-    mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,'combine_sqw.cpp');    
+
     
-    disp('**********> Succesfully created all required mex files from C++')
+    disp('**********> Succesfully created required mex files from C++')
     C_compiled=true;
     add_version_foloder(out_rel_dir);
-catch
-    message=lasterr();
+catch ME
+    message=ME.message;
     warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',message);
     
+end
+try
+   mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,'combine_sqw.cpp');
+   disp('**********> Succesfully created mex file for combining components from C++')   
+catch ME
+    message=ME.message;
+    warning('**********> Can not create C++ combining procedure, reason: %s. combining using C++ is not availile',message);   
 end
 %
 F_compiled=false;
@@ -54,8 +61,8 @@ try  % mex FORTRAN
     %    disp('**********> Succesfully created all requsted mex files from FORTRAN')
     disp('**********> No FORTRAN functions used at the moment')
     F_compiled=true;
-catch
-    message=lasterr();
+catch ME
+    message=ME.message;
     warning('**********> Can not create FORTRAN mex files, reason: %s Please try to do it manually.',message);
 end
 cd(start_dir);

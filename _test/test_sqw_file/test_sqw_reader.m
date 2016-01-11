@@ -452,6 +452,176 @@ classdef test_sqw_reader< TestCase
             assertEqual(pix_data(:,1:npix_tot),single(cs.data.pix));
             
         end
+        function this=test_mex_nomex_multi(this)
+            use_mex = get(hor_config,'use_mex');
+            if ~use_mex
+                return;
+            end
+            dummy = sqw();
+            infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
+            
+            outfile_nom = fullfile(this.test_dir,'test_combine_two_sqw_nomex.sqw');
+            cleanup_obj1=onCleanup(@()delete(outfile_nom));
+            cleanup_obj2=onCleanup(@()set(hor_config,'use_mex',1));
+            outfile_mex = fullfile(this.test_dir,'test_combine_two_sqw_mex.sqw');
+            cleanup_obj=onCleanup(@()delete(outfile_mex));
+            
+            
+            set(hor_config,'use_mex',0);
+            t0= tic;
+            write_nsqw_to_sqw (dummy, infiles, outfile_nom,'allow_equal_headers');
+            t2=toc(t0);
+            
+            
+            set(hor_config,'use_mex',1);
+            t0= tic;
+            write_nsqw_to_sqw (dummy, infiles, outfile_mex,'allow_equal_headers');
+            t1=toc(t0);
+            
+            mex_sqw = read_sqw(outfile_mex);
+            
+            
+            
+            if get(hor_config,'log_level') >1
+                disp([' Combining two files using mex  takes ',num2str(t1),'sec'])
+                disp([' Combining two files with nomex takes ',num2str(t2),'sec'])
+            end
+            
+            
+            nomex_sqw = read_sqw(outfile_nom);
+            assertEqual(mex_sqw.data.npix,nomex_sqw.data.npix);
+            assertEqual(mex_sqw.data.pix,nomex_sqw.data.pix);
+            
+        end
+        
+        
+        function this=test_large_bins_multi(this)
+            use_mex = get(hor_config,'use_mex');
+            if ~use_mex
+                return;
+            end
+            
+            proj = projection();
+            cs=cut_sqw(this.sample_file,proj,[-1,1],[-1,1],[-1,1],[-1,101]);
+            test_file = fullfile(this.test_dir,'test_large_bins_sqw.sqw');
+            cleanup_obj1=onCleanup(@()delete(test_file));
+            
+            save(cs,test_file);
+            
+            anSQW = sqw();
+            fid = fopen(test_file,'rb');
+            if fid<1
+                error('Can not open test file %s',test_file)
+            end
+            %cleanup_obj2=onCleanup(@()fclose(fid ));
+            
+            [mess,main_header,header,det_tmp,datahdr,pos,npix_tot,data_type,file_format,current_format] = get_sqw (anSQW,fid,'-h');
+            fclose(fid);
+            
+            npix_start_pos =pos.npix;  % start of npix field
+            pix_start_pos  =pos.pix;   % start of pix field
+            
+            
+            params = [1,1,10000000,2,false,false,100,4096,true];
+            in_file_par = {struct('file_name',test_file,'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
+            out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
+            
+            [pix_data,npix,pix_info] = combine_sqw(in_file_par,out_file_par,params);
+            assertEqual(npix(1),pix_info(1));
+            assertEqual(double(pix_info(1)),npix_tot)
+            assertEqual(double(pix_info(2)),1)
+            
+            assertEqual(pix_data(:,1:npix_tot),single(cs.data.pix));
+            
+        end        
+        function this = test_read_pix_buf_mex_multithread(this)
+            use_mex = get(hor_config,'use_mex');
+            if ~use_mex
+                return;
+            end
+            %
+            pos_s = this.positions.s;
+            pos_e = this.positions.e;
+            n_bin = (pos_e-pos_s)/4;
+            npix_start_pos =this.positions.npix;  % start of npix field
+            pix_start_pos  =this.positions.pix;   % start of pix field
+            
+            the_sqw = read_sqw(this.sample_file);
+            
+            pns = reshape(the_sqw.data.npix,numel(the_sqw.data.npix),1);
+            pps  = [0;cumsum(pns)];
+            log_level = get(hor_config,'log_level');
+            
+            
+            in_file_par = {struct('file_name',this.sample_file,...
+                'npix_start_pos',npix_start_pos,'pix_start_pos',pix_start_pos,'file_id',0)};
+            params = [n_bin,1,100,log_level,false,false,100,64,true];
+            dummy_out_file_par = struct('file_name','dummy_out','npix_start_pos',0,'pix_start_pos',1000,'file_id',0);
+            [pix_data,npix,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
+            
+            assertEqual(npix(1:43),uint64(pns(1:43)));
+            
+            assertEqual(pix_info(1),uint64(99))
+            assertEqual(pix_info(2),uint64(43))
+            if any(any(abs(pix_data-the_sqw.data.pix(:,1:99))>1.e-4))
+                non_equal = abs(pix_data-the_sqw.data.pix(:,1:99))>1.e-4;
+                ii = find(non_equal);
+                ind = ii(1)/9+1;
+                fprintf('wrong multithrading reaing Pixel N %d\n Right pixel: 9%f\n Wrong pixel 9%f\n',...
+                    ind,the_sqw.data.pix(:,ind),pix_data(:,ind));
+            end
+            assertEqual(pix_data,single(the_sqw.data.pix(:,1:99)))
+            %cleanup_obj=onCleanup(@()sr.delete());
+            
+            params = [n_bin,1,this.npixtot,log_level,false,false,100,64,3];
+            t0= tic;
+            [pix_data,npix,pix_info] = combine_sqw(in_file_par,dummy_out_file_par,params);
+            t1=toc(t0);
+            if log_level >1
+                disp([' Time to process ',num2str(n_bin),' cells containing ',...
+                    num2str(this.npixtot),'pixels is ',num2str(t1),'sec'])
+            end
+
+            if any(abs(double(npix)-pns)>1.e-4)
+                non_equal = abs(double(npix)-pns)>1.e-4;
+                ii = find(non_equal);
+                ind = ii(1);
+                fprintf('wrong multithrading reaing bin N %d Right nbin: %d, Wrong nbin %d\n',...
+                    ind,pns(ind),npix(ind));
+            end
+            if any(any(abs(pix_data(:,1:2248)-the_sqw.data.pix(:,1:2248))>1.e-8))
+                non_equal = abs(pix_data(:,1:2248)-the_sqw.data.pix(:,1:2248))>1.e-4;
+                ii = find(non_equal);
+                ind = floor(ii(1)/9)+1;
+                fprintf(['wrong multithrading reaing Pixel N %d\n',...
+                    ' Right pixel: %f|%f|%f|%f|%f|%f|%f|%f|%f\n Wrong pixel: %f|%f|%f|%f|%f|%f|%f|%f|%f\n'],...
+                    ind,the_sqw.data.pix(:,ind),pix_data(:,ind));
+            end           
+            if any(any(abs(pix_data-the_sqw.data.pix)>1.e-4))
+                non_equal = abs(pix_data-the_sqw.data.pix)>1.e-4;
+                ii = find(non_equal);
+                ind = ii(1)/9+1;
+                fprintf(['wrong multithrading reaing Pixel N %d\n',...
+                    ' Right pixel: %f|%f|%f|%f|%f|%f|%f|%f|%f\n Wrong pixel: %f|%f|%f|%f|%f|%f|%f|%f|%f\n'],...
+                    ind,the_sqw.data.pix(:,ind),pix_data(:,ind));
+            end              
+            
+            assertEqual(npix,uint64(pns));
+            assertEqual(pix_info(1),uint64(this.npixtot))
+            assertEqual(pix_info(2),uint64(n_bin))
+            
+            assertEqual(pix_data(:,1:2248),single(the_sqw.data.pix(:,1:2248)))
+            
+            assertEqual(pix_data(:,4095),single(the_sqw.data.pix(:,4095)))
+            assertEqual(pix_data(:,4096),single(the_sqw.data.pix(:,4096)))
+            assertEqual(pix_data(:,4097),single(the_sqw.data.pix(:,4097)))
+            
+            assertEqual(pix_data(:,7892),single(the_sqw.data.pix(:,7892)))
+            assertEqual(pix_data(:,7893),single(the_sqw.data.pix(:,7893)))
+                     
+            assertEqual(pix_data,single(the_sqw.data.pix))
+            
+        end
         
         
     end

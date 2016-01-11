@@ -34,7 +34,7 @@ const std::map<std::string, int> fileParameters::fileParamNames = {
 float *const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
 
     //this->read_lock.lock();
-    if(changed_buf_size!=0){
+    if (changed_buf_size != 0) {
         this->buf_size = changed_buf_size*PIX_SIZE;
     }
 
@@ -55,7 +55,7 @@ void exchange_buffer::set_and_lock_write_buffer(const size_t nPixels, const size
 
     this->write_buf.swap(this->read_buf);
     this->n_read_pixels = nPixels;
-    this->n_read_pix_total+= nPixels;
+    this->n_read_pix_total += nPixels;
     this->n_bins_processed = nBinsProcessed;
     // last bins may not contain pixels so set write allowed instead of npix>0
     this->write_allowed = true;
@@ -77,7 +77,7 @@ char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n
         return reinterpret_cast<char * const>(&write_buf[0]);
     }
     else {
-        n_pix_to_write=0;
+        n_pix_to_write = 0;
         return NULL;
     }
 
@@ -92,17 +92,17 @@ void exchange_buffer::unlock_write_buffer() {
 }
 /* Verifies if logging is due and send messages to logging thread to report progress.
 Also verifies if operations should be terminated as user pressed CTRL-C */
-void exchange_buffer::check_log_and_interrupt(){
+void exchange_buffer::check_log_and_interrupt() {
     if (this->n_bins_processed >= this->break_point) {
         time_t t_end;
         time(&t_end);
         double seconds = difftime(t_end, this->t_prev);
         this->t_prev = t_end;
-        if(seconds > 30.|| seconds<10.){
+        if (seconds > 30. || seconds < 10.) {
             // want to see logging each 15 second
             double speed = double(break_point) / seconds;
-            size_t step = int(15*speed);
-            if(step<1)step = 1;
+            size_t step = int(15 * speed);
+            if (step < 1)step = 1;
             this->break_step = step;
         }
 
@@ -110,22 +110,22 @@ void exchange_buffer::check_log_and_interrupt(){
         this->do_logging = true;
         this->logging_ready.notify_one();
 
-    if (utIsInterruptPending()) {
-        this->set_interrupted("==> C-code interrupted by CTRL-C");
-        //mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
-        return;
+        if (utIsInterruptPending()) {
+            this->set_interrupted("==> C-code interrupted by CTRL-C");
+            //mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
+            return;
         }
     }
-    
+
 }
 /* Sets internal variables of exchange buffer to state, indicating end of operations*/
-void exchange_buffer::set_write_job_completed() { 
+void exchange_buffer::set_write_job_completed() {
     this->do_logging = true;
     // release possible logging
     this->logging_ready.notify_one();
-    this->write_job_completed = true; 
+    this->write_job_completed = true;
 }
-/* runs on main thread and prints log messages when instructed by write thread 
+/* runs on main thread and prints log messages when instructed by write thread
  (due to the problem with Matlab if logging is run on worker thread) */
 void exchange_buffer::print_log_meassage(int log_level) {
 
@@ -236,13 +236,25 @@ sqw_pix_writer::~sqw_pix_writer() {
 //--------------------------------------------------------------------------------------------------------------------
 //---------------- BINS IN MEMORY ------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
+void cells_in_memory::init(const std::string &full_file_name, size_t bin_start_pos, size_t n_tot_bins, size_t BufferSize, bool use_multithreading) {
+
 #ifdef STDIO
-void cells_in_memory::init(FILE *fileDescr, size_t bin_start_pos, size_t n_tot_bins, size_t BufferSize) {
-    fReader = fileDescr;
+    h_data_file = fopen(full_file_name.c_str(), "rb");
+    bin_buffer.fpos = ftell(h_data_file);
+    if (!h_data_file) {
+        std::string error("Can not open file: ");
+        error += full_file_name;
+        mexErrMsgTxt(error.c_str());
+    }
 #else
-void cells_in_memory::init(std::fstream  &fileDescr, size_t bin_start_pos, size_t n_tot_bins, size_t BufferSize) {
-    fReader = &fileDescr;
+    h_data_file.open(full_file_name, std::fstream::in | std::fstream::binary);
+    if (!h_data_file.is_open()) {
+        std::string error("Can not open file: ");
+        error += full_file_name;
+        mexErrMsgTxt(error.c_str());
+    }
 #endif
+
 
     BUF_SIZE_STEP = BufferSize;
     BIN_BUF_SIZE = 2 * BUF_SIZE_STEP;
@@ -251,6 +263,28 @@ void cells_in_memory::init(std::fstream  &fileDescr, size_t bin_start_pos, size_
     pix_pos_in_buffer.resize(BIN_BUF_SIZE, 0);
     nTotalBins = n_tot_bins;
     binFileStartPos = bin_start_pos;
+    // separate read job
+    this->use_multithreading = use_multithreading;
+    if (this->use_multithreading) {
+        this->nbin_read_buffer.resize(BIN_BUF_SIZE);
+        std::thread read_bins([this]() {this->read_bins_job(); });
+        read_bins_job_holder.swap(read_bins);
+    }
+}
+cells_in_memory::~cells_in_memory() {
+    if (this->use_multithreading) {
+        this->read_completed = true;
+        // finish incomplete read job if it has not been finished naturally
+        this->nbins_read = false;
+        this->read_bins_needed.notify_one();
+        read_bins_job_holder.join();
+    }
+#ifdef STDIO
+    fclose(h_data_file);
+#else
+    h_data_file.close();
+#endif
+
 }
 
 /* return number of pixels this bin buffer describes */
@@ -281,6 +315,169 @@ size_t cells_in_memory::num_pix_to_fit(size_t bin_number, size_t buf_size)const 
 
 
 }
+
+
+/** loads bin information for a pixel, which does not have this information loaded 
+*
+* get number of pixels, stored in the bin and the position
+*  of these pixels within pixel array
+*
+*@param bin_number -- number of bin to get pixel information for
+*pix_pos_in_buffer
+* Returns:
+* pix_start_num -- initial position of the bin pixels in the pixels array
+* num_bin_pix   -- number of pixels, stored in this bin
+*/
+void cells_in_memory::get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix) {
+
+    //
+    if (bin_number >= this->buf_nbin_end) {
+        this->read_all_bin_info(bin_number); // Advance cache
+    }
+    else if (bin_number < this->num_first_buf_bin) { // cache miss
+        this->num_first_buf_bin = 0;
+        this->buf_nbin_end = 0;
+        this->read_all_bin_info(bin_number);
+    }
+    size_t  num_bin_in_buf = bin_number - this->num_first_buf_bin;
+    num_bin_pix = this->nbin_buffer[num_bin_in_buf];
+    pix_start_num = this->pix_before_buffer + this->pix_pos_in_buffer[num_bin_in_buf];
+
+}
+/* read bin info to describe sufficient number of pixels in buffer
+   bin number is already in the bin buffer and we want to read additional bins
+   describing more pixels  */
+void cells_in_memory::expand_pixels_selection(size_t bin_number) {
+    if (this->buf_nbin_end == this->nTotalBins) {
+        return;
+    }
+    size_t  num_bin_in_buf = bin_number - this->num_first_buf_bin;
+    // move bin buffer into new position
+    this->num_first_buf_bin = bin_number;
+    this->pix_before_buffer += this->pix_pos_in_buffer[num_bin_in_buf];
+    for (size_t i = num_bin_in_buf; i < this->buf_end; i++) {
+        this->nbin_buffer[i - num_bin_in_buf] = this->nbin_buffer[i];
+    }
+    size_t buf_start = this->buf_end - num_bin_in_buf;
+    size_t buf_nbin_end, buf_end;
+    if(this->use_multithreading){
+        size_t  num_buf_bins;
+        calc_buf_range(bin_number, buf_start, this->BUF_SIZE_STEP, num_buf_bins, buf_nbin_end, buf_end);
+        if (bin_number+ buf_start == this->n_first_rbuf_bin) {
+            std::unique_lock<std::mutex> lock(this->exchange_lock);
+            this->bins_ready.wait(lock, [this]() {return this->nbins_read; });
+            // copy bin info from read buffer to nbin buffer
+            for (size_t i = 0; i <  num_buf_bins; i++) {
+                this->nbin_buffer[buf_start+i] = this->nbin_read_buffer[i];
+            }
+            // set up parameters for next read job on separate thread
+            this->bin_read_lock.lock();
+            this->n_first_rbuf_bin = buf_nbin_end;
+            this->nbins_read = false;
+            this->read_bins_needed.notify_one();
+            this->bin_read_lock.unlock();
+
+        }else{ // should never happen
+            read_bins(bin_number, buf_start, this->BUF_SIZE_STEP, this->nbin_buffer, buf_nbin_end, buf_end);
+        }
+
+    }else{
+        read_bins(bin_number, this->buf_end - num_bin_in_buf, this->BUF_SIZE_STEP, this->nbin_buffer, buf_nbin_end, buf_end);
+    }
+    record_read_bins(bin_number, buf_nbin_end, buf_end, this->nbin_buffer);
+
+}
+//
+void cells_in_memory::read_all_bin_info(size_t bin_number) {
+
+    if (bin_number < this->num_first_buf_bin) { //cash missed, start reading afresh
+        this->num_first_buf_bin = 0;
+        this->buf_nbin_end = 0;
+        this->pix_before_buffer = 0;
+    }
+    //------------------------------------------------------------------------------
+    size_t firstNewBin = this->buf_nbin_end;
+    size_t n_strides = (bin_number - firstNewBin) / this->BUF_SIZE_STEP + 1;
+    for (size_t i = 0; i < n_strides; i++) {
+        size_t start_bin = firstNewBin + i*this->BUF_SIZE_STEP;
+        // store pixel info for all previous bins
+        size_t end = this->buf_end - 1;
+        this->pix_before_buffer += (this->pix_pos_in_buffer[end] + this->nbin_buffer[end]);
+        size_t buf_nbin_end, buf_end;
+        if (this->use_multithreading) {
+            if (this->n_first_rbuf_bin != start_bin) { // cash missed
+                this->bin_read_lock.lock();
+                this->n_first_rbuf_bin = start_bin;
+                this->nbins_read = false;
+                this->read_bins_needed.notify_one();
+                this->bin_read_lock.unlock();
+            }
+            // retrieve results
+            std::unique_lock<std::mutex> lock(this->exchange_lock);
+            this->bins_ready.wait(lock, [this]() {return this->nbins_read; });
+
+            this->bin_read_lock.lock();
+            buf_nbin_end = this->rbuf_nbin_end;
+            buf_end = this->rbuf_end;
+            this->nbin_read_buffer.swap(this->nbin_buffer);
+            // set up parameters for next read job
+            this->n_first_rbuf_bin = buf_nbin_end;
+            this->nbins_read = false;
+            this->read_bins_needed.notify_one();
+
+            this->bin_read_lock.unlock();
+
+
+        }
+        else {
+            read_bins(start_bin, 0, this->BUF_SIZE_STEP, this->nbin_buffer, buf_nbin_end, buf_end);
+        }
+        record_read_bins(start_bin, buf_nbin_end, buf_end, this->nbin_buffer);
+    }
+}
+void cells_in_memory::read_bins_job() {
+
+    std::unique_lock<std::mutex> lock(this->exchange_lock);
+
+    while (!this->read_completed) {
+        this->read_bins_needed.wait(lock, [this]() {return !this->nbins_read; });
+        if(this->read_completed)break;
+
+        this->bin_read_lock.lock();
+
+        if (this->n_first_rbuf_bin < this->nTotalBins) {
+            read_bins(this->n_first_rbuf_bin, 0, this->BUF_SIZE_STEP, this->nbin_read_buffer, this->rbuf_nbin_end, this->rbuf_end);
+        }else{
+            this->rbuf_nbin_end = this->nTotalBins;
+            this->rbuf_end     = 0;
+        }
+        this->nbins_read = true;
+        this->bin_read_lock.unlock();
+
+        this->bins_ready.notify_one();
+    }
+
+}
+//
+void cells_in_memory::calc_buf_range(size_t num_bin, size_t buf_start,size_t buf_size, size_t &tot_num_bins_to_read, size_t & bin_end, size_t & buf_end) {
+
+    bin_end = num_bin + buf_size + buf_start;
+
+    if (bin_end > nTotalBins) {
+        bin_end = nTotalBins;
+    }
+    else if (bin_end + buf_size >= nTotalBins) { // finish reading extended buffer as all bins fit extended buffer 
+        bin_end = nTotalBins;
+    }
+
+    tot_num_bins_to_read = bin_end - num_bin - buf_start;
+    if (tot_num_bins_to_read > this->BIN_BUF_SIZE) {
+        tot_num_bins_to_read = this->BIN_BUF_SIZE;
+        bin_end = num_bin + this->BIN_BUF_SIZE;
+    }
+    buf_end = buf_start + tot_num_bins_to_read;
+
+}
 /*
 * Method to read block of information about number of pixels
 * stored according to bins starting with the bin number specified
@@ -290,35 +487,22 @@ size_t cells_in_memory::num_pix_to_fit(size_t bin_number, size_t buf_size)const 
 Returns:
 absolute number of last bin read into the buffer.
 */
-size_t cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_size) {
+void cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_size,
+    std::vector<uint64_t> &inbuf, size_t &bin_end, size_t &buf_end) {
 
     if (num_bin >= this->nTotalBins) {
         mexErrMsgTxt("READ_SQW::read_bins =>Accessing bin out of bin range");
     }
 
-    this->num_first_buf_bin = num_bin;
-    size_t bin_end = this->num_first_buf_bin + buf_size + buf_start;
-
-    if (bin_end > nTotalBins) {
-        bin_end = nTotalBins;
-    }
-    else if (bin_end + buf_size >= nTotalBins) { // finish reading extended buffer as all bins fit extended buffer 
-        bin_end = nTotalBins;
-    }
-
-    size_t  tot_num_bins_to_read = bin_end - num_bin - buf_start;
-    if (tot_num_bins_to_read > this->BIN_BUF_SIZE) {
-        tot_num_bins_to_read = this->BIN_BUF_SIZE;
-        bin_end = this->num_first_buf_bin + this->BIN_BUF_SIZE;
-    }
-    this->buf_bin_end = bin_end;
-    this->buf_end = buf_start + tot_num_bins_to_read;
-
+    size_t  tot_num_bins_to_read;
+    calc_buf_range(num_bin, buf_start,buf_size, tot_num_bins_to_read,bin_end,buf_end);
 
     std::streamoff bin_pos = binFileStartPos + (num_bin + buf_start)*BIN_SIZE_BYTES;
+    //
+    std::lock_guard<std::mutex> lock(this->io_lock);
 #ifdef STDIO
     uint64_t * buffer = reinterpret_cast<uint64_t *>(&nbin_buffer[buf_start]);
-    long length = tot_num_bins_to_read;
+    std::streamoff length = tot_num_bins_to_read;
 
     bin_pos -= this->fpos;
     auto err = fseek(fReader, bin_pos, SEEK_CUR);
@@ -332,12 +516,12 @@ size_t cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_s
     this->fpos = ftell(fReader);
 #else
     std::streamoff length = tot_num_bins_to_read*BIN_SIZE_BYTES;
-    char * buffer = reinterpret_cast<char *>(&nbin_buffer[buf_start]);
+    char * buffer = reinterpret_cast<char *>(&inbuf[buf_start]);
 
-    fReader->seekp(bin_pos);
+    h_data_file.seekp(bin_pos);
     std::string err;
     try {
-        fReader->read(buffer, length);
+        h_data_file.read(buffer, length);
     }
     catch (std::ios_base::failure &e) {
         err = "COMBINE_SQW:read_bins read error: " + std::string(e.what());
@@ -349,67 +533,27 @@ size_t cells_in_memory::read_bins(size_t num_bin, size_t buf_start, size_t buf_s
     if (err.size() > 0) {
         mexErrMsgTxt(err.c_str());
     }
-
 #endif
+
+}
+/*Store results of the read operation within the class memory*/
+void  cells_in_memory::record_read_bins(size_t num_bin, size_t buf_nbin_end, size_t buf_end, const std::vector<uint64_t> &buffer) {
+    // Store results
+    this->num_first_buf_bin = num_bin;
+    this->buf_nbin_end = buf_nbin_end;
+    this->buf_end = buf_end;
+
+
     this->pix_pos_in_buffer[0] = 0;
-    for (size_t i = 1; i < tot_num_bins_to_read + buf_start; i++) {
+    for (size_t i = 1; i < buf_end; i++) {
         this->pix_pos_in_buffer[i] = this->pix_pos_in_buffer[i - 1] + this->nbin_buffer[i - 1];
     }
-    return tot_num_bins_to_read;
-}
 
-/* loads bin information for a pixel, which does not have this information loaded */
-void cells_in_memory::get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix) {
+    if (this->buf_nbin_end == this->nTotalBins) {
+        size_t last = buf_end-1;
+        this->max_num_of_pixels = this->pix_before_buffer+ this->pix_pos_in_buffer[last]+ this->nbin_buffer[last];
+    }
 
-    //
-    if (bin_number >= this->buf_bin_end) {
-        this->read_all_bin_info(bin_number); // Advance cache
-    }
-    else if (bin_number < this->num_first_buf_bin) { // cache miss
-        this->num_first_buf_bin = 0;
-        this->buf_bin_end = 0;
-        this->read_all_bin_info(bin_number);
-    }
-    size_t  num_bin_in_buf = bin_number - this->num_first_buf_bin;
-    num_bin_pix = this->nbin_buffer[num_bin_in_buf];
-    pix_start_num = this->pix_before_buffer + this->pix_pos_in_buffer[num_bin_in_buf];
-
-}
-/* read bin info to describe sufficient number of pixels in buffer
-   bin number is already in the bin buffer and we want to read additional bins
-   describing more pixels  */
-void cells_in_memory::expand_pixels_selection(size_t bin_number) {
-    if (this->buf_bin_end == this->nTotalBins) {
-        return;
-    }
-    size_t  num_bin_in_buf = bin_number - this->num_first_buf_bin;
-    // move bin buffer into new position
-    this->num_first_buf_bin = bin_number;
-    this->pix_before_buffer += this->pix_pos_in_buffer[num_bin_in_buf];
-    for (size_t i = num_bin_in_buf; i < this->buf_end; i++) {
-        this->nbin_buffer[i - num_bin_in_buf] = this->nbin_buffer[i];
-    }
-    read_bins(bin_number, this->buf_end - num_bin_in_buf, this->BUF_SIZE_STEP);
-
-}
-//
-void cells_in_memory::read_all_bin_info(size_t bin_number) {
-
-    if (bin_number < this->num_first_buf_bin) { //cash missed, start reading afresh
-        this->num_first_buf_bin = 0;
-        this->buf_bin_end = 0;
-        this->pix_before_buffer = 0;
-    }
-    //------------------------------------------------------------------------------
-    size_t firstNewBin = this->buf_bin_end;
-    size_t n_strides = (bin_number - firstNewBin) / this->BUF_SIZE_STEP + 1;
-    for (size_t i = 0; i < n_strides; i++) {
-        size_t start_bin = firstNewBin + i*this->BUF_SIZE_STEP;
-        // store pixel info for all previous bins
-        size_t end = this->buf_end - 1;
-        this->pix_before_buffer += (this->pix_pos_in_buffer[end] + this->nbin_buffer[end]);
-        read_bins(start_bin, 0, this->BUF_SIZE_STEP);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------
@@ -438,7 +582,6 @@ void pix_reader::run_read_job() {
         n_pixels_processed += n_buf_pixels;
     }
 
-
 }
 void pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer) {
 
@@ -458,10 +601,14 @@ void pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, u
 
     float * pPixBuffer = Buff.get_read_buffer();
     size_t pix_buffer_size = Buff.pix_buf_size();
-
+    size_t ii(0);
 
     for (size_t n_bin = first_bin; n_bin < nBinsTotal; n_bin++) {
         size_t cell_pix = 0;
+        if(n_bin>=471822){
+            ii++;
+        }
+
         for (size_t i = 0; i < n_files; i++) {
             fileReaders[i].get_npix_for_bin(n_bin, pix_start_num, npix);
             cell_pix += npix;
@@ -507,7 +654,7 @@ void pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, u
 /* combine range of input sqw files into single output sqw file */
 void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, const fileParameters &outPar) {
 
-    exchange_buffer Buff(param.pixBufferSize,param.totNumBins, param.num_log_ticks);
+    exchange_buffer Buff(param.pixBufferSize, param.totNumBins, param.num_log_ticks);
 
     pix_reader Reader(param, fileReaders, Buff);
 
@@ -525,10 +672,10 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
     });
 
     std::mutex log_mutex;
-    while(!Buff.is_write_job_completed()){
+    while (!Buff.is_write_job_completed()) {
 
         std::unique_lock<std::mutex> l(log_mutex);
-        Buff.logging_ready.wait(l,[&Buff](){return Buff.do_logging;});
+        Buff.logging_ready.wait(l, [&Buff]() {return Buff.do_logging; });
 
         Buff.print_log_meassage(log_level);
     }
@@ -538,7 +685,7 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 
     Buff.print_final_log_mess(log_level);
 
-  
+
     if (Buff.is_interrupted()) {
         mexErrMsgIdAndTxt("MEX_COMBINE_SQW:interrupted", Buff.error_message.c_str());
     }
@@ -547,9 +694,22 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 //-----------  SQW READER (FOR SINGLE SQW FILE)  ---------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 sqw_reader::sqw_reader(size_t working_buf_size) :
-    bin_buffer(working_buf_size), npix_in_buf_start(0), buf_pix_end(1),
-    PIX_BUF_SIZE(working_buf_size), change_fileno(false), fileno(true)
+    cells_in_memory(working_buf_size),
+    npix_in_buf_start(0), buf_pix_end(0),
+    PIX_BUF_SIZE(working_buf_size), change_fileno(false), fileno(true),
+    use_multithreading_pix(true),pix_read(false), pix_read_job_completed(false), n_first_buf_pix(0)
 {}
+
+sqw_reader::~sqw_reader() {
+    if (this->use_multithreading_pix) {
+        this->pix_read_job_completed = true;
+        // finish incomplete read job if it has not been finished naturally
+        this->pix_read = false;
+        this->read_pix_needed.notify_one();
+        read_pix_job_holder.join();
+    }
+}
+
 
 sqw_reader::sqw_reader(const fileParameters &fpar, bool changefileno, bool fileno_provided, size_t working_buf_size)
     : sqw_reader(working_buf_size)
@@ -557,49 +717,47 @@ sqw_reader::sqw_reader(const fileParameters &fpar, bool changefileno, bool filen
     this->init(fpar, changefileno, fileno_provided, working_buf_size);
 }
 //
-void sqw_reader::init(const fileParameters &fpar, bool changefileno, bool fileno_provided, size_t working_buf_size) {
+void sqw_reader::init(const fileParameters &fpar, bool changefileno, bool fileno_provided, size_t working_buf_size, int multithreading_settings) {
+    bool bin_multithreading;
+   switch(multithreading_settings){
+    case(0):
+        bin_multithreading = false;
+        use_multithreading_pix=false;
+    break;
+    case(1):
+        bin_multithreading = true;
+        use_multithreading_pix = true;
+    break;
+    case(2):
+        bin_multithreading = true;
+        use_multithreading_pix = false;
+    break;
+    case(3) :
+        bin_multithreading = false;
+        use_multithreading_pix = true;
+        break;
+    default:
+        mexErrMsgTxt("Input multithreading parameter should be 0 (no multithreading) 1 (multithreading)"
+        ", 2 (debug mode, only bin thread used for reading ) or 3 (debug mode , use pix read thread, and disable bin reading)");
+   }
 
+    cells_in_memory::init(fpar.fileName, fpar.nbin_start_pos, fpar.total_NfileBins, working_buf_size, bin_multithreading);
 
-    this->full_file_name = fpar.fileName;
     this->fileDescr = fpar;
     this->change_fileno = changefileno;
     this->fileno = fileno_provided;
-#ifdef STDIO
-    h_data_file = fopen(full_file_name.c_str(), "rb");
-    bin_buffer.fpos = ftell(h_data_file);
-    if (!h_data_file) {
-        std::string error("Can not open file: ");
-        error += full_file_name;
-        mexErrMsgTxt(error.c_str());
-}
-#else
-    h_data_file.open(full_file_name, std::fstream::in | std::fstream::binary);
-    if (!h_data_file.is_open()) {
-        std::string error("Can not open file: ");
-        error += full_file_name;
-        mexErrMsgTxt(error.c_str());
-    }
-#endif
-    bin_buffer.init(h_data_file, fpar.nbin_start_pos, fpar.total_NfileBins, working_buf_size);
-    this->PIX_BUF_SIZE = working_buf_size;
 
+    this->PIX_BUF_SIZE = working_buf_size;
     this->pix_buffer.resize(PIX_BUF_SIZE*PIX_SIZE);
 
+    if (this->use_multithreading_pix) {
+        this->thread_pix_buffer.resize(PIX_BUF_SIZE*PIX_SIZE);
+        std::thread read_pix([this]() {this->read_pixels_job(); });
+        read_pix_job_holder.swap(read_pix);
+    }
+
 }
 
-/* get number of pixels, stored in the bin and the position
-*  of these pixels within pixel array
-*
-*@param bin_number -- number of pixel to get information for
-*
-* Returns:
-* pix_start_num -- initial position of the bin pixels in the pixels array
-* num_bin_pix   -- number of pixels, stored in this bin
-*/
-
-void sqw_reader::get_npix_for_bin(size_t bin_number, size_t &pix_start_num, size_t &num_bin_pix) {
-    this->bin_buffer.get_npix_for_bin(bin_number, pix_start_num, num_bin_pix);
-}
 
 /* return pixel information for the pixels stored in the bin
 * @param bin_number  -- the bin number to get results for
@@ -642,15 +800,59 @@ void sqw_reader::get_pix_for_bin(size_t bin_number, float *const pix_info, size_
 */
 void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
 
-
     //check if we have loaded enough bin information to read enough
     //pixels and return enough pixels to fill - in buffer.Expand or
     // shrink if necessary
     // if we are here, nbin buffer is intact and pixel buffer is
     // invalidated
-    size_t num_pix_to_read = this->check_binInfo_loaded_(bin_number);
-    std::streamoff pix_pos = this->fileDescr.pix_start_pos + pix_start_num*PIX_BLOCK_SIZE_BYTES;
+    size_t num_pix_to_read = this->check_binInfo_loaded_(bin_number,true, pix_start_num);
+    if (this->use_multithreading_pix) {
+   
+        std::unique_lock<std::mutex> lock(this->pix_exchange_lock);
+        this->pix_ready.wait(lock, [this]() {return this->pix_read; });
 
+        this->thread_pix_buffer.swap(this->pix_buffer);
+        this->n_first_buf_pix=pix_start_num+ num_pix_to_read;
+        this->pix_read = false;
+        this->read_pix_needed.notify_one();
+
+    }else{
+        read_pix_io(pix_start_num,this->pix_buffer,num_pix_to_read);
+    }
+    this->npix_in_buf_start = pix_start_num;
+    this->buf_pix_end = this->npix_in_buf_start + num_pix_to_read;
+
+}
+//
+void sqw_reader::read_pixels_job() {
+
+    std::unique_lock<std::mutex> lock(this->pix_exchange_lock);
+
+    while (!this->pix_read_job_completed) {
+        this->read_pix_needed.wait(lock, [this]() {return !this->pix_read; });
+        if (this->pix_read_job_completed)break;
+
+        this->pix_read_lock.lock();
+        size_t n_pix_to_read = PIX_BUF_SIZE;
+        if (this->n_first_buf_pix + n_pix_to_read >= this->max_num_of_pixels) {
+            n_pix_to_read = this->max_num_of_pixels- this->n_first_buf_pix;
+        }
+
+        if (n_pix_to_read>0) {
+            read_pix_io(this->n_first_buf_pix, thread_pix_buffer, n_pix_to_read);
+        }
+ 
+        this->pix_read = true;
+        this->pix_read_lock.unlock();
+
+        this->pix_ready.notify_one();
+    }
+
+}
+void sqw_reader::read_pix_io(size_t pix_start_num, std::vector<float> &pix_buffer, size_t num_pix_to_read) {
+
+    std::streamoff pix_pos = this->fileDescr.pix_start_pos + pix_start_num*PIX_BLOCK_SIZE_BYTES;
+    std::lock_guard<std::mutex> lock(this->io_lock);
 #ifdef STDIO
     if (num_pix_to_read == 0) {
         return;
@@ -665,7 +867,7 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
     size_t nBytes = fread(buffer, PIX_BLOCK_SIZE_BYTES, num_pix_to_read, h_data_file);
     if (nBytes != num_pix_to_read) {
         mexErrMsgTxt("COMBINE_SQW:read_pixels Read error, can not read the number of pixels requested");
-}
+    }
     this->bin_buffer.fpos = ftell(h_data_file);
 
 #else
@@ -690,16 +892,15 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
     if (this->change_fileno) {
         for (size_t i = 0; i < num_pix_to_read; i++) {
             if (fileno) {
-                this->pix_buffer[4 + i * 9] = float(this->fileDescr.file_id);
+                pix_buffer[4 + i * 9] = float(this->fileDescr.file_id);
             }
             else {
-                this->pix_buffer[4 + i * 9] += float(this->fileDescr.file_id);
+                pix_buffer[4 + i * 9] += float(this->fileDescr.file_id);
             }
         }
 
     }
-    this->npix_in_buf_start = pix_start_num;
-    this->buf_pix_end = this->npix_in_buf_start + num_pix_to_read;
+
 
 }
 /*
@@ -710,24 +911,35 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
 % processed
 %
 */
-size_t sqw_reader::check_binInfo_loaded_(size_t bin_number, bool extend_pix_buffer) {
+size_t sqw_reader::check_binInfo_loaded_(size_t bin_number, bool extend_bin_buffer,size_t pix_start_num) {
 
     // assume bin buffer is intact with bin_number loaded and get number of pixels this bin buffer describes
-    size_t num_pix_to_read = this->bin_buffer.num_pix_described(bin_number);
+    size_t num_pix_to_read = this->num_pix_described(bin_number);
 
     if (num_pix_to_read > this->PIX_BUF_SIZE) {
-        num_pix_to_read = this->bin_buffer.num_pix_to_fit(bin_number, this->PIX_BUF_SIZE);
+        num_pix_to_read = this->num_pix_to_fit(bin_number, this->PIX_BUF_SIZE);
         //
-        if (num_pix_to_read > this->PIX_BUF_SIZE) {  // single bin still contains more pixels then pix buffer
+        if (num_pix_to_read > this->PIX_BUF_SIZE ) {  // single bin still contains more pixels then pix buffer
             this->PIX_BUF_SIZE = num_pix_to_read;
-            // npix buffer should be extended
+            // pix buffer should be extended
             this->pix_buffer.resize(this->PIX_BUF_SIZE*PIX_SIZE);
+            if(this->use_multithreading_pix){
+                this->pix_read_lock.lock();
+
+                this->thread_pix_buffer.resize(PIX_BUF_SIZE*PIX_SIZE);
+                this->n_first_buf_pix = pix_start_num;
+                this->pix_read = false;
+                this->read_pix_needed.notify_one();
+
+                this->pix_read_lock.unlock();
+
+            }
         }
     }
     else { // bin buffer should be extended
-        if (extend_pix_buffer) {
-            this->bin_buffer.expand_pixels_selection(bin_number);
-            return check_binInfo_loaded_(bin_number, false);
+        if (extend_bin_buffer) {
+            this->expand_pixels_selection(bin_number);
+            return check_binInfo_loaded_(bin_number, false, pix_start_num);
         }
 
     }
@@ -738,7 +950,7 @@ size_t sqw_reader::check_binInfo_loaded_(size_t bin_number, bool extend_pix_buff
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
-/* Convert input Matlab structure with the fields, necessary to describe input & output sqw file into 
+/* Convert input Matlab structure with the fields, necessary to describe input & output sqw file into
    fileParameters class*/
 fileParameters::fileParameters(const mxArray *pFileParam) {
 
@@ -829,8 +1041,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             debug_file_reader = true;
         }
         n_prog_params = mxGetN(prhs[programSettings]);
-        if (!(n_prog_params == 4 || n_prog_params == 8)) {
-            std::string err = "ERROR::combine_sqw => array of program parameter settings (input N 3) should have  4 or 8 elements but got: " +
+        if (!(n_prog_params == 4 || n_prog_params == 8 || n_prog_params == 9)) {
+            std::string err = "ERROR::combine_sqw => array of program parameter settings (input N 3) should have  4 or 8 or 9 elements but got: " +
                 std::to_string(n_prog_params);
             mexErrMsgTxt(err.c_str());
         }
@@ -864,6 +1076,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     // Retrieve programs parameters
     ProgParameters ProgSettings;
+    int read_files_multitreaded(0);
 
     auto pProg_settings = (double *)mxGetPr(prhs[programSettings]);
 
@@ -883,10 +1096,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             ProgSettings.log_level = int(pProg_settings[i]);
             break;
         case(4) :
-            change_fileno = bool(pProg_settings[i]);
+            change_fileno = (pProg_settings[i]>0)?true:false;
             break;
         case(5) :
-            fileno_provided = bool(pProg_settings[i]);
+            fileno_provided = (pProg_settings[i]>0) ? true : false;;
             break;
         case(6) :
             ProgSettings.num_log_ticks = size_t(pProg_settings[i]);
@@ -894,6 +1107,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         case(7) :
             read_buf_size = size_t(pProg_settings[i]);
             break;
+        case(8) :
+            read_files_multitreaded =int(pProg_settings[i]);
+            break;
+
         }
     }
     // set up the number of bins, which is currently equal for all input files
@@ -918,7 +1135,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //--------------------------------------------------------
     std::vector<sqw_reader> fileReader(n_files);
     for (size_t i = 0; i < n_files; i++) {
-        fileReader[i].init(fileParam[i], change_fileno, fileno_provided, read_buf_size);
+        fileReader[i].init(fileParam[i], change_fileno, fileno_provided, read_buf_size, read_files_multitreaded);
     }
     size_t n_buf_pixels(0), n_bins_processed(0);
     if (debug_file_reader) {
@@ -933,9 +1150,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         n_bins_processed = ProgSettings.nBin2read;
         Reader.read_pix_info(n_buf_pixels, n_bins_processed, nbinBuf);
 
-        size_t nReadPixels,n_bin_max;
+        size_t nReadPixels, n_bin_max;
         const float * buf = reinterpret_cast<const float *>(Buffer.get_write_buffer(nReadPixels, n_bin_max));
-        n_bins_processed = n_bin_max-1;
+        n_bins_processed = n_bin_max - 1;
         auto PixBuffer = mxCreateNumericMatrix(9, nReadPixels, mxSINGLE_CLASS, mxREAL);
         if (!PixBuffer) {
             mexErrMsgTxt("Can not allocate output pixels buffer");
