@@ -100,7 +100,7 @@ void exchange_buffer::check_log_and_interrupt() {
         this->t_prev = t_end;
         if (seconds > 30. || seconds < 10.) {
             // want to see logging each 15 second
-            double speed = double(break_point) / seconds;
+            double speed = double(break_step) / seconds;
             size_t step = int(15 * speed);
             if (step < 1)step = 1;
             this->break_step = step;
@@ -273,6 +273,7 @@ void cells_in_memory::init(const std::string &full_file_name, size_t bin_start_p
         read_bins_job_holder.swap(read_bins);
     }
 }
+//
 cells_in_memory::~cells_in_memory() {
     if (this->use_multithreading) {
         this->bin_read_lock.lock();
