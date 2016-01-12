@@ -34,6 +34,9 @@ function [data, count_out, status_ok, message] = fread_catch (fid, count_in, pre
 
 ntry_retry=6;   % maximum number of attempts to read before trying to reopen
 ntry_reopen=6;  % further attempts with reopening
+if verLessThan('matlab','8.1')
+   count_in = double(count_in); 
+end
 
 pos_initial = ftell(fid);   % location before attempt to read
 ntry_max=ntry_retry+ntry_reopen;

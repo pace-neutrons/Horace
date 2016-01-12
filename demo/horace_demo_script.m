@@ -58,7 +58,6 @@ end
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs);
 
-return
 %====================================
 %% Make plots etc
 %====================================

@@ -120,7 +120,7 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1093 $ ($Date: 2015-12-07 16:04:02 +0000 (Mon, 07 Dec 2015) $)
 
 application=horace_version;
 

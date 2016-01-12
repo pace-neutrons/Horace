@@ -1,4 +1,4 @@
-function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infiles, npixstart, pixstart, run_label)
+function [mess,position,npixtot,data_type,fid_input] = put_sqw_data (fid, data, opt, infiles, npixstart, pixstart, run_label)
 % Write data block to binary file
 %
 %   >> [mess, position, npixtot, data_type] = put_sqw_data (fid, data)
@@ -79,6 +79,7 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 %              always!) have eventually written the pixel information from files using
 %              the infiles...run_label options; if 'h' then header information will have been
 %              overwritten data in a file containing one of 'a','a-','b+','b'.
+% fid_input    The identified, stating if the output file should be kept open (Matlab files combining) or not (mex files combining)
 %
 %
 % Fields written to the file are:
@@ -152,6 +153,7 @@ function [mess,position,npixtot,data_type] = put_sqw_data (fid, data, opt, infil
 mess = '';
 position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]);
 npixtot=[];
+fid_input = false;
 
 % Determine type of input data structure
 data_type_in = data.data_type();
@@ -363,7 +365,7 @@ if ~write_header_only
             position.pix=ftell(fid);
             data_type='a';
             if npixtot>0
-                mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
+                [mess,fid_input] = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart, npix_cumsum, run_label);
             end
         else
             data_type='a-';

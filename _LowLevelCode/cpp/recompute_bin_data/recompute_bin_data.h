@@ -6,7 +6,7 @@
 #include <sstream>
 #include <memory>
 //
-// $Revision:: 1045 $ ($Date:: 2015-08-04 13:42:10 +0100 (Tue, 04 Aug 2015) $)" 
+// $Revision::      $ ($Date::                                              $)" 
 //
 
 template<class T>
