@@ -105,6 +105,15 @@ classdef hor_config<config_base
             this=this@config_base(mfilename('class'));
             
             this.threads_ = find_nproc_to_use(this);
+            % set os-specific defaults
+            if ispc
+                this.mex_combine_thread_mode_   = -1;                
+            elseif isunix
+                if ~ismac
+                    this.mex_combine_thread_mode_   = 0;                
+                    this.mex_combine_buffer_size_ = 64*1024;
+                end
+            end
         end
         
         %-----------------------------------------------------------------
