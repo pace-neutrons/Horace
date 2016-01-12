@@ -65,6 +65,7 @@ classdef hor_config<config_base
         force_mex_if_use_mex % testing and debugging option -- fail if mex can not be used
         delete_tmp        % automatically delete temporary files after generating sqw files
         
+        can_use_mex_for_combine        
         use_mex_for_combine
         mex_combine_thread_mode
         % size of buffer used during mex combine for each file
@@ -83,7 +84,7 @@ classdef hor_config<config_base
         force_mex_if_use_mex_ = false;
         delete_tmp_ = true;
         
-        can_use_mex_4_combine_ = false;
+        can_use_mex_for_combine_ = false;
         %-1 not use mex; 0 not use threads, 1 full multithreading, 2 -- multithreaded bins only,
         % 3 multithreaded pix only
         mex_combine_thread_mode_   = -1;
@@ -96,7 +97,7 @@ classdef hor_config<config_base
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
             'ignore_inf', 'log_level','use_mex',...
             'force_mex_if_use_mex','delete_tmp',...
-            'mex_combine_thread_mode','mex_combine_buffer_size','can_use_mex_4_combine'}
+            'mex_combine_thread_mode','mex_combine_buffer_size','can_use_mex_for_combine'}
     end
     
     methods
@@ -146,9 +147,11 @@ classdef hor_config<config_base
         function delete = get.delete_tmp(this)
             delete = get_or_restore_field(this,'delete_tmp');
         end
-        
+        function can = get.can_use_mex_for_combine(this)        
+                can = get_or_restore_field(this,'can_use_mex_for_combine');            
+        end
         function use = get.use_mex_for_combine(this)
-            can_use = get_or_restore_field(this,'can_use_mex_4_combine');
+            can_use = this.can_use_mex_for_combine();
             if can_use
                 use = get_or_restore_field(this,'mex_combine_thread_mode');
                 if use>=0
@@ -230,7 +233,7 @@ classdef hor_config<config_base
                     use = false;
                     warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated, Use mex set to false');
                 end
-                config_store.instance().store_config(this,'can_use_mex_4_combine',can_combine_with_mex);
+                config_store.instance().store_config(this,'can_use_mex_for_combine',can_combine_with_mex);
             end
             config_store.instance().store_config(this,'use_mex',use);
             
@@ -251,26 +254,28 @@ classdef hor_config<config_base
                 del = false;
             end
             config_store.instance().store_config(this,'delete_tmp',del);
+        end      
+        function this = set.can_use_mex_for_combine(this,val)
+            if val>1
+                try
+                    ver = combine_sqw();                   
+                    config_store.instance().store_config(this,'can_use_mex_for_combine',true);
+                catch ME
+                    warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not availible.\n',...
+                        ' Reason: %s\n.',...
+                        ' Will not use mex for combininng'],ME.message);
+                    config_store.instance().store_config(this,'can_use_mex_for_combine',false);
+                end
+                
+            else
+               config_store.instance().store_config(this,'can_use_mex_for_combine',false);                
+            end
         end
         function this = set.use_mex_for_combine(this,val)
             if val>0
                 use = 0;
             else
                 use = -1;
-            end
-            if use>-1
-                try
-                    ver = combine_sqw();
-                    
-                    %config_store.instance().store_config(this,'can_use_mex_4_combine',true);
-                    config_store.instance().store_config(this,'can_use_mex_4_combine',true);
-                catch ME
-                    warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not availible.\n',...
-                        ' Reason: %s\n.',...
-                        ' Will not use mex for combininng'],ME.message);
-                    config_store.instance().store_config(this,'can_use_mex_4_combine',false);
-                    use = -1;
-                end
             end
             config_store.instance().store_config(this,'mex_combine_thread_mode',use);
         end
@@ -301,12 +306,12 @@ classdef hor_config<config_base
             else
                 try
                     ver = combine_sqw();
-                    config_store.instance().store_config(this,'can_use_mex_4_combine',true);
+                    config_store.instance().store_config(this,'can_use_mex_for_combine',true);
                 catch ME
                     warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not availible.\n',...
                         ' Reason: %s\n.',...
                         ' Will not use mex for combining'],ME.message);
-                    config_store.instance().store_config(this,'can_use_mex_4_combine',false);
+                    config_store.instance().store_config(this,'can_use_mex_for_combine',false);
                     val = -1;
                 end
                 
