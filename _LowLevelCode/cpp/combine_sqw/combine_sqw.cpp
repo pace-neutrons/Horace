@@ -611,10 +611,7 @@ void pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, u
 
     for (size_t n_bin = first_bin; n_bin < nBinsTotal; n_bin++) {
         size_t cell_pix = 0;
-        if(n_bin>=471822){
-            ii++;
-        }
-
+ 
         for (size_t i = 0; i < n_files; i++) {
             fileReaders[i].get_npix_for_bin(n_bin, pix_start_num, npix);
             cell_pix += npix;
