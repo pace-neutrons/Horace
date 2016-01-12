@@ -2,7 +2,7 @@
 #define H_COMMON_CODE
 
 //
-// $Revision:: 1053 $ ($Date:: 2015-08-27 15:39:00 +0100 (Thu, 27 Aug 2015) $)" 
+// $Revision::      $ ($Date::                                              $)" 
 //
 
 
@@ -26,6 +26,18 @@ void omp_set_num_threads(int nThreads) {};
 #else
 #include <omp.h>
 #endif
+
+
+#ifdef __cplusplus 
+extern "C" bool utIsInterruptPending();
+extern "C" bool ioFlush(void);
+#else
+extern bool utIsInterruptPending();
+extern bool ioFlush(void);
+#endif
+
+
+
 
 # if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
 #define  OMP_VERSION_3

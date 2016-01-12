@@ -7,31 +7,48 @@ classdef hor_config<config_base
     % To set values:
     %   >> hc = hor_config();
     %   >> hc.name1=val1;
-    % or   
+    % or
     %   >> set(hor_config,'name1',val1,'name2',val2,...)
     %
     %
     % To fetch values:
     % >> val1 = hor_config.name1;
-    %or    
-    % >>[val1,val2,...]=get(hor_config,'name1','name2',...)    
+    %or
+    % >>[val1,val2,...]=get(hor_config,'name1','name2',...)
     %
     %
     % Fields are:
     % -----------
     %   mem_chunk_size      Maximum number of pixels that are processed at one go during cuts
+    %                       on usual machine with 16Gb of RAM it is 10^7
+    %                       (higher value does not provide obvious
+    %                       performance benifits) but on older machines
+    %                       with ~4Gb it has to be reduced to 10^6
     %   threads             Number of threads to use in mex files
+    %                       no more then number of processors but
+    %                       value higher then 8 do not provide obvious
+    %                       performance benifits for given mem_chink_size.
+    %
     %   ignore_nan          Ignore NaN data when making cuts
+    %                       (default --true)
     %   ignore_inf          Ignore Inf data when making cuts
+    %                       (default -- true)
+    %
     %   horace_info_level   Set verbosity of informational output
+    %   log_level           The synonym for the horace_info_level
     %                           -1  No information messages printed
     %                            0  Major information messages printed
     %                            1  Minor information messages printed in addition
-    %                            2  Time of the run measured and printed as well. 
-    %                                   :
+    %                            2  Time of the run measured and printed as well.
     %                       The larger the value, the more information is printed
+    %
     %   use_mex             Use mex files for time-consuming operation, if available
-    %   force_mex_if_use_mex % testing and debugging option -- fail if mex can not be used   
+    %                       default -- true if mex files are compiled
+    %   force_mex_if_use_mex : fail if mex can not be used.
+    %                       It is testing and debugging option by default,
+    %                       if mex file fails, program uses Matlab.
+    %   delete_tmp        % automatically delete temporary files after generating sqw files
+    %                       default true.
     %
     % Type >> hor_config  to see the list of current configuration option values.
     %
@@ -47,35 +64,39 @@ classdef hor_config<config_base
         use_mex           % use mex-code for time-consuming operations
         force_mex_if_use_mex % testing and debugging option -- fail if mex can not be used
         delete_tmp        % automatically delete temporary files after generating sqw files
-        % These three method added to deal with RHEL 6 & 7 OMP error, when
-        % OMP job runs extreamly slow after 
-        avrg_gensqw_time   % the average time to run gensqw omp job set this value to enable OMP thread managment
-                           % the value should bee bit more then
-                           % 3*time_to_complete_the_job single threaded
-        call_counter       % counter used in measuring the OMP job performance fall if any
-        estimate_processing_time  % boolean which is true if avrg_gensqw_time is set
-                                  %and OMP thread managment should be enabled
         
+        use_mex_for_combine
+        mex_combine_thread_mode
+        % size of buffer used during mex combine for each file
+        mex_combine_buffer_size
     end
     properties(Access=protected)
         % private properties behind public interface
         mem_chunk_size_=10000000;
         threads_ =1;
+        
         ignore_nan_ = true;
         ignore_inf_ = false;
         log_level_ = 1;
+        
         use_mex_ = true;
         force_mex_if_use_mex_ = false;
         delete_tmp_ = true;
-        avrg_gensqw_time_ = 0;
-        call_counter_ = 0;
+        
+        can_use_mex_4_combine_ = false;
+        %-1 not use mex; 0 not use threads, 1 full multithreading, 2 -- multithreaded bins only,
+        % 3 multithreaded pix only
+        mex_combine_thread_mode_   = -1;
+        mex_combine_buffer_size_ = 1024;
     end
     
     properties(Constant,Access=private)
+        % change this list if saveable fields have changed or redefine
+        % get_storage_field_names function below
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
             'ignore_inf', 'log_level','use_mex',...
             'force_mex_if_use_mex','delete_tmp',...
-            'avrg_gensqw_time','call_counter'}
+            'mex_combine_thread_mode','mex_combine_buffer_size','can_use_mex_4_combine'}
     end
     
     methods
@@ -84,6 +105,15 @@ classdef hor_config<config_base
             this=this@config_base(mfilename('class'));
             
             this.threads_ = find_nproc_to_use(this);
+            % set os-specific defaults
+            if ispc
+                this.mex_combine_thread_mode_   = -1;
+            elseif isunix
+                if ~ismac
+                    this.mex_combine_thread_mode_   = 0;
+                    this.mex_combine_buffer_size_ = 64*1024;
+                end
+            end
         end
         
         %-----------------------------------------------------------------
@@ -117,6 +147,25 @@ classdef hor_config<config_base
             delete = get_or_restore_field(this,'delete_tmp');
         end
         
+        function use = get.use_mex_for_combine(this)
+            can_use = get_or_restore_field(this,'can_use_mex_4_combine');
+            if can_use
+                use = get_or_restore_field(this,'mex_combine_thread_mode');
+                if use>=0
+                    use = true;
+                else
+                    use = false;
+                end
+            else
+                use = false;
+            end
+        end
+        function size= get.mex_combine_buffer_size(this)
+            size = get_or_restore_field(this,'mex_combine_buffer_size');
+        end
+        function type= get.mex_combine_thread_mode(this)
+            type = get_or_restore_field(this,'mex_combine_thread_mode');
+        end
         %-----------------------------------------------------------------
         % overloaded setters
         function this = set.mem_chunk_size(this,val)
@@ -176,14 +225,15 @@ classdef hor_config<config_base
             if use
                 % Configure mex usage
                 % --------------------
-                [dummy,n_errors]=check_horace_mex();
+                [~,n_errors,~,~,~,can_combine_with_mex]=check_horace_mex();
                 if n_errors>0
                     use = false;
                     warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated, Use mex set to false');
                 end
+                config_store.instance().store_config(this,'can_use_mex_4_combine',can_combine_with_mex);
             end
-            
             config_store.instance().store_config(this,'use_mex',use);
+            
         end
         %
         function this = set.force_mex_if_use_mex(this,val)
@@ -202,85 +252,70 @@ classdef hor_config<config_base
             end
             config_store.instance().store_config(this,'delete_tmp',del);
         end
-        %--------------------------------------------------------------------
-        function this = set.avrg_gensqw_time(this,val)
+        function this = set.use_mex_for_combine(this,val)
             if val>0
-                config_store.instance().store_config(this,'avrg_gensqw_time',val);
+                use = 0;
             else
-                config_store.instance().store_config(this,'avrg_gensqw_time',0);
+                use = -1;
             end
-            
-        end
-        
-        function time = get.avrg_gensqw_time(this)
-            time = get_or_restore_field(this,'avrg_gensqw_time');
-        end
-        
-        function increase_threads = check_time_acceptable(this,time)
-            % method comapres etalon time, defined within the class
-            % with the time provided as input
-            % and returns suggestions on increase/decrease number of
-            % threads executing the job evaluated
-            %
-            % Usage:
-            % nthreads=hor_config_instance.check_time_acceptable(time)
-            %          where time is the time clacked to do the job. 
-            %Returns:
-            % 0    -- if time provided is less then 4 etalon times
-            % -1   -- if the time is higher then 4 etalon times for the first time
-            % 1    -- if -1 was issued before and the time was smaller then 3
-            %         etalon times three times in a row
-
-            increase_threads = 0;
-            etalon = this.avrg_gensqw_time;
-            if this.call_counter~=0
-                if time<=3*etalon % normal speed of calculating data wtih one omp thread. 
-                    this.call_counter_incr();
-                    if this.call_counter >= 4
-                        increase_threads = 1;
-                        this.call_counter = 0;
-                    end
-                else 
-                    % increase number of threads only if the execution time
-                    % was low three times in a row. Drop call counter to
-                    % inital value otherwise. 
-                    if this.call_counter>1
-                        this.call_counter=1;
-                    end
-                end
-            else
-                if time>4*etalon
-                    this.call_counter_incr();
-                    increase_threads = -1;
+            if use>-1
+                try
+                    ver = combine_sqw();
+                    
+                    %config_store.instance().store_config(this,'can_use_mex_4_combine',true);
+                    config_store.instance().store_config(this,'can_use_mex_4_combine',true);
+                catch ME
+                    warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not availible.\n',...
+                        ' Reason: %s\n.',...
+                        ' Will not use mex for combininng'],ME.message);
+                    config_store.instance().store_config(this,'can_use_mex_4_combine',false);
+                    use = -1;
                 end
             end
-            
+            config_store.instance().store_config(this,'mex_combine_thread_mode',use);
         end
-        
-        function this = set.call_counter(this,val)
-            config_store.instance().store_config(this,'call_counter',val);
-        end
-        function this = call_counter_incr(this)
-            count = get_or_restore_field(this,'call_counter');
-            count=count+1;
-            config_store.instance().store_config(this,'call_counter',count);
-        end       
-        function count = get.call_counter(this)
-            count = get_or_restore_field(this,'call_counter');
-        end
-        %
-        %function this = set.estimate_processing_time(this,val)
-        %end
-        
-        function est = get.estimate_processing_time(this)
-            time = get_or_restore_field(this,'avrg_gensqw_time');
-            if time>0
-                est=true;
-            else
-                est = false;
+        function this= set.mex_combine_buffer_size(this,val)
+            if val<64
+                error('HOR_CONFIG:mex_combine_buffer_size',' mex_combine_buffer_size should be bigger then 64, and better >1024');
             end
+            if val==0
+                this.use_mex_for_combine = false;
+                return;
+            end
+            config_store.instance().store_config(this,'mex_combine_buffer_size',val);
+        end
+        function this= set.mex_combine_thread_mode(this,val)
+            if  val>3
+                error('HOR_CONFIG:mex_combine_thread_mode',...
+                    [' mex_combine_multithreaded should be a number smaller or equal 3\n ',...
+                    '  meaning:\n', ...
+                    '  negative -- no mex combining\n',...
+                    ' 0 -- no multitheading ',...
+                    ' 1 -- full multitrheading',...
+                    ' and two debug options:\n', ...
+                    ' 2 -- only bin numbers are read by separate thread',...
+                    ' 3 -- only pixels are read by separate thread']);
+            end
+            if val<0
+                val = -1;
+            else
+                try
+                    ver = combine_sqw();
+                    config_store.instance().store_config(this,'can_use_mex_4_combine',true);
+                catch ME
+                    warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not availible.\n',...
+                        ' Reason: %s\n.',...
+                        ' Will not use mex for combining'],ME.message);
+                    config_store.instance().store_config(this,'can_use_mex_4_combine',false);
+                    val = -1;
+                end
+                
+            end
+            
+            config_store.instance().store_config(this,'mex_combine_thread_mode',val);
         end
         
+        %--------------------------------------------------------------------
         
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED

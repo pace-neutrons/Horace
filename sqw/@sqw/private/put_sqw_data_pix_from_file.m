@@ -1,4 +1,5 @@
-function mess = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pixstart, npix_cumsum, run_label)
+
+function [mess,fid_input] = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pixstart, npix_cumsum, run_label)
 % Write pixel information to file, reading that pixel information from a collection of other files
 %
 %   >> mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart)
@@ -65,6 +66,34 @@ else
     mess='Invalid contents for argument run_label';
     return
 end
+fid_input = false;
+% size of buffer to hold pixel information, the log level and if use mex to
+% build the result
+[pmax,log_level,use_mex] = get(hor_config,'mem_chunk_size','log_level','use_mex_for_combine');
+if use_mex
+    pix_out_position = ftell(fout);
+    fout_name = fopen(fout);
+    fclose(fout);
+    n_bins = numel(npix_cumsum);
+    [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_position,...
+        infiles,pos_npixstart, pos_pixstart,run_label,change_fileno,fileno);
+    if isempty(mess)
+        fid_input = true;
+        return
+    else  % Mex combining have failed, try Matlab
+        fout = fopen(fout_name,'rb+');
+        if (fout<0)
+            mess=['Unable to reopen output file: ',fout_name,'with all necessary permissions'];
+            return
+        end
+        status = fseek(fout,pix_out_position,'bof');
+        if status<0
+            mess=['Error finding location of pixel data in output file: ',fout_name];
+            fclose(fout);
+            return
+        end
+    end
+end
 
 
 % Open all input files and move to the start of the pixel information
@@ -112,11 +141,14 @@ end
 %  memory even for that, in general. We need to read these in, a section at a time, into a buffer.
 % (For example, if 50^4 grid, 300 files then array size of npix= 8*300*50^4 = 15GB).
 %profile on
-[pmax,log_level] = get(hor_config,'mem_chunk_size','log_level');    % size of buffer to hold pixel information
+
 nbin = numel(npix_cumsum);                  % total number of bins
 ibin_end=0;                                 % initialise the value of the largest element number of npix that is stored
 ibin_lastflush=0;                           % last bin index for which data has been written to output file
 npix_lastflush=0;                           % last pixel index for which data has been written to output file
+file_size     =0;
+t_io  = 0;
+t_total=1;
 
 nsinglebin_write = 0;
 nbuff_write = 0;
@@ -125,6 +157,7 @@ if log_level > 1
     total_size_written=0;
 end
 while ibin_end<nbin
+    
     % Refill buffer with next section of npix arrays from the input files
     ibin_start = ibin_end+1;
     [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_start,nbin);
@@ -137,6 +170,9 @@ while ibin_end<nbin
     % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
     % only read when the bin index fills as much of the buffer as possible, or if reaches the end of the array of buffered npix)
     while ibin_lastflush < ibin_end
+        if (log_level>1)
+            t_all=tic;
+        end
         ibin = min(ibin_end,upper_index(npix_cumsum, npix_lastflush+pmax));
         if ibin==ibin_lastflush     % catch case when buffer cannot hold data for just the one bin
             ibin = ibin+1;
@@ -160,6 +196,9 @@ while ibin_end<nbin
                 end
             end
             nsinglebin_write = nsinglebin_write + 1;
+            if (log_level>1)
+                t_io=toc(t_all);                
+            end
         else    % can hold data for at least one bin in buffer
             % Get information about number of pixels to be read from all the files
             if (log_level>1)
@@ -179,7 +218,7 @@ while ibin_end<nbin
             npixels = 0;
             %
             if (log_level>1)
-                t0 = tic;
+                tr = tic;
             end
             %
             for i=1:nfiles
@@ -201,10 +240,11 @@ while ibin_end<nbin
             end
             %
             if (log_level>1)
-                t_read=toc(t0);
+                t_read=toc(tr);
                 disp(['   ***time to read sub-cells: ',num2str(t_read),' speed: ',num2str(npixels*4/t_read/(1024*1024)),'MB/sec'])
             end
-            %
+            
+            
             if change_fileno
                 for i=1:nfiles
                     pix_block = pix_tb{i};
@@ -239,26 +279,26 @@ while ibin_end<nbin
                 end
                 
                 pix_buff=pix_buff(:,ind);   % rearrange pix_buff
+                
                 if (log_level>1)
                     disp(['   ***pix_buff: ',num2str(size(pix_buff))])
-                    t0 = tic;
+                    tw = tic;
                 end
-                
                 fwrite(fout,pix_buff,'float32');    % write to output file
                 if (log_level>1)
-                    t_write=toc(t0);
-                    current_MbSize = numel(pix_buff)*4/(1024*1024);
-                    disp(['   ***time to flush buffer : ',num2str(t_write),' speed: ',num2str(current_MbSize /t_write),'MB/sec'])
-                    total_size_written=total_size_written+current_MbSize;
+                    t_write=toc(tw);
+                    block_size = numel(pix_buff)*4/(1024*1024);
+                    file_size = file_size+block_size;
+                    disp(['   ***timeto flush buffer : ',num2str(t_write),' speed: ',num2str(block_size/t_write),'MB/sec'])
                 end
                 %                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
             end
             clear npix_flush npix_in_files nend nbeg ok ind pix_buff  % clear the memory ofbig arrays (esp. pix_buff)
             nbuff_write = nbuff_write + 1;
             if (log_level>1)
-                t_block = toc(t_total_block);
-                t_IO    = t_write+t_read;
-                disp(['   ***time to process I/O block : ',num2str(t_block),'sec, IO time in total is: ',num2str(100*t_IO/t_block),'%'])
+                t_total=toc(t_all);
+                t_io   = t_write+t_read;
+                disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])
             end
             
         end
@@ -267,6 +307,11 @@ while ibin_end<nbin
         mess_completion(npix_lastflush)
     end
 end
+if (log_level>1)
+    disp(['   ***IO time to total time ratio: ',num2str(100*t_io/t_total),'%'])
+    disp(['******Processed: ',num2str(file_size),' MB'])
+end
+
 %profile off
 %profile viewer
 mess_completion
@@ -326,4 +371,73 @@ for i=1:nfiles
         mess = ['Unable to return to entry location of pixel data in ',filename];
         return
     end
+end
+%
+function  [mess,infiles] = combine_files_using_mex(fout_name,n_bin,pix_out_position,...
+    infiles,npixstart, pixstart,runlabel,change_fileno,fileno)
+% prepare input data for mex-combining and attempt to combine input data
+% using mex.
+nfiles = numel(infiles);
+if isnumeric(infiles)
+    close_files = true;
+else
+    close_files = false;
+end
+in_params=cell(nfiles,1);
+for i=1:nfiles
+    if close_files
+        filename = fopen(infiles(i));
+        fclose(filename);
+    else
+        filename = infiles{i};
+    end
+    if change_fileno
+        if fileno
+            file_id = i;   % set the run index to the file index
+        else
+            file_id = runlabel(i);  % offset the run index
+        end
+    else
+        file_id = 0;
+    end
+    in_params{i} = struct('file_name',filename,...
+        'npix_start_pos',npixstart(i),'pix_start_pos',pixstart(i),'file_id',file_id);
+end
+
+out_param = struct('file_name',fout_name ,...
+    'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
+
+[out_buf_size,log_level,buf_size,multithreaded_combining] = get(hor_config,'mem_chunk_size','log_level',...
+    'mex_combine_buffer_size','mex_combine_thread_mode');
+
+% conversion parameters include:
+% n_bin        -- number of bins in the image array
+% 1            -- first bin to start copty pixels for
+% out_buf_size -- the size of ouput buffer to use for writing pixels
+% change_fileno-- if pixel run id should be changed
+% fileno       -- if change_fileno is true, how to calculate the new pixel
+%                 id -- by providing new id or by adding it to existing.
+% num_ticks    -- approximate number of log messages to generate while
+%                 combining files together
+% buf size     -- bufer size -- the size of bufer used for each input file
+%                 read operations
+% multithreaded_combining - use multiple threads to read files 
+program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,buf_size,multithreaded_combining];
+t_start=tic;
+try
+    if log_level>1
+        fprintf(' Combining Task started at  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
+    end
+    combine_sqw(in_params,out_param ,program_param);
+    mess = '';
+catch ME;
+    mess = [ME.identifier,'::',ME.message]; 
+    disp(['Error using C to combine files: ',mess,'; Reverted to Matlab'])
+end
+if log_level > 0
+    te=toc(t_start);
+    disp([' Task completed in ',num2str(te),' seconds'])
+end
+if log_level>1
+    fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
 end
