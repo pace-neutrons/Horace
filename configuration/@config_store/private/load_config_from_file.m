@@ -45,14 +45,17 @@ if exist(file_name,'file')
             result=0;
             mess = ['Contents of configuration file ',file_name,' is outdated '];
             return;
-        end
-        
+        end       
     else
         result=-1;
         mess=['Contents of file ',file_name,' are not configuration data'];
         return
     end
+else
+    result=-1;
+    mess = ['Configuration file ',file_name,' does not exist'];
+    return
 end
+result = 1;
+mess = '';
 
-result=1;
-mess='';

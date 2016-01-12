@@ -27,16 +27,29 @@ else
         if result == 0 % outdated configuration.
             warning('CONFIG_STORE:restore_config','Stored configuration for class: %s is outdated\n The configuration has been reset to defaults ',class_name);
         else
-            error('CONFIG_STORE:restore_config',mess);
+            warning('CONFIG_STORE:restore_config',['Custom configuration for class: %s does not exist\n',...
+                   ' The configuration has been set to defaults. Type:\n',...
+                   '>>%s\n   to check if defaults are correct'],class_name,class_name);            
         end
         if exist(filename,'file')
             delete(filename);
-        end       
+        end
     end
-
-    % set obtained config data into storage. 
-    if isempty(config_data) % get defaults
-        config_data = class_to_restore.get_data_to_store();
+    
+    % set obtained config data into storage.
+    try
+        if isempty(config_data) % get defaults
+            config_data = class_to_restore.get_data_to_store();
+        end
+    catch ME
+        if (strcmp(ME.identifier,'MATLAB:noSuchMethodOrField'))
+            warning('CONFIG_STORE:restore_config','Stored configuration for class: %s is outdated\n The configuration has been reset to defaults ',class_name);
+            if exist(filename,'file')
+                delete(filename);
+            end
+        else
+            rethrow(ME);
+        end
     end
     this.config_storage_.(class_name) = config_data;
     % this returns current state of saveable property and if it is not
