@@ -256,7 +256,7 @@ classdef hor_config<config_base
             config_store.instance().store_config(this,'delete_tmp',del);
         end      
         function this = set.can_use_mex_for_combine(this,val)
-            if val>1
+            if val>0
                 try
                     ver = combine_sqw();                   
                     config_store.instance().store_config(this,'can_use_mex_for_combine',true);
