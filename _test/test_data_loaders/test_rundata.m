@@ -297,7 +297,7 @@ classdef test_rundata< TestCase
             run=set_lattice_field(run,'psi',10);
             assertEqual(10,get_rundata(run,'psi'));
             
-
+            
             run=set_lattice_field(run,'psi',20,'-ifempty');
             assertEqual(10,get_rundata(run,'psi'));
             
@@ -305,8 +305,17 @@ classdef test_rundata< TestCase
             run.lattice = lat;
             assertEqual(0,get_rundata(run,'psi'));
             
-            run=set_lattice_field(run,'psi',20,'-ifempty');            
+            run=set_lattice_field(run,'psi',20,'-ifempty');
             assertEqual(20,get_rundata(run,'psi'));
+            
+        end
+        function test_serialization(this)
+            run=rundata(f_name(this,'MAP11014.nxspe'));
+            str1 = serialize(run);
+            
+            run1 = rundata.deserialize(str1);
+            
+            assertEqual(run,run1);
             
         end
         
