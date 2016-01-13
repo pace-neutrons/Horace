@@ -65,11 +65,14 @@ classdef hor_config<config_base
         force_mex_if_use_mex % testing and debugging option -- fail if mex can not be used
         delete_tmp        % automatically delete temporary files after generating sqw files
         
-        can_use_mex_for_combine        
         use_mex_for_combine
         mex_combine_thread_mode
         % size of buffer used during mex combine for each file
         mex_combine_buffer_size
+        % option to generate tmp files by launcing separate Matlab process
+        accum_in_separate_process
+        % number of processes to launch to cauumultate additional files
+        accumulating_process_num
     end
     properties(Access=protected)
         % private properties behind public interface
@@ -84,11 +87,14 @@ classdef hor_config<config_base
         force_mex_if_use_mex_ = false;
         delete_tmp_ = true;
         
-        can_use_mex_for_combine_ = false;
-        %-1 not use mex; 0 not use threads, 1 full multithreading, 2 -- multithreaded bins only,
+        use_mex_for_combine_ = false;
+        % 0 not use threads, 1 full multithreading, 2 -- multithreaded bins only,
         % 3 multithreaded pix only
-        mex_combine_thread_mode_   = -1;
+        mex_combine_thread_mode_   = 0;
         mex_combine_buffer_size_ = 1024;
+        
+        accum_in_separate_process_ = false;
+        accumulating_process_num_ = 1;
     end
     
     properties(Constant,Access=private)
@@ -97,7 +103,8 @@ classdef hor_config<config_base
         saved_properties_list_={'mem_chunk_size','threads','ignore_nan',...
             'ignore_inf', 'log_level','use_mex',...
             'force_mex_if_use_mex','delete_tmp',...
-            'mex_combine_thread_mode','mex_combine_buffer_size','can_use_mex_for_combine'}
+            'mex_combine_thread_mode','mex_combine_buffer_size','use_mex_for_combine',...
+            'accum_in_separate_process','accumulating_process_num'}
     end
     
     methods
@@ -108,7 +115,7 @@ classdef hor_config<config_base
             this.threads_ = find_nproc_to_use(this);
             % set os-specific defaults
             if ispc
-                this.mex_combine_thread_mode_   = -1;
+                this.mex_combine_thread_mode_   = 0;
             elseif isunix
                 if ~ismac
                     this.mex_combine_thread_mode_   = 0;
@@ -147,21 +154,8 @@ classdef hor_config<config_base
         function delete = get.delete_tmp(this)
             delete = get_or_restore_field(this,'delete_tmp');
         end
-        function can = get.can_use_mex_for_combine(this)        
-                can = get_or_restore_field(this,'can_use_mex_for_combine');            
-        end
         function use = get.use_mex_for_combine(this)
-            can_use = this.can_use_mex_for_combine();
-            if can_use
-                use = get_or_restore_field(this,'mex_combine_thread_mode');
-                if use>=0
-                    use = true;
-                else
-                    use = false;
-                end
-            else
-                use = false;
-            end
+            use = get_or_restore_field(this,'use_mex_for_combine');
         end
         function size= get.mex_combine_buffer_size(this)
             size = get_or_restore_field(this,'mex_combine_buffer_size');
@@ -169,6 +163,17 @@ classdef hor_config<config_base
         function type= get.mex_combine_thread_mode(this)
             type = get_or_restore_field(this,'mex_combine_thread_mode');
         end
+        function accum = get.accum_in_separate_process(this)
+            accum = get_or_restore_field(this,'accum_in_separate_process');
+        end
+        function accum = get.accumulating_process_num(this)
+            if ~get_or_restore_field(this,'accum_in_separate_process')
+                accum = 0;
+            else
+                accum = get_or_restore_field(this,'accumulating_process_num');
+            end
+        end
+        
         %-----------------------------------------------------------------
         % overloaded setters
         function this = set.mem_chunk_size(this,val)
@@ -233,7 +238,9 @@ classdef hor_config<config_base
                     use = false;
                     warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated, Use mex set to false');
                 end
-                config_store.instance().store_config(this,'can_use_mex_for_combine',can_combine_with_mex);
+                if ~can_combine_with_mex
+                    config_store.instance().store_config(this,'use_mex_for_combine',false);
+                end
             end
             config_store.instance().store_config(this,'use_mex',use);
             
@@ -254,30 +261,21 @@ classdef hor_config<config_base
                 del = false;
             end
             config_store.instance().store_config(this,'delete_tmp',del);
-        end      
-        function this = set.can_use_mex_for_combine(this,val)
+        end
+        function this = set.use_mex_for_combine(this,val)
             if val>0
                 try
-                    ver = combine_sqw();                   
-                    config_store.instance().store_config(this,'can_use_mex_for_combine',true);
+                    ver = combine_sqw();
+                    config_store.instance().store_config(this,'use_mex_for_combine',true);
                 catch ME
                     warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not availible.\n',...
                         ' Reason: %s\n.',...
                         ' Will not use mex for combininng'],ME.message);
-                    config_store.instance().store_config(this,'can_use_mex_for_combine',false);
+                    config_store.instance().store_config(this,'use_mex_for_combine',false);
                 end
-                
             else
-               config_store.instance().store_config(this,'can_use_mex_for_combine',false);                
+                config_store.instance().store_config(this,'use_mex_for_combine',false);
             end
-        end
-        function this = set.use_mex_for_combine(this,val)
-            if val>0
-                use = 0;
-            else
-                use = -1;
-            end
-            config_store.instance().store_config(this,'mex_combine_thread_mode',use);
         end
         function this= set.mex_combine_buffer_size(this,val)
             if val<64
@@ -290,35 +288,36 @@ classdef hor_config<config_base
             config_store.instance().store_config(this,'mex_combine_buffer_size',val);
         end
         function this= set.mex_combine_thread_mode(this,val)
-            if  val>3
+            if  val>3 || val < 0
                 error('HOR_CONFIG:mex_combine_thread_mode',...
-                    [' mex_combine_multithreaded should be a number smaller or equal 3\n ',...
+                    [' mex_combine_multithreaded should be a number in the range fromn 0 to 3\n ',...
                     '  meaning:\n', ...
-                    '  negative -- no mex combining\n',...
                     ' 0 -- no multitheading ',...
                     ' 1 -- full multitrheading',...
                     ' and two debug options:\n', ...
                     ' 2 -- only bin numbers are read by separate thread',...
                     ' 3 -- only pixels are read by separate thread']);
             end
-            if val<0
-                val = -1;
-            else
-                try
-                    ver = combine_sqw();
-                    config_store.instance().store_config(this,'can_use_mex_for_combine',true);
-                catch ME
-                    warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not availible.\n',...
-                        ' Reason: %s\n.',...
-                        ' Will not use mex for combining'],ME.message);
-                    config_store.instance().store_config(this,'can_use_mex_for_combine',false);
-                    val = -1;
-                end
-                
-            end
-            
             config_store.instance().store_config(this,'mex_combine_thread_mode',val);
         end
+        function this = set.accum_in_separate_process(this,val)
+            if val>0
+                accum = true;
+            else
+                accum = false;
+            end
+            config_store.instance().store_config(this,'accum_in_separate_process',accum);
+            
+        end
+        function this = set.accumulating_process_num(this,val)
+            if val<1
+                error('HOR_CONFIG:accumulating_process_num','Number of accumulating processes should be more then 1');
+            else
+                nproc = val;
+            end
+            config_store.instance().store_config(this,'accumulating_process_num',nproc);
+        end
+        
         
         %--------------------------------------------------------------------
         
@@ -333,7 +332,9 @@ classdef hor_config<config_base
         %
         function value = get_internal_field(this,field_name)
             % method gets internal field value bypassing standard get/set
-            % methods interface
+            % methods interface. 
+            % Relies on assumption, that each publuc
+            % field has a private field with name different by underscore
             value = this.([field_name,'_']);
         end
         

@@ -244,7 +244,11 @@ classdef test_sqw_reader< TestCase
             %profile viewer
         end
         function this = test_read_pix_buf_mex(this)
-            use_mex = get(hor_config,'use_mex');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end
@@ -302,7 +306,11 @@ classdef test_sqw_reader< TestCase
         end
         %
         function this = test_rewrite_pixarray_mex(this)
-            use_mex = get(hor_config,'use_mex');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end
@@ -348,7 +356,13 @@ classdef test_sqw_reader< TestCase
         end
         %
         function this=test_combine_two(this)
-            [use_mex,thread_mode] = get(hor_config,'use_mex_for_combine','mex_combine_thread_mode');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            thread_mode = hc.mex_combine_thread_mode;
+            
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end
@@ -374,10 +388,16 @@ classdef test_sqw_reader< TestCase
         end
         
         function this=test_mex_nomex(this)
-            use_mex = get(hor_config,'use_mex_for_combine');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end
+            
             dummy = sqw();
             infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
             
@@ -388,13 +408,14 @@ classdef test_sqw_reader< TestCase
             cleanup_obj=onCleanup(@()delete(outfile_mex));
             
             
-            set(hor_config,'mex_combine_thread_mode',-1);
+            hc.use_mex_for_combine = false;
             t0= tic;
             write_nsqw_to_sqw (dummy, infiles, outfile_nom,'allow_equal_headers');
             t2=toc(t0);
             
             % set single threading excecution
-            set(hor_config,'mex_combine_thread_mode',0);
+            hc.use_mex_for_combine = true;            
+            hc.mex_combine_thread_mode = 0;                        
             t0= tic;
             write_nsqw_to_sqw (dummy, infiles, outfile_mex,'allow_equal_headers');
             t1=toc(t0);
@@ -416,7 +437,12 @@ classdef test_sqw_reader< TestCase
         end
         
         function this=test_large_bins(this)
-            use_mex = get(hor_config,'use_mex_for_combine');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end
@@ -455,10 +481,16 @@ classdef test_sqw_reader< TestCase
             
         end
         function this=test_mex_nomex_multi(this)
-            use_mex = get(hor_config,'use_mex_for_combine');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end
+            
             dummy = sqw();
             infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
             
@@ -498,7 +530,12 @@ classdef test_sqw_reader< TestCase
         
         
         function this=test_large_bins_multi(this)
-            use_mex = get(hor_config,'use_mex');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end
@@ -537,16 +574,22 @@ classdef test_sqw_reader< TestCase
             
         end
         function this=test_combine_two_multi(this)
-            [use_mex,thread_mode] = get(hor_config,'use_mex_for_combine','mex_combine_thread_mode');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            thread_mode = hc.mex_combine_thread_mode;
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end
+            
             infiles = {fullfile(this.sample_dir,'w2d_qe_sqw.sqw'),fullfile(this.sample_dir,'w2d_qe_sqw.sqw')};
             outfile = fullfile(this.test_dir,'test_combine_two_sqw.sqw');
             cleanup_obj=onCleanup(@()delete(outfile));
             cleanup1  =onCleanup(@()set(hor_config,'mex_combine_thread_mode',thread_mode));
             
-            set(hor_config,'mex_combine_thread_mode',1);
+            hc.mex_combine_thread_mode = 1;
             dummy = sqw();
             write_nsqw_to_sqw (dummy, infiles, outfile,'allow_equal_headers');
             
@@ -563,7 +606,12 @@ classdef test_sqw_reader< TestCase
         end
         
         function this = test_read_pix_buf_mex_multithread(this)
-            use_mex = get(hor_config,'use_mex_for_combine');
+            hc = hor_config;
+            use_mex = hc.use_mex_for_combine;
+            cleanup_mex=onCleanup(@()set(hor_config,'use_mex_for_combine',use_mex));
+            
+            hc.use_mex_for_combine = true;
+            use_mex = hc.use_mex_for_combine;
             if ~use_mex
                 return;
             end

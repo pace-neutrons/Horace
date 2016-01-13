@@ -12,7 +12,7 @@
 
 %Run the command below to obtain the data we will use for the demo. This
 %process can take a few minutes - be patient!
-file_list=setup_demo_data();
+%file_list=setup_demo_data();
 
 %At the end of this you should have a set of files called
 %HoraceDemoDataFileN.spe, where N is 1 to 23.

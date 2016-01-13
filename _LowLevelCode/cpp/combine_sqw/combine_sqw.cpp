@@ -682,13 +682,25 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
         pixWriter.run_write_pix_job();
     });
 
+    bool interrupted(false);
     std::mutex log_mutex;
     while (!Buff.is_write_job_completed()) {
 
         std::unique_lock<std::mutex> l(log_mutex);
-        Buff.logging_ready.wait(l, [&Buff]() {return Buff.do_logging; });
-
-        Buff.print_log_meassage(log_level);
+        Buff.logging_ready.wait_for(l, std::chrono::milliseconds(1000), [&Buff]() {return Buff.do_logging; });
+        if (Buff.do_logging){
+            Buff.print_log_meassage(log_level);
+        }
+        if (utIsInterruptPending()) {
+            Buff.set_interrupted("==> C-code interrupted by CTRL-C");
+            interrupted = true;
+            mexPrintf("%s", "MEX::COMBINE_SQW: Interrupting by CTRL-C ...");
+            mexEvalString("pause(.002);");
+        }
+        if(interrupted){
+            mexPrintf("%s", ".");
+            mexEvalString("pause(.002);");
+        }
     }
 
     reader.join();
