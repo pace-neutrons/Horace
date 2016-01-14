@@ -309,14 +309,27 @@ classdef test_rundata< TestCase
             assertEqual(20,get_rundata(run,'psi'));
             
         end
-        function test_serialization(this)
+        function test_serialization_powder(this)
             run=rundata(f_name(this,'MAP11014.nxspe'));
-            str1 = serialize(run);
             
+            str1 = serialize(run);
             run1 = rundata.deserialize(str1);
             
             assertEqual(run,run1);
+        end
+        function test_serialization_crystal(this)
+            ds.efix=200;
+            ds.psi=2;
+            ds.alatt=[1;1;1];
+            ds.angdeg=[90;90;90];
+            spe_file = f_name(this,'MAP10001.spe');
+            par_file = f_name(this,'demo_par.PAR');
+            run=rundata(spe_file,par_file ,ds);
             
+            str1 = serialize(run);
+            run1 = rundata.deserialize(str1);
+            
+            assertEqual(run,run1);
         end
         
     end

@@ -68,7 +68,21 @@ classdef oriented_lattice
     %
     methods
         % constructor
-        function self = oriented_lattice()
+        function self = oriented_lattice(varargin)
+            if(nargin>0)
+                if (~(isstruct(varargin{1}) || isa(varargin{1},'oriented_lattice')))
+                    error('ORIENTED_LATTICE:invalid_argument','Oriented lattice may be constructed ony with input structure, containing the same fields as publiuc fields of the oriented lattice itself');
+                end
+                if isa(varargin{1},'oriented_lattice')
+                    self = varargin{1};
+                else
+                    input = varargin{1};
+                    field_names = fieldnames(input);
+                    for i=1:numel(field_names)
+                        self.(field_names{i}) = input.(field_names{i});
+                    end
+                end
+            end
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
@@ -89,6 +103,16 @@ classdef oriented_lattice
         function this = set_rad(this)
             this.angular_units__= 'rad';
         end
+        function public_struct = struct(this)
+            % convert class into structure, containing public-accessible information
+            pub_fields = [oriented_lattice.lattice_parameters__,{'angular_units'}];
+            public_struct  = struct();
+            for i=1:numel(pub_fields)
+                public_struct.(pub_fields{i}) = this.(pub_fields{i});
+            end
+            
+        end
+        
         %-----------------------------------------------------------------
         function psi = get.psi(this)
             psi = oriented_lattice.transform_and_get_angular(this.angular_units__,this.psi__);

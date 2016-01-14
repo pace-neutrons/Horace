@@ -7,7 +7,9 @@ sa = reshape(str,len,3);
 iarr = uint8(str2num(sa));
 
 str = hlp_deserialize(iarr);
-
+if isfield(str,'lattice')
+    str.lattice = oriented_lattice(str.lattice);
+end
 if isempty(str.par_file_name)
     rd = rundata(str.data_file_name);
 else
