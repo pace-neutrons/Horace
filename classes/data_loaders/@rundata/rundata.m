@@ -72,7 +72,7 @@ classdef rundata
         function fields = main_data_fields()
             fields = rundata.min_field_set__;
         end
-        function run = deserialize(str)
+        function run = from_string(str)
             % build rundata object from its string representation obrained earlier by
             % serialize function
             run = rundata_from_string(str);
@@ -259,7 +259,7 @@ classdef rundata
                 end
             end
         end
-        function str = serialize(this)
+        function str = to_string(this)
             % convert class into linear string representation usable for
             % reverse conversion
             str = convert_to_string(this);

@@ -34,4 +34,4 @@ end
 
 v = hlp_serialize(out_struct);
 str_arr =num2str(v);
-str = reshape(str_arr,numel(str_arr),1);
+str = reshape(str_arr,1,numel(str_arr));

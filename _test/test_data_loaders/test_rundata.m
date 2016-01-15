@@ -312,8 +312,8 @@ classdef test_rundata< TestCase
         function test_serialization_powder(this)
             run=rundata(f_name(this,'MAP11014.nxspe'));
             
-            str1 = serialize(run);
-            run1 = rundata.deserialize(str1);
+            str1 = to_string(run);
+            run1 = rundata.from_string(str1);
             
             assertEqual(run,run1);
         end
@@ -326,8 +326,8 @@ classdef test_rundata< TestCase
             par_file = f_name(this,'demo_par.PAR');
             run=rundata(spe_file,par_file ,ds);
             
-            str1 = serialize(run);
-            run1 = rundata.deserialize(str1);
+            str1 = to_string(run);
+            run1 = rundata.from_string(str1);
             
             assertEqual(run,run1);
         end
