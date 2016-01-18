@@ -54,7 +54,7 @@ classdef JobDispatcher
                 'faliled',false);
         end
         %
-        function params = restore_param(is_class,par_string)
+        function params = restore_param(class_name,par_string)
             % function restores job parameters from job string
             % representation
             %
@@ -62,8 +62,9 @@ classdef JobDispatcher
             % used as job input is not a rundata class
             %
             par_string = strrep(par_string,'x',' ');
-            if is_class
-                params  = rundata.from_string(par_string);
+            if ~isempty(class_name)
+                instance = feval(class_name);
+                params  = instance.from_string(par_string);
             else
                 len = numel(par_string)/3;
                 sa = reshape(par_string,len,3);
@@ -73,24 +74,26 @@ classdef JobDispatcher
             end
         end
         %
-        function [par,is_class] = make_job_par_string(param)
+        function [par,class_name,mess] = make_job_par_string(param)
             % convert job parameters structure or class into job
             % parameter's string
             %
             % (e.g. serialize job parameters in a way, to be able to
             % transter it to other Matlab session
             %
+            mess = '';
             if isstruct(param)
                 v = hlp_serialize(param);
                 str_repr =num2str(v);
                 str_repr = reshape(str_repr,1,numel(str_repr));
-                is_class = false;
+                class_name = '';
             else
                 if any(strcmp(methods(param), 'to_string'))
                     str_repr = param.to_string();
-                    is_class = true;
+                    class_name = class(param);
                 else
                     par = '';
+                    mess = 'input parameters can not be converted to string';
                     return
                 end
             end
@@ -138,7 +141,7 @@ classdef JobDispatcher
             this = do_finish_job_(this);
         end
         
-        function do_job(this,is_class,varargin)
+        function do_job(this,class_name,varargin)
             % abstract method which have particular implementation for
             % testing purposes only
             %
@@ -150,7 +153,7 @@ classdef JobDispatcher
             n_jobs = numel(varargin);
             job_num = this.job_id();
             for ji = 1:n_jobs
-                job_par = JobDispatcher.restore_param(is_class,varargin{ji});
+                job_par = JobDispatcher.restore_param(class_name,varargin{ji});
                 
                 filename = sprintf(job_par.filename_template,job_num,ji);
                 file = fullfile(job_par.filepath,filename);

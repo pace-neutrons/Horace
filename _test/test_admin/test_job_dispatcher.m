@@ -85,8 +85,8 @@ classdef test_job_dispatcher< TestCase
             str  = strrep(str ,' ','x');
             
             
-            worker('JobDispatcher',1,false,str);
-            worker('JobDispatcher',2,false,str);
+            worker('JobDispatcher',1,'',str);
+            worker('JobDispatcher',2,'',str);
             
             file1= fullfile(this.working_dir,'test_jobDispatcher1_nf1.txt');
             file2= fullfile(this.working_dir,'test_jobDispatcher2_nf1.txt');
@@ -109,7 +109,7 @@ classdef test_job_dispatcher< TestCase
             
             
             jd = JobDispatcher();
-            jd.do_job(false,str_repr);
+            jd.do_job('',str_repr);
             assertTrue(exist(fullfile(this.working_dir,'test_jobDispatcher0_nf1.txt'),'file')==2);
             delete(fullfile(this.working_dir,'test_jobDispatcher0_nf1.txt'));
         end

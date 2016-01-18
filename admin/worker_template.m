@@ -1,4 +1,4 @@
-function worker(class_name,id,is_class,varargin)
+function worker(class_name,id,pram_class_name,varargin)
 % function used as standard worker to do a job in different matlab
 % session
 %
@@ -13,10 +13,8 @@ function worker(class_name,id,is_class,varargin)
 % id         -- unique number which distinguish this job from any other
 %               running job, and used by JobDispatcher to identify jobs.
 %
-% is_class   -- boolean which indicate if job parameters are defined by a
-%               class, which has conversion from string method, or a
-%               structure.
-%               Only rundata class is currently accepted
+% pram_class_name   -- name of the parameter class which has from_string method
+%                or emtpy field for structure, which is converted directly
 %
 % varargin   -- sellarray of strings, to deserialize into input
 %               parameters for the jobs
@@ -39,7 +37,7 @@ jd = jd.init_job(id);
 run_fname = jd.running_job_file_name;
 clo = onCleanup(@()del_quet(run_fname));
 %
-jd.do_job(is_class,varargin{:});
+jd.do_job(pram_class_name,varargin{:});
 %
 jd.finish_job();
 

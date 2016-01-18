@@ -52,15 +52,23 @@ for ic=1:step:n_jobs
     this.running_jobs_{id} = JobDispatcher.job_structure(id,job_status_f);
     this.running_jobs_{id}.is_starting = true;
     
-    [ars,is_class] = this.make_job_par_string(job_param_list{id});
-    job_string = sprintf('!%s -nojvm -nosplash -r worker(''%s'',%d,%d,''%s''',...
-        prog_name,class_name,id,is_class,ars);
+    [ars,param_class_name,mess] = this.make_job_par_string(job_param_list{id});
+    if ~isempty(mess)
+        error('JOB_DISPATCHER:send_jobs','Job N %d; %s',id,mess);
+    end
+    job_string = sprintf('!%s -nojvm -nosplash -r worker(''%s'',%d,''%s'',''%s''',...
+        prog_name,class_name,id,param_class_name,ars);
     for jid = 1:step-1
         idd = ic+jid;
         if idd>n_jobs
             continue;
         end
-        ars = this.make_job_par_string(job_param_list{id});
+        % here we assume that all jobs have the same type of job parameters
+        [ars,~,mess] = this.make_job_par_string(job_param_list{id});
+        if ~isempty(mess)
+            error('JOB_DISPATCHER:send_jobs','Job N %d; %s',id,mess);
+        end
+        
         job_string=[job_string,sprintf(',''%s''',ars)];
     end
     job_string=[job_string,');exit; & exit'];
