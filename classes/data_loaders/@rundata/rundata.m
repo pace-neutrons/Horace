@@ -77,6 +77,14 @@ classdef rundata
             % serialize function
             run = rundata_from_string(str);
         end
+        function [run,size] = deserialize(iarr)
+            % build rundata object from its string representation obrained earlier by
+            % serialize function
+            % returns rudata object and the byte size of array used to store
+            % this object (minus 8 bytes spent on storing the object size itself)
+            [run,size] = deserialize_(iarr);
+        end
+        
     end
     
     methods
@@ -263,6 +271,14 @@ classdef rundata
             % convert class into linear string representation usable for
             % reverse conversion
             str = convert_to_string(this);
+        end
+        function iarr = serialize(this)
+            % convert class into arry of bytes suitable for reverse
+            % transformation by deserialize function
+            % 
+            % expects main data to be on a HDD, so no data loaded in memory are
+            % serialized except memory only data
+            iarr = serialize_(this);
         end
         
         

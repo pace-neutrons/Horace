@@ -1,4 +1,4 @@
-function worker(class_name,id,pram_class_name,varargin)
+function worker(class_name,id,varargin)
 % function used as standard worker to do a job in different matlab
 % session
 %
@@ -32,12 +32,19 @@ end
 
 jd = feval(class_name);
 %
-jd = jd.init_job(id);
+arg1 = varargin{1};
+if strcmp(arg1,'-file')
+    filename = varargin{2};
+    [jd,argi] = jd.init_job(id,filename);    
+else
+    jd = jd.init_job(id);
+    argi =varargin{:};
+end
 % make sure that run id is deleted if this job have failed
 run_fname = jd.running_job_file_name;
 clo = onCleanup(@()del_quet(run_fname));
 %
-jd.do_job(pram_class_name,varargin{:});
+jd.do_job(argi);
 %
 jd.finish_job();
 

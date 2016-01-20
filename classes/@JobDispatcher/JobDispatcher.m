@@ -23,6 +23,10 @@ classdef JobDispatcher
         worker_prog_name;
         % the name of a service file, which indicates that job is running
         running_job_file_name;
+        starting_job_file_name;
+        % time to wait for job not changing its state until assuming the
+        % job have failed
+        time_to_fail;
     end
     %
     properties(Constant=true)
@@ -43,38 +47,34 @@ classdef JobDispatcher
         exchange_folder_;
         job_ID_ = 0;
         running_jobs_={};
+        time_to_fail_ = 10 %sec
         fail_limit_ = 30; % number of times to try for changes in job status file until
         % deciding the job have failed
     end
-    methods(Static,Access=private)
+    methods(Static,Access=protected)
         %
         function job_struct = job_structure(id,stat_file)
             job_struct = struct('job_id',id,'job_status_file',stat_file,...
                 'waiting_count',0,'is_running',false,'is_starting',false,...
                 'faliled',false);
         end
+        
+    end
+    methods(Static)    
         %
-        function params = restore_param(class_name,par_string)
+        function params = restore_param(par_string)
             % function restores job parameters from job string
             % representation
             %
-            % should be overloaded if the class
-            % used as job input is not a rundata class
-            %
             par_string = strrep(par_string,'x',' ');
-            if ~isempty(class_name)
-                instance = feval(class_name);
-                params  = instance.from_string(par_string);
-            else
-                len = numel(par_string)/3;
-                sa = reshape(par_string,len,3);
-                iarr = uint8(str2num(sa));
-                
-                params  =  hlp_deserialize(iarr);
-            end
+            len = numel(par_string)/3;
+            sa = reshape(par_string,len,3);
+            iarr = uint8(str2num(sa));
+            params  =  hlp_deserialize(iarr);            
         end
+        
         %
-        function [par,class_name,mess] = make_job_par_string(param)
+        function [par,mess] = make_job_par_string(param)
             % convert job parameters structure or class into job
             % parameter's string
             %
@@ -82,24 +82,18 @@ classdef JobDispatcher
             % transter it to other Matlab session
             %
             mess = '';
-            if isstruct(param)
-                v = hlp_serialize(param);
-                str_repr =num2str(v);
-                str_repr = reshape(str_repr,1,numel(str_repr));
-                class_name = '';
-            else
-                if any(strcmp(methods(param), 'to_string'))
-                    str_repr = param.to_string();
-                    class_name = class(param);
-                else
-                    par = '';
-                    mess = 'input parameters can not be converted to string';
-                    return
-                end
+            par = '';
+            try
+                v = hlp_serialize(param);                
+            catch ME
+                mess = ME.message;
+                return
             end
-            par = strrep(str_repr,' ','x');
+            par=num2str(v);
+            par = reshape(par,1,numel(par));
+            par = strrep(par,' ','x');            
+            
         end
-        
     end
     
     methods
@@ -108,7 +102,7 @@ classdef JobDispatcher
             jd.exchange_folder_ = make_config_folder(JobDispatcher.exchange_folder_name);
         end
         %
-        function n_failed=send_jobs(this,job_param_list,varargin)
+        function [n_failed,this]=send_jobs(this,job_param_list,varargin)
             % send range of jobs to execute by external program
             %
             % Usage:
@@ -128,42 +122,50 @@ classdef JobDispatcher
             % n_failed  -- number of jobs that have failed.
             %
             %
-            n_failed=send_jobs_to_workers_(this,job_param_list,varargin{:});
+            [n_failed,this]=send_jobs_to_workers_(this,job_param_list,varargin{:});
         end
         
         
-        function this=init_job(this,id)
+        function [this,argi]=init_job(this,id,varargin)
             % set up tag, indicating that the job have started
-            this=do_init_job_(this,id);
+            [this,argi]=do_init_job_(this,id,varargin{:});
         end
         function this=finish_job(this)
             % set up tag, indicating that the job have finished
             this = do_finish_job_(this);
         end
         
-        function do_job(this,class_name,varargin)
+        function do_job(this,varargin)
             % abstract method which have particular implementation for
             % testing purposes only
             %
             % the particular JobDispatcher should overload this method
             % keeping the same meaning for the interface
             %
+            % Input parameters:
+            % varargin   -- cell array of strings, defining the parameters
+            %               of jobs. 
             % this particular implementation writes files according to template,
             % provided in test_job_dispatcher.m file
             n_jobs = numel(varargin);
             job_num = this.job_id();
+            
             for ji = 1:n_jobs
-                job_par = JobDispatcher.restore_param(class_name,varargin{ji});
+                job_par = JobDispatcher.restore_param(varargin{ji});
                 
                 filename = sprintf(job_par.filename_template,job_num,ji);
                 file = fullfile(job_par.filepath,filename);
                 f=fopen(file,'w');
                 fwrite(f,['file: ',file],'char');
                 fclose(f);
+                disp('****************************************************');
+                disp(['finished test job generating test file: ',filename]);
+                disp('****************************************************');
             end
             pause(1);
             
         end
+        
         %-------------------------------------------------------------------
         function id = get.job_id(this)
             % get number (job id) of current running job
@@ -200,6 +202,20 @@ classdef JobDispatcher
             % running
             fname  = get_job_stat_file_(this,this.job_id,this.run_tag_);
         end
+        function fname = get.starting_job_file_name(this)
+            % get the file name used to indicate that the job is
+            % strting and may contain job parameters
+            fname  = get_job_stat_file_(this,this.job_id,this.start_tag_);
+        end
+        function time = get.time_to_fail(this)
+            time = this.time_to_fail_;
+        end
+        function this = set.time_to_fail(this,val)
+            if val<0
+                error('JOB_DISPATCHER:set_time_to_fail','time to fail can not be negative');
+            end
+            this.time_to_fail_ =val;
+        end        
         
     end
     methods(Access=private)

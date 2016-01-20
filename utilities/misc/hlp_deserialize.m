@@ -52,6 +52,8 @@ switch m(pos)
         [v,pos] = deserialize_char(m,pos);
     case 134
         [v,pos] = deserialize_object(m,pos);
+    case 135
+        [v,pos] = obj_deserialize_itself(m,pos);        
     otherwise
         error('Unknown class');
 end
@@ -287,7 +289,15 @@ switch kind
         error('Unsupported cell array type.');
 end
 end
+% object which can deserialize itself
+function [v,pos]=obj_deserialize_itself(m,pos)
+pos = pos + 1;
+[cls,pos] = deserialize_string(m,pos);
+instance = feval(cls);
+[v,nbytes] = instance.deserialize(m(pos:end));
+pos = pos+nbytes+8;
 
+end
 % object
 function [v,pos] = deserialize_object(m,pos)
 pos = pos + 1;

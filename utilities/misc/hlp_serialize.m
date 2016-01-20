@@ -228,22 +228,27 @@ end
 
 % Object / class
 function m = serialize_object(v)
-    try
+    % can object serialize/deserizlize itself?
+    if any(strcmp(methods(v), 'serialize'))       
+        m = [uint8(135); serialize_string(class(v)); v.serialize()];        
+    else
+        try
         % try to use the saveobj method first to get the contents
-        conts = saveobj(v);
-        if isstruct(conts) || iscell(conts) || isnumeric(conts) || ischar(conts) || islogical(conts) || isa(conts,'function_handle')
+            conts = saveobj(v);
+            if isstruct(conts) || iscell(conts) || isnumeric(conts) || ischar(conts) || islogical(conts) || isa(conts,'function_handle')
             % contents is something that we can readily serialize
-            conts = hlp_serialize(conts);
-        else
-            % contents is still an object: turn into a struct now
-            conts = serialize_struct(struct(conts));
+                conts = hlp_serialize(conts);
+            else
+                % contents is still an object: turn into a struct now
+                conts = serialize_struct(struct(conts));
+            end
+        catch
+            % saveobj failed for this object: turn into a struct
+            conts = serialize_struct(struct(v));
         end
-    catch
-        % saveobj failed for this object: turn into a struct
-        conts = serialize_struct(struct(v));
-    end
     % Tag, Class name and Contents
-    m = [uint8(134); serialize_string(class(v)); conts];
+        m = [uint8(134); serialize_string(class(v)); conts];
+    end
 end
 
 % Function handle
