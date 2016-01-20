@@ -5,9 +5,9 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
     %   >>runtests test_gen_sqw_accumulate_sqw          % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
     %                                           % in the same folder as this function
     %                                        % in the same folder as this function
-    %   >>save(test_multifit_horace_1())    % Save to test_multifit_horace_1_output.mat
-    %
-    %   >>test_name(test_multifit_horace_1()) % run particular test from this
+
+    %   >> test_gen_sqw_accumulate_sqw ('save') % Save to appropriate test
+    %                                            file with 
     
     % Reads previously created test data sets.
     properties       
@@ -20,7 +20,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             %
             %   >> test_gen_sqw_accumulate_sqw          % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
             %                                           % in the same folder as this function
-            %   >> test_gen_sqw_accumulate_sqw ('save') % Save to test_multifit_horace_1_output.mat
+            %   >> test_gen_sqw_accumulate_sqw ('save') 
             %
             % Reads previously created test data sets.
             
@@ -33,6 +33,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             this = this@test_gen_sqw_accumulate_sqw_mex(name,'nomex');            
             
         end
+
         
     end
 end

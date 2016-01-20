@@ -117,10 +117,10 @@ if present.time
     elseif numel(opt.time)~=6
         error('Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
     end
-
+    
     end_time=datenum(opt.time);
     time_now=now;
-
+    
     if end_time<=time_now
         error('Date-time for accumulate_sqw to start is in the past');
     elseif (end_time-time_now) > 1
@@ -135,7 +135,7 @@ if present.time
             ', ',num2str(opt.time(3)),'-',num2str(opt.time(2)),'-',num2str(opt.time(1)),'              ***']);
         disp('**************************************************************************************************')
     end
-
+    
     %time in seconds to wait:
     pause_sec=(end_time - time_now)*24*60*60;
     pause(pause_sec);
@@ -289,7 +289,7 @@ if ~accumulate_old_sqw && isempty(urange_in)
 elseif accumulate_old_sqw
     urange_in=urange_sqw;
 end
-
+[use_separate_matlab,num_matlab_sessions]=get(hor_config,'accum_in_separate_process','accumulating_process_num');
 
 % Construct output sqw file
 if ~accumulate_old_sqw && nindx==1
@@ -298,7 +298,6 @@ if ~accumulate_old_sqw && nindx==1
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
     end
-    
     write_banner=false;
     [grid_size,urange] = rundata_write_to_sqw (run_files,{sqw_file},...
         grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner);
@@ -320,10 +319,57 @@ else
     if numel(fields(sample))~=0
         sample = sample(indx);
     end
-    
-    [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
-        grid_size_in,urange_in,instrument,sample,write_banner);
-    
+    if use_separate_matlab
+        not_empty = cellfun(@(x)(~isempty(x)),spe_file);
+        if ~all(not_empty)
+            %tmp_file = tmp_file(not_empty);
+            instrument = instrument(not_empty);
+            sample     = sample(not_empty);
+        end
+        %
+        % conglamerate conversion parameters into list of structures,
+        % suitable for serialization
+        job_par = cellfun(@(run,fname,instr,samp)(struct(...
+            'runfile',run,'sqw_file_name',fname,'instrument',instr,...
+            'samlpe',samp,...
+            'grid_size_in',grid_size_in,'urange_in',urange_in)),...
+            run_files',tmp_file,num2cell(instrument),num2cell(sample),...
+            'UniformOutput', false);
+        
+        jd = gen_tmp_files_jobs();
+        [n_failed,outputs] = jd.send_jobs(job_par,num_matlab_sessions);
+        if n_failed>0
+            warning('GEN_SQW:separate_process_sqw_generation',' %d jobs to add generate tmp files have failed',n_failed);
+        end
+        %
+        if n_failed ~= num_matlab_sessions
+            if n_failed>0
+                i_start=1;
+                while is_string(outputs{i_start})
+                    i_start=i_start+1;
+                end
+            else
+                i_start=1;
+            end
+            grid_size = outputs{i_start}.grid_size;
+            urange    = outputs{i_start}.urange;
+            for i=i_start+1:numel(outputs)
+                if isempty(outputs{i}) || isstring(outputs{i})
+                    continue;
+                end
+                if ~all(grid_size==outputs{i}.grid_size) || ~all(urange(:)==outputs{i}.urange(:))
+                    error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
+                end
+            end
+        else % everything failed; Should probably go serial.
+            grid_size = grid_size_in;
+            urange    = urange_in;
+        end
+        
+    else
+        [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
+            grid_size_in,urange_in,instrument,sample,write_banner);
+    end
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
         bigtoc(nt,'Time to create all temporary sqw files:',horace_info_level);
