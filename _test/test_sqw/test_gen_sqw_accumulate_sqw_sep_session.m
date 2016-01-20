@@ -1,11 +1,11 @@
-classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
+classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
     % Series of tests of gen_sqw and associated functions
     % Optionally writes results to output file
     %
-    %   >>runtests test_gen_sqw_accumulate_sqw          % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
+    %   >>runtests test_gen_sqw_accumulate_sqw_sep_session     % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
     %                                           % in the same folder as this function
     %                                        % in the same folder as this function
-    %   >> test_gen_sqw_accumulate_sqw ('save') % Save to appropriate test
+    %   >> test_gen_sqw_accumulate_sqw_sep_session('save') % Save to appropriate test
     %                                            file with extension .mat
     
     % Reads previously created test data sets.
@@ -23,14 +23,13 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         % files;
         spe_file={[]};
         
-        % overloaded properties
-        mex_mode = true;
-        prefix = 'mex'
         skip_tests=false;
+        instrum
+        sample
     end
     
     methods
-        function this=test_gen_sqw_accumulate_sqw_mex(varargin)
+        function this=test_gen_sqw_accumulate_sqw_sep_session(varargin)
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
@@ -46,32 +45,26 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             else
                 name= mfilename('class');
             end
-            if nargin > 1
-                pref = varargin{2};
-            else
-                pref = 'mex';
-            end            
             
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
-
-            % do overloading mex/nomex            
-            this.prefix = pref;
-            if strcmp(pref,'mex')
-                this.mex_mode = true;
-                [mess,n_errors]=check_horace_mex();
-                if n_errors>0
-                    this.skip_tests=true;
-                    warnings('TEST_GEN_SQW_ACC_SQW:mex_mode',' mex mode disabled as mex code does not work, Err: %s',mess);                   
-                else
-                    this.skip_tests=false;
+            
+            % do overloading mex/nomex
+            hc = hor_config();
+            sess_state = hc.accum_in_separate_process;
+            comb_state = hc.use_mex_for_combine;
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
+            hc.accum_in_separate_process = true;
+            hc.use_mex_for_combine = true;
+            
+            if ~hc.accum_in_separate_process
+                warnings('TEST_GEN_SQW_ACC_SQW:multisession_mode',' multisession mode can not be enablesd');
+                if ~hc.use_mex_for_combine % nothing to do, this mode can not be enabled
+                    this.skip_tests=true; 
                 end
-                
             else
-                this.mex_mode = false;
                 this.skip_tests=false;
             end
-            this.errmessage_prefix = ['Test with ',pref];
-
+                       
             
             % do other initialization
             this.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
@@ -83,7 +76,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % build test file names
             this.spe_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max
-                this.spe_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_spe_',pref,num2str(i),'.nxspe']);
+                this.spe_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_spe_sep_sess',num2str(i),'.nxspe']);
             end
             
             this.par_file=fullfile(this.results_path,'96dets.par');
@@ -134,29 +127,20 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             gs=this.gen_sqw_par{12};
         end
         %
-        function [skip,cur_mex,pref]=setup_mex_mode(this)
-            hc = hor_config;
-            pref = this.prefix;
-            skip = false;
+        function [skip,sess_state,comb_state]=setup_multi_mode(this)
             if this.skip_tests
                 skip = true;
-                cur_mex = false;
                 return
-            else
-                cur_mex = hc.use_mex;
-                hc.saveable=false;
-                hc.use_mex=this.mex_mode;
             end
-            
+            hc = hor_config();
+            sess_state = hc.accum_in_separate_process;
+            comb_state = hc.use_mex_for_combine;
+            hc.accum_in_separate_process = true;
+            hc.use_mex_for_combine = true;
+            %
+            skip= false;            
         end
         function this=build_test_files(this)
-            %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
-            if skip
-                return
-            end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
-            %-------------------------------------------------------------
             
             %% =====================================================================================================================
             % Make instrument and sample
@@ -173,6 +157,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             for i=1:numel(instrument)
                 instrument(i).IX_fermi_chopper.frequency=100*i;
             end
+            this.instrum = instrument;
+            this.sample  = sample_ref;
             
             sample_1=sample_ref;
             sample_2=sample_ref;
@@ -193,11 +179,11 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         end
         function this=test_gen_sqw(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,sess_state,comb_state]=this.setup_multi_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
             %-------------------------------------------------------------
             
             
@@ -206,11 +192,11 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % generate the names of the output sqw files
             sqw_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max
-                sqw_file{i}=fullfile(tempdir,['test_gen_sqw_',pref,num2str(i),'.sqw']);    % output sqw file
+                sqw_file{i}=fullfile(tempdir,['test_gen_sqw_multisession',num2str(i),'.sqw']);    % output sqw file
             end
             
-            sqw_file_123456=fullfile(tempdir,['sqw_123456',pref,'.sqw']);             % output sqw file
-            sqw_file_145623=fullfile(tempdir,['sqw_145623',pref,'.sqw']);            % output sqw file
+            sqw_file_123456=fullfile(tempdir,'sqw_123456_multisession.sqw');             % output sqw file
+            sqw_file_145623=fullfile(tempdir,'sqw_145623_multisession.sqw');            % output sqw file
             if ~this.want_to_save_output
                 cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_123456,sqw_file_145623,sqw_file{:}));
             end
@@ -251,15 +237,15 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         end
         function this=test_wrong_params_gen_sqw(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,sess_state,comb_state]=this.setup_multi_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
             %-------------------------------------------------------------
             
-            sqw_file_15456=fullfile(tempdir,['sqw_123456',pref,'.sqw']);  % output sqw file which should never be created
-                        
+            sqw_file_15456=fullfile(tempdir,'sqw_123456_multisession.sqw');  % output sqw file which should never be created
+            
             this=build_test_files(this);
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             try
@@ -272,47 +258,22 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             delete(fullfile(fpath,[fname,'_2.tmp']));
             assertTrue(ok,'Should have failed because of repeated spe file name and parameters');
         end
-        function this=test_wrong_params_accum_sqw(this)
-            %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
-            if skip
-                return
-            end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
-            %-------------------------------------------------------------
-            sqw_file_accum=fullfile(tempdir,['sqw_accum',pref,'.sqw']);  % output sqw file which should never be created                     
-            
-            
-            this=build_test_files(this);
-            [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
-            
-            % Repeat a file
-            spe_accum={this.spe_file{1},'',this.spe_file{5},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            try
-                accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-                ok=false;
-            catch
-                ok=true;
-            end
-            assertTrue(ok,'Should have failed because of repeated spe file name');
-            
-        end
         
         function this=test_accumulate_sqw14(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,sess_state,comb_state]=this.setup_multi_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
             %-------------------------------------------------------------
             
             
             
             % build test files if they have not been build
             this=build_test_files(this);
-            sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw14',pref,'.sqw']);
-            sqw_file_14=fullfile(tempdir,['test_sqw_14',pref,'.sqw']);    % output sqw file
+            sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw14_multisession.sqw']);
+            sqw_file_14=fullfile(tempdir,['test_sqw_14_multisession.sqw']);    % output sqw file
             
             
             if ~this.want_to_save_output
@@ -353,18 +314,18 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         
         function this=test_accumulate_sqw1456(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,sess_state,comb_state]=this.setup_multi_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
             %-------------------------------------------------------------
             
             
             % build test files if they have not been build
             this=build_test_files(this);
-            sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw1456',pref,'.sqw']);
-            sqw_file_1456=fullfile(tempdir,['test_sqw_1456',pref,'.sqw']);                   % output sqw file
+            sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw1456_multisession.sqw']);
+            sqw_file_1456=fullfile(tempdir,['test_sqw_1456_multisession.sqw']);                   % output sqw file
             
             if ~this.want_to_save_output
                 cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_1456,sqw_file_accum));
@@ -402,18 +363,18 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         end
         function this=test_accumulate_sqw11456(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,sess_state,comb_state]=this.setup_multi_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
             %-------------------------------------------------------------
             
             
             % build test files if they have not been build
             this=build_test_files(this);
-            sqw_file_accum=fullfile(tempdir,['test_sqw_acc_sqw11456',pref,'.sqw']);
-            sqw_file_11456=fullfile(tempdir,['test_sqw_11456',pref,'.sqw']);                   % output sqw file
+            sqw_file_accum=fullfile(tempdir,'test_sqw_acc_sqw11456_multisession.sqw');
+            sqw_file_11456=fullfile(tempdir,'test_sqw_11456_multisession.sqw');                   % output sqw file
             
             
             if ~this.want_to_save_output
@@ -456,6 +417,98 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
         end
+        function test_worker(this)
+            
+            job_par_fun = @(run,fname,instr,samp)(struct(...
+            'runfile',run,'sqw_file_name',fname,'instrument',instr,...
+            'samlpe',samp,...
+            'grid_size_in',[50,50,50,50],'urange_in',[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
+        
+            this= build_test_files(this);
+            
+            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
+            ds.efix=efix(1);
+            ds.emode =emode; 
+            ds.psi=psi(1);
+            ds.omega=omega(1);            
+            ds.dpsi = dpsi(1);
+            ds.gl = gl(1);            
+            ds.gs = gs(1);                        
+            ds.alatt=alatt;
+            ds.angdeg=angdeg;
+            ds.u = u;
+            ds.v = v;            
+
+            
+            %
+            [path,file] = fileparts(this.spe_file{1});            
+            tmp_file1 = fullfile(path,[file,'.tmp']);            
+            run1=rundata(this.spe_file{1},this.par_file,ds);
+            job_param1 = job_par_fun(run1,tmp_file1,this.instrum(1),this.sample);
+
+            %
+            [path,file] = fileparts(this.spe_file{2});
+            tmp_file2 = fullfile(path,[file,'.tmp']);
+            ds.psi=psi(1);
+            run2=rundata(this.spe_file{1},this.par_file,ds);            
+            job_param2 = job_par_fun(run2,tmp_file2,this.instrum(2),this.sample);            
+
+            
+
+            [str_rep1,mess] = gen_tmp_files_jobs.make_job_par_string(job_param1);           
+            assertTrue(isempty(mess));
+            [str_rep2,mess] = gen_tmp_files_jobs.make_job_par_string(job_param2);           
+            assertTrue(isempty(mess));
+                        
+            worker('gen_tmp_files_jobs',1,str_rep1,str_rep2);
+          
+            
+            assertTrue(exist(tmp_file1,'file')==2);
+            assertTrue(exist(tmp_file2,'file')==2);
+            delete(tmp_file1);
+            delete(tmp_file2);            
+            
+        end
+        
+        function test_do_job(this)
+            %
+            job_par_fun = @(run,fname,instr,samp)(struct(...
+            'runfile',run,'sqw_file_name',fname,'instrument',instr,...
+            'samlpe',samp,...
+            'grid_size_in',[50,50,50,50],'urange_in',[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
+        
+            this= build_test_files(this);
+            
+            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
+            ds.efix=efix(1);
+            ds.emode =emode; 
+            ds.psi=psi(1);
+            ds.omega=omega(1);            
+            ds.dpsi = dpsi(1);
+            ds.gl = gl(1);            
+            ds.gs = gs(1);                        
+            ds.alatt=alatt;
+            ds.angdeg=angdeg;
+            ds.u = u;
+            ds.v = v;            
+            [path,file] = fileparts(this.spe_file{1});
+            tmp_file = fullfile(path,[file,'.tmp']);
+            
+            run=rundata(this.spe_file{1},this.par_file,ds);
+            job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);
+
+
+            [str_rep,mess] = gen_tmp_files_jobs.make_job_par_string(job_param);           
+            assertTrue(isempty(mess));
+
+            jd = gen_tmp_files_jobs();            
+            jd.do_job(str_rep);
+            
+            assertTrue(exist(tmp_file,'file')==2);
+            delete(tmp_file);
+            
+        end
+        
         
     end
 end
