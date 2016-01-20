@@ -13,10 +13,9 @@ classdef JobDispatcher
     %
     %
     properties(Dependent)
+        % Properties of a job dispatcher:
         % the full path to the folder where the exchange configuration is stored
         exchange_folder;
-        % the jd of the the job which is running
-        job_id
         % method returns a qualified name of a program to run (e.g. Matlab
         % with all attributes necessary to start it (e.g. path if the program
         % is not on the path)
@@ -27,6 +26,12 @@ classdef JobDispatcher
         % time to wait for job not changing its state until assuming the
         % job have failed
         time_to_fail;
+        %-------------------------------------
+        % Properties of a job runner:
+        % the jd of the the job which is running
+        job_id
+        % possible results of the job. Empty if no results
+        job_outputs;
     end
     %
     properties(Constant=true)
@@ -45,7 +50,10 @@ classdef JobDispatcher
     %
     properties(Access=private)
         exchange_folder_;
+        %
         job_ID_ = 0;
+        job_outputs_ = [];
+        %
         running_jobs_={};
         time_to_fail_ = 10 %sec
         fail_limit_ = 30; % number of times to try for changes in job status file until
@@ -55,12 +63,13 @@ classdef JobDispatcher
         %
         function job_struct = job_structure(id,stat_file)
             job_struct = struct('job_id',id,'job_status_file',stat_file,...
-                'waiting_count',0,'is_running',false,'is_starting',false,...
-                'faliled',false);
+                'job_results',[],'waiting_count',0,...
+                'is_running',false,'is_starting',false,...
+                'failed',false);
         end
         
     end
-    methods(Static)    
+    methods(Static)
         %
         function params = restore_param(par_string)
             % function restores job parameters from job string
@@ -70,7 +79,7 @@ classdef JobDispatcher
             len = numel(par_string)/3;
             sa = reshape(par_string,len,3);
             iarr = uint8(str2num(sa));
-            params  =  hlp_deserialize(iarr);            
+            params  =  hlp_deserialize(iarr);
         end
         
         %
@@ -84,14 +93,14 @@ classdef JobDispatcher
             mess = '';
             par = '';
             try
-                v = hlp_serialize(param);                
+                v = hlp_serialize(param);
             catch ME
                 mess = ME.message;
                 return
             end
             par=num2str(v);
             par = reshape(par,1,numel(par));
-            par = strrep(par,' ','x');            
+            par = strrep(par,' ','x');
             
         end
     end
@@ -102,7 +111,7 @@ classdef JobDispatcher
             jd.exchange_folder_ = make_config_folder(JobDispatcher.exchange_folder_name);
         end
         %
-        function [n_failed,this]=send_jobs(this,job_param_list,varargin)
+        function [n_failed,outputs,this]=send_jobs(this,job_param_list,varargin)
             % send range of jobs to execute by external program
             %
             % Usage:
@@ -120,11 +129,21 @@ classdef JobDispatcher
             %
             % Returns
             % n_failed  -- number of jobs that have failed.
+            % outputs   -- cellarray of outputs from each job.
+            %              Emtpy if jobs do not return anything
             %
             %
-            [n_failed,this]=send_jobs_to_workers_(this,job_param_list,varargin{:});
+            [n_failed,outputs,this]=send_jobs_to_workers_(this,job_param_list,varargin{:});
         end
-        
+        function this = set_outputs(this,final_structure)
+            % function used by do_job method to set up outputs from each job.
+            % The outputs then will be returned to the job dispatcher
+            %
+            % input:
+            % final_structure -- the structure, which contain the job
+            % output. The structure has to be serializable
+            this.job_outputs_ = final_structure;
+        end
         
         function [this,argi]=init_job(this,id,varargin)
             % set up tag, indicating that the job have started
@@ -135,7 +154,7 @@ classdef JobDispatcher
             this = do_finish_job_(this);
         end
         
-        function do_job(this,varargin)
+        function this=do_job(this,varargin)
             % abstract method which have particular implementation for
             % testing purposes only
             %
@@ -144,12 +163,13 @@ classdef JobDispatcher
             %
             % Input parameters:
             % varargin   -- cell array of strings, defining the parameters
-            %               of jobs. 
+            %               of jobs.
             % this particular implementation writes files according to template,
             % provided in test_job_dispatcher.m file
             n_jobs = numel(varargin);
             job_num = this.job_id();
-            
+            disp('****************************************************');            
+            disp([' n_files: ',num2str(n_jobs)]);
             for ji = 1:n_jobs
                 job_par = JobDispatcher.restore_param(varargin{ji});
                 
@@ -163,6 +183,12 @@ classdef JobDispatcher
                 disp('****************************************************');
             end
             pause(1);
+            if job_par.return_results
+                out_str = sprintf('Job %d generated %d files',job_num,n_jobs);
+                this = this.set_outputs(struct('job_id',job_num,'output',out_str));
+            end
+            %str = input('enter something to continue:','s');
+            %disp(str);
             
         end
         
@@ -215,7 +241,11 @@ classdef JobDispatcher
                 error('JOB_DISPATCHER:set_time_to_fail','time to fail can not be negative');
             end
             this.time_to_fail_ =val;
-        end        
+        end
+        %
+        function out = get.job_outputs(this)
+            out = this.job_outputs_;
+        end
         
     end
     methods(Access=private)

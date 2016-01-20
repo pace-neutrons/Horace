@@ -1,4 +1,4 @@
-function [n_failed,this]=send_jobs_to_workers_(this,job_param_list,varargin)
+function [n_failed,outputs,this]=send_jobs_to_workers_(this,job_param_list,varargin)
 % send range of jobs to execute by external program
 %
 % Usage:
@@ -12,7 +12,7 @@ function [n_failed,this]=send_jobs_to_workers_(this,job_param_list,varargin)
 %                   of jobs
 % job_query_time    -- if present -- time interval to check if
 %                   jobs are completed. By default, check every
-%                   8 seconds
+%                   4 seconds
 %
 % Returns
 % n_failed  -- number of jobs that have failed.
@@ -76,7 +76,6 @@ for ic=1:step:n_jobs
     job_par = cell(step,1);
     job_par{1} = args;
     n_symbols = numel(args)+1;
-    job_parc = 1;
     for jid = 1:step-1
         idd = ic+jid;
         if idd>n_jobs
@@ -92,26 +91,26 @@ for ic=1:step:n_jobs
         if ~isempty(mess)
             error('JOB_DISPATCHER:send_jobs','Job N %d; %s',id,mess);
         end
-        job_parc = job_parc +1;
-        job_par{job_parc } = [',',agrs];
+        
+        job_par{idd } = [',',agrs];
         n_symbols = n_symbols +numel(args)+1;
     end
     % finalize job parameters string
-
+    
     if n_symbols  >  8192-numel(job_start)-numel(job_end)
-        job_contents = [job_par{:}];        
+        job_contents = [job_par{:}];
         fwrite(f,job_contents,'char');
         job_contents = sprintf(',''-file'',''%s''',job_status_f);
-        job_string = [job_start,job_contents,job_end];        
+        job_string = [job_start,job_contents,job_end];
     else
         job_string = sprintf('%s,',job_start);
         for jp=1:numel(job_par)
-            if isempty(job_par{jp}) 
+            if isempty(job_par{jp})
                 continue
             end
             job_string = [job_string, sprintf('''%s',strrep(job_par{jp},',',','''))];
         end
-        job_string = [job_string, sprintf('''%s',job_end)];        
+        job_string = [job_string, sprintf('''%s',job_end)];
         fwrite(f,'starting','char');
     end
     fclose(f);
@@ -121,12 +120,44 @@ for ic=1:step:n_jobs
     eval(job_string);
     %---------------------------------------------------------------------
 end
+if id<n_workers
+    this.running_jobs_=this.running_jobs_(1:id);
+    n_workers = id;
+end
 
 count = 0;
-[completed,n_failed,this]=check_jobs_completed_(this,count);
+[completed,n_failed,output_exists,this]=check_jobs_completed_(this,count);
 while(~completed)
+    if count == 0
+        fprintf('**** Waiting for workers to finish their jobs ****\n')
+    end
     pause(waiting_time);
-    [completed,n_failed,this]=check_jobs_completed_(this,count);
+    [completed,n_failed,output_exists,this]=check_jobs_completed_(this,count);
     count = count+1;
+    fprintf('.')
+    if mod(count,50)==0
+        fprintf('\n')
+    end
+end
+fprintf('\n')
+%--------------------------------------------------------------------------
+% retrieve outputs (if any)
+if output_exists
+    outputs = cell(n_workers,1);
+    job_info=this.running_jobs_;
+    for ind = 1:n_workers
+        if isempty(job_info)
+            continue;
+        end
+        if job_info{ind}.failed
+            outputs{ind} = 'failed';
+        else
+            outputs{ind} = job_info{ind}.job_results;
+        end
+    end
+    empty_outputs = cellfun(@(x)isempty(x),outputs);
+    outputs = outputs(~empty_outputs);
+else
+    outputs = [];
 end
 
