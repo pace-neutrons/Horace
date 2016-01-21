@@ -69,9 +69,15 @@ for ic=1:step:n_jobs
     end
     % combine job parameters string with auxiliary information, necessary
     % for running external matlab session
-    job_start = sprintf('!%s -nosplash -r "worker(''%s'',%d',...
-        prog_name,class_name,id);
-    job_end=');exit;" &';
+    if ispc
+        job_start = sprintf('!%s -nojvm -nosplash -r worker(''%s'',%d',...
+            prog_name,class_name,id);
+        job_end=');exit; & exit';
+    else
+        job_start = sprintf('!%s -nosplash -r "worker(''%s'',%d',...
+            prog_name,class_name,id);
+        job_end=');exit;" &';
+    end
     
     job_par = cell(step,1);
     job_par{1} = args;
