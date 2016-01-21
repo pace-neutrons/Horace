@@ -55,7 +55,7 @@ classdef JobDispatcher
         job_outputs_ = [];
         %
         running_jobs_={};
-        time_to_fail_ = 10 %sec
+        time_to_fail_ = 20 %sec
         fail_limit_ = 30; % number of times to try for changes in job status file until
         % deciding the job have failed
     end

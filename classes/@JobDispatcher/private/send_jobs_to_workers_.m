@@ -130,6 +130,7 @@ if id<n_workers
     this.running_jobs_=this.running_jobs_(1:id);
     n_workers = id;
 end
+pause(1);
 
 count = 0;
 [completed,n_failed,output_exists,this]=check_jobs_completed_(this,count);
