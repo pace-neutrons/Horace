@@ -342,7 +342,7 @@ else
             warning('GEN_SQW:separate_process_sqw_generation',' %d jobs to add generate tmp files have failed',n_failed);
         end
         %
-        if n_failed ~= num_matlab_sessions
+        if n_failed ~= num_matlab_sessions && ~isempty(outputs)
             if n_failed>0
                 i_start=1;
                 while is_string(outputs{i_start})
