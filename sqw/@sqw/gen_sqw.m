@@ -354,7 +354,7 @@ else
             grid_size = outputs{i_start}.grid_size;
             urange    = outputs{i_start}.urange;
             for i=i_start+1:numel(outputs)
-                if isempty(outputs{i}) || isstring(outputs{i})
+                if isempty(outputs{i}) || is_string(outputs{i})
                     continue;
                 end
                 if ~all(grid_size==outputs{i}.grid_size) || ~all(urange(:)==outputs{i}.urange(:))
