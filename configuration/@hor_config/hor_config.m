@@ -91,10 +91,10 @@ classdef hor_config<config_base
         % 0 not use threads, 1 full multithreading, 2 -- multithreaded bins only,
         % 3 multithreaded pix only
         mex_combine_thread_mode_   = 0;
-        mex_combine_buffer_size_ = 1024;
+        mex_combine_buffer_size_ = 1024*64;
         
         accum_in_separate_process_ = false;
-        accumulating_process_num_ = 1;
+        accumulating_process_num_ = 2;
     end
     
     properties(Constant,Access=private)
@@ -305,6 +305,15 @@ classdef hor_config<config_base
                 accum = true;
             else
                 accum = false;
+            end
+            if accum
+                [ok,mess] = check_worker_configured();
+                if ~ok
+                    warning('HOR_CONFIG:set_accum_in_separate_process',...
+                        ' Can not start accumulating in separate process as: %s',...
+                        mess);
+                    accum = false;
+                end
             end
             config_store.instance().store_config(this,'accum_in_separate_process',accum);
             
