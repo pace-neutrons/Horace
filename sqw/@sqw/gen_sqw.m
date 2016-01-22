@@ -339,10 +339,11 @@ else
         jd = gen_tmp_files_jobs();
         [n_failed,outputs] = jd.send_jobs(job_par,num_matlab_sessions);
         if n_failed>0
-            warning('GEN_SQW:separate_process_sqw_generation',' %d jobs to generate tmp files reported failure',n_failed);
+            warning('GEN_SQW:separate_process_sqw_generation',' %d out of %d jobs to generate tmp files reported failure',...
+                n_failed,num_matlab_sessions);
             for i=1:numel(tmp_file)
                 if ~(exist(tmp_file{i},'file')==2)
-                    error('GEN_SQW:separate_process_sqw_generation',' %The target file %s have not been created',tmp_file{i});
+                    error('GEN_SQW:separate_process_sqw_generation',' The target file %s have not been created',tmp_file{i});
                 end
             end
         end
