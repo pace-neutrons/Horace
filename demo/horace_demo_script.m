@@ -81,6 +81,12 @@ plot(cc2);
 cc1=cut_sqw(sqw_file,proj,[1.9,2.1],[-3,0.05,3],[-0.1,0.1],[180,220]);
 plot(cc1);
 
+% Cuts along hkl-directions
+hklline = [0 0 0; 0.5 0.5 0.5; 0.5 0.5 0; 0 0.5 0; 0 0 0]; 
+bzpts = {'\Gamma','R','M','X','\Gamma'};
+bzcen = [2 2 0];
+wsp=spaghetti_plot(hklline+repmat([2 2 0],size(hklline,1),1),sqw_file,'labels',bzpts, ...
+    'ebin',[10,10,500],'qbin',0.1,'qwidth',1,'smooth',0,'logscale','clim',[0.5 2]);
 
 %================================
 %% Data manipulation
