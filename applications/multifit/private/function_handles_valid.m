@@ -35,7 +35,7 @@ function [ok,mess,func] = function_handles_valid (func_in)
 ok=true;
 mess='';
 
-if isscalar(func_in) && ( isa(func_in,'function_handle') || isa(func_in,'sw') || isa(sqwfunc,'spinw') )
+if isscalar(func_in) && ( isa(func_in,'function_handle') || isa(func_in,'sw') || isa(func_in,'spinw') )
     func={func_in};     % cell array of length unity
     
 elseif iscell(func_in) && ~isempty(func_in)
@@ -43,7 +43,7 @@ elseif iscell(func_in) && ~isempty(func_in)
     for i=1:numel(func_in)
         if isempty(func_in{i})
             n_empty = n_empty+1;
-        elseif ~isa(func_in{i},'function_handle') && ~isa(func_in{i},'sw') && ~isa(sqwfunc,'spinw')
+        elseif ~isa(func_in{i},'function_handle') && ~isa(func_in{i},'sw') && ~isa(func_in,'spinw')
             ok=false;
             mess='Elements of a function handle cell array argument must be function handles or empty';
             func={};

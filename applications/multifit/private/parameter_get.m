@@ -20,7 +20,7 @@ function p = parameter_get(plist)
 %          returned as a column vector
 
 if iscell(plist) && ~isempty(plist)
-    if isa(plist{1},'function_handle') || isa(plist{1},'sw') || isa(sqwfunc,'spinw')
+    if isa(plist{1},'function_handle') || isa(plist{1},'sw') || isa(plist{1},'spinw')
         p=parameter_get(plist{2});
     else
         p=plist{1};
