@@ -127,17 +127,22 @@ plot(w_sqw)
 %fixed (2nd vector is list of free parameters). We will
 %also have a backgound function (specified separately). The (optional) list
 %argument gives a verbose output during the fitting process
-[wfit,fitdata]=fit_sqw(cc2a,@demo_FM_spinwaves,[-250 0 2.4 10 5],[1 0 1 0 1],...
+[wfit,fitdata]=fit_sqw(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5],[1 0 1 0 1],...
     @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 
 %Use spinW to calculate the S(Q,w) instead. First setup the spinW model.
-fefm = sw;
+try
+    fefm = sw;
+catch
+%spinW v3 naming convention.
+    fefm = spinw;
+end
 fefm.genlattice('lat_const',[2.87 2.87 2.87],'angled',[90 90 90]);
 fefm.addatom('r',[0 0 0],'S',1);
 fefm.gencoupling();
-fefm.addmatrix('mat',-eye(3),'label',{'J'});
+fefm.addmatrix('mat',eye(3),'label',{'J'});
 fefm.addcoupling('J',1);
-fefm.addmatrix('mat',[0 0 -0.5],'label',{'D'});
+fefm.addmatrix('mat',[0 0 1],'label',{'D'});
 fefm.addaniso('D');
 fefm.genmagstr('mode','direct','S',[0; 0; 1]);
 %Horace requires parameters as a vector. We need to tell spinW which elements

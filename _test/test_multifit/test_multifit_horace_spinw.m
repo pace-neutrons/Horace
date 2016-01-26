@@ -41,7 +41,12 @@ classdef test_multifit_horace_spinw< TestCaseWithSave
             % Setup SpinW
             % -----------
             try
-                this.sbcc = sw;
+                try
+                    this.sbcc = sw;
+                catch
+                    % spinW version 3 naming convention.
+                    this.sbcc = spinw;
+                end
             catch
                 warning('Cannot initialize spinW object. No test run');
                 return;
