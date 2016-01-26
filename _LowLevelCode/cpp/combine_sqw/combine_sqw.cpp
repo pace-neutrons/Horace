@@ -374,11 +374,11 @@ void cells_in_memory::expand_pixels_selection(size_t bin_number) {
       std::unique_lock<std::mutex> lock(this->exchange_lock);
       this->bins_ready.wait(lock, [this]() {return this->nbins_read; });
       // copy bin info from read buffer to nbin buffer
+      this->bin_read_lock.lock();
       for (size_t i = 0; i < num_buf_bins; i++) {
         this->nbin_buffer[buf_start + i] = this->nbin_read_buffer[i];
       }
       // set up parameters for next read job on separate thread
-      this->bin_read_lock.lock();
       this->n_first_rbuf_bin = buf_nbin_end;
       this->nbins_read = false;
       this->read_bins_needed.notify_one();
