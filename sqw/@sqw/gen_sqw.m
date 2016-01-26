@@ -351,7 +351,7 @@ else
         if n_failed ~= num_matlab_sessions && ~isempty(outputs)
             if n_failed>0
                 i_start=1;
-                while is_string(outputs{i_start})
+                while ~isstruct(outputs{i_start})
                     i_start=i_start+1;
                 end
             else
@@ -364,6 +364,12 @@ else
                     continue;
                 end
                 if ~all(grid_size==outputs{i}.grid_size) || ~all(urange(:)==outputs{i}.urange(:))
+                    disp(['Job number: ',num2str(i)]);
+                    disp(['grid_size: ',num2str(grid_size)])
+                    disp(['Job grid_size: ',num2str(outputs{i}.grid_size)])
+                    disp(['urange: ',num2str(urange)])
+                    disp(['Job urange: ',num2str(outputs{i}.urange)])
+                    
                     error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
                 end
             end
