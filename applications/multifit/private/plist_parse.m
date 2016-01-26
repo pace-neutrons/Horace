@@ -250,7 +250,7 @@ function [ok,np]=plist_parse_single(plist)
 ok=false;
 np=[];
 if iscell(plist) && numel(plist)>=2
-    if isa(plist{1},'function_handle')
+    if isa(plist{1},'function_handle') || isa(plist{1},'sw') || isa(sqwfunc,'spinw')
         [ok,np]=plist_parse_single(plist{2});
     elseif isvector(plist{1}) && isnumeric(plist{1}) && numel(plist{1})>0
         ok=true;

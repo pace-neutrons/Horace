@@ -22,7 +22,7 @@ function plist_new = parameter_set (plist, pnew)
 %               existing array if the number of elements are the same.
 
 if iscell(plist) && ~isempty(plist)
-    if isa(plist{1},'function_handle')
+    if isa(plist{1},'function_handle') || isa(plist{1},'sw') || isa(sqwfunc,'spinw')
         plist_new={plist{1},parameter_set(plist{2},pnew),plist{3:end}};
     else
         plist_new={reshape_as(pnew,plist{1}),plist{2:end}};
