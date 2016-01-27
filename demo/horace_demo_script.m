@@ -156,7 +156,7 @@ try
     fefm = spinw_setpar(fefm,'convolvfn',@spinw_sho_sqw);
     %Note both lines above can also be combined into a single line.
     %Parameters in this case is: [J D gamma temperature amplitude]
-    [wfitsw,fitdatasw]=fit_sqw(cc2a,fefm,[250 0 2.4 10 5],[1 0 1 0 1],...
+    [wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
         @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 catch
     echo('spinw has not been found');

@@ -161,6 +161,11 @@ function obj = horace_setpar(obj, varargin)
 % See also SW, SW.SPINWAVE, SW.MATPARSER, SW.HORACE, SW_READPARAM.
 %
 
+% Check input is actually a spinW object, taking care of v3 nameing conventions.
+if ~isa(obj,'sw') && ~isa(obj,'spinw')
+    error('obj should be a spinW object');
+end
+
 inpForm.fname  = {'component' 'norm' 'dE'  'tol' 'optmem' 'hermit' 'notwin'};
 inpForm.defval = {'Sperp'     false  0     1e-4  0        true     false};
 inpForm.size   = {[1 1]       [1 1]  [1 1] [1 1] [1 1]    [1 1]    [1 1]};
