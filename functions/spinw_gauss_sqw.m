@@ -47,6 +47,11 @@ if nargin <= 1
     return;
 end
 
+% Check input is actually a spinW object, taking care of v3 nameing conventions.
+if ~isa(obj,'sw') && ~isa(obj,'spinw')
+    error('obj should be a spinW object');
+end
+
 nPar = numel(obj.matrix.horace.mapping);
 I0 = 1;
 bkgd = 0;

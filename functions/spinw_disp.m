@@ -44,9 +44,14 @@ if nargin <= 1
     return;
 end
 
+% Check input is actually a spinW object, taking care of v3 nameing conventions.
+if ~isa(obj,'sw') && ~isa(obj,'spinw')
+    error('obj should be a spinW object');
+end
+
 % Set default parameters if the user has not already set them...
 if ~isfield(obj.matrix,'horace')
-    obj.horace_setpar();
+    obj = spinw_setpar(obj);
 end
 
 % Changes the parameters required.

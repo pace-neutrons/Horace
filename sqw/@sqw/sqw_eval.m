@@ -66,13 +66,6 @@ end
 wout = win;
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
-% Handle case of a spinW object (updated to handle v3 naming)
-if isa(sqwfunc,'sw') || isa(sqwfunc,'spinw')
-    swobj = sqwfunc;
-    sqwfunc = @(qh,qk,ql,en,p) swobj.matrix.horace.convolvfn(swobj,qh,qk,ql,en,...
-        swobj.matrix.horace.partrans(p));
-end
-
 for i=1:numel(win)
     if is_sqw_type(win(i));   % determine if sqw or dnd type
         if ~ave_pix

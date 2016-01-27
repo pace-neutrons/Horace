@@ -86,7 +86,7 @@ function varargout=spaghetti_plot(varargin)
 
 % Original author: M. D. Le
 %
-% $Revision$ ($Date$)
+% $Revision: 1160 $ ($Date: 2016-01-25 11:18:27 +0000 (Mon, 25 Jan 2016) $)
 
 % TODO: Make it work for dnd objects (no arbitrary projections...)
 
