@@ -12,7 +12,7 @@
 
 %Run the command below to obtain the data we will use for the demo. This
 %process can take a few minutes - be patient!
-%file_list=setup_demo_data();
+file_list=setup_demo_data();
 
 %At the end of this you should have a set of files called
 %HoraceDemoDataFileN.spe, where N is 1 to 23.
@@ -82,7 +82,7 @@ cc1=cut_sqw(sqw_file,proj,[1.9,2.1],[-3,0.05,3],[-0.1,0.1],[180,220]);
 plot(cc1);
 
 % Cuts along hkl-directions
-hklline = [0 0 0; 0.5 0.5 0.5; 0.5 0.5 0; 0 0.5 0; 0 0 0]; 
+hklline = [0 0 0; 0.5 0.5 0.5; 0.5 0.5 0; 0 0.5 0; 0 0 0];
 bzpts = {'\Gamma','R','M','X','\Gamma'};
 bzcen = [2 2 0];
 wsp=spaghetti_plot(hklline+repmat([2 2 0],size(hklline,1),1),sqw_file,'labels',bzpts, ...
@@ -130,33 +130,37 @@ plot(w_sqw)
 [wfit,fitdata]=fit_sqw(cc2a,@demo_FM_spinwaves,[250 0 2.4 10 5],[1 0 1 0 1],...
     @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 
-%Use spinW to calculate the S(Q,w) instead. First setup the spinW model.
 try
-    fefm = sw;
+    %Use spinW to calculate the S(Q,w) instead. First setup the spinW model.
+    try
+        fefm = sw;
+    catch
+        %spinW v3 naming convention.
+        fefm = spinw;
+    end
+    fefm.genlattice('lat_const',[2.87 2.87 2.87],'angled',[90 90 90]);
+    fefm.addatom('r',[0 0 0],'S',1);
+    fefm.gencoupling();
+    fefm.addmatrix('mat',eye(3),'label',{'J'});
+    fefm.addcoupling('J',1);
+    fefm.addmatrix('mat',[0 0 1],'label',{'D'});
+    fefm.addaniso('D');
+    fefm.genmagstr('mode','direct','S',[0; 0; 1]);
+    %Horace requires parameters as a vector. We need to tell spinW which elements
+    %of this vector corresponds to which parameters. In this case, the first element
+    %is the exchange interaction J, the second the gap, or single-ion anisotropy D.
+    fefm = spinw_setpar(fefm,'mapping',{'J','D'},'hermit',false);
+    %By default the spinW dispersion is convoluted with a finite energy Gaussian
+    %and a flat background is added. The parameters then would be:
+    %[J D amplitude fwhm background]. Here we want a SHO weighted by the Bose factor
+    fefm = spinw_setpar(fefm,'convolvfn',@spinw_sho_sqw);
+    %Note both lines above can also be combined into a single line.
+    %Parameters in this case is: [J D gamma temperature amplitude]
+    [wfitsw,fitdatasw]=fit_sqw(cc2a,fefm,[250 0 2.4 10 5],[1 0 1 0 1],...
+        @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 catch
-%spinW v3 naming convention.
-    fefm = spinw;
+    echo('spinw has not been found');
 end
-fefm.genlattice('lat_const',[2.87 2.87 2.87],'angled',[90 90 90]);
-fefm.addatom('r',[0 0 0],'S',1);
-fefm.gencoupling();
-fefm.addmatrix('mat',eye(3),'label',{'J'});
-fefm.addcoupling('J',1);
-fefm.addmatrix('mat',[0 0 1],'label',{'D'});
-fefm.addaniso('D');
-fefm.genmagstr('mode','direct','S',[0; 0; 1]);
-%Horace requires parameters as a vector. We need to tell spinW which elements
-%of this vector corresponds to which parameters. In this case, the first element
-%is the exchange interaction J, the second the gap, or single-ion anisotropy D.
-fefm = spinw_setpar(fefm,'mapping',{'J','D'},'hermit',false);
-%By default the spinW dispersion is convoluted with a finite energy Gaussian
-%and a flat background is added. The parameters then would be:
-%[J D amplitude fwhm background]. Here we want a SHO weighted by the Bose factor
-fefm = spinw_setpar(fefm,'convolvfn',@spinw_sho_sqw);
-%Note both lines above can also be combined into a single line.
-%Parameters in this case is: [J D gamma temperature amplitude]
-[wfitsw,fitdatasw]=fit_sqw(cc2a,fefm,[250 0 2.4 10 5],[1 0 1 0 1],...
-    @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 
 %% Symmetrising, and some other bits and bobs
 
