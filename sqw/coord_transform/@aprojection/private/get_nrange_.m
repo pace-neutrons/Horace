@@ -33,7 +33,7 @@ function [nstart,nend] = get_nrange_(nelmts,irange)
 
 % Original author: T.G.Perring
 %
-% $Revision: 987 $ ($Date: 2015-06-10 15:27:38 +0100 (Wed, 10 Jun 2015) $)
+% $Revision$ ($Date$)
 
 
 % Get number of dimensions and check consistency

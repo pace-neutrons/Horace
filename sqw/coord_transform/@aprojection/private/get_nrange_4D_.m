@@ -40,7 +40,7 @@ function [nstart,nend] = get_nrange_4D_(nelmts,istart,iend,irange)
 
 % Original author: T.G.Perring
 %
-% $Revision: 985 $ ($Date: 2015-06-05 17:38:55 +0100 (Fri, 05 Jun 2015) $)
+% $Revision$ ($Date$)
 
 
 % Get number of dimensions and check consistency

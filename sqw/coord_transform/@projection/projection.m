@@ -8,7 +8,7 @@ classdef projection<aprojection
     %  Defines coordinate transformations, used by cut_sqw when making
     %  horace cuts
     %
-    % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+    % $Revision$ ($Date$)
     %
     properties 
         %

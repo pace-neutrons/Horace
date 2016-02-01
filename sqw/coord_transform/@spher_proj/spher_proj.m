@@ -3,7 +3,7 @@ classdef spher_proj<aprojection
     % to make spherical cuts
     %
     %
-    % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+    % $Revision$ ($Date$)
     %
     properties(Dependent)
         ex; %[1x3] Vector of axis in spherical coordinate system,

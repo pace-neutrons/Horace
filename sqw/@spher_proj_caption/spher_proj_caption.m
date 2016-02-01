@@ -2,7 +2,7 @@ classdef spher_proj_caption<an_axis_caption
     %Class describes axis captions, used in spherical projection
     %
     %
-    % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+    % $Revision$ ($Date$)
     %       
     properties
         % property contains the type of spher_cut projection used in
