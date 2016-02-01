@@ -51,7 +51,7 @@ function [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,vararg
 
 % Original author: T.G.Perring
 %
-% $Revision: 987 $ ($Date: 2015-06-10 15:27:38 +0100 (Wed, 10 Jun 2015) $)
+% $Revision$ ($Date$)
 
 
 ndim=numel(varargin);

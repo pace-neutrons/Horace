@@ -36,7 +36,7 @@ function [irange,inside,outside] = get_irange_(urange,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 965 $ ($Date: 2015-02-11 08:15:18 +0000 (Wed, 11 Feb 2015) $)
+% $Revision$ ($Date$)
 
 
 ndim=numel(varargin);

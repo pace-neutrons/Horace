@@ -156,7 +156,7 @@ function [mess, data, position, npixtot, data_type] = get_sqw_data (data,fid, va
 
 % Original author: T.G.Perring
 %
-% $Revision: 1019 $ ($Date: 2015-07-16 12:20:46 +0100 (Thu, 16 Jul 2015) $)
+% $Revision$ ($Date$)
 
 % Initialise output arguments
 position = struct('data',ftell(fid),'s',[],'e',[],'npix',[],'urange',[],'pix',[]);

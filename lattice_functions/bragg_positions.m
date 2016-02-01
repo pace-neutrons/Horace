@@ -92,7 +92,7 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 
 % Original author: T.G.Perring
 %
-% $Revision: 975 $ ($Date: 2015-02-20 14:27:56 +0000 (Fri, 20 Feb 2015) $)
+% $Revision$ ($Date$)
 
 
 % Banner - catch case of old format

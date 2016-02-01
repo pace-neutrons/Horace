@@ -3,7 +3,7 @@ function proj = set_data_transf_(proj,data,upix_to_rlu,upix_offset)
 % defined over sqw data and store them in projection to
 % use later with new transformation.
 %
-% $Revision: 1019 $ ($Date: 2015-07-16 12:20:46 +0100 (Thu, 16 Jul 2015) $)
+% $Revision$ ($Date$)
 %
 
 if size(upix_to_rlu) ~= [3 3]

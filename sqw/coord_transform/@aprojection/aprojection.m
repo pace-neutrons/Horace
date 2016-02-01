@@ -6,7 +6,7 @@ classdef aprojection
     % Also defines generic operations on sqw object, which may be useful
     % and can be used by any projection class.
     %
-    % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+    % $Revision$ ($Date$)
     %
     properties(Dependent)
         % is special mex routines, written for performance reason and as such

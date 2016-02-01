@@ -16,7 +16,7 @@
 //#define STDIO
 
 //
-// $Revision:: 1145 $ ($Date:: 2016-01-11 19:48:18 +0000 (Mon, 11 Jan 2016) $)" 
+// $Revision::      $ ($Date::                                              $)" 
 //
 
 /* Class describes a file to combine */
@@ -205,7 +205,7 @@ class sqw_reader :public cells_in_memory
     cashed in a buffer and provided from the buffer if available
 
     %
-    % $Revision: 1145 $($Date : 2015 - 12 - 07 21 : 20 : 34 + 0000 (Mon, 07 Dec 2015) $)
+    % $Revision$($Date : 2015 - 12 - 07 21 : 20 : 34 + 0000 (Mon, 07 Dec 2015) $)
     %
     */
 public:
