@@ -59,12 +59,12 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             if ~hc.accum_in_separate_process
                 warnings('TEST_GEN_SQW_ACC_SQW:multisession_mode',' multisession mode can not be enablesd');
                 if ~hc.use_mex_for_combine % nothing to do, this mode can not be enabled
-                    this.skip_tests=true; 
+                    this.skip_tests=true;
                 end
             else
                 this.skip_tests=false;
             end
-                       
+            
             
             % do other initialization
             this.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
@@ -138,7 +138,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             hc.accum_in_separate_process = true;
             hc.use_mex_for_combine = true;
             %
-            skip= false;            
+            skip= false;
         end
         function this=build_test_files(this)
             
@@ -183,8 +183,10 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
+            hc = hor_config;
+            %hc.use_mex_for_combine=false;
             
             
             % build test files if they have not been build
@@ -211,7 +213,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             
             [dummy,grid,urange1]=gen_sqw (this.spe_file, this.par_file, sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            
+            hc.accum_in_separate_process=0;
             [dummy,grid,urange2]=gen_sqw (this.spe_file([1,4,5,6,2,3]), this.par_file, sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg, u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
             
             assertElementsAlmostEqual(urange1,urange2,'relative',1.e-6);
@@ -241,7 +243,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             
             sqw_file_15456=fullfile(tempdir,'sqw_123456_multisession.sqw');  % output sqw file which should never be created
@@ -265,7 +267,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             
             
@@ -318,7 +320,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             
             
@@ -367,7 +369,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             if skip
                 return
             end
-            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));            
+            co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
             
             
@@ -420,88 +422,88 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         function test_worker(this)
             
             job_par_fun = @(run,fname,instr,samp)(struct(...
-            'runfile',run,'sqw_file_name',fname,'instrument',instr,...
-            'samlpe',samp,...
-            'grid_size_in',[50,50,50,50],'urange_in',[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
-        
+                'runfile',run,'sqw_file_name',fname,'instrument',instr,...
+                'samlpe',samp,...
+                'grid_size_in',[50,50,50,50],'urange_in',[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
+            
             this= build_test_files(this);
             
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             ds.efix=efix(1);
-            ds.emode =emode; 
+            ds.emode =emode;
             ds.psi=psi(1);
-            ds.omega=omega(1);            
+            ds.omega=omega(1);
             ds.dpsi = dpsi(1);
-            ds.gl = gl(1);            
-            ds.gs = gs(1);                        
+            ds.gl = gl(1);
+            ds.gs = gs(1);
             ds.alatt=alatt;
             ds.angdeg=angdeg;
             ds.u = u;
-            ds.v = v;            
-
+            ds.v = v;
+            
             
             %
-            [path,file] = fileparts(this.spe_file{1});            
-            tmp_file1 = fullfile(path,[file,'.tmp']);            
+            [path,file] = fileparts(this.spe_file{1});
+            tmp_file1 = fullfile(path,[file,'.tmp']);
             run1=rundata(this.spe_file{1},this.par_file,ds);
             job_param1 = job_par_fun(run1,tmp_file1,this.instrum(1),this.sample);
-
+            
             %
             [path,file] = fileparts(this.spe_file{2});
             tmp_file2 = fullfile(path,[file,'.tmp']);
             ds.psi=psi(1);
-            run2=rundata(this.spe_file{1},this.par_file,ds);            
-            job_param2 = job_par_fun(run2,tmp_file2,this.instrum(2),this.sample);            
-
+            run2=rundata(this.spe_file{1},this.par_file,ds);
+            job_param2 = job_par_fun(run2,tmp_file2,this.instrum(2),this.sample);
             
-
-            [str_rep1,mess] = gen_tmp_files_jobs.make_job_par_string(job_param1);           
+            
+            
+            [str_rep1,mess] = gen_tmp_files_jobs.make_job_par_string(job_param1);
             assertTrue(isempty(mess));
-            [str_rep2,mess] = gen_tmp_files_jobs.make_job_par_string(job_param2);           
+            [str_rep2,mess] = gen_tmp_files_jobs.make_job_par_string(job_param2);
             assertTrue(isempty(mess));
-                        
+            
             worker('gen_tmp_files_jobs',1,str_rep1,str_rep2);
-          
+            
             
             assertTrue(exist(tmp_file1,'file')==2);
             assertTrue(exist(tmp_file2,'file')==2);
             delete(tmp_file1);
-            delete(tmp_file2);            
+            delete(tmp_file2);
             
         end
         
         function test_do_job(this)
             %
             job_par_fun = @(run,fname,instr,samp)(struct(...
-            'runfile',run,'sqw_file_name',fname,'instrument',instr,...
-            'samlpe',samp,...
-            'grid_size_in',[50,50,50,50],'urange_in',[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
-        
+                'runfile',run,'sqw_file_name',fname,'instrument',instr,...
+                'samlpe',samp,...
+                'grid_size_in',[50,50,50,50],'urange_in',[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
+            
             this= build_test_files(this);
             
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             ds.efix=efix(1);
-            ds.emode =emode; 
+            ds.emode =emode;
             ds.psi=psi(1);
-            ds.omega=omega(1);            
+            ds.omega=omega(1);
             ds.dpsi = dpsi(1);
-            ds.gl = gl(1);            
-            ds.gs = gs(1);                        
+            ds.gl = gl(1);
+            ds.gs = gs(1);
             ds.alatt=alatt;
             ds.angdeg=angdeg;
             ds.u = u;
-            ds.v = v;            
+            ds.v = v;
             [path,file] = fileparts(this.spe_file{1});
             tmp_file = fullfile(path,[file,'.tmp']);
             
             run=rundata(this.spe_file{1},this.par_file,ds);
             job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);
-
-
-            [str_rep,mess] = gen_tmp_files_jobs.make_job_par_string(job_param);           
+            
+            
+            [str_rep,mess] = gen_tmp_files_jobs.make_job_par_string(job_param);
             assertTrue(isempty(mess));
-
-            jd = gen_tmp_files_jobs();            
+            
+            jd = gen_tmp_files_jobs();
             jd.do_job(str_rep);
             
             assertTrue(exist(tmp_file,'file')==2);
