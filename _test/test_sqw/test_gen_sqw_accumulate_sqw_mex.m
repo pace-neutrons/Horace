@@ -50,18 +50,18 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 pref = varargin{2};
             else
                 pref = 'mex';
-            end            
+            end
             
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
-
-            % do overloading mex/nomex            
+            
+            % do overloading mex/nomex
             this.prefix = pref;
             if strcmp(pref,'mex')
                 this.mex_mode = true;
                 [mess,n_errors]=check_horace_mex();
                 if n_errors>0
                     this.skip_tests=true;
-                    warnings('TEST_GEN_SQW_ACC_SQW:mex_mode',' mex mode disabled as mex code does not work, Err: %s',mess);                   
+                    warnings('TEST_GEN_SQW_ACC_SQW:mex_mode',' mex mode disabled as mex code does not work, Err: %s',mess);
                 else
                     this.skip_tests=false;
                 end
@@ -71,7 +71,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 this.skip_tests=false;
             end
             this.errmessage_prefix = ['Test with ',pref];
-
+            
             
             % do other initialization
             this.comparison_par={ 'min_denominator', 0.01, 'ignore_str', 1};
@@ -134,7 +134,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             gs=this.gen_sqw_par{12};
         end
         %
-        function [skip,cur_mex,pref]=setup_mex_mode(this)
+        function [skip,cur_mex,pref,acsp,umc]=setup_mex_mode(this)
             hc = hor_config;
             pref = this.prefix;
             skip = false;
@@ -147,15 +147,16 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 hc.saveable=false;
                 hc.use_mex=this.mex_mode;
             end
-            
+            acsp=hc.accum_in_separate_process;
+            umc= hc.use_mex_for_combine;
         end
         function this=build_test_files(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'accum_in_separate_process',acsp,'use_mex_for_combine',umc));
             %-------------------------------------------------------------
             
             %% =====================================================================================================================
@@ -193,11 +194,12 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         end
         function this=test_gen_sqw(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'accum_in_separate_process',acsp,'use_mex_for_combine',umc));
+            set(hor_config,'accum_in_separate_process',false,'use_mex_for_combine',false);
             %-------------------------------------------------------------
             
             
@@ -251,15 +253,16 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         end
         function this=test_wrong_params_gen_sqw(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'accum_in_separate_process',acsp,'use_mex_for_combine',umc));
+            set(hor_config,'accum_in_separate_process',false,'use_mex_for_combine',false);
             %-------------------------------------------------------------
             
             sqw_file_15456=fullfile(tempdir,['sqw_123456',pref,'.sqw']);  % output sqw file which should never be created
-                        
+            
             this=build_test_files(this);
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             try
@@ -280,7 +283,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             end
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
             %-------------------------------------------------------------
-            sqw_file_accum=fullfile(tempdir,['sqw_accum',pref,'.sqw']);  % output sqw file which should never be created                     
+            sqw_file_accum=fullfile(tempdir,['sqw_accum',pref,'.sqw']);  % output sqw file which should never be created
             
             
             this=build_test_files(this);
@@ -300,11 +303,12 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         
         function this=test_accumulate_sqw14(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'accum_in_separate_process',acsp,'use_mex_for_combine',umc));
+            set(hor_config,'accum_in_separate_process',false,'use_mex_for_combine',false);
             %-------------------------------------------------------------
             
             
@@ -353,11 +357,12 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         
         function this=test_accumulate_sqw1456(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'accum_in_separate_process',acsp,'use_mex_for_combine',umc));
+            set(hor_config,'accum_in_separate_process',false,'use_mex_for_combine',false);
             %-------------------------------------------------------------
             
             
@@ -402,11 +407,12 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
         end
         function this=test_accumulate_sqw11456(this)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref]=this.setup_mex_mode();
+            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode();
             if skip
                 return
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex));
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'accum_in_separate_process',acsp,'use_mex_for_combine',umc));
+            set(hor_config,'accum_in_separate_process',false,'use_mex_for_combine',false);
             %-------------------------------------------------------------
             
             

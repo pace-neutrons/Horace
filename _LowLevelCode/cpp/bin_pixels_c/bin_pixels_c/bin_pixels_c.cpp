@@ -233,20 +233,17 @@ bool bin_pixels(double *s, double *e, double *npix,
 
 
 #ifdef OMP_VERSION_3
-#pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
+    #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
     shared(pixel_data, ok, nGridCell, pStor, ppInd, \
     tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained,\
     s, e, npix)\
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
-
 #else
-#pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
+    #pragma omp parallel default(none) private(xt,yt,zt,Et,nPixSq) \
     shared(pixel_data, ok, nGridCell, pStor, ppInd, \
     tPixelSorted,pPixelSorted,pPixels, PixelSorted, pix_retained,nPixel_retained, \
     s, e, npix, cell_cnt_mutex)\
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) 
-
-
 #endif
     {
 #pragma omp for 
@@ -340,6 +337,7 @@ bool bin_pixels(double *s, double *e, double *npix,
             }
 
         }
+#pragma omp flush (nPixel_retained)
 
         size_t Block_Size = sizeof(*pixel_data)*pix_fields::PIX_WIDTH;
 
@@ -368,19 +366,18 @@ bool bin_pixels(double *s, double *e, double *npix,
                 pPixelSorted[j0+i]=pixel_data[i0+i];
            }
       }
-#pragma omp flush (nPixel_retained)
-
+    } // end parallel region
 //----------------------------------------------------------------------------------
     // where to place new pixels
-#pragma omp single
+//#pragma omp single
     pPixels = NULL;
 
     if (data_size == nPixel_retained){
-#pragma omp single
+//#pragma omp single
         PixelSorted = tPixelSorted;
     }
     else{
-#pragma omp single // barrier exist, no other threads will enter region
+//#pragma omp single // barrier exist, no other threads will enter region
         {
             try { 
                 PixelSorted   = mxCreateDoubleMatrix(pix_fields::PIX_WIDTH, nPixel_retained,mxREAL);
@@ -391,15 +388,15 @@ bool bin_pixels(double *s, double *e, double *npix,
             pPixels = mxGetPr(PixelSorted);
         }
        // copy pixels info from heap to Matlab controlled memory;
-#pragma omp for
+//#pragma omp for
         for(long i=0;i<nPixel_retained*pix_fields::PIX_WIDTH;i++) {
             pPixels[i] = pPixelSorted[i];
         }
-#pragma omp single
+//#pragma omp single
          mxDestroyArray(tPixelSorted);
       }
 
-    } // end parallel region
+
     // clear thread-related memory
     pStorHolder.reset();
     return place_pixels_in_old_array;
