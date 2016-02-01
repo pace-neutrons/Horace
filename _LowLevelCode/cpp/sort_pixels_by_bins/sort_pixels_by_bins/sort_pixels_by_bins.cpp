@@ -185,7 +185,7 @@ std::string  verify_index_array(const mxArray * pix_cell_array_ptr, bool &is_int
 ! the function moves the pixels information into the places which correspond to the cells,
 ! to which the pixels belong to.
 ! takes 3 arguments:
-!  
+!
 ! 1 -- cellarray of arrays of pixels for sorting
 ! 2 -- cellarray of arrays of indexes of pixels within cells (a cell has more then one pixel and all pixels within this cell have the same index)
 ! 3 -- number of pixels in each cell  (densities) 

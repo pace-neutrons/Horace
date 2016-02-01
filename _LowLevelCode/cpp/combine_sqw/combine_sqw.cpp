@@ -31,6 +31,7 @@ const std::map<std::string, int> fileParameters::fileParamNames = {
 //--------------------------------------------------------------------------------------------------------------------
 //
 //
+
 float *const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
 
   //this->read_lock.lock();

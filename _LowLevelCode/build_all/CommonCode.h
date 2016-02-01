@@ -39,11 +39,11 @@ extern bool ioFlush(void);
 
 
 
-# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
-#define  OMP_VERSION_3
-#else
+//# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
+//#define  OMP_VERSION_3
+//#else
 #undef  OMP_VERSION_3
-#endif
+//#endif
 enum pix_fields
 {
     u1 = 0, //      -|

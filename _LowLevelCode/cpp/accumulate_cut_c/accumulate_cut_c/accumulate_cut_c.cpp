@@ -70,7 +70,6 @@ if there are no parameters specified, then defaults are parameters[]={1,1,0,1,8}
 based on Matlab code of T.G.Perring   19 July 2007; C-version Alex Buts 02 July 2009
 */
 
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 

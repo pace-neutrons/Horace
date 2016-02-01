@@ -24,6 +24,7 @@ enum output_arguments{  // not used at the moment
     N_OUTPUT_Arguments
 };
 
+
 bool bin_pixels(double *s, double *e, double *npix,
                 mxArray*  pPixel_data, mxArray* &PixelSorted,
                 double const* const cut_range,
