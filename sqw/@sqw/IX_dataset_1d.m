@@ -27,7 +27,7 @@ wout=IX_dataset_1d;
 if numel(w)>1, wout(numel(w))=wout; end  % allocate array
 
 for i=1:numel(w)
-    if ~isempty(w(i).data.axis_caption)
+    if isfield(w(i).data,'axis_caption') && ~isempty(w(i).data.axis_caption)
         title_fun_calc = w(i).data.axis_caption;
     else
         title_fun_calc  = an_axis_caption();
