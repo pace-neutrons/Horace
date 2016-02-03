@@ -207,7 +207,23 @@ classdef TestCaseWithSave < TestCase
                         end
                         
                     end
+                    % always compare sorted pixels, as pix averages over
+                    % cells contribute to signal and error, and pixels
+                    % itself may be ordered differently within the cells
+                    try
+                        ref_pix = ref_data.data.pix;
+                        ref_data.data.pix = sortrows(ref_data.data.pix')';
+                        pix_mem = ws_list{i}.data.pix;
+                        ws_list{i}.data.pix = sortrows(ws_list{i}.data.pix')';
+                        pixels_transformed  = true;
+                    catch
+                        pixels_transformed = false;
+                    end
                     [ok,mess]=equal_to_tol(ws_list{i}, ref_data,toll,keyval{:});
+                    if pixels_transformed
+                        ws_list{i}.data.pix = pix_mem;
+                        ref_data.data.pix = ref_pix;
+                    end
                     
                     assertTrue(ok,[this.errmessage_prefix,': [',inputname(i+1),'] :',mess])
                 else

@@ -10,7 +10,11 @@ if numel(already_exist)==1
         new_list=initial_list;
         return
     else
-        new_files=varargin{1};
+        if iscell(varargin{1})
+            new_files=varargin{1};
+        else
+            new_files = varargin;
+        end
     end
 else
     new_files = varargin(~already_exist);
