@@ -35,7 +35,6 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
     const std::vector<double> &progSettings)
 {
 
-    double Et;
     T Inf(0);
     double ebin_inv = (1 / ebin);
     bool  ignore_something, ignote_all;
@@ -126,7 +125,7 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
 
 
 
-#pragma omp parallel default(none) private(Et) \
+#pragma omp parallel default(none) \
     shared(rot_ustep,trans_bott_left,cut_range,ok,ind, qe_min,qe_max,\
     pStor) \
     firstprivate(data_size,distribution_size,num_OMP_Threads, \
@@ -162,6 +161,7 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
             double yt1 = double(pixel_data[j0 + 1]) - trans_bott_left[1];
             double zt1 = double(pixel_data[j0 + 2]) - trans_bott_left[2];
 
+            double Et;
             if (transform_energy) {
                 //    indx(4)=[(v(4,:)'-trans_elo)*(1/ebin)];  % nx4 matrix
                 Et = (double(pixel_data[j0 + 3]) - trans_elo)*ebin_inv;

@@ -185,13 +185,16 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             end
             co = onCleanup(@()set(hor_config,'accum_in_separate_process',sess_state,'use_mex_for_combine',comb_state));
             %-------------------------------------------------------------
-            hc = hor_config;
+            %hc = hor_config;
             %hc.use_mex_for_combine=false;
+            %hc.accum_in_separate_process=false;
+            %hc.threads = 8;
             
             
             % build test files if they have not been build
             this=build_test_files(this);
             % generate the names of the output sqw files
+           
             sqw_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max
                 sqw_file{i}=fullfile(tempdir,['test_gen_sqw_multisession',num2str(i),'.sqw']);    % output sqw file
@@ -207,13 +210,14 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             % ---------------------------------------
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
+            %hc.threads = 1;            
             for i=1:this.nfiles_max
                 gen_sqw (this.spe_file(i), this.par_file, sqw_file{i}, efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),[3,3,3,3]);
             end
             
             
             [dummy,grid,urange1]=gen_sqw (this.spe_file, this.par_file, sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            hc.accum_in_separate_process=0;
+            %hc.accum_in_separate_process=0;
             [dummy,grid,urange2]=gen_sqw (this.spe_file([1,4,5,6,2,3]), this.par_file, sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg, u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
             
             assertElementsAlmostEqual(urange1,urange2,'relative',1.e-6);
