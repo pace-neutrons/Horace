@@ -86,11 +86,12 @@ end
 %we should use will then be the smaller/bigger of the above and these stated
 %limits. Must also do something similar for integration axes
 for i=1:ndims1
-    min_orig1{i}=min(w1.data.p{w1.data.pax(i)});
-    max_orig1{i}=max(w1.data.p{w1.data.pax(i)});
-    min_orig2{i}=min(w2.data.p{w2.data.pax(i)});
-    max_orig2{i}=max(w2.data.p{w2.data.pax(i)});
+    min_orig1{i}=min(w1.data.p{i});
+    max_orig1{i}=max(w1.data.p{i});
+    min_orig2{i}=min(w2.data.p{i});
+    max_orig2{i}=max(w2.data.p{i});
 end
+%NB changed index of cells in above for-loop from w1.data.pax(i) to i (15/12/15)
 
 for i=1:ndims1
     min_full{i}=min([min_full{i} min_orig1{i} min_orig2{i}]);
