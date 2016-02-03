@@ -17,6 +17,7 @@
 #include <sstream>
 #include <memory>
 #include <mutex>
+//#include <omp_guard.hpp>
 
 #ifndef _OPENMP
 void omp_set_num_threads(int nThreads) {};
@@ -40,9 +41,9 @@ extern bool ioFlush(void);
 
 
 //# if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
-//#define  OMP_VERSION_3
+#define  OMP_VERSION_3
 //#else
-#undef  OMP_VERSION_3
+//#undef  OMP_VERSION_3
 //#endif
 enum pix_fields
 {
@@ -59,7 +60,18 @@ enum pix_fields
 };
 // modify this to support INTEL compiler (what OMP version(s) it has?
 
+// Copy pixels from source to target array
+inline void copy_pixels(double *pixel_data,long j,double *pPixelSorted, size_t j0) {
+    //
+    j0 *= pix_fields::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+    size_t i0 = j*pix_fields::PIX_WIDTH;
 
+    for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {
+        pPixelSorted[j0 + i] = pixel_data[i0 + i];
+    }
+
+
+}
 
 
 class omp_storage
@@ -77,7 +89,7 @@ public:
     double *pSignal, *pError, *pNpix;
 
     omp_storage(int num_OMP_Threads, size_t distribution_size, double *s, double *e, double *npix) :
-        distr_size(distribution_size), data_size(0), largeMemory(NULL)
+        distr_size(distribution_size), data_size(0), num_threads(num_OMP_Threads),largeMemory(NULL)
     {
         this->init_storage(num_OMP_Threads, distribution_size,s,e,npix);
     };
@@ -89,10 +101,11 @@ public:
       *@param npix  -- array of number of pixels in each cell (size of distribution_size)
     */
     void init_storage(int num_OMP_Threads, size_t distribution_size, double *s, double *e, double *npix) {
-        size_t new_data_size = 3 * num_OMP_Threads*distribution_size;
+        num_threads = num_OMP_Threads;
+        size_t new_data_size = 3 * num_threads *distribution_size;
         distr_size = distribution_size;
 
-        if (num_OMP_Threads > 1) {
+        if (num_threads  > 1) {
             is_mutlithreaded = true;
             bool allocate_memory = true;
             if (largeMemory) {
@@ -130,8 +143,8 @@ public:
                 }
             }
             pSignal = largeMemory;
-            pError = largeMemory + num_OMP_Threads*distribution_size;
-            pNpix = largeMemory + 2 * num_OMP_Threads*distribution_size;
+            pError = largeMemory + num_threads*distribution_size;
+            pNpix = largeMemory + 2 * num_threads*distribution_size;
 
         }
         else {
@@ -139,6 +152,7 @@ public:
             pSignal = s;
             pError = e;
             pNpix = npix;
+            num_threads = 1;
         }
         data_size = new_data_size;
 
@@ -156,6 +170,15 @@ public:
         pError[ind]  += error;
         pNpix[ind]   +=1;
     }
+    void combibe_storage(double *s,double *e, double *npix, long i) {
+        for (int ns = 0; ns < num_threads; ns++) {
+            size_t ind = ns*distr_size + i;
+            s[i] += pSignal[ind];
+            e[i] += pError[ind];
+            npix[i] += pNpix[ind];
+        }
+
+    }
     ~omp_storage() {
         if (largeMemory && se_vec_stor.size() == 0) {
             mxFree(largeMemory);
@@ -166,6 +189,7 @@ public:
 private:
     size_t distr_size;
     size_t data_size;
+    int    num_threads;
 
     std::vector<double > se_vec_stor;
     double * largeMemory;

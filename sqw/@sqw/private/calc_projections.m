@@ -94,13 +94,13 @@ c=neutron_constants;
 k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
 % Calculate Q in spectrometer coordinates for each pixel
-use_mex=get(hor_config,'use_mex') && emode==1 && ~isfield(data,'qspec');  % *** as of 6 Nov 2011 the c++ routine still only works for direct geometry
+[use_mex,nThreads]=get(hor_config,'use_mex','threads');
 if use_mex
-    if isfield(data,'qspec')
+    if isfield(data,'qspec') % why is this?
         use_mex = false;
     else
         try
-            nThreads=get(hor_config,'threads');
+            %nThreads = 8;
             [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
         catch   % use matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',lasterr());

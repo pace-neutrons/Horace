@@ -106,6 +106,7 @@ else
             
             sqw_fields   =cell(1,4);
             sqw_fields{1}=get(hor_config,'threads');
+            %sqw_fields{1}=8;
             sqw_fields{2}=urange;
             sqw_fields{3}=grid_size;
             sqw_fields{4}=sqw_data.pix;

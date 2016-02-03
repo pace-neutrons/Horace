@@ -126,6 +126,9 @@ void mexFunction(int nlhs, mxArray *plhs[ ],int nrhs, const mxArray *prhs[ ])
     }else{
         nThreads=(int)getMatlabScalar(prhs[nNThreads],"variable nThreads");
     }
+    if(nThreads<1)nThreads=1;
+    if(nThreads>64)nThreads = 64;
+    //
     if (nrhs == NUM_IN_args){
         int iMode = (int)getMatlabScalar(prhs[uRangeMode],"variable proj_mode");
         if (iMode>-1 && iMode<3){
@@ -337,7 +340,7 @@ void calc_projections_emode(double * const pMinMax,
 #pragma omp parallel default(none)  \
     shared(pKf,qe_min,qe_max) \
     firstprivate(nDetectors,nEnergies,ki,urange_mode) //\
-    //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)    
+    //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)
     {
 #pragma omp for 
         for(long ii=0;ii<nDetectors;ii++)
@@ -408,7 +411,7 @@ void calc_projections_emode(double * const pMinMax,
                             pTransfDetectors[j0+ike] = qe[ike];
                         }
 
-                        // to be consistent with MATLAB
+                        // to be consistent with MATLAB; should be ii+1 to be correct
                         pTransfDetectors[j0+4] = 1;
                         // pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
                         pTransfDetectors[j0+5] = pDetGroup[ii];

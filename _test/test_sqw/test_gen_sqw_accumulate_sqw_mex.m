@@ -119,7 +119,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             this.scale=0.3;
             
         end
-        function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this)
+        function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,varargin)
             en =this.gen_sqw_par{1};
             efix=this.gen_sqw_par{2};
             emode=this.gen_sqw_par{3};
@@ -132,9 +132,19 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             dpsi=this.gen_sqw_par{10};
             gl=this.gen_sqw_par{11};
             gs=this.gen_sqw_par{12};
+            if nargin>1
+                np = varargin{1};
+                en = en(1:np);
+                efix = efix(1:np);
+                psi = psi(1:np);
+                omega = omega(1:np);
+                dpsi = dpsi(1:np);
+                gl = gl(1:np);
+                gs = gs(1:np);
+            end
         end
         %
-        function [skip,cur_mex,pref,acsp,umc]=setup_mex_mode(this)
+        function [skip,cur_mex,pref,acsp,umc]=setup_mex_mode(this,varargin)
             hc = hor_config;
             pref = this.prefix;
             skip = false;
@@ -145,18 +155,27 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             else
                 cur_mex = hc.use_mex;
                 hc.saveable=false;
-                hc.use_mex=this.mex_mode;
+                if nargin>1
+                    hc.use_mex = varargin{1};
+                else
+                    hc.use_mex=this.mex_mode;
+                end
             end
             acsp=hc.accum_in_separate_process;
             umc= hc.use_mex_for_combine;
         end
-        function this=build_test_files(this)
+        function this=build_test_files(this,varargin)
             %-------------------------------------------------------------
-            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode();
+            [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode(varargin{:});
             if skip
                 return
             end
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'accum_in_separate_process',acsp,'use_mex_for_combine',umc));
+            if nargin>1
+                spe_files = varargin{2};
+            else
+                spe_files = this.spe_file;
+            end
             %-------------------------------------------------------------
             
             %% =====================================================================================================================
@@ -184,13 +203,13 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % Make spe files
             % =====================================================================================================================
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
-            for i=1:this.nfiles_max
-                if ~exist(this.spe_file{i},'file')
-                    simulate_spe_testfunc (en{i}, this.par_file,this.spe_file{i}, @sqw_sc_hfm_testfunc, this.pars, this.scale,...
+            for i=1:numel(spe_files)
+                if ~exist(spe_files{i},'file')
+                    simulate_spe_testfunc (en{i}, this.par_file,spe_files{i}, @sqw_sc_hfm_testfunc, this.pars, this.scale,...
                         efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i));
                 end
             end
-            this=add_to_files_cleanList(this,this.spe_file{:});
+            this=add_to_files_cleanList(this,spe_files{:});
         end
         function this=test_gen_sqw(this)
             %-------------------------------------------------------------
@@ -462,6 +481,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
         end
+        
         
     end
 end
