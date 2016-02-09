@@ -110,7 +110,9 @@ else
     else
         mex_combine_thread_mode = 0;
         mex_combine_buffer_size=64*1024;
-        % Lasy! need to do better then this
+        
+        accum_in_separate_process = 1;     
+        % Lasy! need to do better then this, works only on ISIS pc-s
         accumulating_process_num  = 4;
     end
     
