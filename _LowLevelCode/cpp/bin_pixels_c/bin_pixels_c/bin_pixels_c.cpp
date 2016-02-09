@@ -306,13 +306,14 @@ bool bin_pixels(double *s, double *e, double *npix,
             comb_size=0;
         }
 
-
+#pragma omp barrier
 #pragma omp for
         for (long i = 0; i < comb_size; i++) {
             pStor->combibe_storage(s,e,npix,i);
         }
         //    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalize data
         //    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalize variance
+#pragma omp barrier
 #pragma omp for
         for (long i = 0; i < distribution_size; i++) {
             double nPixSq = npix[i];
@@ -342,11 +343,11 @@ bool bin_pixels(double *s, double *e, double *npix,
             }
 
         }
-        size_t Block_Size = sizeof(*pixel_data)*pix_fields::PIX_WIDTH;
+        //size_t Block_Size = sizeof(*pixel_data)*pix_fields::PIX_WIDTH;
 
 //#pragma omp barrier
-#pragma omp single
 //#pragma omp for
+#pragma omp single
         for (long j = 0; j < data_size; j++)
         {
             if (!ok[j])continue;
@@ -355,8 +356,10 @@ bool bin_pixels(double *s, double *e, double *npix,
 
 
 #ifdef OMP_VERSION_3
+            size_t j0;
 //#pragma omp atomic capture
-            size_t j0 = ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+//#pragma omp critical
+            j0 = ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
 
 #else
             //cell_cnt_mutex[nCell].lock();
@@ -368,8 +371,8 @@ bool bin_pixels(double *s, double *e, double *npix,
 #endif
             copy_pixels(pixel_data,j,pPixelSorted,j0);
         }
-
         //----------------------------------------------------------------------------------
+#pragma omp barrier
 #pragma omp flush (nPixel_retained)
          // where to place new pixels
         #pragma omp single
