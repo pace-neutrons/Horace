@@ -20,7 +20,20 @@ function hpc(varargin)
 if nargin>0
     val = varargin{1};
     if strcmpi(val,'on')
-        disp(' hpc on')
+        [use_mex_fcr,mex_comb_tmr,mex_comb_bsr,acspr,acp_numr]=find_hpc_options();
+        if use_mex_fcr ~= 1
+            warning('HPC:using_mex_for_combine',['Setting: ''use_mex_for_combine=true'' on this system may decrease ',...
+                    'the Horace performance.\nCheck system performance and hor_config for optimal hpc options']);
+        end
+        if acspr ~= 1
+            warning('HPC:accum_in_separate_process',['Setting ''accum_in_separate_process=true'' on this system may decrease ',...
+                'the Horace performance.\nCheck system performance and hor_config to select optimal hpc options']);
+        end
+        
+        set(hor_config,...
+        'use_mex_for_combine',1,'mex_combine_thread_mode',mex_comb_tmr,...
+        'mex_combine_buffer_size',mex_comb_bsr,...
+        'accum_in_separate_process',1,'accumulating_process_num',acp_numr);        
     elseif strcmpi(val,'off')
         hc = hor_config;
         hc.use_mex_for_combine = 0;
@@ -52,22 +65,22 @@ if ispc
     mex_combine_thread_mode=0;
     mex_combine_buffer_size=64*1024;
     [~,sys] = memory();
-    if sys.PhysicalMemory.Total <  32*1024*1024*1024
+    if sys.PhysicalMemory.Total <  31*1024*1024*1024
         accum_in_separate_process = 0;
-        accumulating_process_num  = 0;
-    elseif sys.PhysicalMemory.Total  >= 32*1024*1024*1024
-        if sys.PhysicalMemory.Available >= 0.5*system.PhysicalMemory.Total
-            nproc = idivide(int64(),int64(32*1024*1024*1024),'floor');
+        accumulating_process_num  = 1;
+    elseif sys.PhysicalMemory.Total  >= 31*1024*1024*1024
+        if sys.PhysicalMemory.Available >= 0.5*sys.PhysicalMemory.Total
+            nproc = idivide(int64(sys.PhysicalMemory.Total),int64(32*1024*1024*1024),'floor');
             if nproc >1
                 accum_in_separate_process = 1;
                 accumulating_process_num  = nproc;
             else
                 accum_in_separate_process = 0;
-                accumulating_process_num  = 0;
+                accumulating_process_num  = 2;
             end
         else
             accum_in_separate_process = 0;
-            accumulating_process_num  = 0;
+            accumulating_process_num  = 2;
         end
     end
 else
