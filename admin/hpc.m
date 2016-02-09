@@ -85,10 +85,13 @@ if ispc
     end
 else
     [nok,mess] = system('lscpu');
-    if ~nok
+    if nok
         %MAC? normal mac does not benifit from hpc
         use_mex_for_combine = 0;
+        mex_combine_thread_mode =0;
         accum_in_separate_process=0;
+        accumulating_process_num=2;
+        mex_combine_buffer_size = 64*1024;
         return;
     end
     use_mex_for_combine = 1;
