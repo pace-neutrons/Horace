@@ -12,7 +12,7 @@
 
 %Run the command below to obtain the data we will use for the demo. This
 %process can take a few minutes - be patient!
-file_list=setup_demo_data();
+%file_list=setup_demo_data();
 
 %At the end of this you should have a set of files called
 %HoraceDemoDataFileN.spe, where N is 1 to 23.
@@ -55,8 +55,8 @@ else
     end
 end
 
-gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs);
+%gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%    u, v, psi, omega, dpsi, gl, gs);
 
 %====================================
 %% Make plots etc
@@ -66,7 +66,8 @@ gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 %3D slice - view using sliceomatic
-cc3=cut_sqw(sqw_file,proj,[-3,0.05,3],[-3,0.05,3],[-0.1,0.1],[0,16,700],'-nopix');
+cc3=cut_sqw(sqw_file,proj,[-3,0.05,3],[-3,0.05,3],[-0.1,0.1],[0,16,700]); %,'-nopix');
+save(cc3,'cut3D_sqw.sqw');
 plot(cc3);
 %notice the '-nopix' option - we chose not to retain in memory the
 %information about every contributing detector pixel for this slice. Using

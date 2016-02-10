@@ -30,15 +30,15 @@ end
 av1=abs(v1); av2=abs(v2); av2swap=abs(v2swap);
 if av2==av1
     shift=0;
-elseif av2==circshift(av1,1);
+elseif av2==circshift(av1,[1,0]);
     shift=1;
-elseif av2==circshift(av1,2);
+elseif av2==circshift(av1,[2,0]);
     shift=2;
 elseif av1==av2swap
     shift=3;
-elseif av2swap==circshift(av1,1);
+elseif av2swap==circshift(av1,[1,0]);
     shift=4;
-elseif av2swap==circshift(av1,2);
+elseif av2swap==circshift(av1,[2,0]);
     shift=5;
 end
 
@@ -74,35 +74,34 @@ end
 
 %Now we work out how to alter each of the objects:
 %
-coords1=w1.data.pix([1:3],:);
-coords2=w2.data.pix([1:3],:);
+coords1=w1.data.pix(1:3,:);
+%coords2=w2.data.pix([1:3],:);
 p1=w1.data.p;
-p2=w2.data.p;
+%p2=w2.data.p;
 
 %We must ensure that we look at the coordinates in terms of reciprocal
 %lattice units:
-u_to_rlu1=w1.data.u_to_rlu([1:3],[1:3]);
+u_to_rlu1=w1.data.u_to_rlu(1:3,1:3);
 umat1=repmat(w1.data.ulen(1:3)',1,3);
 T1=u_to_rlu1./umat1;
 coords_rlu1=T1*coords1;
 %
 %This bit is for debug:
-u_to_rlu2=w2.data.u_to_rlu([1:3],[1:3]);
+u_to_rlu2=w2.data.u_to_rlu(1:3,1:3);
 umat2=repmat(w2.data.ulen(1:3)',1,3);
 T2=u_to_rlu2./umat2;
-coords_rlu2=T2*coords2;
+%coords_rlu2=T2*coords2;
 
 fullax=repmat(ax,1,(numel(coords1))/3);
 
 if shift>2.5
     % we swap round h and k first
     coords_rlu1=[coords_rlu1(2,:); coords_rlu1(1,:); coords_rlu1(3,:)];
-    coords_rlu1=circshift(coords_rlu1,shift-3);
-    coords_rlu1=coords_rlu1.*fullax;
+    coords_rlu1=circshift(coords_rlu1,[shift-3,0]);
 else
-    coords_rlu1=circshift(coords_rlu1,shift);
-    coords_rlu1=coords_rlu1.*fullax;
+    coords_rlu1=circshift(coords_rlu1,[shift,0]);
 end
+coords_rlu1=coords_rlu1.*fullax;
 
 %Convert coordinates back to inverse Angstroms:
 coords_ang1=(inv(T1))*coords_rlu1;
@@ -117,7 +116,7 @@ for i=1:3
 end
 
 %Place the new coords_ang1 and p1 arrays into the output object:
-wout.data.pix([1:3],:)=coords_ang1;
+wout.data.pix(1:3,:)=coords_ang1;
 wout.data.p=p1new;
 
 %Use the internal Horace routines to recalculate intensity/error/npix etc

@@ -6,7 +6,7 @@ function varargout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,ou
 %
 % or as above with no output argument, so that final 4-dimensional object
 % is not retained in memory
-% 
+%
 % Necessary input Arguments:
 % data_source  -- input sqw file
 % proj             --  the projection plane [proj.u, proj.v ] in the horace
@@ -20,11 +20,11 @@ function varargout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,ou
 %                       eqial in all 3 directions
 % egange      --   3-vector describing energy range and energy step of the
 %                       cut [e_min,e_step,e_max]
-% 
+%
 % Output argument:
 % outfile        -- the file with target output data
 %
-% Additional input arguments describe the symmetrization operation. 
+% Additional input arguments describe the symmetrization operation.
 %
 % Create a new sqw file which corresponds to just one Brillouin zone, but
 % with data from equivalent positions. Default choice is all equivalent
@@ -59,16 +59,18 @@ if ~isnumeric(pos) || numel(pos)~=3
     error('Horace error: pos argument must be a vector with 3 elements specifying h,k,l of reference Brillouin zone');
 end
 
-if ~isnumeric(qstep)
-    error('Horace error: step argument must be numeric');
-elseif numel(qstep)~=1 && numel(qstep)~=3
-    error('Horace error: step argument must either be a single number, or a vector containing 3 elements');
+if ~isa(qstep,'q_step')
+    if ~isnumeric(qstep)
+        error('Horace error: step argument must be numeric');
+    elseif numel(qstep)~=1 && numel(qstep)~=3
+        error('Horace error: step argument must either be a single number, or a vector containing 3 elements');
+    end
 end
 
 if ~isnumeric(erange)
     error('Horace error: erange argument must be numeric');
 elseif numel(erange)~=3
-    error('Horace error: erange argument must either be a vector containing 3 elements');
+    error('Horace error: erange argument must be a vector containing 3 elements');
 end
 
 if ~ischar(outfile)
@@ -94,16 +96,22 @@ end
 %===
 %If optional inputs have been chosen, check that they are in the correct
 %format:
+    function ok=correct_zone(zone_par)
+        if ~isnumeric(zone_par) || numel(zone_par)~=3
+            ok = false;
+        else
+            ok = true;
+        end
+    end
 
 if cellinput
     zonelist=varargin{1};
     if prod(size(zonelist))~=numel(zonelist)
         error('Horace error: cell array specifying zones must be a 1-by-n cell array');
     else
-        for i=1:numel(zonelist)
-            if ~isnumeric(zonelist{i}) || numel(zonelist{i})~=3
-                error('Horace error: all elements of cell array specifying zones must be 3-element vectors');
-            end
+        all_ok = cellfun(@(x)correct_zone(x),zonelist);
+        if sum(all_ok) ~= numel(zonelist)
+            error('Horace error: all elements of cell array specifying zones must be 3-element vectors');
         end
     end
 end
@@ -131,5 +139,5 @@ end
 if nargout==1
     varargout{1}=wout;
 end
-    
-    
+
+end

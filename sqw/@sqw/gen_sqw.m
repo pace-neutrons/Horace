@@ -343,12 +343,19 @@ else
                 n_failed,num_matlab_sessions);
             for i=1:numel(tmp_file)
                 if ~(exist(tmp_file{i},'file')==2)
-                    error('GEN_SQW:separate_process_sqw_generation',' The target file %s have not been created',tmp_file{i});
+                    warning('GEN_SQW:separate_process_sqw_generation',...
+                        ' The target file %s have not been created. Proceeding serially',tmp_file{i});
+                    [grid_size,urange] = rundata_write_to_sqw (run_files(i),tmp_file(i),...
+                        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner);
+                    outputs{i}.grid_size = grid_size;
+                    outputs{i}.urange = urange;
+                    n_failed=n_failed-1;
                 end
             end
         end
         %
         if n_failed ~= num_matlab_sessions && ~isempty(outputs)
+            % calculate tmp files boutdaries
             if n_failed>0
                 i_start=1;
                 while ~isstruct(outputs{i_start})
