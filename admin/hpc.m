@@ -15,6 +15,22 @@ function hpc(varargin)
 %>>hpc off   -- disable hpc computing extensions
 %>>hpc       -- print current hpc computing extensions value and the values,
 %               recommended by this function (very crude estimate)
+%
+% The meaning of hpc properties this function sets can be described as below:
+%   mex_combine_thread_mode: -1      -- if mex file available and should be used to combine multiple tmp files together. This option 
+%                                       is not beneficial for Windows, but Unix machines and the machines with parallel file system 
+%                                       can work substantially faster. Generating this file request special settings to the mex compiler
+%                                       possible values are:
+%                                    -1  not to use mex code even if it is available
+%                                     0  use mex file for combining and run separate input and output thread
+%                                     1  use mex file for combining and in addition to option 0, spawn separate input thread for each input file 
+%                                     2  debugging option related to option 1
+%                                     3  debugging option related to option 1
+%    mex_combine_buffer_size: 65536 -- file buffer used for each input file in mex-file combining
+% 
+%  accum_in_separate_process: 0     -- use separate Matlab sessions when processing input spe or nxspe files
+%   accumulating_process_num: 4     -- how many sessions to use.
+
 
 
 if nargin>0
