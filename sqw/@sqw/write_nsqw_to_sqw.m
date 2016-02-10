@@ -12,7 +12,7 @@ function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
 %                   which disables checking input files for absolutely
 %                   equal headers. Two file having equal haders is an error
 %                   in normal operations so this option  used in
-%                   tests only.
+%                   tests or when equal zones are combined.
 %
 % Output:
 % -------
