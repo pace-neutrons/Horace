@@ -140,7 +140,7 @@ if use_separate_matlab
                 warning('COMBINE_ZONES:separate_process_combining',...
                     ' The target file %s have not been created. Proceeding serially',...
                     zone_fnames_list{i});
-                zoneok(i) = move_zone1_to_zone0(job_par{i});
+                zoneok(i) = move_zone1_to_zone0(job_par(i));
                 n_failed=n_failed-1;
             else
                 zoneok(i) = true;
