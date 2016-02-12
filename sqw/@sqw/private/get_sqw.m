@@ -276,7 +276,7 @@ end
 data = data_sqw_dnd();
 [mess, data, position_data, npixtot, data_type] = data.get_sqw_data (fid, data_opt{:}, file_format, data_type_from_file);
 if tidy_close(mess,fid_input,fid), return, end
-if strcmpi(data_opt{:},'-h')
+if any(ismember(data_opt,'-h'))
     data.npix = npixtot;
 end
 

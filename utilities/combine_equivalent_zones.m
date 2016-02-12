@@ -19,7 +19,10 @@ function varargout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,ou
 %                       space. If one number is specified, the steps are
 %                       eqial in all 3 directions
 % egange      --   3-vector describing energy range and energy step of the
-%                       cut [e_min,e_step,e_max]
+%                       cut [e_min,e_step,e_max], or cellarray of such
+%                       vectors, used to decrease memory usage during
+%                       combining (each zone split into number of energy
+%                       sub-zones according to this list)
 %
 % Output argument:
 % outfile        -- the file with target output data
@@ -68,7 +71,14 @@ if ~isa(qstep,'qe_range')
 end
 
 if ~isnumeric(erange)
-    error('Horace error: erange argument must be numeric');
+    if ~iscell(erange)
+        error('Horace error: erange argument must be numeric');
+    else
+        all_ok = cellfun(@(x)(numel(x)==3),erange);
+        if sum(all_ok) ~= numel(erange)
+            error('Horace error: erange as cellarray has to contain a list vector having 3 elements');
+        end
+    end
 elseif numel(erange)~=3
     error('Horace error: erange argument must be a vector containing 3 elements');
 end
