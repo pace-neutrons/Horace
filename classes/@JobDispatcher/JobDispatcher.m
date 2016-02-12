@@ -61,8 +61,8 @@ classdef JobDispatcher
     end
     methods(Static,Access=protected)
         %
-        function job_struct = job_structure(id,stat_file)
-            job_struct = struct('job_id',id,'job_status_file',stat_file,...
+        function job_struct = job_structure(id)
+            job_struct = struct('job_id',id,...
                 'job_results',[],'waiting_count',0,...
                 'is_running',false,'is_starting',false,...
                 'failed',false);
@@ -144,7 +144,7 @@ classdef JobDispatcher
             % output. The structure has to be serializable
             this.job_outputs_ = final_structure;
         end
-        
+        %
         function [this,argi]=init_job(this,id,varargin)
             % set up tag, indicating that the job have started
             [this,argi]=do_init_job_(this,id,varargin{:});
@@ -152,6 +152,13 @@ classdef JobDispatcher
         function this=finish_job(this)
             % set up tag, indicating that the job have finished
             this = do_finish_job_(this);
+        end
+        %
+        function ok = job_state_is(this,job,state)
+            % method checks if job state is as requested
+            % the list of supported states now is:
+            % 'starting', 'running', 'finished'
+            ok = get_job_state_(this,job,state);
         end
         
         function this=do_job(this,varargin)
@@ -261,10 +268,6 @@ classdef JobDispatcher
                 job_status_file  = fullfile(obj.exchange_folder,sprintf('%s%d.txt',JobDispatcher.completed_job_tag,id));
             end
         end
-        
-        
     end
-    
-    
 end
 

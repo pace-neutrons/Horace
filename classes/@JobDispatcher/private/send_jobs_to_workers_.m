@@ -53,9 +53,12 @@ for ic=1:step:n_jobs
     
     % create file, indicating job start
     job_status_f = this.get_job_stat_file_(id,this.start_tag_);
+    if exist(job_status_f,'file') == 2
+        delete(job_status_f);
+    end
     f = fopen(job_status_f,'wb');
     % Store job info for further usage and progress checking
-    this.running_jobs_{id} = JobDispatcher.job_structure(id,job_status_f);
+    this.running_jobs_{id} = JobDispatcher.job_structure(id);
     this.running_jobs_{id}.is_starting = true;
     %
     % generate job parameters string:
@@ -133,13 +136,13 @@ end
 pause(1);
 
 count = 0;
-[completed,n_failed,output_exists,this]=check_jobs_completed_(this,count);
+[completed,n_failed,output_exists,this]=check_jobs_completed_(this);
 while(~completed)
     if count == 0
         fprintf('**** Waiting for workers to finish their jobs ****\n')
     end
     pause(waiting_time);
-    [completed,n_failed,output_exists,this]=check_jobs_completed_(this,count);
+    [completed,n_failed,output_exists,this]=check_jobs_completed_(this);
     count = count+1;
     fprintf('.')
     if mod(count,50)==0
