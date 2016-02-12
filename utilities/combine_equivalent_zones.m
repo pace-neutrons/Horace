@@ -1,8 +1,8 @@
-function varargout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,varargin)
+function combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,varargin)
 %
-% wout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile)
-% wout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,keyword)
-% wout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,zonelist)
+% combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile)
+% combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,keyword)
+% combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,zonelist)
 %
 % or as above with no output argument, so that final 4-dimensional object
 % is not retained in memory
@@ -25,7 +25,7 @@ function varargout=combine_equivalent_zones(data_source,proj,pos,qstep,erange,ou
 %                       sub-zones according to this list)
 %
 % Output argument:
-% outfile        -- the file with target output data
+% nothing at the moment; file on hdd
 %
 % Additional input arguments describe the symmetrization operation.
 %
@@ -149,8 +149,8 @@ else
     error('Horace error: logic flaw - contact R. Ewings');
 end
 
-if nargout==1
-    varargout{1}=wout;
-end
+%if nargout==1
+%    varargout{1}=wout;
+%end
 
 end
