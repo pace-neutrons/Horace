@@ -347,7 +347,7 @@ else
                 if ~(exist(tmp_file{i},'file')==2)
                     warning('GEN_SQW:separate_process_sqw_generation',...
                         ' The target file %s have not been created. Proceeding serially ',tmp_file{i});
-                    [grid_size,urange]=runfiles_to_sqw(dummy,job_par{i});
+                    [grid_size,urange]=runfiles_to_sqw(dummy,job_par(i));
                     outputs{i}.grid_size = grid_size;
                     outputs{i}.urange    = urange;
                     n_failed=n_failed-1;
