@@ -1,4 +1,4 @@
-function wout=calculate_coord_change(v1,v2,w1,w2)
+function wout=calculate_coord_change(v1,v2,w1)
 %
 % We take a set of coordinates centred at v1 (row vec), and work out how to map them
 % onto a Brillouin zone centred at v2. The objects w1 and w2 are
@@ -14,6 +14,9 @@ end
 
 %Initialise the output:
 wout=w1;
+if v1==v2
+    return;
+end
 
 %Create a vector that has h and k swapped relative to v2
 v2swap=[v2(1); v2(1); v2(3)];
@@ -87,9 +90,9 @@ T1=u_to_rlu1./umat1;
 coords_rlu1=T1*coords1;
 %
 %This bit is for debug:
-u_to_rlu2=w2.data.u_to_rlu(1:3,1:3);
-umat2=repmat(w2.data.ulen(1:3)',1,3);
-T2=u_to_rlu2./umat2;
+%u_to_rlu2=w2.data.u_to_rlu(1:3,1:3);
+%umat2=repmat(w2.data.ulen(1:3)',1,3);
+%T2=u_to_rlu2./umat2;
 %coords_rlu2=T2*coords2;
 
 fullax=repmat(ax,1,(numel(coords1))/3);

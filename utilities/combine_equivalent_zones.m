@@ -59,7 +59,7 @@ if ~isnumeric(pos) || numel(pos)~=3
     error('Horace error: pos argument must be a vector with 3 elements specifying h,k,l of reference Brillouin zone');
 end
 
-if ~isa(qstep,'q_step')
+if ~isa(qstep,'qe_range')
     if ~isnumeric(qstep)
         error('Horace error: step argument must be numeric');
     elseif numel(qstep)~=1 && numel(qstep)~=3
@@ -127,11 +127,14 @@ end
 %==========================================================================
 
 if basicinput
-    wout=combine_equiv_basic(data_source,proj,pos,qstep,erange,outfile);
+    %wout=combine_equiv_basic(data_source,proj,pos,qstep,erange,outfile);
+    combine_equiv_basic(data_source,proj,pos,qstep,erange,outfile);
 elseif keywordinput
-    wout=combine_equiv_keyword(data_source,proj,pos,qstep,erange,outfile,keyword);
+    %wout=combine_equiv_keyword(data_source,proj,pos,qstep,erange,outfile,keyword);
+    combine_equiv_keyword(data_source,proj,pos,qstep,erange,outfile,keyword);
 elseif cellinput
-    wout=combine_equiv_list(data_source,proj,pos,qstep,erange,outfile,zonelist);
+    %wout=combine_equiv_list(data_source,proj,pos,qstep,erange,outfile,zonelist);
+    combine_equiv_list(data_source,proj,pos,qstep,erange,outfile,zonelist);
 else
     error('Horace error: logic flaw - contact R. Ewings');
 end
