@@ -327,7 +327,7 @@ else
             sample     = sample(not_empty);
         end
         %
-        % conglamerate conversion parameters into list of structures,
+        % aggregate the conversion parameters into list of structures,
         % suitable for serialization
         job_par = cellfun(@(run,fname,instr,samp)(struct(...
             'runfile',run,'sqw_file_name',fname,'instrument',instr,...
@@ -335,20 +335,21 @@ else
             'grid_size_in',grid_size_in,'urange_in',urange_in)),...
             run_files',tmp_file,num2cell(instrument),num2cell(sample),...
             'UniformOutput', false);
-        
+        %
+        % start parallel framework
         jd = gen_tmp_files_jobs();
         [n_failed,outputs] = jd.send_jobs(job_par,num_matlab_sessions);
+        %
         if n_failed>0
             warning('GEN_SQW:separate_process_sqw_generation',' %d out of %d jobs to generate tmp files reported failure',...
                 n_failed,num_matlab_sessions);
             for i=1:numel(tmp_file)
                 if ~(exist(tmp_file{i},'file')==2)
                     warning('GEN_SQW:separate_process_sqw_generation',...
-                        ' The target file %s have not been created. Proceeding serially',tmp_file{i});
-                    [grid_size,urange] = rundata_write_to_sqw (run_files(i),tmp_file(i),...
-                        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner);
+                        ' The target file %s have not been created. Proceeding serially ',tmp_file{i});
+                    [grid_size,urange]=runfiles_to_sqw(dummy,job_par{i});
                     outputs{i}.grid_size = grid_size;
-                    outputs{i}.urange = urange;
+                    outputs{i}.urange    = urange;
                     n_failed=n_failed-1;
                 end
             end
@@ -356,21 +357,17 @@ else
         %
         if n_failed ~= num_matlab_sessions && ~isempty(outputs)
             % calculate tmp files boutdaries
-            if n_failed>0
-                i_start=1;
-                while ~isstruct(outputs{i_start})
-                    i_start=i_start+1;
-                end
-            else
-                i_start=1;
+            if n_failed>0 % currently ignore failed jobs, assume they actually
+                % completed successfully. TODO: This should change in a future
+                not_failed = cellfun(@(x)isstruct(x),outputs);
+                outputs     = outputs(not_failed);
             end
-            grid_size = outputs{i_start}.grid_size;
-            urange    = outputs{i_start}.urange;
-            for i=i_start+1:numel(outputs)
-                if isempty(outputs{i}) || is_string(outputs{i})
-                    continue;
-                end
+            % check output boundaries produced by all jobs are consistent
+            grid_size = outputs{1}.grid_size;
+            urange    = outputs{1}.urange;
+            for i=1:numel(outputs)
                 if ~all(grid_size==outputs{i}.grid_size) || ~all(urange(:)==outputs{i}.urange(:))
+                    disp('*** Incorrect tmp file ranges ***');
                     disp(['Job number: ',num2str(i)]);
                     disp(['grid_size: ',num2str(grid_size)])
                     disp(['Job grid_size: ',num2str(outputs{i}.grid_size)])
@@ -384,10 +381,12 @@ else
             grid_size = grid_size_in;
             urange    = urange_in;
         end
-        
     else
+        %---------------------------------------------------------------------
+        % serial rundata to sqw transformation
         [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
             grid_size_in,urange_in,instrument,sample,write_banner);
+        %---------------------------------------------------------------------
     end
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
