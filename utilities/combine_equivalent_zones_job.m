@@ -19,16 +19,18 @@ classdef combine_equivalent_zones_job < JobDispatcher
             %
             n_zones = numel(varargin);
             %job_num = this.job_id();
-            zoneok= true(n_zones,1);
-            zoneid = zeros(n_zones,1);
+            zone_fnames= cell(n_zones,1);
+            zone_id = zeros(n_zones,1);
             for ji = 1:n_zones
                 par = JobDispatcher.restore_param(varargin{ji});
-                zoneok(ji) = move_zone1_to_zone0(par);
-                zoneid(ji) = par.zone_id;
+                zone_fnames{ji} = move_zone1_to_zone0(par);
+                zone_id(j1) = par.zone_id;
             end
             %str = input('enter something to continue:','s');
             %disp(str);
-            this = this.set_outputs(struct('zoneok',zoneok,'zone_id',zoneid));
+            zone_fnames = flatten_cell_array(zone_fnames);
+            this = this.set_outputs(struct('zone_id',zone_id,...
+                'zone_files',zone_fnames));
             
         end
         
