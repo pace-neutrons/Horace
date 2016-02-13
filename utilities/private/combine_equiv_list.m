@@ -56,19 +56,8 @@ end
 %Get directory in which the data live. This is where we will save temporary
 %files.
 sourcedir=fileparts(data_source);
-%Generate file names for each transformed zone
-zone_fnames_list = cell(numel(zonelist),1);
-for i=1:numel(zonelist)
-    zone_fnames_list{i} = fullfile(sourcedir,['HoraceTempSymInternal',num2str(i),'.tmp']);
-end
 % add these files to cleanup to remove them in case of errors or at the end
 % of calculations:
-    function clear_tmp_file(name)
-        if exist(name,'file')==2
-            delete(name);
-        end
-    end
-clobj1 = onCleanup(@()cellfun(@(fn)clear_tmp_file(fn),zone_fnames_list));
 
 %==========================================================================
 %First create all of the 4-dimensional cuts from the data that we need. We
@@ -100,7 +89,7 @@ disp('');
 
 % function to combine all parameters into single structure, suitable for
 % serialization
-    function strpar= param_f(data_source,proj,id,qh,qk,ql,en,zone1,zone0,zone_file)
+    function strpar= param_f(id,qh,qk,ql,en,zone1)
         
         [qhmi,qhs,qhma] = qh.cut_range();
         [qkmi,qks,qkma] = qk.cut_range();
@@ -111,8 +100,8 @@ disp('');
             'qh_range',[qhmi,qhs,qhma],'qk_range',[qkmi,qks,qkma],...
             'ql_range',[qlmi,qls,qlma],'e_range',[emi, es, ema],...
             'zone1_center',zone1,...
-            'zone0_center',zone0,'zone_id',id,...
-            'zone_fname',zone_file);
+            'zone0_center',pos,'zone_id',id,...
+            'rez_location',sourcedir);
     end
 
 
@@ -121,61 +110,65 @@ disp('');
 %Create new temporary files for all of the required zones. If there are no
 %data in the specified zone we must be able to continue without getting an
 %error:
-zoneok= false(numel(zonelist),1);
+zone_files =cell(numel(zonelist),1);
 if use_separate_matlab
     %
     % conglamerate job parameters into list of structures,
     % suitable for serialization
-    job_par = cellfun(@(id,x,y,z)(param_f(data_source,proj,id,x(1),x(2),x(3),x(4),y,pos,z)),...
-        zoneid,range,zonelist',zone_fnames_list);
+    job_par = cellfun(@(id,x,y,z)(param_f(id,x(1),x(2),x(3),x(4),y,z)),...
+        zoneid,range,zonelist');
     %----------------------------------------------------------------------
     jm = combine_equivalent_zones_job();
     [n_failed,outputs] = jm.send_jobs(job_par,num_matlab_sessions);
-    %----------------------------------------------------------------------    
-    if n_failed>0
+    %----------------------------------------------------------------------
+    if n_failed>0 % Try to recalculate failed parallel jobs serially
         warning('COMBINE_ZONES:separate_process_combining',' %d out of %d jobs to generate tmp files reported failure',...
             n_failed,num_matlab_sessions);
-        for i=1:numel(zone_fnames_list)
-            if ~(exist(zone_fnames_list{i},'file')==2)
-                warning('COMBINE_ZONES:separate_process_combining',...
-                    ' The target file %s have not been created. Proceeding serially',...
-                    zone_fnames_list{i});
-                zoneok(i) = move_zone1_to_zone0(job_par(i));
-                n_failed=n_failed-1;
-            else
-                zoneok(i) = true;
+        
+        not_failed = cellfun(@(x)isstruct(x),outputs);
+        %outputs     = outputs(not_failed);
+        for i=1:numel(outputs)
+            if not_failed(i)
+                continue;
             end
+            z_files = move_zone1_to_zone0(fail_job_par(i));
+            n_failed=n_failed-1;
+            outputs{i} = struct('zone_files',z_files);
         end
     end
-    %
-    if n_failed ~= num_matlab_sessions && ~isempty(outputs)
-        if n_failed>0 % currently ignore failed jobs, assume they actually
-            % completed successfully. TODO: This should change in a future
-            not_failed = cellfun(@(x)isstruct(x),outputs);
-            outputs     = outputs(not_failed);
-        end
-        % streamline the results of parallel jobs
-        for i=1:numel(outputs)
-            zones_id = outputs{i}.zone_id;
-            zones_ok  = outputs{i}.zoneok;
-            zoneok(zones_id(:))=zones_ok(:);
-        end
-    else % all failed
+    % all failed
+    if n_failed == num_matlab_sessions
         error('COMBINE_ZONES:separate_process_combining',[' All parallel jobs failed.'...
             'Try to run the combining on main Matlab session']);
+    else
+        for i=1:numel(outputs)
+            zone_files{i} = outputs{i}.zone_files;
+        end
     end
 else% Go serial.
     for i=1:numel(zonelist)
         % combine all inputs, necessary to convert coordinates of one zone
         % into the coordinates of other zone into signle compact structure;
-        params = param_f(data_source,proj,zoneid{i},...
+        params = param_f(zoneid{i},...
             range{i}(1),range{i}(2),range{i}(3),range{i}(4),...
-            zonelist{i},pos,zone_fnames_list{i});
+            zonelist{i});
         % move coordunates of current zone into specified coordinates
-        zoneok(i) = move_zone1_to_zone0(params);
+        zone_files{i} = move_zone1_to_zone0(params);
     end
 end
-zone_fnames_list = zone_fnames_list(zoneok);
+zone_fnames_list = flatten_cell_array(zone_files);
+
+    function clear_tmp_file(name)
+        if exist(name,'file')==2
+            delete(name);
+        end
+    end
+%Generate file names for each transformed zone
+
+for i=1:numel(zonelist)
+    zone_fnames_list{i} = fullfile(sourcedir,zone_fnames_list{i}); %['HoraceTempSymInternal',num2str(i),'.tmp']);
+end
+clobj1 = onCleanup(@()cellfun(@(fn)clear_tmp_file(fn),zone_fnames_list));
 %==================================
 
 %We need to work out how each of the Brillouin zones in zonelist relate to
