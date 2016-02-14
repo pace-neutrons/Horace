@@ -1,6 +1,7 @@
 function [is_failed,job,output_exists] = analyze_output_(this,job)
 job.is_starting = false;
 job.is_running = false;
+output_exists = false;
 completed_stat_file = this.get_job_stat_file_(job.job_id,this.end_tag_);
 [result,is_failed] = analyze_output(completed_stat_file);
 if is_failed

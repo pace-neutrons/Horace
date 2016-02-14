@@ -44,7 +44,12 @@ end
 run_fname = jd.running_job_file_name;
 clo = onCleanup(@()del_quet(run_fname));
 %
-jd = jd.do_job(argi{:});
+try
+    jd = jd.do_job(argi{:});
+catch ME
+    exit;
+end
+
 %
 jd.finish_job();
 
