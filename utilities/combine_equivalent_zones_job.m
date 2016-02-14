@@ -24,7 +24,7 @@ classdef combine_equivalent_zones_job < JobDispatcher
             for ji = 1:n_zones
                 par = JobDispatcher.restore_param(varargin{ji});
                 zone_fnames{ji} = move_zone1_to_zone0(par);
-                zone_id(j1) = par.zone_id;
+                zone_id(ji)     = par.zone_id;
             end
             %str = input('enter something to continue:','s');
             %disp(str);
