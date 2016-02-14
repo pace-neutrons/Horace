@@ -115,7 +115,7 @@ if use_separate_matlab
     %
     % conglamerate job parameters into list of structures,
     % suitable for serialization
-    job_par = cellfun(@(id,x,y,z)(param_f(id,x(1),x(2),x(3),x(4),y,z)),...
+    job_par = cellfun(@(id,x,y)(param_f(id,x(1),x(2),x(3),x(4),y)),...
         zoneid,range,zonelist');
     %----------------------------------------------------------------------
     jm = combine_equivalent_zones_job();
