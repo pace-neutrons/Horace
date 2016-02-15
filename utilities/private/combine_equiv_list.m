@@ -118,14 +118,23 @@ if use_separate_matlab
     job_par = cellfun(@(id,x,y)(param_f(id,x(1),x(2),x(3),x(4),y)),...
         zoneid,range,zonelist');
     %----------------------------------------------------------------------
+    n_workers = num_matlab_sessions;
+    if numel(job_par)<n_workers;
+        n_workers = numel(job_par);
+    end
     jm = combine_equivalent_zones_job();
-    [n_failed,outputs] = jm.send_jobs(job_par,num_matlab_sessions);
+    [n_failed,outputs] = jm.send_jobs(job_par,n_workers);
     %----------------------------------------------------------------------
     if n_failed>0 % Try to recalculate failed parallel jobs serially
         warning('COMBINE_ZONES:separate_process_combining',' %d out of %d jobs to generate tmp files reported failure',...
             n_failed,num_matlab_sessions);
         
-        not_failed = cellfun(@(x)isstruct(x),outputs);
+        if isempty(outputs)
+            outputs = cell(n_workers,1);
+            not_failed= false(n_workers,1);
+        else
+            not_failed = cellfun(@(x)isstruct(x),outputs);
+        end
         %outputs     = outputs(not_failed);
         for i=1:numel(outputs)
             if not_failed(i)

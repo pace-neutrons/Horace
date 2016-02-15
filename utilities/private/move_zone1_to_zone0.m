@@ -12,8 +12,16 @@ try
         [param.ql_range(1),param.ql_range(3)],...        
         [param.e_range(1),0,param.e_range(3)]);
     [n_ranges,e_ranges,zone_filenames_list]=find_subzones(info_obj,param.e_range,param.zone_id);
+    log_level = get(hor_config,'log_level');
+    if log_level>0
+        fprintf('Divided zone [%d,%d,%d] into %d part(s) \n',...
+        param.zone1_center,n_ranges);
+    end
     
     for i=1:n_ranges
+        if log_level>0        
+            fprintf('Processing zone part #%d out of %d\n',i,n_ranges);
+        end
         sectioncut=cut_sqw(param.data_source,param.proj,...
             param.qh_range,param.qk_range,param.ql_range,e_ranges(:,i)');
         if n_ranges>1
