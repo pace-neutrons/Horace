@@ -9,7 +9,6 @@ function path=horace_on(non_default_path)
 %
 default_horace_path ='/usr/local/mprogs/Horace';
 default_herbert_path='/usr/local/mprogs/Herbert';
-prefer_herbert=true;
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
     path = find_default_path(default_horace_path);   
@@ -23,31 +22,18 @@ catch
 end
 warning(warn_state);    % return warnings to initial state
 
-libisis_initated=~isempty(which('libisis_init.m'));
 herbert_initated=~isempty(which('herbert_init.m'));
 
-% if neither libisis not herbert are initated, try to init something. 
-if ~(libisis_initated||herbert_initated)
-    if prefer_herbert
-        try
-            try_herbert_on(default_herbert_path);
-        catch
-            try
-                libisis_on();
-            catch
-            end
-            
-        end
-    else
-        try
-            libisis_on();
-        catch
-            try
-                try_herbert_on(default_herbert_path);
-            catch
-            end
-        end
-    end
+% if herbert is not initated, try to init it. 
+if ~herbert_initated
+  try
+    try_herbert_on(default_herbert_path);
+  catch
+    error('HORACE_ON:wrong_dependencies','Can not initiate Herbert');         
+  end
+else % reinitialize herbert on where it is now.
+    her_path = fileparts(herbert_initated);
+    herbert_on(her_path);
 end
 
 % init horace 
@@ -86,5 +72,3 @@ else
     herbert_on();            
 end            
 
-
- 
