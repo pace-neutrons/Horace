@@ -73,11 +73,11 @@ for ic=1:step:n_jobs
     % combine job parameters string with auxiliary information, necessary
     % for running external matlab session
     if ispc
-        job_start = sprintf('!%s -nojvm -nosplash -r worker(''%s'',%d',...
+        job_start = sprintf('%s -nojvm -nosplash -r worker(''%s'',%d',...
             prog_name,class_name,id);
         job_end=');exit; & exit';
     else
-        job_start = sprintf('!%s -nosplash -r "worker(''%s'',%d',...
+        job_start = sprintf('%s -nosplash -r "worker(''%s'',%d',...
             prog_name,class_name,id);
         job_end=');exit;" &';
     end
@@ -126,7 +126,11 @@ for ic=1:step:n_jobs
     
     %---------------------------------------------------------------------
     % run external job
-    eval(job_string);
+    [nok,mess]=system(job_string);
+    if nok
+        error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
+            ' Message returned: %s'],id,mess);
+    end
     %---------------------------------------------------------------------
 end
 if id<n_workers
