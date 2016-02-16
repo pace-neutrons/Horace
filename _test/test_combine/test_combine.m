@@ -24,6 +24,10 @@ classdef test_combine< TestCase
             this.testdir = fileparts(mfilename('fullpath'));
             
         end
+        function delete(this)
+            close all;
+        end
+        
         function this=prepare_test_data(this)
         
         %% Use sqw file on RAE's laptop to perform tests. Data saved to a .mat file on SVN server for validation by others.
@@ -82,9 +86,6 @@ classdef test_combine< TestCase
         save(w1d_d1d_plus,[this.testdir,filesep,'w1d_d1d_plus.sqw']);
        
         
-        end
-        function delete(this)
-            close all;
         end
         %% Combine data tests
         function this = test_combine_sqw(this)
