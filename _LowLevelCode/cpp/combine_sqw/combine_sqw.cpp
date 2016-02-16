@@ -70,12 +70,11 @@ char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n
 
   std::unique_lock<std::mutex> lock(this->exchange_lock);
   this->data_ready.wait(lock, [this]() {return (this->write_allowed); });
+  this->write_lock.lock();
   this->write_allowed = false;
-
 
   n_bins_processed = this->n_bins_processed;
   if (this->n_read_pixels > 0) {
-    this->write_lock.lock();
     n_pix_to_write = this->n_read_pixels;
     return reinterpret_cast<char * const>(&write_buf[0]);
   }
@@ -204,15 +203,11 @@ void sqw_pix_writer::run_write_pix_job() {
     size_t n_pix_to_write;
     // this locks until read completed unless read have not been started
     const char *buf = Buff.get_write_buffer(n_pix_to_write, n_bins_processed);
-    if (!buf) {
-      std::chrono::milliseconds sleepDuration(250);
-      std::this_thread::sleep_for(sleepDuration);
-      continue;
-    }
 
     size_t length = n_pix_to_write*PIX_BLOCK_SIZE_BYTES;
 
-    this->write_pixels(buf, length);
+    if (buf)
+        this->write_pixels(buf, length);
     last_pix_written += n_pix_to_write;
 
     Buff.check_log_and_interrupt();
@@ -600,7 +595,7 @@ void pix_reader::run_read_job() {
     //------------Logging and interruptions ---
     n_pixels_processed += n_buf_pixels;
   }
-
+  Buff.set_write_allowed();
 }
 void pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer) {
 

@@ -90,6 +90,11 @@ public:
 
 
     };
+    void set_write_allowed(){
+     // Release write job in case it waits for read completed
+      this->write_allowed=true;
+      this->data_ready.notify_one();
+    }
     void check_log_and_interrupt();
     void print_log_meassage(int log_level);
     void print_final_log_mess(int log_level)const;
