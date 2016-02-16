@@ -70,6 +70,8 @@ char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n
 
   std::unique_lock<std::mutex> lock(this->exchange_lock);
   this->data_ready.wait(lock, [this]() {return (this->write_allowed); });
+  this->write_allowed = false;
+
 
   n_bins_processed = this->n_bins_processed;
   if (this->n_read_pixels > 0) {
@@ -87,7 +89,6 @@ char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n
 in the buffer can be discarded */
 void exchange_buffer::unlock_write_buffer() {
 
-  this->write_allowed = false;
   this->n_read_pixels = 0;
   this->write_lock.unlock();
 }
