@@ -1,4 +1,4 @@
-function [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(varargin)
+function [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(obj,varargin)
 % Create data filed for sqw object from input of the form
 %
 %   >> [proj,pbin,mess] = make_sqw_data_calc_proj_pbin (u1,p1,u2,p2,...,un,pn)
@@ -62,7 +62,6 @@ else
     nonorthogonal=false;
 end
 
-% Check all arguments are otherwise numeric
 for i=1:narg
     if ~isnumeric(varargin{i})
         mess='Check arguments [uoffset],u1,p1,... are numeric';
