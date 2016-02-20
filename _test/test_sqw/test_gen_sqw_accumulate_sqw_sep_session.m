@@ -424,11 +424,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
         end
         function test_worker(this)
-            
-            job_par_fun = @(run,fname,instr,samp)(struct(...
-                'runfile',run,'sqw_file_name',fname,'instrument',instr,...
-                'samlpe',samp,...
-                'grid_size_in',[50,50,50,50],'urange_in',[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
+
             
             this= build_test_files(this);
             
@@ -444,44 +440,54 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             ds.angdeg=angdeg;
             ds.u = u;
             ds.v = v;
-            
+
+            job_par_fun = @(run,fname,instr,samp)(gen_tmp_files_jobs.pack_job_pars(...
+                run,fname,instr,samp,...
+                [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]));                       
             
             %
             [path,file] = fileparts(this.spe_file{1});
             tmp_file1 = fullfile(path,[file,'.tmp']);
             run1=rundata(this.spe_file{1},this.par_file,ds);
-            job_param1 = job_par_fun(run1,tmp_file1,this.instrum(1),this.sample);
+
             
             %
             [path,file] = fileparts(this.spe_file{2});
             tmp_file2 = fullfile(path,[file,'.tmp']);
             ds.psi=psi(1);
             run2=rundata(this.spe_file{1},this.par_file,ds);
-            job_param2 = job_par_fun(run2,tmp_file2,this.instrum(2),this.sample);
+            runs = {run1;run2};
+            tmpf = {tmp_file1,tmp_file2};
+            samp = [this.sample,this.sample];
             
+            intst = this.instrum(1:2);
+            job_param_list = cellfun(job_par_fun,...
+            runs',tmpf,num2cell(intst),num2cell(samp),...
+            'UniformOutput', true);
             
-            
-            [str_rep1,mess] = gen_tmp_files_jobs.make_job_par_string(job_param1);
-            assertTrue(isempty(mess));
-            [str_rep2,mess] = gen_tmp_files_jobs.make_job_par_string(job_param2);
-            assertTrue(isempty(mess));
-            
-            worker('gen_tmp_files_jobs',1,str_rep1,str_rep2);
-            
+           
+            jd = JobDispatcher('test_gen_sqw_sep_ses_worker');            
+            [~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
+                   
+            worker('gen_tmp_files_jobs',wc{1});
             
             assertTrue(exist(tmp_file1,'file')==2);
             assertTrue(exist(tmp_file2,'file')==2);
             delete(tmp_file1);
             delete(tmp_file2);
-            
+            [ok,err,mes] = jd.receive_message(1,'completed');
+            assertTrue(ok);
+            assertTrue(isempty(err));            
+            res = mes.payload;
+            assertEqual(res.grid_size,[50 50 50 50]);
+            assertElementsAlmostEqual(res.urange,...
+                [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
+            %
+            jd.clear_all_messages();
         end
         
         function test_do_job(this)
             %
-            job_par_fun = @(run,fname,instr,samp)(struct(...
-                'runfile',run,'sqw_file_name',fname,'instrument',instr,...
-                'samlpe',samp,...
-                'grid_size_in',[50,50,50,50],'urange_in',[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
             
             this= build_test_files(this);
             
@@ -501,14 +507,16 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             tmp_file = fullfile(path,[file,'.tmp']);
             
             run=rundata(this.spe_file{1},this.par_file,ds);
-            job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);
+                                                
             
+            job_par_fun = @(run,fname,instr,samp)(gen_tmp_files_jobs.pack_job_pars(...
+                run,fname,instr,samp,...
+                [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
             
-            [str_rep,mess] = gen_tmp_files_jobs.make_job_par_string(job_param);
-            assertTrue(isempty(mess));
-            
-            jd = gen_tmp_files_jobs();
-            jd.do_job(str_rep);
+            job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);                        
+
+            je = gen_tmp_files_jobs('test_gen_sqw_sep_ses_do_job');                        
+            je.do_job(job_param);
             
             assertTrue(exist(tmp_file,'file')==2);
             delete(tmp_file);
