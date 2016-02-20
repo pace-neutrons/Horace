@@ -45,17 +45,20 @@ classdef herbert_config<config_base
         use_mex;
         % use C part of mex code
         use_mex_C;
-        % force using mex (ususlly mex failure causes attempt to use  
+        % force using mex (ususlly mex failure causes attempt to use
         % matlab). This is rather for testing mex agains matlab
         force_mex_if_use_mex;
-        % the level to report: 
-        % -1, do not tell even about an errors (usefull for unit tests) 
-        % 0 - be quet but report errors, 
-        % 1 report result of long-lasting operations, 
+        % the level to report:
+        % -1, do not tell even about an errors (usefull for unit tests)
+        % 0 - be quet but report errors,
+        % 1 report result of long-lasting operations,
         % 2 report elaborate timing
         log_level
         % add unit test folders to search path (option for Herbert testing)
         init_tests;
+        % if true, Horace Matlab session is deployed
+        % by parallel framework
+        is_deployed;
     end
     properties(Dependent,SetAccess=private)
         % location of the folder with unit tests
@@ -74,6 +77,8 @@ classdef herbert_config<config_base
         force_mex_if_use_mex_ = false;
         log_level_            = 0;
         init_tests_           = false;
+        %
+        progress_reporter_    = [];
     end
     methods
         function this = herbert_config()
@@ -96,6 +101,13 @@ classdef herbert_config<config_base
         end
         function doinit=get.init_tests(this)
             doinit = get_or_restore_field(this,'init_tests');
+        end
+        function is = get.is_deployed(this)
+            if isempty(this.progress_reporter_)
+                is  = false;
+            else
+                is  = true;
+            end
         end
         %-----------------------------------------------------------------
         % overloaded setters
@@ -135,7 +147,7 @@ classdef herbert_config<config_base
                 init = true;
             else
                 init = false;
-            end            
+            end
             config_store.instance().store_config(this,'init_tests',init);
             process_unit_test_path(init,'set_path');
         end

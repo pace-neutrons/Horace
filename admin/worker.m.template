@@ -1,55 +1,45 @@
-function worker(class_name,id,varargin)
+function worker(class_name,job_controls_string)
 % function used as standard worker to do a job in different matlab
 % session
 %
-% To work, should be present on a data searh path, availible before Herbert is
-% initialized
+% To work, should be present on a data searh path, before Herbert is
+% initialized as may need to initialize Herbert and Horace itself
 %
 %Inputs:
-% class_name -- the name of the class, which do job distribution. The class
-%               should inherit from JobDispatcher and overload at least
+% class_name -- the name of the class, which do the job. The class
+%               should inherit from JobExecutor and overload
 %               do_job method
 %
-% id         -- unique number which distinguish this job from any other
-%               running job, and used by JobDispatcher to identify jobs.
-%
-% pram_class_name   -- name of the parameter class which has from_string method
-%                or emtpy field for structure, which is converted directly
-%
-% varargin   -- sellarray of strings, to deserialize into input
-%               parameters for the job
+% job_controls_string - the structure, containining information, necessary to
+%              initiate job
 %
 %
-    function del_quet(fname)
-        if exist(fname,'file') == 2
-            delete(fname)
-        end
-    end
-
 if isempty(which('herbert_init.m'))
     horace_on();
 end
 
 jd = feval(class_name);
-%
-arg1 = varargin{1};
-if strcmp(arg1,'-file')
-    filename = varargin{2};
-    [jd,argi] = jd.init_job(id,filename);    
-else
-    jd = jd.init_job(id);
-    argi =varargin;
-end
-% make sure that run id is deleted if this job have failed
-run_fname = jd.running_job_file_name;
-clo = onCleanup(@()del_quet(run_fname));
-%
-try
-    jd = jd.do_job(argi{:});
-catch ME
+
+[jd,job_arguments,err_mess]=jd.init_worker(job_controls_string);
+
+if ~isempty(err_mess)
+    mess = aMessage('failed');
+    mess.payload = sprintf('job N%d failed at init_worker. Reason: %s',...
+        jd.job_id,err_mess);
+    jd.send_message(mess);
     exit;
 end
-
+%
+%
+try
+    jd = jd.do_job(job_arguments);
+catch ME
+    mess = aMessage('failed');
+    mess.payload = sprintf('job N%d failed at do_job method. Reason: %s',...
+        jd.job_id,ME.message);
+    jd.send_message(mess);
+    exit;
+end
 %
 jd.finish_job();
 

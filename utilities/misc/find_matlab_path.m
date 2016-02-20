@@ -1,4 +1,4 @@
-function matlab_path = found_matlab_path()
+function matlab_path = find_matlab_path()
 %
 % found path where current matlab session is started from
 %
