@@ -33,26 +33,28 @@ function [grid_size,urange]=runfiles_to_sqw(sqw_dummy_obj,conversion_par_list)
 
 % catch case of single parameters set provided as structure and not an
 % cellarray
-if ~iscell(conversion_par_list) 
-    conversion_par_list = {conversion_par_list};
-end
+%if ~iscell(conversion_par_list) 
+%    conversion_par_list = {conversion_par_list};
+%end
 
 n_files = numel(conversion_par_list);
 run_files    = cell(n_files,1);
 tmp_fnames   = cell(n_files,1);
-instrument   = cell(n_files,1);
-sample       = cell(n_files,1);
-grid_size_in = conversion_par_list{1}.grid_size_in;
-urange_in = conversion_par_list{1}.urange_in;
+
+instrument_ref= conversion_par_list(1).instrument;
+sample_ref    =conversion_par_list(1).sample;
+instr         = repmat(instrument_ref,n_files,1);
+sample        = repmat(sample_ref,n_files,1);
+
+grid_size_in = conversion_par_list(1).grid_size_in;
+urange_in = conversion_par_list(1).urange_in;
 for i=1:n_files
-    run_files{i}  = conversion_par_list{i}.runfile;
-    tmp_fnames{i} = conversion_par_list{i}.sqw_file_name;
-    instrument{i} = conversion_par_list{i}.instrument;
-    sample{i}     = conversion_par_list{i}.samlpe;
+    run_files{i}  = conversion_par_list(i).runfile;
+    tmp_fnames{i} = conversion_par_list(i).sqw_file_name;
+    instr(i)      = conversion_par_list(i).instrument;
+    sample(i)     = conversion_par_list(i).sample;
 end
-instrument = [instrument{:}];
-sample = [sample{:}];
 
 [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_fnames,...
-            grid_size_in,urange_in,instrument,sample,false);
+            grid_size_in,urange_in,instr,sample,false);
 

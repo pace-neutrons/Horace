@@ -327,60 +327,26 @@ else
             sample     = sample(not_empty);
         end
         %
-        % aggregate the conversion parameters into list of structures,
-        % suitable for serialization
-        job_par = cellfun(@(run,fname,instr,samp)(struct(...
-            'runfile',run,'sqw_file_name',fname,'instrument',instr,...
-            'samlpe',samp,...
-            'grid_size_in',grid_size_in,'urange_in',urange_in)),...
+        % aggregate the conversion parameters into array of structures,
+        % suitable for splitting jobs between workers
+        job_par_fun = @(run,fname,instr,samp)(gen_tmp_files_jobs.pack_job_pars(...
+                run,fname,instr,samp,...
+                grid_size_in,urange_in));
+            
+        job_par = cellfun(job_par_fun,...
             run_files',tmp_file,num2cell(instrument),num2cell(sample),...
-            'UniformOutput', false);
+            'UniformOutput', true);
         %
         % start parallel framework
-        jd = gen_tmp_files_jobs();
-        [n_failed,outputs] = jd.send_jobs(job_par,num_matlab_sessions);
+        [~,par_job_name] = fileparts(sqw_file);
+        % name parallel job by sqw file name
+        jd = JobDispatcher(upper(par_job_name));
         %
-        if n_failed>0
-            warning('GEN_SQW:separate_process_sqw_generation',' %d out of %d jobs to generate tmp files reported failure',...
-                n_failed,num_matlab_sessions);
-            for i=1:numel(tmp_file)
-                if ~(exist(tmp_file{i},'file')==2)
-                    warning('GEN_SQW:separate_process_sqw_generation',...
-                        ' The target file %s have not been created. Proceeding serially ',tmp_file{i});
-                    [grid_size,urange]=runfiles_to_sqw(dummy,job_par(i));
-                    outputs{i}.grid_size = grid_size;
-                    outputs{i}.urange    = urange;
-                    n_failed=n_failed-1;
-                end
-            end
-        end
+        [n_failed,outputs,job_ids] = jd.send_jobs('gen_tmp_files_jobs',...
+            job_par,num_matlab_sessions);
         %
-        if n_failed ~= num_matlab_sessions && ~isempty(outputs)
-            % calculate tmp files boutdaries
-            if n_failed>0 % currently ignore failed jobs, assume they actually
-                % completed successfully. TODO: This should change in a future
-                not_failed = cellfun(@(x)isstruct(x),outputs);
-                outputs     = outputs(not_failed);
-            end
-            % check output boundaries produced by all jobs are consistent
-            grid_size = outputs{1}.grid_size;
-            urange    = outputs{1}.urange;
-            for i=1:numel(outputs)
-                if ~all(grid_size==outputs{i}.grid_size) || ~all(urange(:)==outputs{i}.urange(:))
-                    disp('*** Incorrect tmp file ranges ***');
-                    disp(['Job number: ',num2str(i)]);
-                    disp(['grid_size: ',num2str(grid_size)])
-                    disp(['Job grid_size: ',num2str(outputs{i}.grid_size)])
-                    disp(['urange: ',num2str(urange)])
-                    disp(['Job urange: ',num2str(outputs{i}.urange)])
-                    
-                    error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
-                end
-            end
-        else % everything failed; Should probably go serial.
-            grid_size = grid_size_in;
-            urange    = urange_in;
-        end
+        [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,...
+            num_matlab_sessions,outputs,job_ids);
     else
         %---------------------------------------------------------------------
         % serial rundata to sqw transformation
@@ -445,4 +411,52 @@ end
 % ------------------------------------------------------------
 if nargout==0
     clear tmp_file grid_size urange
+end
+
+function  [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,n_workers,outputs,job_ids,job_par)
+% verify parallel outputs and reprocess 
+if n_failed == n_workers
+    error('GEN_SQW:separate_process_sqw_generation',...
+   [' All parallel jobs have failed.\n',...
+    ' Disable parallel sqw generation by setting\n',...
+    ' set(hor_config,''accum_in_separate_process'',0)']);
+end
+if n_failed>0
+    warning('GEN_SQW:separate_process_sqw_generation',' %d out of %d jobs to generate tmp files reported failure',...
+        n_failed,n_workers);
+    for ii=1:numel(outputs)
+        if isstruct(outputs)
+            continue;
+        end
+        job_list = job_ids{ii};
+        for np = 1:numel(job_list)
+            par_num = job_list(np);
+            if ~(exist(job_par(par_num).tmp_file,'file')==2)
+                warning('GEN_SQW:separate_process_sqw_generation',...
+                    ' The target file %s have not been created. Proceeding serially: ',...
+                    job_par(par_num).sqw_file_name);
+                [grid_size,urange]=runfiles_to_sqw(dummy,job_par(par_num));
+            end
+            n_failed=n_failed-1;
+        end
+        outputs{ii} = struct('grid_size',grid_size,...
+            'urange',urange);
+        
+    end
+end
+%
+% check output boundaries produced by all jobs are consistent
+grid_size = outputs{1}.grid_size;
+urange    = outputs{1}.urange;
+for i=2:numel(outputs)
+    if ~all(grid_size==outputs{i}.grid_size) || ~all(urange(:)==outputs{i}.urange(:))
+        disp('*** Incorrect tmp file ranges ***');
+        disp(['Job number: ',num2str(i)]);
+        disp(['grid_size: ',num2str(grid_size)])
+        disp(['Job grid_size: ',num2str(outputs{i}.grid_size)])
+        disp(['urange: ',num2str(urange)])
+        disp(['Job urange: ',num2str(outputs{i}.urange)])
+        
+        error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
+    end
 end

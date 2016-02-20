@@ -113,7 +113,7 @@ disp('');
 zone_files =cell(numel(zonelist),1);
 if use_separate_matlab
     %
-    % conglamerate job parameters into list of structures,
+    % combine job parameters into list of structures,
     % suitable for serialization
     job_par = cellfun(@(id,x,y)(param_f(id,x(1),x(2),x(3),x(4),y)),...
         zoneid,range,zonelist');
@@ -123,11 +123,11 @@ if use_separate_matlab
         n_workers = numel(job_par);
     end
     jm = combine_equivalent_zones_job();
-    [n_failed,outputs] = jm.send_jobs(job_par,n_workers);
+    [n_failed,outputs,job_distr_by_id] = jm.send_jobs(job_par,n_workers);
     %----------------------------------------------------------------------
     if n_failed>0 % Try to recalculate failed parallel jobs serially
         warning('COMBINE_ZONES:separate_process_combining',' %d out of %d jobs to generate tmp files reported failure',...
-            n_failed,num_matlab_sessions);
+            n_failed,n_workers);
         
         if isempty(outputs)
             outputs = cell(n_workers,1);
@@ -135,14 +135,21 @@ if use_separate_matlab
         else
             not_failed = cellfun(@(x)isstruct(x),outputs);
         end
-        %outputs     = outputs(not_failed);
+        % go over outputs and calculate outputs which are failed 
+        % serially
         for i=1:numel(outputs)
             if not_failed(i)
                 continue;
             end
-            z_files = move_zone1_to_zone0(fail_job_par(i));
+            fail_par_num = job_distr_by_id{i};
+            z_files = cell(numel(fail_par_num),1);
+            for ii = 1:numel(fail_par_num)
+                ind = fail_par_num{ii};
+                z_files{ii} = move_zone1_to_zone0(job_par(ind ));
+            end
             n_failed=n_failed-1;
-            outputs{i} = struct('zone_files',z_files);
+            outputs{i} = struct('zone_id',i,...
+                'zone_files',z_files);            
         end
     end
     % all failed
