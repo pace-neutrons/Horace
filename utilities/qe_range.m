@@ -1,6 +1,6 @@
 classdef qe_range
     % Simple helper class, which simplifies settings of q-range in one
-    % q-direction for combine_equivalent_zones algorithm   
+    % q-direction for combine_equivalent_zones algorithm
     
     properties(Dependent)
         qe_min,
@@ -23,6 +23,7 @@ classdef qe_range
             elseif nargin==2
                 obj.qe_min_=varargin{1};
                 obj.qe_max_=varargin{2};
+                obj.dqe_ = 0;
             elseif nargin==3
                 obj.qe_min_=varargin{1};
                 obj.dqe_   =varargin{2};
@@ -44,12 +45,14 @@ classdef qe_range
         end
         function val = get.center(obj)
             val = obj.center_;
-        end        
-        function [min,dqe,max]=cut_range(obj)
+        end
+        function range=cut_range(obj)
             % convert qe_range into the form accepted by cut_sqw
-            min = obj.qe_min;
-            dqe = obj.dqe_;
-            max = obj.qe_max;            
+            if obj.dqe_ == 0
+                range = [obj.qe_min,obj.qe_max];
+            else
+                range = [obj.qe_min,obj.dqe_,obj.qe_max];
+            end
         end
     end
     

@@ -52,10 +52,12 @@ if ~ischar(data_source)
     error('Horace error: data source must be a string');
 end
 
-if ~isstruct(proj)
-    error('Horace error: proj must be a structure array');
-elseif ~isfield(proj,'u') || ~isfield(proj,'v')
-    error('Horace error: proj structure array must have fields u and v');
+if ~(isstruct(proj) || isa(proj,'aprojection'))
+    error('Horace error: proj must be a structure array or an instance of a projection class');
+else
+    if isstruct(proj) && (~isfield(proj,'u') || ~isfield(proj,'v'))
+        error('Horace error: proj structure array must have fields u and v');
+    end
 end
 
 if ~isnumeric(pos) || numel(pos)~=3

@@ -6,12 +6,17 @@ try
     if exist(param.data_source,'file')~=2
         error('Source file %s does not exist',param.data_source);
     end
-    info_obj   = cut_dnd(param.data_source,...
-        [param.qh_range(1),param.qh_range(3)],...
-        [param.qk_range(1),param.qk_range(3)],...
-        [param.ql_range(1),param.ql_range(3)],...        
-        [param.e_range(1),0,param.e_range(3)]);
-    [n_ranges,e_ranges,zone_filenames_list]=find_subzones(info_obj,param.e_range,param.zone_id);
+    cut_range = param.cut_ranges;
+    integrated = cellfun(@(x)(isinf(x(1))||isinf(x(2))),cut_range);
+    cut_range = cut_range(~integrated);
+    cut_ranges = cellfun(@(x)[x(1),x(end)],cut_range(1:end-1),'UniformOutput',false);
+    ei_range = cut_range{end};
+    cut_ranges{end+1} = [ei_range(1),0,ei_range(end)];
+    ei_range  = cut_ranges{end};
+
+    info_obj   = cut_dnd(param.data_source,cut_ranges{:});
+
+    [n_ranges,e_ranges,zone_filenames_list]=find_subzones(info_obj,ei_range,param.zone_id);
     log_level = get(hor_config,'log_level');
     if log_level>0
         fprintf('Divided zone [%d,%d,%d] into %d part(s) \n',...
@@ -23,7 +28,7 @@ try
             fprintf('Processing zone part #%d out of %d\n',i,n_ranges);
         end
         sectioncut=cut_sqw(param.data_source,param.proj,...
-            param.qh_range,param.qk_range,param.ql_range,e_ranges(:,i)');
+            param.cut_ranges{1:end-1},e_ranges(:,i)');
         if n_ranges>1
             sectioncut=cut_sqw(sectioncut,param.proj,...
                 param.qh_range,param.qk_range,param.ql_range,param.e_range);            
@@ -42,14 +47,15 @@ try
 catch ME
     %Ensure we don't say a zone is ok when it is not
     zone_c0 = param.zone1_center;
-    fprintf('Skipping zone: [%d,%d%,%d]. Reason: %s\n',zone_c0(1),...
+    fprintf('Skipping zone: [%d,%d,%d]. Reason: %s\n',zone_c0(1),...
         zone_c0(2),zone_c0(3),ME.message);
     zone_filenames_list = {};
 end
 
 function [n_ranges,eranges,zone_fnames]=find_subzones(info_obj,erange,zone_id)
 % separate total zone into range of subzones containing sufficiently large
-% number of pixes
+% number of pixes, but small enough to fit the availible memory
+%
 zone_fname_fun = @(id,n_block)(sprintf('HoracePartialZoneN%d_file_partN%d.tmp',id,n_block));
 
 e_axis = info_obj.p{1};
