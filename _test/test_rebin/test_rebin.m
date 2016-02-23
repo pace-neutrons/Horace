@@ -11,6 +11,7 @@ classdef test_rebin< TestCase
         gam=0.1;
         amp=10;
         testdir;
+        this_folder;
     end
     
     
@@ -22,6 +23,9 @@ classdef test_rebin< TestCase
             
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
+            this.this_folder = this.testdir;
+            addpath(this.this_folder);
+            
             
         end
         function this=prepare_test_data(this)
@@ -83,6 +87,9 @@ classdef test_rebin< TestCase
         end
         function delete(this)
             close all;
+            os = warning('off','MATLAB:rmpath:DirNotFound');
+            rmpath(this.this_folder)
+            warning(os);
         end
         %% Symmetrisation tests
         function this = test_rebin_sqw_steps(this)
