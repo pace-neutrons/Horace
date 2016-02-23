@@ -124,7 +124,8 @@ wout.data.p=p1new;
 
 %Use the internal Horace routines to recalculate intensity/error/npix etc
 %arrays:
-wout=cut(wout,[],[],[],[]);
+argi = cell(1,numel(p1new));
+wout=cut(wout,argi{:});
 
 
 

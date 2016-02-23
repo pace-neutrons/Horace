@@ -55,7 +55,7 @@ end
 
 %Get directory in which the data live. This is where we will save temporary
 %files.
-sourcedir=fileparts(data_source);
+[sourcedir,source_name]=fileparts(data_source);
 % add these files to cleanup to remove them in case of errors or at the end
 % of calculations:
 
@@ -85,93 +85,56 @@ disp('');
 %info_level = get(hor_config,'horace_info_level');
 %cleanup_obj=onCleanup(@()set(hor_config,'horace_info_level',info_level));
 %set(hor_config,'horace_info_level',-1);
-
+[outdir,outfile] = fileparts(outfile);
+if isempty(outdir)
+    outdir = sourcedir;
+end
+outfile = fullfile(outdir,[outfile,'.sqw']);
 
 % function to combine all parameters into single structure, suitable for
 % serialization
-    function strpar= param_f(id,qh,qk,ql,en,zone1)
-        
-        [qhmi,qhs,qhma] = qh.cut_range();
-        [qkmi,qks,qkma] = qk.cut_range();
-        [qlmi,qls,qlma] = ql.cut_range();
-        [emi, es, ema]  = en.cut_range();
-        strpar = struct(...
-            'data_source',data_source,'proj',proj,...
-            'qh_range',[qhmi,qhs,qhma],'qk_range',[qkmi,qks,qkma],...
-            'ql_range',[qlmi,qls,qlma],'e_range',[emi, es, ema],...
-            'zone1_center',zone1,...
-            'zone0_center',pos,'zone_id',id,...
-            'rez_location',sourcedir);
-    end
-
 
 [use_separate_matlab,num_matlab_sessions]=get(hor_config,...
     'accum_in_separate_process','accumulating_process_num');
+% define function to combine job parameters into list of structures,
+% suitable for serialization
+job_par_fun = @(id,x,y)(combine_equivalent_zones_job.param_f(...
+    id,x,y(1),y(2),y(3),y(4),proj,pos,data_source,outdir));
+
 %Create new temporary files for all of the required zones. If there are no
 %data in the specified zone we must be able to continue without getting an
 %error:
 zone_files =cell(numel(zonelist),1);
 if use_separate_matlab
-    %
     % combine job parameters into list of structures,
     % suitable for serialization
-    job_par = cellfun(@(id,x,y)(param_f(id,x(1),x(2),x(3),x(4),y)),...
-        zoneid,range,zonelist');
+    
+    job_par = cellfun(job_par_fun,zoneid,zonelist',range);
+    %
     %----------------------------------------------------------------------
     n_workers = num_matlab_sessions;
     if numel(job_par)<n_workers;
         n_workers = numel(job_par);
     end
-    jm = combine_equivalent_zones_job();
-    [n_failed,outputs,job_distr_by_id] = jm.send_jobs(job_par,n_workers);
+    jm = JobDispatcher(source_name);
+    [n_failed,outputs,job_distr_by_id] = ...
+        jm.send_jobs('combine_equivalent_zones_job',job_par,n_workers);
+    
+    zone_files = analyze_and_combine_job_outputs(n_failed,outputs,...
+        job_distr_by_id,job_par);
     %----------------------------------------------------------------------
-    if n_failed>0 % Try to recalculate failed parallel jobs serially
-        warning('COMBINE_ZONES:separate_process_combining',' %d out of %d jobs to generate tmp files reported failure',...
-            n_failed,n_workers);
-        
-        if isempty(outputs)
-            outputs = cell(n_workers,1);
-            not_failed= false(n_workers,1);
-        else
-            not_failed = cellfun(@(x)isstruct(x),outputs);
-        end
-        % go over outputs and calculate outputs which are failed 
-        % serially
-        for i=1:numel(outputs)
-            if not_failed(i)
-                continue;
-            end
-            fail_par_num = job_distr_by_id{i};
-            z_files = cell(numel(fail_par_num),1);
-            for ii = 1:numel(fail_par_num)
-                ind = fail_par_num{ii};
-                z_files{ii} = move_zone1_to_zone0(job_par(ind ));
-            end
-            n_failed=n_failed-1;
-            outputs{i} = struct('zone_id',i,...
-                'zone_files',z_files);            
-        end
-    end
-    % all failed
-    if n_failed == num_matlab_sessions
-        error('COMBINE_ZONES:separate_process_combining',[' All parallel jobs failed.'...
-            'Try to run the combining on main Matlab session']);
-    else
-        for i=1:numel(outputs)
-            zone_files{i} = outputs{i}.zone_files;
-        end
-    end
 else% Go serial.
     for i=1:numel(zonelist)
         % combine all inputs, necessary to convert coordinates of one zone
         % into the coordinates of other zone into signle compact structure;
-        params = param_f(zoneid{i},...
-            range{i}(1),range{i}(2),range{i}(3),range{i}(4),...
-            zonelist{i});
+        params  = job_par_fun(zoneid{i},zonelist{i},range{i});
+        
         % move coordunates of current zone into specified coordinates
         zone_files{i} = move_zone1_to_zone0(params);
     end
 end
+% transfrom list of subfiles generated for each zone into 1-level celarray
+% of file names
 zone_fnames_list = flatten_cell_array(zone_files);
 
     function clear_tmp_file(name)
@@ -181,8 +144,8 @@ zone_fnames_list = flatten_cell_array(zone_files);
     end
 %Generate file names for each transformed zone
 
-for i=1:numel(zonelist)
-    zone_fnames_list{i} = fullfile(sourcedir,zone_fnames_list{i}); %['HoraceTempSymInternal',num2str(i),'.tmp']);
+for i=1:numel(zone_fnames_list)
+    zone_fnames_list{i} = fullfile(outdir,zone_fnames_list{i});
 end
 clobj1 = onCleanup(@()cellfun(@(fn)clear_tmp_file(fn),zone_fnames_list));
 %==================================
@@ -212,3 +175,46 @@ disp('----------------------------------------------------------------');
 disp('');
 end
 
+function  zone_files = analyze_and_combine_job_outputs(n_failed,outputs,...
+    job_distr_by_id,job_par)
+
+n_workers = numel(outputs);
+if n_failed>0 % Try to recalculate failed parallel jobs serially
+    warning('COMBINE_ZONES:separate_process_combining',' %d out of %d jobs to generate tmp files reported failure',...
+        n_failed,n_workers);
+    
+    if isempty(outputs)
+        outputs = cell(n_workers,1);
+        not_failed= false(n_workers,1);
+    else
+        not_failed = cellfun(@(x)isstruct(x),outputs);
+    end
+    % go over outputs and calculate outputs which are failed
+    % serially
+    for i=1:numel(outputs)
+        if not_failed(i)
+            continue;
+        end
+        fail_par_num = job_distr_by_id{i};
+        z_files = cell(numel(fail_par_num),1);
+        for ii = 1:numel(fail_par_num)
+            ind = fail_par_num{ii};
+            z_files{ii} = move_zone1_to_zone0(job_par(ind ));
+        end
+        n_failed=n_failed-1;
+        outputs{i} = struct('zone_id',i,...
+            'zone_files',z_files);
+    end
+end
+% all failed
+
+if n_failed == n_workers
+    error('COMBINE_ZONES:separate_process_combining',[' All parallel jobs failed.'...
+        'Try to run the combining on main Matlab session']);
+else
+    zone_files = cell(numel(outputs),1);
+    for i=1:numel(outputs)
+        zone_files{i} = outputs{i}.zone_files;
+    end
+end
+end
