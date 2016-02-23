@@ -102,6 +102,94 @@ classdef test_job_dispatcher< TestCase
             assertTrue(exist(file2,'file')==2);
             assertTrue(exist(file3,'file')==2);
         end
+        function test_job_with_logs(this)
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            mis.is_deployed = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            
+            
+            jd = JDTester('jd_testjob_with_logs_worker');
+            clo = onCleanup(@()(jd.clear_all_messages()));
+            
+            job_par_list = struct('step',0,'n_steps',20);
+            
+            [jd,job_ids,worker_info] = jd.split_and_register_jobs_pub(job_par_list,2);
+            
+            assertTrue(iscellstr(worker_info));
+            assertEqual(numel(worker_info),1);
+            assertTrue(iscell(job_ids))
+            assertEqual(numel(job_ids),1);
+            assertEqual(numel(job_ids{1}),1);
+            
+            %
+            je = JEwithLogTester();
+            [je,job_arguments,err_mess]=je.init_worker(worker_info{1});
+            assertTrue(isempty(err_mess));
+            MPI_State.instance().logger = @(step,n_steps,time)(je.log_progress(step,n_steps,time));
+            
+            
+            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            assertEqual(completed,false);
+            assertEqual(n_failed,0);
+            
+            ok = jd.job_state_is(1,'started');
+            assertTrue(ok)
+            
+            je.do_job(job_arguments);
+            ok = jd.job_state_is(1,'started');
+            assertFalse(ok)
+            ok = jd.job_state_is(1,'running');
+            assertTrue(ok)
+            
+            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            assertFalse(completed);
+            assertEqual(n_failed,0);
+            ok = jd.job_state_is(1,'running');
+            assertFalse(ok)
+            
+            
+            
+            
+            %assertTrue(isempty(err));
+            %step = mess.payload;
+            %assertEqual(step,1);
+            
+        end
+        
+        %
+        function test_job_with_logs_worker(this)
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));           
+            
+            jd = JDTester('jd_testjob_with_logs_worker');
+            clo = onCleanup(@()(jd.clear_all_messages()));
+            
+            job_par_list = struct('step',0,'n_steps',20);
+            
+            [jd,job_ids,worker_info] = jd.split_and_register_jobs_pub(job_par_list,2);
+            
+            assertTrue(iscellstr(worker_info));
+            assertEqual(numel(worker_info),1);
+            assertTrue(iscell(job_ids))
+            assertEqual(numel(job_ids),1);
+            assertEqual(numel(job_ids{1}),1);
+            
+            
+            ok = jd.job_state_is(1,'starting');
+            assertTrue(ok);
+            
+            worker('JEwithLogTester',worker_info{:});
+            
+            [ok,err,mess] = jd.receive_message(1,'completed');
+            assertTrue(ok)
+            assertTrue(isempty(err));
+            step = mess.payload;
+            assertEqual(step,1);
+            
+        end
+        %
         function test_job_controls_no_running(this)
             %
             job_param_list = {'job_arguments_list_for_worker'};
@@ -168,9 +256,7 @@ classdef test_job_dispatcher< TestCase
             jd.clear_all_messages();
             
         end
-        
-        
-        
+        %
         function test_split_job_list(this)
             %
             job_param_list = {'aaa','bbbb','s','aaanana'};

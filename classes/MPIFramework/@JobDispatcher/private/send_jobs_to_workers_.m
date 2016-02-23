@@ -34,8 +34,10 @@ function [n_failed,outputs,job_ids,this]=send_jobs_to_workers_(this,...
 % provided by input structure
 %
 % delete orphaned messages, which may belong to this framework, previous run
-this.clear_all_messages();
 %
+% clear all messages which may left in case of failure
+clob = onCleanup(@()this.clear_all_messages());
+
 [this,job_ids,worker_inits]=this.split_and_register_jobs(job_param_list,n_workers);
 
 prog_start_str = this.worker_prog_string;
@@ -87,6 +89,4 @@ for ind = 1:n_workers
         outputs{ind} = job_info(ind).outputs;
     end
 end
-% clear all messages which may left at this stage
-this.clear_all_messages();
 end

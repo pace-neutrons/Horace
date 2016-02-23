@@ -14,6 +14,11 @@ classdef test_job_executor< TestCase
         end
         
         function test_worker(this)
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+
+           
             
             job_param = struct('filepath',this.working_dir,...
                 'filename_template','test_jobDispatcher%d_nf%d.txt');
@@ -74,6 +79,8 @@ classdef test_job_executor< TestCase
             assertEqual(message.mess_name,'completed')
             assertTrue(isempty(message.payload))
             
+            je.clear_all_messages();
+            
         end
         
         
@@ -93,6 +100,8 @@ classdef test_job_executor< TestCase
             
             assertFalse(isempty(je.job_outputs));
             assertEqual(je.job_outputs,'Job 0 generated 1 files')
+            
+            je.clear_all_messages();
         end
         
         

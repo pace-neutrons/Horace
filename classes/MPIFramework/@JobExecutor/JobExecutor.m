@@ -69,6 +69,20 @@ classdef JobExecutor<MessagesFramework
             % set up tag, indicating that the job have finished
             [ok,mess] = finish_job_(this);
         end
+        function log_progress(this,step,n_steps,time_per_step)
+            % log progress of the job exectution and report it to the
+            % calling framework.
+            % Inputs:
+            % step     --  current step within the loop which doing the job
+            % n_steps  --  number of steps this job will make
+            % time_per_step -- approximate time spend to make one step of
+            %                  the job
+            % Outputs:
+            % Sends message of type LogMessage to the job dispatcher.
+            % Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
+            %
+            log_progress_(this,step,n_steps,time_per_step);
+        end
         %------------------------------------------------------------------
         function id = get.job_id(this)
             % get number (job id) of current running job
@@ -89,14 +103,21 @@ classdef JobExecutor<MessagesFramework
         end
         %------------------------------------------------------------------
         % overloads to exchange messages with JobDispatcher for particular job Executor
-        function [ok,err_mess] = send_message(obj,message,varargin)
+        function [ok,err_mess] = send_message(obj,message)
             % send message to job dispatcher
+            % input:
+            % message -- an instance of the class aMessage to send to job
+            %            dispatcher
+            %
             [ok,err_mess] = send_message@MessagesFramework(obj,obj.job_id,...
-                message,varargin{:});
+                message);
         end
         function [ok,err_mess,message] = receive_message(obj,mess_name)
             % receive message from job dispatcher
             [ok,err_mess,message] = receive_message@MessagesFramework(obj,obj.job_id,mess_name);
+        end
+        function ok=check_message(obj,mess_name)
+            ok=check_message@MessagesFramework(obj,obj.job_id,mess_name);
         end
     end
     

@@ -23,7 +23,7 @@ for id=1:n_jobs
         continue;
     end
     % job report its failure
-    if this.job_state_is(job.job_id,'failed')
+    if job.job_state_is(this,'failed')
         [ok,err,mess] = this.receive_message(job.job_id,'failed');
         if ~ok
             error('JOB_DISPATCHER:messages_error',err);
@@ -36,15 +36,19 @@ for id=1:n_jobs
     % but we hope it will run
     if job.is_running
         % here job_status file should indicate running state
-        if this.job_state_is(job.job_id,'started')
+        if job.job_state_is(this,'started')
             % job does not report progress
             n_completed = n_completed-1;
-        elseif this.job_state_is(job.job_id,'running')
+        elseif job.job_state_is(this,'running')
             % job should report progress
+            [isfail,job] = job.get_progress(this);
+            if isfail
+                n_failed = n_failed+1;
+            end
             n_completed = n_completed-1;
         else
             % wait for some time for completed status file to appear
-            if ~this.job_state_is(job.job_id,'completed')
+            if ~job.job_state_is(this,'completed')
                 job.waiting_count = job.waiting_count+1;
                 if job.waiting_count > this.fail_limit_
                     job=job.set_failed('Timeout waiting for job_completed message');
@@ -52,7 +56,7 @@ for id=1:n_jobs
                 end
                 n_completed = n_completed-1;
             else
-                [isfail,job] = get_output(this,job);
+                [isfail,job] = job.get_output(this);
                 if isfail
                     n_failed = n_failed+1;
                 end
@@ -63,7 +67,7 @@ for id=1:n_jobs
     %
     if job.is_starting
         % here job status file should indicate starting
-        if this.job_state_is(job.job_id,'starting')
+        if job.job_state_is(this,'starting')
             job.waiting_count = job.waiting_count+1;
             if job.waiting_count > this.fail_limit_
                 n_failed = n_failed+1;
@@ -74,12 +78,12 @@ for id=1:n_jobs
             n_completed = n_completed-1;
         else
             % here job may or may not return running state
-            if this.job_state_is(job.job_id,'running') || this.job_state_is(job.job_id,'started')
+            if job.job_state_is(this,'running') || job.job_state_is(this,'started')
                 job.is_running = true;
                 n_completed = n_completed-1;
             else % check job have finished successfully and very quickly
-                if this.job_state_is(job.job_id,'completed')
-                    [isfail,job] = get_output(this,job);
+                if job.job_state_is(this,'completed')
+                    [isfail,job] = job.get_output(this);
                     if isfail
                         n_failed = n_failed+1;
                     end
@@ -111,14 +115,3 @@ else
 end
 
 
-function [isfail,job] = get_output(this,job)
-% get job output
-isfail = false;
-[ok,err,mess] = this.receive_message(job.job_id,'completed');
-if ~ok
-    job = job.set_failed(['Not able to retrieve "job_completed" message. Err: ',...
-        err]);
-    isfail  = true;
-else
-    job.outputs = mess.payload;
-end

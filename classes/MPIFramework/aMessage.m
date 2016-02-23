@@ -10,7 +10,7 @@ classdef aMessage
         % running, etc...
         mess_name;
     end
-    properties(Access=private)
+    properties(Access=protected)
         payload_;
         mess_name_;
     end

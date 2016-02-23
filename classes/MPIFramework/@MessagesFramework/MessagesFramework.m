@@ -82,7 +82,7 @@ classdef MessagesFramework
         
         %
     end
-    %----------------------------------------------------------------------    
+    %----------------------------------------------------------------------
     methods
         %
         function jd = MessagesFramework(varargin)
@@ -99,10 +99,21 @@ classdef MessagesFramework
             %      the file with the name provided
             %
             % Initialise folder path
-            jd.exchange_folder_ = make_config_folder(JobDispatcher.exchange_folder_name);
             if nargin>0
                 jd.job_control_pref_ = varargin{1};
             end
+            root_cf = make_config_folder(MessagesFramework.exchange_folder_name);
+            job_folder = fullfile(root_cf,jd.job_control_pref_);
+            if ~exist(job_folder,'dir')
+                [ok, mess] = mkdir(job_folder);
+                if ~ok
+                    error('MESSAGES_FRAMEWORK:constructor_error',...
+                        'Can not create control folder %s\n  Error message: %s',...
+                        root_cf,mess);
+                end
+            end
+            jd.exchange_folder_ = job_folder;
+            
         end
         %
         function [ok,err_mess] = send_message(obj,job_id,message)
@@ -129,7 +140,7 @@ classdef MessagesFramework
             % >>    if false, error_mess indicates reason for failure
             % >> on success, message contains an object of class aMessage,
             %    with message contents
-            %            
+            %
             [ok,err_mess,message] = receive_message_(obj,job_id,mess_name);
         end
         %
@@ -144,8 +155,17 @@ classdef MessagesFramework
             end
         end
         %
+        function is = is_job_cancelled(obj)
+            % method verifies if job has been cancelled
+            if ~exist(obj.exchange_folder,'dir')
+                is=true;
+            else
+                is=false;
+            end
+        end
+        %------------------------------------------------------------------
         function preffix = get.job_control_pref(obj)
-            % return job control files prefix
+            % returns job control files prefix
             preffix  = obj.job_control_pref_;
         end
         %
@@ -162,17 +182,16 @@ classdef MessagesFramework
         end
         %
         function clear_all_messages(obj)
-            % delete all messages belonging to this messages framework
-            pref = obj.job_control_pref;            
-            clear_all_messages_(obj,sprintf('message_%s_',pref));
+            % delete all messages belonging to this instance of messages
+            % framework
+            clear_all_messages_(obj);
         end
     end
-    %----------------------------------------------------------------------    
+    %----------------------------------------------------------------------
     methods (Access=protected)
         function mess_fname = job_stat_fname_(obj,job_id,mess_name)
-            pref = obj.job_control_pref;
             mess_fname= fullfile(obj.exchange_folder,...
-                sprintf('message_%s_%s_JobN%d.mat',pref,mess_name,job_id));
+                sprintf('message_%s_JobN%d.mat',mess_name,job_id));
             
         end
     end

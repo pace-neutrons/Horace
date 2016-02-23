@@ -8,6 +8,13 @@ if ~ischar(mess_name)
     error('MESSAGES_FRAMEWORK:invalid_argument',...
         'mess_name in recive_message command should be a message name (e.g. "starting")');
 end
+%
+if ~exist(obj.exchange_folder,'dir')
+    ok = -1;
+    err_mess = sprintf('Job with id %s have been canceled',obj.job_control_pref);
+    return;
+end
+%
 mess_fname = obj.job_stat_fname_(job_id,mess_name);
 if exist(mess_fname,'file') ~= 2
     ok = false;

@@ -1,20 +1,23 @@
-function   clear_all_messages_(obj,mess_template)
+function   clear_all_messages_(obj)
 %
 % delete all messages, in the exchange folder, which satisfy the message template
 %
-
 mess_folder = obj.exchange_folder;
-folder_contents = dir(mess_folder);
-if numel(folder_contents )==0
+if ~exist(mess_folder,'dir')
     return;
 end
-len = numel(mess_template);
-
-is_mess = arrayfun(@(x)(~x.isdir && strncmpi(mess_template,x.name,len)),folder_contents);
-mess_files = folder_contents(is_mess);
-if numel(mess_files) ==0
-    return;
+[ok, message] = rmdir(mess_folder,'s');
+% may be jobs are writing to the folder and one can not remove them
+% immidiately
+itry = 0;
+while ~ok &&itry<10;
+    pause(1);
+    [ok, message] = rmdir(mess_folder,'s');
+    itry = itry+1;
 end
-mess_fnames = arrayfun(@(x)(fullfile(mess_folder,x.name)),mess_files,'UniformOutput',false);
-
-delete(mess_fnames{:});
+if ~ok
+    warning('MESSAGES_FRAMEWORK:invalid_state',...
+        [' Can not clear up all messages belonging to the framework instance %s\n',...
+        ' Messages folder %s; Error message: $s\n,'],obj.job_control_pref,...
+        obj.exchange_folder,message);
+end

@@ -87,7 +87,7 @@ classdef JobDispatcher < MessagesFramework
         function ok = job_state_is(this,job_id,state)
             % method checks if job state is as requested
             % the list of supported states now is:
-            % 'starting', 'running', 'finished'
+            % 'starting', 'running', 'finished' etc...
             ok = this.check_message(job_id,state);
         end
         %
@@ -109,9 +109,11 @@ classdef JobDispatcher < MessagesFramework
             end
             %prog_name = 'c:\\Programming\\Matlab2015b64\\bin\\matlab.exe';
         end
+        %
         function time = get.jobs_check_time(this)
             time = this.jobs_check_time_;
         end
+        %
         function this = set.jobs_check_time(this,val)
             if val<=0
                 error('JOB_DISPATCHER:jobs_check_time','time to check jobs has to be positive');
@@ -123,9 +125,11 @@ classdef JobDispatcher < MessagesFramework
             end
             
         end
+        %
         function time = get.time_to_fail(this)
             time = this.time_to_fail_;
         end
+        %
         function this = set.time_to_fail(this,val)
             if val<0
                 error('JOB_DISPATCHER:set_time_to_fail','time to fail can not be negative');
