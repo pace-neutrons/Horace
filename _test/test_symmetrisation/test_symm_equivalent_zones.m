@@ -24,6 +24,11 @@ classdef test_symm_equivalent_zones< TestCase
             
         end
         function test_worker(this)
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            
+            
             
             proj = projection([1,1,0],[1,-1,0]);
             pos = [1,1,0];
@@ -109,7 +114,7 @@ classdef test_symm_equivalent_zones< TestCase
             
             assertTrue(exist(outfile,'file')==2);
             
-            
+            je.clear_all_messages();
         end
         
         

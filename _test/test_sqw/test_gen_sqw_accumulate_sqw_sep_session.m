@@ -424,7 +424,10 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
         end
         function test_worker(this)
-
+            mis = MPI_State.instance();
+            mis.is_tested = true;
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));           
+                      
             
             this= build_test_files(this);
             
