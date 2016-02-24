@@ -66,10 +66,10 @@ classdef JobExecutor<MessagesFramework
         end
         %
         function [ok,mess] =finish_job(this)
-            % set up tag, indicating that the job have finished
+            % Clearly finish job execution
             [ok,mess] = finish_job_(this);
         end
-        function log_progress(this,step,n_steps,time_per_step)
+        function log_progress(this,step,n_steps,time_per_step,add_info)
             % log progress of the job exectution and report it to the
             % calling framework.
             % Inputs:
@@ -77,11 +77,14 @@ classdef JobExecutor<MessagesFramework
             % n_steps  --  number of steps this job will make
             % time_per_step -- approximate time spend to make one step of
             %                  the job
+            % add_info -- some additional information provided by the
+            %             client. Not processed but printed in a log if not
+            %             empty.
             % Outputs:
             % Sends message of type LogMessage to the job dispatcher.
             % Throws MESSAGE_FRAMEWORK:cancelled error in case the job has
             %
-            log_progress_(this,step,n_steps,time_per_step);
+            log_progress_(this,step,n_steps,time_per_step,add_info);
         end
         %------------------------------------------------------------------
         function id = get.job_id(this)
@@ -119,6 +122,17 @@ classdef JobExecutor<MessagesFramework
         function ok=check_message(obj,mess_name)
             ok=check_message@MessagesFramework(obj,obj.job_id,mess_name);
         end
+        function messages = receive_all_messages(obj)
+            % retrieve (and remove from system) all messages 
+            % existing in the system for the jobs with id-s specified as input
+            %
+            %Return:
+            % all_messages -- cellarray of messages belonging to this job
+            %                 have messages availible in the system .
+            %
+            messages = receive_all_messages@MessagesFramework(obj,obj.job_id);
+        end
+        
     end
     
 end

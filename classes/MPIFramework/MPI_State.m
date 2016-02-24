@@ -20,6 +20,8 @@ classdef MPI_State<handle
         is_deployed_=false;
         logger_func_ = [];
         is_tested_ = false;
+        % variables, used to identify tick time
+        start_time_=[];        
     end
     properties(Constant, Access=protected)
         field_names_ = {'is_deployed','is_tested','logger_func'}
@@ -80,6 +82,26 @@ classdef MPI_State<handle
                 end
             end
         end
+        %-----------------------------------------------------------------
+        function do_logging(obj,step,n_steps,ttf,additional_info)
+            % do logging if appropriate loging function has been setup
+            %
+            % identify time interval between subsequent calls to this
+            % function if such interval have not been provided
+            if ~isempty(obj.logger_func_)
+                if isempty(ttf)
+                    if isempty(obj.start_time_)
+                        obj.start_time_ = tic;
+                        ttf = 0; % 0 interval means infine waiting time for calls
+                    else
+                        ttf = toc(obj.start_time_);
+                        obj.start_time_ = tic;
+                    end
+                end
+                obj.logger_func_(step,n_steps,ttf,additional_info);
+            end
+        end
+        
     end
     
     

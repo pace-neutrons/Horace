@@ -67,17 +67,20 @@ count = 0;
 [completed,n_failed,this]=check_jobs_status_(this);
 while(~completed)
     if count == 0
-        fprintf('**** Waiting for parallel workers to finish their jobs ****\n')
+        fprintf('**** Waiting for workers to finish their jobs ****\n')
+        print_job_progress_log_(this);
     end
     pause(waiting_time);
     [completed,n_failed,this]=check_jobs_status_(this);
     count = count+1;
     fprintf('.')
-    if mod(count,59)==0
+    if mod(count,50)==0
         fprintf('\n')
+        print_job_progress_log_(this);
     end
 end
 fprintf('\n')
+print_job_progress_log_(this);
 %--------------------------------------------------------------------------
 % retrieve outputs (if any)
 outputs = cell(n_workers,1);

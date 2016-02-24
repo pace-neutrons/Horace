@@ -7,14 +7,19 @@ classdef LogMessage<aMessage
         n_steps
         %approximate time spend to make one step of the job
         time_per_step
+        % additional information to print in a log. May be empty
+        add_info
     end
     
     
     methods
-        function obj = LogMessage(step,n_steps,step_time)
+        function obj = LogMessage(step,n_steps,step_time,add_info)
             obj = obj@aMessage('running');
             obj.payload=struct('step',step,'n_steps',n_steps,...
-                'time',step_time);
+                'time',step_time,'add_info','');
+            if ~isempty(add_info)
+                obj.payload.add_info = add_info;
+            end
         end
         %-----------------------------------------------------------------
         function st=get.step(obj)
@@ -26,7 +31,10 @@ classdef LogMessage<aMessage
         function st=get.time_per_step(obj)
             st = obj.payload.time;
         end
-      
+        function st=get.add_info(obj)
+            st=obj.payload.add_info;
+        end
+        
     end
     
 end

@@ -31,6 +31,9 @@ je = feval(class_name);
 [je,job_arguments,err_mess]=je.init_worker(job_controls_string);
 
 if ~isempty(err_mess)
+    % clear all existing messages for this job
+    je.receive_all_messages();
+    
     mess = aMessage('failed');
     mess.payload = sprintf('job N%d failed at init_worker. Reason: %s',...
         je.job_id,err_mess);
@@ -42,7 +45,8 @@ if ~isempty(err_mess)
     end
 end
 %
-mis.logger = @(step,n_steps,time)(je.log_progress(step,n_steps,time));
+mis.logger = @(step,n_steps,time,add_info)...
+    (je.log_progress(step,n_steps,time,add_info));
 %
 %
 try
@@ -53,6 +57,8 @@ try
     end
 catch ME
     if ~strcmpi(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
+        % clear all existing messages for this job
+        je.receive_all_messages();
         
         mess = aMessage('failed');
         mess.payload = sprintf('job N%d failed at do_job method. Reason: %s',...
@@ -69,7 +75,7 @@ end
 je.finish_job();
 
 if ~is_tested
-    exit;   
+    exit;
 end
 
 end

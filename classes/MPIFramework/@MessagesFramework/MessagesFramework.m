@@ -163,6 +163,35 @@ classdef MessagesFramework
                 is=false;
             end
         end
+        %
+        function all_messages_names = list_all_messages(obj,job_ids)
+            % list all messages existing in the system for the jobs 
+            % with id-s specified as input
+            %Input: 
+            %job_ids -- array of job id-s to check messages for
+            %Return:
+            % cellarray of strings, containing message names for the requested 
+            % jobs.
+            % if no message for a job is present in the systen, 
+            %its cell remains empty
+            %
+            all_messages_names = list_all_messages_(obj,job_ids);
+        end
+        function [all_messages,job_ids] = receive_all_messages(obj,job_ids)
+            % retrieve (and remove from system) all messages 
+            % existing in the system for the jobs with id-s specified as input
+            %
+            %Input: 
+            %job_ids -- array of job id-s to check messages for
+            %Return:
+            % all_messages -- cellarray of messages for the jobs requested and 
+            %                 have messages availible in the system .
+            %job_ids       -- array of job id-s for these messages
+            %
+            %
+            [all_messages,job_ids] = receive_all_messages_(obj,job_ids);
+        end
+        
         %------------------------------------------------------------------
         function preffix = get.job_control_pref(obj)
             % returns job control files prefix
@@ -191,7 +220,7 @@ classdef MessagesFramework
     methods (Access=protected)
         function mess_fname = job_stat_fname_(obj,job_id,mess_name)
             mess_fname= fullfile(obj.exchange_folder,...
-                sprintf('message_%s_JobN%d.mat',mess_name,job_id));
+                sprintf('mess_%s_JobN%d.mat',mess_name,job_id));
             
         end
     end

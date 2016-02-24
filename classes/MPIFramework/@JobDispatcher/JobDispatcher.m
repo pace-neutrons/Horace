@@ -25,6 +25,8 @@ classdef JobDispatcher < MessagesFramework
         time_to_fail;
         % how often (in second) job dispatcher should query the job status
         jobs_check_time;
+        % fail limit -- number of times to try action until deciding the
+        fail_limit     % action have failed
     end
     %
     properties(Access=protected)
@@ -110,6 +112,10 @@ classdef JobDispatcher < MessagesFramework
             %prog_name = 'c:\\Programming\\Matlab2015b64\\bin\\matlab.exe';
         end
         %
+        function limit = get.fail_limit(this)
+            limit  = this.fail_limit_;
+        end
+        %
         function time = get.jobs_check_time(this)
             time = this.jobs_check_time_;
         end
@@ -135,8 +141,12 @@ classdef JobDispatcher < MessagesFramework
                 error('JOB_DISPATCHER:set_time_to_fail','time to fail can not be negative');
             end
             this.time_to_fail_ =val;
+            this.fail_limit_ = ceil(val/this.jobs_check_time);
+            if this.fail_limit_ < 2
+                this.fail_limit_ = 2;
+            end
         end
-        % this method should be used for test purposes only. 
+        % this method should be used for test purposes only.
         function [this,job_ids,worker_controls]=split_and_register_jobs(this,job_param_list,n_workers)
             % given list of job parameters, divide jobs between workers, initialize
             % workers and register job info in the class for further job control

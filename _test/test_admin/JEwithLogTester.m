@@ -26,10 +26,10 @@ classdef JEwithLogTester < JobExecutor
             n_steps = control_struct.n_steps;
             step    = control_struct.step;
             step    = step+1;
-            mpi_state = MPI_State.instance();
-            is_deployed = mpi_state.is_deployed;
+            mpi_obj = MPI_State.instance();
+            is_deployed = mpi_obj.is_deployed;
             if is_deployed
-                mpi_state.logger(step,n_steps,0.01);
+                mpi_obj.do_logging(step,n_steps,0.01,[]);
             end
 
             this = this.return_results(step);

@@ -10,7 +10,7 @@ end
 step = ceil(n_jobs/n_workers);
 if step<1; step =1; end
 
-js = jobControlInfo(0);
+js = jobController(0);
 obj.running_jobs_=repmat(js,n_workers,1);
 job_ids = cell(n_workers,1);
 worker_controls = cell(n_workers,1);
