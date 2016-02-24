@@ -493,6 +493,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             %
             
             this= build_test_files(this);
+           
             
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             ds.efix=efix(1);
@@ -519,11 +520,12 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);                        
 
             je = gen_tmp_files_jobs('test_gen_sqw_sep_ses_do_job');                        
+            clob = onCleanup(@()(je.clear_all_messages()));
             je.do_job(job_param);
             
             assertTrue(exist(tmp_file,'file')==2);
             delete(tmp_file);
-            
+
         end
         
         

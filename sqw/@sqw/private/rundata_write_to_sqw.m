@@ -40,6 +40,8 @@ horace_info_level=get(hor_config,'horace_info_level');
 data = struct();
 det_buff=[];    % buffer of detector information
 
+mpi_obj= MPI_State.instance();
+running_mpi = mpi_obj.is_deployed;
 for i=1:nfiles
     if horace_info_level>-1 && write_banner
         disp('--------------------------------------------------------------------------------')
@@ -95,6 +97,10 @@ for i=1:nfiles
     % ----------------
     bigtic
     save(w,sqw_file{i});
+    
+    if running_mpi 
+        mpi_obj.do_logging(i,nfiles,[],[]);
+    end
     
     if horace_info_level>-1
         bigtoc('Time to save sqw data to file:',horace_info_level)
