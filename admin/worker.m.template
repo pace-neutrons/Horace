@@ -47,6 +47,8 @@ end
 %
 mis.logger = @(step,n_steps,time,add_info)...
     (je.log_progress(step,n_steps,time,add_info));
+
+mis.check_cancelled = @()(f_canc(je));
 %
 %
 try
@@ -78,4 +80,10 @@ if ~is_tested
     exit;
 end
 
+end
+
+function f_canc(job_executor)
+    if job_executor.is_job_cancelled()
+        error('MESSAGE_FRAMEWORK:cancelled','Messages framework has been cancelled or not initialized any more')
+    end
 end
