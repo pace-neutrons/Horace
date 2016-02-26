@@ -124,10 +124,13 @@ if use_separate_matlab
         job_distr_by_id,job_par);
     %----------------------------------------------------------------------
 else% Go serial.
-    for i=1:numel(zonelist)
+    n_zones = numel(zonelist);
+    for i=1:n_zones 
         % combine all inputs, necessary to convert coordinates of one zone
         % into the coordinates of other zone into signle compact structure;
         params  = job_par_fun(zoneid{i},zonelist{i},range{i});
+        params.n_zone = i;
+        params.n_tot_zones = n_zones;
         
         % move coordunates of current zone into specified coordinates
         zone_files{i} = move_zone1_to_zone0(params);
