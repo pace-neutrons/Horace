@@ -9,8 +9,11 @@ if ~isempty(new_message_name) && strcmpi(new_message_name,'failed')
     end
     obj=obj.set_failed(mess.payload);
     is_running=false;
+    obj.state_changed_ = true;
     return
 end
+
+cur_state = state2str_(obj);
 
 if obj.is_starting
     [obj,is_running] = verify_starting_changes(obj,mpi,new_message_name);
@@ -27,4 +30,9 @@ elseif obj.is_finished
     % should not receive anything from finished job. Let's ignore this
     % oddity
     is_running = false;
+end
+
+new_state = state2str_(obj);
+if ~strcmp(cur_state,new_state)
+    obj.state_changed_ = true;
 end

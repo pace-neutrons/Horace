@@ -10,21 +10,24 @@ catch ME
     return
 end
 try
-    this.job_ID_           = job_control_structe.job_id;
-    this.job_control_pref_ = job_control_structe.file_prefix;
+    this.job_ID_      = job_control_structe.job_id;    
+    new_control_pref_ = job_control_structe.file_prefix;
+    
     %
     root_cf = make_config_folder(this.exchange_folder_name);
-    job_folder = fullfile(root_cf,this.job_control_pref_);
+    job_folder = fullfile(root_cf,new_control_pref_);
+    % worker is not expected to create exchange folder
     if ~exist(job_folder,'dir')
         mess = sprintf('Exchange control folder %s does not exist',job_folder);
         return
     else % HACK! 
         % clear up all messages, which may be initated earlier, if this
-        % worker is not be related to them any more!
+        % worker will not be related to them any more!
         if ~strcmp(this.exchange_folder, job_folder)
             this.clear_all_messages();
         end
-        this.exchange_folder_ = job_folder;
+        this.job_control_pref_ = new_control_pref_;
+        this.exchange_folder_  = job_folder;
     end
 
     

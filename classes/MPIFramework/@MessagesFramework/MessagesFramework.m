@@ -177,6 +177,7 @@ classdef MessagesFramework
             %
             all_messages_names = list_all_messages_(obj,job_ids);
         end
+        %
         function [all_messages,job_ids] = receive_all_messages(obj,job_ids)
             % retrieve (and remove from system) all messages 
             % existing in the system for the jobs with id-s specified as input
@@ -190,8 +191,7 @@ classdef MessagesFramework
             %
             %
             [all_messages,job_ids] = receive_all_messages_(obj,job_ids);
-        end
-        
+        end        
         %------------------------------------------------------------------
         function preffix = get.job_control_pref(obj)
             % returns job control files prefix

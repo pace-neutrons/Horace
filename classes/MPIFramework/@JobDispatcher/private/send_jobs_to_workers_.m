@@ -64,23 +64,23 @@ pause(1);
 waiting_time = this.jobs_check_time;
 
 count = 0;
-[completed,n_failed,this]=check_jobs_status_(this);
+[completed,n_failed,~,this]=check_jobs_status_(this);
 while(~completed)
     if count == 0
         fprintf('**** Waiting for workers to finish their jobs ****\n')
-        print_job_progress_log_(this);
+        this.running_jobs_=print_job_progress_log_(this.running_jobs_);
     end
     pause(waiting_time);
-    [completed,n_failed,this]=check_jobs_status_(this);
+    [completed,n_failed,all_changed,this]=check_jobs_status_(this);
     count = count+1;
     fprintf('.')
-    if mod(count,50)==0
+    if mod(count,19)==0 || all_changed
         fprintf('\n')
-        print_job_progress_log_(this);
+        this.running_jobs_=print_job_progress_log_(this.running_jobs_);
     end
 end
 fprintf('\n')
-print_job_progress_log_(this);
+this.running_jobs_=print_job_progress_log_(this.running_jobs_);
 %--------------------------------------------------------------------------
 % retrieve outputs (if any)
 outputs = cell(n_workers,1);

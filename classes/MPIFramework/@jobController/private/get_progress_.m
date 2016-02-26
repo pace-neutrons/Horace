@@ -7,9 +7,9 @@ if ~ok
     if ~is_already_running
         obj = obj.set_failed(['Not able to retrieve "job_running" message. Err: ',...
             err]);
-    else % its possible that running message is beeing replaced while we are trying to read it
-        % at least, list_all_messages have seen it and here we do not. 
-        % ignore for the time being
+    else % its possible that running message is being replaced while we are trying to read it
+         % at least, list_all_messages have seen it and here we do not. 
+         % ignore for the time being
     end
 else
     obj.is_running = true;

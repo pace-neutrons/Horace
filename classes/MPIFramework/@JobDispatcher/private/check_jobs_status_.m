@@ -1,4 +1,4 @@
-function [completed,n_failed,this]= check_jobs_status_(this)
+function [completed,n_failed,all_changed,this]= check_jobs_status_(this)
 % Scan through the registered jobs list to identify the status of these jobs
 %
 % Report if all jobs were complteted or failed or how many jobs have
@@ -6,8 +6,10 @@ function [completed,n_failed,this]= check_jobs_status_(this)
 %
 %
 %
+all_changed = false;
 n_jobs = numel(this.running_jobs_);
 n_failed = 0;
+n_changed= 0;
 n_completed=n_jobs;
 % retrieve the names of all messages, present in the system and intended
 % for || originated from managed jobs
@@ -21,6 +23,9 @@ for id=1:n_jobs
     %
     job = this.running_jobs_(id);
     [job,is_running] = job.check_and_set_job_state(this,all_messages{id});
+    if job.state_changed
+        n_changed=n_changed+1;
+    end
     if is_running
         n_completed = n_completed-1;
     end
@@ -35,4 +40,7 @@ if n_failed == n_jobs || n_completed == n_jobs
     completed = true;
 else
     completed = false;
+end
+if n_changed == n_jobs
+    all_changed = true;
 end

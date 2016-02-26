@@ -7,16 +7,19 @@ classdef jobController
     properties(Dependent)
         % job number assigned by JobDispatcher
         job_id
-        %
+        % job states:
         is_starting
         is_running
         is_finished
         is_failed
-        % if job reports it progress
+        % property indicate that state of the job have changed
+        state_changed
+        % if job reports it progress. Enabling it allows to expect failure
+        % if reports do not come for a long time
         reports_progress
         % time to wait until next progress message appears before failing
         time_to_fail
-        % counts failed attempts to obrain something from a job
+        % counts failed attempts to obtain something from a job
         waiting_count
         % job outputs
         outputs
@@ -32,12 +35,15 @@ classdef jobController
         is_starting_=false
         is_failed_=false;
         %
+        state_changed_ = false;
+        %
         waiting_count_ = 0
         outputs_       = []
         fail_reason_   = [];
+        %
+        reports_progress_ = false;
         % time when waiting interval for the job, reporting results have
         % started.
-        reports_progress_ = false;
         waiting_interval_start_;
         estimatied_wait_time_=0;
         progress_info_ = [];
@@ -57,9 +63,16 @@ classdef jobController
             info = sprintf('JobN:%02d| %8s |',obj.job_id,obj.state2str());
             pi = obj.progress_info_;
             if obj.is_running && obj.reports_progress && ~isempty(pi )
-                time_left = (pi.n_steps-pi.step)*pi.time_per_step/60;
-                info = [info, sprintf('Step#%d/%d, Estimatied time left: %4.2f(min)| ',...
-                    pi.step,pi.n_steps,time_left),pi.add_info];
+                if pi.time_per_step == 0
+                    info = [info, sprintf('Step#%d/%d, Estimated time left:  Unknown | ',...
+                        pi.step,pi.n_steps),pi.add_info];
+                    
+                else
+                    time_left = (pi.n_steps-pi.step)*pi.time_per_step/60;
+                    info = [info, sprintf('Step#%d/%d, Estimated time left: %4.2f(min)| ',...
+                        pi.step,pi.n_steps,time_left),pi.add_info];
+                    
+                end
             elseif obj.is_failed
                 info = [info,obj.fail_reason_];
             end
@@ -140,8 +153,15 @@ classdef jobController
             is = obj.reports_progress_;
         end
         %
+        function is = get.state_changed(obj)
+            is = obj.state_changed_;
+        end
+        function obj = set.state_changed(obj,val)
+            obj.state_changed_=val;
+        end
+        %
         function time =get.time_to_fail(obj)
-            % returns time to wait until no information occuring from the
+            % returns time to wait until no information occurring from the
             % job until decided that job have failed
             if obj.reports_progress
                 if obj.estimatied_wait_time_ == 0
@@ -158,7 +178,7 @@ classdef jobController
         %------------------------------------------------------------------
         function [obj,is_running] = check_and_set_job_state(obj,mpi,new_message)
             % find the job state as function of its current state and
-            % message it receives from mpi framework
+            % message it receives from MPI framework
             %
             % changes the object internal information (e.g.
             % finished also reads job output and running may modify
@@ -167,9 +187,13 @@ classdef jobController
         end
         %------------------------------------------------------------------
         function is = is_wait_time_exceeded(obj)
-            % verify if job exceeded the wait time to send a message to the
-            % framework
+            % verify if job exceeded the time to send a message to the
+            % framework (framework have not received a message during
+            % time-out above)
             %
+            %
+            % waiting_interval_start_ and estimatied_wait_time_ are
+            % updated each time log message is received
             wait_time = toc(obj.waiting_interval_start_);
             if wait_time > obj.time_to_fail
                 is = true;
