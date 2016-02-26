@@ -2,7 +2,6 @@ classdef combine_equivalent_zones_job < JobExecutor
     %Class to convert partial zones to seleted one using separtate Matlab session
     %
     %
-    
     properties
     end
     
@@ -25,6 +24,8 @@ classdef combine_equivalent_zones_job < JobExecutor
             zone_id = zeros(n_zones,1);
             for ji = 1:n_zones
                 par = args(ji);
+                par.n_zone = ji;
+                par.n_tot_zones = n_zones;
                 zone_fnames{ji} = move_zone1_to_zone0(par);
                 zone_id(ji)     = par.zone_id;
             end

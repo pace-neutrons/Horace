@@ -109,6 +109,11 @@ if horace_info_level>=2
     disp('-----------------------------')
     fprintf(' Cut data from file started at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
 end
+% -------------------------------------------------------
+% check if this program runs in worker under MPI framework
+mpi_obj        =  MPI_State.instance();
+is_deployed_mpi = mpi_obj.is_deployed;
+% -------------------------------------------------------
 %
 pix_retained = {};
 pix_ix_retained={};
@@ -255,6 +260,11 @@ end
                     if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
                 end
                 if horace_info_level>=1, bigtic(1), end
+                % if program runs as mpi worker, check if it has been
+                % cancelled and throw if it was.
+                if is_deployed_mpi
+                    mpi_obj.check_cancellation();
+                end
             end
         end
         
