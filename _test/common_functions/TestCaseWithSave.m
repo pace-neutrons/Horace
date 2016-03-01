@@ -42,6 +42,12 @@ classdef TestCaseWithSave < TestCase
                 this.results_path=fileparts(mfilename('fullpath'));
                 inputFile = fullfile(this.results_path,this.results_filename);
             end
+            if strcmpi(name,'save')
+                this.want_to_save_output=true;
+            else
+                this.want_to_save_output=false;
+            end
+            
             %----------------------------------------------------------
             % TRANSIENT OPERATION! necessary (and valid) until data
             % class changes are not completed
@@ -53,7 +59,6 @@ classdef TestCaseWithSave < TestCase
             this.convert_class_funs{6} = @(x)(convert_old_d3d(this,x));
             this.convert_class_funs{7} = @(x)(convert_old_d4d(this,x));
             
-            this.want_to_save_output=false;
             
             % load old data if necessary
             if not(this.want_to_save_output) && exist(inputFile,'file')

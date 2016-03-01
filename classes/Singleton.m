@@ -1,5 +1,5 @@
 classdef Singleton < handle
-   %SINGLETON Abstract Class for Singleton OOP Design Pattern
+   %SINGLETON  Class for Singleton OOP Design Pattern
    %  Intent:  Ensures a class only has one instance and provide a
    %  global point of access to it [1].
    %  Motivation:  It's important for some classes to have exactly one
@@ -40,10 +40,13 @@ classdef Singleton < handle
    % Unique properties of Singleton.  This can be only accessed
    % with the getter/setter methods via any subclass of Singleton.
    properties(Access=private)
-      singletonData = [];
+      singletonData_ = [];
+   end
+   properties(Dependent)
+        singleton_data;
    end
    
-   methods(Abstract, Static)
+   methods(Static)
       % This method serves as the global point of access in creating a
       % single instance *or* acquiring a reference to the singleton.
       % If the object doesn't exist, create it otherwise return the
@@ -52,7 +55,13 @@ classdef Singleton < handle
       %    <none>
       % Output:
       %    obj = reference to a persistent instance of the class
-      obj = instance();
+      function obj = instance()
+        persistent stor;
+        if isempty(stor)
+            stor = Singleton();
+        end
+        obj = stor;
+      end
    end
    
    methods % Public Access
@@ -61,8 +70,8 @@ classdef Singleton < handle
       %   obj = reference to the singleton instance of the subclass
       % Output:
       %   singletonData = internal data store for Singleton object
-      function singletonData = getSingletonData(obj)
-         singletonData = obj.singletonData;
+      function data = get.singleton_data(obj)
+         data = obj.singletonData_;
       end
       
       % Accessor method for modifying the singleton data.
@@ -71,10 +80,14 @@ classdef Singleton < handle
       %   singletonData = new data to set internal data store
       % Output:
       %   <none>
-      function setSingletonData(obj, singletonData)
-         obj.singletonData = singletonData;
+      function set.singleton_data(obj, new_data)
+         obj.singletonData_ = new_data;
       end
       
+   end
+   methods(Access=private)
+        function obj = Singleton()
+        end
    end
 
 end

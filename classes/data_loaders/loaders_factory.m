@@ -1,4 +1,4 @@
-classdef loaders_factory < Singleton
+classdef loaders_factory < handle
     % The class responsible for providing and initiating requested file loader on
     % demand
     %

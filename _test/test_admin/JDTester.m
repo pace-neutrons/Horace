@@ -12,8 +12,8 @@ classdef JDTester < JobDispatcher
         function [this,job_ids,wc]=split_and_register_jobs_pub(this,job_param_list,n_workers)
             [this,job_ids,wc]=this.split_and_register_jobs(job_param_list,n_workers);            
         end
-        function [completed,n_failed,this]= check_jobs_status_pub(this)        
-                [completed,n_failed,this]= check_jobs_status(this);
+        function [completed,n_failed,all_changed,this]= check_jobs_status_pub(this)        
+                [completed,n_failed,all_changed,this]= check_jobs_status(this);
         end
         function info = init_worker_pub(this,job_id,arguments)
             info  = this.init_worker(job_id,arguments);

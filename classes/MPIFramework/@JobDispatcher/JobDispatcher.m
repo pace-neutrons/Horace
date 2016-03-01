@@ -155,10 +155,10 @@ classdef JobDispatcher < MessagesFramework
     end
     methods(Access=protected)
         
-        function [completed,n_failed,this]= check_jobs_status(this)
+        function [completed,n_failed,all_changed,this]= check_jobs_status(this)
             % an algorithm tries to identify jobs state on basis of their
             % outputs and behaviour
-            [completed,n_failed,this]= check_jobs_status_(this);
+            [completed,n_failed,all_changed,this]= check_jobs_status_(this);
         end
         function info = init_worker(this,job_id,arguments)
             % initialise a worker's info on the job dispatcher side

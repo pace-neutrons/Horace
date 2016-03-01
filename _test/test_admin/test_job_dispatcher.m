@@ -125,13 +125,14 @@ classdef test_job_dispatcher< TestCase
             %
             je = JEwithLogTester();
             [je,job_arguments,err_mess]=je.init_worker(worker_info{1});
-            assertTrue(isempty(err_mess));
-            MPI_State.instance().logger = @(step,n_steps,time)(je.log_progress(step,n_steps,time));
+            assertTrue(isempty(err_mess));           
+            mis.logger = @(step,n_steps,time,addmess)(je.log_progress(step,n_steps,time,addmess));
             
             
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertEqual(completed,false);
             assertEqual(n_failed,0);
+            assertTrue(all_changed);            
             
             ok = jd.job_state_is(1,'started');
             assertTrue(ok)
@@ -142,9 +143,10 @@ classdef test_job_dispatcher< TestCase
             ok = jd.job_state_is(1,'running');
             assertTrue(ok)
             
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
+            assertTrue(all_changed);            
             ok = jd.job_state_is(1,'running');
             assertFalse(ok)
             
@@ -226,12 +228,14 @@ classdef test_job_dispatcher< TestCase
             
             % this will never fail -- program will wait for running job
             % indefinetely
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            assertTrue(all_changed);            
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
+            assertTrue(all_changed);            
             
             
             % pick up starting message and do not provide anything else
@@ -240,21 +244,24 @@ classdef test_job_dispatcher< TestCase
             assertTrue(isempty(err_mess));
             
             %should fail after three checks
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
-            [~,~,jd] = jd.check_jobs_status_pub();
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            assertTrue(all_changed);
+            
+            [~,~,~,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertTrue(completed);
             assertEqual(n_failed,1);
+            assertTrue(all_changed);
+            
             %
             job_run_info = jd.job_control_structure;
             assertTrue(job_run_info(1).is_failed)
             assertEqual(job_run_info(1).fail_reason,'Timeout waiting for job_completed message');
             
-            
-            jd.clear_all_messages();
-            
+           
+           
         end
         %
         function test_split_job_list(this)
@@ -276,9 +283,10 @@ classdef test_job_dispatcher< TestCase
             ok = jd.job_state_is(1,'starting');
             assertTrue(ok);
             
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
+            assertFalse(all_changed);
             %-------------------------------------------------------------
             
             job_param_list = {'aaa',[1,2,3,4],'s',10};
@@ -300,9 +308,10 @@ classdef test_job_dispatcher< TestCase
             assertEqual(job_ids{1},[1,2]);
             assertEqual(job_ids{2},[3,4]);
             
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
+            assertFalse(all_changed);           
             %-------------------------------------------------------------
             [jd,job_ids,wc] = jd.split_and_register_jobs_pub(job_param_list,3);
             assertTrue(iscellstr(wc));
@@ -321,10 +330,10 @@ classdef test_job_dispatcher< TestCase
             assertEqual(job_ids{1},[1,2]);
             assertEqual(job_ids{2},[3,4]);
             
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
-            
+            assertFalse(all_changed);            
             %-------------------------------------------------------------
             
             [jd,job_ids,wc] = jd.split_and_register_jobs_pub(job_param_list,4);
@@ -353,9 +362,10 @@ classdef test_job_dispatcher< TestCase
             assertEqual(job_ids{3},3);
             assertEqual(job_ids{4},4);
             
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
+            assertFalse(all_changed);            
             %-------------------------------------------------------------
             [jd,job_ids,wc] = jd.split_and_register_jobs_pub(job_param_list,5);
             assertTrue(iscellstr(wc));
@@ -383,21 +393,24 @@ classdef test_job_dispatcher< TestCase
             assertEqual(job_ids{3},3);
             assertEqual(job_ids{4},4);
             
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
+            assertFalse(all_changed);            
             %-------------------------------------------------------------
             tf = jd.time_to_fail;
             jd.jobs_check_time = tf;
             % this will set time check counter to 2 and we already have one
             % tick. Two ticks more would exceed job fail counter
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
             assertEqual(n_failed,0);
+            assertFalse(all_changed);           
             
-            [completed,n_failed,jd] = jd.check_jobs_status_pub();
+            [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertTrue(completed);
             assertEqual(n_failed,4);
+            assertTrue(all_changed);
             
             job_run_info = jd.job_control_structure;
             assertTrue(job_run_info(1).is_failed)
