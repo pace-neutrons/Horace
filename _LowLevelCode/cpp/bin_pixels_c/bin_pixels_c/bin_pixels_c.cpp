@@ -189,12 +189,12 @@ bool bin_pixels(double *s, double *e, double *npix,
     std::vector<mwSize> nGridCell(data_size);
     //  memory to sort pixels according to the grid bins
     std::vector<mwSize >  ppInd(distribution_size);
-#ifndef OMP_VERSION_3
-    //std::vector<std::mutex> cell_cnt_mutex(distribution_size);
-    std::vector<omp_lock_t> cell_cnt_mutex(distribution_size);
+#ifdef C_MUTEXES
+    std::vector<std::mutex> cell_cnt_mutex(distribution_size);
+    /*std::vector<omp_lock_t> cell_cnt_mutex(distribution_size);
     for (size_t i = 0; i < distribution_size; i++) {
         omp_init_lock(&(cell_cnt_mutex[i]));
-    }
+    }*/
 #endif
 
     bool place_pixels_in_old_array(false); // true does not works properly
@@ -248,12 +248,19 @@ bool bin_pixels(double *s, double *e, double *npix,
     tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained,\
     s, e, npix,comb_size)\
     firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
-#else
+#endif
+#ifdef C_MUTEXES
 #pragma omp parallel default(none)  \
     shared(pixel_data, ok, nGridCell, pStor, ppInd, \
     tPixelSorted,pPixelSorted,pPixels, PixelSorted, pix_retained,nPixel_retained, \
     s, e, npix, cell_cnt_mutex,comb_size)\
-    firstprivate(data_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR) 
+    firstprivate(data_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
+#else
+#pragma omp parallel default(none) \
+    shared(pixel_data, ok, nGridCell, pStor, ppInd, \
+    tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained,\
+    s, e, npix,comb_size)\
+    firstprivate(num_threads,data_size,distribution_size,nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
 #endif
     {
 #pragma omp for 
@@ -331,6 +338,7 @@ bool bin_pixels(double *s, double *e, double *npix,
         //    % Sort into increasing bin number and return indexing array
         //    % (treat only the contributing pixels: if the the grid is much smaller than the extent of the data this will be faster)
         //    sqw_data.pix=sqw_data.pix(:,ix);
+#pragma omp barrier
 #pragma omp single
         {
             ppInd[0] = 0;
@@ -345,29 +353,36 @@ bool bin_pixels(double *s, double *e, double *npix,
         }
         //size_t Block_Size = sizeof(*pixel_data)*pix_fields::PIX_WIDTH;
 
-//#pragma omp barrier
-//#pragma omp for
+
+
+#pragma omp barrier
+#ifdef OMP_VERSION_3
+#pragma omp for
+#endif
+#ifdef C_MUTEXES
+#pragma omp for
+#else
 #pragma omp single
+#endif
         for (long j = 0; j < data_size; j++)
         {
             if (!ok[j])continue;
 
             size_t nCell = nGridCell[j];   // this is the index of a pixel in the grid cell
-
-
-#ifdef OMP_VERSION_3
             size_t j0;
-//#pragma omp atomic capture
-//#pragma omp critical
+#ifdef OMP_VERSION_3
+
+            #pragma omp atomic capture
             j0 = ppInd[nCell]++; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+#endif
 
+
+#ifdef C_MUTEXES
+            cell_cnt_mutex[nCell].lock();
+            j0 = ppInd[nCell]++;
+            cell_cnt_mutex[nCell].unlock();
 #else
-            //cell_cnt_mutex[nCell].lock();
-            omp_set_lock(&(cell_cnt_mutex[nCell]));
-            size_t j0 = ppInd[nCell]++;
-            omp_unset_lock(&(cell_cnt_mutex[nCell]));
-            //cell_cnt_mutex[nCell].unlock();
-
+            j0 = ppInd[nCell]++;
 #endif
             copy_pixels(pixel_data,j,pPixelSorted,j0);
         }
@@ -395,6 +410,7 @@ bool bin_pixels(double *s, double *e, double *npix,
                 pPixels = mxGetPr(PixelSorted);
             }
             // copy pixels info from heap to Matlab controlled memory;
+            #pragma omp barrier
             #pragma omp for
             for (long i = 0; i < nPixel_retained*pix_fields::PIX_WIDTH; i++) {
                 pPixels[i] = pPixelSorted[i];
@@ -411,3 +427,4 @@ bool bin_pixels(double *s, double *e, double *npix,
 }
 
 #undef OMP_VERSION_3
+#undef C_MUTEXES
