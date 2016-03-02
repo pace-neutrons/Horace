@@ -2,12 +2,12 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
     % Series of tests of gen_sqw and associated functions
     % Optionally writes results to output file
     %
-    %   >>runtests test_gen_sqw_accumulate_sqw          % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
-    %                                           % in the same folder as this function
-    %                                        % in the same folder as this function
-    %   >> test_gen_sqw_accumulate_sqw ('save') % Save to appropriate test
-    %                                            file with extension .mat
-    
+    %   >> runtests test_gen_sqw_accumulate_sqw    % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
+    %                                              % in the same folder as this function
+    %
+    %   >>tc=test_gen_sqw_accumulate_sqw ('save')  % Store sample
+    %   >>tc.save()                                % results into tmp folder
+    %
     % Reads previously created test data sets.
     properties
         test_data_path;
@@ -36,7 +36,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             %
             %   >> test_gen_sqw_accumulate_sqw          % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
             %                                           % in the same folder as this function
-            %   >> test_gen_sqw_accumulate_sqw ('save') % Save to test_multifit_horace_1_output.mat
+            %   >>tc=test_gen_sqw_accumulate_sqw ('save')
+            %  >>tc.save()                              % Save to test_multifit_horace_1_output.mat
             %
             % Reads previously created test data sets.
             

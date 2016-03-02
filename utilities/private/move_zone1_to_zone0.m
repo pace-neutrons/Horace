@@ -17,8 +17,8 @@ try
         error('Source file %s does not exist',param.data_source);
     end
     cut_range = param.cut_ranges;
-    integrated = cellfun(@(x)(isinf(x(1))||isinf(x(2))),cut_range);
-    cut_range = cut_range(~integrated);
+    %integrated = cellfun(@(x)(isinf(x(1))||isinf(x(2))),cut_range);
+    %cut_range = cut_range(~integrated);
     cut_ranges = cellfun(@(x)[x(1),x(end)],cut_range(1:end-1),'UniformOutput',false);
     ei_range = cut_range{end};
     cut_ranges{end+1} = [ei_range(1),0,ei_range(end)];
