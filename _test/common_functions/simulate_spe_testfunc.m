@@ -61,7 +61,7 @@ end
 
 rand_like('start',seed);  % set reproducible starting point in sequence
 if seed_defined
-    par = [0,1,true,seed];
+    par = [0,1,false,seed];
 else
     par = [0,1,true];
 end
@@ -74,9 +74,31 @@ if ~seed_defined
     seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');    
     save(seeds_file,'rnd_storage');
 end
+%----- store seed for second random function
+if seed_defined
+    seed_key = [seed_key,'_fun'];
+    if isfield(rnd_storage.seeds,seed_key)
+        seed = rnd_storage.seeds.(seed_key);
+    else
+        seed_defined = false;
+        rnd_storage.seeds.(seed_key) = 0;
+    end
+end
+if seed_defined    
+    par = [0,1,false,seed];
+else
+    par = [0,1,true];
+end
 
-par = [0,1,false];
 wran=sqw_eval(wcalc,@sqw_rand_like,par);
+
+if ~seed_defined
+    si = Singleton.instance();   
+    rnd_storage.seeds.(seed_key) = si.singleton_data;
+    seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');    
+    save(seeds_file,'rnd_storage');
+end
+
 wcalc.data.pix(9,:)=(0.05*peak*scale)*(1+wran.data.pix(8,:));
 
 % Convert to equivalent spe data
