@@ -215,6 +215,12 @@ classdef TestCaseWithSave < TestCase
                             convertor = this.convert_class_funs{class_to_convert_found};
                             ref_data = convertor(ref_data);
                         end
+                        %try
+                        %    detpar = ws_list{i}.detpar;
+                        %    ref_data.detpar.width = detpar.width;
+                        %    ref_data.detpar.height = detpar.height;                            
+                        %catch
+                        %end                        
                         
                     end
                     % always compare sorted pixels, as pix averages over
