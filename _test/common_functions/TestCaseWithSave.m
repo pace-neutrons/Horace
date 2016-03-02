@@ -51,13 +51,15 @@ classdef TestCaseWithSave < TestCase
             %----------------------------------------------------------
             % TRANSIENT OPERATION! necessary (and valid) until data
             % class changes are not completed
-            this.convert_class_funs{1} = @(x)(convert_old_sqw_to_new_sqw(this,x));
-            this.convert_class_funs{2} = @(x)(convert_old_dnd_to_new_dnd(this,x));
-            this.convert_class_funs{3} = @(x)(convert_old_data_sqw_dnd(this,x));
-            this.convert_class_funs{4} = @(x)(convert_old_d1d(this,x));
-            this.convert_class_funs{5} = @(x)(convert_old_d2d(this,x));
-            this.convert_class_funs{6} = @(x)(convert_old_d3d(this,x));
-            this.convert_class_funs{7} = @(x)(convert_old_d4d(this,x));
+            %this.convert_class_funs{1} = @(x)(convert_old_sqw_to_new_sqw(this,x));
+            %this.convert_class_funs{2} = @(x)(convert_old_dnd_to_new_dnd(this,x));
+            %this.convert_class_funs{3} = @(x)(convert_old_data_sqw_dnd(this,x));
+            %this.convert_class_funs{4} = @(x)(convert_old_d1d(this,x));
+            %this.convert_class_funs{5} = @(x)(convert_old_d2d(this,x));
+            %this.convert_class_funs{6} = @(x)(convert_old_d3d(this,x));
+            %this.convert_class_funs{7} = @(x)(convert_old_d4d(this,x));
+            this.convert_class_funs = cell(7,1);
+            this.convert_class_funs(:)={@(x)(dummy_converter(this,x))};
             
             
             % load old data if necessary
@@ -68,6 +70,9 @@ classdef TestCaseWithSave < TestCase
             
         end
         %------------------------------------------------------------------
+        function new_sqw = dummy_converter(this,old_sqw)
+            new_sqw = old_sqw;
+        end
         function new_sqw=convert_old_sqw_to_new_sqw(this,old_sqw)
             old_data = struct(old_sqw.data);
             
