@@ -54,11 +54,11 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             end           
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
             
-            if ispc
-                this.tol= 1.e-6;
-            else
-                this.tol = 1.e-3;
-            end
+            %if ispc
+            %    this.tol= 1.e-6;
+            %else
+            %    this.tol = 1.e-3;
+            %end
             
             
             % do overloading mex/nomex
@@ -93,7 +93,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 this.spe_file{i}=fullfile(tempdir,['gen_sqw_acc_sqw_spe_',pref,num2str(i),'.nxspe']);
             end
             
-            this.par_file=fullfile(this.results_path,'96dets.par');
+            %this.par_file=fullfile(this.results_path,'96dets.par');
+            this.par_file=fullfile(this.results_path,'gen_sqw_96dets.nxspe');
             
             % initiate test parameters
             en=cell(1,this.nfiles_max);
@@ -248,13 +249,13 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             for i=1:this.nfiles_max
-                gen_sqw (this.spe_file(i), this.par_file, sqw_file{i}, efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),[3,3,3,3]);
+                gen_sqw (this.spe_file(i), '', sqw_file{i}, efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),[3,3,3,3]);
             end
             
             
-            [dummy,grid,urange1]=gen_sqw (this.spe_file, this.par_file, sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [dummy,grid,urange1]=gen_sqw (this.spe_file, '', sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             
-            [dummy,grid,urange2]=gen_sqw (this.spe_file([1,4,5,6,2,3]), this.par_file, sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg, u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
+            [dummy,grid,urange2]=gen_sqw (this.spe_file([1,4,5,6,2,3]), '', sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg, u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
             
             assertElementsAlmostEqual(urange1,urange2,'relative',1.e-6);
             
@@ -292,7 +293,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             this=build_test_files(this);
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             try
-                gen_sqw (this.spe_file([1,5,4,5,6]), this.par_file, sqw_file_15456, efix([1,5,4,5,6]), emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]), dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]), 'replicate');
+                gen_sqw (this.spe_file([1,5,4,5,6]), '', sqw_file_15456, efix([1,5,4,5,6]), emode, alatt, angdeg, u, v, psi([1,5,4,5,6]), omega([1,5,4,5,6]), dpsi([1,5,4,5,6]), gl([1,5,4,5,6]), gs([1,5,4,5,6]), 'replicate');
                 ok=false;
             catch
                 ok=true;
@@ -318,7 +319,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % Repeat a file
             spe_accum={this.spe_file{1},'',this.spe_file{5},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
             try
-                accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+                accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
                 ok=false;
             catch
                 ok=true;
@@ -356,7 +357,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % ---------------------------------------------------------------------------
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             
-            [dummy,dummy,urange14]=gen_sqw (this.spe_file([1,4]), this.par_file, sqw_file_14, efix([1,4]), emode, alatt, angdeg, u, v, psi([1,4]), omega([1,4]), dpsi([1,4]), gl([1,4]), gs([1,4]));
+            [dummy,dummy,urange14]=gen_sqw (this.spe_file([1,4]), '', sqw_file_14, efix([1,4]), emode, alatt, angdeg, u, v, psi([1,4]), omega([1,4]), dpsi([1,4]), gl([1,4]), gs([1,4]));
             
             % Now use accumulate sqw
             % ----------------------
@@ -364,7 +365,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             this.proj.v=v;
             
             spe_accum={this.spe_file{1},'','',this.spe_file{4}};
-            [dummy,dummy,acc_urange14]=accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix(1:4), ...
+            [dummy,dummy,acc_urange14]=accumulate_sqw (spe_accum, '', sqw_file_accum,efix(1:4), ...
                 emode, alatt, angdeg, u, v, psi(1:4), omega(1:4), dpsi(1:4), gl(1:4), gs(1:4),'clean');
             
             
@@ -408,7 +409,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             % ---------------------------------------------------------------------------
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             
-            [dummy,dummy,urange1456]=gen_sqw (this.spe_file([1,4,5,6]), this.par_file,sqw_file_1456, efix([1,4,5,6]), emode, alatt, angdeg, u, v,...
+            [dummy,dummy,urange1456]=gen_sqw (this.spe_file([1,4,5,6]), '',sqw_file_1456, efix([1,4,5,6]), emode, alatt, angdeg, u, v,...
                 psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));
             
             
@@ -418,7 +419,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             this.proj.v=v;
             
             spe_accum={this.spe_file{1},'','',this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            [dummy,dummy,acc_urange1456]=accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [dummy,dummy,acc_urange1456]=accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             
             % This is actually bad as urange is not really close
             if ~this.want_to_save_output
@@ -460,7 +461,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             
             
-            [dummy,dummy,urange]=gen_sqw (this.spe_file([1,1,4,5,6]), this.par_file, sqw_file_11456, efix([1,3,4,5,6]), ...
+            [dummy,dummy,urange]=gen_sqw (this.spe_file([1,1,4,5,6]), '', sqw_file_11456, efix([1,3,4,5,6]), ...
                 emode, alatt, angdeg, u, v, psi([1,3,4,5,6]), omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]), 'replicate');
             
             
@@ -471,7 +472,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             
             % Repeat a file with 'replicate'
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
+            accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
             [ok,mess,w2_11456]=is_cut_equal(sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
@@ -484,7 +485,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             
             % Accumulate nothing:
             spe_accum={this.spe_file{1},'',this.spe_file{1},this.spe_file{4},this.spe_file{5},this.spe_file{6}};
-            accumulate_sqw (spe_accum, this.par_file, sqw_file_accum, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
+            accumulate_sqw (spe_accum, '', sqw_file_accum, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
         end
