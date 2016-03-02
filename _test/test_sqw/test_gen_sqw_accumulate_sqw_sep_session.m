@@ -46,6 +46,12 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             end
             
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
+            if ispc
+                this.tol= 1.e-6;
+            else
+                this.tol = 1.e-3;
+            end
+            
             
             % do overloading mex/nomex
             hc = hor_config();

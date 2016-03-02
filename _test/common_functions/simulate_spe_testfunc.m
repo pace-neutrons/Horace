@@ -13,8 +13,8 @@ function spe_file=simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, 
 persistent rnd_storage;
 if isempty(rnd_storage)
     rnd_storage = struct();
-    rnd_storage.dir = fileparts(which('simulate_spe_testfunc.m'));
-    seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');
+    seed_dir = fileparts(which('simulate_spe_testfunc.m'));
+    seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
     if exist(seeds_file,'file')==2
         rnd_storage = load(seeds_file);
         rnd_storage = rnd_storage.rnd_storage;
@@ -58,7 +58,7 @@ peak=max(abs(wcalc.data.pix(8,:)));
 if peak==0
     peak=10; % Case of all signal==0
 end
-
+%peak = 0; -- make it not-random
 
 if seed_defined
     par = [0,1,false,seed];

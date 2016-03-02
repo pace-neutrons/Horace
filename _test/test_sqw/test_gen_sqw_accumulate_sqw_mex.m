@@ -51,9 +51,15 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 pref = varargin{2};
             else
                 pref = 'mex';
+            end           
+            this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
+            
+            if ispc
+                this.tol= 1.e-6;
+            else
+                this.tol = 1.e-3;
             end
             
-            this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_accumulate_sqw_output.mat'));
             
             % do overloading mex/nomex
             this.prefix = pref;
