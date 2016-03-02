@@ -18,12 +18,12 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             % Series of tests of gen_sqw and associated functions
             % Optionally writes results to output file
             %
-            %   >> test_gen_sqw_accumulate_sqw          % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
+            %>> runtests test_gen_sqw_accumulate_sqw    % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
             %                                           % in the same folder as this function
-            %   >> test_gen_sqw_accumulate_sqw ('save')
+            %>>tc=test_gen_sqw_accumulate_sqw ('save')  % Stores sample
+            %>>tc.save()                                %results into tmp folder
             %
             % Reads previously created test data sets.
-            
             % constructor
             if nargin > 0
                 name = varargin{1};
@@ -33,7 +33,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             this = this@test_gen_sqw_accumulate_sqw_mex(name,'nomex');
             
         end
-  
+        
         
         function this=test_gen_sqw_threading(this)
             % check mex/nomex and compare to one cut
@@ -86,7 +86,7 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             
             % build test files if they have not been build
             this=build_test_files(this,true,spe1_file_names);
-            %hc.threads = 8;            
+            %hc.threads = 8;
             gen_sqw (spe1_file_names, this.par_file, sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %
             % Test results

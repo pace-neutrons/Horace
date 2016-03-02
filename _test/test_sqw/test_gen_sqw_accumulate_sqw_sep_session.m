@@ -1,13 +1,12 @@
 classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
     % Series of tests of gen_sqw and associated functions
     % Optionally writes results to output file
+    %   >> runtests test_gen_sqw_accumulate_sqw          % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
+    %                                                    % in the same folder as this function
+    %   >>tc=test_gen_sqw_accumulate_sqw ('save')  % Stores sample
+    %   >>tc.save()                                %results into tmp folder
     %
-    %   >>runtests test_gen_sqw_accumulate_sqw_sep_session     % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
-    %                                           % in the same folder as this function
-    %                                        % in the same folder as this function
-    %   >> test_gen_sqw_accumulate_sqw_sep_session('save') % Save to appropriate test
-    %                                            file with extension .mat
-    
+    % Reads previously created test data sets.
     % Reads previously created test data sets.
     properties
         test_data_path;
@@ -194,7 +193,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             % build test files if they have not been build
             this=build_test_files(this);
             % generate the names of the output sqw files
-           
+            
             sqw_file=cell(1,this.nfiles_max);
             for i=1:this.nfiles_max
                 sqw_file{i}=fullfile(tempdir,['test_gen_sqw_multisession',num2str(i),'.sqw']);    % output sqw file
@@ -210,7 +209,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             % ---------------------------------------
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
-            %hc.threads = 1;            
+            %hc.threads = 1;
             for i=1:this.nfiles_max
                 gen_sqw (this.spe_file(i), this.par_file, sqw_file{i}, efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),[3,3,3,3]);
             end
@@ -426,8 +425,8 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         function test_worker(this)
             mis = MPI_State.instance();
             mis.is_tested = true;
-            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));           
-                      
+            clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
+            
             
             this= build_test_files(this);
             
@@ -443,16 +442,16 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             ds.angdeg=angdeg;
             ds.u = u;
             ds.v = v;
-
+            
             job_par_fun = @(run,fname,instr,samp)(gen_tmp_files_jobs.pack_job_pars(...
                 run,fname,instr,samp,...
-                [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]));                       
+                [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
             
             %
             [path,file] = fileparts(this.spe_file{1});
             tmp_file1 = fullfile(path,[file,'.tmp']);
             run1=rundata(this.spe_file{1},this.par_file,ds);
-
+            
             
             %
             [path,file] = fileparts(this.spe_file{2});
@@ -465,13 +464,13 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             intst = this.instrum(1:2);
             job_param_list = cellfun(job_par_fun,...
-            runs',tmpf,num2cell(intst),num2cell(samp),...
-            'UniformOutput', true);
+                runs',tmpf,num2cell(intst),num2cell(samp),...
+                'UniformOutput', true);
             
-           
-            jd = JobDispatcher('test_gen_sqw_sep_ses_worker');            
+            
+            jd = JobDispatcher('test_gen_sqw_sep_ses_worker');
             [~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
-                   
+            
             worker('gen_tmp_files_jobs',wc{1});
             
             assertTrue(exist(tmp_file1,'file')==2);
@@ -480,7 +479,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             delete(tmp_file2);
             [ok,err,mes] = jd.receive_message(1,'completed');
             assertTrue(ok);
-            assertTrue(isempty(err));            
+            assertTrue(isempty(err));
             res = mes.payload;
             assertEqual(res.grid_size,[50 50 50 50]);
             assertElementsAlmostEqual(res.urange,...
@@ -493,7 +492,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             %
             
             this= build_test_files(this);
-           
+            
             
             [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             ds.efix=efix(1);
@@ -511,21 +510,21 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             tmp_file = fullfile(path,[file,'.tmp']);
             
             run=rundata(this.spe_file{1},this.par_file,ds);
-                                                
+            
             
             job_par_fun = @(run,fname,instr,samp)(gen_tmp_files_jobs.pack_job_pars(...
                 run,fname,instr,samp,...
                 [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]));
             
-            job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);                        
-
-            je = gen_tmp_files_jobs('test_gen_sqw_sep_ses_do_job');                        
+            job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);
+            
+            je = gen_tmp_files_jobs('test_gen_sqw_sep_ses_do_job');
             clob = onCleanup(@()(je.clear_all_messages()));
             je.do_job(job_param);
             
             assertTrue(exist(tmp_file,'file')==2);
             delete(tmp_file);
-
+            
         end
         
         

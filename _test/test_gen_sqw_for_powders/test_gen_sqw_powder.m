@@ -1,10 +1,10 @@
 classdef test_gen_sqw_powder < TestCaseWithSave
     %function test_gen_sqw_powder(varargin)
     % Test powder sqw file
-    %   >> test_gen_sqw_powder           % Compare with previously saved results in test_gen_sqw_powder_output.mat
-    %                                    % in the same folder as this function
-    %   >> test_gen_sqw_powder ('save')  % Save to test_gen_sqw_powder_output.mat in tempdir (type >> help tempdir
-    %                                    % for information about the system specific location returned by tempdir)
+    %>> runtests test_gen_sqw_powder      % Compare with previously saved results in test_gen_sqw_powder_output.mat
+    %                                     % in the same folder as this function
+    %>> tc = test_gen_sqw_powder ('save') % Save to test_gen_sqw_powder_output.mat in tempdir (type >> help tempdir
+    %>> tc.save()                         % for information about the system specific location returned by tempdir)
     %
     % Author: T.G.Perring
     properties
