@@ -80,14 +80,14 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             % ---------------
             this.proj.u=[1,0,0.1]; this.proj.v=[0,0,1];
             hc.threads = 1;
-            gen_sqw (spe8_file_names, this.par_file, sqw_file_123_t8, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            gen_sqw (spe8_file_names, '', sqw_file_123_t8, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             
             
             
             % build test files if they have not been build
             this=build_test_files(this,true,spe1_file_names);
             %hc.threads = 8;
-            gen_sqw (spe1_file_names, this.par_file, sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            gen_sqw (spe1_file_names, '', sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %
             % Test results
             obj_m8=read_sqw(sqw_file_123_t8);
