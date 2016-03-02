@@ -59,19 +59,20 @@ if peak==0
     peak=10; % Case of all signal==0
 end
 
-rand_like('start',seed);  % set reproducible starting point in sequence
+
 if seed_defined
     par = [0,1,false,seed];
 else
     par = [0,1,true];
+    rand_like('start',seed);  % set reproducible starting point in sequence
 end
 wran=sqw_eval(wcalc,@sqw_rand_like,par); % range is -0.5 to +0.5
 wcalc.data.pix(8,:)=wcalc.data.pix(8,:)+(0.1*peak)*wran.data.pix(8,:);  % spread is 10% of peak
 
 if ~seed_defined
-    si = Singleton.instance();   
+    si = Singleton.instance();
     rnd_storage.seeds.(seed_key) = si.singleton_data;
-    seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');    
+    seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');
     save(seeds_file,'rnd_storage');
 end
 %----- store seed for second random function
@@ -84,7 +85,7 @@ if seed_defined
         rnd_storage.seeds.(seed_key) = 0;
     end
 end
-if seed_defined    
+if seed_defined
     par = [0,1,false,seed];
 else
     par = [0,1,true];
@@ -93,9 +94,9 @@ end
 wran=sqw_eval(wcalc,@sqw_rand_like,par);
 
 if ~seed_defined
-    si = Singleton.instance();   
+    si = Singleton.instance();
     rnd_storage.seeds.(seed_key) = si.singleton_data;
-    seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');    
+    seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');
     save(seeds_file,'rnd_storage');
 end
 
@@ -141,7 +142,7 @@ else
     seed = par(4);
 end
 store = par(3);
-rand_like('start',seed);   % change seed
+rand_like('start',seed);   % set reproducible starting point in sequence
 
 % Get weight
 weight=(par(1)-par(2)/2) + par(2)*rand_like(size(qh));
