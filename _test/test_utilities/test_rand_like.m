@@ -22,9 +22,26 @@ classdef test_rand_like< TestCase
         end
         
         function test_rand_like_consistency(this)
-             rand_like('start',42);
-             test_seq = rand_like([64*1024,1]);             
-             assertEqual(test_seq,this.ref_seq);
+            rand_like('start',42);
+            test_seq = rand_like([64*1024,1]);
+            assertEqual(test_seq,this.ref_seq);
+        end
+        function test_consistency2(this)
+            seeds_data= load(fullfile(this.this_folder,'sim_spe_testfun_seeds_file.mat'));
+            seed1 = seeds_data.rnd_storage.seeds.gen_sqw_acc_sqw_spe_nomex1;
+            seed2 = seeds_data.rnd_storage.seeds.gen_sqw_acc_sqw_spe_nomex1_fun;
+            rand_like('start',seed1);
+            seq1=rand_like([13921,1]);
+            rand_like('start',seed2);
+            seq2=rand_like([13921,1]);
+            sample_file = fullfile(this.this_folder,'rand_like_ref_sequence2.mat');
+            if exist(sample_file,'file')==2
+                ref = load(sample_file);
+                assertEqual(ref.seq1,seq1);
+                assertEqual(ref.seq2,seq2);
+            else
+                save(sample_file,'seq1','seq2');
+            end
         end
         
     end
