@@ -40,7 +40,7 @@ classdef test_a_loader< TestCase
             
             [fp,fn,fext]=fileparts(al1.par_file_name);
             assertEqual('demo_par',fn);
-            assertEqual('.par',fext);
+            assertTrue(strcmpi('.par',fext));
             
             [par,al1]=al1.load_par();
             assertEqual({'det_par','n_detectors'},al1.defined_fields());

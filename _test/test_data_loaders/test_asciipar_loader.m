@@ -21,7 +21,7 @@ classdef test_asciipar_loader< TestCase
             
             [fp,fn,fext]=fileparts(al1.par_file_name);
             assertEqual('demo_par',fn);
-            assertEqual('.par',fext);
+            assertTrue(strcmpi('.par',fext));
             
             [par,al1]=al1.load_par();
             
@@ -137,7 +137,7 @@ classdef test_asciipar_loader< TestCase
         end
         function test_get_par_info(this)
             
-            par_file = fullfile(this.test_data_path,'demo_par.par');
+            par_file = fullfile(this.test_data_path,'demo_par.PAR');
             ndet = asciipar_loader.get_par_info(par_file);
             assertEqual(28160,ndet)
             
