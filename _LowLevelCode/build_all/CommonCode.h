@@ -37,13 +37,13 @@ extern bool utIsInterruptPending();
 extern bool ioFlush(void);
 #endif
 
-
-
-
+// something strange is happening with parallel pixels copying. Let's 
+// disable if for the time being
+#define SINGLE_PATH
 # if __GNUC__ > 4 || (__GNUC__ == 4)&&(__GNUC_MINOR__ > 4)
     #define  OMP_VERSION_3
+    //#define C_MUTEXES
 #else
-    #define SINGLE_PATH
     #define C_MUTEXES
 #endif
 //

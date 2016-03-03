@@ -27,6 +27,7 @@ else
     seed_defined = true;
 end
 %-----------------------------------------------------------------
+%----- store/restore seed for random signal function
 [~,seed_key] = fileparts(spe_file);
 if seed_defined
     if isfield(rnd_storage.seeds,seed_key)
@@ -75,7 +76,7 @@ if ~seed_defined
     seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');
     save(seeds_file,'rnd_storage');
 end
-%----- store seed for second random function
+%----- store seed for random error function
 if seed_defined
     seed_key = [seed_key,'_fun'];
     if isfield(rnd_storage.seeds,seed_key)
