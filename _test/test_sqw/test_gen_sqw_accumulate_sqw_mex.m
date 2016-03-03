@@ -68,7 +68,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
                 [mess,n_errors]=check_horace_mex();
                 if n_errors>0
                     this.skip_tests=true;
-                    warnings('TEST_GEN_SQW_ACC_SQW:mex_mode',' mex mode disabled as mex code does not work, Err: %s',mess);
+                    warning('TEST_GEN_SQW_ACC_SQW:mex_mode',' mex mode disabled as mex code does not work, Err: %s',mess);
                 else
                     this.skip_tests=false;
                 end
