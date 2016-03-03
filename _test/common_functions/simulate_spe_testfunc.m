@@ -10,18 +10,19 @@ function spe_file=simulate_spe_testfunc (en, par_file, spe_file, sqwfunc, pars, 
 % T.G.Perring
 
 % store/restore complex rnd seeds, which may be different for different OS
-persistent rnd_storage;
-if isempty(rnd_storage)
-    rnd_storage = struct();
+
+persistent seeds_store;
+if isempty(seeds_store)
     seed_dir = fileparts(which('simulate_spe_testfunc.m'));
     seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
+    
     if exist(seeds_file,'file')==2
-        rnd_storage = load(seeds_file);
-        rnd_storage = rnd_storage.rnd_storage;
+        storage = load(seeds_file);
+        seeds_store = storage.seeds_store;
         seed_defined = true;
     else
         seed_defined = false;
-        rnd_storage.seeds = struct();
+        seeds_store = struct();
     end
 else
     seed_defined = true;
@@ -30,11 +31,11 @@ end
 %----- store/restore seed for random signal function
 [~,seed_key] = fileparts(spe_file);
 if seed_defined
-    if isfield(rnd_storage.seeds,seed_key)
-        seed = rnd_storage.seeds.(seed_key);
+    if isfield(seeds_store,seed_key)
+        seed = seeds_store.(seed_key);
     else
         seed_defined = false;
-        rnd_storage.seeds.(seed_key) = 0;
+        seeds_store.(seed_key) = 0;
     end
 end
 if ~seed_defined
@@ -72,18 +73,20 @@ wcalc.data.pix(8,:)=wcalc.data.pix(8,:)+(0.1*peak)*wran.data.pix(8,:);  % spread
 
 if ~seed_defined
     si = Singleton.instance();
-    rnd_storage.seeds.(seed_key) = si.singleton_data;
-    seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');
-    save(seeds_file,'rnd_storage');
+    seeds_store.(seed_key) = si.singleton_data;
+    seed_dir = fileparts(which('simulate_spe_testfunc.m'));    
+    seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
+    save(seeds_file,'seeds_store');
+    seed_defined = true;
 end
 %----- store seed for random error function
 if seed_defined
     seed_key = [seed_key,'_fun'];
-    if isfield(rnd_storage.seeds,seed_key)
-        seed = rnd_storage.seeds.(seed_key);
+    if isfield(seeds_store,seed_key)
+        seed = seeds_store.(seed_key);
     else
         seed_defined = false;
-        rnd_storage.seeds.(seed_key) = 0;
+        seeds_store.(seed_key) = 0;
     end
 end
 if seed_defined
@@ -96,9 +99,10 @@ wran=sqw_eval(wcalc,@sqw_rand_like,par);
 
 if ~seed_defined
     si = Singleton.instance();
-    rnd_storage.seeds.(seed_key) = si.singleton_data;
-    seeds_file = fullfile(rnd_storage.dir,'sim_spe_testfun_seeds_file.mat');
-    save(seeds_file,'rnd_storage');
+    seeds_store.(seed_key) = si.singleton_data;    
+    seed_dir = fileparts(which('simulate_spe_testfunc.m'));    
+    seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
+    save(seeds_file,'seeds_store');
 end
 
 wcalc.data.pix(9,:)=(0.05*peak*scale)*(1+wran.data.pix(8,:));
