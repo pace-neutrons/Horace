@@ -8,8 +8,11 @@ function params = parseFloatAssertInputs(varargin)
 
 %   Steven L. Eddins
 %   Copyright 2008-2009 The MathWorks, Inc.
-
-error(nargchk(2, 6, nargin, 'struct'));
+if verLessThan('matlab', '7.13') %R2011b
+    error(nargchk(2, 6, nargin, 'struct'));
+else
+    narginchk(2, 6);
+end
 
 params = struct('A', {[]}, 'B', {[]}, 'ToleranceType', {[]}, ...
     'Tolerance', {[]}, 'FloorTolerance', {[]}, 'Message', {''});

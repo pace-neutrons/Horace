@@ -18,7 +18,11 @@ mess_files = folder_contents(is_mess);
 if numel(mess_files) ==0
     return;
 end
-mess_fnames = arrayfun(@(x)(strsplit(x.name,'_')),mess_files,'UniformOutput',false);
+if verLessThan('matlab','8.12')
+    mess_fnames = arrayfun(@(x)(regexp(x.name,'_','split')),mess_files,'UniformOutput',false);
+else
+    mess_fnames = arrayfun(@(x)(strsplit(x.name,'_')),mess_files,'UniformOutput',false);
+end
 
 mess_names = arrayfun(@(x)(x{1}{2}),mess_fnames,'UniformOutput',false);
 mess_id    = arrayfun(@(x)(sscanf(x{1}{3},'JobN%d.mat')),mess_fnames,'UniformOutput',true);

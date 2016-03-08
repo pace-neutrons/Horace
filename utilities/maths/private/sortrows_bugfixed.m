@@ -10,12 +10,12 @@ function [y,ndx] = sortrows(x,col)
 %   SORTROWS(X,COL) sorts the matrix based on the columns specified in the
 %   vector COL.  If an element of COL is positive, the corresponding column
 %   in X will be sorted in ascending order; if an element of COL is negative,
-%   the corresponding column in X will be sorted in descending order. For 
-%   example, SORTROWS(X,[2 -3]) sorts the rows of X first in ascending order 
+%   the corresponding column in X will be sorted in descending order. For
+%   example, SORTROWS(X,[2 -3]) sorts the rows of X first in ascending order
 %   for the second column, and then by descending order for the third
 %   column.
 %
-%   [Y,I] = SORTROWS(X) and [Y,I] = SORTROWS(X,COL) also returns an index 
+%   [Y,I] = SORTROWS(X) and [Y,I] = SORTROWS(X,COL) also returns an index
 %   matrix I such that Y = X(I,:).
 %
 %   Notes
@@ -51,24 +51,24 @@ function [y,ndx] = sortrows(x,col)
 % %   if isnumeric(x{1, k}) || islogical(x{1, k})
 % %
 % % The following example demonstrates the problem:
-% 
+%
 % % Create 10x4 numeric array, all elements 0 or 1
 % x=round(rand(10,4));
-% 
+%
 % % Convert to cell array of numeric scalars
 % xnumcell=num2cell(x);
-% 
+%
 % % Convert the same array into a cell array of logical scalars
 % xlogcell=num2cell(logical(x));
-% 
+%
 % % Use sortrows on the cell array of numeric scalars: works fine
 % xnumcell_sort=sortrows(xnumcell,2);
-% 
+%
 % % Now use sortrows on the equivalent cell array of logical scalars:
 % xlogcell_sort=sortrows(xlogcell,2);     % THROWS AN ERROR
 %==========================================================================
 
-%   Copyright 1984-2011 The MathWorks, Inc. 
+%   Copyright 1984-2011 The MathWorks, Inc.
 %   $Revision$  $Date$
 
 % I/O details
@@ -83,14 +83,20 @@ function [y,ndx] = sortrows(x,col)
 % NDX  - Column vector of size M-by-1, where M is size(X,1).  Double.
 %        Contains row indices into X.
 
-error(nargchk(1,2,nargin,'struct'))
+if verLessThan('matlab', '7.13') %R2011b
+    error(nargchk(1,2,nargin,'struct'))
+else
+    narginchk(1, 2);
+end
+
+
 
 if matlab_version_num()<7.10
     cond = @(x)(all(size(x))>=0);
-else    
-    cond = @ismatrix;    
+else
+    cond = @ismatrix;
 end
- 
+
 if ~cond(x)
     error(message('MATLAB:sortrows:inputDimensionMismatch'));
 end
@@ -110,7 +116,7 @@ else
             any(floor(col) ~= col) || any(abs(col) > n) || any(col == 0) )
         error(message('MATLAB:sortrows:COLmismatchX'));
     end
-
+    
     x_sub = x(:, abs(col));
 end
 
@@ -118,16 +124,16 @@ if isreal(x) && ~issparse(x) && n > 3
     % Call MEX-file to do the hard work for non-sparse real
     % and character arrays.  Only called if at least 4 elements per row.
     ndx = sortrowsc(x_sub, col);
-
+    
 elseif isnumeric(x) && ~isreal(x) && ~issparse(x)
     % sort_complex implements the specified behavior of using ABS(X) as
     % the primary key and ANGLE(X) as the secondary key.
     ndx = sort_complex(x_sub, col);
-
+    
 elseif issparse(x)
     %  We'll use the old sortrows algorithm for sparse.
     ndx = sort_sparse(x_sub, col);
-
+    
 else
     % For sparse arrays, cell arrays, and anything else for which the
     % sortrows worked MATLAB 6.0 or earlier, use the old MATLAB 6.0
@@ -175,7 +181,7 @@ if ~isempty(x)
     for k = n:-1:1
         if isnumeric(x{1, k}) || islogical(x{1, k})
             if ~all(cellfun(@isscalar,x(ndx,k)))
-               error(message('MATLAB:sortrows:nonScalarCell'));
+                error(message('MATLAB:sortrows:nonScalarCell'));
             end
             tmp = cell2mat(x(ndx, k));
             ind = sortrowsc(tmp, col(k));

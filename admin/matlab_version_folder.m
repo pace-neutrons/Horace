@@ -41,7 +41,7 @@ if version_number<7.04      % i.e. matlab version 7.4 i.e. R2007a
         version());
     matlab_dirname='_R2007a';
     
-elseif(version_number>8.06) % tested up to R2015b
+elseif(version_number>9) % tested up to R2015b
     warning(['This subversion of mex-files has not been tested with Matlab version %s \n',...
         'Trying to use the files tested with Matlab 8. (2015b) but they may not work'],...
         version());

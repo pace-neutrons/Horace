@@ -7,10 +7,10 @@ n_jobs = numel(running_jobs_list);
 % loop over all job descriptions and verify what these messages mean for
 % jobs
 for id=1:n_jobs
-    job = running_jobs_list(id);
+    job = running_jobs_list{id};
     log = job.get_job_info();
     job.state_changed = false;
-    running_jobs_list(id) = job;
+    running_jobs_list{id} = job;
     fprintf('%s\n',log);    
 end
 

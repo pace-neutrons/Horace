@@ -21,7 +21,7 @@ for id=1:n_jobs
         continue;
     end
     %
-    job = this.running_jobs_(id);
+    job = this.running_jobs_{id};
     [job,is_running] = job.check_and_set_job_state(this,all_messages{id});
     if job.state_changed
         n_changed=n_changed+1;
@@ -33,7 +33,7 @@ for id=1:n_jobs
         n_failed = n_failed +1;
     end
     
-    this.running_jobs_(id)=job;
+    this.running_jobs_{id}=job;
 end
 
 if n_failed == n_jobs || n_completed == n_jobs

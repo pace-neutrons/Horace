@@ -35,6 +35,7 @@ classdef test_job_executor< TestCase
             cs2.return_results = false;
             
             je = MessagesFramework('test_worker');
+            clo2 = onCleanup(@()(je.clear_all_messages()));
             info1 = je.init_worker_control(1);
             mess = aMessage('starting');
             mess.payload = cs1;
@@ -47,7 +48,10 @@ classdef test_job_executor< TestCase
             [ok,err_mess]=je.send_message(2,mess);
             assertTrue(ok);
             assertTrue(isempty(err_mess));
-            
+            if verLessThan('matlab','7.14')
+                warning('Signleton does not work properly on Maltab 2011a/b. not testing workers');
+                return
+            end
             
             worker('JETester',info1);
             worker('JETester',info2);

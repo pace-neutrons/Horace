@@ -61,14 +61,24 @@ function A = catstruct(varargin)
 % Toby Perring: Revised to cope with altered behaviour of unique in Matlab R2013a
 % See if...end on line 127-131, following suggestion on file exchange server.
 
-error(nargchk(1,Inf,nargin)) ;
+if verLessThan('matlab', '7.13') %R2011b
+    error(nargchk(1,Inf,nargin));
+else
+    narginchk(1, Inf);
+end
+
+
 N = nargin ;
 
 if ~isstruct(varargin{end}),
     if isequal(varargin{end},'sorted'),
         sorted = 1 ;
         N = N-1 ;
-        error(nargchk(1,Inf,N)) ;
+        if verLessThan('matlab', '7.13') %R2011b        
+            error(nargchk(1,Inf,N)) ;
+        else
+            narginchk(2, Inf);            
+        end
     else
         error('catstruct:InvalidArgument','Last argument should be a structure, or the string "sorted".') ;
     end

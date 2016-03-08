@@ -13,14 +13,17 @@ function p = nextpowof10(x)
 %   E-mail:      pjacklam@online.no
 %   URL:         http://home.online.no/~pjacklam
 
-   error(nargchk(1, 1, nargin));
+if verLessThan('matlab', '7.13') %R2011b
+    error(nargchk(1, 1, nargin));
+else
+    narginchk(1, 1);
+end
 
-   if ~isreal(x)
-      error('Input must be real.');
-   end
+if ~isreal(x)
+    error('Input must be real.');
+end
 
-   x = abs(x);
-   p = ceil(log(x) / log(10));          % estimate
-   k = x <= 10.^(p - 1);
-   p(k) = p(k) - 1;                     % correction
-   
+x = abs(x);
+p = ceil(log(x) / log(10));          % estimate
+k = x <= 10.^(p - 1);
+p(k) = p(k) - 1;                     % correction

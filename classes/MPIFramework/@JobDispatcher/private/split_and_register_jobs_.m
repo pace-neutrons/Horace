@@ -11,7 +11,13 @@ step = ceil(n_jobs/n_workers);
 if step<1; step =1; end
 
 js = jobController(0);
-obj.running_jobs_=repmat(js,n_workers,1);
+obj.running_jobs_ = cell(n_workers,1);
+for i=1:n_workers
+    obj.running_jobs_{i} = js;
+end
+%else
+%    obj.running_jobs_=repmat(js,n_workers,1);
+%end
 job_ids = cell(n_workers,1);
 worker_controls = cell(n_workers,1);
 
@@ -28,11 +34,11 @@ for ic=1:step:n_jobs
     job_par_nums = job_par_nums(valid_nums);
     
     % Store job info for further usage and progress checking
-    job = obj.running_jobs_(job_id);
-    obj.running_jobs_(job_id) = job.set_job_id(job_id);
+    job = obj.running_jobs_{job_id};
+    obj.running_jobs_{job_id} = job.set_job_id(job_id);
     %
     % generate first parameters string for the worker :
-    this_job_param = job_param_list(job_par_nums);   
+    this_job_param = job_param_list(job_par_nums);
     job_ids{job_id} = job_par_nums;
     
     worker_controls{job_id} = obj.init_worker(job_id,this_job_param);

@@ -9,6 +9,7 @@ if ~ischar(mess_name)
         'mess_name in recive_message command should be a message name (e.g. "starting")');
 end
 %
+message=[];
 if ~exist(obj.exchange_folder,'dir')
     ok = -1;
     err_mess = sprintf('Job with id %s have been canceled',obj.job_control_pref);

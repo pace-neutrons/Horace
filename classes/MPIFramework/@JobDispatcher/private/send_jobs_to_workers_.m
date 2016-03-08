@@ -86,10 +86,10 @@ this.running_jobs_=print_job_progress_log_(this.running_jobs_);
 outputs = cell(n_workers,1);
 job_info=this.running_jobs_;
 for ind = 1:n_workers
-    if job_info(ind).is_failed
-        outputs{ind} = ['Failed, Reason: ',job_info(ind).fail_reason];
+    if job_info{ind}.is_failed
+        outputs{ind} = ['Failed, Reason: ',job_info{ind}.fail_reason];
     else
-        outputs{ind} = job_info(ind).outputs;
+        outputs{ind} = job_info{ind}.outputs;
     end
 end
 end

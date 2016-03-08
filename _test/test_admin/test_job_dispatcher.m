@@ -257,8 +257,8 @@ classdef test_job_dispatcher< TestCase
             
             %
             job_run_info = jd.job_control_structure;
-            assertTrue(job_run_info(1).is_failed)
-            assertEqual(job_run_info(1).fail_reason,'Timeout waiting for job_completed message');
+            assertTrue(job_run_info{1}.is_failed)
+            assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_completed message');
             
            
            
@@ -413,8 +413,8 @@ classdef test_job_dispatcher< TestCase
             assertTrue(all_changed);
             
             job_run_info = jd.job_control_structure;
-            assertTrue(job_run_info(1).is_failed)
-            assertEqual(job_run_info(1).fail_reason,'Timeout waiting for job_started message');
+            assertTrue(job_run_info{1}.is_failed)
+            assertEqual(job_run_info{1}.fail_reason,'Timeout waiting for job_started message');
             
         end
         
