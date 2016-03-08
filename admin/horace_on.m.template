@@ -32,7 +32,7 @@ if ~herbert_initated
     error('HORACE_ON:wrong_dependencies','Can not initiate Herbert');         
   end
 else % reinitialize herbert on where it is now.
-    her_path = fileparts(herbert_initated);
+    her_path = fileparts(which('herbert_init.m'));
     herbert_on(her_path);
 end
 
