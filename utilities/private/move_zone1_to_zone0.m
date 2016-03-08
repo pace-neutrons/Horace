@@ -8,8 +8,8 @@ n_zones =param.n_tot_zones;
 try
     % Estimate the number of pixels in the cut
     if is_deployed
-        add_mess = sprintf('Evaluating zone [%d,%d,%d]. Zone:  N%d out of %d',...
-            param.zone1_center,n_zone,n_zones);
+        add_mess = sprintf('Processing zone #%d of %d. Its: [%d,%d,%d]'  ,...
+            n_zone,n_zones, param.zone1_center);
         mpi_obj.do_logging(n_zone,n_zones,0,add_mess);
     end
     
@@ -33,7 +33,7 @@ try
             param.zone1_center,n_ranges);
     end
     if is_deployed
-        add_mess = sprintf('Divided zone  [%d,%d,%d] into %d parts, Processing part 1',param.zone1_center,n_ranges);
+        add_mess = sprintf('Divided zone  [%d,%d,%d] into %d chunks, Starting chunk #1',param.zone1_center,n_ranges);
         mpi_obj.do_logging(n_zone,n_zones,0,add_mess);
     end
     
@@ -44,10 +44,12 @@ try
         end
         sectioncut=cut_sqw(param.data_source,param.proj,...
             param.cut_ranges{1:end-1},e_ranges(:,i)');
-        if n_ranges>1
+        if n_ranges>1 % rebin within total binning range rather then the 
+            % partial done by cut above
             sectioncut=cut_sqw(sectioncut,param.proj,...
-                param.cut_ranges{1:end-1},e_ranges(:,i)');
+                param.cut_ranges{1:end-1},ei_range);
         end
+        
         
         if ~isempty(sectioncut.data.pix)
             %Get the permutation of the axes. There are 24 different ways
@@ -60,7 +62,7 @@ try
         end
         if is_deployed
             mpi_obj.do_logging(i,n_ranges,[],...
-                sprintf('zone [%d,%d,%d] #%d out of %d : Processing parts.',...
+                sprintf('zone [%d,%d,%d] #%d out of %d : Processing chunks.',...
                 param.zone1_center,n_zone,n_zones));
         end
     end
