@@ -19,12 +19,12 @@ int main( int argc, char *argv[] ) {
     return status;
 }
 bool suite_test_sqw_init = false;
-#include "D:\users\abuts\SVN\ISIS\Horace\_LowLevelCode\cpp\combine_sqw\TestCombineSQW\test_header.h"
+#include "D:\Data\svn\Horace\_LowLevelCode\cpp\combine_sqw\TestCombineSQW\test_header.h"
 
 static test_sqw suite_test_sqw;
 
 static CxxTest::List Tests_test_sqw = { 0, 0 };
-CxxTest::StaticSuiteDescription suiteDescription_test_sqw( "D:/users/abuts/SVN/ISIS/Horace/_LowLevelCode/cpp/combine_sqw/TestCombineSQW/test_header.h", 6, "test_sqw", suite_test_sqw, Tests_test_sqw );
+CxxTest::StaticSuiteDescription suiteDescription_test_sqw( "D:/Data/svn/Horace/_LowLevelCode/cpp/combine_sqw/TestCombineSQW/test_header.h", 6, "test_sqw", suite_test_sqw, Tests_test_sqw );
 
 static class TestDescription_suite_test_sqw_testTMain : public CxxTest::RealTestDescription {
 public:

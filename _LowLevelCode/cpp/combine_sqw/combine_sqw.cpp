@@ -421,6 +421,9 @@ void cells_in_memory::read_all_bin_info(size_t bin_number) {
       // retrieve results
       std::unique_lock<std::mutex> lock(this->exchange_lock);
       this->bins_ready.wait(lock, [this]() {return this->nbins_read; });
+      if (this->read_completed) {
+        return;
+      }
 
       this->bin_read_lock.lock();
       buf_nbin_end = this->rbuf_nbin_end;
@@ -447,7 +450,11 @@ void cells_in_memory::read_bins_job() {
 
   while (!this->read_completed) {
     this->read_bins_needed.wait(lock, [this]() {return !this->nbins_read; });
-    if (this->read_completed)break;
+    if (this->read_completed){
+       this->nbins_read = true;
+       this->bins_ready.notify_one();
+       break;
+    }
 
     this->bin_read_lock.lock();
 
@@ -875,6 +882,9 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
 
     std::unique_lock<std::mutex> lock(this->pix_exchange_lock);
     this->pix_ready.wait(lock, [this]() {return this->pix_read; });
+    if(this->pix_read_job_completed){
+        return;
+    }
 
     this->thread_pix_buffer.swap(this->pix_buffer);
     this->n_first_buf_pix = pix_start_num + num_pix_to_read;
@@ -896,7 +906,11 @@ void sqw_reader::read_pixels_job() {
 
   while (!this->pix_read_job_completed) {
     this->read_pix_needed.wait(lock, [this]() {return !this->pix_read; });
-    if (this->pix_read_job_completed)break;
+    if (this->pix_read_job_completed){
+      this->pix_read = true;
+      this->pix_ready.notify_one();
+      break;
+    }
 
     this->pix_read_lock.lock();
     size_t n_pix_to_read = PIX_BUF_SIZE;
