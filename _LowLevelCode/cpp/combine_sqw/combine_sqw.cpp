@@ -688,20 +688,20 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
   });
 
   bool interrupted(false);
-  int count(0);
+  //int count(0);
   std::mutex log_mutex;
   std::unique_lock<std::mutex> l(log_mutex);  
   int c_sensitivity(2000); // msc
-  mexPrintf("%s\n", "MEX::COMBINE_SQW: starting logging loop ");  
-  mexEvalString("pause(.002);");        
+  //mexPrintf("%s\n", "MEX::COMBINE_SQW: starting logging loop ");  
+  //mexEvalString("pause(.002);");        
   while (!Buff.is_write_job_completed()) {
-    mexPrintf("%s%d\n", "MEX::COMBINE_SQW: log_loop: ",count);
-    mexEvalString("pause(.002);");            
-    count++;
+    //mexPrintf("%s%d\n", "MEX::COMBINE_SQW: log_loop: ",count);
+    //mexEvalString("pause(.002);");            
+    //count++;
     
     Buff.logging_ready.wait_for(l, std::chrono::milliseconds(c_sensitivity), [&Buff]() {return Buff.do_logging; });
-    mexPrintf("%s","before BUF Do logging in\n");          
-    mexEvalString("pause(.002);");    
+    //mexPrintf("%s","before BUF Do logging in\n");          
+    //mexEvalString("pause(.002);");    
     if (Buff.do_logging) {
       if (interrupted) {
         mexPrintf("%s", ".\n");
@@ -729,11 +729,9 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
       mexEvalString("pause(.002);");
     }
   }
-  mexPrintf("%s", "MEX::COMBINE_SQW: finishing job");
   reader.join();
-  mexPrintf("%s", "MEX::COMBINE_SQW: reader closed");  
   writer.join();
-  mexPrintf("%s", "MEX::COMBINE_SQW: writer closed");    
+
 
   if (interrupted) {
     mexPrintf("%s", ".\n");
