@@ -93,7 +93,7 @@ void exchange_buffer::unlock_write_buffer() {
 }
 /* Verifies if logging is due and send messages to logging thread to report progress.
 Also verifies if operations should be terminated as user pressed CTRL-C */
-void exchange_buffer::check_log_and_interrupt() {
+void exchange_buffer::check_logging() {
   if (this->n_bins_processed >= this->break_point) {
     time_t t_end;
     time(&t_end);
@@ -108,23 +108,22 @@ void exchange_buffer::check_log_and_interrupt() {
     }
 
     this->break_point += this->break_step;
-    this->do_logging = true;
-    this->logging_ready.notify_one();
-
-    if (utIsInterruptPending()) {
-      this->set_interrupted("==> C-code interrupted by CTRL-C");
-      //mexWarnMsgIdAndTxt("COMBINE_SQW:interrupted", "==> C-code interrupted by CTRL-C");
-      return;
+    if(!this->do_logging){
+        this->do_logging = true;
+        this->logging_ready.notify_one();
     }
+
   }
 
 }
 /* Sets internal variables of exchange buffer to state, indicating end of operations*/
 void exchange_buffer::set_write_job_completed() {
-  this->do_logging = true;
-  // release possible logging
-  this->logging_ready.notify_one();
-  this->write_job_completed = true;
+  this->write_job_completed = true;    
+  if (!this->do_logging){
+    this->do_logging = true;
+    // release possible logging
+    this->logging_ready.notify_one();
+  }
 }
 /* runs on main thread and prints log messages when instructed by write thread
  (due to the problem with Matlab if logging is run on worker thread) */
@@ -210,7 +209,7 @@ void sqw_pix_writer::run_write_pix_job() {
         this->write_pixels(buf, length);
     last_pix_written += n_pix_to_write;
 
-    Buff.check_log_and_interrupt();
+    Buff.check_logging();
     Buff.unlock_write_buffer();
   }
   Buff.set_write_job_completed();
@@ -681,7 +680,6 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 
   int log_level = param.log_level;
 
-
   std::thread reader([&Reader]() {
     Reader.run_read_job();
   });
@@ -690,12 +688,20 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
   });
 
   bool interrupted(false);
+  int count(0);
   std::mutex log_mutex;
+  std::unique_lock<std::mutex> l(log_mutex);  
   int c_sensitivity(2000); // msc
+  mexPrintf("%s\n", "MEX::COMBINE_SQW: starting logging loop ");  
+  mexEvalString("pause(.002);");        
   while (!Buff.is_write_job_completed()) {
-
-    std::unique_lock<std::mutex> l(log_mutex);
+    mexPrintf("%s%d\n", "MEX::COMBINE_SQW: log_loop: ",count);
+    mexEvalString("pause(.002);");            
+    count++;
+    
     Buff.logging_ready.wait_for(l, std::chrono::milliseconds(c_sensitivity), [&Buff]() {return Buff.do_logging; });
+    mexPrintf("%s","before BUF Do logging in\n");          
+    mexEvalString("pause(.002);");    
     if (Buff.do_logging) {
       if (interrupted) {
         mexPrintf("%s", ".\n");
@@ -703,6 +709,9 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
       }
       Buff.print_log_meassage(log_level);
     }
+    //mexPrintf("%s","after BUF Do logging in\n");          
+    //mexEvalString("pause(.002);");    
+    
     if (utIsInterruptPending()) {
       if (!interrupted) {
         mexPrintf("%s", "MEX::COMBINE_SQW: Interrupting by CTRL-C ..");
@@ -712,14 +721,19 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
       }
       interrupted = true;
     }
+    //mexPrintf("%s","after check interrupt\n");          
+    //mexEvalString("pause(.002);");    
+    
     if (interrupted) {
       mexPrintf("%s", ".");
       mexEvalString("pause(.002);");
     }
   }
-
+  mexPrintf("%s", "MEX::COMBINE_SQW: finishing job");
   reader.join();
+  mexPrintf("%s", "MEX::COMBINE_SQW: reader closed");  
   writer.join();
+  mexPrintf("%s", "MEX::COMBINE_SQW: writer closed");    
 
   if (interrupted) {
     mexPrintf("%s", ".\n");

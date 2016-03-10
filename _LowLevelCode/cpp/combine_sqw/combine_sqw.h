@@ -92,10 +92,11 @@ public:
     };
     void set_write_allowed(){
      // Release write job in case it waits for read completed
+      std::lock_guard<std::mutex> lock(this->write_lock);        
       this->write_allowed=true;
       this->data_ready.notify_one();
     }
-    void check_log_and_interrupt();
+    void check_logging();
     void print_log_meassage(int log_level);
     void print_final_log_mess(int log_level)const;
 
