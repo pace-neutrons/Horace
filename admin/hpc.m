@@ -119,7 +119,7 @@ else
         hpc_computer = false;
     end
     if hpc_computer
-        mex_combine_thread_mode = 1;
+        mex_combine_thread_mode = 2;
         mex_combine_buffer_size=1024;
         % assume memory not an issue
         accum_in_separate_process = 1;
