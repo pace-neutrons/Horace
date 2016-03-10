@@ -883,6 +883,8 @@ void sqw_reader::read_pixels(size_t bin_number, size_t pix_start_num) {
     std::unique_lock<std::mutex> lock(this->pix_exchange_lock);
     this->pix_ready.wait(lock, [this]() {return this->pix_read; });
     if(this->pix_read_job_completed){
+        this->pix_read = false;
+        this->read_pix_needed.notify_one();
         return;
     }
 
