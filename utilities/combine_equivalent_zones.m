@@ -1,11 +1,8 @@
-function combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,varargin)
+function transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,varargin)
 %
-% combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile)
-% combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,keyword)
-% combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,zonelist)
-%
-% or as above with no output argument, so that final 4-dimensional object
-% is not retained in memory
+%>>transf_list= combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile)
+%>>transf_list= combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,keyword,params)
+%>>transf_list= combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,zonelist,params)
 %
 % Necessary input Arguments:
 % data_source  -- input sqw file
@@ -24,8 +21,15 @@ function combine_equivalent_zones(data_source,proj,pos,qstep,erange,outfile,vara
 %                       combining (each zone split into number of energy
 %                       sub-zones according to this list)
 %
+%
+% params -- optional key-value pairs to be present after keyword or
+%           zonelist parameters.
+%Their possible values are:
+%
+%
 % Output argument:
-% nothing at the moment; file on hdd
+% transf_list -- cellarray of cut_tranf objects, describing the transformations applied to each
+%                combined zone
 %
 % Additional input arguments describe the symmetrization operation.
 %
@@ -64,7 +68,13 @@ if ~isnumeric(pos) || numel(pos)~=3
     error('Horace error: pos argument must be a vector with 3 elements specifying h,k,l of reference Brillouin zone');
 end
 
-if ~isa(qstep,'qe_range')
+if iscell(qstep)
+    if ~isa(qstep{1},'cut_transf') % transformations defined, pass it through
+        if ~isnumeric(qstep{1})
+            error('COMBINE_EQUIV_LIST:invalid_argument','Cells in cellarray of step arguments must be numeric');
+        end
+    end
+else
     if ~isnumeric(qstep)
         error('Horace error: step argument must be numeric');
     elseif numel(qstep)~=1 && numel(qstep)~=3
@@ -95,11 +105,17 @@ end
 basicinput=false; cellinput=false; keywordinput=false;
 if nargin==6
     basicinput=true;
-elseif nargin==7
+    argi = {};
+elseif nargin>=7
     if iscell(varargin{1})
         cellinput=true;
     elseif ischar(varargin{1})
         keywordinput=true;
+    end
+    if nargin>7
+        argi = varargin(2:end);
+    else
+        argi = {};
     end
 else
     error('Horace error: check the format of optional inputs are either cell array or keyword');
@@ -140,13 +156,13 @@ end
 
 if basicinput
     %wout=combine_equiv_basic(data_source,proj,pos,qstep,erange,outfile);
-    combine_equiv_basic(data_source,proj,pos,qstep,erange,outfile);
+    transf_list=combine_equiv_basic(data_source,proj,pos,qstep,erange,outfile,argi{:});
 elseif keywordinput
     %wout=combine_equiv_keyword(data_source,proj,pos,qstep,erange,outfile,keyword);
-    combine_equiv_keyword(data_source,proj,pos,qstep,erange,outfile,keyword);
+    transf_list=combine_equiv_keyword(data_source,proj,pos,qstep,erange,outfile,keyword,argi{:});
 elseif cellinput
     %wout=combine_equiv_list(data_source,proj,pos,qstep,erange,outfile,zonelist);
-    combine_equiv_list(data_source,proj,pos,qstep,erange,outfile,zonelist);
+    transf_list=combine_cuts_list(data_source,proj,pos,qstep,erange,outfile,zonelist,argi{:});
 else
     error('Horace error: logic flaw - contact R. Ewings');
 end

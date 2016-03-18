@@ -39,33 +39,26 @@ classdef combine_equivalent_zones_job < JobExecutor
         end
     end
     methods(Static)
-        function strpar= param_f(id,zone1,qh,qk,ql,en,...
-                         proj,zone0,data_source,rez_dir)
+        function strpar= param_f(cut_transformation,...
+                         proj,data_source,rez_dir,n_tot_zones)
             % function-helper to pack job parameters into srtucture array
             % of parameters to distribute among workers
             %
             % Inputs:
-            % id    -- the number of zone in zones list
-            % zone1 -- three-elements vector defining zone to transform 
-            %          centre (in hkl units)
-            % qh,qk,ql,en -- instances of the qe_range class-helper defining 
-            %                cut ranges in 3-q and one dE direction
-            % proj   -- class or structure, defining projection, the cut is
-            %          taken in 
-            % zone0   -- three-elements vector defining zone to transform to
-            %          centre (in hkl units)
-            %
-            % rez_dir -- the folder to place results into. 
-            cut_range = {qh.cut_range(),qk.cut_range(),...
-                ql.cut_range(),en.cut_range()};
-                       
+            % cut_transformation -- fully defined cut_transf class,
+            %                      containing cut transformation parameters
+            % proj      -- class or structure, defining projection, the cut is
+            %              taken in 
+            %data_source -- file to cut data from 
+            %rez_dir     -- the folder to place results into. 
+            %n_tot_zones -- the total number of zones to process by a worker 
+            %               (for logging purposes)
             strpar = struct(...
                 'data_source',data_source,'proj',proj,...
-                'cut_ranges',[],...
-                'zone1_center',zone1,...
-                'zone0_center',zone0,'zone_id',id,...
-                'rez_location',rez_dir);
-            strpar.cut_ranges = cut_range;
+                'cut_transf', cut_transformation,...
+                'rez_location',rez_dir,...
+                'n_tot_zones',n_tot_zones);
+
         end
         
         
