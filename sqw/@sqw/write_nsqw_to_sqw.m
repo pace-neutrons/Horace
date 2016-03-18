@@ -8,11 +8,15 @@ function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
 %   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   infiles         Cell array or character array of sqw file name(s) of input file(s)
 %   outfile         Full name of output sqw file
-%   varargin        If present can be the keyword 'allow_equal_headers',
-%                   which disables checking input files for absolutely
-%                   equal headers. Two file having equal haders is an error
-%                   in normal operations so this option  used in
-%                   tests or when equal zones are combined.
+%   varargin        If present can be the keyword one or all of the keywods:
+%
+% allow_equal_headers -- disables checking input files for absolutely
+%                       equal headers. Two file having equal haders is an error
+%                       in normal operations so this option  used in
+%                       tests or when equal zones are combined.
+% use_single_file_header -- in combine_equivalent_zones all subfiles are cut from 
+%                         single sqw file and contain the same header
+%                        this option used to avoid dublicating such headers
 %
 % Output:
 % -------
@@ -94,6 +98,11 @@ for i=1:nfiles
     mess_completion(i)
 end
 mess_completion
+
+
+if ismember('use_single_file_header',varargin)
+    header = header{1};
+end    
 
 
 % Check consistency:

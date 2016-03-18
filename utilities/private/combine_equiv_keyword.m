@@ -1,4 +1,4 @@
-function wout=combine_equiv_keyword(data_source,proj,pos,step,erange,outfile,keyword)
+function transf_list=combine_equiv_keyword(data_source,proj,pos,step,erange,outfile,keyword,varargin)
 %
 % Sub-function of combine_equivalent_zones. A keyword has been supplied to
 % combine_equivalent_zones. Options are
@@ -65,7 +65,7 @@ zonelist=mat2cell(zonelist,ones(1,sz(1)),3);%conver to cell array of correct for
 %i.e. where each element is a 1-by-3 vector
 %
 %Now pass on to the master function:
-wout=combine_equiv_list(data_source,proj,pos,step,erange,outfile,zonelist);
+transf_list=combine_cuts_list(data_source,proj,pos,step,erange,outfile,zonelist,varargin{:});
 
 %==========================================================================
 function [hnew,knew,lnew]=permute_indices(h,k,l,ind)

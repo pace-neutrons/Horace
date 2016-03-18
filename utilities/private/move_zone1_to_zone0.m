@@ -2,38 +2,42 @@ function zone_filenames_list=move_zone1_to_zone0(param)
 
 mpi_obj=MPI_State.instance();
 is_deployed = mpi_obj.is_deployed;
-n_zone = param.n_zone;
+cut_par=param.cut_transf;
+n_zone = cut_par.zone_id;
 n_zones =param.n_tot_zones;
 
 try
     % Estimate the number of pixels in the cut
     if is_deployed
         add_mess = sprintf('Processing zone #%d of %d. Its: [%d,%d,%d]'  ,...
-            n_zone,n_zones, param.zone1_center);
+            n_zone,n_zones, cut_par.zone_center);
         mpi_obj.do_logging(n_zone,n_zones,0,add_mess);
     end
     
     if exist(param.data_source,'file')~=2
         error('Source file %s does not exist',param.data_source);
     end
-    cut_range = param.cut_ranges;
-    %integrated = cellfun(@(x)(isinf(x(1))||isinf(x(2))),cut_range);
-    %cut_range = cut_range(~integrated);
+    cut_range = cut_par.cut_range;
+    % get integration ranges of the cut to estimate number of pixels in
+    % zone to transform.
+    % TODO: Should be better way of doing this useing DND object or
+    % projection methods
     cut_ranges = cellfun(@(x)[x(1),x(end)],cut_range(1:end-1),'UniformOutput',false);
     ei_range = cut_range{end};
     cut_ranges{end+1} = [ei_range(1),0,ei_range(end)];
     ei_range  = cut_ranges{end};
     
     info_obj   = cut_sqw(param.data_source,param.proj,cut_ranges{:},'-nopix');
-    
-    [n_ranges,e_ranges,zone_filenames_list]=find_subzones(info_obj,ei_range,param.zone_id);
+    %
+    % how many subzones zone has to be split to fit memory
+    [n_ranges,e_ranges,zone_filenames_list]=find_subzones(info_obj,ei_range,cut_par.zone_id);
     log_level = get(hor_config,'log_level');
     if log_level>0
         fprintf('Divided zone [%d,%d,%d] into %d part(s) \n',...
-            param.zone1_center,n_ranges);
+            cut_par.zone_center,n_ranges);
     end
     if is_deployed
-        add_mess = sprintf('Divided zone  [%d,%d,%d] into %d chunks, Starting chunk #1',param.zone1_center,n_ranges);
+        add_mess = sprintf('Divided zone  [%d,%d,%d] into %d chunks, Starting chunk #1',cut_par.zone_center,n_ranges);
         mpi_obj.do_logging(n_zone,n_zones,0,add_mess);
     end
     
@@ -42,20 +46,24 @@ try
         if log_level>0
             fprintf('Processing zone part #%d out of %d\n',i,n_ranges);
         end
-        sectioncut=cut_sqw(param.data_source,param.proj,...
-            param.cut_ranges{1:end-1},e_ranges(:,i)');
-        if n_ranges>1 % rebin within total binning range rather then the 
+        sect_range = {cut_par.cut_range{1:end-1},e_ranges(:,i)'};
+        sectioncut=cut_sqw(param.data_source,param.proj,sect_range{:});
+        if n_ranges>1 % rebin within total binning range rather then the
             % partial done by cut above
             sectioncut=cut_sqw(sectioncut,param.proj,...
-                param.cut_ranges{1:end-1},ei_range);
+                cut_par.cut_ranges{1:end-1},ei_range);
         end
         
         
         if ~isempty(sectioncut.data.pix)
-            %Get the permutation of the axes. There are 24 different ways
-            %of doing this for the general case, so need to work out how to
-            %do it elegantly!
-            wtmp=calculate_coord_change(param.zone1_center,param.zone0_center,sectioncut);
+            % if correction function is defined, apply correction function
+            % to the object before transforming its coordinates
+            if ~isempty(cut_par.correct_fun)
+                sectioncut = cut_par.correct_fun(sectioncut);
+            end
+            % transform coordinates of this zone into coordinates of target
+            % zone
+            wtmp=transform_coordinates(sectioncut,cut_par.transf_matrix,cut_par.shift);
             save(wtmp,fullfile(param.rez_location,zone_filenames_list{i}));
         else
             zone_filenames_list{i} = '';
@@ -63,7 +71,7 @@ try
         if is_deployed
             mpi_obj.do_logging(i,n_ranges,[],...
                 sprintf('zone [%d,%d,%d] #%d out of %d : Processing chunks.',...
-                param.zone1_center,n_zone,n_zones));
+                cut_par.zone_center,n_zone,n_zones));
         end
     end
 catch ME
@@ -71,7 +79,7 @@ catch ME
         rethrow(ME);
     end
     %Ensure we don't say a zone is ok when it is not
-    zone_c0 = param.zone1_center;
+    zone_c0 = cut_par.zone_center;
     fprintf('Skipping zone: [%d,%d,%d]. Reason: %s\n',zone_c0(1),...
         zone_c0(2),zone_c0(3),ME.message);
     zone_filenames_list = {};
@@ -125,3 +133,69 @@ eranges(3,n_ranges) = erange(3);
 for i=2:n_ranges
     eranges(1,i) = eranges(3,i-1)+2*eps(eranges(3,i-1));
 end
+
+function wout=transform_coordinates(w1,transf_matrix,shifts)
+% Routine applies speficified symmetry operation, to the pixels of input
+% object w1
+%
+%
+%Initialise the output:
+wout=w1;
+%Now we work out how to alter each of the objects:
+%
+%We must ensure that we look at the coordinates in terms of reciprocal
+%lattice units:
+u_to_rlu1=w1.data.u_to_rlu(1:3,1:3);
+umat1=repmat(w1.data.ulen(1:3)',1,3);
+T1=u_to_rlu1./umat1;
+T_sym = transf_matrix*T1;
+
+
+if all(shifts==0)
+    coords1=w1.data.pix(1:3,:);
+    coords_rlu1=T_sym*coords1;
+else
+    shifts_in_a = T1*shifts';
+    coords_rlu1=T_sym*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
+end
+
+%coords2=w2.data.pix([1:3],:);
+p1=w1.data.p;
+%p2=w2.data.p;
+
+%
+%
+%This bit is for debug:
+%u_to_rlu2=w2.data.u_to_rlu(1:3,1:3);
+%umat2=repmat(w2.data.ulen(1:3)',1,3);
+%T2=u_to_rlu2./umat2;
+%coords_rlu2=T2*coords2;
+
+%Convert coordinates back to inverse Angstroms:
+coords_ang=(inv(T1))*coords_rlu1;
+%Make the required changes to the p1 cell array:
+p1new=p1;
+for i=1:3
+    ort = zeros(3,1);
+    ort(i) = 1;
+    new_ort = ort'*transf_matrix; % the result should have unit length by transf
+    % matrix definition
+    new_axis=arrayfun(@(x,y,z)(new_ort(1)*(x+shifts(1))+...
+        new_ort(2)*(y+shifts(2))+...
+        new_ort(3)*(z+shifts(3))),...
+        p1{1},p1{2},p1{3});
+    if new_axis(1)>new_axis(end)
+        p1new{i} =  flipud(new_axis);
+    else
+        p1new{i} = new_axis;
+    end
+end
+
+%Place the new coords_ang1 and p1 arrays into the output object:
+wout.data.pix(1:3,:)=coords_ang;
+wout.data.p=p1new;
+
+%Use the internal Horace routines to recalculate intensity/error/npix etc
+%arrays:
+argi = cell(1,numel(p1new));
+wout=cut(wout,argi{:});
