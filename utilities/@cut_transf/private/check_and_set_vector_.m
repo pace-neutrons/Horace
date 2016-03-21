@@ -2,7 +2,7 @@ function obj = check_and_set_vector_(obj,vector_name,val)
 % Verifies and sets appropriate lattice shift
 %
 %
-% $Revision: 449 $ ($Date: 2015-09-15 16:45:02 +0100 (Tue, 15 Sep 2015) $)
+% $Revision$ ($Date$)
 %
 
 %

@@ -1,7 +1,7 @@
 function obj = cut_transf_(obj,varargin)
 % Internal construnctor, defining cut transformation
 %
-% $Revision: 449 $ ($Date: 2015-09-15 16:45:02 +0100 (Tue, 15 Sep 2015) $)
+% $Revision$ ($Date$)
 %
 if ~(nargin==3 || nargin==5 || nargin == 1)
     error('CUT_TRANSF:invalid_argument','cut_transf construnctor accepts none, two or four argiments')

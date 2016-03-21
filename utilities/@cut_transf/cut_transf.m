@@ -4,7 +4,7 @@ classdef cut_transf
     %
     % More generally, it used to describe cut to combine with another cut
     %
-    % $Revision: 449 $ ($Date: 2015-09-15 16:45:02 +0100 (Tue, 15 Sep 2015) $)
+    % $Revision$ ($Date$)
     %
     properties(Dependent)
         zone_id  %a number, uniquely defining zone to combine
