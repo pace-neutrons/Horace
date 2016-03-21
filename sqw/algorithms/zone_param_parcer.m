@@ -38,7 +38,7 @@ function transf_list = zone_param_parcer(pos,q_step_or_transf,erange,varargin)
 %                no symmetry is defiend for the class
 %
 %
-% $Revision: 449 $ ($Date: 2015-09-15 16:45:02 +0100 (Tue, 15 Sep 2015) $)
+% $Revision$ ($Date$)
 %
 
 known_keywords={'correct_fun','symmetry_type'};

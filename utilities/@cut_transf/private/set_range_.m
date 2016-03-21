@@ -2,7 +2,7 @@ function obj = set_range_(obj,dir,val)
 % Set qe objec range in specific directio?
 %
 %
-% $Revision: 449 $ ($Date: 2015-09-15 16:45:02 +0100 (Tue, 15 Sep 2015) $)
+% $Revision$ ($Date$)
 %
 
 if numel(val) == 1 % its dk

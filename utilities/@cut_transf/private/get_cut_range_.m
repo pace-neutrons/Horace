@@ -1,7 +1,7 @@
 function range = get_cut_range_(obj)
 % Retrieve full cut range in the form of cellarray,
 %
-% $Revision: 449 $ ($Date: 2015-09-15 16:45:02 +0100 (Tue, 15 Sep 2015) $)
+% $Revision$ ($Date$)
 %
 
 range = cell(1,4);
