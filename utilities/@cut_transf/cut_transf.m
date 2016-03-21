@@ -8,6 +8,7 @@ classdef cut_transf
     %
     properties(Dependent)
         zone_id  %a number, uniquely defining zone to combine
+        % also used as base to modify pixel id for each zone
         %
         qh_range % range of the cut in qh direction
         qk_range % range of the cut in qk direction

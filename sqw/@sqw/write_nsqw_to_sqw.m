@@ -149,6 +149,33 @@ for i=2:nfiles  % only need to check if more than one file
         end
     end
 end
+%  Build combined header
+nfiles_tot=sum(nspe);
+main_header_combined.filename='';
+main_header_combined.filepath='';
+main_header_combined.title='';
+main_header_combined.nfiles=nfiles_tot;
+
+sqw_data = data_sqw_dnd();
+sqw_data.filename=main_header_combined.filename;
+sqw_data.filepath=main_header_combined.filepath;
+sqw_data.title=main_header_combined.title;
+sqw_data.alatt=datahdr{1}.alatt;
+sqw_data.angdeg=datahdr{1}.angdeg;
+sqw_data.uoffset=datahdr{1}.uoffset;
+sqw_data.u_to_rlu=datahdr{1}.u_to_rlu;
+sqw_data.ulen=datahdr{1}.ulen;
+sqw_data.ulabel=datahdr{1}.ulabel;
+sqw_data.iax=datahdr{1}.iax;
+sqw_data.iint=datahdr{1}.iint;
+sqw_data.pax=datahdr{1}.pax;
+sqw_data.p=datahdr{1}.p;
+sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
+
+sqw_data.urange=datahdr{1}.urange;
+for i=2:nfiles
+    sqw_data.urange=[min(sqw_data.urange(1,:),datahdr{i}.urange(1,:));max(sqw_data.urange(2,:),datahdr{i}.urange(2,:))];
+end
 
 
 % Now read in binning information
@@ -165,7 +192,6 @@ end
 
 % Read data:
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
-sqw_data = data_sqw_dnd();
 for i=1:nfiles
     fid=fopen(infiles{i},'r');
     if fid<0; error(['Unable to open input file ',infiles{i}]); end
@@ -188,11 +214,17 @@ for i=1:nfiles
     clear bindata
     mess_completion(i)
 end
+
 s_accum = s_accum ./ npix_accum;
 e_accum = e_accum ./ npix_accum.^2;
 nopix=(npix_accum==0);
 s_accum(nopix)=0;
 e_accum(nopix)=0;
+%
+sqw_data.s=s_accum;
+sqw_data.e=e_accum;
+sqw_data.npix=npix_accum;
+
 clear nopix
 mess_completion
 
@@ -202,34 +234,6 @@ mess_completion
 if horace_info_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
-end
-
-nfiles_tot=sum(nspe);
-main_header_combined.filename='';
-main_header_combined.filepath='';
-main_header_combined.title='';
-main_header_combined.nfiles=nfiles_tot;
-
-sqw_data.filename=main_header_combined.filename;
-sqw_data.filepath=main_header_combined.filepath;
-sqw_data.title=main_header_combined.title;
-sqw_data.alatt=datahdr{1}.alatt;
-sqw_data.angdeg=datahdr{1}.angdeg;
-sqw_data.uoffset=datahdr{1}.uoffset;
-sqw_data.u_to_rlu=datahdr{1}.u_to_rlu;
-sqw_data.ulen=datahdr{1}.ulen;
-sqw_data.ulabel=datahdr{1}.ulabel;
-sqw_data.iax=datahdr{1}.iax;
-sqw_data.iint=datahdr{1}.iint;
-sqw_data.pax=datahdr{1}.pax;
-sqw_data.p=datahdr{1}.p;
-sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-sqw_data.s=s_accum;
-sqw_data.e=e_accum;
-sqw_data.npix=npix_accum;
-sqw_data.urange=datahdr{1}.urange;
-for i=2:nfiles
-    sqw_data.urange=[min(sqw_data.urange(1,:),datahdr{i}.urange(1,:));max(sqw_data.urange(2,:),datahdr{i}.urange(2,:))];
 end
 
 run_label=cumsum([0;nspe(1:end-1)]);
