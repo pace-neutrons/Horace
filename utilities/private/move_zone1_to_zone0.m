@@ -63,7 +63,8 @@ try
             end
             % transform coordinates of this zone into coordinates of target
             % zone
-            wtmp=transform_coordinates(sectioncut,cut_par.transf_matrix,cut_par.shift);
+            wtmp=transform_coordinates(sectioncut,cut_par.transf_matrix,...
+                cut_par.shift,(n_zone-1)*sectioncut.main_header.nfiles);
             save(wtmp,fullfile(param.rez_location,zone_filenames_list{i}));
         else
             zone_filenames_list{i} = '';
@@ -134,9 +135,16 @@ for i=2:n_ranges
     eranges(1,i) = eranges(3,i-1)+2*eps(eranges(3,i-1));
 end
 
-function wout=transform_coordinates(w1,transf_matrix,shifts)
+function wout=transform_coordinates(w1,transf_matrix,shifts,pixid_shift)
 % Routine applies speficified symmetry operation, to the pixels of input
-% object w1
+% object w1 The symmetry operation is determined bny the transformation
+% matrix (transf_matrix) and shifn (shift). 
+%
+% pixid_shift contains additional information about pixel's zone. 
+%             This  informaiton consist of production of the (zone_id-1) and 
+%             the number of files, contributed into the initial sqw file. 
+%             zone_id can be recovered by the oppozite operation: 
+%             zone_is = ceil(new_pix_id/n_contributed_files)
 %
 %
 %Initialise the output:
@@ -155,8 +163,12 @@ if all(shifts==0)
     coords1=w1.data.pix(1:3,:);
     coords_rlu1=T_sym*coords1;
 else
-    shifts_in_a = T1*shifts';
+    shifts_in_a = T1\shifts';
     coords_rlu1=T_sym*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
+end
+% modify pixel's id to add informaion about zone, pixel came from
+if pixid_shift~=0
+    wout.data.pix(5,:)= w1.data.pix(5,:)+pixid_shift;
 end
 
 %coords2=w2.data.pix([1:3],:);
