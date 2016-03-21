@@ -195,8 +195,8 @@ if n_failed>0 % Try to recalculate failed parallel jobs serially
         fail_par_num = job_distr_by_id{i};
         z_files = cell(numel(fail_par_num),1);
         for ii = 1:numel(fail_par_num)
-            ind = fail_par_num{ii};
-            z_files{ii} = move_zone1_to_zone0(job_par(ind ));
+            ind = fail_par_num(ii);
+            z_files{ii} = move_zone1_to_zone0(job_par(ind));
         end
         n_failed=n_failed-1;
         outputs{i} = struct('zone_id',i,...
