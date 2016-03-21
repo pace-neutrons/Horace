@@ -27,7 +27,8 @@ classdef combine_equivalent_zones_job < JobExecutor
                 par.n_zone = ji;
                 par.n_tot_zones = n_zones;
                 zone_fnames{ji} = move_zone1_to_zone0(par);
-                zone_id(ji)     = par.zone_id;
+                zone_id(ji)     = par.cut_transf.zone_id;
+                %zone_id(ji)     = par.zone_id;                
             end
             %str = input('enter something to continue:','s');
             %disp(str);
