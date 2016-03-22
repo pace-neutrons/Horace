@@ -51,7 +51,7 @@ try
         if n_ranges>1 % rebin within total binning range rather then the
             % partial done by cut above
             sectioncut=cut_sqw(sectioncut,param.proj,...
-                cut_par.cut_ranges{1:end-1},ei_range);
+                cut_par.cut_range{1:end-1},ei_range);
         end
         
         

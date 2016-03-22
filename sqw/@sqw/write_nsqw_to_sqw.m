@@ -30,9 +30,9 @@ function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
 % $Revision$ ($Date$)
 
 horace_info_level=get(hor_config,'horace_info_level');
-drop_subzone_files = false;
+drop_subzone_headers = false;
 if ismember('drop_subzones_headers',varargin)
-    drop_subzone_files = true;
+    drop_subzone_headers = true;
 end
 
 % Check that the first argument is sqw object
@@ -152,7 +152,7 @@ for i=2:nfiles  % only need to check if more than one file
     end
 end
 %  Build combined header
-if drop_subzone_files
+if drop_subzone_headers
     nfiles_2keep = nspe>0;
     nspec = nspe(nfiles_2keep);
     nfiles_tot=sum(nspec);
@@ -243,7 +243,7 @@ if horace_info_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
 end
-if drop_subzone_files
+if drop_subzone_headers
     run_label = 'nochange';
 else
     run_label=cumsum([0;nspe(1:end-1)]);

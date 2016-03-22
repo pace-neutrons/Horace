@@ -131,6 +131,7 @@ end
 if drop_subz_headers
     subzone_headers = cellfun(@(hd)(is_subzone_header(hd)),header_out);
     header_out = header_out(~subzone_headers);
+    nfiles_tot = numel(header_out);
 end
 
 % Check the headers are all unique across the relevant fields, and have equality in other required fields
