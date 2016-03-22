@@ -26,7 +26,13 @@ function varargout = digitize2(varargin)
 % Original version created by J.D.Cogdell
 
 % Check for proper number of input arguments
-error(nargchk(0,1,nargin));
+if verLessThan('matlab', '7.13') %R2011b
+    error(nargchk(0,1,nargin));
+else
+    narginchk(0, 1);
+end
+
+
 
 % Identify image filename
 if (nargin == 0),

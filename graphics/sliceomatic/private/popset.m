@@ -6,7 +6,13 @@ function popset(handle,prop)
 
 
 %  nargchk(2,2,'wrong number of arguments.');
-nargchk(2,2,nargin);
+if verLessThan('matlab', '7.13') %R2011b
+    error(nargchk(2,2,nargin));
+else
+    narginchk(2, 2);
+end
+
+
 
   proplist=fieldnames(get(handle(1)));
   prop=proplist{strcmpi(prop,proplist)};

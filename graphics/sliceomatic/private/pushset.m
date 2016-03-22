@@ -7,7 +7,13 @@ function pushset(handle,prop,value)
 %
 
 % nargchk(3,3,'wrong number of arguments.');
-nargchk(3,3,nargin);
+if verLessThan('matlab', '7.13') %R2011b
+    error(nargchk(3,3,nargin));
+else
+    narginchk(3, 3);
+end
+
+
 
 proplist=fieldnames(get(handle(1)));
 prop=proplist{strcmpi(prop,proplist)};
