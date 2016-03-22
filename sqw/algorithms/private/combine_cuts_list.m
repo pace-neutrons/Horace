@@ -125,7 +125,7 @@ else% Go serial.
         % combine all inputs, necessary to convert coordinates of one zone
         % into the coordinates of other zone into signle compact structure;
         params  = job_par_fun(transf_list{i});
-       
+        params.n_zone = i;       
         % move coordunates of current zone into specified coordinates
         zone_files{i} = move_zone1_to_zone0(params);
     end
@@ -158,7 +158,8 @@ disp('');
 
 %Finally save the correct output to disk:
 an_sqw = sqw();
-write_nsqw_to_sqw (an_sqw, zone_fnames_list, outfile,'allow_equal_headers');
+write_nsqw_to_sqw (an_sqw, zone_fnames_list, outfile,...
+    'allow_equal_headers','combine_subzones_headers');
 
 %if nargout>0
 %    wout = read_sqw(outfile);
