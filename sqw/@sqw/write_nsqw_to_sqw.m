@@ -14,9 +14,10 @@ function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
 %                       equal headers. Two file having equal haders is an error
 %                       in normal operations so this option  used in
 %                       tests or when equal zones are combined.
-% use_single_file_header -- in combine_equivalent_zones all subfiles are cut from 
-%                         single sqw file and contain the same header
-%                        this option used to avoid dublicating such headers
+% drop_subzones_headers -- in combine_equivalent_zones all subfiles are cut from
+%                           single sqw file and may be divided into subzones.
+%                           this option used to avoid dublicating headers
+%                           from the same zone
 %
 % Output:
 % -------
@@ -29,10 +30,14 @@ function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
 % $Revision$ ($Date$)
 
 horace_info_level=get(hor_config,'horace_info_level');
+drop_subzone_files = false;
+if ismember('drop_subzones_headers',varargin)
+    drop_subzone_files = true;
+end
 
 % Check that the first argument is sqw object
 % -------------------------------------------
-if ~isa(dummy,classname)    % classname is a private method 
+if ~isa(dummy,classname)    % classname is a private method
     error('Check type of input arguments')
 end
 
@@ -68,8 +73,8 @@ end
 % ---------------------------------------------------------
 % At present we require that all detector info is the same for all files, and each input file contains only one spe file
 if horace_info_level>-1
-	disp(' ')
-	disp('Reading header(s) of input file(s) and checking consistency...')
+    disp(' ')
+    disp('Reading header(s) of input file(s) and checking consistency...')
 end
 
 % Read header information:
@@ -100,9 +105,6 @@ end
 mess_completion
 
 
-if ismember('use_single_file_header',varargin)
-    header = header{1};
-end    
 
 
 % Check consistency:
@@ -124,7 +126,7 @@ for i=2:nfiles  % only need to check if more than one file
     if ~ok
         error('Input files must all have the same projection axes and projection axes offsets in the data blocks')
     end
-
+    
     if length(datahdr{i}.pax)~=npax
         error('Input files must all have the same number of projection axes')
     end
@@ -150,7 +152,13 @@ for i=2:nfiles  % only need to check if more than one file
     end
 end
 %  Build combined header
-nfiles_tot=sum(nspe);
+if drop_subzone_files
+    nfiles_2keep = nspe>0;
+    nspec = nspe(nfiles_2keep);
+    nfiles_tot=sum(nspec);
+else
+    nfiles_tot=sum(nspe);
+end
 main_header_combined.filename='';
 main_header_combined.filepath='';
 main_header_combined.title='';
@@ -185,9 +193,9 @@ end
 % require too much RAM (30GB if 200 spe files); also if we just want to check the consistency of the header information
 % in the files first we do not want to spend lots of time reading and accumulating the s,e,npix arrays. We can do
 % that now, as we have checked the consistency.
-if horace_info_level>-1 
-	disp(' ')
-	disp('Reading and accumulating binning information of input file(s)...')
+if horace_info_level>-1
+    disp(' ')
+    disp('Reading and accumulating binning information of input file(s)...')
 end
 
 % Read data:
@@ -235,7 +243,10 @@ if horace_info_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
 end
-
-run_label=cumsum([0;nspe(1:end-1)]);
+if drop_subzone_files
+    run_label = 'nochange';
+else
+    run_label=cumsum([0;nspe(1:end-1)]);
+end
 mess = put_sqw (outfile, main_header_combined, header_combined, det, sqw_data, '-pix', infiles, pos_npixstart, pos_pixstart, run_label);
 if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end

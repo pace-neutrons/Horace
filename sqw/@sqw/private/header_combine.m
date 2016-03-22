@@ -24,13 +24,13 @@ function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header,vara
 %              otherwise it is a cell array. This is the standard format for
 %              an sqw file.) [column vector]
 %   nspe        Array of length equal to the number of input header blocks containing
-%              the number of spe files in each ionput header block [column vector]
+%              the number of spe files in each input header block [column vector]
 %   ok          True if no problems combining, false otherwise
 %   mess        Error message if not ok; equal to '' if ok
 %   hstruct_sort Structure with the fields that define uniqueness of a header entry
 %   ind         Index of hstruct_sort of equivalent entry in header_out
 %
-%   
+%
 % Notes:
 % ------
 % 1) For the headers to be combined:
@@ -51,6 +51,11 @@ function [header_out,nspe,ok,mess,hstruct_sort,ind] = header_combine(header,vara
 %   algorithms in Horace
 
 hstruct=struct('filename','','efix',[],'psi',[],'omega',[],'dpsi',[],'gl',[],'gs',[]);
+
+drop_subz_headers = false;
+if ismember('drop_subzones_headers',varargin)
+    drop_subz_headers = true;
+end
 
 nsqw=numel(header);
 
@@ -82,19 +87,50 @@ for i=1:nsqw
         nspe(i)=numel(header{i});
     end
 end
+%
+    function is=is_subzone_header(hd)
+        % identify if this header belong to zone divided into subzones or not
+        %
+        % a first subzone header assumed not to belong to subzone headers
+        [numbers,~] = regexp(hd.filepath,'\d*','match','split');
+        num = str2double(numbers(3));
+        if num>1
+            is = true;
+        else
+            is = false;
+        end
+    end
+
+
 
 % Construct output header block
 nfiles_tot=sum(nspe);
 header_out=cell(nfiles_tot,1);
 ibeg=1;
 for i=1:nsqw
+    subz_header = false;
+    
     if nspe(i)==1
         header_out(ibeg)=header(i);   % header for a single file is just a structure
         ibeg=ibeg+1;
+        if drop_subz_headers
+            subz_header = is_subzone_header(header(i));
+        end        
     else
         header_out(ibeg:ibeg+nspe(i)-1)=header{i};    % header for more than one file is a cell array
+        if drop_subz_headers
+            subz_header = is_subzone_header(header_out{ibeg});
+        end        
         ibeg=ibeg+nspe(i);
     end
+    if subz_header
+        nspe(i) = -nspe(i);
+    end
+end
+
+if drop_subz_headers
+    subzone_headers = cellfun(@(hd)(is_subzone_header(hd)),header_out);
+    header_out = header_out(~subzone_headers);
 end
 
 % Check the headers are all unique across the relevant fields, and have equality in other required fields
@@ -149,3 +185,4 @@ end
 % Final output
 ok=true;
 mess='';
+end

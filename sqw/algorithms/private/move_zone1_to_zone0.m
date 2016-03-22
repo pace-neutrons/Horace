@@ -3,14 +3,14 @@ function zone_filenames_list=move_zone1_to_zone0(param)
 mpi_obj=MPI_State.instance();
 is_deployed = mpi_obj.is_deployed;
 cut_par=param.cut_transf;
-n_zone = cut_par.zone_id;
+n_zone = param.n_zone;
 n_zones =param.n_tot_zones;
 
 try
     % Estimate the number of pixels in the cut
     if is_deployed
-        add_mess = sprintf('Processing zone #%d of %d. Its: [%d,%d,%d]'  ,...
-            n_zone,n_zones, cut_par.zone_center);
+        add_mess = sprintf('Processing zone ID#%d Its: [%d,%d,%d]'  ,...
+            cut_par.zone_id,cut_par.zone_center);
         mpi_obj.do_logging(n_zone,n_zones,0,add_mess);
     end
     
@@ -65,6 +65,9 @@ try
             % zone
             wtmp=transform_coordinates(sectioncut,cut_par.transf_matrix,...
                 cut_par.shift,(n_zone-1)*sectioncut.main_header.nfiles);
+            % transform cut headers to combine them properly
+            wtmp = trahsform_headers(wtmp,cut_par.zone_id,cut_par.zone_center,...
+                i,n_ranges);
             save(wtmp,fullfile(param.rez_location,zone_filenames_list{i}));
         else
             zone_filenames_list{i} = '';
@@ -84,6 +87,29 @@ catch ME
     fprintf('Skipping zone: [%d,%d,%d]. Reason: %s\n',zone_c0(1),...
         zone_c0(2),zone_c0(3),ME.message);
     zone_filenames_list = {};
+end
+end
+%
+function  cut_part = trahsform_headers(cut_part,zone_id,zone_center,...
+    n_cur_chunk,num_chunks)
+% transform headers to store information about zone the header has been cut
+% out and the chunk the zone has been divided into
+
+headers = cut_part.header;
+file_id = sprintf('_zoneID#%d_center[%d,%d,%d]',zone_id,zone_center(1),...
+    zone_center(2),zone_center(3));
+n_headers = numel(headers);
+chunk_id = sprintf('pixBase%dZoneID%dchunk%d#%d',n_headers,zone_id,...
+           n_cur_chunk,num_chunks);
+
+
+    function hd = change_header(hd)
+        hd.filename = [hd.filename,file_id];
+        hd.filepath = chunk_id;
+    end    
+
+headers = cellfun(@(x)change_header(x),headers,'UniformOutput',false);
+cut_part.header = headers;
 end
 
 function [n_ranges,eranges,zone_fnames]=find_subzones(info_obj,erange,zone_id)
@@ -134,16 +160,17 @@ eranges(3,n_ranges) = erange(3);
 for i=2:n_ranges
     eranges(1,i) = eranges(3,i-1)+2*eps(eranges(3,i-1));
 end
+end
 
 function wout=transform_coordinates(w1,transf_matrix,shifts,pixid_shift)
 % Routine applies speficified symmetry operation, to the pixels of input
 % object w1 The symmetry operation is determined bny the transformation
-% matrix (transf_matrix) and shifn (shift). 
+% matrix (transf_matrix) and shifn (shift).
 %
-% pixid_shift contains additional information about pixel's zone. 
-%             This  informaiton consist of production of the (zone_id-1) and 
-%             the number of files, contributed into the initial sqw file. 
-%             zone_id can be recovered by the oppozite operation: 
+% pixid_shift contains additional information about pixel's zone.
+%             This  informaiton consist of production of the (zone_id-1) and
+%             the number of files, contributed into the initial sqw file.
+%             zone_id can be recovered by the oppozite operation:
 %             zone_is = ceil(new_pix_id/n_contributed_files)
 %
 %
@@ -211,3 +238,4 @@ wout.data.p=p1new;
 %arrays:
 argi = cell(1,numel(p1new));
 wout=cut(wout,argi{:});
+end
