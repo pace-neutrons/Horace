@@ -139,15 +139,25 @@ for i=2:nfiles  % only need to check if more than one file
     end
     if npax>0   % one or more projection axes
         ok = all(datahdr{i}.pax==datahdr{1}.pax);
+        if ~ok
+            error('WRITE_NSQW_TO_SQW:invalid_data',...
+                'proj axis indexes for header N%d not equal to first header indexes',i)
+        end
         for ipax=1:npax
             % Absolute tolerance of maximum bin boundary value written to file in single precision
             % This sets the absolute tolerance for all bin boundaries
             abs_tolaxis=4*eps(single(max(abs([datahdr{i}.p{ipax}(1),datahdr{i}.p{ipax}(end)]))));
             ok = ok & (numel(datahdr{i}.p{ipax})==numel(datahdr{i}.p{ipax}) &...
                 max(abs(datahdr{i}.p{ipax}-datahdr{1}.p{ipax}))<abs_tolaxis);
+            if ~ok
+                warning('WRITE_NSQW_TO_SQW:invalid_data',...
+                    'proj axis for header N%d not equal first header pax',i)
+                
+            end
         end
         if ~ok
-            error('Not all projection axes and bin boundaries are identical')
+            error('WRITE_NSQW_TO_SQW:invalid_data',...
+                'Not all projection axes for header %d and bin boundaries are identical to first header',i)
         end
     end
 end
