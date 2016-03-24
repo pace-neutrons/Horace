@@ -104,7 +104,7 @@ classdef config_base
             name = this.class_name_;
         end
         function folder = get.config_folder()
-            folder = config_store.instance().config_folder;
+            folder = config_store.instance.config_folder;
         end
         %-----------------------------------------------------------------
         function is = get_saveable_default(this)
@@ -115,11 +115,11 @@ classdef config_base
             is = this.is_saveable_;
         end
         function is=get.saveable(this)
-            is = config_store.instance().get_saveable(this);
+            is = config_store.instance.get_saveable(this);
         end
         %
         function this=set.saveable(this,val)
-            config_store.instance().set_saveable(this,val);
+            config_store.instance.set_saveable(this,val);
         end
         %------------------------------------------------------------------
         function is = get.returns_defaults(this)
@@ -146,7 +146,7 @@ classdef config_base
                 % get actual configuration
                 % if class have never been stored in configuration, it
                 % will return defaults
-                value = config_store.instance().get_config_field(this,field_name);
+                value = config_store.instance.get_config_field(this,field_name);
             end
         end
         %
