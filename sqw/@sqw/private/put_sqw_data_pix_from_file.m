@@ -48,19 +48,20 @@ function [mess,fid_input] = put_sqw_data_pix_from_file (fout, infiles, pos_npixs
 nfiles = length(infiles);
 
 % Check run_label:
+relabel_with_fnum=false;
 if ischar(run_label)
     if strcmpi(run_label,'nochange')
         change_fileno=false;
     elseif strcmpi(run_label,'fileno')
         change_fileno=true;
-        fileno=true;
+        relabel_with_fnum=true;
     else
         mess='Invalid value for argument run_label';
         return
     end
 elseif isnumeric(run_label) && numel(run_label)==nfiles
     change_fileno=true;
-    fileno=false;
+    relabel_with_fnum=false;
 else
     mess='Invalid contents for argument run_label';
     return
@@ -75,7 +76,7 @@ if use_mex
     fclose(fout);
     n_bins = numel(npix_cumsum);
     [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_position,...
-        infiles,pos_npixstart, pos_pixstart,run_label,change_fileno,fileno);
+        infiles,pos_npixstart, pos_pixstart,run_label,change_fileno,relabel_with_fnum);
     if isempty(mess)
         fid_input = true;
         return
@@ -196,7 +197,7 @@ while ibin_end<nbin
             end
             nsinglebin_write = nsinglebin_write + 1;
             if (log_level>1)
-                t_io=toc(t_all);                
+                t_io=toc(t_all);
             end
         else    % can hold data for at least one bin in buffer
             % Get information about number of pixels to be read from all the files
@@ -373,7 +374,7 @@ for i=1:nfiles
 end
 %
 function  [mess,infiles] = combine_files_using_mex(fout_name,n_bin,pix_out_position,...
-    infiles,npixstart, pixstart,runlabel,change_fileno,fileno)
+    infiles,npixstart, pixstart,runlabel,change_fileno,relabel_with_fnum)
 % prepare input data for mex-combining and attempt to combine input data
 % using mex.
 nfiles = numel(infiles);
@@ -391,7 +392,7 @@ for i=1:nfiles
         filename = infiles{i};
     end
     if change_fileno
-        if fileno
+        if relabel_with_fnum
             file_id = i;   % set the run index to the file index
         else
             file_id = runlabel(i);  % offset the run index
@@ -414,14 +415,15 @@ out_param = struct('file_name',fout_name ,...
 % 1            -- first bin to start copty pixels for
 % out_buf_size -- the size of ouput buffer to use for writing pixels
 % change_fileno-- if pixel run id should be changed
-% fileno       -- if change_fileno is true, how to calculate the new pixel
-%                 id -- by providing new id or by adding it to existing.
+% relabel_with_fnum -- if change_fileno is true, how to calculate the new pixel
+%                  id -- by providing new id equal to filenum or by adding 
+%                  it to the existing num.
 % num_ticks    -- approximate number of log messages to generate while
 %                 combining files together
 % buf size     -- bufer size -- the size of bufer used for each input file
 %                 read operations
-% multithreaded_combining - use multiple threads to read files 
-program_param = [n_bin,1,out_buf_size,log_level,change_fileno,fileno,100,buf_size,multithreaded_combining];
+% multithreaded_combining - use multiple threads to read files
+program_param = [n_bin,1,out_buf_size,log_level,change_fileno,relabel_with_fnum,100,buf_size,multithreaded_combining];
 t_start=tic;
 try
     if log_level>1
@@ -430,7 +432,7 @@ try
     combine_sqw(in_params,out_param ,program_param);
     mess = '';
 catch ME;
-    mess = [ME.identifier,'::',ME.message]; 
+    mess = [ME.identifier,'::',ME.message];
     disp(['Error using C to combine files: ',mess,'; Reverted to Matlab'])
 end
 if log_level > 0

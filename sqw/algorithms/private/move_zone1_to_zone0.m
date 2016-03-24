@@ -107,8 +107,11 @@ chunk_id = sprintf('pixBase%dZoneID%dchunk%d#%d',n_headers,zone_id,...
         hd.filename = [hd.filename,file_id];
         hd.filepath = chunk_id;
     end    
-
-headers = cellfun(@(x)change_header(x),headers,'UniformOutput',false);
+if numel(headers) > 1
+    headers = cellfun(@(x)change_header(x),headers,'UniformOutput',false); 
+else
+    headers = change_header(headers);
+end
 cut_part.header = headers;
 end
 
@@ -184,14 +187,22 @@ u_to_rlu1=w1.data.u_to_rlu(1:3,1:3);
 umat1=repmat(w1.data.ulen(1:3)',1,3);
 T1=u_to_rlu1./umat1;
 T_sym = transf_matrix*T1;
-
+Tt = T1\T_sym;
 
 if all(shifts==0)
     coords1=w1.data.pix(1:3,:);
-    coords_rlu1=T_sym*coords1;
+
+    %coords_rlu1=T_sym*coords1;
+    %Convert coordinates back to inverse Angstroms:
+    %coords_ang=(inv(T1))*coords_rlu1;
+    coords_ang=Tt*coords1;
+    
 else
     shifts_in_a = T1\shifts';
-    coords_rlu1=T_sym*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
+    %coords_rlu1=T_sym*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);
+    %Convert coordinates back to inverse Angstroms:    
+    %coords_ang=(inv(T1))*coords_rlu1;    
+    coords_ang=Tt*bsxfun(@plus,w1.data.pix(1:3,:),shifts_in_a);     
 end
 % modify pixel's id to add informaion about zone, pixel came from
 if pixid_shift~=0
@@ -199,7 +210,7 @@ if pixid_shift~=0
 end
 
 %coords2=w2.data.pix([1:3],:);
-p1=w1.data.p;
+%p1=w1.data.p;
 %p2=w2.data.p;
 
 %
@@ -210,23 +221,63 @@ p1=w1.data.p;
 %T2=u_to_rlu2./umat2;
 %coords_rlu2=T2*coords2;
 
-%Convert coordinates back to inverse Angstroms:
-coords_ang=(inv(T1))*coords_rlu1;
 %Make the required changes to the p1 cell array:
-p1new=p1;
+%
+% get all axis vectors directed along rlu vectors:
+dob = wout.data; % this is bug with custom subsref
+q = cell(3,1);
+[q{1},q{2},q{3}] = dob.get_q_axes();
+
+% let's find box size in transformed  coordinate system:
+%bin_size=zeros(3,1);
+maxin =zeros(3,1);
+nbins = [(numel(q{1})-1),(numel(q{2})-1),(numel(q{3})-1)];
+
+qt = zeros(3,3);
+qst = zeros(3,3);
+qst(1,:) = [(q{1}(2)-q{1}(1)),0,0]*transf_matrix;
+qst(2,:) = [0,(q{2}(2)-q{2}(1)),0]*transf_matrix;
+qst(3,:) = [0,0,(q{3}(2)-q{3}(1))]*transf_matrix;
+qt(1,:) = [q{1}(1),0,0]*transf_matrix;
+qt(2,:) = [0,q{2}(1),0]*transf_matrix;
+qt(3,:) = [0,0,q{3}(1)]*transf_matrix;
+
+%
+[~,maxin(1)] = max(abs(qst(1,:)));
+[~,maxin(2)] = max(abs(qst(2,:)));
+[~,maxin(3)] = max(abs(qst(3,:)));
+
+if (maxin(1)==maxin(2)|| maxin(2)==maxin(3) || maxin(1)==maxin(3))
+    % rebinning necessary, can not deal with this yet
+    error('COMBINE_CUTS_LIST:not_implemented',...
+        'Rebinning necessary. This kind of transformation is not yet implemented');
+end
+
+
+%axis_fun = @(new_ort,x,y,z)(new_ort(1)*(x+shifts(1))+...
+%              new_ort(2)*(y+shifts(2))+...
+%              new_ort(3)*(z+shifts(3)));
+
+axis_fun = @(x0,shift,step,ind)(x0+shift+(ind-1)*step);
+
+p    = dob.p;
+p1new=dob.p;
 for i=1:3
-    ort = zeros(3,1);
-    ort(i) = 1;
-    new_ort = ort'*transf_matrix; % the result should have unit length by transf
+    ia = find(maxin(i)==dob.iax,1);
+    if ~isempty(ia) % integration axis does currently not change
+        p1new{maxin(i)} = p{i};
+        continue;                       % TODO: change it!
+    end
+    bins = 1:nbins(i)+1;
+    % new axis step in each old direction     
+    q0  = qt(i,maxin(i));
+    qst0 = qst(i,maxin(i));
+    new_axis = arrayfun(@(x)axis_fun(q0,shifts(i),qst0,x),bins);    
     % matrix definition
-    new_axis=arrayfun(@(x,y,z)(new_ort(1)*(x+shifts(1))+...
-        new_ort(2)*(y+shifts(2))+...
-        new_ort(3)*(z+shifts(3))),...
-        p1{1},p1{2},p1{3});
     if new_axis(1)>new_axis(end)
-        p1new{i} =  flipud(new_axis);
+        p1new{maxin(i)} =  flipud(new_axis');
     else
-        p1new{i} = new_axis;
+        p1new{maxin(i)} = new_axis';
     end
 end
 

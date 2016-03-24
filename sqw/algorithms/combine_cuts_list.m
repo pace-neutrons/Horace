@@ -125,7 +125,7 @@ else% Go serial.
         % combine all inputs, necessary to convert coordinates of one zone
         % into the coordinates of other zone into signle compact structure;
         params  = job_par_fun(transf_list{i});
-        params.n_zone = i;       
+        params.n_zone = i;
         % move coordunates of current zone into specified coordinates
         zone_files{i} = move_zone1_to_zone0(params);
     end
@@ -146,6 +146,13 @@ for i=1:numel(zone_fnames_list)
 end
 clobj1 = onCleanup(@()cellfun(@(fn)clear_tmp_file(fn),zone_fnames_list));
 %==================================
+if isempty(zone_fnames_list)
+    disp('----------------------------------------------------------------');
+    disp('  No data found within the combined zones Nothing to do --------');
+    disp('                    Symmetrisation finished                     ');
+    disp('----------------------------------------------------------------');
+    
+end
 
 %We need to work out how each of the Brillouin zones in zonelist relate to
 %the pos argument. This will then tell us how we must transform the

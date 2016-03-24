@@ -28,8 +28,6 @@ classdef test_symm_equivalent_zones< TestCase
             mis.is_tested = true;
             clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
             
-            
-            
             proj = projection([1,1,0],[1,-1,0]);
             pos = [1,1,0];
             zone1=[1,-1,0];
@@ -38,27 +36,31 @@ classdef test_symm_equivalent_zones< TestCase
             outfiles = {fullfile(outdir ,'HoracePartialZoneN1_file_partN0.tmp'),...
                 fullfile(outdir ,'HoracePartialZoneN2_file_partN0.tmp')}  ;
             cob = onCleanup(@()delete(outfiles{:}));
-            range1 = qe_range(-0.1,0.025,0.1);
-            ranges = cell(2,1);
-            ranges{1} = [range1,range1,qe_range(-Inf,Inf),qe_range(0,1.5,100)];
-            ranges{2} = ranges{1};
-            ranges{1}(1).center = zone1(1);
-            ranges{1}(2).center = zone1(2);
-            ranges{1}(3).center = zone1(3);
-            ranges{2}(1).center = pos(1);
-            ranges{2}(2).center = pos(2);
-            ranges{2}(3).center = pos(3);
-            zones = {zone1;pos};
-            zoneid=cell(2,1);
-            zoneid{1}= 1;
-            zoneid{2}= 2;
             
-            job_par_fun = @(id,x,y)(combine_equivalent_zones_job.param_f(...
-                id,x,y(1),y(2),y(3),y(4),proj,pos,data_source,outdir));
+            % does not currently work -- changes for the future
+            %ranges = cut_transf([-0.1,0.025,0.1],[-0.1,0.025,0.1],[-Inf,Inf],[0,1.5,100]);
+            ranges = cell(2,1);
+            ranges{1} = cut_transf([-0.1,0.025,0.1],[-0.1,0.025,0.1],[-Inf,Inf],[0,1.5,100]);
+            ranges{2} = cut_transf([-0.1,0.025,0.1],[-0.1,0.025,0.1],[-Inf,Inf],[0,1.5,100]);
+            
+            ranges{1}.zone_id = 1;
+            ranges{1}.zone_center = zone1;
+            ranges{1}.target_center = pos;
+            ranges{1} = ranges{1}.set_sigma_transf();
+            %
+            ranges{2}.zone_id = 2;
+            ranges{2}.zone_center   = pos;
+            ranges{2}.target_center = pos;
+            ranges{2} = ranges{2}.set_sigma_transf();            
+            
+            %zones = {zone1;pos};
+            
+            job_par_fun = @(transf)(combine_equivalent_zones_job.param_f(...
+                transf,proj,data_source,outdir,2));
+            
             
             % the job parameter lost to process two zones
-            job_param_list  = cellfun(job_par_fun,zoneid,zones,ranges);
-            
+            job_param_list  = cellfun(job_par_fun,ranges);
             
             
             jd = JobDispatcher('test_sym_equiv_zones_worker');
@@ -93,19 +95,22 @@ classdef test_symm_equivalent_zones< TestCase
             outdir  = tempdir;
             outfile = fullfile(outdir ,'HoracePartialZoneN1_file_partN0.tmp');
             cob = onCleanup(@()delete(outfile));
-            range1 = qe_range(-0.1,0.025,0.1);
-            ranges = [range1,range1,qe_range(-Inf,Inf),qe_range(0,1.5,100)];
-            ranges(1).center = zone1(1);
-            ranges(2).center = zone1(2);
-            ranges(3).center = zone1(3);
+            % does not currently work -- changes for the future
+            ranges = cut_transf([-0.1,0.025,0.1],[-0.1,0.025,0.1],[-Inf,Inf],[0,1.5,100]);
             
+            %ranges = cut_transf([-0.1,0.025,0.1],[-0.1,0.025,0.1],[0.9,0.025,1.1],[0,1.5,100]);
+
+            ranges.zone_id = 1;            
+            ranges.zone_center = zone1;
+            ranges.target_center = pos;
+            ranges = ranges.set_sigma_transf();
             
+            job_par_fun = @(transf)(combine_equivalent_zones_job.param_f(...
+                transf,proj,data_source,outdir,1));
             
-            job_par_fun = @(id,x,y)(combine_equivalent_zones_job.param_f(...
-                id,x,y(1),y(2),y(3),y(4),proj,pos,data_source,outdir));
+            job_param = job_par_fun(ranges);
+            job_param.n_zone = 1;
             
-            
-            job_param = job_par_fun(1,zone1,ranges);
             
             je = combine_equivalent_zones_job('test_sym_equiv_zones_do_job');
             je=je.do_job(job_param);
