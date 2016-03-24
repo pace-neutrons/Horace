@@ -261,7 +261,7 @@ end
 axis_fun = @(x0,shift,step,ind)(x0+shift+(ind-1)*step);
 
 p    = dob.p;
-p1new=dob.p;
+p1new= p;
 for i=1:3
     ia = find(maxin(i)==dob.iax,1);
     if ~isempty(ia) % integration axis does currently not change
