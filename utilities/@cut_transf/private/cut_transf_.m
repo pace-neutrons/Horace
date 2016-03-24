@@ -17,8 +17,6 @@ elseif nargin==5
     obj = set_range_(obj,4,varargin{4});
 end
 
-obj.transf_matrix_(1,1)=1;
-obj.transf_matrix_(2,2)=1;
-obj.transf_matrix_(3,3)=1;
+obj.transf_matrix_ = eye(3);
 
 
