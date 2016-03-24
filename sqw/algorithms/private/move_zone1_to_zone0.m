@@ -235,12 +235,12 @@ nbins = [(numel(q{1})-1),(numel(q{2})-1),(numel(q{3})-1)];
 
 qt = zeros(3,3);
 qst = zeros(3,3);
-qst(1,:) = [(q{1}(2)-q{1}(1)),0,0]*transf_matrix;
-qst(2,:) = [0,(q{2}(2)-q{2}(1)),0]*transf_matrix;
-qst(3,:) = [0,0,(q{3}(2)-q{3}(1))]*transf_matrix;
-qt(1,:) = [q{1}(1),0,0]*transf_matrix;
-qt(2,:) = [0,q{2}(1),0]*transf_matrix;
-qt(3,:) = [0,0,q{3}(1)]*transf_matrix;
+qst(1,:) = transf_matrix*[(q{1}(2)-q{1}(1));0;0];
+qst(2,:) = transf_matrix*[0;(q{2}(2)-q{2}(1));0];
+qst(3,:) = transf_matrix*[0;0;(q{3}(2)-q{3}(1))];
+qt(1,:) = transf_matrix*[q{1}(1);0;0];
+qt(2,:) = transf_matrix*[0;q{2}(1);0];
+qt(3,:) = transf_matrix*[0;0;q{3}(1)];
 
 %
 [~,maxin(1)] = max(abs(qst(1,:)));
