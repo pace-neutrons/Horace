@@ -348,8 +348,8 @@ end
 % Get accumulated signal
 % -----------------------
 % read data and accumulate signal and error
-targ_pax = proj.target_pax();
-targ_nbin = proj.target_nbin();
+targ_pax = proj.target_pax;
+targ_nbin = proj.target_nbin;
 if source_is_file
     
     fid=fopen(data_source,'r');
