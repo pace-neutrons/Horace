@@ -86,7 +86,7 @@ function varargout=spaghetti_plot(varargin)
 
 % Original author: M. D. Le
 %
-% $Revision: 1160 $ ($Date: 2016-01-25 11:18:27 +0000 (Mon, 25 Jan 2016) $)
+% $Revision$ ($Date$)
 
 % TODO: Make it work for dnd objects (no arbitrary projections...)
 
@@ -216,20 +216,20 @@ for i=1:nseg
     u3crt = cross(u1crt,u2crt);
     u3rlp = (inv(b)*u3crt')';
     ulen = 1./max(abs(inv(ubmatrix(u1rlp,u2rlp,b))));
-    u1rlp = u1rlp.*ulen(1);
-    u2rlp = u2rlp.*ulen(2);
-    u3rlp = u3rlp.*ulen(3);
+    u1rlp = u1rlp.*ulen(1)
+    u2rlp = u2rlp.*ulen(2)
+    u3rlp = u3rlp.*ulen(3)
     proj.u = u1rlp; proj.v = u2rlp;
     % determines the bin size in the desired q-direction in r.l.u.
     u1bin = qbin/ulen(1);
     % determines the integration range over the perpendicular q-directions in r.l.u.
     u2bin = qwidth(1)/ulen(2);
     u3bin = qwidth(2)/ulen(3);
-    u20= dot(b*rlp(i,:)',u2crt)/ulen(2);
-    u30= dot(b*rlp(i,:)',u3crt)/ulen(3);
-    u1 = [dot(b*rlp(i,:)',u1crt)/ulen(1), u1bin, dot(b*rlp(i+1,:)',u1crt)/ulen(1)];
-    u2 = [u20-u2bin,u20+u2bin];
-    u3 = [u30-u3bin,u30+u3bin];
+    u20= dot(b*rlp(i,:)',u2crt./norm(u2crt))/ulen(2);
+    u30= dot(b*rlp(i,:)',u3crt./norm(u3crt))/ulen(3);
+    u1 = [dot(b*rlp(i,:)',u1crt)/ulen(1), u1bin, dot(b*rlp(i+1,:)',u1crt)/ulen(1)]
+    u2 = [u20-u2bin,u20+u2bin]
+    u3 = [u30-u3bin,u30+u3bin]
     % Make cut, and save to array of d2d
     wdisp(i) = cut_sqw(sqw,proj,u1,u2,u3,ebin,'-nopix');
     if nargout>1
