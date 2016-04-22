@@ -186,7 +186,7 @@ while ibin_end<nbin
                         return
                     end
                     if change_fileno
-                        if fileno
+                        if relabel_with_fnum
                             pix(5,:)=i;   % set the run index to the file index
                         else
                             pix(5,:)=pix(5,:)+run_label(i);     % offset the run index
@@ -249,7 +249,7 @@ while ibin_end<nbin
                 for i=1:nfiles
                     pix_block = pix_tb{i};
                     if(numel(pix_block) > 0)
-                        if fileno
+                        if relabel_with_fnum
                             pix_block(5,:)=i;
                         else
                             pix_block(5,:) =pix_block(5,:)+run_label(i); % offset the run index
