@@ -54,6 +54,17 @@ function [tmp_file,grid_size,urange] = gen_sqw (varargin)
 %                  empty piece of sample environment. In this case, use the keyword 'replicate'
 %                  to override the uniqueness check on file name.
 %
+%  'transform_sqw' Keyword, followed by the function, which actually
+%                  transforms sqw object. The function should have the
+%                  form:
+%                  wout = f(win) where win is input sqw object and wout -- 
+%                  the transformed one. For example f can symmeterize sqw file: 
+% i.e:
+%   >> gen_sqw(...,...,...,'transform_sqw',@(x)(symmetrise_sqw(x,[0,1,0],[0,0,1],[0,0,0])))
+%                  would symmeterize pixels of the generated sqw file by
+%                  reflecting them in the plane specified by vectors
+%                  [0,1,0], and [0,0,1] (see symmeterise_sqw for details)
+%
 %
 % Output:
 % --------

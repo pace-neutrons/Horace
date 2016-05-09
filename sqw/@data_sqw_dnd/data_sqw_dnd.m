@@ -64,7 +64,9 @@ classdef data_sqw_dnd
         data_type = data_structure_type(data);
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some qxis
-        [q1,q2,q3] = get_q_axes(obj);        
+        [q1,q2,q3] = get_q_axes(obj);
+        % return binning range of existing data object
+        range = get_bin_range(obj);
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copyconstructor:

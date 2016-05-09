@@ -1,4 +1,5 @@
-function [grid_size, urange] = rundata_write_to_sqw (run_files, sqw_file, grid_size_in, urange_in, instrument, sample, write_banner)
+function [grid_size, urange] = rundata_write_to_sqw (run_files, sqw_file, ...
+    grid_size_in, urange_in, instrument, sample, write_banner,opt_arg)
 % Read a single rundata object, and create a single sqw file.
 %
 %   >> [grid_size, urange] = rundata_write_to_sqw (run_file, sqw_file, grid_size_in, urange_in, instrument, sample)
@@ -14,6 +15,14 @@ function [grid_size, urange] = rundata_write_to_sqw (run_files, sqw_file, grid_s
 %   sample          Array of structures or objects containing sample geometry information
 %   write_banner    =true then write banner; =false then done (no banner will be
 %                   written anyway if the output logging level is not low enough)
+%   opt_arg         the cellarray of structires containing optional arguments,
+%                   used in transformation
+%                   at the moment, only one field can be used, namely:
+%  'transform_sqw'  Keyword, followed by the function,
+%                   which actually transforms sqw object. The function
+%                   should have the form:
+%                   wout = f(win) where win is input sqw object and wout --
+%                   the transformed one. 
 %
 % Output:
 % -------
@@ -30,6 +39,10 @@ function [grid_size, urange] = rundata_write_to_sqw (run_files, sqw_file, grid_s
 nfiles = numel(run_files);
 
 horace_info_level=get(hor_config,'horace_info_level');
+%
+if ~iscell(opt_arg)
+    opt_arg = {opt_arg};
+end
 
 % ==== TGP 27/05/14: are these lines necessary (will ned to be done for each file if are)
 % % detector's information into memory
@@ -42,6 +55,8 @@ det_buff=[];    % buffer of detector information
 
 mpi_obj= MPI_State.instance();
 running_mpi = mpi_obj.is_deployed;
+ntransf = 0;
+binning_range = {};
 for i=1:nfiles
     if horace_info_level>-1 && write_banner
         disp('--------------------------------------------------------------------------------')
@@ -84,6 +99,23 @@ for i=1:nfiles
         if ~all(grid_size==grid_size_tmp) || ~all(urange(:)==urange_tmp(:))
             error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
         end
+    end
+    if numel(opt_arg)>1
+        tr_ic = i;
+    else
+        tr_ic = 1;
+    end
+    if ~isempty(opt_arg{tr_ic})
+        opt_struct = opt_arg{tr_ic};
+        if isfield(opt_struct,'transform_sqw') && ~isempty(opt_struct.transform_sqw)
+            w = opt_struct.transform_sqw(w);
+            if ntransf == 0
+                binning_range = w.data.get_bin_range();
+            else
+                w = cut(w,binning_range{:});
+            end
+        end
+        ntransf = ntransf+1;
     end
         
     
