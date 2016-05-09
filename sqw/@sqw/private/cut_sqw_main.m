@@ -297,7 +297,9 @@ data.angdeg=angdeg;
 % If proj is not empty, then the input pbin will be dy correctly ordered as the projection axes, but if proj
 pin=cell(1,4);
 pin(data.pax)=data.p;   % works even if zero elements
-pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
+if ~isempty(data.iax)
+    pin(data.iax)=mat2cell(data.iint,2,ones(1,numel(data.iax)));
+end
 
 % Get matrix to convert from projection axes of input data to required output projection axes
 % ---------------------------------------------------------------------------------------------

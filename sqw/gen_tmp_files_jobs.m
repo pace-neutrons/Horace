@@ -33,17 +33,21 @@ classdef gen_tmp_files_jobs < JobExecutor
     end
     methods(Static)
         function par = pack_job_pars(run,fname,instr,samp,...
-                grid_size_in,urange_in)
+                grid_size_in,urange_in,varargin)
             % pacj conversion parameters into the form, runfiles_to_sqw
             % understands            
             par = struct(...
                 'runfile',[],'sqw_file_name',[],'instrument',[],...
                 'sample',[],...
-                'grid_size_in',grid_size_in,'urange_in',urange_in);
+                'grid_size_in',grid_size_in,'urange_in',urange_in,...
+                'optional_arg',[]);
             par.runfile       = run;
             par.sqw_file_name = fname;
             par.instrument    = instr;
             par.sample        = samp;
+            if ~isempty(varargin)
+                par.optional_arg = varargin{1};
+            end
         end        
     end
     

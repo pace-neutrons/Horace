@@ -19,6 +19,8 @@ function [grid_size,urange]=runfiles_to_sqw(sqw_dummy_obj,conversion_par_list)
 %                   that encloses the whole data range
 %   instrument      object containing instrument information
 %   sample          objects containing sample geometry information
+%   optional_par    array of structures, defining optional conversion parameters. 
+%                   up to now, each structure can have the following fields:
 %
 % Output:
 % -------
@@ -45,6 +47,8 @@ instrument_ref= conversion_par_list(1).instrument;
 sample_ref    =conversion_par_list(1).sample;
 instr         = repmat(instrument_ref,n_files,1);
 sample        = repmat(sample_ref,n_files,1);
+optional_arg  = cell(n_files,1);
+
 
 grid_size_in = conversion_par_list(1).grid_size_in;
 urange_in = conversion_par_list(1).urange_in;
@@ -53,8 +57,9 @@ for i=1:n_files
     tmp_fnames{i} = conversion_par_list(i).sqw_file_name;
     instr(i)      = conversion_par_list(i).instrument;
     sample(i)     = conversion_par_list(i).sample;
+    optional_arg{i} = conversion_par_list(i).optional_arg;
 end
 
 [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_fnames,...
-            grid_size_in,urange_in,instr,sample,false);
+            grid_size_in,urange_in,instr,sample,false,optional_arg);
 

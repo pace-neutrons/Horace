@@ -64,6 +64,18 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %   'clean'         [Only valid if 'accumulate' is also present]. Delete the sqw file if
 %                  it exists.
 %
+%  'transform_sqw' Keyword, followed by the function or cellarray of functions,
+%                  which actually transforms sqw object. The function
+%                  should have the form:
+%                  wout = f(win) where win is input sqw object and wout --
+%                  the transformed one. For example f can symmeterize sqw file:
+% i.e:
+%   >> gen_sqw(...,...,...,'transform_sqw',@(x)(symmetrise_sqw(x,[0,1,0],[0,0,1],[0,0,0])))
+%                  would symmeterize pixels of the generated sqw file by
+%                  reflecting them in the plane specified by vectors
+%                  [0,1,0], and [0,0,1] (see symmeterise_sqw for details)
+
+%
 %
 % Output:
 % --------
@@ -91,7 +103,8 @@ if ~isa(dummy,classname)    % classname is a private method
 end
 
 % Determine keyword arguments, if present
-arglist=struct('replicate',0,'accumulate',0,'clean',0,'tmp_only',0,'time',0);
+arglist=struct('replicate',0,'accumulate',0,'clean',0,'tmp_only',0,'time',0,...
+    'transform_sqw',[]);
 flags={'replicate','accumulate','clean','tmp_only'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
@@ -104,6 +117,25 @@ if ~opt.accumulate
     end
     if present.time && (exist(opt.time,'var') || ~isnumeric(opt.time) || opt.time~=0)
         error('Invalid option ''time'' unless also have option ''accumulate'' and/or a date-time vector following')
+    end
+end
+if present.transform_sqw
+    for i=1:numel(opt.transform_sqw)
+        [ok,mess] = check_fh_input(opt.transform_sqw);
+        if ~ok
+            error('GEN_SQW:invalid_argument',['transform_sqw param N',...
+                num2str(i),' Error: ',mess])
+        end
+    end
+    if numel(opt.transform_sqw)>1
+        if numel(opt.transform_sqw) ~= numel(psi)
+            error('GEN_SQW:invalid_argument',...
+                ['When more then one sqw file transformation is provided', ...
+                ' number of transformations should be equal to number of spe ',...
+                'files to transform\n.',...
+                ' In fact have %d files and %d transformations defined.'],...
+                numel(opt.transform_sqw),numel(psi))
+        end
     end
 end
 
@@ -300,7 +332,7 @@ if ~accumulate_old_sqw && nindx==1
     end
     write_banner=false;
     [grid_size,urange] = rundata_write_to_sqw (run_files,{sqw_file},...
-        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner);
+        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner,opt);
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
     if horace_info_level>-1
@@ -319,23 +351,34 @@ else
     if numel(fields(sample))~=0
         sample = sample(indx);
     end
-    if use_separate_matlab
-        not_empty = cellfun(@(x)(~isempty(x)),spe_file);
-        if ~all(not_empty)
-            %tmp_file = tmp_file(not_empty);
-            instrument = instrument(not_empty);
-            sample     = sample(not_empty);
-        end
-        %
-        % aggregate the conversion parameters into array of structures,
-        % suitable for splitting jobs between workers
+    not_empty = cellfun(@(x)(~isempty(x)),spe_file);
+    if ~all(not_empty)
+        %tmp_file = tmp_file(not_empty);
+        instrument = instrument(not_empty);
+        sample     = sample(not_empty);
+    end
+    
+    if numel(opt.transform_sqw)>1
+        job_par_fun = @(run,fname,instr,samp,transf)(gen_tmp_files_jobs.pack_job_pars(...
+            run,fname,instr,samp,...
+            grid_size_in,urange_in,struct('transform_sqw',transf)));
+        job_par = cellfun(job_par_fun,...
+            run_files',tmp_file,num2cell(instrument),num2cell(sample),...
+            opt.transf_sqw,...
+            'UniformOutput', true);
+    else
         job_par_fun = @(run,fname,instr,samp)(gen_tmp_files_jobs.pack_job_pars(...
-                run,fname,instr,samp,...
-                grid_size_in,urange_in));
-            
+            run,fname,instr,samp,...
+            grid_size_in,urange_in,opt));
         job_par = cellfun(job_par_fun,...
             run_files',tmp_file,num2cell(instrument),num2cell(sample),...
             'UniformOutput', true);
+    end
+    
+    if use_separate_matlab
+        %
+        % aggregate the conversion parameters into array of structures,
+        % suitable for splitting jobs between workers
         %
         % start parallel framework
         [~,par_job_name] = fileparts(sqw_file);
@@ -350,8 +393,15 @@ else
     else
         %---------------------------------------------------------------------
         % serial rundata to sqw transformation
-        [grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
-            grid_size_in,urange_in,instrument,sample,write_banner);
+        %[grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
+        %    grid_size_in,urange_in,instrument,sample,write_banner,opt);
+        % make it looks like parallel transformation though a bit less
+        % effective but much easier to debug parallel job
+        jex = gen_tmp_files_jobs();
+        jex = jex.do_job(job_par);
+        result = jex.job_outputs;
+        grid_size= result.grid_size;
+        urange = result.urange;
         %---------------------------------------------------------------------
     end
     if horace_info_level>-1
@@ -367,12 +417,12 @@ else
             if horace_info_level>-1
                 disp('Creating output sqw file:')
             end
-            write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
+            write_nsqw_to_sqw (dummy, tmp_file, sqw_file);
         else
             if horace_info_level>-1
                 disp('Accumulating in temporary output sqw file:')
             end
-            write_nsqw_to_sqw (sqw, [sqw_file;tmp_file], sqw_file_tmp);
+            write_nsqw_to_sqw (dummy, [sqw_file;tmp_file], sqw_file_tmp);
             if horace_info_level>-1
                 disp(' ')
                 disp(['Renaming sqw file to ',sqw_file])
@@ -413,13 +463,14 @@ if nargout==0
     clear tmp_file grid_size urange
 end
 
+
 function  [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,n_workers,outputs,job_ids,job_par)
-% verify parallel outputs and reprocess 
+% verify parallel outputs and reprocess
 if n_failed == n_workers
     error('GEN_SQW:separate_process_sqw_generation',...
-   [' All parallel jobs have failed.\n',...
-    ' Disable parallel sqw generation by setting\n',...
-    ' set(hor_config,''accum_in_separate_process'',0)']);
+        [' All parallel jobs have failed.\n',...
+        ' Disable parallel sqw generation by setting\n',...
+        ' set(hor_config,''accum_in_separate_process'',0)']);
 end
 if n_failed>0
     warning('GEN_SQW:separate_process_sqw_generation',' %d out of %d jobs to generate tmp files reported failure',...
@@ -460,3 +511,14 @@ for i=2:numel(outputs)
         error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
     end
 end
+
+function  [ok,mess]=check_fh_input(input)
+if ~isa(input,'function_handle')
+    mess = ' expecting function handle as value for transform_sqw';
+    ok = false;
+else
+    ok = true;
+    mess = [];
+end
+
+

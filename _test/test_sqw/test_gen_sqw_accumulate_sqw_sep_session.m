@@ -487,7 +487,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
                 'UniformOutput', true);
             
             
-            jd = JobDispatcher('test_gen_sqw_sep_ses_worker');
+            jd = JobDispatcher('test_gen_sqw_sep_ses_worker');            
             [~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
             
             worker('gen_tmp_files_jobs',wc{1});

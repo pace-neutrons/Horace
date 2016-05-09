@@ -194,18 +194,15 @@ ndims=dimensions(win);
 %===============
 
 %New code, after bug fix (RAE 14/3/13):
-
-for i=1:ndims
-    bins=0.5.*(win.data.p{i}(1:end-1) + win.data.p{i}(2:end));
-    min_unref{i}=min(bins)+eps;%add small amount to avoid rounding error
-    max_unref{i}=max(bins)-eps;
-end
+existing_range = win.data.get_bin_range();
 
 %Extent of data after symmetrisation:
+min_ref = zeros(ndims,1);
+max_ref = zeros(ndims,1);
 for i=1:ndims
-    binwid=win.data.p{i}(2)-win.data.p{i}(1);
-    min_ref{i}=min(coords_cut(win.data.pax(i),:))+binwid/2;
-    max_ref{i}=max(coords_cut(win.data.pax(i),:))-binwid/2;
+    %binwid=win.data.p{i}(2)-win.data.p{i}(1);
+    min_ref(i)=min(coords_cut(win.data.pax(i),:))+existing_range{i}(2)/2;
+    max_ref(i)=max(coords_cut(win.data.pax(i),:))-existing_range{i}(2)/2;
 end
 
 clear 'coords_cut'; % MP: not needed anymore
@@ -213,17 +210,21 @@ clear 'coords_cut'; % MP: not needed anymore
 %==============
 
 %Now work out the full extent of the symmetrised data:
+min_full = zeros(ndims,1);
+max_full = zeros(ndims,1);
 for i=1:ndims
-    min_full{i}=min([min_unref{i} min_ref{i}]);
-    max_full{i}=max([max_unref{i} max_ref{i}]);
+    min_full(i)=min(existing_range{i}(1), min_ref(i));
+    max_full(i)=max(existing_range{i}(3), max_ref(i));
 end
 
 %We have to ensure that we also adjust the urange field appropriately:
+new_range = cell(ndims,1);
 for i=1:ndims
-    step=wout.data.p{i}(2)-wout.data.p{i}(1);
+    %step=wout.data.p{i}(2)-wout.data.p{i}(1);
     %add a little bit either side, to be sure of getting everything
-    wout.data.urange(1,wout.data.pax(i))=min_full{i}-step;
-    wout.data.urange(2,wout.data.pax(i))=max_full{i}+step;
+    wout.data.urange(1,wout.data.pax(i))=min_full(i)-existing_range{i}(2);
+    wout.data.urange(2,wout.data.pax(i))=max_full(i)+existing_range{i}(2);
+    new_range{i} = [min_full(i),existing_range{i}(2),max_full(i)];
 end
 
 %cannot use recompute_bin_data to get the new object...
@@ -235,30 +236,32 @@ info_level = get(hor_config,'horace_info_level');
 cleanup_obj=onCleanup(@()set(hor_config,'horace_info_level',info_level));
 set(hor_config,'horace_info_level',-1);
 
-if ndims==1
-    xstep=win.data.p{1}(2)-win.data.p{1}(1);
-    wout=cut(wout,[min_full{1},xstep,max_full{1}]);
-%     wout=cut(wout,[-Inf,xstep,Inf]);
-elseif ndims==2
-    xstep=win.data.p{1}(2)-win.data.p{1}(1);
-    ystep=win.data.p{2}(2)-win.data.p{2}(1);
-    wout=cut(wout,[min_full{1},xstep,max_full{1}],[min_full{2},ystep,max_full{2}]);
-%     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf]);
-elseif ndims==3
-    xstep=win.data.p{1}(2)-win.data.p{1}(1);
-    ystep=win.data.p{2}(2)-win.data.p{2}(1);
-    zstep=win.data.p{3}(2)-win.data.p{3}(1);
-    wout=cut(wout,[min_full{1},xstep,max_full{1}],[min_full{2},ystep,max_full{2}],...
-        [min_full{3},zstep,max_full{3}]);
-%     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf],[-Inf,zstep,Inf]);
-elseif ndims==4
-    xstep=win.data.p{1}(2)-win.data.p{1}(1);
-    ystep=win.data.p{2}(2)-win.data.p{2}(1);
-    zstep=win.data.p{3}(2)-win.data.p{3}(1);
-    estep=win.data.p{4}(2)-win.data.p{4}(1);
-    wout=cut(wout,[min_full{1},xstep,max_full{1}],[min_full{2},ystep,max_full{2}],...
-        [min_full{3},zstep,max_full{3}],[min_full{4},estep,max_full{4}]);
-%     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf],[-Inf,zstep,Inf],[-Inf,estep,Inf]);
-else
-    error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
-end
+wout=cut(wout,new_range{:});
+
+% if ndims==1
+%     xstep=win.data.p{1}(2)-win.data.p{1}(1);
+%     wout=cut(wout,[min_full(1),xstep,max_full(1)]);
+% %     wout=cut(wout,[-Inf,xstep,Inf]);
+% elseif ndims==2
+%     xstep=win.data.p{1}(2)-win.data.p{1}(1);
+%     ystep=win.data.p{2}(2)-win.data.p{2}(1);
+%     wout=cut(wout,[min_full(1),xstep,max_full(1)],[min_full(2),ystep,max_full(2)]);
+% %     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf]);
+% elseif ndims==3
+%     xstep=win.data.p{1}(2)-win.data.p{1}(1);
+%     ystep=win.data.p{2}(2)-win.data.p{2}(1);
+%     zstep=win.data.p{3}(2)-win.data.p{3}(1);
+%     wout=cut(wout,[min_full(1),xstep,max_full(1)],[min_full(2),ystep,max_full(2)],...
+%         [min_full(3),zstep,max_full(3)]);
+% %     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf],[-Inf,zstep,Inf]);
+% elseif ndims==4
+%     xstep=win.data.p{1}(2)-win.data.p{1}(1);
+%     ystep=win.data.p{2}(2)-win.data.p{2}(1);
+%     zstep=win.data.p{3}(2)-win.data.p{3}(1);
+%     estep=win.data.p{4}(2)-win.data.p{4}(1);
+%     wout=cut(wout,[min_full(1),xstep,max_full(1)],[min_full(2),ystep,max_full(2)],...
+%         [min_full(3),zstep,max_full(3)],[min_full(4),estep,max_full(4)]);
+% %     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf],[-Inf,zstep,Inf],[-Inf,estep,Inf]);
+% else
+%     error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
+% end
