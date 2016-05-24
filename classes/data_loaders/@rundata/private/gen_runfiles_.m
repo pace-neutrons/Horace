@@ -149,7 +149,9 @@ for i=1:n_dfnd_params
         end
     end
 end
-
+if numel(args) < numel(parameter_nams)
+    parameter_nams = parameter_nams(1:numel(args));
+end
 % Make structure array with parameter names as fields and args as values
 struct_names_and_vals=[parameter_nams;args];
 dfnd_params = struct(struct_names_and_vals{:});
@@ -163,7 +165,11 @@ for i=1:n_files
     runfiles{i} = feval(name_of_class);
 end
 %runfiles = cellfun(@()(feval(name_of_class)),runfiles,'UniformOutput',false);
-file_exist = true(n_files,1);
+if allow_missing
+    file_exist = false(n_files,1);    
+else
+    file_exist = true(n_files,1);
+end
 
 
 % Do we build runfiles from one, multiple or no par files?

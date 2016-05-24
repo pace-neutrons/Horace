@@ -207,10 +207,10 @@ classdef test_gen_runfiles< TestCase
         end
         %
         function  test_genrunfiles_with_par(this)
-            run_files1 = rundatah.gen_runfiles(this.test_files{1},...
+            run_files1 = rundata.gen_runfiles(this.test_files{1},...
                 this.par_file,this.efix(1),this.emode,this.alatt,this.angdeg,...
                 this.u,this.v,this.psi(1),this.omega(1),this.dpsi(1),this.gl(1),this.gs(1));
-            run_files2 = rundatah.gen_runfiles(this.test_files{1},this.det,...
+            run_files2 = rundata.gen_runfiles(this.test_files{1},this.det,...
                 this.efix(1),this.emode,this.alatt,this.angdeg,...
                 this.u,this.v,this.psi(1),this.omega(1),this.dpsi(1),this.gl(1),this.gs(1));
             
@@ -218,6 +218,21 @@ classdef test_gen_runfiles< TestCase
             det2 = get_par(run_files2{1});
             
             assertEqual(det1,det2);
+        end
+        
+        function test_gen_and_save_nxspe(this)
+            rez_file{1} = fullfile(this.test_data_path,'test_gen1_nxspe.nxspe');            
+            rez_file{2} = fullfile(this.test_data_path,'test_gen2_nxspe.nxspe');                        
+            clob = onCleanup(@()delete(rez_file{:}));
+           
+            ndet = numel(this.det.x2);
+            nen = numel(this.en{1});
+            S = ones(nen-1,ndet)*.2;
+            ERR =sqrt(2)*ones(nen-1,ndet);
+            gen_nxspe(S,ERR,this.en{1},this.det,rez_file{1},this.efix(1));
+            %
+            assertTrue(exist(rez_file{1},'file')==2);
+            
         end
     end
 end

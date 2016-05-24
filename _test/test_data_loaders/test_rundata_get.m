@@ -262,7 +262,9 @@ classdef test_rundata_get< TestCase
             gg=get_rundata(r,'det_par');
             gg1 = get_par(parfile);
             
-            assertEqual(gg,gg1)
+            ok=equal_to_tol(gg,gg1,1.e-5);
+            assertTrue(ok);
+
             
             angdeg = get_rundata(r,'angdeg','-rad');
             %assertEqual([91,92,93]*(pi/180),angdeg);

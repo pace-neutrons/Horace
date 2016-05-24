@@ -66,6 +66,9 @@ classdef test_memfile< TestCase
             mem_file_fs.instance().format();
         end
         function test_memfile_constr1(this)
+            % clear all stored memfiles from memory
+            mem_file_fs.instance().format();
+            
             
             f=@()memfile('some_memfile.mem');
             assertExceptionThrown(f,'MEMFILE_FS:load_file');
@@ -142,7 +145,9 @@ classdef test_memfile< TestCase
             assertEqual({'S','ERR','en','efix','psi','det_par','n_detectors'},really);
             
             det1=get_par(par_file);
-            assertEqual(det,det1);
+            ok=equal_to_tol(det,det1,1.e-5);
+            assertTrue(ok);
+            
             [ok,mess,ndet,en]=mf.is_loader_valid();
             assertEqual(1,ok)
             assertTrue(isempty(mess));
