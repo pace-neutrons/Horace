@@ -144,7 +144,7 @@ classdef rundata
             %       provided, overides the information contained in the the "spe" file.
             % ^2    Optional parameter. If absent, the default value defined by
             %       is used instead;
-            [runfiles_list,defined]= gen_runfiles_of_type('rundata',spe_files,varargin{:});
+            [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
     end
     methods(Static,Access=protected)
