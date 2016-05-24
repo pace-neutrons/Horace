@@ -6,8 +6,8 @@ function varargout=parse_load_varargout(this,varargin)
 %[S,ERR,en]=this.load_data();
 ndet=this.num_det_if_emtpy;
 nen = this.num_en_if_empty;
-this.S_stor   = ones(nen,ndet);
-this.ERR_stor = zeros(nen,ndet);
+this.S_   = ones(nen,ndet);
+this.ERR_ = zeros(nen,ndet);
 
 if nargout==1
     varargout{1}=this;
@@ -19,12 +19,12 @@ else
     end
     
     if min_val==2
-        varargout{1} = this.S_stor;
-        varargout{2} = this.ERR_stor;
+        varargout{1} = this.S_;
+        varargout{2} = this.ERR_;
     elseif min_val==3
-        varargout{1} = this.S_stor;
-        varargout{2} = this.ERR_stor;
-        varargout{3} = this.en_stor;
+        varargout{1} = this.S_;
+        varargout{2} = this.ERR_;
+        varargout{3} = this.en_;
     end
 end
 

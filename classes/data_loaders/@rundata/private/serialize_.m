@@ -27,6 +27,13 @@ end
 if ~isfield(out_struct,'par_file_name')
     out_struct.par_file_name = run.par_file_name;
 end
+if ~isempty(run.instrument)
+    out_struct.instrument = run.instrument;
+end
+if ~isempty(run.sample)
+    out_struct.sample = run.sample;
+end
+
 
 v = hlp_serialize(out_struct);
 

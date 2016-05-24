@@ -49,8 +49,8 @@ end
 size_par = size(par);
 ndet     = size_par(2);
 
-this.det_par_stor = get_hor_format(par,file_name);
+this.det_par_ = get_hor_format(par,file_name);
 if ~return_array
-    par = this.det_par_stor;
+    par = this.det_par_;
 end
-this.n_detindata_stor = ndet;
+this.n_detindata_ = ndet;

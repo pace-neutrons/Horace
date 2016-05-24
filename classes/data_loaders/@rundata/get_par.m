@@ -24,4 +24,6 @@ if isempty(this.det_par)
         format={};
     end
     [par,this.loader__]= this.loader.load_par(format{:});
+else
+    par = this.det_par;
 end

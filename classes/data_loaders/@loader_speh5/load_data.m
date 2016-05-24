@@ -43,8 +43,8 @@ data{1}(nans) = NaN;
 data{2}(nans) = 0;
 
  % set also all dependent on S variables
-this.S_stor   = data{1};
-this.ERR_stor = data{2};
+this.S_   = data{1};
+this.ERR_ = data{2};
 
 
 

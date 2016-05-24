@@ -33,12 +33,12 @@ tmf = mem_file_fs.instance().load_file(filename);
 data{1}  = tmf.S;
 data{2}  = tmf.ERR;
 if isempty(this.en)
-    this.en_stor =tmf.en;
+    this.en_ =tmf.en;
 end
 data{3} = this.en;
 
-this.S_stor   = data{1};
-this.ERR_stor = data{2};
+this.S_   = data{1};
+this.ERR_ = data{2};
 
 if nargout==1
     varargout{1}=this;

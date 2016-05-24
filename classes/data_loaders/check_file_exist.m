@@ -30,6 +30,9 @@ end
 
 
 [filepath,filename,ext]=fileparts(strtrim(file_name));
+if ~exist('supported_file_extensions','var')
+    supported_file_extensions = {lower(ext)};
+end
 
 file_name='';
 lext = lower(ext);

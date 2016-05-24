@@ -15,42 +15,42 @@ ndet=[];
 en  =[];
 
 if isempty(this.file_name)
-    if isempty(this.S_stor)
+    if isempty(this.S_)
         ok = -1;
         return
     else
-        if size(this.S_stor) ~= size(this.ERR_stor)
+        if size(this.S_) ~= size(this.ERR_)
             ok = 0;
             mess = 'size(S) ~= size(ERR)';
             return
         end
-        en  = this.en_stor;
-        if size(en,1) ~=size(this.S_stor,1)+1
+        en  = this.en_;
+        if size(en,1) ~=size(this.S_,1)+1
             ok = 0;
             mess = 'size(S,1)+1 ~= size(en)';
             return
         end
         
-        n_data_detectors = size(this.S_stor,2);
+        n_data_detectors = size(this.S_,2);
     end
 else  % check data in memory
-    en_stor_empty = isempty(this.en_stor);
-    if isempty(this.S_stor) || en_stor_empty
+    en_empty = isempty(this.en_);
+    if isempty(this.S_) || en_empty
         % info not loaded
-        if isempty(this.n_detindata_stor) || en_stor_empty
+        if isempty(this.n_detindata_) || en_empty
             [n_data_detectors,en]=this.get_data_info(this.file_name);
         else         % info already loaded
-            n_data_detectors = this.n_detindata_stor;
-            en   = this.en_stor;
+            n_data_detectors = this.n_detindata_;
+            en   = this.en_;
         end
     else  % data and energy in memory
-        n_data_detectors = size(this.S_stor,2);
-        en = this.en_stor;
+        n_data_detectors = size(this.S_,2);
+        en = this.en_;
     end
 end
 %
 if isempty(this.par_file_name)
-    if isempty(this.n_detinpar_stor)
+    if isempty(this.n_detinpar_)
         if ~ismember('det_par',this.loader_defines)
             ok = -1;
             return;
@@ -59,13 +59,13 @@ if isempty(this.par_file_name)
             n_par_detectors = this.n_detectors;
         end
     else
-        n_par_detectors = this.n_detinpar_stor;
+        n_par_detectors = this.n_detinpar_;
     end
 else
     if isempty(this.n_detectors)
         n_par_detectors = this.get_par_info(this.par_file_name,this.file_name);
     else
-        n_par_detectors = this.n_detinpar_stor;
+        n_par_detectors = this.n_detinpar_;
     end
 end
 

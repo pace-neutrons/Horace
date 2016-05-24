@@ -14,8 +14,8 @@ classdef memfile<a_loader
     
     properties(Access=protected)
         %
-        efix_stor = [];
-        psi_stor  = [];
+        efix_ = [];
+        psi_  = [];
     end
     %
     methods(Static)
@@ -93,14 +93,14 @@ classdef memfile<a_loader
             if ~exist('memfile_name','var')
                 return
             end
-            if exist('full_par_file_name','var')
+            if exist('full_par_file_name','var') && ~isempty(full_par_file_name)
                 this.par_file_name = full_par_file_name;
             end
             
-            [this.n_detindata_stor,this.en_stor,this.data_file_name_stor,...
-                this.efix_stor,this.psi_stor]=memfile.get_data_info(memfile_name);
+            [this.n_detindata_,this.en_,this.data_file_name_,...
+                this.efix_,this.psi_]=memfile.get_data_info(memfile_name);
             if isempty(this.par_file_name)
-                this.n_detinpar_stor = this.n_detindata_stor;
+                this.n_detinpar_ = this.n_detindata_;
             end
             
         end
@@ -127,8 +127,8 @@ classdef memfile<a_loader
         function this=set_data_info(this,file_name)
             % method sets internal file information obtained for appropriate file
             % by get_data_info method;
-            [this.n_detindata_stor,this.en_stor,this.data_file_name_stor,...
-                this.efix_stor,this.psi_stor]=this.get_data_info(file_name);
+            [this.n_detindata_,this.en_,this.data_file_name_,...
+                this.efix_,this.psi_]=this.get_data_info(file_name);
             
         end
         function [det,this]=load_par(this,varargin)
@@ -150,7 +150,7 @@ classdef memfile<a_loader
                 fext='.mem';
             end
             if strcmp('.mem',fext)
-                this.data_file_name_stor = [fname,fext];
+                this.data_file_name_ = [fname,fext];
                 %
                 
                 mem_file_fs.instance().save_file(fname,this);
@@ -162,16 +162,16 @@ classdef memfile<a_loader
         % ---- SETTERS GETTERS FOR CLASS PROPERTIES     -------------------
         % -----------------------------------------------------------------
         function ef = get.efix(this)
-            ef=this.efix_stor;
+            ef=this.efix_;
         end
         function this = set.efix(this,val)
-            this.efix_stor = val;
+            this.efix_ = val;
         end
         function psi=get.psi(this)
-            psi=this.psi_stor;
+            psi=this.psi_;
         end
         function this=set.psi(this,val)
-            this.psi_stor=val;
+            this.psi_=val;
         end
         % -----------------------------------------------------------------
         function [ok,mess,f_name]=check_file_exist(this,new_name)

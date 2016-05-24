@@ -55,7 +55,7 @@ classdef loader_nxspe < a_loader
                 return;
             end
             [ndet,en,full_file_name,ei,psil,nexus_dir,nxspe_ver]=loader_nxspe.get_data_info(file_name);
-            fh = struct('n_detindata_stor',ndet,'en',en,'data_file_name_stor',full_file_name,...
+            fh = struct('n_detindata_',ndet,'en',en,'data_file_name_',full_file_name,...
                 'efix',ei,'psi',psil,'root_nexus_dir',...
                 nexus_dir,'nxspe_version',nxspe_ver);
         end
@@ -158,7 +158,7 @@ classdef loader_nxspe < a_loader
         
         function this = set_data_info(this,nxspe_file_name)
             % obtain data file information and set it into class
-            [this.n_detindata_stor,this.en_stor,this.data_file_name_stor,...
+            [this.n_detindata_,this.en_,this.data_file_name_,...
                 this.efix,this.psi,...
                 this.root_nexus_dir,this.nxspe_version]=...
                 loader_nxspe.get_data_info(nxspe_file_name);
@@ -168,12 +168,12 @@ classdef loader_nxspe < a_loader
             % open files (if any)
             %
             % loader class has to be present in RHS to propagate the changes
-            this.S_stor = [];
-            this.ERR_stor = [];
-            this.det_par_stor=[];
-            if isempty(this.data_file_name_stor)
-                this.en_stor=[];
-                this.n_detindata_stor=[];
+            this.S_ = [];
+            this.ERR_ = [];
+            this.det_par_=[];
+            if isempty(this.data_file_name_)
+                this.en_=[];
+                this.n_detindata_=[];
                 this=this.delete_par();
             end
         end

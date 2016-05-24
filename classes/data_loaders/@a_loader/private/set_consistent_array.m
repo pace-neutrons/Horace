@@ -11,16 +11,16 @@ if isempty(value)
     if isempty(this.file_name)
         this=this.delete();
     else
-        this.S_stor=[];
-        this.ERR_stor=[];
+        this.S_=[];
+        this.ERR_=[];
     end
     return
 end
 
 this.(field_name) = value;
-%this.data_file_name_stor = '';
+%this.data_file_name_ = '';
 
-if ~strcmp(field_name,'en_stor')
-    this.n_detindata_stor = size(value,2);
+if ~strcmp(field_name,'en_')
+    this.n_detindata_ = size(value,2);
 end
 

@@ -44,11 +44,18 @@ if assume_ASCII_spe_loader
     this.loader__ = loader_ascii();
     this.loader__.par_file_name =second_file;
 else
+    if ~verLessThan('matlab', '9.0') && verLessThan('matlab', '9.1')
+        warning('off','MATLAB:subscripting:noSubscriptsSpecified')
+    end
+
     this.loader__ = loaders_factory.instance().get_loader(first_file,second_file);
 end
 
 if nargin>vararg_start_from
     % set up values which are defined by other arguments
+    if isa(varargin{vararg_start_from},'rundata')
+        varargin{vararg_start_from}.loader__ = this.loader__;
+    end
     this=set_param_recursively(this,varargin{vararg_start_from:end});
 end
 

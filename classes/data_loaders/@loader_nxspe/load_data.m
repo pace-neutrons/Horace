@@ -37,7 +37,7 @@ data=cell(1,3);
 data{1}  = hdf5read(file_name,[root_folder,'/data/data']);
 data{2}  = hdf5read(file_name,[root_folder,'/data/error']);
 if isempty(this.en)
-    this.en_stor =hdf5read(file_name,[root_folder,'/data/energy']);
+    this.en_ =hdf5read(file_name,[root_folder,'/data/energy']);
 end
 data{3} = this.en;
 % convert symbolic NaN-s (build according to ASCII agreement) to ISO
@@ -48,8 +48,8 @@ data{1}(nans) = NaN;
 data{2}(nans) = 0;
 
 
-this.S_stor   = data{1};
-this.ERR_stor = data{2};
+this.S_   = data{1};
+this.ERR_ = data{2};
 
 if nargout==1
     varargout{1}=this;

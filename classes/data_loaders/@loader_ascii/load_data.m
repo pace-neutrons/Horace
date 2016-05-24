@@ -59,9 +59,9 @@ ERR(nans) = 0;
 % Fill output argument(s)
 if nargout == 1
     % set also all dependent on S variables
-    this.S_stor  =S;
-    this.ERR_stor=ERR;
-    this.en_stor =en;
+    this.S_  =S;
+    this.ERR_=ERR;
+    this.en_ =en;
     
     varargout{1}=this;
 elseif nargout ==2
@@ -72,9 +72,9 @@ elseif nargout == 3
     varargout{2}=ERR;
     varargout{3}=en;
 elseif nargout == 4
-    this.S_stor  =S;
-    this.ERR_stor=ERR;
-    this.en_stor =en;
+    this.S_  =S;
+    this.ERR_=ERR;
+    this.en_ =en;
     
     varargout{1}=S;
     varargout{2}=ERR;

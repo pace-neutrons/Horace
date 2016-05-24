@@ -110,9 +110,9 @@ classdef loader_ascii < a_loader
                 end
             end
             if exist('fh','var')
-                ascii_loader.n_detindata_stor    = fh.n_detectors;
-                ascii_loader.en_stor             = fh.en;
-                ascii_loader.data_file_name_stor = fh.file_name;
+                ascii_loader.n_detindata_    = fh.n_detectors;
+                ascii_loader.en_             = fh.en;
+                ascii_loader.data_file_name_ = fh.file_name;
             else
                 % set new file name, run all checks on this file and set up
                 % all file information
@@ -123,9 +123,9 @@ classdef loader_ascii < a_loader
         function this = set_data_info(this,full_spe_file_name)
             % obtain data file information and set it into class
             [ndet,en,full_file_name]=loader_ascii.get_data_info(full_spe_file_name);
-            this.data_file_name_stor = full_file_name;
-            this.n_detindata_stor = ndet;
-            this.en_stor = en;
+            this.data_file_name_ = full_file_name;
+            this.n_detindata_ = ndet;
+            this.en_ = en;
         end
         
         function ascii_loader = loader_ascii(full_spe_file_name,varargin)

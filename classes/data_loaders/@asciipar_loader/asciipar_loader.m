@@ -25,11 +25,11 @@ classdef asciipar_loader
     properties (Access=protected)
         % number of detectors, defined in the file, described by the par
         % file name
-        n_detinpar_stor=[];
+        n_detinpar_=[];
 		% storage field for detector information
-        det_par_stor=[];
+        det_par_=[];
 		% storage field for ASCII par file name
-        par_file_name_stor ='';
+        par_file_name_ ='';
     end
     %
     methods
@@ -145,9 +145,9 @@ classdef asciipar_loader
         %
         function this=delete_par(this)
             % clear memory from loaded detectors information
-            this.det_par_stor=[];
+            this.det_par_=[];
             if isempty(this.par_file_name)
-                this.n_detinpar_stor=[];
+                this.n_detinpar_=[];
             end
         end
         function fields = par_file_defines(this)
@@ -170,7 +170,7 @@ classdef asciipar_loader
         % memory
         function det_par=get.det_par(this)
             % get method for dependent property det_par
-            det_par= this.det_par_stor;
+            det_par= this.det_par_;
         end
         function this=set.det_par(this,value)
             % method sets detector parameters from memory
@@ -186,12 +186,12 @@ classdef asciipar_loader
                 this=this.delete_par();
                 return
             end
-            [this.det_par_stor,this.n_detinpar_stor,this.par_file_name_stor] = check_det_par(value);
+            [this.det_par_,this.n_detinpar_,this.par_file_name_] = check_det_par(value);
         end
         
         function fname=get.par_file_name(this)
             % get method for dependent property par_file_name
-            fname = this.par_file_name_stor;
+            fname = this.par_file_name_;
         end
         function this=set.par_file_name(this,par_f_name)
             % method checks if the ASCII file with the name par_file_name exists
@@ -202,26 +202,26 @@ classdef asciipar_loader
             
             if isempty(par_f_name)
                 % disconnect detector information in memory from a par file
-                this.par_file_name_stor='';
+                this.par_file_name_='';
                 if isempty(this.det_par)
-                    this.n_detinpar_stor=[];
+                    this.n_detinpar_=[];
                 end
             else
                 [ok,mess,f_name] = check_file_exist(par_f_name,{'.par','.phx'});
                 if ~ok
                     error('ASCIIPAR_LOADER:set_par_file_name',mess);
                 end
-                if ~strcmp(this.par_file_name_stor,f_name)
-                    this.par_file_name_stor= f_name;
-                    this.n_detinpar_stor = asciipar_loader.get_par_info(f_name);
-                    this.det_par_stor=[];
+                if ~strcmp(this.par_file_name_,f_name)
+                    this.par_file_name_= f_name;
+                    this.n_detinpar_ = asciipar_loader.get_par_info(f_name);
+                    this.det_par_=[];
                 end
             end
         end
         
         function ndet = n_detectors(this)
             %method to get number of detectors
-            ndet = this.n_detinpar_stor;
+            ndet = this.n_detinpar_;
         end
         % ------------------------------------------------------------------
     end

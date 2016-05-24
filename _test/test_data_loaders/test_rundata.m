@@ -34,7 +34,7 @@ classdef test_rundata< TestCase
         function test_defaultsOK_andFixed(this)
             nn=numel(fields(rundata));
             % number of public fields by default;
-            assertEqual(12,nn);
+            assertEqual(14,nn);
         end
         function test_build_from_wrong_struct(this)
             a.x=10;
@@ -253,12 +253,16 @@ classdef test_rundata< TestCase
             tf.ERR=ones(10,28160);
             tf.en = 1:11;
             tf.save('test_file');
+            lat = oriented_lattice();
+            lat.psi = 10;
             
             run=rundata('test_file.mem');
+            run.lattice = lat;
             f=@()run.saveNXSPE(test_file);
             assertExceptionThrown(f,'A_LOADER:saveNXSPE');
             
             run.par_file_name = f_name(this,'demo_par.PAR');
+            assertEqual(run.lattice,lat);
             f=@()run.saveNXSPE(test_file);
             % efix has to be defined
             assertExceptionThrown(f,'A_LOADER:saveNXSPE');
@@ -276,13 +280,13 @@ classdef test_rundata< TestCase
             
             assertEqual(ld.efix,run.efix);
             assertEqual(ld.S,run.S);
+            assertEqual(ld.psi,10);            
             det1=ld.det_par;
             det2=run.det_par;
             assertEqual(det1.x2,det2.x2);
             assertEqual(det1.phi,det2.phi);
             assertEqual(det1.azim,det2.azim);
             assertEqual(det1.group,det2.group);
-            assertTrue(isnan(ld.psi));
             
             if exist(test_file,'file')
                 delete(test_file);
@@ -330,6 +334,67 @@ classdef test_rundata< TestCase
             run1 = rundata.from_string(str1);
             
             assertEqual(run,run1);
+        end
+        function test_load_methadata(this)
+            ds.efix=200;
+            ds.psi=2;
+            ds.alatt=[1;1;1];
+            ds.angdeg=[90;90;90];
+            spe_file = f_name(this,'MAP10001.spe');
+            par_file = f_name(this,'demo_par.PAR');
+            run=rundata(spe_file,par_file ,ds);
+            
+            [run1,ok,mess,undef_list] = run.load_methadata();
+            
+            assertEqual(run,run1);
+            assertTrue(ok);
+            assertTrue(isempty(mess));
+            assertTrue(isempty(undef_list));
+            
+            
+            run = rundata();
+            [run1,ok,mess,undef_list] = run.load_methadata();
+            
+            assertEqual(run,run1);
+            assertFalse(ok);
+            assertFalse(isempty(mess));
+            assertFalse(isempty(undef_list));
+            assertEqual(numel(undef_list),3);
+            
+            [run1,ok,mess,undef_list] = run.load_methadata('-for_powder');
+            
+            assertEqual(run,run1);
+            assertFalse(ok);
+            assertFalse(isempty(mess));
+            assertFalse(isempty(undef_list));
+            assertEqual(numel(undef_list),2);
+            
+            run = rundata();
+            run.efix = 100;
+            ds = struct('alatt',[3,3,3],'angdeg',[90,90,90]);
+            latt = oriented_lattice(ds);
+            run.lattice = latt;
+            
+            [run1,ok,mess,undef_list] = run.load_methadata();
+            assertEqual(run,run1);
+            assertFalse(ok);
+            assertFalse(isempty(mess));
+            assertFalse(isempty(undef_list));
+            assertEqual(numel(undef_list),2);
+            
+            % nxspe defines psi and this verifyes that it is loaded
+            % correctly
+            run=rundata(f_name(this,'MAP11014.nxspe'),ds);
+            [run1,ok,mess,undef_list] = run.load_methadata();
+            
+            assertTrue(isempty(run.lattice.psi));
+            assertFalse(isempty(run1.lattice.psi));
+            %assertUnEqual(run,run1);
+            assertTrue(ok);
+            assertTrue(isempty(mess));
+            assertTrue(isempty(undef_list));
+            
+            
         end
         
     end

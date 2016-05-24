@@ -20,13 +20,13 @@ function [det,loader]=load_phx_or_par_private(loader,return_array,force_reload,g
 %
 % $Revision$ ($Date$)
 %
-if ~isempty(loader.det_par_stor) &&(~force_reload)
+if ~isempty(loader.det_par_) &&(~force_reload)
     sample = loader.par_file_name;
     [par_path,par_file,pext] = fileparts(sample);
     if isempty(par_path)
         sample = fullfile('./',[par_file,pext]);
     end
-    if strcmp(fullfile(loader.det_par_stor.filepath,loader.det_par_stor.filename),sample)
+    if strcmp(fullfile(loader.det_par_.filepath,loader.det_par_.filename),sample)
         if return_array
             % this will convert par structure into array
             det=get_hor_format(loader.det_par);
@@ -87,8 +87,8 @@ else
         par = rez;
     end
     det =  get_hor_format(par,loader.par_file_name);
-    loader.det_par_stor    = det;
-    loader.n_detinpar_stor = ndet;
+    loader.det_par_    = det;
+    loader.n_detinpar_ = ndet;
     loader_defined=true;
 end
 
@@ -108,8 +108,8 @@ if nargout >1 && ~loader_defined
         end
         det_i =  get_hor_format(par,loader.par_file_name);
     end
-    loader.det_par_stor    = det_i;
-    loader.n_detinpar_stor = ndet;
+    loader.det_par_    = det_i;
+    loader.n_detinpar_ = ndet;
     
 end
 %

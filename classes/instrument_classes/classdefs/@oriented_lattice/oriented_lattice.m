@@ -96,13 +96,14 @@ classdef oriented_lattice
                 this.angular_units__ = 'rad';
             else
             end
-        end
+        end        
         function this = set_deg(this)
             this.angular_units__= 'deg';
         end
         function this = set_rad(this)
             this.angular_units__= 'rad';
         end
+%        
         function public_struct = struct(this)
             % convert class into structure, containing public-accessible information
             pub_fields = [oriented_lattice.lattice_parameters__,{'angular_units'}];
@@ -189,6 +190,19 @@ classdef oriented_lattice
             this.angdeg__ = oriented_lattice.check_3DAngles_correct(val);
         end
         %---
+        function undef_fields=get_undef_fields(obj)
+            % return list of lattice fiels which should be defined but
+            % still not
+            function is=undef_field(obj,field)
+                if isempty(obj.(field))
+                    is=true;
+                else
+                    is=false;                    
+                end
+            end
+            uf=cellfun(@(fld)(undef_field(obj,fld)),obj.lattice_parameters__);
+            undef_fields = obj.lattice_parameters__(uf);            
+        end
     end
     %---------------------------------------------------------------------
     %---------------------------------------------------------------------

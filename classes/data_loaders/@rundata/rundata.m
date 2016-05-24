@@ -46,6 +46,10 @@ classdef rundata
         lattice;
         % visual representation of a loader
         loader ;
+        % instrument model
+        instrument;
+        % sample model
+        sample;
     end
     
     properties(Constant,Access=private)
@@ -67,6 +71,10 @@ classdef rundata
         % oriented lattice which describes crytsal (present if run describes crystal)
         oriented_lattice__ =[];
         
+        % instrument model holder;
+        instrument_ = struct();
+        % sample model holder
+        sample_ = struct();
     end
     methods(Static)
         function fields = main_data_fields()
@@ -84,10 +92,114 @@ classdef rundata
             % this object (minus 8 bytes spent on storing the object size itself)
             [run,size] = deserialize_(iarr);
         end
-        
+        function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
+            % Returns array of rundata objects created by the input arguments.
+            %
+            %   >> [runfiles_list,file_exist] = gen_runfiles(spe_file,[par_file],arg1,arg2,...)
+            %
+            % Input:
+            % ------
+            %   spe_file        Full file name of any kind of supported "spe" file
+            %                  e.g. original ASCII spe file, nxspe file etc.
+            %                   Character string or cell array of character strings for
+            %                  more than one file
+            %^1 par_file        [Optional] full file name of detector parameter file
+            %                  i.e. Tobyfit format detector parameter file. Will override
+            %                  any detector inofmration in the "spe" files
+            %
+            % Addtional information can be included in the rundata objects, or override
+            % if the fields are in the rundata object as follows:
+            %
+            %^1 efix            Fixed energy (meV)   [scalar or vector length nfile] ^1
+            %   emode           Direct geometry=1, indirect geometry=2
+            %^1 alatt           Lattice parameters (Ang^-1)  [vector length 3, or array size [nfile,3]]
+            %^1 angdeg          Lattice angles (deg)         [vector length 3, or array size [nfile,3]]
+            %   u               First vector defining scattering plane (r.l.u.)  [vector length 3, or array size [nfile,3]]
+            %   v               Second vector defining scattering plane (r.l.u.) [vector length 3, or array size [nfile,3]]
+            %^1 psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
+            %^2 omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
+            %^2 dpsi            Correction to psi (deg)            [scalar or vector length nfile]
+            %^2 gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
+            %^2 gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+            %
+            % additional control keywords could modify the behaviour of the routine, namely:
+            %  -allow_missing   - if such keyword is present, routine allows
+            %                     some or all spe files to be missing. resulting
+            %                     rundata class would contain runfile with undefined
+            %                     loader. Par file(s) if provided, still have always be
+            %                     defined
+            %
+            %
+            % Output:
+            % -------
+            %   runfiles        Array of rundata objects
+            %   file_exist   boolean array  containing true for files which were found
+            %                   and false for which have been not. runfiles list
+            %                   would then contain members, which do not have loader
+            %                   defined. Missing files are allowed only if -allow_missing
+            %                   option is present as input
+            %
+            % Notes:
+            % ^1    This parameter is optional for some formats of spe files. If
+            %       provided, overides the information contained in the the "spe" file.
+            % ^2    Optional parameter. If absent, the default value defined by
+            %       is used instead;
+            [runfiles_list,defined]= gen_runfiles_of_type('rundata',spe_files,varargin{:});
+        end
+    end
+    methods(Static,Access=protected)
+        function [runfiles_list,defined]= gen_runfiles_of_type(type_name,spe_files,varargin)
+            % protected function to access private rundata routine.
+            % Generates files of the named type type_name, with rundata interface.
+            [runfiles_list,defined]=gen_runfiles_(type_name,spe_files,varargin{:});
+        end
     end
     
     methods
+        %------------------------------------------------------------------
+        % PUBLIC METHODS SIGNATURES:
+        %------------------------------------------------------------------
+        % Method verifies if all necessary run parameters are defined by the class
+        [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fields_needed);
+        % Get a named field from an object, or a structure with all
+        % fields.
+        %
+        %   >> val = get(object)           % returns structure of object contents
+        %   >> val = get(object, 'field')  % returns named field, or an array of values
+        %                                  % if input is an array
+        varargout = get(this, index);
+        
+        % method returns default values, defined by default fields of
+        % the class
+        default_values =get_defaults(this,varargin);
+        
+        % Returns detector parameter data from properly initiated data loader
+        [par,this]=get_par(this,format);
+        
+        % Returns whole or partial data from a rundata object
+        [varargout] =get_rundata(this,varargin);
+        
+        % Load in memory if not yet there all auxiliary data defined for
+        % run except big array e.g. S, ERR, en and detectors
+        [this,ok,mess,undef_list] = load_methadata(this,varargin);
+        % Returns the name of the file which contains experimental data
+        [fpath,filename,fext]=get_source_fname(this);
+        
+        % Check fields for data_array object
+        [ok, mess,this] = isvalid (this);
+        % method removes failed (NaN or Inf) data from the data array and deletes
+        % detectors, which provided such signal
+        [S_m,Err_m,det_m]=rm_masked(this);
+        
+        % method sets a field of  lattice if the lattice
+        % present and initates the lattice first if it is not present
+        this = set_lattice_field(this,name,val,varargin);
+        
+        % Returns the list data fields which have to be defined by the run for cases
+        % of crystal or powder experiments
+        [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
+        %------------------------------------------------------------------
+        
         function this=rundata(varargin)
             % rundata class constructor
             %
@@ -122,8 +234,14 @@ classdef rundata
             %
             % Crystal parameters:
             %   is_crystal  % true if single crystal, false if powder
-            
             if nargin>0
+                this = initialize(this,varargin{:});
+            end
+        end
+        function this = initialize(this,varargin)
+            % part of non-default rundata constructor, allowing to
+            % cunstruct rundata from different arguments
+            if ~isempty(varargin)
                 if ischar(varargin{1})
                     this=select_loader(this,varargin{1},varargin{2:end});
                 else
@@ -232,7 +350,11 @@ classdef rundata
         %    LOADER
         function this = set.data_file_name(this,val)
             % method to change data file for a run data class
-            this = rundata(this,'data_file_name',val);
+            %classname = class(this);
+            %this = feval(classname);
+            %this = this.initialize('data_file_name',val);
+            this = this.select_loader(val);
+            %this = rundata(this,'data_file_name',val);
         end
         function fname = get.data_file_name(this)
             % method to query what data file a rundata class uses
@@ -242,13 +364,46 @@ classdef rundata
         function this = set.par_file_name(this,val)
             % method to change par file on defined loader
             data_fname = this.data_file_name;
-            this = rundata(this,'data_file_name',data_fname,'par_file_name',val);
+            classname = class(this);
+            out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
+            if isempty(data_fname)
+                [~,~,fext] = fileparts(val);
+                if strcmpi(fext,'.nxspe')
+                    this = out.initialize(val,this);
+                else
+                    if isempty(this.loader__)
+                        this.loader__ = memfile();
+                    end
+                    this.loader__.par_file_name = val;
+                end
+            else
+                this = out.initialize(data_fname,val,this);
+            end
+            %this = this.select_loader('data_file_name',data_fname,'par_file_name',val);
         end
         function fname = get.par_file_name(this)
             % method to query what par file a rundata class uses. May be empty
             % for some data loaders, which have det information inside.
             fname = get_loader_field(this,'par_file_name');
         end
+        function inst = get.instrument(this)
+            % return instrument
+            inst = this.instrument_;
+        end
+        %---
+        function this = set.instrument(this,val)
+            % set-up instrument (template)
+            this.instrument_ = val;
+        end
+        function sam = get.sample(this)
+            % return sample
+            sam = this.sample_;
+        end
+        function this = set.sample(this,val)
+            % set-up sample (template)
+            this.sample_ = val;
+        end
+        
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES -- END
         %------------------------------------------------------------------
@@ -275,17 +430,55 @@ classdef rundata
         function iarr = serialize(this)
             % convert class into arry of bytes suitable for reverse
             % transformation by deserialize function
-            % 
+            %
             % expects main data to be on a HDD, so no data loaded in memory are
             % serialized except memory only data
             iarr = serialize_(this);
         end
-        
+        %------------------------------------------------------------------
+        function this = load(this,varargin)
+            % Load all data, defined by loader in memory
+            %
+            %presumes that data file name and par file name (if necessary)
+            %are already set up
+            % -reload  if option is present, reloads data into memory even
+            %          if they have already been loaded
+            if isempty(this.loader)
+                error('RUNDATA:undefined','attempt to load data in memory when data file is not defined')
+            end
+            options = {'-reload'};
+            [ok,mess,reload]=parse_char_options(varargin,options);
+            if ~ok
+                error('RUNDATA:invalid_argument',mess);
+            end
+            
+            this = this.load_all_(reload);
+        end
         
         
         %-----------------------------------------------------------------------------
         
         function this=saveNXSPE(this,filename,varargin)
+            % Saves current rundata in nxspe format.
+            %
+            % if some data are necessary for nxspe format have not yet been
+            % loaded in memory, loads them in memory first.
+            %
+            % -reload  -- provide this option if you want to reload data
+            %             from source files brfore saving them on hdd
+            %             discarding anything already in the memory first.
+            %
+            %             psi and efix are not reloaded (BUG?)
+            %
+            % w, a,w+ and a+  options define readwrite or write access to the
+            %               file. (see Matlab manual for details of these options)
+            %              Adding to existing nxspe file is not
+            %              currently supported, so the only difference
+            %              between the options is that method will thow
+            %              if the file, opened in read-write mode exist.
+            %              Existing file in write mode will be silently
+            %              overwritten.
+            %  readwrite mode is assumed by  default
             if isempty(this.loader)
                 warning('RUNDATA:invalid_argument','nothing to save');
                 return
