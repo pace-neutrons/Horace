@@ -77,7 +77,6 @@ if exist(qspec_file,'file')
     if ~is_mat_file
         [data,det]=get_ascii_column_data(qspec_file);
     end
-    detdcn=calc_detdcn(det);
     if ~exist('grid_size_in','var')
         npnt=size(data.qspec,2);
         is_elastic=(all(data.qspec(4,:)==0));
@@ -88,12 +87,28 @@ else
 end
 
 % Calculate sqw object and save to file
-efix=0;
-emode=0;
-instrument_default=struct;  % default 1x1 struct *** Should generalise
-sample_default=struct;      % default 1x1 struct *** Should generalise
-[w,grid_size, urange]=calc_sqw(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn, det,...
-    grid_size_in, urange_in, instrument_default, sample_default);
+rd = rundatah();
+rd.efix = 0;
+rd.emode = 0;
+%
+rd.lattice = oriented_lattice(struct(...
+    'alatt',alatt,'angdeg',angdeg,'u',u,'v',v,'psi',psi,...
+    'omega',omega,'dpsi',dpsi,'gl',gl,'gs',gs));
+%
+if isfield(data,'qspec') && numel(det.group) ==1
+   args = {'-cash_detectors','-qspec',data.qspec};    
+else
+    rd.det_par  = det;
+    args = {'-cash_detectors'};
+end
+%
+rd.S = data.S;
+rd.ERR = data.ERR;
+rd.en  = data.en;
+%instrument_default=struct;  % default 1x1 struct *** Should generalise
+%sample_default=struct;      % default 1x1 struct *** Should generalise
+[w,grid_size,urange] = rd.calc_sqw(grid_size_in,urange_in,args{:});
+
 save(w,sqw_file);
 
 %-------------------------------------------------------------------------------------

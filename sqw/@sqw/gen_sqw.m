@@ -271,8 +271,13 @@ nindx=numel(indx);
 % At this point, there will be at least one spe data input that needs to be turned into an sqw file
 
 % Create fully fledged single crystal rundata objects
-run_files = gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),alatt(ix,:),angdeg(ix,:),...
-    u(ix,:),v(ix,:),psi(ix),omega(ix),dpsi(ix),gl(ix),gs(ix));
+if ~isempty(opt.transform_sqw)
+    rundata_par = {'transform_sqw',opt.transform_sqw};
+else
+    rundata_par = {};
+end
+run_files = rundatah.gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),alatt(ix,:),angdeg(ix,:),...
+    u(ix,:),v(ix,:),psi(ix),omega(ix),dpsi(ix),gl(ix),gs(ix),rundata_par{:});
 
 % If grid not given, make default size
 if ~accumulate_old_sqw && isempty(grid_size_in)
@@ -284,6 +289,8 @@ if ~accumulate_old_sqw && isempty(grid_size_in)
 elseif accumulate_old_sqw
     grid_size_in=grid_size_sqw;
 end
+[use_separate_matlab,num_matlab_sessions,use_mex] ...
+    =get(hor_config,'accum_in_separate_process','accumulating_process_num','use_mex');
 
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw && isempty(urange_in)
@@ -291,12 +298,15 @@ if ~accumulate_old_sqw && isempty(urange_in)
         disp('--------------------------------------------------------------------------------')
         disp(['Calculating limits of data for ',num2str(nfiles),' spe files...'])
     end
+    if use_mex
+        cash_det = {};
+    else
+        cash_det  = {'-cash_detectors'};
+    end
     
     bigtic
-    urange_in = rundata_find_urange(run_files);
+    urange_in = rundata_find_urange(run_files,cash_det{:});
     if any(~ix)
-        % Get detector parameters
-        det = get_rundata(run_files{1},'det_par');
         % Get estimate of energy bounds for those spe data that do not actually exist
         eps_lo=NaN(nfiles,1); eps_hi=NaN(nfiles,1);
         for i=1:nindx
@@ -306,8 +316,24 @@ if ~accumulate_old_sqw && isempty(urange_in)
         end
         [eps_lo,eps_hi]=estimate_erange(efix,emode,eps_lo,eps_hi);
         % Compute range with those estimate energy bounds
-        urange_est=calc_urange(efix(~ix),emode(~ix),eps_lo(~ix),eps_hi(~ix),det,alatt(~ix,:),angdeg(~ix,:),...
-            u(~ix,:),v(~ix,:),psi(~ix)*d2r,omega(~ix)*d2r,dpsi(~ix)*d2r,gl(~ix)*d2r,gs(~ix)*d2r);
+        if isempty(par_file) % need to use par file from existing runfiles
+            % Get detector parameters
+            par_file = get_par(run_files{1});
+        end
+        missing_rf = rundatah.gen_runfiles(spe_file(~ix),par_file,...
+            efix(~ix),emode(~ix),alatt(~ix,:),angdeg(~ix,:),...
+            u(~ix,:),v(~ix,:),psi(~ix),omega(~ix),dpsi(~ix),gl(~ix),gs(~ix),...
+            '-allow_missing',rundata_par{:});
+        eps_lo = eps_lo(~ix);
+        eps_hi = eps_hi(~ix);
+        for i = 1:numel(missing_rf)
+            missing_rf{i}.en = [eps_lo(i);eps_hi(i)];
+        end
+        
+        urange_est = rundata_find_urange(missing_rf,cash_det{:});
+        
+        %urange_est=calc_urange(efix(~ix),emode(~ix),eps_lo(~ix),eps_hi(~ix),det,alatt(~ix,:),angdeg(~ix,:),...
+        %    u(~ix,:),v(~ix,:),psi(~ix)*d2r,omega(~ix)*d2r,dpsi(~ix)*d2r,gl(~ix)*d2r,gs(~ix)*d2r);
         % Expand range to include urange_est, if necessary
         urange_in=[min(urange_in(1,:),urange_est(1,:)); max(urange_in(2,:),urange_est(2,:))];
     end
@@ -321,7 +347,6 @@ if ~accumulate_old_sqw && isempty(urange_in)
 elseif accumulate_old_sqw
     urange_in=urange_sqw;
 end
-[use_separate_matlab,num_matlab_sessions]=get(hor_config,'accum_in_separate_process','accumulating_process_num');
 
 % Construct output sqw file
 if ~accumulate_old_sqw && nindx==1
@@ -330,9 +355,15 @@ if ~accumulate_old_sqw && nindx==1
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
     end
-    write_banner=false;
-    [grid_size,urange] = rundata_write_to_sqw (run_files,{sqw_file},...
-        grid_size_in,urange_in,instrument(indx(1)),sample(indx(1)),write_banner,opt);
+    run_files{1}.instrument = instrument(indx(1));
+    run_files{1}.sample     = sample(indx(1));
+    if ~isempty(opt.transform_sqw)
+        run_files{1}.transform_sqw = opt.transform_sqw;
+    end
+    [w,grid_size,urange] = run_files{1}.calc_sqw(grid_size_in,urange_in); %.rundata_write_to_sqw (run_files,{sqw_file},...
+    save(w,sqw_file);
+    
+    %grid_size_in,urange_in,write_banner,opt);
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
     if horace_info_level>-1
@@ -342,38 +373,28 @@ else
     % Create unique temporary sqw files, one for each of the spe files
     [tmp_file,sqw_file_tmp]=gen_tmp_filenames(spe_file,sqw_file,indx);
     nt=bigtic();
-    write_banner=true;
+    %write_banner=true;
     
     % Older matlab compatibility operator: overcome flaw in indexing empty structure arrays pre 2011b or so.
-    if numel(fields(instrument))~=0
-        instrument = instrument(indx);
-    end
-    if numel(fields(sample))~=0
-        sample = sample(indx);
-    end
-    not_empty = cellfun(@(x)(~isempty(x)),spe_file);
+    %if  numel(fields(instrument))~=0
+    %    instrument = instrument(indx);
+    %end
+    %if numel(fields(sample))~=0
+    %    sample = sample(indx);
+    %end
+    not_empty = cellfun(@(x)(~empty_or_missing(x)),spe_file);
     if ~all(not_empty)
         %tmp_file = tmp_file(not_empty);
         instrument = instrument(not_empty);
         sample     = sample(not_empty);
     end
     
-    if numel(opt.transform_sqw)>1
-        job_par_fun = @(run,fname,instr,samp,transf)(gen_tmp_files_jobs.pack_job_pars(...
+   job_par_fun = @(run,fname,instr,samp,transf)(gen_sqw_files_job.pack_job_pars(...
             run,fname,instr,samp,...
-            grid_size_in,urange_in,struct('transform_sqw',transf)));
-        job_par = cellfun(job_par_fun,...
-            run_files',tmp_file,num2cell(instrument),num2cell(sample),...
-            opt.transf_sqw,...
-            'UniformOutput', true);
-    else
-        job_par_fun = @(run,fname,instr,samp)(gen_tmp_files_jobs.pack_job_pars(...
-            run,fname,instr,samp,...
-            grid_size_in,urange_in,opt));
-        job_par = cellfun(job_par_fun,...
+            grid_size_in,urange_in));
+   job_par = cellfun(job_par_fun,...
             run_files',tmp_file,num2cell(instrument),num2cell(sample),...
             'UniformOutput', true);
-    end
     
     if use_separate_matlab
         %
@@ -385,7 +406,7 @@ else
         % name parallel job by sqw file name
         jd = JobDispatcher(upper(par_job_name));
         %
-        [n_failed,outputs,job_ids] = jd.send_jobs('gen_tmp_files_jobs',...
+        [n_failed,outputs,job_ids] = jd.send_jobs('gen_sqw_files_job',...
             job_par,num_matlab_sessions);
         %
         [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,...
@@ -393,11 +414,14 @@ else
     else
         %---------------------------------------------------------------------
         % serial rundata to sqw transformation
+        % equivalent of:
         %[grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
         %    grid_size_in,urange_in,instrument,sample,write_banner,opt);
-        % make it looks like parallel transformation though a bit less
-        % effective but much easier to debug parallel job
-        jex = gen_tmp_files_jobs();
+        %
+        % make it look like a parallel transformation. A bit less
+        % effective but much easier to identify problem whith
+        % failing parallel job
+        jex = gen_sqw_files_job();
         jex = jex.do_job(job_par);
         result = jex.job_outputs;
         grid_size= result.grid_size;
@@ -462,6 +486,8 @@ end
 if nargout==0
     clear tmp_file grid_size urange
 end
+% clear cashed detectors information and detectors directions
+rundatah.clear_det_cash();
 
 
 function  [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,n_workers,outputs,job_ids,job_par)
@@ -522,3 +548,13 @@ else
 end
 
 
+function is = empty_or_missing(fname)
+if isempty(fname)
+    is  = true;
+else
+    if exist(fname,'file')
+        is = false;
+    else
+        is  = true;
+    end
+end

@@ -1,5 +1,6 @@
 function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
-% Make cut from an array of files, add together, and compare with same for another array of files
+% Make cut from an array of files or sqw objects, 
+% add together, and compare with same for another array of files
 %
 %   >> [ok,mess]=is_cut_equal(f1,f2,proj,p1,p2,p3,p4)
 %
@@ -13,6 +14,8 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
 
 if ischar(f1), f1={f1}; end
 if ischar(f2), f2={f2}; end
+if isa(f1,'sqw'), f1={f1}; end
+if isa(f2,'sqw'), f2={f2}; end
 
 w1=repmat(sqw,1,numel(f1));
 w2=repmat(sqw,1,numel(f2));

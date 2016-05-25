@@ -1,4 +1,4 @@
-function [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, psi,...
+function [w, grid_size, urange] = calc_sqw_(efix, emode, alatt, angdeg, u, v, psi,...
     omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_in, instrument, sample)
 % Create an sqw file, optionally keeping only those data points within a defined data range.
 %
@@ -36,6 +36,7 @@ function [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, ps
 %   urange_in       Range of data grid for output as a [2x4] matrix:
 %                     [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                   If [] then uses the smallest hypercuboid that encloses the whole data range.
+% 
 %   instrument      Structure or object containing instrument information [scalar]
 %   sample          Structure or object containing sample geometry information [scalar]
 %
@@ -62,7 +63,7 @@ main_header.nfiles=1;
 % Fill header and data blocks
 % ---------------------------
 if horace_info_level>-1
-	disp('Calculating projections...');
+   disp('Calculating projections...');
 end
 [header,sqw_data]=calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn);
 
@@ -93,9 +94,9 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
     grid_size = grid_size_in;
 
 else
-	if horace_info_level>-1
-		disp('Sorting pixels ...')
-	end
+    if horace_info_level>-1
+       disp('Sorting pixels ...')
+    end
     
     use_mex=get(hor_config,'use_mex');
     if use_mex
@@ -196,7 +197,7 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1173 $ ($Date: 2016-02-03 18:34:55 +0000 (Wed, 03 Feb 2016) $)
 
 
 % Perform calculations
@@ -205,7 +206,7 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 [ne,ndet]=size(data.S);
 
 % Calculate projections
-[u_to_rlu,urange,pix] = calc_projections (efix, emode, alatt, angdeg, u, v, psi,...
+[u_to_rlu,urange,pix] = calc_projections_(efix, emode, alatt, angdeg, u, v, psi,...
                                             omega, dpsi, gl, gs, data, det, detdcn);
 
 p=cell(1,4);

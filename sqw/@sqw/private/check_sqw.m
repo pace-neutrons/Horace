@@ -75,7 +75,7 @@ end
 
 % Check header(s)
 % ---------------------
-[ok,mess] = check_sqw_header(d.header);
+[ok,mess,d.header] = check_sqw_header(d.header);
 if ~ok, mess=['header: ',mess]; return, end
 if dnd_type && ~isempty(d.header)
     mess='header: header block inconsistent with main_header';

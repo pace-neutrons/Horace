@@ -108,7 +108,7 @@ end
 wcalc.data.pix(9,:)=(0.05*peak*scale)*(1+wran.data.pix(8,:));
 
 % Convert to equivalent spe data
-wspe=rundata(wcalc);
+wspe=rundatah(wcalc);
 
 % Write to spe file
 wspe.saveNXSPE(spe_file);

@@ -107,14 +107,14 @@ classdef test_main_mex < TestCase
             mex_present=fileparts(which('calc_projections_c'));
             assertTrue(~isempty(mex_present),'Mex file calc_projections_c is not availible on this computer')
             %
-            [efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det]=calc_fake_data(this);
+            rd =calc_fake_data(this);
             %
-            dummy = sqw();
             set(hor_config,'use_mex',0,'-buffer');
-            [u_to_rlu_matl,urange_matl,pix_matl]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+            
+            [urange_matl,u_to_rlu_matl,pix_matl]=rd.calc_projections();
             
             set(hor_config,'use_mex',1,'-buffer');
-            [u_to_rlu_c, urange_c,pix_c]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det);
+            [urange_c,u_to_rlu_c,pix_c]=rd.calc_projections();
             
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
@@ -129,31 +129,33 @@ classdef test_main_mex < TestCase
             end
             cleanup_obj=onCleanup(@()set(hcf,'use_mex',1));
             
-            [efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det]=calc_fake_data(this);
-            dummy = sqw();
+            rd = calc_fake_data(this);
             hcf.saveable=false;
             hcf.use_mex = 0;
-            [u_to_rlu_matl,urange_matl]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,0);
+            [u_to_rlu_matl,urange_matl]=rd.calc_projections();
             hcf.use_mex = 1;
-            [u_to_rlu_c,urange_c]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,0);
+            [u_to_rlu_c,urange_c]=rd.calc_projections();
+            
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
             
             
             hcf.use_mex = 0;
-            [u_to_rlu_matl,urange_matl,pix_m]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,1);
-            assertEqual(size(pix_m,1),4)
+            [u_to_rlu_matl,urange_matl,pix_m]=rd.calc_projections();
+            
+            assertEqual(size(pix_m,1),9)
             hcf.use_mex = 1;
-            [u_to_rlu_c,urange_c,pix_c]=calc_projections_tester(dummy,efx, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det,1);
+            [u_to_rlu_c,urange_c,pix_c]=rd.calc_projections();
+            
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
-            assertEqual(size(pix_c,1),4)
+            assertEqual(size(pix_c,1),9)
             assertElementsAlmostEqual(pix_m,pix_c,'absolute',1.e-8);
         end
         function test_recompute_bin_data(this)
-
+            
             [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
-             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
             
             test_sqw = sqw();
             pix=ones(9,40000);
@@ -173,7 +175,7 @@ classdef test_main_mex < TestCase
             s = new_sqw.data.s;
             e = new_sqw.data.e;
             assertElementsAlmostEqual(4*s,npix);
-            assertElementsAlmostEqual((4*4)*e,npix);            
+            assertElementsAlmostEqual((4*4)*e,npix);
             
             
             if ~cur_mex
@@ -182,15 +184,15 @@ classdef test_main_mex < TestCase
             set(hor_config,'use_mex',true,'threads',1);
             new_sqw1 = recompute_bin_data_tester(test_sqw);
             assertElementsAlmostEqual(new_sqw1.data.s,s)
-            assertElementsAlmostEqual(new_sqw1.data.e,e)            
-
-            set(hor_config,'use_mex',true,'threads',8);    
-            new_sqw2 = recompute_bin_data_tester(test_sqw);            
+            assertElementsAlmostEqual(new_sqw1.data.e,e)
+            
+            set(hor_config,'use_mex',true,'threads',8);
+            new_sqw2 = recompute_bin_data_tester(test_sqw);
             assertElementsAlmostEqual(new_sqw2.data.s,s)
-            assertElementsAlmostEqual(new_sqw2.data.e,e)            
+            assertElementsAlmostEqual(new_sqw2.data.e,e)
             
         end
-            
+        
         
         function test_sort_pix(this)
             % prepare pixels to sort
@@ -262,35 +264,40 @@ classdef test_main_mex < TestCase
             pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_type');
             t=toc(t1)
             pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_type');
-            t=toc(t1)            
+            t=toc(t1)
             pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_type');
-            t=toc(t1)            
+            t=toc(t1)
             
             profile off
             profview;
             
         end
         
-        function  [efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det]=calc_fake_data(this)
-            efix = this.efix;
-            emode=1;
-            alatt=[1,1,1];
-            angdeg=[92,88,73];
-            u=[1,0,0];
-            v=[1,1,0];
-            psi = 20;
-            omega = 0;
-            dpsi = 0;
-            gl=0;
-            gs =0;
+        function  rd = calc_fake_data(this)
+            rd = rundatah();
+            rd.efix = this.efix;
+            rd.emode=1;
+            lat = oriented_lattice(struct('alatt',[1,1,1],'angdeg',[92,88,73],...
+                'u',[1,0,0],'v',[1,1,0],'psi',20));
+            rd.lattice = lat;
             
+            det = struct('filename','','filepath','');
+            det.x2  = ones(1,this.nDet);
+            det.group = 1:this.nDet;
             polar=(0:(this.nPolar-1))*(pi/(this.nPolar-1));
             azim=(0:(this.nAzim-1))*(2*pi/(this.nAzim-1));
             det.phi = reshape(repmat(azim,this.nPolar,1),1,this.nDet);
             det.azim =reshape(repmat(polar,this.nAzim,1)',1,this.nDet);
-            data.S   = rand(this.nEn,this.nDet);
-            data.ERR = sqrt(data.S);
-            data.en =(-efix+(0:(this.nEn))*(1.99999*efix/(this.nEn)))';
+            det.width= 0.1*ones(1,this.nAzim*this.nPolar);
+            det.height= 0.1*ones(1,this.nAzim*this.nPolar);
+            rd.det_par = det;
+            
+            S   = rand(this.nEn,this.nDet);
+            rd.S   = S;
+            rd.ERR = sqrt(S);
+            rd.en =(-this.efix+(0:(this.nEn))*(1.99999*this.efix/(this.nEn)))';
+            
+            
         end
         function [data,proj]=gen_fake_accum_cut_data(this,u,v)
             % build fake data to test accumulate cut

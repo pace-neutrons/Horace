@@ -1,5 +1,5 @@
-function urange = calc_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
-% Compute range of data for a collection of data files given the projection axes and crystal orientation
+function urange = calc_urange_(efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+% Compute range of data for a data files given the projection axes and crystal orientation
 %
 % Normal use:
 %   >> urange = calc_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
@@ -34,7 +34,7 @@ function urange = calc_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, 
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 
 
 nfile=numel(efix);
@@ -72,7 +72,7 @@ for i=1:nfile
     else
         data.en=eps_lo(i);
     end
-    [u_to_rlu, urange1] = calc_projections (efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:), psi(i), ...
+    [~, urange1] = calc_projections (efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:), psi(i), ...
         omega(i), dpsi(i), gl(i), gs(i), data, det, detdcn);
     urange = [min(urange(1,:),urange1(1,:)); max(urange(2,:),urange1(2,:))];
 end

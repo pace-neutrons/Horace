@@ -127,6 +127,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             this.scale=0.3;
             
         end
+        %
         function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,varargin)
             en =this.gen_sqw_par{1};
             efix=this.gen_sqw_par{2};
@@ -172,6 +173,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             acsp=hc.accum_in_separate_process;
             umc= hc.use_mex_for_combine;
         end
+        %
         function this=build_test_files(this,varargin)
             %-------------------------------------------------------------
             [skip,cur_mex,pref,acsp,umc]=this.setup_mex_mode(varargin{:});
@@ -186,7 +188,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             end
             %-------------------------------------------------------------
             
-            %% =====================================================================================================================
+            % =====================================================================================================================
             % Make instrument and sample
             % =====================================================================================================================
             wmod=IX_moderator('AP2',12,35,'ikcarp',[3,25,0.3],'',[],0.12,0.12,0.05,300);
@@ -207,7 +209,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < TestCaseWithSave
             sample_2.temperature=350;
             
             
-            %% =====================================================================================================================
+            % =====================================================================================================================
             % Make spe files
             % =====================================================================================================================
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);

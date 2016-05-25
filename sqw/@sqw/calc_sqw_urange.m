@@ -64,5 +64,16 @@ if ischar(det) && size(det,1)==1
 end
 
 % Get urange
-d2r=pi/180;
-urange=calc_urange(efix,emode,eps_lo,eps_hi,det,alatt,angdeg,u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
+rd_list = rundatah.gen_runfiles(cell(1,numel(efix)),det,...
+    efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,'-allow_missing');
+ndet = numel(det.group);
+S = zeros(1,ndet);
+ERR = S;
+for i=1:numel(rd_list)
+    rd_list{i}.S = S;
+    rd_list{i}.ERR = ERR;    
+    rd_list{i}.en = [eps_lo(i);eps_hi(i)];
+end
+urange = rundata_find_urange(rd_list);
+
+%urange=calc_urange(efix,emode,eps_lo,eps_hi,det,alatt,angdeg,u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
