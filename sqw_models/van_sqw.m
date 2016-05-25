@@ -1,5 +1,5 @@
 function weight = van_sqw (qh,qk,ql,en,pars)
-% Dispersionless mode at non-zero energy en0
+% Dispersionless mode at non-zero energy en0 approximated as a Gaussian in energy
 %
 %   >> weight = van_sqw (qh,qk,ql,en,pars)
 %

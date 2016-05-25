@@ -51,7 +51,7 @@ function weight = disp2sqw(varargin)
 %   fwhh        Parametrizes the resolution function. There are three
 %               possible input values of fwhh:
 %
-%       double              A single FWHM value determines the FWHM of the 
+%       double              A single FWHM value determines the FWHM of the
 %                           Gaussian resolution function
 %       function_handle     A function that produces the FWHM value as a
 %                           function of energy transfer, it has to have the
@@ -157,17 +157,14 @@ if ~expand_qe
     sig = fwhh/sqrt(log(256));
     weight=zeros(numel(q{1}),1);
     for ii=1:numel(e)
-        
         weight=weight + sf{ii}(:).*exp(-(e{ii}(:)-en(:)).^2/(2*sig^2))/(sig*sqrt(2*pi));
     end
-    
     weight=reshape(weight,size(q{1}));
 else
     nq = numel(q{1});
     ne = numel(en);
     weight = zeros(nq,ne);
     en_arr = repmat(en(:)',[nq,1]);
-    
     for ii = 1:numel(e)
         %weight = weight + bsxfun(@times,sf{ii}(:),exp(-(bsxfun(@minus,e{ii}(:),en_arr)).^2/(2*sig.^2))./(sig*sqrt(2*pi)));
         weight = weight + bsxfun(@times,sf{ii}(:),resfun(en_arr,e{ii}(:)));
@@ -176,6 +173,7 @@ end
 
 end
 
+%--------------------------------------------------------------------------------------------------
 function G = gauss_internal(Emat,center,FWHMfun)
 % 1D Gauss function
 %
@@ -190,7 +188,6 @@ function G = gauss_internal(Emat,center,FWHMfun)
 % Output:
 %
 % G         Output matrix, with Gaussians, dimensions are [nQ nE].
-%
 
 % resolution for every omega values
 sig = repmat(FWHMfun(center)/sqrt(log(256)),[1 size(Emat,2)]);
