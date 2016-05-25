@@ -165,12 +165,8 @@ for i=1:n_files
     runfiles{i} = feval(name_of_class);
 end
 %runfiles = cellfun(@()(feval(name_of_class)),runfiles,'UniformOutput',false);
-if allow_missing
-    file_exist = false(n_files,1);    
-else
-    file_exist = true(n_files,1);
-end
 
+file_exist = true(n_files,1);
 
 % Do we build runfiles from one, multiple or no par files?
 if isempty(par_files)
@@ -179,10 +175,12 @@ if isempty(par_files)
             spe_files{i},dfnd_params(i),allow_missing);
     end
 elseif numel(par_files)==1
-    runfiles{1}= init_runfile_with_par(runfiles{1},spe_files{1},...
+    [runfiles{1},file_exist(1)]= init_runfile_with_par(runfiles{1},spe_files{1},...
         par_files{1},'',dfnd_params(1),allow_missing,parfile_is_det);
     % Save time on multiple load of the same par into memory by reading it just once
-    [par,runfiles{1}] = get_par(runfiles{1});
+    if n_files>1
+        [par,runfiles{1}] = get_par(runfiles{1});
+    end
     for i=2:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{1},par,dfnd_params(i),allow_missing,parfile_is_det);
@@ -266,6 +264,7 @@ if allow_missing
         
     end
 else
+    file_found = check_file_exist(spe_file_name);
     if par_is_det
         runfile = runfile.initialize(spe_file_name,param);
         runfile.det_par = par_file;

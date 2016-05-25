@@ -368,8 +368,8 @@ classdef rundata
             out = feval(classname);%(this,'data_file_name',data_fname,'par_file_name',val));
             if isempty(data_fname)
                 [~,~,fext] = fileparts(val);
-                if strcmpi(fext,'.nxspe')
-                    this = out.initialize(val,this);
+                if strcmpi(fext,'.nxspe') %HACK assumes that par can be loaded from nxspe only! 
+                    this = out.initialize(val,this); % shoule be fixed by 
                 else
                     if isempty(this.loader__)
                         this.loader__ = memfile();

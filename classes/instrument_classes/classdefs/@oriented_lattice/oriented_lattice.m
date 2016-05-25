@@ -71,7 +71,7 @@ classdef oriented_lattice
         function self = oriented_lattice(varargin)
             if(nargin>0)
                 if (~(isstruct(varargin{1}) || isa(varargin{1},'oriented_lattice')))
-                    error('ORIENTED_LATTICE:invalid_argument','Oriented lattice may be constructed ony with input structure, containing the same fields as publiuc fields of the oriented lattice itself');
+                    error('ORIENTED_LATTICE:invalid_argument','Oriented lattice may be constructed ony with input structure, containing the same fields as public fields of the oriented lattice itself');
                 end
                 if isa(varargin{1},'oriented_lattice')
                     self = varargin{1};
@@ -208,9 +208,11 @@ classdef oriented_lattice
     %---------------------------------------------------------------------
     methods(Static)
         function fields = lattice_fields()
+            % fields which belong to lattice
             fields = oriented_lattice.lattice_parameters__;
-        end
+        end        
         function fields = fields_with_defaults()
+            % lattice fields which have default values
             fields =oriented_lattice.fields_have_defaults__;
         end
         function val=check_angular_set(val)

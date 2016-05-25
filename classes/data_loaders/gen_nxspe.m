@@ -1,4 +1,4 @@
-function runfiles = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
+function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 % Function to create rundata object or cell array of such objects
 % from existing signal, error and detector arrays and save this object to
 % nxspe file(s)
@@ -80,10 +80,12 @@ else
     gen_rudatah = false;
 end
 
-if gen_rudatah %HACK -- assumes the knowlege about the derived class BAD!
-    runfiles = rundatah.gen_runfiles('',par_file,params{:},'-allow_missing');
+if gen_rudatah %HACK -- assumes the knowlege about the derived class BAD! 
+    % But do we really care? proper oop assumes overloading gen_nxpse for
+    % Horace
+    runfiles = rundatah.gen_runfiles(cell(1,n_files),par_file,params{:},'-allow_missing');
 else
-    runfiles = rundata.gen_runfiles('',par_file,params{:},'-allow_missing');
+    runfiles = rundata.gen_runfiles(cell(1,n_files),par_file,params{:},'-allow_missing');
 end
 
 if inputs_are_cellarrays
@@ -91,14 +93,14 @@ if inputs_are_cellarrays
         runfiles{i}.S  = S{i};
         runfiles{i}.ERR  = ERR{i};
         runfiles{i}.en  = en{i};
-        check_correctness(runfiles{i}.S, runfiles{i}.ERR,runfiles{i}.en);
+        check_correctness(runfiles{i}.S, runfiles{i}.ERR,runfiles{i}.en,i);
     end
 else
     for i=1:n_files
         runfiles{i}.S   = S(:,:,i);
         runfiles{i}.ERR = ERR(:,:,i);
         runfiles{i}.en  = en(:,i);
-        check_correctness(runfiles{i}.S, runfiles{i}.ERR,runfiles{i}.en);        
+        check_correctness(runfiles{i}.S, runfiles{i}.ERR,runfiles{i}.en,i);        
     end
 end
 %
@@ -108,8 +110,21 @@ if save_nxspe
     end
 end
 %
-if n_files == 1
-    runfiles = runfiles{1};
+if nargout == 0
+    return;    
+elseif nargout == 1
+    if n_files == 1 
+        varargout{1} = runfiles{1};
+    else
+        varargout{1} = runfiles;
+    end   
+else
+    if nargout ~= n_files
+        error('GEN_NXSPE:invalid_outputs',...
+            ' number of output arguments should be either one or equal to number of nxspe files to save')
+    else
+        varargout = runfiles(:);
+    end
 end
 
 
@@ -122,13 +137,13 @@ function [ok,mess,S,ERR,en,nxspe_file,n_files, inputs_are_cellarrays,save_nxspe,
 ok = true;
 mess = '';
 %
-if numel(size(S)) ==2
+if numel(size(S)) ==2 && ~iscell(S)
     S = {S};
 end
-if numel(size(ERR)) ==2
+if numel(size(ERR)) ==2  && ~iscell(ERR)
     ERR = {ERR};
 end
-if numel(size(en)) ==2 && any(size(en)==1)
+if numel(size(en)) ==2 && any(size(en)==1)  && ~iscell(en)
     en = {en};
 end
 
@@ -163,6 +178,12 @@ if inputs_are_cellarrays
         return;
     end
 else
+    if ~(size(en,2) ==n_files && size(S,3) == n_files && size(ERR,3) == n_files)
+        ok = false;
+        mess = 'last dimension of en S and ERR array has to be equal number of files to save';
+        return;
+        
+    end
 end
 
 if nargin < 5
@@ -188,12 +209,12 @@ elseif nargin > 11
     params={efix,varargin{2:6},varargin{1},varargin{7:end}};
 end
 
-function  check_correctness(S, ERR,en)
+function  check_correctness(S, ERR,en,i)
 if is_string(S) || is_string(ERR) || is_string(en)
     qd = {S,ERR,en};
-    wrong_fields = cellfun(@(x)(isstring(x)),gd);
+    wrong_fields = cellfun(@(x)(is_string(x)),qd);
     errs = qd(wrong_fields);
-    error('GEN_NSPE:invalid_arguments',errs{1})
+    error('GEN_NSPE:invalid_arguments','rundata instance N %d; Error: %s',i,errs{1})
 end
 
 

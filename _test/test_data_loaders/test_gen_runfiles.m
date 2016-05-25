@@ -221,10 +221,10 @@ classdef test_gen_runfiles< TestCase
         end
         
         function test_gen_and_save_nxspe(this)
-            rez_file{1} = fullfile(this.test_data_path,'test_gen1_nxspe.nxspe');            
-            rez_file{2} = fullfile(this.test_data_path,'test_gen2_nxspe.nxspe');                        
+            rez_file{1} = fullfile(this.test_data_path,'test_gen1_nxspe.nxspe');
+            rez_file{2} = fullfile(this.test_data_path,'test_gen2_nxspe.nxspe');
             clob = onCleanup(@()delete(rez_file{:}));
-           
+            
             ndet = numel(this.det.x2);
             nen = numel(this.en{1});
             S = ones(nen-1,ndet)*.2;
@@ -232,7 +232,101 @@ classdef test_gen_runfiles< TestCase
             gen_nxspe(S,ERR,this.en{1},this.det,rez_file{1},this.efix(1));
             %
             assertTrue(exist(rez_file{1},'file')==2);
+            rd = rundata(rez_file{1});
+            rd = rd.load();
+            delete(rez_file{1});
             
+            assertEqual(rd.S,S);
+            assertEqual(rd.ERR,ERR);
+            assertEqual(rd.en,this.en{1}');
+            assertTrue(isnan(rd.lattice.psi));
+            assertTrue(~exist(rez_file{1},'file'));
+            
+            % nen ~= size(S,1)-1 throws
+            S1 = S;
+            ERR1=ERR;
+            f = @()(gen_nxspe({S,S1},{ERR,ERR1},{this.en{1},this.en{2}},...
+                this.par_file,rez_file,...
+                this.efix(1:2),this.psi(1:2)));
+            assertExceptionThrown(f,'GEN_NSPE:invalid_arguments');
+            
+            nen = numel(this.en{2});
+            S1 = ones(nen-1,ndet)*4;
+            ERR1 = ones(nen-1,ndet)*4;
+            [rd1,rd2] = gen_nxspe({S,S1},{ERR,ERR1},{this.en{1},this.en{2}},...
+                this.par_file,rez_file,...
+                this.efix(1:2),this.psi(1:2));
+            assertTrue(exist(rez_file{1},'file')==2);
+            assertTrue(exist(rez_file{2},'file')==2);
+            
+            assertEqual(rd1.lattice.psi,this.psi(1));
+            assertEqual(rd2.lattice.psi,this.psi(2));
+            
+            assertEqual(rd1.det_par,rd2.det_par);
+            
+            rd1.det_par.filename = '';
+            rd.det_par.filename = '';
+            %
+            %HACK -- width and height are not saved/restored correctly!
+            rd.det_par.width  =[];
+            rd1.det_par.width  =[];
+            rd.det_par.height  =[];
+            rd1.det_par.height  =[];
+            assertEqual(rd1.det_par,rd.det_par);
+            
+            % use nxspe and build fully fledged rundata
+            nen = numel(this.en{3});
+            S2 = ones(nen-1,ndet)*8;
+            ERR2 = ones(nen-1,ndet)*4;
+            
+            % use nxspe and build fully defined rundata
+            delete(rez_file{2});
+            rd3 = gen_nxspe(S2,ERR2,this.en{3},...
+                rez_file{1},rez_file{2},...
+                this.efix(3),this.psi(3),1,this.alatt,this.angdeg,...
+                this.u,this.v,...
+                this.omega(3),this.dpsi(3),this.gl(3),this.gs(3));
+            
+            assertTrue(exist(rez_file{2},'file')==2);
+            assertEqual(rd3.S,S2);
+            lat = rd3.lattice;
+            assertEqual(lat.gl,this.gl(3));
+            %
+            rd = rundata(rez_file{2});
+            assertEqual(rd.lattice.psi,this.psi(3));
+            %rd = rd.load();
         end
+        %
+        function test_gen_and_save_nxspe_3D_array(this)
+            rez_file{1} = fullfile(this.test_data_path,'test_gen1_nxspe.nxspe');
+            rez_file{2} = fullfile(this.test_data_path,'test_gen2_nxspe.nxspe');
+            clob = onCleanup(@()delete(rez_file{:}));
+            
+            ndet = numel(this.det.x2);
+            nen = numel(this.en{1});
+            S = ones(nen-1,ndet,2)*.2;
+            ERR =sqrt(2)*ones(nen-1,ndet,2);
+            enn  = [this.en{1}',this.en{1}'];
+            gen_nxspe(S,ERR,enn,this.det,rez_file,this.efix(1:2),...
+                this.psi(1:2));
+            %
+            assertTrue(exist(rez_file{1},'file')==2);
+            assertTrue(exist(rez_file{2},'file')==2);
+        end
+        
+        function test_gen_nosave_array(this)
+         
+            ndet = numel(this.det.x2);
+            nen = numel(this.en{1});
+            S = ones(nen-1,ndet,2)*.2;
+            ERR =sqrt(2)*ones(nen-1,ndet,2);
+            enn  = [this.en{1}',this.en{1}'];
+            rds=gen_nxspe(S,ERR,enn,this.det,'',this.efix(1:2),...
+                this.psi(1:2));
+            %
+            assertEqual(rds{1}.S,S(:,:,1))
+            assertEqual(rds{2}.S,S(:,:,2))
+        end
+        
     end
 end
