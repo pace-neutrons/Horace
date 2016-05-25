@@ -12,17 +12,21 @@ function v=appversion(n1,n2,n3,n4)
 % Input:
 % ------
 % Numeric component inputs must be integers in the range 0 - 999
-% e.g.  >> ver = appversion (3,2)
+% e.g.  >> ver = appversion (3)
+%       >> ver = appversion (3,2)
 %       >> ver = appversion (3,2,12)
 %
 % A special case is a scalar real, when the integer part and the decimal
 % part are treated as n1 and n2
 % e.g.  >> ver = appversion (3)         % same as ver=appversion(3,0)
-%       >> ver = appversion (3.5)       % same as ver=appversion(3,5)
+%       >> ver = appversion (3.2)       % same as ver=appversion(3,2)
 %
 % String input must have the form 'vn', 'vn.m', 'vn.m.p' or 'vn.m.p.q' where
 % n,m,p,q are integers
 % e.g. 'v5', 'v3.2', 'v4.0', 'v2.1.35'
+%
+% Strings can also have a leading '-'
+% e.g. '-v5', '-v3.2', '-v4.0', '-v2.1.35'
 %
 % Note: trailing zeros in the version are not significant. For example,
 % 'v4.0.0' and 'v4' are equivalent. Likewise appversion(3,0),

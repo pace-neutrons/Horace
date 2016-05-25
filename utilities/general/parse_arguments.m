@@ -323,7 +323,7 @@ elseif nargin>=4
 else
     % Error:
     ok=false;
-    mess='Check num,ber are type of input arguments';
+    mess='Check number and type of input arguments';
     if throw_error, error(mess), else...
             [par,keyval,present,filled]=error_return; return
     end
