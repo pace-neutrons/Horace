@@ -33,7 +33,7 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 
 
 [nd,npixels] = size(u);    % no. dimensions and no. pixels

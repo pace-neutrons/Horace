@@ -1,5 +1,5 @@
 function [u_to_rlu, urange, pix] = ...
-    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn,proj_mode)
+    calc_projections_(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn,proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
@@ -57,14 +57,14 @@ function [u_to_rlu, urange, pix] = ...
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1173 $ ($Date: 2016-02-03 18:34:55 +0000 (Wed, 03 Feb 2016) $)
 
 
 % Check input parameters
 % -------------------------
 [ne,ndet]=size(data.S);
 % Check length of detectors in spe file and par file are same
-if ~isfield(data,'qspec') && ndet~=length(det.phi)
+if ~isfield(data,'qspec') &&  ndet~=length(det.phi)
     mess1=['.spe file ' data.filename ' and .par file ' det.filename ' not compatible'];
     mess2=['Number of detectors is different: ' num2str(ndet) ' and ' num2str(length(det.phi))];
     error('%s\n%s',mess1,mess2)
@@ -110,6 +110,9 @@ if use_mex
 end
 if ~use_mex
     if ~isfield(data,'qspec')
+        if isempty(detdcn)
+            detdcn = calc_detdcn(det);
+        end
         [qspec,en]=calc_qspec(efix, k_to_e, emode, data, detdcn);
         ucoords = [spec_to_u*qspec;en];
     else

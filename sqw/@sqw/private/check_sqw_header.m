@@ -1,4 +1,4 @@
-function [ok, mess] = check_sqw_header (header,field_names_only)
+function [ok, mess,header] = check_sqw_header (header,field_names_only)
 % Check that the fields in the header are OK
 %
 %   >> [ok, mess] = check_sqw_header (header)
@@ -7,7 +7,7 @@ function [ok, mess] = check_sqw_header (header,field_names_only)
 % Input:
 % ------
 %   header  Structure to be checked
-%   fields_names_only 
+%   fields_names_only
 %           If=true, check field names only
 %             =false or empty or absent, check all fields of permitted type(s)
 %
@@ -49,7 +49,7 @@ if isstruct(header)
     if ~isequal(fieldnames(header),fields)
         mess='Header is not a structure with required fields'; return
     elseif ~field_names_only
-        [ok,mess]=check_sqw_header_fields(header);
+        [ok,mess,header]=check_sqw_header_fields(header);
         if ~ok, return, end
     end
     
@@ -73,7 +73,7 @@ ok=true;
 
 
 %==================================================================================================
-function [ok,mess]=check_sqw_header_fields(header)
+function [ok,mess,header]=check_sqw_header_fields(header)
 %   >> [ok, mess] = check_sqw_header_fields (header)
 %
 %   ok      OK=true if valid, OK=false if not
@@ -88,7 +88,14 @@ mess='';
 % Not exhaustive, as doesn't check numerical values
 if ~is_string_or_empty_string(header.filename), mess='ERROR: Field ''filename'' must be a character string'; return; end
 if ~is_string_or_empty_string(header.filepath), mess='ERROR: Field ''filepath'' must be a character string'; return; end
-if ~isa_size(header.efix,'scalar','double'), mess='ERROR: Field ''efix'' must be a numeric scalar'; return; end
+if ~isa_size(header.efix,'scalar','double')  %HACK !
+    if ~strncmpi(header.efix,'no efix for elastic',19) % elastic mode
+        mess='ERROR: Field ''efix'' must be a numeric scalar';
+        return;
+    else
+        header.efix = 0;
+    end
+end
 if ~isa_size(header.emode,'scalar','double') || ~(header.emode==1 || header.emode==2 || header.emode==0)
     mess='ERROR: Field ''emode'' must be a number equal to either 1 or 2'; return; end
 if ~isa_size(header.alatt,'vector','double'), mess='ERROR: Field ''alatt'' must be a numeric vector length 3'; return; end

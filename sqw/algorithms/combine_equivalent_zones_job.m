@@ -1,5 +1,6 @@
 classdef combine_equivalent_zones_job < JobExecutor
-    %Class to convert partial zones to seleted one using separtate Matlab session
+    %Class running herbert MPI job to convert partial zones into seleted one
+    %using separtate Matlab session
     %
     %
     properties
@@ -16,7 +17,6 @@ classdef combine_equivalent_zones_job < JobExecutor
             % work together with combine_equivalent_zone_list in multisession mode,
             % accepting parameters, generated there in multisession mode
             %
-
             args   = varargin{1};
             n_zones = numel(args);            
             %job_num = this.job_id();

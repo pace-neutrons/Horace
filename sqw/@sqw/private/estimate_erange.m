@@ -1,6 +1,6 @@
 function [elo_out,ehi_out]=estimate_erange(efix,emode,elo,ehi)
 % Make an estimate of the energy transfer range for construction of urange
-% 
+%
 %   >> [elo,ehi]=estimate_erange(efix,emode,elo,ehi)
 %
 % The estimate is made on the basis of those runs for which elo, ehi have
@@ -18,14 +18,17 @@ function [elo_out,ehi_out]=estimate_erange(efix,emode,elo,ehi)
 %
 % Output:
 % -------
-%   elo_out     Column vector of lower energy transfer limits with NaNs 
-%              replaced by a multiple of efix determined as the maximum 
+%   elo_out     Column vector of lower energy transfer limits with NaNs
+%              replaced by a multiple of efix determined as the maximum
 %              fraction for those runs where elo was actually given, or if
 %              none given, default fraction -0.2 (emode=1), -0.99 (emode=2).
-%   ehi_out     Column vector of upper energy transfer limits with NaNs 
-%              replaced by a multiple of efix determined as the maximum 
+%   ehi_out     Column vector of upper energy transfer limits with NaNs
+%              replaced by a multiple of efix determined as the maximum
 %              fraction for those runs where ehi was actually given, or if
 %              none given default fraction 0.99 (emode=1 and emode=2).
+%
+% $Revision$ ($Date$)
+%
 
 
 if ~all(emode==emode(1))

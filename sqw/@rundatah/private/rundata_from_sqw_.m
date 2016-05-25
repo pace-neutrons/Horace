@@ -1,21 +1,21 @@
-function rd=rundata(sqw)
+function rd=rundata_from_sqw_(sqw_obj)
 % function builds rundata object from sqw object
 %
 %>>rd = rundata(sqw)
 %
-%Input:   sqw -- a non-empty sqw object (for single input file?)
+%Input:   sqw_obj -- a non-empty sqw object (for single input file?)
 %Output:  rd  -- rundata object with the data from sqw object
 %
 %
 %
-% $Revision$ ($Date$)
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 %
 
 %
-data = sqw.data;
-header = sqw.header;
-detpar = sqw.detpar;
-[dummy,filename] = fileparts(sqw.main_header.filename);
+data = sqw_obj.data;
+header = sqw_obj.header;
+detpar = sqw_obj.detpar;
+[dummy,filename] = fileparts(sqw_obj.main_header.filename);
 %
 en     = header.en;
 ne=numel(en)-1;    % number of energy bins
@@ -50,7 +50,7 @@ lattice.dpsi  = header.dpsi*(180/pi);
 lattice.gl    = header.gl*(180/pi);
 lattice.gs    = header.gs*(180/pi);
 
-rd = rundata();
+rd = rundatah();
 
 rd.lattice = lattice;
 rd.det_par = detpar;
