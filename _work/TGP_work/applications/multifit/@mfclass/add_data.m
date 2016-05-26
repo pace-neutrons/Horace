@@ -1,0 +1,57 @@
+function obj = add_data(obj,varargin)
+% Append datasets to the list of current datasets
+%
+%   >> obj = obj.add_data ()            % inert operaton: does nothing
+%   >> obj = obj.add_data (x,y,z)
+%   >> obj = obj.add_data (w1,w2,...)
+
+
+% Trivial case of no input arguments; just return without doing anything
+if numel(varargin)==0, return, end
+
+% Check input
+[ok, mess, ndim] = is_valid_data (varargin{:});
+if ~ok, error(mess), end
+
+% Append dataset(s) to end of existing collection of datasets
+[ndata,ndatatot,item,ix] = data_indicies(ndim);
+
+ndatatot_init = obj.ndatatot_;
+if isempty(obj.data_)
+    obj.data_ = varargin;
+    obj.ndim_ = ndim;
+    obj.ndata_ = ndata;
+    obj.ndatatot_ = ndatatot;
+    obj.item_ = item;
+    obj.ix_ = ix;
+else
+    if numel(obj.data_)==3 && obj.ndatatot_==1  % data is {x,y,e}
+        obj.data_ = {obj.data_};
+    end
+    if numel(varargin)==3 && numel(ndim)==1     % new data is {x,y,e}
+        varargin = {varargin};
+    end
+    obj.data_ = [obj.data_, varargin];
+    obj.ndim_ = [obj.ndim_, ndim];
+    obj.ndata_ = [obj.ndata_, ndata];
+    obj.ndatatot_ = obj.ndatatot_ + ndatatot;
+    obj.item_ = [obj.item_; ndatatot_init+item];
+    obj.ix_ = [obj.ix_; ix];
+end
+
+% Add function properties
+% Only need to append properties if the number of datasets has changed
+% Note that constraints properties do not need to be changed, as the default
+% is to have no parameters
+if obj.ndatatot_ ~= ndatatot_init && ...
+        (obj.foreground_is_local_ || obj.background_is_local_)
+    S_fun = obj.get_fun_props_;
+    dn = obj.ndatatot_ - ndatatot_init;
+    if obj.foreground_is_local_
+        S_fun = fun_append (S_fun, true, dn);
+    end
+    if obj.background_is_local_
+        S_fun = fun_append (S_fun, false, dn);
+    end
+    obj = obj.set_fun_props_(S_fun);
+end

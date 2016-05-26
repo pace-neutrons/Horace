@@ -1,0 +1,22 @@
+
+- add checks to clear bindings in various functions add*, clear* (data and parameters)
+
+- info_level
+
+
+
+function 
+% Determine if can replace existing local function set with a global function
+% To be able to do this, must
+% - functions all the same name
+% - parameter lists all the same
+% - 
+
+
+%=====================================================================================
+% Major architectural matters
+%=====================================================================================
+Is it better to not to have methods constraints_remove_, constraints_insert_ operating
+on mfclass objects? The problem is it is not possible to compose methods like
+constraints_replace because the output objects of constraints_remove_ are not
+valid objects (no_, nbp_ are inconsistent with constraints section)
