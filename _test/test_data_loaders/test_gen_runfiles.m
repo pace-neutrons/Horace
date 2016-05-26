@@ -328,5 +328,23 @@ classdef test_gen_runfiles< TestCase
             assertEqual(rds{2}.S,S(:,:,2))
         end
         
+        function test_build_det_from_array(this)
+         
+            det_ar = get_par(this.par_file,'-nohor');
+            ndet = size(det_ar,2);
+            nen = numel(this.en{1});
+            S = ones(nen-1,ndet,2)*.2;
+            ERR =sqrt(2)*ones(nen-1,ndet,2);
+            enn  = [this.en{1}',this.en{1}'];
+            rds=gen_nxspe(S,ERR,enn,det_ar,'',this.efix(1:2),...
+                this.psi(1:2));
+            %
+            assertEqual(rds{1}.S,S(:,:,1))
+            assertEqual(rds{2}.S,S(:,:,2))
+            det_hor = get_hor_format(det_ar,'mem_par_file');
+            assertEqual(det_hor,rds{1}.det_par);
+        end
+        
+        
     end
 end

@@ -67,7 +67,7 @@ end
 
 % Optional parameters names list
 parameter_nams={'efix','emode','alatt','angdeg','u','v','psi','omega',...
-    'dpsi','gl','gs'};
+    'dpsi','gl','gs','instrument','sample'};
 
 % Input files
 % -----------
@@ -92,13 +92,16 @@ if nargin>1
     parfile_is_det = false;
     if ischar(params{1}) && size(params{1},1)==1    % single par file provided as input
         par_files = params(1);    % cell array with one character array
-    elseif isdetpar(params{1})    
-        par_files = params(1);   % detector's structure is provided
-        parfile_is_det = true;
     elseif iscellstr(params{1})   % list of par files provided
         par_files = params{1};
     elseif isempty(params{1})     % empty par file definition provided
         par_files = {};
+    else
+        [is,par_files] = isdetpar(params{1}); % will throw if array in wrong format
+        if is % detector's structure or det array is provided
+            parfile_is_det = true;
+            par_files = {par_files};
+        end
     end
     params = params(2:end);
 else
@@ -277,9 +280,16 @@ if ~isempty(par_data)
     runfile.det_par = par_data;
 end
 
-function is=isdetpar(input)
+function [is,input]=isdetpar(input)
 if ~isstruct(input)
-    is = false;
+    if isnumeric(input) && isvector(input(:,1)) && isvector(input(:,2))
+        % will throw if conversion is impossible
+        input = get_hor_format(input,'mem_par_file');
+        is = true;
+        return
+    else
+        is = false;
+    end
     return
 end
 detpar_fields = {'group','x2','phi','azim','width','height'};

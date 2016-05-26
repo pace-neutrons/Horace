@@ -1,7 +1,7 @@
 function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 % Function to create rundata object or cell array of such objects
 % from existing signal, error and detector arrays and save this object to
-% nxspe file(s)
+% nxspe file(s) if requested.
 %
 % Usage:
 %
@@ -9,23 +9,35 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 %  -- create nxspe file for direct instrument with undefined rotation angle
 %     using signal, error and energy arrays provided by user and detector
 %     information provided in par file or appropriate detector
-%     structure (see below) All arrays has to be consistent
+%     structure. All arrays have to be consistent with each other. (see below)
 %
 %>>gen_nxspe(S,ERR,en,par_file,nxspefile_name,efix,emode,psi);
-%  -- create fully defined nxspe file with parameters as above
+%  -- create fully defined nxspe file including rotation angle with parameters 
+%     as above.
 %
 %>>rd = gen_nxspe(S,ERR,en,par_file,nxspefile_name,efix,emode,psi,...
 %       alatt, angdeg, u, v, omega, dpsi, gl, gs);
 %  -- create fully defined nxspe file and return fully defined
-%     rundata class for further usage
+%     cellarray of rundata classes or single rundata class for single nxspefile_name
+%     file. 
 %
 %>>rd = gen_nxspe(S,ERR,en,par_file,'',efix,emode,psi,...
 %       alatt, angdeg, u, v, omega, dpsi, gl, gs);
-%  --  build and return fully defined crystal  rundata class for further usage
-%      but do not save it into a nxspe file. Saving can be perfomed later
+%  --  build and return cellarray of fully defined crystal rundata classes
+%      for further usage
+%      but do not save information into a nxspe file. Saving can be perfomed later
 %      using rd.saveNXSPE('filename') method.
 %      (see rundata constructor or rundata.gen_runfiles method for similar
-%      functionality but different)
+%      functionality but different implementatin emphasis)
+%
+%      When nxspe data are saved, number of nxspe files is defined by
+%      number of elements in nxspefile_name cellarray and all other inputs
+%      dimensions must be consistent with this number. 
+%      When nxspefile_name 
+%      is empty, number of generated rundata instances is determened by
+%      second dimension of en array size(en) == [n_en,n_rundata_files] if 
+%      en is array or number or elelments in cellarray if en is cellarray
+%      of bin boundaries. 
 %
 % Where:
 % S    [nen,npix,n_files] array of signals or cellarry containing
@@ -36,27 +48,36 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 % par_file  -- either ascii string defining full path to par or phx file
 %         (See http://docs.mantidproject.org/nightly/algorithms/SavePAR.html
 %          or http://docs.mantidproject.org/nightly/algorithms/SavePHX.html
-%          for these formats description) or path to nxspe file containing detectors
-%          information.
-%     or   5- or 6 column array with detector information convertable to Horace
-%     Detpar structure or this structure itself.
+%          for these formats description) 
+%     or   path to nxspe file containing detectors information.
+%     or   6 column array (size == [6,n_det]) with detector information
+%          convertable to Horace Detpar structure.
+%     or   Horace Detpar structure with detectors information.
 %
-% nxspe_file -- the name of the file(s) to save resulting nxspe results
-%               into or empty string or cellarry of file names.
-%       number of files to generate is usually defined by the size of this
-%       cellarray.
+% nxspe_file -- the full name and path to the file to save resulting nxspe 
+%               data
+%      or  empty string 
+%      or  cellarry of full file names to save nxspe.
+%         Number of files to generate is usually defined by the size of this
+%         cellarray unless this parameter is empty. When is empty, the
+%         number is defined by the size of cellarray containing energy bin
+%         boundaries. 
 %
 % efix  -- incident energy or n_files array or cellarray of energies
 % emode -- instrument mode (1 -- direct, 2 indirect, 0 -- elastic)
 % psi   -- array or cellarray of rotation angles
 %
 % alatt, angdeg, u, v, omega, dpsi, gl, gs -- optional parameters, defining
-%           rundata and not stored into nxspe file. See rudata gen_runfiles
-%           or gen_sqw for details of these parameters
+%         full rundata class, necessary to convert rundata into sqw object. 
+%
+%         This information is not stored into nxspe file. See rudata gen_runfiles
+%         or gen_sqw for detailed description of these parameters
+%
 %
 % $Revision: 977 $ ($Date: 2015-02-21 18:58:56 +0000 (Sat, 21 Feb 2015) $)
 %
 
+%
 % briefly check main inputs consistency (detailed constistency will be
 % verified during gen_runfiles operation.
 [ok,mess,S,ERR,en,nxspe_file,n_files, inputs_are_cellarrays,save_nxspe,params] = ...
@@ -82,7 +103,7 @@ end
 
 if gen_rudatah %HACK -- assumes the knowlege about the derived class BAD! 
     % But do we really care? proper oop assumes overloading gen_nxpse for
-    % Horace
+    % Horace but this solution looks much better to use.
     runfiles = rundatah.gen_runfiles(cell(1,n_files),par_file,params{:},'-allow_missing');
 else
     runfiles = rundata.gen_runfiles(cell(1,n_files),par_file,params{:},'-allow_missing');
@@ -186,6 +207,8 @@ else
     end
 end
 
+% Convert remaining input parameters into the form, acceptable by
+% gen_runfiles function
 if nargin < 5
     ok = false;
     mess = 'gen_nxspe needs at least 6 input arguments.';

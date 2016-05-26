@@ -1,5 +1,6 @@
 function det = get_hor_format(par_data,file_name)
-% function transforms data obtained as par data array into Horace srtucture;
+% function transforms data obtained as par data array into Horace srtucture
+% and vise versa.
 %
 % Usage:
 %>> det = get_hor_format(par_data,file_name)
