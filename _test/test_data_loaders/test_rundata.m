@@ -167,7 +167,7 @@ classdef test_rundata< TestCase
             %assertTrue(all(ismember({'dpsi','gl','gs'},fields_from_defaults)));
             assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
             
-            run = get_rundata(run,'-this');
+            run = get_rundata(run,'S','ERR','-this');
             S = run.S;
             Err = run.ERR;
             en  = run.en;
@@ -187,7 +187,10 @@ classdef test_rundata< TestCase
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
             assertTrue(isempty(undef_fields));
-            assertTrue(all(ismember({'S','ERR','det_par','psi'},fields_to_load)));
+            assertTrue(all(ismember({'S','ERR','det_par'},fields_to_load)));
+            % psi is defined from the beginning (loaded from the file)
+            %
+            assertFalse(isempty(run.lattice.psi));
             %assertTrue(all(ismember({'omega','dpsi','gl','gs'},fields_from_defaults)));
             
         end
@@ -237,7 +240,7 @@ classdef test_rundata< TestCase
             assertTrue(isempty(run_str.S));
             run=get_rundata(run,'-this');
             S=run.S;
-            assertTrue(~isempty(S));
+            assertTrue(isempty(S));
             run_str = struct(run);
             assertEqual(S,run_str.S);
             warning(wr);
@@ -387,7 +390,7 @@ classdef test_rundata< TestCase
             run=rundata(f_name(this,'MAP11014.nxspe'),ds);
             [run1,ok,mess,undef_list] = run.load_methadata();
             
-            assertTrue(isempty(run.lattice.psi));
+            assertEqual(run.lattice.psi,0);
             assertFalse(isempty(run1.lattice.psi));
             %assertUnEqual(run,run1);
             assertTrue(ok);

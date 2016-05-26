@@ -96,14 +96,14 @@ classdef oriented_lattice
                 this.angular_units__ = 'rad';
             else
             end
-        end        
+        end
         function this = set_deg(this)
             this.angular_units__= 'deg';
         end
         function this = set_rad(this)
             this.angular_units__= 'rad';
         end
-%        
+        %
         function public_struct = struct(this)
             % convert class into structure, containing public-accessible information
             pub_fields = [oriented_lattice.lattice_parameters__,{'angular_units'}];
@@ -185,6 +185,7 @@ classdef oriented_lattice
         %
         function this=set.alatt(this,val)
             this.alatt__ = oriented_lattice.check_3Dvector(val);
+            
         end
         function this=set.angdeg(this,val)
             this.angdeg__ = oriented_lattice.check_3DAngles_correct(val);
@@ -197,11 +198,11 @@ classdef oriented_lattice
                 if isempty(obj.(field))
                     is=true;
                 else
-                    is=false;                    
+                    is=false;
                 end
             end
             uf=cellfun(@(fld)(undef_field(obj,fld)),obj.lattice_parameters__);
-            undef_fields = obj.lattice_parameters__(uf);            
+            undef_fields = obj.lattice_parameters__(uf);
         end
     end
     %---------------------------------------------------------------------
@@ -210,7 +211,7 @@ classdef oriented_lattice
         function fields = lattice_fields()
             % fields which belong to lattice
             fields = oriented_lattice.lattice_parameters__;
-        end        
+        end
         function fields = fields_with_defaults()
             % lattice fields which have default values
             fields =oriented_lattice.fields_have_defaults__;
@@ -241,7 +242,9 @@ classdef oriented_lattice
         function val =  check_3DAngles_correct(val)
             % check correct angular values for lattice angles
             %
-            if isempty(val);    return;
+            if isempty(val)
+                val = [];
+                return;
             end
             if numel(val)==1
                 val = [val,val,val];
@@ -275,7 +278,10 @@ classdef oriented_lattice
         function vector = check_3Dvector(val)
             % function verifies if 3D vector is correct and transforms single value (if
             % provider) into 3D vector;
-            
+            if isempty(val)
+                vector = [];
+                return;
+            end
             vector = val;
             if numel(val)==1
                 vector = [val,val,val];

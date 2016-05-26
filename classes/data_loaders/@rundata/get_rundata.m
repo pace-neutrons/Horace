@@ -147,7 +147,7 @@ end
 
 % --> CHECK THE CONSISTENCY OF THE DATA ITSELF
 % what fields are actually needed:?
-if isempty(fields_requested) % all data fields are needed
+if isempty(fields_requested) && ~return_this % all data fields are needed
     fields_requested  = what_fields_are_needed(this);
     [is_undef,fields_to_load,undef_fields]=check_run_defined(this,fields_requested);
     
