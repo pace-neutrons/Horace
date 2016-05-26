@@ -27,7 +27,7 @@ function [n_failed,outputs,job_ids,this]=send_jobs_to_workers_(this,...
 %              job_param_list, assigned to this job
 %
 %
-% $Revision: 278 $ ($Date: 2013-11-01 20:07:58 +0000 (Fri, 01 Nov 2013) $)
+% $Revision$ ($Date$)
 %
 %
 % identify number of jobs on the basis of number of parameters

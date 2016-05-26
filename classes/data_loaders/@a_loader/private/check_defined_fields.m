@@ -2,7 +2,7 @@ function fields = check_defined_fields(this)
 % method checks what fields in the structure are defined fromn the fields
 % the data file should define.
 %
-% $Revision: 311 $ ($Date: 2013-11-27 09:57:20 +0000 (Wed, 27 Nov 2013) $)
+% $Revision$ ($Date$)
 %
 
 % a data file usually defines the following fields:

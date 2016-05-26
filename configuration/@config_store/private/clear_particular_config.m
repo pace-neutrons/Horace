@@ -4,7 +4,7 @@ function  clear_particular_config(this,class_instance,clear_file)
 % if clear_file == true also deletes the correspondent configuration file
 %
 %
-% $Revision: 313 $ ($Date: 2013-12-02 11:31:41 +0000 (Mon, 02 Dec 2013) $)
+% $Revision$ ($Date$)
 %
 
 class_name =  class_instance.class_name;

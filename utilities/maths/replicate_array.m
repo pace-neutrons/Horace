@@ -15,7 +15,7 @@ function vout = replicate_array (v, n)
 
 % Original author: T.G.Perring
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 
 if numel(n)==numel(v)
     if ~isempty(n)

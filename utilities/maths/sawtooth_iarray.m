@@ -20,7 +20,7 @@ function ivout = sawtooth_iarray (n)
 
 % Original author: T.G.Perring
 %
-% $Revision: 815 $ ($Date: 2013-12-29 19:40:56 +0000 (Sun, 29 Dec 2013) $)
+% $Revision$ ($Date$)
 
 nn0=n(n>0);
 nn0=nn0(:);

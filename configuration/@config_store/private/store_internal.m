@@ -12,7 +12,7 @@ function store_internal(this,config_class,force_save,varargin)
 % defaults. 
 %
 %
-% $Revision: 278 $ ($Date: 2013-11-01 20:07:58 +0000 (Fri, 01 Nov 2013) $)
+% $Revision$ ($Date$)
 %
 class_name = config_class.class_name;
 if nargin>3 % we need to set some fields before storing the configuration. 

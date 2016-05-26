@@ -12,7 +12,7 @@ function file_name = config_file_name (config_name)
 %   file_name       Name of file containing the stored value of the
 %                   named configuration
 
-% $Revision: 278 $ ($Date: 2013-11-01 20:07:58 +0000 (Fri, 01 Nov 2013) $)
+% $Revision$ ($Date$)
 
 %--> The block to provide compatibility between matlab 2008a and 2007b where
 % mfilename behaviour changes

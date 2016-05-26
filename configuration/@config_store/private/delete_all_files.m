@@ -1,7 +1,7 @@
 function  delete_all_files( this )
 %method deletes all configuration files loaded to config_store
 
-% $Revision: 313 $ ($Date: 2013-12-02 11:31:41 +0000 (Mon, 02 Dec 2013) $)
+% $Revision$ ($Date$)
 
 %
 fields = fieldnames(this.config_storage_);

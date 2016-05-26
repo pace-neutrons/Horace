@@ -1,6 +1,6 @@
 classdef test_oriented_lattice< TestCase
     %
-    % $Revision: 349 $ ($Date: 2014-03-06 08:47:12 +0000 (Thu, 06 Mar 2014) $)
+    % $Revision$ ($Date$)
     %
     
     properties

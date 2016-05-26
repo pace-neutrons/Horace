@@ -21,7 +21,7 @@ function X = rand_truncexp (x0,varargin)
 
 % Original author: T.G.Perring 
 % 
-% $Revision: 436 $ ($Date: 2015-07-06 09:58:15 +0100 (Mon, 06 Jul 2015) $)
+% $Revision$ ($Date$)
 
 
 if x0==Inf

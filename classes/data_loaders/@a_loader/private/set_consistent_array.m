@@ -4,7 +4,7 @@ function this = set_consistent_array(this,field_name,value)
 % disabled
 %
 %
-% $Revision: 319 $ ($Date: 2014-01-08 22:27:51 +0000 (Wed, 08 Jan 2014) $)
+% $Revision$ ($Date$)
 %
 
 if isempty(value)

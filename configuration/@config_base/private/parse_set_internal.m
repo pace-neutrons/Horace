@@ -31,7 +31,7 @@ function [S,ok,mess] = parse_set_internal (varargin)
 %
 % NOTE: For internal use only.
 
-% $Revision: 313 $ ($Date: 2013-12-02 11:31:41 +0000 (Mon, 02 Dec 2013) $)
+% $Revision$ ($Date$)
 
 % Default return values
 S=struct();

@@ -3,7 +3,7 @@ function h=custom_errorbars(x,signal,error,color,linestyle,linewidth,...
 % Custom errorbars function, plotting sighal with error and
 % error-bars caps width set up to 0
 
-% $Revision: 977 $ ($Date: 2015-02-21 18:58:56 +0000 (Sat, 21 Feb 2015) $)
+% $Revision$ ($Date$)
 
 % Set errorbar cap lengths to zero
 if verLessThan('matlab','8.4')

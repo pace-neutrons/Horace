@@ -1022,7 +1022,7 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
  
 % Original author: T.G.Perring 
 % 
-% $Revision: 436 $ ($Date: 2015-07-06 09:58:15 +0100 (Mon, 06 Jul 2015) $) 
+% $Revision$ ($Date$) 
  
  
 % ---------------------------------------------------------------------------------------------------------------- 

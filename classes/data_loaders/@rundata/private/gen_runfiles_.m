@@ -55,7 +55,7 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %       is used instead;
 
 %
-% $Revision: 371 $ ($Date: 2014-04-04 17:34:46 +0100 (Fri, 04 Apr 2014) $)
+% $Revision$ ($Date$)
 %
 %
 %

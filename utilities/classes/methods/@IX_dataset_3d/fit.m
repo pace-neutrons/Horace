@@ -374,7 +374,7 @@ function [wout, fitdata, ok, mess] = fit(win, varargin)
  
 % Original author: T.G.Perring 
 % 
-% $Revision: 986 $ ($Date: 2015-06-10 10:35:28 +0100 (Wed, 10 Jun 2015) $) 
+% $Revision$ ($Date$) 
  
  
 % *** This function is identical for IX_dataset_1d, _2d, _3d, ... 

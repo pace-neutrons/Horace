@@ -5,7 +5,7 @@ classdef oriented_lattice
     % and contains various service functions to work with such sample
     %
     %
-    % $Revision: 348 $ ($Date: 2014-03-05 20:30:22 +0000 (Wed, 05 Mar 2014) $)
+    % $Revision$ ($Date$)
     %
     %
     % On 2014/03 it is far from completeon and have many of its methods are

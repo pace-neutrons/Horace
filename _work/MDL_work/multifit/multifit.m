@@ -766,7 +766,7 @@ function [wout, fitdata, ok, mess] = multifit(varargin)
  
 % Original author: T.G.Perring 
 % 
-% $Revision: 452 $ ($Date: 2015-09-17 08:51:32 +0100 (Thu, 17 Sep 2015) $) 
+% $Revision$ ($Date$) 
  
 if nargin==0
     wout = multifit_class;

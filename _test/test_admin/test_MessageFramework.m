@@ -1,6 +1,6 @@
 classdef test_MessageFramework< TestCase
     %
-    % $Revision: 278 $ ($Date: 2013-11-01 20:07:58 +0000 (Fri, 01 Nov 2013) $)
+    % $Revision$ ($Date$)
     %
     
     properties
