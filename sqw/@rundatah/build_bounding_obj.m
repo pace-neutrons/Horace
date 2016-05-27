@@ -30,45 +30,33 @@ end
 % already in memory
 [det,obj]=obj.get_par();
 
-if obj_defined
-    [rdl,ok,mess] = obj.load_methadata();
-    if ~ok
-        error('RUNDATAH:invalid_argument',...
-            'calc_bounding_obj: incomplete input object, %s',mess);
-    end
-    en = rdl.en;
-    if numel(en) > 2
-        enps=(en(2:end)+en(1:end-1))/2;
-    elseif numel(en) == 1
-        enps = en(1);
-    elseif range_given
-        enps = [en_min;en_max];
-    elseif numel(en) == 2
-        enps = en;
-    else
-        error('RUNDATAH:invalid_argument',...
-            'calc_bounding_obj: no energy loaded in input object and no energy ranges are provided');
-    end
-    if range_given
-        en_min = min([enps(1);en_min]);
-        if ~isempty(en_max)
-            en_max = max([enps(end);en_max]);
-        else
-            en_max = enps(end);
+
+if ~range_given
+    if obj_defined
+        [rdl,ok,mess] = obj.load_methadata();
+        if ~ok
+            error('RUNDATAH:invalid_argument',...
+                'calc_bounding_obj: incomplete input object, %s',mess);
         end
-    else
+        en = rdl.en;
+        if numel(en) > 2
+            enps=(en(2:end)+en(1:end-1))/2;
+        elseif numel(en) == 1
+            enps = en(1);
+        elseif numel(en) == 2
+            enps = en;
+        else
+            error('RUNDATAH:invalid_argument',...
+                'calc_bounding_obj: no energy loaded in input object and no energy ranges are provided');
+        end
         en_min = enps(1);
         en_max = enps(end);
+    else
+        error('RUNDATAH:invalid_argument',...
+            'calc_bounding_obj: no input range is given and source object does not contain enenrgy range');
     end
 else
-    [rdl,ok,mess,undef_fields] = obj.load_methadata();
-    if ~ok
-        if numel(undef_fields)>1 || ~strcmp(undef_fields{1},'en')
-            error('RUNDATAH:invalid_argument',...
-                'calc_bounding_obj: input rundata are not fully defined, %s',...
-                mess);
-        end
-    end
+    rdl = rundatah(obj);    
 end
 %
 if isempty(en_max) || en_min==en_max
@@ -89,6 +77,7 @@ if rdl.emode == 1
             en = reshape(en',numel(en),1);
             if en(end) == rdl.efix
                 en(end) = en(end)*(1-eps);
+                en(end-1) = en(end-1)*(1+eps);                
             end
         end
     end
@@ -100,7 +89,7 @@ elseif rdl.emode == 2
         else
             bin_size = (rdl.efix-en(1))*(1-eps);
             en = [enps-bin_size;enps-bin_size];
-            en = reshape(en',numel(en),1);            
+            en = reshape(en',numel(en),1);
         end
     end
 end

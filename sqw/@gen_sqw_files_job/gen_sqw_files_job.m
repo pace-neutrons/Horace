@@ -50,8 +50,6 @@ classdef gen_sqw_files_job < JobExecutor
             %
             par.runfile       = run;
             par.sqw_file_name = fname;
-            par.instrument    = instr;
-            par.sample        = samp;
         end
         function [grid_size,urange]=runfiles_to_sqw(conversion_par_list)
             % Public interface to private rundata_write_to_sqw function

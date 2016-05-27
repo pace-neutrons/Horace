@@ -51,7 +51,7 @@ function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_
 % $Revision$ ($Date$)
 
 small_bin=1e-12;
-d2r=pi/180;
+%d2r=pi/180;
 
 % Check input arguments
 % ------------------------
