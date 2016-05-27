@@ -61,7 +61,7 @@ if peak==0
     peak=10; % Case of all signal==0
 end
 %peak = 0; -- make it not-random
-
+%save(wcalc,'c:/temp/non_rand_sqw_new.sqw');
 if seed_defined
     par = [0,1,false,seed];
 else
@@ -69,6 +69,7 @@ else
     rand_like('start',seed);  % set reproducible starting point in sequence
 end
 wran=sqw_eval(wcalc,@sqw_rand_like,par); % range is -0.5 to +0.5
+%save(wran,'c:/temp/rand_sqw_new.sqw');
 wcalc.data.pix(8,:)=wcalc.data.pix(8,:)+(0.1*peak)*wran.data.pix(8,:);  % spread is 10% of peak
 
 if ~seed_defined

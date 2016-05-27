@@ -11,6 +11,7 @@ classdef test_combine< TestCase
         gam=0.1;
         amp=10;
         testdir;
+        clob;
     end
     
     
@@ -22,10 +23,7 @@ classdef test_combine< TestCase
             
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
-            
-        end
-        function delete(this)
-            close all;
+            this.clob = onCleanup(@()(close('all')));
         end
         
         function this=prepare_test_data(this)

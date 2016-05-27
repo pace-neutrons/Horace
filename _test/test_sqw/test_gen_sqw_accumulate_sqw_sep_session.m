@@ -469,14 +469,14 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             %
             [path,file] = fileparts(this.spe_file{1});
             tmp_file1 = fullfile(path,[file,'.tmp']);
-            run1=rundata(this.spe_file{1},ds);
+            run1=rundatah(this.spe_file{1},ds);
             
             
             %
             [path,file] = fileparts(this.spe_file{2});
             tmp_file2 = fullfile(path,[file,'.tmp']);
             ds.psi=psi(1);
-            run2=rundata(this.spe_file{1},ds);
+            run2=rundatah(this.spe_file{1},ds);
             runs = {run1;run2};
             tmpf = {tmp_file1,tmp_file2};
             samp = [this.sample,this.sample];
@@ -490,7 +490,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             jd = JobDispatcher('test_gen_sqw_sep_ses_worker');            
             [~,~,wc]=jd.split_and_register_jobs(job_param_list,1);
             
-            worker('gen_tmp_files_jobs',wc{1});
+            worker('gen_sqw_files_job',wc{1});
             
             assertTrue(exist(tmp_file1,'file')==2);
             assertTrue(exist(tmp_file2,'file')==2);
@@ -528,7 +528,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             [path,file] = fileparts(this.spe_file{1});
             tmp_file = fullfile(path,[file,'.tmp']);
             
-            run=rundata(this.spe_file{1},ds);
+            run=rundatah(this.spe_file{1},ds);
             
             
             job_par_fun = @(run,fname,instr,samp)(gen_sqw_files_job.pack_job_pars(...
@@ -537,7 +537,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             job_param = job_par_fun(run,tmp_file,this.instrum(1),this.sample);
             
-            je = gen_tmp_files_jobs('test_gen_sqw_sep_ses_do_job');
+            je = gen_sqw_files_job('test_gen_sqw_sep_ses_do_job');
             clob = onCleanup(@()(je.clear_all_messages()));
             je.do_job(job_param);
             
