@@ -31,7 +31,12 @@ mess_id    = arrayfun(@(x)(sscanf(x{1}{3},'JobN%d.mat')),mess_fnames,'UniformOut
 for id=1:numel(job_ids)
     correct_ind = ismember(mess_id,job_ids(id));
     if any(correct_ind)
-        all_messages(id)=mess_names(correct_ind);
+        if sum(correct_ind) > 1 % this may only happen in tests when test failed initially but then 
+            % has been fixed but previous messages have not been deleted.
+            all_messages(id)={mess_names(correct_ind)};
+        else
+            all_messages(id)=mess_names(correct_ind);
+        end
     end
 end
 

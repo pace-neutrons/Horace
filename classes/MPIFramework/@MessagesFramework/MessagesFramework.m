@@ -34,7 +34,7 @@ classdef MessagesFramework
         exchange_folder_;
         % default prefix is random string of 10 capital Latin letters
         % (25 such letters)
-        job_control_pref_ = char(floor(25*rand(1,10)) + 65);
+        job_control_pref_ = char(floor(25*rand(1,10)) + 65);        
     end
     %----------------------------------------------------------------------
     methods(Static)
