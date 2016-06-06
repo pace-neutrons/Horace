@@ -55,7 +55,7 @@ for i=1:nfiles
     [w,grid_size_tmp,urange_tmp] = run_files{i}.calc_sqw(grid_size_in, urange_in,cash_det{:});
     if ~isempty(run_files{i}.transform_sqw) && ~isempty(urange_in)
         w = cut(w,cut_range{:});
-        urange_tmp = w.data.urange;
+        urange_tmp = urange_in;
         grid_size_tmp = size(w.data.s);
     end
     if i==1
