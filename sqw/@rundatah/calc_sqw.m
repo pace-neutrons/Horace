@@ -63,9 +63,17 @@ if ~qspec_provided
 end
 instrument = obj.instrument;
 sample     = obj.sample;
+%
+% if transformation is provided, it will recalculate urange, and probably
+% into something different from non-transfromed object urange.
+if ~isempty(urange_in) && ~isempty(obj.transform_sqw_f_)
+    urange_sqw = [];
+else
+    urange_sqw = urange_in;
+end
 
 [w, grid_size, urange]=calc_sqw_(efix, emode, alatt, angdeg, u, v, psi,...
-    omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_in,...
+    omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_sqw,...
     instrument, sample);
 
 
