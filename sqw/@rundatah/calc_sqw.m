@@ -1,7 +1,40 @@
 function [w,grid_size,urange] = calc_sqw(obj,grid_size_in,urange_in,varargin)
-% generate sqw file from a single rundata file
+% Generate single sqw file from given rundata class.
 %
+% Usage:
+% [w,grid_size,urange] = rundata_obj.calc_sqw(grid_size_in,urange_in,varargin);
+% 
+% Where:
+% rundata_obj -- fully defined rundata object
 %
+% grid_size_in   Scalar or [1x4] vector of grid dimensions in each direction 
+%                for sqw object to build from given rundata object.
+%   urange_in    Range of data grid for output given as a [2x4] matrix:
+%                [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
+%                If [] then uses the smallest hypercuboid that encloses the whole data range.
+%                The ranges have to be provided in crystal cartezian
+%                cooridnate system
+%
+% Optional inputs:
+%
+% '-cash_detectors' -- sting requesting to store calculated directions to
+%                  each detector, defined for the instrument and use
+%                  calculated values for each subsequent call to this
+%                  method. 
+%                  Cashed values are shared between all existing rundata
+%                  objects and recalculated if a subsequent rundata object
+%                  has different detecotors. 
+%                  Should be used only when runnign number of subsequent
+%                  calculations for rang of runfiles and if mex files are
+%                  disabled. (mex files do not use cashed detectors
+%                  positions)
+% 
+% Outputs:
+%   w               Output sqw object
+%   grid_size       Actual size of grid used (size is unity along dimensions
+%                  where there is zero range of the data points)
+%   urange          Actual range of grid - the specified range if it was given,
+%                  or the range of the data if not.
 %
 %
 % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
@@ -66,7 +99,7 @@ sample     = obj.sample;
 %
 % if transformation is provided, it will recalculate urange, and probably
 % into something different from non-transfromed object urange.
-if ~isempty(urange_in) && ~isempty(obj.transform_sqw_f_)
+if ~isempty(obj.transform_sqw_f_)
     urange_sqw = [];
 else
     urange_sqw = urange_in;
