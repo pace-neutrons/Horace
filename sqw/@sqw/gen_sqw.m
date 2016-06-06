@@ -389,12 +389,12 @@ else
         sample     = sample(not_empty);
     end
     
-   job_par_fun = @(run,fname,instr,samp,transf)(gen_sqw_files_job.pack_job_pars(...
-            run,fname,instr,samp,...
-            grid_size_in,urange_in));
-   job_par = cellfun(job_par_fun,...
-            run_files',tmp_file,num2cell(instrument),num2cell(sample),...
-            'UniformOutput', true);
+    job_par_fun = @(run,fname,instr,samp,transf)(gen_sqw_files_job.pack_job_pars(...
+        run,fname,instr,samp,...
+        grid_size_in,urange_in));
+    job_par = cellfun(job_par_fun,...
+        run_files',tmp_file,num2cell(instrument),num2cell(sample),...
+        'UniformOutput', true);
     
     if use_separate_matlab
         %
@@ -422,8 +422,14 @@ else
         % effective but much easier to identify problem whith
         % failing parallel job
         jex = gen_sqw_files_job();
+        % delete messages exchange folder created by parallel framework
+        % at the end of the procedure
+        clob = onCleanup(@()(rmdir(jex.exchange_folder,'s')));
+        % run conversion
         jex = jex.do_job(job_par);
+        % retrieve outputs
         result = jex.job_outputs;
+        %
         grid_size= result.grid_size;
         urange = result.urange;
         %---------------------------------------------------------------------
@@ -531,8 +537,10 @@ for i=2:numel(outputs)
         disp(['Job number: ',num2str(i)]);
         disp(['grid_size: ',num2str(grid_size)])
         disp(['Job grid_size: ',num2str(outputs{i}.grid_size)])
-        disp(['urange: ',num2str(urange)])
-        disp(['Job urange: ',num2str(outputs{i}.urange)])
+        disp(['urange     min: ',num2str(urange(1,:))])
+        disp(['Job urange min: ',num2str(outputs{i}.urange(1,:))])
+        disp(['urange     max: ',num2str(urange(2,:))])
+        disp(['Job urange max: ',num2str(outputs{i}.urange(2,:))])
         
         error('Logic error in calc_sqw - probably sort_pixels auto-changing grid. Contact T.G.Perring')
     end
