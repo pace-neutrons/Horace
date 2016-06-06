@@ -121,7 +121,7 @@ if ~opt.accumulate
 end
 if present.transform_sqw
     for i=1:numel(opt.transform_sqw)
-        [ok,mess] = check_fh_input(opt.transform_sqw);
+        [ok,mess] = check_transf_input(opt.transform_sqw);
         if ~ok
             error('GEN_SQW:invalid_argument',['transform_sqw param N',...
                 num2str(i),' Error: ',mess])
@@ -538,7 +538,7 @@ for i=2:numel(outputs)
     end
 end
 
-function  [ok,mess]=check_fh_input(input)
+function  [ok,mess]=check_transf_input(input)
 if ~isa(input,'function_handle')
     mess = ' expecting function handle as value for transform_sqw';
     ok = false;

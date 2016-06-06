@@ -384,12 +384,23 @@ end
 % Convert range from steps to actual range with respect to output uoffset:
 urange_pix = urange_step_pix.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
 
+
+%nbin=[];
+%for i=1:length(pax)
+%    nbin(i)=length(p{i})-1;
+%end
+%if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness
+ppax = p(1:length(pax));
 % Account for singleton dimensions i.e. plot axes with just one bin (and look after case of zero or one dimension)
-nbin=[];
-for i=1:length(pax)
-    nbin(i)=length(p{i})-1;
+if isempty(ppax)
+    nbin_as_size = [1,1];
+elseif length(ppax)==1
+    nbin_as_size = [length(ppax{1})-1,1];
+else
+    nbin_as_size = cellfun(@(nd)(length(nd)-1),ppax);
 end
-if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness
+
+
 % prepare ouput data
 data_out = data;
 
@@ -405,7 +416,7 @@ npix = reshape(npix,nbin_as_size);
 
 [data_out.uoffset,data_out.ulabel,data_out.dax,data_out.u_to_rlu,...
     data_out.ulen,axis_caption] = proj.get_proj_param(data,pax);
-%HACK!
+%HACK! Any projections is converet into standard projection at this point
 data_out.axis_caption = axis_caption;
 %
 data_out.iax = iax;
