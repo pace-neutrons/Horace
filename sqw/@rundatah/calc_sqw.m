@@ -37,7 +37,7 @@ function [w,grid_size,urange] = calc_sqw(obj,grid_size_in,urange_in,varargin)
 %                  or the range of the data if not.
 %
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 %
 keys_recognized = {'-cash_detectors'};
 [ok,mess,cash_detectors,params] = parse_char_options(varargin,keys_recognized);

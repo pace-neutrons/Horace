@@ -5,7 +5,7 @@ classdef gen_sqw_files_job < JobExecutor
     % range of runfiles
     %
     %
-    % $Revision: 1231 $ ($Date: 2016-05-09 20:45:08 +0100 (Mon, 09 May 2016) $)
+    % $Revision$ ($Date$)
     %
     properties
     end
