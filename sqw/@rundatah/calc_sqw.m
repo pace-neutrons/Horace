@@ -64,8 +64,8 @@ if qspec_provided
     [data.S,data.ERR,data.en,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=...
         obj.get_rundata(rundata_par{:});
     data.qspec = detdcn;
-    det  = build_det_struct(1);
-    det0 = build_det_struct(1);
+    det  = build_det_struct(1); % build fake detectors structure, consisting of
+    det0 = build_det_struct(1); % one detector to satisfy the interface.
 else
     [data.S,data.ERR,data.en,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=...
         obj.get_rundata(rundata_par{:});
