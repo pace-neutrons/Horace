@@ -197,7 +197,7 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 
 % Original author: T.G.Perring
 %
-% $Revision: 1173 $ ($Date: 2016-02-03 18:34:55 +0000 (Wed, 03 Feb 2016) $)
+% $Revision$ ($Date$)
 
 
 % Perform calculations

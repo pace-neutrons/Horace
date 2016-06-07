@@ -17,7 +17,7 @@ function [grid_size,p]=construct_grid_size(grid_size_in,urange)
 % 	p               Cell array (size=[1,nd]) of column vectors of bin
 %                   boundaries for each dimension.
 
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 
 
 % Number of dimensions
