@@ -315,7 +315,7 @@ classdef test_gen_runfiles< TestCase
         end
         
         function test_gen_nosave_array(this)
-         
+            
             ndet = numel(this.det.x2);
             nen = numel(this.en{1});
             S = ones(nen-1,ndet,2)*.2;
@@ -329,7 +329,7 @@ classdef test_gen_runfiles< TestCase
         end
         
         function test_build_det_from_array(this)
-         
+            
             det_ar = get_par(this.par_file,'-nohor');
             ndet = size(det_ar,2);
             nen = numel(this.en{1});
@@ -343,6 +343,18 @@ classdef test_gen_runfiles< TestCase
             assertEqual(rds{2}.S,S(:,:,2))
             det_hor = get_hor_format(det_ar,'mem_par_file');
             assertEqual(det_hor,rds{1}.det_par);
+        end
+        function test_replicate_en(this)
+            
+            ndet = numel(this.det.x2);
+            nen = numel(this.en{1});
+            S = ones(nen-1,ndet);
+            ERR =sqrt(2)*ones(nen-1,ndet);
+            rd = gen_nxspe({S,S},{ERR,ERR},this.en{1}',this.det,'',this.efix(1),...
+                this.psi(1:2));
+            %
+            assertEqual(rd{1}.en,rd{2}.en);
+            assertEqual(rd{1}.efix,rd{2}.efix);
         end
         
         

@@ -12,63 +12,61 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 %     structure. All arrays have to be consistent with each other. (see below)
 %
 %>>gen_nxspe(S,ERR,en,par_file,nxspefile_name,efix,emode,psi);
-%  -- create fully defined nxspe file including rotation angle with parameters 
+%  -- create fully defined nxspe file including rotation angle with parameters
 %     as above.
 %
 %>>rd = gen_nxspe(S,ERR,en,par_file,nxspefile_name,efix,emode,psi,...
 %       alatt, angdeg, u, v, omega, dpsi, gl, gs);
 %  -- create fully defined nxspe file and return fully defined
-%     cellarray of rundata classes or single rundata class for single nxspefile_name
-%     file. 
+%     cellarray of rundata classes or single rundata class for a single
+%     nxspefile_name file.
 %
 %>>rd = gen_nxspe(S,ERR,en,par_file,'',efix,emode,psi,...
 %       alatt, angdeg, u, v, omega, dpsi, gl, gs);
 %  --  build and return cellarray of fully defined crystal rundata classes
-%      for further usage
-%      but do not save information into a nxspe file. Saving can be perfomed later
-%      using rd.saveNXSPE('filename') method.
+%      for further usage but do not save information into a nxspe file.
+%      Saving can be perfomed later using rd.saveNXSPE('filename') method.
 %      (see rundata constructor or rundata.gen_runfiles method for similar
 %      functionality but different implementatin emphasis)
 %
 %      When nxspe data are saved, number of nxspe files is defined by
 %      number of elements in nxspefile_name cellarray and all other inputs
-%      dimensions must be consistent with this number. 
-%      When nxspefile_name 
+%      dimensions must be consistent with this number.
+%      When nxspefile_name
 %      is empty, number of generated rundata instances is determened by
-%      second dimension of en array size(en) == [n_en,n_rundata_files] if 
-%      en is array or number or elelments in cellarray if en is cellarray
-%      of bin boundaries. 
+%      third dimension of S array size(S) == [nen,npix,n_rundata_files] if
+%      S is array or number or elements in cellarray if S is cellarray
 %
 % Where:
 % S    [nen,npix,n_files] array of signals or cellarry containing
 %      n_files pointers to [nen,npix]-sized signal arrys
 % ERR  sized as S array or cellarray of errors
-% en    nen+1 array size of n_files cellarry of array, pointing to of energy bins
+% en   [nen+1,n_files] array or n_files cellarry of arrays of energy bins
 %
 % par_file  -- either ascii string defining full path to par or phx file
 %         (See http://docs.mantidproject.org/nightly/algorithms/SavePAR.html
 %          or http://docs.mantidproject.org/nightly/algorithms/SavePHX.html
-%          for these formats description) 
+%          for these formats description)
 %     or   path to nxspe file containing detectors information.
 %     or   6 column array (size == [6,n_det]) with detector information
 %          convertable to Horace Detpar structure.
 %     or   Horace Detpar structure with detectors information.
 %
-% nxspe_file -- the full name and path to the file to save resulting nxspe 
+% nxspe_file -- the full name and path to the file to save resulting nxspe
 %               data
-%      or  empty string 
+%      or  empty string
 %      or  cellarry of full file names to save nxspe.
 %         Number of files to generate is usually defined by the size of this
 %         cellarray unless this parameter is empty. When is empty, the
 %         number is defined by the size of cellarray containing energy bin
-%         boundaries. 
+%         boundaries.
 %
 % efix  -- incident energy or n_files array or cellarray of energies
 % emode -- instrument mode (1 -- direct, 2 indirect, 0 -- elastic)
 % psi   -- array or cellarray of rotation angles
 %
 % alatt, angdeg, u, v, omega, dpsi, gl, gs -- optional parameters, defining
-%         full rundata class, necessary to convert rundata into sqw object. 
+%         full rundata class, necessary to convert rundata into sqw object.
 %
 %         This information is not stored into nxspe file. See rudata gen_runfiles
 %         or gen_sqw for detailed description of these parameters
@@ -101,7 +99,7 @@ else
     gen_rudatah = false;
 end
 
-if gen_rudatah %HACK -- assumes the knowlege about the derived class BAD! 
+if gen_rudatah %HACK -- assumes the knowlege about the derived class BAD!
     % But do we really care? proper oop assumes overloading gen_nxpse for
     % Horace but this solution looks much better to use.
     runfiles = rundatah.gen_runfiles(cell(1,n_files),par_file,params{:},'-allow_missing');
@@ -121,7 +119,7 @@ else
         runfiles{i}.S   = S(:,:,i);
         runfiles{i}.ERR = ERR(:,:,i);
         runfiles{i}.en  = en(:,i);
-        check_correctness(runfiles{i}.S, runfiles{i}.ERR,runfiles{i}.en,i);        
+        check_correctness(runfiles{i}.S, runfiles{i}.ERR,runfiles{i}.en,i);
     end
 end
 %
@@ -132,13 +130,13 @@ if save_nxspe
 end
 %
 if nargout == 0
-    return;    
+    return;
 elseif nargout == 1
-    if n_files == 1 
+    if n_files == 1
         varargout{1} = runfiles{1};
     else
         varargout{1} = runfiles;
-    end   
+    end
 else
     if nargout ~= n_files
         error('GEN_NXSPE:invalid_outputs',...
@@ -178,9 +176,9 @@ end
 if isempty(nxspe_file)
     save_nxspe = false;
     if inputs_are_cellarrays
-        n_files = numel(en);
+        n_files = numel(S);
     else
-        [~,n_files] = size(en);
+        [~,~,n_files] = size(S);
     end
 else
     save_nxspe = true;
@@ -193,17 +191,32 @@ else
 end
 
 if inputs_are_cellarrays
-    if ~(numel(en) == n_files  && numel(S) == n_files && numel(ERR) == n_files)
+    if ~(numel(S) == n_files && numel(ERR) == n_files)
         ok = false;
-        mess = 'number of elements in S, ERR and en cellarrays has to be equal';
+        mess = 'number of elements in S and ERR cellarrays has to be equal';
         return;
+    elseif numel(en) ~= n_files
+        if numel(en) == 1
+            cen = cell(1,n_files);
+            en = cellfun(@(x)(en{1}),cen,'UniformOutput',false);
+        else
+            ok = false;
+            mess = 'number of elements in cellarray of energies has to be 1 or equal to number of elements in cellarrsys of S and ERR';
+            return;
+        end
     end
 else
-    if ~(size(en,2) ==n_files && size(S,3) == n_files && size(ERR,3) == n_files)
+    if ~(size(S,3) == n_files && size(ERR,3) == n_files)
         ok = false;
-        mess = 'last dimension of en S and ERR array has to be equal number of files to save';
+        mess = 'last dimension of S and ERR array has to be equal to number of files to save';
         return;
-        
+    elseif size(en,2) ~= n_files
+        if any(size(en))==1
+            cen = cell(1,n_files);
+            en = cellfun(@(x)(en),cen,'UniformOutput',false);
+        else
+            mess = 'second dimension of the array of energies has to be 1 or equal to number nxspe fiels or rundata classes to build';
+        end
     end
 end
 
