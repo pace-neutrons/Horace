@@ -146,7 +146,11 @@ end
 
 % Determine urange
 if isempty(urange)
-    urange = run_file.calc_urange(en_lo,en_hi,cash_opt{:});
+    urange = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+    for i=1:numel(run_files)
+          urange_l = run_files{i}.calc_urange(en_lo(i),en_hi(i),cash_opt{:});
+          urange = [min(urange_l(1,:),urange(1,:));max(urange_l(2,:),urange(2,:))];          
+    end
     %urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...
     %    u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
     urange=range_add_border(urange,-1e-6);     % add a border to account for Matlab matrix multiplication bug
@@ -175,14 +179,14 @@ for i=1:nfiles
         disp(' ')
     end
     data=fake_spe(ndet,en{i},psi(i));
-    run_file.S = data.S;
-    run_file.ERR = data.ERR;
-    run_file.en = en{i};
+    run_files{i}.S = data.S;
+    run_files{i}.ERR = data.ERR;
+    run_files{i}.en = en{i};
     %
     %run_file.instrument = instrument(i);
     %run_file.sample     = sample(i);
     %
-    w = run_file.calc_sqw(grid_size, urange,cash_opt{:});
+    w = run_files{i}.calc_sqw(grid_size, urange,cash_opt{:});
     %         w=calc_sqw(efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:),...
     %             psi(i)*d2r, omega(i)*d2r, dpsi(i)*d2r, gl(i)*d2r, gs(i)*d2r,...
     %             data, det, detdcn, det, grid_size, urange, instrument(i), sample(i));
