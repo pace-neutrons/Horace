@@ -31,9 +31,9 @@ classdef JobDispatcher < MessagesFramework
     %
     properties(Access=protected)
         running_jobs_=[];
-        time_to_fail_    = 40 %sec
+        time_to_fail_    = 400 %sec
         jobs_check_time_ = 4;
-        fail_limit_ = 10; % number of times to try for changes in job status file until
+        fail_limit_ = 100; % number of times to try for changes in job status file until
         % decided the job have failed
         %
     end

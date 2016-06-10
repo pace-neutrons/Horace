@@ -22,6 +22,7 @@ classdef test_gen_runfiles< TestCase
         test_data_path;
         par_file;
         test_files;
+        wk_dir
     end
     methods
         function this=test_gen_runfiles(name)
@@ -29,6 +30,7 @@ classdef test_gen_runfiles< TestCase
             
             rootpath=fileparts(which('herbert_init.m'));
             this.test_data_path = fullfile(rootpath,'_test/common_data');
+            this.wk_dir = tempdir;
             
             this.par_file = fullfile(this.test_data_path,'demo_par.par');
             
@@ -221,8 +223,8 @@ classdef test_gen_runfiles< TestCase
         end
         
         function test_gen_and_save_nxspe(this)
-            rez_file{1} = fullfile(this.test_data_path,'test_gen1_nxspe.nxspe');
-            rez_file{2} = fullfile(this.test_data_path,'test_gen2_nxspe.nxspe');
+            rez_file{1} = fullfile(this.wk_dir,'test_gen1_nxspe.nxspe');
+            rez_file{2} = fullfile(this.wk_dir,'test_gen2_nxspe.nxspe');
             clob = onCleanup(@()delete(rez_file{:}));
             
             ndet = numel(this.det.x2);
@@ -266,6 +268,9 @@ classdef test_gen_runfiles< TestCase
             
             rd1.det_par.filename = '';
             rd.det_par.filename = '';
+            rd1.det_par.filepath = '';
+            rd.det_par.filepath = '';
+            
             %
             %HACK -- width and height are not saved/restored correctly!
             rd.det_par.width  =[];
@@ -298,8 +303,8 @@ classdef test_gen_runfiles< TestCase
         end
         %
         function test_gen_and_save_nxspe_3D_array(this)
-            rez_file{1} = fullfile(this.test_data_path,'test_gen1_nxspe.nxspe');
-            rez_file{2} = fullfile(this.test_data_path,'test_gen2_nxspe.nxspe');
+            rez_file{1} = fullfile(this.wk_dir,'test_gen1_nxspe.nxspe');
+            rez_file{2} = fullfile(this.wk_dir,'test_gen2_nxspe.nxspe');
             clob = onCleanup(@()delete(rez_file{:}));
             
             ndet = numel(this.det.x2);

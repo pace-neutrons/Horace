@@ -127,7 +127,18 @@ end
 
 % Check other parameters
 % ----------------------
-n_files       = numel(spe_files);
+if numel(spe_files)==1 && isempty(spe_files{1})
+    if numel(params)>0
+        n_files = numel(params{1});
+        spe_files = cell(1,n_files);
+        spe_files = cellfun(@(x)'',spe_files,'UniformOutput',false);
+    else
+        n_files = 1;
+    end
+else
+    n_files       = numel(spe_files);
+end
+
 n_dfnd_params = numel(params);
 args=cell(1,n_dfnd_params);
 
