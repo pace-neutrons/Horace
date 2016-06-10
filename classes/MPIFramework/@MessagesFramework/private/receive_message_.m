@@ -23,7 +23,25 @@ if exist(mess_fname,'file') ~= 2
     message = [];
     return;
 end
-mesl = load(mess_fname);
+%
+% safeguard against message start beeing written up
+% but have not finished yet when dispatcher asks for it
+ic = 1;
+try_limit = 4;
+received = false;
+while ~received
+    try
+        mesl = load(mess_fname);
+        received = true;
+    catch err
+        ic = ic+1;
+        if ic>try_limit
+            rethrow(err);
+        end
+        pause(1)
+    end
+end
+% process received message
 message = mesl.message;
 ok = true;
 err_mess=[];
