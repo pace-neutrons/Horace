@@ -36,7 +36,12 @@ while ~received
     catch err
         ic = ic+1;
         if ic>try_limit
-            rethrow(err);
+            ok = false;
+            err_mess = ...
+                sprintf('Message "%s" for job with id: %d does not exist, reason: s%',...
+                mess_name,job_id,err.message);            
+            message = [];            
+            return;
         end
         pause(1)
     end
