@@ -16,7 +16,7 @@ if nargin==1
 else
     % Remove particular datsets
     if obj.ndatatot_>0
-        if isscalar(i) && isa_index(n,obj.ndatatot_)
+        if isscalar(i) && isa_index(i,obj.ndatatot_)
             obj = remove_data_private_ (obj, i);
         else
             error(['Check optional argument is a scalar in the range 1 -',num2str(ndatatot)])
@@ -50,20 +50,24 @@ else
         ix = obj.ix_(id);
         keep = true(size(obj.data_{item}));
         keep(ix)=false;
-        obj.data{item} = obj.data{item}(keep);
+        obj.data_{item} = obj.data_{item}(keep);
         obj.ndim_(item) = obj.ndim_(keep);
     end
-    [obj.ndata,obj.ndatatot,obj.item,obj.ix] = data_indicies(obj.ndim);
+    [obj.ndata_,obj.ndatatot_,obj.item_,obj.ix_] = data_indicies(obj.ndim_);
+    keepw =  true(size(obj.w_));
+    keepw(id) = false;
+    obj.w_ = obj.w_(keepw);
+    obj.msk_ = obj.msk_(keepw);
     % Remove function and constraints
     if obj.foreground_is_local_ || obj.background_is_local_
-        S_fun = obj.get_fun_props;
+        S_fun = obj.get_fun_props_;
         S_con = obj.get_constraints_props_;
         if obj.foreground_is_local_
             S_fun = fun_remove (S_fun, true, id);
             S_con = constraints_remove (S_con, obj.np_, obj.nbp_, id, []);
         end
         if obj.background_is_local_
-            S_fun = fun_remove (obj.get_fun_props, false, id);
+            S_fun = fun_remove (obj.get_fun_props_, false, id);
             S_con = constraints_remove (obj.get_constraints_props_, obj.np_, obj.nbp_, [], id);
         end
         obj = obj.set_fun_props_(S_fun);

@@ -57,6 +57,22 @@ classdef mfclass
         % Column vector with index within the entry in data_ for each dataset
         ix_ = zeros(0,1);
         
+        % Cell array of datasets (row) that contain repackaged data: every entry
+        % is either
+        %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for 
+        %     each x-coordinate,
+        %   - a scalar object
+        w_ = {};
+        
+        % Mask arrays: cell array of logical arrays (1 for retain, 0 for ignore)
+        msk_ = {};
+        
+        % Cell array of masked datasets (row): every entry is either
+        %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for 
+        %     each x-coordinate,
+        %   - a scalar object
+        wmask_ = {};
+        
         % -------------------
         % Function properties
         % -------------------
@@ -128,6 +144,8 @@ classdef mfclass
     
     properties (Dependent)
         data
+        w       % *** get rid off for release
+        msk     % *** get rid off for release
         
         local_foreground
         global_foreground
@@ -163,15 +181,6 @@ classdef mfclass
         
         %------------------------------------------------------------------
         % Set methods
-%         function obj = set.data(obj,data)
-%             if ~iscell(data), error('Data property must be a cell array'), end
-%             try
-%                 obj = set_data(obj,data{:});
-%             catch ME
-%                 error(ME.message)
-%             end
-%         end
-        
         function obj = set.local_foreground(obj, val)
             if ~islognumscalar(val), error('local_foreground must be a logical scalar'), end
             isfore = true;
@@ -200,6 +209,14 @@ classdef mfclass
         % Get methods
         function data = get.data(obj)
             data = obj.data_;
+        end
+        
+        function data = get.w(obj)   % *** get rid off for release
+            data = obj.w_;
+        end
+        
+        function data = get.msk(obj)   % *** get rid off for release
+            data = obj.msk_;
         end
         
         function out = get.local_foreground(obj)

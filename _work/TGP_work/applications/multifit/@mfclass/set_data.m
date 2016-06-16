@@ -12,14 +12,40 @@ function obj = set_data(obj,varargin)
 % when the functions are set.
 
 
-% Check input
-[ok, mess, ndim] = is_valid_data (varargin{:});
+% Trivial case of no input arguments; just return without doing anything
+if numel(varargin)==0, return, end
+
+% Find optional arguments
+keyval_def = struct('keep',[],'remove',[],'mask',[]);
+[args,keyval,~,~,ok,mess] = parse_arguments (varargin, keyval_def);
 if ~ok, error(mess), end
 
+% Check input data
+[ok, mess, ndim, w] = is_valid_data (args{:});
+if ~ok, error(mess), end
+
+% Check optional arguments
+[xkeep,xremove,msk,ok,mess] = mask_syntax_valid (numel(w), keyval.keep, keyval.remove, keyval.mask);
+if ~ok, error(mess), end
+
+% Create mask arrays
+[msk_out,ok,mess] = mask_data (w,[],xkeep,xremove,msk);
+if ok && ~isempty(mess)
+    display_message(mess)
+elseif ~ok
+    error_message(mess)
+end
+
+
+% Set object properties
+% ---------------------
 % Set data properties
-obj.data_ = varargin;
+obj.data_ = args;
 obj.ndim_ = ndim;
 [obj.ndata_,obj.ndatatot_,obj.item_,obj.ix_] = data_indicies(ndim);
+
+obj.w_ = w;
+obj.msk_ = msk_out;
 
 % Clear function and constraints properties, retaining current global/local scopes
 S_fun = fun_init (obj.ndatatot_, obj.foreground_is_local_, obj.background_is_local_);
