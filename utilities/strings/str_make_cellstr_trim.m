@@ -11,7 +11,7 @@ function [ok,cout,all_non_empty]=str_make_cellstr_trim(varargin)
 % -------
 %   ok              =true if valid input (could all be empty)
 %   cout            Column vector cellstr, with empty entries removed.
-%   all_non_empty   True if all strings are non-empty
+%   all_non_empty   True if all input strings are non-empty
 
 [ok,cout]=str_make_cellstr(varargin{:});
 if ok

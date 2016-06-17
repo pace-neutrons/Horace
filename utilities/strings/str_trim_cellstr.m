@@ -10,15 +10,12 @@ function [cout,all_non_empty,ok] = str_trim_cellstr(cin)
 % Output:
 % -------
 %   cout            Column vector cellstr, with empty entries removed.
-%   all_non_empty   True if all strings are non-empty
+%   all_non_empty   True if all input strings are non-empty
 %   ok              Logical column vector, true where cout is non-empty
 
 cout=strtrim(cin(:));
-ok=true(size(cout));
-for i=1:numel(cout)
-    ok(i)=~isempty(cout{i});
-end
-if ~all(ok(:))
+ok=~cellfun(@isempty,cout);
+if ~all(ok)
     cout=cout(ok);
     all_non_empty=false;    
 else
