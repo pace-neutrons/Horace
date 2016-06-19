@@ -14,7 +14,11 @@ function obj = set_bfun(obj,varargin)
 % Check there is data
 % -------------------
 if isempty(obj.data_)
-    error ('Cannot set background function(s) before data has been set.')
+    if numel(varargin)>0
+        error ('Cannot set background function(s) before data has been set.')
+    else
+        return  % no data has been set, so trivial return
+    end
 end
 
 % Process input

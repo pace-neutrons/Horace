@@ -16,7 +16,7 @@ function [ok,mess,ifun] = function_indicies_parse (ifun_in,nfun)
 % -------
 %   ok          Status flag: =true if all OK; =false if not
 %   mess        Error message: empty if OK, non-empty otherwise
-%   ifun        List of function indicies (row vector). ALl elements in the
+%   ifun        List of function indicies (row vector). All elements in the
 %              range 1 to nfun
 
 
@@ -26,7 +26,7 @@ if isempty(ifun_in)
     ifun = 1:nfun;
 elseif ~isa_index(ifun_in,nfun)
     ok = false;
-    mess = ['Function indicies must be row of integers the range 1 - ',num2str(nfun)];
+    mess = ['Function indicies must be a row of integers the range 1 - ',num2str(nfun)];
     ifun = [];
 elseif numel(unique(ifun_in))~=numel(ifun_in)
     ok = false;

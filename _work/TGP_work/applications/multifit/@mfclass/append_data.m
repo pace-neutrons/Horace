@@ -1,9 +1,9 @@
-function obj = add_data(obj,varargin)
+function obj = append_data(obj,varargin)
 % Append datasets to the list of current datasets
 %
-%   >> obj = obj.add_data ()            % inert operaton: does nothing
-%   >> obj = obj.add_data (x,y,z)
-%   >> obj = obj.add_data (w1,w2,...)
+%   >> obj = obj.append_data ()            % inert operaton: does nothing
+%   >> obj = obj.append_data (x,y,z)
+%   >> obj = obj.append_data (w1,w2,...)
 
 
 % Trivial case of no input arguments; just return without doing anything
@@ -64,7 +64,7 @@ else
     obj.msk_ = [obj.msk_, msk_out];
 end
 
-% Add function properties
+% Append function properties
 % (Only need to append properties if the number of datasets has changed
 % Note that constraints properties do not need to be changed, as the default
 % is to have no parameters)

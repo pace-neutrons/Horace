@@ -6,9 +6,14 @@ function obj = add_bbind (obj,varargin)
 
 % Check there are function(s)
 % ---------------------------
-if numel(obj.bfun_)==0
-    error ('Cannot bind background function parameters because the functions have not been set.')
+if isempty(obj.bfun_)
+    if numel(varargin)>0
+        error ('Cannot bind background function parameters before the functions have been set.')
+    else
+        return  % no data has been set, so trivial return
+    end
 end
+
 
 % Process input
 % -------------

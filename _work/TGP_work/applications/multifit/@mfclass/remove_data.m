@@ -39,6 +39,7 @@ if nargin==1 || (isscalar(obj.ndata_) && obj.ndata_==1)
 else
     % There must be at least two data sets if reached this point, so that
     % there will be at least one left after the removal of the dataset
+
     % Remove data set:
     item = obj.item_(id);
     if obj.ndata_(item)==1      % removing a scalar dataset item
@@ -58,6 +59,7 @@ else
     keepw(id) = false;
     obj.w_ = obj.w_(keepw);
     obj.msk_ = obj.msk_(keepw);
+
     % Remove function and constraints
     if obj.foreground_is_local_ || obj.background_is_local_
         S_fun = obj.get_fun_props_;

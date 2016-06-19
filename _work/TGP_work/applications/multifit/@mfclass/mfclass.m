@@ -144,8 +144,8 @@ classdef mfclass
     
     properties (Dependent)
         data
-        w       % *** get rid off for release
-        msk     % *** get rid off for release
+        w       % *** get rid of for release
+        msk     % *** get rid of for release
         
         local_foreground
         global_foreground
@@ -296,12 +296,12 @@ classdef mfclass
         obj = function_set_scope_(obj, isfore, set_local)
         
         [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
-        [ok, mess, obj] = remove_fun_private_ (obj, isfore, ifun)
+        [ok, mess, obj] = clear_fun_private_ (obj, isfore, ifun)
         
         [ok, mess, obj] = set_free_private_ (obj, isfore, args)
         
         [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
-        [ok, mess, obj] = remove_bind_private_ (obj, isfore, ifun)
+        [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
         
     end
     

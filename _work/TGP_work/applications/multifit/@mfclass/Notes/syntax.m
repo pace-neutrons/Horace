@@ -13,10 +13,10 @@
 %   >> obj = obj.set_data (w1,w2,...)
 %
 % Append dataset(s):
-%   >> obj = obj.add_data (x,y,z)
-%   >> obj = obj.add_data (w1,w2,...)
+%   >> obj = obj.append_data (x,y,z)
+%   >> obj = obj.append_data (w1,w2,...)
 %
-% Replace datasets, but leave the functions unchanged:
+% Replace datasets, but leave the functions and constraints unchanged:
 %   >> obj = obj.replace_data (i,x,y,z) % Replace ith dataset with x-y-e triple
 %   >> obj = obj.replace_data (i,w)     % Replace with {x,y,e}, or scalar
 %                                       % structure or object

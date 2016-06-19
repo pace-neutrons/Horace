@@ -1,7 +1,7 @@
-function [ok, mess, obj] = remove_fun_private_ (obj, isfore, ifun)
-% Remove foreground/background function(s), clearing any corresponding constraints
+function [ok, mess, obj] = clear_fun_private_ (obj, isfore, ifun)
+% Clear foreground/background function(s), clearing any corresponding constraints
 %
-%   >> [ok, mess, obj] = remove_fun_private_ (obj, isfore, ifun)
+%   >> [ok, mess, obj] = clear_fun_private_ (obj, isfore, ifun)
 
 
 if isfore
@@ -20,7 +20,7 @@ if ~ok, return, end
 % First update the functions
 S_fun = fun_replace (obj.get_fun_props_, isfore, ifun);
 
-% Now remove constraints properties
+% Now clear constraints properties
 if isfore
     S_con = constraints_replace (obj.get_constraints_props_, obj.np_, obj.nbp_,...
         ifun, zeros(size(ifun)), [], []);

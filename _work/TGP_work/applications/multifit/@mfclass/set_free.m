@@ -12,8 +12,12 @@ function obj = set_free (obj, varargin)
 
 % Check there are function(s)
 % ---------------------------
-if numel(obj.fun_)==0
-    error ('Cannot set free/fixed status of foreground function(s) before they have been set.')
+if isempty(obj.fun_)
+    if numel(varargin)>0
+        error ('Cannot set free/fixed status of foreground function(s) before they have been set.')
+    else
+        return  % no data has been set, so trivial return
+    end
 end
 
 % Process input

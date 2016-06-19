@@ -6,8 +6,12 @@ function obj = add_bind (obj,varargin)
 
 % Check there are function(s)
 % ---------------------------
-if numel(obj.fun_)==0
-    error ('Cannot bind foreground function parameters because the functions have not been set.')
+if isempty(obj.fun_)
+    if numel(varargin)>0
+        error ('Cannot bind foreground function parameters before the functions have been set.')
+    else
+        return  % no data has been set, so trivial return
+    end
 end
 
 % Process input

@@ -1,7 +1,7 @@
-function [ok, mess, obj] = remove_bind_private_ (obj, isfore, ifun)
-% Remove clear constraints for foreground/background function(s)
+function [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
+% Clear clear constraints for foreground/background function(s)
 %
-%   >> [ok, mess, obj] = remove_bind_private_ (obj, isfore, ifun)
+%   >> [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
 
 
 if isfore
@@ -17,7 +17,7 @@ if ~ok, return, end
 
 % All arguments are valid, so populate the output object
 % ------------------------------------------------------
-% Now remove constraints properties
+% Now clear constraints properties
 if isfore
     ipb = sawtooth_iarray (obj.np_(ifun));
     ifunb = replicate_iarray (ifun, obj.np_(ifun));

@@ -6,16 +6,21 @@ function obj = set_bbind (obj,varargin)
 
 % Check there are function(s)
 % ---------------------------
-if numel(obj.bfun_)==0
-    error ('Cannot bind background function parameters before the functions have been set.')
+if isempty(obj.bfun_)
+    if numel(varargin)>0
+        error ('Cannot bind background function parameters before the functions have been set.')
+    else
+        return  % no data has been set, so trivial return
+    end
 end
+
 
 % Process input
 % -------------
 isfore = false;
 
 % Clear all bindings first
-[ok, mess, obj] = remove_bind_private_ (obj, isfore, []);
+[ok, mess, obj] = clear_bind_private_ (obj, isfore, []);
 if ~ok, error(mess), end
 
 % Add new bindings
