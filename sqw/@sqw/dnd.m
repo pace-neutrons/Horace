@@ -21,7 +21,11 @@ if nd<0||nd>4
 end
 for i=1:numel(win)
     if ~isempty(win(i).data)
-        din=win(i).data.get_dnd_data();    
+        if isa(win(i).data,'data_sqw_dnd')
+            din=win(i).data.get_dnd_data();    
+        elseif isstruct(win(i).data) % old sqw contains structure rather then class
+            din = win(i).data;
+        end
     else
         din = struct();
     end

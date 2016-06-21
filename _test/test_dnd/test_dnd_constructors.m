@@ -1,4 +1,4 @@
-classdef test_dnd< TestCase
+classdef test_dnd_constructors< TestCase
     %
     % Validate fast sqw reader used in combining sqw
     
@@ -11,7 +11,10 @@ classdef test_dnd< TestCase
     methods
         
         %The above can now be read into the test routine directly.
-        function this=test_dnd(name)
+        function this=test_dnd_constructors(name)
+            if ~exist('name','var')
+                name = 'test_dnd_constructors';
+            end
             this=this@TestCase(name);
             this.test_data=fullfile(fileparts(which('horace_init.m')),'_test/test_combine');
             this.common_data = fullfile(fileparts(which('horace_init.m')),'_test/common_data');
@@ -49,7 +52,20 @@ classdef test_dnd< TestCase
             
             dnd_obj = dnd(sqw_obj);
             assertEqual(sqw_obj.data.s,dnd_obj.s);
-            assertEqual(sqw_obj.data.e,dnd_obj.e);            
+            assertEqual(sqw_obj.data.e,dnd_obj.e);
+        end
+        function this = test_old_sqw(this)
+            this_path = fileparts(which(mfilename));
+            test_file = fullfile(this_path,'old_sqw_test.mat');
+            ld = load(test_file);
+            old_sqw = ld.QE_35_10;
+            old_dnd = dnd(old_sqw);
+            assertEqual(old_sqw(1).data.s,old_dnd(1).s);
+            assertEqual(old_sqw(1).data.e,old_dnd(1).e);
+            assertEqual(old_sqw(2).data.s,old_dnd(2).s);
+            assertEqual(old_sqw(2).data.e,old_dnd(2).e);
+            assertEqual(old_sqw(3).data.s,old_dnd(3).s);
+            assertEqual(old_sqw(3).data.e,old_dnd(3).e);           
         end
         
     end
