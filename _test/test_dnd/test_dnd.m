@@ -5,6 +5,7 @@ classdef test_dnd< TestCase
     
     properties
         test_data
+        common_data
     end
     
     methods
@@ -13,6 +14,7 @@ classdef test_dnd< TestCase
         function this=test_dnd(name)
             this=this@TestCase(name);
             this.test_data=fullfile(fileparts(which('horace_init.m')),'_test/test_combine');
+            this.common_data = fullfile(fileparts(which('horace_init.m')),'_test/common_data');
         end
         
         % tests
@@ -36,6 +38,18 @@ classdef test_dnd< TestCase
             assertTrue(isa(t2,'d2d'))
             t2 = d2d(fullfile(this.test_data,'w2d_qq_d2d.sqw'));
             assertTrue(isa(t2,'d2d'))
+        end
+        function this = test_dnd_from_sqw(this)
+            par_file = fullfile(this.common_data,'96dets.par');
+            S=ones(10,96);
+            ERR=ones(10,96);
+            en = 0:2:20;
+            rd = gen_nxspe(S,ERR,en,par_file,'',20,1,2);
+            sqw_obj = rd.calc_sqw([]);
+            
+            dnd_obj = dnd(sqw_obj);
+            assertEqual(sqw_obj.data.s,dnd_obj.s);
+            assertEqual(sqw_obj.data.e,dnd_obj.e);            
         end
         
     end

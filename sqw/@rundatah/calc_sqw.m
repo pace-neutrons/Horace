@@ -2,33 +2,38 @@ function [w,grid_size,urange] = calc_sqw(obj,grid_size_in,urange_in,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
-% [w,grid_size,urange] = rundata_obj.calc_sqw(grid_size_in,urange_in,varargin);
-% 
+%>>[w,grid_size,urange] = rundata_obj.calc_sqw(grid_size_in,urange_in,varargin);
+% or
+%>>[w,grid_size,urange] = rundata_obj.calc_sqw(varargin);
+%
 % Where:
 % rundata_obj -- fully defined rundata object
 %
-% grid_size_in   Scalar or [1x4] vector of grid dimensions in each direction 
+% grid_size_in   Scalar or [1x4] vector of grid dimensions in each direction
 %                for sqw object to build from given rundata object.
 %   urange_in    Range of data grid for output given as a [2x4] matrix:
 %                [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                If [] then uses the smallest hypercuboid that encloses the whole data range.
+%                If [] then uses the smallest hypercuboid that encloses the 
+%                whole data range.
 %                The ranges have to be provided in crystal cartezian
 %                cooridnate system
+% If the form without grid_size_in and urange_in is used, grid_size_in is
+% assumed to be equal to [50,50,50,50] and urange_in = [].
 %
 % Optional inputs:
 %
 % '-cash_detectors' -- sting requesting to store calculated directions to
 %                  each detector, defined for the instrument and use
 %                  calculated values for each subsequent call to this
-%                  method. 
+%                  method.
 %                  Cashed values are shared between all existing rundata
 %                  objects and recalculated if a subsequent rundata object
-%                  has different detecotors. 
+%                  has different detecotors.
 %                  Should be used only when runnign number of subsequent
 %                  calculations for rang of runfiles and if mex files are
 %                  disabled. (mex files do not use cashed detectors
 %                  positions)
-% 
+%
 % Outputs:
 %   w               Output sqw object
 %   grid_size       Actual size of grid used (size is unity along dimensions
@@ -75,8 +80,25 @@ else
     det0 = get_rundata(obj,'det_par');
 end
 [data.filepath,data.filename]=get_source_fname(obj);
-
-
+if ~exist('grid_size_in','var')
+    grid_size_in = [50,50,50,50];
+else
+    if isempty(grid_size_in)
+        grid_size_in = [50,50,50,50];
+    else
+        if size(grid_size_in) ~= [1,4]
+            if size(grid_size_in) == [4,1]
+                grid_size_in = grid_size_in';
+            else
+                error('RUNDATA:invalid_argument',...
+                    'Grid size, if provided, should be 1x4 vector, containing number of bins in each of 3-q and one Energy transfer directions')
+            end
+        end
+    end
+end
+if ~exist('urange_in','var')
+    urange_in = [];
+end
 
 if horace_info_level>-1
     bigtoc('Time to read spe and detector data:')
@@ -98,13 +120,13 @@ instrument = obj.instrument;
 sample     = obj.sample;
 %
 % if transformation is provided, it will recalculate urange, and probably
-% into something different from non-transfromed object urange.
+% into something different from non-transfromed object urange, so here we
+% use native sqw object urange and account for input urange later.
 if ~isempty(obj.transform_sqw_f_)
     urange_sqw = [];
 else
     urange_sqw = urange_in;
 end
-
 [w, grid_size, urange]=calc_sqw_(efix, emode, alatt, angdeg, u, v, psi,...
     omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_sqw,...
     instrument, sample);

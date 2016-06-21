@@ -1,6 +1,7 @@
 classdef cut_transf
     % Helper class contains range of parameters necessary to combine
     % equivalent zones, namely defining a zone to combine with another zone
+    % and symmetry transformation to apply to coordinates.
     %
     % More generally, it used to describe cut to combine with another cut
     %
