@@ -53,13 +53,13 @@ classdef test_multifit_horace_spinw< TestCaseWithSave
             end
             sbcc=this.sbcc;
             S=2.5;    % Fe3+
+            sbcc.fileid(0);   % Silences information text from SpinW to commandline window
             sbcc.genlattice('lat_const',[1 1 1]*2.886,'angle',[90 90 90]*pi/180,'sym','I m -3 m');  % bcc Fe
             sbcc.addatom('r',[0 0 0]','S',[S],'label',{'Fe'});
             sbcc.gencoupling('maxDistance',5);
-            sbcc.addmatrix('mat',eye(3),'label',{'J1'},'color',[0; 255; 255]);       sbcc.addcoupling('J1',1);
+            sbcc.addmatrix('mat',eye(3),'label',{'J1'},'color',[0; 255; 255]);       sbcc.addcoupling('mat','J1','bond',1);
             sbcc.addmatrix('mat',diag([0 0 -1]),'color', [255; 0; 0],'label',{'D'}); sbcc.addaniso('D');
             sbcc.genmagstr('mode','direct','S',[0 0 1; 0 0 1]');  % Ferromagnetic
-            sbcc.fileid(0);   % Silences information text from SpinW to commandline window
             sbcc = spinw_setpar(sbcc,'mapping',{'D(3,3)','J1'},'hermit',false,'convolvfn',@spinw_gauss_sqw,'useMex',true);
             % We want to use the same parameter numbers as disp_bcc_hfm (gap energy and J*S)
             % so need to scale D,J and intensity by 1/S, and additionally, D by half.
