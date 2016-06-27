@@ -155,7 +155,7 @@ psize=[numel(p1),numel(p2),numel(p3)];
 % Coordinates of bin verticies in rotated and translated frame in which urange is given
 ucoords=rot*[x1(:)';x2(:)';x3(:)'];
 
-bin_inside = ~(bin_outside(1)|bin_outside(2)|bin_outside(3));   % =0 if bin outside, =1 if at least partially intersects volume
+bin_inside = ~(bin_outside(1)&bin_outside(2)&bin_outside(3));   % =0 if bin outside, =1 if at least partially intersects volume
 
 change = diff([false;bin_inside(:);false]);
 istart = find(change==1);

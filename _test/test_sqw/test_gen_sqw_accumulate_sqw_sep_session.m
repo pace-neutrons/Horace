@@ -62,7 +62,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             hc.use_mex_for_combine = true;
             
             if ~hc.accum_in_separate_process
-                warnings('TEST_GEN_SQW_ACC_SQW:multisession_mode',' multisession mode can not be enablesd');
+                warning('TEST_GEN_SQW_ACC_SQW:multisession_mode',' multisession mode can not be enablesd');
                 if ~hc.use_mex_for_combine % nothing to do, this mode can not be enabled
                     this.skip_tests=true;
                 end
