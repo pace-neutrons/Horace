@@ -78,9 +78,9 @@ end
 function [use_mex_for_combine,mex_combine_thread_mode,mex_combine_buffer_size,...
     accum_in_separate_process,accumulating_process_num]=find_hpc_options()
 if ispc
-    use_mex_for_combine = 0;
+    use_mex_for_combine = 1;
     mex_combine_thread_mode=0;
-    mex_combine_buffer_size=64*1024;
+    mex_combine_buffer_size=128*1024;
     [~,sys] = memory();
     if sys.PhysicalMemory.Total <  31*1024*1024*1024
         accum_in_separate_process = 0;
@@ -119,14 +119,14 @@ else
         hpc_computer = false;
     end
     if hpc_computer
-        mex_combine_thread_mode = 2;
-        mex_combine_buffer_size=1024;
+        mex_combine_thread_mode = 1;
+        mex_combine_buffer_size=2048;
         % assume memory not an issue
         accum_in_separate_process = 1;
         accumulating_process_num  = 8;
     else
         mex_combine_thread_mode = 0;
-        mex_combine_buffer_size=64*1024;
+        mex_combine_buffer_size=128*1024;
         
         accum_in_separate_process = 1;     
         % Lasy! need to do better then this, works only on ISIS pc-s
