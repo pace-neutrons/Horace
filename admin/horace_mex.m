@@ -44,7 +44,9 @@ catch ME
     
 end
 try
-   mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,'combine_sqw.cpp');
+   cof = {'combine_sqw.cpp','exchange_buffer.cpp','fileParameters.cpp',...
+       'pix_mem_map.cpp', 'sqw_pix_writer.cpp', 'sqw_reader.cpp', 'nsqw_pix_reader.cpp'};
+   mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,cof{:} );
    disp('**********> Succesfully created mex file for combining components from C++')   
 catch ME
     message=ME.message;
@@ -93,34 +95,24 @@ curr_dir = pwd;
 if(nargin<1)
     error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');
 end
-nFiles   = (nargin-2);  % files go in varargin
-nCells   = 2*nFiles-1;
-add_files=cell(nCells,1);
-add_fNames=cell(nCells,1);
+fnames = varargin(:);
+nFiles   = numel(fnames);% files go in varargin
+add_fNames = cellfun(@(x)[x,' '],fnames,'UniformOutput',false);
+add_files  = cellfun(@(x)(fullfile(curr_dir,in_rel_dir,x)),fnames,'UniformOutput',false);
 outdir = fullfile(curr_dir,out_rel_dir);
-for i=1:nCells
-    if((i/2-floor(i/2))>0) % fractional part
-        add_files{i} = fullfile(curr_dir,in_rel_dir,varargin{floor(i/2)+1});
-        add_fNames{i}=varargin{floor(i/2)+1};
-    else
-        add_files{i}  = ' ';
-        add_fNames{i} = ' ';
-    end
-end
-short_fname = cell2str(add_fNames);
+
+short_fname = cell2str(add_fNames{1});
 disp(['Mex file creation from ',short_fname,' ...'])
 
 if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
 if(nFiles==1)
-    fname      = add_files{1};
+    fname      = strtrim(add_files{1});
     mex(fname, '-outdir', outdir);
-else
-    flname1 = add_files{1};
-    flname2 =  cell2str(add_files{3:nCells});
-    
-    mex(flname1,flname2, '-outdir', outdir);
+else  
+    %mex('-g',add_files{:}, '-outdir', outdir);
+    mex(add_files{:}, '-outdir', outdir);    
 end
 
 function access =check_access(outdir,filename)
