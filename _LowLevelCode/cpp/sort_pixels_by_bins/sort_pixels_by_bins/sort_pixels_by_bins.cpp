@@ -196,7 +196,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     const char REVISION[] = "$Revision::      $ ($Date::                                              $)";
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
-        return;
+        return ;
     }
 
     std::stringstream buf;
