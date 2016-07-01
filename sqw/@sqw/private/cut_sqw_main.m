@@ -230,6 +230,7 @@ end
 
 
 % Open output file if required
+clob = [];
 if save_to_file
     if isempty(outfile)
         if keep_pix
@@ -246,7 +247,7 @@ if save_to_file
     if (fout < 0)
         error (['Cannot open output file ' outfile])
     end
-    
+    clob = onCleanup(@()clof(fout));
 end
 
 
@@ -261,7 +262,6 @@ if source_is_file  % data_source is a file
         error('Error reading data from file %s \n %s',data_source,mess)
     end
     if ~strcmpi(data_type,'a')
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
         error('Data file is not sqw file with pixel information - cannot take cut')
     end
 else
@@ -328,7 +328,6 @@ end
 % has
 [iax, iint, pax, p, urange, mess] = cut_sqw_calc_ubins (data.urange, proj, pbin, pin, en);
 if ~isempty(mess)   % problem getting limits from the input
-    if save_to_file; fclose(fout); end    % close the output file opened earlier
     error(mess)
 end
 
@@ -356,13 +355,11 @@ if source_is_file
     
     fid=fopen(data_source,'r');
     if fid<0
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
         error(['Unable to open file ',data_source])
     end
     status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
     if status<0;
         fclose(fid);
-        if save_to_file; fclose(fout); end    % close the output file opened earlier
         error(['Error finding location of pixel data in file ',data_source]);
     end
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
@@ -461,13 +458,11 @@ if save_to_file
                 delete(pix.tmpfiles{ifile});
             end
         end
-        fclose(fout);
         if ~isempty(mess)
             warning(['Error writing to file: ',mess])
         end
-    catch   % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
-        if ~isempty(fopen(fout)); fclose(fout); end
-        warning('Error writing to file: unknown cause')
+    catch Err  % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
+        warning('Error writing to file:ID %s, Message  %s',Err.identifier,Err.message);
     end
     if horace_info_level>=0, disp(' '), end
 end
@@ -492,3 +487,10 @@ if horace_info_level>=1
     bigtoc('Total time in cut_sqw:',horace_info_level)
     disp('--------------------------------------------------------------------------------')
 end
+
+function clof(fid)
+% clean-up function to close output file, if any was opened
+if fopen(fid)
+    fclose(fid);
+end
+
