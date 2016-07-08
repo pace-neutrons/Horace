@@ -266,7 +266,7 @@ for i=1:numel(w)
             return
         end
         sz=size(w(i).x{1});
-        for j=1:length(w(i).x)
+        for j=1:numel(w(i).x)
             if ~isnumeric(w(i).x{j})
                 mess=[message_opening(w,i),'cell array of x-coordinate array(s) not all numeric'];
                 return

@@ -2,7 +2,7 @@ function [msk,ok,mess] = mask_points_xye (x, xkeep, xremove, mask)
 % Determine the points to keep on the basis of ranges and mask array.
 % Does NOT find array elements with zero error bars, NaN data values etc.
 %
-%    >> sel = mask_points_xye (x, xkeep, xremove, mask)
+%    >> [msk,ok,mess] = mask_points_xye (x, xkeep, xremove, mask)
 %
 % Input:
 % ------

@@ -9,11 +9,10 @@ function mess = accumulate_message (varargin)
 %
 % Output:
 % -------
-%   mess            Accumulated message, having trimmed trailing whitespace
-%                   and removed empty strings.
+%   mess            Accumulated message, having trimmed trailing whitespace.
 %                   If all strings are empty, returns ''
 %                   If just one non-empty string, then returns a character string
-%                   Otgherwise, cell array of non-empty strings
+%                   Otherwise, cell array of non-empty strings
 
 [ok,mess]=str_make_cellstr(varargin{:});
 if ~ok

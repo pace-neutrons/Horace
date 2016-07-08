@@ -1,4 +1,4 @@
-function [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,msk)
+function [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,mask)
 % Mask data
 %
 %   >> [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,msk)
@@ -32,6 +32,7 @@ function [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,msk)
 % -------
 %   msk_out     Cell array (row) of updated mask arrays, one per data set.
 %               Same size as data.
+%               If there was an error, msk_out is an empty cell array size (1,0)
 %
 %   ok          True if all OK, false otherwise
 %
@@ -48,26 +49,27 @@ mess='';
 
 for i=1:numel(w)
     if isstruct(w{i})    % xye triple
-        [msk_out{i},ok,mess_tmp]=mask_points_xye(w{i}.x,xkeep{i},xremove{i},msk{i});
+        [msk_out{i},ok,mess_tmp]=mask_points_xye(w{i}.x,xkeep{i},xremove{i},mask{i});
     else % a different data object
         if ismethod(w{i},'mask_points')
-            [msk_out{i},ok,mess_tmp]=mask_points(w{i},'keep',xkeep{i},'remove',xremove{i},'mask',msk{i});
+            [msk_out{i},ok,mess_tmp]=mask_points(w{i},'keep',xkeep{i},'remove',xremove{i},'mask',mask{i});
         else
             x=sigvar_getx(w{i});
             if ~iscell(x),x={x}; end    % if a single array, make a cell array length unity
-            [msk_out{i},ok,mess_tmp]=mask_points_xye(x,xkeep{i},xremove{i},msk{i});
+            [msk_out{i},ok,mess_tmp]=mask_points_xye(x,xkeep{i},xremove{i},mask{i});
         end
     end
     if ok
         if ~isempty(msk_in{i})
-            msk_out = msk_in{i} & msk_out;      % accumulate mask
+            msk_out{i} = msk_in{i} & msk_out{i};      % accumulate mask
         end
         if ~isempty(mess_tmp)
-            mess=accumulate_mess(mess,mess_tmp);
-            display_mess(data_id_mess(sz,i),mess)  % display warning messages
+            mess=accumulate_message(mess,[data_id_mess(sz,i),mess_tmp]);
         end
-    elseif ~ok
+    else
+        msk_out=cell(1,0);
         mess=[data_id_mess(sz,i),mess_tmp];
+        return
     end
 end
 

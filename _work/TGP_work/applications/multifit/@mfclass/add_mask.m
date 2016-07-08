@@ -25,18 +25,20 @@ end
 % Now check validity of input
 if isempty(args)
     idata_in = [];
-elseif numel(args)>1
+elseif numel(args)==1
+    idata_in = args{1};
+else
     error ('Check number of input arguments - data set indicies must be a single row vector')
 end
 [ok,mess,idata] = dataset_indicies_parse (idata_in, obj.ndatatot_);
 if ~ok, error(mess), end
 
 % Check optional arguments
-[xkeep,xremove,msk,ok,mess] = mask_syntax_valid (numel(w), keyval.keep, keyval.remove, keyval.mask);
+[xkeep,xremove,msk,ok,mess] = mask_syntax_valid (numel(idata), keyval.keep, keyval.remove, keyval.mask);
 if ~ok, error(mess), end
 
 % Create mask arrays
-[msk_out,ok,mess] = mask_data (w(idata),[],xkeep,xremove,msk);
+[msk_out,ok,mess] = mask_data (obj.w_(idata),obj.msk_(idata),xkeep,xremove,msk);
 if ok && ~isempty(mess)
     display_message(mess)
 elseif ~ok
@@ -45,6 +47,6 @@ end
 
 % Set object
 % ----------
-for i=idata
-    obj.msk_{i} = obj.msk{i} & msk_out;
+for i=1:numel(idata)
+    obj.msk_{idata(i)} = obj.msk_{idata(i)} & msk_out{i};
 end

@@ -34,7 +34,8 @@ classdef mfclass
         % Data properties
         % ---------------
         % Cell array (row) with input data as provided by user (i.e. elements
-        % may be cell arrays of {x,y,e}, structure arrays, object arrays)
+        % may be cell arrays of {x,y,e}, structure arrays, object arrays);
+        % a special case is thee elements x, y, e.
         % If an element is an array it can be entered with any shape, but if
         % a dataset is removed from the array, then it will turned into a column
         % or a row vector (depending on its initial shape, according to usual
@@ -65,13 +66,15 @@ classdef mfclass
         w_ = {};
         
         % Mask arrays: cell array of logical arrays (1 for retain, 0 for ignore)
+        % The size of each mask array matches the size of the y array in the
+        % corresponding data set
         msk_ = {};
         
-        % Cell array of masked datasets (row): every entry is either
-        %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for 
-        %     each x-coordinate,
-        %   - a scalar object
-        wmask_ = {};
+%         % Cell array of masked datasets (row): every entry is either
+%         %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for 
+%         %     each x-coordinate,
+%         %   - a scalar object
+%         wmask_ = {};
         
         % -------------------
         % Function properties
@@ -138,7 +141,7 @@ classdef mfclass
         % Output control properties
         % -------------------------
         % Level at which messages are output: 0,1,2
-        info_level = 0
+        info_level_ = 0;
         
     end
     
@@ -146,6 +149,8 @@ classdef mfclass
         data
         w       % *** get rid of for release
         msk     % *** get rid of for release
+        wmask   % *** get rid of for release
+        data_out% *** get rid of for release
         
         local_foreground
         global_foreground
@@ -160,6 +165,10 @@ classdef mfclass
         bpin
         bpfree
         bpbind
+    end
+    
+    properties
+        keep_only_unmasked = false;  % *** get rid of for release
     end
     
     properties (SetAccess = private)
@@ -200,23 +209,48 @@ classdef mfclass
         end
 
         function obj = set.global_background(obj,val)
-            if ~islognumscalar(val), error('global_foreground must be a logical scalar'), end
+            if ~islognumscalar(val), error('global_background must be a logical scalar'), end
             isfore = false;
             obj = function_set_scope_ (obj, isfore, val);
         end
 
         %------------------------------------------------------------------
         % Get methods
-        function data = get.data(obj)
-            data = obj.data_;
+        function out = get.data(obj)
+            out = obj.data_;
         end
         
-        function data = get.w(obj)   % *** get rid off for release
-            data = obj.w_;
+        function out = get.w(obj)   % *** get rid of for release
+            out = obj.w_;
         end
         
-        function data = get.msk(obj)   % *** get rid off for release
-            data = obj.msk_;
+        function out = get.msk(obj)   % *** get rid of for release
+            out = obj.msk_;
+        end
+        
+        function out = get.wmask(obj)   % *** get rid of for release
+            if ~isempty(obj.w_)
+                [out,~,ok,mess] = mask_data_for_fit (obj.w_,obj.msk_);
+                if ok && ~isempty(mess)
+                    display_message(mess);
+                elseif ~ok
+                    error_message(mess);
+                end
+            else
+                out = obj.w_;
+            end
+        end
+        
+        function out = get.data_out(obj)   % *** get rid of for release
+            tf = logical(obj.keep_only_unmasked);
+            out = repackage_output_datasets(obj.data_, obj.wmask, obj.msk_, tf);
+            if numel(obj.w_)==1 && numel(obj.data_)==3
+                % x,y,e supplied as separate arguments; keep just y array
+                out = out{2};
+            elseif numel(out)==1
+                % Just one data item, so strip out from cell array
+                out = out{1};
+            end
         end
         
         function out = get.local_foreground(obj)
