@@ -39,5 +39,5 @@ for i=frame_no
     ylabel(ylab);
     clab=ylabel(cc,slab);
     set(clab,'Rotation',-90);
-    title(['Run number ',num2str(i)]);
+    title(['Run number: ',num2str(i),'; Filename: ',w(i).header.filename,' Psi = ',num2str((180/pi)*w(i).header.psi)]);
 end

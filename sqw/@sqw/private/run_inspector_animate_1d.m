@@ -24,7 +24,7 @@ for i=frame_no
     xx=0.5.*(w(i).data.p{1}(1:end-1)+ w(i).data.p{1}(2:end));
     %
     errorbar(xx,ss.*zz,sqrt(ee),'or');
-    title(['Run number ',num2str(i)]);
+    title(['Run number: ',num2str(i),'; Filename: ',w(i).header.filename,' Psi = ',num2str((180/pi)*w(i).header.psi)]);
     ii=IX_dataset_1d(w(i));
     [xlab,ylab]=make_label(ii);
     xlabel(xlab);
