@@ -1,5 +1,5 @@
 function [ip, ifun] = ind2parfun (ind, np, nbp)
-% Get the linear index of parameters from their parameter and function index
+% Get parameter and function index from the linear parameter index
 %
 %   >> [ip, ifun] = ind2parfun (ind, np, nbp)
 %

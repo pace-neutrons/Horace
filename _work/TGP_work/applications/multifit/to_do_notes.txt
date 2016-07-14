@@ -1,3 +1,13 @@
+- Does multifit_lsqr cope with both foreground and background functions no present?
+  THis is a possible setting: should set the evaluated value to zero.
+  
+  
+  
+
+%========================================================================================
+% Very old stuff
+% -----------------
+
 
 - add checks to clear bindings in various functions add*, clear* (data and parameters)
 

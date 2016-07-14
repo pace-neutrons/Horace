@@ -89,3 +89,15 @@ ww=kk.data_out;
 kk.keep_only_unmasked=true;
 ww=kk.data_out;
 
+%-------------------------------------------------------------
+% Test binding indirectly to self
+kk=mfclass(w1);
+
+kk=kk.set_fun(@toot,[1,100,24,2],[0,1,1,0]);
+
+kk=kk.set_bind(1,2,13); kk.pbind
+kk=kk.add_bind(2,3,13); kk.pbind
+kk=kk.add_bind(3,1,13); kk.pbind
+
+
+

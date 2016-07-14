@@ -128,13 +128,16 @@ classdef mfclass
         bound_to_ = zeros(0,1);
         
         % Column vector length (nptot_ + nbptot_) with ratio of
-        % bound parameter to fixed parameter; =0 if a parameter is unbound
+        % bound parameter to fixed parameter; =NaN if a parameter is unbound;
+        % and = NaN if ratio is to be determined by initial parameter values
         ratio_ = NaN(0,1);
         
         % Sparse square array with ith column containing 0 for 
         % parameters not bound to the ith parameter, or 1 when
         % they are bound. (Note: the total number of non-zero elements
         % cannot exceed (nptot_ + nbptot_ - 1)
+        % Note: we do not record that a parameter is bound to itself i.e. the
+        % diagonal is all zeros.
         bound_from_ = sparse(0,0);
         
         % -------------------------
@@ -336,6 +339,8 @@ classdef mfclass
         
         [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
+        
+        %[ok, mess, pf, p_info] = ptrans_initialise_ (obj)
         
     end
     

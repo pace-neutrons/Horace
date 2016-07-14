@@ -6,7 +6,7 @@ function obj = free_alter (obj_in, np_, nbp_, isfore, indfun, pfree)
 % If a parameter is made free, then any parameters which are bound to it are
 % also made free, whether directly or indirectly. That is, a parameter which is
 % has not been bound to another parameter if fixed (freed) will fix (free) all
-% parameter that are bound to it. Similarly, a bound parameter
+% parameters that are bound to it. Similarly, a bound parameter
 % that is fixed (freed) also makes the independenent parameter to which it is bound
 % a fixed (free) parameter, and other any parameters which are also bound to that
 % independent parameter.
@@ -29,7 +29,7 @@ function obj = free_alter (obj_in, np_, nbp_, isfore, indfun, pfree)
 %          pfree refer
 %   pfree   Cell array of logical row vectors, where the number of elements
 %          of the ith vector equals the number of parameters for the
-%          function given by ind(i), and with elements =true for free
+%          function given by indfun(i), and with elements =true for free
 %          parameters, =false for fixed parameters
 %
 % Output:
