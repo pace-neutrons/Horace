@@ -61,7 +61,7 @@ end
 
 % Update the constraints themselves
 S_con = free_alter (S_con, S_fun.np_, S_fun.nbp_, isfore, ifun, pfree);
-S_con = binding_add (S_con, S_fun.np_, S_fun.nbp_, ipb, ifunb, ipf, ifunf, R);
+[S_con,ok,mess] = binding_add (S_con, S_fun.np_, S_fun.nbp_, ipb, ifunb, ipf, ifunf, R);
 
 % Update the object
 obj = obj.set_fun_props_ (S_fun);

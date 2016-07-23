@@ -1,7 +1,7 @@
-function obj = clear_bbind (obj, ifun)
+function obj = clear_bbind (obj, varargin)
 % Clear bindings between parameters for background functions
 %
-%   >> obj = obj.clear_bbind           % clear all binding
+%   >> obj = obj.clear_bbind           % clear all bindings
 %   >> obj = obj.clear_bbind (ifun)    % clear bindings for indicated function(s)
 
 
@@ -17,7 +17,6 @@ end
 
 % Process input
 % -------------
-if nargin==1, ifun = []; end
 isfore = false;
-[ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun);
+[ok, mess, obj] = clear_bind_private_ (obj, isfore, varargin);
 if ~ok, error(mess), end

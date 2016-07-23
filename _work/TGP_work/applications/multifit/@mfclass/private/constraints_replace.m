@@ -11,7 +11,8 @@ function obj = constraints_replace (obj_in, np_, nbp_, ind, np, indb, nbp)
 %               bound_
 %               bound_to_
 %               ratio_
-%               bound_from_
+%               bound_to_res_
+%               ratio_res_
 %   np_     Array of number of foreground parameters in each function in the
 %          underlying definition of the constraints structure (row vector)
 %   nbp_    Array of number of background parameters in each function in the
@@ -34,7 +35,8 @@ function obj = constraints_replace (obj_in, np_, nbp_, ind, np, indb, nbp)
 %               bound_
 %               bound_to_
 %               ratio_
-%               bound_from_
+%               bound_to_res_
+%               ratio_res_
 
 
 % Fill output with default structure

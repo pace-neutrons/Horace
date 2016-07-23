@@ -11,14 +11,15 @@ function obj = constraints_insert (obj_in, np_, nbp_, ind, np, indb, nbp)
 %               bound_
 %               bound_to_
 %               ratio_
-%               bound_from_
+%               bound_to_res_
+%               ratio_res_
 %   np_     Array of number of foreground parameters in each function in the
 %          underlying definition of the constraints structure (row vector)
 %   nbp_    Array of number of background parameters in each function in the
 %          underlying definition of the constraints structure (row vector)
 %   ind     Indicies of the foreground functions after which entries for new
 %          functions are to be inserted. One index per function, in the range
-%          0:numel(obj.bfun_) (row vector)
+%          0:numel(obj.fun_) (row vector)
 %           If empty, then no foreground functions inserted
 %   np      Array of number of foreground parameters in each function to insert
 %         (row vector)
@@ -36,7 +37,8 @@ function obj = constraints_insert (obj_in, np_, nbp_, ind, np, indb, nbp)
 %               bound_
 %               bound_to_
 %               ratio_
-%               bound_from_
+%               bound_to_res_
+%               ratio_res_
 
 
 % Fill output with default structure
@@ -47,42 +49,39 @@ if (numel(ind)+numel(indb))==0
     return
 end
 
-% Get some parameters
+% Get some array lengths
 nff_ = numel(np_);
 nfb_ = numel(nbp_);
 nf_  = nff_ + nfb_;
-nptot_ = sum(np_) + sum(nbp_);
 nptot = sum(np) + sum(nbp);
 
 % Insert extra terms with default values 
 ifun = [1:nf_, ind, indb+nff_];
 ifun_rep = replicate_iarray (ifun, [np_, nbp_, np, nbp]);
 [~,ix] = sort(ifun_rep);
-iy=zeros(numel(ix),1);  % to force column vector
-iy(ix) = 1:numel(ix);
 
 obj.free_ = [obj.free_; true(nptot,1)];
 obj.bound_ = [obj.bound_; false(nptot,1)];
 obj.bound_to_ = [obj.bound_to_; zeros(nptot,1)];
-obj.ratio_ = [obj.ratio_; NaN(nptot,1)];
+obj.ratio_ = [obj.ratio_; zeros(nptot,1)];
+obj.bound_to_res_ = [obj.bound_to_res_; zeros(nptot,1)];
+obj.ratio_res_ = [obj.ratio_res_; zeros(nptot,1)];
 
 obj.free_ = obj.free_(ix);
 obj.bound_ = obj.bound_(ix);
 obj.bound_to_ = obj.bound_to_(ix);
 obj.ratio_ = obj.ratio_(ix);
-
-[ir,ic,val] = find(obj.bound_from_);
-n = nptot_ + nptot;
-obj.bound_from_ = sparse(iy(ir),iy(ic),val,n,n,n);
+obj.bound_to_res_ = obj.bound_to_res_(ix);
+obj.ratio_res_ = obj.ratio_res_(ix);
 
 % Update linear parameter indicies
 indpar = nonzeros(obj.bound_to_);
 indpar_new = indpar_insert (indpar, np_, nbp_, ind, np, indb, nbp);
 obj.bound_to_(obj.bound_) = indpar_new;
 
-indpar = nonzeros(obj.bound_from_);
+indpar = nonzeros(obj.bound_to_res_);
 indpar_new = indpar_insert (indpar, np_, nbp_, ind, np, indb, nbp);
-obj.bound_from_(find(obj.bound_from_)) = indpar_new;
+obj.bound_to_res_(obj.bound_) = indpar_new;
 
 
 %--------------------------------------------------------------------------------------------------

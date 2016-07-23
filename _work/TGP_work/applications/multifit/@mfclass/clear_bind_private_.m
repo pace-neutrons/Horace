@@ -1,13 +1,33 @@
-function [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
-% Clear clear constraints for foreground/background function(s)
+function [ok, mess, obj] = clear_bind_private_ (obj, isfore, args)
+% Clear bindings for foreground/background function(s)
 %
 %   >> [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
+%
+% Set for all functions
+%   args = {}           % All parameters set to free
+%
+% Set for one or more specific function(s)
+%   args = {ifun}
 
 
 if isfore
     nfun = numel(obj.fun_);
 else
     nfun = numel(obj.bfun_);
+end
+
+% Parse input arguments
+% ---------------------
+if numel(args)==0
+    ifun = [];
+    
+elseif numel(args)==1
+    ifun = args{1};
+    
+else
+    ok = false;
+    mess = 'Check number of input arguments';
+    return
 end
 
 % Now check validity of input

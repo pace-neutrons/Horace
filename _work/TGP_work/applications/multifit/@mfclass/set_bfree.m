@@ -2,11 +2,9 @@ function obj = set_bfree (obj, varargin)
 % Set which background function parameters are free and which are bound
 %
 % Set for all background functions
-%   >> obj = obj.set_bfree           % All parameters set to free
 %   >> obj = obj.set_bfree (pfree)   % Row vector (applies to all) or cell array (one per function)
 %
 % Set for one or more specific background function(s)
-%   >> obj = obj.set_bfree (ifun)
 %   >> obj = obj.set_bfree (ifun, pfree)
 
 

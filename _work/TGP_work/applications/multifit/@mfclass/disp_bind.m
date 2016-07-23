@@ -4,4 +4,4 @@ function disp_bind(obj)
 
 ss=struct(obj);
 [double(ss.free_)';double(ss.bound_)';ss.bound_to_';ss.ratio_']
-full(ss.bound_from_)
+

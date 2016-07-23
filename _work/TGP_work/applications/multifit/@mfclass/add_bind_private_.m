@@ -39,7 +39,7 @@ if ~ok, return, end
 % All arguments are valid, so populate the output object
 % ------------------------------------------------------
 % Update the constraints
-S_con = binding_add (obj.get_constraints_props_, obj.np_, obj.nbp_, ipb, ifunb, ipf, ifunf, R);
+[S_con,ok,mess] = binding_add (obj.get_constraints_props_, obj.np_, obj.nbp_, ipb, ifunb, ipf, ifunf, R);
 
 % Update the object
 obj = obj.set_constraints_props_ (S_con);

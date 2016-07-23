@@ -66,7 +66,7 @@ elseif iscell(pfree_in)
             return
         end
         if ~all(np(:)==np(1))
-            mess='A single free parameter list only valid if all functions have same number of parameters';
+            mess='A single free parameter list is only valid if all functions have same number of parameters';
             return
         end
         pfree=cell(size(np));
@@ -92,13 +92,13 @@ elseif iscell(pfree_in)
         return
     end
     
-elseif isnumeric(pfree_in)  % Numeric argument; assume applies to all functions
+elseif isnumeric(pfree_in)||islogical(pfree_in)     % Assume applies to all functions
     [ok_tmp,mess,pfree_tmp]=pfree_parse_single(pfree_in,np(1));
     if ~ok_tmp
         return
     end
     if ~all(np(:)==np(1))
-        mess='A single free parameter list only valid if all functions have same number of parameters';
+        mess='A single free parameter list is only valid if all functions have same number of parameters';
         return
     end
     pfree=cell(size(np));

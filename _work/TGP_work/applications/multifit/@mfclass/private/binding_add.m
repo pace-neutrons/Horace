@@ -1,4 +1,4 @@
-function obj = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
+function [obj, ok, mess] = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
 % Bind parameters
 %
 %   >> obj = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
@@ -12,7 +12,8 @@ function obj = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
 %               bound_
 %               bound_to_
 %               ratio_
-%               bound_from_
+%               bound_to_res_
+%               ratio_res_
 %   np_     Array of number of foreground parameters in each function in the
 %          underlying definition of the constraints structure (row vector)
 %   nbp_    Array of number of background parameters in each function in the
@@ -38,7 +39,11 @@ function obj = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
 %               bound_
 %               bound_to_
 %               ratio_
-%               bound_from_
+%               bound_to_res_
+%               ratio_res_
+%
+%   ok      True if bindings are valid, false if not
+%   mess    Empty string if ok; error message if not
 
 
 % Fill output with default structure
@@ -48,26 +53,48 @@ obj = obj_in;
 iind = parfun2ind (ipf, ifunf, np_, nbp_);    % independent parameters (column vector)
 ibnd = parfun2ind (ipb, ifunb, np_, nbp_);    % parameter which will be bound (column vector)
 
-% Must use a for loop as a parameter may appear more than once in iind or ibnd
-% The result is that element-by-element operation is not possible
-for i = 1:numel(ibnd)
-    % If currently bound, clear the current bound_from_ entry
-    if obj.bound_(ibnd(i))
-        j = obj.bound_to_(ibnd(i));
-        obj.bound_from_(ibnd(i),j) = false;
+% Get the last occurence of a bound parameter in the list - it might be that it is bound twice
+% i.e. there is an implicit clear
+[~,ix] = unique(ibnd,'legacy');
+iind = iind(ix);
+ibnd = ibnd(ix);
+
+% Update bindings
+if ~any(ismember(ibnd,[nonzeros(obj.bound_to_);iind])) && all(obj.bound_to_(iind)==0)
+    % Catch simple case that all new bound parameters (1) do not have any parameters bound
+    % to them, and (2) are bound to independent parameters. This means that the resolving of the
+    % bindings is trivial. Note that we have to include the proposed new bindings as well as
+    % the current bindings in these checks; this is done by having ismember(ibnd,iind)
+    % appearing in the first check.
+    obj.bound_(ibnd) = true;
+    obj.bound_to_(ibnd) = iind;
+    obj.ratio_(ibnd) = R(ix);
+    obj.bound_to_res_(ibnd) = iind;
+    obj.ratio_res_(ibnd) = R(ix);
+    ok = true;
+    mess = '';
+else
+    % Treat in most general case
+    % Concatenate existing and new bindings, get last occurrence
+    ibnd = [find(obj.bound_);ibnd];
+    iind = [obj.bound_to_(obj.bound_);iind];
+    ratio = [obj.ratio_(obj.bound_);R];
+    [~,ix] = unique(ibnd,'legacy');
+    ibnd = ibnd(ix);
+    iind = iind(ix);
+    ratio = ratio(ix);
+    % Repopulate bindings arrays
+    nptot = size(obj.bound_,1);
+    obj.bound_ = false(nptot,1);
+    obj.bound_to = zeros(nptot,1);
+    obj.ratio_ = zeros(nptot,1);
+    obj.bound_(ibnd) = true;
+    obj.bound_to_(ibnd) = iind;
+    obj.ratio_(ibnd) = ratio;
+    [obj.bound_to_res_,obj.ratio_res_,ok] = binding_resolve (obj.bound_to_,obj.ratio_);
+    if ok
+        mess = '';
     else
-        obj.bound_(ibnd(i)) = true;
-    end
-    % If asked to bind to a currently bound parameter, get the underlying floating parameter
-    if obj.bound_(iind(i))
-        j = obj.bound_to_(iind(i));         % parameter to which currently bound
-        obj.bound_to_(ibnd(i)) = j;         % 
-        obj.ratio_(ibnd(i)) = R(i)*obj.ratio_(iind(i));
-        obj.bound_from_(ibnd(i),j) = true;
-    else
-        % Currently a floating parameter; now bind it
-        obj.bound_to_(ibnd(i)) = iind(i);
-        obj.ratio_(ibnd(i)) = R(i);
-        obj.bound_from_(ibnd(i),iind(i)) = true;
+        mess = 'One or more parameters indirectly bound to themselves';
     end
 end

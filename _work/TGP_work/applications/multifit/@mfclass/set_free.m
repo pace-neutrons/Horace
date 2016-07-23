@@ -2,13 +2,14 @@ function obj = set_free (obj, varargin)
 % Set which foreground function parameters are free and which are bound
 %
 % Set for all foreground functions
-%   >> obj = obj.set_free           % All parameters set to free
-%   >> obj = obj.set_free (pfree)   % Row vector (applies to all) or cell array (one per function)
+%   >> obj = obj.set_free (pfree)
 %
 % Set for one or more specific foreground function(s)
-%   >> obj = obj.set_free (ifun)
 %   >> obj = obj.set_free (ifun, pfree)
-
+%
+% Input:
+% ------
+%   pfree   Logical row vector (or array of ones and zeros)
 
 % Check there are function(s)
 % ---------------------------

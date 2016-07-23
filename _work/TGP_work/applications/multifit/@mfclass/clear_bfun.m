@@ -1,4 +1,4 @@
-function obj = clear_bfun(obj,ifun)
+function obj = clear_bfun(obj, varargin)
 % Clear background function(s), clearing any corresponding constraints
 %
 % Clear all background functions
@@ -20,7 +20,6 @@ end
 
 % Process input
 % -------------
-if nargin==1, ifun = []; end
 isfore = false;
-[ok, mess, obj] = clear_fun_private_ (obj, isfore, ifun);
+[ok, mess, obj] = clear_fun_private_ (obj, isfore, varargin);
 if ~ok, error(mess), end

@@ -53,9 +53,19 @@ function [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
 %                                    background functions
 
 
+% ***
+% Option: if a fixed parameter is bound to a floating parameter, does that parameter
+% force the floating parameter to be fixed? Or does the free/fixed status of the 
+% floating parameter overrule the bound parameter's fixed/free status? We choose the latter.
+% That is, being bound takes precedence.
+% on the grounds that the user ought to have an idea of what are the floating
+% parameters.
+% ***
+
 % Return values if error
 % ----------------------
 pf_err = []; p_info_err = struct([]);
+
 
 % Get output arguments
 % --------------------
@@ -69,10 +79,10 @@ pp0 = [cell2mat(cellfun(@parameter_get,obj.pin_,'UniformOutput',false)');...
     cell2mat(cellfun(@parameter_get,obj.bpin_,'UniformOutput',false)')];
 free = (obj.free_ & ~obj.bound_);
 bound = obj.bound_;
-ib = obj.bound_to_;
+ib = obj.bound_to_res_;
 
 % Get binding ratios
-ratio = obj.ratio_;
+ratio = obj.ratio_res_;
 ratio_default = pp0(bound)./pp0(ib(bound)); % ratios from the initial parameter values
 ratio_given = ratio(bound);                 % ratios from binding descriptions for the bound parameters
 no_ratio = isnan(ratio_given);
@@ -106,7 +116,7 @@ if ~all(nodata)
     constrained = sparse(irow,icol,double(constrained),npptot,npptot);
     constrained = full(sum(constrained,1)>0)';  % true if parameter depends on the data
     bad = free & ~constrained;
-    [ok,mess] = get_bad_parameters_message(bad,np,nbp,'unconstrained by the data because datset that depend on it are empty or masked');
+    [ok,mess] = get_bad_parameters_message(bad,np,nbp,'unconstrained by the data because dataset(s) that depend on it are empty or fully masked');
     if ~ok
         pf = pf_err; p_info = p_info_err; return
     end
@@ -122,7 +132,6 @@ end
 pf = pp0(free);
 p_info = struct('np',np,'nbp',nbp,'nptot',nptot,'nbptot',nbptot,'npptot',npptot,...
     'pp0',pp0,'free',free,'bound',bound,'ib',ib,'ratio',ratio);
-
 
 
 %--------------------------------------------------------------------------------------------------

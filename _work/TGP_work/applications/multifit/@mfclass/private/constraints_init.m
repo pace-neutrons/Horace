@@ -16,8 +16,9 @@ function obj = constraints_init (np_, nbp_)
 %               free_
 %               bound_
 %               bound_to_
+%               bound_to_res_
 %               ratio_
-%               bound_from_
+%               ratio_res_
 
 
 n = sum(np_) + sum(nbp_);
@@ -25,5 +26,6 @@ n = sum(np_) + sum(nbp_);
 obj.free_ = true(n,1);
 obj.bound_ = false(n,1);
 obj.bound_to_ = zeros(n,1);
-obj.ratio_ = NaN(n,1);
-obj.bound_from_ = sparse([],[],[],n,n,n);
+obj.ratio_ = zeros(n,1);
+obj.bound_to_res_ = zeros(n,1);
+obj.ratio_res_ = zeros(n,1);

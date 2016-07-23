@@ -114,8 +114,8 @@ classdef mfclass
         % --------------------------------
         % Logical column vector length (nptot_ + nbptot_)
         % =true if parameter is free, =false if fixed.
-        % If a parameter is bound to another, then the value of
-        % free_ is that of the parameter to which it is bound.
+        % This contains what was set, but needs to be resolved to find the
+        % independent floating parameters
         free_ = true(0,1);
         
         % Column vector length (nptot_ + nbptot_)
@@ -128,17 +128,17 @@ classdef mfclass
         bound_to_ = zeros(0,1);
         
         % Column vector length (nptot_ + nbptot_) with ratio of
-        % bound parameter to fixed parameter; =NaN if a parameter is unbound;
+        % bound parameter to fixed parameter; =0 if a parameter is unbound;
         % and = NaN if ratio is to be determined by initial parameter values
-        ratio_ = NaN(0,1);
+        ratio_ = zeros(0,1);
         
-        % Sparse square array with ith column containing 0 for 
-        % parameters not bound to the ith parameter, or 1 when
-        % they are bound. (Note: the total number of non-zero elements
-        % cannot exceed (nptot_ + nbptot_ - 1)
-        % Note: we do not record that a parameter is bound to itself i.e. the
-        % diagonal is all zeros.
-        bound_from_ = sparse(0,0);
+        % Column vector of parameters to which each parameter is bound, resolved
+        % to account for a chain of bindings
+        bound_to_res_ = zeros(0,1);
+        
+        % Column vector of binding ratios resolved to account for a chain
+        % of bindings
+        ratio_res_ = zeros(0,1);        
         
         % -------------------------
         % Output control properties
@@ -291,7 +291,9 @@ classdef mfclass
             out = [double(obj.free_(1:nptot))';...
                 double(obj.bound_(1:nptot))';...
                 obj.bound_to_(1:nptot)';...
-                obj.ratio_(1:nptot,:)'];
+                obj.ratio_(1:nptot,:)';
+                obj.bound_to_res_(1:nptot)';...
+                obj.ratio_res_(1:nptot,:)'];
         end
         
         function out = get.bfun(obj)
@@ -317,7 +319,9 @@ classdef mfclass
             out = [double(obj.free_(range))';...
                 double(obj.bound_(range))';...
                 obj.bound_to_(range)';...
-                obj.ratio_(range,:)'];
+                obj.ratio_(range,:)';
+                obj.bound_to_res_(range)';...
+                obj.ratio_res_(range,:)'];
         end
         
         %------------------------------------------------------------------
@@ -336,6 +340,7 @@ classdef mfclass
         [ok, mess, obj] = clear_fun_private_ (obj, isfore, ifun)
         
         [ok, mess, obj] = set_free_private_ (obj, isfore, args)
+        [ok, mess, obj] = clear_free_private_ (obj, isfore, args)
         
         [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)

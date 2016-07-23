@@ -1,3 +1,27 @@
+% ===============================================================================================
+% Set functions
+% ===============================================================================================
+% Function summary
+% -------------------
+%
+% data:     set     append      remove      replace
+%                               remove(id)  replace(id)
+%
+% mask:     set     add         clear
+%           set(id) add(id)     clear(id)
+%
+% fun:      set                 clear
+%           set(i)              clear(i)
+%
+% free:     set                 clear
+%           set(i)              clear(i)
+%
+% bind:     set     add         clear
+%           set(i)  add(i)      clear(i)
+%
+%
+%
+% ====================================
 %   >> obj = multifit
 % 
 %   >> obj = multifit (data)
@@ -6,8 +30,9 @@
 % Set functions
 % ===============================================================================================
 %
+% ====================================
 % Setting or changing datasets
-% ----------------------------
+% ====================================
 % Set the data, clearing all functions:
 %   >> obj = obj.set_data (x,y,z)
 %   >> obj = obj.set_data (w1,w2,...)
@@ -35,8 +60,9 @@
 %   (...,'mask',mask,...)
 %
 %
+% ====================================
 % Setting or changing functions
-% -----------------------------
+% ====================================
 % Set all foreground functions
 %   >> obj = obj.set_fun (@fhandle, pin)
 %   >> obj = obj.set_fun (@fhandle, pin, pfree)
@@ -67,27 +93,33 @@
 %   >> obj = obj.set_bfun (...)
 %
 %
-% Remove functions, clearing any corresponding constraints
-%   >> obj = obj.remove_fun
-%   >> obj = obj.remove_fun (ifun)
+% Remove functions, clearing any corresponding parameter and constraints
+% ----------------------------------------------------------------------
+%   >> obj = obj.clear_fun
+%   >> obj = obj.clear_fun (ifun)
 %
-%   >> obj = obj.remove_bfun (...)
+%   >> obj = obj.clear_bfun (...)
 %
 %
+% ====================================
 % Set free parameters
-% -------------------
-% Foreground functions
-%   >> obj = obj.set_free
+% ====================================
+% Set for foreground functions
 %   >> obj = obj.set_free (pfree)   % pfree row vector (applies to all) or cell array (one per function)
-%   >> obj = obj.set_free (ifun)
 %   >> obj = obj.set_free (ifun, pfree)
+%
+% Clear for foreground functions:
+%   >> obj = obj.clear_free
+%   >> obj = obj.clear_free (ifun)
 %
 % Background functions
 %   >> obj = obj.set_bfree (...)
+%   >> obj = obj.clear_bfree (...)
 %       
 %
+% ====================================
 % Binding
-% -------
+% ====================================
 % Set bindings; ame as add bindings, but clears all existing bindings first
 %   >> obj = obj.set_bind (...)
 %
@@ -108,10 +140,10 @@
 %
 %
 % Clear bindings:
-%   >> obj = obj.remove_bind
-%   >> obj = obj.remove_bind (ifun)
+%   >> obj = obj.clear_bind
+%   >> obj = obj.clear_bind (ifun)
 %
-%   >> obj = obj.remove_bbind (...)
+%   >> obj = obj.clear_bbind (...)
 %
 %
 % Fitting and simulating

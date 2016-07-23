@@ -1,8 +1,41 @@
 - Does multifit_lsqr cope with both foreground and background functions no present?
   THis is a possible setting: should set the evaluated value to zero.
   
+
   
+Constraints:
+===============
+Functions that have complex operations that might be better optimised
+	binding_add
+	binding_clear
+	binding_resolve
+	constraints_remove
+	
+	For example, in binding_add, 
+
+- Do we actually need property bound_? After all, bound_ == (bound_to_>0)
+
+- Can separate free from bindings as now completely separate - but no harm leaving as is in case
+  change functionality back
+
+- Should clear_bind look be able to clear specific parameters, not just all parameters
+  for a given function ?
   
+- Change name clear_free, set_free etc to *_fix, and invert so true = fixed, false=free ?
+	
+%========================================================================================
+		BUGS
+%========================================================================================
+Global parameter bound to implicit local parameter:
+
+	kk=mfclass(warr3);
+
+	kk=kk.set_fun(@noggle,[1,100],[1,0]);
+	kk=kk.set_bfun(@toot,[1,100,24,2],[0,1,1,0]);
+
+	kk=kk.add_bind(2,-1);   % why does this work? (is global foreground)
+
+
 
 %========================================================================================
 % Very old stuff
