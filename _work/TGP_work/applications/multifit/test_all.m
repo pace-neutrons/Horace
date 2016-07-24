@@ -28,10 +28,6 @@ kk=kk.set_global_background;
 kk=kk.set_local_foreground;
 
 
-% To look at bindings
-disp_bind(kk)
-
-
 %-------------------------------------------------------------
 kk=mfclass(warr3);
 

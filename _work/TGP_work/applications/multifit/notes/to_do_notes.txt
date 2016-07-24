@@ -1,6 +1,13 @@
 - Does multifit_lsqr cope with both foreground and background functions no present?
   THis is a possible setting: should set the evaluated value to zero.
   
+  
+Multifit_lsqr:
+=================
+- Not obvious why need multifit_lsqr_func_eval and multifit_func_eval. Especially
+  as there is a perform_fit option in multifit_lsqr; this would mean that it could be
+  made the sole interface function.
+
 
   
 Constraints:

@@ -7,17 +7,72 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
 %
 % Input:
 % ------
+%   w           Cell array where each element w(i) is either
+%                 - an x-y-e triple with w(i).x a cell array of arrays, one
+%                  for each x-coordinate,
+%                 - a scalar object
+%               All bad points will have been masked from an x-y-e triple
+%               Objects will have their bad points internally masked too.
+%
+%
+%   xye         Logical array, size(w): indicating which data are x-y-e
+%              triples (true) or objects (false)
+%
+%   func        Handles to foreground functions:
+%                 - A cell array with a single function handle (which will
+%                  be applied to all the data sets);
+%                 - Cell array of function handles, one per data set.
+%               Some, but not all, elements of the cell array can be empty.
+%              Empty elements are interpreted as not having a function to
+%              evaluate for the corresponding data set.
+%
+%   bkdfunc     Handles to background functions; same format as func, above
+%
+%   plist       Cell array of valid parameter lists, one list per foreground function,
+%              with the initial parameter values at the lowest level.
+%
+%   bkdlist     Cell array of valid parameter lists, one list per background function,
+%              with the initial parameter values at the lowest level.
+%
+%   pf          Free parameter initial values (that is, the independently 
+%              varying parameters)
+%
+%   p_info      Structure with information needed to transform from pf to the
+%              parameter values needed for function evaluation
+%
+%   listing     Control diagnostic output to the screen:
+%               =0 for no printing to command window 
+%               =1 prints iteration summary to command window 
+%               =2 additionally prints parameter values at each iteration 
+%               =3 additionally listd which datasets were computed for the
+%                  foreground and background functions. Diagnostic tool.
+%
+%   fcp         Fit control parameters:
+%           fcp(1)  Relative step length for calculation of partial derivatives 
+%                   [Default: 1e-4] 
+%           fcp(2)  Maximum number of iterations [Default: 20] 
+%           fcp(3)  Stopping criterion: relative change in chi-squared 
+%                   i.e. stops if (chisqr_new-chisqr_old) < fcp(3)*chisqr_old 
+%                   [Default: 1e-3]
+%
+%   perform_fit Logical scalar = true if a fit is required, =false if
+%              just need the value of chisqr.
 %
 %
 % Output:
 % -------
-%   p_best      Column vector of final fit parameters
+%   p_best      Column vector of final fit parameters - only for the 
+%              independently varying parameters.
+%
 %   sig         Column vector of estimated standard deviations
+%
 %   cor         Correlation matrix for the free parameters
-%   chisqr_red  Reduced chi-squared at fional fit parameters
+%
+%   chisqr_red  Reduced chi-squared at final fit parameters
+%
 %   converged   True if fit converged; false if not.
 %
-%   ok          True: A fit coould be performed. This includes the cases of
+%   ok          True: A fit could be performed. This includes the cases of
 %                 both convergence and failure to converge
 %               False: Fundamental problem with the input arguments e.g.
 %                 the number of free parameters equals or exceeds the number
@@ -25,11 +80,14 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
 %               
 %   mess        Error message if ok==false; Empty string if ok==true.
 %
+% Note tat for the final fit parameters to be reliable, test that
+% (ok && converged) is true.
+%
 %
 % T.G.Perring Jan 2009:
 % ------------------------
 % Generalise to arbitrary data objects which have a certain set of methods defined on them (see
-% multifit.m for details)
+% notes elsewhere for details)
 %
 % T.G.Perring 11-Jan-2007:
 % ------------------------
