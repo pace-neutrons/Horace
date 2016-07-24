@@ -29,7 +29,7 @@ function [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
 %                   Parameter information as single fields
 %                   --------------------------------------
 %                   pp0     Parameter values, taking account of explicit binding ratios (column vector)
-%                   free    Logical array of which parameters are free (does NOT include
+%                   free    Logical array of which parameters are free and independent (does NOT include
 %                          parameters bound to a free parameter) (column vector)
 %                   bound   Logical array of which parameters are bound to another parameter (column vector)
 %                   ib      Parameter index to which a parameter is bound (=0 if not bound) (column vector)
@@ -54,13 +54,16 @@ function [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
 
 
 % ***
-% Option: if a fixed parameter is bound to a floating parameter, does that parameter
-% force the floating parameter to be fixed? Or does the free/fixed status of the 
-% floating parameter overrule the bound parameter's fixed/free status? We choose the latter.
-% That is, being bound takes precedence.
-% on the grounds that the user ought to have an idea of what are the floating
-% parameters.
+% There are two approaches to resolving free and bound parameters:
+% (1) If a fixed parameter is bound to a independent parameter, the independent
+%     parameter is forced to become fixed?
+% (2) The free/fixed status of the independent parameter overrules the bound
+%    parameter's fixed/free status?
+% Here we have chosen the latter, that is, being bound takes precedence
+% on the grounds that the user ought to have an idea of what are the
+% independent parameter, and would be surprised to have an implicit fixing.
 % ***
+
 
 % Return values if error
 % ----------------------
@@ -77,7 +80,7 @@ npptot = nptot + nbptot;
 
 pp0 = [cell2mat(cellfun(@parameter_get,obj.pin_,'UniformOutput',false)');...
     cell2mat(cellfun(@parameter_get,obj.bpin_,'UniformOutput',false)')];
-free = (obj.free_ & ~obj.bound_);
+free = (obj.free_ & ~obj.bound_);   % the variable free means 'independent and floating'
 bound = obj.bound_;
 ib = obj.bound_to_res_;
 
@@ -98,29 +101,55 @@ end
 
 % Determine if any parameters are unconstrained by the data
 % ---------------------------------------------------------
-nodata = cellfun(@(x)all(~x(:)), obj.msk_);
-if ~all(nodata)
-    [irow, icol, ind] = find(obj.bound_from_ + speye(size(npptot)));   % Array of bound parameter indicies, including self
-    [~, ifun] = ind2parfun (ind, np, nbp);
-    constrained = false(size(ifun));
+isdata = cellfun(@(x)any(x(:)), obj.msk_);
+if any(isdata)
+    % There are data in at least one of the data sets
+    ifun = replicate_iarray([1:numel(np),-1:-1:-numel(nbp)], [np,nbp]);     % function indicies of all parameters
+    constrained = false(npptot,1);  % array indicating which parameters are constrained by the data
     if obj.foreground_is_local_
-        constrained(ifun>0) = ~nodata(ifun>0);
+        constrained(ifun>0) = isdata(ifun(ifun>0));
     else
-        constrained(ifun==1) = true;   % as there is some data, a parameter of global function is constrained
+        constrained(ifun==1) = true;    % as there is some data, a parameter of global function is constrained
     end
     if obj.background_is_local_
-        constrained(ifun<0) = ~nodata(ifun<0);
+        constrained(ifun<0) = isdata(abs(ifun(ifun<0)));
     else
-        constrained(ifun==-1)=true;    % as there is some data, a parameter of global function is constrained
+        constrained(ifun==-1)=true;     % as there is some data, a parameter of global function is constrained
     end
-    constrained = sparse(irow,icol,double(constrained),npptot,npptot);
-    constrained = full(sum(constrained,1)>0)';  % true if parameter depends on the data
-    bad = free & ~constrained;
+    
+    bound_to_res = obj.bound_to_res_;
+    bound_to_res(~bound) = find(~bound);% resolved binding, including the concept of bound-to-self
+    constrained_res = accumarray (bound_to_res,constrained,[npptot,1]);
+    bad = free & ~constrained_res;
     [ok,mess] = get_bad_parameters_message(bad,np,nbp,'unconstrained by the data because dataset(s) that depend on it are empty or fully masked');
     if ~ok
         pf = pf_err; p_info = p_info_err; return
     end
+    
+% elseif ~all(nodata)
+%     % There are data in at least one of the data sets
+%     [irow, icol, ind] = find(obj.bound_from_ + speye(size(npptot)));   % Array of bound parameter indicies, including self
+%     [~, ifun] = ind2parfun (ind, np, nbp);
+%     constrained = false(size(ifun));
+%     if obj.foreground_is_local_
+%         constrained(ifun>0) = ~nodata(ifun>0);
+%     else
+%         constrained(ifun==1) = true;   % as there is some data, a parameter of global function is constrained
+%     end
+%     if obj.background_is_local_
+%         constrained(ifun<0) = ~nodata(ifun<0);
+%     else
+%         constrained(ifun==-1)=true;    % as there is some data, a parameter of global function is constrained
+%     end
+%     constrained = sparse(irow,icol,double(constrained),npptot,npptot);
+%     constrained = full(sum(constrained,1)>0)';  % true if parameter depends on the data
+%     bad = free & ~constrained;
+%     [ok,mess] = get_bad_parameters_message(bad,np,nbp,'unconstrained by the data because dataset(s) that depend on it are empty or fully masked');
+%     if ~ok
+%         pf = pf_err; p_info = p_info_err; return
+%     end
 else
+    % There are no data
     ok = false;
     mess = 'No data to be fitted - data sets are empty or all data has been masked';
     pf = pf_err; p_info = p_info_err; return
