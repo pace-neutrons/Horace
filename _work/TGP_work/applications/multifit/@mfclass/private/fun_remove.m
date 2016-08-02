@@ -1,6 +1,7 @@
 function obj = fun_remove (obj_in, isfore, ind)
 % Remove function handle(s) and parameter list(s)
 %
+%   >> obj = fun_remove (obj_in, isfore, 'all')
 %   >> obj = fun_remove (obj_in, isfore, ind)
 %
 % Input:
@@ -36,15 +37,13 @@ end
 % Update properties
 if ischar(ind) && strcmp(ind,'all')
     if isfore
-        nfun = numel(obj.fun_);
-        obj.fun_ = cell(1,nfun);
-        obj.pin_ = cell(1,nfun);
-        obj.np_  = zeros(1,nfun);
+        obj.fun_ = cell(1,0);
+        obj.pin_ = cell(1,0);
+        obj.np_  = zeros(1,0);
     else
-        nfun = numel(obj.bfun_);
-        obj.bfun_ = cell(1,nfun);
-        obj.bpin_ = cell(1,nfun);
-        obj.nbp_  = zeros(1,nfun);
+        obj.bfun_ = cell(1,0);
+        obj.bpin_ = cell(1,0);
+        obj.nbp_  = zeros(1,0);
     end
 else
     if isfore

@@ -34,7 +34,7 @@ function [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
 %                   bound   Logical array of which parameters are bound to another parameter (column vector)
 %                   ib      Parameter index to which a parameter is bound (=0 if not bound) (column vector)
 %                   ratio   Ratio of bound parameter to the free parameter (column vector)
-% 
+%
 %                   Parameter information as cell arrays
 %                   --------------------------------------
 %                   fore    Structure with foreground parameter information
@@ -42,15 +42,16 @@ function [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
 %
 %                   Each of these structures has fields that are cell arrays with same size
 %                   as the corresponding function handle array. The fields are:
-%                     p0      Cell array of column vectors of parameter values
-%                     pfree   Cell array of logical column vectors of free parameter values
-%                     pbound  Cell array of logical column vectors of bound parameter values
-%                     ipboundto       Cell array of column vectors of parameter indicies to which
-%                                    parameters are bound (zeros for parameters that are not bound)
-%                     ifuncboundto    Cell array of column vectors of function indicies to which
-%                                    parameters are bound (zeros for parameters that are not bound)
-%                                    Elements are <0 for foregraound functions, and >0 for
-%                                    background functions
+%                     p0            Cell array of column vectors of parameter values
+%                     pfree         Cell array of logical column vectors of free parameter values
+%                     pbound        Cell array of logical column vectors of bound parameter values
+%                     ipboundto     Cell array of column vectors of parameter indicies to which
+%                                   parameters are bound (zeros for parameters that are not bound)
+%                     ifuncboundto  Cell array of column vectors of function indicies to which
+%                                  parameters are bound (zeros for parameters that are not bound)
+%                                  Elements are <0 for foregraound functions, and >0 for
+%                                  background functions.
+%                     pratio        Cell array of column vectors of binding ratios
 
 
 % ***
@@ -73,14 +74,23 @@ pf_err = []; p_info_err = struct([]);
 % Get output arguments
 % --------------------
 np = obj.np_;
-nbp = obj.nbp_; 
+nbp = obj.nbp_;
 nptot = sum(np);
 nbptot = sum(nbp);
 npptot = nptot + nbptot;
+if npptot==0
+    ok = false; mess = 'There are no parameters in the fitting function(s)';
+    pf = pf_err; p_info = p_info_err; return
+end
+
 
 pp0 = [cell2mat(cellfun(@parameter_get,obj.pin_,'UniformOutput',false)');...
     cell2mat(cellfun(@parameter_get,obj.bpin_,'UniformOutput',false)')];
 free = (obj.free_ & ~obj.bound_);   % the variable free means 'independent and floating'
+if all(~free)
+    ok = false; mess = 'All parmeters are either bound or fixed - no parameters to fit';
+    pf = pf_err; p_info = p_info_err; return
+end
 bound = obj.bound_;
 ib = obj.bound_to_res_;
 
@@ -97,11 +107,13 @@ bad = bound & ~isfinite(ratio);
 if ~ok
     pf = pf_err; p_info = p_info_err; return
 end
+pp0(bound) = ratio(bound).*pp0(ib(bound));  % recompute starting values of any bound parameters
 
 
 % Determine if any parameters are unconstrained by the data
 % ---------------------------------------------------------
 isdata = cellfun(@(x)any(x(:)), obj.msk_);
+
 if any(isdata)
     % There are data in at least one of the data sets
     ifun = replicate_iarray([1:numel(np),-1:-1:-numel(nbp)], [np,nbp]);     % function indicies of all parameters
@@ -125,29 +137,6 @@ if any(isdata)
     if ~ok
         pf = pf_err; p_info = p_info_err; return
     end
-    
-% elseif ~all(nodata)
-%     % There are data in at least one of the data sets
-%     [irow, icol, ind] = find(obj.bound_from_ + speye(size(npptot)));   % Array of bound parameter indicies, including self
-%     [~, ifun] = ind2parfun (ind, np, nbp);
-%     constrained = false(size(ifun));
-%     if obj.foreground_is_local_
-%         constrained(ifun>0) = ~nodata(ifun>0);
-%     else
-%         constrained(ifun==1) = true;   % as there is some data, a parameter of global function is constrained
-%     end
-%     if obj.background_is_local_
-%         constrained(ifun<0) = ~nodata(ifun<0);
-%     else
-%         constrained(ifun==-1)=true;    % as there is some data, a parameter of global function is constrained
-%     end
-%     constrained = sparse(irow,icol,double(constrained),npptot,npptot);
-%     constrained = full(sum(constrained,1)>0)';  % true if parameter depends on the data
-%     bad = free & ~constrained;
-%     [ok,mess] = get_bad_parameters_message(bad,np,nbp,'unconstrained by the data because dataset(s) that depend on it are empty or fully masked');
-%     if ~ok
-%         pf = pf_err; p_info = p_info_err; return
-%     end
 else
     % There are no data
     ok = false;
@@ -156,11 +145,36 @@ else
 end
 
 
+% Same information about binding repackaged by function
+% -----------------------------------------------------
+[fore.p0, bkgd.p0] = array_to_p_bp (pp0, np, nbp);              % Cell array of column vectors with parameter values
+[fore.pfree, bkgd.pfree] = array_to_p_bp (free, np, nbp);       % Cell array of logical column vectors of which parameters are free
+[fore.pbound, bkgd.pbound] = array_to_p_bp (bound, np, nbp);    % Cell array of logical column vectors of which parameters are bound
+
+% Note the sign inversion below of function indicies (foreground==negative, background=positive)
+% as this was (and remains) the convention used in multifit_lsqr routines
+ipboundto = zeros(npptot,1);
+ifuncboundto = zeros(npptot,1);
+[ipboundto(bound), ifuncboundto(bound)] = ind2parfun (obj.bound_to_res_(bound), np, nbp);
+[fore.ipboundto, bkgd.ipboundto] = array_to_p_bp (ipboundto, np, nbp);
+[fore.ifuncboundto, bkgd.ifuncboundto] = array_to_p_bp (-ifuncboundto, np, nbp);
+
+[fore.pratio, bkgd.pratio] = array_to_p_bp (ratio, np, nbp);    % Cell array of column vectors of binding ratios for bound parameters
+
+
 % Return output
 % -------------
 pf = pp0(free);
 p_info = struct('np',np,'nbp',nbp,'nptot',nptot,'nbptot',nbptot,'npptot',npptot,...
-    'pp0',pp0,'free',free,'bound',bound,'ib',ib,'ratio',ratio);
+    'pp0',pp0,'free',free,'bound',bound,'ib',ib,'ratio',ratio,'fore',fore','bkgd',bkgd);
+
+
+%--------------------------------------------------------------------------------------------------
+function [p,bp]=array_to_p_bp(pp,np,nbp)
+% Convert to cell arrays of column vectors for foreground and background functions
+nptot=sum(np(:));
+p=reshape(mat2cell(pp(1:nptot),np(:),1),size(np));
+bp=reshape(mat2cell(pp(nptot+1:end),nbp(:),1),size(nbp));
 
 
 %--------------------------------------------------------------------------------------------------

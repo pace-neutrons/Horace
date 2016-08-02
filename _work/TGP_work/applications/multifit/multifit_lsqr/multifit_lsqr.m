@@ -44,7 +44,7 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
 %               =0 for no printing to command window 
 %               =1 prints iteration summary to command window 
 %               =2 additionally prints parameter values at each iteration 
-%               =3 additionally listd which datasets were computed for the
+%               =3 additionally lists which datasets were computed for the
 %                  foreground and background functions. Diagnostic tool.
 %
 %   fcp         Fit control parameters:
@@ -177,6 +177,10 @@ if ~perform_fit
     % -----------------------------------------------------------------------------------
     % Case of solely evaluation of chi-squared at input set of parameters
     % -----------------------------------------------------------------------------------
+    % This should always give the same result as niter=0. The only difference is that
+    % if fitting with niter=0 then a warning message will be returned saying the fit
+    % didn't converge
+    
     if listing>2, disp(' Function evaluation:'), end
     f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,false,listing);
     resid=wt.*(yval-f);

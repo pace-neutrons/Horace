@@ -45,8 +45,8 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 %       plist<n> = {@func<n-1>, plist<n-1>, c1<n>, c2<n>,...}
 %                :
 %       plist<1> = {@func<0>, plist<0>, c1<1>, c2<1>,...}
-%       plist<0> = {p, c1<0>, c2<0>,...}    % p is a numeric vector with at least one element
-%             or =  p                       % p is a numeric vector with at least one element
+%       plist<0> = {p, c1<0>, c2<0>,...}    % p is [] or a numeric vector with at least one element
+%             or =  p                       % p is [] or a numeric vector with at least one element
 %
 %     This defines a recursive form for the parameter list that it is assumed
 %     the functions in argument func accept:
@@ -203,7 +203,7 @@ function [ok,np]=plist_parse_single(plist)
 %
 % Input:
 % ------
-%   plist   Parameter list for a single function
+%   plist   Parameter list for a single function (can have zero number of parameters)
 %
 % Output:
 % -------
@@ -252,11 +252,11 @@ np=[];
 if iscell(plist) && numel(plist)>=2
     if isa(plist{1},'function_handle')
         [ok,np]=plist_parse_single(plist{2});
-    elseif isvector(plist{1}) && isnumeric(plist{1}) && numel(plist{1})>0
+    elseif isnumeric(plist{1}) && (isempty(plist{1}) || (numel(size(plist{1}))==2 && size(plist{1},1)==1))
         ok=true;
         np=numel(plist{1});
     end
-elseif isvector(plist) && isnumeric(plist) && numel(plist)>0
+elseif isnumeric(plist) && (isempty(plist) || (numel(size(plist))==2 && size(plist,1)==1))
     ok=true;
     np=numel(plist);
 end

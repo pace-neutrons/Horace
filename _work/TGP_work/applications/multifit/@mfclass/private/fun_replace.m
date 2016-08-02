@@ -1,5 +1,5 @@
 function obj = fun_replace (obj_in, isfore, ind, varargin)
-% Replace function(s) and parameter list(s) with empty handles and lists
+% Replace function(s) and parameter list(s)
 %
 %   >> obj = fun_replace (obj_in, isfore, 'all')
 %   >> obj = fun_replace (obj_in, isfore, ind)

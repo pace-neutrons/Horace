@@ -6,3 +6,5 @@ multifit_store_state
 
 % Clear stored calculated function values and associated stored variables
 multifit_lsqr_func_eval
+
+disp('Cleanup')

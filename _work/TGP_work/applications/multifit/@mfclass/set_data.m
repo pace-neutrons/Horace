@@ -12,9 +12,6 @@ function obj = set_data(obj,varargin)
 % when the functions are set.
 
 
-% Trivial case of no input arguments; just return without doing anything
-if numel(varargin)==0, return, end
-
 % Find optional arguments
 keyval_def = struct('keep',[],'remove',[],'mask',[]);
 [args,keyval,~,~,ok,mess] = parse_arguments (varargin, keyval_def);

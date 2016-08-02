@@ -22,9 +22,25 @@ else
     end
 end
 
-% Change status
-% Clear functions
-S_fun = fun_replace (obj.get_fun_props_, isfore, 'all');
+
+% Clear functions, and insert dummy ones as required
+S_fun = fun_remove (obj.get_fun_props_, isfore, 'all');
+if set_local    % *** same algorithm as fun_init - should make common
+    nfun = obj.ndatatot_;
+else
+    if obj.ndatatot_==0
+        nfun = 0;
+    else
+        nfun = 1;
+    end
+end
+S_fun = fun_insert (S_fun, isfore, zeros(1,nfun));
+if isfore
+    S_fun.foreground_is_local_ = set_local;
+else
+    S_fun.background_is_local_ = set_local;
+end
+
 
 % Clear any constraints that involve the functions to be cleared
 np_ = obj.np_;
@@ -40,7 +56,6 @@ if set_local
             S_con = constraints_remove(obj.get_constraints_props_, np_, nbp_, [], 'all');
         end
     end
-    
 else
     % Currently local, changing to global
     if isfore
@@ -52,9 +67,10 @@ else
             S_con = constraints_remove(obj.get_constraints_props_, np_, nbp_,  [], 'all');
         end
     end
-    
 end
 
 % Rebuild the object
 obj = obj.set_fun_props_ (S_fun);
-obj = obj.set_constraints_props_ (S_con);
+if exist('S_con','var')   % S_con will only exist if there was originally a function defined that is now cleared
+    obj = obj.set_constraints_props_ (S_con);
+end

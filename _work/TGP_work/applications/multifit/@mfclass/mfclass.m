@@ -143,8 +143,37 @@ classdef mfclass
         % -------------------------
         % Output control properties
         % -------------------------
-        % Level at which messages are output: 0,1,2
-        info_level_ = 0;
+        % OPtions structure. Fields are:
+        % listing                   Level at which messages are output: 0,1,2
+        % fit_control_parameters    [rel_step, max_iter, tol_chisqr]
+        options_ = struct([]);
+        
+        % -------------------------
+        % Fit/simulation status
+        % -------------------------
+        % Calculated values at initla parameters (simulation) or fit values (fit)
+        data_out_ = [];
+        
+        % True if contains result of a fit
+        is_fit_ = false;
+        
+        % Truer if contains the result of a simulation
+        is_simulation_ = false;
+        
+        % Floating parameter best fit values
+        pfit_ = [];
+        
+        % Standard deviations on floating parameters
+        sig_ = [];
+        
+        % Correlation matrix for floating parmaeters
+        cor_ = [];
+        
+        % Normalised chi-squared
+        chisqr_
+        
+        % Fit converged (logical)
+        converged_
         
     end
     
@@ -168,6 +197,8 @@ classdef mfclass
         bpin
         bpfree
         bpbind
+        
+        options
     end
     
     properties
@@ -189,6 +220,7 @@ classdef mfclass
             catch ME
                 error(ME.message)
             end
+            obj = set_option(obj,'-default');
         end
         
         %------------------------------------------------------------------
@@ -324,6 +356,10 @@ classdef mfclass
                 obj.ratio_res_(range,:)'];
         end
         
+        function out = get.options(obj)
+            out = obj.options_;
+        end
+        
         %------------------------------------------------------------------
     end
     
@@ -345,7 +381,7 @@ classdef mfclass
         [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
         
-        %[ok, mess, pf, p_info] = ptrans_initialise_ (obj)
+        [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
         
     end
     

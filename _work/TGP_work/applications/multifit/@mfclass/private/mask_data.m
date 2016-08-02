@@ -45,6 +45,7 @@ function [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,mask)
 if isempty(msk_in), msk_in=cell(size(w)); end
 sz=size(w);
 msk_out = cell(size(w));
+ok=true;
 mess='';
 
 for i=1:numel(w)

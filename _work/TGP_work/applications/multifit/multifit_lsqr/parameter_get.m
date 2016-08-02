@@ -1,5 +1,5 @@
 function p = parameter_get(plist)
-% Get the numeric array of parameters in a valid parameter list
+% Get the numeric array of parameters in a valid parameter list as a column vector
 %
 %   >> p = parameter_get(plist)
 %
@@ -29,6 +29,10 @@ else
     p=plist;
 end
 
-if ~iscolvector(p)
-    p=p(:);
+if ~isempty(p)
+    if ~iscolvector(p)
+        p=p(:);
+    end
+else
+    p=zeros(0,1);     % column of zero length
 end

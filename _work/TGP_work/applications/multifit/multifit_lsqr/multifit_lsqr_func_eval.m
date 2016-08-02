@@ -1,4 +1,5 @@
-function [ycalc,varcalc]=multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info,store_vals,listing)
+function [ycalc,varcalc]=...
+    multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info,store_vals,listing)
 % Calculate the intensities and variances for the data in multifit.
 %
 %   >> [ycalc,varcalc]=multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info,store_vals)
@@ -11,13 +12,16 @@ function [ycalc,varcalc]=multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist
 %                 - an x-y-e triple with w(i).x a cell array of arrays, one
 %                  for each x-coordinate,
 %                 - a scalar object
+%               All bad points will have been masked from an x-y-e triple
+%               Objects will have their bad points internally masked too.
 %
-%   xye         Logical array, size(w): indicating which data are x-y-e triples (true),
-%              or objects (false)
+%   xye         Logical array, size(w): indicating which data are x-y-e
+%              triples (true) or objects (false)
 %
 %   func        Handles to foreground functions:
-%                 - a single function handle
-%                 - cell array of function handles
+%                 - A cell array with a single function handle (which will
+%                  be applied to all the data sets);
+%                 - Cell array of function handles, one per data set.
 %               Some, but not all, elements of the cell array can be empty.
 %              Empty elements are interpreted as not having a function to
 %              evaluate for the corresponding data set.
@@ -28,7 +32,8 @@ function [ycalc,varcalc]=multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist
 %
 %   bkdlist     Cell array of valid parameter lists, one list per background function.
 %
-%   pf          Free parameter initial values
+%   pf          Free parameter values (that is, the independently 
+%              varying parameters)
 %
 %   p_info      Structure with information needed to transform from pf to the
 %              parameter values needed for function evaluation
@@ -36,13 +41,17 @@ function [ycalc,varcalc]=multifit_lsqr_func_eval(w,xye,func,bkdfunc,plist,bplist
 %   store_vals  Logical scalar: =true if calculated signal and variance on
 %              on calculation are to be stored; =false otherwise
 %
-%   listing     Control diagnostic output to the screen if >2 then list which
-%              datasets were computed for the foreground and background functions
+%   listing     Control diagnostic output to the screen:
+%                - if >=3 then list which datasets were computed for the
+%                  foreground and background functions
 %
 % Output:
 % -------
 %   ycalc       Calculated signal on those data points to be retained in fitting
+%               A column vector of all the points.
+%
 %   varcalc     Estimated variance on the calculated values
+%               A column vector of all the points.
 %
 %
 % NOTES:

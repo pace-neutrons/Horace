@@ -1,6 +1,16 @@
-- Does multifit_lsqr cope with both foreground and background functions no present?
-  THis is a possible setting: should set the evaluated value to zero.
+- fun_replace, fun_remove; constraints_replace etc. are not obviously logically named
+  (or even correctly used!)
+
+- function_set_scope uses the same algorithm as fun_init to determine how many 
+  functions to set. SHould combine in one. In fact, as these are the only two
+  func functions that change global/local status, they are rather similar in that
+  they initialise.
   
+- Really need to overhaul all the 'set' functions as they are not entirely logical
+  and I dont know if they are all mutually consistent in how they set objects.
+  Must overhaul definition of object status at each point.
+
+
   
 Multifit_lsqr:
 =================
@@ -8,7 +18,9 @@ Multifit_lsqr:
   as there is a perform_fit option in multifit_lsqr; this would mean that it could be
   made the sole interface function.
 
-
+- Does multifit_lsqr cope with both foreground and background functions no present?
+  THis is a possible setting: should set the evaluated value to zero.
+  
   
 Constraints:
 ===============
@@ -33,14 +45,13 @@ Functions that have complex operations that might be better optimised
 %========================================================================================
 		BUGS
 %========================================================================================
-Global parameter bound to implicit local parameter:
+If have set several datasets, then set_local_foreground shoudl give dummy functions that 
+number the same as the number of datasets.
 
-	kk=mfclass(warr3);
 
-	kk=kk.set_fun(@noggle,[1,100],[1,0]);
-	kk=kk.set_bfun(@toot,[1,100,24,2],[0,1,1,0]);
 
-	kk=kk.add_bind(2,-1);   % why does this work? (is global foreground)
+
+
 
 
 

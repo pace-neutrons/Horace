@@ -52,7 +52,7 @@ else
         keep = true(size(obj.data_{item}));
         keep(ix)=false;
         obj.data_{item} = obj.data_{item}(keep);
-        obj.ndim_(item) = obj.ndim_(keep);
+        obj.ndim_{item} = obj.ndim_{item}(keep);
     end
     [obj.ndata_,obj.ndatatot_,obj.item_,obj.ix_] = data_indicies(obj.ndim_);
     keepw =  true(size(obj.w_));
