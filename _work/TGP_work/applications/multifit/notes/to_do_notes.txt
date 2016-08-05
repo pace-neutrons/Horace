@@ -10,7 +10,11 @@
   and I dont know if they are all mutually consistent in how they set objects.
   Must overhaul definition of object status at each point.
 
-
+- simulation: background, foreground options, option to use fit parameters (either
+  as a second argument from an object, or store results of a fit). Also return chisqr.
+  ptrans_initialise to return 'calculable' - true if function can be calculated but
+  not fitted. repackage_output_data to cope with no free parameters.
+  
   
 Multifit_lsqr:
 =================
@@ -18,8 +22,14 @@ Multifit_lsqr:
   as there is a perform_fit option in multifit_lsqr; this would mean that it could be
   made the sole interface function.
 
-- Does multifit_lsqr cope with both foreground and background functions no present?
-  THis is a possible setting: should set the evaluated value to zero.
+- Does multifit_lsqr cope with both foreground and background functions not present?
+  This is a possible setting: should set the evaluated value to zero.
+  
+- repackage_output_data: optimisation is to handle case of empty msk argument 
+  meaning no masking. Maybe extend to mfclass property msk_ too?
+  
+- repackage_output_data: doesn't work with data sets with no signal. Need to
+  check all other routines for the same too.
   
   
 Constraints:

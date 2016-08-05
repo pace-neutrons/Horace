@@ -1,6 +1,12 @@
 function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
     multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
-% Perform least-squares minimissation
+% Perform least-squares minimisation
+%
+%   >> [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
+%       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing)
+%
+%   >> [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
+%       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp)
 %
 %   >> [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
 %       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
@@ -56,7 +62,7 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
 %                   [Default: 1e-3]
 %
 %   perform_fit Logical scalar = true if a fit is required, =false if
-%              just need the value of chisqr.
+%              just need the value of chisqr. [Default: True]
 %
 %
 % Output:
@@ -155,25 +161,11 @@ if ~exist('listing','var') || isempty(listing)
     listing=0;
 end
 
-% Set fit control parameters
-if ~exist('fcp','var')
-    fcp=[0.0001 20 0.001];
-end
-dp=fcp(1);      % derivative step length
-niter=fcp(2);   % maximum number of iterations
-tol=fcp(3);     % convergence criterion
-if abs(dp)<1e-12
-    ok=false; mess='Derivative step length must be greater or equal to 10^-12'; return
-end
-if niter<0
-    ok=false; mess='Number of iterations must be >=0'; return
-end
-
 
 % -----------------------------------------------------------------------------------
 % Perform fit (or evaulation of chisqr 
 % -----------------------------------------------------------------------------------
-if ~perform_fit
+if exist('perform_fit','var') && ~perform_fit
     % -----------------------------------------------------------------------------------
     % Case of solely evaluation of chi-squared at input set of parameters
     % -----------------------------------------------------------------------------------
@@ -192,6 +184,20 @@ else
     % -----------------------------------------------------------------------------------
     % Case of parameter optimisation
     % -----------------------------------------------------------------------------------
+    
+    % Set fit control parameters
+    if ~exist('fcp','var')
+        fcp=[0.0001 20 0.001];
+    end
+    dp=fcp(1);      % derivative step length
+    niter=fcp(2);   % maximum number of iterations
+    tol=fcp(3);     % convergence criterion
+    if abs(dp)<1e-12
+        ok=false; mess='Derivative step length must be greater or equal to 10^-12'; return
+    end
+    if niter<0
+        ok=false; mess='Number of iterations must be >=0'; return
+    end
 
     % Output to command window
     if listing~=0, fit_listing_header(listing,niter); end

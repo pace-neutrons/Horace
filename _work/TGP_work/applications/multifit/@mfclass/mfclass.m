@@ -60,7 +60,7 @@ classdef mfclass
         
         % Cell array of datasets (row) that contain repackaged data: every entry
         % is either
-        %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for 
+        %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for
         %     each x-coordinate,
         %   - a scalar object
         w_ = {};
@@ -70,11 +70,11 @@ classdef mfclass
         % corresponding data set
         msk_ = {};
         
-%         % Cell array of masked datasets (row): every entry is either
-%         %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for 
-%         %     each x-coordinate,
-%         %   - a scalar object
-%         wmask_ = {};
+        %         % Cell array of masked datasets (row): every entry is either
+        %         %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for
+        %         %     each x-coordinate,
+        %         %   - a scalar object
+        %         wmask_ = {};
         
         % -------------------
         % Function properties
@@ -108,7 +108,7 @@ classdef mfclass
         % Row vector of the number of numeric parameters for each background function.
         % If a function is empty, then corresponding element nf nbp_ is 0
         nbp_ = zeros(1,0);
-                
+        
         % --------------------------------
         % Parameter constraints properties
         % --------------------------------
@@ -138,7 +138,7 @@ classdef mfclass
         
         % Column vector of binding ratios resolved to account for a chain
         % of bindings
-        ratio_res_ = zeros(0,1);        
+        ratio_res_ = zeros(0,1);
         
         % -------------------------
         % Output control properties
@@ -148,33 +148,6 @@ classdef mfclass
         % fit_control_parameters    [rel_step, max_iter, tol_chisqr]
         options_ = struct([]);
         
-        % -------------------------
-        % Fit/simulation status
-        % -------------------------
-        % Calculated values at initla parameters (simulation) or fit values (fit)
-        data_out_ = [];
-        
-        % True if contains result of a fit
-        is_fit_ = false;
-        
-        % Truer if contains the result of a simulation
-        is_simulation_ = false;
-        
-        % Floating parameter best fit values
-        pfit_ = [];
-        
-        % Standard deviations on floating parameters
-        sig_ = [];
-        
-        % Correlation matrix for floating parmaeters
-        cor_ = [];
-        
-        % Normalised chi-squared
-        chisqr_
-        
-        % Fit converged (logical)
-        converged_
-        
     end
     
     properties (Dependent)
@@ -182,7 +155,7 @@ classdef mfclass
         w       % *** get rid of for release
         msk     % *** get rid of for release
         wmask   % *** get rid of for release
-        data_out% *** get rid of for release
+        datamask% *** get rid of for release
         
         local_foreground
         global_foreground
@@ -190,7 +163,7 @@ classdef mfclass
         pin
         pfree
         pbind
-
+        
         local_background
         global_background
         bfun
@@ -199,6 +172,9 @@ classdef mfclass
         bpbind
         
         options
+        
+        data_out
+        
     end
     
     properties
@@ -230,25 +206,25 @@ classdef mfclass
             isfore = true;
             obj = function_set_scope_ (obj, isfore, val);
         end
-
+        
         function obj = set.local_background(obj,val)
             if ~islognumscalar(val), error('local_background must be a logical scalar'), end
             isfore = false;
             obj = function_set_scope_ (obj, isfore, val);
         end
-
+        
         function obj = set.global_foreground(obj,val)
             if ~islognumscalar(val), error('global_foreground must be a logical scalar'), end
             isfore = true;
             obj = function_set_scope_ (obj, isfore, val);
         end
-
+        
         function obj = set.global_background(obj,val)
             if ~islognumscalar(val), error('global_background must be a logical scalar'), end
             isfore = false;
             obj = function_set_scope_ (obj, isfore, val);
         end
-
+        
         %------------------------------------------------------------------
         % Get methods
         function out = get.data(obj)
@@ -276,7 +252,7 @@ classdef mfclass
             end
         end
         
-        function out = get.data_out(obj)   % *** get rid of for release
+        function out = get.datamask(obj)   % *** get rid of for release
             tf = logical(obj.keep_only_unmasked);
             out = repackage_output_datasets(obj.data_, obj.wmask, obj.msk_, tf);
             if numel(obj.w_)==1 && numel(obj.data_)==3
@@ -364,12 +340,12 @@ classdef mfclass
     end
     
     methods (Access = private)
-        obj = set_fun_props_ (obj, S)       
+        obj = set_fun_props_ (obj, S)
         obj = set_constraints_props_ (obj, S)
         
         S = get_fun_props_ (obj)
         S = get_constraints_props_ (obj)
-            
+        
         obj = function_set_scope_(obj, isfore, set_local)
         
         [ok, mess, obj] = set_fun_private_ (obj, isfore, args)

@@ -15,7 +15,7 @@ function data_out = repackage_output_datasets(data, w, msk, keep_only_unmasked)
 %
 %               This data is used as the template to unpack the contents of wout
 %
-%   wout        Cell array of datasets (row) that contain repackaged data:
+%   w           Cell array of datasets (row) that contain repackaged data:
 %               every entry is either
 %                - an x-y-e triple with wout{i}.x a cell array of arrays,
 %                  one for each x-coordinate,
@@ -24,7 +24,18 @@ function data_out = repackage_output_datasets(data, w, msk, keep_only_unmasked)
 %   msk         Cell array (row) of mask arrays, one per data set. 
 %               Same size as signal array of corresponding element in data
 %
-%   keep_only_unmasked  Keep only unmasked data points
+%   keep_only_unmasked  Keep only unmasked data points. This option is used to
+%                       determine how x-y-e data (i.e. non-object data) is
+%                       returned:
+%                       - if true, then if there are any masked data points
+%                        they are removed and (i) the signal and error arrays
+%                        are turned into columns, and (ii) if the x array(s)
+%                        are in the form of a cell array, each x array is turned
+%                        into a column; if a single array with outer dimension
+%                        the dimensionality, then the s array becomes a 2D array
+%                       - if false, then masked y values are filled with NaNs
+%                        and masked errors filled with zeros. The arrays shapes
+%                        are the same as the input data.
 %
 % Output:
 % -------
@@ -74,6 +85,9 @@ else
             error('Logic error: contact developers')
         end
         nbeg=nbeg+ndata;
+    end
+    if size(data)==1
+        data_out=data_out{1};
     end
 end
 

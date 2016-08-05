@@ -99,4 +99,15 @@ ssxarr2=[ssx1,ssx2];
 ssxarr3=[ssx1,ssx2,ssx3];
 
 
+% % Huge array of large datasets
+% % ----------------------------
+% nd=1000;
+% np=1e5;
+% zarr=repmat(IX_dataset_1d,1,nd);
+% for i=1:nd
+%     zarr(i)=IX_dataset_1d(sort(rand(1,np)),rand(1,np),rand(1,np));
+% end
+
+
+
 
