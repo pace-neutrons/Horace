@@ -19,7 +19,11 @@ function plist_new = parameter_set (plist, pnew)
 % Output:
 % -------
 %   plist_new   New parameter list, with the new array reshaped as the
-%               existing array if the number of elements are the same.
+%              existing array if the number of elements are the same -
+%              this applies even if both are empty.
+%               If the number of parameters is different, then reshape as
+%              a vector with the same orientation as the original, if it is
+%              a vector (selecting row in the case of a scalar).
 
 if iscell(plist) && ~isempty(plist)
     if isa(plist{1},'function_handle')

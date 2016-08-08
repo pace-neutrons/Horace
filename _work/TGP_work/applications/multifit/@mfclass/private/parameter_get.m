@@ -17,7 +17,8 @@ function p = parameter_get(plist)
 % Output:
 % -------
 %   p       The numeric array at the root of the parameter list,
-%          returned as a column vector
+%          returned as a column vector.
+%           If no parameters, then returned as zeros(0,1))
 
 if iscell(plist) && ~isempty(plist)
     if isa(plist{1},'function_handle')

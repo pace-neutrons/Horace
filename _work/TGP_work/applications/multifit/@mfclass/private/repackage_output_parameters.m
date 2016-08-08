@@ -1,4 +1,4 @@
-function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, converged, p_info)
+function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, converged, p_info, fore, bkgd)
 % Pack the output fit parameters into standard form
 %
 %   >> fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, converged, p_info, bkd)
@@ -18,6 +18,14 @@ function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, co
 %
 %   p_info      Structure with information needed to transform from pf to the
 %              parameter values needed for function evaluation
+%
+%   fore        True if at least one foreground function present; false otherwise
+%              (We can have functions with no parameters, so cannot use this
+%               to determine if the function names were given or not)
+%
+%   bkgd        True if at least one background function present; false otherwise
+%              (We can have functions with no parameters, so cannot use this
+%               to determine if the function names were given or not)
 %
 % Output:
 % -------
@@ -46,6 +54,13 @@ function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, co
 %                          If only one function, a cell array (row vector) of names
 %                          If more than one function: a row cell array of row vector cell arrays
 %
+%               Note that if all foreground functionns are missing, then the corresponding
+%               fields p, sig, pnames are missing. Similarly if all background functions are
+%               missing bp, bsig, bpnames are missing.
+%
+%               If the output is from a simulation rather than a fit, sig, bsig, corr are
+%               all zeros, and chisq = NaN.
+%
 %
 % Note about parameter names:
 % ---------------------------
@@ -63,7 +78,7 @@ nbp=p_info.nbp;
 nforefunc=numel(np);
 nbkdfunc=numel(nbp);
 
-if nforefunc>0
+if fore
     for i=1:numel(p_tmp)
         p_tmp{i}=p_tmp{i}';         % make a row vector
         psig_tmp{i}=psig_tmp{i}';   % make a row vector
@@ -77,7 +92,7 @@ if nforefunc>0
     end
 end
 
-if nbkdfunc>0
+if bkgd
     for i=1:numel(bp_tmp)
         bp_tmp{i}=bp_tmp{i}';       % make a row vector
         bsig_tmp{i}=bsig_tmp{i}';   % make a row vector
@@ -95,7 +110,7 @@ fitdata.corr=cor;
 fitdata.chisq=chisqr_red;
 fitdata.converged=converged;
 
-if nforefunc>0
+if fore
     if nforefunc==1
         fitdata.pnames=cell(1,np(1));
         for ip=1:np(1), fitdata.pnames{ip}=['p',num2str(ip)]; end
@@ -108,7 +123,7 @@ if nforefunc>0
     end
 end
 
-if nbkdfunc>0
+if bkgd
     if nbkdfunc==1
         fitdata.bpnames=cell(1,nbp(1));
         for ip=1:nbp(1), fitdata.bpnames{ip}=['p',num2str(ip)]; end

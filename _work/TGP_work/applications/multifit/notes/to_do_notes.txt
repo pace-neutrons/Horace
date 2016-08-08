@@ -6,8 +6,12 @@
   func functions that change global/local status, they are rather similar in that
   they initialise.
   
+- set_data etc.: fo the properties ndim_, ndat_, ndatatot_, item_, ix_ only
+  ndatatot_ is used widely. ndim_ doesn't seem to be used at all, ndata_, item_, ix_
+  are only used in remove_data and replace_data, so can be created there.
+  
 - Really need to overhaul all the 'set' functions as they are not entirely logical
-  and I dont know if they are all mutually consistent in how they set objects.
+  and I don't know if they are all mutually consistent in how they set objects.
   Must overhaul definition of object status at each point.
 
 - simulation: background, foreground options, option to use fit parameters (either
@@ -31,6 +35,8 @@ Multifit_lsqr:
 - repackage_output_data: doesn't work with data sets with no signal. Need to
   check all other routines for the same too.
   
+- ptrans_par and friends: do they work with no background or foreground functions?
+
   
 Constraints:
 ===============

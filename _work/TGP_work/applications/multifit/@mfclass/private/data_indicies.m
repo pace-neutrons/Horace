@@ -11,8 +11,20 @@ function [ndata,ndatatot,item,ix] = data_indicies(ndim)
 %
 % Output:
 % -------
-%   Properties as required by the data properties 
-
+%   ndata   Row vector with number of datasets in each item in the cell array
+%          of datasets.
+%           If no data, ndata = []
+%         
+%  ndatatot Total number of datasets (==sum(ndata_))
+%           If no data, ndatatot = 0
+%         
+%   item    Column vector with index of item in the cell array of datasets
+%           If no data, ndatatot = 0
+%         
+%   ix      Column vector with index within the item in the cell array of
+%          datasets
+%           If no data, ix = zeros(0,1)
+        
 if ~isempty(ndim)
     ndata = cellfun(@numel,ndim);
     

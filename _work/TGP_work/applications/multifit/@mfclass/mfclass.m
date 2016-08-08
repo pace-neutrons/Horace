@@ -82,8 +82,8 @@ classdef mfclass
         foreground_is_local_ = false;
         
         % Cell array of foreground function handles (row vector). If global function,
-        % one handle; if local, one handle per dataset. Missing functions are
-        % set to [].
+        % one handle; if local, one handle per dataset. If no datasets, no handle(s).
+        % Missing functions are set to [].
         fun_ = cell(1,0);
         
         % Cell array of the starting foreground function parameters (row vector).
@@ -97,8 +97,8 @@ classdef mfclass
         background_is_local_ = true;
         
         % Cell array of background function handles (row vector). If global function,
-        % one handle; if local, one handle per dataset. Missing functions are
-        % set to [].
+        % one handle; if local, one handle per dataset. If no datasets, no handle(s).
+        % Missing functions are set to [].
         bfun_ = cell(1,0);
         
         % Cell array of the starting background function parameters (row vector).
@@ -143,9 +143,13 @@ classdef mfclass
         % -------------------------
         % Output control properties
         % -------------------------
-        % OPtions structure. Fields are:
-        % listing                   Level at which messages are output: 0,1,2
-        % fit_control_parameters    [rel_step, max_iter, tol_chisqr]
+        % Options structure. Fields are:
+        %   listing                 Level at which messages are output: 0,1,2
+        %   fit_control_parameters  [rel_step, max_iter, tol_chisqr]
+        %   selected                Simulate only on fittable data in selected
+        %                          region
+        %   squeeze_xye             Remove points from simulation of x-y-e
+        %                          data where data is masked or not fittable
         options_ = struct([]);
         
     end
@@ -357,7 +361,7 @@ classdef mfclass
         [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
         
-        [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
+        %[ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
         
     end
     

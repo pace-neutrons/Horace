@@ -151,13 +151,18 @@ function [ok,mess,ndim,wout] = is_cell_xye(w)
 %
 %   ndim    Array with size equal to that of w with the dimensionality of
 %          each of the data sets.
+%           If not ok, then ndim=NaN(size(w))
 %
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x 
 %          coordinate.
+%           If not ok, then still a row cell array with one structure in each
+%          element
 
-if all(make_column(cellfun(@iscell,w))) && all(make_column(cellfun(@numel,w))==3)
-    % All elements of w are cell arrays length 3
+if numel(w)>0 && all(make_column(cellfun(@iscell,w))) && all(make_column(cellfun(@numel,w))==3)
+    % w is non-empty and all elements of w are cell arrays length 3
+    ok = true;
+    mess = '';
     ndim=NaN(size(w));
     wout=cell(1,numel(w));
     for i=1:numel(w)
@@ -176,7 +181,7 @@ else
     ok=false;
     mess='Data must have form {x,y,e} or {{x1,y1,e1}, {x2,y2,e2},...}';
     ndim=NaN(size(w));
-    wout=cell(1,numel(w));
+    wout=w(:)';
     
 end
 
@@ -222,10 +227,13 @@ function [ok,mess,ndim,wout] = is_struct_xye (w)
 %
 %   ndim    Array with size equal to that of w with the dimensionality of
 %          each of the data sets.
+%           If not ok, then ndim=NaN(size(w))
 %
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x 
 %          coordinate.
+%           If not ok, then still a row cell array with one structure in each
+%          element
 
 ok=false;
 ndim=NaN(size(w));
@@ -335,10 +343,13 @@ function [ok,mess,ndim,wout] = is_object_xye (w)
 %
 %   ndim    Array with size equal to that of w with the dimensionality of
 %          each of the data sets.
+%           If not ok, then ndim=NaN(size(w))
 %
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x 
 %          coordinate.
+%           If not ok, then still a row cell array with one structure in each
+%          element
 
 ndim=NaN(size(w));
 wout=num2cell(w(:)');

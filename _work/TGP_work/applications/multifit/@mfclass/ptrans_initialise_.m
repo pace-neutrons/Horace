@@ -1,15 +1,15 @@
-function [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
+function [ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
 % Make a structure to convert independent parameters to full set of parameters
 %
 %   >> [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
 %
-%
 % Output:
 % -------
-%   ok          =true if input arguments are valid, =false if not
-%   mess        Error message if not OK;
-%               Warning message if OK, but non-standard situation e.g. no
-%              free parameters (so function evaluation is possible, but not fitting)
+%   ok_sim      If input arguments are valid for simulation then = true; if not, =false
+%   ok_fit      If input arguments are valid for fitting then = true; if not, =false
+%              Note that ok_fit necessarily implies ok_sim.
+%   mess        If ~ok_sim, then error message why not possible to simulate
+%               If ~ok_fit, then error message why not possible to fit
 %   pf          Column vector of free parameter initial values. It is possible
 %              that all parameters will be fixed once the empty data sets have
 %              been analysed, in which case pf will be empty.
@@ -70,26 +70,25 @@ function [ok, mess, pf, p_info] = ptrans_initialise_ (obj)
 % ----------------------
 pf_err = []; p_info_err = struct([]);
 
-
 % Get output arguments
 % --------------------
+ok_sim = true;
+ok_fit = true;
+
 np = obj.np_;
 nbp = obj.nbp_;
 nptot = sum(np);
 nbptot = sum(nbp);
 npptot = nptot + nbptot;
-if npptot==0
-    ok = false; mess = 'There are no parameters in the fitting function(s)';
-    pf = pf_err; p_info = p_info_err; return
+if npptot==0 && ok_fit
+    ok_fit = false; mess = 'There are no parameters in any of the fitting function(s)';
 end
 
-
-pp0 = [cell2mat(cellfun(@parameter_get,obj.pin_,'UniformOutput',false)');...
+pp0 = [zeros(0,1); cell2mat(cellfun(@parameter_get,obj.pin_,'UniformOutput',false)');...     % enforce [0,1] if pin_,bpin_ empty
     cell2mat(cellfun(@parameter_get,obj.bpin_,'UniformOutput',false)')];
 free = (obj.free_ & ~obj.bound_);   % the variable free means 'independent and floating'
-if all(~free)
-    ok = false; mess = 'All parmeters are either bound or fixed - no parameters to fit';
-    pf = pf_err; p_info = p_info_err; return
+if all(~free) && ok_fit
+    ok_fit = false; mess = 'Every parameter is either bound or fixed - therefore no parameters to fit';
 end
 bound = obj.bound_;
 ib = obj.bound_to_res_;
@@ -103,8 +102,9 @@ ratio_given(no_ratio) = ratio_default(no_ratio);
 ratio(bound) = ratio_given;
 
 bad = bound & ~isfinite(ratio);
-[ok,mess] = get_bad_parameters_message(bad,np,nbp,'bound with non-finite ratio to another parameter');
-if ~ok
+[ok,mess_tmp] = get_bad_parameters_message(bad,np,nbp,'bound with non-finite ratio to another parameter');
+if ~ok && ok_sim
+    ok_sim = false; ok_fit = false; mess = mess_tmp;
     pf = pf_err; p_info = p_info_err; return
 end
 pp0(bound) = ratio(bound).*pp0(ib(bound));  % recompute starting values of any bound parameters
@@ -112,38 +112,34 @@ pp0(bound) = ratio(bound).*pp0(ib(bound));  % recompute starting values of any b
 
 % Determine if any parameters are unconstrained by the data
 % ---------------------------------------------------------
-isdata = cellfun(@(x)any(x(:)), obj.msk_);
-
-if any(isdata)
-    % There are data in at least one of the data sets
-    ifun = replicate_iarray([1:numel(np),-1:-1:-numel(nbp)], [np,nbp]);     % function indicies of all parameters
-    constrained = false(npptot,1);  % array indicating which parameters are constrained by the data
-    if obj.foreground_is_local_
-        constrained(ifun>0) = isdata(ifun(ifun>0));
+if ok_fit   % no point in testing if already not possible to perform a fit
+    isdata = cellfun(@(x)any(x(:)), obj.msk_);
+    if any(isdata)
+        % There are data in at least one of the data sets
+        ifun = replicate_iarray([1:numel(np),-1:-1:-numel(nbp)], [np,nbp]);     % function indicies of all parameters
+        constrained = false(npptot,1);  % array indicating which parameters are constrained by the data
+        if obj.foreground_is_local_
+            constrained(ifun>0) = isdata(ifun(ifun>0));
+        else
+            constrained(ifun==1) = true;    % as there is some data, a parameter of global function is constrained
+        end
+        if obj.background_is_local_
+            constrained(ifun<0) = isdata(abs(ifun(ifun<0)));
+        else
+            constrained(ifun==-1)=true;     % as there is some data, a parameter of global function is constrained
+        end
+        
+        bound_to_res = obj.bound_to_res_;
+        bound_to_res(~bound) = find(~bound);% resolved binding, including the concept of bound-to-self
+        constrained_res = accumarray (bound_to_res,constrained,[npptot,1]);
+        bad = free & ~constrained_res;
+        [ok_fit, mess] = get_bad_parameters_message(bad,np,nbp,'unconstrained by the data because dataset(s) that depend on it are empty or fully masked');
     else
-        constrained(ifun==1) = true;    % as there is some data, a parameter of global function is constrained
+        % There are no data
+        ok_fit = false;
+        mess = 'No data to be fitted - data sets are empty or all data has been masked';
     end
-    if obj.background_is_local_
-        constrained(ifun<0) = isdata(abs(ifun(ifun<0)));
-    else
-        constrained(ifun==-1)=true;     % as there is some data, a parameter of global function is constrained
-    end
-    
-    bound_to_res = obj.bound_to_res_;
-    bound_to_res(~bound) = find(~bound);% resolved binding, including the concept of bound-to-self
-    constrained_res = accumarray (bound_to_res,constrained,[npptot,1]);
-    bad = free & ~constrained_res;
-    [ok,mess] = get_bad_parameters_message(bad,np,nbp,'unconstrained by the data because dataset(s) that depend on it are empty or fully masked');
-    if ~ok
-        pf = pf_err; p_info = p_info_err; return
-    end
-else
-    % There are no data
-    ok = false;
-    mess = 'No data to be fitted - data sets are empty or all data has been masked';
-    pf = pf_err; p_info = p_info_err; return
 end
-
 
 % Same information about binding repackaged by function
 % -----------------------------------------------------

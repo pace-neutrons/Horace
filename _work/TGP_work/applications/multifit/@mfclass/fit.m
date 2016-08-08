@@ -73,7 +73,9 @@ if obj.ndatatot_ == 0
 end
 
 % Check that all functions are present
-if all(cellfun(@isempty,obj.fun_)) && all(cellfun(@isempty,obj.fun_))
+foreground_present = ~all(cellfun(@isempty,obj.fun_));
+background_present = ~all(cellfun(@isempty,obj.bfun_));
+if ~foreground_present && ~background_present
     ok = false; mess = 'No fit functions have been provided';
     if throw_error, error_message(mess), else return, end
 end
@@ -85,7 +87,7 @@ if ~ok
 end
 
 % Check that there are parameters and unmasked data to be fitted
-[ok, mess, pfin, p_info] = ptrans_initialise_ (obj);
+[~, ok, mess, pfin, p_info] = ptrans_initialise_ (obj);
 if ~ok,
     if throw_error, error_message(mess), else return, end
 end
@@ -120,20 +122,21 @@ end
 % obj.options_.selected==true.
 
 selected = obj.options_.selected;
-eval_foreground = true;
-eval_background = true;
+foreground_eval = true;
+background_eval = true;
 if selected
     wout = multifit_func_eval (wmask, xye, obj.fun_, obj.bfun_, obj.pin_, obj.bpin_,...
-        pf, p_info, eval_foreground, eval_background);
+        pf, p_info, foreground_eval, background_eval);
     squeeze_xye = obj.options_.squeeze_xye;
     data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
 else
     wout = multifit_func_eval (obj.w_, xye, obj.fun_, obj.bfun_, obj.pin_, obj.bpin_,...
-        pf, p_info, eval_foreground, eval_background);
+        pf, p_info, foreground_eval, background_eval);
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
     data_out = repackage_output_datasets (obj.data_, wout, msk_none, squeeze_xye);
 end
 
 % Package output fit results
-fitdata = repackage_output_parameters (pf, sig, cor, chisqr_red, converged, p_info);
+fitdata = repackage_output_parameters (pf, sig, cor, chisqr_red, converged, p_info,...
+    foreground_present, background_present);
