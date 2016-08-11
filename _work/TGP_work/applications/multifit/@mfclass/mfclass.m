@@ -154,12 +154,25 @@ classdef mfclass
         
     end
     
+    properties (Access=protected)
+        % Wrapper function for foreground functions: [] or function handle
+        fun_wrap_ = [];
+        
+        % Wrapper parameters for foreground wrap function: cell array (row)
+        p_wrap_ = {};
+
+        % Wrapper function for background functions [] or function handle
+        bfun_wrap_ = [];
+
+        % Wrapper parameters for background wrap function: cell array (row)
+        bp_wrap_ = {};
+    end
+    
     properties (Dependent)
         data
         w       % *** get rid of for release
         msk     % *** get rid of for release
         wmask   % *** get rid of for release
-        datamask% *** get rid of for release
         
         local_foreground
         global_foreground
@@ -181,28 +194,23 @@ classdef mfclass
         
     end
     
-    properties
-        keep_only_unmasked = false;  % *** get rid of for release
-    end
-    
-    properties (SetAccess = private)
-        wout
-        fitdata
-    end
-    
     methods
         %------------------------------------------------------------------
         % Constructor
+        %------------------------------------------------------------------
         function obj = mfclass(varargin)
             % Interpret input arguments as solely data
             try
                 obj = set_data(obj,varargin{:});
+                obj = set_option(obj,'-default');
+                obj = set_wrapped_functions_ (obj);
             catch ME
                 error(ME.message)
             end
-            obj = set_option(obj,'-default');
         end
         
+        %------------------------------------------------------------------
+        % Set/get methods: dependent properties
         %------------------------------------------------------------------
         % Set methods
         function obj = set.local_foreground(obj, val)
@@ -253,18 +261,6 @@ classdef mfclass
                 end
             else
                 out = obj.w_;
-            end
-        end
-        
-        function out = get.datamask(obj)   % *** get rid of for release
-            tf = logical(obj.keep_only_unmasked);
-            out = repackage_output_datasets(obj.data_, obj.wmask, obj.msk_, tf);
-            if numel(obj.w_)==1 && numel(obj.data_)==3
-                % x,y,e supplied as separate arguments; keep just y array
-                out = out{2};
-            elseif numel(out)==1
-                % Just one data item, so strip out from cell array
-                out = out{1};
             end
         end
         
@@ -343,7 +339,14 @@ classdef mfclass
         %------------------------------------------------------------------
     end
     
-    methods (Access = private)
+
+    methods (Access=protected)
+        obj = set_wrapped_functions_ (obj, varargin)
+        [fun, p, bfun, bp] = get_wrapped_functions_ (obj)
+    end
+    
+    
+    methods (Access=private)
         obj = set_fun_props_ (obj, S)
         obj = set_constraints_props_ (obj, S)
         

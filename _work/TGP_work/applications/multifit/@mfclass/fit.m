@@ -86,6 +86,9 @@ if ~ok
     if throw_error, error_message(mess), else return, end
 end
 
+% Get wrapped functions and parameters
+[fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj);
+
 % Check that there are parameters and unmasked data to be fitted
 [~, ok, mess, pfin, p_info] = ptrans_initialise_ (obj);
 if ~ok,
@@ -99,7 +102,7 @@ fcp = obj.options_.fit_control_parameters;
 perform_fit = true;
 
 [pf, sig, cor, chisqr_red, converged, ok, mess] =...
-    multifit_lsqr (wmask, xye, obj.fun_, obj.bfun_, obj.pin_, obj.bpin_, pfin, p_info,...
+    multifit_lsqr (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap, pfin, p_info,...
     listing, fcp, perform_fit);
 if ~ok
     if throw_error, error_message(mess), else return, end
@@ -125,12 +128,12 @@ selected = obj.options_.selected;
 foreground_eval = true;
 background_eval = true;
 if selected
-    wout = multifit_func_eval (wmask, xye, obj.fun_, obj.bfun_, obj.pin_, obj.bpin_,...
+    wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         pf, p_info, foreground_eval, background_eval);
     squeeze_xye = obj.options_.squeeze_xye;
     data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
 else
-    wout = multifit_func_eval (obj.w_, xye, obj.fun_, obj.bfun_, obj.pin_, obj.bpin_,...
+    wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         pf, p_info, foreground_eval, background_eval);
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking

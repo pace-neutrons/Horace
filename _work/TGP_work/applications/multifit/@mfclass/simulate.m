@@ -75,6 +75,9 @@ if ~foreground_present && ~background_present
     if throw_error, error_message(mess), else return, end
 end
 
+% Get wrapped functions and parameters
+[fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj);
+
 % Mask the data
 [wmask, msk_out, ok, mess] = mask_data_for_fit (obj.w_, obj.msk_);
 if ~ok
@@ -100,12 +103,12 @@ end
 xye = cellfun(@isstruct, obj.w_);
 selected = obj.options_.selected;
 if selected
-    wout = multifit_func_eval (wmask, xye, obj.fun_, obj.bfun_, obj.pin_, obj.bpin_,...
+    wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         pfin, p_info, foreground_eval, background_eval);
     squeeze_xye = obj.options_.squeeze_xye;
     data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
 else
-    wout = multifit_func_eval (obj.w_, xye, obj.fun_, obj.bfun_, obj.pin_, obj.bpin_,...
+    wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         pfin, p_info, foreground_eval, background_eval);
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
