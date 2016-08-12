@@ -33,6 +33,12 @@ classdef mfclass
         % ---------------
         % Data properties
         % ---------------
+        % mfcustom object
+        custom_ = [];
+        
+        % ---------------
+        % Data properties
+        % ---------------
         % Cell array (row) with input data as provided by user (i.e. elements
         % may be cell arrays of {x,y,e}, structure arrays, object arrays);
         % a special case is thee elements x, y, e.
@@ -154,20 +160,6 @@ classdef mfclass
         
     end
     
-    properties (Access=protected)
-        % Wrapper function for foreground functions: [] or function handle
-        fun_wrap_ = [];
-        
-        % Wrapper parameters for foreground wrap function: cell array (row)
-        p_wrap_ = {};
-
-        % Wrapper function for background functions [] or function handle
-        bfun_wrap_ = [];
-
-        % Wrapper parameters for background wrap function: cell array (row)
-        bp_wrap_ = {};
-    end
-    
     properties (Dependent)
         data
         w       % *** get rid of for release
@@ -201,9 +193,14 @@ classdef mfclass
         function obj = mfclass(varargin)
             % Interpret input arguments as solely data
             try
-                obj = set_data(obj,varargin{:});
+                if numel(varargin)>0 && isa(varargin{1},'mfcustom')
+                    obj.custom_ = varargin{1};
+                    obj = set_data(obj,varargin{2:end});
+                else
+                    obj.custom_ = mfcustom;
+                    obj = set_data(obj,varargin{:});
+                end
                 obj = set_option(obj,'-default');
-                obj = set_wrapped_functions_ (obj);
             catch ME
                 error(ME.message)
             end
@@ -339,13 +336,6 @@ classdef mfclass
         %------------------------------------------------------------------
     end
     
-
-    methods (Access=protected)
-        obj = set_wrapped_functions_ (obj, varargin)
-        [fun, p, bfun, bp] = get_wrapped_functions_ (obj)
-    end
-    
-    
     methods (Access=private)
         obj = set_fun_props_ (obj, S)
         obj = set_constraints_props_ (obj, S)
@@ -366,6 +356,7 @@ classdef mfclass
         
         %[ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
         
+        [fun, p, bfun, bp] = get_wrapped_functions_ (obj)
     end
     
 end

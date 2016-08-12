@@ -1,12 +1,15 @@
-function [ok, mess, ndim, wout] = is_valid_data (varargin)
+function [ok, mess, ndim, wout] = is_valid_data (class_name, varargin)
 % Check nature and validity of data type(s) to be fitted, and repackage in a standard form.
 %
 %   >> [ok, mess, ndim, wout] = is_valid_data                 % No data sets
-%   >> [ok, mess, ndim, wout] = is_valid_data (x, y, e)
-%   >> [ok, mess, ndim, wout] = is_valid_data (w1, w2, ...)
+%   >> [ok, mess, ndim, wout] = is_valid_data (class_name, x, y, e)
+%   >> [ok, mess, ndim, wout] = is_valid_data (class_name, w1, w2, ...)
 %
 % Input:
 % ------
+%   class_name  Name of class of objects. If blank, then generic input types
+%               are allowed; if given, then all data must be objects of this class.
+%
 %   Data to be fitted:
 %
 % Arrays x,y,e that describe a single dataset:
@@ -73,50 +76,74 @@ function [ok, mess, ndim, wout] = is_valid_data (varargin)
 %                   - a scalar object
 %
 %                   If not ok, wout=cell(1,0)
-        
-        
-narg=numel(varargin);
 
-if narg==3 && isnumeric(varargin{2}) && isnumeric(varargin{3})
-    % Check for possibility that there are three arguments x,y,e
-    ndim=cell(1,1);
-    [ok,mess,ndim{1},wout] = is_cell_xye(varargin);
-elseif narg>0
-    % General case
-    ndim=cell(1,narg);
-    wout=cell(1,narg);
-    str='';
-    for i=1:narg
-        if narg>1
-            str=['Data argument ',num2str(i),': '];
+
+narg=numel(varargin);
+if narg>0
+    if isempty(class_name)
+        % Generic data types allowed
+        if narg==3 && isnumeric(varargin{2}) && isnumeric(varargin{3})
+            % Check for possibility that there are three arguments x,y,e
+            ndim=cell(1,1);
+            [ok,mess,ndim{1},wout] = is_cell_xye(varargin);
+        else
+            % General case
+            ndim=cell(1,narg);
+            wout=cell(1,narg);
+            for i=1:narg
+                if iscell(varargin{i})
+                    [ok,mess,ndim{i},wout{i}] = is_cell_xye (varargin{i});
+                    if ~ok
+                        mess=['Cell array data: ',mess];
+                        break
+                    end
+                elseif isstruct(varargin{i})
+                    [ok,mess,ndim{i},wout{i}] = is_struct_xye (varargin{i});
+                    if ~ok
+                        mess=['Structure data: ',mess];
+                        break
+                    end
+                elseif isobject(varargin{i})
+                    [ok,mess,ndim{i},wout{i}] = is_object_xye (varargin{i});
+                    if ~ok
+                        mess=['Object array data: ',mess];
+                        break
+                    end
+                else
+                    ok=false;
+                    mess='Unrecognised dataset format';
+                    break
+                end
+            end
+            if ok
+                wout=horzcat(wout{:});
+            else
+                if narg>1, mess=['Data argument ',num2str(i),': ',mess]; end
+            end
         end
-        if iscell(varargin{i})
-            [ok,mess,ndim{i},wout{i}] = is_cell_xye (varargin{i});
-            if ~ok
-                mess=[str,'Cell array data: ',mess];
-                break
+    else
+        % Specific class required
+        if all(cellfun(@(x)isa(x,class_name),varargin))
+            ndim=cell(1,narg);
+            wout=cell(1,narg);
+            for i=1:narg
+                [ok,mess,ndim{i},wout{i}] = is_object_xye (varargin{i});
+                if ~ok
+                    mess=['Object array data: ',mess];
+                    break
+                end
             end
-        elseif isstruct(varargin{i})
-            [ok,mess,ndim{i},wout{i}] = is_struct_xye (varargin{i});
-            if ~ok
-                mess=[str,'Structure data: ',mess];
-                break
-            end
-        elseif isobject(varargin{i})
-            [ok,mess,ndim{i},wout{i}] = is_object_xye (varargin{i});
-            if ~ok
-                mess=[str,'Object array data: ',mess];
-                break
+            if ok
+                wout=horzcat(wout{:});
+            else
+                if narg>1, mess=['Data argument ',num2str(i),': ',mess]; end
             end
         else
             ok=false;
-            mess=[str,'Unrecognised dataset format'];
-            break
+            mess=['Data set(s) must all be object(s) of class ''',class_name,''''];
         end
     end
-    if ok
-        wout=horzcat(wout{:});
-    else
+    if ~ok
         ndim=cell(1,0);
         wout=cell(1,0);
     end
@@ -154,7 +181,7 @@ function [ok,mess,ndim,wout] = is_cell_xye(w)
 %           If not ok, then ndim=NaN(size(w))
 %
 %   wout    Cell array (row) of stuctures each with fields x,y,e
-%          where wout{i}.x is a cell array of arrays, one element for each x 
+%          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
 %           If not ok, then still a row cell array with one structure in each
 %          element
@@ -230,7 +257,7 @@ function [ok,mess,ndim,wout] = is_struct_xye (w)
 %           If not ok, then ndim=NaN(size(w))
 %
 %   wout    Cell array (row) of stuctures each with fields x,y,e
-%          where wout{i}.x is a cell array of arrays, one element for each x 
+%          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
 %           If not ok, then still a row cell array with one structure in each
 %          element
@@ -346,7 +373,7 @@ function [ok,mess,ndim,wout] = is_object_xye (w)
 %           If not ok, then ndim=NaN(size(w))
 %
 %   wout    Cell array (row) of stuctures each with fields x,y,e
-%          where wout{i}.x is a cell array of arrays, one element for each x 
+%          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
 %           If not ok, then still a row cell array with one structure in each
 %          element
@@ -357,7 +384,7 @@ wout=num2cell(w(:)');
 % Catch case of empty structure
 if numel(w)==0
     ok=false;
-    mess='empty structure';
+    mess='empty object';
     return
 end
 

@@ -47,7 +47,8 @@ else
 end
 
 % Check input data
-[ok, mess, ndim, w] = is_valid_data (args{:});
+class_name = obj.custom_.dataset_class;
+[ok, mess, ndim, w] = is_valid_data (class_name, args{:});
 if ~ok, error(mess), end
 if ~isempty(id) && numel(w)~=1  % case of replacing a single dataset
     error('A single dataset is expected, but more than one was given')

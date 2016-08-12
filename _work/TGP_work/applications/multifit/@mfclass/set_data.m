@@ -18,7 +18,8 @@ keyval_def = struct('keep',[],'remove',[],'mask',[]);
 if ~ok, error(mess), end
 
 % Check input data
-[ok, mess, ndim, w] = is_valid_data (args{:});
+class_name = obj.custom_.dataset_class;
+[ok, mess, ndim, w] = is_valid_data (class_name, args{:});
 if ~ok, error(mess), end
 
 % Check optional arguments
