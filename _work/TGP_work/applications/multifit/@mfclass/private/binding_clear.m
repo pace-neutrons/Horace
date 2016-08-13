@@ -38,6 +38,11 @@ function obj = binding_clear (obj_in, np_, nbp_, ipb, ifunb)
 % Fill output with default structure
 obj = obj_in;
 
+% Return if nothing to do
+if numel(ipb)==0
+    return
+end
+
 % Convert parameter indicies into linear list
 ibnd = parfun2ind (ipb, ifunb, np_, nbp_);
 

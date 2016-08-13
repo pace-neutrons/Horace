@@ -13,7 +13,7 @@ custom = obj.custom_;
 
 %--------------------------------------------------------------------------------------------------
 function [fun_out, p_out] = convert (fun, p, fun_wrap, p_wrap)
-if ~isempty(fun_wrap)
+if ~isempty(fun_wrap) && ~isempty(fun)
     fun_out = fun_wrap;
     p_out = [{fun, p}, p_wrap];
 else

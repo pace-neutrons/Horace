@@ -40,7 +40,8 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse(np,nbp,isfore,ifunb_def,b
 % Output:
 % -------
 %   ok          True if binding descriptor is valid
-%   mess        Error message if not ok; empty string if ok
+%   mess        Error message if not ok; empty string or warning/informational
+%              message if ok
 %   ipb         Parameter indicies within the functions for the bound parameters
 %              (column vector))
 %   ifunb       Function indicies for the bound parameterd (column vector):
@@ -92,6 +93,9 @@ elseif iscell(bnd)
         % Binding descriptors are not all cell arrays, so interpret as elements of one descriptor
         [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse_single...
             (np,nbp,isfore,ifunb_def,bnd);
+    end
+    if ok && nel==0
+        mess = 'No bindings left once instances of binding-to-self have been removed';
     end
     
 else

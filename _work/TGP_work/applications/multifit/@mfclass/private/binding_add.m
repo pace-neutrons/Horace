@@ -49,6 +49,13 @@ function [obj, ok, mess] = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifun
 % Fill output with default structure
 obj = obj_in;
 
+% Return if nothing to do
+if numel(ipb)==0
+    ok = true;
+    mess = '';
+    return
+end
+
 % Convert parameter indicies into linear lists
 iind = parfun2ind (ipf, ifunf, np_, nbp_);    % independent parameters (column vector)
 ibnd = parfun2ind (ipb, ifunb, np_, nbp_);    % parameter which will be bound (column vector)

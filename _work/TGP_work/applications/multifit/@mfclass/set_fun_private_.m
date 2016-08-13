@@ -46,6 +46,7 @@ else
     [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse(obj.np_,np,isfore,ifun,pbind);
 end
 if ~ok, return, end
+if ~isempty(mess), disp(mess), end
 
 % All arguments are valid, so populate the output object
 % ------------------------------------------------------
