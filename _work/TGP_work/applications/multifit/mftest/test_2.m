@@ -2,8 +2,10 @@
 % -------------------------
 
 % Assumes have created a data file
-S=load('testdata_multifit_1.mat');
+S=load('./data/testdata_multifit_1.mat');
 
+
+%--------------------------------------------------------------------------------------------------------------------
 SS.warr3 = [shift(S.w1,10),shift(S.w2,30),shift(S.w3,60)];
 
 

@@ -1,5 +1,5 @@
-classdef mfcustom
-    % MFCUSTOM object
+classdef mfclass_wrapfun
+    % mfclass_wrapfun object
     %
     % Initialise customisation properties for mfclass
     
@@ -34,12 +34,12 @@ classdef mfcustom
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = mfcustom(varargin)
-            % Create mfcustom object:
+        function obj = mfclass_wrapfun(varargin)
+            % Create mfclass_wrapfun object:
             %
-            %   >> obj = mfcustom
-            %   >> obj = mfcustom (dataset_class)
-            %   >> obj = mfcustom (dataset_class, fun_wrap, p_wrap, bfun_wrap, b_wrap)
+            %   >> obj = mfclass_wrapfun
+            %   >> obj = mfclass_wrapfun (dataset_class)
+            %   >> obj = mfclass_wrapfun (dataset_class, fun_wrap, p_wrap, bfun_wrap, b_wrap)
             
             if numel(varargin)>0
                 obj.dataset_class = varargin{1};

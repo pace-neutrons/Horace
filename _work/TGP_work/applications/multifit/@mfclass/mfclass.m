@@ -26,16 +26,18 @@ classdef mfclass
     % In addition, all fit functions must be class methods, or a wrapper function must
     % be provided.
     
+    properties (Access=protected)
+        % --------------------------------
+        % Data class and function wrapping
+        % --------------------------------
+        % mfclass_wrapfun object
+        wrapfun_ = [];
+    end
+    
     properties (Access=private, Hidden=true)
         % Stored properties - but kept private and accessible only through
         % public dependent properties
-        
-        % ---------------
-        % Data properties
-        % ---------------
-        % mfcustom object
-        custom_ = [];
-        
+        %
         % ---------------
         % Data properties
         % ---------------
@@ -182,8 +184,6 @@ classdef mfclass
         
         options
         
-        data_out
-        
     end
     
     methods
@@ -193,11 +193,11 @@ classdef mfclass
         function obj = mfclass(varargin)
             % Interpret input arguments as solely data
             try
-                if numel(varargin)>0 && isa(varargin{1},'mfcustom')
-                    obj.custom_ = varargin{1};
+                if numel(varargin)>0 && isa(varargin{1},'mfclass_wrapfun')
+                    obj.wrapfun_ = varargin{1};
                     obj = set_data(obj,varargin{2:end});
                 else
-                    obj.custom_ = mfcustom;
+                    obj.wrapfun_ = mfclass_wrapfun;
                     obj = set_data(obj,varargin{:});
                 end
                 obj = set_option(obj,'-default');

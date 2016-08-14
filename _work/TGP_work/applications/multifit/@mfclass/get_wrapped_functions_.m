@@ -5,10 +5,10 @@ function [fun, p, bfun, bp] = get_wrapped_functions_ (obj)
 %
 % Functions that are not defined are not wrapped
 
-custom = obj.custom_;
-[fun, p] = cellfun(@(x,y)convert(x,y,custom.fun_wrap,custom.p_wrap), obj.fun_, obj.pin_,...
+wrapfun = obj.wrapfun_;
+[fun, p] = cellfun(@(x,y)convert(x,y,wrapfun.fun_wrap,wrapfun.p_wrap), obj.fun_, obj.pin_,...
     'uniformOutput', false);
-[bfun, bp] = cellfun(@(x,y)convert(x,y,custom.bfun_wrap,custom.bp_wrap), obj.bfun_, obj.bpin_,...
+[bfun, bp] = cellfun(@(x,y)convert(x,y,wrapfun.bfun_wrap,wrapfun.bp_wrap), obj.bfun_, obj.bpin_,...
     'uniformOutput', false);
 
 %--------------------------------------------------------------------------------------------------

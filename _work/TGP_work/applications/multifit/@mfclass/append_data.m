@@ -15,7 +15,7 @@ keyval_def = struct('keep',[],'remove',[],'mask',[]);
 if ~ok, error(mess), end
 
 % Check input
-class_name = obj.custom_.dataset_class;
+class_name = obj.wrapfun_.dataset_class;
 [ok, mess, ndim, w] = is_valid_data (class_name, args{:});
 if ~ok, error(mess), end
 

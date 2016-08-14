@@ -1,6 +1,8 @@
 % Assumes have created a data file
 S=load('./data/testdata_multifit_1.mat');
 
+
+%--------------------------------------------------------------------------------------------------------------------
 SS.warr3 = [S.w1,S.w2,S.w3];
 SS.sarr3 = [S.wstruct1,S.wstruct2,S.wstruct3];
 
