@@ -1,8 +1,8 @@
 % Test function evaluation
 % -------------------------
-
 % Assumes have created a data file
-S=load('./data/testdata_multifit_1.mat');
+mftest_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit\mftest';
+S=load(fullfile(mftest_dir,'/data/testdata_multifit_1.mat'));
 
 
 %--------------------------------------------------------------------------------------------------------------------

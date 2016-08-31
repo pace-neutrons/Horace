@@ -1,11 +1,12 @@
 % ------------------------------------------------------------------------------------------------
 % Example of fitting more than one sqw object
 % -------------------------------------------------------------------------------------------------
+mftest_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit\mftest';
 
 % Read in data
 % ------------
-w1data=read_sqw(fullfile('./data/w1data.sqw'));
-w2data=read_sqw(fullfile('./data/w2data.sqw'));
+w1data=read_sqw(fullfile(mftest_dir,'data/w1data.sqw'));
+w2data=read_sqw(fullfile(mftest_dir,'data/w2data.sqw'));
 
 
 %% ------------------------------------------------------------------------------------------------

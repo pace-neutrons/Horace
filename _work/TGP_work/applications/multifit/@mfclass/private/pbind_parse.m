@@ -60,49 +60,61 @@ if isempty(bnd)
     % Case of no input
     ok=true;
     mess='';
-    [ipb,ifunb,ipf,ifunf,R]=error_return;   % just use to fill with suitable values
-    
-elseif iscell(bnd)
-    if all(cellfun(@iscell,bnd))
-        % All binding descriptors are cell arrays
-        % Parse first descriptor
-        [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse_single...
-            (np,nbp,isfore,ifunb_def,bnd{1});
-        
-        % Parse following descriptors
-        if ok && numel(bnd)>1
-            nel = numel(ipf);
-            for i=2:numel(bnd)
-                [ok,mess,ipb_add,ifunb_add,ipf_add,ifunf_add,R_add] = pbind_parse_single...
-                    (np,nbp,isfore,ifunb_def,bnd{i});
-                if ok
-                    [ipb,ifunb,ipf,ifunf,R,nel] = accumulate_arrays (ipb,ifunb,ipf,ifunf,R,nel,...
-                        ipb_add,ifunb_add,ipf_add,ifunf_add,R_add);
-                else
-                    [ipb,ifunb,ipf,ifunf,R]=error_return;
-                    break
-                end
+    [ipb,ifunb,ipf,ifunf,R]=empty_return;   % just use to fill with suitable values
+    return
+end
+
+% Catch case of n x 5 numeric array input (which is valid) - turn into a cell array
+if ~iscell(bnd)
+    bnd = {bnd};
+end
+
+% Cell array binding descriptors
+if all(cellfun(@iscell,bnd))
+    % All binding descriptors are cell arrays
+    % Parse first descriptor
+    [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = pbind_parse_single...
+        (np,nbp,isfore,ifunb_def,bnd{1});
+    % Parse following descriptors
+    if ok && numel(bnd)>1
+        nel = numel(ipf);
+        for i=2:numel(bnd)
+            [ok,mess,ipb_add,ifunb_add,ipf_add,ifunf_add,R_add,self_rem_add] = pbind_parse_single...
+                (np,nbp,isfore,ifunb_def,bnd{i});
+            if ok
+                [ipb,ifunb,ipf,ifunf,R,nel] = accumulate_arrays (ipb,ifunb,ipf,ifunf,R,nel,...
+                    ipb_add,ifunb_add,ipf_add,ifunf_add,R_add);
+                self_rem = (self_rem && self_rem_add);
+            else
+                [ipb,ifunb,ipf,ifunf,R]=empty_return;
+                break
             end
-            ipb = ipb(1:nel);
-            ifunb = ifunb(1:nel);
-            ipf = ipf(1:nel);
-            ifunf = ifunf(1:nel);
-            R = R(1:nel);
         end
-    else
-        % Binding descriptors are not all cell arrays, so interpret as elements of one descriptor
-        [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse_single...
-            (np,nbp,isfore,ifunb_def,bnd);
+        ipb = ipb(1:nel);
+        ifunb = ifunb(1:nel);
+        ipf = ipf(1:nel);
+        ifunf = ifunf(1:nel);
+        R = R(1:nel);
     end
-    if ok && nel==0
+    
+elseif numel(bnd)==1 && isnumeric(bnd{1})
+    % Numeric array of binding descriptors
+    [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = pbind_parse_array (np,nbp,isfore,bnd{1});
+    if ok && numel(ipf)==0 && self_rem
         mess = 'No bindings left once instances of binding-to-self have been removed';
     end
     
 else
-    ok = false;
-    mess = 'Check format of binding descriptor';
-    [ipb,ifunb,ipf,ifunf,R]=error_return;   % just use to fill with suitable values
+    % Binding descriptors are not all cell arrays, so interpret as elements of one descriptor
+    [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = pbind_parse_single...
+        (np,nbp,isfore,ifunb_def,bnd);
 end
+
+% Warning message if all bindings are trivial self-bindings
+if ok && numel(ipf)==0 && self_rem
+    mess = 'No bindings left once instances of binding-to-self have been removed';
+end
+
 
 %------------------------------------------------------------------------------
 function [ipb,ifunb,ipf,ifunf,R,nel] = accumulate_arrays (ipb,ifunb,ipf,ifunf,R,nel,...
@@ -130,7 +142,7 @@ R(nel+1:nel+n_add)     = R_add;
 nel = nel + n_add;
 
 %------------------------------------------------------------------------------
-function [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse_single(np,nbp,isfore,ifunb_def,bnd)
+function [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = pbind_parse_single(np,nbp,isfore,ifunb_def,bnd)
 % Determine if a binding descriptor is valid
 %
 %   >> [ok,mess,ipf,ifunf,ipb,ifunb,R] = pbind_parse_single(np,nbp,isfore,ifun_def,bnd)
@@ -173,6 +185,9 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse_single(np,nbp,isfore,ifun
 %   ifunf       Function index for the floating parameter:
 %                   foreground functions: numbered 1,2,3,...numel(np)
 %                   background functions: numbered -1,-2,-3,...-numel(nbp)
+%   self_rem    Self bindings had to be removed
+
+self_rem = false;
 
 narg = numel(bnd);
 
@@ -187,14 +202,14 @@ elseif narg==3
     else
         ok = false;
         mess = 'Binding ratio must be a finite number or NaN';
-        [ipb,ifunb,ipf,ifunf,R]=error_return;
+        [ipb,ifunb,ipf,ifunf,R]=empty_return;
         return
     end
     
 else
     ok = false;
     mess = 'Check format of binding descriptor';
-    [ipb,ifunb,ipf,ifunf,R]=error_return;
+    [ipb,ifunb,ipf,ifunf,R]=empty_return;
     return
 end
 
@@ -206,7 +221,7 @@ else
 end
 if ~ok
     mess = ['Bound parameter: ',mess];
-    [ipb,ifunb,ipf,ifunf,R]=error_return;
+    [ipb,ifunb,ipf,ifunf,R]=empty_return;
     return
 end
 
@@ -218,7 +233,7 @@ else
 end
 if ~ok
     mess = ['Floating parameter: ',mess];
-    [ipb,ifunb,ipf,ifunf,R]=error_return;
+    [ipb,ifunb,ipf,ifunf,R]=empty_return;
     return
 end
 if numel(ipb)>1 && numel(ipf)==1
@@ -231,6 +246,7 @@ end
 % Remove any self-binding
 ok_bound = ~(ipf==ipb & ifunf==ifunb);
 if ~all(ok_bound)
+    self_rem = true;
     ipb = ipb(ok_bound);
     ifunb = ifunb(ok_bound);
     ipf = ipf(ok_bound);
@@ -247,7 +263,7 @@ end
 
 %------------------------------------------------------------------------------
 function [ok, mess, ip, ifun] = param_parse(arg,np,nbp,ifun_def,bound_par)
-% Parse [ip,ifun] block. If bound_par is true, then if ifun is given it is 
+% Parse [ip,ifun] block. If bound_par is true, then if ifun is given it is
 % required to be in the array of default ifun_def (bound_par is ignored if
 % ifun_def is not given). This is because we expect that a binding description
 % should only refer to the functions that are in the default list.
@@ -363,7 +379,7 @@ end
 
 %------------------------------------------------------------------------------
 function n = numrowvec (arg)
-% Check if an argumnet is row vector of integers
+% Check if an argument is row vector of integers
 if isnumeric(arg) && isrowvector(arg) && all(rem(arg,1)==0)
     n = numel(arg);
 else
@@ -371,10 +387,120 @@ else
 end
 
 %------------------------------------------------------------------------------
-function [ipb,ifunb,ipf,ifunf,R]=error_return
+function [ok,mess,ipb,ifunb,ipf,ifunf,R,self_rem] = pbind_parse_array (np,nbp,isfore,bnd)
+% Determine if a binding array is valid
+%
+%   >> [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse_array (np,nbp,isfore,bnd)
+%
+% Input:
+% ------
+%   np          Number of parameters for each foreground function (row vector)
+%   nbp         Number of parameters for each background function (row vector)
+%   isfore      True if positive function index refers to foreground functions
+%               False if positive function index refers to background functions
+%
+%   bnd         Array of bindings, size [nbnd,5], where the columns are
+%                   [ipb, ifunb, ipf, ifunf, R]
+%              as given below, except that if isfore==true the signs of functions
+%              are positive for foreground functions, negative for background
+%              functions; if isfore==false, then the other way round
+%
+% Output:
+% -------
+%   ok          True if binding descriptor is valid
+%   mess        Error message if not ok; empty string or warning/informational
+%              message if ok
+%   ipb         Parameter indicies within the functions for the bound parameters
+%              (column vector))
+%   ifunb       Function indicies for the bound parameterd (column vector):
+%                   foreground functions: numbered 1,2,3,...numel(np)
+%                   background functions: numbered -1,-2,-3,...-numel(nbp)
+%   ipf         Parameter indicies within the functions for the floating parameters
+%   ifunf       Function index for the floating parameter(column vector):
+%              (column vector))
+%                   foreground functions: numbered 1,2,3,...numel(np)
+%                   background functions: numbered -1,-2,-3,...-numel(nbp)
+%   R           Ratio of values of bound/independent parameters (column vector).
+%               If to be set by values of initial parameter values, then is NaN;
+%              otherwise is finite.
+%   self_rem    Self bindings had to be removed
+
+
+self_rem = false;
+
+if ~isnumeric(bnd) || numel(size(bnd))~=2 || size(bnd,2)~=5
+    mess = 'binding array must be an n x 5 array';
+    ok = false; [ipb,ifunb,ipf,ifunf,R]=empty_return; return
+    
+elseif size(bnd,1)==0
+    mess = '';
+    ok = true; [ipb,ifunb,ipf,ifunf,R]=empty_return; return
+    
+else
+    ipb   = bnd(:,1);
+    ifunb = bnd(:,2);
+    if ~isfore, ifunb = -ifunb; end
+    ipf   = bnd(:,3);
+    ifunf = bnd(:,4);
+    if ~isfore, ifunf = -ifunf; end
+    R     = bnd(:,5);
+    
+    % Check validity of contents
+    % --------------------------
+    % Check binding ratios
+    if any(isinf(R))
+        mess = 'One or more binding ratios is infinite';
+        ok = false; [ipb,ifunb,ipf,ifunf,R]=empty_return; return
+    end
+    
+    % Check function indicies are in range
+    nf=numel(np);
+    nbf=numel(nbp);
+    if any(ifunb==0 | ifunb<-nbf | ifunb>nf)
+        mess = 'One or more bound function indicies are outside the range set by the number foregrond and background functions';
+        ok = false; [ipb,ifunb,ipf,ifunf,R]=empty_return; return
+    end
+    if any(ifunf==0| ifunf<-nbf | ifunf>nf)
+        mess = 'One or more floating function indicies are outside the range set by the number foregrond and background functions';
+        ok = false; [ipb,ifunb,ipf,ifunf,R]=empty_return; return
+    end
+    
+    % Check the parameter indicies are in range
+    ipbmax=zeros(size(ipb));
+    ix=(ifunb>0); ipbmax(ix)=np(ifunb(ix));
+    ix=(ifunb<0); ipbmax(ix)=nbp(abs(ifunb(ix)));
+    if any(ipb<=0 | ipb>ipbmax)
+        mess = 'One or more bound parameter indicies are outside the range set by the number of parameters for the corresponding function';
+        ok = false; [ipb,ifunb,ipf,ifunf,R]=empty_return; return
+    end
+    ipfmax=zeros(size(ipf));
+    ix=(ifunf>0); ipfmax(ix)=np(ifunf(ix));
+    ix=(ifunf<0); ipfmax(ix)=nbp(abs(ifunf(ix)));
+    if any(ipf<=0 | ipf>ipfmax)
+        mess = 'One or more floating parameter indicies are outside the range set by the number of parameters for the corresponding function';
+        ok = false; [ipb,ifunb,ipf,ifunf,R]=empty_return; return
+    end
+    
+    % Remove any self bindings
+    ok_bound = ~(ipf==ipb & ifunf==ifunb);
+    if ~all(ok_bound)
+        self_rem = true;
+        ipb = ipb(ok_bound);
+        ifunb = ifunb(ok_bound);
+        ipf = ipf(ok_bound);
+        ifunf = ifunf(ok_bound);
+        R = R(ok_bound);
+    end
+    
+    % All is OK if got to here
+    ok=true; mess='';
+end
+
+%------------------------------------------------------------------------------
+function [ipb,ifunb,ipf,ifunf,R]=empty_return
 % Return values on error
-ipb = [];
-ifunb = [];
-ipf = [];
-ifunf = [];
-R = [];
+ipb = zeros(0,1);
+ifunb = zeros(0,1);
+ipf = zeros(0,1);
+ifunf = zeros(0,1);
+R = zeros(0,1);

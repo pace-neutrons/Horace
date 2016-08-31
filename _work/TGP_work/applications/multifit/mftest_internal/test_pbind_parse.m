@@ -7,10 +7,10 @@ function test_pbind_parse
 % Single binding descriptor
 % ----------------------------------------
 [ok,mess,ipb,ifunb,ipf,ifunf,R] = testgateway(mfclass,'pbind_parse', [4,4,4,4], [3,3,3,3], true, [1,2,3,4], {});
-assert_ok (ok, mess, [ipb,ifunb,ipf,ifunf,R], [])
+assert_ok (ok, mess, [ipb,ifunb,ipf,ifunf,R], zeros(0,5))
 
 [ok,mess,ipb,ifunb,ipf,ifunf,R] = testgateway(mfclass,'pbind_parse', [4,4,4,4], [3,3,3,3], true, [1,2,3,4], []);
-assert_ok (ok, mess, [ipb,ifunb,ipf,ifunf,R], [])
+assert_ok (ok, mess, [ipb,ifunb,ipf,ifunf,R], zeros(0,5))
 
 [ok,mess,ipb,ifunb,ipf,ifunf,R] = testgateway(mfclass,'pbind_parse', [4,4,4,4], [3,3,3,3], true, [1,2,3,4], {3,2,12.3});
 res = [...

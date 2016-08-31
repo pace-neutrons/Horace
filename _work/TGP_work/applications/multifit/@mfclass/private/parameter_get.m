@@ -12,7 +12,7 @@ function p = parameter_get(plist)
 %               plist<0> = {p, c1<0>, c2<0>,...}
 %                     or =  p
 %
-%               where p is a numeric vector with at least one element
+%               where p is a numeric vector (can contain no elements)
 %
 % Output:
 % -------

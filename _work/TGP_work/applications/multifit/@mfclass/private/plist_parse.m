@@ -34,24 +34,24 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 %
 % Format of a valid parameter list
 % --------------------------------
-%  A valid parameter list is one of the following:
-%   - A numeric vector with at least one element e.g. p=[10,100,0.01]
-%
+% A valid parameter list is one of the following:
+%   - A numeric vector with at zero or more elements e.g. p=[10,100,0.01]
+%   
 %   - A cell array of parameters, the first of which is a numeric vector with
-%    at least one element
+%    zwero or more element
 %       e.g.  {p, c1, c2}
 %
 %   - A recursive nesting of functions and parameter lists:
-%       plist<n> = {@func<n-1>, plist<n-1>, c1<n>, c2<n>,...}
-%                :
-%       plist<1> = {@func<0>, plist<0>, c1<1>, c2<1>,...}
-%       plist<0> = {p, c1<0>, c2<0>,...}    % p is [] or a numeric vector with at least one element
-%             or =  p                       % p is [] or a numeric vector with at least one element
+%       p<n> = {@func<n-1>, plist<n-1>, c1<n>, c2<n>,...}
+%            :
+%       p<1> = {@func<0>, p<0>, c1<1>, c2<1>,...}
+%       p<0> = {p, c1<0>, c2<0>,...}        % p is a numeric vector
+%         or =  p                           % p is a numeric vector
 %
 %     This defines a recursive form for the parameter list that it is assumed
 %     the functions in argument func accept:
 %       p<0> = p               numeric vector
-%         or ={p, c1, c2, ...} cell array, with first parameter a numeric vector
+%         or ={p, c1<0>, c2<0>, ...} cell array, with first parameter a numeric vector
 %
 %       p<1> = {@func<0>, p<0>, c1<1>, c1<2>,...}
 %
@@ -60,11 +60,11 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 %
 % When recursively nesting functions and parameter lists, there can be any
 % number of additional arguments c1, c2,... , including the case of no
-% additional arguments. The exception is the parameter list at the base.
-% For example, the following are valid (p is a numeric vector with at least one element):
+% additional arguments.
+% For example, the following are valid (p a numeric array):
 %        p
 %       {@myfunc,p}
-%       {@myfunc1,@myfunc,p}
+%       {@myfunc1,{@myfunc,p}}
 % but these are not valid:
 %       {p}
 %       {@myfunc,{p}}
@@ -213,23 +213,23 @@ function [ok,np]=plist_parse_single(plist)
 %
 %
 % A valid parameter list is one of the following:
-%   - A numeric vector with at least one element e.g. p=[10,100,0.01]
+%   - A numeric vector with at zero or more elements e.g. p=[10,100,0.01]
 %   
-%   - A cell array of parameters, the fist of which is a numeric vector with
-%    at least one element
+%   - A cell array of parameters, the first of which is a numeric vector with
+%    zwero or more element
 %       e.g.  {p, c1, c2}
 %
 %   - A recursive nesting of functions and parameter lists:
 %       p<n> = {@func<n-1>, plist<n-1>, c1<n>, c2<n>,...}
 %            :
 %       p<1> = {@func<0>, p<0>, c1<1>, c2<1>,...}
-%       p<0> = {p, c1<0>, c2<0>,...}        % p is a numeric vector with at least on element
-%         or =  p                           % p is a numeric vector with at least on element
+%       p<0> = {p, c1<0>, c2<0>,...}        % p is a numeric vector
+%         or =  p                           % p is a numeric vector
 %
 %     This defines a recursive form for the parameter list that it is assumed
 %     the functions in argument func accept:
 %       p<0> = p               numeric vector
-%         or ={p, c1, c2, ...} cell array, with first parameter a numeric vector
+%         or ={p, c1<0>, c2<0>, ...} cell array, with first parameter a numeric vector
 %
 %       p<1> = {@func<0>, p<0>, c1<1>, c1<2>,...}
 %
@@ -238,11 +238,11 @@ function [ok,np]=plist_parse_single(plist)
 %
 % When recursively nesting functions and parameter lists, there can be any
 % number of additional arguments c1, c2,... , including the case of no
-% additional arguments. The exception is the parameter list at the base.
-% For example, the following are valid (p is a numeric vector with at least one element):
+% additional arguments.
+% For example, the following are valid (p a numeric array):
 %        p
 %       {@myfunc,p}
-%       {@myfunc1,@myfunc,p}
+%       {@myfunc1,{@myfunc,p}}
 % but these are not valid:
 %       {p}
 %       {@myfunc,{p}}

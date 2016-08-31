@@ -79,7 +79,7 @@ classdef mfclass_wrapfun
             elseif isa(val,'function_handle')
                 obj.fun_wrap_ = val;
             else
-                error ('Foreground function wrapper must be a function handle')
+                error ('The foreground function wrapper must be a function handle')
             end
         end
         
@@ -90,8 +90,10 @@ classdef mfclass_wrapfun
                 if ~isempty(obj.fun_wrap_)
                     if iscell(val) && (numel(size(val))==2 && size(val,1)==1)
                         obj.p_wrap_ = val;
-                    else
+                    elseif ~iscell(val)
                         obj.p_wrap_ = {val};
+                    else
+                        error ('The wrapper parameter list must be a row cell array or a single non-cell array argument')
                     end
                 else
                     error ('The wrapper parameter list must be empty if no wrapper function is given')
@@ -108,7 +110,7 @@ classdef mfclass_wrapfun
             elseif isa(val,'function_handle')
                 obj.bfun_wrap_ = val;
             else
-                error ('Foreground function wrapper must be a function handle')
+                error ('The background function wrapper must be a function handle')
             end
         end
         
@@ -119,8 +121,10 @@ classdef mfclass_wrapfun
                 if ~isempty(obj.bfun_wrap_)
                     if iscell(val) && (numel(size(val))==2 && size(val,1)==1)
                         obj.bp_wrap_ = val;
-                    else
+                    elseif ~iscell(val)
                         obj.bp_wrap_ = {val};
+                    else
+                        error ('The wrapper parameter list must be a row cell array or a single non-cell array argument')
                     end
                 else
                     error ('The wrapper parameter list must be empty if no wrapper function is given')

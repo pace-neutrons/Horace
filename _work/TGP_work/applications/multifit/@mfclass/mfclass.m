@@ -174,6 +174,7 @@ classdef mfclass
         pin
         pfree
         pbind
+        pbind_dbg
         
         local_background
         global_background
@@ -181,6 +182,7 @@ classdef mfclass
         bpin
         bpfree
         bpbind
+        bpbind_dbg
         
         options
         
@@ -290,7 +292,22 @@ classdef mfclass
             out = mat2cell(obj.free_(1:nptot)',1,obj.np_);
         end
         
-        function out = get.pbind(obj)
+        function out = get.pbind (obj)
+            nptot = sum(obj.np_);
+            bnd = obj.bound_(1:nptot);
+            % Parameter and function indicies of bound parameters
+            [ipb, ifunb] = ind2parfun (find(bnd), obj.np_, obj.nbp_);
+            % Parameter and function indicies of bound-to parameters
+            indf = obj.bound_to_res_(1:nptot);
+            [ipf, ifunf] = ind2parfun (indf(bnd), obj.np_, obj.nbp_);
+            % Binding ratios
+            R = obj.ratio_res_(1:nptot);
+            R = R(bnd);
+            % Output array
+            out = [ipb,ifunb,ipf,ifunf,R];
+        end
+        
+        function out = get.pbind_dbg(obj)   % *** get rid of for release
             % *** Need to extract in different form for production version
             nptot = sum(obj.np_);
             out = [double(obj.free_(1:nptot))';...
@@ -316,7 +333,24 @@ classdef mfclass
             out = mat2cell(obj.free_(range)',1,obj.nbp_);
         end
         
-        function out = get.bpbind(obj)
+        function out = get.bpbind (obj)
+            nptot = sum(obj.np_);
+            nbptot = sum(obj.nbp_);
+            range = nptot+1:nptot+nbptot;
+            bnd = obj.bound_(range);
+            % Parameter and function indicies of bound parameters
+            [ipb, ifunb] = ind2parfun (nptot+find(bnd), obj.np_, obj.nbp_);
+            % Parameter and function indicies of bound-to parameters
+            indf = obj.bound_to_res_(range);
+            [ipf, ifunf] = ind2parfun (indf(bnd), obj.np_, obj.nbp_);
+            % Binding ratios
+            R = obj.ratio_res_(range);
+            R = R(bnd);
+            % Output array
+            out = [ipb,-ifunb,ipf,-ifunf,R];
+        end
+        
+        function out = get.bpbind_dbg(obj)   % *** get rid of for release
             % *** Need to extract in different form for production version
             nptot = sum(obj.np_);
             nbptot = sum(obj.nbp_);

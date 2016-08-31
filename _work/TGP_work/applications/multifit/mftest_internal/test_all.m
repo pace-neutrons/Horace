@@ -255,6 +255,24 @@ kk2=kk2.add_bbind(bnd2{:});
 toc;
 
 
+%-------------------------------------------------------------
+%   24 August 2016
+%-------------------------------------------------------------
+% Test different binding procedures
+
+kkref=mfclass(warr3);
+kkref=kkref.set_fun(@noggle,[1,100],[1,0]);
+kkref=kkref.set_bfun(@toot,[1,100,24,2],[0,1,1,0]);
+
+kk=kkref;
+kk=kk.set_bbind(4,-1,13);   
+kk=kk.add_bbind(2,-2);
+
+kk2=kkref;
+kk2=kk2.set_bind(kk.pbind);
+kk2=kk2.set_bbind(kk.bpbind);
+
+
 
 
 

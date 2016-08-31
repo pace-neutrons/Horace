@@ -55,6 +55,10 @@ function [data_out, fitdata, ok, mess] = fit (obj)
 % If ok is not a return argument, then if ok is false an error will be thrown.
 
 
+% Cleanup multifit (should be just a precaution) and set cleanup object
+multifit_cleanup    % initialise multifit
+cleanupObj=onCleanup(@multifit_cleanup);
+
 % Default return values if there is an error
 data_out = [];
 fitdata = [];

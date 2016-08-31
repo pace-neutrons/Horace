@@ -1,3 +1,22 @@
+===============================================================================================
+             mfclass subclasses
+===============================================================================================
+Do we want to change the scheme
+
+mfclass_wrapfun 		utility function 
+
+mfclass_sqw
+
+mfclass_tobyfit
+
+
+
+
+===============================================================================================
+             mfclass
+===============================================================================================
+
+
 - fun_replace, fun_remove; constraints_replace etc. are not obviously logically named
   (or even correctly used!)
 
@@ -19,10 +38,13 @@
   ptrans_initialise to return 'calculable' - true if function can be calculated but
   not fitted. repackage_output_data to cope with no free parameters.
   
-- fit, simulate: cleanup routine to be added
+- *** DONE *** fit, simulate: cleanup routine to be added
 
-- options to be added to subclasses in a way that makes them look transparently like
+- *** DONE - different solution: bespoke options are subclass properties ***
+  options to be added to subclasses in a way that makes them look transparently like
   options of mfclass
+  
+- need to have single line call
   
   
 Multifit_lsqr:

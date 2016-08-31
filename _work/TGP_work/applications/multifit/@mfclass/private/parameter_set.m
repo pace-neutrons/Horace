@@ -12,7 +12,7 @@ function plist_new = parameter_set (plist, pnew)
 %               plist<0> = {p, c1<0>, c2<0>,...}
 %                     or =  p
 %
-%               where p is a numeric vector with at least one element
+%               where p is a numeric vector (can contain no elements)
 %
 %   pnew    New array to be placed at the root of the parameter list
 %
