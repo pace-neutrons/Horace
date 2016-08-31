@@ -1,0 +1,94 @@
+function [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts)
+% Alter the foreground function parameter, free/fix and bindings arguments for crystal refinement
+%
+%   >> [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts)
+%
+% Input:
+% ------
+%   obj         Fitting object
+%
+%   xtal_opts   Structure with crystal refinement options:
+%           alatt   Initial lattice parameters (=[] to use values in sqw objects)
+%           angdeg  Initial lattice angles (=[] to use values in sqw objects)
+%           rot     Initial rotation vector (rad)
+%           urot    x-axis in r.l.u.
+%           vrot    Defines y-axis in r.l.u. (in plane of urot and vrot)
+%           pfree   Logical row vector (length=9); true for free parameters
+%           fix_alatt_ratio     =true if a,b,c are to be bound
+%
+% Output:
+% -------
+%   obj         Fitting object with parameters updated to allow for crystal
+%              refinement: (1) additional parameters for lattice parameters,
+%              an angles, and crystal orientation; (2) bindings so that these
+%              additional parameters are global over all data sets.
+%
+%   xtal        Crystal refinement parameters that need to be passed to the
+%              fitting function:
+%           urot    x-axis in r.l.u.
+%           vrot    Defines y-axis in r.l.u. (in plane of urot and vrot)
+%           ub0     ub matrix for lattice parameters in the input sqw objects
+%
+% There are nine free parameters in general: 3 lattice parmaeters, 3 lattice angles
+% and three orientation angles.
+
+
+% Extract lattice parameters, if required
+data = obj.data;
+if ~isempty(data)
+    wsqw = cell2mat_obj(cellfun(@(x)x(:),data,'UniformOutput',false));
+else
+    error('No data sets have been set - not possible to set moderator refinement options')
+end
+[alatt0,angdeg0,ok,mess] = lattice_parameters(wsqw);
+if ~ok, return, end
+if isempty(xtal_opts.alatt)
+    xtal_opts.alatt=alatt0;
+end
+if isempty(xtal_opts.angdeg)
+    xtal_opts.angdeg=angdeg0;
+end
+
+% Get the foreground and background parameters
+fun0 = obj.fun;
+pin0 = obj.pin;
+pfree0 = obj.pfree;
+pbind0 = obj.pbind;
+
+% Append crystal refinement parameter values
+opt_pars = [xtal_opts.alatt, xtal_opts.angdeg, xtal_opts.rot];
+pin = cellfun (@(x)append_parameters(x,opt_pars), pin0, 'UniformOutput', false);
+
+% Append fix/free status of crystal refinement parameters
+pfree = cellfun (@(x)[x,xtal_opts.pfree], pfree0, 'UniformOutput', false);
+
+% Alter bindings
+% All the refinement parameters are bound to the first foreground function values
+% The only complication is if the  ratios of the lattice parameters are fixed.
+pbind = pbind0;
+if xtal_opts.fix_alatt_ratio
+    pbind = [pbind; [2,1,1,1,NaN; 3,1,1,1,NaN]];
+end
+np = numel(opt_pars);
+nf = numel(obj.fun);
+if nf>1
+    [ipb,ifb] = ndgrid(1:np,2:nf);
+    pbind = [pbind; [ipb(:),ifb(:),ipb(:),ones(np*(nf-1),1),ones(np*(nf-1),1)]];
+end
+
+% Change fit object
+obj = obj.set_fun (fun0, pin, 'pfree', pfree, 'pbind', pbind);
+
+% Fill crystal refinement argument to be passed to multifit
+xtal.urot=xtal_opts.urot;
+xtal.vrot=xtal_opts.vrot;
+xtal.ub0 = ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt0,angdeg0));
+
+ok = true;
+mess = '';
+
+    
+%----------------------------------------------------------------------------------------
+function pout = append_parameters (pin, p_append)
+p = [parameter_get(pin);p_append(:)];
+pout = parameter_set(pin, p);

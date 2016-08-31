@@ -5,7 +5,7 @@ function [sel,ok,mess] = mask_points (win, varargin)
 %
 % or any selection (in any order) of the keyword-argument pairs e.g.
 %
-%   >> sel = mask_points (win, 'mask', mask, 'xremove', xremove)
+%   >> sel = mask_points (win, 'mask', mask, 'remove', xremove)
 %
 % Input:
 % ------
