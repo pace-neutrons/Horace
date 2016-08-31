@@ -1,0 +1,42 @@
+===============================================================================================
+             Tobyfit
+===============================================================================================
+Need to be able to check the valid names and number of parameters for moderator. Currently
+does not do this on set_refine_moderator
+- check only one moderator description for all data sets
+- check parameter numbers
+
+
+
+Little things to check:
+- refine crystal and moderator: at the fit or simulate stage as well as set stage, check that
+  there is at least one foreground function
+- The tests for refine xtal & mod are not fully consistent in terms of how empty fields are
+  interpreted: for example: uvec is returned as [1,0,0], not [] in set_refine_crystal, unlike
+  the lattice parmaeters, and set_refine_moderator uses the mod pars as they are in the current
+  datasets at the time of being issued, whereas the crystal picls up the lattice parmaeters
+  at the fit or simulate stage. refine_moderator: checks ei in both set_refine_moderator and
+  at the fit or simulate stage in pack_parameters.
+
+===============================================================================================
+             Tests
+===============================================================================================
+Test crystal refinement, moderator refinement with sqw models that are different for different
+data sets, to test that the appended constrints are inserted correctly.
+
+
+
+===============================================================================================
+             Horace
+===============================================================================================
+
+16/8/2016 - Very slow Horace cutting
+Seen this on my laptop for RbMnF3 and Fe data (test_tobyfit_0.m, test_tobyfit_1.m). Slow, and
+seems to be reading far too much of the file int eh case of RbMnF3.
+
+
+
+
+
+
+

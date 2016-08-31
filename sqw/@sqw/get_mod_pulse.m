@@ -1,8 +1,8 @@
 function varargout = get_mod_pulse(varargin)
 % Get moderator pulse model name and mean pulse parameters for an array of sqw objects
 %
-%   >> [pulse_model,pp,ok,mess,p] = get_mod_pulse (win)
-%   >> [pulse_model,pp,ok,mess,p] = get_mod_pulse (win,tol)
+%   >> [pulse_model,pp,ok,mess,p,present] = get_mod_pulse (win)
+%   >> [pulse_model,pp,ok,mess,p,present] = get_mod_pulse (win,tol)
 %
 % Input:
 % ------
@@ -14,8 +14,9 @@ function varargout = get_mod_pulse(varargin)
 % Output:
 % -------
 %   pulse_model Name of moderator pulse shape model e.g. 'ikcarp'
-%              Must be the same for all data sets in all sqw objects (returned
-%              as '' if not all the same)
+%              Must be the same for all data sets in all sqw objects
+%             (Returned as [] if not all the same pulse model or length of
+%              pulse parmaeters array not all the same)
 %   pp          Mean moderator pulse shape parameters (numeric row vector)
 %             (Returned as [] if not all the same pulse model or length of
 %              pulse parmaeters array not all the same)
@@ -31,6 +32,7 @@ function varargout = get_mod_pulse(varargin)
 %                               and abs((min(p)-p_ave))/p_ave
 %                 (If pulse model or not all the same, or number of parameters
 %                  not the same for all data sets, ave,min,max,relerr all==[])
+%   present     True if a moderator is present in all sqw objects; false otherwise
 
 
 % Original author: T.G.Perring
@@ -74,24 +76,20 @@ for i=1:nobj
         header=w.data(i).header;
     end
     if i==1
-        [pulse_model,pars,ok,mess]=get_mod_pulse_single(header);
-        if ok % construct array to hold all the pulse parameters
+        [pulse_model,pars,ok,mess,present]=get_mod_pulse_single(header);
+        if ok   % construct array to hold all the pulse parameters
             np=size(pars,2);
             pp_arr=zeros(nend(end),np);
             pp_arr(nbeg(1):nend(1),:)=pars;
-        else
-            pulse_model='';
-            pp=[];
-            break
         end
     else
-        [pulse_model_tmp,pars,ok,mess]=get_mod_pulse_single(header);
-        if ok && strcmpi(pulse_model,pulse_model_tmp) && size(pars,2)==np
+        [pulse_model_tmp,pars,ok_tmp,mess_tmp,present_tmp]=get_mod_pulse_single(header);
+        ok=(ok && ok_tmp && strcmpi(pulse_model,pulse_model_tmp) && size(pars,2)==np);
+        present=(present & present_tmp);
+        if ok
             pp_arr(nbeg(i):nend(i),:)=pars;
-        else
-            pulse_model='';
-            pp=[];
-            break
+        elseif isempty(mess)    % do not override an existing error message
+            mess=mess_tmp;
         end
     end
 end
@@ -110,6 +108,9 @@ if ok
         mess=['Spread of one or more pulse parameters lies outside acceptable fraction of average of ',num2str(tol)];
     end
     pp=p.ave;
+else
+    pulse_model='';
+    pp=[];
 end
 
 % Set return arguments
@@ -118,6 +119,7 @@ argout{2}=pp;
 argout{3}=ok;
 argout{4}=mess;
 argout{5}=p;
+argout{6}=present;
 
 
 % Package output arguments
@@ -127,15 +129,15 @@ if ~isempty(mess), error(mess), end
 
 
 %------------------------------------------------------------------------------
-function [pulse_model,pp,ok,mess]=get_mod_pulse_single(header)
+function [pulse_model,pp,ok,mess,present]=get_mod_pulse_single(header)
 % Get moderator pulse model name and array of pulse parameters for a single sqw object header
 %
-%   >> [pulse_model,pp,ok,mess] = get_mod_pulse_single (win)
-%   >> [pulse_model,pp,ok,mess] = get_mod_pulse_single (win,tol)
+%   >> [pulse_model,pp,ok,mess,present] = get_mod_pulse_single (header)
+%   >> [pulse_model,pp,ok,mess,present] = get_mod_pulse_single (header,tol)
 %
 % Input:
 % ------
-%   win         Array of sqw objects of sqw type
+%   header      Header block in an sqw object or file (must be sqw type)
 %   tol         [Optional] acceptable relative spread w.r.t. average of moderator
 %              pulse shape parameters: maximum over all parameters of
 %                   max(|max(p)-p_ave|,|min(p)-p_ave|) <= tol
@@ -143,11 +145,13 @@ function [pulse_model,pp,ok,mess]=get_mod_pulse_single(header)
 % Output:
 % -------
 %   pulse_model Name of moderator pulse shape model e.g. 'ikcarp'
-%              Must be the same for all data sets in all sqw objects; set to '' if not the case
+%              Must be the same for all data sets in all sqw objects; set to '' if
+%              pulse_model not all the same, or the number of parameters not all the same
 %   pp          Moderator pulse shape parameters (one row per spe data set); set to '' if
-%              pulse_model not all the same, or the number of paramaeters not all the same
+%              pulse_model not all the same, or the number of parameters not all the same
 %   ok          Logical flag: =true if within tolerance, otherwise =false;
 %   mess        Error message; empty if OK, non-empty otherwise
+%   present     True if a moderator is present; false otherwise
 
 % Get array of moderator objects from the header
 [moderator,ok]=get_instrument_field(header,'moderator');
@@ -156,7 +160,10 @@ if ~ok || ~isa(moderator,'IX_moderator')
     pp=[];
     ok=false;
     mess='IX_moderator object not found in all instrument descriptions';
+    present=false;
     return
+else
+    present=true;
 end
 
 % Fill output
