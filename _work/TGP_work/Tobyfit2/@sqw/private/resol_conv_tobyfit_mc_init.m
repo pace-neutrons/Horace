@@ -1,7 +1,10 @@
 function [ok,mess,lookup]=resol_conv_tobyfit_mc_init(win)
 % Fill various lookup tables and matrix transformations
 %
-%   >> [ok,mess,lookup]=resol_conv_tobyfit_mc_init(win)
+%   >> [ok,mess,lookup]=resol_conv_tobyfit_mc_init(win)     % compute
+%   >> [ok,mess,lookup]=resol_conv_tobyfit_mc_init()        % retrieve
+%
+%   >> resol_conv_tobyfit_mc_init                           % cleanup
 %
 % Input:
 % ------

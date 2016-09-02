@@ -18,11 +18,17 @@ Little things to check:
   at the fit or simulate stage. refine_moderator: checks ei in both set_refine_moderator and
   at the fit or simulate stage in pack_parameters.
 
+  
+Moderator tables are buffered during refinement in apparently different location to normal
+operation. Is that right, and is the buffer being cleared after fitting?
+
+Check all other buffering is cleared: search on 'persistent' (and just for completeness, 'global')
+
 ===============================================================================================
              Tests
 ===============================================================================================
 Test crystal refinement, moderator refinement with sqw models that are different for different
-data sets, to test that the appended constrints are inserted correctly.
+data sets, to test that the appended constraints are inserted correctly.
 
 
 

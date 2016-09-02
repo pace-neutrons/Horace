@@ -1,4 +1,4 @@
-function [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts)
+function [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj)
 % Alter the foreground function parameter, free/fix and bindings arguments for crystal refinement
 %
 %   >> [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts)
@@ -6,8 +6,7 @@ function [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts
 % Input:
 % ------
 %   obj         Fitting object
-%
-%   xtal_opts   Structure with crystal refinement options:
+%               Properties include refine_crystal, a structure with fields:
 %           alatt   Initial lattice parameters (=[] to use values in sqw objects)
 %           angdeg  Initial lattice angles (=[] to use values in sqw objects)
 %           rot     Initial rotation vector (rad)
@@ -33,23 +32,17 @@ function [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts
 % and three orientation angles.
 
 
-% Extract lattice parameters, if required
-data = obj.data;
-if ~isempty(data)
-    wsqw = cell2mat_obj(cellfun(@(x)x(:),data,'UniformOutput',false));
-else
-    error('No data sets have been set - not possible to set moderator refinement options')
-end
-[alatt0,angdeg0,ok,mess] = lattice_parameters(wsqw);
-if ~ok, return, end
-if isempty(xtal_opts.alatt)
-    xtal_opts.alatt=alatt0;
-end
-if isempty(xtal_opts.angdeg)
-    xtal_opts.angdeg=angdeg0;
+xtal_opts = obj.refine_crystal;
+
+% Check that the lattice parameters are all the same (might have been changed since set_refine_crystal called)
+wsqw = cell2mat_obj(cellfun(@(x)x(:),obj.data,'UniformOutput',false));
+[~,~,ok,mess] = lattice_parameters(wsqw);
+if ~ok
+    mess=['Crystal refinement: ',mess];
+    error(mess)
 end
 
-% Get the foreground and background parameters
+% Get the foreground parameters
 fun0 = obj.fun;
 pin0 = obj.pin;
 pfree0 = obj.pfree;

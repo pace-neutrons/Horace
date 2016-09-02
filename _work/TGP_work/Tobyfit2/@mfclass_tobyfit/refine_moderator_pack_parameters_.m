@@ -1,4 +1,4 @@
-function [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj, mod_opts)
+function [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj)
 % Alter the foreground function parameter, free/fix and bindings arguments for moderator refinement
 %
 %   >> [ok, mess, obj, modshape] = refine_moderator_pack_parameters (obj, mod_opts)
@@ -6,8 +6,7 @@ function [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj, mod
 % Input:
 % ------
 %   obj         Fitting object
-%
-%   mod_opts    Structure with moderator refinement options:
+%               Properties include refine_moderator, a structure with fields:
 %           pulse_model Name of moderator pulse shape model
 %           pin         Initial pulse shape parameters (row vector)
 %           pfree       Logical row vector of zeros and ones (row vector)
@@ -28,14 +27,17 @@ function [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj, mod
 %                      will be the common ei for all the sqw objects)
 
 
-% Check that the incident energies are all the same
+mod_opts = obj.refine_moderator;
+
+% Check that the incident energies are all the same (might have been changed since set_refine_moderator called)
+wsqw = cell2mat_obj(cellfun(@(x)x(:),obj.data,'UniformOutput',false));
 [efix,~,ok,mess] = get_efix(wsqw);
 if ~ok
     mess=['Moderator refinement: ',mess];
     return
 end
-        
-% Get the foreground and background parameters
+
+% Get the foreground parameters
 fun0 = obj.fun;
 pin0 = obj.pin;
 pfree0 = obj.pfree;

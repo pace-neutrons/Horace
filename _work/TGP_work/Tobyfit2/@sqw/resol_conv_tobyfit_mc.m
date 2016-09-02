@@ -1,4 +1,4 @@
-function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,xtal,modshape)
+function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contributions,mc_points,xtal,modshape)
 % Calculate resolution broadened sqw object(s) for a model scattering function.
 %
 %   >> wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,lookup)
@@ -31,11 +31,11 @@ function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contrib,mc_npoints,xtal,
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
-%   mc_contrib  Structure indicating which components contribute to the resolution
+%   mc_contributions    Structure indicating which components contribute to the resolution
 %              function. Each field is the name of a component, and its value is
 %              either true or false
 %
-%   mc_npoints  Number of Monte Carlo points per pixel
+%   mc_points   Number of Monte Carlo points per pixel
 %
 %   xtal        Crystal refinement constants. Structure with fields:
 %                   urot        x-axis for rotation (r.l.u.)
@@ -102,6 +102,9 @@ elseif max(ind(:))>numel(lookup.sample)
 end
 
 % Check refinement options are consistent
+refine_crystal = ~isempty(xtal);
+refine_moderator = ~isempty(modshape);
+
 if refine_crystal && refine_moderator
     error('Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
 end
@@ -114,8 +117,8 @@ for i=1:numel(ind)
     % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters
-        ptmp=multifit_gateway_parameter_get(pars);
-        pars=multifit_gateway_parameter_set(pars, ptmp(1:end-9));
+        ptmp=mfclass_gateway_parameter_get(mfclass, pars);
+        pars=mfclass_gateway_parameter_set(mfclass, pars, ptmp(1:end-9));
         alatt=ptmp(end-8:end-6);
         angdeg=ptmp(end-5:end-3);
         rotvec=ptmp(end-2:end);
@@ -129,8 +132,8 @@ for i=1:numel(ind)
     elseif refine_moderator
         % Strip out moderator refinement parameters
         npmod=numel(modshape.pin);
-        ptmp=multifit_gateway_parameter_get(pars);
-        pars=multifit_gateway_parameter_set(pars, ptmp(1:end-npmod));
+        ptmp=mfclass_gateway_parameter_get(mfclass, pars);
+        pars=mfclass_gateway_parameter_set(mfclass, pars, ptmp(1:end-npmod));
         pp=ptmp(end-npmod+1:end);
         % Get moderator lookup table for current moderator parameters
         [mod_table_refine,t_av_refine]=refine_moderator_sampling_table_buffer...
@@ -143,11 +146,11 @@ for i=1:numel(ind)
     irun = win(i).data.pix(5,:);
     idet = win(i).data.pix(6,:);
     
-    for imc=1:mc_npoints
+    for imc=1:mc_points
         yvec=zeros(11,1,npix);
         
         % Fill time deviations for moderator
-        if mc_contrib.moderator
+        if mc_contributions.moderator
             if ~refine_moderator
                 yvec(1,1,:)=moderator_times(mod_table,t_av',ind_mod{iw},irun');
             else
@@ -156,33 +159,33 @@ for i=1:numel(ind)
         end
         
         % Aperture deviations
-        if mc_contrib.aperture
+        if mc_contributions.aperture
             yvec(2,1,:)=wa{iw}(irun).*(rand(1,npix)-0.5);
             yvec(3,1,:)=ha{iw}(irun).*(rand(1,npix)-0.5);
         end
         
         % Fermi chopper deviations
-        if mc_contrib.chopper
+        if mc_contributions.chopper
             yvec(4,1,:)=fermi_times(fermi_table,ind_fermi{iw},irun');
         end
         
         % Sample deviations
-        if mc_contrib.sample
+        if mc_contributions.sample
             yvec(5:7,1,:)=random_points(lookup.sample(iw),npix);
         end
         
         % Detector deviations
-        if mc_contrib.detector_depth
+        if mc_contributions.detector_depth
             yvec(8,1,:)=0.015*(rand(1,npix)-0.5);     % approx dets as 25mm diameter, and take full width of 0.6 of diameter; 0.6*0.025=0.015
         end
         
-        if mc_contrib.detector_area
+        if mc_contributions.detector_area
             yvec(9,1,:) =win(i).detpar.width(idet).*(rand(1,npix)-0.5);
             yvec(10,1,:)=win(i).detpar.height(idet).*(rand(1,npix)-0.5);
         end
         
         % Energy bin
-        if mc_contrib.energy_bin
+        if mc_contributions.energy_bin
             yvec(11,1,:)=lookup.dt{iw}.*(rand(1,npix)-0.5);
         end
         
@@ -193,7 +196,7 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
         end
     end
-    wout(i).data.pix(8:9,:)=[stmp(:)'/mc_npoints;zeros(1,numel(stmp))];
+    wout(i).data.pix(8:9,:)=[stmp(:)'/mc_points;zeros(1,numel(stmp))];
     wout(i)=recompute_bin_data(wout(i));
 end
 
