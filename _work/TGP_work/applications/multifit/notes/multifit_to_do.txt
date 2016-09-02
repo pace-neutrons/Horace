@@ -1,7 +1,7 @@
 ===============================================================================================
              mfclass subclasses
 ===============================================================================================
-Do we want to change the scheme
+Do we want to change the naming scheme?
 
 mfclass_wrapfun 		utility function 
 
@@ -15,7 +15,8 @@ mfclass_tobyfit
 ===============================================================================================
              mfclass
 ===============================================================================================
-
+- Can put append_cell as a method of mfclass_wrapfun: already have two copies in
+  mfclass_sqw and mfclass_tobyfit.
 
 - fun_replace, fun_remove; constraints_replace etc. are not obviously logically named
   (or even correctly used!)
@@ -44,7 +45,8 @@ mfclass_tobyfit
   options to be added to subclasses in a way that makes them look transparently like
   options of mfclass
   
-- need to have single line call
+- need to have single line call equivalent for full backwards compatibility with
+  the original multifit.
   
   
 Multifit_lsqr:
@@ -64,6 +66,10 @@ Multifit_lsqr:
   
 - ptrans_par and friends: do they work with no background or foreground functions?
 
+- MAJOR DEVELOPMENT: pass the fitting object down/make method of the object: want
+  to get rid of the stupid persistent variables mess that we have particularly in
+  Tobyfit
+  
   
 Constraints:
 ===============

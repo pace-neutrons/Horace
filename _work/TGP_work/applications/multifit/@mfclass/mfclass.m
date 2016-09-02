@@ -388,7 +388,7 @@ classdef mfclass
         [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
         
-        %[ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
+        [ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
         
         [fun, p, bfun, bp] = get_wrapped_functions_ (obj)
     end

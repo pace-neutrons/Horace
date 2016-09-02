@@ -6,5 +6,5 @@ function mf_object = multifit2_sqw (varargin)
 % Type >> doc mfclass   for how to set the fit functions, initial
 % parameter values, fix parameters, and fit or simulate the data.
 
-mf_init = mfclass_wrapfun ('d1d', @sqw_eval,[], @func_eval,[]);
+mf_init = mfclass_wrapfun ('d1d', @sqw_eval, [], @func_eval, []);
 mf_object = mfclass (mf_init, varargin{:});

@@ -34,3 +34,8 @@ end
 % Check parameter transfer feature
 [wcalcfit, fitcalc] = kk.simulate(fitdata,'back');
 
+acolor r b k
+dp(w)
+pl(wfit)
+pl(wcalcfit)
+

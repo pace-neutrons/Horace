@@ -208,7 +208,6 @@ function [ok,np]=plist_parse_single(plist)
 % Output:
 % -------
 %   ok      Status flag: =true if plist_in is valid; false otherwise
-%   mess    Error message: ='' if OK, contains error message if not OK
 %   np      Number of parameters in the numeric array
 %
 %
@@ -249,7 +248,7 @@ function [ok,np]=plist_parse_single(plist)
 
 ok=false;
 np=[];
-if iscell(plist) && numel(plist)>=2
+if iscell(plist) && numel(plist)>=2 && numel(size(plist))==2 && size(plist,1)==1
     if isa(plist{1},'function_handle')
         [ok,np]=plist_parse_single(plist{2});
     elseif isnumeric(plist{1}) && (isempty(plist{1}) || (numel(size(plist{1}))==2 && size(plist{1},1)==1))

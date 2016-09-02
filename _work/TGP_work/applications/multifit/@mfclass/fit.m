@@ -55,9 +55,11 @@ function [data_out, fitdata, ok, mess] = fit (obj)
 % If ok is not a return argument, then if ok is false an error will be thrown.
 
 
-% Cleanup multifit (should be just a precaution) and set cleanup object
-multifit_cleanup    % initialise multifit
-cleanupObj=onCleanup(@multifit_cleanup);
+% Set cleanup object, and cleanup multifit (should be just a precaution - should already be clean)
+init_func = obj.wrapfun_.init_func;
+cleanupObj=onCleanup(@() multifit_cleanup(init_func));
+
+multifit_cleanup(init_func)
 
 % Default return values if there is an error
 data_out = [];
@@ -100,6 +102,12 @@ if ~ok,
 end
 
 % Now fit the data
+if ~isempty(init_func)
+    [ok,mess]=init_func(wmask);
+    if ~ok
+        if throw_error, error_message(['Preprocessor function: ',mess]), else return, end
+    end
+end
 xye = cellfun(@isstruct, obj.w_);
 listing = obj.options_.listing;
 fcp = obj.options_.fit_control_parameters;
@@ -137,6 +145,12 @@ if selected
     squeeze_xye = obj.options_.squeeze_xye;
     data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
 else
+    if ~isempty(init_func)  % need to re-evaluate because data is unmasked i.e. not the same as fitted
+        [ok,mess]=init_func(obj.w_);
+        if ~ok
+            if throw_error, error_message(['Preprocessor function: ',mess]), else return, end
+        end
+    end
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         pf, p_info, foreground_eval, background_eval);
     squeeze_xye = false;

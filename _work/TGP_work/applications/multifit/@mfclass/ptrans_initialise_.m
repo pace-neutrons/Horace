@@ -169,8 +169,8 @@ p_info = struct('np',np,'nbp',nbp,'nptot',nptot,'nbptot',nbptot,'npptot',npptot,
 function [p,bp]=array_to_p_bp(pp,np,nbp)
 % Convert to cell arrays of column vectors for foreground and background functions
 nptot=sum(np(:));
-p=reshape(mat2cell(pp(1:nptot),np(:),1),size(np));
-bp=reshape(mat2cell(pp(nptot+1:end),nbp(:),1),size(nbp));
+p=reshape(vec_to_cell(pp(1:nptot),np(:)),size(np));
+bp=reshape(vec_to_cell(pp(nptot+1:end),nbp(:)),size(nbp));
 
 
 %--------------------------------------------------------------------------------------------------

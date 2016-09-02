@@ -8,5 +8,5 @@ function mf_object = multifit2_func (varargin)
 %
 % Synonymous with method: multifit2
 
-mf_init = mfclass_wrapfun ('sqw', @func_eval,[], @func_eval,[]);
+mf_init = mfclass_wrapfun ('sqw', @func_eval, [], @func_eval, []);
 mf_object = mfclass_sqw (mf_init, varargin{:});
