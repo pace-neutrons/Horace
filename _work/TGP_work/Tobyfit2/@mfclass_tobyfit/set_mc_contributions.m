@@ -16,9 +16,9 @@ function obj = set_mc_contributions (obj, varargin)
 %   >> obj = obj.set_mc_contributions ('chopper','sample')
 
 
-[mc_contrib,ok,mess] = mc_contributions_parse (varargin{:});
+[mc_contributions,ok,mess] = mc_contributions_parse (varargin{:});
 if ok
-    obj.mc_contributions_ = mc_contrib;
+    obj.mc_contributions_ = mc_contributions;
 else
     error(mess)
 end

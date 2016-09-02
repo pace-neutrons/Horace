@@ -96,11 +96,26 @@ if numel(varargin)==1 && islognumscalar(varargin{1}) && ~logical(varargin{1})
     obj.refine_crystal_ = [];
 else
     if isempty(obj.refine_moderator_)
+        % -------------------------------------------------------------------------------
+        % Check there is data
+        data = obj.data;
+        if ~isempty(data)
+            wsqw = cell2mat_obj(cellfun(@(x)x(:),data,'UniformOutput',false));
+        else
+            error('No data sets have been set - not possible to set moderator refinement options')
+        end
+        % Check that the lattice parameters are the same in all objects
+        [alatt0,angdeg0,ok,mess] = lattice_parameters(wsqw);
+        if ~ok
+            mess=['Crystal refinement: ',mess];
+            error(mess)
+        end
+        % Fill crystal options
         if numel(varargin)==0 || (numel(varargin)==1 &&...
                 (isempty(varargin{1}) || (islognumscalar(varargin{1}) && logical(varargin{1}))))
-            [xtal_opts,ok,mess] = refine_crystal_parse ();
+            [xtal_opts,ok,mess] = refine_crystal_parse (alatt0,angdeg0);
         else
-            [xtal_opts,ok,mess] = refine_crystal_parse (varargin{:});
+            [xtal_opts,ok,mess] = refine_crystal_parse (alatt0,angdeg0,varargin{:});
         end
         if ok
             obj.refine_crystal_ = xtal_opts;

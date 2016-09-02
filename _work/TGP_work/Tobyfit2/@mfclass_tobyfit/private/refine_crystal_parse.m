@@ -1,12 +1,24 @@
-function [xtal_opts,ok,mess] = refine_crystal_parse (varargin)
+function [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def, varargin)
 % Set up options to control the refinement of crystal orientation and lattice parameters
 % in Tobyfit. The output is a structure of options to be passed as follows:
 %
-% Default options:
-%   >> [xtal_opts,ok,mess] = refine_crystal_parse
+% Check a crystal options structure is valid: (empty fields filled with defaults)
+%   >> [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def, xtal_opts_in)
 %
-% Set initial lattice parameters different to those in the sqw objects
-%   >> [xtal_opts,ok,mess] = refine_crystal_parse (alatt_init, angdeg_init)
+% Default options: must always give default lattice parameters and angles:
+%   >> [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def)
+%
+% Set initial lattice parameters different to the default
+%   >> [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def,...
+%                   alatt_init, angdeg_init)
+%
+% Set x, y axes for rotation matrix to somethng other than defaults:
+%   >> [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def,...
+%                   [], [], urot, vrot)
+%
+% Set both lattice parmaeters and rotation matrix axes
+%   >> [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def,...
+%                   alatt_init, angdeg_init, urot, vrot)
 %
 % In addition, there are keyword arguments to control the refinement e.g.
 %   >> [xtal_opts,ok,mess] = refine_crystal_parse (..., 'fix_angdeg',...)
@@ -17,19 +29,21 @@ function [xtal_opts,ok,mess] = refine_crystal_parse (varargin)
 %
 % Input:
 % ------
+%   alatt_def       Default lattice parameters (row vector length 3)
+%
+%   angdeg_def      Default lattice angles (row vector length 3)
+%
 % Optional input parameters:
 %   alatt_init      Initial lattice parameters for start of refinement
 %                  i.e. [a,b,c] (Angstroms)
-%                   If empty e.g. [] or '' or omitted then current values 
-%                  in sqw objects are used
+%                   If empty e.g. [] or '' or omitted then set to alatt_def
 %
 %   angdeg_init     Initial lattice angles for start of refinement 
 %                  i.e. [alf,bet,gam] (deg)
 %                   If one or both of alatt_init and angdeg_init are not given,
 %                  then the corresponding reference lattice parmaeters are
 %                  taken as the initial values for refinement.
-%                   If empty e.g. [] or '' or omitted then current values
-%                  in sqw objects are used
+%                   If empty e.g. [] or '' or omitted then set to angdeg_def
 %
 %   urot            Direction of x-axis for rotation matrix in r.l.u.
 %                   If empty or omitted , takes default as [1,0,0]
@@ -72,8 +86,8 @@ function [xtal_opts,ok,mess] = refine_crystal_parse (varargin)
 % Output:
 % -------
 %   xtal_opts       Structure with crystal refinement options
-%           alatt   Initial lattice parameters (=[] to use values in sqw objects)
-%           angdeg  Initial lattice angles (=[] to use values in sqw objects)
+%           alatt   Initial lattice parameters
+%           angdeg  Initial lattice angles
 %           rot     Initial rotation vector (rad) (=[0,0,0])
 %           urot    x-axis in r.l.u. (Default: [1,0,0])
 %           vrot    Defines y-axis in r.l.u. (in plane of urot and vrot)
@@ -85,17 +99,12 @@ function [xtal_opts,ok,mess] = refine_crystal_parse (varargin)
 %                   If there is a problem, then all fields are set to [].
 
 
-% For use within other routines: pass a structure and check that it is a valid
-% opts strcuture, expandng any empty fields to the defaults:
-%   >> [xtal_opts,ok,mess] = refine_crystal_parse (xtal_opts)
-
-
 % Get crystal refinement options structure
 % ----------------------------------------
 % Determine if xtal_opts structure input or not
-if nargin==1 && isstruct(varargin{1})   % input a single structure
+if numel(varargin)==3 && isstruct(varargin{1})   % input a single structure
     if isscalar(varargin{1})
-        [xtal_opts,ok,mess]=check_ok(varargin{1});
+        [xtal_opts,ok,mess]=check_ok(alatt_def,angdeg_def,varargin{1});
         if nargout>1, return, else error(mess), end
     else
         xtal_opts=check_ok; ok=false; mess='Structure with crystal refinement options must be a scalar structure';
@@ -181,16 +190,16 @@ else
     xtal_opts.fix_alatt_ratio=fix_alatt_ratio;
     
     % Check validity of structure
-    [xtal_opts,ok,mess]=check_ok(xtal_opts);
+    [xtal_opts,ok,mess]=check_ok(alatt_def,angdeg_def,xtal_opts);
     if nargout>1, return, else error(mess), end
 
 end
 
 %--------------------------------------------------------------------------------------------------
-function [xtal_opts,ok,mess]=check_ok(xtal_opts_in)
+function [xtal_opts,ok,mess]=check_ok(alatt_def,angdeg_def,xtal_opts_in)
 % Check validity of crystal options structure, setting defaults for empty fields where possible
 %
-%   >> [xtal_opts,ok,mess]=check_ok(xtal_opts_in)
+%   >> [xtal_opts,ok,mess]=check_ok(alatt_def,angdeg_def,xtal_opts_in)
 %   >> [xtal_opts,ok,mess]=check_ok
 %
 % If not valid (or no input argument), then returns a 1x1 structure with the fields
@@ -224,7 +233,7 @@ if numel(xtal_opts.alatt)==3 && isnumeric(xtal_opts.alatt) && all(xtal_opts.alat
         xtal_opts.alatt=xtal_opts.alatt(:)';
     end
 elseif isempty(xtal_opts.alatt)
-    xtal_opts.alatt=[];
+    xtal_opts.alatt=alatt_def;
 else
     xtal_opts=empty_struct(names);
     ok=false; mess='Check initial lattice parameters ([a,b,c]) for refinement'; return
@@ -236,7 +245,7 @@ if numel(xtal_opts.angdeg)==3 && isnumeric(xtal_opts.angdeg) && all(xtal_opts.an
         xtal_opts.angdeg=xtal_opts.angdeg(:)';
     end
 elseif isempty(xtal_opts.angdeg)
-    xtal_opts.angdeg=[];
+    xtal_opts.angdeg=angdeg_def;
 else
     xtal_opts=empty_struct(names);
     ok=false; mess='Check initial lattice angles ([alf,bet,gam]) for refinement'; return

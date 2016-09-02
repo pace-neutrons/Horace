@@ -1,4 +1,4 @@
-function [c0,c1,c2,c3]=test_matrix_mult_speed (n)
+function [c0,c1,c2,c3,c4]=test_matrix_mult_speed (n)
 % Turns out that method 1 is 2x faster than method 2
 % Method 0 is 
 
@@ -66,10 +66,17 @@ c2=permute(c2,[3,1,2]);
 
 % Method 3
 % --------
-c3=zeros(size(a));
-
 tic
 c3=mtimesx(a,b);
 t3=toc
 
 c3=permute(c3,[3,1,2]);
+
+
+% Method 3
+% --------
+tic
+c4=mtimesx(a,b);
+t4=toc
+
+c4=permute(c4,[3,1,2]);
