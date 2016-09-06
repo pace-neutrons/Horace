@@ -24,6 +24,8 @@ operation. Is that right, and is the buffer being cleared after fitting?
 
 Check all other buffering is cleared: search on 'persistent' (and just for completeness, 'global')
 
+
+
 ===============================================================================================
              Tests
 ===============================================================================================
@@ -40,7 +42,10 @@ data sets, to test that the appended constraints are inserted correctly.
 Seen this on my laptop for RbMnF3 and Fe data (test_tobyfit_0.m, test_tobyfit_1.m). Slow, and
 seems to be reading far too much of the file int eh case of RbMnF3.
 
+Dreadfully slow 'get' for config properties
 
+
+Noisify has a problem with the size ofthe error bars
 
 
 

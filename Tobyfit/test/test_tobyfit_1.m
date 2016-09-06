@@ -6,7 +6,7 @@ function res=test_tobyfit_1
 % tf_dir=fileparts(which(mfilename));
 % parfile='C:\data\Fe\9cards_4_4to1.par';
 
-datafile='C:\data\Fe\sqw\Fe_ei787.sqw';
+datafile='E:\data\Fe\sqw\Fe_ei787.sqw';
 
 sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
 
