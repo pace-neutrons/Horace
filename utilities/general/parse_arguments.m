@@ -393,7 +393,7 @@ function [ok, mess, flagnames, opt] = parse_opt_args (varargin)
 % Get optional arguments
 
 narg=numel(varargin);
-if narg==2 && iscellstr(varargin{1}) && isstruct(varargin{2})
+if narg==2 && (iscellstr(varargin{1}) || isempty(varargin{1})) && isstruct(varargin{2})
     flagnames = varargin{1};
     [ok,mess,opt] = update_opt (varargin{2});
     
@@ -412,6 +412,8 @@ elseif narg==0
 else
     ok=false;
     mess='Check validity of optional arguments ''flagnames'' and/or ''opt''';
+    flagnames={};
+    opt=struct();
 end
 
 

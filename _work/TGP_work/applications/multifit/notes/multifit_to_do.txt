@@ -130,3 +130,31 @@ Is it better to not to have methods constraints_remove_, constraints_insert_ ope
 on mfclass objects? The problem is it is not possible to compose methods like
 constraints_replace because the output objects of constraints_remove_ are not
 valid objects (no_, nbp_ are inconsistent with constraints section)
+
+
+
+Functions used in least squares fittng algorithm
+================================================
+
+I think we should be able to tidy this up a bit, so there is a cleaner API.
+
+multifit_cleanup
+
+multifit_func_eval
+
+multifit_lsqr
+
+multifit_lsqr_func_eval
+
+multifit_store_state
+
+parameter_get
+
+parameter_set
+
+ptrans_par
+
+ptrans_sigma
+
+vec_to_cell
+

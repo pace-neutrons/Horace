@@ -31,7 +31,7 @@ function wout=multifit_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info,eval_
 %   p_info      Structure with information needed to transform from pf to the
 %              parameter values needed for function evaluation
 %
-%   eval_fore   Include evaluation of forgraound functions (true or false)
+%   eval_fore   Include evaluation of foreground functions (true or false)
 %
 %   eval_back   Include evaluation of background functions (true or false)
 %
