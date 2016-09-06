@@ -1,4 +1,4 @@
-function res=test_tobyfit_1
+function res=test_tobyfit_1 (tf_ver)
 % Test basic aspects of Tobyfit
 
 %% --------------------------------------------------------------------------------------
@@ -59,7 +59,14 @@ w110a_eval=sqw_eval(w110a,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
 acolor k; dd(w110a_eval)
 
 % Tobyfit simulation
-w110a_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],'eval','mc_npoints',10);
+if tf_ver==1
+    w110a_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],'eval','mc_npoints',10);
+else
+    kk=tobyfit2(w110a);
+    kk=kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+    kk=kk.set_mc_points(10);
+    w110a_sim=kk.simulate;
+end
 acolor b; pd(w110a_sim)
 
 pause(2)
