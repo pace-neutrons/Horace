@@ -7,5 +7,10 @@ function mf_object = tobyfit2 (varargin)
 % Type >> doc mfclass   for how to set the fit function, initial
 % parameter values, fix parameters, and fit or simulate the data.
 
-mf_init = mfclass_wrapfun ('sqw', @resol_conv_tobyfit_mc, [], @func_eval, [], @resol_conv_tobyfit_mc_init);
+
+% Initialise
+mf_init = mfclass_wrapfun ('sqw', @resol_conv_tobyfit_mc, [], @func_eval, [],...
+    true, false, @resol_conv_tobyfit_mc_init, []);
+
+% Construct
 mf_object = mfclass_tobyfit (mf_init, varargin{:});

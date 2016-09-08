@@ -1,4 +1,5 @@
-function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contributions,mc_points,xtal,modshape)
+function [wout,state_out]=resol_conv_tobyfit_mc(win,caller,state_in,sqwfunc,pars,...
+    lookup,mc_contributions,mc_points,xtal,modshape)
 % Calculate resolution broadened sqw object(s) for a model scattering function.
 %
 %   >> wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,lookup)
@@ -6,6 +7,17 @@ function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contributions,mc_points,
 % Input:
 % ------
 %   win         sqw object or array of objects
+%
+%   caller      Stucture that contains ionformation from the caller routine. Fields
+%                   store_calc      Calculated values will be stored by caller
+%                   ind             Indicies into lookup tables. The number of elements
+%                                  of ind must match the number of sqw objects in win
+%
+%   state_in    Cell array of internal state of this function for function evaluation.
+%               If an element is not empty. then the internal state can be reset to this
+%              stored state; if empty, then a default state must be used.
+%               The number of elements must match numel(win); state_in must be a cell
+%              array even if there is only a single input dataset.
 %
 %   sqwfunc     Handle to function that calculates S(Q,w)
 %               Most commonly used form is:
@@ -58,6 +70,9 @@ function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contributions,mc_points,
 % -------
 %   wout        Output dataset or array of datasets with computed signal
 %
+%   state_out   Cell array of internal state of this function for future evaluation.
+%               The number of elements must match numel(win); state_in must be a cell
+%              array even if there is only a single input dataset.
 %
 % NOTE: Contributions to resolution are
 %   yvec(1,...):   t_m      deviation in departure time from moderator surface
@@ -72,53 +87,82 @@ function wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,mc_contributions,mc_points,
 %   yvec(10,...):  z_d      z-coordinate of point of detection in detector frame
 %   yvec(11,...):  t_d      deviation in detection time of neutron
 
-wout = win;
-if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
-% Unpack lookup tables and other pre-computed parameters
-[ok,mess,lookup]=resol_conv_tobyfit_mc_init();
-if ~ok
-    error(mess)     % something went wrong!
-end
-
-mod_table=lookup.mod_table.table;
-t_av=lookup.mod_table.t_av;
-ind_mod=lookup.mod_table.ind;
-
-wa=lookup.aperture.width;
-ha=lookup.aperture.height;
-
-fermi_table=lookup.fermi_table.table;
-ind_fermi=lookup.fermi_table.ind;
-
-[ind,rng_status]=resol_conv_tobyfit_mc_control; % get indicies of win to be computed and status of random number generator
-if isempty(ind)
-    ind=1:numel(win);
-    rng_status=cell(size(win));
-elseif numel(ind)~=numel(win)
+% Check consistency of caller information, stored internal state, and lookup tables
+% ---------------------------------------------------------------------------------
+ind=caller.ind;                 % indicies into lookup tables
+if numel(ind) ~= numel(win)
     error('Inconsistency between number of input datasets and number passed from control routine')
+elseif numel(ind) ~= numel(state_in)
+    error('Inconsistency between number of input datasets and number of internal function status stores')
 elseif max(ind(:))>numel(lookup.sample)
     error('Inconsistency between dataset indicies passed from control routine and the lookup tables')
 end
 
+
 % Check refinement options are consistent
+% ---------------------------------------
 refine_crystal = ~isempty(xtal);
 refine_moderator = ~isempty(modshape);
-
 if refine_crystal && refine_moderator
     error('Cannot refine both crystal and moderator parameters. Error in logic flow - this should have been caught')
 end
 
+
+% Initialise output arguments
+% ---------------------------
+wout = win;
+state_out = cell(size(win));    % create output argument
+
+
+% Unpack the components of the lookup argument for convenience
+% ------------------------------------------------------------
+% Moderator
+mod_table=lookup.mod_table.table;
+t_av=lookup.mod_table.t_av;
+ind_mod=lookup.mod_table.ind;
+
+% Aperture
+wa=lookup.aperture.width;
+ha=lookup.aperture.height;
+
+% Fermi chopper
+fermi_table=lookup.fermi_table.table;
+ind_fermi=lookup.fermi_table.ind;
+
+% Sample
+sample=lookup.sample;
+
+% Detector
+dt=lookup.dt;
+
+% Coordinate transformation
+dq_mat=lookup.dq_mat;
+
+
 % Perform resolution broadening calculation
+% -----------------------------------------
+if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
+
+store_calc=caller.store_calc;
+dummy_mfclass = mfclass;
+
 for i=1:numel(ind)
     iw=ind(i);
-    if ~isempty(rng_status), rng(rng_status{i}), end
+    % Set random number generator if necessary, and save if required for later
+    if store_calc
+        state_out{i} = rng;     % capture the random number generator state
+    else
+        if ~isempty(state_in{i})
+            rng(state_in{i})
+        end
+    end
 
     % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters
-        ptmp=mfclass_gateway_parameter_get(mfclass, pars);
-        pars=mfclass_gateway_parameter_set(mfclass, pars, ptmp(1:end-9));
+        ptmp=mfclass_gateway_parameter_get(dummy_mfclass, pars);
+        pars=mfclass_gateway_parameter_set(dummy_mfclass, pars, ptmp(1:end-9));
         alatt=ptmp(end-8:end-6);
         angdeg=ptmp(end-5:end-3);
         rotvec=ptmp(end-2:end);
@@ -132,8 +176,8 @@ for i=1:numel(ind)
     elseif refine_moderator
         % Strip out moderator refinement parameters
         npmod=numel(modshape.pin);
-        ptmp=mfclass_gateway_parameter_get(mfclass, pars);
-        pars=mfclass_gateway_parameter_set(mfclass, pars, ptmp(1:end-npmod));
+        ptmp=mfclass_gateway_parameter_get(dummy_mfclass, pars);
+        pars=mfclass_gateway_parameter_set(dummy_mfclass, pars, ptmp(1:end-npmod));
         pp=ptmp(end-npmod+1:end);
         % Get moderator lookup table for current moderator parameters
         [mod_table_refine,t_av_refine]=refine_moderator_sampling_table_buffer...
@@ -171,7 +215,7 @@ for i=1:numel(ind)
         
         % Sample deviations
         if mc_contributions.sample
-            yvec(5:7,1,:)=random_points(lookup.sample(iw),npix);
+            yvec(5:7,1,:)=random_points(sample(iw),npix);
         end
         
         % Detector deviations
@@ -186,10 +230,10 @@ for i=1:numel(ind)
         
         % Energy bin
         if mc_contributions.energy_bin
-            yvec(11,1,:)=lookup.dt{iw}.*(rand(1,npix)-0.5);
+            yvec(11,1,:)=dt{iw}.*(rand(1,npix)-0.5);
         end
         
-        dq=squeeze(mtimesx(lookup.dq_mat{iw},yvec))';
+        dq=squeeze(mtimesx(dq_mat{iw},yvec))';
         if imc==1
             stmp=sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
         else
