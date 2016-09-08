@@ -68,18 +68,19 @@ classdef mfclass_tobyfit < mfclass
             if isempty(data)
                 error('No data sets have been set - nothing to simulate')
             end
-
+            
             % Update parameter wrapping
             obj_tmp = obj;
             
             wrapfun = obj_tmp.wrapfun_;
-            wrapfun.p_wrap = append_cell (wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, [], []);
+            wrapfun = wrapfun.append_p_wrap(obj.mc_contributions, obj.mc_points, [], []);
             obj_tmp.wrapfun_ = wrapfun;
                         
             % Perform simulation
             [data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
         end
         
+        %------------------------------------------------------------------
         function [data_out, calcdata, ok, mess] = fit (obj)
             % Create cleanup object
             cleanupObj=onCleanup(@() tobyfit_cleanup);
@@ -106,8 +107,7 @@ classdef mfclass_tobyfit < mfclass
             end
             
             wrapfun = obj_tmp.wrapfun_;
-            wrapfun.p_wrap = append_cell (wrapfun.p_wrap, obj.mc_contributions, obj.mc_points,...
-                xtal, modshape);
+            wrapfun = wrapfun.append_p_wrap(obj.mc_contributions, obj.mc_points, xtal, modshape);
             obj_tmp.wrapfun_ = wrapfun;
             
             % Perform fit
@@ -125,30 +125,8 @@ end
 
 
 %--------------------------------------------------------------------------------------------------
-function Cout = append_cell (C,varargin)
-% Append arguments to a row cell array. If the inital argument C is not a
-% cell array, it becomes the first argument of the output cell array.
-% If no arguments are to be appended, then Cout is identical to C (i.e. it
-% is NOT changed into a cell array with one element)
-
-if numel(varargin)>0
-    if ~iscell(C)
-        Cout = [{C},varargin];
-    else
-        Cout = [C,varargin];
-    end
-else
-    Cout = C;
-end
-
-end
-
-%--------------------------------------------------------------------------------------------------
 function tobyfit_cleanup
 % Cleanup Tobyfit
-
-% Cleanup the random number generator store (and any other control parameters for the datasets)
-resol_conv_tobyfit_mc_control
 
 % Cleanup the stored buffer for moderator fitting
 refine_moderator_sampling_table_buffer
