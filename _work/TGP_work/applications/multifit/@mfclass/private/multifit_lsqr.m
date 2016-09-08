@@ -1,5 +1,5 @@
-function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
-    multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
+function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,bfunc,pin,bpin,...
+    f_pass_caller_info,bf_pass_caller_info,pfin,p_info,listing,fcp,perform_fit)
 % Perform least-squares minimisation
 %
 %   >> [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
@@ -32,13 +32,19 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
 %              Empty elements are interpreted as not having a function to
 %              evaluate for the corresponding data set.
 %
-%   bkdfunc     Handles to background functions; same format as func, above
+%   bfunc       Handles to background functions; same format as func, above
 %
-%   plist       Cell array of valid parameter lists, one list per foreground function,
+%   pin         Cell array of valid parameter lists, one list per foreground function,
 %              with the initial parameter values at the lowest level.
 %
-%   bkdlist     Cell array of valid parameter lists, one list per background function,
+%   bin         Cell array of valid parameter lists, one list per background function,
 %              with the initial parameter values at the lowest level.
+%
+%   f_pass_caller_info  Keep internal state of foreground function evaluation e.g. seed of random
+%               number generator. Dictates the format of the fit fuction argument list.
+%
+%   bf_pass_caller_info Keep internal state of background function evaluation e.g. seed of random
+%               number generator. Dictates the format of the fit fuction argument list.
 %
 %   pf          Free parameter initial values (that is, the independently 
 %              varying parameters)
@@ -92,6 +98,12 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
 %
 % T.G.Perring Jan 2009:
 % ------------------------
+% Change calls to fit functions so that caller information is passed direcetly rather than
+% via a function that stores persistent information. Makes cleanup easier and future
+% refactoring onto multiple cores more straightforward.
+%
+% T.G.Perring Jan 2009:
+% ------------------------
 % Generalise to arbitrary data objects which have a certain set of methods defined on them (see
 % notes elsewhere for details)
 %
@@ -126,9 +138,6 @@ chisqr_red=0;
 converged=false;
 ok=true;
 mess='';
-
-% Clean the function evaluation routine of buffered results to avoid any conflicts
-multifit_lsqr_func_eval
 
 % Package data values and weights (i.e. 1/error_bar) each into a single column vector
 yval=cell(size(w));
@@ -174,7 +183,8 @@ if exist('perform_fit','var') && ~perform_fit
     % didn't converge
     
     if listing>2, disp(' Function evaluation:'), end
-    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,false,listing);
+    f=multifit_lsqr_func_eval(w,xye,func,bfunc,pin,bpin,...
+        f_pass_caller_info,bf_pass_caller_info,pfin,p_info,false,[],listing);
     resid=wt.*(yval-f);
     
     c_best=resid'*resid; % Un-normalised chi-squared
@@ -204,7 +214,8 @@ else
     
     % Starting values of parameters and function values
     if listing>2, disp(' '), disp(' Function evaluation at starting parameter values:'), end
-    f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,true,listing);
+    [f,~,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,pin,bpin,...
+        f_pass_caller_info,bf_pass_caller_info,pfin,p_info,true,[],listing);
     resid=wt.*(yval-f);
     
     p_best=pfin; % Best values for parameters at start
@@ -225,7 +236,8 @@ else
         
         % Compute Jacobian matrix
         resid=wt.*(yval-f_best);
-        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,p_info,f_best,dp,listing);
+        jac=multifit_dfdpf(w,xye,func,bfunc,pin,bpin,...
+            f_pass_caller_info,bf_pass_caller_info,p_best,p_info,f_best,dp,S,listing);
         nrm=zeros(npfree,1);
         for j=1:npfree
             jac(:,j)=wt.*jac(:,j);
@@ -256,7 +268,8 @@ else
             if (any(abs(p_chg)>0))  % there is a change in (at least one of) the parameters
                 p=p_best+p_chg;
                 if listing>2, disp(' Function evaluation after stepping parmeters:'), end
-                f=multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p,p_info,true,listing);
+                [f,~,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,pin,bpin,...
+                    f_pass_caller_info,bf_pass_caller_info,p,p_info,true,S,listing);
                 resid=wt.*(yval-f);
                 c=resid'*resid;
                 if c<c_best || c==0
@@ -309,9 +322,11 @@ else
         % of the covariance matrix. If the stored values are for the best parameters, then this
         % is a low cost function call, so there is little penalty.)
         if listing>2, disp(' '), disp(' Function evaluation at best fit parameters:'), end
-        multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,p_best,p_info,true,listing);
+        [~,~,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,pin,bpin,...
+            f_pass_caller_info,bf_pass_caller_info,p_best,p_info,true,S,listing);
         % Now get Jacobian matrix
-        jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p_best,p_info,f_best,dp,listing);
+        jac=multifit_dfdpf(w,xye,func,bfunc,pin,bpin,...
+            f_pass_caller_info,bf_pass_caller_info,p_best,p_info,f_best,dp,S,listing);
         for j=1:npfree
             jac(:,j)=wt.*jac(:,j);
         end;
@@ -332,17 +347,14 @@ else
     
 end
 
-% Cleanup
-% -------
-% Clean the function evaluation routine of buffered results to save memory
-multifit_lsqr_func_eval
-
 
 %------------------------------------------------------------------------------------------
-function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp,listing)
+function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,...
+    f_pass_caller_info,bf_pass_caller_info,p,p_info,f,dp,S,listing)
 % Calculate partial derivatives of function with respect to parameters
 %
-%   >> jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp)
+%   >> jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,...
+%           f_pass_caller_info,bf_pass_caller_info,p,p_info,f,dp,S,listing)
 %
 % Input:
 % ------
@@ -352,6 +364,8 @@ function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp,listing)
 %   bkdfunc Cell array of handles to background functions
 %   pin     Function arguments for global function
 %   bpin    Cell array of function arguments for background functions
+%   f_pass_caller_info  Keep internal state of foreground function evaluation
+%   bf_pass_caller_info Keep internal state of background function evaluation
 %   p       Parameter values of free parameters
 %   p_info  Structure with information to convert free parameters to numerical
 %           parameters needed for function evaluation
@@ -359,6 +373,7 @@ function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp,listing)
 %   dp      Fractional step change in p for calculation of partial derivatives
 %                - if dp > 0    calculate as (f(p+h)-f(p))/h
 %                - if dp < 0    calculate as (f(p+h)-f(p-h))/(2h)
+%   S       Structure containing stored values and internal states of functions
 %   listing Screen output control
 %
 % Output:
@@ -366,6 +381,10 @@ function jac=multifit_dfdpf(w,xye,func,bkdfunc,pin,bpin,p,p_info,f,dp,listing)
 %   jac     Matrix of partial derivatives: m x n array where m=length(f) and
 %           n = length(p)
 %
+%
+% Note that the call to multifit_lsqr_func_eval in this function is only ever
+% with store_calc==false. Consequently the stored value structure is never
+% updated, so we do not need to pass it back from this function.
 
 if listing>2, disp(' Calculating partial derivatives:'), end
 
@@ -383,12 +402,15 @@ for j=1:length(p)
     end
     if dp>=0
         ppos=p; ppos(j)=p(j)+del;
-        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,p_info,false,listing)-f)/del;
+        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,...
+            f_pass_caller_info,bf_pass_caller_info,ppos,p_info,false,S,listing)-f)/del;
     else
         ppos=p; ppos(j)=p(j)+del;
         pneg=p; pneg(j)=p(j)-del;
-        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,ppos,p_info,false,listing) -...
-                  multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,pneg,p_info,false,listing))/(2*del);
+        jac(:,j)=(multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,...
+            f_pass_caller_info,bf_pass_caller_info,ppos,p_info,false,S,listing) -...
+                  multifit_lsqr_func_eval(w,xye,func,bkdfunc,pin,bpin,...
+                  f_pass_caller_info,bf_pass_caller_info,pneg,p_info,false,S,listing))/(2*del);
     end
 end
 

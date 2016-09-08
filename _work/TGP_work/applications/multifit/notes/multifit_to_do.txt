@@ -138,23 +138,11 @@ Functions used in least squares fittng algorithm
 
 I think we should be able to tidy this up a bit, so there is a cleaner API.
 
-multifit_cleanup
 
-multifit_func_eval
-
-multifit_lsqr
-
-multifit_lsqr_func_eval
-
-multifit_store_state
-
-parameter_get
-
-parameter_set
-
-ptrans_par
-
-ptrans_sigma
-
-vec_to_cell
-
+(4) tobyfit: 
+	resol_conv_tobyfit_mc_init: 	pass lookup as a parameter to resol_conv_tobyfit_mc_init
+	
+	resol_conv_tobyfit_mc: 			Get rid of resol_conv_tobyfit_mc_control
+									Get rid of resol_conv_tobyfit_mc_control_init (use param instead)
+								
+	Get rid of tobyfit_cleanup: but check refine_moderator_sampling_table_buffer

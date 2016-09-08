@@ -55,12 +55,6 @@ function [data_out, fitdata, ok, mess] = fit (obj)
 % If ok is not a return argument, then if ok is false an error will be thrown.
 
 
-% Set cleanup object, and cleanup multifit (should be just a precaution - should already be clean)
-init_func = obj.wrapfun_.init_func;
-cleanupObj=onCleanup(@() multifit_cleanup(init_func));
-
-multifit_cleanup(init_func)
-
 % Default return values if there is an error
 data_out = [];
 fitdata = [];
@@ -92,30 +86,35 @@ if ~ok
     if throw_error, error_message(mess), else return, end
 end
 
-% Get wrapped functions and parameters
-[fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj);
-
 % Check that there are parameters and unmasked data to be fitted
 [~, ok, mess, pfin, p_info] = ptrans_initialise_ (obj);
-if ~ok,
+if ~ok
     if throw_error, error_message(mess), else return, end
 end
 
-% Now fit the data
-if ~isempty(init_func)
-    [ok,mess]=init_func(wmask);
-    if ~ok
-        if throw_error, error_message(['Preprocessor function: ',mess]), else return, end
-    end
+% Get wrapped functions and parameters after performing initialisation if required
+func_init = obj.wrapfun_.func_init;
+bfunc_init = obj.wrapfun_.bfunc_init;
+
+[ok, mess, func_init_output_args, bfunc_init_output_args] = ...
+    create_init_func_args (func_init, bfunc_init, wmask);
+if ~ok
+    if throw_error, error_message(mess), else return, end
 end
+[fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj,...
+    func_init_output_args, bfunc_init_output_args);
+
+% Now fit the data
 xye = cellfun(@isstruct, obj.w_);
+f_pass_caller = obj.wrapfun_.f_pass_caller;
+bf_pass_caller = obj.wrapfun_.bf_pass_caller;
 listing = obj.options_.listing;
 fcp = obj.options_.fit_control_parameters;
 perform_fit = true;
 
 [pf, sig, cor, chisqr_red, converged, ok, mess] =...
-    multifit_lsqr (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap, pfin, p_info,...
-    listing, fcp, perform_fit);
+    multifit_lsqr (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
+    f_pass_caller, bf_pass_caller, pfin, p_info, listing, fcp, perform_fit);
 if ~ok
     if throw_error, error_message(mess), else return, end
 end
@@ -139,23 +138,33 @@ end
 selected = obj.options_.selected;
 foreground_eval = true;
 background_eval = true;
+
 if selected
+    % All initiliasation is up to date, as evaluating over the same data as was fitted
+    % Now compute output
     wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        pf, p_info, foreground_eval, background_eval);
+        f_pass_caller, bf_pass_caller, pf, p_info, foreground_eval, background_eval);
     squeeze_xye = obj.options_.squeeze_xye;
     data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
+    
 else
-    if ~isempty(init_func)  % need to re-evaluate because data is unmasked i.e. not the same as fitted
-        [ok,mess]=init_func(obj.w_);
-        if ~ok
-            if throw_error, error_message(['Preprocessor function: ',mess]), else return, end
-        end
+    % Need to re-initialise because data is unmasked i.e. not the same as fitted
+    % (if there is no initialisation to be done, then cheap call)
+    [ok, mess, func_init_output_args, bfunc_init_output_args] = ...
+        create_init_func_args (func_init, bfunc_init, obj.w_);
+    if ~ok
+        if throw_error, error_message(mess), else return, end
     end
+    [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj,...
+        func_init_output_args, bfunc_init_output_args);
+    
+    % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        pf, p_info, foreground_eval, background_eval);
+        f_pass_caller, bf_pass_caller, pf, p_info, foreground_eval, background_eval);
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
     data_out = repackage_output_datasets (obj.data_, wout, msk_none, squeeze_xye);
+    
 end
 
 % Package output fit results

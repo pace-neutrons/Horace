@@ -1,7 +1,9 @@
-function wout=multifit_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info,eval_fore,eval_back)
+function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
+    f_pass_caller_info,bf_pass_caller_info,pf,p_info,eval_fore,eval_back)
 % Calculate the functions over the input data objects
 %
-%   >> wout=multifit_func_eval(w,xye,func,bkdfunc,pin,bpin,pf,p_info)
+%   >> wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
+%                f_pass_caller_info,bf_pass_caller_info,pf,p_info,eval_fore,eval_back)
 %
 % Input:
 % ------
@@ -20,11 +22,21 @@ function wout=multifit_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info,eval_
 %              Empty elements are interpreted as not having a function to
 %              evaluate for the corresponding data set.
 %
-%   bkdfunc     Handles to background functions; same format as func, above
+%   bfunc       Handles to background functions; same format as func, above
 %
 %   plist       Cell array of valid parameter lists, one list per foreground function.
 %
-%   bkdlist     Cell array of valid parameter lists, one list per background function.
+%   bplist      Cell array of valid parameter lists, one list per background function.
+%
+%   f_pass_caller_info  Keep internal state of foreground function evaluation e.g. seed of random
+%              number generator. Dictates the format of the fit fuction argument list.
+%              Nothing is actually kept, however; it is just used to call the function
+%              with the correct syntax.
+%
+%   bf_pass_caller_info Keep internal state of background function evaluation e.g. seed of random
+%               number generator. Dictates the format of the fit fuction argument list.
+%              Nothing is actually kept, however; it is just used to call the function
+%              with the correct syntax.
 %
 %   pf          Free parameter initial values
 %
@@ -40,13 +52,15 @@ function wout=multifit_func_eval(w,xye,func,bkdfunc,plist,bplist,pf,p_info,eval_
 % -------
 %   wout        Calculated output dataset(s). Same form as the input dataset(s)
 
-isfitting=false;
-store_vals=false;
 
 wout=cell(size(w));
 
 [p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
 
+fstate_store={[]};
+bfstate_store={[]};
+caller.store_calc=false;
+caller.ind=[];
 % Foreground function calculations
 if eval_fore
     if numel(func)==1
@@ -54,28 +68,44 @@ if eval_fore
             pars=parameter_set(plist{1},p{1});
             if ~iscell(pars), pars={pars}; end  % make a cell for convenience
             for i=1:numel(w)
-                multifit_store_state (isfitting,i,true,store_vals)
+                caller.ind=i;
                 if xye(i)
                     wout{i}=w{i};
-                    wout{i}.y=func{1}(w{i}.x{:},pars{:});
+                    if ~f_pass_caller_info
+                        wout{i}.y=func{1}(w{i}.x{:},pars{:});
+                    else
+                        wout{i}.y=func{1}(w{i}.x{:},caller,fstate_store,pars{:});
+                    end
                     wout{i}.e=zeros(size((w{i}.y)));
                 else
-                    wout{i}=func{1}(w{i},pars{:});
+                    if ~f_pass_caller_info
+                        wout{i}=func{1}(w{i},pars{:});
+                    else
+                        wout{i}=func{1}(w{i},caller,fstate_store,pars{:});
+                    end
                 end
             end
         end
     else
         for i=1:numel(w)
+            caller.ind=i;
             if ~isempty(func{i})
                 pars=parameter_set(plist{i},p{i});
                 if ~iscell(pars), pars={pars}; end  % make a cell for convenience
-                multifit_store_state (isfitting,i,true,store_vals)
                 if xye(i)
                     wout{i}=w{i};
-                    wout{i}.y=func{i}(w{i}.x{:},pars{:});
+                    if ~f_pass_caller_info
+                        wout{i}.y=func{i}(w{i}.x{:},pars{:});
+                    else
+                        wout{i}.y=func{i}(w{i}.x{:},caller,fstate_store,pars{:});
+                    end
                     wout{i}.e=zeros(size((w{i}.y)));
                 else
-                    wout{i}=func{i}(w{i},pars{:});
+                    if ~f_pass_caller_info
+                        wout{i}=func{i}(w{i},pars{:});
+                    else
+                        wout{i}=func{i}(w{i},caller,fstate_store,pars{:});
+                    end
                 end
             end
         end
@@ -84,48 +114,80 @@ end
 
 % Background function calculations
 if eval_back
-    if numel(bkdfunc)==1
-        if ~isempty(bkdfunc{1})
+    if numel(bfunc)==1
+        if ~isempty(bfunc{1})
             pars=parameter_set(bplist{1},bp{1});
             if ~iscell(pars), pars={pars}; end  % make a cell for convenience
             for i=1:numel(w)
-                multifit_store_state (isfitting,i,false,store_vals)
+                caller.ind=i;
                 if xye(i)
                     if isempty(wout{i})
                         wout{i}=w{i};
-                        wout{i}.y=bkdfunc{1}(w{i}.x{:},pars{:});
+                        if ~bf_pass_caller_info
+                            wout{i}.y=bfunc{1}(w{i}.x{:},pars{:});
+                        else
+                            wout{i}.y=bfunc{1}(w{i}.x{:},caller,bfstate_store,pars{:});
+                        end
                         wout{i}.e=zeros(size((w{i}.y)));
                     else
-                        wout{i}.y=wout{i}.y + bkdfunc{1}(w{i}.x{:},pars{:});
+                        if ~bf_pass_caller_info
+                            wout{i}.y=wout{i}.y + bfunc{1}(w{i}.x{:},pars{:});
+                        else
+                            wout{i}.y=wout{i}.y + bfunc{1}(w{i}.x{:},caller,bfstate_store,pars{:});
+                        end
                     end
                 else
                     if isempty(wout{i})
-                        wout{i}=bkdfunc{1}(w{i},pars{:});
+                        if ~bf_pass_caller_info
+                            wout{i}=bfunc{1}(w{i},pars{:});
+                        else
+                            wout{i}=bfunc{1}(w{i},caller,bfstate_store,pars{:});
+                        end
                     else
-                        wout{i}=wout{i}+bkdfunc{1}(w{i},pars{:});
+                        if ~bf_pass_caller_info
+                            wout{i}=wout{i}+bfunc{1}(w{i},pars{:});
+                        else
+                            wout{i}=wout{i}+bfunc{1}(w{i},caller,bfstate_store,pars{:});
+                        end
                     end
                 end
             end
         end
     else
         for i=1:numel(w)
-            if ~isempty(bkdfunc{i})
+            caller.ind=i;
+            if ~isempty(bfunc{i})
                 pars=parameter_set(bplist{i},bp{i});
                 if ~iscell(pars), pars={pars}; end  % make a cell for convenience
-                multifit_store_state (isfitting,i,false,store_vals)
                 if xye(i)
                     if isempty(wout{i})
                         wout{i}=w{i};
-                        wout{i}.y=bkdfunc{i}(w{i}.x{:},pars{:});
+                        if ~bf_pass_caller_info
+                            wout{i}.y=bfunc{i}(w{i}.x{:},pars{:});
+                        else
+                            wout{i}.y=bfunc{i}(w{i}.x{:},caller,bfstate_store,pars{:});
+                        end
                         wout{i}.e=zeros(size((w{i}.y)));
                     else
-                        wout{i}.y=wout{i}.y + bkdfunc{i}(w{i}.x{:},pars{:});
+                        if ~bf_pass_caller_info
+                            wout{i}.y=wout{i}.y + bfunc{i}(w{i}.x{:},pars{:});
+                        else
+                            wout{i}.y=wout{i}.y + bfunc{i}(w{i}.x{:},caller,bfstate_store,pars{:});
+                        end
                     end
                 else
                     if isempty(wout{i})
-                        wout{i}=bkdfunc{i}(w{i},pars{:});
+                        if ~bf_pass_caller_info
+                            wout{i}=bfunc{i}(w{i},pars{:});
+                        else
+                            wout{i}=bfunc{i}(w{i},caller,bfstate_store,pars{:});
+                        end
                     else
-                        wout{i}=wout{i}+bkdfunc{i}(w{i},pars{:});
+                        if ~bf_pass_caller_info
+                            wout{i}=wout{i}+bfunc{i}(w{i},pars{:});
+                        else
+                            wout{i}=wout{i}+bfunc{i}(w{i},caller,bfstate_store,pars{:});
+                        end
                     end
                 end
             end

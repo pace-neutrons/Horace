@@ -1,11 +1,45 @@
-function [fun, p, bfun, bp] = get_wrapped_functions_ (obj)
+function [fun, p, bfun, bp] = get_wrapped_functions_ (obj,...
+    func_init_output_args, bfunc_init_output_args)
 % Get the wrapped function and parameter lists
 %
 %   >> [fun, p, bfun, bp] = get_wrapped_functions_ (obj)
+%   >> [fun, p, bfun, bp] = get_wrapped_functions_ (obj,...
+%                           func_init_output_args, bfunc_init_output_args)
 %
-% Functions that are not defined are not wrapped
+% Input:
+% ------
+%   func_init_output_args       Cell array containing arguments returned by 
+%                              foreground initialisation function. If none,
+%                              then set to {}.
+%
+%   bfunc_init_output_args      Cell array containing arguments returned by 
+%                              background initialisation function. If none,
+%                              then set to {}.
+%
+% Output:
+% -------
+%   fun, p, bfun, bp            Functions and paramater lists wrapped by
+%                              the wrapper arguments and including the 
+%                              initialisation parameters, if required.
 
+% Check input. In principle, because this is an internally used function only,
+% catch mis-use by developers!
+if nargin==3
+    if ~iscell(func_init_output_args) || ~iscell(bfunc_init_output_args)
+        error ('Check input arguments - see Developers')
+    end
+elseif nargin==1
+    func_init_output_args = {};
+    bfunc_init_output_args = {};
+else
+    error ('Check input arguments - see Developers')
+end
+
+% Get wrapped functions
 wrapfun = obj.wrapfun_;
+wrapfun = wrapfun.prepend_p_wrap (func_init_output_args{:});
+wrapfun = wrapfun.prepend_p_wrap (bfunc_init_output_args{:});
+
 [fun, p] = cellfun(@(x,y)wrap(x,y,wrapfun.fun_wrap,wrapfun.p_wrap), obj.fun_, obj.pin_,...
     'uniformOutput', false);
 [bfun, bp] = cellfun(@(x,y)wrap(x,y,wrapfun.bfun_wrap,wrapfun.bp_wrap), obj.bfun_, obj.bpin_,...

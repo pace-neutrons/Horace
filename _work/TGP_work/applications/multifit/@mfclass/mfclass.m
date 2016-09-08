@@ -164,7 +164,7 @@ classdef mfclass
     
     properties (Dependent)
         data
-        w       % *** get rid of for release
+        w
         msk     % *** get rid of for release
         wmask   % *** get rid of for release
         
@@ -242,7 +242,7 @@ classdef mfclass
             out = obj.data_;
         end
         
-        function out = get.w(obj)   % *** get rid of for release
+        function out = get.w(obj)
             out = obj.w_;
         end
         
@@ -390,7 +390,8 @@ classdef mfclass
         
         [ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
         
-        [fun, p, bfun, bp] = get_wrapped_functions_ (obj)
+        [fun, p, bfun, bp] = get_wrapped_functions_ (obj,...
+            func_init_output_args, bfunc_init_output_args)
     end
     
 end
