@@ -1,14 +1,15 @@
-function [table,t_av]=refine_moderator_sampling_table_buffer (pulse_model,pp,ei)
+function [table,t_av]=refine_moderator_sampling_table_buffer (dummy_sqw, pulse_model,pp,ei)
 % Buffer moderator lookup tables for moderator refinement
 %
 % Clear buffer:
-%   >> refine_moderator_sampling_table_buffer
+%   >> refine_moderator_sampling_table_buffer (dummy_sqw)
 %
 % Return lookup table for the particular set of parameters:
-%   >> [table,t_av]=refine_moderator_sampling_table_buffer (pulse_model,pp,ei)
+%   >> [table,t_av]=refine_moderator_sampling_table_buffer (dummy_sqw,pulse_model,pp,ei)
 %
 % Input:
 % ------
+%   dummy_sqw   Dummy sqw object to simply force a call to a method
 %   pulse_model Pulse shape model name
 %   pp          Pulse shape model parameters
 %   ei          Incident energy (meV)
@@ -42,7 +43,7 @@ persistent ntable pulse_model_store pp_store ei_store t_av_store table_store
 
 % Cleanup if no input arguments and return
 % ----------------------------------------
-if nargin==0
+if nargin==1
     ntable=[]; pulse_model_store=[]; pp_store=[]; ei_store=[]; t_av_store=[]; table_store=[];
     return
 end

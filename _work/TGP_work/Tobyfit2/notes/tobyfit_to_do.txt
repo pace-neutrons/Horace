@@ -1,13 +1,6 @@
 ===============================================================================================
              Tobyfit
 ===============================================================================================
-Need to be able to check the valid names and number of parameters for moderator. Currently
-does not do this on set_refine_moderator
-- check only one moderator description for all data sets
-- check parameter numbers
-
-
-
 Little things to check:
 - refine crystal and moderator: at the fit or simulate stage as well as set stage, check that
   there is at least one foreground function
@@ -19,8 +12,7 @@ Little things to check:
   at the fit or simulate stage in pack_parameters.
 
   
-Moderator tables are buffered during refinement in apparently different location to normal
-operation. Is that right, and is the buffer being cleared after fitting?
+Get rid of tobyfit_cleanup: but need to deal with refine_moderator_sampling_table_buffer
 
 Check all other buffering is cleared: search on 'persistent' (and just for completeness, 'global')
 
@@ -38,16 +30,16 @@ data sets, to test that the appended constraints are inserted correctly.
              Horace
 ===============================================================================================
 
-16/8/2016 - Very slow Horace cutting
-Seen this on my laptop for RbMnF3 and Fe data (test_tobyfit_0.m, test_tobyfit_1.m). Slow, and
-seems to be reading far too much of the file int eh case of RbMnF3.
+Put recompute_bin_data as a public method. Need to replace recompute_bin_data_tester with
+this name (it is just a dummy call to give access to the private method)
 
 Dreadfully slow 'get' for config properties
 
-
 Noisify has a problem with the size ofthe error bars
 
+fake_sqw problem
 
+set_mod_pulse_horace problem 
 
 
 
