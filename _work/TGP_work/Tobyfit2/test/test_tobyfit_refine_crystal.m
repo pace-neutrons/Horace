@@ -1,8 +1,8 @@
-function test_tobyfit_refine_crystal (varargin)
+function test_tobyfit_refine_crystal (tf_ver,opt)
 % Test crystal refinement option in Tobyfit
 %
-%   >> test_refinement           % Use previously saved sqw input data file
-%   >> test_refinement ('save')  % Save test files to disk
+%   >> test_refinement (tf_ver)         % tf_ver=1 or 2; use previously saved sqw input data file
+%   >> test_refinement (tf_ver,'save')  % Save test files to disk
 %
 % Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
 
@@ -14,8 +14,13 @@ sqw_file_nores_corr=fullfile(dir_out,'tobyfit_refine_crystal_nores_corr.sqw'); %
 sqw_file_res=fullfile(dir_out,'tobyfit_refine_crystal.sqw');           % output file for simulation in reference lattice
 sqw_file_res_corr=fullfile(dir_out,'tobyfit_refine_crystal_corr.sqw'); % output file for correction
 
-if nargin==1
-    if ischar(varargin{1}) && size(varargin{1},1)==1 && isequal(lower(varargin{1}),'save')
+% Check input
+if ~(isequal(tf_ver,1) || isequal(tf_ver,2))
+    error('Check input argument')
+end
+
+if nargin==2
+    if ischar(opt) && size(opt,1)==1 && isequal(lower(opt),'save')
         save_output=true;
     else
         error('Unrecognised option')
@@ -89,7 +94,7 @@ trans_cut_length=15; trans_bin_width=0.5; trans_thickness=5;
 opt='Gaussian';
 
 [rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sqw_file_res), rlu, radial_cut_length, radial_bin_width, radial_thickness,...
-                                                            trans_cut_length, trans_bin_width, trans_thickness, opt);
+                                  trans_cut_length, trans_bin_width, trans_thickness, opt, 'bin_relative');
 % bragg_positions_view(wcut,wpeak)  % for manual checking
 
 % Get rlu_corr from peak positions:
@@ -99,7 +104,7 @@ opt='Gaussian';
 copyfile(sqw_file_res,sqw_file_res_corr)
 change_crystal_sqw(sqw_file_res_corr,rlu_corr)
 [rlu0_corr,width,wcut,wpeak]=bragg_positions(read_sqw(sqw_file_res_corr), rlu, radial_cut_length, radial_bin_width, radial_thickness,...
-                                                            trans_cut_length, trans_bin_width, trans_thickness, opt);
+                                  trans_cut_length, trans_bin_width, trans_thickness, opt, 'bin_relative');
 if max(abs(rlu0_corr(:)-rlu(:)))>qfwhh
     error('Problem in refinement of crystal orientation and lattice parameters')
 else    % delete file
@@ -125,25 +130,53 @@ w00m1_v=cut_sqw(sqw_file_res,proj,[-0.15,0.15],   [-1.2,-0.8],     [-0.2,0.01,0.
 
 w=[w110_r,w110_t,w110_v;w00m1_r,w00m1_t,w00m1_v];
 
-xtal_opts = tobyfit_refine_crystal_options('fix_angdeg','fix_alatt_ratio');
 
 % Fit a global function
-[wf_tf,fitpar_tf,ok,mess,rlu_corr_tf]=tobyfit(w,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0],...
-    'refine_crystal',xtal_opts,'list',3,'mc_npoints',2);
-if ~ok
-    disp(mess)
-end
-if any(abs(rlu_corr_tf(:)-rlu_corr(:))>0.004)
-    error('Bragg peak crystal refinement and Tobyfit crystal refinement are not the same')
+% ---------------------
+mc = 2;
+if tf_ver==1
+    xtal_opts = tobyfit_refine_crystal_options('fix_angdeg','fix_alatt_ratio');
+    [wf_tf,fitpar_tf,ok,mess,rlu_corr_tf]=tobyfit(w,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0],...
+        'refine_crystal',xtal_opts,'list',3,'mc_npoints',mc);
 else
-    disp('*******************************************************************************')
-    disp('  1 of 2: Bragg peak crystal refinement and Tobyfit crystal refinement agree')
-    disp('*******************************************************************************')
-end
+    % Equivalent with new Tobyfit2
+    kk = tobyfit2 (w);
+    kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
+    kk = kk.set_mc_points (mc);
+    kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0]);
+    kk = kk.set_option('list',3);
+    [wf_tf,fitpar_tf,ok,mess] = kk.fit;
+%    [wf_tf,fitpar_tf,ok,mess,rlu_corr_tf] = kk.fit;    % *** for when output parameters have been extracted
+ end
+ if ~ok
+     disp(mess)
+ end
+ if any(abs(rlu_corr_tf(:)-rlu_corr(:))>0.004)
+     error('Bragg peak crystal refinement and Tobyfit crystal refinement are not the same')
+ else
+     disp('*******************************************************************************')
+     disp('  1 of 2: Bragg peak crystal refinement and Tobyfit crystal refinement agree')
+     disp('*******************************************************************************')
+ end
 
+ 
 % Fit local foreground functions (independent widths)
-[wf_tf,fitpar_tf,ok,mess,rlu_corr_tf]=tobyfit(w,@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0],...
-    'refine_crystal',xtal_opts,'list',3,'local_fore','mc_npoints',2);
+% ---------------------------------------------------
+if tf_ver==1
+    xtal_opts = tobyfit_refine_crystal_options('fix_angdeg','fix_alatt_ratio');
+    [wf_tf,fitpar_tf,ok,mess,rlu_corr_tf]=tobyfit(w,@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0],...
+        'refine_crystal',xtal_opts,'list',2,'local_fore','mc_npoints',mc);
+else
+    % Equivalent with new Tobyfit2
+    kk = tobyfit2 (w);
+    kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
+    kk = kk.set_mc_points (mc);
+    kk = kk.set_local_foreground(true);
+    kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0]);
+    kk = kk.set_option('list',2);
+    [wf_tf,fitpar_tf,ok,mess] = kk.fit;
+%    [wf_tf,fitpar_tf,ok,mess,rlu_corr_tf] = kk.fit;    % *** for when output parameters have been extracted
+end
 if ~ok
     disp(mess)
 end
