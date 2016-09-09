@@ -1,4 +1,4 @@
-function test_3
+function test_2
 % Test of multifit2 with IX_dataset_1d
 
 % Assumes have created a data file

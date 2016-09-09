@@ -185,7 +185,12 @@ classdef mfclass
         bpbind_dbg
         
         options
-        
+    end
+    
+    properties (Dependent, Access=protected)
+        ndatatot
+        np
+        nbp
     end
     
     methods
@@ -368,6 +373,21 @@ classdef mfclass
         end
         
         %------------------------------------------------------------------
+    end
+    
+    methods
+        function out = get.ndatatot(obj)
+            out = obj.ndatatot_;
+        end
+        
+        function out = get.np(obj)
+            out = obj.np_;
+        end
+        
+        function out = get.nbp(obj)
+            out = obj.np_;
+        end
+        
     end
     
     methods (Access=private)
