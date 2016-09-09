@@ -133,16 +133,15 @@ valid objects (no_, nbp_ are inconsistent with constraints section)
 
 
 
-Functions used in least squares fittng algorithm
-================================================
+%=====================================================================================
+% API to e.g. Tobyfit
+%=====================================================================================
+Currently have mfclass_gateway_parameter_get (and _set) which are used inTobyfit2
+They are needed to get to a private function. SHould Find a neater way to have
+common code.
 
-I think we should be able to tidy this up a bit, so there is a cleaner API.
+Add a way of passing a global internal state (not just for a particular dataset. This
+could be used by refine_moderator_sampling_table_buffer, for example.
 
 
-(4) tobyfit: 
-	resol_conv_tobyfit_mc_init: 	pass lookup as a parameter to resol_conv_tobyfit_mc_init
-	
-	resol_conv_tobyfit_mc: 			Get rid of resol_conv_tobyfit_mc_control
-									Get rid of resol_conv_tobyfit_mc_control_init (use param instead)
-								
-	Get rid of tobyfit_cleanup: but check refine_moderator_sampling_table_buffer
+

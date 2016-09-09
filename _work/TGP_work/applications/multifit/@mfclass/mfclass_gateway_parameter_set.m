@@ -1,10 +1,11 @@
-function plist_new = mfclass_gateway_parameter_set (plist, pnew)
+function plist_new = mfclass_gateway_parameter_set (dummy, plist, pnew)
 % Set the numeric array of parameters in a valid parameter list
 %
-%   >> p = mfclass_gateway_parameter_set (plist, p)
+%   >> p = mfclass_gateway_parameter_set (dummy, plist, p)
 %
 % Input:
 % ------
+%   dummy   Dummy object of class mfclass, to force the call of this method
 %   plist   Parameter list of the recursive form
 %               plist<n> = {@func<n-1>, plist<n-1>, c1<n>, c2<n>,...}
 %                        :

@@ -1,4 +1,7 @@
-% ------------------------------------------------------------------------------------------------
+function test_sqw_1
+% Test of multifit2 with sqw objects
+
+%% ------------------------------------------------------------------------------------------------
 % Example of fitting more than one sqw object
 % -------------------------------------------------------------------------------------------------
 mftest_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit\mftest';

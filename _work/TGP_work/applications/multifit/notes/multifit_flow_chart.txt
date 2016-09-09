@@ -1,25 +1,12 @@
 multifit_lsqr_func_eval
-		multifit_store_state
-
-
 
 multifit_lsqr_func_eval
-		multifit_store_state
-
-
-
-
-
-
-multifit_cleanup
 
 multifit_func_eval
 
 multifit_lsqr
 
 multifit_lsqr_func_eval
-
-multifit_store_state
 
 parameter_get
 

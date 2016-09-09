@@ -1,3 +1,6 @@
+function test_1
+% Test of multifit2 with structures
+
 % Assumes have created a data file
 mftest_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit\mftest';
 S=load(fullfile(mftest_dir,'/data/testdata_multifit_1.mat'));
@@ -29,6 +32,3 @@ end
 % Check parameter transfer feature
 [wcalcfit, fitcalc] = kk.simulate(fitdata);
 wcalcfit = struct_to_IX(wcalcfit);
-
-
-

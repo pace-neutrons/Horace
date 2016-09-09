@@ -1,94 +1,44 @@
-% Test function evaluation
-% -------------------------
+function test_3
+% Test of multifit2 with IX_dataset_1d
+
 % Assumes have created a data file
 mftest_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit\mftest';
 S=load(fullfile(mftest_dir,'/data/testdata_multifit_1.mat'));
 
 
 %--------------------------------------------------------------------------------------------------------------------
-SS.warr3 = [shift(S.w1,10),shift(S.w2,30),shift(S.w3,60)];
+SS.warr3 = [S.w1,S.w2,S.w3];
+SS.sarr3 = [S.wstruct1,S.wstruct2,S.wstruct3];
 
 
-% Functions 
-kk = mfclass(IX_to_struct(SS.warr3));
+
+w = SS.warr3;
+
+
+%--------------------------------------------------------------------------------------------------------------------
+% An exanple fit with old multifit
+[wfit_ref,fitdata_ref] = multifit (w, @mftest_gauss, [100,45,10], @mftest_bkgd, {[10,0],[20,0],[30,0]}, 'list', 2);
+
+
+% Same with mfclass
+kk = multifit2(w);
 kk = kk.set_fun (@mftest_gauss, [100,45,10]);
 kk = kk.set_bfun (@mftest_bkgd, {[10,0],[20,0],[30,0]});
 kk = kk.set_option('listing',2);
 
 [wcalc, fitcalc] = kk.simulate;
-wcalc=struct_to_IX(wcalc);
+
+[wfit, fitdata] = kk.fit;
+
+if ~isequaln(wfit_ref,wfit) || ~isequaln(fitdata_ref,fitdata)
+    error('Not equal fits')
+end
+
+% Check parameter transfer feature
+[wcalcfit, fitcalc] = kk.simulate(fitdata,'back');
 
 acolor r b k
-dp(SS.warr3)
-pl(wcalc)
-
-
-% No background function for second dataset
-kk = mfclass(IX_to_struct(SS.warr3));
-kk = kk.set_fun (@mftest_gauss, [100,45,10]);
-kk = kk.set_bfun (1,@mftest_bkgd, [10,0]);
-kk = kk.set_bfun (3,@mftest_bkgd, [30,0]);
-kk = kk.set_option('listing',2);
-
-[wcalc, fitcalc] = kk.simulate;
-wcalc=struct_to_IX(wcalc);
-
-acolor r b k
-dp(SS.warr3)
-pl(wcalc)
-
-
-% No background functions
-kk = mfclass(IX_to_struct(SS.warr3));
-kk = kk.set_fun (@mftest_gauss, [100,45,10]);
-kk = kk.set_option('listing',2);
-
-[wcalc, fitcalc] = kk.simulate;
-wcalc=struct_to_IX(wcalc);
-
-acolor r b k
-dp(SS.warr3)
-pl(wcalc)
-
-
-% No foreground function
-kk = mfclass(IX_to_struct(SS.warr3));
-kk = kk.set_bfun (1,@mftest_bkgd, [10,0]);
-kk = kk.set_bfun (3,@mftest_bkgd, [20,0]);
-kk = kk.set_bfun (3,@mftest_bkgd, [30,0]);
-kk = kk.set_option('listing',2);
-
-[wcalc, fitcalc] = kk.simulate;
-wcalc=struct_to_IX(wcalc);
-
-acolor r b k
-dp(SS.warr3)
-pl(wcalc)
-
-
-
-% No foreground function, and no background for dataset 2
-kk = mfclass(IX_to_struct(SS.warr3));
-kk = kk.set_bfun (1,@mftest_bkgd, [10,0]);
-kk = kk.set_bfun (3,@mftest_bkgd, [30,0]);
-kk = kk.set_option('listing',2);
-
-[wcalc, fitcalc] = kk.simulate;
-wcalc=struct_to_IX(wcalc);
-
-acolor r b k
-dp(SS.warr3)
-pl(wcalc)
-
-
-% No functions at all
-kk = mfclass(IX_to_struct(SS.warr3));
-
-[wcalc, fitcalc] = kk.simulate;
-wcalc=struct_to_IX(wcalc);
-
-acolor r b k
-dp(SS.warr3)
-pl(wcalc)
-
+dp(w)
+pl(wfit)
+pl(wcalcfit)
 
