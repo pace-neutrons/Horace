@@ -36,7 +36,7 @@ xtal_opts = obj.refine_crystal;
 
 % Check that the lattice parameters are all the same (might have been changed since set_refine_crystal called)
 wsqw = cell2mat_obj(cellfun(@(x)x(:),obj.data,'UniformOutput',false));
-[~,~,ok,mess] = lattice_parameters(wsqw);
+[alatt0,angdeg0,ok,mess] = lattice_parameters(wsqw);
 if ~ok
     mess=['Crystal refinement: ',mess];
     error(mess)
@@ -59,15 +59,18 @@ pfree = cellfun (@(x)[x,xtal_opts.pfree], pfree0, 'UniformOutput', false);
 % Alter bindings
 % All the refinement parameters are bound to the first foreground function values
 % The only complication is if the  ratios of the lattice parameters are fixed.
+np = obj.np;
+nfun = numel(obj.fun);
+npadd = numel(opt_pars);
+
 pbind = pbind0;
 if xtal_opts.fix_alatt_ratio
-    pbind = [pbind; [2,1,1,1,NaN; 3,1,1,1,NaN]];
+    pbind = [pbind; [np(1)+2,1,np(1)+1,1,NaN; np(1)+3,1,np(1)+1,1,NaN]];
 end
-np = numel(opt_pars);
-nf = numel(obj.fun);
-if nf>1
-    [ipb,ifb] = ndgrid(1:np,2:nf);
-    pbind = [pbind; [ipb(:),ifb(:),ipb(:),ones(np*(nf-1),1),ones(np*(nf-1),1)]];
+if nfun>1
+    [ipb,ifb] = ndgrid(1:npadd,2:nfun);
+    ipb = ipb + repmat(np(2:end),npadd,1);
+    pbind = [pbind; [ipb(:),ifb(:),ipb(:),ones(npadd*(nfun-1),1),ones(npadd*(nfun-1),1)]];
 end
 
 % Change fit object

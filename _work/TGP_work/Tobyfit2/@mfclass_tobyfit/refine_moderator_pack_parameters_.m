@@ -52,12 +52,15 @@ pfree = cellfun (@(x)[x,mod_opts.pfree], pfree0, 'UniformOutput', false);
 
 % Alter bindings
 % All the refinement parameters are bound to the first foreground function values
+np = obj.np;
+nfun = numel(obj.fun);
+npadd = numel(mod_opts.pin);
+
 pbind = pbind0;
-np = numel(mod_opts.pin);
-nf = numel(obj.fun);
-if nf>1
-    [ipb,ifb] = ndgrid(1:np,2:nf);
-    pbind = [pbind; [ipb(:),ifb(:),ipb(:),ones(np*(nf-1),1),ones(np*(nf-1),1)]];
+if nfun>1
+    [ipb,ifb] = ndgrid(1:npadd,2:nfun);
+    ipb = ipb + repmat(np(2:end),npadd,1);
+    pbind = [pbind; [ipb(:),ifb(:),ipb(:),ones(npadd*(nfun-1),1),ones(npadd*(nfun-1),1)]];
 end
 
 % Change fit object
