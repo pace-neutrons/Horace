@@ -1,5 +1,5 @@
 function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
-% Perform a fit of the data using the current functions and starting parameter values
+% Perform a simulation of the data using the current functions and starting parameter values
 %
 %   >> [data_out, calcdata] = obj.simulate              % if ok false, throws error
 %   >> [data_out, calcdata] = obj.simulate ('fore')     % calculate foreground only
@@ -15,10 +15,34 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 %
 %           If there was a problem i.e. ok==false, then data_out=[].
 %
-%   chisq   Reduced chi-squared, that is:
-%               chi-squared / (no. of data points) - (no. free parameters))
+%  calcdata Structure with result of the fit for each dataset. The fields are:
+%           p      - Foreground parameter values (if foreground function(s) present)
+%                      If only one function, a row vector
+%                      If more than one function: a row cell array of row vectors
+%           sig    - Estimated errors of foreground parameters (=0 for fixed
+%                    parameters)
+%                      If only one function, a row vector
+%                      If more than one function: a row cell array of row vectors
+%           bp     - Background parameter values (if background function(s) present)
+%                      If only one function, a row vector
+%                      If more than one function: a row cell array of row vectors
+%           bsig   - Estimated errors of background (=0 for fixed parameters)
+%                      If only one function, a row vector
+%                      If more than one function: a row cell array of row vectors
+%           corr   - Correlation matrix for free parameters
+%           chisq  - Reduced Chi^2 of fit i.e. divided by:
+%                       (no. of data points) - (no. free parameters))
+%           converged - True if the fit converged, false otherwise
+%           pnames - Foreground parameter names
+%                      If only one function, a cell array (row vector) of names
+%                      If more than one function: a row cell array of row vector
+%                                                 cell arrays
+%           bpnames- Background parameter names
+%                      If only one function, a cell array (row vector) of names
+%                      If more than one function: a row cell array of row vector
+%                                                 cell arrays
 %
-%           If there was a problem i.e. ok==false, then chisq=[].
+%           If there was a problem i.e. ok==false, then calcdata=[].
 %
 %   ok      True:  Simulation performed
 %           False: Fundamental problem with the input arguments
