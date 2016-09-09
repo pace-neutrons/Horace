@@ -102,7 +102,7 @@ else
     
     % Fit
     kk = kk.set_option('list',2);
-    [w1fit,pfit] = kk.fit;
+    [w1fit,pfit,ok,mess,pmodel,ppfit] = kk.fit;
     
 end
 
