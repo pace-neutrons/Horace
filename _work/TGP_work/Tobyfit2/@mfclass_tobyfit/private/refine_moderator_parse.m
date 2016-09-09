@@ -56,7 +56,7 @@ function [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default,varargin)
 if numel(varargin)<=3
     if numel(varargin)==3
         % Case of all pulse_model, pin, pfree all being provided - don't need to use default
-        mod_opts_in.pulse_shape = varargin{1};
+        mod_opts_in.pulse_model = varargin{1};
         mod_opts_in.pin = varargin{2};
         mod_opts_in.pfree = varargin{3};
         [mod_opts,ok,mess] = check_ok (mod_opts_in);
@@ -65,12 +65,12 @@ if numel(varargin)<=3
         [mod_opts,ok,mess] = check_ok (mod_opts_default);   % Check defaults
         if ok
             if numel(varargin)==1
-                mod_opts_in.pulse_shape = mod_opts_default.pulse_shape;
+                mod_opts_in.pulse_model = mod_opts_default.pulse_shape;
                 mod_opts_in.pin = mod_opts_default.pin;
                 mod_opts_in.pfree = varargin{1};
                 [mod_opts,ok,mess] = check_ok (mod_opts_in);
             elseif numel(varargin)==2
-                mod_opts_in.pulse_shape = mod_opts_default.pulse_shape;
+                mod_opts_in.pulse_model = mod_opts_default.pulse_shape;
                 mod_opts_in.pin = varargin{1};
                 mod_opts_in.pfree = varargin{2};
                 [mod_opts,ok,mess] = check_ok (mod_opts_in);

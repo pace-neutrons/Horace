@@ -50,7 +50,8 @@ pbind0 = obj.pbind;
 
 % Append crystal refinement parameter values
 opt_pars = [xtal_opts.alatt, xtal_opts.angdeg, xtal_opts.rot];
-pin = cellfun (@(x)append_parameters(x,opt_pars), pin0, 'UniformOutput', false);
+dummy_mfclass = mfclass;
+pin = cellfun (@(x)append_parameters(dummy_mfclass,x,opt_pars), pin0, 'UniformOutput', false);
 
 % Append fix/free status of crystal refinement parameters
 pfree = cellfun (@(x)[x,xtal_opts.pfree], pfree0, 'UniformOutput', false);
@@ -82,6 +83,6 @@ mess = '';
 
     
 %----------------------------------------------------------------------------------------
-function pout = append_parameters (pin, p_append)
-p = [parameter_get(pin);p_append(:)];
-pout = parameter_set(pin, p);
+function pout = append_parameters (dummy_mfclass, pin, p_append)
+p = [mfclass_gateway_parameter_get(dummy_mfclass, pin); p_append(:)];
+pout = mfclass_gateway_parameter_set(dummy_mfclass, pin, p);

@@ -60,7 +60,7 @@ function [wout,state_out]=resol_conv_tobyfit_mc(win,caller,state_in,sqwfunc,pars
 %   modshape    Moderator refinement constants. Structure with fields:
 %                   pulse_model Pulse shape model for the moderator pulse shape whose
 %                              parameters will be refined
-%                   pp          Initial pulse shape parameters
+%                   pin         Initial pulse shape parameters
 %                   ei          Incident energy for pulse shape calculation (this
 %                              will be the common ei for all the sqw objects)
 %               Empty if the moderator is not going to be refined
@@ -145,6 +145,7 @@ dq_mat=lookup.dq_mat;
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 store_calc=caller.store_calc;
+if refine_moderator, dummy_sqw = sqw; end
 dummy_mfclass = mfclass;
 
 for i=1:numel(ind)
@@ -181,7 +182,7 @@ for i=1:numel(ind)
         pp=ptmp(end-npmod+1:end);
         % Get moderator lookup table for current moderator parameters
         [mod_table_refine,t_av_refine]=refine_moderator_sampling_table_buffer...
-                                            (modshape.pulse_model,pp,modshape.ei);
+                                            (dummy_sqw,modshape.pulse_model,pp,modshape.ei);
         ind_mod_refine=ones(size(ind_mod{iw}));
     end
     

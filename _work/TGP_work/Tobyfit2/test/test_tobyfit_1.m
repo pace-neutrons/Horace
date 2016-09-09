@@ -95,10 +95,25 @@ pause(2)
 
 amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
 
-w110a1_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],'eval','mc_npoints',10);
+if tf_ver==1
+    w110a1_sim=tobyfit(w110a,@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],'eval','mc_npoints',10);
+else
+    kk = tobyfit2(w110a);
+    kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad]);
+    kk = kk.set_mc_points(10);
+    w110a1_sim=kk.simulate;
+end
 acolor b; dd(w110a); acolor k; pl(w110a1_sim); ly 0 0.4
 
-[w110a1_tf,fp110a1]=tobyfit(w110a,@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0],'list',3,'mc_npoints',10);
+if tf_ver==1
+    [w110a1_tf,fp110a1]=tobyfit(w110a,@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0],'list',3,'mc_npoints',10);
+else
+    kk = tobyfit2(w110a);
+    kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0]);
+    kk = kk.set_mc_points(10);
+    kk = kk.set_option('listing',3);
+    [w110a1_tf,fp110a1]=kk.fit;
+end
 acolor r; pl(w110a1_tf); ly 0 0.4
 
 pause(2)
@@ -148,11 +163,34 @@ pause(2)
 % Global foreground; allow all parameters to vary
 amp=100;  sj=40;   fwhh=50;   const=0;  grad=0;
 
-w110arr1_sim=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval');
-acolor k b r; dd(w110arr); pl(w110arr1_sim); ly 0 0.4
+if tf_ver==1
+    w110arr1_sim=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval');
+else
+    kk = tobyfit2(w110arr);
+    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+    kk = kk.set_mc_points(10);
+    w110arr1_sim=kk.simulate;
+end
+acolor k b r; dp(w110arr); pl(w110arr1_sim); ly 0 0.8
 
-[w110arr1_tf,fp110arr1]=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],[1,1,1],@testfunc_bkgd,[const,grad],[1,1],'list',3);
-acolor k b r; dd(w110arr); pl(w110arr1_tf); ly 0 0.4
+
+if tf_ver==1
+    [w110arr1_tf,fp110arr1]=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],[1,1,1],@testfunc_bkgd,[const,grad],[1,1],'list',3);
+    acolor k b r; dp(w110arr); pl(w110arr1_tf); ly 0 0.4
+else
+    kk = tobyfit2(w110arr);
+    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+    kk = kk.set_mc_points(10);
+    kk = kk.set_option('listing',3);
+    [w110arr1_tf,fp110arr1]=kk.fit;
+    
+    acolor k b r; dp(w110arr); pl(w110arr1_tf); ly 0 0.4
+    fback = kk.simulate(fp110arr1,'back');
+    pl(fback)
+end
+acolor k b r; dp(w110arr); pl(w110arr1_tf); ly 0 0.4
 
 pause(2)
 
@@ -160,13 +198,36 @@ pause(2)
 % Global foreground; allow all parmaeters to vary
 amp=100;  sj=40;   fwhh=50;   const=0;  grad=0;
 
-w110arr2_sim=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval');
-acolor k b r; dd(w110arr); pl(w110arr2_sim); ly 0 0.4
+if tf_ver==1
+    w110arr2_sim=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],@testfunc_bkgd,[const,grad],'eval');
+else
+    kk = tobyfit2(w110arr);
+    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+    kk = kk.set_mc_points(10);
+    w110arr2_sim=kk.simulate;
+end
+acolor k b r; dp(w110arr); pl(w110arr2_sim); ly 0 0.8
 
 % local foreground; constrain SJ as global but allow amplitude and gamma to vary locally
-pbind = multifit_bind_local_pars_as_global (size(w110arr), [0,1,0], true);
-[w110arr2_tf,fp110arr2]=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],[],pbind,@testfunc_bkgd,[const,grad],'local_fore','list',3,'mc_npoints',1);
-acolor k b r; dd(w110arr); pl(w110arr2_tf); ly 0 0.4
+if tf_ver==1
+    pbind = multifit_bind_local_pars_as_global (size(w110arr), [0,1,0], true);
+    [w110arr2_tf,fp110arr2]=tobyfit(w110arr,@testfunc_sqw_bcc_hfm,[amp,sj,fwhh],[],pbind,@testfunc_bkgd,[const,grad],'local_fore','list',3,'mc_npoints',10);
+    acolor k b r; dp(w110arr); pl(w110arr2_tf); ly 0 0.4
+else
+    kk = tobyfit2(w110arr);
+    kk = kk.set_local_foreground;
+    kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
+    kk = kk.set_bind({2,[2,1]});
+    kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
+    kk = kk.set_mc_points(10);
+    kk = kk.set_option('listing',3);
+    [w110arr2_tf,fp110arr2]=kk.fit;
+    
+    acolor k b r; dp(w110arr); pl(w110arr2_tf); ly 0 0.4
+    fback = kk.simulate(fp110arr2,'back');
+    pl(fback)
+end
 
 pause(2)
 

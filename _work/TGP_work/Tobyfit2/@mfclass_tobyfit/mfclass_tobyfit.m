@@ -129,6 +129,6 @@ function tobyfit_cleanup
 % Cleanup Tobyfit
 
 % Cleanup the stored buffer for moderator fitting
-refine_moderator_sampling_table_buffer
+refine_moderator_sampling_table_buffer (sqw)
 
 end
