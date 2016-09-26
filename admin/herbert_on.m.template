@@ -52,3 +52,9 @@ if isempty(path)
 else
     path=fileparts(path);
 end
+
+hec = herbert_config()
+if hec.is_default
+# set up multiusers compiter specific settings, e.g.:
+#hec.use_mex_C = true;
+end
