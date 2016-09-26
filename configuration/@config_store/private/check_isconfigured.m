@@ -6,7 +6,6 @@ function isit = check_isconfigured(this,class_instance,check_mem_only)
 % $Revision$ ($Date$)
 
 
-
 class_name = class_instance.class_name;
 if isfield(this.config_storage_,class_name)
     isit = true;

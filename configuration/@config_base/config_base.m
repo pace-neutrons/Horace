@@ -133,6 +133,12 @@ classdef config_base
                 this.returns_defaults_=false;
             end
         end
+        function isit = is_default(this)
+            % check if a configuration has been changed by user or 
+            % still has its default values    
+            cn = this.class_name;
+            isit = ~config_store.instance.has_config(cn);
+        end
         %------------------------------------------------------------------
         function value =get_or_restore_field(this,field_name)
             % method to restore value from config_store if available or

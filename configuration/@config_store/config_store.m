@@ -152,6 +152,18 @@ classdef config_store < handle
             % have such fields! (the setting got lost)
             class_to_restore.set_stored_data(config_data);
         end
+        function has = has_config(this,class_name)
+            % method checks if the class with given name has given
+            % configuration stored in file. 
+            % In other words, has a configuration been ever been changed from
+            % defaults.            
+            conf_file = fullfile(this.config_folder,[class_name,'.mat']);
+            if exist(conf_file,'file')
+                has = true;
+            else
+                has = false;                
+            end
+        end
         %------------------------------------------------------------------
         function clear_config(this,class_instance,varargin)
             % clear configuration from memory
