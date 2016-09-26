@@ -13,7 +13,7 @@ function varargout = testgateway (dummy, func_name, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1056 $ ($Date: 2015-09-15 17:10:19 +0100 (Tue, 15 Sep 2015) $)
+% $Revision$ ($Date$)
 
 
 if ~isa(dummy,'mfclass')
