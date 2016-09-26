@@ -15,6 +15,10 @@ function numver=matlab_version_num
 %   >> matlab_version_num
 %   ans =
 %       7.0400  (i.e. not 7.4)
+%
+% $Revision$ ($Date$)
+%
+
 
 % T.G.Perring 23/7/13: replace the following *horrendously slow* call to ver:
 %    vr = ver('MATLAB');

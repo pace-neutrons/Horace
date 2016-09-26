@@ -1,5 +1,7 @@
 function p = genpath_special (d)
-% Generate recursive toolbox path excluding .svn and service folders
+% Generate recursive toolbox path excluding .svn and service folders, which start from 
+% symbol _
+%
 % Slightly modified version of Matlab intrinsic genpath.
 %
 %GENPATH Generate recursive toolbox path.

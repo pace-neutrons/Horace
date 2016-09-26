@@ -32,7 +32,9 @@ else
 end
 path = fileparts(which('herbert_init.m'));
 
-% set up multiusers compiter specific settings, e.g.:
+% set up multiusers compiter specific settings,
+% namely settings wich are common for all new users of the specific computer
+% e.g.:
 hec = herbert_config()
 if hec.is_default
 % hec.use_mex_C = true;
