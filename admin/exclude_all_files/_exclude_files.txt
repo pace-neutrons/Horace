@@ -1,0 +1,4 @@
+Copy this file into a folder with files you want to eclude from Horace or Herbert distribution.
+
+The distribution kit generation program will exclude the files, found in this folder, 
+but will include all subfolders of the folder, where this file is found.
