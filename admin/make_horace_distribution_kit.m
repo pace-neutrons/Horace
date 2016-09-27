@@ -13,6 +13,13 @@ function make_horace_distribution_kit(varargin)
 %                   together with main code.
 %'-noherbert'    -- do not pack herbert tohether with horace
 %
+% excludes (not copies to distribution) all files and subfolders of a folder where 
+% _exclude_all.txt file is found
+%
+% excludes (not copies to distribution) all files of a folder where 
+% _exclude_files.txt file is found but keeps subfolders of this folder and 
+% processes the files of the subfolder.
+%
 % To use Horace  one has to unpack the resulting zip file and add the folder
 % where the function Horace_init.m resides to the matlab search path.
 % alternatively, you can edit the file Horace_on.mt, file and
