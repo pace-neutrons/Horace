@@ -2,6 +2,12 @@ function files_list=copy_files_list(source_dir,target_dir,varargin)
 % copy the files under the source directory source_dir to target directory
 % targ_dir omitting .svn subfolders and retaining the directory structure;
 %
+% Also omit folders and subfolders of a folder containing _exclude_all.txt
+% file
+%
+% Omit files in a folder containing _exclude_files.txt (but include
+% subfolders containing this file.
+%
 % if third parameter is present, copy only the files with extentions, which
 % are in the list of varargins; if one of the extenisons has sign "-"
 % before it -- do not copy files with this extension
@@ -61,6 +67,8 @@ end
 % list all entries in the source directory
 localFiles_list = dir(source_dir);
 if isempty(localFiles_list)
+    local_list = [];
+    target_dir ='';
     return
 end
 
@@ -87,7 +95,10 @@ end
 isdir = logical(cat(1,localFiles_list.isdir));
 isfile = ~isdir;
 files     = localFiles_list(isfile);
-local_list=copyFileList(source_dir,target_dir,files);
+[local_list,exclude_all]=copyFileList(source_dir,target_dir,files);
+if exclude_all
+    return;
+end
 %
 % Recursively descend through directories
 %
@@ -122,11 +133,25 @@ end
 
 
 %--------------------------------------------------------------------------------------------------
-function local_list=copyFileList(sourcePath,destPath,filelist)
+function [local_list,excludes_all]=copyFileList(sourcePath,destPath,filelist)
 % set logical vector for files entries in
 global extention;
 
+excludes_all = false;
+if exist(fullfile(sourcePath,'_exclude_all.txt'),'file')
+    % exclude all files and subfolders of current folder from copying into
+    % distribution
+    excludes_all = true;
+    local_list = {};
 
+    return;
+end
+if exist(fullfile(sourcePath,'_exclude_files.txt'),'file')
+    % exclude all files in current folder from copying into
+    % distribution but keep everything in the subfolders
+    local_list = {};
+    return;    
+end
 isfile = ~logical(cat(1,filelist.isdir));
 fileList = filelist(isfile); % select only files from the current listing
 nFiles =length(fileList);
