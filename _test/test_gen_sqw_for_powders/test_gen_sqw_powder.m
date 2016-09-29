@@ -79,7 +79,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             pow_phx_file=fullfile(tempdir,'test_pow_rings.phx');
             this.sqw_pow_rings_file=fullfile(tempdir,'test_pow_rings.sqw');
             %
-            this.cleanup_obj=onCleanup(@()rm_files(this.sqw_pow_file,this.sqw_pow_rings_file,spe_pow_file,pow_par_file,pow_phx_file));
+            this.cleanup_obj=onCleanup(@()this.rm_files(this.sqw_pow_file,this.sqw_pow_rings_file,spe_pow_file,pow_par_file,pow_phx_file));
             
             %--------------------------------------------------------------------------------------------------
             % Perform a powder average in Horace
@@ -139,6 +139,21 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             
             %--------------------------------------------------------------------------------------------------
             this=test_or_save_variables(this,w2,w1, w2rings,w1rings,'tol',-3.e-2,'ignore_str',1,'convert_old_classes');
+        end
+    end
+    methods(Static)
+        function rm_files(varargin)
+            % simple funciton which removes files from the list without issuing warning
+            % if the file is not present
+            %Usage:
+            %>>rm_files(file1,file2,file3,...)
+            % where file(N) if present --- the files to remove
+            %
+            for i=1:numel(varargin)
+                if exist(varargin{i},'file')
+                    delete(varargin{i});
+                end
+            end
         end
     end
 end
