@@ -388,6 +388,10 @@ else
         instrument = instrument(not_empty);
         sample     = sample(not_empty);
     end
+    if numel(run_files) < numel(instrument)
+        instrument = instrument(1:numel(run_files));
+        sample = sample(1:numel(run_files));        
+    end
     
     job_par_fun = @(run,fname,instr,samp,transf)(gen_sqw_files_job.pack_job_pars(...
         run,fname,instr,samp,...
