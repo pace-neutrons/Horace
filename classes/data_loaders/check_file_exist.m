@@ -68,7 +68,7 @@ if ~exist(file_l,'file')
         return;
     end
     file_u=fullfile(filepath,[filename,upper(ext)]);
-    if ~exist(file_u,'file');
+    if ~exist(file_u,'file')
         ok = false;
         fp = regexprep(fullfile(filepath,filename),'\\','/');
         mess = ['*** Can not find file: ',fp,' with extensions: ',lext,' or ',upper(ext)];
