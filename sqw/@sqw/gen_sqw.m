@@ -199,7 +199,7 @@ if opt.accumulate
 else
     generate_new_sqw=true;
 end
-horace_info_level=get(hor_config,'horace_info_level');
+horace_info_level=config_store.instance().get_value('hor_config','log_level');
 
 % Check numeric parameters (array lengths and sizes, simple requirements on validity)
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
@@ -289,9 +289,9 @@ if ~accumulate_old_sqw && isempty(grid_size_in)
 elseif accumulate_old_sqw
     grid_size_in=grid_size_sqw;
 end
-[use_separate_matlab,num_matlab_sessions,use_mex] ...
-    =get(hor_config,'accum_in_separate_process','accumulating_process_num','use_mex');
-
+[use_separate_matlab,num_matlab_sessions,use_mex] = ...
+    config_store.instance().get_value('hor_config',...
+    'accum_in_separate_process','accumulating_process_num','use_mex');
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw && isempty(urange_in)
     if horace_info_level>-1
