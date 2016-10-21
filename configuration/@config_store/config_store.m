@@ -116,6 +116,24 @@ classdef config_store < handle
             this.saveable_(class_name)=is_saveable;
         end
         %------------------------------------------------------------------
+        function   [config_val,varargout] = get_value(this,class_name,value_name,varargin)
+            % return specific config property value or list of values
+            % from a config class, with specific class name
+            %
+            %Usage:
+            %>>val =
+            %      config_store.instance().get_value(class_name,property_name)
+            % or
+            %>> val1,val2,val3 = config_store.instance().get_value(class_name,property_name1,property_name2,property_name3)
+            %
+            [config_val,out] = this.get_config_val_internal(class_name,value_name,varargin);
+            nout = max(nargout,1) - 1;
+            for i=1:nout
+                varargout{i} = out{i};
+            end
+            
+        end
+        %
         function   config_data=get_config(this,class_to_restore)
             % return configuration from memory or load it from a file if such
             % configuration exist on file and not in memory
@@ -154,14 +172,14 @@ classdef config_store < handle
         end
         function has = has_config(this,class_name)
             % method checks if the class with given name has given
-            % configuration stored in file. 
+            % configuration stored in file.
             % In other words, has a configuration been ever been changed from
-            % defaults.            
+            % defaults.
             conf_file = fullfile(this.config_folder,[class_name,'.mat']);
             if exist(conf_file,'file')
                 has = true;
             else
-                has = false;                
+                has = false;
             end
         end
         %------------------------------------------------------------------
