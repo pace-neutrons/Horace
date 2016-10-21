@@ -59,7 +59,7 @@ else
     rundata_par = {'S','ERR','en','efix','emode','alatt','angdeg','u','v',...
         'psi','omega','dpsi','gl','gs','det_par','-rad','-nonan'};
 end
-horace_info_level=get(hor_config,'horace_info_level');
+horace_info_level=config_store.instance().get_value('hor_config','log_level');
 
 bigtic
 % Read spe file and detector parameters

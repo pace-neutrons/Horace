@@ -38,12 +38,17 @@ end
 
 % init horace 
 if nargin==1 
-	start_app(non_default_path);	
+  start_app(non_default_path);
 else
-	start_app(default_horace_path);
+  start_app(default_horace_path);
 end
 path = fileparts(which('horace_init.m'));
 
+hc = hor_config()
+if hc.is_default
+    %set up multiusers compiter specific settings, e.g.:
+    %hc.use_mex = true;
+end
 
 function start_app(path)
 addpath(path);
