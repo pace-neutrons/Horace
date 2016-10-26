@@ -59,7 +59,7 @@ classdef sqw_formats_factory < handle
             end
             % get first 1044 bytes of binary file to identify file format.
             % Return bytes block and open file handle not to open it again
-            [bytes_block,fh] = sqw_file_interface.get_file_header(full_data_name);
+            [bytes_block,fh] = dnd_file_interface.get_file_header(full_data_name);
             
             for i=1:numel(obj.supported_accessors)
                 loader = obj.supported_accessors{i};

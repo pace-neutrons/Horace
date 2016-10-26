@@ -1,5 +1,5 @@
 classdef faccess_dnd_v2 < dnd_binfile_common
-    % Class to access dnd Horace files written by Horace v1-v2
+    % Class to access Horace dnd files written by Horace v1-v2
     %
     % The current sqw file format comes in two variants:
     %   - Horace version 1 and version 2: file format '-v2'

@@ -25,7 +25,7 @@ classdef test_faccess_sqw_prototype< TestCase
             this=this@TestCase(name);
             
             this.sample_dir = fullfile(fileparts(mfilename('fullpath')));
-            this.sample_file = fullfile(this.sample_dir,'test_sqw_read_write_v0.sqw');
+            this.sample_file = fullfile(this.sample_dir,'test_sqw_read_write_v0_t.sqw');
             warning('off','FACCESS_SQW_PROTOTYPE:should_load_stream')
             this.clob = onCleanup(@()(warning('on','FACCESS_SQW_PROTOTYPE:should_load_stream')));
             
@@ -70,7 +70,7 @@ classdef test_faccess_sqw_prototype< TestCase
             
             
             to = to.init();
-            assertEqual(to.npixels,1523850);
+            assertEqual(to.npixels,16);
             
             header = to.get_header();
             assertEqual(header.filename,'map11014.spe')
@@ -83,17 +83,15 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(numel(det.group),28160)
             
             data = to.get_data();
-            assertEqual(size(data.pix),[9,1523850])
+            assertEqual(size(data.pix),[9,16])
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
             
         end
         function obj = test_get_data(obj)
-            spath = fileparts(obj.sample_file);
-            samplef  = fullfile(spath,'test_sqw_read_write_v0.sqw');
-            
-            to = faccess_sqw_prototype(samplef);
+            %spath = fileparts(obj.sample_file);           
+            to = faccess_sqw_prototype(obj.sample_file);
             
             data_h = to.get_data('-he');
             assertTrue(isstruct(data_h))
@@ -102,12 +100,12 @@ classdef test_faccess_sqw_prototype< TestCase
             
             data_dnd = to.get_data('-hver','-nopix');
             assertTrue(isa(data_dnd,'data_sqw_dnd'));
-            assertEqual(data_dnd.filename,'test_sqw_read_write_v0.sqw');
+            assertEqual(data_dnd.filename,'test_sqw_read_write_v0_t.sqw');
             
-            data = to.get_data('-hver',1,20);
+            data = to.get_data('-hver',1,10);
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
-            assertEqual(size(data.pix),[9,20]);
+            assertEqual(size(data.pix),[9,10]);
         end
         
     end

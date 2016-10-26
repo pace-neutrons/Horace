@@ -78,7 +78,7 @@ if obj.num_dim == 'uninitiated' % prototype does not have dimensions in data hea
     obj.num_dim_ = numel(data_header.p_size.field_value);
 end
 if ischar(obj.dnd_dimensions)
-    obj.dnd_dimensions_ = data_header.p_size.field_value;
+    obj.dnd_dimensions_ = double(data_header.p_size.field_value);
 end
 %
 obj.npixels_ = [];
