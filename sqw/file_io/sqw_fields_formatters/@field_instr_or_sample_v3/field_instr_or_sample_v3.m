@@ -14,7 +14,7 @@ classdef field_instr_or_sample_v3 < sqw_field_format_interface
     %
     % Original author: T.G.Perring
     %
-    % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+    % $Revision$ ($Date$)
     
     properties(Access=private)
         data_form_ = field_generic_class_hv3();

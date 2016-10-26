@@ -48,7 +48,7 @@ function sqw_object = get_sqw (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision: 1184 $ ($Date: 2016-02-12 19:15:55 +0000 (Fri, 12 Feb 2016) $)
+% $Revision$ ($Date$)
 
 % Check options
 opt_h=false;

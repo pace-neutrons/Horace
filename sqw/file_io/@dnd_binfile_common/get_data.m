@@ -74,7 +74,7 @@ function [data_str,obj] = get_data (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision: 1170 $ ($Date: 2016-02-01 17:35:02 +0000 (Mon, 01 Feb 2016) $)
+% $Revision$ ($Date$)
 
 % Initialise output arguments
 [ok,mess,header_only,hverbatim,~]=...

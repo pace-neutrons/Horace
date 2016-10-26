@@ -4,7 +4,7 @@ function obj = init_sqw_structure_field_by_field_(obj)
 % file
 %
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 %
 fseek(obj.file_id_,obj.main_header_pos_,'bof');
 [mess,res] = ferror(obj.file_id_);

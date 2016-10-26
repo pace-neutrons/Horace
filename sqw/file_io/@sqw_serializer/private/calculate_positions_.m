@@ -4,7 +4,7 @@ function [size_str,pos,err,template_struc] = calculate_positions_(obj,template_s
 %
 % pos at the end -- the final position
 %
-% $Revision: 1148 $ ($Date: 2016-01-12 17:06:27 +0000 (Tue, 12 Jan 2016) $)
+% $Revision$ ($Date$)
 %
 err = false;
 size_str= struct('start_pos_',pos);

@@ -27,7 +27,7 @@ function obj = common_init_logic_(obj,varargin)
 %                    has alreadty been initiated with this file
 %
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 %
 if nargin>1
     if isa(varargin{1},'sqw')

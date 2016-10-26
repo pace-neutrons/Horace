@@ -6,7 +6,7 @@ classdef field_simple_class_hv3 < sqw_field_format_interface
     %  so its format is fully self-consistent
     %
     %
-    % $Revision: 1148 $ ($Date: 2016-01-12 17:06:27 +0000 (Tue, 12 Jan 2016) $)
+    % $Revision$ ($Date$)
     %
     
     properties(Access=protected)

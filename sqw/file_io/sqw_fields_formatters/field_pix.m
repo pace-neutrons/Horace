@@ -5,7 +5,7 @@ classdef field_pix < field_var_array
     %  The length of the array is specified || identified during conversion
     %
     %
-    % $Revision: 1148 $ ($Date: 2016-01-12 17:06:27 +0000 (Tue, 12 Jan 2016) $)
+    % $Revision$ ($Date$)
     %
     
     properties(Access=private)
