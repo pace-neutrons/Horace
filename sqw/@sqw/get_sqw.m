@@ -122,4 +122,5 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %
 % $Revision$ ($Date$)
 
+
 [mess,main_header,header,detpar,data,position,npixtot,data_type,file_format,current_format] = get_sqw (infile,varargin{:});

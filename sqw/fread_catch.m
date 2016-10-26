@@ -35,7 +35,7 @@ function [data, count_out, status_ok, message] = fread_catch (fid, count_in, pre
 ntry_retry=6;   % maximum number of attempts to read before trying to reopen
 ntry_reopen=6;  % further attempts with reopening
 if verLessThan('matlab','8.1')
-   count_in = double(count_in); 
+    count_in = double(count_in);
 end
 
 pos_initial = ftell(fid);   % location before attempt to read
@@ -44,11 +44,11 @@ ntry=1;
 while ntry<=ntry_max
     ferror(fid,'clear');        % clear error status - we assume that all is OK before entry
     try
-    % If several attempts, then getting serious... close file and reopen
-        if ntry>=ntry_retry;  
+        % If several attempts, then getting serious... close file and reopen
+        if ntry>=ntry_retry
             disp('...try closing and reopening file...')
             pause_time = max(2.5,0.1*ntry + 0.1*(ntry-ntry_retry)^2);
-            pause(pause_time);     % pause to give time for a problem to settle down...   
+            pause(pause_time);     % pause to give time for a problem to settle down...
             [flname,mode]=fopen(fid);
             fid_old = fid;
             fclose(fid);
@@ -73,7 +73,7 @@ while ntry<=ntry_max
         elseif nargin==5
             [data,count_out] = fread(fid,count_in,precision,skip,machineformat);
         end
-
+        
         % catch any other error reading (may have in fact gone to the catch part of this try..catch, but just in case)
         [f_message,f_errnum] = ferror(fid);
         if f_errnum==0
@@ -115,7 +115,7 @@ while ntry<=ntry_max
                 return
             end
         end
-
+        
     catch
         tmp=lasterror;
         disp(['Error reading from file: Fatal error in fread (attempt ',num2str(ntry),') - trying to recover [',tmp.message,']'])
@@ -132,10 +132,10 @@ while ntry<=ntry_max
             disp(message)
             return
         end
-
+        
     end
     ntry = ntry + 1;
-
+    
 end
 
 if ~exist('data','var'), data=[]; end

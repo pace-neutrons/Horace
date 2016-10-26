@@ -1,4 +1,4 @@
-function [data,define_axis_caption] = copy_data_from_structure(data,sqw_data_structure)
+function [data,define_axis_caption] = copy_data_from_structure(data,sqw_data_structure,conv2double)
 % method copies data from structure to internal class structure
 %
 % The structure should fields with names, correspondent to class names.
@@ -13,6 +13,10 @@ else
 end
 fields = fieldnames(sqw_data_structure);
 for i=1:numel(fields)
-    data.(fields{i}) = sqw_data_structure.(fields{i});
+    if isa(sqw_data_structure.(fields{i}),'single') && conv2double
+        data.(fields{i}) = double(sqw_data_structure.(fields{i}));
+    else
+        data.(fields{i}) = sqw_data_structure.(fields{i});        
+    end
 end
 

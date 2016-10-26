@@ -162,7 +162,7 @@ elseif narg>=1
         % Remaining input has form proj,p1,p2,p3,p4
         [data,mess]=make_sqw_data_from_proj(data,latt,varargin{1+n0:end});
     elseif nargin == 2 && isstruct(varargin{1})
-        [data,define_axis_caption]=copy_data_from_structure(data,varargin{1});
+        [data,define_axis_caption]=copy_data_from_structure(data,varargin{1},true);
     else
         % Remaining input has form uoffset,[u0,]u1,p1,...
         [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(data,varargin{1+n0:end});
@@ -177,7 +177,7 @@ if define_axis_caption
 end
 if isempty(mess)
     type_in = data.data_type();
-    [ok, type, mess]=data.check_sqw_data_(type_in);
+    [ok, type, mess,data]=data.check_sqw_data_(type_in);
     if ~ok
         error('DATA_SQW_DND:invalid_arguments',mess);
     end

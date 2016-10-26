@@ -1,9 +1,10 @@
-function [ok, type, mess] = check_sqw_data_(data, type_in)
+function [ok, type, mess,data] = check_sqw_data_(data, type_in)
 % Check that the fields in the data are OK
 %
 %   >> [ok, mess] = check_sqw_data (data)
 %   >> [ok, mess] = check_sqw_data (data, type_in)
 %   >> [ok, mess] = check_sqw_data (data, type_in, fields_names_only)
+%   >> [ok, mess,data] = check_sqw_data (...)
 %
 % Input:
 % ------
@@ -20,6 +21,8 @@ function [ok, type, mess] = check_sqw_data_(data, type_in)
 %               type='a' if full pixel information (i.e. 'sqw' type)
 %               If not OK, then type=''
 %   mess        if OK, then empty string; if ~OK contains error message
+%   data        if provided, allow to fix some data (e.g. type or
+%               row-column distribution) automatically
 
 % Original author: T.G.Perring
 %
@@ -38,14 +41,15 @@ mess='';
 % Check input options flags - these better be OK if Horace is written correctly
 if ~exist('type_in','var')||isempty(type_in)
     type_in = [];
-elseif ~(isequal(type_in,'a')||isequal(type_in,'b+') || isequal(type_in,'a-'))
+elseif ~(isequal(type_in,'a')||isequal(type_in,'b+') || ...
+        isequal(type_in,'a-') || isequal(type_in,'b'))
     error('Invalid argument type_in to check_sqw_data - logic problem in Horace')
 end
 
 
 
 if isempty(data.pix)
-    tmp_type='b+';
+    tmp_type='a-';
 else
     if isempty(data.urange)
         tmp_type='b+';
@@ -95,7 +99,11 @@ if ~isa_size(data.ulabel,[1,4],'cellstr'); mess='ERROR: field ''ulabel'' must be
 if ~isempty(data.iax) && ~isa_size(data.iax,'row','double')
     mess='ERROR: field ''iax'' must be a row vector of integration axis indicies'; return; end
 if ~isempty(data.pax) && ~isa_size(data.pax,'row','double')
-    mess='ERROR: field ''pax'' must be a row vector of plot axis indicies'; return; end
+    data.pax = double(data.pax);
+    if ~isa_size(data.pax,'row','double')
+        mess='ERROR: field ''pax'' must be a row vector of plot axis indicies'; return;
+    end
+end
 if ~isempty(data.iax) && ~isempty(data.pax)
     if ~isequal(sort([data.pax,data.iax]),[1,2,3,4])
         mess='ERROR: fields ''iax'' and ''pax'' must collectively cover axes 1,2,3 and 4'; return; end
@@ -137,14 +145,18 @@ if ndim~=0
         sz=sz(1:2);
     elseif ndim==4 && sz(4)==1
         sz=sz(1:3);
-    elseif ndim==3 && sz(3)==1;
+    elseif ndim==3 && sz(3)==1
         sz=sz(1:2);
-    elseif ndim==1;
+    elseif ndim==1
         sz=[sz,1];   % expand size array for one dimensional case
     end
     if ~isa_size(data.dax,'row','double')||~isequal(sort(data.dax),1:ndim)
-        mess='ERROR: field ''dax'' must be a row vector length ndim indexing a permutation of the plot axes';
-        return
+        data.dax = double(data.dax);
+        if ~isa_size(data.dax,'row','double')
+            mess='ERROR: field ''dax'' must be a row vector length ndim indexing a permutation of the plot axes';
+            return
+        end
+        
     end
 else
     if ~isempty(data.p); mess='ERROR: field ''p'' must be empty'; return; end

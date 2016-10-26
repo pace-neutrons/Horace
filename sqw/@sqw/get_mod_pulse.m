@@ -16,10 +16,10 @@ function varargout = get_mod_pulse(varargin)
 %   pulse_model Name of moderator pulse shape model e.g. 'ikcarp'
 %              Must be the same for all data sets in all sqw objects
 %             (Returned as [] if not all the same pulse model or length of
-%              pulse parmaeters array not all the same)
+%              pulse parameters array not all the same)
 %   pp          Mean moderator pulse shape parameters (numeric row vector)
 %             (Returned as [] if not all the same pulse model or length of
-%              pulse parmaeters array not all the same)
+%              pulse parameters array not all the same)
 %   ok          Logical flag: =true if all parameters within tolerance, otherwise =false;
 %   mess        Error message; empty if OK, non-empty otherwise
 %   p           Structure with various information about the spread
