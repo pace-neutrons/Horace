@@ -7,7 +7,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     %
     %
     %
-    % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+    % $Revision$ ($Date$)
     %
     %
     properties(Access = protected)

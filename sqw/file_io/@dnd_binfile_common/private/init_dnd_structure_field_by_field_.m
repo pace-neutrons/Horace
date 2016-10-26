@@ -6,7 +6,7 @@ function obj = init_dnd_structure_field_by_field_(obj)
 % To overload, host shound correctly set the obj.data_pos_ field.
 %
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 %
 %
 

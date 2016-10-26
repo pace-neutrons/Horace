@@ -3,7 +3,7 @@ classdef field_cellarray_of_strings < sqw_field_format_interface
     % cellarray of strings using sqw binary format
     %
     %
-    % $Revision: 1148 $ ($Date: 2016-01-12 17:06:27 +0000 (Tue, 12 Jan 2016) $)
+    % $Revision$ ($Date$)
     %
     
     properties(Access=private)

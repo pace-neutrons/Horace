@@ -6,7 +6,7 @@ classdef field_not_in_structure < iVirt_field
     % Up to now only uint32 length fields are used by Horace
     %
     %
-    % $Revision: 1148 $ ($Date: 2016-01-12 17:06:27 +0000 (Tue, 12 Jan 2016) $)
+    % $Revision$ ($Date$)
     %
     
     properties(Access=protected)

@@ -32,7 +32,7 @@ function res = get_sqw (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision: 1184 $ ($Date: 2016-02-12 19:15:55 +0000 (Fri, 12 Feb 2016) $)
+% $Revision$ ($Date$)
 
 [ok,mess,verbatim,~] =  parse_char_options(varargin,{'-verbatim'});
 if ~ok

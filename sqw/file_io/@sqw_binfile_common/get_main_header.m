@@ -31,7 +31,7 @@ function   main_header = get_main_header(obj,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 
 if ischar(obj.num_contrib_files)
     error('SQW_FILE_INTERFACE:runtime_error',...

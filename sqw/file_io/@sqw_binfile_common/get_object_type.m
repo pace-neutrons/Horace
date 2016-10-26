@@ -17,7 +17,7 @@ function [mess, sqw_type, ndims, position] = get_object_type (fid)
 
 % Original author: T.G.Perring
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 
 
 mess='';
