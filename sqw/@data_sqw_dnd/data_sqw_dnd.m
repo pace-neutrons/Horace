@@ -46,7 +46,7 @@ classdef data_sqw_dnd
         % ien         Energy bin number for the pixel in the array in the (irun)th header
         % signal      Signal array
         % err         Error array (variance i.e. error bar squared)
-        axis_caption=[] %  Reference to class, which define axis captions
+        axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
         
         % Original author: T.G.Perring
         %

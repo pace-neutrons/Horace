@@ -417,7 +417,7 @@ function answer=fnothingleft(fid)
 % Determine if there is any more data in the file. Do this by trying to advance one byte
 % Alternative is to go to end of file (fseek(fid,0,'eof') and see if location is the same.
 status=fseek(fid,1,'cof');  % try to advance one byte
-if status~=0;
+if status~=0
     answer=true;
 else
     answer=false;
