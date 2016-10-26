@@ -1,5 +1,5 @@
 classdef dnd_file_interface
-    % Class to describe interface to access sqw files.
+    % Class provides interface to access dnd files.
     %
     %   Various accessors should inherit this class, implement the
     %   abstract methods mentioned here and define protected fields, common
@@ -49,24 +49,28 @@ classdef dnd_file_interface
             % the name of the file, this object is associated with
             fn = obj.filename_;
         end
+        %
         function fp  = get.filepath(obj)
             % the path to the file, this object is associated with
             fp = obj.filepath_;
         end
+        %
         function obj = set.filename(obj,new_filename)
             % set new file name to save sqw data in.
             %
             obj = obj.check_file_upgrade_get_new_name(new_filename);
         end
-        
+        %
         function ver = get.file_version(obj)
             % return the version of the loader corresponding to the format
             % of data, stored in the file
             ver = ['-v',num2str(obj.file_ver_)];
         end
+        %
         function ndims = get.num_dim(obj)
             ndims = obj.num_dim_;
         end
+        %
         function type = get.sqw_type(obj)
             % return true if the object to load is sqw-type (contains pixels) or
             % false if not.
@@ -78,9 +82,10 @@ classdef dnd_file_interface
             % into double precision
             conv = obj.convert_to_double_;
         end
+        %
         function obj = set.convert_to_double(obj,val)
             lval = logical(val);
-            obj.convert_to_double_ = lval(1);
+            obj.convert_to_double_ = lval;
         end
         
         %-------------------------
@@ -91,41 +96,13 @@ classdef dnd_file_interface
     end
     %----------------------------------------------------------------------
     methods(Static)
-        function [header,fid] = get_file_header(file,varargin)
-            % open existing file for rw acces and get sqw file header,
-            % allowing loaders to identify the type of the file format
-            % stored within the file
-            %
-            [header,fid,message] = get_header_(file,varargin{:});
-            if ~isempty(message)
-                if fid>0
-                    fclose(fid);
-                end
-                error('SQW_FILE_INTERFACE:io_error',['Error: ',message]);
-            end
-            % try to interpret input binary stream as horace header and
-            % convert data stream into structure describing horace format
-            [header,mess] = get_hor_version_(header);
-            if ~isempty(mess)
-                error('SQW_FILE_INTERFACE:runtime_error',['Error: ',message]);
-            end
-        end
+        % open existing file for rw acces and get sqw file header,
+        % allowing loaders to identify the type of the file format
+        % stored within the file
+        [header,fid] = get_file_header(file,varargin)
         %
-        function  val = do_convert_to_double(val)
-            % convert all numerical types of the structure into double
-            if iscell(val)
-                for i=1:numel(val)
-                    val{i} = dnd_file_interface.do_convert_to_double(val{i});
-                end
-            elseif isstruct(val)
-                fn = fieldnames(val);
-                for i=1:numel(fn)
-                    val.(fn{i}) = dnd_file_interface.do_convert_to_double(val.(fn{i}));
-                end
-            elseif isnumeric(val)
-                val = double(val);
-            end
-        end
+        % convert all numerical types of the structure into double
+        val = do_convert_to_double(val)
     end
     %----------------------------------------------------------------------
     methods(Abstract)
@@ -145,8 +122,8 @@ classdef dnd_file_interface
         [samp,obj]  = get_sample(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
         sqw_obj = get_sqw(obj,varargin);
+        % save sqw object stored in memory into binary sqw file
+        %obj = put_sqw(obj,sqw_obj,varargin);
     end
-    methods
-        %
-    end
+ 
 end

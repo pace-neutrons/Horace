@@ -60,6 +60,23 @@ classdef sqw_serializer
         function [size_str,pos,eof,template_struc] = calculate_positions(obj,template_struc,input,varargin)
             % calculate the positions, the fields of the input templated_structure
             % occupy in an input stream.
+            % Usage:
+            % [size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input)
+            %or
+            %[size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input,start_pos)
+            %
+            % where
+            % obj           ::  an instance of sqw serializer
+            % format_struc  ::  structure with sqw_field_formatters values
+            %                   defining the format of the structure to
+            %                   save
+            % input         ::  input data in various formats to find
+            %                   locations of different parts of the data
+            % start_pos     ::  if provided, the initial position of the
+            %                   data, described  by format_struct. If not
+            %                   provided, default is 0 if input/output is a file
+            %                   handle or 1 if it is sequence of bytes
+            %
             [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin{:});
             %
             [size_str,pos,eof,template_struc] = calculate_positions_(obj,template_struc,input,pos);

@@ -11,28 +11,36 @@ if nargin == 3
 end
 
 sqw_2save = varargin{1};
+%
+%
+%obj = get_header_size(obj,sqw_2save);
 
-% 
-[obj,app_header] = get_header_size(obj,sqw_2save);
+data = struct(sqw_2save);
+if strcmp(obj.data_type_,'undefined')
+    obj.data_type_ = 'b+';
+end
+format = obj.get_data_form();
+[data_pos,pos] = obj.sqw_serializer_.calculate_positions(format,data,obj.data_pos_);
+
+obj.s_pos_=data_pos.s_pos_;
+obj.e_pos_=data_pos.e_pos_;
+obj.npix_pos_=data_pos.npix_pos_;
+if isfield(data_pos,'urange_pos_')
+    obj.urange_pos_=data_pos.urange_pos_;
+end
+
+obj.dnd_eof_pos_ = pos;
 
 
+%
 
 function [obj,app_header]=get_header_size(obj,sqw_2save)
 
 format = obj.app_header_form_;
-app_header = format;
-app_header.version  = obj.file_ver_;
-obj.typestart_pos_  = obj.sqw_serializer_.calculate_positions(template_struc,app_header)-1;
-format.sqw_type = int32(0);
-format.num_dim  = int32(0);
-if isempty(sqw_2save.data.pix)
-    app_header.sqw_type = false;
-else
-    app_header.sqw_type = true;    
-end
+app_header = obj.build_app_header(sqw_2save);
+[~,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
+obj.data_pos_  = pos;
 %
-app_header.num_dim = numel(size(sqw_2save.s));
-%
-obj.main_header_pos_ = obj.sqw_serializer_.calculate_positions(template_struc,app_header)-1;
+
 %
 

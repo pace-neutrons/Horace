@@ -131,6 +131,19 @@ classdef test_faccess_dnd_v2< TestCase
             assertEqual(data_dnd.filename,'ei140.sqw');
         end
         
+        function obj = test_save_dnd(obj)
+            spath = fileparts(obj.sample_file);
+            sample  = fullfile(spath,'w3d_d3d.sqw');
+            
+            
+            ti = faccess_dnd_v2(sample);           
+            tob_dnd = ti.get_sqw('-ver');
+            
+            tt = faccess_dnd_v2();
+            tt = tt.init(tob_dnd);
+            
+        end
+
         
     end
 end

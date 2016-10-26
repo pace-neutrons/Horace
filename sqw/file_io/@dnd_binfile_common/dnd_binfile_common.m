@@ -1,11 +1,10 @@
 classdef dnd_binfile_common < dnd_file_interface
-    % Class contains common logic and code used to access binary sqw files
+    % Class contains common methods and code used to access binary dnd files
     %
-    %  Binary sqw-file accessors inherit this class, use common method,
+    %  Binary sqw-file accessors inherit this class, use common methods,
     %  defined in this class implement remaining abstract methods,
-    %  inherited from sqw_file_interface and overload the methods, which
+    %  inherited from dnd_file_interface and overload the methods, which
     %  have different data access requests
-    %
     %
     %
     % $Revision$ ($Date$)
@@ -32,8 +31,10 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         dnd_dimensions_ = 'undefined'
         data_type_ = 'undefined';
-        app_header_form_ = struct('appname','horace','version',double(2),...
-            'sqw_type',uint8(0),'ndim',0);
+        % format of application header, which stores Horace application
+        % type
+        app_header_form_ = struct('appname','horace','version',double(0),...
+            'sqw_type',uint32(0),'ndim',uint32(0));
         
     end
     %
@@ -43,7 +44,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % dimensions of the horace image (dnd object), stored in the file
         dnd_dimensions
         % the format of the application header stored by this class
-        app_header_form;        
+        app_header_form;
     end
     %
     methods(Access = protected)
@@ -68,6 +69,17 @@ classdef dnd_binfile_common < dnd_file_interface
     methods % defined by this class
         % check if this loader should deal with selected file
         [ok,obj,mess]=should_load(obj,filename)
+        % Check if this loader should deal with selected data stream
+        %Usage:
+        %
+        %>> [should,obj] = obj.should_load_stream(datastream,fid)
+        % structure returned by get_file_header function
+        % Returns:
+        % true if the loader can load these data, or false if not
+        % with message explaining the reason for not loading the data
+        % of should, object is initiated by appropriate file inentified
+        [should,obj,mess]= should_load_stream(obj,stream,fid)
+        
         %
         obj = check_file_upgrade_set_new_name(obj,new_filename,new_data_struct);
         %
@@ -78,6 +90,10 @@ classdef dnd_binfile_common < dnd_file_interface
         % retrieve the whole dnd object from properly initialized dnd file
         sqw_obj = get_sqw(obj,varargin);
         %
+        
+        % build header, which contains information on sqw object and
+        % informs clients on contents of a binary file
+        header = build_app_header(obj,sqw_obj)
         
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is
@@ -91,37 +107,7 @@ classdef dnd_binfile_common < dnd_file_interface
             samp = struct();
         end
         %
-        function [should,obj,mess]= should_load_stream(obj,stream,fid)
-            % Check if this loader should deal with selected data stream
-            %Usage:
-            %
-            %>> [should,obj] = obj.should_load_stream(datastream,fid)
-            % structure returned by get_file_header function
-            % Returns:
-            % true if the loader can load these data, or false if not
-            % with message explaining the reason for not loading the data
-            % of should, object is initiated by appropriate file inentified
-            mess = '';
-            if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
-                if stream.sqw_type == obj.sqw_type && stream.version == obj.file_ver_
-                    obj.file_id_ = fid;
-                    obj.num_dim_ = double(stream.num_dim);
-                    obj.file_closer_ = onCleanup(@()obj.close());
-                    should = true;
-                else
-                    should = false;
-                    if stream.sqw_type
-                        type = 'sqw';
-                    else
-                        type = 'dnd';
-                    end
-                    mess = ['not Horace ',type,' ',obj.file_version,' file'];
-                end
-            else
-                error('DND_FILE_INTERFACE:invalid_argument',...
-                    'the input structure for should_load_stream function does not have correct format');
-            end
-        end        
+        
         %
         function obj = init(obj,varargin)
             % Initialize sqw accessor using various input sources

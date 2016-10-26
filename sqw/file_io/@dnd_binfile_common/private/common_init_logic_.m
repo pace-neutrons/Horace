@@ -22,7 +22,7 @@ function obj = common_init_logic_(obj,varargin)
 %                    sqw object in appropriate binary format.
 %                    Also the name of the file to save the data is
 %                    provided.
-%                    If the filename is the name of an exisiting file, 
+%                    If the filename is the name of an exisiting file,
 %                    the file will be overwritten or upgraded if the loader
 %                    has alreadty been initiated with this file
 %
@@ -30,10 +30,7 @@ function obj = common_init_logic_(obj,varargin)
 % $Revision$ ($Date$)
 %
 if nargin>1
-    if isa(varargin{1},'sqw')
-        obj=obj.init_from_sqw_obj(varargin{:});
-        return
-    elseif ischar(varargin{1}) || isnumeric(varargin{1})
+    if ischar(varargin{1}) || isnumeric(varargin{1})
         [ok,obj,mess] = obj.should_load(varargin{1});
         if ~ok
             if ischar(varargin{1})
@@ -46,8 +43,14 @@ if nargin>1
                 fname,mess);
         end
     else
-        error('FACCESS_SQW_COMMON:runtime_error',...
-            ' invalid argument, input can be only sqw object or sqw file name')
+        type = class(varargin{1});
+        if ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'})
+            obj = obj.init_from_sqw_obj(varargin{:});
+            return;
+        else
+            error('FACCESS_SQW_COMMON:runtime_error',...
+                ' invalid argument, input can be only sqw/dnd object or sqw file name')
+        end
     end
 else % initialize opened file to read data
     if obj.file_id_ <= 0
