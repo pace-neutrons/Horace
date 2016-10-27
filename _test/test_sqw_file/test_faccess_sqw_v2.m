@@ -31,7 +31,7 @@ classdef test_faccess_sqw_v2< TestCase
         % tests
         function obj = test_should_load_stream(obj)
             to = faccess_sqw_v2();
-            co = onCleanup(@()to.close());
+            co = onCleanup(@()to.delete());
             
             
             [stream,fid] = to.get_file_header(obj.sample_file);
@@ -44,7 +44,7 @@ classdef test_faccess_sqw_v2< TestCase
         end
         function obj = test_should_load_file(obj)
             to = faccess_sqw_v2();
-            co = onCleanup(@()to.close());
+            co = onCleanup(@()to.delete());
             
             [ok,to] = to.should_load(obj.sample_file);
             assertTrue(ok);
@@ -57,7 +57,7 @@ classdef test_faccess_sqw_v2< TestCase
             
             % access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'FACCESS_SQW_COMMON:runtime_error');
+            assertExceptionThrown(f,'DND_BINFILE_COMMON:runtime_error');
             
             
             [ok,to] = to.should_load(obj.sample_file);
@@ -126,6 +126,38 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(sqw_obj1.main_header.filepath,...
                 'C:\Russell\PCMO\ARCS_Oct10\Data\SQW\')
         end
+        %
+        function obj = test_put_sqw(obj)
+            spath = fileparts(obj.sample_file);
+            samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
+            
+            
+            ts = faccess_sqw_v2(samplef);
+            tob_sqw = ts.get_sqw('-hverbatim');
+            
+            tt = faccess_sqw_v2();
+            tt = tt.init(tob_sqw );
+            
+            tf = fullfile(tempdir,'test_save_sqw_v2.sqw');
+            clob = onCleanup(@()delete(tf));
+            tt.filename = tf;
+            
+%             tt=tt.put_sqw();
+%             assertTrue(exist(tf,'file')==2)
+%             tt.delete();
+%             %
+%             sz1 = obj.fl_size(sample);
+%             sz2 = obj.fl_size(tf);
+%             
+%             assertEqual(sz1,sz2);
+%             
+%             tn = faccess_dnd_v2(tf);
+%             rec_dnd = tn.get_sqw('-ver');
+%             tn.delete();
+%             
+%             assertEqual(struct(tob_dnd),struct(rec_dnd));
+%             
+        end        
         
     end
 end

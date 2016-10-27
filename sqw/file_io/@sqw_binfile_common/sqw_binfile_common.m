@@ -16,8 +16,11 @@ classdef sqw_binfile_common < sqw_file_interface
         % of Horace data information and the size of this part.
         % 0 means unknown/uninitialized or missing.
         main_header_pos_=26;
+        main_head_pos_info_ =[];
         header_pos_=0;
+        header_pos_info_ =[];
         detpar_pos_=0;
+        detpar_pos_info_ =[];        
         pix_pos_=0;
         eof_pix_pos_=0;
         %
@@ -29,7 +32,19 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
-            obj = init_from_sqw_(obj,varargin{:});
+            if nargin < 2
+                error('SQW_BINFILE_COMMON:runtime_error',...
+                    'init_from_sqw_obj method should be ivoked with at least an existing sqw object provided');
+            end
+            if ~isa(varargin{1},'sqw')
+                error('SQW_BINFILE_COMMON:invalid_argument',...
+                    'init_from_sqw_obj method should be initiated by an sqw object');
+            end
+            %
+            obj = init_headers_from_sqw_(obj,varargin{1});
+            % initialize data fields:
+            obj.data_type_ = 'a';            
+            obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
@@ -159,6 +174,7 @@ classdef sqw_binfile_common < sqw_file_interface
                 'width',field_const_array_dependent('ndet'),...
                 'height',field_const_array_dependent('ndet'));
         end
+           
         %
         function data_form = get_data_form(obj,varargin)
             % Return the structure of the data file header in the form
@@ -219,6 +235,7 @@ classdef sqw_binfile_common < sqw_file_interface
             end
             data_form.dummy = field_not_in_structure('pax');
             data_form.pix = field_pix();
+            
             
             % full header necessary to inentify datatype in the file
             if strncmp(obj.data_type,'un',2) || ...

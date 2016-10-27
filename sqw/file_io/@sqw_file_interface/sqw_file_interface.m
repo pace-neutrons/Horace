@@ -10,9 +10,9 @@ classdef sqw_file_interface < dnd_binfile_common
     %
     properties(Access=protected)
         %
-        num_contrib_files_ = 'uninitiated'
+        num_contrib_files_ = 'undefined'
         %
-        npixels_ = 'uninitiated';
+        npixels_ = 'undefined';
     end
     properties(Dependent)
         % number of files, used to construct this class
@@ -33,10 +33,10 @@ classdef sqw_file_interface < dnd_binfile_common
         end
         
         %-------------------------
-        function obj = close(obj)
-            obj.num_contrib_files_ = 'uninitiated';
-            obj.npixels_ = 'uninitiated';
-            close@dnd_file_interface(obj);
+        function obj = delete(obj)
+            obj.num_contrib_files_ = 'undefined';
+            obj.npixels_ = 'undefined';
+            obj = delete@dnd_file_interface(obj);
         end
     end
     %----------------------------------------------------------------------

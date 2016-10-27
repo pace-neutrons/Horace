@@ -11,6 +11,17 @@ classdef test_faccess_dnd_v2< TestCase
         sample_dir;
         sample_file;
     end
+    methods(Static)
+        function sz = fl_size(filename)
+            fh = fopen(filename,'rb');
+            p0 = ftell(fh);
+            fseek(fh,0,'eof');
+            p1 = ftell(fh);
+            sz = p1-p0;
+            fclose(fh);
+        end
+        
+    end
     
     methods
         
@@ -31,7 +42,7 @@ classdef test_faccess_dnd_v2< TestCase
         % tests
         function obj = test_should_load_stream(obj)
             to = faccess_dnd_v2();
-            co = onCleanup(@()to.close());
+            co = onCleanup(@()to.fclose());
             
             
             [stream,fid] = to.get_file_header(obj.sample_file);
@@ -56,7 +67,7 @@ classdef test_faccess_dnd_v2< TestCase
             
             % access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'FACCESS_SQW_COMMON:runtime_error');
+            assertExceptionThrown(f,'DND_BINFILE_COMMON:runtime_error');
             
             
             [ok,to] = to.should_load(obj.sample_file);
@@ -131,19 +142,38 @@ classdef test_faccess_dnd_v2< TestCase
             assertEqual(data_dnd.filename,'ei140.sqw');
         end
         
-        function obj = test_save_dnd(obj)
+        function obj = test_put_dnd(obj)
             spath = fileparts(obj.sample_file);
             sample  = fullfile(spath,'w3d_d3d.sqw');
             
             
-            ti = faccess_dnd_v2(sample);           
-            tob_dnd = ti.get_sqw('-ver');
+            ts = faccess_dnd_v2(sample);
+            tob_dnd = ts.get_sqw('-ver');
             
             tt = faccess_dnd_v2();
             tt = tt.init(tob_dnd);
             
+            tf = fullfile(tempdir,'test_save_dnd_v2.sqw');
+            clob = onCleanup(@()delete(tf));
+            tt.filename = tf;
+            
+            tt=tt.put_sqw();
+            assertTrue(exist(tf,'file')==2)
+            tt.delete();
+            %
+            sz1 = obj.fl_size(sample);
+            sz2 = obj.fl_size(tf);
+            
+            assertEqual(sz1,sz2);
+            
+            tn = faccess_dnd_v2(tf);
+            rec_dnd = tn.get_sqw('-ver');
+            tn.delete();
+            
+            assertEqual(struct(tob_dnd),struct(rec_dnd));
+            
         end
-
+        
         
     end
 end

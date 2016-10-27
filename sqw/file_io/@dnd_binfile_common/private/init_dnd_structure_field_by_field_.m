@@ -14,11 +14,7 @@ function obj = init_dnd_structure_field_by_field_(obj)
 pos = obj.data_pos_;
 %
 fseek(obj.file_id_,pos,'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~=0
-    error('DND_BINFILE_COMMON:io_error',...
-        'IO error moving to data start position, Message: %s',mess)
-end
+check_and_throw_error(obj,'error moving to data start position');
 
 
 % data format
@@ -35,7 +31,7 @@ obj.dnd_dimensions_ = double(data_header.p_size.field_value);
 if ischar(obj.num_dim_) % un-initialized as prototype format does not have dimensions in header
     obj.num_dim_ = double(numel(data_header.p_size.field_value));
 end
-
+obj.data_fields_locations_ = data_pos;
 %
 obj.s_pos_=data_pos.s_pos_;
 obj.e_pos_=data_pos.e_pos_;
@@ -61,3 +57,10 @@ function obj=set_filepath(obj)
 [path,name,ext]=fileparts(fopen(obj.file_id_));
 obj.filename_=[name,ext];
 obj.filepath_=[path,filesep];
+
+function check_and_throw_error(obj,mess_pos)
+[mess,res] = ferror(obj.file_id_);
+if res ~= 0
+    error('DND_BINFILE_COMMON:io_error',...
+        '%s: Reason %s',mess_pos,mess)
+end
