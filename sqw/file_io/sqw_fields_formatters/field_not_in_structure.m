@@ -25,12 +25,17 @@ classdef field_not_in_structure < iVirt_field
         function obj=field_not_in_structure(varargin)
             % constructor expects the name of the field, referring to
             % the array-source of the data for this class
-            if nargin ~= 1
+            if nargin == 0
+                obj.root_field_name_ = '';
+            elseif nargin == 1
+                obj.root_field_name_ = varargin{1};                
+            else
                 error('FIELD_NOT_IN_STRUCTURE:invalid_argument',...
                     [' field_not_in_structure has to be initialized with '...
                     'the name of the field this class gets its value from']);
+                
             end
-            obj.root_field_name_ = varargin{1};
+
             
             %
         end
@@ -41,9 +46,13 @@ classdef field_not_in_structure < iVirt_field
         
         function bytes = bytes_from_field(obj,strct)
             % convert variable into invertible sequence of bytes
-            val = strct.(obj.root_field_name_);
-            data = uint32(numel(val));
-            bytes = typecast(data,'uint8');
+            if isempty(obj.root_field_name_)
+                bytes = typecast(uint32(0),'uint8');
+            else
+                val = strct.(obj.root_field_name_);
+                data = uint32(numel(val));
+                bytes = typecast(data,'uint8');
+            end
         end
         function sz = size_of_field(obj,struct)
             % calculate length of string defined by format string

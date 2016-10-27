@@ -18,14 +18,24 @@ classdef dnd_file_interface
         % if the file is sqw or dnd
         sqw_type_ = false;
         % number of dimensions in sqw object
-        num_dim_ = 'uninitiated'
+        num_dim_ = 'undefined'
+        % list of the sqw class fields or subclasses and auxiliary data
+        % structures, stored on hdd
+        dnd_dimensions_ = 'undefined'
+        data_type_ = 'undefined';
         %
-        % internal sqw/dnd object used as source for subsequent write operations
-        sqw_object_ = [];
         
         %True to convert all read fields (except pixels) into double
         convert_to_double_ = true;
     end
+    %
+    properties(Constant,Access=protected)
+        % format of application header, written at the beginning of a
+        % binary sqw/dnd file to identify this file for clients
+        app_header_form_ = struct('appname','horace','version',double(1),...
+            'sqw_type',uint32(1),'ndim',uint32(1));
+    end
+    
     properties(Dependent)
         % the name of the file, this object is associated and should be
         % read from/written to
@@ -39,6 +49,11 @@ classdef dnd_file_interface
         sqw_type;
         % number of dimensions in the dnd image
         num_dim;
+        % dimensions of the horace image (dnd object), stored in the file
+        dnd_dimensions
+        % type of the data, stored in a file
+        data_type
+        
         % if true, all numeric types, read from a file (except pixels)
         % are converted to double
         convert_to_double
@@ -56,10 +71,30 @@ classdef dnd_file_interface
         end
         %
         function obj = set.filename(obj,new_filename)
-            % set new file name to save sqw data in.
+            % set new file name to save sqw data in. Also opens this file
+            % for writing.
             %
-            obj = obj.check_file_upgrade_get_new_name(new_filename);
+            obj = obj.check_file_set_new_name(new_filename);
         end
+        %
+        function obj = set.filepath(obj,new_path)
+            % set new file path to save sqw data in. Also opens file
+            % with the name defined before (if this name is not empty)
+            % for writing.
+            if new_path ~= obj.filepath_
+                if isempty(obj.filename_)
+                    if ~ischar(new_path)
+                        error('DND_FILE_INTERFACE:invalid_argument',...
+                            ' path to save files has to be defined by sequence of characters')
+                    end
+                    obj.filepath_ = new_path;
+                else
+                    new_fname = fullfile(new_path,obj.filename_);
+                    obj = obj.check_file_set_new_name(new_fname);
+                end
+            end
+        end
+        
         %
         function ver = get.file_version(obj)
             % return the version of the loader corresponding to the format
@@ -89,41 +124,73 @@ classdef dnd_file_interface
         end
         
         %-------------------------
-        function obj = close(obj)
-            obj.num_dim_ = 'uninitiated';
-            obj.sqw_object_ = [];
+        function obj = delete(obj)
+            obj.num_dim_        = 'undefined';
+            obj.dnd_dimensions_ = 'undefined';
+            obj.data_type_      = 'undefined';
         end
+        %
+        function ff=get.data_type(obj)
+            %   data_type   Type of sqw data written in the file
+            %   type 'b'    fields: filename,...,dax,s,e
+            %   type 'b+'   fields: filename,...,dax,s,e,npix
+            %   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
+            %   type 'a-'   fields: filename,...,dax,s,e,npix,urange
+            ff = obj.data_type_;
+        end
+        %
+        function dims = get.dnd_dimensions(obj)
+            dims = obj.dnd_dimensions_;
+        end
+        
     end
     %----------------------------------------------------------------------
-    methods(Static)
+    methods(Static) % defined by this class
         % open existing file for rw acces and get sqw file header,
         % allowing loaders to identify the type of the file format
         % stored within the file
         [header,fid] = get_file_header(file,varargin)
         %
-        % convert all numerical types of the structure into double
+        % convert all numerical types of a structure into double
         val = do_convert_to_double(val)
     end
     %----------------------------------------------------------------------
     methods(Abstract)
+        % Initializers:
+        % Mainly used by file formats factory:
+        %
         % verify if the class should load the file
         [ok,obj]=should_load(obj,filename);
         %
+        % verify if the class should load the file, determined by opened
+        % file identifier by analyzing the block of information (stream)
+        % obtained from the open file
         [should,obj,mess]= should_load_stream(obj,stream,fid)
         %
-        % Check if file exist and prepare to update it contetns if it is
-        % necessary and possible. Throws if upgrade is not possible
-        obj = check_file_upgrade_set_new_name(obj,new_filename,new_data_struct);
-        
+        % Main intializer:
         % initialize the loader, to be ready to read or write the sqw data.
         obj = init(obj,varargin);
+        % ----------------------------------------------------------------
+        % Accessors:
         data        = get_data(obj,varargin);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
         sqw_obj = get_sqw(obj,varargin);
+        %
+        % update or store obj constant size methadata. i.e. information
+        % on
+        %obj = update_methadata(obj,varargin);
         % save sqw object stored in memory into binary sqw file
-        %obj = put_sqw(obj,sqw_obj,varargin);
+        obj = put_sqw(obj,sqw_obj,varargin);
     end
- 
+    methods(Abstract,Access=protected)
+        % set new file name and open file for write/update operations
+        obj = check_file_set_new_name(obj,new_filename)
+        % init file accsessor from sqw object in memory
+        obj=init_from_sqw_obj(obj,varargin);
+        % init file accessor from sqw file on hdd
+        obj=init_from_sqw_file(obj,varargin);
+    end
+    
 end

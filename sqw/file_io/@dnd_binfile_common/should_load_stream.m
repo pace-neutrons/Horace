@@ -13,7 +13,7 @@ if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
     if stream.sqw_type == obj.sqw_type && stream.version == obj.file_ver_
         obj.file_id_ = fid;
         obj.num_dim_ = double(stream.num_dim);
-        obj.file_closer_ = onCleanup(@()obj.close());
+        obj.file_closer_ = onCleanup(@()obj.fclose());
         should = true;
     else
         should = false;

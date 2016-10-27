@@ -77,6 +77,20 @@ classdef sqw_serializer
             %                   provided, default is 0 if input/output is a file
             %                   handle or 1 if it is sequence of bytes
             %
+            % Returns:
+            % size_str       :: the structure with the names of
+            %                   template_structure and values equal to
+            %                   calculated positions of these fields in
+            %                   stream
+            % pos            :: first position afer the all data positions
+            % eof            :: true when  positions calculated on stream
+            %                   and end of a stream reached before all
+            %                   format fields were processed. size_str in
+            %                   this case contains only the positions of
+            %                   the fields which were processed from stream
+            % template_struc  :: is the copy of the input structure with
+            %                    appropriate fields values calculated from input stream
+            %                   
             [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin{:});
             %
             [size_str,pos,eof,template_struc] = calculate_positions_(obj,template_struc,input,pos);

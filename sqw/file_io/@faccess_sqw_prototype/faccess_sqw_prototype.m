@@ -7,7 +7,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
         function obj=init_from_sqw_obj(obj,varargin)
             % intialize the structure of sqw file using sqw object as input
             error('FACCESS_SQW_PROTOTTYPE:runtime_error',...
-                'init_from_sqw_obj method is not implemented for prototype files');
+                'init_from_sqw_obj method is not implemented for prototype files as you can not currently write prototype files');
         end
         function obj=init_from_sqw_file(obj,varargin)
             % intialize the structure of faccess class using sqw file as input
@@ -63,7 +63,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                     header = dnd_file_interface.get_file_header(fid,4098+22);
                 end
             end
-
+            
             
             [should,obj,mess]= should_load_stream@dnd_binfile_common(obj,header,fid);
             if should

@@ -7,11 +7,7 @@ function obj = init_sqw_structure_field_by_field_(obj)
 % $Revision$ ($Date$)
 %
 fseek(obj.file_id_,obj.main_header_pos_,'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('SQW_BINFILE_COMMON:io_error',...
-        'IO error locating number of contributiong files field: Reason %s',mess)
-end
+check_and_throw_error(obj,'Error moving to main data header position');
 
 template_m_header = obj.get_main_header_form();
 [main_h_pos,pos,io_error] = obj.sqw_serializer_.calculate_positions(template_m_header,obj.file_id_,obj.main_header_pos_);
@@ -22,44 +18,41 @@ end
 
 %
 fseek(obj.file_id_,main_h_pos.nfiles_pos_,'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('SQW_BINFILE_COMMON:io_error',...
-        'IO error locating number of contributiong files field: Reason %s',mess)
-end
+check_and_throw_error(obj,'Error moving to the  number of contributing files fiels position');
 
-nfiles = fread(obj.file_id_,1,'int32');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('SQW_BINFILE_COMMON:io_error',...
-        'IO error reading number of contributiong files field: Reason %s',mess)
-end
-
-obj.num_contrib_files_ = nfiles;
+n_files = fread(obj.file_id_,1,'int32');
+check_and_throw_error(obj,'Error reading number of contributiong files field');
 %
-obj.header_pos_ = zeros(1,nfiles);
+obj.num_contrib_files_ = n_files;
+%
+obj.header_pos_ = zeros(1,n_files);
 obj.header_pos_(1) = pos;
 
 template_header = obj.get_header_form();
-for i=1:nfiles
+[header_pos,pos,io_error]=obj.sqw_serializer_.calculate_positions(template_header,obj.file_id_,pos);
+if io_error
+    error('SQW_BINFILE_COMMON:io_error',...
+        'IO error while parsing contributing file firds header')
+end
+obj.header_pos_info_ = repmat(header_pos,1,n_files);
+
+for i=2:n_files
+    obj.header_pos_(i) = pos;
     % [header_pos,pos] =
-    [~,pos,io_error]=obj.sqw_serializer_.calculate_positions(template_header,obj.file_id_,pos);
+    [header_pos,pos,io_error]=obj.sqw_serializer_.calculate_positions(template_header,obj.file_id_,pos);
     if io_error
         error('SQW_BINFILE_COMMON:io_error',...
             'IO error while parsing contributing file N%d header',i)
     end
-    
-    if i ~= nfiles
-        obj.header_pos_(i+1) = pos;
-    end
+    obj.header_pos_info(i) = header_pos;
 end
-
 obj.detpar_pos_ = pos;
 %
 detpar_header = obj.get_detpar_form();
 % [detpar_pos,pos]
-[~,pos,io_error] = obj.sqw_serializer_.calculate_positions(detpar_header,obj.file_id_,pos);
+[detpar_pos_info,pos,io_error] = obj.sqw_serializer_.calculate_positions(detpar_header,obj.file_id_,pos);
 obj.data_pos_ = pos;
+obj.detpar_pos_info_ = detpar_pos_info;
 if io_error
     error('SQW_BINFILE_COMMON:io_error','IO error while parsing detector information')
 end
@@ -106,6 +99,7 @@ else
     end
     obj.data_type_ = 'a';
 end
+obj.data_fields_locations_ = data_pos;
 %
 % caclulate number of pixels from pixels block position and its size
 
@@ -119,3 +113,10 @@ function obj=set_filepath(obj)
 [path,name,ext]=fileparts(fopen(obj.file_id_));
 obj.filename_=[name,ext];
 obj.filepath_=[path,filesep];
+
+function check_and_throw_error(obj,mess_pos)
+[mess,res] = ferror(obj.file_id_);
+if res ~= 0
+    error('SQW_BINFILE_COMMON:io_error',...
+        '%s: Reason %s',mess_pos,mess)
+end

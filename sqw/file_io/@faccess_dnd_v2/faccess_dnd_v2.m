@@ -53,7 +53,7 @@ classdef faccess_dnd_v2 < dnd_binfile_common
                 if ~stream.sqw_type
                     obj.file_id_ = fid;
                     obj.num_dim_ = double(stream.num_dim);
-                    obj.file_closer_ = onCleanup(@()obj.close());
+                    obj.file_closer_ = onCleanup(@()obj.fclose());
                     should = true;
                 else
                     should = false;
@@ -64,8 +64,6 @@ classdef faccess_dnd_v2 < dnd_binfile_common
                     'the input structure for should_load_stream function does not have correct format');
             end
         end
-        
-        
         %
         %
     end

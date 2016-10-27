@@ -11,12 +11,16 @@ classdef dnd_binfile_common < dnd_file_interface
     %
     
     properties(Access=protected)
-        file_id_=0 % the open file handle
+        file_id_=-1 % the open file handle (if any)
         %
         % position (in bytes from start of the file of the appropriate part
         % of Horace data information and the size of this part.
         % 0 means unknown/uninitialized or missing.
         data_pos_=26;
+        % contais structure with accurate positions of various data fields
+        % to use for accurate replacement of these fields
+        data_fields_locations_=[];
+        %
         s_pos_=0;
         e_pos_=0;
         npix_pos_=0;
@@ -26,25 +30,11 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         sqw_serializer_=[];
         file_closer_ = [];
-        % list of the sqw class fields or subclasses and auxiliary data
-        % structures, stored on hdd
-        %
-        dnd_dimensions_ = 'undefined'
-        data_type_ = 'undefined';
-        % format of application header, which stores Horace application
-        % type
-        app_header_form_ = struct('appname','horace','version',double(0),...
-            'sqw_type',uint32(0),'ndim',uint32(0));
-        
+        % internal sqw/dnd object used as source for subsequent write operations
+        sqw_holder_ = [];
     end
     %
     properties(Dependent)
-        % type of the data, stored in a file
-        data_type
-        % dimensions of the horace image (dnd object), stored in the file
-        dnd_dimensions
-        % the format of the application header stored by this class
-        app_header_form;
     end
     %
     methods(Access = protected)
@@ -54,7 +44,18 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
-            obj = init_from_sqw_(obj,varargin{:});
+            if nargin < 2
+                error('DND_BINFILE_COMMON:runtime_error',...
+                    'init_from_sqw_obj method should be ivoked with at least an existing sqw object provided');
+            end
+            if isa(varargin{1},'sqw')
+                inobj = varargin{1}.data;
+            else
+                inobj = varargin{1};
+            end
+            obj = init_from_sqw_(obj,inobj,varargin{2:end});
+            obj.sqw_holder_= inobj;
+            
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
@@ -64,32 +65,33 @@ classdef dnd_binfile_common < dnd_file_interface
             % complex then common logic is used
             obj= init_dnd_structure_field_by_field_(obj);
         end
+        
+        
+        function  obj = check_file_set_new_name(obj,new_filename)
+            % set new file name and open file for write/update operations
+            obj = check_file_set_new_name_(obj,new_filename);
+        end
+        function check_obj_initiated_propertly(obj)
+            % helper function to check inputs of put and update functions
+            check_obj_initiated_propertly_(obj);
+        end
+        
     end
     
     methods % defined by this class
         % check if this loader should deal with selected file
         [ok,obj,mess]=should_load(obj,filename)
+        %
         % Check if this loader should deal with selected data stream
-        %Usage:
-        %
-        %>> [should,obj] = obj.should_load_stream(datastream,fid)
-        % structure returned by get_file_header function
-        % Returns:
-        % true if the loader can load these data, or false if not
-        % with message explaining the reason for not loading the data
-        % of should, object is initiated by appropriate file inentified
         [should,obj,mess]= should_load_stream(obj,stream,fid)
-        
-        %
-        obj = check_file_upgrade_set_new_name(obj,new_filename,new_data_struct);
         %
         % read main dnd data  from propertly initialized binary file.
-        %
         [dnd_data,obj] = get_data(obj,varargin);
         % read pixels information
         % retrieve the whole dnd object from properly initialized dnd file
         sqw_obj = get_sqw(obj,varargin);
-        %
+        % Save new or fully overwrite existing sqw file
+        obj = put_sqw(obj,varargin);
         
         % build header, which contains information on sqw object and
         % informs clients on contents of a binary file
@@ -137,30 +139,24 @@ classdef dnd_binfile_common < dnd_file_interface
             %                    the file will be overwritten or upgraded if the loader
             %                    has alreadty been initiated with this file
             
-            obj.sqw_serializer_ = sqw_serializer();
             obj = common_init_logic_(obj,varargin{:});
         end
         %
-        function ff=get.data_type(obj)
-            %   data_type   Type of sqw data written in the file
-            %   type 'b'    fields: filename,...,dax,s,e
-            %   type 'b+'   fields: filename,...,dax,s,e,npix
-            %   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
-            %   type 'a-'   fields: filename,...,dax,s,e,npix,urange
-            ff = obj.data_type_;
-        end
-        %
-        function dims = get.dnd_dimensions(obj)
-            dims = obj.dnd_dimensions_;
-        end
-        %
-        function close(obj)
+        function obj=delete(obj)
             % Close existing file
-            if obj.file_id_ >0
+            if ~isempty(obj.file_closer_)
+                obj.file_closer_ = [];
+            end
+            obj = obj.fclose();
+            obj.sqw_holder_ = [];
+            obj=delete@dnd_file_interface(obj);
+        end
+        function obj = fclose(obj)
+            fn = fopen(obj.file_id_);
+            if ~isempty(fn) %&& ~strncmp(fn,'"std',4)
                 fclose(obj.file_id_);
             end
             obj.file_id_ = -1;
-            close@dnd_file_interface(obj);
         end
         %
         function data_form = get_data_form(obj,varargin)
@@ -243,7 +239,24 @@ classdef dnd_binfile_common < dnd_file_interface
                 return
             end
         end
+        %
+        function [obj,header_pos]=set_header_size(obj,app_header)
+            % auxiliary function to calculate various locations of the
+            % application header, which defines sqw data format
+            % and starting position (data_position) of meaningful sqw data.
+            %
+            % Used for debugging as default data_position value never changes
+            %
+            format = obj.app_header_form_;
+            if isempty(obj.sqw_serializer_)
+                obj.sqw_serializer_ = sqw_serializer();
+            end
+            % header_pos
+            [header_pos,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
+            obj.data_pos_  = pos;
+        end
     end
+    
     
 end
 
