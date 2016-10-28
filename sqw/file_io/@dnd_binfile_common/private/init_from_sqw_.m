@@ -27,7 +27,8 @@ dnd_2save = varargin{1};
 %
 warning('off','MATLAB:structOnObject')
 data = struct(dnd_2save); %TODO: necessary util dnd data do not have all accessors
-% to read data from class. When they do, this should be fixed
+% to read data from class. When they do, this should be fixed. sqw data
+% already works without this crap
 warning('on','MATLAB:structOnObject')
 
 % 
@@ -40,20 +41,23 @@ obj.num_dim_ = numel(obj.dnd_dimensions_);
 %
 format = obj.get_data_form();
 [data_pos,pos] = obj.sqw_serializer_.calculate_positions(format,data,obj.data_pos_);
-obj.data_fields_locations_=data_pos;
-obj.dnd_eof_pos_ = pos;
 
 
 obj.s_pos_=data_pos.s_pos_;
 obj.e_pos_=data_pos.e_pos_;
 obj.npix_pos_=data_pos.npix_pos_;
+%
 if isfield(data_pos,'urange_pos_')
-    obj.urange_pos_=data_pos.urange_pos_;
+    obj.dnd_eof_pos_ = data_pos.urange_pos_;
+    if  isfield(data_pos,'pix_pos_')
+        data_pos.eof_pix_pos_ = pos;
+    end
 else
-    obj.urange_pos_ = 0;
+    obj.dnd_eof_pos_ = pos;
 end
+obj.data_fields_locations_=data_pos;
 
 
-
+%
 %
 

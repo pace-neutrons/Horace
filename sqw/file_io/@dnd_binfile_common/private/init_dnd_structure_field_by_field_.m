@@ -18,7 +18,7 @@ check_and_throw_error(obj,'error moving to data start position');
 
 
 % data format
-data_header = obj.get_data_form('-full');
+data_header = obj.get_data_form();
 [data_pos,pos,io_error,data_header] =  obj.sqw_serializer_.calculate_positions(data_header,obj.file_id_,pos);
 if io_error
     if ~isfield(data_pos,'s_pos_') || ~isfield(data_pos,'e_pos_')
@@ -38,8 +38,7 @@ obj.e_pos_=data_pos.e_pos_;
 obj.dnd_eof_pos_ = pos;
 if ~io_error
     obj.npix_pos_=data_pos.npix_pos_;
-    obj.urange_pos_=data_pos.urange_pos_;
-    obj.data_type_ = 'a-';
+    obj.data_type_ = 'b+';
 else
     if ~isfield(data_pos,'npix_pos_')
         obj.data_type_ = 'b';

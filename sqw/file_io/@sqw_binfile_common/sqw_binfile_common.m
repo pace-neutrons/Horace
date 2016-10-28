@@ -20,7 +20,8 @@ classdef sqw_binfile_common < sqw_file_interface
         header_pos_=0;
         header_pos_info_ =[];
         detpar_pos_=0;
-        detpar_pos_info_ =[];        
+        detpar_pos_info_ =[];
+        urange_pos_ = 0;
         pix_pos_=0;
         eof_pix_pos_=0;
         %
@@ -42,9 +43,21 @@ classdef sqw_binfile_common < sqw_file_interface
             end
             %
             obj = init_headers_from_sqw_(obj,varargin{1});
-            % initialize data fields:
-            obj.data_type_ = 'a';            
+            % initialize data fields
+            % assume max data type which will be reduced if some fields are
+            % missing (how they when initalized from sqw?)
+            obj.data_type_ = 'a'; 
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
+            
+            obj.sqw_holder_ = varargin{1};
+            pix_info_pos = obj.data_fields_locations_;
+            obj.urange_pos_  = pix_info_pos.urange_pos_;
+            obj.pix_pos_     = pix_info_pos.pix_pos_;
+            obj.eof_pix_pos_ = pix_info_pos.eof_pix_pos_;
+            obj.npixels_ = size(obj.sqw_holder_.data.pix,2);
+
+            
+            obj = init_pix_info_(obj);
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
@@ -60,7 +73,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % get main sqw header
         main_header = get_main_header(obj,varargin);
         % get header of one of contributed files
-        header   = get_header(obj,varargin);
+        [header,pos]   = get_header(obj,varargin);
         % Read the detector parameters from propertly initialized binary file.
         det = get_detpar(obj);
         % read main sqw data  from propertly initialized binary file.
@@ -69,6 +82,12 @@ classdef sqw_binfile_common < sqw_file_interface
         pix    = get_pix(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
         sqw_obj = get_sqw(obj,varargin);
+        % save or replace main file header
+        obj = put_main_header(obj,varargin);
+        %
+        % Save new or fully overwrite existing sqw file
+        obj = put_sqw(obj,varargin);
+        
         %
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is
@@ -83,9 +102,12 @@ classdef sqw_binfile_common < sqw_file_interface
         end
         
         %
-        function header = get_main_header_form(obj)
+        function header = get_main_header_form(obj,varargin)
             % Return the structure of the main header in the form it
             % is written on hdd.
+            % Usage:
+            % header = obj.get_main_header_form();
+            % header = obj.get_main_header_form('-const');
             %
             % Fields in file are:
             % --------------------------
@@ -96,11 +118,10 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             % The value of the fields define the number of dimensions of
             % the data except strings, which defined by the string length
-            header = struct('filename','','filepath','','title','',...
-                'nfiles',int32(1));
+            header = get_main_header_form_(varargin{:});
         end
         %
-        function header = get_header_form(obj)
+        function header = get_header_form(obj,varargin)
             % Return structure of the contributing file header in the form
             % it is written on hdd.
             %
@@ -144,7 +165,7 @@ classdef sqw_binfile_common < sqw_file_interface
                 'ulabel',field_cellarray_of_strings());
         end
         %
-        function detpar_form = get_detpar_form(obj)
+        function detpar_form = get_detpar_form(obj,varargin)
             % Return structure of the contributing file header in the form
             % it is written on hdd.
             %
@@ -174,7 +195,7 @@ classdef sqw_binfile_common < sqw_file_interface
                 'width',field_const_array_dependent('ndet'),...
                 'height',field_const_array_dependent('ndet'));
         end
-           
+        
         %
         function data_form = get_data_form(obj,varargin)
             % Return the structure of the data file header in the form
@@ -229,32 +250,35 @@ classdef sqw_binfile_common < sqw_file_interface
             %                   signal      Signal array
             %                   err         Error array (variance i.e. error bar squared)
             %
-            data_form = get_data_form@dnd_binfile_common(obj,varargin{:});
-            if nargin> 1
-                if strncmp(varargin{1},'-h',2) || strncmp(varargin{1},'-n',2); return; end;
+            [ok,mess,pix_only,nopix,head,~] = parse_char_options(varargin,{'-pix_only','-nopix','-header'});
+            if ~ok
+                error('SQW_BINFILE_COMMON:invalid_argument',mess);
             end
-            data_form.dummy = field_not_in_structure('pax');
-            data_form.pix = field_pix();
             
+            if pix_only
+                data_form = struct('urange',single([2,4]),...
+                    'dummy',field_not_in_structure('urange'),...
+                    'pix',field_pix());
+            else
+                data_form = get_data_form@dnd_binfile_common(obj,varargin{:});
+                if nopix || head
+                    return
+                end
+                data_form.urange = single([2,4]);
+                data_form.dummy = field_not_in_structure('pax');
+                data_form.pix = field_pix();
+            end
             
             % full header necessary to inentify datatype in the file
-            if strncmp(obj.data_type,'un',2) || ...
-                    (nargin>1 && strncmp(varargin{1},'-f',2)) % return full header
+            if strncmp(obj.data_type,'un',2)
                 return;
             end
-            
-            if obj.data_type == 'a-' % data do not have pixels
+            %
+            if obj.data_type == 'a-' % data do not contain pixels
                 data_form = rmfield(data_form,{'dummy','pix'});
                 return;
             end
-            if obj.data_type == 'b+' % data do not have pixels and ranges
-                data_form = rmfield(data_form,{'dummy','pix','urange'});
-                return
-            end
-            if obj.data_type == 'b' % data do not have pixels, ranges and npix
-                data_form = rmfield(data_form,{'dummy','pix','urange','npix'});
-                return
-            end
+            %
         end
     end
     

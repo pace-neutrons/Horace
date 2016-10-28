@@ -34,7 +34,7 @@ classdef test_faccess_sqw_prototype< TestCase
         % tests
         function obj = test_should_load_stream(obj)
             to = faccess_sqw_prototype();
-            co = onCleanup(@()to.close());
+            co = onCleanup(@()to.delete());
             
             [stream,fid] = to.get_file_header(obj.sample_file);
             [ok,to] = to.should_load_stream(stream,fid);
@@ -47,7 +47,7 @@ classdef test_faccess_sqw_prototype< TestCase
         end
         function obj = test_should_load_file(obj)
             to = faccess_sqw_prototype();
-            co = onCleanup(@()to.close());
+            co = onCleanup(@()to.delete());
             
             [ok,to] = to.should_load(obj.sample_file);
             assertTrue(ok);
@@ -60,7 +60,7 @@ classdef test_faccess_sqw_prototype< TestCase
             
             %access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'FACCESS_SQW_COMMON:runtime_error');
+            assertExceptionThrown(f,'DND_BINFILE_COMMON:runtime_error');
             
             
             [ok,to] = to.should_load(obj.sample_file);
@@ -110,5 +110,4 @@ classdef test_faccess_sqw_prototype< TestCase
         
     end
 end
-
 

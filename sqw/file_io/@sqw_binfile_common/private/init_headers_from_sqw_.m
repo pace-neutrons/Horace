@@ -32,4 +32,5 @@ detpar_form = obj.get_detpar_form();
 [detpar_pos,pos]=obj.sqw_serializer_.calculate_positions(detpar_form,detpar,pos);
 obj.detpar_pos_info_ = detpar_pos;
 obj.data_pos_ = pos;
-% next step will initalize data structure from given data position
+
+

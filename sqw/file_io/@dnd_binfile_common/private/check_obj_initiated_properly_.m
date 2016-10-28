@@ -1,4 +1,4 @@
-function check_obj_initated_properly_(obj)
+function check_obj_initiated_properly_(obj)
 % Verify if data access object is properlty initialized for writing data in
 %
 

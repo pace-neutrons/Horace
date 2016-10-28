@@ -18,6 +18,9 @@ end
 % convert data stream into structure describing horace format
 [header,mess] = get_hor_version_(header);
 if ~isempty(mess)
+    if fid>0
+        fclose(fid);
+    end    
     error('DND_FILE_INTERFACE:runtime_error',['Error: ',message]);
 end
 
