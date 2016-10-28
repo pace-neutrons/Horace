@@ -54,4 +54,3 @@ classdef sqw_file_interface < dnd_binfile_common
     end
     
 end
-

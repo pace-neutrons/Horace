@@ -119,17 +119,7 @@ if ~hverbatim
     data_str.filepath = obj.filepath;
     data_str.filename = obj.filename;
 end
-has_urange = ~strncmp(obj.data_type,'b',1);
 %
-if header_only && has_urange
-    fseek(obj.file_id_,obj.urange_pos_,'bof');
-    [mess,res] = ferror(obj.file_id_);
-    if res ~= 0
-        error('DND_BINILE_COMMON:io_error',...
-            'Can not move to the urange block, Reason: %s',mess);
-    end
-    data_str.urange =fread(obj.file_id_,[2,4],'*float32');
-end
 if ischar(obj.dnd_dimensions_)
     obj.dnd_dimensions_ = cellfun(@(x)(numel(x)-1),data_str.p,'UniformOutput',true);
 end
@@ -152,16 +142,10 @@ if ~header_only
         data_str.s    = fread(obj.file_id_,numl,'float32');
         data_str.e    = fread(obj.file_id_,numl,'float32');
         data_str.npix = fread(obj.file_id_,numl,'uint64');
-        if has_urange
-            data_str.urange =fread(obj.file_id_,[2,4],'float32');
-        end
     else
         data_str.s    = fread(obj.file_id_,numl,'*float32');
         data_str.e    = fread(obj.file_id_,numl,'*float32');
         data_str.npix = fread(obj.file_id_,numl,'*uint64');
-        if has_urange
-            data_str.urange =fread(obj.file_id_,[2,4],'*float32');
-        end
     end
     if obj.num_dim>1
         data_str.s = reshape(data_str.s,obj.dnd_dimensions);

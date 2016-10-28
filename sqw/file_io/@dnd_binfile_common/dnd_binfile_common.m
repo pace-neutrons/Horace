@@ -24,7 +24,6 @@ classdef dnd_binfile_common < dnd_file_interface
         s_pos_=0;
         e_pos_=0;
         npix_pos_=0;
-        urange_pos_=0;
         dnd_eof_pos_=0;
         %
         %
@@ -65,15 +64,16 @@ classdef dnd_binfile_common < dnd_file_interface
             % complex then common logic is used
             obj= init_dnd_structure_field_by_field_(obj);
         end
-        
-        
+        %        
         function  obj = check_file_set_new_name(obj,new_filename)
             % set new file name and open file for write/update operations
             obj = check_file_set_new_name_(obj,new_filename);
         end
-        function check_obj_initiated_propertly(obj)
-            % helper function to check inputs of put and update functions
-            check_obj_initiated_propertly_(obj);
+        %
+        function check_obj_initated_properly(obj)
+            % helper function to check the state of put and update functions
+            % if put methods are invoked separately
+            check_obj_initiated_properly_(obj);
         end
         
     end
@@ -92,6 +92,16 @@ classdef dnd_binfile_common < dnd_file_interface
         sqw_obj = get_sqw(obj,varargin);
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
+        % Consisting of:
+        % 1) store or updata application header
+        obj = put_app_header(obj);
+        % 2) store dnd information ('-update' option updates this
+        % information within existing file)
+        obj = put_dnd_methadata(obj,varargin);
+        % write dnd image data, namely s, err and npix ('-update' option updates this
+        % information within existing file)
+        obj = put_dnd_data(obj,varargin);
+        
         
         % build header, which contains information on sqw object and
         % informs clients on contents of a binary file
@@ -162,9 +172,19 @@ classdef dnd_binfile_common < dnd_file_interface
         function data_form = get_data_form(obj,varargin)
             % Return the structure of the data file header in the form
             % it is written on hdd.
-            % Fields in the structure are:
+            % Usage:
+            %>>df = obj.get_data_form();
+            %>>df = obj.get_data_form('-head');
+            %>>df = obj.get_data_form('-const');
+            %>>df = obj.get_data_form('-no_npix');
             %
-            
+            % where the options '-head' and 'const' return
+            % partial structures, namely methadata only and the methadata
+            % fields, which do not change on hdd
+            % '-no_npix' option returns format without npix field
+            %
+            % Fields in the full structure are:
+            %
             % ------------------------------
             %   data.filename   Name of sqw file that is being read, excluding path
             %   data.filepath   Path to sqw file that is being read, including terminating file separator
@@ -199,45 +219,19 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.urange     True range of the data along each axis [urange(2,4)]
-            %
-            data_form = struct('filename','','filepath','',...
-                'title','',...
-                'alatt',single([1,3]),'angdeg',single([1,3]),...
-                'uoffset',single([4,1]),'u_to_rlu',single([4,4]),...
-                'ulen',single([1,4]),'ulabel',field_cellarray_of_strings(),...
-                'npax',field_not_in_structure('pax'),...
-                'iax',field_iax(),...
-                'iint',field_iint(),...
-                'pax',field_const_array_dependent('npax',1,'int32'),...
-                'p_size',field_p_size(),...
-                'p',field_cellarray_of_axis('npax'),...
-                'dax',field_const_array_dependent('npax',1,'int32'));
-            if nargin>1
-                if strncmp(varargin{1},'-h',2) % header only
-                    return
-                end
-            end
-            data_form.s = field_img();
-            data_form.e = field_img();
-            data_form.npix = field_img('uint64');
-            data_form.urange = single([2,4]);
+            if nargin>1; argi = varargin;
+            else;        argi  = {};   end
             
-            if strncmp(obj.data_type,'un',2); return; end
+            if strcmp(obj.data_type,'un') % we want full data if datatype is undefined
+                argi={};
+            end
             
-            if nargin>1
-                % return full header
-                if strncmp(varargin{1},'-f',2); return;  end
+            if obj.data_type == 'b'
+                argi{end+1} = '-no_npix';
             end
-            %
-            if obj.data_type == 'b+' % data do not have pixels and ranges
-                data_form = rmfield(data_form,'urange');
-                return
-            end
-            if obj.data_type == 'b' % data do not have pixels, ranges and npix
-                data_form = rmfield(data_form,{'urange','npix'});
-                return
-            end
+            
+            data_form = process_format_fields_(argi{:});
+            
         end
         %
         function [obj,header_pos]=set_header_size(obj,app_header)
@@ -255,6 +249,18 @@ classdef dnd_binfile_common < dnd_file_interface
             [header_pos,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
             obj.data_pos_  = pos;
         end
+        
+        function obj=set_datatype(obj,val)
+            % test-heler function used to set some data type
+            % should be used in testing only as normally it is calculated
+            % from a file structure
+            obj.data_type_ = val;
+        end
+    end
+    methods(Static)
+        % function extracts first and last field in the structure pos_fields
+        % corrspongint to the structure form_fields
+        [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
     end
     
     

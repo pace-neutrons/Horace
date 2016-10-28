@@ -11,6 +11,18 @@ classdef test_faccess_sqw_v2< TestCase
         sample_dir;
         sample_file;
     end
+    methods(Static)
+        function sz = fl_size(filename)
+            fh = fopen(filename,'rb');
+            p0 = ftell(fh);
+            fseek(fh,0,'eof');
+            p1 = ftell(fh);
+            sz = p1-p0;
+            fclose(fh);
+        end
+        
+    end
+    
     
     methods
         
@@ -138,24 +150,24 @@ classdef test_faccess_sqw_v2< TestCase
             tt = faccess_sqw_v2();
             tt = tt.init(tob_sqw );
             
-            tf = fullfile(tempdir,'test_save_sqw_v2.sqw');
+            tf = fullfile(tempdir,'test_put_sqw_v2.sqw');
             clob = onCleanup(@()delete(tf));
             tt.filename = tf;
             
-%             tt=tt.put_sqw();
-%             assertTrue(exist(tf,'file')==2)
-%             tt.delete();
-%             %
-%             sz1 = obj.fl_size(sample);
-%             sz2 = obj.fl_size(tf);
+            tt=tt.put_sqw();
+            assertTrue(exist(tf,'file')==2)
+            tt.delete();
+            %
+            sz1 = obj.fl_size(samplef);
+            sz2 = obj.fl_size(tf);
 %             
 %             assertEqual(sz1,sz2);
 %             
-%             tn = faccess_dnd_v2(tf);
-%             rec_dnd = tn.get_sqw('-ver');
-%             tn.delete();
+             tn = faccess_sqw_v2(tf);
+             rec_sqw = tn.get_sqw('-ver');
+             tn.delete();
 %             
-%             assertEqual(struct(tob_dnd),struct(rec_dnd));
+             assertEqual(struct(tob_dnd),struct(rec_sqw));
 %             
         end        
         

@@ -44,7 +44,7 @@ for i=2:n_files
         error('SQW_BINFILE_COMMON:io_error',...
             'IO error while parsing contributing file N%d header',i)
     end
-    obj.header_pos_info(i) = header_pos;
+    obj.header_pos_info_(i) = header_pos;
 end
 obj.detpar_pos_ = pos;
 %

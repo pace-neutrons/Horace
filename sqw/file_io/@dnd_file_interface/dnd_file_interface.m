@@ -180,9 +180,20 @@ classdef dnd_file_interface
         %
         % update or store obj constant size methadata. i.e. information
         % on
-        %obj = update_methadata(obj,varargin);
+        
         % save sqw object stored in memory into binary sqw file
+        % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,sqw_obj,varargin);
+        % Comprising of:
+        % 1) store or updata application header
+        obj = put_app_header(obj);
+        % 2) store dnd information ('-update' option updates this
+        % information within existing file)
+        obj = put_dnd_methadata(obj,varargin);
+        % write dnd image data, namely s, err and npix ('-update' option updates this
+        % information within existing file)
+        obj = put_dnd_data(obj,varargin);
+        
     end
     methods(Abstract,Access=protected)
         % set new file name and open file for write/update operations

@@ -173,6 +173,9 @@ classdef test_faccess_dnd_v2< TestCase
             assertEqual(struct(tob_dnd),struct(rec_dnd));
             
         end
+        %
+        function test_data_format_access(obj)
+        end
         
         
     end

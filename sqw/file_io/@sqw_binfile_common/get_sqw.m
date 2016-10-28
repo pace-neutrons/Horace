@@ -50,37 +50,29 @@ function sqw_object = get_sqw (obj,varargin)
 %
 % $Revision$ ($Date$)
 
-% Check options
-opt_h=false;
-opt_his=false;
-verbatim=false;
-opt_nopix=false;
-pix_range=false;
-opt_char={'-h','-his','-hverbatim','-hisverbatim','-nopix'};
-if numel(varargin)==1 && ischar(varargin{1}) && any(strcmpi(varargin{1},opt_char))   % single option that is a character string
-    if strcmpi(varargin{1},'-h')||strcmpi(varargin{1},'-hverbatim')
-        opt_h=true;
-    end
-    if strcmpi(varargin{1},'-his')||strcmpi(varargin{1},'-hisverbatim')
-        opt_his=true;
-    end
-    if strcmpi(varargin{1},'-hverbatim')||strcmpi(varargin{1},'-hisverbatim')
-        verbatim=true;
-    end
-    if strcmpi(varargin{1},'-nopix')
-        opt_nopix=true;
-    end
-    
-elseif numel(varargin)==2 && isnumeric(varargin{1}) && isnumeric(varargin{2}) &&...
-        isscalar(varargin{1}) && isscalar(varargin{2})
-    pix_range=true;
-    npix_lo=varargin{1};
-    npix_hi=varargin{2};
-    
-elseif numel(varargin)>0
-    error('SQW_BINFILE_COMMON:invalid_argument',...
-        'Unrecognised options to get_sqw');
+opt = {'-head','-his','-hverbatim','-nopix'};
+if nargin>1
+    % replace single '-h' with head
+    argi = cellfun(@replace_h,varargin,'UniformOutput',false);
+else
+    argi = {};
 end
+[ok,mess,opt_h,opt_his,verbatim,opt_nopix,argi] = parse_char_options(argi,opt);
+if ~ok
+    error('SQW_BINFILE_COMMON:invalid_argument',mess);
+end
+if numel(argi)>0
+    numer = cellfun(@isnumeric,argi);
+    if any(numer)
+        error('SQW_BINFILE_COMMON:invalid_argument',...
+            'Unrecognised options %s to get_sqw',argi{:});
+    end
+    num_arg = argi{numer};
+    pix_range  = true;
+else
+    pix_range = false;
+end
+
 
 sqw_struc = struct('main_header',[],'header',[],'detpar',[],'data',[]);
 
@@ -105,23 +97,26 @@ end
 %
 % Get detector parameters
 % -----------------------
-sqw_struc.detpar = obj.get_detpar();
+if ~(opt_h||opt_his)
+    sqw_struc.detpar = obj.get_detpar();
+end
 
 % Get data
 % --------
 if (opt_h||opt_his) && ~verbatim
-    data_opt={'-h'};
+    data_opt={'-head'};
 elseif (opt_h||opt_his) && verbatim
     data_opt={'-hverbatim'};
 elseif opt_nopix
     data_opt={'-nopix'};
 elseif pix_range
-    data_opt={npix_lo,npix_hi};
+    data_opt=num_arg;
 else
     data_opt={};
 end
 
 sqw_struc.data = obj.get_data(data_opt{:});
+
 
 instr = obj.get_instrument('-all');
 sampl = obj.get_sample('-all');
@@ -137,6 +132,18 @@ for i=1:n_files
         headers(i).sample = sampl;
     end
 end
-sqw_struc.header = headers;
 
-sqw_object = sqw(sqw_struc);
+
+sqw_struc.header = headers;
+if opt_h || opt_his
+    sqw_object  = sqw_struc;
+else
+    sqw_object = sqw(sqw_struc);
+end
+
+function out = replace_h(inp)
+if strcmp(inp,'-h')
+    out = '-his';
+else
+    out  = inp;
+end
