@@ -36,7 +36,7 @@ classdef sqw_file_interface < dnd_binfile_common
         function obj = delete(obj)
             obj.num_contrib_files_ = 'undefined';
             obj.npixels_ = 'undefined';
-            obj = delete@dnd_file_interface(obj);
+            obj = delete@dnd_binfile_common(obj);
         end
     end
     %----------------------------------------------------------------------

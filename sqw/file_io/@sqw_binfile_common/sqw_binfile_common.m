@@ -52,12 +52,15 @@ classdef sqw_binfile_common < sqw_file_interface
             obj.sqw_holder_ = varargin{1};
             pix_info_pos = obj.data_fields_locations_;
             obj.urange_pos_  = pix_info_pos.urange_pos_;
-            obj.pix_pos_     = pix_info_pos.pix_pos_;
+            obj.pix_pos_     = pix_info_pos.pix_pos_+8; % serializer calculates pix position 
+            % at the position of the npix as it is part of the pix field.
+            % As we do not serialize pixels, here we adjust this value to
+            % start of the real pix array.
             obj.eof_pix_pos_ = pix_info_pos.eof_pix_pos_;
             obj.npixels_ = size(obj.sqw_holder_.data.pix,2);
 
             
-            obj = init_pix_info_(obj);
+            %obj = init_pix_info_(obj);
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
