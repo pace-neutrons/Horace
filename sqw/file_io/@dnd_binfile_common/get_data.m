@@ -78,7 +78,7 @@ function [data_str,obj] = get_data (obj,varargin)
 
 % Initialise output arguments
 [ok,mess,header_only,hverbatim,~]=...
-    parse_char_options(varargin,{'-head','-hverbatim'});
+    parse_char_options(varargin,{'-head','-verbatim'});
 if ~ok
     error('DND_BINILE_COMMON:invalid_argument',mess);
 end

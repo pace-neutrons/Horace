@@ -125,7 +125,7 @@ data_str.urange =fread(obj.file_id_,[2,4],'float32');
 
 % process all possible options
 [ok,mess,header_only,~,nopix,argi]=...
-    parse_char_options(varargin,{'-header','-hverbatim','-nopix'});
+    parse_char_options(varargin,{'-header','-verbatim','-nopix'});
 if ~ok
     error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
 end
@@ -137,8 +137,16 @@ end
 data = data_sqw_dnd(data_str);
 
 if numel(argi)>0
+    if ~isnumeric(argi{1})
+        error('SQW_BINFILE_COMMON:invalid_argument',...
+            'get_data: invalid argument %s',argi{1})
+    end
     npix_lo = argi{1};
     if numel(argi)>1
+        if ~isnumeric(argi{2})
+            error('SQW_BINFILE_COMMON:invalid_argument',...
+                'get_data: invalid argument %s',argi{1})
+        end
         npix_hi = argi{2};
     end
 end

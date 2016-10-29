@@ -109,11 +109,11 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(data_h.filename,to.filename)
             assertEqual(data_h.filepath,to.filepath)
             
-            data_dnd = to.get_data('-hver','-nopix');
+            data_dnd = to.get_data('-ver','-nopix');
             assertTrue(isa(data_dnd,'data_sqw_dnd'));
             assertEqual(data_dnd.filename,'ei140.sqw');
             
-            data = to.get_data('-hver',1,20);
+            data = to.get_data('-ver',1,20);
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             assertEqual(size(data.pix),[9,20]);
@@ -145,14 +145,16 @@ classdef test_faccess_sqw_v2< TestCase
             
             
             ts = faccess_sqw_v2(samplef);
-            tob_sqw = ts.get_sqw('-hverbatim');
+            tob_sqw = ts.get_sqw('-verbatim');
             
             tt = faccess_sqw_v2();
-            tt = tt.init(tob_sqw );
             
             tf = fullfile(tempdir,'test_put_sqw_v2.sqw');
             clob = onCleanup(@()delete(tf));
+            tt = tt.init(tob_sqw );
             tt.filename = tf;
+            
+            
             
             tt=tt.put_sqw();
             assertTrue(exist(tf,'file')==2)
@@ -160,16 +162,16 @@ classdef test_faccess_sqw_v2< TestCase
             %
             sz1 = obj.fl_size(samplef);
             sz2 = obj.fl_size(tf);
-%             
-%             assertEqual(sz1,sz2);
-%             
-             tn = faccess_sqw_v2(tf);
-             rec_sqw = tn.get_sqw('-ver');
-             tn.delete();
-%             
-             assertEqual(struct(tob_dnd),struct(rec_sqw));
-%             
-        end        
+            %
+            assertEqual(sz1,sz2);
+            %
+            tn = faccess_sqw_v2(tf);
+            rec_sqw = tn.get_sqw('-ver');
+            tn.delete();
+            %
+            assertEqual(struct(tob_sqw),struct(rec_sqw));
+            %
+        end
         
     end
 end

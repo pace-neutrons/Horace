@@ -50,20 +50,21 @@ function sqw_object = get_sqw (obj,varargin)
 %
 % $Revision$ ($Date$)
 
-opt = {'-head','-his','-hverbatim','-nopix'};
+opt = {'-head','-his','-hverbatim','-verbatim','-nopix'};
 if nargin>1
     % replace single '-h' with head
     argi = cellfun(@replace_h,varargin,'UniformOutput',false);
 else
     argi = {};
 end
-[ok,mess,opt_h,opt_his,verbatim,opt_nopix,argi] = parse_char_options(argi,opt);
+[ok,mess,opt_h,opt_his,hverbatim,verbatim,opt_nopix,argi] = parse_char_options(argi,opt);
 if ~ok
     error('SQW_BINFILE_COMMON:invalid_argument',mess);
 end
+verbatim = verbatim||hverbatim;
 if numel(argi)>0
     numer = cellfun(@isnumeric,argi);
-    if any(numer)
+    if any(~numer)
         error('SQW_BINFILE_COMMON:invalid_argument',...
             'Unrecognised options %s to get_sqw',argi{:});
     end
@@ -103,17 +104,24 @@ end
 
 % Get data
 % --------
-if (opt_h||opt_his) && ~verbatim
-    data_opt={'-head'};
-elseif (opt_h||opt_his) && verbatim
-    data_opt={'-hverbatim'};
-elseif opt_nopix
-    data_opt={'-nopix'};
-elseif pix_range
-    data_opt=num_arg;
+if verbatim 
+    opt1 = {'-verbatim'};
 else
-    data_opt={};
+    opt1 = {};
 end
+
+if (opt_h||opt_his)
+    opt2 = {'-head'};
+else
+    opt2= {};
+end
+if opt_nopix
+    opt3={'-nopix'};
+else
+    opt3={};
+end
+
+data_opt={opt1{:},opt2{:},opt3{:}};
 
 sqw_struc.data = obj.get_data(data_opt{:});
 
