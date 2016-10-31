@@ -13,17 +13,16 @@ function [stream,fid,mess] = get_header_(file,varargin)
 % Set the read/write permission that is required
 permission_req='rb';   % open for reading
 stream = [];
+buf_size =4+6+8+4+4;
 if nargin> 1
     num = cellfun(@isnumeric,varargin);
     if any(num)
         buf_size = varargin(num);
     end
-    argi = varargin{~num};
+    argi = varargin(~num);
     if numel(argi)> 0
         permission_req = argi{1};
     end
-else
-    buf_size =4+6+8+4+4;
 end
 
 % Check file and open
@@ -37,7 +36,7 @@ if isnumeric(file)
         return
     end
     fid=file;  % copy fid
-    frewind(fid);  % set the file position indicator to the start of the file
+    fseek(fid,0,'bof');  % set the file position indicator to the start of the file
 else
     fid=fopen(file,permission_req);
     if fid<0
