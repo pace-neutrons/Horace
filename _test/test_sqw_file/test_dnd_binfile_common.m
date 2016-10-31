@@ -1,7 +1,7 @@
 classdef test_dnd_binfile_common <  TestCase %WithSave
     %Testing common part of the code used to access binary sqw files
-    %
-    
+    % and various auxliary methods, availble on this class
+    %    
     
     properties
         test_folder
@@ -50,21 +50,21 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         function obj = test_get_data_form(obj)
             tob = dnd_binfile_common();
             
-            form = tob.get_data_form();
+            form = tob.get_dnd_form();
             fn = fieldnames(form);
             
             assertEqual(numel(fn),19);
             
             tob = tob.set_datatype('a');
-            form = tob.get_data_form('-head');
+            form = tob.get_dnd_form('-head');
             fn = fieldnames(form);
             assertEqual(numel(fn),16);
             
-            form = tob.get_data_form('-const');
+            form = tob.get_dnd_form('-const');
             fn = fieldnames(form);
             assertEqual(numel(fn),16);
             
-            form = tob.get_data_form('-const','-head');
+            form = tob.get_dnd_form('-const','-head');
             fn = fieldnames(form);
             assertEqual(numel(fn),13);
             
@@ -108,7 +108,31 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
                 end
             end
         end
-        
+        %
+        function obj = test_set_filename_to_write(obj)
+            tob = dnd_binfile_common();
+            
+            samp = fullfile(fileparts(obj.test_folder),...
+                'test_symmetrisation','w1d_sqw.sqw');
+            f=@()(tob.set_filename_to_write(samp));
+            assertExceptionThrown(f,'DND_BINFILE_COMMON:invalid_argument');
+            
+            tob=tob.set_filename_to_write(samp);
+            
+            assertTrue(tob.sqw_type)
+            assertEqual(tob.num_dim,1)
+            
+            
+            test_f = fullfile(tempdir,'test_set_filename_to_write.sqw');
+            clob = onCleanup(@()delete(test_f));
+            
+            tob=tob.set_filename_to_write(test_f);
+            assertTrue(exist(test_f,'file')==2);
+            assertFalse(tob.sqw_type)
+            assertEqual(tob.num_dim,'undefined')
+            tob=tob.delete();
+            
+        end
     end
     
 end
