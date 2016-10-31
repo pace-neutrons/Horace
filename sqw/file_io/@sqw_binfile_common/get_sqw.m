@@ -104,7 +104,7 @@ end
 
 % Get data
 % --------
-if verbatim 
+if verbatim
     opt1 = {'-verbatim'};
 else
     opt1 = {};
@@ -122,8 +122,19 @@ else
 end
 
 data_opt={opt1{:},opt2{:},opt3{:}};
-
-sqw_struc.data = obj.get_data(data_opt{:});
+if pix_range
+    if numel(num_arg) == 2
+        npix_lo = num_arg{1};
+        npix_hi = num_arg{2};
+        
+    elseif numel(num_arg) == 1
+        npix_lo = num_arg{1};
+        npix_hi = obj.npixels;
+    end
+    sqw_struc.data = obj.get_data(data_opt{:},npix_lo,npix_hi);
+else
+    sqw_struc.data = obj.get_data(data_opt{:});
+end
 
 
 instr = obj.get_instrument('-all');

@@ -17,7 +17,7 @@ end
 %
 obj.check_obj_initated_properly();
 %
-[main_header,new_obj] = extract_correct_subobj_(obj,'main_header',argi{:});
+[main_header,new_obj] = obj.extract_correct_subobj('main_header',argi{:});
 if new_obj
     update = true;
 end

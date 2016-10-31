@@ -1,8 +1,8 @@
 function [data_str,obj] = get_data (obj,varargin)
 % Read the data block from an sqw file. The file pointer is left at the end of the data block.
 %
-%   >> data = obj.get_sqw_data()
-%   >> data = obj.get_sqw_data(opt)
+%   >> data = obj.get_data()
+%   >> data = obj.get_data(opt)
 %
 % Input:
 % ------

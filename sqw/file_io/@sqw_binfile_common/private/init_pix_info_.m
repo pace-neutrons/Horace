@@ -11,9 +11,11 @@ pos = obj.dnd_eof_pos_;
 
 
 obj.urange_pos_  = pix_info_pos.urange_pos_;
-obj.pix_pos_     = pix_info_pos.pix_pos_;
+obj.pix_pos_     = pix_info_pos.pix_pos_+8; % serializer calculates pix position
+% at the position of the npix as it is part of the pix field.
+% As we access pixels directly via its position, here we adjust this value
+% to the beginning of the real pix array.
+
 obj.eof_pix_pos_ = pos;
 obj.npixels_ = size(data.pix,2);
-
-
 

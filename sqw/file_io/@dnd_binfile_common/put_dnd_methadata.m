@@ -26,16 +26,10 @@ end
 %
 data_form = obj.get_dnd_form(head_arg{:});
 %
-if isempty(argi)
-    input_obj = obj.sqw_holder_;
-else
-    input_obj = argi{1};
+[input_obj,new_obj] = obj.extract_correct_subobj('data',argi{:});
+if new_obj
     update = true;
 end
-if isa(input_obj,'sqw')
-    input_obj = input_obj.data;
-end
-
 %
 bytes = obj.sqw_serializer_.serialize(input_obj,data_form);
 %

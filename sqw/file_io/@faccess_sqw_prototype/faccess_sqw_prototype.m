@@ -71,8 +71,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                     'trying to load legacy Horace prototype data format');
             end
         end
-        %
-        function data_form = get_data_form(obj,varargin)
+        function data_form = get_dnd_form(obj,varargin)
             % Return the structure of the data file header in the form
             % it is written on hdd.
             % Fields in the structure are:
@@ -116,9 +115,10 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %                   ien         Energy bin number for the pixel in the array in the (irun)th header
             %                   signal      Signal array
             %                   err         Error array (variance i.e. error bar squared)
+            
             %
-            data_form = get_data_form@sqw_binfile_common(obj,varargin{:});
-            data_form = rmfield(data_form,{'filename','filepath','title','alatt','angdeg'});
+            data_form = get_dnd_form@dnd_binfile_common(obj,varargin{:});
+            data_form = rmfield(data_form,{'filename','filepath','title','alatt','angdeg'});            
         end
         %
         function sqw_data = get_data(obj,varargin)

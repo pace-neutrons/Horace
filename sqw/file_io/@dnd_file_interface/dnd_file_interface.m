@@ -70,7 +70,6 @@ classdef dnd_file_interface
             fp = obj.filepath_;
         end
         %
-        %
         function ver = get.file_version(obj)
             % return the version of the loader corresponding to the format
             % of data, stored in the file
@@ -85,6 +84,19 @@ classdef dnd_file_interface
             % return true if the object to load is sqw-type (contains pixels) or
             % false if not.
             type = obj.sqw_type_;
+        end
+        %
+        function ff=get.data_type(obj)
+            %   data_type   Type of sqw data written in the file
+            %   type 'b'    fields: filename,...,dax,s,e
+            %   type 'b+'   fields: filename,...,dax,s,e,npix
+            %   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
+            %   type 'a-'   fields: filename,...,dax,s,e,npix,urange
+            ff = obj.data_type_;
+        end
+        %
+        function dims = get.dnd_dimensions(obj)
+            dims = obj.dnd_dimensions_;
         end
         %
         function conv = get.convert_to_double(obj)
@@ -103,19 +115,6 @@ classdef dnd_file_interface
             obj.num_dim_        = 'undefined';
             obj.dnd_dimensions_ = 'undefined';
             obj.data_type_      = 'undefined';
-        end
-        %
-        function ff=get.data_type(obj)
-            %   data_type   Type of sqw data written in the file
-            %   type 'b'    fields: filename,...,dax,s,e
-            %   type 'b+'   fields: filename,...,dax,s,e,npix
-            %   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
-            %   type 'a-'   fields: filename,...,dax,s,e,npix,urange
-            ff = obj.data_type_;
-        end
-        %
-        function dims = get.dnd_dimensions(obj)
-            dims = obj.dnd_dimensions_;
         end
         
     end

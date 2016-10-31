@@ -20,7 +20,8 @@ end
 %
 obj.check_obj_initated_properly();
 %
-if ~isemtpy(argi)
+header_num =[];  % by default, return all headers
+if ~isempty(argi)
     numeric_pos = cellfun(@isnumeric,argi);
     if any(numeric_pos)
         if sum(numeric_pos)>1
@@ -30,15 +31,11 @@ if ~isemtpy(argi)
         end
         argi = argi(~numeric_pos);
         header_num = argi(numeric_pos);
-    else
-        header_num =[];        
     end
-else
-    header_num =[];
 end
 
 
-[headers,new_obj] = extract_correct_subobj_(obj,'header',argi{:});
+[headers,new_obj] = obj.extract_correct_subobj('header',argi{:});
 if new_obj
     update = true;
 end

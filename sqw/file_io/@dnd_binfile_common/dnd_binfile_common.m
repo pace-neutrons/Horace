@@ -54,11 +54,7 @@ classdef dnd_binfile_common < dnd_file_interface
                 error('DND_BINFILE_COMMON:runtime_error',...
                     'init_from_sqw_obj method should be ivoked with at least an existing sqw object provided');
             end
-            if isa(varargin{1},'sqw')
-                inobj = varargin{1}.data;
-            else
-                inobj = varargin{1};
-            end
+            inobj = obj.extract_correct_subobj('data',varargin{:});
             obj = init_from_sqw_(obj,inobj,varargin{2:end});
             obj.sqw_holder_= inobj;
             
@@ -81,6 +77,18 @@ classdef dnd_binfile_common < dnd_file_interface
             % helper function to check the state of put and update functions
             % if put methods are invoked separately
             check_obj_initiated_properly_(obj);
+        end
+        function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
+            % auxiliary function helping to extract correct subobject from
+            % input or internal object
+            
+            if isa(varargin{1},'sqw')
+                sub_obj = varargin{1}.(obj_name);
+            else % dnd object and this has been verified in calling function
+                sub_obj = varargin{1};
+            end
+            external = false;
+            
         end
         
     end
@@ -188,10 +196,10 @@ classdef dnd_binfile_common < dnd_file_interface
             % Return the structure of the data file header in the form
             % it is written on hdd.
             % Usage:
-            %>>df = obj.get_data_form();
-            %>>df = obj.get_data_form('-head');
-            %>>df = obj.get_data_form('-const');
-            %>>df = obj.get_data_form('-data');
+            %>>df = obj.get_dnd_form();
+            %>>df = obj.get_dnd_form('-head');
+            %>>df = obj.get_dnd_form('-const');
+            %>>df = obj.get_dnd_form('-data');
             %
             % where the options:
             % '-head' returns metadata field only and
@@ -237,7 +245,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %
-            argi = varargin;           
+            argi = varargin;
             if strcmp(obj.data_type,'un') % we want full data if datatype is undefined
                 argi={};
             end
@@ -273,8 +281,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % function extracts first and last field in the structure pos_fields
         % correspongint to the structure form_fields
         [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
-    end
-    
+    end    
     
 end
 

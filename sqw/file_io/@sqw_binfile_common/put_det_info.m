@@ -17,14 +17,13 @@ end
 %
 obj.check_obj_initated_properly();
 %
-[detpar,new_obj] = extract_correct_subobj_(obj,'detpar',argi{:});
+[detpar,new_obj] = obj.extract_correct_subobj('detpar',argi{:});
 if new_obj
     update = true;
 end
 
 if update
-    %det_form = obj.get_detpar_form('-update');
-    error('SQW_BINFILE_COMMON:not_implemented','Update detinfor is not yet implemented');
+    det_form = obj.get_detpar_form('-const');
 else
     det_form = obj.get_detpar_form();
 end
@@ -32,12 +31,12 @@ end
 
 bytes = obj.sqw_serializer_.serialize(detpar,det_form);
 if update
-    start_pos = obj.main_head_pos_info_.nfiles_pos_;
-    %     sz = obj.header_pos_-start_pos;
-    %     if sz ~= numel(bytes)
-    %         error('SQW_BINFILE_COMMON:invalid_argument',...
-    %             'unavble to update main header as new data size is not equal to the space remaining')
-    %     end
+    start_pos = obj.detpar_pos_info_.ndet_pos_;
+    sz = obj.urange_pos_-start_pos;
+    if sz ~= numel(bytes)
+        error('SQW_BINFILE_COMMON:invalid_argument',...
+            'put_det_info: unable to update detectors as new data size is not equal to the exisating space')
+    end
 else
     start_pos = obj.detpar_pos_;
 end
