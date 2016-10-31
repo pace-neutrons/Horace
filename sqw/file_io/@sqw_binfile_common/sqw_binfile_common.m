@@ -35,7 +35,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % complex then common logic is used
             if nargin < 2
                 error('SQW_BINFILE_COMMON:runtime_error',...
-                    'init_from_sqw_obj method should be ivoked with at least an existing sqw object provided');
+                    'init_from_sqw_obj method should be ivoked with an existing sqw object as first input argument');
             end
             if ~isa(varargin{1},'sqw')
                 error('SQW_BINFILE_COMMON:invalid_argument',...
@@ -263,7 +263,7 @@ classdef sqw_binfile_common < sqw_file_interface
                     'dummy',field_not_in_structure('urange'),...
                     'pix',field_pix());
             else
-                data_form = get_data_form@dnd_binfile_common(obj,varargin{:});
+                data_form = obj.get_dnd_form(varargin{:});
                 if nopix || head
                     return
                 end

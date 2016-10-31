@@ -6,12 +6,13 @@ function data_form = process_format_fields_(varargin)
 %>>df = obj.get_data_form();
 %>>df = obj.get_data_form('-head');
 %>>df = obj.get_data_form('-const');
-%>>df = obj.get_data_form('-no_npix');
 %>>df = obj.get_data_form('-data');
 
 % where the options '-head' and 'const' return
 % partial structures, namely methadata only and the methadata
 % fields, which do not change on hdd
+% -data option returns the format string for data fields, namely s,e and
+%       npix. This can be used to identify the size of data firlds on hdd
 %
 % Fields in the full structure are:
 %
@@ -54,8 +55,8 @@ persistent const_fields;
 persistent data_fields;
 
 
-[ok,mess,head_only,constant_len_fields,no_npix,data_only,~] =...
-    parse_char_options(varargin,{'-header','-const','-no_npix','-data'});
+[ok,mess,head_only,constant_len_fields,data_only,~] =...
+    parse_char_options(varargin,{'-header','-const','-data'});
 if ~ok
     error('DND_BINFILE_COMMON:invalid_argument',...
         'get_head_form: invalid argument: %s',mess)
@@ -104,10 +105,10 @@ else
 end
 data_form = struct(ca{:});
 %
-if no_npix
-    if isfield(data_form,'npix')
-        data_form = rmfield(data_form,{'npix'});
-    end
-end
+%if no_npix
+%    if isfield(data_form,'npix')
+%        data_form = rmfield(data_form,{'npix'});
+%    end
+%end
 
 

@@ -17,21 +17,10 @@ end
 %
 obj.check_obj_initated_properly();
 %
-if ~isempty(argi)
-    input_obj = argi{1};
-    if isa(input_obj,'sqw')
-        input_obj = input_obj.detpar;
-    elseif isstruct
-        input_obj = argi{1};
-    else
-        error('SQW_BINFILE_COMMON:invalid_argument',...
-            'put_detinfo: the routine accepts an sqw object and/or "-update" options only');
-    end
+[detpar,new_obj] = extract_correct_subobj_(obj,'detpar',argi{:});
+if new_obj
     update = true;
-else
-    input_obj = obj.sqw_holder_.detpar;
 end
-
 
 if update
     %det_form = obj.get_detpar_form('-update');
@@ -41,7 +30,7 @@ else
 end
 
 
-bytes = obj.sqw_serializer_.serialize(input_obj,det_form);
+bytes = obj.sqw_serializer_.serialize(detpar,det_form);
 if update
     start_pos = obj.main_head_pos_info_.nfiles_pos_;
     %     sz = obj.header_pos_-start_pos;

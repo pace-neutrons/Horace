@@ -24,7 +24,7 @@ else
     head_arg = {'-head'};
 end
 %
-data_form = obj.get_data_form(head_arg{:});
+data_form = obj.get_dnd_form(head_arg{:});
 %
 if isempty(argi)
     input_obj = obj.sqw_holder_;

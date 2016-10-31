@@ -32,7 +32,7 @@ end
 
 %
 if update % are we going to write new or update existing data
-    data_form = obj.get_data_form('-data');
+    data_form = obj.get_dnd_form('-data');
     size_str = obj.sqw_serializer_.calculate_positions(data_form,input_obj,obj.s_pos_);
     sz = size_str.dnd_eof_pos_ -size_str.s_pos_;
     cur_size = obj.dnd_eof_pos_-obj.s_pos_;

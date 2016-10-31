@@ -17,19 +17,9 @@ end
 %
 obj.check_obj_initated_properly();
 %
-if ~isempty(argi)
-    input_obj = argi{1};
-    if isa(input_obj,'sqw')
-        input_obj = input_obj.main_header;        
-    elseif isstruct
-        input_obj = argi{1};
-    else
-        error('SQW_BINFILE_COMMON:invalid_argument',...
-            'put_main_header: the routine accepts an sqw object and/or "-update" options only');
-    end
+[main_header,new_obj] = extract_correct_subobj_(obj,'main_header',argi{:});
+if new_obj
     update = true;
-else
-    input_obj = obj.sqw_holder_.main_header;
 end
 
 
@@ -40,7 +30,7 @@ else
 end
 
 
-bytes = obj.sqw_serializer_.serialize(input_obj,head_form);
+bytes = obj.sqw_serializer_.serialize(main_header,head_form);
 if update
     start_pos = obj.main_head_pos_info_.nfiles_pos_;
     sz = obj.header_pos_-start_pos;

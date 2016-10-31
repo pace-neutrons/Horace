@@ -34,12 +34,13 @@ function res = get_sqw (obj,varargin)
 %
 % $Revision$ ($Date$)
 
-[ok,mess,verbatim,~] =  parse_char_options(varargin,{'-verbatim'});
+[ok,mess,verbatim,hver,~] =  parse_char_options(varargin,{'-verbatim','-hverbatim'});
 if ~ok
     error('DND_BINFILE_COMMON:invalid_arguments',mess);
 end
+verbatim = verbatim || hver;
 if verbatim
-    dat = obj.get_data('-hverbatim');
+    dat = obj.get_data('-verbatim');
 else
     dat = obj.get_data();    
 end
