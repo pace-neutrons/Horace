@@ -1,9 +1,9 @@
 function [data,obj] = get_data (obj,varargin)
 % Read the data block from an sqw file. The file pointer is left at the end of the data block.
 %
-%   >> data = obj.get_sqw_data()
-%   >> data = obj.get_sqw_data(opt)
-%   >> data = obj.get_sqw_data(npix_lo, npix_hi)
+%   >> data = obj.get_data()
+%   >> data = obj.get_data(opt)
+%   >> data = obj.get_data(npix_lo, npix_hi)
 %
 % Input:
 % ------
@@ -111,7 +111,7 @@ if ~ok
     error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
 end
 
-[data_str,obj] = get_data@dnd_binfile_common(obj,argi{:});
+[data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
 %
 fseek(obj.file_id_,obj.urange_pos_,'bof');
 [mess,res] = ferror(obj.file_id_);
@@ -124,8 +124,8 @@ data_str.urange =fread(obj.file_id_,[2,4],'float32');
 
 
 % process all possible options
-[ok,mess,header_only,~,nopix,argi]=...
-    parse_char_options(varargin,{'-header','-verbatim','-nopix'});
+[ok,mess,header_only,~,~,nopix,argi]=...
+    parse_char_options(varargin,{'-header','-verbatim','-hverbatim','-nopix'});
 if ~ok
     error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
 end

@@ -17,7 +17,7 @@ buf_size =4+6+8+4+4;
 if nargin> 1
     num = cellfun(@isnumeric,varargin);
     if any(num)
-        buf_size = varargin(num);
+        buf_size = varargin{num};
     end
     argi = varargin(~num);
     if numel(argi)> 0

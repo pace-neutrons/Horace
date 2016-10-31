@@ -7,12 +7,15 @@ function  [obj,file_exist] = set_filename_to_write(obj,varargin)
 %          write/append operations
 % >> obj = obj.set_filename_to_write(new_filename);
 %   Open new sqw file to perform write/append operations
+%
+% $Revision: 1307 $ ($Date: 2016-10-31 14:59:29 +0000 (Mon, 31 Oct 2016) $)
+%
 
 file_exist = false;
 
 if nargout < 1
     error('DND_BINFILE_COMMON:invalid_argument',...
-        'set_filename_to_write has to return its value in ouptput DND_BINFILE_COMMON object')
+        'set_filename_to_write has to return its value in output object')
 end
 
 if nargin>1
@@ -55,7 +58,7 @@ if file_exist
 else
     perm = 'wb+';
     obj.sqw_type_= false;
-    obj.num_dim_ = 'undefined';    
+    obj.num_dim_ = 'undefined';
 end
 %-------------------------------------------------------------------------
 [fp,fn,fext] = fileparts(new_filename);

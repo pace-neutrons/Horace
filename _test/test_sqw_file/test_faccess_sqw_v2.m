@@ -151,10 +151,10 @@ classdef test_faccess_sqw_v2< TestCase
             
             tf = fullfile(tempdir,'test_put_sqw_v2.sqw');
             clob = onCleanup(@()delete(tf));
-            tt = tt.init(tob_sqw );
-            tt.filename = tf;
             
-            
+            tt = tt.init(tob_sqw);
+            tt = tt.set_filename_to_write(tf);
+                                  
             
             tt=tt.put_sqw();
             assertTrue(exist(tf,'file')==2)

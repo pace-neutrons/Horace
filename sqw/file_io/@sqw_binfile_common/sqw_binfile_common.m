@@ -46,21 +46,11 @@ classdef sqw_binfile_common < sqw_file_interface
             % initialize data fields
             % assume max data type which will be reduced if some fields are
             % missing (how they when initalized from sqw?)
-            obj.data_type_ = 'a'; 
+            obj.data_type_ = 'a';
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
+            obj.sqw_holder_ = varargin{1};                      
             
-            obj.sqw_holder_ = varargin{1};
-            pix_info_pos = obj.data_fields_locations_;
-            obj.urange_pos_  = pix_info_pos.urange_pos_;
-            obj.pix_pos_     = pix_info_pos.pix_pos_+8; % serializer calculates pix position 
-            % at the position of the npix as it is part of the pix field.
-            % As we do not serialize pixels, here we adjust this value to
-            % start of the real pix array.
-            obj.eof_pix_pos_ = pix_info_pos.eof_pix_pos_;
-            obj.npixels_ = size(obj.sqw_holder_.data.pix,2);
-
-            
-            %obj = init_pix_info_(obj);
+            obj = init_pix_info_(obj);
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
@@ -70,6 +60,12 @@ classdef sqw_binfile_common < sqw_file_interface
             % complex then common logic is used
             obj= init_sqw_structure_field_by_field_(obj);
         end
+        function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
+            % auxiliary function helping to extract correct subobject from
+            % input or internal object
+            [sub_obj,external]  = extract_correct_subobj_(obj,obj_name,varargin{:});
+        end
+        
     end
     
     methods % defined by this class
@@ -103,109 +99,19 @@ classdef sqw_binfile_common < sqw_file_interface
             % empty structure.
             samp = struct();
         end
-        
-        %
-        function header = get_main_header_form(obj,varargin)
-            % Return the structure of the main header in the form it
-            % is written on hdd.
-            % Usage:
-            % header = obj.get_main_header_form();
-            % header = obj.get_main_header_form('-const');
-            %
-            % Fields in file are:
-            % --------------------------
-            %   main_header.filename   Name of sqw file that is being read, excluding path
-            %   main_header.filepath   Path to sqw file that is being read, including terminating file separator
-            %   main_header.title      Title of sqw data structure
-            %   main_header.nfiles     Number of spe files that contribute
-            %
-            % The value of the fields define the number of dimensions of
-            % the data except strings, which defined by the string length
-            header = get_main_header_form_(varargin{:});
-        end
-        %
-        function header = get_header_form(obj,varargin)
-            % Return structure of the contributing file header in the form
-            % it is written on hdd.
-            %
-            % Fields in file are:
-            % --------------------------
-            %   header.filename     Name of sqw file excluding path
-            %   header.filepath     Path to sqw file including terminating file separator
-            %   header.efix         Fixed energy (ei or ef depending on emode)
-            %   header.emode        Emode=1 direct geometry, =2 indirect geometry
-            %   header.alatt        Lattice parameters (Angstroms)
-            %   header.angdeg       Lattice angles (deg)
-            %   header.cu           First vector defining scattering plane (r.l.u.)
-            %   header.cv           Second vector defining scattering plane (r.l.u.)
-            %   header.psi          Orientation angle (deg)
-            %   header.omega        --|
-            %   header.dpsi           |  Crystal misorientation description (deg)
-            %   header.gl             |  (See notes elsewhere e.g. Tobyfit manual
-            %   header.gs           --|
-            %   header.en           Energy bin boundaries (meV) [column vector]
-            %   header.uoffset      Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-            %   header.u_to_rlu     Matrix (4x4) of projection axes in hkle representation
-            %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-            %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
-            %
-            % The following fields two fields are part of the header, but this function just fills them with the 'empty' default:
-            %   header.instrument   Instrument description (scalar structure or object)
-            %                      Set to default value struct (1x1 structure with no fields)
-            %   header.sample       Sample description (scalar structure or object)
-            %                      Set to default value struct (1x1 structure with no fields)
-            % The value of the fields define the number of dimensions of
-            % the data except strings, which defined by the string length
-            header = struct('filename','','filepath','',...
-                'efix',single(1),'emode',int32(1),...
-                'alatt',single([1,3]),'angdeg',single([1,3]),...
-                'cu',single([1,3]),'cv',single([1,3]),...
-                'psi',single(1),'omega',single(1),'dpsi',single(1),...
-                'gl',single(1),'gs',single(1),...
-                'en',field_var_array(1),'uoffset',single([4,1]),...
-                'u_to_rlu',single([4,4]),'ulen',single([1,4]),...
-                'ulabel',field_cellarray_of_strings());
-        end
-        %
-        function detpar_form = get_detpar_form(obj,varargin)
-            % Return structure of the contributing file header in the form
-            % it is written on hdd.
-            %
-            % Fields in the structure are:
-            %
-            % --------------------------
-            %   det.filename    Name of file excluding path
-            %   det.filepath    Path to file including terminating file separator
-            %   det.group       Row vector of detector group number
-            %   det.x2          Row vector of secondary flightpath (m)
-            %   det.phi         Row vector of scattering angles (deg)
-            %   det.azim        Row vector of azimuthal angles (deg)
-            %                  (West bank=0 deg, North bank=90 deg etc.)
-            %   det.width       Row vector of detector widths (m)
-            %   det.height      Row vector of detector heights (m)
-            %
-            % one field of the file 'ndet' is written to the file but not
-            % present in the structure, so has format: field_not_in_structure
-            % group,x2,phi,azim,width and height array sizes are defined by
-            % this structure size
-            detpar_form = struct('filename','','filepath','',...
-                'ndet',field_not_in_structure('group'),...
-                'group',field_const_array_dependent('ndet'),...
-                'x2',field_const_array_dependent('ndet'),...
-                'phi',field_const_array_dependent('ndet'),...
-                'azim',field_const_array_dependent('ndet'),...
-                'width',field_const_array_dependent('ndet'),...
-                'height',field_const_array_dependent('ndet'));
-        end
-        
         %
         function data_form = get_data_form(obj,varargin)
             % Return the structure of the data file header in the form
             % it is written on hdd.
-            % Fields in the structure are:
+            % 
+            % The structure depends on data type stored in the file 
+            % (see dnd_file_interface data_type method)
             %
-            
+            % Usage:
+            % 
+            %
+            % Fields in the full structure are:
+            %            
             % ------------------------------
             %   data.filename   Name of sqw file that is being read, excluding path
             %   data.filepath   Path to sqw file that is being read, including terminating file separator
@@ -252,38 +158,103 @@ classdef sqw_binfile_common < sqw_file_interface
             %                   ien         Energy bin number for the pixel in the array in the (irun)th header
             %                   signal      Signal array
             %                   err         Error array (variance i.e. error bar squared)
-            %
-            [ok,mess,pix_only,nopix,head,~] = parse_char_options(varargin,{'-pix_only','-nopix','-header'});
-            if ~ok
-                error('SQW_BINFILE_COMMON:invalid_argument',mess);
-            end
-            
-            if pix_only
-                data_form = struct('urange',single([2,4]),...
-                    'dummy',field_not_in_structure('urange'),...
-                    'pix',field_pix());
-            else
-                data_form = obj.get_dnd_form(varargin{:});
-                if nopix || head
-                    return
-                end
-                data_form.urange = single([2,4]);
-                data_form.dummy = field_not_in_structure('pax');
-                data_form.pix = field_pix();
-            end
-            
-            % full header necessary to inentify datatype in the file
-            if strncmp(obj.data_type,'un',2)
-                return;
-            end
-            %
-            if obj.data_type == 'a-' % data do not contain pixels
-                data_form = rmfield(data_form,{'dummy','pix'});
-                return;
-            end
-            %
+            %            
+            data_form = get_data_form_(obj,varargin{:});
         end
+        
     end
+    methods(Static)
+        %
+        function header = get_main_header_form(varargin)
+            % Return the structure of the main header in the form it
+            % is written on hdd.
+            %
+            % Usage:
+            % >>header = obj.get_main_header_form();
+            % >>header = obj.get_main_header_form('-const');
+            %
+            % Second option returns only the fields which do not change if
+            % filename or title changes
+            %
+            % Fields in file are:
+            % --------------------------
+            %   main_header.filename   Name of sqw file that is being read, excluding path
+            %   main_header.filepath   Path to sqw file that is being read, including terminating file separator
+            %   main_header.title      Title of sqw data structure
+            %   main_header.nfiles     Number of spe files that contribute
+            %
+            % The value of the fields define the number of dimensions of
+            % the data except strings, which defined by the string length
+            header = get_main_header_form_(varargin{:});
+        end
+        %
+        function header = get_header_form(varargin)
+            % Return structure of the contributing file header in the form
+            % it is written on hdd.
+            % Usage:
+            % header = obj.get_header_form();
+            % header = obj.get_header_form('-const');
+            % Second option returns only the fields which do not change if
+            % filename or title changes
+            %
+            % Fields in file are:
+            % --------------------------
+            %   header.filename     Name of sqw file excluding path
+            %   header.filepath     Path to sqw file including terminating file separator
+            %   header.efix         Fixed energy (ei or ef depending on emode)
+            %   header.emode        Emode=1 direct geometry, =2 indirect geometry
+            %   header.alatt        Lattice parameters (Angstroms)
+            %   header.angdeg       Lattice angles (deg)
+            %   header.cu           First vector defining scattering plane (r.l.u.)
+            %   header.cv           Second vector defining scattering plane (r.l.u.)
+            %   header.psi          Orientation angle (deg)
+            %   header.omega        --|
+            %   header.dpsi           |  Crystal misorientation description (deg)
+            %   header.gl             |  (See notes elsewhere e.g. Tobyfit manual
+            %   header.gs           --|
+            %   header.en           Energy bin boundaries (meV) [column vector]
+            %   header.uoffset      Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+            %   header.u_to_rlu     Matrix (4x4) of projection axes in hkle representation
+            %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
+            %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
+            %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
+            %
+            header = get_header_form_(varargin{:});
+        end
+        %
+        function detpar_form = get_detpar_form(varargin)
+            % Return structure of the contributing file header in the form
+            % it is written on hdd.
+            % Usage:
+            % header = obj.get_detpar_form();
+            % header = obj.get_detpar_form('-const');
+            %
+            % Second option returns only the fields which do not change if
+            % filename or title changes
+            %
+            %
+            % Fields in the structure are:
+            %
+            % --------------------------
+            %   det.filename    Name of file excluding path
+            %   det.filepath    Path to file including terminating file separator
+            %   det.group       Row vector of detector group number
+            %   det.x2          Row vector of secondary flightpath (m)
+            %   det.phi         Row vector of scattering angles (deg)
+            %   det.azim        Row vector of azimuthal angles (deg)
+            %                  (West bank=0 deg, North bank=90 deg etc.)
+            %   det.width       Row vector of detector widths (m)
+            %   det.height      Row vector of detector heights (m)
+            %
+            % one field of the file 'ndet' is written to the file but not
+            % present in the structure, so has format: field_not_in_structure
+            % group,x2,phi,azim,width and height array sizes are defined by
+            % this structure size
+            detpar_form = get_detpar_form_(varargin{:});
+        end
+        
+    end
+    
     
 end
 

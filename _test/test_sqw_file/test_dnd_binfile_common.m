@@ -1,7 +1,7 @@
 classdef test_dnd_binfile_common <  TestCase %WithSave
     %Testing common part of the code used to access binary sqw files
     % and various auxliary methods, availble on this class
-    %    
+    %
     
     properties
         test_folder
@@ -20,7 +20,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         %-----------------------------------------------------------------
         function obj = test_get_version(obj)
-            to = sqw_binfile_common_tester();
+            to = dnd_binfile_common_tester();
             source = fullfile(fileparts(obj.test_folder),'test_symmetrisation','w1d_d1d.sqw');
             wrong_source = fullfile(fileparts(obj.test_folder),'common_data','96dets.par');
             
@@ -30,7 +30,6 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
             f = @()to.get_file_header(wrong_source);
             assertExceptionThrown(f,'DND_FILE_INTERFACE:runtime_error');
-            
             
             
             [stream,fid1] = to.get_file_header(source);

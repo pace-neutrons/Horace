@@ -33,7 +33,7 @@ function res = get_sqw (obj,varargin)
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-
+%
 [ok,mess,verbatim,hver,~] =  parse_char_options(varargin,{'-verbatim','-hverbatim'});
 if ~ok
     error('DND_BINFILE_COMMON:invalid_arguments',mess);
@@ -63,4 +63,3 @@ switch ndim
         error('DND_BINFILE_COMMON:runtime_error',...
             'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)
 end
-

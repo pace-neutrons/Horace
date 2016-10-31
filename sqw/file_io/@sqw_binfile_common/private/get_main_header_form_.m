@@ -1,7 +1,29 @@
 function header = get_main_header_form_(varargin)
-% get main header format
+% Return the structure of the main header in the form it
+% is written on hdd.
+%
+% Usage:
+% >>header = obj.get_main_header_form();
+% >>header = obj.get_main_header_form('-const');
+%
+% Second option returns only the fields which do not change if filename
+% or title changes 
+%
+% Fields in file are:
+% --------------------------
+%   main_header.filename   Name of sqw file that is being read, excluding path
+%   main_header.filepath   Path to sqw file that is being read, including terminating file separator
+%   main_header.title      Title of sqw data structure
+%   main_header.nfiles     Number of spe files that contribute
+%
+% The value of the fields define the number of dimensions of
+% the data except strings, which defined by the string length
+%
+% $Revision: 1307 $ ($Date: 2016-10-31 14:59:29 +0000 (Mon, 31 Oct 2016) $)
+%
 
-[ok,mess,update]=parse_char_options(varargin,{'-update'});
+
+[ok,mess,update]=parse_char_options(varargin,{'-const'});
 if ~ok
     error('SQW_BINILE_COMMON:invalid_argument',mess);
 end
