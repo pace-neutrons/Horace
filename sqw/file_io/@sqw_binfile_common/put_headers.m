@@ -1,6 +1,7 @@
 function   obj = put_headers(obj,varargin)
 % put or replace header information into the  properly initalized
 % binary sqw file
+%
 %Usage:
 %>>obj.put_header();
 %>>obj.put_headers(header_num);
@@ -19,28 +20,27 @@ end
 %
 obj.check_obj_initated_properly();
 %
-if ~isempty(argi)
-    sqw_pos = cellfun(@(x)(isa(x,'sqw')||isstruct(x)),argi);
-    numeric_pos = cellfun(isnumeric,argi);
-    unknown  = ~(sqw_pos||numeric_pos);
-    if any(unknown)
-        disp('unknown input: ',argi{unknown});
-        error('SQW_BINFILE_COMMON:invalid_argument',...
-            'put_header: the routine accepts only sqw object "-update" and/or header number, got something as above');
-    end
-    input_obj = argi{sqw_pos};
-    input_num = argi{numeric_pos};
-    if ~isempty(input_obj)
-        if isa(input_obj,'sqw')
-            input_obj = input_obj.header;
+if ~isemtpy(argi)
+    numeric_pos = cellfun(@isnumeric,argi);
+    if any(numeric_pos)
+        if sum(numeric_pos)>1
+            error('SQW_BINFILE_COMMON:invalid_argument',...
+                'put_headers: you can only request all or one header number to put, but got %d numerical agruments',...
+                sum(numeric_pos));
         end
-        update = true;
+        argi = argi(~numeric_pos);
+        header_num = argi(numeric_pos);
     else
-        input_obj = obj.sqw_holder_.header;
+        header_num =[];        
     end
 else
-    input_obj = obj.sqw_holder_.header;
-    input_num = [];
+    header_num =[];
+end
+
+
+[headers,new_obj] = extract_correct_subobj_(obj,'header',argi{:});
+if new_obj
+    update = true;
 end
 
 
@@ -49,17 +49,17 @@ if update
 else
     head_form = obj.get_header_form();
 end
-if ~isempty(input_num)
-    if input_num<=0 || input_num>obj.num_contrib_files
+if ~isempty(header_num)
+    if header_num<=0 || header_num >obj.num_contrib_files
         error('SQW_BINFILE_COMMON:invalid_argument',...
             'put_header: number of header to save %d is out of range of existing headers %d',...
-            input_num,obj.num_contrib_files);
+            header_num,obj.num_contrib_files);
     end
-    data_2save = input_obj(input_num);
+    data_2save = headers(header_num);
     n_files2_process = 1;
 else
     n_files2_process = obj.num_contrib_files;
-    data_2save = input_obj;
+    data_2save = headers;
 end
 
 for i=1:n_files2_process

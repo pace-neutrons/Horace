@@ -70,31 +70,6 @@ classdef dnd_file_interface
             fp = obj.filepath_;
         end
         %
-        function obj = set.filename(obj,new_filename)
-            % set new file name to save sqw data in. Also opens this file
-            % for writing.
-            %
-            obj = obj.check_file_set_new_name(new_filename);
-        end
-        %
-        function obj = set.filepath(obj,new_path)
-            % set new file path to save sqw data in. Also opens file
-            % with the name defined before (if this name is not empty)
-            % for writing.
-            if new_path ~= obj.filepath_
-                if isempty(obj.filename_)
-                    if ~ischar(new_path)
-                        error('DND_FILE_INTERFACE:invalid_argument',...
-                            ' path to save files has to be defined by sequence of characters')
-                    end
-                    obj.filepath_ = new_path;
-                else
-                    new_fname = fullfile(new_path,obj.filename_);
-                    obj = obj.check_file_set_new_name(new_fname);
-                end
-            end
-        end
-        
         %
         function ver = get.file_version(obj)
             % return the version of the loader corresponding to the format
@@ -181,7 +156,8 @@ classdef dnd_file_interface
         % update or store obj constant size methadata. i.e. information
         % on
         
-        % save sqw object stored in memory into binary sqw file
+        % save sqw object stored in memory into binary sqw file. Depending
+        % on data present in memory it can in fact save dnd object.
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,sqw_obj,varargin);
         % Comprising of:

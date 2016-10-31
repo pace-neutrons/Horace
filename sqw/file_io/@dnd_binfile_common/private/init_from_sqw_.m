@@ -39,7 +39,7 @@ obj.dnd_dimensions_ = size(data.s);
 obj.num_dim_ = numel(obj.dnd_dimensions_);
 %
 %
-format = obj.get_data_form();
+format = obj.get_dnd_form();
 [data_pos,pos] = obj.sqw_serializer_.calculate_positions(format,data,obj.data_pos_);
 
 
@@ -57,7 +57,4 @@ else
 end
 obj.data_fields_locations_=data_pos;
 
-
-%
-%
 

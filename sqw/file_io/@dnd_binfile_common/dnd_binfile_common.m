@@ -9,7 +9,6 @@ classdef dnd_binfile_common < dnd_file_interface
     %
     % $Revision$ ($Date$)
     %
-    
     properties(Access=protected)
         file_id_=-1 % the open file handle (if any)
         %
@@ -17,20 +16,28 @@ classdef dnd_binfile_common < dnd_file_interface
         % of Horace data information and the size of this part.
         % 0 means unknown/uninitialized or missing.
         data_pos_=26;
-        % contais structure with accurate positions of various data fields
-        % to use for accurate replacement of these fields
-        data_fields_locations_=[];
         %
         s_pos_=0;
         e_pos_=0;
         npix_pos_=0;
         dnd_eof_pos_=0;
+        % contais structure with accurate positions of various data fields
+        % to use for accurate replacement of these fields during update
+        % operations
+        data_fields_locations_=[];
         %
-        %
+        % class used to caluclate all transformations between sqw/dnd class
+        % in memory, and their byte representaion on hdd.
         sqw_serializer_=[];
+        % holder for the object which surely closes open sqw file on class
+        % deletion
         file_closer_ = [];
-        % internal sqw/dnd object used as source for subsequent write operations
+        % internal sqw/dnd object holder used as source for subsequent
+        % write operations
         sqw_holder_ = [];
+        % a pointer to eof position, used to identify the state of IO
+        % operations.
+        real_eof_pos_ = 0; % does it give any advantage?
     end
     %
     properties(Dependent)
@@ -64,7 +71,7 @@ classdef dnd_binfile_common < dnd_file_interface
             % complex then common logic is used
             obj= init_dnd_structure_field_by_field_(obj);
         end
-        %        
+        %
         function  obj = check_file_set_new_name(obj,new_filename)
             % set new file name and open file for write/update operations
             obj = check_file_set_new_name_(obj,new_filename);
@@ -79,6 +86,7 @@ classdef dnd_binfile_common < dnd_file_interface
     end
     
     methods % defined by this class
+        %------   Accessors:
         % check if this loader should deal with selected file
         [ok,obj,mess]=should_load(obj,filename)
         %
@@ -90,6 +98,11 @@ classdef dnd_binfile_common < dnd_file_interface
         % read pixels information
         % retrieve the whole dnd object from properly initialized dnd file
         sqw_obj = get_sqw(obj,varargin);
+        
+        %------   Mutators:
+        % set filename to save sqw data and open file for write/append
+        % operations
+        obj = set_filename_to_write(obj,varargin)
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         % Consisting of:
@@ -102,11 +115,11 @@ classdef dnd_binfile_common < dnd_file_interface
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
         
-        
+        %------   Auxiliary methods
         % build header, which contains information on sqw object and
         % informs clients on contents of a binary file
         header = build_app_header(obj,sqw_obj)
-        
+        %
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is
             % defined, return empty structure.
@@ -119,7 +132,6 @@ classdef dnd_binfile_common < dnd_file_interface
             samp = struct();
         end
         %
-        
         %
         function obj = init(obj,varargin)
             % Initialize sqw accessor using various input sources
@@ -160,8 +172,11 @@ classdef dnd_binfile_common < dnd_file_interface
             obj = obj.fclose();
             obj.sqw_holder_ = [];
             obj=delete@dnd_file_interface(obj);
+            obj.real_eof_pos_ = 0;
         end
+        %
         function obj = fclose(obj)
+            % Close existing file header if it has been opened
             fn = fopen(obj.file_id_);
             if ~isempty(fn) %&& ~strncmp(fn,'"std',4)
                 fclose(obj.file_id_);
@@ -169,19 +184,21 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.file_id_ = -1;
         end
         %
-        function data_form = get_data_form(obj,varargin)
+        function data_form = get_dnd_form(obj,varargin)
             % Return the structure of the data file header in the form
             % it is written on hdd.
             % Usage:
             %>>df = obj.get_data_form();
             %>>df = obj.get_data_form('-head');
             %>>df = obj.get_data_form('-const');
-            %>>df = obj.get_data_form('-no_npix');
+            %>>df = obj.get_data_form('-data');
             %
-            % where the options '-head' and 'const' return
-            % partial structures, namely methadata only and the methadata
-            % fields, which do not change on hdd
-            % '-no_npix' option returns format without npix field
+            % where the options:
+            % '-head' returns metadata field only and
+            % '-const' returns partial methadata which do not change size on hdd
+            % '-data'  returns format for data fields, namely signal, error
+            %          and npix. This information may be used to identify
+            %          the size, these fields occupy on hdd
             %
             % Fields in the full structure are:
             %
@@ -219,19 +236,13 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            if nargin>1; argi = varargin;
-            else;        argi  = {};   end
-            
+            %
+            argi = varargin;           
             if strcmp(obj.data_type,'un') % we want full data if datatype is undefined
                 argi={};
             end
             
-            if obj.data_type == 'b'
-                argi{end+1} = '-no_npix';
-            end
-            
             data_form = process_format_fields_(argi{:});
-            
         end
         %
         function [obj,header_pos]=set_header_size(obj,app_header)
@@ -240,6 +251,7 @@ classdef dnd_binfile_common < dnd_file_interface
             % and starting position (data_position) of meaningful sqw data.
             %
             % Used for debugging as default data_position value never changes
+            % for modern sqw file formats
             %
             format = obj.app_header_form_;
             if isempty(obj.sqw_serializer_)
@@ -249,7 +261,7 @@ classdef dnd_binfile_common < dnd_file_interface
             [header_pos,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
             obj.data_pos_  = pos;
         end
-        
+        %
         function obj=set_datatype(obj,val)
             % test-heler function used to set some data type
             % should be used in testing only as normally it is calculated
@@ -259,7 +271,7 @@ classdef dnd_binfile_common < dnd_file_interface
     end
     methods(Static)
         % function extracts first and last field in the structure pos_fields
-        % corrspongint to the structure form_fields
+        % correspongint to the structure form_fields
         [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
     end
     

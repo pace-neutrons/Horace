@@ -14,7 +14,14 @@ function [stream,fid,mess] = get_header_(file,varargin)
 permission_req='rb';   % open for reading
 stream = [];
 if nargin> 1
-    buf_size = varargin{1};
+    num = cellfun(@isnumeric,varargin);
+    if any(num)
+        buf_size = varargin(num);
+    end
+    argi = varargin{~num};
+    if numel(argi)> 0
+        permission_req = argi{1};
+    end
 else
     buf_size =4+6+8+4+4;
 end

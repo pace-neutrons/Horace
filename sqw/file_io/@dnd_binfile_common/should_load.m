@@ -24,9 +24,9 @@ if ~ok
     error('SQW_BINFILE_COMMON:invalid_arguments','should_load function: %s',mess);
 end
 
-[stream,fh] = dnd_file_interface.get_file_header(full_data_name);
+[header,fh] = dnd_file_interface.get_file_header(full_data_name);
 
 % call child function to check if the stream should be loaded by
 % appropriate loader
-[ok,obj,mess]=obj.should_load_stream(stream,fh);
+[ok,obj,mess]=obj.should_load_stream(header,fh);
 

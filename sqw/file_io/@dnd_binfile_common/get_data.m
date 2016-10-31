@@ -77,11 +77,12 @@ function [data_str,obj] = get_data (obj,varargin)
 % $Revision$ ($Date$)
 
 % Initialise output arguments
-[ok,mess,header_only,hverbatim,~]=...
-    parse_char_options(varargin,{'-head','-verbatim'});
+[ok,mess,header_only,verbatim,hverbatim,~]=...
+    parse_char_options(varargin,{'-head','-verbatim','-hverbatim'});
 if ~ok
     error('DND_BINILE_COMMON:invalid_argument',mess);
 end
+hverbatim = verbatim||hverbatim;
 
 
 % --------------------------------------------------------------------------
@@ -111,7 +112,7 @@ if res ~= 0
         'Can not read the main data block, Reason: %s',mess);
 end
 
-data_form = obj.get_data_form('-header');
+data_form = obj.get_dnd_form('-header');
 data_str = obj.sqw_serializer_.deserialize_bytes(bytes,data_form,1);
 clear bytes;
 

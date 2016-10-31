@@ -18,7 +18,7 @@ check_and_throw_error(obj,'error moving to data start position');
 
 
 % data format
-data_header = obj.get_data_form();
+data_header = obj.get_dnd_form();
 [data_pos,pos,io_error,data_header] =  obj.sqw_serializer_.calculate_positions(data_header,obj.file_id_,pos);
 if io_error
     if ~isfield(data_pos,'s_pos_') || ~isfield(data_pos,'e_pos_')
@@ -49,6 +49,8 @@ else
 end
 
 obj=set_filepath(obj);
+% Check it
+obj.real_eof_pos_ = pos;
 
 
 function obj=set_filepath(obj)

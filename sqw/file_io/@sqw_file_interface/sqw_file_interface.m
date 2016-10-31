@@ -51,6 +51,12 @@ classdef sqw_file_interface < dnd_binfile_common
         pix         = get_pix(obj,varargin);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
+        
+        obj = put_main_header(obj,varargin);
+        obj = put_headers(obj,varargin);
+        obj = put_det_info(obj,varargin);        
+        obj = put_sqw(obj,varargin)        
+        
     end
     
 end
