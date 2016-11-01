@@ -1,22 +1,24 @@
 function [subobj,new_subobj] = extract_correct_subobj_(obj,obj_name,varargin)
-% Extract a subobject, requested for save or upgrade operations, using
-% various input arguments combinations
+% Extract a subobject, requested for save, calculate positions or upgrade operations
+% using various parts of sqw object, or the requested part provided directly
 %
+% $Revision$ ($Date$)
 %
-new_subobj = false;
 if ~isempty(varargin)
     input_obj = varargin{1};
     type = class(input_obj);
     if isa(input_obj,'sqw')
         subobj = input_obj.(obj_name);
-    elseif strcmp(type,obj_name) || isstruct(input_obj) % the requested object provided directrly
+    elseif strcmp(type,obj_name) || isstruct(input_obj) % the requested object provided directly
         subobj = input_obj;
     else
         error('SQW_BINFILE_COMMON:invalid_argument',...
-            'put_detinfo: the routine accepts an sqw object and/or "-update" options only');
+            'extract_correct_subobj: Requested to extract subobject %s  but can get only %s',...
+            obj_name,type);
     end
     new_subobj = true;
-else % mast be sqw object
+else % mast be an sqw object:
     subobj = obj.sqw_holder_.(obj_name);
+    new_subobj = false;
 end
 

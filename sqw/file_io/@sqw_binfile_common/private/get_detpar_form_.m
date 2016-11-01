@@ -28,7 +28,7 @@ function detpar_form = get_detpar_form_(varargin)
 % this structure size
 %
 %
-% $Revision: 1304 $ ($Date: 2016-10-27 20:14:37 +0100 (Thu, 27 Oct 2016) $)
+% $Revision$ ($Date$)
 %
 persistent var_part;
 persistent const_part;

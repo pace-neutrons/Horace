@@ -9,6 +9,10 @@ function   obj = put_main_header(obj,varargin)
 %
 % If update options is selected, header have to exist. This option keeps
 % exisitng file information untouched;
+%
+% $Revision$ ($Date$)
+%
+
 
 [ok,mess,update,argi] = parse_char_options(varargin,{'-update'});
 if ~ok

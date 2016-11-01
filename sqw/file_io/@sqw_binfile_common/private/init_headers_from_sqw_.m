@@ -1,7 +1,11 @@
 function obj=init_headers_from_sqw_(obj,sqw_obj)
-% Initialize the strucute of sqw file from sqw object, stored in memory
-% for subsequent write operations
+% Initialize the strucute of sqw header block for subsequent write operations
+% using sqw object, stored in memory
 %
+%
+% $Revision$ ($Date$)
+%
+
 main_h_form = obj.get_main_header_form();
 main_h = sqw_obj.main_header;
 
@@ -32,5 +36,4 @@ detpar_form = obj.get_detpar_form();
 [detpar_pos,pos]=obj.sqw_serializer_.calculate_positions(detpar_form,detpar,pos);
 obj.detpar_pos_info_ = detpar_pos;
 obj.data_pos_ = pos;
-
 

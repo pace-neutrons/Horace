@@ -22,11 +22,12 @@ obj.check_obj_initated_properly();
 %
 header_num =[];  % by default, return all headers
 if ~isempty(argi)
-    numeric_pos = cellfun(@isnumeric,argi);
+    numeric_pos = cellfun(@isnumeric,argi); % if numeric argument provided, 
+    % return that header
     if any(numeric_pos)
         if sum(numeric_pos)>1
             error('SQW_BINFILE_COMMON:invalid_argument',...
-                'put_headers: you can only request all or one header number to put, but got %d numerical agruments',...
+                'put_headers: you can only request all or one header number to save, but got %d numerical agruments',...
                 sum(numeric_pos));
         end
         argi = argi(~numeric_pos);
