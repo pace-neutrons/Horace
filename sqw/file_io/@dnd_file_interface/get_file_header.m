@@ -4,7 +4,7 @@ function [header,fid] = get_file_header(file,varargin)
 % stored within the file
 %
 %
-% $Revision: 1302 $ ($Date: 2016-10-26 18:31:29 +0100 (Wed, 26 Oct 2016) $)
+% $Revision$ ($Date$)
 %
 %
 [header,fid,message] = get_header_(file,varargin{:});

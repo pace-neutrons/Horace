@@ -19,7 +19,7 @@ function header = get_main_header_form_(varargin)
 % The value of the fields define the number of dimensions of
 % the data except strings, which defined by the string length
 %
-% $Revision: 1307 $ ($Date: 2016-10-31 14:59:29 +0000 (Mon, 31 Oct 2016) $)
+% $Revision$ ($Date$)
 %
 
 

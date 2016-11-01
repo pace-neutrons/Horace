@@ -8,7 +8,7 @@ function  [obj,file_exist] = set_filename_to_write(obj,varargin)
 % >> obj = obj.set_filename_to_write(new_filename);
 %   Open new sqw file to perform write/append operations
 %
-% $Revision: 1307 $ ($Date: 2016-10-31 14:59:29 +0000 (Mon, 31 Oct 2016) $)
+% $Revision$ ($Date$)
 %
 
 file_exist = false;

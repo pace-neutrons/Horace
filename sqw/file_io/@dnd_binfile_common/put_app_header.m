@@ -1,6 +1,8 @@
 function obj = put_app_header(obj)
 % store binary data boock, which describes object as sqw or dind object
-
+%
+% $Revision$ ($Date$)
+%
 check_obj_initiated_properly_(obj);
 %
 % store sqw file header

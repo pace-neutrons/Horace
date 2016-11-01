@@ -5,7 +5,7 @@ function   app_header = build_app_header(obj,obj_to_save)
 % files and various Horace subformats from each other
 %
 %
-% $Revision: 1305 $ ($Date: 2016-10-28 23:46:14 +0100 (Fri, 28 Oct 2016) $)
+% $Revision$ ($Date$)
 %
 
 if ~exist('obj_to_save','var')

@@ -1,13 +1,17 @@
 function obj=init_from_sqw_(obj,varargin)
-% Initialize the strucute of sqw file from sqw object, stored in memory
-% for subsequent write operations
+% Initialize the dnd strucute of sqw or dnd file for subsequent write operations
+% using  data part of sqw object, stored in memory.
 %
+%
+% $Revision$ ($Date$)
+%
+
 %
 if nargin == 3
     obj = obj.set_filename_to_write(varargin{2});
 else
     if ~isempty(obj.filename)
-        obj = obj.set_filename_to_write();    
+        obj = obj.set_filename_to_write();
     end
 end
 
@@ -20,7 +24,7 @@ dnd_2save = varargin{1};
 % already works without this crap
 %warning('on','MATLAB:structOnObject')
 
-% 
+%
 if strcmp(obj.data_type_,'undefined')
     obj.data_type_ = 'b+';
 end

@@ -2,7 +2,7 @@ function  val = do_convert_to_double(val)
 % convert all numerical types of the structure into double
 %
 %
-% $Revision: 1302 $ ($Date: 2016-10-26 18:31:29 +0100 (Wed, 26 Oct 2016) $)
+% $Revision$ ($Date$)
 %
 
 

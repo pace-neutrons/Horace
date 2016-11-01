@@ -71,6 +71,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
                     'trying to load legacy Horace prototype data format');
             end
         end
+        %
         function data_form = get_dnd_form(obj,varargin)
             % Return the structure of the data file header in the form
             % it is written on hdd.
