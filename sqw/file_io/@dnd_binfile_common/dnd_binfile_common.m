@@ -36,8 +36,15 @@ classdef dnd_binfile_common < dnd_file_interface
         % write operations
         sqw_holder_ = [];
         % a pointer to eof position, used to identify the state of IO
-        % operations.
-        real_eof_pos_ = 0; % does it give any advantage?
+        % operations showing position where the data have actually been
+        % written
+        real_eof_pos_ = 0; % does it give any advantage? TODO: not currentoy used or consistent
+    end
+    properties(Constant,Access=private)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_ = {'data_pos_','s_pos_','e_pos_','npix_pos_',...
+            'dnd_eof_pos_','data_fields_locations_'};
     end
     %
     properties(Dependent)
@@ -78,10 +85,10 @@ classdef dnd_binfile_common < dnd_file_interface
             % if put methods are invoked separately
             check_obj_initiated_properly_(obj);
         end
+        %
         function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
             % auxiliary function helping to extract correct subobject from
             % input or internal object
-            
             if isa(varargin{1},'sqw')
                 sub_obj = varargin{1}.(obj_name);
             else % dnd object and this has been verified in calling function
@@ -90,7 +97,12 @@ classdef dnd_binfile_common < dnd_file_interface
             external = false;
             
         end
-        
+        %
+        function flds = fields_to_save(obj)
+            % returns the fields to save in the structure in dnd binfile v3 format
+            flds = obj.fields_to_save_;
+        end
+        %
     end
     
     methods % defined by this class
@@ -281,7 +293,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % function extracts first and last field in the structure pos_fields
         % correspongint to the structure form_fields
         [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
-    end    
+    end
     
 end
 
