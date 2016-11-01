@@ -3,7 +3,7 @@ function obj = put_app_header(obj)
 %
 % $Revision$ ($Date$)
 %
-check_obj_initiated_properly_(obj);
+obj.check_obj_initated_properly();
 %
 % store sqw file header
 head = obj.build_app_header();

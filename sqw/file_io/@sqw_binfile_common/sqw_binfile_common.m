@@ -26,6 +26,15 @@ classdef sqw_binfile_common < sqw_file_interface
         eof_pix_pos_=0;
         %
     end
+    properties(Constant,Access=private)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        data_fields_to_save_ = {'main_header_pos_','main_head_pos_info_','header_pos_',...
+            'header_pos_info_','detpar_pos_','detpar_pos_info_'};
+        pixel_fields_to_save_ = {'urange_pos_',...
+            'pix_pos_','eof_pix_pos_'};
+    end
+    
     %
     methods(Access = protected)
         function obj=init_from_sqw_obj(obj,varargin)
@@ -48,7 +57,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % missing (how they when initalized from sqw?)
             obj.data_type_ = 'a';
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
-            obj.sqw_holder_ = varargin{1};                      
+            obj.sqw_holder_ = varargin{1};
             
             obj = init_pix_info_(obj);
         end
@@ -60,10 +69,17 @@ classdef sqw_binfile_common < sqw_file_interface
             % complex then common logic is used
             obj= init_sqw_structure_field_by_field_(obj);
         end
+        %
         function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
             % auxiliary function helping to extract correct subobject from
             % input or internal object
             [sub_obj,external]  = extract_correct_subobj_(obj,obj_name,varargin{:});
+        end
+        function flds = fields_to_save(obj)
+            % returns the fields to save in the structure in sqw binfile v3 format
+            dnd_flds = fields_to_save@dnd_binfile_common(obj);
+            flds = [obj.data_fields_to_save_(:);dnd_flds(:);...
+                obj.pixel_fields_to_save_(:)];
         end
         
     end
@@ -103,15 +119,15 @@ classdef sqw_binfile_common < sqw_file_interface
         function data_form = get_data_form(obj,varargin)
             % Return the structure of the data file header in the form
             % it is written on hdd.
-            % 
-            % The structure depends on data type stored in the file 
+            %
+            % The structure depends on data type stored in the file
             % (see dnd_file_interface data_type method)
             %
             % Usage:
-            % 
+            %
             %
             % Fields in the full structure are:
-            %            
+            %
             % ------------------------------
             %   data.filename   Name of sqw file that is being read, excluding path
             %   data.filepath   Path to sqw file that is being read, including terminating file separator
@@ -158,7 +174,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %                   ien         Energy bin number for the pixel in the array in the (irun)th header
             %                   signal      Signal array
             %                   err         Error array (variance i.e. error bar squared)
-            %            
+            %
             data_form = get_data_form_(obj,varargin{:});
         end
         
@@ -254,7 +270,4 @@ classdef sqw_binfile_common < sqw_file_interface
         end
         
     end
-    
-    
 end
-

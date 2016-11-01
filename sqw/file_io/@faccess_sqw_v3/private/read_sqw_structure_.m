@@ -6,8 +6,9 @@ function  obj= read_sqw_structure_(obj)
 %
 %
 [descriptor_location,descriptor_size,data_type,eof_pos] = get_sqw_file_footer(obj);
-obj.data_type_ = data_type;
+obj.data_type_ = char(data_type);
 obj.eof_pos_  = eof_pos;
+obj.real_eof_pos_ = eof_pos;
 
 fseek(obj.file_id_,descriptor_location,'bof');  % move to the start of the descriptor
 test_error(obj.file_id_,'Unable to move to the start of the sqw_v3 file descriptor');
@@ -62,6 +63,11 @@ if res ~= 0
     error('FACCESS_SQW_V3:io_error',...
         'IO error reading number of contributiong files field: Reason %s',mess)
 end
+if nfiles<1 || nfiles>100000000000
+    error('FACCESS_SQW_V3:io_error',...
+    'read_sqw_structure: numbef of contributing files equal to %d and it is wrong',...
+    nfiles);
+end
 
 
 function [position_info_location,pos_info_size,data_type,eof_pos] = get_sqw_file_footer (obj)
@@ -93,19 +99,20 @@ function [position_info_location,pos_info_size,data_type,eof_pos] = get_sqw_file
 fseek(obj.file_id_,-4,'eof');  % move to the end of the file minus 4 bytes
 test_error(obj.file_id_,'Unable to move to the position of the sqw_v3 file descriptor size. ErrorMessave: %s')
 %
-eof_pos = ftell(obj.file_id_)+5;
 
-pos = fread(obj.file_id_,1,'int32');
+foot_sz = fread(obj.file_id_,1,'int32');
 test_error(obj.file_id_,'Unable to read the location of the sqw_v3 file descriptor. ErrorMessave: %s')
+eof_pos  = ftell(obj.file_id_);
 
-fseek(obj.file_id_,-pos-12,'eof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
+fseek(obj.file_id_,-foot_sz-12,'eof');   % move to start of the block of data (8-byte position + n-byte string + 4-byte string length)
 test_error(obj.file_id_,'Unable to move to the location of the sqw_v3 file descriptor. ErrorMessave: %s')
+%
 pos_info_end = ftell(obj.file_id_);
 
 position_info_location = fread(obj.file_id_,1,'float64');
 test_error(obj.file_id_,'Unable to read the size of the sqw_v3 file descriptor. ErrorMessave: %s')
 
-data_type = fread(obj.file_id_,1,'*char*1');
+data_type = fread(obj.file_id_,1,'*uint8');
 test_error(obj.file_id_,'Unable to read sqw')
 
 pos_info_size = pos_info_end-position_info_location;
