@@ -38,6 +38,7 @@ inst3=create_test_instrument(195,600,'a');
 inst3.filter=[3,4,5];
 
 tmpsqwfile=fullfile(tempdir,'test_sqw_file_read_write_tmp.sqw');
+clob1 = onCleanup(@()delete(tmpsqwfile));
 
 % Write out to sqw files, read back in, and test they are the same
 % ----------------------------------------------------------------

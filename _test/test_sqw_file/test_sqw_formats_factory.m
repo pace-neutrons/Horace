@@ -33,6 +33,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
                 'test_symmetrisation','w1d_sqw.sqw');
             loader = sqw_formats_factory.instance().get_loader(file_v2);
             
+            assertTrue(isa(loader,'faccess_sqw_v2'));
             assertEqual(loader.file_version,'-v2');
             assertEqual(loader.filename,'w1d_sqw.sqw')
             assertEqual(loader.npixels,8031)
@@ -42,6 +43,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
                 'test_sqw_file','test_sqw_file_read_write_v3.sqw');
             
             loader = sqw_formats_factory.instance().get_loader(file_v3_old);
+            assertTrue(isa(loader,'faccess_sqw_v2'));
             assertEqual(loader.file_version,'-v2');
             assertEqual(loader.filename,'test_sqw_file_read_write_v3.sqw')
             assertEqual(loader.npixels,7680)
@@ -50,6 +52,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
                 'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
             
             loader = sqw_formats_factory.instance().get_loader(file_v3);
+            assertTrue(isa(loader,'faccess_sqw_v3'));
             assertEqual(loader.file_version,'-v3.1');
             assertEqual(loader.filename,'test_sqw_file_read_write_v3_1.sqw')
             assertEqual(loader.npixels,7680)
@@ -63,6 +66,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             file_v0 = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_read_write_v0_t.sqw');
             loader = sqw_formats_factory.instance().get_loader(file_v0);
+            assertTrue(isa(loader,'faccess_sqw_prototype'));
             assertEqual(loader.file_version,'-v0');
             assertEqual(loader.filename,'test_sqw_read_write_v0_t.sqw')
             assertEqual(loader.npixels,16)
@@ -70,6 +74,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             file_dndv2 = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w2d_qe_d2d.sqw');
             loader = sqw_formats_factory.instance().get_loader(file_dndv2);
+            assertTrue(isa(loader,'faccess_dnd_v2'));
             assertEqual(loader.file_version,'-v2');
             assertFalse(loader.sqw_type);
             assertEqual(loader.filename,'w2d_qe_d2d.sqw')
@@ -77,6 +82,15 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertEqual(loader.num_dim,2)
             assertEqual(loader.dnd_dimensions,[81,72])
             
+        end
+        function obj= test_pref_access(obj)
+            dob = sqw();
+            ld1 = sqw_formats_factory.instance().get_pref_access(dob);
+            assertTrue(isa(ld1,'faccess_sqw_v3'));
+            
+            dob = d1d();
+            ld2 = sqw_formats_factory.instance().get_pref_access(dob);
+            assertTrue(isa(ld2,'faccess_dnd_v2'));
             
         end
     end

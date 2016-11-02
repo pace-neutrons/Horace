@@ -1,4 +1,4 @@
-function varargout = read (varargin)
+function rez = read (sqw_obj,varargin)
 % Read sqw object from a file or array of sqw objects from a set of files
 % 
 %   >> w=read(sqw,file)
@@ -25,41 +25,53 @@ function varargout = read (varargin)
 %
 % $Revision$ ($Date$)
 
-% Parse input
-% -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:},'$obj_and_file_ok');
-if ~isempty(mess), error(mess); end
+
 
 % Perform operations
 % ------------------
-nw=numel(w.data);
-
 % Check number of arguments
-if ~isempty(args)
-    error('Check number of input arguments')
+if isempty(varargin)
+    error('SQW:invalid_argument','read: Check number of input arguments')
 end
 
-% Now read data
-if w.source_is_file
-    if all(w.sqw_type(:))
-        wout = repmat(sqw,size(w.data));
-        for i=1:nw
-            wout(i)=sqw(w.data{i});
-        end
-    elseif all(~w.sqw_type) && all(w.ndims==w.ndims(1))
-        wout = repmat(sqw('$dnd',w.ndims(1)),size(w.data));
-        for i=1:nw
-            wout(i)=sqw('$dnd',w.data{i});
-        end
-    else
-        error('Data files must all be sqw type, or all dnd type with same dimensionality')
-    end
-    argout{1}=wout;
+if iscell(varargin)
+    argi = varargin;
 else
-    argout{1}=w.data;  % trivial case that data source is already valid object
+    argi = {varargin};
+end
+%
+all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
+if ~any(all_fnames)
+    error('SQW:invalid_argument','read: not all input arguments represent filenames')    
 end
 
-% Package output arguments
-% ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end
+nw=numel(argi);
+loaders = cell(1,nw);
+for i=1:nw
+    file = argi{i};
+    loaders{i} = sqw_formats_factory.instance.get_loader(file);
+end
+
+trez = cell(1,nw);
+% Now read data
+for i=1:nw
+    trez{i} = loaders{i}.get_sqw();
+end
+
+if nw == 1
+    rez = trez{1};
+    return
+end
+
+type_list = cellfun(@class,trez,'UniformOutput',false);
+boss_type = type_list{1};
+same_types = cellfun(@(x)strcmp(boss_type,x),type_list,'UniformOutput',true);
+if all(same_types) % return array of the same type classes
+    boss_class = feval(bt);
+    rez = repmat(boss_class,1,nw);
+    for i=1:nw
+        rez(i) = trez{i};
+    end
+else % return cellarray of heterogeneous types
+    rez = trez;
+end
