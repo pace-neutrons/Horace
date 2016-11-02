@@ -178,8 +178,10 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             data_form = get_data_form_(obj,varargin{:});
         end
+        %
         function obj = delete(obj)
            obj=delete@dnd_binfile_common(obj);
+           % its still sqw loader
            obj.sqw_type_ = true;
         end
     end

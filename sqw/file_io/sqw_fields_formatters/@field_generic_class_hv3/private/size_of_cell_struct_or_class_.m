@@ -14,8 +14,10 @@ else % structure or custom class
         fsz = cellfun(@(nm)(8+numel(nm)),names,...
             'UniformOutput',true);
         sz = sz+sum(fsz);
-        for i=1:nn
-            sz = sz+obj.size_of_field(val.(names{i}));
+        for j=1:nel
+            for i=1:nn
+                sz = sz+obj.size_of_field(val(j).(names{i}));
+            end
         end
     else    % no field names
     end

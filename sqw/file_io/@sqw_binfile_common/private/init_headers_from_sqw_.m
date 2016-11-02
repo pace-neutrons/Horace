@@ -19,15 +19,29 @@ obj.header_pos_ = zeros(1,n_files);
 obj.header_pos_(1) = pos;
 
 headers = sqw_obj.header;
+if iscell(headers)
+    process_cell = true;
+else
+    process_cell = false;
+end
+
 header_form = obj.get_header_form();
-[header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers(1),pos);
+if process_cell
+    [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers{1},pos);
+else
+    [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers(1),pos);
+end
 obj.header_pos_info_ = repmat(header_pos,1,n_files);
 
 for i=2:n_files
     obj.header_pos_(i) = pos;
     % [header_pos,pos] =
-    [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers(i),pos);
-    obj.header_pos_info(i) = header_pos;
+    if process_cell
+        [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers{i},pos);
+    else
+        [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers(i),pos);
+    end
+    obj.header_pos_info_(i) = header_pos;
 end
 obj.detpar_pos_ = pos;
 

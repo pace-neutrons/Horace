@@ -50,6 +50,7 @@ function [bytes,data_sz] = serialize_block(obj,data,type)
 %type = class(data); % not yet a class or not always a class!
 if isempty(data)
     bytes = [];
+    data_sz = 0;
 else
     form = obj.get_si_head_form(type);
     data_block = build_block_descriptor_(obj,data,type);

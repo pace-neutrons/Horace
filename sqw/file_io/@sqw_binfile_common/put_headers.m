@@ -61,7 +61,11 @@ else
 end
 
 for i=1:n_files2_process
-    bytes = obj.sqw_serializer_.serialize(data_2save(i),head_form);
+    if iscell(data_2save)
+        bytes = obj.sqw_serializer_.serialize(data_2save{i},head_form);        
+    else
+        bytes = obj.sqw_serializer_.serialize(data_2save(i),head_form);
+    end
     if update
         error('SQW_BINFILE_COMMON:invalid_argument','not yet implemented');
     end

@@ -39,12 +39,14 @@ end
 
 horace_info_level = ...
     config_store.instance().get_value('hor_config','log_level');
+
+ldw = sqw_formats_factory.instance().get_pref_access();
 for i=1:numel(w)
     % Write data to file   x
     if horace_info_level>-1
         disp(['Writing to ',file_internal{i},'...'])
     end
-    mess = put_sqw (file_internal{i},w(i).main_header,w(i).header,w(i).detpar,w(i).data);
-    if ~isempty(mess); error(mess); end
-
+    ldw = ldw.init(w(i),file_internal{i});
+    ldw = ldw.put_sqw();
+    ldw = ldw.delete();
 end
