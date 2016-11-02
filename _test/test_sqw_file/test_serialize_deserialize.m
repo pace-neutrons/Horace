@@ -366,8 +366,8 @@ classdef test_serialize_deserialize< TestCase
             
         end
         %
-        function obj = test_serialize_instr(obj)
-            test_data = struct('double_v',9,...
+        function obj = test_serialize_cells(obj)
+            test_block = struct('double_v',9,...
                 'int_a1',int32([1,2,3]),...
                 'int_a1p',uint32([1,2,3])',...
                 'double_a2',[1,2,3;4,5,6],...
@@ -375,15 +375,17 @@ classdef test_serialize_deserialize< TestCase
                 'double_a1',[1,2,3],...
                 'carray_single',ones(1,10)*10,...
                 'some_string','bla_bla','empty_str','');
+            test_data.lead1 = [1,2,3];
+            test_data.lead2 = {test_block,test_block,test_block};
+            test_data.lead3 = repmat(test_block,1,3);
             
-            test_format = field_instr_or_sample_v3('instrument');
-            td.instrument = test_data;
+            test_format = field_generic_class_hv3();
             
             ser = sqw_serializer();
-            [struc_pos,pos] = ser.calculate_positions(test_format,td);
-            assertEqual(pos-1,1016);
+            [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
+            assertEqual(pos-1,4497);
             
-            bytes = ser.serialize(td,test_format);
+            bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
             
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
@@ -392,12 +394,7 @@ classdef test_serialize_deserialize< TestCase
             
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            
-            assertTrue(isfield(recov,'block_descr'));
-            recov = rmfield(recov,'block_descr');
-            
-            assertEqual(recov,td)
-            recov = recov.instrument;
+                       
             %
             fn = fieldnames(recov);
             for i=1:numel(fn)
@@ -406,12 +403,11 @@ classdef test_serialize_deserialize< TestCase
                 assertEqual(recov.(fn{i}),test_data.(fn{i}),...
                     ['unequal values for field: ',fn{i}])
             end
-            
-            
+            assertEqual(recov,test_data)                        
         end
         %
-        function obj = test_serialize_2instr(obj)
-            test_data1 = struct('double_v',9,...
+        function obj = test_serialize_cells2(obj)
+            test_block = struct('double_v',9,...
                 'int_a1',int32([1,2,3]),...
                 'int_a1p',uint32([1,2,3])',...
                 'double_a2',[1,2,3;4,5,6],...
@@ -419,17 +415,16 @@ classdef test_serialize_deserialize< TestCase
                 'double_a1',[1,2,3],...
                 'carray_single',ones(1,10)*10,...
                 'some_string','bla_bla','empty_str','');
-            test_data2 = test_data1;
-            test_data2.int_a1=int32([4,5,6]);
             
-            test_format = field_instr_or_sample_v3('instrument');
-            td = struct('instrument',{test_data1,test_data2});
+            test_data = {test_block,test_block,test_block};
+            
+            test_format = field_generic_class_hv3();
             
             ser = sqw_serializer();
-            [struc_pos,pos] = ser.calculate_positions(test_format,td);
-            assertEqual(pos-1,1870);
+            [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
+            assertEqual(pos-1,2406);
             
-            bytes = ser.serialize(td,test_format);
+            bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
             
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
@@ -438,28 +433,13 @@ classdef test_serialize_deserialize< TestCase
             
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
+                       
+              assertEqual(recov,test_data)
             
-            assertTrue(isfield(recov,'block_descr'));
-            recov = rmfield(recov,'block_descr');
-            
-            assertEqual(recov,td)
-            inst1 = recov(1).instrument;
-            inst2 = recov(2).instrument;
-            %
-            fn = fieldnames(inst1);
-            for i=1:numel(fn)
-                assertEqual(class(inst1.(fn{i})),class(test_data1.(fn{i})),...
-                    ['incorrect field types: ',fn{i}]);
-                assertEqual(inst1.(fn{i}),test_data1.(fn{i}),...
-                    ['unequal values for field: ',fn{i}])
-                assertEqual(class(inst2.(fn{i})),class(test_data2.(fn{i})),...
-                    ['incorrect field types: ',fn{i}]);
-                assertEqual(inst2.(fn{i}),test_data2.(fn{i}),...
-                    ['unequal values for field: ',fn{i}])
-                
-            end
             
         end
+        
+        %
         
     end
 end

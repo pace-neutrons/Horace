@@ -49,8 +49,10 @@ if isstruct(header)
     if ~isequal(fieldnames(header),fields)
         mess='Header is not a structure with required fields'; return
     elseif ~field_names_only
-        [ok,mess,header]=check_sqw_header_fields(header);
-        if ~ok, return, end
+        for i=1:numel(header)
+            [ok,mess,header(i)]=check_sqw_header_fields(header(i));
+            if ~ok, return, end
+        end
     end
     
 elseif iscell(header) && numel(header)>1    % must have more than one entry

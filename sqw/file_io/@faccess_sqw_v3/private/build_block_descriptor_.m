@@ -9,20 +9,20 @@ if nfiles == 1
     nf_2process = 1;
 else
     nf_2process = nfiles;
-    if isstruct(input)
-        trahsf_obj=input(1).(obj.field_name);
+    if iscell(input)
+        trahsf_obj=input{1};
         all_same=true;
         for i=2:nfiles
-            if ~isequal(trahsf_obj,input(i).(obj.field_name))
+            if ~isequal(trahsf_obj,input{i})
                 all_same=false;
                 break
             end
-        end
-    else % cellarray
-        trahsf_obj=input{1}.(obj.field_name);
+        end        
+    else % array of objects
+        trahsf_obj=input(1);
         all_same=true;
         for i=2:nfiles
-            if ~isequal(trahsf_obj,input{i}.(obj.field_name))
+            if ~isequal(trahsf_obj,input(i))
                 all_same=false;
                 break
             end

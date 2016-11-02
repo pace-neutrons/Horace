@@ -1,10 +1,10 @@
 function bytes = serialize_(obj,struc,format)
 % serialize structue into the form, usually used by Horace
 %
- if isa(format,'sqw_field_format_interface')
-     bytes = format.bytes_from_field(struc);     
-     return;
- end
+if isa(format,'sqw_field_format_interface')
+    bytes = format.bytes_from_field(struc);
+    return;
+end
 
 fn = fieldnames(format);
 bytes = cell(1,numel(fn));
