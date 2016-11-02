@@ -5,11 +5,9 @@ function obj = init_sample_instr_records_(obj)
 
 header = obj.extract_correct_subobj('header');
 
-n_files = numel(header);
-
 % extract instrument and sample from headers block
-instr = extract_subfield_(header,'instrument',n_files);
-sampl = extract_subfield_(header,'sample',n_files);
+instr = extract_subfield_(header,'instrument');
+sampl = extract_subfield_(header,'sample');
 %
 % calculate positions, these objects occupy on hdd
 pos = obj.eof_pix_pos_;
@@ -31,7 +29,11 @@ else
     obj.([type,'_pos_']) = pos;
     data_form = obj.get_si_form();
     if data_block.all_same
-        [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data(1),pos);
+        if iscell(data)
+            [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data{1},pos);            
+        else
+            [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data(1),pos);
+        end
     else
         [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data,pos);
     end

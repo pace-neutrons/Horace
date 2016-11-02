@@ -6,11 +6,10 @@ obj.check_obj_initated_properly();
 
 header = obj.extract_correct_subobj('header');
 
-n_files = numel(header);
 
 % extract instrument and sample from headers block
-instr = extract_subfield_(header,'instrument',n_files);
-sampl = extract_subfield_(header,'sample',n_files);
+instr = extract_subfield_(header,'instrument');
+sampl = extract_subfield_(header,'sample');
 %
 % serialize instrument(s)
 [bytes,instr_size] = serialize_block(obj,instr,'instrument');
@@ -64,7 +63,11 @@ else
     
     data_form = obj.get_si_form();
     if data_block.all_same
-        bytes2 = obj.sqw_serializer_.serialize(data(1),data_form);
+        if iscell(data)
+           bytes2 = obj.sqw_serializer_.serialize(data{1},data_form);            
+        else
+           bytes2 = obj.sqw_serializer_.serialize(data(1),data_form);
+        end
     else
         bytes2 = obj.sqw_serializer_.calculate_positions(data,data_form);
     end

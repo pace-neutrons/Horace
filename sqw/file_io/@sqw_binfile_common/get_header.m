@@ -59,10 +59,16 @@ header_format = obj.get_header_form();
 if obj.convert_to_double
     header = obj.do_convert_to_double(header);
 end
-%TODO: sucks. Should it be implemented within formatters themselves? 
+%TODO: sucks. Should it be implemented within formatters themselves?
 for i=1:numel(header)
-    if size(header(i).en,1)==1
-        header(i).en = header(i).en';
+    if iscell(header)
+        if size(header{i}.en,1)==1
+            header{i}.en = header{i}.en';
+        end
+    else
+        if size(header(i).en,1)==1
+            header(i).en = header(i).en';
+        end
     end
 end
 

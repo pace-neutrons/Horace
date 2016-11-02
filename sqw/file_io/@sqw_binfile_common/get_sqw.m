@@ -88,12 +88,15 @@ end
 % Get headers for each contributing spe file
 % ------------------------------------------
 n_files = obj.num_contrib_files;
-headers = obj.get_header(1);
+header = obj.get_header(1);
 if n_files > 1
-    headers = repmat(headers,1,n_files);
+    headers = cell(n_files,1);
+    headers{1} = header;
     for i=2:n_files
-        headers(i) = obj.get_header(i);
+        headers{i} = obj.get_header(i);
     end
+else
+    headers = header;
 end
 %
 % Get detector parameters
@@ -139,19 +142,24 @@ end
 
 instr = obj.get_instrument('-all');
 sampl = obj.get_sample('-all');
-for i=1:n_files
-    if numel(instr) > 1
-        headers(i).instrument = instr(i);
-    else
-        headers(i).instrument = instr ;
-    end
-    if numel(sampl) > 1
-        headers(i).sample = sampl(i);
-    else
-        headers(i).sample = sampl;
+
+if isstruct(headers)
+    headers.instrument = instr;
+    headers.sample = sampl;
+else
+    for i=1:n_files
+        if numel(instr) > 1
+            headers{i}.instrument = instr(i);
+        else
+            headers{i}.instrument = instr ;
+        end
+        if numel(sampl) > 1
+            headers{i}.sample = sampl(i);
+        else
+            headers{i}.sample = sampl;
+        end
     end
 end
-
 
 sqw_struc.header = headers;
 if opt_h || opt_his
