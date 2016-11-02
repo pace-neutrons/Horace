@@ -43,7 +43,8 @@ classdef dnd_binfile_common < dnd_file_interface
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        fields_to_save_ = {'data_pos_','s_pos_','e_pos_','npix_pos_',...
+        fields_to_save_ = {'num_dim_','dnd_dimensions_','data_type_',...
+            'data_pos_','s_pos_','e_pos_','npix_pos_',...
             'dnd_eof_pos_','data_fields_locations_'};
     end
     %
@@ -89,12 +90,19 @@ classdef dnd_binfile_common < dnd_file_interface
         function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
             % auxiliary function helping to extract correct subobject from
             % input or internal object
-            if isa(varargin{1},'sqw')
-                sub_obj = varargin{1}.(obj_name);
-            else % dnd object and this has been verified in calling function
-                sub_obj = varargin{1};
+            if isempty(varargin)
+                inobj = obj.sqw_holder_;
+                external = false;
+            else
+                inobj = varargin{1};
+                external = true;
             end
-            external = false;
+            if isa(inobj,'sqw')
+                sub_obj = inobj.(obj_name);
+            else % dnd object and this has been verified in calling function
+                sub_obj = inobj;
+            end
+            
             
         end
         %

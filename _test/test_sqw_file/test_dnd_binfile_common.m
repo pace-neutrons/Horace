@@ -127,9 +127,10 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
             tob=tob.set_filename_to_write(test_f);
             assertTrue(exist(test_f,'file')==2);
+            
+            tob=tob.delete();
             assertFalse(tob.sqw_type)
             assertEqual(tob.num_dim,'undefined')
-            tob=tob.delete();
             
         end
     end

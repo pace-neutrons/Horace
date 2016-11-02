@@ -33,6 +33,6 @@ end
 if all_same; nf_2process = 1; end;
 
 
-block_descriptor = obj.get_is_head_form(type);
+block_descriptor = obj.get_si_head_form(type);
 block_descriptor.nfiles = nfiles;
 block_descriptor.all_same= uint8(all_same);

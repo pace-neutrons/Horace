@@ -115,6 +115,7 @@ classdef dnd_file_interface
             obj.num_dim_        = 'undefined';
             obj.dnd_dimensions_ = 'undefined';
             obj.data_type_      = 'undefined';
+            obj.sqw_type_       = false;
         end
         
     end

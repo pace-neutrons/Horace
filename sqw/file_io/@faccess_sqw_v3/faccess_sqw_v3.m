@@ -17,15 +17,15 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         sample_pos_          = 0;
         instr_sample_end_pos_= 0;
         %
-        position_info_pos_=0;
-        
+        position_info_pos_   = 0;
+        %
         eof_pos_ = 0;
     end
     methods(Access=protected)
         function obj=init_from_sqw_file(obj)
             % intialize the structure of faccess class using opened
             % sqw file as input
-            obj= read_sqw_structure_(obj);
+            obj= get_sqw_footer_(obj);
         end
         %
         function obj=init_from_sqw_obj(obj,varargin)
@@ -36,7 +36,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             obj = init_sample_instr_records_(obj);
             %
             obj.position_info_pos_= obj.instr_sample_end_pos_;
-            obj = init_footer_(obj);
+            obj = init_sqw_footer_(obj);
         end
         %
         function flds = fields_to_save(obj)
@@ -53,6 +53,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             'sample_head_pos_','sample_pos_','instr_sample_end_pos_'};
         v3_data_form_ = field_generic_class_hv3();
     end
+    %
     methods
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
@@ -111,8 +112,9 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             [samp,obj] = get_instr_or_sample_(obj,'sample',varargin{:});
         end
     end
+    %
     methods(Static)
-        function form = get_is_head_form(obj_name)
+        function form = get_si_head_form(obj_name)
             % describes format of instrument or sample
             % block descriptor, which is written in the beginning of
             % instrument or sample block and describes the contents and
@@ -120,7 +122,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             form = struct('obj_name',obj_name,...
                 'version',int32(1),'nfiles',int32(1),'all_same',uint8(1));
         end
-        function form = get_is_form(obj_name)
+        function form = get_si_form(obj_name)
             % returns the format used to save/restopre instrument or sample
             % information
             form = faccess_sqw_v3.v3_data_form_;

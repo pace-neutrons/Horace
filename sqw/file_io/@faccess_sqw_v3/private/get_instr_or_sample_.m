@@ -18,7 +18,7 @@ if ~ok
         'get_%s, error: %s',field_name,mess )
 end
 samp_block = get_all_instr_or_samples_(obj,field_name);
-obj.([field_name,'_holder_']) = samp_block;
+%obj.([field_name,'_holder_']) = samp_block;
 if get_all
     res  = samp_block;
     return
@@ -59,10 +59,10 @@ end
 
 if strcmp(field_name,'instrument')
     pos = obj.instrument_pos_;
-    sz = obj.sample_pos_-obj.instrument_pos_;
+    sz = obj.sample_head_pos_-obj.instrument_pos_;
 elseif strcmp(field_name,'sample')
     pos = obj.sample_pos_;
-    sz = obj.position_info_pos_ - obj.sample_pos_;
+    sz  = obj.instr_sample_end_pos_ - obj.sample_pos_;
 else
     error('FACCESS_SQW_V3:invalid_argument',...
         'unknown field %s when trying to retrieve instrument or sample from the file',...
@@ -80,7 +80,6 @@ bytes = fread(obj.file_id_,sz,'*uint8');
 if res ~=0; error('FACCESS_SQW_V3:io_error',...
         'Error readiong the data for field %s. Reason: %s',field_name,mess); end
 
-form = field_instr_or_sample_v3(field_name);
-block_val = form.field_from_bytes(bytes,1);
+form = obj.get_si_form(field_name);
+res  = form.field_from_bytes(bytes,1);
 
-res = block_val.(field_name);

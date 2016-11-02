@@ -6,7 +6,7 @@ obj = put_sqw@sqw_binfile_common(obj,varargin{:});
 
 obj = put_sample_instr_records_(obj);
 
-obj = put_footer_(obj);
+obj = put_sqw_footer_(obj);
 
 
 
