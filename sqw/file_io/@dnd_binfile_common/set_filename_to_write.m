@@ -57,8 +57,6 @@ if file_exist
     perm = 'rb+';
 else
     perm = 'wb+';
-    obj.sqw_type_= false;
-    obj.num_dim_ = 'undefined';
 end
 %-------------------------------------------------------------------------
 [fp,fn,fext] = fileparts(new_filename);

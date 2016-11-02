@@ -51,7 +51,7 @@ function [bytes,data_sz] = serialize_block(obj,data,type)
 if isempty(data)
     bytes = [];
 else
-    form = obj.get_is_head_form(type);
+    form = obj.get_si_head_form(type);
     data_block = build_block_descriptor_(obj,data,type);
     bytes = obj.sqw_serializer_.serialize(data_block,form);
     sz = obj.([type,'_pos_'])-obj.([type,'_head_pos_']);
@@ -61,7 +61,7 @@ else
             type,numel(bytes),sz);
     end
     
-    data_form = obj.get_is_form();
+    data_form = obj.get_si_form();
     if data_block.all_same
         bytes2 = obj.sqw_serializer_.serialize(data(1),data_form);
     else

@@ -23,6 +23,12 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
         end
         %-----------------------------------------------------------------
         function obj = test_selection(obj)
+            warning('off','FACCESS_SQW_PROTOTYPE:should_load_stream');
+            warning('off','FACCESS_SQW_V2:should_load_stream');
+            clob1 = onCleanup(@()(warning('on','FACCESS_SQW_PROTOTYPE:should_load_stream')));
+            clob2 = onCleanup(@()(warning('on','FACCESS_SQW_V2:should_load_stream')));
+            
+            
             file_v2 = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');
             loader = sqw_formats_factory.instance().get_loader(file_v2);
@@ -32,18 +38,27 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertEqual(loader.npixels,8031)
             
             
-            file_v3 = fullfile(fileparts(obj.test_folder),...
+            file_v3_old = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_file_read_write_v3.sqw');
             
-            loader = sqw_formats_factory.instance().get_loader(file_v3);
-            assertEqual(loader.file_version,'-v3');
+            loader = sqw_formats_factory.instance().get_loader(file_v3_old);
+            assertEqual(loader.file_version,'-v2');
             assertEqual(loader.filename,'test_sqw_file_read_write_v3.sqw')
             assertEqual(loader.npixels,7680)
             
+            file_v3 = fullfile(fileparts(obj.test_folder),...
+                'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
+            
+            loader = sqw_formats_factory.instance().get_loader(file_v3);
+            assertEqual(loader.file_version,'-v3.1');
+            assertEqual(loader.filename,'test_sqw_file_read_write_v3_1.sqw')
+            assertEqual(loader.npixels,7680)
+            
+            % not an sqw file
             file_nonHor = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','testdata_base_objects.mat');
             fl = @()(sqw_formats_factory.instance().get_loader(file_nonHor));
-            assertExceptionThrown(fl,'SQW_FILE_INTERFACE:runtime_error')
+            assertExceptionThrown(fl,'DND_FILE_INTERFACE:runtime_error')
             
             file_v0 = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_read_write_v0_t.sqw');
@@ -53,15 +68,15 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertEqual(loader.npixels,16)
             
             file_dndv2 = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w2d_qe_d2d.sqw');                
+                'test_symmetrisation','w2d_qe_d2d.sqw');
             loader = sqw_formats_factory.instance().get_loader(file_dndv2);
             assertEqual(loader.file_version,'-v2');
-            assertFalse(loader.sqw_type);            
+            assertFalse(loader.sqw_type);
             assertEqual(loader.filename,'w2d_qe_d2d.sqw')
             assertEqual(loader.data_type,'b+')
-            assertEqual(loader.num_dim,2)            
-            assertEqual(loader.dnd_dimensions,[81,72])                        
-
+            assertEqual(loader.num_dim,2)
+            assertEqual(loader.dnd_dimensions,[81,72])
+            
             
         end
     end

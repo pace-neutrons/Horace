@@ -29,7 +29,8 @@ classdef sqw_binfile_common < sqw_file_interface
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        data_fields_to_save_ = {'main_header_pos_','main_head_pos_info_','header_pos_',...
+        data_fields_to_save_ = {'num_contrib_files_','npixels_',...
+            'main_header_pos_','main_head_pos_info_','header_pos_',...
             'header_pos_info_','detpar_pos_','detpar_pos_info_'};
         pixel_fields_to_save_ = {'urange_pos_',...
             'pix_pos_','eof_pix_pos_'};
@@ -177,7 +178,10 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             data_form = get_data_form_(obj,varargin{:});
         end
-        
+        function obj = delete(obj)
+           obj=delete@dnd_binfile_common(obj);
+           obj.sqw_type_ = true;
+        end
     end
     methods(Static)
         %

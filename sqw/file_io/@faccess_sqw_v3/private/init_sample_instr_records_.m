@@ -25,11 +25,11 @@ obj.([type,'_head_pos_']) = pos;
 if isempty(data)
     obj.([type,'_pos_']) = pos;
 else
-    form = obj.get_is_head_form(type);
+    form = obj.get_si_head_form(type);
     data_block = build_block_descriptor_(obj,data,type);
     [~,pos] = obj.sqw_serializer_.calculate_positions(form,data_block,pos);
     obj.([type,'_pos_']) = pos;
-    data_form = obj.get_is_form();
+    data_form = obj.get_si_form();
     if data_block.all_same
         [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data(1),pos);
     else
