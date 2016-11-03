@@ -1,13 +1,16 @@
 function obj = set_data(obj,varargin)
-% Set data, clearing all data and functions
+% Set data, clearing all data, functions and constraints
 %
-%   >> obj = obj.set_data ()             % clears all data
-%   >> obj = obj.set_data (x,y,z)
-%   >> obj = obj.set_data (w1,w2,...)
+%   >> obj = obj.set_data ()            % clears all data
+%   >> obj = obj.set_data (w1,w2,...)   % Set objects or arrays of objects
+%
+% If x,y,e data isvalid:
+%   >> obj = obj.set_data (x,y,z)       % Set x,y,e, data 
 %
 % The scope of the foreground and background functions as being global or
 % local is not altered, even though all data and functions are cleared.
-% That is, for example, if the foreground was declared as local, it
+%
+% For example, if the foreground was declared as local, it
 % will remain so, meaning that one function per data set will be expected
 % when the functions are set.
 

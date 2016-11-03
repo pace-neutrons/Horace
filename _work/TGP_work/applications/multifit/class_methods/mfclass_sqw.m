@@ -1,6 +1,18 @@
 classdef mfclass_sqw < mfclass
-    % mfclass_sqw
-    % To be used by sqw methods multifit_sqw and multifit_sqw_sqw
+    % <#doc_def:>
+    %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+    %   mfclass_purpose_summary_file = fullfile(mfclass_doc,'purpose_summary.m')
+    %   mfclass_methods_summary_file = fullfile(mfclass_doc,'methods_summary.m')
+    %
+    %   class_name = 'mfclass_sqw'
+    %
+    % <#doc_beg:>
+    %   <#file:> <mfclass_purpose_summary_file>
+    %
+    % <class_name> Methods:
+    %   <#file:> <mfclass_methods_summary_file>
+    % <#doc_end:>
+    
     properties
         average = false;
     end

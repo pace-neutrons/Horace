@@ -13,7 +13,7 @@ classdef mfclass_wrapfun
         % Return type: false if no status to keep, true if status to keep
         bf_pass_caller = false;
         
-end
+    end
     
     properties (Access=private, Hidden=true)
         % Wrapper function for foreground functions: [] or function handle
@@ -27,13 +27,13 @@ end
         
         % Wrapper parameters for background wrap function: cell array (row)
         bp_wrap_ = [];
-
+        
         % Initialisation function for foreground, called before fitting or simulation
         func_init_ = [];
-
+        
         % Initialisation function for background, called before fitting or simulation
         bfunc_init_ = [];
-
+        
     end
     
     properties (Dependent)
@@ -60,7 +60,7 @@ end
         %       p<0> = {[], c1<0>, c2<0>,...}
         %         or = []
         bp_wrap
-
+        
         % Initialisation function for foreground, called before fitting or simulation
         % Function handle if it is given.
         %
@@ -104,7 +104,7 @@ end
         % See the help for the property 'func_init' for description of the
         % intialisation function i/o, which is identical to this.
         bfunc_init
-    
+        
     end
     
     methods
@@ -319,7 +319,7 @@ end
             %   >> obj = obj.append_p_wrap (c1, c2,...)
             obj.p_wrap = append_cell (obj.p_wrap, varargin{:});
         end
-
+        
         function obj = prepend_p_wrap (obj, varargin)
             % Prepend arguments to the wrapper parameters for foreground wrap functions.
             %
@@ -330,14 +330,14 @@ end
             %       p_wrap = {[], c1, c2,...}
             obj.p_wrap = prepend_cell (obj.p_wrap, varargin{:});
         end
-
+        
         function obj = append_bp_wrap (obj, varargin)
             % Append arguments to the wrapper parameters for background wrap functions.
             %
             %   >> obj = obj.append_bp_wrap (c1, c2,...)
             obj.bp_wrap = append_cell (obj.bp_wrap, varargin{:});
         end
-
+        
         function obj = prepend_bp_wrap (obj, varargin)
             % Prepend arguments to the wrapper parameters for foreground wrap functions.
             %
@@ -348,7 +348,7 @@ end
             %       bp_wrap = {[], c1, c2,...}
             obj.bp_wrap = prepend_cell (obj.bp_wrap, varargin{:});
         end
-
+        
     end
 end
 

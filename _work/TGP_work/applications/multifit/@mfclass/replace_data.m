@@ -1,20 +1,20 @@
 function obj = replace_data(obj,varargin)
 % Replace one or all datasets. The functions and constraints are left unchanged
 %
-%   >> obj = obj.replace_data (i,x,y,z) % Replace ith dataset with x-y-e triple
-%   >> obj = obj.replace_data (i,w)     % Replace with {x,y,e}, or scalar
-%                                       % structure or object
-%
-%   >> obj = obj.replace_data (x,y,e)   % Replace the single dataset with
-%                                       % x-y-e triple (only OK if single dataset)
+%   >> obj = obj.replace_data (i,w)     % Replace ith data set with a scalar
+%                                       % object
 %   >> obj = obj.replace_data (w)       % Replace the single dataset with scalar
-%                                       % structure or object (only OK if single dataset)
-%   >> obj = obj.replace_data (w1,w2,..)% Replace all dataset(s) with equal number
-%                                       % of datasets
+%                                       % object
+%   >> obj = obj.replace_data (w1,w2,..)% Replace all datasets with an equal
+%                                       % number of datasets
+% If x,y,e data is valid:
+%   >> obj = obj.replace_data (i,x,y,z) % Replace ith dataset with x-y-e triple
+%   >> obj = obj.replace_data (x,y,e)   % Replace the single dataset with
+%                                       % x-y-e triple
 %
-% If replacing just a single dataset, then if that dataset is part of a cell,
-% structure or object array of datasets within the full list of datasets,
-% the substitution is only possible if:
+% If replacing just a single dataset, then if that dataset is part of an array
+% of datasets within the full list of datasets, the substitution is only
+% possible if:
 % - an element of an object array is being replaced by a scalar object of the
 %   same class
 % - an element of a structure or an x-y-e triple (i.e. {x,y,e} or x,y,e), is

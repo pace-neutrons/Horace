@@ -22,6 +22,6 @@ if ~ok, error(mess), end
 % ------------------
 fid=fopen(file_full,'wt');
 for j=1:numel(wout)
-    fprintf(fid,'%s \n', wout{j});
+    fprintf(fid,'%s\n', wout{j});
 end
 fclose(fid);

@@ -18,7 +18,7 @@ mess='';
 nmax=10;    % deepest nesting that we will allow
 strin=str;
 for i=1:nmax
-    strout=regexprep(strin,substr,val,'ignorecase');
+    strout=strrep_special(strin,substr,val);
     if strcmp(strout,strin)
         return
     else
@@ -27,3 +27,21 @@ for i=1:nmax
 end
 ok=false;
 mess=['String substitution exceeds maximum depth of ',num2str(nmax),'. Check not infinite.'];
+
+%--------------------------------------------------------------------------------------------------
+function strout=strrep_special(strin,substr,val)
+% Substitute all occurences of character strings
+% Don't use strrep, as it has a funny dimension expansion I don't want, and
+% don't use regexprep as it does not like '\' as this is treated as a control
+% character. I want straight replacement.
+%
+%   str     Character string in which to make substitutions
+%   substr  Cell array of strings of form '<...>' to be substituted
+%   val     Cell array of corresponding substitutions
+
+strout=strin;
+if ~iscell(substr), substr={substr}; end
+if ~iscell(val), val={val}; end
+for i=1:numel(substr)
+    strout=strrep(strout,substr{i},val{i});
+end
