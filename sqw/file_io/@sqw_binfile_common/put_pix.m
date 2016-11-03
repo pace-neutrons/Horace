@@ -1,15 +1,17 @@
 function   obj = put_pix(obj,varargin)
-% Save or replace main sqw header into properly initalized
-% binary sqw file
-%Usage:
-%>>obj.put_pix();
-%>>obj.put_main_header(npix_lo,npix_hi);
-
+% Save or replace pixels information within binary sqw file
 %
+%Usage:
+%>>obj = obj.put_pix();
+%>>obj = obj.put_pix(npix_lo,npix_hi);
+
 % If update options is selected, header have to exist. This option keeps
 % exisitng file information untouched;
-
 %
+% $Revision$ ($Date$)
+%
+
+
 obj.check_obj_initated_properly();
 external_input = false;
 
@@ -40,7 +42,7 @@ end
 
 head_pix = obj.get_data_form('-pix_only');
 if external_input
-    % check its possible to write pixels from new sqw to old
+    %TODO: (not implemented) check its possible to write pixels from new sqw to old
     i=0;
 end
 if ~isempty(input_num)

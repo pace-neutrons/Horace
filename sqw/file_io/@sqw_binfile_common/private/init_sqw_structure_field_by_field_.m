@@ -66,7 +66,7 @@ if io_error
             'IO error while parsing data, can not indetify location of signal and error arrays')
     end
 end
-if obj.num_dim == 'uninitiated' % prototype does not have dimensions in data header,
+if ischar(obj.num_dim_) % prototype does not have dimensions in data header,
     % so need to get num dims from p-array size
     obj.num_dim_ = numel(data_header.p_size.field_value);
 end

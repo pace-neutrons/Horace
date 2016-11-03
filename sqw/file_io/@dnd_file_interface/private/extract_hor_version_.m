@@ -1,10 +1,10 @@
-function [ver_struct,mess] = get_hor_version_(data_stream)
+function [ver_struct,mess] = extract_hor_version_(data_stream)
 % Cast data stream into Horace application version
 %
 % Original author: T.G.Perring
 %
 %
-% $Revision$ ($Date$)
+% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 %
 %
 % read application version
@@ -17,14 +17,15 @@ function [ver_struct,mess] = get_hor_version_(data_stream)
 %       of that length.
 
 ver_struct = struct('version',0,'name','unknown','typestart',0,...
-    'uncertain',true,'sqw_type',false,'num_dim','uninitiated');
+    'uncertain',true,'sqw_type',false,'num_dim','undefined');
 mess = [];
 
 n = typecast(data_stream(1:4),'int32');
-if n>0 && n<1024   % allow up to 1024 characters in filename
-    name = char(data_stream(4+1:4+n))';
+if n>0 && n<1024   % allow up to 1024 characters in filename if bytes are from
+    % Horace version 0;
+    name = char(data_stream(4+1:4+n))'; % for modern Hor versions it will be 'horace'
     % Need to try to catch case of e.g. text file where n is read as a stupidly high number
-    if ~isvarname(name)
+    if ~isvarname(name) % for horase v0 it will be filename
         [ok,uncertain] = check_hor_v0(name,data_stream);
         if ok
             ver_struct.name = 'horace';
@@ -40,7 +41,7 @@ if n>0 && n<1024   % allow up to 1024 characters in filename
         mess = 'Application name is not valid Matlab variable name';
         return;
     end
-    version =typecast(data_stream(4+n+1:4+n+8),'double');
+    version =typecast(data_stream(4+n+1:4+n+8),'double'); % looks like it is some modern horace version
     if ~isscalar(version) || version<0 || version>99999999
         mess = ['Application version: ', num2str(version), ' is not allowed version number'];
         return;
@@ -52,15 +53,15 @@ else
     mess='Not Horace binary format';
     return;
 end
-if n == 6 && strcmp(name,'horace') % it still may be strange file name
+if n == 6 && strcmp(name,'horace') % it still may be strange file name like file named "horace"
     typestart = ver_struct.typestart;
     sqw_type =   typecast(data_stream(typestart+1:typestart+4),'int32');
     num_dim  = typecast(data_stream(typestart+5:typestart+8),'int32');
-    if (sqw_type == 1 || sqw_type == 0) && (num_dim>=0 && num_dim<=4)
+    if (sqw_type == 1 || sqw_type == 0) && (num_dim>=0 && num_dim<=4) % some data from version 0 so its probably v0
         ver_struct.sqw_type=logical(sqw_type);
         ver_struct.num_dim=num_dim;
         ver_struct.uncertain = false;
-    else % still may be horace v0
+    else % still may be horace v0 but need to read more data to be sure
         ver_struct.name = 'horace';
         ver_struct.typestart = 0;
         ver_struct.sqw_type=true;

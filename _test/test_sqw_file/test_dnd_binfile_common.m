@@ -47,7 +47,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
         end
         %
         function obj = test_get_data_form(obj)
-            tob = dnd_binfile_common();
+            tob = dnd_binfile_common_tester();
             
             form = tob.get_dnd_form();
             fn = fieldnames(form);
@@ -108,24 +108,24 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             end
         end
         %
-        function obj = test_set_filename_to_write(obj)
+        function obj = test_set_file_to_write(obj)
             tob = dnd_binfile_common();
             
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');
-            f=@()(tob.set_filename_to_write(samp));
+            f=@()(tob.set_file_to_write(samp));
             assertExceptionThrown(f,'DND_BINFILE_COMMON:invalid_argument');
             
-            tob=tob.set_filename_to_write(samp);
+            tob=tob.set_file_to_write(samp);
             
             assertTrue(tob.sqw_type)
             assertEqual(tob.num_dim,1)
             
             
-            test_f = fullfile(tempdir,'test_set_filename_to_write.sqw');
+            test_f = fullfile(tempdir,'test_set_file_to_write.sqw');
             clob = onCleanup(@()delete(test_f));
             
-            tob=tob.set_filename_to_write(test_f);
+            tob=tob.set_file_to_write(test_f);
             assertTrue(exist(test_f,'file')==2);
             
             tob=tob.delete();

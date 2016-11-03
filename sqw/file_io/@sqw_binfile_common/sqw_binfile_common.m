@@ -35,7 +35,6 @@ classdef sqw_binfile_common < sqw_file_interface
         pixel_fields_to_save_ = {'urange_pos_',...
             'pix_pos_','eof_pix_pos_'};
     end
-    
     %
     methods(Access = protected)
         function obj=init_from_sqw_obj(obj,varargin)
@@ -56,7 +55,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % initialize data fields
             % assume max data type which will be reduced if some fields are
             % missing (how they when initalized from sqw?)
-            obj.data_type_ = 'a';
+            obj.data_type_ = 'a'; % should it always be 'a'?
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
             obj.sqw_holder_ = varargin{1};
             
@@ -76,16 +75,20 @@ classdef sqw_binfile_common < sqw_file_interface
             % input or internal object
             [sub_obj,external]  = extract_correct_subobj_(obj,obj_name,varargin{:});
         end
+        %
         function flds = fields_to_save(obj)
             % returns the fields to save in the structure in sqw binfile v3 format
+            % sorted in the order of increase of the field location on hdd.
+            %
             dnd_flds = fields_to_save@dnd_binfile_common(obj);
             flds = [obj.data_fields_to_save_(:);dnd_flds(:);...
                 obj.pixel_fields_to_save_(:)];
         end
         
-    end
-    
+    end % end protected
+    %
     methods % defined by this class
+        % ---------   File Accessors:
         % get main sqw header
         main_header = get_main_header(obj,varargin);
         % get header of one of contributed files
@@ -98,13 +101,19 @@ classdef sqw_binfile_common < sqw_file_interface
         pix    = get_pix(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
         sqw_obj = get_sqw(obj,varargin);
+        % ---------   File Mutators:
         % save or replace main file header
         obj = put_main_header(obj,varargin);
         %
+        obj = put_headers(obj,varargin);
+        %
+        obj = put_det_info(obj,varargin);
+        %
+        obj = put_pix(obj,varagin);
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
-        
         %
+        % ------- Interface stubs and helpers: 
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is
             % defined, return empty structure.
@@ -178,13 +187,8 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             data_form = get_data_form_(obj,varargin{:});
         end
-        %
-        function obj = delete(obj)
-           obj=delete@dnd_binfile_common(obj);
-           % its still sqw loader
-           obj.sqw_type_ = true;
-        end
     end
+    %
     methods(Static)
         %
         function header = get_main_header_form(varargin)

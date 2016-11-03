@@ -35,41 +35,48 @@ classdef test_faccess_sqw_prototype< TestCase
         function obj = test_should_load_stream(obj)
             to = faccess_sqw_prototype();
             co = onCleanup(@()to.delete());
+            assertEqual(to.file_version,'-v0');
             
             [stream,fid] = to.get_file_header(obj.sample_file);
-            [ok,to] = to.should_load_stream(stream,fid);
+            co1 = onCleanup(@()(fclose(fid)));
+            
+            [ok,initob] = to.should_load_stream(stream,fid);
             
             assertTrue(ok);
-            assertEqual(to.file_version,'-v0');
+            assertTrue(initob.file_id>0);
+            
             
             
             
         end
         function obj = test_should_load_file(obj)
             to = faccess_sqw_prototype();
+            assertEqual(to.file_version,'-v0');
             co = onCleanup(@()to.delete());
             
-            [ok,to] = to.should_load(obj.sample_file);
+            [ok,inob] = to.should_load(obj.sample_file);
+            co1 = onCleanup(@()(fclose(inob.file_id)));
+            
             assertTrue(ok);
-            assertEqual(to.file_version,'-v0');
+            assertTrue(inob.file_id>0);
             
         end
         
         function obj = test_init(obj)
             to = faccess_sqw_prototype();
+            assertEqual(to.file_version,'-v0');
             
             %access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'DND_BINFILE_COMMON:runtime_error');
+            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
             
             
-            [ok,to] = to.should_load(obj.sample_file);
+            [ok,inob] = to.should_load(obj.sample_file);
             
             assertTrue(ok);
-            assertEqual(to.file_version,'-v0');
+            assertTrue(inob.file_id>0);
             
-            
-            to = to.init();
+            to = to.init(inob);
             assertEqual(to.npixels,16);
             
             header = to.get_header();
@@ -90,7 +97,7 @@ classdef test_faccess_sqw_prototype< TestCase
             
         end
         function obj = test_get_data(obj)
-            %spath = fileparts(obj.sample_file);           
+            %spath = fileparts(obj.sample_file);
             to = faccess_sqw_prototype(obj.sample_file);
             
             data_h = to.get_data('-he');

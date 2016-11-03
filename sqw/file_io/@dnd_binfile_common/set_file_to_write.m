@@ -1,14 +1,15 @@
-function  [obj,file_exist] = set_filename_to_write(obj,varargin)
+function  [obj,file_exist] = set_file_to_write(obj,varargin)
 % set filename to save sqw data and open file for write/append
 % operations
 %
 % Usage
-% >> obj = obj.set_filename_to_write(); % reopen existing file for
+% >> obj = obj.set_file_to_write(); % reopen existing file for
 %          write/append operations
-% >> obj = obj.set_filename_to_write(new_filename);
-%   Open new sqw file to perform write/append operations
+% >> obj = obj.set_file_to_write(new_filename);
 %
-% $Revision$ ($Date$)
+% Open new or existing sqw file to perform write/append operations
+%
+% $Revision: 1312 $ ($Date: 2016-11-02 16:28:29 +0000 (Wed, 02 Nov 2016) $)
 %
 
 file_exist = false;

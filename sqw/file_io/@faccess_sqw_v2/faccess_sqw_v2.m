@@ -35,7 +35,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
                 obj = obj.init(varargin{:});
             end
         end
-        function [should,obj,mess]= should_load_stream(obj,stream,fid)
+        function [should,objinit,mess]= should_load_stream(obj,stream,fid)
             % Check if this loader should load input data
             % Currently should any dnd object
             %Usage:
@@ -50,9 +50,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             mess = '';
             if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
                 if stream.sqw_type && ( stream.version == 2 || stream.version == 3 )
-                    obj.file_id_ = fid;
-                    obj.num_dim_ = double(stream.num_dim);
-                    obj.file_closer_ = onCleanup(@()obj.fclose());
+                    objinit = obj_init(fid,double(stream.num_dim));
                     should = true;
                     if stream.version == 3
                         warning('FACCESS_SQW_V2:should_load_stream',...
@@ -61,6 +59,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
                     end
                 else
                     should = false;
+                    objinit  = obj_init();
                     mess = ['not Horace dnd  ',obj.file_version,' file'];
                 end
             else

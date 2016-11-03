@@ -12,6 +12,11 @@ function   obj = put_headers(obj,varargin)
 % If update options is selected, header have to exist. This option replaces
 % only constatnt header's information
 %
+%
+% $Revision$ ($Date$)
+%
+
+%
 
 [ok,mess,update,argi] = parse_char_options(varargin,{'-update'});
 if ~ok
@@ -22,7 +27,7 @@ obj.check_obj_initated_properly();
 %
 header_num =[];  % by default, return all headers
 if ~isempty(argi)
-    numeric_pos = cellfun(@isnumeric,argi); % if numeric argument provided, 
+    numeric_pos = cellfun(@isnumeric,argi); % if numeric argument provided,
     % return that header
     if any(numeric_pos)
         if sum(numeric_pos)>1
@@ -62,7 +67,7 @@ end
 
 for i=1:n_files2_process
     if iscell(data_2save)
-        bytes = obj.sqw_serializer_.serialize(data_2save{i},head_form);        
+        bytes = obj.sqw_serializer_.serialize(data_2save{i},head_form);
     else
         bytes = obj.sqw_serializer_.serialize(data_2save(i),head_form);
     end
