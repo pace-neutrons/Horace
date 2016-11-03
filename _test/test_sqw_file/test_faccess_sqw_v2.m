@@ -47,9 +47,10 @@ classdef test_faccess_sqw_v2< TestCase
             
             
             [stream,fid] = to.get_file_header(obj.sample_file);
-            [ok,to] = to.should_load_stream(stream,fid);
+            [ok,initob] = to.should_load_stream(stream,fid);
+            co1 = onCleanup(@()fclose(initob.file_id));
             assertTrue(ok);
-            assertEqual(to.file_version,'-v2');
+            assertTrue(initob.file_id> 0);
             
             
             
@@ -58,27 +59,29 @@ classdef test_faccess_sqw_v2< TestCase
             to = faccess_sqw_v2();
             co = onCleanup(@()to.delete());
             
-            [ok,to] = to.should_load(obj.sample_file);
-            assertTrue(ok);
-            assertEqual(to.file_version,'-v2');
+            [ok,initob] = to.should_load(obj.sample_file);
+            co1 = onCleanup(@()fclose(initob.file_id));
             
+            assertTrue(ok);
+            assertTrue(initob.file_id>0);
         end
         
         function obj = test_init(obj)
             to = faccess_sqw_v2();
-            
-            % access to incorrect object
-            f = @()(to.init());
-            assertExceptionThrown(f,'DND_BINFILE_COMMON:runtime_error');
-            
-            
-            [ok,to] = to.should_load(obj.sample_file);
-            
-            assertTrue(ok);
             assertEqual(to.file_version,'-v2');
             
             
-            to = to.init();
+            % access to incorrect object
+            f = @()(to.init());
+            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            
+            
+            [ok,initob] = to.should_load(obj.sample_file);
+            
+            assertTrue(ok);
+            assertTrue(initob.file_id > 0);
+            
+            to = to.init(initob);
             assertEqual(to.npixels,1164180);
             
             header = to.get_header();
@@ -153,8 +156,8 @@ classdef test_faccess_sqw_v2< TestCase
             clob = onCleanup(@()delete(tf));
             
             tt = tt.init(tob_sqw);
-            tt = tt.set_filename_to_write(tf);
-                                  
+            tt = tt.set_file_to_write(tf);
+            
             
             tt=tt.put_sqw();
             assertTrue(exist(tf,'file')==2)

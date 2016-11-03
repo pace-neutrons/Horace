@@ -2,8 +2,9 @@ function obj = common_init_logic_(obj,varargin)
 % Initialize sqw accessor using various inputs
 %
 %Usage:
-%>>obj=obj.init() -- initialize accessor from the object, which
-%                    has been already initialized from existing
+%>>obj=obj.init(init_obj) -- initialize accessor using obj_init
+% class, containing appropriate initialization information
+%                    already retrieved from existing
 %                    sqw file and has its file opened by should_load
 %                    method.
 %                    should_load method should report ok, to confirm that
@@ -29,36 +30,45 @@ function obj = common_init_logic_(obj,varargin)
 %
 % $Revision$ ($Date$)
 %
-obj.sqw_serializer_ = sqw_serializer();
 
-if nargin>1
-    if ischar(varargin{1}) || isnumeric(varargin{1})
-        [ok,obj,mess] = obj.should_load(varargin{1});
+if isempty(obj.sqw_serializer_)
+    obj.sqw_serializer_ = sqw_serializer();
+end
+if nargin<1
+    error('SQW_FILE_IO:invalid_argument',...
+        'dnd_binfile_common::init method invoked without any input argument')
+end
+
+input = varargin{1};
+
+if isa(input,'obj_init')
+    if input.file_id<0
+        error('SQW_FILE_IO:invalid_argument',...
+            'dnd_binfile_common::init method: get incorrect initialization information')
+    end
+    obj = obj.init_input_file(input);
+elseif ischar(input) || isnumeric(input)
+        [ok,objinit,mess] = obj.should_load(varargin{1});
         if ~ok
-            if ischar(varargin{1})
-                fname = varargin{1};
+            if ischar(input)
+                fname = input;
             else
-                fname = fopen(varargin{1});
+                fname = fopen(input);
             end
-            error('DND_BINFILE_COMMON:runtime_error',...
-                ' Can not read input file: %s\n Reason: %s',...
+            error('SQW_FILE_IO:runtime_error',...
+                'dnd_binfile_common::init method: Can not read input file: %s\n Reason: %s',...
                 fname,mess);
         end
-    else
-        type = class(varargin{1});
+        obj = obj.init_input_file(objinit);
+else
+        type = class(input);
         if ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'})
             obj = obj.init_from_sqw_obj(varargin{:});
             return;
         else
-            error('DND_BINFILE_COMMON:invalid_argument',...
-                'Init: invalid argument: input can be only sqw/dnd object or sqw file name')
+            error('SQW_FILE_IO:invalid_argument',...
+                'dnd_binfile_common::init method: input can be only sqw/dnd object or sqw file name')
         end
-    end
-else % initialize opened file to read data
-    if obj.file_id_ <= 0
-        error('DND_BINFILE_COMMON:runtime_error',...
-            'init method: initializing sqw read operations before the input file has been opened')
-    end
 end
 obj = obj.init_from_sqw_file();
 

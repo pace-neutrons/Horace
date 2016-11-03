@@ -22,6 +22,7 @@ classdef dnd_file_interface
         % list of the sqw class fields or subclasses and auxiliary data
         % structures, stored on hdd
         dnd_dimensions_ = 'undefined'
+        % the type of data stored in file (legacy field, -- see getter for details)
         data_type_ = 'undefined';
         %
         
@@ -145,17 +146,19 @@ classdef dnd_file_interface
         % Main intializer:
         % initialize the loader, to be ready to read or write the sqw data.
         obj = init(obj,varargin);
+        % set new filename to write file to prepare existing file for
+        % writing
+        [obj,file_exist] = set_file_to_write(obj,varargin)
         % ----------------------------------------------------------------
-        % Accessors:
+        % File Accessors:
         data        = get_data(obj,varargin);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
         sqw_obj = get_sqw(obj,varargin);
+        % ----------------------------------------------------------------
+        % File Mutators:
         %
-        % update or store obj constant size methadata. i.e. information
-        % on
-        
         % save sqw object stored in memory into binary sqw file. Depending
         % on data present in memory it can in fact save dnd object.
         % Save new or fully overwrite existing sqw file
@@ -169,11 +172,9 @@ classdef dnd_file_interface
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
-        
+        %
     end
     methods(Abstract,Access=protected)
-        % set new file name and open file for write/update operations
-        obj = check_file_set_new_name(obj,new_filename)
         % init file accsessor from sqw object in memory
         obj=init_from_sqw_obj(obj,varargin);
         % init file accessor from sqw file on hdd

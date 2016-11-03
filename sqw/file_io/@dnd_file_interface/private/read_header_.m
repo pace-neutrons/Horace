@@ -1,4 +1,4 @@
-function [stream,fid,mess] = get_header_(file,varargin)
+function [stream,fid,mess] = read_header_(file,varargin)
 % open (reopen) file for acces read the header, which allows to identify
 % the filie version
 %
@@ -6,7 +6,7 @@ function [stream,fid,mess] = get_header_(file,varargin)
 % uint8 array of bytes -- binary contents of the file
 %
 %
-% $Revision$ ($Date$)
+% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 %
 
 %

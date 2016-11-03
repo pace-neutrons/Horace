@@ -1,14 +1,18 @@
-function [ok,obj,mess]=should_load(obj,filename)
+function [ok,objinit,mess]=should_load(obj,filename)
 % check if this loader should load selected file
 %
 %Usage:
-% [ok,obj] = obj.should_load(filename)
+% [ok,objinit,message] = obj.should_load(filename)
 %
 % where
 % filename -- name of file to check
 %
-% Returns ok if this filename can be loaded
-%
+% Returns:
+% ok          --  true if this filename can be loaded or
+% objinit     --  initialized obj_init class containing initialization
+%                 information of ok is true or empty of not
+% mess        --  text containing additional information on reasons of false
+%                 if ok is false. Empty if ok is true
 %
 % $Revision$ ($Date$)
 %
@@ -28,5 +32,5 @@ end
 
 % call child function to check if the stream should be loaded by
 % appropriate loader
-[ok,obj,mess]=obj.should_load_stream(header,fh);
+[ok,objinit,mess]=obj.should_load_stream(header,fh);
 

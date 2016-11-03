@@ -36,12 +36,12 @@ classdef faccess_dnd_v2 < dnd_binfile_common
                 obj = obj.init(varargin{:});
             end
         end
-        function [should,obj,mess]= should_load_stream(obj,stream,fid)
+        function [should,objinit,mess]= should_load_stream(obj,stream,fid)
             % Check if this loader should load input data
             % Currently should any dnd object
             %Usage:
             %
-            %>> [should,obj] = obj.should_load_stream(datastream,fid)
+            %>> [should,obj_init,mess] = obj.should_load_stream(datastream,fid)
             % where
             % datastream:  structure returned by get_file_header function
             % Returns:
@@ -51,17 +51,16 @@ classdef faccess_dnd_v2 < dnd_binfile_common
             mess = '';
             if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
                 if ~stream.sqw_type
-                    obj.file_id_ = fid;
-                    obj.num_dim_ = double(stream.num_dim);
-                    obj.file_closer_ = onCleanup(@()obj.fclose());
+                    objinit = obj_init(fid,double(stream.num_dim));
                     should = true;
                 else
                     should = false;
                     mess = ['not Horace dnd  ',obj.file_version,' file'];
+                    objinit  =obj_init();
                 end
             else
-                error('FACCESS_DND_V2:invalid_argument',...
-                    'the input structure for should_load_stream function does not have correct format');
+                error('SQW_FILE_IO:invalid_argument',...
+                    'FACCESS_DND_V2::should_load_stream: the input structure for this function does not have correct format');
             end
         end
         %

@@ -31,24 +31,26 @@ classdef test_faccess_sqw_v3< TestCase
         % tests
         function obj = test_should_load_stream(obj)
             to = faccess_sqw_v3();
+            assertEqual(to.file_version,'-v3.1');
             co = onCleanup(@()to.delete());
             
             
             [stream,fid] = to.get_file_header(obj.sample_file);
-            [ok,to] = to.should_load_stream(stream,fid);
+            [ok,initobj] = to.should_load_stream(stream,fid);
+            co1 = onCleanup(@()fclose(initobj.file_id));
             assertTrue(ok);
-            assertEqual(to.file_version,'-v3.1');
-            
-            
+            assertTrue(initobj.file_id>0);
             
         end
         function obj = test_should_load_file(obj)
             to = faccess_sqw_v3();
             co = onCleanup(@()to.delete());
             
-            [ok,to] = to.should_load(obj.sample_file);
+            [ok,initobj] = to.should_load(obj.sample_file);
+            co1 = onCleanup(@()fclose(initobj.file_id));
+            
             assertTrue(ok);
-            assertEqual(to.file_version,'-v3.1');
+            assertTrue(initobj.file_id>0);
             
         end
         
@@ -57,16 +59,15 @@ classdef test_faccess_sqw_v3< TestCase
             
             % access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'DND_BINFILE_COMMON:runtime_error');
+            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
             
             
-            [ok,to] = to.should_load(obj.sample_file);
-            
+            [ok,initobj] = to.should_load(obj.sample_file);            
             assertTrue(ok);
-            assertEqual(to.file_version,'-v3.1');
+            assertTrue(initobj.file_id>0);
             
             
-            to = to.init();
+            to = to.init(initobj);
             assertEqual(to.npixels,7680);
             assertEqual(to.num_contrib_files,1);
             
@@ -167,7 +168,7 @@ classdef test_faccess_sqw_v3< TestCase
             tf = fullfile(tempdir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
             
-            tob = tob.set_filename_to_write(tf);
+            tob = tob.set_file_to_write(tf);
             tob=tob.put_sqw();
             assertTrue(exist(tf,'file')==2)
             tob=tob.delete();
@@ -187,12 +188,12 @@ classdef test_faccess_sqw_v3< TestCase
             inst1=create_test_instrument(95,250,'s');
             sqw_ob.header(1).instrument = inst1;
             
-            tf = fullfile(tempdir,'test_save_load_sqwV31.sqw');            
-            clob = onCleanup(@()delete(tf));            
+            tf = fullfile(tempdir,'test_save_load_sqwV31.sqw');
+            clob = onCleanup(@()delete(tf));
             
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
-                       
+            
             tob=tob.put_sqw();
             assertTrue(exist(tf,'file')==2)
             tob = tob.delete();

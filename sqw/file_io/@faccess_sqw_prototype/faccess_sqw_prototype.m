@@ -5,17 +5,17 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     end
     methods(Access=protected)
         function obj=init_from_sqw_obj(obj,varargin)
-            % intialize the structure of sqw file using sqw object as input
+            % initialize the structure of sqw file using sqw object as input
             error('FACCESS_SQW_PROTOTTYPE:runtime_error',...
                 'init_from_sqw_obj method is not implemented for prototype files as you can not currently write prototype files');
         end
         function obj=init_from_sqw_file(obj,varargin)
-            % intialize the structure of faccess class using sqw file as input
+            % initialize the structure of faccess class using sqw file as input
             fseek(obj.file_id_,0,'bof');
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0
                 error('FACCESS_SQW_V0:io_error',...
-                    'IO error locating number of contributiong files field: Reason %s',mess)
+                    'IO error locating number of contributing files field: Reason %s',mess)
             end
             obj.main_header_pos_ = 0;
             
@@ -49,12 +49,12 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             end
         end
         %
-        function [should,obj,mess] =should_load_stream(obj,header,fid)
+        function [should,initob,mess] =should_load_stream(obj,header,fid)
             % Check if this loader should deal with selected data stream
             %Usage:
             %
             %>> [should,obj] = obj.should_load_stream(datastream,fid)
-            % datastream -- sequence of bytes to interpret as horace header
+            % datastream -- sequence of bytes to interpret as Horace header
             %Returns
             % true if the loader can load these data, or false if not
             if header.version == 0 && strcmp(header.name,'horace')
@@ -65,7 +65,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             end
             
             
-            [should,obj,mess]= should_load_stream@dnd_binfile_common(obj,header,fid);
+            [should,initob,mess]= should_load_stream@dnd_binfile_common(obj,header,fid);
             if should
                 warning('FACCESS_SQW_PROTOTYPE:should_load_stream',...
                     'trying to load legacy Horace prototype data format');

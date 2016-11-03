@@ -15,6 +15,10 @@ function  [header,pos]   = get_header(obj,varargin)
 % correct || non-existing header number
 %
 %
+% $Revision$ ($Date$)
+%
+
+%
 if ischar(obj.num_contrib_files)
     error('SQW_FILE_INTERFACE:runtime_error',...
         ' get_header called on un-initialized loader')

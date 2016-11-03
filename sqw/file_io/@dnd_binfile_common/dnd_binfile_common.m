@@ -26,8 +26,8 @@ classdef dnd_binfile_common < dnd_file_interface
         % operations
         data_fields_locations_=[];
         %
-        % class used to caluclate all transformations between sqw/dnd class
-        % in memory, and their byte representaion on hdd.
+        % class used to calculate all transformations between sqw/dnd class
+        % in memory, and their byte representation on hdd.
         sqw_serializer_=[];
         % holder for the object which surely closes open sqw file on class
         % deletion
@@ -38,7 +38,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % a pointer to eof position, used to identify the state of IO
         % operations showing position where the data have actually been
         % written
-        real_eof_pos_ = 0; % does it give any advantage? TODO: not currentoy used or consistent
+        real_eof_pos_ = 0; % does it give any advantage? TODO: not currently used or consistent
     end
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
@@ -54,31 +54,30 @@ classdef dnd_binfile_common < dnd_file_interface
     methods(Access = protected)
         %
         function obj=init_from_sqw_obj(obj,varargin)
-            % intialize the structure of sqw file using sqw object as input
+            % initialize the structure of sqw file using sqw object as input
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
             if nargin < 2
-                error('DND_BINFILE_COMMON:runtime_error',...
-                    'init_from_sqw_obj method should be ivoked with at least an existing sqw object provided');
+                error('SQW_FILE_IO:runtime_error',...
+                    'dnd_binfile_common:init_from_sqw_obj method should be invoked with at least an existing sqw or dnd object provided');
             end
-            inobj = obj.extract_correct_subobj('data',varargin{:});
+            if isa(varargin{1},'sqw')
+                inobj = obj.extract_correct_subobj('data',varargin{:});
+            else % dnd (the common logic verified that it is dnd)
+                inobj  = varargin{1};
+            end
             obj = init_from_sqw_(obj,inobj,varargin{2:end});
             obj.sqw_holder_= inobj;
             
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
-            % intialize the structure of faccess class using sqw file as input
+            % initialize the structure of faccess class using sqw file as input
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
             obj= init_dnd_structure_field_by_field_(obj);
-        end
-        %
-        function  obj = check_file_set_new_name(obj,new_filename)
-            % set new file name and open file for write/update operations
-            obj = check_file_set_new_name_(obj,new_filename);
         end
         %
         function check_obj_initated_properly(obj)
@@ -88,7 +87,7 @@ classdef dnd_binfile_common < dnd_file_interface
         end
         %
         function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)
-            % auxiliary function helping to extract correct subobject from
+            % auxiliary function helping to extract correct sub-object from
             % input or internal object
             if isempty(varargin)
                 inobj = obj.sqw_holder_;
@@ -102,39 +101,45 @@ classdef dnd_binfile_common < dnd_file_interface
             else % dnd object and this has been verified in calling function
                 sub_obj = inobj;
             end
-            
-            
         end
         %
         function flds = fields_to_save(obj)
-            % returns the fields to save in the structure in dnd binfile v3 format
+            % returns the fields to save in the structure in dnd bin-file v3 format
             flds = obj.fields_to_save_;
         end
         %
+        function obj = init_input_file(obj,objinit)
+            % initialize input file using proper obj_init information
+            obj.file_id_ = objinit.file_id;
+            obj.num_dim_ = objinit.num_dim;
+            obj.file_closer_ = onCleanup(@()obj.fclose());
+        end
     end
     
     methods % defined by this class
-        %------   Accessors:
+        
         % check if this loader should deal with selected file
-        [ok,obj,mess]=should_load(obj,filename)
+        [ok,objinit,mess]=should_load(obj,filename)
         %
         % Check if this loader should deal with selected data stream
-        [should,obj,mess]= should_load_stream(obj,stream,fid)
+        [should,objinit,mess]= should_load_stream(obj,stream,fid)
+        % set filename to save sqw data and open file for write/append
+        % operations
+        [obj,file_exist] = set_file_to_write(obj,varargin)
         %
-        % read main dnd data  from propertly initialized binary file.
+        %------   File Accessors:
+        %
+        % read main dnd data  from properly initialized binary file.
         [dnd_data,obj] = get_data(obj,varargin);
         % read pixels information
         % retrieve the whole dnd object from properly initialized dnd file
         sqw_obj = get_sqw(obj,varargin);
         
         %------   Mutators:
-        % set filename to save sqw data and open file for write/append
-        % operations
-        obj = set_filename_to_write(obj,varargin)
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         % Consisting of:
-        % 1) store or updata application header
+        % 1) store or update application header
         obj = put_app_header(obj);
         % 2) store dnd information ('-update' option updates this
         % information within existing file)
@@ -165,8 +170,9 @@ classdef dnd_binfile_common < dnd_file_interface
             % Initialize sqw accessor using various input sources
             %
             %Usage:
-            %>>obj=obj.init() -- initialize accessor from the object, which
-            %                    has been already initialized from existing
+            %>>obj=obj.init(init_obj) -- initialize accessor using obj_init
+            % class, containing appropriate initialization information
+            %                    already retrieved from existing
             %                    sqw file and has its file opened by should_load
             %                    method.
             %                    should_load method should report ok, to confirm that
@@ -185,15 +191,20 @@ classdef dnd_binfile_common < dnd_file_interface
             %                    sqw object in appropriate binary format.
             %                    Also the name of the file to save the data is
             %                    provided.
-            %                    If the filename is the name of an exisiting file,
+            %                    If the filename is the name of an existing file,
             %                    the file will be overwritten or upgraded if the loader
-            %                    has alreadty been initiated with this file
+            %                    has already been initiated with this file
+            if nargout<1
+                error('SQW_FILE_IO:invalid_argument',...
+                    'dnd_binfile_common::init needs to have one output argument')
+            end
             
             obj = common_init_logic_(obj,varargin{:});
         end
         %
         function obj=delete(obj)
-            % Close existing file
+            % Close existing file and clear dynamic file information
+            %
             if ~isempty(obj.file_closer_)
                 obj.file_closer_ = [];
             end
@@ -206,7 +217,7 @@ classdef dnd_binfile_common < dnd_file_interface
         function obj = fclose(obj)
             % Close existing file header if it has been opened
             fn = fopen(obj.file_id_);
-            if ~isempty(fn) %&& ~strncmp(fn,'"std',4)
+            if ~isempty(fn)
                 fclose(obj.file_id_);
             end
             obj.file_id_ = -1;
@@ -279,7 +290,7 @@ classdef dnd_binfile_common < dnd_file_interface
             % and starting position (data_position) of meaningful sqw data.
             %
             % Used for debugging as default data_position value never changes
-            % for modern sqw file formats
+            % for any modern sqw file formats
             %
             format = obj.app_header_form_;
             if isempty(obj.sqw_serializer_)
@@ -289,17 +300,10 @@ classdef dnd_binfile_common < dnd_file_interface
             [header_pos,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
             obj.data_pos_  = pos;
         end
-        %
-        function obj=set_datatype(obj,val)
-            % test-heler function used to set some data type
-            % should be used in testing only as normally it is calculated
-            % from a file structure
-            obj.data_type_ = val;
-        end
     end
     methods(Static)
         % function extracts first and last field in the structure pos_fields
-        % correspongint to the structure form_fields
+        % correspondent to the structure form_fields
         [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
     end
     

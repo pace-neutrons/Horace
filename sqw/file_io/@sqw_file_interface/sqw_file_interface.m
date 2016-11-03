@@ -15,8 +15,10 @@ classdef sqw_file_interface < dnd_binfile_common
         npixels_ = 'undefined';
     end
     properties(Dependent)
-        % number of files, used to construct this class
+        % number of files, used to construct the file, class is initiated
+        % with
         num_contrib_files;
+        %
         % number of pixels, contributing into this file. Empty for dnd-type
         % files
         npixels
@@ -34,9 +36,16 @@ classdef sqw_file_interface < dnd_binfile_common
         
         %-------------------------
         function obj = delete(obj)
+            % destructor, which is not fully functioning
+            % operation for normal Matlab classes. Needs understanding when
+            % used.
+            %
             obj.num_contrib_files_ = 'undefined';
             obj.npixels_ = 'undefined';
             obj = delete@dnd_binfile_common(obj);
+            % its still sqw loader
+            obj.sqw_type_ = true;
+            
         end
     end
     %----------------------------------------------------------------------
@@ -54,8 +63,8 @@ classdef sqw_file_interface < dnd_binfile_common
         
         obj = put_main_header(obj,varargin);
         obj = put_headers(obj,varargin);
-        obj = put_det_info(obj,varargin);        
-        obj = put_sqw(obj,varargin)        
+        obj = put_det_info(obj,varargin);
+        obj = put_sqw(obj,varargin)
         
     end
     
