@@ -43,11 +43,11 @@ classdef sqw_binfile_common < sqw_file_interface
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
             if nargin < 2
-                error('SQW_BINFILE_COMMON:runtime_error',...
+                error('SQW_FILE_IO:runtime_error',...
                     'init_from_sqw_obj method should be ivoked with an existing sqw object as first input argument');
             end
             if ~isa(varargin{1},'sqw')
-                error('SQW_BINFILE_COMMON:invalid_argument',...
+                error('SQW_FILE_IO:invalid_argument',...
                     'init_from_sqw_obj method should be initiated by an sqw object');
             end
             %

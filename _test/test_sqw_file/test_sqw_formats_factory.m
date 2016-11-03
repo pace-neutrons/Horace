@@ -18,15 +18,11 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             %obj = obj@TestCaseWithSave(name,sample_file);
             obj = obj@TestCase(name);
             obj.test_folder=fileparts(mfilename('fullpath'));
-            warning('off','FACCESS_SQW_PROTOTYPE:should_load_stream')
-            obj.clob = onCleanup(@()warning('on','FACCESS_SQW_PROTOTYPE:should_load_stream'));
+            warning('off','SQW_FILE_IO:legacy_data')
+            obj.clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
         end
         %-----------------------------------------------------------------
         function obj = test_selection(obj)
-            warning('off','FACCESS_SQW_PROTOTYPE:should_load_stream');
-            warning('off','FACCESS_SQW_V2:should_load_stream');
-            clob1 = onCleanup(@()(warning('on','FACCESS_SQW_PROTOTYPE:should_load_stream')));
-            clob2 = onCleanup(@()(warning('on','FACCESS_SQW_V2:should_load_stream')));
             
             
             file_v2 = fullfile(fileparts(obj.test_folder),...
@@ -61,7 +57,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             file_nonHor = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','testdata_base_objects.mat');
             fl = @()(sqw_formats_factory.instance().get_loader(file_nonHor));
-            assertExceptionThrown(fl,'DND_FILE_INTERFACE:runtime_error')
+            assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error')
             
             file_v0 = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_read_write_v0_t.sqw');
@@ -81,6 +77,12 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertEqual(loader.data_type,'b+')
             assertEqual(loader.num_dim,2)
             assertEqual(loader.dnd_dimensions,[81,72])
+
+            file_ficVer = fullfile(fileparts(obj.test_folder),...
+                'test_sqw_file','test_sqw_file_fictional_ver.sqw');
+            fl = @()(sqw_formats_factory.instance().get_loader(file_ficVer));
+            assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error')
+
             
         end
         function obj= test_pref_access(obj)

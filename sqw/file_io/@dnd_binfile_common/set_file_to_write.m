@@ -15,23 +15,23 @@ function  [obj,file_exist] = set_file_to_write(obj,varargin)
 file_exist = false;
 
 if nargout < 1
-    error('DND_BINFILE_COMMON:invalid_argument',...
-        'set_filename_to_write has to return its value in output object')
+    error('SQW_FILE_IO:invalid_argument',...
+        'DND_BINFILE_COMMON:set_file_to_write has to return its value in output object')
 end
 
 if nargin>1
     new_filename = varargin{1};
     if ~ischar(new_filename)
-        error('DND_FILE_INTERFACE:invalid_argument',...
-            'set_filename_to_write: new filename to save needs to be a string')
+        error('SQW_FILE_IO:invalid_argument',...
+            'DND_BINFILE_COMMON:set_file_to_write: new filename to save needs to be a string')
     end
     if exist(new_filename,'file')
         file_exist = true;
     end
 else
     if isempty(obj.filename)
-        error('DND_FILE_INTERFACE:invalid_argument',...
-            'set_filename_to_write: trying to reopen file to write but its filename has not been set up')
+        error('SQW_FILE_IO:invalid_argument',...
+            'DND_BINFILE_COMMON:set_file_to_write: trying to reopen existing file for writing but its filename is empty')
     end
     new_filename  = fullfile(obj.filepath,obj.filename);
     if obj.file_id_ > 0
@@ -69,8 +69,8 @@ obj.filepath_ = fp;
 obj.file_id_ = fopen([fp,fn],perm);
 %
 if obj.file_id_ <=0
-    error('DND_BINFILE_COMMON:io_error',...
-        ' Can not open file %s to write data',[fp,fn])
+    error('SQW_FILE_IO:io_error',...
+        'DND_BINFILE_COMMON:set_file_to_write: Can not open file %s to write data',[fp,fn])
 end
 obj.file_closer_ = onCleanup(@()obj.fclose());
 %-------------------------------------------------------------------------
@@ -78,16 +78,16 @@ obj.file_closer_ = onCleanup(@()obj.fclose());
 if file_exist
     header = dnd_file_interface.get_file_header(obj.file_id_,perm);
     if ~strcmp(header.name,'horace')
-        error('DND_BINFILE_COMMON:invalid_argument',...
-            'set_filename_to_write: trying to write to existing file %s but it is not a horace file',...
+        error('SQW_FILE_IO:invalid_argument',...
+            'DND_BINFILE_COMMON:set_file_to_write: trying to write to existing file %s but it is not a horace file',...
             new_filename);
     end
     if strncmp(obj.num_dim_,'un',2)
         obj.num_dim_  = double(header.num_dim);
     else
         if obj.num_dim ~= header.num_dim
-            error('DND_BINFILE_COMMON:invalid_argument',...
-                ['set_filename_to_write: trying to set existing file %s for modifications,\n'...
+            error('SQW_FILE_IO:invalid_argument',...
+                ['DND_BINFILE_COMMON:set_file_to_write: trying to set existing file %s for modifications,\n'...
                 ' but the number of existing dimensions in the file %d \n'...
                 ' is different from number of dimensions %d defined by the access object'],...
                 new_filename,header.num_dim,obj.num_dim)

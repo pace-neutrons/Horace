@@ -24,7 +24,7 @@ if ~isempty(message)
     if fid>0
         fclose(fid);
     end
-    error('DND_FILE_INTERFACE:io_error','Error: %s',message);
+    error('SQW_FILE_IO:io_error','Error: %s',message);
 end
 % try to interpret input binary stream as Horace header and
 % convert data stream into structure describing Horace format
@@ -33,6 +33,6 @@ if ~isempty(mess)
     if fid>0
         fclose(fid);
     end
-    error('DND_FILE_INTERFACE:runtime_error','Error: %s',message);
+    error('SQW_FILE_IO:runtime_error','Error: %s',message);
 end
 

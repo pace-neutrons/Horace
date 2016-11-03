@@ -53,8 +53,8 @@ classdef faccess_sqw_v2 < sqw_binfile_common
                     objinit = obj_init(fid,double(stream.num_dim));
                     should = true;
                     if stream.version == 3
-                        warning('FACCESS_SQW_V2:should_load_stream',...
-                            ['Legacy sqw file version 3.0 has been discovered.\n'...
+                        warning('SQW_FILE_IO:legacy_data',...
+                            ['FACCESS_SQW_V2::should_load_stream Legacy sqw file version 3.0 has been discovered.\n'...
                             'Loading it as sqw version 2 file with instrument/sample block discarded'])
                     end
                 else
@@ -63,8 +63,8 @@ classdef faccess_sqw_v2 < sqw_binfile_common
                     mess = ['not Horace dnd  ',obj.file_version,' file'];
                 end
             else
-                error('FACCESS_SQW_V2:invalid_argument',...
-                    'the input structure for should_load_stream function does not have correct format');
+                error('SQW_FILE_IO:invalid_argument',...
+                    'FACCESS_SQW_V2::should_load_stream the input structure does not have correct format');
             end
         end
         
