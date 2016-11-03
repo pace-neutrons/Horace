@@ -5,16 +5,7 @@ function obj=init_from_sqw_(obj,varargin)
 %
 % $Revision$ ($Date$)
 %
-
 %
-if nargin == 3
-    obj = obj.set_file_to_write(varargin{2});
-else
-    if ~isempty(obj.filename)
-        obj = obj.set_file_to_write();
-    end
-end
-
 dnd_2save = varargin{1};
 %
 %

@@ -26,10 +26,10 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
             
             f = @()(to.get_file_header('non-existing_file.sqw'));
-            assertExceptionThrown(f,'DND_FILE_INTERFACE:io_error');
+            assertExceptionThrown(f,'SQW_FILE_IO:io_error');
             
             f = @()to.get_file_header(wrong_source);
-            assertExceptionThrown(f,'DND_FILE_INTERFACE:runtime_error');
+            assertExceptionThrown(f,'SQW_FILE_IO:runtime_error');
             
             
             [stream,fid1] = to.get_file_header(source);
@@ -114,7 +114,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');
             f=@()(tob.set_file_to_write(samp));
-            assertExceptionThrown(f,'DND_BINFILE_COMMON:invalid_argument');
+            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
             
             tob=tob.set_file_to_write(samp);
             

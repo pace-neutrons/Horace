@@ -48,27 +48,34 @@ if isa(input,'obj_init')
     end
     obj = obj.init_input_file(input);
 elseif ischar(input) || isnumeric(input)
-        [ok,objinit,mess] = obj.should_load(varargin{1});
-        if ~ok
-            if ischar(input)
-                fname = input;
-            else
-                fname = fopen(input);
-            end
-            error('SQW_FILE_IO:runtime_error',...
-                'dnd_binfile_common::init method: Can not read input file: %s\n Reason: %s',...
-                fname,mess);
-        end
-        obj = obj.init_input_file(objinit);
-else
-        type = class(input);
-        if ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'})
-            obj = obj.init_from_sqw_obj(varargin{:});
-            return;
+    [ok,objinit,mess] = obj.should_load(varargin{1});
+    if ~ok
+        if ischar(input)
+            fname = input;
         else
-            error('SQW_FILE_IO:invalid_argument',...
-                'dnd_binfile_common::init method: input can be only sqw/dnd object or sqw file name')
+            fname = fopen(input);
         end
+        error('SQW_FILE_IO:runtime_error',...
+            'dnd_binfile_common::init method: Can not read input file: %s\n Reason: %s',...
+            fname,mess);
+    end
+    obj = obj.init_input_file(objinit);
+else
+    type = class(input);
+    if ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'})
+        obj = obj.init_from_sqw_obj(varargin{:});
+        if nargin == 3
+            obj = obj.set_file_to_write(varargin{2});
+        else
+            if ~isempty(obj.filename)
+                obj = obj.set_file_to_write();
+            end
+        end
+        return;
+    else
+        error('SQW_FILE_IO:invalid_argument',...
+            'dnd_binfile_common::init method: input can be only sqw/dnd object or sqw file name')
+    end
 end
 obj = obj.init_from_sqw_file();
 

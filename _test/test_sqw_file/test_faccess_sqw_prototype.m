@@ -26,8 +26,8 @@ classdef test_faccess_sqw_prototype< TestCase
             
             this.sample_dir = fullfile(fileparts(mfilename('fullpath')));
             this.sample_file = fullfile(this.sample_dir,'test_sqw_read_write_v0_t.sqw');
-            warning('off','FACCESS_SQW_PROTOTYPE:should_load_stream')
-            this.clob = onCleanup(@()(warning('on','FACCESS_SQW_PROTOTYPE:should_load_stream')));
+            warning('off','SQW_FILE_IO:legacy_data')
+            this.clob = onCleanup(@()(warning('on','SQW_FILE_IO:legacy_data')));
             
         end
         

@@ -6,16 +6,16 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     methods(Access=protected)
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
-            error('FACCESS_SQW_PROTOTTYPE:runtime_error',...
-                'init_from_sqw_obj method is not implemented for prototype files as you can not currently write prototype files');
+            error('SQW_FILE_IO:runtime_error',...
+                'FACCESS_SQW_PROTOTYOE::init_from_sqw_obj: method is not implemented for prototype files as you can not currently write prototype files');
         end
         function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using sqw file as input
             fseek(obj.file_id_,0,'bof');
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0
-                error('FACCESS_SQW_V0:io_error',...
-                    'IO error locating number of contributing files field: Reason %s',mess)
+                error('SQW_FILE_IO:io_error',...
+                    'FACCESS_SQW_PROTOTYOE::init_from_sqw_file: IO error locating number of contributing files field: Reason %s',mess)
             end
             obj.main_header_pos_ = 0;
             
@@ -67,8 +67,8 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             
             [should,initob,mess]= should_load_stream@dnd_binfile_common(obj,header,fid);
             if should
-                warning('FACCESS_SQW_PROTOTYPE:should_load_stream',...
-                    'trying to load legacy Horace prototype data format');
+                warning('SQW_FILE_IO:legacy_data',...
+                    'FACCESS_SQW_PROTOTYPE::should_load_stream: trying to load legacy Horace prototype data format');
             end
         end
         %
@@ -119,7 +119,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             
             %
             data_form = get_dnd_form@dnd_binfile_common(obj,varargin{:});
-            data_form = rmfield(data_form,{'filename','filepath','title','alatt','angdeg'});            
+            data_form = rmfield(data_form,{'filename','filepath','title','alatt','angdeg'});
         end
         %
         function sqw_data = get_data(obj,varargin)
@@ -222,8 +222,8 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             
             % Get prototype sqw data
             if obj.data_type == 'b'
-                error('FACCESS_SQW_PROTOTYPE:runtime_error',...
-                    'File does not contain number of pixels for each bin - unable to convert old format data')
+                error('SQW_FILE_IO:runtime_error',...
+                    'FACCESS_SQW_PROTOTYPE:get_data File does not contain number of pixels for each bin - unable to convert old format data')
             end
             
             sqw_data = get_data@sqw_binfile_common(obj,varargin{:});

@@ -148,8 +148,8 @@ classdef test_faccess_sqw_v3< TestCase
         function test_save_sqw2to3(obj)
             samp_f = fullfile(obj.sample_dir,...
                 'test_sqw_file_read_write_v3.sqw');
-            warning('off','FACCESS_SQW_V2:should_load_stream');
-            clob0 = onCleanup(@()warning('on','FACCESS_SQW_V2:should_load_stream'));
+            warning('off','SQW_FILE_IO:legacy_data');
+            clob0 = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
             
             so = faccess_sqw_v2(samp_f);
             sqw_ob = so.get_sqw();
