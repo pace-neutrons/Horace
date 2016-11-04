@@ -22,8 +22,8 @@ data_header = obj.get_dnd_form();
 [data_pos,pos,io_error,data_header] =  obj.sqw_serializer_.calculate_positions(data_header,obj.file_id_,pos);
 if io_error
     if ~isfield(data_pos,'s_pos_') || ~isfield(data_pos,'e_pos_')
-        error('DND_BINFILE_COMMON:io_error',...
-            'IO error while parsing data, can not indetify location of signal and error arrays')
+        error('SQW_FILE_IO:io_error',...
+            'DND_BINFILE_COMMON: IO error while parsing data, can not indetify location of signal and error arrays')
     end
 end
 %
@@ -62,6 +62,6 @@ obj.filepath_=[path,filesep];
 function check_and_throw_error(obj,mess_pos)
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
-    error('DND_BINFILE_COMMON:io_error',...
+    error('SQW_FILE_IO:io_error',...
         '%s: Reason %s',mess_pos,mess)
 end

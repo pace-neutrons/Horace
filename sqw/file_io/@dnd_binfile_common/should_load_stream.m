@@ -15,7 +15,7 @@ if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
         should = true;
     else
         should = false;
-        if stream.sqw_type
+        if obj.sqw_type
             type = 'sqw';
         else
             type = 'dnd';

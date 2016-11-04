@@ -108,7 +108,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             end
         end
         %
-        function obj = test_set_file_to_write(obj)
+        function obj = test_change_file_to_write(obj)
             tob = dnd_binfile_common();
             
             samp = fullfile(fileparts(obj.test_folder),...
@@ -120,6 +120,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
             assertTrue(tob.sqw_type)
             assertEqual(tob.num_dim,1)
+            assertTrue(isa(tob,'faccess_sqw_v2'));
             
             
             test_f = fullfile(tempdir,'test_set_file_to_write.sqw');
@@ -129,10 +130,48 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             assertTrue(exist(test_f,'file')==2);
             
             tob=tob.delete();
-            assertFalse(tob.sqw_type)
+            assertTrue(tob.sqw_type) % its still sqw reader, you know...
             assertEqual(tob.num_dim,'undefined')
             
         end
+        %
+        function obj = test_block_sizes(obj)
+            
+            
+            samp = fullfile(fileparts(obj.test_folder),...
+                'test_symmetrisation','w1d_d1d.sqw');
+            
+            tob = dnd_binfile_common_tester();
+            tob = tob.init(samp);
+            
+            assertFalse(tob.sqw_type)
+            assertEqual(tob.num_dim,1)
+            
+            bm = tob.get_cblock_sizes();
+            cKeys = bm.keys();
+            cVal = bm.values();
+            assertEqual(numel(cKeys),2);
+            assertEqual(cVal{1}(2),1296)
+            assertEqual(cVal{2}(2),528)
+        end                
+        %
+        function obj = test_block_sizes_select(obj)
+                                   
+            tob = dnd_binfile_common_tester();
+
+            
+            bm = tob.get_cblock_sizes('dnd_methadata');
+            cKeys = bm.keys();
+            cVal = bm.values();
+            assertEqual(numel(cKeys),1);
+            assertTrue(isempty(cVal{1}))
+
+            f = @()tob.get_cblock_sizes('dnd_methadata','shit1','shit2');
+            assertExceptionThrown(f,'SQW_FILE_IO:invalid_arguments');
+            
+        end                
+
+        
     end
     
 end

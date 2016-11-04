@@ -19,6 +19,9 @@ if nargout < 1
         'DND_BINFILE_COMMON:set_file_to_write has to return its value in output object')
 end
 
+log_level = get(hor_config,'log_level');
+
+old_ldr = [];
 if nargin>1
     new_filename = varargin{1};
     if ~ischar(new_filename)
@@ -27,6 +30,16 @@ if nargin>1
     end
     if exist(new_filename,'file')
         file_exist = true;
+        try
+            old_ldr = sqw_formats_factory.instance().get_loader(new_filename);
+        catch
+            file_exist = false;
+            if log_level > 0
+                sprintf('*** Existing file:  %s will be overwritten.',new_filename);
+            end
+            
+        end
+        
     end
 else
     if isempty(obj.filename)
@@ -54,7 +67,12 @@ else
         end
     end
 end
+%
 if file_exist
+    if ischar(obj.num_dim) % existing reader is not defined. Lets return loader,
+        obj = old_ldr.reopen_to_write(); %already selected as best for this file by loaders factory
+        return
+    end
     perm = 'rb+';
 else
     perm = 'wb+';
@@ -76,26 +94,21 @@ obj.file_closer_ = onCleanup(@()obj.fclose());
 %-------------------------------------------------------------------------
 
 if file_exist
-    header = dnd_file_interface.get_file_header(obj.file_id_,perm);
-    if ~strcmp(header.name,'horace')
-        error('SQW_FILE_IO:invalid_argument',...
-            'DND_BINFILE_COMMON:set_file_to_write: trying to write to existing file %s but it is not a horace file',...
-            new_filename);
+    if isempty(old_ldr) && log_level > 0
+        sprintf('*** Existing file:  %s will be overwritten.',new_filename);
+        return
     end
-    if strncmp(obj.num_dim_,'un',2)
-        obj.num_dim_  = double(header.num_dim);
-    else
-        if obj.num_dim ~= header.num_dim
-            error('SQW_FILE_IO:invalid_argument',...
-                ['DND_BINFILE_COMMON:set_file_to_write: trying to set existing file %s for modifications,\n'...
-                ' but the number of existing dimensions in the file %d \n'...
-                ' is different from number of dimensions %d defined by the access object'],...
-                new_filename,header.num_dim,obj.num_dim)
-        end
+    can_upgrade = sqw_formats_factory.instance().check_compartibility(old_ldr,obj);
+    if ~can_upgrade
+        sprintf('*** Existing file:  %s will be overwritten.',new_filename);
+        return
     end
-    obj.sqw_type_= header.sqw_type;
-    
-    fseek(obj.file_id_,0,'eof');
-    obj.real_eof_pos_ = ftell(obj.file_id_);
+    ok = obj.check_upgrade(old_ldr);
+    if ~ok
+        sprintf('*** Existing file:  %s will be overwritten.',new_filename);
+        return
+    end
+    obj = obj.set_upgrade(old_ldr);
+    sprintf('*** Existing file:  %s will be upgraded with new object data',new_filename);
 end
 

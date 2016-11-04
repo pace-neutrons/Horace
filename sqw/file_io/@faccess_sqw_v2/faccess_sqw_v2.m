@@ -54,7 +54,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
                     should = true;
                     if stream.version == 3
                         warning('SQW_FILE_IO:legacy_data',...
-                            ['FACCESS_SQW_V2::should_load_stream Legacy sqw file version 3.0 has been discovered.\n'...
+                            ['FACCESS_SQW_V2::should_load_stream -- Legacy sqw file version 3.0 has been discovered.\n'...
                             'Loading it as sqw version 2 file with instrument/sample block discarded'])
                     end
                 else
@@ -64,7 +64,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
                 end
             else
                 error('SQW_FILE_IO:invalid_argument',...
-                    'FACCESS_SQW_V2::should_load_stream the input structure does not have correct format');
+                    'FACCESS_SQW_V2::should_load_stream -- The input structure does not have correct format');
             end
         end
         

@@ -182,9 +182,34 @@ classdef test_faccess_dnd_v2< TestCase
             
         end
         %
-        function test_data_format_access(obj)
-        end
-        
+%         function obj = test_block_sizes(obj)
+%             tob = dnd_binfile_common();
+%             
+%             samp = fullfile(fileparts(obj.test_folder),...
+%                 'test_symmetrisation','w1d_d1d.sqw');
+%             
+%             tob=tob.init(samp);
+%             
+%             assertFalse(tob.sqw_type)
+%             assertEqual(tob.num_dim,1)
+% 
+%             td1d = tob.get_sqw();
+% 
+%             td1d.alatt = td1d.alatt*1.1;
+%             test_file = fullfile(tempdir,'test_block_sizes_dnd.sqw');
+%             clob = onCleanup(@()delete(test_file));
+%             
+%             whl = faccess_dnd_v2(td1d,test_file);
+%             whl = whl.put_sqw();
+%             whl.delete();
+% 
+%             other_tob = faccess_dnd_v2(test_file);
+%             
+%             ok = tob.check_upgrade(other_tob);
+%             assertTrue(ok)
+% 
+%             other_tob.delete();
+%         end        
         
     end
 end

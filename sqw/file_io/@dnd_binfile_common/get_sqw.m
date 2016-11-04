@@ -36,7 +36,7 @@ function res = get_sqw (obj,varargin)
 %
 [ok,mess,verbatim,hver,~] =  parse_char_options(varargin,{'-verbatim','-hverbatim'});
 if ~ok
-    error('DND_BINFILE_COMMON:invalid_arguments',mess);
+    error('SQW_FILE_IO:invalid_arguments',mess);
 end
 verbatim = verbatim || hver;
 if verbatim
@@ -60,6 +60,6 @@ switch ndim
     case 4
         res = d4d(dat);                        
     otherwise
-        error('DND_BINFILE_COMMON:runtime_error',...
+        error('SQW_FILE_IO:runtime_error',...
             'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)
 end

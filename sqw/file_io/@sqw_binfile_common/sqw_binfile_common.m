@@ -34,6 +34,15 @@ classdef sqw_binfile_common < sqw_file_interface
             'header_pos_info_','detpar_pos_','detpar_pos_info_'};
         pixel_fields_to_save_ = {'urange_pos_',...
             'pix_pos_','eof_pix_pos_'};
+        
+        const_block_map_ = containers.Map({'main_header','last_header',...
+            'n_header','detpar','pix'},...
+            {{{'main_head_pos_info_','nfiles_pos_'},'header_pos_'},... %main header
+            {{'header_pos_info_','efix_pos_'},'detpar_pos_'},...       % last header
+            {{'header_pos_info_','efix_pos_'},{'header_pos_info_','filename_pos_'}},...  % n-header
+            {'detpar_pos_info_','ndet_pos_'},'data_pos_'},... % detpar
+            {'urange_pos_','eof_pix_pos_'}); % pix position
+        
     end
     %
     methods(Access = protected)
@@ -84,7 +93,12 @@ classdef sqw_binfile_common < sqw_file_interface
             flds = [obj.data_fields_to_save_(:);dnd_flds(:);...
                 obj.pixel_fields_to_save_(:)];
         end
-        
+
+        function bl_map = const_blocks_map(obj)
+            bl_map  = obj.const_block_map_;
+        end
+        % calculate byte-sizes of constant blocks (blocks to upgrade)
+        [bsm,block_map] = calc_cblock_sizes(obj,varargin)        
     end % end protected
     %
     methods % defined by this class
@@ -113,7 +127,23 @@ classdef sqw_binfile_common < sqw_file_interface
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         %
-        % ------- Interface stubs and helpers: 
+        % return structure, containing position of every data field in the
+        % file (when object is initialized)
+        function   pos_info = get_pos_info(obj)
+            % return structure, containing position of every data field in the
+            % file (when object is initialized) plus some auxiliary information
+            % used to fully describe this file
+            %
+            
+            fields2save = obj.fields_to_save();
+            pos_info  = struct();
+            for i=1:numel(fields2save)
+                fld = fields2save{i};
+                pos_info.(fld) = obj.(fld);
+            end
+        end
+        %
+        % ------- Interface stubs and helpers:
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is
             % defined, return empty structure.

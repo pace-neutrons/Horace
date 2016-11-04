@@ -46,6 +46,11 @@ classdef dnd_binfile_common < dnd_file_interface
         fields_to_save_ = {'num_dim_','dnd_dimensions_','data_type_',...
             'data_pos_','s_pos_','e_pos_','npix_pos_',...
             'dnd_eof_pos_','data_fields_locations_'};
+        % list of position fields which define boundareis of constant data
+        % blocks
+        const_block_map_ = containers.Map({'dnd_methadata','dnd_data'},...
+            {{{'data_fields_locations_','alatt_pos_'},'s_pos_'},...
+            {'s_pos_','dnd_eof_pos_'}});
     end
     %
     properties(Dependent)
@@ -108,16 +113,22 @@ classdef dnd_binfile_common < dnd_file_interface
             flds = obj.fields_to_save_;
         end
         %
-        function obj = init_input_file(obj,objinit)
-            % initialize input file using proper obj_init information
+        function bl_map = const_blocks_map(obj)
+            bl_map  = obj.const_block_map_;
+        end
+        %
+        function obj = init_by_input_file(obj,objinit)
+            % initialize object to read input file using proper obj_init information
             obj.file_id_ = objinit.file_id;
             obj.num_dim_ = objinit.num_dim;
             obj.file_closer_ = onCleanup(@()obj.fclose());
         end
+        % calculate byte-sizes of constant blocks (blocks to upgrade)
+        [bsm,block_map] = calc_cblock_sizes(obj,varargin)
     end
-    
+    %----------------------------------------------------------------------
     methods % defined by this class
-        
+        %
         % check if this loader should deal with selected file
         [ok,objinit,mess]=should_load(obj,filename)
         %
@@ -152,6 +163,24 @@ classdef dnd_binfile_common < dnd_file_interface
         % build header, which contains information on sqw object and
         % informs clients on contents of a binary file
         header = build_app_header(obj,sqw_obj)
+        
+        %------- Used in upgrade
+        %
+        %
+        % check if this object can be upgraded using position information
+        % from another object
+        ok = check_upgrade(obj,other_obj)
+        %
+        % Reopen exisging file to upgrade/write new data to it
+        obj = reopen_to_write(obj)
+        obj = set_upgrade(obj,other_obj)
+        
+        
+        function pos_info = get_pos_info(obj)
+            % return structure, containing position of every data field in the
+            % file (when object is initialized)
+            pos_info = get_pos_info_(obj);
+        end
         %
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is

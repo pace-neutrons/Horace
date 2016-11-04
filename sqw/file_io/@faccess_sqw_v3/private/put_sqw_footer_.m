@@ -3,17 +3,17 @@ function obj=put_sqw_footer_(obj)
 % fields, to be found in an sqw file of appropriate version and store these
 % positions on hdd for subsequent recovery and use in read/write operations
 %
-
 fields2save = obj.fields_to_save();
-data_block = struct();
+pos_info  = struct();
 for i=1:numel(fields2save)
     fld = fields2save{i};
-    data_block.(fld) = obj.(fld);
+    pos_info.(fld) = obj.(fld);
 end
 
 
+
 form = obj.get_si_form();
-bytes = obj.sqw_serializer_.serialize(data_block,form);
+bytes = obj.sqw_serializer_.serialize(pos_info,form);
 sz = uint32(numel(bytes));
 byte_sz = typecast(sz,'uint8');
 bytes = [bytes,byte_sz];

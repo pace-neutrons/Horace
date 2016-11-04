@@ -10,7 +10,7 @@ classdef sqw_file_interface < dnd_binfile_common
     %
     properties(Access=protected)
         %
-        num_contrib_files_ = 'undefined'
+        num_contrib_files_= 'undefined'
         %
         npixels_ = 'undefined';
     end

@@ -46,7 +46,7 @@ if isa(input,'obj_init')
         error('SQW_FILE_IO:invalid_argument',...
             'dnd_binfile_common::init method: get incorrect initialization information')
     end
-    obj = obj.init_input_file(input);
+    obj = obj.init_by_input_file(input);
 elseif ischar(input) || isnumeric(input)
     [ok,objinit,mess] = obj.should_load(varargin{1});
     if ~ok
@@ -59,10 +59,16 @@ elseif ischar(input) || isnumeric(input)
             'dnd_binfile_common::init method: Can not read input file: %s\n Reason: %s',...
             fname,mess);
     end
-    obj = obj.init_input_file(objinit);
+    obj = obj.init_by_input_file(objinit);
 else
     type = class(input);
     if ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'})
+        % still needed check against an obj already defined and new object
+        % used as upgrade
+        if ~ischar(obj.num_dim) && obj.file_id_ > 0
+            error('SQW_FILE_IO:runtime_error',...
+                'Upgrade existing object with new sqw/dnd object is not yet implemented')
+        end
         obj = obj.init_from_sqw_obj(varargin{:});
         if nargin == 3
             obj = obj.set_file_to_write(varargin{2});
@@ -78,4 +84,3 @@ else
     end
 end
 obj = obj.init_from_sqw_file();
-
