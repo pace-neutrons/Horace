@@ -23,7 +23,7 @@ mess = [];
 n = typecast(data_stream(1:4),'int32');
 if n>0 && n<1024   % allow up to 1024 characters in filename if bytes are from
     % Horace version 0;
-    name = char(data_stream(4+1:4+n))'; % for modern Hor versions it will be 'horace'
+    name = char(data_stream(4+1:4+n))'; % for modern Hor versions it will be 'Horace'
     % Need to try to catch case of e.g. text file where n is read as a stupidly high number
     if ~isvarname(name) % for horase v0 it will be filename
         [ok,uncertain] = check_hor_v0(name,data_stream);
@@ -41,7 +41,7 @@ if n>0 && n<1024   % allow up to 1024 characters in filename if bytes are from
         mess = 'Application name is not valid Matlab variable name';
         return;
     end
-    version =typecast(data_stream(4+n+1:4+n+8),'double'); % looks like it is some modern horace version
+    version =typecast(data_stream(4+n+1:4+n+8),'double'); % looks like it is some modern Horace version
     if ~isscalar(version) || version<0 || version>99999999
         mess = ['Application version: ', num2str(version), ' is not allowed version number'];
         return;

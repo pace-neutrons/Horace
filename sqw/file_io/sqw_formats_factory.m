@@ -13,7 +13,7 @@ classdef sqw_formats_factory < handle
         % of expected frequency for their appearance.
         supported_accessors_ = {faccess_sqw_v3(),faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
         % classes to load/save
-        supported_types_ = {'sqw','dnd','d0d','d1d','d2d','d3d','d4d'};
+        written_types_ = {'sqw','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders to use with correspondent class
         access_to_type_ind_ = {1,3,3,3,3,3,3};
         types_map_ ;
@@ -27,7 +27,7 @@ classdef sqw_formats_factory < handle
         % Singleton superclass.
         function obj = sqw_formats_factory()
             % Initialise your custom properties.
-            obj.types_map_= containers.Map(obj.supported_types_,...
+            obj.types_map_= containers.Map(obj.written_types_ ,...
                 obj.access_to_type_ind_);
             
             %nLoaders = numel(newObj.supported_readers);
@@ -131,7 +131,22 @@ classdef sqw_formats_factory < handle
                 end
             end
         end
-        
+        %
+        function is_compartible = check_compartibility(obj,class1,class2)
+            % check if second loader can upgrade the first one
+            %
+            if isa(class2,class(class1))
+                is_compartible = true;
+                return
+            end
+            %type1 = class(class1);
+            %type2 = class(class2);
+            if isa(class1,'faccess_sqw_v2') && isa(class2,'faccess_sqw_v3')
+                is_compartible = true;
+            else
+                is_compartible = false;
+            end
+        end
         
     end
 end

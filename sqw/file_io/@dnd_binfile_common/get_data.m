@@ -80,7 +80,8 @@ function [data_str,obj] = get_data (obj,varargin)
 [ok,mess,header_only,verbatim,hverbatim,~]=...
     parse_char_options(varargin,{'-head','-verbatim','-hverbatim'});
 if ~ok
-    error('DND_BINILE_COMMON:invalid_argument',mess);
+    error('SQW_FILE_IO:invalid_argument',...
+        'DND_BINFILE_COMMON::get_data: Error %s',mess);
 end
 hverbatim = verbatim||hverbatim;
 
@@ -91,26 +92,21 @@ hverbatim = verbatim||hverbatim;
 % This first set of fields are required for all output options
 % ------------------------------------------------------------
 if ischar(obj.num_dim)
-    error('DND_BINILE_COMMON:runtime_error',...
-        'get_data method called on un-initialized loader')
+    error('SQW_FILE_IO:runtime_error',...
+        'DND_BINFILE_COMMON::get_data: method called on un-initialized loader')
 end
 
 
 
 fseek(obj.file_id_,obj.data_pos_,'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('DND_BINILE_COMMON:io_error',...
-        'Can not move to the start of the main data block, Reason: %s',mess);
-end
+check_error_report_fail_(obj,...
+    'DND_BINFILE_COMMON::get_data: Can not move to the start of the main data block');
 
 sz = obj.s_pos_ - obj.data_pos_+1;
 bytes = fread(obj.file_id_,sz,'*uint8');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('DND_BINILE_COMMON:io_error',...
-        'Can not read the main data block, Reason: %s',mess);
-end
+check_error_report_fail_(obj,...
+    'DND_BINFILE_COMMON::get_data: Can not read the main data block');
+
 
 data_form = obj.get_dnd_form('-header');
 data_str = obj.sqw_serializer_.deserialize_bytes(bytes,data_form,1);
@@ -132,11 +128,8 @@ end
 %
 if ~header_only
     fseek(obj.file_id_,obj.s_pos_,'bof');
-    [mess,res] = ferror(obj.file_id_);
-    if res ~= 0
-        error('DND_BINILE_COMMON:io_error',...
-            'Can not move to the signal start position, Reason: %s',mess);
-    end
+    check_error_report_fail_(obj,...
+        'DND_BINFILE_COMMON::get_data: Can not move to the signal start position');
     
     numl = prod(obj.dnd_dimensions);
     if obj.convert_to_double
@@ -148,6 +141,9 @@ if ~header_only
         data_str.e    = fread(obj.file_id_,numl,'*float32');
         data_str.npix = fread(obj.file_id_,numl,'*uint64');
     end
+    check_error_report_fail_(obj,...
+        'DND_BINFILE_COMMON::get_data: Can not read signal error or npix array');
+    
     if obj.num_dim>1
         data_str.s = reshape(data_str.s,obj.dnd_dimensions);
         data_str.e = reshape(data_str.e,obj.dnd_dimensions);

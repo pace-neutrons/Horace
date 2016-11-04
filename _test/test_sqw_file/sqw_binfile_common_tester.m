@@ -13,6 +13,10 @@ classdef sqw_binfile_common_tester < sqw_binfile_common
         function obj = set_data_type(obj,val)
             obj.data_type_ = val;
         end
+        function [bls,varargout] = get_cblock_sizes(obj,varargin)
+            [bls,varargout] = obj.calc_cblock_sizes(varargin{:});
+        end
+
         
     end
     

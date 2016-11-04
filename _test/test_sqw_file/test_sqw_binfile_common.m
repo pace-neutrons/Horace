@@ -71,6 +71,7 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
             assertTrue(all(memb));
             
         end
+        %
         function obj = test_get_data_form(obj)
             tob = sqw_binfile_common_tester();
             
@@ -91,7 +92,7 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
             memb = ismember(fn,const_fields);
             assertTrue(all(memb));
             
-
+            
             mh = tob.get_data_form('-const','-head');
             fn = fieldnames(mh);
             ch ={'alatt','angdeg','uoffset','u_to_rlu',...
@@ -113,7 +114,16 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
             fn = fieldnames(mh);
             memb = ismember(fn,tot);
             assertTrue(all(memb));
-            
+        end
+        %
+        function obj = test_get_block_sizes(obj)
+            tob = sqw_binfile_common_tester();
+
+            bm = tob.get_cblock_sizes();
+            cKeys = bm.keys();
+            cVal = bm.values();
+            assertEqual(numel(cKeys),20);
+            assertTrue(isempty(cVal{1}))
             
         end
         

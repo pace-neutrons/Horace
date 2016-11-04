@@ -111,6 +111,10 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %
             [samp,obj] = get_instr_or_sample_(obj,'sample',varargin{:});
         end
+        % return structure, containing position of every data field in the
+        % file (when object is initialized). Here due to bug in Matlab
+        % inheritance chain
+        pos_info = get_pos_info(obj)
     end
     %
     methods(Static)

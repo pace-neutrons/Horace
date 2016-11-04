@@ -36,6 +36,7 @@ classdef faccess_dnd_v2 < dnd_binfile_common
                 obj = obj.init(varargin{:});
             end
         end
+        %
         function [should,objinit,mess]= should_load_stream(obj,stream,fid)
             % Check if this loader should load input data
             % Currently should any dnd object
