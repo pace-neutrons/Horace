@@ -39,6 +39,8 @@ classdef dnd_binfile_common < dnd_file_interface
         % operations showing position where the data have actually been
         % written
         real_eof_pos_ = 0; % does it give any advantage? TODO: not currently used or consistent
+        %
+        upgrade_map = [];
     end
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
@@ -46,11 +48,6 @@ classdef dnd_binfile_common < dnd_file_interface
         fields_to_save_ = {'num_dim_','dnd_dimensions_','data_type_',...
             'data_pos_','s_pos_','e_pos_','npix_pos_',...
             'dnd_eof_pos_','data_fields_locations_'};
-        % list of position fields which define boundareis of constant data
-        % blocks
-        const_block_map_ = containers.Map({'dnd_methadata','dnd_data'},...
-            {{{'data_fields_locations_','alatt_pos_'},'s_pos_'},...
-            {'s_pos_','dnd_eof_pos_'}});
     end
     %
     properties(Dependent)
@@ -113,9 +110,6 @@ classdef dnd_binfile_common < dnd_file_interface
             flds = obj.fields_to_save_;
         end
         %
-        function bl_map = const_blocks_map(obj)
-            bl_map  = obj.const_block_map_;
-        end
         %
         function obj = init_by_input_file(obj,objinit)
             % initialize object to read input file using proper obj_init information
@@ -123,8 +117,6 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.num_dim_ = objinit.num_dim;
             obj.file_closer_ = onCleanup(@()obj.fclose());
         end
-        % calculate byte-sizes of constant blocks (blocks to upgrade)
-        [bsm,block_map] = calc_cblock_sizes(obj,varargin)
     end
     %----------------------------------------------------------------------
     methods % defined by this class
@@ -241,6 +233,7 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.sqw_holder_ = [];
             obj=delete@dnd_file_interface(obj);
             obj.real_eof_pos_ = 0;
+            obj.upgrade_map = [];
         end
         %
         function obj = fclose(obj)

@@ -14,9 +14,8 @@ classdef dnd_binfile_common_tester < dnd_binfile_common
         function [bls,map] = get_cblock_sizes(obj,varargin)
             [bls,map] = obj.calc_cblock_sizes(varargin{:});
         end
-
+        
         
     end
-    
 end
 

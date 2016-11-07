@@ -135,41 +135,6 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
         end
         %
-        function obj = test_block_sizes(obj)
-            
-            
-            samp = fullfile(fileparts(obj.test_folder),...
-                'test_symmetrisation','w1d_d1d.sqw');
-            
-            tob = dnd_binfile_common_tester();
-            tob = tob.init(samp);
-            
-            assertFalse(tob.sqw_type)
-            assertEqual(tob.num_dim,1)
-            
-            bm = tob.get_cblock_sizes();
-            cKeys = bm.keys();
-            cVal = bm.values();
-            assertEqual(numel(cKeys),2);
-            assertEqual(cVal{1}(2),1296)
-            assertEqual(cVal{2}(2),528)
-        end                
-        %
-        function obj = test_block_sizes_select(obj)
-                                   
-            tob = dnd_binfile_common_tester();
-
-            
-            bm = tob.get_cblock_sizes('dnd_methadata');
-            cKeys = bm.keys();
-            cVal = bm.values();
-            assertEqual(numel(cKeys),1);
-            assertTrue(isempty(cVal{1}))
-
-            f = @()tob.get_cblock_sizes('dnd_methadata','shit1','shit2');
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_arguments');
-            
-        end                
 
         
     end

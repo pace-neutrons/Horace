@@ -1,0 +1,7 @@
+runtests test_serialize_deserialize
+runtests test_dnd_binfile_common
+runtests test_faccess_dnd_v2
+runtests test_faccess_sqw_v2
+runtests test_faccess_sqw_v3
+runtests test_faccess_sqw_prototype
+runtests test_sqw_formats_factory
