@@ -33,16 +33,7 @@ classdef sqw_binfile_common < sqw_file_interface
             'main_header_pos_','main_head_pos_info_','header_pos_',...
             'header_pos_info_','detpar_pos_','detpar_pos_info_'};
         pixel_fields_to_save_ = {'urange_pos_',...
-            'pix_pos_','eof_pix_pos_'};
-        
-        const_block_map_ = containers.Map({'main_header','last_header',...
-            'n_header','detpar','pix'},...
-            {{{'main_head_pos_info_','nfiles_pos_'},'header_pos_'},... %main header
-            {{'header_pos_info_','efix_pos_'},'detpar_pos_'},...       % last header
-            {{'header_pos_info_','efix_pos_'},{'header_pos_info_','filename_pos_'}},...  % n-header
-            {'detpar_pos_info_','ndet_pos_'},'data_pos_'},... % detpar
-            {'urange_pos_','eof_pix_pos_'}); % pix position
-        
+            'pix_pos_','eof_pix_pos_'};                
     end
     %
     methods(Access = protected)

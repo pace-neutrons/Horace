@@ -15,6 +15,7 @@ if io_error
     error('SQW_BINFILE_COMMON:io_error',...
         'IO error while parsing main header')
 end
+obj.main_head_pos_info_ = main_h_pos;
 
 %
 fseek(obj.file_id_,main_h_pos.nfiles_pos_,'bof');
@@ -73,6 +74,7 @@ end
 if ischar(obj.dnd_dimensions)
     obj.dnd_dimensions_ = double(data_header.p_size.field_value);
 end
+
 %
 obj.npixels_ = [];
 obj.s_pos_=data_pos.s_pos_;
@@ -85,18 +87,23 @@ if ~io_error
     % subsequent methods read pixes directrly, so here we shift pixel
     % position by the array length
     obj.data_type_ = 'a';
+    obj.dnd_eof_pos_ = data_pos.urange_pos_;
 else
     if ~isfield(data_pos,'npix_pos_')
         obj.data_type_ = 'b';
         obj=set_filepath(obj);
+        obj.dnd_eof_pos_ = pos;
         return
     end
     obj.data_type_ = 'b+';
     if ~isfield(data_pos,'pix_pos_')
         obj.data_type_ = 'a-';
+        obj.dnd_eof_pos_ = pos;
+        
         obj=set_filepath(obj);
         return;
     end
+    obj.dnd_eof_pos_ = data_pos.urange_pos_;
     obj.data_type_ = 'a';
 end
 obj.data_fields_locations_ = data_pos;
