@@ -4,7 +4,7 @@ function obj=init_sqw_footer_(obj)
 % positions on hdd for subsequent recovery for read/write operations
 %
 %
-% $Revision: 1315 $ ($Date: 2016-11-03 14:36:26 +0000 (Thu, 03 Nov 2016) $)
+% $Revision$ ($Date$)
 %
 %
 

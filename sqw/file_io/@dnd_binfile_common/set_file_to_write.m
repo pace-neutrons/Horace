@@ -9,7 +9,7 @@ function  [obj,file_exist] = set_file_to_write(obj,varargin)
 %
 % Open new or existing sqw file to perform write/append operations
 %
-% $Revision: 1312 $ ($Date: 2016-11-02 16:28:29 +0000 (Wed, 02 Nov 2016) $)
+% $Revision$ ($Date$)
 %
 
 file_exist = false;
