@@ -16,7 +16,8 @@ function   obj = put_main_header(obj,varargin)
 
 [ok,mess,update,argi] = parse_char_options(varargin,{'-update'});
 if ~ok
-    error('SQW_BINFILE_COMMON:invalid_argument',mess);
+    error('SQW_FILE_IO:runtime_error',...
+'SQW_BINFILE_COMMON:put_main_header: %s',mess);
 end
 %
 obj.check_obj_initated_properly();
@@ -33,14 +34,20 @@ else
     head_form = obj.get_main_header_form();
 end
 
+if update && ~obj.update_mode
+    error('SQW_FILE_IO:runtime_error',...
+        'DND_BINFILE_COMMON::put_dnd_methadata : input object has not been initiated for update mode');
+end
+
 
 bytes = obj.sqw_serializer_.serialize(main_header,head_form);
 if update
-    start_pos = obj.main_head_pos_info_.nfiles_pos_;
-    sz = obj.header_pos_-start_pos;
+    val = obj.upgrade_map_.cblocks_map('main_header');
+    start_pos = val(1);
+    sz = val(2);
     if sz ~= numel(bytes)
         error('SQW_BINFILE_COMMON:invalid_argument',...
-            'unavble to update main header as new data size is not equal to the space remaining')
+            'unable to update main header as new data size is not equal to the space remaining')
     end
 else
     start_pos = obj.main_header_pos_;

@@ -20,6 +20,15 @@ classdef test_faccess_dnd_v2< TestCase
             sz = p1-p0;
             fclose(fh);
         end
+        function fcloser(fid)
+             if fid>0
+                 fn = fopen(fid);
+                 if ~isempty(fn)
+                    fclose(fid);                     
+                 end
+
+             end
+        end
         
     end
     
@@ -77,7 +86,7 @@ classdef test_faccess_dnd_v2< TestCase
             
             
             [ok,initob] = to.should_load(obj.sample_file);
-            co1 = onCleanup(@()fclose(initob.file_id));
+            co1 = onCleanup(@()obj.fcloser(initob.file_id));
             
             
             assertTrue(ok);

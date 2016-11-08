@@ -36,7 +36,9 @@ end
 
 %
 if update % are we going to write new or update existing data
-    [pos,cur_size] = obj.upgrade_map_.cblocks_map('dnd_data');
+    val = obj.upgrade_map_.cblocks_map('dnd_data');
+    pos = val(1);
+    cur_size = val(2);
     % evaluate size of the object, provided for upgrade.
     data_form = obj.get_dnd_form('-data');
     size_str = obj.sqw_serializer_.calculate_positions(data_form,input_obj,obj.s_pos_);

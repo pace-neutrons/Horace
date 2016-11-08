@@ -48,6 +48,11 @@ end
 
 
 if update
+    if ~obj.update_mode
+        error('SQW_FILE_IO:runtime_error',...
+            'SQW_BINFILE_COMMON::put_headers : input object has not been initiated for update mode');
+    end
+    
     head_form = obj.get_header_form('-const');
 else
     head_form = obj.get_header_form();
@@ -65,6 +70,16 @@ else
     data_2save = headers;
 end
 
+if update
+    pos_list = obj.upgrade_map_.cblocks_map('header');
+    size_list = pos_list(2,:);
+    pos_list  = pos_list(1,:);
+else
+    pos_list = obj.header_pos_;
+end
+
+
+
 for i=1:n_files2_process
     if iscell(data_2save)
         bytes = obj.sqw_serializer_.serialize(data_2save{i},head_form);
@@ -72,9 +87,14 @@ for i=1:n_files2_process
         bytes = obj.sqw_serializer_.serialize(data_2save(i),head_form);
     end
     if update
-        error('SQW_BINFILE_COMMON:invalid_argument','not yet implemented');
+        if numel(bytes) ~= size_list(i)
+            error('SQW_FILE_IO:runtime_error',...
+                'SQW_BINFILE_COMMON::put_headers : size of upgraded header N%d (%d)  different from one on hdd (%d)',...
+                i,numel(bytes),size_list(i));
+            
+        end
     end
-    start_pos = obj.header_pos_(i);
+    start_pos  = pos_list(i);
     fseek(obj.file_id_,start_pos ,'bof');
     check_error_report_fail_(obj,sprintf('Error moving to the start of the header N%d',i));
     fwrite(obj.file_id_,bytes,'uint8');

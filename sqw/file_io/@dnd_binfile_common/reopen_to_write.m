@@ -1,10 +1,12 @@
 function obj = reopen_to_write(obj)
+% reopen already opened file in read-write mode (rb+)
+%
 if isempty(obj.filename)
     error('SQW_FILE_IO:runtime_error',...
         'DND_BINFILE_COMMON::reopen_to_write: can not reopen file if filename is not defined')
     
 end
-obj.file_closer_ = [];
+obj.file_closer_ = []; % This should close file
 fn = fopen(obj.file_id_);
 if ~isempty(fn)
     fclose(obj.file_id_);
@@ -17,6 +19,6 @@ if fid<1
         fname)
     
 end
-obj.file_id_ = fn;
+obj.file_id_ = fid;
 obj.file_closer_ = onCleanup(@()obj.fclose());
 

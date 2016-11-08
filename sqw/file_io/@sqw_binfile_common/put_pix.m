@@ -10,27 +10,32 @@ function   obj = put_pix(obj,varargin)
 %
 % $Revision$ ($Date$)
 %
+[ok,mess,update,nopix,argi] = parse_char_options(varargin,{'-update','-nopix'});
+if ~ok
+    error('SQW_FILE_IO:invalid_argument',...
+        'SQW_BINFILE_COMMON::put_pix: %s',mess);
+end
 
 
 obj.check_obj_initated_properly();
-external_input = false;
 
-if ~isempty(varargin)
-    sqw_pos = cellfun(@(x)(isa(x,'sqw')||isstruct(x)),varargin);
-    numeric_pos = cellfun(@isnumeric,varargin);
+
+if ~isempty(argi)
+    sqw_pos = cellfun(@(x)(isa(x,'sqw')||isstruct(x)),argi);
+    numeric_pos = cellfun(@isnumeric,argi);
     unknown  = ~(sqw_pos||numeric_pos);
     if any(unknown)
-        disp('unknown input: ',varargin{unknown});
+        disp('unknown input: ',argi{unknown});
         error('SQW_BINFILE_COMMON:invalid_argument',...
             'put_pixel: the routine accepts only sqw object and/or low and high numbers for pixels to save');
     end
-    input_obj = varargin{sqw_pos};
-    input_num = varargin{numeric_pos};
+    input_obj = argi{sqw_pos};
+    input_num = argi{numeric_pos};
     if ~isempty(input_obj)
         if isa(input_obj,'sqw')
             input_obj = input_obj.data;
         end
-        external_input = true;
+        update = true;
     else
         input_obj = obj.sqw_holder_.data;
     end
@@ -41,9 +46,19 @@ end
 
 
 head_pix = obj.get_data_form('-pix_only');
-if external_input
-    %TODO: (not implemented) check its possible to write pixels from new sqw to old
-    i=0;
+if update
+    if ~obj.update_mode
+        error('SQW_FILE_IO:runtime_error',...
+            'SQW_BINFILE_COMMON::put_pix: input object has not been initiated for update mode');
+    end
+    if obj.npixels ~= size(input_obj.pix,2)
+        error('SQW_FILE_IO:runtime_error',...
+            'SQW_BINFILE_COMMON::put_pix: unable to update pixels and pix number in file and update are different');
+    end
+    val   = obj.upgrade_map_.cblocks_map('pix');
+    start_pos = val(1);
+else
+    start_pos = obj.urange_pos_;
 end
 if ~isempty(input_num)
     if input_num<=0 || input_num>obj.num_contrib_files
@@ -63,18 +78,18 @@ end
 head_pix = rmfield(head_pix,'pix');
 bytes = obj.sqw_serializer_.serialize(input_obj,head_pix);
 
-start_pos = obj.urange_pos_;
+
 fseek(obj.file_id_,start_pos ,'bof');
 check_error_report_fail_(obj,'Error moving to the start of the pixels info');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the pixels information');
 %
-if external_input
-    npix = size(input_obj.pix,2);
-else
-    npix = obj.npixels;
-end
+npix = size(input_obj.pix,2);
 fwrite(obj.file_id_,npix,'uint64');
+
+if nopix
+    return;
+end
 
 shift = (npix_lo-1)*9*4;
 fseek(obj.file_id_,obj.pix_pos_+shift ,'bof');

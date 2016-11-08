@@ -45,10 +45,12 @@ bytes = obj.sqw_serializer_.serialize(input_obj,data_form);
 if update
     % identify the values of the first and last fields of format structure
     % in the structure, which describes the fields positions
-    [pos,sz] = obj.upgrade_map_.cblocks_map('dnd_methadata');
+    val = obj.upgrade_map_.cblocks_map('dnd_methadata');
+    pos = val(1);
+    sz = val(2);
     if numel(bytes) ~= sz
-        error('DND_BINFILE_COMMON:runtime_error',...
-            'Can not upgrade methadata as their disk size is different')
+        error('SQW_FILE_IO:runtime_error',...
+            'DND_BINFILE_COMMON::put_dnd_methadata: Can not upgrade methadata as their disk size is different from memory size')
     end
 else
     pos = obj.data_pos_;
@@ -58,7 +60,5 @@ fseek(obj.file_id_,pos,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the methadata record');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the dnd object methadata');
-
-
 
 
