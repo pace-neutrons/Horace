@@ -3,7 +3,7 @@ classdef const_blocks_map
     % where const blocks are the blocks which can be overwritten.
     %
     %
-    % $Revision: 1315 $ ($Date: 2016-11-03 14:36:26 +0000 (Thu, 03 Nov 2016) $)
+    % $Revision$ ($Date$)
     %
     properties(Access =protected)
         cblocks_map_=[];

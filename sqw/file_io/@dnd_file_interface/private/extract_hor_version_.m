@@ -4,7 +4,7 @@ function [ver_struct,mess] = extract_hor_version_(data_stream)
 % Original author: T.G.Perring
 %
 %
-% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
+% $Revision$ ($Date$)
 %
 %
 % read application version
