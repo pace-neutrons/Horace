@@ -47,6 +47,10 @@ for i=1:numel(w)
         disp(['Writing to ',file_internal{i},'...'])
     end
     ldw = ldw.init(w(i),file_internal{i});
-    ldw = ldw.put_sqw();
+    if ldw.upgrade_mode
+       ldw = ldw.put_sqw('-update','-nopix');
+    else
+        ldw = ldw.put_sqw();
+    end
     ldw = ldw.delete();
 end

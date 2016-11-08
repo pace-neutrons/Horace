@@ -37,5 +37,7 @@ obj.put_dnd_data(argi{:});
 obj.put_pix(argi{:});
 
 %
-fseek(obj.file_id_,0,'eof');
-obj.real_eof_pos_ = ftell(obj.file_id_);
+if ~update
+    fseek(obj.file_id_,0,'eof');
+    obj.real_eof_pos_ = ftell(obj.file_id_);
+end
