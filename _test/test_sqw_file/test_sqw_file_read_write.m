@@ -69,6 +69,7 @@ f1_1_s1=set_sample(f1_1,sam1);
 assertTrue(ok,mess)
 
 % Write and read back in
+delete(tmpsqwfile);
 try
     save(f1_1_s1,tmpsqwfile); 
     tmp=read(sqw,tmpsqwfile);

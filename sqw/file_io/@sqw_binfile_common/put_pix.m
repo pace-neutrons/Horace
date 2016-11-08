@@ -47,11 +47,11 @@ end
 
 head_pix = obj.get_data_form('-pix_only');
 if update
-    if ~obj.update_mode
+    if ~obj.upgrade_mode
         error('SQW_FILE_IO:runtime_error',...
             'SQW_BINFILE_COMMON::put_pix: input object has not been initiated for update mode');
     end
-    if obj.npixels ~= size(input_obj.pix,2)
+    if ~nopix && (obj.npixels ~= size(input_obj.pix,2))
         error('SQW_FILE_IO:runtime_error',...
             'SQW_BINFILE_COMMON::put_pix: unable to update pixels and pix number in file and update are different');
     end
@@ -88,6 +88,9 @@ npix = size(input_obj.pix,2);
 fwrite(obj.file_id_,npix,'uint64');
 
 if nopix
+    shift = npix * 9*4;
+    fseek(obj.file_id_,obj.pix_pos_+shift ,'bof');
+    ferror(obj.file_id_, 'clear'); % clear error in case if pixels have never been written
     return;
 end
 

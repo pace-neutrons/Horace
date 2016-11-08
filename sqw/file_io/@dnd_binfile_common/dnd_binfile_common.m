@@ -161,7 +161,7 @@ classdef dnd_binfile_common < dnd_file_interface
         %------- Used in upgrade
         function type = get.upgrade_mode(obj)
             % return true if object is set up for upgrade
-            type = ~isemtpy(obj.upgrade_map_);
+            type = ~isempty(obj.upgrade_map_);
         end
         function obj = set.upgrade_mode(obj,mode)
             obj = set_upgrade_mode_(obj,mode);

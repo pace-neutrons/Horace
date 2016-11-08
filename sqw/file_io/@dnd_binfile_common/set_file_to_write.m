@@ -34,8 +34,8 @@ if nargin>1
             old_ldr = sqw_formats_factory.instance().get_loader(new_filename);
         catch
             file_exist = false;
-            if log_level > 0
-                sprintf('*** Existing file:  %s will be overwritten.',new_filename);
+            if log_level > 1
+                fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);
             end
             
         end
@@ -94,22 +94,22 @@ obj.file_closer_ = onCleanup(@()obj.fclose());
 %-------------------------------------------------------------------------
 
 if file_exist
-    if isempty(old_ldr) && log_level > 0
-        sprintf('*** Existing file:  %s will be overwritten.',new_filename);
+    if isempty(old_ldr) && log_level > 1
+        fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);
         return
     end
     can_upgrade = sqw_formats_factory.instance().check_compartibility(old_ldr,obj);
     if ~can_upgrade
-        if log_level > 0;  sprintf('*** Existing file:  %s will be overwritten.',new_filename);end
+        if log_level > 1;  fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);end
         return
     end
     [ok,upgrade_map] = check_upgrade(obj,old_ldr,log_level);
     if ~ok
         obj.upgrade_map_ = [];
-        if log_level > 0; sprintf('*** Existing file:  %s will be overwritten.',new_filename); end
+        if log_level > 1; fprintf('*** Existing file:  %s will be overwritten.\n',new_filename); end
     else
         obj.upgrade_map_ = upgrade_map;
-        if log_level>0;   sprintf('*** Existing file:  %s will be upgraded with new object data',new_filename);  end
+        if log_level>1;   fprintf('*** Existing file:  %s can be upgraded with new object data.\n',new_filename);  end
     end
 else
     obj.upgrade_map_ = [];
@@ -123,8 +123,8 @@ this_map = const_blocks_map(this_pos);
 other_pos       = old_ldr.get_pos_info();
 upgrade_map_obj = const_blocks_map(other_pos);
 
-[ok,mess] = upgrade_map_obj.check_equal_size(this_map);
-if log_level>0
-    sprintf('*** %s',mess);
+[ok,mess] = upgrade_map_obj.check_equal_sizes(this_map);
+if ~ok && log_level>1
+    fprintf('*** %s\n',mess);
 end
 

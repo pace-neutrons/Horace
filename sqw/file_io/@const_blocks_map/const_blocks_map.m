@@ -38,7 +38,7 @@ classdef const_blocks_map
         const_block_map_ = containers.Map(const_blocks_map.block_names_,...
             const_blocks_map.block_positions_);
         % number of fields which must fit if upgrade is possible
-        nfld_must_fit_ =logical([1,1,1,1,1,1,0,0,0,0])
+        not_fit_ ={'instr_head','instrument','sample_head','sample'}
         
     end
     
@@ -63,14 +63,14 @@ classdef const_blocks_map
             if isempty(obj.cblocks_map_)
                 mp = containers.Map();
             else
-                nonf = obj.block_names_(~obj.nfld_must_fit_);
-                mp = remove(obj.cblocks_map_,nonf);
+                mp = remove(obj.cblocks_map_,obj.not_fit_);
             end
         end
         % initialize block map using blocks position as input
         obj = init(obj,pos_info);
-        % check
-        ok = check_equal_size(obj,other_obj)
+        % check if two objects contain equal size map which allow one to be
+        % upgraded to another
+        [ok,mess] = check_equal_sizes(obj,other_obj)
     end
     
 end

@@ -64,7 +64,8 @@ classdef sqw_file_interface < dnd_binfile_common
         obj = put_main_header(obj,varargin);
         obj = put_headers(obj,varargin);
         obj = put_det_info(obj,varargin);
-        obj = put_sqw(obj,varargin)
+        obj = put_pix(obj,varargin);
+        obj = put_sqw(obj,varargin);
         
     end
     

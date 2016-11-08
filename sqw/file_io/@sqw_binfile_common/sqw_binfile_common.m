@@ -114,7 +114,7 @@ classdef sqw_binfile_common < sqw_file_interface
         %
         obj = put_det_info(obj,varargin);
         %
-        obj = put_pix(obj,varagin);
+        obj = put_pix(obj,varargin);
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         %

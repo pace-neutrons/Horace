@@ -29,12 +29,12 @@ end
 
 
 if update
-    head_form = obj.get_main_header_form('-update');
+    head_form = obj.get_main_header_form('-const');
 else
     head_form = obj.get_main_header_form();
 end
 
-if update && ~obj.update_mode
+if update && ~obj.upgrade_mode
     error('SQW_FILE_IO:runtime_error',...
         'DND_BINFILE_COMMON::put_dnd_methadata : input object has not been initiated for update mode');
 end

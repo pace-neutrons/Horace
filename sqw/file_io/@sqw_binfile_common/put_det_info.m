@@ -31,7 +31,7 @@ end
 
 bytes = obj.sqw_serializer_.serialize(detpar,det_form);
 if update
-    if ~obj.update_mode
+    if ~obj.upgrade_mode
         error('SQW_FILE_IO:runtime_error',...
             'SQW_BINFILE_COMMON::put_det_info: input object has not been initiated for update mode');
     end

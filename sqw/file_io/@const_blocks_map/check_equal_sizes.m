@@ -1,4 +1,4 @@
-function [ok,mess] = check_equal_size(obj,other_obj)
+function [ok,mess] = check_equal_sizes(obj,other_obj)
 % check if other map describes the same size as the one
 % from another object.
 % Usage:
@@ -8,14 +8,14 @@ function [ok,mess] = check_equal_size(obj,other_obj)
 % other_obj-- another const_block_size to compare with
 % Returns:
 % ok       -- true if sizes are equal, false, otherwise
-% mess     -- empty if true, if false idientifies first different 
-%             block in both maps 
+% mess     -- empty if true, if false idientifies first different
+%             block in both maps
 %
 %
 % if upgrade map for other_obj is shorter than obj, its assumed that sizes are equal, if
 % longer, then not.
 %
-% $Revision$ ($Date$)
+% $Revision: 1321 $ ($Date: 2016-11-08 15:16:54 +0000 (Tue, 08 Nov 2016) $)
 %
 
 bs1 = obj.get_must_fit();
@@ -28,7 +28,7 @@ for i=1:numel(keys)
         bl1= bs1(theKey);
     else
         ok = false;
-        mess = sprintf(' Base object does not have block names: %s',...
+        mess = sprintf('Base object does not have block with name: %s',...
             theKey);
         return
         
@@ -38,13 +38,15 @@ for i=1:numel(keys)
         for j=1:size(bl1,2)
             if bl1(2,j) ~= bl2(2,j)
                 ok = false;
-                mess = sprintf(' The sizes of the block name: %s, element N%d/of%d are different',...
+                mess = sprintf('The sizes of the block: %s, element N%d/of%d are different',...
                     theKey,j,numel(bl1));
                 return
             end
         end
     else
         ok=false;
+        mess = sprintf(' The number of records (%d) for the block: %s, different from the N-records to upgrade (%d)',...
+            numel(bl1),theKey,numel(bl2));
         return
     end
 end
