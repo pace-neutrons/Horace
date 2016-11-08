@@ -67,7 +67,7 @@ else
         % used as upgrade
         if ~ischar(obj.num_dim) && obj.file_id_ > 0
             error('SQW_FILE_IO:runtime_error',...
-                'Upgrade existing object with new sqw/dnd object is not yet implemented')
+                'Upgrade of existing object with new sqw/dnd object is not yet implemented')
         end
         obj = obj.init_from_sqw_obj(varargin{:});
         if nargin == 3

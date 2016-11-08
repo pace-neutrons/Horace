@@ -40,7 +40,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % written
         real_eof_pos_ = 0; % does it give any advantage? TODO: not currently used or consistent
         %
-        upgrade_map = [];
+        upgrade_map_ = [];
     end
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
@@ -51,6 +51,8 @@ classdef dnd_binfile_common < dnd_file_interface
     end
     %
     properties(Dependent)
+        % true if existing file shoild be upgraded false -- ovewritten
+        upgrade_mode;
     end
     %
     methods(Access = protected)
@@ -157,6 +159,14 @@ classdef dnd_binfile_common < dnd_file_interface
         header = build_app_header(obj,sqw_obj)
         
         %------- Used in upgrade
+        function type = get.upgrade_mode(obj)
+            % return true if object is set up for upgrade
+            type = ~isemtpy(obj.upgrade_map_);
+        end
+        function obj = set.upgrade_mode(obj,mode)
+            obj = set_upgrade_mode_(obj,mode);
+        end
+        
         %
         %
         % check if this object can be upgraded using position information
@@ -165,15 +175,13 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         % Reopen exisging file to upgrade/write new data to it
         obj = reopen_to_write(obj)
-        obj = set_upgrade(obj,other_obj)
-        
-        
+        %
         function pos_info = get_pos_info(obj)
             % return structure, containing position of every data field in the
             % file (when object is initialized)
             pos_info = get_pos_info_(obj);
         end
-        %
+        %----------------------------------------------------
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is
             % defined, return empty structure.
@@ -185,7 +193,6 @@ classdef dnd_binfile_common < dnd_file_interface
             % empty structure.
             samp = struct();
         end
-        %
         %
         function obj = init(obj,varargin)
             % Initialize sqw accessor using various input sources
@@ -233,7 +240,7 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.sqw_holder_ = [];
             obj=delete@dnd_file_interface(obj);
             obj.real_eof_pos_ = 0;
-            obj.upgrade_map = [];
+            obj.upgrade_map_ = [];
         end
         %
         function obj = fclose(obj)
@@ -306,22 +313,6 @@ classdef dnd_binfile_common < dnd_file_interface
             data_form = process_format_fields_(argi{:});
         end
         %
-        function [obj,header_pos]=set_header_size(obj,app_header)
-            % auxiliary function to calculate various locations of the
-            % application header, which defines sqw data format
-            % and starting position (data_position) of meaningful sqw data.
-            %
-            % Used for debugging as default data_position value never changes
-            % for any modern sqw file formats
-            %
-            format = obj.app_header_form_;
-            if isempty(obj.sqw_serializer_)
-                obj.sqw_serializer_ = sqw_serializer();
-            end
-            % header_pos
-            [header_pos,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
-            obj.data_pos_  = pos;
-        end
     end
     methods(Static)
         % function extracts first and last field in the structure pos_fields
