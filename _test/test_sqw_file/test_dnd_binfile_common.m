@@ -123,7 +123,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             assertTrue(isa(tob,'faccess_sqw_v2'));
             
             
-            test_f = fullfile(tempdir,'test_set_file_to_write.sqw');
+            test_f = fullfile(tempdir,'test_change_file_to_write.sqw');
             clob = onCleanup(@()delete(test_f));
             
             tob=tob.set_file_to_write(test_f);

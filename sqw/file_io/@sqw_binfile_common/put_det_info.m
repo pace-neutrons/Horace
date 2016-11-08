@@ -31,11 +31,16 @@ end
 
 bytes = obj.sqw_serializer_.serialize(detpar,det_form);
 if update
-    start_pos = obj.detpar_pos_info_.ndet_pos_;
-    sz = obj.urange_pos_-start_pos;
+    if ~obj.update_mode
+        error('SQW_FILE_IO:runtime_error',...
+            'SQW_BINFILE_COMMON::put_det_info: input object has not been initiated for update mode');
+    end
+    val   = obj.upgrade_map_.cblocks_map('detpar');
+    start_pos = val(1);
+    sz = val(2);
     if sz ~= numel(bytes)
-        error('SQW_BINFILE_COMMON:invalid_argument',...
-            'put_det_info: unable to update detectors as new data size is not equal to the exisating space')
+        error('SQW_FILE_IO:runtime_error',...
+            'SQW_BINFILE_COMMON::put_det_info: unable to update detectors as new data size is not equal to the exisating space')
     end
 else
     start_pos = obj.detpar_pos_;
