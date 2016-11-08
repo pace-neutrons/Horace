@@ -28,8 +28,6 @@ classdef dnd_file_interface
         
         %True to convert all read fields (except pixels) into double
         convert_to_double_ = true;
-        % if the file is called in upgrade mode
-        upgrade_mode_ = false;
     end
     %
     properties(Constant,Access=protected)
@@ -61,7 +59,6 @@ classdef dnd_file_interface
         % are converted to double
         convert_to_double
         % 
-        upgrade_mode;
     end
     %----------------------------------------------------------------------
     methods
@@ -90,11 +87,6 @@ classdef dnd_file_interface
             % false if not.
             type = obj.sqw_type_;
         end
-       function type = get.upgrade_mode(obj)
-            % return true if object is set up for upgrade
-            type = obj.upgrade_mode_;
-        end
-
         %
         function ff=get.data_type(obj)
             %   data_type   Type of sqw data written in the file
@@ -127,7 +119,6 @@ classdef dnd_file_interface
             obj.data_type_      = 'undefined';
             obj.sqw_type_       = false;
             obj.convert_to_double_ = true;
-            obj.upgrade_mode_   = false;
         end
         
     end

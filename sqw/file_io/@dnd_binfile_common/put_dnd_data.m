@@ -10,6 +10,10 @@ function obj=put_dnd_data(obj,varargin)
 %
 
 %
+% $Revision$ ($Date$)
+%
+
+%
 [ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
 if ~ok
     error('DND_BINFILE_COMMON:invalid_artgument',...
@@ -24,21 +28,29 @@ check_obj_initiated_properly_(obj);
 if new_obj
     update = true;
 end
+%
+if update && ~obj.update_mode
+    error('SQW_FILE_IO:runtime_error',...
+        'DND_BINFILE_COMMON::put_dnd_methadata : input object has not been initiated for update mode');
+end
 
 %
 if update % are we going to write new or update existing data
+    [pos,cur_size] = obj.upgrade_map_.cblocks_map('dnd_data');
+    % evaluate size of the object, provided for upgrade.
     data_form = obj.get_dnd_form('-data');
     size_str = obj.sqw_serializer_.calculate_positions(data_form,input_obj,obj.s_pos_);
     sz = size_str.dnd_eof_pos_ -size_str.s_pos_;
-    cur_size = obj.dnd_eof_pos_-obj.s_pos_;
     if cur_size  ~= sz
-        error('DND_BINFILE_COMMON:runtime_error',...
-            'Can not upgrade dnd data as their disk size is different from existing')
+        error('SQW_FILE_IO:runtime_error',...
+            'DND_BINFILE_COMMON::put_dnd_data: Can not upgrade dnd data as current disk size is different from provided')
     end
+else
+    pos = obj.s_pos_;
 end
 %
 % write signal, error and npix
-fseek(obj.file_id_,obj.s_pos_,'bof');
+fseek(obj.file_id_,pos,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the signal record');
 
 fwrite(obj.file_id_,input_obj.s,'float32');

@@ -13,8 +13,21 @@ classdef sqw_binfile_common_tester < sqw_binfile_common
         function obj = set_data_type(obj,val)
             obj.data_type_ = val;
         end
-        function [bls,varargout] = get_cblock_sizes(obj,varargin)
-            [bls,varargout] = obj.calc_cblock_sizes(varargin{:});
+        function [obj,header_pos]=set_header_size(obj,app_header)
+            % auxiliary function to calculate various locations of the
+            % application header, which defines sqw data format
+            % and starting position (data_position) of meaningful sqw data.
+            %
+            % Used for debugging as default data_position value never changes
+            % for any modern sqw file formats
+            %
+            format = obj.app_header_form_;
+            if isempty(obj.sqw_serializer_)
+                obj.sqw_serializer_ = sqw_serializer();
+            end
+            % header_pos
+            [header_pos,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
+            obj.data_pos_  = pos;
         end
 
         

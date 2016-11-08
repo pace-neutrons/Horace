@@ -100,15 +100,31 @@ if file_exist
     end
     can_upgrade = sqw_formats_factory.instance().check_compartibility(old_ldr,obj);
     if ~can_upgrade
-        sprintf('*** Existing file:  %s will be overwritten.',new_filename);
+        if log_level > 0;  sprintf('*** Existing file:  %s will be overwritten.',new_filename);end
         return
     end
-    ok = obj.check_upgrade(old_ldr);
+    [ok,upgrade_map] = check_upgrade(obj,old_ldr,log_level);
     if ~ok
-        sprintf('*** Existing file:  %s will be overwritten.',new_filename);
-        return
+        obj.upgrade_map_ = [];
+        if log_level > 0; sprintf('*** Existing file:  %s will be overwritten.',new_filename); end
+    else
+        obj.upgrade_map_ = upgrade_map;
+        if log_level>0;   sprintf('*** Existing file:  %s will be upgraded with new object data',new_filename);  end
     end
-    obj = obj.set_upgrade(old_ldr);
-    sprintf('*** Existing file:  %s will be upgraded with new object data',new_filename);
+else
+    obj.upgrade_map_ = [];
+end
+
+function [ok,upgrade_map_obj] = check_upgrade(obj,old_ldr,log_level)
+%
+this_pos = obj.get_pos_info();
+this_map = const_blocks_map(this_pos);
+
+other_pos       = old_ldr.get_pos_info();
+upgrade_map_obj = const_blocks_map(other_pos);
+
+[ok,mess] = upgrade_map_obj.check_equal_size(this_map);
+if log_level>0
+    sprintf('*** %s',mess);
 end
 

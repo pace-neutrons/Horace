@@ -43,11 +43,16 @@ classdef const_blocks_map
     end
     
     methods
+        %
         function obj = const_blocks_map(varargin)
+        % constructor. If provided with parameters, 
+        % calls init method on parameters.
+        %
             if nargin>0
-                obj = obj.init(varargin{1});
+                obj = obj.init(varargin{:});
             end
         end
+        %
         function mp = get.cblocks_map(obj)
             mp = obj.cblocks_map_;
         end
@@ -62,7 +67,7 @@ classdef const_blocks_map
                 mp = remove(obj.cblocks_map_,nonf);
             end
         end
-        % initialize block map using block position as input
+        % initialize block map using blocks position as input
         obj = init(obj,pos_info);
         % check
         ok = check_equal_size(obj,other_obj)
