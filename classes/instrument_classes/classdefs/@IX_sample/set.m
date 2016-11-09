@@ -74,8 +74,10 @@ catch
 end
 
 %   15 Aug 2009:   updated to allow isvalid to alter input structure
-[ok,message,this]=isvalid(this);
-if ~ok
-    error(message)
+if isa(this,'sqw')
+    [ok,message,this]=isvalid(this);
+    if ~ok
+        error(message)
+    end
 end
 varargout{1} = this;

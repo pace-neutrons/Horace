@@ -1,8 +1,8 @@
 function worker(class_name,job_controls_string)
-% function used as standard worker to do a job in different matlab
+% function used as standard worker to do a job in different Matlab
 % session
 %
-% To work, should be present on a data searh path, before Herbert is
+% To work, should be present on a data search path, before Herbert is
 % initialized as may need to initialize Herbert and Horace itself
 %
 %Inputs:
@@ -10,7 +10,7 @@ function worker(class_name,job_controls_string)
 %               should inherit from JobExecutor and overload
 %               do_job method
 %
-% job_controls_string - the structure, containining information, necessary to
+% job_controls_string - the structure, containing information, necessary to
 %              initiate job
 %
 %
