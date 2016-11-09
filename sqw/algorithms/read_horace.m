@@ -6,7 +6,6 @@ function varargout = read_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 
-[varargout,mess] = horace_function_call_method (nargout, @read, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end
+varargoud = read_sqw(varargin{:})
