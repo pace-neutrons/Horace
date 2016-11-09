@@ -63,6 +63,8 @@ classdef const_blocks_map
             if isempty(obj.cblocks_map_)
                 mp = containers.Map();
             else
+                warning('off','MATLAB:Containers:Map:NoKeyToRemove')
+                clob = onCleanup(@()warning('on','MATLAB:Containers:Map:NoKeyToRemove'));
                 mp = remove(obj.cblocks_map_,obj.not_fit_);
             end
         end

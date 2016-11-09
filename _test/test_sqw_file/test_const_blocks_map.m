@@ -67,7 +67,7 @@ classdef test_const_blocks_map <  TestCase %WithSave
 
             bsc2 = const_blocks_map(pos);
 
-            ok = bsc.check_equal_size(bsc2);
+            ok = bsc.check_equal_sizes(bsc2);
             assertTrue(ok);
         end
         

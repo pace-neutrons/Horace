@@ -20,7 +20,7 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
         end
         %-----------------------------------------------------------------
         function obj = test_get_main_header_form(obj)
-            tob = sqw_binfile_common();
+            tob = sqw_binfile_common_tester();
             mh = tob.get_main_header_form();
             
             fn = fieldnames(mh);
@@ -33,7 +33,7 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
             assertTrue(all(memb));
         end
         function obj = test_get_header_form(obj)
-            tob = sqw_binfile_common();
+            tob = sqw_binfile_common_tester();
             
             mh = tob.get_header_form();
             
@@ -53,7 +53,7 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
             assertTrue(all(memb));
         end
         function obj = test_get_detpar_form(obj)
-            tob = sqw_binfile_common();
+            tob = sqw_binfile_common_tester();
             
             mh = tob.get_detpar_form();
             
@@ -116,17 +116,6 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
             assertTrue(all(memb));
         end
         %
-        function obj = test_get_block_sizes(obj)
-            tob = sqw_binfile_common_tester();
-
-            bm = tob.get_cblock_sizes();
-            cKeys = bm.keys();
-            cVal = bm.values();
-            assertEqual(numel(cKeys),20);
-            assertTrue(isempty(cVal{1}))
-            
-        end
-        
     end
     
 end
