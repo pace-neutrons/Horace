@@ -9,7 +9,7 @@ end
 obj.file_closer_ = []; % This should close file
 fn = fopen(obj.file_id_);
 if ~isempty(fn)
-    fclose(obj.file_id_);
+    obj = obj.fclose();
 end
 fname = fullfile(obj.filepath,obj.filename);
 fid = fopen(fname,'rb+');

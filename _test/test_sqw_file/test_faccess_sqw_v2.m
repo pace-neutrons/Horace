@@ -175,6 +175,68 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(struct(tob_sqw),struct(rec_sqw));
             %
         end
+        %
+        function obj = test_upgrade_sqw(obj)
+            spath = fileparts(obj.sample_file);
+            samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
+            
+            
+            tf = fullfile(tempdir,'test_upgrade_sqwV2.sqw');
+            clob = onCleanup(@()delete(tf));
+            copyfile(samplef,tf);
+            
+            tob = faccess_sqw_v2(tf);
+            tob = tob.upgrade_file_format();
+            assertTrue(isa(tob,'faccess_sqw_v3'));
+            
+            
+            sqw1 = tob.get_sqw();
+            
+            tob.delete();
+            
+            to = sqw_formats_factory.instance().get_loader(tf);
+            assertTrue(isa(to,'faccess_sqw_v3'));
+            
+            sqw2 = to.get_sqw();
+            
+            assertEqual(sqw1,sqw2);
+            to.delete();
+            %
+        end
+        function obj = test_upgrade_sqw_wac(obj)
+            %
+            spath = fileparts(obj.sample_file);
+            samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
+            
+            sqwob = read_sqw(samplef);
+            
+            tf = fullfile(tempdir,'test_upgrade_sqwV2_wac.sqw');
+            clob = onCleanup(@()delete(tf));
+            tob = faccess_sqw_v2(sqwob,tf);
+            tob = tob.put_sqw();
+            
+            tobV3 = tob.upgrade_file_format();
+            assertTrue(isa(tobV3,'faccess_sqw_v3'));
+            
+            
+            sqw1 = tobV3.get_sqw();
+            
+            tob.delete();
+            tobV3.delete();
+            
+            to = sqw_formats_factory.instance().get_loader(tf);
+            assertTrue(isa(to,'faccess_sqw_v3'));
+            
+            sqw2 = to.get_sqw();
+            to.delete();           
+            
+            assertEqual(sqw1,sqw2);
+            [ok,mess]=equal_to_tol(sqwob,sqw2,'ignore_str',true);
+            assertTrue(ok,mess)
+            
+            %
+        end
+        
         
     end
 end

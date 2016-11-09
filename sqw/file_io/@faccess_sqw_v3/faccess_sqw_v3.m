@@ -33,10 +33,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % sqw file as input
             obj = init_from_sqw_obj@sqw_binfile_common(obj,varargin{:});
             %
-            obj = init_sample_instr_records_(obj);
-            %
-            obj.position_info_pos_= obj.instr_sample_end_pos_;
-            obj = init_sqw_footer_(obj);
+            obj = obj.init_v3_specific();
         end
         %
         function flds = fields_to_save(obj)
@@ -44,6 +41,12 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             head_flds = fields_to_save@sqw_binfile_common(obj);
             flds = [head_flds(:);obj.data_fields_to_save_(:)];
         end
+        %
+        function obj = put_footer(obj)
+            % store file footer i.e. the information, describing the file
+            % format
+            obj = put_sqw_footer_(obj);
+        end        
         
     end
     properties(Constant,Access=private)
@@ -117,15 +120,35 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         % file (when object is initialized). Here due to bug in Matlab
         % inheritance chain
         pos_info = get_pos_info(obj)
-        
-        function obj = put_sample(obj,varargin)
-            % store or change sample information in the file
-            obj= put_sample_(obj,varargin);
+        %
+        function obj = put_instruments(obj,varargin)
+            % store or change instrument information in the file
+            % causes storing of sample and footer information too
+            obj= put_sample_instr_records_(obj,varargin{:});
+            obj = obj.put_footer();            
         end
+        %
+        function obj = put_samples(obj,varargin)
+            % store or change sample information in the file
+            % causes storing of instrument and footer information too
+            obj= put_sample_instr_records_(obj,varargin{:});
+            obj = obj.put_footer();
+        end
+        
+        
         function new_obj = upgrade_file_format(obj)
             % this is currently (01/01/2017) recent file format. Do nothing
             new_obj = obj;
         end
+        %
+        function obj = init_v3_specific(obj)
+            % init position information specific for sqw v3 object
+            obj = init_sample_instr_records_(obj);
+            %
+            obj.position_info_pos_= obj.instr_sample_end_pos_;
+            obj = init_sqw_footer_(obj);
+        end
+        
     end
     %
     methods(Static)

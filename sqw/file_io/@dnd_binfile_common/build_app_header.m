@@ -13,7 +13,7 @@ if ~exist('obj_to_save','var')
 end
 %
 if isempty(obj_to_save)
-    error('DND_BINFILE_COMMON:invalid_argument',...
+    error('SQW_FILE_IO:invalid_argument',...
         ' build_app_header no object to build header for is provided')
 end
 
@@ -23,13 +23,21 @@ app_header.version  = obj.file_ver_;
 %
 if isa(obj_to_save,'sqw')
     app_header.sqw_type = true;
-    ndim = numel(size(obj_to_save.data.s));
+    dim  = size(obj_to_save.data.s);
+    if numel(dim) == 2
+        if dim(1) == 1
+            dim = dim(2);
+        elseif dim(2) == 1
+            dim = dim(1);
+        end
+    end
+    ndim = numel(dim);
 else
     type    = class(obj_to_save);
     classes = {'d0d','d1d','d2d','d3d','d4d'};
     ind = ismember(classes,type);
     if ~any(ind)
-        error('DND_BINFILE_COMMON:invalid_argument',...
+        error('SQW_FILE_IO:invalid_argument',...
             ' build_app_header -- unsupported class to save %s',type)
     end
     app_header.sqw_type = false;

@@ -33,7 +33,7 @@ classdef sqw_binfile_common < sqw_file_interface
             'main_header_pos_','main_head_pos_info_','header_pos_',...
             'header_pos_info_','detpar_pos_','detpar_pos_info_'};
         pixel_fields_to_save_ = {'urange_pos_',...
-            'pix_pos_','eof_pix_pos_'};                
+            'pix_pos_','eof_pix_pos_'};
     end
     %
     methods(Access = protected)
@@ -84,12 +84,20 @@ classdef sqw_binfile_common < sqw_file_interface
             flds = [obj.data_fields_to_save_(:);dnd_flds(:);...
                 obj.pixel_fields_to_save_(:)];
         end
-
+        
         function bl_map = const_blocks_map(obj)
             bl_map  = obj.const_block_map_;
         end
         % calculate byte-sizes of constant blocks (blocks to upgrade)
-        [bsm,block_map] = calc_cblock_sizes(obj,varargin)        
+        [bsm,block_map] = calc_cblock_sizes(obj,varargin)
+        %
+        function [obj,missinig_fields] = copy_contents(obj,other_obj)
+            % the main part of the copy constructor, copying the contents
+            % of the one class into another.
+            % Copied of dnd_binfile_common to support overload
+            [obj,missinig_fields] = copy_contents_(obj,other_obj);
+        end
+        
     end % end protected
     %
     methods % defined by this class
@@ -118,6 +126,20 @@ classdef sqw_binfile_common < sqw_file_interface
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         %
+        function obj = put_instruments(obj,varargin)
+            error('SQW_FILE_IO:runtime_error',...
+                'put_instruments is not implemented for faccess_sqw %s',...
+                obj.file_version);
+        end
+        %
+        function obj = put_samples(obj,varargin)
+            error('SQW_FILE_IO:runtime_error',...
+                'put_samples is not implemented for faccess_sqw %s',...
+                obj.file_version);
+            
+        end
+        %
+        %
         % return structure, containing position of every data field in the
         % file (when object is initialized)
         function   pos_info = get_pos_info(obj)
@@ -125,7 +147,6 @@ classdef sqw_binfile_common < sqw_file_interface
             % file (when object is initialized) plus some auxiliary information
             % used to fully describe this file
             %
-            
             fields2save = obj.fields_to_save();
             pos_info  = struct();
             for i=1:numel(fields2save)

@@ -48,5 +48,3 @@ else
     obj.dnd_eof_pos_ = pos;
 end
 obj.data_fields_locations_=data_pos;
-
-

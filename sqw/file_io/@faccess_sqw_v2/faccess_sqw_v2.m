@@ -67,8 +67,9 @@ classdef faccess_sqw_v2 < sqw_binfile_common
                     'FACCESS_SQW_V2::should_load_stream -- The input structure does not have correct format');
             end
         end
+        %
         function new_obj = upgrade_file_format(obj)
-            % Uprade file from format 2 to format 3
+            % Uprade file from format 2 to format 3 
             new_obj = upgrade_file_format_(obj);
         end
         

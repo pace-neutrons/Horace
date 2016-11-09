@@ -1,6 +1,6 @@
 classdef const_blocks_map
     % Class to support the map of the constant blocks in sqw/dnd file,
-    % where const blocks are the blocks which can be overwritten.
+    % where const blocks are the blocks which can be overwritten on hdd.
     %
     %
     % $Revision$ ($Date$)
@@ -13,7 +13,7 @@ classdef const_blocks_map
         cblocks_map;
     end
     properties(Constant,Access=private)
-        % list of position fields which define boundareis of constant data
+        % list of position fields which define boundaries of constant data
         % blocks
         block_names_ = {'main_header',...
             '$0_header','$n_header',... % virtual fields to transform to 'header' field on output
@@ -32,7 +32,7 @@ classdef const_blocks_map
             {'urange_pos_','eof_pix_pos_'},...                       % pix block position
             {'instrument_head_pos_','instrument_pos_'},... % instrument header | -- these four are not
             {'instrument_pos_','sample_head_pos_'},...     % instrument block  |
-            {'sample_head_pos_','sample_pos_'},...         % sample header     | srcicly necessary, but provided
+            {'sample_head_pos_','sample_pos_'},...         % sample header     | strictly necessary, but provided
             {'sample_pos_','instr_sample_end_pos_'},...    % sample block      |
             };                                             %                   | for consistency
         const_block_map_ = containers.Map(const_blocks_map.block_names_,...
