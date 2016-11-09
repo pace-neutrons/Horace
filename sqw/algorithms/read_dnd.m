@@ -9,7 +9,10 @@ function varargout = read_dnd(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+%
+argi = varargin;
+argi{end+1} = '-nopix';
 
-[varargout,mess] = horace_function_call_method (nargout, @read, '$dnd', varargin{:});
-if ~isempty(mess), error(mess), end
+varargout = read_sqw(argi{:});
+
