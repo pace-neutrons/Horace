@@ -120,9 +120,11 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.file_closer_ = onCleanup(@()obj.fclose());
         end
         %
-        function [obj,other_obj,missinig_fields] = copy_contents(obj,other_obj)
-            % the main part of the copy constructor
-            [obj,other_obj,missinig_fields] = copy_contents_(obj,other_obj);
+        function [obj,missinig_fields] = copy_contents(obj,other_obj)
+            % the main part of the copy constructor, copying the contents
+            % of the one class into another.
+            %
+            [obj,missinig_fields] = copy_contents_(obj,other_obj);
         end
     end
     %----------------------------------------------------------------------

@@ -1,5 +1,7 @@
+runtests test_const_blocks_map
 runtests test_serialize_deserialize
 runtests test_dnd_binfile_common
+runtests test_sqw_binfile_common
 runtests test_faccess_dnd_v2
 runtests test_faccess_sqw_v2
 runtests test_faccess_sqw_v3
