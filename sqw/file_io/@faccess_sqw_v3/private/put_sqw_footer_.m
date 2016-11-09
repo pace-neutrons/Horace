@@ -14,9 +14,10 @@ end
 
 form = obj.get_si_form();
 bytes = obj.sqw_serializer_.serialize(pos_info,form);
-obj.real_eof_pos_ = uint32(numel(bytes));
+sz = uint32(numel(bytes));
 byte_sz = typecast(sz,'uint8');
 bytes = [bytes,byte_sz];
+
 
 pos = obj.position_info_pos_;
 fseek(obj.file_id_,pos,'bof');
@@ -37,7 +38,9 @@ eof_ = ftell(obj.file_id_);
 if eof_ > obj.real_eof_pos_
     add_block = eof_ - obj.real_eof_pos_;
     if add_block>0
-        if add_block<4; add_block=4; end;
+        if add_block<4; add_block=4; end; %its not striclty necessary, as real footer 
+        % size not used any more but done in case if real_eof_pos_ will be
+        % used in a future. 
         
         pos = obj.real_eof_pos_+add_block-4;
         fseek(obj.file_id_,pos,'bof');
