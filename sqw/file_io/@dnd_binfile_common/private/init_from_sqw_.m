@@ -19,7 +19,15 @@ dnd_2save = varargin{1};
 if strcmp(obj.data_type_,'undefined')
     obj.data_type_ = 'b+';
 end
-obj.dnd_dimensions_ = size(dnd_2save.s);
+dim = size(dnd_2save.s);
+if numel(dim) == 2
+    if dim(1) == 1
+        dim = dim(2);
+    elseif dim(2) == 1
+        dim = dim(1);
+    end
+end
+obj.dnd_dimensions_ = dim;
 obj.num_dim_ = numel(obj.dnd_dimensions_);
 %
 %

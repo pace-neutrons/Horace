@@ -5,6 +5,12 @@ classdef dnd_binfile_common_tester < dnd_binfile_common
     end
     
     methods
+        function obj = dnd_binfile_common_tester(varargin)
+            obj = obj@dnd_binfile_common();
+            if nargin>0
+                obj  = obj.init(varargin{:});
+            end
+        end
         function obj=set_datatype(obj,val)
             % test-helper function used to set some data type
             % should be used in testing only as normally it is calculated

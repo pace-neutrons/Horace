@@ -27,20 +27,33 @@ function obj = common_init_logic_(obj,varargin)
 %                    the file will be overwritten or upgraded if the loader
 %                    has alreadty been initiated with this file
 %
+%>>obj=obj.init(another_object) -- copy constructor. Also accepts all
+%                 aditional arguments from above.
+%
 %
 % $Revision$ ($Date$)
 %
-
-if isempty(obj.sqw_serializer_)
-    obj.sqw_serializer_ = sqw_serializer();
-end
 if nargin<1
     error('SQW_FILE_IO:invalid_argument',...
         'dnd_binfile_common::init method invoked without any input argument')
 end
-
-input = varargin{1};
-
+%
+if isa(varargin{1},'dnd_binfile_common') % run copy constructor
+    obj = obj.copy_contents(varargin{1});
+    argi = varargin(2:end);
+else
+    argi = varargin;
+end
+%
+if isempty(obj.sqw_serializer_)
+    obj.sqw_serializer_ = sqw_serializer();
+end
+%
+if isempty(argi)
+    return;
+end
+input = argi{1};
+%
 if isa(input,'obj_init')
     if input.file_id<0
         error('SQW_FILE_IO:invalid_argument',...
@@ -48,7 +61,7 @@ if isa(input,'obj_init')
     end
     obj = obj.init_by_input_file(input);
 elseif ischar(input) || isnumeric(input)
-    [ok,objinit,mess] = obj.should_load(varargin{1});
+    [ok,objinit,mess] = obj.should_load(input);
     if ~ok
         if ischar(input)
             fname = input;
@@ -69,9 +82,9 @@ else
             error('SQW_FILE_IO:runtime_error',...
                 'Upgrade of existing object with new sqw/dnd object is not yet implemented')
         end
-        obj = obj.init_from_sqw_obj(varargin{:});
+        obj = obj.init_from_sqw_obj(argi{:});
         if nargin == 3
-            obj = obj.set_file_to_write(varargin{2});
+            obj = obj.set_file_to_write(argi{2:end});
         else
             if ~isempty(obj.filename)
                 obj = obj.set_file_to_write();

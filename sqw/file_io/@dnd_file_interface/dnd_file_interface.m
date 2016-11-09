@@ -164,7 +164,7 @@ classdef dnd_file_interface
         % save sqw object stored in memory into binary sqw file. Depending
         % on data present in memory it can in fact save dnd object.
         % Save new or fully overwrite existing sqw file
-        obj = put_sqw(obj,sqw_obj,varargin);
+        obj = put_sqw(obj,varargin);
         % Comprising of:
         % 1) store or updata application header
         obj = put_app_header(obj);

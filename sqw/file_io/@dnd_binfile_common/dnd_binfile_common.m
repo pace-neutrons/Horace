@@ -119,6 +119,11 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.num_dim_ = objinit.num_dim;
             obj.file_closer_ = onCleanup(@()obj.fclose());
         end
+        %
+        function [obj,other_obj,missinig_fields] = copy_contents(obj,other_obj)
+            % the main part of the copy constructor
+            [obj,other_obj,missinig_fields] = copy_contents_(obj,other_obj);
+        end
     end
     %----------------------------------------------------------------------
     methods % defined by this class
@@ -165,9 +170,7 @@ classdef dnd_binfile_common < dnd_file_interface
         end
         function obj = set.upgrade_mode(obj,mode)
             obj = set_upgrade_mode_(obj,mode);
-        end
-        
-        %
+        end       
         %
         % check if this object can be upgraded using position information
         % from another object

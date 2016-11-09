@@ -135,7 +135,52 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
         end
         %
-
+        function obj = test_copy_constructor(obj)
+            
+            samp = fullfile(fileparts(obj.test_folder),...
+                'test_symmetrisation','w1d_d1d.sqw');
+            tob = dnd_binfile_common_tester(samp);
+            
+            
+            cob = dnd_binfile_common_tester(tob);
+            
+            d0 = tob.get_sqw();
+            d1 = cob.get_sqw();
+            
+            assertEqual(d0,d1);
+            
+        end
+        function obj = test_copy_constructor_write_perm(obj)
+            
+            samp = fullfile(fileparts(obj.test_folder),...
+                'test_symmetrisation','w1d_d1d.sqw');
+            ttob = dnd_binfile_common_tester(samp);
+            sq_obj = ttob.get_sqw();
+            assertTrue(isa(sq_obj,'d1d'));
+            
+            test_f = fullfile(tempdir,'test_dnd_copy_constructor_write_perm.sqw');
+            clob = onCleanup(@()delete(test_f));
+            
+            tob =  dnd_binfile_common_tester(sq_obj,test_f);
+            cob = dnd_binfile_common_tester(tob);
+            
+            cob  = cob.put_sqw();
+            cob.delete();
+            
+            chob = dnd_binfile_common_tester(test_f);
+            
+            tsq_obj = chob.get_sqw();
+            tsq0_obj = tob.get_sqw();
+            
+            [ok,mess]=equal_to_tol(sq_obj,tsq_obj,'ignore_str',true);
+            assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(tsq0_obj,tsq_obj,'ignore_str',true);            
+            assertTrue(ok,mess)            
+            chob.delete();
+            tob.delete();
+            
+        end
+        
         
     end
     
