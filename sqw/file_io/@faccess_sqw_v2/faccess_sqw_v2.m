@@ -31,7 +31,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             %                       be provided separately.
             %
             obj.sqw_type_ = true;
-            if nargin>0
+            if nargin >0
                 obj = obj.init(varargin{:});
             end
         end
@@ -66,6 +66,10 @@ classdef faccess_sqw_v2 < sqw_binfile_common
                 error('SQW_FILE_IO:invalid_argument',...
                     'FACCESS_SQW_V2::should_load_stream -- The input structure does not have correct format');
             end
+        end
+        function new_obj = upgrade_file_format(obj)
+            % Uprade file from format 2 to format 3
+            new_obj = upgrade_file_format_(obj);
         end
         
         

@@ -29,6 +29,9 @@ classdef sqw_binfile_common_tester < sqw_binfile_common
             [header_pos,pos] = obj.sqw_serializer_.calculate_positions(format,app_header,0);
             obj.data_pos_  = pos;
         end
+        function obj_n = upgrate_file_format(obj)
+            error('SQW_BINFILE_COMMON_TESTER:not_implemented','generic file format upgrad is not implemented')            
+        end
 
         
     end

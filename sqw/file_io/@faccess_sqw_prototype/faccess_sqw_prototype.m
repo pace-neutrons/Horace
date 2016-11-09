@@ -243,7 +243,13 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             sqw_data.angdeg = zeros(1,3);
             
         end
-        
+        %
+        function new_obj = upgrade_file_format(obj)
+           error('SQW_FILE_IO:legacy_data',...
+                 ['FACCESS_SQW_PROTOTYPE::upgrade_file_format: can not upgrade file from prototype to other file format.\n',...
+                 'load prototype, set up correct alatt and angdeg parameters and save into one of new file formats']);
+            
+        end
     end
     
 end

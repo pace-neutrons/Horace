@@ -67,6 +67,8 @@ classdef sqw_file_interface < dnd_binfile_common
         obj = put_pix(obj,varargin);
         obj = put_sqw(obj,varargin);
         
+        % upgrade current loader to recent file format
+        new_obj = upgrade_file_format(obj);
     end
     
 end
