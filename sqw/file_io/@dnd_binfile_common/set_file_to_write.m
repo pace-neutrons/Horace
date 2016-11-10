@@ -51,12 +51,12 @@ else
         file_exist = true;
         [old_filename,access_rights] = fopen(obj.file_id_);
         if strcmp(new_filename,old_filename)
-            if access_rights == '+wb' % nothing to do;
+            if ismember(access_rights,{'+wb','rb+'}) % nothing to do;
                 return;
             else
-                obj.file_closer_ = [];
-                if obj.file_id_ > 0
-                    fclose(obj.file_id_); % this should never happen unless subtle MATLAB bug
+                clear obj.file_closer_;
+                if obj.file_id_ > 0  % this should never happen unless subtle MATLAB bug
+                    fclose(obj.file_id_);
                     obj.file_id_ = -1;
                 end
             end

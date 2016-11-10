@@ -6,12 +6,12 @@ function [subobj,new_subobj] = extract_correct_subobj_(obj,obj_name,varargin)
 %
 char_keys = cellfun(@(x)strncmp(x,'-',1),varargin);
 argi = varargin(~char_keys);
-if ~isempty(argi) 
+if ~isempty(argi)
     input_obj = argi{1};
     type = class(input_obj);
     if isa(input_obj,'sqw')
         subobj = input_obj.(obj_name);
-    elseif strcmp(type,obj_name) || isstruct(input_obj) % the requested object provided directly
+    elseif strcmp(type,obj_name) || isstruct(input_obj)|| isa(input_obj,'is_holder') % the requested object provided directly
         subobj = input_obj;
     else
         error('SQW_FILE_IO:invalid_argument',...
@@ -20,7 +20,12 @@ if ~isempty(argi)
     end
     new_subobj = true;
 else % mast be an sqw object:
-    subobj = obj.sqw_holder_.(obj_name);
+    if isempty(obj.sqw_holder_)
+        subobj = [];
+    else
+        subobj = obj.sqw_holder_.(obj_name);
+        
+    end
     new_subobj = false;
 end
 

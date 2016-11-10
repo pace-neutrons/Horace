@@ -56,6 +56,10 @@ classdef const_blocks_map
         function mp = get.cblocks_map(obj)
             mp = obj.cblocks_map_;
         end
+        function obj = set_cblock_param(obj,block_name,pos,sz)
+            % set position and size of a particular constant block 
+            obj.cblocks_map_(block_name) = [pos,sz];
+        end
         %
         function mp = get_must_fit(obj)
             % function returns only the part of the map which must fit for upgrade to
@@ -72,7 +76,7 @@ classdef const_blocks_map
         obj = init(obj,pos_info);
         % check if two objects contain equal size map which allow one to be
         % upgraded to another
-        [ok,mess] = check_equal_sizes(obj,other_obj)
+        [ok,mess] = check_equal_sizes(obj,other_obj)        
     end
     
 end

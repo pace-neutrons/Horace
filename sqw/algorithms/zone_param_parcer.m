@@ -1,5 +1,5 @@
 function transf_list = zone_param_parcer(pos,q_step_or_transf,erange,varargin)
-% Hepler function to proces imput cut parameters in any form and return input
+% Helper function to process input cut parameters in any form and return input
 % parameters in standard form, namely cellarray of cut_transf classes
 %
 % (cellarray to support older Matlab versions, not working with array of classes)
@@ -31,11 +31,11 @@ function transf_list = zone_param_parcer(pos,q_step_or_transf,erange,varargin)
 %
 %                If no symmetry_type keyword is specified, assuming 'sigma'
 %                symmetry, which will be constructed on transformation
-%                if no transformation is speficied.
+%                if no transformation is specified.
 %
-%                if 'external' symmetry is specified on imput, no symmetry
+%                if 'external' symmetry is specified on input, no symmetry
 %                will be constructed for transformation class even if
-%                no symmetry is defiend for the class
+%                no symmetry is defined for the class
 %
 %
 % $Revision$ ($Date$)
@@ -69,7 +69,7 @@ else
             'of cut_transf, all its elements have to be cut_transf objects or 3-component cellarray of data limits'])
     end
 end
-% check if we have zonelist defined
+% check if we have zone list defined
 zonelist_defined = false;
 if ~isempty(varargin)
     if ~is_string(varargin{1})

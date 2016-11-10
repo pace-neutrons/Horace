@@ -97,6 +97,14 @@ classdef sqw_binfile_common < sqw_file_interface
             % Copied of dnd_binfile_common to support overload
             [obj,missinig_fields] = copy_contents_(obj,other_obj);
         end
+        %
+        function obj = init_v3_specific(obj)
+            % Initialize position information specific for sqw v3.1 object.
+            % Interface function here. Generic is not implemented and
+            % actuall implementation in faccess_sqw_v3
+            error('SQW_FILE_IO:runtime_error',...
+                'init_v3_specific: generic method is not implemented')
+        end
         
     end % end protected
     %

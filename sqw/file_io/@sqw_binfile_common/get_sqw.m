@@ -149,12 +149,20 @@ if isstruct(headers)
 else
     for i=1:n_files
         if numel(instr) > 1
-            headers{i}.instrument = instr(i);
+            if iscell(instr)
+                headers{i}.instrument = instr{i};
+            else
+                headers{i}.instrument = instr(i);
+            end
         else
             headers{i}.instrument = instr ;
         end
         if numel(sampl) > 1
-            headers{i}.sample = sampl(i);
+            if iscell(sampl)
+                headers{i}.sample = sampl{i};
+            else
+                headers{i}.sample = sampl(i);
+            end
         else
             headers{i}.sample = sampl;
         end
