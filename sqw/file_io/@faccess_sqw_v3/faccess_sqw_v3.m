@@ -46,7 +46,18 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % store file footer i.e. the information, describing the file
             % format
             obj = put_sqw_footer_(obj);
-        end        
+        end
+        %
+        function obj = init_v3_specific(obj)
+            % Initialize position information specific for sqw v3.1 object.
+            %
+            % Used by this class init and faccess_sqw_v2&similar for
+            % upgrading to v3.1
+            obj = init_sample_instr_records_(obj);
+            %
+            obj.position_info_pos_= obj.instr_sample_end_pos_;
+            obj = init_sqw_footer_(obj);
+        end
         
     end
     properties(Constant,Access=private)
@@ -110,9 +121,11 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % Usage:
             %>>inst = obj.get_sample()
             % Returns first sample, stored in the sqw file
-            %>>inst = obj.get_instrument(number)
+            %>>inst = obj.get_sample(number)
             % Returns first instrument with number, specified
-            %>>inst = obj.get_instrument('-all')
+            %>>inst = obj.get_sample('-all')
+            % returns array of samples if they are different or
+            % single sample if they are the same.
             %
             [samp,obj] = get_instr_or_sample_(obj,'sample',varargin{:});
         end
@@ -123,32 +136,64 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         %
         function obj = put_instruments(obj,varargin)
             % store or change instrument information in the file
+            %
             % causes storing of sample and footer information too
-            obj= put_sample_instr_records_(obj,varargin{:});
-            obj = obj.put_footer();            
+            %
+            % identical to put_instruments method, except a non-sqw class
+            % or structure or array of such objects assumed to be a sample
+            %Usage:
+            % obj = obj.put_instruments() % store instrument information attached to
+            %                  sqw - object the class has been initated
+            %                  with, or empty sample information if no sqw
+            %                  object was attached
+            % obj = obj.put_instruments(some_object) % store some object
+            %     as instrument. The numel(some_object)
+            %     has to be 1 or equal to number of the contributing files,
+            %     the sqw file has.
+            % obj = obj.put_instruments('instrument',some_object,'sample',other_object) % store
+            %     instrument and sample information. Equivalent to
+            %     obj.put_samples with similar parameters.
+            % obj = obj.put_instruments(sqw_object) % store instrument and
+            %       sample information using sqw_object provided as the source of
+            %       this information.
+            %
+            obj = put_is_info_(obj,'instrument',varargin{:});            
         end
         %
         function obj = put_samples(obj,varargin)
             % store or change sample information in the file
-            % causes storing of instrument and footer information too
-            obj= put_sample_instr_records_(obj,varargin{:});
-            obj = obj.put_footer();
-        end
-        
-        
-        function new_obj = upgrade_file_format(obj)
-            % this is currently (01/01/2017) recent file format. Do nothing
-            new_obj = obj;
+            %
+            % causes storing of instrument and footer information too.
+            %
+            % identical to put_instruments method, except a non-sqw class
+            % or structure or array of such objects assumed to be a sample
+            %Usage:
+            % obj = obj.put_samples() % store sample information attached to
+            %                  sqw - object the class has been initated
+            %                  with, or empty sample information if no sqw
+            %                  object was identified
+            % obj = obj.put_samples(some_object) % store some object
+            %     as sample. The numel(some_object)
+            %     has to be 1 or equal to number of the contributing files,
+            %     the sqw file has.
+            % obj = obj.put_samples('instrument',some_object,'sample',other_object) % store
+            %     instrument and sample information. Equivalent to
+            %     obj.put_instruments with similar parameters.
+            % obj = obj.put_samples(sqw_object) % store instrument and
+            %       sample information using sqw_object provided as the source of
+            %       this information.
+            %
+            obj = put_is_info_(obj,'sample',varargin{:});
         end
         %
-        function obj = init_v3_specific(obj)
-            % init position information specific for sqw v3 object
-            obj = init_sample_instr_records_(obj);
-            %
-            obj.position_info_pos_= obj.instr_sample_end_pos_;
-            obj = init_sqw_footer_(obj);
+        function obj = upgrade_file_format(obj)
+            % this is currently (01/01/2017) recent file format.
+            % Just reopen for writing
+            if ~isempty(obj.filename)
+                obj = obj.reopen_to_write();
+            end
         end
-        
+        %
     end
     %
     methods(Static)

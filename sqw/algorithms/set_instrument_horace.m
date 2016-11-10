@@ -1,4 +1,4 @@
-function varargout=set_instrument_horace(varargin)
+function varargout=set_instrument_horace(filename,instrument,varargin)
 % Change the instrument in a file or set of files containing a Horace data object
 %
 %   >> set_instrument_horace (file, instrument)
@@ -18,13 +18,9 @@ function varargout=set_instrument_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-
-if nargin<1
-    error('Check number of input arguments')
-elseif nargout>0
-    error('No output arguments returned by this function')
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+if nargout > 0
+    varargout = set_instr_or_sample_horace_(filename,'-instrument',instrument,varargin{:});
+else
+    set_instr_or_sample_horace_(filename,'-instrument',instrument,varargin{:});
 end
-
-[varargout,mess] = horace_function_call_method (nargout, @set_instrument, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end

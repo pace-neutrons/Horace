@@ -1,9 +1,9 @@
 function varargout = read_sqw(varargin)
 % Read sqw object from named file or an array of sqw objects from a cell array of file names
 %
-%   >> w=read_sqw           % prompts for file
-%   >> w=read_sqw(file)     % read named file or cell array of file names into array
-
+%   >> w=read_sqw(file)     % read named file or cell array of file names
+%                           into array of sqw objects or cellarray of sqw/dnd ojects
+%
 % Original author: T.G.Perring
 %
 % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
@@ -35,28 +35,29 @@ function varargout = read_sqw(varargin)
 % $Revision: 1313 $ ($Date: 2016-11-02 19:42:08 +0000 (Wed, 02 Nov 2016) $)
 
 
-
 % Perform operations
 % ------------------
 % Check number of arguments
 if isempty(varargin)
-    error('SQW_READ:invalid_argument','read: Check number of input arguments')
+    error('READ_SQW:invalid_argument','read: Check number of input arguments')
 end
+
 n_outputs = nargout;
 if n_outputs>nargin
-    error('SQW_READ:invalid_argument',...
+    error('READ_SQW:invalid_argument',...
         'number of output objects requested is bigger then the number of input files provided')
 end
 
-if iscell(varargin)
-    argi = varargin;
+files = varargin{1};
+if iscell(files)
+    argi = files;
 else
-    argi = {varargin};
+    argi = {files};
 end
 %
 all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
 if ~any(all_fnames)
-    error('SQW:invalid_argument','read_sqw: not all input arguments represent filenames')
+    error('READ_SQW:invalid_argument','read_sqw: not all input arguments represent filenames')
 end
 %-------------------------------------------------------------------------
 
@@ -82,27 +83,4 @@ for i=1:n_files2read
     trez{i} = loaders{i}.get_sqw();
 end
 
-if n_files2read == 1 && n_inputs == 1
-    varargout{1} = trez{1};
-    return
-end
-
-type_list = cellfun(@class,trez,'UniformOutput',false);
-boss_type = type_list{1};
-same_types = cellfun(@(x)strcmp(boss_type,x),type_list,'UniformOutput',true);
-if n_outputs == 1
-    if all(same_types)    % return array of the same type classes
-        boss_class = feval(bt);
-        rez = repmat(boss_class,1,n_inputs);
-        for i=1:n_inputs
-            rez(i) = trez{i};
-        end
-        varargout{1} = rez;
-    else % return cellarray of heterogeneous types
-        varargout{1} = trez;
-    end
-else
-    for i=1:n_outputs
-        varargout{i} = trez{i};
-    end
-end
+varargout = pack_io_outputs(trez,n_inputs,n_outputs);

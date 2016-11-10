@@ -26,6 +26,7 @@ fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Can not write the positions block');
 
 obj.real_eof_pos_ = ftell(obj.file_id_);
+%-------------------------------------------------------------------------
 % now, its impossible to tuncate binary file in system independent way and
 % Matlab does not provide such functionalify too. If the file was longer than
 % it is now, we need to store the location of the information record at the
@@ -39,7 +40,7 @@ if eof_ > obj.real_eof_pos_
     add_block = eof_ - obj.real_eof_pos_;
     if add_block>0
         if add_block<4; add_block=4; end; %its not striclty necessary, as real footer 
-        % size not used any more but done in case if real_eof_pos_ will be
+        % size not used any more but done in case if real_eof_pos_ is
         % used in a future. 
         
         pos = obj.real_eof_pos_+add_block-4;
