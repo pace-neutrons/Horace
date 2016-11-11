@@ -108,7 +108,9 @@ if file_exist
         obj.upgrade_map_ = [];
         if log_level > 1; fprintf('*** Existing file:  %s will be overwritten.\n',new_filename); end
     else
-        obj.upgrade_map_ = upgrade_map;
+        old_ldr = old_ldr.fclose(); % close old loader input file to avod copying file permissions
+        obj = obj.copy_contents(old_ldr,true);
+        obj.upgrade_map_ = upgrade_map;        
         if log_level>1;   fprintf('*** Existing file:  %s can be upgraded with new object data.\n',new_filename);  end
     end
 else

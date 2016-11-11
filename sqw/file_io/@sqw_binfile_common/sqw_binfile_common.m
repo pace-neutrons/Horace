@@ -88,14 +88,21 @@ classdef sqw_binfile_common < sqw_file_interface
         function bl_map = const_blocks_map(obj)
             bl_map  = obj.const_block_map_;
         end
-        % calculate byte-sizes of constant blocks (blocks to upgrade)
-        [bsm,block_map] = calc_cblock_sizes(obj,varargin)
         %
-        function [obj,missinig_fields] = copy_contents(obj,other_obj)
+        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
             % the main part of the copy constructor, copying the contents
             % of the one class into another.
-            % Copied of dnd_binfile_common to support overload
-            [obj,missinig_fields] = copy_contents_(obj,other_obj);
+            %
+            % Copied of dnd_binfile_common to support overloading as
+            % private properties are not accessible from parents
+            % 
+            % keep_internals -- if true, do not overwrite service fields
+            %                   not related to position information
+            % 
+            if ~exist('keep_internals','var')
+                keep_internals = false;
+            end
+            [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
         %
         function obj = init_v3_specific(obj)

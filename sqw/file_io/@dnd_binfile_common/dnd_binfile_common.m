@@ -120,11 +120,20 @@ classdef dnd_binfile_common < dnd_file_interface
             obj.file_closer_ = onCleanup(@()obj.fclose());
         end
         %
-        function [obj,missinig_fields] = copy_contents(obj,other_obj)
+        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
             % the main part of the copy constructor, copying the contents
             % of the one class into another.
             %
-            [obj,missinig_fields] = copy_contents_(obj,other_obj);
+            % Copied to all children classes to support overloading as
+            % private properties are not accessible from parents
+            %
+            % keep_internals -- if true, do not overwrite service fields
+            %                   not related to position information
+            %
+            if ~exist('keep_internals','var')
+                keep_internals = false;
+            end
+            [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
     end
     %----------------------------------------------------------------------
@@ -173,11 +182,7 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         function obj = set.upgrade_mode(obj,mode)
             obj = set_upgrade_mode_(obj,mode);
-        end       
-        %
-        % check if this object can be upgraded using position information
-        % from another object
-        ok = check_upgrade(obj,other_obj)
+        end
         %
         % Reopen exisging file to upgrade/write new data to it
         obj = reopen_to_write(obj)

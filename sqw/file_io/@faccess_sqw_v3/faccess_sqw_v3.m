@@ -58,6 +58,22 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             obj.position_info_pos_= obj.instr_sample_end_pos_;
             obj = init_sqw_footer_(obj);
         end
+        %
+        function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
+            % the main part of the copy constructor, copying the contents
+            % of the one class into another.
+            %
+            % Copied of dnd_binfile_common to support overloading as
+            % private properties are not accessible from parents
+            % 
+            % keep_internals -- if true, do not overwrite service fields
+            %                   not related to position information
+            % 
+            if ~exist('keep_internals','var')
+                keep_internals = false;
+            end
+            [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
+        end
         
     end
     properties(Constant,Access=private)
@@ -157,7 +173,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %       sample information using sqw_object provided as the source of
             %       this information.
             %
-            obj = put_is_info_(obj,'instrument',varargin{:});            
+            obj = put_is_info_(obj,'instrument',varargin{:});
         end
         %
         function obj = put_samples(obj,varargin)

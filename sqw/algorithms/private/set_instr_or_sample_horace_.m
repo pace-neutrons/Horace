@@ -1,18 +1,21 @@
-function varargout=set_instr_or_sample_horace_(filename,kind,obj,varargin)
+function varargout=set_instr_or_sample_horace_(filename,kind,obj_to_set,varargin)
 % Change the sample in a file or set of files containing a Horace data object
 %
-%   >> set_sample_horace (file, sample)
+%   >>set_instr_or_sample_horace_(filename,kind,obj_to_set)
 %
 % The altered object is written to the same file.
 %
 % Input:
 % -----
-%   file       File name, or cell array of file names. In latter case, the
-%              change is performed on each file
+%   filename     File name, or cell array of file names. In latter case, the
+%                 change is performed on each file
+%   kind        is it sample or instrument is beeing set
 %
-%   sample     Sample object (IX_sample object) or structure
-%              Note: only a single sample object can be provided. That is,
-%              there is a single sample for the entire sqw data set
+%   obj_to_set Sample object (IX_sample object) or structure or
+%              Instrument object, or sqw_object containing both sample and instrument
+%              used as a source of instrument and sample information
+%              Note: only a single obj_to_set object can be provided. That is,
+%              there is a single sample or instrument for the entire sqw data set
 %              If the sample is any empty object, then the sample is set
 %              to the default empty structure.
 
@@ -24,8 +27,8 @@ function varargout=set_instr_or_sample_horace_(filename,kind,obj,varargin)
 if nargin<2
     error('Check number of input arguments')
 end
-if ~exist('obj','var')
-    obj = struct();
+if ~exist('obj_to_set','var')
+    obj_to_set = struct();
 end
 if strcmp(kind,'-sample')
     set_sample = true;
@@ -51,9 +54,9 @@ end
 for i=1:numel(ld)
     ld{i} = ld{i}.upgrade_file_format();
     if set_sample
-        ld{i}.put_samples(obj,varargin{:});
+        ld{i}.put_samples(obj_to_set,varargin{:});
     else
-        ld{i}.put_instruments(obj,varargin{:});
+        ld{i}.put_instruments(obj_to_set,varargin{:});
     end
 end
 

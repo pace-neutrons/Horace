@@ -43,8 +43,8 @@ horace_info_level = ...
 ldw = sqw_formats_factory.instance().get_pref_access();
 for i=1:numel(w)
     % Write data to file   x
-    if horace_info_level>-1
-        disp(['Writing to ',file_internal{i},'...'])
+    if horace_info_level>0
+        disp(['*** Writing to ',file_internal{i},'...'])
     end
     ldw = ldw.init(w(i),file_internal{i});
     if ldw.upgrade_mode
