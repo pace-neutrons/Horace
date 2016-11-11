@@ -18,8 +18,6 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             %obj = obj@TestCaseWithSave(name,sample_file);
             obj = obj@TestCase(name);
             obj.test_folder=fileparts(mfilename('fullpath'));
-            warning('off','SQW_FILE_IO:legacy_data')
-            obj.clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));
         end
         %-----------------------------------------------------------------
         function obj = test_selection(obj)
@@ -34,7 +32,9 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertEqual(loader.filename,'w1d_sqw.sqw')
             assertEqual(loader.npixels,8031)
             
-            
+
+            warning('off','SQW_FILE_IO:legacy_data')
+            obj.clob = onCleanup(@()warning('on','SQW_FILE_IO:legacy_data'));            
             file_v3_old = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_file_read_write_v3.sqw');
             

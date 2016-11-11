@@ -7,3 +7,4 @@ runtests test_faccess_sqw_v2
 runtests test_faccess_sqw_v3
 runtests test_faccess_sqw_prototype
 runtests test_sqw_formats_factory
+runtests test_read_all

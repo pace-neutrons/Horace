@@ -1,4 +1,4 @@
-function  [obj,missing_fields] = copy_contents_(obj,other_obj)
+function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
 % Copy constructor
 %
 %
@@ -30,6 +30,9 @@ if other_obj.file_id_>0
 else
     obj.filename_ = other_obj.filename;
     obj.filepath_ = other_obj.filepath;
+end
+if keep_internals
+    return;
 end
 % copy fields which are not saved
 obj.sqw_serializer_ = other_obj.sqw_serializer_;
