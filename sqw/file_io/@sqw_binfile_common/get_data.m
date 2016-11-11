@@ -124,11 +124,13 @@ data_str.urange =fread(obj.file_id_,[2,4],'float32');
 
 
 % process all possible options
-[ok,mess,header_only,~,~,nopix,argi]=...
+[ok,mess,header_only,~,hverbatim,nopix,argi]=...
     parse_char_options(varargin,{'-header','-verbatim','-hverbatim','-nopix'});
 if ~ok
     error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
 end
+
+header_only = header_only||hverbatim;
 
 if header_only
     data  = data_str;

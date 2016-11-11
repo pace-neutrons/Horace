@@ -22,7 +22,13 @@ function varargout=head_dnd(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 
-[varargout,mess] = horace_function_call_method (nargout, @head, '$dnd', varargin{:});
-if ~isempty(mess), error(mess), end
+if nargout>0
+    varargout = head_horace(varargin{:});
+    if ~iscell(varargout)
+        varargout = {varargout};
+    end
+else
+     head_horace(varargin{:});
+end

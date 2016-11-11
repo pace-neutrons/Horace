@@ -58,7 +58,7 @@ classdef dnd_file_interface
         % if true, all numeric types, read from a file (except pixels)
         % are converted to double
         convert_to_double
-        % 
+        %
     end
     %----------------------------------------------------------------------
     methods
@@ -145,15 +145,24 @@ classdef dnd_file_interface
         % obtained from the open file
         [should,obj,mess]= should_load_stream(obj,stream,fid)
         %
-        % Main intializer:
+        % Main intializer (accessible through constructor witht the sampe
+        % arguments too.)
+        %
         % initialize the loader, to be ready to read or write the sqw data.
+        % Usage:
+        %>>obj = obj.init(filename_to_read);
+        %>>obj = obj.init(sqw_object);
+        %>>obj = obj.init(sqw_object,filename_to_write);
         obj = init(obj,varargin);
         % set new filename to write file to prepare existing file for
         % writing
+        % Defined only for classes, initiated with sqw_object
+        %Usage:
+        %>>[obj,file_exist] = obj.set_file_to_write(filename_to_write);
         [obj,file_exist] = set_file_to_write(obj,varargin)
         % ----------------------------------------------------------------
         % File Accessors:
-        data        = get_data(obj,varargin);
+        [data,obj]  = get_data(obj,varargin);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file

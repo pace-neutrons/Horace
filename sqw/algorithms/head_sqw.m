@@ -1,14 +1,14 @@
-function varargout=head_horace(varargin)
+function varargout=head_sqw(varargin)
 % Display a summary of a file or set of files containing sqw information
-% 
+%
 %   >> head_sqw          % Prompts for file and display summary of contents
 %   >> head_sqw (file)   % Display summary for named file or for cell array of file names
 %
 % To return header information in a structure, without displaying to screen:
 %
-%   >> h = head_horace
-%   >> h = head_horace (file)           % Fetch principal header information
-%   >> h = head_horace (file,'-full')   % Fetch full header information
+%   >> h = head_sqw
+%   >> h = head_sqw (file)           % Fetch principal header information
+%   >> h = head_sqw (file,'-full')   % Fetch full header information
 %
 %
 % Input:
@@ -17,7 +17,7 @@ function varargout=head_horace(varargin)
 %               summary for each sqw object
 %
 % Optional keyword:
-%   '-full'     Keyword option; if sqw type data in file, then returns all header and the
+%   '-full'     Keyword option; if present, then returns all header and the
 %              detector information. In fact, it returns the full data structure
 %              except for the signal, error and pixel arrays.
 %
@@ -28,7 +28,14 @@ function varargout=head_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 
-[varargout,mess] = horace_function_call_method (nargout, @head, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end
+if nargout>0
+    varargout = head_horace(varargin{:});
+    if ~iscell(varargout)
+        varargout = {varargout};
+    end
+    
+else
+    head_horace(varargin{:});
+end

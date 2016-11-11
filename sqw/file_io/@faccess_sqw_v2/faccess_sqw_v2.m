@@ -82,4 +82,3 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     end
     
 end
-
