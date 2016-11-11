@@ -220,9 +220,11 @@ classdef data_sqw_dnd
                 end
             end
         end
-        function dnd_struct=get_dnd_data(obj)
+        function dnd_struct=get_dnd_data(obj,varargin)
             %functin retrieves dnd structure from the sqw_dnd_data class
-            dnd_struct = obj.get_dnd_data_();
+            % if additional argument provied (+), the function also incules
+            % urange.
+            dnd_struct = obj.get_dnd_data_(varargin);
         end
         
         function obj=clear_sqw_data(obj)

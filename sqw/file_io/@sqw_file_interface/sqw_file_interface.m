@@ -14,6 +14,7 @@ classdef sqw_file_interface < dnd_binfile_common
         %
         npixels_ = 'undefined';
     end
+    %
     properties(Dependent)
         % number of files, used to construct the file, class is initiated
         % with
@@ -30,10 +31,10 @@ classdef sqw_file_interface < dnd_binfile_common
             % provided
             nfiles = obj.num_contrib_files_;
         end
+        %
         function npix = get.npixels(obj)
             npix = obj.npixels_;
-        end
-        
+        end        
         %-------------------------
         function obj = delete(obj)
             % destructor, which is not fully functioning

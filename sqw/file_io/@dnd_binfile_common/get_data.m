@@ -83,7 +83,8 @@ if ~ok
     error('SQW_FILE_IO:invalid_argument',...
         'DND_BINFILE_COMMON::get_data: Error %s',mess);
 end
-hverbatim = verbatim||hverbatim;
+header_only = header_only||hverbatim;
+verbatim    = verbatim||hverbatim;
 
 
 % --------------------------------------------------------------------------
@@ -112,7 +113,7 @@ data_form = obj.get_dnd_form('-header');
 data_str = obj.sqw_serializer_.deserialize_bytes(bytes,data_form,1);
 clear bytes;
 
-if ~hverbatim
+if ~verbatim
     data_str.filepath = obj.filepath;
     data_str.filename = obj.filename;
 end

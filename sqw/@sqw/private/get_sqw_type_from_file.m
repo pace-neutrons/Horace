@@ -17,42 +17,17 @@ function [mess, sqw_type, ndims, nfiles] = get_sqw_type_from_file(infile)
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
-
-application=horace_version;
-
-% Initialise output
-sqw_type = [];
-ndims = [];
-nfiles = [];
-
-% Open file
-fid=fopen(infile,'r');
-if fid<0
-    mess=['Unable to open file ',infile];
-    return
-end
-
-% Read application and version number
-mess=get_application(fid,application.name);
-if isempty(mess)
-    % Post-prototype format sqw file
-    [mess,sqw_type,ndims]=get_sqw_object_type(fid);
-    if ~isempty(mess); fclose(fid); mess=['Error reading sqw file type and dimensions - ',mess]; return; end
+try
+    ld = sqw_formats_factory.instance().get_loader(infile);
+    sqw_type = ld.sqw_type;
+    ndims = ld.num_dim;
     if sqw_type
-        [mess,main_header]=get_sqw_main_header(fid);
-        if ~isempty(mess); fclose(fid); mess=['Error reading number of contributing data sets - ',mess]; return; end
-        nfiles=main_header.nfiles;
+        nfiles = ld.num_contrib_files;
     else
-        nfiles=0;
+        nfiles = 0;
     end
-    fclose(fid);
-else
-    % Assume prototype sqw file format until fails
-    fclose(fid);    % close file again to restart read process in get_sqw
-    [mess,main_header,header,detpar,data,position,npixtot,data_type] = get_sqw (infile, '-h');
-    if ~isempty(mess); mess=['Error trying to read file as old format Horace .sqw file - ',mess]; return; end
-    if ~strcmpi(data_type,'a'); mess='Error trying to read file as old format Horace .sqw file'; return; end
-    sqw_type=true;
-    ndims=numel(data.pax);
-    nfiles=main_header.nfiles;
+    mess = [];
+catch ME
+    mess = ME.msgtext;
+    return
 end
