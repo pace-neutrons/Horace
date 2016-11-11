@@ -99,7 +99,7 @@ classdef field_var_array < sqw_field_format_interface
         function [val,length] = field_from_bytes(obj,bytes,pos)
             % convert sequence of bytes into the array
             sz  = typecast(bytes(pos:pos+obj.n_dims*4-1),'int32');
-            length = prod(sz)*obj.n_prec_;
+            length = prod(double(sz))*obj.n_prec_;
             start = obj.n_dims*4;
             if length ==0
                 val = [];
