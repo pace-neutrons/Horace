@@ -104,11 +104,11 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(data_h.filename,to.filename)
             assertEqual(data_h.filepath,to.filepath)
             
-            data_dnd = to.get_data('-hver','-nopix');
+            data_dnd = to.get_data('-verb','-nopix');
             assertTrue(isa(data_dnd,'data_sqw_dnd'));
             assertEqual(data_dnd.filename,'test_sqw_file_read_write_v3.sqw');
             
-            data = to.get_data('-hver',1,20);
+            data = to.get_data('-ver',1,20);
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             assertEqual(size(data.pix),[9,20]);
