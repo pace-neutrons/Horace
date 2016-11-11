@@ -44,7 +44,7 @@ for i=1:numel(fn)
             is = obj.class_map_.isKey(type);
             if is
                 nel = numel(val);
-                fnel = prod(fmt);
+                fnel = prod(double(fmt));
                 if nel ~= fnel
                     error('STRUCT_SERIALIZER:invalid_argument',...
                         'format string for constant field %s contains %d elements but field itself has %d elements',...

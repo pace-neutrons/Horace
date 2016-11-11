@@ -37,7 +37,7 @@ classdef field_cellarray_of_strings < sqw_field_format_interface
             %
             %
             sz  = typecast(bytes(pos:pos+8-1),'uint32');
-            length = prod(sz);
+            length = prod(double(sz));
             start = pos+8;
             if length ==0
                 val = '';
@@ -52,7 +52,7 @@ classdef field_cellarray_of_strings < sqw_field_format_interface
             % retrieve size of the cellarray of strings from input
             % bytes array
             size_length = typecast(bytes(pos:pos+8-1),'uint32');
-            sz  = prod(size_length)+ 8;
+            sz  = prod(double(size_length))+ 8;
         end
         %
         function  [sz,obj,err] = size_from_file(obj,fid,pos)

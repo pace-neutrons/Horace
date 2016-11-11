@@ -72,7 +72,7 @@ for i=1:numel(fn)
         is = obj.class_map_.isKey(type);
         if is
             length = obj.class_map_(type);
-            nel = double(prod(fmt));
+            nel = prod(double(fmt));
             if nel > 1
                 length= length*nel;
                 sz = double(fmt);
