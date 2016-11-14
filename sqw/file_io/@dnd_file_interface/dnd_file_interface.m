@@ -28,6 +28,13 @@ classdef dnd_file_interface
         
         %True to convert all read fields (except pixels) into double
         convert_to_double_ = true;
+        
+        % position (in bytes from start of the file of the appropriate part
+        % of Horace data information and the size of this part.
+        % 0 means unknown/uninitialized or missing.
+        data_pos_=26;
+        % position of the npix field
+        npix_pos_='undefined';        
     end
     %
     properties(Constant,Access=protected)
@@ -59,6 +66,9 @@ classdef dnd_file_interface
         % are converted to double
         convert_to_double
         %
+        
+        data_position;
+        npix_position;
     end
     %----------------------------------------------------------------------
     methods
@@ -110,6 +120,12 @@ classdef dnd_file_interface
         function obj = set.convert_to_double(obj,val)
             lval = logical(val);
             obj.convert_to_double_ = lval;
+        end
+        function  pos = get.data_position(obj)
+            pos = obj.data_pos_;
+        end
+        function  pos = get.npix_position(obj)
+            pos = obj.npix_pos_;
         end
         
         %-------------------------
@@ -183,6 +199,11 @@ classdef dnd_file_interface
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
+        % Reopen exisging file to upgrade/write new data to it assuming
+        % the loader has been already initated by this file. Will be
+        % clearly overwritten or destroyed if partial information is
+        % different and no total info was written. 
+        obj = reopen_to_write(obj)        
         %
     end
     methods(Abstract,Access=protected)

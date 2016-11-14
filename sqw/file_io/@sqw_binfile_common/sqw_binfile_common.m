@@ -22,7 +22,6 @@ classdef sqw_binfile_common < sqw_file_interface
         detpar_pos_=0;
         detpar_pos_info_ =[];
         urange_pos_ = 0;
-        pix_pos_=0;
         eof_pix_pos_=0;
         %
     end

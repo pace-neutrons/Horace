@@ -70,8 +70,8 @@ nend=cumsum(nfiles(:));
 nbeg=nend-nfiles(:)+1;
 for i=1:nobj
     if source_is_file
-        [mess,main_header,header]=get_sqw (w.data{i},'-his');
-        if ~isempty(mess), error(mess), end
+        ld = w.loaders_list{i}
+        header = ld.get_header('-all');        
     else
         header=w.data(i).header;
     end
@@ -182,7 +182,7 @@ else
             pulse_model='';
             pp=[];
             ok=false;
-            mess='Moderator pulse names and/or number of pulse parameters are not the same for all constributing data sets';
+            mess='Moderator pulse names and/or number of pulse parameters are not the same for all contributing data sets';
             return
         end
     end

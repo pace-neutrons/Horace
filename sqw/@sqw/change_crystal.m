@@ -30,7 +30,7 @@ function varargout = change_crystal (varargin)
 %              in the two frames are related by 
 %                   v_new(i)= rotmat(i,j)*v_current(j)
 %   u, v        Redefine the two vectors that were used to determine the scattering plane
-%              These are the vectors at whatever misorientation angles dpsi, gl, gs (which
+%              These are the vectors at whatever disorientation angles dpsi, gl, gs (which
 %              cannot be changed).
 %
 % Output:
@@ -59,11 +59,15 @@ if ~isempty(mess), error(mess); end
 % ------------------
 if w.source_is_file
     for i=1:numel(w.data)
-        [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-hverbatim');
-        if ~isempty(mess), error(mess), end
-        [h.header,h.data]=change_crystal_alter_fields(h.header,h.data,args{:});
-        mess = put_sqw (w.data{i},h.main_header,h.header,h.detpar,h.data,'-h');
-        if ~isempty(mess), error(['Error writing to file ',w.data{i},' - check the file is not corrupted: ',mess]), end
+        ld = w.loaders_list{i};
+        headers = ld.get_header('-verbatim');
+        data = ld.get_data('-verbatim');
+        %[mess,h.main_header,h.header,h.detpar,h.data]=ld.get_sqw('-hverbatim');
+        [headers,data]=change_crystal_alter_fields(headers,data,args{:});
+        target_file = fullfile(ld.filepath,ld.filename);
+        ld = ld.set_file_to_write(varargin);
+        ld = ld.put_headers(headers);
+        ld = ld.put_dnd_data(data);
     end
     argout={};
 else

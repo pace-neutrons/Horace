@@ -230,7 +230,6 @@ end
 
 
 % Open output file if required
-clob = [];
 if save_to_file
     if isempty(outfile)
         if keep_pix
@@ -242,12 +241,17 @@ if save_to_file
             error ('No output file name given')
         end
     end
-    % Open output file now - don't want to discover there are problems after 30 seconds of calculation
+    
+%     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
+%    Not yet fully supported but can be. Now just test creation of new file
+%    and delete it.
     fout = fopen (outfile, 'wb');
     if (fout < 0)
         error (['Cannot open output file ' outfile])
     end
-    clob = onCleanup(@()clof(fout));
+    fclose(outfile);
+    delete(outfile);
+%     clob = onCleanup(@()clof(fout));
 end
 
 
@@ -256,14 +260,20 @@ end
 if horace_info_level>0, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
-    
-    if ~isempty(mess)
-        error('Error reading data from file %s \n %s',data_source,mess)
-    end
+    ld = sqw_formats_factory.instance().get_loader(data_source);
+    data_type = ld.data_type;
+    %[mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');    
     if ~strcmpi(data_type,'a')
         error('Data file is not sqw file with pixel information - cannot take cut')
     end
+    npixtot = ld.npixels;
+    position = ld.pix_position;
+    %
+    main_header = ld.get_main_header();
+    header = ld.get_header('-all');
+    detpar = ld.get_detpar();
+    data = ld.get_data();
+    ld.delete();
 else
     if horace_info_level>=0, disp('Taking cut from sqw object...'), end
     % for convenience, unpack the fields that themselves are major data structures
@@ -358,8 +368,7 @@ if source_is_file
         error(['Unable to open file ',data_source])
     end
     status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
-    if status<0;
-        fclose(fid);
+    if status<0;  fclose(fid);
         error(['Error finding location of pixel data in file ',data_source]);
     end
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
@@ -451,7 +460,11 @@ if save_to_file
     if horace_info_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
     try
         if ~pix_tmpfile
-            mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
+            ls = sqw_formats_factory.instance().get_pref_access();
+            ls = ls.init(w,outfile);
+            ls = ls.put_sqw();
+            ls.delete();
+            %mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
         else
             mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
             for ifile=1:length(pix.tmpfiles)   % delete the temporary files
@@ -486,11 +499,5 @@ if horace_info_level>=1
     disp(' ')
     bigtoc('Total time in cut_sqw:',horace_info_level)
     disp('--------------------------------------------------------------------------------')
-end
-
-function clof(fid)
-% clean-up function to close output file, if any was opened
-if fopen(fid)
-    fclose(fid);
 end
 

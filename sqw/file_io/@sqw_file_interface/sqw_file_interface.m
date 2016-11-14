@@ -13,6 +13,8 @@ classdef sqw_file_interface < dnd_binfile_common
         num_contrib_files_= 'undefined'
         %
         npixels_ = 'undefined';
+        %
+        pix_pos_=  'undefined';
     end
     %
     properties(Dependent)
@@ -23,6 +25,9 @@ classdef sqw_file_interface < dnd_binfile_common
         % number of pixels, contributing into this file. Empty for dnd-type
         % files
         npixels
+        % the position of pixels information in the file. Used to organize
+        % separate access to pixel data;
+        pix_position
     end
     %----------------------------------------------------------------------
     methods
@@ -34,19 +39,24 @@ classdef sqw_file_interface < dnd_binfile_common
         %
         function npix = get.npixels(obj)
             npix = obj.npixels_;
-        end        
+        end
+        function pix_pos = get.pix_position(obj)
+            % the position of pixels information in the file. Used to organize
+            % class independent access to pixel data;
+            pix_pos = obj.pix_pos_;
+        end
         %-------------------------
         function obj = delete(obj)
             % destructor, which is not fully functioning
-            % operation for normal Matlab classes. Needs understanding when
-            % used.
+            % operation for normal(non-handle) Matlab classes.
+            % Usually needs the class on lhs of delete expression or
+            % understanding when this can be omitted
             %
             obj.num_contrib_files_ = 'undefined';
             obj.npixels_ = 'undefined';
             obj = delete@dnd_binfile_common(obj);
             % its still sqw loader
             obj.sqw_type_ = true;
-            
         end
     end
     %----------------------------------------------------------------------
@@ -71,7 +81,8 @@ classdef sqw_file_interface < dnd_binfile_common
         % extended interface:
         obj = put_instruments(obj,varargin);
         obj = put_samples(obj,varargin);
-        % upgrade current loader to recent file format
+        % upgrade current sqw file to recent file format. May change the
+        % sqw file and always opens it in write mode.
         new_obj = upgrade_file_format(obj);
     end
     

@@ -56,7 +56,7 @@ elseif narg==1
     end   
     % Change the sample
     if w.source_is_file
-        set_sample_horace(w.data,sample);
+        set_sample_horace(w.loaders_list,sample);
         argout={};
     else
         wout=w.data;

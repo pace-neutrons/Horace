@@ -118,7 +118,8 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 
 
 % Default values if there is an error
-data_source=struct('source_is_file',{},'data',{},'sqw_type',{},'ndims',{},'nfiles',{},'source_arg_is_struct',{},'nargout_req',{});
+data_source=struct('source_is_file',{},'data',{},'sqw_type',{},'ndims',{},'nfiles',{},'source_arg_is_struct',{},...
+    'nargout_req',{},'loaders_list',{} );
 args=cell(1,0);
 
 % Parse input arguments
@@ -141,7 +142,7 @@ if narg>=2 && is_filename(varargin{2}) && (is_horace_data_file_opt(varargin{1}) 
     %  - if dnd object: All files must have the same dimensionality as the dummy object.
     %                  The files will be read as dnd data; any pixel information is ignored.
     try
-        [sqw_type,ndims,nfiles,filename,mess] = is_sqw_type_file(sqw,varargin{2});
+        [sqw_type,ndims,nfiles,filename,mess,ld] = is_sqw_type_file(sqw,varargin{2});
     catch
         mess = 'Unable to read data file(s) - check file(s) exist and are Horace data file(s) (sqw or dnd type binary file)';
     end
@@ -180,6 +181,7 @@ if narg>=2 && is_filename(varargin{2}) && (is_horace_data_file_opt(varargin{1}) 
             end
             data_source(1).source_arg_is_struct=false;
             data_source(1).nargout_req=nargout_caller;
+            data_source(1).loaders_list = ld; % cellarray of loaders --- one per file
         end
     end
     

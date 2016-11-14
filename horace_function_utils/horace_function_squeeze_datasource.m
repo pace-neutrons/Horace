@@ -6,7 +6,7 @@ function wout=horace_function_squeeze_datasource(w)
 %   w       Horace object (sqw,d0d,d1d,...d4d), file name or data source structure
 %           The file name can be a single file or cell array of file names.
 %
-%   wout    Original data source: horace object or file name.
+%   wout    Original data source: Horace object or file name.
 %           If the original was a file name, then the return value is a cell array,
 %          even if only one file.
 %
@@ -40,7 +40,7 @@ end
 
 %------------------------------------------------------------------------------------------------------------
 function [wout,mess]=recover_object(w)
-% Squeeze the Harace object (assumes it is a Horace object)
+% Squeeze the Horace object (assumes it is a Horace object)
 if isa(w,'sqw')
     if all(is_sqw_type(w))
         wout=w;

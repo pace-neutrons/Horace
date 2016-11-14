@@ -8,4 +8,8 @@ function varargout = read_horace(varargin)
 %
 % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 
-varargoud = read_sqw(varargin{:})
+if nargout == 0
+    read_sqw(varargin{:});    
+else
+    varargout = read_sqw(varargin{:});
+end
