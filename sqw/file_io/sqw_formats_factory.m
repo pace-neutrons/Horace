@@ -12,6 +12,8 @@ classdef sqw_formats_factory < handle
         % Add all new file readers which inherit from sqw_file_interface to this list in the order
         % of expected frequency for their appearance.
         supported_accessors_ = {faccess_sqw_v3(),faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
+        %
+        % Old class interface:
         % classes to load/save
         written_types_ = {'sqw','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders to use with correspondent class
@@ -57,6 +59,11 @@ classdef sqw_formats_factory < handle
             % where:
             %>>data_file_name  -- the name of the file, which is the source of the data
             %
+            if iscell(sqw_file_name) % process range of files
+                loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
+                    'UniformOutput',false);
+                return;
+            end
             if ~isnumeric(sqw_file_name)
                 [ok,mess,full_data_name] = check_file_exist(sqw_file_name,'*');
             end
