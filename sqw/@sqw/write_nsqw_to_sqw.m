@@ -11,12 +11,12 @@ function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
 %   varargin        If present can be the keyword one or all of the keywods:
 %
 % allow_equal_headers -- disables checking input files for absolutely
-%                       equal headers. Two file having equal haders is an error
+%                       equal headers. Two file having equal headers is an error
 %                       in normal operations so this option  used in
 %                       tests or when equal zones are combined.
 % drop_subzones_headers -- in combine_equivalent_zones all subfiles are cut from
 %                           single sqw file and may be divided into subzones.
-%                           this option used to avoid dublicating headers
+%                           this option used to avoid duplicating headers
 %                           from the same zone
 %
 % Output:
@@ -87,7 +87,9 @@ pos_pixstart=zeros(nfiles,1);
 npixtot=zeros(nfiles,1);
 
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
+ldrs = sqw_formats_factory.instance().get_loaders(infiles);
 for i=1:nfiles
+    
     [mess,main_header{i},header{i},det_tmp,datahdr{i},position,npixtot(i),data_type,file_format,current_format] = get_sqw (infiles{i},'-h');
     if ~current_format; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
     if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end

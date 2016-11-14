@@ -12,14 +12,10 @@ classdef dnd_binfile_common < dnd_file_interface
     properties(Access=protected)
         file_id_=-1 % the open file handle (if any)
         %
-        % position (in bytes from start of the file of the appropriate part
-        % of Horace data information and the size of this part.
-        % 0 means unknown/uninitialized or missing.
-        data_pos_=26;
         %
         s_pos_=0;
         e_pos_=0;
-        npix_pos_=0;
+
         dnd_eof_pos_=0;
         % contais structure with accurate positions of various data fields
         % to use for accurate replacement of these fields during update

@@ -77,9 +77,9 @@ if w.source_is_file
         opt ={};
     end
     if nout==0
-        head_horace(w.data,opt{:});
+        head_horace(w.loaders_list,opt{:});
     else
-        hout = head_horace(w.data,opt{:});
+        hout = head_horace(w.loaders_list,opt{:});
         if ~iscell(hout)
             hout = {hout};
         end

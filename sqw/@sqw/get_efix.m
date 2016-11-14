@@ -63,8 +63,8 @@ efix_arr=zeros(nend(end),1);
 emode_arr=zeros(nend(end),1);
 for i=1:nobj
     if source_is_file
-        [mess,main_header,header]=get_sqw (w.data{i},'-h');
-        if ~isempty(mess), error(mess), end
+        ld = w.loaders_list{i};
+        header = ld.get_header('-all');
     else
         header=w.data(i).header;
     end

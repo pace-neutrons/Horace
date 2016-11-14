@@ -35,13 +35,21 @@ if strcmp(kind,'-sample')
 else
     set_sample = false;
 end
-
 % get accessor(s), appropriate for the sqw file(s) provided
 if ~iscell(filename)
     filename = {filename};
 end
-ld = sqw_formats_factory.instance().get_loader(filename);
 n_inputs = numel(filename);
+
+lrds = cellfun(@(x)isa(x,'dnd_file_interface'),filename,'UniformOutput',true);
+if any(lrds)
+    ex_ldr = filename(lrds);
+    filename = filename(~lrds);
+    ld = sqw_formats_factory.instance().get_loader(filename);
+    ld = {ld{:},ex_ldr{:}};
+else
+    ld = sqw_formats_factory.instance().get_loader(filename);
+end
 
 
 % upgrade the file to the format, which understands sample and prepare it

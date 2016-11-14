@@ -302,6 +302,7 @@ data_type=data_type_written;
 % Write format 3 fields
 % ------------------------------------
 if strcmp(file_format,'-v3')
+    error('SQW:not_implemented','put_sqw: saving v3 format using this function is not implemented');
     % If '-v3' then we are either writing to a newfile, which is straightforward, or writing to
     % a previously existing file, in which case there are two cases to consider. If it was
     % originally a '-v2' file we are simply going to append all the further fields required for

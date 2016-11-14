@@ -59,11 +59,21 @@ else
 end
 %
 all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
-if ~any(all_fnames)
-    error('READ_SQW:invalid_argument','read_sqw: not all input arguments represent filenames')
+all_ldrs    = cellfun(@(x)isa(x,'dnd_file_interface'),argi,'UniformOutput',true);
+if ~any(all_fnames|all_ldrs)
+    error('READ_SQW:invalid_argument','read_sqw: not all input arguments represent filenames or loaders')
 end
 
-loaders = sqw_formats_factory.instance.get_loader(argi);
+fnames = argi(all_fnames);
+if ~isempty(fnames)
+    loaders = sqw_formats_factory.instance.get_loader(fnames);
+else
+    loaders  = {};
+end
+if any(all_ldrs)
+    loaders = {loaders{:},argi{all_ldrs}};
+end
+
 if ~iscell(loaders)
     loaders  = {loaders};
 end

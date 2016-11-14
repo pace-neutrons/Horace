@@ -25,7 +25,7 @@ function varargout = set_instrument (varargin)
 %                  Must be of the form
 %                       inst = my_func (p1, p2, ...)
 %                  where p1,p2, ... are parameters to be passed to the
-%                  instument definition function, in this case called my_func,
+%                  instrument definition function, in this case called my_func,
 %                  which in this example will be passed as @my_func.
 %
 %   arg1, arg2,...  Arguments to be provided to the instrument function.
@@ -35,7 +35,7 @@ function varargout = set_instrument (varargin)
 %                   - Multiple arguments can be passed, one for each run that
 %                     constitutes the sqw object, by having one row per run
 %                     i.e
-%                       scalar      ---->   column vector (nrun elemnents)
+%                       scalar      ---->   column vector (nrun elements)
 %                       row vector  ---->   2D array (nrun rows)
 %                       string      ---->   cell array of strings
 %
@@ -224,7 +224,7 @@ function [ok, mess, argout]=check_function_args(varargin)
 %   - Multiple arguments can be passed, one for each run that
 %     constitutes the sqw object, by having one row per run
 %   	i.e
-%       	scalar      ---->   column vector (nrun elemnents)
+%       	scalar      ---->   column vector (nrun elements)
 %           row vector  ---->   2D array (nrun rows)
 %        	string      ---->   cell array of strings
 %
@@ -309,7 +309,7 @@ function argout = substitute_arguments(w,ifile,argin)
 % Return cellstr with list of all substitution arguments:
 %   >> subst_args = substitute_arguments
 %
-% Argument list with subsitutions made from sqw object or header fields of sqw file:
+% Argument list with substitutions made from sqw object or header fields of sqw file:
 %   >> argout = substitute_arguments(w,ifile,argin)
 
 % List of substitution keywords
