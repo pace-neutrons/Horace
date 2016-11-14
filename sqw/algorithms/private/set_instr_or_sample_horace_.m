@@ -36,18 +36,13 @@ else
     set_sample = false;
 end
 
-% get accessor, appropriate for the sqw file provided
-if iscell(filename)
-    n_inputs = numel(filename);
-    ld = cell(1,n_inputs);
-    for i=1:n_inputs
-        ld{i} = sqw_formats_factory.instance().get_loader(filename{i});
-    end
-else
-    n_inputs = 1;
-    ld = {sqw_formats_factory.instance().get_loader(filename)};
+% get accessor(s), appropriate for the sqw file(s) provided
+if ~iscell(filename)
     filename = {filename};
 end
+ld = sqw_formats_factory.instance().get_loader(filename);
+n_inputs = numel(filename);
+
 
 % upgrade the file to the format, which understands sample and prepare it
 % for write operations (if necessary)

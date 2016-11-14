@@ -95,6 +95,21 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertTrue(isa(ld2,'faccess_dnd_v2'));
             
         end
+        function obj= test_load_range(obj)
+            file_v2 = fullfile(fileparts(obj.test_folder),...
+                'test_symmetrisation','w1d_sqw.sqw');
+            file_v3 = fullfile(fileparts(obj.test_folder),...
+                'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
+            files = {file_v2,file_v3};
+            
+            ldrs = sqw_formats_factory.instance().get_loader(files);
+            
+            assertTrue(isa(ldrs{1},'faccess_sqw_v2'));
+            assertTrue(isa(ldrs{2},'faccess_sqw_v3'));            
+
+            
+        end
+        
     end
     
 end

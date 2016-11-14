@@ -19,13 +19,10 @@ function varargout=set_sample_sqw(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 
-if nargin<1 || nargin>2
-    error('Check number of input arguments')
-elseif nargout>0
-    error('No output arguments returned by this function')
+if nargout > 0
+    varargout = set_instr_or_sample_horace_(filename,'-sample',sample,varargin{:});
+else
+    set_instr_or_sample_horace_(filename,'-sample',sample,varargin{:});
 end
-
-[varargout,mess] = horace_function_call_method (nargout, @set_sample, '$sqw', varargin{:});
-if ~isempty(mess), error(mess), end

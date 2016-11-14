@@ -62,14 +62,12 @@ end
 %-------------------------------------------------------------------------
 
 n_inputs=numel(argi);
-loaders = cell(1,n_inputs);
-for i=1:n_inputs
-    file = argi{i};
-    loaders{i} = sqw_formats_factory.instance.get_loader(file);
+loaders = sqw_formats_factory.instance.get_loader(argi);
+if ~iscell(loaders )
+    loaders = {loaders};
 end
 
-
-if n_outputs == 0 % do nothing but the check if all files present and 
+if n_outputs == 0 % do nothing but the check if all files present and
     return;       % are all sqw has been done
 end
 

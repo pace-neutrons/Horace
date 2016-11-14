@@ -63,11 +63,9 @@ if ~any(all_fnames)
     error('READ_SQW:invalid_argument','read_sqw: not all input arguments represent filenames')
 end
 
-
-loaders = cell(1,n_inputs);
-for i=1:n_inputs
-    file = argi{i};
-    loaders{i} = sqw_formats_factory.instance.get_loader(file);
+loaders = sqw_formats_factory.instance.get_loader(argi);
+if ~iscell(loaders)
+    loaders  = {loaders};
 end
 
 if n_outputs==0
@@ -76,11 +74,11 @@ if n_outputs==0
         if loaders{i}.sqw_type
             npixtot  = loaders{i}.npixels;
             nfiles = loaders{i}.num_contrib_files;
-            sqw_display_single_(data,npixtot,nfiles,'a')
+            sqw_display_single_(data,npixtot,nfiles,'a');
         else
-            npixtot=1;      % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
+            npixtot=1;    % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
             nfiles =1;
-            sqw_display_single_(data,npixtot,nfiles ,'b+')
+            sqw_display_single_(data,npixtot,nfiles ,'b+');
         end
     end
 else
@@ -103,7 +101,7 @@ else
         if loaders{i}.sqw_type
             data         = loaders{i}.get_data(opt{:});
             if isa(data,'data_sqw_dnd')
-                data         = data.get_dnd_data('+'); % + urange
+                data         = data.get_dnd_data('+'); % + get urange if availible
             end
             data.npixels = loaders{i}.npixels;
             data.nfiles  = loaders{i}.num_contrib_files;
