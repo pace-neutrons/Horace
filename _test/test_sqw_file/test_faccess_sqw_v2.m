@@ -228,7 +228,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(to,'faccess_sqw_v3'));
             
             sqw2 = to.get_sqw();
-            to.delete();           
+            to.delete();
             
             assertEqual(sqw1,sqw2);
             [ok,mess]=equal_to_tol(sqwob,sqw2,'ignore_str',true);
@@ -236,7 +236,32 @@ classdef test_faccess_sqw_v2< TestCase
             
             %
         end
-        
+        %
+        function obj = test_put_dnd_from_sqw(obj)
+            %
+            spath = fileparts(obj.sample_file);
+            samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
+            
+            sqwob = read_sqw(samplef);
+            
+            tf = fullfile(tempdir,'test_put_dnd_from_sqw.sqw');
+            clob = onCleanup(@()delete(tf));
+            tob = faccess_sqw_v2(sqwob,tf);
+            tob = tob.put_dnd();
+            tob.delete();
+            
+            to = sqw_formats_factory.instance().get_loader(tf);
+            assertTrue(isa(to,'faccess_dnd_v2'));
+            
+            sqw2 = to.get_sqw();
+            to.delete();
+            assertTrue(isa(sqw2,'d2d'));
+            
+            [ok,mess]=equal_to_tol(d2d(sqwob),sqw2,'ignore_str',true);
+            assertTrue(ok,mess)
+            
+            %
+        end
         
     end
 end

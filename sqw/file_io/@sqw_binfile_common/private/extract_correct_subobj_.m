@@ -23,8 +23,11 @@ else % mast be an sqw object:
     if isempty(obj.sqw_holder_)
         subobj = [];
     else
-        subobj = obj.sqw_holder_.(obj_name);
-        
+        if isa(obj.sqw_holder_,'sqw')
+            subobj = obj.sqw_holder_.(obj_name);        
+        else % should assume its already 'obj_name' - type
+            subobj = obj.sqw_holder_; 
+        end
     end
     new_subobj = false;
 end

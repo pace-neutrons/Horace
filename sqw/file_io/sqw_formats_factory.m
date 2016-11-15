@@ -1,6 +1,7 @@
 classdef sqw_formats_factory < handle
     % The class responsible for providing and initiating appropriate sqw file/read-writer
-    % given sqw file name.
+    % given sqw file name or preferred sqw file/read-writer given sqw
+    % object or sqw or dnd oject name.
     %
     %
     % $Revision$ ($Date$)
@@ -58,6 +59,7 @@ classdef sqw_formats_factory < handle
             %
             % where:
             %>>data_file_name  -- the name of the file, which is the source of the data
+            %                     or the celarray of such names.
             %
             if iscell(sqw_file_name) % process range of files
                 loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
@@ -117,12 +119,41 @@ classdef sqw_formats_factory < handle
             % return the version of the accessor recommended to write by
             % default or with particular type of sqw object provided as
             % argument
+            %Usage:
+            %>>loader = sqw_formats_factory.instance().get_pref_access();
+            %           -- returns default accessor
+            %>>loader = sqw_formats_factory.instance().get_pref_access('dnd')
+            % or
+            %>>loader = sqw_formats_factory.instance().get_pref_access('sqw')
+            %         -- returns preferred accessor for dnd or sqw object
+            %            correspondingly
             %
+            %>>loader = sqw_formats_factory.instance().get_pref_access(object)
+            %         -- returns preferred accessor for the object of type
+            %            provided, where allowed types are sqw,dnd,d0d,d1d,d2d,d3d,d4d.
+            %           Throws if type is not among the specified one.
             %
-            if nargin == 1
-                loader = obj.supported_accessors_{1};
+            [ok,mess,is_dnd,is_sqw,argi] =parse_char_options(varargin,{'dnd','sqw'});
+            if ~ok
+                error('SQW_FILE_IO:invalid_argument',mess);
             else
-                if isa(varargin{1},'sqw')
+                if is_dnd && is_sqw
+                    error('SQW_FILE_IO:invalid_argument',...
+                        'get_pref_access: only "dnd" or "sqw" option can be provided but got both');
+                end
+                if ~is_dnd && ~is_sqw
+                    is_sqw = true;
+                end
+            end
+            if isempty(argi)
+                if is_sqw
+                    loader = obj.supported_accessors_{1};
+                else
+                    ld_num = obj.types_map_('dnd');
+                    loader = obj.supported_accessors_{ld_num};
+                end
+            else
+                if isa(argi{1},'sqw')
                     loader = obj.supported_accessors_{1};
                 else
                     type = class(varargin{1});
@@ -140,7 +171,7 @@ classdef sqw_formats_factory < handle
         end
         %
         function is_compartible = check_compartibility(obj,class1,class2)
-            % check if second loader can upgrade the first one
+            % check if second loader can be used to upgrade the first one
             %
             if isa(class2,class(class1))
                 is_compartible = true;

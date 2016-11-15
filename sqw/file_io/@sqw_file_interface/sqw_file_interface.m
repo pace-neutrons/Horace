@@ -13,8 +13,6 @@ classdef sqw_file_interface < dnd_binfile_common
         num_contrib_files_= 'undefined'
         %
         npixels_ = 'undefined';
-        %
-        pix_pos_=  'undefined';
     end
     %
     properties(Dependent)
@@ -25,9 +23,6 @@ classdef sqw_file_interface < dnd_binfile_common
         % number of pixels, contributing into this file. Empty for dnd-type
         % files
         npixels
-        % the position of pixels information in the file. Used to organize
-        % separate access to pixel data;
-        pix_position
     end
     %----------------------------------------------------------------------
     methods
@@ -39,11 +34,6 @@ classdef sqw_file_interface < dnd_binfile_common
         %
         function npix = get.npixels(obj)
             npix = obj.npixels_;
-        end
-        function pix_pos = get.pix_position(obj)
-            % the position of pixels information in the file. Used to organize
-            % class independent access to pixel data;
-            pix_pos = obj.pix_pos_;
         end
         %-------------------------
         function obj = delete(obj)

@@ -1,6 +1,6 @@
 function varargout = read_dnd(varargin)
 % Read d0d, d1d, d2d, d3d or d4d object from a file, or an array of objects from a cell array of file names
-% 
+%
 %   >> w=read_dnd           % prompts for file
 %   >> w=read_dnd(file)     % read named file or cell array of file names into array
 %
@@ -14,5 +14,10 @@ function varargout = read_dnd(varargin)
 argi = varargin;
 argi{end+1} = '-nopix';
 
-varargout = read_sqw(argi{:});
+out = read_sqw(argi{:});
+if ~iscell(out)
+    varargout = {out};
+else
+    varargout = out;
+end
 

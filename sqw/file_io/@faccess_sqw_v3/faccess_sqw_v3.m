@@ -67,7 +67,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % private properties are not accessible from parents
             % 
             % keep_internals -- if true, do not overwrite service fields
-            %                   not related to position information
+            %                   not related to the position information
             % 
             if ~exist('keep_internals','var')
                 keep_internals = false;

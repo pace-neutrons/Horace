@@ -1,7 +1,7 @@
 function   app_header = build_app_header(obj,obj_to_save)
 % Build Horace sqw-file header to write to hdd. The header contains
 % information on type of sqw object and sqw-file subversion
-% and allows clients to distinguish horace binary format from other binary
+% and allows clients to distinguish Horace binary format from other binary
 % files and various Horace subformats from each other
 %
 %
@@ -23,25 +23,30 @@ app_header.version  = obj.file_ver_;
 %
 if isa(obj_to_save,'sqw')
     app_header.sqw_type = true;
-    dim  = size(obj_to_save.data.s);
-    if numel(dim) == 2
-        if dim(1) == 1
-            dim = dim(2);
-        elseif dim(2) == 1
-            dim = dim(1);
-        end
-    end
-    ndim = numel(dim);
+    ndim = calc_proper_ndim(obj_to_save.data.s);
 else
     type    = class(obj_to_save);
-    classes = {'d0d','d1d','d2d','d3d','d4d'};
+    classes = {'d0d','d1d','d2d','d3d','d4d','data_sqw_dnd'};
     ind = ismember(classes,type);
     if ~any(ind)
         error('SQW_FILE_IO:invalid_argument',...
-            ' build_app_header -- unsupported class to save %s',type)
+            ' build_app_header -- unsupported class to save: "%s"',type)
     end
     app_header.sqw_type = false;
     ndim = find(ind)-1;
+    if ndim == 5
+        ndim = calc_proper_ndim(obj_to_save.s);
+    end
 end
 app_header.ndim = ndim;
 
+function nd = calc_proper_ndim(signal)
+dim  = size(signal);
+if numel(dim) == 2
+    if dim(1) == 1
+        dim = dim(2);
+    elseif dim(2) == 1
+        dim = dim(1);
+    end
+end
+nd = numel(dim);

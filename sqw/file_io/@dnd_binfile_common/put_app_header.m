@@ -1,5 +1,5 @@
 function obj = put_app_header(obj)
-% store binary data boock, which describes object as sqw or dind object
+% store binary data block, which describes object as sqw or dnd object
 %
 % $Revision$ ($Date$)
 %
@@ -16,5 +16,4 @@ fseek(obj.file_id_,0,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the file');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the sqw file header');
-
 

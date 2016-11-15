@@ -29,12 +29,6 @@ classdef dnd_file_interface
         %True to convert all read fields (except pixels) into double
         convert_to_double_ = true;
         
-        % position (in bytes from start of the file of the appropriate part
-        % of Horace data information and the size of this part.
-        % 0 means unknown/uninitialized or missing.
-        data_pos_=26;
-        % position of the npix field
-        npix_pos_='undefined';        
     end
     %
     properties(Constant,Access=protected)
@@ -66,9 +60,6 @@ classdef dnd_file_interface
         % are converted to double
         convert_to_double
         %
-        
-        data_position;
-        npix_position;
     end
     %----------------------------------------------------------------------
     methods
@@ -121,13 +112,6 @@ classdef dnd_file_interface
             lval = logical(val);
             obj.convert_to_double_ = lval;
         end
-        function  pos = get.data_position(obj)
-            pos = obj.data_pos_;
-        end
-        function  pos = get.npix_position(obj)
-            pos = obj.npix_pos_;
-        end
-        
         %-------------------------
         function obj = delete(obj)
             obj.num_dim_        = 'undefined';
@@ -190,6 +174,9 @@ classdef dnd_file_interface
         % on data present in memory it can in fact save dnd object.
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
+        % save sqw object stored in memory into binary sqw file as dnd object.
+        % it always reduced data in memory into dnd object on hdd
+        obj = put_dnd(obj,varargin);
         % Comprising of:
         % 1) store or updata application header
         obj = put_app_header(obj);
@@ -202,8 +189,8 @@ classdef dnd_file_interface
         % Reopen exisging file to upgrade/write new data to it assuming
         % the loader has been already initated by this file. Will be
         % clearly overwritten or destroyed if partial information is
-        % different and no total info was written. 
-        obj = reopen_to_write(obj)        
+        % different and no total info was written.
+        obj = reopen_to_write(obj)
         %
     end
     methods(Abstract,Access=protected)
