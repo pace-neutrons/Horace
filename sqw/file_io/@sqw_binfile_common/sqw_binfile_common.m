@@ -22,8 +22,16 @@ classdef sqw_binfile_common < sqw_file_interface
         detpar_pos_=0;
         detpar_pos_info_ =[];
         urange_pos_ = 0;
+        %
+        pix_pos_=  'undefined';
+        %
         eof_pix_pos_=0;
         %
+    end
+    properties(Dependent)
+        % the position of pixels information in the file. Used to organize
+        % separate access to pixel data;
+        pix_position
     end
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
@@ -94,10 +102,10 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             % Copied of dnd_binfile_common to support overloading as
             % private properties are not accessible from parents
-            % 
+            %
             % keep_internals -- if true, do not overwrite service fields
             %                   not related to position information
-            % 
+            %
             if ~exist('keep_internals','var')
                 keep_internals = false;
             end
@@ -152,6 +160,12 @@ classdef sqw_binfile_common < sqw_file_interface
                 obj.file_version);
             
         end
+        %
+        function pix_pos = get.pix_position(obj)
+            % the position of pixels information in the file. Used to organize
+            % class independent binary access to pixel data;
+            pix_pos = obj.pix_pos_;
+        end       
         %
         %
         % return structure, containing position of every data field in the

@@ -1,35 +1,53 @@
 function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
-% Copy constructor
+% Copy constructor with possibility to set up the data positions directly.
+%
+% Due to constrains of Matlab Object Model (or some misunderstanding),
+% exactly the same routine  has to be present in dnd_binfile_common\private
+% folder.
+%
+% $Revision: 1326 $ ($Date: 2016-11-09 20:49:00 +0000 (Wed, 09 Nov 2016) $)
 %
 %
 this_pos = obj.get_pos_info();
-other_pos = other_obj.get_pos_info();
-missing_fields = {};
-n_missing = 0;
+if isa(other_obj,'dnd_file_interface')
+    other_pos = other_obj.get_pos_info();
+    input_is_class = true;
+elseif isstruct(other_obj) % we assume that there is sturcute, containing the positions
+    keep_internals = true;
+    input_is_class = false;
+    other_pos = other_obj;
+else
+    error('SQW_FILE_IO:invalid_argument',...
+        'The second argument of copy_contents funtion has to be a faccess class or stucute, containing fields positions');
+end
 
 flds = fieldnames(this_pos);
-for i=1:numel(flds)
+n_fields = numel(flds);
+is_missing = false(1,n_fields);
+for i=1:n_fields
     fld = flds{i};
     if isfield(other_pos,fld)
         obj.(fld) = other_pos.(fld);
     else
-        n_missing = n_missing + 1;
-        missing_fields{n_missing} = fld;
+        is_missing(i) = true;
     end
 end
+missing_fields = flds(is_missing);
 %
-if other_obj.file_id_>0
-    [file,acc] = fopen(other_obj.file_id_);
-    if ismember(acc,{'rb+','wb+'}) % transfer write access to the new object
-        %other_obj = other_obj.fclose();
-        %other_obj = open_obj_file(other_obj,file,'rb');
-        obj = open_obj_file(obj,file,'rb+');
+if input_is_class
+    if  other_obj.file_id_>0
+        [file,acc] = fopen(other_obj.file_id_);
+        if ismember(acc,{'rb+','wb+'}) % transfer write access to the new object
+            %other_obj = other_obj.fclose();
+            %other_obj = open_obj_file(other_obj,file,'rb');
+            obj = open_obj_file(obj,file,'rb+');
+        else
+            obj = open_obj_file(obj,file,'rb');
+        end
     else
-        obj = open_obj_file(obj,file,'rb');
+        obj.filename_ = other_obj.filename;
+        obj.filepath_ = other_obj.filepath;
     end
-else
-    obj.filename_ = other_obj.filename;
-    obj.filepath_ = other_obj.filepath;
 end
 if keep_internals
     return;

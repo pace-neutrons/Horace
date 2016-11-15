@@ -12,10 +12,17 @@ classdef dnd_binfile_common < dnd_file_interface
     properties(Access=protected)
         file_id_=-1 % the open file handle (if any)
         %
+        % position (in bytes from start of the file of the appropriate part
+        % of Horace data information and the size of this part.
+        % 0 means unknown/uninitialized or missing.
+        data_pos_=26;
         %
         s_pos_=0;
         e_pos_=0;
-
+        % position of the npix field
+        npix_pos_='undefined';
+        
+        
         dnd_eof_pos_=0;
         % contais structure with accurate positions of various data fields
         % to use for accurate replacement of these fields during update
@@ -49,6 +56,10 @@ classdef dnd_binfile_common < dnd_file_interface
     properties(Dependent)
         % true if existing file shoild be upgraded false -- ovewritten
         upgrade_mode;
+        % intefaces to binary access outside of this class
+        data_position;
+        npix_position;
+        
     end
     %
     methods(Access = protected)
@@ -58,6 +69,13 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
+            [obj,inobj]= obj.init_dnd_info(varargin{:});
+            obj.sqw_holder_= inobj;
+            
+        end
+        %
+        function [obj,inobj] = init_dnd_info(obj,varargin)
+            % init dnd position information
             if nargin < 2
                 error('SQW_FILE_IO:runtime_error',...
                     'dnd_binfile_common:init_from_sqw_obj method should be invoked with at least an existing sqw or dnd object provided');
@@ -67,9 +85,7 @@ classdef dnd_binfile_common < dnd_file_interface
             else % dnd (the common logic verified that it is dnd)
                 inobj  = varargin{1};
             end
-            obj = init_from_sqw_(obj,inobj,varargin{2:end});
-            obj.sqw_holder_= inobj;
-            
+            obj = init_from_sqw_(obj,inobj,varargin{2:end});            
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
@@ -179,6 +195,13 @@ classdef dnd_binfile_common < dnd_file_interface
         function obj = set.upgrade_mode(obj,mode)
             obj = set_upgrade_mode_(obj,mode);
         end
+        %
+        function  pos = get.data_position(obj)
+            pos = obj.data_pos_;
+        end
+        function  pos = get.npix_position(obj)
+            pos = obj.npix_pos_;
+        end        
         %
         % Reopen exisging file to upgrade/write new data to it
         obj = reopen_to_write(obj)
