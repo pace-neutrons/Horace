@@ -1,4 +1,4 @@
-function res = get_sqw (obj,varargin)
+function [res,varargout] = get_sqw (obj,varargin)
 % Load an sqw file from disk
 %
 %   >> dnd_object = obj.get_sqw()
@@ -34,7 +34,7 @@ function res = get_sqw (obj,varargin)
 %
 % $Revision$ ($Date$)
 %
-[ok,mess,verbatim,hver,~] =  parse_char_options(varargin,{'-verbatim','-hverbatim'});
+[ok,mess,verbatim,hver,legacy,~] =  parse_char_options(varargin,{'-verbatim','-hverbatim','-legacy'});
 if ~ok
     error('SQW_FILE_IO:invalid_arguments',mess);
 end
@@ -45,6 +45,14 @@ else
     dat = obj.get_data();    
 end
 ndim = obj.num_dim;
+%
+if legacy
+    res = struct(); % main header
+    varargout{1} = struct(); % header
+    varargout{2} = struct(); % detpar;
+    varargout{3} = dat;      % data
+    return
+end
 
 warning('off','MATLAB:structOnObject');
 clob = onCleanup(@()warning('on','MATLAB:structOnObject'));
@@ -63,3 +71,4 @@ switch ndim
         error('SQW_FILE_IO:runtime_error',...
             'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)
 end
+varargout = {};

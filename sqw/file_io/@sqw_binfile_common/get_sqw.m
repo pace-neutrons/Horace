@@ -1,4 +1,4 @@
-function sqw_object = get_sqw (obj,varargin)
+function [sqw_object,varargout] = get_sqw (obj,varargin)
 % Load an sqw file from disk
 %
 %   >> sqw_object = obj.get_sqw()
@@ -27,6 +27,9 @@ function sqw_object = get_sqw (obj,varargin)
 %                                  data is written back to the file with a few altered fields.
 %                   '-hisverbatim'  Similarly as for '-his'
 %                   '-nopix'        Pixel information not read (only meaningful for sqw data type 'a')
+%                   '-legacy'       Return result in legacy format, e.g. 4
+%                                   fields, namely: main_header, header,
+%                                   detpar and data
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
@@ -50,14 +53,14 @@ function sqw_object = get_sqw (obj,varargin)
 %
 % $Revision$ ($Date$)
 
-opt = {'-head','-his','-hverbatim','-verbatim','-nopix'};
+opt = {'-head','-his','-hverbatim','-verbatim','-nopix','-legacy'};
 if nargin>1
     % replace single '-h' with head
     argi = cellfun(@replace_h,varargin,'UniformOutput',false);
 else
     argi = {};
 end
-[ok,mess,opt_h,opt_his,hverbatim,verbatim,opt_nopix,argi] = parse_char_options(argi,opt);
+[ok,mess,opt_h,opt_his,hverbatim,verbatim,opt_nopix,legacy,argi] = parse_char_options(argi,opt);
 if ~ok
     error('SQW_BINFILE_COMMON:invalid_argument',mess);
 end
@@ -85,19 +88,10 @@ if verbatim
 else
     sqw_struc.main_header =  obj.get_main_header();
 end
-% Get headers for each contributing spe file
+%
+% Get cellarray of headers for each contributing spe file
 % ------------------------------------------
-n_files = obj.num_contrib_files;
-header = obj.get_header(1);
-if n_files > 1
-    headers = cell(n_files,1);
-    headers{1} = header;
-    for i=2:n_files
-        headers{i} = obj.get_header(i);
-    end
-else
-    headers = header;
-end
+headers  = obj.get_header('-all');
 %
 % Get detector parameters
 % -----------------------
@@ -140,37 +134,13 @@ else
 end
 
 
-instr = obj.get_instrument('-all');
-sampl = obj.get_sample('-all');
-
-if isstruct(headers)
-    headers.instrument = instr;
-    headers.sample = sampl;
-else
-    for i=1:n_files
-        if numel(instr) > 1
-            if iscell(instr)
-                headers{i}.instrument = instr{i};
-            else
-                headers{i}.instrument = instr(i);
-            end
-        else
-            headers{i}.instrument = instr ;
-        end
-        if numel(sampl) > 1
-            if iscell(sampl)
-                headers{i}.sample = sampl{i};
-            else
-                headers{i}.sample = sampl(i);
-            end
-        else
-            headers{i}.sample = sampl;
-        end
-    end
-end
-
 sqw_struc.header = headers;
-if opt_h || opt_his
+if legacy
+    sqw_object = sqw_struc.main_header;
+    varargout{1} = sqw_struc.header;
+    varargout{2} = sqw_struc.detpar;
+    varargout{3} = sqw_struc.data;
+elseif opt_h || opt_his
     sqw_object  = sqw_struc;
 else
     sqw_object = sqw(sqw_struc);

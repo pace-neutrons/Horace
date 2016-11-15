@@ -53,7 +53,7 @@ classdef sqw_binfile_common < sqw_file_interface
                 error('SQW_FILE_IO:runtime_error',...
                     'init_from_sqw_obj method should be ivoked with an existing sqw object as first input argument');
             end
-            if ~isa(varargin{1},'sqw')
+            if ~(isa(varargin{1},'sqw') || is_sqw_struct(varargin{1}))
                 error('SQW_FILE_IO:invalid_argument',...
                     'init_from_sqw_obj method should be initiated by an sqw object');
             end

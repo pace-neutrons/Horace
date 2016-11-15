@@ -227,13 +227,6 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             end
             
             sqw_data = get_data@sqw_binfile_common(obj,varargin{:});
-            if ~isprop(sqw_data,'s') || ~isprop(sqw_data,'e') ...
-                    || ~isprop(sqw_data,'npix') % happens when
-                % header only option is requested
-                return;
-            end
-            [sqw_data.s,sqw_data.e] = ...
-                convert_signal_error_(sqw_data.s,sqw_data.e,sqw_data.npix);
             [path,name,ext]=fileparts(fopen(obj.file_id_));
             sqw_data.filename=[name,ext];
             sqw_data.filepath=[path,filesep];
@@ -244,10 +237,18 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             
         end
         %
+        function sqw_data = get_se_npix(obj,varargin)
+            % get signal,error and npix data only
+            sqw_data = get_se_npix@dnd_binfile_common(obj,varargin{:});
+            [sqw_data.s,sqw_data.e] = ...
+                convert_signal_error_(sqw_data.s,sqw_data.e,sqw_data.npix);
+        end
+        
+        %
         function new_obj = upgrade_file_format(obj)
-           error('SQW_FILE_IO:legacy_data',...
-                 ['FACCESS_SQW_PROTOTYPE::upgrade_file_format: can not upgrade file from prototype to other file format.\n',...
-                 'load prototype, set up correct alatt and angdeg parameters and save into one of new file formats']);
+            error('SQW_FILE_IO:legacy_data',...
+                ['FACCESS_SQW_PROTOTYPE::upgrade_file_format: can not upgrade file from prototype to other file format.\n',...
+                'Load prototype, set up correct alatt and angdeg parameters and save it into one of the new file formats']);
             
         end
     end
