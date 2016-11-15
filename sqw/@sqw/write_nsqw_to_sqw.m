@@ -87,21 +87,27 @@ pos_pixstart=zeros(nfiles,1);
 npixtot=zeros(nfiles,1);
 
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
-ldrs = sqw_formats_factory.instance().get_loaders(infiles);
+if ~iscell(infiles)
+    infiles = {infiles};
+end
+ldrs = sqw_formats_factory.instance().get_loader(infiles);
 for i=1:nfiles
-    
-    [mess,main_header{i},header{i},det_tmp,datahdr{i},position,npixtot(i),data_type,file_format,current_format] = get_sqw (infiles{i},'-h');
-    if ~current_format; error('Data in file %s does not have current Horace format - please re-create',infiles{i}); end
-    if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
+    data_type = ldrs{i}.data_type;
     if ~strcmpi(data_type,'a'); error(['No pixel information in ',infiles{i}]); end
+    main_header{i} = ldrs{i}.get_main_header();
+    header{i}      = ldrs{i}.get_header('-all');
+    datahdr{i}     = ldrs{i}.get_data('-head');
+    det_tmp        = ldrs{i}.get_detpar();
     if i==1
         det=det_tmp;    % store the detector information for the first file
     end
     if ~isequal_par(det,det_tmp); error('Detector parameter data is not the same in all files'); end
     clear det_tmp       % save memory on what could be a large variable
-    pos_datastart(i)=position.data;  % start of data block
-    pos_npixstart(i)=position.npix;  % start of npix field
-    pos_pixstart(i) =position.pix;   % start of pix field
+    
+    pos_datastart(i)=ldrs{i}.data_position;  % start of data block
+    pos_npixstart(i)=ldrs{i}.npix_position;  % start of npix field
+    pos_pixstart(i) =ldrs{i}.pix_position;   % start of pix field
+    npixtot(i)      =ldrs{i}.npixels;
     mess_completion(i)
 end
 mess_completion
@@ -213,14 +219,8 @@ end
 % Read data:
 mess_completion(nfiles,5,0.1);   % initialise completion message reporting
 for i=1:nfiles
-    fid=fopen(infiles{i},'r');
-    if fid<0; error(['Unable to open input file ',infiles{i}]); end
-    
-    status=fseek(fid,pos_datastart(i),'bof'); % Move directly to location of start of data section
-    if status<0; fclose(fid); error(['Error finding location of binning data in file ',infiles{i}]); end
-    
-    [mess,bindata]=sqw_data.get_sqw_data(fid,'-nopix',file_format,data_type);
-    if ~isempty(mess); error('Error reading data from file %s \n %s',infiles{i},mess); end
+    % get signal error and npix information
+    bindata = ldrs{i}.get_se_npix();
     if i==1
         s_accum = (bindata.s).*(bindata.npix);
         e_accum = (bindata.e).*(bindata.npix).^2;
@@ -230,7 +230,6 @@ for i=1:nfiles
         e_accum = e_accum + (bindata.e).*(bindata.npix).^2;
         npix_accum = npix_accum + bindata.npix;
     end
-    fclose(fid);            % close file so that do not have lots of files open at once
     clear bindata
     mess_completion(i)
 end
@@ -260,5 +259,17 @@ if drop_subzone_headers
 else
     run_label=cumsum([0;nspe(1:end-1)]);
 end
-mess = put_sqw (outfile, main_header_combined, header_combined, det, sqw_data, '-pix', infiles, pos_npixstart, pos_pixstart, run_label);
-if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
+sqw_data.pix = pix_combine_info(infiles,pos_npixstart,pos_pixstart,run_label,npixtot);
+[fp,fn,fe] = fileparts(outfile);
+main_header_combined.filename = [fn,fe];
+main_header_combined.filepath = [fp,filesep];
+data_sum= struct('main_header',main_header_combined,...
+    'header',[],'detpar',det,'data',sqw_data);
+data_sum.header = header_combined;
+
+wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
+wrtr = wrtr.init(data_sum,outfile);
+wrtr.put_sqw();
+%ldr.delete();
+% mess = put_sqw (outfile, main_header_combined, header_combined, det, sqw_data, '-pix', infiles, pos_npixstart, pos_pixstart, run_label);
+% if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end

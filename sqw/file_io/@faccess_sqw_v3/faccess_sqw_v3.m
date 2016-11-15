@@ -65,10 +65,10 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %
             % Copied of dnd_binfile_common to support overloading as
             % private properties are not accessible from parents
-            % 
+            %
             % keep_internals -- if true, do not overwrite service fields
             %                   not related to the position information
-            % 
+            %
             if ~exist('keep_internals','var')
                 keep_internals = false;
             end
@@ -76,6 +76,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         end
         
     end
+    %
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
@@ -85,11 +86,11 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     end
     %
     methods
+        % get data header
+        head = get_header(obj,varargin);
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         %
-        
-        
         function obj=faccess_sqw_v3(varargin)
             % constructor, to build sqw reader/writer version 3
             %

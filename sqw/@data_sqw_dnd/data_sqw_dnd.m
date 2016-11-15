@@ -193,6 +193,7 @@ classdef data_sqw_dnd
                 end
             end
         end
+        %
         function isit=dnd_type(obj)
             if isempty(obj.pix) || isempty(obj.urange)
                 isit = true;
@@ -226,7 +227,7 @@ classdef data_sqw_dnd
             % urange.
             dnd_struct = obj.get_dnd_data_(varargin);
         end
-        
+        %
         function obj=clear_sqw_data(obj)
             obj.pix=[];
             obj.urange=[];

@@ -12,7 +12,19 @@ data  = obj.sqw_holder_.data;
 %
 pix_form = obj.get_data_form('-pix_only');
 pos = obj.dnd_eof_pos_;
-[pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,data,pos);
+if isa(data.pix,'pix_combine_info') % data contains not pixels themselves but input for
+    % combining pixels from multiple files together.
+    pix_form = rmfield(pix_form,'pix');
+    [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,data,pos);
+    obj.pix_pos_ = pos;
+    npix = data.pix.npixels;
+    pos = pos + npix*9*4;
+    obj.npixels_ = npix;
+else
+    [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,data,pos);
+    obj.npixels_ = size(data.pix,2);
+end
+
 
 
 obj.urange_pos_  = pix_info_pos.urange_pos_;
@@ -22,5 +34,5 @@ obj.pix_pos_     = pix_info_pos.pix_pos_+8; % serializer calculates pix position
 % to the beginning of the real pix array.
 %
 obj.eof_pix_pos_ = pos;
-obj.npixels_ = size(data.pix,2);
+
 

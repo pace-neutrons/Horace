@@ -9,7 +9,7 @@ argi = varargin(~char_keys);
 if ~isempty(argi)
     input_obj = argi{1};
     type = class(input_obj);
-    if isa(input_obj,'sqw')
+    if isa(input_obj,'sqw') || is_sqw_struct(input_obj)
         subobj = input_obj.(obj_name);
     elseif strcmp(type,obj_name) || isstruct(input_obj)|| isa(input_obj,'is_holder') % the requested object provided directly
         subobj = input_obj;

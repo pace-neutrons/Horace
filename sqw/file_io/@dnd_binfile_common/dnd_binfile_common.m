@@ -80,12 +80,12 @@ classdef dnd_binfile_common < dnd_file_interface
                 error('SQW_FILE_IO:runtime_error',...
                     'dnd_binfile_common:init_from_sqw_obj method should be invoked with at least an existing sqw or dnd object provided');
             end
-            if isa(varargin{1},'sqw')
+            if isa(varargin{1},'sqw') || is_sqw_struct(varargin{1})
                 inobj = obj.extract_correct_subobj('data',varargin{:});
             else % dnd (the common logic verified that it is dnd)
                 inobj  = varargin{1};
             end
-            obj = init_from_sqw_(obj,inobj,varargin{2:end});            
+            obj = init_from_sqw_(obj,inobj,varargin{2:end});
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
@@ -164,6 +164,15 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         % read main dnd data  from properly initialized binary file.
         [dnd_data,obj] = get_data(obj,varargin);
+        %
+        obj = get_dnd_data(obj,varargin);
+        
+        function [data_str,obj] = get_se_npix(obj,varargin)
+            % get dnd image data, namely s, err and npix
+            data_str = get_se_npix_data_(obj,varargin{:});
+        end
+        
+        
         % read pixels information
         % retrieve the whole dnd object from properly initialized dnd file
         sqw_obj = get_sqw(obj,varargin);
@@ -201,7 +210,7 @@ classdef dnd_binfile_common < dnd_file_interface
         end
         function  pos = get.npix_position(obj)
             pos = obj.npix_pos_;
-        end        
+        end
         %
         % Reopen exisging file to upgrade/write new data to it
         obj = reopen_to_write(obj)

@@ -17,26 +17,61 @@ function  [header,pos]   = get_header(obj,varargin)
 %
 % $Revision$ ($Date$)
 %
+[ok,mess,get_all,argi]= parse_char_options(varargin,{'-all'});
+if ~ok
+    error('SQW_FILE_IO:invalid_argument',mess);
+end
+
 
 %
 if ischar(obj.num_contrib_files)
-    error('SQW_FILE_INTERFACE:runtime_error',...
+    error('SQW_FILE_IO:runtime_error',...
         ' get_header called on un-initialized loader')
 end
 
-if nargin==1
+if isempty(argi)
     n_header = 1;
 else
-    n_header = varargin{1};
+    n_header = argi{1};
 end
 
 if n_header<1 || (n_header>obj.num_contrib_files)
-    error('SQW_FILE_INTERFACE:invalid_argument',...
+    error('SQW_FILE_IO:invalid_argument',...
         ' wrong number of header requested : %d, Avalible numbers are 1-%d',...
         n_header,n_header>obj.num_contrib_files);
 end
 
+if get_all && obj.num_contrib_files > 1
+    header = cell(obj.num_contrib_files,1);
+    for i=1:obj.num_contrib_files
+        [header{i},pos] = get_single_header(obj,i);
+    end
+else
+    [header,pos] = get_single_header(obj,n_header);
+end
 
+%TODO: en conversion sucks. Should  be implemented within formatters
+%themselves!
+for i=1:numel(header)
+    if iscell(header)
+        header{i}.instrument = struct(); % this is necessary
+        header{i}.sample = struct();      % to satisfy current interface
+        if size(header{i}.en,1)==1
+            header{i}.en = header{i}.en';
+        end
+    else
+        if size(header(i).en,1)==1
+            header(i).en = header(i).en';
+        end
+        header(i).instrument = struct();
+        header(i).sample = struct();
+        
+    end
+end
+
+
+function [head,pos] = get_single_header(obj,n_header)
+% get single sqw v2 header
 if n_header == obj.num_contrib_files
     sz = obj.detpar_pos_ - obj.header_pos_(n_header);
 else
@@ -53,26 +88,14 @@ end
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
 if res ~=0
-    error('SQW_FILE_INTERFACE:runtime_error',...
+    error('SQW_FILE_IO:runtime_error',...
         'Can not read header N%d data; error: %s',n_header,mess);
 end
 
 
 header_format = obj.get_header_form();
-[header,pos] = obj.sqw_serializer_.deserialize_bytes(bytes,header_format,1);
+[head,pos] = obj.sqw_serializer_.deserialize_bytes(bytes,header_format,1);
 if obj.convert_to_double
-    header = obj.do_convert_to_double(header);
-end
-%TODO: sucks. Should it be implemented within formatters themselves?
-for i=1:numel(header)
-    if iscell(header)
-        if size(header{i}.en,1)==1
-            header{i}.en = header{i}.en';
-        end
-    else
-        if size(header(i).en,1)==1
-            header(i).en = header(i).en';
-        end
-    end
+    head = obj.do_convert_to_double(head);
 end
 

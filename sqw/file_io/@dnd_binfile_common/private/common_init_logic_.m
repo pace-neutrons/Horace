@@ -75,7 +75,7 @@ elseif ischar(input) || isnumeric(input)
     obj = obj.init_by_input_file(objinit);
 else
     type = class(input);
-    if ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'}) || is_sqw_struc(input)
+    if ismember(type,{'d0d','d1d','d2d','d3d','d4d','sqw'}) || is_sqw_struct(input)
         % still needed check against an obj already defined and new object
         % used as upgrade
         if ~ischar(obj.num_dim) && obj.file_id_ > 0
@@ -97,17 +97,3 @@ else
     end
 end
 obj = obj.init_from_sqw_file();
-
-
-function is = is_sqw_struc(input)
-% tramsitional measure -- TODO: remove when sqw is overwritten in normal
-% oo fashion.
-if ~isstruct(input)
-    is = false;
-    return
-end
-if ~isfield(input,{'main_header','header','detpar','data'})
-    is = false;
-else
-    is = true;    
-end

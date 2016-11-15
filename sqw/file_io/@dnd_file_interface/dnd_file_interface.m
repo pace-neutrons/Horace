@@ -163,6 +163,9 @@ classdef dnd_file_interface
         % ----------------------------------------------------------------
         % File Accessors:
         [data,obj]  = get_data(obj,varargin);
+        % get dnd image data, namely s, err and npix
+        [data_str,obj] = get_se_npix(obj,varargin)
+        
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
@@ -173,7 +176,7 @@ classdef dnd_file_interface
         % save sqw object stored in memory into binary sqw file. Depending
         % on data present in memory it can in fact save dnd object.
         % Save new or fully overwrite existing sqw file
-        obj = put_sqw(obj,varargin);
+        obj = put_sqw(obj,varargin);        
         % save sqw object stored in memory into binary sqw file as dnd object.
         % it always reduced data in memory into dnd object on hdd
         obj = put_dnd(obj,varargin);

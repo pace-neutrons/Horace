@@ -14,7 +14,7 @@ function [res,obj] = get_instr_or_sample_(obj,field_name,varargin)
 
 [ok,mess,get_all,other]=parse_char_options(varargin,{'-all'});
 if ~ok
-    error('FACCESS_SQW_V3:invalid_argument',...
+    error('SQW_FILE_IO:invalid_argument',...
         'get_%s, error: %s',field_name,mess )
 end
 samp_block = get_all_instr_or_samples_(obj,field_name);
@@ -23,10 +23,11 @@ if get_all
     res  = samp_block;
     return
 end
+
 if ~isempty(other)
     n_inst = other{1};
     if ~isnumeric(n_inst)
-        error('FACCESS_SQW_V3:invalid_argument',...
+        error('SQW_FILE_IO:invalid_argument',...
             'get_%s, error: %s',field_name,mess )
     end
     if n_inst<1 || n_inst > obj.num_contrib_files
@@ -72,12 +73,12 @@ end
 
 fseek(obj.file_id_,pos,'bof');
 [mess,res] = ferror(obj.file_id_);
-if res ~=0; error('FACCESS_SQW_V3:io_error',...
+if res ~=0; error('SQW_FILE_IO:io_error',...
         'Error moving to the %s position. Reason: %s',field_name,mess); end
 
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
-if res ~=0; error('FACCESS_SQW_V3:io_error',...
+if res ~=0; error('SQW_FILE_IO:io_error',...
         'Error readiong the data for field %s. Reason: %s',field_name,mess); end
 
 form = obj.get_si_form(field_name);

@@ -28,7 +28,7 @@ if numel(dim) == 2
     end
 end
 obj.dnd_dimensions_ = dim;
-obj.num_dim_ = numel(obj.dnd_dimensions_);
+obj.num_dim_ = numel(dim);
 %
 %
 format = obj.get_dnd_form();
