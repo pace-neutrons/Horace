@@ -47,25 +47,35 @@ if n_outputs>nargin
     error('READ_SQW:invalid_argument',...
         'number of output objects requested is bigger then the number of input files provided')
 end
+[ok,mess,get_dnd,argi] = parse_char_options(varargin,{'-get_dnd'});
+if ~ok
+    error('SQW_FILE_IO:invalid_argument',mess);
+end
 
-files = varargin{1};
+
+files = argi{1};
+loaders_provided = false;
 if iscell(files)
     argi = files;
-else
-    argi = {files};
+else % may be in strange way ivoked from a class. TODO: OOP violation!
+    if is_sqw_input_struct(files)
+        loaders_provided = true;
+    else
+        argi = {files};
+    end
 end
 %
-all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
-if ~any(all_fnames)
-    error('READ_SQW:invalid_argument','read_sqw: not all input arguments represent filenames')
+if ~loaders_provided
+    all_fnames = cellfun(@ischar,argi,'UniformOutput',true);
+    if ~any(all_fnames)
+        error('READ_SQW:invalid_argument','read_sqw: not all input arguments represent filenames')
+    end
+    %-------------------------------------------------------------------------
+    loaders = sqw_formats_factory.instance.get_loader(argi);
+else
+    loaders = files.loaders_list;
 end
-%-------------------------------------------------------------------------
-
-n_inputs=numel(argi);
-loaders = sqw_formats_factory.instance.get_loader(argi);
-if ~iscell(loaders )
-    loaders = {loaders};
-end
+n_inputs = numel(loaders);
 
 if n_outputs == 0 % do nothing but the check if all files present and
     return;       % are all sqw has been done
@@ -78,7 +88,24 @@ end
 trez = cell(1,n_files2read);
 % Now read data
 for i=1:n_files2read
-    trez{i} = loaders{i}.get_sqw();
+    if get_dnd
+        trez{i} = loaders{i}.get_dnd();
+    else
+        trez{i} = loaders{i}.get_sqw();
+    end
 end
 
 varargout = pack_io_outputs(trez,n_inputs,n_outputs);
+
+function is = is_sqw_input_struct(obj)
+% check if object appears to be input Horace structure.
+if ~isstruct(obj)
+    is = false;
+    return;
+end
+fnames = fieldnames(obj);
+if all(ismember({'source_is_file','data','sqw_type','ndims','loaders_list'},fnames))
+    is = true;
+else
+    is = false;
+end

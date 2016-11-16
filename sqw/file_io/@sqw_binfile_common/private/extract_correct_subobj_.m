@@ -1,4 +1,4 @@
-function [subobj,new_subobj] = extract_correct_subobj_(obj,obj_name,varargin)
+function [subobj,subobj_is_new] = extract_correct_subobj_(obj,obj_name,varargin)
 % Extract a subobject, requested for save, calculate positions or upgrade operations
 % using various parts of sqw object, or the requested part provided directly
 %
@@ -8,27 +8,24 @@ char_keys = cellfun(@(x)strncmp(x,'-',1),varargin);
 argi = varargin(~char_keys);
 if ~isempty(argi)
     input_obj = argi{1};
-    type = class(input_obj);
-    if isa(input_obj,'sqw') || is_sqw_struct(input_obj)
-        subobj = input_obj.(obj_name);
-    elseif strcmp(type,obj_name) || isstruct(input_obj)|| isa(input_obj,'is_holder') % the requested object provided directly
-        subobj = input_obj;
-    else
-        error('SQW_FILE_IO:invalid_argument',...
-            'SQW_BINFILE_COMMON::extract_correct_subobj: Requested to extract subobject %s  but can get only %s',...
-            obj_name,type);
-    end
-    new_subobj = true;
-else % mast be an sqw object:
-    if isempty(obj.sqw_holder_)
+    subobj_is_new = true;
+else
+    input_obj = obj.sqw_holder_;
+    subobj_is_new = false;
+    if isempty(input_obj)
         subobj = [];
-    else
-        if isa(obj.sqw_holder_,'sqw')
-            subobj = obj.sqw_holder_.(obj_name);        
-        else % should assume its already 'obj_name' - type
-            subobj = obj.sqw_holder_; 
-        end
+        return
     end
-    new_subobj = false;
 end
+%
 
+if isa(input_obj,'sqw') || is_sqw_struct(input_obj)
+    subobj = input_obj.(obj_name);
+elseif  isstruct(input_obj)|| isa(input_obj,'is_holder') || isa(input_obj,'data_sqw_dnd') % the requested object provided directly
+    subobj = input_obj;  % and is one of the supported types
+else
+    type = class(input_obj);    
+    error('SQW_FILE_IO:invalid_argument',...
+        'SQW_BINFILE_COMMON::extract_correct_subobj: Requested to extract subobject %s  but can get only %s',...
+        obj_name,type);
+end

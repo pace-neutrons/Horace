@@ -118,7 +118,7 @@ else % write pixels directly
     fseek(obj.file_id_,obj.pix_pos_+shift ,'bof');
     check_error_report_fail_(obj,'Error moving to the start of the pixels record');
     
-    npix_to_write = npix_hi-npix_lo;
+    npix_to_write = npix_hi-npix_lo+1;
     if npix_to_write <=block_size
         if write_all
             fwrite(obj.file_id_,input_obj.pix,'float32');
@@ -130,7 +130,7 @@ else % write pixels directly
         for ipix=npix_lo:block_size:npix_hi
             istart = ipix;
             iend   = min(ipix+block_size-1,npix_hi);
-            fwrite(fid,single(data.pix(:,istart:iend)),'float32');
+            fwrite(fid,data.pix(:,istart:iend),'float32');
             check_error_report_fail_(obj,...
                 'Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
                 istart,iend,npix_lo,npix_hi);

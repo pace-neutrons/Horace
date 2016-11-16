@@ -1,13 +1,12 @@
-function [sqw_object,varargout] = get_sqw (obj,varargin)
+function [dnd_object,varargout] = get_dnd (obj,varargin)
 % Load an sqw file from disk
 %
-%   >> sqw_object = obj.get_sqw()
-%   >> sqw_object = obj.get_sqw('-h')
-%   >> sqw_object = obj.get_sqw('-his')
-%   >> sqw_object = obj.get_sqw('-hverbatim')
-%   >> sqw_object = obj.get_sqw('-hisverbatim')
-%   >> sqw_object = obj.get_sqw('-nopix')
-%   >> sqw_object = obj.get_sqw(npix_lo, npix_hi)
+%   >> sqw_object = obj.get_dnd()
+%   >> sqw_object = obj.get_dnd('-h')
+%   >> sqw_object = obj.get_dnd('-his')
+%   >> sqw_object = obj.get_dnd('-hverbatim')
+%   >> sqw_object = obj.get_dnd('-hisverbatim')
+%   >> sqw_object = obj.get_dnd('-nopix')
 %
 % Input:
 % --------
@@ -32,10 +31,7 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %                                   detpar and data
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
-%
-%   npix_lo     -|- [optional] pixel number range to be read from the file
-%   npix_hi     -|
-%
+
 %
 % Output:
 % --------
@@ -51,100 +47,31 @@ function [sqw_object,varargout] = get_sqw (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1336 $ ($Date: 2016-11-15 19:10:09 +0000 (Tue, 15 Nov 2016) $)
 
-opt = {'-head','-his','-hverbatim','-verbatim','-nopix','-legacy'};
 if nargin>1
     % replace single '-h' with head
     argi = cellfun(@replace_h,varargin,'UniformOutput',false);
 else
     argi = {};
 end
-[ok,mess,opt_h,opt_his,hverbatim,verbatim,opt_nopix,legacy,argi] = parse_char_options(argi,opt);
+opt = {'-head','-his','-hverbatim','-verbatim','-nopix'};
+% suppress options which are irrelevant
+[ok,mess,~,~,hverbatim,verbatim,~,argi] = parse_char_options(argi,opt);
+verbatim = hverbatim||verbatim;
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',mess);
-end
-verbatim = verbatim||hverbatim;
-if numel(argi)>0
-    numer = cellfun(@isnumeric,argi);
-    if any(~numer)
-        error('SQW_BINFILE_COMMON:invalid_argument',...
-            'Unrecognised options %s to get_sqw',argi{:});
-    end
-    num_arg = argi{numer};
-    pix_range  = true;
-else
-    pix_range = false;
+    error('SQW_FILE_IO:invalid_argument',['get_dnd: ',mess]);
 end
 
-
-sqw_struc = struct('main_header',[],'header',[],'detpar',[],'data',[]);
-
-
-% Get main header
-% ---------------
 if verbatim
-    sqw_struc.main_header =  obj.get_main_header('-verbatim');
+    opt = {argi{:},{'-head','-nopix','-verbatim'}};
 else
-    sqw_struc.main_header =  obj.get_main_header();
-end
-%
-% Get cellarray of headers for each contributing spe file
-% ------------------------------------------
-headers  = obj.get_header('-all');
-%
-% Get detector parameters
-% -----------------------
-if ~(opt_h||opt_his)
-    sqw_struc.detpar = obj.get_detpar();
+    opt = {argi{:},{'-head','-nopix'}};    
 end
 
-% Get data
-% --------
-if verbatim
-    opt1 = {'-verbatim'};
-else
-    opt1 = {};
-end
+% can not call get_data@dnd_binfile_common directly!
+[dnd_object,varargout]  = get_dnd@dnd_binfile_common(obj,opt{:});
 
-if (opt_h||opt_his)
-    opt2 = {'-head'};
-else
-    opt2= {};
-end
-if opt_nopix
-    opt3={'-nopix'};
-else
-    opt3={};
-end
-
-data_opt={opt1{:},opt2{:},opt3{:}};
-if pix_range
-    if numel(num_arg) == 2
-        npix_lo = num_arg{1};
-        npix_hi = num_arg{2};
-        
-    elseif numel(num_arg) == 1
-        npix_lo = num_arg{1};
-        npix_hi = obj.npixels;
-    end
-    sqw_struc.data = obj.get_data(data_opt{:},npix_lo,npix_hi);
-else
-    sqw_struc.data = obj.get_data(data_opt{:});
-end
-
-
-sqw_struc.header = headers;
-if legacy
-    sqw_object = sqw_struc.main_header;
-    varargout{1} = sqw_struc.header;
-    varargout{2} = sqw_struc.detpar;
-    varargout{3} = sqw_struc.data;
-elseif opt_h || opt_his
-    sqw_object  = sqw_struc;
-else
-    sqw_object = sqw(sqw_struc);
-end
 
 function out = replace_h(inp)
 if strcmp(inp,'-h')

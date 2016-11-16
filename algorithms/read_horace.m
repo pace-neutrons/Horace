@@ -12,4 +12,7 @@ if nargout == 0
     read_sqw(varargin{:});    
 else
     varargout = read_sqw(varargin{:});
+    if ~iscell(varargout)
+        varargout = {varargout};
+    end
 end

@@ -24,7 +24,7 @@ if ~isempty(message)
     if fid>0
         fclose(fid);
     end
-    error('SQW_FILE_IO:io_error','Error: %s',message);
+    error('SQW_FILE_IO:io_error','file: %s\n Error: %s',file,message);
 end
 % try to interpret input binary stream as Horace header and
 % convert data stream into structure describing Horace format
