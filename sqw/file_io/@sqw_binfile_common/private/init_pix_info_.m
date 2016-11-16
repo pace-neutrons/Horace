@@ -16,9 +16,11 @@ if isa(data.pix,'pix_combine_info') % data contains not pixels themselves but in
     % combining pixels from multiple files together.
     pix_form = rmfield(pix_form,'pix');
     [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,data,pos);
-    obj.pix_pos_ = pos;
+    pix_info_pos.pix_pos_ = pos;
     npix = data.pix.npixels;
-    pos = pos + npix*9*4;
+    % start of npix pos + npix+ pix info size (single precision array of
+    % 8 x npix)
+    pos = pos + 8 + npix*9*4;
     obj.npixels_ = npix;
 else
     [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,data,pos);
@@ -34,5 +36,3 @@ obj.pix_pos_     = pix_info_pos.pix_pos_+8; % serializer calculates pix position
 % to the beginning of the real pix array.
 %
 obj.eof_pix_pos_ = pos;
-
-

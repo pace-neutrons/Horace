@@ -21,20 +21,20 @@ if update
 end
 
 % store header, which describes file as sqw file
-obj.put_app_header();
+obj=obj.put_app_header();
 %
-obj.put_main_header(argi{:});
+obj=obj.put_main_header(argi{:});
 %
-obj.put_headers(argi{:});
+obj=obj.put_headers(argi{:});
 %
-obj.put_det_info(argi{:});
+obj=obj.put_det_info(argi{:});
 %
 % write dnd image methadata
-obj.put_dnd_methadata(argi{:});
+obj=obj.put_dnd_methadata(argi{:});
 % write dnd image data
-obj.put_dnd_data(argi{:});
+obj=obj.put_dnd_data(argi{:});
 %
-obj.put_pix(argi{:});
+obj=obj.put_pix(argi{:});
 
 %
 if ~update

@@ -11,7 +11,8 @@ function [data_str,obj] = get_data (obj,varargin)
 %                                  data sections are returned as stored, not constructed from the
 %                                  value of fopen(fid). This is needed in some applications where
 %                                  data is written back to the file with a few altered fields.
-%
+%                  '-head'
+%                  '-verbatim'
 % Output:
 % -------
 
@@ -81,7 +82,7 @@ function [data_str,obj] = get_data (obj,varargin)
     parse_char_options(varargin,{'-head','-verbatim','-hverbatim'});
 if ~ok
     error('SQW_FILE_IO:invalid_argument',...
-        'DND_BINFILE_COMMON::get_data: Error %s',mess);
+        'get_data::Error: %s',mess);
 end
 header_only = header_only||hverbatim;
 verbatim    = verbatim||hverbatim;
@@ -94,19 +95,19 @@ verbatim    = verbatim||hverbatim;
 % ------------------------------------------------------------
 if ischar(obj.num_dim)
     error('SQW_FILE_IO:runtime_error',...
-        'DND_BINFILE_COMMON::get_data: method called on un-initialized loader')
+        'get_data: method called on un-initialized loader')
 end
 
 
 
 fseek(obj.file_id_,obj.data_pos_,'bof');
 check_error_report_fail_(obj,...
-    'DND_BINFILE_COMMON::get_data: Can not move to the start of the main data block');
+    'get_data: Can not move to the start of the main data block');
 
 sz = obj.s_pos_ - obj.data_pos_+1;
 bytes = fread(obj.file_id_,sz,'*uint8');
 check_error_report_fail_(obj,...
-    'DND_BINFILE_COMMON::get_data: Can not read the main data block');
+    'get_data: Can not read the main data block');
 
 
 data_form = obj.get_dnd_form('-header');

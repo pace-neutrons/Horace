@@ -1,4 +1,4 @@
-function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_file, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Create an output sqw file with dummy data using array(s) of energy bins instead spe file(s).
 %
@@ -12,7 +12,7 @@ function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_
 %
 % Input:
 % ------
-%   dummy_sqw       Dummy sqw object  - used only to ensure that this service routine was called
+%   en              Energy bin boundaries (must be monotonically increasing and equally spaced)
 %   en              Energy bin boundaries (must be monotonically increasing and equally spaced)
 %               or  cell array of arrays of energy bin boundaries, one array per spe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
@@ -48,7 +48,7 @@ function [tmp_file, grid_size, urange] = fake_sqw (dummy_sqw, en, par_file, sqw_
 
 % T.G.Perring  18 May 2009
 %
-% $Revision$ ($Date$)
+% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 
 small_bin=1e-12;
 %d2r=pi/180;

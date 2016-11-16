@@ -163,7 +163,7 @@ classdef dnd_file_interface
         % ----------------------------------------------------------------
         % File Accessors:
         [data,obj]  = get_data(obj,varargin);
-        % get dnd image data, namely s, err and npix
+        % get only dnd image data, namely s, err and npix
         [data_str,obj] = get_se_npix(obj,varargin)
         
         [inst,obj]  = get_instrument(obj,varargin);

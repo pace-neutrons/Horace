@@ -1,4 +1,4 @@
-function [ok,mess,header,detpar,grid_size,urange]=gen_sqw_check_sqwfile_valid(sqw_file)
+function [ok,mess,header,grid_size,urange]=gen_sqw_check_sqwfile_valid(sqw_file)
 % Check that the sqw file has the correct attributes to which to accumulate, and return useful information
 %
 %   >> [ok,mess,grid_size,urange]=gen_sqw_check_sqwfile_valid(sqw_file)
@@ -30,22 +30,31 @@ function [ok,mess,header,detpar,grid_size,urange]=gen_sqw_check_sqwfile_valid(sq
 % Determine if the file contains sqw data, and dimensionality
 % -----------------------------------------------------------
 % (Note: as of 19 Mar 2013, this involves an implicit read of header if prototype sqw file format)
-[sqw_type, ndims, nfiles, filename, mess] = is_sqw_type_file(sqw,sqw_file);
+try
+    ldr = sqw_formats_factory.instance().get_loader(sqw_file);
+    sqw_type = ldr.sqw_type;
+    ndims = ldr.num_dim;
+    mess = [];
+catch ME
+    mess = ME.msgtext;
+end
 if ~isempty(mess)
     ok=false;
-    header={}; detpar=[]; grid_size=[]; urange=[];
+    header={}; grid_size=[]; urange=[];
     return
 end
 if ~sqw_type || ndims~=4
     ok=false;
     mess='The file to which to accumulate does not hold sqw data, or does not have 4 dimensions';
-    header={}; detpar=[]; grid_size=[]; urange=[];
+    header={};  grid_size=[]; urange=[];
     return
 end    
 
 % Get header information to check other fields
 % --------------------------------------------
-[mess,main_header,header,detpar,data]=get_sqw (sqw_file,'-h');
+header = ldr.get_header('-all');
+data   = ldr.get_data('-head');
+%[mess,main_header,header,detpar,data]=get_sqw (sqw_file,'-h');
 header_ave=header_average(header);
 
 tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
@@ -59,7 +68,7 @@ ok =equal_to_relerr(header_ave.alatt, data.alatt, tol, 1) &...
 if ~ok
     ok=false;
     mess='The sqw to which to accumulate does not have the correct projection axes for this operation.';
-    header={}; detpar=[]; grid_size=[]; urange=[];
+    header={}; grid_size=[]; urange=[];
     return
 end
 

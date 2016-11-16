@@ -1,13 +1,17 @@
-function [mess,fid_input] = put_sqw_data_pix_from_file (fout, infiles, pos_npixstart, pos_pixstart, npix_cumsum, run_label)
+function obj = put_sqw_data_pix_from_file_(obj, pix_comb_info)
 % Write pixel information to file, reading that pixel information from a collection of other files
 %
-%   >> mess = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart)
+%   >> obj = put_sqw_data_pix_from_file (fid, infiles, npixstart, pixstart)
 %
 % Input:
 % ------
-%   fout            File identifier of output file (opened for binary writing)
+% where
+%   obj is initialized sqw_binfile_common object
+% and
+%  pix_comb_info   is parameter class with fields:
+%
 %   infiles         Cell array of file names, or array of file identifiers of open files, from
-%                  which to accumulate the pixel information
+%                   which to accumulate the pixel information
 %   pos_npixstart   Position (in bytes) from start of file of the start of the field npix
 %   pos_pixstart    Position (in bytes) from start of file of the start of the field pix
 %   npix_cumsum     Accumulated sum of number of pixels per bin across all the files
@@ -23,10 +27,6 @@ function [mess,fid_input] = put_sqw_data_pix_from_file (fout, infiles, pos_npixs
 %                    (3) The files correspond to several runs in general, which need to
 %                       be offset to give the run indices into the collective list of run parameters
 %
-% Output:
-% -------
-%   mess            Message if there was a problem writing; otherwise mess=''
-%
 %
 % Notes:
 % ------
@@ -41,58 +41,47 @@ function [mess,fid_input] = put_sqw_data_pix_from_file (fout, infiles, pos_npixs
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 
 
 % Get number of files
-nfiles = length(infiles);
+nfiles = pix_comb_info.nfiles;
 
 % Check run_label:
-relabel_with_fnum=false;
-if ischar(run_label)
-    if strcmpi(run_label,'nochange')
-        change_fileno=false;
-    elseif strcmpi(run_label,'fileno')
-        change_fileno=true;
-        relabel_with_fnum=true;
-    else
-        mess='Invalid value for argument run_label';
-        return
-    end
-elseif isnumeric(run_label) && numel(run_label)==nfiles
-    change_fileno=true;
-    relabel_with_fnum=false;
-else
-    mess='Invalid contents for argument run_label';
-    return
-end
-fid_input = false;
+relabel_with_fnum=pix_comb_info.relabel_with_fnum;
+change_fileno  = pix_comb_info.change_fileno;
+
 % size of buffer to hold pixel information, the log level and if use mex to
 % build the result
-[pmax,log_level,use_mex] = get(hor_config,'mem_chunk_size','log_level','use_mex_for_combine');
+
+[pmax,log_level,use_mex] = config_store.instance().get_value('hor_config','mem_chunk_size','log_level','use_mex_for_combine');
+
+pix_out_position = obj.pix_pos_;
 if use_mex
-    pix_out_position = ftell(fout);
-    fout_name = fopen(fout);
-    fclose(fout);
-    n_bins = numel(npix_cumsum);
-    [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_position,...
-        infiles,pos_npixstart, pos_pixstart,run_label,change_fileno,relabel_with_fnum);
+    fout_name = fullfile(obj.filepath,obj.filename);
+    pix_out_pos = obj.pix_position;
+    obj = obj.fclose();
+    n_bins = numel(pix_comb_info.npix_cumsum);
+    [mess,infiles] = combine_files_using_mex(fout_name,n_bins,pix_out_pos,...
+        pix_comb_info.infiles,pix_comb_info.pos_npixstart, pix_comb_info.pos_pixstart,pix_comb_info.run_label,...
+        change_fileno,relabel_with_fnum);
+    
+    obj = obj.reopen_to_write();
     if isempty(mess)
-        fid_input = true;
         return
     else  % Mex combining have failed, try Matlab
-        fout = fopen(fout_name,'rb+');
-        if (fout<0)
-            mess=['Unable to reopen output file: ',fout_name,'with all necessary permissions'];
-            return
-        end
-        status = fseek(fout,pix_out_position,'bof');
-        if status<0
-            mess=['Error finding location of pixel data in output file: ',fout_name];
-            fclose(fout);
-            return
-        end
+        fout = obj.file_id_;
+        fseek(fout,pix_out_position,'bof');
+        check_error_report_fail_(obj,...
+            ['Unable to move to the start of the pixel record in target file ',...
+            obj.filename,' after mex-combine failed']);
     end
+else
+    fout = obj.file_id_;
+    fseek(fout,pix_out_position,'bof');
+    check_error_report_fail_(obj,...
+        ['Unable to move to the start of the pixel record in target file ',...
+        obj.filename,' after mex-combine failed']);
 end
 
 
@@ -101,33 +90,33 @@ end
 % Opening all files may cause problems as I don't know what the reasonable default is, but I assume is faster than constantly opening
 % and closing a hundred or more files]
 
-if isnumeric(infiles)
-    fid = infiles;   % copy fid
+if isnumeric(pix_comb_info.infiles)
+    fid = pix_comb_info.infiles;   % copy fid
     for i=1:nfiles
         if isempty(fopen(fid(i)))
-            mess = 'No open file with given file identifier';
-            return
+            error('SQW_FILE_IO:runtime_error',...
+                'No open file N %d with file identifier %d',i,fid(i));
         end
     end
-    close_input_files = false;
 else
     fid=zeros(nfiles,1);
     for i=1:nfiles
-        [fid(i),mess]=fopen(infiles{i},'r');
+        [fid(i),mess]=fopen(pix_comb_info.infiles{i},'r');
         if fid(i)<0
             for j=1:i-1; fclose(fid(j)); end    % close all the open input files
-            mess=['Unable to open all input files concurrently: ',mess];
-            return
-        end
-        status=fseek(fid(i),pos_pixstart(i),'bof'); % Move directly to location of start of pixel data
-        if status<0;
-            for j=1:i-1; fclose(fid(j)); end;
-            mess=['Error finding location of pixel data in file ',infiles{i}];
-            return
+            error('SQW_FILE_IO:runtime_error',...
+                'Unable to open all input files concurrently: %s',mess);
         end
     end
-    close_input_files = true;
+    clob = onCleanup(@()fcloser(fid));  % I hope this routine has full function visibility
+    for i = 1:nfiles
+        fseek(fid(i),pix_comb_info.pos_pixstart(i),'bof'); % Move directly to location of start of pixel data
+        check_error_report_fail_(obj,...
+            sprintf('Unable to move to the start of the pixel record for the  input file N%d after mex-combine failed',...
+            i));
+    end
 end
+
 
 
 % Write the pixel information to the file
@@ -142,7 +131,7 @@ end
 % (For example, if 50^4 grid, 300 files then array size of npix= 8*300*50^4 = 15GB).
 %profile on
 
-nbin = numel(npix_cumsum);                  % total number of bins
+nbin = numel(pix_comb_info.npix_cumsum);     % total number of bins
 ibin_end=0;                                 % initialise the value of the largest element number of npix that is stored
 ibin_lastflush=0;                           % last bin index for which data has been written to output file
 npix_lastflush=0;                           % last pixel index for which data has been written to output file
@@ -152,7 +141,7 @@ t_total=1;
 
 nsinglebin_write = 0;
 nbuff_write = 0;
-mess_completion(npix_cumsum(end),5,1);      % initialise completion message reporting - only if exceeds time threshold
+mess_completion(pix_comb_info.npix_cumsum(end),5,1);   % initialise completion message reporting - only if exceeds time threshold
 if log_level > 1
     total_size_written=0;
 end
@@ -160,11 +149,10 @@ while ibin_end<nbin
     
     % Refill buffer with next section of npix arrays from the input files
     ibin_start = ibin_end+1;
-    [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_start,nbin);
+    [npix_section,ibin_end,mess]=get_npix_section(fid,pix_comb_info.pos_npixstart,ibin_start,nbin);
     if ~isempty(mess)
-        if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
-        mess = ['Error reading section of npix array in file %s \n %s',infiles{i},mess];
-        return
+        error('SQW_FILE_IO:runtime_error',...
+            'Error reading section of npix array: %s',mess);
     end
     % Get the largest bin index such that the pixel information can be put in buffer
     % (We hold data for many bins in a buffer, as there is an overhead from reading each bin from each file separately;
@@ -173,23 +161,22 @@ while ibin_end<nbin
         if (log_level>1)
             t_all=tic;
         end
-        ibin = min(ibin_end,upper_index(npix_cumsum, npix_lastflush+pmax));
+        ibin = min(ibin_end,upper_index(pix_comb_info.npix_cumsum, npix_lastflush+pmax));
         if ibin==ibin_lastflush     % catch case when buffer cannot hold data for just the one bin
             ibin = ibin+1;
             for i=1:nfiles
                 npix_in_bin = npix_section{i}(ibin-ibin_start+1);
                 if npix_in_bin>0
                     [pix,count,ok,mess] = fread_catch(fid(i),[9,npix_in_bin],'*float32');
-                    if ~all(ok);
-                        if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
-                        mess = ['Error reading pixel data for bin ',num2str(ibin),' in file ',infiles{i},' : ',mess];
-                        return
+                    if ~all(ok)
+                        error('SQW_FILE_IO:runtime_error',...
+                            ['Error reading pixel data for bin ',num2str(ibin),' in file ',infiles{i},' : ',mess]);
                     end
                     if change_fileno
                         if relabel_with_fnum
                             pix(5,:)=i;   % set the run index to the file index
                         else
-                            pix(5,:)=pix(5,:)+run_label(i);     % offset the run index
+                            pix(5,:)=pix(5,:)+pix_comb_info.run_label(i);     % offset the run index
                         end
                     end
                     fwrite(fout,pix,'float32');
@@ -229,12 +216,12 @@ while ibin_end<nbin
                         %[pix_buff(:,nbeg(1,i):nend(end,i)),count,ok,mess] =
                     catch   % fixup to account for not reading required number of items (should really go in fread_catch)
                         ok = false;
-                        mess = 'Unrecoverable read error after maximum no. tries';
+                        error('SQW_FILE_IO:runtime_error',...
+                            'Unrecoverable read error after maximum no. tries');
                     end
-                    if ~all(ok);
-                        if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
-                        mess = ['Error reading pixel data from ',infiles{i},' : ',mess];
-                        return
+                    if ~all(ok)
+                        error('SQW_FILE_IO:runtime_error',...
+                            ['Error reading pixel data from ',infiles{i},' : ',mess]);
                     end
                 end
             end
@@ -252,7 +239,7 @@ while ibin_end<nbin
                         if relabel_with_fnum
                             pix_block(5,:)=i;
                         else
-                            pix_block(5,:) =pix_block(5,:)+run_label(i); % offset the run index
+                            pix_block(5,:) =pix_block(5,:)+pix_comb_info.run_label(i); % offset the run index
                         end
                         pix_tb{i} = pix_block;
                     end
@@ -303,7 +290,7 @@ while ibin_end<nbin
             
         end
         ibin_lastflush = ibin;
-        npix_lastflush = npix_cumsum(ibin_lastflush);
+        npix_lastflush = pix_comb_info.npix_cumsum(ibin_lastflush);
         mess_completion(npix_lastflush)
     end
 end
@@ -321,8 +308,6 @@ end
 % disp([' single bin write operations: ',num2str(nsinglebin_write)])
 % disp(['     buffer write operations: ',num2str(nbuff_write)])
 
-% Close down
-if close_input_files; for j=1:nfiles; fclose(fid(j)); end; end;
 
 %================================================================================================
 function [npix_section,ibin_end,mess]=get_npix_section(fid,pos_npixstart,ibin_start,ibin_max)
@@ -406,17 +391,17 @@ end
 
 out_param = struct('file_name',fout_name ,...
     'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
-
-[out_buf_size,log_level,buf_size,multithreaded_combining] = get(hor_config,'mem_chunk_size','log_level',...
-    'mex_combine_buffer_size','mex_combine_thread_mode');
-
+%
+[out_buf_size,log_level,buf_size,multithreaded_combining] = ...
+    config_store.instance().get_value('hor_config','mem_chunk_size',...
+    'log_level','mex_combine_buffer_size','mex_combine_thread_mode');
 % conversion parameters include:
 % n_bin        -- number of bins in the image array
 % 1            -- first bin to start copty pixels for
 % out_buf_size -- the size of ouput buffer to use for writing pixels
 % change_fileno-- if pixel run id should be changed
 % relabel_with_fnum -- if change_fileno is true, how to calculate the new pixel
-%                  id -- by providing new id equal to filenum or by adding 
+%                  id -- by providing new id equal to filenum or by adding
 %                  it to the existing num.
 % num_ticks    -- approximate number of log messages to generate while
 %                 combining files together
@@ -441,4 +426,10 @@ if log_level > 0
 end
 if log_level>1
     fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
+end
+
+function fcloser(fid)
+nfiles = numel(fid);
+for j=1:nfiles
+    fclose(fid(j));
 end
