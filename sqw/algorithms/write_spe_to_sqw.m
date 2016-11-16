@@ -1,4 +1,4 @@
-function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [grid_size, urange] = write_spe_to_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
                                                  u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 %
@@ -20,7 +20,6 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_
 %
 % Input:
 % ------
-%   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   spe_file        Full file name of spe data e.g. spe file or nxspe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
 %   sqw_file        Full file name of output sqw file
@@ -48,7 +47,7 @@ function [grid_size, urange] = write_spe_to_sqw (dummy, spe_file, par_file, sqw_
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 
 
 disp('*** DEPRECATED FUNCTION:  Please replace this call to  write_spe_to_sqw  with one to  gen_sqw ***')
@@ -81,7 +80,7 @@ if ~ok, error(mess), end
 % Perform spe to sqw calculation
 % ------------------------------
 r2d=180/pi;
-[tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_file,...
+[tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file,...
     efix, emode, alatt, angdeg, u, v, psi*r2d, omega*r2d, dpsi*r2d, gl*r2d, gs*r2d, varargin{:});
 
 % Clear output arguments if nargout==0 to have a silent return

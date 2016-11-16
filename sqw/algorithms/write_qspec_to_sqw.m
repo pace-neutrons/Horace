@@ -1,4 +1,4 @@
-function [grid_size, urange] = write_qspec_to_sqw (dummy, qspec_file, sqw_file, efix, emode, alatt, angdeg,...
+function [grid_size, urange] = write_qspec_to_sqw (qspec_file, sqw_file, efix, emode, alatt, angdeg,...
                                                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 % Read ascii column data and create a single sqw file.
 %
@@ -7,7 +7,6 @@ function [grid_size, urange] = write_qspec_to_sqw (dummy, qspec_file, sqw_file, 
 %
 % Input:
 % ------
-%   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   qspec_file      Full file name of ascii file containing qx-qy-qz-eps-signal-error column data.
 %                   Here qz  is the component of momentum along ki (Ang^-1)
 %                        qy  is component vertically upwards (Ang^-1)
@@ -40,7 +39,7 @@ function [grid_size, urange] = write_qspec_to_sqw (dummy, qspec_file, sqw_file, 
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 
 
 % Check that the first argument is sqw object

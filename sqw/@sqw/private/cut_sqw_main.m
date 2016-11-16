@@ -267,7 +267,7 @@ if source_is_file  % data_source is a file
         error('Data file is not sqw file with pixel information - cannot take cut')
     end
     npixtot = ld.npixels;
-    position = ld.pix_position;
+    pix_position = ld.pix_position;
     %
     main_header = ld.get_main_header();
     header = ld.get_header('-all');
@@ -367,7 +367,7 @@ if source_is_file
     if fid<0
         error(['Unable to open file ',data_source])
     end
-    status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
+    status=fseek(fid,pix_position,'bof');    % Move directly to location of start of pixel data block
     if status<0;  fclose(fid);
         error(['Error finding location of pixel data in file ',data_source]);
     end

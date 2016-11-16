@@ -1,11 +1,10 @@
-function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
+function write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (dummy, infiles, outfile)
 %
 % Input:
 % ------
-%   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   infiles         Cell array or character array of sqw file name(s) of input file(s)
 %   outfile         Full name of output sqw file
 %   varargin        If present can be the keyword one or all of the keywods:
@@ -27,23 +26,17 @@ function write_nsqw_to_sqw (dummy, infiles, outfile,varargin)
 % T.G.Perring   27 June 2007
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
-% $Revision$ ($Date$)
+% $Revision: 1336 $ ($Date: 2016-11-15 19:10:09 +0000 (Tue, 15 Nov 2016) $)
 
-horace_info_level=get(hor_config,'horace_info_level');
+horace_info_level=config_store.instance().get_value('hor_config','log_level');
 drop_subzone_headers = false;
 if ismember('drop_subzones_headers',varargin)
     drop_subzone_headers = true;
 end
 
-% Check that the first argument is sqw object
-% -------------------------------------------
-if ~isa(dummy,classname)    % classname is a private method
-    error('Check type of input arguments')
-end
-
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------
-if nargin<3
+if nargin<2
     error('Check number of input arguments')
 end
 
@@ -242,7 +235,7 @@ e_accum(nopix)=0;
 %
 sqw_data.s=s_accum;
 sqw_data.e=e_accum;
-sqw_data.npix=npix_accum;
+sqw_data.npix=uint64(npix_accum);
 
 clear nopix
 mess_completion
@@ -259,7 +252,9 @@ if drop_subzone_headers
 else
     run_label=cumsum([0;nspe(1:end-1)]);
 end
-sqw_data.pix = pix_combine_info(infiles,pos_npixstart,pos_pixstart,run_label,npixtot);
+npix_cumsum = cumsum(sqw_data.npix(:));
+sqw_data.pix = pix_combine_info(infiles,pos_npixstart,pos_pixstart,npix_cumsum,npixtot,run_label);
+
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];
 main_header_combined.filepath = [fp,filesep];
@@ -267,8 +262,9 @@ data_sum= struct('main_header',main_header_combined,...
     'header',[],'detpar',det,'data',sqw_data);
 data_sum.header = header_combined;
 
+ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
-wrtr = wrtr.init(data_sum,outfile);
+wrtr = wrtr.init(ds,outfile);
 wrtr.put_sqw();
 %ldr.delete();
 % mess = put_sqw (outfile, main_header_combined, header_combined, det, sqw_data, '-pix', infiles, pos_npixstart, pos_pixstart, run_label);

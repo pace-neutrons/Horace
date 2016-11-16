@@ -1,4 +1,4 @@
-function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
@@ -20,7 +20,6 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %
 % Input: (in the following, nfile = number of spe files)
 % ------
-%   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   spe_file        Full file name of spe file - character string or cell array of
 %                   character strings for more than one file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
@@ -68,7 +67,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 %                  which actually transforms sqw object. The function
 %                  should have the form:
 %                  wout = f(win) where win is input sqw object and wout --
-%                  the transformed one. For example f can symmeterize sqw file:
+%                  the transformed one. For example f can symmetrize sqw file:
 % i.e:
 %   >> gen_sqw(...,...,...,'transform_sqw',@(x)(symmetrise_sqw(x,[0,1,0],[0,0,1],[0,0,0])))
 %                  would symmeterize pixels of the generated sqw file by
@@ -90,17 +89,13 @@ function [tmp_file,grid_size,urange] = gen_sqw (dummy, spe_file, par_file, sqw_f
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
 %
-% $Revision$ ($Date$)
+% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 
 % *** Possible improvements
 % - Cleverer choice of grid size on the basis of number of data points in the file
 
 d2r=pi/180;     % conversion factor from degrees to radians
 
-% Check that the first argument is sqw object
-if ~isa(dummy,classname)    % classname is a private method
-    error('Check type of input arguments')
-end
 
 % Determine keyword arguments, if present
 arglist=struct('replicate',0,'accumulate',0,'clean',0,'tmp_only',0,'time',0,...
@@ -222,7 +217,7 @@ end
 % Check the input parameters define unique data sets
 if accumulate_old_sqw    % combine with existing sqw file
     % Check that the sqw file has the correct type to which to accumulate
-    [ok,mess,header_sqw,detpar_sqw,grid_size_sqw,urange_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
+    [ok,mess,header_sqw,grid_size_sqw,urange_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
     % Check that the input spe data are distinct
     if ~ok, error(mess), end
     [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
@@ -451,12 +446,12 @@ else
             if horace_info_level>-1
                 disp('Creating output sqw file:')
             end
-            write_nsqw_to_sqw (dummy, tmp_file, sqw_file);
+            write_nsqw_to_sqw (tmp_file, sqw_file);
         else
             if horace_info_level>-1
                 disp('Accumulating in temporary output sqw file:')
             end
-            write_nsqw_to_sqw (dummy, [sqw_file;tmp_file], sqw_file_tmp);
+            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp);
             if horace_info_level>-1
                 disp(' ')
                 disp(['Renaming sqw file to ',sqw_file])
