@@ -12,8 +12,8 @@ function obj=put_dnd_methadata(obj,varargin)
 % $Revision$ ($Date$)
 %
 
-%
-[ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
+% ignore nopix if it comes as input
+[ok,mess,update,~,argi]=parse_char_options(varargin,{'-update','-nopix'});
 if ~ok
     error('SQW_FILE_IO:invalid_artgument',...
         ['put_dnd_methadata: Error: ',mess]);

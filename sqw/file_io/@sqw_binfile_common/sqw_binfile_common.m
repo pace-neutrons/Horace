@@ -136,6 +136,8 @@ classdef sqw_binfile_common < sqw_file_interface
         pix    = get_pix(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
         sqw_obj = get_sqw(obj,varargin);
+        % retrieve dnd part of the sqw object
+        dnd_obj = get_dnd(obj,varargin);
         % ---------   File Mutators:
         % save or replace main file header
         obj = put_main_header(obj,varargin);
@@ -165,7 +167,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % the position of pixels information in the file. Used to organize
             % class independent binary access to pixel data;
             pix_pos = obj.pix_pos_;
-        end       
+        end
         %
         %
         % return structure, containing position of every data field in the

@@ -47,7 +47,7 @@ end
 % read enough data to understand the file is sqw file
 stream = fread(fid,buf_size,'*uint8');
 if feof(fid) == 1
-    mess = sprintf(['DND_FILE_INTERFACE:io_error:',...
+    mess = sprintf(['read_header_::io_error:',...
         'Can not read first %d bytes of file. File is too small to be an sqw file'],buf_size);
     return
 end

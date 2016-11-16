@@ -1,5 +1,5 @@
 function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
-% the function returns the version of horace, which should correspond to
+% the function returns the version of Horace, which should correspond to
 % the distinctive tag version from the SVN server.
 %
 % Usage:
@@ -7,7 +7,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
 % [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version('brief')
 %
 % where application is a structure containing the fields with program name
-% (horace)and horace release version.
+% (Horace)and Horace release version.
 %
 % if horace_version is called with parameter, the function
 % returns revision data (Matlab_SVN) as number rather then string
@@ -15,9 +15,9 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
 %
 %
 % An pre-commit hook script provided as part of the package
-% has to be enabled on svn and svn file properies
+% has to be enabled on svn and svn file properties
 % (Keywords) Date and Revision should be set on this file
-% to support valid Matlab versioning.
+% to support valid Matlab versions.
 %
 % The script will modify the data of this file before committing.
 % The variable below introduced to allow the commit hook touching this file and
@@ -25,7 +25,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
 % the best and most portable for any OS I can think of).
 %
 %
-% $COMMIT_COUNTER:: 75 $
+% $COMMIT_COUNTER:: 76 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will
 % be modified and probably corrupted at commit
@@ -76,7 +76,7 @@ if use_mex
         set(hor_config,'use_mex',0);
     end
     if ~can_use_mex_for_combine
-        % it will check the mode and set up "can not user mex" internaly
+        % it will check the mode and set up "can not user mex" internally
         set(hor_config,'mex_combine_thread_mode',0);
     end
 

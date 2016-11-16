@@ -13,8 +13,8 @@ function obj=put_dnd_data(obj,varargin)
 % $Revision$ ($Date$)
 %
 
-%
-[ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
+% ignore nopix if it come as input
+[ok,mess,update,~,argi]=parse_char_options(varargin,{'-update','-nopix'});
 if ~ok
     error('DND_BINFILE_COMMON:invalid_artgument',...
         ['put_dnd_methad: Error: ',mess]);

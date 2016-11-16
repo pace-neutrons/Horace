@@ -24,13 +24,20 @@ app_header.version  = obj.file_ver_;
 if isa(obj_to_save,'sqw')
     app_header.sqw_type = true;
     ndim = calc_proper_ndim(obj_to_save.data.s);
+elseif  is_sqw_struct(obj_to_save)
+    if isempty(obj_to_save.main_header)
+        app_header.sqw_type = false;
+    else
+        app_header.sqw_type = true;
+    end
+    ndim = calc_proper_ndim(obj_to_save.data.s);
 else
     type    = class(obj_to_save);
     classes = {'d0d','d1d','d2d','d3d','d4d','data_sqw_dnd'};
     ind = ismember(classes,type);
     if ~any(ind)
         error('SQW_FILE_IO:invalid_argument',...
-            ' build_app_header -- unsupported class to save: "%s"',type)
+            ' build_app_header -- unsupported class to save in sqw format: "%s"',type)
     end
     app_header.sqw_type = false;
     ndim = find(ind)-1;

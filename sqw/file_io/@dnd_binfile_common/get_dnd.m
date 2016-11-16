@@ -1,8 +1,8 @@
-function [res,varargout] = get_sqw (obj,varargin)
+function [res,varargout] = get_dnd (obj,varargin)
 % Load an sqw file from disk
 %
-%   >> dnd_object = obj.get_sqw()
-%   >> dnd_object = obj.get_sqw('-verbatim')
+%   >> dnd_object = obj.get_dnd()
+%   >> dnd_object = obj.get_dnd('-verbatim')
 %
 % Input:
 % --------
@@ -15,6 +15,10 @@ function [res,varargout] = get_sqw (obj,varargin)
 %                                  data sections are returned as stored, not constructed from the
 %                                  value of fopen(fid). This is needed in some applications where
 %                                  data is written back to the file with a few altered fields.
+%                   '-hverbatim'
+%                   '-legacy'   -- instead of the object, returns the
+%                                  structure
+%
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
 %
@@ -32,11 +36,45 @@ function [res,varargout] = get_sqw (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1336 $ ($Date: 2016-11-15 19:10:09 +0000 (Tue, 15 Nov 2016) $)
 %
-if nargout > 1
-    [res,varargout] = obj.get_dnd(varargin{:});
-else
-    res = obj.get_dnd(varargin{:});
+[ok,mess,verbatim,hver,legacy,argi] =  parse_char_options(varargin,{'-verbatim','-hverbatim','-legacy'});
+if ~ok
+    error('SQW_FILE_IO:invalid_arguments',mess);
+end
+verbatim = verbatim || hver;
+if verbatim
+    argi = {argi{:},'-verbatim'};
+end
+dat = obj.get_data(argi{:});
+if isfield(dat,'urange') % this can happen if get_data is overloaded BAD OOP!
+    dat = rmfield(dat,'urange');
+end
+ndim = obj.num_dim;
+%
+if legacy
+    res = struct(); % main header
+    varargout{1} = struct(); % header
+    varargout{2} = struct(); % detpar;
+    varargout{3} = dat;      % data
+    return
 end
 
+warning('off','MATLAB:structOnObject');
+clob = onCleanup(@()warning('on','MATLAB:structOnObject'));
+switch ndim
+    case 0
+        res = d0d(dat);
+    case 1
+        res = d1d(dat);
+    case 2
+        res = d2d(dat);        
+    case 3
+        res = d3d(dat);                
+    case 4
+        res = d4d(dat);                        
+    otherwise
+        error('SQW_FILE_IO:runtime_error',...
+            'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)
+end
+varargout = {};

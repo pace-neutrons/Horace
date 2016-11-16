@@ -21,10 +21,10 @@ if update
     argi{end+1} = '-update';
 end
 
-obj.put_app_header();
+obj=obj.put_app_header();
 
 % write dnd image methadata
-obj.put_dnd_methadata(argi{:});
+obj=obj.put_dnd_methadata(argi{:});
 % write dnd image data
-obj.put_dnd_data(argi{:});
+obj=obj.put_dnd_data(argi{:});
 %

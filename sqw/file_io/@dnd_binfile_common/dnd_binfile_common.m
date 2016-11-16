@@ -45,6 +45,7 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         upgrade_map_ = [];
     end
+    %
     properties(Constant,Access=private)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
@@ -171,11 +172,13 @@ classdef dnd_binfile_common < dnd_file_interface
             % get dnd image data, namely s, err and npix
             data_str = get_se_npix_data_(obj,varargin{:});
         end
-        
-        
-        % read pixels information
+        %
         % retrieve the whole dnd object from properly initialized dnd file
+        % and treat it like sqw object
         sqw_obj = get_sqw(obj,varargin);
+        % retrieve full dnd sqw object
+        dnd_obj = get_dnd(obj,varargin);
+        
         
         %------   Mutators:
         % Save new or fully overwrite existing sqw file

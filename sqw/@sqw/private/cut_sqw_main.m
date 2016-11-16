@@ -120,7 +120,7 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 
 % *** Currently only works if uoffset(4)=0 for input, output datasets
 
-horace_info_level = get(hor_config,'horace_info_level');
+horace_info_level = config_store.instance().get_value('hor_config','log_level');
 
 if horace_info_level>=1
     bigtic
@@ -205,7 +205,7 @@ if nargout==0 && ~save_to_file  % Check work needs to be done (*** might want to
 end
 
 if save_to_file && ~isempty(outfile)    % check file name makes reasonable sense if one has been supplied
-    [out_path,out_name,out_ext]=fileparts(outfile);
+    [~,~,out_ext]=fileparts(outfile);
     if length(out_ext)<=1    % no extension or just a dot
         error('Output filename ''%s'' has no extension - check optional arguments',outfile)
     end
@@ -242,16 +242,16 @@ if save_to_file
         end
     end
     
-%     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-%    Not yet fully supported but can be. Now just test creation of new file
-%    and delete it.
-    fout = fopen (outfile, 'wb');
+    %     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
+    %    Not yet fully supported with sqw_formats_factory but can be. Now just test creation of new file
+    %    is possible  and delete it.
+    fout = fopen (outfile, 'wb'); % no upgrade possible -- this command also clears contents of existing file
     if (fout < 0)
         error (['Cannot open output file ' outfile])
     end
-    fclose(outfile);
+    fclose(fout);
     delete(outfile);
-%     clob = onCleanup(@()clof(fout));
+    %     clob = onCleanup(@()clof(fout));
 end
 
 
@@ -262,7 +262,7 @@ if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
     ld = sqw_formats_factory.instance().get_loader(data_source);
     data_type = ld.data_type;
-    %[mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');    
+    %[mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
     if ~strcmpi(data_type,'a')
         error('Data file is not sqw file with pixel information - cannot take cut')
     end
@@ -457,16 +457,15 @@ end
 % Save to file if requested
 % ---------------------------
 if save_to_file
-    if horace_info_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
+    if horace_info_level>=0, disp(['Writing cut to output file ',outfile,'...']), end
     try
-        if ~pix_tmpfile
-            ls = sqw_formats_factory.instance().get_pref_access();
-            ls = ls.init(w,outfile);
-            ls = ls.put_sqw();
-            ls.delete();
-            %mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
-        else
-            mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
+        ls = sqw_formats_factory.instance().get_pref_access();
+        ls = ls.init(w,outfile);
+        ls = ls.put_sqw();
+        ls.delete();
+        
+        if pix_tmpfile
+            % mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
             for ifile=1:length(pix.tmpfiles)   % delete the temporary files
                 delete(pix.tmpfiles{ifile});
             end

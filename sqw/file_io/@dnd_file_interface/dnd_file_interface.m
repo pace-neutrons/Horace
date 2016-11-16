@@ -170,6 +170,8 @@ classdef dnd_file_interface
         [samp,obj]  = get_sample(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
         sqw_obj = get_sqw(obj,varargin);
+        % retrieve any sqw/dnd object as dnd object
+        sqw_obj = get_dnd(obj,varargin);        
         % ----------------------------------------------------------------
         % File Mutators:
         %
@@ -177,7 +179,7 @@ classdef dnd_file_interface
         % on data present in memory it can in fact save dnd object.
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);        
-        % save sqw object stored in memory into binary sqw file as dnd object.
+        % save sqw/dnd object stored in memory into binary sqw file as dnd object.
         % it always reduced data in memory into dnd object on hdd
         obj = put_dnd(obj,varargin);
         % Comprising of:

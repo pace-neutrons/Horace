@@ -1,4 +1,4 @@
-function urange = calc_sqw_urange (dummy, efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+function urange = calc_sqw_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Compute range of data for a collection of data files given the projection axes and crystal orientation
 %
 %   >> urange = calc_grid (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
@@ -31,14 +31,11 @@ function urange = calc_sqw_urange (dummy, efix, emode, eps_lo, eps_hi, det, alat
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 
 
 % Check that the first argument is sqw object
 % -------------------------------------------
-if ~isa(dummy,classname)    % classname is a private method 
-    error('Check type of input arguments')
-end
 
 % Check input arguments
 % ------------------------
@@ -76,4 +73,3 @@ for i=1:numel(rd_list)
 end
 urange = rundata_find_urange(rd_list);
 
-%urange=calc_urange(efix,emode,eps_lo,eps_hi,det,alatt,angdeg,u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
