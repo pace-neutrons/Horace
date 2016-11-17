@@ -1,4 +1,4 @@
-function [val_out,changed,ok,mess]=parse_doc_definition_arg(val,args)
+function [val_out,changed,ok,mess]=parse_doc_definitions_subst_arg(val,args)
 % Check if arg has form '#n', where n=1,2,...numel(args).
 % If value is '\#n' then replace by '#n' i.e. '\#' is a control
 % character. Only applies if leading '\' only with a positive integer after

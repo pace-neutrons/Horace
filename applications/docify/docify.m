@@ -1,17 +1,36 @@
-function varargout=docify(file_in,file_out)
+function varargout=docify(varargin)
 % Insert documentation constructed from meta documentation
 %
-%   >> docify(file_in)          % insert documentation and replace file
-%   >> docify(file_in,file_out) % insert documentation and write to new file
+% Acting on folder contents:
+%   >> docify ()                % For all m files in current folder
+%   >> docify (dirname)         % For all m files in named folder
+%   >> docify (...'-recursive') % Include subfolders as well
+%   >> docify (...'-key',val)   % Only files that contain one of the strings
+%                               % in val on the <#doc_beg:> line (Here val is
+%                               % a character string or cell array of strings)
+% Acting on a single file:
+%   >> docify (file_in)             % insert documentation and replace file
+%   >> docify (file_in, file_out)   % insert documentation and write to new file
+%   >> docify (...,'-key',val)      % Only if the file contains one of the keywords
 %
-% The format for meta documentation is as follows:
+% Additional keywords
+%   ...,'-list',n,...           % n=0 No listing to screen
+%                               % n=1 List changed files only, or if error
+%                               % n=2 list all checked files, and if error or not
+%                               % n=3 (default) list all checked files and full
+%                               %      traceback of errors
 %
-% Skip over leading comment lines, that is, a contiguous set of lines beginning
-% with '%'. This block will be replaced by documentation constructed from
-% the meta documentation block (if one is found)
 %
-% Search for a block of comment lines before any executable code that
-% contains a meta documentation block. This will have the form:
+% Format of meta documentation
+% ----------------------------
+% The parser skips over leading comment lines, that is, a contiguous set of
+% lines beginning with '%' until a meta documentation block is found, as
+% defined below. The leading comment line before the meta documentation block
+% will be replaced by documentation constructed that meta documentation block,
+% if one is found.
+%
+% A meta documentation block is a set of comment lines before any executable
+% with the form:
 %   % <#doc_beg:>
 %   %   :
 %   % <#doc_end:>
@@ -34,15 +53,15 @@ function varargout=docify(file_in,file_out)
 %   %   >> y = deriv (w, mderiv)
 %   % Input:
 %   %   w       Input data:
-%   % <#file: 'data_type_description.txt'>
+%   % <#file:> data_type_description.txt
 %   %   mderiv  Order of derivative (1,2,...)
 %   % Output:
 %   %   y       Same object type as input
 %   %
-%   % <#file:> 'further_notes.txt'
+%   % <#file:> further_notes.txt
 %   % <#doc_end:>
 %
-% EXAMPLE: More complex use: define the substitueion strings func_suffix
+% EXAMPLE: More complex use: define the substitution strings func_suffix
 % and my_file, and define the block of comments titled 'main' as active
 %   % <#doc_def:>
 %   %   func_suffix = '_sqw'
@@ -50,118 +69,243 @@ function varargout=docify(file_in,file_out)
 %   %   my_file = 'stuff.txt'
 %   % <#doc_beg:>
 %   %   This line will appear as the first comment
-%   %   <#file:> 'c:\temp\comments.txt'
+%   %   <#file:> c:\temp\comments.txt
 %   %   <main:>
 %   %   This line will be written if main=1 in the definition block
-%   %   and so will this file of comments be read:
+%   %   and so the following file of comments be also read:
 %   %   <#file:> <my_file>
 %   %   <main/end:>
 %   % <#doc_end:>
 %
-% - Substitution strings and logical block selection are global. In the above
+% Notes:
+% (1) Substitution strings and logical block selection are global. In the above
 %   example:
-%       - all occurences of <func_suffix> will be replaced by '_sqw' in the
-%         files that are read in the main documentation block
-%         ('c:\temp\comments.txt' and 'stuff.txt' in this case).
-%       - all blocks <main:> ... <main_end:> in those files will be retained;
-%         any other blocks will be ignored (unless their name is set to 1 as well)
+%       - All occurences of <func_suffix> will be replaced by '_sqw' in the
+%         files that are read in the main documentation block, in this case
+%         c:\temp\comments.txt and stuff.txt (and any further files that they
+%         in turn may call - see nesting below).
+%       - All blocks <main:> ... <main_end:> in those files will be retained;
+%         any other blocks will be ignored (unless their value is set to 1 as
+%         well).
+%
 %
 % - Any file that will be read is assumed to be a documentation file, which
-%   means that it can only contain
-%       - lines that begin with '%'
-%       - lines that contain only a logical block start and end indicators
-%         such as '<main:>' and '<main_end:>'  (note that '<main:>' and
-%         '% <main:>' are equivalent; the leading '%' is ignored)
-%       - lines that give a file substitution e.g. <#file:> 'stuff.txt' (or
-%         equivalently % <#file:> 'stuff.txt')
+%   means that it can only contain leading matlab comment lines and the
+%   meta-documentation block. No following lines are permitted.
+%       - The <#doc_end:> is optional (it is assumed to be at the end of the
+%         file, as this is the only place it can occur).
+%       - The <#doc_beg:> is optional - if not given it is assumed to be at
+%         the very beginning.
 %
-% - Documentation files can be nested
 %
-% - Global substitution strings and logical block selection can be overidden
-%   in a documentation file by defining their values at the top
-%   e.g. if 'stuff.txt' is:
+% (2) Documentation files can be nested. In the above example stuff.txt could
+%   itself have lines like:
+%       :
+%   % <#file:> another_file.txt
+%       :
 %
-%   %   Never use variables with the name multifit<func_suffix>
-%   %   as this will cause a crash, as explained below:
-%   %   <#file:> 'warning.txt'
 %
-%   then the value of main could be overridden by instead having:
+% (3) Global substitution strings and logical block selection can be overidden
+%   in a documentation file by defining their values at the top. For
+%   example, if 'stuff.txt' is:
 %
-%   % <#doc_def:>
-%   %   main=0
-%   % <#doc_beg:>
-%   %   Never use variables with the name multifit<func_suffix>
-%   %   as this will cause a crash, as explained below:
-%   %   <#file:> 'warning.txt'
+%       %   Never use variables with the name multifit<func_suffix>
+%       %   as this will cause a crash, as explained below:
+%       %   <#file:> 'warning.txt'
 %
-%   Another way of overiding a value is to pass as an argument: in the main
-%   call
-%   % <#doc_def:>
-%   %    :
-%   %   main = 1
-%   %   my_file = 'stuff.txt'
-%   %    :
-%   % <#doc_beg:>
-%   %   This line will appear as the first comment
-%   %       :
-%   %   <#file:> <my_file>  0
-%   %       :
-%   % <#doc_end:>
+%   then the value of main within warning.txt could be overridden by instead
+%   having:
+%       % <#doc_def:>
+%       %   main=0
+%       % <#doc_beg:>
+%       %   Never use variables with the name multifit<func_suffix>
+%       %   as this will cause a crash, as explained below:
+%       %   <#file:> 'warning.txt'
 %
-%   then stuff.txt contains the lines:
-%   % <#doc_def:>
-%   %   main='#1'
-%   % <#doc_beg:>
-%   %   Never use variables with the name multifit<func_suffix>
-%   %   as this will cause a crash, as explained below:
-%   %   <#file:> 'warning.txt'
+%   Another way of overiding a value is to pass as an argument: in the .m
+%   file in which the meta documentation will be placed:
+%       % <#doc_def:>
+%       %    :
+%       %   main = 1
+%       %   my_file = fullfile('c:\temp\rubbish','stuff.txt')
+%       %    :
+%       % <#doc_beg:>
+%       %   This line will appear as the first comment
+%       %       :
+%       %   <#file:> <my_file>  0
+%       %       :
+%       % <#doc_end:>
+%
+%   then stuff.txt could contain the lines:
+%       % <#doc_def:>
+%       %   main='#1'
+%       % <#doc_beg:>
+%       %   Never use variables with the name multifit<func_suffix>
+%       %   as this will cause a crash, as explained below:
+%       %   <#file:> warning.txt
+%
+%
+% (4) Comment lines that are not meant to be part of the output documentation
+%   can be inserted into the meta-documentation block if they are preceeded
+%  `by <<- (Note: this cannot be confused with a substitution name, as these
+%   must start with a alphabetical character)
+%   EXAMPLE:
+%       %   :
+%       % <#doc_beg:>
+%       %   <<---The main help
+%       %   This line will appear as the first comment in the output help
+%       %   <#file:> <my_file>
+%       %   <<---The following is used only if special is true
+%       %   <special_case:>
+%       %       <#file:> <special_information_file>
+%       %   <special_case/end:>
+%       % <#doc_end:>
+%
+%
+% (5) Lines beginning with a keyword e.g. <#doc_beg:> or <#file:> do not
+%   need to start with '%' - this is purely optional. THe same is true of
+%   block names. For example
+%       % <#doc_def:>
+%       %   main=0
+%       % <#doc_beg:>
+%       % A little bit of detail
+%       % can be found elsewhere
+%       %   <main:>
+%       %   <#file:> rubbish.m
+%       %   <main/end:>
+%       % <#doc_end:>
+%
+%   is equivalent to:
+%       <#doc_def:>
+%       %   main=0
+%       <#doc_beg:>
+%       % A little bit of detail
+%       % can be found elsewhere
+%          <main:>
+%          <#file:> rubbish.m
+%          <main/end:>
+%       <#doc_end:>
+%
+%
+% (6) A final form of substitution is permitted: if a substitution definition
+%   is a cell array of strings then a line of the form of a single variable name
+%       % <var_name>
+%   or
+%       <var_name>
+%   will be substituted by that cell array of strings. Any strings in that
+%   cell array that do not begin with '%' have '% ' appended at the front.
 
 
-replace=(nargin==1);
+% T.G.Perring   03 November 2016  Original version modified to work on directories
 
-while true
-    % Parse meta documentation in an m-file
-    [ok,mess,source,no_change]=parse_doc(file_in);
-    if ~ok, break, end
-    
-    % Write out the parsed source file
-    if ~no_change
-        if ~replace
-            [file_full_out,ok,mess]=translate_write (file_out);
-            if ~ok, break, end
-        else
-            file_full_in=translate_read(file_in);   % we know this must already have worked
-            [~,name,ext]=fileparts(file_full_in);
-            file_full_out=fullfile(tempdir,[name,str_random,ext]);
-        end
-        try
-            save_text(source,file_full_out)
-        catch
-            ok=false;
-            mess=['Unable to write to file: ',file_full_out];
-            break
-        end
-        if replace
-            try
-                movefile(file_full_out,file_full_in,'f');
-            catch
-                ok=false;
-                mess=['Unable to replace file: ',full_file_in];
-                break
-            end
-        end
-    end
-    break
-end
 
-% Catch case of error
-if ~ok
-    if nargout==0
-        error('docify:docify',error_message(mess))
+% Parse input
+% ------------
+keyval_def = struct('recurse',false,'key',{{}},'list',2);
+flagnames = {'recurse'};
+opt=struct('prefix','-','prefix_req',true);
+[pars,keyval] = parse_arguments (varargin, keyval_def, flagnames, opt);
+
+if isempty(pars)
+    span_directory = true;
+    directory = pwd;
+elseif numel(pars)==1 && ~isempty(pars{1}) && is_string(pars{1})
+    if exist(pars{1},'dir')
+        span_directory = true;
+        directory = pars{1};
+    elseif exist(pars{1},'file')
+        span_directory = false;
+        file_in = pars{1};
+        file_out = '';
     else
-        warning('docify:docify',error_message(mess))
+        error('Check input is a file or folder')
+    end
+elseif numel(pars)==2 && ~isempty(pars{1}) && is_string(pars{1}) &&...
+        ~isempty(pars{2}) && is_string(pars{2})
+    span_directory = false;
+    file_in = pars{1};
+    file_out = pars{2};
+else
+    error('Check number of parameters and their values')
+end
+
+report = {};
+
+% Loop over all directories
+% --------------------------
+if span_directory && keyval.recurse
+    directories=dir_name_list(directory,'','.svn');    % skip svn work folders
+    for i=1:numel(directories)
+        sub_directory=directories{i};
+        % ignore '.' and '..'
+        if (strcmp(sub_directory,'.') || strcmp(sub_directory,'..'))
+            continue;
+        end
+        % Recurse down
+        full_directory=fullfile(directory,sub_directory);
+        key_args = make_row([cellfun(@(x)['-',x],fieldnames(keyval)','UniformOutput',false);struct2cell(keyval)']);
+        report={report;...
+            docify(full_directory,key_args{:})};
     end
 end
 
-if nargout>=1, varargout{1}=ok; end
-if nargout>=2, varargout{2}=mess; end
+% Run function (recursion operates from the bottom of each branch)
+% -----------------------------------------------------------------
+if span_directory
+    files = dir(fullfile(directory,'*.m'));
+    for ifile = 1:length(files)
+        fname = fullfile(directory,files(ifile).name);
+        [ok,mess,file_full_in,changed,file_full_out] = ...
+            docify_single(fname,'',keyval.key);
+        report = [report;...
+            make_report(ok,mess,file_full_in,changed,file_full_out,keyval.list)];
+    end
+else
+    [ok,mess,file_full_in,changed,file_full_out] = ...
+        docify_single(file_in, file_out, keyval.key);
+    report = [report;...
+        make_report(ok,mess,file_full_in,changed,file_full_out,keyval.list)];
+end
+
+if nargout>=1, varargout{1}=report; end
+
+
+%-----------------------------------------------------------------------------------------
+function report = make_report (ok, mess, file_full_in, changed, file_full_out, list)
+% Create a report and print to screen as requested
+% 	list    n=0 No listing to screen
+%           n=1 List changed files only, or if error
+%           n=2 list all checked files, and if error or not
+%           n=3 List all checked files and full traceback of errors
+
+% Get verbosity of listing
+if isnumeric(list) && isscalar(list)
+    n = round(list);
+    if n<0, n=0; elseif n>3, n=3; end
+else
+    n = 3;
+end
+
+% Create report
+report={};
+if n==1
+    if ok && changed
+        report = {file_full_in};
+    elseif ~ok
+        report = {['***ERROR: ',file_full_in]};
+    end
+else
+    if ok
+        report = {['Processing: ',file_full_in]};
+    elseif ~ok
+        if n==2
+            report = {['***ERROR: ',file_full_in]};
+        else
+            report = [{['***ERROR: ',file_full_in]}; mess];
+        end
+    end
+end
+
+for i=1:numel(report)
+    if ~isempty(report{i}), disp(report{i}), end
+end

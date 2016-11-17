@@ -1,11 +1,11 @@
 function a=blockobj(S,opt,varargin)
 % Store nest of block names and storing status
 %
-%   >> S = blockobj
-%   >> S = blockobj(S, 'add', nam2, log2)
-%   >> S = blockobj(S, 'remove')
-%   >> name = blockobj(S, 'current')
-%   >> status = blockobj(S, 'storing')
+%   >> S = blockobj                         % Create empty block object
+%   >> S = blockobj(S, 'add', nam2, log2)   % Add block name and storing state
+%   >> S = blockobj(S, 'remove')            % Remove current block
+%   >> name = blockobj(S, 'current')        % Get name of current block
+%   >> status = blockobj(S, 'storing')      % Get storing state of current block
 
 S_empty=struct([]);
 

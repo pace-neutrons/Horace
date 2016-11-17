@@ -1,5 +1,5 @@
 function y = example_1d_function(x, p)
-% Example fitting function: Gaussian function
+% Example fitting function
 %
 % A one-dimensional fit function must have the form:
 % 	ycalc = my_function (x,p)
