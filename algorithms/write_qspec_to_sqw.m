@@ -2,7 +2,7 @@ function [grid_size, urange] = write_qspec_to_sqw (qspec_file, sqw_file, efix, e
                                                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 % Read ascii column data and create a single sqw file.
 %
-%   >> write_qspec_to_sqw (dummy, qspec_file, sqw_file, efix, emode, alatt, angdeg,...
+%   >> write_qspec_to_sqw (qspec_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 %
 % Input:
@@ -42,15 +42,10 @@ function [grid_size, urange] = write_qspec_to_sqw (qspec_file, sqw_file, efix, e
 % $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
 
 
-% Check that the first argument is sqw object
-% -------------------------------------------
-if ~isa(dummy,classname)    % classname is a private method
-    error('Check type of input arguments')
-end
 
 % Check number of input arguments (necessary to get more useful error message because this is just a gateway routine)
 % --------------------------------------------------------------------------------------------------------------------
-if ~(nargin>=14 && nargin<=16)
+if ~(nargin>=13 && nargin<=15)
     error('Check number of input arguments')
 end
 
@@ -72,9 +67,9 @@ end
 
 % Read qx-qy-qz-signal-error file
 if exist(qspec_file,'file')
-    [data,det,is_mat_file]=get_mat_column_data(qspec_file);
+    [data,det,is_mat_file]=qspec2sqw_get_mat_column_data(qspec_file);
     if ~is_mat_file
-        [data,det]=get_ascii_column_data(qspec_file);
+        [data,det]=qspec2sqw_get_ascii_column_data(qspec_file);
     end
     if ~exist('grid_size_in','var')
         npnt=size(data.qspec,2);

@@ -1,4 +1,4 @@
-function [data,det] = get_ascii_column_data (datafile)
+function [data,det] = qspec2sqw_get_ascii_column_data (datafile)
 % Get data from ascii file with column data qx-qy-qz-eps-signal-error
 %
 %   >> data = get_ascii_column_data (datafile)

@@ -57,10 +57,7 @@ classdef data_sqw_dnd
     
     methods
         %------------------------------------------------------------------
-        % FOLDER'S PUBLIC METHODS SIGNATURES:
-        % Read the data block from an sqw file. The file pointer is left at the end of the data block.
-        [mess, data, position, npixtot, data_type] = get_sqw_data (obj,fid, varargin);
-        % Determine data type of the data field of an sqw data structure
+          % Determine data type of the data field of an sqw data structure
         data_type = data_structure_type(data);
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some qxis
@@ -69,7 +66,7 @@ classdef data_sqw_dnd
         range = get_bin_range(obj);
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
-            % constructor || copyconstructor:
+            % constructor || copy-constructor:
             % Builds valid data_sqw_dnd object from various data structures
             %
             % Simplest constructor
@@ -137,7 +134,7 @@ classdef data_sqw_dnd
             %                       type 'a'    uoffset,...,s,e,npix,urange,pix
             %                       type 'a-'   uoffset,...,s,e,npix,urange         ]
             %
-            %   mess        Message; ='' if no problems, otherwise contians error message
+            %   mess        Message; ='' if no problems, otherwise contains error message
             %
             %  A valid output structure contains the following fields
             %
@@ -184,7 +181,7 @@ classdef data_sqw_dnd
             %                   signal      Signal array
             %                   err         Error array (variance i.e. error bar squared)
             
-            if nargin>0 && isa(varargin{1},'data_sqw_dnd') % handle shalow copy constructor
+            if nargin>0 && isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                 obj =varargin{1};                          % its COW for Matlab anyway
             else
                 [obj,mess]=make_sqw_data(obj,varargin{:});
@@ -202,7 +199,7 @@ classdef data_sqw_dnd
             end
         end
         function type= data_type(obj)
-            % compartibility function
+            % compatibility function
             %   data   Output data structure which must contain the fields listed below
             %          type 'b+'   fields: uoffset,...,s,e,npix
             %          [The following other valid structures are not created by this function
@@ -221,11 +218,12 @@ classdef data_sqw_dnd
                 end
             end
         end
+        %
         function dnd_struct=get_dnd_data(obj,varargin)
-            %functin retrieves dnd structure from the sqw_dnd_data class
-            % if additional argument provied (+), the function also incules
+            %function retrieves dnd structure from the sqw_dnd_data class
+            % if additional argument provided (+), the resulting structure  also includes
             % urange.
-            dnd_struct = obj.get_dnd_data_(varargin);
+            dnd_struct = obj.get_dnd_data_(varargin{:});
         end
         %
         function obj=clear_sqw_data(obj)
@@ -233,7 +231,7 @@ classdef data_sqw_dnd
             obj.urange=[];
         end
         function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
-            % old style validator for consistency of imput data.
+            % old style validator for consistency of input data.
             %
             % only 'a' and 'b+' types are possible as inputs and outputs
             % varargin may contain 'field_names_only' which in fact

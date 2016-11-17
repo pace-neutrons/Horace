@@ -17,7 +17,8 @@ function  [header,pos]   = get_header(obj,varargin)
 %
 % $Revision$ ($Date$)
 %
-[ok,mess,get_all,argi]= parse_char_options(varargin,{'-all'});
+% always verbatim
+[ok,mess,get_all,~,argi]= parse_char_options(varargin,{'-all','-verbatim'});
 if ~ok
     error('SQW_FILE_IO:invalid_argument',mess);
 end
@@ -33,6 +34,11 @@ if isempty(argi)
     n_header = 1;
 else
     n_header = argi{1};
+    if ~isnumeric(n_header)
+        error('SQW_FILE_IO:invalid_argument',...        
+            'get_header do not understand input argument: %s',n_header);
+    end
+    
 end
 
 if n_header<1 || (n_header>obj.num_contrib_files)
@@ -81,15 +87,15 @@ end
 fseek(obj.file_id_,obj.header_pos_(n_header),'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
-    error('SQW_FILE_INTERFACE:runtime_error',...
-        'can not move at the start of header N%d, readon: %s',n_header,mess);
+    error('SQW_FILE_IO:runtime_error',...
+        'get_single_header: can not move at the start of header N%d, readon: %s',n_header,mess);
 end
 %
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
 if res ~=0
     error('SQW_FILE_IO:runtime_error',...
-        'Can not read header N%d data; error: %s',n_header,mess);
+        'get_single_header: Can not read header N%d data; error: %s',n_header,mess);
 end
 
 

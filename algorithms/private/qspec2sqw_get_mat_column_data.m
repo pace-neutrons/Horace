@@ -1,4 +1,4 @@
-function [data,det,is_mat_file] = get_mat_column_data (datafile)
+function [data,det,is_mat_file] = qspec2sqw_get_mat_column_data (datafile)
 % Get data from .mat file with column data qx-qy-qz-eps-signal-error
 %
 %   >> data = get_mat_column_data (datafile)

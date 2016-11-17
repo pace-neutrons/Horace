@@ -27,7 +27,7 @@ function varargout = change_crystal (varargin)
 %   angdeg      New lattice angles [alf,bet,gam] (degrees)
 %   rotmat      Rotation matrix that relates crystal Cartesian coordinate frame of the new
 %              lattice as a rotation of the current crystal frame. Orthonormal coordinates
-%              in the two frames are related by 
+%              in the two frames are related by
 %                   v_new(i)= rotmat(i,j)*v_current(j)
 %   u, v        Redefine the two vectors that were used to determine the scattering plane
 %              These are the vectors at whatever disorientation angles dpsi, gl, gs (which
@@ -60,14 +60,19 @@ if ~isempty(mess), error(mess); end
 if w.source_is_file
     for i=1:numel(w.data)
         ld = w.loaders_list{i};
-        headers = ld.get_header('-verbatim');
-        data = ld.get_data('-verbatim');
-        %[mess,h.main_header,h.header,h.detpar,h.data]=ld.get_sqw('-hverbatim');
-        [headers,data]=change_crystal_alter_fields(headers,data,args{:});
+        data    = ld.get_data('-verbatim','-head');
         target_file = fullfile(ld.filepath,ld.filename);
-        ld = ld.set_file_to_write(varargin);
-        ld = ld.put_headers(headers);
-        ld = ld.put_dnd_data(data);
+        ld = ld.set_file_to_write(target_file);        
+        if ld.sqw_type
+            headers = ld.get_header('-all');
+            [headers,data]=change_crystal_alter_fields(headers,data,args{:});
+            ld = ld.put_headers(headers);
+        else
+            headers = struct([]);
+            [~,data]=change_crystal_alter_fields(headers,data,args{:});
+        end
+        ld = ld.put_dnd_methadata(data);
+        ld.delete();
     end
     argout={};
 else

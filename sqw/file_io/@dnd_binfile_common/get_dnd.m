@@ -53,9 +53,9 @@ end
 ndim = obj.num_dim;
 %
 if legacy
-    res = struct(); % main header
-    varargout{1} = struct(); % header
-    varargout{2} = struct(); % detpar;
+    res = struct([]); % main header
+    varargout{1} = struct([]); % header
+    varargout{2} = struct([]); % detpar;
     varargout{3} = dat;      % data
     return
 end

@@ -21,6 +21,11 @@ end
 % verify we use this method on an properly initialized file accessor
 check_obj_initiated_properly_(obj);
 %
+[input_obj,new_obj] = obj.extract_correct_subobj('data',argi{:});
+if new_obj
+    update = true;
+end
+%
 if update % are we going to write new or update existing data
     head_arg = {'-head','-const'};
 else
@@ -29,10 +34,6 @@ end
 %
 data_form = obj.get_dnd_form(head_arg{:});
 %
-[input_obj,new_obj] = obj.extract_correct_subobj('data',argi{:});
-if new_obj
-    update = true;
-end
 %
 if update && ~obj.upgrade_mode
     error('SQW_FILE_IO:runtime_error',...
