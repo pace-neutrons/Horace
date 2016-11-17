@@ -8,27 +8,13 @@ function obj=init_from_sqw_(obj,varargin)
 %
 dnd_2save = varargin{1};
 %
-%
-%warning('off','MATLAB:structOnObject')
-%data = struct(dnd_2save); %TODO: necessary util dnd data do not have all accessors
-% to read data from class. When they do, this should be fixed. sqw data
-% already works without this crap
-%warning('on','MATLAB:structOnObject')
-
-%
 if strcmp(obj.data_type_,'undefined')
     obj.data_type_ = 'b+';
 end
-dim = size(dnd_2save.s);
-if numel(dim) == 2
-    if dim(1) == 1
-        dim = dim(2);
-    elseif dim(2) == 1
-        dim = dim(1);
-    end
-end
+%
+[dim,ndim] = calc_proper_ndim_(dnd_2save);
 obj.dnd_dimensions_ = dim;
-obj.num_dim_ = numel(dim);
+obj.num_dim_ = ndim;
 %
 %
 format = obj.get_dnd_form();
@@ -48,3 +34,4 @@ else
     obj.dnd_eof_pos_ = pos;
 end
 obj.data_fields_locations_=data_pos;
+

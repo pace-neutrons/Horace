@@ -5,9 +5,9 @@ function [header,fid] = get_file_header(file,varargin)
 %
 % The header is the structure with the fields:
 % 'version'  -- version of the application
-% 'name'     -- the application name, expected "horace" for Horace headers
+% 'name'     -- the application name, expected "Horace" for Horace headers
 % 'typestart'-- auxiliary number defining byte position of sqw type in
-%               array of bytes (18 for modern horace files, 0 for pre-release)
+%               array of bytes (18 for modern Horace files, 0 for pre-release)
 % 'uncertain' -- if true, the header is not identified with certainty and further
 %                analysis of byte stream is necessary to be sure that the file is Horace file
 %                it usually true when legacy Horace version is encountered

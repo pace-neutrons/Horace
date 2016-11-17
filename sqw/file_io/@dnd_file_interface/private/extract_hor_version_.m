@@ -25,7 +25,7 @@ if n>0 && n<1024   % allow up to 1024 characters in filename if bytes are from
     % Horace version 0;
     name = char(data_stream(4+1:4+n))'; % for modern Hor versions it will be 'Horace'
     % Need to try to catch case of e.g. text file where n is read as a stupidly high number
-    if ~isvarname(name) % for horase v0 it will be filename
+    if ~isvarname(name) % for Horace v0 it will be filename
         [ok,uncertain] = check_hor_v0(name,data_stream);
         if ok
             ver_struct.name = 'horace';
@@ -61,7 +61,7 @@ if n == 6 && strcmp(name,'horace') % it still may be strange file name like file
         ver_struct.sqw_type=logical(sqw_type);
         ver_struct.num_dim=num_dim;
         ver_struct.uncertain = false;
-    else % still may be horace v0 but need to read more data to be sure
+    else % still may be Horace v0 but need to read more data to be sure
         ver_struct.name = 'horace';
         ver_struct.typestart = 0;
         ver_struct.sqw_type=true;
@@ -89,7 +89,7 @@ if n<0 || n >2046 % filepath is too long
     ok = false;
     return
 end
-if n>0 % otherwise assume Horace for the time beeing
+if n>0 % otherwise assume Horace for the time being
     if numel(data_stream)<nfn+n+4
         uncertain = true;
         ok = true;   % at this point assume its Horace but need further checks

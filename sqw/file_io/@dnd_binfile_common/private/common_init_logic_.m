@@ -1,8 +1,8 @@
 function obj = common_init_logic_(obj,varargin)
-% Initialize sqw accessor using various inputs
+% Initialize sqw accessors using various inputs
 %
 %Usage:
-%>>obj=obj.init(init_obj) -- initialize accessor using obj_init
+%>>obj=obj.init(init_obj) -- initialize accessors using obj_init
 % class, containing appropriate initialization information
 %                    already retrieved from existing
 %                    sqw file and has its file opened by should_load
@@ -10,25 +10,25 @@ function obj = common_init_logic_(obj,varargin)
 %                    should_load method should report ok, to confirm that
 %                    this loader can load sqw format version provided.
 
-%>>obj=obj.init(filename) -- initialize accessor to load  sqw file
+%>>obj=obj.init(filename) -- initialize accessors to load  sqw file
 %                    with the filename provided.
 %                    The file should exist and the format of the
 %                    file should correspond to this loader
 %                    format.
-%>>obj=obj.init(sqw_object) -- prepare accessor to save
+%>>obj=obj.init(sqw_object) -- prepare accessors to save
 %                    sqw object in appropriate binary format.
 %                    The file name to save the data should be set
 %                    separately.
-%>>obj=obj.init(sqw_object,filename) -- prepare accessor to save
+%>>obj=obj.init(sqw_object,filename) -- prepare accessors to save
 %                    sqw object in appropriate binary format.
 %                    Also the name of the file to save the data is
 %                    provided.
-%                    If the filename is the name of an exisiting file,
+%                    If the filename is the name of an existing file,
 %                    the file will be overwritten or upgraded if the loader
-%                    has alreadty been initiated with this file
+%                    has already been initiated with this file
 %
 %>>obj=obj.init(another_object) -- copy constructor. Also accepts all
-%                 aditional arguments from above.
+%                 additional arguments from above.
 %
 %
 % $Revision$ ($Date$)

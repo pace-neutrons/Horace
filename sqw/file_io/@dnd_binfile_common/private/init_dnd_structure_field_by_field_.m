@@ -3,7 +3,7 @@ function obj = init_dnd_structure_field_by_field_(obj)
 % and identify the positions of various pieces of data within the binary
 % file
 %
-% To overload, host shound correctly set the obj.data_pos_ field.
+% To overload, host should correctly set the obj.data_pos_ field.
 %
 %
 % $Revision$ ($Date$)

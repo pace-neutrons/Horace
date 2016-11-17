@@ -45,7 +45,7 @@ classdef sqw_binfile_common < sqw_file_interface
     %
     methods(Access = protected)
         function obj=init_from_sqw_obj(obj,varargin)
-            % intialize the structure of sqw file using sqw object as input
+            % initialize the structure of sqw file using sqw object as input
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
@@ -61,7 +61,7 @@ classdef sqw_binfile_common < sqw_file_interface
             obj = init_headers_from_sqw_(obj,varargin{1});
             % initialize data fields
             % assume max data type which will be reduced if some fields are
-            % missing (how they when initalized from sqw?)
+            % missing (how they when initialized from sqw?)
             obj.data_type_ = 'a'; % should it always be 'a'?
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
             obj.sqw_holder_ = varargin{1};
@@ -70,7 +70,7 @@ classdef sqw_binfile_common < sqw_file_interface
         end
         %
         function obj=init_from_sqw_file(obj,varargin)
-            % intialize the structure of faccess class using sqw file as input
+            % initialize the structure of faccess class using sqw file as input
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
@@ -115,7 +115,7 @@ classdef sqw_binfile_common < sqw_file_interface
         function obj = init_v3_specific(obj)
             % Initialize position information specific for sqw v3.1 object.
             % Interface function here. Generic is not implemented and
-            % actuall implementation in faccess_sqw_v3
+            % actual implementation in faccess_sqw_v3
             error('SQW_FILE_IO:runtime_error',...
                 'init_v3_specific: generic method is not implemented')
         end
@@ -128,9 +128,9 @@ classdef sqw_binfile_common < sqw_file_interface
         main_header = get_main_header(obj,varargin);
         % get header of one of contributed files
         [header,pos]   = get_header(obj,varargin);
-        % Read the detector parameters from propertly initialized binary file.
+        % Read the detector parameters from properly initialized binary file.
         det = get_detpar(obj);
-        % read main sqw data  from propertly initialized binary file.
+        % read main sqw data  from properly initialized binary file.
         [sqw_data,obj] = get_data(obj,varargin);
         % read pixels information
         pix    = get_pix(obj,varargin);

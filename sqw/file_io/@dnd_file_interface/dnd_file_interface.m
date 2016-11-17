@@ -42,7 +42,7 @@ classdef dnd_file_interface
         % the name of the file, this object is associated and should be
         % read from/written to
         filename
-        % path to the obhect above
+        % path to the object above
         filepath
         % version of the file format, a loader processes
         file_version;
@@ -51,7 +51,7 @@ classdef dnd_file_interface
         sqw_type;
         % number of dimensions in the dnd image
         num_dim;
-        % dimensions of the horace image (dnd object), stored in the file
+        % dimensions of the Horace image (dnd object), stored in the file
         dnd_dimensions
         % type of the data, stored in a file
         data_type
@@ -124,7 +124,7 @@ classdef dnd_file_interface
     end
     %----------------------------------------------------------------------
     methods(Static) % defined by this class
-        % open existing file for rw acces and get sqw file header,
+        % open existing file for rw access and get sqw file header,
         % allowing loaders to identify the type of the file format
         % stored within the file
         [header,fid] = get_file_header(file,varargin)
@@ -141,11 +141,11 @@ classdef dnd_file_interface
         [ok,obj]=should_load(obj,filename);
         %
         % verify if the class should load the file, determined by opened
-        % file identifier by analyzing the block of information (stream)
+        % file identifier by analysing the block of information (stream)
         % obtained from the open file
         [should,obj,mess]= should_load_stream(obj,stream,fid)
         %
-        % Main intializer (accessible through constructor witht the sampe
+        % Main initializer (accessible through constructor with the same
         % arguments too.)
         %
         % initialize the loader, to be ready to read or write the sqw data.
@@ -183,7 +183,7 @@ classdef dnd_file_interface
         % it always reduced data in memory into dnd object on hdd
         obj = put_dnd(obj,varargin);
         % Comprising of:
-        % 1) store or updata application header
+        % 1) store or update application header
         obj = put_app_header(obj);
         % 2) store dnd information ('-update' option updates this
         % information within existing file)
@@ -191,17 +191,17 @@ classdef dnd_file_interface
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
-        % Reopen exisging file to upgrade/write new data to it assuming
-        % the loader has been already initated by this file. Will be
+        % Reopen existing file to upgrade/write new data to it assuming
+        % the loader has been already initiated by this file. Will be
         % clearly overwritten or destroyed if partial information is
         % different and no total info was written.
         obj = reopen_to_write(obj)
         %
     end
     methods(Abstract,Access=protected)
-        % init file accsessor from sqw object in memory
+        % init file accessors from sqw object in memory
         obj=init_from_sqw_obj(obj,varargin);
-        % init file accessor from sqw file on hdd
+        % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);
     end
     

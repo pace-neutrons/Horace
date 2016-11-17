@@ -125,10 +125,9 @@ end
 if horace_info_level>=1, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [mess,main_header,header,detpar,data]=get_sqw (data_source,'-nopix');
-    if ~isempty(mess)
-        error('Error reading data from file %s \n %s',data_source,mess)
-    end
+    ld = sqw_formats_factory.instance().get_loader(data_source);
+    data = ld.get_data('-nopix');
+    %[mess,main_header,header,detpar,data]=get_sqw (data_source,'-nopix');
 else
     if horace_info_level>=0, disp('Taking cut from dnd object...'), end
     data = data_source.data;
