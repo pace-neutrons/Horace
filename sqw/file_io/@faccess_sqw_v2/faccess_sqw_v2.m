@@ -49,7 +49,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             % Returns:
             % true if the loader can load these data, or false if not
             % with message explaining the reason for not loading the data
-            % of should, object is initiated by appropriate file inentified
+            % of should, object is initiated by appropriate file identified
             mess = '';
             if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
                 if stream.sqw_type && ( stream.version == 2 || stream.version == 3 )
@@ -72,7 +72,7 @@ classdef faccess_sqw_v2 < sqw_binfile_common
         end
         %
         function new_obj = upgrade_file_format(obj)
-            % Uprade file from format 2 to format 3
+            % Upgrade file from format 2 to format 3
             new_obj = upgrade_file_format_(obj);
         end
         

@@ -23,14 +23,14 @@ app_header.version  = obj.file_ver_;
 %
 if isa(obj_to_save,'sqw')
     app_header.sqw_type = true;
-    ndim = calc_proper_ndim(obj_to_save.data.s);
+    [~,ndim] = calc_proper_ndim_(obj_to_save.data);
 elseif  is_sqw_struct(obj_to_save)
     if isempty(obj_to_save.main_header)
         app_header.sqw_type = false;
     else
         app_header.sqw_type = true;
     end
-    ndim = calc_proper_ndim(obj_to_save.data.s);
+    [~,ndim] = calc_proper_ndim_(obj_to_save.data);
 else
     type    = class(obj_to_save);
     classes = {'d0d','d1d','d2d','d3d','d4d','data_sqw_dnd'};
@@ -42,18 +42,8 @@ else
     app_header.sqw_type = false;
     ndim = find(ind)-1;
     if ndim == 5
-        ndim = calc_proper_ndim(obj_to_save.s);
+        [~,ndim] = calc_proper_ndim_(obj_to_save);
     end
 end
 app_header.ndim = ndim;
 
-function nd = calc_proper_ndim(signal)
-dim  = size(signal);
-if numel(dim) == 2
-    if dim(1) == 1
-        dim = dim(2);
-    elseif dim(2) == 1
-        dim = dim(1);
-    end
-end
-nd = numel(dim);

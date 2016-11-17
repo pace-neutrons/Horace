@@ -1,8 +1,13 @@
 function  new_obj = upgrade_file_format_(obj)
-% Uprade file from format 2 to the preferred file format
+% Upgrade file from format 2 to the preferred file format
 %
-% currently prefererd is format v 3
+% currently preferred is format v 3
 %
+    %
+    %
+    % $Revision: 1331 $ ($Date: 2016-11-11 18:52:43 +0000 (Fri, 11 Nov 2016) $)
+    %
+    %
 
 new_obj = sqw_formats_factory.instance().get_pref_access();
 if ischar(obj.num_dim) % source object is not initiated. Just return
@@ -25,7 +30,7 @@ clear_sample_holder=false;
 if isempty(new_obj.sqw_holder_) % all file positions except instrument and sample
     % are already defined so we need just nominal object with instrument and sample
     nf = new_obj.num_contrib_files();
-    % make pseudo-sqw  with insturment and sample
+    % make pseudo-sqw  with instrument and sample
     new_obj.sqw_holder_ = make_pseudo_sqw(nf);
     clear_sample_holder = true; %
 end

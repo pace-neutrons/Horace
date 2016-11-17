@@ -1,5 +1,5 @@
 classdef field_generic_class_hv3 < field_simple_class_hv3
-    %  The class describes conversion of arbitraru Matlab variable and arrays
+    %  The class describes conversion of arbitrary Matlab variable and arrays
     %  used to read/write data in sqw format v3
     %
     %  The variable is serialized together with its length and class type
@@ -27,7 +27,7 @@ classdef field_generic_class_hv3 < field_simple_class_hv3
         %
         function bytes = bytes_from_field(obj,val)
             % convert variable length array into
-            % invertable sequence of bytes
+            % invertible sequence of bytes
             type = class(val);
             
             if obj.sclass_map_.isKey(type)

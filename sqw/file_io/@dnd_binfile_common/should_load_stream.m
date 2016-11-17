@@ -7,7 +7,12 @@ function [should,objinit,mess]= should_load_stream(obj,stream,fid)
 % Returns:
 % true if the loader can load these data, or false if not
 % with message explaining the reason for not loading the data
-% of should, object is initiated by appropriate file inentified
+% of should, object is initiated by appropriate file identified
+%
+%
+% $Revision$ ($Date$)
+%
+
 mess = '';
 if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
     if stream.sqw_type == obj.sqw_type && stream.version == obj.file_ver_

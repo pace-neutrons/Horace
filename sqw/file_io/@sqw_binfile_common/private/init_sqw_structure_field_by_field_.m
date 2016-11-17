@@ -22,7 +22,7 @@ fseek(obj.file_id_,main_h_pos.nfiles_pos_,'bof');
 check_and_throw_error(obj,'Error moving to the  number of contributing files fiels position');
 
 n_files = fread(obj.file_id_,1,'int32');
-check_and_throw_error(obj,'Error reading number of contributiong files field');
+check_and_throw_error(obj,'Error reading number of contributing files field');
 %
 obj.num_contrib_files_ = n_files;
 %
@@ -33,7 +33,7 @@ template_header = obj.get_header_form();
 [header_pos,pos,io_error]=obj.sqw_serializer_.calculate_positions(template_header,obj.file_id_,pos);
 if io_error
     error('SQW_BINFILE_COMMON:io_error',...
-        'IO error while parsing contributing file firds header')
+        'IO error while parsing positions of contributing file header N1')
 end
 obj.header_pos_info_ = repmat(header_pos,1,n_files);
 
@@ -64,7 +64,7 @@ data_header = obj.get_data_form();
 if io_error
     if ~isfield(data_pos,'s_pos_') || ~isfield(data_pos,'e_pos_')
         error('SQW_BINFILE_COMMON:io_error',...
-            'IO error while parsing data, can not indetify location of signal and error arrays')
+            'IO error while parsing data, can not identify location of signal and error arrays')
     end
 end
 if ischar(obj.num_dim_) % prototype does not have dimensions in data header,
@@ -84,7 +84,7 @@ if ~io_error
     obj.npix_pos_=data_pos.npix_pos_;
     obj.urange_pos_=data_pos.urange_pos_;
     obj.pix_pos_=data_pos.pix_pos_+8;  % pixels are written with their size in front of the array.
-    % subsequent methods read pixes directrly, so here we shift pixel
+    % subsequent methods read pixels directly, so here we shift pixel
     % position by the array length
     obj.data_type_ = 'a';
     obj.dnd_eof_pos_ = data_pos.urange_pos_;
@@ -108,7 +108,7 @@ else
 end
 obj.data_fields_locations_ = data_pos;
 %
-% caclulate number of pixels from pixels block position and its size
+% calculate number of pixels from pixels block position and its size
 
 obj.npixels_  = (obj.eof_pix_pos_ - obj.pix_pos_)/(4*9);
 

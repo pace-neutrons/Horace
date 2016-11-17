@@ -53,8 +53,11 @@ for i=1:numel(w)
     if horace_info_level>0
         disp(['*** Writing to ',file_internal{i},'...'])
     end
+    if exist(file_internal{i},'file') == 2
+        delete(file_internal{i});
+    end
     ldw = ldw.init(w(i),file_internal{i});
-    if ldw.upgrade_mode
+    if ldw.upgrade_mode % as we delete file, this never happens. The question is where it should?
         if sqw_type
             ldw = ldw.put_sqw('-update','-nopix');
         else  %TODO:  OOP violation -- save dnd should be associated with dnd class
