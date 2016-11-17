@@ -88,4 +88,9 @@ else
     end
 end
 
-w=class(w.data.get_dnd_data(),class_type);
+if isa(w.data,'data_sqw_dnd')
+    w=class(w.data.get_dnd_data(),class_type);
+else
+    w=class(w.data,class_type);
+end
+

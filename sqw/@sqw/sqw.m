@@ -138,7 +138,9 @@ elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)
         w.header=make_sqw_header;
         w.detpar=make_sqw_detpar;
         w.data = ldr.get_data('-nopix');
-        w.data = clear_sqw_data(w.data);
+        if isa(w.data,'data_sqw_dnd')
+            w.data = clear_sqw_data(w.data);
+        end
     end
     [ok,mess,type,w]=check_sqw(w);   % Make check_sqw the ultimate arbiter of the validity of a structure
     if ok

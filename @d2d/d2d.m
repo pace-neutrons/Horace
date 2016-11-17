@@ -10,7 +10,7 @@ function w = d2d (varargin)
 % Create empty object suitable for simulations:
 %   >> w = d2d (proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %   >> w = d2d (lattice, proj,...)
-% 
+%
 % **Or** (old syntax, still available for legacy purposes)
 %   >> w = d2d (u1,p1,u2,p2)    % u1,u2 vectors define projection axes in rlu,
 %                                 p1,p2 give start,step and finish for the axes
@@ -45,7 +45,7 @@ function w = d2d (varargin)
 %               - scalar numeric cellarray  (interpreted as bin boundaries)
 %            For a d2d object, two of the four descriptors must correspond
 %            to bin boundaries, and the other two to integration axes.
-%   
+%
 % **OR**
 %
 %   u0      Vector of form [h0,k0,l0] or [h0,k0,l0,en0]
@@ -84,5 +84,8 @@ else
         error(['Input arguments inconsistent with requested dimensionality ',num2str(ndim_request)])
     end
 end
-
-w=class(w.data.get_dnd_data(),class_type);
+if isa(w.data,'data_sqw_dnd')
+    w=class(w.data.get_dnd_data(),class_type);
+else
+    w=class(w.data,class_type);
+end

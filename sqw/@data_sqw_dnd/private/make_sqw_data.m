@@ -67,7 +67,7 @@ function [data,mess] = make_sqw_data (data,varargin)
 %                       type 'a'    uoffset,...,s,e,npix,urange,pix
 %                       type 'a-'   uoffset,...,s,e,npix,urange         ]
 %
-%   mess        Message; ='' if no problems, otherwise contians error message
+%   mess        Message; ='' if no problems, otherwise contains error message
 %
 %  A valid output structure contains the following fields
 %

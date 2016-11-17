@@ -4,7 +4,7 @@ function [subobj,subobj_is_new] = extract_correct_subobj_(obj,obj_name,varargin)
 %
 % $Revision$ ($Date$)
 %
-char_keys = cellfun(@(x)strncmp(x,'-',1),varargin);
+char_keys = cellfun(@is_char_key,varargin);
 argi = varargin(~char_keys);
 if ~isempty(argi)
     input_obj = argi{1};
@@ -21,11 +21,22 @@ end
 
 if isa(input_obj,'sqw') || is_sqw_struct(input_obj)
     subobj = input_obj.(obj_name);
-elseif  isstruct(input_obj)|| isa(input_obj,'is_holder') || isa(input_obj,'data_sqw_dnd') % the requested object provided directly
+elseif  isstruct(input_obj)|| isa(input_obj,'is_holder')  % the requested object provided directly
     subobj = input_obj;  % and is one of the supported types
+elseif strcmp(obj_name,'data') || isa(input_obj,'data_sqw_dnd')
+    subobj = input_obj; 
+elseif strcmp(obj_name,'header') || iscell(input_obj)
+    subobj = input_obj; %
 else
     type = class(input_obj);    
     error('SQW_FILE_IO:invalid_argument',...
         'SQW_BINFILE_COMMON::extract_correct_subobj: Requested to extract subobject %s  but can get only %s',...
         obj_name,type);
+end
+
+function is = is_char_key(x)
+if ischar(x)
+    is = strncmp(x,'-',1);
+else
+    is = false;
 end
