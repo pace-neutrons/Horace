@@ -135,9 +135,9 @@ classdef sqw_binfile_common < sqw_file_interface
         % read pixels information
         pix    = get_pix(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
-        sqw_obj = get_sqw(obj,varargin);
+        [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve dnd part of the sqw object
-        dnd_obj = get_dnd(obj,varargin);
+        [dnd_obj,varargout] = get_dnd(obj,varargin);
         % ---------   File Mutators:
         % save or replace main file header
         obj = put_main_header(obj,varargin);

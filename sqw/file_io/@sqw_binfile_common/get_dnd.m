@@ -1,12 +1,11 @@
 function [dnd_object,varargout] = get_dnd (obj,varargin)
 % Load an sqw file from disk
 %
-%   >> sqw_object = obj.get_dnd()
-%   >> sqw_object = obj.get_dnd('-h')
-%   >> sqw_object = obj.get_dnd('-his')
-%   >> sqw_object = obj.get_dnd('-hverbatim')
-%   >> sqw_object = obj.get_dnd('-hisverbatim')
-%   >> sqw_object = obj.get_dnd('-nopix')
+%   >> dnd_object = obj.get_dnd()
+%   >> dnd_object = obj.get_dnd('-h')
+%   >> dnd_object = obj.get_dnd('-his')
+%   >> dnd_object = obj.get_dnd('-hverbatim')
+%   >> dnd_object = obj.get_dnd('-hisverbatim')
 %
 % Input:
 % --------
@@ -25,7 +24,6 @@ function [dnd_object,varargout] = get_dnd (obj,varargin)
 %                                  value of fopen(fid). This is needed in some applications where
 %                                  data is written back to the file with a few altered fields.
 %                   '-hisverbatim'  Similarly as for '-his'
-%                   '-nopix'        Pixel information not read (only meaningful for sqw data type 'a')
 %                   '-legacy'       Return result in legacy format, e.g. 4
 %                                   fields, namely: main_header, header,
 %                                   detpar and data
@@ -64,13 +62,18 @@ if ~ok
 end
 
 if verbatim
-    opt = {argi{:},{'-head','-nopix','-verbatim'}};
+    opt = [argi{:},{'-nopix','-noclass','-verbatim'}];
 else
-    opt = {argi{:},{'-head','-nopix'}};    
+    opt = [argi{:},{'-nopix','-noclass'}];    
 end
 
 % can not call get_data@dnd_binfile_common directly!
-[dnd_object,varargout]  = get_dnd@dnd_binfile_common(obj,opt{:});
+if nargout > 1
+    [dnd_object,varargout]  = get_dnd@dnd_binfile_common(obj,opt{:});
+else
+    dnd_object  = get_dnd@dnd_binfile_common(obj,opt{:});    
+    varargout = {};
+end
 
 
 function out = replace_h(inp)

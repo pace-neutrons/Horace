@@ -169,9 +169,9 @@ classdef dnd_file_interface
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         % retrieve the whole sqw object from properly initialized sqw file
-        sqw_obj = get_sqw(obj,varargin);
+        [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve any sqw/dnd object as dnd object
-        sqw_obj = get_dnd(obj,varargin);        
+        [dnd_obj,varargout] = get_dnd(obj,varargin);        
         % ----------------------------------------------------------------
         % File Mutators:
         %

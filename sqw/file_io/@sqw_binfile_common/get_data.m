@@ -18,6 +18,10 @@ function [data,obj] = get_data (obj,varargin)
 %                                  value of fopen(fid). This is needed in some applications where
 %                                  data is written back to the file with a few altered fields.
 %                   '-nopix' Pixel information not read (only meaningful for sqw data type 'a')
+%                   '-noclass' do not pack data into sqw_dnd_data class --
+%                              may be useful for current object model, when dnd is
+%                              going to be created. May be removed in a
+%                              future
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
@@ -105,8 +109,8 @@ function [data,obj] = get_data (obj,varargin)
 % Initialise output arguments
 
 % remove options unrelated to get_data@dnd_binfile_common
-[ok,mess,~,argi]=...
-    parse_char_options(varargin,{'-nopix'});
+[ok,mess,~,noclass,argi]=...
+    parse_char_options(varargin,{'-nopix','-noclass'});
 if ~ok
     error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
 end
@@ -132,7 +136,7 @@ end
 
 header_only = header_only||hverbatim;
 
-if header_only
+if header_only || noclass
     data  = data_str;
     return;
 end
