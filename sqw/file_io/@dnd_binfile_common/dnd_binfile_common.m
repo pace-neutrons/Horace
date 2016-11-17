@@ -175,9 +175,9 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         % retrieve the whole dnd object from properly initialized dnd file
         % and treat it like sqw object
-        sqw_obj = get_sqw(obj,varargin);
+        [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve full dnd sqw object
-        dnd_obj = get_dnd(obj,varargin);
+        [dnd_obj,varargout] = get_dnd(obj,varargin);
         
         
         %------   Mutators:

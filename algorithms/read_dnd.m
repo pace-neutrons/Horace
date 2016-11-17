@@ -12,12 +12,13 @@ function varargout = read_dnd(varargin)
 % $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
 %
 argi = varargin;
-argi{end+1} = '-get_dnd'; %TODO: shame! should be proper OOP
-
-out = read_sqw(argi{:});
-if ~iscell(out)
-    varargout = {out};
+argi{end+1} = '-get_dnd';
+if nargout == 0
+    read_horace(argi{:});    
 else
-    varargout = out;
+    varargout = read_horace(argi{:});
+    if ~iscell(varargout)
+        varargout = {varargout};
+    end
 end
 

@@ -259,11 +259,36 @@ classdef test_faccess_sqw_v2< TestCase
             
             [ok,mess]=equal_to_tol(d2d(sqwob),sqw2,'ignore_str',true);
             assertTrue(ok,mess)
+            %
+        end
+        function obj = test_get_dnd_from_sqw(obj)
+            %
+            spath = fileparts(obj.sample_file);
+            samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
+                       
+            dnob = read_dnd(samplef);
+            
+            tf = fullfile(tempdir,'test_put_dnd_from_sqw.sqw');
+            clob = onCleanup(@()delete(tf));
+            
+            tob = faccess_dnd_v2(dnob,tf);
+            tob = tob.put_sqw();
+            tob.delete();
+            
+            to = sqw_formats_factory.instance().get_loader(tf);
+            assertTrue(isa(to,'faccess_dnd_v2'));
+            
+            dn2 = to.get_sqw();
+            to.delete();
+            assertTrue(isa(dn2,'d2d'));
+            
+            [ok,mess]=equal_to_tol(dn2,dnob,'ignore_str',true);
+            assertTrue(ok,mess)
             
             %
         end
         
+        
     end
 end
-
 
