@@ -130,10 +130,10 @@ else % write pixels directly
         for ipix=npix_lo:block_size:npix_hi
             istart = ipix;
             iend   = min(ipix+block_size-1,npix_hi);
-            fwrite(fid,data.pix(:,istart:iend),'float32');
+            fwrite(obj.file_id_,input_obj.pix(:,istart:iend),'float32');
             check_error_report_fail_(obj,...
-                'Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
-                istart,iend,npix_lo,npix_hi);
+                sprintf('Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
+                istart,iend,npix_lo,npix_hi));
         end
     end
 end
