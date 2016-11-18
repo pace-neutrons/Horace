@@ -52,7 +52,7 @@ function res = get_all_instr_or_samples_(obj,field_name)
 %
 % field_name -- string which can be 'instrument' or 'sample'
 %
-if obj.num_contrib_files_ == 'uninitiated'
+if ischar(obj.num_contrib_files_)
     error('FACCESS_SQW_V3:runtime_error',...
         'get_instr_or_sample_ for %s called on non-initialized object',...
         field_name);
@@ -70,8 +70,11 @@ else
         field_name);
 end
 
-
-fseek(obj.file_id_,pos,'bof');
+if verLessThan('matlab','8.1') % some MATLAB problems with moving to correct eof
+    fseek(obj.file_id_,double(pos),'bof');
+else
+    fseek(obj.file_id_,pos,'bof');    
+end
 [mess,res] = ferror(obj.file_id_);
 if res ~=0; error('SQW_FILE_IO:io_error',...
         'Error moving to the %s position. Reason: %s',field_name,mess); end

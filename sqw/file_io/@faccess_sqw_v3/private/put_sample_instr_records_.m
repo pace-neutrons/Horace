@@ -3,7 +3,7 @@ function obj = put_sample_instr_records_(obj,varargin)
 % sqw file
 %
 % Usage:
-%>> obj = put_sample_instr_records_(obj) --  saves sample&instrument records 
+%>> obj = put_sample_instr_records_(obj) --  saves sample&instrument records
 %         taked from internal sqw object
 %>> obj = put_sample_instr_records_(obj,an_sqw_object) -- saves
 %         sample&instrument records taked from sqw object provided
@@ -59,7 +59,12 @@ if setting_instr
     end
     %
     start = obj.instrument_head_pos_;
-    fseek(obj.file_id_,start,'bof');
+    if verLessThan('matlab','8.1') % some MATLAB problems with moving to correct eof
+        fseek(obj.file_id_,double(start),'bof');
+    else
+        fseek(obj.file_id_,start,'bof');
+    end
+    
     check_error_report_fail_(obj,'can not move to the instrument(s) start position');
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,'error writing serialized instrument(s)');
@@ -81,7 +86,11 @@ if setting_sample
     end
     
     %
-    fseek(obj.file_id_,obj.sample_head_pos_,'bof');
+    if verLessThan('matlab','8.1') % some MATLAB problems with moving to correct eof
+        fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');
+    else
+        fseek(obj.file_id_,obj.sample_head_pos_,'bof');
+    end
     check_error_report_fail_(obj,'can not move to the sample(s) start position');
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,'error writing  serialized sample(s)');
