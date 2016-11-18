@@ -20,7 +20,11 @@ bytes = [bytes,byte_sz];
 
 
 pos = obj.position_info_pos_;
-fseek(obj.file_id_,pos,'bof');
+if verLessThan('matlab','8.1') % some MATLAB problems with moving to correct eof
+    fseek(obj.file_id_,double(pos),'bof');    
+else        
+    fseek(obj.file_id_,pos,'bof');
+end
 check_error_report_fail_(obj,'can not move to the positions block start');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Can not write the positions block');

@@ -252,7 +252,11 @@ if drop_subzone_headers
 else
     run_label=cumsum([0;nspe(1:end-1)]);
 end
-npix_cumsum = cumsum(sqw_data.npix(:));
+if verLessThan('matlab', '8.1')
+    npix_cumsum = cumsum(double(sqw_data.npix(:)));    
+else
+    npix_cumsum = cumsum(sqw_data.npix(:));
+end
 sqw_data.pix = pix_combine_info(infiles,pos_npixstart,pos_pixstart,npix_cumsum,npixtot,run_label);
 
 [fp,fn,fe] = fileparts(outfile);
