@@ -118,11 +118,12 @@ pix_ix_retained={};
 num_retained_blocks = 0;
 if horace_info_level>=1, bigtic(1), end
 %
-for i=1:numel(block_ind_from)
+for i=1:nsteps
+    if horace_info_level>=1;    bigtic(1);    end
+    %
     v=read_data_block(fid,noffset,range,block_ind_from(i),block_ind_to(i));
     %
-    if horace_info_level>=1
-        t_read = t_read + bigtoc(1);
+    if horace_info_level>=1;  t_read = t_read + bigtoc(1);
         bigtic(2)
     end
     if horace_info_level>=0
@@ -229,31 +230,27 @@ function [pix_retained,pix_ix_retained,num_retained_blocks]=accumulate_pix (fini
 % Function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
 % Note: the routine implicitly assumes that pmax>=max(length(ok))==vmax. Routine works even if no pixels retained
 
-if pix_tmpfile_ok
-    if del_npix_retain>0    % accumulate pixels if any read in
-        if ppos+del_npix_retain-1>pmax        % not enough room left in buffer to add more pixels
-            pend = ppos-1;          % current end of buffer arrays (can only reach here if already data in buffer arrays)
-            accumulate_pix_to_file  % flush current pixel information to file and reset buffer arrays
-        end
-        pend = ppos+del_npix_retain-1;
-        accumulate_pix_to_memory(v,ok,ix_add)   % add the new pixels to the buffers
+
+if del_npix_retain>0    % accumulate pixels if any read in
+    if ppos+del_npix_retain-1>pmax        % not enough room left in buffer to add more pixels
+        pend = ppos-1;          % current end of buffer arrays (can only reach here if already data in buffer arrays)
+        accumulate_pix_to_file  % flush current pixel information to file and reset buffer arrays
     end
-    pend = ppos-1;
-    if finish && pend>0
-        if nfile==0     % no buffer files written - the buffer arrays are large enough to hold all retained pixels
-            [ix,ind]=sort(ix(1:pend));  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-            pix=pix(:,ind); % reorders pix
-        else    % at least one buffer file; flush the buffers to file
-            accumulate_pix_to_file
-            clear pix ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
-            pix = pix_files;    % put file details into pix
-        end
-    end
-else
-    if del_npix_retain>0    % accumulate pixels if any read in
-        accumulate_pix_to_memory(v,ok,ix_add);
+    pend = ppos+del_npix_retain-1;
+    accumulate_pix_to_memory(v,ok,ix_add)   % add the new pixels to the buffers
+end
+pend = ppos-1;
+if finish && pend>0
+    if nfile==0     % no buffer files written - the buffer arrays are large enough to hold all retained pixels
+        [ix,ind]=sort(ix(1:pend));  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
+        pix=pix(:,ind); % reorders pix
+    else    % at least one buffer file; flush the buffers to file
+        accumulate_pix_to_file
+        clear pix ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
+        pix = pix_files;    % put file details into pix
     end
 end
+
 
     function accumulate_pix_to_file
         % Increment buffer file number and create temporary file name
@@ -306,7 +303,7 @@ end
 if last_block_num < nblocks
     last_block_num = last_block_num + 1;
     if last_block_num>1
-        block_ind_from(last_block_num) = block_ind_to(last_block_num-1);
+        block_ind_from(last_block_num) = block_ind_to(last_block_num-1)+1;
     else
         block_ind_from(1) = 1;
     end
