@@ -74,9 +74,9 @@ if any(all_ldrs)
     loaders = {loaders{:},argi{all_ldrs}};
 end
 
-if ~iscell(loaders)
-    loaders  = {loaders};
-end
+% if ~iscell(loaders)
+%     loaders  = {loaders};
+% end
 
 if n_outputs==0
     for i=1:n_inputs
@@ -103,23 +103,29 @@ else
         nfi = min(n_inputs,nargout);
     end
     for i=1:nfi
-        if hfull
-            opt = {'-verbatim','-nopix'};
-        else
-            opt = {'-hverbatim'};
-        end
         if loaders{i}.sqw_type
-            data         = loaders{i}.get_data(opt{:});
-            if isa(data,'data_sqw_dnd')
-                data         = data.get_dnd_data('+'); % + get urange if availible
+            if hfull
+                data = struct();
+                [data.main_header,data.header,data.detpar,data.data] = ...
+                    loaders{i}.get_sqw('-legacy','-nopix','-verbatim');
+            else
+                data         = loaders{i}.get_data('-verbatim','-nopix');
+                if isa(data,'data_sqw_dnd')
+                    data         = data.get_dnd_data('+'); % + get urange if availible
+                end
+                data.npixels = loaders{i}.npixels;
+                data.nfiles  = loaders{i}.num_contrib_files;
             end
-            data.npixels = loaders{i}.npixels;
-            data.nfiles  = loaders{i}.num_contrib_files;
         else
-            data         = loaders{i}.get_data(opt{:});
+            if hfull
+                data         = loaders{i}.get_data('-verbatim','-nopix');
+            else
+                data         = loaders{i}.get_data('-verbatim','-nopix','-head');
+            end
+            
+            
         end
-        
-            vout{i} = data;
+        vout{i} = data;
     end
     if cell_out
         varargout{1} = {vout};

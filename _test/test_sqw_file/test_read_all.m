@@ -113,15 +113,15 @@ classdef test_read_all< TestCase
             
             assertEqual(numel(out),3)
             assertTrue(isstruct(out{1}))
-            assertEqual(numel(fields(out{1})),17)
+            assertEqual(numel(fields(out{1})),20)
             assertTrue(isstruct(out{2}))
-            assertEqual(numel(fields(out{2})),17)
+            assertEqual(numel(fields(out{2})),20)
             assertTrue(isstruct(out{3}))
             assertEqual(numel(fields(out{3})),14)
             
             [out1,out2,out3] = head_horace(files,'-full');
-            assertEqual(numel(fields(out1)),20)
-            assertEqual(numel(fields(out2)),20)
+            assertEqual(numel(fields(out1)),4)
+            assertEqual(numel(fields(out2)),4)
             assertEqual(numel(fields(out3)),17)
             
             
