@@ -142,9 +142,8 @@ t_total=1;
 nsinglebin_write = 0;
 nbuff_write = 0;
 mess_completion(pix_comb_info.npix_cumsum(end),5,1);   % initialise completion message reporting - only if exceeds time threshold
-if log_level > 1
-    total_size_written=0;
-end
+total_size_written=0;
+
 while ibin_end<nbin
     
     % Refill buffer with next section of npix arrays from the input files
