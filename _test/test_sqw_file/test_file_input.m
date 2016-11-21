@@ -26,7 +26,7 @@ classdef  test_file_input < TestCase
                 name= mfilename('class');
             end
             obj=obj@TestCase(name);
-
+            
             % =================================================================================================
             % Read in test data sets
             % =================================================================================================
@@ -55,23 +55,25 @@ classdef  test_file_input < TestCase
             obj.d1d_name  = t_d1d_name;
             obj.d2d_name = t_d2d_name;
             
-            obj.clas_cleanup = onCleanup(@()obj.clobFun());
-            
-        end
-        function clobFun(obj)
-            global test_file_input_refcount_;
-            test_file_input_refcount_ = test_file_input_refcount_-1;
-            if test_file_input_refcount_ ==0
-                try
-                    for i=1:numel(obj.sqw1d_name), delete(obj.sqw1d_name{i}); end
-                    for i=1:numel(obj.sqw2d_name), delete(obj.sqw2d_name{i}); end
-                    for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
-                    for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
-                catch
-                    disp('Unable to delete temporary file(s)')
+            obj.clas_cleanup = onCleanup(@()clobFun(obj));
+            %
+            function clobFun(obj)
+                %global test_file_input_refcount_;
+                test_file_input_refcount_ = test_file_input_refcount_-1;
+                if test_file_input_refcount_ ==0
+                    try
+                        for i=1:numel(obj.sqw1d_name), delete(obj.sqw1d_name{i}); end
+                        for i=1:numel(obj.sqw2d_name), delete(obj.sqw2d_name{i}); end
+                        for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
+                        for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
+                    catch
+                        disp('Unable to delete temporary file(s)')
+                    end
+                    
                 end
-                
             end
+            
+            
         end
         
         % =================================================================================================
