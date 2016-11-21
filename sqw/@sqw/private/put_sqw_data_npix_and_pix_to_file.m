@@ -59,7 +59,7 @@ npixtot = size(pix,2);
 % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
 % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
 % could have no pixels because none contributed to the given data range.
-block_size=get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
+block_size=config_store.instance().get_value('hor_config','mem_chunk_size');    % size of buffer to hold pixel information
 % block_size=1000000;
 if npixtot<=block_size
     fwrite(fid,single(pix),'float32');

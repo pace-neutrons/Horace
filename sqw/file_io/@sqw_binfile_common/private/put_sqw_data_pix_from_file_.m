@@ -179,7 +179,8 @@ while ibin_end<nbin
                             pix(5,:)=pix(5,:)+pix_comb_info.run_label(i);     % offset the run index
                         end
                     end
-                    fwrite(fout,pix,'float32');
+                    count = fwrite(fout,pix,'float32');
+                    total_size_written = total_size_written + count;
                 end
             end
             nsinglebin_write = nsinglebin_write + 1;
@@ -247,7 +248,7 @@ while ibin_end<nbin
             end
             pix_buff = cat(2,pix_tb{:});
             % Write to the output file
-            npix_flush=npix_flush'; % transpose so order of elements is succesive files for 1st bin, succesive files for second etc.
+            npix_flush=npix_flush'; % transpose so order of elements is successive files for 1st bin, successive files for second etc.
             ok=npix_flush>0;        % ranges with at least one pixel
             if sum(ok(:))>0
                 nbeg=nbeg'; nbeg=nbeg(ok);  % transpose and use OK to get start of ranges in order of files for a given bin
@@ -271,16 +272,18 @@ while ibin_end<nbin
                     disp(['   ***pix_buff: ',num2str(size(pix_buff))])
                     tw = tic;
                 end
-                fwrite(fout,pix_buff,'float32');    % write to output file
+                count = fwrite(fout,pix_buff,'float32');    % write to output file
                 if (log_level>1)
+                    total_size_written = total_size_written + count;
                     t_write=toc(tw);
-                    block_size = numel(pix_buff)*4/(1024*1024);
+                    %block_size = numel(pix_buff)*4/(1024*1024);
+                    block_size = count*4/(1024*1024);                    
                     file_size = file_size+block_size;
-                    disp(['   ***timeto flush buffer : ',num2str(t_write),' speed: ',num2str(block_size/t_write),'MB/sec'])
+                    disp(['   ***time to flush buffer : ',num2str(t_write),' speed: ',num2str(block_size/t_write),'MB/sec'])
                 end
                 %                 disp(['  Number of pixels written from buffer: ',num2str(size(pix_buff,2))])
             end
-            clear npix_flush npix_in_files nend nbeg ok ind pix_buff  % clear the memory ofbig arrays (esp. pix_buff)
+            clear npix_flush npix_in_files nend nbeg ok ind pix_buff  % clear the memory of big arrays (esp. pix_buff)
             nbuff_write = nbuff_write + 1;
             if (log_level>1)
                 t_total=toc(t_all);
@@ -303,6 +306,7 @@ end
 %profile viewer
 mess_completion
 if (log_level>1)
+    total_size_written = total_size_written*4/(1024*1024);
     disp(['***Size of the generated file is: ',num2str(total_size_written),'MB'])
 end
 % disp([' single bin write operations: ',num2str(nsinglebin_write)])
@@ -397,15 +401,15 @@ out_param = struct('file_name',fout_name ,...
     'log_level','mex_combine_buffer_size','mex_combine_thread_mode');
 % conversion parameters include:
 % n_bin        -- number of bins in the image array
-% 1            -- first bin to start copty pixels for
-% out_buf_size -- the size of ouput buffer to use for writing pixels
+% 1            -- first bin to start copying pixels for
+% out_buf_size -- the size of output buffer to use for writing pixels
 % change_fileno-- if pixel run id should be changed
 % relabel_with_fnum -- if change_fileno is true, how to calculate the new pixel
 %                  id -- by providing new id equal to filenum or by adding
 %                  it to the existing num.
 % num_ticks    -- approximate number of log messages to generate while
 %                 combining files together
-% buf size     -- bufer size -- the size of bufer used for each input file
+% buf size     -- buffer size -- the size of buffer used for each input file
 %                 read operations
 % multithreaded_combining - use multiple threads to read files
 program_param = [n_bin,1,out_buf_size,log_level,change_fileno,relabel_with_fnum,100,buf_size,multithreaded_combining];

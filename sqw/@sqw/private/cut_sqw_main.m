@@ -381,7 +381,7 @@ else
         proj, targ_pax, targ_nbin);
 end
 % For convenience later on, set a flag that indicates if pixel info buffered in files
-if isstruct(pix)
+if isa(pix,'pix_combine_info')
     pix_tmpfile=true;
 else
     pix_tmpfile=false;
@@ -439,7 +439,7 @@ data_out.e(no_pix)=0;
 
 if keep_pix
     data_out.urange = urange_pix;
-    if ~pix_tmpfile; data_out.pix = pix; end
+    data_out.pix = pix;
 end
 
 % Collect fields to make those for a valid sqw object
@@ -466,8 +466,8 @@ if save_to_file
         
         if pix_tmpfile
             % mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
-            for ifile=1:length(pix.tmpfiles)   % delete the temporary files
-                delete(pix.tmpfiles{ifile});
+            for ifile=1:pix.nfiles   % delete the temporary files
+                delete(pix.infiles{ifile});
             end
         end
         if ~isempty(mess)
