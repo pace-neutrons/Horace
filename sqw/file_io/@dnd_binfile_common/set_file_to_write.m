@@ -79,6 +79,10 @@ else
 end
 %-------------------------------------------------------------------------
 [fp,fn,fext] = fileparts(new_filename);
+if isempty(fp)
+    fp = '.';
+end
+
 fn = [fn,fext];
 fp = [fp,filesep];
 obj.filename_ = fn;

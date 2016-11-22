@@ -119,11 +119,11 @@ catch
     sqwfile = 0;
 end
 
-if strcmp(class(args{2}),'sqw')
+if isa(args{2},'sqw')
     hd = struct(args{2}).data;
 elseif sqwfile
     hd = head_sqw(args{2});
-elseif length(args{2})>1 && strcmp(class(args{2}(1)),'d2d')
+elseif length(args{2})>1 && isa(args{2}(1),'d2d')
     plot_dispersion(args{2},opt);
     return;
 else
@@ -195,6 +195,7 @@ end
 % Loop over rlp, determines the projections and make the cuts
 %------------------------------------------------------------
 xrlp = 0;
+wdisp = repmat(d2d,1,nseq);
 for i=1:nseg
     % Choose u1 along the user desired q-direction 
     u1rlp = rlp(i+1,:)-rlp(i,:);
@@ -233,7 +234,7 @@ for i=1:nseg
     % Make cut, and save to array of d2d
     wdisp(i) = cut_sqw(sqw,proj,u1,u2,u3,ebin,'-nopix');
     if nargout>1
-        u1v = u1(1):u1(2):u1(3)
+        u1v = u1(1):u1(2):u1(3);
         for j=1:numel(u1v)-1
             varargout{2}{i}(j) = cut(wdisp(i),u1v(j:j+1),[]);
         end
@@ -250,10 +251,10 @@ for i=1:nseg
         binstr = sprintf(['q bin size approximately %f ',char(197),'^{-1}'],opt.qbin);
         if numel(opt.qwidth)==1
             wdisp(i).title=sprintf(['integrated over %f ',char(197),...
-                    '^{-1} in perpendicular q-directions\n%s\n%s'],opt.qwidth(1),binstr,titlestr)
+                    '^{-1} in perpendicular q-directions\n%s\n%s'],opt.qwidth(1),binstr,titlestr);
         else
             wdisp(i).title=sprintf(['integrated over %f ',char(197),...
-                    '^{-1} in qv and %f ',char(197),'^{-1} in qw\n%s\n%s'],opt.qwidth,binstr,titlestr)
+                    '^{-1} in qv and %f ',char(197),'^{-1} in qw\n%s\n%s'],opt.qwidth,binstr,titlestr);
         end
     end
 end
@@ -281,6 +282,7 @@ function plot_dispersion(wdisp_in,opt)
         lnbrk = lnbrk(end);
     end
     wdisp_in(1).title = title(lnbrk+1:end);
+    wdisp = wdisp_in;
     for i=1:length(wdisp_in)
         u1bin = mode(diff(wdisp_in(i).p{1}));
         ulen = wdisp_in(i).ulen;
@@ -311,7 +313,7 @@ function plot_dispersion(wdisp_in,opt)
                 sscanf(wdisp_in(i).title(bra(2):ket(2)),'(%f %f %f)')];
         quotes = strfind(wdisp_in(i).title,'"');
         if i>1 && abs(sum(hkls(1:3)-hkl0(4:6)))>0.01
-            warning(sprintf('(hkl) points for segments %d and %d do not match',i-1,i));
+            warning('(hkl) points for segments %d and %d do not match',i-1,i);
             if isempty(quotes)
                 labels{i} = sprintf('[%s]/[%s]',str_compress(num2str(hkl0(4:6)')),str_compress(num2str(hkls(1:3)')));
             else
