@@ -138,7 +138,7 @@ try
         % -- cut
         [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
             v, proj, pax);
-        if horace_info_level>=0, disp([' ------->  retained  ',num2str(del_npix_retain),' pixels']), end
+        if horace_info_level>=0, disp([' ----->  retained  ',num2str(del_npix_retain),' pixels']), end
         if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
         %
         % -- retain

@@ -422,7 +422,7 @@ npix = reshape(npix,nbin_as_size);
 
 [data_out.uoffset,data_out.ulabel,data_out.dax,data_out.u_to_rlu,...
     data_out.ulen,axis_caption] = proj.get_proj_param(data,pax);
-%HACK! Any projections is converet into standard projection at this point
+%HACK! Any projections is converted into standard projection at this point
 data_out.axis_caption = axis_caption;
 %
 data_out.iax = iax;
@@ -493,8 +493,8 @@ end
 
 if horace_info_level>=1
     disp(['Number of points in input file: ',num2str(npixtot)])
-    disp(['         Fraction of file read: ',num2str(100*npix_read/npixtot,'%8.4f'),' %   (=',num2str(npix_read),' points)'])
-    disp(['     Fraction of file retained: ',num2str(100*npix_retain/npixtot,'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
+    disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
+    disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
     disp(' ')
     bigtoc('Total time in cut_sqw:',horace_info_level)
     disp('--------------------------------------------------------------------------------')
