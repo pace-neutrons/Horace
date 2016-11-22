@@ -12,7 +12,7 @@
 
 %Run the command below to obtain the data we will use for the demo. This
 %process can take a few minutes - be patient!
-%file_list=setup_demo_data();
+file_list=setup_demo_data();
 
 %At the end of this you should have a set of files called
 %HoraceDemoDataFileN.spe, where N is 1 to 23.
@@ -38,7 +38,7 @@ v=[0,1,0];
 omega=0;dpsi=0;gl=0;gs=0;
 
 % Create the list of file names and orientation angles
-psi=[0:4:90];%the angle of the sample w.r.t. the incident beam for each run.
+psi=0:4:90;%the angle of the sample w.r.t. the incident beam for each run.
 %psi=0 is defined when u is parallel to the incident beam (in this case
 %u=[1,0,0] - see above).
 
@@ -55,8 +55,8 @@ else
     end
 end
 
-%gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%    u, v, psi, omega, dpsi, gl, gs);
+gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+    u, v, psi, omega, dpsi, gl, gs);
 
 %====================================
 %% Make plots etc

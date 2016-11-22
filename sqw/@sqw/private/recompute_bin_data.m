@@ -12,7 +12,7 @@ function wout=recompute_bin_data(w)
 
 wout=w;
 
-[use_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
+[use_mex,log_level,n_threads] = config_store.instance().get_value('hor_config','use_mex','log_level','threads');
 if use_mex
     try
         [wout.data.s,wout.data.e]=recompute_bin_data_c(w.data.npix,w.data.pix,n_threads);

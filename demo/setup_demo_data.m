@@ -18,7 +18,7 @@ v=[0,1,0];
 omega=0;dpsi=0;gl=0;gs=0;
 
 psi=[0:4:90];
-nxspe_limit = numel(psi)+2;%numel(psi)/2;
+nxspe_limit = numel(psi)/2; %numel(psi)+2;
 file_list = cell(1,numel(psi));
 
 %horace_info_level(-Inf);
@@ -43,7 +43,7 @@ try
         w=sqw_eval(w,@demo_FM_spinwaves,[300 0 2 10 2]);%simulate spinwave cross-section 
         w=noisify(w,1);%add some noise to simulate real data
         if i<nxspe_limit
-            d = rundata(w+0.74);
+            d = rundatah(w+0.74);
             saveNXSPE(d,file_list{i});
         else
             d=spe(w+0.74);%also add a constant background
