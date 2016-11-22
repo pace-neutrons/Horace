@@ -382,9 +382,9 @@ else
 end
 % For convenience later on, set a flag that indicates if pixel info buffered in files
 if isa(pix,'pix_combine_info')
-    pix_tmpfile=true;
+    pix_tmpfile_ok=true;
 else
-    pix_tmpfile=false;
+    pix_tmpfile_ok=false;
 end
 
 % Convert range from steps to actual range with respect to output uoffset:
@@ -464,7 +464,7 @@ if save_to_file
         ls = ls.put_sqw();
         ls.delete();
         
-        if pix_tmpfile
+        if pix_tmpfile_ok
             % mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
             for ifile=1:pix.nfiles   % delete the temporary files
                 delete(pix.infiles{ifile});
