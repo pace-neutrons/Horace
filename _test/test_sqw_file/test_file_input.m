@@ -14,7 +14,8 @@ classdef  test_file_input < TestCase
         d1d_name
         d2d_name
         
-        clas_cleanup;
+        refcount_;
+        clob_obj_
     end
     
     
@@ -26,25 +27,22 @@ classdef  test_file_input < TestCase
                 name= mfilename('class');
             end
             obj=obj@TestCase(name);
-            
-            % =================================================================================================
-            % Read in test data sets
-            % =================================================================================================
-            % Note: this function assumes that read(sqw,sqwfilename) works correctly
             persistent t_sqw1d_arr;
             persistent t_sqw2d_arr;
             persistent t_d1d_arr;
             persistent t_d2d_arr;
-            persistent t_sqw1d_name;
-            persistent t_sqw2d_name;
-            persistent t_d1d_name;
-            persistent t_d2d_name;
-            global test_file_input_refcount_;
-            if isempty(t_sqw1d_arr)
-                [t_sqw1d_arr,t_sqw2d_arr,t_d1d_arr,t_d2d_arr,t_sqw1d_name,t_sqw2d_name,t_d1d_name,t_d2d_name]=create_testdata;
-                test_file_input_refcount_ = 1;
+            global test_file_input_refcount;
+            % =================================================================================================
+            % Read in test data sets
+            % =================================================================================================
+            % Note: this function assumes that read(sqw,sqwfilename) works correctly
+            
+            [~,~,~,~,t_sqw1d_name,t_sqw2d_name,t_d1d_name,t_d2d_name]=create_testdata('get f-names');
+            if isempty(t_sqw1d_arr) || ~(exist(t_sqw1d_name{1},'file')==2)
+                [t_sqw1d_arr,t_sqw2d_arr,t_d1d_arr,t_d2d_arr]=create_testdata();
+                test_file_input_refcount = 1;
             else
-                test_file_input_refcount_ = test_file_input_refcount_ +1;
+                test_file_input_refcount = test_file_input_refcount + 1;
             end
             obj.sqw1d_arr = t_sqw1d_arr;
             obj.sqw2d_arr = t_sqw2d_arr;
@@ -55,25 +53,53 @@ classdef  test_file_input < TestCase
             obj.d1d_name  = t_d1d_name;
             obj.d2d_name = t_d2d_name;
             
-            obj.clas_cleanup = onCleanup(@()clobFun(obj));
+            obj.clob_obj_ = onCleanup(@()delete(obj));            
+            
+        end
+        function obj=setUp(obj)
+            % =================================================================================================
+            % Read in test data sets
+            % =================================================================================================
+            % Note: this function assumes that read(sqw,sqwfilename) works correctly
+            global test_file_input_refcount;
+            
+            
+            [~,~,~,~,t_sqw1d_name,t_sqw2d_name,t_d1d_name,t_d2d_name]=create_testdata('get f-names');
+            if isempty(obj.sqw1d_arr) || ~(exist(t_sqw1d_name{1},'file')==2)
+                [t_sqw1d_arr,t_sqw2d_arr,t_d1d_arr,t_d2d_arr]=create_testdata();
+                test_file_input_refcount = 1;
+                obj.sqw1d_arr = t_sqw1d_arr;
+                obj.sqw2d_arr = t_sqw2d_arr;
+                obj.d1d_arr   = t_d1d_arr;
+                obj.d2d_arr   = t_d2d_arr;
+                obj.sqw1d_name= t_sqw1d_name;
+                obj.sqw2d_name= t_sqw2d_name;
+                obj.d1d_name  = t_d1d_name;
+                obj.d2d_name = t_d2d_name;                
+            end
             %
-            function clobFun(obj)
-                %global test_file_input_refcount_;
-                test_file_input_refcount_ = test_file_input_refcount_-1;
-                if test_file_input_refcount_ ==0
-                    try
-                        for i=1:numel(obj.sqw1d_name), delete(obj.sqw1d_name{i}); end
-                        for i=1:numel(obj.sqw2d_name), delete(obj.sqw2d_name{i}); end
-                        for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
-                        for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
-                    catch
-                        disp('Unable to delete temporary file(s)')
-                    end
-                    
+            obj.refcount_ = test_file_input_refcount;
+
+        end
+        %
+        function obj=tearDown(obj)
+            delete(obj);
+        end
+        %
+        function delete(obj)
+            global test_file_input_refcount;
+            test_file_input_refcount = test_file_input_refcount -1;
+            if test_file_input_refcount  <= 0
+                try
+                    for i=1:numel(obj.sqw1d_name), delete(obj.sqw1d_name{i}); end
+                    for i=1:numel(obj.sqw2d_name), delete(obj.sqw2d_name{i}); end
+                    for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
+                    for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
+                catch
+                    disp('TEST_FILE_INPUT: Unable to delete temporary file(s)');
                 end
             end
-            
-            
+            delete@handle(obj);
         end
         
         % =================================================================================================
@@ -85,9 +111,11 @@ classdef  test_file_input < TestCase
         function obj = test_crossbuf_io(obj)
             hc = hor_config;
             mem_chunk_size = hc.mem_chunk_size;
-            hc.mem_chunk_size = 2000;
-            obj=obj.input_operations();
             clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
+            
+            hc.mem_chunk_size = 2000;
+            
+            obj=obj.input_operations();
         end
         
         function obj = input_operations(obj)
