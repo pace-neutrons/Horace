@@ -87,7 +87,7 @@ end
 % Test if thriple digit exponent guaranteed
 triple_exp=(12-strfind(sprintf('%13.4E',-4.01e2),'E')==3);
 for i=1:ndet
-    fprintf(fid,'%s\n','### S(Phi,w)');
+    fprintf(fid,'### S(Phi,w) (det N %d)\n',i);
     if triple_exp
         for j=1:8:ne
             temp = sprintf('%+11.3E%+11.3E%+11.3E%+11.3E%+11.3E%+11.3E%+11.3E%+11.3E',data.S(j:min(j+7,ne),i));
@@ -100,7 +100,7 @@ for i=1:ndet
             fprintf(fid,'\n');
         end
     end
-    fprintf(fid,'%s\n','### Errors');
+    fprintf(fid,'### Errors\n');
     if triple_exp
         for j=1:8:ne
             temp = sprintf('%+11.3E%+11.3E%+11.3E%+11.3E%+11.3E%+11.3E%+11.3E%+11.3E',data.ERR(j:min(j+7,ne),i));

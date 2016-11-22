@@ -30,7 +30,7 @@ else
 end
 file_name  = this.file_name;
 
-use_mex=get(herbert_config,'use_mex_C');
+use_mex=config_store.instance().get_value('herbert_config','use_mex_C');
 if use_mex
     try
         [S,ERR,en] = get_ascii_file(file_name ,'spe');
