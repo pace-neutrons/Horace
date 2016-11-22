@@ -268,8 +268,10 @@ data_sum.header = header_combined;
 
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
+
+if exist(outfile,'file') == 2 % init may want to upgrade the file and this
+    delete(outfile);  %  is not the option we want to do here
+end
 wrtr = wrtr.init(ds,outfile);
-wrtr.put_sqw();
-%ldr.delete();
-% mess = put_sqw (outfile, main_header_combined, header_combined, det, sqw_data, '-pix', infiles, pos_npixstart, pos_pixstart, run_label);
-% if ~isempty(mess); error('Problems writing to output file %s \n %s',outfile,mess); end
+wrtr = wrtr.put_sqw();
+wrtr.delete();

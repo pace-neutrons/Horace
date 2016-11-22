@@ -195,7 +195,7 @@ end
 % Loop over rlp, determines the projections and make the cuts
 %------------------------------------------------------------
 xrlp = 0;
-wdisp = repmat(d2d,1,nseq);
+wdisp = repmat(d2d,1,nseg);
 for i=1:nseg
     % Choose u1 along the user desired q-direction 
     u1rlp = rlp(i+1,:)-rlp(i,:);
@@ -282,7 +282,8 @@ function plot_dispersion(wdisp_in,opt)
         lnbrk = lnbrk(end);
     end
     wdisp_in(1).title = title(lnbrk+1:end);
-    wdisp = wdisp_in;
+    %
+    wdisp = repmat(IX_dataset_2d,1,length(wdisp_in));
     for i=1:length(wdisp_in)
         u1bin = mode(diff(wdisp_in(i).p{1}));
         ulen = wdisp_in(i).ulen;
