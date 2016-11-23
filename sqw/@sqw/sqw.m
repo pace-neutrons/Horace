@@ -65,7 +65,7 @@ if nargin==1 && isa(varargin{1},class_type)     % already sqw object
     w=varargin{1};
     return
 end
-    
+
 
 % Determine whether enforce sqw-type object or enforce dnd-type sqw object
 if nargin>=1 && ischar(varargin{1}) && strcmpi(varargin{1},'$dnd')
@@ -117,26 +117,30 @@ if narg==1 &&( isstruct(args{1}) || isa(args{1},'data_sqw_dnd'))
         end
     end
     return
-
+    
 elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)==1
     % filename: is a single row of characters
     % ----------------------------------------
+    ldr = sqw_formats_factory.instance().get_loader(args{1});
     if ~dnd_type    % insist on sqw type
-        [mess,w.main_header,w.header,w.detpar,w.data,position,npixtot,type] = get_sqw (args{1});
-        if ~isempty(mess), error(mess), end
-        if ~strcmpi(type,'a')   % not a valid sqw-type structure
+        if ~strcmpi(ldr.data_type,'a')   % not a valid sqw-type structure
             error('Data file does not contain valid sqw-type object')
         end
+        
+        w=struct();
+        [w.main_header,w.header,w.detpar,w.data] = ldr.get_sqw('-legacy');
     else            % insist on dnd type
+        if ~(strcmpi(ldr.data_type,'a')||strcmpi(ldr.data_type,'b+'))   % not a valid sqw or dnd structure
+            error('Data file does not contain valid dnd-type object')
+        end
+        
         w.main_header=make_sqw_main_header;
         w.header=make_sqw_header;
         w.detpar=make_sqw_detpar;
-        [mess,main_header,header,detpar,w.data,position,npixtot,type] = get_sqw (args{1},'-nopix');
-        if ~isempty(mess), error(mess), end
-        if ~(strcmpi(type,'a')||strcmpi(type,'b+'))   % not a valid sqw or dnd structure
-            error('Data file does not contain valid dnd-type object')
+        w.data = ldr.get_data('-nopix');
+        if isa(w.data,'data_sqw_dnd')
+            w.data = clear_sqw_data(w.data);
         end
-        w.data = clear_sqw_data(w.data);
     end
     [ok,mess,type,w]=check_sqw(w);   % Make check_sqw the ultimate arbiter of the validity of a structure
     if ok
@@ -145,7 +149,7 @@ elseif narg==1 && ischar(args{1}) && length(size(args{1}))==2 && size(args{1},1)
     else
         error(mess)
     end
-
+    
 else
     % All other cases - use as input to a bare constructor
     % ----------------------------------------------------
@@ -161,5 +165,5 @@ else
     else
         error(mess)
     end
-
+    
 end

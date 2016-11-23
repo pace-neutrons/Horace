@@ -18,12 +18,13 @@ end
 % Root directory is assumed to be that in which this function resides
 rootpath = fileparts(which('horace_init'));
 addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
-% add sqw immidiately after dnd classes
-addpath_message (1,rootpath,'sqw');
 
 
 % Add admin functions to the path first
 addpath(fullfile(rootpath,'admin'));
+% add sqw immidiately after dnd classes
+addpath_message (1,rootpath,'sqw');
+addpath_message (1,rootpath,'algorithms');
 
 % Add support package
 addpath_message (1,rootpath,'herbert');

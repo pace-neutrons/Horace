@@ -68,13 +68,14 @@ if use_mex
         pix = sort_pixels_by_bins(pix_retained,pix_ix_retained,npix);
         %pix = sort_pixels_by_bins(pix_retained,pix_ix_retained);
         clear pix_retained pix_ix_retained;  % clear big arrays
-    catch
+    catch ME
         use_mex=false;
         if get(hor_config,'horace_info_level')>=1
-            message=lasterr();
+            message=ME.message;
             warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n trying Matlab',message)
             if force_mex
-                error('SORT_PIXELS:c_code_fail','sort_pixels: can not use mex code but force mex requested')
+                error('SORT_PIXELS:c_code_fail','sort_pixels: can not use mex code but force mex requested, Error %s',...
+                    message)
             end
         end
     end

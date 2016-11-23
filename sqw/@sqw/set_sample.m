@@ -53,29 +53,10 @@ elseif narg==1
     % Check that the data has the correct type
     if ~all(w.sqw_type(:))
         error('Sample can only be set or changed in sqw-type data')
-    end
-    
+    end   
     % Change the sample
     if w.source_is_file
-        for i=1:numel(w.data)
-            % Read the header part of the data
-            [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-hisverbatim');
-            if ~isempty(mess), error(mess), end
-            % Change the header
-            nfiles=h.main_header.nfiles;
-            if nfiles>1
-                tmp=h.header;   % to keep referencing to sub-fields to a minimum
-                for ifiles=1:nfiles
-                    tmp{ifiles}.sample=sample;
-                end
-                h.header=tmp;
-            else
-                h.header.sample=sample;
-            end
-            % Write back out
-            mess = put_sqw (w.data{i},h.main_header,h.header,h.detpar,h.data,'-his');
-            if ~isempty(mess), error(['Error writing to file ',w.data{i},' - check the file is not corrupted: ',mess]), end
-        end
+        set_sample_horace(w.loaders_list,sample);
         argout={};
     else
         wout=w.data;

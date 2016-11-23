@@ -24,8 +24,8 @@ function varargout = set_instrument (varargin)
 %   inst_func       Function handle to generate instrument object or structure
 %                  Must be of the form
 %                       inst = my_func (p1, p2, ...)
-%                  where p1,p2, ... are parameters to be passed to the 
-%                  instument definition function, in this case called my_func,
+%                  where p1,p2, ... are parameters to be passed to the
+%                  instrument definition function, in this case called my_func,
 %                  which in this example will be passed as @my_func.
 %
 %   arg1, arg2,...  Arguments to be provided to the instrument function.
@@ -35,7 +35,7 @@ function varargout = set_instrument (varargin)
 %                   - Multiple arguments can be passed, one for each run that
 %                     constitutes the sqw object, by having one row per run
 %                     i.e
-%                       scalar      ---->   column vector (nrun elemnents)
+%                       scalar      ---->   column vector (nrun elements)
 %                       row vector  ---->   2D array (nrun rows)
 %                       string      ---->   cell array of strings
 %
@@ -99,7 +99,7 @@ elseif narg==1 || isa(args{1},'function_handle')
             % If none of the arguments match substitution arguments we can evaluate the instrument definition function now
             subst_args=substitute_arguments();
             ninst=size(instfunc_args,1);
-            if substitution_arguments_present(subst_args,instfunc_args);
+            if substitution_arguments_present(subst_args,instfunc_args)
                 is_instfunc=true;
             else
                 is_instfunc=false;
@@ -128,7 +128,8 @@ elseif narg==1 || isa(args{1},'function_handle')
     
     % Set output argument if object input
     if source_is_file
-        flname=w.data;  % name(s) of sqw files
+        set_sample_horace(w.data);
+        return;
     else
         wout=w.data;    % set output argument if object input
     end
@@ -141,16 +142,12 @@ elseif narg==1 || isa(args{1},'function_handle')
             end
         end
     end
-        
+    
     % Change the instruments for each data source in a loop
     for i=1:nobj
         % Read the header part of the data
-        if source_is_file
-            [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (flname{i},'-hisverbatim');
-            if ~isempty(mess), error(mess), end
-        else
-            h=wout(i);  % pointer to object
-        end
+        h=wout(i);  % pointer to object
+        
         % Change the header
         nfiles=h.main_header.nfiles;
         tmp=h.header;   % to keep referencing to sub-fields to a minimum
@@ -180,14 +177,7 @@ elseif narg==1 || isa(args{1},'function_handle')
                 tmp.instrument=instrument;
             end
         end
-        % Write back out
-        if source_is_file
-            h.header=tmp;
-            mess = put_sqw (flname{i},h.main_header,h.header,h.detpar,h.data,'-his');
-            if ~isempty(mess), error(['Error writing to file ',flname{i},' - check the file is not corrupted: ',mess]), end
-        else
-            wout(i).header=tmp;
-        end
+        wout(i).header=tmp;
     end
     
     % Set return argument if necessary
@@ -234,7 +224,7 @@ function [ok, mess, argout]=check_function_args(varargin)
 %   - Multiple arguments can be passed, one for each run that
 %     constitutes the sqw object, by having one row per run
 %   	i.e
-%       	scalar      ---->   column vector (nrun elemnents)
+%       	scalar      ---->   column vector (nrun elements)
 %           row vector  ---->   2D array (nrun rows)
 %        	string      ---->   cell array of strings
 %
@@ -319,9 +309,9 @@ function argout = substitute_arguments(w,ifile,argin)
 % Return cellstr with list of all substitution arguments:
 %   >> subst_args = substitute_arguments
 %
-% Argument list with subsitutions made from sqw object or header fields of sqw file:
-%   >> argout = substitute_arguments(w,ifile,argin)     
-    
+% Argument list with substitutions made from sqw object or header fields of sqw file:
+%   >> argout = substitute_arguments(w,ifile,argin)
+
 % List of substitution keywords
 if nargin==0
     argout={'-efix'};

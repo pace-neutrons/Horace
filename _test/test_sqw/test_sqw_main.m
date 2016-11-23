@@ -20,6 +20,7 @@ classdef test_sqw_main < TestCase
             assertTrue(sqw_obj.data.dnd_type)
             
         end
+        %
         function this = test_read_sqw(this)
             test_data = fullfile(this.tests_dir,'test_change_crystal','wref.sqw');
             out_dnd_file = fullfile(this.out_dir,'test_sqw_main_test_read_sqw_dnd.sqw');
@@ -46,5 +47,6 @@ classdef test_sqw_main < TestCase
             [ok,mess]=equal_to_tol(loaded_dnd,test_dnd);
             assertTrue(ok,mess)
         end
+        
     end
 end

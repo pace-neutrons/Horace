@@ -7,7 +7,7 @@ function save (w, file)
 % Input:
 %   w       sqw object
 %   file    [optional] File for output. if none given, then prompted for a file
-%   
+%
 %   Note that if w is an array of sqw objects then file must be a cell
 %   array of filenames of the same size.
 %
@@ -19,7 +19,7 @@ function save (w, file)
 
 
 % Get file name - prompting if necessary
-if nargin==1 
+if nargin==1
     file_internal = putfile('*.sqw');
     if (isempty(file_internal))
         error ('No file given')
@@ -39,12 +39,36 @@ end
 
 horace_info_level = ...
     config_store.instance().get_value('hor_config','log_level');
+if isempty(w.main_header) %TODO:  OOP violation -- save dnd should be associated with dnd class
+    sqw_type = false;
+    ldw = sqw_formats_factory.instance().get_pref_access('dnd');
+else
+    sqw_type = true;
+    ldw = sqw_formats_factory.instance().get_pref_access('sqw');
+end
+
+
 for i=1:numel(w)
     % Write data to file   x
-    if horace_info_level>-1
-        disp(['Writing to ',file_internal{i},'...'])
+    if horace_info_level>0
+        disp(['*** Writing to ',file_internal{i},'...'])
     end
-    mess = put_sqw (file_internal{i},w(i).main_header,w(i).header,w(i).detpar,w(i).data);
-    if ~isempty(mess); error(mess); end
-
+    if exist(file_internal{i},'file') == 2
+        delete(file_internal{i});
+    end
+    ldw = ldw.init(w(i),file_internal{i});
+    if ldw.upgrade_mode % as we delete file, this never happens. The question is where it should?
+        if sqw_type
+            ldw = ldw.put_sqw('-update','-nopix');
+        else  %TODO:  OOP violation -- save dnd should be associated with dnd class
+            ldw = ldw.put_dnd('-update','-nopix');
+        end
+    else
+        if sqw_type   %TODO:  OOP violation -- save dnd should be associated with dnd class
+            ldw = ldw.put_sqw();
+        else
+            ldw = ldw.put_dnd();
+        end
+    end
+    ldw = ldw.delete();
 end

@@ -42,6 +42,9 @@ if isnumeric(outfile)
     end
     close_file = false;
 else
+    if exist(outfile,'file') == 2
+        delete(outfile);
+    end
     fid=fopen(outfile,'A');    % no automatic flushing: can be faster
     if fid<0
         mess = ['Unable to open file ',outfile];
@@ -54,12 +57,14 @@ end
 position.npix=ftell(fid);
 fwrite(fid,int64(npix),'int64');    % make int64 so that can deal with huge numbers of pixels
 
-position.pix=ftell(fid);
-npixtot = size(pix,2);
+npixtot = size(pix,2); % write total number of pixels to be consistent with combine_pix mex
+fwrite(fid,int64(npixtot),'int64');  % make int64 so that can deal with huge numbers of pixels
+position.pix=ftell(fid); % point directly to pix position
+
 % Try writing large array of pixel information a block at a time - seems to speed up the write slightly
 % Need a flag to indicate if pixels are written or not, as cannot rely just on npixtot - we really
 % could have no pixels because none contributed to the given data range.
-block_size=get(hor_config,'mem_chunk_size');    % size of buffer to hold pixel information
+block_size=config_store.instance().get_value('hor_config','mem_chunk_size');    % size of buffer to hold pixel information
 % block_size=1000000;
 if npixtot<=block_size
     fwrite(fid,single(pix),'float32');
