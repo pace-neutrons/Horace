@@ -87,7 +87,7 @@ hklline = [0 0 0; 0.5 0.5 0.5; 0.5 0.5 0; 0 0.5 0; 0 0 0];
 bzpts = {'\Gamma','R','M','X','\Gamma'};
 bzcen = [2 2 0];
 wsp=spaghetti_plot(hklline+repmat([2 2 0],size(hklline,1),1),sqw_file,'labels',bzpts, ...
-    'ebin',[10,10,500],'qbin',0.1,'qwidth',1,'smooth',0,'logscale','clim',[0.5 2]);
+    'ebin',[10,10,500],'qbin',0.1,'qwidth',1,'smooth',0,'clim',[0.5 2]);
 
 %================================
 %% Data manipulation
@@ -160,7 +160,7 @@ try
     [wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
         @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 catch
-    echo('spinw has not been found');
+    warning('spinw has not been found');
 end
 
 %% Symmetrising, and some other bits and bobs

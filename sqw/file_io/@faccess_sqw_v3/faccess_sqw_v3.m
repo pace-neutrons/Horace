@@ -1,9 +1,7 @@
 classdef faccess_sqw_v3 < sqw_binfile_common
-    % Class to access Horace bibary files written in binary format v3
-    % which contains the description of all Horace fields at the end of the
-    % file.
-    %
-    %
+    % Class to access Horace binary files written in binary format v3
+    % which stores the description of all Horace sqw fields at the end of the
+    % binary file.
     %
     %
     % $Revision$ ($Date$)
