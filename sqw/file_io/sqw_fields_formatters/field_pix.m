@@ -48,6 +48,9 @@ classdef field_pix < field_var_array
         function [val,length] = field_from_bytes(obj,bytes,pos)
             % convert sequence of bytes into the array
             npix  = typecast(bytes(pos:pos+8-1),'uint64');
+            if verLessThan('matlab','7.12')
+                npix = double(npix);
+            end
             numel = npix*9;
             length = numel*obj.elem_byte_size;
             start = 8;

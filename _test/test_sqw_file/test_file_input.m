@@ -53,7 +53,13 @@ classdef  test_file_input < TestCase
             obj.d1d_name  = t_d1d_name;
             obj.d2d_name = t_d2d_name;
             
-            obj.clob_obj_ = onCleanup(@()delete(obj));            
+            obj.clob_obj_ = onCleanup(@()clearer());
+            %
+            function clearer()
+                if exist('test_file_input','file')==2;
+                    tearDown(obj);
+                end;
+            end
             
         end
         function obj=setUp(obj)
@@ -75,11 +81,11 @@ classdef  test_file_input < TestCase
                 obj.sqw1d_name= t_sqw1d_name;
                 obj.sqw2d_name= t_sqw2d_name;
                 obj.d1d_name  = t_d1d_name;
-                obj.d2d_name = t_d2d_name;                
+                obj.d2d_name = t_d2d_name;
             end
             %
             obj.refcount_ = test_file_input_refcount;
-
+            
         end
         %
         function obj=tearDown(obj)
@@ -96,7 +102,7 @@ classdef  test_file_input < TestCase
                     for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
                     for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
                 catch
-                    disp('TEST_FILE_INPUT: Unable to delete temporary file(s)');
+                    %disp('TEST_FILE_INPUT: Unable to delete temporary file(s)');
                 end
             end
             %delete@handle(obj);
@@ -108,6 +114,7 @@ classdef  test_file_input < TestCase
         function obj = test_normal_buf(obj)
             obj=obj.input_operations();
         end
+        
         function obj = test_crossbuf_io(obj)
             hc = hor_config;
             mem_chunk_size = hc.mem_chunk_size;
@@ -116,6 +123,47 @@ classdef  test_file_input < TestCase
             hc.mem_chunk_size = 2000;
             
             obj=obj.input_operations();
+        end
+        %
+        function obj = test_normal_file_cut(obj)
+            obj=obj.input_operations();
+        end
+        %
+        function obj = test_crossbuf_file_cut(obj)
+            hc = hor_config;
+            mem_chunk_size = hc.mem_chunk_size;
+            clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
+            
+            hc.mem_chunk_size = 2000;
+            
+            obj=obj.input_operations();
+        end
+        
+        
+        function obj = file_cut_array_vs_file(obj)
+            %
+            tmp_file=fullfile(tempdir,'test_file_input_tmp.sqw');            
+            tmp0_file=fullfile(tempdir,'test_file_input_tmp0.sqw');
+            clob1 = onCleanup(@()delete(tmp0_file,tmp_file));
+
+           
+            cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp0_file);
+            tmp0=read(sqw,tmp0_file);
+            
+            cut_horace(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
+            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            
+            cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
+            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            
+            cut_horace(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
+            tmp=read(sqw,tmp_file);
+            [ok,mess]=equal_to_tol(tmp0,tmp,'ignore_str',1); assertTrue(ok,['test_file_input: Error in functionality',mess]);
+            
+            % looks like waste of time?
+            %cut_sqw(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
+            %tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            
         end
         
         function obj = input_operations(obj)
@@ -154,25 +202,6 @@ classdef  test_file_input < TestCase
             if ~equal_to_tol(s1_s,s1_f_h,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             if ~equal_to_tol(s1_s,s1_f_s,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
-            tmp0_file=fullfile(tempdir,'test_file_input_tmp0.sqw');
-            clob1 = onCleanup(@()delete(tmp0_file));
-            tmp_file=fullfile(tempdir,'test_file_input_tmp.sqw');
-            clob2 = onCleanup(@()delete(tmp_file));
-            cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp0_file);
-            tmp0=read(sqw,tmp0_file);
-            
-            cut_horace(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-            
-            cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-            
-            cut_horace(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw,tmp_file);
-            [ok,mess]=equal_to_tol(tmp0,tmp,'ignore_str',1); assertTrue(ok,['test_file_input: Error in functionality',mess]);
-            
-            cut_sqw(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             
             
             % Cut of dnd objects or files
