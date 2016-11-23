@@ -22,7 +22,7 @@ function varargout=set_instr_or_sample_horace_(filename,kind,obj_to_set,varargin
 
 % Original author: T.G.Perring
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 
 if nargin<2
     error('Check number of input arguments')

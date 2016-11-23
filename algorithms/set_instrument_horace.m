@@ -18,7 +18,7 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 877 $ ($Date: 2014-06-10 12:35:28 +0100 (Tue, 10 Jun 2014) $)
+% $Revision$ ($Date$)
 if nargout > 0
     varargout = set_instr_or_sample_horace_(filename,'-instrument',instrument,varargin{:});
 else

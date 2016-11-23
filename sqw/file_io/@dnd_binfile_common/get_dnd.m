@@ -36,7 +36,7 @@ function [res,varargout] = get_dnd (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision: 1336 $ ($Date: 2016-11-15 19:10:09 +0000 (Tue, 15 Nov 2016) $)
+% $Revision$ ($Date$)
 %
 [ok,mess,verbatim,hver,legacy,argi] =  parse_char_options(varargin,{'-verbatim','-hverbatim','-legacy'});
 if ~ok

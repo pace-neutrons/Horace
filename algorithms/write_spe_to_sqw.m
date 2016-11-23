@@ -47,7 +47,7 @@ function [grid_size, urange] = write_spe_to_sqw (spe_file, par_file, sqw_file, e
 
 % Original author: T.G.Perring
 %
-% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
+% $Revision$ ($Date$)
 
 
 disp('*** DEPRECATED FUNCTION:  Please replace this call to  write_spe_to_sqw  with one to  gen_sqw ***')

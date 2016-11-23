@@ -5,7 +5,7 @@ function  new_obj = upgrade_file_format_(obj)
 %
     %
     %
-    % $Revision: 1331 $ ($Date: 2016-11-11 18:52:43 +0000 (Fri, 11 Nov 2016) $)
+    % $Revision$ ($Date$)
     %
     %
 

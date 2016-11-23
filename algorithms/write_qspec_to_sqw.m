@@ -39,7 +39,7 @@ function [grid_size, urange] = write_qspec_to_sqw (qspec_file, sqw_file, efix, e
 
 % Original author: T.G.Perring
 %
-% $Revision: 1310 $ ($Date: 2016-11-01 09:41:28 +0000 (Tue, 01 Nov 2016) $)
+% $Revision$ ($Date$)
 
 
 

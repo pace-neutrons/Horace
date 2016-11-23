@@ -3,7 +3,7 @@ classdef test_read_all< TestCase
     % Validate fast sqw reader used in combining sqw
     %
     %
-    % $Revision: 1321 $ ($Date: 2016-11-08 15:16:54 +0000 (Tue, 08 Nov 2016) $)
+    % $Revision$ ($Date$)
     %
     
     
