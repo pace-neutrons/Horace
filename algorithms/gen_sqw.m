@@ -370,22 +370,30 @@ else
     nt=bigtic();
     %write_banner=true;
     
-    % Older matlab compatibility operator: overcome flaw in indexing empty structure arrays pre 2011b or so.
-    %if  numel(fields(instrument))~=0
-    %    instrument = instrument(indx);
-    %end
-    %if numel(fields(sample))~=0
-    %    sample = sample(indx);
-    %end
     not_empty = cellfun(@(x)(~empty_or_missing(x)),spe_file);
-    if ~all(not_empty)
-        %tmp_file = tmp_file(not_empty);
-        instrument = instrument(not_empty);
-        sample     = sample(not_empty);
+    if verLessThan('matlab','8.0')
+        % Older matlab compatibility operator: overcome flaw in indexing empty structure arrays pre 2011b or so.
+        if  numel(fields(instrument))~=0
+            instrument = instrument(indx);
+        else
+            instrument  = repmat(struct(),sum(not_empty),1);
+        end
+        if numel(fields(sample))~=0
+            sample = sample(indx);
+        else
+            sample = repmat(struct(),sum(not_empty),1);
+        end
+    else
+        if ~all(not_empty)
+            %tmp_file = tmp_file(not_empty);
+            instrument = instrument(not_empty);
+            sample     = sample(not_empty);
+        end
+        
     end
     if numel(run_files) < numel(instrument)
         instrument = instrument(1:numel(run_files));
-        sample = sample(1:numel(run_files));        
+        sample = sample(1:numel(run_files));
     end
     
     job_par_fun = @(run,fname,instr,samp,transf)(gen_sqw_files_job.pack_job_pars(...
