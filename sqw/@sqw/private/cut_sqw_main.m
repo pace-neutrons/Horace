@@ -272,7 +272,7 @@ if source_is_file  % data_source is a file
     main_header = ld.get_main_header();
     header = ld.get_header('-all');
     detpar = ld.get_detpar();
-    data = ld.get_data();
+    data = ld.get_data('-nopix');
     ld.delete();
 else
     if horace_info_level>=0, disp('Taking cut from sqw object...'), end
@@ -471,10 +471,10 @@ if save_to_file
             end
         end
         if ~isempty(mess)
-            warning(['Error writing to file: ',mess])
+            warning('CUT_SQW_MAIN:io_error','Error saving pixels to file: %s',mess)
         end
     catch Err  % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
-        warning('Error writing to file:ID %s, Message  %s',Err.identifier,Err.message);
+        warning('CUT_SQW_MAIN:io_error','Error writing to file:ID %s, Message  %s',Err.identifier,Err.message);
     end
     if horace_info_level>=0, disp(' '), end
 end

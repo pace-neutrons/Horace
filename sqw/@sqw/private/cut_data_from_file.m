@@ -138,8 +138,8 @@ try
         % -- cut
         [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
             v, proj, pax);
-        if horace_info_level>=0, disp([' ----->  retained  ',num2str(del_npix_retain),' pixels']), end
-        if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
+        if horace_info_level>=0; fprintf(' ----->  retained  %d pixels\n',del_npix_retain); end
+        if horace_info_level>=1; t_accum = t_accum + bigtoc(2); end
         %
         % -- retain
         npix_retain = npix_retain + del_npix_retain;
@@ -253,7 +253,10 @@ for i=1:n_blocks
     try
         [tmp_stor{i},~,~,mess] = fread_catch(fid, [ndatpix,ranges_to_read(i)], '*float32');
         %v(:,vpos:vend)=tmp;
-    catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+    catch  ME % fixup to account for not reading required number of items (should really go in fread_catch)
+        if ~exist('mess','var')
+            mess = ME.message;
+        end
         fclose(fid);
         error('SQW:io_error','Unrecoverable read error %s',mess);
     end
@@ -308,7 +311,7 @@ if finish_accum
     pix_comb_info.npix_cumsum = cumsum(npix(:));
     
     pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
-    clear npix_prev;
+    clear npix_prev pix_mem_retained pix_mem_ix_retained;
 end
 
 
