@@ -26,7 +26,7 @@ function write_nsqw_to_sqw (infiles, outfile,varargin)
 % T.G.Perring   27 June 2007
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
-% $Revision: 1336 $ ($Date: 2016-11-15 19:10:09 +0000 (Tue, 15 Nov 2016) $)
+% $Revision$ ($Date$)
 
 horace_info_level=config_store.instance().get_value('hor_config','log_level');
 drop_subzone_headers = false;

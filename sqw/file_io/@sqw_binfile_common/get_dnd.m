@@ -45,7 +45,7 @@ function [dnd_object,varargout] = get_dnd (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision: 1336 $ ($Date: 2016-11-15 19:10:09 +0000 (Tue, 15 Nov 2016) $)
+% $Revision$ ($Date$)
 
 if nargin>1
     % replace single '-h' with head

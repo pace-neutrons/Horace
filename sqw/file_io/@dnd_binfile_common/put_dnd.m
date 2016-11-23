@@ -4,7 +4,7 @@ function    obj = put_dnd(obj,varargin)
 % store header, which describes file as dnd file
 %
 %
-% $Revision: 1319 $ ($Date: 2016-11-08 12:05:19 +0000 (Tue, 08 Nov 2016) $)
+% $Revision$ ($Date$)
 %
 
 [ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
