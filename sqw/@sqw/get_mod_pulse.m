@@ -16,10 +16,10 @@ function varargout = get_mod_pulse(varargin)
 %   pulse_model Name of moderator pulse shape model e.g. 'ikcarp'
 %              Must be the same for all data sets in all sqw objects
 %             (Returned as [] if not all the same pulse model or length of
-%              pulse parmaeters array not all the same)
+%              pulse parameters array not all the same)
 %   pp          Mean moderator pulse shape parameters (numeric row vector)
 %             (Returned as [] if not all the same pulse model or length of
-%              pulse parmaeters array not all the same)
+%              pulse parameters array not all the same)
 %   ok          Logical flag: =true if all parameters within tolerance, otherwise =false;
 %   mess        Error message; empty if OK, non-empty otherwise
 %   p           Structure with various information about the spread
@@ -70,8 +70,8 @@ nend=cumsum(nfiles(:));
 nbeg=nend-nfiles(:)+1;
 for i=1:nobj
     if source_is_file
-        [mess,main_header,header]=get_sqw (w.data{i},'-his');
-        if ~isempty(mess), error(mess), end
+        ld = w.loaders_list{i}
+        header = ld.get_header('-all');        
     else
         header=w.data(i).header;
     end
@@ -182,7 +182,7 @@ else
             pulse_model='';
             pp=[];
             ok=false;
-            mess='Moderator pulse names and/or number of pulse parameters are not the same for all constributing data sets';
+            mess='Moderator pulse names and/or number of pulse parameters are not the same for all contributing data sets';
             return
         end
     end

@@ -1,4 +1,4 @@
-function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
     proj,pax, nbin)
 %function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
 %    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
@@ -56,10 +56,9 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 
 % Buffer sizes
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
-vmax = get(hor_config,'mem_chunk_size');    % maximum length of buffer array in which to accumulate points from the input file
-pmax = vmax;                                % maximum length of array in which to buffer retained pixels (pmax>=vmax)
+%vmax is maximum length of buffer array in which to accumulate points from the input file
+[horace_info_level,buf_size]=config_store.instance().get_value('hor_config','log_level','mem_chunk_size');
 
-horace_info_level=get(hor_config,'horace_info_level');
 
 % Output arrays for accumulated data
 % Note: matlab sillyness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
@@ -72,34 +71,33 @@ npix = zeros(nbin_as_size);
 urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
 npix_retain = 0;
 %------------------------------------------------
+pmax = 2*buf_size;                       % maximum length of array in which to buffer retained pixels (pmax>=vmax)
 
 noffset = nstart-[0;nend(1:end-1)]-1;   % offset from end of one block to the start of the next
 range = nend-nstart+1;                  % length of the block to be read
-npix_read = sum(range(:));              % number of pixels that will be read from file
-
+npix_2read = sum(range(:));              % number of pixels that will be read from file
+%
+% find the data blocks to fit buffer size
+[noffset,range,block_ind_from,block_ind_to] = find_blocks(noffset,range,buf_size);
+%
+% number of blocks to be read from hdd -- used in the progress indicator.
+nsteps=numel(block_ind_from);
+if nsteps == 1 % one block should be wrtitten to target file directrly
+    pix_tmpfile_ok = false;
+end
+%
+%
 % Buffer array for retained pixels
-pmax = max(pmax,vmax);  % must have pmax>=vmax in current algorithm
 if keep_pix
     if pix_tmpfile_ok
-        nfile=0;    % number of files in which pixel information has been buffered
-        pix_files = struct('tmpfiles',cell(0,1),'pos_npixstart',[],'pos_pixstart',[]);    % buffer file details
-        ppos=1;     % position in pix where the next pixels to be buffered are to start
-        pix = zeros(ndatpix,min(pmax,npix_read));
-        ix = zeros(min(pmax,npix_read),1);
+        % pix is pix_combine info class
+        pix = init_pix_combine_info(nsteps);
     else
-        pix = zeros(9,0);   % changed 17/11/08 from pix = [];
-        ix = [];
+        pix = zeros(ndatpix,0);   % changed 17/11/08 from pix = [];
     end
 else
     pix = [];   % pix is a return argument, so must give it a value
 end
-
-% Work array into which to read data
-v = single(zeros(ndatpix,min(vmax,npix_read)));  % coordinates, signal and error as read from file - make it no longer than necessary
-
-% number of blocks to be read from hdd -- used in the progress indicator.
-nsteps=floor(npix_read/vmax)+1;
-i_step=0;
 
 t_read  = [0,0];
 t_accum = [0,0];
@@ -115,64 +113,85 @@ mpi_obj        =  MPI_State.instance();
 is_deployed_mpi = mpi_obj.is_deployed;
 % -------------------------------------------------------
 %
-pix_retained = {};
-pix_ix_retained={};
-num_retained_blocks = 0;
-if horace_info_level>=1, bigtic(1), end
-% % This needs rethinking and some ?minor? redesighning
-% if license('checkout','Distrib_Computing_Toolbox')
-%     cores = feature('numCores');
-%     if verLessThan('matlab','8.4')
-%         if matlabpool('SIZE')==0
-%             if cores>12
-%                 cores = 12;
-%             end
-%             matlabpool(cores);
-%         end
-%     else
-%         if isempty(gcp('nocreate'))
-%             if cores>12
-%                 cores = 12;
-%             end
-%             parpool(cores);
-%
-%         end
-%     end
-%     parallell = true;
-% else
-%     parallell = false;
-% end
-vpos = 1;    % start of new work array (vpos gives position of next point to be filled in the work array v)
-for i=1:length(range)
-    vpos=read_and_accumulate_data(range(i),vpos);
+if ~pix_tmpfile_ok
+    pix_retained = cell(1,nsteps);
+    pix_ix_retained=cell(1,nsteps);
+else
+    pix_retained  = {};
+    pix_ix_retained = {};
 end
-if horace_info_level>=1, t_read = t_read + bigtoc(1); end
 
-if vpos>1   % flush out work array - the array contains some unprocessed data
-    if horace_info_level>=1, bigtic(2), end
-    if horace_info_level>=0
-        i_step=i_step+1;
-        mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
-        disp(mess)
+n_blocks = 0;
+if horace_info_level>=1, bigtic(1), end
+%
+try
+    for i=1:nsteps
+        if horace_info_level>=1;    bigtic(1);    end
+        % -- read
+        v=read_data_block(fid,noffset,range,block_ind_from(i),block_ind_to(i),ndatpix);
+        %
+        if horace_info_level>=1;  t_read = t_read + bigtoc(1); bigtic(2);   end
+        if horace_info_level>=0
+            fprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i,nsteps,size(v,2));
+        end
+        %
+        % -- cut
+        [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
+            v, proj, pax);
+        if horace_info_level>=0, disp([' ----->  retained  ',num2str(del_npix_retain),' pixels']), end
+        if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
+        %
+        % -- retain
+        npix_retain = npix_retain + del_npix_retain;
+        if keep_pix && del_npix_retain > 0
+            if horace_info_level>=1, bigtic(3), end
+            if pix_tmpfile_ok
+                % pix now not an array but pix_combine_info class
+                pix = accumulate_pix_to_file(pix,false,v,ok,ix_add,npix,pmax,del_npix_retain);
+            else
+                n_blocks=n_blocks+1;
+                pix_retained{n_blocks} = v(:,ok);    % accumulate pixels into buffer array
+                pix_ix_retained{n_blocks} = ix_add;
+            end
+            if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
+        end
+        % -------------
+        
+        if horace_info_level>=1, bigtic(1), end
+        % if program runs as mpi worker, check if it has been
+        % cancelled and throw if it was.
+        if is_deployed_mpi
+            mpi_obj.check_cancellation();
+        end
     end
-    [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-        v(:,1:vpos-1), proj, pax);
-    if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
-    
-    npix_retain = npix_retain + del_npix_retain;
-    if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
-    if keep_pix
-        if horace_info_level>=1, bigtic(3), end
-        accumulate_pix(true,v,ok,ix_add)
-        if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
+catch ME
+    if pix_tmpfile_ok
+        for j=1:pix.nfiles
+            if exist(pix.infiles{j},'file')==2
+                delete(pix.infiles{j});
+            end
+        end
     end
+    rethrow(ME);
 end
+%
+if horace_info_level>=1, t_read = t_read + bigtoc(1); end
 %---------------------------------------------------------------------------------
 % Finish -- glue up all arrays with pixels into final pixel arrays
 %---------------------------------------------------------------------------------
-if ~isempty(pix_retained)  % prepare the output pix array
+if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
+    % or file combine info
+    if horace_info_level>=1, bigtic(3), end
+    
     clear v ok ix_add; % clear big arrays
-    pix = sort_pix(pix_retained,pix_ix_retained,npix);   
+    if pix_tmpfile_ok % this time pix is pix_combine_info class. del_npix_retain not used
+        v = [];ok=[];ix_add=[];
+        pix = accumulate_pix_to_file(pix,true,v,ok,ix_add,npix,pmax,0);
+    else
+        pix = sort_pix(pix_retained,pix_ix_retained,npix);
+    end
+    if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
+    
 end
 
 
@@ -200,132 +219,203 @@ if horace_info_level>=1
     disp('-----------------------------')
     disp(' ')
 end
-% nested function to read and accumulate data
-    function vpos=read_and_accumulate_data(the_range,vpos)       
-        rpos = 1;       % start of new range (rpos gives position of next point to read in the current range
-        buf_max_size = size(v,2);
-        ok = fseek (fid, (4*ndatpix)*noffset(i), 'cof'); % initial offset is from end of previous range; ndatpix x float32 per pixel in the file
-        if ok~=0; fclose(fid); error('Unable to jump to required location in file'); end;
-        while rpos <= the_range
-            if vpos<=buf_max_size   % work array not yet filled up
-                if the_range-rpos+1 <= buf_max_size-vpos+1   % enough space to hold remainder of range
-                    vend = vpos+the_range-rpos;  % last column that will be filled in this loop of the while statement
-                    %**                if horace_info_level>=1, bigtic(1), end
-                    try
-                        [tmp,~,ok,mess] = fread_catch(fid, [ndatpix,the_range-rpos+1], '*float32');
-                        v(:,vpos:vend)=tmp;
-                        clear tmp
-                    catch   % fixup to account for not reading required number of items (should really go in fread_catch)
-                        ok = false;
-                        mess = 'Unrecoverable read error';
-                    end
-                    %**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
-                    if ~all(ok); fclose(fid); error(mess); end;
-                    vpos = vend+1;
-                    break   % jump out of while loop
-                else    % read in as much of the range as can
-                    %**                if horace_info_level>=1, bigtic(1), end
-                    try
-                        [tmp,~,ok,mess] = fread_catch(fid, [ndatpix,buf_max_size-vpos+1], '*float32');
-                        v(:,vpos:buf_max_size)=tmp;
-                        clear tmp
-                    catch   % fixup to account for not reading required number of items (should really go in fread_catch)
-                        ok = false;
-                        mess = 'Unrecoverable read error';
-                    end
-                    %**                if horace_info_level>=1, t_read = t_read + bigtoc(1); end
-                    if ~all(ok); fclose(fid); error(mess); end;
-                    rpos = rpos+buf_max_size-vpos+1;
-                    vpos = buf_max_size+1;
-                end
-            else   % work array filled up; process the data read up to now, and reset position in work array to beginning
-                if horace_info_level>=1
-                    t_read = t_read + bigtoc(1);
-                    bigtic(2)
-                end
-                if horace_info_level>=0
-                    i_step=i_step+1;
-                    mess=sprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i_step,nsteps,vpos-1);
-                    disp(mess)
-                end
-                [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
-                    v, proj, pax);
-                if horace_info_level>=0, disp(['                  ------->  retained  ',num2str(del_npix_retain),' pixels']), end
-                npix_retain = npix_retain + del_npix_retain;
-                if horace_info_level>=1, t_accum = t_accum + bigtoc(2); end
-                vpos = 1;
-                if keep_pix
-                    if horace_info_level>=1, bigtic(3), end
-                    accumulate_pix(false,v,ok,ix_add)
-                    if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
-                end
-                if horace_info_level>=1, bigtic(1), end
-                % if program runs as mpi worker, check if it has been
-                % cancelled and throw if it was.
-                if is_deployed_mpi
-                    mpi_obj.check_cancellation();
-                end
-            end
-        end
-        
-    end
 
-% Nested function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
-% Note: the routine implicitly assumes that pmax>=max(length(ok))==vmax. Routine works even if no pixels retained
-    function accumulate_pix (finish,v,ok,ix_add)
-        if pix_tmpfile_ok
-            if del_npix_retain>0    % accumulate pixels if any read in
-                if ppos+del_npix_retain-1>pmax        % not enough room left in buffer to add more pixels
-                    pend = ppos-1;          % current end of buffer arrays (can only reach here if already data in buffer arrays)
-                    accumulate_pix_to_file  % flush current pixel information to file and reset buffer arrays
-                end
-                pend = ppos+del_npix_retain-1;
-                accumulate_pix_to_memory(v,ok,ix_add)   % add the new pixels to the buffers
-            end
-            pend = ppos-1;
-            if finish && pend>0
-                if nfile==0     % no buffer files written - the buffer arrays are large enough to hold all retained pixels
-                    [ix,ind]=sort(ix(1:pend));  % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-                    pix=pix(:,ind); % reorders pix
-                else    % at least one buffer file; flush the buffers to file
-                    accumulate_pix_to_file
-                    clear pix ix v ok ix_add    % clear big arrays so that final output variable pix is not way up the stack
-                    pix = pix_files;    % put file details into pix
-                end
-            end
-        else
-            if del_npix_retain>0    % accumulate pixels if any read in
-                accumulate_pix_to_memory(v,ok,ix_add);
-            end
-        end
-        
-        function accumulate_pix_to_memory(v,ok,ix_add)
-            num_retained_blocks=num_retained_blocks+1;
-            pix_retained{num_retained_blocks} = v(:,ok);    % accumulate pixels into buffer array
-            pix_ix_retained{num_retained_blocks} = ix_add;
-        end
-        
-        function accumulate_pix_to_file
-            % Increment buffer file number and create temporary file name
-            nfile = nfile + 1;
-            pix_files(1).tmpfiles{nfile} = fullfile(tempdir,['horace',rand_digit_string(16),'.tmp']);
-            % Create properly ordered npix and pix arrays for writing to temporary file
-            [ix,ind]=sort(ix(1:pend));    % returns ind as the indexing array into pix that puts the elements of pix in increasing single bin index
-            npix_buffer = zeros(size(npix(:)));                 % Fill array with zeros
-            % Fill the bin numbers with >0 no points: bin number(s)=ix(diff([-Inf;ix])~=0); number of pix=diff(find(diff([-Inf;ix;Inf])~=0))
-            % (algorithm works even if ix is empty)
-            npix_buffer(ix(diff([-Inf;ix])~=0)) = diff(find(diff([-Inf;ix;Inf])~=0));
-            pix=pix(:,ind);  % reorders pix
-            % Write to temporary file
-            [mess,position] = put_sqw_data_npix_and_pix_to_file(pix_files.tmpfiles{nfile},npix_buffer,pix);
-            clear pix ix npix_buffer    % tidy memory
-            pix_files(1).pos_npixstart(nfile)=position.npix;
-            pix_files(1).pos_pixstart(nfile)=position.pix;
-            % Re-prepare buffer arrays
-            ppos=1;
-            pix = zeros(ndatpix,min(pmax,npix_read));
-            ix = zeros(min(pmax,npix_read),1);
-        end
-    end
+end
 
+function v=read_data_block(fid,noffset,range,block_ind_from,block_ind_to,ndatpix)
+% function to read blocks of data
+%
+offsets_to_read = noffset(block_ind_from:block_ind_to);
+ranges_to_read = range(block_ind_from:block_ind_to);
+%
+% group togetger the adjasent blocks of pixels to read
+shift_pos = offsets_to_read>0;
+if ~shift_pos(1)
+    cum_index = cumsum(shift_pos)+1;
+    offsets_to_read  =[0;offsets_to_read(shift_pos)];
+else
+    cum_index = cumsum(shift_pos);
+    offsets_to_read  = offsets_to_read(shift_pos);
+end
+if size(cum_index,2) > 1
+    cum_index = cum_index';
+end
+ranges_to_read  = accumarray(cum_index,ranges_to_read);
+%
+%
+n_blocks = numel(offsets_to_read);
+
+tmp_stor = cell(1,n_blocks);
+
+for i=1:n_blocks
+    ok = fseek (fid, (4*ndatpix)*offsets_to_read(i), 'cof'); % initial offset is from end of previous range; ndatpix x float32 per pixel in the file
+    if ok~=0; fclose(fid); error('SQW:io_error','Unable to jump to required location in file'); end;
+    try
+        [tmp_stor{i},~,~,mess] = fread_catch(fid, [ndatpix,ranges_to_read(i)], '*float32');
+        %v(:,vpos:vend)=tmp;
+    catch   % fixup to account for not reading required number of items (should really go in fread_catch)
+        fclose(fid);
+        error('SQW:io_error','Unrecoverable read error %s',mess);
+    end
+    
+end
+% seems much faster then copying sub-blocks into preallocated storage.
+% Certainy faster if blocks are big
+v = [tmp_stor{:}];
+
+end
+
+
+%
+function pix_comb_info =accumulate_pix_to_file(pix_comb_info,finish_accum,v,ok,ix_add,npix,max_buf_size,del_npix_retain)
+% Function to handle case of keep_pixels. Nested so that variables are shared with main function to optimise memory use
+
+persistent n_writ_files; % writeen files counter
+% npix buffer
+persistent npix_prev;      % npix at previous flush info
+persistent npix_now;       % npix at current cut into
+
+% data buffer:
+persistent n_mem_blocks;   % number of data blocks retained in memory
+persistent n_pix_in_memory; % number of pixels, stored in memory
+persistent pix_mem_retained; % cellarray of pixels blocks in memory to retain
+persistent pix_mem_ix_retained; % cellarray of pixels index information blocks in memory to retain
+
+
+if isempty(npix_prev) % first call to the function
+    sz = size(npix);
+    npix_prev = zeros(sz(:)');
+    n_pix_in_memory = del_npix_retain;
+    n_mem_blocks = 0;
+    n_writ_files = 0;
+else
+    n_pix_in_memory  = n_pix_in_memory + del_npix_retain;
+end
+%
+npix_now = npix; % npix is accumulated
+if del_npix_retain>0
+    n_mem_blocks = n_mem_blocks + 1;    
+    pix_mem_retained{n_mem_blocks} = v(:,ok);    % accumulate pixels into buffer array
+    pix_mem_ix_retained{n_mem_blocks} = ix_add;
+end
+
+if n_pix_in_memory> max_buf_size % flush pixels in file
+    pix_comb_info= save_pixels_to_file(pix_comb_info);
+end
+
+if finish_accum
+    pix_comb_info= save_pixels_to_file(pix_comb_info);
+    pix_comb_info.npix_cumsum = cumsum(npix(:));
+    
+    pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
+    clear npix_prev;
+end
+
+
+    function pix_comb_info= save_pixels_to_file(pix_comb_info)
+        if n_mem_blocks == 0
+            return
+        end
+        npix_in_mem = npix_now - npix_prev;
+        npix_prev   = npix_now;
+        clear npix_now;
+        pix_2write = sort_pix(pix_mem_retained,pix_mem_ix_retained,npix_in_mem);
+        % clear current memory buffer state;
+        n_mem_blocks = 0;
+        clear pix_mem_retained pix_mem_ix_retained;
+        
+        n_writ_files  = n_writ_files+1;
+        file_name = pix_comb_info.infiles{n_writ_files};
+        [mess,position] = put_sqw_data_npix_and_pix_to_file(file_name,npix_in_mem,pix_2write);
+        if ~isempty(mess)
+            error('SQW:io_error','put_sqw_data_npix_and_pix_to_file:: Error: %s',mess);
+        end
+        clear pix_2write;
+        pix_comb_info.pos_npixstart(n_writ_files) = position.npix;
+        pix_comb_info.pos_pixstart(n_writ_files)  = position.pix;
+        pix_comb_info.npix_file_tot(n_writ_files) = n_pix_in_memory;
+        % clear too.
+        n_pix_in_memory = 0;
+    end
+end
+
+function [noffset,pix_range,block_ind_from,block_ind_to] = find_blocks(noffset,pix_range,buf_size)
+% find buffers blocks and data ranges to read input pixels in blocks,
+% approximately equal to the buffer sizes
+%
+%
+if any(pix_range>2*buf_size) % split big ranges into parts to fit buffer.
+    [cell_range,cell_offcet] = arrayfun(@(rg,offs)split_ranges(rg,offs,buf_size),pix_range,noffset,'UniformOutput',false);
+    pix_range = [cell_range{:}];
+    pix_range = cell2mat(pix_range);
+    noffset   = [cell_offcet{:}];
+    noffset   = cell2mat(noffset);
+end
+tot_pix = cumsum(pix_range);
+nblocks = floor(tot_pix(end)/buf_size)+1;
+block_ind_from = ones(1,nblocks);
+block_ind_to   = zeros(1,nblocks);
+run_sum = buf_size;
+last_block_num = 0;
+for i=1:nblocks
+    ind = find(tot_pix>=run_sum,1);
+    if isempty(ind)
+        break;
+    end
+    last_block_num = i;
+    block_ind_to(i) = ind;
+    if i>1
+        block_ind_from(i) = block_ind_to(i-1)+1;
+    end
+    
+    run_sum = tot_pix(ind)+buf_size;
+end
+%
+if last_block_num < nblocks
+    last_block_num = last_block_num + 1;
+    if last_block_num>1
+        block_ind_from(last_block_num) = block_ind_to(last_block_num-1)+1;
+    else
+        block_ind_from(1) = 1;
+    end
+    block_ind_to(last_block_num) = numel(tot_pix);
+    if last_block_num<nblocks
+        block_ind_from = block_ind_from(1:last_block_num);
+        block_ind_to   = block_ind_to(1:last_block_num);
+    end
+end
+
+end
+%
+%--------------------
+function [cell_rg,cell_off] = split_ranges(range,offset,buf_size)
+% split ranges bigger than buf size into approximately buf-size chunks.
+if range<2*buf_size
+    cell_rg = {range};
+    cell_off = {offset};
+    return;
+end
+%
+n_cells = floor(range/buf_size)+1;
+cell_rg = cell(1,n_cells);
+cell_off = cell(1,n_cells);
+cell_rg{1} = buf_size;
+cell_off{1}= offset;
+for i=2:n_cells
+    t_range = buf_size;
+    shift = buf_size*(i-1);
+    if shift+t_range > range; t_range = range-shift; end;
+    if t_range > 0
+        cell_rg{i} = t_range;
+    end
+    cell_off{i} = 0;
+end
+
+
+end
+function pci = init_pix_combine_info(nfiles)
+
+tmpfiles = cell(1,nfiles);
+tmpfiles = cellfun(@(x)fullfile(tempdir,['horace',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
+pci = pix_combine_info(tmpfiles);
 end

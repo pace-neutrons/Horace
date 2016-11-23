@@ -1,5 +1,5 @@
 function [proj, mess] = proj_fill_fields (proj_in)
-% Fill the fields of proj data sstructure from input and defaults for missing information
+% Fill the fields of proj data structure from input and set defaults for missing information
 %
 % Input:
 %   proj_in Data structure containing details of projection axes:

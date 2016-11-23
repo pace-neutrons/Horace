@@ -77,13 +77,14 @@ mod_def.pulse_model=pulse_model;
 for i=1:nobj
     % Read the header part of the data
     if source_is_file
-        [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (flname{i},'-hisverbatim');
-        if ~isempty(mess), error(mess), end
+        ld = w.loaders_list{i};
+        nfiles = ld.num_contrib_files;
     else
         h=wout(i);  % pointer to object
+        nfiles=h.main_header.nfiles;        
     end
     % Change the header
-    nfiles=h.main_header.nfiles;
+
     tmp=h.header;   % to keep referencing to sub-fields to a minimum
     if nfiles>1
         for ifile=1:nfiles
@@ -98,9 +99,12 @@ for i=1:nobj
     end
     % Write back out
     if source_is_file
-        h.header=tmp;
-        mess = put_sqw (flname{i},h.main_header,h.header,h.detpar,h.data,'-his');
-        if ~isempty(mess), error(['Error writing to file ',flname{i},' - check the file is not corrupted: ',mess]), end
+        ld = ld.upgrade_file_format(); % if file was old version one, upgrade to new, 
+        % if not, opens for writing
+        ld = ld.put_instruments(tmp);
+        %h.header=tmp;
+        %mess = put_sqw (flname{i},h.main_header,h.header,h.detpar,h.data,'-his');
+        %if ~isempty(mess), error(['Error writing to file ',flname{i},' - check the file is not corrupted: ',mess]), end
     else
         wout(i).header=tmp;
     end

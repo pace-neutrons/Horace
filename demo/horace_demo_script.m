@@ -12,7 +12,7 @@
 
 %Run the command below to obtain the data we will use for the demo. This
 %process can take a few minutes - be patient!
-%file_list=setup_demo_data();
+file_list=setup_demo_data();
 
 %At the end of this you should have a set of files called
 %HoraceDemoDataFileN.spe, where N is 1 to 23.
@@ -38,7 +38,7 @@ v=[0,1,0];
 omega=0;dpsi=0;gl=0;gs=0;
 
 % Create the list of file names and orientation angles
-psi=[0:4:90];%the angle of the sample w.r.t. the incident beam for each run.
+psi=0:4:90;%the angle of the sample w.r.t. the incident beam for each run.
 %psi=0 is defined when u is parallel to the incident beam (in this case
 %u=[1,0,0] - see above).
 
@@ -55,8 +55,8 @@ else
     end
 end
 
-%gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%    u, v, psi, omega, dpsi, gl, gs);
+gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+    u, v, psi, omega, dpsi, gl, gs);
 
 %====================================
 %% Make plots etc
@@ -87,7 +87,7 @@ hklline = [0 0 0; 0.5 0.5 0.5; 0.5 0.5 0; 0 0.5 0; 0 0 0];
 bzpts = {'\Gamma','R','M','X','\Gamma'};
 bzcen = [2 2 0];
 wsp=spaghetti_plot(hklline+repmat([2 2 0],size(hklline,1),1),sqw_file,'labels',bzpts, ...
-    'ebin',[10,10,500],'qbin',0.1,'qwidth',1,'smooth',0,'logscale','clim',[0.5 2]);
+    'ebin',[10,10,500],'qbin',0.1,'qwidth',1,'smooth',0,'clim',[0.5 2]);
 
 %================================
 %% Data manipulation
@@ -160,7 +160,7 @@ try
     [wfitsw,fitdatasw]=fit_sqw(cc2a,@spinw_sqw,{[250 0 2.4 10 5] fefm},[1 0 1 0 1],...
         @constant_background,[0.05],[1],'list',2,'fit',[0.001 30 0.001]);
 catch
-    echo('spinw has not been found');
+    warning('spinw has not been found');
 end
 
 %% Symmetrising, and some other bits and bobs

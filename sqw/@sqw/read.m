@@ -1,4 +1,4 @@
-function varargout = read (varargin)
+function rez = read (sqw_obj,varargin)
 % Read sqw object from a file or array of sqw objects from a set of files
 % 
 %   >> w=read(sqw,file)
@@ -25,41 +25,13 @@ function varargout = read (varargin)
 %
 % $Revision$ ($Date$)
 
-% Parse input
-% -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:},'$obj_and_file_ok');
-if ~isempty(mess), error(mess); end
+
 
 % Perform operations
 % ------------------
-nw=numel(w.data);
-
 % Check number of arguments
-if ~isempty(args)
-    error('Check number of input arguments')
-end
+%
+% TODO: consider reading some parts of sqw object depending on sqw_obj (or
+% make it static)
+rez = read_sqw(varargin{:}); 
 
-% Now read data
-if w.source_is_file
-    if all(w.sqw_type(:))
-        wout = repmat(sqw,size(w.data));
-        for i=1:nw
-            wout(i)=sqw(w.data{i});
-        end
-    elseif all(~w.sqw_type) && all(w.ndims==w.ndims(1))
-        wout = repmat(sqw('$dnd',w.ndims(1)),size(w.data));
-        for i=1:nw
-            wout(i)=sqw('$dnd',w.data{i});
-        end
-    else
-        error('Data files must all be sqw type, or all dnd type with same dimensionality')
-    end
-    argout{1}=wout;
-else
-    argout{1}=w.data;  % trivial case that data source is already valid object
-end
-
-% Package output arguments
-% ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end

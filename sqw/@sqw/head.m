@@ -71,39 +71,22 @@ end
 % if data_source is a sqw object.
 
 if w.source_is_file
-    if nout==0
-        for i=1:nw
-            [mess,h.main_header,h.header,h.detpar,h.data,position,npixtot]=get_sqw (w.data{i},'-h');
-            if w.sqw_type(i)
-                sqw_display_single (h,npixtot,'a')
-            else
-                npixtot=1;      % *** MUST MAKE GET_SQW RETURN NPIXTOT IF 'b+' TYPE
-                sqw_display_single (h,npixtot,'b+')
-            end
-        end
+    if hfull
+        opt = {'-full'};
     else
-        for i=1:nw
-            if w.sqw_type(i) && hfull
-                [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-his');
-            else
-                [mess,h.main_header,h.header,h.detpar,h.data]=get_sqw (w.data{i},'-h');
-            end
-            if ~isempty(mess); error(mess); end
-            if nw==1
-                if w.sqw_type(i) && hfull
-                    hout=h;
-                else
-                    hout=h.data;
-                end
-            else
-                if i==1, hout=cell(size(w.data)); end
-                if w.sqw_type(i) && hfull
-                    hout{i}=h;
-                else
-                    hout{i}=h.data;
-                end
-            end
+        opt ={};
+    end
+    if nout==0
+        head_horace(w.loaders_list,opt{:});
+    else
+        hout = head_horace(w.loaders_list,opt{:});
+        if ~iscell(hout)
+            hout = {hout};
         end
+        if iscell(hout{1}) && numel(hout)== 1
+            hout = hout{1};
+        end
+        
     end
 else
     if nout==0
@@ -134,7 +117,7 @@ else
 end
 
 if nout>0
-    argout{1}=hout;
+    argout = hout;
 else
     argout={};
 end

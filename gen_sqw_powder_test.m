@@ -72,7 +72,7 @@ end
 % Process files
 grid=[1,1,1,1];     % need to force to be one bin for the algorithm to work
 for i=1:numel(spe_file)
-    gen_sqw (sqw, spe_file(i), par_file, tmp_file{i}, efix(i), emode,...
+    gen_sqw (spe_file(i), par_file, tmp_file{i}, efix(i), emode,...
         alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, grid);
 end
 
@@ -154,7 +154,7 @@ else
         disp('Creating final output sqw file:')
     end
     
-    write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
+    write_nsqw_to_sqw (tmp_file, sqw_file);
     
     if il>-1
         disp('--------------------------------------------------------------------------------')

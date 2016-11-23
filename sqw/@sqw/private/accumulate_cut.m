@@ -43,11 +43,12 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, 
 
 % $Revision$ ($Date$)
 
-[ignore_nan,ignore_inf]=get(hor_config,'ignore_nan','ignore_inf');
+[ignore_nan,ignore_inf,use_mex,n_threads] =...
+    config_store.instance().get_value('hor_config','ignore_nan','ignore_inf','use_mex','threads');
 ignore_nan=logical(ignore_nan);
 ignore_inf=logical(ignore_inf);
 
-[use_mex,n_threads]=get(hor_config,'use_mex','threads');
+
 
 if proj.can_mex_cut && use_mex
     [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,mex_success]=...

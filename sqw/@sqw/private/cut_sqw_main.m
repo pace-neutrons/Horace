@@ -120,7 +120,7 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 
 % *** Currently only works if uoffset(4)=0 for input, output datasets
 
-horace_info_level = get(hor_config,'horace_info_level');
+horace_info_level = config_store.instance().get_value('hor_config','log_level');
 
 if horace_info_level>=1
     bigtic
@@ -205,7 +205,7 @@ if nargout==0 && ~save_to_file  % Check work needs to be done (*** might want to
 end
 
 if save_to_file && ~isempty(outfile)    % check file name makes reasonable sense if one has been supplied
-    [out_path,out_name,out_ext]=fileparts(outfile);
+    [~,~,out_ext]=fileparts(outfile);
     if length(out_ext)<=1    % no extension or just a dot
         error('Output filename ''%s'' has no extension - check optional arguments',outfile)
     end
@@ -230,7 +230,6 @@ end
 
 
 % Open output file if required
-clob = [];
 if save_to_file
     if isempty(outfile)
         if keep_pix
@@ -242,12 +241,17 @@ if save_to_file
             error ('No output file name given')
         end
     end
-    % Open output file now - don't want to discover there are problems after 30 seconds of calculation
-    fout = fopen (outfile, 'wb');
+    
+    %     % Open output file now - don't want to discover there are problems after 30 seconds of calculation
+    %    Not yet fully supported with sqw_formats_factory but can be. Now just test creation of new file
+    %    is possible  and delete it.
+    fout = fopen (outfile, 'wb'); % no upgrade possible -- this command also clears contents of existing file
     if (fout < 0)
         error (['Cannot open output file ' outfile])
     end
-    clob = onCleanup(@()clof(fout));
+    fclose(fout);
+    delete(outfile);
+    %     clob = onCleanup(@()clof(fout));
 end
 
 
@@ -256,14 +260,20 @@ end
 if horace_info_level>0, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
     if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
-    [mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
-    
-    if ~isempty(mess)
-        error('Error reading data from file %s \n %s',data_source,mess)
-    end
+    ld = sqw_formats_factory.instance().get_loader(data_source);
+    data_type = ld.data_type;
+    %[mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
     if ~strcmpi(data_type,'a')
         error('Data file is not sqw file with pixel information - cannot take cut')
     end
+    npixtot = ld.npixels;
+    pix_position = ld.pix_position;
+    %
+    main_header = ld.get_main_header();
+    header = ld.get_header('-all');
+    detpar = ld.get_detpar();
+    data = ld.get_data();
+    ld.delete();
 else
     if horace_info_level>=0, disp('Taking cut from sqw object...'), end
     % for convenience, unpack the fields that themselves are major data structures
@@ -357,9 +367,8 @@ if source_is_file
     if fid<0
         error(['Unable to open file ',data_source])
     end
-    status=fseek(fid,position.pix,'bof');    % Move directly to location of start of pixel data block
-    if status<0;
-        fclose(fid);
+    status=fseek(fid,pix_position,'bof');    % Move directly to location of start of pixel data block
+    if status<0;  fclose(fid);
         error(['Error finding location of pixel data in file ',data_source]);
     end
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
@@ -372,10 +381,10 @@ else
         proj, targ_pax, targ_nbin);
 end
 % For convenience later on, set a flag that indicates if pixel info buffered in files
-if isstruct(pix)
-    pix_tmpfile=true;
+if isa(pix,'pix_combine_info')
+    pix_tmpfile_ok=true;
 else
-    pix_tmpfile=false;
+    pix_tmpfile_ok=false;
 end
 
 % Convert range from steps to actual range with respect to output uoffset:
@@ -413,7 +422,7 @@ npix = reshape(npix,nbin_as_size);
 
 [data_out.uoffset,data_out.ulabel,data_out.dax,data_out.u_to_rlu,...
     data_out.ulen,axis_caption] = proj.get_proj_param(data,pax);
-%HACK! Any projections is converet into standard projection at this point
+%HACK! Any projections is converted into standard projection at this point
 data_out.axis_caption = axis_caption;
 %
 data_out.iax = iax;
@@ -430,7 +439,7 @@ data_out.e(no_pix)=0;
 
 if keep_pix
     data_out.urange = urange_pix;
-    if ~pix_tmpfile; data_out.pix = pix; end
+    data_out.pix = pix;
 end
 
 % Collect fields to make those for a valid sqw object
@@ -448,14 +457,17 @@ end
 % Save to file if requested
 % ---------------------------
 if save_to_file
-    if horace_info_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
+    if horace_info_level>=0, disp(['Writing cut to output file ',outfile,'...']), end
     try
-        if ~pix_tmpfile
-            mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
-        else
-            mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
-            for ifile=1:length(pix.tmpfiles)   % delete the temporary files
-                delete(pix.tmpfiles{ifile});
+        ls = sqw_formats_factory.instance().get_pref_access();
+        ls = ls.init(w,outfile);
+        ls = ls.put_sqw();
+        ls.delete();
+        
+        if pix_tmpfile_ok
+            % mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data,'-pix',pix.tmpfiles,pix.pos_npixstart,pix.pos_pixstart,'nochange');
+            for ifile=1:pix.nfiles   % delete the temporary files
+                delete(pix.infiles{ifile});
             end
         end
         if ~isempty(mess)
@@ -481,16 +493,10 @@ end
 
 if horace_info_level>=1
     disp(['Number of points in input file: ',num2str(npixtot)])
-    disp(['         Fraction of file read: ',num2str(100*npix_read/npixtot,'%8.4f'),' %   (=',num2str(npix_read),' points)'])
-    disp(['     Fraction of file retained: ',num2str(100*npix_retain/npixtot,'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
+    disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
+    disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
     disp(' ')
     bigtoc('Total time in cut_sqw:',horace_info_level)
     disp('--------------------------------------------------------------------------------')
-end
-
-function clof(fid)
-% clean-up function to close output file, if any was opened
-if fopen(fid)
-    fclose(fid);
 end
 

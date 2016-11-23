@@ -56,5 +56,5 @@ if numel(varargin)>=w.nargout_req
     mess='';
 else
     argout={};
-    mess='Insufficent number of return arguments provided';
+    mess='Insufficient number of return arguments provided';
 end
