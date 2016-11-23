@@ -205,6 +205,40 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
             assertEqual(sqw_ob,ver_obj);
         end
+        function obj = test_save_load_sqwV31_crossbuf(obj)
+            hc    = hor_config;
+            mchs  = hc.mem_chunk_size;
+            hc.mem_chunk_size = 1000;
+            clob1 = onCleanup(@()set(hor_config,'mem_chunk_size',mchs));
+            
+            samp_f = fullfile(obj.sample_dir,...
+                'test_sqw_file_read_write_v3_1.sqw');
+            
+            so = faccess_sqw_v3(samp_f);
+            sqw_ob = so.get_sqw();
+            
+            assertTrue(isa(sqw_ob,'sqw'));
+            
+            inst1=create_test_instrument(95,250,'s');
+            sqw_ob.header(1).instrument = inst1;
+            
+            tf = fullfile(tempdir,'test_save_load_sqwV31.sqw');
+            clob = onCleanup(@()delete(tf));
+            
+            tob = faccess_sqw_v3();
+            tob = tob.init(sqw_ob,tf);
+            
+            tob=tob.put_sqw();
+            assertTrue(exist(tf,'file')==2)
+            tob = tob.delete();
+            
+            tob=tob.init(tf);
+            ver_obj =tob.get_sqw('-verbatim');
+            tob.delete();
+            
+            assertEqual(sqw_ob.main_header,ver_obj.main_header);
+            assertEqual(sqw_ob,ver_obj);
+        end
         
         
     end
