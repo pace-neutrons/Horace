@@ -83,10 +83,10 @@ classdef  test_file_input < TestCase
         end
         %
         function obj=tearDown(obj)
-            delete(obj);
+            clearUp(obj);
         end
         %
-        function delete(obj)
+        function clearUp(obj)
             global test_file_input_refcount;
             test_file_input_refcount = test_file_input_refcount -1;
             if test_file_input_refcount  <= 0
@@ -99,7 +99,7 @@ classdef  test_file_input < TestCase
                     disp('TEST_FILE_INPUT: Unable to delete temporary file(s)');
                 end
             end
-            delete@handle(obj);
+            %delete@handle(obj);
         end
         
         % =================================================================================================
