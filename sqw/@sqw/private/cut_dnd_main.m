@@ -37,9 +37,9 @@ function wout = cut_dnd_main (data_source, ndims, varargin)
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
+%
 
-
-horace_info_level = get(hor_config,'horace_info_level');
+horace_info_level = config_store.instance.get_value('hor_config','log_level');
 
 % Parse input arguments
 % ---------------------
