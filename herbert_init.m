@@ -19,7 +19,9 @@ rootpath = fileparts(which('herbert_init'));
 % -------------------------------
 % (This might include this version of Herbert)
 application_off('herbert')
-
+if ~verLessThan('matlab','9.1')
+    warning('off','MATLAB:subscripting:noSubscriptsSpecified');
+end
 
 % Add paths
 % ---------
