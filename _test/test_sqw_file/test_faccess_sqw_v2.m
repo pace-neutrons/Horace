@@ -156,7 +156,7 @@ classdef test_faccess_sqw_v2< TestCase
             clob = onCleanup(@()delete(tf));
             
             tt = tt.init(tob_sqw);
-            tt = tt.set_file_to_write(tf);
+            tt = tt.set_file_to_update(tf);
             
             
             tt=tt.put_sqw();

@@ -1,5 +1,6 @@
 classdef dnd_binfile_common < dnd_file_interface
-    % Class contains common methods and code used to access binary dnd files
+    % Class contains common methods and code used to access binary dnd
+    % files.
     %
     %  Binary sqw-file accessors inherit this class, use common methods,
     %  defined in this class implement remaining abstract methods,
@@ -47,15 +48,17 @@ classdef dnd_binfile_common < dnd_file_interface
     end
     %
     properties(Constant,Access=private)
+        %@internal
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         fields_to_save_ = {'num_dim_','dnd_dimensions_','data_type_',...
-            'data_pos_','s_pos_','e_pos_','npix_pos_',...
-            'dnd_eof_pos_','data_fields_locations_'};
+            'data_pos_','s_pos_','e_pos_','npix_pos_','dnd_eof_pos_',...
+            'data_fields_locations_'};
+        %@endinternal
     end
     %
     properties(Dependent)
-        % true if existing file shoild be upgraded false -- ovewritten
+        % true if existing file should be upgraded false -- ovewritten
         upgrade_mode;
         % intefaces to binary access outside of this class
         data_position;
@@ -159,7 +162,7 @@ classdef dnd_binfile_common < dnd_file_interface
         [should,objinit,mess]= should_load_stream(obj,stream,fid)
         % set filename to save sqw data and open file for write/append
         % operations
-        [obj,file_exist] = set_file_to_write(obj,varargin)
+        [obj,file_exist] = set_file_to_update(obj,varargin)
         %
         %------   File Accessors:
         %
