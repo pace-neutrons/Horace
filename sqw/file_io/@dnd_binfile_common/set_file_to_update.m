@@ -1,22 +1,22 @@
-function  [obj,file_exist] = set_file_to_write(obj,varargin)
+function  [obj,file_exist] = set_file_to_update(obj,varargin)
 % set filename to save sqw data and open file for write/append
 % operations
 %
 % Usage
-% >> obj = obj.set_file_to_write(); % reopen existing file for
+% >> obj = obj.set_file_to_update(); % reopen existing file for
 %          write/append operations
-% >> obj = obj.set_file_to_write(new_filename);
+% >> obj = obj.set_file_to_update(new_filename);
 %
 % Open new or existing sqw file to perform write/append operations
 %
-% $Revision$ ($Date$)
+% $Revision: 1353 $ ($Date: 2016-11-22 13:53:23 +0000 (Tue, 22 Nov 2016) $)
 %
 
 file_exist = false;
 
 if nargout < 1
     error('SQW_FILE_IO:invalid_argument',...
-        'DND_BINFILE_COMMON:set_file_to_write has to return its value in output object')
+        'DND_BINFILE_COMMON:set_file_to_update has to return its value in output object')
 end
 
 log_level = config_store.instance().get_value('hor_config','log_level');
@@ -26,7 +26,7 @@ if nargin>1
     new_filename = varargin{1};
     if ~ischar(new_filename)
         error('SQW_FILE_IO:invalid_argument',...
-            'DND_BINFILE_COMMON:set_file_to_write: new filename to save needs to be a string')
+            'DND_BINFILE_COMMON:set_file_to_update: new filename to save needs to be a string')
     end
     if exist(new_filename,'file')
         file_exist = true;
@@ -44,7 +44,7 @@ if nargin>1
 else
     if isempty(obj.filename)
         error('SQW_FILE_IO:invalid_argument',...
-            'DND_BINFILE_COMMON:set_file_to_write: trying to reopen existing file for writing but its filename is empty')
+            'DND_BINFILE_COMMON:set_file_to_update: trying to reopen existing file for writing but its filename is empty')
     end
     new_filename  = fullfile(obj.filepath,obj.filename);
     if obj.file_id_ > 0
@@ -92,7 +92,7 @@ obj.file_id_ = fopen([fp,fn],perm);
 %
 if obj.file_id_ <=0
     error('SQW_FILE_IO:io_error',...
-        'DND_BINFILE_COMMON:set_file_to_write: Can not open file %s to write data',[fp,fn])
+        'DND_BINFILE_COMMON:set_file_to_update: Can not open file %s to write data',[fp,fn])
 end
 obj.file_closer_ = onCleanup(@()obj.fclose());
 %-------------------------------------------------------------------------

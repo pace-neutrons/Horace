@@ -84,10 +84,10 @@ else
         end
         obj = obj.init_from_sqw_obj(argi{:});
         if nargin == 3
-            obj = obj.set_file_to_write(argi{2:end});
+            obj = obj.set_file_to_update(argi{2:end});
         else
             if ~isempty(obj.filename)
-                obj = obj.set_file_to_write();
+                obj = obj.set_file_to_update();
             end
         end
         return;

@@ -158,8 +158,8 @@ classdef dnd_file_interface
         % writing
         % Defined only for classes, initiated with sqw_object
         %Usage:
-        %>>[obj,file_exist] = obj.set_file_to_write(filename_to_write);
-        [obj,file_exist] = set_file_to_write(obj,varargin)
+        %>>[obj,file_exist] = obj.set_file_to_update(filename_to_write);
+        [obj,file_exist] = set_file_to_update(obj,varargin)
         % ----------------------------------------------------------------
         % File Accessors:
         [data,obj]  = get_data(obj,varargin);

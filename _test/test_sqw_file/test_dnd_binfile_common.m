@@ -113,10 +113,10 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');
-            f=@()(tob.set_file_to_write(samp));
+            f=@()(tob.set_file_to_update(samp));
             assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
             
-            tob=tob.set_file_to_write(samp);
+            tob=tob.set_file_to_update(samp);
             
             assertTrue(tob.sqw_type)
             assertEqual(tob.num_dim,1)
@@ -126,7 +126,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             test_f = fullfile(tempdir,'test_change_file_to_write.sqw');
             clob = onCleanup(@()delete(test_f));
             
-            tob=tob.set_file_to_write(test_f);
+            tob=tob.set_file_to_update(test_f);
             assertTrue(exist(test_f,'file')==2);
             
             tob=tob.delete();

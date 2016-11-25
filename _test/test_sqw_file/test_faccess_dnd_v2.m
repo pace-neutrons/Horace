@@ -172,7 +172,7 @@ classdef test_faccess_dnd_v2< TestCase
             
             tf = fullfile(tempdir,'test_save_dnd_v2.sqw');
             clob = onCleanup(@()delete(tf));
-            tt = tt.set_file_to_write(tf);
+            tt = tt.set_file_to_update(tf);
             
             tt=tt.put_sqw();
             assertTrue(exist(tf,'file')==2)

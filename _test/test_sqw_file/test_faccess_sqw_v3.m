@@ -168,7 +168,7 @@ classdef test_faccess_sqw_v3< TestCase
             tf = fullfile(tempdir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
             
-            tob = tob.set_file_to_write(tf);
+            tob = tob.set_file_to_update(tf);
             tob=tob.put_sqw();
             assertTrue(exist(tf,'file')==2)
             tob=tob.delete();
