@@ -7,7 +7,6 @@ classdef dnd_binfile_common < dnd_file_interface
     %  inherited from dnd_file_interface and overload the methods, which
     %  have different data access requests
     %
-    %
     % $Revision$ ($Date$)
     %
     properties(Access=protected)
