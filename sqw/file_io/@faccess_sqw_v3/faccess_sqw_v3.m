@@ -1,7 +1,58 @@
 classdef faccess_sqw_v3 < sqw_binfile_common
-    % Class to access Horace binary files written in binary format v3
-    % which stores the description of all Horace sqw fields at the end of the
-    % binary file.
+    % Class to access Horace binary files written in binary format v3.1
+    % which stores the description of all Horace sqw fields at the end of a
+    % binary file. May contain instrument and sample information.
+    %
+    %
+    % Usage:
+    %1)
+    %>>sqw_access = faccess_sqw_v3(filename)
+    % or
+    % 2)
+    %>>sqw_access = faccess_sqw_v3(sqw_dnd_object,filename)
+    %
+    % 1)
+    % First form initializes accessor to existing sqw file where
+    % @param filename  :: the name of existing sqw file written
+    %                     in sqw v3.1 format.
+    %
+    % Throws if file with filename is missing or is not written in
+    % sqw v3.1 format.
+    %
+    % To avoid attempts to initialize this accessor using incorrect sqw file,
+    % access to existing sqw files should be organized using sqw
+    % formats factory namely:
+    %
+    % >>accessor = sqw_formats_factory.instance().get_loader(filename)
+    %
+    % If the sqw file with filename is sqw v3.1 sqw file, the sqw format
+    % factory will return instance of this class, initialized for
+    % reading this file.
+    % The initialized object allows to use all get/read methods described
+    % by sqw_file_interface,
+    % dnd_file_interface and additional methods to read instrument and
+    % sample, specific for v3.1 file format.
+    %
+    % 2)
+    % Second form used to initialize the operation of writing new or
+    % updating existing sqw file.
+    % where:
+    %@param sqw_dnd_object:: existing fully initialized sqw object in memory.
+    %@param filename      :: the name of a new or existing sqw object on disc
+    %
+    % Update mode is initialized if the file with name filename exists and
+    % can be updated, i.e. has the same number of dimensions, binning axis
+    % and pixels.
+    % In this case you can modify dnd or sqw methadata or explicitly
+    % overwrite pixels.
+    %
+    % If existing file can not be updated, it will be open in write mode.
+    % If file with filename does not exist, the object will be open in write mode.
+    %
+    % Initialized faccess_sqw_v3 object allows to use write/update methods of
+    % dnd_file_interface, sqw_file_interface + writing instrument and sample
+    % and all read methods of these interfaces if the proper information
+    % already exists in the file.
     %
     %
     % $Revision$ ($Date$)
@@ -19,6 +70,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         %
         eof_pos_ = 0;
     end
+    %
     methods(Access=protected)
         function obj=init_from_sqw_file(obj)
             % intialize the structure of faccess class using opened
@@ -176,9 +228,9 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         end
         %
         function obj = put_samples(obj,varargin)
-            % store or change sample information in the file
+            % Store or change sample information in the file
             %
-            % causes storing of instrument and footer information too.
+            % Causes storing of instrument and footer information too.
             %
             % identical to put_instruments method, except a non-sqw class
             % or structure or array of such objects assumed to be a sample

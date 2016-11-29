@@ -131,7 +131,7 @@ classdef sqw_formats_factory < handle
             %>>loader = sqw_formats_factory.instance().get_pref_access(object)
             %         -- returns preferred accessor for the object of type
             %            provided, where allowed types are sqw,dnd,d0d,d1d,d2d,d3d,d4d.
-            %           Throws if type is not among the specified one.
+            %           Throws if type is not among the specified types.
             %
             [ok,mess,is_dnd,is_sqw,argi] =parse_char_options(varargin,{'dnd','sqw'});
             if ~ok

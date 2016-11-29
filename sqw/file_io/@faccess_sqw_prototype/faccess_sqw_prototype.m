@@ -1,6 +1,45 @@
 classdef faccess_sqw_prototype < sqw_binfile_common
-    % Class to access old Horace-type files
-    
+    % Class to access old legacy Horace-type files
+    %
+    %
+    % Usage:
+    %>>sqw_access = faccess_sqw_prototype(filename)
+    %
+    % Initializes accessor to existing sqw file where
+    % @param filename  :: the name of existing sqw file written in
+    %                     Horace prototype format.
+    %
+    % Throws if file with filename is missing or is not written in
+    % sqw prototype format.
+    %
+    % To avoid attempts to initialize this accessor using incorrect sqw
+    % file, access to existing sqw files should be organized using sqw
+    % format factory namely:
+    %
+    % >>accessor = sqw_formats_factory.instance().get_loader(filename)
+    %
+    % If the sqw file with filename is sqw prototype file, the
+    % sqw_formats_factory will return instance of this class,
+    % initialized for reading this file.
+    %
+    % The initialized object allows to use all get/read methods described
+    % by sqw_file_interface and dnd_file_interface
+    %
+    % Prototype file format does not allow writing into it. After
+    % retrieving all necessary data from the file, its necessary to set
+    % up correct alatt and angdeg  parameters missing in prototype
+    % files and save file in one of the modern file formats.
+    %
+    % The recommended accessor for modern file format should be obtained
+    % using sqw_formats_factory:
+    %
+    %>> accessor = sqw_formats_factory.instance().get_pref_access([sqw_or_dnd_object]);
+    %
+    % which would allow easy change the preferred accessor in a future.
+    %
+    % $Revision$ ($Date$)
+    %
+    %
     properties
     end
     methods(Access=protected)
@@ -26,7 +65,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
     
     methods
         function obj=faccess_sqw_prototype(varargin)
-            % constructor, to build sqw reader/writer version 3
+            % constructor, to build sqw reader for prototype file format
             %
             % Usage:
             % ld = faccess_sqw_prototype() % initialize empty sqw reader
