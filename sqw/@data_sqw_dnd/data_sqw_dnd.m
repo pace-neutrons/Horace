@@ -2,6 +2,11 @@ classdef data_sqw_dnd
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
+    
+    % Original author: T.G.Perring
+    %
+    % $Revision$ ($Date$)
+    %   
     properties
         filename=''   % Name of sqw file that is being read, excluding path
         filepath=''   % Path to sqw file that is being read, including terminating file separator
@@ -47,17 +52,11 @@ classdef data_sqw_dnd
         % signal      Signal array
         % err         Error array (variance i.e. error bar squared)
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
-        
-        % Original author: T.G.Perring
-        %
-        % $Revision$ ($Date$)
-        %
-        %
     end
     
     methods
         %------------------------------------------------------------------
-          % Determine data type of the data field of an sqw data structure
+        % Determine data type of the data field of an sqw data structure
         data_type = data_structure_type(data);
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some qxis
@@ -230,6 +229,7 @@ classdef data_sqw_dnd
             obj.pix=[];
             obj.urange=[];
         end
+        %
         function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.
             %

@@ -1,5 +1,5 @@
-function  [obj,file_exist] = set_file_to_update(obj,varargin)
-% set filename to save sqw data and open file for write/append
+function  [obj,file_exist] = set_file_to_update(obj,filename)
+% Set filename to save sqw data and open file for write/append/update
 % operations
 %
 % Usage
@@ -11,6 +11,9 @@ function  [obj,file_exist] = set_file_to_update(obj,varargin)
 %
 % $Revision: 1353 $ ($Date: 2016-11-22 13:53:23 +0000 (Tue, 22 Nov 2016) $)
 %
+if ~exist('filename','var')
+    filename = '';
+end
 
 file_exist = false;
 
@@ -23,7 +26,7 @@ log_level = config_store.instance().get_value('hor_config','log_level');
 
 old_ldr = [];
 if nargin>1
-    new_filename = varargin{1};
+    new_filename = filename;
     if ~ischar(new_filename)
         error('SQW_FILE_IO:invalid_argument',...
             'DND_BINFILE_COMMON:set_file_to_update: new filename to save needs to be a string')
