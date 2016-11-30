@@ -23,7 +23,7 @@ else
     data_str.npix = fread(obj.file_id_,numl,'*uint64');
 end
 check_error_report_fail_(obj,...
-    'DND_BINFILE_COMMON::get_data: Can not read signal error or npix array');
+    'get_data: Can not read signal error or npix array');
 
 if obj.num_dim>1
     data_str.s = reshape(data_str.s,obj.dnd_dimensions);

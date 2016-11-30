@@ -174,10 +174,41 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             
             [ok,mess]=equal_to_tol(sq_obj,tsq_obj,'ignore_str',true);
             assertTrue(ok,mess)
-            [ok,mess]=equal_to_tol(tsq0_obj,tsq_obj,'ignore_str',true);            
-            assertTrue(ok,mess)            
+            [ok,mess]=equal_to_tol(tsq0_obj,tsq_obj,'ignore_str',true);
+            assertTrue(ok,mess)
             chob.delete();
             tob.delete();
+        end
+        %
+        function obj = test_reopen_to_wrire(obj)
+            
+            samp = fullfile(fileparts(obj.test_folder),...
+                'test_symmetrisation','w1d_d1d.sqw');
+            ttob = dnd_binfile_common_tester(samp);
+            % important! -verbatim is critical here! without it we should 
+            % reinitialize object to write!
+            sq_obj = ttob.get_sqw('-verbatim');
+            assertTrue(isa(sq_obj,'d1d'));
+            
+            test_f = fullfile(tempdir,'test_dnd_reopen_to_wrire.sqw');
+            clob = onCleanup(@()delete(test_f));
+            
+            % using already initialized object to write new data.
+            % its better to initialize object again as with this form
+            % object bas to be exactly the same as the one read before.
+            ttob =  ttob.reopen_to_write(test_f);
+            ttob = ttob.put_sqw(sq_obj);
+            ttob.delete();
+            
+            assertEqual(exist(test_f,'file'),2);
+            
+            chob = dnd_binfile_common_tester(test_f);
+            
+            tsq_obj = chob.get_sqw();
+            chob.delete();
+            
+            [ok,mess]=equal_to_tol(sq_obj,tsq_obj,'ignore_str',true);
+            assertTrue(ok,mess)
             
         end
         

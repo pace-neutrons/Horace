@@ -2,7 +2,7 @@ classdef dnd_binfile_common < dnd_file_interface
     % Class contains common methods and code used to access binary dnd
     % files.
     %
-    %  Binary sqw-file accessors inherit this class, use common methods,
+    %  Binary sqw/dnd-file accessors inherit this class, use common methods,
     %  defined in this class implement remaining abstract methods,
     %  inherited from dnd_file_interface and overload the methods, which
     %  have different data access requests
@@ -14,17 +14,19 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         % position (in bytes from start of the file of the appropriate part
         % of Horace data information and the size of this part.
-        % 0 means unknown/uninitialized or missing.
+        % 26 is standard position in modern sqw file format.
         data_pos_=26;
-        %
+        
+        % signal information location (in bytes)
         s_pos_=0;
+        % error information location (in bytes)
         e_pos_=0;
         % position of the npix field
         npix_pos_='undefined';
         
-        
+        % end of dnd info position
         dnd_eof_pos_=0;
-        % contais structure with accurate positions of various data fields
+        % contais structure with accurate positions of all data fields
         % to use for accurate replacement of these fields during update
         % operations
         data_fields_locations_=[];
@@ -59,8 +61,10 @@ classdef dnd_binfile_common < dnd_file_interface
     properties(Dependent)
         % true if existing file should be upgraded false -- ovewritten
         upgrade_mode;
-        % intefaces to binary access outside of this class
+        % intefaces to binary access outside of this class:
+        % initial location of dnd data fields
         data_position;
+        % initial location of npix fields
         npix_position;
         
     end
@@ -161,7 +165,10 @@ classdef dnd_binfile_common < dnd_file_interface
         [should,objinit,mess]= should_load_stream(obj,stream,fid)
         % set filename to save sqw data and open file for write/append
         % operations
-        [obj,file_exist] = set_file_to_update(obj,varargin)
+        [obj,file_exist] = set_file_to_update(obj,filename)
+        % Reopen existing file to overwritne or write new data to it
+        % or open new target file to save data.
+        obj = reopen_to_write(obj,filename)
         %
         %------   File Accessors:
         %
@@ -176,9 +183,10 @@ classdef dnd_binfile_common < dnd_file_interface
         end
         %
         % retrieve the whole dnd object from properly initialized dnd file
-        % and treat it like sqw object
+        % and treat it like an sqw object
         [sqw_obj,varargout] = get_sqw(obj,varargin);
-        % retrieve full dnd sqw object
+        % retrieve full dnd object from sqw file containing dnd or dnd and
+        % sqw information
         [dnd_obj,varargout] = get_dnd(obj,varargin);
         
         
@@ -209,16 +217,18 @@ classdef dnd_binfile_common < dnd_file_interface
         function obj = set.upgrade_mode(obj,mode)
             obj = set_upgrade_mode_(obj,mode);
         end
-        %
+        % -------------------------------------------
         function  pos = get.data_position(obj)
+            % return the position of the start of the dnd data fields
+            % in the file (usually its start of main header for sqw or  filename
+            % filename for dnd file)
             pos = obj.data_pos_;
         end
         function  pos = get.npix_position(obj)
+            % return the position of the npix field in the file
             pos = obj.npix_pos_;
         end
         %
-        % Reopen exisging file to upgrade/write new data to it
-        obj = reopen_to_write(obj)
         %
         function pos_info = get_pos_info(obj)
             % return structure, containing position of every data field in the

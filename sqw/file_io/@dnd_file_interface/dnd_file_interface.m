@@ -1,14 +1,13 @@
 classdef dnd_file_interface
     % Class provides interface to access dnd files.
     %
-    %   Various accessors should inherit this class, implement the
-    %   abstract methods mentioned here and define protected fields, common
-    %   for all sqw-file accessors
+    % Various accessors should inherit this class, implement the
+    % abstract methods mentioned here and define protected fields, common
+    % for all dnd-file accessors.
     %
     %
     % $Revision$ ($Date$)
     %
-    
     properties(Access=protected)
         filename_=''
         filepath_=''
@@ -26,9 +25,8 @@ classdef dnd_file_interface
         data_type_ = 'undefined';
         %
         
-        %True to convert all read fields (except pixels) into double
+        %True if convert all read fields (except pixels) into double
         convert_to_double_ = true;
-        
     end
     %
     properties(Constant,Access=protected)
@@ -80,6 +78,7 @@ classdef dnd_file_interface
         end
         %
         function ndims = get.num_dim(obj)
+            % get number of dimensions the image part of the object has.
             ndims = obj.num_dim_;
         end
         %
@@ -99,6 +98,7 @@ classdef dnd_file_interface
         end
         %
         function dims = get.dnd_dimensions(obj)
+            % return image binning
             dims = obj.dnd_dimensions_;
         end
         %
@@ -114,6 +114,7 @@ classdef dnd_file_interface
         end
         %-------------------------
         function obj = delete(obj)
+            % invalidate an object in memory.
             obj.num_dim_        = 'undefined';
             obj.dnd_dimensions_ = 'undefined';
             obj.data_type_      = 'undefined';
@@ -154,31 +155,43 @@ classdef dnd_file_interface
         %>>obj = obj.init(sqw_object);
         %>>obj = obj.init(sqw_object,filename_to_write);
         obj = init(obj,varargin);
-        % set new filename to write file to prepare existing file for
-        % writing
-        % Defined only for classes, initiated with sqw_object
+        %
+        % set new filename to write file or prepare existing file for
+        % writing.
         %Usage:
         %>>[obj,file_exist] = obj.set_file_to_update(filename_to_write);
         [obj,file_exist] = set_file_to_update(obj,varargin)
+        % Reopen existing file to upgrade/write new data to it assuming
+        % the loader has been already initiated by this file. Will be
+        % clearly overwritten or destroyed if partial information is
+        % different and no total info was written.
+        obj = reopen_to_write(obj,filename)
+        %        
         % ----------------------------------------------------------------
         % File Accessors:
         [data,obj]  = get_data(obj,varargin);
         % get only dnd image data, namely s, err and npix
         [data_str,obj] = get_se_npix(obj,varargin)
         
+        % return instrument stored with sqw file or empty structure if
+        % nothing is stored.
         [inst,obj]  = get_instrument(obj,varargin);
+        
+        % return sample stored with sqw file or empty structure if
+        % nothing is stored.
         [samp,obj]  = get_sample(obj,varargin);
-        % retrieve the whole sqw object from properly initialized sqw file
+        % retrieve the whole sqw or dnd object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin);
+        
         % retrieve any sqw/dnd object as dnd object
-        [dnd_obj,varargout] = get_dnd(obj,varargin);        
+        [dnd_obj,varargout] = get_dnd(obj,varargin);
         % ----------------------------------------------------------------
         % File Mutators:
         %
         % save sqw object stored in memory into binary sqw file. Depending
-        % on data present in memory it can in fact save dnd object.
+        % on data present in memory it can in fact be a dnd object.
         % Save new or fully overwrite existing sqw file
-        obj = put_sqw(obj,varargin);        
+        obj = put_sqw(obj,varargin);
         % save sqw/dnd object stored in memory into binary sqw file as dnd object.
         % it always reduced data in memory into dnd object on hdd
         obj = put_dnd(obj,varargin);
@@ -191,12 +204,6 @@ classdef dnd_file_interface
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
-        % Reopen existing file to upgrade/write new data to it assuming
-        % the loader has been already initiated by this file. Will be
-        % clearly overwritten or destroyed if partial information is
-        % different and no total info was written.
-        obj = reopen_to_write(obj)
-        %
     end
     methods(Abstract,Access=protected)
         % init file accessors from sqw object in memory

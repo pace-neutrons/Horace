@@ -10,6 +10,7 @@ classdef test_faccess_sqw_v2< TestCase
     properties
         sample_dir;
         sample_file;
+        test_folder;
     end
     methods(Static)
         function sz = fl_size(filename)
@@ -36,8 +37,8 @@ classdef test_faccess_sqw_v2< TestCase
             this=this@TestCase(name);
             
             this.sample_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_symmetrisation');
-            this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');
-            
+            this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');            
+            this.test_folder=fileparts(mfilename('fullpath'));
         end
         
         % tests
@@ -265,7 +266,7 @@ classdef test_faccess_sqw_v2< TestCase
             %
             spath = fileparts(obj.sample_file);
             samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
-                       
+            
             dnob = read_dnd(samplef);
             
             tf = fullfile(tempdir,'test_put_dnd_from_sqw.sqw');
@@ -284,9 +285,40 @@ classdef test_faccess_sqw_v2< TestCase
             
             [ok,mess]=equal_to_tol(dn2,dnob,'ignore_str',true);
             assertTrue(ok,mess)
-            
             %
         end
+        function obj = test_sqw_reopen_to_wrire(obj)
+            
+            samp = fullfile(fileparts(obj.test_folder),...
+                'test_symmetrisation','w1d_sqw.sqw');
+            ttob = faccess_sqw_v2(samp);
+            % important! -verbatim is critical here! without it we should
+            % reinitialize object to write!
+            sq_obj = ttob.get_sqw('-verbatim');
+            assertTrue(isa(sq_obj,'sqw'));
+            
+            test_f = fullfile(tempdir,'test_sqw_reopen_to_wrire.sqw');
+            clob = onCleanup(@()delete(test_f));
+            
+            % using already initialized object to write new data.
+            % its better to initialize object again as with this form
+            % object bas to be exactly the same as the one read before.
+            ttob =  ttob.reopen_to_write(test_f);
+            ttob = ttob.put_sqw(sq_obj);
+            ttob.delete();
+            
+            assertEqual(exist(test_f,'file'),2);
+            
+            chob = faccess_sqw_v2(test_f);
+            
+            tsq_obj = chob.get_sqw();
+            chob.delete();
+            
+            [ok,mess]=equal_to_tol(sq_obj,tsq_obj,'ignore_str',true);
+            assertTrue(ok,mess)
+            
+        end
+        
         
         
     end

@@ -115,6 +115,7 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
             memb = ismember(fn,tot);
             assertTrue(all(memb));
         end
+        
         %
     end
     

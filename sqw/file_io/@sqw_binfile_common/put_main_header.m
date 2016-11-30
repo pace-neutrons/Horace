@@ -17,7 +17,7 @@ function   obj = put_main_header(obj,varargin)
 [ok,mess,update,argi] = parse_char_options(varargin,{'-update'});
 if ~ok
     error('SQW_FILE_IO:runtime_error',...
-'SQW_BINFILE_COMMON:put_main_header: %s',mess);
+        'SQW_BINFILE_COMMON:put_main_header: %s',mess);
 end
 %
 obj.check_obj_initated_properly();
