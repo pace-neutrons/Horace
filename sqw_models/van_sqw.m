@@ -3,8 +3,14 @@ function weight = van_sqw (qh,qk,ql,en,pars)
 %
 %   >> weight = van_sqw (qh,qk,ql,en,pars)
 %
-%   qh, qk, ql, en   Arrays of Q and energy values at which to evaluate dispersion
-%   pars            [Amplitude, en0, fwhh]
+% Input:
+% ------
+%   qh, qk, ql, en  Arrays of Q and energy values at which to evaluate dispersion
+%   pars            [Amplitude, en0, fwhh] - the area, centre at FWHH of a
+%                   dispersionless mode
+% Output:
+% -------
+%   weight          Spectral weight
 
 ampl=pars(1);
 en0=pars(2);

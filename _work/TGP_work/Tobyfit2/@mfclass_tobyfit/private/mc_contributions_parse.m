@@ -16,7 +16,7 @@ function [mc_contributions,ok,mess] = mc_contributions_parse (varargin)
 %   >> [mc_contributions,ok,mess] = mc_contributions_parse ('chopper','sample')
 %
 % Modify an existing Monte Carlo contriburions structure:
-%   >> [mc_contributions,ok,mess] = mc_contributions_parse (mc_contrib_in,'moderator','nochopper')
+%   >> [mc_contributions_out,ok,mess] = mc_contributions_parse (mc_contributions,'moderator','nochopper')
 
 
 % For use in other routines:
@@ -72,7 +72,7 @@ elseif numel(args)==0
     
 else
     mc_contributions=[]; ok=false;
-    mess='Check Monte Carlo contributions argument is a structure with correct field names (type >> tobyfit_mc_contributions for a list)';
+    mess='Check Monte Carlo contributions argument is a structure with correct field names';
     if nargout<=1, error(mess), end
 end
 
