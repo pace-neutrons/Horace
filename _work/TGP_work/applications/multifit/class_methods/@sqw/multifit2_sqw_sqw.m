@@ -1,10 +1,18 @@
 function mf_object = multifit2_sqw_sqw (varargin)
-% Simultaneously fits sqw models on sqw model backgrounds to sqw objects
+% Simultaneously fit function(s) of S(Q,w) to one or more sqw objects
 %
-%   >> myobj = multifit2_sqw_sqw (w1, w2, ...)      % w1, w2 arrays of objects
+%   >> myobj = multifit2_sqw (w1, w2, ...)      % w1, w2 objects or arrays of objects
 %
-% Type >> doc mfclass   for how to set the fit function, initial
-% parameter values, fix parameters, and fit or simulate the data.
+% This creates a fitting object of class mfclass_sqw with the provided data,
+% which can then be manipulated to add further data, set the fitting
+% functions, initial parameter values etc. and fit or simulate the data.
+% For details <a href="matlab:doc('mfclass_sqw');">Click here</a>
+%
+% This method fits function(s) of S(Q,w) as both the foreground and
+% the background function(s). For the format of the fit functions:
+% <a href="matlab:doc('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
+% <a href="matlab:doc('example_sqw_background');">Click here</a> (Background)
+
 
 mf_init = mfclass_wrapfun ('sqw', @sqw_eval, [], @sqw_eval, []);
 mf_object = mfclass_sqw (mf_init, varargin{:});

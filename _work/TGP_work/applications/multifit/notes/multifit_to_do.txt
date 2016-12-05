@@ -15,8 +15,6 @@ mfclass_tobyfit
 ===============================================================================================
              mfclass
 ===============================================================================================
-- Can put append_cell as a method of mfclass_wrapfun: already have two copies in
-  mfclass_sqw and mfclass_tobyfit.
 
 - fun_replace, fun_remove; constraints_replace etc. are not obviously logically named
   (or even correctly used!)
@@ -39,15 +37,11 @@ mfclass_tobyfit
   ptrans_initialise to return 'calculable' - true if function can be calculated but
   not fitted. repackage_output_data to cope with no free parameters.
   
-- *** DONE *** fit, simulate: cleanup routine to be added
-
-- *** DONE - different solution: bespoke options are subclass properties ***
-  options to be added to subclasses in a way that makes them look transparently like
-  options of mfclass
-  
 - need to have single line call equivalent for full backwards compatibility with
   the original multifit.
   
+2016/10/22: get_option/set_option: unsatisfactory, as it is not clear what the options
+are, and no automatic help.
   
 Multifit_lsqr:
 =================

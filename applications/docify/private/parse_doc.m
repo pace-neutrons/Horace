@@ -125,30 +125,40 @@ if nstr==0
 end
 
 % If top level, then find first block of documentation
-% *** should check that there is only the function definition before the first block
 if top
     iscomment=strncmp(cstr,'%',1);
     ilo=find(iscomment,1);
-    if ilo==1
-        % There is a comment block before any executable code - not
-        % currently parsed by this function
-        ok=false;
-        mess = make_message (fname_full,...
-            'Currently cannot parse code with a leading comment block');
-        return
-    end
     if ~isempty(ilo)
-        if ilo<nstr
-            ihi=find(~iscomment(ilo+1:end),1);
-            if ~isempty(ihi)
-                ihi=ihi+ilo-1;
+        % There is a comment block aomewhere in the code, so it is possible
+        % there is meta documentation
+        if ilo==1
+            % There is a comment block before any executable code - not
+            % currently parsed by this function
+            mess = make_message (fname_full,...
+                'Currently will not parse code with a leading comment block');
+            doc_out=cstr0;
+            return
+        elseif any(strcmp(strtok(cstr{1}),{'function','classdef'}))
+            % First non-blank line is function or class definition - we are
+            % prepared to check that this is docifiable
+            if ilo<nstr
+                ihi=find(~iscomment(ilo+1:end),1);
+                if ~isempty(ihi)
+                    ihi=ihi+ilo-1;
+                else
+                    ihi=nstr;
+                end
             else
-                ihi=nstr;
+                ihi=ilo;
             end
         else
-            ihi=ilo;
+            mess = make_message (fname_full,...
+                'File does not have leading function or class definition line');
+            doc_out=cstr0;
+            return
         end
     else
+        % No comment block found
         doc_out=cstr0;
         return
     end
@@ -160,7 +170,7 @@ end
 % Find doc keywords
 idef=[]; ibeg=[]; iend=[];
 for i=ilo:ihi
-    [var,iskey]=parse_line(cstr{i});
+    [var,iskey,~,~,~,~,tmp_keys,~,ok,mess]=parse_line(cstr{i});
     if iskey
         if strcmpi(var,'doc_def')
             if ~isempty(idef)
@@ -174,6 +184,7 @@ for i=ilo:ihi
                 break
             end
             ibeg=i;
+            doc_keys=tmp_keys;
         elseif strcmpi(var,'doc_end')
             if ~isempty(iend)
                 mess='Meta documentation block can contain only one instance of <#doc_end:>';
@@ -194,6 +205,12 @@ end
 
 % Parse documentation
 if isscalar(ibeg) && isscalar(iend) && ibeg<=iend
+    % Check that if filter keywords are given that at least one of the keywowrds on the
+    % <#doc_beg:> line is in that list
+    if top && ~isempty(doc_filter) && ~any(ismember(doc_keys,doc_filter))
+        doc_out=cstr0;
+        return
+    end
     % Accumulate addition definitions, if any
     if isscalar(idef) && idef<ibeg
         [Snew,ok,mess]=parse_doc_definitions(cstr(idef+1:ibeg-1),args,S);

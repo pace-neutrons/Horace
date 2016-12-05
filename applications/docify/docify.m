@@ -162,9 +162,9 @@ function varargout=docify(varargin)
 %       % <#doc_end:>
 %
 %
-% (5) Lines beginning with a keyword e.g. <#doc_beg:> or <#file:> do not
-%   need to start with '%' - this is purely optional. THe same is true of
-%   block names. For example
+% (5) Except in the top level file, lines beginning with a keyword 
+%   e.g. <#doc_beg:> or <#file:> do not need to start with '%' - this is
+%   purely optional. The same is true of block names. For example
 %       % <#doc_def:>
 %       %   main=0
 %       % <#doc_beg:>
@@ -185,6 +185,9 @@ function varargout=docify(varargin)
 %          <#file:> rubbish.m
 %          <main/end:>
 %       <#doc_end:>
+%
+%    This does not apply to the top level file of course if it is to be
+%    properly executable m-code.
 %
 %
 % (6) A final form of substitution is permitted: if a substitution definition
@@ -227,6 +230,15 @@ elseif numel(pars)==2 && ~isempty(pars{1}) && is_string(pars{1}) &&...
     file_out = pars{2};
 else
     error('Check number of parameters and their values')
+end
+if isempty(keyval.key)
+    keyval.key={};
+elseif iscellstr(keyval.key)
+    keyval.key=keyval.key(:)';
+elseif is_string(keyval.key)
+    keyval.key={keyval.key};
+else
+    error('Check value of keyword ''-key'' is a character string or a cell array of strings')
 end
 
 report = {};
@@ -296,7 +308,11 @@ if n==1
     end
 else
     if ok
-        report = {['Processing: ',file_full_in]};
+        if ~changed
+            report = {['Skipped: ',file_full_in]};
+        else
+            report = {['Changed: ',file_full_in]};
+        end
     elseif ~ok
         if n==2
             report = {['***ERROR: ',file_full_in]};

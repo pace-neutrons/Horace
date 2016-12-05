@@ -1,14 +1,15 @@
 function y = example_1d_function(x, p)
-% Example fitting function
-%
+% Example fitting function one dimension
+% -------------------------------------------------------------------------
 % A one-dimensional fit function must have the form:
-% 	ycalc = my_function (x,p)
 %
-% or, more generally:
-% 	ycalc = my_function (x1,x2,...,p,c1,c2,...)
+% 	>> ycalc = my_function (x,p)
+%
+% More generally:
+% 	>> ycalc = my_function (x,p,c1,c2,...)
 %
 % where
-%  	x           Array of x valuesdimensions
+%  	x           Array of x values
 %   p           A vector of numeric parameters that define the
 %              function (e.g. [A,x0,w] as area, position and
 %              width of a peak)
@@ -18,7 +19,8 @@ function y = example_1d_function(x, p)
 % See also mgauss linear_bg
 %
 % -------------------------------------------------------------------------
-% In this example:
+% This example is a one-dimensional Gaussian:
+%
 %   >> y = gauss(x,p)
 %
 % Input:

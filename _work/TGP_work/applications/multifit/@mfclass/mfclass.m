@@ -43,13 +43,27 @@ classdef mfclass
     %
     %   class_name = 'mfclass'
     %
-    % <#doc_beg:>
+    % <#doc_beg:> multifit
     %   <#file:> <mfclass_purpose_summary_file>
     %
     % <class_name> Methods:
+    %
     %   <#file:> <mfclass_methods_summary_file>
     % <#doc_end:>
 
+    
+    % Notes on inheriting mfclass for use by particular classes:
+    % - Alter the functionality of methods and/or add methods by inheriting
+    %   mfclass e.g. mfclass_sqw
+    % - Wrap the fit functions and/or provide initialisation functions by
+    %   creating an object of class mfclass_wrapfun
+    % - Create methods for the class that call the constructors mfclass_wrapfun,
+    %   mfclass_sqw.
+    % This procedure is required because we will gnerally want the method
+    % multifit2 for objects of class sqw, d1d, d2d,... for example, and
+    % multifit2 will generally need to operate differently for each class.
+    
+    
     properties (Access=protected, Hidden=true)
         % --------------------------------
         % Data class and function wrapping

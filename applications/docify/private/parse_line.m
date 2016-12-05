@@ -16,7 +16,8 @@ function [var,iskey,isblock,isdcom,issub,ismcom,args,isend,ok,mess] = parse_line
 %   isdcom  Flag: =true if docify comment line (i.e. begins with '<<-')
 %   issub   Flag: =true if line substitution name
 %   ismcom  Flag: =true if matlab comment line
-%   args    Cell array of arguments. This can be non-empty only if a keyword
+%   args    Cell array of arguments (row vector). This can be non-empty only
+%          in the case of a keyword 
 %   isend   Flag: =true if block name and has form /end
 %   ok      =true if a valid line for
 %               - keyword:              [%][white_space]<#keyword:>  arg1 arg2 ...
@@ -89,7 +90,7 @@ elseif length(str)>3 && str(1)=='<'
         iskey=true;
         if ~isempty(arglist)
             tmp=textscan(arglist,'%s');
-            args=tmp{1};
+            args=tmp{1}';
         end
     elseif length(nam)>4 && strcmpi(nam(end-3:end),'/end') &&...
             isvarname(nam(1:end-4)) && isempty(arglist)

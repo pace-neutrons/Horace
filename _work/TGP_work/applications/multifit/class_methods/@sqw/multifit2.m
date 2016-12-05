@@ -8,8 +8,10 @@ function mf_object = multifit2 (varargin)
 % functions, initial parameter values etc. and fit or simulate the data.
 % For details <a href="matlab:doc('mfclass_sqw');">Click here</a>
 %
-% For the format of fit functions (foreground or background):
-% <a href="matlab:doc('example_1d_function');">Click here</a>
+% This method fits function(s) of the plot axes as both the foreground and
+% the background function(s). For the format of the fit functions:
+% <a href="matlab:doc('example_1d_function');">Click here</a> (1D example)
+% <a href="matlab:doc('example_2d_function');">Click here</a> (2D example)
 
 mf_init = mfclass_wrapfun ('sqw', @func_eval, [], @func_eval, []);
 mf_object = mfclass_sqw (mf_init, varargin{:});

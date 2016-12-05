@@ -7,7 +7,7 @@ function [ok,mess,file_full_in,changed,file_full_out]=docify_single(file_in,file
 % ------
 %   file_in     Input file name
 %   file_out    Output file name (if empty, then replaces file_in)
-%   doc_filter  Cell array of strings with acceptable filter keywords
+%   doc_filter  Cell array (row) of strings with acceptable filter keywords
 %              on the <#doc_beg:> line. If non-empty, only if one of the
 %              keywords appears on the line will the documnetation be
 %              included. If empty, then meta-documentation will be
