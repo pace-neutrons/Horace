@@ -1,30 +1,91 @@
 classdef mfclass_tobyfit < mfclass
-    % mfclass_tobyfit
-    % Resolution convolution
-    
+% Simultaneously fits resolution broadened S(Q,w) models to several sqw
+% objects, with optional background functions. The foreground function(s)
+% and background function(s) can be set to apply globally to all datasets,
+% or locally, one function per dataset.
+%
+% mfclass_tobyfit Methods:
+%
+% To set data:
+%   set_data     - Set data, clearing any existing datasets
+%   append_data  - Append further datasets to the current set of datasets
+%   remove_data  - Remove one or more dataset(s)
+%   replace_data - Replace one or more dataset(s)
+%
+% To mask data points:
+%   set_mask     - Mask data points
+%   add_mask     - Mask additional data points
+%   clear_mask   - Clear masking for one or more dataset(s)
+%
+% To set fitting functions
+%   set_fun      - Set foreground fit functions
+%   clear_fun    - Clear one or more foreground fit functions
+%   set_bfun     - Set background fit functions
+%   clear_bfun   - Clear one or more background fit functions
+%
+% To set which parameters are fixed or free:
+%   set_free     - Set free or fix parameters
+%   clear_free   - Clear all parameters to be free for one or more data sets
+%   set_bfree    - Set free or fix parameters
+%   clear_bfree  - Clear all parameters to be free for one or more data sets
+%
+% To bind parameters:
+%   set_bind     - Bind foreground parameter values in fixed ratios
+%   add_bind     - Add further bindings
+%   clear_bind   - Clear parameter bindings for one or more foreground functions
+%   set_bbind    - Bind foreground parameter values in fixed ratios
+%   add_bbind    - Add further bindings
+%   clear_bbind  - Clear parameter bindings for one or more foreground functions
+%
+% In addtion, specifically for Tobyfit:
+%   set_refine_crystal      - Refine crystal lattice parmaeters and orientation
+%   set_refine_moderator    - Refine moderator parameters
+%   set_mc_contributions    - Alter which components contribute to the resolution
+%   set_mc_points           - Set the number of Monte Carlo points per pixel
+
+    % <#doc_def:>
+    %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+    %   mfclass_tobyfit_doc = fullfile(fileparts(which('mfclass_tobyfit')),'_docify')
+    %
+    %   mfclass_tobyfit_purpose_summary_file = fullfile(mfclass_tobyfit_doc,'purpose_summary.m')
+    %   mfclass_methods_summary_file = fullfile(mfclass_doc,'methods_summary.m')
+    %   mfclass_tobyfit_methods_summary_file = fullfile(mfclass_tobyfit_doc,'methods_summary.m')
+    %
+    %   class_name = 'mfclass_tobyfit'
+    %
+    % <#doc_beg:> multifit
+    %   <#file:> <mfclass_tobyfit_purpose_summary_file>
+    %
+    % <class_name> Methods:
+    %
+    %   <#file:> <mfclass_methods_summary_file>
+    %
+    %   <#file:> <mfclass_tobyfit_methods_summary_file>
+    % <#doc_end:>
+
     properties (Access=private, Hidden=true)
         % Define which components of instrument contribute to resolution function model
         mc_contributions_ = [];
-        
+
         % The number of Monte Carlo points per pixel
         mc_points_ = [];
-        
+
         % Crystal orientation refinement. If not to be performed, contains [];
         % otherwise a structure with various parameters
         refine_crystal_ = [];
-        
+
         % Moderator parameter refinement. If not to be performed, contains [];
         % otherwise a structure with various parameters
         refine_moderator_ = [];
     end
-    
+
     properties (Dependent)
         mc_contributions
         mc_points
         refine_crystal
         refine_moderator
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -36,26 +97,26 @@ classdef mfclass_tobyfit < mfclass
             obj = obj.set_refine_crystal (false);
             obj = obj.set_refine_moderator (false);
         end
-        
+
         %------------------------------------------------------------------
         % Set/get methods
         %------------------------------------------------------------------
         function out = get.mc_contributions (obj)
             out = obj.mc_contributions_;
         end
-        
+
         function out = get.mc_points (obj)
             out = obj.mc_points_;
         end
-        
+
         function out = get.refine_crystal (obj)
             out = obj.refine_crystal_;
         end
-        
+
         function out = get.refine_moderator (obj)
             out = obj.refine_moderator_;
         end
-        
+
         %------------------------------------------------------------------
         % Extend superclass methods
         %------------------------------------------------------------------
@@ -63,24 +124,24 @@ classdef mfclass_tobyfit < mfclass
             %
             % Create cleanup object
             cleanupObj=onCleanup(@() tobyfit_cleanup);
-            
+
             % Check there is data
             data = obj.data;
             if isempty(data)
                 error('No data sets have been set - nothing to simulate')
             end
-            
+
             % Update parameter wrapping
             obj_tmp = obj;
-            
+
             wrapfun = obj_tmp.wrapfun_;
             wrapfun = wrapfun.append_p_wrap(obj.mc_contributions, obj.mc_points, [], []);
             obj_tmp.wrapfun_ = wrapfun;
-            
+
             % Perform simulation
             [data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
         end
-        
+
         %------------------------------------------------------------------
         function [data_out, fitdata, ok, mess, varargout] = fit (obj)
             % Perform a fit of the data using the current functions and starting parameter values
@@ -149,16 +210,16 @@ classdef mfclass_tobyfit < mfclass
             %
             %
             % If ok is not a return argument, then if ok is false an error will be thrown.
-            
+
             % Create cleanup object
             cleanupObj=onCleanup(@() tobyfit_cleanup);
-            
+
             % Check there is data
             data = obj.data;
             if isempty(data)
                 error('No data sets have been set - nothing to fit')
             end
-            
+
             % Update parameter wrapping
             obj_tmp = obj;
             is_refine_crystal = ~isempty(obj_tmp.refine_crystal);
@@ -175,14 +236,14 @@ classdef mfclass_tobyfit < mfclass
             else
                 modshape = [];
             end
-            
+
             wrapfun = obj_tmp.wrapfun_;
             wrapfun = wrapfun.append_p_wrap(obj.mc_contributions, obj.mc_points, xtal, modshape);
             obj_tmp.wrapfun_ = wrapfun;
-            
+
             % Perform fit
             [data_out, fitdata, ok, mess] = fit@mfclass (obj_tmp);
-            
+
             % Extract crystal or moderator refinement parameters (if any) in a useful form
             if is_refine_crystal
                 % Get the rlu correction matrix if crystal refinement
@@ -200,7 +261,7 @@ classdef mfclass_tobyfit < mfclass
                 % Pack output arguments
                 varargout={rlu_corr};
             end
-            
+
             if is_refine_moderator
                 % Get the moderator refinement parameters
                 fitmod.pulse_model=modshape.pulse_model;
@@ -217,7 +278,7 @@ classdef mfclass_tobyfit < mfclass
             end
         end
     end
-    
+
     methods (Access=private)
         [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts)
         [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj, mod_opts)
