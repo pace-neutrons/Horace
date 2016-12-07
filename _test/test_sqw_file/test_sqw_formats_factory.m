@@ -82,6 +82,16 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
                 'test_sqw_file','test_sqw_file_fictional_ver.sqw');
             fl = @()(sqw_formats_factory.instance().get_loader(file_ficVer));
             assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error')
+            
+            file_v1 = fullfile(fileparts(obj.test_folder),...
+                'test_sqw_file','w2_small_v1.sqw');
+            loader = sqw_formats_factory.instance().get_loader(file_v1);
+            
+            assertTrue(isa(loader,'faccess_sqw_v2'));
+            assertEqual(loader.file_version,'-v2');
+            assertEqual(loader.filename,'w2_small_v1.sqw')
+            assertEqual(loader.npixels,179024)
+            
 
             
         end

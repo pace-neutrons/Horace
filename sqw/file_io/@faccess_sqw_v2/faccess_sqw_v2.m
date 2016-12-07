@@ -84,27 +84,29 @@ classdef faccess_sqw_v2 < sqw_binfile_common
             end
         end
         %
-        function [should,objinit,mess]= should_load_stream(obj,stream,fid)
+        function [should,objinit,mess]= should_load_stream(obj,header,fid)
             % Check if this loader should load input data
-            % Currently should any dnd object
+            % Currently should any sqw object
             %Usage:
             %
-            %>> [should,obj] = obj.should_load_stream(datastream,fid)
+            %>> [should,obj] = obj.should_load_stream(header,fid)
             % where
-            % datastream:  structure returned by get_file_header function
+            % header:  structure returned by dnd_file_interface.get_file_header 
+			% static method
+            %
             % Returns:
             % true if the loader can load these data, or false if not
             % with message explaining the reason for not loading the data
             % of should, object is initiated by appropriate file identified
             mess = '';
-            if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
-                if stream.sqw_type && ( stream.version == 2 || stream.version == 3 )
-                    objinit = obj_init(fid,double(stream.num_dim));
+            if isstruct(header) && all(isfield(header,{'sqw_type','version'}))
+                if header.sqw_type && ( header.version == 2 || header.version == 3 || header.version==1)
+                    objinit = obj_init(fid,double(header.num_dim));
                     should = true;
-                    if stream.version == 3
+                    if header.version == 3
                         warning('SQW_FILE_IO:legacy_data',...
                             ['should_load_stream -- Legacy sqw file version 3.0 has been discovered.\n'...
-                            'Loading it as sqw version 2 file with instrument/sample block discarded'])
+                            'Loading it as sqw version 2 file with instrument/sample block ignored'])
                     end
                 else
                     should = false;
