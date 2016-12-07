@@ -102,6 +102,47 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
             
         end
+        function obj = test_init_v1(obj)
+            to = faccess_sqw_v2();
+            assertEqual(to.file_version,'-v2');
+                                   
+            
+            [ok,initob] = to.should_load(fullfile(obj.test_folder,'w2_small_v1.sqw'));
+            
+            assertTrue(ok);
+            assertTrue(initob.file_id > 0);
+            
+            to = to.init(initob);
+            assertEqual(to.npixels,179024);
+            
+            header = to.get_header();
+            assertEqual(header.filename,'map11014.spe;1')
+            assertEqual(header.ulabel{4},'E')
+            assertEqual(header.ulabel{3},'Q_\eta')
+            
+            det = to.get_detpar();
+            assertEqual(det.filename,'9cards_4_4to1.par')
+            assertEqual(det.filepath,'c:\data\Fe\')
+            assertEqual(numel(det.group),36864)
+            
+            data = to.get_data();
+            assertEqual(size(data.pix),[9,179024])
+            assertEqual(size(data.s,1),numel(data.p{1})-1)
+            assertEqual(size(data.e,2),numel(data.p{2})-1)
+            assertEqual(size(data.npix),size(data.e))
+            
+            headers = to.get_header('-all');
+            assertEqual(numel(headers),186)
+            
+            header = headers{186};
+            assertEqual(header.filename,'map11201.spe;1');
+            assertEqual(header.filepath,'c:\data\Fe\data_nov06\const_ei\');
+            assertEqual(header.ulabel{1},'Q_\zeta')
+            assertEqual(header.ulabel{2},'Q_\xi')
+            assertEqual(header.ulabel{4},'E')            
+            
+        end
+        
         function obj = test_get_data(obj)
             spath = fileparts(obj.sample_file);
             sample  = fullfile(spath,'w1d_sqw.sqw');
