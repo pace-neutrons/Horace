@@ -92,7 +92,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             % Check if this loader should deal with selected data stream
             %Usage:
             %
-            %>> [should,obj] = obj.should_load_stream(datastream,fid)
+            %>> [should,obj] = obj.should_load_stream(header,fid)
             % datastream -- sequence of bytes to interpret as Horace header
             %Returns
             % true if the loader can load these data, or false if not
