@@ -143,7 +143,7 @@ classdef dnd_file_interface
         %
         % verify if the class should load the file, determined by opened
         % file identifier by analysing the block of information (stream)
-        % obtained from the open file
+        % obtained from the open file by get_file_header static method of this class.
         [should,obj,mess]= should_load_stream(obj,stream,fid)
         %
         % Main initializer (accessible through constructor with the same
