@@ -1,22 +1,40 @@
-function [should,objinit,mess]= should_load_stream(obj,stream,fid)
-% Check if this loader should deal with selected data structure
+function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
+% Check if this loader should load input data.
+%
+% The default implementation returns true if class version corresponds to
+% the version provided by the structure and the type of the loader
+% (sqw_type or not sqw_type) contains the same value as the value stored in
+% the input header structure.
+%
+% Some child classes overload this method, to expand || shrink the type ot
+% files the class should deal with.
+%
 %Usage:
 %
-%>> [should,obj_initiator,mess] = obj.should_load_stream(datastream,fid)
-% structure returned by get_file_header function
+%>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
+% where:
+% head_struc:: structure returned by dnd_file_interface.get_file_header
+%              static method and containing sqw/dnd file info, stored in
+%              the file header.
+% fid       :: file identifier of already opened binary sqw/dnd file where
+%              head_struct has been read from 
+%
 % Returns:
-% true if the loader can load these data, or false if not
-% with message explaining the reason for not loading the data
-% of should, object is initiated by appropriate file identified
+% should  :: boolean equal to true if the loader can load these data,
+%            or false if not.
+% objinit :: initialized helper obj_init class, containing information, necessary
+%            to initialize the loader.
+% message :: if false, contains detailed information on the reason why this
+%            file should not be loaded by this loader. Empty, if should ==
+%            true.
 %
 %
 % $Revision$ ($Date$)
 %
-
 mess = '';
-if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
-    if stream.sqw_type == obj.sqw_type && stream.version == obj.file_ver_
-        objinit = obj_init(fid,stream.num_dim);
+if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
+    if head_struc.sqw_type == obj.sqw_type && head_struc.version == obj.file_ver_
+        objinit = obj_init(fid,head_struc.num_dim);
         should = true;
     else
         should = false;

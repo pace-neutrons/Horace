@@ -89,13 +89,28 @@ classdef faccess_sqw_prototype < sqw_binfile_common
         end
         %
         function [should,initob,mess] =should_load_stream(obj,header,fid)
-            % Check if this loader should deal with selected data stream
+            % Check if faccess_sqw_prototype loader should process selected
+            % data file.
             %Usage:
             %
-            %>> [should,obj] = obj.should_load_stream(header,fid)
-            % datastream -- sequence of bytes to interpret as Horace header
-            %Returns
-            % true if the loader can load these data, or false if not
+            %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
+            % where:
+            % head_struc:  structure returned by dnd_file_interface.get_file_header
+            %              static method and containing sqw/dnd file info, stored in
+            %              the file header.
+            % fid       :: file identifier of already opened binary sqw/dnd file where
+            %              head_struct has been read from
+            
+            %
+            % Returns:
+            % should  :: boolean equal to true if the loader can load these data,
+            %            or false if not.
+            % objinit :: initialized helper obj_init class, containing information, necessary
+            %            to initialize the loader.
+            % message :: if false, contains detailed information on the reason why this
+            %            file should not be loaded by this loader. Empty, if should ==
+            %            true.
+            
             if header.version == 0 && strcmp(header.name,'horace')
                 if header.uncertain
                     fseek(fid,0,'bof');

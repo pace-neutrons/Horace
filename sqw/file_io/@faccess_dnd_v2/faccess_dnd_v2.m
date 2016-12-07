@@ -1,45 +1,45 @@
 classdef faccess_dnd_v2 < dnd_binfile_common
     % Class to access Horace dnd files written by Horace v1-v2
     %
-	% Usage:
-	%1) 
-    %>>dnd_access = faccess_dnd_v2(filename) 
-	% or
-	% 2) 
-	%>>dnd_access = faccess_dnd_v2(sqw_dnd_object,filename)
+    % Usage:
+    %1)
+    %>>dnd_access = faccess_dnd_v2(filename)
+    % or
+    % 2)
+    %>>dnd_access = faccess_dnd_v2(sqw_dnd_object,filename)
     %
-	% 1) 
-	% First form initializes accessor to existing dnd file where 
-	% @param filename  :: the name of existing dnd file.
-	%
-	% Throws if file with filename is missing or is not written in dnd v1-v2 format.
-	%
-    % To avoid attempts to initialize this accessor using incorrect sqw file, 
-	% access to existing sqw files should be organized using sqw format factory 
-	% namely:
-	%
+    % 1)
+    % First form initializes accessor to existing dnd file where
+    % @param filename  :: the name of existing dnd file.
+    %
+    % Throws if file with filename is missing or is not written in dnd v1-v2 format.
+    %
+    % To avoid attempts to initialize this accessor using incorrect sqw file,
+    % access to existing sqw files should be organized using sqw format factory
+    % namely:
+    %
     % >> accessor = sqw_formats_factory.instance().get_loader(filename)
-	%
-	% If the sqw file with filename is dnd v1 or v2 sqw file, the sqw format factory will 
-	% return instance of this class, initialized for reading this file.
-	% The initialized object allows to use all get/read methods described by dnd_file_interface.
     %
-	% 2) 
-	% Second form used to initialize the operation of writing new or updating existing dnd file.
-	% where:
-	%@param sqw_dnd_object:: existing fully initialized sqw or dnd object in memory. 
-	%@param filename      :: the name of a new or existing dnd object on disc
-	%
-	% Update mode is initialized if the file with name filename exists and can be updated,
-	% i.e. has the same number of dimensions, binning and  axis. In this case you can modify 
-	% dnd methadata. 
-	% if existing file can not be updated, it will be open in write mode. 
-	% If file with filename does not exist, the object will be open in write mode.
-	%
-	% Initialized faccess_dnd_v2 object allows to use write/update methods of dnd_format_interface
-	% and all read methods if the proper information already exists in the file. 
-	%
-	% Note:
+    % If the sqw file with filename is dnd v1 or v2 sqw file, the sqw format factory will
+    % return instance of this class, initialized for reading this file.
+    % The initialized object allows to use all get/read methods described by dnd_file_interface.
+    %
+    % 2)
+    % Second form used to initialize the operation of writing new or updating existing dnd file.
+    % where:
+    %@param sqw_dnd_object:: existing fully initialized sqw or dnd object in memory.
+    %@param filename      :: the name of a new or existing dnd object on disc
+    %
+    % Update mode is initialized if the file with name filename exists and can be updated,
+    % i.e. has the same number of dimensions, binning and  axis. In this case you can modify
+    % dnd methadata.
+    % if existing file can not be updated, it will be open in write mode.
+    % If file with filename does not exist, the object will be open in write mode.
+    %
+    % Initialized faccess_dnd_v2 object allows to use write/update methods of dnd_format_interface
+    % and all read methods if the proper information already exists in the file.
+    %
+    % Note:
     % The current sqw file format comes in two variants:
     %   - Horace version 1 and version 2: file format '-v2'
     %   (Autumn 2008 onwards). Does not contain instrument and sample fields in the header block.
@@ -74,22 +74,31 @@ classdef faccess_dnd_v2 < dnd_binfile_common
             end
         end
         %
-        function [should,objinit,mess]= should_load_stream(obj,stream,fid)
-            % Check if this loader should load input data
-            % Currently should any dnd object
-            %Usage:
+        function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
+            % Check if faccess_dnd_v2 loader should process selected input data
+            % file.
             %
-            %>> [should,obj_init,mess] = obj.should_load_stream(datastream,fid)
-            % where
-            % datastream:  structure returned by get_file_header function
+            %Usage:
+            %>> [should,objinit,mess] = obj.should_load_stream(head_struc,fid)
+            % where:
+            % head_struc:: structure returned by dnd_file_interface.get_file_header
+            %              static method and containing sqw/dnd file info, stored in
+            %              the file header.
+            % fid       :: file identifier of already opened binary sqw/dnd file where
+            %              head_struct has been read from.
+            %
             % Returns:
-            % true if the loader can load these data, or false if not
-            % with message explaining the reason for not loading the data
-            % of should, object is initiated by appropriate file identified
+            % should  :: boolean equal to true if the loader can load these data,
+            %            or false if not.
+            % objinit :: initialized helper obj_init class, containing information,
+            %            necessary to initialize the loader.
+            % message :: if false, contains detailed information on the reason
+            %            why this file should not be loaded by this loader.
+            %            Empty, if should == true.
             mess = '';
-            if isstruct(stream) && all(isfield(stream,{'sqw_type','version'}))
-                if ~stream.sqw_type
-                    objinit = obj_init(fid,double(stream.num_dim));
+            if isstruct(head_struc) && all(isfield(head_struc,{'sqw_type','version'}))
+                if ~head_struc.sqw_type
+                    objinit = obj_init(fid,double(head_struc.num_dim));
                     should = true;
                 else
                     should = false;
@@ -98,7 +107,7 @@ classdef faccess_dnd_v2 < dnd_binfile_common
                 end
             else
                 error('SQW_FILE_IO:invalid_argument',...
-                    'FACCESS_DND_V2::should_load_stream: the input structure for this function does not have correct format');
+                    'should_load_stream: the input structure for this function does not have correct format');
             end
         end
         %

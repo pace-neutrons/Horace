@@ -37,7 +37,7 @@ classdef test_faccess_sqw_v2< TestCase
             this=this@TestCase(name);
             
             this.sample_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_symmetrisation');
-            this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');            
+            this.sample_file = fullfile(this.sample_dir,'w3d_sqw.sqw');
             this.test_folder=fileparts(mfilename('fullpath'));
         end
         
@@ -102,10 +102,10 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
             
         end
-        function obj = test_init_v1(obj)
+        function obj = test_read_v1(obj)
             to = faccess_sqw_v2();
             assertEqual(to.file_version,'-v2');
-                                   
+            
             
             [ok,initob] = to.should_load(fullfile(obj.test_folder,'w2_small_v1.sqw'));
             
@@ -139,7 +139,14 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(header.filepath,'c:\data\Fe\data_nov06\const_ei\');
             assertEqual(header.ulabel{1},'Q_\zeta')
             assertEqual(header.ulabel{2},'Q_\xi')
-            assertEqual(header.ulabel{4},'E')            
+            assertEqual(header.ulabel{4},'E')
+            
+            
+            main_h = to.get_main_header('-verbatim');
+            assertEqual(main_h.nfiles,186);
+            assertEqual(main_h.filename,'Fe_ei787.sqw');
+            assertEqual(main_h.filepath,'c:\data\Fe\sqw\');
+            
             
         end
         
@@ -245,6 +252,7 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
             %
         end
+        %
         function obj = test_upgrade_sqw_wac(obj)
             %
             spath = fileparts(obj.sample_file);
@@ -303,6 +311,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(ok,mess)
             %
         end
+        %
         function obj = test_get_dnd_from_sqw(obj)
             %
             spath = fileparts(obj.sample_file);
@@ -328,7 +337,8 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(ok,mess)
             %
         end
-        function obj = test_sqw_reopen_to_wrire(obj)
+        %
+        function obj = test_sqw_reopen_to_write(obj)
             
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');

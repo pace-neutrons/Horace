@@ -273,7 +273,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                 'version',int32(1),'nfiles',int32(1),'all_same',uint8(1));
         end
         function form = get_si_form(obj_name)
-            % returns the format used to save/restopre instrument or sample
+            % returns the format used to save/restore instrument or sample
             % information
             form = faccess_sqw_v3.v3_data_form_;
         end
