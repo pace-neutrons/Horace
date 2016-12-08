@@ -1,8 +1,10 @@
-function save (w, file)
+function save (w, varargin)
 % Save a sqw object or array of sqw objects to file
 %
 %   >> save (w)              % prompt for file
 %   >> save (w, file)        % give file
+%   >> save (w, file,'-update') % if the target file exist, update it to
+%                               latest format if this is possible
 %
 % Input:
 %   w       sqw object
@@ -17,15 +19,19 @@ function save (w, file)
 %
 % $Revision$ ($Date$)
 
+[ok,mess,upgrade,argi] = parse_char_options(varargin,{'-update'});
+if ~ok
+    error('SQW_FILE_IO:invalid_argument',mess);
+end
 
 % Get file name - prompting if necessary
-if nargin==1
+if numel(argi)==0
     file_internal = putfile('*.sqw');
     if (isempty(file_internal))
         error ('No file given')
     end
 else
-    [file_internal,mess]=putfile_horace(file);
+    [file_internal,mess]=putfile_horace(argi{1});
     if ~isempty(mess)
         error(mess)
     end
@@ -53,7 +59,7 @@ for i=1:numel(w)
     if horace_info_level>0
         disp(['*** Writing to ',file_internal{i},'...'])
     end
-    if exist(file_internal{i},'file') == 2
+    if ~upgrade && exist(file_internal{i},'file') == 2
         delete(file_internal{i});
     end
     ldw = ldw.init(w(i),file_internal{i});

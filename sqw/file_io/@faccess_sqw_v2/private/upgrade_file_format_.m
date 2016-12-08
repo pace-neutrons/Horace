@@ -3,11 +3,11 @@ function  new_obj = upgrade_file_format_(obj)
 %
 % currently preferred is format v 3
 %
-    %
-    %
-    % $Revision$ ($Date$)
-    %
-    %
+%
+%
+% $Revision$ ($Date$)
+%
+%
 
 new_obj = sqw_formats_factory.instance().get_pref_access();
 if ischar(obj.num_dim) % source object is not initiated. Just return
@@ -56,8 +56,12 @@ head.instrument = struct();
 head.sample = struct();
 if nfiles>1
     heads = cell(1,nfiles);
-    heads  = cellfun(@()head,heads,'UniformOutput',false);
+    % matlab bug fixed in 2016b
+    heads  = cellfun(@(x)gen_head(head,x),heads,'UniformOutput',false);
 else
     heads = head;
 end
 sq.header = heads;
+
+function hd= gen_head(head,x)
+hd = head;
