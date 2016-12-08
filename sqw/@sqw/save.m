@@ -4,8 +4,9 @@ function save (w, varargin)
 %   >> save (w)              % prompt for file
 %   >> save (w, file)        % give file
 %   >> save (w, file,'-update') % if the target file exist, update it to
-%                               latest format if this is possible
-%
+%                               latest format if this is possible. If
+%                               update is possible, pixels in file will not be
+%                               overwritten.
 % Input:
 %   w       sqw object
 %   file    [optional] File for output. if none given, then prompted for a file

@@ -253,6 +253,35 @@ classdef test_faccess_sqw_v2< TestCase
             %
         end
         %
+        function obj = test_upgrade_sqw_multiheader(obj)
+            spath = fileparts(fileparts(obj.sample_file));
+            samplef  = fullfile(spath,'test_sqw_file','w2_small_v1.sqw');
+            
+            
+            tf = fullfile(tempdir,'test_upgrade_sqwV2_multiheader.sqw');
+            clob = onCleanup(@()delete(tf));
+            copyfile(samplef,tf);
+            
+            tob = faccess_sqw_v2(tf);
+            tob = tob.upgrade_file_format();
+            assertTrue(isa(tob,'faccess_sqw_v3'));
+            
+            
+            sqw1 = tob.get_sqw();
+            
+            tob.delete();
+            
+            to = sqw_formats_factory.instance().get_loader(tf);
+            assertTrue(isa(to,'faccess_sqw_v3'));
+            
+            sqw2 = to.get_sqw();
+            
+            assertEqual(sqw1,sqw2);
+            to.delete();
+            %
+        end
+        
+        %
         function obj = test_upgrade_sqw_wac(obj)
             %
             spath = fileparts(obj.sample_file);
