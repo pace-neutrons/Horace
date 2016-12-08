@@ -6,7 +6,7 @@ function    obj = put_sqw(obj,varargin)
 %
 %
 %
-[ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
+[ok,mess,update,nopix,argi]=parse_char_options(varargin,{'-update','-nopix'});
 if ~ok
     error('SQW_FILE_IO:invalid_artgument',...
         ['DND_BINFILE_COMMON::put_sqw Error: ',mess]);
@@ -34,6 +34,9 @@ if update
     end
     %return update option to argument list
     argi{end+1} = '-update';
+end
+if nopix
+    argi{end+1} = '-nopix';    
 end
 
 
