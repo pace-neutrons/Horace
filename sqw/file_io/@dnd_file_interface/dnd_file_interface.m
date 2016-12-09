@@ -157,7 +157,7 @@ classdef dnd_file_interface
         obj = init(obj,varargin);
         %
         % set new filename to write file or prepare existing file for
-        % writing.
+        % update or write if update is not possible.
         %Usage:
         %>>[obj,file_exist] = obj.set_file_to_update(filename_to_write);
         [obj,file_exist] = set_file_to_update(obj,varargin)

@@ -7,7 +7,7 @@ function obj = reopen_to_write(obj,filename)
 % or
 %>>obj= obj.reopen_to_write(filename);
 % Where first form reopens/opens file with filename which already set up in
-% the objec (e.g. object has been initalized to read data) 
+% the object (e.g. object has been initialized to read data) 
 % and the second form sets up new filename and opens it in write mode
 %
 % 
@@ -31,7 +31,7 @@ else
             error('SQW_FILE_IO:invalid_argument',...
                 'reopen_to_write: get input file handle with incorrect file access for file %s',fname);
         end
-        obj=fclose_file();
+        obj=fclose_file(obj);
         obj.file_id_ = fname;
         [fp,fn,fext] = fileparts(fname);
         obj.filename_ = [fn,fext];

@@ -166,7 +166,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % set filename to save sqw data and open file for write/append
         % operations
         [obj,file_exist] = set_file_to_update(obj,filename)
-        % Reopen existing file to overwritne or write new data to it
+        % Reopen existing file to overwrite or write new data to it
         % or open new target file to save data.
         obj = reopen_to_write(obj,filename)
         %
