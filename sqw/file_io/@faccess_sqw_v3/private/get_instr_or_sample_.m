@@ -39,9 +39,17 @@ else
     n_inst = 1;
 end
 if iscell(samp_block)
-    res = samp_block{n_inst};
+    if numel(samp_block) == 1
+        res = samp_block{1};
+    else
+        res = samp_block{n_inst};
+    end
 else
-    res = samp_block(n_inst);
+    if numel(samp_block) == 1
+        res = samp_block;
+    else
+        res = samp_block(n_inst);
+    end
 end
 %
 %
