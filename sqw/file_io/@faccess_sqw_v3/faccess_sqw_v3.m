@@ -178,7 +178,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % get instrument stored in sqw file
             % Usage:
             %>>inst = obj.get_instrument()
-            % Returns first instrument, sroted in the file
+            % Returns first instrument, stored in the file
             %>>inst = obj.get_instrument(number)
             % Returns instrument with number, specified
             %>>inst = obj.get_instrument('-all')

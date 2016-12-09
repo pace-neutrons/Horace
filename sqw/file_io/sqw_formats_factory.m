@@ -5,9 +5,7 @@ classdef sqw_formats_factory < handle
     %
     %
     % $Revision$ ($Date$)
-    %
-    
-    
+    %        
     properties(Access=private) %
         % Registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface to this list in the order
@@ -40,6 +38,11 @@ classdef sqw_formats_factory < handle
     methods(Static)
         % Concrete implementation.
         function obj = instance()
+            % return global initialized instance of this class.
+            %
+            % The class is a singleton and calling this function is 
+            % the only way to access the public class methods. 
+            %
             persistent uniqueLoaders_factory_Instance
             if isempty(uniqueLoaders_factory_Instance)
                 obj = sqw_formats_factory();
