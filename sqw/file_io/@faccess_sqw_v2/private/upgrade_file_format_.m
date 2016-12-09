@@ -22,7 +22,7 @@ end
 if ~ismember(acc,{'wb+','rb+'})
     clear new_obj.file_closer_;  % as file is closed on output of reopen to write
     new_obj = new_obj.fclose();  % in case the previous does not work, and if it does, makes no harm
-    new_obj = new_obj.reopen_to_write();
+    new_obj = new_obj.set_file_to_update();
 end
 %
 % file format 3 specific part---------------------------------------------

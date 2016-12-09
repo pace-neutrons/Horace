@@ -70,7 +70,10 @@ nefix=numel(efix);
 if nefix>1
     for i=1:nobj
         if w.nfiles(i)~=nefix
-            error('An array of efix values was given but its length does not match the number of spe files in (all) the sqw source(s) being altered')
+            error('SQW:file_io',...
+                ['An array of efix values was given but its length (%d) ',...
+               'does not match the number of spe files (%d) in (all) the sqw source(s) being altered'],...
+               nefix,w.nfiles(i))
         end
     end
 end
@@ -109,7 +112,7 @@ for i=1:nobj
     % Write back out
     if source_is_file
         ld = ld.upgrade_file_format(); % also reopens file in update mode if format is already
-        ld = ld.put_headers(h.header);
+        ld = ld.put_headers(tmp);
     else
         wout(i).header=tmp;
     end

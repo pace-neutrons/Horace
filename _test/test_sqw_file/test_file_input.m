@@ -62,6 +62,7 @@ classdef  test_file_input < TestCase
             end
             
         end
+        %
         function obj=setUp(obj)
             % =================================================================================================
             % Read in test data sets
