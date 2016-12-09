@@ -62,7 +62,7 @@ if w.source_is_file
         ld = w.loaders_list{i};
         data    = ld.get_data('-verbatim','-head');
         target_file = fullfile(ld.filepath,ld.filename);
-        ld = ld.set_file_to_write(target_file);        
+        ld = ld.set_file_to_update(target_file);        
         if ld.sqw_type
             headers = ld.get_header('-all');
             [headers,data]=change_crystal_alter_fields(headers,data,args{:});
