@@ -108,7 +108,7 @@ for i=1:nobj
     end
     % Write back out
     if source_is_file
-        h.header=tmp;
+        ld = ld.upgrade_file_format(); % also reopens file in update mode if format is already
         ld = ld.put_headers(h.header);
     else
         wout(i).header=tmp;

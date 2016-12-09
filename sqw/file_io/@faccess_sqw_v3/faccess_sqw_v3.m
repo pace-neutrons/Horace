@@ -141,6 +141,11 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         %
+        % return structure, containing position of every data field in the
+        % file (when object is initialized). Here due to bug in Matlab
+        % inheritance chain
+        pos_info = get_pos_info(obj)
+        %
         function obj=faccess_sqw_v3(varargin)
             % constructor, to build sqw reader/writer version 3
             %
@@ -196,10 +201,6 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %
             [samp,obj] = get_instr_or_sample_(obj,'sample',varargin{:});
         end
-        % return structure, containing position of every data field in the
-        % file (when object is initialized). Here due to bug in Matlab
-        % inheritance chain
-        pos_info = get_pos_info(obj)
         %
         function obj = put_instruments(obj,varargin)
             % store or change instrument information in the file
@@ -255,9 +256,9 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         %
         function obj = upgrade_file_format(obj)
             % this is currently (01/01/2017) recent file format.
-            % Just reopen for writing
+            % Just reopen for update
             if ~isempty(obj.filename)
-                obj = obj.reopen_to_write();
+                obj = obj.set_file_to_update();
             end
         end
         %
