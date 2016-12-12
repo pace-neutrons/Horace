@@ -58,7 +58,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     % $Revision$ ($Date$)
     %
     %
-    properties(Access=protected)
+    properties(Access=protected,Hidden=true)
         %
         instrument_head_pos_ = 0;
         instrument_pos_      = 0;
@@ -71,7 +71,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         eof_pos_ = 0;
     end
     %
-    methods(Access=protected)
+    methods(Access=protected,Hidden=true)
         function obj=init_from_sqw_file(obj)
             % intialize the structure of faccess class using opened
             % sqw file as input
@@ -127,7 +127,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         
     end
     %
-    properties(Constant,Access=private)
+    properties(Constant,Access=private,Hidden=true)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         data_fields_to_save_ = {'instrument_head_pos_','instrument_pos_',...

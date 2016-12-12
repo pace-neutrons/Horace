@@ -79,13 +79,14 @@ for i=1:nobj
     if source_is_file
         ld = w.loaders_list{i};
         nfiles = ld.num_contrib_files;
+        tmp = ld.get_header('-all');        
     else
         h=wout(i);  % pointer to object
         nfiles=h.main_header.nfiles;        
+        tmp=h.header;   % to keep referencing to sub-fields to a minimum
     end
     % Change the header
 
-    tmp=h.header;   % to keep referencing to sub-fields to a minimum
     if nfiles>1
         for ifile=1:nfiles
             if npp==1
@@ -101,10 +102,9 @@ for i=1:nobj
     if source_is_file
         ld = ld.upgrade_file_format(); % if file was old version one, upgrade to new, 
         % if not, opens for writing
-        ld = ld.put_instruments(tmp);
-        %h.header=tmp;
-        %mess = put_sqw (flname{i},h.main_header,h.header,h.detpar,h.data,'-his');
-        %if ~isempty(mess), error(['Error writing to file ',flname{i},' - check the file is not corrupted: ',mess]), end
+        tt = sqw();
+        tt.header = tmp;
+        ld = ld.put_instruments(tt);
     else
         wout(i).header=tmp;
     end
