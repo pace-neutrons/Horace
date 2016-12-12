@@ -185,6 +185,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % returns array of instruments if they are different or
             % single instrument if they are the same.
             %
+            %TODO: change this to return always array or always cellarray
+            %      regardless of the internal structure
             [inst,obj] = get_instr_or_sample_(obj,'instrument',varargin{:});
         end
         %
