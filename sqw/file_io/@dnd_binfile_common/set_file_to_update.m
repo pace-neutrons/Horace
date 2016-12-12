@@ -117,7 +117,7 @@ if file_exist
         fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);
         return
     end
-    can_upgrade = sqw_formats_factory.instance().check_compartibility(old_ldr,obj);
+    can_upgrade = sqw_formats_factory.instance().check_compatibility(old_ldr,obj);
     if ~can_upgrade
         if log_level > 1;  fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);end
         return

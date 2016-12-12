@@ -8,7 +8,7 @@ classdef dnd_file_interface
     %
     % $Revision$ ($Date$)
     %
-    properties(Access=protected)
+    properties(Access=protected,Hidden=true)
         filename_=''
         filepath_=''
         % Bad MATLAB OO :: each child should redefine this version manually
@@ -29,7 +29,7 @@ classdef dnd_file_interface
         convert_to_double_ = true;
     end
     %
-    properties(Constant,Access=protected)
+    properties(Constant,Access=protected,Hidden=true)
         % format of application header, written at the beginning of a
         % binary sqw/dnd file to identify this file for clients
         app_header_form_ = struct('appname','horace','version',double(1),...
