@@ -1,11 +1,28 @@
 classdef sqw_formats_factory < handle
-    % The class responsible for providing and initiating appropriate sqw file/read-writer
-    % given sqw file name or preferred sqw file/read-writer given sqw
-    % object or sqw or dnd oject name.
+    % The class responsible for providing and initiating appropriate sqw
+    % file accessor given sqw file name or preferred sqw file accessor
+    % for given sqw object or sqw or dnd object type.
+    %
+    % sqw file accessor is used to read/write the whole or partial sqw data
+    % from/to a various sqw format file(s).
+    %
+    % sqw_formats_factory Methods:
+    %  instance      - main method to access unique instance of the factory
+    %                  (singleton).
+    %
+    % User methods:
+    % get_loader  -     returns loader suitable for to get data from the file
+    %                   with the name provided.
+    % get_pref_access - returns non-initialized accessor appropriate to
+    %                   save the type of data provided as input.
+    %
+    % Developers method:
+    % check_compatibility - verifies if position info from one sqw file accessor can be
+    %                       used to initialize another accessor.
     %
     %
     % $Revision$ ($Date$)
-    %        
+    %
     properties(Access=private) %
         % Registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface to this list in the order
@@ -19,29 +36,30 @@ classdef sqw_formats_factory < handle
         access_to_type_ind_ = {1,3,3,3,3,3,3};
         types_map_ ;
     end
-    properties(Dependent)
-    end
     
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
         % to allow a single instance of this class.  See description in
-        % Singleton superclass.
+        % Singleton pattern.
         function obj = sqw_formats_factory()
             % Initialise your custom properties.
             obj.types_map_= containers.Map(obj.written_types_ ,...
-                obj.access_to_type_ind_);
-            
-            %nLoaders = numel(newObj.supported_readers);
+                obj.access_to_type_ind_);            
         end
     end
     
     methods(Static)
         % Concrete implementation.
         function obj = instance()
-            % return global initialized instance of this class.
+            % return single global initialized instance of this class
+            % (singleton instance)
             %
-            % The class is a singleton and calling this function is 
-            % the only way to access the public class methods. 
+            % The class is a singleton and calling this function is
+            % the only way to access the public class methods.
+            % e.g.:
+            %>>ld = sqw_formats_factory.instance().get_loader(filename)
+            %
+            % returns initialized loader
             %
             persistent uniqueLoaders_factory_Instance
             if isempty(uniqueLoaders_factory_Instance)
@@ -55,14 +73,19 @@ classdef sqw_formats_factory < handle
     
     methods % Public Access
         function loader = get_loader(obj,sqw_file_name)
-            % return initiated loader which can load the data from the specified data file
+            % Returns initiated loader which can load the data from the specified data file
             %
             %Usage:
             %>>loader=loaders_factory.instance().get_loader(sqw_file_name);
             %
             % where:
             %>>data_file_name  -- the name of the file, which is the source of the data
-            %                     or the celarray of such names.
+            %                     or the cellarray of such names.
+            %                     If cellarray of the names provided, the method returns
+            %                     cellarray of loaders.
+            %
+            % On error throws SQW_FILE_IO:runtime_error exception with message, explaining the reason for error.
+            %                    The errors are usually caused by missing or not-recognized (non-sqw) input file.
             %
             if iscell(sqw_file_name) % process range of files
                 loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
@@ -119,9 +142,9 @@ classdef sqw_formats_factory < handle
         end
         %
         function loader = get_pref_access(obj,varargin)
-            % return the version of the accessor recommended to write by
-            % default or with particular type of sqw object provided as
-            % argument
+            % Returns the version of the accessor recommended to use for writing sqw files
+            % by default.
+            %
             %Usage:
             %>>loader = sqw_formats_factory.instance().get_pref_access();
             %           -- returns default accessor
@@ -133,8 +156,10 @@ classdef sqw_formats_factory < handle
             %
             %>>loader = sqw_formats_factory.instance().get_pref_access(object)
             %         -- returns preferred accessor for the object of type
-            %            provided, where allowed types are sqw,dnd,d0d,d1d,d2d,d3d,d4d.
-            %           Throws if type is not among the specified types.
+            %             provided, where allowed types are sqw,dnd,d0d,d1d,d2d,d3d,d4d.
+            %
+            %            Throws 'SQW_FILE_IO:invalid_argument' if the type
+            %            is not among the types specified above.
             %
             [ok,mess,is_dnd,is_sqw,argi] =parse_char_options(varargin,{'dnd','sqw'});
             if ~ok
@@ -173,16 +198,29 @@ classdef sqw_formats_factory < handle
             end
         end
         %
-        function is_compartible = check_compartibility(obj,class1,class2)
-            % check if second loader can be used to upgrade the first one
+        function is_compartible = check_compatibility(obj,obj1,obj2)
+            % Check if second loader can be used to upgrade the first one
             %
-            if isa(class2,class(class1))
+            %Usage:
+            %is_com =sqw_formats_factory.instance().check_compatibility(obj1,obj2)
+            %        where obj1 and obj2 are the instances of sqw-file
+            %        accessors, known to the factory.
+            %
+            % is_com is true if position info of obj1 is compatible with
+            %        pos_info stored in obj2 and is subset of position
+            %        info of object 2
+            %
+            % currently true is returned either for the same type of
+            % accessors or when class(obj1) == 'faccess_sqw_v2' and
+            % class(obj2) == 'faccess_sqw_v3'
+            %
+            if isa(obj2,class(obj1))
                 is_compartible = true;
                 return
             end
-            %type1 = class(class1);
-            %type2 = class(class2);
-            if isa(class1,'faccess_sqw_v2') && isa(class2,'faccess_sqw_v3')
+            %type1 = class(obj1);
+            %type2 = class(obj2);
+            if isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3')
                 is_compartible = true;
             else
                 is_compartible = false;
