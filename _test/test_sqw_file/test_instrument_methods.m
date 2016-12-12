@@ -86,27 +86,28 @@ classdef test_instrument_methods <  TestCase %WithSave
             set_instrument_horace(obj.test_file_,@create_test_instrument,'-efix',500,'s');
             
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
-            inst = ldr1.get_instrument();
-            assertEqual(wtmp.header{1}.instrument,inst);
+            inst = ldr1.get_instrument(10);
+            assertEqual(wtmp.header{10}.instrument,inst);
             
             inst = ldr1.get_instrument('-all');
+            ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
+            
             assertEqual(numel(inst),186) % all instruments for this file are the same
             assertEqual(wtmp.header{186}.instrument,inst(186));
             
-            ldr1.delete(); % clear existing loader not to hold test file in case of further modifications            
             %---------------------------------------------------------------------
             % NOT IMPLEMENTED or implemented wrongly. Does not accept array
             % of parameters
-%             omg  = 400 + (1:186);
-%             %
-%             wtmp=set_instrument(wref,@create_test_instrument,'-efix',omg ,'s');
-%             set_instrument_horace(obj.test_file_,@create_test_instrument,'-efix',omg,'s');
-%             
-%             inst = ldr1.get_instrument('-all');
-%             assertEqual(numel(inst),186) % all instruments for this file are the same
-%             assertEqual(wtmp.header{186}.instrument,inst(186));
-%             assertEqual(wtmp.header{1}.instrument,inst(1));
-%             assertEqual(wtmp.header{10}.instrument,inst(10));
+            %             omg  = 400 + (1:186);
+            %             %
+            %             wtmp=set_instrument(wref,@create_test_instrument,'-efix',omg ,'s');
+            %             set_instrument_horace(obj.test_file_,@create_test_instrument,'-efix',omg,'s');
+            %
+            %             inst = ldr1.get_instrument('-all');
+            %             assertEqual(numel(inst),186) % all instruments for this file are the same
+            %             assertEqual(wtmp.header{186}.instrument,inst(186));
+            %             assertEqual(wtmp.header{1}.instrument,inst(1));
+            %             assertEqual(wtmp.header{10}.instrument,inst(10));
             
         end
         

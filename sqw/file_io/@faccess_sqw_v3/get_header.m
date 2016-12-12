@@ -1,6 +1,8 @@
 function [headers,pos] = get_header(obj,varargin)
 % get full data header or headers for file format v3
 %
+% if instrument and sample are present in the file (not an empty
+% structures) it loads instruments and samples.
 
 
 [ok,mess,get_all,~]= parse_char_options(varargin,{'-all'});
