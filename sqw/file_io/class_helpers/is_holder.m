@@ -1,6 +1,6 @@
 classdef is_holder
     % Simple helper class to transfer insturment and sample information to
-    % the client in homogeneous form
+    % a client in homogeneous form
     %
     properties(Access=protected)
         instrument_=[];
