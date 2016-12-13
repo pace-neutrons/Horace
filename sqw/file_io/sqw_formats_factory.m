@@ -1,6 +1,6 @@
 classdef sqw_formats_factory < handle
-    % The class responsible for providing and initiating appropriate sqw
-    % file accessor given sqw file name or preferred sqw file accessor
+    % Provides and initialises appropriate sqw file accessor 
+    % given sqw file name or preferred sqw file accessor
     % for given sqw object or sqw or dnd object type.
     %
     % sqw file accessor is used to read/write the whole or partial sqw data

@@ -111,7 +111,7 @@ else
             else
                 data         = loaders{i}.get_data('-verbatim','-nopix');
                 if isa(data,'data_sqw_dnd')
-                    data         = data.get_dnd_data('+'); % + get urange if availible
+                    data         = data.get_dnd_data('+'); % + get urange if available
                 end
                 data.npixels = loaders{i}.npixels;
                 data.nfiles  = loaders{i}.num_contrib_files;

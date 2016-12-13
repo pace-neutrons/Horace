@@ -51,7 +51,7 @@ obj=obj.put_headers(argi{:});
 obj=obj.put_det_info(argi{:});
 %
 % write dnd image methadata
-obj=obj.put_dnd_methadata(argi{:});
+obj=obj.put_dnd_metadata(argi{:});
 % write dnd image data
 obj=obj.put_dnd_data(argi{:});
 %
