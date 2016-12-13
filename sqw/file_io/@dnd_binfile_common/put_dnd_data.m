@@ -1,13 +1,15 @@
 function obj=put_dnd_data(obj,varargin)
-% Write dnd data or upgrade existing data with new records, which
-% occupy the same space on hdd
+% Write dnd image data, namely signal, error and npixs or upgrade existing 
+% data with new records, which occupy the same space on hdd
 %
 % Usage:
-%>> put_dnd_data(obj)
-%>> put_dnd_data(obj,'-update')
-%>> put_dnd_data(obj,dnd_obj)
-%>> put_dnd_data(obj,sqw_obj)
+%>>obj= put_dnd_data(obj)
+%>>obj= put_dnd_data(obj,'-update')
+%>>obj= put_dnd_data(obj,dnd_obj)
+%>>obj= put_dnd_data(obj,sqw_obj)
+%>>obj= put_dnd_data(obj,sqw_obj/dnd_obj, '-update')
 %
+% if only -update key is specified, the class has to be initialized by appropriate dnd object.
 
 %
 % $Revision$ ($Date$)
@@ -17,7 +19,7 @@ function obj=put_dnd_data(obj,varargin)
 [ok,mess,update,~,argi]=parse_char_options(varargin,{'-update','-nopix'});
 if ~ok
     error('DND_BINFILE_COMMON:invalid_artgument',...
-        ['put_dnd_methad: Error: ',mess]);
+        ['put_dnd_metadata: Error: ',mess]);
 end
 % verify we use this method on an properly initialized file accessor
 check_obj_initiated_properly_(obj);
@@ -31,7 +33,7 @@ end
 %
 if update && ~obj.upgrade_mode
     error('SQW_FILE_IO:runtime_error',...
-        'DND_BINFILE_COMMON::put_dnd_methadata : input object has not been initiated for update mode');
+        'put_dnd_metadata : input object has not been initiated for update mode');
 end
 
 %
@@ -45,7 +47,7 @@ if update % are we going to write new or update existing data
     sz = obj.dnd_eof_pos_ -size_str.s_pos_;
     if cur_size  ~= sz
         error('SQW_FILE_IO:runtime_error',...
-            'DND_BINFILE_COMMON::put_dnd_data: Can not upgrade dnd data as current disk size is different from provided')
+            'put_dnd_data: Can not upgrade dnd data as current disk size is different from provided')
     end
 else
     pos = obj.s_pos_;

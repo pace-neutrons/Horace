@@ -1,5 +1,6 @@
 function subf = extract_subfield_(header,fld_name)
 % Extract the requested (instrument or sample) subfield from the header
+%
 %Usage:
 %>> subf = extract_subfield_(header,fld_name, n_files)
 % where:
@@ -8,6 +9,10 @@ function subf = extract_subfield_(header,fld_name)
 % nfiles   -- number of elements in header.
 %
 %
+%
+% $Revision$ ($Date$)
+%
+
 %
 if iscell(header)
     ns = numel(header);
@@ -20,7 +25,7 @@ else
         subf = header(1).(fld_name);
         nelem = numel(header);
         subf = repmat(subf,1,nelem );
-        for i=2:nelem 
+        for i=2:nelem
             subf(i) = header(i).(fld_name);
         end
     else

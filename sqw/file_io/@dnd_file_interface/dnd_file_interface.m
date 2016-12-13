@@ -1,10 +1,46 @@
 classdef dnd_file_interface
-    % Class provides interface to access dnd files.
+    % Interface to access dnd files,
+    % containing common properties, describing any sqw or dnd file.
     %
     % Various accessors should inherit this class, implement the
     % abstract methods mentioned here and define protected fields, common
     % for all dnd-file accessors.
     %
+    % dnd_file_interface Methods:
+    % ----------------------------------------------------------------
+    % Properties:
+    % See Property Summary chapter.
+    % ----------------------------------------------------------------
+    % ----------------------------------------------------------------
+    % Initializers:
+    % Static:
+    % get_file_header   - open existing file for rw access and read sqw
+    %                     header
+    % ----------------------------------------------------------------
+    % Abstract methods:
+    % should_load        - verify if the class should load the file
+    % should_load_stream - verify if the class should load the file,
+    %                      determined by opened file id
+    % init               - main method to initialize empty objects.
+    % set_file_to_update - open new or reopen existing file in update mode.
+    %                      (all put operations will try to keep file
+    %                      contents or fail)
+    % reopen_to_write    - open new or reopen existing file in write mode
+    %                      (all existing contents will be ignored)
+    % ----------------------------------------------------------------
+    % Data accessors (abstract):
+    % get_data           - get all dnd data without packing them into dnd
+    %                      object.
+    % get_sqw            - retrieve the whole sqw or dnd object.
+    % get_dnd            - retrieve any sqw/dnd object as dnd object
+    % ----------------------------------------------------------------
+    % Data mutators (abstract):
+    % put_sqw  - save sqw object stored in memory into binary sqw file.
+    % put_dnd  - save sqw/dnd object stored in memory into binary sqw file 
+    %            as dnd object.
+    %
+    % There is also range of auxiliary less important methods.
+    % ----------------------------------------------------------------
     %
     % $Revision$ ($Date$)
     %
@@ -37,30 +73,44 @@ classdef dnd_file_interface
     end
     
     properties(Dependent)
-        % the name of the file, this object is associated and should be
-        % read from/written to
+        % The name of the file, for the accessor to work with.
         filename
-        % path to the object above
+        % Path to the file for this accessor to work with.
         filepath
-        % version of the file format, a loader processes
+        % Version of the file format, an accessor is associated with
+        %
+        % Each particular accessor should set up this version to the
+        % version it understands and store this version in a sqw file.
+        % The sqw_formats_factory registers all available accessors and
+        % selects appropriate accessor according to the file version.
         file_version;
-        % if file, associated with loader is sqw or dnd file (contains
-        % pixels)
+        % If file, associated with loader is sqw or dnd file (contains pixels information)
         sqw_type;
-        % number of dimensions in the dnd image
+        % Number of dimensions in the dnd image
         num_dim;
-        % dimensions of the Horace image (dnd object), stored in the file
+        % Dimensions of the Horace image (dnd object), stored in the file.
         dnd_dimensions
-        % type of the data, stored in a file
+        % Legacy type of data written in the file, describing the
+        % information stored in a sqw file
+        %
+        % Possible types are:
+        %   type 'b'    fields: filename,...,dax,s,e
+        %   type 'b+'   fields: filename,...,dax,s,e,npix
+        %   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
+        %   type 'a-'   fields: filename,...,dax,s,e,npix,urange.
+        %
+        % all modern data files are either b+ (dnd) or a+ (sqw data) type
+        % files.
         data_type
         
-        % if true, all numeric types, read from a file (except pixels)
-        % are converted to double
+        % if all numeric types, read from a file to be converted to double.
+        % (except pixels)
         convert_to_double
         %
     end
     %----------------------------------------------------------------------
     methods
+        %------------------------------------------------
         function fn  = get.filename(obj)
             % the name of the file, this object is associated with
             fn = obj.filename_;
@@ -70,18 +120,18 @@ classdef dnd_file_interface
             % the path to the file, this object is associated with
             fp = obj.filepath_;
         end
-        %
+        %------------------------------------------------
         function ver = get.file_version(obj)
             % return the version of the loader corresponding to the format
             % of data, stored in the file
             ver = ['-v',num2str(obj.file_ver_)];
         end
-        %
+        %------------------------------------------------
         function ndims = get.num_dim(obj)
             % get number of dimensions the image part of the object has.
             ndims = obj.num_dim_;
         end
-        %
+        %------------------------------------------------
         function type = get.sqw_type(obj)
             % return true if the object to load is sqw-type (contains pixels) or
             % false if not.
@@ -89,11 +139,6 @@ classdef dnd_file_interface
         end
         %
         function ff=get.data_type(obj)
-            %   data_type   Type of sqw data written in the file
-            %   type 'b'    fields: filename,...,dax,s,e
-            %   type 'b+'   fields: filename,...,dax,s,e,npix
-            %   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
-            %   type 'a-'   fields: filename,...,dax,s,e,npix,urange
             ff = obj.data_type_;
         end
         %
@@ -114,7 +159,7 @@ classdef dnd_file_interface
         end
         %-------------------------
         function obj = delete(obj)
-            % invalidate an object in memory.
+            % invalidate an object in memory (make it non-initialized).
             obj.num_dim_        = 'undefined';
             obj.dnd_dimensions_ = 'undefined';
             obj.data_type_      = 'undefined';
@@ -135,15 +180,15 @@ classdef dnd_file_interface
     end
     %----------------------------------------------------------------------
     methods(Abstract)
-        % Initializers:
-        % Mainly used by file formats factory:
         %
-        % verify if the class should load the file
+        % Mainly used by file formats factory and
+        % verifies if the class should load the file
         [ok,obj]=should_load(obj,filename);
         %
-        % verify if the class should load the file, determined by opened
-        % file identifier by analysing the block of information (stream)
-        % obtained from the open file by get_file_header static method of this class.
+        % verifies if the class should load the file, determined by opened
+        % file identifier, by analysing the block of information (stream)
+        % obtained from the open file by get_file_header static method of
+        % this class.
         [should,obj,mess]= should_load_stream(obj,stream,fid)
         %
         % Main initializer (accessible through constructor with the same
@@ -161,33 +206,34 @@ classdef dnd_file_interface
         %Usage:
         %>>[obj,file_exist] = obj.set_file_to_update(filename_to_write);
         [obj,file_exist] = set_file_to_update(obj,varargin)
+        
         % Reopen existing file to upgrade/write new data to it assuming
         % the loader has been already initiated by this file. Will be
         % clearly overwritten or destroyed if partial information is
         % different and no total info was written.
         obj = reopen_to_write(obj,filename)
-        %        
-        % ----------------------------------------------------------------
-        % File Accessors:
+        %
+        % get whole dnd data without packing these data into dnd object.
         [data,obj]  = get_data(obj,varargin);
+        %
         % get only dnd image data, namely s, err and npix
         [data_str,obj] = get_se_npix(obj,varargin)
         
         % return instrument stored with sqw file or empty structure if
-        % nothing is stored.
+        % nothing is stored. Always empty for dnd objects
         [inst,obj]  = get_instrument(obj,varargin);
         
         % return sample stored with sqw file or empty structure if
-        % nothing is stored.
+        % nothing is stored. Always empty for dnd objects.
         [samp,obj]  = get_sample(obj,varargin);
+        
         % retrieve the whole sqw or dnd object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         
         % retrieve any sqw/dnd object as dnd object
         [dnd_obj,varargout] = get_dnd(obj,varargin);
-        % ----------------------------------------------------------------
-        % File Mutators:
         %
+        % ----------------------------------------------------------------
         % save sqw object stored in memory into binary sqw file. Depending
         % on data present in memory it can in fact be a dnd object.
         % Save new or fully overwrite existing sqw file
@@ -200,13 +246,14 @@ classdef dnd_file_interface
         obj = put_app_header(obj);
         % 2) store dnd information ('-update' option updates this
         % information within existing file)
-        obj = put_dnd_methadata(obj,varargin);
+        obj = put_dnd_metadata(obj,varargin);
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
     end
-    methods(Abstract,Access=protected)
+    methods(Abstract,Access=protected,Hidden=true)
         % init file accessors from sqw object in memory
+        %
         obj=init_from_sqw_obj(obj,varargin);
         % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);

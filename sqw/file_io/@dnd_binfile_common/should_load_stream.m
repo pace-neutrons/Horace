@@ -17,7 +17,7 @@ function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
 %              static method and containing sqw/dnd file info, stored in
 %              the file header.
 % fid       :: file identifier of already opened binary sqw/dnd file where
-%              head_struct has been read from 
+%              head_struct has been read from
 %
 % Returns:
 % should  :: boolean equal to true if the loader can load these data,
@@ -28,6 +28,10 @@ function [should,objinit,mess]= should_load_stream(obj,head_struc,fid)
 %            file should not be loaded by this loader. Empty, if should ==
 %            true.
 %
+% The method is the main method used by sqw_file_formats factory to
+% identify if particular accessor's class should be used to load the data
+% as common dnd_file_interface.get_file_header method which opens file and
+% reads the file header is slow so is deployed by sqw_format_factory only once.
 %
 % $Revision$ ($Date$)
 %

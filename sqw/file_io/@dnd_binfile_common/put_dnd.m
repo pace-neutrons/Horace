@@ -1,7 +1,7 @@
 function    obj = put_dnd(obj,varargin)
 % Save dnd data into new binary file or fully overwrite an existing file
 %
-% store header, which describes file as dnd file
+%
 %
 %
 % $Revision$ ($Date$)
@@ -43,7 +43,7 @@ end
 obj=obj.put_app_header();
 
 % write dnd image methadata
-obj=obj.put_dnd_methadata(argi{:});
+obj=obj.put_dnd_metadata(argi{:});
 % write dnd image data
 obj=obj.put_dnd_data(argi{:});
 %

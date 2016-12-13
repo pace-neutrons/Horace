@@ -1,14 +1,14 @@
 function   obj = put_main_header(obj,varargin)
-% Save or replace main sqw header into properly initalized
+% Save or replace main sqw header into properly initialized
 % binary sqw file
 %Usage:
 %>>obj.put_main_header();
 %>>obj.put_main_header('-update');
 %>>obj.put_header(sqw_obj_new_source_for_update); -- updates main header
-%                               informaion using new object as source
+%                               information using new object as source
 %
 % If update options is selected, header have to exist. This option keeps
-% exisitng file information untouched;
+% existing file information untouched;
 %
 % $Revision$ ($Date$)
 %
@@ -36,7 +36,7 @@ end
 
 if update && ~obj.upgrade_mode
     error('SQW_FILE_IO:runtime_error',...
-        'DND_BINFILE_COMMON::put_dnd_methadata : input object has not been initiated for update mode');
+        'put_main_header : input object has not been initiated for update mode');
 end
 
 

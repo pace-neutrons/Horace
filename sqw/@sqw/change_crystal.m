@@ -71,7 +71,7 @@ if w.source_is_file
             headers = struct([]);
             [~,data]=change_crystal_alter_fields(headers,data,args{:});
         end
-        ld = ld.put_dnd_methadata(data);
+        ld = ld.put_dnd_metadata(data);
         ld.delete();
     end
     argout={};
