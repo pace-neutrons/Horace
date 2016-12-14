@@ -144,7 +144,7 @@ else
     kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
     kk = kk.set_mc_points (mc);
     kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0]);
-    kk = kk.set_option('list',3);
+    kk = kk.set_options('list',3);
     [wf_tf,fitpar_tf,ok,mess,rlu_corr_tf] = kk.fit;
  end
  if ~ok
@@ -172,7 +172,7 @@ else
     kk = kk.set_mc_points (mc);
     kk = kk.set_local_foreground(true);
     kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0]);
-    kk = kk.set_option('list',2);
+    kk = kk.set_options('list',2);
     [wf_tf,fitpar_tf,ok,mess,rlu_corr_tf] = kk.fit;
 end
 if ~ok
