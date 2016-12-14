@@ -1,10 +1,25 @@
 function [headers,pos] = get_header(obj,varargin)
-% get full data header or headers for file format v3
+% Get full data header or headers for sqw file written in format v3
 %
-% if instrument and sample are present in the file (not an empty
-% structures) it loads instruments and samples.
-
-
+% If instrument and sample are present in the file (not the empty
+% structures) it loads instruments and samples from the file and attaches
+% them to the header(s)
+%
+% Usage:
+%>>header = obj.get_header();
+%>>header = obj.get_header(1);
+%>>header = obj.get_header(number);
+%>>header = obj.get_header('-all');
+%
+% First three forms return single header, first two return header number 1.
+%
+% Method throws SQW_FILE_IO:invalid_argument if the header number is out
+% of existing headers range.
+%
+%
+% $Revision$ ($Date$)
+%
+%
 [ok,mess,get_all,~]= parse_char_options(varargin,{'-all'});
 if ~ok
     error('SQW_FILE_IO:invalid_argument',mess);

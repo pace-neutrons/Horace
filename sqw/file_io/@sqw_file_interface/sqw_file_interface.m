@@ -1,14 +1,45 @@
 classdef sqw_file_interface < dnd_binfile_common
-    % Class to describe interface to access sqw files.
+    % Class describes interface to access sqw files. The whole public
+    % interface to access files, containing sqw objects consists of
+    % dnd_file_interface and sqw_file_interface.
     %
-    %   Various accessors should inherit this class, implement the
-    %   abstract methods mentioned here and define protected fields, common
-    %   for all sqw-file accessors
+    % Various accessors should inherit these interfaces, implement the
+    % abstract methods mentioned there and define protected fields,
+    % common for all sqw-file accessors.
     %
+    % sqw_file_interface Methods:
+    % Abstract accessors:
+    % get_main_header - obtain information stored in main header
+    %
+    % get_header      - obtain information stored in one of the
+    %                   contributing file's header
+    % get_detpar      - retrieve detectors information.
+    % get_pix         - get pixels info
+    % get_instrument  - get instrument informatio specific for a run
+    % get_sample      - get sample information
+    %
+    % Abstract mutators:
+    %
+    % Common for all faccess_sqw_* classes:
+    % put_main_header    - store main sqw file header.
+    % put_headers        - store all contributing sqw file headers.
+    % put_det_info       - store detectors information
+    % put_pix            - store pixels information
+    % put_sqw            - store whole sqw object, which involves all
+    %                      put methods mentioned above
+    %
+    % extended, version specific interface:
+    % put_instruments   -  store instruments infromation
+    % put_samples       -  store sample's infromation
+    %
+    % upgrade_file_format - upgrade current sqw file to recent file format.
+    %                       May change the sqw file and always opens it in
+    %                       write or upgrade mode.
+    
     %
     % $Revision$ ($Date$)
     %
-    properties(Access=protected)
+    properties(Access=protected,Hidden=true)
         %
         num_contrib_files_= 'undefined'
         %
@@ -16,12 +47,10 @@ classdef sqw_file_interface < dnd_binfile_common
     end
     %
     properties(Dependent)
-        % number of files, used to construct the file, class is initiated
-        % with
+        % number of files, the sqw file was constructred from
         num_contrib_files;
         %
-        % number of pixels, contributing into this file. Empty for dnd-type
-        % files
+        % number of pixels, contributing into this file.
         npixels
     end
     %----------------------------------------------------------------------

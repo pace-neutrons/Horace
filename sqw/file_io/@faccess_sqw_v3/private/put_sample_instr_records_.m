@@ -1,6 +1,6 @@
 function obj = put_sample_instr_records_(obj,varargin)
 % Calculate positions of sample and instrument records to place to binary
-% sqw file
+% sqw file.
 %
 % Usage:
 %>> obj = put_sample_instr_records_(obj) --  saves sample&instrument records

@@ -36,7 +36,7 @@ classdef dnd_file_interface
     % ----------------------------------------------------------------
     % Data mutators (abstract):
     % put_sqw  - save sqw object stored in memory into binary sqw file.
-    % put_dnd  - save sqw/dnd object stored in memory into binary sqw file 
+    % put_dnd  - save sqw/dnd object stored in memory into binary sqw file
     %            as dnd object.
     %
     % There is also range of auxiliary less important methods.
@@ -183,18 +183,18 @@ classdef dnd_file_interface
         %
         % Mainly used by file formats factory and
         % verifies if the class should load the file
-        [ok,obj]=should_load(obj,filename);
+        [ok,objinit,mess]=should_load(obj,filename);
         %
         % verifies if the class should load the file, determined by opened
         % file identifier, by analysing the block of information (stream)
         % obtained from the open file by get_file_header static method of
         % this class.
-        [should,obj,mess]= should_load_stream(obj,stream,fid)
+        [should,objinit,mess]= should_load_stream(obj,stream,fid)
         %
         % Main initializer (accessible through constructor with the same
         % arguments too.)
         %
-        % initialize the loader, to be ready to read or write the sqw data.
+        % initialize the loader, to be ready to read or write dnd data.
         % Usage:
         %>>obj = obj.init(filename_to_read);
         %>>obj = obj.init(sqw_object);
@@ -212,26 +212,16 @@ classdef dnd_file_interface
         % clearly overwritten or destroyed if partial information is
         % different and no total info was written.
         obj = reopen_to_write(obj,filename)
-        %
-        % get whole dnd data without packing these data into dnd object.
-        [data,obj]  = get_data(obj,varargin);
-        %
-        % get only dnd image data, namely s, err and npix
-        [data_str,obj] = get_se_npix(obj,varargin)
+        %---------------------------------------------------------
+        [data,obj]  = get_data(obj,varargin); % get whole dnd data without packing these data into dnd object.
+        [data_str,obj] = get_se_npix(obj,varargin) % get only dnd image data, namely s, err and npix
         
-        % return instrument stored with sqw file or empty structure if
-        % nothing is stored. Always empty for dnd objects
-        [inst,obj]  = get_instrument(obj,varargin);
-        
-        % return sample stored with sqw file or empty structure if
-        % nothing is stored. Always empty for dnd objects.
-        [samp,obj]  = get_sample(obj,varargin);
-        
-        % retrieve the whole sqw or dnd object from properly initialized sqw file
-        [sqw_obj,varargout] = get_sqw(obj,varargin);
-        
-        % retrieve any sqw/dnd object as dnd object
-        [dnd_obj,varargout] = get_dnd(obj,varargin);
+        [inst,obj]  = get_instrument(obj,varargin); % return instrument stored with sqw file or empty structure if
+        %                                             nothing is stored. Always empty for dnd objects.
+        [samp,obj]  = get_sample(obj,varargin);   % return sample stored with sqw file or empty structure if
+        %                                           nothing is stored. Always empty for dnd objects.
+        [sqw_obj,varargout] = get_sqw(obj,varargin); % retrieve the whole sqw or dnd object from properly initialized sqw file
+        [dnd_obj,varargout] = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
         %
         % ----------------------------------------------------------------
         % save sqw object stored in memory into binary sqw file. Depending

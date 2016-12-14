@@ -6,12 +6,40 @@ classdef sqw_binfile_common < sqw_file_interface
     %  inherited from sqw_file_interface and overload the methods, which
     %  have different data access requests
     %
+    % sqw_file_interface Methods:
+    % Implemented accessors:
+    % get_main_header - obtain information stored in main header
     %
+    % get_header      - obtain information stored in one of the
+    %                   contributing file's header
+    % get_detpar      - retrieve detectors information.
+    % get_pix         - get pixels info
+    % get_instrument  - get instrument informatio specific for a run
+    % get_sample      - get sample information
+    %
+    % Implemented mutators:
+    %
+    % Common for all faccess_sqw_* classes:
+    % put_main_header    - store main sqw file header.
+    % put_headers        - store all contributing sqw file headers.
+    % put_det_info       - store detectors information
+    % put_pix            - store pixels information
+    % put_sqw            - store whole sqw object, which involves all
+    %                      put methods mentioned above
+    %
+    % extended, version specific interface:
+    % put_instruments   -  store instruments infromation
+    % put_samples       -  store sample's infromation
+    %
+    % upgrade_file_format - upgrade current sqw file to recent file format.
+    %                       May change the sqw file and always opens it in
+    %                       write or upgrade mode.
+    
     %
     % $Revision$ ($Date$)
     %
     
-    properties(Access=protected)
+    properties(Access=protected,Hidden=true)
         % position (in bytes from start of the file of the appropriate part
         % of Horace data information and the size of this part.
         % 0 means unknown/uninitialized or missing.
@@ -33,8 +61,8 @@ classdef sqw_binfile_common < sqw_file_interface
         % separate access to pixel data;
         pix_position
     end
-    properties(Constant,Access=private)
-        % list of fileldnames to save on hdd to be able to recover
+    properties(Constant,Access=private,Hidden=true)
+        % list of field names to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         data_fields_to_save_ = {'num_contrib_files_','npixels_',...
             'main_header_pos_','main_head_pos_info_','header_pos_',...
@@ -43,7 +71,7 @@ classdef sqw_binfile_common < sqw_file_interface
             'pix_pos_','eof_pix_pos_'};
     end
     %
-    methods(Access = protected)
+    methods(Access = protected,Hidden=true)
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
             %
@@ -51,7 +79,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % complex then common logic is used
             if nargin < 2
                 error('SQW_FILE_IO:runtime_error',...
-                    'init_from_sqw_obj method should be ivoked with an existing sqw object as first input argument');
+                    'init_from_sqw_obj method should be invoked with an existing sqw object as first input argument');
             end
             if ~(isa(varargin{1},'sqw') || is_sqw_struct(varargin{1}))
                 error('SQW_FILE_IO:invalid_argument',...
@@ -261,7 +289,7 @@ classdef sqw_binfile_common < sqw_file_interface
         end
     end
     %
-    methods(Static)
+    methods(Static,Access=protected,Hidden=true)
         %
         function header = get_main_header_form(varargin)
             % Return the structure of the main header in the form it
