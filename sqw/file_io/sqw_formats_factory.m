@@ -1,7 +1,7 @@
 classdef sqw_formats_factory < handle
     % Provides and initialises appropriate sqw file accessor 
     % given sqw file name or preferred sqw file accessor
-    % for given sqw object or sqw or dnd object type.
+    % for given sqw/dnd object or sqw/dnd object type.
     %
     % sqw file accessor is used to read/write the whole or partial sqw data
     % from/to a various sqw format file(s).
@@ -24,9 +24,9 @@ classdef sqw_formats_factory < handle
     % $Revision$ ($Date$)
     %
     properties(Access=private) %
-        % Registered file accessors:
-        % Add all new file readers which inherit from sqw_file_interface to this list in the order
-        % of expected frequency for their appearance.
+        % List of registered file accessors:
+        % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface 
+        % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = {faccess_sqw_v3(),faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
         %
         % Old class interface:
@@ -42,7 +42,7 @@ classdef sqw_formats_factory < handle
         % to allow a single instance of this class.  See description in
         % Singleton pattern.
         function obj = sqw_formats_factory()
-            % Initialise your custom properties.
+            %sqw_formats_factory constructor: Initialise your custom properties.
             obj.types_map_= containers.Map(obj.written_types_ ,...
                 obj.access_to_type_ind_);            
         end

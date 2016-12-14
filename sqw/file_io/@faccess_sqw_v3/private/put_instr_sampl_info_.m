@@ -1,8 +1,17 @@
-function obj = put_is_info_(obj,instrument_or_sample,varargin)
-% store or change sample and instrument information in the file
+function obj = put_instr_sampl_info_(obj,instrument_or_sample,varargin)
+% Store or change sample and instrument information in the sqw file v3
 %
-% causes storing of instrument and footer information too
+% Usage:
+%>>obj = obj.put_instr_sampl_info_(obj,'instrument',instrument_info)
+%>>obj = obj.put_instr_sampl_info_(obj,'sample',sample_info)
+%
+% setting only sample stores the instrument information too.
+% file footer is always overwritten.
+%
+% $Revision: 1380 $ ($Date: 2016-12-13 19:29:24 +0000 (Tue, 13 Dec 2016) $)
+%
 
+%
 [ok,message,has_instrument,has_sample,argi] = parse_char_options(varargin,{'instrument','sample'});
 if ~ok
     error('SQF_FILE_IO:invalid_argument',message)
@@ -11,7 +20,7 @@ end
 [inst_obj,argi]=extract_is_from_input(obj,has_instrument,'instrument',instrument_or_sample,varargin,argi);
 [sample_obj,argi]=extract_is_from_input(obj,has_sample,'sample',instrument_or_sample,varargin,argi);
 
-sh = is_holder(inst_obj,sample_obj);
+sh = is_holder(inst_obj,sample_obj); % pack instrument and sample into single class
 if ~sh.is_empty()
     argi{end+1} = sh;
 end

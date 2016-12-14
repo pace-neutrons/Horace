@@ -1,23 +1,36 @@
 classdef obj_init
-    % Small class used as holder for faccess classes initialization properties;
+    % Class-holder of the initialization information for the classes responsible
+    % for binary sqw files access.
     %
-    %   Detailed explanation goes here
-    
-    properties(Access=protected)
+    % Used to accelerate and optimize the transfer of binary sqw file service information stored
+    % in binary sqw file header from should_load method to a class initialization methods to avoid
+    % repetitive reads and extractions of the same information from a file on disk.
+    %
+    % $Revision$ ($Date$)
+    %
+    properties(Access=protected,Hidden=true)
         file_id_ = -1;
-        num_dim_ = -1;
+        num_dim_ = 'undefined';
     end
     properties(Dependent)
+        % Matlab file identifier, referring to open binary sqw file.
         file_id
+        % number of dimensions in the dnd image stored in the sqw file. 
+        % Can change from 0 to 4.
         num_dim
     end
     
     methods
         function obj = obj_init(varargin)
-            % constructor:
+            % constructor.
             %Usage:
-            %>>obj = obj_init(); % empty object
-            %>>obj = obj_init(fid,numdim) % contains initialization information
+            %>>obj = obj_init(); % returns empty object
+            %
+            %>>obj = obj_init(fid,numdim) % returns object containing initialization information
+            % where:
+            % fid - the Matlab file identifier for open sqw binary file
+            % numdim - number of dimensions of the dnd image stored in the sqw binary file
+            %
             if nargin==2
                 if ~isnumeric(varargin{1}) || varargin{1} < 1
                     error('SQW_FILE_IO:invalid_argument',...
@@ -25,9 +38,10 @@ classdef obj_init
                 else
                     obj.file_id_ = varargin{1};
                 end
-                %
+                
                 obj.num_dim_ = varargin{2};
                 %
+                % Verify inputs:
                 if ~(ischar(obj.num_dim_) || isnumeric(obj.num_dim_))
                     error('SQW_FILE_IO:invalid_argument',...
                         'obj_init::constructor: second argument of the constructor has to be a number of dimensions or word "undefined"')

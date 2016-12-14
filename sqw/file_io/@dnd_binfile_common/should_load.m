@@ -10,12 +10,14 @@ function [ok,objinit,mess]=should_load(obj,filename)
 % Returns:
 % ok          --  true if this filename can be loaded or false if not.
 % objinit     --  initialized obj_init class containing initialization
-%                 information if ok is true or empty of not.
+%                 information if ok is true or empty of not. See <a href="matlab:help('obj_init');">obj_init</a>
+%                 class description for the details of the initialization
+%                 information.
 % mess        --  text containing additional information on reasons of false
 %                 if ok is false. Empty if ok is true
 %
 % The method is simple wrapper which packs dnd_file_interface.get_file_header
-% and this class should_load_stream method together. 
+% and this class should_load_stream method together.
 %
 % $Revision$ ($Date$)
 %

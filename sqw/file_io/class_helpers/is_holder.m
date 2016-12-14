@@ -2,7 +2,7 @@ classdef is_holder
     % Simple helper class to transfer insturment and sample information to
     % a client in homogeneous form
     %
-    properties(Access=protected)
+    properties(Access=protected,Hidden=true)
         instrument_=[];
         sample_ = [];
         n_files_=0;
@@ -10,16 +10,31 @@ classdef is_holder
         set_inst_ = false;
     end
     properties(Dependent)
+        % property to keep instrument information
         instrument;
+        % property to keep sample information
         sample;
+        % number of files contributed into sqw file to change
         n_files;
+        % boolean, indicating that this class has been generated to
+        % set up sample
         setting_sampl;
+        % boolean, indicating that this class has been generated to
+        % set up instrument.
         setting_instr;
     end
     
     methods
         %
         function obj=is_holder(instr,sampl)
+            % class constructor.
+            % Usage:
+            %>>obj=is_holder(instr,sampl)
+            % where:
+            %inst - the cellarray or array of instrument(s) to save.
+            %       (can be empty if instrument is not intented to be set)
+            %samp - the cellarray or array of sample(s) to save.
+            %       (can be empty if sample is not intented to be set)
             nin = numel(instr);
             if nin  == 0
                 obj.set_inst_ = false; % if instrument is empty, we are not setting it
@@ -49,6 +64,8 @@ classdef is_holder
         end
         %
         function is= is_empty(obj)
+            % checks if the class is empty, e.g. not contains neither
+            % sample not the instrument.
             if isempty(obj.instrument_) && isempty(obj.sample_)
                 is = true;
             else
@@ -57,6 +74,8 @@ classdef is_holder
         end
         %
         function ins = get.instrument(obj)
+            % returns instrument(s) stored by the class or empty structure if
+            % the instrument has not been stored
             if isempty(obj.instrument_)
                 ins  = struct();
             else
@@ -69,6 +88,9 @@ classdef is_holder
         end
         %
         function sam = get.sample(obj)
+            % returns sample(s) stored by the class or empty structure if
+            % the instrument has not been stored
+            
             if isempty(obj.sample_)
                 sam  = struct();
             else
@@ -86,6 +108,7 @@ classdef is_holder
         function obj = set.n_files(obj,val)
             obj.n_files_ = val;
         end
+        %
         function set = get.setting_sampl(obj)
             set = obj.set_samp_;
         end

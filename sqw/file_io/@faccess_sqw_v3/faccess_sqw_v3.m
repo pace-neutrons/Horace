@@ -1,6 +1,6 @@
 classdef faccess_sqw_v3 < sqw_binfile_common
     % Class to access Horace binary files written in binary format v3.1
-    % which stores the description of all Horace sqw fields at the end of a
+    % The format stores the description of all Horace sqw fields at the end of a
     % binary file. May contain instrument and sample information.
     %
     %
@@ -13,7 +13,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     %
     % 1)
     % First form initializes accessor to existing sqw file where
-    % @param filename  :: the name of existing sqw file written
+    % filename  :: the name of existing sqw file written
     %                     in sqw v3.1 format.
     %
     % Throws if file with filename is missing or is not written in
@@ -37,13 +37,13 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     % Second form used to initialize the operation of writing new or
     % updating existing sqw file.
     % where:
-    %@param sqw_dnd_object:: existing fully initialized sqw object in memory.
-    %@param filename      :: the name of a new or existing sqw object on disc
+    % sqw_dnd_object:: existing fully initialized sqw object in memory.
+    % filename      :: the name of a new or existing sqw object on disc
     %
     % Update mode is initialized if the file with name filename exists and
     % can be updated, i.e. has the same number of dimensions, binning axis
     % and pixels.
-    % In this case you can modify dnd or sqw methadata or explicitly
+    % In this case you can modify dnd or sqw metadata or explicitly
     % overwrite pixels.
     %
     % If existing file can not be updated, it will be open in write mode.
@@ -73,13 +73,13 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     %
     methods(Access=protected,Hidden=true)
         function obj=init_from_sqw_file(obj)
-            % intialize the structure of faccess class using opened
+            % initialize the structure of faccess class using opened
             % sqw file as input
             obj= get_sqw_footer_(obj);
         end
         %
         function obj=init_from_sqw_obj(obj,varargin)
-            % intialize the structure of faccess class using opened
+            % initialize the structure of faccess class using opened
             % sqw file as input
             obj = init_from_sqw_obj@sqw_binfile_common(obj,varargin{:});
             %
@@ -164,6 +164,12 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
+            % ld = faccess_sqw_v3(sqw_object,filename) % initialize sqw
+            %                       reader/writer version 3
+            %                       to save sqw object provided. The name
+            %                       of the file to save the object should
+            %                       be provided separately.
+			
             %
             % set up fields, which define appropriate file version
             obj.file_ver_ = 3.1;
@@ -213,7 +219,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % or structure or array of such objects assumed to be a sample
             %Usage:
             % obj = obj.put_instruments() % store instrument information attached to
-            %                  sqw - object the class has been initated
+            %                  sqw - object the class has been initiated
             %                  with, or empty sample information if no sqw
             %                  object was attached
             % obj = obj.put_instruments(some_object) % store some object
@@ -227,7 +233,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %       sample information using sqw_object provided as the source of
             %       this information.
             %
-            obj = put_is_info_(obj,'instrument',varargin{:});
+            obj = put_instr_sampl_info_(obj,'instrument',varargin{:});
         end
         %
         function obj = put_samples(obj,varargin)
@@ -239,7 +245,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % or structure or array of such objects assumed to be a sample
             %Usage:
             % obj = obj.put_samples() % store sample information attached to
-            %                  sqw - object the class has been initated
+            %                  sqw - object the class has been initiated
             %                  with, or empty sample information if no sqw
             %                  object was identified
             % obj = obj.put_samples(some_object) % store some object
@@ -253,12 +259,15 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %       sample information using sqw_object provided as the source of
             %       this information.
             %
-            obj = put_is_info_(obj,'sample',varargin{:});
+            obj = put_instr_sampl_info_(obj,'sample',varargin{:});
         end
         %
         function obj = upgrade_file_format(obj)
-            % this is currently (01/01/2017) recent file format.
-            % Just reopen for update
+		    % upgrade the file to recent write format and open this file 
+			% for writing/updating
+			%
+            % v3.1 is currently (01/01/2017) recent file format, so 
+            % the method just reopens file for update.
             if ~isempty(obj.filename)
                 obj = obj.set_file_to_update();
             end
@@ -266,7 +275,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         %
     end
     %
-    methods(Static)
+    methods(Static,Hidden=true)
         function form = get_si_head_form(obj_name)
             % describes format of instrument or sample
             % block descriptor, which is written in the beginning of
