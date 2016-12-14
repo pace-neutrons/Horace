@@ -9,9 +9,9 @@ function [ok,mess,ifun,fun,pin,pfree,pbind] = function_parse (varargin)
 % Valid input to set_fun is as follows (same for set_bfun):
 % Set all functions
 %   >> obj = obj.set_fun (@fhandle, pin)
-%   >> obj = obj.set_fun (@fhandle, pin, pfree)
-%   >> obj = obj.set_fun (@fhandle, pin, pfree, pbind)
-%   >> obj = obj.set_fun (@fhandle, pin, 'pfree', pfree, 'pbind', pbind)
+%   >> obj = obj.set_fun (@fhandle, pin, free)
+%   >> obj = obj.set_fun (@fhandle, pin, free, bind)
+%   >> obj = obj.set_fun (@fhandle, pin, 'free', free, 'bind', bind)
 %
 % Set a particular function or set of functions
 %   >> obj = obj.set_fun (ifun, @fhandle, pin,...)    % ifun can be scalar or row vector
@@ -19,7 +19,7 @@ function [ok,mess,ifun,fun,pin,pfree,pbind] = function_parse (varargin)
 
 % Parse input
 % ------------
-keyval_def = struct('pfree',[],'pbind',[]);
+keyval_def = struct('free',[],'bind',[]);
 [par,keyval,present,~,ok,mess]=parse_arguments(varargin,keyval_def);
 if ~ok
     ifun=[]; fun=[]; pin=[]; pfree=[]; pbind=[];
@@ -62,7 +62,7 @@ end
 
 % Get optional parameters
 if npar>=2+ind_func
-    if ~present.pfree
+    if ~present.free
         pfree=par{2+ind_func};
     else
         ok=false; mess='Cannot give free parameter list(s) as both an optional parameter and keyword';
@@ -70,10 +70,10 @@ if npar>=2+ind_func
         return
     end
 else
-    pfree=keyval.pfree;
+    pfree=keyval.free;
 end
 if npar>=3+ind_func
-    if ~present.pbind
+    if ~present.bind
         pbind=par{3+ind_func};
     else
         ok=false; mess='Cannot give parameter binding(s) as both an optional parameter and keyword';
@@ -81,5 +81,5 @@ if npar>=3+ind_func
         return
     end
 else
-    pbind=keyval.pbind;
+    pbind=keyval.bind;
 end

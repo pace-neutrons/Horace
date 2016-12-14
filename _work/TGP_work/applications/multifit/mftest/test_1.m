@@ -17,7 +17,7 @@ wfit_ref = struct_to_IX(wfit_ref);
 kk = mfclass(IX_to_struct(SS.warr3));
 kk = kk.set_fun (@mftest_gauss, [100,45,10]);
 kk = kk.set_bfun (@mftest_bkgd, {[10,0],[20,0],[30,0]});
-kk = kk.set_option('listing',2);
+kk = kk.set_options('listing',2);
 
 [wcalc, fitcalc] = kk.simulate;
 wcalc = struct_to_IX(wcalc);

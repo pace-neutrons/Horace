@@ -5,9 +5,9 @@ function [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
 %
 % Set all functions
 %   args = {@fhandle, pin}
-%   args = {@fhandle, pin, pfree}
-%   args = {@fhandle, pin, pfree, pbind}
-%   args = {@fhandle, pin, 'pfree', pfree, 'pbind', pbind}
+%   args = {@fhandle, pin, free}
+%   args = {@fhandle, pin, free, bind}
+%   args = {@fhandle, pin, 'free', free, 'bind', bind}
 %
 % Set a particular function or set of functions
 %   args = {ifun, @fhandle, pin,...}    % ifun can be scalar or row vector

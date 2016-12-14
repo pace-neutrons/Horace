@@ -49,4 +49,5 @@ kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
 
 [wfit,fitdata,ok,mess] = kk.fit;
 
+if~isequaln(wfit_ref,wfit), error('*** Oh dear! ***'), end
 

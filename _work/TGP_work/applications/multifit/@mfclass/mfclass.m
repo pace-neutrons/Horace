@@ -220,9 +220,9 @@ classdef mfclass
         % Cell array of foreground function parameters (row vector)
         %  the function parameters have the general form
         pin
-        pfree
-        pbind
-        pbind_dbg   % *** get rid of for release
+        free
+        bind
+        bind_dbg   % *** get rid of for release
 
         % Background is local if true (default) or global if false
         local_background
@@ -231,9 +231,9 @@ classdef mfclass
         % Cell array (row) of background function handles
         bfun
         bpin
-        bpfree
-        bpbind
-        bpbind_dbg  % *** get rid of for release
+        bfree
+        bbind
+        bbind_dbg  % *** get rid of for release
 
         options
     end
@@ -258,7 +258,7 @@ classdef mfclass
                     obj.wrapfun_ = mfclass_wrapfun;
                     obj = set_data(obj,varargin{:});
                 end
-                obj = set_option(obj,'-default');
+                obj = set_options(obj,'-default');
             catch ME
                 error(ME.message)
             end
@@ -343,12 +343,12 @@ classdef mfclass
             out = obj.pin_;
         end
 
-        function out = get.pfree(obj)
+        function out = get.free(obj)
             nptot = sum(obj.np_);
             out = mat2cell(obj.free_(1:nptot)',1,obj.np_);
         end
 
-        function out = get.pbind (obj)
+        function out = get.bind (obj)
             nptot = sum(obj.np_);
             bnd = obj.bound_(1:nptot);
             % Parameter and function indicies of bound parameters
@@ -363,7 +363,7 @@ classdef mfclass
             out = [ipb,ifunb,ipf,ifunf,R];
         end
 
-        function out = get.pbind_dbg(obj)   % *** get rid of for release
+        function out = get.bind_dbg(obj)   % *** get rid of for release
             % *** Need to extract in different form for production version
             nptot = sum(obj.np_);
             out = [double(obj.free_(1:nptot))';...
@@ -382,14 +382,14 @@ classdef mfclass
             out = obj.bpin_;
         end
 
-        function out = get.bpfree(obj)
+        function out = get.bfree(obj)
             nptot = sum(obj.np_);
             nbptot = sum(obj.nbp_);
             range = nptot+1:nptot+nbptot;
             out = mat2cell(obj.free_(range)',1,obj.nbp_);
         end
 
-        function out = get.bpbind (obj)
+        function out = get.bbind (obj)
             nptot = sum(obj.np_);
             nbptot = sum(obj.nbp_);
             range = nptot+1:nptot+nbptot;
@@ -406,7 +406,7 @@ classdef mfclass
             out = [ipb,-ifunb,ipf,-ifunf,R];
         end
 
-        function out = get.bpbind_dbg(obj)   % *** get rid of for release
+        function out = get.bbind_dbg(obj)   % *** get rid of for release
             % *** Need to extract in different form for production version
             nptot = sum(obj.np_);
             nbptot = sum(obj.nbp_);

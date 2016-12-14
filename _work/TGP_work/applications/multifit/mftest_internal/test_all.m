@@ -101,9 +101,9 @@ kk=mfclass(w1);
 
 kk=kk.set_fun(@toot,[1,100,24,2],[0,1,1,0]);
 
-kk=kk.set_bind(1,2,13); kk.pbind
-kk=kk.add_bind(2,3,13); kk.pbind
-kk=kk.add_bind(3,1,13); kk.pbind
+kk=kk.set_bind(1,2,13); kk.bind
+kk=kk.add_bind(2,3,13); kk.bind
+kk=kk.add_bind(3,1,13); kk.bind
 
 
 %-------------------------------------------------------------
@@ -269,8 +269,8 @@ kk=kk.set_bbind(4,-1,13);
 kk=kk.add_bbind(2,-2);
 
 kk2=kkref;
-kk2=kk2.set_bind(kk.pbind);
-kk2=kk2.set_bbind(kk.bpbind);
+kk2=kk2.set_bind(kk.bind);
+kk2=kk2.set_bbind(kk.bbind);
 
 
 
