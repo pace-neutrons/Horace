@@ -63,6 +63,8 @@ classdef data_sqw_dnd
         [q1,q2,q3] = get_q_axes(obj);
         % return binning range of existing data object
         range = get_bin_range(obj);
+        % convert sqw_dnd object into structure
+        struc = to_struct(obj,varargin);
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:
