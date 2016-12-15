@@ -90,8 +90,8 @@ classdef dnd_file_interface
         num_dim;
         % Dimensions of the Horace image (dnd object), stored in the file.
         dnd_dimensions
-        % Legacy type of data written in the file, describing the
-        % information stored in a sqw file
+        % Legacy type of data written in the file, describing the information
+        % stored in a sqw file
         %
         % Possible types are:
         %   type 'b'    fields: filename,...,dax,s,e
@@ -201,15 +201,15 @@ classdef dnd_file_interface
         %>>obj = obj.init(sqw_object,filename_to_write);
         obj = init(obj,varargin);
         %
-        % set new filename to write file or prepare existing file for
+        % Set new filename to write file or prepare existing file for
         % update or write if update is not possible.
         %Usage:
         %>>[obj,file_exist] = obj.set_file_to_update(filename_to_write);
         [obj,file_exist] = set_file_to_update(obj,varargin)
         
-        % Reopen existing file to upgrade/write new data to it assuming
+        % Reopen existing file to write new data to it assuming
         % the loader has been already initiated by this file. Will be
-        % clearly overwritten or destroyed if partial information is
+        % clearly overwritten or corrupted if partial information is
         % different and no total info was written.
         obj = reopen_to_write(obj,filename)
         %---------------------------------------------------------

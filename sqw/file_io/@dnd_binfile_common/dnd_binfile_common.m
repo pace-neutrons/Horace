@@ -3,9 +3,9 @@ classdef dnd_binfile_common < dnd_file_interface
     % files.
     %
     %  Binary sqw/dnd-file accessors inherit this class, use common methods,
-    %  defined in this class, implement remaining methods,
-    %  inherited from dnd_file_interface and overload the methods, which
-    %  have different data access requests.
+    %  defined in this class, implement remaining methods, inherited from 
+    %  dnd_file_interface and overload the methods, which have different
+    %  data access requests.
     %
     % dnd_binfile_common Methods:
     % ----------------------------------------------------------------

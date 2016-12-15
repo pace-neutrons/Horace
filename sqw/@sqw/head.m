@@ -97,8 +97,9 @@ else
         for i=1:nw
             if is_sqw_type(w.data(i)) && hfull
                 h=struct(w.data(i));
-                h.data=rmfield(h.data,{'s','e','npix','pix'});
+                h.data=rmfield(struct(h.data),{'s','e','npix','pix'});
             else
+                %w.data(i).
                 h=rmfield(struct(w.data(i).data),{'s','e','npix'});
                 if is_sqw_type(w.data(i))
                     h=rmfield(h,'pix');
@@ -107,7 +108,7 @@ else
                 end
             end
             if nw==1
-                hout=h;
+                hout={h};
             else
                 if i==1, hout=cell(size(w.data)); end
                 hout{i}=h;

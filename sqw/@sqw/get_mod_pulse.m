@@ -70,7 +70,7 @@ nend=cumsum(nfiles(:));
 nbeg=nend-nfiles(:)+1;
 for i=1:nobj
     if source_is_file
-        ld = w.loaders_list{i}
+        ld = w.loaders_list{i};
         header = ld.get_header('-all');        
     else
         header=w.data(i).header;
