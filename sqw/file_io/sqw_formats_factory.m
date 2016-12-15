@@ -6,17 +6,17 @@ classdef sqw_formats_factory < handle
     % sqw file accessor is used to read/write the whole or partial sqw data
     % from/to a various sqw format file(s).
     %
-    % sqw_formats_factory Methods:
-    %  instance      - main method to access unique instance of the factory
+    %sqw_formats_factory Methods:
+    % instance      - main method to access unique instance of the factory
     %                  (singleton).
     %
-    % User methods:
+    %User methods:
     % get_loader  -     returns loader suitable for to get data from the file
     %                   with the name provided.
     % get_pref_access - returns non-initialized accessor appropriate to
     %                   save the type of data provided as input.
     %
-    % Developers method:
+    %Developers method:
     % check_compatibility - verifies if position info from one sqw file accessor can be
     %                       used to initialize another accessor.
     %
@@ -73,7 +73,7 @@ classdef sqw_formats_factory < handle
     
     methods % Public Access
         function loader = get_loader(obj,sqw_file_name)
-            % Returns initiated loader which can load the data from the specified data file
+            % Returns initiated loader which can load the data from the specified data file.
             %
             %Usage:
             %>>loader=loaders_factory.instance().get_loader(sqw_file_name);
@@ -85,7 +85,7 @@ classdef sqw_formats_factory < handle
             %                     cellarray of loaders.
             %
             % On error throws SQW_FILE_IO:runtime_error exception with message, explaining the reason for error.
-            %                    The errors are usually caused by missing or not-recognized (non-sqw) input file.
+            %                    The errors are usually caused by missing or not-recognized (non-sqw) input files.
             %
             if iscell(sqw_file_name) % process range of files
                 loader = cellfun(@(x)(obj.get_loader(x)),sqw_file_name,...
@@ -143,11 +143,12 @@ classdef sqw_formats_factory < handle
         %
         function loader = get_pref_access(obj,varargin)
             % Returns the version of the accessor recommended to use for writing sqw files
-            % by default.
+            % by default or accessor necessary for writing the particular class provided as
+			% input.
             %
             %Usage:
             %>>loader = sqw_formats_factory.instance().get_pref_access();
-            %           -- returns default accessor
+            %           -- returns default accessor suitable for most files.
             %>>loader = sqw_formats_factory.instance().get_pref_access('dnd')
             % or
             %>>loader = sqw_formats_factory.instance().get_pref_access('sqw')
@@ -210,9 +211,9 @@ classdef sqw_formats_factory < handle
             %        pos_info stored in obj2 and is subset of position
             %        info of object 2
             %
-            % currently true is returned either for the same type of
-            % accessors or when class(obj1) == 'faccess_sqw_v2' and
-            % class(obj2) == 'faccess_sqw_v3'
+            % currently returns true either for the same type of
+            % accessors (class(obj1)==class(obj2)) or when 
+            % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
             %
             if isa(obj2,class(obj1))
                 is_compartible = true;

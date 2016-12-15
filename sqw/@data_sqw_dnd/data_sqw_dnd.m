@@ -197,6 +197,7 @@ classdef data_sqw_dnd
                 isit = false;
             end
         end
+        %
         function type= data_type(obj)
             % compatibility function
             %   data   Output data structure which must contain the fields listed below
