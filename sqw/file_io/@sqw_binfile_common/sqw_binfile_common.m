@@ -289,7 +289,7 @@ classdef sqw_binfile_common < sqw_file_interface
         end
     end
     %
-    methods(Static,Access=protected,Hidden=true)
+    methods(Static,Hidden=true)
         %
         function header = get_main_header_form(varargin)
             % Return the structure of the main header in the form it
