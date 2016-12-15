@@ -5,7 +5,9 @@ data_dir = pwd;
 % Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
 data_inst_ref = fullfile(data_dir,'w1_inst_ref.sqw');
 data_inst = fullfile(tempdir,'test_setup_inst_data_w1_inst.sqw');    % for copying to later
-clear clob;
+if exist(data_inst,'file')==2
+    clear clob;
+end
 clob = onCleanup(@()delete(data_inst));
 
 % Read as an object too:
@@ -40,7 +42,7 @@ h_file_s=head_horace(data_inst_ref);
 h_file_s = rmfield(h_file_s,{'npixels','nfiles'});
 
 h_file=head_horace(data_inst_ref,'-full');
-data = struct(h_file.data);
+data = h_file.data.to_struct();
 data = rmfield(data,{'pix','axis_caption'});
 assertEqual(data,h_file_s)
 
