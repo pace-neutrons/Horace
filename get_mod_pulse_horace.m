@@ -41,7 +41,7 @@ function varargout=get_mod_pulse_horace(varargin)
 
 if nargin<1 ||nargin>2
     error('Check number of input arguments')
-elseif nargout>5
+elseif nargout>6
     error('Check the number of output arguments')
 end
 
