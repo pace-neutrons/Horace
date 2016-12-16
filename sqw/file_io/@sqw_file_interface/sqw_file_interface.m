@@ -15,7 +15,7 @@ classdef sqw_file_interface < dnd_binfile_common
     %                   contributing file's header
     % get_detpar      - retrieve detectors information.
     % get_pix         - get pixels info
-    % get_instrument  - get instrument informatio specific for a run
+    % get_instrument  - get instrument information specific for a run
     % get_sample      - get sample information
     %
     % Abstract mutators:
@@ -29,8 +29,8 @@ classdef sqw_file_interface < dnd_binfile_common
     %                      put methods mentioned above
     %
     % extended, version specific interface:
-    % put_instruments   -  store instruments infromation
-    % put_samples       -  store sample's infromation
+    % put_instruments   -  store instruments information
+    % put_samples       -  store sample's information
     %
     % upgrade_file_format - upgrade current sqw file to recent file format.
     %                       May change the sqw file and always opens it in

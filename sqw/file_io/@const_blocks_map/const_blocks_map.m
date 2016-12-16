@@ -27,7 +27,7 @@ classdef const_blocks_map
             {{'header_pos_info_','efix_pos_'},'detpar_pos_'},...      % the only one or last header
             {{'header_pos_info_','filename_pos_'},{'header_pos_info_','efix_pos_'}},...  % n-header
             {{'detpar_pos_info_','ndet_pos_'},'data_pos_'},...      % detpar
-            {{'data_fields_locations_','alatt_pos_'},'s_pos_'},...  % methadata block positions
+            {{'data_fields_locations_','alatt_pos_'},'s_pos_'},...  % metadata block positions
             {'s_pos_','dnd_eof_pos_'},...                           % data block positions
             {'urange_pos_','eof_pix_pos_'},...                       % pix block position
             {'instrument_head_pos_','instrument_pos_'},... % instrument header | -- these four are not
@@ -80,4 +80,3 @@ classdef const_blocks_map
     end
     
 end
-

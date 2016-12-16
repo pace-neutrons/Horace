@@ -60,3 +60,6 @@
 % class_helpers    - contains various small classes and functions
 %                    used by the main classes responsible for file-io
 %                    operations and located in the file_io folder.
+%
+% The inheritance/collaboration diagram for main classes, present in 
+% this folder can be viewed <a href="matlab:imshow('CollabDiagram.png');">here.</a>

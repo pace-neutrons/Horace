@@ -6,7 +6,7 @@ classdef sqw_serializer
     % $Revision$ ($Date$)
     %
     %
-    properties(Access=private)
+    properties(Access=private,Hidden=true)
         sqw_holder_ = []; % reference to sqw object to serialize (if any)
         n_header_ = 1; % number of header to process
         %
@@ -22,8 +22,13 @@ classdef sqw_serializer
         eof_pos_ = 0;
     end
     properties(Dependent)
-        n_header
+        % true if serializer is processing a file and the input 
+        % data for serizliatation/deserizliation are stored in the file 
+        % defined by input file_id.
         input_is_file;
+        % true if input is structure and input (even digital) is serialized
+        % directly. If input is neither file nor structure, it must be
+        % an array of bytes.
         input_is_struct;
     end
     
@@ -31,24 +36,13 @@ classdef sqw_serializer
         function obj = sqw_serializer()
             obj.class_map_ = containers.Map(obj.base_classes_,obj.class_sizes_);
         end
-        function nh = get.n_header(obj)
-            nh = obj.n_header_;
-        end
-        function obj = set.n_header(obj,val)
-            if isnumeric(val) && val>0 && val <999999999
-                obj.n_header_ = val;
-            else
-                error('SQW_SERIALIZER:invalid_argument',...
-                    'Number of header to process should be ')
-            end
-        end
+        %
         function is = get.input_is_file(obj)
             is = obj.input_is_file_;
         end
         function is = get.input_is_struct(obj)
             is = obj.input_is_stuct_;
-        end
-        
+        end        
         %---------------------------------------------------------------------
         function stream = serialize(obj,struct,format_struct)
             % serialize struct into the form, usually written by Horace
@@ -82,7 +76,7 @@ classdef sqw_serializer
             %                   template_structure and values equal to
             %                   calculated positions of these fields in
             %                   stream
-            % pos            :: first position afer the all data positions
+            % pos            :: first position after the all data positions
             % eof            :: true when  positions calculated on stream
             %                   and end of a stream reached before all
             %                   format fields were processed. size_str in
@@ -110,13 +104,13 @@ classdef sqw_serializer
             %          file with data
             % template_str :: structure, which describes format of the
             %                 input data in the stream or binary file.
-            %         See the examples of various horace format structures
+            %         See the examples of various Horace format structures
             %         defined by sqw_binfile_common class.  Simple fields of this
             %         structure used to identify the output according to a
             %         simple rule:
             %         the field name of the templated structure defined the
             %         field name of the target structure and the size and the
-            %         type of the templated strucute field define size and
+            %         type of the templated structure field define size and
             %         the type of the bytes
             %         Complex fields of the templated structure are converted
             %         according to the rules described by
@@ -124,8 +118,8 @@ classdef sqw_serializer
             %
             % pos ::  on input defines the position of the first byte of
             %         the data to process within the input stream and
-            %         on outuput equal to the  first byte following the
-            %         bytes convered into the structure
+            %         on output equal to the  first byte following the
+            %         bytes converted into the structure
             % Output:
             % res  :: structure, converted from sequence of bytes
             %

@@ -1,3 +1,5 @@
+function test_set_instrument_data_2()
+
 % Set up names of data files
 data_dir = pwd;
 
@@ -5,9 +7,7 @@ data_dir = pwd;
 % Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
 data_inst_ref = fullfile(data_dir,'w1_inst_ref.sqw');
 data_inst = fullfile(tempdir,'test_setup_inst_data_w1_inst.sqw');    % for copying to later
-if exist(data_inst,'file')==2
-    clear clob;
-end
+
 clob = onCleanup(@()delete(data_inst));
 
 % Read as an object too:

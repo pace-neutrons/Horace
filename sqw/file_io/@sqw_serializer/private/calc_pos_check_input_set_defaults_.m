@@ -16,9 +16,9 @@ function  [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin)
 %      bytes, structure)
 %      also knows about the position of the end of the input stream
 % pos  if initial_position  is not present
-%      -- depending on kind of input stream intil position to look for data
+%      -- depending on kind of input stream initial position to look for data
 %      if initial_position  is present:
-%  pos  == initial_position
+% pos  == initial_position
 %
 %
 %
@@ -37,7 +37,7 @@ else
         if size(input,1) == 1
             input = input';
         end
-    else % input is a class and we try to tread it as a sturcture
+    else % input is a class and we try to tread it as a structure
         obj.input_is_stuct_ =true;
         obj.input_is_file_ = false;        
     end
