@@ -1,5 +1,5 @@
 function obj=init_headers_from_sqw_(obj,sqw_obj)
-% Initialize the strucute of sqw header block for subsequent write operations
+% Initialize the structure of sqw header block for subsequent write operations
 % using sqw object, stored in memory
 %
 %

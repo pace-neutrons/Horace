@@ -1,6 +1,6 @@
 classdef pix_combine_info
-    % Helper class used to carry out and proivde combibe pixels info
-    % for write_nsqw_to_sqw algorithm
+    % Helper class used to carry out and provide information 
+    % necessary for pixel combining by write_nsqw_to_sqw algorithm.
     %
     properties(Access = protected)
         n_pixels_ = 'undefined';
@@ -38,11 +38,11 @@ classdef pix_combine_info
     properties(Dependent)
         % total number of pixels to combine
         npixels;
-        % numbef of files, contributing into final result
+        % number of files, contributing into final result
         nfiles;
-        % how to interpred labels fild
+        % how to interpret labels field.
         relabel_with_fnum;
-        %
+        % if pixel id for each pixel from contributing file should be changed.
         change_fileno
     end
     
@@ -67,7 +67,7 @@ classdef pix_combine_info
             obj.n_pixels_ = uint64(sum(npixtot));
             if obj.npixels ~= npix_cumsum(end)
                 error('SQW_FILE_IO:runtime_error',...
-                    'Wrong input for combine mutliple files: Numbef of pixels in all files %d is not equal to number of pixels in their combination %d',...
+                    'Wrong input for combine multiple files: Number of pixels in all files %d is not equal to number of pixels in their combination %d',...
                     obj.n_pixels_,npix_cumsum(end));
             end
         end
@@ -116,7 +116,7 @@ classdef pix_combine_info
             % Constrain the number of files and the file information,
             % contained in class by the number of files (nfiles_to_leave) provided.
             %
-            % Checks if pixel info in all remainining files remains consistent;
+            % Checks if pixel info in all remaining files remains consistent;
             %
             %Usage:
             %>>obj = obj.trim_nfiles(nfiles_to_leave)
@@ -138,7 +138,7 @@ classdef pix_combine_info
             obj.n_pixels_ = uint64(sum(obj.npix_file_tot));
             if obj.npixels ~= obj.npix_cumsum(end)
                 error('SQW_FILE_IO:runtime_error',...
-                    'Wrong input for combine mutliple files: Numbef of pixels in all files %d is not equal to number of pixels in their combination %d',...
+                    'Wrong input for combine multiple files: Number of pixels in all files %d is not equal to number of pixels in their combination %d',...
                     obj.n_pixels_,obj.npix_cumsum(end));
             end
             

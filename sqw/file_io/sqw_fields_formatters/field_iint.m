@@ -1,12 +1,15 @@
 classdef field_iint < field_const_array_dependent
-    %UNTITLED10 Summary of this class goes here
-    %   Detailed explanation goes here
+    %Class used to serialize iint field in sqw file metadata
+	%
+	% It is overload of field_const_array_dependent specifying 
+	% sqw property npax as source of the information about the array size.
     
     properties
     end
     
     methods
         function obj=field_iint()
+		    % Class constructor:
             obj= obj@field_const_array_dependent('npax',2,'single');
         end
         

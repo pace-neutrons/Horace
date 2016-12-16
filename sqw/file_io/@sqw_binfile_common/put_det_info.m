@@ -1,14 +1,14 @@
 function   obj = put_det_info(obj,varargin)
-% Save or replace main sqw header into properly initalized
+% Save or replace main sqw header into properly initialized
 % binary sqw file
 %Usage:
 %>>obj.put_main_header();
 %>>obj.put_main_header('-update');
 %>>obj.put_header(sqw_obj_new_source_for_update); -- updates main header
-%                               informaion using new object as source
+%                               information using new object as source
 %
 % If update options is selected, header have to exist. This option keeps
-% exisitng file information untouched;
+% existing file information untouched;
 
 [ok,mess,update,argi] = parse_char_options(varargin,{'-update'});
 if ~ok
@@ -40,7 +40,7 @@ if update
     sz = val(2);
     if sz ~= numel(bytes)
         error('SQW_FILE_IO:runtime_error',...
-            'SQW_BINFILE_COMMON::put_det_info: unable to update detectors as new data size is not equal to the exisating space')
+            'put_det_info: unable to update detectors as new data size is not equal to the existing space')
     end
 else
     start_pos = obj.detpar_pos_;

@@ -176,7 +176,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %            empty.
             %Returns:
             % sub_obj - the object with the name provided
-            % external - true if varargin is proivded and false otherwise.
+            % external - true if varargin is provided and false otherwise.
             %
             if isempty(varargin)
                 inobj = obj.sqw_holder_;

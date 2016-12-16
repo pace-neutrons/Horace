@@ -2,7 +2,7 @@ function  [header,pos]   = get_header(obj,varargin)
 % Get header of one of the files, contributed into sqw file
 %
 % Usage:
-%>>header = loader.get_header() % -- returns first sqw headrer
+%>>header = loader.get_header() % -- returns first sqw header
 % or
 %>>header = loader.get_header(n_header) % returns header number n_header
 %
@@ -43,7 +43,7 @@ end
 
 if n_header<1 || (n_header>obj.num_contrib_files)
     error('SQW_FILE_IO:invalid_argument',...
-        ' wrong number of header requested : %d, Avalible numbers are 1-%d',...
+        ' wrong number of header requested : %d, Available numbers are 1-%d',...
         n_header,n_header>obj.num_contrib_files);
 end
 
@@ -88,7 +88,7 @@ fseek(obj.file_id_,obj.header_pos_(n_header),'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
     error('SQW_FILE_IO:runtime_error',...
-        'get_single_header: can not move at the start of header N%d, readon: %s',n_header,mess);
+        'get_single_header: can not move at the start of header N%d, reason: %s',n_header,mess);
 end
 %
 bytes = fread(obj.file_id_,sz,'*uint8');

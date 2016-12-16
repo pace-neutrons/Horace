@@ -19,7 +19,7 @@ obj.main_head_pos_info_ = main_h_pos;
 
 %
 fseek(obj.file_id_,main_h_pos.nfiles_pos_,'bof');
-check_and_throw_error(obj,'Error moving to the  number of contributing files fiels position');
+check_and_throw_error(obj,'Error moving to the  number of contributing files position');
 
 n_files = fread(obj.file_id_,1,'int32');
 check_and_throw_error(obj,'Error reading number of contributing files field');
