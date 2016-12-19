@@ -40,6 +40,7 @@ addpath_message (1,rootpath,'utilities');
 
 % Functions for fitting etc.
 addpath_message (1,rootpath,'functions');
+addpath_message (1,rootpath,'sqw_models');
 
 % Add GUI path
 addpath_message(1,rootpath,'GUI');
