@@ -15,18 +15,10 @@ else
 end
 
 %% ================================================================================================
-% % Create a new format version file - this should not need to be redone
-% 
-% data_source_in='E:\data\RbMnF3\sqw\rbmnf3_backup.sqw';
-% data_source_out='E:\data\RbMnF3\sqw\rbmnf3_backup_newformat.sqw';
-% cut_sqw(data_source_in,[],[],[],[],data_source_out);
-
-
-%% ================================================================================================
 % Setup 
 % -----
-data_source='E:\data\RbMnF3\sqw\rbmnf3_ref_newformat.sqw';  % output sqw file
-data_source_test='E:\data\RbMnF3\sqw\test.sqw';             % file for testing writing of moderator parameters
+data_source='E:\data\RbMnF3\sqw\rbmnf3_ref.sqw';                   % output sqw file
+data_source_crap='E:\data\RbMnF3\sqw\crap.sqw';
 
 proj.u=[1,1,0];
 proj.v=[0,0,1];
@@ -35,6 +27,7 @@ proj.v=[0,0,1];
 %% ================================================================================================
 % Tobyfit
 % ----------------------------------------
+
 if setup
     % Set the sample and instrument in the master sqw file
     sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
@@ -67,7 +60,7 @@ if ~ok, error(mess), end    % check name and parameters are all the same (within
 % Set moderator tauf to something else to actually test fitting
 ppmod=0.65*ppmod;
 w1inc = set_mod_pulse(w1inc,pulse_model,ppmod);
-save(data_source_test,'w1inc')  % simply to have a file to which to test the saving of the refined moderator parameters
+save(data_source_crap,'w1inc')  % simply to have a file to which to test the saving of the refined moderator parameters
 
 
 % Tobyfitting proper

@@ -1,5 +1,0 @@
-- documentation for d1d/cut, d2d/cut...: the description was not correct (implied
- that you could have any rebinning you wanted along a plot axis, whereas you can only have the
- current bin size
- 
- - sqw/cut: new description of proj structure that includes non-orthogonal axes.
