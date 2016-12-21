@@ -1,5 +1,8 @@
 function [res,varargout] = get_sqw (obj,varargin)
-% Load an sqw file from disk
+% Load an dnd file from disk and return dnd object.
+%
+% The same as  get_dnd function providing unified interface for all sqw/dnd
+% files loaders
 %
 %   >> dnd_object = obj.get_sqw()
 %   >> dnd_object = obj.get_sqw('-verbatim')

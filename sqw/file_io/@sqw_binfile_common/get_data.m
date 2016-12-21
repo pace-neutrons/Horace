@@ -1,5 +1,11 @@
 function [data,obj] = get_data (obj,varargin)
-% Read the data block from an sqw file. The file pointer is left at the end of the data block.
+% Read the data block from an sqw or dnd file and return the result as the
+% data structrue with fields, descibed below.
+%
+% The result is packed into data_dnd_sqw class unless -noclass option is
+% provided
+%
+% The file pointer is left at the end of the data block.
 %
 %   >> data = obj.get_data()
 %   >> data = obj.get_data(opt)

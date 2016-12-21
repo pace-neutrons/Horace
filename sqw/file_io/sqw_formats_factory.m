@@ -1,10 +1,19 @@
 classdef sqw_formats_factory < handle
-    % Provides and initialises appropriate sqw file accessor 
+    % Provides and initialises appropriate sqw file accessor
     % given sqw file name or preferred sqw file accessor
     % for given sqw/dnd object or sqw/dnd object type.
     %
     % sqw file accessor is used to read/write the whole or partial sqw data
     % from/to a various sqw format file(s).
+    %
+    % Usage:
+    %>> accessor = sqw_formats_factory.instance().get_loader(filename)
+    % Get appropriate accessor to read sqw/dnd data from disk
+    % or:
+    %>> accessor = sqw_formats_factory.instance().get_pref_access(sqw/dnd object)
+    % Get appropriate accessor to write sqw/dnd data to hdd. 
+    % The accessor has to be initialized later (see details in the method description
+    % and accessors init method.)
     %
     %sqw_formats_factory Methods:
     % instance      - main method to access unique instance of the factory
@@ -25,7 +34,7 @@ classdef sqw_formats_factory < handle
     %
     properties(Access=private) %
         % List of registered file accessors:
-        % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface 
+        % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface
         % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = {faccess_sqw_v3(),faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
         %
@@ -44,7 +53,7 @@ classdef sqw_formats_factory < handle
         function obj = sqw_formats_factory()
             %sqw_formats_factory constructor: Initialise your custom properties.
             obj.types_map_= containers.Map(obj.written_types_ ,...
-                obj.access_to_type_ind_);            
+                obj.access_to_type_ind_);
         end
     end
     
@@ -144,7 +153,7 @@ classdef sqw_formats_factory < handle
         function loader = get_pref_access(obj,varargin)
             % Returns the version of the accessor recommended to use for writing sqw files
             % by default or accessor necessary for writing the particular class provided as
-			% input.
+            % input.
             %
             %Usage:
             %>>loader = sqw_formats_factory.instance().get_pref_access();
@@ -212,7 +221,7 @@ classdef sqw_formats_factory < handle
             %        info of object 2
             %
             % currently returns true either for the same type of
-            % accessors (class(obj1)==class(obj2)) or when 
+            % accessors (class(obj1)==class(obj2)) or when
             % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
             %
             if isa(obj2,class(obj1))

@@ -3,7 +3,7 @@ classdef dnd_binfile_common < dnd_file_interface
     % files.
     %
     %  Binary sqw/dnd-file accessors inherit this class, use common methods,
-    %  defined in this class, implement remaining methods, inherited from 
+    %  defined in this class, implement remaining methods, inherited from
     %  dnd_file_interface and overload the methods, which have different
     %  data access requests.
     %
@@ -38,7 +38,8 @@ classdef dnd_binfile_common < dnd_file_interface
     % put_dnd  - save sqw/dnd object stored in memory into binary sqw file
     %            as dnd object.
     %
-    % There is also range of auxiliary less important methods.
+    % There is also range of auxiliary methods used by the get/put_sqw/dnd
+    % methods, and allowing to save/restore any part of binary sqw file
     % ----------------------------------------------------------------
     %
     % $Revision$ ($Date$)
@@ -248,7 +249,22 @@ classdef dnd_binfile_common < dnd_file_interface
         [dnd_data,obj] = get_data(obj,varargin);
         %
         function [data_str,obj] = get_se_npix(obj,varargin)
-            % get dnd image data, namely s, err and npix
+            % Read signal, error and npix information and return them as
+            % the fields of sqw data structure:
+            %
+            % Usage:
+            %>>data_struct = obj.get_se_npix();
+            %>>data_struct = obj.get_se_npix(data_struct);
+            %
+            % Where the first form creates structure with fields s,e,npix,
+            % containing signal, error and npix information correspondingly
+            % and the second form appends or replaces these fields in the
+            % structure provided as input.
+            % Notes:
+            % 1) Used as part of get_data method.
+            % 2) Depending on the value of the property convert_to_double,
+            %    s and e are either single or double precision arrays.
+            %    npix is always uint64
             data_str = get_se_npix_data_(obj,varargin{:});
         end
         %

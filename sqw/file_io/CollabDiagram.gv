@@ -1,4 +1,5 @@
 digraph CollabDiag {
+   /* Collaboration&inheritance diagram showing relationship between various classes supporting sqw file access*/
 	edge [dir=back];
 	dnd_binfile_common [shape=box];
 
