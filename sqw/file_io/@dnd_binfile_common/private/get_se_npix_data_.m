@@ -1,8 +1,19 @@
 function data_str = get_se_npix_data_(obj,varargin)
-% Read signal, error and npix information
+% Read signal, error and npix information and return them as the fields
+% of sqw data structure:
+%
+% Usage:
+%>>data_struct = obj.get_se_npix_data_();
+%>>data_struct = obj.get_se_npix_data_(data_struct);
+%
+% Where the first form creates structure with fields s,e,npix, containing
+% signal, error and npix information correspondingly read from hdd
+% and the second form appends or replaces these fields in the
+% structure provided as input.
 %
 %
-
+% $Revision$ ($Date$)
+%
 if isempty(varargin)
     data_str = struct();
 else

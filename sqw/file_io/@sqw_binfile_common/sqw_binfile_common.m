@@ -2,9 +2,9 @@ classdef sqw_binfile_common < sqw_file_interface
     % Class contains common logic and code used to access binary sqw files
     %
     %  Binary sqw-file accessors inherit this class, use common method,
-    %  defined in this class implement remaining abstract methods,
+    %  defined in this class, implement remaining abstract methods,
     %  inherited from sqw_file_interface and overload the methods, which
-    %  have different data access requests
+    %  have different data access requests.
     %
     % sqw_file_interface Methods:
     % Implemented accessors:

@@ -1,5 +1,8 @@
 function [data_str,obj] = get_data (obj,varargin)
-% Read the data block from an sqw file. The file pointer is left at the end of the data block.
+% Read the data block from an sqw or dnd file and return the result as the
+% data structrue with fields, descibed below.
+%
+% The file pointer is left at the end of the data block.
 %
 %   >> data = obj.get_data()
 %   >> data = obj.get_data(opt)
@@ -7,7 +10,7 @@ function [data_str,obj] = get_data (obj,varargin)
 % Input:
 % ------
 %   opt         [optional] Determines which fields to read
-%                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
+%                  '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
 %                                  data sections are returned as stored, not constructed from the
 %                                  value of fopen(fid). This is needed in some applications where
 %                                  data is written back to the file with a few altered fields.
@@ -61,6 +64,8 @@ function [data_str,obj] = get_data (obj,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
+%
+%  for sqw files only:
 %   data.urange     True range of the data along each axis [urange(2,4)]
 %
 % NOTES:

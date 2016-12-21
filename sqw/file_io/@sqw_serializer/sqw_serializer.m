@@ -22,8 +22,8 @@ classdef sqw_serializer
         eof_pos_ = 0;
     end
     properties(Dependent)
-        % true if serializer is processing a file and the input 
-        % data for serizliatation/deserizliation are stored in the file 
+        % true if serializer is processing a file and the input
+        % data for serizliatation/deserizliation are stored in the file
         % defined by input file_id.
         input_is_file;
         % true if input is structure and input (even digital) is serialized
@@ -42,7 +42,7 @@ classdef sqw_serializer
         end
         function is = get.input_is_struct(obj)
             is = obj.input_is_stuct_;
-        end        
+        end
         %---------------------------------------------------------------------
         function stream = serialize(obj,struct,format_struct)
             % serialize struct into the form, usually written by Horace
@@ -54,16 +54,25 @@ classdef sqw_serializer
         function [size_str,pos,eof,template_struc] = calculate_positions(obj,template_struc,input,varargin)
             % calculate the positions, the fields of the input templated_structure
             % occupy in an input stream.
+            %
+            % Three types of input are possible:
+            % 1) class or structure to serialize
+            % 2) array of bytes
+            % 3) the handle related to open binary file to read.
+            % The method calcuates the positions each input data field
+            % would occupy or is occupying (if converted) into/in a/the
+            % sequence of  bytes.
+            %
             % Usage:
-            % [size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input)
+            %>>[size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input)
             %or
-            %[size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input,start_pos)
+            %>>[size_str,pos,eof,template_struc] = obj.calculate_positions(format_struc,input,start_pos)
             %
             % where
             % obj           ::  an instance of sqw serializer
             % format_struc  ::  structure with sqw_field_formatters values
             %                   defining the format of the structure to
-            %                   save
+            %                   save/restore.
             % input         ::  input data in various formats to find
             %                   locations of different parts of the data
             % start_pos     ::  if provided, the initial position of the
@@ -82,9 +91,11 @@ classdef sqw_serializer
             %                   format fields were processed. size_str in
             %                   this case contains only the positions of
             %                   the fields which were processed from stream
-            % template_struc  :: is the copy of the input structure with
-            %                    appropriate fields values calculated from input stream
-            %                   
+            % template_struc  :: is the copy of the input format structure with
+            %                    appropriate fields values calculated from
+            %                    the input stream.
+            %
+            %
             [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin{:});
             %
             [size_str,pos,eof,template_struc] = calculate_positions_(obj,template_struc,input,pos);

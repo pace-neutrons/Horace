@@ -1,5 +1,6 @@
 function [res,varargout] = get_dnd (obj,varargin)
-% Load an sqw file from disk
+% Load an sqw/dnd file from disk and return the result as dnd object of
+% appropriate dimensions.
 %
 %   >> dnd_object = obj.get_dnd()
 %   >> dnd_object = obj.get_dnd('-verbatim')
@@ -11,13 +12,14 @@ function [res,varargout] = get_dnd (obj,varargin)
 %   opt         [optional] Determines which fields to read:
 %                                    (If the file was written from a structure of type 'b' or 'b+', then
 %                                    urange does not exist, and the output field will not be created)
-%                   '-verbatim'    Same as '-h' except that the file name as stored in the main_header and
-%                                  data sections are returned as stored, not constructed from the
-%                                  value of fopen(fid). This is needed in some applications where
-%                                  data is written back to the file with a few altered fields.
+%                 '-verbatim'    Same as '-h' except that the file name as stored in the main_header and
+%                                data sections are returned as stored, not constructed from the
+%                                value of fopen(fid). This is needed in some applications where
+%                                data is written back to the file with a few altered fields.
 %                   '-hverbatim'
-%                   '-legacy'   -- instead of the object, returns the
-%                                  structure
+%                   '-legacy'   -- instead of the object, returns the sqw
+%                                  file structure, with all sqw fields
+%                                  except data beeing empty
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
@@ -68,11 +70,11 @@ switch ndim %TODO: the dnd constructor should deal with this switch.
     case 1
         res = d1d(dat);
     case 2
-        res = d2d(dat);        
+        res = d2d(dat);
     case 3
-        res = d3d(dat);                
+        res = d3d(dat);
     case 4
-        res = d4d(dat);                        
+        res = d4d(dat);
     otherwise
         error('SQW_FILE_IO:runtime_error',...
             'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)
