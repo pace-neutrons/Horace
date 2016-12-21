@@ -22,12 +22,12 @@ classdef hor_config<config_base
     %   mem_chunk_size      Maximum number of pixels that are processed at one go during cuts
     %                       on usual machine with 16Gb of RAM it is 10^7
     %                       (higher value does not provide obvious
-    %                       performance benifits) but on older machines
+    %                       performance benefits) but on older machines
     %                       with ~4Gb it has to be reduced to 10^6
     %   threads             Number of threads to use in mex files
     %                       no more then number of processors but
     %                       value higher then 8 do not provide obvious
-    %                       performance benifits for given mem_chink_size.
+    %                       performance benefits for given mem_chink_size.
     %
     %   ignore_nan          Ignore NaN data when making cuts
     %                       (default --true)
@@ -55,26 +55,37 @@ classdef hor_config<config_base
     % $Revision$ ($Date$)
     %
     properties(Dependent)
-        mem_chunk_size    % maximum length of buffer array in which to accumulate points from the input file
-        threads           % how many computational threads to use in mex files and by Matlab
-        ignore_nan        % ignore NaN values
-        ignore_inf        % ignore inf values;
-        horace_info_level % set horace_info_level method
-        log_level         % the same as horace_info level
-        use_mex           % use mex-code for time-consuming operations
-        force_mex_if_use_mex % testing and debugging option -- fail if mex can not be used
-        delete_tmp        % automatically delete temporary files after generating sqw files
-        
+		% maximum length of buffer array in which to accumulate points from the input file	
+        mem_chunk_size    
+		% how many computational threads to use in mex files and by Matlab
+        threads           
+		% ignore NaN values if pixels have them
+        ignore_nan       
+		% ignore inf values if pixels have them
+        ignore_inf       
+		% set horace_info_level method indicating how verbose Horace would be -10 nothing >1 everything.
+        horace_info_level 
+		% the same as horace_info level
+        log_level         
+		% use mex-code for time-consuming operations
+        use_mex           
+		% testing and debugging option -- fail if mex can not be used
+        force_mex_if_use_mex 
+		% automatically delete temporary files after generating sqw files
+        delete_tmp        
+	    % use mex code to combine various sqw/tmp files together
         use_mex_for_combine
+		% various thread modes deployed when combining sqw files using mex code:
+		%
         mex_combine_thread_mode
         % size of buffer used during mex combine for each file
         mex_combine_buffer_size
-        % option to generate tmp files by launcing separate Matlab process
+        % option to generate tmp files by launching separate Matlab process
         accum_in_separate_process
-        % number of processes to launch to cauumultate additional files
+        % number of processes to launch to calculate additional files
         accumulating_process_num
     end
-    properties(Access=protected)
+    properties(Access=protected,Hidden = true)
         % private properties behind public interface
         mem_chunk_size_=10000000;
         threads_ =1;
@@ -342,7 +353,7 @@ classdef hor_config<config_base
         function value = get_internal_field(this,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface. 
-            % Relies on assumption, that each publuc
+            % Relies on assumption, that each public
             % field has a private field with name different by underscore
             value = this.([field_name,'_']);
         end
