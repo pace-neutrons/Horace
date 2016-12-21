@@ -5,21 +5,21 @@ function [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default,varargin)
 %   >> [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default)
 %
 % Set which parameters to refine with a logical array of zeros and ones
-%   >> [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default, pfree)
+%   >> [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default, free)
 %
 % Set pulse shape model parameters different to those in the sqw objects:
 % - New initial parameters:
-%   >> [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default, pin, pfree)
+%   >> [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default, pin, free)
 %
 % - New model and initial parameters:
-%   >> [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default, pulse_model, pin, pfree)
+%   >> [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default, pulse_model, pin, free)
 %
 % Input:
 % ------
 %  mod_opts_default Default moderator options structure. Must have fields:
 %                       pulse_model     Name of moderator pulse shape model
 %                       pin             Pulse shape parameters
-%                       pfree           Logical array indicating free (true) or
+%                       free            Logical array indicating free (true) or
 %                                      fixed (false) for each parameter.
 %                   If the default moderator options structure is used to fill
 %                  any fields in the output options structure, it must be a
@@ -32,7 +32,7 @@ function [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default,varargin)
 %   pin             Initial pulse shape parameters
 %                   If empty or omitted then the value in the default is used
 %
-%   pfree           Array of ones and zeros that indicates which parameters are to be refined:
+%   free           Array of ones and zeros that indicates which parameters are to be refined:
 %                     - 1 to refine the corresponding parameter
 %                     - 0 to fix the corresponding parameter
 %                   If empty or omitted then all parameters are free
@@ -44,7 +44,7 @@ function [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default,varargin)
 %                  will be filled:
 %                       pulse_model Name of moderator pulse shape model
 %                       pin         Pulse shape parameters (row vector)
-%                       pfree       Logical row vector of zeros and ones
+%                       free        Logical row vector of zeros and ones
 %                   If there is an error, then all fields are set to [];
 %
 %   ok              True if all OK; false otherwise
@@ -55,10 +55,10 @@ function [mod_opts,ok,mess] = refine_moderator_parse (mod_opts_default,varargin)
 % Parse the other options
 if numel(varargin)<=3
     if numel(varargin)==3
-        % Case of all pulse_model, pin, pfree all being provided - don't need to use default
+        % Case of all pulse_model, pin, free all being provided - don't need to use default
         mod_opts_in.pulse_model = varargin{1};
         mod_opts_in.pin = varargin{2};
-        mod_opts_in.pfree = varargin{3};
+        mod_opts_in.free = varargin{3};
         [mod_opts,ok,mess] = check_ok (mod_opts_in);
         
     else
@@ -67,12 +67,12 @@ if numel(varargin)<=3
             if numel(varargin)==1
                 mod_opts_in.pulse_model = mod_opts_default.pulse_shape;
                 mod_opts_in.pin = mod_opts_default.pin;
-                mod_opts_in.pfree = varargin{1};
+                mod_opts_in.free = varargin{1};
                 [mod_opts,ok,mess] = check_ok (mod_opts_in);
             elseif numel(varargin)==2
                 mod_opts_in.pulse_model = mod_opts_default.pulse_shape;
                 mod_opts_in.pin = varargin{1};
-                mod_opts_in.pfree = varargin{2};
+                mod_opts_in.free = varargin{2};
                 [mod_opts,ok,mess] = check_ok (mod_opts_in);
             end
         else
@@ -96,7 +96,7 @@ function [mod_opts,ok,mess] = check_ok (mod_opts_in)
 % all set to []
 
 
-names={'pulse_model';'pin';'pfree'};     % valid names
+names={'pulse_model';'pin';'free'};     % valid names
 
 % Catch case of forced error
 % --------------------------
@@ -139,15 +139,15 @@ else
 end
 
 % Check free parameters
-if islognum(mod_opts.pfree)
-    mod_opts.pfree = logical(mod_opts.pfree(:))';
+if islognum(mod_opts.free)
+    mod_opts.free = logical(mod_opts.free(:))';
 else
     mod_opts=empty_struct(names);
     ok=false; mess='The free/fixed parameter list for refinement must be a logical row vector'; return
 end
 
 % Check number of parmaeters in initial values and fix/free lists
-if numel(mod_opts.pin)~=numel(mod_opts.pfree)
+if numel(mod_opts.pin)~=numel(mod_opts.free)
     mod_opts=empty_struct(names);
     ok=false; mess='The number of moderator pulse shape parameters for refinement is inconsistent with the fixed/free parameter list'; return
 end

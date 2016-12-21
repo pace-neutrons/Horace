@@ -40,7 +40,7 @@ if setup
     sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
     
     set_sample_horace(data_source,sample)
-    set_instrument_horace(data_source,@maps_instrument,'-efix',300,'S')
+    set_instrument_horace(data_source,@maps_instrument_for_tests,'-efix',300,'S')
     
 end
 
@@ -109,7 +109,8 @@ else
     
     % Fit
     kk = kk.set_options('list',2);
-    [w1fit,pfit,ok,mess,pmodel,ppfit] = kk.fit;
+    [w1fit,pfit,ok,mess,pmodel,ppfit,psigfit] = kk.fit;
+    acolor b; dd(w1inc); acolor r; pl(w1fit)
     
 end
 
@@ -138,8 +139,8 @@ end
 % 
 % winc_1=cut_sqw(data_source,proj,[0.45,0.55],[-0.05,0.05],[-0.05,0.05],[-2,0.1,2]);
 % winc_2=cut_sqw(data_source,proj,[0.3,0.5],[0,0.2],[-0.1,0.1],[-2,0.1,2]);  % better stats
-% winc_1=set_sample_and_inst(winc_1,sample,@maps_instrument,'-efix',300,'S');
-% winc_2=set_sample_and_inst(winc_2,sample,@maps_instrument,'-efix',300,'S');
+% winc_1=set_sample_and_inst(winc_1,sample,@maps_instrument_for_tests,'-efix',300,'S');
+% winc_2=set_sample_and_inst(winc_2,sample,@maps_instrument_for_tests,'-efix',300,'S');
 % 
 % % First fit
 % % - - - - -
@@ -163,14 +164,14 @@ end
 % % ---------------------------------------------------
 % % *** Need to find a neater way to do this!
 % sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
-% w1_0=set_sample_and_inst(w1_0,sample,@maps_instrument,'-efix',300,'S');
-% w1_2=set_sample_and_inst(w1_2,sample,@maps_instrument,'-efix',300,'S');
-% w1_4=set_sample_and_inst(w1_4,sample,@maps_instrument,'-efix',300,'S');
-% w1e_2=set_sample_and_inst(w1e_2,sample,@maps_instrument,'-efix',300,'S');
-% w1e_3=set_sample_and_inst(w1e_3,sample,@maps_instrument,'-efix',300,'S');
-% w1e_4=set_sample_and_inst(w1e_4,sample,@maps_instrument,'-efix',300,'S');
-% w1e_5=set_sample_and_inst(w1e_5,sample,@maps_instrument,'-efix',300,'S');
-% w1e_6=set_sample_and_inst(w1e_6,sample,@maps_instrument,'-efix',300,'S');
+% w1_0=set_sample_and_inst(w1_0,sample,@maps_instrument_for_tests,'-efix',300,'S');
+% w1_2=set_sample_and_inst(w1_2,sample,@maps_instrument_for_tests,'-efix',300,'S');
+% w1_4=set_sample_and_inst(w1_4,sample,@maps_instrument_for_tests,'-efix',300,'S');
+% w1e_2=set_sample_and_inst(w1e_2,sample,@maps_instrument_for_tests,'-efix',300,'S');
+% w1e_3=set_sample_and_inst(w1e_3,sample,@maps_instrument_for_tests,'-efix',300,'S');
+% w1e_4=set_sample_and_inst(w1e_4,sample,@maps_instrument_for_tests,'-efix',300,'S');
+% w1e_5=set_sample_and_inst(w1e_5,sample,@maps_instrument_for_tests,'-efix',300,'S');
+% w1e_6=set_sample_and_inst(w1e_6,sample,@maps_instrument_for_tests,'-efix',300,'S');
 % for i=1:w1e_6.main_header.nfiles
 %     w1_0.header{i}.instrument.moderator.pp=pp_fit;
 %     w1_2.header{i}.instrument.moderator.pp=pp_fit;

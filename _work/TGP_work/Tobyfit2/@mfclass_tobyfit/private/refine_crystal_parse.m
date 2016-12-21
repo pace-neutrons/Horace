@@ -92,7 +92,7 @@ function [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def, vara
 %           urot    x-axis in r.l.u. (Default: [1,0,0])
 %           vrot    Defines y-axis in r.l.u. (in plane of urot and vrot)
 %                  (Default: [0,1,0])
-%           pfree   Logical row vector (length=9); true for free parameters
+%           free    Logical row vector (length=9); true for free parameters
 %                  (Default: all free)
 %           fix_alatt_ratio     =true if a,b,c are to be bound (Default: false)
 %
@@ -164,29 +164,29 @@ else
     end
     
     % Create arrays of free parameters and bindings
-    pfree=[1,1,1,1,1,1,1,1,1];
+    free=[1,1,1,1,1,1,1,1,1];
     fix_alatt_ratio=false;
     
     if opt.fix_alatt || opt.fix_lattice
-        pfree(1:3)=[0,0,0];
+        free(1:3)=[0,0,0];
     elseif opt.fix_alatt_ratio
         fix_alatt_ratio=true;
     elseif present.free_alatt
-        pfree(1:3)=opt.free_alatt;
+        free(1:3)=opt.free_alatt;
     end
     
     if opt.fix_angdeg || opt.fix_lattice
-        pfree(4:6)=[0,0,0];
+        free(4:6)=[0,0,0];
     elseif present.free_angdeg
-        pfree(4:6)=opt.free_angdeg;
+        free(4:6)=opt.free_angdeg;
     end
     
     if opt.fix_orientation
-        pfree(7:9)=[0,0,0];
+        free(7:9)=[0,0,0];
     end
     
     % Add to structure
-    xtal_opts.pfree=logical(pfree);
+    xtal_opts.free=logical(free);
     xtal_opts.fix_alatt_ratio=fix_alatt_ratio;
     
     % Check validity of structure
@@ -205,7 +205,7 @@ function [xtal_opts,ok,mess]=check_ok(alatt_def,angdeg_def,xtal_opts_in)
 % If not valid (or no input argument), then returns a 1x1 structure with the fields
 % all set to []
 
-names={'alatt';'angdeg';'rot';'urot';'vrot';'pfree';'fix_alatt_ratio'};     % valid names
+names={'alatt';'angdeg';'rot';'urot';'vrot';'free';'fix_alatt_ratio'};     % valid names
 
 % Catch case of forced error
 % --------------------------
@@ -292,8 +292,8 @@ if norm(cross(xtal_opts.urot,xtal_opts.vrot))/(norm(xtal_opts.urot)*norm(xtal_op
 end
 
 % Check free parameter list and fix_alatt_ratio option
-if islognum(xtal_opts.pfree) && numel(xtal_opts.pfree)==9
-    xtal_opts.pfree=logical(xtal_opts.pfree(:)');
+if islognum(xtal_opts.free) && numel(xtal_opts.free)==9
+    xtal_opts.free=logical(xtal_opts.free(:)');
 else
     xtal_opts=empty_struct(names);
     ok=false; mess='List of free parameters must be array length=9 of logicals, or numeric 0 or 1'; return
@@ -301,7 +301,7 @@ end
 
 if islognumscalar(xtal_opts.fix_alatt_ratio)
     if ~islogical(xtal_opts.fix_alatt_ratio), xtal_opts.fix_alatt_ratio=logical(xtal_opts.fix_alatt_ratio); end
-    if xtal_opts.fix_alatt_ratio && ~all(xtal_opts.pfree(2:3))
+    if xtal_opts.fix_alatt_ratio && ~all(xtal_opts.free(2:3))
         xtal_opts=empty_struct(names);
         ok=false; mess='Option fix_alatt_ratio requires that lattice parameters b and c are free to vary'; return
     end

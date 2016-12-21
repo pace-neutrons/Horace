@@ -1,9 +1,9 @@
 
-inst1=maps_instrument(50,150,'S');
-inst2=maps_instrument(30,200,'S');
-inst3=maps_instrument(160,400,'S');
-inst4=maps_instrument(200,300,'S');
-inst5=maps_instrument(500,600,'S');
+inst1=maps_instrument_for_tests(50,150,'S');
+inst2=maps_instrument_for_tests(30,200,'S');
+inst3=maps_instrument_for_tests(160,400,'S');
+inst4=maps_instrument_for_tests(200,300,'S');
+inst5=maps_instrument_for_tests(500,600,'S');
 
 c1=inst1.fermi_chopper;
 c2=inst2.fermi_chopper;
@@ -45,8 +45,8 @@ w1=read_sqw('T:\matlab\apps_devel\Tobyfit\sqw_1d.sqw');
 ch1=[600*ones(1,93);500*ones(1,93)]; ch1=ch1(:);
 ch2=[400*ones(1,93);600*ones(1,93)]; ch2=ch2(:);
 
-ww1=set_sample_and_inst(w1,struct,@maps_instrument,'-efix',ch1,'S');
-ww2=set_sample_and_inst(w1,struct,@maps_instrument,'-efix',ch2,'S');
+ww1=set_sample_and_inst(w1,struct,@maps_instrument_for_tests,'-efix',ch1,'S');
+ww2=set_sample_and_inst(w1,struct,@maps_instrument_for_tests,'-efix',ch2,'S');
 
 [ei1,x0,xa,x1,thetam,angvel,moderator1,aperture1,chopper1]=chopper_instrument_pars(ww1.header);
 [ei2,x0,xa,x1,thetam,angvel,moderator2,aperture2,chopper2]=chopper_instrument_pars(ww2.header);

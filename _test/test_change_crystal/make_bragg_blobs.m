@@ -1,17 +1,39 @@
 function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
-% Blobs at Bragg positions, but on a lattice that is rotated and scaled w.r.t. input lattice
+% Blobs at Bragg positions on a lattice rotated and scaled w.r.t. input lattice
 %
 %   >> weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
 %
-%   qh,qk,ql,en Arrays of h,k,l,e in the reference lattice
-%   p           Array of parameters [q_fwhh,e_fwhh]:
+% The purpose of this routine is to enable the spectral weight to be
+% calculated for an array of points expressed in the reference lattice, but
+% where the blobs are centred on the Bragg points of a true lattice that is
+% rotated with respect to the reference lattice.
+%
+% Input:
+% ------
+%   qh,qk,ql,en Arrays of h,k,l,e in the reference lattice. The spectral 
+%               weight will be calculated for blobs around the Bragg points
+%               in the true lattice.
+%
+%   p           Array of parameters [amp, q_fwhh,e_fwhh]:
+%                   amp     Peak intensity of blob
 %                   q_fwhh  FWHH of 3D Gaussian in reciprocal space (Ang)
 %                   e_fwhh  FWHH in energy (meV)
 %
-%   lattice0    [a,b,c,alf,bet,gam] lattice parameters (Ang and deg) of reference lattice
-%   lattice     [a,b,c,alf,bet,gam] lattice parameters (Ang and deg) of true lattice
-%   rotvec      Rotation vector [th1,th2,th3] (rad)
+%   lattice0    [a,b,c,alf,bet,gam] lattice parameters (Ang and deg) of the
+%               reference lattice
 %
+%   lattice     Optional: [a,b,c,alf,bet,gam] lattice parameters (Ang and deg)
+%               of the true lattice. It is 
+%              (Default: lattice0)
+%
+%   rotvec      Optional: Rotation vector [th1,th2,th3] (rad) of the true
+%               lattice with respect to the reference lattice
+%              (Default: [0,0,0])
+%
+% Output:
+% -------
+%   weight      Array of intensities at the data points
+
 % Author: T.G.Perring
 
 qsig=p(1)/sqrt(log(256));

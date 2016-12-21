@@ -9,14 +9,14 @@ function obj = set_refine_moderator (obj, varargin)
 %   >> obj = obj.set_refine_moderator (true)
 %
 % Set which parameters to refine with a logical array of zeros and ones
-%   >> obj = obj.set_refine_moderator (pfree)
+%   >> obj = obj.set_refine_moderator (free)
 %
 % Set pulse shape model parameters different to those in the sqw objects:
 % - New initial parameters:
-%   >> obj = obj.set_refine_moderator (pin, pfree)
+%   >> obj = obj.set_refine_moderator (pin, free)
 %
 % - New model and initial parameters:
-%   >> obj = obj.set_refine_moderator (pulse_model, pin, pfree)
+%   >> obj = obj.set_refine_moderator (pulse_model, pin, free)
 %
 % Alternatively, set the pulse shape, parameters and free parameters using
 % the refine moderator options as previously set:
@@ -35,7 +35,7 @@ function obj = set_refine_moderator (obj, varargin)
 %                   If empty or omitted then current values in sqw objects
 %                  are used
 %
-%   pfree           Array of ones and zeros that indicates which parameters
+%   free            Array of ones and zeros that indicates which parameters
 %                  are to be refined:
 %                     - 1 to refine the corresponding parameter
 %                     - 0 to fix the corresponding parameter
@@ -81,7 +81,7 @@ else
             end
             mod_opts_default.pulse_model = pulse_model;
             mod_opts_default.pin = pin;
-            mod_opts_default.pfree = true(size(pin));
+            mod_opts_default.free = true(size(pin));
         else
             error(['Moderator refinement: ',mess])
         end

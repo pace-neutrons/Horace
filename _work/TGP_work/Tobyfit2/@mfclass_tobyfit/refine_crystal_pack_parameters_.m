@@ -12,7 +12,7 @@ function [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj)
 %           rot     Initial rotation vector (rad)
 %           urot    x-axis in r.l.u.
 %           vrot    Defines y-axis in r.l.u. (in plane of urot and vrot)
-%           pfree   Logical row vector (length=9); true for free parameters
+%           free    Logical row vector (length=9); true for free parameters
 %           fix_alatt_ratio     =true if a,b,c are to be bound
 %
 % Output:
@@ -45,8 +45,8 @@ end
 % Get the foreground parameters
 fun0 = obj.fun;
 pin0 = obj.pin;
-pfree0 = obj.pfree;
-pbind0 = obj.pbind;
+free0 = obj.free;
+bind0 = obj.bind;
 
 % Append crystal refinement parameter values
 opt_pars = [xtal_opts.alatt, xtal_opts.angdeg, xtal_opts.rot];
@@ -54,7 +54,7 @@ dummy_mfclass = mfclass;
 pin = cellfun (@(x)append_parameters(dummy_mfclass,x,opt_pars), pin0, 'UniformOutput', false);
 
 % Append fix/free status of crystal refinement parameters
-pfree = cellfun (@(x)[x,xtal_opts.pfree], pfree0, 'UniformOutput', false);
+free = cellfun (@(x)[x,xtal_opts.free], free0, 'UniformOutput', false);
 
 % Alter bindings
 % All the refinement parameters are bound to the first foreground function values
@@ -63,18 +63,18 @@ np = obj.np;
 nfun = numel(obj.fun);
 npadd = numel(opt_pars);
 
-pbind = pbind0;
+bind = bind0;
 if xtal_opts.fix_alatt_ratio
-    pbind = [pbind; [np(1)+2,1,np(1)+1,1,NaN; np(1)+3,1,np(1)+1,1,NaN]];
+    bind = [bind; [np(1)+2,1,np(1)+1,1,NaN; np(1)+3,1,np(1)+1,1,NaN]];
 end
 if nfun>1
     [ipb,ifb] = ndgrid(1:npadd,2:nfun);
     ipb = ipb + repmat(np(2:end),npadd,1);
-    pbind = [pbind; [ipb(:),ifb(:),ipb(:),ones(npadd*(nfun-1),1),ones(npadd*(nfun-1),1)]];
+    bind = [bind; [ipb(:),ifb(:),ipb(:),ones(npadd*(nfun-1),1),ones(npadd*(nfun-1),1)]];
 end
 
 % Change fit object
-obj = obj.set_fun (fun0, pin, 'pfree', pfree, 'pbind', pbind);
+obj = obj.set_fun (fun0, pin, 'free', free, 'bind', bind);
 
 % Fill crystal refinement argument to be passed to multifit
 xtal.urot=xtal_opts.urot;

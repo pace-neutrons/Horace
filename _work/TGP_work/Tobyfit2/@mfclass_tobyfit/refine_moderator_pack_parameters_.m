@@ -9,7 +9,7 @@ function [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj)
 %               Properties include refine_moderator, a structure with fields:
 %           pulse_model Name of moderator pulse shape model
 %           pin         Initial pulse shape parameters (row vector)
-%           pfree       Logical row vector of zeros and ones (row vector)
+%           free        Logical row vector of zeros and ones (row vector)
 %
 % Output:
 % -------
@@ -40,15 +40,15 @@ end
 % Get the foreground parameters
 fun0 = obj.fun;
 pin0 = obj.pin;
-pfree0 = obj.pfree;
-pbind0 = obj.pbind;
+free0 = obj.free;
+bind0 = obj.bind;
 
 % Append moderator refinement parameter values
 dummy_mfclass = mfclass;
 pin = cellfun (@(x)append_parameters(dummy_mfclass,x,mod_opts.pin), pin0, 'UniformOutput', false);
 
 % Append fix/free status of crystal refinement parameters
-pfree = cellfun (@(x)[x,mod_opts.pfree], pfree0, 'UniformOutput', false);
+free = cellfun (@(x)[x,mod_opts.free], free0, 'UniformOutput', false);
 
 % Alter bindings
 % All the refinement parameters are bound to the first foreground function values
@@ -56,15 +56,15 @@ np = obj.np;
 nfun = numel(obj.fun);
 npadd = numel(mod_opts.pin);
 
-pbind = pbind0;
+bind = bind0;
 if nfun>1
     [ipb,ifb] = ndgrid(1:npadd,2:nfun);
     ipb = ipb + repmat(np(2:end),npadd,1);
-    pbind = [pbind; [ipb(:),ifb(:),ipb(:),ones(npadd*(nfun-1),1),ones(npadd*(nfun-1),1)]];
+    bind = [bind; [ipb(:),ifb(:),ipb(:),ones(npadd*(nfun-1),1),ones(npadd*(nfun-1),1)]];
 end
 
 % Change fit object
-obj = obj.set_fun (fun0, pin, 'pfree', pfree, 'pbind', pbind);
+obj = obj.set_fun (fun0, pin, 'free', free, 'bind', bind);
 
 % Fill moderator refinement argument to be passed to multifit
 modshape.pulse_model = mod_opts.pulse_model;
