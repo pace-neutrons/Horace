@@ -70,12 +70,26 @@ classdef mfclass_tobyfit < mfclass
         % The number of Monte Carlo points per pixel
         mc_points_ = [];
 
-        % Crystal orientation refinement. If not to be performed, contains [];
-        % otherwise a structure with various parameters
+        % Crystal orientation refinement parameters.
+        % If crystal refinement will not to be performed, contains [];
+        % otherwise a structure with parameters:
+        %   alatt       Initial lattice parameters
+        %   angdeg      Initial lattice angles
+        %   rot         Initial rotation vector (rad) (=[0,0,0])
+        %   urot        x-axis in r.l.u. (Default: [1,0,0])
+        %   vrot        Defines y-axis in r.l.u. (in plane of urot and vrot)
+        %               (Default: [0,1,0])
+        %   free        Logical row vector (length=9) (0 fixed, 1 free)
+        %               (Default: all free)
+        %   fix_alatt_ratio     =true if a,b,c are to be bound (Default: false)
         refine_crystal_ = [];
 
-        % Moderator parameter refinement. If not to be performed, contains [];
-        % otherwise a structure with various parameters
+        % Moderator parameter refinement parameters.
+        % If moderator refinement will not to be performed, contains [];
+        % otherwise a structure with parameters:
+        %	pulse_model     Name of moderator pulse shape model
+        %   pin             Pulse shape parameters (row vector)
+        %   free            Logical row vector of zeros and ones (0 fixed, 1 free)
         refine_moderator_ = [];
     end
 

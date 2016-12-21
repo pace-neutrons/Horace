@@ -200,7 +200,7 @@ if nfiles>1
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
     end
-    write_nsqw_to_sqw (sqw, tmp_file, sqw_file);
+    write_nsqw_to_sqw (tmp_file, sqw_file);
     % Delete tmp files
     delete_error=false;
     for i=1:numel(tmp_file)

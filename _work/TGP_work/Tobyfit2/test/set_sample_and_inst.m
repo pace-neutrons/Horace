@@ -5,6 +5,9 @@ function wout = set_sample_and_inst(win,sample,varargin)
 %
 %   >> wout = set_sample_and_inst (win,sample,inst_func,arg1,arg2,...)
 %
+% Provided as a simple function for the test routines only - it is designed to keep
+% the existing test scripts working. Normally, use set_sample and set_instrument
+%
 % EXAMPLES:
 %   >> wout = set_sample_and_inst (win,sample,instrument);
 %   >> wout = set_sample_and_inst (win,sample,@maps_instrument,'-efix',600,'S')
@@ -55,9 +58,7 @@ function wout = set_sample_and_inst(win,sample,varargin)
 % -------
 %   wout            Input sqw object with the instrument and sample fields
 %                  replaced in the header
-%
-% Provided as a simple function for the test routines only - it is designed to keep
-% the existing test scripts working. Normally, use set_sample and set_instrument
+
 
 wout = set_sample (win, sample);
 wout = set_instrument (wout, varargin{:});
