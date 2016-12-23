@@ -1,6 +1,9 @@
 classdef pix_combine_info
-    % Helper class used to carry out and provide information 
-    % necessary for pixel combining by write_nsqw_to_sqw algorithm.
+    % Helper class used to carry out and provide information
+    % necessary for pixel combining using write_nsqw_to_sqw algorithm.
+    %
+    %
+    % $Revision$ ($Date$)
     %
     properties(Access = protected)
         n_pixels_ = 'undefined';
@@ -15,23 +18,25 @@ classdef pix_combine_info
         % array of starting positions of the pix information in each
         % contributing file
         pos_pixstart;
-        % cumulative sum of numbers of all pixels, contributing into sqw
+        % Cumulative sum of numbers of all pixels, contributing into sqw
         % file as function of bin number. Defines positions of each cell's
         % pixels block in 1D array of pixels
         npix_cumsum;
         % array of numbers of pixels stored in each contributing file
         npix_file_tot;
-        %   run_label       Indicates how to re-label the run index (pix(5,...)
-        %                       'fileno'        relabel run index as the index of the file in the list infiles
-        %                       'nochange'      use the run index as in the input file
-        %                        numeric array  offset run numbers for ith file by ith element of the array
-        %                   This option exists to deal with three limiting cases:
-        %                    (1) The run index is already written to the files correctly indexed into the header
-        %                       e.g. as when temporary files have been written during cut_sqw
-        %                    (2) There is one file per run, and the run index in the header block is the file
-        %                       index e.g. as in the creating of the master sqw file
-        %                    (3) The files correspond to several runs in general, which need to
-        %                       be offset to give the run indices into the collective list of run parameters
+        %   run_label   Indicates how to re-label the run index (pix(5,...)
+        %          'fileno'      relabel run index as the index of the file
+        %                        in the list infiles
+        %          'nochange'    use the run index as in the input file
+        %                        numeric array  offset run numbers for ith
+        %                        file by ith element of the array
+        %          This option exists to deal with three limiting cases:
+        %      (1) The run index is already written to the files correctly indexed into the header
+        %          e.g. as when temporary files have been written during cut_sqw
+        %      (2) There is one file per run, and the run index in the header block is the file
+        %          index e.g. as in the creating of the master sqw file
+        %      (3) The files correspond to several runs in general, which need to
+        %          be offset to give the run indices into the collective list of run parameters
         run_label;
     end
     
@@ -40,14 +45,15 @@ classdef pix_combine_info
         npixels;
         % number of files, contributing into final result
         nfiles;
-        % how to interpret labels field.
+        % true if pixel id from each contributing file should be replaced by contributing file number
         relabel_with_fnum;
-        % if pixel id for each pixel from contributing file should be changed.
+        % true if pixel id for each pixel from contributing files should be changed.
         change_fileno
     end
     
     
     methods
+        %
         function obj = pix_combine_info(infiles,pos_npixstart,pos_pixstart,npix_cumsum,npixtot,run_label)
             obj.infiles = infiles;
             if ~exist('pos_npixstart','var') % pre-initialization for file-based combining of the cuts.
@@ -73,13 +79,18 @@ classdef pix_combine_info
         end
         %
         function npix = get.npixels(obj)
+            % total number of pixels in all contributing files
             npix = obj.n_pixels_;
         end
+        %
         function nf   = get.nfiles(obj)
+            % number of contributing files
             nf = numel(obj.infiles);
         end
         %
         function is = get.relabel_with_fnum(obj)
+            % true if pixel id from each contributing file
+            % should be replaced by contributing file number
             if ischar(obj.run_label)
                 if strcmpi(obj.run_label,'fileno')
                     is  = true;
@@ -96,6 +107,8 @@ classdef pix_combine_info
         end
         %
         function is = get.change_fileno(obj)
+            % true if pixel id for each pixel from contributing
+            % files should be changed.
             if ischar(obj.run_label)
                 if strcmpi(obj.run_label,'nochange')
                     is=false;
@@ -112,6 +125,7 @@ classdef pix_combine_info
             end
             
         end
+        %
         function obj=trim_nfiles(obj,nfiles_to_leave)
             % Constrain the number of files and the file information,
             % contained in class by the number of files (nfiles_to_leave) provided.
@@ -138,7 +152,10 @@ classdef pix_combine_info
             obj.n_pixels_ = uint64(sum(obj.npix_file_tot));
             if obj.npixels ~= obj.npix_cumsum(end)
                 error('SQW_FILE_IO:runtime_error',...
-                    'Wrong input for combine multiple files: Number of pixels in all files %d is not equal to number of pixels in their combination %d',...
+                    ['Wrong input for combine multiple files:',...
+                    ' Number of pixels in all files: %d',...
+                    ' is not equal to number of pixels',...
+                    ' in their combination %d'],...
                     obj.n_pixels_,obj.npix_cumsum(end));
             end
             

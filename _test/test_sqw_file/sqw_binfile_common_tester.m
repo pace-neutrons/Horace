@@ -1,12 +1,14 @@
 classdef sqw_binfile_common_tester < sqw_binfile_common
-    %   Detailed explanation goes here
+    %   Class used for testing sqw_binfile_common class which may be an
+    %   abstract class, so it defines the missing methods to test the
+    %   methods which are defined
     
     properties
         
     end
     
     methods
-         % initialize the loader, to be ready to read or write the data
+        % initialize the loader, to be ready to read or write the data
         function obj = init(obj,varargin)
             error('SQW_BINFILE_COMMON_TESTER:not_implemented','init not implemented')
         end
@@ -30,9 +32,9 @@ classdef sqw_binfile_common_tester < sqw_binfile_common
             obj.data_pos_  = pos;
         end
         function new_obj = upgrade_file_format(obj)
-            error('SQW_BINFILE_COMMON_TESTER:not_implemented','generic file format upgrade is not implemented')                        
+            error('SQW_BINFILE_COMMON_TESTER:not_implemented','generic file format upgrade is not implemented')
         end
     end
-   
+    
 end
 

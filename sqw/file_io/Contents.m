@@ -64,6 +64,46 @@
 % The inheritance/collaboration diagram for main classes, used to support
 % file_io operations can be viewed <a href="matlab:imshow('CollabDiagram.png');">here.</a>
 %
+% Normal practice to organize organize access to sqw files can be as follows:
+% -------------------------------------------------------------------------
+%1) To read existing sqw file or its parts:
+% the below returns a faccess_sqw/faccess_dnd loader suitable for accessing
+% sqw file with filename provided.
+%>>accessor = sqw_formats_factory.instance().get_loader(filename);
+% Read all sqw data:
+%>>sqw_object = accessor.get_sqw();
+% To read partial sqw data one can use any get methods from
+% sqw_file_interface or dnd_file_interface.
+%
+% To reopen this file to modify all sqw data or its parts one should
+% execute:
+%>>new_accessor = accessor.upgrade_file_format()
+% which will upgrade sqw file format to a recent version and reopen file
+% for modification of the parts, which can be modified..
+%
+% -------------------------------------------------------------------------
+%2) To write new sqw sqw file or modify some of its parts:
+% one should execute the following commands:
+%>>accessor = sqw_formats_factory.instance().get_pref_access(); % if one
+%             needs recent sqw file format writer or
+%>>accessor = sqw_formats_factory.instance().get_pref_access(obj_to_write)
+%            if obj_to_write is dnd object or sqw object with some special
+%            properties.
+% The recommended accessor should be initialized by the object to write:
+%>>accessor = accessor.init(obj_to_write,filename);
+% If the file with "filename" exists, it will be opened for upgrade if such
+% upgrade is possible. If not, the file will be overwritten.
+% Then one can write the whole data:
+%>>accessor = accessor.put_sqw();
+% or any part of the data, using correspondent put methods of
+% sqw_file_interface or dnd_file_interface. If file is open for upgrade, 
+% accessor = accessor.put_sqw() command does not modify the class pixels.
+% Separate put_pix command should be used to do this if requested.
+%
+% See the whole list of methods to use for exchanging information with sqw
+% files in the classes to access these files and common sqw/dnd file
+% interface.
+% -------------------------------------------------------------------------
 %Known problem||inconsistencies:
 % Options in accessors/mutators are not always consistent, e.g. a get_sqw
 % method of faccess_dnd_v2 class may not accept all options get_sqw of
