@@ -36,6 +36,8 @@ elseif nargin==2
 elseif nargin==3
     ei=varargin{1};
     phase=logical(varargin{2});
+else
+    error('Check number of input arguments')
 end
 
 vi=1e6*sqrt(ei)/c_e_to_t;           % incident velocity (m/s)

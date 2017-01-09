@@ -1,8 +1,9 @@
 function X = rand_truncexp (x0,varargin)
 % Generate random number from a truncated exponential distribution
 %
-%   >> X = rand_truncexp (x0,n)
-%   >> X = rand_truncexp (x0,sz)
+%   >> X = rand_truncexp (x0, n)
+%   >> X = rand_truncexp (x0, sz)
+%   >> X = rand_truncexp (x0, sz1, sz2,...)
 %
 % Input:
 % ------

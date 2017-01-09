@@ -12,13 +12,13 @@ function f=partial_transmission(fermi,varargin)
 % -------
 %   fermi   IX_fermi_chopper object
 %   t       time (microseconds) (array or scalar)
-%           If omitted or empty, use t=Inf
+%           If omitted, use t=Inf
 %   phase   if true, correctly phased; if false, 180 degrees out of phase
 %           If omitted, uses phase in the IX_fermi_chopper object
 %
 % Output:
 % -------
-%   f       Relative transmission (unit transmission at peak)
+%   f       Partial transmission (unit transmission at t=Inf)
 
 if ~isscalar(fermi), error('Function only takes a scalar object'), end
 
@@ -37,6 +37,8 @@ elseif nargin==2
 elseif nargin==3
     t=1e-6*varargin{1};
     phase=logical(varargin{2});
+else
+    error('Check number of input arguments')
 end
 
 vi=1e6*sqrt(fermi.energy)/c_e_to_t;           % incident velocity (m/s)

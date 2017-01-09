@@ -42,8 +42,8 @@ elseif isstruct(arr) && isstruct(vals)
     nam=fieldnames(arr)';
     namv=fieldnames(vals)';
     if numel(nam)==numel(namv) && all(strcmp(nam,namv))
-        [asort,ia]=uniqueNestedSortStruct(arr(:),opt);
-        [vsort,iv]=uniqueNestedSortStruct(vals(:),opt);
+        [asort,ia]=uniqueStruct(arr(:),opt);
+        [vsort,iv]=uniqueStruct(vals(:),opt);
     else
         error('Field names must all be the same if input arguments are structures')
     end

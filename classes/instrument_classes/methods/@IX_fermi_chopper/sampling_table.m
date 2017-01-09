@@ -22,8 +22,8 @@ function table=sampling_table(fermi,varargin)
 %
 % Output:
 % -------
-%   table   Look-up table to convert a random number from uniform distribution
-%          in the range 0 to 1 into a time deviation in microseconds.
+%   a       Look-up table to convert a random number from uniform distribution
+%          in the range 0 to 1 into a time deviation in microseconds (column vector)
 
 npnt_default=100;
 
@@ -74,7 +74,7 @@ end
 
 if npnt<2, error('Check number of sampling points in the table to be constructed'), end
 
-table=zeros(1,npnt);
+table=zeros(npnt,1);
 % fill end points of table with known time limits (avoid problems in findzero
 % Note that if gam>=4, all times in the table will be zero. Probably best default unless fail.
 if gam<1

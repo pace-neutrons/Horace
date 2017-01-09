@@ -157,7 +157,7 @@ function [moderator_sort,ei_sort,m,n]=unique_mod_ei(moderator, ei, varargin)
 % Joint sorting of moderator and incident energy as if they were one object
 
 S=catstruct(struct_special(moderator(:)),struct('ei',num2cell(ei(:))));
-[sortedS,m,n] = uniqueNestedSortStruct(S,varargin{:});
+[sortedS,m,n] = uniqueStruct(S,varargin{:});
 moderator_sort=moderator(m);
 ei_sort=ei(m);
 

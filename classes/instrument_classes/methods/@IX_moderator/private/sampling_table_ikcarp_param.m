@@ -23,7 +23,7 @@ function [table,t_av]=sampling_table_ikcarp_param(pp,ei,npnt,fast)
 % -------
 %   table       Look-up table to convert a random number from uniform distribution
 %              in the range 0 to 1 into reduced time deviation 0 <= t_red <= 1
-%              Convert to true time t = t_av * (t_red/(1-t_red))
+%              Convert to true time t = t_av * (t_red/(1-t_red)) (column vector)
 %   t_av        First moment of pulse shape (microseconds) 
 
 [tauf,taus,R]=ikcarp_param_convert(pp,ei);

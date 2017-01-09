@@ -16,7 +16,7 @@ if ~ok, error(mess), end
 % ---------------------
 tmp=load(file_full,'-mat');    % enforce interpretation as matlab binary format
 fname=fieldnames(tmp);
-if numel(fname)==1 && strcmp(class(fname{1}),class(wdummy))
+if numel(fname)==1 && strcmp(class(tmp.(fname{1})),class(wdummy))
     wout=tmp.(fname{1});
 else
     error(['Content not an object of class ',class(wdummy),' in file ',file_full])

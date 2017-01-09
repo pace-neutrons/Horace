@@ -1,7 +1,7 @@
-function [bStruct, m, n] = uniqueNestedSortStruct(aStruct, occurence)
+function [bStruct, m, n] = uniqueStruct(aStruct, occurence)
 % Equivalent to intrinsic Matlab unique but here for structures
 %
-%   >> [bStruct m, n] = uniqueNestedSortStruct(aStruct, occurence)
+%   >> [bStruct m, n] = uniqueStruct(aStruct, occurence)
 %
 % Input:
 % ------
