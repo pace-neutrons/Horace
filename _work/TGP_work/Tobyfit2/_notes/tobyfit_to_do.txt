@@ -16,6 +16,9 @@ Get rid of tobyfit_cleanup: but need to deal with refine_moderator_sampling_tabl
 
 Check all other buffering is cleared: search on 'persistent' (and just for completeness, 'global')
 
+Does resol_conv_tobyfit_mc_init have to be a private function ?
+
+Does refine_moderator_sampling_table_buffer need to be an sqw method?
 
 
 ===============================================================================================
