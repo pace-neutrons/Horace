@@ -59,7 +59,7 @@ classdef mfclass
     %   creating an object of class mfclass_wrapfun
     % - Create methods for the class that call the constructors mfclass_wrapfun,
     %   mfclass_sqw.
-    % This procedure is required because we will gnerally want the method
+    % This procedure is required because we will generally want the method
     % multifit2 for objects of class sqw, d1d, d2d,... for example, and
     % multifit2 will generally need to operate differently for each class.
     

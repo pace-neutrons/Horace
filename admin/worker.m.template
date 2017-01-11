@@ -1,6 +1,6 @@
 function worker(class_name,job_controls_string)
 % function used as standard worker to do a job in different Matlab
-% session
+% session.
 %
 % To work, should be present on a data search path, before Herbert is
 % initialized as may need to initialize Herbert and Horace itself
@@ -8,10 +8,11 @@ function worker(class_name,job_controls_string)
 %Inputs:
 % class_name -- the name of the class, which do the job. The class
 %               should inherit from JobExecutor and overload
-%               do_job method
+%               do_job method. Other methods used by this worker should remain
+%               untouched (unless you understand what you are doing.)
 %
 % job_controls_string - the structure, containing information, necessary to
-%              initiate job
+%              initiate job. 
 %
 %
 if isempty(which('herbert_init.m'))
@@ -21,11 +22,14 @@ end
 
 mis = MPI_State.instance();
 mis.is_deployed = true;
-is_tested = mis.is_tested;
-% for testing, production job should just finish itself
+is_tested = mis.is_tested; % set up to tested state within unit tests. 
+%
+% for testing we need to recover 'not-deployed' state to avoid clashes with 
+% other unit tests. The production job finishes Matlab and clean-up is not necessary
+% though doing no harm. 
 clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
 
-
+% instantiate worker class. 
 je = feval(class_name);
 
 [je,job_arguments,err_mess]=je.init_worker(job_controls_string);

@@ -1,17 +1,22 @@
 classdef MPI_State<handle
     % Helper class, to identify status of Matlab job, namely if current
-    % matlab session is independent session or is deployed by Herbert MPI
-    % framework, and to help deploy methods, which would depend on such
+    % Matlab session is independent session or is deployed by Herbert MPI
+    % framework, and to help to deploy methods, which would depend on such
     % status
+    %
+    % 'MPI-deployed' state is set up in worker.m (.template file is provided in 
+    % admin folder, to rename to the file with .m extension and 
+    % place to Matlab search path). The state should be checked by the client,
+    % inheriting from JobExecutor within the loop excecuted within do_job method.
     %
     % Implemented as classical singleton.
     
     properties(Dependent)
-        % report if the matlab session is deployed
+        % report if the Matlab session is deployed
         is_deployed
         % logger function to deploy to log activities
         logger
-        % the function to run verifying if job has been cancecled
+        % the function to run verifying if job has been cancelled
         check_cancelled;
         % method helps to identify that the framework is tested and to
         % disable some framework capability, which should be used in this
@@ -127,7 +132,7 @@ classdef MPI_State<handle
                 if isempty(ttf)
                     if isempty(obj.start_time_)
                         obj.start_time_ = tic;
-                        ttf = 0; % 0 interval means infine waiting time between calls
+                        ttf = 0; % 0 interval means infinite waiting time between calls
                     else
                         ttf = toc(obj.start_time_);
                         obj.start_time_ = tic;

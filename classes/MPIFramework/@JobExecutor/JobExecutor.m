@@ -69,8 +69,9 @@ classdef JobExecutor<MessagesFramework
             % Clearly finish job execution
             [ok,mess] = finish_job_(this);
         end
+		%
         function log_progress(this,step,n_steps,time_per_step,add_info)
-            % log progress of the job exectution and report it to the
+            % log progress of the job execution and report it to the
             % calling framework.
             % Inputs:
             % step     --  current step within the loop which doing the job
@@ -97,7 +98,9 @@ classdef JobExecutor<MessagesFramework
             %
             % input:
             % final_results -- the structure, which contain the job
-            % output.
+            % output. As output is distributed within log message, it should not 
+			% be too heavy. 
+			% 
             this.job_outputs_ = final_results;
         end
         %
@@ -128,7 +131,7 @@ classdef JobExecutor<MessagesFramework
             %
             %Return:
             % all_messages -- cellarray of messages belonging to this job
-            %                 have messages availible in the system .
+            %                 have messages available in the system .
             %
             messages = receive_all_messages@MessagesFramework(obj,obj.job_id);
         end
