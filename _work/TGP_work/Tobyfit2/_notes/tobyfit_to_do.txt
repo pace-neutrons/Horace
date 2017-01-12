@@ -2,8 +2,10 @@
              Tobyfit
 ===============================================================================================
 Little things to check:
+
 - refine crystal and moderator: at the fit or simulate stage as well as set stage, check that
   there is at least one foreground function
+  
 - The tests for refine xtal & mod are not fully consistent in terms of how empty fields are
   interpreted: for example: uvec is returned as [1,0,0], not [] in set_refine_crystal, unlike
   the lattice parameters, and set_refine_moderator uses the mod pars as they are in the current
@@ -11,14 +13,26 @@ Little things to check:
   at the fit or simulate stage. refine_moderator: checks ei in both set_refine_moderator and
   at the fit or simulate stage in pack_parameters.
 
-  
-Get rid of tobyfit_cleanup: but need to deal with refine_moderator_sampling_table_buffer
+
+Buffering
+===========
+Get rid of tobyfit_cleanup: but need to deal with refine_moderator_sampling_table_buffer (need some
+qy of dealing with getting rid of the persistent variables)
 
 Check all other buffering is cleared: search on 'persistent' (and just for completeness, 'global')
 
+
+Organisation
+============
 Does resol_conv_tobyfit_mc_init have to be a private function ?
+	
 
 Does refine_moderator_sampling_table_buffer need to be an sqw method?
+
+Speed: the buffering of hundreds of IX_divergence_profile takes a long time to read from
+file: it is because of the time spent in IX_divergence_profile/sort, equally split
+between struct_special and nestedSortStruct. I think this is peculiar to divergence,
+not chopper or moderator, as only short arrays are checked in these cases.
 
 
 ===============================================================================================

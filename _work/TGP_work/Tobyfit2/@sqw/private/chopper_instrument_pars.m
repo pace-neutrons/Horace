@@ -23,7 +23,10 @@ function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=chopper_
 %
 % The moderator and chopper objects contain thetam and angvel respectively, but they
 % are extracted here for later convenience.
+%
 % The energy in the chopper objects is set to the corresponding value in the input header.
+% This will avoid any possible inconsistency later on.
+
 
 % Get array of instruments
 if ~iscell(header)

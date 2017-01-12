@@ -3,7 +3,7 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 %
 %   >> lookup=moderator_sampling_table(fermi)
 %   >> lookup=moderator_sampling_table(fermi,npnt)
-%   >> lookup=vmoderator_sampling_table(...,opt)
+%   >> lookup=vmoderator_sampling_table(...,opt1,opt2,..)
 %
 % Input:
 % ------
@@ -11,6 +11,9 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 %   ei          Cell array of incident energy arrays, one per sqw object
 %   npnt        [Optional] Number of points in sampling table (uses default if not given)
 %   opt         [Optional] Purge the lookup table if set to 'purge'
+%
+%               For further options, see method:
+%                   IX_fermi_chopper/buffered_sampling_table
 %
 % Output:
 % -------

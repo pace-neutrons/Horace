@@ -43,6 +43,41 @@ end
 
 
 
+%% Test buffered sampling table
+
+% Test that the function is doing its job
+[table,ind]=buffered_sampling_table(prarr2,'nocheck');
+
+
+
+% Test the speed
+% ------------------
+% (1) 500 distinct objects. Very slow if checking buffered file
+ang1 = -5:0.2:5;
+nobj=500;
+div = repmat(IX_divergence_profile,nobj,1);
+for i=1:nobj
+    div(i) = IX_divergence_profile(ang1,[0,rand(1,numel(ang1)-2),0]);
+end
+
+% Create from scratch
+tic
+[table,ind]=buffered_sampling_table(div,'nocheck');
+toc
+
+% Create from scratch and write to disk
+tic
+[table,ind]=buffered_sampling_table(div);
+toc
+
+% Now retrieve from disk
+tic
+[table,ind]=buffered_sampling_table(div);
+toc
+
+
+
+
 %% Test generation of lookup tables
 % ---------------------------------
 
@@ -148,12 +183,46 @@ toc
 
 % Use new sampling_table function
 % --------------------------------
-[A,val]=sampling_table(x1,prof1);
+[val,A]=sampling_table2(x1,prof1);
 tic
 A0=rand(1000,50000);
 X=interp1(A,val,A0,'pchip','extrap');
 toc
 
+
+[val,A]=sampling_table2(x1,prof1,301);
+tic
+A0=rand(1000,50000);
+X=interp1(A,val,A0,'linear','extrap');
+toc
+
+
+
+[xtab,cumpdf]=sampling_table2(x1,prof1);
+tic
+X=rand_cumpdf2(xtab,cumpdf,[1000,50000]);
+toc
+
+
+
+obj=IX_divergence_profile(x1,prof1);
+[xtab,cumpdf]=sampling_table2(obj);
+tic
+X=rand_cumpdf2(xtab,cumpdf,[1000,50000]);
+toc
+
+
+xtab=sampling_table(x1,prof1,2000);
+tic
+X=rand_cumpdf(xtab,[1000,50000]);
+toc
+
+
+obj=IX_divergence_profile(x1,prof1);
+xtab=sampling_table(obj);
+tic
+X=rand_cumpdf(xtab,[1000,50000]);
+toc
 
 
 % Plot results
@@ -164,3 +233,8 @@ tmp=integrate(w);
 w=w/tmp.val;
 
 acolor b; dd(w1); acolor r; pl(w)
+
+
+
+
+

@@ -12,7 +12,7 @@ tf2_dir = 'T:\SVN_area\Horace_trunk\_work\TGP_work\Tobyfit2';
 mfclass_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit';
 
 if nargin==0 || (ischar(opt) && strncmpi(opt,'off',numel(opt)))
-    start_app ('tobyfit1','-off')
+    start_app ('tobyfit','-off')
     start_app ('tobyfit2','-off')
 
 elseif opt==1
