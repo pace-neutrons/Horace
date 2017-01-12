@@ -3,13 +3,16 @@ function lookup=fermi_sampling_table(fermi,varargin)
 %
 %   >> lookup=fermi_sampling_table(fermi)
 %   >> lookup=fermi_sampling_table(fermi,npnt)
-%   >> lookup=fermi_sampling_table(...,opt)
+%   >> lookup=fermi_sampling_table(...,opt1, opt2,..)
 %
 % Input:
 % ------
-%   chopper     Cell array of chopper object arrays, one per sqw object
+%   fermi       Cell array of chopper object arrays, one per sqw object
 %   npnt        [Optional] Number of points in sampling table (uses default if not given)
 %   opt         [Optional] Purge the lookup table if set to 'purge'
+%
+%               For further options, see method:
+%                   IX_fermi_chopper/buffered_sampling_table
 %
 % Output:
 % -------

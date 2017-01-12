@@ -7,7 +7,7 @@ function ap=aperture_width_height(aperture)
 % ------
 %   aperture    Cell array of aperture arrays, one per sqw object. The
 %              aperture array has length equal to the number of runs in the
-%              sqw object. Each aperture array is a columkn vector
+%              sqw object. Each aperture array is a column vector
 %
 % Output:
 % -------
