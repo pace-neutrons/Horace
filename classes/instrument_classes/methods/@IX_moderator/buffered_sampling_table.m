@@ -79,7 +79,7 @@ ei_tmp=ei_in;
 ei_tmp(~status)=0;  % set ei=0 for those moderators whose pulse shape does not depend on ei
 
 % Get list of unique moderators
-[moderator,ei,im,ind]=unique_mod_ei(moderator_in,ei_tmp);
+[moderator,ei,~,ind]=unique_mod_ei(moderator_in,ei_tmp);
 moderator=moderator(:); % ensure column vector
 ei=ei(:);               % ensure column vector
 ind=ind(:);             % ensure column vector
@@ -104,7 +104,9 @@ if opt.purge
     [ok,mess]=delete_store(filename);
     if ~ok, warning(mess), end
 end
+
 check_store=opt.check;
+
 if opt.fast
     fast={'fast'};
 else

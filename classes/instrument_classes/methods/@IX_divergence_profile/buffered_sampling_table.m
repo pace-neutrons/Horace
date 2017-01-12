@@ -1,19 +1,17 @@
-function [table,ind]=buffered_sampling_table(fermi_in,varargin)
-% Return lookup table for array of Fermi chopper objects
+function [table,ind]=buffered_sampling_table(div_in,varargin)
+% Return lookup table for array of divergence profile objects
 %
-%   >> table = buffered_sampling_table (fermi)
-%   >> table = buffered_sampling_table (fermi, npnt)
+%   >> table = buffered_sampling_table (div)
+%   >> table = buffered_sampling_table (div, npnt)
 %   >> table = buffered_sampling_table (...,opt1,opt2,...)
 %
 % Input:
 % ------
-%   fermi       Array of IX_fermi_chopper objects (need not be unique)
+%   div       Array of IX_divergence_profile objects (need not be unique)
 %
 %   npnt        Number of sampling points for the table. Uses default if not given.
 %              The default is that in the lookup table if it is read, otherwise it is
 %              the default in the lookup table method.
-%               If the number is different to that in the stored lookup table,
-%              if read, the stored lookup table will be purged.
 %
 %   opt1,...    Options:
 %                   'fast'      Use fast algorithm for computing lookup tables
@@ -41,7 +39,7 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 %              unique chopper entries. Use the look-up table to convert a
 %              random number from uniform distribution in the range 0 to 1
 %              into a time deviation in microseconds.
-%   ind         Index into the lookup table: ind(i) is the column for fermi(i)
+%   ind         Index into the lookup table: ind(i) is the column for div(i)
 %              ind is a column vector.
 %
 % Note:
@@ -55,17 +53,17 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 %   the function will be called for again.
 
 
-nf_crit=1;      % if number of choppers is less than or equal to this, simply compute
-nf_max=1000;    % Maximum number of chopper lookup tables that can be stored on disk
-filename=fullfile(tempdir,'IX_fermi_chopper_store.mat');
+nd_crit=1;      % if number of choppers is less than or equal to this, simply compute
+nd_max=1000;    % Maximum number of chopper lookup tables that can be stored on disk
+filename=fullfile(tempdir,'IX_divergence_profile_store.mat');
 
-[fermi,~,ind]=unique(fermi_in);
-fermi=fermi(:);     % ensure column vector
+[div,~,ind]=unique(div_in);
+div=div(:);     % ensure column vector
 ind=ind(:);         % ensure column vector
-nf=numel(fermi);
+nd=numel(div);
 
 % Parse optional arguments
-check_store_def=(nf>nf_crit);   % default value of check_store
+check_store_def=(nd>nd_crit);   % default value of check_store
 
 arglist=struct('fast',0,'purge',0,'check',check_store_def);
 flags={'fast','purge','check'};
@@ -95,126 +93,126 @@ end
 
 % Fill lookup table, creating or adding entries for the stored lookup file
 if check_store
-    [ok,mess,fermi0,table0]=read_store(filename);   % if file does not exist, then ok=true but fermi0 is empty
-    if ok && ~isempty(fermi0) && (isempty(npnt)||npnt==size(table0,1))
+    [ok,mess,div0,table0]=read_store(filename);   % if file does not exist, then ok=true but div0 is empty
+    if ok && ~isempty(div0) && (isempty(npnt)||npnt==size(table0,1))
         % Look for entries in the lookup table
-        [ix,iv]=array_filter(fermi,fermi0);
+        [ix,iv]=array_filter(div,div0);
         npnt0=size(table0,1);
         if numel(ix)==0         % no stored entries for the input choppers
-            table=fill_table(fermi,npnt0,fast{:});
-            [ok,mess]=write_store(filename,fermi,table,fermi0,table0,nf_max);
+            table=fill_table(div,npnt0,fast{:});
+            [ok,mess]=write_store(filename,div,table,div0,table0,nd_max);
             if ~ok, warning(mess), end
-        elseif numel(ix)==nf    % all entries previously stored
+        elseif numel(ix)==nd    % all entries previously stored
             table=table0(:,iv);
         else
-            new=true(nf,1); new(ix)=false;
-            table_new=fill_table(fermi(new),npnt0,fast{:});
-            table=zeros(npnt0,nf);
+            new=true(nd,1); new(ix)=false;
+            table_new=fill_table(div(new),npnt0,fast{:});
+            table=zeros(npnt0,nd);
             table(:,new)=table_new;
             table(:,ix)=table0(:,iv);
-            [ok,mess]=write_store(filename,fermi(new),table_new,fermi0,table0,nf_max);
+            [ok,mess]=write_store(filename,div(new),table_new,div0,table0,nd_max);
             if ~ok, warning(mess), end
         end
     else
         % Problem reading the store, or it doesn't exist, or the number of points is different. Create with new values if can.
         if ~ok, warning(mess), end
-        table=fill_table(fermi,npnt,fast{:});
-        [ok,mess]=write_store(filename,fermi,table);
+        table=fill_table(div,npnt,fast{:});
+        [ok,mess]=write_store(filename,div,table);
         if ~ok, warning(mess), end
     end
 else
-    table=fill_table(fermi,npnt,fast{:});
+    table=fill_table(div,npnt,fast{:});
 end
 
 
 %==================================================================================================
-function table=fill_table(fermi,npnt,varargin)
-nf=numel(fermi);
+function table=fill_table(div,npnt,varargin)
+nf=numel(div);
 if isempty(npnt)
-    table=sampling_table(fermi(1),varargin{:});   % column vector
+    table=sampling_table(div(1),varargin{:});   % column vector
     if nf>1
         table=repmat(table,[1,nf]);
         npnt_def=size(table,1);
         for i=2:nf
-            table(:,i)=sampling_table(fermi(i),npnt_def,varargin{:});
+            table(:,i)=sampling_table(div(i),npnt_def,varargin{:});
         end
     end
 else
     table=zeros(npnt,nf);
     for i=1:nf
-        table(:,i)=sampling_table(fermi(i),npnt,varargin{:});
+        table(:,i)=sampling_table(div(i),npnt,varargin{:});
     end
 end
 
 %==================================================================================================
-function [ok,mess,fermi_store,table_store]=read_store(filename)
-% Read stored Fermi chopper lookup table
+function [ok,mess,div_store,table_store]=read_store(filename)
+% Read stored divergence profile lookup table
 % ok=true if file does not exist
 
 if exist(filename,'file')
-    disp('Reading stored Fermi chopper lookup table...')
+    disp('Reading stored divergence profile lookup table...')
     try
         load(filename,'-mat');
         ok=true;
         mess='';
     catch
         ok=false;
-        mess='Unable to read Fermi chopper lookup table file';
-        fermi_store=[];
+        mess='Unable to read divergence profile lookup table file';
+        div_store=[];
         table_store=[];
     end
 else
     ok=true;
     mess='';
-    fermi_store=[];
+    div_store=[];
     table_store=[];
 end
 
 
 %--------------------------------------------------------------------------------------------------
-function [ok,mess]=write_store(filename,fermi,table,fermi0,table0,nf_max)
-% Write Fermi chopper lookup table up to a maximum number of entries
+function [ok,mess]=write_store(filename,div,table,div0,table0,nd_max)
+% Write divergence profile lookup table up to a maximum number of entries
 % Always write the first entry; then add as many of the second as possible
 
 if nargin==3
-    fermi_store=fermi;
+    div_store=div;
     table_store=table;
 else
-    nf=size(fermi,1);
-    nf0=size(fermi0,1);
-    if nf>=nf_max
-        fermi_store=fermi; table_store=table;
-    elseif nf0>nf_max-nf
-        fermi_store=[fermi;fermi0(1:nf_max-nf)]; table_store=[table,table0(:,1:nf_max-nf)];
+    nd=size(div,1);
+    nd0=size(div0,1);
+    if nd>=nd_max
+        div_store=div; table_store=table;
+    elseif nd0>nd_max-nd
+        div_store=[div;div0(1:nd_max-nd)]; table_store=[table,table0(:,1:nd_max-nd)];
     else
-        fermi_store=[fermi;fermi0]; table_store=[table,table0];
+        div_store=[div;div0]; table_store=[table,table0];
     end
 end
 
 try
-    disp('Writing Fermi chopper lookup table to file store...')
-    save(filename,'fermi_store','table_store','-mat')
+    disp('Writing divergence profile lookup table to file store...')
+    save(filename,'div_store','table_store','-mat')
     ok=true;
     mess='';
 catch
     ok=false;
-    mess='Error writing Fermi chopper lookup table file';
+    mess='Error writing divergence profile lookup table file';
 end
 
 
 %--------------------------------------------------------------------------------------------------
 function [ok,mess]=delete_store(filename)
-% Read stored Fermi chopper lookup table
+% Read stored divergence profile lookup table
 
 if exist(filename,'file')
     try
-        disp('Deleting stored Fermi chopper lookup table...')
+        disp('Deleting divergence profile chopper lookup table...')
         delete(filename)
         ok=true;
         mess='';
     catch
         ok=false;
-        mess='Unable to delete Fermi chopper lookup table file';
+        mess='Unable to delete divergence profile lookup table file';
     end
 else
     ok=true;

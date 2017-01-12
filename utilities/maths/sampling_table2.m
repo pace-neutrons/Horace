@@ -1,32 +1,43 @@
-function [A,val]=sampling_table(x,y,step)
+function [xtab,cumpdf]=sampling_table2(x,pdf,step)
 % Create lookup table from which to create random sampling of a probability distribution
 %
-%   >> [A,val]=sampling_table(x,y)      % table with default number of points
-%   >> [A,val]=sampling_table(x,y,step) % table has specified number of points
+%   >> [xtab,cumpdf]=sampling_table2(x,pdf)      % table with default number of points
+%   >> [xtab,cumpdf]=sampling_table2(x,pdf,step) % table has specified number of points
+%
+% Differs from sampling_table in that cumpdf is not assumed to correspond to
+% equally spaced intervals between 0 and 1.
 %
 % Use the output to generate random sampling as follows:
+%   >> cumpdf_ran = rand(1000,50000);
+%   >> X = interp1(cumpdf,xtab,cumpdf_ran,'pchip','extrap');
 %
-%   >> A_ran = rand(1000,50000);
-%   >> x_ran = interp1(A,val,A_ran,'pchip','extrap');
+% or use the utility function rand_cumpdf2:
+%   >> X = rand_cumpdf2 (xtab, cumpdf,...)
 %
 % Input:
 % -------
 %   x       Vector of independent variable; strictly monotonic increasing and
 %          at least three points.
-%   y       Probability distribution: vector same number of elements as x,
+%   pdf     Probability distribution: vector same number of elements as x,
 %          and y(1)=y(end)=0, all other points >=0 and at least one point >0
-%   step    Define the graininess of the lookup table; [npnt, ndiv]
-%               npnt    Minimum number of points (at least 4)
-%               ndiv    How much finer to divide an interval at the minimum
-%           Default: [500,10]
-%           If one of the numbers is set to 0 or NaN then the default is used
-%          for the corresponding parameter
+%          The distribution does not need to be normalised; this will be
+%          performed internally.
+%   step    Define the graininess of the lookup table
+%               npnt            Divide the range of x into npnt equally spaced
+%                              values
+%               [npnt, ndiv]    Divide each interval such that:
+%                   npnt    Minimum number of points (at least 4)
+%                   ndiv    How much finer to divide an interval at the minimum
+%                               Default: [500,10]
+%                               If one of the numbers is set to 0 or NaN then
+%                              the default is used for the corresponding parameter
+%               xtab            Explicitly give the output values
 %
 % Output:
 % -------
-%   A       Cumulative probability distribution function (pdf) (column vector)
-%   val     Values of independent variable of the pdf at the values of the
+%   xtab    Values of independent variable of the pdf at the values of the
 %          cumulative pdf (column vector)
+%   cumpdf  Cumulative probability distribution function (column vector)
 
 
 % Default parameters
@@ -34,18 +45,24 @@ npnt_def = 500;     % minimum number of points in intermediate pdf (must be >=4)
 ndiv_def = 10;      % how much finer to divide an interval at the minimum
 
 % Parse input
-x=x(:); y=y(:);
-if numel(x)~=numel(y) || numel(x)<3
+x=x(:); pdf=pdf(:);
+if numel(x)~=numel(pdf) || numel(x)<3
     error('x and y arrays must have the same number of elements and there must be at least three elements')
 end
 if ~all(diff(x))>0
     error('x values must be strictly monotonic increasing')
 end
-if y(1)~=0 || y(end)~=0 || any(y<0) || all(y==0)
+if pdf(1)~=0 || pdf(end)~=0 || any(pdf<0) || all(pdf==0)
     error('y array elements must all be >=0 and at least one >0')
 end
-if nargin==3
-    if isnumeric(step) && numel(step)==2 || all(step>=0)
+
+if nargin==2
+    step = [npnt_def,ndiv_def];
+end
+
+if isnumeric(step)
+    if numel(step)==2 && ~any(step<0)
+        % Case of [npnt, ndiv]
         if isnan(step(1)) || step(1)==0
             npnt_min = npnt_def;
         else
@@ -58,29 +75,33 @@ if nargin==3
         if isnan(step(2)) || step(2)==0
             ndiv_min = ndiv_def;
         else
-            ndiv_min = step(1);
+            ndiv_min = step(2);
         end
+        % Make array of x values at which to get cumulative integral
+        n = numel(x);
+        ndiv = max(ceil((npnt_min-1)/(n-1)),ndiv_min);
+        dx = ((1:ndiv-1)/ndiv)'*diff(x)';
+        xtab = [x(1:end-1)';(repmat(x(1:end-1)',ndiv-1,1) + dx)];
+        xtab = [make_column(xtab); x(end)];
+        
+    elseif numel(step)==1 && step>=4
+        % Case of number of points equally spaced over range of x
+        xtab = (x(1)*(step-1:-1:0) + x(end)*(0:step-1))'/(step-1);
+    elseif numel(step)>=4 && step(1)<=x(1) &&...
+            step(end)>=x(end) && all(diff(step(:))>0)
+        % Case of explicit values for the independent variable
+        xtab = step(:);
     else
         error('Check the ''step'' parameter')
     end
 else
-    npnt_min = npnt_def;
-    ndiv_min = ndiv_def;
+    error('Check the ''step'' parameter')
 end
 
-
-n = numel(x);
-ndiv = max(ceil((npnt_min-1)/(n-1)),ndiv_min);
-
-% Make array of x values at which to get cumulative integral
-dx = ((1:ndiv-1)/ndiv)'*diff(x)';
-val = [x(1:end-1)';(repmat(x(1:end-1)',ndiv-1,1) + dx)];
-val = [make_column(val); x(end)];
-
 % Evaluate integrals and get cumulative pdf
-yout = integrate_1d_points_matlab (x, y, zeros(size(x)), val);
-A = [0;cumsum(yout)];
-A=A/A(end);
+yout = integrate_1d_points_matlab (x, pdf, zeros(size(x)), xtab);
+cumpdf = [0;cumsum(yout)];
+cumpdf = cumpdf/cumpdf(end);
 
 
 %======================================================================================================================

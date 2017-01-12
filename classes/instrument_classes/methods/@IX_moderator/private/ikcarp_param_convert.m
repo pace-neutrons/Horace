@@ -24,5 +24,5 @@ function [tauf,taus,R]=ikcarp_param_convert(pp,ei)
 %   R           Slowing down fraction
 
 tauf=1166.47*pp(1)./sqrt(ei);
-taus=pp(2);
+taus=pp(2)*ones(size(ei));
 R=exp(-ei/pp(3));
