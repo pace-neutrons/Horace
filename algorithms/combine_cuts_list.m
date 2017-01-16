@@ -2,7 +2,7 @@ function transf_list = combine_cuts_list(data_source,proj,pos,...
     q_step_or_transf,erange,outfile,varargin)
 % Called by combine_equivalent_zones, combine_equiv_keyword and
 % combine_equiv_basic and runs the process of combining zones into
-% sibgle zone
+% single zone
 %
 % Inputs:
 % data_source -- file, which is the source of the sqw object to combine
@@ -65,7 +65,7 @@ disp('----------------------------------------------------------------');
 disp('                    Starting symmetrisation                     ');
 disp('----------------------------------------------------------------');
 disp('');
-disp('Taking cuts from equivalent zones, converting coordinats        ');
+disp('Taking cuts from equivalent zones, converting coordinates       ');
 disp(' and saving results to temporary files                          ');
 disp('');
 disp('----------------------------------------------------------------');
@@ -123,14 +123,14 @@ if use_separate_matlab
 else% Go serial.
     for i=1:n_zones
         % combine all inputs, necessary to convert coordinates of one zone
-        % into the coordinates of other zone into signle compact structure;
+        % into the coordinates of other zone into single compact structure;
         params  = job_par_fun(transf_list{i});
         params.n_zone = i;
-        % move coordunates of current zone into specified coordinates
+        % move coordinates of current zone into specified coordinates
         zone_files{i} = move_zone1_to_zone0(params);
     end
 end
-% transfrom list of subfiles generated for each zone into 1-level celarray
+% transform list of sub-files generated for each zone into 1-level cellarray
 % of file names
 zone_fnames_list = flatten_cell_array(zone_files);
 
@@ -154,7 +154,7 @@ if isempty(zone_fnames_list)
     
 end
 
-%We need to work out how each of the Brillouin zones in zonelist relate to
+%We need to work out how each of the Brillouin zones in zone list relate to
 %the pos argument. This will then tell us how we must transform the
 %co-ordinates in the pix arrays.
 disp('');
