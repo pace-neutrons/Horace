@@ -59,7 +59,7 @@ if setting_instr
     end
     %
     start = obj.instrument_head_pos_;
-    if verLessThan('matlab','8.1') % some MATLAB problems with moving to correct eof
+    if verLessThan('matlab','8.3') % some MATLAB problems with moving to correct eof
         fseek(obj.file_id_,double(start),'bof');
     else
         fseek(obj.file_id_,start,'bof');
@@ -86,7 +86,7 @@ if setting_sample
     end
     
     %
-    if verLessThan('matlab','8.1') % some MATLAB problems with moving to correct eof
+    if verLessThan('matlab','8.3') % some MATLAB problems with moving to correct eof
         fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');
     else
         fseek(obj.file_id_,obj.sample_head_pos_,'bof');

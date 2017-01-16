@@ -20,7 +20,7 @@ bytes = [bytes,byte_sz];
 
 
 pos = obj.position_info_pos_;
-if verLessThan('matlab','8.1') % some MATLAB problems with moving to correct eof
+if verLessThan('matlab','8.3') % some MATLAB problems with moving to correct eof
     fseek(obj.file_id_,double(pos),'bof');    
 else        
     fseek(obj.file_id_,pos,'bof');

@@ -1,8 +1,12 @@
 classdef combine_equivalent_zones_job < JobExecutor
-    %Class running herbert MPI job to convert partial zones into seleted one
-    %using separtate Matlab session
+    %Class running Herbert MPI job to convert partial zones into selected one
+    %using separate Matlab session
     %
     %
+    %
+    % $Revision$ ($Date$)
+    %
+    
     properties
     end
     
@@ -15,7 +19,8 @@ classdef combine_equivalent_zones_job < JobExecutor
             % session.
             %
             % work together with combine_equivalent_zone_list in multisession mode,
-            % accepting parameters, generated there in multisession mode
+            % accepting parameters, generated there in multisession mode with help of 
+            % the param_f method below.
             %
             args   = varargin{1};
             n_zones = numel(args);            
@@ -42,7 +47,7 @@ classdef combine_equivalent_zones_job < JobExecutor
     methods(Static)
         function strpar= param_f(cut_transformation,...
                          proj,data_source,rez_dir,n_tot_zones)
-            % function-helper to pack job parameters into srtucture array
+            % function-helper to pack job parameters into structure array
             % of parameters to distribute among workers
             %
             % Inputs:

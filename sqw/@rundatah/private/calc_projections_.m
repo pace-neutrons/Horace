@@ -94,7 +94,7 @@ c=neutron_constants;
 k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
 % Calculate Q in spectrometer coordinates for each pixel
-[use_mex,nThreads]=get(hor_config,'use_mex','threads');
+[use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
 if use_mex
     if isfield(data,'qspec') % why is this?
         use_mex = false;
