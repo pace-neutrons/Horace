@@ -113,7 +113,7 @@ mpi_obj        =  MPI_State.instance();
 is_deployed_mpi = mpi_obj.is_deployed;
 % -------------------------------------------------------
 %
-if ~pix_tmpfile_ok
+if ~pix_tmpfile_ok && keep_pix
     pix_retained = cell(1,nsteps);
     pix_ix_retained=cell(1,nsteps);
 else
@@ -225,6 +225,10 @@ end
 function v=read_data_block(fid,noffset,range,block_ind_from,block_ind_to,ndatpix)
 % function to read blocks of data
 %
+if block_ind_from>block_ind_to
+    v = zeros(9,0);
+    return;
+end
 offsets_to_read = noffset(block_ind_from:block_ind_to);
 ranges_to_read = range(block_ind_from:block_ind_to);
 %
