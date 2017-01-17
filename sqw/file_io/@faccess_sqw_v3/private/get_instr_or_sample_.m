@@ -78,10 +78,10 @@ else
         field_name);
 end
 
-if verLessThan('matlab','8.1') % some MATLAB problems with moving to correct eof
+if verLessThan('matlab','8.3') % some MATLAB problems with moving to correct eof
     fseek(obj.file_id_,double(pos),'bof');
 else
-    fseek(obj.file_id_,pos,'bof');    
+    fseek(obj.file_id_,pos,'bof');
 end
 [mess,res] = ferror(obj.file_id_);
 if res ~=0; error('SQW_FILE_IO:io_error',...
