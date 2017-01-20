@@ -102,7 +102,7 @@ copy_files_list(rootpath,her_dir);
 
 % copy source code files from system directory
 copy_files_list(fullfile(rootpath,'_LowLevelCode'),fullfile(her_dir,'_LowLevelCode'),'+_',...
-                       'h','cpp','c','f','f90','for','sln','vcproj','vfproj','txt','m'); 
+                       'h','cpp','c','f','f90','FOR','sln','vcproj','vfproj','txt','m'); 
 copy_files_list(fullfile(rootpath,'_notes'),fullfile(her_dir,'_notes'),'+_'); 
 
 % copy unit tests and unit test suite if necessary
