@@ -1,9 +1,9 @@
 function rd=rundata_from_sqw_(sqw_obj)
 % function builds rundata object from sqw object
 %
-%>>rd = rundata(sqw)
+%>>rd = rundata_from_sqw_(sqw)
 %
-%Input:   sqw_obj -- a non-empty sqw object (for single input file?)
+%Input:   sqw_obj -- a non-empty sqw object (for single input file)
 %Output:  rd  -- rundata object with the data from sqw object
 %
 %

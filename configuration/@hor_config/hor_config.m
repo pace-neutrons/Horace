@@ -17,72 +17,95 @@ classdef hor_config<config_base
     % >>[val1,val2,...]=get(hor_config,'name1','name2',...)
     %
     %
-    % Fields are:
+    %hor_config methods are:
     % -----------
-    %   mem_chunk_size      Maximum number of pixels that are processed at one go during cuts
-    %                       on usual machine with 16Gb of RAM it is 10^7
-    %                       (higher value does not provide obvious
-    %                       performance benefits) but on older machines
-    %                       with ~4Gb it has to be reduced to 10^6
-    %   threads             Number of threads to use in mex files
-    %                       no more then number of processors but
-    %                       value higher then 8 do not provide obvious
-    %                       performance benefits for given mem_chink_size.
+    %   mem_chunk_size  -   maximum length of buffer array to accumulate pixels
+    %                       from an input file.
+    %   threads         -   how many computational threads to use in mex files
+    %   ignore_nan      -   Ignore NaN data when making cuts
+    %   ignore_inf      -   Ignore Inf data when making cuts.
+    %   horace_info_level -  Set verbosity of informational output.
+    %   log_level         -  The synonym for the horace_info_level
+    %   use_mex           -  Use mex files for time-consuming operation, if available
+    %   force_mex_if_use_mex - fail if mex can not be used.
+    %   delete_tmp        -  automatically delete temporary files after generating sqw files
     %
-    %   ignore_nan          Ignore NaN data when making cuts
-    %                       (default --true)
-    %   ignore_inf          Ignore Inf data when making cuts
-    %                       (default -- true)
+    %-----
+    % Methods related to parallel file processing/combining on a cluster:
+    % use_mex_for_combine     - use mex code to combine various sqw/tmp files
+    %                           together
+    % mex_combine_thread_mode - various thread modes deployed when
+    %                           combining sqw files using mex code.
+    % mex_combine_buffer_size - size of buffer used by mex code while
+    %                           combining files per each contributing file.
+    % accum_in_separate_process - if true, launch separate Matlab session(s) to generate tmp files
+    % accumulating_process_num  - number of Matlab sessions to launch to calculate tmp files
     %
-    %   horace_info_level   Set verbosity of informational output
-    %   log_level           The synonym for the horace_info_level
-    %                           -1  No information messages printed
-    %                            0  Major information messages printed
-    %                            1  Minor information messages printed in addition
-    %                            2  Time of the run measured and printed as well.
-    %                       The larger the value, the more information is printed
     %
-    %   use_mex             Use mex files for time-consuming operation, if available
-    %                       default -- true if mex files are compiled
-    %   force_mex_if_use_mex : fail if mex can not be used.
-    %                       It is testing and debugging option by default,
-    %                       if mex file fails, program uses Matlab.
-    %   delete_tmp        % automatically delete temporary files after generating sqw files
-    %                       default true.
     %
     % Type >> hor_config  to see the list of current configuration option values.
     %
     % $Revision$ ($Date$)
     %
     properties(Dependent)
-		% maximum length of buffer array in which to accumulate points from the input file	
-        mem_chunk_size    
-		% how many computational threads to use in mex files and by Matlab
-        threads           
-		% ignore NaN values if pixels have them
-        ignore_nan       
-		% ignore inf values if pixels have them
-        ignore_inf       
-		% set horace_info_level method indicating how verbose Horace would be -10 nothing >1 everything.
-        horace_info_level 
-		% the same as horace_info level
-        log_level         
-		% use mex-code for time-consuming operations
-        use_mex           
-		% testing and debugging option -- fail if mex can not be used
-        force_mex_if_use_mex 
-		% automatically delete temporary files after generating sqw files
-        delete_tmp        
-	    % use mex code to combine various sqw/tmp files together
+        % Maximum number of pixels that are processed at one go during cuts
+        % on usual machine with 16Gb of RAM it is 10^7  (higher value does
+        % not provide obvious performance benefits) but on older machines
+        % with ~4Gb it has to be reduced to 10^6
+        mem_chunk_size
+        % Number of threads to use in mex files. No more then number
+        % of processors but value higher then 8 do not provide obvious
+        % performance benefits for given mem_chink_size.
+        threads
+        % ignore NaN values if pixels have them.  %  (default --true)
+        ignore_nan
+        % ignore inf values if pixels have them. %  (default --false)
+        ignore_inf
+        % set horace_info_level method indicating how verbose Horace would be.
+        %      The larger the value, the more information is printed.
+        % See log_level for more details.
+        horace_info_level
+        % the same as horace_info level
+        %      The larger the value, the more information is printed, e.g.:
+        %  -1  No information messages printed
+        %   0  Major information messages printed
+        %   1  Minor information messages printed in addition
+        %   2  Time of the run measured and printed as well.
+        log_level
+        % use mex-code for time-consuming operations
+        % default -- true if mex files are compiled
+        use_mex
+        % testing and debugging option -- fail if mex can not be used
+        % By defauld if mex file fails, program tries to use Matlab, but
+        % if this option is set to true, the whole operation may fail.
+        force_mex_if_use_mex
+        % automatically delete temporary files after generating sqw files
+        % by default its true, but you may set it to false to keep files
+        % for later operations.
+        delete_tmp
+        % use multi-threaded mex code to combine various sqw/tmp files together
         use_mex_for_combine
-		% various thread modes deployed when combining sqw files using mex code:
-		%
+        % various thread modes deployed when combining sqw files using mex code:
+        % namely:
+        % 0  - one thread read all tmp files and another one writes combined
+        %      information into the target file
+        % 1  - one thread writes combined sqw file and two threads are
+        %      launched for each contributing file to read necessary information.
+        %      mode 1 is combinations of modes 2 and 3.
+        % Two debug modes exist to separate reading of this information:
+        % 2  - a thread per contributing file is launched to read bin information
+        %      when common thread for all contributing files is used to
+        %      read pixel information
+        % 3  - a thread is launched per contributing file to read pixel
+        %      information while common thread is used to read bin
+        %      information
         mex_combine_thread_mode
-        % size of buffer used during mex combine for each file
+        % size of buffer used by mex code while combining files per each
+        % file.
         mex_combine_buffer_size
-        % option to generate tmp files by launching separate Matlab process
+        % if true, launch separate Matlab session(s) to generate tmp files
         accum_in_separate_process
-        % number of processes to launch to calculate additional files
+        % number of sessions to launch to calculate additional files
         accumulating_process_num
     end
     properties(Access=protected,Hidden = true)
@@ -99,8 +122,7 @@ classdef hor_config<config_base
         delete_tmp_ = true;
         
         use_mex_for_combine_ = false;
-        % 0 not use threads, 1 full multithreading, 2 -- multithreaded bins only,
-        % 3 multithreaded pix only
+        %
         mex_combine_thread_mode_   = 0;
         mex_combine_buffer_size_ = 1024*64;
         
@@ -189,17 +211,20 @@ classdef hor_config<config_base
         % overloaded setters
         function this = set.mem_chunk_size(this,val)
             if val<1000
-                warning('HOR_CONFIG:set_mem_chunk_size',' mem chunk size should not be too small at least 1M is recommended');
+                warning('HOR_CONFIG:set_mem_chunk_size',' mem chunk size should not be too small at 
+least 1M is recommended');
                 val = 1000;
             end
             config_store.instance().store_config(this,'mem_chunk_size',val);
         end
         function this = set.threads(this,val)
             if val<1
-                warning('HOR_CONFIG:set_threads',' number ot threads can not be smaller then one. Value 1 is used');
+                warning('HOR_CONFIG:set_threads',' number ot threads can not be smaller then one. Value 
+1 is used');
                 val = 1;
             elseif val > 48
-                warning('HOR_CONFIG:set_threads',' it is often useless to use more then 16 threads. Value 48 is set');
+                warning('HOR_CONFIG:set_threads',' it is often useless to use more then 16 threads. 
+Value 48 is set');
                 val  = 48;
             end
             config_store.instance().store_config(this,'threads',val);
@@ -247,7 +272,8 @@ classdef hor_config<config_base
                 [~,n_errors,~,~,~,can_combine_with_mex]=check_horace_mex();
                 if n_errors>0
                     use = false;
-                    warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated, Use mex set to false');
+                    warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated, Use mex set to 
+false');
                 end
                 if ~can_combine_with_mex
                     config_store.instance().store_config(this,'use_mex_for_combine',false);
@@ -279,7 +305,8 @@ classdef hor_config<config_base
                     ver = combine_sqw();
                     config_store.instance().store_config(this,'use_mex_for_combine',true);
                 catch ME
-                    warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not availible.\n',...
+                    warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not 
+availible.\n',...
                         ' Reason: %s\n.',...
                         ' Will not use mex for combininng'],ME.message);
                     config_store.instance().store_config(this,'use_mex_for_combine',false);
@@ -290,7 +317,8 @@ classdef hor_config<config_base
         end
         function this= set.mex_combine_buffer_size(this,val)
             if val<64
-                error('HOR_CONFIG:mex_combine_buffer_size',' mex_combine_buffer_size should be bigger then 64, and better >1024');
+                error('HOR_CONFIG:mex_combine_buffer_size',' mex_combine_buffer_size should be bigger 
+then 64, and better >1024');
             end
             if val==0
                 this.use_mex_for_combine = false;
@@ -303,7 +331,7 @@ classdef hor_config<config_base
                 error('HOR_CONFIG:mex_combine_thread_mode',...
                     [' mex_combine_multithreaded should be a number in the range fromn 0 to 3\n ',...
                     '  meaning:\n', ...
-                    ' 0 -- no multitheading ',...
+                    ' 0 -- minor multitheading ',...
                     ' 1 -- full multitrheading',...
                     ' and two debug options:\n', ...
                     ' 2 -- only bin numbers are read by separate thread',...
@@ -331,7 +359,8 @@ classdef hor_config<config_base
         end
         function this = set.accumulating_process_num(this,val)
             if val<1
-                error('HOR_CONFIG:accumulating_process_num','Number of accumulating processes should be more then 1');
+                error('HOR_CONFIG:accumulating_process_num','Number of accumulating processes should be 
+more then 1');
             else
                 nproc = val;
             end
@@ -352,7 +381,7 @@ classdef hor_config<config_base
         %
         function value = get_internal_field(this,field_name)
             % method gets internal field value bypassing standard get/set
-            % methods interface. 
+            % methods interface.
             % Relies on assumption, that each public
             % field has a private field with name different by underscore
             value = this.([field_name,'_']);
