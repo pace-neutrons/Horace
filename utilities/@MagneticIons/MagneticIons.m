@@ -2,10 +2,22 @@ classdef MagneticIons
     % Class provides magnetic form factors for various magnetic ions
     % and supports corrections of Horace datasets by this form factor.
     %
-    % Magneic pCopied from Mantid class MagneticIon
-    % Original data  copied from https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html
-    % Fe verified against these data
+    % Magneic form factor parameters are copied from Mantid class MagneticIon
+    % Original data taken from https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html
     %
+    %
+    %MagneticIons methods:
+    %
+    % MagneticIons - constructor initializing the class to fix magnetic form
+    %               factor for particular ion
+    % fix_magnetic_ff - fix magnetic form factor for given dataset
+    % getIngerpolant  - return function or set of functions to use for
+    %                    magnetic form factor corrections
+    % Properties:
+    % currentIon     -   property defines the name of current ion to
+    %                    correct magnetic form factor
+    % 
+    % IonNames       - returns list of all ions the class knows about
     %
     % $Revision$ ($Date$)
     %
