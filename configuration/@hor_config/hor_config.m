@@ -211,20 +211,20 @@ classdef hor_config<config_base
         % overloaded setters
         function this = set.mem_chunk_size(this,val)
             if val<1000
-                warning('HOR_CONFIG:set_mem_chunk_size',' mem chunk size should not be too small at 
-least 1M is recommended');
+                warning('HOR_CONFIG:set_mem_chunk_size',...
+                        ' mem chunk size should not be too small at least 1M is recommended');
                 val = 1000;
             end
             config_store.instance().store_config(this,'mem_chunk_size',val);
         end
         function this = set.threads(this,val)
             if val<1
-                warning('HOR_CONFIG:set_threads',' number ot threads can not be smaller then one. Value 
-1 is used');
+                warning('HOR_CONFIG:set_threads',...
+                ' number ot threads can not be smaller then one. Value 1 is used');
                 val = 1;
             elseif val > 48
-                warning('HOR_CONFIG:set_threads',' it is often useless to use more then 16 threads. 
-Value 48 is set');
+                warning('HOR_CONFIG:set_threads',...
+                ' it is often useless to use more then 16 threads. Value 48 is set');
                 val  = 48;
             end
             config_store.instance().store_config(this,'threads',val);
@@ -272,8 +272,8 @@ Value 48 is set');
                 [~,n_errors,~,~,~,can_combine_with_mex]=check_horace_mex();
                 if n_errors>0
                     use = false;
-                    warning('HOR_CONFIG:set_use_mex',' mex files can not be initiated, Use mex set to 
-false');
+                    warning('HOR_CONFIG:set_use_mex',...
+                           ' mex files can not be initiated, Use mex set to false');
                 end
                 if ~can_combine_with_mex
                     config_store.instance().store_config(this,'use_mex_for_combine',false);
@@ -305,8 +305,8 @@ false');
                     ver = combine_sqw();
                     config_store.instance().store_config(this,'use_mex_for_combine',true);
                 catch ME
-                    warning('HOR_CONFIG:use_mex_for_combine',[' combine_sqw.mex procedure is not 
-availible.\n',...
+                    warning('HOR_CONFIG:use_mex_for_combine',...
+                           [' combine_sqw.mex procedure is not availible.\n',...
                         ' Reason: %s\n.',...
                         ' Will not use mex for combininng'],ME.message);
                     config_store.instance().store_config(this,'use_mex_for_combine',false);
@@ -317,8 +317,8 @@ availible.\n',...
         end
         function this= set.mex_combine_buffer_size(this,val)
             if val<64
-                error('HOR_CONFIG:mex_combine_buffer_size',' mex_combine_buffer_size should be bigger 
-then 64, and better >1024');
+                error('HOR_CONFIG:mex_combine_buffer_size',...
+                   ' mex_combine_buffer_size should be bigger then 64, and better >1024');
             end
             if val==0
                 this.use_mex_for_combine = false;
@@ -359,8 +359,8 @@ then 64, and better >1024');
         end
         function this = set.accumulating_process_num(this,val)
             if val<1
-                error('HOR_CONFIG:accumulating_process_num','Number of accumulating processes should be 
-more then 1');
+                error('HOR_CONFIG:accumulating_process_num',...
+                    'Number of accumulating processes should be more then 1');
             else
                 nproc = val;
             end
