@@ -1,0 +1,75 @@
+function path=spinw_on(non_default_path)
+% The function intended to swich spinW on and
+% return the path were spinW is resided or
+% empty string if spinW has not been found
+%
+% modify this function on new installation for sw_default_path
+% to point on location of the spinW and add this function
+% to matlab search path
+%
+%
+% The function has to be present in Matlab search path
+% and modified for each machine to know default mslice location.
+%
+% Function is not a part of spinW and relies on spinW files structure
+% defined for spinW v 3 R1321. It will become obsolete if this structure
+% changes
+%
+%Usage:
+%>>path=spinw_on();
+%       enables spinw and initiates spinw default search path
+%
+%>>path=spinw_on('where');
+%       reports current location of spinw or empty if not found
+%
+%>>path=spinw_on('a path');
+%       initiates spinw on non-default search path
+%
+%
+%
+%
+sw_default_path='d:/Data/ExcitDev/ISIS_svn/spinW';
+%
+if exist('non_default_path','var') && strcmpi(non_default_path,'where')
+    path = find_default_path(sw_default_path);
+    return;
+end
+%
+if nargin==1
+    start_app(non_default_path);
+else
+    start_app(sw_default_path);
+end
+path = fileparts(which('install_spinw.m'));
+
+
+function start_app(path)
+
+try
+    spinw_off();
+catch
+end
+addpath(path);
+addpath(genpath(path));
+
+function path =find_default_path(sw_default_path)
+path = which('install_spinw.m');
+if isempty(path)
+    path = sw_default_path;
+    if ~exist(fullfile(path,'install_spinw.m'),'file')
+        path='';
+    end
+else
+    path=fileparts(path);
+end
+
+function spinw_off
+
+sw_path = which('spinw');
+if isempty(sw_path)
+    return
+end
+sw_path = fileparts(fileparts(fileparts(sw_path)));
+all_path = genpath(sw_path);
+rmpath(all_path)
+
