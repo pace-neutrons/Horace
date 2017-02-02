@@ -63,8 +63,8 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %   'clean'         [Only valid if 'accumulate' is also present]. Delete the sqw file if
 %                  it exists.
 %
-%  'transform_sqw' Keyword, followed by the function which actually  sqw object.
-%                  The function should have the form:
+%  'transform_sqw' Keyword, followed by the function handle to transform 
+%                  sqw object. The function should have the form:
 %                  wout = f(win) where win is input sqw object and wout --
 %                  the transformed one. For example f can symmetrize sqw file:
 % i.e:
