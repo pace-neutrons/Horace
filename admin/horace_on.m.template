@@ -1,54 +1,56 @@
 function path=horace_on(non_default_path)
-%  safely switches horace on
-%  horace_on()                         -- calls horace with default settings
-%  horace_on(non_default_horace_path)  -- calls horace with non-default horace folder;
+%  safely switches Horace on
+%  horace_on()                         -- calls Horace with default settings
+%  horace_on(non_default_horace_path)  -- calls Horace with non-default Horace folder;
 %
 %
-% $Revision$ ($Date$) 
+% $Revision$ ($Date$)
 %
 %
-default_horace_path ='/usr/local/mprogs/Horace';
-default_herbert_path='/usr/local/mprogs/Herbert';
+default_horace_path ='d:/Data/ExcitDev/ISIS_svn/Horace';
+default_herbert_path='d:/Data/ExcitDev/ISIS_svn/Herbert';
+default_spinw_path = 'd:/Data/ExcitDev/ISIS_svn/spinw';
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
-    path = find_default_path(default_horace_path);   
+    path = find_default_path(default_horace_path);
     return;
 end
 
-warn_state=warning('off','all');    % turn of warnings (so dont get errors if remove non-existent paths)
+warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
 try
-   horace_off();
+    horace_off();
 catch
 end
 warning(warn_state);    % return warnings to initial state
 
+% if spinW start up file exist, try to initialize it
+sw_start = which('spinw_on.m');
+if ~isempty(sw_start)
+    spinw_on(default_spinw_path);
+end
+
 herbert_initated=~isempty(which('herbert_init.m'));
 
-% if herbert is not initated, try to init it. 
+% if Herbert is not initiated, try to init it.
 if ~herbert_initated
-  try
-    try_herbert_on(default_herbert_path);
-  catch
-    error('HORACE_ON:wrong_dependencies','Can not initiate Herbert');         
-  end
-else % reinitialize herbert on where it is now.
+    try
+        try_herbert_on(default_herbert_path);
+    catch
+        error('HORACE_ON:wrong_dependencies','Can not initiate Herbert');
+    end
+else % reinitialize Herbert on where it is now.
     her_path = fileparts(which('herbert_init.m'));
     herbert_on(her_path);
 end
 
-% init horace 
-if nargin==1 
-  start_app(non_default_path);
+% init Horace
+if nargin==1
+    start_app(non_default_path);
 else
-  start_app(default_horace_path);
+    start_app(default_horace_path);
 end
 path = fileparts(which('horace_init.m'));
 
-hc = hor_config()
-if hc.is_default
-    %set up multiusers compiter specific settings, e.g.:
-    %hc.use_mex = true;
-end
 
 function start_app(path)
 addpath(path);
@@ -71,9 +73,9 @@ if exist(default_herbert_path,'var')
     if ~isempty(default_herbert_path)
         herbert_on(default_herbert_path);
     else
-        herbert_on();        
+        herbert_on();
     end
 else
-    herbert_on();            
-end            
+    herbert_on();
+end
 
