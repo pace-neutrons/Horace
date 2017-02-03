@@ -68,7 +68,7 @@ else
         error('VALIDATE_HORACE:invalid_argument',mess)
     end
 end
-
+profile on
 
 % Check mex files if mex functions are available
 % ----------------------------------------------
@@ -155,6 +155,8 @@ else
     
 end
 close all
+profile off
+profile viewer
 
 
 %=================================================================================================================

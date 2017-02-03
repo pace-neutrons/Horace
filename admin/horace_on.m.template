@@ -7,9 +7,9 @@ function path=horace_on(non_default_path)
 % $Revision$ ($Date$)
 %
 %
-default_horace_path ='d:/Data/ExcitDev/ISIS_svn/Horace';
-default_herbert_path='d:/Data/ExcitDev/ISIS_svn/Herbert';
-default_spinw_path = 'd:/Data/ExcitDev/ISIS_svn/spinw';
+default_horace_path ='/usr/local/mprogs/Horace';
+default_herbert_path='/usr/local/mprogs/Herbert';
+default_spinw_path = '/usr/local/mprogs/spinW';
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
     path = find_default_path(default_horace_path);
@@ -50,6 +50,21 @@ else
     start_app(default_horace_path);
 end
 path = fileparts(which('horace_init.m'));
+
+hc = hor_config();
+if hc.is_default
+%% make server-specific settings
+%  hc.mem_chunk_size = 10000000;
+%  hc.threads = 8;
+%  hc.use_mex = 1;
+   hc.force_mex_if_use_mex = 0;
+%  hc.delete_tmp = 1;
+%  hc.use_mex_for_combine = 1;
+%  hc.mex_combine_thread_mode = 1;
+%  hc.mex_combine_buffer_size = 2048;
+%  hc.accum_in_separate_process = 1;
+%  hc.accumulating_process_num = 8;
+end
 
 
 function start_app(path)
