@@ -149,17 +149,22 @@ end
 
 
 if ~expand_qe
-    if ~isa(fwhh,'double')
-        error('disp2sqw:WrongInput','The fwhh function has to be scalar since expand_qe option is false!');
+    weight = zeros(numel(q{1}),1);
+    if isa(fwhh,'double') || nargin(fwhh) == 1
+        for ii=1:numel(e)  % e is a cell array, each cell is one dispersion surface, so for loop performance ok.
+            if isa(fwhh, 'double')
+                sig = fwhh / sqrt(log(256));
+            else
+                sig = fwhh(e{ii}(:)) / sqrt(log(256));
+            end
+            weight = weight + sf{ii}(:) .* exp(-(e{ii}(:)-en(:)).^2 ./ (2.*sig.^2)) ./ (sig.*sqrt(2*pi));
+        end
+    else
+        for ii = 1:numel(e)
+            weight = weight + sf{ii}(:) .* resfun(en(:), e{ii}(:));
+        end
     end
-    % TODO
-    % only work for constant energy resolution
-    sig = fwhh/sqrt(log(256));
-    weight=zeros(numel(q{1}),1);
-    for ii=1:numel(e)
-        weight=weight + sf{ii}(:).*exp(-(e{ii}(:)-en(:)).^2/(2*sig^2))/(sig*sqrt(2*pi));
-    end
-    weight=reshape(weight,size(q{1}));
+    weight = reshape(weight, size(q{1}));
 else
     nq = numel(q{1});
     ne = numel(en);
