@@ -28,7 +28,7 @@ function path=spinw_on(non_default_path)
 %
 %
 %
-sw_default_path='d:/Data/ExcitDev/ISIS_svn/spinW';
+spinw_default_path='/usr/local/mprogs/spinW';
 %
 if exist('non_default_path','var') && strcmpi(non_default_path,'where')
     path = find_default_path(sw_default_path);
