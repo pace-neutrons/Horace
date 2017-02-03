@@ -19,7 +19,7 @@ function path=herbert_on(non_default_path)
 %
 %
 %
-her_default_path='c:/Users/wkc26243/Documents/work/svn/Herbert';
+her_default_path='usr/local/mprogs/Herbert';
 %
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
     path = find_her_default_path(her_default_path);   
@@ -38,6 +38,7 @@ path = fileparts(which('herbert_init.m'));
 hec = herbert_config()
 if hec.is_default
 % hec.use_mex_C = true;
+    hec.log_level = 1;
 end
 
 
