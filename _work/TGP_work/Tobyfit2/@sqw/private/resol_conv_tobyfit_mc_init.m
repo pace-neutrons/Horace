@@ -11,7 +11,8 @@ function [ok,mess,lookup]=resol_conv_tobyfit_mc_init(win)
 % -------
 %   ok          Status flag: =true if all ok, =false otherwise
 %   mess        Error message: empty if ok, contains error message if not ok
-%   lookup      Structure containing lookup tables and pre-calculated matricies etc.
+%   lookup      Cell array with one element: a structure containing lookup
+%              tables and pre-calculated matricies etc.
 %
 %         mod_table     Structure with fields:
 %                      ind      Cell array of indicies into table, where
@@ -21,6 +22,8 @@ function [ok,mess,lookup]=resol_conv_tobyfit_mc_init(win)
 %                              the number of unique tables. Convert to time from
 %                              reduced time using t = t_av * (t_red/(1-t_red))
 %                      t_av     First moment of time distribution (row vector length nmod)
+%                              Time here is in seconds (NOT microseconds)
+%                 	   fwhh     Full width half height of distribution (row vector)
 %                              Time here is in seconds (NOT microseconds)
 %
 %         aperture      Structures with fields:
