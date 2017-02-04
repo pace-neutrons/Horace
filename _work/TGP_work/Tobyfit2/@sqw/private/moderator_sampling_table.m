@@ -13,7 +13,7 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 %   opt         [Optional] Purge the lookup table if set to 'purge'
 %
 %               For further options, see method:
-%                   IX_fermi_chopper/buffered_sampling_table
+%                   IX_moderator/buffered_sampling_table
 %
 % Output:
 % -------
@@ -29,6 +29,8 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 %                              to true time using the equation
 %                                   t = t_av * (t_red/(1-t_red))
 %                 lookup.t_av   First moment of time distribution (row vector)
+%                              Time here is in seconds (NOT microseconds)
+%                 lookup.fwhh   Full width half height of distribution (row vector)
 %                              Time here is in seconds (NOT microseconds)
 
 % Assemble the moderator objects and get unique entries
@@ -51,8 +53,9 @@ for i=1:nw
 end
 
 % Create lookup table, using any buffered results
-[table,t_av,ind]=buffered_sampling_table(moderator_all,ei_all,varargin{:});
+[table,t_av,ind,fwhh]=buffered_sampling_table(moderator_all,ei_all,varargin{:});
 
 % Create output structure
 t_av=1e-6*t_av;     % Convert to seconds
-lookup=struct('ind',{mat2cell(ind,nr)},'table',table,'t_av',t_av);
+fwhh=1e-6*fwhh;     % Convert to seconds
+lookup=struct('ind',{mat2cell(ind,nr)},'table',table,'t_av',t_av,'fwhh',fwhh);

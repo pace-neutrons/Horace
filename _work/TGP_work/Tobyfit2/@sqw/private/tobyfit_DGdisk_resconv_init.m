@@ -1,4 +1,4 @@
-function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win,shape_mod)
+function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 % Fill various lookup tables and matrix transformations
 %
 %   >> [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win,opt)
@@ -7,21 +7,12 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win,shape_mod)
 % ------
 %   win         Cell array of input sqw objects
 %
-%   shape_mod   Option of how to treat the moderator and shaping chopper in
-%              the resolution function.
-%                   =false  Depending on the relative pulse FWHHs from the 
-%                          moderator and shaping chopper, treat the initial
-%                          pulse as arising solely from the moderator (i.e.
-%                          ignore shaping chopper) or solely from the
-%                          shaping chopper (i.e. treat source as continuous)
-%                   =true   Use true function distribution from combination
-%                          of moderator and shaping chopper
-%
 % Output:
 % -------
 %   ok          Status flag: =true if all ok, =false otherwise
 %   mess        Error message: empty if ok, contains error message if not ok
-%   lookup      Structure containing lookup tables and pre-calculated matricies etc.
+%   lookup      Cell array with one element: a structure containing lookup
+%              tables and pre-calculated matricies etc.
 %
 %       mod_table       Structure with fields:
 %                      ind      Cell array of indicies into table, where
@@ -32,6 +23,14 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win,shape_mod)
 %                              reduced time using t = t_av * (t_red/(1-t_red))
 %                      t_av     First moment of time distribution (row vector length nmod)
 %                              Time here is in seconds (NOT microseconds)
+%                      fwhh     Full width half height of distribution (row vector)
+%                              Time here is in seconds (NOT microseconds)
+%
+%       shape_mod       Cell array of logical vectors, one entry per
+%                      dataset with size [1,npix], where true indicates that the
+%                      initial pulse is largely determined by the shaping
+%                      chopper i.e. fwhh due to the chopper is smaller than
+%                      that of the moderator pulse (after geometric scaling)
 %
 %       chop_shape_fwhh Cell array of full width half heights of the
 %                      monochromating chopper, one entry per dataset with
@@ -81,13 +80,52 @@ k_to_v = 1e6/c.c_t_to_k;    % v(m/s)=k_to_v*k(Ang^-1)
 deps_to_dt = 0.5e-6*c.c_t_to_k/c.c_k_to_emev;   % dt(s)=deps_to_dt*x2(m)/kf(Ang^-1)^3 * deps(meV)
 
 % Pre-calculate various quantities to save time during simulation and fitting
+ei_all=cell(nw,1);
+x0_all=cell(nw,1);
+xa_all=cell(nw,1);
+x1_all=cell(nw,1);
 moderator_all=cell(nw,1);
 chop_shape_all=cell(nw,1);
 chop_mono_all=cell(nw,1);
 horiz_div_all=cell(nw,1);
 vert_div_all=cell(nw,1);
 sample_all=repmat(IX_sample,nw,1);
-ei_all=cell(nw,1);
+s_mat_all=cell(nw,1);
+spec_to_rlu_all=cell(nw,1);
+
+
+% Get quantities and dervied quantities from the header
+for i=1:nw
+    % Get instrument data
+    [ok,mess,ei,x0,xa,x1,moderator,chop_shape,chop_mono,horiz_div,vert_div]=...
+        instpars_DGdisk(win{i}.header);
+    if ~ok, return, end
+    ei_all{i}=ei;
+    x0_all{i}=x0;
+    xa_all{i}=xa;
+    x1_all{i}=x1;
+    moderator_all{i}=moderator;
+    chop_shape_all{i}=chop_shape;
+    chop_mono_all{i}=chop_mono;
+    horiz_div_all{i}=horiz_div;
+    vert_div_all{i}=vert_div;
+    
+    % Get sample data
+    [ok,mess,sample,s_mat,spec_to_rlu]=sample_coords_to_spec_to_rlu(win{i}.header);    % s_mat has size [3,3,nrun]
+    if ~ok, return, end
+    sample_all(i)=sample;
+    s_mat_all{i}=s_mat;
+    spec_to_rlu_all{i}=spec_to_rlu;
+end
+
+% Lookup tables for moderator and divergence
+mod_table=moderator_sampling_table(moderator_all,ei_all,'fast');
+horiz_div_table=divergence_sampling_table(horiz_div_all,'nocheck');
+vert_div_table=divergence_sampling_table(vert_div_all,'nocheck');
+
+% Get chopper widths, dq_mat and dt
+chop_shape_fwhh=cell(nw,1);
+chop_mono_fwhh=cell(nw,1);
 dq_mat=cell(nw,1);
 dt=cell(nw,1);
 for i=1:nw
@@ -98,29 +136,37 @@ for i=1:nw
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(win{i}.header);
     eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     
-    [ok,mess,ei,x0,xa,x1,moderator,chop_shape,chop_mono,horiz_div,vert_div]=...
-        instpars_DGdisk(win{i}.header);
-    if ~ok, return, end
-    moderator_all{i}=moderator;
-    chop_shape_all{i}=chop_shape;
-    chop_mono_all{i}=chop_mono;
-    horiz_div_all{i}=horiz_div;
-    vert_div_all{i}=vert_div;
-    ei_all{i}=ei;
+    % Get chopper widths
+    chop_shape=chop_shape_all{i};
+    chop_mono=chop_mono_all{i};
+    nrun=numel(chop_shape);
+    pulse_width_shape=zeros(nrun,1);
+    pulse_width_mono=zeros(nrun,1);
+    for j=1:nrun
+        [~,pulse_width_shape(j)]=pulse_width(chop_shape(j));
+        [~,pulse_width_mono(j)]=pulse_width(chop_mono(j));
+    end
+    chop_shape_fwhh{i}=pulse_width_shape;
+    chop_mono_fwhh{i}=pulse_width_mono;
+    
+    % Determine if the moderator is the 
+    *** scaleing required
+    shape_mod{i}=(pulse_width_shape(irun)<mod_table.fwhh(mod_table.ind{i}(irun)))';     % row vector
+    
+    % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
+    ei=ei_all{i};
+    x0=x0_all{i};
+    xa=xa_all{i};
+    x1=x1_all{i};
+    s_mat=s_mat_all{i};
+    spec_to_rlu=spec_to_rlu_all{i};
     
     ki=sqrt(ei/k_to_e);
     kf=sqrt((ei(irun)-eps)/k_to_e);
     
-    % Get sample and s_mat
-    [ok,mess,sample,s_mat,spec_to_rlu]=sample_coords_to_spec_to_rlu(win{i}.header);    % s_mat has size [3,3,nrun]
-    if ~ok, return, end
-    sample_all(i)=sample;
-    
-    % Get d_mat
     d_mat = spec_coords_to_det (win{i}.detpar);         % d_mat has size [3,3,ndet]
     x2=win{i}.detpar.x2(:); % make column vector
     
-    % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf, x0(irun), xa(irun), x1(irun), x2(idet),...
         s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     
@@ -129,20 +175,15 @@ for i=1:nw
     
 end
 
-% Lookup tables for moderator and divergence
-mod_table=moderator_sampling_table(moderator_all,ei_all,'fast');
-horiz_div_table=divergence_sampling_table(horiz_div_all,'nocheck');
-vert_div_table=divergence_sampling_table(vert_div_all,'nocheck');
-
-% Extract aperture information
-ap_wh=aperture_width_height(aperture_all);
 
 % Package output
 ok=true;
 mess='';
 lookup.mod_table=mod_table;
-lookup.aperture=ap_wh;
-lookup.fermi_table=fermi_table;
+lookup.chop_shape_fwhh=chop_shape_fwhh;
+lookup.chop_mono_fwhh=chop_mono_fwhh;
+lookup.horiz_div_table=horiz_div_table;
+lookup.vert_div_table=vert_div_table;
 lookup.sample=sample_all;
 lookup.dq_mat=dq_mat;
 lookup.dt=dt;
