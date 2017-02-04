@@ -10,11 +10,11 @@ function [fun, p, bfun, bp] = get_wrapped_functions_ (obj,...
 % ------
 %   func_init_output_args       Cell array containing arguments returned by 
 %                              foreground initialisation function. If none,
-%                              then set to {}.
+%                              then set to {} (row vector)
 %
 %   bfunc_init_output_args      Cell array containing arguments returned by 
 %                              background initialisation function. If none,
-%                              then set to {}.
+%                              then set to {} (row vector)
 %
 % Output:
 % -------

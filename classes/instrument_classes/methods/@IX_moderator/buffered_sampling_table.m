@@ -1,14 +1,14 @@
-function [table,t_av,ind]=buffered_sampling_table(moderator_in,ei_in,varargin)
+function [table,t_av,ind,fwhh]=buffered_sampling_table(moderator_in,ei_in,varargin)
 % Return lookup table for array of moderator objects
 %
-%   >> table = buffered_sampling_table (moderator, ei)
-%   >> table = buffered_sampling_table (moderator, ei, npnt)
-%   >> table = buffered_sampling_table (...,opt1,opt2,...)
+%   >> [table,t_av,ind,fwhh] = buffered_sampling_table (moderator, ei)
+%   >> [table,t_av,ind,fwhh] = buffered_sampling_table (moderator, ei, npnt)
+%   >> [table,t_av,ind,fwhh] = buffered_sampling_table (...,opt1,opt2,...)
 %
 % Input:
 % ------
 %   moderator   Array of IX_moderator objects (need not be unique)
-% 
+%
 %   ei          Array of corresponding incident energies
 %
 %   npnt        Number of sampling points for the table. Uses default if not given.
@@ -34,7 +34,7 @@ function [table,t_av,ind]=buffered_sampling_table(moderator_in,ei_in,varargin)
 %                              is not exceeded. If additional lookup entries
 %                              have to be created, they will be added to the
 %                              stored lookup.
-%                              
+%
 %
 % Output:
 % -------
@@ -50,6 +50,8 @@ function [table,t_av,ind]=buffered_sampling_table(moderator_in,ei_in,varargin)
 %
 %   ind         Index into the lookup table: ind(i) is the column for moderator(i)
 %              ind is a column vector.
+%
+%   fwhh        Full width half height, size=[1,nmod] (microseconds)
 %
 % Note:
 % - If the number of moderator objects is less than a critical value, they
@@ -116,41 +118,45 @@ end
 
 % Fill lookup table, creating or adding entries for the stored lookup file
 if check_store
-    [ok,mess,moderator0,ei0,table0,t_av0]=read_store(filename);   % if file does not exist, then ok=true but moderator0 is empty
+    [ok,mess,moderator0,ei0,table0,t_av0,fwhh0]=read_store(filename);   % if file does not exist, then ok=true but moderator0 is empty
     if ok && ~isempty(moderator0) && (isempty(npnt)||npnt==size(table0,1))
         % Look for entries in the lookup table
         [ix,iv]=array_filter_mod_ei(moderator,ei,moderator0,ei0);
         npnt0=size(table0,1);
         if numel(ix)==0         % no stored entries for the input moderators
-            [table,t_av]=fill_table(moderator,ei,npnt0,fast{:});
-            [ok,mess]=write_store(filename,moderator,ei,table,t_av,...
-                                            moderator0,ei0,table0,t_av0,nm_max);
+            [table,t_av,fwhh]=fill_table(moderator,ei,npnt0,fast{:});
+            [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh,...
+                moderator0,ei0,table0,t_av0,fwhh0,nm_max);
             if ~ok, warning(mess), end
         elseif numel(ix)==nm    % all entries previously stored
             table=table0(:,iv);
             t_av=t_av0(iv);
+            fwhh=fwhh0(iv);
         else
             new=true(nm,1); new(ix)=false;
-            [table_new,t_av_new]=fill_table(moderator(new),ei(new),npnt0,fast{:});
+            [table_new,t_av_new,fwhh_new]=fill_table(moderator(new),ei(new),npnt0,fast{:});
             table=zeros(npnt0,nm);
             table(:,new)=table_new;
             table(:,ix)=table0(:,iv);
             t_av=zeros(1,nm);
             t_av(new)=t_av_new;
             t_av(ix)=t_av0(iv);
-            [ok,mess]=write_store(filename,moderator(new),ei(new),table_new,t_av_new,...
-                                            moderator0,ei0,table0,t_av0,nm_max);
+            fwhh=zeros(1,nm);
+            fwhh(new)=fwhh_new;
+            fwhh(ix)=fwhh0(iv);
+            [ok,mess]=write_store(filename,moderator(new),ei(new),table_new,t_av_new,fwhh_new,...
+                moderator0,ei0,table0,t_av0,fwhh0,nm_max);
             if ~ok, warning(mess), end
         end
     else
         % Problem reading the store, or it doesn't exist, or the number of points is different. Create with new values if can.
         if ~ok, warning(mess), end
-        [table,t_av]=fill_table(moderator,ei,npnt,fast{:});
-        [ok,mess]=write_store(filename,moderator,ei,table,t_av);
+        [table,t_av,fwhh]=fill_table(moderator,ei,npnt,fast{:});
+        [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh);
         if ~ok, warning(mess), end
     end
 else
-    [table,t_av]=fill_table(moderator,ei,npnt,fast{:});
+    [table,t_av,fwhh]=fill_table(moderator,ei,npnt,fast{:});
 end
 
 
@@ -159,7 +165,7 @@ function [moderator_sort,ei_sort,m,n]=unique_mod_ei(moderator, ei, varargin)
 % Joint sorting of moderator and incident energy as if they were one object
 
 S=catstruct(struct_special(moderator(:)),struct('ei',num2cell(ei(:))));
-[sortedS,m,n] = uniqueStruct(S,varargin{:});
+[~,m,n] = uniqueStruct(S,varargin{:});
 moderator_sort=moderator(m);
 ei_sort=ei(m);
 
@@ -174,27 +180,32 @@ S0=catstruct(struct_special(moderator0(:)),struct('ei',num2cell(ei0(:))));
 
 
 %==================================================================================================
-function [table,t_av]=fill_table(moderator,ei,npnt,varargin)
+function [table,t_av,fwhh]=fill_table(moderator,ei,npnt,varargin)
 nm=numel(moderator);
 t_av=zeros(1,nm);
+fwhh=zeros(1,nm);
 if isempty(npnt)
     [table,t_av(1)]=sampling_table(moderator(1),ei(1),varargin{:});   % column vector
+    [~,~,fwhh(1)]=pulse_width(moderator(1),ei(1));
     if nm>1
         table=repmat(table,[1,nm]);
         npnt_def=size(table,1);
         for i=2:nm
             [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt_def,varargin{:});
+            [~,~,fwhh(i)]=pulse_width(moderator(i),ei(i));
         end
     end
 else
     table=zeros(npnt,nm);
     for i=1:nm
         [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt,varargin{:});
+        [~,~,fwhh(i)]=pulse_width(moderator(i),ei(i));
     end
 end
 
 %==================================================================================================
-function [ok,mess,moderator_store,ei_store,table_store,t_av_store]=read_store(filename)
+function [ok,mess,moderator_store,ei_store,table_store,t_av_store,fwhh_store]=...
+    read_store(filename)
 % Read stored moderator lookup table
 % ok=true if file does not exist
 
@@ -211,6 +222,17 @@ if exist(filename,'file')
         ei_store=[];
         table_store=[];
         t_av_store=[];
+        fwhh_store=[];
+    end
+    % Check fields
+    if ~exist('ei_store','var') || ~exist('table_store','var') ||...
+            ~exist('t_av_store','var') ||  ~exist('fwhh_store','var')
+        mess='Moderator lookup table file has old format - being ignored';
+        moderator_store=[];
+        ei_store=[];
+        table_store=[];
+        t_av_store=[];
+        fwhh_store=[];
     end
 else
     ok=true;
@@ -219,19 +241,22 @@ else
     ei_store=[];
     table_store=[];
     t_av_store=[];
+    fwhh_store=[];
 end
 
 
 %--------------------------------------------------------------------------------------------------
-function [ok,mess]=write_store(filename,moderator,ei,table,t_av,moderator0,ei0,table0,t_av0,nf_max)
+function [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh,...
+    moderator0,ei0,table0,t_av0,fwhh0,nf_max)
 % Write moderator lookup table up to a maximum number of entries
 % Always write the first entry; then add as many of the second as possible
 
-if nargin==5
+if nargin==6
     moderator_store=moderator;
     ei_store=ei;
     table_store=table;
     t_av_store=t_av;
+    fwhh_store=fwhh;
 else
     nf=size(moderator,1);
     nf0=size(moderator0,1);
@@ -240,22 +265,26 @@ else
         ei_store=ei;
         table_store=table;
         t_av_store=t_av;
+        fwhh_store=fwhh;
     elseif nf0>nf_max-nf
         moderator_store=[moderator;moderator0(1:nf_max-nf)];
         ei_store=[ei;ei0(1:nf_max-nf)];
         table_store=[table,table0(:,1:nf_max-nf)];
         t_av_store=[t_av,t_av0(1:nf_max-nf)];
+        fwhh_store=[fwhh,fwhh0(1:nf_max-nf)];
     else
         moderator_store=[moderator;moderator0];
         ei_store=[ei;ei0];
         table_store=[table,table0];
         t_av_store=[t_av,t_av0];
+        fwhh_store=[fwhh,fwhh0];
     end
 end
 
 try
     disp('Writing moderator lookup table to file store...')
-    save(filename,'moderator_store','ei_store','table_store','t_av_store','-mat')
+    save(filename,'moderator_store','ei_store','table_store',...
+        't_av_store','fwhh_store','-mat')
     ok=true;
     mess='';
 catch

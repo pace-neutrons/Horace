@@ -1,9 +1,9 @@
 function [table,ind]=buffered_sampling_table(div_in,varargin)
 % Return lookup table for array of divergence profile objects
 %
-%   >> table = buffered_sampling_table (div)
-%   >> table = buffered_sampling_table (div, npnt)
-%   >> table = buffered_sampling_table (...,opt1,opt2,...)
+%   >> [table,ind] = buffered_sampling_table (div)
+%   >> [table,ind] = buffered_sampling_table (div, npnt)
+%   >> [table,ind] = buffered_sampling_table (...,opt1,opt2,...)
 %
 % Input:
 % ------

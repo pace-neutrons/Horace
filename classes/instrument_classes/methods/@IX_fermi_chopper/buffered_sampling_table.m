@@ -1,9 +1,9 @@
 function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 % Return lookup table for array of Fermi chopper objects
 %
-%   >> table = buffered_sampling_table (fermi)
-%   >> table = buffered_sampling_table (fermi, npnt)
-%   >> table = buffered_sampling_table (...,opt1,opt2,...)
+%   >> [table,ind] = buffered_sampling_table (fermi)
+%   >> [table,ind] = buffered_sampling_table (fermi, npnt)
+%   >> [table,ind] = buffered_sampling_table (...,opt1,opt2,...)
 %
 % Input:
 % ------

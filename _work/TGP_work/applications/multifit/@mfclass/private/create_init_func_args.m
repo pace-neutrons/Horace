@@ -34,6 +34,9 @@ if ~isempty(func_init)
     if ~ok
         mess = ['Foreground preprocessor function: ',mess];
     end
+    if ~isrowvector(func_init_output_args)
+        func_init_output_args=func_init_output_args(:)';
+    end
 else
     func_init_output_args={};
 end
@@ -46,6 +49,9 @@ if ~isempty(bfunc_init)
         end
     else
         bfunc_init_output_args=func_init_output_args;
+    end
+    if ~isrowvector(bfunc_init_output_args)
+        bfunc_init_output_args=bfunc_init_output_args(:)';
     end
 else
     bfunc_init_output_args={};
