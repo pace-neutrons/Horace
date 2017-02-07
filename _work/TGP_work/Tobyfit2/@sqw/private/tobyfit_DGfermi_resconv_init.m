@@ -1,7 +1,7 @@
-function [ok,mess,lookup]=resol_conv_tobyfit_mc_init(win)
+function [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 % Fill various lookup tables and matrix transformations
 %
-%   >> [ok,mess,lookup]=resol_conv_tobyfit_mc_init(win)
+%   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
 % Input:
 % ------
@@ -100,7 +100,7 @@ for i=1:nw
     x2=win{i}.detpar.x2(:); % make column vector
     
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
-    dq_mat{i} = dq_matrix (ki(irun), kf, x0(irun), xa(irun), x1(irun), x2(idet),...
+    dq_mat{i} = dq_matrix_DGfermi (ki(irun), kf, x0(irun), xa(irun), x1(irun), x2(idet),...
         thetam(irun), angvel(irun), s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     
     % Time width corresponding to energy bins for each pixel

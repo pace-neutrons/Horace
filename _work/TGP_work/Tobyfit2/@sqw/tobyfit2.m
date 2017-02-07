@@ -22,8 +22,8 @@ function mf_object = tobyfit2 (varargin)
 
 
 % Initialise
-mf_init = mfclass_wrapfun ('sqw', @resol_conv_tobyfit_mc, [], @func_eval, [],...
-    true, false, @resol_conv_tobyfit_mc_init, []);
+mf_init = mfclass_wrapfun ('sqw', @tobyfit_DGfermi_resconv, [], @func_eval, [],...
+    true, false, @tobyfit_DGfermi_resconv_init, []);
 
 % Construct
 mf_object = mfclass_tobyfit (mf_init, varargin{:});
