@@ -1,8 +1,9 @@
-function [wout,state_out]=resol_conv_tobyfit_mc(win,caller,state_in,sqwfunc,pars,...
+function [wout,state_out]=tobyfit_DGfermi_resconv(win,caller,state_in,sqwfunc,pars,...
     lookup,mc_contributions,mc_points,xtal,modshape)
 % Calculate resolution broadened sqw object(s) for a model scattering function.
 %
-%   >> wout=resol_conv_tobyfit_mc(win,sqwfunc,pars,lookup)
+%   >> [wout,state_out]=tobyfit_DGfermi_resconv(win,caller,state_in,sqwfunc,pars,...
+%    lookup,mc_contributions,mc_points,xtal,modshape)
 %
 % Input:
 % ------

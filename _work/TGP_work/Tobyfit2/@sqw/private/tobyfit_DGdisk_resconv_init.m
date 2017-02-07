@@ -124,6 +124,7 @@ horiz_div_table=divergence_sampling_table(horiz_div_all,'nocheck');
 vert_div_table=divergence_sampling_table(vert_div_all,'nocheck');
 
 % Get chopper widths, dq_mat and dt
+shape_mod=cell(nw,1);
 chop_shape_fwhh=cell(nw,1);
 chop_mono_fwhh=cell(nw,1);
 dq_mat=cell(nw,1);
@@ -133,12 +134,23 @@ for i=1:nw
     idet = win{i}.data.pix(6,:)';
     ien  = win{i}.data.pix(7,:)';
     
-    [deps,eps_lo,eps_hi,ne]=energy_transfer_info(win{i}.header);
-    eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
-    
-    % Get chopper widths
+    % Get some instrument and sample parameters again
+    ei=ei_all{i};
+    x0=x0_all{i};
+    xa=xa_all{i};
+    x1=x1_all{i};
     chop_shape=chop_shape_all{i};
     chop_mono=chop_mono_all{i};
+    s_mat=s_mat_all{i};
+    spec_to_rlu=spec_to_rlu_all{i};
+
+    % Kinematics
+    [deps,eps_lo,eps_hi,ne]=energy_transfer_info(win{i}.header);
+    eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
+    ki=sqrt(ei/k_to_e);
+    kf=sqrt((ei(irun)-eps)/k_to_e);
+    
+    % Get chopper widths
     nrun=numel(chop_shape);
     pulse_width_shape=zeros(nrun,1);
     pulse_width_mono=zeros(nrun,1);
@@ -149,24 +161,12 @@ for i=1:nw
     chop_shape_fwhh{i}=pulse_width_shape;
     chop_mono_fwhh{i}=pulse_width_mono;
     
-    % Determine if the moderator is the 
-    *** scaleing required
-    shape_mod{i}=(pulse_width_shape(irun)<mod_table.fwhh(mod_table.ind{i}(irun)))';     % row vector
+    % Determine if the moderator pulse is dominant contributor
+    shape_mod{i}=((x0(irun)./xa(irun)).*pulse_width_shape(irun)<mod_table.fwhh(mod_table.ind{i}(irun)))';     % row vector
     
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
-    ei=ei_all{i};
-    x0=x0_all{i};
-    xa=xa_all{i};
-    x1=x1_all{i};
-    s_mat=s_mat_all{i};
-    spec_to_rlu=spec_to_rlu_all{i};
-    
-    ki=sqrt(ei/k_to_e);
-    kf=sqrt((ei(irun)-eps)/k_to_e);
-    
     d_mat = spec_coords_to_det (win{i}.detpar);         % d_mat has size [3,3,ndet]
     x2=win{i}.detpar.x2(:); % make column vector
-    
     dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf, x0(irun), xa(irun), x1(irun), x2(idet),...
         s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     
@@ -180,6 +180,7 @@ end
 ok=true;
 mess='';
 lookup.mod_table=mod_table;
+lookup.shape_mod=shape_mod;
 lookup.chop_shape_fwhh=chop_shape_fwhh;
 lookup.chop_mono_fwhh=chop_mono_fwhh;
 lookup.horiz_div_table=horiz_div_table;
