@@ -28,7 +28,7 @@ proj.u=[1,0,0];
 proj.v=[0,1,0];
 
 %bp=[0,-1,-1; 0,-1,0; 1,2,0; 2,3,0; 0,-1,1;0,0,1];
-bp=[0,-1,0; 1,2,0; 0,-1,1;0,0,1];
+bp=[0,-1,0; 1,2,0; 0,-1,1]; %;0,0,1
 half_len=0.5; half_thick=0.25; bin_width=0.025;
 
 [rlu_real,width,wcut,wpeak]=bragg_positions(sim_sqw_file, bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
