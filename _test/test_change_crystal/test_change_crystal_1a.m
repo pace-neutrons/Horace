@@ -38,7 +38,7 @@ half_len=0.5; half_thick=0.25; bin_width=0.025;
 
 % Get correction matrix from the 5 peak positions:
 % ------------------------------------------------
-[rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real, alatt, angdeg, bp,'fix_angdeg');
+[rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real, alatt, angdeg, bp,'fix_angdeg','fix_alatt_ratio');
 
 
 
