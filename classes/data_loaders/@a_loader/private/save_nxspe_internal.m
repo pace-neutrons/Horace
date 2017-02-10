@@ -179,7 +179,7 @@ function write_instrument(fid,efix)
 %
 group_id = H5G.create(fid,'instrument',10);
 write_attr_group(group_id,struct('NX_class','NXinstrument'));
-write_string_sign(group_id,'name','Horace','short_name','HOR');
+write_string_sign(group_id,'name','NXSPE','short_name','NXS');
 %
 group2_id = H5G.create(fid,'fermi',10);
 write_attr_group(group2_id,struct('NX_class','NXfermi_chopper'));
