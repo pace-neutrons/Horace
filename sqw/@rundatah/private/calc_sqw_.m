@@ -50,7 +50,7 @@ function [w, grid_size, urange] = calc_sqw_(efix, emode, alatt, angdeg, u, v, ps
 %                  or the range of the data if not.
 
 
-horace_info_level=get(hor_config,'horace_info_level');
+horace_info_level=config_store.instance().get_value('hor_config','log_level');
 
 % Fill output main header block
 % -----------------------------
@@ -106,7 +106,7 @@ else
             [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange);
             
             sqw_fields   =cell(1,4);
-            sqw_fields{1}=get(hor_config,'threads');
+            sqw_fields{1}=config_store.instance().get_value('hor_config','threads'); %get(hor_config,'threads');
             %sqw_fields{1}=8;
             sqw_fields{2}=urange;
             sqw_fields{3}=grid_size;

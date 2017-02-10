@@ -102,8 +102,8 @@ if use_mex
         try
             %nThreads = 8;
             [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
-        catch   % use matlab routine
-            warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',lasterr());
+        catch  ERR % use matlab routine
+            warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
             use_mex=false;
         end
     end
