@@ -1,4 +1,4 @@
-function [tmp_file, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Create an output sqw file with dummy data using array(s) of energy bins instead spe file(s).
 %
@@ -16,7 +16,9 @@ function [tmp_file, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix,
 %   en              Energy bin boundaries (must be monotonically increasing and equally spaced)
 %               or  cell array of arrays of energy bin boundaries, one array per spe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
-%   sqw_file        Full file name of output sqw file
+%   sqw_file        Full file name of output sqw file, or empty string if
+%                   one goes to return fake sqw object.
+%
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]
 %   alatt           Lattice parameters (Ang^-1)        [row or column vector]
@@ -36,7 +38,8 @@ function [tmp_file, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix,
 %
 % Output:
 % --------
-%   tmp_file        List of temporary file names
+%   tmp_sqw         List of temporary file names or cellarray of sqw objects if
+%                   sqw_file is empty string.
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
@@ -83,9 +86,20 @@ spe_file='';
 require_spe_exist=false;
 require_spe_unique=false;
 require_sqw_exist=false;
+if isempty(sqw_file)
+    return_sqw_obj = true;
+    sqw_file = 'never_generated_sqw_file.sqw';
+else
+    return_sqw_obj = false;
+end
+
+
 [ok, mess, spe_file, par_file, sqw_file] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
 if ~ok, error(mess), end
+if return_sqw_obj
+    sqw_file = '';
+end
 
 
 % Check emode, alatt, angdeg, u, v etc. and determine number of spe files
@@ -136,7 +150,8 @@ if isempty(grid_size)
     npix=ne*ndet;
     grid_size=ceil(sqrt(sqrt(npix/av_npix_per_bin)));
 end
-use_mex = get(hor_config,'use_mex');
+[use_mex,horace_info_level] = ...
+    config_store.instance().get_value('hor_config','use_mex','log_level');
 if use_mex
     cash_opt = {};
 else
@@ -148,28 +163,35 @@ end
 if isempty(urange)
     urange = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:numel(run_files)
-          urange_l = run_files{i}.calc_urange(en_lo(i),en_hi(i),cash_opt{:});
-          urange = [min(urange_l(1,:),urange(1,:));max(urange_l(2,:),urange(2,:))];          
+        urange_l = run_files{i}.calc_urange(en_lo(i),en_hi(i),cash_opt{:});
+        urange = [min(urange_l(1,:),urange(1,:));max(urange_l(2,:),urange(2,:))];
     end
     %urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...
     %    u,v,psi*d2r,omega*d2r,dpsi*d2r,gl*d2r,gs*d2r);
     urange=range_add_border(urange,-1e-6);     % add a border to account for Matlab matrix multiplication bug
 end
 
-horace_info_level=get(hor_config,'horace_info_level');
 % Construct data structure with spe file information
-if nfiles == 1
-    tmp_file={sqw_file};
+if return_sqw_obj
+    tmp_sqw = cell(1,nfiles);
 else
-    % Create unique temporary sqw files, one for each of the energy bin arrays
-    spe_file=repmat({''},[nfiles,1]);     % empty spe file names
-    tmp_file=gen_tmp_filenames(spe_file,sqw_file);
-    nt=bigtic();
+    if nfiles == 1
+        tmp_sqw={sqw_file};
+    else
+        % Create unique temporary sqw files, one for each of the energy bin arrays
+        spe_file=repmat({''},[nfiles,1]);     % empty spe file names
+        tmp_sqw=gen_tmp_filenames(spe_file,sqw_file);
+        nt=bigtic();
+    end
 end
 %
 if(horace_info_level>-1)
     disp('--------------------------------------------------------------------------------')
-    disp('Creating output sqw file:')
+    if return_sqw_obj
+        disp('Creating output sqw object:')
+    else
+        disp('Creating output sqw file:')
+    end
 end
 %
 for i=1:nfiles
@@ -183,29 +205,28 @@ for i=1:nfiles
     run_files{i}.ERR = data.ERR;
     run_files{i}.en = en{i};
     %
-    %run_file.instrument = instrument(i);
-    %run_file.sample     = sample(i);
-    %
     w = run_files{i}.calc_sqw(grid_size, urange,cash_opt{:});
-    %         w=calc_sqw(efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:),...
-    %             psi(i)*d2r, omega(i)*d2r, dpsi(i)*d2r, gl(i)*d2r, gs(i)*d2r,...
-    %             data, det, detdcn, det, grid_size, urange, instrument(i), sample(i));
-    save(w,tmp_file{i})
+
+    if return_sqw_obj
+        tmp_sqw{i} = w;
+    else
+        save(w,tmp_sqw{i})
+    end
 end
 %
-if nfiles>1
+if nfiles>1 && ~return_sqw_obj
     if horace_info_level>-1
         disp('--------------------------------------------------------------------------------')
         bigtoc(nt,'Time to create all intermediate .tmp files:',horace_info_level);
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
     end
-    write_nsqw_to_sqw (tmp_file, sqw_file);
+    write_nsqw_to_sqw (tmp_sqw, sqw_file);
     % Delete tmp files
     delete_error=false;
-    for i=1:numel(tmp_file)
+    for i=1:numel(tmp_sqw)
         try
-            delete(tmp_file{i})
+            delete(tmp_sqw{i})
         catch
             if delete_error==false
                 delete_error=true;
@@ -221,5 +242,5 @@ end
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
     clear tmp_file grid_size urange
-
+    
 end

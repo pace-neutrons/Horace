@@ -19,11 +19,11 @@ function rlu = make_rlu (rlu0, lattice0, lattice, rotvec, ang_dev, rad_dev)
 %
 % Author: T.G.Perring
 
-
-[b0,arlu,angrlu,mess] = bmatrix(lattice0(1:3),lattice0(4:6));
+%[b0,arlu,angrlu,mess] = bmatrix(lattice0(1:3),lattice0(4:6));
+[b0,~,~,mess] = bmatrix(lattice0(1:3),lattice0(4:6));
 if ~isempty(mess), error(mess), end
 
-[b,arlu,angrlu,mess] = bmatrix(lattice(1:3),lattice(4:6));
+[b,~,~,mess] = bmatrix(lattice(1:3),lattice(4:6));
 if ~isempty(mess), error(mess), end
 
 rotmat=rotvec_to_rotmat2(rotvec);

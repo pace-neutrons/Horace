@@ -67,7 +67,7 @@ wout = win;
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 for i=1:numel(win)
-    if is_sqw_type(win(i));   % determine if sqw or dnd type
+    if is_sqw_type(win(i))   % determine if sqw or dnd type
         if ~ave_pix
             qw = calculate_qw_pixels(win(i));
             stmp=sqwfunc(qw{:},pars{:});
