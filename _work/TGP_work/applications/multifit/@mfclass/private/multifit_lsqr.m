@@ -40,11 +40,17 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %   bin         Cell array of valid parameter lists, one list per background function,
 %              with the initial parameter values at the lowest level.
 %
-%   f_pass_caller_info  Keep internal state of foreground function evaluation e.g. seed of random
-%               number generator. Dictates the format of the fit fuction argument list.
+%   f_pass_caller_info  Determines the form of the foreground fit function argument lists:
+%               If false: 
+%                   wout = my_func (win, @fun, plist, c1, c2, ...)
+%               If true:
+%                   [wout, state_out] = my_func (win, caller, state_in, @fun, plist, c1, c2, ...)
 %
-%   bf_pass_caller_info Keep internal state of background function evaluation e.g. seed of random
-%               number generator. Dictates the format of the fit fuction argument list.
+%               For details of these two forms, see 'Notes on format of fit functions'
+%               below.
+%
+%   bf_pass_caller_info Determines the form of the background fit function argument lists:
+%               See f_pass_caller_info, and 'Notes on format of fit functions' below.
 %
 %   pf          Free parameter initial values (that is, the independently 
 %              varying parameters)
@@ -92,11 +98,92 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %               
 %   mess        Error message if ok==false; Empty string if ok==true.
 %
-% Note tat for the final fit parameters to be reliable, test that
+% Note that for the final fit parameters to be reliable, test that
 % (ok && converged) is true.
 %
 %
-% T.G.Perring Jan 2009:
+% ---------------------------------------------------------------------------------------
+% Notes on format of fit functions
+% ---------------------------------------------------------------------------------------
+%
+% Certain syntax and rules of behaviour are required of the fit functions.
+%
+% If caller information is not required by the function (i.e. f_pass_caller_info or
+% bf_pass_caller_info are false for the foreground and foreground functions, respectively):
+%
+%   >> wout = my_func (win, @fun, plist, c1, c2, ...)
+%
+% If caller information is required, either to index into lookup information
+% or to interpret stored internal state information:
+%
+%   >> [wout, state_out] = my_func (win, caller, state_in, @fun, plist, c1, c2, ...)
+%
+% where:
+%   caller      Stucture that contains information from the caller routine. Fields
+%                   reset_state     Logical scalar:
+%                                   If true: then for each element of win the
+%                                  internal state of my_func needs to be reset
+%                                  to the corresponding value in state_in (see
+%                                  below).
+%                                   If false: the internal state required to
+%                                  reproduce the same calculated output must be
+%                                  returned in the corresponding element of state_out
+%                                  (see below).
+%                   ind             Indicies of data sets in the full set of data
+%                                  sets that are being fitted. The number of elements
+%                                  of ind must match the number of elements of win
+%
+%               reset_state should be used if the output of my_func depends on the
+%              internal state of my_func e.g. the value of seeds for random number
+%              generators.
+%              
+%               The index array ind is useful if, for example, some lookup tables
+%              have been created for the full set of data sets, and for which
+%              the actual index or indicies are needed inside my_func to be
+%              able to get to the relevant lookup table(s).
+%
+%   state_in    Cell array containing previously saved internal states for each
+%              element of win. This is information that can be used to reset the
+%              internal state (e.g. random number generators) so that calculations
+%              can be reproduced exactly for the same input parameters in plist.
+%               The number of elements must match the number of elements in win.
+%               The case of an empty state i.e. isempty(state_in{i}) is the
+%              case of no stored state. Appropriate default behaviour must be 
+%              implemented.
+%               If the internal state is not needed, then reset_state and state_in
+%              can be ignored.
+%
+%   state_out   Cell array containing internal states to be saved for a future call.
+%               The number of elements must match the number of elements in win.
+%               If the internal state is not needed, then state_out can be set
+%              to cell(size(win)) - but it muset be set to a cell array with
+%              the same nmber of elements as win.
+%
+%   Typical code fragment could be:
+%
+%   function [wout, state_out] = my_func (win, caller, state_in, @fun, plist, c1, c2, ...)
+%       :
+%   state_out = cell(size(win));    % create output argument
+%       :
+%   ind = caller.ind;
+%   for i=1:numel(ind)
+%       iw=ind(i);                  % index of workspace into lookup tables
+%       % Set random number generator if necessary, and save if required for later
+%       if reset_state
+%           if ~isempty(state_in{i})
+%               rng(state_in{i})
+%           end
+%       else
+%           state_out{i} = rng;     % capture the random number generator state
+%       end
+%        :
+%   end
+%
+% ---------------------------------------------------------------------------------------
+% History
+% ---------------------------------------------------------------------------------------
+%
+% T.G.Perring Jan 2016:
 % ------------------------
 % Change calls to fit functions so that caller information is passed direcetly rather than
 % via a function that stores persistent information. Makes cleanup easier and future

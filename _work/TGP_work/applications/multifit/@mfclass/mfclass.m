@@ -201,8 +201,11 @@ classdef mfclass
     end
 
     properties (Dependent)
-        % Cell array containing the input data (row vector)
+        % Data set object or cell array of data set objects (row vector)
         data
+        % Mask array (single data set) or cell array containing mask arrays (row vector)
+        mask
+        
         w           % *** get rid of for release
         msk         % *** get rid of for release
         wmask       % *** get rid of for release
@@ -295,7 +298,19 @@ classdef mfclass
         %------------------------------------------------------------------
         % Get methods
         function out = get.data(obj)
-            out = obj.data_;
+            if numel(obj.data_)==1
+                out = obj.data_{1};     % cell array of length unity, so return actual data
+            else
+                out = obj.data_;
+            end
+        end
+
+        function out = get.mask(obj)
+            if numel(obj.msk_)==1
+                out = obj.msk_{1};      % cell array of length unity, so return actual mask
+            else
+                out = obj.msk_;
+            end
         end
 
         function out = get.w(obj)

@@ -49,7 +49,8 @@ function [ycalc,varcalc,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist
 %              on calculation are to be stored; =false otherwise
 %
 %   Sin         Structure containing stored values and internal states of functions.
-%               Can be an empty argument.
+%               Can be an empty argument, in which case the output stored values
+%              structure will be initialised.
 %
 %   listing     Control diagnostic output to the screen:
 %                - if >=3 then list which datasets were computed for the
@@ -67,44 +68,25 @@ function [ycalc,varcalc,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist
 %               If store_calc is true, this will have been updated from Sin by calls
 %              to the fitting function.
 %               In the case when store_calc is false, the structure will be
-%              created with the correct fields, but they will not initalised
+%              created with the correct fields, but they will be initalised
 %              only as cell arrays with empty elemeents.
 %
 %
 % Notes on format of fit functions
 % --------------------------------
-% Certain syntax and rules of behaviour are required of the fit functions.
-%
-% If caller information is not required by the function (i.e. f_pass_caller_info or
-% bf_pass_caller_info are fals for the foreground and foreground functions, respectively):
+% For details, see the help to multifit_lsqr
 %
 %   >> wout = my_func (win, @fun, plist, c1, c2, ...)
-%
-% If caller information is required, either to index into lookup information
-% or to interpret stored internal state information:
-%
+% OR
 %   >> [wout, state_out] = my_func (win, caller, state_in, @fun, plist, c1, c2, ...)
 %
 % where:
 %   caller      Stucture that contains information from the caller routine. Fields
-%                   store_calc      Calculated values will be stored by caller
-%                   ind             Indicies into lookup tables. The number of elements
-%                                 of ind must match the number of elements of win
-%
-%   state_in    Cell array containing internal state. This is information that can be
-%               used to reset the internal state (e.g. random number generators) so
-%              that calculations can be reproduced exactly.
-%               The number of elements must match the number of elements in win.
-%
-%   state_out   Cell array containing internal tate to be saved for a a future call.
-%
-% It may be that caller information is required for use with lookup tables, but the
-% internal state is not required. In this case state_in and state_out can be set to
-% cell(numel(win)) - but they must be set.
-%
-% Conversely, it may be that lookup tables have been created by an initialisation
-% routine, but caller information is not needed because the lookup tables are 
-% independent of the datset index.
+%                   reset_state     Logical scalar
+%                   ind             Indicies of data sets in the full set of data
+%   state_in    Cell array containing previously saved internal states for each
+%              element of win%
+%   state_out   Cell array containing internal states to be saved for a future call.
 %
 %
 % NOTES:
@@ -128,7 +110,7 @@ end
 fcalc=cell(size(w)); fvar=cell(size(w)); bcalc=cell(size(w)); bvar=cell(size(w));
 
 [p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
-caller.store_calc=store_calc;
+caller.reset_state=~store_calc;
 caller.ind=[];
 
 nw=numel(w);

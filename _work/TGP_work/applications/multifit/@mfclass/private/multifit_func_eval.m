@@ -59,7 +59,7 @@ wout=cell(size(w));
 
 fstate_store={[]};
 bfstate_store={[]};
-caller.store_calc=false;
+caller.reset_state=true;
 caller.ind=[];
 % Foreground function calculations
 if eval_fore

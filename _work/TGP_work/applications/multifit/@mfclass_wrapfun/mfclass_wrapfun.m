@@ -116,10 +116,10 @@ classdef mfclass_wrapfun
             %
             %   >> obj = mfclass_wrapfun
             %   >> obj = mfclass_wrapfun (dataset_class)
-            %   >> obj = mfclass_wrapfun (dataset_class, fun_wrap, p_wrap, bfun_wrap, b_wrap)
-            %   >> obj = mfclass_wrapfun (dataset_class, fun_wrap, p_wrap, bfun_wrap, b_wrap,...
+            %   >> obj = mfclass_wrapfun (dataset_class, fun_wrap, p_wrap, bfun_wrap, bp_wrap)
+            %   >> obj = mfclass_wrapfun (dataset_class, fun_wrap, p_wrap, bfun_wrap, bp_wrap,...
             %                               f_pass_caller, bf_pass_caller)
-            %   >> obj = mfclass_wrapfun (dataset_class, fun_wrap, p_wrap, bfun_wrap, b_wrap,...
+            %   >> obj = mfclass_wrapfun (dataset_class, fun_wrap, p_wrap, bfun_wrap, bp_wrap,...
             %                               f_pass_caller, bf_pass_caller, func_init, bfunc_init)
             
             if numel(varargin)>0

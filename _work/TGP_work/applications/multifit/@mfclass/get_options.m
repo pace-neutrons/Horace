@@ -20,11 +20,7 @@ options = obj.options_;
 
 if nargin==1
     % Get all
-    if nargout==0
-        disp(options)
-    else
-        varargout{1} = options;
-    end
+    options_out = options;
 else
     % Get named option(s)
     opt_names = fieldnames(options);
@@ -44,7 +40,7 @@ if nargout==0
     disp(options_out)
 else
     if numel(varargin)==1
-        varargout{1} = options.(opt_names{i});
+        varargout{1} = options_out.(opt_names{i});
     else
         varargout{1} = options_out;
     end

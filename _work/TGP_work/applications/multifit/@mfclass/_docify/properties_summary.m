@@ -1,16 +1,7 @@
 % To set data:
-%   set_data     - Set data, clearing any existing datasets
-%   append_data  - Append further datasets to the current set of datasets
-%   remove_data  - Remove one or more dataset(s)
-%   replace_data - Replace one or more dataset(s)
-%
-% To mask data points:
-%   set_mask     - Mask data points
-%   add_mask     - Mask additional data points
-%   clear_mask   - Clear masking for one or more dataset(s)
-%
-% To set fitting functions
-%   set_fun      - Set foreground fit functions
+%   data         - data to be fitted or simulated
+%   mask         - mask array(s)
+%   fun          - Set foreground fit functions
 %   set_bfun     - Set background fit functions
 %   clear_fun    - Clear one or more foreground fit functions
 %   clear_bfun   - Clear one or more background fit functions
