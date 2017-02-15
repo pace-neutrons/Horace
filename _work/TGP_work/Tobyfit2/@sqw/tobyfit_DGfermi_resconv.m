@@ -10,7 +10,8 @@ function [wout,state_out]=tobyfit_DGfermi_resconv(win,caller,state_in,sqwfunc,pa
 %   win         sqw object or array of objects
 %
 %   caller      Stucture that contains ionformation from the caller routine. Fields
-%                   store_calc      Calculated values will be stored by caller
+%                   reset_state     Reset internal state to stored value in
+%                                  state_in (logical scalar)
 %                   ind             Indicies into lookup tables. The number of elements
 %                                  of ind must match the number of sqw objects in win
 %
@@ -77,8 +78,8 @@ function [wout,state_out]=tobyfit_DGfermi_resconv(win,caller,state_in,sqwfunc,pa
 %
 % NOTE: Contributions to resolution are
 %   yvec(1,...):   t_m      deviation in departure time from moderator surface
-%   yvec(2,...):   y_a      y-coordinate of neutron at apperture
-%   yvec(3,...):   z_a      z-coordinate of neutron at apperture
+%   yvec(2,...):   y_a      y-coordinate of neutron at aperture
+%   yvec(3,...):   z_a      z-coordinate of neutron at aperture
 %   yvec(4,...):   t_ch'    deviation in time of arrival at chopper
 %   yvec(5,...):   x_s      x-coordinate of point of scattering in sample frame
 %   yvec(6,...):   y_s      y-coordinate of point of scattering in sample frame
@@ -145,19 +146,19 @@ dq_mat=lookup.dq_mat;
 % -----------------------------------------
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
-store_calc=caller.store_calc;
+reset_state=caller.reset_state;
 if refine_moderator, dummy_sqw = sqw; end
 dummy_mfclass = mfclass;
 
 for i=1:numel(ind)
     iw=ind(i);
     % Set random number generator if necessary, and save if required for later
-    if store_calc
-        state_out{i} = rng;     % capture the random number generator state
-    else
+    if reset_state
         if ~isempty(state_in{i})
             rng(state_in{i})
         end
+    else
+        state_out{i} = rng;     % capture the random number generator state
     end
 
     % Catch case of refining crystal orientation

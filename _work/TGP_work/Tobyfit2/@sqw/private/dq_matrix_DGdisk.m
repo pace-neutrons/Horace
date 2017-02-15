@@ -1,8 +1,8 @@
-function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, s_mat, d_mat,...
-    spec_to_rlu, shape_mod, k_to_v, k_to_e)
+function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, shape_mod, s_mat, d_mat,...
+    spec_to_rlu, k_to_v, k_to_e)
 % Compute matrix for computing deviations in Q (in rlu) from deviations in tm, tch, x, y, z etc.
 %
-%   >> dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, s_mat, d_mat,...
+%   >> dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, shape_mod, s_mat, d_mat,...
 %                                   spec_to_rlu, shape_mod, k_to_v, k_to_e)
 %
 % This function is for a direct geometry double disk chopper spectrometer 
@@ -16,17 +16,17 @@ function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, s_mat, d_mat,...
 %   xa          Shaping-monochromating chopper distance (m)      [column vector length npix]
 %   x1          Monochromating chopper-sample distance  (m)      [column vector length npix]
 %   x2          Sample-detector distance                (m)      [column vector length npix]
+%   shape_mod   Logical array that indicates: [column vector length npix]
+%                   false   The moderator is the dominant controller of the
+%                          initial pulse shape
+%                   true    The shaping chopper is the dominant controller
+%                          of the initial pulse shape
 %   s_mat       Matrix for re-expressing a sample coordinate in the laboratory frame
 %              Size is [3,3,npix]
 %   d_mat       Matrix for expressing a laboratory coordinate in the detector frame
 %              Size is [3,3,npix]
 %   spec_to_rlu Matrix to convert momentum in spectrometer coordinates to components in r.l.u.
 %              Size is [3,3,npix]
-%   shape_mod   Logical array that indicates: [column vector length npix]
-%                   false   The moderator is the dominant controller of the
-%                          initial pulse shape
-%                   true    The shaping chopper is the dominant controller
-%                          of the initial pulse shape
 %   k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
 %   k_to_v      Constant in v(m/s)=k_to_v*k(Ang^-1)
 %   
@@ -38,10 +38,12 @@ function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, s_mat, d_mat,...
 %
 % The order of deviations corresponding to the second row of dq_mat is:
 %
-%   t_m     deviation in departure time from moderator surface
-%   y_a     y-coordinate of neutron at apperture
-%   z_a     z-coordinate of neutron at apperture
-%   t_ch'   deviation in time of arrival at chopper
+%   t_m     deviation in departure time from mean of initial pulse:
+%               - at moderator surface (shape_mod=false)
+%               - at pulse shaping chopper (shape_mod=true)
+%   uh      horizontal divergence (rad)
+%   uv      vertical divergence (rad)
+%   t_ch    deviation in time of arrival at monochromating chopper
 %   x_s     x-coordinate of point of scattering in sample frame
 %   y_s     y-coordinate of point of scattering in sample frame
 %   z_s     z-coordinate of point of scattering in sample frame  
@@ -53,30 +55,21 @@ function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, s_mat, d_mat,...
 
 npix = numel(wi);
 
+xx0 = x0;
+xx0(shape_mod) = xa(shape_mod);
+
 % Calculate velocities and times:
 % -------------------------------
 veli = k_to_v * wi;
 velf = k_to_v * wf;
-ti = x0./veli;
+ti = xx0./veli;
 tf = x2./velf;
-
 
 % Get some coefficients:
 % ----------------------
-g1 = (1 - angvel.*(x0+x1).*tan(thetam)./veli );
-g2 = (1 - angvel.*(x0-xa).*tan(thetam)./veli );
-f1 =  1 + (x1./x0).*g1;
-f2 =  1 + (x1./x0).*g2;
-gg1 = g1 ./ ( angvel.*(xa+x1) );
-gg2 = g2 ./ ( angvel.*(xa+x1) );
-ff1 = f1 ./ ( angvel.*(xa+x1) );
-ff2 = f2 ./ ( angvel.*(xa+x1) );
-
 cp_i = wi./ti;
-ct_i = wi./(xa+x1);
 cp_f = wf./tf;
 ct_f = wf./x2;
-
 
 % Calculate the matrix elements:
 % -------------------------------
@@ -85,28 +78,17 @@ b_mat = zeros(6,11,npix);
 ds_mat = mtimesx(d_mat,s_mat);
 
 b_mat(1,1,:) =  cp_i;
-b_mat(1,2,:) = -cp_i .* gg1;
 b_mat(1,4,:) = -cp_i;
-b_mat(1,5,:) =  (cp_i .* gg2) .* squeeze(s_mat(2,1,:));
-b_mat(1,6,:) =  (cp_i .* gg2) .* squeeze(s_mat(2,2,:));
-b_mat(1,7,:) =  (cp_i .* gg2) .* squeeze(s_mat(2,3,:));
 
-b_mat(2,2,:) = -ct_i;
-b_mat(2,5,:) =  ct_i .* squeeze(s_mat(2,1,:));
-b_mat(2,6,:) =  ct_i .* squeeze(s_mat(2,2,:));
-b_mat(2,7,:) =  ct_i .* squeeze(s_mat(2,3,:));
+b_mat(2,2,:) =  1;
 
-b_mat(3,3,:) = -ct_i;
-b_mat(3,5,:) =  ct_i .* squeeze(s_mat(3,1,:));
-b_mat(3,6,:) =  ct_i .* squeeze(s_mat(3,2,:));
-b_mat(3,7,:) =  ct_i .* squeeze(s_mat(3,3,:));
+b_mat(3,3,:) =  1;
 
-b_mat(4,1,:) =  cp_f .* (-x1./x0);
-b_mat(4,2,:) =  cp_f .*  ff1;
-b_mat(4,4,:) =  cp_f .* ((x0+x1)./x0);
-b_mat(4,5,:) =  cp_f .* ( squeeze(s_mat(1,1,:))./veli - squeeze(ds_mat(1,1,:))./velf - ff2.*squeeze(s_mat(2,1,:)) );
-b_mat(4,6,:) =  cp_f .* ( squeeze(s_mat(1,2,:))./veli - squeeze(ds_mat(1,2,:))./velf - ff2.*squeeze(s_mat(2,2,:)) );
-b_mat(4,7,:) =  cp_f .* ( squeeze(s_mat(1,3,:))./veli - squeeze(ds_mat(1,3,:))./velf - ff2.*squeeze(s_mat(2,3,:)) );
+b_mat(4,1,:) =  cp_f .* (-x1./xx0);
+b_mat(4,4,:) =  cp_f .* ((xx0+x1)./xx0);
+b_mat(4,5,:) =  cp_f .* ( squeeze(s_mat(1,1,:))./veli - squeeze(ds_mat(1,1,:))./velf );
+b_mat(4,6,:) =  cp_f .* ( squeeze(s_mat(1,2,:))./veli - squeeze(ds_mat(1,2,:))./velf );
+b_mat(4,7,:) =  cp_f .* ( squeeze(s_mat(1,3,:))./veli - squeeze(ds_mat(1,3,:))./velf );
 b_mat(4,8,:) =  cp_f./velf;
 b_mat(4,11,:)= -cp_f;
 

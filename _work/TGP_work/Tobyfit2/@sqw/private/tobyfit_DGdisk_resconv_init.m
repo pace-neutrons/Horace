@@ -168,7 +168,7 @@ for i=1:nw
     d_mat = spec_coords_to_det (win{i}.detpar);         % d_mat has size [3,3,ndet]
     x2=win{i}.detpar.x2(:); % make column vector
     dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf, x0(irun), xa(irun), x1(irun), x2(idet),...
-        s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
+        shape_mod{i}', s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     
     % Time width corresponding to energy bins for each pixel
     dt{i} = deps_to_dt*(x2(idet).*deps(irun)./kf.^3)';  % row vector

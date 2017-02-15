@@ -10,7 +10,8 @@ function [wout,state_out]=tobyfit_DGdisk_resconv(win,caller,state_in,sqwfunc,par
 %   win         sqw object or array of objects
 %
 %   caller      Stucture that contains ionformation from the caller routine. Fields
-%                   store_calc      Calculated values will be stored by caller
+%                   reset_state     Reset internal state to stored value in
+%                                  state_in (logical scalar)
 %                   ind             Indicies into lookup tables. The number of elements
 %                                  of ind must match the number of sqw objects in win
 %
@@ -76,10 +77,12 @@ function [wout,state_out]=tobyfit_DGdisk_resconv(win,caller,state_in,sqwfunc,par
 %              array even if there is only a single input dataset.
 %
 % NOTE: Contributions to resolution are
-%   yvec(1,...):   t_m      deviation in departure time from moderator surface
-%   yvec(2,...):   y_a      y-coordinate of neutron at apperture
-%   yvec(3,...):   z_a      z-coordinate of neutron at apperture
-%   yvec(4,...):   t_ch'    deviation in time of arrival at chopper
+%   yvec(1,...):   t_m      deviation in departure time from mean of initial pulse:
+%               - at moderator surface (shape_mod=false)
+%               - at pulse shaping chopper (shape_mod=true)
+%   yvec(2,...):   uh       horizontal divergence (rad)
+%   yvec(3,...):   uv       vertical divergence (rad)
+%   yvec(4,...):   t_ch     deviation in time of arrival at chopper
 %   yvec(5,...):   x_s      x-coordinate of point of scattering in sample frame
 %   yvec(6,...):   y_s      y-coordinate of point of scattering in sample frame
 %   yvec(7,...):   z_s      z-coordinate of point of scattering in sample frame
@@ -119,17 +122,23 @@ state_out = cell(size(win));    % create output argument
 % Unpack the components of the lookup argument for convenience
 % ------------------------------------------------------------
 % Moderator
+mod_ind=lookup.mod_table.ind;
 mod_table=lookup.mod_table.table;
-t_av=lookup.mod_table.t_av;
-ind_mod=lookup.mod_table.ind;
+mod_t_av=lookup.mod_table.t_av;
+mod_fwhh=lookup.mod_table.fwhh;
 
-% Aperture
-wa=lookup.aperture.width;
-ha=lookup.aperture.height;
+% Moderator shape
+shape_mod = lookup.shape_mod;
 
-% Fermi chopper
-fermi_table=lookup.fermi_table.table;
-ind_fermi=lookup.fermi_table.ind;
+% Choppers
+chop_shape_fwhh = lookup.chop_shape_fwhh;
+chop_mono_fwhh = lookup.chop_mono_fwhh;
+
+% Divergence
+hdiv_ind=lookup.horiz_div_table.ind;
+hdiv_table=lookup.horiz_div_table.table;
+vdiv_ind=lookup.vert_div_table.ind;
+vdiv_table=lookup.vert_div_table.table;
 
 % Sample
 sample=lookup.sample;
@@ -145,19 +154,19 @@ dq_mat=lookup.dq_mat;
 % -----------------------------------------
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
-store_calc=caller.store_calc;
+reset_state=caller.reset_state;
 if refine_moderator, dummy_sqw = sqw; end
 dummy_mfclass = mfclass;
 
 for i=1:numel(ind)
     iw=ind(i);
     % Set random number generator if necessary, and save if required for later
-    if store_calc
-        state_out{i} = rng;     % capture the random number generator state
-    else
+    if reset_state
         if ~isempty(state_in{i})
             rng(state_in{i})
         end
+    else
+        state_out{i} = rng;     % capture the random number generator state
     end
 
     % Catch case of refining crystal orientation
@@ -184,7 +193,7 @@ for i=1:numel(ind)
         % Get moderator lookup table for current moderator parameters
         [mod_table_refine,t_av_refine]=refine_moderator_sampling_table_buffer...
                                             (dummy_sqw,modshape.pulse_model,pp,modshape.ei);
-        ind_mod_refine=ones(size(ind_mod{iw}));
+        ind_mod_refine=ones(size(mod_ind{iw}));
     end
     
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation
@@ -198,7 +207,7 @@ for i=1:numel(ind)
         % Fill time deviations for moderator
         if mc_contributions.moderator
             if ~refine_moderator
-                yvec(1,1,:)=moderator_times(mod_table,t_av',ind_mod{iw},irun');
+                yvec(1,1,:)=moderator_times(mod_table,mod_t_av',mod_ind{iw},irun');
             else
                 yvec(1,1,:)=moderator_times(mod_table_refine,t_av_refine',ind_mod_refine,irun');
             end
@@ -210,7 +219,7 @@ for i=1:numel(ind)
             yvec(3,1,:)=ha{iw}(irun).*(rand(1,npix)-0.5);
         end
         
-        % Fermi chopper deviations
+        % Monochromating chopper deviations
         if mc_contributions.chopper
             yvec(4,1,:)=fermi_times(fermi_table,ind_fermi{iw},irun');
         end
