@@ -10,7 +10,7 @@ function d_mat = spec_coords_to_det (detpar)
 % Output:
 % -------
 %   d_mat       Matrix size [3,3,ndet] to take coordinates in spectrometer
-%              frame and convert in laboratory frame.
+%              frame and convert in detector frame.
 %
 % The detector frame is one with x axis along kf, y radially outwards. This is the
 % original Tobyfit detector frame.
