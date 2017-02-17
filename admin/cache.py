@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(add_help=True, version='0.1',description='Read file using multiple threads to place file into CEPH cashe')
     parser.add_argument('filename',action='store', type=str,default="",help='file to read to cashe')
-    parser.add_argument('-n',action='store', dest='nthreads',type=int,default=8,help='number of threads to process file. Default is 8 threads')
+    parser.add_argument('-n',action='store', dest='nthreads',type=int,default=16,help='number of threads to process file. Default is 16 threads')
     parser.add_argument('-b',action='store', dest='buffer',type=int,default=4096,help='Buffer size to read each chunk of data. Default is 4096 bytes.')
 
     args = vars(parser.parse_args())
