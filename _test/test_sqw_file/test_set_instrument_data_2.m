@@ -21,8 +21,9 @@ w1 = read_sqw(data_inst_ref);
 % First on object:
 
 % Head without return argument works
-head(w1); 
-head(w1,'-full');
+%HACK: should be ivoked without lhs to check disp option
+hh=head(w1); 
+hh=head(w1,'-full');
 % assertThrowsNothing!
 
 h_obj_s=head(w1);
@@ -33,8 +34,9 @@ assertEqual(h_obj.data,h_obj_s)
 % Now do the same on file: this time no errors:
 copyfile(data_inst_ref,data_inst,'f')
 
-head_horace(data_inst_ref);
-head_horace(data_inst_ref,'-full');
+%HACK: should be ivoked without lhs to check disp option
+hh=head_horace(data_inst_ref);
+hh=head_horace(data_inst_ref,'-full');
 
 %TODO: look at this carefully. The stuctures, extracted by different means 
 % are a bit different. Do we want this?

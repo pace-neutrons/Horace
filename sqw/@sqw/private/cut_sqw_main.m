@@ -347,6 +347,9 @@ proj = proj.set_proj_binning(urange,pax,iax,p);
 
 % get indexes of pixels contributing into projection
 [nstart,nend]=proj.get_nbin_range(data.npix);
+if isempty(nstart) || isempty(nend)
+    error('SQW:cut_sqw','no pixels found within the range of the cut');
+end
 
 if nargout==0   % can buffer only if no output cut object
     pix_tmpfile_ok = true;
