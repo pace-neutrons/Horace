@@ -23,6 +23,10 @@ function xtab=sampling_table(obj,varargin)
 %   xtab    Values of independent variable of the pdf at equally spaced
 %          values of the cumulative pdf (column vector) between 0 and 1.
 
+% Original author: T.G.Perring
+%
+% $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $)
+
 
 if ~isscalar(obj), error('Function only takes a scalar object'), end
 

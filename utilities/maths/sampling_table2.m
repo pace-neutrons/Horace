@@ -14,6 +14,9 @@ function [xtab,cumpdf]=sampling_table2(x,pdf,step)
 % or use the utility function rand_cumpdf2:
 %   >> X = rand_cumpdf2 (xtab, cumpdf,...)
 %
+% Note that cumpdf may have more than one leading zero, and/or more than one
+% trailing one, which will cause the interpolation to fail. 
+%
 % Input:
 % -------
 %   x       Vector of independent variable; strictly monotonic increasing and
@@ -38,6 +41,10 @@ function [xtab,cumpdf]=sampling_table2(x,pdf,step)
 %   xtab    Values of independent variable of the pdf at the values of the
 %          cumulative pdf (column vector)
 %   cumpdf  Cumulative probability distribution function (column vector)
+
+% Original author: T.G.Perring
+%
+% $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $)
 
 
 % Default parameters

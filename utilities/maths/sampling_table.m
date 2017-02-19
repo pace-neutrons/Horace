@@ -28,6 +28,10 @@ function xtab=sampling_table(x,pdf,npnt)
 %   xtab    Values of independent variable of the pdf at equally spaced
 %          values of the cumulative pdf (column vector) between 0 and 1.
 
+% Original author: T.G.Perring
+%
+% $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $)
+
 
 if nargin==2
     npnt=500;
@@ -37,6 +41,12 @@ end
 % output
 step = [10*npnt,0];
 [xpdf,cumpdf] = sampling_table2(x,pdf,step);
+
+% Remove excess zeros and ones at the ends of cumpdf; there is at least one of each
+ilo=find(cumpdf==0,1,'last');
+ihi=find(cumpdf==1,1,'first');
+xpdf=xpdf(ilo:ihi);
+cumpdf=cumpdf(ilo:ihi);
 
 % Interpolate the lookup table 
 A = [0; (1:npnt-2)'/(npnt-1); 1];

@@ -1,5 +1,5 @@
 function X = rand_cumpdf2(x,cumpdf,varargin)
-% Generate random numbers for a probability distribution given the cumulative pdf
+% Generate random numbers from a probability distribution given the cumulative pdf
 %
 %   >> X = rand_cumpdf2 (x, cumpdf)
 %   >> X = rand_cumpdf2 (x, cumpdf, n)
@@ -28,6 +28,10 @@ function X = rand_cumpdf2(x,cumpdf,varargin)
 % Output:
 % -------
 %   X           Array of random numbers
+
+% Original author: T.G.Perring
+%
+% $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $)
 
 
 A_ran = rand(varargin{:});
