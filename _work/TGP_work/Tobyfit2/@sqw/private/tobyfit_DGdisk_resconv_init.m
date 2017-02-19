@@ -21,10 +21,25 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 %                      table    Lookup table size(npnt,nmod), where nmod is
 %                              the number of unique tables. Convert to time from
 %                              reduced time using t = t_av * (t_red/(1-t_red))
+%                      profile  Lookup table size(npnt,nmod), where nmod is
+%                              the number of unique tables. 
+%                               Use the look-up table to get the pulse profile
+%                              at reduced time deviation 0 <= t_red <= 1. Convert
+%                              to true time using the equation
+%                                   t = t_av * (t_red/(1-t_red))
+%                               The pulse profile is normalised so that the peak
+%                              value is unity.
 %                      t_av     First moment of time distribution (row vector length nmod)
 %                              Time here is in seconds (NOT microseconds)
 %                      fwhh     Full width half height of distribution (row vector)
 %                              Time here is in seconds (NOT microseconds)
+%
+%       chop_shape_fwhh Cell array of row vectors containing full width half
+%                      heights of the pulse shaping chopper. Note that the
+%                      time is in seconds, NOT microseconds.
+%                       - number of row vectors = number of sqw objects
+%                       - number of elements in a vector = number of runs
+%                         in the corresponding sqw object
 %
 %       shape_mod       Cell array of logical vectors, one entry per
 %                      dataset with size [1,npix], where true indicates that the
@@ -32,15 +47,24 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 %                      chopper i.e. fwhh due to the chopper is smaller than
 %                      that of the moderator pulse (after geometric scaling)
 %
-%       chop_shape_fwhh Cell array of full width half heights of the
-%                      monochromating chopper, one entry per dataset with
-%                      size [nrun,1]. Note that the time is in seconds,
-%                      NOT microseconds.
+%       x0              Cell array of column vectors, one per dataset,
+%                      containing the moderator-sample distance (m). The
+%                      number of elements in each column is equal to the
+%                      number of contributiung runs in the corresponding
+%                      sqw object.
 %
-%       chop_mono_fwhh  Cell array of full width half heights of the
-%                      monochromating chopper, one entry per dataset with
-%                      size [nrun,1]. Note that the time is in seconds,
-%                      NOT microseconds.
+%       xa              Cell array of column vectors, one per dataset,
+%                      containing the shaping chopper-sample distance (m).
+%                      The number of elements in each column is equal to the
+%                      number of contributiung runs in the corresponding
+%                      sqw object.
+%
+%       chop_mono_fwhh  Cell array of row vectors containing full width half
+%                      heights of the monochromating chopper. Note that the
+%                      time is in seconds, NOT microseconds.
+%                       - number of row vectors = number of sqw objects
+%                       - number of elements in a vector = number of runs
+%                         in the corresponding sqw object
 %
 %       horiz_div_table Structure with fields:
 %                      ind      Cell array of indicies into table, where
@@ -152,8 +176,8 @@ for i=1:nw
     
     % Get chopper widths
     nrun=numel(chop_shape);
-    pulse_width_shape=zeros(nrun,1);
-    pulse_width_mono=zeros(nrun,1);
+    pulse_width_shape=zeros(1,nrun);
+    pulse_width_mono=zeros(1,nrun);
     for j=1:nrun
         [~,pulse_width_shape(j)]=pulse_width(chop_shape(j));
         [~,pulse_width_mono(j)]=pulse_width(chop_mono(j));
@@ -167,8 +191,8 @@ for i=1:nw
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     d_mat = spec_coords_to_det (win{i}.detpar);         % d_mat has size [3,3,ndet]
     x2=win{i}.detpar.x2(:); % make column vector
-    dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf, x0(irun), xa(irun), x1(irun), x2(idet),...
-        shape_mod{i}', s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
+    dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf, xa(irun), x1(irun), x2(idet),...
+        s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     
     % Time width corresponding to energy bins for each pixel
     dt{i} = deps_to_dt*(x2(idet).*deps(irun)./kf.^3)';  % row vector
@@ -180,8 +204,10 @@ end
 ok=true;
 mess='';
 lookup.mod_table=mod_table;
-lookup.shape_mod=shape_mod;
 lookup.chop_shape_fwhh=chop_shape_fwhh;
+lookup.shape_mod=shape_mod;
+lookup.x0=x0_all;
+lookup.xa=xa_all;
 lookup.chop_mono_fwhh=chop_mono_fwhh;
 lookup.horiz_div_table=horiz_div_table;
 lookup.vert_div_table=vert_div_table;

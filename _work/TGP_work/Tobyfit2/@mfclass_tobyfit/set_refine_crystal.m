@@ -100,7 +100,11 @@ else
         % Check there is data
         data = obj.data;
         if ~isempty(data)
-            wsqw = cell2mat_obj(cellfun(@(x)x(:),data,'UniformOutput',false));
+            if iscell(data)     % might be a single sqw object
+                wsqw = cell2mat_obj(cellfun(@(x)x(:),data,'UniformOutput',false));
+            else
+                wsqw = data;
+            end
         else
             error('No data sets have been set - not possible to set moderator refinement options')
         end

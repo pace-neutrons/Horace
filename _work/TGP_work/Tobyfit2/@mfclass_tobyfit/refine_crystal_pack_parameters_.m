@@ -35,7 +35,11 @@ function [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj)
 xtal_opts = obj.refine_crystal;
 
 % Check that the lattice parameters are all the same (might have been changed since set_refine_crystal called)
-wsqw = cell2mat_obj(cellfun(@(x)x(:),obj.data,'UniformOutput',false));
+if iscell(obj.data)     % might be a single sqw object
+    wsqw = cell2mat_obj(cellfun(@(x)x(:),obj.data,'UniformOutput',false));
+else
+    wsqw = obj.data;
+end
 [alatt0,angdeg0,ok,mess] = lattice_parameters(wsqw);
 if ~ok
     mess=['Crystal refinement: ',mess];
@@ -84,7 +88,7 @@ xtal.ub0 = ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt0,angdeg0));
 ok = true;
 mess = '';
 
-    
+
 %----------------------------------------------------------------------------------------
 function pout = append_parameters (dummy_mfclass, pin, p_append)
 p = [mfclass_gateway_parameter_get(dummy_mfclass, pin); p_append(:)];

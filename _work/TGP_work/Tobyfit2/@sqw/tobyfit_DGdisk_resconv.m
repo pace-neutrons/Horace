@@ -45,6 +45,9 @@ function [wout,state_out]=tobyfit_DGdisk_resconv(win,caller,state_in,sqwfunc,par
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
+%   lookup      A structure containing lookup tables and pre-calculated matricies etc.
+%              For details, see the help for function tobyfit_DGdisk_resconv_init
+%
 %   mc_contributions    Structure indicating which components contribute to the resolution
 %              function. Each field is the name of a component, and its value is
 %              either true or false
@@ -77,9 +80,7 @@ function [wout,state_out]=tobyfit_DGdisk_resconv(win,caller,state_in,sqwfunc,par
 %              array even if there is only a single input dataset.
 %
 % NOTE: Contributions to resolution are
-%   yvec(1,...):   t_m      deviation in departure time from mean of initial pulse:
-%               - at moderator surface (shape_mod=false)
-%               - at pulse shaping chopper (shape_mod=true)
+%   yvec(1,...):   t_sh     deviation in arrival time at pulse shaping chopper
 %   yvec(2,...):   uh       horizontal divergence (rad)
 %   yvec(3,...):   uv       vertical divergence (rad)
 %   yvec(4,...):   t_ch     deviation in time of arrival at chopper
@@ -124,14 +125,20 @@ state_out = cell(size(win));    % create output argument
 % Moderator
 mod_ind=lookup.mod_table.ind;
 mod_table=lookup.mod_table.table;
+mod_profile=lookup.mod_table.profile;
 mod_t_av=lookup.mod_table.t_av;
-mod_fwhh=lookup.mod_table.fwhh;
 
-% Moderator shape
+% Pulse shaping chopper
+chop_shape_fwhh = lookup.chop_shape_fwhh;
+
+% Moderator profile dominated by pulse shaping chopper
 shape_mod = lookup.shape_mod;
 
-% Choppers
-chop_shape_fwhh = lookup.chop_shape_fwhh;
+% Distances
+x0 = lookup.x0;
+xa = lookup.xa;
+
+% Monochromating chopper
 chop_mono_fwhh = lookup.chop_mono_fwhh;
 
 % Divergence
@@ -168,7 +175,7 @@ for i=1:numel(ind)
     else
         state_out{i} = rng;     % capture the random number generator state
     end
-
+    
     % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters
@@ -191,9 +198,8 @@ for i=1:numel(ind)
         pars=mfclass_gateway_parameter_set(dummy_mfclass, pars, ptmp(1:end-npmod));
         pp=ptmp(end-npmod+1:end);
         % Get moderator lookup table for current moderator parameters
-        [mod_table_refine,t_av_refine]=refine_moderator_sampling_table_buffer...
-                                            (dummy_sqw,modshape.pulse_model,pp,modshape.ei);
-        ind_mod_refine=ones(size(mod_ind{iw}));
+        [mod_table_refine,mod_t_av_refine,mod_profile_refine]=...
+            refine_moderator_sampling_table_buffer(dummy_sqw,modshape.pulse_model,pp,modshape.ei);
     end
     
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation
@@ -204,24 +210,46 @@ for i=1:numel(ind)
     for imc=1:mc_points
         yvec=zeros(11,1,npix);
         
-        % Fill time deviations for moderator
-        if mc_contributions.moderator
+        % Monochromating chopper deviations
+        % (Need to get these first, as needed to sample the shaped moderator pulse)
+        if mc_contributions.mono_chopper
+            t_ch = chop_mono_fwhh{iw}(irun).*rand_triangle([1,npix]);   % row vector
+            yvec(4,1,:) = t_ch;
+        else
+            t_ch = zeros(1,npix);
+        end
+        
+        % Fill time deviations at position of pulse shaping chopper.
+        % We use shape_mod to determine which of the moderator pulse and the pulse
+        % shaping chopper is the dominant determinant of the initial pulse. If
+        % the moderator parameters are being refined then we still use the
+        % values of shape_mod as determned by the initial moderator parameters
+        % on the grounds that we should have started iwth a reasonable initial
+        % set of parameters.
+        
+        if mc_contributions.moderator || mc_contributions.shape_chopper
             if ~refine_moderator
-                yvec(1,1,:)=moderator_times(mod_table,mod_t_av',mod_ind{iw},irun');
+                yvec(1,1,:) = initial_pulse_DGdisk (...
+                    mc_contributions.moderator, mc_contributions.shape_chopper,...
+                    shape_mod{iw}, t_ch, x0{iw}(irun)', xa{iw}(irun)',...
+                    mod_ind{iw}(irun)', mod_table, mod_profile, mod_t_av,...
+                    chop_shape_fwhh(irun));
             else
-                yvec(1,1,:)=moderator_times(mod_table_refine,t_av_refine',ind_mod_refine,irun');
+                yvec(1,1,:) = initial_pulse_DGdisk (...
+                    mc_contributions.moderator, mc_contributions.shape_chopper,...
+                    shape_mod{iw}, t_ch, x0{iw}(irun)', xa{iw}(irun)',...
+                    ones(size(irun)), mod_table_refine, mod_profile_refine, mod_t_av_refine,...
+                    chop_shape_fwhh(irun));
             end
         end
         
-        % Aperture deviations
-        if mc_contributions.aperture
-            yvec(2,1,:)=wa{iw}(irun).*(rand(1,npix)-0.5);
-            yvec(3,1,:)=ha{iw}(irun).*(rand(1,npix)-0.5);
+        % Divergence
+        if mc_contributions.horiz_divergence
+            yvec(2,1,:)=rand_cumpdf_arr(hdiv_table,hdiv_ind{iw}(irun));
         end
         
-        % Monochromating chopper deviations
-        if mc_contributions.chopper
-            yvec(4,1,:)=fermi_times(fermi_table,ind_fermi{iw},irun');
+        if mc_contributions.vert_divergence
+            yvec(3,1,:)=rand_cumpdf_arr(vdiv_table,vdiv_ind{iw}(irun));
         end
         
         % Sample deviations
@@ -254,36 +282,3 @@ for i=1:numel(ind)
     wout(i).data.pix(8:9,:)=[stmp(:)'/mc_points;zeros(1,numel(stmp))];
     wout(i)=recompute_bin_data(wout(i));
 end
-
-
-%--------------------------------------------------------------------------------------------------
-function t = moderator_times(table,t_av,ind,irun)
-% Get a column vector of time deviations for moderator, one per pixel
-%
-% Here we require size(table)=[npnt,nmod], size(t_av)=[nmod,1], ind and irun column vectors
-
-npix=numel(irun);
-np_mod=size(table,1);
-
-x=1+(np_mod-1)*rand(npix,1);        % position in open interval (1,np_mod) [column]
-ix=np_mod*(ind(irun)-1)+floor(x);   % interval number in table that contains x (floor(x) in closed interval [1,np_mod-1]) [column]
-dx=mod(x,1);                        % distance from lower index
-
-t_red=(1-dx).*table(ix) + dx.*table(ix+1);
-t = t_av(ind(irun)) .* (t_red./(1-t_red) - 1);      % must subtract first moment
-
-
-%--------------------------------------------------------------------------------------------------
-function t = fermi_times(table,ind,irun)
-% Get a column vector of time deviations for Fermi chopper, one per pixel
-%
-% Here we require size(table)=[npnt,nchop], ind and irun column vectors
-
-npix=numel(irun);
-np_fermi=size(table,1);
-
-x=1+(np_fermi-1)*rand(npix,1);      % position in open interval (1,np_fermi)
-ix=np_fermi*(ind(irun)-1)+floor(x);% interval number in table that contains x (floor(x) in closed interval [1,np_fermi-1])
-dx=mod(x,1);                        % distance from lower index
-
-t=(1-dx).*table(ix) + dx.*table(ix+1);

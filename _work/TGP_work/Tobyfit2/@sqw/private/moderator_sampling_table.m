@@ -28,6 +28,14 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 %                              reduced time deviation 0 <= t_red <= 1. Convert
 %                              to true time using the equation
 %                                   t = t_av * (t_red/(1-t_red))
+%                 lookup.profile Lookup table size(npnt,nmod), where nmod is
+%                              the number of unique tables. 
+%                               Use the look-up table to get the pulse profile
+%                              at reduced time deviation 0 <= t_red <= 1. Convert
+%                              to true time using the equation
+%                                   t = t_av * (t_red/(1-t_red))
+%                               The pulse profile is normalised so that the peak
+%                              value is unity.
 %                 lookup.t_av   First moment of time distribution (row vector)
 %                              Time here is in seconds (NOT microseconds)
 %                 lookup.fwhh   Full width half height of distribution (row vector)

@@ -80,7 +80,8 @@ for i=1:nw
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(win{i}.header);
     eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     
-    [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=chopper_instrument_pars(win{i}.header);
+    [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
+        instpars_DGfermi(win{i}.header);
     if ~ok, return, end
     moderator_all{i}=moderator;
     aperture_all{i}=aperture;
