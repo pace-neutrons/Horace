@@ -104,8 +104,8 @@ ch2=[400*ones(1,93);600*ones(1,93)]; ch2=ch2(:);
 ww1=set_sample_and_inst(w1,struct,@maps_instrument_for_tests,'-efix',ch1,'S');
 ww2=set_sample_and_inst(w1,struct,@maps_instrument_for_tests,'-efix',ch2,'S');
 
-[ei1,x0,xa,x1,thetam,angvel,moderator1,aperture1,chopper1]=chopper_instrument_pars(ww1.header);
-[ei2,x0,xa,x1,thetam,angvel,moderator2,aperture2,chopper2]=chopper_instrument_pars(ww2.header);
+[ei1,x0,xa,x1,thetam,angvel,moderator1,aperture1,chopper1]=instpars_DGfermi(ww1.header);
+[ei2,x0,xa,x1,thetam,angvel,moderator2,aperture2,chopper2]=instpars_DGfermi(ww2.header);
 for i=1:numel(moderator1)
     moderator1(i).pulse_model='ikcarp_param';
     moderator1(i).pp=[0.05,25,200];

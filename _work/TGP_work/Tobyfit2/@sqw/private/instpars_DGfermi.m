@@ -1,7 +1,9 @@
-function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=chopper_instrument_pars(header)
+function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
+    instpars_DGfermi(header)
 % Get parameters needed for chopper spectrometer resolution function calculation
 %
-%   >> [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=chopper_instrument_pars(header)
+%   >> [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
+%                                                   instpars_DGfermi(header)
 %    
 % Input:
 % ------

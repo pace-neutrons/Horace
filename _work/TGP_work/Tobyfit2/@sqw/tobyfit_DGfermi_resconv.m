@@ -45,6 +45,9 @@ function [wout,state_out]=tobyfit_DGfermi_resconv(win,caller,state_in,sqwfunc,pa
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
+%   lookup      A structure containing lookup tables and pre-calculated matricies etc.
+%              For details, see the help for function tobyfit_DG_resconv_init
+%
 %   mc_contributions    Structure indicating which components contribute to the resolution
 %              function. Each field is the name of a component, and its value is
 %              either true or false
@@ -120,17 +123,17 @@ state_out = cell(size(win));    % create output argument
 % Unpack the components of the lookup argument for convenience
 % ------------------------------------------------------------
 % Moderator
+mod_ind=lookup.mod_table.ind;
 mod_table=lookup.mod_table.table;
-t_av=lookup.mod_table.t_av;
-ind_mod=lookup.mod_table.ind;
+mod_t_av=lookup.mod_table.t_av;
 
 % Aperture
 wa=lookup.aperture.width;
 ha=lookup.aperture.height;
 
 % Fermi chopper
+fermi_ind=lookup.fermi_table.ind;
 fermi_table=lookup.fermi_table.table;
-ind_fermi=lookup.fermi_table.ind;
 
 % Sample
 sample=lookup.sample;
@@ -183,9 +186,8 @@ for i=1:numel(ind)
         pars=mfclass_gateway_parameter_set(dummy_mfclass, pars, ptmp(1:end-npmod));
         pp=ptmp(end-npmod+1:end);
         % Get moderator lookup table for current moderator parameters
-        [mod_table_refine,t_av_refine]=refine_moderator_sampling_table_buffer...
+        [mod_table_refine,mod_t_av_refine]=refine_moderator_sampling_table_buffer...
                                             (dummy_sqw,modshape.pulse_model,pp,modshape.ei);
-        ind_mod_refine=ones(size(ind_mod{iw}));
     end
     
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation
@@ -199,9 +201,11 @@ for i=1:numel(ind)
         % Fill time deviations for moderator
         if mc_contributions.moderator
             if ~refine_moderator
-                yvec(1,1,:)=moderator_times(mod_table,t_av',ind_mod{iw},irun');
+                t_red = rand_cumpdf_arr (mod_table, mod_ind{iw}(irun));
+                yvec(1,1,:) = mod_t_av(mod_ind{iw}(irun)) .* (t_red./(1-t_red) - 1);    % must subtract first moment
             else
-                yvec(1,1,:)=moderator_times(mod_table_refine,t_av_refine',ind_mod_refine,irun');
+                t_red = rand_cumpdf_arr (mod_table_refine, ones(size(irun)));
+                yvec(1,1,:) = mod_t_av_refine * (t_red./(1-t_red) - 1);    % must subtract first moment
             end
         end
         
@@ -213,7 +217,7 @@ for i=1:numel(ind)
         
         % Fermi chopper deviations
         if mc_contributions.chopper
-            yvec(4,1,:)=fermi_times(fermi_table,ind_fermi{iw},irun');
+            yvec(4,1,:)=rand_cumpdf_arr(fermi_table,fermi_ind{iw}(irun));
         end
         
         % Sample deviations
@@ -246,36 +250,3 @@ for i=1:numel(ind)
     wout(i).data.pix(8:9,:)=[stmp(:)'/mc_points;zeros(1,numel(stmp))];
     wout(i)=recompute_bin_data(wout(i));
 end
-
-
-%--------------------------------------------------------------------------------------------------
-function t = moderator_times(table,t_av,ind,irun)
-% Get a column vector of time deviations for moderator, one per pixel
-%
-% Here we require size(table)=[npnt,nmod], size(t_av)=[nmod,1], ind and irun column vectors
-
-npix=numel(irun);
-np_mod=size(table,1);
-
-x=1+(np_mod-1)*rand(npix,1);        % position in open interval (1,np_mod) [column]
-ix=np_mod*(ind(irun)-1)+floor(x);   % interval number in table that contains x (floor(x) in closed interval [1,np_mod-1]) [column]
-dx=mod(x,1);                        % distance from lower index
-
-t_red=(1-dx).*table(ix) + dx.*table(ix+1);
-t = t_av(ind(irun)) .* (t_red./(1-t_red) - 1);      % must subtract first moment
-
-
-%--------------------------------------------------------------------------------------------------
-function t = fermi_times(table,ind,irun)
-% Get a column vector of time deviations for Fermi chopper, one per pixel
-%
-% Here we require size(table)=[npnt,nchop], ind and irun column vectors
-
-npix=numel(irun);
-np_fermi=size(table,1);
-
-x=1+(np_fermi-1)*rand(npix,1);      % position in open interval (1,np_fermi)
-ix=np_fermi*(ind(irun)-1)+floor(x);% interval number in table that contains x (floor(x) in closed interval [1,np_fermi-1])
-dx=mod(x,1);                        % distance from lower index
-
-t=(1-dx).*table(ix) + dx.*table(ix+1);

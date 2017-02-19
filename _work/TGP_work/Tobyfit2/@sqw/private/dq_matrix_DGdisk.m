@@ -1,26 +1,20 @@
-function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, shape_mod, s_mat, d_mat,...
+function dq_mat =  dq_matrix_DGdisk (wi, wf, xa, x1, x2, s_mat, d_mat,...
     spec_to_rlu, k_to_v, k_to_e)
 % Compute matrix for computing deviations in Q (in rlu) from deviations in tm, tch, x, y, z etc.
 %
-%   >> dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, shape_mod, s_mat, d_mat,...
-%                                   spec_to_rlu, shape_mod, k_to_v, k_to_e)
+%   dq_mat =  dq_matrix_DGdisk (wi, wf, xa, x1, x2, s_mat, d_mat,...
+%                                               spec_to_rlu, k_to_v, k_to_e)
 %
-% This function is for a direct geometry double disk chopper spectrometer 
+% This function is for a direct geometry double disk chopper spectrometer
 % following the design of LET at ISIS as it was for ~2010 - present (2017)
 %
 % Input: for each pixel:
 % ------
 %   wi          Incident wavevector of nominal neutron  (Ang^-1) [column vector length npix]
 %   wf          Final wavevector of nominal neutron     (Ang^-1) [column vector length npix]
-%   x0          Moderator-monochromating chopper distance (m) 	 [column vector length npix]
 %   xa          Shaping-monochromating chopper distance (m)      [column vector length npix]
 %   x1          Monochromating chopper-sample distance  (m)      [column vector length npix]
 %   x2          Sample-detector distance                (m)      [column vector length npix]
-%   shape_mod   Logical array that indicates: [column vector length npix]
-%                   false   The moderator is the dominant controller of the
-%                          initial pulse shape
-%                   true    The shaping chopper is the dominant controller
-%                          of the initial pulse shape
 %   s_mat       Matrix for re-expressing a sample coordinate in the laboratory frame
 %              Size is [3,3,npix]
 %   d_mat       Matrix for expressing a laboratory coordinate in the detector frame
@@ -29,7 +23,7 @@ function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, shape_mod, s_mat, d
 %              Size is [3,3,npix]
 %   k_to_e      Constant in E(mev)=k_to_e*(k(Ang^-1))^2
 %   k_to_v      Constant in v(m/s)=k_to_v*k(Ang^-1)
-%   
+%
 % Output:
 % -------
 %   dq_mat		Matrix to convert deviations in tm, tch etc. into deviations in Q in
@@ -38,16 +32,14 @@ function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, shape_mod, s_mat, d
 %
 % The order of deviations corresponding to the second row of dq_mat is:
 %
-%   t_m     deviation in departure time from mean of initial pulse:
-%               - at moderator surface (shape_mod=false)
-%               - at pulse shaping chopper (shape_mod=true)
+%   t_sh    deviation in arrival time at pulse shaping chopper
 %   uh      horizontal divergence (rad)
 %   uv      vertical divergence (rad)
 %   t_ch    deviation in time of arrival at monochromating chopper
 %   x_s     x-coordinate of point of scattering in sample frame
 %   y_s     y-coordinate of point of scattering in sample frame
-%   z_s     z-coordinate of point of scattering in sample frame  
-%   x_d     x-coordinate of point of detection in detector frame	
+%   z_s     z-coordinate of point of scattering in sample frame
+%   x_d     x-coordinate of point of detection in detector frame
 %   y_d     y-coordinate of point of detection in detector frame
 %   z_d     z-coordinate of point of detection in detector frame
 %   t_d     deviation in detection time of neutron
@@ -55,14 +47,11 @@ function dq_mat =  dq_matrix_DGdisk (wi, wf, x0, xa, x1, x2, shape_mod, s_mat, d
 
 npix = numel(wi);
 
-xx0 = x0;
-xx0(shape_mod) = xa(shape_mod);
-
 % Calculate velocities and times:
 % -------------------------------
 veli = k_to_v * wi;
 velf = k_to_v * wf;
-ti = xx0./veli;
+ti = xa./veli;
 tf = x2./velf;
 
 % Get some coefficients:
@@ -84,8 +73,8 @@ b_mat(2,2,:) =  1;
 
 b_mat(3,3,:) =  1;
 
-b_mat(4,1,:) =  cp_f .* (-x1./xx0);
-b_mat(4,4,:) =  cp_f .* ((xx0+x1)./xx0);
+b_mat(4,1,:) =  cp_f .* (-x1./xa);
+b_mat(4,4,:) =  cp_f .* ((xa+x1)./xa);
 b_mat(4,5,:) =  cp_f .* ( squeeze(s_mat(1,1,:))./veli - squeeze(ds_mat(1,1,:))./velf );
 b_mat(4,6,:) =  cp_f .* ( squeeze(s_mat(1,2,:))./veli - squeeze(ds_mat(1,2,:))./velf );
 b_mat(4,7,:) =  cp_f .* ( squeeze(s_mat(1,3,:))./veli - squeeze(ds_mat(1,3,:))./velf );

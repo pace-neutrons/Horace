@@ -3,7 +3,7 @@ function [ok,mess,ei,x0,xa,x1,moderator,chop_shape,chop_mono,horiz_div,vert_div]
 % Get parameters needed for chopper spectrometer resolution function calculation
 %
 %   >> [ok,mess,ei,x0,xa,x1,moderator,chop_shape,chop_mono,horiz_div,vert_div]=...
-%                           instpars_DGdisk (header)
+%                                                       instpars_DGdisk (header)
 % Input:
 % ------
 %   header      Header field from sqw object
