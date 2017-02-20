@@ -47,20 +47,17 @@ urange = calc_sqw_urange (efix, emode, en(1), en(end), par_file, alatt, angdeg, 
 
 sqw_file=cell(size(psi));
 for i=1:numel(psi)
-    sqw_file{i}=fullfile(dir_out,['dummy_test_change_crystal_1_',num2str(i),'.sqw']);
-    fake_sqw (en, par_file, sqw_file{i}, efix, emode, alatt, angdeg,...
+    wtmp=fake_sqw (en, par_file, '', efix, emode, alatt, angdeg,...
         u, v, psi(i), omega, dpsi, gl, gs, [1,1,1,1], urange);
+    % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
+    wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
+    sqw_file{i}=fullfile(dir_out,['dummy_test_change_crystal_1_',num2str(i),'.sqw']);
+    save(wtmp,sqw_file{i});
 end
 
 cleanup_obj=onCleanup(@()test_change_crystal_1_cleanup(sqw_file,sim_sqw_file,sim_sqw_file_corr));
 
 
-% Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
-for i=1:numel(psi)
-    wtmp=read_horace(sqw_file{i});
-    wtmp=sqw_eval(wtmp,@make_bragg_blobs,{[qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
-    save(wtmp,sqw_file{i});
-end
 
 % Combine the sqw files
 write_nsqw_to_sqw(sqw_file,sim_sqw_file);
@@ -115,8 +112,8 @@ end
 % Delete temporary sqw files
 for i=1:numel(sqw_file)
     try
-        delete(sqw_file{i})        
-    catch        
+        delete(sqw_file{i})
+    catch
     end
 end
 warning(ws);
