@@ -47,11 +47,11 @@ if ~isempty(mess), error(mess), end
 if ~isempty(mess), error(mess), end
 
 R=rotvec_to_rotmat2(rotvec');
-rlu_corr=b\(R*b0);
+rlu_corr=b\(R*b0); % Converts to Q[A^-1]
 
 % Get h,k,l in new lattice and get weight
 qrlu=rlu_corr*[qh(:),qk(:),ql(:)]';
 dqrlu=qrlu-round(qrlu);
-dq=b*dqrlu;     % convert back to orthonormal frame
+dq=b*dqrlu;     % convert back to orthonormal frame:  B^-1*Q  = Q[hkl]
 weight=exp(-(sum((dq/qsig).^2,1) + (en(:)'/esig).^2)/2);
 weight=reshape(weight,size(qh));

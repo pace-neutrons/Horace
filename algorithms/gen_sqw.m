@@ -371,7 +371,7 @@ else
     
     not_empty = cellfun(@(x)(~empty_or_missing(x)),spe_file);
     if verLessThan('matlab','8.0')
-        % Older matlab compatibility operator: overcome flaw in indexing empty structure arrays pre 2011b or so.
+        % Older Matlab compatibility operator: overcome flaw in indexing empty structure arrays pre 2011b or so.
         if  numel(fields(instrument))~=0
             instrument = instrument(indx);
         else
@@ -425,7 +425,7 @@ else
         %    grid_size_in,urange_in,instrument,sample,write_banner,opt);
         %
         % make it look like a parallel transformation. A bit less
-        % effective but much easier to identify problem whith
+        % effective but much easier to identify problem with
         % failing parallel job
         jex = gen_sqw_files_job();
         % delete messages exchange folder created by parallel framework

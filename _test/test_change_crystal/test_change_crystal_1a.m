@@ -15,9 +15,9 @@ classdef test_change_crystal_1a < TestCase
         efix = 45;
         emode = 1;
         en=-0.75:0.5:0.75;
-        alatt=[5,5,5];
+        alatt=[5,6,6];
         par_file
-        angdeg=[90,90,90];
+        angdeg=[91,85,97];
         u=[1,0,0];
         v=[0,1,0];
         psi=0:2:10;
@@ -56,7 +56,7 @@ classdef test_change_crystal_1a < TestCase
             %
             % class is deleted on cleanup, but local variables are stored
             % withon lambda function, so to run proper cleanup operation
-            % one needs to assign class variables to clean to 
+            % one needs to assign class variables to clean to
             nxs_file_s = obj.nxs_file;
             clearner = @(files,sqw_file,cl_path)(...
                 test_change_crystal_1a.test_change_crystal_cleanup(...
@@ -79,10 +79,10 @@ classdef test_change_crystal_1a < TestCase
             [rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
                 bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
             %[rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin_width);
-            %bragg_positions_view(wcut,wpeak)
+            bragg_positions_view(wcut,wpeak)
             
             
-            % Get correction matrix from the 5 peak positions:
+            % Get correction matrix from the 3 peak positions:
             % ------------------------------------------------
             [rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
                 obj.alatt, obj.angdeg, bp,'fix_angdeg','fix_alatt_ratio');
@@ -96,16 +96,31 @@ classdef test_change_crystal_1a < TestCase
             cleanup_obj=onCleanup(@()delete(sim_sqw_file_corr));
             
             change_crystal_sqw(sim_sqw_file_corr,rlu_corr)
-            rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj, bp, half_len, half_thick, bin_width);
+            rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj,...
+                bp, half_len, half_thick, bin_width);
             
-            if max(abs(rlu0_corr(:)-bp(:)))>half_thick
-                assertTrue(false,'Problem in refinement of crystal orientation and lattice parameters')
-            end
+            % problem in
+            assertElementsAlmostEqual(bp,rlu0_corr,'absolute',half_thick);
             %
             [alatt_c, angdeg_c, dpsi_deg, gl_deg, gs_deg] = ...
-                crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.alatt, 0, 0, 0, 0, rlu_corr);
+                crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.alatt, ...
+                0, 0, 0, 0, rlu_corr);
+            %
+            %
+            %assertEqual(alatt_c,obj.alatt)
+            %assertEqual(angdeg_c,obj.angdeg)
+            %
+            realigned_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1sima_realigned.sqw'); % output file for correction
+            cleanup_obj1=onCleanup(@()delete(realigned_sqw_file));
             
+            % Generate re-aligned crystal
+            gen_sqw (obj.nxs_file, '', realigned_sqw_file, ...
+                obj.efix, obj.emode, alatt_c, angdeg_c,...
+                obj.u, obj.v, obj.psi, 0, dpsi_deg, gl_deg, gs_deg);
             
+            %             rlu1_corr=get_bragg_positions(read_sqw(realigned_sqw_file), ...
+            %                 proj, bp, half_len, half_thick, bin_width);
+            %             assertElementsAlmostEqual(bp,rlu1_corr,'absolute',half_thick);
             
         end
     end
@@ -163,7 +178,7 @@ classdef test_change_crystal_1a < TestCase
             
         end
     end
-    methods(Static)
+    methods(Static,Access=private)
         function test_change_crystal_cleanup(nxs_file,misaligned_sqw_file,cof_path)
             % delete all auxiliary generated files on last
             % instance of test_change_crystal_1a class deletion
