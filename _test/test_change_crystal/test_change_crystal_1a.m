@@ -20,7 +20,7 @@ classdef test_change_crystal_1a < TestCase
         angdeg=[91,85,97];
         u=[1,0,0];
         v=[0,1,0];
-        psi=0:2:10;
+        psi=0:0.5:10;
         omega=0; dpsi=2; gl=3; gs=-3;
     end
     methods
@@ -51,7 +51,7 @@ classdef test_change_crystal_1a < TestCase
             % Parameters for generation of reference sqw file
             obj.dir_out=tempdir;
             
-            sim_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1sim.sqw'); % output file for simulation in reference lattice
+            sim_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1a_sim.sqw'); % output file for simulation in reference lattice
             obj=obj.build_misaligned_source_file(sim_sqw_file);
             %
             % class is deleted on cleanup, but local variables are stored
@@ -73,13 +73,14 @@ classdef test_change_crystal_1a < TestCase
             
             
             %bp=[0,-1,-1; 0,-1,0; 1,2,0; 2,3,0; 0,-1,1;0,0,1];
-            bp=[0,-1,0; 1,2,0; 0,-1,1]; %;0,0,1
+            %bp=[0,-1,0; 1,2,0; 0,-1,1]; %;0,0,1
+            bp=[1,3,0;0,0,1;0,-1,0; 0,-1,-1;0,0,-1]; %;0,0,1            
             half_len=0.5; half_thick=0.25; bin_width=0.025;
             
             [rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
                 bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
             %[rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin_width);
-            bragg_positions_view(wcut,wpeak)
+            %bragg_positions_view(wcut,wpeak)
             
             
             % Get correction matrix from the 3 peak positions:
@@ -103,7 +104,7 @@ classdef test_change_crystal_1a < TestCase
             assertElementsAlmostEqual(bp,rlu0_corr,'absolute',half_thick);
             %
             [alatt_c, angdeg_c, dpsi_deg, gl_deg, gs_deg] = ...
-                crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.alatt, ...
+                crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.angdeg, ...
                 0, 0, 0, 0, rlu_corr);
             %
             %
