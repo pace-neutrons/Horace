@@ -128,6 +128,8 @@ classdef test_change_crystal_1a < TestCase
     methods(Access=private)
         %
         function  obj=build_misaligned_source_file(obj,sim_sqw_file)
+            % generate sqw file misaligned according to wrong gl, gs,dpsi.
+            %
             qfwhh=0.1;                % Spread of Bragg peaks
             efwhh=1;                  % Energy width of Bragg peaks
             rotvec=[0,0,0]*(pi/180);  % orientation of the true lattice w.r.t reference lattice
@@ -169,7 +171,7 @@ classdef test_change_crystal_1a < TestCase
             end
             
             
-            % Generate misaligned sqw file
+            % Generate misaligned sqw file, with gl gs dpsi =0
             if ~(exist(sim_sqw_file,'file')==2)
                 gen_sqw (obj.nxs_file, '', sim_sqw_file, ...
                     obj.efix, obj.emode, obj.alatt, obj.angdeg,...
