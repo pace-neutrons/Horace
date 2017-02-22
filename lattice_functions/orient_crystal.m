@@ -90,12 +90,14 @@ end
 % else
 %     error('Check reference lattice parameters')
 % end
-
-[base_triplets,ind_valid]= build_triplets_list(rlu_notional,'bragg indexes');
+B0 =bmatrix(alatt0,angdeg0);
+rlu_real = (B0*rlu_real')';
+rlu_errors = (B0*rlu_errors')';
+[base_triplets,ind_valid,det]= build_triplets_list(rlu_notional	,'bragg indexes');
 [real_triplets,ind_valid]= build_triplets_list(rlu_real,'peak positions',ind_valid);
 [peak_errors,~]= build_triplets_list(rlu_errors,'peak errors',ind_valid);
 
-G = cellfun(G_tensor,base_triplets,real_triplets,'UniformOutput',false);
+G = cellfun(@G_tensor,base_triplets,real_triplets,'UniformOutput',false);
 
 % Check if initial lattice parameters for refinement, if given
 lattice_init=lattice0;
@@ -344,22 +346,24 @@ mess='';
 
 function G=G_tensor(A,B)
 UB = (A/B);
+%G = UB'*UB;
 B = UB'*UB;
 G = inv(B);
 
-function [triplets,ind_valid]= build_triplets_list(vectors,name,varargin)
+function [triplets,ind_valid,det]= build_triplets_list(vectors,name,varargin)
 if numel(vectors) < 9
     error('ORIENT_CRYSTAL:invalid_argument',...
         'input %s has to have least 3 vectors',name);
 end
 if nargin>2
     ind_valid = varargin{1};
+    det = [];
 else
     n_vectors = size(vectors,1);
     vec_ind = 1:n_vectors;
     ind = nchoosek(vec_ind,3);
-    vor = arrayfun(@(i,j,k)fvor(vectors,i,j,k),ind(:,1),ind(:,2),ind(:,3));
-    ind_valid = vor>10*eps;
+    det = arrayfun(@(i,j,k)fvor(vectors,i,j,k),ind(:,1),ind(:,2),ind(:,3));
+    ind_valid = det>10*eps;
     ind_valid = ind(ind_valid,:);
 end
 n_triplets = size(ind_valid,1);

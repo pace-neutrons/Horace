@@ -32,43 +32,62 @@ function [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg)
 % $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
+if nargout<4
+    throw_error = true;
+else
+    throw_error = false;
+end
 
 
 if max(angdeg)>=180 || min(angdeg)<=0
-    b = [];
-    arlu = [];
-    angrlu = [];
-    mess = 'Check lattice angles';
-    return
+    mess = 'some lattice angles bigger than 180deg or less than 0 deg';
+    if throw_error
+        error('BMATRIX:invalid_argument',mess);
+    else
+        b = [];
+        arlu = [];
+        angrlu = [];
+        return
+    end
 elseif min(alatt)<= 0
-    b = [];
-    arlu = [];
-    angrlu = [];
-    mess = 'Check lattice parameters';
-    return
+    mess = 'Some lattice parameters are less than 0';
+    if throw_error
+        error('BMATRIX:invalid_argument',mess);
+    else
+        b = [];
+        arlu = [];
+        angrlu = [];
+        
+        return
+    end
+    
+    
 end
 
 
 try
     ang = angdeg*(pi/180);
+    cosa = cos(ang);
+    sina = abs(sin(ang));
     
-    a = [      1     , cos(ang(3)), cos(ang(2));...
-        cos(ang(3)),      1      , cos(ang(1));...
-        cos(ang(2)), cos(ang(1)),      1       ];
+    a = [    1 , cosa(3),    cosa(2);...
+        cosa(3),      1 ,    cosa(1);...
+        cosa(2), cosa(1),      1    ];
     
     q = sqrt(abs(det(a)));
     
-    as = (2*pi/q)*(abs(sin(ang(1)))/alatt(1));
-    bs = (2*pi/q)*(abs(sin(ang(2)))/alatt(2));
-    cs = (2*pi/q)*(abs(sin(ang(3)))/alatt(3));
+    as = (2*pi/q)*(sina(1)/alatt(1));
+    bs = (2*pi/q)*(sina(2)/alatt(2));
+    cs = (2*pi/q)*(sina(3)/alatt(3));
     
-    aa = acos( (cos(ang(2))*cos(ang(3))-cos(ang(1)))/abs(sin(ang(2))*sin(ang(3))) );
-    bb = acos( (cos(ang(3))*cos(ang(1))-cos(ang(2)))/abs(sin(ang(3))*sin(ang(1))) );
-    cc = acos( (cos(ang(1))*cos(ang(2))-cos(ang(3)))/abs(sin(ang(1))*sin(ang(2))) );
+    % reciprocal lattice angles
+    aa = acos( (cosa(2)*cosa(3)-cosa(1))/(sina(2)*sina(3)) );
+    bb = acos( (cosa(3)*cosa(1)-cosa(2))/(sina(3)*sina(1)) );
+    cc = acos( (cosa(1)*cosa(2)-cosa(3))/(sina(1)*sina(2)) );
     % b-matix as in Acta Cryst. (1967). 22, 457
-    b = [as,      bs*cos(cc),                   cs*cos(bb);...
-        0, bs*abs(sin(cc)), -cs*abs(sin(bb))*cos(ang(1));...
-        0,               0,                 2*pi/alatt(3)];
+    b = [as,   bs*cos(cc)     ,   cs*cos(bb)             ;...
+        0  ,   bs*abs(sin(cc)),  -cs*abs(sin(bb))*cosa(1);...
+        0  ,   0              ,   2*pi/alatt(3)         ];
     if nargout >= 2
         arlu = [as, bs, cs];
     end
@@ -87,4 +106,8 @@ catch
     arlu = [];
     angrlu = [];
     mess = 'Unable to calculate B matrix - check lattice parameters';
+    if throw_error
+        error('BMATRIX:invalid_argument',mess);
+    end
 end
+
