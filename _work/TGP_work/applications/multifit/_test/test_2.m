@@ -2,8 +2,8 @@ function test_2
 % Test of multifit2 with IX_dataset_1d
 
 % Assumes have created a data file
-mftest_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit\mftest';
-S=load(fullfile(mftest_dir,'/data/testdata_multifit_1.mat'));
+test_dir = fileparts(mfilename('fullpath'));
+S=load(fullfile(test_dir,'/data/testdata_multifit_1.mat'));
 
 
 %--------------------------------------------------------------------------------------------------------------------

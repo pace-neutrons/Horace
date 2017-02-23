@@ -57,10 +57,12 @@ wout=cell(size(w));
 
 [p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
 
-fstate_store={[]};
-bfstate_store={[]};
 caller.reset_state=true;
 caller.ind=[];
+fstate_store={[]};
+bfstate_store={[]};
+store_fore=[];
+store_back=[];
 % Foreground function calculations
 if eval_fore
     if numel(func)==1
@@ -74,14 +76,16 @@ if eval_fore
                     if ~f_pass_caller_info
                         wout{i}.y=func{1}(w{i}.x{:},pars{:});
                     else
-                        wout{i}.y=func{1}(w{i}.x{:},caller,fstate_store,pars{:});
+                        [wout{i}.y,~,store_fore]=func{1}(w{i}.x{:},caller,...
+                            fstate_store,store_fore,pars{:});
                     end
                     wout{i}.e=zeros(size((w{i}.y)));
                 else
                     if ~f_pass_caller_info
                         wout{i}=func{1}(w{i},pars{:});
                     else
-                        wout{i}=func{1}(w{i},caller,fstate_store,pars{:});
+                        [wout{i},~,store_fore]=func{1}(w{i},caller,...
+                            fstate_store,store_fore,pars{:});
                     end
                 end
             end
@@ -97,14 +101,16 @@ if eval_fore
                     if ~f_pass_caller_info
                         wout{i}.y=func{i}(w{i}.x{:},pars{:});
                     else
-                        wout{i}.y=func{i}(w{i}.x{:},caller,fstate_store,pars{:});
+                        [wout{i}.y,~,store_fore]=func{i}(w{i}.x{:},caller,...
+                            fstate_store,store_fore,pars{:});
                     end
                     wout{i}.e=zeros(size((w{i}.y)));
                 else
                     if ~f_pass_caller_info
                         wout{i}=func{i}(w{i},pars{:});
                     else
-                        wout{i}=func{i}(w{i},caller,fstate_store,pars{:});
+                        [wout{i},~,store_fore]=func{i}(w{i},caller,...
+                            fstate_store,store_fore,pars{:});
                     end
                 end
             end
@@ -126,14 +132,17 @@ if eval_back
                         if ~bf_pass_caller_info
                             wout{i}.y=bfunc{1}(w{i}.x{:},pars{:});
                         else
-                            wout{i}.y=bfunc{1}(w{i}.x{:},caller,bfstate_store,pars{:});
+                            [wout{i}.y,~,store_back]=bfunc{1}(w{i}.x{:},caller,...
+                                bfstate_store,store_back,pars{:});
                         end
                         wout{i}.e=zeros(size((w{i}.y)));
                     else
                         if ~bf_pass_caller_info
                             wout{i}.y=wout{i}.y + bfunc{1}(w{i}.x{:},pars{:});
                         else
-                            wout{i}.y=wout{i}.y + bfunc{1}(w{i}.x{:},caller,bfstate_store,pars{:});
+                            [ytmp,~,store_back]=bfunc{1}(w{i}.x{:},caller,...
+                                bfstate_store,store_back,pars{:});
+                            wout{i}.y=wout{i}.y + ytmp;
                         end
                     end
                 else
@@ -141,13 +150,16 @@ if eval_back
                         if ~bf_pass_caller_info
                             wout{i}=bfunc{1}(w{i},pars{:});
                         else
-                            wout{i}=bfunc{1}(w{i},caller,bfstate_store,pars{:});
+                            [wout{i},~,store_back]=bfunc{1}(w{i},caller,...
+                                bfstate_store,store_back,pars{:});
                         end
                     else
                         if ~bf_pass_caller_info
                             wout{i}=wout{i}+bfunc{1}(w{i},pars{:});
                         else
-                            wout{i}=wout{i}+bfunc{1}(w{i},caller,bfstate_store,pars{:});
+                            [wtmp,~,store_back]=bfunc{1}(w{i},caller,...
+                                bfstate_store,store_back,pars{:});
+                            wout{i}=wout{i} + wtmp;
                         end
                     end
                 end
@@ -165,14 +177,17 @@ if eval_back
                         if ~bf_pass_caller_info
                             wout{i}.y=bfunc{i}(w{i}.x{:},pars{:});
                         else
-                            wout{i}.y=bfunc{i}(w{i}.x{:},caller,bfstate_store,pars{:});
+                            [wout{i}.y,~,store_back]=bfunc{i}(w{i}.x{:},caller,...
+                                bfstate_store,store_back,pars{:});
                         end
                         wout{i}.e=zeros(size((w{i}.y)));
                     else
                         if ~bf_pass_caller_info
                             wout{i}.y=wout{i}.y + bfunc{i}(w{i}.x{:},pars{:});
                         else
-                            wout{i}.y=wout{i}.y + bfunc{i}(w{i}.x{:},caller,bfstate_store,pars{:});
+                            [ytmp,~,store_back]=bfunc{i}(w{i}.x{:},...
+                                caller,bfstate_store,store_back,pars{:});
+                            wout{i}.y=wout{i}.y + ytmp;
                         end
                     end
                 else
@@ -180,13 +195,16 @@ if eval_back
                         if ~bf_pass_caller_info
                             wout{i}=bfunc{i}(w{i},pars{:});
                         else
-                            wout{i}=bfunc{i}(w{i},caller,bfstate_store,pars{:});
+                            [wout{i},~,store_back]=bfunc{i}(w{i},caller,...
+                                bfstate_store,store_back,pars{:});
                         end
                     else
                         if ~bf_pass_caller_info
                             wout{i}=wout{i}+bfunc{i}(w{i},pars{:});
                         else
-                            wout{i}=wout{i}+bfunc{i}(w{i},caller,bfstate_store,pars{:});
+                            [wtmp,~,store_back]=bfunc{i}(w{i},caller,...
+                                bfstate_store,store_back,pars{:});
+                            wout{i}=wout{i} + wtmp;
                         end
                     end
                 end

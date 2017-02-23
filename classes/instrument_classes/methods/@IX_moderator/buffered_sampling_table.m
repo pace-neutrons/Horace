@@ -1,9 +1,9 @@
-function [table,t_av,ind,fwhh]=buffered_sampling_table(moderator_in,ei_in,varargin)
+function [table,t_av,ind,fwhh,profile]=buffered_sampling_table(moderator_in,ei_in,varargin)
 % Return lookup table for array of moderator objects
 %
-%   >> [table,t_av,ind,fwhh] = buffered_sampling_table (moderator, ei)
-%   >> [table,t_av,ind,fwhh] = buffered_sampling_table (moderator, ei, npnt)
-%   >> [table,t_av,ind,fwhh] = buffered_sampling_table (...,opt1,opt2,...)
+%   >> [table,t_av,ind,fwhh,profile] = buffered_sampling_table (moderator, ei)
+%   >> [table,t_av,ind,fwhh,profile] = buffered_sampling_table (moderator, ei, npnt)
+%   >> [table,t_av,ind,fwhh,profile] = buffered_sampling_table (...,opt1,opt2,...)
 %
 % Input:
 % ------
@@ -52,6 +52,9 @@ function [table,t_av,ind,fwhh]=buffered_sampling_table(moderator_in,ei_in,vararg
 %              ind is a column vector.
 %
 %   fwhh        Full width half height, size=[1,nmod] (microseconds)
+%
+%   profile     Lookup table of profile, normalised to peak height=1, for
+%              equally spaced intervals of t_red in the range 0 =< t_red =< 1
 %
 % Note:
 % - If the number of moderator objects is less than a critical value, they
@@ -118,23 +121,25 @@ end
 
 % Fill lookup table, creating or adding entries for the stored lookup file
 if check_store
-    [ok,mess,moderator0,ei0,table0,t_av0,fwhh0]=read_store(filename);   % if file does not exist, then ok=true but moderator0 is empty
+    [ok,mess,moderator0,ei0,table0,t_av0,fwhh0,profile0]=read_store(filename);   % if file does not exist, then ok=true but moderator0 is empty
     if ok && ~isempty(moderator0) && (isempty(npnt)||npnt==size(table0,1))
         % Look for entries in the lookup table
         [ix,iv]=array_filter_mod_ei(moderator,ei,moderator0,ei0);
         npnt0=size(table0,1);
+        npro0=size(profile0,1);
         if numel(ix)==0         % no stored entries for the input moderators
-            [table,t_av,fwhh]=fill_table(moderator,ei,npnt0,fast{:});
-            [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh,...
-                moderator0,ei0,table0,t_av0,fwhh0,nm_max);
+            [table,t_av,fwhh,profile]=fill_table(moderator,ei,npnt0,fast{:});
+            [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh,profile,...
+                moderator0,ei0,table0,t_av0,fwhh0,profile0,nm_max);
             if ~ok, warning(mess), end
         elseif numel(ix)==nm    % all entries previously stored
             table=table0(:,iv);
             t_av=t_av0(iv);
             fwhh=fwhh0(iv);
+            profile=profile0(iv);
         else
             new=true(nm,1); new(ix)=false;
-            [table_new,t_av_new,fwhh_new]=fill_table(moderator(new),ei(new),npnt0,fast{:});
+            [table_new,t_av_new,fwhh_new,profile_new]=fill_table(moderator(new),ei(new),npnt0,fast{:});
             table=zeros(npnt0,nm);
             table(:,new)=table_new;
             table(:,ix)=table0(:,iv);
@@ -144,19 +149,22 @@ if check_store
             fwhh=zeros(1,nm);
             fwhh(new)=fwhh_new;
             fwhh(ix)=fwhh0(iv);
-            [ok,mess]=write_store(filename,moderator(new),ei(new),table_new,t_av_new,fwhh_new,...
-                moderator0,ei0,table0,t_av0,fwhh0,nm_max);
+            profile=zeros(npro0,nm);
+            profile(:,new)=profile_new;
+            profile(:,ix)=profile0(:,iv);
+            [ok,mess]=write_store(filename,moderator(new),ei(new),table_new,t_av_new,fwhh_new,profile_new,...
+                moderator0,ei0,table0,t_av0,fwhh0,profile0,nm_max);
             if ~ok, warning(mess), end
         end
     else
         % Problem reading the store, or it doesn't exist, or the number of points is different. Create with new values if can.
         if ~ok, warning(mess), end
-        [table,t_av,fwhh]=fill_table(moderator,ei,npnt,fast{:});
-        [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh);
+        [table,t_av,fwhh,profile]=fill_table(moderator,ei,npnt,fast{:});
+        [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh,profile);
         if ~ok, warning(mess), end
     end
 else
-    [table,t_av,fwhh]=fill_table(moderator,ei,npnt,fast{:});
+    [table,t_av,fwhh,profile]=fill_table(moderator,ei,npnt,fast{:});
 end
 
 
@@ -180,31 +188,65 @@ S0=catstruct(struct_special(moderator0(:)),struct('ei',num2cell(ei0(:))));
 
 
 %==================================================================================================
-function [table,t_av,fwhh]=fill_table(moderator,ei,npnt,varargin)
+function [table,t_av,fwhh,profile]=fill_table(moderator,ei,npnt,varargin)
 nm=numel(moderator);
 t_av=zeros(1,nm);
 fwhh=zeros(1,nm);
 if isempty(npnt)
-    [table,t_av(1)]=sampling_table(moderator(1),ei(1),varargin{:});   % column vector
-    [~,~,fwhh(1)]=pulse_width(moderator(1),ei(1));
-    if nm>1
-        table=repmat(table,[1,nm]);
-        npnt_def=size(table,1);
-        for i=2:nm
-            [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt_def,varargin{:});
-            [~,~,fwhh(i)]=pulse_width(moderator(i),ei(i));
-        end
-    end
+    [table,t_av(1),fwhh(1),profile]=sampling_table(moderator(1),ei(1),varargin{:});   % column vector
+    npnt=size(table,1);
 else
-    table=zeros(npnt,nm);
-    for i=1:nm
-        [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt,varargin{:});
-        [~,~,fwhh(i)]=pulse_width(moderator(i),ei(i));
+    [table,t_av(1),fwhh(1),profile]=sampling_table(moderator(1),ei(1),npnt,varargin{:});   % column vector
+end
+if nm>1
+    table=repmat(table,[1,nm]);
+    profile=repmat(profile,[1,nm]);
+    for i=2:nm
+        [table(:,i),t_av(i),fwhh(i),profile(:,i)]=sampling_table(moderator(i),ei(i),npnt,varargin{:});
     end
 end
 
+% %==================================================================================================
+% % Version of fill_table prior to 21/2/17:
+%
+% function [table,t_av,fwhh,profile]=fill_table(moderator,ei,npnt,varargin)
+% nm=numel(moderator);
+% t_av=zeros(1,nm);
+% fwhh=zeros(1,nm);
+% if isempty(npnt)
+%     [table,t_av(1)]=sampling_table(moderator(1),ei(1),varargin{:});   % column vector
+%     [~,~,fwhh(1)]=pulse_width(moderator(1),ei(1));
+%     npnt_def=size(table,1);
+%     % For profile:
+%     npro=5*npnt_def;
+%     profile=zeros(npro,nm);
+%     t_red=[0;(1:npro-2)'/(npro-1)];     % omit last point; assume pulse height zero at t_red=1
+%     profile(1:end-1,1)=pulse_shape(moderator(1),ei(1),t_av(1)*(t_red./(1-t_red)));
+%     if nm>1
+%         table=repmat(table,[1,nm]);
+%         for i=2:nm
+%             [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt_def,varargin{:});
+%             [~,~,fwhh(i)]=pulse_width(moderator(i),ei(i));
+%             profile(1:end-1,i)=pulse_shape(moderator(i),ei(i),t_av(i)*(t_red./(1-t_red)));
+%         end
+%     end
+% else
+%     table=zeros(npnt,nm);
+%     % For profile:
+%     npro=5*npnt;
+%     profile=zeros(npro,nm);
+%     t_red=[0;(1:npro-2)'/(npro-1)];     % omit last point; assume pulse height zero at t_red=1
+%     for i=1:nm
+%         [table(:,i),t_av(i)]=sampling_table(moderator(i),ei(i),npnt,varargin{:});
+%         [~,~,fwhh(i)]=pulse_width(moderator(i),ei(i));
+%         profile(1:end-1,i)=pulse_shape(moderator(i),ei(i),t_av(i)*(t_red./(1-t_red)));
+%     end
+% end
+% % Normalise profiles to unit height at peak
+% profile=profile./repmat(max(profile,[],1),npro,1);
+
 %==================================================================================================
-function [ok,mess,moderator_store,ei_store,table_store,t_av_store,fwhh_store]=...
+function [ok,mess,moderator_store,ei_store,table_store,t_av_store,fwhh_store,profile_store]=...
     read_store(filename)
 % Read stored moderator lookup table
 % ok=true if file does not exist
@@ -223,16 +265,19 @@ if exist(filename,'file')
         table_store=[];
         t_av_store=[];
         fwhh_store=[];
+        profile_store=[];
     end
     % Check fields
     if ~exist('ei_store','var') || ~exist('table_store','var') ||...
-            ~exist('t_av_store','var') ||  ~exist('fwhh_store','var')
+            ~exist('t_av_store','var') ||  ~exist('fwhh_store','var') ||...
+            ~exist('profile_store','var')
         mess='Moderator lookup table file has old format - being ignored';
         moderator_store=[];
         ei_store=[];
         table_store=[];
         t_av_store=[];
         fwhh_store=[];
+        profile_store=[];
     end
 else
     ok=true;
@@ -242,12 +287,13 @@ else
     table_store=[];
     t_av_store=[];
     fwhh_store=[];
+    profile_store=[];
 end
 
 
 %--------------------------------------------------------------------------------------------------
-function [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh,...
-    moderator0,ei0,table0,t_av0,fwhh0,nf_max)
+function [ok,mess]=write_store(filename,moderator,ei,table,t_av,fwhh,profile,...
+    moderator0,ei0,table0,t_av0,fwhh0,profile0,nf_max)
 % Write moderator lookup table up to a maximum number of entries
 % Always write the first entry; then add as many of the second as possible
 
@@ -257,6 +303,7 @@ if nargin==6
     table_store=table;
     t_av_store=t_av;
     fwhh_store=fwhh;
+    profile_store=profile;
 else
     nf=size(moderator,1);
     nf0=size(moderator0,1);
@@ -266,25 +313,28 @@ else
         table_store=table;
         t_av_store=t_av;
         fwhh_store=fwhh;
+        profile_store=profile;
     elseif nf0>nf_max-nf
         moderator_store=[moderator;moderator0(1:nf_max-nf)];
         ei_store=[ei;ei0(1:nf_max-nf)];
         table_store=[table,table0(:,1:nf_max-nf)];
         t_av_store=[t_av,t_av0(1:nf_max-nf)];
         fwhh_store=[fwhh,fwhh0(1:nf_max-nf)];
+        profile_store=[profile,profile0(1:nf_max-nf)];
     else
         moderator_store=[moderator;moderator0];
         ei_store=[ei;ei0];
         table_store=[table,table0];
         t_av_store=[t_av,t_av0];
         fwhh_store=[fwhh,fwhh0];
+        profile_store=[profile,profile0];
     end
 end
 
 try
     disp('Writing moderator lookup table to file store...')
     save(filename,'moderator_store','ei_store','table_store',...
-        't_av_store','fwhh_store','-mat')
+        't_av_store','fwhh_store','profile_store','-mat')
     ok=true;
     mess='';
 catch

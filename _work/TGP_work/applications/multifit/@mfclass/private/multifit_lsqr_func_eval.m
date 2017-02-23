@@ -1,5 +1,5 @@
-function [ycalc,varcalc,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist,...
-    f_pass_caller_info,bf_pass_caller_info,pf,p_info,store_calc,Sin,listing)
+function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist,...
+    f_pass_caller_info,bf_pass_caller_info,pf,p_info,store_calc,Sin,Store_in,listing)
 % Calculate the intensities and variances for the data in multifit.
 %
 %   >> [ycalc,varcalc,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist,...
@@ -52,6 +52,9 @@ function [ycalc,varcalc,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist
 %               Can be an empty argument, in which case the output stored values
 %              structure will be initialised.
 %
+%   Store_in    Stored values of e.g. expensively evaluated lookup tables that
+%              have been accumulated to during evaluation of the fit functions
+%
 %   listing     Control diagnostic output to the screen:
 %                - if >=3 then list which datasets were computed for the
 %                  foreground and background functions
@@ -71,6 +74,9 @@ function [ycalc,varcalc,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist
 %              created with the correct fields, but they will be initalised
 %              only as cell arrays with empty elemeents.
 %
+%   Store       Updated stored values of e.g. expensively evaluated lookup tables that
+%              have been accumulated to during evaluation of the fit functions
+%
 %
 % Notes on format of fit functions
 % --------------------------------
@@ -78,16 +84,19 @@ function [ycalc,varcalc,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist
 %
 %   >> wout = my_func (win, @fun, plist, c1, c2, ...)
 % OR
-%   >> [wout, state_out] = my_func (win, caller, state_in, @fun, plist, c1, c2, ...)
+%   >> [wout, state_out, store_out] = my_func (win, caller, state_in, store_in,...
+%                                           @fun, plist, c1, c2, ...)
 %
 % where:
 %   caller      Stucture that contains information from the caller routine. Fields
 %                   reset_state     Logical scalar
 %                   ind             Indicies of data sets in the full set of data
 %   state_in    Cell array containing previously saved internal states for each
-%              element of win%
+%              element of win
+%   store_in    Stored values of e.g. expensively evaluated lookup tables
+%              passed from caller.
 %   state_out   Cell array containing internal states to be saved for a future call.
-%
+%   store_out   Updated stored values.
 %
 % NOTES:
 %  - The calculated intensities can be stored to minimise expensive calculation
@@ -103,8 +112,14 @@ S=Sin;
 if isempty(S)
     S.store_filled=false;
     S.pstore=cell(size(plist)); S.bpstore=cell(size(bplist));
-    S.fcalc_store=cell(size(w)); S.fvar_store=cell(size(w)); S.bcalc_store=cell(size(w)); S.bvar_store=cell(size(w));
+    S.fcalc_store=cell(size(w)); S.fvar_store=cell(size(w));
+    S.bcalc_store=cell(size(w)); S.bvar_store=cell(size(w));
     S.fstate_store=cell(size(w)); S.bfstate_store=cell(size(w));
+end
+Store=Store_in;
+if isempty(Store)
+    Store.fore=[];
+    Store.back=[];
 end
 
 fcalc=cell(size(w)); fvar=cell(size(w)); bcalc=cell(size(w)); bvar=cell(size(w));
@@ -131,14 +146,16 @@ if numel(func)==1
                     if ~f_pass_caller_info
                         fcalc{iw}=func{1}(w{iw}.x{:},pars{:});
                     else
-                        [fcalc{iw},fstate]=func{1}(w{iw}.x{:},caller,S.fstate_store(iw),pars{:});
+                        [fcalc{iw},fstate,Store.fore]=func{1}(w{iw}.x{:},caller,...
+                            S.fstate_store(iw),Store.fore,pars{:});
                     end
                     fvar{iw}=zeros(size(fcalc{iw}));
                 else
                     if ~f_pass_caller_info
                         wcalc=func{1}(w{iw},pars{:});
                     else
-                        [wcalc,fstate]=func{1}(w{iw},caller,S.fstate_store(iw),pars{:});
+                        [wcalc,fstate,Store.fore]=func{1}(w{iw},caller,...
+                            S.fstate_store(iw),Store.fore,pars{:});
                     end
                     [fcalc{iw},fvar{iw},msk]=sigvar_get(wcalc);
                     fcalc{iw}=fcalc{iw}(msk);         % remove the points that we are told to ignore
@@ -175,14 +192,16 @@ else
                     if ~f_pass_caller_info
                         fcalc{iw}=func{iw}(w{iw}.x{:},pars{:});
                     else
-                        [fcalc{iw},fstate]=func{iw}(w{iw}.x{:},caller,S.fstate_store(iw),pars{:});
+                        [fcalc{iw},fstate,Store.fore]=func{iw}(w{iw}.x{:},caller,...
+                            S.fstate_store(iw),Store.fore,pars{:});
                     end
                     fvar{iw}=zeros(size(fcalc{iw}));
                 else
                     if ~f_pass_caller_info
                         wcalc=func{iw}(w{iw},pars{:});
                     else
-                        [wcalc,fstate]=func{iw}(w{iw},caller,S.fstate_store(iw),pars{:});
+                        [wcalc,fstate,Store.fore]=func{iw}(w{iw},caller,...
+                            S.fstate_store(iw),Store.fore,pars{:});
                     end
                     [fcalc{iw},fvar{iw},msk]=sigvar_get(wcalc);
                     fcalc{iw}=fcalc{iw}(msk);       % remove the points that we are told to ignore
@@ -219,14 +238,16 @@ if numel(bfunc)==1
                     if ~bf_pass_caller_info
                         bcalc{iw}=bfunc{1}(w{iw}.x{:},pars{:});
                     else
-                        [bcalc{iw},bfstate]=bfunc{1}(w{iw}.x{:},caller,S.bfstate_store(iw),pars{:});
+                        [bcalc{iw},bfstate,Store.back]=bfunc{1}(w{iw}.x{:},caller,...
+                            S.bfstate_store(iw),Store.back,pars{:});
                     end
                     bvar{iw}=zeros(size(bcalc{iw}));
                 else
                     if ~bf_pass_caller_info
                         wcalc=bfunc{1}(w{iw},pars{:});
                     else
-                        [wcalc,bfstate]=bfunc{1}(w{iw},caller,S.bfstate_store(iw),pars{:});
+                        [wcalc,bfstate,Store.back]=bfunc{1}(w{iw},caller,...
+                            S.bfstate_store(iw),Store.back,pars{:});
                     end
                     [bcalc{iw},bvar{iw},msk]=sigvar_get(wcalc);
                     bcalc{iw}=bcalc{iw}(msk);   	% remove the points that we are told to ignore
@@ -263,14 +284,16 @@ else
                     if ~bf_pass_caller_info
                         bcalc{iw}=bfunc{iw}(w{iw}.x{:},pars{:});
                     else
-                        [bcalc{iw},bfstate]=bfunc{iw}(w{iw}.x{:},caller,S.bfstate_store(iw),pars{:});
+                        [bcalc{iw},bfstate,Store.back]=bfunc{iw}(w{iw}.x{:},caller,...
+                            S.bfstate_store(iw),Store.back,pars{:});
                     end
                     bvar{iw}=zeros(size(bcalc{iw}));
                 else
                     if ~bf_pass_caller_info
                         wcalc=bfunc{iw}(w{iw},pars{:});
                     else
-                        [wcalc,bfstate]=bfunc{iw}(w{iw},caller,S.bfstate_store(iw),pars{:});
+                        [wcalc,bfstate,Store.back]=bfunc{iw}(w{iw},caller,...
+                            S.bfstate_store(iw),Store.back,pars{:});
                     end
                     [bcalc{iw},bvar{iw},msk]=sigvar_get(wcalc);
                     bcalc{iw}=bcalc{iw}(msk);       % remove the points that we are told to ignore

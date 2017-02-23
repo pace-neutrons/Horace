@@ -16,7 +16,7 @@ function [t_red,t_av] = area_to_t_ikcarp2 (area, tauf, taus, R)
 %
 % Input:
 % ------
-%   area    Array of areas (0 <=area <=1)
+%   area    Array of areas (0 <=area <1) (Must be <1 as area=1 corresponds to t=Inf)
 %   tauf    Fast decay time (us)
 %   taus    Slow decay time (us)
 %   R       Weight of storage term
