@@ -14,20 +14,11 @@ Little things to check:
   at the fit or simulate stage in pack_parameters.
 
 
-Buffering
-===========
-Get rid of tobyfit_cleanup: but need to deal with refine_moderator_sampling_table_buffer (need some
-qy of dealing with getting rid of the persistent variables)
-
-Check all other buffering is cleared: search on 'persistent' (and just for completeness, 'global')
-
 
 Organisation
 ============
 Does resol_conv_tobyfit_mc_init have to be a private function ?
 	
-
-Does refine_moderator_sampling_table_buffer need to be an sqw method?
 
 Speed: the buffering of hundreds of IX_divergence_profile takes a long time to read from
 file: it is because of the time spent in IX_divergence_profile/sort, equally split

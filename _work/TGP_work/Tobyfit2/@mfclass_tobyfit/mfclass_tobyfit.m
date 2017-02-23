@@ -135,10 +135,7 @@ classdef mfclass_tobyfit < mfclass
         % Extend superclass methods
         %------------------------------------------------------------------
         function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
-            %
-            % Create cleanup object
-            cleanupObj=onCleanup(@() tobyfit_cleanup);
-
+            
             % Check there is data
             data = obj.data;
             if isempty(data)
@@ -225,9 +222,6 @@ classdef mfclass_tobyfit < mfclass
             %
             % If ok is not a return argument, then if ok is false an error will be thrown.
 
-            % Create cleanup object
-            cleanupObj=onCleanup(@() tobyfit_cleanup);
-
             % Check there is data
             data = obj.data;
             if isempty(data)
@@ -297,14 +291,4 @@ classdef mfclass_tobyfit < mfclass
         [ok, mess, obj, xtal] = refine_crystal_pack_parameters_ (obj, xtal_opts)
         [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj, mod_opts)
     end
-end
-
-
-%--------------------------------------------------------------------------------------------------
-function tobyfit_cleanup
-% Cleanup Tobyfit
-
-% Cleanup the stored buffer for moderator fitting
-refine_moderator_sampling_table_buffer (sqw)
-
 end
