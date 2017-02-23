@@ -1,9 +1,9 @@
-function [wout,state_out]=tobyfit_DGdisk_resconv(win,caller,state_in,sqwfunc,pars,...
-    lookup,mc_contributions,mc_points,xtal,modshape)
+function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
+    sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape)
 % Calculate resolution broadened sqw object(s) for a model scattering function.
 %
-%   >> [wout,state_out]=tobyfit_DGdisk_resconv(win,caller,state_in,sqwfunc,pars,...
-%    lookup,mc_contributions,mc_points,xtal,modshape)
+%   >> [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
+%    sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape)
 %
 % Input:
 % ------
@@ -20,6 +20,9 @@ function [wout,state_out]=tobyfit_DGdisk_resconv(win,caller,state_in,sqwfunc,par
 %              stored state; if empty, then a default state must be used.
 %               The number of elements must match numel(win); state_in must be a cell
 %              array even if there is only a single input dataset.
+%
+%   store_in    Stored information that could be used in the function evaluation,
+%              for example lookup tables that accumulate.
 %
 %   sqwfunc     Handle to function that calculates S(Q,w)
 %               Most commonly used form is:
@@ -79,6 +82,9 @@ function [wout,state_out]=tobyfit_DGdisk_resconv(win,caller,state_in,sqwfunc,par
 %               The number of elements must match numel(win); state_in must be a cell
 %              array even if there is only a single input dataset.
 %
+%   store_out   Updated stored values. Must always be returned, but can be
+%              set to [] if not used.
+%
 % NOTE: Contributions to resolution are
 %   yvec(1,...):   t_sh     deviation in arrival time at pulse shaping chopper
 %   yvec(2,...):   uh       horizontal divergence (rad)
@@ -118,6 +124,7 @@ end
 % ---------------------------
 wout = win;
 state_out = cell(size(win));    % create output argument
+store_out = [];
 
 
 % Unpack the components of the lookup argument for convenience
@@ -125,8 +132,8 @@ state_out = cell(size(win));    % create output argument
 % Moderator
 mod_ind=lookup.mod_table.ind;
 mod_table=lookup.mod_table.table;
-mod_profile=lookup.mod_table.profile;
 mod_t_av=lookup.mod_table.t_av;
+mod_profile=lookup.mod_table.profile;
 
 % Pulse shaping chopper
 chop_shape_fwhh = lookup.chop_shape_fwhh;
@@ -162,7 +169,6 @@ dq_mat=lookup.dq_mat;
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 reset_state=caller.reset_state;
-if refine_moderator, dummy_sqw = sqw; end
 dummy_mfclass = mfclass;
 
 for i=1:numel(ind)
@@ -198,8 +204,8 @@ for i=1:numel(ind)
         pars=mfclass_gateway_parameter_set(dummy_mfclass, pars, ptmp(1:end-npmod));
         pp=ptmp(end-npmod+1:end);
         % Get moderator lookup table for current moderator parameters
-        [mod_table_refine,mod_t_av_refine,mod_profile_refine]=...
-            refine_moderator_sampling_table_buffer(dummy_sqw,modshape.pulse_model,pp,modshape.ei);
+        [mod_table_refine,mod_t_av_refine,~,mod_profile_refine,store_out]=...
+            moderator_sampling_table_in_mem (modshape.pulse_model,pp,modshape.ei,store_in);
     end
     
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation

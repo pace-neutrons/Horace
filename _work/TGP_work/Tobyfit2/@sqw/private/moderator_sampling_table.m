@@ -28,6 +28,10 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 %                              reduced time deviation 0 <= t_red <= 1. Convert
 %                              to true time using the equation
 %                                   t = t_av * (t_red/(1-t_red))
+%                 lookup.t_av   First moment of time distribution (row vector)
+%                              Time here is in seconds (NOT microseconds)
+%                 lookup.fwhh   Full width half height of distribution (row vector)
+%                              Time here is in seconds (NOT microseconds)
 %                 lookup.profile Lookup table size(npnt,nmod), where nmod is
 %                              the number of unique tables. 
 %                               Use the look-up table to get the pulse profile
@@ -36,10 +40,7 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 %                                   t = t_av * (t_red/(1-t_red))
 %                               The pulse profile is normalised so that the peak
 %                              value is unity.
-%                 lookup.t_av   First moment of time distribution (row vector)
-%                              Time here is in seconds (NOT microseconds)
-%                 lookup.fwhh   Full width half height of distribution (row vector)
-%                              Time here is in seconds (NOT microseconds)
+
 
 % Assemble the moderator objects and get unique entries
 nw=numel(moderator);
@@ -61,9 +62,9 @@ for i=1:nw
 end
 
 % Create lookup table, using any buffered results
-[table,t_av,ind,fwhh]=buffered_sampling_table(moderator_all,ei_all,varargin{:});
+[table,t_av,ind,fwhh,profile]=buffered_sampling_table(moderator_all,ei_all,varargin{:});
 
 % Create output structure
 t_av=1e-6*t_av;     % Convert to seconds
 fwhh=1e-6*fwhh;     % Convert to seconds
-lookup=struct('ind',{mat2cell(ind,nr)},'table',table,'t_av',t_av,'fwhh',fwhh);
+lookup=struct('ind',{mat2cell(ind,nr)},'table',table,'t_av',t_av,'fwhh',fwhh,'profile',profile);
