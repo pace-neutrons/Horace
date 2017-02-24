@@ -74,19 +74,24 @@ classdef test_change_crystal_1a < TestCase
             
             %bp=[0,-1,-1; 0,-1,0; 1,2,0; 2,3,0; 0,-1,1;0,0,1];
             %bp=[0,-1,0; 1,2,0; 0,-1,1]; %;0,0,1
-            bp=[1,3,0;0,0,1;0,-1,0; 0,-1,-1;0,0,-1]; %;0,0,1            
+            %bp=[1,3,0;0,0,1;0,-1,0; 0,-1,-1;0,0,-1]; %;0,0,1            
+            bp=[1,3,0;0,0,1; 0,-1,-1;0,0,-1]; %;0,0,1                        
             half_len=0.5; half_thick=0.25; bin_width=0.025;
             
-            [rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
-                bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
+            rlu_real=get_bragg_positions(obj.misaligned_sqw_file, proj,...
+                bp, half_len, half_thick, bin_width);
+            
+             %[rlu_real,width,wcut,wpeak]=bragg_positions(obj.misaligned_sqw_file,...
+             %    bp, 1.5, 0.02, 0.4, 1.5, 0.02, 0.4, 2, 'gauss');
             %[rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin_width);
             %bragg_positions_view(wcut,wpeak)
             
             
-            % Get correction matrix from the 3 peak positions:
+            % Get correction matrix from the 5 peak positions:
             % ------------------------------------------------
-            [rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
-                obj.alatt, obj.angdeg, bp,'fix_angdeg','fix_alatt_ratio');
+            [rlu_corr,alatt,angdeg,rotmat_fit]=orient_crystal(bp,rlu_real,bp,obj.alatt,obj.angdeg);
+            %[rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
+            %    obj.alatt, obj.angdeg, bp,'fix_angdeg','fix_alatt_ratio');
             
             
             
@@ -103,9 +108,9 @@ classdef test_change_crystal_1a < TestCase
             % problem in
             assertElementsAlmostEqual(bp,rlu0_corr,'absolute',half_thick);
             %
-            [alatt_c, angdeg_c, dpsi_deg, gl_deg, gs_deg] = ...
-                crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.angdeg, ...
-                0, 0, 0, 0, rlu_corr);
+            %[alatt_c, angdeg_c, dpsi_deg, gl_deg, gs_deg] = ...
+            %    crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.angdeg, ...
+            %    0, 0, 0, 0, rlu_corr);
             %
             %
             %assertEqual(alatt_c,obj.alatt)

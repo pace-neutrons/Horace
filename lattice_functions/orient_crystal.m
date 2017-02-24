@@ -1,4 +1,4 @@
-function [rlu_corr,alatt,angdeg,rotmat,distance,rotangle] = orient_crystal(rlu_notional,rlu_real,rlu_errors,alatt0,angdeg0,varargin)
+function [rlu_corr,alatt,angdeg,rotmat] = orient_crystal(rlu_index,rlu_real,rlu_errors,alatt0,angdeg0,varargin)
 % Given the list of reciprocal lattice points and their real hkl positions,
 % identify U and B Bussing and Levy** matrices specifying the crystal lattice
 % parameters and crystal orientation.
@@ -90,295 +90,152 @@ end
 % else
 %     error('Check reference lattice parameters')
 % end
-B0 =bmatrix(alatt0,angdeg0);
-rlu_real = (B0*rlu_real')';
-rlu_errors = (B0*rlu_errors')';
-[base_triplets,ind_valid,det]= build_triplets_list(rlu_notional	,'bragg indexes');
-[real_triplets,ind_valid]= build_triplets_list(rlu_real,'peak positions',ind_valid);
-[peak_errors,~]= build_triplets_list(rlu_errors,'peak errors',ind_valid);
-
-G = cellfun(@G_tensor,base_triplets,real_triplets,'UniformOutput',false);
-
-% Check if initial lattice parameters for refinement, if given
-lattice_init=lattice0;
-if numel(args)>=1
-    if numel(args{1})==3 && isnumeric(args{1}) && all(args{1}>0)
-        lattice_init(1:3)=args{1}(:)';
-    else
-        error('Check initial lattice parameters ([a,b,c]) for refinement')
-    end
-end
-if numel(args)==2
-    if numel(args{2})==3 && isnumeric(args{2}) && all(args{2}>0)
-        lattice_init(4:6)=args{2}(:)';
-    else
-        error('Check initial lattice angles ([alf,bet,gam]) for refinement')
-    end
-end
-if numel(args)>2
-    error('Check number of input arguments')
+if ~fix_lattice
+    [alatt,angdeg] = refine_lattice(rlu_index,rlu_real,rlu_errors,alatt0,angdeg0,fix_alatt,fix_alatt_ratio,fix_angdeg);
+    B0 = bmatrix(alatt0,angdeg0);
+    B = bmatrix(alatt,angdeg);
+    b_corr = B/B0;
+else
+    alatt = alatt0;
+    angdeg=angdeg0;
+    b_corr = eye(3);
 end
 
-% Check options
-if present.free_alatt
-    if islognum(opt.free_alatt) && numel(opt.free_alatt)==3
-        if opt.fix_lattice || opt.fix_alatt || opt.fix_alatt_ratio
-            error('Cannot use the option ''free_alatt'' with other keywords fixing lattice parameters a,b,c')
-        end
-    else
-        error('Check value of ''free_alatt'' option')
-    end
-end
+rotmat = build_rotation(rlu_index,rlu_real,rlu_errors,alatt,angdeg);
 
-if present.free_angdeg
-    if islognum(opt.free_angdeg) && numel(opt.free_angdeg)==3
-        if opt.fix_lattice || opt.fix_angdeg
-            error('Cannot use the option ''free_angdeg'' with other keywords fixing lattice parameters alf,bet,gam')
-        end
-    else
-        error('Check value of ''free_angdeg'' option')
-    end
-end
-
-if opt.fix_lattice && ...
-        ((present.fix_alatt && ~opt.fix_alatt) || (present.fix_angdeg && ~opt.fix_angdeg) || (present.fix_alatt_ratio && ~opt.fix_alatt_ratio))
-    error('Check consistency of options to fix lattice parameters')
-elseif opt.fix_alatt && (present.fix_alatt_ratio && ~opt.fix_alatt_ratio)
-    error('Check consistency of options to fix lattice parameters')
-end
-
-
-% Perform calculations
-% --------------------
-[b0,arlu,angrlu,mess] = bmatrix(lattice0(1:3),lattice0(4:6));
-if ~isempty(mess), error(mess), end
-
-[binit,arlu,angrlu,mess] = bmatrix(lattice_init(1:3),lattice_init(4:6));
-if ~isempty(mess), error(mess), end
-
-vcryst0=b0*rlu0';       % crystal Cartesian coords in reference lattice
-vcryst_init=binit*rlu'; % crystal Cartesian coords in initial lattice
-
-% Check lengths are all non-zero
-lensqr0=sum(vcryst0.^2,1);
-lensqr_init=sum(vcryst_init.^2,1);
-if any(lensqr0<small)||any(lensqr_init<small), error('Check none of the reciprocal lattice vectors are at the origin'), end
-
-% Get initial estimate of rotation vector
-[rotmat_ave,rotvec_ave] = rotmat_average (vcryst0,vcryst_init);
-if isempty(rotmat_ave)
-    error('Check reciprocal lattice vectors in reference and new coordinate frames are not all collinear')
-end
-
-% Fit
-% ---
-nv=size(rlu,1);
-vcryst0_3=repmat(vcryst0',3,1);     % Treble the number of vectors, as will compute three components of deviations
-
-pars=[lattice_init,rotvec_ave(:)'];
-pfree=[1,1,1,1,1,1,1,1,1];
-pbind={};
-
-if opt.fix_alatt || opt.fix_lattice
-    pfree(1:3)=[0,0,0];
-elseif opt.fix_alatt_ratio
-    pbind={{2,1},{3,1}};
-elseif present.free_alatt
-    pfree(1:3)=opt.free_alatt;
-end
-
-if opt.fix_angdeg || opt.fix_lattice
-    pfree(4:6)=[0,0,0];
-elseif present.free_angdeg
-    pfree(4:6)=opt.free_angdeg;
-end
-
-if opt.fix_orientation
-    pfree(7:9)=[0,0,0];
-end
-
-[distance,fitpar] = multifit(vcryst0_3, zeros(3*nv,1), 0.01*ones(3*nv,1),...
-    @reciprocal_space_deviation, {pars,rlu}, pfree, pbind,'list',0,'fit',[1e-4,50,-1e-6]);
-
-% Had a problem when refining RbMnF3 that the fit parameters ended up have complex
-% component that was less than the intrinsic eps. Catch this case and ignore
-if ~isreal(fitpar.p)
-    cmplx=imag(fitpar.p);
-    if all(cmplx<10*eps)
-        fitpar.p=real(fitpar.p);
-        distance=real(distance);
-    else
-        error('Problem refining crystal orientation: imaginary fit parameters')
-    end
-end
-
-rotvec=fitpar.p(7:9);
-rotangle=norm(rotvec)*(180/pi);
-rotmat=rotvec_to_rotmat2(rotvec);
-alatt=fitpar.p(1:3);
-angdeg=fitpar.p(4:6);
-distance=sqrt(sum(reshape(distance,3,nv).^2,1))';
-
-[b,arlu,angrlu,mess] = bmatrix(alatt,angdeg);
-if ~isempty(mess), error(mess), end
-rlu_corr=b\rotmat*b0;
-
-
-%============================================================================================================
-% Distance function for fitting
-%============================================================================================================
-function dist = reciprocal_space_deviation (x1,x2,x3,p,rlu)
-% Function to calculate the distance between a point in reciprocal space and corresponding point in a reference orthonormal frame
-%
-%   >> dist = reciprocal_space_deviation (v0,p,rlu)
-%
-% Input:
-% -------
-%   x1,x2,x3    Array of coordinates in reference crystal Cartesian coordinates
-%              This is n x 3 array repeated three times along first dimension
-%   p           Parameters that can be fitted: [a,b,c,alf,bet,gam,theta1,theta2,theta3]
-%                   a,b,c           lattice parameters (Ang)
-%                   alf,bet,gam     lattice angles (deg)
-%                   theta1,theta2,theta3    components of rotation vector linking
-%                                          crystal Cartesian coordinates
-%                                           v(i)=R_theta(i,j)*v0(j)
-%   rlu         Components along a*, b*, c* in lattice defined by p (n x 3 array)
-%
-% Output:
-% -------
-%   dist        Column vector of deviations along x,y,z axes of reference crystal
-%              Cartesian coordinates for each of the vectors rlu in turn
-
-nv=size(rlu,1);
-
-alatt=p(1:3);
-angdeg=p(4:6);
-rotvec=p(7:9);
-
-b=bmatrix(alatt,angdeg);
-R=rotvec_to_rotmat2(rotvec);
-rlu_to_cryst0=R\b;
-v=(rlu_to_cryst0*rlu')';
-dv=v-[x1(1:nv),x2(1:nv),x3(1:nv)];
-
-dist=reshape(dv',3*nv,1)./repmat(sqrt(sum(v.^2,2)),3,1);
+rlu_corr=rotmat*b_corr;
 
 
 %============================================================================================================
 % Functions to compute average rotation matrix
 %============================================================================================================
-function [rotmat_ave,rotvec_ave] = rotmat_average (v0,v)
-% Get estimate of 'average' rotation matrix relating two frames S0 and S
-%
-%   >> rotmat = rotmat_average (v0,v)
-%
-%   v0      Coords of vectors in frame S0 (3 x n array)
-%   v       Coords of same vectors in grame S (3 x n array)
-%
-%   rotmat  Rotation matrix that 'on average' for each column of v0 and v satisfies
-%               v(i) = rotmat(i,j)*v0(j)
-%           We have errors on the precise values of v0 and v which is why this will not be exact
+function rot_mat = build_rotation(rlu_index,rlu_real,rlu_errors,alatt,angdeg)
 
-nv=size(v0,2);
-if nv<2, error('Must have at least two vectors'), end
-rotvec=zeros(3,nv*(nv-1)/2);
-iin=zeros(1,nv*(nv-1)/2);
-jin=zeros(1,nv*(nv-1)/2);
-ok=false(1,nv*(nv-1)/2);
-k=0;
-for i=1:nv
-    for j=i+1:nv
-        k=k+1;
-        iin(k)=i; jin(k)=j;
-        [rotmat,ok(k)]=rotmat_from_uv(v0(:,i),v0(:,j),v(:,i),v(:,j));
-        if ok(k), rotvec(:,k)=rotmat_to_rotvec2(rotmat); end
-    end
-end
+B =bmatrix(alatt,angdeg);
+r_t = (B*rlu_index');
+r_k = (B*rlu_real');
+%r_k_err = (B*rlu_errors');
 
-n_ok=sum(ok);
-if sum(ok)>0
-    rotvec_ave=sum(rotvec(:,ok),2)/n_ok;
-    rotmat_ave=rotvec_to_rotmat2(rotvec_ave);
+[Tc,valid] = build_othro_sets(r_t);
+Tphi = build_othro_sets(r_k,valid);
+
+Ulist = cellfun(@(tf,tc)(tf*tc'),Tphi,Tc,'UniformOutput',false);
+rotvec_list =cellfun(@rotmat_to_rotvec2,Ulist,'UniformOutput',false); 
+
+rotvec = reshape([rotvec_list{:}],3,numel(rotvec_list));
+rotvec_ave = sum(rotvec,2)/numel(rotvec_list);
+rot_mat=rotvec_to_rotmat2(rotvec_ave);
+
+
+function [ortho,valid] = build_othro_sets(vectors,varargin)
+% Build orthonormal sets based on all non-parrallel pairs of input vectors
+%
+n_vectors = size(vectors,2);
+vec_ind = 1:n_vectors;
+ind = nchoosek(vec_ind,2);
+
+v_sizes= sqrt(sum(vectors.*vectors));
+
+ortho = arrayfun(@(i,j)build_ortho(vectors,v_sizes,i,j),ind(:,1),ind(:,2),...
+    'UniformOutput',false);
+if nargin ==1
+    valid =cellfun(@(x)(~isempty(x)),ortho);
 else
-    rotmat_ave=[];
-    rotvec_ave=[];
+    valid = varargin{1};
 end
-
-%----------------------------------------------------------------------------------------
-function [rotmat,ok,mess] = rotmat_from_uv (u0,v0,u,v)
-% Get rotation matrix from two non-collinear vectors u,v expressed in two frames S0 and s
-%
-%   >> [rotmat,ok] = rotmat_from_uv (u0,v0,u,v)
-%
-%   u0, v0  Coordinates of two vectors in frame S0
-%   u, v    Coordinates of same vectors in frame S
-%
-%   rotmat  Matrix that relates a vector expressed in the two frames as
-%               r(i) = rotmat(i,j)*r0(j)
+ortho = ortho(valid);
 
 
-[xyz0,ok,mess]=orthonormal_set(u0,v0);
-if ~ok, rotmat=[]; return, end
-[xyz,ok,mess]=orthonormal_set(u,v);
-if ~ok, rotmat=[]; return, end
-rotmat=xyz/xyz0;
+function ortho_set = build_ortho(vectors,v_sizes,ind1,ind2)
 
-%----------------------------------------------------------------------------------------
-function [xyz,ok,mess]=orthonormal_set(u,v)
-small=1.0e-10;
-if norm(u)<small || norm(v)<small
-    xyz=[]; ok=false; mess='one or more input vectors has zero length'; return
+e1 = vectors(:,ind1)/v_sizes(ind1);
+v2 = vectors(:,ind2);
+
+v2p = v2 - (v2'*e1)*e1; % The Gram–Schmidt orthonormalization
+%sz = sqrt(sum(v2p.*v2p));
+sz = sqrt(v2p'*v2p);
+if sz<1.e-3
+    ortho_set = [];
+    return;
 end
-x=u/norm(u);
-y=v/norm(v);
-z=cross(x,y);
-if norm(z)>small
-    z=z/norm(z);
-else
-    xyz=[]; ok=false; mess='two input vectors are collinear'; return
+e2 = v2p/sz;
+e3= cross(e1,e2);
+det = e3'*e3;
+if abs(det-1)>10*eps
+    error('ORIENT_CRYSTAL:runtime_error',...
+        'can not build orthogonal set from vectors [%f,%f,%f] and [%f,%f,%f]',...
+        vectors(:,ind1),vectors(:,ind2));
 end
-y=cross(z,x);
-y=y/norm(y);    % to account for rounding errors
+ortho_set = [e1,e2,e3];
 
-xyz=[x,y,z];
-ok=true;
-mess='';
 
-function G=G_tensor(A,B)
-UB = (A/B);
-%G = UB'*UB;
-B = UB'*UB;
-G = inv(B);
 
-function [triplets,ind_valid,det]= build_triplets_list(vectors,name,varargin)
+
+function [alatt,angdeg]=refine_lattice(rlu_index,rlu_real,rlu_errors,alatt0,angdeg0,fix_alatt,fix_alatt_ratio,fix_angdeg)
+% refine lattice according to G-tensor procedure
+%
+% Entirely worng statistics
+% needs mprovement either as described in
+% Acta Cryst. A 1970 26(1) pp97-101
+% or just by fitting to minimize the B'*B deviation from an average
+%
+B0 =bmatrix(alatt0,angdeg0);
+r_k = (B0*rlu_real');
+r_k_err = (B0*rlu_errors');
+%
+[base_triplets,ind_valid]= build_triplets_list(rlu_index','bragg indexes');
+[rk_triplets,ind_valid]= build_triplets_list(r_k,'peak positions',ind_valid);
+[rk_errors,~]= build_triplets_list(r_k_err,'peak errors',ind_valid);
+
+G = cellfun(@G_tensor,rk_triplets,base_triplets,'UniformOutput',false);
+latPar = cellfun(@get_lattice_fromG,G,'UniformOutput',false);
+latPar = reshape([latPar{:}],6,numel(latPar));
+lattice0 =  sum(latPar,2)/size(latPar,2);
+alatt = lattice0(1:3);
+angdeg= lattice0(4:6);
+
+
+function G=G_tensor(h_phi,h_i)
+UB = h_phi/h_i; % UB = h_phi*inv(h_i);
+Gi = UB'*UB;
+G = inv(Gi);
+
+function [triplets,ind_valid]= build_triplets_list(vectors,name,varargin)
 if numel(vectors) < 9
     error('ORIENT_CRYSTAL:invalid_argument',...
         'input %s has to have least 3 vectors',name);
 end
+n_vectors = size(vectors,2);
+vec_ind = 1:n_vectors;
+ind = nchoosek(vec_ind,3);
 if nargin>2
     ind_valid = varargin{1};
-    det = [];
 else
-    n_vectors = size(vectors,1);
-    vec_ind = 1:n_vectors;
-    ind = nchoosek(vec_ind,3);
     det = arrayfun(@(i,j,k)fvor(vectors,i,j,k),ind(:,1),ind(:,2),ind(:,3));
     ind_valid = det>10*eps;
-    ind_valid = ind(ind_valid,:);
 end
-n_triplets = size(ind_valid,1);
+ind = ind(ind_valid,:);
+
+n_triplets = size(ind,1);
 if n_triplets < 1
     error('ORIENT_CRYSTAL:invalid_argument',...
         'input %s need to have at least 3 vectors not located on a sinvle plain',name);
     
 end
-triplets = arrayfun(@(i)([vectors(ind_valid(i,1),:);vectors(ind_valid(i,2),:);vectors(ind_valid(i,3),:)]),...
+triplets = arrayfun(@(i)([vectors(:,ind(i,1))';vectors(:,ind(i,2))';vectors(:,ind(i,3))']'),...
     1:n_triplets,'UniformOutput',false);
 
 
 function vor = fvor(vector,ind1,ind2,ind3)
-v1 = vector(ind1,:);
-v2 = vector(ind2,:);
-v3 = vector(ind3,:);
+v1 = vector(:,ind1)';
+v2 = vector(:,ind2)';
+v3 = vector(:,ind3)';
 vor =abs(cross(v1,v2)*v3');
 
+function alatt_angdeg=get_lattice_fromG(G)
+% invert metric tensor according to Bussing Levy procedure
+alatt= sqrt([G(1,1),G(2,2),G(3,3)]);
+cosang = [G(2,3)/(alatt(2)*alatt(3)),G(1,3)/(alatt(1)*alatt(3)),G(1,2)/(alatt(1)*alatt(2))];
+alatt = 2*pi*alatt;
+angdeg = acosd(cosang);
+alatt_angdeg = [alatt,angdeg];
