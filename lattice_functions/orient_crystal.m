@@ -100,8 +100,11 @@ else
     angdeg=angdeg0;
     b_corr = eye(3);
 end
-
-rotmat = build_rotation(rlu_index,rlu_real,rlu_errors,alatt,angdeg);
+if fix_orientation
+    rotmat = eye(3);
+else
+    rotmat = build_rotation(rlu_index,rlu_real,rlu_errors,alatt,angdeg);
+end
 
 rlu_corr=rotmat*b_corr;
 
