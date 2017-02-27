@@ -16,7 +16,11 @@ if ~exist('fig','var'), fig=[]; end
 [fig_handle,ok,mess]=get_figure_handle_single(fig);
 if ok
     fig_num = get_figure_number(fig_handle);
-    print('-dmeta','-noui',['-f',num2str(fig_num)]);
+    if ispc
+        print('-dmeta','-noui',['-f',num2str(fig_num)]);
+    else
+        print('-clipboard','-dbitmap','-noui',['-f',num2str(fig_num)]);        
+    end
 else
     error([mess,'; cannot create meta file.'])
 end

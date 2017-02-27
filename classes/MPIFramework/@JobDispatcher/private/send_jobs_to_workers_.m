@@ -51,6 +51,9 @@ for i=1:n_workers
     else
         job_str = sprintf('%s -nosplash -r "worker(''%s'',''%s'');exit;" &',...
             prog_start_str,job_class_name,worker_id);
+        %         job_str = sprintf('%s -logfile "/home/wkc26243/test_worker_log.log" -r "worker(''%s'',''%s'');exit;" &',...
+        %             prog_start_str,job_class_name,worker_id);
+        
         
     end
     % run external job

@@ -23,6 +23,7 @@ classdef JETester < JobExecutor
             %
             % this particular implementation writes files according to template,
             % provided in test_job_dispatcher.m file
+            %aa= input('enter_something')            
             n_jobs = control_struct.n_steps;
             job_num = this.job_id();
             disp('****************************************************');
