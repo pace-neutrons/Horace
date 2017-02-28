@@ -279,7 +279,7 @@ classdef TestSuite < TestComponent
             %   test_suite = TestSuite.fromPackageName(name) constructs a
             %   TestSuite object from all the test components found in the
             %   specified package.
-
+            
             package_info = meta.package.fromName(name);
             if isempty(package_info)
                 error('xunit:fromPackageName:invalidName', ...

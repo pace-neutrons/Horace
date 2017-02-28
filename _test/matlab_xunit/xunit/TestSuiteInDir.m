@@ -16,6 +16,13 @@
 %   Copyright 2009 The MathWorks, Inc.
 
 classdef TestSuiteInDir < TestSuite & TestComponentInDir
+    properties
+        % full path to the folder, the test is located in.
+        % used by setUp/teadDown methods to put folder on data search
+        % path.
+        full_test_dir_name;
+    end
+    
     
     methods
         function self = TestSuiteInDir(testDirectory)
@@ -32,7 +39,23 @@ classdef TestSuiteInDir < TestSuite & TestComponentInDir
                 self.Name = name;
                 self.Location = testDirectory;
             end
+            
+            
         end
+        function setUp(self)
+            s = what(self.Location);
+            self.full_test_dir_name = s.path;
+            addpath(self.full_test_dir_name);
+            
+        end
+        function tearDown(self)
+            %tearDown Tear down test fixture
+            %   test_component.tearDown() is at the end of the method.  Test
+            %   writers can override tearDown if necessary to clean up a test
+            %   fixture.
+            rmpath(self.full_test_dir_name)
+        end
+        
         
         function gatherTestCases(self)
             %gatherTestCases Add test cases found in the target directory
