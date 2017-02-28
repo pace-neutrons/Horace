@@ -3,7 +3,6 @@ classdef test_change_crystal_1a < TestCase
     %
     %
     properties
-        clob % cleanup object
         %
         dir_out
         nxs_file % list of generated auxiliary nxs files
@@ -22,6 +21,9 @@ classdef test_change_crystal_1a < TestCase
         v=[0,1,0];
         psi=0:2:10;
         omega=0; dpsi=2; gl=3; gs=-3;
+    end
+    properties(Access=private)
+        clob % cleanup object
     end
     methods
         function obj = test_change_crystal_1a(varargin)
@@ -59,7 +61,7 @@ classdef test_change_crystal_1a < TestCase
             % one needs to assign class variables to clean to
             nxs_file_s = obj.nxs_file;
             clearner = @(files,sqw_file,cl_path)(...
-                test_change_crystal_1a.test_change_crystal_cleanup(...
+                test_change_crystal_1a.change_crystal_1a_cleanup(...
                 files ,sqw_file,cl_path));
             obj.clob = onCleanup(@()clearner(nxs_file_s,sim_sqw_file,cof_path));
             
@@ -72,7 +74,7 @@ classdef test_change_crystal_1a < TestCase
             
             
             %bp=[0,-1,-1; 0,-1,0; 1,2,0; 2,3,0; 0,-1,1;0,0,1];
-           % bp=   [0,-1,0;  3,  1,   0; 2  ,0,0];  %;0,0,1
+            % bp=   [0,-1,0;  3,  1,   0; 2  ,0,0];  %;0,0,1
             bp=[0,-1,0; 1,2,0; 0,-1,1]; %;0,0,1
             
             half_len=0.5; half_thick=0.25; bin_width=0.025;
@@ -88,7 +90,7 @@ classdef test_change_crystal_1a < TestCase
             [rlu_corr,alatt1,angdeg1,rotmat_fit] = refine_crystal(rlu_real,...
                 obj.alatt, obj.angdeg, bp,...
                 'fix_angdeg','fix_alatt_ratio');
-                %'fix_lattice');
+            %'fix_lattice');
             
             
             
@@ -106,12 +108,12 @@ classdef test_change_crystal_1a < TestCase
             assertElementsAlmostEqual(bp,rlu0_corr,'absolute',half_thick);
             %
             [alatt_c, angdeg_c, dpsi_deg, gl_deg, gs_deg] = ...
-                crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.alatt, ...
+                crystal_pars_correct (obj.u, obj.v, obj.alatt, obj.angdeg, ...
                 0, 0, 0, 0, rlu_corr);
             %
             %
-            %assertEqual(alatt_c,obj.alatt)
-            %assertEqual(angdeg_c,obj.angdeg)
+            assertElementsAlmostEqual(alatt_c,obj.alatt,'absolute',0.01)
+            assertElementsAlmostEqual(angdeg_c,obj.angdeg,'absolute',0.01)
             %
             realigned_sqw_file=fullfile(obj.dir_out,'test_change_crystal_1sima_realigned.sqw'); % output file for correction
             cleanup_obj1=onCleanup(@()delete(realigned_sqw_file));
@@ -124,10 +126,14 @@ classdef test_change_crystal_1a < TestCase
             rlu1_corr=get_bragg_positions(read_sqw(realigned_sqw_file), ...
                 proj, bp, half_len, half_thick, bin_width);
             assertElementsAlmostEqual(bp,rlu1_corr,'absolute',half_thick);
+            assertElementsAlmostEqual(rlu0_corr,rlu1_corr,'absolute',0.01);
             
         end
         %
-        function test_u_alighnment(obj)
+        function xest_u_alighnment(obj)
+            % have not been finished, does not work
+            % Test is disabled
+            %
             % Fit Bragg peak positions
             % ------------------------
             proj.u=obj.u;
@@ -186,9 +192,9 @@ classdef test_change_crystal_1a < TestCase
                 obj.efix, obj.emode, alatt_c, angdeg_c,...
                 obj.u, obj.v, obj.psi, 0, dpsi_deg, gl_deg, gs_deg);
             
-            %             rlu1_corr=get_bragg_positions(read_sqw(realigned_sqw_file), ...
-            %                 proj, bp, half_len, half_thick, bin_width);
-            %             assertElementsAlmostEqual(bp,rlu1_corr,'absolute',half_thick);
+            rlu1_corr=get_bragg_positions(read_sqw(realigned_sqw_file), ...
+                proj, bp, half_len, half_thick, bin_width);
+            assertElementsAlmostEqual(bp,rlu1_corr,'absolute',half_thick);
             
         end
     end
@@ -249,7 +255,7 @@ classdef test_change_crystal_1a < TestCase
         end
     end
     methods(Static,Access=private)
-        function test_change_crystal_cleanup(nxs_file,misaligned_sqw_file,cof_path)
+        function change_crystal_1a_cleanup(nxs_file,misaligned_sqw_file,cof_path)
             % delete all auxiliary generated files on last
             % instance of test_change_crystal_1a class deletion
             %

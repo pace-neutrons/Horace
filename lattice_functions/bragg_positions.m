@@ -257,15 +257,12 @@ for i=1:size(rlu,1)
     disp('--------------------------------------------------------------------------------')
     disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 1 (radial scan)'])
     w1a_1=cut_sqw(w, proj, [-len_r/2,bin_r,+len_r/2] ,[-thick_t/2,+thick_t/2]   ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
-    disp(' ')
     
     disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 2 (transverse scan)'])
     w1a_2=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-len_t/2,bin_t,+len_t/2] ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
-    disp(' ')
     
     disp(['Peak ',num2str(i),':  [',num2str(rlu(i,:)),']','    scan: 3 (transverse scan)'])
     w1a_3=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-thick_t/2,+thick_t/2]   ,[-len_t/2,bin_t,+len_t/2], eint, '-nopix');
-    disp(' ')
     
     % Get peak positions
     upos0=zeros(3,1);
