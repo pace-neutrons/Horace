@@ -38,10 +38,10 @@ classdef mfclass_tobyfit < mfclass
 %   clear_bbind  - Clear parameter bindings for one or more foreground functions
 %
 % In addtion, specifically for Tobyfit:
-%   set_refine_crystal      - Refine crystal lattice parmaeters and orientation
-%   set_refine_moderator    - Refine moderator parameters
 %   set_mc_contributions    - Alter which components contribute to the resolution
 %   set_mc_points           - Set the number of Monte Carlo points per pixel
+%   set_refine_crystal      - Refine crystal lattice parmaeters and orientation
+%   set_refine_moderator    - Refine moderator parameters
 
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
@@ -64,11 +64,18 @@ classdef mfclass_tobyfit < mfclass
     % <#doc_end:>
 
     properties (Access=private, Hidden=true)
-        % Define which components of instrument contribute to resolution function model
         mc_contributions_ = [];
+        mc_points_ = [];
+        refine_crystal_ = [];
+        refine_moderator_ = [];
+    end
+
+    properties (Dependent)
+        % Define which components of instrument contribute to resolution function model
+        mc_contributions
 
         % The number of Monte Carlo points per pixel
-        mc_points_ = [];
+        mc_points
 
         % Crystal orientation refinement parameters.
         % If crystal refinement will not to be performed, contains [];
@@ -82,7 +89,7 @@ classdef mfclass_tobyfit < mfclass
         %   free        Logical row vector (length=9) (0 fixed, 1 free)
         %               (Default: all free)
         %   fix_alatt_ratio     =true if a,b,c are to be bound (Default: false)
-        refine_crystal_ = [];
+        refine_crystal
 
         % Moderator parameter refinement parameters.
         % If moderator refinement will not to be performed, contains [];
@@ -90,13 +97,6 @@ classdef mfclass_tobyfit < mfclass
         %	pulse_model     Name of moderator pulse shape model
         %   pin             Pulse shape parameters (row vector)
         %   free            Logical row vector of zeros and ones (0 fixed, 1 free)
-        refine_moderator_ = [];
-    end
-
-    properties (Dependent)
-        mc_contributions
-        mc_points
-        refine_crystal
         refine_moderator
     end
 
@@ -106,6 +106,8 @@ classdef mfclass_tobyfit < mfclass
         %------------------------------------------------------------------
         function obj = mfclass_tobyfit (varargin)
             obj@mfclass(varargin{:});
+            %obj.wrapfun_.func_init
+            %[~,~,mc_contr]=obj.wrapfun_.func_init();
             obj = obj.set_mc_contributions;
             obj = obj.set_mc_points;
             obj = obj.set_refine_crystal (false);
