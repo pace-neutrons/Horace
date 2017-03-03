@@ -3,6 +3,9 @@ function [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
 %   >> [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
+% Special case of recovering the Monte Carlo contribution options
+%   >> [ok,mess,mc_contr]=tobyfit_DGfermi_resconv_init
+%
 % Input:
 % ------
 %   win         Cell array of input sqw objects
@@ -52,6 +55,21 @@ function [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
 %         dt            Cell array of vectors, one entry per dataset with size [1,npix],
 %                      with time widths corresponding to energy bins for each pixel
+%
+% *OR*
+%   mc_contr        Cell array of character strings with the names of the
+%                  possible contributions e.g. {'chopper','moderator'}
+
+
+% Catch case of inquiry about mc_contributions
+% --------------------------------------------
+if nargin==0
+    ok=true;
+    mess='';
+    lookup={'moderator','aperture','chopper','sample',...
+        'detector_depth','detector_area','energy_bin'};
+    return
+end
 
 
 % Create lookup

@@ -17,9 +17,6 @@ Little things to check:
 
 Organisation
 ============
-Does resol_conv_tobyfit_mc_init have to be a private function ?
-	
-
 Speed: the buffering of hundreds of IX_divergence_profile takes a long time to read from
 file: it is because of the time spent in IX_divergence_profile/sort, equally split
 between struct_special and nestedSortStruct. I think this is peculiar to divergence,

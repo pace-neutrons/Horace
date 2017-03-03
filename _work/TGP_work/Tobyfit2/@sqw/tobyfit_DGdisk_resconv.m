@@ -185,27 +185,12 @@ for i=1:numel(ind)
     % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters
-        ptmp=mfclass_gateway_parameter_get(dummy_mfclass, pars);
-        pars=mfclass_gateway_parameter_set(dummy_mfclass, pars, ptmp(1:end-9));
-        alatt=ptmp(end-8:end-6);
-        angdeg=ptmp(end-5:end-3);
-        rotvec=ptmp(end-2:end);
-        % Compute rotation matrix and new ub matrix
-        rotmat=rotvec_to_rotmat2(rotvec);
-        ub=ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt,angdeg));
-        rlu_corr=ub\rotmat*xtal.ub0;
-        % Reorient workspace
-        win(i)=change_crystal(win(i),rlu_corr);
+        [win(i), pars] = refine_crystal_strip_pars (win(i), xtal, pars);
         
     elseif refine_moderator
         % Strip out moderator refinement parameters
-        npmod=numel(modshape.pin);
-        ptmp=mfclass_gateway_parameter_get(dummy_mfclass, pars);
-        pars=mfclass_gateway_parameter_set(dummy_mfclass, pars, ptmp(1:end-npmod));
-        pp=ptmp(end-npmod+1:end);
-        % Get moderator lookup table for current moderator parameters
-        [mod_table_refine,mod_t_av_refine,~,mod_profile_refine,store_out]=...
-            moderator_sampling_table_in_mem (modshape.pulse_model,pp,modshape.ei,store_in);
+        [mod_table_refine, mod_t_av_refine, ~, mod_profile_refine, store_out, pars] = ...
+            refine_moderator_strip_pars (modshape, store_in, pars);
     end
     
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation
