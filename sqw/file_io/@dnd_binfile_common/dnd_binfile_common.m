@@ -420,6 +420,15 @@ classdef dnd_binfile_common < dnd_file_interface
             data_form = process_format_fields_(argi{:});
         end
         %
+        function sqw_obj = get_sqw_internal(obj)
+            % return internal sqw object, stored within class or empty
+            % string such object is not present
+            % 
+            % internal iSQW object set up when accessor is initialized 
+            % by an sqw object to write data. 
+            % It references external sqw object to write
+            sqw_obj  = obj.sqw_holder_;
+        end
     end
     %
     methods(Static)

@@ -62,7 +62,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
             
             
-            [ok,initobj] = to.should_load(obj.sample_file);            
+            [ok,initobj] = to.should_load(obj.sample_file);
             assertTrue(ok);
             assertTrue(initobj.file_id>0);
             
@@ -239,6 +239,33 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
             assertEqual(sqw_ob,ver_obj);
         end
+        function test_save_sqwV3toV2(obj)
+            samp_f = fullfile(obj.sample_dir,...
+                'test_sqw_file_read_write_v3_1.sqw');
+            
+            so = faccess_sqw_v3(samp_f);
+            sqw_ob = so.get_sqw();
+            
+            assertTrue(isa(sqw_ob,'sqw'));
+            
+            tf = fullfile(tempdir,'test_save_sqwV3toV2.sqw');
+            clob = onCleanup(@()delete(tf));
+            
+            tob = faccess_sqw_v3(sqw_ob);
+            tob = tob.set_file_to_update(tf);
+            try
+                tob=tob.put_sqw('-v2');
+            catch er
+                assertEqual(er.identifier,'FACCESS_SQW_V3:runtime_error')
+            end
+            
+            assertTrue(exist(tf,'file')==2)
+            tob.delete();
+            
+            tob=faccess_sqw_v2(tf);
+            assertEqual(tob.file_version,'-v2');
+        end
+        
         
         
     end
