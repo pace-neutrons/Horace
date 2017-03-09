@@ -93,7 +93,7 @@ end
 fwrite(obj.file_id_,npix,'uint64');
 %
 obj.eof_pix_pos_ = obj.pix_pos_ + npix * 9*4;
-if nopix %TODO: Copyed from prototype. Does this make any sence?
+if nopix %TODO: Copied from prototype. Does this make any sense?
     fseek(obj.file_id_,obj.eof_pix_pos_ ,'bof');
     ferror(obj.file_id_, 'clear'); % clear error in case if pixels have never been written
     return;
