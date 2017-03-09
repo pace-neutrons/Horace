@@ -9,8 +9,21 @@ fseek(obj.file_id_,0,'eof');
 file_end = ftell(obj.file_id_);
 if uint64(pix_end) - uint64(file_end)>0
     warning('FACCESS_SQW_V3:runtime_error',...
-        'file end position %d is not equal to pixel end position: %d',...
-        pix_end,file_end);
+        'file end position %d is not equal to pixel end position: %d\n%s',...
+        pix_end,file_end,...
+        'waiting 30 sec to flush filesystem');
+    pause(30);
+%     fseek(obj.file_id_,0,'eof');
+%     file_end = ftell(obj.file_id_);
+%     if uint64(pix_end) - uint64(file_end)>0
+%         sqw_obj = obj.
+%         obj=obj.delete();
+%         obj1=faccess_sqw_v2(sqw_obj);
+%         obj1=obj1.init(
+%         error('FACCESS_SQW_V3:runtime_error',...
+%             ['can not move to pixel end to write auxiliary V3 information',...
+%             ' file redefined as v2 file, which may be itself corrupted']);
+%     end
 end
 
 obj = put_sample_instr_records_(obj);
