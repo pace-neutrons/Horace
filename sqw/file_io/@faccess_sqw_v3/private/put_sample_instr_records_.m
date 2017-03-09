@@ -6,8 +6,8 @@ function obj = put_sample_instr_records_(obj,varargin)
 %>> obj = put_sample_instr_records_(obj) --  saves sample&instrument records
 %         taked from internal sqw object
 %>> obj = put_sample_instr_records_(obj,an_sqw_object) -- saves
-%         sample&instrument records taked from sqw object provided
-%>> obj = put_sample_instr_records_(obj,is_holder_object) -- saves samle||
+%         sample&instrument records taken from sqw object provided
+%>> obj = put_sample_instr_records_(obj,is_holder_object) -- saves sample||
 %         instrument || both hold by auxiliary is_holder object
 %>> obj = put_sample_instr_records_(obj,[])  -- clears all instrument and
 %         sample information
@@ -20,7 +20,7 @@ function obj = put_sample_instr_records_(obj,varargin)
 obj.check_obj_initated_properly();
 setting_sample = true;
 setting_instr  = true;
-% extract sqw header from various sources, inculding sqw provided as input,
+% extract sqw header from various sources, including sqw provided as input,
 % sqw_holder or just instrument and sample provided as inputs
 header = obj.extract_correct_subobj('header',varargin{:});
 if isa(header,'is_holder')
