@@ -84,13 +84,9 @@ if ~io_error
     obj.npix_pos_=data_pos.npix_pos_;
     obj.urange_pos_=data_pos.urange_pos_;
     obj.pix_pos_=data_pos.pix_pos_+8;  % pixels are written with their size in front of the array.
-    % subsequent methods read pixels directly, so here we shift pixel
-    % position by the array length
-    obj.data_type_ = 'a';
-    obj.dnd_eof_pos_ = data_pos.urange_pos_;
     
     % calculate number of pixels from pixels block position and its size
-    obj.npixels_  = (obj.eof_pix_pos_ - obj.pix_pos_)/(4*9);    
+    obj.npixels_  = (obj.eof_pix_pos_ - obj.pix_pos_)/(4*9);
 else
     if ~isfield(data_pos,'npix_pos_')
         obj.data_type_ = 'b';
@@ -98,23 +94,26 @@ else
         obj.dnd_eof_pos_ = pos;
         return
     else
-        obj.npix_pos_=data_pos.npix_pos_;        
+        obj.npix_pos_=data_pos.npix_pos_;
     end
     obj.data_type_ = 'b+';
     if ~isfield(data_pos,'pix_pos_')
         obj.data_type_ = 'a-';
         obj.dnd_eof_pos_ = pos;
-        
         obj=set_filepath(obj);
         return;
     else
-        obj.pix_pos_=data_pos.pix_pos_+8;        
-        fseek(obj.file_id_,data_pos.pix_pos_,'bof');        
+        obj.urange_pos_=data_pos.urange_pos_;
+        obj.pix_pos_=data_pos.pix_pos_+8;
+        fseek(obj.file_id_,data_pos.pix_pos_,'bof');
         obj.npixels_ = fread(obj.file_id_,1,'*uint64');
     end
-    obj.dnd_eof_pos_ = data_pos.urange_pos_;
-    obj.data_type_ = 'a';
 end
+% subsequent methods read pixels directly, so here we shift pixel
+% position by the array length
+obj.data_type_ = 'a';
+obj.dnd_eof_pos_ = data_pos.urange_pos_;
+
 obj.data_fields_locations_ = data_pos;
 %
 
