@@ -91,7 +91,7 @@ else
     data_form.pix = field_pix();
 end
 
-% full header necessary to inentify datatype in the file
+% full header necessary to identify datatype in the file
 if strncmp(obj.data_type,'un',2)
     return;
 end

@@ -260,10 +260,16 @@ classdef test_faccess_sqw_v3< TestCase
             end
             
             assertTrue(exist(tf,'file')==2)
-            tob.delete();
             
-            tob=faccess_sqw_v2(tf);
-            assertEqual(tob.file_version,'-v2');
+            tob1=faccess_sqw_v2(tf);
+            assertEqual(tob1.file_version,'-v2');
+            % this may fail in furute versions of the code as delete was
+            % invoked over tob
+            assertEqual(tob.npixels,tob1.npixels);
+            assertEqual(tob.pix_position,tob1.pix_position);
+            assertEqual(tob.data_position,tob1.data_position);
+            assertEqual(tob.npix_position,tob1.npix_position);
+            tob1.delete();
         end
         
         
