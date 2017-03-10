@@ -1,7 +1,7 @@
 function test_set_instrument_data_2()
 
 % Set up names of data files
-data_dir = pwd;
+data_dir = fileparts(which(mfilename));
 
 
 % Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
