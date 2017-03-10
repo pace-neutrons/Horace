@@ -106,7 +106,9 @@ else
         obj.urange_pos_=data_pos.urange_pos_;
         obj.pix_pos_=data_pos.pix_pos_+8;
         fseek(obj.file_id_,data_pos.pix_pos_,'bof');
+        check_and_throw_error(obj,'unable to move to npix position in file');
         obj.npixels_ = fread(obj.file_id_,1,'*uint64');
+        check_and_throw_error(obj,'unable to read npix field');
     end
 end
 % subsequent methods read pixels directly, so here we shift pixel
