@@ -36,7 +36,7 @@ try
     ndims = ldr.num_dim;
     mess = [];
 catch ME
-    mess = ME.msgtext;
+    mess = ME.message;
 end
 if ~isempty(mess)
     ok=false;
