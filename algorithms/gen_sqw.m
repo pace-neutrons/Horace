@@ -63,7 +63,7 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %   'clean'         [Only valid if 'accumulate' is also present]. Delete the sqw file if
 %                  it exists.
 %
-%  'transform_sqw' Keyword, followed by the function handle to transform 
+%  'transform_sqw' Keyword, followed by the function handle to transform
 %                  sqw object. The function should have the form:
 %                  wout = f(win) where win is input sqw object and wout --
 %                  the transformed one. For example f can symmetrize sqw file:
@@ -92,8 +92,6 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 
 % *** Possible improvements
 % - Cleverer choice of grid size on the basis of number of data points in the file
-
-d2r=pi/180;     % conversion factor from degrees to radians
 
 
 % Determine keyword arguments, if present
@@ -176,28 +174,36 @@ require_sqw_exist=false;
 [ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
 if ~ok, error(mess), end
-nfiles=numel(spe_file);
+n_all_spe_files=numel(spe_file);
 
 
 % Set the status of flags for the three cases we must handle
 % (One and only of the three cases below will be true, the others false.)
 accumulate_old_sqw=false;   % true if want to accumulate spe data to an existing sqw file (not all spe data files need exist)
 accumulate_new_sqw=false;   % true if want to accumulate spe data to a new sqw file (not all spe data files need exist)
-generate_new_sqw=false;          % true if want to generate a new sqw file (all spe data files must exist)
+use_partial_tmp = false;    % true to generate a combined sqw file during accumulate sqw using tmp files calculated at
+% previous accumulation steps
+
+[log_level,use_mex_for_combine,delete_tmp]=...
+    config_store.instance().get_value('hor_config','log_level',...
+    'use_mex_for_combine','delete_tmp');
+
 if opt.accumulate
     if sqw_exist && ~opt.clean  % accumulate onto an existing sqw file
         accumulate_old_sqw=true;
     else
         accumulate_new_sqw=true;
     end
-else
-    generate_new_sqw=true;
+    if use_mex_for_combine % use tmp rather than sqw file as source of
+        opt.clean = true;
+        use_partial_tmp = true;
+    end
 end
-horace_info_level=config_store.instance().get_value('hor_config','log_level');
+
 
 % Check numeric parameters (array lengths and sizes, simple requirements on validity)
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
-    (nfiles,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+    (n_all_spe_files,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
 
 
@@ -206,7 +212,7 @@ grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
 [ok,mess,present,grid_size_in,urange_in,instrument,sample]=gen_sqw_check_optional_args(...
-    nfiles,grid_default,instrument_default,sample_default,args{:});
+    n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error(mess), end
 if accumulate_old_sqw && (present.grid||present.urange)
     error('If data is being accumulated to an existing sqw file, then you cannot specify the grid or urange.')
@@ -215,34 +221,47 @@ end
 
 % Check the input parameters define unique data sets
 if accumulate_old_sqw    % combine with existing sqw file
-    % Check that the sqw file has the correct type to which to accumulate
-    [ok,mess,header_sqw,grid_size_sqw,urange_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
-    % Check that the input spe data are distinct
-    if ~ok, error(mess), end
+    if use_partial_tmp
+        all_tmp_files=gen_tmp_filenames(spe_file,sqw_file);
+        % get pseudo-combined header from list of tmp files
+        [header_sqw,grid_size_sqw,urange_sqw,ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
+    else
+        % Check that the sqw file has the correct type to which to accumulate
+        [ok,mess,header_sqw,grid_size_sqw,urange_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
+        % Check that the input spe data are distinct
+        if ~ok, error(mess), end
+    end
+    %
     [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
         u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate, header_sqw);
     if ~ok, error(mess), end
-    if any(head_only) && horace_info_level>-1
+    if any(head_only) && log_level>-1
         disp('********************************************************************************')
         disp('***  WARNING: The sqw file contains at least one data set that does not      ***')
         disp('***           appear in the list of input spe data sets                      ***')
         disp('********************************************************************************')
         disp(' ')
     end
-    if ~any(spe_exist & spe_only)   % no work to do
-        if  horace_info_level>-1
-            disp('--------------------------------------------------------------------------------')
-            if ~any(spe_only)
-                disp('  All the input spe data are already included in the sqw file. No work to do.')
-            elseif ~any(spe_exist)
-                disp('  None of the input spe data currently exist. No work to do.')
-            else
-                disp('  All the input spe data are already included in the sqw file, or do not')
-                disp('  currently exist. No work to do.')
+    if ~any(spe_exist & spe_only)
+        if use_partial_tmp
+            tmp_file = all_tmp_files(ind_tmp_files_present);
+            if log_level>-1
+                disp('Creating output sqw file:')
             end
-            disp('--------------------------------------------------------------------------------')
+            
+            write_nsqw_to_sqw (tmp_file, sqw_file);
+            
+            if numel(tmp_file) == numel(all_tmp_files)
+                tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
+                tmp_file={};
+            end
+        else
+            if  log_level>-1  % no work to do
+                report_nothing_to_do(spe_only,spe_exist);
+            end
+            tmp_file={};
         end
-        tmp_file={}; grid_size=grid_size_sqw; urange=urange_sqw;
+        grid_size=grid_size_sqw; urange=urange_sqw;
         return
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
@@ -270,12 +289,23 @@ if ~isempty(opt.transform_sqw)
 else
     rundata_par = {};
 end
-run_files = rundatah.gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),alatt(ix,:),angdeg(ix,:),...
-    u(ix,:),v(ix,:),psi(ix),omega(ix),dpsi(ix),gl(ix),gs(ix),rundata_par{:});
+
+if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf need to use par file from existing runfiles
+    % Get detector parameters
+    iex1 = indx(1);
+    rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file,efix(1),emode(1),...
+        alatt(iex1,:),angdeg(iex1,:),...
+        u(iex1,:),v(iex1,:),psi(iex1),omega(iex1),dpsi(iex1),gl(iex1),gs(iex1),rundata_par{:});
+    par_file = get_par(rf1{1});
+end
+
+% build all runfiles, including missing runfiles
+run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,...
+    u,v,psi,omega,dpsi,gl,gs,'-allow_missing',rundata_par{:});
 
 % If grid not given, make default size
 if ~accumulate_old_sqw && isempty(grid_size_in)
-    if nfiles==1
+    if n_all_spe_files==1
         grid_size_in=[1,1,1,1];     % for a single spe file, don't sort
     else
         grid_size_in=[50,50,50,50]; % multiple spe files, 50^4 grid
@@ -283,69 +313,20 @@ if ~accumulate_old_sqw && isempty(grid_size_in)
 elseif accumulate_old_sqw
     grid_size_in=grid_size_sqw;
 end
-[use_separate_matlab,num_matlab_sessions,use_mex] = ...
-    config_store.instance().get_value('hor_config',...
-    'accum_in_separate_process','accumulating_process_num','use_mex');
+
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw && isempty(urange_in)
-    if horace_info_level>-1
-        disp('--------------------------------------------------------------------------------')
-        disp(['Calculating limits of data for ',num2str(nfiles),' spe files...'])
-    end
-    if use_mex
-        cash_det = {};
-    else
-        cash_det  = {'-cash_detectors'};
-    end
-    
-    bigtic
-    urange_in = rundata_find_urange(run_files,cash_det{:});
-    if any(~ix)
-        % Get estimate of energy bounds for those spe data that do not actually exist
-        eps_lo=NaN(nfiles,1); eps_hi=NaN(nfiles,1);
-        for i=1:nindx
-            en=run_files{i}.en;
-            en_cent=0.5*(en(2:end)+en(1:end-1));
-            eps_lo(indx(i))=en_cent(1); eps_hi(indx(i))=en_cent(end);
-        end
-        [eps_lo,eps_hi]=estimate_erange(efix,emode,eps_lo,eps_hi);
-        % Compute range with those estimate energy bounds
-        if isempty(par_file) % need to use par file from existing runfiles
-            % Get detector parameters
-            par_file = get_par(run_files{1});
-        end
-        missing_rf = rundatah.gen_runfiles(spe_file(~ix),par_file,...
-            efix(~ix),emode(~ix),alatt(~ix,:),angdeg(~ix,:),...
-            u(~ix,:),v(~ix,:),psi(~ix),omega(~ix),dpsi(~ix),gl(~ix),gs(~ix),...
-            '-allow_missing',rundata_par{:});
-        eps_lo = eps_lo(~ix);
-        eps_hi = eps_hi(~ix);
-        for i = 1:numel(missing_rf)
-            missing_rf{i}.en = [eps_lo(i);eps_hi(i)];
-        end
-        
-        urange_est = rundata_find_urange(missing_rf,cash_det{:});
-        
-        %urange_est=calc_urange(efix(~ix),emode(~ix),eps_lo(~ix),eps_hi(~ix),det,alatt(~ix,:),angdeg(~ix,:),...
-        %    u(~ix,:),v(~ix,:),psi(~ix)*d2r,omega(~ix)*d2r,dpsi(~ix)*d2r,gl(~ix)*d2r,gs(~ix)*d2r);
-        % Expand range to include urange_est, if necessary
-        urange_in=[min(urange_in(1,:),urange_est(1,:)); max(urange_in(2,:),urange_est(2,:))];
-    end
-    % Add a border
-    urange_in=range_add_border(urange_in,-1e-6);
-    
-    if horace_info_level>-1
-        bigtoc('Time to compute limits:',horace_info_level);
-    end
-    
+    urange_in = find_urange(run_files,efix,emode,ix,indx);
 elseif accumulate_old_sqw
     urange_in=urange_sqw;
 end
+run_files = run_files(ix); % select only existing runfiles
+
 
 % Construct output sqw file
 if ~accumulate_old_sqw && nindx==1
     % Create sqw file in one step: no need to create an intermediate file as just one input spe file to convert
-    if horace_info_level>-1
+    if log_level>-1
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
     end
@@ -360,138 +341,83 @@ if ~accumulate_old_sqw && nindx==1
     %grid_size_in,urange_in,write_banner,opt);
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
-    if horace_info_level>-1
+    if log_level>-1
         disp('--------------------------------------------------------------------------------')
     end
 else
-    % Create unique temporary sqw files, one for each of the spe files
-    [tmp_file,sqw_file_tmp]=gen_tmp_filenames(spe_file,sqw_file,indx);
-    nt=bigtic();
-    %write_banner=true;
-    
-    not_empty = cellfun(@(x)(~empty_or_missing(x)),spe_file);
+    % cut instrument and sample to rundata array size
     if verLessThan('matlab','8.0')
         % Older Matlab compatibility operator: overcome flaw in indexing empty structure arrays pre 2011b or so.
         if  numel(fields(instrument))~=0
             instrument = instrument(indx);
         else
-            instrument  = repmat(struct(),sum(not_empty),1);
+            instrument  = repmat(struct(),sum(ix),1);
         end
         if numel(fields(sample))~=0
             sample = sample(indx);
         else
-            sample = repmat(struct(),sum(not_empty),1);
+            sample = repmat(struct(),sum(ix),1);
         end
     else
-        if ~all(not_empty)
+        if ~all(ix)
             %tmp_file = tmp_file(not_empty);
-            instrument = instrument(not_empty);
-            sample     = sample(not_empty);
+            instrument = instrument(ix);
+            sample     = sample(ix);
         end
         
     end
-    if numel(run_files) < numel(instrument)
-        instrument = instrument(1:numel(run_files));
-        sample = sample(1:numel(run_files));
-    end
     
-    job_par_fun = @(run,fname,instr,samp,transf)(gen_sqw_files_job.pack_job_pars(...
-        run,fname,instr,samp,...
-        grid_size_in,urange_in));
-    job_par = cellfun(job_par_fun,...
-        run_files',tmp_file,num2cell(instrument),num2cell(sample),...
-        'UniformOutput', true);
+    % Generate unique temporary sqw files, one for each of the spe files
+    [grid_size,urange,tmp_file]=convert_to_tmp_files(run_files,sqw_file,...
+        instrument,sample,urange_in,grid_size_in);
     
-    if use_separate_matlab
-        %
-        % aggregate the conversion parameters into array of structures,
-        % suitable for splitting jobs between workers
-        %
-        % start parallel framework
-        [~,par_job_name] = fileparts(sqw_file);
-        % name parallel job by sqw file name
-        jd = JobDispatcher(upper(par_job_name));
-        %
-        [n_failed,outputs,job_ids] = jd.send_jobs('gen_sqw_files_job',...
-            job_par,num_matlab_sessions);
-        %
-        [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,...
-            num_matlab_sessions,outputs,job_ids);
+    if use_partial_tmp
+        keep_tmp_files = true;                
     else
-        %---------------------------------------------------------------------
-        % serial rundata to sqw transformation
-        % equivalent of:
-        %[grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
-        %    grid_size_in,urange_in,instrument,sample,write_banner,opt);
-        %
-        % make it look like a parallel transformation. A bit less
-        % effective but much easier to identify problem with
-        % failing parallel job
-        jex = gen_sqw_files_job();
-        % delete messages exchange folder created by parallel framework
-        % at the end of the procedure
-        clob = onCleanup(@()(rmdir(jex.exchange_folder,'s')));
-        % run conversion
-        jex = jex.do_job(job_par);
-        % retrieve outputs
-        result = jex.job_outputs;
-        %
-        grid_size= result.grid_size;
-        urange = result.urange;
-        %---------------------------------------------------------------------
+        keep_tmp_files = ~delete_tmp;        
     end
-    if horace_info_level>-1
-        disp('--------------------------------------------------------------------------------')
-        bigtoc(nt,'Time to create all temporary sqw files:',horace_info_level);
-        % Create single sqw file combining all intermediate sqw files
-        disp('--------------------------------------------------------------------------------')
+
+    if use_partial_tmp && accumulate_old_sqw  % if necessary, add already generated and present tmp files
+        tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
+        if numel(tmp_file) == n_all_spe_files % final step in combining tmp files, all tmp files will be generated
+            keep_tmp_files = false;
+        else
+            keep_tmp_files = true;            
+        end
     end
     
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
     if ~opt.tmp_only
-        if ~accumulate_old_sqw
-            if horace_info_level>-1
+        if ~accumulate_old_sqw || use_partial_tmp
+            if log_level>-1
                 disp('Creating output sqw file:')
             end
             write_nsqw_to_sqw (tmp_file, sqw_file);
         else
-            if horace_info_level>-1
+            if log_level>-1
                 disp('Accumulating in temporary output sqw file:')
             end
+            sqw_file_tmp = [sqw_file,'.tmp'];
             write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp);
-            if horace_info_level>-1
+            if log_level>-1
                 disp(' ')
                 disp(['Renaming sqw file to ',sqw_file])
             end
             rename_file (sqw_file_tmp, sqw_file)
         end
         
-        if horace_info_level>-1
+        if log_level>-1
             disp('--------------------------------------------------------------------------------')
         end
-        
-        % Delete temporary files
-        if get(hor_config,'delete_tmp') %if requested
-            delete_error=false;
-            for i=1:numel(tmp_file)
-                ws=warning('off','MATLAB:DELETE:Permission');
-                try
-                    delete(tmp_file{i})
-                catch
-                    if delete_error==false
-                        delete_error=true;
-                        if horace_info_level>-1
-                            disp('One or more temporary sqw files not deleted')
-                        end
-                    end
-                end
-                warning(ws);
-            end
+        % Delete temporary files at the end, if necessary
+        if delete_tmp && ~keep_tmp_files %if requested
+            tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
         end
+        
+        
     end
     
 end
-
 
 % Clear output arguments if nargout==0 to have a silent return
 % ------------------------------------------------------------
@@ -500,6 +426,24 @@ if nargout==0
 end
 % clear cashed detectors information and detectors directions
 rundatah.clear_det_cash();
+
+function delete_tmp_files(file_list,horace_info_level)
+delete_error=false;
+for i=1:numel(file_list)
+    ws=warning('off','MATLAB:DELETE:Permission');
+    try
+        delete(file_list{i})
+    catch
+        if delete_error==false
+            delete_error=true;
+            if horace_info_level>-1
+                disp('One or more temporary sqw files not deleted')
+            end
+        end
+    end
+    warning(ws);
+end
+
 
 
 function  [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,n_workers,outputs,job_ids,job_par)
@@ -566,9 +510,259 @@ function is = empty_or_missing(fname)
 if isempty(fname)
     is  = true;
 else
-    if exist(fname,'file')
+    if exist(fname,'file') == 2
         is = false;
     else
         is  = true;
     end
+end
+
+%------------------------------------------------------------------------------------------------
+function [header_sqw,grid_size_sqw,urange_sqw,tmp_present] = get_tmp_file_headers(tmp_file_names)
+% get sqw header for prospective sqw file from range of tmp files
+%
+% Input:
+% tmp_file_names -- list of tmp file names with internal sqw format
+%
+% Output:
+% header_sqw -- list of partial tmp files headers combined in the form,
+%               used by sqw file
+% grid_size_sqw -- tmp files binning (has to be equal for all input files)
+% urange_sqw   -- q-range of input tmp files (has to be equal for all existing files)
+% tmp_present  -- logical array containing true for all tmp_file_names
+%                 found on hdd and false otherwise
+%
+tmp_present = ~cellfun(@empty_or_missing,tmp_file_names,...
+    'UniformOutput',true);
+files_to_check = tmp_file_names(tmp_present);
+header_sqw = cell(numel(files_to_check),1);
+multiheaders = false;
+ic = 1;
+urange_sqw = [];
+for i=1:numel(files_to_check)
+    try
+        ldr = sqw_formats_factory.instance().get_loader(files_to_check{i});
+        sqw_type = ldr.sqw_type;
+        ndims = ldr.num_dim;
+        mess = [];
+    catch ME
+        mess = ME.message;
+    end
+    if ~isempty(mess) || ~sqw_type || ndims~=4
+        tmp_present(i) = false;
+        continue;
+    end
+    if multiheaders
+        ic = ic+1;
+    end
+    
+    
+    % Get header information to check other fields
+    % --------------------------------------------
+    header = ldr.get_header('-all');
+    data   = ldr.get_data('-head');
+    
+    if isempty(urange_sqw)
+        urange_sqw=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
+            data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];
+        grid_size_sqw = [numel(data.p{1})-1,numel(data.p{2})-1,...
+            numel(data.p{3})-1,numel(data.p{4})-1];
+        data_ref = data;
+    else
+        urange_l=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
+            data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];
+        grid_size_l = [numel(data.p{1})-1,numel(data.p{2})-1,...
+            numel(data.p{3})-1,numel(data.p{4})-1];
+        
+        tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
+        % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
+        % should be rounded identically.
+        if ~equal_to_relerr(urange_sqw, urange_l, tol, 1)
+            error('GEN_SQW:invalid_argument',...
+                'the tmp file to combine: %s does not have the same range as first tmp file',...
+                ldr.filename)
+        end
+        if ~equal_to_relerr(grid_size_sqw, grid_size_l, tol, 1)
+            error('GEN_SQW:invalid_argument',...
+                'the tmp file to combine: %s does not have the same binning as first tmp file',...
+                ldr.filename)
+        end
+        
+        ok =equal_to_relerr(data_ref.alatt, data.alatt, tol, 1) &...
+            equal_to_relerr(data_ref.angdeg, data.angdeg, tol, 1) &...
+            equal_to_relerr(data_ref.uoffset, data.uoffset, tol, 1) &...
+            equal_to_relerr(data_ref.u_to_rlu(:), data.u_to_rlu(:), tol, 1) &...
+            equal_to_relerr(data_ref.ulen, data.ulen, tol, 1);
+        if ~ok
+            error('GEN_SQW:invalid_argument',...
+                'the tmp file to combine: %s does not have the the correct projection axes for this operation',...
+                ldr.filename)
+        end
+        
+    end
+    if iscell(header) % if tmp files contain more than one header. This is not normal situation
+        multiheaders = true;
+        if ic<i; ic = i; end
+        if ic==numel(header_sqw)
+            header_sqw = {header_sqw{1:ic},header{:}};
+        else
+            header_sqw = {header_sqw{1:ic},header{:},header_sqw{ic+1:end}};
+        end
+    else
+        if multiheaders
+            header_sqw{ic} = header;
+        else
+            header_sqw{i} = header;
+        end
+    end
+    
+end
+%-------------------------------------------------------------------------
+function  urange_in = find_urange(run_files,efix,emode,ief,indx)
+% Calculate ranges of all runfiles provided including missing files
+% where only parameters are provided
+% inputs:
+% runfiles -- list of all runfiles to process. Some may not exist
+% efix     -- array of all incident energies
+% emode    -- array of data processing modes (direct/indeirect elastic)
+% ief      -- array of logical indexes where true indicates than runfile
+%             exist and false -- not
+% indx     -- indexes of existing runfiles in array of all runfiles
+%Output:
+% urange_in -- q-dE range of all input data
+%
+[use_mex,log_level] = ...
+    config_store.instance().get_value('hor_config','use_mex','log_level');
+nindx = numel(indx);
+n_all_spe_files = numel(run_files);
+
+if log_level>-1
+    disp('--------------------------------------------------------------------------------')
+    disp(['Calculating limits of data for ',num2str(n_all_spe_files),' spe files...'])
+end
+
+if use_mex
+    cash_det = {};
+else
+    cash_det  = {'-cash_detectors'};
+end
+
+bigtic
+urange_in = rundata_find_urange(run_files(ief),cash_det{:});
+
+% process missing files
+if ~all(ief)
+    % Get estimate of energy bounds for those spe data that do not actually exist
+    eps_lo=NaN(n_all_spe_files,1); eps_hi=NaN(n_all_spe_files,1);
+    for i=1:nindx
+        en=run_files{indx(i)}.en;
+        en_cent=0.5*(en(2:end)+en(1:end-1));
+        eps_lo(indx(i))=en_cent(1); eps_hi(indx(i))=en_cent(end);
+    end
+    [eps_lo,eps_hi]=estimate_erange(efix,emode,eps_lo,eps_hi);
+    % Compute range with those estimate energy bounds
+    missing_rf = run_files(~ief);
+    eps_lo = eps_lo(~ief);
+    eps_hi = eps_hi(~ief);
+    for i = 1:numel(missing_rf)
+        missing_rf{i}.en = [eps_lo(i);eps_hi(i)];
+    end
+    
+    urange_est = rundata_find_urange(missing_rf,cash_det{:});
+    
+    %urange_est=calc_urange(efix(~ix),emode(~ix),eps_lo(~ix),eps_hi(~ix),det,alatt(~ix,:),angdeg(~ix,:),...
+    %    u(~ix,:),v(~ix,:),psi(~ix)*d2r,omega(~ix)*d2r,dpsi(~ix)*d2r,gl(~ix)*d2r,gs(~ix)*d2r);
+    % Expand range to include urange_est, if necessary
+    urange_in=[min(urange_in(1,:),urange_est(1,:)); max(urange_in(2,:),urange_est(2,:))];
+end
+% Add a border
+urange_in=range_add_border(urange_in,-1e-6);
+
+if log_level>-1
+    bigtoc('Time to compute limits:',horace_info_level);
+end
+
+function report_nothing_to_do(spe_only,spe_exist)
+disp('--------------------------------------------------------------------------------')
+if ~any(spe_only)
+    disp('  All the input spe data are already included in the sqw file. No work to do.')
+elseif ~any(spe_exist)
+    disp('  None of the input spe data currently exist. No work to do.')
+else
+    disp('  All the input spe data are already included in the sqw file, or do not')
+    disp('  currently exist. No work to do.')
+end
+disp('--------------------------------------------------------------------------------')
+%---------------------------------------------------------------------------------------
+function  [grid_size,urange,tmp_file]=convert_to_tmp_files(run_files,sqw_file,instrument,sample,urange_in,grid_size_in)
+%
+
+[use_separate_matlab,num_matlab_sessions,log_level] = ...
+    config_store.instance().get_value('hor_config',...
+    'accum_in_separate_process','accumulating_process_num','log_level');
+
+% build names for tmp files to generate
+spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
+    'UniformOutput',false);
+tmp_file=gen_tmp_filenames(spe_file,sqw_file);
+
+
+nt=bigtic();
+%write_banner=true;
+
+if numel(run_files) < numel(instrument)
+    instrument = instrument(1:numel(run_files));
+    sample = sample(1:numel(run_files));
+end
+
+job_par_fun = @(run,fname,instr,samp,transf)(gen_sqw_files_job.pack_job_pars(...
+    run,fname,instr,samp,...
+    grid_size_in,urange_in));
+job_par = cellfun(job_par_fun,...
+    run_files',tmp_file,num2cell(instrument),num2cell(sample),...
+    'UniformOutput', true);
+
+if use_separate_matlab
+    %
+    % aggregate the conversion parameters into array of structures,
+    % suitable for splitting jobs between workers
+    %
+    % start parallel framework
+    [~,par_job_name] = fileparts(sqw_file);
+    % name parallel job by sqw file name
+    jd = JobDispatcher(upper(par_job_name));
+    %
+    [n_failed,outputs,job_ids] = jd.send_jobs('gen_sqw_files_job',...
+        job_par,num_matlab_sessions);
+    %
+    [grid_size,urange]= check_and_combine_parallel_outputs(n_failed,...
+        num_matlab_sessions,outputs,job_ids);
+else
+    %---------------------------------------------------------------------
+    % serial rundata to sqw transformation
+    % equivalent of:
+    %[grid_size,urange] = rundata_write_to_sqw (run_files,tmp_file,...
+    %    grid_size_in,urange_in,instrument,sample,write_banner,opt);
+    %
+    % make it look like a parallel transformation. A bit less
+    % effective but much easier to identify problem with
+    % failing parallel job
+    jex = gen_sqw_files_job();
+    % delete messages exchange folder created by parallel framework
+    % at the end of the procedure
+    clob = onCleanup(@()(rmdir(jex.exchange_folder,'s')));
+    % run conversion
+    jex = jex.do_job(job_par);
+    % retrieve outputs
+    result = jex.job_outputs;
+    %
+    grid_size= result.grid_size;
+    urange = result.urange;
+    %---------------------------------------------------------------------
+end
+if log_level>-1
+    disp('--------------------------------------------------------------------------------')
+    bigtoc(nt,'Time to create all temporary sqw files:',log_level);
+    % Create single sqw file combining all intermediate sqw files
+    disp('--------------------------------------------------------------------------------')
 end

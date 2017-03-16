@@ -63,7 +63,7 @@ tmp_ext = '.tmp';
 name=cell(ntmp,1);
 for i=1:ntmp
     if ~isempty(spe_file{ind(i)})
-        [dummy,name{i}]=fileparts(spe_file{ind(i)});
+        [~,name{i}]=fileparts(spe_file{ind(i)});
     else
         name{i}='dummy';
     end
