@@ -290,19 +290,24 @@ else
     rundata_par = {};
 end
 
-if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf need to use par file from existing runfiles
-    % Get detector parameters
-    iex1 = indx(1);
-    rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file,efix(1),emode(1),...
-        alatt(iex1,:),angdeg(iex1,:),...
-        u(iex1,:),v(iex1,:),psi(iex1),omega(iex1),dpsi(iex1),gl(iex1),gs(iex1),rundata_par{:});
-    par_file = get_par(rf1{1});
+if accumulate_old_sqw % build only runfiles to process
+    run_files = rundatah.gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),...
+        alatt(ix,:),angdeg(ix,:),...
+        u(ix,:),v(ix,:),psi(ix),omega(ix),dpsi(ix),gl(ix),gs(ix),rundata_par{:});
+else % build all runfiles, including missing runfiles. TODO: Lost generality
+    if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf need to use par file from existing runfiles
+        % Get detector parameters
+        iex1 = indx(1);
+        rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file,efix(1),emode(1),...
+            alatt(iex1,:),angdeg(iex1,:),...
+            u(iex1,:),v(iex1,:),psi(iex1),omega(iex1),dpsi(iex1),gl(iex1),gs(iex1),rundata_par{:});
+        par_file = get_par(rf1{1});
+    end
+    
+    % build all runfiles, including missing runfiles
+    run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,...
+        u,v,psi,omega,dpsi,gl,gs,'-allow_missing',rundata_par{:});
 end
-
-% build all runfiles, including missing runfiles
-run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,...
-    u,v,psi,omega,dpsi,gl,gs,'-allow_missing',rundata_par{:});
-
 % If grid not given, make default size
 if ~accumulate_old_sqw && isempty(grid_size_in)
     if n_all_spe_files==1
@@ -317,10 +322,10 @@ end
 % If no input data range provided, calculate it from the files
 if ~accumulate_old_sqw && isempty(urange_in)
     urange_in = find_urange(run_files,efix,emode,ix,indx);
+    run_files = run_files(ix); % select only existing runfiles
 elseif accumulate_old_sqw
     urange_in=urange_sqw;
 end
-run_files = run_files(ix); % select only existing runfiles
 
 
 % Construct output sqw file
@@ -372,17 +377,17 @@ else
         instrument,sample,urange_in,grid_size_in);
     
     if use_partial_tmp
-        keep_tmp_files = true;                
+        keep_tmp_files = true;
     else
-        keep_tmp_files = ~delete_tmp;        
+        keep_tmp_files = ~delete_tmp;
     end
-
+    
     if use_partial_tmp && accumulate_old_sqw  % if necessary, add already generated and present tmp files
         tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
         if numel(tmp_file) == n_all_spe_files % final step in combining tmp files, all tmp files will be generated
             keep_tmp_files = false;
         else
-            keep_tmp_files = true;            
+            keep_tmp_files = true;
         end
     end
     

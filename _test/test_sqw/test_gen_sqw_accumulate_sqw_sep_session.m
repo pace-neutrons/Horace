@@ -150,21 +150,27 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
         function [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,varargin)
             if nargin>1
                 n_elem = varargin{1};
+                if numel(n_elem) >1
+                    select = n_elem;
+                else
+                    select = 1:n_elem;
+                end
             else
                 n_elem = numel(this.gen_sqw_par{1});
+                select = 1:n_elem;
             end
-            en =this.gen_sqw_par{1}(1:n_elem);
-            efix=this.gen_sqw_par{2}(1:n_elem);
+            en =this.gen_sqw_par{1}(select);
+            efix=this.gen_sqw_par{2}(select);
             emode=this.gen_sqw_par{3};
             alatt=this.gen_sqw_par{4};
             angdeg=this.gen_sqw_par{5};
             u=this.gen_sqw_par{6};
             v=this.gen_sqw_par{7};
-            psi=this.gen_sqw_par{8}(1:n_elem);
-            omega=this.gen_sqw_par{9}(1:n_elem);
-            dpsi=this.gen_sqw_par{10}(1:n_elem);
-            gl=this.gen_sqw_par{11}(1:n_elem);
-            gs=this.gen_sqw_par{12}(1:n_elem);
+            psi=this.gen_sqw_par{8}(select);
+            omega=this.gen_sqw_par{9}(select);
+            dpsi=this.gen_sqw_par{10}(select);
+            gl=this.gen_sqw_par{11}(select);
+            gs=this.gen_sqw_par{12}(select);
         end
         %
         function [skip,sess_state,comb_state]=setup_multi_mode(this)
@@ -392,7 +398,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             if ~this.want_to_save_output
                 co2=onCleanup(@()rm_files(this,sqw_file_accum));
             end
-            spe_names = this.spe_file(1:4);
+            spe_names = this.spe_file([1,4,5,6]);
             new_names = test_gen_sqw_accumulate_sqw_sep_session.rename_file_list(spe_names(3:4),'.tnxs');
             co3 = onCleanup(@()test_gen_sqw_accumulate_sqw_sep_session.rename_file_list(new_names,'.nxspe'));
             
@@ -402,7 +408,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             % Create some sqw files against which to compare the output of
             % accumulate_sqw
             % ---------------------------------------------------------------------------
-            [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,4);
+            [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this,[1,4,5,6]);
             
             % Now use accumulate sqw ----------------------
             [~,~,urange]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
@@ -420,12 +426,13 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             assertElementsAlmostEqual(urange,urange_all,'relative',1.e-4)
             
+            %----------------------------
             this.proj.u=u;
             this.proj.v=v;
-            w2_1234=cut_sqw(sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w2_1456=cut_sqw(sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_1234,'convert_old_classes');
+            this=test_or_save_variables(this,w2_1456,'convert_old_classes');
             
         end
         
