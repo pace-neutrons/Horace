@@ -398,7 +398,15 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             if ~this.want_to_save_output
                 co2=onCleanup(@()rm_files(this,sqw_file_accum));
             end
+            
             spe_names = this.spe_file([1,4,5,6]);
+            for i=1:numel(spe_names)
+                [fp,fn,~] = fileparts(spe_names{i});
+                if exist(fullfile(fp,[fn,'.tmp']),'file') == 2
+                    delete(fullfile(fp,[fn,'.tmp']));
+                end
+            end
+            
             new_names = test_gen_sqw_accumulate_sqw_sep_session.rename_file_list(spe_names(3:4),'.tnxs');
             co3 = onCleanup(@()test_gen_sqw_accumulate_sqw_sep_session.rename_file_list(new_names,'.nxspe'));
             
