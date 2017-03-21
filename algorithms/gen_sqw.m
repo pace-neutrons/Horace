@@ -232,7 +232,7 @@ if accumulate_old_sqw    % combine with existing sqw file
             accumulate_old_sqw = false;
             if log_level>0
                 disp(' No existing tmp files to accumulate found.')
-            end            
+            end
         else
             if log_level>0
                 fprintf(' Reusing %d existing tmp files.\n',sum(ind_tmp_files_present))
