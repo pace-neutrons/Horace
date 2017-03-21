@@ -224,7 +224,14 @@ if accumulate_old_sqw    % combine with existing sqw file
     if use_partial_tmp
         all_tmp_files=gen_tmp_filenames(spe_file,sqw_file);
         % get pseudo-combined header from list of tmp files
+        if log_level>0
+            disp(' Analyzing headers of existing tmp files:')
+        end
         [header_sqw,grid_size_sqw,urange_sqw,ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
+        if log_level>0
+            fprintf(' Reusing %d existing tmp files.\n',sum(ind_tmp_files_present))
+        end
+        
     else
         % Check that the sqw file has the correct type to which to accumulate
         [ok,mess,header_sqw,grid_size_sqw,urange_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
