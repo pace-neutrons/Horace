@@ -99,7 +99,7 @@ for i=2:numel(pstruct)
 end
 
 % If a header was passed, check spe data arguments against contents of header
-if ~exist('header','var')
+if ~exist('header','var') || isempty(header)
     ok=true;
     mess='';
     spe_only=true(numel(pstruct),1);

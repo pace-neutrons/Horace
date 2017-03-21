@@ -228,8 +228,15 @@ if accumulate_old_sqw    % combine with existing sqw file
             disp(' Analyzing headers of existing tmp files:')
         end
         [header_sqw,grid_size_sqw,urange_sqw,ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
-        if log_level>0
-            fprintf(' Reusing %d existing tmp files.\n',sum(ind_tmp_files_present))
+        if sum(ind_tmp_files_present) == 0
+            accumulate_old_sqw = false;
+            if log_level>0
+                disp(' No existing tmp files to accumulate found.')
+            end            
+        else
+            if log_level>0
+                fprintf(' Reusing %d existing tmp files.\n',sum(ind_tmp_files_present))
+            end
         end
         
     else
@@ -551,6 +558,7 @@ header_sqw = cell(numel(files_to_check),1);
 multiheaders = false;
 ic = 1;
 urange_sqw = [];
+grid_size_sqw = [];
 for i=1:numel(files_to_check)
     try
         ldr = sqw_formats_factory.instance().get_loader(files_to_check{i});
