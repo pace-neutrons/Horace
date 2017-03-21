@@ -318,17 +318,22 @@ classdef test_job_dispatcher< TestCase
             assertEqual(numel(wc),numel(job_ids));
             
             assertTrue(iscell(job_ids))
-            assertEqual(numel(job_ids),2);
+            assertEqual(numel(job_ids),3);
             
             ok = jd.job_state_is(1,'starting');
             assertTrue(ok);
             ok = jd.job_state_is(2,'starting');
             assertTrue(ok);
+            ok = jd.job_state_is(3,'starting');
+            assertTrue(ok);
+            
             
             assertEqual(numel(job_ids{1}),2);
-            assertEqual(numel(job_ids{2}),2);
+            assertEqual(numel(job_ids{2}),1);
+            assertEqual(numel(job_ids{3}),1);            
             assertEqual(job_ids{1},[1,2]);
-            assertEqual(job_ids{2},[3,4]);
+            assertEqual(job_ids{2},3);
+            assertEqual(job_ids{3},4);            
             
             [completed,n_failed,all_changed,jd] = jd.check_jobs_status_pub();
             assertFalse(completed);
