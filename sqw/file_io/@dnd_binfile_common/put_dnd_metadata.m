@@ -9,7 +9,7 @@ function obj=put_dnd_metadata(obj,varargin)
 %>> put_dnd_metadata(obj,sqw_obj)
 %
 %
-% $Revision: 1343 $ ($Date: 2016-11-17 17:50:19 +0000 (Thu, 17 Nov 2016) $)
+% $Revision$ ($Date$)
 %
 
 % ignore nopix if it comes as input

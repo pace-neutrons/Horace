@@ -1,6 +1,6 @@
 function [data,obj] = get_data (obj,varargin)
 % Read the data block from an sqw or dnd file and return the result as the
-% data structrue with fields, descibed below.
+% data structure with fields, described below.
 %
 % The result is packed into data_dnd_sqw class unless -noclass option is
 % provided
@@ -14,20 +14,19 @@ function [data,obj] = get_data (obj,varargin)
 % Input:
 % ------
 %   opt         [optional] Determines which fields to read
-%                   '-header'     header-type information only: fields read:
-%                               filename, filepath, title, alatt, angdeg,...
-%                                   uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
-%                              (If file was written from a structure of type 'b' or 'b+', then
-%                               urange does not exist, and the output field will not be created)
-%                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
-%                                  data sections are returned as stored, not constructed from the
-%                                  value of fopen(fid). This is needed in some applications where
-%                                  data is written back to the file with a few altered fields.
-%                   '-nopix' Pixel information not read (only meaningful for sqw data type 'a')
-%                   '-noclass' do not pack data into sqw_dnd_data class --
-%                              may be useful for current object model, when dnd is
-%                              going to be created. May be removed in a
-%                              future
+%               '-header'     header-type information only: fields read:
+%                             filename, filepath, title, alatt, angdeg,...
+%                             uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
+%                            (If file was written from a structure of type 'b' or 'b+', then
+%                            urange does not exist, and the output field will not be created)
+%              '-hverbatim'  Same as '-h' except that the file name as stored in the main_header and
+%                            data sections are returned as stored, not constructed from the
+%                            value of fopen(fid). This is needed in some applications where
+%                            data is written back to the file with a few altered fields.
+%              '-nopix'      Pixel information not read (only meaningful for sqw data type 'a')
+%              '-noclass'    do not pack data into sqw_dnd_data class --
+%                            may be useful for current object model, when dnd is
+%                            going to be created. May be removed in a future.
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %

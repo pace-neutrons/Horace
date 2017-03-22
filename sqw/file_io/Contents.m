@@ -2,6 +2,10 @@
 % sqw and dnd objects on hdd and restoring them back into memory.
 % The code comprises of number of various classes and functions, namely:
 %
+%
+% $Revision$ ($Date$)
+%
+
 % Main sqw-files access class:
 % sqw_formats_factory - singleton class which registers all existing file
 %                       formats supported by Horace and is responsible for
@@ -36,7 +40,7 @@
 % faccess_sqw_v2    - class to read/write sqw Horace files written by
 %                     Horace v1-v2 (2008-2016). Also reads and converts
 %                     legacy v3.0 file format.
-% faccess_sqw_v2    - class to read/write sqw Horace files version 3.1.
+% faccess_sqw_v3    - class to read/write sqw Horace files version 3.1.
 %                     The format stores the description of all Horace sqw
 %                     fields at the end of a binary file and nay contain
 %                     instrument and sample information. This is the format
@@ -53,7 +57,7 @@
 %                   to help with serialization.
 % const_blocks_map - class to support the map of the constant blocks in
 %                    sqw/dnd file, used to modify partial binary information
-%                    within the sqw file.
+%                    within an sqw file.
 % sqw_fields_formatters -  contains classes implementing byte-representation
 %                     of various sqw object components and procedures
 %                     to serialize/deserialize these components.
