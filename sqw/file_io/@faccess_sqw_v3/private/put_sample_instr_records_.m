@@ -41,6 +41,7 @@ else % should be header of an sqw file provided
     instr = extract_subfield_(header,'instrument');
     sampl = extract_subfield_(header,'sample');
 end
+%
 if setting_instr
     %
     % serialize instrument(s)
