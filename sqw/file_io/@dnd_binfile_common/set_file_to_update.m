@@ -10,7 +10,7 @@ function  [obj,file_exist] = set_file_to_update(obj,filename)
 %
 % Open new or existing sqw file to perform write/append operations
 %
-% $Revision: 1353 $ ($Date: 2016-11-22 13:53:23 +0000 (Tue, 22 Nov 2016) $)
+% $Revision$ ($Date$)
 %
 if ~exist('filename','var')
     filename = '';

@@ -8,7 +8,7 @@ function obj = put_instr_sampl_info_(obj,instrument_or_sample,varargin)
 % setting only sample stores the instrument information too.
 % file footer is always overwritten.
 %
-% $Revision: 1380 $ ($Date: 2016-12-13 19:29:24 +0000 (Tue, 13 Dec 2016) $)
+% $Revision$ ($Date$)
 %
 
 %

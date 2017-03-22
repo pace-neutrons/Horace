@@ -7,8 +7,9 @@ function horace_init
 % Is PC and Unix compatible.
 
 % T.G.Perring
+%
 % $Revision$ ($Date$)
-
+%
 % -----------------------------------------------------------------------------
 % Check if supporting Herbert package is available
 if isempty(which('herbert_init'))

@@ -5,6 +5,9 @@ function  obj = put_sqw(obj,varargin)
 % (for testing purposes)
 %
 %
+%
+% $Revision$ ($Date$)
+%
 
 [ok,mess,force_v2,argi]=parse_char_options(varargin,{'-v2'});
 if ~ok
@@ -21,8 +24,8 @@ if uint64(pix_end) - uint64(file_end)>0
     warning('FACCESS_SQW_V3:runtime_error',...
         'file end position %d is not equal to pixel end position: %d\n%s',...
         pix_end,file_end,...
-        'waiting 1 min to flush filesystem');
-    for i=1:60
+        'waiting 10 sec to flush filesystem');
+    for i=1:10
         fprintf('.')
         pause(1);
         fseek(obj.file_id_,0,'eof');
@@ -54,7 +57,7 @@ obj.position_info_pos_= obj.instr_sample_end_pos_;
 obj = put_sqw_footer_(obj);
 
 function obj=write_v2_obj_header(obj)
-% wirte v3 file as v2 file
+% write v3 file as v2 file
 %
 head = obj.build_app_header();
 head.version = 2;
