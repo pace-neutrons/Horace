@@ -1,7 +1,7 @@
-function instrument = LET_instrument(ei, hz5, hz3, slot5_mm, mode, inst_ver)
+function instrument = let_instrument(ei, hz5, hz3, slot5_mm, mode, inst_ver)
 % Return instrument description for LET
 %
-%   >> instrument = LET_instrument(ei, hz5, hz3, slot_mm, mode, inst_ver)
+%   >> instrument = let_instrument(ei, hz5, hz3, slot_mm, mode, inst_ver)
 %
 % Input parameters can be scalar or arrays. Array argument(s) result in an
 % array of isntrument descriptions, where any scalar arguments are the

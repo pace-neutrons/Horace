@@ -1,9 +1,18 @@
 function obj = append_data(obj,varargin)
 % Append datasets to the list of current datasets
 %
-%   >> obj = obj.append_data ()            % inert operaton: does nothing
-%   >> obj = obj.append_data (x,y,z)
-%   >> obj = obj.append_data (w1,w2,...)
+%   >> obj = obj.append_data ()             % Inert operaton: does nothing
+%   >> obj = obj.append_data (w1,w2,...)    % Set objects or arrays of objects
+%   >> obj = obj.append_data (x,y,z)        % If valid: append x,y,e, data
+%
+% For more details about data formats see <a href="matlab:doc('mfclass/set_data');">set_data</a>
+%
+% See also set_data remove_data replace_data
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
 
 
 % Trivial case of no input arguments; just return without doing anything

@@ -42,7 +42,7 @@ function [table,ind]=buffered_sampling_table(fermi_in,varargin)
 %              random number from uniform distribution in the range 0 to 1
 %              into a time deviation in microseconds.
 %   ind         Index into the lookup table: ind(i) is the column for fermi(i)
-%              ind is a column vector.
+%              ind is a row vector.
 %
 % Note:
 % - If the number of chopper objects is less than a critical value, they
@@ -61,7 +61,7 @@ filename=fullfile(tempdir,'IX_fermi_chopper_store.mat');
 
 [fermi,~,ind]=unique(fermi_in);
 fermi=fermi(:);     % ensure column vector
-ind=ind(:);         % ensure column vector
+ind=ind(:)';        % ensure row vector
 nf=numel(fermi);
 
 % Parse optional arguments

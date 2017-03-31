@@ -49,7 +49,7 @@ function [table,t_av,ind,fwhh,profile]=buffered_sampling_table(moderator_in,ei_i
 %   t_av        First moment of time, size=[1,nmod] (microseconds)
 %
 %   ind         Index into the lookup table: ind(i) is the column for moderator(i)
-%              ind is a column vector.
+%              ind is a row vector.
 %
 %   fwhh        Full width half height, size=[1,nmod] (microseconds)
 %
@@ -87,7 +87,7 @@ ei_tmp(~status)=0;  % set ei=0 for those moderators whose pulse shape does not d
 [moderator,ei,~,ind]=unique_mod_ei(moderator_in,ei_tmp);
 moderator=moderator(:); % ensure column vector
 ei=ei(:);               % ensure column vector
-ind=ind(:);             % ensure column vector
+ind=ind(:)';            % ensure row vector
 nm=numel(moderator);
 
 % Parse optional arguments

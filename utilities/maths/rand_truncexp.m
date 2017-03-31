@@ -18,6 +18,9 @@ function X = rand_truncexp (x0,varargin)
 % Output:
 % -------
 %   X           Array of random numbers
+%
+%
+% See also rand_truncexp2, which generates random points for an array of x0
 
 
 % Original author: T.G.Perring 

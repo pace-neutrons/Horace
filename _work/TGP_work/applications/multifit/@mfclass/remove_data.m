@@ -1,11 +1,18 @@
 function obj = remove_data (obj, i)
-% Remove data sets, clearing corresponding functions and constraints:
+% Remove data sets, clearing corresponding functions and constraints
 %
 %   >> obj = obj.remove_data        % Remove all data
 %   >> obj = obj.remove_data (i)    % Remove ith dataset
 %
 % The global or local status of the foreground and background functions is
 % retained.
+%
+% See also set_data append_data replace_data
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
 
 
 if nargin==1

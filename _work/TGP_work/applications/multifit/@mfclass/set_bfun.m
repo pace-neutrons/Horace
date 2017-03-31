@@ -10,6 +10,11 @@ function obj = set_bfun(obj,varargin)
 % Set a particular foreground function or set of foreground functions
 %   >> obj = obj.set_bfun (ifun, @fhandle, pin,...)    % ifun can be scalar or row vector
 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
+
 
 % Check there is data
 % -------------------

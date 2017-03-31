@@ -10,4 +10,10 @@ function b=make_row(a)
 %   >> wout = myfunc (w, tmp);
 %   >> clear tmp
 
-b=a(:)';
+
+% Only perform operation if required - save memory and time
+if ~isrowvector(a)
+    b=a(:)';
+else
+    b=a;
+end

@@ -7,6 +7,11 @@ function obj = clear_bfun(obj, varargin)
 % Clear a particular background function or set of background functions
 %   >> obj = obj.clear_bfun (ifun)
 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
+
 
 % Check there are function(s)
 % ---------------------------

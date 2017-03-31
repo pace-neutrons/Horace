@@ -13,39 +13,45 @@ function obj = set_fun(obj,varargin)
 %
 % Form of fit functions
 % ----------------------
-%           If fitting x,y,e data, or a structure with fields w.x,w.y,w.e,
-%           then the function must have the form:
-%               ycalc = my_function (x1,x2,...,p)
+%   If fitting objects, then if w is an instance of an object, the
+%   function(s) or method(s) must have the form:
+%       wcalc = my_function (w,p)
 %
-%             or, more generally:
-%               ycalc = my_function (x1,x2,...,p,c1,c2,...)
+%     or, more generally:
+%       wcalc = my_function (w,p,c1,c2,...)
 %
-%             where
-%               - x1,x2,... Arrays of x values along first, second,...
-%                          dimensions
-%               - p         A vector of numeric parameters that define the
-%                          function (e.g. [A,x0,w] as area, position and
-%                          width of a peak)
-%               - c1,c2,... Any further arguments needed by the function (e.g.
-%                          they could be the filenames of lookup tables)
+%     where
+%       - w         Object on which to evaluate the function
+%       - p         A vector of numeric parameters that define the
+%                  function (e.g. [A,x0,w] as area, position and
+%                  width of a peak)
+%       - c1,c2,... Any further arguments needed by the function (e.g.
+%                  they could be the filenames of lookup tables)
 %
-%             Type >> help gauss2d  or >> help mexpon for examples
+%   If fitting x,y,e data, or a structure with fields w.x,w.y,w.e,
+%   then the function must have the form:
+%       ycalc = my_function (x1,x2,...,p)
 %
-%           If fitting objects, then if w is an instance of an object, the
-%           function(s) or method(s) must have the form:
-%               wcalc = my_function (w,p)
+%     or, more generally:
+%       ycalc = my_function (x1,x2,...,p,c1,c2,...)
 %
-%             or, more generally:
-%               wcalc = my_function (w,p,c1,c2,...)
+%     where
+%       - x1,x2,... Arrays of x values along first, second,...
+%                  dimensions
+%       - p         A vector of numeric parameters that define the
+%                  function (e.g. [A,x0,w] as area, position and
+%                  width of a peak)
+%       - c1,c2,... Any further arguments needed by the function (e.g.
+%                  they could be the filenames of lookup tables)
 %
-%             where
-%               - w         Object on which to evaluate the function
-%               - p         A vector of numeric parameters that define the
-%                          function (e.g. [A,x0,w] as area, position and
-%                          width of a peak)
-%               - c1,c2,... Any further arguments needed by the function (e.g.
-%                          they could be the filenames of lookup tables)
-%             Type >> help gauss2d  or >> help mexpon for examples
+%     See <a href="matlab:doc('example_1d_function');">example_1d_function</a>
+%         <a href="matlab:doc('example_2d_function');">example_2d_function</a>
+%         <a href="matlab:doc('example_3d_function');">example_3d_function</a>
+
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
 
 
 % Check there is data

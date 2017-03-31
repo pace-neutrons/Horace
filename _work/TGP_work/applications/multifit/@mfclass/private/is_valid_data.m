@@ -39,12 +39,15 @@ function [ok, mess, ndim, wout] = is_valid_data (class_name, varargin)
 %
 %   - Cell array of arrays x, y, e above (defines a single dataset):
 %       w = {x,y,e}
+%
 %     Cell array of cell arrays that defines multiple datasets:
-%       w = {{x1,y1,e1}, {x2,y2,e2}, {x3,y3,e3},...
+%       w = {{x1,y1,e1}, {x2,y2,e2}, {x3,y3,e3},...}
 %
 %   - Structure with fields w.x, w.y, w.e  where x, y, e have one of the
 %     forms described above (this defines a single dataset)
-%     Structure array with fields w(i).x, w(i).y, w(i).e (defines several datasets)
+%
+%     Structure array with fields w(i).x, w(i).y, w(i).e (this defines
+%     several datasets)
 %
 %   - Object or array of objects, w
 %

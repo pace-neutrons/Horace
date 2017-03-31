@@ -10,4 +10,10 @@ function b=make_column(a)
 %   >> wout = accumarray (ind, tmp(:), [nbin,ne]);
 %   >> clear tmp
 
-b=a(:);
+
+% Only perform operation if required - save memory and time
+if ~iscolvector(a)
+    b=a(:);
+else
+    b=a;
+end

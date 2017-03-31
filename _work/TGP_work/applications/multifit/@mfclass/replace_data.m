@@ -19,6 +19,15 @@ function obj = replace_data(obj,varargin)
 %   same class
 % - an element of a structure or an x-y-e triple (i.e. {x,y,e} or x,y,e), is
 %   being replaced by a scalar structure or a single x-y-e triple.
+%
+% For more details about data formats see <a href="matlab:doc('mfclass/set_data');">set_data</a>
+%
+% See also set_data append_data remove_data
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
 
 
 % Trivial case of no input arguments; just return without doing anything

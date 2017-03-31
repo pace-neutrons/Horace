@@ -1,12 +1,20 @@
 function obj = add_mask(obj,varargin)
 % Refine selection of data points to fit by further adding to existing masks
 %
-% Select for all current data sets: 1,2 or 3 of the keyword-value pairs
+% Select for all current data sets: one or more of the keyword-value pairs:
 %   >> obj = obj.add_mask ('keep', xkeep, 'remove', xremove, 'mask', mask)
 %
-% Select for one or more particular datasets: give dataset indicies first
-%(idata an integer or integer array):
+% Select for one or more particular datasets (idata an integer or integer array):
 %   >> obj = obj.add_mask (idata, 'keep', xkeep,...)
+%
+% For details about the keyword-value pairs, see <a href="matlab:doc('mfclass/set_mask');">set_mask</a>
+%
+% See also set_mask clear_mask
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 
 
 % Trivial case of no input arguments; just return without doing anything

@@ -1,11 +1,11 @@
 function obj = set_data(obj,varargin)
 % Set data, clearing all data, functions and constraints
 %
-%   >> obj = obj.set_data ()            % clears all data
+%   >> obj = obj.set_data ()            % Clears all data
 %   >> obj = obj.set_data (w1,w2,...)   % Set objects or arrays of objects
+%   >> obj = obj.set_data (x,y,z)       % If valid: set x,y,e, data
 %
-% If x,y,e data isvalid:
-%   >> obj = obj.set_data (x,y,z)       % Set x,y,e, data 
+% More details on data formats are given below below.
 %
 % The scope of the foreground and background functions as being global or
 % local is not altered, even though all data and functions are cleared.
@@ -13,6 +13,54 @@ function obj = set_data(obj,varargin)
 % For example, if the foreground was declared as local, it
 % will remain so, meaning that one function per data set will be expected
 % when the functions are set.
+%
+% Format of data
+% --------------
+% Data set(s) are objects: each of w1, w2, ... has the form
+%       w       Data object or array of data objects all of the same class
+%
+% Data set(s) are x-y-e data:
+%   - Arrays x,y,e that describe a single dataset:
+%
+%       x       Coordinates of the data points:
+%               - An array of any size whose outer dimension gives the
+%                coordinate dimension i.e. x(:,:,...:,1) is the array of
+%                x values along axis 1, x(:,:,...:,2 along axis 2) ...
+%                to x(:,:,...:,n) along the nth axis.
+%                 The exception is if size(x) matches size(y), then the outer dimension
+%                is taken as unity and the data is considered to be one dimensional
+%                   e.g. x=[1.1, 2.3, 4.3    &  y=[110, 121, 131
+%                           1.7, 5.4, 7.0]         141, 343,  89]
+%
+%           OR  - A cell array of length n, where x{i} gives the coordinates in the
+%                ith dimension for all the data points. The arrays must all have
+%                the same size, but there are no restrictions on what that size is.
+%
+%       y       Array of the data values at the points defined by x. Must
+%               have the same same size as x(:,:,...:,1) if x is an array, or
+%               of x{i} if x is a cell array.
+%
+%       e       Array of the corresponding error bars. Must have same size as y.
+%
+%
+%   - Cell array of arrays x, y, e above (defines a single dataset):
+%       w = {x,y,e}
+%
+%     Cell array of cell arrays that defines multiple datasets:
+%       w = {{x1,y1,e1}, {x2,y2,e2}, {x3,y3,e3},...}
+%
+%   - Structure with fields w.x, w.y, w.e  where x, y, e have one of the
+%     forms described above (this defines a single dataset)
+%
+%     Structure array with fields w(i).x, w(i).y, w(i).e (this defines
+%     several datasets)
+%
+% See also append_data remove_data replace_data
+
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
 
 
 % Find optional arguments

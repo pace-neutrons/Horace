@@ -5,6 +5,7 @@ classdef mfclass
 % one function per dataset.
 %
 % mfclass Methods:
+%
 % To set data:
 %   set_data     - Set data, clearing any existing datasets
 %   append_data  - Append further datasets to the current set of datasets
@@ -16,25 +17,39 @@ classdef mfclass
 %   add_mask     - Mask additional data points
 %   clear_mask   - Clear masking for one or more dataset(s)
 %
-% To set fitting functions
+% To set fitting functions:
 %   set_fun      - Set foreground fit functions
-%   clear_fun    - Clear one or more foreground fit functions
 %   set_bfun     - Set background fit functions
+%   clear_fun    - Clear one or more foreground fit functions
 %   clear_bfun   - Clear one or more background fit functions
 %
 % To set which parameters are fixed or free:
-%   set_free     - Set free or fix parameters
-%   clear_free   - Clear all parameters to be free for one or more data sets
-%   set_bfree    - Set free or fix parameters
-%   clear_bfree  - Clear all parameters to be free for one or more data sets
+%   set_free     - Set free or fix foreground function parameters
+%   set_bfree    - Set free or fix background function parameters
+%   clear_free   - Clear all foreground parameters to be free for one or more data sets
+%   clear_bfree  - Clear all background parameters to be free for one or more data sets
 %
 % To bind parameters:
 %   set_bind     - Bind foreground parameter values in fixed ratios
-%   add_bind     - Add further bindings
+%   set_bbind    - Bind background parameter values in fixed ratios
+%   add_bind     - Add further foreground function bindings
+%   add_bbind    - Add further background function bindings
 %   clear_bind   - Clear parameter bindings for one or more foreground functions
-%   set_bbind    - Bind foreground parameter values in fixed ratios
-%   add_bbind    - Add further bindings
-%   clear_bbind  - Clear parameter bindings for one or more foreground functions
+%   clear_bbind  - Clear parameter bindings for one or more background functions
+%
+% To set functions as operating globally or local to a single dataset
+%   set_global_foreground - Specify that there will be a global foreground fit function
+%   set_global_background - Specify that there will be a global background fit function
+%   set_local_foreground  - Specify that there will be local foreground fit function(s)
+%   set_local_background  - Specify that there will be local background fit function(s)
+%
+% To fit or simulate:
+%   fit          - Fit data
+%   simulate     - Simulate datasets at the initial parameter values
+%
+% Fiting and other options:
+%   set_options  - Set options
+%   get_options  - Get values of one or more specific options
 
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
@@ -51,7 +66,7 @@ classdef mfclass
     %   <#file:> <mfclass_methods_summary_file>
     % <#doc_end:>
 
-    
+
     % Notes on inheriting mfclass for use by particular classes:
     % - Alter the functionality of methods and/or add methods by inheriting
     %   mfclass e.g. mfclass_sqw
@@ -62,8 +77,8 @@ classdef mfclass
     % This procedure is required because we will generally want the method
     % multifit2 for objects of class sqw, d1d, d2d,... for example, and
     % multifit2 will generally need to operate differently for each class.
-    
-    
+
+
     properties (Access=protected, Hidden=true)
         % --------------------------------
         % Data class and function wrapping
@@ -115,12 +130,6 @@ classdef mfclass
         % The size of each mask array matches the size of the y array in the
         % corresponding data set
         msk_ = {};
-
-        %         % Cell array of masked datasets (row): every entry is either
-        %         %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for
-        %         %     each x-coordinate,
-        %         %   - a scalar object
-        %         wmask_ = {};
 
         % -------------------
         % Function properties
@@ -189,11 +198,12 @@ classdef mfclass
         % -------------------------
         % Output control properties
         % -------------------------
-        % Options structure. Fields are:
+        % Options structure.
+        % Fields are:
         %   listing                 Level at which messages are output: 0,1,2
         %   fit_control_parameters  [rel_step, max_iter, tol_chisqr]
         %   selected                Simulate only on fittable data in selected
-        %                          region
+        %                          unmasked region
         %   squeeze_xye             Remove points from simulation of x-y-e
         %                          data where data is masked or not fittable
         options_ = struct([]);
@@ -202,42 +212,89 @@ classdef mfclass
 
     properties (Dependent)
         % Data set object or cell array of data set objects (row vector)
+        % Has the form:
+        %
+        %   w1    or     {w1,w2,...}
+        %
+        % In the case when the data sets are in the form of objects of a
+        % class, then w1,w2,... are objects or arrays of objects.
+        %
+        % In the case when x-y-e data is being fitted then w1,w2,... are
+        %   - Cell array of arrays x, y, e above (defines a single dataset):
+        %       w = {x,y,e}
+        %
+        %     Cell array of cell arrays that defines multiple datasets:
+        %       w = {{x1,y1,e1}, {x2,y2,e2}, {x3,y3,e3},...}
+        %
+        %   - Structure with fields w.x, w.y, w.e  where x, y, e have one of the
+        %     forms described above (this defines a single dataset)
+        %
+        %     Structure array with fields w(i).x, w(i).y, w(i).e (this defines
+        %     several datasets)
+        %
+        % For details of the form of the arrays x,y,e, see the help to the
+        % method set_data
         data
-        % Mask array (single data set) or cell array containing mask arrays (row vector)
+
+        % Mask array (single data set) or cell array containing mask arrays
+        % one mask array per data sets (row vector). Each mask array has the
+        % same size as the signal array for the corresponding data set.
         mask
-        
+
         w           % *** get rid of for release
         msk         % *** get rid of for release
         wmask       % *** get rid of for release
 
-        % Foreground is local if true or global if false (default)
+        % Foreground is local if true, or global if false
         local_foreground
-        % Foreground is global if true (default) or local if false
+
+        % Foreground is global if true, or local if false
         global_foreground
+
         % Cell array of foreground function handles (row vector)
         % If the foreground fit function is global, the cell array contains just
         % one handle. If the foreground fit functions are local the array contains
         % one handle per dataset. If a function is not given for a dataset, the
         % corresponding handle is set to [].
         fun
-        % Cell array of foreground function parameters (row vector)
-        %  the function parameters have the general form
+
+        % Foreground function parameters
+        % Foreground function parameter list (single function) or cell array of foreground
+        % functions parameters (more than one function)(row vector)
+        %
+        % The form of a parameter list is
         pin
         free
         bind
+
         bind_dbg   % *** get rid of for release
 
-        % Background is local if true (default) or global if false
+        % Background is local if true, or global if false
         local_background
-        % Background is global if true or local if false (default)
+
+        % Background is global if true, or local if false
         global_background
-        % Cell array (row) of background function handles
+
+        % Cell array of background function handles (row vector)
+        % If the background fit function is global, the cell array contains just
+        % one handle. If the background fit functions are local the array contains
+        % one handle per dataset. If a function is not given for a dataset, the
+        % corresponding handle is set to [].
         bfun
         bpin
         bfree
         bbind
-        bbind_dbg  % *** get rid of for release
 
+        bbind_dbg  % *** get rid of for release
+        
+        % Options structure
+        % Fields are:
+        %   listing                 Level at which messages are output: 0,1,2
+        %   fit_control_parameters  [rel_step, max_iter, tol_chisqr]
+        %   selected                Simulate only on fittable data in selected
+        %                          unmasked region
+        %   squeeze_xye             Remove points from simulation of x-y-e
+        %                          data where data is masked or not fittable
         options
     end
 
@@ -313,11 +370,12 @@ classdef mfclass
             end
         end
 
-        function out = get.w(obj)
+        %------------------
+        function out = get.w(obj)       % *** get rid of for release
             out = obj.w_;
         end
 
-        function out = get.msk(obj)   % *** get rid of for release
+        function out = get.msk(obj)     % *** get rid of for release
             out = obj.msk_;
         end
 
@@ -333,6 +391,7 @@ classdef mfclass
                 out = obj.w_;
             end
         end
+        %------------------
 
         function out = get.local_foreground(obj)
             out = obj.foreground_is_local_;

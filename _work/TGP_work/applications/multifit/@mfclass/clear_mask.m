@@ -1,11 +1,20 @@
 function obj = clear_mask(obj,idata_in)
-% Clear masking
+% Clear masking of data points, so all data points are to be fitted
 %
 % Clear all masks
 %   >> obj = obj.clear_mask
 %
-% Clear a particular mask or mask for a set of datasets
-%   >> obj = obj.clear_mask (idata)     % idata an integer or integer array
+% Clear masking for one or more particular datasets (idata an integer or integer array):
+%   >> obj = obj.clear_mask (idata)
+%
+% For details about the keyword-value pairs, see <a href="matlab:doc('mfclass/set_mask');">set_mask</a>
+%
+% See also set_mask add_mask
+ 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
 
 
 % Catch case of no data

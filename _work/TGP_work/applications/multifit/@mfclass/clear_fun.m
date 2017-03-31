@@ -7,6 +7,11 @@ function obj = clear_fun(obj, varargin)
 % Clear a particular foreground function or set of foreground functions
 %   >> obj = obj.clear_fun (ifun)
 
+ 
+% Original author: T.G.Perring 
+% 
+% $Revision$ ($Date$)
+
 
 % Check there are function(s)
 % ---------------------------

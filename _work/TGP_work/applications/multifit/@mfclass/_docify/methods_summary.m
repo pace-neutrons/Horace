@@ -9,7 +9,7 @@
 %   add_mask     - Mask additional data points
 %   clear_mask   - Clear masking for one or more dataset(s)
 %
-% To set fitting functions
+% To set fitting functions:
 %   set_fun      - Set foreground fit functions
 %   set_bfun     - Set background fit functions
 %   clear_fun    - Clear one or more foreground fit functions

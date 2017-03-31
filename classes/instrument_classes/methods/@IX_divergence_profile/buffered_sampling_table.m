@@ -40,7 +40,7 @@ function [table,ind]=buffered_sampling_table(div_in,varargin)
 %              random number from uniform distribution in the range 0 to 1
 %              into a time deviation in microseconds.
 %   ind         Index into the lookup table: ind(i) is the column for div(i)
-%              ind is a column vector.
+%              ind is a row vector.
 %
 % Note:
 % - If the number of chopper objects is less than a critical value, they
@@ -59,7 +59,7 @@ filename=fullfile(tempdir,'IX_divergence_profile_store.mat');
 
 [div,~,ind]=unique(div_in);
 div=div(:);     % ensure column vector
-ind=ind(:);         % ensure column vector
+ind=ind(:)';    % ensure row vector
 nd=numel(div);
 
 % Parse optional arguments
