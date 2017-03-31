@@ -38,6 +38,7 @@ end
 
 % Create lookup table, using any buffered results
 [table,ind]=buffered_sampling_table(fermi_all,varargin{:});
+ind=ind(:);     % make a column
 
 % Create output structure
 table=1e-6*table;   % convert to seconds

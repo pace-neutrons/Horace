@@ -106,8 +106,6 @@ classdef mfclass_tobyfit < mfclass
         %------------------------------------------------------------------
         function obj = mfclass_tobyfit (varargin)
             obj@mfclass(varargin{:});
-            %obj.wrapfun_.func_init
-            %[~,~,mc_contr]=obj.wrapfun_.func_init();
             obj = obj.set_mc_contributions;
             obj = obj.set_mc_points;
             obj = obj.set_refine_crystal (false);

@@ -19,7 +19,7 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 %
 %       mod_table       Structure with fields:
 %                      ind      Cell array of indicies into table, where
-%                              ind{i} is column vector of indicies for ith
+%                              ind{i} is a row vector of indicies for ith
 %                              sqw object; length(ind{i})=no. runs in sqw object
 %                      table    Lookup table size(npnt,nmod), where nmod is
 %                              the number of unique tables. Convert to time from
@@ -50,13 +50,13 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 %                      chopper i.e. fwhh due to the chopper is smaller than
 %                      that of the moderator pulse (after geometric scaling)
 %
-%       x0              Cell array of column vectors, one per dataset,
+%       x0              Cell array of row vectors, one per dataset,
 %                      containing the moderator-sample distance (m). The
 %                      number of elements in each column is equal to the
 %                      number of contributiung runs in the corresponding
 %                      sqw object.
 %
-%       xa              Cell array of column vectors, one per dataset,
+%       xa              Cell array of row vectors, one per dataset,
 %                      containing the shaping chopper-sample distance (m).
 %                      The number of elements in each column is equal to the
 %                      number of contributiung runs in the corresponding
@@ -71,7 +71,7 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 %
 %       horiz_div_table Structure with fields:
 %                      ind      Cell array of indicies into table, where
-%                              ind{i} is column vector of indicies for ith
+%                              ind{i} is a row vector of indicies for ith
 %                              sqw object; length(ind{i})=no. runs in sqw object
 %                      table    Lookup table size(npnt,nhdiv), where nhdiv is
 %                              the number of unique tables. Note that the angle
@@ -79,7 +79,7 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 %                      
 %       vert_div_table Structure with fields:
 %                      ind      Cell array of indicies into table, where
-%                              ind{i} is column vector of indicies for ith
+%                              ind{i} is a row vector of indicies for ith
 %                              sqw object; length(ind{i})=no. runs in sqw object
 %                      table    Lookup table size(npnt,nvdiv), where nhdiv is
 %                              the number of unique tables. Note that the angle
@@ -95,6 +95,9 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 %       dt              Cell array of vectors, one entry per dataset with size [1,npix],
 %                      with time widths corresponding to energy bins for each pixel
 %
+%       kf              Cell array of vectors, one entry per dataset with size [1,npix],
+%                      with final wavevectors for each pixel
+%
 % *OR*
 %   mc_contr        Cell array of character strings with the names of the
 %                  possible contributions e.g. {'chopper','moderator'}
@@ -105,7 +108,8 @@ function [ok,mess,lookup]=tobyfit_DGdisk_resconv_init(win)
 if nargin==0
     ok=true;
     mess='';
-    lookup={'moderator','aperture','chopper','sample',...
+    lookup={'moderator','shape_chopper','mono_chopper',...
+        'horiz_divergence','vert_divergence','sample',...
         'detector_depth','detector_area','energy_bin'}';
     return
 end
@@ -171,6 +175,7 @@ chop_shape_fwhh=cell(nw,1);
 chop_mono_fwhh=cell(nw,1);
 dq_mat=cell(nw,1);
 dt=cell(nw,1);
+kf=cell(nw,1);
 for i=1:nw
     irun = win{i}.data.pix(5,:)';
     idet = win{i}.data.pix(6,:)';
@@ -190,7 +195,7 @@ for i=1:nw
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(win{i}.header);
     eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     ki=sqrt(ei/k_to_e);
-    kf=sqrt((ei(irun)-eps)/k_to_e);
+    kf{i}=sqrt((ei(irun)-eps)/k_to_e);
     
     % Get chopper widths
     nrun=numel(chop_shape);
@@ -200,20 +205,20 @@ for i=1:nw
         [~,pulse_width_shape(j)]=pulse_width(chop_shape(j));
         [~,pulse_width_mono(j)]=pulse_width(chop_mono(j));
     end
-    chop_shape_fwhh{i}=pulse_width_shape;
-    chop_mono_fwhh{i}=pulse_width_mono;
+    chop_shape_fwhh{i}=1e-6*pulse_width_shape;  % convert to seconds
+    chop_mono_fwhh{i}=1e-6*pulse_width_mono;    % convert to seconds
     
     % Determine if the moderator pulse is dominant contributor
-    shape_mod{i}=((x0(irun)./xa(irun)).*pulse_width_shape(irun)<mod_table.fwhh(mod_table.ind{i}(irun)))';     % row vector
+    shape_mod{i}=((x0(irun)./xa(irun)).*chop_shape_fwhh{i}(irun)<mod_table.fwhh(mod_table.ind{i}(irun)))';     % row vector
     
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     d_mat = spec_coords_to_det (win{i}.detpar);         % d_mat has size [3,3,ndet]
     x2=win{i}.detpar.x2(:); % make column vector
-    dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf, xa(irun), x1(irun), x2(idet),...
+    dq_mat{i} = dq_matrix_DGdisk (ki(irun), kf{i}, xa(irun), x1(irun), x2(idet),...
         s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     
     % Time width corresponding to energy bins for each pixel
-    dt{i} = deps_to_dt*(x2(idet).*deps(irun)./kf.^3)';  % row vector
+    dt{i} = deps_to_dt*(x2(idet).*deps(irun)./kf{i}.^3)';  % row vector
     
 end
 
@@ -224,13 +229,14 @@ mess='';
 lookup.mod_table=mod_table;
 lookup.chop_shape_fwhh=chop_shape_fwhh;
 lookup.shape_mod=shape_mod;
-lookup.x0=x0_all;
-lookup.xa=xa_all;
+lookup.x0=cellfun(@transpose,x0_all,'UniformOutput',false);     % make row vectors (column cellarray still)
+lookup.xa=cellfun(@transpose,xa_all,'UniformOutput',false);     % make row vectors (column cellarray still)
 lookup.chop_mono_fwhh=chop_mono_fwhh;
 lookup.horiz_div_table=horiz_div_table;
 lookup.vert_div_table=vert_div_table;
 lookup.sample=sample_all;
 lookup.dq_mat=dq_mat;
 lookup.dt=dt;
+lookup.kf=kf;
 
 lookup = {lookup};

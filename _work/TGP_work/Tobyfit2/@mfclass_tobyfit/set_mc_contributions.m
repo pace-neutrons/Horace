@@ -14,9 +14,23 @@ function obj = set_mc_contributions (obj, varargin)
 %
 % Only include...
 %   >> obj = obj.set_mc_contributions ('chopper','sample')
+%
+% Set according to a previously recovered contributions structure
+%   >> mc_contr = obj.mc_contributions;
+%       :
+%   >> obj = obj.set_mc_contributions (mc_contr)
+%
+% Modify a previously recovered contributions structure
+%   >> mc_contr = obj.mc_contributions;
+%       :
+%   >> obj = obj.set_mc_contributions (mc_contr,'nochop','sample')
 
 
-[mc_contributions,ok,mess] = mc_contributions_parse (varargin{:});
+% Get the possible contributions
+[~,~,mc_contr]=obj.wrapfun_.func_init();
+
+% Now parse input
+[mc_contributions,ok,mess] = mc_contributions_parse (mc_contr,varargin{:});
 if ok
     obj.mc_contributions_ = mc_contributions;
 else

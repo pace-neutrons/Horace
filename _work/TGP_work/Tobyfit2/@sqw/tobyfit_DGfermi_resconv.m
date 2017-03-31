@@ -146,7 +146,11 @@ fermi_table=lookup.fermi_table.table;
 sample=lookup.sample;
 
 % Detector
+He3det=IX_He3tube(0.0254,10,6.35e-4);   % 1" tube, 10atms, wall thickness=0.635mm
 dt=lookup.dt;
+
+% Final wavevector
+kf=lookup.kf;
 
 % Coordinate transformation
 dq_mat=lookup.dq_mat;
@@ -157,8 +161,8 @@ dq_mat=lookup.dq_mat;
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 reset_state=caller.reset_state;
-dummy_mfclass = mfclass;
 
+use_tube=false;
 for i=1:numel(ind)
     iw=ind(i);
     % Set random number generator if necessary, and save if required for later
@@ -169,7 +173,7 @@ for i=1:numel(ind)
     else
         state_out{i} = rng;     % capture the random number generator state
     end
-
+    
     % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters
@@ -217,13 +221,30 @@ for i=1:numel(ind)
         end
         
         % Detector deviations
-        if mc_contributions.detector_depth
-            yvec(8,1,:)=0.015*(rand(1,npix)-0.5);     % approx dets as 25mm diameter, and take full width of 0.6 of diameter; 0.6*0.025=0.015
-        end
-        
-        if mc_contributions.detector_area
-            yvec(9,1,:) =win(i).detpar.width(idet).*(rand(1,npix)-0.5);
-            yvec(10,1,:)=win(i).detpar.height(idet).*(rand(1,npix)-0.5);
+        if use_tube
+            % Use detecetor object random points method
+            if mc_contributions.detector_depth || mc_contributions.detector_area
+                if ~mc_contributions.detector_area
+                    yvec(8,1,:) = random_points (He3det, kf{iw});
+                elseif ~mc_contributions.detector_depth
+                    [~,yvec(9,1,:)] = random_points (He3det, kf{iw});
+                else
+                    [yvec(8,1,:),yvec(9,1,:)] = random_points (He3det, kf{iw});
+                end
+            end
+            if mc_contributions.detector_area
+                yvec(10,1,:)=win(i).detpar.height(idet).*(rand(1,npix)-0.5);
+            end
+        else
+            % Use original Tobyfit method
+            if mc_contributions.detector_depth
+                yvec(8,1,:)=0.015*(rand(1,npix)-0.5);   % approx dets as 25mm diameter, and take full width of 0.6 of diameter; 0.6*0.025=0.015
+            end
+            
+            if mc_contributions.detector_area
+                yvec(9,1,:) =win(i).detpar.width(idet).*(rand(1,npix)-0.5);
+                yvec(10,1,:)=win(i).detpar.height(idet).*(rand(1,npix)-0.5);
+            end
         end
         
         % Energy bin

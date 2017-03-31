@@ -13,7 +13,23 @@ Little things to check:
   at the fit or simulate stage. refine_moderator: checks ei in both set_refine_moderator and
   at the fit or simulate stage in pack_parameters.
 
+- Make detpar carry more infpormation (as detector.dat) - needed to get tube orientations
 
+- Check that all tube types are the same
+
+- Probably need to make instruments a class, rather than arbitrary structures
+  
+  
+Bugs
+====
+A single sqw, all points masked (zero errors, for example): causes a crash in 
+  Undefined operator './' for input arguments of type 'cell'.
+
+Error in initial_pulse_DGdisk>shaped_mod_pulse (line 108)
+    trans = 1 - abs(t_sh)./chop_fwhh;
+	
+	
+	
 
 Organisation
 ============
@@ -21,6 +37,13 @@ Speed: the buffering of hundreds of IX_divergence_profile takes a long time to r
 file: it is because of the time spent in IX_divergence_profile/sort, equally split
 between struct_special and nestedSortStruct. I think this is peculiar to divergence,
 not chopper or moderator, as only short arrays are checked in these cases.
+
+
+tobyfit2 shoudl not be a method, but a function.
+
+It should be able to determine which type of resolution function model from the instrument
+type, which in turn should therefore also be an object. The resolution fuinction model should 
+be a method of the instrument, not sqw object. It will be inherited?
 
 
 ===============================================================================================
