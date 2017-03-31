@@ -39,7 +39,7 @@ function t_sh = initial_pulse_DGdisk (mc_moderator, mc_shape_chopper, shape_mod,
 %
 %   chop_fwhh   FWHH of pulse shaping chopper (row vector length = npix)
 %
-% Note: If only one of mc_moderator and mc_shape_chopperis turned on,
+% Note: If only one of mc_moderator and mc_shape_chopper is turned on,
 % then treat the other as having no effect i.e. it is infinitely wide. Only
 % if both are turned off then do we have delta function in time.
 %
@@ -95,7 +95,7 @@ function t_sh = shaped_mod_pulse (t_ch, x0, xa, mod_ind, mod_table, mod_t_av, ch
 
 
 % Assume moderator pulse is the dominant determinant
-t_red = rand_cumpdf_arr (mod_table, mod_ind');      % row vector
+t_red = rand_cumpdf_arr (mod_table, mod_ind);       % row vector
 t_m = mod_t_av(mod_ind) .* (t_red./(1-t_red) - 1);  % must subtract first moment
 
 % Get the time deviation at the shaping chopper
@@ -130,13 +130,13 @@ function t_sh = shaped_chop_pulse (t_ch, x0, xa, chop_fwhh, mod_ind, mod_profile
 % Assume shaping chopper is the dominant determinant of the pulse
 t_sh = chop_fwhh .* rand_triangle(size(chop_fwhh));     % row vector
 
-% Get the time deviation at the moderator
-t_m = (x0.*t_sh - (x0-xa).*t_ch)./xa;
-t_red = (mod_t_av(mod_ind)+t_m)./(2*mod_t_av(mod_ind)+t_m);     % must add first moment
-
 % If necessary, account for shaping chopper using a rejection method
 shaped = (nargin>4);
 if shaped
+    % Get the time deviation at the moderator
+    t_m = (x0.*t_sh - (x0-xa).*t_ch)./xa;
+    t_red = (mod_t_av(mod_ind)+t_m)./(2*mod_t_av(mod_ind)+t_m);     % must add first moment
+    
     % Get the relative moderator profile (peak value unity) at those times
     trans = zeros(size(t_red));
     ok = (t_red>0);     % chopper may correspond to before proton pulse
@@ -145,7 +145,7 @@ if shaped
     
     % Iteratively replace any rejected points
     if any(bad)
-        t_sh(bad) = shaped_mod_pulse (t_ch(bad), x0(bad), xa(bad), chop_fwhh(bad),...
+        t_sh(bad) = shaped_chop_pulse (t_ch(bad), x0(bad), xa(bad), chop_fwhh(bad),...
             mod_ind(bad), mod_profile, mod_t_av);
     end
 end

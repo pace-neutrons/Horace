@@ -49,6 +49,7 @@ end
 
 % Create lookup table, using any buffered results
 [table,t_av,ind]=buffered_sampling_table(moderator_all,ei_all,varargin{:});
+ind=ind(:);     % make a column
 
 % Create output structure
 t_av=1e-6*t_av;     % Convert to seconds

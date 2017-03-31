@@ -19,7 +19,7 @@ function [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
 %         mod_table     Structure with fields:
 %                      ind      Cell array of indicies into table, where
-%                              ind{i} is column vector of indicies for ith
+%                              ind{i} is a row vector of indicies for ith
 %                              sqw object; length(ind{i})=no. runs in sqw object
 %                      table    Lookup table size(npnt,nmod), where nmod is
 %                              the number of unique tables. Convert to time from
@@ -42,7 +42,7 @@ function [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
 %         fermi_table   Structure with fields:
 %                      ind      Cell array of indicies into table, where
-%                              ind{i} is column vector of indicies for ith
+%                              ind{i} is a row vector of indicies for ith
 %                              sqw object; length(ind{i})=no. runs in sqw object
 %                      table    Lookup table size(npnt,nchop), where nchop is
 %                              the number of unique tables. Note that the time
@@ -55,6 +55,9 @@ function [ok,mess,lookup]=tobyfit_DGfermi_resconv_init(win)
 %
 %         dt            Cell array of vectors, one entry per dataset with size [1,npix],
 %                      with time widths corresponding to energy bins for each pixel
+%
+%         kf            Cell array of vectors, one entry per dataset with size [1,npix],
+%                      with final wavevectors for each pixel
 %
 % *OR*
 %   mc_contr        Cell array of character strings with the names of the
@@ -90,6 +93,7 @@ sample_all=repmat(IX_sample,nw,1);
 ei_all=cell(nw,1);
 dq_mat=cell(nw,1);
 dt=cell(nw,1);
+kf=cell(nw,1);
 for i=1:nw
     irun = win{i}.data.pix(5,:)';
     idet = win{i}.data.pix(6,:)';
@@ -107,7 +111,7 @@ for i=1:nw
     ei_all{i}=ei;
     
     ki=sqrt(ei/k_to_e);
-    kf=sqrt((ei(irun)-eps)/k_to_e);
+    kf{i}=sqrt((ei(irun)-eps)/k_to_e);
     
     % Get sample and s_mat
     [ok,mess,sample,s_mat,spec_to_rlu]=sample_coords_to_spec_to_rlu(win{i}.header);    % s_mat has size [3,3,nrun]
@@ -119,11 +123,11 @@ for i=1:nw
     x2=win{i}.detpar.x2(:); % make column vector
     
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
-    dq_mat{i} = dq_matrix_DGfermi (ki(irun), kf, x0(irun), xa(irun), x1(irun), x2(idet),...
+    dq_mat{i} = dq_matrix_DGfermi (ki(irun), kf{i}, x0(irun), xa(irun), x1(irun), x2(idet),...
         thetam(irun), angvel(irun), s_mat(:,:,irun), d_mat(:,:,idet), spec_to_rlu(:,:,irun), k_to_v, k_to_e);
     
     % Time width corresponding to energy bins for each pixel
-    dt{i} = deps_to_dt*(x2(idet).*deps(irun)./kf.^3)';  % row vector
+    dt{i} = deps_to_dt*(x2(idet).*deps(irun)./kf{i}.^3)';  % row vector
     
 end
 
@@ -143,5 +147,6 @@ lookup.fermi_table=fermi_table;
 lookup.sample=sample_all;
 lookup.dq_mat=dq_mat;
 lookup.dt=dt;
+lookup.kf=kf;
 
 lookup = {lookup};

@@ -19,7 +19,7 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 % -------
 %   lookup      Structure with fields:
 %                 lookup.ind    Cell array of indicies into table, where
-%                              ind{i} is column vector of indicies for ith
+%                              ind{i} is a row vector of indicies for ith
 %                              sqw object; length(ind{i})=no. runs in sqw object
 %                 lookup.table  Lookup table size(npnt,nmod), where nmod is
 %                              the number of unique tables. 
@@ -45,13 +45,13 @@ function lookup=moderator_sampling_table(moderator,ei,varargin)
 % Assemble the moderator objects and get unique entries
 nw=numel(moderator);
 if numel(ei)~=nw, error('Inconsistent number of arrays in moderator and energy arguments'), end
-nr=zeros(nw,1);
+nr=zeros(1,nw);
 for i=1:nw
     nr(i)=numel(moderator{i});
     if numel(ei{i})~=nr(i), error('Number of elements in corresponding moderator and energy arrays do not match'), end
 end
 nrend=cumsum(nr);
-nrbeg=1+[0;nrend(1:end-1)];
+nrbeg=1+[0,nrend(1:end-1)];
 nrtot=nrend(end);
 
 moderator_all=repmat(IX_moderator,[nrtot,1]);
@@ -67,4 +67,4 @@ end
 % Create output structure
 t_av=1e-6*t_av;     % Convert to seconds
 fwhh=1e-6*fwhh;     % Convert to seconds
-lookup=struct('ind',{mat2cell(ind,nr)},'table',table,'t_av',t_av,'fwhh',fwhh,'profile',profile);
+lookup=struct('ind',{mat2cell(ind,1,nr)},'table',table,'t_av',t_av,'fwhh',fwhh,'profile',profile);
