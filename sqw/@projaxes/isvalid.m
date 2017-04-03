@@ -14,5 +14,6 @@ function [ok, mess, wout] = isvalid (w)
 %                   of object. Because checkfields is a private method, the fields
 %                   can be altered using w.x=<new value> *without* calling
 %                   set.m. (T.G.Perring)
-
-[ok,mess,wout] = checkfields(w);
+%  03/04/2017       Checking only combo aruments as ivalid arguments can
+%                   not be set up separately using class setters 
+[ok,mess,wout] = check_combo_arg_(w);
