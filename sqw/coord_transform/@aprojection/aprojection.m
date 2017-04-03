@@ -10,12 +10,12 @@ classdef aprojection
     %
     properties(Dependent)
         % is special mex routines, written for performance reason and as such
-        % deeply embedded with cut_sqw objects  are availible for given
+        % deeply embedded with cut_sqw objects  are available for given
         % projection type
         can_mex_cut; %false
         %---------------------------------
         %
-        % Convenience function, providing commin interface to projection
+        % Convenience function, providing common interface to projection
         % data
         % the lattice parameters
         alatt
@@ -29,7 +29,7 @@ classdef aprojection
         urange_step;
         % shift of the projection centre
         urange_offset;
-        % indexes of projextion axis of the target progection
+        % indexes of projection axis of the target projection
         target_pax
         %number of bins in the target projection
         target_nbin
