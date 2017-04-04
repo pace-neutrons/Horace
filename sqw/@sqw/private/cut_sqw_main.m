@@ -153,9 +153,9 @@ end
 
 % Get proj structure, if present, and binning information
 if numel(varargin)>=1 && (isstruct(varargin{1}) ||...
-        isa(varargin{1},'aprojection') || isa(varargin{1},'projaxes'))
+        isa(varargin{1},'aProjection') || isa(varargin{1},'projaxes'))
     proj_given=true;
-    if isa(varargin{1},'aprojection')
+    if isa(varargin{1},'aProjection')
         proj=varargin{1};
     else
         proj=projection(varargin{1});
