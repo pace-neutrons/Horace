@@ -1,4 +1,4 @@
-classdef spher_proj<aprojection
+classdef spher_proj<aProjection
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts
     %
@@ -7,9 +7,9 @@ classdef spher_proj<aprojection
     %
     properties(Dependent)
         ex; %[1x3] Vector of axis in spherical coordinate system,
-        % where azimuthal angle phi is caunted from (r.l.u.)
+        % where azimuthal angle phi is counted from (r.l.u.)
         ez; %[1x3] Vector of axis in spherical coordinate system
-        % where polar angle theta is caunted from (r.l.u.)
+        % where polar angle theta is counted from (r.l.u.)
         ucentre; % [3x1] vector,defining of the centre of spherical projection
         type; %='r' units of r;
         lab     %={'\ro','\theta','\phi','E'};
@@ -26,7 +26,7 @@ classdef spher_proj<aprojection
     
     methods
         function proj=spher_proj(varargin)
-            proj = proj@aprojection();
+            proj = proj@aProjection();
             if nargin>0
                 proj.ucentre = varargin{1};
             end
@@ -65,7 +65,7 @@ classdef spher_proj<aprojection
         end
         
         %------------------------------------------------------------------
-        % Particular implementation of aprojection abstract interface
+        % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
         function urange_out = find_max_data_range(this,urange_in)
             % find the whole range of input data which may contribute

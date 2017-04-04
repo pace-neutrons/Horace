@@ -1,5 +1,5 @@
 function [istart,iend,irange,inside,outside] = get_irange_proj_(this,urange,varargin)
-% Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
+% Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle,
 % where the first three dimensions can be rotated and translated w.r.t. the
 % cuboid that is split into bins.
 %
@@ -31,13 +31,13 @@ function [istart,iend,irange,inside,outside] = get_irange_proj_(this,urange,vara
 %
 % Output:
 % -------
-%   istart  Column vector of indicies of the start of contiguous ranges
+%   istart  Column vector of indices of the start of contiguous ranges
 %          within the first three dimensions. If range is outside the bins
 %          then returned as empty (in fact, has size(istart)=[0,1])
-%   iend    Column vector of indicies of the end of contiguous ranges
+%   iend    Column vector of indices of the end of contiguous ranges
 %          within the first three dimensions. If range is outside the bins
 %          then returned as empty (in fact, has size(iend)=[0,1])
-%   irange  Bin index range for dimensins excluding the first three:
+%   irange  Bin index range for dimensions excluding the first three:
 %          array size [2,ndim-3]. If the region defined by urange lies
 %          fully outside the bins, then irange is set to zeros(0,ndim)
 %          i.e. isempty(irange)==true.
@@ -68,7 +68,7 @@ if ndim==3
     irange=zeros(2,0);
 else
     % Check first if the simple section of dimensions 4,5,... leaves any points (as fast to test)
-    [irange,inside,outside] = aprojection.get_irange(urange(:,4:end),varargin{4:end});
+    [irange,inside,outside] = aProjection.get_irange(urange(:,4:end),varargin{4:end});
     if outside
         istart=zeros(0,1);
         iend=zeros(0,1);
@@ -89,7 +89,7 @@ end
 
 %========================================================================================
 function [istart,iend,inside,outside] = get_irange3D(this,urange,p1,p2,p3)
-% Get indicies that define contiguous ranges of bins that partially or wholly
+% Get indices that define contiguous ranges of bins that partially or wholly
 % lie inside a cuboid volume that is rotated and translated w.r.t. the
 % cuboid that is split into bins.
 %
@@ -148,7 +148,7 @@ function [istart,iend,inside,outside] = get_irange3D(this,urange,p1,p2,p3)
 psize=[numel(p1),numel(p2),numel(p3)];
 % transformation matrix from rlu to u:
 trans =  this.data_u_to_rlu_(1:3,1:3)\(this.ucentre-this.data_uoffset_(1:3));
-% Grid of bin verticies:
+% Grid of bin vertices:
 [x1,x2,x3]=ndgrid(p1-trans(1),p2-trans(2),p3-trans(3));
 if this.type(1)=='r'   
     rs=this.data_u_to_rlu_(1:3,1:3)*[x1(:)';x2(:)';x3(:)'];
@@ -159,7 +159,7 @@ end
 
 
 
-% Coordinates of bin verticies in rotated and translated frame in which urange is given
+% Coordinates of bin vertices in rotated and translated frame in which urange is given
 ucoords=this.spher_transform(rs);
 
 inside = ~(bin_outside(1)|bin_outside(2)|bin_outside(3));   % =0 if bin outside, =1 if at least partially intersects volume

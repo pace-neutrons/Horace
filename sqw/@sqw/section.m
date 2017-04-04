@@ -57,7 +57,7 @@ end
 % Initialise output argument
 wout = win;
 
-tol=4*eps('single');    % accetable tolerance: bin centres deemed contained in new boundaries
+tol=4*eps('single');    % acceptable tolerance: bin centres deemed contained in new boundaries
 
 for n=1:numel(win)
     [ndim,sz]=dimensions(win(n));   % need to get sz array specific for each element in array win
@@ -100,7 +100,7 @@ for n=1:numel(win)
     % Section the pix array, if sqw type, and update urange
     if is_sqw_type(win(n))
         % Section pix array
-        [nstart,nend] = aprojection.get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
+        [nstart,nend] = aProjection.get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
         ind=ind_from_nrange(nstart,nend);
         wout(n).data.pix=win(n).data.pix(:,ind);
         % Update urange

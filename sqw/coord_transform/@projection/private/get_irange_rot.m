@@ -1,5 +1,5 @@
 function [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin)
-% Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
+% Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle,
 % where the first three dimensions can be rotated and translated w.r.t. the
 % cuboid that is split into bins.
 %
@@ -31,13 +31,13 @@ function [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,vararg
 %
 % Output:
 % -------
-%   istart  Column vector of indicies of the start of contiguous ranges
+%   istart  Column vector of indices of the start of contiguous ranges
 %          within the first three dimensions. If range is outside the bins
 %          then returned as empty (in fact, has size(istart)=[0,1])
-%   iend    Column vector of indicies of the end of contiguous ranges
+%   iend    Column vector of indices of the end of contiguous ranges
 %          within the first three dimensions. If range is outside the bins
 %          then returned as empty (in fact, has size(iend)=[0,1])
-%   irange  Bin index range for dimensins excluding the first three:
+%   irange  Bin index range for dimensions excluding the first three:
 %          array size [2,ndim-3]. If the region defined by urange lies
 %          fully outside the bins, then irange is set to zeros(0,ndim)
 %          i.e. isempty(irange)==true.
@@ -68,7 +68,7 @@ if ndim==3
     irange=zeros(2,0);
 else
     % Check first if the simple section of dimensions 4,5,... leaves any points (as fast to test)
-    [irange,inside,outside] = aprojection.get_irange(urange(:,4:end),varargin{4:end});
+    [irange,inside,outside] = aProjection.get_irange(urange(:,4:end),varargin{4:end});
     if outside
         istart=zeros(0,1);
         iend=zeros(0,1);

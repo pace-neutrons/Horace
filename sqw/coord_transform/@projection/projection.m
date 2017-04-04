@@ -1,12 +1,12 @@
-classdef projection<aprojection
-    %  Class defines coordinate projections necessary to make horace cuts
+classdef projection<aProjection
+    %  Class defines coordinate projections necessary to make Horace cuts
     %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
     %  Uses projection axis and projection logic, defined by projaxis class
     %  and works as interface to this class for defining projection
     %
     %  Defines coordinate transformations, used by cut_sqw when making
-    %  horace cuts
+    %  Horace cuts
     %
     % $Revision$ ($Date$)
     %
@@ -39,7 +39,7 @@ classdef projection<aprojection
     
     methods
         function proj=projection(varargin)
-            proj = proj@aprojection();
+            proj = proj@aProjection();
             if nargin==0 % return defaults
                 proj.projaxes_ = [];
                 proj.data_lab_ = ['qx','qy','qz','en'];
@@ -103,7 +103,7 @@ classdef projection<aprojection
             end
         end       
         %------------------------------------------------------------------
-        % Particular implementation of aprojection abstract interface
+        % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
         function urange_out = find_max_data_range(this,urange_in)
             % find the whole range of input data which may contribute

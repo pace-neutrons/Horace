@@ -11,7 +11,7 @@ function transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,
 %                       target sqw object
 % pos            --  three integer numbers, (e.g [0,0,0])  specifying the initial point
 %                       in reciprocal space (h,k,l)  which is a reference
-%                       point for the transformaton
+%                       point for the transformation
 % qstep         --   3-vector or float describing delta Q in all 3 q-directions of the reciprocal
 %                       space. If one number is specified, the steps are
 %                       eqial in all 3 directions
@@ -31,11 +31,11 @@ function transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,
 % transf_list -- cellarray of cut_tranf objects, describing the transformations applied to each
 %                combined zone
 %
-% Additional input arguments describe the symmetrization operation.
+% Additional input arguments describe the symmetrisation operation.
 %
 % Create a new sqw file which corresponds to just one Brillouin zone, but
 % with data from equivalent positions. Default choice is all equivalent
-% wavevectors, but can also manually specify which zones are to be combined.
+% wave-vectors, but can also manually specify which zones are to be combined.
 % This is done either by using the keywords:
 %   '-cyclic' : only cyclic permutations (with no sign changes) of the chosen zone are included
 %   '-cycwithneg' : cyclic permutations AND the negatives (e.g. (2,1,0),
@@ -44,7 +44,7 @@ function transf_list=combine_equivalent_zones(data_source,proj,pos,qstep,erange,
 %   '-ac' : equivalent positions in the ac plane
 %   '-bc' : equivalent positions in the bc plane
 %
-% Alternatively one can explicitly provide a list of wavevectors to be
+% Alternatively one can explicitly provide a list of wave-vectors to be
 % combined by providing a cell array
 %
 % RAE 30/3/2010
@@ -56,7 +56,7 @@ if ~ischar(data_source)
     error('Horace error: data source must be a string');
 end
 
-if ~(isstruct(proj) || isa(proj,'aprojection'))
+if ~(isstruct(proj) || isa(proj,'aProjection'))
     error('Horace error: proj must be a structure array or an instance of a projection class');
 else
     if isstruct(proj) && (~isfield(proj,'u') || ~isfield(proj,'v'))
