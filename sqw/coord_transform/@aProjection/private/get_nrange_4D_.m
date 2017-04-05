@@ -3,7 +3,7 @@ function [nstart,nend] = get_nrange_4D_(nelmts,istart,iend,irange)
 %
 % Given an array containing number of points in bins, contiguous bin ranges
 % for the first three dimensions and a section of the array for the
-% remaining dimensions, return column vectors of the start and end indicies of
+% remaining dimensions, return column vectors of the start and end indices of
 % ranges of contiguous points in the column representation of the points.
 % Works for any dimensionality 3,4,...
 %
@@ -17,10 +17,10 @@ function [nstart,nend] = get_nrange_4D_(nelmts,istart,iend,irange)
 %              ndim=size(irange,2), is greater than the number of dimensions
 %              defined by nelmts, n=numel(size(nelmts)), then the excess
 %              dimensions required of nelmts are all assumed to be singleton
-%              following the usual matlab convention.
-%   istart      Column vector of indicies of the start of contiguous ranges
+%              following the usual Matlab convention.
+%   istart      Column vector of indices of the start of contiguous ranges
 %              within the first three dimensions.
-%   iend        Column vector of indicies of the end of contiguous ranges
+%   iend        Column vector of indices of the end of contiguous ranges
 %              within the first three dimensions.
 %   irange      Ranges of section [irange_lo;irange_hi] for the 4th and higher
 %              dimensions e.g. [1,2,6;3,4,7] means bins 1:3, 2:4, 6:7 along
@@ -75,7 +75,7 @@ elseif ~(ndim==nd || (ndim<nd && ...
     error('Dimensions of number array inconsistent with indexing of subsection')
 end
 if prod(dims(1:min(3,ndim)))<iend(end)
-    error('Ranges of indicies in first three dimensions exceeds that of the array ''nelmts''')
+    error('Ranges of indices in first three dimensions exceeds that of the array ''nelmts''')
 end
 if ndim>3 && any(dims(4:end)<irange(2,1:ndim-3))
     error('Range(s) in ''irange'' must lie within the corresponding dimensions of the array ''nelmts''')
