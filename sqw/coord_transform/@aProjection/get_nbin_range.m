@@ -31,7 +31,7 @@ function [nstart,nend] = get_nbin_range(this,npix)
 % $Revision: 1170 $ ($Date: 2016-02-01 17:35:02 +0000 (Mon, 01 Feb 2016) $)
 
 
-small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing matricies are diagonal etc.
+small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing matrices are diagonal etc.
 %
 % Get the start and end index of contiguous blocks of pixel information in the data
 % *** should use optimised algorithm for cases when rot is diagonal ?

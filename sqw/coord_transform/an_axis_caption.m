@@ -13,9 +13,10 @@ classdef an_axis_caption
         changes_aspect_ratio;
     end
     properties(Access=protected)
+        % handle to function calculating axes captions
         caption_calc_func_;
         % internal property, which defines if appropriate picture changes
-        % aspect ratio.
+        % aspect ratio of a 2D image.
         changes_aspect_ratio_=true;
     end
     
