@@ -1,14 +1,14 @@
 classdef oriented_lattice
     % class describes main properties of a sample with oriented lattice
     % under neutron scattering or x-ray investigation.
-    %
     % and contains various service functions to work with such sample
+    %
     %
     %
     % $Revision$ ($Date$)
     %
     %
-    % On 2014/03 it is far from completeon and have many of its methods are
+    % On 2017/03 it is far from completeon and have many of its methods
     % dublicated elsewhere.
     %
     properties(Dependent)
@@ -35,35 +35,34 @@ classdef oriented_lattice
     
     properties(Access=private)
         %
-        alatt__  = [];
-        angdeg__ = [];
+        alatt_  = [];
+        angdeg_ = [];
         
         % the defaults for these fields are:
-        u__    = [1,0,0];
-        v__   = [0,1,0];
+        u_    = [1,0,0];
+        v_   = [0,1,0];
         % Goniometer parameters
-        psi__   = [];         %  Angle of u w.r.t. ki (deg)  [Default=0]
-        omega__ = 0;         %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
-        dpsi__  = 0;         %  Correction to psi (deg)  [Default=0]
-        gl__    = 0;         %  Large goniometer arc angle (deg)  [Default=0]
-        gs__    = 0;         %  Small goniometer arc angle (deg)  [Default=0]
+        psi_   = [];         %  Angle of u w.r.t. ki (deg)  [Default=0]
+        omega_ = 0;         %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
+        dpsi_  = 0;         %  Correction to psi (deg)  [Default=0]
+        gl_    = 0;         %  Large goniometer arc angle (deg)  [Default=0]
+        gs_    = 0;         %  Small goniometer arc angle (deg)  [Default=0]
         
         % by default, units used in the class are degree.
-        angular_units__= 'deg';
+        angular_units_= 'deg';
         
         
         % service variable used to help viewing u,v
-        uv_cros__=[0,0,1]; % cross(u,v);
-        surf_ar__ = 1;  % abs(uv_cros__.*uv_cros__);
+        uv_cros_=[0,0,1]; % cross(u,v);
+        surf_ar_ = 1;  % abs(uv_cros_.*uv_cros_);
     end
     properties(Constant,Access=private)
         % List of fields which have default values and do not have to be always defined by either file or command arguments;
-        fields_have_defaults__ = {'omega','dpsi','gl','gs','u','v'};
+        fields_have_defaults_ = {'omega','dpsi','gl','gs','u','v'};
         % List of the fields which describe lattice.
-        lattice_parameters__ = {'alatt','angdeg','psi','omega','dpsi','gl','gs','u','v'}
+        lattice_parameters_ = {'alatt','angdeg','psi','omega','dpsi','gl','gs','u','v'}
         % radian to degree transformation constant
-        deg_to_rad__=pi/180;
-        
+        deg_to_rad_=pi/180;
     end
     %
     methods
@@ -87,26 +86,29 @@ classdef oriented_lattice
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function units = get.angular_units(this)
-            units = this.angular_units__;
+            units = this.angular_units_;
         end
+        %
         function this = set.angular_units(this,val)
             if val(1) == 'd'
-                this.angular_units__ = 'deg';
+                this.angular_units_ = 'deg';
             elseif val(1) == 'r'
-                this.angular_units__ = 'rad';
+                this.angular_units_ = 'rad';
             else
             end
         end
+        %
         function this = set_deg(this)
-            this.angular_units__= 'deg';
+            this.angular_units_= 'deg';
         end
+        %
         function this = set_rad(this)
-            this.angular_units__= 'rad';
+            this.angular_units_= 'rad';
         end
         %
         function public_struct = struct(this)
             % convert class into structure, containing public-accessible information
-            pub_fields = [oriented_lattice.lattice_parameters__,{'angular_units'}];
+            pub_fields = [oriented_lattice.lattice_parameters_,{'angular_units'}];
             public_struct  = struct();
             for i=1:numel(pub_fields)
                 public_struct.(pub_fields{i}) = this.(pub_fields{i});
@@ -116,79 +118,79 @@ classdef oriented_lattice
         
         %-----------------------------------------------------------------
         function psi = get.psi(this)
-            psi = oriented_lattice.transform_and_get_angular(this.angular_units__,this.psi__);
+            psi = oriented_lattice.transform_and_get_angular(this.angular_units_,this.psi_);
         end
         function omega = get.omega(this)
-            omega=oriented_lattice.transform_and_get_angular(this.angular_units__,this.omega__);
+            omega=oriented_lattice.transform_and_get_angular(this.angular_units_,this.omega_);
         end
         function dpsi = get.dpsi(this)
-            dpsi=oriented_lattice.transform_and_get_angular(this.angular_units__,this.dpsi__);
+            dpsi=oriented_lattice.transform_and_get_angular(this.angular_units_,this.dpsi_);
         end
         function gl=get.gl(this)
-            gl=oriented_lattice.transform_and_get_angular(this.angular_units__,this.gl__);
+            gl=oriented_lattice.transform_and_get_angular(this.angular_units_,this.gl_);
         end
         function gs=get.gs(this)
-            gs=oriented_lattice.transform_and_get_angular(this.angular_units__,this.gs__);
+            gs=oriented_lattice.transform_and_get_angular(this.angular_units_,this.gs_);
         end
         function this = set.psi(this,val)
-            this.psi__=oriented_lattice.check_angular_set(val);
+            this.psi_=oriented_lattice.check_angular_set(val);
         end
         function this = set.omega(this,val)
-            this.omega__=oriented_lattice.check_angular_set(val);
+            this.omega_=oriented_lattice.check_angular_set(val);
         end
         function this  = set.dpsi(this,val)
-            this.dpsi__=oriented_lattice.check_angular_set(val);
+            this.dpsi_=oriented_lattice.check_angular_set(val);
         end
         function this =set.gl(this,val)
-            this.gl__=oriented_lattice.check_angular_set(val);
+            this.gl_=oriented_lattice.check_angular_set(val);
         end
         function this =set.gs(this,val)
-            this.gs__=oriented_lattice.check_angular_set(val);
+            this.gs_=oriented_lattice.check_angular_set(val);
         end
         %-----------------------------------------------------------------
         function u=get.u(this)
-            if this.surf_ar__<1.e-6
-                u=sprintf('u || v where u= [%d,%d,%d]; v= [%d,%d,%d]',this.u__,this.v__);
+            if this.surf_ar_<1.e-6
+                u=sprintf('u || v where u= [%d,%d,%d]; v= [%d,%d,%d]',this.u_,this.v_);
             else
-                u=this.u__;
+                u=this.u_;
             end
         end
         function v=get.v(this)
-            if this.surf_ar__<1.e-6
-                v=sprintf('u || v where u= [%d,%d,%d]; v= [%d,%d,%d]',this.u__,this.v__);
+            if this.surf_ar_<1.e-6
+                v=sprintf('u || v where u= [%d,%d,%d]; v= [%d,%d,%d]',this.u_,this.v_);
             else
-                v=this.v__;
+                v=this.v_;
             end
         end
         function this=set.u(this,u)
-            this.u__=oriented_lattice.check_3Dvector(u);
+            this.u_=oriented_lattice.check_3Dvector(u);
             %
-            this.uv_cros__=cross(this.u__,this.v__);
-            this.surf_ar__ = sum(this.uv_cros__.*this.uv_cros__);
+            this.uv_cros_=cross(this.u_,this.v_);
+            this.surf_ar_ = sum(this.uv_cros_.*this.uv_cros_);
         end
         function this=set.v(this,v)
-            this.v__=oriented_lattice.check_3Dvector(v);
+            this.v_=oriented_lattice.check_3Dvector(v);
             %
-            this.uv_cros__=cross(this.u__,this.v__);
-            this.surf_ar__ = sum(this.uv_cros__.*this.uv_cros__);
+            this.uv_cros_=cross(this.u_,this.v_);
+            this.surf_ar_ = sum(this.uv_cros_.*this.uv_cros_);
         end
         
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function alat=get.alatt(this)
-            alat = this.alatt__;
+            alat = this.alatt_;
         end
         function angdeg=get.angdeg(this)
-            %angdeg= oriented_lattice.transform_and_get_angular(this.angular_units__,this.angdeg__);
-            angdeg= this.angdeg__;
+            %angdeg= oriented_lattice.transform_and_get_angular(this.angular_units_,this.angdeg_);
+            angdeg= this.angdeg_;
         end
         %
         function this=set.alatt(this,val)
-            this.alatt__ = oriented_lattice.check_3Dvector(val);
+            this.alatt_ = oriented_lattice.check_3Dvector(val);
             
         end
         function this=set.angdeg(this,val)
-            this.angdeg__ = oriented_lattice.check_3DAngles_correct(val);
+            this.angdeg_ = oriented_lattice.check_3DAngles_correct(val);
         end
         %---
         function undef_fields=get_undef_fields(obj)
@@ -201,8 +203,8 @@ classdef oriented_lattice
                     is=false;
                 end
             end
-            uf=cellfun(@(fld)(undef_field(obj,fld)),obj.lattice_parameters__);
-            undef_fields = obj.lattice_parameters__(uf);
+            uf=cellfun(@(fld)(undef_field(obj,fld)),obj.lattice_parameters_);
+            undef_fields = obj.lattice_parameters_(uf);
         end
     end
     %---------------------------------------------------------------------
@@ -210,11 +212,11 @@ classdef oriented_lattice
     methods(Static)
         function fields = lattice_fields()
             % fields which belong to lattice
-            fields = oriented_lattice.lattice_parameters__;
+            fields = oriented_lattice.lattice_parameters_;
         end
         function fields = fields_with_defaults()
             % lattice fields which have default values
-            fields =oriented_lattice.fields_have_defaults__;
+            fields =oriented_lattice.fields_have_defaults_;
         end
         function val=check_angular_set(val)
             % function checks if single angular value one tries to set is correct
@@ -236,7 +238,7 @@ classdef oriented_lattice
             if strcmp(unit,'deg')
                 angle = value;
             else
-                angle =value*oriented_lattice.deg_to_rad__;
+                angle =value*oriented_lattice.deg_to_rad_;
             end
         end
         function val =  check_3DAngles_correct(val)

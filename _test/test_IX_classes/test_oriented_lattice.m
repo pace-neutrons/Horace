@@ -8,7 +8,12 @@ classdef test_oriented_lattice< TestCase
     end
     methods
         %
-        function this=test_oriented_lattice(name)
+        function this=test_oriented_lattice(varargin)
+            if nargin == 0
+                name = 'test_oriented_lattice';
+            else
+                name = varargin{1};
+            end
             this = this@TestCase(name);
             rootpath=fileparts(which('herbert_init.m'));
             this.test_data_path = fullfile(rootpath,'_test/common_data');
@@ -30,6 +35,7 @@ classdef test_oriented_lattice< TestCase
                 assertEqual(0,ol.(cur_field));
             end
         end
+        %
         function test_degrees_rad(this)
             ol = oriented_lattice();
             ol.psi   = 10;
@@ -77,7 +83,7 @@ classdef test_oriented_lattice< TestCase
             assertElementsAlmostEqual(50,ol.gs)
             
         end
-        
+        %
         function test_3Dvectors(this)
             
             ol = oriented_lattice();
@@ -104,12 +110,13 @@ classdef test_oriented_lattice< TestCase
             assertExceptionThrown(f,'ORIENTED_LATTICE:set_lattice_param');
             
             warning(ws);
-  
+            
         end
-       function this = test_1vectors_errors(this)
+        %
+        function this = test_1vectors_errors(this)
             ol=oriented_lattice();
             
-             %ol.gl='a';
+            %ol.gl='a';
             ws=warning('off','MATLAB:subsasgnMustHaveOutput');
             f=@()subsasgn(ol,struct('type','.','subs','gl'),'a');
             %            assertEqual(mess,' field: gl has to be numeric but it is not');
@@ -136,12 +143,10 @@ classdef test_oriented_lattice< TestCase
             assertExceptionThrown(f,'ORIENTED_LATTICE:set_lattice_angles');
             
             warning(ws);
-                        
+            
         end
-        
+               
 
-
-        
-        
+                
     end
 end
