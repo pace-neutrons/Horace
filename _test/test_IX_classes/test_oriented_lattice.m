@@ -107,7 +107,14 @@ classdef test_oriented_lattice< TestCase
             %rd.u='a';
             ws=warning('off','MATLAB:subsasgnMustHaveOutput');
             f=@()subsasgn(ol,struct('type','.','subs','u'),'a');
-            assertExceptionThrown(f,'ORIENTED_LATTICE:set_lattice_param');
+            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            %rd.v=[]; -- does not accept empty vectors
+            f=@()subsasgn(ol,struct('type','.','subs','v'),[]);
+            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+
+            %rd.alatt=[10^-10,0,0]; -- does not accept empty vectors
+            f=@()subsasgn(ol,struct('type','.','subs','alatt'),[1.e-10,0,0]);
+            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
             
             warning(ws);
             
@@ -120,27 +127,27 @@ classdef test_oriented_lattice< TestCase
             ws=warning('off','MATLAB:subsasgnMustHaveOutput');
             f=@()subsasgn(ol,struct('type','.','subs','gl'),'a');
             %            assertEqual(mess,' field: gl has to be numeric but it is not');
-            assertExceptionThrown(f,'ORIENTED_LATTICE:set_angular_value');
+            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
             
             
             %ol.gl=[1,2];
             f=@()subsasgn(ol,struct('type','.','subs','gl'),[1,2]);
             %            assertEqual(mess,' field: gl has to have 1 element but has: 2
             %            element(s)');
-            assertExceptionThrown(f,'ORIENTED_LATTICE:set_angular_value');
+            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
             
             f=@()subsasgn(ol,struct('type','.','subs','gl'),400);
             %            assertEqual(mess,' field: gl has to in range of +-360 deg but it is not');
-            assertExceptionThrown(f,'ORIENTED_LATTICE:set_angular_value');
+            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
             
             %ol.angdeg = [-400,0,0]
             f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[-400,0,0]);
-            assertExceptionThrown(f,'ORIENTED_LATTICE:set_lattice_angles');
+            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
             
             %assertEqual(mess,'field ''angldeg'' does not define correct 3D lattice');
             %ol.angldeg = [45,120,45]
             f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[45,120,50]);
-            assertExceptionThrown(f,'ORIENTED_LATTICE:set_lattice_angles');
+            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
             
             warning(ws);
             

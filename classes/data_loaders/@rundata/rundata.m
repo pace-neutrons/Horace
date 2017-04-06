@@ -304,7 +304,7 @@ classdef rundata
         function this = set.lattice(this,val)
             if isa(val,'oriented_lattice')
                 this.oriented_lattice__ = val;
-            elseif isemtpy(val)
+            elseif isempty(val)
                 this.oriented_lattice__ =[];
             else
                 error('RUNDATA:set_lattice','set lattice parameter can be oriented_lattice only')

@@ -31,7 +31,7 @@ function [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fie
 % What fields have to be defined (as function of crystal/powder parameter)?
 if ~exist('fields_needed','var')
     fields_needed = what_fields_are_needed(run);
-    [all_fields,lattice_fields] = what_fields_are_needed(run);    
+    [all_fields,lattice_fields] = what_fields_are_needed(run);
 else
     [all_fields,lattice_fields] = what_fields_are_needed(run,fields_needed);
 end
@@ -45,11 +45,9 @@ if ~isempty(lattice_fields)
     if isempty(run.lattice)
         the_lattice = oriented_lattice();
     else
-        the_lattice = run.lattice;        
+        the_lattice = run.lattice;
     end
-    is_empty_f = @(field)is_empty_field(the_lattice,field);
-    is_undef_lattice   = cellfun(is_empty_f,lattice_fields);
-    undef_lattice      = lattice_fields(is_undef_lattice);
+    undef_lattice  = the_lattice.get_undef_fields();
     other_fields   = ~ismember(all_fields,lattice_fields);
     all_fields     = all_fields(other_fields);
     
@@ -90,7 +88,7 @@ fields_undef = fields_undef(~is_in_loader);
 % necessary fields are still undefined by the run
 if ~isempty(fields_undef)
     undefined = 2;
-    if get(herbert_config,'log_level')>-1
+    if config_store.instance().get_value('herbert_config','log_level') > -1
         for i=1:numel(fields_undef)
             fprintf('Necessary field undefined: %s \n',fields_undef{i});
         end

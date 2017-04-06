@@ -27,7 +27,7 @@ if any(lattice_loaded)
     end
     for i=1:numel(lat_fields)
         fld =lat_fields{i};
-        if reload || isempty(lat.(fld))
+        if reload || ~lat.is_defined(fld)
             lat.(fld) = this.loader__.(fld);
         end
     end

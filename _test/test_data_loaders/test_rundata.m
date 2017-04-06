@@ -296,6 +296,7 @@ classdef test_rundata< TestCase
             end
             
         end
+        %
         function test_set_field_have_preference(this)
             run=rundata(f_name(this,'MAP11014.nxspe'));
             
