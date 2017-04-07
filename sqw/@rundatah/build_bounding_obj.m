@@ -33,7 +33,7 @@ end
 
 if ~range_given
     if obj_defined
-        [rdl,ok,mess] = obj.load_methadata();
+        [rdl,ok,mess] = obj.load_metadata();
         if ~ok
             error('RUNDATAH:invalid_argument',...
                 'calc_bounding_obj: incomplete input object, %s',mess);
