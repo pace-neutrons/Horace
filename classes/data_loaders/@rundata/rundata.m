@@ -181,7 +181,7 @@ classdef rundata
         
         % Load in memory if not yet there all auxiliary data defined for
         % run except big array e.g. S, ERR, en and detectors
-        [this,ok,mess,undef_list] = load_methadata(this,varargin);
+        [this,ok,mess,undef_list] = load_metadata(this,varargin);
         % Returns the name of the file which contains experimental data
         [fpath,filename,fext]=get_source_fname(this);
         
