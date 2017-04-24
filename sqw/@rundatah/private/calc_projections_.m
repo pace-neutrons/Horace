@@ -1,28 +1,12 @@
-function [u_to_rlu, urange, pix] = ...
-    calc_projections_(efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn,proj_mode)
+function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
-%   >> [u_to_rlu, ucoords] = ...
-%    calc_projections (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
+%   >> [u_to_rlu, ucoords] = obj.calc_projections_(detdcn,qspec,proj_mode)
 %
-% Input:
+% Optional inputs:
 % ------
-%   efix        Fixed energy (meV)
-%   emode       Direct geometry=1, indirect geometry=2
-%   alatt       Lattice parameters (Ang^-1)
-%   angdeg      Lattice angles (deg)
-%   u           First vector (1x3) defining scattering plane (r.l.u.)
-%   v           Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi         Angle of u w.r.t. ki (rad)
-%   omega       Angle of axis of small goniometer arc w.r.t. notional u
-%   dpsi        Correction to psi (rad)
-%   gl          Large goniometer arc angle (rad)
-%   gs          Small goniometer arc angle (rad)
-%   data        Data structure of spe file (see get_spe)
-%            or The same, but with in addition a field qspec, a 4xn array of qx,qy,qz,eps
-%   det         Data structure of par file (see get_par)
-%            or If data has field qspec, det is ignored
+%   qspec       4xn_detectors array of qx,qy,qz,eps
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %               This should be precalculated from the contents of det
@@ -55,6 +39,10 @@ function [u_to_rlu, urange, pix] = ...
 %              The order of the pixels is increasing energy dfor first detector, then
 %              increasing energy for the second detector, ....
 
+% Uses the following fiels of rundata opbject:
+% efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det
+% where  data  is the data structure of spe file (see get_spe)
+
 % Original author: T.G.Perring
 %
 % $Revision$ ($Date$)
@@ -62,44 +50,42 @@ function [u_to_rlu, urange, pix] = ...
 
 % Check input parameters
 % -------------------------
-[ne,ndet]=size(data.S);
+[ne,ndet]=size(obj.S);
 % Check length of detectors in spe file and par file are same
-if ~isfield(data,'qspec') &&  ndet~=length(det.phi)
-    mess1=['.spe file ' data.filename ' and .par file ' det.filename ' not compatible'];
-    mess2=['Number of detectors is different: ' num2str(ndet) ' and ' num2str(length(det.phi))];
-    error('%s\n%s',mess1,mess2)
-end
+% if ~isfield(data,'qspec') &&  ndet~=length(det.phi)
+%     mess1=['.spe file ' data.filename ' and .par file ' det.filename ' not compatible'];
+%     mess2=['Number of detectors is different: ' num2str(ndet) ' and ' num2str(length(det.phi))];
+%     error('%s\n%s',mess1,mess2)
+% end
 if ~exist('proj_mode','var')
     proj_mode = 2;
+end
+if ~exist('qspec','var')
+    qspec = [];
 end
 if proj_mode<0 || proj_mode >2
     warning('HORACE:calc_projections',' proj_mode can be 0,1 or 2 and got %d. Assuming mode 2(all pixel information)',proj_mode);
     proj_mode = 2;
 end
 
-% Check incident energy consistent with energy bins
-% (if data contains the field qspec, then en is 2x1 array with min and max energy transfer)
-if emode==1 && data.en(end)>=efix
-    error(['Incident energy ' num2str(efix) ' and energy bins incompatible'])
-elseif emode==2 && data.en(1)<=-efix
-    error(['Final energy ' num2str(efix) ' and energy bins incompatible'])
-elseif emode==0 && exp(data.en(1))<0 && ~isfield(data,'qspec')    % if qspec is not a field, then en contains log of wavelength
-    error('Elastic scattering mode and wavelength bins incompatible')
-end
 
 % Create matrix to convert from spectrometer axes to coords along projection axes
-[spec_to_u, u_to_rlu] = calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-
-c=neutron_constants;
-k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
+[spec_to_u, u_to_rlu] = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
 [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
 if use_mex
-    if isfield(data,'qspec') % why is this?
+    if ~isempty(qspec) % why is this?
         use_mex = false;
     else
         try
+            c=neutron_constants;
+            k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
+            
+            data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en);
+            det  = obj.det_par;
+            efix  = obj.efix;
+            emode = obj.emode;
             %nThreads = 8;
             [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
         catch  ERR % use matlab routine
@@ -109,15 +95,16 @@ if use_mex
     end
 end
 if ~use_mex
-    if ~isfield(data,'qspec')
+    if isempty(qspec)
+        qspec_provided = false;
         if isempty(detdcn)
-            detdcn = calc_detdcn(det);
+            detdcn = calc_detdcn(obj.det_par);
         end
-        [qspec,en]=calc_qspec(efix, k_to_e, emode, data, detdcn);
+        [qspec,en]=obj.calc_qspec(detdcn);
         ucoords = [spec_to_u*qspec;en];
     else
-        qspec=data.qspec;
         ucoords = [spec_to_u*qspec(1:3,:);qspec(4,:)];
+        qspec_provided = true;        
     end
     
     urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
@@ -139,18 +126,19 @@ if ~use_mex
     pix=ones(9,ne*ndet);
     pix(1:4,:)=ucoords;
     clear ucoords;  % delete big array before creating another big array
-    if ~isfield(data,'qspec')
+    if ~qspec_provided
+        det = obj.det_par;
         if isfield(det,'group')
             pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
         else
             group = 1:ndet;
-            pix(6,:)=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index            
+            pix(6,:)=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
         end
         pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
     else
         pix(6:7,:)=1;
     end
-    pix(8,:)=data.S(:)';
-    pix(9,:)=((data.ERR(:)).^2)';
-  
+    pix(8,:)=obj.S(:)';
+    pix(9,:)=((obj.ERR(:)).^2)';
+    
 end

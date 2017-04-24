@@ -138,7 +138,8 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             
             %--------------------------------------------------------------------------------------------------
-            this=test_or_save_variables(this,w2,w1, w2rings,w1rings,'tol',-3.e-2,'ignore_str',1,'convert_old_classes');
+            this=test_or_save_variables(this,w2,w1, w2rings,w1rings,...
+                'tol',-3.e-2,'ignore_str',1,'convert_old_classes',true);
         end
     end
     methods(Static)

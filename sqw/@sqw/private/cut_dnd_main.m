@@ -39,7 +39,7 @@ function wout = cut_dnd_main (data_source, ndims, varargin)
 % $Revision$ ($Date$)
 %
 
-horace_info_level = config_store.instance.get_value('hor_config','log_level');
+hor_log_level = config_store.instance.get_value('hor_config','log_level');
 
 % Parse input arguments
 % ---------------------
@@ -122,14 +122,14 @@ end
 
 % Get header information from the data source
 % --------------------------------------------
-if horace_info_level>=1, disp('--------------------------------------------------------------------------------'), end
+if hor_log_level>=1, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
-    if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
+    if hor_log_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
     ld = sqw_formats_factory.instance().get_loader(data_source);
     data = ld.get_data('-nopix');
     %[mess,main_header,header,detpar,data]=get_sqw (data_source,'-nopix');
 else
-    if horace_info_level>=0, disp('Taking cut from dnd object...'), end
+    if hor_log_level>=0, disp('Taking cut from dnd object...'), end
     data = data_source.data;
 end
 
@@ -259,7 +259,7 @@ if ~isempty(mess), error(mess), end
 % Save to file if requested
 % ---------------------------
 if save_to_file
-    if horace_info_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
+    if hor_log_level>=0, disp(['Writing cut to output file ',fopen(fout),'...']), end
     try
         mess = put_sqw (fout,w.main_header,w.header,w.detpar,w.data);
         fclose(fout);
@@ -270,7 +270,7 @@ if save_to_file
         if ~isempty(fopen(fout)); fclose(fout); end
         warning('Error writing to file: unknown cause')
     end
-    if horace_info_level>=0, disp(' '), end
+    if hor_log_level>=0, disp(' '), end
 end
 
 

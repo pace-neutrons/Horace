@@ -150,7 +150,7 @@ if isempty(grid_size)
     npix=ne*ndet;
     grid_size=ceil(sqrt(sqrt(npix/av_npix_per_bin)));
 end
-[use_mex,horace_info_level] = ...
+[use_mex,hor_log_level] = ...
     config_store.instance().get_value('hor_config','use_mex','log_level');
 if use_mex
     cash_opt = {};
@@ -185,7 +185,7 @@ else
     end
 end
 %
-if(horace_info_level>-1)
+if(hor_log_level>-1)
     disp('--------------------------------------------------------------------------------')
     if return_sqw_obj
         disp('Creating output sqw object:')
@@ -195,7 +195,7 @@ if(horace_info_level>-1)
 end
 %
 for i=1:nfiles
-    if horace_info_level>-1 && nfiles>1
+    if hor_log_level>-1 && nfiles>1
         disp('--------------------------------------------------------------------------------')
         disp(['Creating intermediate .tmp file ',num2str(i),' of ',num2str(nfiles),':'])
         disp(' ')
@@ -215,9 +215,9 @@ for i=1:nfiles
 end
 %
 if nfiles>1 && ~return_sqw_obj
-    if horace_info_level>-1
+    if hor_log_level>-1
         disp('--------------------------------------------------------------------------------')
-        bigtoc(nt,'Time to create all intermediate .tmp files:',horace_info_level);
+        bigtoc(nt,'Time to create all intermediate .tmp files:',hor_log_level);
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
     end
@@ -230,7 +230,7 @@ if nfiles>1 && ~return_sqw_obj
         catch
             if delete_error==false
                 delete_error=true;
-                if horace_info_level>-1
+                if hor_log_level>-1
                     disp('One or more intermediate .tmp files not deleted')
                 end
             end
@@ -241,6 +241,5 @@ end
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
-    clear tmp_file grid_size urange
-    
+    clear tmp_file grid_size urange    
 end

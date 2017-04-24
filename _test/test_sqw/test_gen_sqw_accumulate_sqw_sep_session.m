@@ -267,10 +267,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             %hc.threads = 1;
-            for i=1:this.nfiles_max
-                gen_sqw (this.spe_file(i), '', sqw_file{i}, efix(i), emode, alatt, angdeg, u, v, psi(i), omega(i), dpsi(i), gl(i), gs(i),[3,3,3,3]);
-            end
-            
+               
             
             [dummy,grid,urange1]=gen_sqw (this.spe_file, '', sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %hc.accum_in_separate_process=0;
@@ -281,20 +278,16 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             % Make some cuts: ---------------
             this.proj.u=[1,0,0.1]; this.proj.v=[0,0,1];
             
-            % Check cuts from each sqw individually, and the single
-            % combined sqw file are the same
-            [ok,mess,w1a,w1ref]=is_cut_equal(sqw_file_123456,sqw_file,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
-            % Test against saved or store to save later
-            this=test_or_save_variables(this,w1ref,w1a,'convert_old_classes');
-            
+                      
             
             % Check cuts from gen_sqw output with spe files in a different
             % order are the same
             [ok,mess,dummy_w1,w1b]=is_cut_equal(sqw_file_123456,sqw_file_145623,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            assertTrue(ok,'Cuts from gen_sqw output with spe files in a different order are not the same');
+            assertTrue(ok,['Cuts from gen_sqw output with spe files in a different order are not the same: ',mess]);
+            
+            w1a=cut_sqw(sqw_file_123456,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);            
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w1ref,w1b,'convert_old_classes');
+            this=test_or_save_variables(this,w1a,w1b,'convert_old_classes',true);
             
             
         end
@@ -370,7 +363,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_14,'convert_old_classes');
+            this=test_or_save_variables(this,w2_14,'convert_old_classes',true);
             
             
         end
@@ -440,7 +433,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             w2_1456=cut_sqw(sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_1456,'convert_old_classes');
+            this=test_or_save_variables(this,w2_1456,'convert_old_classes',true);
             
         end
         
@@ -489,7 +482,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_1456,'convert_old_classes');
+            this=test_or_save_variables(this,w2_1456,'convert_old_classes',true);
             
         end
         %
@@ -535,7 +528,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             [ok,mess,w2_11456]=is_cut_equal(sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_11456,'convert_old_classes');
+            this=test_or_save_variables(this,w2_11456,'convert_old_classes',true);
             
             
             if this.want_to_save_output

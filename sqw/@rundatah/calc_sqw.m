@@ -1,4 +1,4 @@
-function [w,grid_size,urange] = calc_sqw(obj,grid_size_in,urange_in,varargin)
+function [w,grid_size,urange,detchn] = calc_sqw(obj,grid_size_in,urange_in,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
@@ -13,10 +13,10 @@ function [w,grid_size,urange] = calc_sqw(obj,grid_size_in,urange_in,varargin)
 %                for sqw object to build from given rundata object.
 %   urange_in    Range of data grid for output given as a [2x4] matrix:
 %                [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                If [] then uses the smallest hypercuboid that encloses the 
+%                If [] then uses the smallest hypercuboid that encloses the
 %                whole data range.
-%                The ranges have to be provided in crystal cartezian
-%                cooridnate system
+%                The ranges have to be provided in crystal Cartesian
+%                coordinate system
 % If the form without grid_size_in and urange_in is used, grid_size_in is
 % assumed to be equal to [50,50,50,50] and urange_in = [].
 %
@@ -28,11 +28,15 @@ function [w,grid_size,urange] = calc_sqw(obj,grid_size_in,urange_in,varargin)
 %                  method.
 %                  Cashed values are shared between all existing rundata
 %                  objects and recalculated if a subsequent rundata object
-%                  has different detecotors.
-%                  Should be used only when runnign number of subsequent
+%                  has different detectors.
+%                  Should be used only when running number of subsequent
 %                  calculations for rang of runfiles and if mex files are
 %                  disabled. (mex files do not use cashed detectors
 %                  positions)
+% -qspec           if this option is provided, calculate q-dE vectors positions
+%                  and store it in qspec_cash array or use contents of
+%                  qspec_cash array provided instead of calculating
+%                  q-dE vector values from detectors positions
 %
 % Outputs:
 %   w               Output sqw object
@@ -44,42 +48,42 @@ function [w,grid_size,urange] = calc_sqw(obj,grid_size_in,urange_in,varargin)
 %
 % $Revision$ ($Date$)
 %
-keys_recognized = {'-cash_detectors'};
-[ok,mess,cash_detectors,params] = parse_char_options(varargin,keys_recognized);
+keys_recognized = {'-cash_detectors','-qspec'};
+[ok,mess,cash_detectors,cash_q_vectors] = parse_char_options(varargin,keys_recognized);
 if ~ok
     error('RUNDATAH:invalid_arguments',['calc_urange: ',mess])
 end
-qspec_provided  = false;
-if ~isempty(params) && strcmpi(params{1},'-qspec')
-    detdcn = params{2};
-    qspec_provided = true;
-    rundata_par = {'S','ERR','en','efix','emode','alatt','angdeg','u','v',...
-        'psi','omega','dpsi','gl','gs','-rad'};
+detdcn_provided  = false;
+qspec_provided = false;
+if cash_q_vectors  % clear qspecs_cash if qspec data were not provided
+    obj.detdcn_cash = [];
+    if ~isempty(obj.qpsecs_cash)
+        cash_detectors = false; % do not cash dectectors posiotions if q-values are already provided        
+        qspec_provided = true;
+    end
 else
-    rundata_par = {'S','ERR','en','efix','emode','alatt','angdeg','u','v',...
-        'psi','omega','dpsi','gl','gs','det_par','-rad','-nonan'};
+    obj.qpsecs_cash = [];
 end
-horace_info_level=config_store.instance().get_value('hor_config','log_level');
+
+if ~isempty(obj.detdcn_cash)
+    detdcn = obj.detdcn_cash;
+    detdcn_provided   = true;
+else
+    detdcn = [];
+end
+hor_log_level=config_store.instance().get_value('hor_config','log_level');
 
 bigtic
 % Read spe file and detector parameters
 % -------------------------------------
-% Masked detectors (i.e. containing NaN signal) are removed from data and detectors
-if qspec_provided
-    [data.S,data.ERR,data.en,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=...
-        obj.get_rundata(rundata_par{:});
-    data.qspec = detdcn;
-    det  = build_det_struct(1); % build fake detectors structure, consisting of
-    det0 = build_det_struct(1); % one detector to satisfy the interface.
-else
-    [data.S,data.ERR,data.en,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=...
-        obj.get_rundata(rundata_par{:});
-    
-    % Note: algorithm updates only if not already read from disk
-    % Get the list of all detectors, including the detectors corresponding to masked detectors
-    det0 = get_rundata(obj,'det_par');
+if ~qspec_provided || isempty(obj.S)
+    obj= obj.get_rundata('-this');
 end
-[data.filepath,data.filename]=get_source_fname(obj);
+det0 = obj.det_par;
+if ~(detdcn_provided || qspec_provided)
+    % Masked detectors (i.e. containing NaN signal) are removed from data and detectors
+    [obj.S,obj.ERR,obj.det_par]  = obj.rm_masked();
+end
 if ~exist('grid_size_in','var')
     grid_size_in = [50,50,50,50];
 else
@@ -100,7 +104,7 @@ if ~exist('urange_in','var')
     urange_in = [];
 end
 
-if horace_info_level>-1
+if hor_log_level>-1
     bigtoc('Time to read spe and detector data:')
     disp(' ')
 end
@@ -109,31 +113,27 @@ end
 % Create sqw object
 % -----------------
 bigtic
-if ~qspec_provided
+if ~(detdcn_provided || cash_q_vectors)
     if cash_detectors
-        detdcn = calc_or_restore_detdcn_(det);
+        detdcn = calc_or_restore_detdcn_(det0);
     else
         detdcn = [];
     end
 end
-instrument = obj.instrument;
-sample     = obj.sample;
 %
 % if transformation is provided, it will recalculate urange, and probably
 % into something different from non-transfromed object urange, so here we
 % use native sqw object urange and account for input urange later.
-if ~isempty(obj.transform_sqw_f_)
+if ~isempty(obj.transform_sqw)
     urange_sqw = [];
 else
     urange_sqw = urange_in;
 end
-[w, grid_size, urange]=calc_sqw_(efix, emode, alatt, angdeg, u, v, psi,...
-    omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_sqw,...
-    instrument, sample);
+[w, grid_size, urange]=obj.calc_sqw_(detdcn, det0, grid_size_in, urange_sqw);
 
 
-if horace_info_level>-1
-    bigtoc('Time to convert from spe to sqw data:',horace_info_level)
+if hor_log_level>-1
+    bigtoc('Time to convert from spe to sqw data:',hor_log_level)
     disp(' ')
 end
 

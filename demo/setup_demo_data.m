@@ -21,10 +21,9 @@ psi=0:4:90;
 nxspe_limit = numel(psi); %numel(psi)+2;
 file_list = cell(1,numel(psi));
 
-%horace_info_level(-Inf);
-hil=get(hor_config,'horace_info_level');
-set(hor_config,'horace_info_level',-Inf);
-clob = onCleanup(@()set(hor_config,'horace_info_level',hil));
+hil=get(hor_config,'log_level');
+set(hor_config,'log_level',-Inf);
+clob = onCleanup(@()set(hor_config,'log_level',hil));
 %
 disp('Getting data for Horace demo... Please wait a few minutes');
 try
@@ -54,9 +53,9 @@ try
         %remove intermediate file
     end
 catch err
-    set(hor_config,'horace_info_level',hil);
+    set(hor_config,'log_level',hil);
     delete(sqw_file_single);
-    fprintf('Errore producing fake_sqw data: %s Reason: %s\n',err.identifier,err.message);
+    fprintf('Error producing fake_sqw data: %s Reason: %s\n',err.identifier,err.message);
     disp('Problem generating data for Horace demo - check that 4to1_124.PAR file is present in current (demo) directory');
 end
 

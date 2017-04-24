@@ -28,7 +28,7 @@ function write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % $Revision$ ($Date$)
 
-horace_info_level=config_store.instance().get_value('hor_config','log_level');
+hor_log_level=config_store.instance().get_value('hor_config','log_level');
 drop_subzone_headers = false;
 if ismember('drop_subzones_headers',varargin)
     drop_subzone_headers = true;
@@ -65,7 +65,7 @@ end
 % Read header information from files, and check consistency
 % ---------------------------------------------------------
 % At present we require that all detector info is the same for all files, and each input file contains only one spe file
-if horace_info_level>-1
+if hor_log_level>-1
     disp(' ')
     disp('Reading header(s) of input file(s) and checking consistency...')
 end
@@ -204,7 +204,7 @@ end
 % require too much RAM (30GB if 200 spe files); also if we just want to check the consistency of the header information
 % in the files first we do not want to spend lots of time reading and accumulating the s,e,npix arrays. We can do
 % that now, as we have checked the consistency.
-if horace_info_level>-1
+if hor_log_level>-1
     disp(' ')
     disp('Reading and accumulating binning information of input file(s)...')
 end
@@ -243,7 +243,7 @@ mess_completion
 
 % Write to output file
 % ---------------------------
-if horace_info_level>-1
+if hor_log_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
 end

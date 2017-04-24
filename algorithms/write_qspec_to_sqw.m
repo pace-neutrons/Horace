@@ -1,5 +1,5 @@
 function [grid_size, urange] = write_qspec_to_sqw (qspec_file, sqw_file, efix, emode, alatt, angdeg,...
-                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
 % Read ascii column data and create a single sqw file.
 %
 %   >> write_qspec_to_sqw (qspec_file, sqw_file, efix, emode, alatt, angdeg,...
@@ -13,7 +13,7 @@ function [grid_size, urange] = write_qspec_to_sqw (qspec_file, sqw_file, efix, e
 %                        qx  defines a hight-hand coordinate frame with qy' and qz'
 %                        S   signal
 %                        ERR standard deviation
-%                       
+%
 %   sqw_file        Full file name of output sqw file
 %
 %   efix            Fixed energy (meV) (if elastic data ie. emode=0, the value will be ignored)
@@ -85,12 +85,12 @@ rd = rundatah();
 rd.efix = 0;
 rd.emode = 0;
 %
-rd.lattice = oriented_lattice(struct(...
-    'alatt',alatt,'angdeg',angdeg,'u',u,'v',v,'psi',psi,...
-    'omega',omega,'dpsi',dpsi,'gl',gl,'gs',gs));
+rd.lattice = oriented_lattice(alatt,angdeg,psi,u,v,omega,dpsi,gl,gs);
 %
 if isfield(data,'qspec') && numel(det.group) ==1
-   args = {'-cash_detectors','-qspec',data.qspec};    
+    args = {'-qspec'};
+    rd.qpsecs_cash = data.qspec;
+    rd.det_par = det; 
 else
     rd.det_par  = det;
     args = {'-cash_detectors'};

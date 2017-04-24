@@ -49,7 +49,7 @@ for i=1:numel(w)
     pix(5,nbeg(i):nend(i))=pix(5,nbeg(i):nend(i))+(nbeg_f(i)-1);
     ibin(nbeg(i):nend(i))=replicate_array(1:nbin,w(i).data.npix);
 end
-[ibin,ix]=sort(ibin);
+[~,ix]=sort(ibin);
 pix=pix(:,ix);
 
 data=w(1).data;

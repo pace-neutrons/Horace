@@ -28,7 +28,6 @@ end
 b_obj = obj.build_bounding_obj(params{:});
 det = b_obj.get_par();
 % request to return all angular units as radians
-b_obj.lattice = b_obj.lattice.set_rad();
 %
 %---------------------------------------------------------------------------
 %
@@ -39,13 +38,7 @@ else
     detdcn = [];
 end
 if isempty(obj.transform_sqw) % minor optimization not worth deploying ?
-    data = struct('S',b_obj.S,'ERR',...
-        b_obj.ERR,'en',b_obj.en);
-    lat = b_obj.lattice;
-    [u_to_rlu, urange] = calc_projections_(b_obj.efix, b_obj.emode,...
-        lat.alatt, lat.angdeg, lat.u, lat.v,...
-        lat.psi, lat.omega, lat.dpsi, lat.gl, lat.gs, data, det, detdcn);
-    
+    [u_to_rlu, urange] = b_obj.calc_projections_(detdcn,[],0);
 else
-   [~,~,urange] = b_obj.calc_sqw(2,[],varargin{:});                
+    [~,~,urange] = b_obj.calc_sqw(2,[],varargin{:});
 end

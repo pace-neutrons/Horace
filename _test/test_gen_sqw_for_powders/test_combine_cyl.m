@@ -27,7 +27,7 @@ classdef test_combine_cyl < TestCaseWithSave
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_cyl_output.mat'));
             common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
-            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');            
+            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
             addpath(test_functions_path);
             
             
@@ -85,7 +85,8 @@ classdef test_combine_cyl < TestCaseWithSave
             
             tol = this.tol;
             this.tol = -2.e-3;
-            this=test_or_save_variables(this,w2_1,w1_1,'ignore_str',1,'convert_old_classes');
+            this=test_or_save_variables(this,w2_1,w1_1,...
+                'ignore_str',1,'convert_old_classes',true);
             this.tol = tol;
             
             %--------------------------------------------------------------------------------------------------
@@ -116,7 +117,7 @@ classdef test_combine_cyl < TestCaseWithSave
             
             tol = this.tol;
             %this.tol = -1.e-3;
-            this=test_or_save_variables(this,w2_2,w1_2,'ignore_str',1,'convert_old_classes');
+            this=test_or_save_variables(this,w2_2,w1_2,'ignore_str',1,'convert_old_classes',true);
             this.tol = tol;
             
             %--------------------------------------------------------------------------------------------------
@@ -144,8 +145,9 @@ classdef test_combine_cyl < TestCaseWithSave
             w1_tot=cut_sqw(sqw_file_tot,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
             
             
-            this=test_or_save_variables(this,w2_tot,w1_tot,'ignore_str',1,'tol',-2.e-3,'convert_old_classes');
-
+            this=test_or_save_variables(this,w2_tot,w1_tot,'ignore_str',1,...
+                'tol',-2.e-3,'convert_old_classes',true);
+            
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect

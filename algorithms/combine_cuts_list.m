@@ -77,10 +77,10 @@ disp('');
 
 %Suppress output messages from Horace, otherwise the screen is flooded with
 %lots of useless info...
-% Turn off horace_info output, but save for automatic cleanup on exit or cntl-C (TGP 30/11/13)
-%info_level = get(hor_config,'horace_info_level');
-%cleanup_obj=onCleanup(@()set(hor_config,'horace_info_level',info_level));
-%set(hor_config,'horace_info_level',-1);
+% Turn off horace_info output, but save for automatic clean-up on exit or cntl-C (TGP 30/11/13)
+%info_level = get(hor_config,'log_level');
+%cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
+%set(hor_config,'log_level',-1);
 [outdir,outfile] = fileparts(outfile);
 if isempty(outdir)
     outdir = sourcedir;

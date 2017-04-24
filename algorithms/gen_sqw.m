@@ -446,7 +446,7 @@ end
 % clear cashed detectors information and detectors directions
 rundatah.clear_det_cash();
 
-function delete_tmp_files(file_list,horace_info_level)
+function delete_tmp_files(file_list,hor_log_level)
 delete_error=false;
 for i=1:numel(file_list)
     ws=warning('off','MATLAB:DELETE:Permission');
@@ -455,7 +455,7 @@ for i=1:numel(file_list)
     catch
         if delete_error==false
             delete_error=true;
-            if horace_info_level>-1
+            if hor_log_level>-1
                 disp('One or more temporary sqw files not deleted')
             end
         end
@@ -699,7 +699,7 @@ end
 urange_in=range_add_border(urange_in,-1e-6);
 
 if log_level>-1
-    bigtoc('Time to compute limits:',horace_info_level);
+    bigtoc('Time to compute limits:',log_level);
 end
 
 function report_nothing_to_do(spe_only,spe_exist)

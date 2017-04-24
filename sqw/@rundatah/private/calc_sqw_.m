@@ -1,34 +1,14 @@
-function [w, grid_size, urange] = calc_sqw_(efix, emode, alatt, angdeg, u, v, psi,...
-    omega, dpsi, gl, gs, data, det, detdcn, det0, grid_size_in, urange_in, instrument, sample)
-% Create an sqw file, optionally keeping only those data points within a defined data range.
+function [w, grid_size, urange] = calc_sqw_(obj,detdcn, det0, grid_size_in, urange_in)
+% Create an sqw object, optionally keeping only those data points within a defined data range.
 %
-%   >> [w, grid_size, urange] = calc_sqw (efix, emode, alatt, angdeg, u, v, psi,...
-%                   omega, dpsi, gl, gs, data, det, grid_size_in, urange_in, instrument, sample
+%   >> [w, grid_size, urange] = obj.calc_sqw(detdch, det0,grid_size_in,
+%   urange_in)
 %
 % Input:
 % ------
-%   efix            Fixed energy (meV)
-%   emode           Direct geometry=1, indirect geometry=2, elastic=0
-%   alatt           Lattice parameters (Ang^-1)
-%   angdeg          Lattice angles (deg)
-%   u               First vector (1x3) defining scattering plane (r.l.u.)
-%   v               Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi             Angle of u w.r.t. ki (rad)
-%   omega           Angle of axis of small goniometer arc w.r.t. notional u
-%   dpsi            Correction to psi (rad)
-%   gl              Large goniometer arc angle (rad)
-%   gs              Small goniometer arc angle (rad)
-%   data            Data structure of spe file (see get_spe)
-%                  [Can have in addition a field qspec, a 4xn array of qx,qy,qz,eps]
-%   det             Data structure of par file (see get_par). The number of
-%                  detector entries must match the number of spectra in input
-%                  argument data. That is, if masked detectors have been removed
-%                  from the data, the the corresponding detectors must have been
-%                  removed from det.
-%                  [If data has field qspec, then det is ignored]
-%   detdcn          Direction of detector in spectrometer coordinates ([3 x ndet] array)
+%   detdcn         Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                       [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
-%   det0            Detector structure corresponding to unmasekd detectors. This
+%   det0           Detector structure corresponding to unmasked detectors. This
 %                  is what is used int the creation of the sqw object. It must
 %                  be consistent with det.
 %                  [If data has field qspec, then det is ignored]
@@ -36,9 +16,6 @@ function [w, grid_size, urange] = calc_sqw_(efix, emode, alatt, angdeg, u, v, ps
 %   urange_in       Range of data grid for output as a [2x4] matrix:
 %                     [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                   If [] then uses the smallest hypercuboid that encloses the whole data range.
-% 
-%   instrument      Structure or object containing instrument information [scalar]
-%   sample          Structure or object containing sample geometry information [scalar]
 %
 %
 % Output:
@@ -50,7 +27,7 @@ function [w, grid_size, urange] = calc_sqw_(efix, emode, alatt, angdeg, u, v, ps
 %                  or the range of the data if not.
 
 
-horace_info_level=config_store.instance().get_value('hor_config','log_level');
+hor_log_level=config_store.instance().get_value('hor_config','log_level');
 
 % Fill output main header block
 % -----------------------------
@@ -62,14 +39,10 @@ main_header.nfiles=1;
 
 % Fill header and data blocks
 % ---------------------------
-if horace_info_level>-1
-   disp('Calculating projections...');
+if hor_log_level>-1
+    disp('Calculating projections...');
 end
-[header,sqw_data]=calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn);
-
-% Update some header fields
-header.instrument=instrument;
-header.sample=sample;
+[header,sqw_data]=calc_sqw_data_and_header(obj,detdcn);
 
 % Flag if grid is in fact just a box i.e. 1x1x1x1
 grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_in)&&all(grid_size_in==[1,1,1,1]));
@@ -92,13 +65,13 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
         sqw_data.p{id}=[urange(1,id);urange(2,id)];
     end
     grid_size = grid_size_in;
-
+    
 else
-    if horace_info_level>-1
-       disp('Sorting pixels ...')
+    if hor_log_level>-1
+        disp('Sorting pixels ...')
     end
     
-    use_mex=get(hor_config,'use_mex');
+    [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
     if use_mex
         try
             % Verify the grid consistency and build axes along the grid dimensions,
@@ -106,7 +79,7 @@ else
             [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange);
             
             sqw_fields   =cell(1,4);
-            sqw_fields{1}=config_store.instance().get_value('hor_config','threads'); %get(hor_config,'threads');
+            sqw_fields{1}=nThreads;
             %sqw_fields{1}=8;
             sqw_fields{2}=urange;
             sqw_fields{3}=grid_size;
@@ -161,31 +134,13 @@ w=sqw(d);
 
 
 %------------------------------------------------------------------------------------------------------------------
-function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det, detdcn)
+function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 % Calculate sqw file header and data for a single spe file
 %
 %   >> [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
 %
 % Input:
 % ------
-%   efix        Fixed energy (meV)
-%   emode       Direct geometry=1, indirect geometry=2, elastic=0
-%   alatt       Lattice parameters (Ang^-1)
-%   angdeg      Lattice angles (deg)
-%   u           First vector (1x3) defining scattering plane (r.l.u.)
-%   v           Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi         Angle of u w.r.t. ki (rad)
-%   omega       Angle of axis of small goniometer arc w.r.t. notional u
-%   dpsi        Correction to psi (rad)
-%   gl          Large goniometer arc angle (rad)
-%   gs          Small goniometer arc angle (rad)
-%   data        Data structure of spe file (see get_spe)
-%              [Can have in addition a field qspec, a 4xn array of qx,qy,qz,eps]
-%   det         Data structure of par file (see get_par). The number of
-%              detector entries must match the number of spectra in input
-%              argument data. That is, if masked detectors have been removed
-%              from the data, the the corresponding detectors must have been
-%              removed from det.
 %              [If data has field qspec, then det is ignored]
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
@@ -203,11 +158,10 @@ function [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u
 % Perform calculations
 % -----------------------
 % Get number of data elements
-[ne,ndet]=size(data.S);
+[ne,ndet]=size(obj.S);
 
 % Calculate projections
-[u_to_rlu,urange,pix] = calc_projections_(efix, emode, alatt, angdeg, u, v, psi,...
-                                            omega, dpsi, gl, gs, data, det, detdcn);
+[u_to_rlu,urange,pix] = obj.calc_projections_(detdcn,obj.qpsecs_cash);
 
 p=cell(1,4);
 for id=1:4
@@ -217,26 +171,34 @@ end
 
 % Create header block
 % -------------------
-header.filename = data.filename;
-header.filepath = data.filepath;
-header.efix = efix;
-header.emode = emode;
-header.alatt = alatt;
-header.angdeg = angdeg;
-header.cu = u;
-header.cv = v;
-header.psi = psi;
-header.omega = omega;
-header.dpsi = dpsi;
-header.gl = gl;
-header.gs = gs;
-header.en = data.en;
+[fp,fn,fe]=fileparts(obj.data_file_name);
+
+header.filename = [fn,fe];
+header.filepath = [fp,filesep];
+header.efix     = obj.efix;
+header.emode = obj.emode;
+%TODO: Wrap in lattice:
+%header.lattice  = obj.lattice;
+lat = obj.lattice.set_rad();
+header.alatt = lat.alatt;
+header.angdeg = lat.angdeg;
+header.cu = lat.u;
+header.cv = lat.v;
+header.psi = lat.psi;
+header.omega = lat.omega;
+header.dpsi = lat.dpsi;
+header.gl = lat.gl;
+header.gs = lat.gs;
+%<< -- end of lattice
+
+header.en       = obj.en;
 header.uoffset = [0;0;0;0];
 header.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
 header.ulen = [1,1,1,1];
 header.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
-header.instrument = struct;
-header.sample = struct;
+% Update some header fields
+header.instrument=obj.instrument;
+header.sample=obj.sample;
 
 
 % Now package the data
@@ -244,8 +206,8 @@ header.sample = struct;
 sqw_data.filename = '';
 sqw_data.filepath = '';
 sqw_data.title = '';
-sqw_data.alatt = alatt;
-sqw_data.angdeg = angdeg;
+sqw_data.alatt = obj.lattice.alatt;
+sqw_data.angdeg = obj.lattice.angdeg;
 sqw_data.uoffset=[0;0;0;0];
 sqw_data.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
 sqw_data.ulen = [1,1,1,1];
@@ -255,7 +217,7 @@ sqw_data.iint=[];
 sqw_data.pax=[1,2,3,4];
 sqw_data.p=p;
 sqw_data.dax=[1,2,3,4];
-sqw_data.s=sum(data.S(:));
+sqw_data.s=sum(obj.S(:));
 sqw_data.e=sum(pix(9,:));   % take advantage of the squaring that has already been done for pix array
 sqw_data.npix=ne*ndet;
 sqw_data.urange=urange;

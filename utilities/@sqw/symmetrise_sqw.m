@@ -231,10 +231,10 @@ end
 %Notice that Horace can deal with working out the data range itself if we
 %set the plot limits to be +/-Inf
 
-% Turn off horace_info output, but save for automatic cleanup on exit or cntl-C (TGP 30/11/13)
-info_level = get(hor_config,'horace_info_level');
-cleanup_obj=onCleanup(@()set(hor_config,'horace_info_level',info_level));
-set(hor_config,'horace_info_level',-1);
+% Turn off horace_info output, but save for automatic clean-up on exit or cntl-C (TGP 30/11/13)
+info_level = get(hor_config,'log_level');
+cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
+set(hor_config,'log_level',-1);
 
 wout=cut(wout,new_range{:});
 

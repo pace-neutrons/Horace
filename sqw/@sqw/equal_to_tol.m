@@ -57,7 +57,7 @@ if isa(w1,'sqw') && isa(w2,'sqw')
     % Perform comparison
     for i=1:numel(w1)
         [ok,mess]=equal_to_tol_internal(w1(i),w2(i),varargin{:});
-        if ~ok,
+        if ~ok
             elmtstr=''; if numel(w1)>1, elmtstr=['(element ',num2str(i),')']; end
             mess=[mess,elmtstr];
             return
@@ -72,7 +72,7 @@ end
 function [ok,mess]=equal_to_tol_internal(w1,w2,varargin)
 % Compare scalar sqw objects of same type (sqw-type or dnd-type)
 
-horace_info_level=get(hor_config,'horace_info_level');
+horace_info_level=get(hor_config,'log_level');
 
 % Check if reorder option is present (only relevant if sqw-type)
 opt=struct('reorder',1);

@@ -51,13 +51,13 @@ if ~use_mex
                 ind=zeros(npixtot,1,'int32');
                 
                 
-                if get(hor_config,'horace_info_level')>0
+                if get(hor_config,'log_level')>0
                     warning('SQW:recompute_bin_data',' not enough memory to define bin indexes, running slow loop')
                 end
                 for i=1:nbin
                     ind(nbeg(i):nend(i))=i;
                 end
-                if get(hor_config,'horace_info_level')>0
+                if get(hor_config,'log_level')>0
                     warning('SQW:recompute_bin_data',' slow loop completed')
                 end
                 

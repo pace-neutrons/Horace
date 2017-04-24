@@ -46,13 +46,13 @@ end
 
 
 % Create sqw file
-sqw_file=fullfile(tempdir,['test_spe_testfun',str_random(12),'.sqw']);
-clo = onCleanup(@()delete(sqw_file));
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+%sqw_file=fullfile(tempdir,['test_spe_testfun',str_random(12),'.sqw']);
+%clo = onCleanup(@()delete(sqw_file));
+w= fake_sqw (en, par_file, '', efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
 % Simulate on the sqw object
-w=read_sqw(sqw_file);
-wcalc=sqw_eval(w,sqwfunc,pars);
+%w=read_sqw(sqw_file);
+wcalc=sqw_eval(w{1},sqwfunc,pars);
 clear w
 
 % Add random looking, but determinisitic, noise
