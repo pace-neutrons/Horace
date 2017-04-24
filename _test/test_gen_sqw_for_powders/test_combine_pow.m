@@ -28,7 +28,7 @@ classdef test_combine_pow < TestCaseWithSave
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_pow_output.mat'));
             common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
             
-            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');            
+            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
             addpath(test_functions_path);
             
             
@@ -66,7 +66,7 @@ classdef test_combine_pow < TestCaseWithSave
                     this.efix, emode, this.alatt, angdeg, u, v, this.psi_2, omega, dpsi, gl, gs)
             end
             %this=add_to_files_cleanList(this,this.spe_file_1,this.spe_file2);
-            add_to_path_cleanList(this,test_functions_path);            
+            add_to_path_cleanList(this,test_functions_path);
         end
         
         function this=test_combine_pow1(this)
@@ -85,15 +85,15 @@ classdef test_combine_pow < TestCaseWithSave
             w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
             
             this=test_or_save_variables(this,w2_1,w1_1,'tol',-2.e-2,...
-                'ignore_str',1,'convert_old_classes' );
+                'ignore_str',1,'convert_old_classes',true );
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
-             acolor k
-             dd(w1_1)
-             acolor b
-             da(w2_1)
-             close all
+            acolor k
+            dd(w1_1)
+            acolor b
+            da(w2_1)
+            close all
             %--------------------------------------------------------------------------------------------------
             
         end
@@ -113,7 +113,7 @@ classdef test_combine_pow < TestCaseWithSave
             w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
             
             this=test_or_save_variables(this,w2_2,w1_2,'tol',-9.e-2,...
-                'ignore_str',1,'convert_old_classes');
+                'ignore_str',1,'convert_old_classes',true);
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -136,9 +136,9 @@ classdef test_combine_pow < TestCaseWithSave
             w2_tot=cut_sqw(sqw_file_tot,[0,0.05,8],0,'-nopix');
             
             w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
-                       
+            
             this=test_or_save_variables(this,w2_tot,w1_tot,'tol',-2.e-2,...
-                'ignore_str',1,'convert_old_classes');
+                'ignore_str',1,'convert_old_classes',true);
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect

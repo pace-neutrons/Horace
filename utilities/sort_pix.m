@@ -10,12 +10,12 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %       n-D array
 % Optional input:
 %
-% '-nomex'    -- do not use mex code even if its availible
+% '-nomex'    -- do not use mex code even if its available
 %               (usually for testing)
 %
-% '-force_mex' -- use only mex code and fail if mex is not availible
+% '-force_mex' -- use only mex code and fail if mex is not available
 %                (usually for testing)
-% '-keep_type' -- if provieded, the routine will retain type of pixels
+% '-keep_type' -- if provided, the routine will retain type of pixels
 %                 it get on input, if not, output pixels will be converted
 %                 to double
 %
@@ -70,7 +70,7 @@ if use_mex
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
         use_mex=false;
-        if get(hor_config,'horace_info_level')>=1
+        if get(hor_config,'log_level')>=1
             message=ME.message;
             warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n trying Matlab',message)
             if force_mex

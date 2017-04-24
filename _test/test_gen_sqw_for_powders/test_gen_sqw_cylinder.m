@@ -24,7 +24,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             end
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_cylinder_output.mat'));
             common_data_dir=fullfile(fileparts(which('horace_init')),'_test','common_data');
-            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');            
+            test_functions_path=fullfile(fileparts(which('horace_init.m')),'_test/common_functions');
             addpath(test_functions_path);
             
             
@@ -63,8 +63,8 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
         end
         
         function this=test_gen_sqw_cyl(this)
-
-            sqw_cyl_file=fullfile(tempdir,'test_cyl_4to1.sqw');            
+            
+            sqw_cyl_file=fullfile(tempdir,'test_cyl_4to1.sqw');
             % clean up
             cleanup_obj=onCleanup(@()rm_files(this,sqw_cyl_file));
             
@@ -72,7 +72,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             % Perform a cylinder average in Horace
             gen_sqw_cylinder_test (this.spe_file, this.par_file, sqw_cyl_file, this.efix, emode, 1.5, 0, 0, 0);
-                       
+            
             %--------------------------------------------------------------------------------------------------
             % Visual inspection
             % Plot the cylinder averaged sqw data
@@ -83,8 +83,9 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             
             % dd(w1)
             %--------------------------------------------------------------------------------------------------
-            this=test_or_save_variables(this,w2,w1,'tol',-1.e-5,'ignore_str',1,'convert_old_classes');
-
+            this=test_or_save_variables(this,w2,w1,'tol',-1.e-5,...
+                'ignore_str',1,'convert_old_classes',true);
+            
             
             
         end

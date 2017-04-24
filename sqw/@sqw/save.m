@@ -44,7 +44,7 @@ if numel(file_internal)~=numel(w)
     error('Number of data objects in array does not match number of file names')
 end
 
-horace_info_level = ...
+hor_log_level = ...
     config_store.instance().get_value('hor_config','log_level');
 if isempty(w.main_header) %TODO:  OOP violation -- save dnd should be associated with dnd class
     sqw_type = false;
@@ -57,7 +57,7 @@ end
 
 for i=1:numel(w)
     % Write data to file   x
-    if horace_info_level>0
+    if hor_log_level>0
         disp(['*** Writing to ',file_internal{i},'...'])
     end
     if ~upgrade && exist(file_internal{i},'file') == 2

@@ -16,7 +16,7 @@ function mess_completion (varargin)
 %
 % Input on subsequent calls:
 % --------------------------
-%   n               Current position in completion of task (could be interation number)
+%   n               Current position in completion of task (could be iteration number)
 
 % Original author: T.G.Perring
 %
@@ -24,7 +24,7 @@ function mess_completion (varargin)
 
 persistent  initialised itimer ntot t_thresh n_ratio_thresh t_start t_prev_msg n_ratio_prev_msg
 
-horace_info_level=get(hor_config,'horace_info_level');
+hor_log_level=get(hor_config,'log_level');
 % Initialise
 if nargin==3
     ntot = varargin{1};
@@ -35,7 +35,7 @@ if nargin==3
     t_prev_msg = 0;
     n_ratio_prev_msg = 0;
     initialised = true;
-    if horace_info_level>1    
+    if hor_log_level>1    
         fprintf(' Task started on  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));        
     end
     
@@ -51,10 +51,10 @@ end
 
 if nargin==0  % task completed
     t = bigtoc(itimer);
-    if horace_info_level>-1
+    if hor_log_level>-1
         disp(['Task completed in ',num2str(t(1)-t_start),' seconds'])
     end
-    if horace_info_level>1
+    if hor_log_level>1
         fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
     end
     initialised=false;
@@ -64,7 +64,7 @@ else
     delta_n_ratio = (n/ntot)-n_ratio_prev_msg;
     delta_t = t(1)-t_prev_msg;
     if delta_n_ratio > n_ratio_thresh || delta_t>t_thresh
-        if horace_info_level>-1
+        if hor_log_level>-1
             disp(['Completed ',num2str((100*n/ntot),'%5.1f'),'% of task in ',num2str(t(1)-t_start),' seconds'])
         end
         t_prev_msg = t(1);

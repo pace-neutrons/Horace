@@ -188,7 +188,7 @@ if nfiles==1
     tmp_file='';    % temporary file not created, so to avoid misleading return argument, set to empty string
 else
     % Multiple files
-    il = get(hor_config,'horace_info_level');
+    il = get(hor_config,'log_level');
     if il>-1
         disp('--------------------------------------------------------------------------------')
         disp('Creating final output sqw file:')

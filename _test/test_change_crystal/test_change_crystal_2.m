@@ -3,7 +3,7 @@ function test_change_crystal_2
 %
 %   >> test_change_crystal_2
 % 
-% It is assumed that test_change_crystal_1 has already been succesfully performed.
+% It is assumed that test_change_crystal_1 has already been successfully performed.
 % That test ensures that change_crystal_sqw on a file is correct; here we check that
 % all the permutations of object types and files are handled correctly.
 %
@@ -97,7 +97,7 @@ save(d1c_2,d1c_2_file);
 d2c_arr=[d2c_1,d2c_2];
 d1c_arr=[d1c_1,d1c_2];
 
-log_level = get(hor_config,'horace_info_level');
+log_level = get(hor_config,'log_level');
 % Perform tests
 % -------------
 if(log_level>-1); disp('Testing...'); end

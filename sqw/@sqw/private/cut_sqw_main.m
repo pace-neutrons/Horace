@@ -120,9 +120,9 @@ function wout = cut_sqw_main (data_source, ndims, varargin)
 
 % *** Currently only works if uoffset(4)=0 for input, output datasets
 
-horace_info_level = config_store.instance().get_value('hor_config','log_level');
+hor_log_level = config_store.instance().get_value('hor_config','log_level');
 
-if horace_info_level>=1
+if hor_log_level>=1
     bigtic
 end
 
@@ -257,9 +257,9 @@ end
 
 % Get header information from the data source
 % --------------------------------------------
-if horace_info_level>0, disp('--------------------------------------------------------------------------------'), end
+if hor_log_level>0, disp('--------------------------------------------------------------------------------'), end
 if source_is_file  % data_source is a file
-    if horace_info_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
+    if hor_log_level>=0, disp(['Taking cut from data in file ',data_source,'...']), end
     ld = sqw_formats_factory.instance().get_loader(data_source);
     data_type = ld.data_type;
     %[mess,main_header,header,detpar,data,position,npixtot,data_type]=get_sqw (data_source,'-nopix');
@@ -275,7 +275,7 @@ if source_is_file  % data_source is a file
     data = ld.get_data('-nopix');
     ld.delete();
 else
-    if horace_info_level>=0, disp('Taking cut from sqw object...'), end
+    if hor_log_level>=0, disp('Taking cut from sqw object...'), end
     % for convenience, unpack the fields that themselves are major data structures
     %(no memory penalty as matlab just passes pointers)
     main_header = data_source.main_header;
@@ -460,7 +460,7 @@ end
 % Save to file if requested
 % ---------------------------
 if save_to_file
-    if horace_info_level>=0, disp(['Writing cut to output file ',outfile,'...']), end
+    if hor_log_level>=0, disp(['Writing cut to output file ',outfile,'...']), end
     try
         ls = sqw_formats_factory.instance().get_pref_access();
         ls = ls.init(w,outfile);
@@ -479,7 +479,7 @@ if save_to_file
     catch Err  % catch just in case there is an error writing that is not caught - don't want to waste all the cutting output
         warning('CUT_SQW_MAIN:io_error','Error writing to file:ID %s, Message  %s',Err.identifier,Err.message);
     end
-    if horace_info_level>=0, disp(' '), end
+    if hor_log_level>=0, disp(' '), end
 end
 
 
@@ -494,12 +494,12 @@ end
 
 % ------------------------
 
-if horace_info_level>=1
+if hor_log_level>=1
     disp(['Number of points in input file: ',num2str(npixtot)])
     disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
     disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
     disp(' ')
-    bigtoc('Total time in cut_sqw:',horace_info_level)
+    bigtoc('Total time in cut_sqw:',hor_log_level)
     disp('--------------------------------------------------------------------------------')
 end
 

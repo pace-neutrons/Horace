@@ -57,7 +57,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_2read] = cut_data_
 % Buffer sizes
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
 %vmax is maximum length of buffer array in which to accumulate points from the input file
-[horace_info_level,buf_size]=config_store.instance().get_value('hor_config','log_level','mem_chunk_size');
+[hor_log_level,buf_size]=config_store.instance().get_value('hor_config','log_level','mem_chunk_size');
 
 
 % Output arrays for accumulated data
@@ -103,7 +103,7 @@ t_read  = [0,0];
 t_accum = [0,0];
 t_sort  = [0,0];
 
-if horace_info_level>=2
+if hor_log_level>=2
     disp('-----------------------------')
     fprintf(' Cut data from file started at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
 end
@@ -122,29 +122,29 @@ else
 end
 
 n_blocks = 0;
-if horace_info_level>=1, bigtic(1), end
+if hor_log_level>=1, bigtic(1), end
 %
 try
     for i=1:nsteps
-        if horace_info_level>=1;    bigtic(1);    end
+        if hor_log_level>=1;    bigtic(1);    end
         % -- read
         v=read_data_block(fid,noffset,range,block_ind_from(i),block_ind_to(i),ndatpix);
         %
-        if horace_info_level>=1;  t_read = t_read + bigtoc(1); bigtic(2);   end
-        if horace_info_level>=0
+        if hor_log_level>=1;  t_read = t_read + bigtoc(1); bigtic(2);   end
+        if hor_log_level>=0
             fprintf('Step %3d of %4d; Have read data for %d pixels -- now processing data...',i,nsteps,size(v,2));
         end
         %
         % -- cut
         [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
             v, proj, pax);
-        if horace_info_level>=0; fprintf(' ----->  retained  %d pixels\n',del_npix_retain); end
-        if horace_info_level>=1; t_accum = t_accum + bigtoc(2); end
+        if hor_log_level>=0; fprintf(' ----->  retained  %d pixels\n',del_npix_retain); end
+        if hor_log_level>=1; t_accum = t_accum + bigtoc(2); end
         %
         % -- retain
         npix_retain = npix_retain + del_npix_retain;
         if keep_pix && del_npix_retain > 0
-            if horace_info_level>=1, bigtic(3), end
+            if hor_log_level>=1, bigtic(3), end
             if pix_tmpfile_ok
                 % pix now not an array but pix_combine_info class
                 pix = accumulate_pix_to_file(pix,false,v,ok,ix_add,npix,pmax,del_npix_retain);
@@ -153,11 +153,11 @@ try
                 pix_retained{n_blocks} = v(:,ok);    % accumulate pixels into buffer array
                 pix_ix_retained{n_blocks} = ix_add;
             end
-            if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
+            if hor_log_level>=1, t_sort = t_sort + bigtoc(3); end
         end
         % -------------
         
-        if horace_info_level>=1, bigtic(1), end
+        if hor_log_level>=1, bigtic(1), end
         % if program runs as mpi worker, check if it has been
         % cancelled and throw if it was.
         if is_deployed_mpi
@@ -175,13 +175,13 @@ catch ME
     rethrow(ME);
 end
 %
-if horace_info_level>=1, t_read = t_read + bigtoc(1); end
+if hor_log_level>=1, t_read = t_read + bigtoc(1); end
 %---------------------------------------------------------------------------------
 % Finish -- glue up all arrays with pixels into final pixel arrays
 %---------------------------------------------------------------------------------
 if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
     % or file combine info
-    if horace_info_level>=1, bigtic(3), end
+    if hor_log_level>=1, bigtic(3), end
     
     clear v ok ix_add; % clear big arrays
     if pix_tmpfile_ok % this time pix is pix_combine_info class. del_npix_retain not used
@@ -190,12 +190,12 @@ if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
     else
         pix = sort_pix(pix_retained,pix_ix_retained,npix);
     end
-    if horace_info_level>=1, t_sort = t_sort + bigtoc(3); end
+    if hor_log_level>=1, t_sort = t_sort + bigtoc(3); end
     
 end
 
 
-if horace_info_level>=1
+if hor_log_level>=1
     disp('-----------------------------')
     disp('Inside cut_data:')
     disp ('  Timings for reading:')
@@ -211,7 +211,7 @@ if horace_info_level>=1
         disp(['        Elapsed time is ',num2str(t_sort(1)),' seconds'])
         disp(['            CPU time is ',num2str(t_sort(2)),' seconds'])
     end
-    if horace_info_level>=2
+    if hor_log_level>=2
         disp('-----------------------------')
         fprintf(' Cut data from file finished at:  %4d;%02d;%02d|%02d;%02d;%02d\n',fix(clock));
     end
@@ -232,7 +232,7 @@ end
 offsets_to_read = noffset(block_ind_from:block_ind_to);
 ranges_to_read = range(block_ind_from:block_ind_to);
 %
-% group togetger the adjasent blocks of pixels to read
+% group together the adjacent blocks of pixels to read
 shift_pos = offsets_to_read>0;
 if ~shift_pos(1)
     cum_index = cumsum(shift_pos)+1;

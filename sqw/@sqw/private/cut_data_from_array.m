@@ -43,7 +43,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %
 
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
-horace_info_level=get(hor_config,'horace_info_level');
+hor_log_level=get(hor_config,'log_level');
 
 % Output arrays for accumulated data
 % Note: matlab sillyness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
@@ -59,41 +59,41 @@ range = nend-nstart+1;                  % length of the block to be read
 npix_read = sum(range(:));              % number of pixels that will be read from file
 
 % Copy data from ranges that may contribute to cut - we assume that if can hold the full data, we will have enough space to hold subset
-if horace_info_level>=1, bigtic(1), end
+if hor_log_level>=1, bigtic(1), end
 v = zeros(ndatpix,npix_read);
 ibeg = cumsum([1;range(1:end-1)]);
 iend = cumsum(range);
 for i=1:length(range)
     v(:,ibeg(i):iend(i)) = pix_in(:,nstart(i):nend(i));
 end
-if horace_info_level>=1, t_read = bigtoc(1); end
-if horace_info_level>=2
+if hor_log_level>=1, t_read = bigtoc(1); end
+if hor_log_level>=2
     disp('-----------------------------')
     fprintf(' Cut data started at:  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
 end
 
 % Accumulate pixels
-if horace_info_level>=1, bigtic(2), end
-if horace_info_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
+if hor_log_level>=1, bigtic(2), end
+if hor_log_level>=0, disp(['Have data from ',num2str(npix_read),' pixels - now processing data...']), end
 [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
     v, proj, pax);
-if horace_info_level>=1, t_accum = bigtoc(2); end
+if hor_log_level>=1, t_accum = bigtoc(2); end
 
 % Sort pixels
 if keep_pix
-    if horace_info_level>=1, bigtic(3), end
-    if horace_info_level>=0, disp(['Sorting pixel information for ',num2str(npix_retain),' pixels']), end
+    if hor_log_level>=1, bigtic(3), end
+    if hor_log_level>=0, disp(['Sorting pixel information for ',num2str(npix_retain),' pixels']), end
     pix = v(:,ok);          % pixels that are to be retained
     clear v                 % no longer needed - was only a work array - so because it is large, clear before we (possibly) sort pixels
     
     pix = sort_pix(pix,ix,npix);
     
-    if horace_info_level>=1, t_sort = bigtoc(3); end
+    if hor_log_level>=1, t_sort = bigtoc(3); end
 else
     pix = [];
 end
 
-if horace_info_level>=1
+if hor_log_level>=1
     disp('-----------------------------')
     disp('Inside cut_data:')
     disp ('  Timings for reading:')
@@ -109,7 +109,7 @@ if horace_info_level>=1
         disp(['        Elapsed time is ',num2str(t_sort(1)),' seconds'])
         disp(['            CPU time is ',num2str(t_sort(2)),' seconds'])
     end
-    if horace_info_level>1
+    if hor_log_level>1
         fprintf('Cut data finished at:  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
     end
     disp('-----------------------------')

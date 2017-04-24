@@ -30,7 +30,7 @@ function [grid_size, urange] = rundata_write_to_sqw_(run_files, sqw_file, ...
 
 nfiles = numel(run_files);
 
-[horace_info_level,use_mex]=get(hor_config,'horace_info_level','use_mex');
+[hor_log_level,use_mex]=get(hor_config,'log_level','use_mex');
 %
 if use_mex % buffer or not the detector's information
     cash_det = {};
@@ -46,7 +46,7 @@ cut_range = arrayfun(@(x,y,z)get_cut_range(x,y,z),...
     urange_in(1,:),urange_in(2,:),grid_size_in,'UniformOutput',false);
 
 for i=1:nfiles
-    if horace_info_level>-1 && write_banner
+    if hor_log_level>-1 && write_banner
         disp('--------------------------------------------------------------------------------')
         disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
         disp(' ')
@@ -78,8 +78,8 @@ for i=1:nfiles
         mpi_obj.do_logging(i,nfiles,[],[]);
     end
     
-    if horace_info_level>-1
-        bigtoc('Time to save sqw data to file:',horace_info_level)
+    if hor_log_level>-1
+        bigtoc('Time to save sqw data to file:',hor_log_level)
     end
     
 end

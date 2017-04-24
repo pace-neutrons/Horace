@@ -62,9 +62,9 @@ else
 end
 
 % Turn off horace_info output, but save for automatic cleanup on exit or cntl-C (TGP 30/11/13)
-info_level = get(hor_config,'horace_info_level');
-cleanup_obj=onCleanup(@()set(hor_config,'horace_info_level',info_level));
-set(hor_config,'horace_info_level',-1);
+info_level = get(hor_config,'log_level');
+cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
+set(hor_config,'log_level',-1);
 
 switch route
     case 1
