@@ -235,12 +235,15 @@ classdef test_rundata< TestCase
         
         function this=test_subsref_S(this)
             run=rundata(f_name(this,'MAP11014.nxspe'));
+            % request oriented lattice with minimal valie to use
+            % get_rundata
+            run.lattice = oriented_lattice([1,2,3],[90,80,90]);
             wr=warning('off','MATLAB:structOnObject');
             run_str = struct(run);
             assertTrue(isempty(run_str.S));
             run=get_rundata(run,'-this');
             S=run.S;
-            assertTrue(isempty(S));
+            assertFalse(isempty(S));
             run_str = struct(run);
             assertEqual(S,run_str.S);
             warning(wr);

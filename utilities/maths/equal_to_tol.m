@@ -55,10 +55,10 @@ elseif nargin>=3
     if ~islognumscalar(opt.ignore_str), error('Check value of ''ignore_str'''), end
 end
 
-[ok,mess]=equal_to_tol_internal(a,b,opt);
+[ok,mess]=equal_to_tol_internal(a,b,opt,'initial obj');
 
 %--------------------------------------------------------------------------------------------------
-function [ok,mess]=equal_to_tol_internal(a,b,opt)
+function [ok,mess]=equal_to_tol_internal(a,b,opt,obj_name)
 
 % Consider special case of strings if they are to be ignored
 if opt.ignore_str && (iscellstr(a)||ischar(a)) && (iscellstr(b)||ischar(b))
@@ -69,45 +69,57 @@ end
 
 if (isobject(a) && isobject(b)) || (isstruct(a) && isstruct(b))
     if ~isequal(size(a),size(b))
-        ok=false; mess='Sizes of arrays of objects or structures being compared are not equal'; return
+        ok=false;
+        mess=sprinft('Sizes of %s arrays of objects or structures being compared are not equal',...
+            obj_name);
+        return
     end
     name=fieldnames(a);
     if ~isequal(name,fieldnames(b))
-        ok=false; mess='Field names of objects or structures being compared do not match'; return
+        ok=false;
+        mess=@(a,b)sprintf('Field names of %s obj or struct do not match: a=%s, b=%s',...
+            obj_name,a,b);
+        cellfun(mess,name,fieldnames(b),'UniformOutput',false)
+        return
     end
     for i=1:numel(a)
         for j=1:numel(name)
             if isobject(a)
-                [ok,mess]=equal_to_tol_internal(struct(a(i)).(name{j}),struct(b(i)).(name{j}),opt);
+                [ok,mess]=equal_to_tol_internal(struct(a(i)).(name{j}),struct(b(i)).(name{j}),opt,name{j});
             else
-                [ok,mess]=equal_to_tol_internal(a(i).(name{j}),b(i).(name{j}),opt);
+                [ok,mess]=equal_to_tol_internal(a(i).(name{j}),b(i).(name{j}),opt,name{j});
             end
             if ~ok
-                mess=['for field: ',name{j},' :',mess];
-                return 
+                return
             end
         end
     end
     
 elseif iscell(a) && iscell(b)
     if ~isequal(size(a),size(b))
-        ok=false; mess='Sizes of cell arrays being compared are not equal'; return
+        ok=false;
+        mess=sprintf('Sizes of %s cell arrays being compared are not equal',...
+            obj_name);
+        return
     end
     for i=1:numel(a)
-        [ok,mess]=equal_to_tol_internal(a{i},b{i},opt);
+        [ok,mess]=equal_to_tol_internal(a{i},b{i},opt,obj_name);
         if ~ok, return, end
     end
     
 elseif isnumeric(a) && isnumeric(b)
-    [ok,mess]=equal_to_tol_numeric(a,b,opt.tol,opt.nan_equal,opt.min_denominator);
-    if ~ok,
-        return, 
+    [ok,mess]=equal_to_tol_numeric(a,b,opt.tol,opt.nan_equal,opt.min_denominator,obj_name);
+    if ~ok
+        return;
     end
     
 else
     if strcmp(class(a),class(b))
         if ~isequal(size(a),size(b))
-            ok=false; mess='Sizes of array of objects being compared are not equal'; return
+            ok=false;
+            mess=sprintf('Sizes of %s array of objects being compared are not equal',...
+                obj_name);
+            return
         end
         if ~isequal(a,b)
             ok=false;
@@ -116,7 +128,8 @@ else
         end
     else
         ok=false;
-        mess='Fields have different classes';
+        mess=spfintf('Fields for %s have different classes: a=%s b=%s',...
+            obj_name,class(a),class(b));
         return
     end
 end
@@ -124,7 +137,7 @@ ok=true; mess='';
 
 
 %--------------------------------------------------------------------------------------------------
-function [ok,mess]=equal_to_tol_numeric(a,b,tol,nan_equal,min_denominator)
+function [ok,mess]=equal_to_tol_numeric(a,b,tol,nan_equal,min_denominator,obj_name)
 if isequal(size(a),size(b))
     % If NaNs are to be ignored, remove them from consideration
     if nan_equal
@@ -143,23 +156,25 @@ if isequal(size(a),size(b))
         end
     end
     a=a(:);
-    b=b(:);   
-    infs_mark=isinf(a);    
+    b=b(:);
+    infs_mark=isinf(a);
     if any(infs_mark) % inf are present in the arrays
         infs2_mark=isinf(b);
         if any(infs_mark ~= infs2_mark)
             ok=false;
-            mess='Inf elements not in same locations in numeric arrays being compared';            
+            mess=sprintf('Inf elements for %s not in same locations in numeric arrays being compared',...
+                obj_name);
             return;
         end
         infss_a=sign(a(infs_mark));
         infss_b=sign(b(infs_mark));
-        if any(infss_a ~= infss_b)        
-            mess='Inf elements have different signs in numeric arrays being compared';            
-            return;            
+        if any(infss_a ~= infss_b)
+            mess=sprintf('Inf elements for %s have different signs in numeric arrays being compared',...
+                obj_name);
+            return;
         end
         a=a(~infs_mark);
-        b=b(~infs_mark);        
+        b=b(~infs_mark);
     end
     
     % Compare elements. Remove case of empty arrays - these are considered equal
@@ -169,9 +184,9 @@ if isequal(size(a),size(b))
             ok=all(okk);
             errf = @(nok)a(nok);
         elseif tol>0
-            okk = (abs(a-b)<=tol);            
+            okk = (abs(a-b)<=tol);
             ok=all(okk);
-            errf = @(nok)abs(a(nok)-b(nok));            
+            errf = @(nok)abs(a(nok)-b(nok));
         else
             if min_denominator>0
                 den=max(max(abs(a),abs(b)),min_denominator*ones(size(a)));
@@ -189,7 +204,8 @@ if isequal(size(a),size(b))
             ok=false;
             anok = a(~okk);
             [maxErr,ind]=max(errf(~okk));
-            mess=sprintf('Numeric arrays not equal within requested tolerance, max error: %f for value A=%f ',maxErr,anok(ind));
+            mess=sprintf('Numeric arrays ~= within tol requested; max err: %f for value %s=%f at pos: %d',...
+                maxErr,obj_name,anok(ind),ind);
         end
     else
         ok=true;
@@ -197,5 +213,5 @@ if isequal(size(a),size(b))
     end
 else
     ok=false;
-    mess='Numeric arrays have different sizes';
+    mess=sprintf('Numeric arrays for %s have different sizes',obj_name);
 end

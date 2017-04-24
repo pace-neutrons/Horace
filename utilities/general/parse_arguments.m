@@ -303,7 +303,7 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 % Original author: T.G.Perring 
 % 
 % $Revision$ ($Date$) 
-
+%
 
 throw_error=(nargout<=4);
 

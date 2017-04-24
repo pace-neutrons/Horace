@@ -21,6 +21,9 @@ classdef test_rundata_get< TestCase
             this.test_data_path = fullfile(rootpath,'_test/common_data');
             
             this.the_run = rundata(fullfile(this.test_data_path,'MAP11014.nxspe'));
+            % from 01/04/2017 rundata needs minimal non-default oriented lattice to use
+            % get_rundata method if lattice is not defined in the file
+            this.the_run.lattice = oriented_lattice([3,4,5],[90,90,80]);
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
@@ -173,7 +176,7 @@ classdef test_rundata_get< TestCase
             assertTrue(isstruct(run));
             assertEqual([1,1,1],run.alatt);
             assertEqual([90,90,90],run.angdeg);
-         
+            
         end
         function test_this_nonc_with_rad(this)
             % inconsistent data mofifiers
@@ -200,7 +203,9 @@ classdef test_rundata_get< TestCase
         function test_suppress_nan(this)
             % this form asks for all run data to be obtained in class
             this.the_run.is_crystal=false;
+            
             run=get_rundata(this.the_run,'-this');
+            
             [S,ERR,det]=get_rundata(run,'-nonan','S','ERR','det_par','en');
             assertEqual(size(S),[30,26495]);
             assertEqual(size(S),size(ERR));
@@ -224,7 +229,7 @@ classdef test_rundata_get< TestCase
         end
         function test_full_get(this)
             spe_file = {fullfile(this.test_data_path,'MAP10001.spe'),...
-                        fullfile(this.test_data_path,'MAP11014.nxspe')};
+                fullfile(this.test_data_path,'MAP11014.nxspe')};
             par_file = fullfile(this.test_data_path,'demo_par.PAR');
             en_sample=[0:5:150]';
             
@@ -240,8 +245,8 @@ classdef test_rundata_get< TestCase
             assertEqual(en_sample,en);
             assertEqual([6.2832,6.2832,6.2832],alatt);
             % depending on policy decided for angdeg
-            %assertEqual([90,90,90]*(pi/180),angdeg);            
-            assertEqual([90,90,90],angdeg);                        
+            %assertEqual([90,90,90]*(pi/180),angdeg);
+            assertEqual([90,90,90],angdeg);
             assertEqual(28160,ndet);
             assertEqual([1,0,0],u);
             assertEqual([0,1,0],v);
@@ -252,26 +257,26 @@ classdef test_rundata_get< TestCase
             assertEqual(0,gs);
         end
         
-
+        
         function test_error(this)
             % to test errors, whcuch seems ere observed
             spefile = fullfile(this.test_data_path,'MAP11020.spe_h5');
             parfile = fullfile(this.test_data_path,'demo_par.PAR');
-
-            r=rundata(spefile,parfile,'efix',45,'psi',-32,'angdeg',[91,92,93],'alatt',[4.5,4.6,4.7]); 
+            
+            r=rundata(spefile,parfile,'efix',45,'psi',-32,'angdeg',[91,92,93],'alatt',[4.5,4.6,4.7]);
             gg=get_rundata(r,'det_par');
             gg1 = get_par(parfile);
             
             ok=equal_to_tol(gg,gg1,1.e-5);
             assertTrue(ok);
-
+            
             
             angdeg = get_rundata(r,'angdeg','-rad');
             %assertEqual([91,92,93]*(pi/180),angdeg);
-            assertEqual([91,92,93],angdeg);            
+            assertEqual([91,92,93],angdeg);
             
         end
-
+        
         
     end
     

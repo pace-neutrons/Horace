@@ -8,24 +8,38 @@ classdef oriented_lattice
     %                             parameters. Some parameters of such
     %                             lattice can be considered undefined and
     %                             some -- have default values
+    % or:
     %>>lat = oriented_lattice(alatt)                --!
     %>>lat = oriented_lattice(alatt,angdeg)           !
     %>>lat = oriented_lattice(alatt,angdeg,psi)       !- build lattice using
     %>>lat = oriented_lattice(alatt,angdeg,psi,u)     ! default positional
     %>>lat = oriented_lattice(alatt,angdeg,psi,u,v)   ! parameters
     %>>lat = oriented_lattice(....,key,value)       --!
-    %
-    % where alatt -> 3-vector of lattice parameters, angdeg -- 3-vector of
-    % lattice degrees (in degrees), psi -- rotation angle and u and v --
-    % defines rotation plane where crystal is rotated
-    %
+    % or:
+    % Constructor which defines all lattice parameters in the positions,
+    % specified as below:
+    %>>lat = oriented_lattice(alatt,angdeg,psi,u,v,omega,dpsi,gl,gs)
+    % or:
     %>>lat = oriented_lattice(struct) -- build oriented lattice from
     %                  structure with field names, corresponding to names
     %                  of oriented_lattice structure
     %
     %
+    % where:
+    %   alatt           Lattice parameters (Ang^-1)        [row or column vector]
+    %   angdeg          Lattice angles (deg)               [row or column vector]
+    %   psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
+    %   u               First vector (1x3) defining scattering plane (r.l.u.)
+    %   v               Second vector (1x3) defining scattering plane (r.l.u.)
+    %
+    %   omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
+    %   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
+    %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
+    %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+    
+    %
     % All angular units set in degrees but can be retrieved in degrees
-    % or radians
+    % or radians.
     %
     % $Revision$ ($Date$)
     %
@@ -91,8 +105,9 @@ classdef oriented_lattice
         fields_to_define_ = {'alatt','angdeg','psi'};
         % List of fields which have default values and do not have to be always defined by either file or command arguments;
         fields_have_defaults_ = {'omega','dpsi','gl','gs','u','v'};
-        % List of all fields to describe lattice.
-        lattice_parameters_ = {'alatt','angdeg','psi','omega','dpsi','gl','gs','u','v'}
+        % List of all fields to describe lattice. Provided in order a
+        % lattice constructor with parameters
+        lattice_parameters_ = {'alatt','angdeg','psi','u','v','omega','dpsi','gl','gs'}
         % radian to degree transformation constant
         deg_to_rad_=pi/180;
         % the minimal norm for two vectors considered to be parallell or 0
@@ -107,6 +122,17 @@ classdef oriented_lattice
             end
         end
         %------------------------------------------------------------------
+        % interface to file-based properties
+        %
+        % calcualate b-matrix
+        [b, arlu, angrlu] = bmatrix(obj)
+        % calculate u and ub matrix
+        [ub,umat] = ubmatrix (obj,varargin)
+        % Calculate matrix that convert momentum from coordinates in spectrometer frame
+        % to crystal Cartesian system
+        [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (obj)
+        % convert class into structure, containing public-accessible information
+        public_struct = struct(obj,varargin)
         %------------------------------------------------------------------
         function units = get.angular_units(this)
             if this.angular_units_
@@ -135,17 +161,6 @@ classdef oriented_lattice
             this.angular_units_= false;
         end
         %------------------------------------------------------------------
-        function public_struct = struct(this)
-            % convert class into structure, containing public-accessible information
-            pub_fields = fieldnames(this);
-            undef_fields = this.get_undef_fields();
-            undef = ismember(pub_fields,undef_fields);
-            pub_fields = pub_fields(~undef);
-            public_struct  = struct();
-            for i=1:numel(pub_fields)
-                public_struct.(pub_fields{i}) = this.(pub_fields{i});
-            end
-        end
         function is=is_defined(this,field_name)
             % check if field, which should be defined as do not have
             % meaningful defaults is actually defined.

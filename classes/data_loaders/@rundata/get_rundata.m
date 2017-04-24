@@ -37,8 +37,8 @@ function [varargout] =get_rundata(this,varargin)
 %
 %       '-this'       -- Explicitly requests to modify input class data and
 %                        return these data as output argument.
-%                        Incompatible with  '-nonan' and '-rad' keys as 
-%                        these keys request changes in the data structure and '-this' 
+%                        Incompatible with  '-nonan' and '-rad' keys as
+%                        these keys request changes in the data structure and '-this'
 %                        loads the data into memory in the form, they are present in a
 %                        file
 %
@@ -102,12 +102,18 @@ if(~ok)
     error('RUNDATA:invalid_arguments',mess);
 end
 [all_fields,lattice_fields] = what_fields_are_needed(this,'all_fields');
+if return_this && isempty(fields_requested)
+    fields_requested=all_fields;
+end
+
 non_fields =~ismember(fields_requested,all_fields);
 if any(non_fields)
     error('RUNDATA:invalid_arguments',[' missing fields requested: ',fields_requested{non_fields}]);
 end
-in_latice = ismember(lattice_fields,fields_requested);
-lattice_fields = lattice_fields(in_latice);
+if ~isempty(lattice_fields)
+    in_latice = ismember(lattice_fields,fields_requested);
+    lattice_fields = lattice_fields(in_latice);
+end
 % --> CHECK THE CONSISTENCY OF OUTPUT FIELDS
 % identify desired form of output:
 % when more then one output argument, we probably want the list of
@@ -194,8 +200,12 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         % parameters are not already defined
         if any(loader_lattice_fields)
             lattice_in_loader=lattice_fields(loader_lattice_fields);
-            for i=1:numel(lattice_in_loader)
-               this=set_lattice_field(this,lattice_in_loader{i},loader.(lattice_in_loader{i}),'-ifempty');
+            for i=1:numel(lattice_in_loader) 
+                % set rundata value using field in loader only if loader
+                % field is empty. Necessary when gen_sqw redefines fields,
+                % stored in the data file (e.g. uses different psi wrt psi
+                % in nxspe file
+                this=set_lattice_field(this,lattice_in_loader{i},loader.(lattice_in_loader{i}),'-ifempty');
             end
         end
     end

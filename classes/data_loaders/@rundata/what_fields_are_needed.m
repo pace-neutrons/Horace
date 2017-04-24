@@ -4,13 +4,13 @@ function [data_fields,lattice_fields] = what_fields_are_needed(this,varargin)
 data_fields = rundata.main_data_fields();
 lattice_fields=[];
 crystal_needed = this.is_crystal;
-if ~crystal_needed
-    if nargin == 2 
-        if strcmpi(varargin{1},'all_fields')
-            crystal_needed = true;
-        end
-    end
-end
+% if ~crystal_needed
+%     if nargin == 2 
+%         if strcmpi(varargin{1},'all_fields')
+%             crystal_needed = true;
+%         end
+%     end
+% end
 
 if ~crystal_needed
     if nargin>1

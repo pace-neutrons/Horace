@@ -1,21 +1,22 @@
-function [ub,umat] = ubmatrix (obj)
+function [ub,umat] = ubmatrix (obj,varargin)
 % Calculate UB matrix that transforms components of a vector given in r.l.u.
 % into the components in an orthonormal frame defined by the two vectors
 % u and v (each given in r.l.u)
 %
-%   >> ub = ubmatrix (u, v, b)
+%   >> ub = obj.ubmatrix()
+%   >> ub = obj.ubmatrix(bmatrix)
 %
-%   >> [ub, umat] = ubmatrix (u, v, b)    % full syntax
+%   >> [ub, umat] = obj.ubmatrix()    % full syntax
 %
-% Uses:
+% Used class parameters:
 % -------
 %   u, v    Two vectors expressed in r.l.u.
 %   b       B-matrix of Busing and Levy (as calculated by function bmat)
 %
 % Output:
 % -------
-%   ub      UB matrix; empty if there is a problem
-%   umat    U matrix
+%   ub      UB matrix; 
+%   umat    U matrix -- takes V in crystal Cartesian coords to orthonormal frame defined by u, v
 %
 % The orthonormal frame defined by vectors u and v is:
 %   e1  parallel to u
@@ -37,13 +38,17 @@ function [ub,umat] = ubmatrix (obj)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 %
-b = obj.bmatrix();
+if nargin == 1
+    b = obj.bmatrix();
+else
+    b = varargin{1};
+end
 
-if size(u,2)>1; u=u'; end    % convert to column vector
-if size(v,2)>1; v=v'; end    % convert to column vector
+u=obj.u';    % convert to column vector
+v=obj.v';    % convert to column vector
 
 uc = b*u;   % Get u, v in crystal Cartesian coordinates
-vc = b*v;   
+vc = b*v;
 
 e1 = uc/norm(uc);
 e3 = cross(uc,vc)/norm(cross(uc,vc));

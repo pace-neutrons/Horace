@@ -198,8 +198,7 @@ classdef rundata
         % Returns the list data fields which have to be defined by the run for cases
         % of crystal or powder experiments
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
-        %------------------------------------------------------------------
-        
+        %------------------------------------------------------------------        
         function this=rundata(varargin)
             % rundata class constructor
             %
@@ -238,6 +237,7 @@ classdef rundata
                 this = initialize(this,varargin{:});
             end
         end
+        %
         function this = initialize(this,varargin)
             % part of non-default rundata constructor, allowing to
             % cunstruct rundata from different arguments
@@ -249,7 +249,7 @@ classdef rundata
                 end
             end
         end
-        
+        %
         function fields = fields_with_defaults(this)
             % method returns data fields, which have default values
             fields = {'emode'};
@@ -266,6 +266,7 @@ classdef rundata
             % method to check emode and verify its default
             mode = this.emode__;
         end
+        %
         function this = set.emode(this,val)
             % method to check emode and verify its defaults
             if val>-1 && val <3

@@ -197,8 +197,11 @@ classdef TestCaseWithSave < TestCase
             tmp_str = cellfun(@(x)(num2str(x)),keyval,'UniformOutput',false);
             convert_old_class_place  = ismember(tmp_str,'convert_old_classes');
             if any(convert_old_class_place)
+                iconv = find(convert_old_class_place);
+                convert_old=tmp_str{iconv+1};
+                convert_old_class_place(iconv+1) = true;
                 keyval = keyval(~convert_old_class_place);
-                convert_old=true;
+                
             else
                 convert_old=false;
             end
@@ -218,9 +221,9 @@ classdef TestCaseWithSave < TestCase
                         %try
                         %    detpar = ws_list{i}.detpar;
                         %    ref_data.detpar.width = detpar.width;
-                        %    ref_data.detpar.height = detpar.height;                            
+                        %    ref_data.detpar.height = detpar.height;
                         %catch
-                        %end                        
+                        %end
                         
                     end
                     % always compare sorted pixels, as pix averages over

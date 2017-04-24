@@ -111,7 +111,7 @@ classdef test_oriented_lattice< TestCase
             %rd.v=[]; -- does not accept empty vectors
             f=@()subsasgn(ol,struct('type','.','subs','v'),[]);
             assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
-
+            
             %rd.alatt=[10^-10,0,0]; -- does not accept empty vectors
             f=@()subsasgn(ol,struct('type','.','subs','alatt'),[1.e-10,0,0]);
             assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
@@ -152,8 +152,50 @@ classdef test_oriented_lattice< TestCase
             warning(ws);
             
         end
-               
-
-                
+        function test_full_constructor(this)
+            ol = oriented_lattice([2;3;4]);
+            assertEqual(ol.alatt,[2,3,4])
+            
+            undef = ol.get_undef_fields();
+            assertEqual(numel(undef),2);
+            assertEqual(undef{1},'angdeg');
+            assertEqual(undef{2},'psi');
+            
+            ol = oriented_lattice([2;3;4],[30,40,50],10,[1,1,0],[0;0;1],1,2,3,4);
+            assertEqual(ol.alatt,[2,3,4])
+            assertEqual(ol.angdeg,[30,40,50])
+            assertEqual(ol.psi,10)
+            assertEqual(ol.u,[1,1,0])
+            assertEqual(ol.v,[0,0,1])
+            undef = ol.get_undef_fields();
+            assertTrue(isempty(undef));
+            
+            
+            ol = oriented_lattice([2;3;4],'psi',20,'gl',3,'alatt',[1,2,3],'angular_units','rad');
+            
+            assertTrue(ol.is_defined('psi'));
+            assertTrue(ol.is_defined('alatt'));
+            assertFalse(ol.is_defined('angdeg'));
+            
+            assertEqual(ol.alatt,[1,2,3])
+            assertEqual(ol.angular_units,'rad')
+            assertEqual(ol.psi,20*pi/180)
+        end
+        function test_matrixes(this)
+            %
+            ol = oriented_lattice();
+            bm  = ol.bmatrix();
+            assertElementsAlmostEqual(bm,eye(3)*2*pi,'absolute',1.e-9);
+            [ub,umat] = ol.ubmatrix();
+            assertElementsAlmostEqual(ub,eye(3)*2*pi,'absolute',1.e-9);
+            assertElementsAlmostEqual(umat,eye(3),'absolute',1.e-9);
+            [spec_to_u, u_to_rlu, spec_to_rlu] = ol.calc_proj_matrix();
+            assertElementsAlmostEqual(spec_to_u,eye(3),'absolute',1.e-9);
+            assertElementsAlmostEqual(u_to_rlu,eye(3)*(2*pi)^-1,'absolute',1.e-9);
+            assertElementsAlmostEqual(spec_to_rlu,eye(3)*(2*pi)^-1,'absolute',1.e-9);
+            
+        end
+        
+        
     end
 end
