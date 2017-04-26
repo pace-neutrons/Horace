@@ -5,17 +5,6 @@ function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (obj)
 %
 %   >> [spec_to_u, u_to_rlu, spec_to_rlu] = obj.calc_proj_matrix()
 %
-% Uses:
-% ------
-%   alatt       Lattice parameters (Ang^-1)
-%   angdeg      Lattice angles (deg)
-%   u           First vector (1x3) defining scattering plane (r.l.u.)
-%   v           Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi         Angle of u w.r.t. ki (rad)
-%   omega       Angle of axis of small goniometer arc w.r.t. notional u
-%   dpsi        Correction to psi (rad)
-%   gl          Large goniometer arc angle (rad)
-%   gs          Small goniometer arc angle (rad)
 %
 % Output:
 % -------
@@ -34,6 +23,18 @@ function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (obj)
 %              r.l.u.:
 %                   v_rlu = spec_to_rlu * v_spec
 %              (This matrix is entirely equivalent to u_to_rlu*spec_to_u)
+%
+% Uses the following crystal lattice fields:
+% ------
+%   alatt       Lattice parameters (Ang^-1)
+%   angdeg      Lattice angles (deg)
+%   u           First vector (1x3) defining scattering plane (r.l.u.)
+%   v           Second vector (1x3) defining scattering plane (r.l.u.)
+%   psi         Angle of u w.r.t. ki (rad)
+%   omega       Angle of axis of small goniometer arc w.r.t. notional u
+%   dpsi        Correction to psi (rad)
+%   gl          Large goniometer arc angle (rad)
+%   gs          Small goniometer arc angle (rad)
 
 % T.G.Perring 15/6/07
 %

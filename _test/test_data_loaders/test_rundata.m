@@ -342,7 +342,7 @@ classdef test_rundata< TestCase
             
             assertEqual(run,run1);
         end
-        function test_load_methadata(this)
+        function test_load_metadata(this)
             ds.efix=200;
             ds.psi=2;
             ds.alatt=[1;1;1];
@@ -351,7 +351,7 @@ classdef test_rundata< TestCase
             par_file = f_name(this,'demo_par.PAR');
             run=rundata(spe_file,par_file ,ds);
             
-            [run1,ok,mess,undef_list] = run.load_methadata();
+            [run1,ok,mess,undef_list] = run.load_metadata();
             
             assertEqual(run,run1);
             assertTrue(ok);
@@ -360,7 +360,7 @@ classdef test_rundata< TestCase
             
             
             run = rundata();
-            [run1,ok,mess,undef_list] = run.load_methadata();
+            [run1,ok,mess,undef_list] = run.load_metadata();
             
             assertEqual(run,run1);
             assertFalse(ok);
@@ -368,7 +368,7 @@ classdef test_rundata< TestCase
             assertFalse(isempty(undef_list));
             assertEqual(numel(undef_list),3);
             
-            [run1,ok,mess,undef_list] = run.load_methadata('-for_powder');
+            [run1,ok,mess,undef_list] = run.load_metadata('-for_powder');
             
             assertEqual(run,run1);
             assertFalse(ok);
@@ -382,17 +382,17 @@ classdef test_rundata< TestCase
             latt = oriented_lattice(ds);
             run.lattice = latt;
             
-            [run1,ok,mess,undef_list] = run.load_methadata();
+            [run1,ok,mess,undef_list] = run.load_metadata();
             assertEqual(run,run1);
             assertFalse(ok);
             assertFalse(isempty(mess));
             assertFalse(isempty(undef_list));
             assertEqual(numel(undef_list),2);
             
-            % nxspe defines psi and this verifyes that it is loaded
+            % nxspe defines psi and this verifies that it is loaded
             % correctly
             run=rundata(f_name(this,'MAP11014.nxspe'),ds);
-            [run1,ok,mess,undef_list] = run.load_methadata();
+            [run1,ok,mess,undef_list] = run.load_metadata();
             
             assertEqual(run.lattice.psi,0);
             assertFalse(isempty(run1.lattice.psi));

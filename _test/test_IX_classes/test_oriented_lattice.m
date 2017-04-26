@@ -194,6 +194,35 @@ classdef test_oriented_lattice< TestCase
             assertElementsAlmostEqual(u_to_rlu,eye(3)*(2*pi)^-1,'absolute',1.e-9);
             assertElementsAlmostEqual(spec_to_rlu,eye(3)*(2*pi)^-1,'absolute',1.e-9);
             
+            %-------------------------------------------------------------
+            ol = oriented_lattice([2,3,4],[30;40;50],10,[1,1,0],[0;0;1],1,2,3,4);
+            bm  = ol.bmatrix();
+            ref_bm =   [ 4.8975    0.2694   -2.0508; ...
+                0    4.1888   -2.7207; ...
+                0         0    1.5708];
+            
+            assertElementsAlmostEqual(bm,ref_bm,'absolute',1.e-4);
+            ref_ub = [  3.8044    2.8471   -3.3064;...
+                1.4299   -1.4299    1.7728;...
+                2.7327   -2.7327    0.0000];
+            ubm = ol.ubmatrix();
+            assertElementsAlmostEqual(ubm,ref_ub,'absolute',1.e-4);
+            
+            %-------------------------------------------------------------
+            ref_spec_to_u = [ 0.7364    0.4150    0.5343; ...
+                0.6427   -0.1823   -0.7441;...
+                -0.2115    0.8914   -0.4010];
+            ref_u_to_rlu =[  0.2042   -0.0131    0.2438;...
+                0    0.2387    0.4135; ...
+                0         0    0.6366];
+            ref_spec_to_rlu =[0.0904    0.3045    0.0211;...
+                0.0660    0.3251   -0.3434; ...
+                -0.1346    0.5675   -0.2553];
+            [spec_to_u, u_to_rlu, spec_to_rlu] = ol.calc_proj_matrix();            
+            assertElementsAlmostEqual(spec_to_u,ref_spec_to_u,'absolute',1.e-4);
+            assertElementsAlmostEqual(u_to_rlu,ref_u_to_rlu,'absolute',1.e-4);
+            assertElementsAlmostEqual(spec_to_rlu,ref_spec_to_rlu,'absolute',1.e-4);
+            %-------------------------------------------------------------            
         end
         
         

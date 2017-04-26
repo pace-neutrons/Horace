@@ -178,6 +178,8 @@ classdef rundata
         
         % Returns whole or partial data from a rundata object
         [varargout] =get_rundata(this,varargin);
+        % Load all data, defined by loader in memory. Do not overload by default                
+        this = load(this,varargin);
         
         % Load in memory if not yet there all auxiliary data defined for
         % run except big array e.g. S, ERR, en and detectors
@@ -436,28 +438,8 @@ classdef rundata
             % serialized except memory only data
             iarr = serialize_(this);
         end
+        %------------------------------------------------------------------                
         %------------------------------------------------------------------
-        function this = load(this,varargin)
-            % Load all data, defined by loader in memory
-            %
-            %presumes that data file name and par file name (if necessary)
-            %are already set up
-            % -reload  if option is present, reloads data into memory even
-            %          if they have already been loaded
-            if isempty(this.loader)
-                error('RUNDATA:undefined','attempt to load data in memory when data file is not defined')
-            end
-            options = {'-reload'};
-            [ok,mess,reload]=parse_char_options(varargin,options);
-            if ~ok
-                error('RUNDATA:invalid_argument',mess);
-            end
-            
-            this = this.load_all_(reload);
-        end
-        
-        
-        %-----------------------------------------------------------------------------
         
         function this=saveNXSPE(this,filename,varargin)
             % Saves current rundata in nxspe format.
