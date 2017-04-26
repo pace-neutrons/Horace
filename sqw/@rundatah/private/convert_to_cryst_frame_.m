@@ -1,4 +1,4 @@
-function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
+function [u_to_rlu, urange, pix] = convert_to_cryst_frame_(obj, detdcn,qspec,proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
@@ -45,7 +45,7 @@ function [u_to_rlu, urange, pix] = calc_projections_(obj, detdcn,qspec,proj_mode
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1471 $ ($Date: 2017-04-24 10:26:58 +0100 (Mon, 24 Apr 2017) $)
 
 
 % Check input parameters
@@ -75,7 +75,7 @@ end
 % Calculate Q in spectrometer coordinates for each pixel
 [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
 if use_mex
-    if ~isempty(qspec) % why is this?
+    if ~isempty(qspec) % why is this? -- TODO: not really consistent. projections should use qspec if provided
         use_mex = false;
     else
         try

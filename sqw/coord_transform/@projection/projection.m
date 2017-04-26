@@ -27,6 +27,13 @@ classdef projection<aProjection
         % reference to the class, which defines the projection axis
         projaxes_=[]
         %
+        data_u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in hkle representation        
+        data_ulen_     = [1,1,1,1]; %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        data_upix_to_rlu_ = eye(3);
+        data_upix_offset_ = [0;0;0;0] %upix_offset;
+        data_lab_ = ['qx','qy','qz','en'];
+        
+        %
     end
     methods(Access = protected)
         % overloads for staitc methods which define if the projection can

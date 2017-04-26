@@ -43,86 +43,12 @@ if hor_log_level>-1
     disp('Calculating projections...');
 end
 [header,sqw_data]=calc_sqw_data_and_header(obj,detdcn);
+% TODO: aProjection for the time beeing, change to projection with
+% appropriate constructor!
+sqw_data.proj = aProjection(grid_size_in,urange_in);
 
-% Flag if grid is in fact just a box i.e. 1x1x1x1
-grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_in)&&all(grid_size_in==[1,1,1,1]));
-
-% Set urange, and determine if all the data is on the surface or within the box defined by the ranges
-if isempty(urange_in)
-    urange = sqw_data.urange;   % range of the data
-    data_in_range = true;
-else
-    urange = urange_in;         % use input urange
-    if any(urange(1,:)>sqw_data.urange(1,:)) || any(urange(2,:)<sqw_data.urange(2,:))
-        data_in_range = false;
-    else
-        data_in_range = true;
-    end
-end
-% If grid that is other than 1x1x1x1, or range was given, then sort pixels
-if grid_is_unity && data_in_range   % the most work we have to do is just change the bin boundary fields
-    for id=1:4
-        sqw_data.p{id}=[urange(1,id);urange(2,id)];
-    end
-    grid_size = grid_size_in;
-    
-else
-    if hor_log_level>-1
-        disp('Sorting pixels ...')
-    end
-    
-    [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
-    if use_mex
-        try
-            % Verify the grid consistency and build axes along the grid dimensions,
-            % c-program does not check the grid consistency;
-            [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,urange);
-            
-            sqw_fields   =cell(1,4);
-            sqw_fields{1}=nThreads;
-            %sqw_fields{1}=8;
-            sqw_fields{2}=urange;
-            sqw_fields{3}=grid_size;
-            sqw_fields{4}=sqw_data.pix;
-            clear sqw_data.s sqw_data.e sqw_data.npix;
-            
-            out_fields=bin_pixels_c(sqw_fields);
-            
-            sqw_data.s   = out_fields{1};
-            sqw_data.e   = out_fields{2};
-            sqw_data.npix= out_fields{3};
-            sqw_data.pix = out_fields{4};
-            
-        catch
-            warning('HORACE:using_mex','calc_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab functions',lasterr());
-            use_mex=false;
-        end
-    end
-    if ~use_mex
-        [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
-        
-        sqw_data.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
-        sqw_data.pix=sqw_data.pix(:,ix);
-        
-        sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
-        sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
-        sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
-        sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
-        sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
-        clear ix ibin   % biggish arrays no longer needed
-        nopix=(sqw_data.npix==0);
-        sqw_data.s(nopix)=0;
-        sqw_data.e(nopix)=0;
-        
-        clear nopix     % biggish array no longer needed
-    end
-    
-    % If changed urange to something less than the range of the data, then must update true range
-    if ~data_in_range
-        sqw_data.urange(1,:)=min(sqw_data.pix(1:4,:),[],2)';
-        sqw_data.urange(2,:)=max(sqw_data.pix(1:4,:),[],2)';
-    end
-end
+[sqw_data.s,sqw_data.e,sqw_data.npix,sqw_data.pix]...
+    = sqw_data.proj.sort_pixels_by_bins(sqw_data.pix,sqw_data.urange);
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
@@ -158,15 +84,15 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 % Perform calculations
 % -----------------------
 % Get number of data elements
-[ne,ndet]=size(obj.S);
+%[ne,ndet]=size(obj.S);
 
-% Calculate projections
-[u_to_rlu,urange,pix] = obj.calc_projections_(detdcn,obj.qpsecs_cash);
+% Calculate projections of the instrument data into the q-space;
+[u_to_rlu,urange,pix] = convert_to_cryst_frame_(obj,detdcn,obj.qpsecs_cash);
 
-p=cell(1,4);
-for id=1:4
-    p{id}=[urange(1,id);urange(2,id)];
-end
+%p=cell(1,4);
+%for id=1:4
+%    p{id}=[urange(1,id);urange(2,id)];
+%end
 
 
 % Create header block
@@ -192,10 +118,13 @@ header.gs = lat.gs;
 %<< -- end of lattice
 
 header.en       = obj.en;
+%>------------ a single file data projection! --> TODO: generalize to
+%projection
 header.uoffset = [0;0;0;0];
 header.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
 header.ulen = [1,1,1,1];
 header.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
+%<------------ a file projection!
 % Update some header fields
 header.instrument=obj.instrument;
 header.sample=obj.sample;
@@ -208,17 +137,20 @@ sqw_data.filepath = '';
 sqw_data.title = '';
 sqw_data.alatt = obj.lattice.alatt;
 sqw_data.angdeg = obj.lattice.angdeg;
-sqw_data.uoffset=[0;0;0;0];
-sqw_data.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
-sqw_data.ulen = [1,1,1,1];
-sqw_data.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
-sqw_data.iax=[];
-sqw_data.iint=[];
-sqw_data.pax=[1,2,3,4];
-sqw_data.p=p;
-sqw_data.dax=[1,2,3,4];
-sqw_data.s=sum(obj.S(:));
-sqw_data.e=sum(pix(9,:));   % take advantage of the squaring that has already been done for pix array
-sqw_data.npix=ne*ndet;
+% %------------ projection:
+% sqw_data.uoffset=[0;0;0;0];
+% sqw_data.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
+% sqw_data.ulen = [1,1,1,1];
+% sqw_data.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
+% sqw_data.iax=[];
+% sqw_data.iint=[];
+% sqw_data.pax=[1,2,3,4];
+% sqw_data.p=p;
+% sqw_data.dax=[1,2,3,4];
+% <-----------
+%sqw_data.s=sum(obj.S(:));
+%sqw_data.e=sum(pix(9,:));   % take advantage of the squaring that has already been done for pix array
+%sqw_data.npix=ne*ndet;
+% pix_info:
 sqw_data.urange=urange;
 sqw_data.pix=pix;

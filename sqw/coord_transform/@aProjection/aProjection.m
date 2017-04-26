@@ -9,76 +9,73 @@ classdef aProjection
     % $Revision: 1462 $ ($Date: 2017-04-04 13:04:12 +0100 (Tue, 04 Apr 2017) $)
     %
     properties(Dependent)
-        % is special mex routines, written for performance reason and as such
-        % deeply embedded with cut_sqw objects  are available for given
-        % projection type
-        can_mex_cut; %false
         %---------------------------------
+        %         % step sizes in every projection directions
+        %         usteps
+        %         % data ranges in new coordinate system in units of steps in each
+        %         % direction
+        %         urange_step;
+        %         % shift of the projection centre
+        %         urange_offset;
+        
+        % 4D array, describing the extent of the pixels region, this projection covers;
+        urange;
+        % 4-element vector describing full data binning in each direction
+        grid_size
+        % indexes of images integrated axis;
+        iax;
+        % the integration ranges
+        iax_range;
         %
-        % Convenience function, providing common interface to projection
-        % data
-        % the lattice parameters
-        alatt
-        % angles between the lattice edges
-        angdeg
-        %---------------------------------
-        % step sizes in every projection directions
-        usteps
-        % data ranges in new coordinate system in units of steps in each
-        % direction
-        urange_step;
-        % shift of the projection centre
-        urange_offset;
-        % indexes of projection axis of the target projection
-        target_pax
-        %number of bins in the target projection
-        target_nbin
+        p;
+        labels;
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        alatt_=[1,1,1];
-        angdeg_= [90,90,90];
+        %u_to_rlu_ = eye(3);
+        %alatt_=[1,1,1];
+        %angdeg_= [90,90,90];
         %------------------------------------
-        data_u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in hkle representation
+        uoffset_  = [0;0;0;0] %Offset of origin of projection axes wrt pix data
+        % in A^(-1) and energy
+        % former in r.l.u. and energy ie. [h; k; l; en] [column vector]
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        data_uoffset_  = [0;0;0;0] %Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-        data_ulen_     = [1,1,1,1]; %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        data_upix_to_rlu_ = eye(3);
-        data_upix_offset_ = [0;0;0;0] %upix_offset;
-        data_lab_ = ['qx','qy','qz','en'];
         % input data projection axis
-        data_iax_=zeros(1,0);
-        data_pax_=zeros(1,0);
-        data_iint_=zeros(2,0);
-        data_p_=cell(1,0);
+        iax_=zeros(1,0);
+        pax_=zeros(1,0);
+        dax_=zeros(1,0);
+        iint_=zeros(2,0);
+        p_=cell(1,0);
         % initial data range
-        data_urange_;
+        pix_urange_;
+        % the size of the image grid
+        grid_size_;
         %------------------------------------
-        % Transformed coordinates
-        urange_;
-        usteps_ = [1,1,1,1];
-        % data ranges in new coordinate system in units of steps in each
-        % direction
-        urange_step_ =zeros(2,4);
-        % shift of the projection centre
-        urange_offset_ = zeros(1,4);
-        %
-        targ_pax_
-        targ_iax_
-        targ_p_
+        labels_={'Q_\zeta','Q_\xi','Q_\eta','E'}
         
-        pax_gt1_=[];
-        nbin_gt1_=[];
     end
     
     methods
         function proj=aProjection(varargin)
+            % Generic projection
+            % usage:
+            % proj = aProjection(); % build empty projection
+            %
+            % proj = aProjection(grid_size_in,data_range,[label])
+            % grid_size_in -- Initial number of bins in each direction.
+            %                 (scalar, or [1 x nd] array)
+            % data_range   -- the ranges of the empty projections
+            % optional:
+            % label        -- a 4-element cellarray containing axis arrays and these axis labels array
+            
+            %
+            if nargin>1
+                proj = build_4D_proj_box_(proj,varargin{:});
+            end
         end
-        
-        function can_mex_cut = get.can_mex_cut(self)
-            % generic projection can not run mex code
-            can_mex_cut  = can_mex_cut_(self);
-        end
+        %------------------------------------------------------------------
+        % public interface:
+        [s,e,npix,pix] = sort_pixels_by_bins(obj,pix,varargin);
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
@@ -104,38 +101,62 @@ classdef aProjection
         %------------------------------------------------------------------
         % accessors
         %------------------------------------------------------------------
-        function alat = get.alatt(this)
-            alat = this.alatt_;
+        %
+        %         function usteps = get.usteps(this)
+        %             usteps = this.usteps_;
+        %         end
+        %         %
+        %         function urange_step = get.urange_step(this)
+        %             % Get limits of cut expressed in the units of bin size in each
+        %             % direction
+        %             urange_step = this.urange_step_;
+        %         end
+        %         function urange_offset= get.urange_offset(this)
+        %             urange_offset = this.urange_offset_;
+        %         end
+        function lab  = get.labels(obj)
+            lab = obj.labels_;
         end
         %
-        function angl = get.angdeg(this)
-            angl = this.angdeg_;
+        function pax = get.p(obj)
+            pax = obj.p_;
+        end
+        
+        function obj  = set.labels(obj,val)
+            if ~iscell(val) || numel(val) ~= 4
+                error('APROJECTION:invalid_argument',...
+                    'labels should be set up by using 4-ement cellarray of labels')
+            end
+            if size(val,2) == 1
+                val = val';
+            end
+            obj.labels_ = cellfun(@num2str,val,'UniformOutput',false);
         end
         %
-        function usteps = get.usteps(this)
-            usteps = this.usteps_;
+        function urange = get.urange(obj)
+            urange = obj.pix_urange_;
         end
-        %
-        function urange_step = get.urange_step(this)
-            % Get limits of cut expressed in the units of bin size in each
-            % direction
-            urange_step = this.urange_step_;
+        function iax = get.iax(obj)
+            iax  = obj.iax_;
         end
-        function urange_offset= get.urange_offset(this)
-            urange_offset = this.urange_offset_;
+        function iax_range = get.iax_range(obj)
+            iax_range= obj.urange(:,obj.iax);
         end
-        function pax = get.target_pax(this)
-            pax = this.pax_gt1_;
+        function nbin = get.grid_size(obj)
+            nbin = obj.grid_size_;
         end
-        function nbin = get.target_nbin(this)
-            nbin = this.nbin_gt1_;
+        %-----------------------------------------------------------------
+        % old interface support:
+        function pax = get_pax(obj)
+            pax = obj.pax_;
         end
+        function dax = get_dax(obj)
+            dax = obj.dax_;
+        end
+        
     end
     %
     methods(Access = protected)
-        function isit= can_mex_cut_(self)
-            isit = false;
-        end
         function [nbin_in,pin]= get_input_data_binning_(this)
             % input data binning how data are initially binned, and full
             % data projection axis
@@ -269,18 +290,19 @@ classdef aProjection
     %  ABSTRACT INTERFACE -- use
     %----------------------------------------------------------------------
     methods(Abstract)
-        urange_out = find_max_data_range(this,urange_in);
-        % find the whole range of input data which may contribute
-        % into the result.
         
-        [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
-        % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
-        % defined by projection limits.
-        [indx,ok] = get_contributing_pix_ind(this,v);
-        % get list of pixels indexes contributing into the cut
+        %         urange_out = find_max_data_range(this,urange_in);
+        %         % find the whole range of input data which may contribute
+        %         % into the result.
         %
-        [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax);
-        % get projection parameters, necessary for properly definind a sqw
-        % or dnd object from the projection
+        %         [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
+        %         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
+        %         % defined by projection limits.
+        %         [indx,ok] = get_contributing_pix_ind(this,v);
+        %         % get list of pixels indexes contributing into the cut
+        %         %
+        %         [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax);
+        %         % get projection parameters, necessary for properly definind a sqw
+        %         % or dnd object from the projection
     end
 end

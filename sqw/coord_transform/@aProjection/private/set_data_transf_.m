@@ -15,9 +15,9 @@ if size(upix_offset) ~= [4 1]
 end
 
 
-proj.alatt_=data.alatt;
-proj.angdeg_=data.angdeg;
-%
+% % proj.alatt_=data.alatt;
+% % proj.angdeg_=data.angdeg;
+% % %
 % existing transformation -- currently can be only rectangular one 
 proj.data_u_to_rlu_    = data.u_to_rlu; %(4x4)
 proj.data_uoffset_     = data.uoffset;  %(4x1)
@@ -33,6 +33,3 @@ proj.data_p_           = data.p;
 
 proj.data_upix_to_rlu_ = upix_to_rlu;
 proj.data_upix_offset_ = upix_offset;
-
-
-

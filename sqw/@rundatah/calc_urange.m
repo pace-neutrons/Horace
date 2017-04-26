@@ -38,7 +38,7 @@ else
     detdcn = [];
 end
 if isempty(obj.transform_sqw) % minor optimization not worth deploying ?
-    [u_to_rlu, urange] = b_obj.calc_projections_(detdcn,[],0);
+    [u_to_rlu, urange] = convert_to_cryst_frame_(b_obj,detdcn,[],0);
 else
     [~,~,urange] = b_obj.calc_sqw(2,[],varargin{:});
 end

@@ -1,5 +1,5 @@
-function [grid_size,p]=construct_grid_size(grid_size_in,urange)
-% Return grid_size and boin boundaries from initial grid size specification and data ranges
+function [grid_size,p,urange]=construct_grid_size_(grid_size_in,urange)
+% Return grid_size and bin boundaries from initial grid size specification and data ranges
 %
 %   >> [grid_size,p]=construct_grid_size(grid_size_in,urange)
 %
@@ -17,19 +17,29 @@ function [grid_size,p]=construct_grid_size(grid_size_in,urange)
 % 	p               Cell array (size=[1,nd]) of column vectors of bin
 %                   boundaries for each dimension.
 
-% $Revision$ ($Date$)
+% $Revision: 1240 $ ($Date: 2016-06-07 10:16:18 +0100 (Tue, 07 Jun 2016) $)
 
 
 % Number of dimensions
-nd=size(urange,2);
+[nr,nd]=size(urange);
+if nd == 2 && nd ~= nr
+    urange = urange';
+    nd = size(urange,2);
+end
 
 % Create grid size array
 if isscalar(grid_size_in)
     grid_size=grid_size_in*ones(1,nd);
-elseif size(grid_size_in,2)==nd
+elseif numel(grid_size_in)==nd
+    if size(grid_size_in,2) == 1
+        grid_size_in = grid_size_in';
+    end
     grid_size=grid_size_in;
 else
-    error('Inconsistent dimensions for grid_size and urange')
+    error('APROJECTION:invalid_arguments',...
+        'gridsize dimensions %d are not equal do urange dimensions: [%d,%d]',...
+        numel(gridsize),size(grid_size_in));
+        
 end
 
 % Get ranges along each axis and construct bin boundaries

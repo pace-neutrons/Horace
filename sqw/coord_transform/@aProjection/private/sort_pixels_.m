@@ -1,4 +1,4 @@
-function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
+function [ix,npix,ibin]=sort_pixels_(u,urange,grid_size)
 % Reorder the pixels according to increasing bin index in a Cartesian grid.
 %
 %   >> [ix,npix,p,grid_size]=sort_pixels(u,urange,grid_size_in)
@@ -9,6 +9,12 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 % ------
 %   u               [nd x npix_in] array of the coordinates in Cartesian grid
 %   urange          Range for the grid (2 x nd)
+%   grid_size       Scalar or row vector (1xnd) of number of actual bins along each axis
+%                   if the range along any of the axes is zero,
+%                   the size of the grid along those axes = 1. The reliable input
+%                   array should be produced by construct_grid_size_
+%                   function.
+
 %   grid_size_in    Scalar or row vector (1 x nd) of number of bins along each axis
 %
 % Output:
@@ -19,11 +25,6 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 %                  as a column vector. Bin indicies of reshaped Cartesian grid
 %                  are numbered in the same sequence as would be returned by the
 %                  matlab instrinsic sub2ind)
-%   p               Cell array [1 x nd] of column vectors of bin boundaries
-%                  in Cartesian grid
-%   grid_size       Scalar or row vector (1xnd) of number of actual bins along each axis
-%                  This may differ from the input grid_size if the range along any of the
-%                  axes is zero: in this case the size of the grid along those axes = 1
 %   ibin(npix,1)    Column vector with list of bins to which the sorted pixels contribute
 %                  Available for convenience as it can be constructed from npix:
 %                       ibin(1:nbin(1))=1
@@ -33,11 +34,10 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
-
-
+% $Revision: 1240 $ ($Date: 2016-06-07 10:16:18 +0100 (Tue, 07 Jun 2016) $)
+%
+%
 [nd,npixels] = size(u);    % no. dimensions and no. pixels
-[grid_size,p]=construct_grid_size(grid_size_in,urange);
 
 % Get bin index numbers for each array in turn (to minimise memory use)
 % Account explicitly for case of only one bin along any dimension

@@ -1,4 +1,4 @@
-function [w,grid_size,urange,detchn] = calc_sqw(obj,grid_size_in,urange_in,varargin)
+function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,urange_in,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
@@ -77,7 +77,7 @@ bigtic
 % Read spe file and detector parameters
 % -------------------------------------
 if ~qspec_provided || isempty(obj.S)
-    obj= obj.get_rundata('-this');
+    obj= obj.load();
 end
 det0 = obj.det_par;
 if ~(detdcn_provided || qspec_provided)
