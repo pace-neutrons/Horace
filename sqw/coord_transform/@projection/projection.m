@@ -46,7 +46,7 @@ classdef projection<aProjection
     
     methods
         function proj=projection(varargin)
-            proj = proj@aProjection();
+            proj = proj@aProjection(varargin{:});
             if nargin==0 % return defaults
                 proj.projaxes_ = [];
                 proj.data_lab_ = ['qx','qy','qz','en'];
@@ -131,7 +131,7 @@ classdef projection<aProjection
             % get list of indexes contributing into the cut
             [indx,ok] = get_contributing_pix_ind_(this,v);
         end
-        function [uoffset,ulabel,dax,u_to_rlu,ulen,title_build_class] = get_proj_param(this,data_in,pax)
+        function [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param(this,data_in,pax)
             % get projection parameters, necessary for properly defining a sqw or dnd object
             %
             [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(this,data_in,pax);

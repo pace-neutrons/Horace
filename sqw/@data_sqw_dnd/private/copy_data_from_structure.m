@@ -7,15 +7,25 @@ function data = copy_data_from_structure(data,sqw_data_structure,conv2double)
 % the verification procedure will flag them later.
 
 fields = fieldnames(sqw_data_structure);
+proj_fields = data.proj.get_old_interface_fields();
+oif = ismember(fields,proj_fields);
+proj_stuct = struct();
 for i=1:numel(fields)
     fld = fields{i};
-    if isempty(data.(fld)) && isempty(sqw_data_structure.(fld))  
-        continue; %keep the shape of the empty source structure, ignore shape of the input
-    end
-    if isa(sqw_data_structure.(fld),'single') && conv2double
-        data.(fld) = double(sqw_data_structure.(fld));
+    if oif(i)
+        proj_stuct.(fld) = sqw_data_structure.(fld);
     else
-        data.(fld) = sqw_data_structure.(fld);
+        if isempty(data.(fld)) && isempty(sqw_data_structure.(fld))
+            continue; %keep the shape of the empty source structure, ignore shape of the input
+        end
+        if isa(sqw_data_structure.(fld),'single') && conv2double
+            data.(fld) = double(sqw_data_structure.(fld));
+        else
+            data.(fld) = sqw_data_structure.(fld);
+        end
     end
 end
 
+% old interface files support only rectilinear projection;
+proj = projection();
+data.proj = proj.set_from_old_interface(proj_stuct);

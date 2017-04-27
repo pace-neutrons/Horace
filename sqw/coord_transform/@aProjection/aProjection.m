@@ -20,6 +20,9 @@ classdef aProjection
         
         % 4D array, describing the extent of the pixels region, this projection covers;
         urange;
+        % 4D vector providing offset of the pixels region covered by the
+        % projection vrt the pixels 0 value;
+        
         % 4-element vector describing full data binning in each direction
         grid_size
         % indexes of image' integrated axis;
@@ -62,6 +65,12 @@ classdef aProjection
         % aspect ratio of a 2D image.
         changes_aspect_ratio_=true;
     end
+    properties(Constant,Access=private)
+        % list of transitional properties used for storing/restoring
+        % projection from sqw files written in version 3.1 and lower.
+        old_interf_fields_ = {'uoffset','ulen','ulabel','iax','iint',...
+            'pax','p','dax','urange'};
+    end
     
     methods
         function proj=aProjection(varargin)
@@ -87,6 +96,15 @@ classdef aProjection
         % Get titling and caption information for the projection, specified
         [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
             data_plot_titles(this,filename)
+        %
+        function flds = get_old_interface_fields(obj)
+            % retrieve field names used to support old sqw object interface            
+            flds  = obj.old_interf_fields_;
+        end
+        % fill object structure from old interface data. Used for
+        % restoring data stored in old data formats
+        obj = set_from_old_interface(obj,old_struct)
+            
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
