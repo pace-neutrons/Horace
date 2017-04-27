@@ -57,7 +57,10 @@ classdef data_sqw_dnd
         %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
         %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
         %                  be reordered [row vector]
-        
+        %
+        %
+        % new interface: 
+        proj;
     end
     properties(Access = private)
         % A projection, which defines transformation between pixels and sqw
@@ -253,22 +256,34 @@ classdef data_sqw_dnd
             %
             [ok, type, mess]=obj.check_sqw_data_(type_in);
         end
+        function proj = get.proj(obj)
+            proj = obj.proj_;
+        end
+        function obj = set.proj(obj,val)
+            if ~isa(val,'aProjection')
+                error('DATA_SQW_DND:invalid_argument',...
+                    ' proj property can be set only by values from aProjection class family, got: %s',...
+                    class(val));
+            end
+            obj.proj_ = val;
+        end
+        
         %------------------------------------------------------------------
         % Old interface. Kept until sqw object is refactored into new type
         % object
         %------------------------------------------------------------------
         function uoffset = get.uoffset(obj)
-            uoffset = obj.proj_.uoffset;
+            uoffset = obj.proj_.get_uoffset();
         end
         function u_to_rlu = get.u_to_rlu(obj)
             %Matrix (4x4) of projection axes in hkle representation
-            u_to_rlu = obj.proj_.u_to_rlu;
+            u_to_rlu = obj.proj_.get_u_to_rlu();
         end
         function ulen = get.ulen(obj)
             %Length of projection axes vectors in Ang^-1 or meV [row vector]
             range =obj.proj_.urange;
             grid = obj.proj.grid_size;
-            ulen  = (range(2,:)- range(1,:))/grid;
+            ulen  = (range(2,:)- range(1,:))./grid;
         end
         function ulabel  = get.ulabel(obj)
             %Labels of the projection axes [1x4 cell array of character strings]
@@ -280,7 +295,7 @@ classdef data_sqw_dnd
         end
         function iint = get.iint(obj)
             %Integration range along each of the integration axes. [iint(2,length(iax))]
-            iint = obj.proj_.iint;
+            iint = obj.proj_.iax_range;
         end
         function pax = get.pax(obj)
             %Index of plot axes into the projection axes  [row vector]
@@ -294,6 +309,7 @@ classdef data_sqw_dnd
             %Index into data.pax of the axes for display purposes.
             dax = obj.proj_.get_dax();
         end
+                
         
     end
 end

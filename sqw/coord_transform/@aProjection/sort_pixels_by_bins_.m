@@ -1,4 +1,4 @@
-function [s,e,npix,pix,urange] = sort_pixels_by_bins_(obj,pix,in_data_range)
+function [s,e,npix,pix,urange] = sort_pixels_by_bins_(obj,pix,pix_range)
 
 
 
@@ -7,12 +7,12 @@ function [s,e,npix,pix,urange] = sort_pixels_by_bins_(obj,pix,in_data_range)
 grid_is_unity = all(obj.grid_size == [1,1,1,1]);
 
 % Set urange, and determine if all the data is on the surface or within the box defined by the ranges
-if isempty(in_data_range)
+if isempty(pix_range)
     urange = obj.urange;   % range of the data
     data_in_range = true;
 else
-    urange = in_data_range;         % use input urange
-    if any(urange(1,:)>obj.urange(1,:)) || any(urange(2,:)<obj.urange(2,:))
+    urange = pix_range;         % use input urange
+    if any(urange(1,:)<obj.urange(1,:)) || any(urange(2,:)>obj.urange(2,:))
         data_in_range = false;
     else
         data_in_range = true;
@@ -25,11 +25,13 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
     npix=size(pix,2);
     urange = obj.urange;
 else
+    [use_mex,nThreads,hor_log_level]=config_store.instance().get_value('hor_config',...
+        'use_mex','threads','log_level');
+    
     if hor_log_level>-1
         disp('Sorting pixels ...')
     end
     
-    [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
     if use_mex
         try
             % Verify the grid consistency and build axes along the grid dimensions,

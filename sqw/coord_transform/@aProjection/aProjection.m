@@ -22,13 +22,15 @@ classdef aProjection
         urange;
         % 4-element vector describing full data binning in each direction
         grid_size
-        % indexes of images integrated axis;
+        % indexes of image' integrated axis;
         iax;
-        % the integration ranges
+        % the integration ranges per each intergated axis
         iax_range;
         %
         p;
         labels;
+        
+
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
@@ -153,7 +155,12 @@ classdef aProjection
         function dax = get_dax(obj)
             dax = obj.dax_;
         end
-        
+        function uoffset = get_uoffset(obj)
+            uoffset = obj.uoffset_;
+        end
+        function u_to_rlu = get_u_to_rlu(obj)
+            u_to_rlu = eye(4);
+        end
     end
     %
     methods(Access = protected)

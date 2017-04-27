@@ -56,6 +56,9 @@ d.main_header=main_header;
 d.header=header;
 d.detpar=det0;
 d.data=data_sqw_dnd(sqw_data);
+grid_size = sqw_data.proj.grid_size;
+urange    = sqw_data.proj.urange;
+
 w=sqw(d);
 
 
