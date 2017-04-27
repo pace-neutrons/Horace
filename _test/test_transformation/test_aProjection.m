@@ -7,8 +7,7 @@ classdef test_aProjection<TestCase
         %en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs
         fake_sqw_par = {[],'','',35.5,1,[4.4,5.5,6.6],[100,105,110],...
             [1.02,0.99,0.02],[0.025,-0.01,1.04],...
-            90,10.5,0.2,3-1/6,2.4+1/7};
-        
+            90,10.5,0.2,3-1/6,2.4+1/7};        
     end
     
     methods
@@ -40,7 +39,7 @@ classdef test_aProjection<TestCase
             assertElementsAlmostEqual(proj.urange,proj.iax_range);
             assertElementsAlmostEqual(proj.iax,[1,2,3,4]);
             assertElementsAlmostEqual(proj.urange,[-1,1;-2,2;-3,3;-10,10]');
-            assertElementsAlmostEqual(proj.data_binning,[1,1,1,1]);
+            assertElementsAlmostEqual(proj.grid_size,[1,1,1,1]);
             
             proj = aProjectionTester([1,2,2,1],[-1,1;-2,2;-3,3;-10,10]);
             lab = proj.labels;
@@ -48,7 +47,7 @@ classdef test_aProjection<TestCase
             assertElementsAlmostEqual(proj.iax_range,[-1,1;-10,10]');
             assertElementsAlmostEqual(proj.iax,[1,4]);
             assertElementsAlmostEqual(proj.urange,[-1,1;-2,2;-3,3;-10,10]');
-            assertElementsAlmostEqual(proj.data_binning,[1,2,2,1]);
+            assertElementsAlmostEqual(proj.grid_size,[1,2,2,1]);
             assertElementsAlmostEqual(proj.p{1},proj.iax_range(:,1));
             assertElementsAlmostEqual(proj.p{4},proj.iax_range(:,2));
             
@@ -59,12 +58,13 @@ classdef test_aProjection<TestCase
             assertTrue(isempty(proj.iax_range));
             assertTrue(isempty(proj.iax));
             assertElementsAlmostEqual(proj.urange,[-1,1;-2,2;-3,3;-10,10]');
-            assertElementsAlmostEqual(proj.data_binning,[10,10,10,10]);
+            assertElementsAlmostEqual(proj.grid_size,[10,10,10,10]);
             
             p2_range = [proj.p{2}(1);proj.p{2}(end)];
             assertElementsAlmostEqual(proj.urange(:,2),p2_range);
         end
-        function test_generation(this)
+        %
+        function test_usage(this)
             hc = hor_config();
             cur_mex = hc.use_mex;
             hc.use_mex = false;

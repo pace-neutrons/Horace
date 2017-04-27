@@ -26,11 +26,12 @@ classdef spher_proj<aProjection
     
     methods
         function proj=spher_proj(varargin)
-            proj = proj@aProjection();
+            proj = proj@aProjection(varargin{:});
             if nargin>0
-                proj.ucentre = varargin{1};
+                proj.ucentre = varargin{3};
             end
-            proj.data_lab_ = {'\theta','\phi','\ro','En'};
+            proj.labels_ = {'\theta','\phi','\ro','En'};
+            proj.changes_aspect_ratio_ = false;            
         end
         %
         function u = get.ex(this)

@@ -1,4 +1,4 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = spher_plot_titles_(self,data)
+function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = titles_calc_function_(self,file)
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
@@ -23,7 +23,7 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1170 $ ($Date: 2016-02-01 17:35:02 +0000 (Mon, 01 Feb 2016) $)
 %
 % Horace v0.1   J.Van Duijn, T.G.Perring
 
@@ -35,7 +35,6 @@ units = {[Angstrom,'^{-1}'],'deg','mEv'};
 spher_units = containers.Map(keys,units);
 
 % Prepare input arguments
-file = fullfile(data.filepath,data.filename);
 title = data.title;
 
 %uoff = data.uoffset;

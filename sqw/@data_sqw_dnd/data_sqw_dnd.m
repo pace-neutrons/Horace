@@ -31,7 +31,6 @@ classdef data_sqw_dnd
         % ien         Energy bin number for the pixel in the array in the (irun)th header
         % signal      Signal array
         % err         Error array (variance i.e. error bar squared)
-        axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
     end
     properties(Dependent)
         % temporary keep  old interface:
@@ -79,6 +78,9 @@ classdef data_sqw_dnd
         range = get_bin_range(obj);
         % convert sqw_dnd object into structure
         struc = to_struct(obj,varargin);
+        % Get titling and caption information for the projection, specified
+        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
+            data_plot_titles(this)        
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:

@@ -30,7 +30,10 @@ classdef aProjection
         p;
         labels;
         
-
+        % property specifies if 2D or 3D picture, build out of this projection
+        % data, changes aspect ration according to aspect ratio
+        % of the data along axes
+        changes_aspect_ratio;
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
@@ -55,6 +58,9 @@ classdef aProjection
         %------------------------------------
         labels_={'Q_\zeta','Q_\xi','Q_\eta','E'}
         
+        % internal property, which defines if appropriate picture changes
+        % aspect ratio of a 2D image.
+        changes_aspect_ratio_=true;
     end
     
     methods
@@ -78,6 +84,9 @@ classdef aProjection
         %------------------------------------------------------------------
         % public interface:
         [s,e,npix,pix] = sort_pixels_by_bins(obj,pix,varargin);
+        % Get titling and caption information for the projection, specified
+        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
+            data_plot_titles(this,filename)
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
@@ -147,8 +156,11 @@ classdef aProjection
         function nbin = get.grid_size(obj)
             nbin = obj.grid_size_;
         end
+        function change=get.changes_aspect_ratio(this)
+            change = this.changes_aspect_ratio_;
+        end
         %-----------------------------------------------------------------
-        % old interface support:
+        % old (virtual?) interface support:
         function pax = get_pax(obj)
             pax = obj.pax_;
         end
@@ -161,6 +173,7 @@ classdef aProjection
         function u_to_rlu = get_u_to_rlu(obj)
             u_to_rlu = eye(4);
         end
+        
     end
     %
     methods(Access = protected)

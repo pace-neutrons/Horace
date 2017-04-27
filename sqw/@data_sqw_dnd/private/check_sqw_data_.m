@@ -29,10 +29,10 @@ function [ok, type, mess,data] = check_sqw_data_(data, type_in)
 % $Revision$ ($Date$)
 
 %fields_a = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
-%    'pax';'p';'dax';'s';'e';'npix';'urange';'pix';'axis_caption'}; % column
+%    'pax';'p';'dax';'s';'e';'npix';'urange';'pix'}; % column
 
 %fields_bplus = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
-%    'pax';'p';'dax';'s';'e';'npix';'axis_caption'}; % column
+%    'pax';'p';'dax';'s';'e';'npix'}; % column
 
 ok=false;
 type='';
@@ -62,11 +62,6 @@ else
     end
 end
 %fndata = fieldnames(data);
-% HACK!
-%all_members_ind = ismember(fndata,'axis_caption');
-%if any(all_members_ind)
-%    fndata = fndata(~all_members_ind);
-%end
 
 % Check data argument
 % ---------------------

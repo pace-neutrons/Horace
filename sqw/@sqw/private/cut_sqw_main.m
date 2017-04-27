@@ -424,9 +424,7 @@ npix = reshape(npix,nbin_as_size);
 % of sqw object
 
 [data_out.uoffset,data_out.ulabel,data_out.dax,data_out.u_to_rlu,...
-    data_out.ulen,axis_caption] = proj.get_proj_param(data,pax);
-%HACK! Any projections is converted into standard projection at this point
-data_out.axis_caption = axis_caption;
+    data_out.ulen] = proj.get_proj_param(data,pax);
 %
 data_out.iax = iax;
 data_out.iint = iint;

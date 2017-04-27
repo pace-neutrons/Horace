@@ -132,16 +132,16 @@ classdef projection<aProjection
             [indx,ok] = get_contributing_pix_ind_(this,v);
         end
         function [uoffset,ulabel,dax,u_to_rlu,ulen,title_build_class] = get_proj_param(this,data_in,pax)
-            % get projection parameters, necessary for properly definind a sqw or dnd object
+            % get projection parameters, necessary for properly defining a sqw or dnd object
             %
             [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(this,data_in,pax);
-            title_build_class = an_axis_caption();
+
         end
         %
         function [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
                 accumulate_cut(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads)
             %Method, used to both project data and allocate memory used by
-            %sqw&dnd objects. Has to be written in close cunjunction with
+            %sqw&dnd objects. Has to be written in close conjunction with
             %cut_sqw using deep understanding of the ways memory is allocated
             % within sqw objects
             [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
