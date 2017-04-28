@@ -1,5 +1,6 @@
-function [s,e,npix,pix] = sort_pixels_by_bins(obj,pix,varargin)
-% Bin pixels into 4D grid, defined by aProjection
+function [s,e,npix,pix,pix_range] = sort_pixels_by_bins(obj,pix_coord,varargin)
+% Bin pixels expressed in orthogonal coordinate system into 4D grid, 
+% defined by aProjection
 %
 % in a future, this function should use pix class, which has its
 % own range
@@ -13,4 +14,7 @@ if nargin>2
 else
     pix_range = [];
 end
-[s,e,npix,pix] = sort_pixels_by_bins_(obj,pix,pix_range);
+%
+pix = obj.pix_to_img(pix_coord);
+%
+[s,e,npix,pix,pix_range] = sort_pixels_by_bins_(obj,pix,pix_range);

@@ -19,29 +19,19 @@ classdef projection<aProjection
         w; %[1x3] Vector of third axis (r.l.u.) - used only if third character of type is 'p'
         type; %='rrr';
         uoffset; %=[0,0,0,0];
-        lab     %={'\zeta','\xi','\eta','E'};
         %
         %
     end
     properties(Access=private)
-        % reference to the class, which defines the projection axis
-        projaxes_=[]
         %
         data_u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in hkle representation        
         data_ulen_     = [1,1,1,1]; %Length of projection axes vectors in Ang^-1 or meV [row vector]
         data_upix_to_rlu_ = eye(3);
         data_upix_offset_ = [0;0;0;0] %upix_offset;
-        data_lab_ = ['qx','qy','qz','en'];
         
         %
     end
     methods(Access = protected)
-        % overloads for staitc methods which define if the projection can
-        % keep pixels and have mex functions defined
-        function isit= can_mex_cut_(self)
-            % ortho projection have mex procedures defined
-            isit = true;
-        end
     end
     
     methods

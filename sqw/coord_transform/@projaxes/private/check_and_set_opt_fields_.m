@@ -25,7 +25,11 @@ function [message, obj] = check_and_set_opt_fields_(obj,p)
 % Original author: T.G.Perring
 
 message = '';
-if ~all(ismember(fieldnames(p),[fieldnames(default_proj);{'lab1';'lab2';'lab3';'lab4'}]))
+% the list of possible optional field names
+opt_field_names = {'u','v','w','nonorthogonal', 'type', ...
+    'lab','lab1','lab2','lab3','lab4'};
+%
+if ~all(ismember(fieldnames(p),opt_field_names))
     message='One or more unrecognised fields passed in projection description';
     return
 end
@@ -118,8 +122,3 @@ else
     end
 end
 
-%--------------------------------------------------------------------------------------------------
-function pout=default_proj
-% Return default proj structure
-pout = struct('u',[1,0,0],'v',[0,1,0],'w',[],'nonorthogonal', false, 'type', 'ppr',...
-    'uoffset', [0,0,0,0]', 'lab', {{'','','',''}});

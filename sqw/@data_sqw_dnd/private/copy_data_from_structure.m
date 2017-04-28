@@ -5,6 +5,9 @@ function data = copy_data_from_structure(data,sqw_data_structure,conv2double)
 % the fiels with names absent in class will be rejected
 % if structure contains fields with data not appropriate for the class,
 % the verification procedure will flag them later.
+%
+% $Revision$ ($Date$)
+%
 
 fields = fieldnames(sqw_data_structure);
 proj_fields = data.proj.get_old_interface_fields();

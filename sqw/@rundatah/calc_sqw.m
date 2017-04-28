@@ -1,6 +1,6 @@
 function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,urange_in,varargin)
-% Convert rundatah information in crystal cartezian coordinate system
-% and construct from this information single sqw file with hkl projection 
+% Convert rundatah information in crystal Cartesian coordinate system
+% and construct from this information single sqw file with hkl projection
 % in rectilinear coordinate system.
 %
 % Usage:

@@ -1,18 +1,23 @@
-function [s,e,npix,pix,urange] = sort_pixels_by_bins_(obj,pix,pix_range)
+function [s,e,npix,pix,pix_range] = sort_pixels_by_bins_(obj,pix,pix_range)
+% Bin pixels into 4D grid, defined by aProjection in the range defined by
+% pix_range if present or projection range
+%
 
-
-
+%
+% $Revision: 1471 $ ($Date: 2017-04-24 10:26:58 +0100 (Mon, 24 Apr 2017) $)
+%
 
 % Flag if grid is in fact just a box i.e. 1x1x1x1
 grid_is_unity = all(obj.grid_size == [1,1,1,1]);
 
 % Set urange, and determine if all the data is on the surface or within the box defined by the ranges
+urange = obj.urange;
+%
 if isempty(pix_range)
-    urange = obj.urange;   % range of the data
     data_in_range = true;
+    pix_range = urange;
 else
-    urange = pix_range;         % use input urange
-    if any(urange(1,:)<obj.urange(1,:)) || any(urange(2,:)>obj.urange(2,:))
+    if any(pix_range(1,:)<obj.urange(1,:)) || any(pix_range(2,:)>obj.urange(2,:))
         data_in_range = false;
     else
         data_in_range = true;
@@ -23,12 +28,11 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
     s=sum(pix(8,:));
     e = sum(pix(9,:)); % take advantage of the squaring that has already been done for pix array
     npix=size(pix,2);
-    urange = obj.urange;
 else
     [use_mex,nThreads,hor_log_level]=config_store.instance().get_value('hor_config',...
         'use_mex','threads','log_level');
     
-    if hor_log_level>-1
+    if hor_log_level>0
         disp('Sorting pixels ...')
     end
     
@@ -77,8 +81,8 @@ else
     
     % If changed urange to something less than the range of the data, then must update true range
     if ~data_in_range
-        urange(1,:)=min(pix(1:4,:),[],2)';
-        urange(2,:)=max(pix(1:4,:),[],2)';
+        pix_range(1,:)=min(pix(1:4,:),[],2)';
+        pix_range(2,:)=max(pix(1:4,:),[],2)';
     else
         
     end

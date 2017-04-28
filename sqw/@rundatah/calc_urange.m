@@ -8,7 +8,10 @@ function [urange,u_to_rlu]=calc_urange(obj,varargin)
 %>>[urange,u_to_rlu]=obj.calc_urange('-cash_detectors')
 %                           Calculate urange for fully defined
 %                           rundatah object, using pre-calculated
-%                           vectors, pointing detectors positions
+%                           vectors, pointing detectors positions. If these
+%                           vectors are not provided, the detectors
+%                           positions are pre-calculated for subsequent
+%                           usage.
 %
 %>>[urange,u_to_rlu]=obj.calc_urange(emin,emax) Calculate urange of the
 %                  rundata object within the energy range provided.
@@ -19,6 +22,9 @@ function [urange,u_to_rlu]=calc_urange(obj,varargin)
 %
 %>>[urange,u_to_rlu,detdcn]=obj.calc_urange(emin,emax,'-cash_detectors')
 %                  the combination of the previous two options
+%
+%
+% $Revision$ ($Date$)
 %
 keys_recognized = {'-cash_detectors'};
 [ok,mess,cash_detectors,params] = parse_char_options(varargin,keys_recognized);
@@ -41,5 +47,6 @@ end
 if isempty(obj.transform_sqw) % minor optimization not worth deploying ?
     [u_to_rlu, urange] = convert_to_lab_frame_(b_obj,detdcn,[],0);
 else
+    b_obj.
     [~,~,urange] = b_obj.calc_sqw(2,[],varargin{:});
 end

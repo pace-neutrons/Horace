@@ -48,7 +48,7 @@ end
 % Perform calculations
 % -----------------------
 % Calculate projections of the instrument data into the q-space;
-[u_to_rlu,urange,pix] = convert_to_lab_frame_(obj,detdcn,obj.qpsecs_cash);
+[u_to_rlu,pix_range,pix] = convert_to_lab_frame_(obj,detdcn,obj.qpsecs_cash);
 
 [header,sqw_data]=build_header(obj,u_to_rlu);
 
@@ -57,7 +57,7 @@ end
 sqw_data.proj = aProjection(grid_size_in,urange_in);
 
 [sqw_data.s,sqw_data.e,sqw_data.npix,sqw_data.pix]...
-    = sqw_data.proj.sort_pixels_by_bins(pix,urange);
+    = sqw_data.proj.sort_pixels_by_bins(pix,pix_range);
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------

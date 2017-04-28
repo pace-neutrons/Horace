@@ -1,10 +1,7 @@
 function obj = check_and_set_uoffset_(obj,uoffset)
-% Verify correct values for uoffset and set interbal uoffset projaxes field
-% if validation is succsessful
+% Verify correct values for uoffset and set interval uoffset field
+% if validation is successful
 %
-%
-%   Detailed explanation goes here
-
 
 if isnumeric(uoffset)
     if size(uoffset,2) > 1

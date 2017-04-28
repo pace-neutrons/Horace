@@ -22,6 +22,7 @@ classdef aProjection
         urange;
         % 4D vector providing offset of the pixels region covered by the
         % projection vrt the pixels 0 value;
+        uoffset
         
         % 4-element vector describing full data binning in each direction
         grid_size
@@ -29,14 +30,21 @@ classdef aProjection
         iax;
         % the integration ranges per each intergated axis
         iax_range;
-        %
+        % cellarray of axis.
         p;
+        %TODO: u,v,w --> may be worth displaying these vectors or their
+        %orts as sighn of axis directrions above (what about non-4D cuts?)
+        %
+        % cellarray of labels for axis
         labels;
         
         % property specifies if 2D or 3D picture, build out of this projection
         % data, changes aspect ration according to aspect ratio
         % of the data along axes
         changes_aspect_ratio;
+        
+        %
+        proj_axes;
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
@@ -59,7 +67,7 @@ classdef aProjection
         % the size of the image grid
         grid_size_;
         %------------------------------------
-        labels_={'Q_\zeta','Q_\xi','Q_\eta','E'}
+        projaxes_=projaxes();
         
         % internal property, which defines if appropriate picture changes
         % aspect ratio of a 2D image.
@@ -92,19 +100,21 @@ classdef aProjection
         end
         %------------------------------------------------------------------
         % public interface:
-        [s,e,npix,pix] = sort_pixels_by_bins(obj,pix,varargin);
+        %Bin pixels expressed in orthogonal coordinate system into 4D grid,
+        % defined by aProjection
+        [s,e,npix,pix,pix_range] = sort_pixels_by_bins(obj,pix,varargin);
         % Get titling and caption information for the projection, specified
         [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
             data_plot_titles(this,filename)
         %
         function flds = get_old_interface_fields(obj)
-            % retrieve field names used to support old sqw object interface            
+            % retrieve field names used to support old sqw object interface
             flds  = obj.old_interf_fields_;
         end
         % fill object structure from old interface data. Used for
         % restoring data stored in old data formats
         obj = set_from_old_interface(obj,old_struct)
-            
+        
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
@@ -144,7 +154,7 @@ classdef aProjection
         %             urange_offset = this.urange_offset_;
         %         end
         function lab  = get.labels(obj)
-            lab = obj.labels_;
+            lab = obj.projaxes_.labels;
         end
         %
         function pax = get.p(obj)
@@ -159,7 +169,7 @@ classdef aProjection
             if size(val,2) == 1
                 val = val';
             end
-            obj.labels_ = cellfun(@num2str,val,'UniformOutput',false);
+            obj.projaxes_.labels = cellfun(@num2str,val,'UniformOutput',false);
         end
         %
         function urange = get.urange(obj)
@@ -177,6 +187,26 @@ classdef aProjection
         function change=get.changes_aspect_ratio(this)
             change = this.changes_aspect_ratio_;
         end
+        function uof=get.uoffset(obj)
+            uof = obj.uoffset_;
+        end
+        %
+        function obj = set.uoffset(obj,val)
+            obj = check_and_set_uoffset_(obj,val);
+        end
+        
+        function obj = set.proj_axes(obj,val)
+            if ~isa('projaxes',val)
+                error('APROJECTION:invalid_argument',...
+                    'proj_axes property can be assigned with projaxes object only');
+            end
+            obj.projaxes_ = val;
+            
+        end
+        function prax = get.proj_axes(obj)
+            prax = obj.projaxis_;
+        end
+        
         %-----------------------------------------------------------------
         % old (virtual?) interface support:
         function pax = get_pax(obj)
@@ -184,9 +214,6 @@ classdef aProjection
         end
         function dax = get_dax(obj)
             dax = obj.dax_;
-        end
-        function uoffset = get_uoffset(obj)
-            uoffset = obj.uoffset_;
         end
         function u_to_rlu = get_u_to_rlu(obj)
             u_to_rlu = eye(4);
@@ -328,6 +355,12 @@ classdef aProjection
     %  ABSTRACT INTERFACE -- use
     %----------------------------------------------------------------------
     methods(Abstract)
+        % convert array of data expressed in crystal Cartesian system (lab
+        % frame) into the array of data in image coordinate system
+        img_coord = pix_to_img(obj,pix_coord);
+        % convert array of data expressed in projection coordinate system
+        % into the array of data in crystal Cartesian system (lab frame)
+        pix_coord = img_to_pix(obj,img_coord);
         
         %         urange_out = find_max_data_range(this,urange_in);
         %         % find the whole range of input data which may contribute

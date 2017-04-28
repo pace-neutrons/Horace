@@ -1,5 +1,6 @@
 classdef projaxes
-    % Object that defines the projection axes u1, u2, u3
+    % Object that defines the directions of the axes u1, u2, u3, which
+    %  a rectilinear projection would have
     %
     % Structure input:
     %   >> proj = projaxes(proj_struct)
@@ -78,11 +79,11 @@ classdef projaxes
         v
         %Vector of third axis (r.l.u.) (set to [] if not given in proj_in)
         w
-        % [4x1] column vector of offset of origin of  projection axes (r.l.u. and en)
-        uoffset
         % Char. string defining normalisation? each character being 'a','r' or 'p' e.g. 'rrp'
         type
-        % false if nonorthohonal axis are
+        % property, which define the way to treat u,v,w vectors, i.e. if
+        % the property is true, u,v,w will be orthogonalized during construction,
+        %  and if false, projaxis will be directed along these vectors.
         orthogonal
         % [1x4] cell array of projection axis labels
         lab
@@ -180,14 +181,6 @@ classdef projaxes
         function obj = set.w(obj,val)
             obj = check_and_set_w_(obj,val);
             [~,~,obj] = check_combo_arg_(obj);
-        end
-        %----------------------------------------------------------
-        function uof=get.uoffset(obj)
-            uof = obj.uoffset_;
-        end
-        %
-        function obj = set.uoffset(obj,val)
-            obj = check_and_set_uoffset_(obj,val);
         end
         %----------------------------------------------------------
         function typ=get.type(obj)

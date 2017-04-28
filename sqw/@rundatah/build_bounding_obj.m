@@ -56,7 +56,7 @@ if ~range_given
             'calc_bounding_obj: no input range is given and source object does not contain enenrgy range');
     end
 else
-    rdl = rundatah(obj);    
+    rdl = rundatah(obj);
 end
 %
 if isempty(en_max) || en_min==en_max
@@ -77,7 +77,7 @@ if rdl.emode == 1
             en = reshape(en',numel(en),1);
             if en(end) == rdl.efix
                 en(end) = en(end)*(1-eps);
-                en(end-1) = en(end-1)*(1+eps);                
+                en(end-1) = en(end-1)*(1+eps);
             end
         end
     end

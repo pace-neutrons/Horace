@@ -1,6 +1,13 @@
 classdef rundatah < rundata
-    % class responsible for transformations between single run sqw data
-    % object and rundata object
+    % Class responsible for transformations between single run sqw data
+    % object and rundata object.
+    %
+    % Contains additional methods, necessary for transformation from
+    % instrument space into crystal Cartesian space (laboratory frame)
+    % and vice versa.
+    %
+    %
+    % $Revision$ ($Date$)
     %
     %
     %
@@ -9,10 +16,11 @@ classdef rundatah < rundata
         transform_sqw
     end
     properties
-        % optional handle to precaluclated detectors directions array
+        % optional handle to pre-calculated detectors directions array
         detdcn_cash = []
         % optional handle to list of q-vectors, used instead of detectors
-        % positions
+        % positions in q-dE space. If provided, only binning into image
+        % remains necessary.
         qpsecs_cash = []
     end
     
@@ -82,16 +90,16 @@ classdef rundatah < rundata
         [u_to_rlu,urange,varargout]=calc_urange(obj,varargin);
         % build rundata object, which can be used for estimating sqw ranges
         bound_obj = build_bounding_obj(obj,varargin);
-
+        
         % function to transform rundatah information into
-        % crystal cartezian coordinate system        
+        % crystal Cartesian coordinate system
         [urange,u_to_rlu,pix,obj] = convert_to_lab_frame(obj)
         
         function obj=rundatah(varargin)
             % rundatah class constructor.
             %
             % Builds rundata in a way similar to
-            % herbert rundata plus additional options allowing to build it
+            % Herbert rundata plus additional options allowing to build it
             % from sqw
             %
             obj = obj@rundata();

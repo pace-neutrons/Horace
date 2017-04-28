@@ -12,7 +12,6 @@ function [obj,mess] = build_projaxes_(obj,varargin)
 %
 %   >> proj = projaxes(...,'nonorthogonal',nonorthogonal,..)
 %   >> proj = projaxes(...,'type',type,...)
-%   >> proj = projaxes(...,'uoffset',uoffset,...)
 %   >> proj = projaxes(...,'lab',labelcellstr,...)
 %   >> proj = projaxes(...,'lab1',labelst,...)
 %                   :
@@ -54,10 +53,10 @@ function [obj,mess] = build_projaxes_(obj,varargin)
 %                         if non-orthogonal axes:
 %                               u1=u;  u2=v;  u3=w
 %               Default:
-%                 	'ppr'  if w not given
-%                 	'ppp'  if w is given
+%                  'ppr'  if w not given
+%                  'ppp'  if w is given
 %
-%	uoffset     Row or column vector of offset of origin of projection axes (rlu)
+%   uoffset     Row or column vector of offset of origin of projection axes (rlu)
 %
 %   lab         Short labels for u1,u2,u3,u4 as cell array
 %               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
@@ -78,8 +77,6 @@ function [obj,mess] = build_projaxes_(obj,varargin)
 %           proj.nonorthogonal  logical true or false
 %           proj.type           [1x3] Char. string defining normalisation
 %                               each character being 'a','r' or 'p' e.g. 'rrp'
-%           proj.uoffset        [4x1] column vector of offset of origin of
-%                               projection axes (r.l.u. and en)
 %           proj.lab            [1x4] cell array of projection axis labels
 
 

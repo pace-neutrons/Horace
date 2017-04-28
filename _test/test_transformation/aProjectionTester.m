@@ -11,5 +11,13 @@ classdef aProjectionTester < aProjection
             %
             proj = proj@aProjection(varargin{:});
         end
+        %----------------------------------------------
+        function  img_coord = pix_to_img(obj,pix_coord)
+            img_coord = pix_coord;
+        end
+        function pix_coord = img_to_pix(obj,img_coord)
+            pix_coord = img_coord;
+        end
+        
     end
 end
