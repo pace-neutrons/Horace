@@ -121,7 +121,7 @@ classdef projection<aProjection
         end
         
         function [istart,iend,irange,inside,outside] =get_irange_proj(this,urange,varargin)
-            % Get ranges of bins that partially or wholly lie inside an n-dimensional rectange,
+            % Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle,
             % where the first three dimensions can be rotated and translated w.r.t. the
             % cuboid that is split into bins.
             [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin{:});

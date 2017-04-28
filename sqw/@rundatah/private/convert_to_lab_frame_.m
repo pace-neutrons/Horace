@@ -1,4 +1,4 @@
-function [u_to_rlu, urange, pix] = convert_to_cryst_frame_(obj, detdcn,qspec,proj_mode)
+function [u_to_rlu, urange, pix] = convert_to_lab_frame_(obj, detdcn,qspec,proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
@@ -9,7 +9,7 @@ function [u_to_rlu, urange, pix] = convert_to_cryst_frame_(obj, detdcn,qspec,pro
 %   qspec       4xn_detectors array of qx,qy,qz,eps
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
-%               This should be precalculated from the contents of det
+%               This should be pre-calculated from the contents of det
 %   proj_mode   The format of the pix output, the routine returns,
 %               when proj_mode is as follows:
 %     0         pix arry will be empty array

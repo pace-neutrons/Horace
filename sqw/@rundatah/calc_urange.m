@@ -1,13 +1,14 @@
 function [urange,u_to_rlu]=calc_urange(obj,varargin)
-% Method calculates q-dE range, this rundata object has
+% Method calculates q-dE range, this rundata object has in laboratory frame 
+% (e.g. Crystal Cartesian coordinate system)
 %
 %Usage:
 %>>[urange,u_to_rlu]=obj.calc_urange()  Calculate urange for fully defined
 %                                      rundatah object
 %>>[urange,u_to_rlu]=obj.calc_urange('-cash_detectors')
 %                           Calculate urange for fully defined
-%                           rundatah object, using precacluated
-%                           vectors, pointing detectors positons
+%                           rundatah object, using pre-calculated
+%                           vectors, pointing detectors positions
 %
 %>>[urange,u_to_rlu]=obj.calc_urange(emin,emax) Calculate urange of the
 %                  rundata object within the energy range provided.
@@ -38,7 +39,7 @@ else
     detdcn = [];
 end
 if isempty(obj.transform_sqw) % minor optimization not worth deploying ?
-    [u_to_rlu, urange] = convert_to_cryst_frame_(b_obj,detdcn,[],0);
+    [u_to_rlu, urange] = convert_to_lab_frame_(b_obj,detdcn,[],0);
 else
     [~,~,urange] = b_obj.calc_sqw(2,[],varargin{:});
 end

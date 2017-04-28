@@ -35,23 +35,18 @@ classdef test_rundata_vs_sqw < TestCase
             this.par_file = fullfile(data_dir,this.par_file);
             
             
-            if ~exist(this.sqw_file_single,'file')
-                fake_sqw(this.en, this.par_file, this.sqw_file_single, this.efix,...
-                    this.emode, this.alatt, this.angdeg,...
-                    this.u, this.v, this.psi, this.omega, this.dpsi, this.gl, this.gs,...
-                    [10,5,5,5]);
-            end
-            
-            this.sqw_obj = read_sqw(this.sqw_file_single);
-            this.clob_ = onCleanup(@()rm_sqw(this));
-        end
-        function rm_sqw(this)
-            if exist(this.sqw_file_single,'file')
-                delete(this.sqw_file_single);
-            end
         end
         
-        function this=test_build_rundata(this)
+        function this = build_test_sqw(this)
+            ws = fake_sqw(this.en, this.par_file,'', this.efix,...
+                this.emode, this.alatt, this.angdeg,...
+                this.u, this.v, this.psi, this.omega, this.dpsi, this.gl, this.gs,...
+                [10,5,5,5]);
+            this.sqw_obj = ws{1};
+        end
+        
+        function this=test_build_rundata_get_sqw(this)
+            this = build_test_sqw(this);
             
             rd = rundatah(this.sqw_obj);
             
@@ -96,13 +91,57 @@ classdef test_rundata_vs_sqw < TestCase
             
             % calculate bounding object surrounding existing data object
             bob = rd.build_bounding_obj();
-            bos = bob.calc_sqw(grid_size,urange);            
+            bos = bob.calc_sqw(grid_size,urange);
             assertElementsAlmostEqual(bos.data.urange,urange,'relative',1.e-6);
             
             pix_range =[min(bos.data.pix(1:4,:),[],2)'; max(bos.data.pix(1:4,:),[],2)'];
             assertElementsAlmostEqual(bos.data.urange,pix_range);
+        end
+        %
+        function test_convert_to_lab_frame(this)
             
+            alat = [1,2,3];
+            angde= [90,90,90];
+            psil  =0;
+            lat = oriented_lattice(alat,angde,psil);
+            
+            rd = rundatah();
+            rd.lattice = lat;
+            rd.efix = 10;
+            rd.emode= 1;
+            rd.S=ones(3,3);
+            rd.ERR=zeros(3,3);
+            rd.en=-1:2;
+            
+            det.filename='some_file';
+            det.filepath='';
+            det.group = (1:3)';
+            det.x2  =ones(3,1);
+            det.phi  =[0,1,2];    % radians
+            det.azim= [-1,0,1];   % radians
+            det.width =ones(3,1)*0.1; % not used
+            det.height=ones(3,1)*0.1; % not used
+            
+            rd.det_par = det;
+            
+            [urange,u_to_rlu,ucoords] = rd.convert_to_lab_frame();
+            mii = min(ucoords,[],2);
+            mai = max(ucoords,[],2);
+            
+            urange_r = [mii(1:4),mai(1:4)]';
+            assertElementsAlmostEqual(urange,urange_r);
+            
+            u2rlu2 = diag(alat/(2*pi),0);
+            assertElementsAlmostEqual(u_to_rlu,u2rlu2);
+            
+            uc_sample =[-0.0543 0.0557 0.1715 -0.0539  0.0560  0.1718 -0.0529  0.0570  0.1728; ...
+                0      0      0      -0.0393 -0.0374 -0.0354 -0.0786 -0.0748  -0.0707; ...
+                0      0      0       0       0       0      -0.0014 -0.0013  -0.0012; ...
+                -0.5000 0.5000 1.5000 -0.5000  0.5000  1.5000 -0.5000  0.5000   1.5000]';
+            assertElementsAlmostEqual(uc_sample,ucoords(1:4,:)','absolute',2E-4);
             
         end
+        
+        
     end
 end

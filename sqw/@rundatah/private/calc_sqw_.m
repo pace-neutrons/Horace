@@ -15,7 +15,7 @@ function [w, grid_size, urange] = calc_sqw_(obj,detdcn, det0, grid_size_in, uran
 %   grid_size_in    Scalar or [1x4] vector of grid dimensions
 %   urange_in       Range of data grid for output as a [2x4] matrix:
 %                     [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                   If [] then uses the smallest hypercuboid that encloses the whole data range.
+%                   If [] then uses the smallest hyper-cuboid that encloses the whole data range.
 %
 %
 % Output:
@@ -25,6 +25,9 @@ function [w, grid_size, urange] = calc_sqw_(obj,detdcn, det0, grid_size_in, uran
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid - the specified range if it was given,
 %                  or the range of the data if not.
+%
+% $Revision$ ($Date$)
+%
 
 
 hor_log_level=config_store.instance().get_value('hor_config','log_level');
@@ -42,13 +45,19 @@ main_header.nfiles=1;
 if hor_log_level>-1
     disp('Calculating projections...');
 end
-[header,sqw_data]=calc_sqw_data_and_header(obj,detdcn);
-% TODO: aProjection for the time beeing, change to projection with
+% Perform calculations
+% -----------------------
+% Calculate projections of the instrument data into the q-space;
+[u_to_rlu,urange,pix] = convert_to_lab_frame_(obj,detdcn,obj.qpsecs_cash);
+
+[header,sqw_data]=build_header(obj,u_to_rlu);
+
+% TODO: aProjection for the time being, change to projection with
 % appropriate constructor!
 sqw_data.proj = aProjection(grid_size_in,urange_in);
 
 [sqw_data.s,sqw_data.e,sqw_data.npix,sqw_data.pix]...
-    = sqw_data.proj.sort_pixels_by_bins(sqw_data.pix,sqw_data.urange);
+    = sqw_data.proj.sort_pixels_by_bins(pix,urange);
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
@@ -56,14 +65,14 @@ d.main_header=main_header;
 d.header=header;
 d.detpar=det0;
 d.data=data_sqw_dnd(sqw_data);
+%
 grid_size = sqw_data.proj.grid_size;
 urange    = sqw_data.proj.urange;
-
 w=sqw(d);
 
 
 %------------------------------------------------------------------------------------------------------------------
-function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
+function [header,sqw_data] = build_header(obj,u_to_rlu)
 % Calculate sqw file header and data for a single spe file
 %
 %   >> [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
@@ -80,22 +89,6 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 %   sqw_data    Data structure suitable for put_sqw_data
 
 % Original author: T.G.Perring
-%
-% $Revision$ ($Date$)
-
-
-% Perform calculations
-% -----------------------
-% Get number of data elements
-%[ne,ndet]=size(obj.S);
-
-% Calculate projections of the instrument data into the q-space;
-[u_to_rlu,urange,pix] = convert_to_cryst_frame_(obj,detdcn,obj.qpsecs_cash);
-
-%p=cell(1,4);
-%for id=1:4
-%    p{id}=[urange(1,id);urange(2,id)];
-%end
 
 
 % Create header block
@@ -105,7 +98,8 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 header.filename = [fn,fe];
 header.filepath = [fp,filesep];
 header.efix     = obj.efix;
-header.emode = obj.emode;
+header.emode   = obj.emode;
+%
 %TODO: Wrap in lattice:
 %header.lattice  = obj.lattice;
 lat = obj.lattice.set_rad();
@@ -155,5 +149,3 @@ sqw_data.angdeg = obj.lattice.angdeg;
 %sqw_data.e=sum(pix(9,:));   % take advantage of the squaring that has already been done for pix array
 %sqw_data.npix=ne*ndet;
 % pix_info:
-sqw_data.urange=urange;
-sqw_data.pix=pix;
