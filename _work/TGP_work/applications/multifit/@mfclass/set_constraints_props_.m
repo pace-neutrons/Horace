@@ -1,5 +1,5 @@
 function obj = set_constraints_props_ (obj, S)
-% Get the constraints properties in a structure
+% Set the constraints properties in a structure
 %
 %   >> obj = set_constraints_props_ (obj, S)
 %

@@ -29,9 +29,9 @@ function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,
 %
 %   bfunc       Handles to background functions; same format as func, above
 %
-%   plist       Cell array of valid parameter lists, one list per foreground function.
+%   plist       Array of valid parameter lists, one list per foreground function.
 %
-%   bplist      Cell array of valid parameter lists, one list per background function.
+%   bplist      Array of valid parameter lists, one list per background function.
 %
 %   f_pass_caller_info  Keep internal state of foreground function evaluation e.g. seed of random
 %               number generator. Dictates the format of the fit fuction argument list.
@@ -138,8 +138,7 @@ if numel(func)==1
             fvar=S.fvar_store;
             fcalculated=false(nw,1);
         else
-            pars=parameter_set(plist{1},p{1});
-            if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+            pars=plist_update(plist(1),p{1});
             for iw=1:nw
                 caller.ind=iw;
                 if xye(iw)
@@ -186,8 +185,7 @@ else
                 fcalc{iw}=S.fcalc_store{iw};
                 fvar{iw}=S.fvar_store{iw};
             else
-                pars=parameter_set(plist{iw},p{iw});
-                if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+                pars=plist_update(plist(iw),p{iw});
                 if xye(iw)
                     if ~f_pass_caller_info
                         fcalc{iw}=func{iw}(w{iw}.x{:},pars{:});
@@ -230,8 +228,7 @@ if numel(bfunc)==1
             bvar=S.bvar_store;
             bcalculated=false(nw,1);
         else
-            pars=parameter_set(bplist{1},bp{1});
-            if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+            pars=plist_update(bplist(1),bp{1});
             for iw=1:nw
                 caller.ind=iw;
                 if xye(iw)
@@ -278,8 +275,7 @@ else
                 bcalc{iw}=S.bcalc_store{iw};
                 bvar{iw}=S.bvar_store{iw};
             else
-                pars=parameter_set(bplist{iw},bp{iw});
-                if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+                pars=plist_update(bplist(iw),bp{iw});
                 if xye(iw)
                     if ~bf_pass_caller_info
                         bcalc{iw}=bfunc{iw}(w{iw}.x{:},pars{:});
@@ -357,6 +353,18 @@ end
 % Write diagnostics to screen, if requested
 if listing>2
     list_calculated_funcs(fcalculated,bcalculated)
+end
+
+%------------------------------------------------------------------------------
+function plist_cell = plist_update (plist, pnew)
+% Take mfclass_plist object and replacement numerical parameter list with same number
+% of elements, return cell array of parameters to pass to evaluation function.
+tmp=plist;
+tmp.p=reshape(pnew,size(plist.p));  % ensure same orientation
+if iscell(tmp.plist)
+    plist_cell=tmp.plist;           % case of {p,c1,c2,...}. {c1,c2,...} or {} (see mfclass_plist)
+else
+    plist_cell={tmp.plist};         % catch case of p or c1<0> (see mfclass_plist)
 end
 
 %------------------------------------------------------------------------------

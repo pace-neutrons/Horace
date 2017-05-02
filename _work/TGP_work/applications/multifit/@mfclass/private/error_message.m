@@ -6,7 +6,7 @@ function error_message(mess,opt)
 %
 % If the message is empty, then an error is still thrown.
 %
-% Note: Not copntrol characters are permitted as part of the message string(s)
+% Note: No control characters are permitted as part of the message string(s)
 % because to work with the Matlab error handler the function replaces '\' with
 % '\\' in each string - and an accumlating set of other common replacements.
 

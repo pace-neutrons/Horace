@@ -54,5 +54,5 @@ else
 end
 % Insert elements into arrays
 fun_ = cell(1,nfun);
-pin_ = cell(1,nfun);
+pin_ = repmat(mfclass_plist(),1,nfun);
 np_  = zeros(1,nfun);

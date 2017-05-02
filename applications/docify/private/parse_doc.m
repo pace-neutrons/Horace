@@ -1,270 +1,132 @@
-function [ok,mess,doc_out,varargout]=parse_doc(flname,varargin)
-% Parse meta documentation source (file or cell array of strings)
+function [ok, mess, doc_out, iline] = parse_doc (lstruct, is_topfile, doc_filter, args, S)
+% Parse meta documentation, if any
 %
-% To docify an .m file:
-%   >> [ok, mess, source, changed] = parse_doc (flname, doc_filter)
-%
-% As used in recursive calls to resolve documentation files:
-%   >> [ok, mess, doc_out] = parse_doc (flname, args, S, doc)
+%   >> [ok, mess, doc_out, iline] = parse_doc (lstruct, is_topfile, doc_filter, args, S)
 %
 % Input:
 % ------
-%   flname  Name of file that contains meta-documentation if top level call
+%   lstruct     Line structure: fields
+%                   cstr        Row cellstr, trimmed both ends and blank lines removed
+%                   cstr0       Row cellstr untrimmed lines but blank lines removed
+%                   ind         Line numbers in original file
+%                   flname      File name of original file
+%                   flname_full Full file name of original file
 %
-% If parsing .m file:
-%   doc_filter  Cell array of strings with acceptable filter keywords
-%          on the <#doc_beg:> line. If non-empty, only if one of the
-%          keywords appears on the line will the documnetation be
-%          included
+%   is_topfile  True if lstruct is from the top level mfile, false otherwise
+%              If true, then if there must be an explicit doc_beg line for
+%              there to be meta documentation
 %
-% If parsing a documentation file:
-%   args    Cell array of arguments (each must be a string or cell array of
-%          strings or logical scalar (or 0 or 1)
+%   doc_filter  Cell array (row) of strings with acceptable filter keywords
+%              on the <#doc_beg:> line. If non-empty, only if one of the
+%              keywords appears on the line will the documentation be
+%              included. If empty, then meta-documentation will be
+%              processed regardless of the value of any keywords on the
+%              <#doc_beg:> line.
 %
-%   S       Structure whose fields are the names of variables and their
-%          values. Fields can be:
-%               - string
-%               - cell array of strings (column vector)
-%               - logical true or false (retain value for blocks)
+%   args        Cell array of arguments (each must be a string or cell array of
+%              strings or logical scalar (or 0 or 1)
 %
-%   doc     Cellarray of strings that contain the accumulated parsed
-%           documentation so far (row vector)
+%   S           Structure whose fields are the names of variables and their
+%              values. Fields can be:
+%                   - string
+%                   - cell array of strings (column vector)
+%                   - logical true or false (retain value for blocks)
 %
 % Output:
 % -------
-%   ok      =true if all OK, =false if not
+%   ok          If all OK, then true; otherwise false
 %
-%   mess    Message. It may have contents even if OK==true, in which case
-%          it is purely informational or warning.
+%   mess        Error message if not OK; empty if all OK
 %
-% If parsing .m file:
-%   source  Source code with meta-documentation replacing that in the
-%          original file.
+%   doc_out     Cell array of strings containing output documentation
 %
-%   changed True if meta-documentation parsing changes the source; false
-%           otherwise
-%
-% If parsing a documentation file:
-%   doc_out Cell array of strings containing output documentation
-%          or, in the case of top level call, the full function with the
-%          meta-documentation fully parsed.
+%   iline       Line index in cstr of first meta documentation line; =[]
+%              if no meta documentation. This line can real i.e. explicit
+%              doc_def or doc_beg line, or virtual i.e. iline=0 in the
+%              case of a meta documentation file (i.e. not top level mfile)
+%              without explicit doc_def or doc_beg line
 %
 %
-% Meta documentation has the form:
+% Form of meta documentation file:
+% --------------------------------
+% Simplest form; all contents meta documentation:
 %
-% Main file:
-% ----------
-% First occurence in the first documentation block of the block:
-%
-%   % <#doc_beg:>
 %   %   :
-%   % <#doc_end:>
 %
-% or, more generally, first occurence of the block:
-%
-%   % <#doc_def:>
+% Leading comment lines that will be ignored, and assumed 'missing' end:
 %   %   :
 %   % <#doc_beg:>
 %   %   :
-%   % <#doc_end:>
 %
-% Called files:
-% -------------
-%
+% The same with a definition section:
 %   %   :
-%
-% or, more generally (no leading lines):
-%
 %   % <#doc_def:>
 %   %   :
 %   % <#doc_beg:>
 %   %   :
 %
-% Can also have either of the forms for the main file
+% Any number of blocks, spaced with comments that will be ignored, with assumed
+% 'missing' end at the end of the block, if necessary.
+%
+%   %   :
+%   % <#doc_beg:>
+%   %   :
+%   % <#doc_end:>
+%   %   :
+%
+% or
+%
+%   %   :
+%   % <#doc_def:>
+%   %   :
+%   % <#doc_beg:>
+%   %   :
+%   % <#doc_end:>
+%   %   :
 
 
-% Determine if top level call
-if nargin==2
-    top=true;
-    doc_filter=varargin{1};
-    args={};
-    S=struct;
-    % Initialise output
-    return_changed=(nargout==4);
-    doc_out={};
-    if return_changed, varargout{1}=false; end
-elseif nargin==4
-    top=false;
-    args=varargin{1};
-    S=varargin{2};
-    doc=varargin{3};
-    % Initialise output
-    return_changed=false;
-    doc_out=doc;
-else
-    error('Check number of input arguments - see developers');
-end
+mess = '';
+doc_out = {};
+iline = [];
 
-% Initialise output
-
-% Get data from source
-[fname_full,ok,mess]=translate_read(flname);
-if ok
-    [cstr0,ok,mess] = textcell (fname_full);
-    if ~ok, return, end
-else
+% Find all the meta documentation blocks. Lines of texct in between will be ignored
+[ok, mess_tmp, idef_arr, ibeg_arr, iend_arr] = parse_doc_blocks...
+    (lstruct.cstr, is_topfile, doc_filter);
+if ~ok
+    mess = make_message (lstruct, 0, mess_tmp);
     return
 end
 
-% Trim and remove blank lines
-[cstr,~,nonempty]=str_trim_cellstr(cstr0);
-ind=find(nonempty);
-nstr=numel(cstr);
-if nstr==0
-    return
-end
-
-% If top level, then find first block of documentation
-if top
-    iscomment=strncmp(cstr,'%',1);
-    ilo=find(iscomment,1);
-    if ~isempty(ilo)
-        % There is a comment block aomewhere in the code, so it is possible
-        % there is meta documentation
-        if ilo==1
-            % There is a comment block before any executable code - not
-            % currently parsed by this function
-            mess = make_message (fname_full,...
-                'Currently will not parse code with a leading comment block');
-            doc_out=cstr0;
-            return
-        elseif any(strcmp(strtok(cstr{1}),{'function','classdef'}))
-            % First non-blank line is function or class definition - we are
-            % prepared to check that this is docifiable
-            if ilo<nstr
-                ihi=find(~iscomment(ilo+1:end),1);
-                if ~isempty(ihi)
-                    ihi=ihi+ilo-1;
-                else
-                    ihi=nstr;
+% For each documentation block, parse the documentation and accumulate the
+% resulting documentation from each block
+if numel(ibeg_arr)>0
+    iline = idef_arr(1);
+    for i=1:numel(ibeg_arr)
+        idef = idef_arr(i); ibeg=ibeg_arr(i); iend=iend_arr(i);
+        if iend>ibeg
+            % Accumulate additional definitions, if any
+            if idef<ibeg
+                lstruct_definitions = section_lstruct (lstruct, idef+1:ibeg-1);
+                [ok, mess_tmp, Snew] = parse_doc_definitions...
+                    (lstruct_definitions.cstr, args, S);
+                if ~ok
+                    mess_intro = 'Parsing meta documentation definitions:';
+                    mess = make_message (lstruct_definitions, 0, mess_intro, mess_tmp);
+                    return
                 end
             else
-                ihi=ilo;
+                Snew=S;
             end
-        else
-            mess = make_message (fname_full,...
-                'File does not have leading function or class definition line');
-            doc_out=cstr0;
-            return
-        end
-    else
-        % No comment block found
-        doc_out=cstr0;
-        return
-    end
-else
-    ilo=1;
-    ihi=nstr;
-end
-
-% Find doc keywords
-idef=[]; ibeg=[]; iend=[];
-for i=ilo:ihi
-    [var,iskey,~,~,~,~,tmp_keys,~,ok,mess]=parse_line(cstr{i});
-    if iskey
-        if strcmpi(var,'doc_def')
-            if ~isempty(idef)
-                mess='Meta documentation block can contain only one instance of <#doc_def:>';
-                break
+            % Get new documentation
+            lstruct_docsection = section_lstruct (lstruct, ibeg+1:iend-1);
+            [ok, mess_tmp, iline_err, doc_new] = parse_doc_section...
+                (lstruct_docsection.cstr, Snew);
+            if ~ok
+                mess_intro = 'Parsing meta documentation text:';
+                mess = make_message (lstruct_docsection, iline_err, mess_intro, mess_tmp);
+                return
             end
-            idef=i;
-        elseif strcmpi(var,'doc_beg')
-            if ~isempty(ibeg)
-                mess='Meta documentation block can contain only one instance of <#doc_beg:>';
-                break
-            end
-            ibeg=i;
-            doc_keys=tmp_keys;
-        elseif strcmpi(var,'doc_end')
-            if ~isempty(iend)
-                mess='Meta documentation block can contain only one instance of <#doc_end:>';
-                break
-            end
-            iend=i;
+            doc_out = [doc_out, doc_new];
         end
     end
 end
-if ~ok
-    mess = make_message (fname_full,mess);
-    return
-end
-if ~top
-    if isempty(ibeg), ibeg=0; end       % assume at beginning
-    if isempty(iend), iend=nstr+1; end  % assume at end
-end
-
-% Parse documentation
-if isscalar(ibeg) && isscalar(iend) && ibeg<=iend
-    % Check that if filter keywords are given that at least one of the keywowrds on the
-    % <#doc_beg:> line is in that list
-    if top && ~isempty(doc_filter) && ~any(ismember(doc_keys,doc_filter))
-        doc_out=cstr0;
-        return
-    end
-    % Accumulate addition definitions, if any
-    if isscalar(idef) && idef<ibeg
-        [Snew,ok,mess]=parse_doc_definitions(cstr(idef+1:ibeg-1),args,S);
-        if ~ok
-            mess = make_message (fname_full,mess);
-            return
-        end
-    elseif isempty(idef)
-        Snew=S;
-    else
-        ok=false;
-        mess = make_message (fname_full,...
-            'Meta documentation block must be <#doc_beg:>...<#doc_end:> or <#doc_def:>...<#doc_beg:>...<#doc_end:>');
-        return
-    end
-    % Get new documentation
-    [doc_out, ok, mess] = parse_doc_section (cstr(ibeg+1:iend-1), Snew, doc_out);
-    if ~ok
-        mess = make_message (fname_full,mess);
-        return
-    end
-    % If top call, then must replace the documentation
-    if top
-        % Keep everything except those lines in the first comment block that
-        % precede the meta-documentation block. If not empty, the resolved
-        % documentation is written in their place, followed by a blank line. The
-        % meta-documentation is retained. Repeated running of the function does
-        % not change the output (the blank line that was inserted is compressed
-        % away, and the resolved documentation discarded)
-        if isempty(idef)
-            istart=ibeg;
-        else
-            istart=idef;
-        end
-        if ~isempty(doc_out)
-            doc_out=[cstr0(1:ind(ilo)-1),doc_out,{''},cstr0(ind(istart):end)];
-        else
-            doc_out=[cstr0(1:ind(ilo)-1),cstr0(ind(istart):end)];
-        end
-        if return_changed
-            if numel(doc_out)==numel(cstr0) && all(strcmp(doc_out,cstr0))
-                varargout{1}=false;
-            else
-                varargout{1}=true;
-            end
-        end
-    end
-elseif ~(isempty(idef) && isempty(ibeg) && isempty(iend))
-    ok=false;
-    mess = make_message (fname_full,...
-        'Meta documentation block must be <#doc_beg:>...<#doc_end:> or <#doc_def:>...<#doc_beg:>...<#doc_end:>');
-    return
-end
-
-%-------------------------------------------------------------------------------
-function mess = make_message (filename,mess_in)
-[~,mess]=str_make_cellstr(['In file: ',filename],mess_in);

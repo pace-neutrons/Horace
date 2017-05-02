@@ -1,7 +1,7 @@
-function [S_out,ok,mess]=parse_doc_definitions(cstr,args,S)
+function [ok, mess, S_out] = parse_doc_definitions (cstr, args, S)
 % Accumulate the values of variables from the documentation definitions block.
 %
-%   >> [S_out,ok,mess]=parse_doc_definitions(cstr,args,S)
+%   >> [ok, mess, S_out] = parse_doc_definitions (cstr, args, S)
 %
 % Input:
 % ------
@@ -16,7 +16,7 @@ function [S_out,ok,mess]=parse_doc_definitions(cstr,args,S)
 %          corresponding element of args.
 %           If you want a variable to actually be the character string '#1',
 %          then in the definition block give it the value '\#1'. Similarly,
-%          if you actually want the varaible to be '\#1' use '\\#1' etc.
+%          if you actually want the variable to be '\#1' use '\\#1' etc.
 %
 %   args    Cell array of arguments (each must be a string or cell array of
 %          strings or logical scalar (or 0 or 1)
@@ -48,7 +48,7 @@ function [S_out,ok,mess]=parse_doc_definitions(cstr,args,S)
 
 
 % Parse the definition block
-[Snew, ok, mess] = parse_doc_definitions_block_vals (cstr);
+[ok, mess, Snew] = parse_doc_definitions_block_vals (cstr);
 if ~ok
     S_out=struct([]);
     return
@@ -57,8 +57,6 @@ end
 % Check the contents
 if isempty(Snew)    % Nothing to add
     S_out=S;
-    ok=true;
-    mess='';
     return
 end
 
@@ -85,7 +83,7 @@ end
 
 % Substitute arguments
 for i=1:numel(name)
-    [val_out,changed,ok,mess]=parse_doc_definitions_subst_arg(Snew.(name{i}),args);
+    [ok,mess,val_out,changed]=parse_doc_definitions_subst_arg(Snew.(name{i}),args);
     if ok && changed
         Snew.(name{i})=val_out;
     elseif ~ok
@@ -97,7 +95,3 @@ end
 
 % Accumulate new definitions
 S_out=mergestruct(Snew,S);
-
-% Succesful return
-ok=true;
-mess='';

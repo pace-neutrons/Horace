@@ -24,4 +24,4 @@ function mf_object = multifit2 (varargin)
 
 % Synonymn for mfclass for consistency with previous use of multifit
    
-mf_object = mfclass (mf_init, varargin{:});
+mf_object = mfclass (varargin{:});

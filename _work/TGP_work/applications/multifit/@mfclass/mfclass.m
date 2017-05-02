@@ -79,21 +79,16 @@ classdef mfclass
     % multifit2 will generally need to operate differently for each class.
 
 
-    properties (Access=protected, Hidden=true)
-        % --------------------------------
-        % Data class and function wrapping
-        % --------------------------------
-        % mfclass_wrapfun object
-        wrapfun_ = [];
-    end
-
-    properties (Access=private, Hidden=true)
+    properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties
-        %
-        % ---------------
+
+        % ---------------------------------------------------------------------
         % Data properties
-        % ---------------
+        % ---------------------------------------------------------------------
+        % Data class
+        dataset_class_ = '';
+
         % Cell array (row) with input data as provided by user (i.e. elements
         % may be cell arrays of {x,y,e}, structure arrays, object arrays);
         % a special case is thee elements x, y, e.
@@ -131,9 +126,9 @@ classdef mfclass
         % corresponding data set
         msk_ = {};
 
-        % -------------------
+        % ---------------------------------------------------------------------
         % Function properties
-        % -------------------
+        % ---------------------------------------------------------------------
         foreground_is_local_ = false;
 
         % Cell array of foreground function handles (row vector). If global function,
@@ -141,9 +136,9 @@ classdef mfclass
         % Missing functions are set to [].
         fun_ = cell(1,0);
 
-        % Cell array of the starting foreground function parameters (row vector).
-        % If a function is missing the corresponding element of pin_ is [].
-        pin_ = cell(1,0);
+        % Array of type mfclass_plist with the starting foreground function parameters (row vector).
+        % If a function is missing the corresponding element of pin_ is mfclass_plist().
+        pin_ = repmat(mfclass_plist(),1,0);
 
         % Row vector of the number of numeric parameters for each foreground function.
         % If a function is empty, then corresponding element of np_ is 0
@@ -156,17 +151,17 @@ classdef mfclass
         % Missing functions are set to [].
         bfun_ = cell(1,0);
 
-        % Cell array of the starting background function parameters (row vector).
-        % If a function is missing the corresponding element of bpin_ is [].
-        bpin_ = cell(1,0);
+        % Array of type mfclass_plist with the starting background function parameters (row vector).
+        % If a function is missing the corresponding element of bpin_ is mfclass_plist().
+        bpin_ = repmat(mfclass_plist(),1,0);
 
         % Row vector of the number of numeric parameters for each background function.
         % If a function is empty, then corresponding element nf nbp_ is 0
         nbp_ = zeros(1,0);
 
-        % --------------------------------
+        % ---------------------------------------------------------------------
         % Parameter constraints properties
-        % --------------------------------
+        % ---------------------------------------------------------------------
         % Logical column vector length (nptot_ + nbptot_)
         % =true if parameter is free, =false if fixed.
         % This contains what was set, but needs to be resolved to find the
@@ -194,10 +189,15 @@ classdef mfclass
         % Column vector of binding ratios resolved to account for a chain
         % of bindings
         ratio_res_ = zeros(0,1);
-
-        % -------------------------
+        
+        % ---------------------------------------------------------------------
+        % Function wrap properties
+        % ---------------------------------------------------------------------
+        wrapfun_ = mfclass_wrapfun();
+                
+        % ---------------------------------------------------------------------
         % Output control properties
-        % -------------------------
+        % ---------------------------------------------------------------------
         % Options structure.
         % Fields are:
         %   listing                 Level at which messages are output: 0,1,2
@@ -211,6 +211,8 @@ classdef mfclass
     end
 
     properties (Dependent)
+        % Public properties - they all work by going via private properties
+        
         % Data set object or cell array of data set objects (row vector)
         % Has the form:
         %
@@ -299,9 +301,13 @@ classdef mfclass
     end
 
     properties (Dependent, Access=protected)
-        ndatatot
-        np
-        nbp
+        % Properties that are exposed to child classes (i.e. subclasses)
+        
+        dataset_class   % data class
+        ndatatot        % total number of datasets
+        np              % number of parameters in each foreground function
+        nbp             % number of parameters in each background function
+        wrapfun         % function wrapping object
     end
 
     methods
@@ -309,23 +315,86 @@ classdef mfclass
         % Constructor
         %------------------------------------------------------------------
         function obj = mfclass(varargin)
-            % Interpret input arguments as solely data
+            % Create fitting object
+            %
+            %   >> myObj = mfclass              % empty fitting object
+            %   >> myObj = mfclass (w1,w2,...)  % datsets w1, w2, ...
+            %   >> myObj = mfclass (...dataset_class)   % data class e.g. 'sqw'
+            %   >> myObj = mfclass (...wrapfun)         % define function wrapping
+            %
+            % Input:
+            % -----
+            % OPtional data arguments (must all appear first):
+            %   w1, w2, ...     Datasets or arrays of datasets
+            %
+            % Trailing optional arguments (can appear in any order):
+            %   dataset_class   Character string giving class name of datasets
+            %                  so that the datatype is explicitly checked
+            %   wrapfun         Function wrapper object: defines the nesting of
+            %                  of the fit functions to permit mor complex function
+            %                  calls, and also if caller information is passed to
+            %                  the fitting function
+            %
+            % See also set_data mfclass_wrapfun
             try
-                if numel(varargin)>0 && isa(varargin{1},'mfclass_wrapfun')
-                    obj.wrapfun_ = varargin{1};
-                    obj = set_data(obj,varargin{2:end});
+                [ok,mess,nopt,ind_dataset_class,ind_wrapfun] = strip_trailing_opts;
+                if ok
+                    obj = set_data(obj,varargin{1:end-nopt});
+                    if ~isempty(ind_dataset_class)
+                        obj.dataset_class_ = varargin{ind_dataset_class};
+                    end
+                    if ~isempty(ind_wrapfun)
+                        obj.wrapfun_ = varargin{ind_wrapfun};
+                    end
                 else
-                    obj.wrapfun_ = mfclass_wrapfun;
-                    obj = set_data(obj,varargin{:});
+                    error(mess)
                 end
                 obj = set_options(obj,'-default');
             catch ME
                 error(ME.message)
             end
+            %--------------------------------------------------------------------------------------
+            function [ok,mess,nopt,ind_dataset_class,ind_wrapfun] = strip_trailing_opts
+                % Allow one or both of dataset_class and wrapfun at the tail of an argument list
+                
+                ok = true; mess = ''; nopt = 0; ind_dataset_class=[]; ind_wrapfun = [];
+                is_wrapfun = @(x)isa(x,'mfclass_wrapfun');
+                is_dataset_class = @(x)(isa(x,'char') && is_string(x) && ~isempty(x));
+                
+                narg = numel(varargin);
+                if narg>=1
+                    if is_wrapfun(varargin{end})
+                        nopt=1; ind_wrapfun = narg;
+                    elseif is_dataset_class(varargin{end})
+                        nopt=1; ind_dataset_class = narg;
+                    else
+                        return
+                    end
+                end
+                
+                if narg>=2
+                    if is_wrapfun(varargin{end-1})
+                        if isempty(ind_wrapfun)
+                            nopt=2; ind_wrapfun = narg-1;
+                        else
+                            ok=false; mess='Optional function wrapper given twice';
+                        end
+                    elseif is_dataset_class(varargin{end-1})
+                        if isempty(ind_dataset_class)
+                            nopt=2; ind_dataset_class = narg-1;
+                        else
+                            ok=false; mess='Optional dataset class name given twice';
+                        end
+                    else
+                        return
+                    end
+                end
+            end
+            %--------------------------------------------------------------------------------------
         end
 
         %------------------------------------------------------------------
-        % Set/get methods: dependent properties
+        % Set/get methods: public dependent properties
         %------------------------------------------------------------------
         % Set methods
         function obj = set.local_foreground(obj, val)
@@ -501,6 +570,24 @@ classdef mfclass
     end
 
     methods
+        %------------------------------------------------------------------
+        % Set/get methods: hidden dependent properties
+        %------------------------------------------------------------------
+        % Set methods
+        function obj = set.wrapfun(obj, val)
+            if isa(val,'mfclass_wrapfun') && isscsalar(val)
+                obj.wrapfun_ = val;
+            else
+                error('Wrapper object must be of class ''mfclass_wrapfun''')
+            end
+        end
+        
+        %------------------------------------------------------------------
+        % Get methods
+        function out = get.dataset_class(obj)
+            out = obj.dataset_class_;
+        end
+        
         function out = get.ndatatot(obj)
             out = obj.ndatatot_;
         end
@@ -513,9 +600,16 @@ classdef mfclass
             out = obj.np_;
         end
 
+        function out = get.wrapfun(obj)
+            out = obj.wrapfun_;
+        end
+
     end
 
     methods (Access=private)
+        %------------------------------------------------------------------
+        % Methods in the defining folder but which need to be kept private
+        %------------------------------------------------------------------
         obj = set_fun_props_ (obj, S)
         obj = set_constraints_props_ (obj, S)
 
@@ -535,8 +629,6 @@ classdef mfclass
 
         [ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
 
-        [fun, p, bfun, bp] = get_wrapped_functions_ (obj,...
-            func_init_output_args, bfunc_init_output_args)
     end
 
 end

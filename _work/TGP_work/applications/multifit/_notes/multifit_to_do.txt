@@ -24,7 +24,7 @@ mfclass_tobyfit
   func functions that change global/local status, they are rather similar in that
   they initialise.
   
-- set_data etc.: fo the properties ndim_, ndat_, ndatatot_, item_, ix_ only
+- set_data etc.: of the properties ndim_, ndat_, ndatatot_, item_, ix_ only
   ndatatot_ is used widely. ndim_ doesn't seem to be used at all, ndata_, item_, ix_
   are only used in remove_data and replace_data, so can be created there.
   
@@ -42,6 +42,10 @@ mfclass_tobyfit
   
 2016/10/22: get_option/set_option: unsatisfactory, as it is not clear what the options
 are, and no automatic help.
+
+- Why np, nbp, ndtatot hidden?
+
+
   
 Multifit_lsqr:
 =================

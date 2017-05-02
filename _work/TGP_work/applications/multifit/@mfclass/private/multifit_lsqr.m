@@ -34,10 +34,10 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %
 %   bfunc       Handles to background functions; same format as func, above
 %
-%   pin         Cell array of valid parameter lists, one list per foreground function,
+%   pin         Array of valid parameter lists, one list per foreground function,
 %              with the initial parameter values at the lowest level.
 %
-%   bin         Cell array of valid parameter lists, one list per background function,
+%   bin         Array of valid parameter lists, one list per background function,
 %              with the initial parameter values at the lowest level.
 %
 %   f_pass_caller_info  Determines the form of the foreground fit function argument lists:

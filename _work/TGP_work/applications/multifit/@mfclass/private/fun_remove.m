@@ -38,11 +38,11 @@ end
 if ischar(ind) && strcmp(ind,'all')
     if isfore
         obj.fun_ = cell(1,0);
-        obj.pin_ = cell(1,0);
+        obj.pin_ = repmat(mfclass_plist(),1,0);
         obj.np_  = zeros(1,0);
     else
         obj.bfun_ = cell(1,0);
-        obj.bpin_ = cell(1,0);
+        obj.bpin_ = repmat(mfclass_plist(),1,0);
         obj.nbp_  = zeros(1,0);
     end
 else

@@ -1,29 +1,31 @@
-function [ok,mess,file_full_in,changed,file_full_out]=docify_single(file_in,file_out,doc_filter)
+function [ok, mess, file_full_in, changed, file_full_out] = docify_single...
+    (file_in, file_out, doc_filter)
 % Insert documentation constructed from meta documentation for a single file
 %
-%   >> [ok,mess]=docify_single(file_in,file_out,doc_filter)
+%   >> [ok, mess, file_full_in, changed, file_full_out] = docify_single...
+%                                           (file_in, file_out, doc_filter)
 %
 % Input:
 % ------
-%   file_in     Input file name
-%   file_out    Output file name (if empty, then replaces file_in)
-%   doc_filter  Cell array (row) of strings with acceptable filter keywords
-%              on the <#doc_beg:> line. If non-empty, only if one of the
-%              keywords appears on the line will the documnetation be
-%              included. If empty, then meta-documentation will be
-%              processed regardless of the value of any keywords on the
-%              <#doc_beg:> line.
+%   file_in         Input file name
+%   file_out        Output file name (if empty, then replaces file_in)
+%   doc_filter      Cell array (row) of strings with acceptable filter keywords
+%                  on the <#doc_beg:> line. If non-empty, only if one of the
+%                  keywords appears on the line will the documentation be
+%                  included. If empty, then meta-documentation will be
+%                  processed regardless of the value of any keywords on the
+%                  <#doc_beg:> line.
 %
 % Output:
 % -------
-%   ok          =true if all OK, =false if not
-%   mess        Message. It may have contents even if OK==true, in which case
-%              it is purely informational or warning.
-%  file_full_in Full name of input file
-%   changed     True if meta-documentation parsing changes the source; false
-%              otherwise
-% file_full_out Full name of output file (same as input file if file is
-%              replaced or changed==false)
+%   ok              =true if all OK, =false if not
+%   mess            Message. It may have contents even if OK==true, in which
+%                  case it is purely informational or warning.
+%   file_full_in    Full name of input file
+%   changed         True if meta-documentation parsing changes the source;
+%                  false otherwise
+%   file_full_out   Full name of output file (same as input file if file is
+%                  replaced or changed==false)
 
 
 replace_file = isempty(file_out);
@@ -31,9 +33,9 @@ replace_file = isempty(file_out);
 while true  % while...end only so the 'break' feature can be used
     % Parse meta documentation in an m-file
     if ~isempty(doc_filter)
-        [ok,mess,source,changed] = parse_doc (file_in,doc_filter);
+        [ok,mess,source,changed] = parse_top_doc (file_in,doc_filter);
     else
-        [ok,mess,source,changed] = parse_doc (file_in,{});
+        [ok,mess,source,changed] = parse_top_doc (file_in,{});
     end
     if ok
         file_full_in = translate_read(file_in);   % we know this must already have worked
@@ -83,13 +85,3 @@ while true  % while...end only so the 'break' feature can be used
     end
     break
 end
-
-if ~ok
-    mess = make_message (file_in,mess);
-else
-    mess='';
-end
-
-%-------------------------------------------------------------------------------
-function mess = make_message (filename,mess_in)
-[~,mess]=str_make_cellstr(['Error processing input file: ',filename],mess_in);

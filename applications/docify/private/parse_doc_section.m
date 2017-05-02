@@ -1,7 +1,7 @@
-function [doc_out, ok, mess] = parse_doc_section (cstr, S, doc)
+function [ok, mess, iline_err, doc_out] = parse_doc_section (cstr, S)
 % Parse meta documentation
 %
-%   >> [douc_out, ok, mess] = parse_doc_section (cstr, S, doc)
+%   >> [ok, mess, iline_err, doc_out] = parse_doc_section (cstr, S)
 %
 % Input:
 % ------
@@ -17,21 +17,24 @@ function [doc_out, ok, mess] = parse_doc_section (cstr, S, doc)
 %               - cell array of strings (column vector)
 %               - logical true or false (retain value for blocks)
 %
-%   doc     Cellarray of strings that contain the accumulated parsed
-%          documentation so far (row vector)
-%
 % Output:
 % -------
-%   doc_out Cellarray of strings with newly parsed documentation appended
-%          (row vector)
-%
 %   ok      If all OK, then true; otherwise false
 %
 %   mess    Error message if not OK; empty if all OK
+%
+%   iline_err   Line index in cstr at which the error occured.
+%           - [] if ok
+%           - scalar if single identifiable line
+%           - array if several lines
+%           - 0  if the problem is not identifiable with a single line
+%
+%   doc_out Cellarray of strings with newly parsed documentation appended
+%          (row vector)
 
 
 % Initialise output
-doc_out = doc;
+doc_out = {};
 
 % Resolve S:
 %   substr  Structure whose fields contain strings.
@@ -73,7 +76,8 @@ state=blockobj([],'add',main_block,storing);
 % Find keyword and logical block lines, and determine if a line is to be buffered
 nstr=numel(cstr);
 for i=1:nstr
-    [var,iskey,isblock,isdcom,issub,ismcom,argstr,isend,ok,mess] = parse_line (cstr{i});
+    iline_err=i;
+    [ok,mess,var,iskey,isblock,isdcom,issub,ismcom,argstr,isend] = parse_line (cstr{i});
     if ~ok, return, end
     if isblock
         % Block name. As part of checks, even if we are not reading the
@@ -92,7 +96,7 @@ for i=1:nstr
                     state=blockobj(state,'add',var,storing);
                 else
                     ok=false;
-                    mess={['Unrecognised block name ''',var,''' in line:'],cstr{i}};
+                    mess=['Unrecognised block name ''',var,''''];
                     return
                 end
             else
@@ -100,8 +104,7 @@ for i=1:nstr
             end
         else
             ok=false;
-            mess={['Block end for ''',var,''' does not match current block ''',blockobj(state,'current'),''' in line:'],...
-                cstr{i}};
+            mess=['Block end for ''',var,''' does not match current block ''',blockobj(state,'current'),''''];
             return
         end
     elseif iskey
@@ -111,34 +114,33 @@ for i=1:nstr
         if strcmpi(var,'file') && ~isend
             if numel(argstr)<1
                 ok=false;
-                mess={'Must give file name in line:',cstr{i}};
+                mess='Must give name of file to be read on the line';
                 return
             end
             if storing
                 % Resolve any string substitutions
-                [argstr,ok,mess]=resolve(argstr,substrnam_bra,substrval);
-                if ok
-                    args=argstr;
-                    for j=1:numel(args)
-                        % Substitute strings as variables, if can
-                        ix=find(strcmpi(args{j},Snam),1);
-                        if ~isempty(ix)
-                            args{ix}=S.(args{j});
-                        end
+                [ok,mess,argstr]=resolve(argstr,substrnam_bra,substrval);
+                if ~ok, return, end
+                args=argstr;
+                for j=1:numel(args)
+                    % Substitute strings as variables, if can
+                    ix=find(strcmpi(args{j},Snam),1);
+                    if ~isempty(ix)
+                        args{ix}=S.(args{j});
                     end
-                    [ok,mess,doc_out]=parse_doc(args{1},args(2:end),S,doc_out);
-                    if ~ok
-                        [~,mess]=str_make_cellstr(mess,'in line:',cstr{i}); % accumulate error message (recursive call to parse_doc)
-                        return
-                    end
-                else
-                    mess={[mess,' in line:'],cstr{i}};
-                    return
                 end
+                [ok,mess,lstruct]=read_file(args{1});
+                if ~ok, return, end
+                is_topfile = false;
+                doc_filter = {};
+                [ok, mess, doc_new] = parse_doc (lstruct, is_topfile, doc_filter,...
+                    args(2:end),S);
+                if ~ok, return, end
+                doc_out=[doc_out,doc_new];
             end
         else
             ok=false;
-            mess={['Unrecognised keyword ''',var,''' in line:'],cstr{i}};
+            mess=['Unrecognised keyword ''',var,''''];
             return
         end
     elseif issub
@@ -151,7 +153,7 @@ for i=1:nstr
                 doc_out=[doc_out,make_matlab_comment(tmp{1})'];
             else
                 ok=false;
-                mess={'Substitution must be a cell array of strings in line:',cstr{i}};
+                mess='Substitution must be a cell array of strings in line:';
                 return
             end
         end
@@ -159,21 +161,17 @@ for i=1:nstr
         % Matlab comment line
         if storing
             tmp=strtrim(cstr{i}(2:end));
-            if length(tmp)>2 && tmp(1)=='<' && tmp(end)=='>' && isvarname(tmp(2:end-1)) &&...
-                    any(strcmp(tmp(2:end-1),subcellnam))
+            if length(tmp)>2 && tmp(1)=='<' && tmp(end)=='>' &&...
+                    isvarname(tmp(2:end-1)) && any(strcmp(tmp(2:end-1),subcellnam))
                 % Catch case of possible cellstr substitution i.e. '% <var_name>'
                 tf=strcmp(tmp(2:end-1),subcellnam);
                 tmp=subcellval(tf);
                 doc_out=[doc_out,make_matlab_comment(tmp{1})'];
             else
                 if storing
-                    [line,ok,mess]=resolve(cstr{i},substrnam_bra,substrval);
-                    if ok
-                        doc_out=[doc_out,{line}];
-                    else
-                        mess={[mess,' in line:'],cstr{i}};
-                        return
-                    end
+                    [ok,mess,line]=resolve(cstr{i},substrnam_bra,substrval);
+                    if ~ok, return, end
+                    doc_out=[doc_out,{line}];
                 end
             end
         end
@@ -186,10 +184,13 @@ end
 
 % Check that blocks are consistent
 if ~strcmpi(main_block,blockobj(state,'current'))
-    ok=false;
+    ok=false; iline_err=0;
     mess='Block start and end(s) are inconsistent';
     return
 end
+
+% All OK if got here
+iline_err=[];
 
 %--------------------------------------------------------------------------------------
 function cstr_out = make_matlab_comment (cstr)

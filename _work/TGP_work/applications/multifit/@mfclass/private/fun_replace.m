@@ -16,7 +16,7 @@ function obj = fun_replace (obj_in, isfore, ind, varargin)
 %               foreground functions:   1:(numel(obj.fun_)
 %               background functions:   1:(numel(obj.bfun_)
 %   fun     Function handles (row vector)
-%   plist   Cell array with parameter lists (row vector)
+%   plist   Array of mfclass_plist objects (row vector)
 %   np      Array of number of parameters (row vector)
 %
 % Output:
@@ -41,7 +41,7 @@ if nargin==3
         error('Contact developers')
     end
     fun = repmat({[]},1,n);
-    pin = repmat({[]},1,n);
+    pin = repmat(mfclass_plist(),1,n);
     np = zeros(1,n);
 else
     n = numel(varargin{1});

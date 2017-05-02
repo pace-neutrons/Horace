@@ -12,7 +12,7 @@ function obj = fun_append (obj_in, isfore, varargin)
 %   isfore  True if foreground functions, false if background functions
 %   n       Number of empty entries to append
 %   fun     Function handles (row vector)
-%   plist   Cell array with parameter lists (row vector)
+%   plist   Array of mfclass_plist objects (row vector)
 %   np      Array of number of parameters (row vector)
 %
 % Output:

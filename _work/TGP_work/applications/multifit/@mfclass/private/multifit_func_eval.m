@@ -24,9 +24,9 @@ function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
 %
 %   bfunc       Handles to background functions; same format as func, above
 %
-%   plist       Cell array of valid parameter lists, one list per foreground function.
+%   plist       Array of valid parameter lists, one list per foreground function.
 %
-%   bplist      Cell array of valid parameter lists, one list per background function.
+%   bplist      Array of valid parameter lists, one list per background function.
 %
 %   f_pass_caller_info  Keep internal state of foreground function evaluation e.g. seed of random
 %              number generator. Dictates the format of the fit fuction argument list.
@@ -67,8 +67,7 @@ store_back=[];
 if eval_fore
     if numel(func)==1
         if ~isempty(func{1})
-            pars=parameter_set(plist{1},p{1});
-            if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+            pars=plist_update(plist(1),p{1});
             for i=1:numel(w)
                 caller.ind=i;
                 if xye(i)
@@ -94,8 +93,7 @@ if eval_fore
         for i=1:numel(w)
             caller.ind=i;
             if ~isempty(func{i})
-                pars=parameter_set(plist{i},p{i});
-                if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+                pars=plist_update(plist(i),p{i});
                 if xye(i)
                     wout{i}=w{i};
                     if ~f_pass_caller_info
@@ -122,8 +120,7 @@ end
 if eval_back
     if numel(bfunc)==1
         if ~isempty(bfunc{1})
-            pars=parameter_set(bplist{1},bp{1});
-            if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+            pars=plist_update(bplist(1),bp{1});
             for i=1:numel(w)
                 caller.ind=i;
                 if xye(i)
@@ -169,8 +166,7 @@ if eval_back
         for i=1:numel(w)
             caller.ind=i;
             if ~isempty(bfunc{i})
-                pars=parameter_set(bplist{i},bp{i});
-                if ~iscell(pars), pars={pars}; end  % make a cell for convenience
+                pars=plist_update(bplist(i),bp{i});
                 if xye(i)
                     if isempty(wout{i})
                         wout{i}=w{i};
@@ -224,4 +220,16 @@ for i=1:numel(wout)
             wout{i}=0*w{i};
         end
     end
+end
+
+%------------------------------------------------------------------------------
+function plist_cell = plist_update (plist, pnew)
+% Take mfclass_plist object and replacement numerical parameter list with same number
+% of elements, return cell array of parameters to pass to evaluation function.
+tmp=plist;
+tmp.p=reshape(pnew,size(plist.p));  % ensure same orientation
+if iscell(tmp.plist)
+    plist_cell=tmp.plist;           % case of {p,c1,c2,...}. {c1,c2,...} or {} (see mfclass_plist)
+else
+    plist_cell={tmp.plist};         % catch case of p or c1<0> (see mfclass_plist)
 end

@@ -1,7 +1,7 @@
-function [strout,ok,mess]=resolve(str,substr,val)
+function [ok, mess, strout] = resolve (str, substr, val)
 % Recursively resolve string substitutions of the form <name>
 %
-%   >> [strout,ok,mess]=resolve(str,substr,val)
+%   >> [ok, mess, strout] = resolve (str, substr, val)
 %
 % Input:
 % ------
@@ -10,32 +10,34 @@ function [strout,ok,mess]=resolve(str,substr,val)
 %   val     Cell array of corresponding substitutions
 %
 % Output:
-%   strout  Output string or cellstr
+% -------
 %   ok      True if all OK, false otherwise
 %   mess    Error message if not OK (string)
+%   strout  Output string or cellstr
 %
 % The substitutions are performed recursively until there are no further
 % substitutions that can be made, or until the maximum depth permitted has
 % been reached.
 
+
 if ~iscell(substr), substr={substr}; end
 if ~iscell(val), val={val}; end
 
 if ~iscell(str)
-    [strout,ok,mess]=resolve_str(str,substr,val);
+    [ok,mess,strout]=resolve_str(str,substr,val);
 else
     strout=cell(size(str));
     for i=1:numel(str)
-        [strout{i},ok,mess]=resolve_str(str{i},substr,val);
+        [ok,mess,strout{i}]=resolve_str(str{i},substr,val);
         if ~ok, return, end
     end
 end
 
 %--------------------------------------------------------------------------------------------------
-function [strout,ok,mess]=resolve_str(str,substr,val)
+function [ok,mess,strout]=resolve_str(str,substr,val)
 % Recursively resolve string substitutions of the form <name>
 %
-%   >> [strout,ok,mess]=resolve(str,substr,val)
+%   >> [ok,mess,strout]=resolve_str(str,substr,val)
 %
 % Input:
 % ------

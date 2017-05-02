@@ -23,14 +23,16 @@ function varargout=docify(varargin)
 %
 % Format of meta documentation
 % ----------------------------
-% The parser skips over leading comment lines, that is, a contiguous set of
-% lines beginning with '%' until a meta documentation block is found, as
-% defined below. The leading comment line before the meta documentation block
-% will be replaced by documentation constructed that meta documentation block,
-% if one is found.
+% Immediately following the definition lines starting with 'classdef',
+% 'properties', 'methods' or 'function', the parser skips over leading comment
+% lines, that is, a contiguous set of lines beginning with '%' until a meta
+% documentation block is found, as defined below. If one or more such blocks
+% are found, the leading comment lines before the first meta documentation
+% block will be replaced by documentation constructed from the meta
+% documentation blocks that follow.
 %
 % A meta documentation block is a set of comment lines before any executable
-% with the form:
+% code with the form:
 %   % <#doc_beg:>
 %   %   :
 %   % <#doc_end:>
@@ -42,6 +44,13 @@ function varargout=docify(varargin)
 %   % <#doc_beg:>
 %   %   :
 %   % <#doc_end:>
+%
+% which contain argument definitions, conditional blocks of documentation,
+% further files of meta documentation to be read etc. from which the actual
+% comment lines will be constructed. More than one such block can appear in
+% the leading comment block; any comment lines between the blocks (or
+% following the last block) are ignored when constructing the replacement
+% comment lines ahead of the first meta documentation block.
 %
 % The optional section between <#doc_def:> and <#doc_beg:> will contain the
 % values of substitution strings and/or values of logical flags that select
@@ -90,8 +99,8 @@ function varargout=docify(varargin)
 %
 %
 % - Any file that will be read is assumed to be a documentation file, which
-%   means that it can only contain leading matlab comment lines and the
-%   meta-documentation block. No following lines are permitted.
+%   means that it can only contain leading matlab comment lines and
+%   meta-documentation blocks. No following lines are permitted.
 %       - The <#doc_end:> is optional (it is assumed to be at the end of the
 %         file, as this is the only place it can occur).
 %       - The <#doc_beg:> is optional - if not given it is assumed to be at
@@ -162,7 +171,7 @@ function varargout=docify(varargin)
 %       % <#doc_end:>
 %
 %
-% (5) Except in the top level file, lines beginning with a keyword 
+% (5) Except in the top level file, lines beginning with a keyword
 %   e.g. <#doc_beg:> or <#file:> do not need to start with '%' - this is
 %   purely optional. The same is true of block names. For example
 %       % <#doc_def:>
@@ -196,7 +205,7 @@ function varargout=docify(varargin)
 %   or
 %       <var_name>
 %   will be substituted by that cell array of strings. Any strings in that
-%   cell array that do not begin with '%' have '% ' appended at the front.
+%   cell array that do not begin with '%' have '% ' added at the front.
 
 
 % T.G.Perring   03 November 2016  Original version modified to work on directories
@@ -204,8 +213,8 @@ function varargout=docify(varargin)
 
 % Parse input
 % ------------
-keyval_def = struct('recurse',false,'key',{{}},'list',2);
-flagnames = {'recurse'};
+keyval_def = struct('recursive',false,'key',{{}},'list',2);
+flagnames = {'recursive'};
 opt=struct('prefix','-','prefix_req',true);
 [pars,keyval] = parse_arguments (varargin, keyval_def, flagnames, opt);
 
@@ -245,7 +254,7 @@ report = {};
 
 % Loop over all directories
 % --------------------------
-if span_directory && keyval.recurse
+if span_directory && keyval.recursive
     directories=dir_name_list(directory,'','.svn');    % skip svn work folders
     for i=1:numel(directories)
         sub_directory=directories{i};
@@ -274,7 +283,7 @@ if span_directory
     end
 else
     [ok,mess,file_full_in,changed,file_full_out] = ...
-        docify_single(file_in, file_out, keyval.key);
+        docify_single(file_in,file_out,keyval.key);
     report = [report;...
         make_report(ok,mess,file_full_in,changed,file_full_out,keyval.list)];
 end
@@ -300,7 +309,7 @@ end
 
 % Create report
 report={};
-if n==1
+if n<=1
     if ok && changed
         report = {file_full_in};
     elseif ~ok
@@ -317,11 +326,14 @@ else
         if n==2
             report = {['***ERROR: ',file_full_in]};
         else
-            report = [{['***ERROR: ',file_full_in]}; mess];
+            report = [{['***ERROR: ',file_full_in]}; mess; {' '}];
         end
     end
 end
 
-for i=1:numel(report)
-    if ~isempty(report{i}), disp(report{i}), end
+% Display to screen if n>0
+if n>0
+    for i=1:numel(report)
+        if ~isempty(report{i}), disp(report{i}), end
+    end
 end

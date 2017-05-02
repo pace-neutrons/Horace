@@ -56,7 +56,7 @@ else
 end
 
 % Check input data
-class_name = obj.wrapfun_.dataset_class;
+class_name = obj.dataset_class_;
 [ok, mess, ndim, w] = is_valid_data (class_name, args{:});
 if ~ok, error(mess), end
 if ~isempty(id) && numel(w)~=1  % case of replacing a single dataset

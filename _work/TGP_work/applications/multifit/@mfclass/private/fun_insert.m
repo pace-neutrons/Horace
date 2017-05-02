@@ -33,7 +33,7 @@ function obj = fun_insert (obj_in, isfore, ind, varargin)
 if nargin==3
     n = numel(ind);
     fun = repmat({[]},1,n);
-    pin = repmat({[]},1,n);
+    pin = repmat(mfclass_plist(),1,n);
     np = zeros(1,n);
 else
     n = numel(varargin{1});

@@ -84,8 +84,8 @@ if npptot==0 && ok_fit
     ok_fit = false; mess = 'There are no parameters in any of the fitting function(s)';
 end
 
-pp0 = [zeros(0,1); cell2mat(cellfun(@parameter_get,obj.pin_,'UniformOutput',false)');...     % enforce [0,1] if pin_,bpin_ empty
-    cell2mat(cellfun(@parameter_get,obj.bpin_,'UniformOutput',false)')];
+pp0 = [zeros(0,1); cell2mat(arrayfun(@(x)x.p,obj.pin_,'UniformOutput',false))';...     % enforce [0,1] if pin_,bpin_ empty
+    cell2mat(arrayfun(@(x)x.p,obj.bpin_,'UniformOutput',false))'];
 free = (obj.free_ & ~obj.bound_);   % the variable free means 'independent and floating'
 if all(~free) && ok_fit
     ok_fit = false; mess = 'Every parameter is either bound or fixed - therefore no parameters to fit';

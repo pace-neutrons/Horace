@@ -1,23 +1,23 @@
-function [str,cellstr,log]=Ssplit(S)
+function [str_struct, cell_struct, log_struct] = Ssplit (S)
 % Split structure into structures according to field content types
 %
-%   >> [substr,subcell,block]=Ssplit(S)
+%   >> [str, cellstr, log] = Ssplit (S)
 %
 % Input:
 % ------
-%   S       Structure whose fields are the names of variables and their
-%          values.
-%           The format of the definitions block constrains variables to have
-%          values that are one of:
-%               - logical 0 or 1,
-%               - a string
-%               - a cell array of strings
+%   S           Structure whose fields are the names of variables and their
+%              values.
+%               The format of the definitions block constrains variables to have
+%              values that are one of:
+%                   - logical 0 or 1,
+%                   - a string
+%                   - a cell array of strings
 %
 % Output:
 % -------
-%   substr  Structure whose fields contain strings.
-%   subcell Structure whose fields contain cellarrays of strings.
-%   block   Structure with logical scalars
+%   str_struct  Structure whose fields contain strings.
+%   cell_struct Structure whose fields contain cellarrays of strings.
+%   log_struct  Structure with logical scalars
 
 Snam=fieldnames(S);
 istr=false(size(Snam));
@@ -37,6 +37,6 @@ for i=1:numel(Snam)
     end
 end
 
-str=rmfield(S,Snam(~istr));
-cellstr=rmfield(S,Snam(~icell));
-log=rmfield(S,Snam(~ilog));
+str_struct=rmfield(S,Snam(~istr));
+cell_struct=rmfield(S,Snam(~icell));
+log_struct=rmfield(S,Snam(~ilog));

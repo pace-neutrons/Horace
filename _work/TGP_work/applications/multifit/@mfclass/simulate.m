@@ -82,13 +82,13 @@ if ok
     end
 end
 if ~ok
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Check that there is data present
 if obj.ndatatot_ == 0
     ok = false; mess = 'No data has been provided for simulation';
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Check that all functions are present
@@ -96,34 +96,31 @@ foreground_present = ~all(cellfun(@isempty,obj.fun_));
 background_present = ~all(cellfun(@isempty,obj.bfun_));
 if ~foreground_present && ~background_present
     ok = false; mess = 'No fit functions have been provided';
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Mask the data
 [wmask, msk_out, ok, mess] = mask_data_for_fit (obj.w_, obj.msk_);
 if ~ok
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Check that the parameters are OK, and for chisqr calculation that the data is fittable
-[ok_sim, ok_fit, mess, pfin, p_info] = ptrans_initialise_ (obj);
+[ok_sim, ~, mess, pfin, p_info] = ptrans_initialise_ (obj);
 if ~ok_sim
     ok = false;
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 if numel(args)==1
     [pfin,ok_sim,mess] = ptrans_par_inverse(args{1}, p_info);
     if ~ok_sim
         ok = false;
-        if throw_error, error_message(mess), else return, end
+        if throw_error, error_message(mess), else, return, end
     end
 end
 
 % Now simulate the data
-func_init = obj.wrapfun_.func_init;
-bfunc_init = obj.wrapfun_.bfunc_init;
-
 xye = cellfun(@isstruct, obj.w_);
 f_pass_caller = obj.wrapfun_.f_pass_caller;
 bf_pass_caller = obj.wrapfun_.bf_pass_caller;
@@ -131,13 +128,11 @@ selected = obj.options_.selected;
 
 if selected
     % Get wrapped functions and parameters after performing initialisation if required
-    [ok, mess, func_init_output_args, bfunc_init_output_args] = ...
-        create_init_func_args (func_init, bfunc_init, wmask);
+    [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
+        wrap_functions_and_parameters (obj.wrapfun_, wmask, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
     if ~ok
-        if throw_error, error_message(mess), else return, end
+        if throw_error, error_message(mess), else, return, end
     end
-    [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj,...
-        func_init_output_args, bfunc_init_output_args);
     
     % Now compute output
     wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
@@ -147,13 +142,11 @@ if selected
     
 else
     % Get wrapped functions and parameters after performing initialisation if required
-    [ok, mess, func_init_output_args, bfunc_init_output_args] = ...
-        create_init_func_args (func_init, bfunc_init, obj.w_);
+    [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
+        wrap_functions_and_parameters (obj.wrapfun_, obj.w_, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
     if ~ok
-        if throw_error, error_message(mess), else return, end
+        if throw_error, error_message(mess), else, return, end
     end
-    [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj,...
-        func_init_output_args, bfunc_init_output_args);
     
     % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...

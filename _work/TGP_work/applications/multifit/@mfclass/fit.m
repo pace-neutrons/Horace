@@ -69,7 +69,7 @@ end
 % Check that there is data present
 if obj.ndatatot_ == 0
     ok = false; mess = 'No data has been provided for fitting';
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Check that all functions are present
@@ -77,32 +77,27 @@ foreground_present = ~all(cellfun(@isempty,obj.fun_));
 background_present = ~all(cellfun(@isempty,obj.bfun_));
 if ~foreground_present && ~background_present
     ok = false; mess = 'No fit functions have been provided';
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Mask the data
 [wmask, msk_out, ok, mess] = mask_data_for_fit (obj.w_, obj.msk_);
 if ~ok
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Check that there are parameters and unmasked data to be fitted
 [~, ok, mess, pfin, p_info] = ptrans_initialise_ (obj);
 if ~ok
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Get wrapped functions and parameters after performing initialisation if required
-func_init = obj.wrapfun_.func_init;
-bfunc_init = obj.wrapfun_.bfunc_init;
-
-[ok, mess, func_init_output_args, bfunc_init_output_args] = ...
-    create_init_func_args (func_init, bfunc_init, wmask);
+[ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
+    wrap_functions_and_parameters (obj.wrapfun_, wmask, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
 if ~ok
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
-[fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj,...
-    func_init_output_args, bfunc_init_output_args);
 
 % Now fit the data
 xye = cellfun(@isstruct, obj.w_);
@@ -116,7 +111,7 @@ perform_fit = true;
     multifit_lsqr (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
     f_pass_caller, bf_pass_caller, pfin, p_info, listing, fcp, perform_fit);
 if ~ok
-    if throw_error, error_message(mess), else return, end
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Evaluate the data at the fitted parameter values
@@ -150,13 +145,11 @@ if selected
 else
     % Need to re-initialise because data is unmasked i.e. not the same as fitted
     % (if there is no initialisation to be done, then cheap call)
-    [ok, mess, func_init_output_args, bfunc_init_output_args] = ...
-        create_init_func_args (func_init, bfunc_init, obj.w_);
+    [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
+        wrap_functions_and_parameters (obj.wrapfun_, obj.w_, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
     if ~ok
-        if throw_error, error_message(mess), else return, end
+        if throw_error, error_message(mess), else, return, end
     end
-    [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = get_wrapped_functions_ (obj,...
-        func_init_output_args, bfunc_init_output_args);
     
     % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...

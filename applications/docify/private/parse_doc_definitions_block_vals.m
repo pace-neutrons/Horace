@@ -1,8 +1,8 @@
-function [S, ok, mess] = parse_doc_definitions_block_vals (cstr)
+function [ok, mess, S] = parse_doc_definitions_block_vals (cstr)
 % Run the definition block to get the variable values as contained in the block
 % Need to parse argument values like '#1' elsewhere
 %
-%   >> [S, ok, mess] = parse_doc_definitions_block_vals (cstr)
+%   >> [ok, mess, S] = parse_doc_definitions_block_vals (cstr)
 %
 % Input:
 % ------
@@ -21,15 +21,15 @@ function [S, ok, mess] = parse_doc_definitions_block_vals (cstr)
 %
 % Output:
 % -------
+%   ok      If all OK, then true; otherwise false
+%
+%   mess    Error message if not OK; empty if all OK
+%
 %   S       Structure whose fields are the names of variables and their
 %          values. Fields can be:
 %               - string
 %               - cell array of strings (column vector)
 %               - logical true or false (retain value for blocks)
-%
-%   ok      If all OK, then true; otherwise false
-%
-%   mess    Error message if not OK; empty if all OK
 
 
 % Initialise output objects
