@@ -17,16 +17,13 @@ function [table, t_av, fwhh, profile, buffer_out, pars_out] = ...
 %   buffer_in   Buffer of moderator sampling information. See the help to
 %               moderator_sampling_table_in_mem for details
 %
-%   pars_in     Arguments needed by the fit function. Most commonly, a vector of parameter
-%              values e.g. [A,js,gam] as intensity, exchange, lifetime. If a more general
-%              set of parameters is required by the function, then
-%              package these into a cell array and pass that as pars. In the example
-%              above then pars = {p, c1, c2, ...} 
+%   pars_in     Numeric vector of parameter values e.g. [A,js,gam] as intensity,
+%              exchange, lifetime.
 %
 % Output:
 % -------
 %   table       Lookup table for the input moderator (column vector)
-%   t_av        First momnet (seconds, NOT microseconds)
+%   t_av        First moment (seconds, NOT microseconds)
 %   fwhh        Full width half height (seconds, NOT microseconds)
 %   profile     Profile lookup (column vector)
 %   buffer_out  Buffer structure updated to hold new entries
@@ -35,10 +32,8 @@ function [table, t_av, fwhh, profile, buffer_out, pars_out] = ...
 
 % Strip out moderator refinement parameters
 npmod = numel(modshape.pin);
-dummy_mfclass = mfclass;
-ptmp = mfclass_gateway_parameter_get(dummy_mfclass, pars_in);
-pars_out = mfclass_gateway_parameter_set(dummy_mfclass, pars_in, ptmp(1:end-npmod));
-pp = ptmp(end-npmod+1:end);
+pars_out = pars_in(1:end-npmod);
+pp = pars_in(end-npmod+1:end);
 
 % Get moderator lookup table for current moderator parameters
 [table,t_av,fwhh,profile,buffer_out] = ...
