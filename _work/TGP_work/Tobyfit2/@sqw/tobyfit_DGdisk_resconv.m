@@ -188,12 +188,12 @@ for i=1:numel(ind)
     % Catch case of refining crystal orientation
     if refine_crystal
         % Strip out crystal refinement parameters
-        [win(i), pars] = refine_crystal_strip_pars (win(i), xtal, pars);
+        [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
         
     elseif refine_moderator
         % Strip out moderator refinement parameters
-        [mod_table_refine, mod_t_av_refine, ~, mod_profile_refine, store_out, pars] = ...
-            refine_moderator_strip_pars (modshape, store_in, pars);
+        [mod_table_refine, mod_t_av_refine, ~, mod_profile_refine, store_out, pars{1}] = ...
+            refine_moderator_strip_pars (modshape, store_in, pars{1});
     end
     
     qw = calculate_qw_pixels(win(i));   % get qw *after* changing crystal orientation

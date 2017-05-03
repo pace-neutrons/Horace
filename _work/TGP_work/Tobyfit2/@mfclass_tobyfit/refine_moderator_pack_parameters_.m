@@ -1,7 +1,7 @@
 function [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj)
 % Alter the foreground function parameter, free/fix and bindings arguments for moderator refinement
 %
-%   >> [ok, mess, obj, modshape] = refine_moderator_pack_parameters (obj)
+%   >> [ok, mess, obj, modshape] = refine_moderator_pack_parameters_ (obj)
 %
 % Input:
 % ------
@@ -43,13 +43,16 @@ end
 
 % Get the foreground parameters
 fun0 = obj.fun;
-pin0 = obj.pin;
+pin0_obj = obj.pin_obj;
 free0 = obj.free;
 bind0 = obj.bind;
 
 % Append moderator refinement parameter values
-dummy_mfclass = mfclass;
-pin = cellfun (@(x)append_parameters(dummy_mfclass,x,mod_opts.pin), pin0, 'UniformOutput', false);
+pin_obj = pin0_obj;
+for i=1:numel(pin0_obj)
+    pin_obj.p = [pin0_obj.p, mod_opts.pin];
+end
+pin = arrayfun(@(x)x.plist,pin_obj,'UniformOutput',false);
 
 % Append fix/free status of crystal refinement parameters
 free = cellfun (@(x)[x,mod_opts.free], free0, 'UniformOutput', false);
@@ -77,9 +80,3 @@ modshape.ei = efix;
 
 ok = true;
 mess = '';
-
-
-%----------------------------------------------------------------------------------------
-function pout = append_parameters (dummy_mfclass, pin, p_append)
-p = [mfclass_gateway_parameter_get(dummy_mfclass, pin); p_append(:)];
-pout = mfclass_gateway_parameter_set(dummy_mfclass, pin, p);

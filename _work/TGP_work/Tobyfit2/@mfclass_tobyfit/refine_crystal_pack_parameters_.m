@@ -48,21 +48,24 @@ end
 
 % Get the foreground parameters
 fun0 = obj.fun;
-pin0 = obj.pin;
+pin0_obj = obj.pin_obj;
 free0 = obj.free;
 bind0 = obj.bind;
 
 % Append crystal refinement parameter values
 opt_pars = [xtal_opts.alatt, xtal_opts.angdeg, xtal_opts.rot];
-dummy_mfclass = mfclass;
-pin = cellfun (@(x)append_parameters(dummy_mfclass,x,opt_pars), pin0, 'UniformOutput', false);
+pin_obj = pin0_obj;
+for i=1:numel(pin0_obj)
+    pin_obj.p = [pin0_obj.p, opt_pars];
+end
+pin = arrayfun(@(x)x.plist,pin_obj,'UniformOutput',false);
 
 % Append fix/free status of crystal refinement parameters
 free = cellfun (@(x)[x,xtal_opts.free], free0, 'UniformOutput', false);
 
 % Alter bindings
 % All the refinement parameters are bound to the first foreground function values
-% The only complication is if the  ratios of the lattice parameters are fixed.
+% The only complication is if the ratios of the lattice parameters are fixed.
 np = obj.np;
 nfun = numel(obj.fun);
 npadd = numel(opt_pars);
@@ -87,9 +90,3 @@ xtal.ub0 = ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt0,angdeg0));
 
 ok = true;
 mess = '';
-
-
-%----------------------------------------------------------------------------------------
-function pout = append_parameters (dummy_mfclass, pin, p_append)
-p = [mfclass_gateway_parameter_get(dummy_mfclass, pin); p_append(:)];
-pout = mfclass_gateway_parameter_set(dummy_mfclass, pin, p);

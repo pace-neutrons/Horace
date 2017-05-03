@@ -12,24 +12,26 @@ function mf_object = tobyfit2 (varargin)
 %       'fermi'     Direct geometry fermi chopper instrument e.g. MAPS, MERLIN
 %       'disk'      Direct geometry disk chopper instrument e.g. LET
 %
-% This creates a fitting object of class mfclass_tobyfit with the provided data,
-% which can then be manipulated to add further data, set the fitting
+% This creates a fitting object of class mfclass_Tobyfit with the provided
+% data, which can then be manipulated to add further data, set the fitting
 % functions, initial parameter values etc. and fit or simulate the data.
-% For details <a href="matlab:doc('mfclass_tobyfit');">Click here</a>
+% For details <a href="matlab:doc('mfclass_Tobyfit');">Click here</a>
 %
 % This method fits model(s) for S(Q,w) as the foreground function(s), and
 % function(s) of the plot axes as the background function(s)
 %
 % For the format of foreground fit functions:
 % <a href="matlab:doc('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
-% <a href="matlab:doc('example_sqw_background');">Click here</a> (Background)
+% <a href="matlab:doc('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
 %
-% For the format of background fit functions:
+% The format of the background fit functions depends on the mnumber of plot
+% axes for each sqw object. For examples:
 % <a href="matlab:doc('example_1d_function');">Click here</a> (1D example)
 % <a href="matlab:doc('example_2d_function');">Click here</a> (2D example)
+% <a href="matlab:doc('example_3d_function');">Click here</a> (3D example)
 
 
-% Get model type
+% Get resolution function model type
 if numel(varargin)>1 && ischar(varargin{end})
     valid_models = {'fermi','disk'};
     ind = strncmpi(varargin{end},valid_models,length(varargin{end}));
@@ -46,14 +48,14 @@ end
 
 % Initialise
 if strcmp(model,'fermi')
-    mf_init = mfclass_wrapfun ('sqw', @tobyfit_DGfermi_resconv, [], @func_eval, [],...
+    mf_init = mfclass_wrapfun (@tobyfit_DGfermi_resconv, [], @func_eval, [],...
         true, false, @tobyfit_DGfermi_resconv_init, []);
 elseif strcmp(model,'disk')
-    mf_init = mfclass_wrapfun ('sqw', @tobyfit_DGdisk_resconv, [], @func_eval, [],...
+    mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
         true, false, @tobyfit_DGdisk_resconv_init, []);
 else
     error('Logic error. See Toby Perring.')
 end
 
 % Construct
-mf_object = mfclass_tobyfit (mf_init, varargin{1:narg});
+mf_object = mfclass_tobyfit (varargin{1:narg}, 'sqw', mf_init);

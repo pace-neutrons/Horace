@@ -27,7 +27,7 @@ function obj = set_mc_contributions (obj, varargin)
 
 
 % Get the possible contributions
-[~,~,mc_contr]=obj.wrapfun_.func_init();
+[~,~,mc_contr]=obj.wrapfun.func_init();
 
 % Now parse input
 [mc_contributions,ok,mess] = mc_contributions_parse (mc_contr,varargin{:});
