@@ -153,16 +153,16 @@ classdef mfclass_plist
                 else
                     tmp = pwrap;
                 end
-                objnew.plist_ = plist_wrap (tmp.plist_, tmp.p_present, func, obj.plist_);
+                objnew.plist_ = wrap (tmp.plist_, tmp.p_present, func, obj.plist_);
             else
                 error('Check the input arguments')
             end
         end
         
-        function objnew = append (obj, varargin)
+        function objnew = append_args (obj, varargin)
             % Appends arguments to the top level parameter list
             %
-            %   >> objnew = obj.append (d1, d2, ...)
+            %   >> objnew = obj.append_args (d1, d2, ...)
             %
             % Converts the parameter list {p, c1, c2,..} into {p, c1, c2,..., d1, d2,...}
             % Note that if the numeric parameter list p and c1, c2,... are missing, then if
@@ -177,10 +177,10 @@ classdef mfclass_plist
             end
         end
         
-        function objnew = prepend (obj, varargin)
+        function objnew = prepend_args (obj, varargin)
             % Prepends arguments to the top level parameter list
             %
-            %   >> objnew = obj.prepend (d1, d2, ...)
+            %   >> objnew = obj.prepend_args (d1, d2, ...)
             %
             % Converts the parameter list {p, c1, c2,..} into {p, d1, d2,..., c1, c2,...}
             % Note that if the numeric parameter list p is missing, then if d1 is a numeric
@@ -312,14 +312,14 @@ end
 end
 
 %--------------------------------------------------------------------------------------------------
-function plistnew = plist_wrap (pwrap, p_present, func, plist)
+function plistnew = wrap (pwrap, p_present, func, plist)
 % Wrap a parameter list within another parameter list.
 %
-%   >> plistnew = plist_wrap (pwrap, p_present, func, plist)
+%   >> plistnew = wrap (pwrap, p_present, func, plist)
 
 if iscell(pwrap) && isrowvector(pwrap) && numel(pwrap)>=2 && isa(pwrap{1},'function_handle')
     % Nested parameter list
-    plistnew = {pwrap{1}, plist_wrap(pwrap{2},p_present,func,plist), pwrap{3:end}};
+    plistnew = {pwrap{1}, wrap(pwrap{2},p_present,func,plist), pwrap{3:end}};
 else
     % Base parameter list
     if iscell(pwrap) && isrowvector(pwrap) && numel(pwrap)>=1

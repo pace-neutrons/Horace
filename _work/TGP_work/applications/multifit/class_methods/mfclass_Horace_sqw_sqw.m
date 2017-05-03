@@ -283,8 +283,8 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             obj_tmp = obj;
             if obj.average && strcmp(obj.dataset_class,'sqw')
                 wrapfun = obj.wrapfun;
-                wrapfun.p_wrap = append (wrapfun.p_wrap, 'ave');
-                wrapfun.bp_wrap = append (wrapfun.bp_wrap, 'ave');
+                wrapfun.p_wrap = append_args (wrapfun.p_wrap, 'ave');
+                wrapfun.bp_wrap = append_args (wrapfun.bp_wrap, 'ave');
                 obj_tmp.wrapfun = wrapfun;
             end
 
@@ -358,8 +358,8 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             obj_tmp = obj;
             if obj.average && strcmp(obj.dataset_class,'sqw')
                 wrapfun = obj.wrapfun;
-                wrapfun.p_wrap = append (wrapfun.p_wrap, 'ave');
-                wrapfun.bp_wrap = append (wrapfun.bp_wrap, 'ave');
+                wrapfun.p_wrap = append_args (wrapfun.p_wrap, 'ave');
+                wrapfun.bp_wrap = append_args (wrapfun.bp_wrap, 'ave');
                 obj_tmp.wrapfun = wrapfun;
             end
             [data_out, calcdata, ok, mess] = fit@mfclass (obj_tmp);

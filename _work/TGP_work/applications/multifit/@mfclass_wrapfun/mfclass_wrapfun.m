@@ -433,7 +433,7 @@ if any(f_present(:))
     if ~isempty(fun_wrap)
         % Wrap the non-empty functions
         fun_out(f_present) = {fun_wrap};
-        p_wrap = prepend(p_wrap, f_init_args{:});
+        p_wrap = prepend_args(p_wrap, f_init_args{:});
         for i=1:numel(fun)
             if f_present(i)
                 p_out(i) = wrap(p(i), fun{i}, p_wrap);
@@ -443,7 +443,7 @@ if any(f_present(:))
         % Prepend initial arguments to non-empty function parameter lists
         for i=1:numel(fun)
             if f_present(i)
-                p_out(i) = prepend(p(i), f_init_args{:});
+                p_out(i) = prepend_args(p(i), f_init_args{:});
             end
         end
     end

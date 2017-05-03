@@ -229,7 +229,7 @@ function plist_cell = plist_update (plist, pnew)
 tmp=plist;
 tmp.p=reshape(pnew,size(plist.p));  % ensure same orientation
 if iscell(tmp.plist)
-    plist_cell=tmp.plist;           % case of {p,c1,c2,...}. {c1,c2,...} or {} (see mfclass_plist)
+    plist_cell=tmp.plist;           % case of {@func,plist,c1,c2,...}, {p,c1,c2,...}, {c1,c2,...} or {}
 else
     plist_cell={tmp.plist};         % catch case of p or c1<0> (see mfclass_plist)
 end

@@ -82,7 +82,7 @@ else
             end
         end
     else
-        plist = repmat({mfclass_plist(plist_in)}, size(func));
+        plist = repmat(mfclass_plist(plist_in), size(func));
         empty_func = cellfun(@(x)isempty(x), func);
         if any(empty_func(:)) && ~isempty(plist)
             ok=false;

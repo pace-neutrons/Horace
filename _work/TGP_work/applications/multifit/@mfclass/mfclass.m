@@ -265,7 +265,7 @@ classdef mfclass
         % functions parameters (more than one function)(row vector)
         %
         % The form of a parameter list is
-        pin
+        pin     % cell array of pin(1).plist, so can be fed into set_fun
         free
         bind
 
@@ -283,7 +283,7 @@ classdef mfclass
         % one handle per dataset. If a function is not given for a dataset, the
         % corresponding handle is set to [].
         bfun
-        bpin
+        bpin    % cell array of bpin(1).plist, so can be fed into set_fun
         bfree
         bbind
 
@@ -305,7 +305,9 @@ classdef mfclass
 
         dataset_class   % data class
         ndatatot        % total number of datasets
+        pin_obj         % pin returned as array of mfclass_plist objects
         np              % number of parameters in each foreground function
+        bpin_obj        % bpin returned as array of mfclass_plist objects
         nbp             % number of parameters in each background function
         wrapfun         % function wrapping object
     end
@@ -483,7 +485,7 @@ classdef mfclass
         end
 
         function out = get.pin(obj)
-            out = obj.pin_;
+            out = arrayfun(@(x)x.plist,obj.pin_,'UniformOutput',false);
         end
 
         function out = get.free(obj)
@@ -522,7 +524,7 @@ classdef mfclass
         end
 
         function out = get.bpin(obj)
-            out = obj.bpin_;
+            out = arrayfun(@(x)x.plist,obj.bpin_,'UniformOutput',false);
         end
 
         function out = get.bfree(obj)
@@ -592,8 +594,16 @@ classdef mfclass
             out = obj.ndatatot_;
         end
 
+        function out = get.pin_obj(obj)
+            out = obj.pin_;
+        end
+
         function out = get.np(obj)
             out = obj.np_;
+        end
+
+        function out = get.bpin_obj(obj)
+            out = obj.bpin_;
         end
 
         function out = get.nbp(obj)
