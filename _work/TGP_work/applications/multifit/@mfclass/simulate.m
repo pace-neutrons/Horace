@@ -52,6 +52,13 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 %
 % If ok is not a return argument, then if ok is false an error will be thrown.
 
+% <#doc_def:>
+%   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+%   simulate_intro = fullfile(mfclass_doc,'simulate_intro.m')
+% <#doc_beg:> multifit
+%   <#file:> <simulate_intro>
+% <#doc_end:>
+
 
 % Default return values if there is an error
 data_out = [];
@@ -133,13 +140,13 @@ if selected
     if ~ok
         if throw_error, error_message(mess), else, return, end
     end
-    
+
     % Now compute output
     wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         f_pass_caller, bf_pass_caller, pfin, p_info, foreground_eval, background_eval);
     squeeze_xye = obj.options_.squeeze_xye;
     data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
-    
+
 else
     % Get wrapped functions and parameters after performing initialisation if required
     [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
@@ -147,14 +154,14 @@ else
     if ~ok
         if throw_error, error_message(mess), else, return, end
     end
-    
+
     % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         f_pass_caller, bf_pass_caller, pfin, p_info, foreground_eval, background_eval);
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
     data_out = repackage_output_datasets (obj.data_, wout, msk_none, squeeze_xye);
-    
+
 end
 
 % Package output fit results

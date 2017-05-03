@@ -1,10 +1,10 @@
-classdef mfclass_IX_dataset_nd < mfclass
+classdef mfclass_IX_dataset_1d < mfclass
     % Simultaneously fit functions to several datasets, with optional
     % background functions. The foreground function(s) and background
     % function(s) can be set to apply globally to all datasets, or locally,
     % one function per dataset.
     %
-    % mfclass_IX_dataset_nd Methods:
+    % mfclass_IX_dataset_1d Methods:
     %
     % To set data:
     %   set_data     - Set data, clearing any existing datasets
@@ -47,7 +47,7 @@ classdef mfclass_IX_dataset_nd < mfclass
     %   fit          - Fit data
     %   simulate     - Simulate datasets at the initial parameter values
     %
-    % Fiting and other options:
+    % Fit control parameters and other options:
     %   set_options  - Set options
     %   get_options  - Get values of one or more specific options
 
@@ -56,7 +56,7 @@ classdef mfclass_IX_dataset_nd < mfclass
     %   mfclass_purpose_summary_file = fullfile(mfclass_doc,'purpose_summary.m')
     %   mfclass_methods_summary_file = fullfile(mfclass_doc,'methods_summary.m')
     %
-    %   class_name = 'mfclass_IX_dataset_nd'
+    %   class_name = 'mfclass_IX_dataset_1d'
     %
     % <#doc_beg:> multifit
     %   <#file:> <mfclass_purpose_summary_file>
@@ -70,7 +70,7 @@ classdef mfclass_IX_dataset_nd < mfclass
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = mfclass_IX_dataset_nd (varargin)
+        function obj = mfclass_IX_dataset_1d (varargin)
             obj@mfclass(varargin{:});
         end
 
@@ -92,21 +92,20 @@ classdef mfclass_IX_dataset_nd < mfclass
             %   >> obj = obj.set_fun (ifun, @fhandle, pin,...)    % ifun can be scalar or row vector
             %
             %
-            % Form of fit functions
-            % ----------------------
+            % Form of foreground fit functions
+            % --------------------------------
+            %   function ycalc = my_function (x,p)
             %
-            %       ycalc = my_function (x,p)
+            % or, more generally:
+            %   function ycalc = my_function (x,p,c1,c2,...)
             %
-            %     or, more generally:
-            %       ycalc = my_function (x,p,c1,c2,...)
-            %
-            %     where
-            %       - x         x values of points
-            %       - p         A vector of numeric parameters that define the
-            %                  function (e.g. [A,x0,w] as area, position and
-            %                  width of a peak)
-            %       - c1,c2,... Any further arguments needed by the function (e.g.
-            %                  they could be the filenames of lookup tables)
+            % where
+            %   x           Array of x values
+            %   p           A vector of numeric parameters that define the
+            %              function (e.g. [A,x0,w] as area, position and
+            %              width of a peak)
+            %   c1,c2,...   Any further arguments needed by the function (e.g.
+            %              they could be the filenames of lookup tables)
             %
             %     See <a href="matlab:doc('example_1d_function');">example_1d_function</a>
 
@@ -115,16 +114,14 @@ classdef mfclass_IX_dataset_nd < mfclass
             %   set_fun_intro = fullfile(mfclass_doc,'set_fun_intro.m')
             %   set_fun_xye_function_form = fullfile(mfclass_doc,'set_fun_xye_function_form.m')
             %
-            %   class_name = 'mfclass_IX_dataset_nd'
             %   x_arg = 'x'
-            %   x_descr = 'x         x values of points'
+            %   x_descr = 'x           Array of x values'
             %
             % <#doc_beg:> multifit
             %   <#file:> <set_fun_intro>
             %   <#file:> <set_fun_xye_function_form> <x_arg> <x_descr>
             %
             %     See <a href="matlab:doc('example_1d_function');">example_1d_function</a>
-
             % <#doc_end:>
 
             try
@@ -144,24 +141,23 @@ classdef mfclass_IX_dataset_nd < mfclass
             %   >> obj = obj.set_bfun (@fhandle, pin, 'free', free, 'bind', bind)
             %
             % Set a particular background function or set of background functions
-            %   >> obj = obj.set_fun (ifun, @fhandle, pin,...)    % ifun can be scalar or row vector
+            %   >> obj = obj.set_bfun (ifun, @fhandle, pin,...)    % ifun can be scalar or row vector
             %
             %
-            % Form of fit functions
-            % ----------------------
+            % Form of background fit functions
+            % --------------------------------
+            %   function ycalc = my_function (x,p)
             %
-            %       ycalc = my_function (x,p)
+            % or, more generally:
+            %   function ycalc = my_function (x,p,c1,c2,...)
             %
-            %     or, more generally:
-            %       ycalc = my_function (x,p,c1,c2,...)
-            %
-            %     where
-            %       - x         x values of points
-            %       - p         A vector of numeric parameters that define the
-            %                  function (e.g. [A,x0,w] as area, position and
-            %                  width of a peak)
-            %       - c1,c2,... Any further arguments needed by the function (e.g.
-            %                  they could be the filenames of lookup tables)
+            % where
+            %   x           Array of x values
+            %   p           A vector of numeric parameters that define the
+            %              function (e.g. [A,x0,w] as area, position and
+            %              width of a peak)
+            %   c1,c2,...   Any further arguments needed by the function (e.g.
+            %              they could be the filenames of lookup tables)
             %
             %     See <a href="matlab:doc('example_1d_function');">example_1d_function</a>
 
@@ -170,16 +166,14 @@ classdef mfclass_IX_dataset_nd < mfclass
             %   set_bfun_intro = fullfile(mfclass_doc,'set_bfun_intro.m')
             %   set_fun_xye_function_form = fullfile(mfclass_doc,'set_fun_xye_function_form.m')
             %
-            %   class_name = 'mfclass_IX_dataset_nd'
             %   x_arg = 'x'
-            %   x_descr = 'x         x values of points'
+            %   x_descr = 'x           Array of x values'
             %
             % <#doc_beg:> multifit
             %   <#file:> <set_bfun_intro>
             %   <#file:> <set_fun_xye_function_form> <x_arg> <x_descr>
             %
             %     See <a href="matlab:doc('example_1d_function');">example_1d_function</a>
-
             % <#doc_end:>
 
             try

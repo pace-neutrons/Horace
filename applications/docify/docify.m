@@ -213,7 +213,7 @@ function varargout=docify(varargin)
 
 % Parse input
 % ------------
-keyval_def = struct('recursive',false,'key',{{}},'list',2);
+keyval_def = struct('recursive',false,'key',{{}},'list',1);
 flagnames = {'recursive'};
 opt=struct('prefix','-','prefix_req',true);
 [pars,keyval] = parse_arguments (varargin, keyval_def, flagnames, opt);
@@ -276,63 +276,61 @@ if span_directory
     files = dir(fullfile(directory,'*.m'));
     for ifile = 1:length(files)
         fname = fullfile(directory,files(ifile).name);
-        [ok,mess,file_full_in,changed,file_full_out] = ...
-            docify_single(fname,'',keyval.key);
+        [ok,mess,file_full_in,changed] = docify_single(fname,'',keyval.key);
         report = [report;...
-            make_report(ok,mess,file_full_in,changed,file_full_out,keyval.list)];
+            make_report(ok,mess,file_full_in,changed,keyval.list)];
     end
 else
-    [ok,mess,file_full_in,changed,file_full_out] = ...
-        docify_single(file_in,file_out,keyval.key);
+    [ok,mess,file_full_in,changed] = docify_single(file_in,file_out,keyval.key);
     report = [report;...
-        make_report(ok,mess,file_full_in,changed,file_full_out,keyval.list)];
+        make_report(ok,mess,file_full_in,changed,keyval.list)];
 end
 
 if nargout>=1, varargout{1}=report; end
 
 
 %-----------------------------------------------------------------------------------------
-function report = make_report (ok, mess, file_full_in, changed, file_full_out, list)
+function report = make_report (ok, mess, file_full_in, changed, list)
 % Create a report and print to screen as requested
-% 	list    n=0 No listing to screen
-%           n=1 List changed files only, or if error
-%           n=2 list all checked files, and if error or not
-%           n=3 List all checked files and full traceback of errors
+% 	list    n=1 List changed files only, or if error (with full traceback)
+%           n=2 list all checked files, and any errors (with full traceback)
+%
+%           n>0 Print to screen
+%           n<0 Suppress output to screen
+
 
 % Get verbosity of listing
 if isnumeric(list) && isscalar(list)
     n = round(list);
-    if n<0, n=0; elseif n>3, n=3; end
+    if n<0, disp_to_screen=false; else disp_to_screen=true; end
+    n = abs(n);
+    if n<1, n=0; elseif n>2, n=2; end
 else
-    n = 3;
+    n = 2;
 end
 
 % Create report
 report={};
-if n<=1
+if n==1
     if ok && changed
         report = {file_full_in};
     elseif ~ok
-        report = {['***ERROR: ',file_full_in]};
+        report = [{['***ERROR: ',file_full_in]}; mess; {' '}];
     end
 else
     if ok
         if ~changed
-            report = {['Skipped: ',file_full_in]};
+            report = {['       : ',file_full_in]};
         else
             report = {['Changed: ',file_full_in]};
         end
-    elseif ~ok
-        if n==2
-            report = {['***ERROR: ',file_full_in]};
-        else
-            report = [{['***ERROR: ',file_full_in]}; mess; {' '}];
-        end
+    else
+        report = [{['***ERROR: ',file_full_in]}; mess; {' '}];
     end
 end
 
 % Display to screen if n>0
-if n>0
+if disp_to_screen
     for i=1:numel(report)
         if ~isempty(report{i}), disp(report{i}), end
     end

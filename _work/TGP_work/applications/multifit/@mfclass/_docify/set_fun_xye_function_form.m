@@ -4,16 +4,16 @@
 %       x_arg = '#1'
 %       x_descr = '#2'
 % <#doc_beg:>
-%       ycalc = my_function (<x_arg>,p)
+%   function ycalc = my_function (<x_arg>,p)
 %
-%     or, more generally:
-%       ycalc = my_function (<x_arg>,p,c1,c2,...)
+% or, more generally:
+%   function ycalc = my_function (<x_arg>,p,c1,c2,...)
 %
-%     where
-%       - <x_descr>
-%       - p         A vector of numeric parameters that define the
-%                  function (e.g. [A,x0,w] as area, position and
-%                  width of a peak)
-%       - c1,c2,... Any further arguments needed by the function (e.g.
-%                  they could be the filenames of lookup tables)
+% where
+%   <x_descr>
+%   p           A vector of numeric parameters that define the
+%              function (e.g. [A,x0,w] as area, position and
+%              width of a peak)
+%   c1,c2,...   Any further arguments needed by the function (e.g.
+%              they could be the filenames of lookup tables)
 % <#doc_end:>

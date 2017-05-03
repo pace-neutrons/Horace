@@ -39,6 +39,6 @@
 %   fit          - Fit data
 %   simulate     - Simulate datasets at the initial parameter values
 %
-% Fiting and other options:
+% Fit control parameters and other options:
 %   set_options  - Set options
 %   get_options  - Get values of one or more specific options

@@ -25,17 +25,21 @@ w2data=read_sqw(fullfile(test_dir,'data/w2data.sqw'));
 % independently. A constant background can also vary independently.
 
 
-
+% Make a big set of sqw objects
 nrep=50;
 win=[noisify(repmat(w1data,1,nrep),0.03),noisify(repmat(w2data,1,nrep),0.03)];
 
+
+% Original multifit
+% -----------------
 pin1 = [5,5,1.2,10,0];
 pin2 = [5,5,1.4,15,0];
 pin = [repmat({pin1},1,nrep),repmat({pin2},1,nrep)];
 
 % *** Profile this line ***
+timer = bigtic;
 [wfit_ref,fitpar_ref]=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0], @sqw_bcc_hfm, pin, [1,1,1,1,1], {{{1,1,0},{2,2,0}}});
-
+t_old = bigtoc(timer)
 
 
 
@@ -47,7 +51,9 @@ kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, pin);
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
 
+timer = bigtic;
 [wfit,fitdata,ok,mess] = kk.fit;
+t_old = bigtoc(timer)
 
 if~isequaln(wfit_ref,wfit), error('*** Oh dear! ***'), end
 

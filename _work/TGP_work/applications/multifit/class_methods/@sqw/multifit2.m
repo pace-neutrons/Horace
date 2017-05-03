@@ -3,15 +3,20 @@ function mf_object = multifit2 (varargin)
 %
 %   >> myobj = multifit2 (w1, w2, ...)      % w1, w2 objects or arrays of objects
 %
-% This creates a fitting object of class mfclass_sqw with the provided data,
+% This creates a fitting object of class mfclass_Horace with the provided data,
 % which can then be manipulated to add further data, set the fitting
 % functions, initial parameter values etc. and fit or simulate the data.
-% For details <a href="matlab:doc('mfclass_sqw');">Click here</a>
+% For details <a href="matlab:doc('mfclass_Horace');">Click here</a>
 %
-% This method fits function(s) of the plot axes as both the foreground and
-% the background function(s). For the format of the fit functions:
+% This method fits function(s) of the plot axes for both the foreground and
+% the background function(s). The format of the fit functions depends on 
+% the mnumber of plot axes for each sqw object. For examples:
 % <a href="matlab:doc('example_1d_function');">Click here</a> (1D example)
 % <a href="matlab:doc('example_2d_function');">Click here</a> (2D example)
+% <a href="matlab:doc('example_3d_function');">Click here</a> (3D example)
+%
+% See also multifit2_sqw multifit2_sqw_sqw
 
-mf_init = mfclass_wrapfun ('sqw', @func_eval, [], @func_eval, []);
-mf_object = mfclass_sqw (mf_init, varargin{:});
+
+mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
+mf_object = mfclass_Horace (varargin{:}, 'sqw', mf_init);

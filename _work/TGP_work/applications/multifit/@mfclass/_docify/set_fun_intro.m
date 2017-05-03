@@ -10,6 +10,5 @@
 %   >> obj = obj.set_fun (ifun, @fhandle, pin,...)    % ifun can be scalar or row vector
 %
 %
-% Form of fit functions
-% ----------------------
-%
+% Form of foreground fit functions
+% --------------------------------

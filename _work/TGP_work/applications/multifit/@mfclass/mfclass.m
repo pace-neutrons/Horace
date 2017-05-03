@@ -1,55 +1,55 @@
 classdef mfclass
-% Simultaneously fit functions to several datasets, with optional
-% background functions. The foreground function(s) and background
-% function(s) can be set to apply globally to all datasets, or locally,
-% one function per dataset.
-%
-% mfclass Methods:
-%
-% To set data:
-%   set_data     - Set data, clearing any existing datasets
-%   append_data  - Append further datasets to the current set of datasets
-%   remove_data  - Remove one or more dataset(s)
-%   replace_data - Replace one or more dataset(s)
-%
-% To mask data points:
-%   set_mask     - Mask data points
-%   add_mask     - Mask additional data points
-%   clear_mask   - Clear masking for one or more dataset(s)
-%
-% To set fitting functions:
-%   set_fun      - Set foreground fit functions
-%   set_bfun     - Set background fit functions
-%   clear_fun    - Clear one or more foreground fit functions
-%   clear_bfun   - Clear one or more background fit functions
-%
-% To set which parameters are fixed or free:
-%   set_free     - Set free or fix foreground function parameters
-%   set_bfree    - Set free or fix background function parameters
-%   clear_free   - Clear all foreground parameters to be free for one or more data sets
-%   clear_bfree  - Clear all background parameters to be free for one or more data sets
-%
-% To bind parameters:
-%   set_bind     - Bind foreground parameter values in fixed ratios
-%   set_bbind    - Bind background parameter values in fixed ratios
-%   add_bind     - Add further foreground function bindings
-%   add_bbind    - Add further background function bindings
-%   clear_bind   - Clear parameter bindings for one or more foreground functions
-%   clear_bbind  - Clear parameter bindings for one or more background functions
-%
-% To set functions as operating globally or local to a single dataset
-%   set_global_foreground - Specify that there will be a global foreground fit function
-%   set_global_background - Specify that there will be a global background fit function
-%   set_local_foreground  - Specify that there will be local foreground fit function(s)
-%   set_local_background  - Specify that there will be local background fit function(s)
-%
-% To fit or simulate:
-%   fit          - Fit data
-%   simulate     - Simulate datasets at the initial parameter values
-%
-% Fiting and other options:
-%   set_options  - Set options
-%   get_options  - Get values of one or more specific options
+    % Simultaneously fit functions to several datasets, with optional
+    % background functions. The foreground function(s) and background
+    % function(s) can be set to apply globally to all datasets, or locally,
+    % one function per dataset.
+    %
+    % mfclass Methods:
+    %
+    % To set data:
+    %   set_data     - Set data, clearing any existing datasets
+    %   append_data  - Append further datasets to the current set of datasets
+    %   remove_data  - Remove one or more dataset(s)
+    %   replace_data - Replace one or more dataset(s)
+    %
+    % To mask data points:
+    %   set_mask     - Mask data points
+    %   add_mask     - Mask additional data points
+    %   clear_mask   - Clear masking for one or more dataset(s)
+    %
+    % To set fitting functions:
+    %   set_fun      - Set foreground fit functions
+    %   set_bfun     - Set background fit functions
+    %   clear_fun    - Clear one or more foreground fit functions
+    %   clear_bfun   - Clear one or more background fit functions
+    %
+    % To set which parameters are fixed or free:
+    %   set_free     - Set free or fix foreground function parameters
+    %   set_bfree    - Set free or fix background function parameters
+    %   clear_free   - Clear all foreground parameters to be free for one or more data sets
+    %   clear_bfree  - Clear all background parameters to be free for one or more data sets
+    %
+    % To bind parameters:
+    %   set_bind     - Bind foreground parameter values in fixed ratios
+    %   set_bbind    - Bind background parameter values in fixed ratios
+    %   add_bind     - Add further foreground function bindings
+    %   add_bbind    - Add further background function bindings
+    %   clear_bind   - Clear parameter bindings for one or more foreground functions
+    %   clear_bbind  - Clear parameter bindings for one or more background functions
+    %
+    % To set functions as operating globally or local to a single dataset
+    %   set_global_foreground - Specify that there will be a global foreground fit function
+    %   set_global_background - Specify that there will be a global background fit function
+    %   set_local_foreground  - Specify that there will be local foreground fit function(s)
+    %   set_local_background  - Specify that there will be local background fit function(s)
+    %
+    % To fit or simulate:
+    %   fit          - Fit data
+    %   simulate     - Simulate datasets at the initial parameter values
+    %
+    % Fit control parameters and other options:
+    %   set_options  - Set options
+    %   get_options  - Get values of one or more specific options
 
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
@@ -189,12 +189,12 @@ classdef mfclass
         % Column vector of binding ratios resolved to account for a chain
         % of bindings
         ratio_res_ = zeros(0,1);
-        
+
         % ---------------------------------------------------------------------
         % Function wrap properties
         % ---------------------------------------------------------------------
         wrapfun_ = mfclass_wrapfun();
-                
+
         % ---------------------------------------------------------------------
         % Output control properties
         % ---------------------------------------------------------------------
@@ -212,7 +212,7 @@ classdef mfclass
 
     properties (Dependent)
         % Public properties - they all work by going via private properties
-        
+
         % Data set object or cell array of data set objects (row vector)
         % Has the form:
         %
@@ -288,7 +288,7 @@ classdef mfclass
         bbind
 
         bbind_dbg  % *** get rid of for release
-        
+
         % Options structure
         % Fields are:
         %   listing                 Level at which messages are output: 0,1,2
@@ -302,7 +302,7 @@ classdef mfclass
 
     properties (Dependent, Access=protected)
         % Properties that are exposed to child classes (i.e. subclasses)
-        
+
         dataset_class   % data class
         ndatatot        % total number of datasets
         np              % number of parameters in each foreground function
@@ -356,11 +356,11 @@ classdef mfclass
             %--------------------------------------------------------------------------------------
             function [ok,mess,nopt,ind_dataset_class,ind_wrapfun] = strip_trailing_opts
                 % Allow one or both of dataset_class and wrapfun at the tail of an argument list
-                
+
                 ok = true; mess = ''; nopt = 0; ind_dataset_class=[]; ind_wrapfun = [];
                 is_wrapfun = @(x)isa(x,'mfclass_wrapfun');
                 is_dataset_class = @(x)(isa(x,'char') && is_string(x) && ~isempty(x));
-                
+
                 narg = numel(varargin);
                 if narg>=1
                     if is_wrapfun(varargin{end})
@@ -371,7 +371,7 @@ classdef mfclass
                         return
                     end
                 end
-                
+
                 if narg>=2
                     if is_wrapfun(varargin{end-1})
                         if isempty(ind_wrapfun)
@@ -575,19 +575,19 @@ classdef mfclass
         %------------------------------------------------------------------
         % Set methods
         function obj = set.wrapfun(obj, val)
-            if isa(val,'mfclass_wrapfun') && isscsalar(val)
+            if isa(val,'mfclass_wrapfun') && isscalar(val)
                 obj.wrapfun_ = val;
             else
                 error('Wrapper object must be of class ''mfclass_wrapfun''')
             end
         end
-        
+
         %------------------------------------------------------------------
         % Get methods
         function out = get.dataset_class(obj)
             out = obj.dataset_class_;
         end
-        
+
         function out = get.ndatatot(obj)
             out = obj.ndatatot_;
         end

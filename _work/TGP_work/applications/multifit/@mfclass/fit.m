@@ -54,6 +54,13 @@ function [data_out, fitdata, ok, mess] = fit (obj)
 %
 % If ok is not a return argument, then if ok is false an error will be thrown.
 
+% <#doc_def:>
+%   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+%   fit_intro = fullfile(mfclass_doc,'fit_intro.m')
+% <#doc_beg:> multifit
+%   <#file:> <fit_intro>
+% <#doc_end:>
+
 
 % Default return values if there is an error
 data_out = [];
@@ -141,7 +148,7 @@ if selected
         f_pass_caller, bf_pass_caller, pf, p_info, foreground_eval, background_eval);
     squeeze_xye = obj.options_.squeeze_xye;
     data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
-    
+
 else
     % Need to re-initialise because data is unmasked i.e. not the same as fitted
     % (if there is no initialisation to be done, then cheap call)
@@ -150,14 +157,14 @@ else
     if ~ok
         if throw_error, error_message(mess), else, return, end
     end
-    
+
     % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
         f_pass_caller, bf_pass_caller, pf, p_info, foreground_eval, background_eval);
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
     data_out = repackage_output_datasets (obj.data_, wout, msk_none, squeeze_xye);
-    
+
 end
 
 % Package output fit results
