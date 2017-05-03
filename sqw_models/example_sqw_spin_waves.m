@@ -3,10 +3,10 @@ function weight = example_sqw_spin_waves (qh,qk,ql,en,par)
 % -------------------------------------------------------------------------
 % A model for S(Q,w) must have the form:
 %
-% 	>> ycalc = my_function (qh, qk, ql, en, par)
+% 	function ycalc = my_function (qh, qk, ql, en, par)
 %
 % More generally:
-% 	>> ycalc = my_function (qh, qk, ql, en, par, c1, c2,...)
+% 	function ycalc = my_function (qh, qk, ql, en, par, c1, c2,...)
 %
 % where
 %   qh, qk, qk  Arrays of h, k, l in reciprocal lattice vectors, one element
