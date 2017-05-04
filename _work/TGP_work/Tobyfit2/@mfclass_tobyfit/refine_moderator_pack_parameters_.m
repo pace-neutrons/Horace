@@ -50,7 +50,7 @@ bind0 = obj.bind;
 % Append moderator refinement parameter values
 pin_obj = pin0_obj;
 for i=1:numel(pin0_obj)
-    pin_obj.p = [pin0_obj.p, mod_opts.pin];
+    pin_obj(i).p = [pin0_obj(i).p, mod_opts.pin];
 end
 pin = arrayfun(@(x)x.plist,pin_obj,'UniformOutput',false);
 

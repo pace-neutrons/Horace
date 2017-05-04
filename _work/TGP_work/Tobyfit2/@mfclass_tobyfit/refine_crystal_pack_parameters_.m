@@ -56,7 +56,7 @@ bind0 = obj.bind;
 opt_pars = [xtal_opts.alatt, xtal_opts.angdeg, xtal_opts.rot];
 pin_obj = pin0_obj;
 for i=1:numel(pin0_obj)
-    pin_obj.p = [pin0_obj.p, opt_pars];
+    pin_obj(i).p = [pin0_obj(i).p, opt_pars];
 end
 pin = arrayfun(@(x)x.plist,pin_obj,'UniformOutput',false);
 
