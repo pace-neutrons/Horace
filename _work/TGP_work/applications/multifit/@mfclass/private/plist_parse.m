@@ -6,14 +6,18 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 % Input:
 % ------
 %   plist_in    List of parameters for the function(s).
-% 
+%
 %               If there is only one function for which parameters are needed
-%              plist is passed straight to the constructor for a parameter list, mfclass_plist 
+%              plist is passed straight to the constructor for a parameter list, mfclass_plist
 %
 %               If there is more than one function then if plist_in is a cell array
 %              with the same size as input argument func (see below), then plist_in{i}
 %              is assumed to be the parameter list for the ith function. Otherwise,
 %              plist_in is assumed to be the parmaeter list for every function.
+%
+%               If a function handle has not been given, then any empty value for the
+%              corresponding plist_in for that function is interprested as being OK, and
+%              the corresponding plist set to mfclass_plist()
 %
 %   func        Cell array of function handles (if just one, must still be a cell array)
 %               Missing functions have element equal to []
@@ -53,42 +57,83 @@ function [ok,mess,np,plist]=plist_parse(plist_in,func)
 ok=true;
 mess='';
 
-if numel(func)==1
-    % Single function
-    if ~isempty(func{1})
-        plist = mfclass_plist(plist_in);
+if ~isa(plist_in,'mfclass_plist')
+    if numel(func)==1
+        % Single function
+        % If the argument is a cell array containing a single cell array,a ssume that the
+        % inner cell array is the argument; otherwise, assume that a single parameter list has
+        % been given
+        if iscell(plist_in) && isscalar(plist_in) && iscell(plist_in{1})
+            if ~isempty(func{1})
+                plist = mfclass_plist(plist_in{1});
+            elseif isempty(plist_in{1})
+                plist = mfclass_plist();
+            else
+                ok=false;
+                mess='A function has not been given, but parameters have been provided for it';
+            end
+        else
+            if ~isempty(func{1})
+                plist = mfclass_plist(plist_in);
+            elseif isempty(plist_in)
+                plist = mfclass_plist();
+            else
+                ok=false;
+                mess='A function has not been given, but parameters have been provided for it';
+            end
+        end
+        
     else
-        plist=mfclass_plist();
-        if ~isempty(plist_in)
-            ok=false;
-            mess='A function has not been given, but parameters have been provided for it';
+        % Multiple functions
+        % If the argument is a cell array with the same size as the array of
+        % function handles, then assume that a cell array of parameter lists
+        % has been provided.
+        % Otherwise assume that a single parameter list has been given.
+        if iscell(plist_in) && isequal(size(plist_in),size(func))
+            plist = repmat(mfclass_plist(),size(func));
+            for i=1:numel(plist)
+                if ~isempty(func{i})
+                    plist(i) = mfclass_plist(plist_in{i});
+                elseif ~isempty(plist_in{i})
+                    ok=false;
+                    mess=['function ',arraystr(size(func),i),...
+                        ' has not been given, but parameters have been provided for it'];
+                end
+            end
+        elseif iscell(plist_in) && isscalar(plist_in) && iscell(plist_in{1})
+            plist = repmat(mfclass_plist(plist_in{1}), size(func));
+            empty_func = cellfun(@(x)isempty(x), func);
+            if any(empty_func(:))
+                if isempty(plist_in{1})
+                    plist(empty_func) = mfclass_plist();
+                else
+                    ok=false;
+                    mess=['function ',arraystr(size(func),find(empty_func,1)),...
+                        ' has not been given, but parameters have been provided for it'];
+                end
+            end
+        else
+            plist = repmat(mfclass_plist(plist_in), size(func));
+            empty_func = cellfun(@(x)isempty(x), func);
+            if any(empty_func(:))
+                if isempty(plist_in)
+                    plist(empty_func) = mfclass_plist();
+                else
+                    ok=false;
+                    mess=['function ',arraystr(size(func),find(empty_func,1)),...
+                        ' has not been given, but parameters have been provided for it'];
+                end
+            end
         end
     end
 else
-    % Multiple functions
-    % If the argument is a cell array with the same size as the array of
-    % function handles, then assume that a cell array of parameter lists
-    % has been provided.
-    % Otherwise assume that a single parameter list has been given.
-    if iscell(plist_in) && isequal(size(plist_in),size(func))
-        plist = repmat(mfclass_plist(),size(func));
-        for i=1:numel(plist)
-            if ~isempty(func{i})
-                plist(i) = mfclass_plist(plist_in{i});
-            elseif ~isempty(plist_in{i})
-                ok=false;
-                mess=['function ',arraystr(size(func),i),...
-                    ' has not been given, but parameters have been provided for it'];
-            end
-        end
+    % Array of mfclass_plist
+    if numel(plist_in)==numel(func)
+        plist = plist_in(:)';   % make a row vector
     else
-        plist = repmat(mfclass_plist(plist_in), size(func));
-        empty_func = cellfun(@(x)isempty(x), func);
-        if any(empty_func(:)) && ~isempty(plist)
-            ok=false;
-                mess=['function ',arraystr(size(func),find(empty_func,1)),...
-                    ' has not been given, but parameters have been provided for it'];
-        end
+        ok = false;
+        plist = repmat(mfclass_plist(),size(func));
+        mess = 'Number of elements in parameter list object array does not match the number of functions';
     end
 end
 

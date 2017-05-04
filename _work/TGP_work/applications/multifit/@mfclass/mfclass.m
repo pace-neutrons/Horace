@@ -485,7 +485,11 @@ classdef mfclass
         end
 
         function out = get.pin(obj)
-            out = arrayfun(@(x)x.plist,obj.pin_,'UniformOutput',false);
+            if isscalar(obj.pin_)
+                out = obj.pin_.plist;
+            else
+                out = arrayfun(@(x)x.plist,obj.pin_,'UniformOutput',false);
+            end
         end
 
         function out = get.free(obj)
@@ -524,7 +528,11 @@ classdef mfclass
         end
 
         function out = get.bpin(obj)
-            out = arrayfun(@(x)x.plist,obj.bpin_,'UniformOutput',false);
+            if isscalar(obj.pin_)
+                out = obj.bpin_.plist;
+            else
+                out = arrayfun(@(x)x.plist,obj.bpin_,'UniformOutput',false);
+            end
         end
 
         function out = get.bfree(obj)
