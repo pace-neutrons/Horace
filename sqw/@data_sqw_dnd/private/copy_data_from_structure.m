@@ -8,6 +8,15 @@ function obj = copy_data_from_structure(obj,sqw_data_structure,conv2double)
 %
 % $Revision$ ($Date$)
 %
+if isfield(sqw_data_structure,'proj')
+    proj = sqw_data_structure.proj;
+else
+    proj = projection();    
+end
+if isfield(sqw_data_structure,'ulabel')
+    proj.labels = sqw_data_structure.ulabel;
+    sqw_data_structure = rmfield(sqw_data_structure,'ulabel');
+end
 
 fields = fieldnames(sqw_data_structure);
 proj_fields = obj.proj.get_old_interface_fields();
@@ -30,11 +39,7 @@ for i=1:numel(fields)
 end
 
 % old interface files support only rectilinear projection;
-if isfield(sqw_data_structure,'proj')
-    proj = sqw_data_structure.proj;
-else
-    proj = projection();    
-end
+
 if sum(oif) == 0
     obj.proj  = proj;
 else

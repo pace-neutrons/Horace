@@ -23,12 +23,10 @@ classdef projection<aProjection
         %
         %
     end
-    properties(Access=private)
+    properties(Access=protected)
         %
-        u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in hkle representation
+        u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in h;k;l;de representation
         %
-    end
-    methods(Access = protected)
     end
     
     methods
@@ -44,6 +42,12 @@ classdef projection<aProjection
             %                 end
             %             end
         end
+        %------------------------------------------------------------------
+        function flds = get_old_interface_fields(obj)
+            flds  = get_old_interface_fields@aProjection(obj);
+            flds = {flds{:},'u_to_rlu'};
+        end
+        %------------------------------------------------------------------
         
         function u = get.u(this)
             u = this.projaxes_.u;
@@ -71,7 +75,7 @@ classdef projection<aProjection
             this = check_and_set_transf_matr_(this,val);
             % clear precalculate image range, as the transformation to
             % image has been changed
-            this.img_range_cash_  = [];
+            this.img_range_cash_  = this.calc_image_range();
         end
         %------------------------------------------------------------------
         function img_coord = pix_to_img(obj,pix_coord)

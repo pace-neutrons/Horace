@@ -120,7 +120,7 @@ classdef aProjection
             if nargin == 0
                 return
             elseif nargin == 1
-                error('APROJECTION:invalid_arguments',...
+                error('APROJECTION:invalid_argument',...
                     'non-empty projection needs at least grid_size_in and data_range to be defined');
             elseif nargin>1
                 proj = build_4D_proj_box_(proj,varargin{1},varargin{2});
@@ -204,16 +204,13 @@ classdef aProjection
             if size(val,2) == 1
                 val = val';
             end
-            obj.projaxes_.labels = cellfun(@num2str,val,'UniformOutput',false);
+            obj.projaxes_.lab = cellfun(@num2str,val,'UniformOutput',false);
         end
         %
         function urange = get.urange(obj)
             urange = obj.pix_urange_;
         end
         function hkl_range = get.img_range(obj)
-            if isempty(obj.img_range_cash_)
-                obj.img_range_cash_ = obj.calc_image_range();
-            end
             hkl_range = obj.img_range_cash_;
         end
         function iax = get.iax(obj)
