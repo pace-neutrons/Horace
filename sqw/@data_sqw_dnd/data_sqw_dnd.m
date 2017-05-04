@@ -275,11 +275,11 @@ classdef data_sqw_dnd
         % object
         %------------------------------------------------------------------
         function uoffset = get.uoffset(obj)
-            uoffset = obj.proj_.get_uoffset();
+            uoffset = obj.proj_.uoffset();
         end
         function u_to_rlu = get.u_to_rlu(obj)
             %Matrix (4x4) of projection axes in hkle representation
-            u_to_rlu = obj.proj_.get_u_to_rlu();
+            u_to_rlu = obj.proj_.u_to_rlu();
         end
         function ulen = get.ulen(obj)
             %Length of projection axes vectors in Ang^-1 or meV [row vector]

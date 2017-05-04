@@ -163,7 +163,7 @@ end
 if isempty(urange)
     urange = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
     for i=1:numel(run_files)
-        urange_l = run_files{i}.calc_urange(en_lo(i),en_hi(i),cash_opt{:});
+        [urange_l,run_files{i}] = run_files{i}.calc_urange(en_lo(i),en_hi(i),cash_opt{:});
         urange = [min(urange_l(1,:),urange(1,:));max(urange_l(2,:),urange(2,:))];
     end
     %urange=calc_urange(efix,emode,en_lo,en_hi,det,alatt,angdeg,...

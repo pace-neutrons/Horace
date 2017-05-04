@@ -1,6 +1,7 @@
 classdef projaxes
-    % Object that defines the directions of the axes u1, u2, u3, which
-    %  a rectilinear projection would have
+    %  Class defines the directions of the axes u1, u2, u3, which
+    %  a rectilinear projection would have and contains the interface to
+    %  set up these directions.
     %
     % Structure input:
     %   >> proj = projaxes(proj_struct)
@@ -102,7 +103,7 @@ classdef projaxes
         orthogonal_=true
         type_='ppr'
         uoffset_ = [0;0;0;0]
-        labels_={'Q_h', 'Q_k', 'Q_l', 'En'}
+        labels_={'Q_\zeta','Q_\xi','Q_\eta','E'}
         % The property reports if the object is valid. It can become
         % invalid if some fields have been set up incorrectly after
         % creation (e.g. u set up parallel to v) See check_combo_arg_ for
@@ -125,7 +126,7 @@ classdef projaxes
             end
             
         end
-        % Interface to public file methods -------------------------------
+        % Interface to public  methods -------------------------------
         [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, angdeg, ustep);
         % getters/setters-------------------------------------------------
         %----------------------------------------------------------

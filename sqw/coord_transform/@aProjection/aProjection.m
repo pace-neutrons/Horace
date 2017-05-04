@@ -1,11 +1,28 @@
 classdef aProjection
-    %  Abstract class, defining interface using by cut_sqw
-    %  when transforming pixels from original to the cut's coordinate
-    %  system
+    % Abstract class, defining interface using by cut_sqw
+    % when transforming pixels from original to the cut's coordinate
+    % system
+    %
     %
     % Also defines generic operations on sqw object, which may be useful
     % and can be used by any projection class.
     %
+    % Usage:  (as part of overloaded child class, which defines abstract
+    %          methods present within this class)
+    % proj = aProjection(); % build empty projection
+    %
+    % proj = aProjection(grid_size_in,data_range,[projaxes_data])
+    % grid_size_in -- Initial number of bins in each direction.
+    %                 (scalar, or [1 x nd] array)
+    % data_range   -- the ranges of the empty projections
+    %
+    % optional:
+    % projaxes_data:  data necessary to define projaxes, see the
+    %                 projaxes class constructor interface for the details.
+    %                 By default generates orthogonal projaxes with [1,0,0]
+    %                 [0,1,0] main axis.
+    
+    
     % $Revision: 1462 $ ($Date: 2017-04-04 13:04:12 +0100 (Tue, 04 Apr 2017) $)
     %
     properties(Dependent)
@@ -20,6 +37,8 @@ classdef aProjection
         
         % 4D array, describing the extent of the pixels region, this projection covers;
         urange;
+        % 4D array, describing the region the projection covers
+        img_range
         % 4D vector providing offset of the pixels region covered by the
         % projection vrt the pixels 0 value;
         uoffset
@@ -43,7 +62,9 @@ classdef aProjection
         % of the data along axes
         changes_aspect_ratio;
         
-        %
+        % property, containing projaxes class instance with information on
+        % q-axes directions in q space, and interface to set up these
+        % directions
         proj_axes;
     end
     %----------------------------------------------------------------------
@@ -72,6 +93,7 @@ classdef aProjection
         % internal property, which defines if appropriate picture changes
         % aspect ratio of a 2D image.
         changes_aspect_ratio_=true;
+        img_range_cash_ = [];
     end
     properties(Constant,Access=private)
         % list of transitional properties used for storing/restoring
@@ -86,16 +108,25 @@ classdef aProjection
             % usage:
             % proj = aProjection(); % build empty projection
             %
-            % proj = aProjection(grid_size_in,data_range,[label])
+            % proj = aProjection(grid_size_in,data_range,[projaxes interface])
             % grid_size_in -- Initial number of bins in each direction.
             %                 (scalar, or [1 x nd] array)
             % data_range   -- the ranges of the empty projections
             % optional:
-            % label        -- a 4-element cellarray containing axis arrays and these axis labels array
+            % projaxes interface:  data necessary to define projaxes, see the
+            %                      projaxes class interface for the details.
             
             %
-            if nargin>1
-                proj = build_4D_proj_box_(proj,varargin{:});
+            if nargin == 0
+                return
+            elseif nargin == 1
+                error('APROJECTION:invalid_arguments',...
+                    'non-empty projection needs at least grid_size_in and data_range to be defined');
+            elseif nargin>1
+                proj = build_4D_proj_box_(proj,varargin{1},varargin{2});
+            end
+            if nargin>2
+                proj.projaxes_ = projaxes(varargin{3:end});
             end
         end
         %------------------------------------------------------------------
@@ -106,6 +137,10 @@ classdef aProjection
         % Get titling and caption information for the projection, specified
         [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
             data_plot_titles(this,filename)
+        % Calculate the range of the transformed transformed data given the
+        % pixels range.
+        range = calc_image_range(obj,minmax_val);
+        
         %
         function flds = get_old_interface_fields(obj)
             % retrieve field names used to support old sqw object interface
@@ -154,7 +189,7 @@ classdef aProjection
         %             urange_offset = this.urange_offset_;
         %         end
         function lab  = get.labels(obj)
-            lab = obj.projaxes_.labels;
+            lab = obj.projaxes_.lab;
         end
         %
         function pax = get.p(obj)
@@ -174,6 +209,12 @@ classdef aProjection
         %
         function urange = get.urange(obj)
             urange = obj.pix_urange_;
+        end
+        function hkl_range = get.img_range(obj)
+            if isempty(obj.img_range_cash_)
+                obj.img_range_cash_ = obj.calc_image_range();
+            end
+            hkl_range = obj.img_range_cash_;
         end
         function iax = get.iax(obj)
             iax  = obj.iax_;
@@ -215,27 +256,24 @@ classdef aProjection
         function dax = get_dax(obj)
             dax = obj.dax_;
         end
-        function u_to_rlu = get_u_to_rlu(obj)
-            u_to_rlu = eye(4);
-        end
-        
+        %
     end
     %
-    methods(Access = protected)
-        function [nbin_in,pin]= get_input_data_binning_(this)
-            % input data binning how data are initially binned, and full
-            % data projection axis
-            %
-            % auxiliary variable derived from input data projection axis
-            pin=cell(1,4);
-            pin(this.data_pax_)=this.data_p_;
-            pin(this.data_iax_)=mat2cell(this.urange_(:,this.data_iax_),2,ones(1,length(this.data_iax_)));
-            nbin_in=zeros(1,4);
-            for i=1:4
-                nbin_in(i)=length(pin{i})-1;
-            end
-        end
-    end
+    %    methods(Access = protected)
+    %         function [nbin_in,pin]= get_input_data_binning_(this)
+    %             % input data binning how data are initially binned, and full
+    %             % data projection axis
+    %             %
+    %             % auxiliary variable derived from input data projection axis
+    %             pin=cell(1,4);
+    %             pin(this.data_pax_)=this.data_p_;
+    %             pin(this.data_iax_)=mat2cell(this.urange_(:,this.data_iax_),2,ones(1,length(this.data_iax_)));
+    %             nbin_in=zeros(1,4);
+    %             for i=1:4
+    %                 nbin_in(i)=length(pin{i})-1;
+    %             end
+    %         end
+    %    end
     methods(Static)
         %
         function [irange,inside,outside] = get_irange(urange,varargin)

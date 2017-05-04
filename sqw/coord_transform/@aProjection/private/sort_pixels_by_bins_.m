@@ -1,4 +1,4 @@
-function [s,e,npix,pix,pix_range] = sort_pixels_by_bins_(obj,pix,pix_range)
+function [s,e,npix,pix,pix_range] = sort_pixels_by_bins_(obj,pix,pix_transf,pix_range)
 % Bin pixels into 4D grid, defined by aProjection in the range defined by
 % pix_range if present or projection range
 %
@@ -11,13 +11,13 @@ function [s,e,npix,pix,pix_range] = sort_pixels_by_bins_(obj,pix,pix_range)
 grid_is_unity = all(obj.grid_size == [1,1,1,1]);
 
 % Set urange, and determine if all the data is on the surface or within the box defined by the ranges
-urange = obj.urange;
+urange = obj.img_range;
 %
 if isempty(pix_range)
     data_in_range = true;
     pix_range = urange;
 else
-    if any(pix_range(1,:)<obj.urange(1,:)) || any(pix_range(2,:)>obj.urange(2,:))
+    if any(pix_range(1,:)<urange(1,:)) || any(pix_range(2,:)>urange(2,:))
         data_in_range = false;
     else
         data_in_range = true;
@@ -35,7 +35,7 @@ else
     if hor_log_level>0
         disp('Sorting pixels ...')
     end
-    
+    use_mex = false; %TODO: for the time being
     if use_mex
         try
             % Verify the grid consistency and build axes along the grid dimensions,
@@ -46,7 +46,7 @@ else
             %sqw_fields{1}=8;
             sqw_fields{2}=urange;
             sqw_fields{3}=obj.grid_size;
-            sqw_fields{4}=pix;
+            sqw_fields{4}=pix_transf;
             
             out_fields=bin_pixels_c(sqw_fields);
             
@@ -62,9 +62,10 @@ else
     if ~use_mex
         % sort pixels according their bins
         grid_size = obj.grid_size;
-        [ix,npix,ibin]=sort_pixels_(pix(1:4,:),urange,grid_size);
+        [ix,npix,ibin]=sort_pixels_(pix_transf(1:4,:),urange,grid_size);
         
         pix=pix(:,ix);
+        %se =pix_transf(8:9,ix);
         
         s=reshape(accumarray(ibin,pix(8,:),[prod(grid_size),1]),grid_size);
         e=reshape(accumarray(ibin,pix(9,:),[prod(grid_size),1]),grid_size);
@@ -83,8 +84,6 @@ else
     if ~data_in_range
         pix_range(1,:)=min(pix(1:4,:),[],2)';
         pix_range(2,:)=max(pix(1:4,:),[],2)';
-    else
-        
     end
 end
 

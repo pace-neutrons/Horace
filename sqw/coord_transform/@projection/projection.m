@@ -10,7 +10,7 @@ classdef projection<aProjection
     %
     % $Revision$ ($Date$)
     %
-    properties 
+    properties
         %
     end
     properties(Dependent)
@@ -18,17 +18,14 @@ classdef projection<aProjection
         v; %[1x3] Vector of second axis (r.l.u.)
         w; %[1x3] Vector of third axis (r.l.u.) - used only if third character of type is 'p'
         type; %='rrr';
-        uoffset; %=[0,0,0,0];
+        
+        u_to_rlu
         %
         %
     end
     properties(Access=private)
         %
-        data_u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in hkle representation        
-        data_ulen_     = [1,1,1,1]; %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        data_upix_to_rlu_ = eye(3);
-        data_upix_offset_ = [0;0;0;0] %upix_offset;
-        
+        u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in hkle representation
         %
     end
     methods(Access = protected)
@@ -37,68 +34,58 @@ classdef projection<aProjection
     methods
         function proj=projection(varargin)
             proj = proj@aProjection(varargin{:});
-            if nargin==0 % return defaults
-                proj.projaxes_ = [];
-                proj.data_lab_ = ['qx','qy','qz','en'];
-            else
-                if isa(varargin{1},'projaxes')
-                    proj.projaxes_ = varargin{1};
-                else
-                    proj.projaxes_ = projaxes(varargin{:});
-                end
-            end
+            %             if nargin==0 % return defaults
+            %                 %proj.projaxes_ = [];
+            %             else
+            %                 if isa(varargin{1},'projaxes')
+            %                     proj.projaxes_ = varargin{1};
+            %                 else
+            %                     proj.projaxes_ = projaxes(varargin{:});
+            %                 end
+            %             end
         end
         
         function u = get.u(this)
-            if isempty(this.projaxes_)
-                u= 'dnd-X-aligned';
-            else
-                u = this.projaxes_.u;
-            end
+            u = this.projaxes_.u;
         end
         function v = get.v(this)
-            if isempty(this.projaxes_)
-                v= 'dnd-Y-aligned';
-            else
-                v = this.projaxes_.v;
-            end
+            v = this.projaxes_.v;
         end
         function w = get.w(this)
-            if isempty(this.projaxes_)
-                w= [];
-            else
-                w = this.projaxes_.w;
-            end
+            w = this.projaxes_.w;
         end
         function type = get.type(this)
-            if isempty(this.projaxes_)
-                type = 'aaa';
-            else
-                type = this.projaxes_.type;
-            end
+            type = this.projaxes_.type;
+            
         end
         function this =set.type(this,val)
-            if isempty(this.projaxes_)
-                error('PROJECTION:invalid_argument','define projection plains first');
-            else
-                this.projaxes_.type = val;
-            end
+            this.projaxes_.type = val;
+        end
+        function tr_mat = get.u_to_rlu(this)
+            tr_mat = this.u_to_rlu_;
+        end
+        function this= set.u_to_rlu(this,val)
+            % TODO: change in projaxes type should affect the projection
+            % matrix, but here we assume that the matrix is already
+            % normalized correctly
+            this = check_and_set_transf_matr_(this,val);
+            % clear precalculate image range, as the transformation to
+            % image has been changed
+            this.img_range_cash_  = [];
+        end
+        %------------------------------------------------------------------
+        function img_coord = pix_to_img(obj,pix_coord)
+            % convert pixels coordinates into image coordinates expressed
+            % in appropriate units.
+            img_coord = convert_pix_to_img_(obj,pix_coord);
+        end
+        function pix_coord = img_to_pix(obj,img_coord)
+            % convert array of data expressed in projection coordinate system
+            % into the array of data in crystal Cartesian system (lab frame)
+            pix_coord = convert_img_to_pix_(obj,img_coord);
         end
         
-        function uoffset = get.uoffset(this)
-            if isempty(this.projaxes_)
-                uoffset = [0;0;0;0];
-            else
-                uoffset = this.projaxes_.uoffset;
-            end
-        end
-        function lab = get.lab(this)
-            if isempty(this.projaxes_)
-                lab = this.data_lab_;
-            else
-                lab = this.projaxes_.lab;
-            end
-        end       
+        
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
@@ -125,7 +112,7 @@ classdef projection<aProjection
             % get projection parameters, necessary for properly defining a sqw or dnd object
             %
             [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(this,data_in,pax);
-
+            
         end
         %
         function [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...

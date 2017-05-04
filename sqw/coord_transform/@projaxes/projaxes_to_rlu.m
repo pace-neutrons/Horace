@@ -1,15 +1,15 @@
 function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, angdeg, ustep)
-% Determine matricies to convert rlu <=> projection axes, and their lengths
+% Determine matrices to convert rlu <=> projection axes, and their lengths
 %
 %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, alatt, angdeg)
 %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, alatt, angdeg, ustep)
 %
-% The projection axes are three vectors that may or may not be orthononal
+% The projection axes are three vectors that may or may not be orthogonal
 % which are used to create the bins in an sqw object. The bin sizes are in ustep
 %
 % Input:
 % ------
-%   proj    projaxes object containg information about projection axes
+%   proj    projaxes object containing information about projection axes
 %          (type >> help projaxes for details)
 %   alatt   Row vector of lattice parameters (Angstroms)
 %   angdeg  Row vector of lattice angles (degrees)

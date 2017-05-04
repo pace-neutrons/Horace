@@ -1,8 +1,8 @@
-function [u_to_rlu, urange, pix] = convert_to_lab_frame_(obj, detdcn,qspec,proj_mode)
+function [urange, pix] = convert_to_lab_frame_(obj, detdcn,qspec,proj_mode)
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
-%   >> [u_to_rlu, ucoords] = obj.calc_projections_(detdcn,qspec,proj_mode)
+%   >> [u_to_rlu, ucoords] = obj.convert_to_lab_frame_(detdcn,qspec,proj_mode)
 %
 % Optional inputs:
 % ------
@@ -70,7 +70,7 @@ end
 
 
 % Create matrix to convert from spectrometer axes to coords along projection axes
-[spec_to_u, u_to_rlu] = obj.lattice.calc_proj_matrix();
+spec_to_u = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
 [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
@@ -110,7 +110,7 @@ if ~use_mex
     urange=[min(ucoords,[],2)';max(ucoords,[],2)'];
     
     % Return without filling the pixel array if urange only is requested
-    if nargout==2
+    if nargout==1
         return;
     end
     if proj_mode == 0

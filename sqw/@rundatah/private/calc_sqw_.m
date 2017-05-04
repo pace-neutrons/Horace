@@ -48,16 +48,22 @@ end
 % Perform calculations
 % -----------------------
 % Calculate projections of the instrument data into the q-space;
-[u_to_rlu,pix_range,pix] = convert_to_lab_frame_(obj,detdcn,obj.qpsecs_cash);
+[pix_range,pix] = convert_to_lab_frame_(obj,detdcn,obj.qpsecs_cash);
+[header,sqw_data]=build_header(obj);
+[~,u_to_rlu] = obj.lattice.calc_proj_matrix();
 
-[header,sqw_data]=build_header(obj,u_to_rlu);
+u = obj.lattice.u;
+v = obj.lattice.v;
+sqw_data.proj = projection(grid_size_in,urange_in,u,v);
 
-% TODO: aProjection for the time being, change to projection with
-% appropriate constructor!
-sqw_data.proj = aProjection(grid_size_in,urange_in);
+sqw_data.proj.u_to_rlu = u_to_rlu;
+header.u_to_rlu = sqw_data.proj.u_to_rlu;
 
+% sort pixels into image bins but keep them in initial coordinate system
 [sqw_data.s,sqw_data.e,sqw_data.npix,sqw_data.pix]...
     = sqw_data.proj.sort_pixels_by_bins(pix,pix_range);
+
+ 
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
@@ -72,7 +78,7 @@ w=sqw(d);
 
 
 %------------------------------------------------------------------------------------------------------------------
-function [header,sqw_data] = build_header(obj,u_to_rlu)
+function [header,sqw_data] = build_header(obj)
 % Calculate sqw file header and data for a single spe file
 %
 %   >> [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
@@ -118,7 +124,9 @@ header.en       = obj.en;
 %>------------ a single file data projection! --> TODO: generalize to
 %projection
 header.uoffset = [0;0;0;0];
-header.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
+% TODO: inserted empty field here to avoid incorrect class checks. Should
+% be changed properly when header is class.
+header.u_to_rlu = []; %
 header.ulen = [1,1,1,1];
 header.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
 %<------------ a file projection!
@@ -134,18 +142,3 @@ sqw_data.filepath = '';
 sqw_data.title = '';
 sqw_data.alatt = obj.lattice.alatt;
 sqw_data.angdeg = obj.lattice.angdeg;
-% %------------ projection:
-% sqw_data.uoffset=[0;0;0;0];
-% sqw_data.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
-% sqw_data.ulen = [1,1,1,1];
-% sqw_data.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
-% sqw_data.iax=[];
-% sqw_data.iint=[];
-% sqw_data.pax=[1,2,3,4];
-% sqw_data.p=p;
-% sqw_data.dax=[1,2,3,4];
-% <-----------
-%sqw_data.s=sum(obj.S(:));
-%sqw_data.e=sum(pix(9,:));   % take advantage of the squaring that has already been done for pix array
-%sqw_data.npix=ne*ndet;
-% pix_info:

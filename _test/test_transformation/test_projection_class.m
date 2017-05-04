@@ -1,5 +1,5 @@
 classdef test_projection_class<TestCase
-    % The test class to verify how projection works
+    % The test class to verify how standard retlilinear projection class works
     %
     properties
     end
@@ -10,8 +10,8 @@ classdef test_projection_class<TestCase
         end
         function test_constructor(this)
             proj = projection();
-            assertEqual(proj.u,'dnd-X-aligned')
-            assertEqual(proj.v,'dnd-Y-aligned')
+            assertEqual(proj.u,[1,0,0])
+            assertEqual(proj.v,[0,1,0])
             assertElementsAlmostEqual(proj.uoffset,[0;0;0;0])
             assertEqual(proj.type,'aaa')
             assertTrue(isempty(proj.w))
@@ -49,10 +49,6 @@ classdef test_projection_class<TestCase
      
             
             proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
-        end
-        function test_set_can_mex_keep(this)
-            proj = projection();
-            assertTrue(proj.can_mex_cut);
         end
     end
 end
