@@ -56,9 +56,9 @@ function [data_out, fitdata, ok, mess] = fit (obj)
 
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-%   fit_intro = fullfile(mfclass_doc,'fit_intro.m')
+%   doc_fit_intro = fullfile(mfclass_doc,'doc_fit_intro.m')
 % <#doc_beg:> multifit
-%   <#file:> <fit_intro>
+%   <#file:> <doc_fit_intro>
 % <#doc_end:>
 
 

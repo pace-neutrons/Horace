@@ -4,8 +4,9 @@ classdef mfclass_Horace < mfclass
     % function(s) can be set to apply globally to all datasets, or locally,
     % one function per dataset.
     %
-    % mfclass_Horace Methods:
     %
+    % mfclass_Horace Methods:
+    % --------------------------------------
     % To set data:
     %   set_data     - Set data, clearing any existing datasets
     %   append_data  - Append further datasets to the current set of datasets
@@ -19,28 +20,32 @@ classdef mfclass_Horace < mfclass
     %
     % To set fitting functions:
     %   set_fun      - Set foreground fit functions
-    %   set_bfun     - Set background fit functions
     %   clear_fun    - Clear one or more foreground fit functions
+    %
+    %   set_bfun     - Set background fit functions
     %   clear_bfun   - Clear one or more background fit functions
     %
     % To set which parameters are fixed or free:
     %   set_free     - Set free or fix foreground function parameters
-    %   set_bfree    - Set free or fix background function parameters
     %   clear_free   - Clear all foreground parameters to be free for one or more data sets
+    %
+    %   set_bfree    - Set free or fix background function parameters
     %   clear_bfree  - Clear all background parameters to be free for one or more data sets
     %
     % To bind parameters:
     %   set_bind     - Bind foreground parameter values in fixed ratios
-    %   set_bbind    - Bind background parameter values in fixed ratios
     %   add_bind     - Add further foreground function bindings
-    %   add_bbind    - Add further background function bindings
     %   clear_bind   - Clear parameter bindings for one or more foreground functions
+    %
+    %   set_bbind    - Bind background parameter values in fixed ratios
+    %   add_bbind    - Add further background function bindings
     %   clear_bbind  - Clear parameter bindings for one or more background functions
     %
     % To set functions as operating globally or local to a single dataset
     %   set_global_foreground - Specify that there will be a global foreground fit function
-    %   set_global_background - Specify that there will be a global background fit function
     %   set_local_foreground  - Specify that there will be local foreground fit function(s)
+    %
+    %   set_global_background - Specify that there will be a global background fit function
     %   set_local_background  - Specify that there will be local background fit function(s)
     %
     % To fit or simulate:
@@ -50,20 +55,54 @@ classdef mfclass_Horace < mfclass
     % Fit control parameters and other options:
     %   set_options  - Set options
     %   get_options  - Get values of one or more specific options
+    %
+    %
+    % mfclass_Horace Properties:
+    % --------------------------------------
+    % Data to be fitted:
+    %   data         - datasets to be fitted or simulated
+    %   mask         - mask arrays to remove data points from fitting or simulation
+    %
+    % Fit functions:
+    %   fun          - foreground fit function handles
+    %   pin          - foreground function parameter values
+    %   free         - the foreground function parameters that can vary in a fit
+    %   bind         - binding of foreground parameters to free parameters
+    %
+    %   bfun         - foreground fit function handles
+    %   bpin         - foreground function parameter values
+    %   bfree        - the foreground function parameters that can vary in a fit
+    %   bbind        - binding of foreground parameters to free parameters
+    %
+    % To set functions as operating globally or local to a single dataset
+    %   global_foreground - true if a global foreground fit function
+    %   local_foreground  - true if a local foreground fit functions
+    %   global_background - true if a global background fit function
+    %   local_background  - true if a local background fit function(s)
+    %
+    % Options:
+    %   options      - options defining fit control parameters
 
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-    %   mfclass_purpose_summary_file = fullfile(mfclass_doc,'purpose_summary.m')
-    %   mfclass_methods_summary_file = fullfile(mfclass_doc,'methods_summary.m')
+    %   mfclass_doc_purpose_summary_file = fullfile(mfclass_doc,'doc_purpose_summary.m')
+    %   mfclass_doc_methods_summary_file = fullfile(mfclass_doc,'doc_methods_summary.m')
+    %   mfclass_doc_properties_summary_file = fullfile(mfclass_doc,'doc_properties_summary.m')
     %
     %   class_name = 'mfclass_Horace'
     %
     % <#doc_beg:> multifit
-    %   <#file:> <mfclass_purpose_summary_file>
+    %   <#file:> <mfclass_doc_purpose_summary_file>
+    %
     %
     % <class_name> Methods:
+    % --------------------------------------
+    %   <#file:> <mfclass_doc_methods_summary_file>
     %
-    %   <#file:> <mfclass_methods_summary_file>
+    %
+    % <class_name> Properties:
+    % --------------------------------------
+    %   <#file:> <mfclass_doc_properties_summary_file>
     % <#doc_end:>
 
     methods
@@ -113,15 +152,15 @@ classdef mfclass_Horace < mfclass
 
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-            %   set_fun_intro = fullfile(mfclass_doc,'set_fun_intro.m')
-            %   set_fun_xye_function_form = fullfile(mfclass_doc,'set_fun_xye_function_form.m')
+            %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')
+            %   doc_set_fun_xye_function_form = fullfile(mfclass_doc,'doc_set_fun_xye_function_form.m')
             %
             %   x_arg = 'x1,x2,...'
             %   x_descr = 'x1,x2,... Array of x values, one array for each dimension'
             %
             % <#doc_beg:> multifit
-            %   <#file:> <set_fun_intro>
-            %   <#file:> <set_fun_xye_function_form> <x_arg> <x_descr>
+            %   <#file:> <doc_set_fun_intro>
+            %   <#file:> <doc_set_fun_xye_function_form> <x_arg> <x_descr>
             %
             %     See <a href="matlab:doc('example_1d_function');">example_1d_function</a>
             %     See <a href="matlab:doc('example_2d_function');">example_2d_function</a>
@@ -169,15 +208,15 @@ classdef mfclass_Horace < mfclass
 
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-            %   set_bfun_intro = fullfile(mfclass_doc,'set_bfun_intro.m')
-            %   set_fun_xye_function_form = fullfile(mfclass_doc,'set_fun_xye_function_form.m')
+            %   doc_set_bfun_intro = fullfile(mfclass_doc,'doc_set_bfun_intro.m')
+            %   doc_set_fun_xye_function_form = fullfile(mfclass_doc,'doc_set_fun_xye_function_form.m')
             %
             %   x_arg = 'x1,x2,...'
             %   x_descr = 'x1,x2,... Array of x values, one array for each dimension'
             %
             % <#doc_beg:> multifit
-            %   <#file:> <set_bfun_intro>
-            %   <#file:> <set_fun_xye_function_form> <x_arg> <x_descr>
+            %   <#file:> <doc_set_bfun_intro>
+            %   <#file:> <doc_set_fun_xye_function_form> <x_arg> <x_descr>
             %
             %     See <a href="matlab:doc('example_1d_function');">example_1d_function</a>
             %     See <a href="matlab:doc('example_2d_function');">example_2d_function</a>

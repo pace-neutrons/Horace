@@ -18,7 +18,8 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse(np,nbp,isfore,ifunb_def,b
 %              binding descrptor is evaluated for each index if the default is
 %              used.
 %
-%   bnd         Cell array of binding descriptors {b1, b2,...}
+%   bnd         One of two forms:
+%               (1) Cell array of binding descriptors {b1, b2,...}
 %               Valid forms for b1, b2,... are:
 %                 If ifunb_def is given:
 %                   {ipb,  ipf}
@@ -37,6 +38,23 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse(np,nbp,isfore,ifunb_def,b
 %               If b1,b2,.. are not all cell arrays, interpret as the elements
 %               of a single binding descriptor with one of the forms above.
 %
+%               (2) Numeric array size [n,5] where n is the number of bindings
+%               Each row of the array contains:
+%                   ipb         Parameter index within the functions for
+%                              the bound parameters
+%                   ifunb       Function indicies for the bound parameter
+%                               - foreground functions: numbered 1,2,3,...numel(np)
+%                               - background functions: numbered -1,-2,-3,...-numel(nbp)
+%                   ipf         Parameter indicies within the functions for
+%                              the floating parameters
+%                   ifunf       Function index for the floating parameter
+%                               - foreground functions: numbered 1,2,3,...numel(np)
+%                               - background functions: numbered -1,-2,-3,...-numel(nbp)
+%                   R           Ratio of values of bound/independent parameters (column vector).
+%               If to be set by values of initial parameter values, then is NaN;
+%              otherwise is finite.
+%                   
+%
 % Output:
 % -------
 %   ok          True if binding descriptor is valid
@@ -44,7 +62,7 @@ function [ok,mess,ipb,ifunb,ipf,ifunf,R] = pbind_parse(np,nbp,isfore,ifunb_def,b
 %              message if ok
 %   ipb         Parameter indicies within the functions for the bound parameters
 %              (column vector))
-%   ifunb       Function indicies for the bound parameterd (column vector):
+%   ifunb       Function indicies for the bound parameters (column vector):
 %                   foreground functions: numbered 1,2,3,...numel(np)
 %                   background functions: numbered -1,-2,-3,...-numel(nbp)
 %   ipf         Parameter indicies within the functions for the floating parameters

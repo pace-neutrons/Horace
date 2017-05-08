@@ -54,9 +54,9 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-%   simulate_intro = fullfile(mfclass_doc,'simulate_intro.m')
+%   doc_simulate_intro = fullfile(mfclass_doc,'doc_simulate_intro.m')
 % <#doc_beg:> multifit
-%   <#file:> <simulate_intro>
+%   <#file:> <doc_simulate_intro>
 % <#doc_end:>
 
 

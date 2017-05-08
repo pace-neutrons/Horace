@@ -4,8 +4,9 @@ classdef mfclass
     % function(s) can be set to apply globally to all datasets, or locally,
     % one function per dataset.
     %
-    % mfclass Methods:
     %
+    % mfclass Methods:
+    % --------------------------------------
     % To set data:
     %   set_data     - Set data, clearing any existing datasets
     %   append_data  - Append further datasets to the current set of datasets
@@ -19,28 +20,32 @@ classdef mfclass
     %
     % To set fitting functions:
     %   set_fun      - Set foreground fit functions
-    %   set_bfun     - Set background fit functions
     %   clear_fun    - Clear one or more foreground fit functions
+    %
+    %   set_bfun     - Set background fit functions
     %   clear_bfun   - Clear one or more background fit functions
     %
     % To set which parameters are fixed or free:
     %   set_free     - Set free or fix foreground function parameters
-    %   set_bfree    - Set free or fix background function parameters
     %   clear_free   - Clear all foreground parameters to be free for one or more data sets
+    %
+    %   set_bfree    - Set free or fix background function parameters
     %   clear_bfree  - Clear all background parameters to be free for one or more data sets
     %
     % To bind parameters:
     %   set_bind     - Bind foreground parameter values in fixed ratios
-    %   set_bbind    - Bind background parameter values in fixed ratios
     %   add_bind     - Add further foreground function bindings
-    %   add_bbind    - Add further background function bindings
     %   clear_bind   - Clear parameter bindings for one or more foreground functions
+    %
+    %   set_bbind    - Bind background parameter values in fixed ratios
+    %   add_bbind    - Add further background function bindings
     %   clear_bbind  - Clear parameter bindings for one or more background functions
     %
     % To set functions as operating globally or local to a single dataset
     %   set_global_foreground - Specify that there will be a global foreground fit function
-    %   set_global_background - Specify that there will be a global background fit function
     %   set_local_foreground  - Specify that there will be local foreground fit function(s)
+    %
+    %   set_global_background - Specify that there will be a global background fit function
     %   set_local_background  - Specify that there will be local background fit function(s)
     %
     % To fit or simulate:
@@ -50,20 +55,54 @@ classdef mfclass
     % Fit control parameters and other options:
     %   set_options  - Set options
     %   get_options  - Get values of one or more specific options
+    %
+    %
+    % mfclass Properties:
+    % --------------------------------------
+    % Data to be fitted:
+    %   data         - datasets to be fitted or simulated
+    %   mask         - mask arrays to remove data points from fitting or simulation
+    %
+    % Fit functions:
+    %   fun          - foreground fit function handles
+    %   pin          - foreground function parameter values
+    %   free         - the foreground function parameters that can vary in a fit
+    %   bind         - binding of foreground parameters to free parameters
+    %
+    %   bfun         - foreground fit function handles
+    %   bpin         - foreground function parameter values
+    %   bfree        - the foreground function parameters that can vary in a fit
+    %   bbind        - binding of foreground parameters to free parameters
+    %
+    % To set functions as operating globally or local to a single dataset
+    %   global_foreground - true if a global foreground fit function
+    %   local_foreground  - true if a local foreground fit functions
+    %   global_background - true if a global background fit function
+    %   local_background  - true if a local background fit function(s)
+    %
+    % Options:
+    %   options      - options defining fit control parameters
 
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-    %   mfclass_purpose_summary_file = fullfile(mfclass_doc,'purpose_summary.m')
-    %   mfclass_methods_summary_file = fullfile(mfclass_doc,'methods_summary.m')
+    %   mfclass_doc_purpose_summary_file = fullfile(mfclass_doc,'doc_purpose_summary.m')
+    %   mfclass_doc_methods_summary_file = fullfile(mfclass_doc,'doc_methods_summary.m')
+    %   mfclass_doc_properties_summary_file = fullfile(mfclass_doc,'doc_properties_summary.m')
     %
     %   class_name = 'mfclass'
     %
     % <#doc_beg:> multifit
-    %   <#file:> <mfclass_purpose_summary_file>
+    %   <#file:> <mfclass_doc_purpose_summary_file>
+    %
     %
     % <class_name> Methods:
+    % --------------------------------------
+    %   <#file:> <mfclass_doc_methods_summary_file>
     %
-    %   <#file:> <mfclass_methods_summary_file>
+    %
+    % <class_name> Properties:
+    % --------------------------------------
+    %   <#file:> <mfclass_doc_properties_summary_file>
     % <#doc_end:>
 
 
@@ -213,7 +252,7 @@ classdef mfclass
     properties (Dependent)
         % Public properties - they all work by going via private properties
 
-        % Data set object or cell array of data set objects (row vector)
+        % Dataset or cell array of datasets (row vector)
         % Has the form:
         %
         %   w1    or     {w1,w2,...}
@@ -239,13 +278,9 @@ classdef mfclass
         data
 
         % Mask array (single data set) or cell array containing mask arrays
-        % one mask array per data sets (row vector). Each mask array has the
+        % One mask array per data sets (row vector). Each mask array has the
         % same size as the signal array for the corresponding data set.
         mask
-
-        w           % *** get rid of for release
-        msk         % *** get rid of for release
-        wmask       % *** get rid of for release
 
         % Foreground is local if true, or global if false
         local_foreground
@@ -253,23 +288,59 @@ classdef mfclass
         % Foreground is global if true, or local if false
         global_foreground
 
-        % Cell array of foreground function handles (row vector)
-        % If the foreground fit function is global, the cell array contains just
-        % one handle. If the foreground fit functions are local the array contains
-        % one handle per dataset. If a function is not given for a dataset, the
-        % corresponding handle is set to [].
+        % Foreground function handle or cell array of function handles (row vector)
+        % If the foreground fit function is global, fun is a single function handle
+        % If the foreground fit function(s) are local there is one function handle
+        % per dataset. If a function is not given for a dataset, the corresponding
+        % handle is set to [].
         fun
 
-        % Foreground function parameters
-        % Foreground function parameter list (single function) or cell array of foreground
-        % functions parameters (more than one function)(row vector)
+        % Foreground parameter list (single function) or cell array of parameter lists
+        % The form of the parameter list depends on the fit function, and the help
+        % for set_fun should be consulted (link below). In most cases, the parameter
+        % list for a fit function is either:
         %
-        % The form of a parameter list is
-        pin     % cell array of pin(1).plist, so can be fed into set_fun
-        free
-        bind
+        %   - A numeric vector (row or column)
+        %       e.g.    p = [10,100,0.01
+        %
+        %   - A cell array (row) of arguments, the first of which is a numerica vector
+        %    of parameers that can be refined in the fit, followed by further arguments
+        %    needed by the function, for example the name of a lookup file or a logical
+        %    flag to determine the choice of a branch in the function
+        %       e.g.    p = {[10,100,0.01], 'my_table.txt', 'false'}
+        %
+        % See also set_fun
+        pin
 
-        bind_dbg   % *** get rid of for release
+        % Defines which foreground function parameters are free to vary in fit
+        % If there is one fit function, then the property is a logical row vector
+        % (or row of 1 and 0) with true for parameters that will vary and false (0) for
+        % those that are fixed. If there is more than one fit function, that is, there
+        % is more than one dataset and the fit is local not global, then the property
+        % is a cell array of logical row vectors.
+        %
+        % See also set_fun set_free
+        free
+
+        % Array describing binding of foreground parameters
+        % Array size [n,5] where n is the number of distinct bindings of foreground
+        % parameters. Each row consists of
+        %       ip_bound, ifun_bound, ip_free, ifun_free, ratio
+        % where
+        %   ip_bound    Index of bound parameter in the list for the function ifun_bound (below)
+        %   ifun_bound  Index of function
+        %               - foreground functions: numbered 1,2,3,...numel(fun)
+        %               - background functions: numbered -1,-2,-3,...-numel(bfun)
+        %   p_free      Index of the free parameter in the list for the function
+        %              ifun_free (below) to which the bound parameter is tied
+        %   ifun_free   Index of the function
+        %   ratio       Ratio of the bound parameter value to free parameter value
+        %
+        % The bindings have been resolved to account for any chain of binding to
+        % the floating parameter at the end of the chain.
+        %
+        % See also set_fuin set_bind
+        bind
 
         % Background is local if true, or global if false
         local_background
@@ -277,17 +348,59 @@ classdef mfclass
         % Background is global if true, or local if false
         global_background
 
-        % Cell array of background function handles (row vector)
-        % If the background fit function is global, the cell array contains just
-        % one handle. If the background fit functions are local the array contains
-        % one handle per dataset. If a function is not given for a dataset, the
-        % corresponding handle is set to [].
+        % Background function handle or cell array of function handles (row vector)
+        % If the background fit function is global, fun is a single function handle
+        % If the background fit function(s) are local there is one function handle
+        % per dataset. If a function is not given for a dataset, the corresponding
+        % handle is set to [].
         bfun
-        bpin    % cell array of bpin(1).plist, so can be fed into set_fun
-        bfree
-        bbind
 
-        bbind_dbg  % *** get rid of for release
+        % Background parameter list (single function) or cell array of parameter lists
+        % The form of the parameter list depends on the fit function, and the help
+        % for set_fun should be consulted (link below). In most cases, the parameter
+        % list for a fit function is either:
+        %
+        %   - A numeric vector (row or column)
+        %       e.g.    p = [10,100,0.01
+        %
+        %   - A cell array (row) of arguments, the first of which is a numerica vector
+        %    of parameers that can be refined in the fit, followed by further arguments
+        %    needed by the function, for example the name of a lookup file or a logical
+        %    flag to determine the choice of a branch in the function
+        %       e.g.    p = {[10,100,0.01], 'my_table.txt', 'false'}
+        %
+        % See also set_bfun
+        bpin
+
+        % Defines which foreground function parameters are free to vary in fit
+        % If there is one fit function, then the property is a logical row vector
+        % (or row of 1 and 0) with true for parameters that will vary and false (0) for
+        % those that are fixed. If there is more than one fit function, that is, there
+        % is more than one dataset and the fit is local not global, then the property
+        % is a cell array of logical row vectors.
+        %
+        % See also set_bfun set_bfree
+        bfree
+
+        % Array describing binding of background parameters
+        % Array size [n,5] where n is the number of distinct bindings of foreground
+        % parameters. Each row consists of
+        %       ip_bound, ifun_bound, ip_free, ifun_free, ratio
+        % where
+        %   ip_bound    Index of bound parameter in the list for the function ifun_bound (below)
+        %   ifun_bound  Index of function
+        %               - foreground functions: numbered 1,2,3,...numel(fun)
+        %               - background functions: numbered -1,-2,-3,...-numel(bfun)
+        %   p_free      Index of the free parameter in the list for the function
+        %              ifun_free (below) to which the bound parameter is tied
+        %   ifun_free   Index of the function
+        %   ratio       Ratio of the bound parameter value to free parameter value
+        %
+        % The bindings have been resolved to account for any chain of binding to
+        % the floating parameter at the end of the chain.
+        %
+        % See also set_bfun set_bbind
+        bbind
 
         % Options structure
         % Fields are:
@@ -298,6 +411,13 @@ classdef mfclass
         %   squeeze_xye             Remove points from simulation of x-y-e
         %                          data where data is masked or not fittable
         options
+
+        w           % *** get rid of for release
+        msk         % *** get rid of for release
+        wmask       % *** get rid of for release
+        bbind_dbg   % *** get rid of for release
+        bind_dbg    % *** get rid of for release
+
     end
 
     properties (Dependent, Access=protected)
@@ -441,29 +561,6 @@ classdef mfclass
             end
         end
 
-        %------------------
-        function out = get.w(obj)       % *** get rid of for release
-            out = obj.w_;
-        end
-
-        function out = get.msk(obj)     % *** get rid of for release
-            out = obj.msk_;
-        end
-
-        function out = get.wmask(obj)   % *** get rid of for release
-            if ~isempty(obj.w_)
-                [out,~,ok,mess] = mask_data_for_fit (obj.w_,obj.msk_);
-                if ok && ~isempty(mess)
-                    display_message(mess);
-                elseif ~ok
-                    error_message(mess);
-                end
-            else
-                out = obj.w_;
-            end
-        end
-        %------------------
-
         function out = get.local_foreground(obj)
             out = obj.foreground_is_local_;
         end
@@ -481,7 +578,11 @@ classdef mfclass
         end
 
         function out = get.fun(obj)
-            out = obj.fun_;
+            if isscalar(obj.fun_)
+                out = obj.fun_{1};
+            else
+                out = obj.fun_;
+            end
         end
 
         function out = get.pin(obj)
@@ -512,19 +613,12 @@ classdef mfclass
             out = [ipb,ifunb,ipf,ifunf,R];
         end
 
-        function out = get.bind_dbg(obj)   % *** get rid of for release
-            % *** Need to extract in different form for production version
-            nptot = sum(obj.np_);
-            out = [double(obj.free_(1:nptot))';...
-                double(obj.bound_(1:nptot))';...
-                obj.bound_to_(1:nptot)';...
-                obj.ratio_(1:nptot,:)';
-                obj.bound_to_res_(1:nptot)';...
-                obj.ratio_res_(1:nptot,:)'];
-        end
-
         function out = get.bfun(obj)
-            out = obj.bfun_;
+            if isscalar(obj.bfun_)
+                out = obj.bfun_{1};
+            else
+                out = obj.bfun_;
+            end
         end
 
         function out = get.bpin(obj)
@@ -559,8 +653,45 @@ classdef mfclass
             out = [ipb,-ifunb,ipf,-ifunf,R];
         end
 
+        function out = get.options(obj)
+            out = obj.options_;
+        end
+
+        %-------------------------------
+        % *** Get rid of for release
+        %-------------------------------
+        function out = get.w(obj)       % *** get rid of for release
+            out = obj.w_;
+        end
+
+        function out = get.msk(obj)     % *** get rid of for release
+            out = obj.msk_;
+        end
+
+        function out = get.wmask(obj)   % *** get rid of for release
+            if ~isempty(obj.w_)
+                [out,~,ok,mess] = mask_data_for_fit (obj.w_,obj.msk_);
+                if ok && ~isempty(mess)
+                    display_message(mess);
+                elseif ~ok
+                    error_message(mess);
+                end
+            else
+                out = obj.w_;
+            end
+        end
+
+        function out = get.bind_dbg(obj)    % *** get rid of for release
+            nptot = sum(obj.np_);
+            out = [double(obj.free_(1:nptot))';...
+                double(obj.bound_(1:nptot))';...
+                obj.bound_to_(1:nptot)';...
+                obj.ratio_(1:nptot,:)';
+                obj.bound_to_res_(1:nptot)';...
+                obj.ratio_res_(1:nptot,:)'];
+        end
+
         function out = get.bbind_dbg(obj)   % *** get rid of for release
-            % *** Need to extract in different form for production version
             nptot = sum(obj.np_);
             nbptot = sum(obj.nbp_);
             range = nptot+1:nptot+nbptot;
@@ -571,17 +702,12 @@ classdef mfclass
                 obj.bound_to_res_(range)';...
                 obj.ratio_res_(range,:)'];
         end
-
-        function out = get.options(obj)
-            out = obj.options_;
-        end
-
         %------------------------------------------------------------------
     end
 
     methods
         %------------------------------------------------------------------
-        % Set/get methods: hidden dependent properties
+        % Set/get methods: protected dependent properties
         %------------------------------------------------------------------
         % Set methods
         function obj = set.wrapfun(obj, val)
