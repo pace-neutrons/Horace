@@ -4,8 +4,9 @@ classdef mfclass_tobyfit < mfclass
     % and background function(s) can be set to apply globally to all datasets,
     % or locally, one function per dataset.
     %
-    % mfclass_tobyfit Methods:
     %
+    % mfclass_tobyfit Methods:
+    % --------------------------------------
     % To set data:
     %   set_data     - Set data, clearing any existing datasets
     %   append_data  - Append further datasets to the current set of datasets
@@ -19,28 +20,32 @@ classdef mfclass_tobyfit < mfclass
     %
     % To set fitting functions:
     %   set_fun      - Set foreground fit functions
-    %   set_bfun     - Set background fit functions
     %   clear_fun    - Clear one or more foreground fit functions
+    %
+    %   set_bfun     - Set background fit functions
     %   clear_bfun   - Clear one or more background fit functions
     %
     % To set which parameters are fixed or free:
     %   set_free     - Set free or fix foreground function parameters
-    %   set_bfree    - Set free or fix background function parameters
     %   clear_free   - Clear all foreground parameters to be free for one or more data sets
+    %
+    %   set_bfree    - Set free or fix background function parameters
     %   clear_bfree  - Clear all background parameters to be free for one or more data sets
     %
     % To bind parameters:
     %   set_bind     - Bind foreground parameter values in fixed ratios
-    %   set_bbind    - Bind background parameter values in fixed ratios
     %   add_bind     - Add further foreground function bindings
-    %   add_bbind    - Add further background function bindings
     %   clear_bind   - Clear parameter bindings for one or more foreground functions
+    %
+    %   set_bbind    - Bind background parameter values in fixed ratios
+    %   add_bbind    - Add further background function bindings
     %   clear_bbind  - Clear parameter bindings for one or more background functions
     %
     % To set functions as operating globally or local to a single dataset
     %   set_global_foreground - Specify that there will be a global foreground fit function
-    %   set_global_background - Specify that there will be a global background fit function
     %   set_local_foreground  - Specify that there will be local foreground fit function(s)
+    %
+    %   set_global_background - Specify that there will be a global background fit function
     %   set_local_background  - Specify that there will be local background fit function(s)
     %
     % To fit or simulate:
@@ -56,25 +61,68 @@ classdef mfclass_tobyfit < mfclass
     %   set_mc_points           - Set the number of Monte Carlo points per pixel
     %   set_refine_crystal      - Refine crystal lattice parmaeters and orientation
     %   set_refine_moderator    - Refine moderator parameters
+    %
+    %
+    % mfclass_tobyfit Properties:
+    % --------------------------------------
+    % Data to be fitted:
+    %   data         - datasets to be fitted or simulated
+    %   mask         - mask arrays to remove data points from fitting or simulation
+    %
+    % Fit functions:
+    %   fun          - foreground fit function handles
+    %   pin          - foreground function parameter values
+    %   free         - the foreground function parameters that can vary in a fit
+    %   bind         - binding of foreground parameters to free parameters
+    %
+    %   bfun         - foreground fit function handles
+    %   bpin         - foreground function parameter values
+    %   bfree        - the foreground function parameters that can vary in a fit
+    %   bbind        - binding of foreground parameters to free parameters
+    %
+    % To set functions as operating globally or local to a single dataset
+    %   global_foreground - true if a global foreground fit function
+    %   local_foreground  - true if a local foreground fit functions
+    %   global_background - true if a global background fit function
+    %   local_background  - true if a local background fit function(s)
+    %
+    % Options:
+    %   options      - options defining fit control parameters
+    %
+    % In addition, specifically for Tobyfit:
+    %   mc_contributions    - Defines which components contribute to the resolution
+    %   mc_points           - The number of Monte Carlo points per pixel
+    %   refine_crystal      - Crystal orientation refinement parameters
+    %   refine_moderator    - Moderator parameter refinement parameters
 
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
     %   mfclass_tobyfit_doc = fullfile(fileparts(which('mfclass_tobyfit')),'_docify')
     %
-    %   mfclass_tobyfit_purpose_summary_file = fullfile(mfclass_tobyfit_doc,'purpose_summary.m')
-    %   mfclass_methods_summary_file = fullfile(mfclass_doc,'methods_summary.m')
-    %   mfclass_tobyfit_methods_summary_file = fullfile(mfclass_tobyfit_doc,'methods_summary.m')
+    %   mfclass_tobyfit_doc_purpose_summary_file = fullfile(mfclass_tobyfit_doc,'doc_purpose_summary.m')
+    %   mfclass_doc_methods_summary_file = fullfile(mfclass_doc,'doc_methods_summary.m')
+    %   mfclass_tobyfit_doc_methods_summary_file = fullfile(mfclass_tobyfit_doc,'doc_methods_summary.m')
+    %   mfclass_doc_properties_summary_file = fullfile(mfclass_doc,'doc_properties_summary.m')
+    %   mfclass_tobyfit_doc_properties_summary_file = fullfile(mfclass_tobyfit_doc,'doc_properties_summary.m')
     %
     %   class_name = 'mfclass_tobyfit'
     %
     % <#doc_beg:> multifit
-    %   <#file:> <mfclass_tobyfit_purpose_summary_file>
+    %   <#file:> <mfclass_tobyfit_doc_purpose_summary_file>
+    %
     %
     % <class_name> Methods:
+    % --------------------------------------
+    %   <#file:> <mfclass_doc_methods_summary_file>
     %
-    %   <#file:> <mfclass_methods_summary_file>
+    %   <#file:> <mfclass_tobyfit_doc_methods_summary_file>
     %
-    %   <#file:> <mfclass_tobyfit_methods_summary_file>
+    %
+    % <class_name> Properties:
+    % --------------------------------------
+    %   <#file:> <mfclass_doc_properties_summary_file>
+    %
+    %   <#file:> <mfclass_tobyfit_doc_properties_summary_file>
     % <#doc_end:>
 
     properties (Access=private, Hidden=true)
@@ -91,7 +139,7 @@ classdef mfclass_tobyfit < mfclass
         % The number of Monte Carlo points per pixel
         mc_points
 
-        % Crystal orientation refinement parameters.
+        % Crystal orientation refinement parameters
         % If crystal refinement will not to be performed, contains [];
         % otherwise a structure with parameters:
         %   alatt       Initial lattice parameters
@@ -105,7 +153,7 @@ classdef mfclass_tobyfit < mfclass
         %   fix_alatt_ratio     =true if a,b,c are to be bound (Default: false)
         refine_crystal
 
-        % Moderator parameter refinement parameters.
+        % Moderator parameter refinement parameters
         % If moderator refinement will not to be performed, contains [];
         % otherwise a structure with parameters:
         %	pulse_model     Name of moderator pulse shape model
@@ -186,14 +234,14 @@ classdef mfclass_tobyfit < mfclass
 
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-            %   set_fun_intro = fullfile(mfclass_doc,'set_fun_intro.m')
+            %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')
             %
             %   mfclass_Horace_doc = fullfile(fileparts(which('sqw/multifit2_sqw')),'_docify')
-            %   set_fun_sqw_model_form = fullfile(mfclass_Horace_doc,'set_fun_sqw_model_form.m')
+            %   doc_set_fun_sqw_model_form = fullfile(mfclass_Horace_doc,'doc_set_fun_sqw_model_form.m')
             %
             % <#doc_beg:> multifit
-            %   <#file:> <set_fun_intro>
-            %   <#file:> <set_fun_sqw_model_form>
+            %   <#file:> <doc_set_fun_intro>
+            %   <#file:> <doc_set_fun_sqw_model_form>
             %
             % <a href="matlab:doc('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
             % <a href="matlab:doc('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
@@ -241,16 +289,16 @@ classdef mfclass_tobyfit < mfclass
 
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-            %   set_bfun_intro = fullfile(mfclass_doc,'set_bfun_intro.m')
-            %   set_fun_xye_function_form = fullfile(mfclass_doc,'set_fun_xye_function_form.m')
+            %   doc_set_bfun_intro = fullfile(mfclass_doc,'doc_set_bfun_intro.m')
+            %   doc_set_fun_xye_function_form = fullfile(mfclass_doc,'doc_set_fun_xye_function_form.m')
             %
             %   class_name = 'mfclass_Horace'
             %   x_arg = 'x1,x2,...'
             %   x_descr = 'x1,x2,... Array of x values, one array for each dimension'
             %
             % <#doc_beg:> multifit
-            %   <#file:> <set_bfun_intro>
-            %   <#file:> <set_fun_xye_function_form> <x_arg> <x_descr>
+            %   <#file:> <doc_set_bfun_intro>
+            %   <#file:> <doc_set_fun_xye_function_form> <x_arg> <x_descr>
             %
             %     See <a href="matlab:doc('example_1d_function');">example_1d_function</a>
             %     See <a href="matlab:doc('example_2d_function');">example_2d_function</a>
@@ -321,9 +369,9 @@ classdef mfclass_tobyfit < mfclass
 
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-            %   simulate_intro = fullfile(mfclass_doc,'simulate_intro.m')
+            %   doc_simulate_intro = fullfile(mfclass_doc,'doc_simulate_intro.m')
             % <#doc_beg:> multifit
-            %   <#file:> <simulate_intro>
+            %   <#file:> <doc_simulate_intro>
             % <#doc_end:>
 
             % Check there is data
@@ -334,11 +382,7 @@ classdef mfclass_tobyfit < mfclass
 
             % Update parameter wrapping
             obj_tmp = obj;
-
             obj_tmp.wrapfun.p_wrap = append_args (obj_tmp.wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, [], []);
-%             wrapfun = obj_tmp.wrapfun;
-%             wrapfun.p_wrap = append_args (wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, [], []);
-%             obj_tmp.wrapfun = wrapfun;
 
             % Perform simulation
             [data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
@@ -403,9 +447,9 @@ classdef mfclass_tobyfit < mfclass
 
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
-            %   fit_intro = fullfile(mfclass_doc,'fit_intro.m')
+            %   doc_fit_intro = fullfile(mfclass_doc,'doc_fit_intro.m')
             % <#doc_beg:> multifit
-            %   <#file:> <fit_intro>
+            %   <#file:> <doc_fit_intro>
             % <#doc_end:>
 
             % Check there is data
@@ -424,7 +468,7 @@ classdef mfclass_tobyfit < mfclass
             else
                 xtal = [];
             end
-            
+
             is_refine_moderator = ~isempty(obj_tmp.refine_moderator);
             if is_refine_moderator
                 [ok, mess, obj_tmp, modshape] = refine_moderator_pack_parameters_ (obj_tmp);
@@ -434,9 +478,6 @@ classdef mfclass_tobyfit < mfclass
             end
 
             obj_tmp.wrapfun.p_wrap = append_args (obj_tmp.wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, xtal, modshape);
-%             wrapfun = obj_tmp.wrapfun;
-%             wrapfun.p_wrap = append_args (wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, xtal, modshape);
-%             obj_tmp.wrapfun = wrapfun;
 
             % Perform fit
             [data_out, fitdata, ok, mess] = fit@mfclass (obj_tmp);
