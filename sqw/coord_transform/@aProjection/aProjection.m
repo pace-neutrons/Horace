@@ -119,14 +119,8 @@ classdef aProjection
             %
             if nargin == 0
                 return
-            elseif nargin == 1
-                error('APROJECTION:invalid_argument',...
-                    'non-empty projection needs at least grid_size_in and data_range to be defined');
-            elseif nargin>1
-                proj = build_4D_proj_box_(proj,varargin{1},varargin{2});
-            end
-            if nargin>2
-                proj.projaxes_ = projaxes(varargin{3:end});
+            else
+                proj = proj_constructor_(proj,varargin{:});
             end
         end
         %------------------------------------------------------------------
@@ -193,7 +187,7 @@ classdef aProjection
         end
         %
         function pax = get.p(obj)
-            pax = obj.p_;
+            pax = obj.p_(obj.pax_);
         end
         
         function obj  = set.labels(obj,val)

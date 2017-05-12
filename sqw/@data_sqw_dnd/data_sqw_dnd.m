@@ -1,4 +1,4 @@
-classdef data_sqw_dnd
+classdef data_sqw_dnd < data_dnd
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
@@ -8,63 +8,9 @@ classdef data_sqw_dnd
     % $Revision$ ($Date$)
     %
     properties
-        filename=''   % Name of sqw file that is being read, excluding path
-        filepath=''   % Path to sqw file that is being read, including terminating file separator
-        title   =''   % Title of sqw data structure
-        alatt   =[1,1,1] % Lattice parameters for data field (Ang^-1)
-        angdeg  =[90,90,90]% Lattice angles for data field (degrees)
-        
-        s=[]          %Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        e=[]          %Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        npix=[]       %No. contributing pixels to each bin of the plot axes.
-        %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        urange=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
-            -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
-        pix=[]     %Array containing data for each pixel:
-        % If npixtot=sum(npix), then pix(9,npixtot) contains:
-        % u1      -|
-        % u2       |  Coordinates of pixel in the projection axes
-        % u3       |
-        % u4      -|
-        % irun        Run index in the header block from which pixel came
-        % idet        Detector group number in the detector listing for the pixel
-        % ien         Energy bin number for the pixel in the array in the (irun)th header
-        % signal      Signal array
-        % err         Error array (variance i.e. error bar squared)
-    end
-    properties(Dependent)
-        % temporary keep  old interface:
-        %------------------------------------------------------------------
-        uoffset  %   Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-        u_to_rlu   %   Matrix (4x4) of projection axes in hkle representation
-        %                   u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        ulen            %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        ulabel  %Labels of the projection axes [1x4 cell array of character strings]
-        iax;    %Index of integration axes into the projection axes  [row vector]
-        %                  Always in increasing numerical order
-        %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-        iint;   %Integration range along each of the integration axes. [iint(2,length(iax))]
-        %                   e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-        pax;   %Index of plot axes into the projection axes  [row vector]
-        %                Always in increasing numerical order
-        %                e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-        %                2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-        p;  %  Cell array containing bin boundaries along the plot axes [column vectors]
-        %                i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-        dax    %Index into data.pax of the axes for display purposes. For example we may have
-        %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-        %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-        %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-        %                  be reordered [row vector]
-        %
-        %
-        % new interface: 
-        proj;
-    end
-    properties(Access = private)
-        % A projection, which defines transformation between pixels and sqw
-        % objects system of coordinates
-        proj_ = projection();
+        urange = [Inf,Inf,Inf,Inf;... %True range of the data along each axis [urange(2,4)]
+            -Inf,-Inf,-Inf,-Inf]
+        pix = [];
     end
     
     methods
@@ -78,9 +24,6 @@ classdef data_sqw_dnd
         range = get_bin_range(obj);
         % convert sqw_dnd object into structure
         struc = to_struct(obj,varargin);
-        % Get titling and caption information for the projection, specified
-        [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] =...
-            data_plot_titles(this)        
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:

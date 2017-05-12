@@ -1,11 +1,11 @@
-function [d, mess] = make_sqw (varargin)
+function obj = make_sqw_(obj,varargin)
 % Create a structure for an sqw object
 %
-%   >> [d,message] = make_sqw (dnd_type,u0,u1,p1,u2,p2,...,un,pn)
-%   >> [d,message] = make_sqw (dnd_type,u0,u1,p1,u2,p2,...,un-1,pn-1,pn)
-%   >> [d,message] = make_sqw (dnd_type,lattice,...)
-%   >> [d,message] = make_sqw (dnd_type,ndim)
-%   >> [d,message] = make_sqw (dnd_type,din)
+%   >> [d] = make_sqw (u0,u1,p1,u2,p2,...,un,pn)
+%   >> [d] = make_sqw (u0,u1,p1,u2,p2,...,un-1,pn-1,pn)
+%   >> [d] = make_sqw (lattice,...)
+%   >> [d] = make_sqw (ndim)
+%   >> [d] = make_sqw (din)
 %
 % Input:
 % ------
@@ -47,42 +47,15 @@ function [d, mess] = make_sqw (varargin)
 %
 %   mess    ='' if valid output structure; set to error message if not.
 
-
-mess='';
-fields = {'main_header';'header';'detpar';'data'};  % column
-
-dnd_type=varargin{1};
-if nargin==2 && (isstruct(varargin{2}))
-    if ~dnd_type
-        if isequal(fieldnames(varargin{2}),fields)    % sqw-type top level fields
-            d=varargin{2};
-            if ~isa(d.data,'data_sqw_dnd')
-                d.data = data_sqw_dnd(d.data);
-            end
-        else
-            d=struct([]);   % there was a problem
-            mess='Fields of structure not compatible with sqw type structure';
+if nargin==2 && (isstruct(varargin{1}))
+        d=varargin{1};
+        fields = fieldnames(d);
+        for i=1:numel(fields)
+            fld = fields{i};
+            obj.(fld) = d.fld;
         end
-    elseif dnd_type  % try to interpret as dnd type
-        d.main_header=make_sqw_main_header;
-        d.header=make_sqw_header;
-        d.detpar=make_sqw_detpar;
-        if isequal(fieldnames(varargin{2}),fields)    % sqw-type top level fields, so interpret as wanting to make dnd from sqw structure
-            d.data=varargin{2}.data;
-        else
-            if isa(varargin{2},'data_sqw_dnd')
-                d.data=varargin{2};
-            else
-                d.data=clear_sqw_data(data_sqw_dnd(varargin{2}));
-            end
-        end
+
         % In case structure is not actually a true sqw-type structure, don't fail if fields urange and pix do not exist
         %if isfield(d.data,'urange'), d.data=rmfield(d.data,'urange'); end
         %if isfield(d.data,'pix'), d.data=rmfield(d.data,'pix'); end
-    end
-else
-    d.main_header=make_sqw_main_header;
-    d.header=make_sqw_header;
-    d.detpar=make_sqw_detpar;
-    d.data=data_sqw_dnd(varargin{2:end});
 end

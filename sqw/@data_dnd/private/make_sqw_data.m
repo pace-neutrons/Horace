@@ -117,7 +117,7 @@ function [obj,mess] = make_sqw_data (obj,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision$ ($Date$)
+% $Revision: 1483 $ ($Date: 2017-05-04 16:04:46 +0100 (Thu, 04 May 2017) $)
 
 
 mess='';
