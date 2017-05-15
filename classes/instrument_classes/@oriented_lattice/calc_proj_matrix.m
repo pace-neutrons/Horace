@@ -44,12 +44,12 @@ function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (obj)
 % Get matrix to convert from rlu to orthonormal frame defined by u,v; and
 b_matrix  = obj.bmatrix();       % bmat takes Vrlu to Vxtal_cart
 [~,u_matrix] = obj.ubmatrix(b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
-%u_matrix  = ub_matrix / b_matrix;         % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
+%u_matrix  = ub_matrix / b_matrix;         % u matrix takes V in crystal Cartesian coordinates to orthonormal frame defined by u, v
 
 obj=obj.set_rad();
 
-% Matrix to convert coords in orthormal frame defined by notional directions of u, v, to
-% coords in orthonormal frame defined by true directions of u, v:
+% Matrix to convert coordinates in orthonormal frame defined by notional directions of u, v, to
+% coordinates  in orthonormal frame defined by true directions of u, v:
 
 rot_dpsi= [cos(obj.dpsi),-sin(obj.dpsi),0;...
     sin(obj.dpsi), cos(obj.dpsi),       0;...
@@ -69,13 +69,13 @@ rot_om  = [cos(obj.omega),-sin(obj.omega),0;...
 %--------------------------------------------
 corr = (rot_om * (rot_dpsi*rot_gl*rot_gs) * rot_om')';
 
-% Matrix to convert from spectrometer coords to orthormal frame defined by notional directions of u, v
+% Matrix to convert from spectrometer coordinates to orthonormal frame defined by notional directions of u, v
 cryst = [cos(obj.psi),sin(obj.psi),0; -sin(obj.psi),cos(obj.psi),0; 0,0,1];
 
 % Combine to get matrix to convert from spectrometer coordinates to crystal Cartesian coordinates
 spec_to_u = u_matrix\corr*cryst;
 
-% Matrix to convert from crystal Cartesian coords to r.l.u.
+% Matrix to convert from crystal Cartesian coordinates to r.l.u.
 u_to_rlu = inv(b_matrix);
 
 % Matrix to convert from spectrometer coordinates to r.l.u.
