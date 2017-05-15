@@ -7,9 +7,16 @@ function test_tobyfit_init (opt)
 %   tobyfit     opt = 2
 
 rootpath = fileparts(which(mfilename));
-tf1_dir = 'T:\SVN_area\Horace_trunk\Tobyfit';
-tf2_dir = 'T:\SVN_area\Horace_trunk\_work\TGP_work\Tobyfit2';
-mfclass_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit';
+svn_path = fileparts(fileparts(fileparts(rootpath)));
+horace = 'Horace_trunk';
+herbert = 'Herbert';
+tf1_dir  = fullfile(svn_path,horace,'Tobyfit');
+tf2_dir  = fullfile(svn_path,horace,'_work/TGP_work/Tobyfit2');
+mfclass_dir = fullfile(svn_path,herbert,'_work/TGP_work/applications/multifit');
+
+%tf1_dir = 'T:\SVN_area\Horace_trunk\Tobyfit';
+%tf2_dir = 'T:\SVN_area\Horace_trunk\_work\TGP_work\Tobyfit2';
+%mfclass_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit';
 
 if nargin==0 || (ischar(opt) && strncmpi(opt,'off',numel(opt)))
     start_app ('tobyfit','-off')
