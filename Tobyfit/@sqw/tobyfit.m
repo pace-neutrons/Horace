@@ -235,7 +235,7 @@ function [wout, fitdata, ok, mess, varargout] = tobyfit(win, varargin)
 %             pbind={{1,3},{4,3},{5,6}} Parameter 1 bound to 3, 4 bound to 3, 
 %                                      and 5 bound to 6. 
 % 
-%           To explicity give the ratio in a binding element, ignoring that 
+%           To explicitly give the ratio in a binding element, ignoring that 
 %           determined from pin: 
 %             pbind=(1,3,[],7.4)        Parameter 1 is bound to parameter 3 
 %                                      with ratio 7.4 (the [] is required to 
@@ -341,7 +341,7 @@ function [wout, fitdata, ok, mess, varargout] = tobyfit(win, varargin)
 %           fitted to the datasets, or an array of function handles, one 
 %           per dataset. 
 %           If 'global_background' is set to true, then give just one 
-%           function handle; that function will be fitted globaly to all 
+%           function handle; that function will be fitted globally to all 
 %           data sets. 
 %           The function will be evaluated at the bin centres. It must have 
 %           the form: 
