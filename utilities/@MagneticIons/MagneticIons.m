@@ -33,11 +33,11 @@ classdef MagneticIons
         % handles to fucntions calculating magnatic momentums of appropriate order 
         % for current ion
         J0_ff_;J2_ff_;J4_ff_;J6_ff_;
-        % coefficients used to convert hkl squared coordinates into A^(-2)
-        u_2_rlu;
+        % matrix of coefficients used to convert hkl coordinates into A^(-1)
+        u_2_rlu_;
     end
     
-    methods
+    methods        
         function mi=MagneticIons(varargin)
             % Constructor:
             %Usage:
@@ -52,6 +52,10 @@ classdef MagneticIons
             end
 
         end
+        % Correct scattering intensity in a dataset for the magnetic scattering
+        % form factor of the magnetic ion provided.                
+        out=fix_magnetic_ff(self,win)
+        
         %
         function name = get.currentIon(self)
             name= self.currentIon_;

@@ -19,10 +19,7 @@ function wout=fix_magnetic_ff(self,win)
 %                   Signal on each pixel in sqw dataset
 %                   is also divided if sqw dataset is corrected.
 %
-%Notes:
 %
-% * AT THE MOMENT IS IMPLEMENTED FOR ORTHOGONAL LATTICE ONLY! though
-%   generaliztion is trivial
 %
 % * Repetetive applications of the corrections to the same dataset works and
 %   causes wrong corrections. 
@@ -37,17 +34,17 @@ function wout=fix_magnetic_ff(self,win)
 %
 if isa(win,'sqw')
     header_ave=header_average(win);    
-    self.u_2_rlu = header_ave.u_to_rlu(1:3,1:3);
+    self.u_2_rlu_ = header_ave.u_to_rlu(1:3,1:3);
     
     %We can cheat here by making a dummy sqw function that returns the bose
     %factor for all of the points:
     
     sqw_magFF=sqw_eval(win,@form_factor,self);
-else
-    self.u_2_rlu = data_out.u_to_rlu;
-   
-
+else % dnd   
     wis = struct(win);
+    
+    self.u_2_rlu_ = wis.u_to_rlu;
+    
     sizes = cell(4,1);
     old_size = size(wis.s);
     wp       = wis.p;
@@ -106,7 +103,7 @@ wout=mrdivide(win,sqw_magFF);
 function FF = form_factor(h,k,l,en,self)
 % function calculates magnetic form-factor using exponential representation
 %
-u_2_rlu = self.u_2_rlu;
+u_2_rlu = self.u_2_rlu_;
 q = u_2_rlu\[h';k';l'];
 
 q2 = (q(1,:).*q(1,:)+q(2,:).*q(2,:)+q(3,:).*q(3,:))/(16*pi*pi);
