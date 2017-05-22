@@ -58,6 +58,7 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 % <#doc_beg:> multifit
 %   <#file:> <doc_simulate_intro>
 % <#doc_end:>
+% -----------------------------------------------------------------------------
 
 % Check there is data
 data = obj.data;
@@ -71,4 +72,3 @@ obj_tmp.wrapfun.p_wrap = append_args (obj_tmp.wrapfun.p_wrap, obj.mc_contributio
 
 % Perform simulation
 [data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
-

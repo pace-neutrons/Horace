@@ -1,4 +1,4 @@
-function weight = example_sqw_fla_tmode (qh,qk,ql,en,pars)
+function weight = example_sqw_flat_mode (qh,qk,ql,en,pars)
 % Example model for S(Q,w)
 % -------------------------------------------------------------------------
 % A model for S(Q,w) must have the form:
