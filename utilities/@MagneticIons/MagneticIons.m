@@ -1,6 +1,7 @@
 classdef MagneticIons
-    % Class provides magnetic form factors for various magnetic ions
-    % and supports corrections of Horace datasets by this form factor.
+    % Class contains magnetic form factors for various magnetic ions
+    % and supports corrections of Horace datasets by form factor of
+    % a single ion.
     %
     % Magneic form factor parameters are copied from Mantid class MagneticIon
     % Original data taken from https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html
@@ -8,16 +9,26 @@ classdef MagneticIons
     %
     %MagneticIons methods:
     %
-    % MagneticIons - constructor initializing the class to fix magnetic form
-    %               factor for particular ion
-    % fix_magnetic_ff - fix magnetic form factor for given dataset
-    % getIngerpolant  - return function or set of functions to use for
-    %                    magnetic form factor corrections
+    % MagneticIons    - constructor initializing the class to fix magnetic form
+    %                   factor for particular ion
+    %
+    % calc_mag_ff     - Calculate magnetic form factor of the selected ion
+    %                   on the dataset provided as input
+    % apply_mag_ff    - Apply magnetic form factor of the selected ion
+    %                   to the dataset provided as input.
+    % correct_mag_ff  - correct givent dataset for magnetic form factor of
+    %                   the particular ion, defined earlier.
+    %
+    % getInterpolant  - return function or set of functions to use for
+    %                   magnetic form factor corrections.
+    %
+    %
     % Properties:
-    % currentIon     -   property defines the name of current ion to
-    %                    correct magnetic form factor
-    % 
-    % IonNames       - returns list of all ions the class knows about
+    %
+    % currentIon     -  property defines the name of current ion to
+    %                   correct magnetic form factor for.
+    % IonNames        - list of all ions the class knows about and can
+    %                   can calculate magnetic form factors for.
     %
     % $Revision$ ($Date$)
     %
@@ -30,86 +41,55 @@ classdef MagneticIons
     end
     properties(Access= private)
         currentIon_='Fe0'
-        % handles to fucntions calculating magnatic momentums of appropriate order 
+        % handles to fucntions calculating magnatic momentums of appropriate order
         % for current ion
         J0_ff_;J2_ff_;J4_ff_;J6_ff_;
         % matrix of coefficients used to convert hkl coordinates into A^(-1)
         u_2_rlu_;
     end
     
-    methods        
+    methods
         function mi=MagneticIons(varargin)
             % Constructor:
             %Usage:
             %>>mi = MagnaticIons(IonName)
-            %where IonName is the name of the ion to calculate form factor.
-            % If IonName is empty or absent, Fe0 ion used as the default. 
+            % where IonName is the string, defining the name of the ion
+            % to calculate form factor.
+            % If IonName is empty or absent, Fe0 ion used as the default.
             %
             if nargin >0 && not(isempty(varargin{1}))
                 mi.currentIon=varargin{1};
             else
                 mi.currentIon = 'Fe0';
             end
-
         end
-        % Correct scattering intensity in a dataset for the magnetic scattering
-        % form factor of the magnetic ion provided.                
-        out=fix_magnetic_ff(self,win)
-        
+        %------------------------------------------------------------------
+        % Interfaces:
         %
+        % Correct scattering intensity in a dataset for the magnetic scattering
+        % form factor of the magnetic ion provided.
+        out=correct_mag_ff(self,win)
+        % Calculate magnetic form factor calculated on the dataset provided as input
+        out=calc_mag_ff(self,win)
+        % Apply magnetic form factor to the dataset provided as input
+        out=apply_mag_ff(self,win)
+        % retrieve list of function handles, used to calculate magnetic
+        % form factor of the selected magnetic ion.
+        [J0_ff,varargout] = getInterpolant(self,IonName)
+        
+        %------------------------------------------------------------------
         function name = get.currentIon(self)
             name= self.currentIon_;
         end
+        %
         function self = set.currentIon(self,newIonName)
-            if ismember(newIonName,self.Ions_)
-                self.currentIon_ = newIonName;
-                [self.J0_ff_,self.J2_ff_,self.J4_ff_,self.J6_ff_]=self.getIngerpolant(self.currentIon_);
-            else
-                error('MagneticIons:InvalidArgument',' Ion %s is not currently supported',newIonName)
-            end
+            self = check_and_set_ion_name_(self,newIonName);
         end
-        
         %
         function ionNames    = get.IonNames(self)
             % Method returns list of ion names defined by the class
             ionNames = self.Ions_;
         end
-        function [J0_ff,varargout] = getIngerpolant(self,IonName)
-            % Method returns set of interpolating functions used to
-            % calculate magnetic form factor in up to sixtupole
-            % approximation. Some ions have all coefficients of six order 
-            % momentum equal to 0
-            %>> Usage:
-            %>>mi = MagneticIons();
-            %>>[J0_ff,J2_ff]=mi.getIngerpolant('Fe0')
-            %         Returns functions, calculating magnetic moment of Fe0 ion in
-            %         up to second moment approximation. (all odd momentums
-            %         are 0 so naturally not returned)
-            %         The functions depend on Q^2 in angstroms^(-1) and
-            %         magnetic form-factor observed in neutron experiments
-            %         in reciprocal point of space Q (expressed in reverse
-            %         angstroms) can be calculated by the formula:
-            %
-            %>>FF=J0_ff(Q2).^2+J2_ff(Q2).^2;
-            %  where Q2==Q.*Q
-            %
-            %
-            %
-            %
-            par = self.IonParMap_(IonName);
-            
-            %ion	A        a       B      b       C       c        D
-            %J0_ff = @(x2)((A*exp(-a*x2)+B*exp(-b*x2)+C*exp(-c*x2)+D));
-            
-            J0_ff = @(x2)((par(1,1)*exp(-par(1,2)*x2)+par(1,3)*exp(-par(1,4)*x2)+par(1,5)*exp(-par(1,6)*x2)+par(1,7)));
-            if nargout>1
-                for i=1:nargout-1
-                    varargout{i}=@(x2)(((par(i+1,1)*exp(-par(i+1,2)*x2)+par(i+1,3)*exp(-par(i+1,4)*x2)+par(i+1,5)*exp(-par(i+1,6)*x2)+par(i+1,7)).*x2));
-                end
-            end
-            
-        end
-        
     end
     
     properties(Constant, Access=private)

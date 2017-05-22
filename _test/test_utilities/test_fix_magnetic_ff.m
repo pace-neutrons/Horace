@@ -41,6 +41,10 @@ classdef test_fix_magnetic_ff< TestCase
             zer = zeros(1,4);
             assertElementsAlmostEqual(J6_rez,zer);             
         end
+        function test_correct_magnetif_ff(this)
+            
+            
+        end
         
         
     end
