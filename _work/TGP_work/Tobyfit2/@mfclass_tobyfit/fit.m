@@ -60,6 +60,7 @@ function [data_out, fitdata, ok, mess, varargout] = fit (obj)
 % <#doc_beg:> multifit
 %   <#file:> <doc_fit_intro>
 % <#doc_end:>
+% -----------------------------------------------------------------------------
 
 % Check there is data
 data = obj.data;
@@ -123,4 +124,3 @@ if is_refine_moderator
     % Pack output arguments
     varargout={fitmod.pulse_model,fitmod.p,fitmod.sig};
 end
-

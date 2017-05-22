@@ -94,7 +94,7 @@ classdef mfclass_tobyfit < mfclass
     %   mc_points           - The number of Monte Carlo points per pixel
     %   refine_crystal      - Crystal orientation refinement parameters
     %   refine_moderator    - Moderator parameter refinement parameters
-    
+
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
     %   mfclass_tobyfit_doc = fullfile(fileparts(which('mfclass_tobyfit')),'_docify')
@@ -124,21 +124,21 @@ classdef mfclass_tobyfit < mfclass
     %
     %   <#file:> <mfclass_tobyfit_doc_properties_summary_file>
     % <#doc_end:>
-    
+
     properties (Access=private, Hidden=true)
         mc_contributions_ = [];
         mc_points_ = [];
         refine_crystal_ = [];
         refine_moderator_ = [];
     end
-    
+
     properties (Dependent)
         % Define which components of instrument contribute to resolution function model
         mc_contributions
-        
+
         % The number of Monte Carlo points per pixel
         mc_points
-        
+
         % Crystal orientation refinement parameters
         % If crystal refinement will not to be performed, contains [];
         % otherwise a structure with parameters:
@@ -152,7 +152,7 @@ classdef mfclass_tobyfit < mfclass
         %               (Default: all free)
         %   fix_alatt_ratio     =true if a,b,c are to be bound (Default: false)
         refine_crystal
-        
+
         % Moderator parameter refinement parameters
         % If moderator refinement will not to be performed, contains [];
         % otherwise a structure with parameters:
@@ -161,7 +161,7 @@ classdef mfclass_tobyfit < mfclass
         %   free            Logical row vector of zeros and ones (0 fixed, 1 free)
         refine_moderator
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -173,20 +173,6 @@ classdef mfclass_tobyfit < mfclass
             obj = obj.set_refine_crystal (false);
             obj = obj.set_refine_moderator (false);
         end
-        %------------------------------------------------------------------
-        % Interfaces:
-        %
-        % Perform a fit of the data using the current functions and starting parameter values
-        [data_out, fitdata, ok, mess, varargout] = fit (obj)
-        % Perform a simulation of the data using the current functions and starting parameter values
-        [data_out, calcdata, ok, mess] = simulate (obj, varargin)
-        % Extend set_fun and set_bfun solely to provide tailored documentation:
-        %
-        % Set foreground function or functions
-        obj = set_fun(obj,varargin)
-        % Set background function or functions
-        obj = set_bfun(obj,varargin)
-        %------------------------------------------------------------------
         
         %------------------------------------------------------------------
         % Set/get methods
@@ -194,24 +180,38 @@ classdef mfclass_tobyfit < mfclass
         function out = get.mc_contributions (obj)
             out = obj.mc_contributions_;
         end
-        
+
         function out = get.mc_points (obj)
             out = obj.mc_points_;
         end
-        
+
         function out = get.refine_crystal (obj)
             out = obj.refine_crystal_;
         end
-        
+
         function out = get.refine_moderator (obj)
             out = obj.refine_moderator_;
         end
+
+        %------------------------------------------------------------------
+        % Interfaces to extended superclass methods
+        %------------------------------------------------------------------
+        % Extend set_fun and set_bfun solely to provide tailored documentation
+
+        % Set foreground function or functions
+        obj = set_fun(obj,varargin)
         
-        %------------------------------------------------------------------
-        %------------------------------------------------------------------
-        %------------------------------------------------------------------
+        % Set background function or functions
+        obj = set_bfun(obj,varargin)
+
+        % Perform a fit of the data using the current functions and starting parameter values
+        [data_out, fitdata, ok, mess, varargout] = fit (obj)
+        
+        % Perform a simulation of the data using the current functions and starting parameter values
+        [data_out, calcdata, ok, mess] = simulate (obj, varargin)
+
     end
-    
+
     methods (Access=private)
         %------------------------------------------------------------------
         % Methods in the defining folder but which need to be kept private
