@@ -10,10 +10,10 @@ function mf_object = multifit2 (varargin)
 %
 % This method fits function(s) of the plot axes for both the foreground and
 % the background function(s). The format of the fit functions depends on 
-% the mnumber of plot axes for each sqw object. For examples:
-% <a href="matlab:doc('example_1d_function');">Click here</a> (1D example)
-% <a href="matlab:doc('example_2d_function');">Click here</a> (2D example)
-% <a href="matlab:doc('example_3d_function');">Click here</a> (3D example)
+% the number of plot axes for each sqw object. For examples:
+% <a href="matlab:edit('example_1d_function');">example_1d_function</a>
+% <a href="matlab:edit('example_2d_function');">example_2d_function</a>
+% <a href="matlab:edit('example_3d_function');">example_3d_function</a>
 %
 % See also multifit2_sqw multifit2_sqw_sqw
 

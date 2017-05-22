@@ -19,7 +19,9 @@ function mf_object = multifit2 (varargin)
 % For details <a href="matlab:doc('mfclass');">Click here</a>
 %
 % For the format of fit functions (foreground or background):
-% <a href="matlab:doc('example_1d_function');">Click here</a>
+% <a href="matlab:edit('example_1d_function');">example_1d_function</a>
+% <a href="matlab:edit('example_2d_function');">example_2d_function</a>
+% <a href="matlab:edit('example_3d_function');">example_3d_function</a>
 
 
 % Synonymn for mfclass for consistency with previous use of multifit

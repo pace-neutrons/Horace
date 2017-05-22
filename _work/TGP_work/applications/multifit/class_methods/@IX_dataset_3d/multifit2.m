@@ -9,7 +9,8 @@ function mf_object = multifit2 (varargin)
 % For details <a href="matlab:doc('mfclass_IX_dataset_3d');">Click here</a>
 %
 % For the format of fit functions (foreground or background):
-% <a href="matlab:doc('example_3d_function');">Click here</a>
+% <a href="matlab:edit('example_3d_function');">example_3d_function</a>
+
 
 mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
 mf_object = mfclass_IX_dataset_3d (varargin{:}, 'IX_dataset_3d', mf_init);

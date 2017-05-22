@@ -12,14 +12,11 @@ function mf_object = multifit2_sqw (varargin)
 % function(s) of the plot axes for the background function(s)
 %
 % For the format of foreground fit functions:
-% <a href="matlab:doc('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
-% <a href="matlab:doc('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
+% <a href="matlab:edit('example_sqw_spin_waves');">Damped spin waves</a>
+% <a href="matlab:edit('example_sqw_flat_mode');">Dispersionless excitations</a>
 %
-% The format of the background fit functions depends on the mnumber of plot
-% axes for each sqw object. For examples:
-% <a href="matlab:doc('example_1d_function');">Click here</a> (1D example)
-% <a href="matlab:doc('example_2d_function');">Click here</a> (2D example)
-% <a href="matlab:doc('example_3d_function');">Click here</a> (3D example)
+% For the format of background fit functions:
+% <a href="matlab:edit('example_1d_function');">example_1d_function</a>
 %
 % See also multifit2 multifit2_sqw_sqw
 

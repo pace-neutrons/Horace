@@ -91,6 +91,7 @@ classdef mfclass
     %
     %   class_name = 'mfclass'
     %
+    % -----------------------------------------------------------------------------
     % <#doc_beg:> multifit
     %   <#file:> <mfclass_doc_purpose_summary_file>
     %
@@ -104,6 +105,7 @@ classdef mfclass
     % --------------------------------------
     %   <#file:> <mfclass_doc_properties_summary_file>
     % <#doc_end:>
+    % -----------------------------------------------------------------------------
 
 
     % Notes on inheriting mfclass for use by particular classes:

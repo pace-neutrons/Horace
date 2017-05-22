@@ -13,7 +13,7 @@ function [ok, mess, S] = parse_doc_definitions_block_vals (cstr)
 %               - a string
 %               - a cell array of strings
 %           Any assignments to the strings '#1', '#2', ... (up to the number
-%          of arguments in args, below) will be substituted by the 
+%          of arguments in args, below) will be substituted by the
 %          corresponding element of args.
 %           If you want a variable to actually be the character string '#1',
 %          then in the definition block give it the value '\#1'. Similarly,
@@ -47,7 +47,7 @@ if ~all(strncmp(cstr,'%',1))
     mess='All lines in a documentation definition block must be comment lines';
     return
 end
-    
+
 % Write mfile with definitions (use matlab itself to parse!)
 [~,tmpname]=fileparts(tempname);
 tmp_mfile=['docify_tmp_',tmpname];
@@ -58,7 +58,13 @@ Cbeg={...
     '% -----------------------------------------------------------------------------'};
 C=cell(numel(cstr),1);
 for i=1:numel(cstr)
-    C{i}=cstr{i}(2:end);
+    tmp_str = strtrim(cstr{i}(2:end));
+    if (numel(tmp_str)>=3 && strcmp(tmp_str(1:3),'<<-')) ||...
+            allchar(tmp_str,'-') || allchar(tmp_str,'=')
+        C{i}='';
+    else
+        C{i}=cstr{i}(2:end);
+    end
 end
 Cend={...
     '% -----------------------------------------------------------------------------',...
@@ -79,17 +85,20 @@ try
     err=false;
 catch
     S=struct([]);
-    mess='Unable to run meta-documentation temporary function. Check syntax of docify argument definition block.';
-    warning(mess)
+    mess1='Unable to run meta-documentation temporary function. Check syntax of docify argument definition block.';
+    mess2='Documentation tempoary file ';
+    warning('%s\n%s\n%s',mess1,mess2,tmp_mfile_full)
     err=true;
 end
 cd(curr_loc)
 
-try
-    delete(tmp_mfile_full)
-catch
-    mess='Unable to delete meta-documentation temporary function.';
-    warning(mess)
+if ~err
+    try
+        delete(tmp_mfile_full)
+    catch
+        mess='Unable to delete meta-documentation temporary function.';
+        warning(mess)
+    end
 end
 if err, return, end
 
@@ -98,6 +107,16 @@ ok=true;
 if isempty(S)
     S=struct([]);   % ensure is an empty structure (rather than anything else)
 end
+
+%------------------------------------------------------------------------------
+function status = allchar(str,ch)
+for i=1:numel(str)
+    if str(i)~=ch
+        status=false;
+        return
+    end
+end
+status=true;
 
 %------------------------------------------------------------------------------
 function myCleanupFun(loc)

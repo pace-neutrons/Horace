@@ -9,11 +9,6 @@ function obj = set_global_foreground(obj,set_global)
 %
 % See also: set_local_foreground set_local_background set_global_background
 
-% See also:
-% <a href="matlab:doc mfclass/set_local_foreground">mfclass/set_local_foreground</a>
-% <a href="matlab:doc mfclass/set_local_background">mfclass/set_local_background</a>
-% <a href="matlab:doc mfclass/set_global_background">mfclass/set_global_background</a>
-
  
 % Original author: T.G.Perring 
 % 
