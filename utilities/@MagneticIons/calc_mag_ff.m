@@ -1,8 +1,8 @@
 function magFF=calc_mag_ff(self,win)
-% Calcualste magnetic form factor of the magnetic ion, defined by the class
+% Calculates magnetic form factor of the magnetic ion, defined by the class
 % on the dataset, provided as input
 %
-% List of magnetic ions with defined form factors can be retrived from
+% List of magnetic ions with defined form factors can be retrieved from
 % MagneticIons class.
 %
 %
@@ -11,7 +11,8 @@ function magFF=calc_mag_ff(self,win)
 %>>mag_ff_dataset = mi.calc_mag_ff(sqw_data)
 %where:
 % 'Fe0'    -- the name of the ion, which scattering is corrected.
-% sqw_data -- dnd or sqw dataset to correct.
+% sqw_data -- dnd or sqw dataset used as base to calculate magnetic 
+%             form factor on.
 %
 % Returns:
 % mag_ff_dataset -- The dataset containing the same points as the input dataset
@@ -31,17 +32,8 @@ else
     self.u_2_rlu_ = win.u_to_rlu(1:3,1:3);
 end
 
-magFF=sqw_eval(win,@form_factor,self);
+magFF=sqw_eval(win,@(h,k,l,en,argi)form_factor(self,h,k,l,en,argi),[]);
 
 
 %==============================
-
-function FF = form_factor(h,k,l,en,self)
-% function calculates magnetic form-factor using exponential representation
-%
-u_2_rlu = self.u_2_rlu_;
-q = u_2_rlu\[h';k';l'];
-
-q2 = (q(1,:).*q(1,:)+q(2,:).*q(2,:)+q(3,:).*q(3,:))/(16*pi*pi);
-FF=self.J0_ff_(q2).^2+self.J2_ff_(q2).^2+self.J4_ff_(q2).^2+self.J6_ff_(q2).^2;
 

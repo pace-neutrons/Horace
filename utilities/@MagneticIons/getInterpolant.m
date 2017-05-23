@@ -9,7 +9,7 @@ function [J0_ff,varargout] = getInterpolant(self,IonName)
 %>>[J0_ff,J2_ff]=mi.getInterpolant('Fe0')
 %
 % Returns functions, calculating magnetic moment of Fe0 ion in
-% up to second moment approximation. (all odd momentums
+% up to the second term approximation. (all odd decomposition terms
 % are 0 so naturally not returned)
 % The functions depend on Q^2 in angstroms^(-1) and
 % magnetic form-factor observed in neutron experiments
@@ -27,7 +27,7 @@ function [J0_ff,varargout] = getInterpolant(self,IonName)
 %
 par = self.IonParMap_(IonName);
 
-%ion	A        a       B      b       C       c        D
+%ion            A      a     B      b     C      c     D
 %J0_ff = @(x2)((A*exp(-a*x2)+B*exp(-b*x2)+C*exp(-c*x2)+D));
 
 J0_ff = @(x2)((par(1,1)*exp(-par(1,2)*x2)+par(1,3)*exp(-par(1,4)*x2)+par(1,5)*exp(-par(1,6)*x2)+par(1,7)));
