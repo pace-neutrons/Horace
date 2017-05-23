@@ -85,7 +85,7 @@ function [obj,mess] = build_projaxes_(obj,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1061 $ ($Date: 2015-09-17 09:57:37 +0100 (Thu, 17 Sep 2015) $)
+% $Revision$ ($Date$)
 
 mess='';
 proj_in = [];

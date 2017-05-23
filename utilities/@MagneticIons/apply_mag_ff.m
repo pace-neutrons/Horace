@@ -26,7 +26,7 @@ function wout=apply_mag_ff(self,win)
 %   division by the same (often large or small) numbers.
 
 %
-% $Revision: 1488 $ ($Date: 2017-05-19 20:14:21 +0100 (Fri, 19 May 2017) $)
+% $Revision$ ($Date$)
 %
 
 

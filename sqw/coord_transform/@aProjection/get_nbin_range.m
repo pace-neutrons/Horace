@@ -28,7 +28,7 @@ function [nstart,nend] = get_nbin_range(this,npix)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1170 $ ($Date: 2016-02-01 17:35:02 +0000 (Mon, 01 Feb 2016) $)
+% $Revision$ ($Date$)
 
 
 small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing matrices are diagonal etc.

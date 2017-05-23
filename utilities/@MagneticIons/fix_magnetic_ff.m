@@ -6,7 +6,7 @@ function wout=fix_magnetic_ff(self,win)
 %
 %
 %
-% $Revision: 1490 $ ($Date: 2017-05-22 18:27:33 +0100 (Mon, 22 May 2017) $)
+% $Revision$ ($Date$)
 %
 
 

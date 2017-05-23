@@ -21,7 +21,7 @@ function [J0_ff,varargout] = getInterpolant(self,IonName)
 %
 %
 %
-% $Revision: 1488 $ ($Date: 2017-05-19 20:14:21 +0100 (Fri, 19 May 2017) $)
+% $Revision$ ($Date$)
 %
 
 %
