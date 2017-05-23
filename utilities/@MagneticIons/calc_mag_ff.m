@@ -24,10 +24,12 @@ function magFF=calc_mag_ff(self,win)
 
 
 %
-% conversion factor to change from rlu to wave-vector in A^(-1)
-%
-header_ave=header_average(win);
-self.u_2_rlu_ = header_ave.u_to_rlu(1:3,1:3);
+% Get conversion matrix used to change from rlu to wave-vector in A^(-1)
+if isa(win,'sqw')
+    self.u_2_rlu_ = win.data.u_to_rlu(1:3,1:3);
+else
+    self.u_2_rlu_ = win.u_to_rlu(1:3,1:3);
+end
 
 magFF=sqw_eval(win,@form_factor,self);
 
