@@ -18,7 +18,7 @@ function magFF=calc_mag_ff(self,win)
 %                   but the values equal to the magnetic form factors values
 %                   for the selected magnetic ion.
 %
-% $Revision: 1488 $ ($Date: 2017-05-19 20:14:21 +0100 (Fri, 19 May 2017) $)
+% $Revision$ ($Date$)
 %
 
 
