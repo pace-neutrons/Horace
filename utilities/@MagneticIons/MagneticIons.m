@@ -16,11 +16,14 @@ classdef MagneticIons
     %                   on the dataset provided as input
     % apply_mag_ff    - Apply magnetic form factor of the selected ion
     %                   to the dataset provided as input.
-    % correct_mag_ff  - correct givent dataset for magnetic form factor of
+    % correct_mag_ff  - correct given dataset for magnetic form factor of
     %                   the particular ion, defined earlier.
     %
+    % Auxiliary methods:
     % getInterpolant  - return function or set of functions to use for
     %                   magnetic form factor corrections.
+    % getFF_calculator- return function hanlde to calculate magnetic
+    %                   form factor on q-vector in hkl units
     %
     %
     % Properties:
@@ -32,20 +35,20 @@ classdef MagneticIons
     %
     % $Revision$ ($Date$)
     %
-    
     properties(Dependent)
-        % the ion used for fixing magnetic form factor
+        % the ion to fix or calculate magnetic form factor for.
         currentIon
-        % displays set of ion names, with defined interpolation function.
+        % Cellarray of all ion names, with known magnetic form factor
+        % interpolation functions.
         IonNames
     end
     properties(Access= private)
         currentIon_='Fe0'
-        % handles to fucntions calculating magnatic momentums of appropriate order
-        % for current ion
+        % handles to functions calculating magnetic momentums of
+        % appropriate order for current ion.
         J0_ff_;J2_ff_;J4_ff_;J6_ff_;
         % matrix of coefficients used to convert hkl coordinates into A^(-1)
-        u_2_rlu_;
+        u_2_rlu_ = eye(3);
     end
     
     methods
@@ -66,23 +69,33 @@ classdef MagneticIons
         %------------------------------------------------------------------
         % Interfaces:
         %
-        % Correct scattering intensity in a dataset for the magnetic scattering
-        % form factor of the magnetic ion provided.
+        % Correct scattering intensity in a dataset for the magnetic
+        % scattering form factor of the magnetic ion provided.
         out=correct_mag_ff(self,win)
-        % Calculate magnetic form factor calculated on the dataset provided as input
+        % Calculate magnetic form factor calculated on the dataset provided
+        % as input
         out=calc_mag_ff(self,win)
         % Apply magnetic form factor to the dataset provided as input
         out=apply_mag_ff(self,win)
-        % retrieve list of function handles, used to calculate magnetic
+        % retrieve cellarray of function handles, used to calculate magnetic
         % form factor of the selected magnetic ion.
         [J0_ff,varargout] = getInterpolant(self,IonName)
+        % return function hanlde to calculate magnetic form factor on
+        % q-vector in hkl units  of the sqw or dnd object provided
+        fint = getFF_calculator(self,win)
+        % returns vector with calculated magnetic form factor.
+        magFF = form_factor(self,h,k,l,varargin);
+        
         
         %------------------------------------------------------------------
+        % Access to properties:
         function name = get.currentIon(self)
             name= self.currentIon_;
         end
         %
         function self = set.currentIon(self,newIonName)
+            %set the ion name to calculate the magnetic form factor
+            % and initiate function handles used in these calculations.
             self = check_and_set_ion_name_(self,newIonName);
         end
         %
@@ -91,7 +104,6 @@ classdef MagneticIons
             ionNames = self.Ions_;
         end
     end
-    
     properties(Constant, Access=private)
         % supported ions
         Ions_ = {'Sc0','Sc1','Sc2','Ti0','Ti1','Ti2','Ti3',...

@@ -12,7 +12,7 @@ classdef test_fix_magnetic_ff< TestCase
             if nargin>0
                 name = varargin{1};
             else
-                name = 'test_fix_magnetic_ff';
+                name = 'test_correct_magnetif_ff';
             end
             this = this@TestCase(name);
             this.tests_folder = fileparts(fileparts(mfilename('fullpath')));
