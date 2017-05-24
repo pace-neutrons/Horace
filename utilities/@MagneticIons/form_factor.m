@@ -10,7 +10,7 @@ function FF = form_factor(self,h,k,l,varargin)
 % selected ion.
 %
 %
-% $Revision: 1490 $ ($Date: 2017-05-22 18:27:33 +0100 (Mon, 22 May 2017) $)
+% $Revision$ ($Date$)
 %
 
 u_2_rlu = self.u_2_rlu_;
