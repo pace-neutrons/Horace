@@ -6,8 +6,8 @@ function FF = form_factor(self,h,k,l,varargin)
 %         from crystal cartesian coordinate system to hkl representation
 % h,k,l - coordinates of Q-vector in hkl representation
 %
-% Returns changes of magnetic form factos along input hkl vector for the
-% selected ion.
+% Returns vector of changes of magnetic form factors along input hkl vector
+% for the selected ion.
 %
 %
 % $Revision$ ($Date$)

@@ -11,7 +11,7 @@ function magFF=calc_mag_ff(self,win)
 %>>mag_ff_dataset = mi.calc_mag_ff(sqw_data)
 %where:
 % 'Fe0'    -- the name of the ion, which scattering is corrected.
-% sqw_data -- dnd or sqw dataset used as base to calculate magnetic 
+% sqw_data -- dnd or sqw dataset used as base to calculate magnetic
 %             form factor on.
 %
 % Returns:
@@ -33,7 +33,4 @@ else
 end
 
 magFF=sqw_eval(win,@(h,k,l,en,argi)form_factor(self,h,k,l,en,argi),[]);
-
-
-%==============================
 
