@@ -6,7 +6,7 @@ function public_struct = struct(this,varargin)
 % public fields fill be returned 
 %
 % 
-% $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $) 
+% $Revision$ ($Date$) 
 %
 
 opt = {'-all'};

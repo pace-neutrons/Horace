@@ -33,7 +33,7 @@ function val = var_d (alf)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1019 $ ($Date: 2015-07-16 12:20:46 +0100 (Thu, 16 Jul 2015) $)
+% $Revision$ ($Date$)
 
 
 c_var_f = [1.226904583058190,...

@@ -11,7 +11,7 @@ function [prop_value,out] =get_config_val_internal(this,class_name,prop_name,var
 % the value of the requested property.
 %
 %
-% $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $)
+% $Revision$ ($Date$)
 %
 
 

@@ -23,7 +23,7 @@ function X = rand_cumpdf_arr(xtab,ind)
 
 % Original author: T.G.Perring
 %
-% $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $)
+% $Revision$ ($Date$)
 
 
 np = numel(ind);        % number of random points requested

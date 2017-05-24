@@ -26,7 +26,7 @@ function [b, arlu, angrlu] = bmatrix(obj)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1427 $ ($Date: 2017-02-22 20:51:35 +0000 (Wed, 22 Feb 2017) $)
+% $Revision$ ($Date$)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 %

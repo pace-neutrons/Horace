@@ -24,7 +24,7 @@ function val = var_d (obj, wvec, sintheta)
 
 % Original author: T.G.Perring
 %
-% $Revision: 1019 $ ($Date: 2015-07-16 12:20:46 +0100 (Thu, 16 Jul 2015) $)
+% $Revision$ ($Date$)
 
 
 alf = macro_xs_dia (obj, wvec);
