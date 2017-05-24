@@ -9,30 +9,31 @@ classdef MagneticIons
     %
     %MagneticIons methods:
     %
-    % MagneticIons    - constructor initializing the class to fix magnetic form
-    %                   factor for particular ion
-    %
+    % MagneticIons    - constructor initializing the class to fix magnetic 
+    %                   form factor for particular ion
+    %                  ----------------------------------------------------
     % calc_mag_ff     - Calculate magnetic form factor of the selected ion
     %                   on the dataset provided as input
     % apply_mag_ff    - Apply magnetic form factor of the selected ion
     %                   to the dataset provided as input.
     % correct_mag_ff  - correct given dataset for magnetic form factor of
     %                   the particular ion, defined earlier.
+    %----------------------------------------------------------------------
     %
     % Auxiliary methods:
     % getInterpolant  - return function or set of functions to use for
     %                   magnetic form factor corrections.
-    % getFF_calculator- return function hanlde to calculate magnetic
+    % getFF_calculator - returns function hanlde to calculate magnetic
     %                   form factor on q-vector in hkl units
-    %
+    %----------------------------------------------------------------------
     %
     % Properties:
-    %
     % currentIon     -  property defines the name of current ion to
     %                   correct magnetic form factor for.
     % IonNames        - list of all ions the class knows about and can
     %                   can calculate magnetic form factors for.
     %
+    %----------------------------------------------------------------------    
     % $Revision$ ($Date$)
     %
     properties(Dependent)

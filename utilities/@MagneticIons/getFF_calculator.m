@@ -14,14 +14,18 @@ function  fint = getFF_calculator(self,win)
 %
 % or directly in the form:
 %>>ff = fint(h,k,l,en,[]);
-% where ff then will be vector of the h (k,l) length containing magnetic
+% where ff then will be the vector of the h (k,l) length containing magnetic
 % form factor calculated in h,k,l points.
 %
 % Form factor function has to have 5 parameters for it to be used by sqw_eval
-% function despite two last parameters (en and var) are not used by the
+% function despite two last parameters (en and var) are not used within the
 % form factor.
 %
 %
+%
+% $Revision$ ($Date$)
+%
+
 
 if isa(win,'sqw')
     self.u_2_rlu_ = win.data.u_to_rlu(1:3,1:3);
