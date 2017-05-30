@@ -19,45 +19,25 @@ classdef test_multifit_1< TestCaseWithSave
         sd;  % source data for fitting
         pin; % input fitting parameters
         % data for test fitting
-        data_filename='testdata_multifit_1.mat';
+        data_filename='testdata_multifit_1.mat';      
     end
     
     methods
         function this=test_multifit_1(varargin)
-            % constructor
+          % constructor
             if nargin > 0
                 name = varargin{1};
             else
                 name= mfilename('class');
             end
-            warning('off','MATLAB:unknownObjectNowStruct');
-            clob = onCleanup(@()warning('on','MATLAB:unknownObjectNowStruct'));
-            
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_multifit_1_output.mat'));
             
             this.pin=[100,50,7,0,0];     % Note that it is assumed that these are good starting parameters for the fits
-            
+                       
             rootpath=fileparts(mfilename('fullpath'));
-            
-            
-            this.sd=load(fullfile(rootpath,this.data_filename));
-            flds =fieldnames(this.sd);
-            for i=1:numel(flds)
-                fld = flds{i};
-                if isstruct(this.sd.(fld)) &&  numel(fieldnames(this.sd.(fld))) == 7
-                    this.sd.(fld) = IX_dataset_1d(this.sd.(fld));
-                end
-            end
-            flds =fieldnames(this.old);
-            for i=1:numel(flds)
-                fld = flds{i};
-                if isstruct(this.old.(fld)) &&  numel(fieldnames(this.old.(fld))) == 7
-                    this.old.(fld) = IX_dataset_1d(this.old.(fld));
-                end
-            end
-            
+            this.sd=load(fullfile(rootpath,this.data_filename));           
         end
-        
+               
         
         % =====================================================================================================================
         %  Tests with single input data set
@@ -98,7 +78,7 @@ classdef test_multifit_1< TestCaseWithSave
             this=test_or_save_variables(this,y1_fsigfix_bk, wstruct1_fsigfix_bk, w1_fsigfix_bk, p1_fsigfix_bk);
             
         end
-        
+
         function this=test_binding(this)
             % Fix ratio of two of the foreground parameters
             prat=[6,0,0,0,0]; pbnd=[3,0,0,0,0];
@@ -208,7 +188,6 @@ classdef test_multifit_1< TestCaseWithSave
             [ww_fobjcellarr_f,pp_fobjcellarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_objcellarr, @mftest_gauss_bkgd, this.pin);
             if ~ok, assertTrue(false,['Unexpected failure ',mess]), end
             % Test against saved or store to save later
-            this.old.ww_fobjcellarr_f = cellfun(@IX_dataset_1d,this.old.ww_fobjcellarr_f,'UniformOutput',false);
             this=test_or_save_variables(this,ww_fobjcellarr_f,pp_fobjcellarr);
             
             

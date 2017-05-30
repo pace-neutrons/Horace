@@ -128,7 +128,7 @@ else
         end
     else
         ok=false;
-        mess=sprintf('Fields for %s have different classes: a=%s b=%s',...
+        mess=spfintf('Fields for %s have different classes: a=%s b=%s',...
             obj_name,class(a),class(b));
         return
     end

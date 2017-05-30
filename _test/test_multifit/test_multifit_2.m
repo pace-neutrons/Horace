@@ -30,23 +30,8 @@ end
 %% =====================================================================================================================
 %  Setup location of reference functions (fortran or matlab)
 % ======================================================================================================================
-warning('off','MATLAB:unknownObjectNowStruct');
-clob = onCleanup(@()warning('on','MATLAB:unknownObjectNowStruct'));
-
 rootpath=fileparts(mfilename('fullpath'));
-ld = load(fullfile(rootpath,data_filename));
-% old classes conversion
-flds =fieldnames(ld);
-for i=1:numel(flds)
-    fld = flds{i};
-    if isstruct(ld.(fld)) && numel(fieldnames(ld.(fld))) == 7
-        %assignin('caller', fld,IX_dataset_1d(ld.(fld)))
-        eval([fld,' = IX_dataset_1d(ld.(fld));']);
-    else
-        %assignin('caller', fld,ld.(fld))
-        eval([fld,' = ld.(fld);']);
-    end
-end
+load(fullfile(rootpath,data_filename));
 
 
 %% =====================================================================================================================
@@ -159,49 +144,42 @@ if ~ok, assertTrue(false,mess), end
 
 %% =====================================================================================================================
 % Compare with saved output
-% ======================================================================================================================
+% ====================================================================================================================== 
 if ~save_output
     if get(herbert_config,'log_level')>-1
         disp('====================================')
         disp('    Comparing with saved output')
         disp('====================================')
-    end
+    end    
     output_file=fullfile(rootpath,results_filename);
-    %
-    warning('off','MATLAB:unknownObjectNowStruct');
-    clob = onCleanup(@()(warning('on','MATLAB:unknownObjectNowStruct')));
-    
     old=load(output_file);
     nam=fieldnames(old);
     tol=1.0e-8;
     % The test proper
     for i=1:numel(nam)
-        var = eval(nam{i});
-        if isa(var,'struct') && isfield(var,'converged')
-            var= rmfield(var,'converged');
+        struct = eval(nam{i});
+        if isa(struct,'struct') && isfield(struct,'converged')
+            struct= rmfield(struct,'converged');
         end
-        if isstruct(old.(nam{i})) && numel(fieldnames(old.(nam{i}))) == 7
-            old.(nam{i}) = IX_dataset_1d(old.(nam{i}));
-        end
-        [ok,mess]=equal_to_tol(var, old.(nam{i}), tol, 'min_denominator', 0.01);
-        if ~ok
+        [ok,mess]=equal_to_tol(struct, old.(nam{i}), tol, 'min_denominator', 0.01);
+        if ~ok 
             assertTrue(false,['[',nam{i},']',mess])
         else
-            if get(herbert_config,'log_level')>-1
+            if get(herbert_config,'log_level')>-1            
                 disp (['[',nam{i},']',': ok'])
             end
         end
     end
     % Success announcement
-    if get(herbert_config,'log_level')>-1
+    if get(herbert_config,'log_level')>-1    
         banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
-    end
+    end        
 end
 
 
 %% =====================================================================================================================
 % Save data
-% ======================================================================================================================
+% ====================================================================================================================== 
 if save_output
     disp('===========================')
     disp('    Save output')
@@ -219,7 +197,7 @@ if save_output
         'wm7_ref','fm7_ref','wm7a','fm7a','wm7b','fm7b',...
         'wm8_ref','fm8_ref','wm8','fm8',...
         'wm9_ref','fm9_ref','wm9','fm9');
-    
+
     disp(' ')
     disp(['Output saved to ',output_file])
     disp(' ')

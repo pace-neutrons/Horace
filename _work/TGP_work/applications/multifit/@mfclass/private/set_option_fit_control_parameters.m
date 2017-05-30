@@ -21,11 +21,7 @@ if nargin==0
 else
     % Check values are OK
     if isnumeric(val_in) && numel(val_in)==3
-        if size(val_in,1) == 3
-            val = val_in(:)';
-        else
-            val = val_in(:);            
-        end
+        val = val_in(:)';
         if val_in(1)<0
             [val,ok,mess] = set_option_error_return('Relative step length must be >= 0'); return
         end
