@@ -2,11 +2,16 @@ function obj = check_and_set_type_(obj,type)
 % Verify if type argument set to projaxes class is correct
 % and set type variable if it does
 %
+persistent old_matlab;
+if isempty(old_matlab)
+    old_matlab = verLessThan('Matlab','9.1');
+end
+
 ok=true;
 mess = '';
 if is_string(type) && numel(type)==3
     type=lower(type);
-    if verLessThan('Matlab','9.1')
+    if old_matlab
         if ~(isempty(strfind('arp',type(1))) || isempty(strfind('arp',type(2))) || isempty(strfind('arp',type(1))))
             return
         else

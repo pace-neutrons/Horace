@@ -13,6 +13,9 @@ classdef field_pix < field_var_array
     
     properties(Dependent)
     end
+    properties(Constant,Access=private)
+        old_matlab_ = verLessThan('matlab','7.12');
+    end
     
     methods
         function obj=field_pix()
@@ -48,7 +51,7 @@ classdef field_pix < field_var_array
         function [val,length] = field_from_bytes(obj,bytes,pos)
             % convert sequence of bytes into the array
             npix  = typecast(bytes(pos:pos+8-1),'uint64');
-            if verLessThan('matlab','7.12')
+            if obj.old_matlab_
                 npix = double(npix);
             end
             numel = npix*9;

@@ -1,9 +1,9 @@
 classdef sqw_reader<handle
-    % Class provides bin and pixel information for a pixes of an sqw file.
+    % Class provides bin and pixel information for a pixels of an sqw file.
     %
     % Created to read bin and pixel information from a cell stored on hdd,
     % but optimized for subsequent data access, so subsequent cells are
-    % cashied in a buffer and provided from the buffer if availible
+    % cashed in a buffer and provided from the buffer if available
     %
     %
     % $Revision$ ($Date$)
@@ -50,6 +50,7 @@ classdef sqw_reader<handle
         % presumably ideal block-size to read
         buf_size_=4096;
         pix_bloc_size_ = 9*4; % each pixel occupy this number of bytes
+        old_matlab_ = verLessThan('matlab','7.12');
     end
     
     methods
@@ -60,7 +61,7 @@ classdef sqw_reader<handle
             %                   handle for open file
             % npix_start_pos -- starting position of bin info in the file
             % n_bins         -- total number of bins in a file
-            % pix_start_pos  -- starting postion of pixel info in the file
+            % pix_start_pos  -- starting position of pixel info in the file
             % file_id        -- number, which distinguish pixels of this
             %                   file from others (or empty if no
             %                   modifications for pixels id is necessary)
@@ -129,7 +130,7 @@ classdef sqw_reader<handle
             if n_buf_bin > self.num_buf_bins_
                 self.read_all_bin_info(bin_number);
                 n_buf_bin  = bin_number - self.num_first_bin_+1;
-            elseif n_buf_bin<1 % cashe miss
+            elseif n_buf_bin<1 % cash miss
                 self.num_buf_bins_   = 0;
                 self.read_all_bin_info(bin_number);
                 n_buf_bin  = bin_number - self.num_first_bin_+1;
@@ -158,7 +159,7 @@ classdef sqw_reader<handle
                 self.read_pixels_(bin_number,pix_num)
             end
             pix_num_in_buf = pix_num-self.pix_in_buf_start_+1;
-            if verLessThan('matlab','7.12')
+            if self.old_matlab_
                 pix_num_in_buf  = double(pix_num_in_buf);
                 npix = double(npix);
             end

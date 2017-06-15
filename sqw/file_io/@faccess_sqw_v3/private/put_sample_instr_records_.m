@@ -17,6 +17,11 @@ function obj = put_sample_instr_records_(obj,varargin)
 %
 %
 %
+persistent old_matlab;
+if isempty(old_matlab)
+    old_matlab = verLessThan('matlab','8.3');
+end
+
 obj.check_obj_initated_properly();
 setting_sample = true;
 setting_instr  = true;
@@ -60,7 +65,7 @@ if setting_instr
     end
     %
     start = obj.instrument_head_pos_;
-    if verLessThan('matlab','8.3') % some MATLAB problems with moving to correct eof
+    if old_matlab % some MATLAB problems with moving to correct eof
         fseek(obj.file_id_,double(start),'bof');
     else
         fseek(obj.file_id_,start,'bof');
@@ -75,7 +80,7 @@ if setting_sample
     % serialize sample(s)
     [bytes,sample_size] = serialize_si_block_(obj,sampl,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;
-    % recaclualate sample positions (just in case)
+    % recalculate sample positions (just in case)
     sample_head_size = numel(bytes)-sample_size;
     obj.sample_pos_  = obj.sample_head_pos_ + sample_head_size;
     obj.instr_sample_end_pos_ = obj.sample_pos_ + sample_size;
@@ -87,7 +92,7 @@ if setting_sample
     end
     
     %
-    if verLessThan('matlab','8.3') % some MATLAB problems with moving to correct eof
+    if old_matlab % some MATLAB problems with moving to correct eof
         fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');
     else
         fseek(obj.file_id_,obj.sample_head_pos_,'bof');

@@ -31,7 +31,7 @@ if isa(win,'sqw')
     self.u_2_rlu_ = header_ave.u_to_rlu(1:3,1:3);    
     %self.u_2_rlu_ = win.data.u_to_rlu(1:3,1:3);
 else
-    self.u_2_rlu_ = win.u_to_rlu(1:3,1:3);
+    self.u_2_rlu_ = inv(bmatrix(win.alatt,win.angdeg));
 end
 
 magFF=sqw_eval(win,@(h,k,l,en,argi)form_factor(self,h,k,l,en,argi),[]);

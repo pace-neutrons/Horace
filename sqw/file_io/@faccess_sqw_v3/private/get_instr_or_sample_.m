@@ -60,6 +60,12 @@ function res = get_all_instr_or_samples_(obj,field_name)
 %
 % field_name -- string which can be 'instrument' or 'sample'
 %
+persistent old_matlab;
+if isempty(old_matlab)
+    old_matlab = verLessThan('matlab','8.3');
+end
+
+
 if ischar(obj.num_contrib_files_)
     error('FACCESS_SQW_V3:runtime_error',...
         'get_instr_or_sample_ for %s called on non-initialized object',...
@@ -78,7 +84,7 @@ else
         field_name);
 end
 
-if verLessThan('matlab','8.3') % some MATLAB problems with moving to correct eof
+if  old_matlab % some MATLAB problems with moving to correct eof
     fseek(obj.file_id_,double(pos),'bof');
 else
     fseek(obj.file_id_,pos,'bof');

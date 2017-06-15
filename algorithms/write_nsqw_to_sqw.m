@@ -27,6 +27,11 @@ function write_nsqw_to_sqw (infiles, outfile,varargin)
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
 % $Revision$ ($Date$)
+persistent old_matlab;
+if isempty(old_matlab)
+    old_matlab = verLessThan('matlab', '8.1');
+end
+
 
 hor_log_level=config_store.instance().get_value('hor_config','log_level');
 drop_subzone_headers = false;
@@ -252,7 +257,7 @@ if drop_subzone_headers
 else
     run_label=cumsum([0;nspe(1:end-1)]);
 end
-if verLessThan('matlab', '8.1')
+if old_matlab
     npix_cumsum = cumsum(double(sqw_data.npix(:)));    
 else
     npix_cumsum = cumsum(sqw_data.npix(:));

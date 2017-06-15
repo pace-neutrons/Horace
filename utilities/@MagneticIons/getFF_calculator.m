@@ -1,14 +1,14 @@
 function  fint = getFF_calculator(self,win)
-% return function hanlde to calculate magnetic form factor on
+% return function handle to calculate magnetic form factor on
 % q-vector expressed in hkl units.
 %
 %Usage:
 %>>mi= MagneticIons('Fe0')
-%>>fint = mi.getFF_calc(win);
+%>>fint = mi.getFF_calculator(win);
 % Where:
 % win -- a dnd or sqw object providing method to transform from hkl to
-%        crystal cartesian coordinate system in A^-1 units.
-% Retufns:
+%        crystal Cartesian coordinate system in A^-1 units.
+% Returns:
 % function handle to to use as input to sqw_eval function
 %>> wout = sqw_eval(win,fint,[]);
 %

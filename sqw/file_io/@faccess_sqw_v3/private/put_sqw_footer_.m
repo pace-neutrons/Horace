@@ -3,6 +3,11 @@ function obj=put_sqw_footer_(obj)
 % fields, to be found in an sqw file of appropriate version and store these
 % positions on hdd for subsequent recovery and use in read/write operations
 %
+persistent old_matlab;
+if isempty(old_matlab)
+    old_matlab = verLessThan('matlab','8.3');
+end
+
 fields2save = obj.fields_to_save();
 pos_info  = struct();
 for i=1:numel(fields2save)
@@ -20,7 +25,7 @@ bytes = [bytes,byte_sz];
 
 
 pos = obj.position_info_pos_;
-if verLessThan('matlab','8.3') % some MATLAB problems with moving to correct eof
+if old_matlab % some MATLAB problems with moving to correct eof
     fseek(obj.file_id_,double(pos),'bof');    
 else        
     fseek(obj.file_id_,pos,'bof');
@@ -31,8 +36,8 @@ check_error_report_fail_(obj,'Can not write the positions block');
 
 obj.real_eof_pos_ = ftell(obj.file_id_);
 %-------------------------------------------------------------------------
-% now, its impossible to tuncate binary file in system independent way and
-% Matlab does not provide such functionalify too. If the file was longer than
+% now, its impossible to truncate binary file in system independent way and
+% Matlab does not provide such functionality too. If the file was longer than
 % it is now, we need to store the location of the information record at the
 % end of the existing file too.
 %
