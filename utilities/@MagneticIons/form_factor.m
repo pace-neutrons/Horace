@@ -3,7 +3,7 @@ function FF = form_factor(self,h,k,l,varargin)
 %
 % Inputs:
 % self  - instance of Magnetic ion class with defined u_to_rlu matrix converting
-%         from crystal cartesian coordinate system to hkl representation
+%         from crystal Cartesian coordinate system to hkl representation
 % h,k,l - coordinates of Q-vector in hkl representation
 %
 % Returns vector of changes of magnetic form factors along input hkl vector

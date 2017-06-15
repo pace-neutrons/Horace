@@ -122,7 +122,7 @@ elseif isa(w,'sqw') && is_sqw_type(w(1))
     if iscell(w.header)     % *** Really ought to have header_ave as a method. Use same algorithm here.
         h=w.header{1};
     else
-        h=header;
+        h=w.header;
     end
 else
     error('Object must be sqw type')

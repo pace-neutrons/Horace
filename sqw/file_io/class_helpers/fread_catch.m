@@ -34,7 +34,15 @@ function [data, count_out, status_ok, message] = fread_catch (fid, count_in, pre
 
 ntry_retry=6;   % maximum number of attempts to read before trying to reopen
 ntry_reopen=6;  % further attempts with reopening
-if verLessThan('matlab','8.1')
+
+% cash value for old Matlab
+persistent old_matlab;
+if isempty(old_matlab)
+    old_matlab  = verLessThan('matlab','8.1');
+end
+    
+
+if old_matlab
     count_in = double(count_in);
 end
 
@@ -116,9 +124,8 @@ while ntry<=ntry_max
             end
         end
         
-    catch
-        tmp=lasterror;
-        disp(['Error reading from file: Fatal error in fread (attempt ',num2str(ntry),') - trying to recover [',tmp.message,']'])
+    catch Err
+        disp(['Error reading from file: Fatal error in fread (attempt ',num2str(ntry),') - trying to recover [',Err.message,']'])
         ferror(fid,'clear');
         check_ifVersion_supportsSize(prod(count_in));
         % try to go to location

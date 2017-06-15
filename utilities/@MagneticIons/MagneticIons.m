@@ -21,10 +21,11 @@ classdef MagneticIons
     %----------------------------------------------------------------------
     %
     % Auxiliary methods:
-    % getInterpolant  - return function or set of functions to use for
-    %                   magnetic form factor corrections.
+    % getInterpolant  - return function handle or set of function handles 
+    %                   used to calculate magnetic form factor up to 
+    %                   sextupole approximation.
     % getFF_calculator - returns function hanlde to calculate magnetic
-    %                   form factor on q-vector in hkl units
+    %                    form factor on q-vector in hkl units
     %----------------------------------------------------------------------
     %
     % Properties:

@@ -52,7 +52,7 @@ end
 % Setup
 % --------------------------------------------------------------------------------------
 
-dir_in='E:\data\aaa_Horace';
+dir_in=pwd; %'E:\data\aaa_Horace';
 dir_out=tempdir;
 
 % Output files with simulated data to be corrected
@@ -103,12 +103,11 @@ if save_data
     sqw_file_res_full = fullfile(dir_out,sqw_file_res);
     
     % Create sqw file
-    fake_sqw (en, par_file, sqw_file_nores_full, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+    wtmp = fake_sqw (en, par_file,'', efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
     
     % Simulate Bragg blobs
     disp('Simulating Bragg blobs...')
-    wtmp=read_horace(sqw_file_nores_full);
-    wtmp=sqw_eval(wtmp,@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
+    wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
     
     sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
     wtmp=set_sample_and_inst(wtmp,sample,@maps_instrument_for_tests,'-efix',300,'S');

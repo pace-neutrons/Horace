@@ -96,6 +96,8 @@ arglist = struct('qbin',0.05,'qwidth',0.1,'ebin',[],'labels','','noplot',false,.
                  'smooth',0,'smooth_shape','hat','logscale',false,'clim',[NaN NaN]);
 flags = {'noplot','logscale'};
 
+
+
 % Parse the arguments:
 % --------------------
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
@@ -275,6 +277,13 @@ end
 %========================================================================================================
 function plot_dispersion(wdisp_in,opt)
 % Plots the dispersion in the structure wdisp
+    persistent old_matlab;
+    if isempty(old_matlab)
+        old_matlab = verLessThan('Matlab','8.6');
+    end
+
+
+
     qinc = 0;
     title = wdisp_in(1).title;
     lnbrk = strfind(title,sprintf('\n'));
@@ -381,7 +390,7 @@ function plot_dispersion(wdisp_in,opt)
         end
         hc=colorbar; 
         % Old style workaround - does not work on Matlab 2015 onwards
-        if verLessThan('matlab','8.6')
+        if old_matlab
             yd=10.^get(get(hc,'Children'),'YData');
             set(hc,'YScale','log');
             set(hc,'YLim',yd);

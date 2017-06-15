@@ -5,10 +5,12 @@ classdef test_fix_magnetic_ff< TestCase
     
     properties
         tests_folder
+        sample_sqw;
     end
     methods
         %
         function this=test_fix_magnetic_ff(varargin)
+            
             if nargin>0
                 name = varargin{1};
             else
@@ -16,6 +18,18 @@ classdef test_fix_magnetic_ff< TestCase
             end
             this = this@TestCase(name);
             this.tests_folder = fileparts(fileparts(mfilename('fullpath')));
+            
+            persistent sample_sqw_;
+            if isempty(sample_sqw_)
+                en = -1:1:50;
+                par_file = fullfile(this.tests_folder,'test_sqw','gen_sqw_96dets.nxspe');
+                
+                fsqw = fake_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
+                    [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
+                sample_sqw_ = fsqw{1};
+                
+            end
+            this.sample_sqw = sample_sqw_;
         end
         % tests themself
         function test_magnetic_Ions(this)
@@ -50,12 +64,7 @@ classdef test_fix_magnetic_ff< TestCase
         end
         %
         function test_correct_magnetif_ff(this)
-            en = -1:1:50;
-            par_file = fullfile(this.tests_folder,'test_sqw','gen_sqw_96dets.nxspe');
-            
-            fsqw = fake_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
-                [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
-            fsqw = fsqw{1};
+            fsqw = this.sample_sqw;
             %
             mff = MagneticIons('Fe1');
             fsqw_with_mag = mff.apply_mag_ff(fsqw);
@@ -86,8 +95,36 @@ classdef test_fix_magnetic_ff< TestCase
             fdnd_s.s = [];
             inv_dnd_s.s=[];
             fdnd_s.e = [];
-            inv_dnd_s.e=[];            
+            inv_dnd_s.e=[];
             assertEqual(fdnd_s,inv_dnd_s);
+            
+        end
+        function test_dnd_vs_sqw(this)
+            fsqw = this.sample_sqw;
+            %
+            mff = MagneticIons('Ni0');
+            fsqw_with_mag = mff.apply_mag_ff(fsqw);
+            
+            fdnd = dnd(fsqw);
+            fdnd_with_mag = mff.apply_mag_ff(fdnd);
+            
+            fdnd_cut = dnd(fsqw_with_mag);
+            
+            cut1= cut_dnd(fdnd_with_mag,[],[],[-0.1,0.1],[-10,10]);
+            cut2= cut_dnd(fdnd_cut,[],[],[-0.1,0.1],[-10,10]);            
+            assertElementsAlmostEqual(cut1.s,cut2.s,'absolute',0.06);
+            assertElementsAlmostEqual(cut1.e,cut2.e,'absolute',0.01);            
+
+            fdnd_cut_s = struct(fdnd_cut);
+            fdnd_mag_s = struct(fdnd_with_mag);            
+            fdnd_cut_s.s = [];
+            fdnd_mag_s.s=[];
+            fdnd_cut_s.e = [];
+            fdnd_mag_s.e=[];            
+            fdnd_cut_s.npix = [];
+            fdnd_mag_s.npix=[];
+            
+            assertEqual(fdnd_cut_s,fdnd_mag_s);            
             
             
         end
