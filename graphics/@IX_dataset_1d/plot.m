@@ -21,7 +21,7 @@ opt=struct('newplot',true,'lims_type','xy');
 if ~ok, error(mess), end
 
 % Perform plot
-type='p';
+type='d';
 [fig_,axes_,plot_,ok,mess]=plot_oned (w,opt.newplot,type,fig,lims{:});
 if ~ok, error(mess), end
 
