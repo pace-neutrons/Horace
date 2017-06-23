@@ -1,9 +1,14 @@
 function [data_out, fitdata, ok, mess, varargout] = fit (obj)
 % Perform a fit of the data using the current functions and starting parameter values
 %
-%   >> [data_out, fitdata] = obj.fit            % if ok false, throws error
+% Return calculated fitted datasets and parameters:
+%   >> [data_out, fitdata] = obj.fit                    % if ok false, throws error
 %
-%   >> [data_out, fitdata, ok, mess] = obj.fit  % if ok false, still returns
+% Return the calculated fitted signal, foreground and background in a structure:
+%   >> [data_out, fitdata] = obj.fit ('components')     % if ok false, throws error
+%
+% Continue execution even if an error condition is thrown:
+%   >> [data_out, fitdata, ok, mess] = obj.fit (...)    % if ok false, still returns
 %
 %
 % Output:
@@ -11,8 +16,14 @@ function [data_out, fitdata, ok, mess, varargout] = fit (obj)
 %  data_out Output with same form as input data but with y values evaluated
 %           at the final fit parameter values. If the input was three separate
 %           x,y,e arrays, then only the calculated y values are returned.
-%
 %           If there was a problem i.e. ok==false, then data_out=[].
+%
+%           If option 'components' was given, then data_out is a structure with fields
+%           with the same format as above, as follows:
+%               data_out.sum        Sum of foreground and background
+%               data_out.fore       Foreground calculation
+%               data_out.back       Background calculation
+%           If there was a problem i.e. ok==false, then each field is =[].
 %
 %   fitdata Structure with result of the fit for each dataset. The fields are:
 %           p      - Foreground parameter values (if foreground function(s) present)
