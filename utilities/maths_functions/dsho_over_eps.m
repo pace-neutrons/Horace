@@ -25,7 +25,7 @@ function y = dsho_over_eps (en, en0, gam)
 %          If gam is scalar, then expanded to the same size as en and en0
 %
 % Output:
-% ========
+% -------
 %   y       Array of calculated response (has the same size as en)
 
 y = ((4/pi)*abs(gam.*en0))./((en.^2-en0.^2).^2 + 4*(gam.*en).^2);

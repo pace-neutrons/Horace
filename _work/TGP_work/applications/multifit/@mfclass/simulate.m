@@ -1,10 +1,19 @@
 function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 % Perform a simulation of the data using the current functions and starting parameter values
 %
-%   >> [data_out, calcdata] = obj.simulate              % if ok false, throws error
-%   >> [data_out, calcdata] = obj.simulate ('fore')     % calculate foreground only
-%   >> [data_out, calcdata] = obj.simulate ('back')     % calculate background only
+% Return calculated sum of foreground and background:
+%   >> [data_out, calcdata] = obj.simulate                % if ok false, throws error
 %
+% Return foreground, background, sum or all three:
+%   >> [data_out, calcdata] = obj.simulate ('sum')        % Equivalent to above
+%   >> [data_out, calcdata] = obj.simulate ('foreground') % calculate foreground only
+%   >> [data_out, calcdata] = obj.simulate ('background') % calculate background only
+%
+%   >> [data_out, calcdata] = obj.simulate ('components') % calculate foreground,
+%                                                         % background and sum
+%                                                         % (data_out is a structure)
+%
+% Continue execution even if an error condition is thrown:
 %   >> [data_out, calcdata, ok, mess] = obj.simulate (...) % if ok false, still returns
 %
 % Output:
@@ -12,8 +21,14 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 %  data_out Output with same form as input data but with y values evaluated
 %           at the initial parameter values. If the input was three separate
 %           x,y,e arrays, then only the calculated y values are returned.
-%
 %           If there was a problem i.e. ok==false, then data_out=[].
+%
+%           If option is 'components', then data_out is a structure with fields
+%           with the same format as above, as follows:
+%               data_out.sum        Sum of foreground and background
+%               data_out.fore       Foreground calculation
+%               data_out.back       Background calculation
+%           If there was a problem i.e. ok==false, then each field is =[].
 %
 %  calcdata Structure with result of the fit for each dataset. The fields are:
 %           p      - Foreground parameter values (if foreground function(s) present)
@@ -72,20 +87,22 @@ else
 end
 
 % Check option
-keyval_def = struct('foreground_evaluate',true,'background_evaluate',true);
-flagnames = {'foreground_evaluate','background_evaluate'};
-[args,keyval,present,~,ok,mess] = parse_arguments (varargin, keyval_def, flagnames);
+opt_default = struct('sum',false,'foreground',false,'background',false,...
+    'components',false);
+flagnames = fieldnames(opt_default);
+[args,opt,~,~,ok,mess] = parse_arguments (varargin, opt_default, flagnames);
 if ok
     if numel(args)<=1
-        if present.foreground_evaluate && ~present.background_evaluate
-            keyval.background_evaluate = ~keyval.foreground_evaluate;
-        elseif present.background_evaluate && ~present.foreground_evaluate
-            keyval.foreground_evaluate = ~keyval.background_evaluate;
+        lopt = cell2mat(struct2cell(opt));
+        if sum(lopt)==0
+            output_type = 'sum';
+        elseif sum(lopt)==1
+            output_type = flagnames{lopt};
+        else
+            ok = false; mess = 'Check the value of output option';
         end
-        foreground_eval = keyval.foreground_evaluate;
-        background_eval = keyval.background_evaluate;
     else
-        ok = false; mess = 'Check number of arguments';
+        ok = false; mess = 'Check number of input arguments';
     end
 end
 if ~ok
@@ -131,8 +148,8 @@ end
 xye = cellfun(@isstruct, obj.w_);
 f_pass_caller = obj.wrapfun_.f_pass_caller;
 bf_pass_caller = obj.wrapfun_.bf_pass_caller;
-selected = obj.options_.selected;
 
+selected = obj.options_.selected;
 if selected
     % Get wrapped functions and parameters after performing initialisation if required
     [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
@@ -143,9 +160,15 @@ if selected
 
     % Now compute output
     wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        f_pass_caller, bf_pass_caller, pfin, p_info, foreground_eval, background_eval);
+        f_pass_caller, bf_pass_caller, pfin, p_info, output_type);
     squeeze_xye = obj.options_.squeeze_xye;
-    data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
+    if ~opt.components
+        data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
+    else
+        data_out.sum  = repackage_output_datasets (obj.data_, wout.sum,  msk_out, squeeze_xye);
+        data_out.fore = repackage_output_datasets (obj.data_, wout.fore, msk_out, squeeze_xye);
+        data_out.back = repackage_output_datasets (obj.data_, wout.back, msk_out, squeeze_xye);
+    end
 
 else
     % Get wrapped functions and parameters after performing initialisation if required
@@ -157,10 +180,16 @@ else
 
     % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        f_pass_caller, bf_pass_caller, pfin, p_info, foreground_eval, background_eval);
+        f_pass_caller, bf_pass_caller, pfin, p_info, output_type);
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
-    data_out = repackage_output_datasets (obj.data_, wout, msk_none, squeeze_xye);
+    if ~opt.components
+        data_out = repackage_output_datasets (obj.data_, wout, msk_none, squeeze_xye);
+    else
+        data_out.sum  = repackage_output_datasets (obj.data_, wout.sum,  msk_none, squeeze_xye);
+        data_out.fore = repackage_output_datasets (obj.data_, wout.fore, msk_none, squeeze_xye);
+        data_out.back = repackage_output_datasets (obj.data_, wout.back, msk_none, squeeze_xye);
+    end
 
 end
 

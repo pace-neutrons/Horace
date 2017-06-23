@@ -341,7 +341,7 @@ classdef mfclass
         % The bindings have been resolved to account for any chain of binding to
         % the floating parameter at the end of the chain.
         %
-        % See also set_fuin set_bind
+        % See also set_fun set_bind
         bind
 
         % Background is local if true, or global if false

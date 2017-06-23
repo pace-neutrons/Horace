@@ -1,9 +1,14 @@
-function [data_out, fitdata, ok, mess] = fit (obj)
+function [data_out, fitdata, ok, mess] = fit (obj, varargin)
 % Perform a fit of the data using the current functions and starting parameter values
 %
-%   >> [data_out, fitdata] = obj.fit            % if ok false, throws error
+% Return calculated fitted datasets and parameters:
+%   >> [data_out, fitdata] = obj.fit                    % if ok false, throws error
 %
-%   >> [data_out, fitdata, ok, mess] = obj.fit  % if ok false, still returns
+% Return the calculated fitted signal, foreground and background in a structure:
+%   >> [data_out, fitdata] = obj.fit ('components')     % if ok false, throws error
+%
+% Continue execution even if an error condition is thrown:
+%   >> [data_out, fitdata, ok, mess] = obj.fit (...)    % if ok false, still returns
 %
 %
 % Output:
@@ -11,8 +16,14 @@ function [data_out, fitdata, ok, mess] = fit (obj)
 %  data_out Output with same form as input data but with y values evaluated
 %           at the final fit parameter values. If the input was three separate
 %           x,y,e arrays, then only the calculated y values are returned.
-%
 %           If there was a problem i.e. ok==false, then data_out=[].
+%
+%           If option 'components' was given, then data_out is a structure with fields
+%           with the same format as above, as follows:
+%               data_out.sum        Sum of foreground and background
+%               data_out.fore       Foreground calculation
+%               data_out.back       Background calculation
+%           If there was a problem i.e. ok==false, then each field is =[].
 %
 %   fitdata Structure with result of the fit for each dataset. The fields are:
 %           p      - Foreground parameter values (if foreground function(s) present)
@@ -71,6 +82,28 @@ if nargout<3
     throw_error = true;
 else
     throw_error = false;
+end
+
+% Check option
+opt_default = struct('sum',false,'components',false);
+flagnames = {'sum','components'};
+[args,opt,~,~,ok,mess] = parse_arguments (varargin, opt_default, flagnames);
+if ok
+    if numel(args)<=1
+        lopt = cell2mat(struct2cell(opt));
+        if sum(lopt)==0
+            output_type = 'sum';
+        elseif sum(lopt)==1
+            output_type = flagnames{lopt};
+        else
+            ok = false; mess = 'Check the value of output option';
+        end
+    else
+        ok = false; mess = 'Check number of input arguments';
+    end
+end
+if ~ok
+    if throw_error, error_message(mess), else, return, end
 end
 
 % Check that there is data present
@@ -138,16 +171,19 @@ end
 % obj.options_.selected==true.
 
 selected = obj.options_.selected;
-foreground_eval = true;
-background_eval = true;
-
 if selected
     % All initiliasation is up to date, as evaluating over the same data as was fitted
     % Now compute output
     wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        f_pass_caller, bf_pass_caller, pf, p_info, foreground_eval, background_eval);
+        f_pass_caller, bf_pass_caller, pf, p_info, output_type);
     squeeze_xye = obj.options_.squeeze_xye;
-    data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
+    if ~opt.components
+        data_out = repackage_output_datasets (obj.data_, wout, msk_out, squeeze_xye);
+    else
+        data_out.sum  = repackage_output_datasets (obj.data_, wout.sum , msk_out, squeeze_xye);
+        data_out.fore = repackage_output_datasets (obj.data_, wout.fore, msk_out, squeeze_xye);
+        data_out.back = repackage_output_datasets (obj.data_, wout.back, msk_out, squeeze_xye);
+    end
 
 else
     % Need to re-initialise because data is unmasked i.e. not the same as fitted
@@ -160,10 +196,16 @@ else
 
     % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
-        f_pass_caller, bf_pass_caller, pf, p_info, foreground_eval, background_eval);
+        f_pass_caller, bf_pass_caller, pf, p_info, output_type);
     squeeze_xye = false;
     msk_none = cellfun(@(x)true(size(x)),obj.msk_,'UniformOutput',false);   % no masking
-    data_out = repackage_output_datasets (obj.data_, wout, msk_none, squeeze_xye);
+    if ~opt.components
+        data_out = repackage_output_datasets (obj.data_, wout, msk_none, squeeze_xye);
+    else
+        data_out.sum  = repackage_output_datasets (obj.data_, wout.sum , msk_none, squeeze_xye);
+        data_out.fore = repackage_output_datasets (obj.data_, wout.fore, msk_none, squeeze_xye);
+        data_out.back = repackage_output_datasets (obj.data_, wout.back, msk_none, squeeze_xye);
+    end
 
 end
 

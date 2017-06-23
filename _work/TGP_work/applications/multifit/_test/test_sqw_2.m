@@ -1,5 +1,5 @@
 function test_sqw_2
-% Test of multifit2 with sqw objects
+% Test of timing of multifit2 with sqw objects
 
 %% ------------------------------------------------------------------------------------------------
 % Example of fitting more than one sqw object
@@ -53,7 +53,7 @@ kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
 
 timer = bigtic;
 [wfit,fitdata,ok,mess] = kk.fit;
-t_old = bigtoc(timer)
+t_new = bigtoc(timer)
 
 if~isequaln(wfit_ref,wfit), error('*** Oh dear! ***'), end
 

@@ -3,8 +3,14 @@ function y=bose_times_eps(eps,T)
 %
 %   >> y=bose_times_eps(eps,T)
 %
+% Input:
+% ------
 %   eps     Energy transfer, or array of energy transfers (meV)
 %   T       Temperature (K)
+%
+% Output:
+% -------
+%   y       (<n>+1)*eps, where <n> is the Bose occupation function
 
 kB=8.6173324e-2;
 

@@ -405,10 +405,19 @@ classdef mfclass_Horace_sqw_sqw < mfclass
         function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
             % Perform a simulation of the data using the current functions and starting parameter values
             %
-            %   >> [data_out, calcdata] = obj.simulate              % if ok false, throws error
-            %   >> [data_out, calcdata] = obj.simulate ('fore')     % calculate foreground only
-            %   >> [data_out, calcdata] = obj.simulate ('back')     % calculate background only
+            % Return calculated sum of foreground and background:
+            %   >> [data_out, calcdata] = obj.simulate                % if ok false, throws error
             %
+            % Return foreground, background, sum or all three:
+            %   >> [data_out, calcdata] = obj.simulate ('sum')        % Equivalent to above
+            %   >> [data_out, calcdata] = obj.simulate ('foreground') % calculate foreground only
+            %   >> [data_out, calcdata] = obj.simulate ('background') % calculate background only
+            %
+            %   >> [data_out, calcdata] = obj.simulate ('components') % calculate foreground,
+            %                                                         % background and sum
+            %                                                         % (data_out is a structure)
+            %
+            % Continue execution even if an error condition is thrown:
             %   >> [data_out, calcdata, ok, mess] = obj.simulate (...) % if ok false, still returns
             %
             % Output:
@@ -416,8 +425,14 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             %  data_out Output with same form as input data but with y values evaluated
             %           at the initial parameter values. If the input was three separate
             %           x,y,e arrays, then only the calculated y values are returned.
-            %
             %           If there was a problem i.e. ok==false, then data_out=[].
+            %
+            %           If option is 'components', then data_out is a structure with fields
+            %           with the same format as above, as follows:
+            %               data_out.sum        Sum of foreground and background
+            %               data_out.fore       Foreground calculation
+            %               data_out.back       Background calculation
+            %           If there was a problem i.e. ok==false, then each field is =[].
             %
             %  calcdata Structure with result of the fit for each dataset. The fields are:
             %           p      - Foreground parameter values (if foreground function(s) present)
@@ -478,9 +493,14 @@ classdef mfclass_Horace_sqw_sqw < mfclass
         function [data_out, calcdata, ok, mess] = fit (obj)
             % Perform a fit of the data using the current functions and starting parameter values
             %
-            %   >> [data_out, fitdata] = obj.fit            % if ok false, throws error
+            % Return calculated fitted datasets and parameters:
+            %   >> [data_out, fitdata] = obj.fit                    % if ok false, throws error
             %
-            %   >> [data_out, fitdata, ok, mess] = obj.fit  % if ok false, still returns
+            % Return the calculated fitted signal, foreground and background in a structure:
+            %   >> [data_out, fitdata] = obj.fit ('components')     % if ok false, throws error
+            %
+            % Continue execution even if an error condition is thrown:
+            %   >> [data_out, fitdata, ok, mess] = obj.fit (...)    % if ok false, still returns
             %
             %
             % Output:
@@ -488,8 +508,14 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             %  data_out Output with same form as input data but with y values evaluated
             %           at the final fit parameter values. If the input was three separate
             %           x,y,e arrays, then only the calculated y values are returned.
-            %
             %           If there was a problem i.e. ok==false, then data_out=[].
+            %
+            %           If option 'components' was given, then data_out is a structure with fields
+            %           with the same format as above, as follows:
+            %               data_out.sum        Sum of foreground and background
+            %               data_out.fore       Foreground calculation
+            %               data_out.back       Background calculation
+            %           If there was a problem i.e. ok==false, then each field is =[].
             %
             %   fitdata Structure with result of the fit for each dataset. The fields are:
             %           p      - Foreground parameter values (if foreground function(s) present)

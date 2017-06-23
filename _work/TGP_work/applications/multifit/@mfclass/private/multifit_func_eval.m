@@ -1,9 +1,9 @@
 function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
-    f_pass_caller_info,bf_pass_caller_info,pf,p_info,eval_fore,eval_back)
+    f_pass_caller_info,bf_pass_caller_info,pf,p_info,output_type)
 % Calculate the functions over the input data objects
 %
 %   >> wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
-%                f_pass_caller_info,bf_pass_caller_info,pf,p_info,eval_fore,eval_back)
+%                f_pass_caller_info,bf_pass_caller_info,pf,p_info,output_type)
 %
 % Input:
 % ------
@@ -43,18 +43,36 @@ function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
 %   p_info      Structure with information needed to transform from pf to the
 %              parameter values needed for function evaluation
 %
-%   eval_fore   Include evaluation of foreground functions (true or false)
-%
-%   eval_back   Include evaluation of background functions (true or false)
-%
+%   output_type Form of output:
+%               'foreground'    Evaluate foreground functions only
+%               'background'    Evaluate background functions only
+%               'sum'           Evaluate sum of foreground and background functions
+%               'components'    Return evaluation of foreground, backgroun and sum
 %
 % Output:
 % -------
 %   wout        Calculated output dataset(s). Same form as the input dataset(s)
+%               If output_type == 'components' then wout is a structure with fields
+%               'sum', 'fore', 'back', each of which has the same form as the input
+%               datasets.
 
 
-wout=cell(size(w));
+% Determine what calculated signal to return
+fore=false; back=false; calc_sum=false;
+if strcmp(output_type,'foreground')
+    fore = true;
+elseif strcmp(output_type,'background')
+    back = true;
+elseif strcmp(output_type,'sum')
+    calc_sum = true;
+elseif ~strcmp(output_type,'components')
+    error('Logic error. Contact developers')
+end
+eval_fore = ~back;
+eval_back = ~fore;
 
+
+% Perform simulation
 [p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
 
 caller.reset_state=true;
@@ -63,27 +81,29 @@ fstate_store={[]};
 bfstate_store={[]};
 store_fore=[];
 store_back=[];
+
 % Foreground function calculations
 if eval_fore
+    wfore=cell(size(w));
     if numel(func)==1
         if ~isempty(func{1})
             pars=plist_update(plist(1),p{1});
             for i=1:numel(w)
                 caller.ind=i;
                 if xye(i)
-                    wout{i}=w{i};
+                    wfore{i}=w{i};
                     if ~f_pass_caller_info
-                        wout{i}.y=func{1}(w{i}.x{:},pars{:});
+                        wfore{i}.y=func{1}(w{i}.x{:},pars{:});
                     else
-                        [wout{i}.y,~,store_fore]=func{1}(w{i}.x{:},caller,...
+                        [wfore{i}.y,~,store_fore]=func{1}(w{i}.x{:},caller,...
                             fstate_store,store_fore,pars{:});
                     end
-                    wout{i}.e=zeros(size((w{i}.y)));
+                    wfore{i}.e=zeros(size((w{i}.y)));
                 else
                     if ~f_pass_caller_info
-                        wout{i}=func{1}(w{i},pars{:});
+                        wfore{i}=func{1}(w{i},pars{:});
                     else
-                        [wout{i},~,store_fore]=func{1}(w{i},caller,...
+                        [wfore{i},~,store_fore]=func{1}(w{i},caller,...
                             fstate_store,store_fore,pars{:});
                     end
                 end
@@ -95,22 +115,34 @@ if eval_fore
             if ~isempty(func{i})
                 pars=plist_update(plist(i),p{i});
                 if xye(i)
-                    wout{i}=w{i};
+                    wfore{i}=w{i};
                     if ~f_pass_caller_info
-                        wout{i}.y=func{i}(w{i}.x{:},pars{:});
+                        wfore{i}.y=func{i}(w{i}.x{:},pars{:});
                     else
-                        [wout{i}.y,~,store_fore]=func{i}(w{i}.x{:},caller,...
+                        [wfore{i}.y,~,store_fore]=func{i}(w{i}.x{:},caller,...
                             fstate_store,store_fore,pars{:});
                     end
-                    wout{i}.e=zeros(size((w{i}.y)));
+                    wfore{i}.e=zeros(size((w{i}.y)));
                 else
                     if ~f_pass_caller_info
-                        wout{i}=func{i}(w{i},pars{:});
+                        wfore{i}=func{i}(w{i},pars{:});
                     else
-                        [wout{i},~,store_fore]=func{i}(w{i},caller,...
+                        [wfore{i},~,store_fore]=func{i}(w{i},caller,...
                             fstate_store,store_fore,pars{:});
                     end
                 end
+            end
+        end
+    end
+    % Catch any datsets where foreground functions do not contribute
+    for i=1:numel(wfore)
+        if isempty(wfore{i})
+            if xye(i)
+                wfore{i}=w{i};
+                wfore{i}.y=zeros(size((w{i}.y)));
+                wfore{i}.e=zeros(size((w{i}.y)));
+            else
+                wfore{i}=0*w{i};
             end
         end
     end
@@ -118,46 +150,27 @@ end
 
 % Background function calculations
 if eval_back
+    wback=cell(size(w));
     if numel(bfunc)==1
         if ~isempty(bfunc{1})
             pars=plist_update(bplist(1),bp{1});
             for i=1:numel(w)
                 caller.ind=i;
                 if xye(i)
-                    if isempty(wout{i})
-                        wout{i}=w{i};
-                        if ~bf_pass_caller_info
-                            wout{i}.y=bfunc{1}(w{i}.x{:},pars{:});
-                        else
-                            [wout{i}.y,~,store_back]=bfunc{1}(w{i}.x{:},caller,...
-                                bfstate_store,store_back,pars{:});
-                        end
-                        wout{i}.e=zeros(size((w{i}.y)));
+                    wback{i}=w{i};
+                    if ~bf_pass_caller_info
+                        wback{i}.y=bfunc{1}(w{i}.x{:},pars{:});
                     else
-                        if ~bf_pass_caller_info
-                            wout{i}.y=wout{i}.y + bfunc{1}(w{i}.x{:},pars{:});
-                        else
-                            [ytmp,~,store_back]=bfunc{1}(w{i}.x{:},caller,...
-                                bfstate_store,store_back,pars{:});
-                            wout{i}.y=wout{i}.y + ytmp;
-                        end
+                        [wback{i}.y,~,store_back]=bfunc{1}(w{i}.x{:},caller,...
+                            bfstate_store,store_back,pars{:});
                     end
+                    wback{i}.e=zeros(size((w{i}.y)));
                 else
-                    if isempty(wout{i})
-                        if ~bf_pass_caller_info
-                            wout{i}=bfunc{1}(w{i},pars{:});
-                        else
-                            [wout{i},~,store_back]=bfunc{1}(w{i},caller,...
-                                bfstate_store,store_back,pars{:});
-                        end
+                    if ~bf_pass_caller_info
+                        wback{i}=bfunc{1}(w{i},pars{:});
                     else
-                        if ~bf_pass_caller_info
-                            wout{i}=wout{i}+bfunc{1}(w{i},pars{:});
-                        else
-                            [wtmp,~,store_back]=bfunc{1}(w{i},caller,...
-                                bfstate_store,store_back,pars{:});
-                            wout{i}=wout{i} + wtmp;
-                        end
+                        [wback{i},~,store_back]=bfunc{1}(w{i},caller,...
+                            bfstate_store,store_back,pars{:});
                     end
                 end
             end
@@ -168,59 +181,65 @@ if eval_back
             if ~isempty(bfunc{i})
                 pars=plist_update(bplist(i),bp{i});
                 if xye(i)
-                    if isempty(wout{i})
-                        wout{i}=w{i};
-                        if ~bf_pass_caller_info
-                            wout{i}.y=bfunc{i}(w{i}.x{:},pars{:});
-                        else
-                            [wout{i}.y,~,store_back]=bfunc{i}(w{i}.x{:},caller,...
-                                bfstate_store,store_back,pars{:});
-                        end
-                        wout{i}.e=zeros(size((w{i}.y)));
+                    wback{i}=w{i};
+                    if ~bf_pass_caller_info
+                        wback{i}.y=bfunc{i}(w{i}.x{:},pars{:});
                     else
-                        if ~bf_pass_caller_info
-                            wout{i}.y=wout{i}.y + bfunc{i}(w{i}.x{:},pars{:});
-                        else
-                            [ytmp,~,store_back]=bfunc{i}(w{i}.x{:},...
-                                caller,bfstate_store,store_back,pars{:});
-                            wout{i}.y=wout{i}.y + ytmp;
-                        end
+                        [wback{i}.y,~,store_back]=bfunc{i}(w{i}.x{:},caller,...
+                            bfstate_store,store_back,pars{:});
                     end
+                    wback{i}.e=zeros(size((w{i}.y)));
                 else
-                    if isempty(wout{i})
-                        if ~bf_pass_caller_info
-                            wout{i}=bfunc{i}(w{i},pars{:});
-                        else
-                            [wout{i},~,store_back]=bfunc{i}(w{i},caller,...
-                                bfstate_store,store_back,pars{:});
-                        end
+                    if ~bf_pass_caller_info
+                        wback{i}=bfunc{i}(w{i},pars{:});
                     else
-                        if ~bf_pass_caller_info
-                            wout{i}=wout{i}+bfunc{i}(w{i},pars{:});
-                        else
-                            [wtmp,~,store_back]=bfunc{i}(w{i},caller,...
-                                bfstate_store,store_back,pars{:});
-                            wout{i}=wout{i} + wtmp;
-                        end
+                        [wback{i},~,store_back]=bfunc{i}(w{i},caller,...
+                            bfstate_store,store_back,pars{:});
                     end
                 end
             end
         end
     end
-end
-
-% Catch any datsets where neither foreground nor background functions contribute
-for i=1:numel(wout)
-    if isempty(wout{i})
-        if xye(i)
-            wout{i}=w{i};
-            wout{i}.y=zeros(size((w{i}.y)));
-            wout{i}.e=zeros(size((w{i}.y)));
-        else
-            wout{i}=0*w{i};
+    % Catch any datsets where background functions do not contribute
+    for i=1:numel(wback)
+        if isempty(wback{i})
+            if xye(i)
+                wback{i}=w{i};
+                wback{i}.y=zeros(size((w{i}.y)));
+                wback{i}.e=zeros(size((w{i}.y)));
+            else
+                wback{i}=0*w{i};
+            end
         end
     end
 end
+
+% Combine (if necessary)
+if fore
+    wout = wfore;
+elseif back
+    wout = wback;
+else
+    wsum=cell(size(w));
+    for i=1:numel(wsum)
+        if xye(i)
+            wsum{i} = w{i};
+            wsum{i}.y = wfore{i}.y + wback{i}.y;
+            wsum{i}.e = sqrt((wfore{i}.e).^2 + (wback{i}.e).^2);
+        else
+            wsum{i} = wfore{i} + wback{i};
+        end
+    end
+    if calc_sum
+        wout = wsum;
+    else
+        wout.sum = wsum;
+        wout.fore = wfore;
+        wout.back = wback;
+    end
+end
+
+
 
 %------------------------------------------------------------------------------
 function plist_cell = plist_update (plist, pnew)
