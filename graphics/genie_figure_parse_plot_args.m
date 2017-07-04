@@ -71,7 +71,7 @@ if newplot || ~over_curr
     
 else
     % Check there is a current figure
-    if isempty(findall(0,'Type','figure'))
+    if isempty(findobj(0,'Type','figure'))
         [args,ok,mess,lims,fig_out]=error_return('No current figure exists - cannot overplot');
         return
     end

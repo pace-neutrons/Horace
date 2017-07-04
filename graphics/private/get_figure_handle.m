@@ -45,7 +45,7 @@ mess='';
 % Find figure handles
 if nargin==0 || (isempty(fig) && ~is_string(fig))
     % Catch case of no input
-    if isempty(findall(0,'Type','figure'))
+    if isempty(findobj(0,'Type','figure'))
         fig_handle=empty_default_graphics_object();
     else
         fig_handle=gcf;
@@ -59,7 +59,7 @@ else
             valid=ishandle(fig);
             fig_handle=fig(valid(:));
         else
-            all_fig=findall(0,'Type','figure');
+            all_fig=findobj(0,'Type','figure');
             fig_num=get_figure_number(all_fig);
             [valid,loc]=ismember(fig,fig_num);
             fig_handle=all_fig(loc(valid(:)));
@@ -70,7 +70,7 @@ else
         if ok
             fig=strtrim(fig);   % str_make_cellstr only trims trailing whitespace
             if numel(fig)==1 && strcmpi(fig{1},'-all')
-                fig_handle=findall(0,'Type','figure');
+                fig_handle=findobj(0,'Type','figure');
                 valid=true(0);
             else
                 fig_handle=[];

@@ -1,4 +1,4 @@
-function amark(varargin)
+function varargout = amark(varargin)
 % Change the marker type and size for following plots
 %
 % Syntax examples:
@@ -30,9 +30,21 @@ narg = length(varargin);
 if narg < 1
     marker_size=get_global_var('genieplot','marker_size');
     marker_type=get_global_var('genieplot','marker_type');
-    disp('Current marker size(s) and type(s):')
-    disp(marker_size)
-    disp(marker_type)
+    if nargout==0
+        disp('Current marker size(s) and type(s):')
+        disp(marker_size)
+        disp(marker_type)
+    else
+        if nargout>=1, varargout{1}=marker_size; end
+        if nargout>=2
+            if numel(marker_type)==1
+                varargout{2}=marker_type{1};
+            else
+                varargout{2}=marker_type;
+            end
+        end
+        if nargout>2, error('Check number of output arguments'); end
+    end
     return
 end
 

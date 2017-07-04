@@ -1,4 +1,4 @@
-function aline(varargin)
+function varargout = aline(varargin)
 % Change the line type and width for following plots
 %
 % Syntax examples:
@@ -8,6 +8,7 @@ function aline(varargin)
 %	>> aline('-',10)
 %
 %   >> aline            % displays the current value(s)
+%   >> [lwidth,lstyle]=aline        % return the current value(s)
 %
 % Arguments can set a sequence of type and/or size for cascade plots e.g.
 %   >> aline (1,2,':','-','-.')     % Linewidth repeats 1,2,1,2,...
@@ -31,9 +32,21 @@ narg = length(varargin);
 if narg < 1
     line_width=get_global_var('genieplot','line_width');
     line_style=get_global_var('genieplot','line_style');
-    disp('Current line width(s) and style(s):')
-    disp(line_width)
-    disp(line_style)
+    if nargout==0
+        disp('Current line width(s) and style(s):')
+        disp(line_width)
+        disp(line_style)
+    else
+        if nargout>=1, varargout{1}=line_width; end
+        if nargout>=2
+            if numel(line_style)==1
+                varargout{2}=line_style{1};
+            else
+                varargout{2}=line_style;
+            end
+        end
+        if nargout>2, error('Check number of output arguments'); end
+    end
     return
 end
 

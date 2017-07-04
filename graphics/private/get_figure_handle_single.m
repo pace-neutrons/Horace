@@ -31,7 +31,7 @@ function [fig_handle, ok, mess] = get_figure_handle_single (fig)
 
 if nargin==0 || (isempty(fig) && ~is_string(fig))
     % Catch case of no input
-    if isempty(findall(0,'Type','figure'))
+    if isempty(findobj(0,'Type','figure'))
         [fig_handle,ok,mess]=error_return('No current figure exists');
     else
         fig_handle=gcf;
