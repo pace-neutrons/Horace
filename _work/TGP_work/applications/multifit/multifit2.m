@@ -8,7 +8,7 @@ function mf_object = multifit2 (varargin)
 %   >> myobj = multifit2 (w1, w2, ...)      
 %
 %   w1, w2 can each be:
-%   - Structure with fields x, y, z, or array of such structure
+%   - Structure with fields x, y, e, or array of such structure
 %   - Cell array {x,y,e} or cell array of cell arrays {{x1,y1,e1}, {x2,y2,e2},...
 %   - Object, or array of objects (note that if multifit2 has been overloaded
 %     as a method for the object, then that will be found first)
