@@ -1,4 +1,4 @@
-classdef IX_graphics_1d < IX_dataset
+classdef IX_dataset_1d < IX_data_1d
  
     
     methods
