@@ -1,5 +1,23 @@
 classdef IX_dataset
-    % Parent class for IX_datasets_Nd;
+    % Abstract parent class for IX_datasets_Nd;
+    properties(Dependent)
+        %title:  dataset title (will be plotted on a grapth)
+        title;
+        % signal -- array of signal...
+        signal
+        % error  -- array of errors
+        error
+        % s_axis -- IX_axis class containing signal axis caption
+        s_axis
+        % x - vector of bin boundaries for histogram data or bin centers
+        % for distribution
+        x
+        % x_axis -- IX_axis class containing x-axis caption
+        x_axis;
+        % x_distribution -- a
+        x_distribution;
+    end
+    
     
     properties(Access=protected)
         title_={};
@@ -7,9 +25,9 @@ classdef IX_dataset
         signal_=zeros(0,1);
         % empty error
         error_=zeros(0,1);
-        % has empty s-IX_axis        
-        s_axis_=IX_axis;
-        % empty x-axis;
+        % has empty signals-IX_axis
+        s_axis_=IX_axis('Conunts');
+        % empty x binning data;
         x_=zeros(1,0);
         % has empty x-IX_axis
         x_axis_=IX_axis;
@@ -18,16 +36,27 @@ classdef IX_dataset
         % empty object it valid
         valid_ = true;
     end
-    properties(Dependent)
-        title;
-        signal
-        error
-        s_axis
-        x
-        x_axis;
-        x_distribution;
-    end
     methods
+        %------------------------------------------------------------------
+        % Methors, accessed using unary/binary operation manager are stored
+        % in the class folder only. Their signatures are not presented
+        % here.
+        %------------------------------------------------------------------
+        % Signatures for common methods, which do not use unary/binary
+        % operation manager:
+        %------------------------------------------------------------------
+        % method checks if common fiedls are consistent between each
+        % other. Call this method from a program after changing
+        % x,signal, error using set operations. Throws 'invalid_argument'
+        % if class is incorrent and and the method is called with one
+        % output argument. Returns error message, if class is incorrect and
+        % method called with two output arguments.
+        [obj,mess] = isvalid(obj)
+        % Get information for one or more axes and if is histogram data for each axis
+        [ax,hist]=axis(w,n)
+        
+        %------------------------------------------------------------------
+        % Access Properties:
         %------------------------------------------------------------------
         function tit = get.title(obj)
             tit = obj.title_;
@@ -94,7 +123,8 @@ classdef IX_dataset
         end
         %
         function obj = set.x_distribution(obj,val)
-            % TODO: should setting it to true/false involve chaning x?
+            % TODO: should setting it to true/false involve chaning x from
+            % disrtibution to bin centers and v.v.?
             obj.x_distribution_ = logical(val);
         end
         %------------------------------------------------------------------
@@ -108,7 +138,7 @@ classdef IX_dataset
             end
         end
         function obj = set.signal(obj,val)
-            obj = check_and_set_sig_err_(obj,'signal',val);
+            obj = check_and_set_sig_err(obj,'signal',val);
             ok = check_common_fields(obj);
             if ok
                 obj.valid_ = true;
@@ -117,7 +147,7 @@ classdef IX_dataset
             end
         end
         function obj = set.error(obj,val)
-            obj = check_and_set_sig_err_(obj,'error',val);
+            obj = check_and_set_sig_err(obj,'error',val);
             ok = check_common_fields(obj);
             if ok
                 obj.valid_ = true;
@@ -131,17 +161,20 @@ classdef IX_dataset
             ok = obj.valid_;
         end
         %
-        % method checks if common fiedls are consistent between each
-        % other. Call this method from a program after changing
-        % x,signal, error using set operations. Throws 'invalid_argument' 
-        % if class is incorrent and and the method is called with single
-        % output argument. Returns error message, if called with two
-        % arguments.
-        [obj,mess] = isvalid(obj)
-        
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
+    methods(Abstract,Static)
+        % used to reload old style objects from mat files on hdd
+        obj = loadobj(data)
+    end
+    
+    methods(Abstract,Access=public)
+        % method necessary for loadobj to work in order to support the reloading
+        % of old style classes from mat files.
+        obj = init_from_structure(obj,struct)
+    end
+    
     methods(Abstract,Access=protected)
         %Implement binary arithmetic operations for objects containing a double array.
         w = binary_op_manager (w1, w2, binary_op)
@@ -154,6 +187,9 @@ classdef IX_dataset
         % Check if various interdependent fields of a class are consistent
         % between each other.
         [ok,mess] = check_common_fields(obj);
+        % verify and set signal or error arrays
+        obj = check_and_set_sig_err(obj,field_name,value);
+        %
     end
     
 end

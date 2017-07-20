@@ -2,7 +2,7 @@ function wout = read_ascii (wdummy,varargin)
 % Read x,y or x,y,e column arrays into a IX_dataset_1d or array of IX_dataset_1d. Inverse of save_ascii.
 %   - Automatically detects if data is point or histogram data.
 %   - Skips over non-numeric blocks of data
-%   - Reads succesive block of numeric data, filling succesive datasets
+%   - Reads successive block of numeric data, filling successive datasets
 %   - Columns can be separated by spaces, commas or tabs. Commas and tabs
 %    can be used to indicate columns to skip e.g. the line
 %                   13.2, ,15.8
@@ -218,7 +218,7 @@ while ~data_found
         ok=false; mess=['No x-y-e data encountered in ' file_full]; return
     end
     tline = fgets(fid);
-    if isequal(tline,-1), break, end    % reached end of file withoug encountering data
+    if isequal(tline,-1), break, end    % reached end of file without encountering data
     temp = str2num(tline);
     if length(temp)>=ncol_min
         ncol = length(temp);

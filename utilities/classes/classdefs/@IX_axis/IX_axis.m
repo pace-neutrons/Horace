@@ -1,90 +1,103 @@
-function axis = IX_axis(varargin)
-% Create IX_axis object
-%   >> w = IX_axis (caption)
-%   >> w = IX_axis (caption, units)
-%   >> w = IX_axis (code)           % set cption and units via a standard units code
-%   >> w = IX_axis (...,code)       % override caption and/or units from the defined code
-%
-% Setting custom tick positions and labels
-%   >> w = IX_axis (...,vals)           % positions
-%   >> w = IX_axis (...,vals,labels)    % positions and labels
-%   >> w = IX_axis (...,ticks)          % strucutre with position and tick labels
-%
-%  Creates an IX_axis object with the following elements:
-%
-% 	caption		char        Caption for axis
-%            or cellstr    (Caption can be multiline input in the form of a
-%                           cell array or a character array)
-%   units       char        Units for axis e.g. 'meV'
-%   code        char        Code for units (see documentation for built-in units;
-%                          can also be user-defined unit code)
-%
-%   vals        numeric     Array of tick positions
-%   labels      char        Character array or cellstr of tick labels
-%            or cellstr     
-%   ticks       structure   Tick information with two fields
-%                               positions    tick positions (numeric array)
-%                               labels       cell array of tick labels
-
-narg=nargin;
-
-% Default class
-% (should make this call checkfields, but is so simple...)
-if narg==0
-    axis.caption={};
-    axis.units='';
-    axis.code='';
-    axis.ticks=struct('positions',[],'labels',{{}});
-    axis=class(axis,'IX_axis');
-    return
-end
-
-% Various input options
-if narg==1 && isa(varargin{1},'IX_axis')  % if already IX_axis object, return
-    axis=varargin{1};
-    return
-    
-elseif narg==1 && isstruct(varargin{1})   % structure input
-    [ok,mess,axis]=checkfields(varargin{1});   % Make checkfields the ultimate arbiter of the validity of a structure
-    if ok, axis=class(axis,'IX_axis'); return, else error(mess); end
-
-elseif narg<=4 && isstruct(varargin{end})    % final argument is structure
-    nch=narg-1;
-    if nch>=1, axis.caption=varargin{1}; else axis.caption={}; end
-    if nch>=2, axis.units=varargin{2};   else axis.units=''; end
-    if nch>=3, axis.code=varargin{3};    else axis.code=''; end
-    axis.ticks=varargin{end};
-
-elseif narg<=4 && isnumeric(varargin{end})   % final argument is numeric array
-    nch=narg-1;
-    if nch>=1, axis.caption=varargin{1}; else axis.caption={}; end
-    if nch>=2, axis.units=varargin{2};   else axis.units=''; end
-    if nch>=3, axis.code=varargin{3};    else axis.code=''; end
-    if isempty(varargin{end})
-        axis.ticks=struct('positions',[],'labels',{{}});
-    else
-        axis.ticks=struct('positions',varargin{end}(:)','labels',{{}});
+classdef IX_axis
+    %  IX_axis object contains the elements below.
+    %  The elements can be set from constructor and also
+    %  accessed/modified from the object properties:
+    %
+    % 	caption		char        Caption for axis
+    %            or cellstr    (Caption can be multiline input in the form of a
+    %                           cell array or a character array)
+    %   units       char        Units for axis e.g. 'meV'
+    %   code        char        Code for units (see documentation for built-in units;
+    %                           can also be user-defined unit code)
+    %
+    %   vals        numeric     Array of tick positions
+    %   labels      char        Character array or cellstr of tick labels
+    %               or cellstr
+    %   ticks       structure   Tick information with two fields
+    %                               positions    tick positions (numeric array)
+    %                               labels       cell array of tick labels
+    %
+    % $Revision$ ($Date$)
+    %
+    properties(Dependent)
+        caption
+        units
+        code         % Not properly implemented?
+        ticks
     end
-
-elseif narg>1 && narg<=5 && isnumeric(varargin{end-1}) % penultimate argument is numeric array
-    nch=narg-2;
-    if nch>=1, axis.caption=varargin{1}; else axis.caption={}; end
-    if nch>=2, axis.units=varargin{2};   else axis.units=''; end
-    if nch>=3, axis.code=varargin{3};    else axis.code=''; end
-    if isempty(varargin{end-1}), ticks.positions=[]; else ticks.positions=varargin{end-1}; end
-    if isempty(varargin{end-1}), ticks.labels={}; else ticks.labels=varargin{end}; end
-    axis.ticks=ticks;
-
-elseif narg<=3
-    nch=narg;
-    if nch>=1, axis.caption=varargin{1}; else axis.caption={}; end
-    if nch>=2, axis.units=varargin{2};   else axis.units=''; end
-    if nch>=3, axis.code=varargin{3};    else axis.code=''; end
-    axis.ticks=struct('positions',[],'labels',{{}});
-
-else
-    error('Check number and type of arguments')
+    properties(Access=protected)
+        caption_ = {};
+        units_ = '';
+        code_ = '';
+        ticks_ = struct('positions',[],'labels',{{}});
+    end
+    methods(Static)
+       function obj = loadobj(data)
+            % function to support loading of outdated versions of the class
+            % from mat files on hdd
+            if isa(data,'IX_axis')
+                obj = data;
+            else
+                obj = IX_axis();
+                obj = obj.init_from_structure(data);
+            end
+        end    end
+    methods
+        function axis = IX_axis(varargin)
+            % Create IX_axis object
+            %   >> w = IX_axis (caption)
+            %   >> w = IX_axis (caption, units)
+            %   >> w = IX_axis (code)           % set cation and units via a standard units code
+            %   >> w = IX_axis (...,code)       % override caption and/or units from the defined code
+            %
+            % Setting custom tick positions and labels
+            %   >> w = IX_axis (...,vals)           % positions
+            %   >> w = IX_axis (...,vals,labels)    % positions and labels
+            %   >> w = IX_axis (...,ticks)          % strucutre with position and tick labels
+            %
+            if nargin > 0
+                axis = buildIX_axis_(axis,varargin{:});
+            end
+        end
+        % init object or array of objects from a structure with appropriate
+        % fields
+        obj = init_from_structure(axis,in)
+        %------------------------------------------------------------------
+        function cap = get.caption(obj)
+            cap = obj.caption_;
+        end
+        function obj = set.caption(obj,cap)
+            obj = check_and_set_caption_(obj,cap);
+        end
+        %
+        function un = get.units(obj)
+            un = obj.units_;
+        end
+        function obj = set.units(obj,un)
+            obj = check_and_set_units_(obj,un);
+        end
+        %
+        function un = get.code(obj)
+            % Not properly implemented?
+            un = obj.code_;
+        end
+        function obj = set.code(obj,code)
+            % Not properly implemented?
+            obj = check_and_set_code_(obj,code);
+        end
+        %
+        function un = get.ticks(obj)
+            un = obj.ticks_;
+        end
+        function obj = set.ticks(obj,ticks)
+            % ticks should be a structure with fields 'positions' and
+            % 'labels', containing array of ticks and cellarray of labels
+            % correspondingly.
+            %
+            % TODO: easy to modify to set these values separately, without
+            % combining them into a structure.
+            obj = check_and_set_ticks_(obj,ticks);
+        end
+        %------------------------------------------------------------------
+    end
 end
-
-[ok,mess,axis]=checkfields(axis);   % Make checkfields the ultimate arbiter of the validity of a structure
-if ok, axis=class(axis,'IX_axis'); return, else error(mess); end

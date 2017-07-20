@@ -21,7 +21,7 @@ function [xb,ok,mess]=bin_boundaries_simple(xc)
 if numel(xc)>1
     if isvector(xc)
         del=diff(xc);
-        if any(del<=0);
+        if any(del<=0)
             xb=[]; ok=false; mess='Points must be strictly monotonic increasing';
             if nargout>1, return, else error(mess), end
         end

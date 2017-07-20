@@ -21,19 +21,33 @@ function [ax,hist]=axis(w,n)
 %
 %   hist    Logical array with true for axes that are histogram data, false for point data
 
-if nargin==1, n=1; end
-if numel(w)==1 && all(n==1)
-    ax.values=w.x;
-    ax.axis=w.x_axis;
-    ax.distribution=w.x_distribution;
-    if numel(w.x)==size(w.signal,1)
-        hist=false;
-    else
-        hist=true;
-    end
-    if numel(n)>1
-        ax=repmat(ax,1,numel(n));
-    end
+if nargin==1
+    n=1;
 else
-    error('Can only have scalar input, and axis index n=1')
+    if ~all(n==1)
+        error('IX_dataset:invalid_argument',...
+            'Can only have scalar input, and axis index n=1')
+    end
 end
+
+ax = struct();
+[ax,hist] = set_struct(ax,w(1));
+if numel(w)>1
+    ax=repmat(ax,1,numel(w));
+    hist =repmat(hist,1,numel(w));
+    for i=1:numel(w)
+        [ax(i),hist(i)] = set_struct(ax(i),w(i));
+    end
+end
+
+
+function [aa,hist] = set_struct(aa,w)
+aa.values=w.x;
+aa.axis=w.x_axis;
+aa.distribution=w.x_distribution;
+if numel(w.x)==size(w.signal,1)
+    hist=false;
+else
+    hist=true;
+end
+

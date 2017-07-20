@@ -4,6 +4,7 @@ classdef IX_data_1d < IX_dataset
     %   >> w = IX_dataset_1d (x)
     %   >> w = IX_dataset_1d (x,signal)
     %   >> w = IX_dataset_1d (x,signal,error)
+    %   >> w = IX_dataset_1d ([x;signal;error]) % 3xNs vector of data;
     %   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis)
     %   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis, x_distribution)
     %   >> w = IX_dataset_1d (title, signal, error, s_axis, x, x_axis, x_distribution)
@@ -31,6 +32,7 @@ classdef IX_data_1d < IX_dataset
             {'title','signal','error','s_axis','x_axis','x','x_distribution'};
     end
     
+    
     methods
         function obj=IX_data_1d(varargin)
             % Constructor
@@ -40,7 +42,11 @@ classdef IX_data_1d < IX_dataset
             obj = build_IXdataset_1d_(obj,varargin{:});
         end
         %------------------------------------------------------------------
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
+        % init object or array of objects from a structure with appropriate
+        % fields
+        obj = init_from_structure(obj,in);
+        
     end
     %
     methods(Access=protected)
@@ -67,7 +73,11 @@ classdef IX_data_1d < IX_dataset
             % consistency
             [ok,mess] = check_common_fields_(obj);
         end
-        
+        function obj = check_and_set_sig_err(obj,field_name,value)
+            % verify and set up signal or error arrays. Throw if
+            % input can not be converted to correct array data.
+            obj = check_and_set_sig_err_(obj,field_name,value);
+        end
     end
     
     

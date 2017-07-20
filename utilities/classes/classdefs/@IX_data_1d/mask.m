@@ -26,7 +26,8 @@ end
 
 % Check mask is OK
 if ~(isnumeric(mask_array) || islogical(mask_array)) || numel(mask_array)~=numel(win.signal)
-    error('Mask must provide a numeric or logical array with same number of elements as the data')
+    error('IX_dataset_1d:invalid_argument',...
+        'Mask must provide a numeric or logical array with same number of elements as the data')
 end
 if ~islogical(mask_array)
     mask_array=logical(mask_array);

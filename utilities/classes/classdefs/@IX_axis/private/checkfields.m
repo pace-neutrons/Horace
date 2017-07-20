@@ -33,65 +33,12 @@ wout=w;
 
 if isequal(fieldnames(w),fields)
     % Check caption
-    if ischar(w.caption) && numel(size(w.caption))==2
-        if isempty(w.caption)
-            wout.caption={};
-        else
-            wout.caption=cellstr(w.caption);
-        end
-    elseif iscellstr(w.caption)
-        wout.caption=wout.caption(:);
-    else
-        message='Caption must be character or cell array of strings'; return
-    end
     
-    % Check units
-    if is_string(w.units)
-        if isempty(w.units)
-            wout.units='';
-        end
-    else
-        message='Axis units must be character string'; return
-    end
     
-    % Check code
-    if is_string(w.code)
-        if isempty(w.code)
-            wout.code='';
-        end
-    else
-        message='Units code must be character string'; return
-    end
-    
+     
     % Check ticks
     if isstruct(w.ticks)
-        if numel(fieldnames(w.ticks))==2 && all(isfield(w.ticks,{'positions','labels'}))
-            if isempty(w.ticks.positions)
-                wout.ticks.positions=[];
-            elseif isnumeric(w.ticks.positions)
-                if ~isrowvector(w.ticks.positions), wout.ticks.positions=w.ticks.positions(:)'; end
-            else
-                message='tick positions must be a numeric vector'; return
-            end
-            
-            if isempty(w.ticks.labels)
-                wout.ticks.labels={};
-            elseif iscellstr(w.ticks.labels)
-                if ~isrowvector(w.ticks.labels), wout.ticks.labels=w.ticks.labels(:)'; end
-            elseif ischar(w.ticks.labels) && numel(size(w.ticks.labels))==2
-                wout.ticks.labels=cellstr(w.ticks.labels)';
-            else
-                message='tick labels must be a cellstr or character array'; return
-            end
-            
-            if ~isempty(wout.ticks.labels) && numel(wout.ticks.labels)~=numel(wout.ticks.positions);
-                message='If tick labels are provided, the number of labels must match the number of tick positions'; return
-            end
-
-            wout.ticks=orderfields(wout.ticks,{'positions','labels'});
-        else
-            message='ticks information must be a structure with fields ''positions'' and ''labels'''; return
-        end
+ 
     else
         message='ticks information must be a structure with fields ''positions'' and ''labels'''; return
     end

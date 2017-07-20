@@ -14,4 +14,4 @@ if ~ok, error(mess), end
 
 % Write data to file
 % ------------------
-save(file_full,'w','-mat')  % enforce Matlab binary format regardless of extension
+save(file_full,'w','-mat')  % enforce matlab binary format regardless of extension

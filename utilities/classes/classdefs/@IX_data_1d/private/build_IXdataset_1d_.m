@@ -33,44 +33,21 @@ if nargin==2
     end
     in = varargin{1};
     if isstruct(in)   % structure input
-        if numel(in) > 1
-            obj = repmat(IX_dataset_1d(),numel(in),1);
-            in1d = reshape(in,numel(in),1);
-            for i = 1:numel(in)
-                obj(i) = IX_dataset_1d(in1d(i));
-            end
-            obj = reshape(obj,size(in));
-            return
-        end
-        fld_names = fieldnames(in);
-        accepted_flds = obj.public_fields_list_;
-        memb = ismember(fld_names,accepted_flds);
-        if ~all(memb)
-            err_fields = fld_names(~memb);
-            err_fields = cellfun(@(fld)([fld,'; ']),err_fields,'UniformOutput',false);
-            err_str = [err_fields{:}];
-            error('IX_dataset_1d:invalid_argument',...
-                'Input structure fields: %s can not be used to set IX_dataset_1d',err_str);
-        end
-        for i=1:numel(fld_names)
-            fld = fld_names{i};
-            obj.(fld) = in.(fld);
-        end
-%     elseif iscell(in) % does not work with cellarray
-%         tob = cell(numel(in),1);
-%         in1d = reshape(in,numel(in),1);
-%         for i=1:numel(in)
-%             tob{i} = IX_dataset_1d(in1d{i});
-%         end
-%         obj = reshape(tob,size(in));
-%         return;
+        obj = obj.init_from_structure(in);
+        %     elseif iscell(in) % does not work with cellarray
+        %         tob = cell(numel(in),1);
+        %         in1d = reshape(in,numel(in),1);
+        %         for i=1:numel(in)
+        %             tob{i} = IX_dataset_1d(in1d{i});
+        %         end
+        %         obj = reshape(tob,size(in));
+        %         return;
     elseif isnumeric(in)
         if size(in,1) == 3 && size(in,2) > 1
-            obj = check_and_set_x_(obj,in(1,:));
+            obj.x = in(1,:);
             obj = check_and_set_sig_err_(obj,'signal',in(2,:));
             obj = check_and_set_sig_err_(obj,'error',in(3,:));
         else
-            obj = check_and_set_x_(obj,in);
             obj.x = in;
             obj = check_and_set_sig_err_(obj,'signal',zeros(size(in)));
             obj = check_and_set_sig_err_(obj,'error',zeros(size(in)));
@@ -78,17 +55,17 @@ if nargin==2
     end
     
 elseif nargin<=4
-    obj = check_and_set_x_(obj,varargin{1});
+    obj.x = varargin{1};
     if nargin==3
         obj = check_and_set_sig_err_(obj,'signal',varargin{2});
-        obj = check_and_set_sig_err_(obj,'error',zeros(size(obj.signal)));
+        obj = check_and_set_sig_err_(obj,'error',zeros(size(varargin{2})));
     end
     if nargin==4
         obj = check_and_set_sig_err_(obj,'signal',varargin{2});
         obj = check_and_set_sig_err_(obj,'error',varargin{3});
     end
 elseif nargin==7 || (nargin==8 && isnumeric(varargin{1}))
-    obj = check_and_set_x_(obj,varargin{1});
+    obj.x = varargin{1};
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
     
@@ -105,7 +82,7 @@ elseif nargin==8
     obj.s_axis=varargin{4};
     obj.x_axis=varargin{6};
     
-    obj = check_and_set_x_(obj,varargin{5});
+    obj.x = varargin{5};
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
     
