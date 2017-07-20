@@ -26,7 +26,7 @@ classdef IX_dataset
         % empty error
         error_=zeros(0,1);
         % has empty signals-IX_axis
-        s_axis_=IX_axis('Conunts');
+        s_axis_=IX_axis('Counts');
         % empty x binning data;
         x_=zeros(1,0);
         % has empty x-IX_axis
@@ -34,7 +34,7 @@ classdef IX_dataset
         % assume to be not a distribution,as size(x_) == size(s_);
         x_distribution_=false;
         % empty object it valid
-        valid_ = true;
+        valid_ = true;        
     end
     methods
         %------------------------------------------------------------------
