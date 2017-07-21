@@ -1,0 +1,169 @@
+classdef test_IX_dataset_2d <  TestCase
+    %
+    %Test class to test IX_dataset_1d methods
+    %
+    
+    
+    %
+    % $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $)
+    %
+    
+    properties
+    end
+    
+    methods
+        function this=test_IX_dataset_2d(varargin)
+            if nargin == 0
+                name = 'test_IX_dataset_2d';
+            else
+                name = varargin{1};
+            end
+            this = this@TestCase(name);
+        end
+        
+        function test_properties(obj)
+            id = IX_dataset_2d();
+            id.title = 'my title';
+            assertEqual(id.title,{'my title'});
+            
+            id.x_axis = 'Coord';
+            ax = id.x_axis;
+            assertTrue(isa(ax,'IX_axis'));
+            assertEqual(ax.caption,{'Coord'});
+            ax.units = 'A^-1';
+            id.s_axis = ax;
+            
+            
+            ay = id.s_axis;
+            assertTrue(isa(ay,'IX_axis'));
+            
+            id.y_axis = 'dist';
+            ay = id.y_axis;
+            assertTrue(isa(ay,'IX_axis'));
+            assertEqual(ay.caption,{'dist'});
+            ay.units = 'A^-1';
+            id.y_axis = ay;
+            assertTrue(isa(id.y_axis,'IX_axis'));
+            assertEqual(id.y_axis.caption,{'dist'});
+            
+            id.x = 1:10;
+            assertFalse(id.get_isvalid())
+            val = id.x;
+            assertTrue(ischar(val));
+            assertEqual('size(signal,1)=0, numel(x)=10; size(signal,1) must be equal to numel(x) or numel(x)+1',val);
+            
+            
+            
+            id.signal = ones(10,20);
+            val = id.signal;
+            assertTrue(ischar(val));
+            assertEqual('size(signal)=[10,20], size(error)=[0,1]; size(signal)~=size(error)',val);
+            assertFalse(id.get_isvalid())
+            
+            
+            id.error = ones(20,10);
+            assertFalse(id.get_isvalid())
+            val = id.x;
+            assertTrue(ischar(val));
+            assertEqual('size(signal,2)=20, numel(y)=0; size(signal,2)  must be equal to numel(y) or numel(y)+1',val);
+            
+            
+            id.y = 1:20;
+            assertTrue(id.get_isvalid())
+            
+            
+            val = id.signal;
+            assertFalse(ischar(val));
+            assertEqual(val,ones(10,20));
+            assertEqual(id.error,ones(10,20));
+        end
+        
+        %         function test_constructor(obj)
+        %             %   >> w = IX_dataset_1d (x)
+        %             ds = IX_dataset_1d(1:10);
+        %             assertTrue(ds.get_isvalid());
+        %             assertEqual(ds.x,1:10);
+        %             assertEqual(ds.signal,zeros(10,1));
+        %             assertEqual(ds.error,zeros(10,1));
+        %             %   >> w = IX_dataset_1d (x,signal)
+        %             ds = IX_dataset_1d(1:10,ones(1,9));
+        %             assertTrue(ds.get_isvalid());
+        %             assertEqual(ds.x,1:10);
+        %             assertEqual(ds.signal,ones(9,1));
+        %             assertEqual(ds.error,zeros(9,1));
+        %
+        %             %   >> w = IX_dataset_1d (x,signal,error)
+        %             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10));
+        %             assertTrue(ds.get_isvalid());
+        %             assertEqual(ds.x,1:10);
+        %             assertEqual(ds.signal,ones(10,1));
+        %             assertEqual(ds.error,ones(10,1));
+        %
+        %             data = [1:10;2*ones(1,10);ones(1,10)];
+        %             ds = IX_dataset_1d(data);
+        %             assertTrue(ds.get_isvalid());
+        %             assertEqual(ds.x,1:10);
+        %             assertEqual(ds.signal,2*ones(10,1));
+        %             assertEqual(ds.error,ones(10,1));
+        %             %   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis)
+        %             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10),'my object','x-axis name','y-axis name');
+        %             assertTrue(ds.get_isvalid());
+        %             assertEqual(ds.x,1:10);
+        %             assertEqual(ds.signal,ones(10,1));
+        %             assertEqual(ds.error,ones(10,1));
+        %             assertEqual(ds.title,{'my object'});
+        %             assertEqual(ds.x_axis.caption,{'x-axis name'});
+        %             assertEqual(ds.s_axis.caption,{'y-axis name'});
+        %             %   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis, x_distribution)
+        %             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10),...
+        %                 'my object','x-axis name','y-axis name',false);
+        %             assertTrue(ds.get_isvalid());
+        %             assertEqual(ds.x,1:10);
+        %             assertEqual(ds.signal,ones(10,1));
+        %             assertEqual(ds.error,ones(10,1));
+        %             assertEqual(ds.title,{'my object'});
+        %             assertEqual(ds.x_axis.caption,{'x-axis name'});
+        %             assertEqual(ds.s_axis.caption,{'y-axis name'});
+        %             assertEqual(ds.x_distribution,false);
+        %
+        %
+        %             %   >> w = IX_dataset_1d (title, signal, error, s_axis, x, x_axis, x_distribution)
+        %             ds = IX_dataset_1d('my object',ones(1,10),ones(1,10),...
+        %                 'y-axis name',1:10,'x-axis name',false);
+        %             assertTrue(ds.get_isvalid());
+        %             assertEqual(ds.x,1:10);
+        %             assertEqual(ds.signal,ones(10,1));
+        %             assertEqual(ds.error,ones(10,1));
+        %             assertEqual(ds.title,{'my object'});
+        %             assertEqual(ds.x_axis.caption,{'x-axis name'});
+        %             assertEqual(ds.s_axis.caption,{'y-axis name'});
+        %             assertEqual(ds.x_distribution,false);
+        %         end
+        %
+        %         function test_methods(obj)
+        %             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10),...
+        %                 'my object','x-axis name','y-axis name');
+        %             [ax,hist] = ds.axis;
+        %             assertFalse(hist);
+        %             assertEqual(ax.values,1:10);
+        %             assertTrue(isa(ax.axis,'IX_axis'));
+        %             assertTrue(ax.distribution);
+        %
+        %             dsa = repmat(ds,2,1);
+        %             dsa(2).x = 0.5:1:10.5;
+        %
+        %             [ax,hist] = dsa.axis;
+        %             assertEqual(hist,[false,true]);
+        %             assertEqual(ax(1).values,1:10);
+        %             assertEqual(ax(2).values,0.5:1:10.5);
+        %
+        %             ids = dsa.cnt2dist();
+        %             idr = ids.dist2cnt();
+        %
+        %  %           assertEqual(dsa,idr);
+        %
+        %         end
+    end
+    
+end
+

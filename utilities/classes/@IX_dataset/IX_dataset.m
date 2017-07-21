@@ -79,7 +79,7 @@ classdef IX_dataset
             if obj.valid_
                 xx = obj.x_;
             else
-                [ok,mess] = check_common_fields(obj);
+                [ok,mess] = check_joint_fields(obj);
                 if ok
                     xx = obj.x_;
                 else
@@ -92,7 +92,7 @@ classdef IX_dataset
             if obj.valid_
                 sig = obj.signal_;
             else
-                [ok,mess] = check_common_fields(obj);
+                [ok,mess] = check_joint_fields(obj);
                 if ok
                     sig = obj.signal_;
                 else
@@ -105,7 +105,7 @@ classdef IX_dataset
             if obj.valid_
                 err = obj.error_;
             else
-                [ok,mess] = check_common_fields(obj);
+                [ok,mess] = check_joint_fields(obj);
                 if ok
                     err = obj.error_;
                 else
@@ -132,11 +132,11 @@ classdef IX_dataset
         end
         %
         function obj = set.x_axis(obj,val)
-            obj = check_and_set_axis(obj,'x_axis',val);
+            obj.x_axis_ = obj.check_and_build_axis(val);
         end
         %
         function obj = set.s_axis(obj,val)
-            obj = check_and_set_axis(obj,'s_axis',val);
+            obj.s_axis_ = obj.check_and_build_axis(val);
         end
         %
         function obj = set.x_distribution(obj,val)
@@ -146,8 +146,8 @@ classdef IX_dataset
         end
         %------------------------------------------------------------------
         function obj = set.x(obj,val)
-            obj = check_and_set_xyz(obj,'x',val);
-            ok = check_common_fields(obj);
+            obj.x_ =obj.check_xyz(val);
+            ok = check_joint_fields(obj);
             if ok
                 obj.valid_ = true;
             else
@@ -157,7 +157,7 @@ classdef IX_dataset
         %
         function obj = set.signal(obj,val)
             obj = check_and_set_sig_err(obj,'signal',val);
-            ok = check_common_fields(obj);
+            ok = check_joint_fields(obj);
             if ok
                 obj.valid_ = true;
             else
@@ -167,7 +167,7 @@ classdef IX_dataset
         %
         function obj = set.error(obj,val)
             obj = check_and_set_sig_err(obj,'error',val);
-            ok = check_common_fields(obj);
+            ok = check_joint_fields(obj);
             if ok
                 obj.valid_ = true;
             else
@@ -186,15 +186,15 @@ classdef IX_dataset
         % common auxiliary service methods, which can be overloaded if
         % requested
         %
-        % Internal function used to verify and set up an axis
-        obj = check_and_set_axis(obj,axis_field,val);
-        % verify if x,y,z field data are correct
-        obj = check_and_set_xyz(obj,field_name,val);
-        
-        
     end
-    %----------------------------------------------------------------------    
+    %----------------------------------------------------------------------
     methods(Static,Access=protected)
+        % verify if x,y,z field data are correct
+        val = check_xyz(val);
+        % Internal function used to verify and set up an axis
+        obj = check_and_build_axis(val);
+        
+        
         function w = binary_op_manager (w1, w2, binary_op)
             %Implement binary arithmetic operations for objects containing a double array.
             if isa(w1,'IX_dataset')
@@ -225,7 +225,7 @@ classdef IX_dataset
             % Implement unary arithmetic operations for objects containing a signal and variance arrays.
             w = unary_op_manager_(w1, unary_op);
         end
-        % 
+        %
     end
     %----------------------------------------------------------------------
     % Abstract interface:
@@ -241,7 +241,7 @@ classdef IX_dataset
         % Generic checks:
         % Check if various interdependent fields of a class are consistent
         % between each other.
-        [ok,mess] = check_common_fields(obj);
+        [ok,mess] = check_joint_fields(obj);
         % verify and set signal or error arrays
         obj = check_and_set_sig_err(obj,field_name,value);
         %

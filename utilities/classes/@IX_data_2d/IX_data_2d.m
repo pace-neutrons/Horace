@@ -57,7 +57,7 @@ classdef IX_data_2d < IX_dataset
             if obj.valid_
                 yy = obj.y_;
             else
-                [ok,mess] = check_common_fields(obj);
+                [ok,mess] = check_joint_fields(obj);
                 if ok
                     yy = obj.y_;
                 else
@@ -74,8 +74,8 @@ classdef IX_data_2d < IX_dataset
         end
         %
         function obj = set.y(obj,val)
-            obj = check_and_set_xyz(obj,'y',val);
-            ok = check_common_fields(obj);
+            obj.y_ = obj.check_xyz(val);
+            ok = check_joint_fields(obj);
             if ok
                 obj.valid_ = true;
             else
@@ -87,15 +87,17 @@ classdef IX_data_2d < IX_dataset
             % disrtibution to bin centers and v.v.? + signal changes
             obj.y_distribution_ = logical(val);
         end
-        
+        function obj = set.y_axis(obj,val)
+            obj.y_axis_ = obj.check_and_build_axis(val);
+        end
     end
     %
     %----------------------------------------------------------------------
     methods(Access=protected)
-        function  [ok,mess] = check_common_fields(obj)
+        function  [ok,mess] = check_joint_fields(obj)
             % implement class specific check for connected fiedls
             % consistency
-            [ok,mess] = check_common_fields_(obj);
+            [ok,mess] = check_joint_fields_(obj);
         end
         function obj = check_and_set_sig_err(obj,field_name,value)
             % verify and set up signal or error arrays. Throw if

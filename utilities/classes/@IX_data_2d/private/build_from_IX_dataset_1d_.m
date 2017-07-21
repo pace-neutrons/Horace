@@ -15,7 +15,7 @@ function obj = build_from_IX_dataset_1d_(obj,w1,varargin)
 %             - single array if one output IX_dataset_2d
 %             - cell array of arrays if two or more output IX_dataset_2d
 %
-%   y_axis  Annotation and units for y-axis. See help IX_axis for full 
+%   y_axis  Annotation and units for y-axis. See help IX_axis for full
 %           range of possible syntax, but include
 %               - caption e.g. 'Scattering angle'
 %               - caption and units e.g. IX_axis('Energy','meV')
@@ -93,7 +93,7 @@ else
     ny_axis=1;
 end
 
-% If y_distribution given, make a column array of logicals  
+% If y_distribution given, make a column array of logicals
 if narg>=3 && ~isempty(varargin{3})
     if islognum(varargin{3})
         y_dist=logical(varargin{3}(:));     % make column
@@ -138,7 +138,7 @@ if isempty(y)
         error('If do not give y values then must have single values for y_axis, y_dist and bindata')
     end
     nelyc=nw;
-
+    
 else
     nel=max([ny,ny_axis,ny_dist,nbindata]);
     if (ny==1||ny==nel) || (ny_axis==1||ny_axis==nel) || (ny_dist==1||ny_dist==nel) || (isempty(bindata)||nbindata==1||nbindata==nel)
@@ -173,12 +173,12 @@ else
     end
 end
 
-obj=IX_dataset_1d_to_2d(w1,y,y_axis,y_dist,nelyc);
+obj=IX_dataset_1d_to_2d(obj,w1,y,y_axis,y_dist,nelyc);
 
 end
 
 %-------------------------------------------------------------------------------------------------
-function w2=IX_dataset_1d_to_2d(w1,y,y_axis,y_dist,nelyc)
+function w2=IX_dataset_1d_to_2d(obj,w1,y,y_axis,y_dist,nelyc)
 % Repack an array of IX_dataset_1d into an array of IX_dataset_2d according
 % It is assumed that the input argumnets have been checked for consistency
 
@@ -189,8 +189,8 @@ w2=repmat(IX_dataset_2d,iw2end(end),1);
 iw1end=cumsum(nelyc);
 iw1beg=[1,iw1end(1:end-1)+1];
 for i=1:numel(nelyc)
-    w2(iw2beg(i):iw2end(i)) = IX_dataset_1d_to_2d_chunk(w1(iw1beg(i):iw1end(i)),...
-                                            y{i},y_axis(i),y_dist(i),n(i),nlo{i},nhi{i});
+    w2(iw2beg(i):iw2end(i)) = IX_dataset_1d_to_2d_chunk(obj,w1(iw1beg(i):iw1end(i)),...
+        y{i},y_axis(i),y_dist(i),n(i),nlo{i},nhi{i});
 end
 
 end
@@ -199,11 +199,11 @@ end
 function [n,nlo,nhi]=IX_dataset_1d_to_2d_getn(w1,nelyc)
 % Get the number of IX_dataset_2d that area required for each section of an array of
 % IX_dataset_1d that is being split into chunks whose length is given in array nelyc.
-% 
+%
 %   n           Array length numel(nelyc) with number of IX_dataset_2d per chunk
 %   nlo, nhi    Cell arrays length numel(nelyc) of arrays giving start and end indixies
 %               into w1 for each set of IX_dataset_2d per chunk
-%   
+%
 %Output are cell arrays
 nw2=numel(nelyc);
 n=zeros(nw2,1); nlo=cell(nw2,1); nhi=cell(nw2,1);
@@ -226,15 +226,15 @@ for i=1:nw2
     end
     nlo{i}=find(~xsame);
     nhi{i}=[nlo{i}(2:end)-1;iwend(i)-iwbeg(i)+1];
-%     nlo{i}=find(~xsame)+iwbeg(i)-1;
-%     nhi{i}=[nlo{i}(2:end)-1;iwend(i)];
+    %     nlo{i}=find(~xsame)+iwbeg(i)-1;
+    %     nhi{i}=[nlo{i}(2:end)-1;iwend(i)];
     n(i)=numel(nlo{i});
 end
 
 end
 
 %-------------------------------------------------------------------------------------------------
-function w2=IX_dataset_1d_to_2d_chunk(w1,y,y_axis,y_dist,n,nlo,nhi)
+function w2=IX_dataset_1d_to_2d_chunk(obj,w1,y,y_axis,y_dist,n,nlo,nhi)
 % Repack an array of IX_dataset_1d into an array of IX_dataset_2d according
 % to the ranges specified in index arrays for lower and upper limits
 % It is assumed that this set of ranges has previously been correctly identified
@@ -245,7 +245,7 @@ if numel(y)==nhi(end)   % point mode
 else
     nbin=1;
 end
-w2=repmat(IX_dataset_2d,n,1);
+w2=repmat(obj,n,1);
 for i=1:n
     signal=zeros(numel(w1(nlo(i)).signal),nhi(i)-nlo(i)+1);
     error=zeros(size(signal));
@@ -253,8 +253,21 @@ for i=1:n
         signal(:,j)=w1(nlo(i)+j-1).signal;
         error(:,j)=w1(nlo(i)+j-1).error;
     end
-    w2(i)=IX_dataset_2d(w1(nlo(i)).title,signal,error,w1(nlo(i)).s_axis,w1(nlo(i)).x,...
-        w1(nlo(i)).x_axis,w1(nlo(i)).x_distribution,y(nlo(i):nhi(i)+nbin),y_axis,y_dist);
+    w2(i).title =w1(nlo(i)).title;
+    w2(i).s_axis = w1(nlo(i)).s_axis;
+    w2(i).x_axis = w1(nlo(i)).x_axis;
+    w2(i).x_distribution = w1(nlo(i)).x_distribution;
+    w2(i).y_axis = y_axis;
+    w2(i).y_distribution = y_dist;
+    w2(i).x_ = w1(nlo(i)).x;
+    w2(i).y_ = y(nlo(i):nhi(i)+nbin);
+    w2(i).signal_ = signal;
+    w2(i).error_ = error;
+    [w2(i),mess] = w2(i).isvalid();
+    if ~isempty(mess) % can happen only if input 1D objects are incorrect
+        error('IX_dataset_2d:runtime_error',mess);
+    end
+    
 end
 
 end

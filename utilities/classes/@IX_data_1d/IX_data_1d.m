@@ -27,11 +27,6 @@ classdef IX_data_1d < IX_dataset
     % Default class - empty point dataset
     properties(Access=protected)
     end
-    properties(Constant,Access=private)
-        public_fields_list_ = ...
-            {'title','signal','error','s_axis','x_axis','x','x_distribution'};
-    end
-    
     
     methods
         function obj=IX_data_1d(varargin)
@@ -45,10 +40,10 @@ classdef IX_data_1d < IX_dataset
     end
     %
     methods(Access=protected)        
-        function  [ok,mess] = check_common_fields(obj)
+        function  [ok,mess] = check_joint_fields(obj)
             % implement class specific check for connected fiedls
             % consistency
-            [ok,mess] = check_common_fields_(obj);
+            [ok,mess] = check_joint_fields_(obj);
         end
         function obj = check_and_set_sig_err(obj,field_name,value)
             % verify and set up signal or error arrays. Throw if

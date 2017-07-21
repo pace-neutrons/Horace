@@ -25,9 +25,9 @@ for i=1:nw2
         obj(ibegw1(i)+j).x_distribution =x_distribution;
         
         
-        obj(ibegw1(i)+j) = check_and_set_xyz(obj(ibegw1(i)+j),'x',x);
-        obj(ibegw1(i)+j) = check_and_set_sig_err(obj(ibegw1(i)+j),'signal',signal(:,j));
-        obj(ibegw1(i)+j) = check_and_set_sig_err(obj(ibegw1(i)+j),'error',error(:,j));
+        obj(ibegw1(i)+j).x_ = obj.check_xyz(x);
+        obj(ibegw1(i)+j) = check_and_set_sig_err_(obj(ibegw1(i)+j),'signal',signal(:,j));
+        obj(ibegw1(i)+j) = check_and_set_sig_err_(obj(ibegw1(i)+j),'error',error(:,j));
         
         
         % check and set valid property, verifying all connected fields are

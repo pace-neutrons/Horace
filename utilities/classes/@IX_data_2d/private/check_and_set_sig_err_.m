@@ -10,7 +10,7 @@ if numel(size(val))==2 && all(size(val)==[0,0]) || (isempty(val))
 end
 
 
-if ~isa(val,'double')||~numel(size(val))~=2
+if ~isa(val,'double')|| numel(size(val))~=2
     error('IX_dataset_2d:invalid_argument',...
         [field_name ' values array must be a double precision two dimensional array']);
 end
@@ -18,6 +18,12 @@ end
 if size(val,1)==1
     val = val';
 end     % make column vector
+%
+nx = numel(obj.x_);
+if       (nx==size(val,2)||nx==size(val,2)+1) && ...
+        ~(nx==size(val,1)||nx==size(val,1)+1)
+    val = val';
+end
 obj.([field_name,'_']) = val;
 
 %TODO: Disabled to accomodate some oddity with 2D rebinning

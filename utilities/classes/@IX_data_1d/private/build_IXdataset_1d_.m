@@ -48,18 +48,18 @@ if nargin==2
         %         return;
     elseif isnumeric(in)
         if size(in,1) == 3 && size(in,2) > 1
-            obj = check_and_set_xyz (obj,'x',in(1,:));
+            obj.x_ = obj.check_xyz(in(1,:));
             obj = check_and_set_sig_err_(obj,'signal',in(2,:));
             obj = check_and_set_sig_err_(obj,'error',in(3,:));
         else
-            obj = check_and_set_xyz (obj,'x',in);
+            obj.x_ = obj.check_xyz(in);
             obj = check_and_set_sig_err_(obj,'signal',zeros(size(in)));
             obj = check_and_set_sig_err_(obj,'error',zeros(size(in)));
         end
     end
     
 elseif nargin<=4
-    obj = check_and_set_xyz(obj,'x',varargin{1});
+    obj.x_ = obj.check_xyz(varargin{1});
     if nargin==3
         obj = check_and_set_sig_err_(obj,'signal',varargin{2});
         obj = check_and_set_sig_err_(obj,'error',zeros(size(varargin{2})));
@@ -69,7 +69,7 @@ elseif nargin<=4
         obj = check_and_set_sig_err_(obj,'error',varargin{3});
     end
 elseif nargin==7 || (nargin==8 && isnumeric(varargin{1}))
-    obj = check_and_set_xyz(obj,'x',varargin{1});
+    obj.x_ = obj.check_xyz(varargin{1});
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
     
@@ -86,7 +86,7 @@ elseif nargin==8
     obj.s_axis=varargin{4};
     obj.x_axis=varargin{6};
     
-    obj = check_and_set_xyz(obj,'x',varargin{5});
+    obj.x_ = obj.check_xyz(varargin{5});
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});
     obj = check_and_set_sig_err_(obj,'error',varargin{3});
     
@@ -95,7 +95,7 @@ else
     error('IX_dataset_1d:invalid_argument','Wrong number of arguments');
 end
 %
-[ok,mess]=check_common_fields_(obj);
+[ok,mess]=check_joint_fields_(obj);
 if ok
     obj.valid_  = true;
 else

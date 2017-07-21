@@ -1,4 +1,4 @@
-function [ok,message] = check_common_fields_(w)
+function [ok,message] = check_joint_fields_(w)
 % Check validity of connected fields for the object
 %
 %   >> [ok, message,wout] = check_common_fields_(w)

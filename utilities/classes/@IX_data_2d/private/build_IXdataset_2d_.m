@@ -35,7 +35,7 @@ if nargin==2 && isa(varargin{1},'IX_dataset_2d')  % if already IX_dataset_2d obj
     obj=varargin{1};
     return;
 end
-if nargin == 2 && isa(varargin{1},'IX_dataset_2d')
+if nargin == 2 && isa(varargin{1},'IX_dataset_1d')
     obj = build_from_IX_dataset_1d_(obj,varargin{:});
     return;
 end
@@ -48,28 +48,29 @@ end
 %     if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
 
 if nargin>=3 && nargin<=5
-    obj = check_and_set_xyz(obj,'x',varargin{1});
-    obj.x_distribution_=true;
-    obj = check_and_set_y_(obj,varargin{2});
-    obj.y_distribution_=true;
+    obj.x_             = obj.check_xyz(varargin{1});
+    obj.x_distribution_= true;
+    obj.y_             =  obj.check_xyz(varargin{2});
+    obj.y_distribution_= true;
     
     if nargin>=4
-        obj = check_and_set_sig_err(obj,'signal',varargin{3});
+        obj = check_and_set_sig_err_(obj,'signal',varargin{3});
     else
-        obj = check_and_set_sig_err(obj,'signal',zeros(numel(varargin{1}),numel(varargin{2})));
+        obj = check_and_set_sig_err_(obj,'signal',zeros(numel(varargin{1}),numel(varargin{2})));
     end
     if nargin>=5
-        obj = check_and_set_sig_err(obj,'error',varargin{4});
+        obj = check_and_set_sig_err_(obj,'error',varargin{4});
     else
-        obj = check_and_set_sig_err(obj,'error',zeros(numel(varargin{1}),numel(varargin{2})));
+        obj = check_and_set_sig_err_(obj,'error',zeros(numel(varargin{1}),numel(varargin{2})));
     end
     
 elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
-    obj = check_and_set_xyz(obj,'x',varargin{1});
-    obj = check_and_set_xyz(obj,'y',varargin{2});
+    obj.x_     = obj.check_xyz(varargin{1});
+    obj.y_     =  obj.check_xyz(varargin{2});
+    
     obj.title=varargin{5};
-    obj = check_and_set_sig_err(obj,'signal',varargin{3});
-    obj = check_and_set_sig_err(obj,'error',varargin{4});
+    obj = check_and_set_sig_err_(obj,'signal',varargin{3});
+    obj = check_and_set_sig_err_(obj,'error',varargin{4});
     obj.x_axis=varargin{6};
     obj.s_axis=varargin{8};
     if nargin==10
@@ -90,10 +91,11 @@ elseif nargin==11
     obj = check_and_set_sig_err(obj,'error',varargin{3});
     
     obj.s_axis=varargin{4};
-    obj = check_and_set_xyz(obj,'x',varargin{5});
+    obj.x_     = obj.check_xyz(varargin{5});
+    obj.y_     = obj.check_xyz(varargin{8});
+    
     obj.x_axis=varargin{6};
     obj.x_distribution=varargin{7};
-    obj = check_and_set_xyz(obj,'y',varargin{8});
     obj.y_axis=varargin{9};
     obj.y_distribution=varargin{10};
 else
@@ -101,7 +103,7 @@ else
         'Invalid number or type of arguments')
 end
 
-[ok,mess]=check_common_fields_(obj);
+[ok,mess]=check_joint_fields_(obj);
 if ok
     obj.valid_  = true;
 else
