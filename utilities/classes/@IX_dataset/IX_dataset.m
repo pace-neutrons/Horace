@@ -34,17 +34,22 @@ classdef IX_dataset
         % assume to be not a distribution,as size(x_) == size(s_);
         x_distribution_=false;
         % empty object it valid
-        valid_ = true;        
+        valid_ = true;
     end
     methods
         %------------------------------------------------------------------
-        % Methors, accessed using unary/binary operation manager are stored
+        % Methors, which use unary/binary operation manager are stored
         % in the class folder only. Their signatures are not presented
         % here.
         %------------------------------------------------------------------
         % Signatures for common methods, which do not use unary/binary
         % operation manager:
         %------------------------------------------------------------------
+        % return class structure
+        public_struct = struct(this)
+        % set up object values using object structure. (usually as above)
+        obj = init_from_structure(obj,struct)
+        %
         % method checks if common fiedls are consistent between each
         % other. Call this method from a program after changing
         % x,signal, error using set operations. Throws 'invalid_argument'
@@ -54,7 +59,15 @@ classdef IX_dataset
         [obj,mess] = isvalid(obj)
         % Get information for one or more axes and if is histogram data for each axis
         [ax,hist]=axis(w,n)
-        
+        %
+        % get sigvar object from the dataset
+        wout = sigvar (w)
+        %Get signal and variance from object, and a logical array of which values to keep
+        [s,var,msk] = sigvar_get (w)
+        % Set output object signal and variance fields from input sigvar object
+        w = sigvar_set(w,sigvarobj)
+        %Matlab size of signal array
+        sz = sigvar_size(w)
         %------------------------------------------------------------------
         % Access Properties:
         %------------------------------------------------------------------
@@ -74,7 +87,7 @@ classdef IX_dataset
                 end
             end
         end
-        
+        %
         function sig = get.signal(obj)
             if obj.valid_
                 sig = obj.signal_;
@@ -104,9 +117,11 @@ classdef IX_dataset
         function ax = get.x_axis(obj)
             ax = obj.x_axis_;
         end
+        %
         function ax = get.s_axis(obj)
             ax = obj.s_axis_;
         end
+        %
         function dist = get.x_distribution(obj)
             dist = obj.x_distribution_;
         end
@@ -115,11 +130,13 @@ classdef IX_dataset
         function obj = set.title(obj,val)
             obj = check_and_set_title_(obj,val);
         end
+        %
         function obj = set.x_axis(obj,val)
-            obj = check_and_set_axis_(obj,'x_axis',val);
+            obj = check_and_set_axis(obj,'x_axis',val);
         end
+        %
         function obj = set.s_axis(obj,val)
-            obj = check_and_set_axis_(obj,'s_axis',val);
+            obj = check_and_set_axis(obj,'s_axis',val);
         end
         %
         function obj = set.x_distribution(obj,val)
@@ -129,7 +146,7 @@ classdef IX_dataset
         end
         %------------------------------------------------------------------
         function obj = set.x(obj,val)
-            obj = check_and_set_x_(obj,val);
+            obj = check_and_set_xyz(obj,'x',val);
             ok = check_common_fields(obj);
             if ok
                 obj.valid_ = true;
@@ -137,6 +154,7 @@ classdef IX_dataset
                 obj.valid_ = false;
             end
         end
+        %
         function obj = set.signal(obj,val)
             obj = check_and_set_sig_err(obj,'signal',val);
             ok = check_common_fields(obj);
@@ -146,6 +164,7 @@ classdef IX_dataset
                 obj.valid_ = false;
             end
         end
+        %
         function obj = set.error(obj,val)
             obj = check_and_set_sig_err(obj,'error',val);
             ok = check_common_fields(obj);
@@ -163,25 +182,61 @@ classdef IX_dataset
         %
     end
     %----------------------------------------------------------------------
+    methods(Access=protected)
+        % common auxiliary service methods, which can be overloaded if
+        % requested
+        %
+        % Internal function used to verify and set up an axis
+        obj = check_and_set_axis(obj,axis_field,val);
+        % verify if x,y,z field data are correct
+        obj = check_and_set_xyz(obj,field_name,val);
+        
+        
+    end
+    %----------------------------------------------------------------------    
+    methods(Static,Access=protected)
+        function w = binary_op_manager (w1, w2, binary_op)
+            %Implement binary arithmetic operations for objects containing a double array.
+            if isa(w1,'IX_dataset')
+                class_name = class(w1);
+            elseif isa(w2,'IX_dataset')
+                class_name = class(w1);
+            else
+                error('IX_dataset:invalid_argument',...
+                    ' binary operation needs at least one operand to be a IX_dataset');
+            end
+            w = binary_op_manager_(w1, w2, binary_op,class_name);
+        end
+        %
+        function wout = binary_op_manager_single(w1,w2,binary_op)
+            % Implement binary operator for objects with a signal and a variance array.
+            if isa(w1,'IX_dataset')
+                class_name = class(w1);
+            elseif isa(w2,'IX_dataset')
+                class_name = class(w1);
+            else
+                error('IX_dataset:invalid_argument',...
+                    ' binary operation needs at least one operand to be a IX_dataset');
+            end
+            wout = binary_op_manager_single_(w1,w2,binary_op,class_name);
+        end
+        %
+        function w = unary_op_manager (w1, unary_op)
+            % Implement unary arithmetic operations for objects containing a signal and variance arrays.
+            w = unary_op_manager_(w1, unary_op);
+        end
+        % 
+    end
+    %----------------------------------------------------------------------
+    % Abstract interface:
     %----------------------------------------------------------------------
     methods(Abstract,Static)
         % used to reload old style objects from mat files on hdd
         obj = loadobj(data)
     end
     
-    methods(Abstract,Access=public)
-        % method necessary for loadobj to work in order to support the reloading
-        % of old style classes from mat files.
-        obj = init_from_structure(obj,struct)
-    end
     
     methods(Abstract,Access=protected)
-        %Implement binary arithmetic operations for objects containing a double array.
-        w = binary_op_manager (w1, w2, binary_op)
-        % Implement binary operator for objects with a signal and a variance array.
-        wout = binary_op_manager_single(w1,w2,binary_op)
-        % Implement unary arithmetic operations for objects containing a signal and variance arrays.
-        w = unary_op_manager (w1, unary_op)
         %------------------------------------------------------------------
         % Generic checks:
         % Check if various interdependent fields of a class are consistent

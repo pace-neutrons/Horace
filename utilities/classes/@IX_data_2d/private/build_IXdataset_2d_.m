@@ -35,64 +35,77 @@ if nargin==2 && isa(varargin{1},'IX_dataset_2d')  % if already IX_dataset_2d obj
     obj=varargin{1};
     return;
 end
-    
+if nargin == 2 && isa(varargin{1},'IX_dataset_2d')
+    obj = build_from_IX_dataset_1d_(obj,varargin{:});
+    return;
+end
+
 if nargin==2 && isstruct(varargin{1})   % structure input
-    [ok,mess,w]=checkfields(varargin{1});   % Make checkfields the ultimate arbiter of the validity of a structure
-    if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
+    obj = obj.init_from_structure(varargin{1});
+    return;
+end
+%     [ok,mess,w]=checkfields(varargin{1});   % Make checkfields the ultimate arbiter of the validity of a structure
+%     if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
+
+if nargin>=3 && nargin<=5
+    obj = check_and_set_xyz(obj,'x',varargin{1});
+    obj.x_distribution_=true;
+    obj = check_and_set_y_(obj,varargin{2});
+    obj.y_distribution_=true;
     
-elseif nargin>=3 && nargin<=5
-    w.title={};
-    w.signal=zeros(0,0);
-    w.error=zeros(0,0);
-    w.s_axis=IX_axis;
-    w.x=varargin{1};
-    w.x_axis=IX_axis;
-    w.x_distribution=true;
-    w.y=varargin{2};
-    w.y_axis=IX_axis;
-    w.y_distribution=true;
-    if nargin>=4, w.signal=varargin{3}; else w.signal=zeros(numel(w.x),numel(w.y)); end
-    if nargin>=5, w.error=varargin{4}; else w.error=zeros(size(w.signal)); end
-    [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
-    if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
+    if nargin>=4
+        obj = check_and_set_sig_err(obj,'signal',varargin{3});
+    else
+        obj = check_and_set_sig_err(obj,'signal',zeros(numel(varargin{1}),numel(varargin{2})));
+    end
+    if nargin>=5
+        obj = check_and_set_sig_err(obj,'error',varargin{4});
+    else
+        obj = check_and_set_sig_err(obj,'error',zeros(numel(varargin{1}),numel(varargin{2})));
+    end
     
 elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
-    w.title=varargin{5};
-    w.signal=varargin{3};
-    w.error=varargin{4};
-    w.s_axis=varargin{8};
-    w.x=varargin{1};
-    w.x_axis=varargin{6};
+    obj = check_and_set_xyz(obj,'x',varargin{1});
+    obj = check_and_set_xyz(obj,'y',varargin{2});
+    obj.title=varargin{5};
+    obj = check_and_set_sig_err(obj,'signal',varargin{3});
+    obj = check_and_set_sig_err(obj,'error',varargin{4});
+    obj.x_axis=varargin{6};
+    obj.s_axis=varargin{8};
     if nargin==10
-        w.x_distribution=varargin{9};
+        obj.x_distribution=varargin{9};
     else
-        w.x_distribution=true;
+        obj.x_distribution_=true;
     end
-    w.y=varargin{2};
-    w.y_axis=varargin{7};
+    obj.y_axis=varargin{7};
     if nargin==10
-        w.y_distribution=varargin{10};
+        obj.y_distribution=varargin{10};
     else
-        w.y_distribution=true;
+        obj.y_distribution_=true;
     end
-    [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
-    if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
     
 elseif nargin==11
-    w.title=varargin{1};
-    w.signal=varargin{2};
-    w.error=varargin{3};
-    w.s_axis=varargin{4};
-    w.x=varargin{5};
-    w.x_axis=varargin{6};
-    w.x_distribution=varargin{7};
-    w.y=varargin{8};
-    w.y_axis=varargin{9};
-    w.y_distribution=varargin{10};
-    [ok,mess,w]=checkfields(w);   % Make checkfields the ultimate arbiter of the validity of a structure
-    if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
+    obj.title=varargin{1};
+    obj = check_and_set_sig_err(obj,'signal',varargin{2});
+    obj = check_and_set_sig_err(obj,'error',varargin{3});
     
+    obj.s_axis=varargin{4};
+    obj = check_and_set_xyz(obj,'x',varargin{5});
+    obj.x_axis=varargin{6};
+    obj.x_distribution=varargin{7};
+    obj = check_and_set_xyz(obj,'y',varargin{8});
+    obj.y_axis=varargin{9};
+    obj.y_distribution=varargin{10};
 else
-    error('Check number and type of arguments')
+    error('IX_dataset_2d:invalid_argument',...
+        'Invalid number or type of arguments')
 end
+
+[ok,mess]=check_common_fields_(obj);
+if ok
+    obj.valid_  = true;
+else
+    error('IX_dataset_2d:invalid_argument',mess);
+end
+
 

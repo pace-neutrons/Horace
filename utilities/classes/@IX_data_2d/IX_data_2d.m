@@ -32,7 +32,6 @@ classdef IX_data_2d < IX_dataset
         y
         y_axis;
         y_distribution;
-        
     end
     properties(Access=protected)
         y_ = zeros(1,0);
@@ -50,10 +49,10 @@ classdef IX_data_2d < IX_dataset
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
-        % init object or array of objects from a structure with appropriate
-        % fields
-        obj = init_from_structure(obj,in); 
-        %------------------------------------------------------------------        
+        % Get information for one or more axes and if is histogram data for each axis
+        [ax,hist]=axis(w,n)
+        
+        %------------------------------------------------------------------
         function yy = get.y(obj)
             if obj.valid_
                 yy = obj.y_;
@@ -66,35 +65,33 @@ classdef IX_data_2d < IX_dataset
                 end
             end
         end
+        %
         function dist = get.y_distribution(obj)
             dist = obj.y_distribution_;
-        end        
+        end
         function ax = get.y_axis(obj)
             ax = obj.y_axis_;
-        end        
+        end
+        %
+        function obj = set.y(obj,val)
+            obj = check_and_set_xyz(obj,'y',val);
+            ok = check_common_fields(obj);
+            if ok
+                obj.valid_ = true;
+            else
+                obj.valid_ = false;
+            end
+        end
+        function obj = set.y_distribution(obj,val)
+            % TODO: should setting it to true/false involve chaning y from
+            % disrtibution to bin centers and v.v.? + signal changes
+            obj.y_distribution_ = logical(val);
+        end
         
     end
     %
     %----------------------------------------------------------------------
     methods(Access=protected)
-        function w = binary_op_manager (w1, w2, binary_op)
-            %Implement class specific binary arithmetic operations for
-            % objects containing a double array.
-            w = binary_op_manager_(w1, w2, binary_op);
-        end
-        
-        function wout = binary_op_manager_single(w1,w2,binary_op)
-            % Implement class specific binary operator for objects with
-            % a signal and a variance array.
-            wout = binary_op_manager_single_(w1,w2,binary_op);
-        end
-        
-        function  w = unary_op_manager (w1, unary_op)
-            % Implement class specific unary arithmetic operations for objects
-            % containing a signal and variance arrays.
-            w = unary_op_manager_(w1, unary_op);
-        end
-        
         function  [ok,mess] = check_common_fields(obj)
             % implement class specific check for connected fiedls
             % consistency

@@ -41,33 +41,10 @@ classdef IX_data_1d < IX_dataset
             end
             obj = build_IXdataset_1d_(obj,varargin{:});
         end
-        %------------------------------------------------------------------
-        %------------------------------------------------------------------
-        % init object or array of objects from a structure with appropriate
-        % fields
-        obj = init_from_structure(obj,in);
         
     end
     %
-    methods(Access=protected)
-        function w = binary_op_manager (w1, w2, binary_op)
-            %Implement class specific binary arithmetic operations for
-            % objects containing a double array.
-            w = binary_op_manager_(w1, w2, binary_op);
-        end
-        
-        function wout = binary_op_manager_single(w1,w2,binary_op)
-            % Implement class specific binary operator for objects with
-            % a signal and a variance array.
-            wout = binary_op_manager_single_(w1,w2,binary_op);
-        end
-        
-        function  w = unary_op_manager (w1, unary_op)
-            % Implement class specific unary arithmetic operations for objects
-            % containing a signal and variance arrays.
-            w = unary_op_manager_(w1, unary_op);
-        end
-        
+    methods(Access=protected)        
         function  [ok,mess] = check_common_fields(obj)
             % implement class specific check for connected fiedls
             % consistency
