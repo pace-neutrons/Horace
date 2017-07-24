@@ -4,4 +4,4 @@ function w = asinh (w1)
 %   >> w = asinh(w1)
 %
 
-w = unary_op_manager (w1, @asinh_single);
+w = IX_dataset.unary_op_manager (w1, @asinh_single);

@@ -4,4 +4,4 @@ function w = exp (w1)
 %   >> w = exp(w1)
 %
 
-w = unary_op_manager (w1, @exp_single);
+w = IX_dataset.unary_op_manager (w1, @exp_single);

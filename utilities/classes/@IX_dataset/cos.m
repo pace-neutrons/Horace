@@ -4,4 +4,4 @@ function w = cos (w1)
 %   >> w = cos(w1)
 %
 
-w = unary_op_manager (w1, @cos_single);
+w = IX_dataset.unary_op_manager (w1, @cos_single);

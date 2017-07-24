@@ -163,6 +163,35 @@ classdef test_IX_dataset_2d <  TestCase
         %  %           assertEqual(dsa,idr);
         %
         %         end
+        function test_op_managers(obj)
+        %   >> w = IX_dataset_2d (x,y,signal,error,title,x_axis,y_axis,s_axis)
+           
+            ds = IX_dataset_2d(1:10,1:20,ones(10,20),ones(10,20),...
+                'my object','x-axis name','y-axis name','signal');
+            dsa = repmat(ds,2,1);
+            
+            dss = dsa(1) + dsa(2);
+            assertEqual(dss.signal,2*ones(10,20));
+            assertEqual(dss.error,sqrt(2*ones(10,20)));
+            
+            dsm = -ds;
+            dss  = dss+dsm;
+            assertEqual(dss.signal,ones(10,20));
+            assertElementsAlmostEqual(dss.error,sqrt(3*ones(10,20)));
+            
+            dss  = dss+1;
+            assertEqual(dss.signal,2*ones(10,20));
+            assertElementsAlmostEqual(dss.error,sqrt(3*ones(10,20)));
+            
+            
+            dss  = 1+ dss;
+            assertEqual(dss.signal,3*ones(10,20));
+            assertElementsAlmostEqual(dss.error,sqrt(3*ones(10,20)));
+            
+            
+        end
+        
+        
     end
     
 end

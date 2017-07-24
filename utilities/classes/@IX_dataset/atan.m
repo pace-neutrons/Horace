@@ -4,4 +4,4 @@ function w = atan (w1)
 %   >> w = atan(w1)
 %
 
-w = unary_op_manager (w1, @atan_single);
+w = IX_dataset.unary_op_manager (w1, @atan_single);

@@ -18,4 +18,4 @@ function w = mtimes (w1, w2)
 %        n is the dimensionality of the object numeric array), and the
 %        outer m dimensions must match the array size of the array of objects
 
-w = binary_op_manager(w1,w2,@mtimes_single);
+w = IX_dataset.binary_op_manager(w1,w2,@mtimes_single);

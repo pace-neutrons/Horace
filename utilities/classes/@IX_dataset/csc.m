@@ -4,4 +4,4 @@ function w = csc (w1)
 %   >> w = csc(w1)
 %
 
-w = unary_op_manager (w1, @csc_single);
+w = IX_dataset.unary_op_manager (w1, @csc_single);

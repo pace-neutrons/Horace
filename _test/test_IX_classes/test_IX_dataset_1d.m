@@ -140,10 +140,36 @@ classdef test_IX_dataset_1d <  TestCase
             
             ids = dsa.cnt2dist();
             idr = ids.dist2cnt();
-            
- %           assertEqual(dsa,idr);
+            % Not equal -- bug in old code!
+            %           assertEqual(dsa,idr);
             
         end
+        function test_op_managers(obj)
+            ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10),...
+                'my object','x-axis name','y-axis name');
+            dsa = repmat(ds,2,1);
+            
+            dss = dsa(1) + dsa(2);
+            assertEqual(dss.signal,2*ones(10,1));
+            assertEqual(dss.error,sqrt(2*ones(10,1)));
+            
+            dsm = -ds;
+            dss  = dss+dsm;
+            assertEqual(dss.signal,ones(10,1));
+            assertElementsAlmostEqual(dss.error,sqrt(3*ones(10,1)));
+            
+            dss  = dss+1;
+            assertEqual(dss.signal,2*ones(10,1));
+            assertElementsAlmostEqual(dss.error,sqrt(3*ones(10,1)));
+            
+            
+            dss  = 1+ dss;
+            assertEqual(dss.signal,3*ones(10,1));
+            assertElementsAlmostEqual(dss.error,sqrt(3*ones(10,1)));
+            
+            
+        end
+        
     end
     
 end

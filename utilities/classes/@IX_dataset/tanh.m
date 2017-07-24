@@ -4,4 +4,4 @@ function w = tanh (w1)
 %   >> w = tanh(w1)
 %
 
-w = unary_op_manager (w1, @tanh_single);
+w = IX_dataset.unary_op_manager (w1, @tanh_single);

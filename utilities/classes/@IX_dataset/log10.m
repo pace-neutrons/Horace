@@ -4,4 +4,4 @@ function w = log10 (w1)
 %   >> w = log(w1)
 %
 
-w = unary_op_manager (w1, @log10_single);
+w = IX_dataset.unary_op_manager (w1, @log10_single);

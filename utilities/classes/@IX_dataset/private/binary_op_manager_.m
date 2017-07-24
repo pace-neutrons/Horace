@@ -61,7 +61,7 @@ len1=prod(size1);
 len2=prod(size2);
 
 if (len1==len2 && len1==1)
-    w = binary_op_manager_single (w1, w2, binary_op);
+    w = binary_op_manager_single_(w1, w2, binary_op,classname);
     
 elseif ((isequal(size1,size2) || equal_length_vectors(size1,size2)) && len1>1)   % same length>1 and same array size
     if isa(w1,classname)
@@ -91,7 +91,7 @@ elseif (len1>1 && len2==1)
     end
     
 else
-    error ('Check lengths of array(s) of input arguments')
+    error ('IX_dataset:invalid_argument','Check lengths of array(s) of input arguments')
 end
 
 return

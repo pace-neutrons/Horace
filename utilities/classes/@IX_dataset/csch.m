@@ -4,4 +4,4 @@ function w = csch (w1)
 %   >> w = csch(w1)
 %
 
-w = unary_op_manager (w1, @csch_single);
+w = IX_dataset.unary_op_manager (w1, @csch_single);
