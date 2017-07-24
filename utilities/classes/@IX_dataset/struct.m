@@ -8,6 +8,6 @@ function public_struct = struct(this)
 names = fieldnames(this);  % tailored version returns public names
 values = cell(length(names), length(this(:)));  % preallocate
 for k = 1:length(names)
-    [values{k, :}] = subsref(this(:), substruct('.', names{k}));
+    [values{k, :}] = this(:).(names{k}); %subsref(this(:), substruct('.', names{k}));
 end
 public_struct = reshape(cell2struct(values, names, 1), size(this));

@@ -52,6 +52,8 @@ classdef IX_data_3d < IX_dataset
         function obj = IX_data_3d(varargin)
             % constructor
             if nargin==0
+                obj.signal_ = zeros(0,0,0);
+                obj.error_ = zeros(0,0,0);
                 return;
             end
             obj = build_IXdataset_3d_(obj,varargin{:});

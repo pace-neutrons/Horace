@@ -3,7 +3,7 @@ function obj = init_from_structure(obj,in)
 % fields. The fields must have public get and set methods
 
 if numel(in) > 1
-    out = repmat(IX_dataset_1d,numel(in),1);
+    out = repmat(obj,numel(in),1);
     in1d = reshape(in,numel(in),1);
     for i = 1:numel(in)
         out(i) = out(i).init_from_structure(in1d(i));
@@ -17,7 +17,7 @@ for i=1:numel(fld_names)
     fld = fld_names{i};
     obj.(fld) = in.(fld);
 end
-[obj,mess] = obj.isvalid();
-if ~isempty(mess)
+[ok,mess] = obj.isvalid();
+if ~ok
     error('IX_dataset:invalid_argument',mess);
 end

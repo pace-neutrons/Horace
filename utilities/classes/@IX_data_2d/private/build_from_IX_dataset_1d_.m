@@ -45,6 +45,7 @@ if narg>=5
     error('IX_dataset_2d:invalid_argument',...
         'Too many input arguments (max 5), got: %d',narg)
 end
+nw=numel(w1);
 
 % if y exists, make a column cell of numeric arrays
 if narg>=1 && ~isempty(varargin{1})
@@ -245,7 +246,7 @@ if numel(y)==nhi(end)   % point mode
 else
     nbin=1;
 end
-w2=repmat(obj,n,1);
+w2=repmat(obj(1),n,1);
 for i=1:n
     signal=zeros(numel(w1(nlo(i)).signal),nhi(i)-nlo(i)+1);
     error=zeros(size(signal));
@@ -263,8 +264,11 @@ for i=1:n
     w2(i).y_ = y(nlo(i):nhi(i)+nbin);
     w2(i).signal_ = signal;
     w2(i).error_ = error;
-    [w2(i),mess] = w2(i).isvalid();
-    if ~isempty(mess) % can happen only if input 1D objects are incorrect
+    
+    [ok,mess] = w2(i).check_joint_fields();
+    if ok % can happen only if input 1D objects are incorrect
+        w2(i).valid_ = true;
+    else
         error('IX_dataset_2d:runtime_error',mess);
     end
     

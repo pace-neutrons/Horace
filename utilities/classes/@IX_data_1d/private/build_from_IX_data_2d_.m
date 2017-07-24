@@ -32,8 +32,10 @@ for i=1:nw2
         
         % check and set valid property, verifying all connected fields are
         % consistent
-        [obj(ibegw1(i)+j),mess] = obj(ibegw1(i)+j).isvalid();
-        if ~isempty(mess) % can not ever happen, unless w2 is invalid
+        [ok,mess] = obj(ibegw1(i)+j).check_joint_fields();
+        if ok
+            obj(ibegw1(i)+j).valid_ = true;
+        else % can not ever happen, unless w2 is invalid
             error('IX_data_1d:runtime_error',mess);
         end
     end

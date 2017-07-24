@@ -35,6 +35,10 @@ if nargin==2
         obj = build_from_IX_data_2d_(obj,varargin{1});
         return
     end
+    if isa(varargin{1},'IX_data_3d')
+        obj = build_from_IX_data_3d_(obj,varargin{1});
+        return        
+    end
     in = varargin{1};
     if isstruct(in)   % structure input
         obj = obj.init_from_structure(in);
