@@ -61,7 +61,7 @@ if nargin>=3 && nargin<=5
     if nargin>=5
         obj = check_and_set_sig_err_(obj,'error',varargin{4});
     else
-        obj = check_and_set_sig_err_(obj,'error',zeros(numel(varargin{1}),numel(varargin{2})));
+        obj = check_and_set_sig_err_(obj,'error',zeros(size(obj.signal_)));
     end
     
 elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
@@ -73,13 +73,13 @@ elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
     obj = check_and_set_sig_err_(obj,'error',varargin{4});
     obj.x_axis=varargin{6};
     obj.s_axis=varargin{8};
-    if nargin==10
+    if numel(varargin)>8
         obj.x_distribution=varargin{9};
     else
         obj.x_distribution_=true;
     end
     obj.y_axis=varargin{7};
-    if nargin==10
+    if numel(varargin)>9
         obj.y_distribution=varargin{10};
     else
         obj.y_distribution_=true;
