@@ -57,16 +57,5 @@ function wout = integrate(win, varargin)
 % See also corresponding function integrate2 which accepts a set of bin boundaries
 % of form [x1,x2,x3,...xn] instead of a rebin descriptor
 
+wout = integrate@IX_dataset(win,true,1:2,varargin{:});
 
-if numel(win)==0, error('Empty object to integrate'), end
-
-integrate_data=true;
-point_integration_default=true;
-iax=[1,2];
-opt=struct('empty_is_full_range',true,'range_is_one_bin',true,'array_is_descriptor',true,'bin_boundaries',true);
-
-[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
-if ~ok, error(mess), end
-
-% Squeeze object(s)
-wout=squeeze_IX_dataset_nd(wout,iax);

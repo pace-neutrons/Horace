@@ -5,4 +5,4 @@ function wout = sigvar (w)
 
 % Original author: T.G.Perring
 
-wout = sigvar(w.signal, (w.error).^2);
+wout = sigvar(w.signal_, (w.error_).^2);

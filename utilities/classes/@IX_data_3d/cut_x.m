@@ -42,16 +42,6 @@ function wout = cut_x(win, varargin)
 % dimensionality of the output object by one, and the rebin descriptor defines
 % bin centres, not bin boundaries.
 
-if numel(win)==0, error('Empty object to cut'), end
-if nargin==1, wout=win; return, end     % benign return if no arguments
+wout = cut(win,1,varargin{:});
 
-integrate_data=false;
-point_integration_default=false;
-iax=1;
-opt=struct('empty_is_full_range',false,'range_is_one_bin',true,'array_is_descriptor',true,'bin_boundaries',false);
 
-[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
-if ~ok, error(mess), end
-
-% Squeeze object(s)
-wout=squeeze_IX_dataset_nd(wout,iax);

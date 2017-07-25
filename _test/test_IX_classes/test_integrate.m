@@ -34,19 +34,7 @@ rootpath=fileparts(mfilename('fullpath'));
 warning('off','MATLAB:unknownObjectNowStruct');
 clob = onCleanup(@()warning('on','MATLAB:unknownObjectNowStruct'));
 
-ld= load(fullfile(rootpath,data_filename));
-flds =fieldnames(ld);
-for i=1:numel(flds)
-    fld = flds{i};
-    if isstruct(ld.(fld))
-        %assignin('caller', fld,IX_dataset_1d(ld.(fld)))
-        eval([fld,' = IX_dataset_1d(ld.(fld));']);
-    else
-        %assignin('caller', fld,ld.(fld))
-        eval([fld,' = ld.(fld);']);
-    end
-end
-
+load(fullfile(rootpath,data_filename));
 set(herbert_config,'force_mex_if_use_mex',true,'-buffer');
 
 

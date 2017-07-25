@@ -48,10 +48,10 @@ end
 %     if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
 
 if nargin>=3 && nargin<=5
-    obj.x_             = obj.check_xyz(varargin{1});
-    obj.x_distribution_= true;
-    obj.y_             =  obj.check_xyz(varargin{2});
-    obj.y_distribution_= true;
+    obj.xyz_{1}        = obj.check_xyz(varargin{1});
+    obj.xyz_distribution_(1)= true;
+    obj.xyz_{2}        =  obj.check_xyz(varargin{2});
+    obj.xyz_distribution_(2)= true;
     
     if nargin>=4
         obj = check_and_set_sig_err_(obj,'signal',varargin{3});
@@ -65,8 +65,8 @@ if nargin>=3 && nargin<=5
     end
     
 elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
-    obj.x_     = obj.check_xyz(varargin{1});
-    obj.y_     =  obj.check_xyz(varargin{2});
+    obj.xyz_{1}        = obj.check_xyz(varargin{1});
+    obj.xyz_{2}        = obj.check_xyz(varargin{2});
     
     obj.title=varargin{5};
     obj = check_and_set_sig_err_(obj,'signal',varargin{3});
@@ -76,13 +76,13 @@ elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
     if numel(varargin)>8
         obj.x_distribution=varargin{9};
     else
-        obj.x_distribution_=true;
+        obj.xyz_distribution_(1)=true;
     end
     obj.y_axis=varargin{7};
     if numel(varargin)>9
         obj.y_distribution=varargin{10};
     else
-        obj.y_distribution_=true;
+        obj.xyz_distribution_(2)=true;
     end
     
 elseif nargin==11
@@ -91,8 +91,8 @@ elseif nargin==11
     obj = check_and_set_sig_err(obj,'error',varargin{3});
     
     obj.s_axis=varargin{4};
-    obj.x_     = obj.check_xyz(varargin{5});
-    obj.y_     = obj.check_xyz(varargin{8});
+    obj.xyz_{1}  = obj.check_xyz(varargin{5});
+    obj.xyz_{2}  = obj.check_xyz(varargin{8});
     
     obj.x_axis=varargin{6};
     obj.x_distribution=varargin{7};

@@ -50,16 +50,6 @@ function wout = integrate2_x(win, varargin)
 % See also corresponding function integrate_x which accepts a rebin descriptor
 % of form [x1,dx1,x2,dx2,...xn] instead of a set of bin boundaries
 
+wout = integrate(win,false,1,varargin{:});
 
-if numel(win)==0, error('Empty object to integrate'), end
 
-integrate_data=true;
-point_integration_default=true;
-iax=1;
-opt=struct('empty_is_full_range',true,'range_is_one_bin',true,'array_is_descriptor',false,'bin_boundaries',true);
-
-[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
-if ~ok, error(mess), end
-
-% Squeeze object(s)
-wout=squeeze_IX_dataset_nd(wout,iax);

@@ -41,16 +41,14 @@ end
 if  isstruct(varargin{1})   % structure input
     obj = obj.init_from_structure(in);
 elseif nargin>=4 && nargin<=6
-    obj.x_ = obj.check_xyz(varargin{1});
-    obj.y_ = obj.check_xyz(varargin{2});
-    obj.z_ = obj.check_xyz(varargin{3});
-    obj.x_distribution_=true;
-    obj.y_distribution_=true;
-    obj.z_distribution_=true;
+    obj.xyz_{1} = obj.check_xyz(varargin{1});
+    obj.xyz_{2} = obj.check_xyz(varargin{2});
+    obj.xyz_{3} = obj.check_xyz(varargin{3});
+    obj.xyz_distribution_=true(3,1);
     if nargin>4
         obj = check_and_set_sig_err(obj,'signal',varargin{4});
     else
-        obj.signal_ = zeros(numel(obj.x_),numel(obj.y_),numel(obj.z_));
+        obj.signal_ = zeros(numel(obj.xyz_{1}),numel(obj.xyz_{2}),numel(obj.xyz_{3}));
     end
     if nargin>5
         obj = check_and_set_sig_err(obj,'error',varargin{5});
@@ -59,9 +57,9 @@ elseif nargin>=4 && nargin<=6
     end
     
 elseif nargin==11 || (nargin==14 && isnumeric(varargin{1}))
-    obj.x_ = obj.check_xyz(varargin{1});
-    obj.y_ = obj.check_xyz(varargin{2});
-    obj.z_ = obj.check_xyz(varargin{3});
+    obj.xyz_{1} = obj.check_xyz(varargin{1});
+    obj.xyz_{2} = obj.check_xyz(varargin{2});
+    obj.xyz_{3} = obj.check_xyz(varargin{3});
     
     obj.title=varargin{6};
     obj.x_axis=varargin{7};
@@ -73,22 +71,19 @@ elseif nargin==11 || (nargin==14 && isnumeric(varargin{1}))
     obj = check_and_set_sig_err(obj,'error',varargin{5});
     
     if nargin==14
-        obj.x_distribution=varargin{11};
-        obj.y_distribution=varargin{12};
-        obj.z_distribution=varargin{13};
+        obj.xyz_distribution_ = ...
+            [logical(varargin{11});logical(varargin{12});logical(varargin{13})];
     else
-        obj.x_distribution_=true;
-        obj.y_distribution_=true;
-        obj.z_distribution_=true;
+        obj.xyz_distribution_=true(3,1);
     end
     
 elseif nargin==14
     obj.title=varargin{1};
     
-    obj.x_ = obj.check_xyz(varargin{5});
-    obj.y_ = obj.check_xyz(varargin{8});
-    obj.z_ = obj.check_xyz(varargin{11});
-    
+    obj.xyz_{1} = obj.check_xyz(varargin{5});
+    obj.xyz_{2} = obj.check_xyz(varargin{8});
+    obj.xyz_{3} = obj.check_xyz(varargin{11});
+        
     obj.s_axis=varargin{4};
     obj.x_axis=varargin{6};
     obj.y_axis=varargin{9};
@@ -97,9 +92,8 @@ elseif nargin==14
     
     obj = check_and_set_sig_err(obj,'signal',varargin{2});
     obj = check_and_set_sig_err(obj,'error',varargin{3});
-    obj.x_distribution=varargin{7};
-    obj.y_distribution=varargin{10};
-    obj.z_distribution=varargin{13};
+        obj.xyz_distribution_ = ...
+            [logical(varargin{7});logical(varargin{10});logical(varargin{13})];
 else
     error('IX_data_3d:invalid_argument',...
         'Check number and type of arguments')

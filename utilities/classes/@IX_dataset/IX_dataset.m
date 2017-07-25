@@ -9,13 +9,6 @@ classdef IX_dataset
         error
         % s_axis -- IX_axis class containing signal axis caption
         s_axis
-        % x - vector of bin boundaries for histogram data or bin centers
-        % for distribution
-        x
-        % x_axis -- IX_axis class containing x-axis caption
-        x_axis;
-        % x_distribution -- a
-        x_distribution;
     end
     
     
@@ -27,14 +20,23 @@ classdef IX_dataset
         error_=zeros(0,1);
         % has empty signals-IX_axis
         s_axis_=IX_axis('Counts');
-        % empty x binning data;
-        x_=zeros(1,0);
-        % has empty x-IX_axis
-        x_axis_=IX_axis;
-        % assume to be not a distribution,as size(x_) == size(s_);
-        x_distribution_=false;
-        % empty object it valid
+        %
+        % generic n-D binning data;
+        xyz_;
+        % generic n-D  axis array
+        xyz_axis_
+        % generig n-D distribution sign
+        xyz_distribution_;
+        %
+        % empty object is valid
         valid_ = true;
+        % error message to report
+        error_mess_ = '';
+    end
+    methods(Static)
+        % Read object or array of objects of an IX_dataset type from
+        % a binary matlab file. Inverse of save.
+        obj = read(filename);
     end
     methods
         %------------------------------------------------------------------
@@ -60,6 +62,25 @@ classdef IX_dataset
         % Get information for one or more axes and if is histogram data for each axis
         [ax,hist]=axis(w,n)
         %
+        %Sqeeze singleton dimensions awaay in IX_dataset_nd objects
+        %to get to object of lower dimensionality
+        wout=squeeze_IX_dataset(win,iax)
+        %
+        % Make a cut from an IX_dataset object or array of IX_dataset objects along
+        % specified axess direction(s).
+        wout = cut(win,dir,varargin)
+        % Integrate an IX_dataset object or array of IX_dataset
+        % objects along the axes, defined by direction
+        wout = integrate(win,array_is_descriptor, dir, varargin)
+        % Rebin an IX_dataset object or array of IX_dataset objects along
+        % along the axes, defined by direction
+        wout = rebin(win, array_is_descriptor,dir,varargin)
+        
+        % Save object or array of objects of class type to binary file.
+        % Inverse of read.
+        save(w,file)
+        
+        %
         % get sigvar object from the dataset
         wout = sigvar (w)
         %Get signal and variance from object, and a logical array of which values to keep
@@ -69,35 +90,35 @@ classdef IX_dataset
         %Matlab size of signal array
         sz = sigvar_size(w)
         %------------------------------------------------------------------
+        function xyz = get_xyz(obj,nd)
+            % get x (y,z) values without checking for their validity
+            if ~exist('nd','var')
+                xyz  = obj.xyz_;
+            else
+                xyz  = obj.xyz_{nd};
+            end
+        end
+        function sig = get_signal(obj)
+            % get signal without checking for its validity
+            sig = obj.signal_;
+        end
+        function sig = get_error(obj)
+            % get error without checking for its validity
+            sig = obj.error_;
+        end
+        
+        %------------------------------------------------------------------
         % Access Properties:
         %------------------------------------------------------------------
         function tit = get.title(obj)
             tit = obj.title_;
         end
         %
-        function xx = get.x(obj)
-            if obj.valid_
-                xx = obj.x_;
-            else
-                [ok,mess] = check_joint_fields(obj);
-                if ok
-                    xx = obj.x_;
-                else
-                    xx = mess;
-                end
-            end
-        end
-        %
         function sig = get.signal(obj)
             if obj.valid_
                 sig = obj.signal_;
             else
-                [ok,mess] = check_joint_fields(obj);
-                if ok
-                    sig = obj.signal_;
-                else
-                    sig = mess;
-                end
+                sig = obj.error_mess_;
             end
         end
         %
@@ -105,73 +126,49 @@ classdef IX_dataset
             if obj.valid_
                 err = obj.error_;
             else
-                [ok,mess] = check_joint_fields(obj);
-                if ok
-                    err = obj.error_;
-                else
-                    err = mess;
-                end
+                err = obj.error_mess_;
             end
         end
         %------------------------------------------------------------------
-        function ax = get.x_axis(obj)
-            ax = obj.x_axis_;
-        end
         %
         function ax = get.s_axis(obj)
             ax = obj.s_axis_;
         end
         %
-        function dist = get.x_distribution(obj)
-            dist = obj.x_distribution_;
-        end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function obj = set.title(obj,val)
             obj = check_and_set_title_(obj,val);
         end
         %
-        function obj = set.x_axis(obj,val)
-            obj.x_axis_ = obj.check_and_build_axis(val);
-        end
         %
         function obj = set.s_axis(obj,val)
             obj.s_axis_ = obj.check_and_build_axis(val);
         end
         %
-        function obj = set.x_distribution(obj,val)
-            % TODO: should setting it to true/false involve chaning x from
-            % disrtibution to bin centers and v.v.?
-            obj.x_distribution_ = logical(val);
-        end
         %------------------------------------------------------------------
-        function obj = set.x(obj,val)
-            obj.x_ =obj.check_xyz(val);
-            ok = check_joint_fields(obj);
-            if ok
-                obj.valid_ = true;
-            else
-                obj.valid_ = false;
-            end
-        end
         %
         function obj = set.signal(obj,val)
             obj = check_and_set_sig_err(obj,'signal',val);
-            ok = check_joint_fields(obj);
+            [ok,mess] = check_joint_fields(obj);
             if ok
                 obj.valid_ = true;
+                obj.error_mess_ = '';
             else
                 obj.valid_ = false;
+                obj.error_mess_ = mess;
             end
         end
         %
         function obj = set.error(obj,val)
             obj = check_and_set_sig_err(obj,'error',val);
-            ok = check_joint_fields(obj);
+            [ok,mess] = check_joint_fields(obj);
             if ok
                 obj.valid_ = true;
+                obj.error_mess_ = '';
             else
                 obj.valid_ = false;
+                obj.error_mess_ = mess;
             end
         end
         %--------------------------------------------------------------
@@ -186,6 +183,22 @@ classdef IX_dataset
         % common auxiliary service methods, which can be overloaded if
         % requested
         %
+        xyz = get_xyz_data(obj,nax)
+        %
+        function obj = set_xyz_data(obj,nax,val)
+            % set x, y or z axis data
+            %
+            obj.xyz_{nax} =obj.check_xyz(val);
+            [ok,mess] = check_joint_fields(obj);
+            if ok
+                obj.valid_ = true;
+                obj.error_mess_ = '';
+            else
+                obj.valid_ = false;
+                obj.error_mess_ = mess;
+            end
+            
+        end
     end
     %----------------------------------------------------------------------
     methods(Static,Access=protected)
@@ -193,8 +206,8 @@ classdef IX_dataset
         val = check_xyz(val);
         % Internal function used to verify and set up an axis
         obj = check_and_build_axis(val);
-        
-        
+        %
+        %
         function w = binary_op_manager (w1, w2, binary_op)
             %Implement binary arithmetic operations for objects containing a double array.
             if isa(w1,'IX_dataset')

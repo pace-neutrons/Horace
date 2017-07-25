@@ -3,9 +3,9 @@ function wout = integrate2(win, varargin)
 %
 %   >> wout = integrate2 (win, descr_x, descr_y, descr_z)
 %   >> wout = integrate2 (win, wref)             % reference object to provide output bins
-%   
+%
 %   >> wout = integrate2 (..., 'ave')            % change integration method for axes with point data
-%   
+%
 % Input:
 % ------
 %   win     Input object or array of objects to be integrated
@@ -25,7 +25,7 @@ function wout = integrate2(win, varargin)
 %           - [xlo,xhi]             Single integration range
 %           - [x1,x2,...xn]         Set of bin boundaries that define integration ranges
 %
-%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the
 %           corresponding limit is set by the full extent of the data.
 %  OR
 %   wref    Reference IX_dataset_3d to provide new bins along all three axes
@@ -50,16 +50,4 @@ function wout = integrate2(win, varargin)
 % See also corresponding function integrate which accepts a rebin descriptor
 % of form [x1,dx1,x2,dx2,...xn] instead of a set of bin boundaries
 
-
-if numel(win)==0, error('Empty object to integrate'), end
-
-integrate_data=true;
-point_integration_default=true;
-iax=[1,2,3];
-opt=struct('empty_is_full_range',true,'range_is_one_bin',true,'array_is_descriptor',false,'bin_boundaries',true);
-
-[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
-if ~ok, error(mess), end
-
-% Squeeze object(s)
-wout=squeeze_IX_dataset_nd(wout,iax);
+wout = integrate(win,false,1:3,varargin{:});

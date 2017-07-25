@@ -1,15 +1,16 @@
-function wout = integrate(win, varargin)
-% Integrate an IX_dataset_3d object or array of IX_dataset_3d objects along the x-,y- and z-axes
+function wout = integrate_xyz(win,array_is_descriptor,dir, varargin)
+% Integrate an IX_dataset object or array of IX_dataset objects along specified
+% axis direction
 %
-%   >> wout = integrate (win, descr_x, descr_y, descr_z)
-%   >> wout = integrate (win, wref)             % reference object to provide output bins
-%   
-%   >> wout = integrate (..., 'ave')            % change integration method for axes with point data
-%   
+%   >> wout = integrate_x (win,array_is_descriptor,dir descr)
+%   >> wout = integrate_x (win,array_is_descriptor,dir, wref)           % reference object to provide output bins
+%
+%   >> wout = integrate_x (..., 'ave')          % change integration method for point data
+%
 % Input:
 % ------
 %   win     Input object or array of objects to be integrated
-%   descr   Description of integration bin boundaries (one per axis)
+%   descr   Description of integration bin boundaries
 %
 %           Integration is performed for each bin defined in the description:
 %           * If just one bin is specified, i.e. give just upper an lower limits,
@@ -30,10 +31,10 @@ function wout = integrate(win, varargin)
 %                                       dx=0    retain existing bins within the range
 %           - [x1,dx1,x2,dx2...xn]  Generalisation to multiple contiguous ranges
 %
-%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the
 %           corresponding limit is set by the full extent of the data.
 %  OR
-%   wref    Reference IX_dataset_3d to provide new bins along all three axes
+%   wref    Reference IX_dataset to provide new bins along x axis
 %
 %   Point data: for an axis with point data (as opposed to histogram data)
 %   'ave'   average the values of the points within each new bin and multiply by bin width
@@ -44,18 +45,38 @@ function wout = integrate(win, varargin)
 %   wout    Output object or array of objects
 %
 % EXAMPLES
-%   >> wout = integrate (win)    % integrates entire dataset
-%   >> wout = integrate (win, [],...)
-%   >> wout = integrate (win, [-Inf,Inf],...)    % equivalent to above
-%   >> wout = integrate (win, 10,...)
-%   >> wout = integrate (win, [2000,3000],...)
-%   >> wout = integrate (win, [2000,Inf],...)
-%   >> wout = integrate (win, [2000,10,3000],...)
-%   >> wout = integrate (win, [5,-0.01,3000],...)
-%   >> wout = integrate (win, [5,-0.01,1000,20,4000,50,20000],...)
+%   >> wout = integrate_xyz(win,dir)    % integrates entire dataset
+%   >> wout = integrate_xyz (win,dir, [])
+%   >> wout = integrate_xyz (win,dir, [-Inf,Inf])    % equivalent to above
+%   >> wout = integrate_xyz (win,dir, 10)
+%   >> wout = integrate_xyz (win,dir, [2000,3000])
+%   >> wout = integrate_xyz (win,dir, [2000,Inf])
+%   >> wout = integrate_xyz (win,dir, [2000,10,3000])
+%   >> wout = integrate_xyz (win,dir, [5,-0.01,3000])
+%   >> wout = integrate_xyz (win,dir, [5,-0.01,1000,20,4000,50,20000])
 %
-% See also corresponding function integrate2 which accepts a set of bin boundaries
+% See also corresponding function integrate2_x which accepts a set of bin boundaries
 % of form [x1,x2,x3,...xn] instead of a rebin descriptor
 
-wout = integrate@IX_dataset(win,true,1:3,varargin{:});
+
+if numel(win)==0, error('Empty object to integrate'), end
+if dir>dimensions(win)
+    error('IX_dataset:invalid_argument',...
+        'Attempting to inegrate %dD object along %d direction', dimensions(win),dir)
+end
+
+integrate_data=true;
+point_integration_default=true;
+iax=dir;
+opt=struct('empty_is_full_range',true,'range_is_one_bin',true,...
+    'array_is_descriptor',array_is_descriptor,'bin_boundaries',true);
+
+[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
+% Squeeze object(s)
+wout=wout.squeeze_IX_dataset(iax);
+if isa(wout,'IX_dataset')
+    wout = wout.isvalid();
+end
+
+if ~ok, error(mess), end
 

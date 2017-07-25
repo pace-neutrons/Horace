@@ -1,15 +1,19 @@
-function wout = integrate(win, varargin)
-% Integrate an IX_dataset_1d object or array of IX_dataset_1d objects along the x-axis
+function wout = integrate(win,array_is_descriptor,dir,varargin)
+% Integrate an IX_dataset object or array of IX_dataset objects along the
+% all axis
 %
-%   >> wout = integrate (win, descr)
-%   >> wout = integrate (win, descr, 'ave')
-%   
+%   >> wout = integrate (win,array_is_descriptor,dir,descr)
+%   >> wout = integrate (win,array_is_descriptor,dir,wref)             % reference object to provide output bins
+%   >> wout = integrate (win,array_is_descriptor,dir,descr, 'ave')
+%
 % Input:
 % ------
 %   win     Input object or array of objects to be integrated
-%   descr   Description of integration bin boundaries 
+%   array_is_descriptor
+%   dir     direction of the integration
+%   descr   Description of integration bin boundaries
 %
-%           Integration is performed fo each bin defined in the description:
+%           Integration is performed for each bin defined in the description:
 %           * If just one bin is specified, i.e. give just upper an lower limits,
 %            then the dataset is integrated over the specified range.
 %             The integrate axis disappears i.e. the output object has one less dimension.
@@ -28,12 +32,12 @@ function wout = integrate(win, varargin)
 %                                       dx=0    retain existing bins within the range
 %           - [x1,dx1,x2,dx2...xn]  Generalisation to multiple contiguous ranges
 %
-%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the
 %           corresponding limit is set by the full extent of the data.
 %
 %   Point data: for an axis with point data (as opposed to histogram data)
 %   'ave'   average the values of the points within each new bin and multiply by bin width
-%   'int'   integate the function defined by linear interpolation between the data points (DEFAULT)
+%   'int'   integrate the function defined by linear interpolation between the data points (DEFAULT)
 %
 % Output:
 % -------
@@ -42,9 +46,11 @@ function wout = integrate(win, varargin)
 % EXAMPLES
 %   >> wout = integrate (win)    % integrates entire dataset
 %   >> wout = integrate (win, [])
+%   >> wout = integrate (win, [],...)
 %   >> wout = integrate (win, [-Inf,Inf])    % equivalent to above
 %   >> wout = integrate (win, 10)
 %   >> wout = integrate (win, [2000,3000])
+%   >> wout = integrate (win, [2000,3000],...)
 %   >> wout = integrate (win, [2000,Inf])
 %   >> wout = integrate (win, [2000,10,3000])
 %   >> wout = integrate (win, [5,-0.01,3000])
@@ -53,5 +59,29 @@ function wout = integrate(win, varargin)
 % See also corresponding function integrate2 which accepts a set of bin boundaries
 % of form [x1,x2,x3,...xn] instead of a rebin descriptor
 
-wout = integrate@IX_dataset(win,true,1,varargin{:});
+
+if numel(win)==0, error('Empty object to integrate'), end
+
+integrate_data=true;
+point_integration_default=true;
+
+ndims = dimensions(win);
+if any(dir>ndims)
+    error('IX_dataset:invalid_argument',...
+        'Attempting to rebin  %dD object along %d direction(s)', ndims,dir(dir>ndims))
+end
+iax=dir;
+
+opt=struct('empty_is_full_range',true,'range_is_one_bin',true,...
+    'array_is_descriptor',array_is_descriptor,'bin_boundaries',true);
+
+[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
+% Squeeze object(s)
+wout=wout.squeeze_IX_dataset(iax);
+if isa(wout,'IX_dataset')
+    wout = wout.isvalid();
+end
+if ~ok, error(mess), end
+
+
 

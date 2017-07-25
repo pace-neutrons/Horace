@@ -23,9 +23,9 @@ if numel(xc)>1
         del=diff(xc);
         if any(del<=0)
             xb=[]; ok=false; mess='Points must be strictly monotonic increasing';
-            if nargout>1, return, else error(mess), end
+            if nargout>1, return, else, error(mess), end
         end
-        if size(xc,1)>1, row=false; else row=true; end
+        if size(xc,1)>1, row=false; else, row=true; end
         if numel(xc)>2
             xc=xc(:);
             del0=0.5*(xc(2)-xc(1));
@@ -37,13 +37,13 @@ if numel(xc)>1
         if row, xb=xb'; end
     else
         xb=[]; ok=false; mess='Input array must be a vector';
-        if nargout>1, return, else error(mess), end
+        if nargout>1, return, else, error(mess), end
     end
 elseif numel(xc)==1
     xb=[xc-0.5,xc+0.5];
 else
     xb=[]; ok=false; mess='No points in input array';
-    if nargout>1, return, else error(mess), end
+    if nargout>1, return, else, error(mess), end
 end
 if nargout>=2, ok=true; end
 if nargout>=3, mess=''; end

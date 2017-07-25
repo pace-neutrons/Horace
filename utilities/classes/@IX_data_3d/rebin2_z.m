@@ -38,14 +38,5 @@ function wout = rebin2_z(win, varargin)
 % See also corresponding function rebin_z which accepts a rebin descriptor
 % of form [x1,dx1,x2,dx2,...xn] instead of a set of bin boundaries
 
+wout = rebin(win,false,3,varargin{:});
 
-if numel(win)==0, error('Empty object to rebin'), end
-if nargin==1, wout=win; return, end     % benign return if no arguments
-
-integrate_data=false;
-point_integration_default=false;
-iax=3;
-opt=struct('empty_is_full_range',false,'range_is_one_bin',true,'array_is_descriptor',false,'bin_boundaries',true);
-
-[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
-if ~ok, error(mess), end

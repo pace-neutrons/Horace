@@ -17,7 +17,5 @@ for i=1:numel(fld_names)
     fld = fld_names{i};
     obj.(fld) = in.(fld);
 end
-[ok,mess] = obj.isvalid();
-if ~ok
-    error('IX_dataset:invalid_argument',mess);
-end
+% will throw if object is invalid
+obj = obj.isvalid();

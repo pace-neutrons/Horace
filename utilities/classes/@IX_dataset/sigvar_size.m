@@ -5,4 +5,4 @@ function sz = sigvar_size(w)
 
 % Original author: T.G.Perring
 
-sz = size(w.signal);
+sz = size(w.signal_);

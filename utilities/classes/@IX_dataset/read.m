@@ -1,8 +1,8 @@
-function wout = read (wdummy,file)
+function wout = read(file)
 % Read object or array of objects of class type from binary file. Inverse of save.
 %
-%   >> w = read (IX_dataset_3d)         % prompts for file
-%   >> w = read (IX_dataset_3d, file)   % read from named file
+%   >> w = IX_dataset.read()       % prompts for file
+%   >> w = IX_dataset.read(file)   % read from named file
 
 % Method independent of class type
 
@@ -16,8 +16,8 @@ if ~ok, error(mess), end
 % ---------------------
 tmp=load(file_full,'-mat');    % enforce interpretation as matlab binary format
 fname=fieldnames(tmp);
-if numel(fname)==1 && strcmp(class(tmp.(fname{1})),class(wdummy))
+if numel(fname)==1 && isa(tmp.(fname{1}),'IX_dataset')
     wout=tmp.(fname{1});
 else
-    error(['Content not an object of class ',class(wdummy),' in file ',file_full])
+    error('Content of file %s is not an object of class IX_dataset',file_full);
 end

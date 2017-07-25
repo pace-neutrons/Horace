@@ -5,11 +5,11 @@ function wout = integrate_x(win, varargin)
 %   >> wout = integrate_x (win, wref)           % reference object to provide output bins
 %
 %   >> wout = integrate_x (..., 'ave')          % change integration method for point data
-%   
+%
 % Input:
 % ------
 %   win     Input object or array of objects to be integrated
-%   descr   Description of integration bin boundaries 
+%   descr   Description of integration bin boundaries
 %
 %           Integration is performed for each bin defined in the description:
 %           * If just one bin is specified, i.e. give just upper an lower limits,
@@ -30,7 +30,7 @@ function wout = integrate_x(win, varargin)
 %                                       dx=0    retain existing bins within the range
 %           - [x1,dx1,x2,dx2...xn]  Generalisation to multiple contiguous ranges
 %
-%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the
 %           corresponding limit is set by the full extent of the data.
 %  OR
 %   wref    Reference IX_dataset_2d to provide new bins along x axis
@@ -57,16 +57,6 @@ function wout = integrate_x(win, varargin)
 % See also corresponding function integrate2_x which accepts a set of bin boundaries
 % of form [x1,x2,x3,...xn] instead of a rebin descriptor
 
+wout = integrate(win,true,1,varargin{:});
 
-if numel(win)==0, error('Empty object to integrate'), end
 
-integrate_data=true;
-point_integration_default=true;
-iax=1;
-opt=struct('empty_is_full_range',true,'range_is_one_bin',true,'array_is_descriptor',true,'bin_boundaries',true);
-
-[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
-if ~ok, error(mess), end
-
-% Squeeze object(s)
-wout=squeeze_IX_dataset_nd(wout,iax);

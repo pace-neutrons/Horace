@@ -6,18 +6,15 @@ function x=get_x(w,iax)
 
 if numel(w)==1
     if nargin==1
-        x=cell(1,3);
-        x{1}=w.x;  
-        x{2}=w.y;
-        x{3}=w.z;
+        x = w.xyz_';
     elseif nargin==2
         if isscalar(iax)
             if iax==1
-                x=w.x;
+                x=w.xyz_{1};
             elseif iax==2
-                x=w.y;
+                x=w.xyz_{2};
             elseif iax==3
-                x=w.z;
+                x=w.xyz_{3};
             else
                 error('Check axis index')
             end

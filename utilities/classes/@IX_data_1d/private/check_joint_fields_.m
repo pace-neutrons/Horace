@@ -20,10 +20,10 @@ if numel(w.signal_)~=numel(w.error_)
         numel(w.signal_),numel(w.error_));
     return
 end
-if ~(numel(w.x_)==numel(w.signal_)||numel(w.x_)==numel(w.signal_)+1)
+if ~(numel(w.xyz_{1})==numel(w.signal_)||numel(w.xyz_{1})==numel(w.signal_)+1)
     ok=false;
     message=sprintf('numel(signal)=%d, numel(x)=%d; numel(signal)  must be equal to numel(x) or numel(x)+1',...
-        numel(w.signal_),numel(w.x_));
+        numel(w.signal_),numel(w.xyz_{1}));
     return
 end
 

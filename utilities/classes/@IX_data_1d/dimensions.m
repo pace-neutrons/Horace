@@ -13,4 +13,4 @@ function [nd,sz] = dimensions(w)
 % Original author: T.G.Perring
 
 nd=1;
-sz=numel(w.signal);
+sz=numel(w(1).signal)*numel(w);

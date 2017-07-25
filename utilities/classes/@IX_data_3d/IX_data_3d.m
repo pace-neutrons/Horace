@@ -1,12 +1,12 @@
 classdef IX_data_3d < IX_dataset
-    % Create IX_dataset_3d object
+    % Create IX_data_3d object
     %
-    %   >> w = IX_dataset_3d (x,y,z)
-    %   >> w = IX_dataset_3d (x,y,z,signal)
-    %   >> w = IX_dataset_3d (x,y,z,signal,error)
-    %   >> w = IX_dataset_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis)
-    %   >> w = IX_dataset_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis,x_distribution,y_distribution,z_distribution)
-    %   >> w = IX_dataset_3d (title, signal, error, s_axis, x, x_axis, x_distribution,...
+    %   >> w = IX_data_3d (x,y,z)
+    %   >> w = IX_data_3d (x,y,z,signal)
+    %   >> w = IX_data_3d (x,y,z,signal,error)
+    %   >> w = IX_data_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis)
+    %   >> w = IX_data_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis,x_distribution,y_distribution,z_distribution)
+    %   >> w = IX_data_3d (title, signal, error, s_axis, x, x_axis, x_distribution,...
     %                                          y, y_axis, y_distribution, z, z-axis, z_distribution)
     %
     %  Creates an IX_dataset_3d object with the following elements:
@@ -32,28 +32,47 @@ classdef IX_data_3d < IX_dataset
     %   z_axis              IX_axis          |- same as above but for z-axis
     %   z_distribution      logical         -|
     properties(Dependent)
+        % x - vector of bin boundaries for histogram data or bin centers
+        % for distribution
+        x
+        % x_axis -- IX_axis class containing x-axis caption
+        x_axis;
+        % x_distribution -- an identifier, stating if the x-data contain
+        % points or distribution in x-direction
+        x_distribution;
+        % y - vector of bin boundaries for histogram data or bin centers
+        % for distribution in y-direction
         y
+        % y_axis -- IX_axis class containing y-axis caption
         y_axis;
+        % y_distribution -- an identifier, stating if the y-data contain
+        % points or distribution in y-direction
         y_distribution;
+        % z - vector of bin boundaries for histogram data or bin centers
+        % for distribution in z-direction
         z
+        % z_axis -- IX_axis class containing z-axis caption
         z_axis;
+        % z_distribution -- an identifier, stating if the z-data contain
+        % points or distribution in z-direction
         z_distribution;
     end
     properties(Access=protected)
-        y_ = zeros(1,0);
-        y_axis_ = IX_axis;
-        y_distribution_ = true;
-        z_ = zeros(1,0);
-        z_axis_ = IX_axis;
-        z_distribution_ = true;
     end
     
     methods
         function obj = IX_data_3d(varargin)
             % constructor
+            obj.xyz_ = cell(3,1);
+            obj.xyz_axis_ = repmat(IX_axis(),3,1);
+            obj.xyz_distribution_ = true(3,1);
+            
             if nargin==0
                 obj.signal_ = zeros(0,0,0);
                 obj.error_ = zeros(0,0,0);
+                obj.xyz_{1} = zeros(1,0);
+                obj.xyz_{2} = zeros(1,0);
+                obj.xyz_{3} = zeros(1,0);
                 return;
             end
             obj = build_IXdataset_3d_(obj,varargin{:});
@@ -64,80 +83,73 @@ classdef IX_data_3d < IX_dataset
         [ax,hist]=axis(w,n)
         
         %------------------------------------------------------------------
+        %------------------------------------------------------------------
+        function xx = get.x(obj)
+            xx = obj.get_xyz_data(1);
+        end
+        function ax = get.x_axis(obj)
+            ax = obj.xyz_axis_(1);
+        end
+        function dist = get.x_distribution(obj)
+            dist = obj.xyz_distribution_(1);
+        end
+        %
+        function obj = set.x(obj,val)
+            obj = set_xyz_data(obj,1,val);
+        end
+        function obj = set.x_axis(obj,val)
+            obj.xyz_axis_(1) = obj.check_and_build_axis(val);
+        end
+        function obj = set.x_distribution(obj,val)
+            % TODO: should setting it to true/false involve chaning x from
+            % disrtibution to bin centers and v.v.?
+            obj.xyz_distribution_(1) = logical(val);
+        end
+        %-----------------------------------------------------------------
         function yy = get.y(obj)
-            if obj.valid_
-                yy = obj.y_;
-            else
-                [ok,mess] = check_joint_fields(obj);
-                if ok
-                    yy = obj.y_;
-                else
-                    yy = mess;
-                end
-            end
+            yy = obj.get_xyz_data(2);
         end
         %
         function dist = get.y_distribution(obj)
-            dist = obj.y_distribution_;
+            dist = obj.xyz_distribution_(2);
         end
         function ax = get.y_axis(obj)
-            ax = obj.y_axis_;
+            ax = obj.xyz_axis_(2);
         end
         %
         function obj = set.y(obj,val)
-            obj.y_ = obj.check_xyz(val);
-            ok = check_joint_fields(obj);
-            if ok
-                obj.valid_ = true;
-            else
-                obj.valid_ = false;
-            end
+            obj = set_xyz_data(obj,2,val);
         end
         function obj = set.y_distribution(obj,val)
             % TODO: should setting it to true/false involve chaning y from
             % disrtibution to bin centers and v.v.? + signal changes
-            obj.y_distribution_ = logical(val);
+            obj.xyz_distribution_(2) = logical(val);
         end
         function obj = set.y_axis(obj,val)
-            obj.y_axis_ = obj.check_and_build_axis(val);
+            obj.xyz_axis_(2) = obj.check_and_build_axis(val);
         end
         %-----------------------------------------------------------------
         function zz = get.z(obj)
-            if obj.valid_
-                zz = obj.z_;
-            else
-                [ok,mess] = check_joint_fields(obj);
-                if ok
-                    zz = obj.z_;
-                else
-                    zz = mess;
-                end
-            end
+            zz= obj.get_xyz_data(3);
         end
         %
         function dist = get.z_distribution(obj)
-            dist = obj.z_distribution_;
+            dist = obj.xyz_distribution_(3);
         end
         function ax = get.z_axis(obj)
-            ax = obj.z_axis_;
+            ax = obj.xyz_axis_(3);
         end
         %
         function obj = set.z(obj,val)
-            obj.z_ = obj.check_xyz(val);
-            ok = check_joint_fields(obj);
-            if ok
-                obj.valid_ = true;
-            else
-                obj.valid_ = false;
-            end
+            obj = set_xyz_data(obj,3,val);
         end
         function obj = set.z_distribution(obj,val)
             % TODO: should setting it to true/false involve chaning y from
             % disrtibution to bin centers and v.v.? + signal changes
-            obj.z_distribution_ = logical(val);
+            obj.xyz_distribution_(3) = logical(val);
         end
         function obj = set.z_axis(obj,val)
-            obj.z_axis_ = obj.check_and_build_axis(val);
+            obj.xyz_axis_(3) = obj.check_and_build_axis(val);
         end
     end
     %----------------------------------------------------------------------

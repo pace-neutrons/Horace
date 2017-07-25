@@ -40,24 +40,24 @@ end
 %
 sz = sz_sig;
 
-if ~(numel(w.x_)==sz(1)||numel(w.x_)==sz(1)+1)
+if ~(numel(w.xyz_{1})==sz(1)||numel(w.xyz_{1})==sz(1)+1)
     ok=false;
     message=sprintf('size(signal,1)=%d, numel(x)=%d; size(signal,1) must be equal to numel(x) or numel(x)+1',...
-        sz(1),numel(w.x_));
+        sz(1),numel(w.xyz_{1}));
     return
 end
 
-if ~(numel(w.y_)==sz(2)||numel(w.y_)==sz(2)+1)
+if ~(numel(w.xyz_{2})==sz(2)||numel(w.xyz_{2})==sz(2)+1)
     ok=false;
     message=sprintf('size(signal,2)=%d, numel(y)=%d; size(signal,2) must be equal to numel(y) or numel(y)+1',...
-        sz(2),numel(w.y_));
+        sz(2),numel(w.xyz_{2}));
     return
 end
 
-if ~(numel(w.z_)==sz(3)||numel(w.z_)==sz(3)+1)
+if ~(numel(w.xyz_{3})==sz(3)||numel(w.xyz_{3})==sz(3)+1)
     ok=false;
     message=sprintf('size(signal,3)=%d, numel(z)=%d; size(signal,3) must be equal to numel(z) or numel(z)+1',...
-        sz(3),numel(w.z_));
+        sz(3),numel(w.xyz_{3}));
     return
 end
 %

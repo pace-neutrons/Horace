@@ -1,15 +1,15 @@
 classdef IX_data_2d < IX_dataset
-    % IX_data_2d class implement main operation with 2-dimensional data
+    % IX_data_2d class implements main operation with 2-dimensional data
     % Create IX_dataset_2d object
     %
-    %   >> w = IX_dataset_2d (x,y)
-    %   >> w = IX_dataset_2d (x,y,signal)
-    %   >> w = IX_dataset_2d (x,y,signal,error)
-    %   >> w = IX_dataset_2d (x,y,signal,error,title,x_axis,y_axis,s_axis)
-    %   >> w = IX_dataset_2d (x,y,signal,error,title,x_axis,y_axis,s_axis,x_distribution,y_distribution)
-    %   >> w = IX_dataset_2d (title, signal, error, s_axis, x, x_axis, x_distribution, y, y_axis, y_distribution)
+    %   >> w = IX_data_2d (x,y)
+    %   >> w = IX_data_2d (x,y,signal)
+    %   >> w = IX_data_2d (x,y,signal,error)
+    %   >> w = IX_data_2d (x,y,signal,error,title,x_axis,y_axis,s_axis)
+    %   >> w = IX_data_2d (x,y,signal,error,title,x_axis,y_axis,s_axis,x_distribution,y_distribution)
+    %   >> w = IX_data_2d (title, signal, error, s_axis, x, x_axis, x_distribution, y, y_axis, y_distribution)
     %
-    %  Creates an IX_dataset_2d object with the following elements:
+    %  Creates an IX_data_2d object with the following elements:
     %
     %   title               char/cellstr    Title of dataset for plotting purposes (character array or cellstr)
     %   signal              double          Signal (2D array)
@@ -27,22 +27,34 @@ classdef IX_data_2d < IX_dataset
     %   y                   double          -|
     %   y_axis              IX_axis          |- same as above but for y-axis
     %   y_distribution      logical         -|
-    
     properties(Dependent)
+        % x - vector of bin boundaries for histogram data or bin centers
+        % for distribution
+        x
+        % x_axis -- IX_axis class containing x-axis caption
+        x_axis;
+        % x_distribution -- an identifier, stating if the x-data contain
+        % points or distribution in x-direction
+        x_distribution;
+        % y - vector of bin boundaries for histogram data or bin centers
+        % for distribution
         y
+        % y_axis -- IX_axis class containing y-axis caption
         y_axis;
+        % y_distribution -- an identifier, stating if the y-data contain
+        % class or distribution
         y_distribution;
-    end
-    properties(Access=protected)
-        y_ = zeros(1,0);
-        y_axis_ = IX_axis;
-        y_distribution_ = true;
     end
     
     methods
         function obj = IX_data_2d(varargin)
             % Constructor
+            obj.xyz_ = cell(2,1);
+            obj.xyz_axis_ = repmat(IX_axis(),2,1);
+            obj.xyz_distribution_ = true(2,1);
             if nargin==0
+                obj.xyz_{1} = zeros(1,0);
+                obj.xyz_{2} = zeros(1,0);
                 return;
             end
             obj = build_IXdataset_2d_(obj,varargin{:});
@@ -53,42 +65,50 @@ classdef IX_data_2d < IX_dataset
         [ax,hist]=axis(w,n)
         
         %------------------------------------------------------------------
+        %------------------------------------------------------------------
+        function xx = get.x(obj)
+            xx = obj.get_xyz_data(1);
+        end
+        function ax = get.x_axis(obj)
+            ax = obj.xyz_axis_(1);
+        end
+        function dist = get.x_distribution(obj)
+            dist = obj.xyz_distribution_(1);
+        end
+        %
+        function obj = set.x(obj,val)
+            obj = set_xyz_data(obj,1,val);
+        end
+        function obj = set.x_axis(obj,val)
+            obj.xyz_axis_(1) = obj.check_and_build_axis(val);
+        end
+        function obj = set.x_distribution(obj,val)
+            % TODO: should setting it to true/false involve chaning x from
+            % disrtibution to bin centers and v.v.?
+            obj.xyz_distribution_(1) = logical(val);
+        end
+        %-----------------------------------------------------------------
         function yy = get.y(obj)
-            if obj.valid_
-                yy = obj.y_;
-            else
-                [ok,mess] = check_joint_fields(obj);
-                if ok
-                    yy = obj.y_;
-                else
-                    yy = mess;
-                end
-            end
+            yy = obj.get_xyz_data(2);
         end
         %
         function dist = get.y_distribution(obj)
-            dist = obj.y_distribution_;
+            dist = obj.xyz_distribution_(2);
         end
         function ax = get.y_axis(obj)
-            ax = obj.y_axis_;
+            ax = obj.xyz_axis_(2);
         end
         %
         function obj = set.y(obj,val)
-            obj.y_ = obj.check_xyz(val);
-            ok = check_joint_fields(obj);
-            if ok
-                obj.valid_ = true;
-            else
-                obj.valid_ = false;
-            end
+            obj = set_xyz_data(obj,2,val);
         end
         function obj = set.y_distribution(obj,val)
             % TODO: should setting it to true/false involve chaning y from
             % disrtibution to bin centers and v.v.? + signal changes
-            obj.y_distribution_ = logical(val);
+            obj.xyz_distribution_(2) = logical(val);
         end
         function obj = set.y_axis(obj,val)
-            obj.y_axis_ = obj.check_and_build_axis(val);
+            obj.xyz_axis_(2) = obj.check_and_build_axis(val);
         end
     end
     %

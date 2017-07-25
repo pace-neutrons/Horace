@@ -36,7 +36,7 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %                      there are a number of different formats and defaults that are valid.
 %                       If win is one dimensional, then if all the arguments can be scalar they are treated as the
 %                      elements of range_1
-%         *OR*    
+%         *OR*
 %   wref                Reference dataset from which to take bins. Must be a scalar, and the same class as win
 %                      Only those axes indicated by input argument iax are taken from the reference object.
 %
@@ -55,7 +55,7 @@ function [wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integr
 %                           wout(i).signal        Signal array
 %                           wout(i).err           Array of standard deviations
 %                           wout(i).distribution  Array of elements, one per axis that is true if a distribution, false if not
-%       
+%
 %   ok                  True if no problems, false otherwise
 %   mess                Error message; empty if ok
 
@@ -79,10 +79,11 @@ nax=numel(iax); % number of axes to be rebinned
 if isstruct(win)
     is_IX_dataset_nd=false;
     % *** Should really check that all win(i) have the same dimensionality i.e. numel(win(i).x) are all the same
-elseif isa_IX_dataset_nd(win)
+elseif isa(win,'IX_dataset')
     is_IX_dataset_nd=true;
 else
-    ok=false; wout=[];  mess='Dataset to be rebinned has unrecognised type'; return
+    error('IX_dataset:invalid_argument',...
+        'Dataset to be rebinned has unrecognised type');
 end
 
 % Check point integration option
@@ -107,7 +108,8 @@ if numel(args)==1 && isa(args{1},class(win))
     % Rebin according to bins in a reference object; for axes with point data, construct bin boundaries by taking the half-way points between the points
     wref=args{1};
     if numel(wref)~=1
-        ok=false; wout=[];  mess='Reference dataset for rebinning must be a single instance, not an array'; return
+        error('IX_dataset:invalid_argument',...
+            'Reference dataset for rebinning must be a single instance, not an array');
     end
     % --> Code that depends on data input class
     if is_IX_dataset_nd
@@ -116,14 +118,16 @@ if numel(args)==1 && isa(args{1},class(win))
     else
         x=wref.x;
         if numel(x)~=numel(win(1).x)
-            ok=false; wout=[];  mess='Reference dataset for rebinning does not have the same dimensionality as the input dataset(s)'; return
+            error('IX_dataset:invalid_argument',...
+                'Reference dataset for rebinning does not have the same dimensionality as the input dataset(s)');
         end
         ishist=false(1,numel(x)); for i=1:numel(x), ishist(i)=(numel(x{i})~=size(wref.signal,i)); end
     end
     % <--
     for i=1:nax
         if numel(x{iax(i)})<=1  % single point dataset, or histogram dataset with empty signal array
-            error('Reference dataset must have at least one bin (histogram data) or two points (point data)')
+            error('IX_dataset:invalid_argument',...
+                'Reference dataset must have at least one bin (histogram data) or two points (point data)')
         end
     end
     xbounds=cell(1,nax);
@@ -134,12 +138,13 @@ if numel(args)==1 && isa(args{1},class(win))
         else
             [xbounds{i},ok,mess]=bin_boundaries_simple(x{iax(i)});
             if ~ok
-                wout=[]; mess=['Unable to construct bin boundaries for point data axis number ',num2str(iax(i)),': ',mess]; return
+            error('IX_dataset:invalid_argument',...                
+                'Unable to construct bin boundaries for point data axis number %d : %s',num2str(iax(i)),mess);
             end
         end
     end
     is_descriptor=false(1,nax);
-
+    
 else
     % Use rebin description to define new bin boundaries
     [ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundaries_description_parse(nax,descriptor_opt,args{:});

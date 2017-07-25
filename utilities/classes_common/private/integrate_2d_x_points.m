@@ -26,12 +26,12 @@ function [sout,eout] = integrate_2d_x_points (x, s, e, xout, use_mex, force_mex)
 if use_mex
     try
         [sout,eout] = integrate_2d_x_points_mex (x, s, e, xout);
-    catch
+    catch ERR
         if ~force_mex
-            display(['Error calling mex function ',mfilename,'_mex. Calling matlab equivalent'])
+            fprintf('Error %s calling mex function %s_mex. Calling matlab equivalent',ERR.message,mfilename)
             use_mex=false;
         else
-            error(lasterr)
+            rethrow(ERR)
         end
     end
 end

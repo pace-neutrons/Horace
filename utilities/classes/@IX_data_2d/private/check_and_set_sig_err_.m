@@ -18,8 +18,8 @@ end
 if size(val,1)==1
     val = val';
 end     % make column vector
-%
-nx = numel(obj.x_);
+
+nx = numel(obj.xyz_{1});
 if       (nx==size(val,2)||nx==size(val,2)+1) && ...
         ~(nx==size(val,1)||nx==size(val,1)+1)
     val = val';

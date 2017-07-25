@@ -1,24 +1,25 @@
-function wout = cut_x(win, varargin)
-% Make a cut from an IX_dataset_2d object or array of IX_dataset_2d objects along the x-axis
+function wout = cut_xyz(win, dir,varargin)
+% Make a cut from an IX_dataset object or array of IX_dataset objects along
+% specified axis direction.
 %
 %   >> wout = cut_x (win, descr)
 %   >> wout = cut_x (win, wref)           % reference object to provide output bins
 %
 %   >> wout = cut_x (..., 'int')          % change averaging method for point data
-%   
+%
 % Input:
 % ------
 %   win     Input object or array of objects to be cut
-%   descr   Description of new bin boundaries 
+%   descr   Description of new bin boundaries
 %           - [], '' or zero:       Leave bins unchanged
 %           - dx (numeric scalar)   New bins centred on zero with constant width dx
 %           - [xlo,xhi]             Single bin
 %           - [xlo,dx,xhi]          Set of equal width bins centred at xlo, xlo+dx, xlo+2*dx,...
 %
-%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the
 %           corresponding limit is set by the full extent of the data.
 %  OR
-%   wref    Reference IX_dataset_2d to provide new bins along x axis
+%   wref    Reference IX_dataset_3d to provide new bins along x axis
 %
 %   Point data: for an axis with point data (as opposed to histogram data)
 %   'ave'   average the values of the points within each new bin (DEFAULT)
@@ -42,5 +43,26 @@ function wout = cut_x(win, varargin)
 % dimensionality of the output object by one, and the rebin descriptor defines
 % bin centres, not bin boundaries.
 
-wout = cut(win,1,varargin{:});
+if numel(win)==0, error('Empty object to cut'), end
+if nargin==1, wout=win; return, end     % benign return if no arguments
+
+if dir>dimensions(win)
+    error('IX_dataset:invalid_argument',...
+        'Attempting to cut from %dD object along %d direction', dimensions(win),dir)
+end
+
+
+integrate_data=false;
+point_integration_default=false;
+iax=dir;
+opt=struct('empty_is_full_range',false,'range_is_one_bin',true,'array_is_descriptor',true,'bin_boundaries',false);
+
+[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
+% Squeeze object(s)
+wout=wout.squeeze_IX_dataset(iax);
+if isa(wout,'IX_dataset')
+    wout = wout.isvalid();
+end
+
+if ~ok, error(mess), end
 

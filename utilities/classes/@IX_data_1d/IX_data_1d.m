@@ -1,13 +1,15 @@
 classdef IX_data_1d < IX_dataset
-    % Create IX_dataset_1d object
+    % IX_data_1d class implements main operation with 1-dimensional data
     %
-    %   >> w = IX_dataset_1d (x)
-    %   >> w = IX_dataset_1d (x,signal)
-    %   >> w = IX_dataset_1d (x,signal,error)
-    %   >> w = IX_dataset_1d ([x;signal;error]) % 3xNs vector of data;
-    %   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis)
-    %   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis, x_distribution)
-    %   >> w = IX_dataset_1d (title, signal, error, s_axis, x, x_axis, x_distribution)
+    % Constructor to create IX_dataset_1d object:
+    %
+    %   >> w = IX_data_1d (x)
+    %   >> w = IX_data_1d (x,signal)
+    %   >> w = IX_data_1d (x,signal,error)
+    %   >> w = IX_data_1d ([x;signal;error]) % 3xNs vector of data;
+    %   >> w = IX_data_1d (x,signal,error,title,x_axis,s_axis)
+    %   >> w = IX_data_1d (x,signal,error,title,x_axis,s_axis, x_distribution)
+    %   >> w = IX_data_1d (title, signal, error, s_axis, x, x_axis, x_distribution)
     %
     %  Creates an IX_dataset_1d object with the following elements:
     %
@@ -25,21 +27,55 @@ classdef IX_data_1d < IX_dataset
     % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
     
     % Default class - empty point dataset
-    properties(Access=protected)
+    properties(Dependent)
+        % x - vector of bin boundaries for histogram data or bin centers
+        % for distribution        
+        x
+        % x_axis -- IX_axis class containing x-axis caption
+        x_axis;
+        % x_distribution -- an identifier, stating if the x-data contain
+        % points or distribution in x-direction
+        x_distribution;
     end
     
     methods
         function obj=IX_data_1d(varargin)
             % Constructor
+            obj.xyz_      = cell(1,1);
+            obj.xyz_axis_ = IX_axis();
+            obj.xyz_distribution_ = true;
             if nargin==0
+                obj.xyz_{1} = zeros(1,0);
                 return;
             end
             obj = build_IXdataset_1d_(obj,varargin{:});
         end
+        %------------------------------------------------------------------
+        function xx = get.x(obj)
+            xx = obj.get_xyz_data(1);
+        end
         
+        function ax = get.x_axis(obj)
+            ax = obj.xyz_axis_(1);
+        end
+        function dist = get.x_distribution(obj)
+            dist = obj.xyz_distribution_(1);
+        end
+        %
+        function obj = set.x(obj,val)
+            obj = set_xyz_data(obj,1,val);
+        end
+        function obj = set.x_axis(obj,val)
+            obj.xyz_axis_(1) = obj.check_and_build_axis(val);
+        end
+        function obj = set.x_distribution(obj,val)
+            % TODO: should setting it to true/false involve chaning x from
+            % disrtibution to bin centers and v.v.?
+            obj.xyz_distribution_(1) = logical(val);
+        end
     end
     %
-    methods(Access=protected)        
+    methods(Access=protected)
         function  [ok,mess] = check_joint_fields(obj)
             % implement class specific check for connected fiedls
             % consistency

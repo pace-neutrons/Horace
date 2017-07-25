@@ -27,7 +27,7 @@ for i=1:nw3
         w1(ii).x_distribution = x_distribution;
         
         
-        w1(ii).x_ = obj.check_xyz(x);
+        w1(ii).xyz_{1} = obj.check_xyz(x);
         w1(ii) = check_and_set_sig_err_(w1(ii),'signal',signal(:,j));
         w1(ii) = check_and_set_sig_err_(w1(ii),'error',error(:,j));
         
@@ -36,7 +36,7 @@ for i=1:nw3
         [ok,mess] = w1(ii).check_joint_fields();
         if ok
             w1(ii).valid_ = true;
-        else % can not ever happen, unless w2 is invalid
+        else % can not ever happen, unless w3 is invalid
             error('IX_data_1d:runtime_error',mess);
         end
         

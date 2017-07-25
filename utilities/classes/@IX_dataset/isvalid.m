@@ -1,8 +1,8 @@
-function [ok,mess] = isvalid(obj)
+function [obj,mess] = isvalid(obj)
 % Check common fields for data_array object are consistent between each
 % other
 %
-%   >> [ok, mess] = isvalid (w)
+%   >> [obj, mess] = isvalid (w)
 %
 % or throwing form:
 %   >> obj = isvalid (w)
@@ -24,17 +24,15 @@ function [ok,mess] = isvalid(obj)
 %
 
 if ~obj.valid_
-    [ok,mess] = check_common_fields(obj);
+    [ok,mess] = obj.check_joint_fields();
     if nargout < 2
         if ok
             obj.valid_ = true;
         else
             error('IX_dataset:invalid_argument',mess);
         end
-        ok = obj;
     end
 else
-    ok = true;
     mess = [];
 end
 

@@ -41,11 +41,11 @@ function obj = build_from_IX_dataset_1d_(obj,w1,varargin)
 % ----------------
 
 narg=numel(varargin);
+nw=numel(w1);
 if narg>=5
     error('IX_dataset_2d:invalid_argument',...
-        'Too many input arguments (max 5), got: %d',narg)
+        'Too many input arguments (max 5, got: %d)',narg)
 end
-nw=numel(w1);
 
 % if y exists, make a column cell of numeric arrays
 if narg>=1 && ~isempty(varargin{1})
@@ -248,11 +248,11 @@ else
 end
 w2=repmat(obj(1),n,1);
 for i=1:n
-    signal=zeros(numel(w1(nlo(i)).signal),nhi(i)-nlo(i)+1);
-    error=zeros(size(signal));
+    sig=zeros(numel(w1(nlo(i)).signal),nhi(i)-nlo(i)+1);
+    err=zeros(size(sig));
     for j=1:nhi(i)-nlo(i)+1
-        signal(:,j)=w1(nlo(i)+j-1).signal;
-        error(:,j)=w1(nlo(i)+j-1).error;
+        sig(:,j)=w1(nlo(i)+j-1).signal;
+        err(:,j)=w1(nlo(i)+j-1).error;
     end
     w2(i).title =w1(nlo(i)).title;
     w2(i).s_axis = w1(nlo(i)).s_axis;
@@ -260,15 +260,15 @@ for i=1:n
     w2(i).x_distribution = w1(nlo(i)).x_distribution;
     w2(i).y_axis = y_axis;
     w2(i).y_distribution = y_dist;
-    w2(i).x_ = w1(nlo(i)).x;
-    w2(i).y_ = y(nlo(i):nhi(i)+nbin);
-    w2(i).signal_ = signal;
-    w2(i).error_ = error;
+    w2(i).xyz_{1} = w1(nlo(i)).x;
+    w2(i).xyz_{2} = y(nlo(i):nhi(i)+nbin);
+    w2(i).signal_ = sig;
+    w2(i).error_  = err;
     
     [ok,mess] = w2(i).check_joint_fields();
-    if ok % can happen only if input 1D objects are incorrect
+    if ok 
         w2(i).valid_ = true;
-    else
+    else % can happen only if input 1D objects are incorrect
         error('IX_dataset_2d:runtime_error',mess);
     end
     
