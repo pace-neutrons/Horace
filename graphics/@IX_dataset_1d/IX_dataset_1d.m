@@ -16,18 +16,18 @@ classdef IX_dataset_1d < IX_data_1d
     %
     %  Creates an IX_dataset_1d object with the following elements:
     %
-    % 	title				char/cellstr	Title of dataset for plotting purposes (character array or cellstr)
-    % 	signal              double  		Signal (vector)
-    % 	error				        		Standard error (vector)
-    % 	s_axis				IX_axis			Signal axis object containing caption and units codes
+    %   title           char/cellstr    Title of dataset for plotting purposes (character array or cellstr)
+    %   signal          double          Signal (vector)
+    %   error                               Standard error (vector)
+    %   s_axis          IX_axis         Signal axis object containing caption and units codes
     %                   (or char/cellstr    Can also just give caption; multiline input in the form of a
     %                                      cell array or a character array)
-    % 	x					double      	Values of bin boundaries (if histogram data)
-    % 						                Values of data point positions (if point data)
-    % 	x_axis				IX_axis			x-axis object containing caption and units codes
+    %   x                   double          Values of bin boundaries (if histogram data)
+    %                                       Values of data point positions (if point data)
+    %   x_axis          IX_axis         x-axis object containing caption and units codes
     %                   (or char/cellstr    Can also just give caption; multiline input in the form of a
     %                                      cell array or a character array)
-    % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
+    %   x_distribution  logical         Distribution data flag (true is a distribution; false otherwise)
     
     
     methods(Static)

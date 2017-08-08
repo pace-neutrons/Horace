@@ -11,12 +11,13 @@ ilin = mod(0:nw-1,length(line_style))+1;
 iwid = mod(0:nw-1,length(line_width))+1;
 for i=1:nw
     if i==2; hold on; end   % hold on for array input
-    nx=length(w(i).x_);
+    x = w(i).x;
+    nx=length(x);
     ny=length(w(i).signal_);
     if (nx == ny)   % point data
-        temp=w(i).x_;
+        temp=x;
     else
-        temp=0.5*(w(i).x_(2:nx) + w(i).x_(1:nx-1));
+        temp=0.5*(x(2:nx) + x(1:nx-1));
     end
     plot(temp,w(i).signal_,'Color',color{icol(i)},'LineStyle',...
         line_style{ilin(i)},'LineWidth',line_width(iwid(i)));
