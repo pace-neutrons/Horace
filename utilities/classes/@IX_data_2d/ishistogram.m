@@ -5,36 +5,21 @@ function status=ishistogram(w,n)
 %   >> status=ishistogram(w,n)  % array with size of w for the nth axis, n=1 or 2
 
 % Check axis index
+nd = w.ndim();
 if nargin>1
     % Just one axis being tested
-    if ~(isnumeric(n) && isscalar(n) && (n==1||n==2))
-        error('Check axis index = 1 or 2')
+    if ~(isnumeric(n) && isscalar(n) && (n>=1||n<=nd))
+        error('IX_dataset:invalid_argument',...
+            'Invalid axis index %d for %d-dimensional object',n,nd);
     end
-    status=true(size(w));
-    if n==1
-        for iw=1:numel(w)
-            if numel(w(iw).x)==size(w(iw).signal,1)
-                status(iw)=false;
-            end
-        end
-    else
-        for iw=1:numel(w)
-            if numel(w(iw).y)==size(w(iw).signal,2)
-                status(iw)=false;
-            end
-        end
-    end
-    
+    status  = arrayfun(@(x)(numel(x.xyz_{n}) ~= size(x.signal_,n)),w);
+    status  = status';
 else
-    % Both axes being tested
-    status=true([2,size(w)]);
-    for iw=1:numel(w)
-        if numel(w(iw).x)==size(w(iw).signal,1)
-            status(1,iw)=false;
-        end
-        if numel(w(iw).y)==size(w(iw).signal,2)
-            status(2,iw)=false;
-        end
-    end
-
+    status  = arrayfun(@elem_comp,w,'UniformOutput',false);
+    status = [status{:}];
+    status = reshape(status,[nd,size(w)]);
 end
+
+
+function comp = elem_comp(x)
+comp = [numel(x.xyz_{1}),numel(x.xyz_{2})] ~= size(x.signal_);

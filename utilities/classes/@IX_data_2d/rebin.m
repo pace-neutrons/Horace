@@ -45,6 +45,6 @@ function wout = rebin(win, varargin)
 % See also corresponding function rebin2 which accepts a set of bin boundaries
 % of form [x1,x2,x3,...xn] instead of a rebin descriptor
 
-wout = rebin@IX_dataset(win,true,1:2,varargin{:});
+wout = rebin_xyz(win,true,1:2,varargin{:});
 
 

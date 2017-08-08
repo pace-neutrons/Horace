@@ -138,6 +138,12 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(ax(1).values,1:10);
             assertEqual(ax(2).values,0.5:1:10.5);
             
+            is_hist = dsa.ishistogram;
+            is_hist1 = ishistogram(dsa,1);
+            assertEqual(is_hist,is_hist1);
+            assertFalse(is_hist(1));
+            assertTrue(is_hist(2));
+            
             ids = dsa.cnt2dist();
             idr = ids.dist2cnt();
             % Not equal -- bug in old code!

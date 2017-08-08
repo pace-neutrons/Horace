@@ -3,9 +3,9 @@ function wout = rebin(win, varargin)
 %
 %   >> wout = rebin (win, descr_x, descr_y, descr_z)
 %   >> wout = rebin (win, wref)             % reference object to provide output bins
-%   
+%
 %   >> wout = rebin (..., 'int')            % change averaging method for axes with point data
-%   
+%
 % Input:
 % ------
 %   win     Input object or array of objects to be rebinned
@@ -20,7 +20,7 @@ function wout = rebin(win, varargin)
 %                                       dx=0    retain existing bins within the range
 %           - [x1,dx1,x2,dx2...xn]  Generalisation to multiple contiguous ranges
 %
-%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the
 %           corresponding limit is set by the full extent of the data.
 %  OR
 %   wref    Reference IX_dataset_3d to provide new bins along all three axes
@@ -45,5 +45,5 @@ function wout = rebin(win, varargin)
 % See also corresponding function rebin2 which accepts a set of bin boundaries
 % of form [x1,x2,x3,...xn] instead of a rebin descriptor
 
-wout = rebin@IX_dataset(win,true,1:3,varargin{:});
+wout = rebin_xyz(win,true,1:3,varargin{:});
 

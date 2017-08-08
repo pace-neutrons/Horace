@@ -1,12 +1,14 @@
 function obj=build_IXdataset_2d_(obj,varargin)
 % Construct IX_dataset_2d object
 %
-%   >> w = IX_dataset_2d (x,y)
-%   >> w = IX_dataset_2d (x,y,signal)
-%   >> w = IX_dataset_2d (x,y,signal,error)
-%   >> w = IX_dataset_2d (x,y,signal,error,title,x_axis,y_axis,s_axis)
-%   >> w = IX_dataset_2d (x,y,signal,error,title,x_axis,y_axis,s_axis,x_distribution,y_distribution)
-%   >> w = IX_dataset_2d (title, signal, error, s_axis, x, x_axis, x_distribution, y, y_axis, y_distribution)
+%   >> w = build_IXdataset_2d_(obj,other_obj)
+%   >> w = build_IXdataset_2d_(obj,x,y)
+%   >> w = build_IXdataset_2d_(obj,x,y,signal)
+%   >> w = build_IXdataset_2d_(obj,x,y,signal,error)
+%   >> w = build_IXdataset_2d_(obj,x,y,signal,error, x_distribution,y_distribution)
+%   >> w = build_IXdataset_2d_(obj,x,y,signal,error,title,x_axis,y_axis,s_axis)
+%   >> w = build_IXdataset_2d_(obj,x,y,signal,error,title,x_axis,y_axis,s_axis,x_distribution,y_distribution)
+%   >> w = build_IXdataset_2d_(obj,title, signal, error, s_axis, x, x_axis, x_distribution, y, y_axis, y_distribution)
 %
 %  Creates an IX_dataset_2d object with the following elements:
 %
@@ -63,6 +65,14 @@ if nargin>=3 && nargin<=5
     else
         obj = check_and_set_sig_err_(obj,'error',zeros(size(obj.signal_)));
     end
+elseif nargin ==7
+    obj.xyz_{1}        = obj.check_xyz(varargin{1});
+    obj.xyz_{2}        =  obj.check_xyz(varargin{2});
+    obj = check_and_set_sig_err_(obj,'signal',varargin{3});
+    obj = check_and_set_sig_err_(obj,'error',varargin{4});
+    
+    obj.xyz_distribution_(1)= logical(varargin{5});
+    obj.xyz_distribution_(2)= logical(varargin{6});
     
 elseif nargin==9 || (nargin==11 && isnumeric(varargin{1}))
     obj.xyz_{1}        = obj.check_xyz(varargin{1});

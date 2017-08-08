@@ -67,14 +67,14 @@ classdef test_IX_dataset_3d <  TestCase
             assertTrue(ischar(val));
             assertEqual('size(signal)=[10,20,1], size(error)=[20,10,1]; size(signal)~=size(error)',val)
             
-
-            id.error = ones(10,20);            
+            
+            id.error = ones(10,20);
             id.y = 1:20;
             assertFalse(id.get_isvalid())
             val = id.x;
-            assertEqual('size(signal,3)=1, numel(z)=0; size(signal,3) must be equal to numel(z) or numel(z)+1',val);            
+            assertEqual('size(signal,3)=1, numel(z)=0; size(signal,3) must be equal to numel(z) or numel(z)+1',val);
             
-            id.z = 0.5;            
+            id.z = 0.5;
             assertTrue(id.get_isvalid())
             
             
@@ -187,6 +187,19 @@ classdef test_IX_dataset_3d <  TestCase
             assertEqual(ax(1).values,1:10);
             assertEqual(ax(2).values,1:5);
             assertEqual(ax(3).values,1:7);
+            
+            is_hist = dsa.ishistogram;
+            is_hist1 = ishistogram(dsa,1);
+            is_hist2 = ishistogram(dsa,2);
+            is_hist3 = ishistogram(dsa,3);
+            assertEqual(is_hist,[is_hist1;is_hist2;is_hist3]);
+            assertFalse(is_hist(1,1));
+            assertTrue(is_hist(1,2));
+            assertFalse(is_hist(2,1));
+            assertFalse(is_hist(2,2));
+            assertFalse(is_hist(3,1));
+            assertFalse(is_hist(3,2));
+            
             
             ids = dsa.point2hist();
             idr = ids.hist2point();

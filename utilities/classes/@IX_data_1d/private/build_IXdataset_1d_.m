@@ -1,12 +1,14 @@
 function obj = build_IXdataset_1d_(obj,varargin)
 % Create IX_dataset_1d object
 %
-%   >> w = IX_dataset_1d (x)
-%   >> w = IX_dataset_1d (x,signal)
-%   >> w = IX_dataset_1d (x,signal,error)
-%   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis)
-%   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis, x_distribution)
-%   >> w = IX_dataset_1d (title, signal, error, s_axis, x, x_axis, x_distribution)
+%   >> w = build_IXdataset_1d_(obj,other_obj)
+%   >> w = build_IXdataset_1d_(obj,x)
+%   >> w = build_IXdataset_1d_(obj,x,signal)
+%   >> w = build_IXdataset_1d_(obj,x,signal,error)
+%   >> w = build_IXdataset_1d_(obj,x,signal,error, x_distribution)
+%   >> w = build_IXdataset_1d_(obj,x,signal,error,title,x_axis,s_axis)
+%   >> w = build_IXdataset_1d_(obj,x,signal,error,title,x_axis,s_axis, x_distribution)
+%   >> w = build_IXdataset_1d_(obj,title, signal, error, s_axis, x, x_axis, x_distribution)
 %
 %  Creates an IX_dataset_1d object with the following elements:
 %
@@ -72,6 +74,11 @@ elseif nargin<=4
         obj = check_and_set_sig_err_(obj,'signal',varargin{2});
         obj = check_and_set_sig_err_(obj,'error',varargin{3});
     end
+elseif nargin == 5
+    obj.xyz_{1} = obj.check_xyz(varargin{1});    
+    obj = check_and_set_sig_err_(obj,'signal',varargin{2});
+    obj = check_and_set_sig_err_(obj,'error',varargin{3});
+    obj.xyz_distribution_=logical(varargin{4});
 elseif nargin==7 || (nargin==8 && isnumeric(varargin{1}))
     obj.xyz_{1} = obj.check_xyz(varargin{1});
     obj = check_and_set_sig_err_(obj,'signal',varargin{2});

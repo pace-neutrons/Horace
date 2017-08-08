@@ -1,12 +1,14 @@
 function obj = build_IXdataset_3d_(obj,varargin)
 % construct IX_dataset_3d object
 %
-%   >> w = IX_dataset_3d (x,y,z)
-%   >> w = IX_dataset_3d (x,y,z,signal)
-%   >> w = IX_dataset_3d (x,y,z,signal,error)
-%   >> w = IX_dataset_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis)
-%   >> w = IX_dataset_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis,x_distribution,y_distribution,z_distribution)
-%   >> w = IX_dataset_3d (title, signal, error, s_axis, x, x_axis, x_distribution,...
+%   >> w = build_IXdataset_3d_(obj,other_obj)
+%   >> w = build_IXdataset_3d_(obj,x,y,z)
+%   >> w = build_IXdataset_3d_(obj,x,y,z,signal)
+%   >> w = build_IXdataset_3d_(obj,x,y,z,signal,error)
+%   >> w = build_IXdataset_3d_(obj,x,y,z,signal,error,x_distribution,y_distribution,z_distribution)
+%   >> w = build_IXdataset_3d_(obj,x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis)
+%   >> w = build_IXdataset_3d_(obj,x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis,x_distribution,y_distribution,z_distribution)
+%   >> w = build_IXdataset_3d_(obj,title, signal, error, s_axis, x, x_axis, x_distribution,...
 %                                          y, y_axis, y_distribution, z, z-axis, z_distribution)
 %
 %  Creates an IX_dataset_3d object with the following elements:
@@ -55,7 +57,16 @@ elseif nargin>=4 && nargin<=6
     else
         obj.error_=zeros(size(obj.signal_));
     end
+elseif nargin ==9
+    obj.xyz_{1}        =  obj.check_xyz(varargin{1});
+    obj.xyz_{2}        =  obj.check_xyz(varargin{2});
+    obj.xyz_{2}        =  obj.check_xyz(varargin{3});
+    obj = check_and_set_sig_err_(obj,'signal',varargin{4});
+    obj = check_and_set_sig_err_(obj,'error',varargin{5});
     
+    obj.xyz_distribution_(1)= logical(varargin{6});
+    obj.xyz_distribution_(2)= logical(varargin{7});
+    obj.xyz_distribution_(3)= logical(varargin{8});
 elseif nargin==11 || (nargin==14 && isnumeric(varargin{1}))
     obj.xyz_{1} = obj.check_xyz(varargin{1});
     obj.xyz_{2} = obj.check_xyz(varargin{2});
@@ -83,7 +94,7 @@ elseif nargin==14
     obj.xyz_{1} = obj.check_xyz(varargin{5});
     obj.xyz_{2} = obj.check_xyz(varargin{8});
     obj.xyz_{3} = obj.check_xyz(varargin{11});
-        
+    
     obj.s_axis=varargin{4};
     obj.x_axis=varargin{6};
     obj.y_axis=varargin{9};
@@ -92,8 +103,8 @@ elseif nargin==14
     
     obj = check_and_set_sig_err(obj,'signal',varargin{2});
     obj = check_and_set_sig_err(obj,'error',varargin{3});
-        obj.xyz_distribution_ = ...
-            [logical(varargin{7});logical(varargin{10});logical(varargin{13})];
+    obj.xyz_distribution_ = ...
+        [logical(varargin{7});logical(varargin{10});logical(varargin{13})];
 else
     error('IX_data_3d:invalid_argument',...
         'Check number and type of arguments')

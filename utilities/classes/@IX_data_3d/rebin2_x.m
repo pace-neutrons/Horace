@@ -39,4 +39,4 @@ function wout = rebin2_x(win, varargin)
 % of form [x1,dx1,x2,dx2,...xn] instead of a set of bin boundaries
 
 
-wout = rebin(win,false,1,varargin{:});
+wout = rebin_xyz(win,false,1,varargin{:});

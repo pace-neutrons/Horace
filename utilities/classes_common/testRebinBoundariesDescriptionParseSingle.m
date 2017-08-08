@@ -1,2 +1,0 @@
-function [ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=testRebinBoundariesDescriptionParseSingle(opt,xvals)
-[ok,xbounds,any_lim_inf,is_descriptor,any_dx_zero,mess]=rebin_boundaries_description_parse_single(opt,xvals);

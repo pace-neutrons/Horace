@@ -167,6 +167,16 @@ classdef test_IX_dataset_2d <  TestCase
             assertEqual(ax(1).values,1:10);
             assertEqual(ax(2).values,1:15);
             
+            is_hist = dsa.ishistogram;
+            is_hist1 = ishistogram(dsa,1);
+            is_hist2 = ishistogram(dsa,2);
+            assertEqual(is_hist,[is_hist1;is_hist2]);
+            assertFalse(is_hist(1,1));
+            assertTrue(is_hist(1,2));
+            assertFalse(is_hist(2,1));
+            assertFalse(is_hist(2,2));
+            
+            
             ids = dsa.point2hist();
             idr = ids.hist2point();
             %BUG?

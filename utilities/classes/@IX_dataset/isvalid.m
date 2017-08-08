@@ -23,16 +23,12 @@ function [obj,mess] = isvalid(obj)
 % Original author: T.G.Perring
 %
 
-if ~obj.valid_
-    [ok,mess] = obj.check_joint_fields();
-    if nargout < 2
-        if ok
-            obj.valid_ = true;
-        else
-            error('IX_dataset:invalid_argument',mess);
-        end
-    end
-else
-    mess = [];
-end
 
+[ok,mess] = obj.check_joint_fields();
+
+obj.valid_ = ok;
+if nargout < 2
+    if ~ok
+        error('IX_dataset:invalid_argument',mess);
+    end
+end

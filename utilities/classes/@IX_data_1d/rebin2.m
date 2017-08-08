@@ -34,4 +34,4 @@ function wout = rebin2(win, varargin)
 % See also corresponding function rebin which accepts a rebin descriptor
 % of form [x1,dx1,x2,dx2,...xn] instead of a set of bin boundaries
 
-wout = rebin(win,false,1,varargin{:});
+wout = rebin_xyz(win,false,1,varargin{:});

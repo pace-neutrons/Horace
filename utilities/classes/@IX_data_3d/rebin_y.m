@@ -45,4 +45,4 @@ function wout = rebin_y(win, varargin)
 % See also corresponding function rebin2_y which accepts a set of bin boundaries
 % of form [x1,x2,x3,...xn] instead of a rebin descriptor
 
-wout = rebin(win,true,2,varargin{:});
+wout = rebin_xyz(win,true,2,varargin{:});

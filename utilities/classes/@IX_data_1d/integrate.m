@@ -53,5 +53,6 @@ function wout = integrate(win, varargin)
 % See also corresponding function integrate2 which accepts a set of bin boundaries
 % of form [x1,x2,x3,...xn] instead of a rebin descriptor
 
-wout = integrate@IX_dataset(win,true,1,varargin{:});
+wout = integrate_xyz(win,true,1,varargin{:});
+
 

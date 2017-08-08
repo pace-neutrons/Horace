@@ -4,6 +4,7 @@ classdef IX_data_3d < IX_dataset
     %   >> w = IX_data_3d (x,y,z)
     %   >> w = IX_data_3d (x,y,z,signal)
     %   >> w = IX_data_3d (x,y,z,signal,error)
+    %   >> w = IX_data_2d (x,y,z,signal,error, x_distribution,y_distribution,z_distribution)    
     %   >> w = IX_data_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis)
     %   >> w = IX_data_3d (x,y,z,signal,error,title,x_axis,y_axis,z_axis,s_axis,x_distribution,y_distribution,z_distribution)
     %   >> w = IX_data_3d (title, signal, error, s_axis, x, x_axis, x_distribution,...
@@ -59,7 +60,14 @@ classdef IX_data_3d < IX_dataset
     end
     properties(Access=protected)
     end
-    
+    %======================================================================
+    methods(Static)
+        function nd  = ndim()
+            %return the number of class dimensions
+            nd = 3;
+        end
+    end
+    %======================================================================
     methods
         function obj = IX_data_3d(varargin)
             % constructor
@@ -77,6 +85,11 @@ classdef IX_data_3d < IX_dataset
             end
             obj = build_IXdataset_3d_(obj,varargin{:});
         end
+        function obj = init(obj,varargin)
+            % efficiently (re)initialize object using constructor's code
+            obj = build_IXdataset_3d_(obj,varargin{:});
+        end
+        
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         % Get information for one or more axes and if is histogram data for each axis
@@ -152,7 +165,7 @@ classdef IX_data_3d < IX_dataset
             obj.xyz_axis_(3) = obj.check_and_build_axis(val);
         end
     end
-    %----------------------------------------------------------------------
+    %======================================================================
     methods(Access=protected)
         function  [ok,mess] = check_joint_fields(obj)
             % implement class specific check for connected fiedls
@@ -165,4 +178,13 @@ classdef IX_data_3d < IX_dataset
             obj = check_and_set_sig_err_(obj,field_name,value);
         end
     end
+    %======================================================================
+    methods(Static,Access = protected)
+        
+        % Rebins histogram data along specific axis.
+        [wout_s, wout_e] = rebin_hist(iax,x, s, e, xout, use_mex, force_mex)
+        %Integrates point data along along specific axis.
+        [wout_s,wout_e] = integrate_points(iax,x, s, e, xout, use_mex, force_mex)
+    end
+    
 end

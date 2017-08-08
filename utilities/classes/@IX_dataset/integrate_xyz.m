@@ -60,9 +60,16 @@ function wout = integrate_xyz(win,array_is_descriptor,dir, varargin)
 
 
 if numel(win)==0, error('Empty object to integrate'), end
-if dir>dimensions(win)
+
+ndims = dimensions(win);
+
+if max(dir)> ndims
     error('IX_dataset:invalid_argument',...
-        'Attempting to inegrate %dD object along %d direction', dimensions(win),dir)
+        'Attempting to inegrate %dD object along %d direction', ndims,max(dir))
+end
+if any(dir>ndims)
+    error('IX_dataset:invalid_argument',...
+        'Attempting to inegrate  %dD object along %d direction(s)', ndims,dir(dir>ndims))
 end
 
 integrate_data=true;
@@ -71,7 +78,7 @@ iax=dir;
 opt=struct('empty_is_full_range',true,'range_is_one_bin',true,...
     'array_is_descriptor',array_is_descriptor,'bin_boundaries',true);
 
-[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
+[wout,ok,mess] = rebin_IX_dataset_(win, integrate_data, point_integration_default, iax, opt, varargin{:});
 % Squeeze object(s)
 wout=wout.squeeze_IX_dataset(iax);
 if isa(wout,'IX_dataset')

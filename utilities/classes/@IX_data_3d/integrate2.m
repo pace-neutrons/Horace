@@ -50,4 +50,4 @@ function wout = integrate2(win, varargin)
 % See also corresponding function integrate which accepts a rebin descriptor
 % of form [x1,dx1,x2,dx2,...xn] instead of a set of bin boundaries
 
-wout = integrate(win,false,1:3,varargin{:});
+wout = integrate_xyz(win,false,1:3,varargin{:});

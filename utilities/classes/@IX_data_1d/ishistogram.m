@@ -1,20 +1,18 @@
 function status=ishistogram(w,n)
 % Return array containing true or false depending on dataset being histogram or point
 %
-%   >> status=ishistogram(w)    % array size(w) with true/false for the axis
-%   >> status=ishistogram(w,1)  % same as above; syntax for compatibility with IX_dataset_2d, IX_dataset_3d,...
+%   >> status=ishistogram(w)    % array [2,size(w)] with true/false for each of the two axes
+%   >> status=ishistogram(w,n)  % array with size of w for the nth axis, n=1 or 2
 
-% For compatibility with general dimensionality
+% Check axis index
+nd = w.ndim();
 if nargin>1
-    if ~(isnumeric(n) && isscalar(n) && n==1)
-        error('Check axis index = 1')
+    % Just one axis being tested
+    if ~(isnumeric(n) && isscalar(n) && (n==1))
+        error('IX_dataset:invalid_argument',...
+            'Invalid axis index %d for %d-dimensional object',n,nd);
     end
 end
+status  = arrayfun(@(x)(numel(x.xyz_{1}) ~= size(x.signal_,1)),w);
+status  = status';
 
-% Return status
-status=true(size(w));
-for iw=1:numel(w)
-    if numel(w(iw).x)==numel(w(iw).signal)
-        status(iw)=false;
-    end
-end

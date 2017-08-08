@@ -7,12 +7,8 @@ function test_bin_boundaries_from_descriptor
 
 banner_to_screen(mfilename)
 
-% Get current working directory
-cwd=pwd;
-
-% The function is in a private folder, so go to that location
-cstr=which('bin_boundaries_from_descriptor','-all');
-cd(fileparts(cstr{1}));
+% The function is in a private folder, so use tester:
+tc = IX_dataset_tester();
 
 % Simple equivalence tests
 disp(' ')
@@ -22,10 +18,10 @@ xin=3:0.5:15;
 xb{1}=[4,0.1,5];
 xb{2}=[4,-0.1,5,0,8,0.25,12];
 for i=1:numel(xb)
-    xoutf=bin_boundaries_from_descriptor(xb{i},xin,true,true);
-    xoutm=bin_boundaries_from_descriptor(xb{i},xin,false,true);
+    xoutf=tc.bin_boundaries_from_descriptor(xb{i},xin,true,true);
+    xoutm=tc.bin_boundaries_from_descriptor(xb{i},xin,false,true);
     [ok,mess]=equal_to_tol(xoutf,xoutm,-1e-14);
-    if ~ok, assertTrue(false,mess), end
+    assertTrue(ok,mess);
 end
 disp('Finished')
 disp(' ')
@@ -37,16 +33,14 @@ nx=50000000;
 xin=unique(nx*rand(1,nx)+0.1*(1:nx));
 xb=[0,5,floor(nx/4),-0.01,floor(nx/2),0,floor(3*nx/4),10,nx];
 disp('- Mex implementation:')
-tic; xoutf=bin_boundaries_from_descriptor(xb,xin,true,true); toc;
+tic; xoutf=tc.bin_boundaries_from_descriptor(xb,xin,true,true); toc;
 disp(' ')
 disp('- Matlab implementation:')
-tic; xoutm=bin_boundaries_from_descriptor(xb,xin,false,true); toc;
+tic; xoutm=tc.bin_boundaries_from_descriptor(xb,xin,false,true); toc;
 disp(' ')
 [ok,mess]=equal_to_tol(xoutf,xoutm,-1e-14);
-if ~ok, assertTrue(false,mess), end
+assertTrue(ok,mess)
 
-% Return to initial directory
-cd(cwd)
 
 % Success announcement
 % --------------------

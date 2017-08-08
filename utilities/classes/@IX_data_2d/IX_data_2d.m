@@ -5,6 +5,7 @@ classdef IX_data_2d < IX_dataset
     %   >> w = IX_data_2d (x,y)
     %   >> w = IX_data_2d (x,y,signal)
     %   >> w = IX_data_2d (x,y,signal,error)
+    %   >> w = IX_data_2d (x,y,signal,error, x_distribution,y_distribution)
     %   >> w = IX_data_2d (x,y,signal,error,title,x_axis,y_axis,s_axis)
     %   >> w = IX_data_2d (x,y,signal,error,title,x_axis,y_axis,s_axis,x_distribution,y_distribution)
     %   >> w = IX_data_2d (title, signal, error, s_axis, x, x_axis, x_distribution, y, y_axis, y_distribution)
@@ -45,7 +46,14 @@ classdef IX_data_2d < IX_dataset
         % class or distribution
         y_distribution;
     end
-    
+    %======================================================================
+    methods(Static)
+        function nd  = ndim()
+            %return the number of class dimensions
+            nd = 2;
+        end
+    end
+    %======================================================================
     methods
         function obj = IX_data_2d(varargin)
             % Constructor
@@ -59,6 +67,11 @@ classdef IX_data_2d < IX_dataset
             end
             obj = build_IXdataset_2d_(obj,varargin{:});
         end
+        function obj = init(obj,varargin)
+            % efficiently (re)initialize object using constructor's code
+            obj = build_IXdataset_2d_(obj,varargin{:});
+        end
+        
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         % Get information for one or more axes and if is histogram data for each axis
@@ -112,7 +125,7 @@ classdef IX_data_2d < IX_dataset
         end
     end
     %
-    %----------------------------------------------------------------------
+    %======================================================================
     methods(Access=protected)
         function  [ok,mess] = check_joint_fields(obj)
             % implement class specific check for connected fiedls
@@ -125,5 +138,14 @@ classdef IX_data_2d < IX_dataset
             obj = check_and_set_sig_err_(obj,field_name,value);
         end
     end
+    %======================================================================
+    methods(Static,Access = protected)
+        % Rebins histogram data along specific axis.
+        [wout_s, wout_e] = rebin_hist(iax,x, s, e, xout, use_mex, force_mex)
+        %Integrates point data along along specific axis.
+        [wout_s,wout_e] = integrate_points(iax,x, s, e, xout, use_mex, force_mex)
+        
+    end
+    
     
 end

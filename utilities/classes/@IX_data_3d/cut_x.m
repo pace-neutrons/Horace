@@ -42,6 +42,6 @@ function wout = cut_x(win, varargin)
 % dimensionality of the output object by one, and the rebin descriptor defines
 % bin centres, not bin boundaries.
 
-wout = cut(win,1,varargin{:});
+wout = cut_xyz(win,1,varargin{:});
 
 

@@ -43,4 +43,4 @@ function wout = cut(win, varargin)
 % bin centres, not bin boundaries.
 %
 
-wout = cut@IX_dataset(win,1:3,varargin{:});
+wout = cut_xyz(win,1:3,varargin{:});
