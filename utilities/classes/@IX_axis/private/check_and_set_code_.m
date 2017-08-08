@@ -4,7 +4,7 @@ function obj = check_and_set_code_(obj,code)
 % Throws IX_axis:invalid_argument if the code is invalid
 %
 %
-% $Revision: 536 $ ($Date: 2016-09-26 16:02:52 +0100 (Mon, 26 Sep 2016) $)
+% $Revision$ ($Date$)
 %
 
 if isempty(code)

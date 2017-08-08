@@ -590,7 +590,7 @@ function [wout, fitdata, ok, mess] = multifit(win, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 545 $ ($Date: 2016-11-03 08:31:40 +0000 (Thu, 03 Nov 2016) $)
+% $Revision$ ($Date$)
 
 
 % *** This function is identical for IX_dataset_1d, _2d, _3d, ...
