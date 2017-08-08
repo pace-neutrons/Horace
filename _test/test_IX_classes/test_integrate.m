@@ -31,8 +31,10 @@ end
 % Setup location of reference functions (fortran or matlab)
 % ======================================================================================================================
 rootpath=fileparts(mfilename('fullpath'));
-load(fullfile(rootpath,data_filename));
+warning('off','MATLAB:unknownObjectNowStruct');
+clob = onCleanup(@()warning('on','MATLAB:unknownObjectNowStruct'));
 
+load(fullfile(rootpath,data_filename));
 set(herbert_config,'force_mex_if_use_mex',true,'-buffer');
 
 
@@ -41,8 +43,8 @@ set(herbert_config,'force_mex_if_use_mex',true,'-buffer');
 % ======================================================================================================================
 
 clear('ih1_mex','ih1b_mex','ip1_mex','ip1b_mex','ihpa_mex','ihpb_mex','ihpc_mex',...
-      'ih1',    'ih1b',    'ip1',    'ip1b',    'ihpa',    'ihpb',    'ihpc')
-  
+    'ih1',    'ih1b',    'ip1',    'ip1b',    'ihpa',    'ihpb',    'ihpc')
+
 tol=-1e-13;
 
 disp('===========================')
@@ -56,21 +58,21 @@ ih1    =integrate(h1,5,10);
 delta_IX_dataset_nd(ih1_mex,ih1,tol)
 
 
-set(herbert_config,'use_mex',true,'-buffer'); 
+set(herbert_config,'use_mex',true,'-buffer');
 ih1b_mex=integrate(h1,0,20);
 set(herbert_config,'use_mex',false,'-buffer');
 ih1b    =integrate(h1,0,20);
 delta_IX_dataset_nd(ih1b_mex,ih1b,tol)
 
 
-set(herbert_config,'use_mex',true,'-buffer'); 
+set(herbert_config,'use_mex',true,'-buffer');
 ip1_mex=integrate(p1,5,10);
 set(herbert_config,'use_mex',false,'-buffer');
 ip1    =integrate(p1,5,10);
 delta_IX_dataset_nd(ip1_mex,ip1,tol)
 
 
-set(herbert_config,'use_mex',true,'-buffer'); 
+set(herbert_config,'use_mex',true,'-buffer');
 ip1b_mex=integrate(p1,0,20);
 set(herbert_config,'use_mex',false,'-buffer');
 ip1b    =integrate(p1,0,20);
@@ -82,19 +84,19 @@ delta_IX_dataset_nd(ip1b_mex,ip1b,tol)
 % ----------
 tol=-1e-13;
 
-set(herbert_config,'use_mex',true,'-buffer'); 
+set(herbert_config,'use_mex',true,'-buffer');
 ihpa_mex=integrate(hp_1d_big,105,110);
 set(herbert_config,'use_mex',false,'-buffer');
 ihpa    =integrate(hp_1d_big,105,110);
 delta_IX_dataset_nd(ihpa_mex,ihpa,tol);
 
-set(herbert_config,'use_mex',true,'-buffer'); 
+set(herbert_config,'use_mex',true,'-buffer');
 ihpb_mex=integrate(hp_1d_big,-10,550);
 set(herbert_config,'use_mex',false,'-buffer');
 ihpb    =integrate(hp_1d_big,-10,550);
 delta_IX_dataset_nd(ihpb_mex,ihpb,tol);
 
-set(herbert_config,'use_mex',true,'-buffer'); 
+set(herbert_config,'use_mex',true,'-buffer');
 ihpc_mex=integrate(hp_1d_big,-20,620);
 set(herbert_config,'use_mex',false,'-buffer');
 ihpc    =integrate(hp_1d_big,-20,620);
@@ -150,7 +152,7 @@ for j=1:numel(xint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
         disp(['= ',num2str(i)])
-        set(herbert_config,'use_mex',false,'-buffer'); 
+        set(herbert_config,'use_mex',false,'-buffer');
         w2x_sim(i,j)=simple_integrate_x(w2ref(i),xint_arg{j}{:});
         set(herbert_config,'use_mex',true,'-buffer');
         w2x_mex(i,j)=integrate_x(w2ref(i),xint_arg{j}{:});
@@ -171,7 +173,7 @@ for j=1:numel(yint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
         disp(['= ',num2str(i)])
-        set(herbert_config,'use_mex',false,'-buffer'); 
+        set(herbert_config,'use_mex',false,'-buffer');
         w2y_sim(i,j)=simple_integrate_y(w2ref(i),yint_arg{j}{:});
         set(herbert_config,'use_mex',true,'-buffer');
         w2y_mex(i,j)=integrate_y(w2ref(i),yint_arg{j}{:});
@@ -192,7 +194,7 @@ for j=1:numel(xyint_arg)
     disp(['=== ',num2str(j),' ==='])
     for i=1:numel(w2ref)
         disp(['= ',num2str(i)])
-        set(herbert_config,'use_mex',false,'-buffer'); 
+        set(herbert_config,'use_mex',false,'-buffer');
         w2xy_sim(i,j)=simple_integrate(w2ref(i),xyint_arg{j}{:});
         set(herbert_config,'use_mex',true,'-buffer');
         w2xy_mex(i,j)=integrate(w2ref(i),xyint_arg{j}{:});
@@ -212,7 +214,7 @@ disp(' ')
 
 %% =====================================================================================================================
 % Test 3D integration
-% ====================================================================================================================== 
+% ======================================================================================================================
 clear('w3x_sim','w3y_sim','w3z_sim','w3xyz_sim','w3x_mex','w3y_mex','w3z_max','w3xyz_mex','w3x','w3y','w3z','w3xyz')
 
 disp('===========================')
@@ -221,13 +223,13 @@ disp('===========================')
 
 tol=-1e-13;
 
-set(herbert_config,'use_mex',false,'-buffer'); 
+set(herbert_config,'use_mex',false,'-buffer');
 w3x_sim=simple_integrate_x(ppp1,[5,10]);
 w3y_sim=simple_integrate_y(ppp1,[5,10]);
 w3z_sim=simple_integrate_z(ppp1,[5,10]);
 w3xyz_sim=simple_integrate(ppp1,[9,15],[6,11],[3,5]);
 
-set(herbert_config,'use_mex',true,'-buffer'); 
+set(herbert_config,'use_mex',true,'-buffer');
 w3x_mex=integrate_x(ppp1,[5,10]);
 w3y_mex=integrate_y(ppp1,[5,10]);
 w3z_mex=integrate_z(ppp1,[5,10]);
@@ -237,7 +239,7 @@ delta_IX_dataset_nd(w3y_sim,w3y_mex,tol)
 delta_IX_dataset_nd(w3z_sim,w3z_mex,tol)
 delta_IX_dataset_nd(w3xyz_sim,w3xyz_mex,tol)
 
-set(herbert_config,'use_mex',false,'-buffer'); 
+set(herbert_config,'use_mex',false,'-buffer');
 w3x=integrate_x(ppp1,[5,10]);
 w3y=integrate_y(ppp1,[5,10]);
 w3z=integrate_z(ppp1,[5,10]);
@@ -255,7 +257,7 @@ disp(' ')
 
 %% =====================================================================================================================
 % Compare with saved output
-% ====================================================================================================================== 
+% ======================================================================================================================
 if ~save_output
     disp('====================================')
     disp('    Comparing with saved output')
@@ -265,7 +267,12 @@ if ~save_output
     nam=fieldnames(old);
     tol=-1.0e-13;
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
+        fld = nam{i};
+        if isstruct(old.(fld)) && isa(eval(fld),'IX_dataset_1d')
+            old.(fld) = IX_dataset_1d(old.(fld));
+        end
+        [ok,mess]=equal_to_tol(eval(fld),  old.(fld), tol);
+        assertTrue(ok,['[',nam{i},']',mess]);
     end
     % Success announcement
     banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
@@ -274,7 +281,7 @@ end
 
 %% =====================================================================================================================
 % Save data
-% ====================================================================================================================== 
+% ======================================================================================================================
 if save_output
     disp('===========================')
     disp('    Save output')

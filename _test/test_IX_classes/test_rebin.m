@@ -31,7 +31,12 @@ end
 %  Load data and setup reference functions (fortran or matlab)
 % ======================================================================================================================
 rootpath=fileparts(mfilename('fullpath'));
+
+warning('off','MATLAB:unknownObjectNowStruct');
+clob = onCleanup(@()warning('on','MATLAB:unknownObjectNowStruct'));
+
 load(fullfile(rootpath,data_filename));
+
 
 set(herbert_config,'force_mex_if_use_mex',true,'-buffer');
 
@@ -69,22 +74,22 @@ for i=1:numel(xdescr_1)
     disp(['=== ',num2str(i),' ==='])
     % - mex
     set(herbert_config,'use_mex',true,'-buffer');
-
+    
     p1_reb_mex(i)=rebin(p1,xdescr_1{i});
     p1_reb_int_mex(i)=rebin(p1,xdescr_1{i},'int');
     if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb_mex(i)); acolor g; pd(p1_reb_int_mex(i)); keep_figure; end
-
+    
     h1_reb_mex(i)=rebin(h1,xdescr_1{i});
     h1_reb_nodist_mex(i)=rebin(dist2cnt(h1),xdescr_1{i},'int');
     if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb_mex(i)); acolor g; pd(h1_reb_nodist_mex(i)); keep_figure; end
-
+    
     % - matlab
     set(herbert_config,'use_mex',false,'-buffer');
-
+    
     p1_reb(i)=rebin(p1,xdescr_1{i});
     p1_reb_int(i)=rebin(p1,xdescr_1{i},'int');
     if ~batch, acolor k; dd(p1); acolor r; pd(p1_reb(i)); acolor g; pd(p1_reb_int(i)); keep_figure; end
-
+    
     h1_reb(i)=rebin(h1,xdescr_1{i});
     h1_reb_nodist(i)=rebin(dist2cnt(h1),xdescr_1{i},'int');
     if ~batch, acolor k; dd(h1); acolor r; pd(h1_reb(i)); acolor g; pd(h1_reb_nodist(i)); keep_figure; end
@@ -269,13 +274,13 @@ disp('===========================')
 
 tol=-1e-13;
 
-set(herbert_config,'use_mex',false,'-buffer'); 
+set(herbert_config,'use_mex',false,'-buffer');
 w3x_sim=simple_rebin_x(ppp1,[5,0.5,10]);
 w3y_sim=simple_rebin_y(ppp1,[5,0.5,10]);
 w3z_sim=simple_rebin_z(ppp1,[5,0.5,10]);
 w3xyz_sim=simple_rebin(ppp1,[9,0.6,15],[6,0.25,11],[3,0.5,5]);
 
-set(herbert_config,'use_mex',true,'-buffer'); 
+set(herbert_config,'use_mex',true,'-buffer');
 w3x_mex=rebin_x(ppp1,[5,0.5,10]);
 w3y_mex=rebin_y(ppp1,[5,0.5,10]);
 w3z_mex=rebin_z(ppp1,[5,0.5,10]);
@@ -285,7 +290,7 @@ delta_IX_dataset_nd(w3y_sim,w3y_mex,tol)
 delta_IX_dataset_nd(w3z_sim,w3z_mex,tol)
 delta_IX_dataset_nd(w3xyz_sim,w3xyz_mex,tol)
 
-set(herbert_config,'use_mex',false,'-buffer'); 
+set(herbert_config,'use_mex',false,'-buffer');
 w3x=rebin_x(ppp1,[5,0.5,10]);
 w3y=rebin_y(ppp1,[5,0.5,10]);
 w3z=rebin_z(ppp1,[5,0.5,10]);
@@ -303,7 +308,7 @@ disp(' ')
 
 %% =====================================================================================================================
 % Compare with saved output
-% ====================================================================================================================== 
+% ======================================================================================================================
 if ~save_output
     disp('====================================')
     disp('    Comparing with saved output')
@@ -313,7 +318,13 @@ if ~save_output
     nam=fieldnames(old);
     tol=-1.0e-13;
     for i=1:numel(nam)
-        [ok,mess]=equal_to_tol(eval(nam{i}),  old.(nam{i}), tol); if ~ok, assertTrue(false,['[',nam{i},']',mess]), end
+        fld = nam{i};
+        if isstruct(old.(fld)) && isa(eval(fld),'IX_dataset_1d')
+            old.(fld) = IX_dataset_1d(old.(fld));
+        end
+        [ok,mess]=equal_to_tol(eval(fld),  old.(fld), tol);
+        assertTrue(ok,sprintf('field: [%s], Num:%d; Err: %s',nam{i},i,mess));
+        
     end
     % Success announcement
     banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
@@ -322,7 +333,7 @@ end
 
 %% =====================================================================================================================
 % Save data
-% ====================================================================================================================== 
+% ======================================================================================================================
 if save_output
     disp('===========================')
     disp('    Save output')

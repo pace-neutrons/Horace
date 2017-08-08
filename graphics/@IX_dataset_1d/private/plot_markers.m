@@ -11,14 +11,15 @@ isiz = mod(0:nw-1,length(marker_size))+1;
 ityp = mod(0:nw-1,length(marker_type))+1;
 for i=1:nw
     if i==2; hold on; end   % hold on for array input
-    nx=length(w(i).x);
-    ny=length(w(i).signal);
+    x = w(i).x;
+    nx=length(x);
+    ny=length(w(i).signal_);
     if (nx == ny)   % point data
-        temp=w(i).x;
+        temp=x;
     else
-        temp=0.5*(w(i).x(2:nx) + w(i).x(1:nx-1));
+        temp=0.5*(x(2:nx) + x(1:nx-1));
     end
-    plot(temp,w(i).signal,'LineStyle','none','Color',color{icol(i)},...
+    plot(temp,w(i).signal_,'LineStyle','none','Color',color{icol(i)},...
         'Marker',marker_type{ityp(i)},'MarkerSize',marker_size(isiz(i)));
 end
 
