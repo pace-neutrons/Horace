@@ -80,7 +80,7 @@ classdef test_projection_class<TestCase
             [w, grid_size, urange]=fake_sqw (this.fake_sqw_par{:});
             w = dnd(w{1});
             %w = w{1};
-            wc = cut_dnd(w,0.01,0.01,[-0.1,0.1],2);
+            %wc = cut_dnd(w,0.01,0.01,[-0.1,0.1],2);
         end
         
     end
