@@ -596,7 +596,7 @@ function [mess,header_opt_write_non_data] = check_header_opt_ok (info, w)
 %   w.detpar and the header fields of w.data are filled.
 %
 % - The header in a dnd-type sqw file can be updated so long as the header fields of w.data
-%   are filled, but the contents of w.main_header, w.header adn w.detpar are immaterial
+%   are filled, but the contents of w.main_header, w.header and w.detpar are immaterial
 %   (i.e. the header can have been obtained from a dnd-type file, or an sqw-type file).
 %
 % - Buffer files cannot have headers written to them
