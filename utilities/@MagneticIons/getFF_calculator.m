@@ -17,6 +17,16 @@ function  fint = getFF_calculator(self,win)
 % where ff then will be the vector of the h (k,l) length containing magnetic
 % form factor calculated in h,k,l points.
 %
+% Alternatively, magnetic form factor can be calculated in a form:
+%%>> wout = sqw_eval(win,fint,B_mat);
+%or
+%>>ff = fint(h,k,l,en,B_mat]);
+% where
+%B_mat -- Busing & Levy 's B-matrix (Acta Crystallographica, 1967(4) pp.457-464)
+%         used to convert from crystal cartezian to hkl coordinate
+%         system
+% If provided, used instead of B-matix defined in sqw object
+%
 % Form factor function has to have 5 parameters for it to be used by sqw_eval
 % function despite two last parameters (en and var) are not used within the
 % form factor.
@@ -28,7 +38,7 @@ function  fint = getFF_calculator(self,win)
 
 
 if isa(win,'sqw')
-    header_ave=header_average(win);    
+    header_ave=header_average(win);
     self.u_2_rlu_ = header_ave.u_to_rlu(1:3,1:3);
     %self.u_2_rlu_ = win.data.u_to_rlu(1:3,1:3);
 else
