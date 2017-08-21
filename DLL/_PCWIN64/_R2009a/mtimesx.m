@@ -283,7 +283,7 @@ end
 % Call the mex routine mtimesx.
 %/
 
-
+use_mex = true;
 
 if use_mex
     try
