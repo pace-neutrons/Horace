@@ -65,8 +65,27 @@ horace_plot.name_contour = 'Horace contour plot';
 horace_plot.name_sliceomatic = 'Sliceomatic';
 set_global_var('horace_plot',horace_plot);
 
-[application,Matlab_code,mexMinVer,mexMaxVer,date] = horace_version();
+[~,Matlab_code,mexMinVer,mexMaxVer,date] = horace_version();
 mc = [Matlab_code(1:48),'$)'];
+hc = hor_config;
+
+if hc.is_default
+    if ~isempty(mexMaxVer)
+        hc.use_mex = false;
+    else
+        hc.use_mex = true;
+    end
+else
+    if ~isempty(mexMaxVer)
+        threads = hc.threads;
+        if threads > 1
+            mtimesx('SPEEDOMP');
+        else
+            mtimesx('SPEED');
+        end
+    end
+end
+    
 
 disp('!==================================================================!')
 disp('!                      HORACE                                      !')

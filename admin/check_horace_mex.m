@@ -68,7 +68,7 @@ if nargout>2 && n_errors==0
         ind = regexp(ver_str,':');
         ver_s=ver_str(ind(3)+1:ind(3)+5);
         ver=sscanf(ver_s,'%d');
-        if ver>maxVer;
+        if ver>maxVer
             maxVer=ver;
             al=regexp(ver_str,'\(','split');
             compilation_date  = al{2};
