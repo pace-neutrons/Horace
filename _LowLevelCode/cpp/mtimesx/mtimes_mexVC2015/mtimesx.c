@@ -222,7 +222,9 @@
  *                       Fixed (nD complex scalar)C * (nD array) bug
  *
  ****************************************************************************/
-
+/*
+*
+*/
 /* OpenMP ------------------------------------------------------------- */
 
 #ifdef _OPENMP
@@ -358,10 +360,11 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
     char transstring[2] = "_";
     int unsupported = 0;
     int i, j, k, got_directive, nrhs_old = nrhs;
-	int mtimesx_mode_new, max_threads_new,
-		already_set_mode, already_set_debug, already_set_threads;
-	mxArray *ans;
-	double threads;
+    int mtimesx_mode_new, max_threads_new,
+        already_set_mode, already_set_debug, already_set_threads;
+    mxArray *ans;
+    double threads;
+
 
 /*-------------------------------------------------------------------------
  * Check for proper number of inputs and outputs
@@ -376,7 +379,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
  *------------------------------------------------------------------------- */
 
     if( nrhs == 0 ) {
-		plhs[0] = modestring(mtimesx_mode);
+        plhs[0] = modestring(mtimesx_mode);
         return;
     }
 
@@ -384,260 +387,260 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
  * Find out if any input is a directive
  *------------------------------------------------------------------------- */
 
-	i = 0;
-	mtimesx_mode_new    = MTIMESX_NOT_SET;
-	max_threads_new     = 0;
-	already_set_mode    = 0;
-	already_set_debug   = 0;
-	already_set_threads = 0;
-	while( i < nrhs ) {
-	if( mxIsChar(prhs[i]) ) {
-		if( mxGetNumberOfElements(prhs[i]) > DIRECTIVE_MAX ) {
-			mexErrMsgTxt("Unknown directive.");
-		} else if( cp = directive = mxArrayToString(prhs[i]) ) {
-			j = 0;
+    i = 0;
+    mtimesx_mode_new    = MTIMESX_NOT_SET;
+    max_threads_new     = 0;
+    already_set_mode    = 0;
+    already_set_debug   = 0;
+    already_set_threads = 0;
+    while( i < nrhs ) {
+    if( mxIsChar(prhs[i]) ) {
+        if( mxGetNumberOfElements(prhs[i]) > DIRECTIVE_MAX ) {
+            mexErrMsgTxt("Unknown directive.");
+        } else if( cp = directive = mxArrayToString(prhs[i]) ) {
+            j = 0;
             while( *cp ) {
-				if( *cp == '(' ) j++;
-				if( *cp == ')' ) j--;
-				if( j == 0 ) {
+                if( *cp == '(' ) j++;
+                if( *cp == ')' ) j--;
+                if( j == 0 ) {
                     *cp = toupper( *cp );
-				}
+                }
                 cp++;
             }
-			k = cp - directive;
-			got_directive = 1;
+            k = cp - directive;
+            got_directive = 1;
             if( strcmp(directive,"MATLAB") == 0 ) {
-				if( already_set_mode ) {
-					mexErrMsgTxt("Cannot set mode twice in same call.");
-				}
-				already_set_mode = 1;
+                if( already_set_mode ) {
+                    mexErrMsgTxt("Cannot set mode twice in same call.");
+                }
+                already_set_mode = 1;
                 mtimesx_mode_new = MTIMESX_MATLAB;
             } else if( strcmp(directive,"SPEED") == 0 ) {
-				if( already_set_mode ) {
-					mexErrMsgTxt("Cannot set mode twice in same call.");
-				}
-				already_set_mode = 1;
+                if( already_set_mode ) {
+                    mexErrMsgTxt("Cannot set mode twice in same call.");
+                }
+                already_set_mode = 1;
                 mtimesx_mode_new = MTIMESX_SPEED;
             } else if( strcmp(directive,"BLAS") == 0 ) {
-				if( already_set_mode ) {
-					mexErrMsgTxt("Cannot set mode twice in same call.");
-				}
-				already_set_mode = 1;
+                if( already_set_mode ) {
+                    mexErrMsgTxt("Cannot set mode twice in same call.");
+                }
+                already_set_mode = 1;
                 mtimesx_mode_new = MTIMESX_BLAS;
             } else if( strcmp(directive,"LOOPS") == 0 ) {
-				if( already_set_mode ) {
-					mexErrMsgTxt("Cannot set mode twice in same call.");
-				}
-				already_set_mode = 1;
+                if( already_set_mode ) {
+                    mexErrMsgTxt("Cannot set mode twice in same call.");
+                }
+                already_set_mode = 1;
                 mtimesx_mode_new = MTIMESX_LOOPS;
             } else if( strcmp(directive,"LOGO") == 0 ) {
-				if( nrhs_old > 1 ) {
-					mexErrMsgTxt("Cannot combine LOGO directive with other arguments.");
-				}
+                if( nrhs_old > 1 ) {
+                    mexErrMsgTxt("Cannot combine LOGO directive with other arguments.");
+                }
                 mtimesx_logo();
-				return;
+                return;
             } else if( strcmp(directive,"HELP") == 0 ) {
-				if( nrhs_old > 1 ) {
-					mexErrMsgTxt("Cannot combine HELP directive with other arguments.");
-				}
+                if( nrhs_old > 1 ) {
+                    mexErrMsgTxt("Cannot combine HELP directive with other arguments.");
+                }
                 mexEvalString("help mtimesx;");
-				return;
+                return;
             } else if( strcmp(directive,"DEBUG") == 0 ) {
-				if( already_set_debug ) {
-					mexErrMsgTxt("Cannot set DEBUG/NODEBUG twice in same call.");
-				}
-				already_set_debug = 1;
+                if( already_set_debug ) {
+                    mexErrMsgTxt("Cannot set DEBUG/NODEBUG twice in same call.");
+                }
+                already_set_debug = 1;
                 debug = 1;
             } else if( strcmp(directive,"NODEBUG") == 0 ) {
-				if( already_set_debug ) {
-					mexErrMsgTxt("Cannot set DEBUG/NODEBUG twice in same call.");
-				}
-				already_set_debug = 1;
+                if( already_set_debug ) {
+                    mexErrMsgTxt("Cannot set DEBUG/NODEBUG twice in same call.");
+                }
+                already_set_debug = 1;
                 debug = 0;
             } else if( strcmp(directive,"OMP_GET_NUM_PROCS") == 0 ||
                        strcmp(directive,"OMP_GET_NUM_PROCS()") == 0 ) {
-				if( nrhs > 1 ) {
-					mexErrMsgTxt("Cannot combine OMP_GET_NUM_PROCS directive with other arguments.");
-				}
-				plhs[0] = mxCreateDoubleScalar(omp_get_num_procs());
-				return;
+                if( nrhs > 1 ) {
+                    mexErrMsgTxt("Cannot combine OMP_GET_NUM_PROCS directive with other arguments.");
+                }
+                plhs[0] = mxCreateDoubleScalar(omp_get_num_procs());
+                return;
             } else if( strcmp(directive,"OMP_GET_MAX_THREADS") == 0 ||
                        strcmp(directive,"OMP_GET_MAX_THREADS()") == 0 ) {
-				if( nrhs > 1 ) {
-					mexErrMsgTxt("Cannot combine OMP_GET_MAX_THREADS directive with other arguments.");
-				}
-				plhs[0] = mxCreateDoubleScalar(max_threads);
-				return;
+                if( nrhs > 1 ) {
+                    mexErrMsgTxt("Cannot combine OMP_GET_MAX_THREADS directive with other arguments.");
+                }
+                plhs[0] = mxCreateDoubleScalar(max_threads);
+                return;
             } else if( strcmp(directive,"OMP_GET_NUM_THREADS") == 0 ||
                        strcmp(directive,"OMP_GET_NUM_THREADS") == 0 ) {
-				if( nrhs > 1 ) {
-					mexErrMsgTxt("Cannot combine OMP_GET_NUM_THREADS directive with other arguments.");
-				}
-				plhs[0] = mxCreateDoubleScalar(threads_used);
-				return;
+                if( nrhs > 1 ) {
+                    mexErrMsgTxt("Cannot combine OMP_GET_NUM_THREADS directive with other arguments.");
+                }
+                plhs[0] = mxCreateDoubleScalar(threads_used);
+                return;
             } else if( strcmp(directive,"COMPILER") == 0 ) {
-				if( nrhs > 1 ) {
-					mexErrMsgTxt("Cannot combine COMPILER directive with other arguments.");
-				}
-				plhs[0] = mxCreateString(TOKENSTRING(COMPILER));
-				return;
+                if( nrhs > 1 ) {
+                    mexErrMsgTxt("Cannot combine COMPILER directive with other arguments.");
+                }
+                plhs[0] = mxCreateString(TOKENSTRING(COMPILER));
+                return;
             } else if( strcmp(directive,"OPENMP") == 0 ) {
-				if( nrhs > 1 ) {
-					mexErrMsgTxt("Cannot combine OPENMP directive with other arguments.");
-				}
-				plhs[0] = mxCreateDoubleScalar(OPENMP_ENABLED);
-				return;
+                if( nrhs > 1 ) {
+                    mexErrMsgTxt("Cannot combine OPENMP directive with other arguments.");
+                }
+                plhs[0] = mxCreateDoubleScalar(OPENMP_ENABLED);
+                return;
             } else if( strcmp(directive,"SPEEDOMP") == 0 ) {
-				if( already_set_mode ) {
-					mexErrMsgTxt("Cannot set mode twice in same call.");
-				}
-				already_set_mode = 1;
+                if( already_set_mode ) {
+                    mexErrMsgTxt("Cannot set mode twice in same call.");
+                }
+                already_set_mode = 1;
 #ifdef _OPENMP
                 mtimesx_mode_new = MTIMESX_SPEED_OMP;
-				if( max_threads == 0 ) {
- 				    max_threads_new = omp_get_num_procs();
-				}
+                if( max_threads == 0 ) {
+                    max_threads_new = omp_get_num_procs();
+                }
 #else
                 mtimesx_mode_new = MTIMESX_SPEED;
 #endif
             } else if( strcmp(directive,"LOOPSOMP") == 0 ) {
-				if( already_set_mode ) {
-					mexErrMsgTxt("Cannot set mode twice in same call.");
-				}
-				already_set_mode = 1;
+                if( already_set_mode ) {
+                    mexErrMsgTxt("Cannot set mode twice in same call.");
+                }
+                already_set_mode = 1;
 #ifdef _OPENMP
                 mtimesx_mode_new = MTIMESX_LOOPS_OMP;
-				if( max_threads == 0 ) {
- 				    max_threads_new = omp_get_num_procs();
-				}
+                if( max_threads == 0 ) {
+                    max_threads_new = omp_get_num_procs();
+                }
 #else
                 mtimesx_mode_new = MTIMESX_LOOPS;
 #endif
             } else if( strcmp(directive,"OMP_GET_WTICK") == 0 ||
                        strcmp(directive,"OMP_GET_WTICK()") == 0 ) {
-				if( nrhs > 1 ) {
-					mexErrMsgTxt("Cannot combine OMP_GET_WTICK directive with other arguments.");
-				}
-				plhs[0] = mxCreateDoubleScalar(omp_get_wtick());
-				return;
+                if( nrhs > 1 ) {
+                    mexErrMsgTxt("Cannot combine OMP_GET_WTICK directive with other arguments.");
+                }
+                plhs[0] = mxCreateDoubleScalar(omp_get_wtick());
+                return;
             } else if( strcmp(directive,"OMP_GET_WTIME") == 0 ||
                        strcmp(directive,"OMP_GET_WTIME()") == 0 ) {
-				if( nrhs > 1 ) {
-					mexErrMsgTxt("Cannot combine OMP_GET_WTIME directive with other arguments.");
-				}
-				plhs[0] = mxCreateDoubleScalar(omp_get_wtime());
-				return;
+                if( nrhs > 1 ) {
+                    mexErrMsgTxt("Cannot combine OMP_GET_WTIME directive with other arguments.");
+                }
+                plhs[0] = mxCreateDoubleScalar(omp_get_wtime());
+                return;
             } else if( strcmp(directive,"OMP") == 0 ) {
 #ifdef _OPENMP
-				if( already_set_mode ) {
-					mexErrMsgTxt("Cannot set mode twice in same call.");
-				}
-				if( already_set_threads ) {
-					mexErrMsgTxt("Cannot set threads twice in same call.");
-				}
-				already_set_mode = 1;
-				already_set_threads = 1;
-				max_threads_new = omp_get_num_procs();
+                if( already_set_mode ) {
+                    mexErrMsgTxt("Cannot set mode twice in same call.");
+                }
+                if( already_set_threads ) {
+                    mexErrMsgTxt("Cannot set threads twice in same call.");
+                }
+                already_set_mode = 1;
+                already_set_threads = 1;
+                max_threads_new = omp_get_num_procs();
                 mtimesx_mode_new = MTIMESX_SPEED_OMP;
 #else
-				if( already_set_mode ) {
-					mexErrMsgTxt("Cannot set mode twice in same call.");
-				}
-				already_set_mode = 1;
+                if( already_set_mode ) {
+                    mexErrMsgTxt("Cannot set mode twice in same call.");
+                }
+                already_set_mode = 1;
                 mtimesx_mode_new = MTIMESX_SPEED;
 #endif
             } else if( strcmp(directive,"OMP_SET_NUM_THREADS") == 0 ||
                        strcmp(directive,"OMP_SET_MAX_THREADS") == 0 ) {
-				if( already_set_threads ) {
-					mexErrMsgTxt("Cannot set threads twice in same call.");
-				}
-				already_set_threads = 1;
+                if( already_set_threads ) {
+                    mexErrMsgTxt("Cannot set threads twice in same call.");
+                }
+                already_set_threads = 1;
 #ifdef _OPENMP
-				max_threads_new = omp_get_num_procs();
+                max_threads_new = omp_get_num_procs();
 #else
-				max_threads_new = -1;
+                max_threads_new = -1;
 #endif
-			} else if( k > 20 && directive[19] == '(' ) {
-				directive[19] = '\0';
-				if( strcmp(directive,"OMP_SET_NUM_THREADS") == 0 ||
-				    strcmp(directive,"OMP_SET_MAX_THREADS") == 0 ) {
-				    if( already_set_threads ) {
-					    mexErrMsgTxt("Cannot set threads twice in same call.");
-				    }
- 				    already_set_threads = 1;
-					directive[ 8] = 'N';
-					directive[ 9] = 'U';
-					directive[10] = 'M';
- 				    directive[19] = '=';
-					cp = directive + 20;
-					j = 1;
-					while( *cp ) {
-						if( *cp == '(' ) {
-							j++;
-						} else if( *cp == ')' ) {
-							j--;
-							if( !j ) {
-								*cp = ';';
-								break;
-							}
-						}
-						cp++;
-					}
-					if( j ) {
-					    mexErrMsgTxt("Expression or statement is incorrect--possibly unbalanced (");
-					}
-					if( mexEvalString(directive) ) {
-						mexErrMsgTxt("Unable to evaluate expression for number of threads");
-					}
-					ans = mexGetVariablePtr("caller","OMP_SET_NUM_THREADS");
-					if( ans == NULL ) {
-						mexErrMsgTxt("Unable to evaluate expression for number of threads");
-					}
-					j = threads = mxGetScalar(ans);
-					mexEvalString("clear OMP_SET_NUM_THREADS;");
-					if( j < 1 || j != threads ) {
-						mexErrMsgTxt("Number of threads must be a positive integer.");
-					}
-					if( j > omp_get_num_procs() ) j = omp_get_num_procs();
+            } else if( k > 20 && directive[19] == '(' ) {
+                directive[19] = '\0';
+                if( strcmp(directive,"OMP_SET_NUM_THREADS") == 0 ||
+                    strcmp(directive,"OMP_SET_MAX_THREADS") == 0 ) {
+                    if( already_set_threads ) {
+                        mexErrMsgTxt("Cannot set threads twice in same call.");
+                    }
+                    already_set_threads = 1;
+                    directive[ 8] = 'N';
+                    directive[ 9] = 'U';
+                    directive[10] = 'M';
+                    directive[19] = '=';
+                    cp = directive + 20;
+                    j = 1;
+                    while( *cp ) {
+                        if( *cp == '(' ) {
+                            j++;
+                        } else if( *cp == ')' ) {
+                            j--;
+                            if( !j ) {
+                                *cp = ';';
+                                break;
+                            }
+                        }
+                        cp++;
+                    }
+                    if( j ) {
+                        mexErrMsgTxt("Expression or statement is incorrect--possibly unbalanced (");
+                    }
+                    if( mexEvalString(directive) ) {
+                        mexErrMsgTxt("Unable to evaluate expression for number of threads");
+                    }
+                    ans = mexGetVariablePtr("caller","OMP_SET_NUM_THREADS");
+                    if( ans == NULL ) {
+                        mexErrMsgTxt("Unable to evaluate expression for number of threads");
+                    }
+                    j = threads = mxGetScalar(ans);
+                    mexEvalString("clear OMP_SET_NUM_THREADS;");
+                    if( j < 1 || j != threads ) {
+                        mexErrMsgTxt("Number of threads must be a positive integer.");
+                    }
+                    if( j > omp_get_num_procs() ) j = omp_get_num_procs();
 #ifdef _OPENMP
-				    max_threads_new = j;
+                    max_threads_new = j;
 #else
-				    max_threads_new = -1;
+                    max_threads_new = -1;
 #endif
-				} else {
-					got_directive = 0;
-				}
-			} else {
-				got_directive = 0;
+                } else {
+                    got_directive = 0;
+                }
+            } else {
+                got_directive = 0;
             }
             mxFree(directive);
         } else {
             mexErrMsgTxt("Error allocating memory for directive string");
         }
-		if( got_directive ) {
-			for( j=i; j<nrhs-1; j++ ) {
-				prhs[j] = prhs[j+1];
-			}
-			nrhs--;
-		} else {
-			i++;
-		}
-	} else {
-		i++;
-	}
+        if( got_directive ) {
+            for( j=i; j<nrhs-1; j++ ) {
+                prhs[j] = prhs[j+1];
+            }
+            nrhs--;
+        } else {
+            i++;
+        }
+    } else {
+        i++;
     }
-	if( mtimesx_mode_new > 0 ) {
-		mtimesx_mode = mtimesx_mode_new;
-	}
-	if( max_threads_new > 0 ) {
-		max_threads = max_threads_new;
-	}
+    }
+    if( mtimesx_mode_new > 0 ) {
+        mtimesx_mode = mtimesx_mode_new;
+    }
+    if( max_threads_new > 0 ) {
+        max_threads = max_threads_new;
+    }
     if( nrhs == 0 ) {
-		if( mtimesx_mode_new || !max_threads_new ) {
-   		    plhs[0] = modestring(mtimesx_mode);
-		} else {
-   		    plhs[0] = mxCreateDoubleScalar(max_threads);
-		}
+        if( mtimesx_mode_new || !max_threads_new ) {
+            plhs[0] = modestring(mtimesx_mode);
+        } else {
+            plhs[0] = mxCreateDoubleScalar(max_threads);
+        }
         return;
     }
 
@@ -704,7 +707,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
 
     if( mxIsDouble(Araw) ) {
         if( mxIsDouble(Braw) ) {
-			/*
+            /*
             if( mxIsSparse(Araw) && !mxIsSparse(Braw)  &&
                 (mxGetNumberOfElements(Araw) != 1 || mxGetNumberOfDimensions(Braw) == 2) ) {
                 k = mexCallMATLAB(1, &B, 1, &Braw, "sparse");
@@ -718,7 +721,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
             } else {
                 plhs[0] = DoubleTimesDouble(Araw, transa, Braw, transb);
             }
-			*/
+            */
             if( mxIsSparse(Araw) && !mxIsSparse(Braw)  &&
                 mxGetNumberOfElements(Araw) == 1 && mxGetNumberOfDimensions(Braw) == 2 ) {
                 k = mexCallMATLAB(1, &B, 1, &Braw, "sparse");
@@ -734,17 +737,17 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
             }
         } else if( mxIsSingle(Braw) ) {
             if( mxIsSparse(Araw) ) {
-				if( mxGetNumberOfElements(Araw) == 1 ) {
-	                k = mexCallMATLAB(1, &C, 1, &Araw, "full");
-	                k = mexCallMATLAB(1, &A, 1, &C, "single");
-					mxDestroyArray(C);
-	                plhs[0] = FloatTimesFloat(A, transa, Braw, transb);
-					mxDestroyArray(A);
-				} else {
-					k = mexCallMATLAB(1, &B, 1, &Braw, "double");
-				    plhs[0] = DoubleTimesDouble(Araw, transa, B, transb);
-			        mxDestroyArray(B);
-				}
+                if( mxGetNumberOfElements(Araw) == 1 ) {
+                    k = mexCallMATLAB(1, &C, 1, &Araw, "full");
+                    k = mexCallMATLAB(1, &A, 1, &C, "single");
+                    mxDestroyArray(C);
+                    plhs[0] = FloatTimesFloat(A, transa, Braw, transb);
+                    mxDestroyArray(A);
+                } else {
+                    k = mexCallMATLAB(1, &B, 1, &Braw, "double");
+                    plhs[0] = DoubleTimesDouble(Araw, transa, B, transb);
+                    mxDestroyArray(B);
+                }
             } else if( mxGetNumberOfElements(Araw) == 1 || mxGetNumberOfElements(Braw) == 1 ) {
                 k = mexCallMATLAB(1, &B, 1, &Braw, "double");
                 C = DoubleTimesDouble(Araw, transa, B, transb);
@@ -762,17 +765,17 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
     } else if( mxIsSingle(Araw) ) {
         if( mxIsDouble(Braw) ) {
             if( mxIsSparse(Braw) ) {
-				if( mxGetNumberOfElements(Braw) == 1 ) {
-	                k = mexCallMATLAB(1, &C, 1, &Braw, "full");
-	                k = mexCallMATLAB(1, &B, 1, &C, "single");
-					mxDestroyArray(C);
-	                plhs[0] = FloatTimesFloat(Araw, transa, B, transb);
-					mxDestroyArray(B);
-				} else {
-					k = mexCallMATLAB(1, &A, 1, &Araw, "double");
-				    plhs[0] = DoubleTimesDouble(A, transa, Braw, transb);
-			        mxDestroyArray(A);
-				}
+                if( mxGetNumberOfElements(Braw) == 1 ) {
+                    k = mexCallMATLAB(1, &C, 1, &Braw, "full");
+                    k = mexCallMATLAB(1, &B, 1, &C, "single");
+                    mxDestroyArray(C);
+                    plhs[0] = FloatTimesFloat(Araw, transa, B, transb);
+                    mxDestroyArray(B);
+                } else {
+                    k = mexCallMATLAB(1, &A, 1, &Araw, "double");
+                    plhs[0] = DoubleTimesDouble(A, transa, Braw, transb);
+                    mxDestroyArray(A);
+                }
             } else if( mxGetNumberOfElements(Araw) == 1 || mxGetNumberOfElements(Braw) == 1 ) {
                 k = mexCallMATLAB(1, &A, 1, &Araw, "double");
                 C = DoubleTimesDouble(A, transa, Braw, transb);
@@ -793,9 +796,9 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
         unsupported = 1;
     }
     if( unsupported ) {
-		if( debug ) {
-			mexPrintf("MTIMESX: Unsupported types ... calling MATLAB intrinsic function mtimes\n");
-		}
+        if( debug ) {
+            mexPrintf("MTIMESX: Unsupported types ... calling MATLAB intrinsic function mtimes\n");
+        }
         rhs[0] = Araw;
         transstring[0] = transa;
         rhs[1] = mxCreateString(transstring);
@@ -805,7 +808,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
         k = mexCallMATLAB(1, plhs, 4, rhs, "mtimesx_sparse");
         mxDestroyArray(rhs[3]);
         mxDestroyArray(rhs[1]);
-		threads_used = 0;
+        threads_used = 0;
     }
 
     return;
@@ -1003,7 +1006,7 @@ void mtimesx_logo(void)
     mxDestroyArray(rhs[1]);
     mxDestroyArray(rhs[2]);
     
-	/* [X Y] = meshgrid(-8:0.0625:8); */
+    /* [X Y] = meshgrid(-8:0.0625:8); */
     /* R = sqrt(X.^2 + Y.^2) + eps; */
     /* Z = sin(R)./R; */
     rhs[0] = mxCreateDoubleMatrix(257, 257, mxREAL);
@@ -1024,8 +1027,8 @@ void mtimesx_logo(void)
     }
 
     /* surf(X,Y,Z,'FaceColor','interp',... */
-	/* 'EdgeColor','none',... */
-	/* 'FaceLighting','phong') */
+    /* 'EdgeColor','none',... */
+    /* 'FaceLighting','phong') */
     rhs[3] = mxCreateString("FaceColor");
     rhs[4] = mxCreateString("interp");
     rhs[5] = mxCreateString("EdgeColor");
@@ -1046,17 +1049,17 @@ void mtimesx_logo(void)
     mexCallMATLAB(0, NULL, 1, rhs, "daspect");
     mxDestroyArray(rhs[0]);
     
-	/* axis('tight') */
+    /* axis('tight') */
     rhs[0] = mxCreateString("tight");
     mexCallMATLAB(0, NULL, 1, rhs, "axis");
     mxDestroyArray(rhs[0]);
     
-	/* axis('off') */
+    /* axis('off') */
     rhs[0] = mxCreateString("off");
     mexCallMATLAB(0, NULL, 1, rhs, "axis");
     mxDestroyArray(rhs[0]);
     
-	/* view([-50 30]) */
+    /* view([-50 30]) */
     rhs[0] = mxCreateDoubleMatrix(1, 2, mxREAL);
     x = mxGetPr(rhs[0]);
     x[0] = -50.0;
@@ -1064,7 +1067,7 @@ void mtimesx_logo(void)
     mexCallMATLAB(0, NULL, 1, rhs, "view");
     mxDestroyArray(rhs[0]);
     
-	/* camlight('left') */
+    /* camlight('left') */
     rhs[0] = mxCreateString("left");
     mexCallMATLAB(0, NULL, 1, rhs, "camlight");
     mxDestroyArray(rhs[0]);
@@ -1076,23 +1079,38 @@ void mtimesx_logo(void)
 
 mxArray *modestring(int m)
 {
+    const char REVISION[] = "$Revision::      $ ($Date::                                              $)";
+    char *buffer = malloc(strlen(REVISION) + 14 + 4); /* 4 in case if crlf takes 2 symbols*/
+    if (!buffer) {
 
-	switch( m )
-	{
-	case MTIMESX_BLAS:
-        return mxCreateString("BLAS");
-	case MTIMESX_LOOPS:
-        return mxCreateString("LOOPS");
-	case MTIMESX_LOOPS_OMP:
-        return mxCreateString("LOOPSOMP");
-	case MTIMESX_MATLAB:
-        return mxCreateString("MATLAB");
-	case MTIMESX_SPEED:
-        return mxCreateString("SPEED");
-	case MTIMESX_SPEED_OMP:
-        return mxCreateString("SPEEDOMP");
-	}
-	return mxCreateString("");
+    }
+    switch( m )
+    {
+    case MTIMESX_BLAS:
+        sprintf(buffer, "%s\nMODE: BLAS",REVISION);
+        break;
+    case MTIMESX_LOOPS:
+        sprintf(buffer, "%s\nMODE: LOOPS", REVISION);
+        break;
+    case MTIMESX_LOOPS_OMP:
+        sprintf(buffer, "%s\nMODE: LOOPSOMP", REVISION);
+        break;
+    case MTIMESX_MATLAB:
+        sprintf(buffer, "%s\nMODE: MATLAB", REVISION);
+        break;
+    case MTIMESX_SPEED:
+        sprintf(buffer, "%s\nMODE: SPEED", REVISION);
+        break;
+    case MTIMESX_SPEED_OMP:
+        sprintf(buffer, "%s\nMODE: SPEEDOMP", REVISION);
+        break;
+    default:
+        sprintf(buffer, "%s\nMODE: ERROR", REVISION);
+    }
+    mxArray *out = mxCreateString(buffer);
+    free(buffer);
+    return mxCreateString(buffer);
+
 }
 
 /*-------------------------------------------------------------------------------
@@ -1101,26 +1119,26 @@ mxArray *modestring(int m)
 
 mxArray *threadstring(int t)
 {
-	char ompstring[] = "OMP_SET_NUM_THREADS(___)";
-	int k;
+    char ompstring[] = "OMP_SET_NUM_THREADS(___)";
+    int k;
 
-	if( t > 999 ) {
-		return mxCreateString("OMP_SET_NUM_THREADS");
-	} else {
-		k = 20;
-		if( max_threads > 99 ) {
-			ompstring[k++] = (t / 100) + '0';
-			t /= 10;
-		}
-		if( t > 9 ) {
-			ompstring[k++] = (t / 10) + '0';
-			t /= 10;
-		}
-		ompstring[k++] = t  + '0';
-		ompstring[k++] = ')';
-		ompstring[k  ] = '\0';
-		return mxCreateString(ompstring);
-	}
+    if( t > 999 ) {
+        return mxCreateString("OMP_SET_NUM_THREADS");
+    } else {
+        k = 20;
+        if( max_threads > 99 ) {
+            ompstring[k++] = (t / 100) + '0';
+            t /= 10;
+        }
+        if( t > 9 ) {
+            ompstring[k++] = (t / 10) + '0';
+            t /= 10;
+        }
+        ompstring[k++] = t  + '0';
+        ompstring[k++] = ')';
+        ompstring[k  ] = '\0';
+        return mxCreateString(ompstring);
+    }
 }
 
 /*-------------------------------------------------------------------------

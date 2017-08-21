@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "build_all", "build_all.vcxproj", "{870590B0-E920-4B29-A2A9-3ABEF5D8590B}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "recompute_bin_data_c", "..\cpp\recompute_bin_data\recompute_bin_data.vcxproj", "{D283F07C-8003-4356-B434-74CE7E42E31B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "combine_sqw", "..\cpp\combine_sqw\combine_sqw.vcxproj", "{874CB72F-251B-455E-8024-35C9710C18EB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mtimesmex", "..\cpp\mtimesx\mtimes_mexVC2015\mtimesmex.vcxproj", "{8C62BEC3-7890-429A-B118-FA7C43929846}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +113,18 @@ Global
 		{874CB72F-251B-455E-8024-35C9710C18EB}.RelWithDebugInfo|Win32.Build.0 = RelWithDebugInfo|Win32
 		{874CB72F-251B-455E-8024-35C9710C18EB}.RelWithDebugInfo|x64.ActiveCfg = RelWithDebugInfo|x64
 		{874CB72F-251B-455E-8024-35C9710C18EB}.RelWithDebugInfo|x64.Build.0 = RelWithDebugInfo|x64
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.Debug|Win32.Build.0 = Debug|Win32
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.Debug|x64.ActiveCfg = Debug|x64
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.Debug|x64.Build.0 = Debug|x64
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.Release|Win32.ActiveCfg = Release|Win32
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.Release|Win32.Build.0 = Release|Win32
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.Release|x64.ActiveCfg = Release|x64
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.Release|x64.Build.0 = Release|x64
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.RelWithDebugInfo|Win32.ActiveCfg = RelWithDebugInfo|Win32
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.RelWithDebugInfo|Win32.Build.0 = RelWithDebugInfo|Win32
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.RelWithDebugInfo|x64.ActiveCfg = RelWithDebugInfo|x64
+		{8C62BEC3-7890-429A-B118-FA7C43929846}.RelWithDebugInfo|x64.Build.0 = RelWithDebugInfo|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

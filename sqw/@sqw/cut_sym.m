@@ -125,7 +125,7 @@ function varargout = cut_sym (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 978 $ ($Date: 2015-02-22 17:56:16 +0000 (Sun, 22 Feb 2015) $)
+% $Revision$ ($Date$)
 
 
 % Parse input

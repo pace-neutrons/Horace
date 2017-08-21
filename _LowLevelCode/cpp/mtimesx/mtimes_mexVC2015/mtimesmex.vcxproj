@@ -30,7 +30,7 @@
     <ClCompile Include="mtimesx.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{672157BD-9B1B-4BC7-87AD-BA4596367EAB}</ProjectGuid>
+    <ProjectGuid>{8C62BEC3-7890-429A-B118-FA7C43929846}</ProjectGuid>
     <RootNamespace>mtimesmex</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
@@ -176,7 +176,7 @@
     <Link>
       <AdditionalOptions>/EXPORT:mexFunction %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libmex.lib;libmat.lib;libmx.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)mtimesx.mexw64</OutputFile>
+      <OutputFile>$(OutDir)/mtimesx.mexw64</OutputFile>
       <AdditionalLibraryDirectories>$(MATLABDIR)64\extern\lib\win64\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -262,7 +262,7 @@
     <Link>
       <AdditionalOptions>/EXPORT:mexFunction %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libmex.lib;libmat.lib;libmx.lib;libmwblas.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)mtimesx.mexw64</OutputFile>
+      <OutputFile>$(OutDir)/mtimesx.mexw64</OutputFile>
       <AdditionalLibraryDirectories>$(MATLABDIR)64\extern\lib\win64\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -298,7 +298,7 @@
     <Link>
       <AdditionalOptions>/EXPORT:mexFunction %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libmex.lib;libmat.lib;libmx.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)mtimesx.mexw64</OutputFile>
+      <OutputFile>$(OutDir)/mtimesx.mexw64</OutputFile>
       <AdditionalLibraryDirectories>$(MATLABDIR)64\extern\lib\win64\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
