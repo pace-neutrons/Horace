@@ -10,7 +10,7 @@ function varargout = cut_sqw_sym(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 977 $ ($Date: 2015-02-21 18:58:56 +0000 (Sat, 21 Feb 2015) $)
+% $Revision$ ($Date$)
 
 
 [varargout,mess] = horace_function_call_method (nargout, @cut_sym, '$sqw', varargin{:});

@@ -27,14 +27,14 @@ compilation_date  =[];
 % function
 functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ',...
     'calc_projections: ','sort_pixels_by_b: ','recomput_bin_dta: ',...
-    'combine_sqw :     '};
+    'combine_sqw :     ','mtimesx  :        '};
 combine_num = numel(functions_name_list); % provide special treatment for combine_sqw function
 % its expected to be last function of the pack
 
 % list of the mex files handles used by horace and verified by this script.
 functions_handle_list={@accumulate_cut_c,@bin_pixels_c,...
     @calc_projections_c,@sort_pixels_by_bins,@recompute_bin_data_c,...
-    @combine_sqw};
+    @combine_sqw,@mtimesx};
 rez = cell(numel(functions_name_list),1);
 
 n_errors=0;
