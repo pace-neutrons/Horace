@@ -61,10 +61,6 @@ classdef hor_config<config_base
         ignore_nan
         % ignore inf values if pixels have them. %  (default --false)
         ignore_inf
-        % set horace_info_level method indicating how verbose Horace would be.
-        %      The larger the value, the more information is printed.
-        % See log_level for more details.
-        horace_info_level
         % the same as horace_info level
         %      The larger the value, the more information is printed, e.g.:
         %  -1  No information messages printed
@@ -108,6 +104,14 @@ classdef hor_config<config_base
         % number of sessions to launch to calculate additional files
         accumulating_process_num
     end
+    properties(Dependent,Hidden)
+        % old implementation of log_level property
+        % set horace_info_level method indicating how verbose Horace would be.
+        %      The larger the value, the more information is printed.
+        % See log_level for more details.
+        horace_info_level
+    end
+    
     properties(Access=protected,Hidden = true)
         % private properties behind public interface
         mem_chunk_size_=10000000;
@@ -212,7 +216,7 @@ classdef hor_config<config_base
         function this = set.mem_chunk_size(this,val)
             if val<1000
                 warning('HOR_CONFIG:set_mem_chunk_size',...
-                        ' mem chunk size should not be too small at least 1M is recommended');
+                    ' mem chunk size should not be too small at least 1M is recommended');
                 val = 1000;
             end
             config_store.instance().store_config(this,'mem_chunk_size',val);
@@ -220,14 +224,20 @@ classdef hor_config<config_base
         function this = set.threads(this,val)
             if val<1
                 warning('HOR_CONFIG:set_threads',...
-                ' number ot threads can not be smaller then one. Value 1 is used');
+                    ' number ot threads can not be smaller then one. Value 1 is used');
                 val = 1;
             elseif val > 48
                 warning('HOR_CONFIG:set_threads',...
-                ' it is often useless to use more then 16 threads. Value 48 is set');
+                    ' it is often useless to use more then 16 threads. Value 48 is set');
                 val  = 48;
             end
             config_store.instance().store_config(this,'threads',val);
+            if val > 1
+                mtimesx('SPEEDOMP');
+            else
+                mtimesx('SPEED');
+            end
+            
         end
         function this = set.ignore_nan(this,val)
             if val>0
@@ -245,6 +255,7 @@ classdef hor_config<config_base
             end
             config_store.instance().store_config(this,'ignore_inf',ignore);
         end
+        %
         function this = set.log_level(this,val)
             if isnumeric(val)
                 config_store.instance().store_config(this,'log_level',val);
@@ -273,11 +284,17 @@ classdef hor_config<config_base
                 if n_errors>0
                     use = false;
                     warning('HOR_CONFIG:set_use_mex',...
-                           ' mex files can not be initiated, Use mex set to false');
+                        ' mex files can not be initiated, Use mex set to false');
                 end
                 if ~can_combine_with_mex
                     config_store.instance().store_config(this,'use_mex_for_combine',false);
                 end
+                if this.threads > 1
+                    mtimesx('SPEEDOMP');
+                else
+                    mtimesx('SPEED');
+                end
+                
             end
             config_store.instance().store_config(this,'use_mex',use);
             
@@ -306,7 +323,7 @@ classdef hor_config<config_base
                     config_store.instance().store_config(this,'use_mex_for_combine',true);
                 catch ME
                     warning('HOR_CONFIG:use_mex_for_combine',...
-                           [' combine_sqw.mex procedure is not availible.\n',...
+                        [' combine_sqw.mex procedure is not availible.\n',...
                         ' Reason: %s\n.',...
                         ' Will not use mex for combininng'],ME.message);
                     config_store.instance().store_config(this,'use_mex_for_combine',false);
@@ -318,7 +335,7 @@ classdef hor_config<config_base
         function this= set.mex_combine_buffer_size(this,val)
             if val<64
                 error('HOR_CONFIG:mex_combine_buffer_size',...
-                   ' mex_combine_buffer_size should be bigger then 64, and better >1024');
+                    ' mex_combine_buffer_size should be bigger then 64, and better >1024');
             end
             if val==0
                 this.use_mex_for_combine = false;

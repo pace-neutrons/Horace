@@ -25,7 +25,7 @@ function [application,Matlab_SVN,mexMinVer,mexMaxVer,date]=horace_version()
 % the best and most portable for any OS I can think of).
 %
 %
-% $COMMIT_COUNTER:: 81 $
+% $COMMIT_COUNTER:: 82 $
 %
 % No variable below this one should resemble COMMIT_COUNTER, as their values will
 % be modified and probably corrupted at commit
@@ -69,17 +69,23 @@ mexMinVer     = [];
 mexMaxVer     = [];
 date          = [];
 
-use_mex = get(hor_config,'use_mex');
+hc = hor_config;
+use_mex = hc.use_mex;
 if use_mex
-    [mex_messages,n_errors,mexMinVer,mexMaxVer,date,can_use_mex_for_combine]=check_horace_mex();
+    [~,n_errors,mexMinVer,mexMaxVer,date,can_use_mex_for_combine]=check_horace_mex();
     if n_errors~= 0
-        set(hor_config,'use_mex',0);
+        hc.use_mex = 0;
     end
     if ~can_use_mex_for_combine
         % it will check the mode and set up "can not user mex" internally
-        set(hor_config,'mex_combine_thread_mode',0);
+        hc.mex_combine_thread_mode = 0;
     end
-
+    if hc.threads > 1
+        mtimesx('SPEEDOMP');
+    else
+        mtimesx('SPEED');
+    end
+    
 end
 hd     =str2double(Matlab_SVN(12:17));
 
