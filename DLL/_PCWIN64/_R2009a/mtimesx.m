@@ -271,7 +271,7 @@ if isemtpy(use_mex)
     use_mex = get(hor_config,'use_mex');
     
 end
-    
+
 
 if isempty(which('mtimesx_mex'))
     root = fileparts(which('horace_init'));
@@ -283,6 +283,39 @@ end
 % Call the mex routine mtimesx.
 %/
 
-[varargout{1:nargout}] = mtimesx_mex(varargin{:});
 
+
+if use_mex
+    try
+        [varargout{1:nargout}] = mtimesx_mex(varargin{:});
+    catch ERR
+        use_mex = false;
+        fm = get(hor_config,'force_mex_if_use_mex');
+        if fm
+            rethrow(ERR);
+        else
+            warning('mtimesx:runtime_error',...
+                'Error %s running mtimes_mex C-code. trying Matlab',...
+                ERR.message);
+            set(hor_config,'use_mex',false);
+        end
+    end
+end
+
+
+if ~use_mex
+    [varargout{1:nargout}] = mtimesx_matlab(varargin{:});
+end
+
+
+function varargout = mtimesx_matlab(varargin)
+
+if is_string(varargin{1})
+    varargout{1} = 'MATLAB';
+    return;
+end
+if is_string(varargin{2})    
+    varargout{1} = varargin{1}'*varargin{3};
+else
+    varargout{1} = varargin{1}*varargin{2};
 end
