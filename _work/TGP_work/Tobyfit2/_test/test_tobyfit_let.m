@@ -96,6 +96,10 @@ wsim_fermi = kkf.simulate;
 %% ====================================================================================================
 % Test the mod/shape chop pulse width
 % -----------------------------------
+% To access the distribution of sampling times from the joint moderator/chopper 1 
+% deviate, need to use the debugger and inside the functin tobyfit_DGdisk_resconv
+% pause and use the saver script to save y(1,1,:)
+
 % mod FWHH=99.37us, shape_chop FWHH=66.48us
 % Will have pulse determined by moderator
 instru_mod = let_instrument (efix, 280, 140, 20, 2, 2);
@@ -127,17 +131,13 @@ kk = kk.set_fun(@van_sqw,[10,0,0.05]);
 kk = kk.set_mc_points(10);
 wsim = kk.simulate;
 
+%*********
 % Saver script to use in debug:
 tm=yvec(1,1,:);
 [nn,ee]=histcounts(tm);
 ww=IX_dataset_1d(ee,nn);
 save('shape_only.mat','ww')
-
-
-
-[nn,ee]=histcounts(t_sh);
-ww=IX_dataset_1d(ee,nn);
-save('shape_only.mat','ww')
+%*********
 
 
 
