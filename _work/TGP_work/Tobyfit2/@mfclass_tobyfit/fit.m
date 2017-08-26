@@ -1,4 +1,4 @@
-function [data_out, fitdata, ok, mess, varargout] = fit (obj)
+function [data_out, fitdata, ok, mess, varargout] = fit (obj, varargin)
 % Perform a fit of the data using the current functions and starting parameter values
 %
 % Return calculated fitted datasets and parameters:
@@ -101,7 +101,7 @@ end
 obj_tmp.wrapfun.p_wrap = append_args (obj_tmp.wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, xtal, modshape);
 
 % Perform fit
-[data_out, fitdata, ok, mess] = fit@mfclass (obj_tmp);
+[data_out, fitdata, ok, mess] = fit@mfclass (obj_tmp, varargin{:});
 
 % Extract crystal or moderator refinement parameters (if any) in a useful form
 if is_refine_crystal

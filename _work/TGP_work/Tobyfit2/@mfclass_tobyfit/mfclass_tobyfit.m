@@ -205,7 +205,7 @@ classdef mfclass_tobyfit < mfclass
         obj = set_bfun(obj,varargin)
 
         % Perform a fit of the data using the current functions and starting parameter values
-        [data_out, fitdata, ok, mess, varargout] = fit (obj)
+        [data_out, fitdata, ok, mess, varargout] = fit (obj, varargin)
         
         % Perform a simulation of the data using the current functions and starting parameter values
         [data_out, calcdata, ok, mess] = simulate (obj, varargin)
