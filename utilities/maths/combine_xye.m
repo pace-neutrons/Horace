@@ -94,6 +94,11 @@ for iw=1:nw
     end
 end
 [xout,irange_out,shared]=super_array(x{:},'tol',abstol);
+if hist
+    for i=1:numel(irange_out)
+        irange_out{i}(2) = irange_out{i}(2) - 1;    % to account for referring to point numbers
+    end
+end
 if ~shared
     wout=[]; ok=false; mess='x values for the datasets are not coincident on the ranges over which they are merged';
     if nargout<=1, error(mess), end
