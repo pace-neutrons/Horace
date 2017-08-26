@@ -66,9 +66,8 @@ classdef IX_dataset
         % output argument. Returns error message, if class is incorrect and
         % method called with two output arguments.
         [obj,mess] = isvalid(obj)
-        % Get information for one or more axes and if it has histogram data
-        % for each axis
-        [ax,hist]=axis(w,n)
+        % Take absolute value of an IX_dataset_nd object or array of IX_dataset_nd objects
+        wout = abs(w)
         %------------------------------------------------------------------
         %Sqeeze singleton dimensions awaay in IX_dataset_nd objects
         %to get to object of lower dimensionality
@@ -239,6 +238,9 @@ classdef IX_dataset
         % Return array containing true or false depending on dataset being
         % histogram or point;
         status=ishistogram(w,n)
+        % Get information for one or more axes and if it has histogram data
+        % for each axis
+        [ax,hist]=axis(w,n)        
     end
     %======================================================================
     methods(Abstract,Static)
