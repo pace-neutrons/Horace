@@ -97,6 +97,7 @@ function obj = set_bfun(obj,varargin)
 %     See <a href="matlab:doc('example_2d_function');">example_2d_function</a>
 %     See <a href="matlab:doc('example_3d_function');">example_3d_function</a>
 
+% -----------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
 %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')

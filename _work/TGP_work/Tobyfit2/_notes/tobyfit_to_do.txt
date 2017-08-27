@@ -30,6 +30,25 @@ Error in initial_pulse_DGdisk>shaped_mod_pulse (line 108)
 	
 	
 	
+	
+Interface
+==========	
+(Speak to Alex about his ideas too)
+
+set_data, set_mask etc.  should have data, mask mirrors that take the same input
+
+val = obj.data
+  :
+obj.data = val
+
+obj = obj.set_data(val) 	% set_data may have more flexibility
+
+The methods that shoudl have this behaviour are 
+
+
+
+
+
 
 Organisation
 ============
@@ -68,6 +87,12 @@ Noisify has a problem with the size ofthe error bars
 fake_sqw problem
 
 set_mod_pulse_horace problem 
+
+
+
+
+
+
 
 
 
