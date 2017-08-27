@@ -1,7 +1,12 @@
-function [ok, mess, doc_out, iline] = parse_doc (lstruct, is_topfile, doc_filter, args, S)
-% Parse meta documentation, if any
+function [ok, mess, doc_out, iline_start, iline_finish, doc_found] = ...
+    parse_doc (lstruct, args, S, is_topfile, doc_filter)
+% Parse meta documentation, if any present
 %
-%   >> [ok, mess, doc_out, iline] = parse_doc (lstruct, is_topfile, doc_filter, args, S)
+%   >> [ok, mess, doc_out, iline_start, iline_finish, doc_found] = ...
+%    parse_doc (lstruct, args, S, is_topfile, doc_filter)
+%
+% The input could be a comment block in a matlab source code file,
+% or could be the entire contents of a meta documentation file.
 %
 % Input:
 % ------
@@ -12,17 +17,6 @@ function [ok, mess, doc_out, iline] = parse_doc (lstruct, is_topfile, doc_filter
 %                   flname      File name of original file
 %                   flname_full Full file name of original file
 %
-%   is_topfile  True if lstruct is from the top level mfile, false otherwise
-%              If true, then if there must be an explicit doc_beg line for
-%              there to be meta documentation
-%
-%   doc_filter  Cell array (row) of strings with acceptable filter keywords
-%              on the <#doc_beg:> line. If non-empty, only if one of the
-%              keywords appears on the line will the documentation be
-%              included. If empty, then meta-documentation will be
-%              processed regardless of the value of any keywords on the
-%              <#doc_beg:> line.
-%
 %   args        Cell array of arguments (each must be a string or cell array of
 %              strings or logical scalar (or 0 or 1)
 %
@@ -32,6 +26,19 @@ function [ok, mess, doc_out, iline] = parse_doc (lstruct, is_topfile, doc_filter
 %                   - cell array of strings (column vector)
 %                   - logical true or false (retain value for blocks)
 %
+%   is_topfile  True if lstruct is from the top level mfile, false otherwise
+%               If true: then there must be an explicit doc_beg line for
+%              there to be meta documentation
+%               If false: the line structure comes from a meta documnetation
+%              file, and if there is no explicit doc_beg
+%
+%   doc_filter  Cell array (row) of strings with acceptable filter keywords
+%              on the <#doc_beg:> line. If non-empty, only if one of the
+%              keywords appears on the line will the documentation be
+%              included. If empty, then meta-documentation will be
+%              processed regardless of the value of any keywords on the
+%              <#doc_beg:> line.
+%
 % Output:
 % -------
 %   ok          If all OK, then true; otherwise false
@@ -40,16 +47,24 @@ function [ok, mess, doc_out, iline] = parse_doc (lstruct, is_topfile, doc_filter
 %
 %   doc_out     Cell array of strings containing output documentation
 %
-%   iline       Line index in cstr of first meta documentation line; =[]
+%   iline_start Line index in cstr of first meta documentation line; =[]
 %              if no meta documentation. This line can real i.e. explicit
 %              doc_def or doc_beg line, or virtual i.e. iline=0 in the
 %              case of a meta documentation file (i.e. not top level mfile)
 %              without explicit doc_def or doc_beg line
 %
+%   iline_finish Line index in cstr of last met documentation line; =[]
+%              if no meta documentation. Can be numel(cstr)+1 if no
+%              explicit doc_end (i.e. not top level mfile)
+%
+%   doc_found   True if meta documentation block found.. It is possible that
+%              although meta documentation blocks were found, they actually
+%              result in no output i.e. doc_out will be an empty cell array
+%
 %
 % Form of meta documentation file:
 % --------------------------------
-% Simplest form; all contents meta documentation:
+% Simplest form; all contents are meta documentation:
 %
 %   %   :
 %
@@ -87,9 +102,11 @@ function [ok, mess, doc_out, iline] = parse_doc (lstruct, is_topfile, doc_filter
 
 mess = '';
 doc_out = {};
-iline = [];
+iline_start = [];
+iline_finish = [];
+doc_found = false;
 
-% Find all the meta documentation blocks. Lines of texct in between will be ignored
+% Find all the meta documentation blocks. Lines of text in between will be ignored
 [ok, mess_tmp, idef_arr, ibeg_arr, iend_arr] = parse_doc_blocks...
     (lstruct.cstr, is_topfile, doc_filter);
 if ~ok
@@ -100,25 +117,27 @@ end
 % For each documentation block, parse the documentation and accumulate the
 % resulting documentation from each block
 if numel(ibeg_arr)>0
-    iline = idef_arr(1);
+    iline_start = idef_arr(1);
+    iline_finish = iend_arr(end);
+    doc_found = true;
     for i=1:numel(ibeg_arr)
         idef = idef_arr(i); ibeg=ibeg_arr(i); iend=iend_arr(i);
-        if iend>ibeg
-            % Accumulate additional definitions, if any
-            if idef<ibeg
-                lstruct_definitions = section_lstruct (lstruct, idef+1:ibeg-1);
-                [ok, mess_tmp, Snew] = parse_doc_definitions...
-                    (lstruct_definitions.cstr, args, S);
-                if ~ok
-                    mess_intro = 'Parsing meta documentation definitions:';
-                    mess = make_message (lstruct_definitions, 0, mess_intro, mess_tmp);
-                    return
-                end
-            else
-                Snew=S;
+        % Accumulate additional definitions, if any
+        if idef<ibeg
+            lstruct_definitions = section_lstruct (lstruct, idef+1:ibeg-1);
+            [ok, mess_tmp, Snew] = parse_doc_definitions...
+                (lstruct_definitions.cstr, args, S);
+            if ~ok
+                mess_intro = 'Parsing meta documentation definitions:';
+                mess = make_message (lstruct_definitions, 0, mess_intro, mess_tmp);
+                return
             end
-            % Get new documentation
-            lstruct_docsection = section_lstruct (lstruct, ibeg+1:iend-1);
+        else
+            Snew=S;
+        end
+        % Get new documentation
+        lstruct_docsection = section_lstruct (lstruct, ibeg+1:iend-1);
+        if ~isempty(lstruct_docsection.cstr) % there might be no lines i.e. empty block
             [ok, mess_tmp, iline_err, doc_new] = parse_doc_section...
                 (lstruct_docsection.cstr, Snew);
             if ~ok

@@ -29,8 +29,7 @@ function [ok, mess, iline_err, doc_out] = parse_doc_section (cstr, S)
 %           - array if several lines
 %           - 0  if the problem is not identifiable with a single line
 %
-%   doc_out Cellarray of strings with newly parsed documentation appended
-%          (row vector)
+%   doc_out Cellarray of strings with newly parsed documentation (row vector)
 
 
 % Initialise output
@@ -124,19 +123,27 @@ for i=1:nstr
                 args=argstr;
                 for j=1:numel(args)
                     % Substitute strings as variables, if can
-                    ix=find(strcmpi(args{j},Snam),1);
-                    if ~isempty(ix)
-                        args{ix}=S.(args{j});
+                    % Special case of an entry args{j} == ''''; replace with ''
+                    if strcmp(args{j},'''''')
+                        args{j}='';
+                    else
+                        ix=find(strcmpi(args{j},Snam),1);
+                        if ~isempty(ix)
+                            args{ix}=S.(args{j});
+                        end
                     end
                 end
-                [ok,mess,lstruct]=read_file(args{1});
-                if ~ok, return, end
-                is_topfile = false;
-                doc_filter = {};
-                [ok, mess, doc_new] = parse_doc (lstruct, is_topfile, doc_filter,...
-                    args(2:end),S);
-                if ~ok, return, end
-                doc_out=[doc_out,doc_new];
+                % If the file name is empty, then skip
+                if ~isempty(args{1})
+                    [ok,mess,lstruct]=read_file(args{1});
+                    if ~ok, return, end
+                    is_topfile = false;
+                    doc_filter = {};
+                    [ok, mess, doc_new] = parse_doc (lstruct, args(2:end), S,...
+                        is_topfile, doc_filter);
+                    if ~ok, return, end
+                    doc_out=[doc_out,doc_new];
+                end
             end
         else
             ok=false;

@@ -1,5 +1,5 @@
 function [ok, mess, source, changed] = parse_top_doc (flname, doc_filter)
-% Parse meta documentation source (file or cell array of strings)
+% Parse meta documentation in a matlab source code file
 %
 %   >> [ok, mess, source, changed] = parse_top_doc (flname, doc_filter)
 %
@@ -71,33 +71,48 @@ args = {};          % no arguments to be passed to meta documentation
 S = struct();       % structure with no fields - no accumulated variables
 for i=1:numel(ilo)
     lstruct_sub = section_lstruct (lstruct, ilo(i):ihi(i));
-    [ok, mess, doc_new, iline] = parse_doc (lstruct_sub, is_topfile, doc_filter, args, S);
+    [ok, mess, doc_new, iline_start, iline_finish, doc_found] = parse_doc ...
+        (lstruct_sub, args, S, is_topfile, doc_filter);
     if ok
-        if ~isempty(doc_new)
+        if doc_found
             % Meta documentation found; discard all comments up to the start of the
             % meta documentation, replace with new documentation, insert a blank line
             % and then retain the meta documentation and the rest of the code up to
             % the next leading comment block. Repeated running of the function does
             % not change the output (the blank line that was inserted is compressed
             % away, and the resolved documentation discarded)
-            ind_docstart = lstruct_sub.ind(iline);
+            ind_docstart = lstruct_sub.ind(iline_start);
+            ind_docfinish = lstruct_sub.ind(iline_finish);
             
             % Get leading whitespace from first meta documentation line
             line = source_in{ind_docstart};
             pos = strfind(source_in{ind_docstart},'%');
             whitespace = line(1:pos(1)-1);
             
-            % Indent each line in doc_new by this string (recall parse_doc works
-            % with trimmed strings)
-            doc_new = strcat({whitespace}, doc_new);    % {whitespace} is a trick to keep blank
+            % Construct demarcation line
+            if ind_docfinish<numel(source_in) && is_demarcation_line (source_in{ind_docfinish+1},'-')
+                % There is a demarcation line after the meta documentation lines
+                demarkstr = [whitespace,strtrim(source_in{ind_docfinish+1})];
+                skip_line = 1;
+            else
+                demarkstr = make_demarcation_line (whitespace,80,'-');
+                skip_line = 0;
+            end
             
-            source = [source, doc_new, {''}, source_in(ind_docstart:ind_lo(i+1)-1)];
+            if ~isempty(doc_new)
+                % Meta documentation is not empty. Indent each line in doc_new
+                % by this string (recall parse_doc works with trimmed strings)
+                doc_new = strcat({whitespace}, doc_new);    % {whitespace} is a trick to keep blank
+            end
+            source = [source, doc_new, {'',demarkstr}, source_in(ind_docstart:ind_docfinish),...
+                {demarkstr},source_in(ind_docfinish+1+skip_line:ind_lo(i+1)-1)];
         else
             % No meta documentation found; leave the leading comment block unchanged
             % and collect source code up to start of next leading comment block
             source = [source, source_in(ind_lo(i):ind_lo(i+1)-1)];
         end
     else
+        % Error condition; return the source unchanged
         source = source_in; changed = false;
         return
     end
@@ -109,3 +124,42 @@ if numel(source)==numel(source_in) && all(strcmp(source,source_in))
 else
     changed = true;
 end
+
+% --------------------------------------------------------------------------------
+function str = make_demarcation_line (pre_str,len,char)
+% Create a demarcation comment line
+%
+%   >> str = make_demarcation_line (pre_str,len,char)
+%
+% Input:
+% ------
+%   pre_str     String to precede comment symbol '%'
+%               Expected to be whitespace, but can be anything in fact
+%
+%   len         Total length of line including whitespace
+%   char        Character to be repeated e.g. '-'
+%
+% Output:
+% -------
+%   str         Character string with the requested line
+%
+% EXAMPLE
+%   >> demarcation_line ('   ',20,'=')
+%
+
+if numel(pre_str)<len
+    nchar = len - numel(pre_str) - 1;
+    str = [pre_str, '%', repmat(char,1,nchar)];
+else
+    str = pre_str(1:len);
+end
+
+% --------------------------------------------------------------------------------
+function status = is_demarcation_line (str,char)
+% Determine if a string has form [whitespace]%[space]repmat(char,1,n)
+
+strout = strtrim(str);
+repchar = @(x,character) isequal(strfind(x,character),1:numel(x));
+status = (numel(strout)>=2 && strcmp(strout(1),'%') && repchar(strout(2:end),char))...
+    || (numel(strout)>=3 && strcmp(strout(1:2),'% ') && repchar(strout(3:end),char));
+

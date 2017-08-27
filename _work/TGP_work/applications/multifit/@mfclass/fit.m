@@ -62,15 +62,17 @@ function [data_out, fitdata, ok, mess] = fit (obj, varargin)
 %
 %   mess    Message if ok==false; Empty string if ok==true.
 %
-%
 % If ok is not a return argument, then if ok is false an error will be thrown.
 
+%-------------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
 %   doc_fit_intro = fullfile(mfclass_doc,'doc_fit_intro.m')
+% -----------------------------------------------------------------------------
 % <#doc_beg:> multifit
-%   <#file:> <doc_fit_intro>
+%   <#file:> <doc_fit_intro> '' ''
 % <#doc_end:>
+%-------------------------------------------------------------------------------
 
 
 % Default return values if there is an error

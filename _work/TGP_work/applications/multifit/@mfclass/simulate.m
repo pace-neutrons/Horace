@@ -67,12 +67,15 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 %
 % If ok is not a return argument, then if ok is false an error will be thrown.
 
+%-------------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
 %   doc_simulate_intro = fullfile(mfclass_doc,'doc_simulate_intro.m')
+%-------------------------------------------------------------------------------
 % <#doc_beg:> multifit
 %   <#file:> <doc_simulate_intro>
 % <#doc_end:>
+%-------------------------------------------------------------------------------
 
 
 % Default return values if there is an error

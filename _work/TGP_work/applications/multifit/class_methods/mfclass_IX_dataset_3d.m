@@ -83,6 +83,7 @@ classdef mfclass_IX_dataset_3d < mfclass
     % Options:
     %   options      - options defining fit control parameters
 
+    % -----------------------------------------------------------------------------
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
     %   mfclass_doc_purpose_summary_file = fullfile(mfclass_doc,'doc_purpose_summary.m')
@@ -218,6 +219,7 @@ classdef mfclass_IX_dataset_3d < mfclass
             %
             %     See <a href="matlab:edit('example_3d_function');">example_3d_function</a>
 
+            % -----------------------------------------------------------------------------
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
             %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')
@@ -341,6 +343,7 @@ classdef mfclass_IX_dataset_3d < mfclass
             %
             %     See <a href="matlab:edit('example_3d_function');">example_3d_function</a>
 
+            % -----------------------------------------------------------------------------
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
             %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')

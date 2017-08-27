@@ -83,6 +83,7 @@ classdef mfclass
     % Options:
     %   options      - options defining fit control parameters
 
+    % -----------------------------------------------------------------------------
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
     %   mfclass_doc_purpose_summary_file = fullfile(mfclass_doc,'doc_purpose_summary.m')

@@ -90,6 +90,7 @@ classdef mfclass_Horace_sqw < mfclass
     % Options:
     %   options      - options defining fit control parameters
 
+    % -----------------------------------------------------------------------------
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
     %   mfclass_doc_purpose_summary_file = fullfile(mfclass_doc,'doc_purpose_summary.m')
@@ -249,6 +250,7 @@ classdef mfclass_Horace_sqw < mfclass
             % <a href="matlab:edit('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
             % <a href="matlab:edit('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
 
+            % -----------------------------------------------------------------------------
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
             %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')
@@ -374,6 +376,7 @@ classdef mfclass_Horace_sqw < mfclass
             %     See <a href="matlab:edit('example_2d_function');">example_2d_function</a>
             %     See <a href="matlab:edit('example_3d_function');">example_3d_function</a>
 
+            % -----------------------------------------------------------------------------
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
             %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')
@@ -471,9 +474,11 @@ classdef mfclass_Horace_sqw < mfclass
             %
             % If ok is not a return argument, then if ok is false an error will be thrown.
 
+            % -----------------------------------------------------------------------------
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
             %   doc_simulate_intro = fullfile(mfclass_doc,'doc_simulate_intro.m')
+            % -----------------------------------------------------------------------------
             % <#doc_beg:> multifit
             %   <#file:> <doc_simulate_intro>
             % <#doc_end:>
@@ -553,14 +558,15 @@ classdef mfclass_Horace_sqw < mfclass
             %
             %   mess    Message if ok==false; Empty string if ok==true.
             %
-            %
             % If ok is not a return argument, then if ok is false an error will be thrown.
 
+            % -----------------------------------------------------------------------------
             % <#doc_def:>
             %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
             %   doc_fit_intro = fullfile(mfclass_doc,'doc_fit_intro.m')
+            % -----------------------------------------------------------------------------
             % <#doc_beg:> multifit
-            %   <#file:> <doc_fit_intro>
+            %   <#file:> <doc_fit_intro> '' ''
             % <#doc_end:>
             % -----------------------------------------------------------------------------
 

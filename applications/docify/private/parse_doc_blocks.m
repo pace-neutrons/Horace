@@ -1,14 +1,14 @@
 function [ok, mess, idef, ibeg, iend] = parse_doc_blocks (cstr, is_topfile, doc_filter)
-% Find the locations of meta documentation blocks in a meta documentation file
+% Find the locations of meta documentation blocks in a cell array of character strings
 %
 %   >> [ok, mess, idef, ibeg, iend] = parse_doc_blocks (cstr, is_topfile, doc_filter)
 %
 % Input:
 % ------
-%   cstr        Cell array of sharacter strings. Assumed to be non-empty and
+%   cstr        Cell array of character strings. Assumed to be non-empty and
 %              trimmed of leading and trailing whitespace.
 %
-%   is_topfile  True if lstruct is from the top level mfile, false otherwise
+%   is_topfile  True if cstr is from the top level mfile, false otherwise
 %          If true, then if there must be an explicit doc_beg line for
 %          there to be meta documentation
 %
@@ -28,19 +28,59 @@ function [ok, mess, idef, ibeg, iend] = parse_doc_blocks (cstr, is_topfile, doc_
 %              Set to ibeg where there is no definition block
 %
 %   ibeg        Index of doc_beg line (array if more than one block)
-%              ibeg(1) can be =0
+%              Note ibeg(1) can be =0
 %
 %   iend        Index of doc_end line (array if more than one block)
-%              Always true that iend>ibeg. iend(end) can be numel(cstr)+1
+%              Always true that iend>=ibeg+1. Note iend(end) can be numel(cstr)+1
 %
 % Notes
 %   - If no documentation block was found then numel(idef)=numel(ibeg)=numel(iend)=0
-%   - Blocks may have no lines to parse i.e. ibeg(i)==iend(i)+1. We do not remove
+%
+%   - Blocks may have no lines to parse i.e. iend(i)==ibeg(i)+1. We do not remove
 %    these, however, because this is significant in the top level m-file: it
 %    will force leading lines that are not part of the meta documentation to be
 %    removed. Furthermore, there may be definitions that have been given for that
 %    block but which are erroneous; we do not want to presume that they are valid
 %    and so we want to ensure that all contents of cstr are parsed in later routines.
+%
+%
+% Form of meta documentation file:
+% --------------------------------
+% Simplest form; all contents are meta documentation:
+%
+%   %   :
+%
+% Leading comment lines that will be ignored, and assumed 'missing' end:
+%   %   :
+%   % <#doc_beg:>
+%   %   :
+%
+% The same with a definition section:
+%   %   :
+%   % <#doc_def:>
+%   %   :
+%   % <#doc_beg:>
+%   %   :
+%
+% Any number of blocks, spaced with comments that will be ignored, with assumed
+% 'missing' end at the end of the block, if necessary.
+%
+%   %   :
+%   % <#doc_beg:>
+%   %   :
+%   % <#doc_end:>
+%   %   :
+%
+% or
+%
+%   %   :
+%   % <#doc_def:>
+%   %   :
+%   % <#doc_beg:>
+%   %   :
+%   % <#doc_end:>
+%   %   :
+
 
 ok = true;
 mess = '';

@@ -13,12 +13,15 @@ function varargout=docify(varargin)
 %   >> docify (file_in, file_out)   % insert documentation and write to new file
 %   >> docify (...,'-key',val)      % Only if the file contains one of the keywords
 %
-% Additional keywords
-%   ...,'-list',n,...           % n=0 No listing to screen
-%                               % n=1 List changed files only, or if error
-%                               % n=2 list all checked files, and if error or not
-%                               % n=3 (default) list all checked files and full
-%                               %      traceback of errors
+% Reporting result of parsing to the screen and/or output
+%   >> docify (...,'-list',n,...)
+% 	        n=1 [Default] List changed files only, or if error (with full traceback)
+%           n=2 list all checked files, and any errors (with full traceback)
+%   >> report = docify (...,'-list',n,...)
+%           n=1  or n=2 : Print to screen and return report
+%           n=-1 or n=-2: Suppress output to screen
+%
+%
 %
 %
 % Format of meta documentation
@@ -213,8 +216,8 @@ function varargout=docify(varargin)
 
 % Parse input
 % ------------
-keyval_def = struct('recursive',false,'key',{{}},'list',1);
-flagnames = {'recursive'};
+keyval_def = struct('recursive',false,'key',{{}},'list',1,'display',true);
+flagnames = {'recursive','display'};
 opt=struct('prefix','-','prefix_req',true);
 [pars,keyval] = parse_arguments (varargin, keyval_def, flagnames, opt);
 
@@ -250,10 +253,21 @@ else
     error('Check value of keyword ''-key'' is a character string or a cell array of strings')
 end
 
-report = {};
+% Get verbosity of listing
+nlist = keyval.list;
+if isnumeric(nlist) && isscalar(nlist)
+    nlist = abs(round(nlist));
+    if nlist<0, nlist=0; elseif nlist>2, nlist=2; end
+else
+    nlist = 2;
+end
+keyval.list = nlist;
+
 
 % Loop over all directories
 % --------------------------
+report = {};
+
 if span_directory && keyval.recursive
     directories=dir_name_list(directory,'','.svn');    % skip svn work folders
     for i=1:numel(directories)
@@ -278,40 +292,32 @@ if span_directory
         fname = fullfile(directory,files(ifile).name);
         [ok,mess,file_full_in,changed] = docify_single(fname,'',keyval.key);
         report = [report;...
-            make_report(ok,mess,file_full_in,changed,keyval.list)];
+            make_report(ok,mess,file_full_in,changed,keyval.list,keyval.display)];
     end
 else
     [ok,mess,file_full_in,changed] = docify_single(file_in,file_out,keyval.key);
     report = [report;...
-        make_report(ok,mess,file_full_in,changed,keyval.list)];
+        make_report(ok,mess,file_full_in,changed,keyval.list,keyval.display)];
 end
 
 if nargout>=1, varargout{1}=report; end
 
 
 %-----------------------------------------------------------------------------------------
-function report = make_report (ok, mess, file_full_in, changed, list)
+function report = make_report (ok, mess, file_full_in, changed, nlist, disp_to_screen)
 % Create a report and print to screen as requested
 % 	list    n=1 List changed files only, or if error (with full traceback)
 %           n=2 list all checked files, and any errors (with full traceback)
-%
-%           n>0 Print to screen
-%           n<0 Suppress output to screen
 
 
-% Get verbosity of listing
-if isnumeric(list) && isscalar(list)
-    n = round(list);
-    if n<0, disp_to_screen=false; else disp_to_screen=true; end
-    n = abs(n);
-    if n<1, n=0; elseif n>2, n=2; end
-else
-    n = 2;
-end
+report={};
 
 % Create report
-report={};
-if n==1
+if nlist==0
+    if ~ok
+        report = [{['***ERROR: ',file_full_in]}; mess; {' '}];
+    end
+elseif nlist==1
     if ok && changed
         report = {file_full_in};
     elseif ~ok
@@ -320,7 +326,7 @@ if n==1
 else
     if ok
         if ~changed
-            report = {['       : ',file_full_in]};
+            report = {['     ok: ',file_full_in]};
         else
             report = {['Changed: ',file_full_in]};
         end

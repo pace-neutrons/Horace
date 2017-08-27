@@ -1,3 +1,11 @@
+% Header to fit method
+%
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%       extra_header = '#1'
+%       extra_body   = '#2'
+% -----------------------------------------------------------------------------
+% <#doc_beg:>
 % Perform a fit of the data using the current functions and starting parameter values
 %
 % Return calculated fitted datasets and parameters:
@@ -9,6 +17,7 @@
 % Continue execution even if an error condition is thrown:
 %   >> [data_out, fitdata, ok, mess] = obj.fit (...)    % if ok false, still returns
 %
+%   <#file:> <extra_header>
 %
 % Output:
 % -------
@@ -61,5 +70,5 @@
 %
 %   mess    Message if ok==false; Empty string if ok==true.
 %
-%
 % If ok is not a return argument, then if ok is false an error will be thrown.
+%   <#file:> <extra_body>
