@@ -95,6 +95,7 @@ classdef mfclass_tobyfit < mfclass
     %   refine_crystal      - Crystal orientation refinement parameters
     %   refine_moderator    - Moderator parameter refinement parameters
 
+    % -----------------------------------------------------------------------------
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
     %   mfclass_tobyfit_doc = fullfile(fileparts(which('mfclass_tobyfit')),'_docify')
@@ -107,6 +108,7 @@ classdef mfclass_tobyfit < mfclass
     %
     %   class_name = 'mfclass_tobyfit'
     %
+    % -----------------------------------------------------------------------------
     % <#doc_beg:> multifit
     %   <#file:> <mfclass_tobyfit_doc_purpose_summary_file>
     %
@@ -124,6 +126,7 @@ classdef mfclass_tobyfit < mfclass
     %
     %   <#file:> <mfclass_tobyfit_doc_properties_summary_file>
     % <#doc_end:>
+    % -----------------------------------------------------------------------------
 
     properties (Access=private, Hidden=true)
         mc_contributions_ = [];
@@ -173,7 +176,7 @@ classdef mfclass_tobyfit < mfclass
             obj = obj.set_refine_crystal (false);
             obj = obj.set_refine_moderator (false);
         end
-        
+
         %------------------------------------------------------------------
         % Set/get methods
         %------------------------------------------------------------------
@@ -200,13 +203,13 @@ classdef mfclass_tobyfit < mfclass
 
         % Set foreground function or functions
         obj = set_fun(obj,varargin)
-        
+
         % Set background function or functions
         obj = set_bfun(obj,varargin)
 
         % Perform a fit of the data using the current functions and starting parameter values
         [data_out, fitdata, ok, mess, varargout] = fit (obj, varargin)
-        
+
         % Perform a simulation of the data using the current functions and starting parameter values
         [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 

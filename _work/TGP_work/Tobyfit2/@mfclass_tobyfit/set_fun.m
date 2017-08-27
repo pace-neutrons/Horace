@@ -1,14 +1,14 @@
 function obj = set_fun(obj,varargin)
-% Set background function or functions
+% Set foreground function or functions
 %
-% Set all background functions
-%   >> obj = obj.set_bfun (functions, pin)
-%   >> obj = obj.set_bfun (functions, pin, free)
-%   >> obj = obj.set_bfun (functions, pin, free, bind)
-%   >> obj = obj.set_bfun (functions, pin, 'free', free, 'bind', bind)
+% Set all foreground functions
+%   >> obj = obj.set_fun (functions, pin)
+%   >> obj = obj.set_fun (functions, pin, free)
+%   >> obj = obj.set_fun (functions, pin, free, bind)
+%   >> obj = obj.set_fun (functions, pin, 'free', free, 'bind', bind)
 %
-% Set a particular background function or set of background functions:
-%   >> obj = obj.set_bfun (ifun, functions, pin,...)    % ifun is scalar or row vector
+% Set a particular foreground function or set of foreground functions:
+%   >> obj = obj.set_fun (ifun, functions, pin,...)    % ifun is scalar or row vector
 %
 % Input:
 % ------
@@ -41,11 +41,11 @@ function obj = set_fun(obj,varargin)
 %               This syntax allows an abbreviated argument list. For example,
 %              if the fit function are local, three datasets, then :
 %
-%                   >> obj = obj.set_bfun (@gauss, [100,10,0.5])
+%                   >> obj = obj.set_fun (@gauss, [100,10,0.5])
 %               Every dataset is independently fitted to a Gaussian with same
 %              initial parameters
 %
-%                   >> obj = obj.set_bfun (@gauss, {[100,10,0.5], [120,10,1], {140,10,2})
+%                   >> obj = obj.set_fun (@gauss, {[100,10,0.5], [120,10,1], {140,10,2})
 %               Every dataset is independently fitted to a Gaussian with
 %              different starting parameters
 %
@@ -58,27 +58,27 @@ function obj = set_fun(obj,varargin)
 %              datasets and the fit is local (i.e. each datset has independent
 %              fit functions) then set the function to be Gaussians for the
 %              first and third datasets and a Lorentzian for the second:
-%                   >> obj = obj.set_bfun ([1,3], @gauss, {[100,10,0.5], [120,10,1]})
-%                   >> obj = obj.set_bfun (2, @lorentzian, [50,10,2])
+%                   >> obj = obj.set_fun ([1,3], @gauss, {[100,10,0.5], [120,10,1]})
+%                   >> obj = obj.set_fun (2, @lorentzian, [50,10,2])
 %
 %   free        Logical row vector (single function) or cell array of logical
 %              row vectors (more than one function) that define which parameters
 %              are free to vary (corresponding element is true) or fixed
 %              (corresponding element is false). Note that just like arguments
-%              fun and pin, if the background is local, then if a single
+%              fun and pin, if the foreground is local, then if a single
 %              logical array is given, it is assumed to apply to all fit functions
 %              (or the subset selected by ifun, if given).
 %              For full details of the syntax for fixing/freeing parameters,
-%              see <a href="matlab:doc('mfclass/set_bfree');">set_bfree</a>
+%              see <a href="matlab:doc('mfclass/set_free');">set_free</a>
 %
 %   bind        Binding of one or more parameters to other parameters.
 %              For full details of the syntax for binding parameters together,
-%              see <a href="matlab:doc('mfclass/set_bbind');">set_bbind</a>
+%              see <a href="matlab:doc('mfclass/set_bind');">set_bind</a>
 %
-% See also set_local_background set_global_background set_bfree set_bbind
+% See also set_local_foreground set_global_foreground set_free set_bind
 %
 %
-% Form of background fit functions
+% Form of foreground fit functions
 % --------------------------------
 % A model for S(Q,w) must have the form:
 %
@@ -99,6 +99,7 @@ function obj = set_fun(obj,varargin)
 % <a href="matlab:doc('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
 % <a href="matlab:doc('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
 
+% -----------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
 %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')
@@ -106,8 +107,8 @@ function obj = set_fun(obj,varargin)
 %   mfclass_Horace_doc = fullfile(fileparts(which('sqw/multifit2_sqw')),'_docify')
 %   doc_set_fun_sqw_model_form = fullfile(mfclass_Horace_doc,'doc_set_fun_sqw_model_form.m')
 %
-%   type = 'back'
-%   pre = 'b'
+%   type = 'fore'
+%   pre = ''
 % -----------------------------------------------------------------------------
 % <#doc_beg:> multifit
 %   <#file:> <doc_set_fun_intro> <type> <pre>

@@ -10,6 +10,12 @@ function [data_out, fitdata, ok, mess, varargout] = fit (obj, varargin)
 % Continue execution even if an error condition is thrown:
 %   >> [data_out, fitdata, ok, mess] = obj.fit (...)    % if ok false, still returns
 %
+% If refining crystal orientation:
+%   >> [data_out, fitdata, ok, mess, rlu_corr] = obj.fit (...)
+%
+% If refining moderator parameters:
+%   >> [data_out, fitdata, ok, mess, pulse_model, p, psig] = obj.fit (...)
+%
 %
 % Output:
 % -------
@@ -62,16 +68,50 @@ function [data_out, fitdata, ok, mess, varargout] = fit (obj, varargin)
 %
 %   mess    Message if ok==false; Empty string if ok==true.
 %
-%
 % If ok is not a return argument, then if ok is false an error will be thrown.
+%
+% Additional return arguments if refining moderator or crystal orientation:
+% -------------------------------------------------------------------------
+% Crystal orientation:
+%   If crystal refinement has been set (see <a href="matlab:doc('mfclass_tobyfit/set_refine_crystal');">set_refine_crystal</a>):
+%
+%   >> [data_out, fitdata, ok, mess, rlu_corr] = obj.fit (...)
+%
+%   rlu_corr    Reorientation matrix used to change crystal orientation.
+%
+%   See:
+%   <a href="matlab:doc sqw/change_crystal">mfclass/change_crystal</a>
+%   <a href="matlab:doc change_crystal_horace">mfclass/change_crystal_horace</a>
+%   <a href="matlab:doc change_crystal_sqw">mfclass/change_crystal_sqw</a>
+%   <a href="matlab:doc change_crystal_dnd">mfclass/change_crystal_dnd</a>
+%
+% Moderator refinement:
+%   If moderator refinement has been set (see <a href="matlab:doc('mfclass_tobyfit/set_refine_moderator');">set_refine_moderator</a>):
+%
+%   >> [data_out, fitdata, ok, mess, pulse_model, p, psig] = obj.fit (...)
+%
+%   pulse_model, p, psig    Refined moderator parameters (and standard errors)
+%                          used as input by set_mod_pulse to reset the
+%                          moderator parameters in an sqw object or file.
+%   See:
+%   <a href="matlab:doc sqw/get_mod_pulse">mfclass/get_mod_pulse</a>
+%   <a href="matlab:doc get_mod_pulse_horace">mfclass/get_mod_pulse_horace</a>
+%   <a href="matlab:doc sqw/set_mod_pulse">mfclass/set_mod_pulse</a>
+%   <a href="matlab:doc set_mod_pulse_horace">mfclass/set_mod_pulse_horace</a>
 
+%-------------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
 %   doc_fit_intro = fullfile(mfclass_doc,'doc_fit_intro.m')
+%
+%   mfclass_tobyfit_doc = fullfile(fileparts(which('mfclass_tobyfit')),'_docify')
+%   doc_fit_intro_extra_header = fullfile(mfclass_tobyfit_doc,'doc_fit_intro_extra_header.m')
+%   doc_fit_intro_extra_body = fullfile(mfclass_tobyfit_doc,'doc_fit_intro_extra_body.m')
+%-------------------------------------------------------------------------------
 % <#doc_beg:> multifit
-%   <#file:> <doc_fit_intro>
+%   <#file:> <doc_fit_intro> <doc_fit_intro_extra_header> <doc_fit_intro_extra_body>
 % <#doc_end:>
-% -----------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 
 % Check there is data
 data = obj.data;
