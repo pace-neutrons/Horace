@@ -176,7 +176,7 @@
     <Link>
       <AdditionalOptions>/EXPORT:mexFunction %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libmex.lib;libmat.lib;libmx.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)/mtimesx.mexw64</OutputFile>
+      <OutputFile>$(OutDir)/mtimesx_mex.mexw64</OutputFile>
       <AdditionalLibraryDirectories>$(MATLABDIR)64\extern\lib\win64\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -262,7 +262,7 @@
     <Link>
       <AdditionalOptions>/EXPORT:mexFunction %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libmex.lib;libmat.lib;libmx.lib;libmwblas.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)/mtimesx.mexw64</OutputFile>
+      <OutputFile>$(OutDir)/mtimesx_mex.mexw64</OutputFile>
       <AdditionalLibraryDirectories>$(MATLABDIR)64\extern\lib\win64\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -298,7 +298,7 @@
     <Link>
       <AdditionalOptions>/EXPORT:mexFunction %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>libmex.lib;libmat.lib;libmx.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)/mtimesx.mexw64</OutputFile>
+      <OutputFile>$(OutDir)/mtimesx_mex.mexw64</OutputFile>
       <AdditionalLibraryDirectories>$(MATLABDIR)64\extern\lib\win64\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
