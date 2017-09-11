@@ -24,7 +24,7 @@ t0=toc
 % Method 1
 % --------
 tic
-c3=mtimesx(a,b,'speed');
+c3=mtimesx_mex(a,b,'speed');
 t1=toc
 
 if any(abs(c0(:)-c3(:))>tol)

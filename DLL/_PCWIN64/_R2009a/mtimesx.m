@@ -266,18 +266,18 @@ function varargout = mtimesx(varargin)
 
 persistent use_mex;
 %persistent num_omp_threads;
-if isemtpy(use_mex)
+if isempty(use_mex)
     %[use_mex,num_omp_threads] = get(hor_config,'use_mex','threads');
     use_mex = get(hor_config,'use_mex');
     
 end
 
 
-if isempty(which('mtimesx_mex'))
-    root = fileparts(which('horace_init'));
-    cd(fullfile(root,'_LowLevelCode','cpp','mtimesx'));
-    mtimesx_build;
-end
+%if isempty(which('mtimesx_mex'))
+%    root = fileparts(which('horace_init'));
+%    cd(fullfile(root,'_LowLevelCode','cpp','mtimesx'));
+%    mtimesx_build;
+%end
 
 %\
 % Call the mex routine mtimesx.

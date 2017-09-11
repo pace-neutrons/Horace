@@ -66,8 +66,10 @@ c2=permute(c2,[3,1,2]);
 
 % Method 3
 % --------
+c3=zeros(size(a));
+
 tic
-c3=mtimesx(a,b);
+c3=mtimesx_mex(a,b);
 t3=toc
 
 c3=permute(c3,[3,1,2]);
@@ -76,7 +78,7 @@ c3=permute(c3,[3,1,2]);
 % Method 3
 % --------
 tic
-c4=mtimesx(a,b);
+c4=mtimesx_mex(a,b);
 t4=toc
 
 c4=permute(c4,[3,1,2]);
