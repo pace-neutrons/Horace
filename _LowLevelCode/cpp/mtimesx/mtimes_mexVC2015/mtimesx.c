@@ -284,7 +284,7 @@ mxArray *modestring(int);
 
 /* Global Variables --------------------------------------------------- */
 
-int mtimesx_mode  = MTIMESX_MATLAB;
+int mtimesx_mode  = MTIMESX_SPEED_OMP;
 int max_threads   = 0;
 int threads_used  = 0;
 int debug         = 0;
@@ -643,6 +643,12 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
         }
         return;
     }
+    //----------------------------------------------------------------------------
+    // shortcut to disable all other methods except OMP
+    if (!(mtimesx_mode == MTIMESX_SPEED_OMP || mtimesx_mode == MTIMESX_LOOPS_OMP)) {
+        mtimesx_mode = MTIMESX_LOOPS_OMP;
+    }
+    //----------------------------------------------------------------------------
 
     if( nrhs < 2 || nrhs > 4 ) {
         mexErrMsgTxt("Must have 2 - 4 non-directive inputs for multiply function");
@@ -1109,7 +1115,7 @@ mxArray *modestring(int m)
     }
     mxArray *out = mxCreateString(buffer);
     free(buffer);
-    return mxCreateString(buffer);
+    return out;
 
 }
 
