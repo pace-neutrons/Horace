@@ -1,8 +1,8 @@
 % Test routine for mtimesx, op(double) * op(double) equality vs MATLAB
 %******************************************************************************
-% 
+%
 %  MATLAB (R) is a trademark of The Mathworks (R) Corporation
-% 
+%
 %  Function:    mtimesx_test_ddequal
 %  Filename:    mtimesx_test_ddequal.m
 %  Programmer:  James Tursa
@@ -12,26 +12,26 @@
 %
 %  This code uses the BSD License:
 %
-%  Redistribution and use in source and binary forms, with or without 
-%  modification, are permitted provided that the following conditions are 
+%  Redistribution and use in source and binary forms, with or without
+%  modification, are permitted provided that the following conditions are
 %  met:
 %
-%     * Redistributions of source code must retain the above copyright 
+%     * Redistributions of source code must retain the above copyright
 %       notice, this list of conditions and the following disclaimer.
-%     * Redistributions in binary form must reproduce the above copyright 
-%       notice, this list of conditions and the following disclaimer in 
+%     * Redistributions in binary form must reproduce the above copyright
+%       notice, this list of conditions and the following disclaimer in
 %       the documentation and/or other materials provided with the distribution
-%      
-%  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-%  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-%  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-%  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-%  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-%  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-%  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-%  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-%  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-%  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+%
+%  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+%  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+%  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+%  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+%  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+%  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+%  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+%  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+%  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+%  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 %  POSSIBILITY OF SUCH DAMAGE.
 %
 %  Syntax:
@@ -44,7 +44,7 @@
 %
 %--------------------------------------------------------------------------
 
-function dtable = mtimesx_test_ddequal
+function dtable = test_ddequal
 
 global mtimesx_dtable
 
@@ -61,11 +61,17 @@ disp('*  The program will be done when you see the message:  DONE !             
 disp('*                                                                          *');
 disp('****************************************************************************');
 disp(' ');
-input('Press Enter to start test, or Ctrl-C to exit ','s');
+%input('Press Enter to start test, or Ctrl-C to exit ','s');
 
 start_time = datenum(clock);
+mtimes_mode= strsplit(mtimesx_horace,'\n');
+if numel(mtimes_mode) == 2
+    mode = mtimes_mode{2};
+else
+    mode = mtimes_mode{1};
+end
+compver = [computer ', ' version ', mtimesx mode ' mode];
 
-compver = [computer ', ' version ', mtimesx mode ' mtimesx];
 k = length(compver);
 RC = '                                Real*Real  Real*Cplx  Cplx*Real  Cplx*Cplx';
 
@@ -74,7 +80,7 @@ mtimesx_dtable(162,74) = ' ';
 mtimesx_dtable(1,1:k) = compver;
 mtimesx_dtable(2,:) = RC;
 for r=3:162
-mtimesx_dtable(r,:) = '                                       --         --         --         --';
+    mtimesx_dtable(r,:) = '                                       --         --         --         --';
 end
 
 disp(' ');
@@ -97,7 +103,7 @@ r = rsave;
 
 %if( false ) % debug jump
 
-if( isequal([]*[],mtimesx([],[])) )
+if( isequal([]*[],mtimesx_horace([],[])) )
     disp('Empty   * Empty                EQUAL');
 else
     disp('Empty   * Empty                NOT EQUAL <---');
@@ -318,7 +324,7 @@ disp(' ');
 disp('(real) * (real).''');
 disp(' ');
 
-if( isequal([]*[].',mtimesx([],[],'T')) )
+if( isequal([]*[].',mtimesx_horace([],[],'T')) )
     disp('Empty   *  Empty.''             EQUAL');
 else
     disp('Empty   *  Empty.''             NOT EQUAL <---');
@@ -524,7 +530,7 @@ disp(' ');
 disp('(real) * (real)''');
 disp(' ');
 
-if( isequal([]*[]',mtimesx([],[],'C')) )
+if( isequal([]*[]',mtimesx_horace([],[],'C')) )
     disp('Empty   *  Empty''              EQUAL');
 else
     disp('Empty   *  Empty''              NOT EQUAL <---');
@@ -729,7 +735,7 @@ disp(' ');
 
 %if( false ) % debug jump
 
-if( isequal([]*conj([]),mtimesx([],[],'G')) )
+if( isequal([]*conj([]),mtimesx_horace([],[],'G')) )
     disp('Empty   * conj(Empty)          EQUAL');
 else
     disp('Empty   * conj(Empty)          NOT EQUAL <---');
@@ -953,7 +959,7 @@ disp(' ');
 disp('(real).'' * (real)');
 disp(' ');
 
-if( isequal([]'*[],mtimesx([],'C',[])) )
+if( isequal([]'*[],mtimesx_horace([],'C',[])) )
     disp('Empty.''  * Empty               EQUAL');
 else
     disp('Empty.''  * Empty               NOT EQUAL <---');
@@ -1159,7 +1165,7 @@ disp(' ');
 disp('(real).'' * (real).''');
 disp(' ');
 
-if( isequal([].'*[]',mtimesx([],'T',[],'C')) )
+if( isequal([].'*[]',mtimesx_horace([],'T',[],'C')) )
     disp('Empty.''  *  Empty.''            EQUAL');
 else
     disp('Empty.''  *  Empty.''            NOT EQUAL <---');
@@ -1345,7 +1351,7 @@ disp(' ');
 disp('(real).'' * (real)''');
 disp(' ');
 
-if( isequal([].'*[]',mtimesx([],'T',[],'C')) )
+if( isequal([].'*[]',mtimesx_horace([],'T',[],'C')) )
     disp('Empty.''  *  Empty''             EQUAL');
 else
     disp('Empty.''  *  Empty''             NOT EQUAL <---');
@@ -1529,7 +1535,7 @@ disp(' ');
 disp('(real).'' * conj(real)');
 disp(' ');
 
-if( isequal([]'*conj([]),mtimesx([],'C',[],'G')) )
+if( isequal([]'*conj([]),mtimesx_horace([],'C',[],'G')) )
     disp('Empty.''  * conj(Empty)         EQUAL');
 else
     disp('Empty.''  * conj(Empty)         NOT EQUAL <---');
@@ -1733,7 +1739,7 @@ disp(' ');
 disp('(real)'' * (real)');
 disp(' ');
 
-if( isequal([]'*[],mtimesx([],'C',[])) )
+if( isequal([]'*[],mtimesx_horace([],'C',[])) )
     disp('Empty''  * Empty                EQUAL');
 else
     disp('Empty''  * Empty                NOT EQUAL <---');
@@ -1939,7 +1945,7 @@ disp(' ');
 disp('(real)'' * (real).''');
 disp(' ');
 
-if( isequal([]'*[]',mtimesx([],'C',[],'C')) )
+if( isequal([]'*[]',mtimesx_horace([],'C',[],'C')) )
     disp('Empty''  *  Empty.''             EQUAL');
 else
     disp('Empty''  *  Empty.''             NOT EQUAL <---');
@@ -2125,7 +2131,7 @@ disp(' ');
 disp('(real)'' * (real)''');
 disp(' ');
 
-if( isequal([]'*[]',mtimesx([],'C',[],'C')) )
+if( isequal([]'*[]',mtimesx_horace([],'C',[],'C')) )
     disp('Empty''  *  Empty''              EQUAL');
 else
     disp('Empty''  *  Empty''              NOT EQUAL <---');
@@ -2309,7 +2315,7 @@ disp(' ');
 disp('(real)'' * conj(real)');
 disp(' ');
 
-if( isequal([]'*conj([]),mtimesx([],'C',[],'G')) )
+if( isequal([]'*conj([]),mtimesx_horace([],'C',[],'G')) )
     disp('Empty''  * conj(Empty)          EQUAL');
 else
     disp('Empty''  * conj(Empty)          NOT EQUAL <---');
@@ -2514,7 +2520,7 @@ disp(' ');
 disp('conj(real)   * (real)');
 disp(' ');
 
-if( isequal(conj([])*[],mtimesx([],'G',[])) )
+if( isequal(conj([])*[],mtimesx_horace([],'G',[])) )
     disp('conj(Empty)  * Empty           EQUAL');
 else
     disp('conj(Empty)  * Empty           NOT EQUAL <---');
@@ -2740,7 +2746,7 @@ disp(' ');
 disp('conj(real) * (real).''');
 disp(' ');
 
-if( isequal(conj([])*[].',mtimesx([],'G',[],'T')) )
+if( isequal(conj([])*[].',mtimesx_horace([],'G',[],'T')) )
     disp('conj(Empty)   *  Empty.''       EQUAL');
 else
     disp('conj(Empty)   *  Empty.''       NOT EQUAL <---');
@@ -2946,7 +2952,7 @@ disp(' ');
 disp('conj(real) * (real)''');
 disp(' ');
 
-if( isequal(conj([])*[]',mtimesx([],'G',[],'C')) )
+if( isequal(conj([])*[]',mtimesx_horace([],'G',[],'C')) )
     disp('conj(Empty)   *  Empty''        EQUAL');
 else
     disp('conj(Empty)   *  Empty''        NOT EQUAL <---');
@@ -3151,7 +3157,7 @@ disp(' ');
 disp('conj(real)   * conj(real)');
 disp(' ');
 
-if( isequal(conj([])*conj([]),mtimesx([],'G',[],'G')) )
+if( isequal(conj([])*conj([]),mtimesx_horace([],'G',[],'G')) )
     disp('conj(Empty)  * conj(Empty)     EQUAL');
 else
     disp('conj(Empty)  * conj(Empty)     NOT EQUAL <---');
@@ -3738,7 +3744,7 @@ end
 
 function maxdiffNN(T,A,B,r)
 Cm = A*B;
-Cx = mtimesx(A,B);
+Cx = mtimesx_horace(A,B);
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3758,7 +3764,7 @@ end
 
 function maxdiffTN(T,A,B,r)
 Cm = A.'*B;
-Cx = mtimesx(A,'T',B);
+Cx = mtimesx_horace(A,'T',B);
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3768,7 +3774,7 @@ end
 
 function maxdiffGN(T,A,B,r)
 Cm = conj(A)*B;
-Cx = mtimesx(A,'G',B);
+Cx = mtimesx_horace(A,'G',B);
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3778,7 +3784,7 @@ end
 
 function maxdiffNC(T,A,B,r)
 Cm = A*B';
-Cx = mtimesx(A,B,'C');
+Cx = mtimesx_horace(A,B,'C');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3788,7 +3794,7 @@ end
 
 function maxdiffCC(T,A,B,r)
 Cm = A'*B';
-Cx = mtimesx(A,'C',B,'C');
+Cx = mtimesx_horace(A,'C',B,'C');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3798,7 +3804,7 @@ end
 
 function maxdiffTC(T,A,B,r)
 Cm = A.'*B';
-Cx = mtimesx(A,'T',B,'C');
+Cx = mtimesx_horace(A,'T',B,'C');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3808,7 +3814,7 @@ end
 
 function maxdiffGC(T,A,B,r)
 Cm = conj(A)*B';
-Cx = mtimesx(A,'G',B,'C');
+Cx = mtimesx_horace(A,'G',B,'C');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3818,7 +3824,7 @@ end
 
 function maxdiffNT(T,A,B,r)
 Cm = A*B.';
-Cx = mtimesx(A,B,'T');
+Cx = mtimesx_horace(A,B,'T');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3828,7 +3834,7 @@ end
 
 function maxdiffCT(T,A,B,r)
 Cm = A'*B.';
-Cx = mtimesx(A,'C',B,'T');
+Cx = mtimesx_horace(A,'C',B,'T');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3838,7 +3844,7 @@ end
 
 function maxdiffTT(T,A,B,r)
 Cm = A.'*B.';
-Cx = mtimesx(A,'T',B,'T');
+Cx = mtimesx_horace(A,'T',B,'T');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3848,7 +3854,7 @@ end
 
 function maxdiffGT(T,A,B,r)
 Cm = conj(A)*B.';
-Cx = mtimesx(A,'G',B,'T');
+Cx = mtimesx_horace(A,'G',B,'T');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3858,7 +3864,7 @@ end
 
 function maxdiffNG(T,A,B,r)
 Cm = A*conj(B);
-Cx = mtimesx(A,B,'G');
+Cx = mtimesx_horace(A,B,'G');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3868,7 +3874,7 @@ end
 
 function maxdiffCG(T,A,B,r)
 Cm = A'*conj(B);
-Cx = mtimesx(A,'C',B,'G');
+Cx = mtimesx_horace(A,'C',B,'G');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3878,7 +3884,7 @@ end
 
 function maxdiffTG(T,A,B,r)
 Cm = A.'*conj(B);
-Cx = mtimesx(A,'T',B,'G');
+Cx = mtimesx_horace(A,'T',B,'G');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3888,7 +3894,7 @@ end
 
 function maxdiffGG(T,A,B,r)
 Cm = conj(A)*conj(B);
-Cx = mtimesx(A,'G',B,'G');
+Cx = mtimesx_horace(A,'G',B,'G');
 maxdiffout(T,A,B,Cm,Cx,r);
 return
 end
@@ -3898,7 +3904,7 @@ end
 
 function maxdiffsymCN(T,A,r)
 Cm = A'*A;
-Cx = mtimesx(A,'C',A);
+Cx = mtimesx_horace(A,'C',A);
 maxdiffsymout(T,A,Cm,Cx,r);
 return
 end
@@ -3908,7 +3914,7 @@ end
 
 function maxdiffsymNC(T,A,r)
 Cm = A*A';
-Cx = mtimesx(A,A,'C');
+Cx = mtimesx_horace(A,A,'C');
 maxdiffsymout(T,A,Cm,Cx,r);
 return
 end
@@ -3918,7 +3924,7 @@ end
 
 function maxdiffsymTN(T,A,r)
 Cm = A.'*A;
-Cx = mtimesx(A,'T',A);
+Cx = mtimesx_horace(A,'T',A);
 maxdiffsymout(T,A,Cm,Cx,r);
 return
 end
@@ -3928,7 +3934,7 @@ end
 
 function maxdiffsymNT(T,A,r)
 Cm = A*A.';
-Cx = mtimesx(A,A,'T');
+Cx = mtimesx_horace(A,A,'T');
 maxdiffsymout(T,A,Cm,Cx,r);
 return
 end
@@ -3938,7 +3944,7 @@ end
 
 function maxdiffsymTG(T,A,r)
 Cm = A.'*conj(A);
-Cx = mtimesx(A,'T',A,'G');
+Cx = mtimesx_horace(A,'T',A,'G');
 maxdiffsymout(T,A,Cm,Cx,r);
 return
 end
@@ -3948,7 +3954,7 @@ end
 
 function maxdiffsymGT(T,A,r)
 Cm = conj(A)*A.';
-Cx = mtimesx(A,'G',A,'T');
+Cx = mtimesx_horace(A,'G',A,'T');
 maxdiffsymout(T,A,Cm,Cx,r);
 return
 end
@@ -3958,7 +3964,7 @@ end
 
 function maxdiffsymCG(T,A,r)
 Cm = A'*conj(A);
-Cx = mtimesx(A,'C',A,'G');
+Cx = mtimesx_horace(A,'C',A,'G');
 maxdiffsymout(T,A,Cm,Cx,r);
 return
 end
@@ -3968,7 +3974,7 @@ end
 
 function maxdiffsymGC(T,A,r)
 Cm = conj(A)*A';
-Cx = mtimesx(A,'G',A,'C');
+Cx = mtimesx_horace(A,'G',A,'C');
 maxdiffsymout(T,A,Cm,Cx,r);
 return
 end
@@ -4109,11 +4115,11 @@ s = 60*(m - mm);
 ss = floor(s);
 disp(' ');
 rt = sprintf('Running time hh:mm:ss = %2.0f:%2.0f:%2.0f',hh,mm,ss);
-if( rt(28) == ' ' ) 
+if( rt(28) == ' ' )
     rt(28) = '0';
 end
 if( rt(31) == ' ' )
-    rt(31) = '0'; 
+    rt(31) = '0';
 end
 disp(rt);
 disp(' ');

@@ -64,7 +64,7 @@ ct_f = wf./x2;
 % -------------------------------
 b_mat = zeros(6,11,npix);
 
-ds_mat = mtimesx(d_mat,s_mat);
+ds_mat = mtimesx_horace(d_mat,s_mat);
 
 b_mat(1,1,:) =  cp_i;
 b_mat(1,4,:) = -cp_i;
@@ -96,8 +96,8 @@ b_mat(6,10,:)=  ct_f;
 % ----------------------------------------------------------------------
 qk_mat = zeros(4,6,npix);
 qk_mat(1:3,1:3,:) = spec_to_rlu;
-qk_mat(1:3,4:6,:) = -mtimesx(spec_to_rlu,permute(d_mat,[2,1,3]));  % inverse of d_mat(:,:,i) is transpose of same
+qk_mat(1:3,4:6,:) = -mtimesx_horace(spec_to_rlu,permute(d_mat,[2,1,3]));  % inverse of d_mat(:,:,i) is transpose of same
 qk_mat(4,1,:) = (2*k_to_e)*wi;
 qk_mat(4,4,:) =-(2*k_to_e)*wf;
 
-dq_mat=mtimesx(qk_mat,b_mat);
+dq_mat=mtimesx_horace(qk_mat,b_mat);

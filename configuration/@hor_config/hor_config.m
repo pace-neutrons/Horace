@@ -233,9 +233,9 @@ classdef hor_config<config_base
             end
             config_store.instance().store_config(this,'threads',val);
             if val > 1
-                mtimesx('SPEEDOMP');
+                mtimesx_horace('SPEEDOMP');
             else
-                mtimesx('SPEED');
+                mtimesx_horace('SPEED');
             end
             
         end
@@ -289,10 +289,11 @@ classdef hor_config<config_base
                 if ~can_combine_with_mex
                     config_store.instance().store_config(this,'use_mex_for_combine',false);
                 end
+                %-- deal with mtimesx 
                 if this.threads > 1
-                    mtimesx('SPEEDOMP');
+                    mtimesx_mex('SPEEDOMP');
                 else
-                    mtimesx('SPEED');
+                    mtimesx_mex('SPEED');
                 end
                 
             end

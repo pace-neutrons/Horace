@@ -185,7 +185,7 @@ for i=1:numel(ind)
             yvec(11,1,:)=lookup.dt{iw}.*(rand(1,npix)-0.5);
         end
         
-        dq=squeeze(mtimesx(lookup.dq_mat{iw},yvec))';
+        dq=squeeze(mtimesx_horace(lookup.dq_mat{iw},yvec))';
         if imc==1
             stmp=sqwfunc(qw{1}+dq(:,1),qw{2}+dq(:,2),qw{3}+dq(:,3),qw{4}+dq(:,4),pars{:});
         else

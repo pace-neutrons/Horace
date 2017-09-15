@@ -75,17 +75,17 @@ if hc.is_default
     else
         hc.use_mex = true;
     end
-else
-    if ~isempty(mexMaxVer)
-        threads = hc.threads;
-        if threads > 1
-            mtimesx('SPEEDOMP');
-        else
-            mtimesx('SPEED');
-        end
+end
+if ~isempty(mexMaxVer)
+    threads = hc.threads;
+    if threads > 1
+        mtimesx_mex('SPEEDOMP');
+    else
+        mtimesx_mex('SPEED');
     end
 end
-    
+
+
 
 disp('!==================================================================!')
 disp('!                      HORACE                                      !')
@@ -107,7 +107,7 @@ else
         mess=sprintf('! Mex files   : $Revision::%4d  $ (%s$) !',mexMaxVer,date(1:28));
     else
         mess=sprintf(...
-            '! Mex files   :$Revisions::%4d-%3d(%s$) !',mexMinVer,mexMaxVer,date(1:28));
+            '! Mex files   :$Revisions::%4d-%3d(%s$)!',mexMinVer,mexMaxVer,date(1:28));
     end
     disp(mess)
     

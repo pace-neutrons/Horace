@@ -643,11 +643,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
         }
         return;
     }
-    //----------------------------------------------------------------------------
-    // shortcut to disable all other methods except OMP
-    if (!(mtimesx_mode == MTIMESX_SPEED_OMP || mtimesx_mode == MTIMESX_LOOPS_OMP)) {
-        mtimesx_mode = MTIMESX_LOOPS_OMP;
-    }
+  
     //----------------------------------------------------------------------------
 
     if( nrhs < 2 || nrhs > 4 ) {
@@ -1085,7 +1081,7 @@ void mtimesx_logo(void)
 
 mxArray *modestring(int m)
 {
-    const char REVISION[] = "$Revision::      $ ($Date::                                              $)";
+    const char REVISION[] = "$Revision:: 1516 $ ($Date:: 2017-09-13 12:46:28 +0100 (Wed, 13 Sep 2017) $)";
     char *buffer = malloc(strlen(REVISION) + 14 + 4); /* 4 in case if crlf takes 2 symbols*/
     if (!buffer) {
 

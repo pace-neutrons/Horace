@@ -94,10 +94,17 @@ else
         details = true;
     end
 end
-                                                                                                                                                                                                                                                                                                            
+
 RC = '                                Real*Real  Real*Cplx  Cplx*Real  Cplx*Cplx';
-                                                                                                                                                                                                                                                                                                            
-compver = [computer ', ' version ', mtimesx mode ' mtimesx ', median of ' num2str(n) ' runs'];
+
+mtimes_mode= strsplit(mtimesx_horace,'\n');
+if numel(mtimes_mode) == 2
+    mode = mtimes_mode{2};
+else
+    mode = mtimes_mode{1};    
+end
+compver = [computer ', ' version ', mtimesx mode ' mode ', median of ' num2str(n) ' runs'];
+
 k = length(compver);
                                                                                                                                                                                                                                                                                                             
 mtimesx_ttable = char([]);
@@ -3603,7 +3610,7 @@ for k=1:n
     A*B;
     mtoc(k) = toc;
     tic;
-    mtimesx(A,B);
+    mtimesx_horace(A,B);
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -3649,7 +3656,7 @@ for k=1:n
     A*B.';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,B,'T');
+    mtimesx_horace(A,B,'T');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -3695,7 +3702,7 @@ for k=1:n
     A*B';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,B,'C');
+    mtimesx_horace(A,B,'C');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -3741,7 +3748,7 @@ for k=1:n
     A*conj(B);
     mtoc(k) = toc;
     tic;
-    mtimesx(A,B,'G');
+    mtimesx_horace(A,B,'G');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -3787,7 +3794,7 @@ for k=1:n
     A.'*B;
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'T',B);
+    mtimesx_horace(A,'T',B);
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -3833,7 +3840,7 @@ for k=1:n
     A.'*B.';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'T',B,'T');
+    mtimesx_horace(A,'T',B,'T');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -3879,7 +3886,7 @@ for k=1:n
     A.'*B';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'T',B,'C');
+    mtimesx_horace(A,'T',B,'C');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -3925,7 +3932,7 @@ for k=1:n
     A.'*conj(B);
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'T',B,'G');
+    mtimesx_horace(A,'T',B,'G');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -3971,7 +3978,7 @@ for k=1:n
     A'*B;
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'C',B);
+    mtimesx_horace(A,'C',B);
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4017,7 +4024,7 @@ for k=1:n
     A'*B.';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'C',B,'T');
+    mtimesx_horace(A,'C',B,'T');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4063,7 +4070,7 @@ for k=1:n
     A'*B';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'C',B,'C');
+    mtimesx_horace(A,'C',B,'C');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4109,7 +4116,7 @@ for k=1:n
     A'*conj(B);
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'C',B,'G');
+    mtimesx_horace(A,'C',B,'G');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4155,7 +4162,7 @@ for k=1:n
     conj(A)*B;
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'G',B);
+    mtimesx_horace(A,'G',B);
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4201,7 +4208,7 @@ for k=1:n
     conj(A)*B.';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'G',B,'T');
+    mtimesx_horace(A,'G',B,'T');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4247,7 +4254,7 @@ for k=1:n
     conj(A)*B';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'G',B,'C');
+    mtimesx_horace(A,'G',B,'C');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4293,7 +4300,7 @@ for k=1:n
     conj(A)*conj(B);
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'G',B,'G');
+    mtimesx_horace(A,'G',B,'G');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4339,7 +4346,7 @@ for k=1:n
     A'*A;
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'C',A);
+    mtimesx_horace(A,'C',A);
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4384,7 +4391,7 @@ for k=1:n
     A*A';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,A,'C');
+    mtimesx_horace(A,A,'C');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4429,7 +4436,7 @@ for k=1:n
     A.'*A;
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'T',A);
+    mtimesx_horace(A,'T',A);
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4474,7 +4481,7 @@ for k=1:n
     A*A.';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,A,'T');
+    mtimesx_horace(A,A,'T');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4519,7 +4526,7 @@ for k=1:n
     A'*conj(A);
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'C',A,'G');
+    mtimesx_horace(A,'C',A,'G');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4564,7 +4571,7 @@ for k=1:n
     conj(A)*A';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'G',A,'C');
+    mtimesx_horace(A,'G',A,'C');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4609,7 +4616,7 @@ for k=1:n
     A.'*conj(A);
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'T',A,'G');
+    mtimesx_horace(A,'T',A,'G');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing
@@ -4654,7 +4661,7 @@ for k=1:n
     conj(A)*A.';
     mtoc(k) = toc;
     tic;
-    mtimesx(A,'G',A,'T');
+    mtimesx_horace(A,'G',A,'T');
     xtoc(k) = toc;
     pp(k) = (100 * (xtoc(k) - mtoc(k)) / min(mtoc(k),xtoc(k)));
     A(1,1) = 2*A(1,1); % prevent JIT accelerator from interfering with timing

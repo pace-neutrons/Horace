@@ -1,6 +1,9 @@
 function [c0,c1,c2,c3,c4]=test_matrix_mult_speed (n)
 % Turns out that method 1 is 2x faster than method 2
 % Method 0 is 
+if nargin == 0
+    n=10;
+end
 
 a=rand(n,3,3);
 b=rand(n,3,3);
@@ -69,16 +72,24 @@ c2=permute(c2,[3,1,2]);
 c3=zeros(size(a));
 
 tic
-c3=mtimesx_mex(a,b);
-t3=toc
+c3mex=mtimesx_horace(a,b,true);
+t3_mtimes_mex=toc
+tic
+c3nom = mtimesx_horace(a,b,false);
+t3_mtimes_nomex = toc
+assertElementsAlmostEqual(c3mex,c3nom);
 
-c3=permute(c3,[3,1,2]);
+c3=permute(c3mex,[3,1,2]);
 
 
 % Method 3
 % --------
 tic
-c4=mtimesx_mex(a,b);
-t4=toc
+c4mex=mtimesx_horace(a,b,true);
+t4_mtimes_mex=toc
+tic
+c4nm = mtimesx_horace(a,b,false);
+t4_mtimes_nomex=toc
+assertElementsAlmostEqual(c4mex,c4nm);
 
-c4=permute(c4,[3,1,2]);
+c4=permute(c4mex,[3,1,2]);
