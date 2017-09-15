@@ -1,4 +1,7 @@
-function [t0,t1]=test_matrix_mult_speed_2 (n)
+function [t0_matlab_opt,t1_mex]=test_matrix_mult_speed_2 (n)
+if nargin == 0
+    n = 100;
+end
 
 tol = 2e-12;
 
@@ -18,21 +21,28 @@ for i=1:3
         end
     end
 end
-t0_matlab_opt=toc
+t0_matlab_opt=toc;
 
 
 % Method 1
 % --------
 tic
 c3mex=mtimesx_horace(a,b,true);
-t1_mex=toc
+t1_mex=toc;
 tic
 c3nom=mtimesx_horace(a,b,false);
-t1_nomex = toc
+t1_nomex = toc;
 assertElementsAlmostEqual(c3mex,c3nom);
 
 if any(abs(c0(:)-c3mex(:))>tol)
     error('Not the same!')
 end
+hc = hor_config;
+if hc.log_level >-1
+    disp(['***             Matlab loop time: ',num2str(t0_matlab_opt),' sec']);
+    disp(['***       mtimesx mex       time: ',num2str(t1_mex),' sec']);
+    disp(['***       mtimesx matlab    time: ',num2str(t1_nomex),' sec']);
+end
+
 
 
