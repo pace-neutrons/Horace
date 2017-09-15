@@ -142,8 +142,8 @@
  * exception is a sparse scalar times an nD full array. In that special case,
  * mtimesx will treat the sparse scalar as a full scalar and return a full nD result.
  *
- * Note: The ‘N’, ‘T’, and ‘C’ have the same meanings as the direct inputs to the BLAS
- * routines. The ‘G’ input has no direct BLAS counterpart, but was relatively easy to
+ * Note: The ï¿½Nï¿½, ï¿½Tï¿½, and ï¿½Cï¿½ have the same meanings as the direct inputs to the BLAS
+ * routines. The ï¿½Gï¿½ input has no direct BLAS counterpart, but was relatively easy to
  * implement in mtimesx and saves time (as opposed to computing conj(A) or conj(B)
  * explicitly before calling mtimesx).
  *
@@ -644,7 +644,7 @@ void mexFunction(int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[])
         return;
     }
   
-    //----------------------------------------------------------------------------
+    /*-------------------------------------------------------------*/
 
     if( nrhs < 2 || nrhs > 4 ) {
         mexErrMsgTxt("Must have 2 - 4 non-directive inputs for multiply function");
