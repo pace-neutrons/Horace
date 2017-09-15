@@ -81,9 +81,9 @@ if use_mex
         hc.mex_combine_thread_mode = 0;
     end
     if hc.threads > 1
-        mtimesx('SPEEDOMP');
+        mtimesx_mex('SPEEDOMP');
     else
-        mtimesx('SPEED');
+        mtimesx_mex('SPEED');
     end
     
 end

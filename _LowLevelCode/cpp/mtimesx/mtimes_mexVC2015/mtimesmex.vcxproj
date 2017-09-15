@@ -27,7 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mtimesx.c" />
+    <ClCompile Include="mtimesx_mex.c" />
     <ClInclude Include="mtimesx_RealTimesReal.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

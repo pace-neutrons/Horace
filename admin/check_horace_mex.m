@@ -26,15 +26,15 @@ compilation_date  =[];
 % list of the function names used in nice formatted messages formed by the
 % function
 functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ',...
-    'calc_projections: ','sort_pixels_by_b: ','recomput_bin_dta: ',...
-    'combine_sqw :     ','mtimesx  :        '};
+    'calc_projections: ','sort_pixels_by_b: ','recomput_bin_dat: ',...
+    'combine_sqw :     ','mtimesx_mex :     '};
 combine_num = numel(functions_name_list); % provide special treatment for combine_sqw function
 % its expected to be last function of the pack
 
-% list of the mex files handles used by horace and verified by this script.
+% list of the mex files handles used by Horace and verified by this script.
 functions_handle_list={@accumulate_cut_c,@bin_pixels_c,...
     @calc_projections_c,@sort_pixels_by_bins,@recompute_bin_data_c,...
-    @combine_sqw,@mtimesx};
+    @combine_sqw,@mtimesx_mex};
 rez = cell(numel(functions_name_list),1);
 
 n_errors=0;

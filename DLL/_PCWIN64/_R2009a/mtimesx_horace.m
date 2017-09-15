@@ -1,3 +1,4 @@
+function varargout = mtimesx_horace(varargin)
 % mtimesx does a matrix multiply of two inputs (single, double, or sparse)
 %******************************************************************************
 %
@@ -9,6 +10,15 @@
 %  Version:     1.10
 %  Date:        December 08, 2009
 %  Copyright:   (c) 2009 by James Tursa, All Rights Reserved
+%
+% -------------------------------------------------------------------------
+% Modified for Horace workfolw in September 2017;
+% Horace revision:
+%
+% $Revision: 1508 $ ($Date: 2017-08-21 19:56:24 +0100 (Mon, 21 Aug 2017) $)
+%
+% -------------------------------------------------------------------------
+%
 %
 %  This code uses the BSD License:
 %
@@ -42,7 +52,7 @@
 % for the purposes of matrix operations.
 %
 % "Doesn't MATLAB already do this?"  For 2D matrices, yes, it does. However, MATLAB does
-% not always implement the most efficent algorithms for memory access, and MATLAB does not
+% not always implement the most efficient algorithms for memory access, and MATLAB does not
 % always take full advantage of symmetric cases. The mtimesx 'SPEED' mode attempts to do
 % both of these to the fullest extent possible. For nD matrices, MATLAB does not have
 % direct support for this. One is forced to write loops to accomplish the same thing that
@@ -262,15 +272,13 @@
 %
 % ---------------------------------------------------------------------------------------------------------------------------------
 
-function varargout = mtimesx(varargin)
 
-persistent use_mex;
-%persistent num_omp_threads;
-if isempty(use_mex)
+
+
     %[use_mex,num_omp_threads] = get(hor_config,'use_mex','threads');
-    use_mex = get(hor_config,'use_mex');
+use_mex = get(hor_config,'use_mex');
     
-end
+
 
 
 %if isempty(which('mtimesx_mex'))
@@ -279,15 +287,20 @@ end
 %    mtimesx_build;
 %end
 
-%\
-% Call the mex routine mtimesx.
-%/
+if  numel(varargin) > 2 && isa(varargin{end},'logical')
+    use_mex = varargin{end};
+    argi = varargin(1:end-1);
+else
+    argi = varargin;
+end
 
-use_mex = true;
 
 if use_mex
     try
-        [varargout{1:nargout}] = mtimesx_mex(varargin{:});
+        %\
+        % Call the mex routine mtimesx.
+        %/
+        [varargout{1:nargout}] = mtimesx_mex(argi{:});
     catch ERR
         use_mex = false;
         fm = get(hor_config,'force_mex_if_use_mex');
@@ -304,18 +317,83 @@ end
 
 
 if ~use_mex
-    [varargout{1:nargout}] = mtimesx_matlab(varargin{:});
+    [varargout{1:nargout}] = mtimesx_matlab(argi{:});
 end
 
 
 function varargout = mtimesx_matlab(varargin)
 
-if is_string(varargin{1})
-    varargout{1} = 'MATLAB';
+if nargin < 2
+    varargout{1} = 'NOMEX';
     return;
 end
-if is_string(varargin{2})    
-    varargout{1} = varargin{1}'*varargin{3};
+A = varargin{1};
+np =2;
+op = cell(2,1);
+if is_string(varargin{np})
+    op{1} = get_op(varargin{np});
+    np=3;
 else
-    varargout{1} = varargin{1}*varargin{2};
+    op{1} = get_op('');
+    np = 2;
+end
+B = varargin{np};
+if nargin > np
+    op{2} = get_op(varargin{np+1});
+else
+    op{2} = get_op('');
+end
+
+op1 = op{1};
+op2 = op{2};
+if numel(A) == 1 || numel(B) == 1
+    varargout{1} = op1(A)*op2(B);
+    return;
+end
+
+
+sza = size(A);
+szb = size(B);
+sz = [sza(1),szb(2)];
+if numel(size(A)) > 2
+    A_size = sza(1)*sza(2);
+    tot_size = prod(sza);
+    tail_size = tot_size/A_size;
+    
+    B_size = szb(1)*szb(2);
+    if ~(prod(szb)/B_size == tail_size || prod(szb)/B_size == 1)
+        error('MTIMESX_MATLAB:invalid_argument',...
+            ['different A and B sizes supported only if numel(size(B))<=2)',...
+            ' or A and B dimensions in higher than 2 range are equal']);
+    end
+    
+    rez = zeros(sz(1),sz(2),tail_size);
+    A = reshape(A,sza(1),sza(2),tail_size);
+    B = reshape(B,szb(1),szb(2),tail_size);
+else
+    tail_size = 1;
+end
+
+if tail_size > 1
+    for i=1:tail_size
+        rez(:,:,i) = op1(A(:,:,i))*op2(B(:,:,i));
+    end
+    sza(1) = sz(1);
+    sza(2) = sz(2);
+    varargout{1} = reshape(rez,sza);
+else
+    varargout{1} = op1(A)*op2(B);
+end
+
+function op = get_op(code)
+OI = upper(code);
+switch OI
+    case 'G'
+        op = @(x)(conj(x));
+    case 'T'
+        op = @(x)(transpose(x));
+    case 'C'
+        op = @(x)(ctranspose(x));
+    otherwise
+        op = @(x)(x);
 end

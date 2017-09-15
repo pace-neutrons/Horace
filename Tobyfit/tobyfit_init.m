@@ -9,10 +9,6 @@ function tobyfit_init
 rootpath = fileparts(which(mfilename));
 addpath(rootpath)  % MUST have rootpath so that xxx_init, xxx_off included
 
-% Other directories
-% -----------------
-% Put m-files that do the mexing on the path
-%addpath_message (rootpath,'mtimesx')
 
 
 %=========================================================================================================

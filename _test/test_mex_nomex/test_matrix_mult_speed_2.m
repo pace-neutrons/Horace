@@ -18,16 +18,20 @@ for i=1:3
         end
     end
 end
-t0=toc
+t0_matlab_opt=toc
 
 
 % Method 1
 % --------
 tic
-c3=mtimesx_mex(a,b,'speed');
-t1=toc
+c3mex=mtimesx_horace(a,b,true);
+t1_mex=toc
+tic
+c3nom=mtimesx_horace(a,b,false);
+t1_nomex = toc
+assertElementsAlmostEqual(c3mex,c3nom);
 
-if any(abs(c0(:)-c3(:))>tol)
+if any(abs(c0(:)-c3mex(:))>tol)
     error('Not the same!')
 end
 
