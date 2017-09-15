@@ -28,7 +28,7 @@ compilation_date  =[];
 functions_name_list={'accumulate_cut_c: ','bin_pixels_c    : ',...
     'calc_projections: ','sort_pixels_by_b: ','recomput_bin_dat: ',...
     'combine_sqw :     ','mtimesx_mex :     '};
-combine_num = numel(functions_name_list); % provide special treatment for combine_sqw function
+combine_num = numel(functions_name_list)-1; % provide special treatment for combine_sqw function
 % its expected to be last function of the pack
 
 % list of the mex files handles used by Horace and verified by this script.
@@ -43,7 +43,7 @@ for i=1:numel(functions_name_list)
     try
         rez{i}=[functions_name_list{i},functions_handle_list{i}()];
     catch Err
-        rez{i}=[' Error in',functions_name_list{i},Err.message];
+        rez{i}=[' Error in ',functions_name_list{i},Err.message];
         if strcmpi(functions_name_list{combine_num},functions_name_list{i})
             can_use_mex_4_combine=false;
         else

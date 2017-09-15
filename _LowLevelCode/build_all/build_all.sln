@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "build_all", "build_all.vcxproj", "{870590B0-E920-4B29-A2A9-3ABEF5D8590B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{874CB72F-251B-455E-8024-35C9710C18EB} = {874CB72F-251B-455E-8024-35C9710C18EB}
+		{D283F07C-8003-4356-B434-74CE7E42E31B} = {D283F07C-8003-4356-B434-74CE7E42E31B}
+		{8C62BEC3-7890-429A-B118-FA7C43929846} = {8C62BEC3-7890-429A-B118-FA7C43929846}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "accumulate_cut_c", "..\cpp\accumulate_cut_c\accumulate_cut_c\accumulate_cut_c.vcxproj", "{FFD6E603-ED85-4A3A-A35E-6D847CE2AB19}"
 EndProject
