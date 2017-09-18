@@ -275,7 +275,7 @@ function varargout = mtimesx_horace(varargin)
 
 
 
-    %[use_mex,num_omp_threads] = get(hor_config,'use_mex','threads');
+%[use_mex,num_omp_threads] = get(hor_config,'use_mex','threads');
 use_mex = get(hor_config,'use_mex');
     
 
