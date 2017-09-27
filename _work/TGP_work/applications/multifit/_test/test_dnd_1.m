@@ -30,16 +30,20 @@ din=dnd([w1data,w2data]);
 din(1).iint(:,3)=[12,18]';
 din(2).iint(:,3)=[20,30]';
 
+% Ensure fit control parameters are the same for old and new multifit
+fcp = [0.0001 30 0.0001];
 
 % Original multifit
 % -----------------
 % Simulate
 [dcalc_ref,calcpar_ref]=multifit_sqw_sqw(din, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
-    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}}, 'evaluate' );
+    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}},...
+    'evaluate' );
 
 % Fit
 [dfit_ref,fitpar_ref]=multifit_sqw_sqw(din, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
-    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}});
+    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}},...
+    'fitcontrolparameters',fcp);
 
 
 acolor r b
@@ -55,6 +59,7 @@ kk = multifit2_sqw (din);
 kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]});
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
+kk = kk.set_options('fit_control_parameters',fcp);
 
 [dcalc,calcdata,ok,mess] = kk.simulate;
 if~isequaln(dcalc_ref,dcalc), error('*** Oh dear! ***'), end

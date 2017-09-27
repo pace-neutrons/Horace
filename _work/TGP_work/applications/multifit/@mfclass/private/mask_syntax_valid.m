@@ -1,7 +1,10 @@
-function [xkeep, xremove, msk, ok, mess] = mask_syntax_valid (nd, xkeep_in, xremove_in, msk_in)
+function [ok, mess, xkeep, xremove, msk] = mask_syntax_valid (nd, xkeep_in, xremove_in, msk_in)
 % Check that keep, remove and mask options have the correct format
 %
-%   >> [xkeep, xremove, msk, ok, mess] = mask_syntax_valid (nd, xkeep_in, xremove_in, msk_in)
+%   >> [ok, mess, xkeep, xremove, msk] = mask_syntax_valid (nd, xkeep_in, xremove_in, msk_in)
+%
+% Does not check if the masking options are consistent with the dimensionality
+% of any data - that information is not provided as should be done elsewhere
 %
 % Input:
 % ------
@@ -15,14 +18,17 @@ function [xkeep, xremove, msk, ok, mess] = mask_syntax_valid (nd, xkeep_in, xrem
 % 
 %           	Applies to all datasets. 
 %               Alternatively, give a cell array of arrays, one per data set 
+%               If empty, then ignored
 % 
 %   xremove_in  Ranges to remove from fitting. Follows the same format as 'keep'. 
+%               If empty, then ignored
 % 
 %   msk_in      Array of ones and zeros, indicates which of the data points are
 %               to be retained for fitting (1=keep, 0=remove). 
 %
 %           	Applies to all datasets. 
 %               Alternatively, give a cell array of arrays, one per data set 
+%               If empty, then ignored
 %
 % Output:
 % -------
@@ -38,6 +44,11 @@ function [xkeep, xremove, msk, ok, mess] = mask_syntax_valid (nd, xkeep_in, xrem
 %   ok          True if format OK, false otherwise
 %
 %   mess        If OK, then ''; else contains error message
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 
 
 ok=true;

@@ -11,7 +11,6 @@ function obj = set_constraints_props_ (obj, S)
 % -------
 %   obj     mfclass object
 %   S       Constraints structure on output: fields are
-%               free_
 %               bound_
 %               bound_to_
 %               ratio_
@@ -23,7 +22,11 @@ function obj = set_constraints_props_ (obj, S)
 %   obj     mfclass object
 
 
-obj.free_ = S.free_;
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 obj.bound_ = S.bound_;
 obj.bound_to_ = S.bound_to_;
 obj.ratio_ = S.ratio_;

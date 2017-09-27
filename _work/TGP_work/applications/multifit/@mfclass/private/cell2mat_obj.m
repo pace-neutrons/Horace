@@ -4,6 +4,8 @@ function m=cell2mat_obj(c)
 % Core bit of code taken from the end of matlab intrinsic CELL2MAT. For some reason,
 % this code throws an error if the routine is provided with a cell array of objects.
 % This routine performs the conversion for cell arrays of objects
+%
+% Edited from cell2mat by T.G.Perring
 
 if nargin==0, error('No input argument provided - one and only one cell array is required'), end
 if ~iscell(c), error('Input argument is not a cell array'), end

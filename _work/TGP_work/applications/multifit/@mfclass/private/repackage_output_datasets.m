@@ -43,6 +43,11 @@ function data_out = repackage_output_datasets(data, w, msk, keep_only_unmasked)
 %               defined by input argumnet data
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 if numel(w)==1 && numel(data)==3
     % x,y,e supplied as separate arguments
     tmp = is_cell_xye ({data}, w, msk, keep_only_unmasked);
@@ -82,7 +87,7 @@ else
             end
             
         else
-            error('Logic error: contact developers')
+            error('Logic error. Contact developers')
         end
         nbeg=nbeg+ndata;
     end

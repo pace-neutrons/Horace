@@ -1,7 +1,11 @@
 function [ok, mess, var, iskey, isblock, isdcom, issub, ismcom, args, isend] = parse_line (cstr)
-% Determine if a line is keyword, block name, docify comment, or Matlab comment line
+% Determine the type of line in a meta documentation block
 %
-%   >> [ok, mess, var, iskey, isblock, isdcom, issub, ismcom, args, isend] = parse_line (cstr)
+%   >> [ok, mess, var, iskey, isblock, isdcom, issub, ismcom, args, isend] =...
+%                                                               parse_line (cstr)
+%
+% Determine if a line is keyword, block name, docify comment, line substitution
+% or Matlab comment line
 %
 % Input:
 % ------

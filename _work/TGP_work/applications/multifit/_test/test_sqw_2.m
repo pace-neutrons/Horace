@@ -29,6 +29,10 @@ w2data=read_sqw(fullfile(test_dir,'data/w2data.sqw'));
 nrep=50;
 win=[noisify(repmat(w1data,1,nrep),0.03),noisify(repmat(w2data,1,nrep),0.03)];
 
+% Ensure fit control parameters are the same for old and new multifit
+fcp = [0.0001 30 0.0001];
+
+disp('Timing test:')
 
 % Original multifit
 % -----------------
@@ -38,8 +42,12 @@ pin = [repmat({pin1},1,nrep),repmat({pin2},1,nrep)];
 
 % *** Profile this line ***
 timer = bigtic;
-[wfit_ref,fitpar_ref]=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0], @sqw_bcc_hfm, pin, [1,1,1,1,1], {{{1,1,0},{2,2,0}}});
-t_old = bigtoc(timer)
+[wfit_ref,fitpar_ref]=multifit_sqw_sqw(win,...
+    @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
+    @sqw_bcc_hfm, pin, [1,1,1,1,1], {{{1,1,0},{2,2,0}}},...
+    'fitcontrolparameters',fcp);
+t_old = bigtoc(timer);
+disp(['  Multifit: wall time: ',num2str(t_old(1)),'   CPU time: ',num2str(t_old(2))])
 
 
 
@@ -50,10 +58,12 @@ kk = multifit2_sqw (win);
 kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, pin);
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
+kk = kk.set_options('fit_control_parameters',fcp);
 
 timer = bigtic;
 [wfit,fitdata,ok,mess] = kk.fit;
-t_new = bigtoc(timer)
+t_new = bigtoc(timer);
+disp([' Multifit2: wall time: ',num2str(t_new(1)),'   CPU time: ',num2str(t_new(2))])
 
 if~isequaln(wfit_ref,wfit), error('*** Oh dear! ***'), end
 

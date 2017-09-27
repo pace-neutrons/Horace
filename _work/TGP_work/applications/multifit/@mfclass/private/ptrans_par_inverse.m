@@ -29,6 +29,11 @@ function [pf,ok,mess,p,bp]=ptrans_par_inverse(S, p_info)
 %   mess    Error message if not ok; if ok then mess = ''
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 if ~isstruct(S)
     ok = false;
     mess = 'Input argument is not a structure';

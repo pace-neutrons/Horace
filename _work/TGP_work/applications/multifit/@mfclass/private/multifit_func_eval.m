@@ -57,6 +57,11 @@ function wout=multifit_func_eval(w,xye,func,bfunc,plist,bplist,...
 %               datasets.
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Determine what calculated signal to return
 fore=false; back=false; calc_sum=false;
 if strcmp(output_type,'foreground')

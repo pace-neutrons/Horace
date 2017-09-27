@@ -28,6 +28,11 @@ function [wmask,msk_out,ok,mess] = mask_data_for_fit (w,msk_in)
 % Objects need a method sigvar_getx or mask_points. See elsewhere for required syntax.
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 sz=size(w);
 wmask = w;
 msk_out = cell(size(w));
@@ -36,10 +41,10 @@ mess='';
 for i=1:numel(w)
     % Accumulate bad points (y=NaN, zero error bars etc.) to the mask array
     if isstruct(w{i})    % xye triple
-        [msk_out{i},ok,mess_tmp]=mask_for_fit_xye(w{i}.x,w{i}.y,w{i}.e,msk_in{i});
+        [msk_out{i},ok,mess_tmp]=mask_points_for_fit_xye(w{i}.x,w{i}.y,w{i}.e,msk_in{i});
     else % a different data object
         [ytmp,vtmp,msk_null]=sigvar_get(w{i});
-        [msk_out{i},ok,mess_tmp]=mask_for_fit_xye({},ytmp,vtmp,(msk_in{i}&msk_null));
+        [msk_out{i},ok,mess_tmp]=mask_points_for_fit_xye({},ytmp,vtmp,(msk_in{i}&msk_null));
     end
     if ok
         if ~isempty(mess_tmp)

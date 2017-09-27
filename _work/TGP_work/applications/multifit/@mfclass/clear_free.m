@@ -1,25 +1,38 @@
 function obj = clear_free (obj, varargin)
-% Clear all parameters to be free in fits for one or more foreground functions
+% Free all parameters to vary in fitting for one or more foreground functions
 %
-% Clear for all foreground functions
+% Free all parameters for all foreground functions
 %   >> obj = obj.clear_free
+%   >> obj = obj.clear_free ('all')
 %
-% Clear for one or more specific foreground function(s)
+% Free all parameters for one or more specific foreground function(s)
 %   >> obj = obj.clear_free (ifun)
+%
+% Input:
+% ------
+%   ifun    Row vector of foreground function indicies [Default: all functions]
+
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+%   doc_clear_free_intro = fullfile(mfclass_doc,'doc_clear_free_intro.m')
+%
+%   type = 'fore'
+%   pre = ''
+%
+% -----------------------------------------------------------------------------
+% <#doc_beg:> multifit
+%   <#file:> <doc_clear_free_intro> <type> <pre>
+% <#doc_end:>
+% -----------------------------------------------------------------------------
 
 
-% Check there are function(s)
-% ---------------------------
-if isempty(obj.fun_)
-    if numel(varargin)>0
-        error ('Cannot set free/fixed status of foreground function(s) before they have been set.')
-    else
-        return  % no functions have been set, so trivial return
-    end
-end
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
 
 % Process input
-% -------------
 isfore = true;
 [ok, mess, obj] = clear_free_private_ (obj, isfore, varargin);
 if ~ok, error(mess), end

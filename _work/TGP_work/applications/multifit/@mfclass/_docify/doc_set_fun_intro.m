@@ -2,90 +2,73 @@
 %
 % -----------------------------------------------------------------------------
 % <#doc_def:>
-%   type = '#1'     % 'back' or 'fore'
-%   pre  = '#2'     % 'b' or ''
+%   type  = '#1'    % 'back' or 'fore'
+%   pre   = '#2'    % 'b' or ''
+%   atype = '#3'    % 'back' or 'fore' (opposite of type)
+%
+%   not_fun = 0
+%   is_fun = 1
+%
+%   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+%   doc_arg_pin = fullfile(mfclass_doc,'doc_arg_pin.m')
+%   doc_arg_free = fullfile(mfclass_doc,'doc_arg_free.m')
+%   doc_arg_bind = fullfile(mfclass_doc,'doc_arg_bind.m')
 %
 % -----------------------------------------------------------------------------
 % <#doc_beg:>
 % Set <type>ground function or functions
 %
 % Set all <type>ground functions
-%   >> obj = obj.set_<pre>fun (functions, pin)
-%   >> obj = obj.set_<pre>fun (functions, pin, free)
-%   >> obj = obj.set_<pre>fun (functions, pin, free, bind)
-%   >> obj = obj.set_<pre>fun (functions, pin, 'free', free, 'bind', bind)
+%   >> obj = obj.set_<pre>fun (fun)
+%   >> obj = obj.set_<pre>fun (fun, pin)
+%   >> obj = obj.set_<pre>fun (fun, pin, free)
+%   >> obj = obj.set_<pre>fun (fun, pin, free, bind)
+%   >> obj = obj.set_<pre>fun (fun, pin, 'free', free, 'bind', bind)
 %
 % Set a particular <type>ground function or set of <type>ground functions:
-%   >> obj = obj.set_<pre>fun (ifun, functions, pin,...)    % ifun is scalar or row vector
+%   >> obj = obj.set_<pre>fun (ifun, fun,...)     % ifun is scalar or row vector
 %
 % Input:
 % ------
-%   functions   Function handle or cell array of function handles
-%               e.g.  functions = @gauss                    % single function
-%                     functions = {@gauss, @lorentzian}     % three functions
+%   fun     Function handle or cell array of function handles
+%           e.g.  fun = @gauss                    % single function
+%                 fun = {@gauss, @lorentzian}     % two functions
 %
-%               Generally:
-%               - If the fit function is global, then give only one function
-%                 handle: the same function applies to every dataset
+%           In general:
+%           - If the fit function is global, then give only one function
+%             handle: the same function applies to every dataset
 %
-%               - If the fit functions are local, then:
-%                   - if every dataset to be fitted to the same function
-%                    you can give just one function handle (the parameters
-%                    will be independently fitted of course)
-%                   - if the functions are different for different datasets
-%                    give a cell array of function handles
+%           - If the fit functions are local, then:
+%               - if every dataset is to be fitted to the same function
+%                give just one function handle (the parameters will be
+%                independently fitted of course)
 %
-%               Note: the above applies only to the subset of functions 
-%               selected by the optional argument ifun if it is given
+%               - if the functions are different for different datasets
+%                give a cell array of function handles, one per dataset
 %
-%   pin         Parameter list or cell array of initial parameter lists. The
-%              form of the parameter list is given below in the description of
-%              the format of the fit function.
-%               - If you give one initial parameter list, it is assumed to give
-%                the starting parameters for every function.
-%               - If you give a cell array of parameter lists, then there must
-%                be one parameter list for each fit function.
-% 
-%               This syntax allows an abbreviated argument list. For example,
-%              if the fit function are local, three datasets, then :
-%
-%                   >> obj = obj.set_<pre>fun (@gauss, [100,10,0.5])
-%               Every dataset is independently fitted to a Gaussian with same
-%              initial parameters
-%
-%                   >> obj = obj.set_<pre>fun (@gauss, {[100,10,0.5], [120,10,1], {140,10,2})
-%               Every dataset is independently fitted to a Gaussian with
-%              different starting parameters
-%               
-%               Note: the above applies only to the subset of functions 
-%               selected by the optional argument ifun if it is given
+%           Note: If a subset of functions is selected with the optional
+%          parameter ifun, then the expansion of a single function
+%          handle to an array applies only to that subset
 %
 % Optional arguments:
-%   ifun        Scalar or row vector of integers giving the index or indicies
-%              of the functions to be set. For examnple, if there are three
-%              datasets and the fit is local (i.e. each datset has independent
-%              fit functions) then set the function to be Gaussians for the
-%              first and third datasets and a Lorentzian for the second:
-%                   >> obj = obj.set_<pre>fun ([1,3], @gauss, {[100,10,0.5], [120,10,1]})
-%                   >> obj = obj.set_<pre>fun (2, @lorentzian, [50,10,2])
+%   ifun    Scalar or row vector of integers giving the index or indicies
+%          of the functions to be set. [Default: all functions]
+%           EXAMPLE
+%           If there are three datasets and the fit is local (i.e. each
+%          datset has independent fit functions) then to set the function
+%          to be Gaussians for the first and third datasets and a Lorentzian
+%          for the second:
+%              >> obj = obj.set_<pre>fun ([1,3], @gauss)
+%              >> obj = obj.set_<pre>fun (2, @lorentzian)
 %
-%   free        Logical row vector (single function) or cell array of logical
-%              row vectors (more than one function) that define which parameters
-%              are free to vary (corresponding element is true) or fixed
-%              (corresponding element is false). Note that just like arguments
-%              fun and pin, if the <type>ground is local, then if a single
-%              logical array is given, it is assumed to apply to all fit functions
-%              (or the subset selected by ifun, if given).
-%              For full details of the syntax for fixing/freeing parameters,
-%              see <a href="matlab:doc('mfclass/set_<pre>free');">set_<pre>free</a>
+%   <#file:> <doc_arg_pin>  <type> <pre> not_fun is_fun
 %
-%   bind        Binding of one or more parameters to other parameters.
-%              For full details of the syntax for binding parameters together,
-%              see <a href="matlab:doc('mfclass/set_<pre>bind');">set_<pre>bind</a>
+%   <#file:> <doc_arg_free> <type> <pre> not_fun is_fun
 %
-% See also set_local_<type>ground set_global_<type>ground set_<pre>free set_<pre>bind
+%   <#file:> <doc_arg_bind> <type> <pre> <atype> not_fun is_fun set
 %
 %
 % Form of <type>ground fit functions
 % --------------------------------
 % <#doc_end:>
+% -----------------------------------------------------------------------------

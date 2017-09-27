@@ -9,6 +9,12 @@ function [val, ok, mess] = set_option_squeeze_xye (val_in)
 % Set value, checking if ok and parsing if necessary; mess='' if OK, error message if not
 %   >> [val, ok, mess] = set_option_optname (val_in)
 
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 ok=true;
 mess='';
 if nargin==0

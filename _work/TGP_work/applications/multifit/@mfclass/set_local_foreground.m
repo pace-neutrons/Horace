@@ -5,18 +5,31 @@ function obj = set_local_foreground(obj,set_local)
 %   >> obj = obj.set_local_foreground (status) % set local foreground true or false
 %
 % If the scope changes i.e. is altered from global to local, or local to global,
-% then the function(s) and any previously set constraints are cleared
+% then the foreground fit functions and any previously set constraints are
+% cleared
 %
 % See also: set_global_foreground set_local_background set_global_background
 
-% See also:
-% <a href="matlab:doc mfclass/set_local_foreground">mfclass/set_local_foreground</a>
-% <a href="matlab:doc mfclass/set_global_foreground">mfclass/set_global_foreground</a>
-% <a href="matlab:doc mfclass/set_global_background">mfclass/set_global_background</a>
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+%   doc_set_scope_intro = fullfile(mfclass_doc,'doc_set_scope_intro.m')
+%
+%   type  = 'fore'
+%   scope = 'local'
+%
+% -----------------------------------------------------------------------------
+% <#doc_beg:> multifit
+%   <#file:> <doc_set_scope_intro> <type> <scope>
+%
+% See also: set_global_foreground set_local_background set_global_background
+% <#doc_end:>
+% -----------------------------------------------------------------------------
 
- 
-% Original author: T.G.Perring 
-% 
+
+
+% Original author: T.G.Perring
+%
 % $Revision$ ($Date$)
 
 
@@ -24,4 +37,4 @@ if nargin==1
     set_local = true;
 end
 isfore = true;
-obj = function_set_scope_(obj, isfore, set_local);
+obj = set_scope_private_(obj, isfore, set_local);

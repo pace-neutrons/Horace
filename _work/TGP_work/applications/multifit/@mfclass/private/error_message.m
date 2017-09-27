@@ -11,6 +11,11 @@ function error_message(mess,opt)
 % '\\' in each string - and an accumlating set of other common replacements.
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Get option
 if nargin==2
     if is_string(opt) && strncmpi(opt,'-squeeze',numel(opt))

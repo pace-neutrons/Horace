@@ -75,6 +75,11 @@ function [data_out, fitdata, ok, mess] = fit (obj, varargin)
 %-------------------------------------------------------------------------------
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Default return values if there is an error
 data_out = [];
 fitdata = [];

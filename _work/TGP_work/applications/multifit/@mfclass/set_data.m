@@ -1,25 +1,34 @@
 function obj = set_data(obj,varargin)
 % Set data, clearing all data, functions and constraints
 %
-%   >> obj = obj.set_data ()            % Clears all data
+% If data in the form of objects is expected:
 %   >> obj = obj.set_data (w1,w2,...)   % Set objects or arrays of objects
-%   >> obj = obj.set_data (x,y,z)       % If valid: set x,y,e, data
 %
-% More details on data formats are given below below.
+% If x,y,e data is valid (i.e. datasets are not required to be objects)
+%   >> obj = obj.set_data (x,y,z)       % Set x,y,e, data
+%   >> obj = obj.set_data (w1,w2,...)   % Set cell arrays or structures of
+%                                       % x,y,e, data
+% Remove all data:
+%   >> obj = obj.set_data ()
+%   >> obj = obj.set_data ([])
 %
-% The scope of the foreground and background functions as being global or
-% local is not altered, even though all data and functions are cleared.
+% More details on data formats are given below below
 %
-% For example, if the foreground was declared as local, it
-% will remain so, meaning that one function per data set will be expected
-% when the functions are set.
+%
+% In addition, portions of the data sets can be masked using one or more of
+% the optional keyword-value pairs (keyword-value pairs can appear in any order):
+%
+%   >> obj = obj.set_data (...'keep', xkeep, 'remove', xremove, 'mask', mask)
+%
+% For full details of masking syntax, see <a href="matlab:doc('mfclass/set_mask');">set_mask</a>
+%
 %
 % Format of data
 % --------------
-% Data set(s) are objects: each of w1, w2, ... has the form
+% If data set(s) are objects: each of w1, w2, ... has the form
 %       w       Data object or array of data objects all of the same class
 %
-% Data set(s) are x-y-e data:
+% If data set(s) are x-y-e data:
 %   - Arrays x,y,e that describe a single dataset:
 %
 %       x       Coordinates of the data points:
@@ -42,17 +51,17 @@ function obj = set_data(obj,varargin)
 %
 %       e       Array of the corresponding error bars. Must have same size as y.
 %
-%
+% If multiple x-y-e data sets: each of w1, w2, ... has the form
 %   - Cell array of arrays x, y, e above (defines a single dataset):
 %       w = {x,y,e}
 %
-%     Cell array of cell arrays that defines multiple datasets:
+%   - Cell array of cell arrays that defines multiple datasets:
 %       w = {{x1,y1,e1}, {x2,y2,e2}, {x3,y3,e3},...}
 %
 %   - Structure with fields w.x, w.y, w.e  where x, y, e have one of the
 %     forms described above (this defines a single dataset)
 %
-%     Structure array with fields w(i).x, w(i).y, w(i).e (this defines
+%   - Structure array with fields w(i).x, w(i).y, w(i).e (this defines
 %     several datasets)
 %
 % See also append_data remove_data replace_data
@@ -63,18 +72,21 @@ function obj = set_data(obj,varargin)
 % $Revision$ ($Date$)
 
 
-% Find optional arguments
+% Find arguments and optional arguments
 keyval_def = struct('keep',[],'remove',[],'mask',[]);
-[args,keyval,~,~,ok,mess] = parse_arguments (varargin, keyval_def);
+[args,keyval,present,~,ok,mess] = parse_arguments (varargin, keyval_def);
 if ~ok, error(mess), end
+if isempty(args) && any(cellfun(@logical,struct2cell(present)))
+    error('Syntax error: no input data was given but optional arguments were provided')
+end
 
 % Check input data
 class_name = obj.dataset_class_;
-[ok, mess, ndim, w] = is_valid_data (class_name, args{:});
+[ok, mess, w] = is_valid_data (class_name, args{:});
 if ~ok, error(mess), end
 
 % Check optional arguments
-[xkeep,xremove,msk,ok,mess] = mask_syntax_valid (numel(w), keyval.keep, keyval.remove, keyval.mask);
+[ok,mess,xkeep,xremove,msk] = mask_syntax_valid (numel(w), keyval.keep, keyval.remove, keyval.mask);
 if ~ok, error(mess), end
 
 % Create mask arrays
@@ -88,17 +100,16 @@ end
 
 % Set object properties
 % ---------------------
+% The following should work even if no data sets are set
+
 % Set data properties
 obj.data_ = args;
-obj.ndim_ = ndim;
-[obj.ndata_,obj.ndatatot_,obj.item_,obj.ix_] = data_indicies(ndim);
-
 obj.w_ = w;
 obj.msk_ = msk_out;
 
 % Clear function and constraints properties, retaining current global/local scopes
-S_fun = fun_init (obj.ndatatot_, obj.foreground_is_local_, obj.background_is_local_);
-S_con = constraints_init (S_fun.np_, S_fun.nbp_);
+Sfun = functions_init (numel(w), obj.foreground_is_local_, obj.background_is_local_);
+Scon = constraints_init (Sfun.np_, Sfun.nbp_);
 
-obj = obj.set_fun_props_ (S_fun);
-obj = obj.set_constraints_props_ (S_con);
+obj = obj.set_fun_props_ (Sfun);
+obj = obj.set_constraints_props_ (Scon);

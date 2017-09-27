@@ -10,7 +10,6 @@ function S = get_constraints_props_ (obj)
 % Output:
 % -------
 %   S       Constraints structure on output: fields are
-%               free_
 %               bound_
 %               bound_to_
 %               ratio_
@@ -18,8 +17,12 @@ function S = get_constraints_props_ (obj)
 %               ratio_res_
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 S = struct(...
-    'free_',  obj.free_,...
     'bound_', obj.bound_,...
     'bound_to_', obj.bound_to_,...
     'ratio_', obj.ratio_,...

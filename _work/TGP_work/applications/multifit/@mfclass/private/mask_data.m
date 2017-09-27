@@ -1,5 +1,5 @@
 function [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,mask)
-% Mask data
+% Mask data, accumulating to existing masks if given.
 %
 %   >> [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,msk)
 %
@@ -32,7 +32,8 @@ function [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,mask)
 % -------
 %   msk_out     Cell array (row) of updated mask arrays, one per data set.
 %               Same size as data.
-%               If there was an error, msk_out is an empty cell array size (1,0)
+%               If there was an error, each element of msk_out is []
+%               
 %
 %   ok          True if all OK, false otherwise
 %
@@ -40,6 +41,11 @@ function [msk_out,ok,mess] = mask_data (w,msk_in,xkeep,xremove,mask)
 %               If ~ok, then contains error message
 %
 % Objects need a method sigvar_getx or mask_points. See elsewhere for required syntax.
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 
 
 if isempty(msk_in), msk_in=cell(size(w)); end
@@ -68,7 +74,7 @@ for i=1:numel(w)
             mess=accumulate_message(mess,[data_id_mess(sz,i),mess_tmp]);
         end
     else
-        msk_out=cell(1,0);
+        msk_out=cell(size(w));
         mess=[data_id_mess(sz,i),mess_tmp];
         return
     end

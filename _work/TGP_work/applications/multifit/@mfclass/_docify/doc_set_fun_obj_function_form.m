@@ -1,3 +1,7 @@
+% Description for fit function for object data
+%
+% -----------------------------------------------------------------------------
+% <#doc_beg:>
 %   function wcalc = my_function (w,p)
 %
 % or, more generally:
@@ -10,3 +14,5 @@
 %              width of a peak)
 %   c1,c2,...   Any further arguments needed by the function (e.g.
 %              they could be the filenames of lookup tables)
+% <#doc_end:>
+% -----------------------------------------------------------------------------

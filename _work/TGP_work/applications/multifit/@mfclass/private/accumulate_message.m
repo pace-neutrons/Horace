@@ -14,6 +14,12 @@ function mess = accumulate_message (varargin)
 %                   If just one non-empty string, then returns a character string
 %                   Otherwise, cell array of non-empty strings
 
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 [ok,mess]=str_make_cellstr(varargin{:});
 if ~ok
     error('One or more inputs are not character strings or cell array of characters')

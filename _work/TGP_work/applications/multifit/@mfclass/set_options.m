@@ -47,6 +47,12 @@ function obj = set_options (obj, varargin)
 %              errors to 0
 %              [Default: false]
 
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 %--------------------------------------------------------------------------
 % Add options and their set functions here
 opt_names ={...

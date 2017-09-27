@@ -1,98 +1,128 @@
 function obj = set_bind (obj,varargin)
-% Set bindings between parameters for foreground functions
+% Set bindings of foreground parameters to fore- &/or background parameters
 %
-% Single binding description:
-%   >> obj = obj.set_bind ( [ip_bind, ifun_bind], [ip, ifun])
-%   >> obj = obj.set_bind ( [ip_bind, ifun_bind], [ip, ifun], ratio)
+% Set one or more bindings
+%   >> obj = obj.set_bind (bind)
+%   >> obj = obj.set_bind (b1, b2, b3...)
 %
-% Multiple binding descriptions: (can be a single cell array too)
-%   >> obj = obj.set_bind ( {[ip_bind, ifun_bind], [ip, ifun], ratio}, {...}, ...)
+% Set one or more bindings for one or more specific foreground function(s)
+%   >> obj = obj.set_free (ifun, bind)
+%   >> obj = obj.set_free (ifun, b1, b2, b3...)
 %
-% Binding descritions for one or more specific bound functions: (cell array only)
-%   >> obj = obj.set_bind (ifun_bind, {ip_bind, [ip, ifun], ratio}, {...}, ...)
+% Input:
+% ------
+%   bind    Binding of one or more parameters to other parameters.
+%           In general, bind has the form:
+%               {b1, b2, ...}
+%           where b1, b2 are binding descriptors.
 %
-% In full:
-% --------
-%   >> obj = obj.set_bind (b1, b2, ...)
-%   >> obj = obj.set_bind (ifun_bind, b1, b2, ...)
+%           Each binding descriptor is a cell array with the form:
+%               { [ipar_bound, ifun_bound], [ipar_free, ifun_free] }
+%         *OR*  { [ipar_bound, ifun_bound], [ipar_free, ifun_free], ratio }
 %
-% where b1, b2, ... are binding descriptors. Each binding descriptor is a
-% cell array with the general form:
+%           where
+%               [ipar_bound, ifun_bound]
+%                   Parameter index and function index of the
+%                   foreground parameter to be bound
 %
-%       { [ip_bind, ifun_bind], [ip, ifun] }
-% *OR*  { [ip_bind, ifun_bind], [ip, ifun], ratio }
+%               [par, fun]
+%                   Parameter index and function index of the
+%                   parameter to which the bound parameter is tied.
+%                   The function index is positive for foreground
+%                   functions, negative for background functions.
 %
-% where
-%     [ip_bind, ifun_bind]      Parameter index and function index of the
-%                              foreground parameter to be bound
-%     [ip, ifun]                Parameter index and function index of the
-%                              parameter to which the above parameter is bound
-%                              The function index is positive for foreground
-%                              functions, negative for background functions.
-%     ratio                     Ratio of bound parameter value to floating
-%                              parameter. If not given, or ratio=NaN, then the
-%                              value is set from the initial parameter values
+%               ratio
+%                   Ratio of bound parameter value to floating
+%                   parameter. If not given, or ratio=NaN, then the
+%                   ratio is set from the initial parameter values
 %
-% If one or both of the function indicies are omitted, then the binding
-% descriptors can have more general interpretations that make it simple
-% to specify binding across many functions:
+%           Binding descriptors that set multiple bindings
+%           ----------------------------------------------
+%           If ifun_bound and/or ifun_free are omitted a binding
+%          descriptor has a more general interpretation that makes it
+%          simple to specify bindings for many functions:
 %
-% -  If the function index of the bound parameter is omitted, then it is
-%   assumed that the binding applies to all foreground functions i.e. the
-%   binding descriptor is applied to each foreground function in turn (this
-%   is only relevant if the foreground functions are local)
-%       { ip_bind, [ip, ifun] }
-%       { ip_bind, [ip, ifun], ratio }
+%           - ifun_bound missing:
+%             -------------------
+%             The descriptor applies for all foreground functions, or if
+%            the optional first input argument ifun is given to those
+%            foreground functions
 %
-% -  If the function index of the floating parameter is omitted, it is assumed
-%   to be the same as the bound parameter function index.
-%    If the floating parameter index ip is negative, then the
-%   function index is taken to be the corresponding background function.
-%       { [ip_bind, ifun_bind], ip }
-%       { [ip_bind, ifun_bind], ip, ratio }
+%               { ipar_bound, [ipar_free, ifun_free] }
+%         *OR*  { ipar_bound, [ipar_free, ifun_free], ratio }
 %
-% -  If the function indicies of both the bound and floating parameters are
-%   omitted, then it is assumed that the two parameter indicies refer to
-%   the same foreground function, and it is applied to every foreground
-%   function.
-%    If the floating parameter index ip is negative, then the
-%   function index is taken to be the corresponding background function.
-%       { ip_bind, ip }
-%       { ip_bind, ip, ratio }
+%           EXAMPLE
+%               {2, [2,1]}  % bind parameter 2 of every foreground function
+%                           % to parameter 2 of the first function
+%                           % (Effectively makes parameter 2 global)
+%
+%           - ifun_free missing:
+%             ------------------
+%             The descriptor assumes that the unbound parameter has the same
+%            function index as the bound parameter
+%
+%               { [ipar_bound, ifun_bound], ipar_free }
+%         *OR*  { [ipar_bound, ifun_bound], ipar_free, ratio }
+%
+%           EXAMPLE
+%               {[2,3], 6}  % bind parameter 2 of foreground function 3
+%                           % to parameter 6 of the same function
+%
+%           - Both ifun_bound and ifun_free missing:
+%             --------------------------------------
+%             Combines the above two cases: the descriptor applies for all
+%            foreground functions (or those functions given by the
+%            optional argument ifun described below), and that the unbound
+%            parameter has the same  function index as the bound parameter
+%            in each instance
+%
+%               { ipar_bound, ipar_free }
+%         *OR*  { ipar_bound, ipar_free, ratio }
+%
+%           EXAMPLE
+%               {2,5}       % bind parameter 2 to parameter 5 of the same
+%                           % function, for every foreground function
+%
+% Optional argument:
+%   ifun    Scalar or row vector of function indicies to which the operation
+%          will be applied. [Default: all functions]
 %
 %
-% Single descriptor, selected foreground functions:
-% -  If only a single binding descriptor is given, then the contents do not
-%   need to be entered as a cell array
-%     e.g.
-%       >> obj = obj.set_bind ( [ip_bind, ifun_bind], [ip, ifun], ratio)
+% See also add_bind set_bbind add_bbind set_fun set_bfun
+
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+%   doc_set_bind_intro = fullfile(mfclass_doc,'doc_set_bind_intro.m')
 %
-% -  One or more bound function indicies can be explicitly given for all
-%   the binding descriptors, so that it is no necessary to give them
-%   explicitly (although if a binding descriptor does contain a bound
-%   function index then this will take precedence)
-%    e.g.
-%       >> obj = obj.set_bind ( ifun_bind, {ip_bind, [ip, ifun], ratio}, {...}, ...)
+%   type = 'fore'
+%   pre = ''
+%   atype = 'back'
+%   func = 'set'
 %
-% EXAMPLES
+% -----------------------------------------------------------------------------
+% <#doc_beg:> multifit
+% Set bindings of <type>ground parameters to <type>- &/or <atype>ground parameters
+%
+%   <#file:> <doc_set_bind_intro> <type> <pre> <atype> <func>
+%
+%
+% See also add_bind set_bbind add_bbind set_fun set_bfun
+% <#doc_end:>
+% -----------------------------------------------------------------------------
 
 
-% Check there are function(s)
-% ---------------------------
-if isempty(obj.fun_)
-    if numel(varargin)>0
-        error ('Cannot bind foreground function parameters before the functions have been set.')
-    else
-        return  % no data has been set, so trivial return
-    end
-end
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
 
 % Process input
 % -------------
 isfore = true;
 
 % Clear all bindings first
-[ok, mess, obj] = clear_bind_private_ (obj, isfore, []);
+[ok, mess, obj] = clear_bind_private_ (obj, isfore, {'all'});
 if ~ok, error(mess), end
 
 % Add new bindings

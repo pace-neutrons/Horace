@@ -26,15 +26,20 @@ w2data=read_sqw(fullfile(test_dir,'data/w2data.sqw'));
 
 win=[w1data,w2data];
 
+% Ensure fit control parameters are the same for old and new multifit
+fcp = [0.0001 30 0.0001];
+
 % Original multifit
 % -----------------
 % Simulate
 [wcalc_ref,calcpar_ref]=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
-    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}}, 'evaluate' );
+    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}},...
+    'evaluate' );
 
 % Fit
 [wfit_ref,fitpar_ref]=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
-    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}});
+    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}},...
+    'fitcontrolparameters',fcp);
 
 
 acolor r b
@@ -45,15 +50,17 @@ pl(wfit_ref)
 
 % New multifit
 % -----------------
-% Simulate
 kk = multifit2_sqw (win);
 kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]});
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
+kk = kk.set_options('fit_control_parameters',fcp);
 
+% Simulate
 [wcalc,calcdata,ok,mess] = kk.simulate;
 if~isequaln(wcalc_ref,wcalc), error('*** Oh dear! ***'), end
 
+% Fit
 [wfit,fitdata,ok,mess] = kk.fit;
 if~isequaln(wfit_ref,wfit), error('*** Oh dear! ***'), end
 
@@ -67,10 +74,12 @@ if~isequaln(wfit_ref,wfit), error('*** Oh dear! ***'), end
 % the extent will be dependent on how rapidly your dispersion function varies, and how big your
 % bins are in the cut.
 [wcalc_ave_ref,calcpar_ave_ref]=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
-    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}}, 'evaluate', 'ave' );
+    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}},...
+    'evaluate', 'ave' );
     
 [wfit_ave_ref,fitpar_ave_ref]=multifit_sqw_sqw(win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
-    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}}, 'ave' );
+    @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}},...
+    'fitcontrolparameters',fcp, 'ave' );
 
 
 
@@ -82,6 +91,7 @@ kk = multifit2_sqw (win);
 kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]});
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
+kk = kk.set_options('fit_control_parameters',fcp);
 kk.average = true;
 
 [wcalc_ave,calcdata_ave,ok,mess] = kk.simulate;

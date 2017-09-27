@@ -70,6 +70,12 @@ function fitdata = repackage_output_parameters (p_best, sig, cor, chisqr_red, co
 %    try, [dummy1,dummy2,pnames] = func(x{:}, p{1}, 1); catch...
 % could invoke a very lengthy calculation.
 
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 [p_tmp,bp_tmp]=ptrans_par(p_best,p_info);
 [psig_tmp,bsig_tmp]=ptrans_sigma(sig,p_info);
 

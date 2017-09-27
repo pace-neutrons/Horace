@@ -16,6 +16,11 @@ function varargout = get_options (obj, varargin)
 % set_options
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 options = obj.options_;
 
 if nargin==1

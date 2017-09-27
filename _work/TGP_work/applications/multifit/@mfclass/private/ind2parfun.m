@@ -20,6 +20,11 @@ function [ip, ifun] = ind2parfun (ind, np, nbp)
 % Works for the case of ip and ifun, or np &/or nbp equal to [] i.e. totally general.
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Elementary check on size of parameters
 npptot = sum(np) + sum(nbp);
 if any(ind<0) || any(ind>npptot)

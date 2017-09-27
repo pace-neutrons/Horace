@@ -48,6 +48,11 @@ function [msk,ok,mess] = mask_points_xye (x, xkeep, xremove, mask)
 %   mess    messages: if ok=true then informational or warning, if ok=false then the error message
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Remove data from outside selected ranges
 % ----------------------------------------
 if ~isempty(xkeep) || ~isempty(xremove) || ~isempty(mask) % one or more of keep range, remove range and mask is provided

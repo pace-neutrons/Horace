@@ -1,5 +1,5 @@
 function varargout = testgateway (dummy, func_name, varargin)
-% Gateway function to enable test of functions in sqw/prvate
+% Gateway function to enable test of functions in /private folder
 %
 %   >> [b1,b2,...] = testgateway (mfclass, 'myfunc', a1, a2, ...)
 %

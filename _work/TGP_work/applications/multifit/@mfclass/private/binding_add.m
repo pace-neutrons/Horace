@@ -1,14 +1,13 @@
-function [obj, ok, mess] = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
+function [Scon, ok, mess] = binding_add (Scon_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
 % Bind parameters
 %
-%   >> obj = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
+%   >> Scon = binding_add (Scon_in, np_, nbp_, ipb, ifunb, ipf, ifunf, R)
 %
 % If a parameter is already bound, then that binding will be replaced
 %
 % Input:
 % ------
-%   obj_in  Constraints structure: fields are 
-%               free_
+%   Scon_in Constraints structure: fields are 
 %               bound_
 %               bound_to_
 %               ratio_
@@ -34,8 +33,7 @@ function [obj, ok, mess] = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifun
 %
 % Output:
 % -------
-%   obj     Constraints structure on output: fields are 
-%               free_
+%   Scon    Constraints structure on output: fields are 
 %               bound_
 %               bound_to_
 %               ratio_
@@ -46,8 +44,13 @@ function [obj, ok, mess] = binding_add (obj_in, np_, nbp_, ipb, ifunb, ipf, ifun
 %   mess    Empty string if ok; error message if not
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Fill output with default structure
-obj = obj_in;
+Scon = Scon_in;
 
 % Return if nothing to do
 if numel(ipb)==0
@@ -67,38 +70,38 @@ iind = iind(ix);
 ibnd = ibnd(ix);
 
 % Update bindings
-if ~any(ismember(ibnd,[nonzeros(obj.bound_to_);iind])) && all(obj.bound_to_(iind)==0)
+if ~any(ismember(ibnd,[nonzeros(Scon.bound_to_);iind])) && all(Scon.bound_to_(iind)==0)
     % Catch simple case that all new bound parameters (1) do not have any parameters bound
     % to them, and (2) are bound to independent parameters. This means that the resolving of the
     % bindings is trivial. Note that we have to include the proposed new bindings as well as
     % the current bindings in these checks; this is done by having ismember(ibnd,iind)
     % appearing in the first check.
-    obj.bound_(ibnd) = true;
-    obj.bound_to_(ibnd) = iind;
-    obj.ratio_(ibnd) = R(ix);
-    obj.bound_to_res_(ibnd) = iind;
-    obj.ratio_res_(ibnd) = R(ix);
+    Scon.bound_(ibnd) = true;
+    Scon.bound_to_(ibnd) = iind;
+    Scon.ratio_(ibnd) = R(ix);
+    Scon.bound_to_res_(ibnd) = iind;
+    Scon.ratio_res_(ibnd) = R(ix);
     ok = true;
     mess = '';
 else
     % Treat in most general case
     % Concatenate existing and new bindings, get last occurrence
-    ibnd = [find(obj.bound_);ibnd];
-    iind = [obj.bound_to_(obj.bound_);iind];
-    ratio = [obj.ratio_(obj.bound_);R];
+    ibnd = [find(Scon.bound_);ibnd];
+    iind = [Scon.bound_to_(Scon.bound_);iind];
+    ratio = [Scon.ratio_(Scon.bound_);R];
     [~,ix] = unique(ibnd,'legacy');
     ibnd = ibnd(ix);
     iind = iind(ix);
     ratio = ratio(ix);
     % Repopulate bindings arrays
-    nptot = size(obj.bound_,1);
-    obj.bound_ = false(nptot,1);
-    obj.bound_to = zeros(nptot,1);
-    obj.ratio_ = zeros(nptot,1);
-    obj.bound_(ibnd) = true;
-    obj.bound_to_(ibnd) = iind;
-    obj.ratio_(ibnd) = ratio;
-    [obj.bound_to_res_,obj.ratio_res_,ok] = binding_resolve (obj.bound_to_,obj.ratio_);
+    nptot = size(Scon.bound_,1);
+    Scon.bound_ = false(nptot,1);
+    Scon.bound_to = zeros(nptot,1);
+    Scon.ratio_ = zeros(nptot,1);
+    Scon.bound_(ibnd) = true;
+    Scon.bound_to_(ibnd) = iind;
+    Scon.ratio_(ibnd) = ratio;
+    [Scon.bound_to_res_,Scon.ratio_res_,ok] = binding_resolve (Scon.bound_to_,Scon.ratio_);
     if ok
         mess = '';
     else

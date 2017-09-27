@@ -62,8 +62,13 @@ function [ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
 %    parameter's fixed/free status?
 % Here we have chosen the latter, that is, being bound takes precedence
 % on the grounds that the user ought to have an idea of what are the
-% independent parameter, and would be surprised to have an implicit fixing.
+% independent parametera, and would be surprised to have any implicit fixing.
 % ***
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 
 
 % Return values if error
@@ -86,7 +91,7 @@ end
 
 pp0 = [zeros(0,1); cell2mat(arrayfun(@(x)x.p,obj.pin_,'UniformOutput',false))';...     % enforce [0,1] if pin_,bpin_ empty
     cell2mat(arrayfun(@(x)x.p,obj.bpin_,'UniformOutput',false))'];
-free = (obj.free_ & ~obj.bound_);   % the variable free means 'independent and floating'
+free = (cell2mat([obj.free_,obj.bfree_])' & ~obj.bound_);   % the variable free means 'independent and floating'
 if all(~free) && ok_fit
     ok_fit = false; mess = 'Every parameter is either bound or fixed - therefore no parameters to fit';
 end

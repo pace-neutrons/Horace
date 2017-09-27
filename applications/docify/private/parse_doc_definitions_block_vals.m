@@ -86,7 +86,7 @@ try
 catch
     S=struct([]);
     mess1='Unable to run meta-documentation temporary function. Check syntax of docify argument definition block.';
-    mess2='Documentation tempoary file ';
+    mess2='Documentation temporary file ';
     warning('%s\n%s\n%s',mess1,mess2,tmp_mfile_full)
     err=true;
 end

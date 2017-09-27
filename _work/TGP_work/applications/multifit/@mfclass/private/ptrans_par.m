@@ -17,6 +17,11 @@ function [p,bp]=ptrans_par(pf,p_info)
 %          for the background function(s)
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Update list of parameter values
 pp=p_info.pp0;
 pp(p_info.free)=pf;

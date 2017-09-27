@@ -72,3 +72,5 @@
 %
 % If ok is not a return argument, then if ok is false an error will be thrown.
 %   <#file:> <extra_body>
+% <#doc_end:>
+% -----------------------------------------------------------------------------

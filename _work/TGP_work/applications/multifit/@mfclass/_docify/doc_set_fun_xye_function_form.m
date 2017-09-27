@@ -19,3 +19,4 @@
 %   c1,c2,...   Any further arguments needed by the function (e.g.
 %              they could be the filenames of lookup tables)
 % <#doc_end:>
+% -----------------------------------------------------------------------------

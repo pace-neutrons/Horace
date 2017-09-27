@@ -1,29 +1,40 @@
 function obj = replace_data(obj,varargin)
-% Replace one or all datasets. The functions and constraints are left unchanged
+% Replace one or more datasets, clearing masks. Functions and constraints are unchanged
 %
-%   >> obj = obj.replace_data (i,w)     % Replace ith data set with a scalar
-%                                       % object
-%   >> obj = obj.replace_data (w)       % Replace the single dataset with scalar
-%                                       % object
-%   >> obj = obj.replace_data (w1,w2,..)% Replace all datasets with an equal
-%                                       % number of datasets
-% If x,y,e data is valid:
-%   >> obj = obj.replace_data (i,x,y,z) % Replace ith dataset with x-y-e triple
-%   >> obj = obj.replace_data (x,y,e)   % Replace the single dataset with
-%                                       % x-y-e triple
+% If data in the form of objects is expected:
+%   >> obj = obj.replace_data (w1,w2,..)     % Replace all datasets with an equal
+%                                            % number of datasets
+%   >> obj = obj.replace_data (ind,w1,w2,..) % Replace indicated dataset(s)
+%                                            % with an equal number of new ones
+%                                            % (ind is a scalar or row vector)
 %
-% If replacing just a single dataset, then if that dataset is part of an array
-% of datasets within the full list of datasets, the substitution is only
-% possible if:
-% - an element of an object array is being replaced by a scalar object of the
-%   same class
-% - an element of a structure or an x-y-e triple (i.e. {x,y,e} or x,y,e), is
-%   being replaced by a scalar structure or a single x-y-e triple.
+% If x,y,e data is valid (i.e. datasets are not required to be objects)
+%   >> obj = obj.replace_data (x,y,e)        % Replace a single dataset with an
+%                                            % x-y-e triple
+%   >> obj = obj.replace_data (ind,x,y,z)    % Replace ith dataset with x-y-e triple
+%   >> obj = obj.replace_data (ind,w1,w2,..) % Replace indicated dataset(s)
+%                                            % with an equal number of new ones
+%                                            % cell arrays or structures of x-y-e
+%                                            % data (ind is a scalar or row vector)
 %
 % For more details about data formats see <a href="matlab:doc('mfclass/set_data');">set_data</a>
 %
-% See also set_data append_data remove_data
+%
+% In addition, portions of the data sets can be masked using one or more of
+% the optional keyword-value pairs (keyword-value pairs can appear in any order):
+%
+%   >> obj = obj.replace_data (...'keep', xkeep, 'remove', xremove, 'mask', mask)
+%
+% For full details of the syntax, see <a href="matlab:doc('mfclass/set_mask');">set_mask</a>
+%
+%
+% See also append_data remove_data set_data
  
+
+% Note for developers:
+%   >> obj = obj.replace_data ()        % Inert operation: does nothing
+%   >> obj = obj.replace_data ([])      % Inert operation: does nothing
+
  
 % Original author: T.G.Perring 
 % 
@@ -31,42 +42,50 @@ function obj = replace_data(obj,varargin)
 
 
 % Trivial case of no input arguments; just return without doing anything
-if numel(varargin)==0, return, end
+if numel(varargin)==0
+    return
+end
 
-% Find optional arguments
+% Find arguments and optional arguments
 keyval_def = struct('keep',[],'remove',[],'mask',[]);
-[args,keyval,~,~,ok,mess] = parse_arguments (varargin, keyval_def);
+[args,keyval,present,~,ok,mess] = parse_arguments (varargin, keyval_def);
 if ~ok, error(mess), end
+if isempty(args) && any(cellfun(@logical,struct2cell(present)))
+    error('Syntax error: no input data was given but optional arguments were provided')
+end
 
-% Find out if a specific dataset index has been given, or if only dataset(s)
-if (numel(args)==2 || numel(args)==4) && ...
-        isnumeric(args{1}) && isscalar(args{1}) && isfinite(args{1})
-    % Replace a specific dataset
-    if isa_index (args{1}, obj.ndatatot_)
-        id = args{1};
-        args = args(2:end);
-    else
-        mess = ['Check the dataset index is a positive integer in the range 1 - ',...
-            num2str(numel(obj.ndatatot_))];
-        error(mess)
-    end
+% Get dataset indicies to replace
+if numel(args)==3 && isnumeric(args{1}) && isnumeric(args{2}) && isnumeric(args{3})
+    % Case of three numeric arrays - assume user means to give (x,y,e)
+    idata = 1;
+    ibeg = 1;   % start of data in args
 else
-    % Replace all datasets
-    id = [];
+    if isnumeric(args{1}) || ischar(args{1})
+        % Initial numeric array; assume is meant to be dataset index array
+        % Catch case of 'all' too!
+        [ok,mess,idata] = indicies_parse (args{1}, obj.ndatatot_, 'Dataset');
+        if ~ok, error(mess), end
+        if ~isempty(idata) && numel(args)==1
+            error('Index of dataset(s) to replace have been given, but no data')
+        end
+        ibeg = 2;   % start of data in args
+    else
+        % No initial numeric array; assume all datasets requested to be replaced
+        idata = 1:obj.ndatatot_;
+        ibeg = 1;   % start of data in args
+    end
 end
 
 % Check input data
 class_name = obj.dataset_class_;
-[ok, mess, ndim, w] = is_valid_data (class_name, args{:});
+[ok, mess, w] = is_valid_data (class_name, args{ibeg:end});
 if ~ok, error(mess), end
-if ~isempty(id) && numel(w)~=1  % case of replacing a single dataset
-    error('A single dataset is expected, but more than one was given')
-elseif isempty(id) && numel(w)~=obj.ndatatot_
-    error('Number of datasets does not match current number of datasets - cannot replace')
+if numel(w)~=numel(idata)
+    error('The number of datasets to be replaced is not matched by the number of replacement datasets')
 end
 
 % Check optional arguments
-[xkeep,xremove,msk,ok,mess] = mask_syntax_valid (numel(w), keyval.keep, keyval.remove, keyval.mask);
+[ok,mess,xkeep,xremove,msk] = mask_syntax_valid (numel(w), keyval.keep, keyval.remove, keyval.mask);
 if ~ok, error(mess), end
 
 % Create mask arrays
@@ -80,49 +99,12 @@ end
 
 % Set object properties
 % ---------------------
-if ~isempty(id)
-    % Replacing a single dataset
-    item=obj.item_(id);
-    if obj.ndata_(item)==1
-        % Replacing a scalar dataset item with another scalar dataset item
-        if obj.ndatatot_>1  % more than one dataset currently set
-            if numel(args)==3   % replacement data is x,y,e
-                obj.data_{item} = args;    % item replaced with {x,y,e}
-            else
-                obj.data_{item} = args{1};
-            end
-        else
-            obj.data_ = args;
-        end
-        obj.ndim_{item} = ndim{1};
-    else
-        % Replacing a scalar dataset in a non-scalar data item
-        if (isobject(obj.data_{item}) && isa(args{1},class(obj.data_{item}))) ||...
-                (isstruct(obj.data_{item}) && isstruct(args{1})) ||...
-                (iscell(obj.data_{item}) && (iscell(args{1}) || numel(args)==3))
-            ix=obj.ix_(id);
-            if numel(args)==3
-                obj.data_{item}(ix) = {args};
-            else
-                obj.data_{item}(ix) = args{1};
-            end
-            obj.ndim_{item}(ix) = ndim{1};
-        else
-            error('Attempting to replace a single dataset in an array with one of a different type is forbidden')
-        end
-    end
-    obj.w_{id} = w{1};
-    obj.msk_{id} = msk_out{1};
-    
-else
-    % Replacing all datasets
-    [ndata,ndatatot,item,ix] = data_indicies(ndim);
-    obj.data_ = args;
-    obj.ndim_ = ndim;
-    obj.ndata_ = ndata;
-    obj.ndatatot_ = ndatatot;
-    obj.item_ = item;
-    obj.ix_ = ix;
-    obj.w_ = w;
-    obj.msk_ = msk_out;
-end
+% Note that the functions and constraints properties are unchanged; we retain
+% the functions and constraints, just change the data.
+% That is how this is different from 'remove' followed by 'insert'
+[ok,mess,data_out] = dataset_replace (obj.data_, idata, args(ibeg:end));
+if ~ok, error(mess), end
+
+obj.data_ = data_out;
+obj.w_(idata) = w;
+obj.msk_(idata) = msk_out;

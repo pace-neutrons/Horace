@@ -129,7 +129,7 @@ for i=1:nstr
                     else
                         ix=find(strcmpi(args{j},Snam),1);
                         if ~isempty(ix)
-                            args{ix}=S.(args{j});
+                            args{j}=S.(args{j});
                         end
                     end
                 end

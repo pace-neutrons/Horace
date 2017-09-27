@@ -20,6 +20,11 @@ function ind = parfun2ind (ip, ifun, np, nbp)
 % Works for the case of ip and ifun, or np &/or nbp equal to [] i.e. totally general.
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Elementary check on size of parameters
 if numel(ip)~=numel(ifun)
     error('Number of parameter and function indicies do not match')

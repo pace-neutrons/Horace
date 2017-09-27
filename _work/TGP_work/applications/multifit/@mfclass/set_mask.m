@@ -1,19 +1,20 @@
 function obj = set_mask(obj,varargin)
-% Select data points to simulate or fit
+% Select data points to simulate or fit, clearing any existing masking
 %
-% Select for all current data sets: one or more of the keyword-value pairs
+% Mask all currently input data sets: one or more of the keyword-value pairs:
 % (keyword-value pairs can appear in any order):
-%   >> obj = obj.set_mask ('keep', xkeep, 'remove', xremove, 'mask', mask)
 %
-% Select for one or more particular datasets (idata an integer or integer array):
-%   >> obj = obj.set_mask (idata, 'keep', xkeep,...)
+%   >> obj = obj.add_mask ('keep', xkeep, 'remove', xremove, 'mask', mask)
+%
+% Select for one or more particular datasets (ind an integer or integer array):
+%   >> obj = obj.add_mask (ind, 'keep', xkeep,...)
 %
 % Input:
 % ------
 % Optional selection of datasets to mask:
-%   idata       Index of dataset to mask, or array of indicies to mask
+%   ind         Index of dataset to mask, or array of indicies to mask
 %              several datasets.
-%               If omitted, the masking applies to all datasets
+%               If omitted, the masking applies to all currently input datasets
 %
 % Optional keyword/value pairs:
 %   xkeep       Cell array (row) of keep ranges, one per data set.
@@ -37,7 +38,26 @@ function obj = set_mask(obj,varargin)
 %               Same size as data.
 %              (If mask is empty, then it is ignored)
 %
+%
 % See also add_mask clear_mask
+
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+%   doc_set_mask_intro = fullfile(mfclass_doc,'doc_set_mask_intro.m')
+%
+%   func = 'add'
+%
+% -----------------------------------------------------------------------------
+% <#doc_beg:> multifit
+% Select data points to simulate or fit, clearing any existing masking
+%
+%   <#file:> <doc_set_mask_intro> <func>
+%
+%
+% See also add_mask clear_mask
+% <#doc_end:>
+% -----------------------------------------------------------------------------
 
 
 % Original author: T.G.Perring
@@ -45,42 +65,7 @@ function obj = set_mask(obj,varargin)
 % $Revision$ ($Date$)
 
 
-% Trivial case of no input arguments; just return without doing anything
-if numel(varargin)==0, return, end
-
-% Find optional arguments
-keyval_def = struct('keep',[],'remove',[],'mask',[]);
-[args,keyval,~,~,ok,mess] = parse_arguments (varargin, keyval_def);
+% Process input
+clear = true;
+[ok, mess, obj] = add_mask_private_ (obj, clear,  varargin);
 if ~ok, error(mess), end
-
-% Check there are dataset(s)
-if isempty(obj.data_)
-    error ('Cannot set masking before data sets have been set.')
-end
-
-% Now check validity of input
-if isempty(args)
-    idata_in = [];
-elseif numel(args)==1
-    idata_in = args{1};
-else
-    error ('Check number of input arguments - data set indicies must be a single row vector')
-end
-[ok,mess,idata] = dataset_indicies_parse (idata_in, obj.ndatatot_);
-if ~ok, error(mess), end
-
-% Check optional arguments
-[xkeep,xremove,msk,ok,mess] = mask_syntax_valid (numel(idata), keyval.keep, keyval.remove, keyval.mask);
-if ~ok, error(mess), end
-
-% Create mask arrays
-[msk_out,ok,mess] = mask_data (obj.w_(idata),[],xkeep,xremove,msk);
-if ok && ~isempty(mess)
-    display_message(mess)
-elseif ~ok
-    error_message(mess)
-end
-
-% Set object
-% ----------
-obj.msk_(idata) = msk_out;

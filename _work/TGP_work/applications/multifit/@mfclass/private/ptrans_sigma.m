@@ -16,6 +16,12 @@ function [psig,bsig]=ptrans_sigma(sigfree,p_info)
 %   bsig    Column cell array of column vectors, each with the standard deviations
 %          on the parameter values for the background function(s)
 
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Get list of estimated errors
 sig=zeros(p_info.npptot,1);
 sig(p_info.free)=sigfree;

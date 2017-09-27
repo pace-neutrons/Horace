@@ -5,6 +5,11 @@ function display_message(mess,opt)
 %   >> display_message (mess, '-squeeze')   % Squeeze out empty lines
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Get option
 if nargin==2
     if is_string(opt) && strncmpi(opt,'-squeeze',numel(opt))

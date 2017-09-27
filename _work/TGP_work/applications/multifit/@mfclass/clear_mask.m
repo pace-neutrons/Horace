@@ -1,11 +1,12 @@
 function obj = clear_mask(obj,idata_in)
 % Clear masking of data points, so all data points are to be fitted
 %
-% Clear all masks
+% Clear all masks:
 %   >> obj = obj.clear_mask
+%   >> obj = obj.clear_mask ('all')
 %
-% Clear masking for one or more particular datasets (idata an integer or integer array):
-%   >> obj = obj.clear_mask (idata)
+% Clear masking for one or more particular datasets (ind an integer or integer array):
+%   >> obj = obj.clear_mask (ind)
 %
 % For details about the keyword-value pairs, see <a href="matlab:doc('mfclass/set_mask');">set_mask</a>
 %
@@ -27,7 +28,7 @@ if isempty(obj.data_)
 end
 
 % Now check validity of input
-[ok,mess,idata] = dataset_indicies_parse (idata_in, obj.ndatatot_);
+[ok,mess,idata] = indicies_parse (idata_in, obj.ndatatot_, 'Dataset');
 if ~ok, error(mess), end
 
 % Set object

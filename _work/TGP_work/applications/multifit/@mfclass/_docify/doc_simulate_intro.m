@@ -1,3 +1,7 @@
+% Header to simulate method
+%
+% -----------------------------------------------------------------------------
+% <#doc_beg:>
 % Perform a simulation of the data using the current functions and starting parameter values
 %
 % Return calculated sum of foreground and background:
@@ -65,3 +69,5 @@
 %
 %
 % If ok is not a return argument, then if ok is false an error will be thrown.
+% <#doc_end:>
+% -----------------------------------------------------------------------------

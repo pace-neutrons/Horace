@@ -1,19 +1,36 @@
 function obj = clear_bind (obj, varargin)
-% Clear bindings between parameters for foreground functions
+% Clear any binding of parameters for one or more foreground functions
 %
-%   >> obj = obj.clear_bind            % clear all bindings
-%   >> obj = obj.clear_bind (ifun)     % clear bindings for indicated function(s)
+% Clear for all parameters for all foreground functions
+%   >> obj = obj.clear_bind
+%   >> obj = obj.clear_bind ('all')
+%
+% Clear for all parameters for one or more specific foreground function(s)
+%   >> obj = obj.clear_bind (ifun)
+%
+% Input:
+% ------
+%   ifun    Row vector of foreground function indicies [Default: all functions]
+
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
+%   doc_clear_bind_intro = fullfile(mfclass_doc,'doc_clear_bind_intro.m')
+%
+%   type = 'fore'
+%   pre = ''
+%
+% -----------------------------------------------------------------------------
+% <#doc_beg:> multifit
+%   <#file:> <doc_clear_bind_intro> <type> <pre>
+% <#doc_end:>
+% -----------------------------------------------------------------------------
 
 
-% Check there are function(s)
-% ---------------------------
-if isempty(obj.fun_)
-    if numel(varargin)>0
-        error ('Cannot clear bindings of foreground function(s) before the functions have been set.')
-    else
-        return  % no data has been set, so trivial return
-    end
-end
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
 
 % Process input
 % -------------

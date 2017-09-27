@@ -10,27 +10,92 @@ mfclass_sqw
 mfclass_tobyfit
 
 
+===============================================================================================
+             Jobs post reorganisation
+===============================================================================================
+Create insert_data and corresponding dataset_insert. Edit replace_data to use dataset_remove
+and dataset_insert; this will overcome the inconsistency that we cannot replace a single data
+item with a single one of a different type at the moment.
+
+Catch special case of removing all but one of a cell array of cell
+arrays - to avoid {{x,y,e}} ? But then for consistency do we have to do the same with set_data?
+
+
+
+===============================================================================================
+             Reorganisation 7 Sep 2017
+===============================================================================================
+mask optins in set_data etc.  push into a single routine like add_mask_private_ (see
+set_fun_private_ and friends for same organisation) ?
+
+
+
+
+
+
+sort out where to catch case of no functions or data set - this will affect error
+reporting for case of syntax e.g. obj.pin = [] . All the function and binding_addparsers handle
+empty input; it is e.g. set_fun_private_ (or set_bind and friends - at higher level for binding)
+that there is error trapping
+
+remove_data, clear_mask etc   () and ('all') the same; ([]) do nothing
+
+set_mask, add_mask : create add_mask_private (masks are like bindings, so make syntax the same)
+
+Inconsistency in arguments to set_fun (whwere [] means 'all') and set_pin etc.
+
+15 Sep 2017: still need to sort out set_data, append_data (create insert_data?); all masking
+
+
+obj.ndatatot_   	Replace with numel(obj.w_)
+					Only question: do we need as a protected property for sub classes?
+
+obj.bound_ 			Can simply use logical(obj.bound_to_)					
+
+obj.bound_res_, obj.ratio_res_
+					Can remove as properties, because we can  use bound_resolve() to 
+					get them in ptrans_initialise. 
+					Need to check in binding_add() that additional bindings do not
+					cause closed loops of bindings by calling binding_resolve() there too
+					
+obj.np_  			Can use mfclass_plist.np: cellfun (@(x))x.np, obj.pin)
+					Similarly obj.nbp
+					
+get_fun_props_ etc. should be replaced as propserties
+				
+
+data can also be changed, so have obj.data = [w1,w2..]; obj.data([3,6]) = ...
+Repackage_output_data becomes a method on data
+
+kk = tobyfit2 (w1_100);
+kk.fun = @blobby;
+kk.pin = [1,3,2,44];
+kk.free = [1,1,0,0];
+kk.bind = kk.bind + {};
+
+kk.fun = kk.clear_fun([13,17]);
+
+kk.fun([13,17]) = [];
+
+
+					
+Renaming:
+---------
+multifit_lsqr has plist etc. Probably OK as internally consistent, but need to separate
+from mfclass proper e.g. ptrans_initialise straddles both.
+
+
+Other details:
+--------------
+Every message shoudl be printed with display_message, so that messages can be generalised
+without causing any problems later on. (Do a search on 'disp(' and 'disp (' (andsam for 
+'display*' ?
+
 
 
 ===============================================================================================
              mfclass
 ===============================================================================================
-
-- fun_replace, fun_remove; constraints_replace etc. are not obviously logically named
-  (or even correctly used!)
-
-- function_set_scope uses the same algorithm as fun_init to determine how many 
-  functions to set. SHould combine in one. In fact, as these are the only two
-  func functions that change global/local status, they are rather similar in that
-  they initialise.
-  
-- set_data etc.: of the properties ndim_, ndat_, ndatatot_, item_, ix_ only
-  ndatatot_ is used widely. ndim_ doesn't seem to be used at all, ndata_, item_, ix_
-  are only used in remove_data and replace_data, so can be created there.
-  
-- Really need to overhaul all the 'set' functions as they are not entirely logical
-  and I don't know if they are all mutually consistent in how they set objects.
-  Must overhaul definition of object status at each point.
 
 - simulation: background, foreground options, option to use fit parameters (either
   as a second argument from an object, or store results of a fit). Also return chisqr.
@@ -71,23 +136,12 @@ Multifit_lsqr:
   
 Constraints:
 ===============
-Functions that have complex operations that might be better optimised
-	binding_add
-	binding_clear
-	binding_resolve
-	constraints_remove
-	
-	For example, in binding_add, 
 
 - Do we actually need property bound_? After all, bound_ == (bound_to_>0)
 
-- Can separate free from bindings as now completely separate - but no harm leaving as is in case
-  change functionality back
-
 - Should clear_bind look be able to clear specific parameters, not just all parameters
   for a given function ?
-  
-- Change name clear_free, set_free etc to *_fix, and invert so true = fixed, false=free ?
+
 	
 %========================================================================================
 		BUGS

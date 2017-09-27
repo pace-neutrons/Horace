@@ -107,6 +107,11 @@ function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,
 %   sigvar_get for the object returns a mask array.
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Initialise store if required
 S=Sin;
 if isempty(S)

@@ -10,22 +10,33 @@ function [ok, mess, obj] = clear_free_private_ (obj, isfore, args)
 %   args = {ifun}
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 if isfore
+    fun_type = 'fore';
     nfun = numel(obj.fun_);
-    np = obj.np_;
 else
+    fun_type = 'back';
     nfun = numel(obj.bfun_);
-    np = obj.nbp_;
 end
+
+% % Check there are function(s)
+% % ---------------------------
+% if nfun==0
+%     ok = false;
+%     mess = ['Cannot free parameters of ', fun_type, 'ground function(s) before the function(s) have been set.'];
+%     return
+% end
 
 % Parse input arguments
 % ---------------------
 if numel(args)==0
-    ifun = [];
-    
+    ifun = 'all';
 elseif numel(args)==1
     ifun = args{1};
-    
 else
     ok = false;
     mess = 'Check number of input arguments';
@@ -34,15 +45,14 @@ end
 
 % Now check validity of input
 % ---------------------------
-[ok,mess,ifun] = function_indicies_parse (ifun,nfun);
+[ok,mess,ifun] = indicies_parse (ifun, nfun, 'Function');
 if ~ok, return, end
-
-pfree = mat2cell(true(1,sum(np(ifun))),1,np(ifun));
 
 % All arguments are valid, so populate the output object
 % ------------------------------------------------------
-% Update the constraints
-S_con = free_alter (obj.get_constraints_props_, obj.np_, obj.nbp_, isfore, ifun, pfree);
+% Update the functions structure
+Sfun = free_alter (obj.get_fun_props_, isfore, ifun);
 
 % Update the object
-obj = obj.set_constraints_props_ (S_con);
+% -----------------
+obj = obj.set_fun_props_ (Sfun);

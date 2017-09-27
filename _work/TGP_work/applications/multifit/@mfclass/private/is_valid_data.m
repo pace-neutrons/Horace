@@ -1,14 +1,16 @@
-function [ok, mess, ndim, wout] = is_valid_data (class_name, varargin)
+function [ok, mess, wout] = is_valid_data (class_name, varargin)
 % Check nature and validity of data type(s) to be fitted, and repackage in a standard form.
 %
-%   >> [ok, mess, ndim, wout] = is_valid_data                 % No data sets
-%   >> [ok, mess, ndim, wout] = is_valid_data (class_name, x, y, e)
-%   >> [ok, mess, ndim, wout] = is_valid_data (class_name, w1, w2, ...)
+%   >> [ok, mess, wout] = is_valid_data (class_name)                % No data sets
+%   >> [ok, mess, wout] = is_valid_data (class_name, [])            % No data sets
+%   >> [ok, mess, wout] = is_valid_data (class_name, x, y, e)
+%   >> [ok, mess, wout] = is_valid_data (class_name, w1, w2, ...)
 %
 % Input:
 % ------
-%   class_name  Name of class of objects. If blank, then generic input types
-%               are allowed; if given, then all data must be objects of this class.
+%   class_name  Name of class of objects. If empty, then generic input types
+%               are allowed; if not empty, then all data must be objects of
+%               this class.
 %
 %   Data to be fitted:
 %
@@ -60,18 +62,6 @@ function [ok, mess, ndim, wout] = is_valid_data (class_name, varargin)
 %
 %   mess            Error message: ='' if OK, contains error message if not OK.
 %
-%   ndim            Cell array (row vector) of numeric arrays. If the input
-%                  data sets are w1, w2, ... then
-%                       size(ndim{i}) = size(wi)
-%                  and ndim{i} is the array of the number of dimensions of each
-%                  datasets in wi, if wi is a cell array of xye triples or a
-%                  structure array. If wi is an object array, then ndim{i} is
-%                  filled with NaNs.
-%                   If the input data was x,y,e then ndim{1} is scalar, as
-%                  there is just one dataset.
-%
-%                   If not ok, ndim=cell(1,0)
-%
 %   wout            Cell array of datasets (row) that contain repackaged data:
 %                  every entry is either
 %                   - an x-y-e triple with wout{i}.x a cell array of arrays,
@@ -81,33 +71,41 @@ function [ok, mess, ndim, wout] = is_valid_data (class_name, varargin)
 %                   If not ok, wout=cell(1,0)
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 narg=numel(varargin);
-if narg>0
+if narg==0 || (narg==1 && isnumeric(varargin{1}) && isempty(varargin{1}))
+    % No input or a single, empty, item
+    ok=true;
+    mess='';
+    wout=cell(1,0);
+else
     if isempty(class_name)
         % Generic data types allowed
         if narg==3 && isnumeric(varargin{2}) && isnumeric(varargin{3})
             % Check for possibility that there are three arguments x,y,e
-            ndim=cell(1,1);
-            [ok,mess,ndim{1},wout] = is_cell_xye(varargin);
+            [ok,mess,wout] = is_cell_xye(varargin);
         else
             % General case
-            ndim=cell(1,narg);
             wout=cell(1,narg);
             for i=1:narg
                 if iscell(varargin{i})
-                    [ok,mess,ndim{i},wout{i}] = is_cell_xye (varargin{i});
+                    [ok,mess,wout{i}] = is_cell_xye (varargin{i});
                     if ~ok
                         mess=['Cell array data: ',mess];
                         break
                     end
                 elseif isstruct(varargin{i})
-                    [ok,mess,ndim{i},wout{i}] = is_struct_xye (varargin{i});
+                    [ok,mess,wout{i}] = is_struct_xye (varargin{i});
                     if ~ok
                         mess=['Structure data: ',mess];
                         break
                     end
                 elseif isobject(varargin{i})
-                    [ok,mess,ndim{i},wout{i}] = is_object_xye (varargin{i});
+                    [ok,mess,wout{i}] = is_object_xye (varargin{i});
                     if ~ok
                         mess=['Object array data: ',mess];
                         break
@@ -127,10 +125,9 @@ if narg>0
     else
         % Specific class required
         if all(cellfun(@(x)isa(x,class_name),varargin))
-            ndim=cell(1,narg);
             wout=cell(1,narg);
             for i=1:narg
-                [ok,mess,ndim{i},wout{i}] = is_object_xye (varargin{i});
+                [ok,mess,wout{i}] = is_object_xye (varargin{i});
                 if ~ok
                     mess=['Object array data: ',mess];
                     break
@@ -147,22 +144,16 @@ if narg>0
         end
     end
     if ~ok
-        ndim=cell(1,0);
         wout=cell(1,0);
     end
-else
-    ok=true;
-    mess='';
-    ndim=cell(1,0);
-    wout=cell(1,0);
 end
 
 
 %--------------------------------------------------------------------------------------------------
-function [ok,mess,ndim,wout] = is_cell_xye(w)
+function [ok,mess,wout] = is_cell_xye(w)
 % Determine if an argument is a cell array with valid fields x, y, e
 %
-%   >> [ok,mess,ndim] = is_cell_xye (w)
+%   >> [ok,mess,wout] = is_cell_xye (w)
 %
 % Input:
 % ------
@@ -179,10 +170,6 @@ function [ok,mess,ndim,wout] = is_cell_xye(w)
 %
 %   mess    Error message: ='' if OK, contains error message if not OK.
 %
-%   ndim    Array with size equal to that of w with the dimensionality of
-%          each of the data sets.
-%           If not ok, then ndim=NaN(size(w))
-%
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
@@ -193,34 +180,32 @@ if numel(w)>0 && all(make_column(cellfun(@iscell,w))) && all(make_column(cellfun
     % w is non-empty and all elements of w are cell arrays length 3
     ok = true;
     mess = '';
-    ndim=NaN(size(w));
     wout=cell(1,numel(w));
     for i=1:numel(w)
         tmp.x=w{i}{1}; tmp.y=w{i}{2}; tmp.e=w{i}{3};
-        [ok,mess,ndim(i),wout(i)] = is_struct_xye (tmp);
+        [ok,mess,wout(i)] = is_struct_xye (tmp);
         if ~ok, return, end
     end
     
 elseif numel(w)==3
     % Three elements, not all cell arrays
     tmp.x=w{1}; tmp.y=w{2}; tmp.e=w{3};
-    [ok,mess,ndim,wout] = is_struct_xye (tmp);
+    [ok,mess,wout] = is_struct_xye (tmp);
     if ~ok, return, end
     
 else
     ok=false;
     mess='Data must have form {x,y,e} or {{x1,y1,e1}, {x2,y2,e2},...}';
-    ndim=NaN(size(w));
     wout=w(:)';
     
 end
 
 
 %--------------------------------------------------------------------------------------------------
-function [ok,mess,ndim,wout] = is_struct_xye (w)
+function [ok,mess,wout] = is_struct_xye (w)
 % Determine if an argument is structure array with valid fields x,y,e
 %
-%   >> [ok,mess,ndim] = is_struct_xye (w)
+%   >> [ok,mess,wout] = is_struct_xye (w)
 %
 % Input:
 % ------
@@ -255,10 +240,6 @@ function [ok,mess,ndim,wout] = is_struct_xye (w)
 %
 %   mess    Error message: ='' if OK, contains error message if not OK.
 %
-%   ndim    Array with size equal to that of w with the dimensionality of
-%          each of the data sets.
-%           If not ok, then ndim=NaN(size(w))
-%
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
@@ -266,7 +247,6 @@ function [ok,mess,ndim,wout] = is_struct_xye (w)
 %          element
 
 ok=false;
-ndim=NaN(size(w));
 wout=num2cell(w(:)');
 
 % Catch case of empty structure
@@ -306,10 +286,9 @@ for i=1:numel(w)
                 mess=[message_opening(w,i),'signal and error array sizes do not match coordinate array size'];
                 return
             end
-            ndim(i)=sz(end);
-            wout{i}.x=num2cell(w(i).x,1:ndim(i)-1); % separate the dimensions into cells
+            ndim=sz(end);
+            wout{i}.x=num2cell(w(i).x,1:ndim-1); % separate the dimensions into cells
         else
-            ndim(i)=1;
             wout{i}.x={w(i).x};     % make a cell array with a single element
         end
     elseif iscell(w(i).x)
@@ -334,7 +313,6 @@ for i=1:numel(w)
             mess=[message_opening(w,i),'signal and error array sizes do not match coordinate array(s) size'];
             return
         end
-        ndim(i)=numel(w(i).x);
     else
         mess=[message_opening(w,i),'x-coordinate must be a numeric array or cell array of numeric arrays'];
         return
@@ -354,10 +332,10 @@ end
 
 
 %--------------------------------------------------------------------------------------------------
-function [ok,mess,ndim,wout] = is_object_xye (w)
+function [ok,mess,wout] = is_object_xye (w)
 % Determine if argument is an object array with valid methods for fitting
 %
-%   >> [ok,mess,ndim,wout] = is_object_xye (w)
+%   >> [ok,mess,wout] = is_object_xye (w)
 %
 % Input:
 % ------
@@ -371,17 +349,12 @@ function [ok,mess,ndim,wout] = is_object_xye (w)
 %
 %   mess    Error message: ='' if OK, contains error message if not OK.
 %
-%   ndim    Array with size equal to that of w with the dimensionality of
-%          each of the data sets.
-%           If not ok, then ndim=NaN(size(w))
-%
 %   wout    Cell array (row) of stuctures each with fields x,y,e
 %          where wout{i}.x is a cell array of arrays, one element for each x
 %          coordinate.
 %           If not ok, then still a row cell array with one structure in each
 %          element
 
-ndim=NaN(size(w));
 wout=num2cell(w(:)');
 
 % Catch case of empty structure

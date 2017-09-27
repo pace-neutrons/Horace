@@ -1,6 +1,9 @@
 function test_2
 % Test of multifit2 with IX_dataset_1d
 
+nlist = 0;  % set to 1 or 2 for listing during fit
+
+
 % Assumes have created a data file
 test_dir = fileparts(mfilename('fullpath'));
 S=load(fullfile(test_dir,'/data/testdata_multifit_1.mat'));
@@ -8,7 +11,7 @@ S=load(fullfile(test_dir,'/data/testdata_multifit_1.mat'));
 
 %--------------------------------------------------------------------------------------------------------------------
 SS.warr3 = [S.w1,S.w2,S.w3];
-SS.sarr3 = [S.wstruct1,S.wstruct2,S.wstruct3];
+SS.sarr3 = [S.s1,S.s2,S.s3];
 
 
 
@@ -16,15 +19,22 @@ w = SS.warr3;
 
 
 %--------------------------------------------------------------------------------------------------------------------
+% Ensure fit control parameters are the same for old and new multifit
+fcp = [0.0001 30 0.0001];
+
 % An exanple fit with old multifit
-[wfit_ref,fitdata_ref] = multifit (w, @mftest_gauss, [100,45,10], @mftest_bkgd, {[10,0],[20,0],[30,0]}, 'list', 2);
+[wfit_ref,fitdata_ref] = multifit (w, @mftest_gauss, [100,45,10],...
+    @mftest_bkgd, {[10,0],[20,0],[30,0]},...
+    'fitcontrolparameters',fcp,...
+    'list', nlist);
 
 
 % Same with mfclass
 kk = multifit2(w);
 kk = kk.set_fun (@mftest_gauss, [100,45,10]);
 kk = kk.set_bfun (@mftest_bkgd, {[10,0],[20,0],[30,0]});
-kk = kk.set_options('listing',2);
+kk = kk.set_options('fit_control_parameters',fcp);
+kk = kk.set_options('listing',nlist);
 
 % Perform simulation
 % ------------------

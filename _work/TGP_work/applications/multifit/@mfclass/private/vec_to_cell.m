@@ -20,6 +20,12 @@ function p=vec_to_cell(pp,np)
 %
 % If pp was not a vector, then the output is unpredictable.
 
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 n=numel(np);
 if n==1     % catch special case of a single vector
     p={pp};

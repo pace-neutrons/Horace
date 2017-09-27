@@ -16,8 +16,8 @@ function [ok, mess, strout] = resolve (str, substr, val)
 %   strout  Output string or cellstr
 %
 % The substitutions are performed recursively until there are no further
-% substitutions that can be made, or until the maximum depth permitted has
-% been reached.
+% substitutions that can be made, or until the maximum depth permitted by
+% matlab has been reached.
 
 
 if ~iscell(substr), substr={substr}; end

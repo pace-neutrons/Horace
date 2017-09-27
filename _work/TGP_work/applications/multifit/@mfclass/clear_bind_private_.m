@@ -10,6 +10,11 @@ function [ok, mess, obj] = clear_bind_private_ (obj, isfore, args)
 %   args = {ifun}
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 if isfore
     nfun = numel(obj.fun_);
 else
@@ -19,11 +24,9 @@ end
 % Parse input arguments
 % ---------------------
 if numel(args)==0
-    ifun = [];
-    
+    ifun = 'all';
 elseif numel(args)==1
     ifun = args{1};
-    
 else
     ok = false;
     mess = 'Check number of input arguments';
@@ -32,7 +35,7 @@ end
 
 % Now check validity of input
 % ---------------------------
-[ok,mess,ifun] = function_indicies_parse (ifun, nfun);
+[ok,mess,ifun] = indicies_parse (ifun, nfun, 'Function');
 if ~ok, return, end
 
 % All arguments are valid, so populate the output object

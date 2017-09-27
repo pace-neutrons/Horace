@@ -1,7 +1,30 @@
 function [bound_to_res,ratio_res,ok] = binding_resolve (bound_to,ratio)
-% Resolve the binding of parameters to the independent parameters by tracing
-% back from the unbound parameters to get all parameters that are directly
-% or indirectly bound to those unbound parameters
+% Resolve the binding of parameters to the independent parameters
+%
+%   >> [bound_to_res,ratio_res,ok] = binding_resolve (bound_to,ratio)
+%
+% Input:
+% ------
+%   bound_to        Column vector where bound_to(i) is the parameter index
+%                  to which the ith parameter is bound. If the ith parameter
+%                  is unbound then bound_to(i)=0
+%   ratio           Ratio of the ith parameter to the value of the parameter
+%                  to which it is bound. If the ith parameter is unbound then
+%                  bound_to(i) = NaN
+%
+% Output:
+% -------
+%   bound_to_res    Column vector where bound_to_res(i) is the parameter
+%                  index of the unbound parameter to which the ith parameter
+%                  is ultimately bound (0 if unbound)
+%   ratio_res       Corresponding ratio of parameter values
+%   ok              True if all parameter resolve to an unbound parameter
+%                  or false if there is one or more closed loops of bindings
+
+
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
 
 
 n=numel(bound_to);
@@ -16,6 +39,10 @@ if n==0 || all(bound_to(bound_to(bound))==0)
 end
 
 % Create sparse arrays of which parameter is bound to which and in what ratio
+% The reason this needs to be sparse is that we want these to be square
+% matricies so that we can perform row and column operations (which means
+% of size n^2), but we know that only n entries are non-zero (so sparse
+% representation is efficient)
 ir = find(bound);
 ic = bound_to(bound);
 bound_from = sparse(ir,ic,true,n,n);
@@ -44,7 +71,9 @@ end
 
 %---------------------------------------------------------------------
 function [indb,ratb] = resolve(bound_from,ratio_from,ind,rat)
-% Find all the parameters bound to a collection of parameters ind
+% Find all the parameters bound to a collection of unbound parameters ind by
+% recursively tracing back from those parameters to get all parameters that 
+% are directly or indirectly bound to those unbound parameters
 
 [indb,icol] = find(bound_from(:,ind));
 if ~isempty(indb)

@@ -78,6 +78,11 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 %-------------------------------------------------------------------------------
 
 
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
 % Default return values if there is an error
 data_out = [];
 calcdata = [];
