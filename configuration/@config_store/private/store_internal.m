@@ -37,7 +37,7 @@ if config_class.saveable || force_save
     if isfield(this.config_storage_,class_name) && ~force_save
         % if the data to save have not changed, we not saving anything to
         % file
-        if isequal(this.config_storage_.(class_name),data_to_save);
+        if isequal(this.config_storage_.(class_name),data_to_save)
             % there is subtle problem if data have never been stored to
             % file
             return;

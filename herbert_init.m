@@ -53,7 +53,9 @@ addgenpath_message (rootpath,'DLL')
 % set up path to unit tests if necessary (TODO -- investigate why
 % herbert_config constructor does not do it implicitly)
 hc = herbert_config;
-hc.init_tests = hc.init_tests;
+if hc.is_default % force saving default configuration if it has never been saved to hdd
+    config_store.instance().store_config(hc,'-forcesave');
+end
 
 
 disp('!==================================================================!')
