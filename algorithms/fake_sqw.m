@@ -13,11 +13,10 @@ function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, 
 % Input:
 % ------
 %   en              Energy bin boundaries (must be monotonically increasing and equally spaced)
-%   en              Energy bin boundaries (must be monotonically increasing and equally spaced)
 %               or  cell array of arrays of energy bin boundaries, one array per spe file
 %   par_file        Full file name of detector parameter file (Tobyfit format)
 %   sqw_file        Full file name of output sqw file, or empty string if
-%                   one goes to return fake sqw object.
+%                  one wants to return a fake sqw object.
 %
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]
@@ -39,7 +38,7 @@ function [tmp_sqw, grid_size, urange] = fake_sqw (en, par_file, sqw_file, efix, 
 % Output:
 % --------
 %   tmp_sqw         List of temporary file names or cellarray of sqw objects if
-%                   sqw_file is empty string.
+%                  sqw_file is empty string.
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid

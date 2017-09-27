@@ -2,7 +2,7 @@ function varargout = test_tobyfit_refine_crystal_1 (option)
 % Test Tobyfit versions refining moderator parameter for a single sqw dataset
 %
 %   >> test_tobyfit_refine_crystal_1 ('-setup')
-%                                   % Create the sqw files that will be refined and in 
+%                                   % Create the sqw files that will be refined and in
 %                                   % the temporary folder given by tempdir. Copy these
 %                                   % files to the folder
 %                                   % dir_in defined in this file to use it in the following
@@ -44,15 +44,16 @@ if exist('option','var')
         test_output = true;
     else
         error('Invalid option')
-    end 
+    end
 end
 
 
 %% --------------------------------------------------------------------------------------
 % Setup
 % --------------------------------------------------------------------------------------
+nlist = 0;  % set to 1 or 2 for listing during fit
 
-dir_in=pwd; %'E:\data\aaa_Horace';
+dir_in=tempdir;
 dir_out=tempdir;
 
 % Output files with simulated data to be corrected
@@ -91,7 +92,7 @@ rotvec=[1,-2,-2]*(pi/180);  % orientation of the true lattice w.r.t reference la
 
 % Parameters for the blobs
 amp=2;
-qfwhh=0.1;                  % Spread of Bragg peaks 
+qfwhh=0.1;                  % Spread of Bragg peaks
 efwhh=1;                    % Energy width of Bragg peaks
 
 
@@ -102,31 +103,51 @@ if save_data
     sqw_file_nores_full = fullfile(dir_out,sqw_file_nores);
     sqw_file_res_full = fullfile(dir_out,sqw_file_res);
     
-    % Create sqw file
-    wtmp = fake_sqw (en, par_file,'', efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+    urange = calc_sqw_urange (efix, emode, en(1), en(end), par_file,...
+        alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
     
-    % Simulate Bragg blobs
-    disp('Simulating Bragg blobs...')
-    wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
+    % Create simulations for individual spe files
+    sqw_file_nores_tmp=cell(size(psi));
+    sqw_file_res_tmp=cell(size(psi));
+    disp('--------------------------------------------------------------------------')
+    disp('Simulating temporary sqw files with Bragg blobs, one per psi value')
+    for i=1:numel(psi)
+        disp(' ')
+        disp(['Creating files for orientation ',num2str(i),' of ',num2str(numel(psi))])
+        
+        wtmp = fake_sqw (en, par_file,'', efix, emode, alatt, angdeg,...
+            u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], urange);
+        sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
+        wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_for_tests,'-efix',300,'S');
+        
+        % Simulate Bragg blobs
+        wsim = sqw_eval(wtmp{1},@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
+            [alatt_true,angdeg_true],rotvec});
+        wsim=noisify(wsim,0.01);
+        
+        sqw_file_nores_tmp{i}=fullfile(dir_out,['dummy_tobyfit_refine_crystal_1_nores_',num2str(i),'.sqw']);
+        save(wsim,sqw_file_nores_tmp{i});
+        
+        % Tobyfit simulation to account for resolution
+        kk = tobyfit2(wtmp{1});
+        kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
+            [alatt_true,angdeg_true],rotvec});
+        kk = kk.set_mc_points(10);
+        wsim = kk.simulate;
+        wsim=noisify(wsim,0.01);
+        
+        sqw_file_res_tmp{i}=fullfile(dir_out,['dummy_tobyfit_refine_crystal_1_res_',num2str(i),'.sqw']);
+        save(wsim,sqw_file_res_tmp{i});
+    end
     
-    sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
-    wtmp=set_sample_and_inst(wtmp,sample,@maps_instrument_for_tests,'-efix',300,'S');
-    wtmp=noisify(wtmp,0.01);
-    save(wtmp,sqw_file_nores_full);
+    % Combine simulations
+    disp('--------------------------------------------------------------------------')
+    write_nsqw_to_sqw(sqw_file_nores_tmp,sqw_file_nores_full);
+    disp('--------------------------------------------------------------------------')
+    write_nsqw_to_sqw(sqw_file_res_tmp,sqw_file_res_full);
     
-    % Simulate with Tobyfit broadening (needs 16GB RAM
-    % Simulation takes c. 200 seconds on TGP's Dell XPS15z from March 2012)
-    tic
-    disp('Running Tobyfit simulation... This could take a few minutes')
-    kk = tobyfit2(wtmp);
-    kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
-    kk = kk.set_mc_points(10);
-    wsim = kk.simulate;
-    toc
-    wsim=noisify(wsim,0.01);
-    save(wsim,sqw_file_res_full);
-    
-    clear wtmp wsim
+    delete_temp_file (sqw_file_nores_tmp)
+    delete_temp_file (sqw_file_res_tmp)
     
     if nargout>0
         varargout{1}=true;
@@ -196,11 +217,7 @@ change_crystal_sqw(sqw_file_res_corr,rlu_corr)
 if max(abs(rlu0(:)-rlu(:)))>0.005
     error('Problem in refinement of crystal orientation and lattice parameters')
 else    % delete file
-    try
-        delete(sqw_file_res_corr)
-    catch
-        disp(['Unable to delete temporary file: ',sqw_file_res_corr])
-    end
+    delete_temp_file (sqw_file_res_corr)
 end
 
 
@@ -229,7 +246,7 @@ kk = tobyfit2 (w);
 kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
 kk = kk.set_mc_points (mc);
 kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0]);
-kk = kk.set_options('list',2);
+kk = kk.set_options('list',nlist);
 [w_tf_a,fitpar_tf_a,ok,mess,rlu_corr_tf_a] = kk.fit;
 
 if ~ok
@@ -245,7 +262,7 @@ if test_output
     end
 end
 
- 
+
 % Fit local foreground functions (independent widths)
 % ---------------------------------------------------
 kk = tobyfit2 (w);
@@ -253,7 +270,7 @@ kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
 kk = kk.set_mc_points (mc);
 kk = kk.set_local_foreground(true);
 kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0]);
-kk = kk.set_options('list',2);
+kk = kk.set_options('list',nlist);
 [w_tf_b,fitpar_tf_b,ok,mess,rlu_corr_tf_b] = kk.fit;
 
 if ~ok
@@ -299,3 +316,17 @@ if save_output
     save(fullfile(tempdir,savefile),'rlu_corr','rlu_corr_tf_a','rlu_corr_tf_b');
 end
 
+
+
+
+%========================================================================================
+function delete_temp_file (flname)
+% Delete file or cell array of files
+if ~iscell(flname), flname={flname}; end
+for i=1:numel(flname)
+    try
+        delete(flname{i})
+    catch
+        disp(['Unable to delete temporary file: ',flname{i}])
+    end
+end

@@ -55,7 +55,11 @@ end
 pin = arrayfun(@(x)x.plist,pin_obj,'UniformOutput',false);
 
 % Append fix/free status of crystal refinement parameters
-free = cellfun (@(x)[x,mod_opts.free], free0, 'UniformOutput', false);
+if ~iscell(free0)
+    free = [free0,mod_opts.free];  % single function
+else
+    free = cellfun (@(x)[x,mod_opts.free], free0, 'UniformOutput', false);
+end
 
 % Alter bindings
 % All the refinement parameters are bound to the first foreground function values
