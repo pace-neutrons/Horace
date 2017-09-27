@@ -12,7 +12,7 @@ function [ok, mess, obj] = add_mask_private_ (obj, clear, args)
 
 % Original author: T.G.Perring
 %
-% $Revision: 584 $ ($Date: 2017-05-22 14:17:49 +0100 (Mon, 22 May 2017) $)
+% $Revision$ ($Date$)
 
 
 % Trivial case of no input arguments; just return without doing anything

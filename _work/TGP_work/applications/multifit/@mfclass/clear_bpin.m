@@ -29,7 +29,7 @@ function obj = clear_bpin (obj, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision: 622 $ ($Date: 2017-08-27 16:08:55 +0100 (Sun, 27 Aug 2017) $)
+% $Revision$ ($Date$)
 
 
 % Process input
