@@ -54,6 +54,8 @@ end
 %% ================================================================================================
 % Setup
 % -----
+nlist = 0;  % set to 1 or 2 for listing during fit
+
 data_source='E:\data\aaa_Horace\rbmnf3_backup_v1.sqw';  % sqw file from which to take cuts for setup
 
 datafile='test_tobyfit_refine_moderator_1_data.mat';   % filename where saved results are written
@@ -147,7 +149,7 @@ else
     acolor b; dd(w1inc); acolor k; pl(wtmp)
     
     % Fit
-    kk = kk.set_options('list',2);
+    kk = kk.set_options('list',nlist);
     [w1fit,pfit,ok,mess,pmodel,ppfit,psigfit] = kk.fit;
     acolor r; pl(w1fit)
     

@@ -31,6 +31,7 @@ function varargout=test_tobyfit_1 (option)
 % Tobyfit2 and Tobyfit are mutually incompatible - Tobyfit only
 
 tf_ver = determine_tobyfit_version();
+nlist = 0;  % set to 1 or 2 for listing during fit
 
 % Determine whether or not to save output
 save_data = false;
@@ -191,7 +192,7 @@ else
     kk = tobyfit2(w110a);
     kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0]);
     kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',2);
+    kk = kk.set_options('listing',nlist);
     [w110a1_tf,fp110a1]=kk.fit;
 end
 acolor r; pl(w110a1_tf); ly 0 0.4
@@ -227,7 +228,7 @@ else
     kk = tobyfit2(w110a);
     kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,0,0,1,0]);
     kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',2);
+    kk = kk.set_options('listing',nlist);
     [w110a2_tf,fp110a2]=kk.fit;
 end
 acolor r; pl(w110a2_tf); ly 0 0.4
@@ -267,7 +268,7 @@ else
     kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
     kk = kk.set_bfree([1,0]);
     kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',2);
+    kk = kk.set_options('listing',nlist);
     [w110a3_tf,fp110a3]=kk.fit;
 end
 acolor r; pl(w110a3_tf); ly 0 0.4
@@ -305,7 +306,7 @@ else
     kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
     kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
     kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',2);
+    kk = kk.set_options('listing',nlist);
     [w110a4_tf,fp110a4]=kk.fit;
 end
 acolor r; pl(w110a4_tf); ly 0 0.4
@@ -348,7 +349,7 @@ else
     kk = kk.set_fun(@testfunc_sqw_bcc_hfm,[amp,sj,fwhh]);
     kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
     kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',3);
+    kk = kk.set_options('listing',nlist);
     [w110arr1_tf,fp110arr1]=kk.fit;
     
     fback = kk.simulate(fp110arr1,'back');
@@ -394,7 +395,7 @@ else
     kk = kk.set_bind({2,[2,1]});
     kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
     kk = kk.set_mc_points(10);
-    kk = kk.set_options('listing',3);
+    kk = kk.set_options('listing',nlist);
     [w110arr2_tf,fp110arr2]=kk.fit;
     
     acolor k b r; pl(w110arr2_tf); ly 0 0.4
