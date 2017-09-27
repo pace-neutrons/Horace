@@ -1081,7 +1081,7 @@ void mtimesx_logo(void)
 
 mxArray *modestring(int m)
 {
-    const char REVISION[] = "$Revision:: 1516 $ ($Date:: 2017-09-13 12:46:28 +0100 (Wed, 13 Sep 2017) $)";
+    const char REVISION[] = "$Revision::      $ ($Date::                                              $)";
     char *buffer = malloc(strlen(REVISION) + 14 + 4); /* 4 in case if crlf takes 2 symbols*/
     if (!buffer) {
 

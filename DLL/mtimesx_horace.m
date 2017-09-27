@@ -15,7 +15,7 @@ function varargout = mtimesx_horace(varargin)
 % Modified for Horace workfolw in September 2017;
 % Horace revision:
 %
-% $Revision: 1508 $ ($Date: 2017-08-21 19:56:24 +0100 (Mon, 21 Aug 2017) $)
+% $Revision$ ($Date$)
 %
 % -------------------------------------------------------------------------
 %
