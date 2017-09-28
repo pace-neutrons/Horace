@@ -9,10 +9,10 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 % ------
 %   win         sqw object or array of objects
 %
-%   caller      Stucture that contains ionformation from the caller routine. Fields
+%   caller      Structure that contains information from the caller routine. Fields
 %                   reset_state     Reset internal state to stored value in
 %                                  state_in (logical scalar)
-%                   ind             Indicies into lookup tables. The number of elements
+%                   ind             Indices into lookup tables. The number of elements
 %                                  of ind must match the number of sqw objects in win
 %
 %   state_in    Cell array of internal state of this function for function evaluation.
@@ -48,7 +48,7 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
-%   lookup      A structure containing lookup tables and pre-calculated matricies etc.
+%   lookup      A structure containing lookup tables and pre-calculated matrices etc.
 %              For details, see the help for function tobyfit_DGdisk_resconv_init
 %
 %   mc_contributions    Structure indicating which components contribute to the resolution
@@ -60,10 +60,10 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 %   xtal        Crystal refinement constants. Structure with fields:
 %                   urot        x-axis for rotation (r.l.u.)
 %                   vrot        Defines y-axis for rotation (r.l.u.): y-axis in plane
-%                              of urot and vrot, perpendicualr to urot with positive
+%                              of urot and vrot, perpendicular to urot with positive
 %                              component along vrot
 %                   ub0         ub matrix for lattice parameters in the input sqw objects
-%               Empty if the crystal oreintation is not going to be refined
+%               Empty if the crystal orientation is not going to be refined
 %
 %   modshape    Moderator refinement constants. Structure with fields:
 %                   pulse_model Pulse shape model for the moderator pulse shape whose
@@ -101,13 +101,13 @@ function [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,s
 
 % Check consistency of caller information, stored internal state, and lookup tables
 % ---------------------------------------------------------------------------------
-ind=caller.ind;                 % indicies into lookup tables
+ind=caller.ind;                 % indices into lookup tables
 if numel(ind) ~= numel(win)
     error('Inconsistency between number of input datasets and number passed from control routine')
 elseif numel(ind) ~= numel(state_in)
     error('Inconsistency between number of input datasets and number of internal function status stores')
 elseif max(ind(:))>numel(lookup.sample)
-    error('Inconsistency between dataset indicies passed from control routine and the lookup tables')
+    error('Inconsistency between dataset indices passed from control routine and the lookup tables')
 end
 
 
@@ -217,7 +217,7 @@ for i=1:numel(ind)
         % We use shape_mod to determine which of the moderator pulse and the pulse
         % shaping chopper is the dominant determinant of the initial pulse. If
         % the moderator parameters are being refined then we still use the
-        % values of shape_mod as determned by the initial moderator parameters
+        % values of shape_mod as determined by the initial moderator parameters
         % on the grounds that we should have started iwth a reasonable initial
         % set of parameters.
         
