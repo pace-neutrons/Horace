@@ -75,7 +75,11 @@ if hc.is_default
     else
         hc.use_mex = true;
     end
+%    % force saving default configuration if it has never been saved to hdd
+%    % to avoid repetative messaves about default configuration
+%    config_store.instance().store_config(hc,'-forcesave');
 end
+
 if ~isempty(mexMaxVer)
     threads = hc.threads;
     if threads > 1
