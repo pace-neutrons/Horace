@@ -277,7 +277,7 @@ function varargout = mtimesx_horace(varargin)
 
 %[use_mex,num_omp_threads] = get(hor_config,'use_mex','threads');
 use_mex = get(hor_config,'use_mex');
-    
+
 
 
 
@@ -331,17 +331,20 @@ A = varargin{1};
 np =2;
 op = cell(2,1);
 if is_string(varargin{np})
-    op{1} = get_op(varargin{np});
+    [op{1},empty1] = get_op(varargin{np});
     np=3;
 else
     op{1} = get_op('');
     np = 2;
+    empty1 = true;
+    empty2 = true;
 end
 B = varargin{np};
 if nargin > np
     op{2} = get_op(varargin{np+1});
 else
     op{2} = get_op('');
+    empty2 = true;
 end
 
 op1 = op{1};
@@ -373,10 +376,31 @@ if numel(size(A)) > 2
 else
     tail_size = 1;
 end
+if sza == szb
+    vect_opt = true;
+else
+    vect_opt = false;
+end
 
 if tail_size > 1
-    for i=1:tail_size
-        rez(:,:,i) = op1(A(:,:,i))*op2(B(:,:,i));
+    if empty1 && empty2
+        if vect_opt
+            for i=1:sza
+                for j=1:sza
+                    for k=1:sza
+                        rez(i,j,:) = rez(i,j,:) + A(i,k,:).*B(k,j,:);
+                    end
+                end
+            end
+        else
+            for i=1:tail_size
+                rez(:,:,i) = A(:,:,i)*B(:,:,i);
+            end
+        end
+    else
+        for i=1:tail_size
+            rez(:,:,i) = op1(A(:,:,i))*op2(B(:,:,i));
+        end
     end
     sza(1) = sz(1);
     sza(2) = sz(2);
@@ -385,8 +409,9 @@ else
     varargout{1} = op1(A)*op2(B);
 end
 
-function op = get_op(code)
+function [op,empty] = get_op(code)
 OI = upper(code);
+empty = false;
 switch OI
     case 'G'
         op = @(x)(conj(x));
@@ -394,6 +419,9 @@ switch OI
         op = @(x)(transpose(x));
     case 'C'
         op = @(x)(ctranspose(x));
+    case 'N' % option used to test operators loop.
+        op = @(x)(x);        
     otherwise
         op = @(x)(x);
+        empty = true;
 end
