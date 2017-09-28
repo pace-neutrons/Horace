@@ -33,6 +33,11 @@ tic
 c3nom=mtimesx_horace(a,b,false);
 t1_nomex = toc;
 assertElementsAlmostEqual(c3mex,c3nom);
+tic
+c3nom=mtimesx_horace(a,'N',b,false);
+t2_nomex = toc;
+assertElementsAlmostEqual(c3mex,c3nom);
+
 
 if any(abs(c0(:)-c3mex(:))>tol)
     error('Not the same!')
@@ -42,6 +47,7 @@ if hc.log_level >-1
     disp(['***             Matlab loop time: ',num2str(t0_matlab_opt),' sec']);
     disp(['***       mtimesx mex       time: ',num2str(t1_mex),' sec']);
     disp(['***       mtimesx matlab    time: ',num2str(t1_nomex),' sec']);
+    disp(['***       mtimesx matlab op time: ',num2str(t2_nomex),' sec']);    
 end
 
 
