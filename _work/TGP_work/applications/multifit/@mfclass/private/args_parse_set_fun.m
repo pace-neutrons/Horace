@@ -58,18 +58,26 @@ end
 % Find position of fitting function(s) - must be first or second parameter
 if npar==1
     % Argument must be function handles, as it is the only input parameter
-    ind_func = 1;
+    % However, it is possible that 'all' was given, which should result in
+    % an error.
+    if (isnumeric(par{1}) && ~isempty(par{1})) ||...
+            (is_string(par{1}) && ~isempty(par{1}) && strncmpi('all',par{1},numel(par{1})))
+        ind_func = NaN;
+    else
+        ind_func = 1;
+    end
 else
     % One of the first two arguments must be a valid function handle array
     % There is potential ambiguity depending on the type and number of
     % arguments (including keyword arguments). But don't be too clever:
     % we just assume that if the first parmaeter list is a non-empty
-    % numeric it is meant to be an index vector, otherwise it is meant to
-    % be a valid function handle array.
-    if ~(isnumeric(par{1}) && ~isempty(par{1}))
-        ind_func = 1;
-    else
+    % numeric (or the character string 'all') it is meant to be an index
+    % vector, otherwise it is meant to be a valid function handle array.
+    if (isnumeric(par{1}) && ~isempty(par{1})) ||...
+            (is_string(par{1}) && ~isempty(par{1}) && strncmpi('all',par{1},numel(par{1})))
         ind_func = 2;
+    else
+        ind_func = 1;
     end
 end
 

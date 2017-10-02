@@ -44,6 +44,6 @@ if isfore
 else
     Sfun.bfun_  = [Sfun.bfun_, cell(1,n_append)];
     Sfun.bpin_  = [Sfun.bpin_, repmat(mfclass_plist(),1,n_append)];
-    Sfun.bnp_   = [Sfun.nbp_, zeros(1,n_append)];
+    Sfun.nbp_   = [Sfun.nbp_, zeros(1,n_append)];
     Sfun.bfree_ = [Sfun.bfree_, repmat({true(1,0)},1,n_append)];
 end

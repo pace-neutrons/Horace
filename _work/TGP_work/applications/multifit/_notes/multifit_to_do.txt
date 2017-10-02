@@ -18,7 +18,18 @@ and dataset_insert; this will overcome the inconsistency that we cannot replace 
 item with a single one of a different type at the moment.
 
 Catch special case of removing all but one of a cell array of cell
-arrays - to avoid {{x,y,e}} ? But then for consistency do we have to do the same with set_data?
+arrays - to leave {x,y,e} rather than {{x,y,e}} ? But then for consistency do we have to do the
+same with set_data, and then is this really going to get true consistency.
+
+kk2 = kk0.set_bpin([50,20,5],[51,20,5],[52,20,5]) and sim. non-cell array input to other set
+functions does not work at present. But do we want to do this? Consistency of input needs
+to be reviewed. I suspect it is a *bad* idea!
+
+Make kk.data([1,4]) work - do this by going via kk.w_ as this is a cell array of individual
+datasets.
+
+set_keep, add_keep, set_remove, add_remove (!) as separate functions, and make set_mask
+take an-named argument for mask array.
 
 
 
