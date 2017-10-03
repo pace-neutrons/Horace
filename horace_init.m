@@ -70,7 +70,7 @@ mc = [Matlab_code(1:48),'$)'];
 hc = hor_config;
 
 if hc.is_default
-    if ~isempty(mexMaxVer)
+    if isempty(mexMaxVer)
         hc.use_mex = false;
     else
         hc.use_mex = true;
