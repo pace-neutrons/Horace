@@ -115,7 +115,7 @@ end
 bigtic
 if ~(detdcn_provided || cash_q_vectors)
     if cash_detectors
-        detdcn = calc_or_restore_detdcn_(det0);
+        detdcn = calc_or_restore_detdcn_(obj.det_par);
     else
         detdcn = [];
     end
