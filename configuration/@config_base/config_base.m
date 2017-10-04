@@ -49,8 +49,6 @@ classdef config_base
         % if this property is set to true, class getters return default configurations
         % instead of saved configurations
         returns_defaults;
-    end
-    properties(Constant)
         % the folder where the configuration data are stored (defined by
         % config store class, and provided here as an interface to it)
         config_folder;
@@ -104,7 +102,7 @@ classdef config_base
         function name=get.class_name(this)
             name = this.class_name_;
         end
-        function folder = get.config_folder
+        function folder = get.config_folder(this)
             folder = config_store.instance.config_folder;
         end
         %-----------------------------------------------------------------

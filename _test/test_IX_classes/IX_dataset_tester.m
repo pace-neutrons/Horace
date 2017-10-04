@@ -23,9 +23,13 @@ classdef IX_dataset_tester < IX_dataset
         function status=ishistogram(w,n)
             error('IX_dataset_tester:not_implemented','ishistogram not implemented')
         end
+        function [ax,hist]=axis(w,n)
+            error('IX_dataset_tester:not_implemented','axis is not implemented')
+        end
+        
     end
     %======================================================================
-    methods(Static)       
+    methods(Static)
         % used to reload old style objects from mat files on hdd
         function obj = loadobj(data)
             error('IX_dataset_tester:not_implemented','loadobjnot implemented')
