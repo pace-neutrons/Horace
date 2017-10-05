@@ -101,8 +101,7 @@ delete(fullfile(horace_dir,'demo','*.tmp'));
 % Delete unwanted directories (with all their sub-directories)
 % ------------------------------------------------------------
 deldir{1}='_developer_only';
-deldir{2}='documentation';  % as for private consumption only at the moment
-deldir{3}='work_in_progress';
+deldir{2}='_work';
 for i=1:numel(deldir)
     diry = fullfile(horace_dir,deldir{i});
     if exist(diry,'dir')

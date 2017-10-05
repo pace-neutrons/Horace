@@ -73,6 +73,9 @@ names=fieldnames(pstruct)';     % row vector
 
 % Sort structure array
 [pstruct_sort,indp]=nestedSortStruct(pstruct,names);
+%pstruct_sort = pstruct;
+%indp = 1:numel(spe_file);
+%
 tol = 1.0e-14;    % test number to define equality allowing for rounding errors in double precision
 for i=2:numel(pstruct)
     if ~replicate && isequal(pstruct_sort(i-1),pstruct_sort(i))
