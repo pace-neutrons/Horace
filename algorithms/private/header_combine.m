@@ -155,6 +155,8 @@ end
 
 % Sort structure array
 [hstruct_sort,ind]=nestedSortStruct(hstruct,names');
+%hstruct_sort= hstruct;
+%ind = 1:nfiles_tot;
 tol = 2.0e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
 for i=2:nfiles_tot
     if reject_equal_headers && isequal(hstruct_sort(i-1),hstruct_sort(i))
