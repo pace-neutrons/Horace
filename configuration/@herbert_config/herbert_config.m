@@ -150,6 +150,15 @@ classdef herbert_config<config_base
             end
         end
         %------------------------------------------------------------------
+        function obj = set_unit_test_path(obj)
+            % add Herbert unit test path to Matlab search path 
+            %
+            % (overwrite Matlab's version of unit tests functions which
+            % come with Matlab 2017b and have the interface different from 
+            % the classical unit tests. 
+            process_unit_test_path(true,'set_path');
+        end
+        %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
         function fields = get_storage_field_names(this)

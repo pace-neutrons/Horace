@@ -56,6 +56,12 @@ hc = herbert_config;
 if hc.is_default % force saving default configuration if it has never been saved to hdd
     config_store.instance().store_config(hc,'-forcesave');
 end
+if hc.init_tests
+    % set unit tests to the Matlab search path, to overwrite the unit tests
+    % routines, added to Matlab after Matlab 2017b, as new routines have
+    % signatures, different from the standard unit tests routines.
+    hc.set_unit_test_path();
+end
 
 
 disp('!==================================================================!')
