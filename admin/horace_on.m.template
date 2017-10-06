@@ -65,7 +65,7 @@ if hc.is_default
 %  hc.accum_in_separate_process = 1;
 %  hc.accumulating_process_num = 8;
 end
-
+warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 
 function start_app(path)
 addpath(path);
