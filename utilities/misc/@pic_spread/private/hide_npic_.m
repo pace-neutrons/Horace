@@ -11,7 +11,12 @@ if self.n_hidden_pic_ == self.pic_count_
     return;
 end
 if nargin == 1
-    n_pic2_hide = self.n_pic_per_screen_;
+    sc = prod(self.screen_capacity_npic);
+    if self.pic_count_>= sc
+        n_pic2_hide = sc;
+    else
+        n_pic2_hide = self.pic_count_;
+    end
 else
     n_pic2_hide  = varargin{1};
 end
@@ -23,7 +28,7 @@ for i=self.pic_count_:-1:1
         isvis = fig_h.Visible;
         if strcmp(isvis,'on')
             if n_hid_loc<n_pic2_hide
-                set(fig_h,'visible','off')
+                set(fig_h,'Visible','off')
                 n_hid_loc = n_hid_loc +1;
                 n_hid = n_hid +1;
             end

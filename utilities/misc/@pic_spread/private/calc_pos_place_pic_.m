@@ -10,52 +10,38 @@ if ~ok
     error('PIC_SPREAD:invalid_argument',mess);
 end
 if ~rise_fig
-    rise_fig = self.rize_stored_figures;
+    rise_fig = self.rise_stored_figures_;
 end
 
 ps = get(fig_handle,'Position');
-
 if self.pic_count_==0
-    if ~self.resize_pictures_
+    if self.resize_pictures_
+        size = self.pic_size;
+        ps(3) = size(1);
+        ps(4) = size(2);
+    else
         % if pictures are not resized, use first picture size as the size
         % of all subsequent pictures.
-        self.pic_size_=[ps(3),ps(4)];
+        self.pic_size = [ps(3),ps(4)];
     end
-    % Y-position of the first picture.
-    iy = self.screen_size_(2)-self.pic_size_(2)-self.top_border;
-    % real number of pictures to be placed on screen.
-    self.n_pic_per_screen_ = floor((self.screen_size_(1)-self.left_border)/self.pic_size_(1))*...
-        floor((self.screen_size_(2)-self.top_border)/self.pic_size_(2));
 else
-    ps2 = get(self.pic_list_{self.pic_count}, 'Position');
-    iy = ps2(2);
+    size = self.pic_size;
+    ps(3) = size(1);
+    ps(4) = size(2);
+    
 end
-%
-ix = self.current_shift_x_;
-if ix+self.pic_size(1)>self.screen_size_(1)
-    if self.overlap_borders
-        ix = self.left_border;
-    else
-        ix=0;
-    end
-    iy = iy-self.pic_size(2);
-else
-end
-if iy<0 % tne next row of images will come out of the screen. Reset
-    iy = self.screen_size_(2)-self.pic_size(2)-self.top_border;
-end
-set(fig_handle, 'Position', [ix iy, self.pic_size_(1),self.pic_size_(2)])
+% store the info about active picture handles
+self.pic_count_=self.pic_count_+1;
+self.pic_list_{self.pic_count}=fig_handle;
+
+
+[ix,iy,~] = self.calc_fig_pos(self.pic_count_,ps(3),ps(4));
+
+set(fig_handle, 'Position', [ix iy, ps(3),ps(4)])
 if rise_fig
-    figure(fig_handle) 
+    figure(fig_handle)
     %set(0,'CurrentFigure',fig_handle);
     drawnow;
 end
 
 
-self.current_shift_x_ = ix+self.pic_size_(1);
-self.current_shift_y_ = iy;
-
-
-% store the info about active picture handles
-self.pic_count_=self.pic_count_+1;
-self.pic_list_{self.pic_count}=fig_handle;

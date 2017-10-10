@@ -8,11 +8,20 @@ if ~ok
     error('PIC_SPREAD:invalid_argument',mess)
 end
 
+if ~raise
+    raise = self.rise_stored_figures_;
+end
+
 if self.n_hidden_pic_ == 0  && ~raise
     return;
 end
 if isempty(argi)
-    n_pic2_show = self.n_pic_per_screen_;
+    sc = prod(self.screen_capacity_npic);
+    if self.pic_count_>= sc
+        n_pic2_show = sc;
+    else
+        n_pic2_show  = self.pic_count_;
+    end    
 else
     n_pic2_show  = varargin{1};
 end

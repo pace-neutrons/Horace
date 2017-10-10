@@ -30,6 +30,9 @@ classdef pic_spread
         left_border;
         top_border;
         overlap_borders;
+        % number of pictures actually placed on screen (2-element vector
+        % with x and y axis values)
+        screen_capacity_npic;
     end
     %
     properties
@@ -37,24 +40,23 @@ classdef pic_spread
         
     end
     properties(Access=private)
-        pic_per_screen_=[4,3];
-        
-        pic_list_={};
-        current_shift_x_=0;
-        current_shift_y_=0;
+        screen_capacity_npic_=[4,3];
         
         pic_count_=0;
+        pic_list_={};
+        
         % rize all previous figures when adding the last one
-        rize_stored_figures = false;
-        n_hidden_pic_ = 0;
+        rise_stored_figures_ = false;
+        %
         resize_pictures_ = false;
+        %
+        n_hidden_pic_ = 0;
+        
         
         % size of a screen
         screen_size_=[800,600];
         % standard size of image to plot
         pic_size_ = [800,600];
-        % real number of pictures to place on a screen.
-        n_pic_per_screen_ = 0;
         
         % size of the left border in pictures to start from (e.g. if you have
         % windows toolbar on the left side of the screen)
@@ -79,28 +81,27 @@ classdef pic_spread
             % screen tight, namely overalling picture borders and resizing
             % them to fit on the screen requested number.
             
-            keywords={'-tight','rize'};
+            keywords={'-tight','rise'};
             set(0,'Units','pixels')
             ss= get(0,'ScreenSize');
             obj.screen_size_=[ss(3),ss(4)];
-            [ok,mess,place_pic_tight,rize_fig,param]=parse_char_options(varargin,keywords);
+            [ok,mess,place_pic_tight,rise_fig,param]=parse_char_options(varargin,keywords);
             if ~ok
                 error('PIC_SPREAD:invalid_argument',mess);
             end
-            obj.rize_stored_figures=rize_fig;
+            obj.rise_stored_figures_=rise_fig;
             
             if ~isempty(param) && numel(param{1})==2
-                obj.pic_per_screen_ = param{1};
+                obj.screen_capacity_npic_ = param{1};
             end
             
             if place_pic_tight
                 obj.overlap_borders_=true;
                 obj.resize_pictures_ = true;
             end
-            obj.pic_size = floor([(obj.screen_size_(1)-obj.left_border)/obj.pic_per_screen_(1),...
-                (obj.screen_size_(2)-obj.top_border)/obj.pic_per_screen_(2)]);
+            obj.pic_size = floor([(obj.screen_size_(1)-obj.left_border)/obj.screen_capacity_npic_(1),...
+                (obj.screen_size_(2)-obj.top_border)/obj.screen_capacity_npic_(2)]);
             
-            obj.current_shift_x_ = obj.left_border;
         end
         %------------------------------------------------------------------
         function pc = get.pic_count(self)
@@ -153,6 +154,16 @@ classdef pic_spread
         function self = set.overlap_borders(self,val)
             self.overlap_borders_ = logical(val);
         end
+        %
+        function sc = get.screen_capacity_npic(self)
+            if self.resize_pictures
+                sc = self.screen_capacity_npic_;
+            else
+                ps = self.pic_size;
+                sc = [floor((self.screen_size_(1)-self.left_border)/ps(1)),...
+                    floor((self.screen_size_(2)-self.top_border)/ps(2))];
+            end
+        end
         %------------------------------------------------------------------
         
         function self=place_pic(self,fig_handle,varargin)
@@ -172,11 +183,9 @@ classdef pic_spread
             % method closes all related picutres
             valid  = get_valid_ind(self);
             close(self.pic_list_{valid});
-            self.pic_list_={};
             
             self.pic_count_=0;
-            self.current_shift_x_ =0;
-            self.current_shift_y_ =0;
+            self.pic_list_={};
         end
         
         
@@ -214,11 +223,17 @@ classdef pic_spread
             fc  = self.pic_list_(valid);
         end
         function valid  = get_valid_ind(self)
-            % get boolean array containing true for all existing (valid) 
+            % get boolean array containing true for all existing (valid)
             % images and false for the images which were deleted
             valid = get_existing_(self);
-
+            
         end
+        function [ix,iy,n_frames] = calc_fig_pos(self,npic,size_x,size_y)
+            % calculate the position of the picture number npic on the screen
+            % given the picture size
+            [ix,iy,n_frames] = calc_fig_pos_(self,npic,size_x,size_y);
+        end
+        
     end
     
 end
