@@ -11,7 +11,7 @@ classdef pic_spread
     % >>ps =ps.place_pic(figure_handle)
     %
     %
-    % $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+    % $Revision$ ($Date$)
     %
     properties(Dependent)
         % current number of pictures to display.
