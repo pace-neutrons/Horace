@@ -179,6 +179,13 @@ classdef fig_spread
             self = self.calc_pos_place_fig_(fig_handle,varargin{:});
         end
         %
+        function self = replot_figs(self,varargin)
+            % plot figures again ignoring missing (deleted) figures and
+            % placing subsequent figures one after another, 
+            % (possibly using new pictures sizes)
+            self = replot_figs_(self,varargin{:});
+        end
+        %
         function self=close_all(self)
             % method closes all related figures
             valid  = get_valid_ind(self);
@@ -199,20 +206,24 @@ classdef fig_spread
             % n_fig_per_screen_ images.
             self = hide_nfig_(self,varargin{:});
         end
-        function self = show_all(self)
+        function self = show_all(self,varargin)
             n_all = self.fig_count;
-            self = self.show_n_fig(self,n_all);
+            self = self.show_n_fig(self,n_all,varargin{:});
         end
         %
         function self=show_n_fig(self,varargin)
             % method shows latest block of figures, stored in class
             %
             % usage:
-            % fgc = fgc.show_n_fig([n],['-raise'])
+            % fgc = fgc.show_n_fig([n],['-raise'],['-force'])
             %
             % if number n is not specified, shows latest full screen of figures
             %
             % -raise -- if provided, the figures moved on top of the screen
+            % -force -- if provided, ignores the sign identifying number of
+            %           hidden figures to be 0, which can happen if you
+            %           have hided some pictures but not assigned the
+            %           changed class to a new value. 
             %
             self = check_and_show_n_figs_(self,varargin{:});
         end

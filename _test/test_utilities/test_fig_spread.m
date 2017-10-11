@@ -44,6 +44,8 @@ classdef test_fig_spread < TestCase
             fh = ps.get_fig_handles();
             close(fh{2});
             
+            ps = ps.replot_figs();
+            
             valid = ps.get_valid_ind();
             assertEqual(valid,logical([1,0,1]));
             

@@ -3,7 +3,7 @@ function self = check_and_show_n_figs_(self,varargin)
 %
 %   Detailed explanation goes here
 
-[ok,mess,raise,argi] = parse_char_options(varargin,{'-raise'});
+[ok,mess,raise,force,argi] = parse_char_options(varargin,{'-raise','-force'});
 if ~ok
     error('PIC_SPREAD:invalid_argument',mess)
 end
@@ -12,7 +12,7 @@ if ~raise
     raise = self.rise_stored_figures_;
 end
 
-if self.n_hidden_fig_ == 0  && ~raise
+if self.n_hidden_fig_ == 0  && ~(raise || force)
     return;
 end
 if isempty(argi)
