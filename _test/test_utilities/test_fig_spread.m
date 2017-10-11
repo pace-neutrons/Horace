@@ -1,4 +1,4 @@
-classdef test_pic_spread < TestCase
+classdef test_fig_spread < TestCase
     % Unit tests to check pic_spread class
     
     properties
@@ -6,7 +6,7 @@ classdef test_pic_spread < TestCase
     end
     
     methods
-        function ps = test_pic_spread(varargin)
+        function ps = test_fig_spread(varargin)
             if nargin>0
                 name = varargin{1};
             else
@@ -22,12 +22,12 @@ classdef test_pic_spread < TestCase
             end
         end
         function test_default_operations(obj)
-            ps = pic_spread();
+            ps = fig_spread();
             figs = obj.gen_pic;
             for i=1:obj.n_pic
                 ps = ps.place_pic(figs{i});
             end
-            ps = pic_spread();
+            ps = fig_spread();
             for i=1:obj.n_pic
                 ps = ps.place_pic(figs{i},'-rise');
             end
@@ -51,7 +51,7 @@ classdef test_pic_spread < TestCase
         end
         
         function test_pic_pos(obj)
-            ps = pic_spread();
+            ps = fig_spread();
             ss= get(0,'ScreenSize');
             
             pic_size = ps.pic_size;

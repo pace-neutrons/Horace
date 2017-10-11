@@ -1,11 +1,11 @@
-classdef pic_spread
-    %Class respronsible for holding range of Matlab figures, spreading
-    % them orderly around a screen and doing range of other operations.
+classdef fig_spread
+    % Class respronsible for holding range of Matlab figures, spreading
+    % them orderly around a screen and doing range of auxiliary operations.
     %
     % Usage:
     % initiate class and initial picture positions with appropriate class
     % coustructor (see the details of the constructor below)
-    % >>ps=pic_spread(['-tight'])
+    % >>ps=fig_spread(['-tight'])
     %
     % Then place a pictuire in subsequent position:
     % >>ps =ps.place_pic(figure_handle)
@@ -68,7 +68,7 @@ classdef pic_spread
     end
     
     methods
-        function obj=pic_spread(varargin)
+        function obj=fig_spread(varargin)
             % constructor initates the class and defines the picture size
             %
             % Usage:
