@@ -3,36 +3,36 @@ classdef fig_spread
     % them orderly around a screen and doing range of auxiliary operations.
     %
     % Usage:
-    % initiate class and initial picture positions with appropriate class
+    % initiate class and initial figture positions with appropriate class
     % coustructor (see the details of the constructor below)
     % >>ps=fig_spread(['-tight'])
     %
-    % Then place a pictuire in subsequent position:
-    % >>ps =ps.place_pic(figure_handle)
+    % Then place a figtuire in subsequent position:
+    % >>ps =ps.place_fig(figure_handle)
     %
     %
     % $Revision$ ($Date$)
     %
     properties(Dependent)
-        % current number of pictures to display.
-        pic_count;
+        % current number of figures to display.
+        fig_count;
         % number of hidden figures
-        n_hidden_pic;
-        % if the placed pictures should be resized according to size
-        % specified in pic_size parameter. By default, if '-tight' is
-        % selected, pictures are resized and if not '-tight' they are
+        n_hidden_fig;
+        % if the placed figures should be resized according to size
+        % specified in fig_size parameter. By default, if '-tight' is
+        % selected, figures are resized and if not '-tight' they are
         % placed as they are.
-        resize_pictures;
+        resize_figures;
         %
-        pic_size
-        % size of the left border in pictures to start from (e.g. if you have
+        fig_size
+        % size of the left border in figures to start from (e.g. if you have
         % windows toolbar on the left side of the screen)
         left_border;
         top_border;
         overlap_borders;
-        % number of pictures actually placed on screen (2-element vector
+        % number of figures actually placed on screen (2-element vector
         % with x and y axis values)
-        screen_capacity_npic;
+        screen_capacity_nfig;
     end
     %
     properties
@@ -40,90 +40,90 @@ classdef fig_spread
         
     end
     properties(Access=private)
-        screen_capacity_npic_=[4,3];
+        screen_capacity_nfig_=[4,3];
         
-        pic_count_=0;
-        pic_list_={};
+        fig_count_=0;
+        fig_list_={};
         
         % rize all previous figures when adding the last one
         rise_stored_figures_ = false;
         %
-        resize_pictures_ = false;
+        resize_figures_ = false;
         %
-        n_hidden_pic_ = 0;
+        n_hidden_fig_ = 0;
         
         
         % size of a screen
         screen_size_=[800,600];
         % standard size of image to plot
-        pic_size_ = [800,600];
+        fig_size_ = [800,600];
         
-        % size of the left border in pictures to start from (e.g. if you have
+        % size of the left border in figtures to start from (e.g. if you have
         % windows toolbar on the left side of the screen)
         left_border_=40;
         top_border_ =75;
         
-        place_pic_tight_ = false;
+        place_fig_tight_ = false;
         overlap_borders_ = false;
     end
     
     methods
         function obj=fig_spread(varargin)
-            % constructor initates the class and defines the picture size
+            % constructor initates the class and defines the figture size
             %
             % Usage:
-            % >>obj=pic_spread(['-tight']) % -- prepares to put default image spread of 4x3
-            %                         picture per creen
-            % >>obj=pic_spread([3,2],['-tight']) % -- prepares to put 6 pictures on the screen as
+            % >>obj=fig_spread(['-tight']) % -- prepares to put default image spread of 4x3
+            %                         figure per creen
+            % >>obj=fig_spread([3,2],['-tight']) % -- prepares to put 6 figures on the screen as
             %                              in the table of 3x2 cells
             %
-            % if '-tight' parameter is present, then picture placed on the
-            % screen tight, namely overalling picture borders and resizing
+            % if '-tight' parameter is present, then figure placed on the
+            % screen tight, namely overalling figure borders and resizing
             % them to fit on the screen requested number.
             
             keywords={'-tight','rise'};
             set(0,'Units','pixels')
             ss= get(0,'ScreenSize');
             obj.screen_size_=[ss(3),ss(4)];
-            [ok,mess,place_pic_tight,rise_fig,param]=parse_char_options(varargin,keywords);
+            [ok,mess,place_fig_tight,rise_fig,param]=parse_char_options(varargin,keywords);
             if ~ok
-                error('PIC_SPREAD:invalid_argument',mess);
+                error('FIG_SPREAD:invalid_argument',mess);
             end
             obj.rise_stored_figures_=rise_fig;
             
             if ~isempty(param) && numel(param{1})==2
-                obj.screen_capacity_npic_ = param{1};
+                obj.screen_capacity_nfig_ = param{1};
             end
             
-            if place_pic_tight
+            if place_fig_tight
                 obj.overlap_borders_=true;
-                obj.resize_pictures_ = true;
+                obj.resize_figures_ = true;
             end
-            obj.pic_size = floor([(obj.screen_size_(1)-obj.left_border)/obj.screen_capacity_npic_(1),...
-                (obj.screen_size_(2)-obj.top_border)/obj.screen_capacity_npic_(2)]);
+            obj.fig_size = floor([(obj.screen_size_(1)-obj.left_border)/obj.screen_capacity_nfig_(1),...
+                (obj.screen_size_(2)-obj.top_border)/obj.screen_capacity_nfig_(2)]);
             
         end
         %------------------------------------------------------------------
-        function pc = get.pic_count(self)
-            pc = self.pic_count_;
+        function pc = get.fig_count(self)
+            pc = self.fig_count_;
         end
         %
-        function nh = get.n_hidden_pic(self)
-            nh = self.n_hidden_pic_;
+        function nh = get.n_hidden_fig(self)
+            nh = self.n_hidden_fig_;
         end
         %
-        function rs = get.resize_pictures(self)
-            rs = self.resize_pictures_;
+        function rs = get.resize_figures(self)
+            rs = self.resize_figures_;
         end
-        function self = set.resize_pictures(self,val)
-            self.resize_pictures_ = logical(val);
+        function self = set.resize_figures(self,val)
+            self.resize_figures_ = logical(val);
         end
         %
-        function ps = get.pic_size(self)
-            ps = self.pic_size_;
+        function ps = get.fig_size(self)
+            ps = self.fig_size_;
         end
-        function self = set.pic_size(self,val)
-            self = check_and_set_pic_size_(self,val);
+        function self = set.fig_size(self,val)
+            self = check_and_set_fig_size_(self,val);
         end
         %
         function lb = get.left_border(self)
@@ -155,72 +155,72 @@ classdef fig_spread
             self.overlap_borders_ = logical(val);
         end
         %
-        function sc = get.screen_capacity_npic(self)
-            if self.resize_pictures
-                sc = self.screen_capacity_npic_;
+        function sc = get.screen_capacity_nfig(self)
+            if self.resize_figures
+                sc = self.screen_capacity_nfig_;
             else
-                ps = self.pic_size;
+                ps = self.fig_size;
                 sc = [floor((self.screen_size_(1)-self.left_border)/ps(1)),...
                     floor((self.screen_size_(2)-self.top_border)/ps(2))];
             end
         end
         %------------------------------------------------------------------
         
-        function self=place_pic(self,fig_handle,varargin)
+        function self=place_fig(self,fig_handle,varargin)
             % method moves the provided image into the calculated position
-            % within the list of the pictures, resized it according to the
+            % within the list of the figures, resized it according to the
             % figures list
             %
-            % defined by the picture handle provided as argument, to current size and
+            % defined by the figure handle provided as argument, to current size and
             % postion.
-            % if '-rise' option is specified, after adding the last pictures
-            %  method also rizes all previous pictures
+            % if '-rise' option is specified, after adding the last figures
+            %  method also rizes all previous figures
             
-            self = self.calc_pos_place_pic_(fig_handle,varargin{:});
+            self = self.calc_pos_place_fig_(fig_handle,varargin{:});
         end
         %
         function self=close_all(self)
-            % method closes all related picutres
+            % method closes all related figures
             valid  = get_valid_ind(self);
-            close(self.pic_list_{valid});
+            close(self.fig_list_{valid});
             
-            self.pic_count_=0;
-            self.pic_list_={};
+            self.fig_count_=0;
+            self.fig_list_={};
         end
         
         
-        function self=hide_n_pic(self,varargin)
-            % method hides last n_pic2_hide pictures
+        function self=hide_n_fig(self,varargin)
+            % method hides last n_fig2_hide figures
             %
             %Usage:
-            % self=self.hide_n_figs([n_pic2_hide ])
+            % self=self.hide_n_figs([n_fig2_hide ])
             %
-            % if n_pic2hide is not provided, the method hides last
-            % n_pic_per_screen_ images.
-            self = hide_npic_(self,varargin{:});
+            % if n_fig2hide is not provided, the method hides last
+            % n_fig_per_screen_ images.
+            self = hide_nfig_(self,varargin{:});
         end
         function self = show_all(self)
-            n_all = self.pic_count;
-            self = self.show_n_pic(self,n_all);
+            n_all = self.fig_count;
+            self = self.show_n_fig(self,n_all);
         end
         %
-        function self=show_n_pic(self,varargin)
-            % method shows latest block of pictures, stored in class
+        function self=show_n_fig(self,varargin)
+            % method shows latest block of figures, stored in class
             %
             % usage:
-            % fgc = fgc.show_n_pic([n],['-raise'])
+            % fgc = fgc.show_n_fig([n],['-raise'])
             %
-            % if number n is not specified, shows latest full screen of pictures
+            % if number n is not specified, shows latest full screen of figures
             %
-            % -raise -- if provided, the pictures moved on top of the screen
+            % -raise -- if provided, the figures moved on top of the screen
             %
             self = check_and_show_n_figs_(self,varargin{:});
         end
         %
-        function fc = get_pic_handles(self)
-            % return the list of stored valid pictures handles
+        function fc = get_fig_handles(self)
+            % return the list of stored valid figures handles
             valid = self.get_valid_ind();
-            fc  = self.pic_list_(valid);
+            fc  = self.fig_list_(valid);
         end
         function valid  = get_valid_ind(self)
             % get boolean array containing true for all existing (valid)
@@ -228,10 +228,10 @@ classdef fig_spread
             valid = get_existing_(self);
             
         end
-        function [ix,iy,n_frames] = calc_fig_pos(self,npic,size_x,size_y)
-            % calculate the position of the picture number npic on the screen
-            % given the picture size
-            [ix,iy,n_frames] = calc_fig_pos_(self,npic,size_x,size_y);
+        function [ix,iy,n_frames] = calc_fig_pos(self,nfig,size_x,size_y)
+            % calculate the position of the figture number nfig on the screen
+            % given the figture size
+            [ix,iy,n_frames] = calc_fig_pos_(self,nfig,size_x,size_y);
         end
         
     end

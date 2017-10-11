@@ -3,6 +3,6 @@ function  valid = get_existing_(self)
 % handles of the images which were deleted
 
 
-valid = isvalid([self.pic_list_{:}]);
+valid = isvalid([self.fig_list_{:}]);
 
 

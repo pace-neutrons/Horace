@@ -1,8 +1,8 @@
 classdef test_fig_spread < TestCase
-    % Unit tests to check pic_spread class
+    % Unit tests to check fig_spread class
     
     properties
-        n_pic = 3;
+        n_fig = 3;
     end
     
     methods
@@ -10,38 +10,38 @@ classdef test_fig_spread < TestCase
             if nargin>0
                 name = varargin{1};
             else
-                name = 'test_pic_spread';
+                name = 'test_fig_spread';
             end
             ps = ps@TestCase(name);
         end
-        function pl = gen_pic(obj)
-            pl = cell(obj.n_pic);
-            for i=1:obj.n_pic
+        function pl = gen_fig(obj)
+            pl = cell(obj.n_fig);
+            for i=1:obj.n_fig
                 pl{i} = figure('Name',sprintf('test_fig_handle#%d',i));
                 hold on;
             end
         end
         function test_default_operations(obj)
             ps = fig_spread();
-            figs = obj.gen_pic;
-            for i=1:obj.n_pic
-                ps = ps.place_pic(figs{i});
+            figs = obj.gen_fig;
+            for i=1:obj.n_fig
+                ps = ps.place_fig(figs{i});
             end
             ps = fig_spread();
-            for i=1:obj.n_pic
-                ps = ps.place_pic(figs{i},'-rise');
+            for i=1:obj.n_fig
+                ps = ps.place_fig(figs{i},'-rise');
             end
-            ps = ps.hide_n_pic();
-            ps = ps.show_n_pic();
+            ps = ps.hide_n_fig();
+            ps = ps.show_n_fig();
             
             
-            ps = ps.hide_n_pic(1);
-            ps = ps.hide_n_pic(3);
-            ps = ps.show_n_pic(2);
-            ps = ps.show_n_pic();
+            ps = ps.hide_n_fig(1);
+            ps = ps.hide_n_fig(3);
+            ps = ps.show_n_fig(2);
+            ps = ps.show_n_fig();
             
             
-            fh = ps.get_pic_handles();
+            fh = ps.get_fig_handles();
             close(fh{2});
             
             valid = ps.get_valid_ind();
@@ -50,13 +50,13 @@ classdef test_fig_spread < TestCase
             clOb = onCleanup(@()ps.close_all());
         end
         
-        function test_pic_pos(obj)
+        function test_fig_pos(obj)
             ps = fig_spread();
             ss= get(0,'ScreenSize');
             
-            pic_size = ps.pic_size;
-            size_x=pic_size(1);
-            size_y=pic_size(2);
+            fig_size = ps.fig_size;
+            size_x=fig_size(1);
+            size_y=fig_size(2);
             
             [ix,iy,n_frame] = ps.calc_fig_pos(1,size_x,size_y);
             assertEqual(ix,ps.left_border);
@@ -68,7 +68,7 @@ classdef test_fig_spread < TestCase
             assertEqual(iy,ss(4)-ps.top_border-size_y);
             assertEqual(n_frame,0);
             
-            sc = ps.screen_capacity_npic;
+            sc = ps.screen_capacity_nfig;
             [ix,iy,n_frame] = ps.calc_fig_pos(sc(1),size_x,size_y);
             assertEqual(ix,ps.left_border+size_x*(sc(1)-1));
             assertEqual(iy,ss(4)-ps.top_border-size_y);
@@ -93,7 +93,7 @@ classdef test_fig_spread < TestCase
             %-------------------------------------------------------------
             size_x=size_x+10;            
             size_y=size_y+10;
-            ps.pic_size = [size_x,size_y];
+            ps.fig_size = [size_x,size_y];
             sc(1) = sc(1) -1;
             sc(2) = sc(2) -1;            
             

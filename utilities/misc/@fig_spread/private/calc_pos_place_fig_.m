@@ -1,4 +1,4 @@
-function self = calc_pos_place_pic_(self,fig_handle,varargin)
+function self = calc_pos_place_fig_(self,fig_handle,varargin)
 % Calculate the position of the picture and place it to the position
 % according to the next picture settings.
 %
@@ -14,28 +14,28 @@ if ~rise_fig
 end
 
 ps = get(fig_handle,'Position');
-if self.pic_count_==0
-    if self.resize_pictures_
-        size = self.pic_size;
+if self.fig_count_==0
+    if self.resize_figures_
+        size = self.fig_size;
         ps(3) = size(1);
         ps(4) = size(2);
     else
         % if pictures are not resized, use first picture size as the size
         % of all subsequent pictures.
-        self.pic_size = [ps(3),ps(4)];
+        self.fig_size = [ps(3),ps(4)];
     end
 else
-    size = self.pic_size;
+    size = self.fig_size;
     ps(3) = size(1);
     ps(4) = size(2);
     
 end
 % store the info about active picture handles
-self.pic_count_=self.pic_count_+1;
-self.pic_list_{self.pic_count}=fig_handle;
+self.fig_count_=self.fig_count_+1;
+self.fig_list_{self.fig_count}=fig_handle;
 
 
-[ix,iy,~] = self.calc_fig_pos(self.pic_count_,ps(3),ps(4));
+[ix,iy,~] = self.calc_fig_pos(self.fig_count_,ps(3),ps(4));
 
 set(fig_handle, 'Position', [ix iy, ps(3),ps(4)])
 if rise_fig

@@ -12,30 +12,30 @@ if ~raise
     raise = self.rise_stored_figures_;
 end
 
-if self.n_hidden_pic_ == 0  && ~raise
+if self.n_hidden_fig_ == 0  && ~raise
     return;
 end
 if isempty(argi)
-    sc = prod(self.screen_capacity_npic);
-    if self.pic_count_>= sc
-        n_pic2_show = sc;
+    sc = prod(self.screen_capacity_nfig);
+    if self.fig_count_>= sc
+        n_fig2_show = sc;
     else
-        n_pic2_show  = self.pic_count_;
+        n_fig2_show  = self.fig_count_;
     end    
 else
-    n_pic2_show  = varargin{1};
+    n_fig2_show  = varargin{1};
 end
 n_shown = 0;
 n_hidden = 0;
-for i=self.pic_count_:-1:1
-    fig_h = self.pic_list_{i};
+for i=self.fig_count_:-1:1
+    fig_h = self.fig_list_{i};
     try
         isvis = fig_h.Visible;
         if ~strcmpi(isvis,'on')
-            if n_shown < n_pic2_show
+            if n_shown < n_fig2_show
                 set(fig_h,'visible','on')
                 if raise
-                    set(0,'currentfigure', fig_h);
+                    set(0,'CurrentFigure', fig_h);
                 end
                 n_shown = n_shown+1;
             else
@@ -45,4 +45,4 @@ for i=self.pic_count_:-1:1
     catch
     end
 end
-self.n_hidden_pic_ = n_hidden;
+self.n_hidden_fig_ = n_hidden;
