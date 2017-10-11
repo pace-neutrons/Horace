@@ -25,7 +25,7 @@ try
 catch ERR
     pass = false;
 end
-assertTrue(pass,ERR.message);
+assertTrue(pass,['ERROR: ', ERR.message]);
 assertEqual(indp,[6:-1:1]')
 assertEqual(pstruct_sort(1).filename,'test_spe_file1');
 assertEqual(pstruct_sort(1).psi,11);

@@ -1,4 +1,4 @@
-function [y,ndx] = sortrows(x,col)
+function [y,ndx] = sortrows_bugfixed(x,col)
 %SORTROWS Sort rows in ascending order.
 %   Y = SORTROWS(X) sorts the rows of the matrix X in ascending order as a
 %   group. X is a 2-D numeric or char matrix. For a char matrix containing
@@ -114,7 +114,8 @@ else
     end
     if ( ~isreal(col) || numel(col) ~= length(col) ||...
             any(floor(col) ~= col) || any(abs(col) > n) || any(col == 0) )
-        error(message('MATLAB:sortrows:COLmismatchX'));
+        error('MATLAB:sortrows:COLmismatchX',...
+            'sorting vector can not be converted to indexes');
     end
     
     x_sub = x(:, abs(col));
@@ -184,7 +185,7 @@ if ~isempty(x)
                 error(message('MATLAB:sortrows:nonScalarCell'));
             end
             tmp = cell2mat(x(ndx, k));
-            ind = sortrowsc(tmp, col(k));
+            ind = sortrowsc(tmp, sign(col(k)));
             ndx = ndx(ind);
         else
             tmp = char(x(ndx,k));
