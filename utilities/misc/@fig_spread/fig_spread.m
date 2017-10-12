@@ -3,32 +3,35 @@ classdef fig_spread
     % them orderly around a screen and doing range of auxiliary operations.
     %
     % Usage:
-    % initiate class and initial figture positions with appropriate class
-    % coustructor (see the details of the constructor below)
-    % >>ps=fig_spread(['-tight'])
     %
-    % Then place a figtuire in subsequent position:
-    % >>ps =ps.place_fig(figure_handle)
+    % >>ps=fig_spread(['-tight'])       --create class to hold matlab figures
+    % >>ps =ps.place_fig(figure_handle) -- place a figtuire in a subsequent
+    %                                      position.
+    % Other useful class methods are described below. 
+    %
     %
     %
     % $Revision$ ($Date$)
     %
     properties(Dependent)
-        % current number of figures to display.
+        % current number of fig handles the class contains (including deleted figures)
         fig_count;
-        % number of hidden figures
+        % number of hidden figures (not displayed by Matlab)
         n_hidden_fig;
-        % if the placed figures should be resized according to size
+        % if the placed figures should be resized according to the size
         % specified in fig_size parameter. By default, if '-tight' is
         % selected, figures are resized and if not '-tight' they are
         % placed as they are.
         resize_figures;
-        %
+        % 2-element vector, defining the size of each fig in sequence
         fig_size
         % size of the left border in figures to start from (e.g. if you have
         % windows toolbar on the left side of the screen)
         left_border;
+        % size of the top border in figures to start from        
         top_border;
+        % if fig-s should be placed tight e.g. with their borders
+        % overlapped.
         overlap_borders;
         % number of figures actually placed on screen (2-element vector
         % with x and y axis values)
@@ -69,13 +72,15 @@ classdef fig_spread
     
     methods
         function obj=fig_spread(varargin)
-            % constructor initates the class and defines the figture size
+            % constructor initates the class and defines the figure size and
+            % initial figure position on the screen according to the
+            % settings and screen parameters
             %
             % Usage:
             % >>obj=fig_spread(['-tight']) % -- prepares to put default image spread of 4x3
-            %                         figure per creen
+            %                                   figure per creen
             % >>obj=fig_spread([3,2],['-tight']) % -- prepares to put 6 figures on the screen as
-            %                              in the table of 3x2 cells
+            %                                       in the table of 3x2 cells
             %
             % if '-tight' parameter is present, then figure placed on the
             % screen tight, namely overalling figure borders and resizing
@@ -167,27 +172,26 @@ classdef fig_spread
         %------------------------------------------------------------------
         
         function self=place_fig(self,fig_handle,varargin)
-            % method moves the provided image into the calculated position
-            % within the list of the figures, resized it according to the
-            % figures list
+            % method moves the provided figure into the calculated position
+            % within the list of the figures and resizes it according to the
+            % class settings
             %
-            % defined by the figure handle provided as argument, to current size and
-            % postion.
             % if '-rise' option is specified, after adding the last figures
             %  method also rizes all previous figures
-            
+            %
             self = self.calc_pos_place_fig_(fig_handle,varargin{:});
         end
         %
         function self = replot_figs(self,varargin)
-            % plot figures again ignoring missing (deleted) figures and
-            % placing subsequent figures one after another, 
-            % (possibly using new pictures sizes)
+            % plot figures again ignoring missing (deleted) figures.
+            %
+            % place subsequent figures one after another, using
+            % (possibly new) class picture parameters.
             self = replot_figs_(self,varargin{:});
         end
         %
         function self=close_all(self)
-            % method closes all related figures
+            % closes and deletes all figures, referred by the class
             valid  = get_valid_ind(self);
             close(self.fig_list_{valid});
             
@@ -197,7 +201,7 @@ classdef fig_spread
         
         
         function self=hide_n_fig(self,varargin)
-            % method hides last n_fig2_hide figures
+            % hide speficied number of visible figures.
             %
             %Usage:
             % self=self.hide_n_figs([n_fig2_hide ])
@@ -212,7 +216,7 @@ classdef fig_spread
         end
         %
         function self=show_n_fig(self,varargin)
-            % method shows latest block of figures, stored in class
+            % show speficied number of hidden figures.
             %
             % usage:
             % fgc = fgc.show_n_fig([n],['-raise'],['-force'])
@@ -223,25 +227,49 @@ classdef fig_spread
             % -force -- if provided, ignores the sign identifying number of
             %           hidden figures to be 0, which can happen if you
             %           have hided some pictures but not assigned the
-            %           changed class to a new value. 
+            %           changed class to a new value.
             %
             self = check_and_show_n_figs_(self,varargin{:});
         end
         %
         function fc = get_fig_handles(self)
-            % return the list of stored valid figures handles
+            % return the list of stored valid (not deleted) figures handles
             valid = self.get_valid_ind();
             fc  = self.fig_list_(valid);
         end
+        %
         function valid  = get_valid_ind(self)
             % get boolean array containing true for all existing (valid)
-            % images and false for the images which were deleted
+            % figures and false for the images which are deleted.
             valid = get_existing_(self);
             
         end
+        %
         function [ix,iy,n_frames] = calc_fig_pos(self,nfig,size_x,size_y)
-            % calculate the position of the figture number nfig on the screen
-            % given the figture size
+            % calculate the position of the figure number n on the screen
+            % given the figture size.
+            %
+            % Usage:
+            % [ix,iy,n_frames] = self.calc_fig_pos(nfig,size_x,size_y)
+            %  where:
+            %  self -- initiated instance of fig_spread class, defining
+            %          screen size, number of figs to place on the
+            %          screen and the type of fig placement (tigt, free,
+            %          resize, keep existing size etc.)
+            %  nfig -- number of figure to calculate postion
+            %  size_x- size of the fig (in pixels) defining the X-size of the
+            %          fig and its X-position in the sequence of size_x-sized
+            %          figures.
+            %  size_y- size of the fig (in pixels) defining the Y-size of the
+            %          fig and its Y-position in the sequence of size_y-sized
+            %          figures.
+            % Outputs
+            %  ix   -- initial x-coordinate (in pixels) where the fig will
+            %          be plotted
+            %  iy   -- initial y-coordinate (in pixels) where the fig will
+            %          be plotted
+            % n_frames - number of previous blocks of figures which the
+            %          figure  number nfig overplots.
             [ix,iy,n_frames] = calc_fig_pos_(self,nfig,size_x,size_y);
         end
         
