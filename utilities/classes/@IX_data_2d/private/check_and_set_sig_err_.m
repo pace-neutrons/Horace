@@ -11,8 +11,12 @@ end
 
 
 if ~isa(val,'double')|| numel(size(val))~=2
-    error('IX_dataset_2d:invalid_argument',...
-        [field_name ' values array must be a double precision two dimensional array']);
+    if (isa(val,'single') || isa(val,'int64')) && numel(size(val))==2
+        val = double(val);
+    else
+        error('IX_dataset_2d:invalid_argument',...
+            [field_name ' values array must be a double precision two dimensional array']);
+    end
 end
 
 if size(val,1)==1
