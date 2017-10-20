@@ -2,6 +2,9 @@ function self = replot_figs_(self,varargin)
 % plot figures again ignoring missing (deleted) figures and
 % placing subsequent figures one after another,
 % (possibly using new pictures sizes)
+%
+% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
+%
 size = self.fig_size;
 if verLessThan('matlab','8.4')
     figure_exist = @(x)ishandle(x);
