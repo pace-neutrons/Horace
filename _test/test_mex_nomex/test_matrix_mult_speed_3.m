@@ -44,7 +44,7 @@ if any(abs(c0(:)-c3mex(:))>tol)
 end
 hc = hor_config;
 if hc.log_level >-1
-    disp( '***  ==== 4x6xN * 6x11xN = 4x11xN ');
+ fprintf( '*** ====  4x6x%d * 6x11x%d = 4x11x%d\n',n,n,n);    
     disp(['***             Matlab loop time: ',num2str(t0_matlab_opt),' sec']);
     disp(['***       mtimesx mex       time: ',num2str(t1_mex),' sec']);
     disp(['***       mtimesx matlab    time: ',num2str(t1_nomex),' sec']);
@@ -92,7 +92,7 @@ if any(abs(c0(:)-c3mex(:))>tol)
 end
 
 if hc.log_level >-1
-    disp( '*** ====  4x11xN * 11x1xN = 4x1xN ');
+ fprintf( '*** ====  4x11x%d * 11x1x%d = 4x1x%d\n',n,n,n);
     disp(['***             Matlab loop time: ',num2str(t0_matlab_opt),' sec']);
     disp(['***       mtimesx mex       time: ',num2str(t1_mex),' sec']);
     disp(['***       mtimesx matlab    time: ',num2str(t1_nomex),' sec']);

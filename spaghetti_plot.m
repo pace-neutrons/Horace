@@ -122,9 +122,9 @@ catch
 end
 
 if isa(args{2},'sqw')
-    hd = struct(args{2}).data;
+    header = struct(args{2}).data;
 elseif sqwfile
-    hd = head_sqw(args{2});
+    header = head_sqw(args{2});
 elseif length(args{2})>1 && isa(args{2}(1),'d2d')
     plot_dispersion(args{2},opt);
     return;
@@ -152,7 +152,7 @@ end
 
 % Some initialising
 %------------------
-b = bmatrix(hd.alatt,hd.angdeg);
+b = bmatrix(header.alatt,header.angdeg);
 nseg=size(rlp,1)-1;
 proj.type='rrr';
 
@@ -196,7 +196,6 @@ end
 
 % Loop over rlp, determines the projections and make the cuts
 %------------------------------------------------------------
-xrlp = 0;
 wdisp = repmat(d2d,1,nseg);
 for i=1:nseg
     % Choose u1 along the user desired q-direction 
@@ -353,8 +352,8 @@ function plot_dispersion(wdisp_in,opt)
     wdisp(1).title = title(1:lnbrk);
     plot(wdisp);
     hold on;
-    xrlp = 0;
-    for i=1:length(wdisp);
+    xrlp = zeros(length(wdisp)+1);
+    for i=1:length(wdisp)
         xrlp(i+1) = wdisp(i).x(end);
         plot([1 1]*xrlp(i+1),get(gca,'YLim'),'-k');
     end
