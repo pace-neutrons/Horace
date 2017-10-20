@@ -44,6 +44,7 @@ classdef MagneticIons
         % interpolation functions.
         IonNames
     end
+    %
     properties(Access= private)
         currentIon_='Fe0'
         % handles to functions calculating magnetic momentums of
