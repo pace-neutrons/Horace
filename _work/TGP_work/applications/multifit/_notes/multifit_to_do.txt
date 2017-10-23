@@ -9,6 +9,10 @@ mfclass_sqw
 
 mfclass_tobyfit
 
+Associated:
+-----------
+equal_to_relerr - is it used anywhere, and can it be replaced ?
+
 
 ===============================================================================================
              Jobs post reorganisation

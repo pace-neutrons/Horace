@@ -1,217 +1,188 @@
 function [ok,mess]=equal_to_tol(a,b,varargin)
-% Check that all elements of a pair objects are equal, with numeric arrays within a specified tolerance
+% Check if two arguments are equal within a specified tolerance
 %
-%   >> ok=equal_to_tol(a,b)
-%   >> ok=equal_to_tol(a,b,tol)
-%   >> ok=equal_to_tol(...,keyword1,val1,keyword2,val2,...)
-%   >> [ok,mess]=equal_to_tol(...)
+%   >> ok = equal_to_tol (a, b)
+%   >> ok = equal_to_tol (a, b, tol)
+%   >> ok = equal_to_tol (..., keyword1, val1, keyword2, val2,...)
+%   >> [ok, mess] = equal_to_tol (...)
 %
 % Any cell arrays, structures or objects are recursively explored.
+% Comparison of two NaNs always results in failure. To equate NaNs use
+% the mirror function equaln_to_tol.
+%
+% See also equaln_to_tol
+%
+% Note: legacy usage has scalar tol and equates NaNs as equal. This usage is
+% deprecated. Please use the new syntax. Note that the usage: equal_to_tol(a,b)
+% can be interpreted as new style or legacy format; it will be interpreted as
+% the new format, which may result in errors in previously running code.
 %
 % Input:
 % ------
 %   a,b     test objects (scalar objects, or arrays of objects with same sizes)
-%   tol     tolerance (default: equality required)
-%               +ve number: absolute tolerance  abserr = abs(a-b)
-%               -ve number: relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))
+%
+%   tol     Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)
+%           It has the form: [abs_tol, rel_tol] where
+%               abs_tol     absolute tolerance (>=0; if =0 equality required)
+%               rel_tol     relative tolerance (>=0; if =0 equality required)
+%           If either criterion is satified then equality within tolerance
+%           is accepted.
+%             Examples:
+%               [1e-4, 1e-6]    absolute 1e-4 or relative 1e-6 required
+%               [1e-4, 0]       absolute 1e-4 required
+%               [0, 1e-6]       relative 1e-6 required
+%               [0, 0]          equality required
+%               0               equivalent to [0,0]
+%           If  set to 0, then this is equivalent to [0,0]
+%
 %
 % Valid keywords are:
-%  'nan_equal'       Treat NaNs as equal (true or false; default=true)
-%  'min_denominator' Minimum denominator for relative tolerance calculation (>=0; default=0)
-%                   When the denominator in a relative tolerance is less than this value, the
-%                   denominator is replaced by this value. Use this when the numbers being
-%                   compared could be close to zero.
-%  'ignore_str'      Ignore the length and content of strings or cell arrays of strings
-%                   (true or false; default=false)
+%  'ignore_str'      Ignore the length and content of strings or cell arrays
+%                   of strings (true or false; default=false)
+%
 %
 % Output:
 % -------
-%   ok      true if every element satisfies tolerance criterion
+%   ok      true if every element satisfies tolerance criterion, false if not
 %   mess    error message if ~ok ('' if ok)
+%
+%
+% -----------------------------
+% *** Deprecated use: ***
+% -----------------------------
+% The legacy input argument usage has a scalar tolerance, where a negative
+% number refers to a relative tolerance.
+%
+%   tol     tolerance (default: equality required)
+%               +ve : absolute tolerance  abserr = abs(a-b)
+%               -ve : relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))
+%           To apply an absolute as well as a relative tolerance, set the
+%           value of the legacy keyword 'min_denominator' (see below)
+%
+% Valid keywords are:
+%  'ignore_str'      Ignore the length and content of strings or cell arrays
+%                   of strings (true or false; default=false)
+%  'nan_equal'       Treat NaNs as equal (true or false; default=true)
+%  'min_denominator' Minimum denominator for relative tolerance calculation
+%                   (>=0; default=0).
+%                    When the denominator in a relative tolerance is less than
+%                   this value, the denominator is replaced by this value.
+%
+%                    Emulate [abs_tol,rel_tol] by setting
+%                       tol = -rel_tol
+%                       min_denominator = abs_tol / rel_tol
 
 
-opt=struct('nan_equal',true,...
-    'min_denominator',0,...
-    'ignore_str',false);
+% Original author: T.G.Perring
+%
+% $Revision$ ($Date$)
+
+
+% The following code is pretty commplex as it has to handle legacy input as
+% well. Touch at your peril!
 warn = warning('off','MATLAB:structOnObject');
-cl1 = onCleanup(@()warning(warn));
+cleanup_obj = onCleanup(@()warning(warn));
 
+% Parse input arguments
 if nargin==2
-    opt.tol=0;    % default is to force equality of numeric elements
-elseif nargin==3 && isnumeric(varargin{1})
-    opt.tol=varargin{1};
-elseif nargin>=3
-    [par,opt,present,filled,ok,mess]=parse_arguments(varargin,opt);
-    if ~ok, error(mess), end
-    if numel(par)==0
-        opt.tol=0;
-    elseif numel(par)==1
-        opt.tol=par{1};
-    else
-        error('Check input arguments')
-    end
-    if ~islognumscalar(opt.nan_equal), error('Check value of ''nan_equal'''), end
-    if ~isscalar(opt.min_denominator) || opt.min_denominator<0, error('Check value of ''min_denominator'''), end
-    if ~islognumscalar(opt.ignore_str), error('Check value of ''ignore_str'''), end
-end
-
-[ok,mess]=equal_to_tol_internal(a,b,opt,'initial obj');
-
-%--------------------------------------------------------------------------------------------------
-function [ok,mess]=equal_to_tol_internal(a,b,opt,obj_name)
-
-% Consider special case of strings if they are to be ignored
-if opt.ignore_str && (iscellstr(a)||ischar(a)) && (iscellstr(b)||ischar(b))
-    ok=true;
-    mess='';
-    return
-end
-
-if (isobject(a) && isobject(b)) || (isstruct(a) && isstruct(b))
-    if ~isequal(size(a),size(b))
-        ok=false;
-        mess=sprinft('Sizes of %s arrays of objects or structures being compared are not equal',...
-            obj_name);
-        return
-    end
-    name=fieldnames(a);
-    if ~isequal(name,fieldnames(b))
-        ok=false;
-        mess=@(a,b)sprintf('Field names of %s obj or struct do not match: a=%s, b=%s',...
-            obj_name,a,b);
-        cellfun(mess,name,fieldnames(b),'UniformOutput',false)
-        return
-    end
-    for i=1:numel(a)
-        for j=1:numel(name)
-            if isobject(a)
-                [ok,mess]=equal_to_tol_internal(struct(a(i)).(name{j}),struct(b(i)).(name{j}),opt,name{j});
-            else
-                [ok,mess]=equal_to_tol_internal(a(i).(name{j}),b(i).(name{j}),opt,name{j});
-            end
-            if ~ok
-                return
-            end
-        end
-    end
-    
-elseif iscell(a) && iscell(b)
-    if ~isequal(size(a),size(b))
-        ok=false;
-        mess=sprintf('Sizes of %s cell arrays being compared are not equal',...
-            obj_name);
-        return
-    end
-    for i=1:numel(a)
-        [ok,mess]=equal_to_tol_internal(a{i},b{i},opt,obj_name);
-        if ~ok, return, end
-    end
-    
-elseif isnumeric(a) && isnumeric(b)
-    [ok,mess]=equal_to_tol_numeric(a,b,opt.tol,opt.nan_equal,opt.min_denominator,obj_name);
-    if ~ok
-        return;
-    end
+    % Resolve ambiguity of legacy input or not in favour of new format
+    legacy = false;
+    tol = [];
+    opt.ignore_str = false;
+    opt.nan_equal = false;
     
 else
-    if strcmp(class(a),class(b))
-        if ~isequal(size(a),size(b))
-            ok=false;
-            mess=sprintf('Sizes of %s array of objects being compared are not equal',...
-                obj_name);
-            return
+    % Have to determine if legacy format and handle accordingly
+    legacy = [];    % undetermined input as yet
+    
+    if nargin==3 && isnumeric(varargin{1})
+        % Case of no optional arguments - save an expensive call to parse_arguments
+        tol=varargin{1};
+        opt.ignore_str = false;
+        
+        % Determine if legacy input; it must be if scalar tol
+        if isscalar(varargin{1})
+            legacy = true;
+            opt.nan_equal = true;   % legacy default
+            min_denominator = 0;    % legacy default
+        else
+            legacy = false;
+            opt.nan_equal = false;
         end
-        if ~isequal(a,b)
-            ok=false;
-            mess='Non-numeric fields not equal';
-            return
-        end
+        
     else
-        ok=false;
-        mess=sprintf('Fields for %s have different classes: a=%s b=%s',...
-            obj_name,class(a),class(b));
-        return
+        % Optional arguments must have been given; parse input arguments
+        % opt filled with default for new format; strip min_denominator away later
+        opt = struct(...
+            'ignore_str',false,...
+            'nan_equal',false,...   % new format default for nan_equal
+            'min_denominator',0);
+        flagnames = {'ignore_str','nan_equal'};
+        [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt, flagnames);
+        if ~ok, error(mess), end
+        
+        % Check single parameter tol and that it is numeric
+        if numel(par)==1 && isnumeric(par{1})
+            tol = par{1};
+            if isscalar(tol)
+                legacy = true;
+            else
+                legacy = false;
+            end
+        elseif numel(par)==0
+            tol = [];
+        else
+            error('Check number and type of input arguments')
+        end
+        
+        % Determine if legacy input if not already determined
+        % (Only way to understand this if-elseif-else is to draw a truth table)
+        legacy_options = (present.nan_equal || present.min_denominator);
+        if (isempty(legacy) && legacy_options) || (~isempty(legacy) && legacy)
+            legacy = true;
+            if ~present.nan_equal
+                opt.nan_equal = true;   % set legacy default
+            end
+            if ~isnumeric(opt.min_denominator) || ~isscalar(opt.min_denominator)...
+                    || isnan(opt.min_denominator) || opt.min_denominator<0
+                error('Check value of ''min_denominator''')
+            end
+            min_denominator = opt.min_denominator;
+            
+        elseif ~(legacy_options || (~isempty(legacy) && legacy))
+            legacy = false;
+            
+        else
+            error('Check number, type and format of input arguments')
+        end
+        % Strip away temporary field
+        opt = rmfield(opt, 'min_denominator');
     end
 end
-ok=true; mess='';
 
-
-%--------------------------------------------------------------------------------------------------
-function [ok,mess]=equal_to_tol_numeric(a,b,tol,nan_equal,min_denominator,obj_name)
-if isequal(size(a),size(b))
-    % If NaNs are to be ignored, remove them from consideration
-    if nan_equal
-        keep=~isnan(a);
-        if ~all(keep(:)==~isnan(b(:)))    % check NaNs have the same locations in both arrays
-            ok=false;
-            mess='NaN elements not in same locations in numeric arrays being compared';
-            return
-        elseif ~any(keep(:))   % if all elements are Nans, can simply return
-            ok=true;
-            mess='';
-            return
-        elseif ~all(keep(:))   % filter out elements if some to be ignored
-            a=a(keep);
-            b=b(keep);
-        end
-    end
-    a=a(:);
-    b=b(:);
-    infs_mark=isinf(a);
-    if any(infs_mark) % inf are present in the arrays
-        infs2_mark=isinf(b);
-        if any(infs_mark ~= infs2_mark)
-            ok=false;
-            mess=sprintf('Inf elements for %s not in same locations in numeric arrays being compared',...
-                obj_name);
-            return;
-        end
-        infss_a=sign(a(infs_mark));
-        infss_b=sign(b(infs_mark));
-        if any(infss_a ~= infss_b)
-            mess=sprintf('Inf elements for %s have different signs in numeric arrays being compared',...
-                obj_name);
-            return;
-        end
-        a=a(~infs_mark);
-        b=b(~infs_mark);
-    end
-    
-    % Compare elements. Remove case of empty arrays - these are considered equal
-    if ~isempty(a)
-        if tol==0
-            okk=a==b;
-            ok=all(okk);
-            errf = @(nok)a(nok);
-        elseif tol>0
-            okk = (abs(a-b)<=tol);
-            ok=all(okk);
-            errf = @(nok)abs(a(nok)-b(nok));
-        else
-            if min_denominator>0
-                den=max(max(abs(a),abs(b)),min_denominator*ones(size(a)));
-            else
-                den=max(abs(a),abs(b));
-            end
-            okk = (abs(a-b)./den<=abs(tol))|den==0|isinf(den);
-            ok=all(okk);   % if both are zero, then accept, or if either a or b in infinite
-            errf=@(nok)(abs(a(nok)-b(nok))./den(nok));
-        end
-        if ok
-            ok=true;    % stupid matlab feature: all(A) if A is a matrix results in a row vector! behaves as all(A(:)) in an if statement however.
-            mess='';
-        else
-            ok=false;
-            anok = a(~okk);
-            [maxErr,ind]=max(errf(~okk));
-            mess=sprintf('Numeric arrays ~= within tol requested; max err: %f for value %s=%f at pos: %d',...
-                maxErr,obj_name,anok(ind),ind);
-        end
+% At this point we know:
+% - If legacy input or not, and nan_equal and ignore_str are set
+% - If tol has been given it is a numeric, and if legacy tol is scalar
+if legacy
+    if isempty(tol), tol=0; end
+    if tol>=0
+        opt.tol = [tol,0];
     else
-        ok=true;
-        mess='';
+        opt.tol = [min_denominator*abs(tol),abs(tol)];
     end
 else
-    ok=false;
-    mess=sprintf('Numeric arrays for %s have different sizes',obj_name);
+    if isempty(tol) || isequal(tol,0)
+        opt.tol = [0,0];
+    elseif numel(tol)==2 && all(tol>=0)
+        opt.tol = tol;
+    else
+        error('Check ''tol'' has form [abs_tol, rel_tol] where both are >=0')
+    end
 end
+
+% Now perform comparison
+name_a = inputname(1);
+name_b = inputname(2);
+if isempty(name_a), name_a = 'Arg1'; end
+if isempty(name_b), name_b = 'Arg2'; end
+[ok,mess]=equal_to_tol_private(a,b,opt,name_a,name_b);
