@@ -12,11 +12,15 @@ end
 
 
 if ~isa(val,'double')
-    error('IX_dataset_3d:invalid_argument',...
-        [field_name ' values array must be a double precision vector']);
+    if isnumeric(val)
+        val = double(val);
+    else
+        error('IX_dataset_3d:invalid_argument',...
+            [field_name ' - array must be a numeric vector or matrix']);
+    end
 end
 
- % make column vector
+% make column vector
 obj.([field_name,'_']) = val;
 
 %TODO: Disabled to accomodate some oddity with 2D rebinning

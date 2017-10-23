@@ -10,8 +10,13 @@ if numel(size(val))==2 && all(size(val)==[0,0]) || (isempty(val))
 end
 
 if ~isa(val,'double')||~isvector(val)
-    error('IX_dataset_1d:invalid_argument',...
-        [field_name ' values array must be a double precision vector']);
+    if isnumeric(val) && isvector(val)
+        val = double(val);
+    else
+        error('IX_dataset_1d:invalid_argument',...
+            [field_name '- array must be a numeric vector']);
+        
+    end
 end
 
 if size(val,1)==1
