@@ -14,9 +14,14 @@ classdef test_fig_spread < TestCase
             end
             ps = ps@TestCase(name);
         end
-        function pl = gen_fig(obj)
-            pl = cell(obj.n_fig);
-            for i=1:obj.n_fig
+        function pl = gen_fig(obj,varargin)
+            if nargin == 1
+                n_figs = obj.n_fig;
+            else
+                n_figs = varargin{1};
+            end
+            pl = cell(n_figs,1);
+            for i=1:n_figs
                 pl{i} = figure('Name',sprintf('test_fig_handle#%d',i));
                 hold on;
             end
@@ -51,7 +56,24 @@ classdef test_fig_spread < TestCase
             
             clOb = onCleanup(@()ps.close_all());
         end
-        
+        %
+        function test_grab_all(obj)
+            fs = fig_spread();
+            clOb = onCleanup(@()close('all'));
+            close('all');
+            figs = obj.gen_fig(4);
+            %
+            fs = fs.place_fig(figs{1});
+            fs = fs.place_fig(figs{4});            
+            
+            assertEqual(fs.fig_count,2);
+            fs = fs.grab_all();
+            assertEqual(fs.fig_count,4);
+
+            fs.overlap_borders = true;            
+            fs = fs.replot_figs();
+        end
+        %
         function test_fig_pos(obj)
             ps = fig_spread();
             ss= get(0,'ScreenSize');
@@ -85,19 +107,19 @@ classdef test_fig_spread < TestCase
             assertEqual(ix,ps.left_border+size_x*(sc(1)-1));
             assertEqual(iy,ss(4)-ps.top_border-size_y*sc(2));
             assertEqual(n_frame,0);
-
+            
             [ix,iy,n_frame] = ps.calc_fig_pos(sc(1)*sc(2)+1,size_x,size_y);
             assertEqual(ix,ps.left_border);
             assertEqual(iy,ss(4)-ps.top_border-size_y);
             assertEqual(n_frame,1);
             
-
+            
             %-------------------------------------------------------------
-            size_x=size_x+10;            
+            size_x=size_x+10;
             size_y=size_y+10;
             ps.fig_size = [size_x,size_y];
             sc(1) = sc(1) -1;
-            sc(2) = sc(2) -1;            
+            sc(2) = sc(2) -1;
             
             [ix,iy,n_frame] = ps.calc_fig_pos(1,size_x,size_y);
             assertEqual(ix,ps.left_border);
@@ -123,11 +145,11 @@ classdef test_fig_spread < TestCase
             assertEqual(ix,ps.left_border+size_x*(sc(1)-1));
             assertEqual(iy,ss(4)-ps.top_border-size_y*sc(2));
             assertEqual(n_frame,0);
-
+            
             [ix,iy,n_frame] = ps.calc_fig_pos(sc(1)*sc(2)+1,size_x,size_y);
             assertEqual(ix,ps.left_border);
             assertEqual(iy,ss(4)-ps.top_border-size_y);
-            assertEqual(n_frame,1);                        
+            assertEqual(n_frame,1);
         end
     end
     

@@ -4,11 +4,17 @@ classdef fig_spread
     %
     % Usage:
     %
-    % >>ps=fig_spread(['-tight'])       --create class to hold matlab figures
+    % >>ps=fig_spread(['-tight'])       -- create class to hold matlab figures
     % >>ps =ps.place_fig(figure_handle) -- place a figtuire in a subsequent
-    %                                      position.
-    % Other useful class methods are described below. 
     %
+    %Other useful
+    %fig_spread Methods:
+    %
+    %replot_figs - re-plot figures again resizing them according to current
+    %              settings and ignoring missing (deleted) figures.
+    %grab_all    - take all plotted figures under the control of the
+    %              class and replot them according to class settings.
+    %close_all   - delete all controlled figures
     %
     %
     % $Revision$ ($Date$)
@@ -28,7 +34,7 @@ classdef fig_spread
         % size of the left border in figures to start from (e.g. if you have
         % windows toolbar on the left side of the screen)
         left_border;
-        % size of the top border in figures to start from        
+        % size of the top border in figures to start from
         top_border;
         % if fig-s should be placed tight e.g. with their borders
         % overlapped.
@@ -38,10 +44,6 @@ classdef fig_spread
         screen_capacity_nfig;
     end
     %
-    properties
-        
-        
-    end
     properties(Access=private)
         screen_capacity_nfig_=[4,3];
         
@@ -187,6 +189,7 @@ classdef fig_spread
             %
             % place subsequent figures one after another, using
             % (possibly new) class picture parameters.
+            %
             self = replot_figs_(self,varargin{:});
         end
         %
@@ -198,7 +201,12 @@ classdef fig_spread
             self.fig_count_=0;
             self.fig_list_={};
         end
-        
+        function obj = grab_all(obj,varargin)
+            % retrieve all existing (plotted) figures under the class
+            % control for further operations (e.g. resizing, replotting)
+            obj = grab_all_(obj,varargin{:});
+            obj = obj.replot_figs();
+        end
         
         function self=hide_n_fig(self,varargin)
             % hide speficied number of visible figures.
