@@ -196,6 +196,7 @@ end
 
 % Loop over rlp, determines the projections and make the cuts
 %------------------------------------------------------------
+xrlp = 0;
 wdisp = repmat(d2d,1,nseg);
 for i=1:nseg
     % Choose u1 along the user desired q-direction 
@@ -206,12 +207,13 @@ for i=1:nseg
     %   or the plane defined by u1 and c* or, if u1||c*, the plane defined by u1 and a*.
     if isempty(u2crt0)
         u2crt = cross(u1crt,b*[0;0;1]./norm(b*[0;0;1]));
-        if abs(sum(u2crt))<min(opt.qbin)/100
+        if sum(abs(u2crt))<min(opt.qbin)/100
             u2crt = cross(u1crt,b*[1;0;0]./norm(b*[1;0;0]));
         end
     else 
         u2crt = u2crt0./norm(u2crt0);
     end
+    u2crt = u2crt ./ norm(u2crt);
     % Sets the correct normalisation for u1,u2,u3 (u3 perp to u1 x u2)
     u1rlp = (inv(b)*u1crt')';
     u2rlp = (inv(b)*u2crt')';
