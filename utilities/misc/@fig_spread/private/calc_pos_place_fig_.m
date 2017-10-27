@@ -39,9 +39,7 @@ self.fig_list_{self.fig_count}=fig_handle;
 
 set(fig_handle, 'Position', [ix iy, ps(3),ps(4)])
 if rise_fig
-    figure(fig_handle)
-    %set(0,'CurrentFigure',fig_handle);
-    drawnow;
+    rize_figure_(fig_handle);
 end
 
 

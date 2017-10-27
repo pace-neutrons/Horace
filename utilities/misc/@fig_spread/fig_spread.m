@@ -88,7 +88,7 @@ classdef fig_spread
             % screen tight, namely overalling figure borders and resizing
             % them to fit on the screen requested number.
             
-            keywords={'-tight','rise'};
+            keywords={'-tight','-rise'};
             set(0,'Units','pixels')
             ss= get(0,'ScreenSize');
             obj.screen_size_=[ss(3),ss(4)];

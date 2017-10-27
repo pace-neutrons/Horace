@@ -7,9 +7,15 @@ if verLessThan('matlab','8.4')
 else
     figHandles = get(groot, 'Children');  % Since version R2014b
 end
-existing_num = cellfun(@(fg)(get(fg,'Number')),obj.fig_list_);
+if verLessThan('matlab','8.4')
+    existing_num  = [obj.fig_list_{:}];
+    all_num = figHandles;
+else
+    existing_num = cellfun(@(fg)(get(fg,'Number')),obj.fig_list_);
+    all_num = arrayfun(@(fg)(get(fg,'Number')),figHandles);    
+end
 existing_num = sort(existing_num);
-all_num = arrayfun(@(fg)(get(fg,'Number')),figHandles);
+
 [all_num,all_ind] = sort(all_num);
 
 existing = ismember(all_num,existing_num);
