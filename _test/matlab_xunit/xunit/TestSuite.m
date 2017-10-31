@@ -65,6 +65,7 @@ classdef TestSuite < TestComponent
             if nargin >= 1
                 self = TestSuite.fromName(name);
             end
+            self.TestCaseClasses  = containers.Map();
         end
         
         
