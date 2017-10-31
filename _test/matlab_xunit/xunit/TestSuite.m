@@ -157,7 +157,19 @@ classdef TestSuite < TestComponent
                 self.TestComponents = self.TestComponents(idx);
             end
         end
-        
+       
+        function delete(self)
+            if ~selt.TestCaseClasses.isempty()
+                keys = selt.TestCaseClasses.keys();
+                for i=1:numel(keys)
+                    try
+                        delete(selt.TestCaseClasses(keys{i}));
+                    catch
+                    end
+                end
+            end
+            self.TestCaseClasses = containers.Map();
+        end
     end
     
     methods (Static)
