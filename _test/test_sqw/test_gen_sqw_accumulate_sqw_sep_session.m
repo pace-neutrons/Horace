@@ -498,7 +498,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
-            this=save_or_test_variables(this,w2_1456,'convert_old_classes',true);
+            this=save_or_test_variables(this,w2_1456);
             
         end
         %
