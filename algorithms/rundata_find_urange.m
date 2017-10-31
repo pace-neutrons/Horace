@@ -13,8 +13,11 @@ function urange = rundata_find_urange(run_files,varargin)
 %   urange    	2x4 array, describing min-max values in momentum/energy
 %              transfer, in crystal Cartesian coordinates and meV. Uses bin centres.
 %
+
+
+
 % Suppress log messages while calculating urange, as it should be very
-% quick by desighn.
+% quick by design.
 hc = hor_config();
 log_level = hc.log_level;
 clob = onCleanup(@()(set(hc,'log_level',log_level)));

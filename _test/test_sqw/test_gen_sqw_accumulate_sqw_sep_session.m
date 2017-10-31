@@ -1,16 +1,32 @@
 classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
-    % Series of tests of gen_sqw and associated functions Optionally writes
-    % results to output file
-    %   >> runtests test_gen_sqw_accumulate_sqw          % Compares with
-    %   previously saved results in test_gen_sqw_accumulate_sqw_output.mat
-    %                                                    % in the same
-    %                                                    folder as this
-    %                                                    function
-    %   >>tc=test_gen_sqw_accumulate_sqw ('save')  % Stores sample
-    %   >>tc.save()                                %results into tmp folder
+    % Series of tests of gen_sqw and associated functions
+    % generated using multiple matlab workers.
     %
-    % Reads previously created test data sets. Reads previously created
-    % test data sets.
+    % Optionally writes results to output file to compare with previously
+    % saved sample test results
+    %---------------------------------------------------------------------
+    % Usage:
+    %
+    %1) Normal usage:
+    % Run all unit tests and compare their results with previously saved
+    % results stored in test_gen_sqw_accumulate_sqw_output.mat file
+    % located in the same folder as this function:
+    %
+    %>>runtests test_gen_sqw_accumulate_sqw_sep_session
+    %---------------------------------------------------------------------
+    %2) Run particular test case from the suite:
+    %
+    %>>tc = test_gen_sqw_accumulate_sqw_sep_session();
+    %>>tc.test_[particular_test_name] e.g.:
+    %>>tc.test_accumulate_sqw14();
+    %or
+    %>>tc.test_gen_sqw();
+    %---------------------------------------------------------------------
+    %3) Generate test file to store test results to compare with them later
+    %   (it stores test results into tmp folder.)
+    %
+    %>>tc=test_gen_sqw_accumulate_sqw_sep_session('save');
+    %>>tc.save():
     properties
         test_data_path;
         test_functions_path;
@@ -144,6 +160,10 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             this.pars=[1000,8,2,4,0];  % [Seff,SJ,gap,gamma,bkconst]
             this.scale=0.3;
+            % build test files if they have not been build
+            this=build_test_files(this);
+            % sort workspace pixels for their comparison
+            this.sort_pixels = true;
             
         end
         %
@@ -267,7 +287,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(this);
             %hc.threads = 1;
-               
+            
             
             [dummy,grid,urange1]=gen_sqw (this.spe_file, '', sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %hc.accum_in_separate_process=0;
@@ -278,16 +298,16 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             % Make some cuts: ---------------
             this.proj.u=[1,0,0.1]; this.proj.v=[0,0,1];
             
-                      
+            
             
             % Check cuts from gen_sqw output with spe files in a different
             % order are the same
             [ok,mess,dummy_w1,w1b]=is_cut_equal(sqw_file_123456,sqw_file_145623,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output with spe files in a different order are not the same: ',mess]);
             
-            w1a=cut_sqw(sqw_file_123456,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);            
+            w1a=cut_sqw(sqw_file_123456,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w1a,w1b,'convert_old_classes',true);
+            this=save_or_test_variables(this,w1a,w1b);
             
             
         end
@@ -327,15 +347,11 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             
             
             
-            % build test files if they have not been build
-            this=build_test_files(this);
+            
             sqw_file_accum=fullfile(tempdir,['test_sqw_accum_sqw14_multisession.sqw']);
             sqw_file_14=fullfile(tempdir,['test_sqw_14_multisession.sqw']);    % output sqw file
+            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_14,sqw_file_accum));
             
-            
-            if ~this.want_to_save_output
-                cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_14,sqw_file_accum));
-            end
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
             
@@ -363,7 +379,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_14,'convert_old_classes',true);
+            this=this.save_or_test_variables(w2_14);
             
             
         end
@@ -433,7 +449,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             w2_1456=cut_sqw(sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_1456,'convert_old_classes',true);
+            this=save_or_test_variables(this,w2_1456);
             
         end
         
@@ -482,7 +498,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_1456,'convert_old_classes',true);
+            this=save_or_test_variables(this,w2_1456,'convert_old_classes',true);
             
         end
         %
@@ -500,11 +516,8 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             this=build_test_files(this);
             sqw_file_accum=fullfile(tempdir,'test_sqw_acc_sqw11456_multisession.sqw');
             sqw_file_11456=fullfile(tempdir,'test_sqw_11456_multisession.sqw');                   % output sqw file
+            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_11456,sqw_file_accum));
             
-            
-            if ~this.want_to_save_output
-                cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_11456,sqw_file_accum));
-            end
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
             
@@ -528,7 +541,7 @@ classdef test_gen_sqw_accumulate_sqw_sep_session < TestCaseWithSave
             [ok,mess,w2_11456]=is_cut_equal(sqw_file_11456,sqw_file_accum,this.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,w2_11456,'convert_old_classes',true);
+            this=save_or_test_variables(this,w2_11456);
             
             
             if this.want_to_save_output

@@ -19,7 +19,7 @@ function FF = form_factor(self,h,k,l,varargin)
 %
 % $Revision$ ($Date$)
 %
-if numel(varargin) > 1 && ~isempty(varargin{2})
+if numel(varargin) > 1 && nargin > 5 && ~isempty(varargin{2})
     u_2_rlu = inv(varargin{2});
 else
     u_2_rlu = self.u_2_rlu_;    

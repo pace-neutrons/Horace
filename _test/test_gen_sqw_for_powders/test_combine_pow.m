@@ -36,7 +36,9 @@ classdef test_combine_pow < TestCaseWithSave
             % =====================================================================================================================
             % Create spe files:
             this.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
-            spe_dir = fileparts(mfilename('fullpath'));
+            %spe_dir = tempdir(); 
+            spe_dir = fileparts(mfilename('fullpath'));            
+            % test files are present
             this.spe_file_1=fullfile(spe_dir,'test_combine_1.nxspe');
             this.spe_file_2=fullfile(spe_dir,'test_combine_2.nxspe');
             
@@ -63,9 +65,10 @@ classdef test_combine_pow < TestCaseWithSave
             this.psi_2=30;
             if ~exist(this.spe_file_2,'file')
                 simulate_spe_testfunc (en, this.par_file, this.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
-                    this.efix, emode, this.alatt, angdeg, u, v, this.psi_2, omega, dpsi, gl, gs)
+                    this.efix, emode, alatt, angdeg, u, v, this.psi_2, omega, dpsi, gl, gs)
             end
-            %this=add_to_files_cleanList(this,this.spe_file_1,this.spe_file2);
+            % test files are in svn
+            %add_to_files_cleanList(this,this.spe_file_1,this.spe_file_2);
             add_to_path_cleanList(this,test_functions_path);
         end
         
@@ -84,8 +87,8 @@ classdef test_combine_pow < TestCaseWithSave
             w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
             
-            this=test_or_save_variables(this,w2_1,w1_1,'tol',-2.e-2,...
-                'ignore_str',1,'convert_old_classes',true );
+            this=save_or_test_variables(this,w2_1,w1_1,'tol',-2.e-2,...
+                'ignore_str',1 );
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -112,8 +115,8 @@ classdef test_combine_pow < TestCaseWithSave
             
             w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
             
-            this=test_or_save_variables(this,w2_2,w1_2,'tol',-9.e-2,...
-                'ignore_str',1,'convert_old_classes',true);
+            this=save_or_test_variables(this,w2_2,w1_2,'tol',-9.e-2,...
+                'ignore_str',1);
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -137,8 +140,8 @@ classdef test_combine_pow < TestCaseWithSave
             
             w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
             
-            this=test_or_save_variables(this,w2_tot,w1_tot,'tol',-2.e-2,...
-                'ignore_str',1,'convert_old_classes',true);
+            this=save_or_test_variables(this,w2_tot,w1_tot,'tol',-2.e-2,...
+                'ignore_str',1);
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect

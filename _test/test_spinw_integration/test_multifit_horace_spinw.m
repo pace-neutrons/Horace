@@ -100,10 +100,10 @@ classdef test_multifit_horace_spinw< TestCaseWithSave
             % Test against saved or store to save later
             % Test only against simulated spectra from analytical calculations, because fit parameters differ significantly due
             % to accumulation of numerical errors in diagonalisation procedure.
-            this=test_or_save_variables(this,wsim_1);
+            this=save_or_test_variables(this,wsim_1);
             tol = this.tol;
             this.tol = -1;  
-            this=test_or_save_variables(this,wfit_1,fitpar_1);
+            this=save_or_test_variables(this,wfit_1,fitpar_1);
             this.tol = tol;
             % acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
             % dp(this.win)     % Draw Points
@@ -124,10 +124,10 @@ classdef test_multifit_horace_spinw< TestCaseWithSave
             [wfit_2,fitpar_2]=multifit_sqw_sqw(this.win, @spinw_sqw, {[5,5,0,10,0] this.sbcc}, [1,1,0,0,0],...
                 @spinw_sqw, {{[5,5,1.2,10,0],this.sbcc},{[5,5,1.4,15,0],this.sbcc}}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}}, 'ave' );
             % Test against saved or store to save later
-            this=test_or_save_variables(this,wsim_2);
+            this=save_or_test_variables(this,wsim_2);
             tol = this.tol;
             this.tol = -1;  
-            this=test_or_save_variables(this,wfit_2,fitpar_2);
+            this=save_or_test_variables(this,wfit_2,fitpar_2);
             this.tol = tol;
             % acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
             % dp(this.win)     % Draw Points
@@ -151,7 +151,7 @@ classdef test_multifit_horace_spinw< TestCaseWithSave
             assertTrue(equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12),'fit_sqw fitting not working')
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,wfit_single1,wfit_single2,wfit_single12);
+            this=save_or_test_variables(this,wfit_single1,wfit_single2,wfit_single12);
             
         end
 
@@ -184,7 +184,7 @@ classdef test_multifit_horace_spinw< TestCaseWithSave
             fitpar_single12(1).p(5)=NaN;   this.old.fitpar_single12(1).p(5)=NaN;
             fitpar_single1.bp(1)=NaN;      this.old.fitpar_single1.bp(1)=NaN;
             fitpar_single12(1).bp(1)=NaN;  this.old.fitpar_single12(1).bp(1)=NaN;
-            this=test_or_save_variables(this,fitpar_single1,fitpar_single2,fitpar_single12);
+            this=save_or_test_variables(this,fitpar_single1,fitpar_single2,fitpar_single12);
             this.tol=tol;
             %
             
@@ -202,10 +202,10 @@ classdef test_multifit_horace_spinw< TestCaseWithSave
             assertTrue(equal_to_tol([tmp1,tmp2],wfit_sqw_sqw,-1e-8),'fit_sqw_sqw not working')
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,wfit_sqw_sqw);
+            this=save_or_test_variables(this,wfit_sqw_sqw);
             tol = this.tol;
             this.tol = -1;  
-            this=test_or_save_variables(this,fitpar_sqw_sqw);
+            this=save_or_test_variables(this,fitpar_sqw_sqw);
             this.tol = tol;
         end
     end

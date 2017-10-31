@@ -1,14 +1,34 @@
 classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
     % Series of tests of gen_sqw and associated functions
-    % Optionally writes results to output file
+    % when mex code is disabled or not availible
     %
-    %   >>runtests test_gen_sqw_accumulate_sqw   % Compares with previously saved results in test_gen_sqw_accumulate_sqw_output.mat
-    %                                            % in the same folder as this function
-    %                                            % in the same folder as this function
-    %   >>tc=test_gen_sqw_accumulate_sqw ('save') % Store sample
-    %   >>tc.save()                               % results into tmp folder
+    % Optionally writes results to output file to compare with previously
+    % saved sample test results
+    %
+    % Usage:
+    %---------------------------------------------------------------------
+    %1) Normal usage:
+    % Run all unit tests and compare their results with previously saved
+    % results stored in test_gen_sqw_accumulate_sqw_output.mat file
+    % located in the same folder as this function:
+    %
+    %>>runtests test_gen_sqw_accumulate_sqw_nomex
+    %---------------------------------------------------------------------
+    %2) Run particular test case from the suite:
+    %
+    %>>tc = test_gen_sqw_accumulate_sqw_nomex();
+    %>>tc.test_[particular_test_name] e.g.@
+    %>>tc.test_gen_sqw_threading_mex();
+    %or
+    %>>tc.test_gen_sqw();
+    %---------------------------------------------------------------------
+    %3) Generate test file to store test results to compare with them later
+    %   (it stores test results into tmp folder.)
+    %
+    %>>tc=test_gen_sqw_accumulate_sqw_nomex ('save');
+    %>>tc.save():
     
-    % Reads previously created test data sets.
+    
     properties
     end
     
@@ -63,8 +83,6 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
                 spe_file_names{i}=fullfile(tempdir,['test_gen_sqw_threading_1th',num2str(i),'.nxspe']);
             end
             
-            % build test files if they have not been build
-            this=build_test_files(this,true,spe_file_names);
             
             sqw_file_123_t8=fullfile(tempdir,'sqw_123_mex8_threading.sqw');             % output sqw file
             sqw_file_123_t1=fullfile(tempdir,'sqw_123_mex1_threading.sqw');        % output sqw file

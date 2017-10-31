@@ -55,7 +55,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             en=0:1:90;
             par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
             spe_dir = fileparts(mfilename('fullpath'));
-            spe_file=fullfile(spe_dir,'test_gen_sqw.nxspe');
+            spe_file=fullfile(spe_dir,'test_gen_sqw_for_powder.nxspe');
             efix=100;
             emode=1;
             alatt=[5,5,5];
@@ -138,13 +138,13 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             
             %--------------------------------------------------------------------------------------------------
-            this=test_or_save_variables(this,w2,w1, w2rings,w1rings,...
-                'tol',-3.e-2,'ignore_str',1,'convert_old_classes',true);
+            this=save_or_test_variables(this,w2,w1, w2rings,w1rings,...
+                'tol',-3.e-2,'ignore_str',1);
         end
     end
     methods(Static)
         function rm_files(varargin)
-            % simple funciton which removes files from the list without issuing warning
+            % simple function which removes files from the list without issuing warning
             % if the file is not present
             %Usage:
             %>>rm_files(file1,file2,file3,...)
