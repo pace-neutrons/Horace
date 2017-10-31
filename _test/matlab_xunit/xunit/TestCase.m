@@ -67,7 +67,14 @@ classdef TestCase < TestComponent
             
             try
                 self.setUp();
-                f = str2func(self.MethodName);
+                if ischar(self.MethodName)
+                    f = str2func(self.MethodName);
+                elseif ishandle(self.MethodName)
+                    f = self.MethodName;
+                else
+                    error('TestCase:invalid_argument',...
+                        'Unknown Method name type');
+                end
                 
                 try
                     % Call the test method.

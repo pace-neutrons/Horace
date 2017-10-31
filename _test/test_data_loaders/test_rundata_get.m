@@ -5,6 +5,7 @@ classdef test_rundata_get< TestCase
     
     properties
         the_run; % some defined rundata class instance
+        run2_work_with = []; % the copy of sample run to modify by particular tests
         log_level;
         test_data_path;
     end
@@ -27,10 +28,13 @@ classdef test_rundata_get< TestCase
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
-            set(herbert_config,'log_level',-1,'-buffer');
+            set(herbert_config,'log_level',-1,'-buffer');            
+            this.run2_work_with = this.the_run;
+
         end
         function this=tearDown(this)
             set(herbert_config,'log_level',this.log_level,'-buffer');
+            this.run2_work_with = [];
         end
         
         
@@ -42,22 +46,22 @@ classdef test_rundata_get< TestCase
         end
         function test_wrong_input_key(this)
             % you provide non-symbol key or data modifier
-            f = @()get_rundata(this.the_run,10);
+            f = @()get_rundata(this.run2_work_with,10);
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
         end
         function test_non_existing_input_key(this)
             % you ask to provide non-existing data modifier
-            f = @()get_rundata(this.the_run,'-not_known_key','-somshit');
+            f = @()get_rundata(this.run2_work_with,'-not_known_key','-somshit');
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
         end
         function test_non_existing_input_field(this)
             % you ask to return non-existing data fields
-            f = @()get_rundata(this.the_run,'S','-hor','bla_bla','beee','S','-nonan','ERR');
+            f = @()get_rundata(this.run2_work_with,'S','-hor','bla_bla','beee','S','-nonan','ERR');
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
         end
         function this=test_load_nxspe_fields(this)
             % this form asks for all run data to be obtained;
-            [S,Err,en,efix,psi,detectors]=get_rundata(this.the_run,'S','ERR','en','efix','psi','det_par');
+            [S,Err,en,efix,psi,detectors]=get_rundata(this.run2_work_with,'S','ERR','en','efix','psi','det_par');
             
             assertEqual(size(S,1),size(en,1)-1);
             assertEqual(size(S),size(Err));
@@ -67,23 +71,23 @@ classdef test_rundata_get< TestCase
         end
         function this=test_load_nxspe_all_fields(this)
             % this form asks for all present in file run data to be obtained;
-            this.the_run.is_crystal=false;
-            data =get_rundata(this.the_run);
+            this.run2_work_with.is_crystal=false;
+            data =get_rundata(this.run2_work_with);
             fi = fieldnames(data);
             assertTrue(any(ismember({'efix','en','S','ERR','det_par'},fi)));
         end
         function this=test_load_nxspe_par(this)
             % this form asks for all run data to be obtained;
-            this.the_run.is_crystal=false;
+            this.run2_work_with.is_crystal=false;
             % and detectors returned as horace structure
-            dp =get_rundata(this.the_run,'det_par');
+            dp =get_rundata(this.run2_work_with,'det_par');
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(dp))));
             assertTrue(all(ismember(fields(dp),{'filename','filepath','x2','phi','azim','width','height','group'})));
         end
         
         function test_not_all_requested_data_present(this)
             % this form asks for all run data to be obtained;
-            f = @()get_rundata(this.the_run,'-nonan');
+            f = @()get_rundata(this.run2_work_with,'-nonan');
             % but not all data describing the crystall are present in nxspe
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
         end
@@ -180,31 +184,31 @@ classdef test_rundata_get< TestCase
         end
         function test_this_nonc_with_rad(this)
             % inconsistent data mofifiers
-            f = @()get_rundata(this.the_run,'-this','-rad','gl','gs');
+            f = @()get_rundata(this.run2_work_with,'-this','-rad','gl','gs');
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
         end
         function test_this_nonc_with_nonan(this)
             % inconsistent data mofifiers
-            f = @()get_rundata(this.the_run,'-this','-nonan','gl','gs','S','det_par');
+            f = @()get_rundata(this.run2_work_with,'-this','-nonan','gl','gs','S','det_par');
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
         end
         function test_this_nonc_with_hor(this)
             % -hor modifies det_par only so this is incompartible with -hor and
             % det_par
-            f = @()get_rundata(this.the_run,'-this','-hor','gl','gs','det_par');
+            f = @()get_rundata(this.run2_work_with,'-this','-hor','gl','gs','det_par');
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
         end
         function test_this_nonan_without_sighal(this)
             % inconsistent data mofifiers
-            f = @()get_rundata(this.the_run,'-nonan','gl','gs','det_par');
+            f = @()get_rundata(this.run2_work_with,'-nonan','gl','gs','det_par');
             assertExceptionThrown(f,'RUNDATA:invalid_arguments');
         end
         
         function test_suppress_nan(this)
             % this form asks for all run data to be obtained in class
-            this.the_run.is_crystal=false;
+            this.run2_work_with.is_crystal=false;
             
-            run=get_rundata(this.the_run,'-this');
+            run=get_rundata(this.run2_work_with,'-this');
             
             [S,ERR,det]=get_rundata(run,'-nonan','S','ERR','det_par','en');
             assertEqual(size(S),[30,26495]);

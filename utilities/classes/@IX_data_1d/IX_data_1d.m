@@ -7,7 +7,7 @@ classdef IX_data_1d < IX_dataset
     %   >> w = IX_data_1d (x,signal)
     %   >> w = IX_data_1d (x,signal,error)
     %   >> w = IX_data_1d ([x;signal;error]) % 3xNs vector of data;
-    %   >> w = IX_data_1d (x,signal,error, x_distribution)    
+    %   >> w = IX_data_1d (x,signal,error, x_distribution)
     %   >> w = IX_data_1d (x,signal,error,title,x_axis,s_axis)
     %   >> w = IX_data_1d (x,signal,error,title,x_axis,s_axis, x_distribution)
     %   >> w = IX_data_1d (title, signal, error, s_axis, x, x_axis, x_distribution)
@@ -28,6 +28,9 @@ classdef IX_data_1d < IX_dataset
     % 	x_distribution      logical         Distribution data flag (true is a distribution; false otherwise)
     
     % Default class - empty point dataset
+    %
+    % $Revision$ ($Date$)
+    %
     properties(Dependent)
         % x - vector of bin boundaries for histogram data or bin centers
         % for distribution

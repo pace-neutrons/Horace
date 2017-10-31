@@ -48,13 +48,13 @@ classdef test_multifit_1< TestCaseWithSave
                     this.sd.(fld) = IX_dataset_1d(this.sd.(fld));
                 end
             end
-            flds =fieldnames(this.old);
-            for i=1:numel(flds)
-                fld = flds{i};
-                if isstruct(this.old.(fld)) &&  numel(fieldnames(this.old.(fld))) == 7
-                    this.old.(fld) = IX_dataset_1d(this.old.(fld));
-                end
-            end
+%             flds =fieldnames(this.ref_data);
+%             for i=1:numel(flds)
+%                 fld = flds{i};
+%                 if isstruct(this.ref_data.(fld)) &&  numel(fieldnames(this.ref_data.(fld))) == 7
+%                     this.ref_data.(fld) = IX_dataset_1d(this.ref_data.(fld));
+%                 end
+%             end
             
         end
         
@@ -69,7 +69,7 @@ classdef test_multifit_1< TestCaseWithSave
             % Create reference output
             [y1_fref, wstruct1_fref, w1_fref, p1_fref] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1, @mftest_gauss_bkgd, this.pin);
             % Test it or store to save later
-            this=test_or_save_variables(this,y1_fref, wstruct1_fref, w1_fref, p1_fref);
+            this=save_or_test_variables(this,y1_fref, wstruct1_fref, w1_fref, p1_fref);
             
             % Slow convergence, print output
             list = 2;
@@ -79,7 +79,7 @@ classdef test_multifit_1< TestCaseWithSave
             [y1_fslow, wstruct1_fslow, w1_fslow, p1_fslow] = mftest_mf_and_f_single_dataset (...
                 this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1, @mftest_gauss_bkgd, this.pin, [1,0,1,0,0], 'list',list);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fslow, wstruct1_fslow, w1_fslow, p1_fslow);
+            this=save_or_test_variables(this,y1_fslow, wstruct1_fslow, w1_fslow, p1_fslow);
             
             
             % Equivalence of split foreground and background functions with single function
@@ -94,8 +94,8 @@ classdef test_multifit_1< TestCaseWithSave
                 assertTrue(false,'Test failed: split foreground and background functions not equivalent to single function')
             end
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fsigfix, wstruct1_fsigfix, w1_fsigfix, p1_fsigfix);
-            this=test_or_save_variables(this,y1_fsigfix_bk, wstruct1_fsigfix_bk, w1_fsigfix_bk, p1_fsigfix_bk);
+            this=save_or_test_variables(this,y1_fsigfix, wstruct1_fsigfix, w1_fsigfix, p1_fsigfix);
+            this=save_or_test_variables(this,y1_fsigfix_bk, wstruct1_fsigfix_bk, w1_fsigfix_bk, p1_fsigfix_bk);
             
         end
         
@@ -105,12 +105,12 @@ classdef test_multifit_1< TestCaseWithSave
             [y1_fbind1_ref, wstruct1_fbind1_ref, w1_fbind1_ref, p1_fbind1_ref] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss_bkgd_bind, [this.pin,prat,pbnd], [0,0,1,1,0,zeros(1,10)]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind1_ref, wstruct1_fbind1_ref, w1_fbind1_ref, p1_fbind1_ref);
+            this=save_or_test_variables(this,y1_fbind1_ref, wstruct1_fbind1_ref, w1_fbind1_ref, p1_fbind1_ref);
             
             [y1_fbind1_1, wstruct1_fbind1_1, w1_fbind1_1, p1_fbind1_1] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss, this.pin(1:3), [1,0,1], {1,3,0,6}, @mftest_bkgd, this.pin(4:5), [1,0]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind1_1, wstruct1_fbind1_1, w1_fbind1_1, p1_fbind1_1);
+            this=save_or_test_variables(this,y1_fbind1_1, wstruct1_fbind1_1, w1_fbind1_1, p1_fbind1_1);
             
             ltol=0;
             if ~equal_to_tol(y1_fbind1_ref,y1_fbind1_1,ltol)     % can only compare output y values - we've fudged the reference fit function, and parameters are not 'real'
@@ -120,7 +120,7 @@ classdef test_multifit_1< TestCaseWithSave
             [y1_fbind1_2, wstruct1_fbind1_2, w1_fbind1_2, p1_fbind1_2] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...    % Same, but pick ratio from input ht and sig
                 @mftest_gauss, [6*this.pin(3),this.pin(2:3)], [1,0,1], {1,3}, @mftest_bkgd, this.pin(4:5), [1,0]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind1_2, wstruct1_fbind1_2, w1_fbind1_2, p1_fbind1_2);
+            this=save_or_test_variables(this,y1_fbind1_2, wstruct1_fbind1_2, w1_fbind1_2, p1_fbind1_2);
             
             
             ltol=0;
@@ -136,13 +136,13 @@ classdef test_multifit_1< TestCaseWithSave
                 this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss_bkgd_bind, [this.pin,prat,pbnd], [0,0,1,0,1,zeros(1,10)]);
             % test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind2_ref, wstruct1_fbind2_ref, w1_fbind2_ref, p1_fbind2_ref);
+            this=save_or_test_variables(this,y1_fbind2_ref, wstruct1_fbind2_ref, w1_fbind2_ref, p1_fbind2_ref);
             
             
             [y1_fbind2, wstruct1_fbind2, w1_fbind2, p1_fbind2] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss, this.pin(1:3), [1,0,1], {1,3,0,6}, @mftest_bkgd, this.pin(4:5),'', {{1,2,1,0.01}});
             % test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind2, wstruct1_fbind2, w1_fbind2, p1_fbind2);
+            this=save_or_test_variables(this,y1_fbind2, wstruct1_fbind2, w1_fbind2, p1_fbind2);
             
             ltol=0;
             if ~equal_to_tol(y1_fbind2_ref,y1_fbind2,ltol)     % can only compare output y values - we've fudged the reference fit function, and parameters are not 'real'
@@ -156,13 +156,13 @@ classdef test_multifit_1< TestCaseWithSave
             [y1_fbind3_ref, wstruct1_fbind3_ref, w1_fbind3_ref, p1_fbind3_ref] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss_bkgd_bind, [100,50,5,20,0,prat,pbnd], [0,1,0,1,0,zeros(1,10)]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind3_ref, wstruct1_fbind3_ref, w1_fbind3_ref, p1_fbind3_ref);
+            this=save_or_test_variables(this,y1_fbind3_ref, wstruct1_fbind3_ref, w1_fbind3_ref, p1_fbind3_ref);
             
             
             [y1_fbind3, wstruct1_fbind3, w1_fbind3, p1_fbind3] = mftest_mf_and_f_single_dataset (this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss, [100,50,5], [0,1,1], {3,1,1,0.2}, @mftest_bkgd, [20,0],'', {{2,2,0,1/300}});
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind3, wstruct1_fbind3, w1_fbind3, p1_fbind3);
+            this=save_or_test_variables(this,y1_fbind3, wstruct1_fbind3, w1_fbind3, p1_fbind3);
             
             ltol=0;
             if ~equal_to_tol(y1_fbind3_ref,y1_fbind3,ltol)  % can only compare output y values - we've fudged the reference fit function, and parameters are not 'real'
@@ -177,7 +177,7 @@ classdef test_multifit_1< TestCaseWithSave
                 this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
                 @mftest_gauss_bkgd_bind, [100,50,5,20,0,prat,pbnd], [0,1,0,1,0,zeros(1,10)]);
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind4_ref, wstruct1_fbind4_ref, w1_fbind4_ref, p1_fbind4_ref);
+            this=save_or_test_variables(this,y1_fbind4_ref, wstruct1_fbind4_ref, w1_fbind4_ref, p1_fbind4_ref);
             
             [y1_fbind4, wstruct1_fbind4, w1_fbind4, p1_fbind4] = mftest_mf_and_f_single_dataset (...
                 this.sd.x1,this.sd.y1,this.sd.e1,this.sd.wstruct1,this.sd.w1,...
@@ -188,7 +188,7 @@ classdef test_multifit_1< TestCaseWithSave
             end
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,y1_fbind4, wstruct1_fbind4, w1_fbind4, p1_fbind4);
+            this=save_or_test_variables(this,y1_fbind4, wstruct1_fbind4, w1_fbind4, p1_fbind4);
             
             
         end
@@ -201,29 +201,29 @@ classdef test_multifit_1< TestCaseWithSave
             [ww_fobjarr_f,pp_fobjarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_objarr, @mftest_gauss_bkgd, this.pin);
             if ~ok, assertTrue(false,['Unexpected failure ',mess]), end
             % Test against saved or store to save later
-            this=test_or_save_variables(this,ww_fobjarr_f,pp_fobjarr);
+            this=save_or_test_variables(this,ww_fobjarr_f,pp_fobjarr);
             
             
             ww_objcellarr={this.sd.w1,this.sd.w2,this.sd.w3};
             [ww_fobjcellarr_f,pp_fobjcellarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_objcellarr, @mftest_gauss_bkgd, this.pin);
             if ~ok, assertTrue(false,['Unexpected failure ',mess]), end
             % Test against saved or store to save later
-            this.old.ww_fobjcellarr_f = cellfun(@IX_dataset_1d,this.old.ww_fobjcellarr_f,'UniformOutput',false);
-            this=test_or_save_variables(this,ww_fobjcellarr_f,pp_fobjcellarr);
+            this.ref_data.ww_fobjcellarr_f = cellfun(@IX_dataset_1d,this.ref_data.ww_fobjcellarr_f,'UniformOutput',false);
+            this=save_or_test_variables(this,ww_fobjcellarr_f,pp_fobjcellarr);
             
             
             ww_structarr=[this.sd.wstruct1,this.sd.wstruct2,this.sd.wstruct3];
             [ww_fstructarr_f,pp_fstructarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_structarr, @mftest_gauss_bkgd, this.pin);
             if ~ok, assertTrue(false,['Unexpected failure ',mess]), end
             % Test against saved or store to save later
-            this=test_or_save_variables(this,ww_fstructarr_f,pp_fstructarr);
+            this=save_or_test_variables(this,ww_fstructarr_f,pp_fstructarr);
             
             
             ww_cellarr={this.sd.wstruct1,this.sd.w2,this.sd.wstruct3};
             [ww_fcellarr_f,pp_fcellarr,ok,mess] = mftest_mf_and_f_multiple_datasets(ww_cellarr, @mftest_gauss_bkgd, this.pin);
             if ok, assertTrue(false,['Should have failed, but did not',mess]), end
             % Test against saved or store to save later
-            this=test_or_save_variables(this,ww_fcellarr_f,pp_fcellarr);
+            this=save_or_test_variables(this,ww_fcellarr_f,pp_fcellarr);
             
         end
         

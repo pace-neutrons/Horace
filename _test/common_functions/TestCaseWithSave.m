@@ -1,34 +1,111 @@
 classdef TestCaseWithSave < TestCase
-    %UNTITLED Summary of this class goes here
-    %   Detailed explanation goes here
-    
+    % The class to run range of tests, united by common constructor
+    % and set up by the same setUp and tearDown methods.
+    % User needs to overload this class and add its own test cases, using
+    % save_or_test_variables method.
+    %
+    % In additional to the standard TestCase, the class provides additional
+    % functionality saving test results for later usage or loading previous
+    % test results and comparing them agains current test data.
+    %
+    % Usage of TestCaseWithSave child:
+    %1)
+    %>>runtests  TestCaseWithSave_child -- runs all unit tests stored in
+    %                                     TestCaseWithSave_child and
+    %                                     verifies their results against
+    %                                     stored variables values.
+    %2)
+    %>>tc = TestCaseWithSave_child('save');
+    %>>tc.save();
+    % The sequence above runs the tests but instead of comparing the
+    % results against stored variables stores the variables specified
+    % as inputs of save_or_test_variables method for later comparison
+    % as in case 1)
+    %
+    % To achieve this functionality, user who overloads TestCaseWithSave
+    % by writing his own test cases (methods, with names starting with test_)
+    % should verify a test method results using the following methods:
+    %TestCaseWithSave Methods:
+    %
+    % save_or_test_variables - depending on mode of work verifies list of
+    % variables provided as input against its saved counterparts or save
+    % these variables if requested.
+    %
+    %Auxiliary methods to use in TestCaseWithSave's child constructor:
+    %add_to_files_cleanList - the files added using this function will
+    %                         be deleded on the test class destruction.
+    %add_to_path_cleanList  - the path added using this funciton will be
+    %                         removed from Matlab searh parh on the test
+    %                         class destruction.
+    %
+    %Note:
+    % The files and pathes added to clear list are deleted on the class
+    % destructor execution. If you changed the class and want to issue
+    % the class constructor againm, clear the previous class instance first
+    % using Matlab clear variable command.
+    % The destructor of the old class instance is invoked in random moment
+    % of time which means that old files may be deleted after new files
+    % were generated.
+    %
+    %
+    % $Revision$ ($Date$)
+    %
     properties
-        old=[];  % old dataset one comares against
-        tol = 1.e-8; % accuracy of the test
-        
+        % list of the reference (restored) datasets one comapres against
+        % or the datasets one intends to save.
+        ref_data=struct();
+        % default accuracy of the save_or_test_variables method
+        tol = 1.e-8;
+        % where to store/restore test results. By default (if this value is empty),
+        % the results are restored from the test folder
+        % and stored to tmp folder.
         results_path ='';
+        % the name of the file to store/restore sample test result
         results_filename='results_to_compare_with.mat';
+        %
+        % true if we want to save test results and true if save them as example
+        % to test against it later.
+        want_to_save_output=false;
         
-        want_to_save_output=false; % if we want test results or save them as example to test against it later.
-        datasets_to_save;          % cellarray of the datasets prepared for saving.
-        % addotopma; parameters for equal_to_tol function
+        % default parameters for equal_to_tol function used by
+        % save_or_test_variables method. See equal_to_tol function for
+        % other methods.
         comparison_par={'min_denominator', 0.01};
+        %--- Auxiliary properties.
+        % list of files to delete after test case is completed.
         filelist_toclear={};
+        % list of path to remove from Matlab data search path at test class
+        % destruction.
         path_toclear={};
         % the string printed in the case of errors in
-        % test_or_save_variables intended to provide additional information
-        % about the error (usually set in front of test_or_save_variables)
+        % save_or_test_variables intended to provide additional information
+        % about the error (usually set in front of save_or_test_variables)
         errmessage_prefix = ''
-        % the classes which are currently changing so should be stored
-        % differently -- some fields or class definition may change.
-        transient_classes={'sqw','dnd','data_sqw_dnd','d1d','d2d','d3d','d4d'};
-        convert_class_funs;
+        % HACK -- see the sort_pixels method description.
+        %
+        % if enabled, pixel in workspaces are first sorted before
+        % comparing two workspaces together.
+        sort_pixels = false;
     end
     
     methods
         function this=TestCaseWithSave(varargin)
-            % constructor
-            
+            % constructor. Overload it with your own test_ methods.
+            % Usage:
+            % tc = TestCaseWithSave_child({['-save'],'a [name']},[name_of_sr_file])
+            %where
+            % first parameter: -save or random name.
+            % if random name, the testCaseWithSave_child would have this
+            %                 name (used as helper in error messages)
+            % if -save       : use this option to save test results into
+            %                  test file name using save class method.
+            % Second parameter (optional):
+            % name_of_sr_file - name of the file to store or restore test
+            %                   results. Sets up the property
+            %                   results_filename and if not provided, the
+            %                   default value of this property will be
+            %                   used.
+            %
             if nargin > 0
                 name = varargin{1};
             else
@@ -42,94 +119,19 @@ classdef TestCaseWithSave < TestCase
                 this.results_path=fileparts(mfilename('fullpath'));
                 inputFile = fullfile(this.results_path,this.results_filename);
             end
-            if strcmpi(name,'save')
+            if strcmpi(name,'-save')
                 this.want_to_save_output=true;
             else
                 this.want_to_save_output=false;
             end
             
-            %----------------------------------------------------------
-            % TRANSIENT OPERATION! necessary (and valid) until data
-            % class changes are not completed
-            %this.convert_class_funs{1} = @(x)(convert_old_sqw_to_new_sqw(this,x));
-            %this.convert_class_funs{2} = @(x)(convert_old_dnd_to_new_dnd(this,x));
-            %this.convert_class_funs{3} = @(x)(convert_old_data_sqw_dnd(this,x));
-            %this.convert_class_funs{4} = @(x)(convert_old_d1d(this,x));
-            %this.convert_class_funs{5} = @(x)(convert_old_d2d(this,x));
-            %this.convert_class_funs{6} = @(x)(convert_old_d3d(this,x));
-            %this.convert_class_funs{7} = @(x)(convert_old_d4d(this,x));
-            this.convert_class_funs = cell(7,1);
-            this.convert_class_funs(:)={@(x)(dummy_converter(this,x))};
             
             
             % load old data if necessary
             if not(this.want_to_save_output) && exist(inputFile,'file')
-                this.old=load(inputFile);
+                this.ref_data=load(inputFile);
             end
-            this.datasets_to_save=struct();
             
-        end
-        %------------------------------------------------------------------
-        function new_sqw = dummy_converter(this,old_sqw)
-            new_sqw = old_sqw;
-        end
-        function new_sqw=convert_old_sqw_to_new_sqw(this,old_sqw)
-            old_data = struct(old_sqw.data);
-            
-            if isfield(old_data,'axis_caption_fun')
-                old_data= rmfield(old_data,'axis_caption_fun');
-            end
-            new_data = data_sqw_dnd(old_data);
-            old_sqw.data = new_data;
-            new_sqw = old_sqw;
-        end
-        function new_dnd=convert_old_dnd_to_new_dnd(this,old_dnd)
-            old_data = struct(old_dnd);
-            
-            if isfield(old_data,'axis_caption_fun')
-                old_data= rmfield(old_data,'axis_caption_fun');
-            end
-            new_dnd = dnd(old_data);
-        end
-        function new_data=convert_old_data_sqw_dnd(this,old_data_cl)
-            old_data = struct(old_data_cl);
-            
-            if isfield(old_data,'axis_caption_fun')
-                old_data= rmfield(old_data,'axis_caption_fun');
-            end
-            new_data = data_sqw_dnd(old_data);
-        end
-        function new_dnd=convert_old_d1d(this,old_d1d)
-            old_data = struct(old_d1d);
-            
-            if isfield(old_data,'axis_caption_fun')
-                old_data= rmfield(old_data,'axis_caption_fun');
-            end
-            new_dnd = d1d(old_data);
-        end
-        function new_dnd=convert_old_d2d(this,old_d2d)
-            old_data = struct(old_d2d);
-            
-            if isfield(old_data,'axis_caption_fun')
-                old_data= rmfield(old_data,'axis_caption_fun');
-            end
-            new_dnd = d2d(old_data);
-        end
-        function new_dnd=convert_old_d3d(this,old_d3d)
-            old_data = struct(old_d3d);
-            
-            if isfield(old_data,'axis_caption_fun')
-                old_data= rmfield(old_data,'axis_caption_fun');
-            end
-            new_dnd = d3d(old_data);
-        end
-        function new_dnd=convert_old_d4d(this,old_d4d)
-            old_data = struct(old_d4d);
-            
-            if isfield(old_data,'axis_caption_fun')
-                old_data= rmfield(old_data,'axis_caption_fun');
-            end
-            new_dnd = d4d(old_data);
         end
         
         
@@ -160,12 +162,166 @@ classdef TestCaseWithSave < TestCase
             this.path_toclear= add_data_to_list(this.path_toclear,varargin{:});
         end
         %------------------------------------------------------------------
-        function this=test_or_save_variables(this,varargin)
+        function this=save_or_test_variables(this,varargin)
             % method to test input variable in vararging agains saved
-            % values or save these variables to the structure to save it
+            % values or store these variables to the structure to save it
             % later (or deal with them any other way)
-            keys = {'ignore_str','nan_equal','min_denominator','tol','convert_old_classes'};
-            [keyval,ws_list] = extract_keyvalues(varargin,keys);
+            % Usage:
+            %1)
+            %>>tc = TestCaseWithSave_child(test_name,[reference_dataset_name])
+            %>>tc.save_or_test_variables(a,b,c,['key1',value1,'key2',value2]);
+            % First row loads reference variables 'a','b','c' from
+            % the file with the name defined in reference_dataset_name. If
+            % no name is provided, default class property value is used.
+            % Second row compares these variables agains their local values
+            % stored in a,b,c variables.
+            %
+            % key-value arguments are the arguments, used by equal_to_tol
+            % function. If no arguments are specified, default values are
+            % constructed from the class properties.
+            %
+            % Acceptable keys currently are:
+            % 'ignore_str','nan_equal','min_denominator','tol'
+            %
+            %2)
+            %>>tc = TestCaseWithSave_child('-save')
+            %>>tc.save_or_test_variables(a,b,c);
+            % Saves the variables 'a','b','c' in the reference dataset to
+            % compare against this dataset later (as in case 1)
+            %
+            % Any keys provided as input in this case stored into the
+            % reference file as variables.
+            %
+            % get the names of the workspaces to test
+            %
+            keys = {'ignore_str','nan_equal','min_denominator','tol'};
+            % process input arguments, extract workspaces and set up
+            % default class values for arguments which are not provided
+            [keyval,ws_list,toll] = process_inputs_(this,keys,varargin{:});
+            
+            
+            % get the name of the calling method:
+            call_struct = dbstack(1);
+            cont=regexp(call_struct(1).name,'\.','split');
+            if numel(cont) > 1
+                test_name = cont{end};
+            else
+                test_name = cont{1};
+            end
+            if isempty(test_name)
+                test_name  = 'interactive';
+            end
+            % get the names of the workspaces to test
+            % assign default names to workspaces, which are the part of
+            % array or do not have a name for other reason
+            ws_names = cell(numel(ws_list),1);
+            for i = 1:numel(ws_list)
+                ws_names{i} = inputname(i+1);
+                if isempty(ws_names{i})
+                    ws_names{i} = [test_name,'_ws_N_',num2str(i)];
+                end
+            end
+            
+            
+            % process test results and either compare it against restored
+            % earlier variables or set up for saving them later.
+            for i=1:numel(ws_list)
+                if not(this.want_to_save_output)
+                    ref_dataset = this.get_ref_dataset_(ws_names{i},test_name);
+                    % HACK -- see sort method description
+                    if this.sort_pixels
+                        [ws_sort,ref_ws_sort] = TestCaseWithSave.sort_ws_pixels(ws_list{i},ref_dataset);
+                        [ok,mess]=equal_to_tol(ws_sort, ref_ws_sort,toll,keyval{:});
+                    else
+                        [ok,mess]=equal_to_tol(ws_list{i}, ref_dataset,toll,keyval{:});
+                    end
+                    
+                    assertTrue(ok,[this.errmessage_prefix,': [',inputname(i+1),'] :',mess])
+                else
+                    this = this.set_ref_dataset_(ws_list{i},ws_names{i},test_name);
+                end
+            end
+        end
+        %------------------------------------------------------------------
+        function save(this)
+            % Method to save output of the test files to the file to test
+            % against it later.
+            %
+            % the file to save is defined by class property value results_filename
+            % and the datasets should be defined using save_or_test_variables
+            % method
+            %
+            hc = herbert_config;
+            if hc.log_level>-1
+                disp('===========================')
+                disp('    Save output')
+                disp('===========================')
+            end
+            meth=methods(this);
+            ometha = metaclass(this);
+            class_name = ometha.Name;
+            % select the methods which are the tests among all test methods
+            istests = cellfun(@(x)( ~isempty(regexp(x,'^test_','once')) && ~strcmpi(x,class_name)),meth);
+            test_methods=meth(istests);
+            % indicate that you want to store results of the test rather
+            % then testing them against results, saved earlier.
+            % Check for that is in save_or_test_variables
+            this.want_to_save_output=true;
+            %
+            % clear reference data from possibly loaded previous datasets
+            this.ref_data = struct();
+            % run test methods using save_or_test_variables store data
+            % instead of comparing them with reference datasets
+            for i=1:numel(test_methods)
+                fh=@(x)this.(test_methods{i});
+                this.setUp();
+                fh(this);
+                this.tearDown();
+            end
+            
+            % save results
+            if isempty(this.results_path)
+                output_file=fullfile(tempdir(),this.results_filename);
+            else
+                output_file=fullfile(this.results_path,this.results_filename);
+            end
+            %
+            dsts=this.ref_data;
+            save(output_file,'-struct','dsts')
+            
+            if hc.log_level>-1
+                disp(' ')
+                disp(['Output saved to ',output_file])
+                disp(' ')
+            end
+        end
+        
+    end
+    %
+    methods(Static)
+        function [ws,ref_ws] = sort_ws_pixels(ws,ref_ws)
+            %HACK: -- the method assume the knowlege about pixels
+            %         in Herber which violates OOP. Proper solution would
+            %         be proper equal_to_tol implementation.
+            %
+            % sort workspace pixels to be sure they are generally the same
+            % ignoring binning error and randon pixels positioning achieved
+            % by multithreaded application.
+            %
+            try
+                ref_ws.data.pix = sortrows(ref_ws.data.pix')';
+                ws.data.pix = sortrows(ws.data.pix')';
+            catch
+            end
+        end
+    end
+    %
+    methods(Access=private)
+        function [keyval,ws_list,toll]=process_inputs_(this,keys_array,varargin)
+            % provess input arguments, separate control keys from workspaces
+            % and set up default values for keys, which are not present
+            %
+            [keyval,ws_list] = extract_keyvalues(varargin,keys_array);
             if numel(ws_list) == 0
                 return;
             end
@@ -193,108 +349,62 @@ classdef TestCaseWithSave < TestCase
                     keyval = this.comparison_par;
                 end
             end
-            % check if old class conversion is requested
-            tmp_str = cellfun(@(x)(num2str(x)),keyval,'UniformOutput',false);
-            convert_old_class_place  = ismember(tmp_str,'convert_old_classes');
-            if any(convert_old_class_place)
-                iconv = find(convert_old_class_place);
-                convert_old=tmp_str{iconv+1};
-                convert_old_class_place(iconv+1) = true;
-                keyval = keyval(~convert_old_class_place);
-                
-            else
-                convert_old=false;
-            end
             
+        end
+        function ref_ds = get_ref_dataset_(this,ref_name,test_name)
+            % retrieve reference dataset  corresponding to the source_ds workspace
+            %
+            % throws, if correspondent dataset can not be found
+            %
+            %Inputs:
+            % ref_name -- the name of dataset to retrieve
+            % test_name -- the name of the test this dataset belongs to
+            %
+            % if dataset is not find in the structure with the test_name
+            % it is looked for on top level structure (old Horace
+            % TestCaseWithSave.save_or_test_variables function format.)
             
-            
-            for i=1:numel(ws_list)
-                if not(this.want_to_save_output)
-                    ref_data = this.old.(inputname(i+1));
-                    if convert_old
-                        class_name = class(ws_list{i});
-                        class_to_convert_found = ismember(this.transient_classes,class_name);
-                        if any(class_to_convert_found)
-                            convertor = this.convert_class_funs{class_to_convert_found};
-                            ref_data = convertor(ref_data);
-                        end
-                        %try
-                        %    detpar = ws_list{i}.detpar;
-                        %    ref_data.detpar.width = detpar.width;
-                        %    ref_data.detpar.height = detpar.height;
-                        %catch
-                        %end
-                        
+            % check old format where workspaces are stored according to their names
+            if isfield(this.ref_data,ref_name) % old format:
+                ref_ds = this.ref_data.(ref_name);
+            else % check the new format where dataset stored according to tests
+                if isfield(this.ref_data,test_name)
+                    ws_struct = this.ref_data.is_name;
+                    if isfield(ws_struct,ref_name)
+                        ref_ds = ws_struct.(ref_name);
+                    else
+                        error('TestCaseWithSave:invalid_argument',...
+                            'reference workspace %s does not exist in reference structure %s',...
+                            ref_name,test_name);
                     end
-                    % always compare sorted pixels, as pix averages over
-                    % cells contribute to signal and error, and pixels
-                    % itself may be ordered differently within the cells
-                    try
-                        ref_pix = ref_data.data.pix;
-                        ref_data.data.pix = sortrows(ref_data.data.pix')';
-                        pix_mem = ws_list{i}.data.pix;
-                        ws_list{i}.data.pix = sortrows(ws_list{i}.data.pix')';
-                        pixels_transformed  = true;
-                    catch
-                        pixels_transformed = false;
-                    end
-                    [ok,mess]=equal_to_tol(ws_list{i}, ref_data,toll,keyval{:});
-                    if pixels_transformed
-                        ws_list{i}.data.pix = pix_mem;
-                        ref_data.data.pix = ref_pix;
-                    end
-                    
-                    assertTrue(ok,[this.errmessage_prefix,': [',inputname(i+1),'] :',mess])
                 else
-                    this.datasets_to_save.(inputname(i+1))=ws_list{i};
+                    error('TestCaseWithSave:invalid_argument',...
+                        'reference workspace %s for test with name %s does not exist',...
+                        ref_name,test_name);
                 end
             end
         end
-        %------------------------------------------------------------------
-        function save(this)
-            % save fitting output to the file to test against it later
-            if get(herbert_config,'log_level')>-1
-                disp('===========================')
-                disp('    Save output')
-                disp('===========================')
-            end
-            meth=methods(this);
-            ometha = metaclass(this);
-            class_name =ometha.Name;
-            % select the methods which are the tests among all test methods
-            istests = cellfun(@(x)( ~isempty(regexp(x,'^test_','once')) && ~strcmpi(x,class_name)),meth);
-            test_methods=meth(istests);
-            % indicate that you want to store results of the test rather
-            % then testing them agains results, saved earlier.
-            % Check for that is in test_or_save_variables
-            this.want_to_save_output=true;
-            % run test methods
-            for i=1:numel(test_methods)
-                fh=@(x)this.(test_methods{i});
-                fh(this);
-            end
-            
-            % save results
-            output_file=fullfile(tempdir(),this.results_filename);
-            dsts=this.datasets_to_save;
-            names = fieldnames(dsts);
-            save(output_file,'-struct','dsts',names{:})
-            
-            if get(herbert_config,'log_level')>-1
-                disp(' ')
-                disp(['Output saved to ',output_file])
-                disp(' ')
+        function this = set_ref_dataset_(this,ref_ds,ref_ds_name,test_name)
+            % store reference dataset in datasets memory for saving it on
+            % hdd later
+            %
+            % Inputs:
+            % ref_ds        -- dataset to store
+            % ref_ds_name   -- the name it should be stored with
+            % test_name     -- the name of the test, this dataset belongs
+            %                  to.
+            if isfield(this.ref_data,test_name) % the structure for the ref_ds already exist
+                ref_str = this.ref_data.(test_name);
+                ref_str.(ref_ds_name) = ref_ds;
+                this.ref_data.(test_name) = ref_str;
+            else
+                % create the structure with the name of the test to
+                % validate
+                ref_dat = struct();
+                ref_dat.(ref_ds_name) = ref_ds;
+                this.ref_data.(test_name) = ref_dat;
             end
         end
-        %------------------------------------------------------------------
-        %         function this=subsasgn(this,S,B)
-        %             % old matlabs do not understand private field.
-        %             if any(ismember(S.subs,'results_filename'))
-        %                 error('TestCaseWithSave:privare_field','Can not change results_filename');
-        %             end
-        %             builtin('subassign',this,S,B);
-        %         end
     end
-    
 end
 

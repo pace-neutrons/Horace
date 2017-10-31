@@ -50,7 +50,8 @@
 classdef TestSuite < TestComponent
     
     properties (SetAccess = protected)
-        TestComponents = {};
+        TestCaseClasses = containers.Map();
+        TestComponents  = {};
     end
     
     methods
@@ -65,6 +66,7 @@ classdef TestSuite < TestComponent
                 self = TestSuite.fromName(name);
             end
         end
+        
         
         function did_pass_out = run(self, monitor)
             %run Execute test cases in test suite
@@ -101,7 +103,11 @@ classdef TestSuite < TestComponent
             num = 0;
             for k = 1:numel(self.TestComponents)
                 component_k = self.TestComponents{k};
-                num = num + component_k.numTestCases();
+                if ishandle(component_k)
+                    num = num + 1;
+                else
+                    num = num + component_k.numTestCases();
+                end
             end
         end
         
@@ -168,6 +174,7 @@ classdef TestSuite < TestComponent
             suite = TestSuite;
             suite.Name = class_name;
             suite.Location = which(class_name);
+            suite.TestCaseClasses(class_name) = feval(class_name,class_name);
             
             methods = getClassMethods(class_name);
             for k = 1:numel(methods)
@@ -177,7 +184,14 @@ classdef TestSuite < TestComponent
                 
                 method_name = methods{k}.Name;
                 if xunit.utils.isTestString(method_name)
-                    suite.add(feval(class_name, method_name));
+                    tc_str = sprintf('@(x)%s(x)',method_name);
+                    tc_fh  = str2func(tc_str);
+                    tc = FunctionHandleTestCase(@()tc_fh(suite.TestCaseClasses(class_name)),...
+                        @()setUp(suite.TestCaseClasses(class_name)),...
+                        @()tearDown(suite.TestCaseClasses(class_name)));
+                    tc.Name =[class_name,'::', method_name];
+                    
+                    suite.add(tc);
                 end
             end
             
@@ -262,7 +276,7 @@ classdef TestSuite < TestComponent
             
             mfiles = dir(fullfile('.', '*.m'));
             for k = 1:numel(mfiles)
-                [path, name] = fileparts(mfiles(k).name);
+                [~, name] = fileparts(mfiles(k).name);
                 if xunit.utils.isTestCaseSubclass(name)
                     test_suite.add(TestSuite.fromTestCaseClassName(name));
                 elseif xunit.utils.isTestString(name)

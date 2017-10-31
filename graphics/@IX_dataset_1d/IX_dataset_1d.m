@@ -1,8 +1,8 @@
 classdef IX_dataset_1d < IX_data_1d
     % Class adds operations with graphics to main operations with 1-d data
     %
-    % See IX_data_1d for main properties and constructors, used to operate 
-    % with 1d data        
+    % See IX_data_1d for main properties and constructors, used to operate
+    % with 1d data
     %
     % Common way to create IX_dataset_1d object:
     %
@@ -28,8 +28,9 @@ classdef IX_dataset_1d < IX_data_1d
     %                   (or char/cellstr    Can also just give caption; multiline input in the form of a
     %                                      cell array or a character array)
     %   x_distribution  logical         Distribution data flag (true is a distribution; false otherwise)
-    
-    
+    %
+    % $Revision$ ($Date$)
+    %        
     methods(Static)
         function obj = loadobj(data)
             % function to support loading of outdated versions of the class
