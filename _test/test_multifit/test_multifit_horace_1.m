@@ -69,7 +69,7 @@ classdef test_multifit_horace_1< TestCaseWithSave
             [wfit_1,fitpar_1]=multifit_sqw_sqw(this.win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
                 @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}});
             % Test against saved or store to save later
-            this=test_or_save_variables(this,wsim_1,wfit_1,fitpar_1);
+            this=save_or_test_variables(this,wsim_1,wfit_1,fitpar_1);
             % acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
             % dp(this.win)     % Draw Points
             % pl(wfit_1)  % Plot Line
@@ -86,7 +86,7 @@ classdef test_multifit_horace_1< TestCaseWithSave
             [wfit_2,fitpar_2]=multifit_sqw_sqw(this.win, @sqw_bcc_hfm, [5,5,0,10,0], [1,1,0,0,0],...
                 @sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]}, [1,1,1,1,1], {{{1,1,0},{2,2,0}}}, 'ave' );
             % Test against saved or store to save later
-            this=test_or_save_variables(this,wsim_2,wfit_2,fitpar_2);
+            this=save_or_test_variables(this,wsim_2,wfit_2,fitpar_2);
             % acolor b r  % Set colours to blue followed by red; repeats this in succession if more than two objects in an array
             % dp(this.win)     % Draw Points
             % pl(wfit_2)  % Plot Line
@@ -106,7 +106,7 @@ classdef test_multifit_horace_1< TestCaseWithSave
             assertTrue(equal_to_tol([fitpar_single1,fitpar_single2],fitpar_single12),'fit_sqw fitting not working')
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,wfit_single1,wfit_single2,wfit_single12);
+            this=save_or_test_variables(this,wfit_single1,wfit_single2,wfit_single12);
             
         end
         function this=test_fit_single_or_array2(this)
@@ -126,7 +126,7 @@ classdef test_multifit_horace_1< TestCaseWithSave
             
             tol = this.tol;
             this.tol = -1;           
-            this=test_or_save_variables(this,fitpar_single1,fitpar_single2,fitpar_single12);
+            this=save_or_test_variables(this,fitpar_single1,fitpar_single2,fitpar_single12);
             this.tol=tol;
             %
             
@@ -141,7 +141,7 @@ classdef test_multifit_horace_1< TestCaseWithSave
             assertTrue(equal_to_tol([tmp1,tmp2],wfit_sqw_sqw,-1e-8),'fit_sqw_sqw not working')
             
             % Test against saved or store to save later
-            this=test_or_save_variables(this,wfit_sqw_sqw,fitpar_sqw_sqw);
+            this=save_or_test_variables(this,wfit_sqw_sqw,fitpar_sqw_sqw);
             
         end
     end

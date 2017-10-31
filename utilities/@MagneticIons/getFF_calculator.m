@@ -12,12 +12,12 @@ function  fint = getFF_calculator(self,win)
 %  or    3x3 Busing & Levy 's B-matrix (Acta Crystallographica, 1967(4) pp.457-464)
 %        used to convert from crystal Cartesian to hkl coordinate system
 % Returns:
-% function handle to to use as input to sqw_eval function
+% fint -- function handle to use as input to sqw_eval function:
 %>> wout = sqw_eval(win,fint,[]);
-%
 % or directly in the form:
 %>>ff = fint(h,k,l,en,[]);
-% where ff then will be the vector of the h (k,l) length containing magnetic
+%
+% where ff then is the vector of the h (k,l) length containing magnetic
 % form factor calculated in h,k,l points.
 %
 % Alternatively, magnetic form factor can be calculated in a form:

@@ -34,7 +34,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             
             
             spe_dir = fileparts(mfilename('fullpath'));
-            this.spe_file=fullfile(spe_dir,'test_gen_sqw.nxspe');
+            this.spe_file=fullfile(spe_dir,'test_gen_sqw_for_powder.nxspe');
             
             this.efix=100;
             emode=1;
@@ -58,7 +58,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
                 
             end
             
-            %this=add_to_files_cleanList(this,this.spe_file);
+            %add_to_files_cleanList(this,this.spe_file);
             add_to_path_cleanList(this,test_functions_path);
         end
         
@@ -83,8 +83,8 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             
             % dd(w1)
             %--------------------------------------------------------------------------------------------------
-            this=test_or_save_variables(this,w2,w1,'tol',-1.e-5,...
-                'ignore_str',1,'convert_old_classes',true);
+            this=save_or_test_variables(this,w2,w1,'tol',-1.e-5,...
+                'ignore_str',1);
             
             
             

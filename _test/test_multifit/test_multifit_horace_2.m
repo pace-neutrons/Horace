@@ -71,7 +71,7 @@ classdef test_multifit_horace_2< TestCaseWithSave
             assertTrue(equal_to_tol(p1, p1_alt, tol, 'min_denominator', 0.01),'local background and local foreground equivalent fitting give different answers');
             assertTrue(equal_to_tol(p1sig, p1sig_alt, tol, 'min_denominator', 0.01),'local background and local foreground equivalent fitting give different answers')
             % Test against saved or store to save later
-            this=test_or_save_variables(this,wfit_1,wfit_1,wfit_1_locfore,fitpar_1_locfore);           
+            this=save_or_test_variables(this,wfit_1,wfit_1,wfit_1_locfore,fitpar_1_locfore);           
 
         end        
         
