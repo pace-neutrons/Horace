@@ -82,11 +82,13 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             for i=1:1
                 spe_file_names{i}=fullfile(tempdir,['test_gen_sqw_threading_1th',num2str(i),'.nxspe']);
             end
+            % build special test files if they have not been build
+            this=build_test_files(this,true,spe_file_names);
             
             
             sqw_file_123_t8=fullfile(tempdir,'sqw_123_mex8_threading.sqw');             % output sqw file
             sqw_file_123_t1=fullfile(tempdir,'sqw_123_mex1_threading.sqw');        % output sqw file
-            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_123_t8,sqw_file_123_t1));
+            cleanup_obj1=onCleanup(@()rm_files(this,sqw_file_123_t8,sqw_file_123_t1,spe_file_names{:}));
             % ---------------------------------------
             % Test gen_sqw
             % ---------------------------------------
@@ -99,8 +101,6 @@ classdef test_gen_sqw_accumulate_sqw_nomex < test_gen_sqw_accumulate_sqw_mex
             
             
             
-            % build test files if they have not been build
-            %this=build_test_files(this,true,spe1_file_names);
             hc.threads = 1;
             gen_sqw (spe_file_names, '', sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %
