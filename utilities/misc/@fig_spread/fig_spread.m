@@ -196,18 +196,21 @@ classdef fig_spread
         function self=close_all(self)
             % closes and deletes all figures, referred by the class
             valid  = get_valid_ind(self);
-            close(self.fig_list_{valid});
+            if any(valid)
+                close(self.fig_list_{valid});
+            end
             
             self.fig_count_=0;
             self.fig_list_={};
         end
+        %
         function obj = grab_all(obj,varargin)
             % retrieve all existing (plotted) figures under the class
             % control for further operations (e.g. resizing, replotting)
             obj = grab_all_(obj,varargin{:});
             obj = obj.replot_figs();
         end
-        
+        %
         function self=hide_n_fig(self,varargin)
             % hide speficied number of visible figures.
             %

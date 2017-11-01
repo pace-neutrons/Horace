@@ -40,6 +40,7 @@ self.fig_list_{self.fig_count}=fig_handle;
 [ix,iy,~] = self.calc_fig_pos(self.fig_count_,ps(3),ps(4));
 
 set(fig_handle, 'Position', [ix iy, ps(3),ps(4)])
+keep_figure(fig_handle);
 if rise_fig
     rize_figure_(fig_handle);
 end
