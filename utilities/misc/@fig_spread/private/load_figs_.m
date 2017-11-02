@@ -11,11 +11,17 @@ if ~(exist(filename,'file')==2)
 end
 
 figs = openfig(filename);
+if size(figs,1)==1
+    figs = figs';
+end
 nfigs = numel(figs);
 n_tot_figs = self.fig_count_+nfigs;
 % cell2num does not work for cellarray of fig handles
 fig_there = cellfun(@(x)(x), self.fig_list_);
-fig_list = [fig_there;figs'];
+if size(fig_there,1)==1
+    fig_there = fig_there';
+end
+fig_list = [fig_there;figs];
 % exclude figures with the same handles
 [~,ind]  = sort(fig_list);
 fig_list = fig_list(ind);

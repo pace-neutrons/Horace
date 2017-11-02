@@ -72,6 +72,15 @@ classdef test_fig_spread < TestCase
 
             fs.overlap_borders = true;            
             fs = fs.replot_figs();
+            
+            tf = fullfile(tempdir(),'test_fig_spread_GrabAll.fig');
+            clob = onCleanup(@()delete(tf));
+            
+            fs.save_figs(tf);
+            assertTrue(exist(tf,'file')==2);
+            
+            fs = fs.load_figs(tf);
+            assertEqual(fs.fig_count,8);            
         end
         %
         function test_fig_pos(obj)
