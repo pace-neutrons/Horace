@@ -192,6 +192,16 @@ classdef fig_spread
             %
             self = replot_figs_(self,varargin{:});
         end
+        function save_figs(self,filename)
+            % save all controlled valid figures into Maltab figures file.
+            save_figs_(self,filename);
+        end
+        function self = load_figs(self,filename)
+            % load previously saved figs to memory, add then to 
+            % fig controlled list and replot all
+            self = load_figs_(self,filename);
+        end
+        
         %
         function self=close_all(self)
             % closes and deletes all figures, referred by the class
