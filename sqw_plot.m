@@ -55,6 +55,9 @@ function varargout=sqw_plot(varargin)
 %
 %   'ndiv'   	Number of points into which to divide the interval between two r.l.p. (default=100)
 %
+%   'grid'      Draw vertical lines at the positions of rlp to demarcate the
+%               different directions on the plot
+%
 %   'noplot'    Do not plot, just return the output IX_dataset_2d (see below)
 %
 %
@@ -65,8 +68,8 @@ function varargout=sqw_plot(varargin)
 % T.G.Perring, 1 October 2009
 
 % Set defaults:
-arglist = struct('plot',1,'labels','','ndiv',100);
-flags = {'plot'};
+arglist = struct('plot',1,'labels','','ndiv',100,'grid',0);
+flags = {'plot','grid'};
 
 % Parse the arguments:
 % --------------------
@@ -154,6 +157,17 @@ tmp=IX_dataset_2d ('Spectral weight', weight, zeros(size(weight)),...
 if opt.plot
     da(tmp)
     plot_labels(labels,xrlp);   % do this in case of older Herbert or Libisis
+    if opt.grid && numel(xrlp)>2
+        % Plot vertical lines at the rlp except at edges of the plot
+        set(gca,'TickDir','out')
+        set(gca,'TickLength',[0.002,0.025])
+        vert_lines = repmat(IX_dataset_1d, [numel(xrlp)-2,1]);
+        [ylo,yhi] = ly;
+        for i=2:numel(xrlp)-1
+            vert_lines(i) = IX_dataset_1d([xrlp(i),xrlp(i)], [ylo,yhi]);
+            ploc(vert_lines)
+        end
+    end
 end
 
 if nargout>=1
