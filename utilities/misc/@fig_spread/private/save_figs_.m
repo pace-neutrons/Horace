@@ -7,7 +7,15 @@ if any(valid)
     % get array of fig handles
     all_fig =  cellfun(@(x)(x),all_fig_cel);
     %
-    savefig(all_fig,filename);
+    try
+        savefig(all_fig,filename);
+    catch
+        [fp,fn,~] = fileparts(filename);
+        for i=1:numel(all_fig)
+            filename = fullfile(fp,[fn,num2str(i)]);
+            saveas(all_fig(i),filename,'fig');
+        end
+    end
 else
     warning('FIG_SPREAD:invalid_argument',...
         'Nothing to do, no valid figures')

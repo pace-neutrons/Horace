@@ -64,23 +64,36 @@ classdef test_fig_spread < TestCase
             figs = obj.gen_fig(4);
             %
             fs = fs.place_fig(figs{1});
-            fs = fs.place_fig(figs{4});            
+            fs = fs.place_fig(figs{4});
             
             assertEqual(fs.fig_count,2);
             fs = fs.grab_all();
             assertEqual(fs.fig_count,4);
-
-            fs.overlap_borders = true;            
+            
+            fs.overlap_borders = true;
             fs = fs.replot_figs();
             
             tf = fullfile(tempdir(),'test_fig_spread_GrabAll.fig');
-            clob = onCleanup(@()delete(tf));
+            if verLessThan('matlab','8.1')
+                fb = fullfile(tempdir(),'test_fig_spread_GrabAll');
+                fn = {[fb,'1.fig'],[fb,'2.fig'],[fb,'3.fig'],[fb,'4.fig']};
+                clob = onCleanup(@()delete(fn{:}));
+            else
+                clob = onCleanup(@()delete(tf));
+            end
             
             fs.save_figs(tf);
-            assertTrue(exist(tf,'file')==2);
-            
-            fs = fs.load_figs(tf);
-            assertEqual(fs.fig_count,8);            
+            if verLessThan('matlab','8.1')
+                assertTrue(exist(fn{1},'file')==2);
+                assertTrue(exist(fn{2},'file')==2);
+                assertTrue(exist(fn{3},'file')==2);
+                assertTrue(exist(fn{4},'file')==2);
+            else
+                assertTrue(exist(tf,'file')==2);
+                
+                fs = fs.load_figs(tf);
+                assertEqual(fs.fig_count,8);
+            end
         end
         %
         function test_fig_pos(obj)
