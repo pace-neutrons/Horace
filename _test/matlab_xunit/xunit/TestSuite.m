@@ -159,11 +159,11 @@ classdef TestSuite < TestComponent
         end
        
         function delete(self)
-            if ~selt.TestCaseClasses.isempty()
-                keys = selt.TestCaseClasses.keys();
+            if ~self.TestCaseClasses.isempty()
+                keys = self.TestCaseClasses.keys();
                 for i=1:numel(keys)
                     try
-                        delete(selt.TestCaseClasses(keys{i}));
+                        delete(self.TestCaseClasses(keys{i}));
                     catch
                     end
                 end
