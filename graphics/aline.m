@@ -7,8 +7,8 @@ function varargout = aline(varargin)
 %   >> aline('-.')
 %	>> aline('-',10)
 %
-%   >> aline            % displays the current value(s)
-%   >> [lwidth,lstyle]=aline        % return the current value(s)
+%   >> aline                        % displays the current value(s)
+%   >> [lwidth, lstyle] = aline     % returns the current value(s)
 %
 % Arguments can set a sequence of type and/or size for cascade plots e.g.
 %   >> aline (1,2,':','-','-.')     % Linewidth repeats 1,2,1,2,...

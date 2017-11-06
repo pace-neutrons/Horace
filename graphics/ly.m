@@ -1,10 +1,15 @@
-function ly (varargin)
+function varargout = ly (varargin)
 % Change y limits current figure
 %
 % Replot with change of limits:
 %   >> ly (ylo, yhi)
 % or
 %   >> ly  ylo  yhi
+% or
+%   >> ly       % set y limits to include all data
+%
+% Return current limits (without changing range):
+%   >> [ylo, yhi] = ly
 %
 % Replot with several limits in sequence (hit <CR> to move to next in sequence)
 %   >> ly ([ylo1,yhi2],[ylo2,yhi2],...)
@@ -20,16 +25,23 @@ end
 
 % Get y range
 if nargin==0
-    % Get y axis limits in the current range of x:
-    [range, subrange] = graph_range(gcf,'evaluate');
-    
-    yrange=subrange.y;
-    if yrange(1)==yrange(2)
-        error('The upper and lower limits of the data are equal')
+    if nargout==0
+        % Get y axis limits in the current range of y:
+        [range, subrange] = graph_range(gcf,'evaluate');
+        
+        yrange=subrange.y;
+        if yrange(1)==yrange(2)
+            error('The upper and lower limits of the data are equal')
+        end
+        yrange={yrange};
+    else
+        % Return current y-axis limits
+        range = get(gca,'Ylim');
+        if nargout>=1, varargout{1} = range(1); end
+        if nargout>=2, varargout{2} = range(2); end
+        return
     end
     
-    yrange={yrange};
-
 elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnumeric(varargin{2})||numel(varargin{2})==1)
     % Read scalar ylo and yhi from either function syntax or command syntax
     ylo=varargin{1};
@@ -47,7 +59,7 @@ elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnume
     else
         error('Check input arguments');
     end
-
+    
     if isnumeric(yhi) && isscalar(yhi)
         yrange(2)=yhi;
     elseif ~isempty(yhi) && is_string(yhi)
@@ -59,7 +71,7 @@ elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnume
     else
         error('Check input arguments');
     end
-
+    
     if yrange(1)>=yrange(2)
         error('Check ylo < yhi')
     end
@@ -77,7 +89,7 @@ elseif nargin==1 && iscell(varargin{1})
         end
     end
     yrange=varargin{1};
-
+    
 else
     % One or more two element numeric vectors
     for i=1:nargin

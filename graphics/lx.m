@@ -1,10 +1,15 @@
-function lx (varargin)
+function varargout = lx (varargin)
 % Change x limits current figure
 %
 % Replot with change of limits:
 %   >> lx (xlo, xhi)
 % or
 %   >> lx  xlo  xhi
+% or
+%   >> lx       % set x limits to include all data
+%
+% Return current limits (without changing range):
+%   >> [xlo, xhi] = lx
 %
 % Replot with several limits in sequence (hit <CR> to move to next in sequence)
 %   >> lx ([xlo1,xhi2],[xlo2,xhi2],...)
@@ -20,15 +25,22 @@ end
 
 % Get x range
 if nargin==0
-    % Get x axis limits for entire data range
-    range = graph_range(gcf,'evaluate');
-    xrange=range.x;
-
-    if xrange(1)==xrange(2)
-        error('The upper and lower limits of the data are equal')
+    if nargout==0
+        % Get x axis limits for entire data range
+        range = graph_range(gcf,'evaluate');
+        xrange=range.x;
+        
+        if xrange(1)==xrange(2)
+            error('The upper and lower limits of the data are equal')
+        end
+        xrange={xrange};
+    else
+        % Return current x-axis limits
+        range = get(gca,'Xlim');
+        if nargout>=1, varargout{1} = range(1); end
+        if nargout>=2, varargout{2} = range(2); end
+        return
     end
-    
-    xrange={xrange};
     
 elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnumeric(varargin{2})||numel(varargin{2})==1)
     % Read scalar xlo and xhi from either function syntax or command syntax
@@ -47,7 +59,7 @@ elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnume
     else
         error('Check input arguments');
     end
-
+    
     if isnumeric(xhi) && isscalar(xhi)
         xrange(2)=xhi;
     elseif ~isempty(xhi) && is_string(xhi)
@@ -59,7 +71,7 @@ elseif nargin==2 && (~isnumeric(varargin{1})||numel(varargin{1})==1) && (~isnume
     else
         error('Check input arguments');
     end
-
+    
     if xrange(1)>=xrange(2)
         error('Check xlo < xhi')
     end
@@ -77,7 +89,7 @@ elseif nargin==1 && iscell(varargin{1})
         end
     end
     xrange=varargin{1};
-
+    
 else
     % One or more two element numeric vectors
     for i=1:nargin

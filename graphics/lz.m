@@ -1,11 +1,14 @@
-function lz (zlo, zhi)
+function varargout = lz (zlo, zhi)
 % Change z limits current figure
 %
 %   >> lz (zlo, zhi)
 % or
 %   >> lz  zlo  zhi
+% or
+%   >> lz       % set z limits to include all data
 %
-%   >> lz    % set z limits to include all data
+% Return current limits (without changing range):
+%   >> [zlo, zhi] = lz
 
 
 % Get figure
@@ -22,16 +25,24 @@ end
 
 % Get z range
 if nargin==0
-    % Get z axis limits in the current limits of x and y (or full range if c data)
-    [range,subrange] = graph_range(gcf,'evaluate');
-    if present.z
-        zrange=subrange.z;
+    if nargout==0
+        % Get z axis limits in the current limits of x and y (or full range if c data)
+        [range,subrange] = graph_range(gcf,'evaluate');
+        if present.z
+            zrange=subrange.z;
+        else
+            zrange=range.c;
+        end
+        
+        if zrange(1)==zrange(2)
+            error('The upper and lower limits of the data are equal')
+        end
     else
-        zrange=range.c;
-    end
-    
-    if zrange(1)==zrange(2)
-        error('The upper and lower limits of the data are equal')
+        % Return current z-axis limits
+        range = get(gca,'Zlim');
+        if nargout>=1, varargout{1} = range(1); end
+        if nargout>=2, varargout{2} = range(2); end
+        return
     end
     
 elseif nargin==2
@@ -48,7 +59,7 @@ elseif nargin==2
     else
         error('Check input arguments');
     end
-
+    
     if isnumeric(zhi) && isscalar(zhi)
         zrange(2)=zhi;
     elseif ~isempty(zhi) && is_string(zhi)

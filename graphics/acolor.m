@@ -1,4 +1,4 @@
-function acolor(varargin)
+function varargout = acolor(varargin)
 % Change the colour for line and markers for following plots
 %
 % The color can be entered as either the standard one-character 
@@ -12,6 +12,7 @@ function acolor(varargin)
 %   >> acolor('bla')
 %
 %   >> aline            % displays the current value(s)
+%   >> col = acolor     % returns the current value(s)
 %
 % Argument can set a sequence of colors for cascade plots e.g.
 %   >> acolor('r','b','bla','g')
@@ -28,8 +29,16 @@ narg = length(varargin);
 % No argument => display current colour(s)
 if narg < 1
     col_type=get_global_var('genieplot','color');
-    disp('Current line & marker colours:')
-    disp(col_type)
+    if nargout==0
+        disp('Current line & marker colours:')
+        disp(col_type)
+    else
+        if numel(col_type)==1
+            varargout{1} = col_type{1};
+        else
+            varargout{1} = col_type;
+        end
+    end
     return
 end
 

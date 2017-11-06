@@ -7,7 +7,8 @@ function varargout = amark(varargin)
 %   >> amark('+')
 %	>> amark('+',10)    % WARNING: Not valid in command mode
 %
-%   >> amark            % displays the current value(s)
+%   >> amark                        % displays the current value(s)
+%   >> [msize, mtype] = amark       % returns the current value(s)
 %
 % Arguments can set a sequence of type and/or size for cascade plots e.g.
 %   >> amark (13,14,'+','*','.')
