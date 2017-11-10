@@ -71,6 +71,7 @@
  */
 #include "MatMultiply.h"
 #include <string>
+#include <map>
 
  /*------------------------------------------------------------------------ */
  /*------------------------------------------------------------------------ */
@@ -80,7 +81,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-    const char REVISION[] = "$Revision::      $ ($Date::                                              $)";
+    const char REVISION[] = "$Revision:: 1540 $ ($Date:: 2017-11-08 22:29:56 +0000 (Wed, 08 Nov 2017) $)";
     if (nrhs == 0 && nlhs == 1) {
         plhs[0] = mxCreateString(REVISION);
         return;
@@ -137,14 +138,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         mexErrMsgTxt(ERR.c_str());
     }
 
-    size_t Mi = dimsA[0];
-    size_t Mj = dimsA[1];
-
     // decide what size the output would have
     std::vector<size_t> rez_dim_sizes;
     bool expandA(false), expandB(false);
     size_t nDims, Mk;
     calc_output_size(dimsA, ndimsA, dimsB, ndimsB, rez_dim_sizes, nDims, Mk, expandA, expandB);
+    size_t Mi = rez_dim_sizes[0];
+    size_t Mj = rez_dim_sizes[1];
+    size_t Mk0 = dimsB[0];
+
 
     /*-----------------------------------------------------------------------------
      * Check for proper input type and call the appropriate multiply routine.
@@ -153,47 +155,49 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
      *----------------------------------------------------------------------------- */
 
 
-    auto op_type = get_op_type(a_mat, b_mat);
+    auto operation = get_op_type(a_mat, b_mat);
+    MatrixTypes op_type     = operation.first;
+    mxClassID   result_type = operation.second;
 
-    switch (std::get<0>(op_type)) {
+    switch (op_type) {
     case(MatrixTypes::double_double): {
-        mxArray * rez = mxCreateNumericArray(nDims, &rez_dim_sizes[0], std::get<1>(op_type), mxComplexity(0));
+        mxArray * rez = mxCreateNumericArray(nDims, &rez_dim_sizes[0], result_type, mxComplexity(0));
         double *pRez = mxGetPr(rez);
         double const *const pA(mxGetPr(a_mat));
         double const *const pB(mxGetPr(b_mat));
-        mat_multiply<double, double, double>(pRez, pA, pB, Mi, Mj, Mk, expandA, expandB, n_threads);
-        prhs[0] = rez;
+        mat_multiply<double, double, double>(pRez, pA, pB, Mi, Mj, Mk0, Mk, expandA, expandB, n_threads);
+        plhs[0] = rez;
     }
                                       break;
     case(MatrixTypes::double_single): {
-        mxArray * rez = mxCreateNumericArray(nDims, &rez_dim_sizes[0], std::get<1>(op_type), mxComplexity(0));
+        mxArray * rez = mxCreateNumericArray(nDims, &rez_dim_sizes[0], result_type, mxComplexity(0));
         double *pRez = mxGetPr(rez);
         double const *const pA(mxGetPr(a_mat));
         float const *const pB = reinterpret_cast<float *>(mxGetData(b_mat));
-        mat_multiply<double, double, float>(pRez, pA, pB, Mi, Mj, Mk, expandA, expandB, n_threads);
-        prhs[0] = rez;
+        mat_multiply<double, double, float>(pRez, pA, pB, Mi, Mj, Mk0, Mk, expandA, expandB, n_threads);
+        plhs[0] = rez;
     }
                                       break;
     case(MatrixTypes::single_double): {
-        mxArray * rez = mxCreateNumericArray(nDims, &rez_dim_sizes[0], std::get<1>(op_type), mxComplexity(0));
+        mxArray * rez = mxCreateNumericArray(nDims, &rez_dim_sizes[0], result_type, mxComplexity(0));
         double *pRez = mxGetPr(rez);
         float const *const pA = reinterpret_cast<float *>(mxGetData(a_mat));
         double const *const pB(mxGetPr(b_mat));
-        mat_multiply<double, float, double>(pRez, pA, pB, Mi, Mj, Mk, expandA, expandB, n_threads);
-        prhs[0] = rez;
+        mat_multiply<double, float, double>(pRez, pA, pB, Mi, Mj, Mk0, Mk, expandA, expandB, n_threads);
+        plhs[0] = rez;
     }
                                       break;
     case(MatrixTypes::single_single): {
-        mxArray * rez = mxCreateNumericArray(nDims, &rez_dim_sizes[0], std::get<1>(op_type), mxComplexity(0));
+        mxArray * rez = mxCreateNumericArray(nDims, &rez_dim_sizes[0], result_type, mxComplexity(0));
         float *pRez = reinterpret_cast<float *>(mxGetData(rez));
         float const *const pA = reinterpret_cast<float *>(mxGetData(a_mat));
         float const *const pB = reinterpret_cast<float *>(mxGetData(b_mat));
-        mat_multiply<float, float, float>(pRez, pA, pB, Mi, Mj, Mk, expandA, expandB, n_threads);
-        prhs[0] = rez;
+        mat_multiply<float, float, float>(pRez, pA, pB, Mi, Mj, Mk0, Mk, expandA, expandB, n_threads);
+        plhs[0] = rez;
     }
                                       break;
     default:
-        mexErrMsgTxt("Unsupported types of multipliers");
+        mexErrMsgTxt("Unsupported combination of input multiplier's types. Ask developers to add this type");
 
     }
 
@@ -201,30 +205,31 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     return;
 
 }
-/* function defines the type of matrix multiplication as the function of types of input matrix */
-std::tuple<MatrixTypes, mxClassID>  get_op_type(mxArray const *const mat_a, mxArray const *const mat_b) {
+
+/* The map of containing the types of operations which are currently supported */
+const std::map<size_t, operations> supported_op_map = {
+ { size_t(mxDOUBLE_CLASS)*size_t(mxOBJECT_CLASS) + size_t(mxDOUBLE_CLASS) , operations(double_double,mxDOUBLE_CLASS) },
+ { size_t(mxDOUBLE_CLASS)*size_t(mxOBJECT_CLASS) + size_t(mxSINGLE_CLASS) ,operations(double_single,mxDOUBLE_CLASS) },
+ { size_t(mxSINGLE_CLASS)*size_t(mxOBJECT_CLASS) + size_t(mxDOUBLE_CLASS) ,operations(single_double,mxDOUBLE_CLASS) },
+ { size_t(mxSINGLE_CLASS)*size_t(mxOBJECT_CLASS) + size_t(mxSINGLE_CLASS) ,operations(single_single,mxSINGLE_CLASS) }
+};
+
+
+/* function defines the type of matrix multiplication and type of the multiplication result
+    as the function of types of input matrices */
+operations  get_op_type(mxArray const *const mat_a, mxArray const *const mat_b) {
 
     mxClassID category_a = mxGetClassID(mat_a);
     mxClassID category_b = mxGetClassID(mat_b);
 
+    size_t op_type_key = size_t(category_a)*size_t(mxOBJECT_CLASS) + size_t(category_b);
+    auto opIt = supported_op_map.find(op_type_key);
+    if (opIt == supported_op_map.end()) {
+        mexErrMsgTxt("Unsupported combination of input multiplier's types. Ask developers to add this type");
+    }
+    operations operation = opIt->second;
 
-    /*
-        switch (category) {
-        case mxINT8_CLASS:   analyze_int8(numeric_array_ptr);   break;
-        case mxUINT8_CLASS:  analyze_uint8(numeric_array_ptr);  break;
-        case mxINT16_CLASS:  analyze_int16(numeric_array_ptr);  break;
-        case mxUINT16_CLASS: analyze_uint16(numeric_array_ptr); break;
-        case mxINT32_CLASS:  analyze_int32(numeric_array_ptr);  break;
-        case mxUINT32_CLASS: analyze_uint32(numeric_array_ptr); break;
-        case mxINT64_CLASS:  analyze_int64(numeric_array_ptr);  break;
-        case mxUINT64_CLASS: analyze_uint64(numeric_array_ptr); break;
-        case mxSINGLE_CLASS: analyze_single(numeric_array_ptr); break;
-        case mxDOUBLE_CLASS: analyze_double(numeric_array_ptr); break;
-        default: break;
-        }
-
-        */
-    return std::make_tuple<MatrixTypes, mxClassID>(double_double, mxDOUBLE_CLASS);
+    return operation;
 
 }
 
@@ -256,13 +261,15 @@ void calc_output_size(mwSize const *const dimsA, size_t ndimsA, mwSize const *co
 
     if (MkA != MkB) {
         if (MkA == 1 || MkB == 1) {
-            if (MkA != 1) {
+            if (MkA == 1) {
                 expandA = true;
                 Mk = MkB;
+                nDims = ndimsB;
             }
             else {
                 expandB = true;
                 Mk = MkA;
+                nDims = ndimsA;
             }
         }
         else {
@@ -276,19 +283,18 @@ void calc_output_size(mwSize const *const dimsA, size_t ndimsA, mwSize const *co
     } // All arrays have the same sizes
     else {
         Mk = MkA;
-
+        nDims = ndimsA;
     }
-    nDims = Mk + 2;
     rez_dim_sizes.resize(nDims);
     rez_dim_sizes[0] = dimsA[0];
     rez_dim_sizes[1] = dimsB[1];
     if (expandB) {
-        for (size_t i = 2; i < MkA; i++) {
+        for (size_t i = 2; i < nDims; i++) {
             rez_dim_sizes[i] = dimsA[i];
         }
     }
     else {
-        for (size_t i = 2; i < MkB; i++) {
+        for (size_t i = 2; i < nDims; i++) {
             rez_dim_sizes[i] = dimsB[i];
         }
     }

@@ -80,13 +80,6 @@ if use_mex
         % it will check the mode and set up "can not user mex" internally
         hc.mex_combine_thread_mode = 0;
     end
-    if n_errors==0
-        if hc.threads > 1
-            mtimesx_mex('SPEEDOMP');
-        else
-            mtimesx_mex('SPEED');
-        end
-    end    
 end
 hd     =str2double(Matlab_SVN(12:17));
 

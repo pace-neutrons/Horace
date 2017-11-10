@@ -22,7 +22,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "recompute_bin_data_c", "..\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "combine_sqw", "..\cpp\combine_sqw\combine_sqw.vcxproj", "{874CB72F-251B-455E-8024-35C9710C18EB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mtimesmex", "..\cpp\mtimesx\mtimes_mexVC2015\mtimesmex.vcxproj", "{8C62BEC3-7890-429A-B118-FA7C43929846}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mtimesx_horace", "..\cpp\mtimesx_horace\mtimesx_horace.vcxproj", "{8C62BEC3-7890-429A-B118-FA7C43929846}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

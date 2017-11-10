@@ -33,7 +33,7 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'calc_projections_c/calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins/sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
     mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'recompute_bin_data_c.cpp');
-    mex_single([cpp_in_rel_dir 'mtimesx/mtimes_mexVC2015'], out_rel_dir,'mtimesx_mex.c');    
+    mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');    
 
     
     disp('**********> Succesfully created required mex files from C++')

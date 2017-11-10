@@ -80,15 +80,6 @@ if hc.is_default
 %    config_store.instance().store_config(hc,'-forcesave');
 end
 
-if ~isempty(mexMaxVer)
-    threads = hc.threads;
-    if threads > 1
-        mtimesx_mex('SPEEDOMP');
-    else
-        mtimesx_mex('SPEED');
-    end
-end
-
 
 
 disp('!==================================================================!')

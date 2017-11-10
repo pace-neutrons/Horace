@@ -276,7 +276,7 @@ function varargout = mtimesx_horace(varargin)
 
 
 %[use_mex,num_omp_threads] = get(hor_config,'use_mex','threads');
-use_mex = get(hor_config,'use_mex');
+[use_mex,n_threads] = config_store.instance().get_value('hor_config','use_mex','threads');
 
 
 
@@ -295,12 +295,12 @@ else
 end
 
 
-if use_mex
+if use_mex && numel(argi) == 2
     try
         %\
         % Call the mex routine mtimesx.
         %/
-        [varargout{1:nargout}] = mtimesx_mex(argi{:});
+        [varargout{1:nargout}] = mtimesx_mex(argi{:},n_threads);
     catch ERR
         use_mex = false;
         fm = get(hor_config,'force_mex_if_use_mex');
@@ -358,43 +358,48 @@ end
 sza = size(A);
 szb = size(B);
 sz = [sza(1),szb(2)];
-if numel(size(A)) > 2
+if numel(sza) > 2 || numel(szb) >2
     A_size = sza(1)*sza(2);
-    tot_size = prod(sza);
-    tail_size = tot_size/A_size;
-    
     B_size = szb(1)*szb(2);
-    if ~(prod(szb)/B_size == tail_size || prod(szb)/B_size == 1)
+    
+    a_tail_size = prod(sza)/A_size;
+    b_tail_size = prod(szb)/B_size;
+    
+    
+    if ~(a_tail_size == b_tail_size || min([a_tail_size,b_tail_size]) == 1)
         error('MTIMESX_MATLAB:invalid_argument',...
             ['different A and B sizes supported only if numel(size(B))<=2)',...
             ' or A and B dimensions in higher than 2 range are equal']);
     end
+    tail_size =  max([a_tail_size,b_tail_size]);
     
     rez = zeros(sz(1),sz(2),tail_size);
-    A = reshape(A,sza(1),sza(2),tail_size);
-    B = reshape(B,szb(1),szb(2),tail_size);
+    if a_tail_size > 1
+        A = reshape(A,sza(1),sza(2),tail_size);
+    else
+        A = reshape(repmat(A,1,tail_size),[sz,tail_size]);
+    end
+    if b_tail_size > 1
+        B = reshape(B,szb(1),szb(2),tail_size);
+    else
+        B = reshape(repmat(B,1,tail_size),[sz,tail_size]);        
+    end
 else
     tail_size = 1;
-end
-if sza == szb
-    vect_opt = true;
-else
-    vect_opt = false;
+    a_tail_size = 1;
+    b_tail_size = 1;
 end
 
 if tail_size > 1
     if empty1 && empty2
-        if vect_opt
-            for i=1:sza
-                for j=1:sza
-                    for k=1:sza
-                        rez(i,j,:) = rez(i,j,:) + A(i,k,:).*B(k,j,:);
-                    end
+        Mk0 = szb(1);
+        Mi = sza(1);
+        Mj = szb(2);
+        for i=1:Mi
+            for j=1:Mj
+                for k=1:Mk0
+                    rez(i,j,:) = rez(i,j,:) + A(i,k,:).*B(k,j,:);
                 end
-            end
-        else
-            for i=1:tail_size
-                rez(:,:,i) = A(:,:,i)*B(:,:,i);
             end
         end
     else
@@ -402,9 +407,15 @@ if tail_size > 1
             rez(:,:,i) = op1(A(:,:,i))*op2(B(:,:,i));
         end
     end
-    sza(1) = sz(1);
-    sza(2) = sz(2);
-    varargout{1} = reshape(rez,sza);
+    if a_tail_size > b_tail_size
+        sza(1) = sz(1);
+        sza(2) = sz(2);
+        varargout{1} = reshape(rez,sza);
+    else
+        szb(1) = sz(1);
+        szb(2) = sz(2);
+        varargout{1} = reshape(rez,szb);
+    end
 else
     varargout{1} = op1(A)*op2(B);
 end
@@ -420,7 +431,7 @@ switch OI
     case 'C'
         op = @(x)(ctranspose(x));
     case 'N' % option used to test operators loop.
-        op = @(x)(x);        
+        op = @(x)(x);
     otherwise
         op = @(x)(x);
         empty = true;

@@ -23,7 +23,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mtimesx_horace.cpp">
+    <ClCompile Include="mtimesx_mex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
