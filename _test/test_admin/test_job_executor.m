@@ -48,9 +48,14 @@ classdef test_job_executor< TestCase
             [ok,err_mess]=je.send_message(2,mess);
             assertTrue(ok);
             assertTrue(isempty(err_mess));
-            if verLessThan('matlab','7.14')
-                warning('Signleton does not work properly on Maltab 2011a/b. not testing workers');
-                return
+            if verLessThan('matlab','8.1')
+                if verLessThan('matlab','7.14')
+                    warning('Signleton does not work properly on Maltab 2011a/b. not testing workers');
+                    return
+                elseif strcmpi(computer,'pcwin')
+                    warning('Signleton does not work properly on Maltab 2012/b 32bit version. Not testing workers');                    
+                    return
+                end
             end
             
             worker('JETester',info1);
