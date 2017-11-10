@@ -28,15 +28,17 @@ t0_matlab_opt=toc;
 % --------
 tic
 c3mex=mtimesx_horace(a,b,true);
+%which('mtimesx_mex')
+%c3mex=mtimesx_mex(a,b);
 t1_mex=toc;
 tic
 c3nom=mtimesx_horace(a,b,false);
 t1_nomex = toc;
-assertElementsAlmostEqual(c3mex,c3nom);
+assertElementsAlmostEqual(c3mex,c3nom,'relative',1.e-6);
 tic
 c3nom=mtimesx_horace(a,'N',b,false);
 t2_nomex = toc;
-assertElementsAlmostEqual(c3mex,c3nom);
+assertElementsAlmostEqual(c3mex,c3nom,'relative',1.e-6);
 
 
 if any(abs(c0(:)-c3mex(:))>tol)
@@ -76,15 +78,17 @@ t0_matlab_opt=toc;
 % --------
 tic
 c3mex=mtimesx_horace(a,b,true);
+%c3mex=mtimesx(a,b);
+%c3mex=mtimesx_mex(a,b);
 t1_mex=toc;
 tic
 c3nom=mtimesx_horace(a,b,false);
 t1_nomex = toc;
-assertElementsAlmostEqual(c3mex,c3nom);
+assertElementsAlmostEqual(c3mex,c3nom,'relative',1.e-6);
 tic
 c3nom=mtimesx_horace(a,'N',b,false);
 t2_nomex = toc;
-assertElementsAlmostEqual(c3mex,c3nom);
+assertElementsAlmostEqual(c3mex,c3nom,'relative',1.e-6);
 
 
 if any(abs(c0(:)-c3mex(:))>tol)
