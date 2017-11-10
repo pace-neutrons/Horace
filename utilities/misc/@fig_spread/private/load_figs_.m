@@ -17,7 +17,14 @@ end
 nfigs = numel(figs);
 n_tot_figs = self.fig_count_+nfigs;
 % cell2num does not work for cellarray of fig handles
-fig_there = cellfun(@(x)(x), self.fig_list_);
+if verLessThan('matlab','9.3')
+    fig_there  = repmat(self.fig_list_{1},numel(self.fig_list_),1);
+    for i=2:numel(fig_there)
+        fig_there (i) = self.fig_list_{i};
+    end
+else
+    fig_there = cellfun(@(x)(x), self.fig_list_);
+end
 if size(fig_there,1)==1
     fig_there = fig_there';
 end

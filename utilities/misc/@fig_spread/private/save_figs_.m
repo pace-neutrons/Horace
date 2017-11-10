@@ -5,7 +5,14 @@ valid  = get_valid_ind(self);
 if any(valid)
     all_fig_cel = self.fig_list_(valid);
     % get array of fig handles
-    all_fig =  cellfun(@(x)(x),all_fig_cel);
+    if verLessThan('matlab','9.3')
+        all_fig = repmat(all_fig_cel{1},numel(all_fig_cel),1);
+        for i=2:numel(all_fig_cel)
+            all_fig(i) = all_fig_cel{i};
+        end
+    else
+        all_fig =  cellfun(@(x)(x),all_fig_cel);
+    end
     %
     try
         savefig(all_fig,filename);
