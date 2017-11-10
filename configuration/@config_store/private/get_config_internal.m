@@ -11,8 +11,12 @@ function config_data=get_config_internal(this,class_to_restore)
 %
 % $Revision$ ($Date$)
 %
-
-class_name = class_to_restore.class_name;
+if ischar(class_to_restore)
+    class_name = class_to_restore;
+    class_to_restore = feval(class_name);
+else
+    class_name = class_to_restore.class_name;
+end
 
 % if class exist in memory, return it from memory;
 if isfield(this.config_storage_,class_name)

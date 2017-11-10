@@ -75,8 +75,27 @@ classdef config_store < handle
         end
         %
         function  [val,varargout] = get_config_field(this,class_to_restore,varargin)
-            %
-            class_name = class_to_restore.class_name;
+            % return the values of the requested field(s) from the
+            % specified configuration file
+            %Usage:
+            %[field_val1,field_val2,...] =
+            %        config_store.instance().get_config_field(config_class,field1,field2,....);
+            % where:
+            % config_class -- the configuration class or its name to get
+            %                 values from.
+            % field1,field2, etc... the names of the fields of the above
+            %                       class to get their values.
+            % Returns:
+            % field_val1,field_val2, etc... -- the values of the requested
+            %                                  fields
+            if isa(class_to_restore,'config_base')
+                class_name = class_to_restore.class_name;
+            elseif ischar(class_to_restore)
+                class_name = class_to_restore;
+            else
+                error('CONFIG_STORE:invalid_argument',...
+                    'Config class has to be a chield of the config_base class');
+            end
             
             if isfield(this.config_storage_,class_name)
                 config_data = this.config_storage_.(class_name);
@@ -140,7 +159,7 @@ classdef config_store < handle
             %
             %
             % class_to_restore -- the class instance of which should to be
-            % restored from the hdd
+            % restored from the hdd or the name of this class.
             %
             % if class_to_restore has option returns_defaults==true,
             % default class configuration is returned
