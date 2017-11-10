@@ -139,7 +139,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
 
     // decide what size the output would have
-    std::vector<int> rez_dim_sizes;
+    std::vector<mwSize> rez_dim_sizes;
     bool expandA(false), expandB(false);
     size_t nDims, Mk;
     calc_output_size(dimsA, ndimsA, dimsB, ndimsB, rez_dim_sizes, nDims, Mk, expandA, expandB);
@@ -254,7 +254,7 @@ size_t calc_mdims(mwSize const *const dims_array, size_t ndims_in_array) {
 }
 
 void calc_output_size(mwSize const *const dimsA, size_t ndimsA, mwSize const *const  dimsB, size_t ndimsB,
-    std::vector<int> & rez_dim_sizes, size_t &nDims, size_t &Mk, bool & expandA, bool &expandB) {
+    std::vector<mwSize> & rez_dim_sizes, size_t &nDims, size_t &Mk, bool & expandA, bool &expandB) {
 
     size_t MkA = calc_mdims(dimsA, ndimsA);
     size_t MkB = calc_mdims(dimsB, ndimsB);
