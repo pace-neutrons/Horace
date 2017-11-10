@@ -14,8 +14,8 @@ b=rand(6,11,n);
 c0=zeros(4,11,n);
 
 tic
-for i=1:4
-    for j=1:11
+for j=1:11
+    for i=1:4        
         for k=1:6
             c0(i,j,:) = c0(i,j,:) + a(i,k,:).*b(k,j,:);
         end
@@ -44,7 +44,7 @@ if any(abs(c0(:)-c3mex(:))>tol)
 end
 hc = hor_config;
 if hc.log_level >-1
- fprintf( '*** ====  4x6x%d * 6x11x%d = 4x11x%d\n',n,n,n);    
+    fprintf( '*** ====  4x6x%d * 6x11x%d = 4x11x%d\n',n,n,n);
     disp(['***             Matlab loop time: ',num2str(t0_matlab_opt),' sec']);
     disp(['***       mtimesx mex       time: ',num2str(t1_mex),' sec']);
     disp(['***       mtimesx matlab    time: ',num2str(t1_nomex),' sec']);
@@ -92,7 +92,7 @@ if any(abs(c0(:)-c3mex(:))>tol)
 end
 
 if hc.log_level >-1
- fprintf( '*** ====  4x11x%d * 11x1x%d = 4x1x%d\n',n,n,n);
+    fprintf( '*** ====  4x11x%d * 11x1x%d = 4x1x%d\n',n,n,n);
     disp(['***             Matlab loop time: ',num2str(t0_matlab_opt),' sec']);
     disp(['***       mtimesx mex       time: ',num2str(t1_mex),' sec']);
     disp(['***       mtimesx matlab    time: ',num2str(t1_nomex),' sec']);

@@ -27,7 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mtimesx_horace.cpp" />
+    <ClCompile Include="mtimesx_mex.cpp" />
     <ClInclude Include="..\..\build_all\CommonCode.h" />
     <ClInclude Include="MatMultiply.h" />
   </ItemGroup>

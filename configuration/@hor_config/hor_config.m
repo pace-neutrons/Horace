@@ -232,12 +232,6 @@ classdef hor_config<config_base
                 val  = 48;
             end
             config_store.instance().store_config(this,'threads',val);
-            if val > 1
-                mtimesx_horace('SPEEDOMP');
-            else
-                mtimesx_horace('SPEED');
-            end
-            
         end
         function this = set.ignore_nan(this,val)
             if val>0
@@ -285,14 +279,6 @@ classdef hor_config<config_base
                     use = false;
                     warning('HOR_CONFIG:set_use_mex',...
                         ' mex files can not be initiated, Use mex set to false');
-                else
-                    %-- deal with mtimesx
-                    if this.threads > 1
-                        mtimesx_mex('SPEEDOMP');
-                    else
-                        mtimesx_mex('SPEED');
-                    end
-                    
                 end
                 if ~can_combine_with_mex
                     config_store.instance().store_config(this,'use_mex_for_combine',false);
