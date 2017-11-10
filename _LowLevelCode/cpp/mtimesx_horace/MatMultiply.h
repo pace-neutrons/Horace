@@ -18,7 +18,7 @@ size_t calc_mdims(mwSize const *const dimsA, size_t ndimsA);
 
 /* Calculate size and the dimensionality of the resulting array */
 void calc_output_size(mwSize const *const dimsA, size_t ndimsA, mwSize const *const  dimsB, size_t ndimsB,
-    std::vector<size_t> & rez_dim_sizes, size_t &nDims, size_t &Mk, bool & expandA, bool &expandB);
+    std::vector<int> & rez_dim_sizes, size_t &nDims, size_t &Mk, bool & expandA, bool &expandB);
 
 
 /* multiply two matrices or array of matrices */
