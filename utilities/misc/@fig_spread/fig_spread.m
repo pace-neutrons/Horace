@@ -88,6 +88,9 @@ classdef fig_spread
             % screen tight, namely overalling figure borders and resizing
             % them to fit on the screen requested number.
             
+            warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+            
+            
             keywords={'-tight','-rise'};
             set(0,'Units','pixels')
             ss= get(0,'ScreenSize');
