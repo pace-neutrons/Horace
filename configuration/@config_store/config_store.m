@@ -163,10 +163,7 @@ classdef config_store < handle
             %
             % if class_to_restore has option returns_defaults==true,
             % default class configuration is returned
-            %
-            % if varargin is present, method returns not the clas itself, but
-            % the range of the values of the class field names, specified in
-            % the varargin.
+     
             %Usage:
             %
             % obj = conifg_store.instance().restore_config(herbert_config)
@@ -178,7 +175,7 @@ classdef config_store < handle
             %                     returns current herbert config settings for fields
             %                      'use_mex' and 'use_mex_C'
             
-            config_data=this.get_config_internal(class_to_restore);
+            config_data=this.get_config_(class_to_restore);
             % execute class setters.
             
             % Important!!!

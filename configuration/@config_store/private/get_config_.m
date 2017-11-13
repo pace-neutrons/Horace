@@ -1,15 +1,25 @@
-function config_data=get_config_internal(this,class_to_restore)
-% method loads class configuration from the hard drive
+function config_data=get_config_(this,class_to_restore)
+% method returns the content of the configuration class requested as input 
+%
+% If the class is already in memory, it returns the class instance, stored in memory. 
+%
+% If it is not, it loads the class configuration from the hard drive or, if
+% the configuration is not stored, instantiates the class (or uses the
+% instance of the input configuration class) and returns these values. 
 %
 %input:
 % class_to_restore -- instance of the class to restore from HDD (memory if
-%                     already loaded)
+%                     already loaded) or the name of this class. 
+%
 %Returns:
+% the configuration class instance with its fields loaded from storage or
+% their default values if all storages are empty. 
+% 
+% Additionally, it class instance was not in memory, it loaded in memory
+% and stays there for further usage. 
 %
-% the object with its fields loaded from storage if varargin is empty
 %
-%
-% $Revision$ ($Date$)
+% $Revision: 655 $ ($Date: 2017-11-10 10:47:24 +0000 (Fri, 10 Nov 2017) $)
 %
 if ischar(class_to_restore)
     class_name = class_to_restore;
