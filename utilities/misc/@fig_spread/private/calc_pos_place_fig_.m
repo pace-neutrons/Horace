@@ -14,6 +14,11 @@ end
 if ~rise_fig
     rise_fig = self.rise_stored_figures_;
 end
+% do not store the same figure twice
+member = cellfun(@(x)(x == fig_handle),self.fig_list_);
+if any(member)
+    return;
+end
 
 ps = get(fig_handle,'Position');
 if self.fig_count_==0
@@ -40,7 +45,10 @@ self.fig_list_{self.fig_count}=fig_handle;
 [ix,iy,~] = self.calc_fig_pos(self.fig_count_,ps(3),ps(4));
 
 set(fig_handle, 'Position', [ix iy, ps(3),ps(4)])
-keep_figure(fig_handle);
+try
+    keep_figure(fig_handle);
+catch
+end
 if rise_fig
     rize_figure_(fig_handle);
 end
