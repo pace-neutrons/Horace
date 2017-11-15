@@ -26,16 +26,21 @@ for i=self.fig_count_:-1:1
     fig_h = self.fig_list_{i};
     try
         isvis = fig_h.Visible;
-        if strcmp(isvis,'on')
-            if n_hid_loc<n_fig2_hide
-                set(fig_h,'Visible','off')
-                n_hid_loc = n_hid_loc +1;
-                n_hid = n_hid +1;
-            end
-        else
+    catch
+        try  % figure is deleted
+            isvis = get(fig_h,'Visible');
+        catch
+            continue;
+        end
+    end
+    if strcmp(isvis,'on')
+        if n_hid_loc<n_fig2_hide
+            set(fig_h,'Visible','off')
+            n_hid_loc = n_hid_loc +1;
             n_hid = n_hid +1;
         end
-    catch
+    else
+        n_hid = n_hid +1;
     end
 end
 self.n_hidden_fig_ = n_hid;

@@ -21,28 +21,34 @@ if isempty(argi)
         n_fig2_show = sc;
     else
         n_fig2_show  = self.fig_count_;
-    end    
+    end
 else
     n_fig2_show  = varargin{1};
 end
 n_shown = 0;
 n_hidden = 0;
-for i=self.fig_count_:-1:1
+for i=1:self.fig_count_
     fig_h = self.fig_list_{i};
     try
         isvis = fig_h.Visible;
-        if ~strcmpi(isvis,'on')
-            if n_shown < n_fig2_show
-                set(fig_h,'visible','on')
-                if raise
-                    set(0,'CurrentFigure', fig_h);
-                end
-                n_shown = n_shown+1;
-            else
-                n_hidden = n_hidden +1;                
-            end
-        end
     catch
+        try  % figure is deleted
+            isvis = get(fig_h,'Visible');
+        catch
+            continue;
+        end
+    end
+    
+    if ~strcmpi(isvis,'on')
+        if n_shown < n_fig2_show
+            set(fig_h,'visible','on')
+            if raise
+                rize_figure_(fig_h);
+            end
+            n_shown = n_shown+1;
+        else
+            n_hidden = n_hidden +1;
+        end
     end
 end
 self.n_hidden_fig_ = n_hidden;
