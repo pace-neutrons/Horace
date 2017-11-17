@@ -6,7 +6,7 @@ classdef TestCaseWithSave < TestCase
     %
     % In additional to the standard TestCase, the class provides additional
     % functionality saving test results for later usage or loading previous
-    % test results and comparing them agains current test data.
+    % test results and comparing them against current test data.
     %
     % Usage of TestCaseWithSave child:
     %1)
@@ -15,7 +15,7 @@ classdef TestCaseWithSave < TestCase
     %                                     verifies their results against
     %                                     stored variables values.
     %2)
-    %>>tc = TestCaseWithSave_child('save');
+    %>>tc = TestCaseWithSave_child('-save');
     %>>tc.save();
     % The sequence above runs the tests but instead of comparing the
     % results against stored variables stores the variables specified
@@ -25,24 +25,27 @@ classdef TestCaseWithSave < TestCase
     % To achieve this functionality, user who overloads TestCaseWithSave
     % by writing his own test cases (methods, with names starting with test_)
     % should verify a test method results using the following methods:
+    %
     %TestCaseWithSave Methods:
     %
     % save_or_test_variables - depending on mode of work verifies list of
-    % variables provided as input against its saved counterparts or save
-    % these variables if requested.
+    % variables provided as input against its saved counterparts (mode 1 above)
+    % or saves these variables (mode 2 above).
     %
     %Auxiliary methods to use in TestCaseWithSave's child constructor:
     %add_to_files_cleanList - the files added using this function will
-    %                         be deleded on the test class destruction.
-    %add_to_path_cleanList  - the path added using this funciton will be
-    %                         removed from Matlab searh parh on the test
+    %                         be deleted on the test class destruction.
+    %add_to_path_cleanList  - the path added using this function will be
+    %                         removed from Matlab search path on the test
     %                         class destruction.
     %
     %Note:
-    % The files and pathes added to clear list are deleted on the class
-    % destructor execution. If you changed the class and want to issue
-    % the class constructor againm, clear the previous class instance first
-    % using Matlab clear variable command.
+    % The files and paths added to clear list are deleted on the class
+    % destructor execution. If you changed the class and want to invoke
+    % the class constructor again, clear the previous class instance first
+    % using Matlab clear "variable" command, where the "variable"
+    % would be the old class instance.
+    %
     % The destructor of the old class instance is invoked in random moment
     % of time which means that old files may be deleted after new files
     % were generated.
@@ -51,7 +54,7 @@ classdef TestCaseWithSave < TestCase
     % $Revision$ ($Date$)
     %
     properties
-        % list of the reference (restored) datasets one comapres against
+        % list of the reference (restored) datasets one compares against
         % or the datasets one intends to save.
         ref_data=struct();
         % default accuracy of the save_or_test_variables method
@@ -163,7 +166,7 @@ classdef TestCaseWithSave < TestCase
         end
         %------------------------------------------------------------------
         function this=save_or_test_variables(this,varargin)
-            % method to test input variable in vararging agains saved
+            % method to test input variable in varargin against saved
             % values or store these variables to the structure to save it
             % later (or deal with them any other way)
             % Usage:
@@ -173,7 +176,7 @@ classdef TestCaseWithSave < TestCase
             % First row loads reference variables 'a','b','c' from
             % the file with the name defined in reference_dataset_name. If
             % no name is provided, default class property value is used.
-            % Second row compares these variables agains their local values
+            % Second row compares these variables against their local values
             % stored in a,b,c variables.
             %
             % key-value arguments are the arguments, used by equal_to_tol
@@ -244,12 +247,13 @@ classdef TestCaseWithSave < TestCase
         end
         %------------------------------------------------------------------
         function save(this)
-            % Method to save output of the test files to the file to test
-            % against it later.
+            % Method runs test methods but not tests the data provided as input for 
+            % save_or_test_variables functions but saves these data to the file 
+            % to compare against these data later.
             %
-            % the file to save is defined by class property value results_filename
-            % and the datasets should be defined using save_or_test_variables
-            % method
+            % the file to save is defined by class property value: results_filename
+            % and the datasets itself are the datasets defined using as inputs of 
+            % save_or_test_variables method.
             %
             hc = herbert_config;
             if hc.log_level>-1
