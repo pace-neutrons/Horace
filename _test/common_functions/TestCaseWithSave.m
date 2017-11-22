@@ -169,6 +169,7 @@ classdef TestCaseWithSave < TestCase
             % method to test input variable in varargin against saved
             % values or store these variables to the structure to save it
             % later (or deal with them any other way)
+            %
             % Usage:
             %1)
             %>>tc = TestCaseWithSave_child(test_name,[reference_dataset_name])
@@ -195,7 +196,6 @@ classdef TestCaseWithSave < TestCase
             % Any keys provided as input in this case stored into the
             % reference file as variables.
             %
-            % get the names of the workspaces to test
             %
             keys = {'ignore_str','nan_equal','min_denominator','tol'};
             % process input arguments, extract workspaces and set up
@@ -227,18 +227,12 @@ classdef TestCaseWithSave < TestCase
             
             
             % process test results and either compare it against restored
-            % earlier variables or set up for saving them later.
+            % earlier variables or set them up for saving these variables later.
             for i=1:numel(ws_list)
                 if not(this.want_to_save_output)
+                    %
                     ref_dataset = this.get_ref_dataset_(ws_names{i},test_name);
-                    % HACK -- see sort method description
-                    if this.sort_pixels
-                        [ws_sort,ref_ws_sort] = TestCaseWithSave.sort_ws_pixels(ws_list{i},ref_dataset);
-                        [ok,mess]=equal_to_tol(ws_sort, ref_ws_sort,toll,keyval{:});
-                    else
-                        [ok,mess]=equal_to_tol(ws_list{i}, ref_dataset,toll,keyval{:});
-                    end
-                    
+                    [ok,mess]=equal_to_tol(ws_list{i}, ref_dataset,toll,keyval{:});
                     assertTrue(ok,[this.errmessage_prefix,': [',inputname(i+1),'] :',mess])
                 else
                     this = this.set_ref_dataset_(ws_list{i},ws_names{i},test_name);
@@ -247,12 +241,12 @@ classdef TestCaseWithSave < TestCase
         end
         %------------------------------------------------------------------
         function save(this)
-            % Method runs test methods but not tests the data provided as input for 
-            % save_or_test_variables functions but saves these data to the file 
+            % Method runs test methods but not tests the data provided as input for
+            % save_or_test_variables functions but saves these data to the file
             % to compare against these data later.
             %
             % the file to save is defined by class property value: results_filename
-            % and the datasets itself are the datasets defined using as inputs of 
+            % and the datasets itself are the datasets used as inputs to
             % save_or_test_variables method.
             %
             hc = herbert_config;
@@ -273,6 +267,8 @@ classdef TestCaseWithSave < TestCase
             this.want_to_save_output=true;
             %
             % clear reference data from possibly loaded previous datasets
+            % (may happen if the child has been initiated without -save
+            % parameter)
             this.ref_data = struct();
             % run test methods using save_or_test_variables store data
             % instead of comparing them with reference datasets
@@ -303,24 +299,11 @@ classdef TestCaseWithSave < TestCase
     end
     %
     methods(Static)
-        function [ws,ref_ws] = sort_ws_pixels(ws,ref_ws)
-            %HACK: -- the method assume the knowlege about pixels
-            %         in Herber which violates OOP. Proper solution would
-            %         be proper equal_to_tol implementation.
-            %
-            % sort workspace pixels to be sure they are generally the same
-            % ignoring binning error and randon pixels positioning achieved
-            % by multithreaded application.
-            %
-            try
-                ref_ws.data.pix = sortrows(ref_ws.data.pix')';
-                ws.data.pix = sortrows(ws.data.pix')';
-            catch
-            end
-        end
+        
     end
     %
     methods(Access=private)
+        %
         function [keyval,ws_list,toll]=process_inputs_(this,keys_array,varargin)
             % provess input arguments, separate control keys from workspaces
             % and set up default values for keys, which are not present
@@ -355,6 +338,7 @@ classdef TestCaseWithSave < TestCase
             end
             
         end
+        %
         function ref_ds = get_ref_dataset_(this,ref_name,test_name)
             % retrieve reference dataset  corresponding to the source_ds workspace
             %
@@ -388,6 +372,7 @@ classdef TestCaseWithSave < TestCase
                 end
             end
         end
+        %
         function this = set_ref_dataset_(this,ref_ds,ref_ds_name,test_name)
             % store reference dataset in datasets memory for saving it on
             % hdd later
