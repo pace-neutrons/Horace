@@ -1,0 +1,27 @@
+
+Make private property
+----------------------
+ref_data
+(There is one function that uses this property as public: test_multifit_1 line 211. I don't see why it should.)
+
+results_path
+Only place it is used so far is get location of .nxspe from which to read detector information, in two tests
+
+results_filename
+Not used publically
+
+
+Rename property
+---------------
+want_to_save_output => save_output
+(Used in the same two tests as results_path)
+
+
+
+% ===================================
+Other notes
+% ===================================
+
+rm_files to be replaced with static method: remove_files
+
+
