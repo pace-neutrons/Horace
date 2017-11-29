@@ -354,7 +354,7 @@ function plot_dispersion(wdisp_in,opt)
     wdisp(1).title = title(1:lnbrk);
     plot(wdisp);
     hold on;
-    xrlp = zeros(length(wdisp)+1);
+    xrlp = zeros(length(wdisp)+1,1);
     for i=1:length(wdisp)
         xrlp(i+1) = wdisp(i).x(end);
         plot([1 1]*xrlp(i+1),get(gca,'YLim'),'-k');
