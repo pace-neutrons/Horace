@@ -149,6 +149,18 @@ classdef TestSuite < TestComponent
                 if strcmp(self.TestComponents{k}.Name, name)
                     idx = k;
                     break;
+                % ==========================================================
+                % *** Added T.G.Perring 24/11/2017 *************************
+                else
+                    % Need to filter testCase_child::Name if xunit class style
+                    % at least in R2014a to R2016a
+                    [~, testName] = strtok(self.TestComponents{k}.Name, '::');
+                    if ~isempty(testName) && strcmp(testName(3:end), name)
+                        idx = k;
+                        break;
+                    end
+                % *** Added T.G.Perring 24/11/2017 *************************
+                % ==========================================================
                 end
             end
             if isempty(idx)

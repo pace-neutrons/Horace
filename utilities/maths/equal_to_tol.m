@@ -7,10 +7,6 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %   >> [ok, mess] = equal_to_tol (...)
 %
 % Any cell arrays, structures or objects are recursively explored.
-% Comparison of two NaNs always results in failure. To equate NaNs use
-% the mirror function equaln_to_tol.
-%
-% See also equaln_to_tol
 %
 % Note: legacy usage has scalar tol and equates NaNs as equal. This usage is
 % deprecated. Please use the new syntax. Note that the usage: equal_to_tol(a,b),
@@ -35,18 +31,33 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %               [0, 0]          equality required
 %               0               equivalent to [0,0]
 %
-%           For backwards compatibility, a scalar tolerance can be given
-%           where the sign determines absolute or relative tolerance
+%            A scalar tolerance can be given where the sign determines if
+%           the tolerance is absolute or relative:
 %               +ve : absolute tolerance  abserr = abs(a-b)
 %               -ve : relative tolerance  relerr = abs(a-b)/max(abs(a),abs(b))
 %             Examples:
 %               1e-4            absolute tolerance, equivalent to [1e-4, 0]
 %               -1e-6           relative tolerance, equivalent to [0, 1e-6]
-%           [To apply an absolute as well as a relative tolerance with a
-%            scalar negative value, set the value of the legacy keyword
-%           'min_denominator' (see below)]
+%
+%           [Lagacy compatibility: to apply an absolute as well as a relative
+%            tolerance with a scalar negative value, set the value of the
+%            legacy keyword 'min_denominator' (see below)]
 %
 % Valid keywords are:
+%  'tol'            Tolerance as above (alternative keyword specification
+%                  to parameter input above)
+%
+%  'abstol'         Absolute tolerance; abstol>=0 (alternative keyword
+%                  specification to scalar parameter input above).
+%                   Use in conjunction with 'reltol' to specify a combined
+%                  criterion equivalent to tol = [abstol, reltol]
+%
+%  'reltol'         Relative tolerance; reltol>=0 (alternative keyword
+%                  specification to parameter input above). Note that the
+%                  sign is positive here.
+%                   Use in conjunction with 'abstol' to specify a combined
+%                  criterion equivalent to tol = [abstol, reltol]
+%
 %  'nan_equal'      Treat NaNs as equal (true or false; default=true)
 %
 %  'ignore_str'     Ignore the length and content of strings or cell arrays
@@ -56,13 +67,13 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %                   Usually not required, as the name of a variable will
 %                  be discovered. However, if the input argument is an array
 %                  element e.g. my_variable{3}  then the name is not
-%                  discoverable in matlab, and default 'Arg1' will be
+%                  discoverable in matlab, and default 'input_1' will be
 %                  used unless a different value is given with the keyword
 %                  'name_a'.
 %
 %  'name_b'         Explicit name of variable b for use in messages.
 %                   The same comments apply as for 'name_a' except the
-%                  default is 'Arg2'
+%                  default is 'input_2'
 %
 %
 % Output:
@@ -103,111 +114,205 @@ cleanup_obj = onCleanup(@()warning(warn));
 
 
 % Get names of input variables, if can
+name_a_default = 'input_1';
+name_b_default = 'input_2';
 name_a = inputname(1);
 name_b = inputname(2);
-if isempty(name_a), name_a = 'Arg1'; end
-if isempty(name_b), name_b = 'Arg2'; end
+if isempty(name_a), name_a = name_a_default; end
+if isempty(name_b), name_b = name_b_default; end
 
 
 % Parse input arguments
 if nargin==2
-    % Save an expensive call to parse_arguments
-    legacy = false;
-    tol = [];
+    % Inputs to compare only; save an expensive call to parse_arguments
+    opt.nan_equal = true;
+    opt.ignore_str = false;
+    opt.tol = [0,0];
+    
+elseif nargin==3 && isnumeric(varargin{1})
+    % Case of no optional arguments; save an expensive call to parse_arguments
     opt.nan_equal = true;
     opt.ignore_str = false;
     
-else
-    % Have to determine if legacy format and handle accordingly
-    legacy = [];    % undetermined as yet
-    
-    if nargin==3 && isnumeric(varargin{1})
-        % Case of no optional arguments - save an expensive call to parse_arguments
-        tol=varargin{1};
-        opt.nan_equal = true;
-        opt.ignore_str = false;
-        
-        % Determine if legacy input; it must be if scalar tol
-        if isscalar(varargin{1})
-            legacy = true;
-            min_denominator = 0;    % legacy default
-        else
-            legacy = false;
-        end
-        
-    else
-        % Optional arguments must have been given; parse input arguments
-        % opt filled with default for new format; strip min_denominator away later
-        opt = struct(...
-            'ignore_str',false,...
-            'nan_equal',true,...
-            'min_denominator',0,...
-            'name_a',name_a,...
-            'name_b',name_b);
-        flagnames = {'nan_equal','ignore_str'};
-        [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt, flagnames);
+    % Determine if legacy input; it must be if tol is scalar
+    if isscalar(varargin{1})
+        [opt.tol,ok,mess]=check_tol(varargin{1},0);
         if ~ok, error(mess), end
-        
-        % Check single parameter tol and that it is numeric
-        if numel(par)==1 && isnumeric(par{1})
-            tol = par{1};
-            if isscalar(tol)
-                legacy = true;
-            else
-                legacy = false;
-            end
-        elseif numel(par)==0
-            tol = [];
-        else
-            error('Check number and type of input arguments')
-        end
-        
-        % Determine if legacy input if not already determined
-        % (Only way to understand this if-elseif-else is to draw a truth table)
-        if (isempty(legacy) && present.min_denominator) || (~isempty(legacy) && legacy)
-            legacy = true;
-            if ~isnumeric(opt.min_denominator) || ~isscalar(opt.min_denominator)...
-                    || isnan(opt.min_denominator) || opt.min_denominator<0
-                error('Check value of ''min_denominator''')
-            end
-            min_denominator = opt.min_denominator;
-            
-        elseif ~(present.min_denominator || (~isempty(legacy) && legacy))
-            legacy = false;
-            
-        else
-            error('Check number, type and format of input arguments')
-        end
-        
-        % Strip away temporary fields
-        name_a = opt.name_a;
-        name_b = opt.name_b;
-        opt = rmfield(opt, {'min_denominator','name_a','name_b'});
-    end
-end
-
-% At this point we know:
-% - If legacy input or not, and nan_equal and ignore_str are set
-% - If tol has been given it is a numeric, and if legacy tol is scalar
-if legacy
-    if isempty(tol), tol=0; end
-    if tol>=0
-        opt.tol = [tol,0];
     else
-        opt.tol = [min_denominator*abs(tol),abs(tol)];
+        [opt.tol,ok,mess]=check_tol(varargin{1});
+        if ~ok, error(mess), end
     end
+    
 else
-    if isempty(tol) || isequal(tol,0)
-        opt.tol = [0,0];
-    elseif numel(tol)==2 && all(tol>=0)
-        opt.tol = tol;
+    % Optional arguments must have been given; parse input arguments
+    % opt filled with default for new format; strip min_denominator away later
+    opt = struct(...
+        'tolerance',[],...
+        'abstolerance',0,...
+        'reltolerance',0,...
+        'ignore_str',false,...
+        'nan_equal',true,...
+        'name_a',name_a,...
+        'name_b',name_b,...
+        'min_denominator',0);
+    [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt);
+    if ~ok, error(mess), end
+    
+    % Determine the tolerance
+    ok_positive_scalar = @(x)(isnumeric(x) && isscalar(x) && ~isnan(x) && x>=0);
+    if numel(par)==1 && isnumeric(par{1})
+        % There is a single parameter that is numeric, so must be tol
+        if isscalar(par{1})
+            % Legacy format
+            [tol,ok,mess]=check_tol(par{1},opt.min_denominator);
+            if ~ok, error(mess), end
+        else
+            % New format
+            [tol,ok,mess]=check_tol(par{1});
+            if ~ok, error(mess), end
+            % Invalid keyword 'min_denominator' cannot present with new format
+            if present.min_denominator  
+                error('''min_denominator'' is only valid for legacy scalar tolerance')
+            end
+        end
+        % Check that tolerance has not been given as a keyword parameter as well
+        if present.tolerance || present.abstolerance || present.reltolerance
+            error(['Cannot give the tolerance as third input argument and'...
+                'also as a keyword parameter'])
+        end
+        
+    elseif numel(par)==0
+        % No tolerance parameter given, so determine from keywords if possible.
+        if ~any([present.tolerance, present.abstolerance, present.reltolerance])
+            % No tolerance keywords present - use default tol; still unresolved
+            % if legacy or not, but presence of min_denominator will not make any
+            % difference to the test. Just need to check it is valid if given
+            if present.min_denominator
+                % Treat as legacy
+                [tol,ok,mess] = check_tol(0,opt.min_denominator);
+                if ~ok, error(mess), end
+            else
+                % Treat as new format
+                tol = [0,0];
+            end
+            
+        else
+            % Tolerance keyword(s) present; usage is therefore non-legacy.            
+
+            % Check that invalid keyword 'min_denominator' is not present
+            if present.min_denominator
+                error('''min_denominator'' is only valid for legacy argument format')
+            end
+            
+            % Determine tolerance
+            if present.tolerance && ~(present.abstolerance || present.reltolerance)
+                if isnumeric(opt.tolerance)
+                    [tol,ok,mess] = check_tol(opt.tolerance);
+                    if ~ok, error(mess), end
+                else
+                    error('''tol'' must be numeric')
+                end
+            elseif ~present.tolerance
+                if present.abstolerance && present.reltolerance
+                    if ok_positive_scalar(opt.abstolerance) && ok_positive_scalar(opt.reltolerance)
+                        tol = [opt.abstolerance,opt.reltolerance];
+                    else
+                        error(['''abstol'' and ''reltol'' must both be '...
+                            'numeric scalars greater or equal to zero'])
+                    end
+                elseif present.abstolerance
+                    if ok_positive_scalar(opt.abstolerance)
+                        tol = [opt.abstolerance,0];
+                    else
+                        error('''abstol'' must be a numeric scalar greater or equal to zero')
+                    end
+                elseif present.reltolerance
+                    if ok_positive_scalar(opt.reltolerance)
+                        tol = [0,opt.reltolerance];
+                    else
+                        error('''reltol'' must be a numeric scalar greater or equal to zero')
+                    end
+                else
+                    tol = [0,0];
+                end
+            else
+                error('''tol'' cannot be present with ''abstol'' or ''reltol''')
+            end
+            
+        end
     else
-        error('Check ''tol'' has form [abs_tol, rel_tol] where both are >=0')
+        error('Check number and type of non-keyword input arguments')
     end
+    
+    % Strip away temporary fields
+    name_a = opt.name_a;
+    name_b = opt.name_b;
+    if isempty(name_a), name_a = name_a_default; end
+    if isempty(name_b), name_b = name_b_default; end
+    opt = rmfield(opt, {'min_denominator','name_a','name_b',...
+        'tolerance','abstolerance','reltolerance'});
+    
+    if islognumscalar(opt.ignore_str)
+        opt.ignore_str = logical(opt.ignore_str);
+    else
+        error('Check ''ignore_str'' is logical scalar (or 0 or 1)')
+    end
+    if islognumscalar(opt.nan_equal)
+        opt.nan_equal = logical(opt.nan_equal);
+    else
+        error('Check ''nan_equal'' is logical scalar (or 0 or 1)')
+    end
+    opt.tol = tol;
 end
 
 % Now perform comparison
 [ok,mess]=equal_to_tol_private(a,b,opt,name_a,name_b);
+
+
+%--------------------------------------------------------------------------------------------------
+function [tol_out, ok, mess] = check_tol (tol, min_denominator)
+% Convert all the possible inputs into [abs_tol, rel_tol]
+% Assumes tol_in is numeric
+%
+%   >> [tol, ok, mess] = check_tol (tol_in)
+%   >> [tol, ok, mess] = check_tol (tol_in, min_denominator]
+
+ok = true;
+mess = '';
+tol_out = [];
+
+ok_positive_scalar = @(x)(isnumeric(x) && isscalar(x) && ~isnan(x) && x>=0);
+
+if isempty(tol)
+    tol_out = [0,0];
+    
+elseif isscalar(tol)
+    if ~isnan(tol)
+        if tol>=0
+            tol_out = [tol,0];
+        else
+            if ok_positive_scalar(min_denominator)
+                tol_out = [min_denominator*abs(tol),abs(tol)];
+            else
+                ok = false;
+                mess = 'Check value of ''min_denominator'' is greater or equal to zero';
+            end
+        end
+    else
+        ok = false;
+        mess = 'Tolerance cannot be NaN';
+    end
+    
+elseif numel(tol)==2
+    if all(tol>=0)
+        tol_out = tol;
+    else
+        mess = 'Check tolerance has form [abs_tol, rel_tol] where both are >=0';
+    end
+else
+    ok = false;
+    mess = 'Check the size and type of the tolerance';
+end
 
 
 %--------------------------------------------------------------------------------------------------
@@ -395,7 +500,7 @@ ok=true; mess='';
 %--------------------------------------------------------------------------------------------------
 function [ok,mess]=equal_to_tol_numeric(a,b,tol,nan_equal,name_a,name_b)
 % Check two arrays have smae size and each element is the same within
-% requested relative or absolute tolerance. 
+% requested relative or absolute tolerance.
 
 if isequal(size(a),size(b))
     % Turn arrays into vectors (avoids problems with matlab changing shapes
