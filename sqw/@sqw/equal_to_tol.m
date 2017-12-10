@@ -84,8 +84,8 @@ if isa(w1,'sqw') && isa(w2,'sqw')
     % Perform comparison
     sz = size(w1);
     for i=1:numel(w1)
-        name_a = variable_name (inputname(1),false,sz,i,'Arg1');
-        name_b = variable_name (inputname(2),false,sz,i,'Arg2');
+        name_a = variable_name (inputname(1),false,sz,i,'input_1');
+        name_b = variable_name (inputname(2),false,sz,i,'input_2');
         [ok,mess]=equal_to_tol_internal(w1(i),w2(i),name_a,name_b,varargin{:});
         if ~ok, return, end
     end
@@ -102,11 +102,14 @@ horace_info_level=get(hor_config,'log_level');
 
 % Check for presence of reorder and/or fraction option(s) (only relevant if sqw-type)
 opt=struct('reorder',true,'fraction',1);
-flagnames={'reorder'};
+flagnames={};
 cntl.keys_at_end=false;
 [args,opt,~,~,ok,mess]=parse_arguments(varargin,opt,flagnames,cntl);
 if ~ok
     error(mess);
+end
+if ~islognumscalar(opt.reorder)
+    error('''reorder'' must be a logical scalar (or 0 or 1)')
 end
 if ~isnumeric(opt.fraction) || opt.fraction<0 || opt.fraction>1
     error('''fraction'' must lie in the range 0 to 1 inclusive')
