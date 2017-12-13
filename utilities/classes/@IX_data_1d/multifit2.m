@@ -1,4 +1,4 @@
-function mf_object = multifit2 (varargin)
+function varargout = multifit2 (varargin)
 % Simultaneously fit function(s) to one or more IX_dataset_1d objects
 %
 %   >> myobj = multifit2 (w1, w2, ...)      % w1, w2 objects or arrays of objects
@@ -10,6 +10,10 @@ function mf_object = multifit2 (varargin)
 %
 % For the format of fit functions (foreground or background):
 % <a href="matlab:edit('example_1d_function');">example_1d_function</a>
-   
-mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
-mf_object = mfclass_IX_dataset_1d (varargin{:}, 'IX_dataset_1d', mf_init);
+
+if ~mfclass.legacy(varargin{:})
+    mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
+    varargout{1} = mfclass_IX_dataset_1d (varargin{:}, 'IX_dataset_1d', mf_init);
+else
+    mf
+end

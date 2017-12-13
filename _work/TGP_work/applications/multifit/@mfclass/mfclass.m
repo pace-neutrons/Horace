@@ -751,4 +751,19 @@ classdef mfclass
         
     end
     
+    methods (Static)
+        function status = legacy(varargin)
+            % Determine if the arguments are for legacy operation of multifit
+            %
+            %   >> is_legacy = obj.legacy(arg2, arg2, ...)
+            
+            if numel(varargin)==0
+                status = false;     % no arguments is valid, and only valid, for new
+            else
+                fhandle = cellfun(@(x)(isa(x,'function_handle')),varargin);
+                status = any(fhandle);
+            end
+        end
+    end
+    
 end
