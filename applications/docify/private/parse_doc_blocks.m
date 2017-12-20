@@ -157,6 +157,9 @@ elseif numel(ibeg)>=1 && (...
                 keep(i) = false;
             end
         end
+        idef = idef(keep);
+        ibeg = ibeg(keep);
+        iend = iend(keep);
     end
     
 else

@@ -752,16 +752,51 @@ classdef mfclass
     end
     
     methods (Static)
+        %------------------------------------------------------------------
+        % Methods to interface to legacy (i.e. pre-2018) multifit
+        %------------------------------------------------------------------
         function status = legacy(varargin)
             % Determine if the arguments are for legacy operation of multifit
             %
-            %   >> is_legacy = obj.legacy(arg2, arg2, ...)
+            %   >> is_legacy = mfclass.legacy(arg2, arg2,...)
+            %
+            % If the argument list contains a function handle this is
+            % incompatible with the new operation of multifit and so the
+            % only possibility is a legacy call.
             
             if numel(varargin)==0
                 status = false;     % no arguments is valid, and only valid, for new
             else
                 fhandle = cellfun(@(x)(isa(x,'function_handle')),varargin);
                 status = any(fhandle);
+            end
+        end
+        
+        function argout = legacy_call (mf_handle, n_out, varargin)
+            % Make call to legacy multifit function or method
+            %
+            %   >> argout = legacy_call (mf_handle, n_out, arg1, arg2,...)
+            %
+            % Input:
+            % ------
+            %   mf_handle       Handle to the legacy multifit function
+            %   n_out           Expected number of output arguments
+            %   arg1, arg2,...  All arguments
+            
+            if n_out<=4
+                [wout, fitdata, ok, message] = mf_handle (varargin{:});
+            else
+                message = 'Too many output arguments' ;
+                throwAsCaller(MException('legacy_call:tooManyOutputs', '%s', message));
+            end
+            
+            argout = cell(1,max(n_out,1));
+            argout{1} = wout;
+            if n_out>=2, argout{2} = fitdata; end
+            if n_out>=3, argout{3} = ok; end
+            if n_out>=4, argout{4} = message; end
+            if n_out<3 && ~ok
+                throwAsCaller(MException('legacy_call:failure', '%s', message));
             end
         end
     end

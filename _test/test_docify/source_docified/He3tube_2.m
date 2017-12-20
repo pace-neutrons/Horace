@@ -18,6 +18,7 @@ classdef test_He3tube_2
         % truly!
         % Honest!
 
+        %-----------------------------------------------------------------------
         % <#doc_beg:> miggle
         %   Hi there!!
         %
@@ -27,6 +28,7 @@ classdef test_He3tube_2
         % truly!
                 % Honest!
         % <#doc_end:>
+        %-----------------------------------------------------------------------
 
         dia_=0;     % Outer diameter of tube (m)
         atms_=0;    % 3He partial pressure (atmospheres)

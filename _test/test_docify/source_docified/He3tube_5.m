@@ -4,6 +4,7 @@ classdef test_He3tube_5
     % Wotsit Methods:
     %
 
+    %---------------------------------------------------------------------------
     % <#doc_def:>
     %
     %   class_name = 'Wotsit'
@@ -14,6 +15,7 @@ classdef test_He3tube_5
     % <class_name> Methods:
     %
     % <#doc_end:>
+    %---------------------------------------------------------------------------
 
 
     % Original author: T.G.Perring
@@ -29,6 +31,7 @@ classdef test_He3tube_5
         % Wotsit Methods:
         %
 
+        %-----------------------------------------------------------------------
         % <#doc_beg:> miggle
 
         % Really!
@@ -50,6 +53,7 @@ classdef test_He3tube_5
         % <class_name> Methods:
         %
         % <#doc_end:>
+        %-----------------------------------------------------------------------
 
         % This is a p[ile of crap which is my
         % way of sayin ipsum lorem
@@ -815,6 +819,7 @@ classdef test_He3tube_5
             %   >> [wfit,fitpar]=multifit(w,@gauss,pin,{{},{3,3,1}},@linear_bg,bg,...
             %                                         'local_foreground')
 
+            %-------------------------------------------------------------------
             % <#doc_def:>
             %   first_line = {'% Simultaneously fits a function to several datasets, with optional',...
             %                 '% background functions.'}
@@ -838,6 +843,7 @@ classdef test_He3tube_5
             %
             %   <#file:> meta_docs:::doc_multifit_examples_1d.m
             % <#doc_end:>
+            %-------------------------------------------------------------------
 
             if nargin>=1
                 obj.dia=dia;
@@ -857,6 +863,7 @@ classdef test_He3tube_5
             % truly!
             % Honest!
 
+            %-------------------------------------------------------------------
             % <#doc_beg:> miggle
 
 
@@ -864,6 +871,7 @@ classdef test_He3tube_5
             % truly!
             % Honest!
             % <#doc_end:>
+            %-------------------------------------------------------------------
             if dia>=2*obj.thick_
                 obj.dia_=dia;
             else

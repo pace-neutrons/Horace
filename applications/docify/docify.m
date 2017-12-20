@@ -116,6 +116,19 @@ function varargout=docify(varargin)
 %   % <#file:> another_file.txt
 %       :
 %
+%   or, if the variable my_extra_file has been defined as e.g. 'my_extra_stuff.txt'
+%       :
+%   % <#file:>  <my_extra_file>
+%       :
+%
+%     The <#file:> keyword can also take a matlabe expression to be evaluated
+%   e.g. if <my_dir> and <my_file> are appropriately defined
+%       :
+%   % <#file:>  fullfile('<my_dir>','<my_file>')
+%       :
+%
+%     If a file 
+%
 %
 % (3) Global substitution strings and logical block selection can be overidden
 %   in a documentation file by defining their values at the top. For

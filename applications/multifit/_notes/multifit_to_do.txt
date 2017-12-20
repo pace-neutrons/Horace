@@ -1,0 +1,255 @@
+===============================================================================================
+             mfclass roll-out Dec 2017
+===============================================================================================
+
+- Re-add multifit as legacy (sqw)
+
+- More sophisticated detemination of legacy argument input (positional argument, cell array of
+  handles?)
+
+- docify multifit_legacy: changes so does not use mkgpath (just like mfclass)
+
+- Replace matlab:doc with matlab:help
+
+- fit (cf multifit): rename as fit_legacy, and create fit method ? Certainly needs to have legacy
+  comment printed
+
+- tofspectrum multifit and fit
+
+  
+  
+Tidy up:
+========
+- remove @appversion
+
+- utilities/classes: remove methods and ops folders. Do we need @testsigvar?
+
+- IX_dataset_nd? Who uses them, and can the routines be moved?
+	In svn_area:
+	- delta_IX_dataset_nd:  Only used in test routines. Can be replaced by equal_to_tol
+	- isa_IX_dataset_nd: 	Nowhere!
+	- rebin_IX_dataset_nd: 	mgenie in tofspectrum in units.m
+	- IX_dataset_nd: 		New multifit in _test and _test_internal
+							IX_data_3d/simple_integrate*
+							IX_dataset  various places
+	Question: how has the generic rebin been altered to cope without?
+	
+	In Paul's CAPCC:
+	- isa_IX_dataset_nd
+
+
+
+===============================================================================================
+             mfclass subclasses
+===============================================================================================
+Do we want to change the naming scheme?
+
+mfclass_wrapfun 		utility function 
+
+mfclass_sqw
+
+mfclass_tobyfit
+
+Associated:
+-----------
+equal_to_relerr - is it used anywhere, and can it be replaced ?
+
+
+===============================================================================================
+             Jobs post reorganisation
+===============================================================================================
+Create insert_data and corresponding dataset_insert. Edit replace_data to use dataset_remove
+and dataset_insert; this will overcome the inconsistency that we cannot replace a single data
+item with a single one of a different type at the moment.
+
+Catch special case of removing all but one of a cell array of cell
+arrays - to leave {x,y,e} rather than {{x,y,e}} ? But then for consistency do we have to do the
+same with set_data, and then is this really going to get true consistency.
+
+kk2 = kk0.set_bpin([50,20,5],[51,20,5],[52,20,5]) and sim. non-cell array input to other set
+functions does not work at present. But do we want to do this? Consistency of input needs
+to be reviewed. I suspect it is a *bad* idea!
+
+Make kk.data([1,4]) work - do this by going via kk.w_ as this is a cell array of individual
+datasets.
+
+set_keep, add_keep, set_remove, add_remove (!) as separate functions, and make set_mask
+take an-named argument for mask array.
+
+
+
+===============================================================================================
+             Reorganisation 7 Sep 2017
+===============================================================================================
+mask optins in set_data etc.  push into a single routine like add_mask_private_ (see
+set_fun_private_ and friends for same organisation) ?
+
+
+
+
+
+
+sort out where to catch case of no functions or data set - this will affect error
+reporting for case of syntax e.g. obj.pin = [] . All the function and binding_addparsers handle
+empty input; it is e.g. set_fun_private_ (or set_bind and friends - at higher level for binding)
+that there is error trapping
+
+remove_data, clear_mask etc   () and ('all') the same; ([]) do nothing
+
+set_mask, add_mask : create add_mask_private (masks are like bindings, so make syntax the same)
+
+Inconsistency in arguments to set_fun (whwere [] means 'all') and set_pin etc.
+
+15 Sep 2017: still need to sort out set_data, append_data (create insert_data?); all masking
+
+
+obj.ndatatot_   	Replace with numel(obj.w_)
+					Only question: do we need as a protected property for sub classes?
+
+obj.bound_ 			Can simply use logical(obj.bound_to_)					
+
+obj.bound_res_, obj.ratio_res_
+					Can remove as properties, because we can  use bound_resolve() to 
+					get them in ptrans_initialise. 
+					Need to check in binding_add() that additional bindings do not
+					cause closed loops of bindings by calling binding_resolve() there too
+					
+obj.np_  			Can use mfclass_plist.np: cellfun (@(x))x.np, obj.pin)
+					Similarly obj.nbp
+					
+get_fun_props_ etc. should be replaced as propserties
+				
+
+data can also be changed, so have obj.data = [w1,w2..]; obj.data([3,6]) = ...
+Repackage_output_data becomes a method on data
+
+kk = tobyfit2 (w1_100);
+kk.fun = @blobby;
+kk.pin = [1,3,2,44];
+kk.free = [1,1,0,0];
+kk.bind = kk.bind + {};
+
+kk.fun = kk.clear_fun([13,17]);
+
+kk.fun([13,17]) = [];
+
+
+					
+Renaming:
+---------
+multifit_lsqr has plist etc. Probably OK as internally consistent, but need to separate
+from mfclass proper e.g. ptrans_initialise straddles both.
+
+
+Other details:
+--------------
+Every message shoudl be printed with display_message, so that messages can be generalised
+without causing any problems later on. (Do a search on 'disp(' and 'disp (' (andsam for 
+'display*' ?
+
+
+
+===============================================================================================
+             mfclass
+===============================================================================================
+
+- simulation: background, foreground options, option to use fit parameters (either
+  as a second argument from an object, or store results of a fit). Also return chisqr.
+  ptrans_initialise to return 'calculable' - true if function can be calculated but
+  not fitted. repackage_output_data to cope with no free parameters.
+  
+- need to have single line call equivalent for full backwards compatibility with
+  the original multifit.
+  
+2016/10/22: get_option/set_option: unsatisfactory, as it is not clear what the options
+are, and no automatic help.
+
+- Why np, nbp, ndtatot hidden?
+
+
+  
+Multifit_lsqr:
+=================
+- Not obvious why need multifit_lsqr_func_eval and multifit_func_eval. Especially
+  as there is a perform_fit option in multifit_lsqr; this would mean that it could be
+  made the sole interface function.
+
+- Does multifit_lsqr cope with both foreground and background functions not present?
+  This is a possible setting: should set the evaluated value to zero.
+  
+- repackage_output_data: optimisation is to handle case of empty msk argument 
+  meaning no masking. Maybe extend to mfclass property msk_ too?
+  
+- repackage_output_data: doesn't work with data sets with no signal. Need to
+  check all other routines for the same too.
+  
+- ptrans_par and friends: do they work with no background or foreground functions?
+
+- MAJOR DEVELOPMENT: pass the fitting object down/make method of the object: want
+  to get rid of the stupid persistent variables mess that we have particularly in
+  Tobyfit
+  
+  
+Constraints:
+===============
+
+- Do we actually need property bound_? After all, bound_ == (bound_to_>0)
+
+- Should clear_bind look be able to clear specific parameters, not just all parameters
+  for a given function ?
+
+	
+%========================================================================================
+		BUGS
+%========================================================================================
+If have set several datasets, then set_local_foreground shoudl give dummy functions that 
+number the same as the number of datasets.
+
+
+
+
+
+
+
+
+%========================================================================================
+% Very old stuff
+% -----------------
+
+
+- add checks to clear bindings in various functions add*, clear* (data and parameters)
+
+- info_level
+
+
+
+function 
+% Determine if can replace existing local function set with a global function
+% To be able to do this, must
+% - functions all the same name
+% - parameter lists all the same
+% - 
+
+
+%=====================================================================================
+% Major architectural matters
+%=====================================================================================
+Is it better to not to have methods constraints_remove_, constraints_insert_ operating
+on mfclass objects? The problem is it is not possible to compose methods like
+constraints_replace because the output objects of constraints_remove_ are not
+valid objects (no_, nbp_ are inconsistent with constraints section)
+
+
+
+%=====================================================================================
+% API to e.g. Tobyfit
+%=====================================================================================
+Currently have mfclass_gateway_parameter_get (and _set) which are used inTobyfit2
+They are needed to get to a private function. SHould Find a neater way to have
+common code.
+
+Add a way of passing a global internal state (not just for a particular dataset. This
+could be used by refine_moderator_sampling_table_buffer, for example.
+
+
+

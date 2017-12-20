@@ -796,6 +796,7 @@ function [ok,mess,varargout] = multifit_gateway_main (varargin)
 %   >> [wfit,fitpar]=multifit(w,@gauss,pin,{{},{3,3,1}},@linear_bg,bg,...
 %                                         'local_foreground')
 
+%-------------------------------------------------------------------------------
 % <#doc_def:>
 %   first_line = {'% Simultaneously fits a function to several datasets, with optional',...
 %                 '% background functions.'}
@@ -876,6 +877,7 @@ function [ok,mess,varargout] = multifit_gateway_main (varargin)
 %
 %   <#file:> meta_docs:::doc_multifit_examples_1d.m
 % <#doc_end:>
+%-------------------------------------------------------------------------------
 
 
 % Original author: T.G.Perring

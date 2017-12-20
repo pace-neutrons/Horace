@@ -1,4 +1,4 @@
-function [wout, fitdata, ok, mess] = multifit(win, varargin)
+function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % Simultaneously fits a function to an array of IX_dataset_1d objects, with
 % optional background functions.
 %

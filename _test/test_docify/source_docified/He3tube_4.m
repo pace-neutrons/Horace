@@ -4,6 +4,7 @@ classdef test_He3tube_4
     % Wotsit Methods:
     %
 
+    %---------------------------------------------------------------------------
     % <#doc_def:>
     %
     %   class_name = 'Wotsit'
@@ -14,6 +15,7 @@ classdef test_He3tube_4
     % <class_name> Methods:
     %
     % <#doc_end:>
+    %---------------------------------------------------------------------------
 
 
     % Original author: T.G.Perring
@@ -29,6 +31,7 @@ classdef test_He3tube_4
         % Wotsit Methods:
         %
 
+        %-----------------------------------------------------------------------
         % <#doc_beg:> miggle
 
         % Really!
@@ -50,6 +53,7 @@ classdef test_He3tube_4
         % <class_name> Methods:
         %
         % <#doc_end:>
+        %-----------------------------------------------------------------------
 
         % This is a p[ile of crap which is my
         % way of sayin ipsum lorem
@@ -106,6 +110,7 @@ classdef test_He3tube_4
             % truly!
             % Honest!
 
+            %-------------------------------------------------------------------
             % <#doc_beg:> miggle
 
 
@@ -113,6 +118,7 @@ classdef test_He3tube_4
             % truly!
             % Honest!
             % <#doc_end:>
+            %-------------------------------------------------------------------
             if dia>=2*obj.thick_
                 obj.dia_=dia;
             else

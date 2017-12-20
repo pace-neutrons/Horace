@@ -40,7 +40,7 @@ copyfile(source_undocified,tmpfolder,'f')
 
 if manual
     disp('--------------------------------------------------------------------------------------------')
-    docify_new (tmpfolder,'-recursive','-list',3)
+    docify (tmpfolder,'-recursive','-list',3)
     disp(' ')
     disp('Compare the following folders with a text comparison program: they should be identical')
     disp(source_docified)
@@ -48,7 +48,7 @@ if manual
     pause
     disp(' ')
 else
-    docify_new (tmpfolder,'-recursive','-list',0)
+    docify (tmpfolder,'-recursive','-list',0)
 end
 
 
@@ -57,11 +57,11 @@ end
 
 if manual
     disp('--------------------------------------------------------------------------------------------')
-    docify_new (tmpfolder,'-recursive','-list',3)
+    docify (tmpfolder,'-recursive','-list',3)
     disp(' ')
     disp('Compare the following folders with a text comparison program: they should be identical')
     disp(source_docified)
     disp(tmpfolder)
 else
-    docify_new (tmpfolder,'-recursive','-list',0)
+    docify (tmpfolder,'-recursive','-list',0)
 end

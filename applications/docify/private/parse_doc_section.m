@@ -109,7 +109,8 @@ for i=1:nstr
     elseif iskey
         % Keyword line
         % We require that any substitutions are strings, not cell arrays. Check only
-        % if storing, as substitutions may not be defined for blocks that are not being parsed.
+        % if storing, as substitutions may not be defined for blocks that are not
+        % being parsed.
         if strcmpi(var,'file') && ~isend
             if numel(argstr)<1
                 ok=false;
