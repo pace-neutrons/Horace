@@ -1,7 +1,7 @@
 function varargout = multifit (varargin)
 % Simultaneously fit function(s) to one or more IX_dataset_1d objects
 %
-%   >> myobj = multifit (w1, w2, ...)      % w1, w2 objects or arrays of objects
+%   >> myobj = multifit (w1, w2, ...)       % w1, w2 objects or arrays of objects
 %
 % This creates a fitting object of class mfclass_IX_dataset_1d with the provided
 % data, which can then be manipulated to add further data, set the fitting

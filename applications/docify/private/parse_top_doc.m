@@ -7,10 +7,12 @@ function [ok, mess, source, changed] = parse_top_doc (flname, doc_filter)
 % ------
 %   flname  Name of file that contains meta-documentation if top level call
 %
-%   doc_filter  Cell array of strings with acceptable filter keywords
-%          on the <#doc_beg:> line. If non-empty, only if one of the
-%          keywords appears on the line will the documentation be
-%          included
+%   doc_filter  Determine which doc_beg...doc_end sections to parse:
+%              If false: parse all sections, whether tagged with filter keyword or not
+%              If true:  parse only untagged sections
+%              If cell array of strings:
+%                        parse only those sections tagged with one or more
+%                        of the keywords in the list that is doc_filter
 %
 % Output:
 % -------

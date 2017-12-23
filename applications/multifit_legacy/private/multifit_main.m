@@ -883,7 +883,7 @@ function [ok,mess,parsing,output] = multifit_main(varargin)
 %
 %   custom_keywords = false;
 %
-% <#doc_beg:>
+% <#doc_beg:> multifit_legacy
 %--------------------------------------------------------------------------
 % The documentation for multifit is reproduced below, but this gateway
 % function differs as follows:

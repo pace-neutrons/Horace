@@ -7,14 +7,14 @@ function [ok, mess, file_full_in, changed, file_full_out] = docify_single...
 %
 % Input:
 % ------
-%   file_in         Input file name
-%   file_out        Output file name (if empty, then replaces file_in)
-%   doc_filter      Cell array (row) of strings with acceptable filter keywords
-%                  on the <#doc_beg:> line. If non-empty, only if one of the
-%                  keywords appears on the line will the documentation be
-%                  included. If empty, then meta-documentation will be
-%                  processed regardless of the value of any keywords on the
-%                  <#doc_beg:> line.
+%   file_in     Input file name
+%   file_out    Output file name (if empty, then replaces file_in)
+%   doc_filter  Determine which doc_beg...doc_end sections to parse:
+%              If false: parse all sections, whether tagged with filter keyword or not
+%              If true:  parse only untagged sections
+%              If cell array of strings:
+%                        parse only those sections tagged with one or more
+%                        of the keywords in the list that is doc_filter
 %
 % Output:
 % -------
@@ -32,11 +32,7 @@ replace_file = isempty(file_out);
 
 while true  % while...end only so the 'break' feature can be used
     % Parse meta documentation in an m-file
-    if ~isempty(doc_filter)
-        [ok,mess,source,changed] = parse_top_doc (file_in,doc_filter);
-    else
-        [ok,mess,source,changed] = parse_top_doc (file_in,{});
-    end
+    [ok,mess,source,changed] = parse_top_doc (file_in,doc_filter);
     if ok
         file_full_in = translate_read(file_in);   % we know this must already have worked
     else

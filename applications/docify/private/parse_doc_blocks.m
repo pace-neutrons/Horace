@@ -12,10 +12,12 @@ function [ok, mess, idef, ibeg, iend] = parse_doc_blocks (cstr, is_topfile, doc_
 %          If true, then if there must be an explicit doc_beg line for
 %          there to be meta documentation
 %
-%   doc_filter  Cell array of strings with acceptable filter keywords
-%              on the <#doc_beg:> line. If non-empty, only if one of the
-%              keywords appears on the line will the documentation be
-%              included
+%   doc_filter  Determine which doc_beg...doc_end sections to parse:
+%              If false: parse all sections, whether tagged with filter keyword or not
+%              If true:  parse only untagged sections
+%              If cell array of strings:
+%                        parse only those sections tagged with one or more
+%                        of the keywords in the list that is doc_filter
 %
 % Output:
 % -------
@@ -150,11 +152,23 @@ elseif numel(ibeg)>=1 && (...
     end
     
     % Filter out blocks
-    if ok && ~isempty(doc_filter) && numel(ibeg)>0
+    if ok && numel(ibeg)>0
         keep = true(size(ibeg));
-        for i=1:numel(ibeg)
-            if ibeg(i)>0 && ~any(ismember(doc_keys{ibeg(i)},doc_filter))
-                keep(i) = false;
+        if islogical(doc_filter)
+            % If doc_filter is a logical, then if true keep only if the doc_beg section is untagged
+            if doc_filter
+                for i=1:numel(ibeg)
+                    if ibeg(i)>0 && ~isempty(doc_keys{ibeg(i)})
+                        keep(i) = false;
+                    end
+                end
+            end
+        else
+            % 
+            for i=1:numel(ibeg)
+                if ibeg(i)>0 && ~any(ismember(doc_keys{ibeg(i)},doc_filter))
+                    keep(i) = false;
+                end
             end
         end
         idef = idef(keep);

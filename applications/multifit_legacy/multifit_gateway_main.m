@@ -812,7 +812,7 @@ function [ok,mess,varargout] = multifit_gateway_main (varargin)
 %
 %   custom_keywords = false;
 %
-% <#doc_beg:>
+% <#doc_beg:> multifit_legacy
 %--------------------------------------------------------------------------
 % The documentation for the public multifit application is reproduced below.
 % This is the gateway to the master multifit function, and its arguments

@@ -32,12 +32,12 @@ function [ok, mess, doc_out, iline_start, iline_finish, doc_found] = ...
 %               If false: the line structure comes from a meta documnetation
 %              file, and if there is no explicit doc_beg
 %
-%   doc_filter  Cell array (row) of strings with acceptable filter keywords
-%              on the <#doc_beg:> line. If non-empty, only if one of the
-%              keywords appears on the line will the documentation be
-%              included. If empty, then meta-documentation will be
-%              processed regardless of the value of any keywords on the
-%              <#doc_beg:> line.
+%   doc_filter  Determine which doc_beg...doc_end sections to parse:
+%              If false: parse all sections, whether tagged with filter keyword or not
+%              If true:  parse only untagged sections
+%              If cell array of strings:
+%                        parse only those sections tagged with one or more
+%                        of the keywords in the list that is doc_filter
 %
 % Output:
 % -------
@@ -139,7 +139,7 @@ if numel(ibeg_arr)>0
         lstruct_docsection = section_lstruct (lstruct, ibeg+1:iend-1);
         if ~isempty(lstruct_docsection.cstr) % there might be no lines i.e. empty block
             [ok, mess_tmp, iline_err, doc_new] = parse_doc_section...
-                (lstruct_docsection.cstr, Snew);
+                (lstruct_docsection.cstr, Snew, doc_filter);
             if ~ok
                 mess_intro = 'Parsing meta documentation text:';
                 mess = make_message (lstruct_docsection, iline_err, mess_intro, mess_tmp);

@@ -2,10 +2,10 @@
              mfclass roll-out Dec 2017
 ===============================================================================================
 
-- Re-add multifit as legacy (sqw)
-
 - More sophisticated detemination of legacy argument input (positional argument, cell array of
   handles?)
+  
+- Contents.m wherever there is a function and directory conflict.
 
 - docify multifit_legacy: changes so does not use mkgpath (just like mfclass)
 
@@ -16,7 +16,12 @@
 
 - tofspectrum multifit and fit
 
-  
+- A method of warning once per matlab session that a 'fit' call has been made
+
+- recursive file check for xunit tests (need for test_docify), and recast system test for docify
+
+
+
   
 Tidy up:
 ========

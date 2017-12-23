@@ -2,24 +2,44 @@ function varargout=docify(varargin)
 % Insert documentation constructed from meta documentation
 %
 % Acting on folder contents:
+% --------------------------
 %   >> docify ()                % For all m files in current folder
 %   >> docify (dirname)         % For all m files in named folder
 %   >> docify (...'-recursive') % Include subfolders as well
+%
+%   By default the above works only on meta-documnetation that is not
+%   tagged with a keyword on the meta-documentation begin line (i.e. lines
+%   beginning <#doc_beg:>). To docify tagged sections:
+%
 %   >> docify (...'-key',val)   % Only files that contain one of the strings
 %                               % in val on the <#doc_beg:> line (Here val is
 %                               % a character string or cell array of strings)
+%
+%   >> docify (...'-all')       % All files, whether with keyword tags or not
+%
+%   Notes that '-key' and '-all' cannot appear together
+%
+%
 % Acting on a single file:
+% ------------------------
 %   >> docify (file_in)             % insert documentation and replace file
 %   >> docify (file_in, file_out)   % insert documentation and write to new file
+%
 %   >> docify (...,'-key',val)      % Only if the file contains one of the keywords
+%   >> docify (...,'-all')
 %
 % Reporting result of parsing to the screen and/or output
 %   >> docify (...,'-list',n,...)
+%           n=0 List errors only
 % 	        n=1 [Default] List changed files only, or if error (with full traceback)
 %           n=2 list all checked files, and any errors (with full traceback)
+%
 %   >> report = docify (...,'-list',n,...)
-%           n=1  or n=2 : Print to screen and return report
-%           n=-1 or n=-2: Suppress output to screen
+%           As above, with full report
+%
+%   >> report = docify (...'-nodisplay')
+%           As above, but no display to the screen
+%
 %
 %
 %
@@ -127,7 +147,7 @@ function varargout=docify(varargin)
 %   % <#file:>  fullfile('<my_dir>','<my_file>')
 %       :
 %
-%     If a file 
+%     If a file
 %
 %
 % (3) Global substitution strings and logical block selection can be overidden
@@ -229,11 +249,12 @@ function varargout=docify(varargin)
 
 % Parse input
 % ------------
-keyval_def = struct('recursive',false,'key',{{}},'list',1,'display',true);
-flagnames = {'recursive','display'};
+keyval_def = struct('recursive',false,'all',false','key',{{}},'list',1,'display',true);
+flagnames = {'recursive','display','all'};
 opt=struct('prefix','-','prefix_req',true);
-[pars,keyval] = parse_arguments (varargin, keyval_def, flagnames, opt);
+[pars,keyval,present] = parse_arguments (varargin, keyval_def, flagnames, opt);
 
+% Determine if spans directory or just a single file
 if isempty(pars)
     span_directory = true;
     directory = pwd;
@@ -256,14 +277,30 @@ elseif numel(pars)==2 && ~isempty(pars{1}) && is_string(pars{1}) &&...
 else
     error('Check number of parameters and their values')
 end
-if isempty(keyval.key)
-    keyval.key={};
-elseif iscellstr(keyval.key)
-    keyval.key=keyval.key(:)';
-elseif is_string(keyval.key)
-    keyval.key={keyval.key};
+
+if ~span_directory && keyval.recursive
+    error('The option ''-recursive'' is not permitted with a single file')
+end
+
+% Filtering
+if ~(present.all && present.key)
+    if present.all
+        doc_filter=false;   % process all sections, tagged or not
+    elseif present.key
+        if isempty(keyval.key)
+            doc_filter={};
+        elseif iscellstr(keyval.key)
+            doc_filter=keyval.key(:)';
+        elseif is_string(keyval.key)
+            doc_filter={keyval.key};
+        else
+            error('Check value of keyword ''-key'' is a character string or a cell array of strings')
+        end
+    else
+        doc_filter=true;    % process only untagged sections
+    end
 else
-    error('Check value of keyword ''-key'' is a character string or a cell array of strings')
+    error('Cannot give both ''-all'' and ''-key'' options')
 end
 
 % Get verbosity of listing
@@ -277,80 +314,142 @@ end
 keyval.list = nlist;
 
 
-% Loop over all directories
-% --------------------------
-report = {};
+% Perform meta-documentation conversion
+% --------------------------------------
+opt.doc_filter = doc_filter;
+opt.recursive = keyval.recursive;
+opt.list = keyval.list;
+opt.display = keyval.display;
 
-if span_directory && keyval.recursive
-    directories=dir_name_list(directory,'','.svn');    % skip svn work folders
-    for i=1:numel(directories)
-        sub_directory=directories{i};
-        % ignore '.' and '..'
-        if (strcmp(sub_directory,'.') || strcmp(sub_directory,'..'))
-            continue;
-        end
-        % Recurse down
-        full_directory=fullfile(directory,sub_directory);
-        key_args = make_row([cellfun(@(x)['-',x],fieldnames(keyval)','UniformOutput',false);struct2cell(keyval)']);
-        report={report;...
-            docify(full_directory,key_args{:})};
-    end
-end
-
-% Run function (recursion operates from the bottom of each branch)
-% -----------------------------------------------------------------
 if span_directory
-    files = dir(fullfile(directory,'*.m'));
-    for ifile = 1:length(files)
-        fname = fullfile(directory,files(ifile).name);
-        [ok,mess,file_full_in,changed] = docify_single(fname,'',keyval.key);
-        report = [report;...
-            make_report(ok,mess,file_full_in,changed,keyval.list,keyval.display)];
-    end
+    report = docify_main (directory, opt);
 else
-    [ok,mess,file_full_in,changed] = docify_single(file_in,file_out,keyval.key);
-    report = [report;...
-        make_report(ok,mess,file_full_in,changed,keyval.list,keyval.display)];
+    report = docify_main (file_in, file_out, opt);
 end
 
+
+% Display summary output and return report
+% ----------------------------------------
 if nargout>=1, varargout{1}=report; end
+
+if opt.list>0
+    disp('--------------------------------------------------------------------------------')
+    disp('Files changed:')
+    disp(' ')
+    display_report_to_screen (report.changed)
+    disp('--------------------------------------------------------------------------------')
+end
+
+
+%-----------------------------------------------------------------------------------------
+function report = docify_main (varargin)
+% Perform docification and accumulate the report to any current report
+%
+% Directory with or without recursion:
+%   >> report = docify_main (directory, opt);           
+%
+% Single file:
+%   >> report = docify_main (file_in, file_out, opt)
+
+opt = varargin{end};
+if nargin==2
+    % Spans directory, with or without conversion
+    directory = varargin{1};
+    report = [];
+    
+    % Recurse to sub-directories, if requested
+    if opt.recursive
+        directories = dir_name_list (directory,'','.svn');    % skip svn work folders
+        for i=1:numel(directories)
+            sub_directory = directories{i};
+            % ignore '.' and '..'
+            if (strcmp(sub_directory,'.') || strcmp(sub_directory,'..'))
+                continue;
+            end
+            % Recurse down
+            full_directory = fullfile (directory, sub_directory);
+            report = append_report (report, docify_main(full_directory, opt));
+        end
+    end
+    
+    % Process .m files in the currect directory
+    % (Note that recursion operates from the bottom of each branch)
+    files = dir (fullfile(directory,'*.m'));
+    for ifile = 1:length(files)
+        fname = fullfile (directory, files(ifile).name);
+        [ok,mess,file_full_in,changed] = docify_single (fname, '', opt.doc_filter);
+        report = append_report (report,...
+            make_report (ok, mess, file_full_in, changed, opt.list, opt.display));
+    end
+    
+else
+    % Single file
+    file_in = varargin{1};
+    file_out = varargin{2};
+    [ok,mess,file_full_in,changed] = docify_single (file_in, file_out, opt.doc_filter);
+    report = make_report (ok, mess, file_full_in, changed, opt.list, opt.display);
+end
 
 
 %-----------------------------------------------------------------------------------------
 function report = make_report (ok, mess, file_full_in, changed, nlist, disp_to_screen)
 % Create a report and print to screen as requested
-% 	list    n=1 List changed files only, or if error (with full traceback)
+% 	list    n=0 List errors only
+%           n=1 List changed files only, or if error (with full traceback)
 %           n=2 list all checked files, and any errors (with full traceback)
 
 
-report={};
+report.unchanged={};
+report.changed={};
+report.err={};
+report.list={};
 
 % Create report
-if nlist==0
-    if ~ok
-        report = [{['***ERROR: ',file_full_in]}; mess; {' '}];
-    end
-elseif nlist==1
-    if ok && changed
-        report = {file_full_in};
-    elseif ~ok
-        report = [{['***ERROR: ',file_full_in]}; mess; {' '}];
+if ok
+    if ~changed
+        report.unchanged = {file_full_in};
+        report.list = {['     ok: ',file_full_in]};
+    else
+        report.changed = {file_full_in};
+        report.list = {['Changed: ',file_full_in]};
     end
 else
-    if ok
-        if ~changed
-            report = {['     ok: ',file_full_in]};
-        else
-            report = {['Changed: ',file_full_in]};
+    report.err = [{['***ERROR: ',file_full_in]}; mess; {' '}];
+    report.list = [{['***ERROR: ',file_full_in]}; mess; {' '}];
+end
+
+% Display to screen
+if disp_to_screen
+    if nlist==0
+        if ~ok
+            display_report_to_screen (report.list)
+        end
+    elseif nlist==1
+        if ~ok || changed
+            display_report_to_screen (report.list)
         end
     else
-        report = [{['***ERROR: ',file_full_in]}; mess; {' '}];
+        display_report_to_screen (report.list)
     end
 end
 
-% Display to screen if n>0
-if disp_to_screen
-    for i=1:numel(report)
-        if ~isempty(report{i}), disp(report{i}), end
-    end
+%-----------------------------------------------------------------------------------------
+function report_out = append_report (report_in, report_add)
+% Append one report to another
+if isempty(report_in)
+    report_out = report_add;
+elseif isempty(report_add)
+    report_out = report_in;
+else
+    report_out.unchanged = [report_in.unchanged; report_add.unchanged];
+    report_out.changed = [report_in.changed; report_add.changed];
+    report_out.err = [report_in.err; report_add.err];
+    report_out.list = [report_in.list; report_add.list];
+end
+
+%-----------------------------------------------------------------------------------------
+function display_report_to_screen (list)
+% Display cell array of strings to screen
+for i=1:numel(list)
+    if ~isempty(list{i}), disp(list{i}), end
 end

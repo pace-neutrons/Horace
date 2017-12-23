@@ -1,21 +1,28 @@
-function [ok, mess, iline_err, doc_out] = parse_doc_section (cstr, S)
+function [ok, mess, iline_err, doc_out] = parse_doc_section (cstr, S, doc_filter)
 % Parse meta documentation
 %
-%   >> [ok, mess, iline_err, doc_out] = parse_doc_section (cstr, S)
+%   >> [ok, mess, iline_err, doc_out] = parse_doc_section (cstr, S, doc_filter)
 %
 % Input:
 % ------
-%   cstr    Cell array of strings with the new documentation to be parsed
-%          in this function. Each must be valid block start or end line,
-%          keyword/value line, substitution name for a cell array, or a
-%          comment line i.e. begin with '%'. Assumed to have been trimmed
-%          of leading and trailing whitespace and to be non-empty.
+%   cstr        Cell array of strings with the new documentation to be parsed
+%              in this function. Each must be valid block start or end line,
+%              keyword/value line, substitution name for a cell array, or a
+%              comment line i.e. begin with '%'. Assumed to have been trimmed
+%              of leading and trailing whitespace and to be non-empty.
 %
-%   S       Structure whose fields are the names of variables and their
-%          values. Fields can be:
-%               - string
-%               - cell array of strings (column vector)
-%               - logical true or false (retain value for blocks)
+%   S           Structure whose fields are the names of variables and their
+%              values. Fields can be:
+%                   - string
+%                   - cell array of strings (column vector)
+%                   - logical true or false (retain value for blocks)
+%
+%   doc_filter  Determine which doc_beg...doc_end sections to parse:
+%              If false: parse all sections, whether tagged with filter keyword or not
+%              If true:  parse only untagged sections
+%              If cell array of strings:
+%                        parse only those sections tagged with one or more
+%                        of the keywords in the list that is doc_filter
 %
 % Output:
 % -------
@@ -139,7 +146,7 @@ for i=1:nstr
                     [ok,mess,lstruct]=read_file(args{1});
                     if ~ok, return, end
                     is_topfile = false;
-                    doc_filter = {};
+                    doc_filter = false;
                     [ok, mess, doc_new] = parse_doc (lstruct, args(2:end), S,...
                         is_topfile, doc_filter);
                     if ~ok, return, end

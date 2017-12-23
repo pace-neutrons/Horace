@@ -11,14 +11,12 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % Similarly, you can specify a global background function, by given the
 % keyword option 'global_background'
 %
-% Differs from fit, which independently fits each dataset in
-% succession.
 %
 % Simultaneously fit datasets to a single function ('global foreground'):
 % -----------------------------------------------------------------------
-%   >> [wout, fitdata] = multifit (w, func, pin)
-%   >> [wout, fitdata] = multifit (w, func, pin, pfree)
-%   >> [wout, fitdata] = multifit (w, func, pin, pfree, pbind)
+%   >> [wout, fitdata] = multifit_legacy (w, func, pin)
+%   >> [wout, fitdata] = multifit_legacy (w, func, pin, pfree)
+%   >> [wout, fitdata] = multifit_legacy (w, func, pin, pfree, pbind)
 %
 % These cover the respective cases of:
 %   - All parameters free
@@ -28,9 +26,9 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %
 % With optional background functions added to the foreground:
 % -----------------------------------------------------------
-%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = multifit (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = multifit_legacy (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = multifit_legacy (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = multifit_legacy (..., bkdfunc, bpin, bpfree, bpbind)
 %
 %   If you give just one background function then that function will be used for
 %   all datasets, but the parameters will be varied independently for each dataset
@@ -45,13 +43,13 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % for each dataset.
 %
 % To have independent foreground functions for each dataset:
-%   >> [wout, fitdata] = multifit (..., 'local_foreground')
+%   >> [wout, fitdata] = multifit_legacy (..., 'local_foreground')
 %
 %   If you give just one foreground function then that function will be used for
 %   all datasets, but the parameters will be varied independently for each dataset
 %
 % To have a global background function across all datasets:
-%   >> [wout, fitdata] = multifit (..., 'global_background')
+%   >> [wout, fitdata] = multifit_legacy (..., 'global_background')
 %
 %
 % Additional keywords controlling the fit:
@@ -60,7 +58,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % verbosity of output etc. with keywords, some of which need to be paired
 % with input values, some of which are just logical flags:
 %
-%   >> [wout, fitdata] = multifit (..., keyword, value, ...)
+%   >> [wout, fitdata] = multifit_legacy (..., keyword, value, ...)
 %
 % Keywords that are logical flags (indicated by *) take the value true
 % if the keyword is present, or their default if not.
@@ -98,15 +96,15 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %                          [Default: false]
 %
 %   EXAMPLES:
-%   >> [wout, fitdata] = multifit(...,'keep',[0.4,1.8],'list',2)
+%   >> [wout, fitdata] = multifit_legacy(...,'keep',[0.4,1.8],'list',2)
 %
-%   >> [wout, fitdata] = multifit(...,'select')
+%   >> [wout, fitdata] = multifit_legacy(...,'select')
 %
 % If unable to fit, then the program will halt and display an error message.
 % To return if unable to fit without throwing an error, call with additional
 % arguments that return status and error message:
 %
-%   >> [wout, fitdata, ok, mess] = multifit (...)
+%   >> [wout, fitdata, ok, mess] = multifit_legacy (...)
 %
 %
 %------------------------------------------------------------------------------
@@ -501,7 +499,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %
 %
 %   Example:
-%   >> [wout, fitdata] = multifit(...,'keep',[0.4,1.8],'list',2)
+%   >> [wout, fitdata] = multifit_legacy(...,'keep',[0.4,1.8],'list',2)
 %
 %
 % Output:
@@ -555,7 +553,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % Fit a global 2D Gaussian to an array of data sets, allowing only height and
 % position to vary:
 %   >> ht=100; x0=1; y0=3; var_x=2; var_y=1.5;
-%   >> [wout, fdata] = multifit(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], [1,1,1,0,0,0])
+%   >> [wout, fdata] = multifit_legacy(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], [1,1,1,0,0,0])
 %
 % Allow all parameters to vary, but remove two rectangles from the data
 % and give copious output during the fitting
@@ -566,7 +564,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % Allow independent planar backgrounds for every object:
 %   >> ht=100; x0=1; y0=3; var_x=2; var_y=1.5;
 %   >> const=0; dfdx=0; dfdy=0;
-%   >> [wout, fdata] = multifit(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], ...
+%   >> [wout, fdata] = multifit_legacy(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], ...
 %                                  @planar_bg, [const,dfdx,dfdy])
 %
 % Suppose there are two objects in the array. Constrain the constant
@@ -575,7 +573,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % Gaussian width:
 %   >> ht=100; x0=1; y0=3; var_x=2; var_y=1.5;
 %   >> const=0; dfdx=0; dfdy=0;
-%   >> [wout, fdata] = multifit(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], ...
+%   >> [wout, fdata] = multifit_legacy(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], ...
 %                                  @planar_bg, [const,dfdx,dfdy],...
 %                             {{1,1,-1,1e-2},{1,3,-1,0.1}})
 %
@@ -583,12 +581,14 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % constrained to have the same widths
 %   >> ht=100; x0=1; y0=3; var_x=2; var_y=1.5;
 %   >> const=0; dfdx=0; dfdy=0;
-%   >> [wout, fdata] = multifit(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], ...
+%   >> [wout, fdata] = multifit_legacy(w, @gauss2d, [ht,x0,y0,var_x,0,var_y], ...
 %                                  {{},{{4,4,1},{5,5,1},{6,6,1}}}
 %                                  @planar_bg, [const,dfdx,dfdy]...
 %                                           'local_foreground')
 
+%-------------------------------------------------------------------------------
 % <#doc_def:>
+%   multifit_doc = fullfile(fileparts(which('multifit_gateway_main')),'_docify');
 %   first_line = {'% Simultaneously fits a function to an array of IX_dataset_2d objects, with',...
 %                 '% optional background functions.'}
 %   main = false;
@@ -596,25 +596,26 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %   synonymous = false;
 %
 %   multifit=true;
-%   func_prefix='multifit';
+%   func_prefix='multifit_legacy';
 %   func_suffix='';
 %   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit')
 %   obj_name = 'IX_dataset_2d'
 %
-%   doc_forefunc = 'multifit_doc:::doc_func_simple_2d.m'
-%   doc_backfunc = 'multifit_doc:::doc_func_simple_2d.m'
+%   doc_forefunc = fullfile(multifit_doc,'doc_func_simple_2d.m')
+%   doc_backfunc = fullfile(multifit_doc,'doc_func_simple_2d.m')
 %
 %   custom_keywords = false;
 %
-% <#doc_beg:>
-%   <#file:> multifit_doc:::doc_multifit_short.m
+% <#doc_beg:> multifit_legacy
+%   <#file:> fullfile('<multifit_doc>','doc_multifit_short.m')
 %
 %
-%   <#file:> multifit_doc:::doc_multifit_long.m
+%   <#file:> fullfile('<multifit_doc>','doc_multifit_long.m')
 %
 %
-%   <#file:> multifit_doc:::doc_multifit_examples_2d.m
+%   <#file:> fullfile('<multifit_doc>','doc_multifit_examples_2d.m')
 % <#doc_end:>
+%-------------------------------------------------------------------------------
 
 
 % Original author: T.G.Perring

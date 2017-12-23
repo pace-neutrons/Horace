@@ -24,6 +24,7 @@ function [ok, mess, lstruct, source] = read_file (flname)
 
 
 % Default output
+source=cell(1,0);
 lstruct.cstr={}; lstruct.cstr0={}; lstruct.ind=[]; lstruct.flname=''; lstruct.flname_full='';
 
 % Get data from source
