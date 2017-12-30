@@ -1,7 +1,7 @@
-function y = gauss2d(x1, x2, p)
+function y = gauss2d (x1, x2, p)
 % Two-dimensional Gaussian
 % 
-%   >> y = gauss2d(x1,x2,p)
+%   >> y = gauss2d (x1, x2, p)
 %
 %  Function has form:
 %       y = h * exp(-1/2 * [dx1,dx2].*cov^-1.*[dx1;dx2])
@@ -15,7 +15,10 @@ function y = gauss2d(x1, x2, p)
 %
 % Input:
 % =======
-%   x   Vector of x-axis values at which to evaluate function
+%   x1  Array of values at which to evaluate function along the first
+%      dimension
+%   x2  Array of values at which to evaluate function along the second
+%      dimension. Must have the same size as x1
 %   p   Vector of parameters needed by the function:
 %           p = [height, x1_0, x2_0, c11, c12, c22]
 %

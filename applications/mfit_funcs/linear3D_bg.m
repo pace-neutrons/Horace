@@ -1,7 +1,7 @@
 function y=linear3D_bg(x1,x2,x3,p)
 % Linear background function in three dimensiona
 %
-%   >> y = planar_bg (x1,x2,x3,p)
+%   >> y = linear3D_bg (x1,x2,x3,p)
 %
 % Input:
 % =======

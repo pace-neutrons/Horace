@@ -13,7 +13,7 @@ function y = example_2d_function(x1, x2, p)
 %              coordinates along the first dimension, and x2 containing
 %              the values along the second dimension.
 %   p           A vector of numeric parameters that define the
-%              function (e.g. [A,x0,w] as area, position and
+%              function (e.g. [A, x1_0, x2_0, w] as area, position and
 %              width of a peak)
 %   c1,c2,...   Any further arguments needed by the function (e.g.
 %              they could be the filenames of lookup tables)
@@ -39,7 +39,7 @@ function y = example_2d_function(x1, x2, p)
 % =======
 %   x1  Array of values at which to evaluate function along the first
 %      dimension
-%   x2  Array of values at which to evaluate function along the first
+%   x2  Array of values at which to evaluate function along the second
 %      dimension. Must have the same size as x1.
 %   p   Vector of parameters needed by the function:
 %           p = [height, x1_0, x2_0, c11, c12, c22]

@@ -1,7 +1,7 @@
-function y=planar_bg(x1,x2,p)
+function y=linear2D_bg(x1,x2,p)
 % Planar background function
 %
-%   >> y = planar_bg (x1,x2,p)
+%   >> y = linear2D_bg (x1,x2,p)
 %
 % Input:
 % =======
@@ -13,6 +13,9 @@ function y=planar_bg(x1,x2,p)
 % Output:
 % ========
 %   y   Array of calculated y-axis values
+%
+%
+% Synonymous with planar_bg
 
 if length(p)~=3
     error('Input parameters must be a vector of length 3');

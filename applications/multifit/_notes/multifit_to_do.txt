@@ -1,26 +1,24 @@
 ===============================================================================================
              mfclass roll-out Dec 2017
 ===============================================================================================
+- explicitly check that d1d/multifit_sqw is called - a check of mfclass.legacy_call
 
 - More sophisticated detemination of legacy argument input (positional argument, cell array of
   handles?)
   
 - Contents.m wherever there is a function and directory conflict.
 
-- docify multifit_legacy: changes so does not use mkgpath (just like mfclass)
-
 - Replace matlab:doc with matlab:help
-
-- fit (cf multifit): rename as fit_legacy, and create fit method ? Certainly needs to have legacy
-  comment printed
 
 - tofspectrum multifit and fit
 
-- A method of warning once per matlab session that a 'fit' call has been made
-
 - recursive file check for xunit tests (need for test_docify), and recast system test for docify
 
+- Rename multifit_subclasses ot multifit in Herbert and Horace; also should Horace be raised a level?
 
+- Documentation
+	- Legacy: Move any doc_ funcs from applications to multifit_legacy in utilities/classes
+	- Legacy in Horace: sim.
 
   
 Tidy up:
