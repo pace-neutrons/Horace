@@ -1,21 +1,20 @@
-function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
-% Simultaneously fits a function to an array of d1d objects, with optional
-% background functions.
-% Synonymous with d1d method multifit_func
+function [wout, fitdata, ok, mess] = fit_legacy(win, varargin)
+% Fits a function to a d2d object, with an optional background function.
+% Synonymous with d2d method fit_func
 %
 % A background function can be added to the fit function.
 % If passed an array of datasets, then each dataset is fitted independently.
 %
 %
 % For full help, read the documentation displayed when you type:
-%   >> help d1d/multifit_legacy_func
+%   >> help d2d/fit_legacy_func
 %
 %
 % Fit several datasets in succession to a given function:
 % -------------------------------------------------------
-%   >> [wout, fitdata] = multifit_legacy (w, func, pin)
-%   >> [wout, fitdata] = multifit_legacy (w, func, pin, pfree)
-%   >> [wout, fitdata] = multifit_legacy (w, func, pin, pfree, pbind)
+%   >> [wout, fitdata] = fit_legacy (w, func, pin)
+%   >> [wout, fitdata] = fit_legacy (w, func, pin, pfree)
+%   >> [wout, fitdata] = fit_legacy (w, func, pin, pfree, pbind)
 %
 % These cover the respective cases of:
 %   - All parameters free
@@ -25,9 +24,9 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %
 % With optional background function added to the function:
 % --------------------------------------------------------
-%   >> [wout, fitdata] = multifit_legacy (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = multifit_legacy (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = multifit_legacy (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = fit_legacy (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = fit_legacy (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = fit_legacy (..., bkdfunc, bpin, bpfree, bpbind)
 %
 %
 % Additional keywords controlling the fit:
@@ -36,7 +35,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % verbosity of output etc. with keywords, some of which need to be paired
 % with input values, some of which are just logical flags:
 %
-%   >> [wout, fitdata] = multifit_legacy (..., keyword, value, ...)
+%   >> [wout, fitdata] = fit_legacy (..., keyword, value, ...)
 %
 % Keywords that are logical flags (indicated by *) take the value true
 % if the keyword is present, or their default if not.
@@ -63,44 +62,33 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %   *   'chisqr'        Evaluate chi-squared at the initial parameter values
 %                      (ignored if 'evaluate' not set).
 %
-%     Control if foreground and background functions are global or local:
-%   *   'global_foreground' Foreground function applies to all datasets
-%                          [Default: true]
-%   *   'local_foreground'  Foreground function(s) apply to each dataset
-%                          independently [Default: false]
-%   *   'local_background'  Background function(s) apply to each dataset
-%                          independently [Default: true]
-%   *   'global_background' Background function applies to all datasets
-%                          [Default: false]
-%
 %   EXAMPLES:
-%   >> [wout, fitdata] = multifit_legacy(...,'keep',[0.4,1.8],'list',2)
+%   >> [wout, fitdata] = fit_legacy(...,'keep',[0.4,1.8],'list',2)
 %
-%   >> [wout, fitdata] = multifit_legacy(...,'select')
+%   >> [wout, fitdata] = fit_legacy(...,'select')
 %
 % If unable to fit, then the program will halt and display an error message.
 % To return if unable to fit without throwing an error, call with additional
 % arguments that return status and error message:
 %
-%   >> [wout, fitdata, ok, mess] = multifit_legacy (...)
+%   >> [wout, fitdata, ok, mess] = fit_legacy (...)
 
 %-------------------------------------------------------------------------------
 % <#doc_def:>
 %   multifit_doc = fullfile(fileparts(which('multifit_gateway_main')),'_docify');
-%   first_line = {'% Simultaneously fits a function to an array of d1d objects, with optional',...
-%                 '% background functions.',...
-%                 '% Synonymous with d1d method multifit_func'};
+%   first_line = {'% Fits a function to a d2d object, with an optional background function.',...
+%                 '% Synonymous with d2d method fit_func'};
 %   main = false;
 %   method = true;
 %   synonymous = true;
 %
-%   multifit=true;
-%   func_prefix='multifit_legacy';
+%   multifit=false;
+%   func_prefix='fit_legacy';
 %   func_suffix='';
 %   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit')
-%   obj_name = 'd1d'
+%   obj_name = 'd2d'
 %
-%   full_help = 'd1d/multifit_legacy_func'
+%   full_help = 'd2d/fit_legacy_func'
 %
 %   custom_keywords = false;
 %
@@ -119,8 +107,8 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % Work via sqw class type
 
 if nargout<3
-    [wout,fitdata]=multifit_func(sqw(win), varargin{:});  % forces failure if there is an error, as is the convention for fit when no ok argument
+    [wout,fitdata]=fit_func(sqw(win), varargin{:});  % forces failure if there is an error, as is the convention for fit when no ok argument
 else
-    [wout,fitdata,ok,mess]=multifit_func(sqw(win), varargin{:});
+    [wout,fitdata,ok,mess]=fit_func(sqw(win), varargin{:});
 end
 wout=dnd(wout);

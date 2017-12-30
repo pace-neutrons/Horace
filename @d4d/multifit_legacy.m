@@ -1,14 +1,14 @@
 function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
-% Simultaneously fits a function to an array of d1d objects, with optional
+% Simultaneously fits a function to an array of d4d objects, with optional
 % background functions.
-% Synonymous with d1d method multifit_func
+% Synonymous with d4d method multifit_func
 %
 % A background function can be added to the fit function.
 % If passed an array of datasets, then each dataset is fitted independently.
 %
 %
 % For full help, read the documentation displayed when you type:
-%   >> help d1d/multifit_legacy_func
+%   >> help d4d/multifit_legacy_func
 %
 %
 % Fit several datasets in succession to a given function:
@@ -87,9 +87,9 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %-------------------------------------------------------------------------------
 % <#doc_def:>
 %   multifit_doc = fullfile(fileparts(which('multifit_gateway_main')),'_docify');
-%   first_line = {'% Simultaneously fits a function to an array of d1d objects, with optional',...
+%   first_line = {'% Simultaneously fits a function to an array of d4d objects, with optional',...
 %                 '% background functions.',...
-%                 '% Synonymous with d1d method multifit_func'};
+%                 '% Synonymous with d4d method multifit_func'};
 %   main = false;
 %   method = true;
 %   synonymous = true;
@@ -98,9 +98,9 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %   func_prefix='multifit_legacy';
 %   func_suffix='';
 %   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit')
-%   obj_name = 'd1d'
+%   obj_name = 'd4d'
 %
-%   full_help = 'd1d/multifit_legacy_func'
+%   full_help = 'd4d/multifit_legacy_func'
 %
 %   custom_keywords = false;
 %
