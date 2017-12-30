@@ -7,7 +7,7 @@ function [wout, fitdata, ok, mess] = fit_legacy(win, varargin)
 %
 %
 % For full help, read the documentation displayed when you type:
-%   >> help d1d/fit_func
+%   >> help d1d/fit_legacy_func
 %
 %
 % Fit several datasets in succession to a given function:
@@ -88,7 +88,7 @@ function [wout, fitdata, ok, mess] = fit_legacy(win, varargin)
 %   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit')
 %   obj_name = 'd1d'
 %
-%   full_help = 'd1d/fit_func'
+%   full_help = 'd1d/fit_legacy_func'
 %
 %   custom_keywords = false;
 %
