@@ -1,5 +1,5 @@
 function varargout = multifit_sqw (varargin)
-% Simultaneously fit function(s) of S(Q,w)to one or more d1d objects
+% Simultaneously fit function(s) of S(Q,w)to one or more sqw objects
 %
 %   >> myobj = multifit_sqw (w1, w2, ...)       % w1, w2 objects or arrays of objects
 %
@@ -28,12 +28,11 @@ function varargout = multifit_sqw (varargin)
 %[Help for legacy use (2017 and earlier):
 %   If you are still using the legacy version then it is strongly recommended
 %   that you change to the new operation. Help for the legacy operation can
-%   be <a href="matlab:help('d1d/multifit_legacy_sqw');">found here</a>]
+%   be <a href="matlab:help('sqw/multifit_legacy_sqw');">found here</a>]
 
 %-------------------------------------------------------------------------------
 % <#doc_def:>
-%   class_name = 'd1d'
-%   dim = '1'
+%   class_name = 'sqw'
 %   method_name = 'multifit_sqw'
 %   method_name_legacy = 'multifit_legacy_sqw'
 %   mfclass_name = 'mfclass_Horace_sqw'
@@ -44,14 +43,14 @@ function varargout = multifit_sqw (varargin)
 %   sqw_doc = fullfile(fileparts(which('mfclass_Horace')),'_docify')
 %
 %   doc_multifit_header = fullfile(multifit_doc,'doc_multifit_header.m')
-%   doc_fit_functions = fullfile(sqw_doc,'doc_multifit_sqw_fit_functions_for_dnd.m')
+%   doc_fit_functions = fullfile(sqw_doc,'doc_multifit_sqw_fit_functions_for_sqw.m')
 %   doc_multifit_legacy_footnote = fullfile(multifit_doc,'doc_multifit_legacy_footnote.m')
 %
 %-------------------------------------------------------------------------------
 % <#doc_beg:> multifit
 %   <#file:>  <doc_multifit_header>  <class_name>  <method_name>  <mfclass_name>  <function_tag>
 %
-%   <#file:>  <doc_fit_functions>  <dim>
+%   <#file:>  <doc_fit_functions>
 %
 % See also multifit multifit_sqw_sqw
 %
@@ -62,7 +61,7 @@ function varargout = multifit_sqw (varargin)
 
 if ~mfclass.legacy(varargin{:})
     mf_init = mfclass_wrapfun (@sqw_eval, [], @func_eval, []);
-    varargout{1} = mfclass_Horace_sqw (varargin{:}, 'd1d', mf_init);
+    varargout{1} = mfclass_Horace_sqw (varargin{:}, 'sqw', mf_init);
 else
     varargout = mfclass.legacy_call (@multifit_legacy_sqw, nargout, varargin{:});
 end
