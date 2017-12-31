@@ -1,5 +1,5 @@
 function test_1
-% Test of multifit2 with structures
+% Test of multifit with structures
 
 nlist = 0;  % set to 1 or 2 for listing during fit
 

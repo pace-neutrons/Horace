@@ -1,5 +1,5 @@
 function test_sqw_1
-% Test of multifit2 with sqw objects
+% Test of multifit with sqw objects
 
 %% ------------------------------------------------------------------------------------------------
 % Example of fitting more than one sqw object
@@ -50,7 +50,7 @@ pl(wfit_ref)
 
 % New multifit
 % -----------------
-kk = multifit2_sqw (win);
+kk = multifit_sqw (win);
 kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]});
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
@@ -87,7 +87,7 @@ if~isequaln(wfit_ref,wfit), error('*** Oh dear! ***'), end
 % New multifit
 % -----------------
 % Simulate
-kk = multifit2_sqw (win);
+kk = multifit_sqw (win);
 kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]});
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});

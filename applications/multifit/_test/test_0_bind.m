@@ -11,7 +11,7 @@ function test_0_bind
 %
 % and similarly for datasets 2 and 3
 
-mftest_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit\_test';
+mftest_dir = fileparts(mfilename('fullpath'));
 load(fullfile(mftest_dir,'/data/testdata_multifit_1.mat'));
 
 

@@ -1,5 +1,5 @@
 function test_2
-% Test of multifit2 with IX_dataset_1d
+% Test of multifit with IX_dataset_1d
 
 nlist = 0;  % set to 1 or 2 for listing during fit
 
@@ -30,7 +30,7 @@ fcp = [0.0001 30 0.0001];
 
 
 % Same with mfclass
-kk = multifit2(w);
+kk = multifit(w);
 kk = kk.set_fun (@mftest_gauss, [100,45,10]);
 kk = kk.set_bfun (@mftest_bkgd, {[10,0],[20,0],[30,0]});
 kk = kk.set_options('fit_control_parameters',fcp);

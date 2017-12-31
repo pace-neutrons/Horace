@@ -1,5 +1,5 @@
 function test_dnd_1
-% Test of multifit2 with dnd objects
+% Test of multifit with dnd objects
 
 %% ------------------------------------------------------------------------------------------------
 % Example of fitting more than one sqw object
@@ -55,7 +55,7 @@ pl(dfit_ref)
 % New multifit
 % -----------------
 % Simulate
-kk = multifit2_sqw (din);
+kk = multifit_sqw (din);
 kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, {[5,5,1.2,10,0],[5,5,1.4,15,0]});
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});

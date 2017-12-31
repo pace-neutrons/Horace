@@ -1,15 +1,15 @@
 function test_sqw_2
-% Test of timing of multifit2 with sqw objects
+% Test of timing of multifit with sqw objects
 
 %% ------------------------------------------------------------------------------------------------
 % Example of fitting more than one sqw object
 % -------------------------------------------------------------------------------------------------
-test_dir = fileparts(mfilename('fullpath'));
+mftest_dir = fileparts(mfilename('fullpath'));
 
 % Read in data
 % ------------
-w1data=read_sqw(fullfile(test_dir,'data/w1data.sqw'));
-w2data=read_sqw(fullfile(test_dir,'data/w2data.sqw'));
+w1data=read_sqw(fullfile(mftest_dir,'data/w1data.sqw'));
+w2data=read_sqw(fullfile(mftest_dir,'data/w2data.sqw'));
 
 
 %% ------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ disp(['  Multifit: wall time: ',num2str(t_old(1)),'   CPU time: ',num2str(t_old(
 % New multifit
 % -----------------
 % Simulate
-kk = multifit2_sqw (win);
+kk = multifit_sqw (win);
 kk = kk.set_local_foreground;
 kk = kk.set_fun (@sqw_bcc_hfm, pin);
 kk = kk.set_bind ({1,[1,1]},{2,[2,1]});
@@ -63,7 +63,7 @@ kk = kk.set_options('fit_control_parameters',fcp);
 timer = bigtic;
 [wfit,fitdata,ok,mess] = kk.fit;
 t_new = bigtoc(timer);
-disp([' Multifit2: wall time: ',num2str(t_new(1)),'   CPU time: ',num2str(t_new(2))])
+disp([' multifit: wall time: ',num2str(t_new(1)),'   CPU time: ',num2str(t_new(2))])
 
 if~isequaln(wfit_ref,wfit), error('*** Oh dear! ***'), end
 

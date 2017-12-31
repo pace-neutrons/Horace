@@ -20,6 +20,9 @@
 	- Legacy: Move any doc_ funcs from applications to multifit_legacy in utilities/classes
 	- Legacy in Horace: sim.
 
+- Docify: ensure test .m files do not get changed when run docify on Herbert
+
+
   
 Tidy up:
 ========

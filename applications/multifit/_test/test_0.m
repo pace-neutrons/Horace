@@ -4,7 +4,7 @@ function test_0
 % Test function evaluation
 % -------------------------
 % Assumes have created a data file
-mftest_dir = 'T:\SVN_area\Herbert_trunk\_work\TGP_work\applications\multifit\_test';
+mftest_dir = fileparts(mfilename('fullpath'));
 S=load(fullfile(mftest_dir,'/data/testdata_multifit_1.mat'));
 
 
@@ -102,10 +102,10 @@ end
 
 
 %%--------------------------------------------------------------------------------------------------------------------
-% Test structures into multifit2
+% Test structures into multifit
 
 % Functions
-kk = multifit2(IX_to_struct(SS.warr3));
+kk = multifit(IX_to_struct(SS.warr3));
 kk = kk.set_fun (@mftest_gauss, [100,45,10]);
 kk = kk.set_bfun (@mftest_bkgd, {[10,0],[20,0],[30,0]});
 kk = kk.set_options('listing',2);
