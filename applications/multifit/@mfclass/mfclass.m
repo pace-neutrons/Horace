@@ -772,31 +772,20 @@ classdef mfclass
             end
         end
 
-        function argout = legacy_call (mf_handle, n_out, varargin)
-            % Make call to legacy multifit function or method
+        function varargout = legacy_call (mf_handle, varargin)
+            % Make call to legacy multifit function or method. Use as:
             %
-            %   >> argout = legacy_call (mf_handle, n_out, arg1, arg2,...)
+            %   >> [varargout{1:nargout}] = mfclass.legacy_call (mf_handle, arg1, arg2,...)
             %
             % Input:
             % ------
             %   mf_handle       Handle to the legacy multifit function
-            %   n_out           Expected number of output arguments
-            %   arg1, arg2,...  All arguments
+            %   arg1, arg2,...  All arguments to pass to legacy function (including data)
 
-            if n_out<=4
-                [wout, fitdata, ok, message] = mf_handle (varargin{:});
-            else
-                message = 'Too many output arguments' ;
-                throwAsCaller(MException('legacy_call:tooManyOutputs', '%s', message));
-            end
-
-            argout = cell(1,max(n_out,1));
-            argout{1} = wout;
-            if n_out>=2, argout{2} = fitdata; end
-            if n_out>=3, argout{3} = ok; end
-            if n_out>=4, argout{4} = message; end
-            if n_out<3 && ~ok
-                throwAsCaller(MException('legacy_call:failure', '%s', message));
+            try
+                [varargout{1:nargout}] = mf_handle (varargin{:});
+            catch ME
+                throwAsCaller(MException('legacy_call:failure', '%s', ME.message));
             end
         end
     end

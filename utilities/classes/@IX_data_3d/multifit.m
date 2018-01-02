@@ -49,5 +49,5 @@ if ~mfclass.legacy(varargin{:})
     mf_init = mfclass_wrapfun (@func_eval, [], @func_eval, []);
     varargout{1} = mfclass_IX_dataset_3d (varargin{:}, 'IX_dataset_3d', mf_init);
 else
-    varargout = mfclass.legacy_call (@multifit_legacy, nargout, varargin{:});
+    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy, varargin{:});
 end

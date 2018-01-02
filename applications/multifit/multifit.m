@@ -33,5 +33,5 @@ function varargout = multifit (varargin)
 if ~mfclass.legacy(varargin{:})
     varargout{1} = mfclass (varargin{:});
 else
-    varargout = mfclass.legacy_call (@multifit_legacy, nargout, varargin{:});
+    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy, varargin{:});
 end
