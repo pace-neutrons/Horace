@@ -1,0 +1,98 @@
+===============================================================================================
+             Tobyfit
+===============================================================================================
+Little things to check:
+
+- refine crystal and moderator: at the fit or simulate stage as well as set stage, check that
+  there is at least one foreground function
+  
+- The tests for refine xtal & mod are not fully consistent in terms of how empty fields are
+  interpreted: for example: uvec is returned as [1,0,0], not [] in set_refine_crystal, unlike
+  the lattice parameters, and set_refine_moderator uses the mod pars as they are in the current
+  datasets at the time of being issued, whereas the crystal picls up the lattice parameters
+  at the fit or simulate stage. refine_moderator: checks ei in both set_refine_moderator and
+  at the fit or simulate stage in pack_parameters.
+
+- Make detpar carry more infpormation (as detector.dat) - needed to get tube orientations
+
+- Check that all tube types are the same
+
+- Probably need to make instruments a class, rather than arbitrary structures
+  
+  
+Bugs
+====
+A single sqw, all points masked (zero errors, for example): causes a crash in 
+  Undefined operator './' for input arguments of type 'cell'.
+
+Error in initial_pulse_DGdisk>shaped_mod_pulse (line 108)
+    trans = 1 - abs(t_sh)./chop_fwhh;
+	
+	
+	
+	
+Interface
+==========	
+(Speak to Alex about his ideas too)
+
+set_data, set_mask etc.  should have data, mask mirrors that take the same input
+
+val = obj.data
+  :
+obj.data = val
+
+obj = obj.set_data(val) 	% set_data may have more flexibility
+
+The methods that shoudl have this behaviour are 
+
+
+
+
+
+
+Organisation
+============
+Speed: the buffering of hundreds of IX_divergence_profile takes a long time to read from
+file: it is because of the time spent in IX_divergence_profile/sort, equally split
+between struct_special and nestedSortStruct. I think this is peculiar to divergence,
+not chopper or moderator, as only short arrays are checked in these cases.
+
+
+tobyfit2 shoudl not be a method, but a function.
+
+It should be able to determine which type of resolution function model from the instrument
+type, which in turn should therefore also be an object. The resolution fuinction model should 
+be a method of the instrument, not sqw object. It will be inherited?
+
+
+===============================================================================================
+             Tests
+===============================================================================================
+Test crystal refinement, moderator refinement with sqw models that are different for different
+data sets, to test that the appended constraints are inserted correctly.
+
+
+
+===============================================================================================
+             Horace
+===============================================================================================
+
+Put recompute_bin_data as a public method. Need to replace recompute_bin_data_tester with
+this name (it is just a dummy call to give access to the private method)
+
+Dreadfully slow 'get' for config properties
+
+Noisify has a problem with the size ofthe error bars
+
+fake_sqw problem
+
+set_mod_pulse_horace problem 
+
+
+
+
+
+
+
+
+
