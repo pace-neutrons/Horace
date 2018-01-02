@@ -89,7 +89,7 @@ classdef mfclass
     %
     % Options:
     %   options      - options defining fit control parameters
-
+    
     % -----------------------------------------------------------------------------
     % <#doc_def:>
     %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
@@ -114,13 +114,13 @@ classdef mfclass
     %   <#file:> <mfclass_doc_properties_summary_file>
     % <#doc_end:>
     % -----------------------------------------------------------------------------
-
-
+    
+    
     % Original author: T.G.Perring
     %
     % $Revision: 668 $ ($Date: 2017-12-13 11:00:34 +0000 (Wed, 13 Dec 2017) $)
-
-
+    
+    
     % Notes on inheriting mfclass for use by particular classes:
     % - Alter the functionality of methods and/or add methods by inheriting
     %   mfclass e.g. mfclass_sqw
@@ -131,18 +131,18 @@ classdef mfclass
     % This procedure is required because we will generally want the method
     % multifit2 for objects of class sqw, d1d, d2d,... for example, and
     % multifit2 will generally need to operate differently for each class.
-
-
+    
+    
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties
-
+        
         % ---------------------------------------------------------------------
         % Data properties
         % ---------------------------------------------------------------------
         % Data class: if empty, then no restriction, else name of class of data
         dataset_class_ = '';
-
+        
         % Cell array (row) with input data as provided by user (i.e. elements
         % may be cell arrays of {x,y,e}, structure arrays, object arrays);
         % a special case is thee elements x, y, e.
@@ -151,97 +151,97 @@ classdef mfclass
         % or a row vector (depending on its initial shape, according to usual
         % matlab reshaping rules for logically indexed arrays)
         data_ = {};
-
+        
         % Cell array of datasets (row) that contain repackaged data: every entry
         % is either
         %	- an x-y-e triple with wout{i}.x a cell array of arrays, one for
         %     each x-coordinate,
         %   - a scalar object
         w_ = {};
-
+        
         % Mask arrays: cell array of logical arrays (1 for retain, 0 for ignore)
         % The size of each mask array matches the size of the y array in the
         % corresponding data set
         msk_ = {};
-
+        
         % ---------------------------------------------------------------------
         % Function properties
         % ---------------------------------------------------------------------
         % Local or global foreground functions
         foreground_is_local_ = false;
-
+        
         % Local or global background functions
         background_is_local_ = true;
-
+        
         % Cell array of foreground function handles (row vector). If global function,
         % one handle; if local, one handle per dataset. If no datasets, no handle(s).
         % Missing functions are set to [].
         fun_ = cell(1,0);
-
+        
         % Array of type mfclass_plist with the starting foreground function parameters (row vector).
         % It has the same number of elements as fun_
         % If a function is missing the corresponding element of pin_ is mfclass_plist().
         pin_ = repmat(mfclass_plist(),1,0);
-
+        
         % Row vector of the number of numeric parameters for each foreground function.
         % If a function is empty, then corresponding element of np_ is 0
         np_ = zeros(1,0);
-
+        
         % Cell array (row) of logical row vectors, one for each foreground function.
         % It has the same number of elements as fun_
         % If a function is missing the corresponding element of free is true(1,0)
         free_ = cell(1,0);
-
+        
         % Cell array of background function handles (row vector). If global function,
         % one handle; if local, one handle per dataset. If no datasets, no handle(s).
         % Missing functions are set to [].
         bfun_ = cell(1,0);
-
+        
         % Array of type mfclass_plist with the starting background function parameters (row vector).
         % It has the same number of elements as bfun_
         % If a function is missing the corresponding element of bpin_ is mfclass_plist().
         bpin_ = repmat(mfclass_plist(),1,0);
-
+        
         % Row vector of the number of numeric parameters for each background function.
         % It has the same number of elements as bfun_
         % If a function is empty, then corresponding element nf nbp_ is 0
         nbp_ = zeros(1,0);
-
+        
         % Cell array (row) of logical row vectors, one for each background function.
         % It has the same number of elements as bfun_
         % If a function is missing the corresponding element of bfree is true(1,0)
         bfree_ = cell(1,0);
-
+        
         % ---------------------------------------------------------------------
         % Parameter constraints properties
         % ---------------------------------------------------------------------
         % Column vector length (nptot_ + nbptot_)
         % =false if parameter is unbound, =true if bound
         bound_ = false(0,1);
-
+        
         % Column vector length (nptot_ + nbptot_)
         % =0 if parameter is unbound; ~=0 index of parameter to
         % which the parameter is bound (in range 1 to (nptot_ + nbptot_))
         bound_to_ = zeros(0,1);
-
+        
         % Column vector length (nptot_ + nbptot_) with ratio of
         % bound parameter to fixed parameter; =0 if a parameter is unbound;
         % and = NaN if ratio is to be determined by initial parameter values
         ratio_ = zeros(0,1);
-
+        
         % Column vector of parameters to which each parameter is bound, resolved
         % to account for a chain of bindings
         bound_to_res_ = zeros(0,1);
-
+        
         % Column vector of binding ratios resolved to account for a chain
         % of bindings
         ratio_res_ = zeros(0,1);
-
+        
         % ---------------------------------------------------------------------
         % Function wrap properties
         % ---------------------------------------------------------------------
         wrapfun_ = mfclass_wrapfun();
-
+        
         % ---------------------------------------------------------------------
         % Output control properties
         % ---------------------------------------------------------------------
@@ -254,16 +254,16 @@ classdef mfclass
         %   squeeze_xye             Remove points from simulation of x-y-e
         %                          data where data is masked or not fittable
         options_ = struct([]);
-
+        
     end
-
+    
     properties (Dependent, Access=private)
         ndatatot_       % Total number of datasets (==numel(w_))
     end
-
+    
     properties (Dependent, Access=protected)
         % Properties that are exposed to child classes (i.e. subclasses)
-
+        
         dataset_class   % data class
         pin_obj         % pin returned as array of mfclass_plist objects
         np              % number of parameters in each foreground function
@@ -271,10 +271,10 @@ classdef mfclass
         nbp             % number of parameters in each background function
         wrapfun         % function wrapping object
     end
-
+    
     properties (Dependent)
         % Public properties - they all work by going via private properties
-
+        
         % Dataset or cell array of datasets (row vector)
         % Has the form:
         %
@@ -299,18 +299,18 @@ classdef mfclass
         % For details of the form of the arrays x,y,e, see the help to the
         % method set_data
         data
-
+        
         % Mask array (single data set) or cell array containing mask arrays
         % One mask array per data sets (row vector). Each mask array has the
         % same size as the signal array for the corresponding data set.
         mask
-
+        
         % Foreground is local if true, or global if false
         local_foreground
-
+        
         % Foreground is global if true, or local if false
         global_foreground
-
+        
         % Foreground function handle or cell array of function handles (row vector)
         % If the foreground fit function is global, fun is a single function handle
         % If the foreground fit function(s) are local there is one function handle
@@ -319,7 +319,7 @@ classdef mfclass
         %
         % See also set_fun
         fun
-
+        
         % Foreground parameter list (single function) or cell array of parameter lists
         % The form of the parameter list depends on the fit function, and the help
         % for set_fun should be consulted (link below). In most cases, the parameter
@@ -336,7 +336,7 @@ classdef mfclass
         %
         % See also set_fun set_pin
         pin
-
+        
         % Defines which foreground function parameters are free to vary in fit
         % If there is one fit function, then the property is a logical row vector
         % (or row of 1 and 0) with true for parameters that will vary and false (0) for
@@ -346,7 +346,7 @@ classdef mfclass
         %
         % See also set_fun set_pin set_free
         free
-
+        
         % Array describing binding of foreground parameters
         % Array size [n,5] where n is the number of distinct bindings of foreground
         % parameters. Each row consists of
@@ -366,13 +366,13 @@ classdef mfclass
         %
         % See also set_fun set_bind
         bind
-
+        
         % Background is local if true, or global if false
         local_background
-
+        
         % Background is global if true, or local if false
         global_background
-
+        
         % Background function handle or cell array of function handles (row vector)
         % If the background fit function is global, fun is a single function handle
         % If the background fit function(s) are local there is one function handle
@@ -381,7 +381,7 @@ classdef mfclass
         %
         % See also set_bfun
         bfun
-
+        
         % Background parameter list (single function) or cell array of parameter lists
         % The form of the parameter list depends on the fit function, and the help
         % for set_fun should be consulted (link below). In most cases, the parameter
@@ -398,7 +398,7 @@ classdef mfclass
         %
         % See also set_bfun set_bpin
         bpin
-
+        
         % Defines which foreground function parameters are free to vary in fit
         % If there is one fit function, then the property is a logical row vector
         % (or row of 1 and 0) with true for parameters that will vary and false (0) for
@@ -408,7 +408,7 @@ classdef mfclass
         %
         % See also set_bfun set_bpin set_bfree
         bfree
-
+        
         % Array describing binding of background parameters
         % Array size [n,5] where n is the number of distinct bindings of foreground
         % parameters. Each row consists of
@@ -428,7 +428,7 @@ classdef mfclass
         %
         % See also set_bfun set_bbind
         bbind
-
+        
         % Options structure
         % Fields are:
         %   listing                 Level at which messages are output: 0,1,2
@@ -438,9 +438,9 @@ classdef mfclass
         %   squeeze_xye             Remove points from simulation of x-y-e
         %                          data where data is masked or not fittable
         options
-
+        
     end
-
+    
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -487,11 +487,11 @@ classdef mfclass
             %--------------------------------------------------------------------------------------
             function [ok,mess,nopt,ind_dataset_class,ind_wrapfun] = strip_trailing_opts
                 % Allow one or both of dataset_class and wrapfun at the tail of an argument list
-
+                
                 ok = true; mess = ''; nopt = 0; ind_dataset_class=[]; ind_wrapfun = [];
                 is_wrapfun = @(x)isa(x,'mfclass_wrapfun');
                 is_dataset_class = @(x)(isa(x,'char') && is_string(x) && ~isempty(x));
-
+                
                 narg = numel(varargin);
                 if narg>=1
                     if is_wrapfun(varargin{end})
@@ -502,7 +502,7 @@ classdef mfclass
                         return
                     end
                 end
-
+                
                 if narg>=2
                     if is_wrapfun(varargin{end-1})
                         if isempty(ind_wrapfun)
@@ -523,7 +523,7 @@ classdef mfclass
             end
             %--------------------------------------------------------------------------------------
         end
-
+        
         %------------------------------------------------------------------
         % Set/get methods: private dependent properties
         %------------------------------------------------------------------
@@ -531,13 +531,13 @@ classdef mfclass
         function out = get.ndatatot_(obj)
             out = numel(obj.w_);
         end
-
+        
         %------------------------------------------------------------------
         % Set/get methods: protected dependent properties
         %------------------------------------------------------------------
         % These are properties that need to be settable or gettable from
         % sub-classes.
-
+        
         %------------------------------------------------------------------
         % Set methods
         function obj = set.wrapfun(obj, val)
@@ -547,34 +547,34 @@ classdef mfclass
                 error('Wrapper object must be of class ''mfclass_wrapfun''')
             end
         end
-
+        
         %------------------------------------------------------------------
         % Get methods
         function out = get.dataset_class(obj)
             out = obj.dataset_class_;
         end
-
+        
         function out = get.pin_obj(obj)
             out = obj.pin_;
         end
-
+        
         function out = get.np(obj)
             out = obj.np_;
         end
-
+        
         function out = get.bpin_obj(obj)
             out = obj.bpin_;
         end
-
+        
         function out = get.nbp(obj)
             out = obj.nbp_;
         end
-
+        
         function out = get.wrapfun(obj)
             out = obj.wrapfun_;
         end
-
-
+        
+        
         %------------------------------------------------------------------
         % Set/get methods: public dependent properties
         %------------------------------------------------------------------
@@ -584,25 +584,25 @@ classdef mfclass
             isfore = true;
             obj = set_scope_private_ (obj, isfore, val);
         end
-
+        
         function obj = set.local_background(obj,val)
             if ~islognumscalar(val), error('local_background must be a logical scalar'), end
             isfore = false;
             obj = set_scope_private_ (obj, isfore, val);
         end
-
+        
         function obj = set.global_foreground(obj,val)
             if ~islognumscalar(val), error('global_foreground must be a logical scalar'), end
             isfore = true;
             obj = set_scope_private_ (obj, isfore, ~val);
         end
-
+        
         function obj = set.global_background(obj,val)
             if ~islognumscalar(val), error('global_background must be a logical scalar'), end
             isfore = false;
             obj = set_scope_private_ (obj, isfore, ~val);
         end
-
+        
         %------------------------------------------------------------------
         % Get methods
         function out = get.data(obj)
@@ -612,7 +612,7 @@ classdef mfclass
                 out = obj.data_;
             end
         end
-
+        
         function out = get.mask(obj)
             if numel(obj.msk_)==1
                 out = obj.msk_{1};      % cell array of length unity, so return actual mask
@@ -620,23 +620,23 @@ classdef mfclass
                 out = obj.msk_;
             end
         end
-
+        
         function out = get.local_foreground(obj)
             out = obj.foreground_is_local_;
         end
-
+        
         function out = get.local_background(obj)
             out = obj.background_is_local_;
         end
-
+        
         function out = get.global_foreground(obj)
             out = ~(obj.foreground_is_local_);
         end
-
+        
         function out = get.global_background(obj)
             out = ~(obj.background_is_local_);
         end
-
+        
         function out = get.fun(obj)
             if isscalar(obj.fun_)
                 out = obj.fun_{1};
@@ -644,7 +644,7 @@ classdef mfclass
                 out = obj.fun_;
             end
         end
-
+        
         function out = get.pin(obj)
             if isscalar(obj.pin_)
                 out = obj.pin_.plist;
@@ -652,7 +652,7 @@ classdef mfclass
                 out = arrayfun(@(x)x.plist,obj.pin_,'UniformOutput',false);
             end
         end
-
+        
         function out = get.free(obj)
             if isscalar(obj.free_)
                 out = obj.free_{1};
@@ -660,7 +660,7 @@ classdef mfclass
                 out = obj.free_;
             end
         end
-
+        
         function out = get.bind (obj)
             nptot = sum(obj.np_);
             bnd = obj.bound_(1:nptot);
@@ -675,7 +675,7 @@ classdef mfclass
             % Output array
             out = [ipb,ifunb,ipf,ifunf,R];
         end
-
+        
         function out = get.bfun(obj)
             if isscalar(obj.bfun_)
                 out = obj.bfun_{1};
@@ -683,7 +683,7 @@ classdef mfclass
                 out = obj.bfun_;
             end
         end
-
+        
         function out = get.bpin(obj)
             if isscalar(obj.bpin_)
                 out = obj.bpin_.plist;
@@ -691,7 +691,7 @@ classdef mfclass
                 out = arrayfun(@(x)x.plist,obj.bpin_,'UniformOutput',false);
             end
         end
-
+        
         function out = get.bfree(obj)
             if isscalar(obj.bfree_)
                 out = obj.bfree_{1};
@@ -699,7 +699,7 @@ classdef mfclass
                 out = obj.bfree_;
             end
         end
-
+        
         function out = get.bbind (obj)
             nptot = sum(obj.np_);
             nbptot = sum(obj.nbp_);
@@ -716,41 +716,41 @@ classdef mfclass
             % Output array
             out = [ipb,-ifunb,ipf,-ifunf,R];
         end
-
+        
         function out = get.options(obj)
             out = obj.options_;
         end
-
+        
     end
-
+    
     methods (Access=private)
         %------------------------------------------------------------------
         % Methods in the defining folder but which need to be kept private
         %------------------------------------------------------------------
         obj = set_fun_props_ (obj, S)
         obj = set_constraints_props_ (obj, S)
-
+        
         S = get_fun_props_ (obj)
         S = get_constraints_props_ (obj)
-
+        
         obj = set_scope_private_(obj, isfore, set_local)
-
+        
         [ok, mess, obj] = set_fun_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_fun_private_ (obj, isfore, ifun)
-
+        
         [ok, mess, obj] = set_pin_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_pin_private_ (obj, isfore, args)
-
+        
         [ok, mess, obj] = set_free_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_free_private_ (obj, isfore, args)
-
+        
         [ok, mess, obj] = add_bind_private_ (obj, isfore, args)
         [ok, mess, obj] = clear_bind_private_ (obj, isfore, ifun)
-
+        
         [ok_sim, ok_fit, mess, pf, p_info] = ptrans_initialise_ (obj)
-
+        
     end
-
+    
     methods (Static)
         %------------------------------------------------------------------
         % Methods to interface to legacy (i.e. pre-2018) multifit
@@ -763,15 +763,26 @@ classdef mfclass
             % If the argument list contains a function handle this is
             % incompatible with the new operation of multifit and so the
             % only possibility is a legacy call.
-
+            
             if numel(varargin)==0
-                status = false;     % no arguments is valid, and only valid, for new
+                status = false;     % no arguments is valid, and only valid, for new multifit
             else
-                fhandle = cellfun(@(x)(isa(x,'function_handle')),varargin);
+                fhandle = cellfun(@fhandle_arg,varargin);
                 status = any(fhandle);
             end
+            %--------------------------------------------------------------
+            function status = fhandle_arg(arg)
+                % Determine if argument is a function handle or cell array
+                % of function handles
+                if iscell(arg)
+                    status = all(cellfun(@(x)(isa(x,'function_handle')),arg));
+                else
+                    status = isa(arg,'function_handle');
+                end
+            end
+            %--------------------------------------------------------------
         end
-
+        
         function varargout = legacy_call (mf_handle, varargin)
             % Make call to legacy multifit function or method. Use as:
             %
@@ -789,5 +800,5 @@ classdef mfclass
             end
         end
     end
-
+    
 end
