@@ -210,7 +210,7 @@ function obj = set_fun(obj,varargin)
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')
 %   doc_set_fun_intro = fullfile(mfclass_doc,'doc_set_fun_intro.m')
 %
-%   mfclass_Horace_doc = fullfile(fileparts(which('sqw/multifit2_sqw')),'_docify')
+%   mfclass_Horace_doc = fullfile(fileparts(which('mfclass_Horace')),'_docify')
 %   doc_set_fun_sqw_model_form = fullfile(mfclass_Horace_doc,'doc_set_fun_sqw_model_form.m')
 %
 %   type = 'fore'

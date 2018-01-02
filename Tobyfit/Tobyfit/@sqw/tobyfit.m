@@ -2,10 +2,10 @@ function varargout = tobyfit (varargin)
 % Simultaneously fits resolution broadened S(Q,w) models to sqw objects.
 %
 % For a direct geometry Fermi chopper instrument:
-%   >> myobj = tobyfit2 (w1, w2, ...)      % w1, w2 arrays of objects
+%   >> myobj = tobyfit (w1, w2, ...)      % w1, w2 arrays of objects
 %
 % More generally:
-%   >> myobj = tobyfit2 (w1, w2, ..., instrument_type)
+%   >> myobj = tobyfit (w1, w2, ..., instrument_type)
 %
 %   where instrument_type can be:
 %       'fermi'     Direct geometry fermi chopper instrument e.g. MAPS, MERLIN
@@ -34,7 +34,12 @@ function varargout = tobyfit (varargin)
 %[Help for legacy use (2017 and earlier):
 %   If you are still using the legacy version then it is strongly recommended
 %   that you change to the new operation. Help for the legacy operation can
-%   be <a href="matlab:help('sqw/tobyfit_legacy_sqw');">found here</a>]
+%   be <a href="matlab:help('sqw/tobyfit_legacy');">found here</a>]
+
+
+% Original author: T.G.Perring
+%
+% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
 
 
 if ~mfclass.legacy(varargin{:})

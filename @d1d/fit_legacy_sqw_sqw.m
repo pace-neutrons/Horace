@@ -44,7 +44,7 @@ function [wout, fitdata, ok, mess] = fit_legacy_sqw_sqw(win, varargin)
 %                      points retained for fitting.
 %
 %     Control fit and output:
-%       'fit'           Alter convergence critera for the fit etc.
+%       'fit'           Alter convergence criteria for the fit etc.
 %       'list'          Level of verbosity of output during fitting (0,1,2...).
 %
 %     Evaluate at initial parameters only (i.e. no fitting):

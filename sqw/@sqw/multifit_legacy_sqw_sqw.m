@@ -38,7 +38,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw_sqw(win, varargin)
 % --------------------------------------------------------------
 % The default is for the foreground function to be global, and the
 % background function(s) to be local. That is, the parameters of a single
-% foreground function are varied to minimise chi-squared acroos all the
+% foreground function are varied to minimise chi-squared across all the
 % datasets, and the background function parameters are varied independently
 % for each dataset.
 %
@@ -71,7 +71,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw_sqw(win, varargin)
 %                      points retained for fitting.
 %
 %     Control fit and output:
-%       'fit'           Alter convergence critera for the fit etc.
+%       'fit'           Alter convergence criteria for the fit etc.
 %       'list'          Level of verbosity of output during fitting (0,1,2...).
 %
 %     Evaluate at initial parameters only (i.e. no fitting):
@@ -129,7 +129,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw_sqw(win, varargin)
 %
 % Use this rule to avoid any confusion about how to provide the initial
 % parameter values or binding of parameters, where the input for a single
-% data set can itself be a cell array. For full details, see the correponding
+% data set can itself be a cell array. For full details, see the corresponding
 % entries for these arguments below.
 %
 %

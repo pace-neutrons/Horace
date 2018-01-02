@@ -1,6 +1,7 @@
-function varargout = test_tobyfit_refine_moderator_1 (option)
+function varargout = test_tobyfit_refine_moderator_1 (option, version)
 % Test Tobyfit versions refining moderator parameter for a single sqw dataset
 %
+% Setup (should only have to do in extremis):
 %   >> test_tobyfit_refine_moderator_1 ('-setup')
 %                                   % Create the cuts that will be fitted and save in
 %                                   % test_tobyfit_refine_moderator_1.mat in the temporary
@@ -23,21 +24,28 @@ function varargout = test_tobyfit_refine_moderator_1 (option)
 %                                   % parameters in test_tobyfit_refine_moderator_1_out.mat in the same
 %                                   % folder as this file
 %
-%   In all of the above, get the full output of the fits as a structure:
+%
+% Do any of the above, run with the legacy version of Tobyfit:
+%   >> test_tobyfit_1 (...,'-legacy')
+%
+% In all of the above, get the full output of the fits as a structure:%   In all of the above, get the full output of the fits as a structure:
 %
 %   >> res = test_tobyfit_refine_moderator_1 (...)
 
 
 %% --------------------------------------------------------------------------------------
-% Find version of Tobyfit
-% Tobyfit2 and Tobyfit are mutually incompatible - Tobyfit only
+%
+% *** Add a test to fit two cuts, with w2inc being fromanother place in Q
 
-tf_ver = determine_tobyfit_version();
+
+nlist = 0;  % set to 1 or 2 for listing during fit
 
 % Determine whether or not to save output
 save_data = false;
 save_output = false;
 test_output = false;
+legacy = false;
+
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-setup')
         save_data = true;
@@ -46,16 +54,32 @@ if exist('option','var')
     elseif ischar(option) && isequal(lower(option),'-test')
         test_output = true;
     else
-        error('Invalid option')
+        if ~exist('version','var')
+            version = option;
+        else
+            error('Invalid option')
+        end
     end
+end
+
+if exist('version','var')
+    if ischar(version) && isequal(lower(version),'-legacy')
+        legacy = true;
+    else
+        error('Invalid option(s)')
+    end
+end
+
+if legacy
+    disp('Legacy Tobyfit...')
+else
+    disp('New Tobyfit...')
 end
 
 
 %% ================================================================================================
 % Setup
 % -----
-nlist = 0;  % set to 1 or 2 for listing during fit
-
 data_source='E:\data\aaa_Horace\rbmnf3_backup_v1.sqw';  % sqw file from which to take cuts for setup
 
 datafile='test_tobyfit_refine_moderator_1_data.mat';   % filename where saved results are written
@@ -115,7 +139,7 @@ w1inc = set_mod_pulse(w1inc,pulse_model,ppmod);
 % Tobyfitting proper
 % ------------------
 mc=2;
-if tf_ver==1
+if legacy
     % We can see that the model is 'ikcarp' and it has three parameters; we are only going to refine the first one
     mod_opts=tobyfit_refine_moderator_options([1,0,0]);   % take default moderator parameters as starting point
     
@@ -129,15 +153,15 @@ if tf_ver==1
     acolor b; dd(w1inc); acolor k; pl(wtmp)
     
     % Good choice of parameters, so start the fit
-    [w1fit,pfit,ok,mess,pmodel,ppfit]=tobyfit(w1inc,@testfunc_sqw_van,[amp,en0,fwhh],[1,1,0],'mc_npoints',mc,'refine_mod',mod_opts,'list',2);
+    [w1fit,pfit,ok,mess,pmodel,ppfit]=tobyfit(w1inc,@testfunc_sqw_van,[amp,en0,fwhh],[1,1,0],'mc_npoints',mc,'refine_mod',mod_opts,'list',nlist);
     acolor r; pl(w1fit)
     
     % Happy with the fit (ppfit(1)=10.35 +/- 0.28)
     
 else
-    % Equivalent with new Tobyfit2
+    % Equivalent with new tobyfit
     
-    kk = tobyfit2 (w1inc);
+    kk = tobyfit (w1inc);
     kk = kk.set_refine_moderator (pulse_model,ppmod,[1,0,0]);
     kk = kk.set_mc_points (mc);
     

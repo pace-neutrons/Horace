@@ -1,6 +1,7 @@
-function varargout = test_tobyfit_refine_crystal_1 (option)
+function varargout = test_tobyfit_refine_crystal_1 (option, version)
 % Test Tobyfit versions refining moderator parameter for a single sqw dataset
 %
+% Setup (should only have to do in extremis):
 %   >> test_tobyfit_refine_crystal_1 ('-setup')
 %                                   % Create the sqw files that will be refined and in
 %                                   % the temporary folder given by tempdir. Copy these
@@ -13,7 +14,7 @@ function varargout = test_tobyfit_refine_crystal_1 (option)
 % Perform tests:
 %   >> test_tobyfit_refine_crystal_1  % Run the tests for a visual check of output only
 %
-%   >> test_tobyfit_refine_crystal_1 ('-save')% Run the Tobyfit tests and save fit parameters
+%   >> test_tobyfit_refine_crystal_1 ('-save')  % Run the Tobyfit tests and save fit parameters
 %                                               % to file test_tobyfit_refine_crystal_1_out.mat
 %                                               % in the temporary folder (given by tempdir).
 %                                               % Copy to the same folder as this file to use in
@@ -23,18 +24,27 @@ function varargout = test_tobyfit_refine_crystal_1 (option)
 %                                   % parameters in test_tobyfit_refine_crystal_1_out.mat in the same
 %                                   % folder as this file
 %
-%   In all of the above, get the full output of the fits as a structure:
+%
+% Do any of the above, run with the legacy version of Tobyfit:
+%   >> test_tobyfit_1 (...,'-legacy')
+%
+% In all of the above, get the full output of the fits as a structure:%   In all of the above, get the full output of the fits as a structure:
 %
 %   >> res = test_tobyfit_refine_crystal_1 (...)
-%
-% Reads IX_dataset_1d and IX_dataset_2d from .mat file as input to the tests
 
 
 %% --------------------------------------------------------------------------------------
+%
+% *** Change tests to avoid covariance matrix being Kronecker-delta
+
+nlist = 0;  % set to 1 or 2 for listing during fit
+
 % Determine whether or not to save output
 save_data = false;
 save_output = false;
 test_output = false;
+legacy = false;
+
 if exist('option','var')
     if ischar(option) && isequal(lower(option),'-setup')
         save_data = true;
@@ -43,16 +53,32 @@ if exist('option','var')
     elseif ischar(option) && isequal(lower(option),'-test')
         test_output = true;
     else
-        error('Invalid option')
+        if ~exist('version','var')
+            version = option;
+        else
+            error('Invalid option')
+        end
     end
+end
+
+if exist('version','var')
+    if ischar(version) && isequal(lower(version),'-legacy')
+        legacy = true;
+    else
+        error('Invalid option(s)')
+    end
+end
+
+if legacy
+    disp('Legacy Tobyfit...')
+else
+    disp('New Tobyfit...')
 end
 
 
 %% --------------------------------------------------------------------------------------
 % Setup
 % --------------------------------------------------------------------------------------
-nlist = 0;  % set to 1 or 2 for listing during fit
-
 dir_in=tempdir;
 dir_out=tempdir;
 
@@ -129,7 +155,7 @@ if save_data
         save(wsim,sqw_file_nores_tmp{i});
         
         % Tobyfit simulation to account for resolution
-        kk = tobyfit2(wtmp{1});
+        kk = tobyfit(wtmp{1});
         kk = kk.set_fun(@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg],...
             [alatt_true,angdeg_true],rotvec});
         kk = kk.set_mc_points(10);
@@ -196,7 +222,7 @@ opt='Gaussian';
 
 if test_output
     if any(abs(rlu_corr(:)-tmp.rlu_corr(:))>0.004)
-        error('  2 of 2: Tobyfit crystal refinement and stored results are not the same')
+        error('refine_crystal orientation refinement and stored results are not the same')
     end
 end
 
@@ -242,12 +268,19 @@ mc = 2;
 
 % Fit a global function
 % ---------------------
-kk = tobyfit2 (w);
-kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
-kk = kk.set_mc_points (mc);
-kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0]);
-kk = kk.set_options('list',nlist);
-[w_tf_a,fitpar_tf_a,ok,mess,rlu_corr_tf_a] = kk.fit;
+if legacy
+    xtal_opts = tobyfit_refine_crystal_options('fix_angdeg','fix_alatt_ratio');
+    [w_tf_a,fitpar_tf_a,ok,mess,rlu_corr_tf_a]=tobyfit(w,...
+        @make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0],...
+        'refine_crystal',xtal_opts,'list',nlist,'mc_npoints',mc);
+else
+    kk = tobyfit (w);
+    kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
+    kk = kk.set_mc_points (mc);
+    kk = kk.set_fun (@make_bragg_blobs,{[amp,qfwhh,efwhh],[alatt,angdeg]},[1,1,0]);
+    kk = kk.set_options('list',nlist);
+    [w_tf_a,fitpar_tf_a,ok,mess,rlu_corr_tf_a] = kk.fit;
+end
 
 if ~ok
     disp(mess)
@@ -265,13 +298,20 @@ end
 
 % Fit local foreground functions (independent widths)
 % ---------------------------------------------------
-kk = tobyfit2 (w);
-kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
-kk = kk.set_mc_points (mc);
-kk = kk.set_local_foreground(true);
-kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0]);
-kk = kk.set_options('list',nlist);
-[w_tf_b,fitpar_tf_b,ok,mess,rlu_corr_tf_b] = kk.fit;
+if legacy
+    xtal_opts = tobyfit_refine_crystal_options('fix_angdeg','fix_alatt_ratio');
+    [w_tf_b,fitpar_tf_b,ok,mess,rlu_corr_tf_b]=tobyfit(w,...
+        @make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0],...
+        'refine_crystal',xtal_opts,'list',nlist,'local_fore','mc_npoints',mc);
+else
+    kk = tobyfit (w);
+    kk = kk.set_refine_crystal ('fix_angdeg','fix_alatt_ratio');
+    kk = kk.set_mc_points (mc);
+    kk = kk.set_local_foreground(true);
+    kk = kk.set_fun (@make_bragg_blobs,{{[amp,qfwhh,efwhh],[alatt,angdeg]}},[1,1,0]);
+    kk = kk.set_options('list',nlist);
+    [w_tf_b,fitpar_tf_b,ok,mess,rlu_corr_tf_b] = kk.fit;
+end
 
 if ~ok
     disp(mess)
