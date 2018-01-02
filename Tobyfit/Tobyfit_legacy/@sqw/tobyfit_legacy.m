@@ -1,6 +1,6 @@
-function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
-% Simultaneously fits a model for S(Q,w) to an array of sqw objects, with
-% optional background functions.
+function [wout, fitdata, ok, mess, varargout] = tobyfit_legacy(win, varargin)
+% Simultaneously fits a resolution broadened model for S(Q,w) to an array of sqw
+% objects, with optional background functions.
 %
 % Allows background functions (one per dataset) whose parameters
 % vary independently for each dataset to be added to the fit function.
@@ -14,9 +14,9 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 %
 % Simultaneously fit datasets to a single function ('global foreground'):
 % -----------------------------------------------------------------------
-%   >> [wout, fitdata] = multifit_legacy_sqw (w, func, pin)
-%   >> [wout, fitdata] = multifit_legacy_sqw (w, func, pin, pfree)
-%   >> [wout, fitdata] = multifit_legacy_sqw (w, func, pin, pfree, pbind)
+%   >> [wout, fitdata] = tobyfit (w, func, pin)
+%   >> [wout, fitdata] = tobyfit (w, func, pin, pfree)
+%   >> [wout, fitdata] = tobyfit (w, func, pin, pfree, pbind)
 %
 % These cover the respective cases of:
 %   - All parameters free
@@ -26,9 +26,9 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 %
 % With optional background functions added to the foreground:
 % -----------------------------------------------------------
-%   >> [wout, fitdata] = multifit_legacy_sqw (..., bkdfunc, bpin)
-%   >> [wout, fitdata] = multifit_legacy_sqw (..., bkdfunc, bpin, bpfree)
-%   >> [wout, fitdata] = multifit_legacy_sqw (..., bkdfunc, bpin, bpfree, bpbind)
+%   >> [wout, fitdata] = tobyfit (..., bkdfunc, bpin)
+%   >> [wout, fitdata] = tobyfit (..., bkdfunc, bpin, bpfree)
+%   >> [wout, fitdata] = tobyfit (..., bkdfunc, bpin, bpfree, bpbind)
 %
 %   If you give just one background function then that function will be used for
 %   all datasets, but the parameters will be varied independently for each dataset
@@ -43,13 +43,13 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 % for each dataset.
 %
 % To have independent foreground functions for each dataset:
-%   >> [wout, fitdata] = multifit_legacy_sqw (..., 'local_foreground')
+%   >> [wout, fitdata] = tobyfit (..., 'local_foreground')
 %
 %   If you give just one foreground function then that function will be used for
 %   all datasets, but the parameters will be varied independently for each dataset
 %
 % To have a global background function across all datasets:
-%   >> [wout, fitdata] = multifit_legacy_sqw (..., 'global_background')
+%   >> [wout, fitdata] = tobyfit (..., 'global_background')
 %
 %
 % Additional keywords controlling the fit:
@@ -58,7 +58,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 % verbosity of output etc. with keywords, some of which need to be paired
 % with input values, some of which are just logical flags:
 %
-%   >> [wout, fitdata] = multifit_legacy_sqw (..., keyword, value, ...)
+%   >> [wout, fitdata] = tobyfit (..., keyword, value, ...)
 %
 % Keywords that are logical flags (indicated by *) take the value true
 % if the keyword is present, or their default if not.
@@ -96,19 +96,25 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 %                          [Default: false]
 %
 %     Special keyword(s):
-%       'average'       Compute S(Q,w) at the average values of h,k,l of
-%                       the pixels in a bin, not for each pixel individually.
+%       'mc_contributions'  Define the contributing components to the
+%                           resolution function.
+%       'mc_npoints'        Sets the number of Monte Carlo samplings per
+%                           pixel
+%       'refine_crystal'    Options controlling refinement of crystal
+%                           orientation and lattice parameters
+%       'refine_moderator'  Options controlling refinement of moderator
+%                           parameters
 %
 %   EXAMPLES:
-%   >> [wout, fitdata] = multifit_legacy_sqw(...,'keep',[0.4,1.8],'list',2)
+%   >> [wout, fitdata] = tobyfit(...,'keep',[0.4,1.8],'list',2)
 %
-%   >> [wout, fitdata] = multifit_legacy_sqw(...,'select')
+%   >> [wout, fitdata] = tobyfit(...,'select')
 %
 % If unable to fit, then the program will halt and display an error message.
 % To return if unable to fit without throwing an error, call with additional
 % arguments that return status and error message:
 %
-%   >> [wout, fitdata, ok, mess] = multifit_legacy_sqw (...)
+%   >> [wout, fitdata, ok, mess] = tobyfit (...)
 %
 %
 %------------------------------------------------------------------------------
@@ -503,14 +509,33 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 %                      [Default: false]
 %
 % Special keyword(s):
-%   'average'     Requests that S(Q,w) is computed for the average values
-%                 of h,k,l for the pixels in a bin, not for each pixel
-%                 individually. This reduces cost of expensive calculations
-%                 of S(Q,w).
+%   'mc_contributions'  Define the contributing components to the resolution
+%                       function. This is a structure with fields set to
+%                       true or false accordingly. To generate the
+%                       structure use the function tobyfit_mc_contributions.
+%                       Type >> help tobyfit_mc_contributions for details
+%                       Default: all components contribute
+%
+%   'mc_npoints'        Sets the number of Monte Carlo samplings per pixel.
+%                       e.g. (...,'mc_npoints',100,...)
+%                       Default: 10 (usually good for a first estimate)
+%
+%   'refine_crystal'    Options controlling refinement of crystal orientation
+%                       and lattice parameters. This is a structure, which can be
+%                       generated by the function tobyfit_refine_crystal_options.
+%                       Type >> help tobyfit_refine_crystal_options for details.
+%                       Default: No refinement
+%
+%   'refine_moderator'  Options controlling refinement of moderator parameters.
+%                       This is a structure, which can be generated by the
+%                       function tobyfit_refine_moderator_options. Type
+%                       >> help tobyfit_refine_moderator_options for
+%                       details.
+%                       Default: No refinement
 %
 %
 %   Example:
-%   >> [wout, fitdata] = multifit_legacy_sqw(...,'keep',[0.4,1.8],'list',2)
+%   >> [wout, fitdata] = tobyfit(...,'keep',[0.4,1.8],'list',2)
 %
 %
 % Output:
@@ -556,45 +581,20 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 %                 of data points
 %
 %   mess    Error message if ok==false; Empty string if ok==true.
-%
-%
-% EXAMPLES:
-% =========
-%
-% Fit spin wave model to a collection of four sqw objects, allowing only intensity
-% and coupling constant to vary:
-%   >> weight=100; SJ=10; gamma=3;
-%   >> [wout, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0])
-%
-% If a 1D cut: allow all spin wave parameters to vary, only keep data in
-% restricted range, and allow linear backgrounds in the units of the x axis:
-%   >> weight=100; SJ=10; gamma=3;
-%   >> const=0; slope=0;
-%   >> [wout, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],...
-%                       @linear_bg, [const,slope],'keep',[-1.5,0.5])
-%
-% As above, but allow the intensities to vary independently for the spin
-% waves while keeping the exchange constant and lifetime global
-%   >> weight=100; SJ=10; gamma=3;
-%   >> const=0; slope=0;
-%   >> [wout, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],...
-%                       [],{[],{1,1,1},{1,1,1},{1,1,1}}
-%                       @linear_bg, [const,slope],'keep',[-1.5,0.5],...
-%                       'local_foreground')
 
 %-------------------------------------------------------------------------------
 % <#doc_def:>
 %   multifit_doc = fullfile(fileparts(which('multifit_gateway_main')),'_docify');
 %   sqw_doc = fullfile(fileparts(which('multifit_legacy_Horace')),'_docify');
-%   first_line = {'% Simultaneously fits a model for S(Q,w) to an array of sqw objects, with',...
-%                 '% optional background functions.'}
+%   first_line = {'% Simultaneously fits a resolution broadened model for S(Q,w) to an array of sqw'...
+%                 '% objects, with optional background functions.'}
 %   main = false;
 %   method = true;
 %   synonymous = false;
 %
 %   multifit=true;
-%   func_prefix='multifit_legacy';
-%   func_suffix='_sqw';
+%   func_prefix='tobyfit';
+%   func_suffix='';
 %   differs_from = strcmpi(func_prefix,'multifit') || strcmpi(func_prefix,'fit')
 %   obj_name = 'sqw'
 %
@@ -602,39 +602,14 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 %   doc_backfunc = fullfile(sqw_doc,'doc_fitfunc_sqw_simple.m')
 %
 %   custom_keywords = true;
-%   doc_custom_keywords_short = fullfile(sqw_doc,'doc_keyword_short_average.m');
-%   doc_custom_keywords_long  = fullfile(sqw_doc,'doc_keyword_long_average.m');
+%   doc_custom_keywords_short = fullfile(sqw_doc,'doc_tobyfit_keywords_short.m');
+%   doc_custom_keywords_long  = fullfile(sqw_doc,'doc_tobyfit_keywords_long.m');
 %
-% <#doc_beg:> multifit_legacy
+% <#doc_beg:>  multifit_legacy
 %   <#file:> fullfile('<multifit_doc>','doc_multifit_short.m')
 %
 %
 %   <#file:> fullfile('<multifit_doc>','doc_multifit_long.m')
-%
-%
-% EXAMPLES:
-% =========
-%
-% Fit spin wave model to a collection of four sqw objects, allowing only intensity
-% and coupling constant to vary:
-%   >> weight=100; SJ=10; gamma=3;
-%   >> [wout, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma], [1,1,0])
-%
-% If a 1D cut: allow all spin wave parameters to vary, only keep data in
-% restricted range, and allow linear backgrounds in the units of the x axis:
-%   >> weight=100; SJ=10; gamma=3;
-%   >> const=0; slope=0;
-%   >> [wout, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],...
-%                       @linear_bg, [const,slope],'keep',[-1.5,0.5])
-%
-% As above, but allow the intensities to vary independently for the spin
-% waves while keeping the exchange constant and lifetime global
-%   >> weight=100; SJ=10; gamma=3;
-%   >> const=0; slope=0;
-%   >> [wout, fdata] = multifit_sqw (w, @bcc_damped_spinwaves, [ht,SJ,gamma],...
-%                       [],{[],{1,1,1},{1,1,1},{1,1,1}}
-%                       @linear_bg, [const,slope],'keep',[-1.5,0.5],...
-%                       'local_foreground')
 % <#doc_end:>
 %-------------------------------------------------------------------------------
 
@@ -644,29 +619,248 @@ function [wout, fitdata, ok, mess] = multifit_legacy_sqw(win, varargin)
 % $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $)
 
 
-% First, strip out the appearance of the keyword 'average'
-arglist = struct('average',0);
-flags={'average'};
-[varargin,opt] = parse_arguments(varargin,arglist,flags,struct('keys_at_end',false));
+% Clean up any persistent or global storage in case Tobyfit was left in a strange state
+% -------------------------------------------------------------------------------------
+tobyfit_cleanup     % Initialise Tobyfit
+if matlab_version_num>=7.06     % R2008a or more recent: robust cleanup even if cntl-c
+    cleanupObj=onCleanup(@tobyfit_cleanup);
+end
 
-% Parse the input arguments, and repackage for fit func
-[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = ...
-    multifit_gateway_parsefunc (win, varargin{:});
+
+% Parse input arguments
+% ---------------------
+% Default output arguments if error
+wout=[];
+fitdata=[];
+rlu_corr=[];
+fitmod=[];
+
+% Check the data types are ok
+for i=1:numel(win)
+    if ~is_sqw_type(win(i));   % must be if sqw type
+        ok=false; mess='All input datasets must be sqw type';
+        if nargout<3, error(mess), else return, end
+    end
+end
+
+% Strip out Tobyfit specific arguments from varargin
+arglist = struct('mc_contributions',[],'mc_npoints',10,'refine_crystal',[],'refine_moderator',[]);
+[varargin,opt,present] = parse_arguments(varargin,arglist,[],struct('keys_at_end',false));
+mc_contrib=opt.mc_contributions;
+mc_npoints=opt.mc_npoints;
+if present.refine_crystal
+    refine_crystal=true;
+    xtal_opts=opt.refine_crystal;
+else
+    refine_crystal=false;
+end
+if present.refine_moderator
+    refine_moderator=true;
+    mod_opts=opt.refine_moderator;
+else
+    refine_moderator=false;
+end
+if refine_crystal && refine_moderator
+    ok=false; mess='Cannot refine both crystal parameters and moderator parameters - choose only one of these options';
+    if nargout<3, error(mess), else return, end
+end
+
+% Parse the input arguments to multifit
+[ok,mess,pos,func,plist,pfree,pbind,bpos,bfunc,bplist,bpfree,bpbind,narg] = multifit_gateway_parsefunc (win, varargin{:});
 if ~ok
-    wout=[]; fitdata=[];
     if nargout<3, error(mess), else return, end
 end
 ndata=1;     % There is just one argument before the varargin
 pos=pos-ndata;
 bpos=bpos-ndata;
+narg=narg-ndata;
 
-% Wrap the foreground and background functions
-if ~opt.average, wrap_plist={}; else wrap_plist={'ave'}; end
-args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,...
-                                                    @sqw_eval,wrap_plist,@func_eval,{});
+
+% Prepare Monte Carlo arguments, crystal and moderator refinement
+% ---------------------------------------------------------------
+% Set which contributions to the resolution are to be accounted for
+[mc_contrib,ok,mess]=tobyfit_mc_contributions(mc_contrib);
+if ~ok
+    if nargout<3, error(mess), else return, end
+end
+
+% Check the number of Monte Carlo points
+if ~isnumeric(mc_npoints) || ~isscalar(mc_npoints) || mc_npoints-round(mc_npoints)~=0 || mc_npoints<1
+    ok=false; mess='Number of Monte Carlo points per pixel must be an integer greater or equal to one';
+    if nargout<3, error(mess), else return, end
+end
+
+% Check crystal refinement input, if refinement is requested
+if refine_crystal
+    % Check lattice parameters in input objects
+    [alatt0,angdeg0,ok,mess] = lattice_parameters(win);
+    if ~ok
+        mess=['Crystal refinement: ',mess];
+        if nargout<3, error(mess), else return, end
+    end
+
+    % Check validity of refinement options structure, and set starting values for lattice parameters if necessary
+    [xtal_opts,ok,mess] = tobyfit_refine_crystal_options(xtal_opts);
+    if ~ok
+        if nargout<3, error(mess), else return, end
+    end
+    if isempty(xtal_opts.alatt)
+        xtal_opts.alatt=alatt0;
+    end
+    if isempty(xtal_opts.angdeg)
+        xtal_opts.angdeg=angdeg0;
+    end
+
+    % Append crystal refinement parameters to the foreground parameter arguments
+    [plist,pfree,pbind]=refine_crystal_pack_parameters (plist,pfree,pbind,xtal_opts);
+
+    % Re-create argument list for multifit
+    pbind=multifit_gateway_pbind_struct_to_cell(pbind);     % return to cell array input
+    if isempty(bpos)    % no background function(s) present
+        varargin=[{func,plist,pfree,pbind},varargin(narg+1:end)];
+    else
+        bpbind=multifit_gateway_pbind_struct_to_cell(bpbind);
+        varargin=[{func,plist,pfree,pbind,bfunc,bplist,bpfree,bpbind},varargin(narg+1:end)];
+        bpos=5;
+    end
+
+    % Fill refine argument to be passed as argument to multifit
+    xtal.refine=true;
+    xtal.urot=xtal_opts.urot;
+    xtal.vrot=xtal_opts.vrot;
+    xtal.ub0 = ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt0,angdeg0));   % ub matrix for lattice parameters in sqw objects
+
+else
+    xtal.refine=false;
+end
+
+% Check moderator refinement input, if refinement is requested
+if refine_moderator
+    % Check that the moderator contribution is included to the resolution calculation
+    if ~mc_contrib.moderator
+        mess='Moderator refinement: must have Monte Carlo contribution from moderator selected in ''mc_contributions''';
+        if nargout<3, error(mess), else return, end
+    end
+    % Check all incident energies are the same in input objects
+    [ei_common,emode,ok,mess] = get_efix(win);
+    if ~ok
+        mess=['Moderator refinement: ',mess];
+        if nargout<3, error(mess), else return, end
+    end
+
+    % Check validity of refinement options structure on entry
+    [mod_opts,ok,mess] = tobyfit_refine_moderator_options(mod_opts);
+    if ~ok
+        if nargout<3, error(mess), else return, end
+    end
+
+    % Get model and starting parameters if not given
+    if isempty(mod_opts.pulse_model) || isempty(mod_opts.pp_init)
+        [pulse_model_default,pp_init_default,ok,mess] = get_mod_pulse(win);
+        if ~ok
+            if nargout<3, error(mess), else return, end
+        end
+        if isempty(mod_opts.pulse_model)
+            mod_opts.pulse_model=pulse_model_default;
+        end
+        if isempty(mod_opts.pp_init)
+            mod_opts.pp_init=pp_init_default(:)';   % guarantee it is a row vector
+        end
+    end
+    if isempty(mod_opts.pp_free)
+        mod_opts.pp_free=true(size(mod_opts.pp_init));  % default is all parameters are free
+    end
+
+    % Check validity of refinement options structure after filling missing arguments
+    [mod_opts,ok,mess] = tobyfit_refine_moderator_options(mod_opts);
+    if ~ok
+        if nargout<3, error(mess), else return, end
+    end
+
+    % Append crystal refinement parameters to the foreground parameter arguments
+    [plist,pfree,pbind]=refine_moderator_pack_parameters (plist,pfree,pbind,mod_opts);
+
+    % Re-create argument list for multifit
+    pbind=multifit_gateway_pbind_struct_to_cell(pbind);     % return to cell array input
+    if isempty(bpos)    % no background function(s) present
+        varargin=[{func,plist,pfree,pbind},varargin(narg+1:end)];
+    else
+        bpbind=multifit_gateway_pbind_struct_to_cell(bpbind);
+        varargin=[{func,plist,pfree,pbind,bfunc,bplist,bpfree,bpbind},varargin(narg+1:end)];
+        bpos=5;
+    end
+
+    % Fill refine argument to be passed as argument to multifit
+    modshape.refine=true;
+    modshape.pulse_model=mod_opts.pulse_model;
+    modshape.pp=mod_opts.pp_init;
+    modshape.ei=ei_common;
+
+else
+    modshape.refine=false;
+end
+
 
 % Perform the fit
-[ok,mess,wout,fitdata] = multifit_gateway_main (win, args{:});
-if ~ok && nargout<3
-    error(mess)
+% ---------------
+% Set control options for function evaluation
+resol_conv_tobyfit_mc_control('multifit',size(win))
+
+
+% Wrap the foreground and background functions
+wrap_plist={mc_contrib,mc_npoints,xtal,modshape};
+args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,...
+                                        @resol_conv_tobyfit_mc,wrap_plist,@func_eval,{});
+
+% Least-squares fitting
+[ok,mess,wout,fitdata] = multifit_gateway_main (win, args{:}, 'init_func', @resol_conv_tobyfit_mc_init);
+if ~ok
+    if nargout<3, error(mess), else return, end
 end
+
+
+% Pack output arguments
+% ---------------------
+% Get the rlu correction matrix if crystal refinement
+if refine_crystal
+    if numel(func)==1
+        pxtal=fitdata.p(end-8:end);
+    else
+        pxtal=fitdata.p{1}(end-8:end);
+    end
+    alatt=pxtal(1:3);
+    angdeg=pxtal(4:6);
+    rotvec=pxtal(7:9);
+    rotmat=rotvec_to_rotmat2(rotvec);
+    ub=ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt,angdeg));
+    rlu_corr=ub\rotmat*xtal.ub0;
+    % Pack output arguments
+    varargout={rlu_corr};
+end
+
+% Get the moderator refinement parameters
+if refine_moderator
+    fitmod.pulse_model=modshape.pulse_model;
+    npmod=numel(modshape.pp);
+    if numel(func)==1
+        fitmod.p=fitdata.p(end-npmod+1:end);
+        fitmod.sig=fitdata.sig(end-npmod+1:end);
+    else
+        fitmod.sig=fitdata.sig{1}(end-npmod+1:end);
+    end
+    % Pack output arguments
+    varargout={fitmod.pulse_model,fitmod.p,fitmod.sig};
+end
+
+
+% Cleanup resolution convolution status
+% -------------------------------------
+if matlab_version_num<7.06     % prior to R2008a: does not automatically call cleanup (see start of this function)
+    tobyfit_cleanup
+end
+
+%=================================================================================================================
+function tobyfit_cleanup
+% Cleanup Tobyfit
+resol_conv_tobyfit_mc_control
+refine_moderator_sampling_table_buffer

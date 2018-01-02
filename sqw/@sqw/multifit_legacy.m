@@ -43,7 +43,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 % --------------------------------------------------------------
 % The default is for the foreground function to be global, and the
 % background function(s) to be local. That is, the parameters of a single
-% foreground function are varied to minimise chi-squared acroos all the
+% foreground function are varied to minimise chi-squared across all the
 % datasets, and the background function parameters are varied independently
 % for each dataset.
 %
@@ -76,7 +76,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(win, varargin)
 %                      points retained for fitting.
 %
 %     Control fit and output:
-%       'fit'           Alter convergence critera for the fit etc.
+%       'fit'           Alter convergence criteria for the fit etc.
 %       'list'          Level of verbosity of output during fitting (0,1,2...).
 %
 %     Evaluate at initial parameters only (i.e. no fitting):

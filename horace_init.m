@@ -46,13 +46,8 @@ addpath_message (1,rootpath,'sqw_models');
 % Add GUI path
 addpath_message(1,rootpath,'GUI');
 
-% Add Tobyfit prototype
-if ispc
-    addpath_message (1,rootpath,'Tobyfit');
-    tobyfit_init
-end
-
-%addpath_message (1,rootpath,'work_in_progress');   % not included in the distribution
+% Add Tobyfit
+addpath_message (1,rootpath,'Tobyfit');
 
 
 % Set up graphical defaults for plotting
