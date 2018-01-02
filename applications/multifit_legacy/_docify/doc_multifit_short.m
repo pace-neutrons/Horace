@@ -70,7 +70,7 @@
 % --------------------------------------------------------------
 % The default is for the foreground function to be global, and the
 % background function(s) to be local. That is, the parameters of a single 
-% foreground function are varied to minimise chi-squared acroos all the
+% foreground function are varied to minimise chi-squared across all the
 % datasets, and the background function parameters are varied independently
 % for each dataset.
 %

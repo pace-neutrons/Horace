@@ -2,7 +2,7 @@ function aaa_test_all
 % Runs all the test functions. Still need to be converted into true 
 % unit and system tests
 
-disp('Testing multifit2...')
+disp('Testing multifit...')
 disp(' ')
 
 test_0

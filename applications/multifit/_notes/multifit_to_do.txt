@@ -1,7 +1,10 @@
 ===============================================================================================
              mfclass roll-out Dec 2017
 ===============================================================================================
-- explicitly check that d1d/multifit_sqw is called - a check of mfclass.legacy_call
+- Need to have proper unit tests for multifit that work for legacy (existing tests) 
+  and non-legacy (currently half complete, and no version of legacy tests)
+
+- Explicitly check that d1d/multifit_sqw is called - a check of mfclass.legacy_call
 
 - More sophisticated detemination of legacy argument input (positional argument, cell array of
   handles?)

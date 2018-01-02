@@ -27,7 +27,7 @@
 %
 % Use this rule to avoid any confusion about how to provide the initial
 % parameter values or binding of parameters, where the input for a single
-% data set can itself be a cell array. For full details, see the correponding
+% data set can itself be a cell array. For full details, see the corresponding
 % entries for these arguments below.
 %
 %
