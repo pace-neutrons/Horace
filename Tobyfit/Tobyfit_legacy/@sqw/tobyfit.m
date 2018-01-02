@@ -612,7 +612,7 @@ function [wout, fitdata, ok, mess, varargout] = tobyfit(win, varargin)
  
 % Original author: T.G.Perring 
 % 
-% $Revision$ ($Date$) 
+% $Revision: 1524 $ ($Date: 2017-09-27 15:48:11 +0100 (Wed, 27 Sep 2017) $) 
  
  
 % Clean up any persistent or global storage in case Tobyfit was left in a strange state 

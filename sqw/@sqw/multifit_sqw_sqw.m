@@ -55,5 +55,5 @@ if ~mfclass.legacy(varargin{:})
     mf_init = mfclass_wrapfun (@sqw_eval, [], @sqw_eval, []);
     varargout{1} = mfclass_Horace_sqw_sqw (varargin{:}, 'sqw', mf_init);
 else
-    varargout = mfclass.legacy_call (@multifit_legacy_sqw_sqw, nargout, varargin{:});
+    [varargout{1:nargout}] = mfclass.legacy_call (@multifit_legacy_sqw_sqw, varargin{:});
 end
