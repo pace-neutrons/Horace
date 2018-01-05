@@ -104,6 +104,7 @@ horace_info_level=get(hor_config,'log_level');
 opt=struct('reorder',true,'fraction',1);
 flagnames={};
 cntl.keys_at_end=false;
+cntl.keys_once=false;   % so name_a and name_b can be overidden
 [args,opt,~,~,ok,mess]=parse_arguments(varargin,opt,flagnames,cntl);
 if ~ok
     error(mess);

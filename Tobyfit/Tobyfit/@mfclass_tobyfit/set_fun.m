@@ -202,8 +202,8 @@ function obj = set_fun(obj,varargin)
 %   c1,c2,...   Any further arguments needed by the function (e.g.
 %              they could be the filenames of lookup tables)
 %
-% <a href="matlab:doc('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
-% <a href="matlab:doc('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
+% <a href="matlab:edit('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
+% <a href="matlab:edit('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
 
 % -----------------------------------------------------------------------------
 % <#doc_def:>
@@ -221,8 +221,8 @@ function obj = set_fun(obj,varargin)
 %   <#file:> <doc_set_fun_intro> <type> <pre> <atype>
 %   <#file:> <doc_set_fun_sqw_model_form>
 %
-% <a href="matlab:doc('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
-% <a href="matlab:doc('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
+% <a href="matlab:edit('example_sqw_spin_waves');">Click here</a> (Damped spin waves)
+% <a href="matlab:edit('example_sqw_flat_mode');">Click here</a> (Dispersionless excitation)
 % <#doc_end:>
 % -----------------------------------------------------------------------------
 
