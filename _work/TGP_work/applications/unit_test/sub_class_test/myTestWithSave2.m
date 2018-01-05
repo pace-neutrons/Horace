@@ -27,7 +27,7 @@ classdef myTestWithSave2 < TestCaseWithSave2
             disp('testing: testColormapColumns')
             sz1 = size(get(self.fh, 'Colormap'), 2);
             assertEqual(sz1, 3);
-            %sz1=2*sz1;
+            sz1=2*sz1;
             assertEqualToTolWithSave(self,sz1)
             if ~self.save_output
                 disp('=============================')

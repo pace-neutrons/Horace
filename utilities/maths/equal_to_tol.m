@@ -155,7 +155,8 @@ else
         'name_a',name_a,...
         'name_b',name_b,...
         'min_denominator',0);
-    [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt);
+    cntl.keys_once=false;   % so name_a and name_b can be overidden by input arguments
+    [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt, cntl);
     if ~ok, error(mess), end
     
     % Determine the tolerance

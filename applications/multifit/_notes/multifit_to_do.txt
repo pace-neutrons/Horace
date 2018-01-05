@@ -3,15 +3,12 @@
 ===============================================================================================
 - Need to have proper unit tests for multifit that work for legacy (existing tests) 
   and non-legacy (currently half complete, and no version of legacy tests)
-
-- Explicitly check that d1d/multifit_sqw is called - a check of mfclass.legacy_call
-
-- More sophisticated detemination of legacy argument input (positional argument, cell array of
-  handles?)
   
-- Contents.m wherever there is a function and directory conflict.
-
-- Replace matlab:doc with matlab:help
+  As of 1 Jan 2018: full test:
+		herbert/_test/test_multifit*   						(these are xunit tests)
+		herbert/applications/multifit/_test/aaa_test_all 	(script that runs further scripts)
+		horace/_test/test_multifit*   				(these are xunit tests)
+		horace/Tobyfit/Tobyfit/_test/aaa_test_all 	(script that runs further scripts)
 
 - tofspectrum multifit and fit
 
@@ -29,8 +26,6 @@
   
 Tidy up:
 ========
-- remove @appversion
-
 - utilities/classes: remove methods and ops folders. Do we need @testsigvar?
 
 - IX_dataset_nd? Who uses them, and can the routines be moved?

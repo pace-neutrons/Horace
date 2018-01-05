@@ -118,7 +118,7 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %                          string e.g. '-'. [Default: '' i.e. no prefix]
 %
 %               prefix_req  True if require that the prefix be present, false
-%                          otherwise. [Default: false]
+%                          otherwise. [Default: true]
 %                           For example if 'mask' is a keyword, opt.prefix='-'
 %                          opt.prefix_req=false, then 'mask' and '-mask' are
 %                          both valid.
@@ -136,13 +136,19 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %                          to set its value to false.
 %
 %               keys_exact  True if exact match to keywords is required
+%                          [Default: false]
 %
 %               keys_at_end True if keywords must appear at the end of the
 %                          argument list; otherwise keywrods and un-named
 %                          parameters can be mixed. [Default: true]
 %
-%               noffset     Offset (>=0) for error message display. If
-%                          not all arguments are passed to parse_arguments
+%               keys_once   True if keywords are only allowed to appear once
+%                          in the argument list [Default: true]
+%                           If false i.e. keywords can be repeated, then the
+%                          last occurence takes precedence.
+%
+%               noffset     Offset (>=0) for error message display [Default: 0]
+%                          If not all arguments are passed to parse_arguments
 %                          then if an error is found at the third position
 %                          in args, the error message that parse_arguments
 %                          gives will be stated at the third position, but
@@ -429,8 +435,8 @@ ok=true;
 mess='';
 
 nam={'prefix';'prefix_req';'flags_noneg';'flags_noval';...
-    'keys_exact';'keys_at_end';'noffset'};
-val={'';true;false;false;false;true;0};
+    'keys_exact';'keys_at_end';'keys_once';'noffset'};
+val={'';true;false;false;false;true;true;0};
 
 optnam=fieldnames(opt);
 for i=1:numel(optnam)
@@ -454,8 +460,11 @@ for i=1:numel(optnam)
         elseif ind==6 && islognumscalar(opt.(optnam{i}))
             val{6}=logical(opt.(optnam{i}));
             
-        elseif ind==7 && isnumeric(opt.(optnam{i})) && opt.(optnam{i})>=0
+        elseif ind==7 && islognumscalar(opt.(optnam{i}))
             val{7}=logical(opt.(optnam{i}));
+            
+        elseif ind==8 && isnumeric(opt.(optnam{i})) && opt.(optnam{i})>=0
+            val{8}=logical(opt.(optnam{i}));
         end
         
     else
@@ -829,6 +838,7 @@ function [ok,mess,par,keyval,present]=parse_args(args,par,nam_par,np_req,np_opt,
 %               flags_noval
 %               keys_exact
 %               keys_at_end
+%               keys_once
 %               noffset
 
 ok=true;
@@ -888,7 +898,7 @@ while i<=narg
         % Check if the keyword has already appeared or not
         if ~key_present(ikey)
             key_present(ikey)=true;
-        else
+        elseif opt.keys_once
             ok=false;
             mess=['Keyword ''',nam{ikey},...
                 ''' (or its negation if a flag) appears more than once'];

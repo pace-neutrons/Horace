@@ -37,8 +37,8 @@ else
 end
 
 % Perform comparison
-[ok, mess] = equal_to_tol (A, B, args{:},...
-    'name_a', inputname(1), 'name_b', inputname(2));
+[ok, mess] = equal_to_tol (A, B,...
+    'name_a', inputname(1), 'name_b', inputname(2), args{:});
 if ~ok
     if ~isempty(message)
         message = [message,newline,mess];

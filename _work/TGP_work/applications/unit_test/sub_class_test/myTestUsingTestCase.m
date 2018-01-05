@@ -6,6 +6,7 @@ classdef myTestUsingTestCase < TestCase
 
     methods
         function self = myTestUsingTestCase(name)
+            disp('*** Constructor ***')
             self = self@TestCase(name);
             disp('Constructor call')
         end
@@ -19,10 +20,12 @@ classdef myTestUsingTestCase < TestCase
         end
 
         function testColormapColumns(self)
+            disp('*** testColormapColumns')
             assertEqual(size(get(self.fh, 'Colormap'), 2), 3);
         end
 
         function testPointer(self)
+            disp('*** testPointer')
             assertEqual(get(self.fh, 'Pointer'), 'arrow');
         end
     end
