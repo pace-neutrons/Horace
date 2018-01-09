@@ -60,7 +60,7 @@ for i=1:n_workers
     [nok,mess]=system(job_str);
     if nok
         error('JobDispatcher:starting_workers',[' Can not start worker N %d.',...
-            ' Message returned: %s'],id,mess);
+            ' Message returned: %s'],worker_id,mess);
     end
 end
 pause(1);

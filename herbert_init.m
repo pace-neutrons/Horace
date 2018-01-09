@@ -54,7 +54,8 @@ addgenpath_message (rootpath,'DLL')
 % herbert_config constructor does not do it implicitly)
 hc = herbert_config;
 if hc.is_default % force saving default configuration if it has never been saved to hdd
-    config_store.instance().store_config(hc,'-forcesave');
+    instance = config_store.instance();
+    instance.store_config(hc,'-forcesave');
 end
 if hc.init_tests
     % set unit tests to the Matlab search path, to overwrite the unit tests
