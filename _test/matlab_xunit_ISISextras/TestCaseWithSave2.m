@@ -12,10 +12,11 @@ classdef TestCaseWithSave2 < TestCase
     %
     % Creating a test suite
     % ---------------------
-    % Create a test class that inherits testCaseWithSave2. This test class  will
-    % contain all the individual tests:
+    % Create a test class that inherits TestCaseWithSave2. This test class will
+    % contain all the individual tests. Note that the name of the class must begin
+    % with 'Test' or 'test':
     %
-    % e.g.  classdef myTest < TestCaseWithSave2
+    % e.g.  classdef TestSomeStuff < TestCaseWithSave2
     %
     % The properties block can contain any properties that are set up in the
     % method called setUp. These properties are available to each individual
@@ -28,19 +29,22 @@ classdef TestCaseWithSave2 < TestCase
     %           end
     %
     % The first method in the methods block is the constructor. it takes the
-    % desired test method name as its input argument. Include any properties
+    % desired test method name as its input argument. The first line should
+    % always initialise the superclass. Afterwards, include any properties
     % initialisations which will not be altered in any of the test methods.
     % This constructor will only be called once (despite the fact that it
     % takes a particular method name). Expensive operations such as reading
     % large data files for use as reference data are examples of what could
-    % be pdone in the constructor:
+    % be done in the constructor. Always finish the method with the call to
+    % the save method:
     %
     % e.g.      methods
-    %               function self = myTest(name)
-    %               self@TestCaseWithSave2(name);
-    %
+    %               function self = TestSomeStuff(name)
+    %               self@TestCaseWithSave2(name);   % always the first line
+    %                   :
     %               data = load('my_data_file.mat')
     %                   :
+    %               self.save()     % always the last line
     %               end
     %
     % The setUp and tearDown methods can follow; these should setup any
@@ -56,9 +60,10 @@ classdef TestCaseWithSave2 < TestCase
     %                   delete(self.fig_handle);
     %               end
     %
-    % Now have each test method. All the usual functions of the matlab xUnit
+    % Now follows each test method. The name of each of the methods must
+    % begin with 'test' or 'Test'. All the usual functions of the matlab xUnit
     % test suite are available (assertTrue, assertEqual etc.) but in addition
-    % there is the function assertEqualToTol which tests equality of arbitraryily
+    % there is the function assertEqualToTol which tests equality of arbitrarily
     % complex structures and objects with various further options to control the
     % test.
     %
@@ -77,30 +82,35 @@ classdef TestCaseWithSave2 < TestCase
     % --------------------
     % - To save values run the test suite with the option '-save':
     %   ----------------------------------------------------------
-    %       >> myTest ('-save')                 % saves to default file name
-    %   or: >> myTest ('-save','my_file.mat')   % saves to the named file
+    %       >> TestSomeStuff ('-save')                 % saves to default file name
+    %   or: >> TestSomeStuff ('-save','my_file.mat')   % saves to the named file
     %
-    %   The default file is <myTestClass>_output.mat in the temporary folder given
-    %   by the matlab function tempdir(). In this instance, our test suite is myTest
-    %   so the default file is fullfile(tempdir,'myTest_output.mat')
+    %   The default file is <TestClassName>_output.mat in the temporary folder given
+    %   by the matlab function tempdir(). In this instance, our test suite is 
+    %   TestSomeStuff so the default is fullfile(tempdir,'TestSomeStuff_output.mat')
+    %
+    %   TIP: if you want to replace the test results for just one test, append
+    %   the test name to the '-save' option. In this case:
+    %       >> TestSomeStuff ('-save:testColormap')                 
+    %   or: >> TestSomeStuff ('-save:testColormap','my_file.mat')   
     %
     %
     % - To run the test suite testing against stored values
     %   ---------------------------------------------------
     %   Copy the file created above to the folder containing the test suite (in
-    %   this case the test suite is in myTest.m) and give it the default name
-    %   <myTestSuite>_output.mat (so in this case the file is myTest_output.mat).
+    %   this case the test suite is in TestSomeStuff.m) and give it the default name
+    %   <myTestSuite>_output.mat (so in this case the file is TestSomeStuff_output.mat).
     %   Then run the tests in  in the usual way as:
     %
-    %       >> runtests myTest                  % all test methods in the suite
-    %       >> runtests myTest:testColormap     % a specific test method
+    %       >> runtests TestSomeStuff                  % all test methods in the suite
+    %       >> runtests TestSomeStuff:testColormap     % a specific test method
     %
     %
     % Additional methods
     % ------------------
     % It may be that in the constructor there are temporary files that are created
     % or paths that are added which are only for use only in the tests. The names
-    % of the files or paths can be aaccumulated in any method of the class myTest
+    % of the files or paths can be aaccumulated in any method of the class TestSomeStuff
     % (be that the constructor, utility methods you have written, or test methods -
     % but in this last case use cautiously):
     %
@@ -163,6 +173,12 @@ classdef TestCaseWithSave2 < TestCase
         % List of the reference data aganst which to compare, or save
         ref_data_=struct();
         
+        % Filename for reading or writing test output
+        test_results_file_ = '';
+        
+        % Name of test method to be saved if save_output==true ({} means all methods)
+        test_method_to_save_ = {};
+
         % List of files to delete after test case is completed
         files_to_delete_={};
         
@@ -174,65 +190,106 @@ classdef TestCaseWithSave2 < TestCase
         function this = TestCaseWithSave2 (name, filename)
             % Construct your test class by inheriting this constructor:
             %
-            %   function self = myLittleTest (name)
-            %               :
+            %   function self = TestSomeStuff (name)
             %       self@TestCaseWithSave2 (name);
-            %    OR
-            %       self@TestCaseWithSave2 (name, file)
             %               :
+            %       self.save()
+            %   end
+            %
+            % *OR*
+            %   function self = TestSomeStuff (name, ..., filename)
+            %       self@TestCaseWithSave2 (name, filename)
+            %               :
+            %               :
+            %       self.save()
+            %   end
             %
             % Input:
             % ------
-            %   name        Name of test suite or test method in the suite
+            % Optional:
+            %   name        One of:
+            %               - name of the calling test suite.
+            %               - '-save' if called from a test suite
+            %               - '-save:<testMethodName>' where testMethodName
+            %                   is the name of one of the test methods in the
+            %                   test suite
+            %
             %              Actually, you do not need to worry about this argument,
             %              as it is passed from the xUnit test suite. Just use it
             %              blindly!
-            % Optional:
+            %
             %   filename    Name of file that contains saved output against which
-            %              values created in the tes methods can be testsed. Only 
-            %              needed if the file is other than the default value
+            %              values created in the test methods can be tested. Only 
+            %              needed if the file is different from the default value
             %              <myTestSuite>_output.mat in the folder containing
             %              <myTestSuite>. In this example the default file is
-            %              'myLittleTest_output.mat'
+            %              'TestSomeStuff_output.mat'
                 
+            % - If the call is made from a test suite, then name will be the name of the
+            %   test suite (that is how Alex Buts' modification of TestCase works)
+            % - 
+            
             % Get the default name: the calling TestCase subclass, if one, or else this class
             name_default = mfilename('class');
+            caller_is_test_suite = false;
             call_struct = dbstack(1);
             if numel(call_struct)>0
                 cont=regexp(call_struct(1).name,'\.','split');
                 if isTestCaseWithSave2Subclass(cont{1})
                     name_default = cont{1};
+                    caller_is_test_suite = true;
                 end    
             end
             
             % Create object
             if exist('name','var')
-                if ischarstring(name) && isvarname(name)
-                    % Valid name and no saving of output
-                    save_output = false;
-                elseif ischarstring(name) && strcmpi(name,'-save')
-                    % Save output from tests to file as reference datatsets for
-                    % testing against in future running of the tests
-                    % Need to get the name of the subclass with the tests. I
-                    % do not know of anyway to get this except by creating an
-                    % instance of the clsss and then gettng its name.
-                    save_output = true;
-                    name = name_default;
+                if ischarstring(name)
+                    if strcmpi(name,name_default)
+                        % Either this class, or test suite class, and no saving of output
+                        save_output = false;
+                    elseif caller_is_test_suite && strcmpi(name,'-save')
+                        % Save output from tests to file as reference datatsets for
+                        % testing against in future running of the tests
+                        save_output = true;
+                        test_method_to_save = {};   % means all methods
+                    elseif caller_is_test_suite && strncmpi(name,'-save:',6) &&...
+                            numel(name)>6
+                        save_output = true;
+                        test_method_to_save = name(7:end);
+                    else
+                        error(['Argument ''',name,''' is invalid'])
+                    end
                 else
-                    error('Argument ''name'' must be a non-empty character string')
+                    error(['Argument ''',name,''' must be a non-empty character string'])
                 end
             else
                 save_output = false;
-                name = name_default;
             end
+            
+            name = name_default;
             this = this@TestCase(name);
             this.save_output = save_output;
             
+            % Determine which test methods to save
+            if save_output
+                if isempty(test_method_to_save)
+                    this.test_method_to_save_ = {};
+                else
+                    test_methods = getTestMethods(this);
+                    idx = find(strcmpi(test_method_to_save,test_methods));
+                    if ~isempty(idx)
+                        this.test_method_to_save_ = test_methods(idx);
+                    else
+                        error(['Unrecognised test method to save: ''',test_method_to_save,''''])
+                    end
+                end
+            end
+            
             % Load saved data, or save according value of save_output
+            class_name = class(this);
             if ~save_output
                 % Check name is the test class (if not '-save'): message that
                 % the this superclass has been incorrectly used if not
-                class_name = class(this);
                 if ~strcmp(name,class_name)
                     error(['Invalid use of ',mfilename('class')])
                 end
@@ -269,11 +326,21 @@ classdef TestCaseWithSave2 < TestCase
             else
                 % Saving output
                 if exist('filename','var')
-                    save (this, filename);
+                    if ischarstring(filename)
+                        if isempty(fileparts(filename))
+                            filename = fullfile (tempdir(), filename);
+                        end
+                    else
+                        error('Check output file name')
+                    end
                 else
-                    save (this);
+                    filename = fullfile (tempdir(), [class_name,'_output.mat']);
                 end
             end
+            
+            % Keep filename as a property
+            this.test_results_file_ = filename;
+            
         end
         
         %------------------------------------------------------------------
@@ -451,29 +518,30 @@ classdef TestCaseWithSave2 < TestCase
         end
         
         %------------------------------------------------------------------
-        function save (this, filename)
-            % Save output of the tests to file to test against later.
+        function save (this)
+            % Save output of the tests to file to test against later, if requested.
             %
-            %   >> save (this)          % Save to default file
-            %   >> save (this, file)    % Save to named file
+            %   >> save (this)
             
-            hc = herbert_config;
-            if hc.log_level>-1
-                disp('=========================================================================')
-                disp(['    Save output from test class: ',class(this)])
-                disp('=========================================================================')
+            if ~this.save_output
+                return
             end
             
-            % Find unit test methods (begin 'test' or 'Test', excluding the constructor)
-            class_name = class(this);
-            method_names = methods(this);
-            idx = cellfun(@(x)((~isempty(regexp(x,'^test','once')) ||...
-                ~isempty(regexp(x,'^Test','once'))) &&...
-                ~strcmpi(x,class_name)), method_names);
-            test_methods = method_names(idx);
+            hc = herbert_config;
             
-            % Set save status to true
-            this.save_output = true;
+            % Find unit test methods (begin 'test' or 'Test', excluding the constructor)
+            if isempty(this.test_method_to_save_)
+                test_methods = getTestMethods(this);
+                save_all = true;
+                msg = ['Save output from test class: ',class(this)];
+            else
+                test_methods = this.test_method_to_save_;
+                save_all = false;
+                msg = ['Save output from test method: ',class(this),':',test_methods{1}];
+            end
+            if hc.log_level>-1
+                disp(msg)
+            end
             
             % Clear reference data from possibly loaded previous datasets
             this.ref_data_ = struct();
@@ -489,35 +557,35 @@ classdef TestCaseWithSave2 < TestCase
             end
             
             % Save data, if any has been returned
-            if ~isempty(this.ref_data_)
-                % Construct output filename
-                if exist('filename','var')
-                    if ischarstring(filename)
-                        if isempty(fileparts(filename))
-                            filename = fullfile (tempdir(), filename);
-                        end
-                    else
-                        error('Check output file name')
-                    end
-                else
-                    filename = fullfile (tempdir(), [class_name,'_output.mat']);
-                end
-                
+            if ~isempty(fieldnames(this.ref_data_))
                 % Save results
                 ref_data = this.ref_data_;
-                save (filename, '-struct','ref_data')
+                if save_all
+                    % Saving entire test suite output
+                    save (this.test_results_file_, '-struct','ref_data')
+                else
+                    % Saving only selected test method output; append or replace
+                    % existing test method output
+                    if ~exist(this.test_results_file_,'file')
+                        save (this.test_results_file_, '-struct','ref_data')
+                    else
+                        save (this.test_results_file_, '-struct','ref_data','-append')
+                    end
+                end
                 
                 if hc.log_level>-1
                     disp(' ')
-                    disp(['Output saved to: ',filename])
+                    disp(['Output saved to: ',this.test_results_file_])
                     disp(' ')
                 end
                 
             else
                 % No data to be saved
-                disp(' ')
-                disp(['No data to be saved from test class: ',class(this)])
-                disp(' ')
+                if hc.log_level>-1
+                    disp(' ')
+                    disp('No data to be saved')
+                    disp(' ')
+                end
             end
         end
         
@@ -633,7 +701,7 @@ classdef TestCaseWithSave2 < TestCase
                 stored_reference = this.get_ref_dataset_(var_name, test_name);
                 funcHandle(var, stored_reference, varargin{:})
             else
-                this.set_ref_dataset_ (var, var_name, test_name)
+                this.set_ref_dataset_ (var, var_name, test_name);
             end
         end
         
@@ -666,13 +734,16 @@ classdef TestCaseWithSave2 < TestCase
                         var_name,test_name);
                 end
             else
-                % No structure called test_name exists - assume old format
+                % No structure called test_name exists - assume legacy format
+                % of variable stored at top level, not in test_name
                 if isfield(this.ref_data_,var_name)
                     var = this.ref_data_.(var_name);
                 else
+                    % Give the error message for the new format, as we assume that
+                    % old format files are correct (we should not be creating any new ones)
                     error('TestCaseWithSave:invalid_argument',...
-                        'variable: %s does not exist',...
-                        var_name);
+                        'variable: %s does not exist in stored data for the test: %s',...
+                        var_name,test_name);
                 end
             end
         end
@@ -699,6 +770,18 @@ classdef TestCaseWithSave2 < TestCase
             end
             S.(var_name) = var;
             this.ref_data_.(test_name) = S;
+        end
+        
+        
+        %--------------------------------------------------------------------------
+        function test_methods = getTestMethods(this)
+            % Find unit test methods (begin 'test' or 'Test', excluding the constructor)
+            class_name = class(this);
+            method_names = methods(this);
+            idx = cellfun(@(x)((~isempty(regexp(x,'^test','once')) ||...
+                ~isempty(regexp(x,'^Test','once'))) &&...
+                ~strcmpi(x,class_name)), method_names);
+            test_methods = method_names(idx);
         end
         
     end

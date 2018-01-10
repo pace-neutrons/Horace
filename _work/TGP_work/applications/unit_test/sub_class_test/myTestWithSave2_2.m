@@ -11,6 +11,7 @@ classdef myTestWithSave2_2 < TestCaseWithSave2
             disp('---------------------------')
             disp('Constructor call')
             disp('---------------------------')
+            self.save()
         end
 
         function setUp(self)
@@ -28,7 +29,7 @@ classdef myTestWithSave2_2 < TestCaseWithSave2
             disp('testing: testColormapColumns')
             nog.sz1 = size(get(self.fh, 'Colormap'), 2);
             assertEqual(nog.sz1, 3);
-            nog.sz1=2*nog.sz1;
+            %nog.sz1=2*nog.sz1;
             assertEqualToTolWithSave(self,nog)
 %             if ~self.save_output
 %                 disp('=============================')
@@ -43,7 +44,7 @@ classdef myTestWithSave2_2 < TestCaseWithSave2
             disp('--------------------------------------------')
             disp('testing: testPointer')
             pointer_type=get(self.fh, 'Pointer');
-            pointer_type='Barf';
+            %pointer_type='Barf';
             assertEqual(pointer_type, 'arrow');
             %assertEqualToTolWithSave(self,pointer_type)
             disp('--------------------------------------------')
@@ -53,7 +54,7 @@ classdef myTestWithSave2_2 < TestCaseWithSave2
             disp('--------------------------------------------')
             disp('testing: testPointer2')
             pointer_type=get(self.fh, 'Pointer');
-            pointer_type='HaHa!';
+            %pointer_type='HaHa!';
             assertEqualWithSave(self,pointer_type)
             disp('--------------------------------------------')
         end

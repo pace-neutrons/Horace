@@ -156,6 +156,7 @@ else
         'name_b',name_b,...
         'min_denominator',0);
     cntl.keys_once=false;   % so name_a and name_b can be overidden by input arguments
+    cntl.keys_at_end=false; % as may have name_a or name_b appear first in some cases
     [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt, cntl);
     if ~ok, error(mess), end
     
