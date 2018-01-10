@@ -482,7 +482,6 @@ classdef TestCaseWithSave2 < TestCase
             % Test equality with stored value to within a tolerance, or save
             %   >> this = assertEqualToTolWithSave (this, var)
             %   >> this = assertEqualToTolWithSave (this, var, 'key1', val1, 'key2', val2, ...)
-            %   >> this = assertEqualToTolWithSave (..., message)
             %
             % When a test suite is launched with runtests, then if the test fails
             % a message is output to the screen.
@@ -505,8 +504,6 @@ classdef TestCaseWithSave2 < TestCase
             %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
             %              or class specific implementations of equal_to_tol, for example
             %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
-            %
-            %   message     Optional string to prepend to the output assertion message
             
             var_name = inputname(2);
             try
