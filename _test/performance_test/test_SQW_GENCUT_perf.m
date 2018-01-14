@@ -143,7 +143,7 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             obj.n_files_to_use_ = floor(abs(val));
             if obj.n_files_to_use_ < 1
                 obj.n_files_to_use_ = 1;
-            end(
+            end
             obj.perf_test_name_ = [getComputerName(),'_nf',num2str(obj.n_files_to_use_)];
             filelist = source_nxspe_files_generator(obj.n_files_to_use,...
                 obj.source_data_dir,obj.working_dir,obj.template_file_);
@@ -160,12 +160,19 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             % test performance (time spent on processing) class-defined
             % number of files using number of workers provided as input
             %
+            % n_workers>1 sets up parallel file combining.
+            % 1 or absent does not change current Horace configuration. 
             if ~exist('n_workers','var')
                 n_workers = 1;
             end
             hc = hor_config;
-            
-            clobset = onCleanup(@()set(hc,''))
+            as = hc.accum_in_separate_process;
+            an = hc.accumulating_process_num;
+            clobset = onCleanup(@()set(hc,'accum_in_separate_process',as,'accumulating_process_num',an));
+            if n_workers>1
+                hc.accum_in_separate_process = true;
+                hc.accumulating_process_num = n_workers;
+            end
             
             nwk = num2str(n_workers);
             efix= 22.8;%incident energy in meV
