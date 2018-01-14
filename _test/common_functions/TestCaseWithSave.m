@@ -158,7 +158,7 @@ classdef TestCaseWithSave < TestCase
         end
         %------------------------------------------------------------------
         function this=add_to_files_cleanList(this,varargin)
-            this.filelist_toclear=add_data_to_list(this.filelist_toclear,varargin{:});
+            this.filelist_toclear = add_data_to_list(this.filelist_toclear,varargin{:});
         end
         %
         function this=add_to_path_cleanList(this,varargin)
