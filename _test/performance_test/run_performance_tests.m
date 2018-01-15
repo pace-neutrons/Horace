@@ -10,7 +10,7 @@ hc = hor_config;
 if hc.accum_in_separate_process
     n_workers = hc.accumulating_process_num;
 else
-    n_workers = 1;
+    n_workers = 0;
 end
 
 
