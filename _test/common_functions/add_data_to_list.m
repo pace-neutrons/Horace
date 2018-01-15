@@ -14,7 +14,7 @@ if isempty(initial_list)
     new_list = new_files;
     return
 end
-already_exist=ismember(varargin,initial_list);
+already_exist=ismember(new_files,initial_list);
 if all(already_exist)
     new_list=initial_list;
     return
