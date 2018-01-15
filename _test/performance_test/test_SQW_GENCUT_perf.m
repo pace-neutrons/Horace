@@ -196,7 +196,7 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
         end
         %--------------------------------------------------------------------------
-        function combine_performance_test(obj,varargin)
+        function perf_val=combine_performance_test(obj,varargin)
             % this method tests tmp file combine operations only. It can be
             % deployed after test_gensqw_performance method has been run
             % with hor_config class delete_tmp option set to false. In this
@@ -217,7 +217,7 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             else
                 n_workers = varargin{1};
             end
-            clob_wk = check_and_set_workers_(obj,n_workers);
+            [clob_wk,hc] = check_and_set_workers_(obj,n_workers);
             
             
             
@@ -234,10 +234,19 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             
             assertTrue(all(f_exist),'Some tmp files necessary to run the test do not exist. Can not continue');
             
+            umc = hc.use_mex_for_combine;
+            if umc
+                mode = hc.mex_combine_thread_mode;
+                combine_method = sprintf('MEX_mode%d',mode);
+            else
+                combine_method='MATLAB';
+            end            
+            
+            
             ts = tic();
             write_nsqw_to_sqw(tmp_files,obj.sqw_file);
-            
-            obj.save_or_test_performance(ts,['combine_tmp_using_',num2str(n_workers),'_wrkr']);
+            %
+            perf_val=obj.save_or_test_performance(ts,['combine_tmp_using_',combine_method]);
             
             % spurious check to ensure the cleanup object is not deleted
             % before the end of the test
@@ -356,7 +365,7 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
         end
     end
     methods(Access=private)
-        function clob = check_and_set_workers_(obj,n_workers)
+        function [clob,hc] = check_and_set_workers_(obj,n_workers)
             % function verifies and sets new number of MPI workers
             %
             % returns cleanup object to return the number of temporary
