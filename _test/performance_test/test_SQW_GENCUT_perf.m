@@ -2,7 +2,24 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
     % Test checks performance achieved during sqw file generation and
     % different cuts, done over the test sqw files.
     %
+    % The performance results (in second) are stored in a matlab binary file
+    % combining results for all hosts where the tests were run
+    % The format of the file is as follows:
+    % -host_name1->test_name1(nworkers)->test_time(sec)
+    %           |->test_name2(nworkers)->test_time(sec)
+    %           |->test_name3(nworkers)->test_time(sec)
+    % -host_name2->test_name1(nworkers)->test_time(sec)
+    %           |->test_name2(nworkers)->test_time(sec)
+    %           |->test_name3(nworkers)->test_time(sec)
     %
+    % where nworkers is the number of parallel workers used to process the
+    % data  and the test_name is the name, specified as input to
+    % save_or_test_performance method
+    % The host_name is the variable combined from the preffix containign the
+    % output of Hergbert getHostName function
+    % and the suffix containing the number of files used as the input for
+    % the test.
+    
     properties(Dependent)
         %  Number of input files to use. Depending on this number the test
         %  would verify small, large or huge datasets
@@ -12,10 +29,17 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
         % machine, it is ignored
         time_to_run = [];
         % performance suite name consists of the pc name and the number of
-        % input files to run
+        % input files to run. Describes the test suite which was or will be
+        % processed on current pc with current number of test files.
         perf_test_name;
         % performance data to compare against or store current results
         perf_data
+        % performance tests result file, containing the results of all
+        % tests, run using this class. For normal operations of adding/modifying
+        % the performance results, this file should come with the test
+        % class, exist in the same folder as the test class and be
+        % accessible for read/write operations.
+        perf_test_res_file
     end
     
     properties
@@ -61,6 +85,32 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
         
     end
     methods
+        %------------------------------------------------------------------
+        function tr = get.time_to_run(obj)
+            % the time to run resent test case
+            tr = obj.time_to_run_;
+        end
+        function nf = get.n_files_to_use(obj)
+            % number of test files, used in performance tests
+            nf = obj.n_files_to_use_;
+        end
+        function pfn = get.perf_test_name(obj)
+            % current test name, combined from the host name and the number of
+            % test files, used in tests
+            pfn = obj.perf_test_name_;
+        end
+        function pfd = get.perf_data(obj)
+            % returns the structure, containing all performance data,
+            % availible for tests. Can be equivalent to loading the whole
+            % perf_test_res_file in memory
+            pfd = obj.perf_data_;
+        end
+        function pf = get.perf_test_res_file(obj)
+            % the name of binary Matlab file, containign all existing
+            % performance results.
+            pf = obj.perf_test_res_file_;
+        end
+        %------------------------------------------------------------------
         function obj = test_SQW_GENCUT_perf(varargin)
             % create test suite, generate source files and load existing
             % perfomance data.
@@ -82,12 +132,12 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             tests_name = obj.perf_test_name_;
             if exist(obj.perf_test_res_file_,'file')==2
                 ld = load(obj.perf_test_res_file_);
-                obj.perf_data_ = ld.suite_data;
+                obj.perf_data_ = ld.sqw_gen_cut_perf_data;
             else
                 obj.perf_data_ = struct(tests_name,[]);
             end
         end
-        function save_or_test_performance(obj,start_time,test_method_name)
+        function test_data = save_or_test_performance(obj,start_time,test_method_name)
             % save performance data if the previous version for current pc
             % does not exist or test performance against previously stored
             % performance data
@@ -96,19 +146,23 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             %               function
             
             run_time= toc(start_time);
-            suite_data = obj.perf_data_;
-            test_data = suite_data.(obj.perf_test_name);
+            sqw_gen_cut_perf_data = obj.perf_data_;
+            if isfield(sqw_gen_cut_perf_data,obj.perf_test_name)
+                test_data = sqw_gen_cut_perf_data.(obj.perf_test_name);
+            else
+                test_data = [];
+            end
             if isempty(test_data)
                 test_data = struct(test_method_name,run_time);
-                fprintf('*** Method %s: Run time: %3.1f min;',...
+                fprintf('*** Method %s: Run time: %3.2e min;\n',...
                     test_method_name,run_time/60);
                 
             else
                 if isfield(test_data,test_method_name)
                     old_time = test_data.(test_method_name);
                     fprintf(...
-                        ['*** Method %s: Run time: %3.1f min; old time:',...
-                        ' %3.1f min: run is %3.1f times faster'],...
+                        ['*** Method %s: Run time: %3.2e min; old time:',...
+                        ' %3.2e min: run is %3.2e times faster\n'],...
                         test_method_name,run_time/60,old_time/60,...
                         (old_time-run_time)/old_time)
                     %assertEqualToTol(run_time,old_time,'relTol',0.1);
@@ -116,24 +170,12 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
                 test_data.(test_method_name) = run_time;
             end
             obj.time_to_run_ = run_time;
-            suite_data.(obj.perf_test_name) = test_data;
-            save(obj.perf_test_res_file_,'suite_data')
-            obj.perf_data_ = suite_data;
+            sqw_gen_cut_perf_data.(obj.perf_test_name) = test_data;
+            save(obj.perf_test_res_file_,'sqw_gen_cut_perf_data')
+            obj.perf_data_ = sqw_gen_cut_perf_data;
             
         end
         %-------------------------------------------------------------
-        function tr = get.time_to_run(obj)
-            tr = obj.time_to_run_;
-        end
-        function nf = get.n_files_to_use(obj)
-            nf = obj.n_files_to_use_;
-        end
-        function pfn = get.perf_test_name(obj)
-            pfn = obj.perf_test_name_;
-        end
-        function pfd = get.perf_data(obj)
-            pfd = obj.perf_data_;
-        end
         
         
         function set.n_files_to_use(obj,val)
@@ -150,25 +192,26 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             % delete generated files after the test completed.
             obj.add_to_files_cleanList(filelist);
             obj.test_source_files_list_ = filelist;
-            [~,fb] = fileparts(obj.sqw_file);
+            fb = 'GenSQW_perfTest';
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
-            
         end
         
         %------------------------------------------------------------------
-        function test_gensqw_performance(obj,n_workers)
+        function perf_res= test_gensqw_performance(obj,n_workers)
             % test performance (time spent on processing) class-defined
             % number of files using number of workers provided as input
             %
             % n_workers>1 sets up parallel file combining.
-            % 1 or absent does not change current Horace configuration. 
+            % 1 or absent does not change current Horace configuration.
             if ~exist('n_workers','var')
                 n_workers = 1;
             end
             hc = hor_config;
             as = hc.accum_in_separate_process;
             an = hc.accumulating_process_num;
-            clobset = onCleanup(@()set(hc,'accum_in_separate_process',as,'accumulating_process_num',an));
+            if an > 1
+                clobset = onCleanup(@()set(hc,'accum_in_separate_process',as,'accumulating_process_num',an));
+            end
             if n_workers>1
                 hc.accum_in_separate_process = true;
                 hc.accumulating_process_num = n_workers;
@@ -257,7 +300,7 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             
             ts = tic();
             cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'cutE_AllInt.sqw');
-            obj.save_or_test_performance(ts,['cutE_AllInt_fbnw',nwk]);
+            perf_res=obj.save_or_test_performance(ts,['cutE_AllInt_fbnw',nwk]);
             
         end
     end
