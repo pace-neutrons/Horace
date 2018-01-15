@@ -16,7 +16,7 @@ function [ok, mess, obj] = add_mask_private_ (obj, clear, args)
 
 
 % Trivial case of no input arguments; just return without doing anything
-if numel(varargin)==0
+if numel(args)==0
     ok = true;
     mess = '';
     return
@@ -35,7 +35,9 @@ end
 keyval_def = struct('keep',[],'remove',[],'mask',[]);
 [ind,keyval,~,~,ok,mess] = parse_arguments (args, keyval_def);
 if ~ok, error(mess), end
-if numel(ind)>1
+if numel(ind)==0
+    ind = {'all'};
+elseif numel(ind)>1
     error ('Check number of input arguments')
 end
 

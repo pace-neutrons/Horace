@@ -1,5 +1,5 @@
 function [data_out, fitdata, ok, mess] = fit (obj, varargin)
-% Perform a fit of the data using the current functions and starting parameter values
+% Perform a fit of the data using the current functions and parameter values
 %
 % Return calculated fitted datasets and parameters:
 %   >> [data_out, fitdata] = obj.fit                    % if ok false, throws error
@@ -9,6 +9,15 @@ function [data_out, fitdata, ok, mess] = fit (obj, varargin)
 %
 % Continue execution even if an error condition is thrown:
 %   >> [data_out, fitdata, ok, mess] = obj.fit (...)    % if ok false, still returns
+%
+% If the results of a previous fit are available, with the same number of foreground
+% and background functions and parameters, then the fit parameter structure can be
+% passed as the first argument as the initial values at which to satart the fit:
+%   >> [data_out, fitdata] = obj.fit (...)
+%               :
+%   >> [...] = obj.fit (fitdata, ...)
+%
+% (This is useful if you want to re-fit starting with the results of an earlier fit)
 %
 %
 % Output:
@@ -137,6 +146,15 @@ end
 [~, ok, mess, pfin, p_info] = ptrans_initialise_ (obj);
 if ~ok
     if throw_error, error_message(mess), else, return, end
+end
+
+% Allow for the case of input argument over-riding initial parameter values for fit
+if numel(args)==1
+    [pfin,ok_sim,mess] = ptrans_par_inverse(args{1}, p_info);
+    if ~ok_sim
+        ok = false;
+        if throw_error, error_message(mess), else, return, end
+    end
 end
 
 % Get wrapped functions and parameters after performing initialisation if required

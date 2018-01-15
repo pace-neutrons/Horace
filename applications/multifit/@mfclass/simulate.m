@@ -1,5 +1,5 @@
 function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
-% Perform a simulation of the data using the current functions and starting parameter values
+% Perform a simulation of the data using the current functions and parameter values
 %
 % Return calculated sum of foreground and background:
 %   >> [data_out, calcdata] = obj.simulate                % if ok false, throws error
@@ -15,6 +15,16 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 %
 % Continue execution even if an error condition is thrown:
 %   >> [data_out, calcdata, ok, mess] = obj.simulate (...) % if ok false, still returns
+%
+% If the results of a previous fit are available, with the same number of foreground
+% and background functions and parameters, then the fit parameter structure can be
+% passed as the first argument as the values at which to simulate the output:
+%   >> [data_out, fitdata] = obj.fit (...)
+%               :
+%   >> [...] = obj.simulate (fitdata, ...)
+%
+% (This is useful if you want to simulate the result of a fit without updating the
+% parameter values function-by-function)
 %
 % Output:
 % -------
@@ -144,6 +154,7 @@ if ~ok_sim
     if throw_error, error_message(mess), else, return, end
 end
 
+% Allow for the case of input argument over-riding parameter values for simulation
 if numel(args)==1
     [pfin,ok_sim,mess] = ptrans_par_inverse(args{1}, p_info);
     if ~ok_sim

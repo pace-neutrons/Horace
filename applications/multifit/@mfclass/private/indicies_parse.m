@@ -5,7 +5,7 @@ function [ok,mess,ind] = indicies_parse (ind_in,ndatatot,str)
 %
 % Input:
 % ------
-%   idata_in    List of dataset indicies (row vector)
+%   ind_in      List of dataset indicies (row vector)
 %               This function checks that all indicies are in the range 1
 %              to ndatatot, and that there are no repeated indicies
 %               Can be empty (i.e. []); this is valid even if ndatatot=0
