@@ -214,22 +214,24 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],[-0.1,0.1],0.2);
             obj.save_or_test_performance(ts,['cutE__Small_nw',nwk]);
             
-            % check nopix performance -- read whole file from the HDD
+            % check nopix performance -- read and integrate the whole file from the HDD
+            hs = head_sqw(obj.sqw_file);
+            urng = hs.urange';
             ts = tic();
             proj1 = struct('u',[1,0,0],'v',[0,1,1]);
-            sqw1=cut_sqw(obj.sqw_file,proj1,0.01,[],[],[],'-nopix');
+            sqw1=cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'-nopix');
             obj.save_or_test_performance(ts,['cutH1D_AllInt_fbnw',nwk]);
             
             ts = tic();
-            sqw1=cut_sqw(obj.sqw_file,proj1,[],0.01,[],[],'-nopix');
+            sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'-nopix');
             obj.save_or_test_performance(ts,['cutK1D_AllInt_npnw',nwk]);
             
             ts = tic();
-            sqw1=cut_sqw(obj.sqw_file,proj1,[],[],0.01,[],'-nopix');
+            sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'-nopix');
             obj.save_or_test_performance(ts,['cutL1D_AllInt_npnw',nwk]);
             
             ts = tic();
-            sqw1=cut_sqw(obj.sqw_file,proj1,[],[],[],0.2,'-nopix');
+            sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'-nopix');
             obj.save_or_test_performance(ts,['cutE_AllInt_npnw',nwk]);
             
             
@@ -242,19 +244,19 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             
             ts = tic();
             proj1 = struct('u',[1,0,0],'v',[0,1,1]);
-            cut_sqw(obj.sqw_file,proj1,0.01,[],[],[],'cutH1D_AllInt.sqw');
+            cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'cutH1D_AllInt.sqw');
             obj.save_or_test_performance(ts,['cutH1D_AllInt_fbnw',nwk]);
             
             ts = tic();
-            cut_sqw(obj.sqw_file,proj1,[],0.01,[],[],'cutK1D_AllInt.sqw');
+            cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'cutK1D_AllInt.sqw');
             obj.save_or_test_performance(ts,['cutK1D_AllInt_fbnw',nwk]);
             
             ts = tic();
-            cut_sqw(obj.sqw_file,proj1,[],[],0.01,[],'cutL1D_AllInt.sqw');
+            cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'cutL1D_AllInt.sqw');
             obj.save_or_test_performance(ts,['cutL1D_AllInt_fbnw',nwk]);
             
             ts = tic();
-            cut_sqw(obj.sqw_file,proj1,[],[],[],0.2,'cutE_AllInt.sqw');
+            cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'cutE_AllInt.sqw');
             obj.save_or_test_performance(ts,['cutE_AllInt_fbnw',nwk]);
             
         end
