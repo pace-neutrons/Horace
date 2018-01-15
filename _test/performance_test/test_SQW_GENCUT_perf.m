@@ -195,27 +195,75 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             fb = 'GenSQW_perfTest';
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
         end
-        
+        %--------------------------------------------------------------------------
+        function combine_performance_test(obj,varargin)
+            % this method tests tmp file combine operations only. It can be
+            % deployed after test_gensqw_performance method has been run
+            % with hor_config class delete_tmp option set to false. In this
+            % case tmp files created by gen_sqw method are kept and this
+            % method may test combime operations only.
+            %
+            % Usage:
+            % tob.combine_performance_test([n_workers])
+            % where n_workers, if present, specify the number of parallel
+            % workers to run the test routines with. 
+            %
+            % As this test method violates unit test agreement, demanding
+            % test method independence on each other, it does not start
+            % from the name test to avoid running it by automated test
+            % suites.
+            if nargin == 1
+                n_workers = 0;
+            else
+                n_workers = varargin{1};
+            end
+            clob_wk = check_and_set_workers_(obj,n_workers);
+            
+            
+            
+            function fn = replace_fext(fn)
+                [fp,fn] = fileparts(fn);
+                fn = fullfile(fp,[fn,'.tmp']);
+            end
+            
+            spe_files = obj.test_source_files_list_;
+            tmp_files = cellfun(@(fn)(replace_fext(fn)),spe_files,'UniformOutput',false);
+            
+            % check all tmp files were generated
+            f_exist = cellfun(@(fn)(exist(fn,'file')==2),tmp_files,'UniformOutput',true);
+            
+            assertTrue(all(f_exist),'Some tmp files necessary to run the test do not exist. Can not continue');
+            
+            ts = tic();
+            write_nsqw_to_sqw(tmp_files,obj.sqw_file);
+            
+            obj.save_or_test_performance(ts,['combine_tmp_using_',num2str(n_workers),'_wrkr']);
+            
+            % spurious check to ensure the cleanup object is not deleted
+            % before the end of the test
+            assertTrue(isa(clob_wk,'onCleanup'))
+            
+            obj.rm_files(tmp_files{:});
+            
+        end
         %------------------------------------------------------------------
-        function perf_res= test_gensqw_performance(obj,n_workers)
+        function perf_res= test_gensqw_performance(obj,varargin)
             % test performance (time spent on processing) class-defined
             % number of files using number of workers provided as input
             %
+            % Usage:
+            % tob.combine_performance_test([n_workers])
+            % where n_workers, if present, specify the number of parallel
+            % workers to run the test routines with. 
+            %
             % n_workers>1 sets up parallel file combining.
             % 1 or absent does not change current Horace configuration.
-            if ~exist('n_workers','var')
-                n_workers = 1;
+            if nargin == 1
+                n_workers = 0;
+            else
+                n_workers = varargin{1};
             end
-            hc = hor_config;
-            as = hc.accum_in_separate_process;
-            an = hc.accumulating_process_num;
-            if an > 1
-                clobset = onCleanup(@()set(hc,'accum_in_separate_process',as,'accumulating_process_num',an));
-            end
-            if n_workers>1
-                hc.accum_in_separate_process = true;
-                hc.accumulating_process_num = n_workers;
-            end
+            clob_wk = check_and_set_workers_(obj,n_workers);
             
             nwk = num2str(n_workers);
             efix= 22.8;%incident energy in meV
@@ -301,6 +349,30 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             ts = tic();
             cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'cutE_AllInt.sqw');
             perf_res=obj.save_or_test_performance(ts,['cutE_AllInt_fbnw',nwk]);
+            
+            % spurious check to ensure the cleanup object is not deleted
+            % before the end of the test
+            assertTrue(isa(clob_wk,'onCleanup'))
+        end
+    end
+    methods(Access=private)
+        function clob = check_and_set_workers_(obj,n_workers)
+            % function verifies and sets new number of MPI workers
+            %
+            % returns cleanup object to return the number of temporary
+            % workers to its initial value
+            hc = hor_config;
+            as = hc.accum_in_separate_process;
+            an = hc.accumulating_process_num;
+            if as && an > 1
+                clob = onCleanup(@()set(hc,'accum_in_separate_process',as,'accumulating_process_num',an));
+            else
+                clob = onCleanup(@()(an));
+            end
+            if (n_workers~=0 && ~as)
+                hc.accum_in_separate_process = true;
+                hc.accumulating_process_num = n_workers;
+            end
             
         end
     end
