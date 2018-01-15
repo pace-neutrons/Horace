@@ -199,9 +199,9 @@ function obj = set_bfun(obj,varargin)
 %   c1,c2,...   Any further arguments needed by the function (e.g.
 %              they could be the filenames of lookup tables)
 %
-%     See <a href="matlab:help('example_1d_function');">example_1d_function</a>
-%     See <a href="matlab:help('example_2d_function');">example_2d_function</a>
-%     See <a href="matlab:help('example_3d_function');">example_3d_function</a>
+%     See <a href="matlab:edit('example_1d_function');">example_1d_function</a>
+%     See <a href="matlab:edit('example_2d_function');">example_2d_function</a>
+%     See <a href="matlab:edit('example_3d_function');">example_3d_function</a>
 
 % -----------------------------------------------------------------------------
 % <#doc_def:>

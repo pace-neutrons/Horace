@@ -627,7 +627,7 @@ classdef mfclass_Horace_sqw_sqw < mfclass
         end
 
         function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
-            % Perform a simulation of the data using the current functions and starting parameter values
+            % Perform a simulation of the data using the current functions and parameter values
             %
             % Return calculated sum of foreground and background:
             %   >> [data_out, calcdata] = obj.simulate                % if ok false, throws error
@@ -643,6 +643,16 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             %
             % Continue execution even if an error condition is thrown:
             %   >> [data_out, calcdata, ok, mess] = obj.simulate (...) % if ok false, still returns
+            %
+            % If the results of a previous fit are available, with the same number of foreground
+            % and background functions and parameters, then the fit parameter structure can be
+            % passed as the first argument as the values at which to simulate the output:
+            %   >> [data_out, fitdata] = obj.fit (...)
+            %               :
+            %   >> [...] = obj.simulate (fitdata, ...)
+            %
+            % (This is useful if you want to simulate the result of a fit without updating the
+            % parameter values function-by-function)
             %
             % Output:
             % -------
@@ -717,7 +727,7 @@ classdef mfclass_Horace_sqw_sqw < mfclass
         end
 
         function [data_out, calcdata, ok, mess] = fit (obj)
-            % Perform a fit of the data using the current functions and starting parameter values
+            % Perform a fit of the data using the current functions and parameter values
             %
             % Return calculated fitted datasets and parameters:
             %   >> [data_out, fitdata] = obj.fit                    % if ok false, throws error
@@ -727,6 +737,15 @@ classdef mfclass_Horace_sqw_sqw < mfclass
             %
             % Continue execution even if an error condition is thrown:
             %   >> [data_out, fitdata, ok, mess] = obj.fit (...)    % if ok false, still returns
+            %
+            % If the results of a previous fit are available, with the same number of foreground
+            % and background functions and parameters, then the fit parameter structure can be
+            % passed as the first argument as the initial values at which to satart the fit:
+            %   >> [data_out, fitdata] = obj.fit (...)
+            %               :
+            %   >> [...] = obj.fit (fitdata, ...)
+            %
+            % (This is useful if you want to re-fit starting with the results of an earlier fit)
             %
             %
             % Output:

@@ -1,5 +1,5 @@
 function [data_out, fitdata, ok, mess, varargout] = fit (obj, varargin)
-% Perform a fit of the data using the current functions and starting parameter values
+% Perform a fit of the data using the current functions and parameter values
 %
 % Return calculated fitted datasets and parameters:
 %   >> [data_out, fitdata] = obj.fit                    % if ok false, throws error
@@ -9,6 +9,15 @@ function [data_out, fitdata, ok, mess, varargout] = fit (obj, varargin)
 %
 % Continue execution even if an error condition is thrown:
 %   >> [data_out, fitdata, ok, mess] = obj.fit (...)    % if ok false, still returns
+%
+% If the results of a previous fit are available, with the same number of foreground
+% and background functions and parameters, then the fit parameter structure can be
+% passed as the first argument as the initial values at which to satart the fit:
+%   >> [data_out, fitdata] = obj.fit (...)
+%               :
+%   >> [...] = obj.fit (fitdata, ...)
+%
+% (This is useful if you want to re-fit starting with the results of an earlier fit)
 %
 % If refining crystal orientation:
 %   >> [data_out, fitdata, ok, mess, rlu_corr] = obj.fit (...)
