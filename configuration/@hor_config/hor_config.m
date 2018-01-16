@@ -204,11 +204,7 @@ classdef hor_config<config_base
             accum = get_or_restore_field(this,'accum_in_separate_process');
         end
         function accum = get.accumulating_process_num(this)
-            if ~get_or_restore_field(this,'accum_in_separate_process')
-                accum = 0;
-            else
-                accum = get_or_restore_field(this,'accumulating_process_num');
-            end
+            accum = get_or_restore_field(this,'accumulating_process_num');
         end
         
         %-----------------------------------------------------------------
