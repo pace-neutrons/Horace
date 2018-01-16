@@ -73,9 +73,9 @@ nHkl = size(hkl,2);
 
 % Determines the optimum number of chunks
 if isa(obj,'sw')
-    nMagExt = size(obj.mag_str.S,2);
+    nMagExt = size(obj.magstr.S,2);
 else
-    nMagExt = size(obj.mag_str.S,2);
+    nMagExt = size(obj.magstr.S,2);
 end
 if obj.matrix.horace.optmem == 0
     freeMem = sw_freemem;
