@@ -53,7 +53,7 @@ else
     % set obtained config data into storage.
     try
         if isempty(config_data) % get defaults
-            config_data = class_to_restore.get_data_to_store();
+            config_data = class_to_restore.get_defaults();
         end
     catch ME
         if (strcmp(ME.identifier,'MATLAB:noSuchMethodOrField'))

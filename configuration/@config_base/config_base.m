@@ -155,6 +155,15 @@ classdef config_base
                 value = config_store.instance.get_config_field(this,field_name);
             end
         end
+        function data=get_defaults(this)
+            % method returns the structure with default class data,
+            fields = this.get_storage_field_names();
+            data=struct();
+            for i=1:numel(fields)
+                data.(fields{i}) = get_internal_field(this,fields{i});
+            end
+        end
+        
         %
         function data=get_data_to_store(this)
             % method returns the structure with the data, expected to be stored
@@ -162,7 +171,7 @@ classdef config_base
             fields = this.get_storage_field_names();
             data=struct();
             for i=1:numel(fields)
-                data.(fields{i}) = get_internal_field(this,fields{i});
+                data.(fields{i}) = this.(fields{i});
             end
         end
         %
