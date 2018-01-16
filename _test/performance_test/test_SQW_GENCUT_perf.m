@@ -175,6 +175,9 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
                         test_method_name,run_time/60,old_time/60,...
                         (old_time-run_time)/old_time)
                     %assertEqualToTol(run_time,old_time,'relTol',0.1);
+                else
+                    fprintf('*** Method %s: Run time: %3.2e min;\n',...
+                        test_method_name,run_time/60);                    
                 end
                 test_data.(test_method_name) = run_time;
             end
@@ -195,7 +198,11 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             if obj.n_files_to_use_ < 1
                 obj.n_files_to_use_ = 1;
             end
-            obj.perf_test_name_ = [getComputerName(),'_nf',num2str(obj.n_files_to_use_)];
+            cn = getComputerName();
+            % change computer name on Unix into the form, acceptable as a
+            % field name
+            cn = strrep(cn,'.','_');
+            obj.perf_test_name_ = [cn,'_nf',num2str(obj.n_files_to_use_)];
             filelist = source_nxspe_files_generator(obj.n_files_to_use,...
                 obj.source_data_dir,obj.working_dir,obj.template_file_);
             % delete generated files after the test completed.
@@ -379,6 +386,13 @@ classdef test_SQW_GENCUT_perf < TestCaseWithSave
             %
             % returns cleanup object which returns the number of temporary
             % workers to its initial value on destruction
+			%  if input n_workers == 0, current number of parallel
+            % workers remains unchanged
+			%
+			if n_workers == 0 % keep existing number of workers unchanged
+                clob = onCleanup(@()(0));
+				return;		
+			end
             hc = hor_config;
             as = hc.accum_in_separate_process;
             an = hc.accumulating_process_num;
