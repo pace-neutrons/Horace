@@ -64,7 +64,11 @@ else
                 fig_out=fig_name;
             else
                 h=findobj('Tag',fig_name,'Type','figure');
-                fig_out=h(1);   % most recently active
+                if ~isempty(h)
+                    fig_out=h(1);   % most recently active
+                else
+                    fig_out = [];
+                end
             end
         else
             fig_out=[];
